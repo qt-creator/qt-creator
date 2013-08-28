@@ -51,7 +51,7 @@ QtKitConfigWidget::QtKitConfigWidget(ProjectExplorer::Kit *k, bool sticky) :
     m_combo->addItem(tr("None"), -1);
 
     QtVersionManager *mgr = QtVersionManager::instance();
-    QList<BaseQtVersion *> versions = mgr->validVersions();
+    QList<BaseQtVersion *> versions = mgr->versions();
     QList<int> versionIds;
     foreach (BaseQtVersion *v, versions)
         versionIds.append(v->uniqueId());
@@ -110,20 +110,22 @@ void QtKitConfigWidget::versionsChanged(const QList<int> &added, const QList<int
     foreach (const int id, added) {
         BaseQtVersion *v = mgr->version(id);
         QTC_CHECK(v);
+        if (!v->isValid())
+            continue;
         QTC_CHECK(findQtVersion(id) < 0);
         m_combo->addItem(v->displayName(), id);
     }
     foreach (const int id, removed) {
         int pos = findQtVersion(id);
-        QTC_CHECK(pos >= 0);
-        m_combo->removeItem(pos);
+        if (pos >= 0) // We do not include invalid Qt versions, so do not try to remove those.
+            m_combo->removeItem(pos);
 
     }
     foreach (const int id, changed) {
         BaseQtVersion *v = mgr->version(id);
         int pos = findQtVersion(id);
-        QTC_CHECK(pos >= 0);
-        m_combo->setItemText(pos, v->displayName());
+        if (pos >= 0) // We do not include invalid Qt versions, so do not try to remove those.
+            m_combo->setItemText(pos, v->displayName());
     }
 }
 
