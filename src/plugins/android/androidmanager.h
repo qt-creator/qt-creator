@@ -74,6 +74,7 @@ public:
 
     static QString buildTargetSDK(ProjectExplorer::Target *target);
     static bool setBuildTargetSDK(ProjectExplorer::Target *target, const QString &sdk);
+    static int minimumSDK(ProjectExplorer::Target *target);
 
     static QString targetArch(ProjectExplorer::Target *target);
 

@@ -196,6 +196,24 @@ QString AndroidManager::activityName(ProjectExplorer::Target *target)
     return activityElem.attribute(QLatin1String("android:name"));
 }
 
+int AndroidManager::minimumSDK(ProjectExplorer::Target *target)
+{
+    QDomDocument doc;
+    if (!openManifest(target, doc))
+        return 0;
+    QDomElement manifestElem = doc.documentElement();
+    QDomElement usesSdk = manifestElem.firstChildElement(QLatin1String("uses-sdk"));
+    if (usesSdk.isNull())
+        return 0;
+    if (usesSdk.hasAttribute(QLatin1String("android:minSdkVersion"))) {
+        bool ok;
+        int tmp = usesSdk.attribute(QLatin1String("android:minSdkVersion")).toInt(&ok);
+        if (ok)
+            return tmp;
+    }
+    return 0;
+}
+
 QString AndroidManager::buildTargetSDK(ProjectExplorer::Target *target)
 {
     QVariant v = target->namedSettings(QLatin1String("AndroidManager.TargetSdk"));

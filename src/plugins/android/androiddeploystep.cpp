@@ -96,11 +96,14 @@ void AndroidDeployStep::ctor()
 bool AndroidDeployStep::init()
 {
     m_packageName = AndroidManager::packageName(target());
-    const QString targetSDK = AndroidManager::buildTargetSDK(target());
+    m_deviceAPILevel = AndroidManager::minimumSDK(target());
     m_targetArch = AndroidManager::targetArch(target());
 
-    writeOutput(tr("Please wait, searching for a suitable device for target:%1, ABI:%2").arg(targetSDK).arg(m_targetArch));
-    m_deviceAPILevel = targetSDK.mid(targetSDK.indexOf(QLatin1Char('-')) + 1).toInt();
+    if (m_deviceAPILevel == 0) // minimum api level is unset
+        writeOutput(tr("Please wait, searching for a suitable device for target: ABI:%2").arg(m_targetArch));
+    else
+        writeOutput(tr("Please wait, searching for a suitable device for target: API %1, ABI:%2").arg(m_deviceAPILevel).arg(m_targetArch));
+
     QString error;
     m_deviceSerialNumber = AndroidConfigurations::instance().getDeployDeviceSerialNumber(&m_deviceAPILevel, m_targetArch, &error);
     if (!error.isEmpty())
@@ -196,10 +199,8 @@ QVariantMap AndroidDeployStep::toMap() const
 
 void AndroidDeployStep::cleanLibsOnDevice()
 {
-    const QString targetSDK = AndroidManager::buildTargetSDK(target());
     const QString targetArch = AndroidManager::targetArch(target());
-
-    int deviceAPILevel = targetSDK.mid(targetSDK.indexOf(QLatin1Char('-')) + 1).toInt();
+    int deviceAPILevel = AndroidManager::minimumSDK(target());
     QString deviceSerialNumber = AndroidConfigurations::instance().getDeployDeviceSerialNumber(&deviceAPILevel, targetArch);
     if (deviceSerialNumber.isEmpty()) {
         QString avdName = AndroidConfigurations::instance().findAvd(&deviceAPILevel, targetArch);
@@ -258,8 +259,7 @@ void AndroidDeployStep::kitUpdated(Kit *kit)
 void AndroidDeployStep::installQASIPackage(const QString &packagePath)
 {
     const QString targetArch = AndroidManager::targetArch(target());
-    const QString targetSDK = AndroidManager::buildTargetSDK(target());
-    int deviceAPILevel = targetSDK.mid(targetSDK.indexOf(QLatin1Char('-')) + 1).toInt();
+    int deviceAPILevel = AndroidManager::minimumSDK(target());
     QString deviceSerialNumber = AndroidConfigurations::instance().getDeployDeviceSerialNumber(&deviceAPILevel, targetArch);
     if (deviceSerialNumber.isEmpty()) {
         QString avdName = AndroidConfigurations::instance().findAvd(&deviceAPILevel, targetArch);
