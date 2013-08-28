@@ -44,6 +44,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/kitinformation.h>
 #include <texteditor/texteditoractionhandler.h>
+#include <qt4projectmanager/qt4project.h>
 
 #include <QLineEdit>
 #include <QFileInfo>
@@ -233,7 +234,10 @@ void AndroidManifestEditorWidget::initializePage()
         m_appNameLineEdit = new QLineEdit(applicationGroupBox);
         formLayout->addRow(tr("Application name:"), m_appNameLineEdit);
 
-        m_targetLineEdit = new QLineEdit(applicationGroupBox);
+        m_targetLineEdit = new QComboBox(applicationGroupBox);
+        m_targetLineEdit->setEditable(true);
+        m_targetLineEdit->setDuplicatesEnabled(true);
+        m_targetLineEdit->installEventFilter(this);
         formLayout->addRow(tr("Run:"), m_targetLineEdit);
 
         QHBoxLayout *iconLayout = new QHBoxLayout();
@@ -265,7 +269,7 @@ void AndroidManifestEditorWidget::initializePage()
 
         connect(m_appNameLineEdit, SIGNAL(textEdited(QString)),
                 this, SLOT(setAppName()));
-        connect(m_targetLineEdit, SIGNAL(textEdited(QString)),
+        connect(m_targetLineEdit, SIGNAL(currentTextChanged(QString)),
                 this, SLOT(setDirty()));
 
         connect(m_lIconButton, SIGNAL(clicked()), SLOT(setLDPIIcon()));
@@ -446,6 +450,41 @@ void AndroidManifestEditorWidget::initializePage()
     topLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Fixed, QSizePolicy::MinimumExpanding));
 
     m_overlayWidget = mainWidget;
+}
+
+bool AndroidManifestEditorWidget::eventFilter(QObject *obj, QEvent *event)
+{
+    if (obj == m_targetLineEdit) {
+        if (event->type() == QEvent::FocusIn) {
+            QTimer::singleShot(0, this, SLOT(updateTargetComboBox()));
+        }
+    }
+
+    return TextEditor::PlainTextEditorWidget::eventFilter(obj, event);
+}
+
+void AndroidManifestEditorWidget::updateTargetComboBox()
+{
+    const QString docPath(static_cast<AndroidManifestDocument *>(editor()->document())->filePath());
+    ProjectExplorer::Project *project = androidProject(docPath);
+    QStringList items;
+    if (project) {
+        ProjectExplorer::Kit *kit = project->activeTarget()->kit();
+        if (ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(kit) == Constants::ANDROID_DEVICE_TYPE)
+            items = AndroidManager::availableTargetApplications(project->activeTarget());
+    }
+
+    // QComboBox randomly resets what the user has entered
+    // if all rows are removed, thus we ensure that the current text
+    // is not removed by first adding it and then removing all old rows
+    // and then adding the new rows
+    QString text = m_targetLineEdit->currentText();
+    m_targetLineEdit->addItem(text);
+    while (m_targetLineEdit->count() > 1)
+        m_targetLineEdit->removeItem(0);
+    items.removeDuplicates();
+    items.removeAll(text);
+    m_targetLineEdit->addItems(items);
 }
 
 void AndroidManifestEditorWidget::resizeEvent(QResizeEvent *event)
@@ -745,7 +784,7 @@ void AndroidManifestEditorWidget::syncToWidgets(const QDomDocument &doc)
     QDomElement metadataElem = manifest.firstChildElement(QLatin1String("application")).firstChildElement(QLatin1String("activity")).firstChildElement(QLatin1String("meta-data"));
     while (!metadataElem.isNull()) {
         if (metadataElem.attribute(QLatin1String("android:name")) == QLatin1String("android.app.lib_name")) {
-            m_targetLineEdit->setText(metadataElem.attribute(QLatin1String("android:value")));
+            m_targetLineEdit->setEditText(metadataElem.attribute(QLatin1String("android:value")));
             break;
         }
         metadataElem = metadataElem.nextSiblingElement(QLatin1String("meta-data"));
@@ -836,7 +875,9 @@ void AndroidManifestEditorWidget::syncToEditor()
     setUsesSdk(doc, manifest, m_androidMinSdkVersion->currentText().toInt(),
                m_androidTargetSdkVersion->currentText().toInt());
 
-    setAndroidAppLibName(doc, manifest.firstChildElement(QLatin1String("application")).firstChildElement(QLatin1String("activity")), m_targetLineEdit->text());
+    setAndroidAppLibName(doc, manifest.firstChildElement(QLatin1String("application"))
+                                      .firstChildElement(QLatin1String("activity")),
+                         m_targetLineEdit->currentText());
 
     // permissions
     QDomElement permissionElem = manifest.firstChildElement(QLatin1String("uses-permission"));

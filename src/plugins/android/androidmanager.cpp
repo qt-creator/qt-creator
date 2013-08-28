@@ -304,6 +304,8 @@ QStringList AndroidManager::availableTargetApplications(ProjectExplorer::Target 
 {
     QStringList apps;
     Qt4ProjectManager::Qt4Project *qt4Project = qobject_cast<Qt4ProjectManager::Qt4Project *>(target->project());
+    if (!qt4Project)
+        return apps;
     foreach (Qt4ProjectManager::Qt4ProFileNode *proFile, qt4Project->applicationProFiles()) {
         if (proFile->projectType() == Qt4ProjectManager::ApplicationTemplate) {
             if (proFile->targetInformation().target.startsWith(QLatin1String("lib"))
