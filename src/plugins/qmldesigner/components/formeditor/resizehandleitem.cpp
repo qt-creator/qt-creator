@@ -29,14 +29,14 @@
 
 #include "resizehandleitem.h"
 
+#include <QPainter>
+
 namespace QmlDesigner {
 
 ResizeHandleItem::ResizeHandleItem(QGraphicsItem *parent, const ResizeController &resizeController)
-    : QGraphicsPixmapItem(QPixmap(":/icon/handle/resize_handle.png"), parent),
+    : QGraphicsItem(parent),
     m_weakResizeController(resizeController.toWeakResizeController())
 {
-    setShapeMode(QGraphicsPixmapItem::BoundingRectShape);
-    setOffset(-pixmap().rect().center());
     setFlag(QGraphicsItem::ItemIsMovable, true);
     setFlag(QGraphicsItem::ItemIgnoresTransformations, true);
 }
@@ -53,13 +53,19 @@ void ResizeHandleItem::setHandlePosition(const QPointF & globalPosition, const Q
 
 QRectF ResizeHandleItem::boundingRect() const
 {
-    return QGraphicsPixmapItem::boundingRect().adjusted(-1, -1, 1, 1);
+    return QRectF(- 3., - 3., 7., 7.);
 }
 
-QPainterPath ResizeHandleItem::shape() const
+void ResizeHandleItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    return QGraphicsItem::shape();
+    painter->save();
+    painter->setRenderHint(QPainter::Antialiasing, false);
+    painter->setBrush(QColor(255, 255, 255));
+    painter->drawRect(QRectF(-2., -2., 4., 4.));
+
+    painter->restore();
 }
+
 
 ResizeController ResizeHandleItem::resizeController() const
 {

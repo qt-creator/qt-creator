@@ -30,7 +30,7 @@
 #ifndef RESIZEHANDLEITEM_H
 #define RESIZEHANDLEITEM_H
 
-#include <QGraphicsPixmapItem>
+#include <QGraphicsItem>
 
 #include <qmldesignercorelib_global.h>
 
@@ -38,7 +38,7 @@
 
 namespace QmlDesigner {
 
-class QMLDESIGNERCORE_EXPORT ResizeHandleItem : public QGraphicsPixmapItem
+class QMLDESIGNERCORE_EXPORT ResizeHandleItem : public QGraphicsItem
 {
 public:
     enum
@@ -53,7 +53,7 @@ public:
 
     int type() const;
     QRectF boundingRect() const;
-    QPainterPath shape() const;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
     ResizeController resizeController() const;
 
