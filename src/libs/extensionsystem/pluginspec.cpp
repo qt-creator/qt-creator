@@ -597,8 +597,7 @@ static inline QString msgUnexpectedToken()
 */
 void PluginSpecPrivate::readPluginSpec(QXmlStreamReader &reader)
 {
-    QString element = reader.name().toString();
-    if (element != QLatin1String(PLUGIN)) {
+    if (reader.name() != QLatin1String(PLUGIN)) {
         reader.raiseError(QCoreApplication::translate("PluginSpec", "Expected element '%1' as top level element")
                           .arg(QLatin1String(PLUGIN)));
         return;
@@ -634,8 +633,8 @@ void PluginSpecPrivate::readPluginSpec(QXmlStreamReader &reader)
     while (!reader.atEnd()) {
         reader.readNext();
         switch (reader.tokenType()) {
-        case QXmlStreamReader::StartElement:
-            element = reader.name().toString();
+        case QXmlStreamReader::StartElement: {
+            const QStringRef element = reader.name();
             if (element == QLatin1String(VENDOR))
                 vendor = reader.readElementText().trimmed();
             else if (element == QLatin1String(COPYRIGHT))
@@ -653,7 +652,8 @@ void PluginSpecPrivate::readPluginSpec(QXmlStreamReader &reader)
             else if (element == QLatin1String(ARGUMENTLIST))
                 readArgumentDescriptions(reader);
             else
-                reader.raiseError(msgInvalidElement(name));
+                reader.raiseError(msgInvalidElement(element.toString()));
+        }
             break;
         case QXmlStreamReader::EndDocument:
         case QXmlStreamReader::Comment:
@@ -672,25 +672,22 @@ void PluginSpecPrivate::readPluginSpec(QXmlStreamReader &reader)
 */
 void PluginSpecPrivate::readArgumentDescriptions(QXmlStreamReader &reader)
 {
-    QString element;
     while (!reader.atEnd()) {
         reader.readNext();
         switch (reader.tokenType()) {
         case QXmlStreamReader::StartElement:
-            element = reader.name().toString();
-            if (element == QLatin1String(ARGUMENT))
+            if (reader.name() == QLatin1String(ARGUMENT))
                 readArgumentDescription(reader);
             else
-                reader.raiseError(msgInvalidElement(name));
+                reader.raiseError(msgInvalidElement(reader.name().toString()));
             break;
         case QXmlStreamReader::Comment:
         case QXmlStreamReader::Characters:
             break;
         case QXmlStreamReader::EndElement:
-            element = reader.name().toString();
-            if (element == QLatin1String(ARGUMENTLIST))
+            if (reader.name() == QLatin1String(ARGUMENTLIST))
                 return;
-            reader.raiseError(msgUnexpectedClosing(element));
+            reader.raiseError(msgUnexpectedClosing(reader.name().toString()));
             break;
         default:
             reader.raiseError(msgUnexpectedToken());
@@ -719,7 +716,7 @@ void PluginSpecPrivate::readArgumentDescription(QXmlStreamReader &reader)
 
 bool PluginSpecPrivate::readBooleanValue(QXmlStreamReader &reader, const char *key)
 {
-    const QString valueString = reader.attributes().value(QLatin1String(key)).toString();
+    const QStringRef valueString = reader.attributes().value(QLatin1String(key));
     const bool isOn = valueString.compare(QLatin1String("true"), Qt::CaseInsensitive) == 0;
     if (!valueString.isEmpty() && !isOn
             && valueString.compare(QLatin1String("false"), Qt::CaseInsensitive) != 0) {
@@ -733,25 +730,22 @@ bool PluginSpecPrivate::readBooleanValue(QXmlStreamReader &reader, const char *k
 */
 void PluginSpecPrivate::readDependencies(QXmlStreamReader &reader)
 {
-    QString element;
     while (!reader.atEnd()) {
         reader.readNext();
         switch (reader.tokenType()) {
         case QXmlStreamReader::StartElement:
-            element = reader.name().toString();
-            if (element == QLatin1String(DEPENDENCY))
+            if (reader.name() == QLatin1String(DEPENDENCY))
                 readDependencyEntry(reader);
             else
-                reader.raiseError(msgInvalidElement(name));
+                reader.raiseError(msgInvalidElement(reader.name().toString()));
             break;
         case QXmlStreamReader::Comment:
         case QXmlStreamReader::Characters:
             break;
         case QXmlStreamReader::EndElement:
-            element = reader.name().toString();
-            if (element == QLatin1String(DEPENDENCYLIST))
+            if (reader.name() == QLatin1String(DEPENDENCYLIST))
                 return;
-            reader.raiseError(msgUnexpectedClosing(element));
+            reader.raiseError(msgUnexpectedClosing(reader.name().toString()));
             break;
         default:
             reader.raiseError(msgUnexpectedToken());
@@ -778,7 +772,7 @@ void PluginSpecPrivate::readDependencyEntry(QXmlStreamReader &reader)
     }
     dep.type = PluginDependency::Required;
     if (reader.attributes().hasAttribute(QLatin1String(DEPENDENCY_TYPE))) {
-        QString typeValue = reader.attributes().value(QLatin1String(DEPENDENCY_TYPE)).toString();
+        const QStringRef typeValue = reader.attributes().value(QLatin1String(DEPENDENCY_TYPE));
         if (typeValue == QLatin1String(DEPENDENCY_TYPE_HARD)) {
             dep.type = PluginDependency::Required;
         } else if (typeValue == QLatin1String(DEPENDENCY_TYPE_SOFT)) {
