@@ -32,6 +32,8 @@
 
 #include "vcsbase_global.h"
 
+#include <utils/synchronousprocess.h>
+
 #include <QObject>
 
 QT_BEGIN_NAMESPACE
@@ -69,10 +71,6 @@ public:
     int defaultTimeout() const;
     void setDefaultTimeout(int timeout);
 
-    // Disable Terminal on UNIX (see VCS SSH handling)
-    bool unixTerminalDisabled() const;
-    void setUnixTerminalDisabled(bool);
-
     unsigned flags() const;
     void addFlags(unsigned f);
 
@@ -82,8 +80,15 @@ public:
     QTextCodec *codec() const;
     void setCodec(QTextCodec *codec);
 
+
+    Utils::SynchronousProcessResponse runVcs(const QStringList &arguments, int timeoutMS);
+    // Make sure to not pass through the event loop at all:
+    bool runFullySynchronous(const QStringList &arguments, int timeoutMS,
+                             QByteArray *outputData, QByteArray *errorData);
+
 private:
     void run(QFutureInterface<void> &future);
+    Utils::SynchronousProcessResponse runSynchronous(const QStringList &arguments, int timeoutMS);
 
 signals:
     void output(const QString &);

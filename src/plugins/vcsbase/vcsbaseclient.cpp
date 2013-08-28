@@ -319,7 +319,7 @@ Utils::SynchronousProcessResponse VcsBaseClient::vcsSynchronousExec(
     const QString binary = settings()->binaryPath();
     const int timeoutSec = settings()->intValue(VcsBaseClientSettings::timeoutKey);
     return VcsBase::VcsBasePlugin::runVcs(workingDirectory, binary, args, timeoutSec * 1000,
-                                          VcsBase::VcsBasePlugin::sshPrompt(), flags, outputCodec);
+                                          flags, outputCodec);
 }
 
 void VcsBaseClient::annotate(const QString &workingDir, const QString &file,
@@ -492,7 +492,6 @@ void VcsBaseClient::update(const QString &repositoryRoot, const QString &revisio
     args << revisionSpec(revision) << extraOptions;
     Command *cmd = createCommand(repositoryRoot);
     cmd->setCookie(repositoryRoot);
-    cmd->setUnixTerminalDisabled(VcsBase::VcsBasePlugin::isSshPromptConfigured());
     connect(cmd, SIGNAL(success(QVariant)), this, SIGNAL(changed(QVariant)), Qt::QueuedConnection);
     enqueueJob(cmd, args);
 }

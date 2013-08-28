@@ -2253,7 +2253,6 @@ VcsBase::Command *GitClient::executeGit(const QString &workingDirectory,
     outputWindow()->appendCommand(workingDirectory, settings()->stringValue(GitSettings::binaryPathKey), arguments);
     VcsBase::Command *command = createCommand(workingDirectory, editor, useOutputToWindow, editorLineNumber);
     command->addJob(arguments, settings()->intValue(GitSettings::timeoutKey));
-    command->setUnixTerminalDisabled(false);
     if (expectChanges)
         command->addFlags(VcsBasePlugin::ExpectRepoChanges);
     command->execute();
@@ -2320,8 +2319,7 @@ Utils::SynchronousProcessResponse GitClient::synchronousGit(const QString &worki
 {
     return VcsBasePlugin::runVcs(workingDirectory, gitBinaryPath(), gitArguments,
                                  settings()->intValue(GitSettings::timeoutKey) * 1000,
-                                 processEnvironment(), VcsBase::VcsBasePlugin::sshPrompt(),
-                                 flags, outputCodec);
+                                 flags, outputCodec, processEnvironment());
 }
 
 bool GitClient::fullySynchronousGit(const QString &workingDirectory,
@@ -2330,10 +2328,11 @@ bool GitClient::fullySynchronousGit(const QString &workingDirectory,
                                     QByteArray* errorText,
                                     unsigned flags) const
 {
-    return VcsBasePlugin::runFullySynchronous(workingDirectory, gitBinaryPath(), gitArguments,
-                                              processEnvironment(), outputText, errorText,
-                                              settings()->intValue(GitSettings::timeoutKey) * 1000,
-                                              flags);
+    VcsBase::Command command(gitBinaryPath(), workingDirectory, processEnvironment());
+    command.addFlags(flags);
+    return command.runFullySynchronous(gitArguments,
+                                       settings()->intValue(GitSettings::timeoutKey) * 1000,
+                                       outputText, errorText);
 }
 
 void GitClient::updateSubmodulesIfNeeded(const QString &workingDirectory, bool prompt)

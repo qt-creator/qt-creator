@@ -1237,7 +1237,7 @@ CvsResponse CvsPlugin::runCvs(const QString &workingDirectory,
     // Run, connect stderr to the output window
     const Utils::SynchronousProcessResponse sp_resp =
             runVcs(workingDirectory, executable, m_settings.addOptions(arguments),
-                   timeOut, VcsBase::VcsBasePlugin::sshPrompt(), flags, outputCodec);
+                   timeOut, flags, outputCodec);
 
     response.result = CvsResponse::OtherError;
     response.stdErr = sp_resp.stdErr;

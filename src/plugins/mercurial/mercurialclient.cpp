@@ -146,8 +146,7 @@ bool MercurialClient::synchronousPull(const QString &workingDir, const QString &
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     env.insert(QLatin1String("LANGUAGE"), QLatin1String("C"));
     const Utils::SynchronousProcessResponse resp = VcsBase::VcsBasePlugin::runVcs(
-                workingDir, binary, args, timeoutSec * 1000, env,
-                VcsBase::VcsBasePlugin::sshPrompt(), flags);
+                workingDir, binary, args, timeoutSec * 1000, flags, 0, env);
     const bool ok = resp.result == Utils::SynchronousProcessResponse::Finished;
 
     parsePullOutput(resp.stdOut.trimmed());
@@ -276,8 +275,6 @@ void MercurialClient::incoming(const QString &repositoryRoot, const QString &rep
     VcsBase::VcsBaseEditorWidget *editor = createVcsEditor(Constants::DIFFLOG, title, repositoryRoot,
                                                      true, "incoming", id);
     VcsBase::Command *cmd = createCommand(repository, editor);
-    if (!repository.isEmpty() && VcsBase::VcsBasePlugin::isSshPromptConfigured())
-        cmd->setUnixTerminalDisabled(true);
     enqueueJob(cmd, args);
 }
 
@@ -293,7 +290,6 @@ void MercurialClient::outgoing(const QString &repositoryRoot)
                                                      "outgoing", repositoryRoot);
 
     VcsBase::Command *cmd = createCommand(repositoryRoot, editor);
-    cmd->setUnixTerminalDisabled(VcsBase::VcsBasePlugin::isSshPromptConfigured());
     enqueueJob(cmd, args);
 }
 

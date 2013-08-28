@@ -33,6 +33,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/vcsmanager.h>
+#include <vcsbase/vcsbaseoutputwindow.h>
 #include <utils/synchronousprocess.h>
 #include <utils/runextensions.h>
 
@@ -48,6 +49,8 @@
 #include <QTextCodec>
 
 Q_DECLARE_METATYPE(QVariant)
+
+enum { debugExecution = 0 };
 
 namespace VcsBase {
 namespace Internal {
@@ -70,7 +73,6 @@ public:
     const QString m_workingDirectory;
     const QProcessEnvironment m_environment;
     QVariant m_cookie;
-    bool m_unixTerminalDisabled;
     int m_defaultTimeout;
     unsigned m_flags;
     QTextCodec *m_codec;
@@ -88,7 +90,6 @@ CommandPrivate::CommandPrivate(const QString &binary,
     m_binaryPath(binary),
     m_workingDirectory(workingDirectory),
     m_environment(environment),
-    m_unixTerminalDisabled(false),
     m_defaultTimeout(10),
     m_flags(0),
     m_codec(0),
@@ -144,16 +145,6 @@ int Command::defaultTimeout() const
 void Command::setDefaultTimeout(int timeout)
 {
     d->m_defaultTimeout = timeout;
-}
-
-bool Command::unixTerminalDisabled() const
-{
-    return d->m_unixTerminalDisabled;
-}
-
-void Command::setUnixTerminalDisabled(bool e)
-{
-    d->m_unixTerminalDisabled = e;
 }
 
 unsigned Command::flags() const
@@ -220,12 +211,9 @@ void Command::run(QFutureInterface<void> &future)
     d->m_lastExecSuccess = true;
     for (int j = 0; j < count; j++) {
         const int timeOutSeconds = d->m_jobs.at(j).timeout;
-        Utils::SynchronousProcessResponse resp =
-                VcsBasePlugin::runVcs(d->m_workingDirectory, d->m_binaryPath,
-                                      d->m_jobs.at(j).arguments,
-                                      timeOutSeconds >= 0 ? timeOutSeconds * 1000 : -1,
-                                      d->m_environment, d->m_sshPasswordPrompt,
-                                      d->m_flags, d->m_codec);
+        Utils::SynchronousProcessResponse resp = runVcs(
+                    d->m_jobs.at(j).arguments,
+                    timeOutSeconds >= 0 ? timeOutSeconds * 1000 : -1);
         stdOut += resp.stdOut;
         stdErr += resp.stdErr;
         d->m_lastExecExitCode = resp.exitCode;
@@ -246,6 +234,248 @@ void Command::run(QFutureInterface<void> &future)
 
     // As it is used asynchronously, we need to delete ourselves
     this->deleteLater();
+}
+
+class OutputProxy : public QObject
+{
+    Q_OBJECT
+
+    friend class Command;
+
+public:
+    OutputProxy()
+    {
+        // Users of this class can either be in the GUI thread or in other threads.
+        // Use Qt::AutoConnection to always append in the GUI thread (directly or queued)
+        VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
+        connect(this, SIGNAL(append(QString)), outputWindow, SLOT(append(QString)));
+        connect(this, SIGNAL(appendSilently(QString)), outputWindow, SLOT(appendSilently(QString)));
+        connect(this, SIGNAL(appendError(QString)), outputWindow, SLOT(appendError(QString)));
+        connect(this, SIGNAL(appendCommand(QString,QString,QStringList)),
+                outputWindow, SLOT(appendCommand(QString,QString,QStringList)));
+        connect(this, SIGNAL(appendMessage(QString)), outputWindow, SLOT(appendMessage(QString)));
+    }
+
+signals:
+    void append(const QString &text);
+    void appendSilently(const QString &text);
+    void appendError(const QString &text);
+    void appendCommand(const QString &workingDirectory,
+                       const QString &binary,
+                       const QStringList &args);
+    void appendMessage(const QString &text);
+};
+
+Utils::SynchronousProcessResponse Command::runVcs(const QStringList &arguments, int timeoutMS)
+{
+    Utils::SynchronousProcessResponse response;
+    OutputProxy outputProxy;
+
+    if (d->m_binaryPath.isEmpty()) {
+        response.result = Utils::SynchronousProcessResponse::StartFailed;
+        return response;
+    }
+
+    VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
+
+    if (!(d->m_flags & VcsBasePlugin::SuppressCommandLogging))
+        emit outputProxy.appendCommand(d->m_workingDirectory, d->m_binaryPath, arguments);
+
+    const bool sshPromptConfigured = !d->m_sshPasswordPrompt.isEmpty();
+    if (debugExecution) {
+        QDebug nsp = qDebug().nospace();
+        nsp << "Command::runVcs" << d->m_workingDirectory << d->m_binaryPath << arguments
+                << timeoutMS;
+        if (d->m_flags & VcsBasePlugin::ShowStdOutInLogWindow)
+            nsp << "stdout";
+        if (d->m_flags & VcsBasePlugin::SuppressStdErrInLogWindow)
+            nsp << "suppress_stderr";
+        if (d->m_flags & VcsBasePlugin::SuppressFailMessageInLogWindow)
+            nsp << "suppress_fail_msg";
+        if (d->m_flags & VcsBasePlugin::MergeOutputChannels)
+            nsp << "merge_channels";
+        if (d->m_flags & VcsBasePlugin::SshPasswordPrompt)
+            nsp << "ssh (" << sshPromptConfigured << ')';
+        if (d->m_flags & VcsBasePlugin::SuppressCommandLogging)
+            nsp << "suppress_log";
+        if (d->m_flags & VcsBasePlugin::ForceCLocale)
+            nsp << "c_locale";
+        if (d->m_flags & VcsBasePlugin::FullySynchronously)
+            nsp << "fully_synchronously";
+        if (d->m_flags & VcsBasePlugin::ExpectRepoChanges)
+            nsp << "expect_repo_changes";
+        if (d->m_codec)
+            nsp << " Codec: " << d->m_codec->name();
+    }
+
+    // TODO tell the document manager about expected repository changes
+    //    if (d->m_flags & ExpectRepoChanges)
+    //        Core::DocumentManager::expectDirectoryChange(d->m_workingDirectory);
+    if (d->m_flags & VcsBasePlugin::FullySynchronously) {
+        response = runSynchronous(arguments, timeoutMS);
+    } else {
+        // Run, connect stderr to the output window
+        Utils::SynchronousProcess process;
+        if (!d->m_workingDirectory.isEmpty())
+            process.setWorkingDirectory(d->m_workingDirectory);
+
+        QProcessEnvironment env = d->m_environment;
+        VcsBasePlugin::setProcessEnvironment(&env,
+                                             (d->m_flags & VcsBasePlugin::ForceCLocale),
+                                             d->m_sshPasswordPrompt);
+        process.setProcessEnvironment(env);
+        process.setTimeout(timeoutMS);
+        if (d->m_codec)
+            process.setCodec(d->m_codec);
+
+        // Suppress terminal on UNIX for ssh prompts if it is configured.
+        if (sshPromptConfigured && (d->m_flags & VcsBasePlugin::SshPasswordPrompt))
+            process.setFlags(Utils::SynchronousProcess::UnixTerminalDisabled);
+
+        // connect stderr to the output window if desired
+        if (d->m_flags & VcsBasePlugin::MergeOutputChannels) {
+            process.setProcessChannelMode(QProcess::MergedChannels);
+        } else if (!(d->m_flags & VcsBasePlugin::SuppressStdErrInLogWindow)) {
+            process.setStdErrBufferedSignalsEnabled(true);
+            connect(&process, SIGNAL(stdErrBuffered(QString,bool)), outputWindow, SLOT(appendError(QString)));
+        }
+
+        // connect stdout to the output window if desired
+        if (d->m_flags & VcsBasePlugin::ShowStdOutInLogWindow) {
+            process.setStdOutBufferedSignalsEnabled(true);
+            connect(&process, SIGNAL(stdOutBuffered(QString,bool)), outputWindow, SLOT(append(QString)));
+        }
+
+        process.setTimeOutMessageBoxEnabled(true);
+
+        // Run!
+        response = process.run(d->m_binaryPath, arguments);
+    }
+
+    // Success/Fail message in appropriate window?
+    if (response.result == Utils::SynchronousProcessResponse::Finished) {
+        if (d->m_flags & VcsBasePlugin::ShowSuccessMessage)
+            emit outputProxy.appendMessage(response.exitMessage(d->m_binaryPath, timeoutMS));
+    } else if (!(d->m_flags & VcsBasePlugin::SuppressFailMessageInLogWindow)) {
+        emit outputProxy.appendError(response.exitMessage(d->m_binaryPath, timeoutMS));
+    }
+    if (d->m_flags & VcsBasePlugin::ExpectRepoChanges) {
+        // TODO tell the document manager that the directory now received all expected changes
+        // Core::DocumentManager::unexpectDirectoryChange(d->m_workingDirectory);
+        Core::ICore::vcsManager()->emitRepositoryChanged(d->m_workingDirectory);
+    }
+
+    return response;
+}
+
+Utils::SynchronousProcessResponse Command::runSynchronous(const QStringList &arguments, int timeoutMS)
+{
+    Utils::SynchronousProcessResponse response;
+
+    // Set up process
+    unsigned processFlags = 0;
+    if (!d->m_sshPasswordPrompt.isEmpty() && (d->m_flags & VcsBasePlugin::SshPasswordPrompt))
+        processFlags |= Utils::SynchronousProcess::UnixTerminalDisabled;
+    QSharedPointer<QProcess> process = Utils::SynchronousProcess::createProcess(processFlags);
+    if (!d->m_workingDirectory.isEmpty())
+        process->setWorkingDirectory(d->m_workingDirectory);
+    QProcessEnvironment env = d->m_environment;
+    VcsBasePlugin::setProcessEnvironment(&env,
+                                         (d->m_flags & VcsBasePlugin::ForceCLocale),
+                                         d->m_sshPasswordPrompt);
+    process->setProcessEnvironment(env);
+    if (d->m_flags & VcsBasePlugin::MergeOutputChannels)
+        process->setProcessChannelMode(QProcess::MergedChannels);
+
+    // Start
+    process->start(d->m_binaryPath, arguments, QIODevice::ReadOnly);
+    process->closeWriteChannel();
+    if (!process->waitForStarted()) {
+        response.result = Utils::SynchronousProcessResponse::StartFailed;
+        return response;
+    }
+
+    // process output
+    QByteArray stdOut;
+    QByteArray stdErr;
+    const bool timedOut =
+            !Utils::SynchronousProcess::readDataFromProcess(*process.data(), timeoutMS,
+                                                            &stdOut, &stdErr, true);
+
+    OutputProxy outputProxy;
+    if (!stdErr.isEmpty()) {
+        response.stdErr = Utils::SynchronousProcess::normalizeNewlines(
+                    d->m_codec ? d->m_codec->toUnicode(stdErr) : QString::fromLocal8Bit(stdErr));
+        if (!(d->m_flags & VcsBasePlugin::SuppressStdErrInLogWindow))
+            emit outputProxy.append(response.stdErr);
+    }
+
+    if (!stdOut.isEmpty()) {
+        response.stdOut = Utils::SynchronousProcess::normalizeNewlines(
+                    d->m_codec ? d->m_codec->toUnicode(stdOut) : QString::fromLocal8Bit(stdOut));
+        if (d->m_flags & VcsBasePlugin::ShowStdOutInLogWindow) {
+            if (d->m_flags & VcsBasePlugin::SilentOutput)
+                emit outputProxy.appendSilently(response.stdOut);
+            else
+                emit outputProxy.append(response.stdOut);
+        }
+    }
+
+    // Result
+    if (timedOut) {
+        response.result = Utils::SynchronousProcessResponse::Hang;
+    } else if (process->exitStatus() != QProcess::NormalExit) {
+        response.result = Utils::SynchronousProcessResponse::TerminatedAbnormally;
+    } else {
+        response.result = process->exitCode() == 0 ?
+                          Utils::SynchronousProcessResponse::Finished :
+                          Utils::SynchronousProcessResponse::FinishedError;
+    }
+    return response;
+}
+
+bool Command::runFullySynchronous(const QStringList &arguments, int timeoutMS,
+                                  QByteArray *outputData, QByteArray *errorData)
+{
+    if (d->m_binaryPath.isEmpty())
+        return false;
+
+    OutputProxy outputProxy;
+    if (!(d->m_flags & VcsBasePlugin::SuppressCommandLogging))
+        emit outputProxy.appendCommand(d->m_workingDirectory, d->m_binaryPath, arguments);
+
+    // TODO tell the document manager about expected repository changes
+    // if (d->m_flags & ExpectRepoChanges)
+    //    Core::DocumentManager::expectDirectoryChange(workingDirectory);
+    QProcess process;
+    process.setWorkingDirectory(d->m_workingDirectory);
+    process.setProcessEnvironment(d->m_environment);
+
+    process.start(d->m_binaryPath, arguments);
+    process.closeWriteChannel();
+    if (!process.waitForStarted()) {
+        if (errorData) {
+            const QString msg = QString::fromLatin1("Unable to execute '%1': %2:")
+                                .arg(d->m_binaryPath, process.errorString());
+            *errorData = msg.toLocal8Bit();
+        }
+        return false;
+    }
+
+    if (!Utils::SynchronousProcess::readDataFromProcess(process, timeoutMS, outputData, errorData, true)) {
+        if (errorData)
+            errorData->append(tr("Error: Executable timed out after %1s.").arg(timeoutMS / 1000).toLocal8Bit());
+        Utils::SynchronousProcess::stopProcess(process);
+        return false;
+    }
+
+    if (d->m_flags & VcsBasePlugin::ExpectRepoChanges) {
+        // TODO tell the document manager that the directory now received all expected changes
+        // Core::DocumentManager::unexpectDirectoryChange(workingDirectory);
+        Core::ICore::vcsManager()->emitRepositoryChanged(d->m_workingDirectory);
+    }
+
+    return process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0;
 }
 
 const QVariant &Command::cookie() const
@@ -269,3 +499,5 @@ void Command::setCodec(QTextCodec *codec)
 }
 
 } // namespace VcsBase
+
+#include "command.moc"

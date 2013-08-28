@@ -36,10 +36,10 @@
 
 #include <QSharedDataPointer>
 #include <QList>
+#include <QProcessEnvironment>
 
 QT_BEGIN_NAMESPACE
 class QAction;
-class QProcessEnvironment;
 class QTextCodec;
 QT_END_NAMESPACE
 
@@ -150,7 +150,9 @@ public:
     // Sets up SSH graphical password prompting (note that the latter
     // requires a terminal-less process) and sets LANG to 'C' to force English
     // (suppress LOCALE warnings/parse commands output) if desired.
-    static void setProcessEnvironment(QProcessEnvironment *e, bool forceCLocale);
+    static void setProcessEnvironment(QProcessEnvironment *e,
+                                      bool forceCLocale,
+                                      const QString &sshPasswordPrompt = sshPrompt());
     // Returns SSH prompt configured in settings.
     static QString sshPrompt();
     // Returns whether an SSH prompt is configured.
@@ -176,28 +178,9 @@ public:
                                                     const QString &binary,
                                                     const QStringList &arguments,
                                                     int timeOutMS,
-                                                    QProcessEnvironment env,
-                                                    const QString &sshPasswordPrompt,
                                                     unsigned flags = 0,
-                                                    QTextCodec *outputCodec = 0);
-
-    static Utils::SynchronousProcessResponse runVcs(const QString &workingDir,
-                                                    const QString &binary,
-                                                    const QStringList &arguments,
-                                                    int timeOutMS,
-                                                    const QString &sshPasswordPrompt,
-                                                    unsigned flags = 0,
-                                                    QTextCodec *outputCodec = 0);
-
-    // Make sure to not pass through the event loop at all:
-    static bool runFullySynchronous(const QString &workingDirectory,
-                                    const QString &binary,
-                                    const QStringList &arguments,
-                                    const QProcessEnvironment &env,
-                                    QByteArray* outputText,
-                                    QByteArray *errorText,
-                                    int timeoutMS,
-                                    unsigned flags);
+                                                    QTextCodec *outputCodec = 0,
+                                                    const QProcessEnvironment &env = QProcessEnvironment());
 
     // Utility to run the 'patch' command
     static bool runPatch(const QByteArray &input, const QString &workingDirectory = QString(),
@@ -245,20 +228,6 @@ private slots:
     void slotTestRemoveSnapshot();
 
 private:
-    static void setProcessEnvironment(QProcessEnvironment *e,
-                                      bool forceCLocale,
-                                      const QString &sshPasswordPrompt);
-
-    static Utils::SynchronousProcessResponse runVcsFullySynchronously(
-            const QString &workingDir,
-            const QString &binary,
-            const QStringList &arguments,
-            int timeOutMS,
-            QProcessEnvironment env,
-            const QString &sshPasswordPrompt,
-            unsigned flags,
-            QTextCodec *outputCodec = 0);
-
     VcsBasePluginPrivate *d;
 };
 
