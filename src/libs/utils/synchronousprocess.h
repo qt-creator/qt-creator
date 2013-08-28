@@ -145,6 +145,9 @@ signals:
     void stdOutBuffered(const QString &data, bool firstTime);
     void stdErrBuffered(const QString &data, bool firstTime);
 
+public slots:
+    bool terminate();
+
 private slots:
     void slotTimeout();
     void finished(int exitCode, QProcess::ExitStatus e);

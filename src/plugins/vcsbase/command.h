@@ -80,6 +80,7 @@ public:
     void addJob(const QStringList &arguments);
     void addJob(const QStringList &arguments, int timeout);
     void execute();
+    void terminate();
     bool lastExecutionSuccess() const;
     int lastExecutionExitCode() const;
 
@@ -118,6 +119,7 @@ signals:
     void errorText(const QString &);
     void finished(bool ok, int exitCode, const QVariant &cookie);
     void success(const QVariant &cookie);
+    void doTerminate();
 
 private:
     class Internal::CommandPrivate *const d;

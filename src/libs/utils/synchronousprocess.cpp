@@ -402,6 +402,11 @@ SynchronousProcessResponse SynchronousProcess::run(const QString &binary,
     return  d->m_result;
 }
 
+bool SynchronousProcess::terminate()
+{
+    return stopProcess(d->m_process);
+}
+
 static inline bool askToKill(const QString &binary = QString())
 {
     if (!isGuiThread())

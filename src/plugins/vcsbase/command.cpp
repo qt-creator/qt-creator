@@ -213,6 +213,11 @@ void Command::execute()
     Core::ICore::progressManager()->addTask(task, taskName, binary + QLatin1String(".action"));
 }
 
+void Command::terminate()
+{
+    emit doTerminate();
+}
+
 bool Command::lastExecutionSuccess() const
 {
     return d->m_lastExecSuccess;
@@ -346,8 +351,8 @@ Utils::SynchronousProcessResponse Command::runVcs(const QStringList &arguments, 
     if (d->m_flags & VcsBasePlugin::FullySynchronously) {
         response = runSynchronous(arguments, timeoutMS);
     } else {
-        // Run, connect stderr to the output window
         Utils::SynchronousProcess process;
+        connect(this, SIGNAL(doTerminate()), &process, SLOT(terminate()));
         if (!d->m_workingDirectory.isEmpty())
             process.setWorkingDirectory(d->m_workingDirectory);
 
