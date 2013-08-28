@@ -1,4 +1,5 @@
 QTC_LIB_DEPENDS += utils
+QT += network
 include(../qttest.pri)
 
 DEBUGGERDIR = $$IDE_SOURCE_TREE/src/plugins/debugger

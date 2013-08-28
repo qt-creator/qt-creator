@@ -1,5 +1,6 @@
 
 QTC_LIB_DEPENDS += cplusplus utils
+QT += network
 
 include(../qttest.pri)
 
