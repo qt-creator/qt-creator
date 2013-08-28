@@ -481,6 +481,11 @@ void Kit::makeSticky(Core::Id id)
     d->m_sticky.insert(id);
 }
 
+void Kit::makeUnSticky()
+{
+    d->m_sticky.clear();
+}
+
 void Kit::kitUpdated()
 {
     if (d->m_nestedBlockingLevel > 0 && !d->m_mustNotifyAboutDisplayName) {

@@ -61,6 +61,9 @@ public:
 
     QString ndkToolChainVersion();
 
+    bool secondaryToolChain() const;
+    void setSecondaryToolChain(bool b);
+
 protected:
     QList<ProjectExplorer::Abi> detectSupportedAbis() const;
 
@@ -70,6 +73,8 @@ private:
     AndroidToolChain(const AndroidToolChain &);
 
     QString m_ndkToolChainVersion;
+    bool m_secondaryToolChain;
+
     friend class AndroidToolChainFactory;
 };
 
@@ -110,6 +115,14 @@ public:
 
     static QList<ProjectExplorer::ToolChain *> createToolChainsForNdk(const Utils::FileName &ndkPath);
     static QList<AndroidToolChainInformation> toolchainPathsForNdk(const Utils::FileName &ndkPath);
+
+    static QList<int> versionNumberFromString(const QString &version);
+    static bool versionCompareLess(const QList<int> &a, const QList<int> &b);
+    static bool versionCompareLess(AndroidToolChain *atc, AndroidToolChain *btc);
+    static QList<int> newestToolChainVersionForArch(ProjectExplorer::Abi::Architecture arch);
+private:
+    static QMap<ProjectExplorer::Abi::Architecture, QList<int> > m_newestVersionForArch;
+    static Utils::FileName m_ndkLocation;
 };
 
 } // namespace Internal

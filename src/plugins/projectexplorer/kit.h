@@ -103,6 +103,7 @@ public:
     void setAutoDetected(bool detected);
     void makeSticky();
     void makeSticky(Core::Id id);
+    void makeUnSticky();
 
 private:
     void setSdkProvided(bool sdkProvided);

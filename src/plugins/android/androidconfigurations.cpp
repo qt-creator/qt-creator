@@ -779,6 +779,8 @@ void AndroidConfigurations::updateAutomaticKitList()
     foreach (AndroidToolChain *tc, toolchains) {
         QList<QtSupport::BaseQtVersion *> qtVersions = qtVersionsForArch.value(tc->targetAbi().architecture());
         foreach (QtSupport::BaseQtVersion *qt, qtVersions) {
+            if (tc->secondaryToolChain())
+                continue;
             Kit *newKit = new Kit;
             newKit->setAutoDetected(true);
             newKit->setIconPath(Utils::FileName::fromString(QLatin1String(Constants::ANDROID_SETTINGS_CATEGORY_ICON)));
@@ -809,8 +811,15 @@ void AndroidConfigurations::updateAutomaticKitList()
         }
     }
 
-    foreach (Kit *k, existingKits)
-        KitManager::deregisterKit(k);
+    foreach (Kit *k, existingKits) {
+        ProjectExplorer::ToolChain *tc = ToolChainKitInformation::toolChain(k);
+        if (tc && tc->type() == QLatin1String(Android::Constants::ANDROID_TOOLCHAIN_TYPE)) {
+            k->makeUnSticky();
+            k->setAutoDetected(false);
+        } else {
+            KitManager::deregisterKit(k);
+        }
+    }
 
     foreach (Kit *kit, newKits) {
         AndroidToolChain *tc = static_cast<AndroidToolChain *>(ToolChainKitInformation::toolChain(kit));

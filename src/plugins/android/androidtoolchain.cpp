@@ -32,6 +32,8 @@
 #include "androidconfigurations.h"
 #include "androidqtversion.h"
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
 
@@ -61,9 +63,12 @@ using namespace Utils;
 static const char ANDROID_QT_VERSION_KEY[] = "Qt4ProjectManager.Android.QtVersion";
 static const char ANDROID_NDK_TC_VERION[] = "Qt4ProjectManager.Android.NDK_TC_VERION";
 
+QMap<ProjectExplorer::Abi::Architecture, QList<int> > AndroidToolChainFactory::m_newestVersionForArch;
+Utils::FileName AndroidToolChainFactory::m_ndkLocation;
+
 AndroidToolChain::AndroidToolChain(Abi::Architecture arch, const QString &ndkToolChainVersion, bool autodetected)
     : GccToolChain(QLatin1String(Constants::ANDROID_TOOLCHAIN_ID), autodetected),
-      m_ndkToolChainVersion(ndkToolChainVersion)
+      m_ndkToolChainVersion(ndkToolChainVersion), m_secondaryToolChain(false)
 {
     ProjectExplorer::Abi abi = ProjectExplorer::Abi(arch, ProjectExplorer::Abi::LinuxOS,
                                                     ProjectExplorer::Abi::AndroidLinuxFlavor, ProjectExplorer::Abi::ElfFormat,
@@ -76,12 +81,14 @@ AndroidToolChain::AndroidToolChain(Abi::Architecture arch, const QString &ndkToo
 
 // for fromMap
 AndroidToolChain::AndroidToolChain()
-    : GccToolChain(QLatin1String(Constants::ANDROID_TOOLCHAIN_ID), false)
+    : GccToolChain(QLatin1String(Constants::ANDROID_TOOLCHAIN_ID), false),
+      m_secondaryToolChain(false)
 {
 }
 
 AndroidToolChain::AndroidToolChain(const AndroidToolChain &tc) :
-    GccToolChain(tc), m_ndkToolChainVersion(tc.m_ndkToolChainVersion)
+    GccToolChain(tc), m_ndkToolChainVersion(tc.m_ndkToolChainVersion),
+    m_secondaryToolChain(tc.m_secondaryToolChain)
 { }
 
 AndroidToolChain::~AndroidToolChain()
@@ -194,6 +201,10 @@ bool AndroidToolChain::fromMap(const QVariantMap &data)
         m_ndkToolChainVersion = data.value(QLatin1String(ANDROID_NDK_TC_VERION)).toString();
     }
 
+    AndroidToolChainFactory *factory = ExtensionSystem::PluginManager::getObject<AndroidToolChainFactory>();
+    ProjectExplorer::Abi::Architecture arch = targetAbi().architecture();
+    m_secondaryToolChain = AndroidToolChainFactory::versionCompareLess(AndroidToolChainFactory::versionNumberFromString(m_ndkToolChainVersion),
+                                                                       factory->newestToolChainVersionForArch(arch));
     return isValid();
 }
 
@@ -221,6 +232,16 @@ QString AndroidToolChain::makeCommand(const Utils::Environment &env) const
 QString AndroidToolChain::ndkToolChainVersion()
 {
     return m_ndkToolChainVersion;
+}
+
+bool AndroidToolChain::secondaryToolChain() const
+{
+    return m_secondaryToolChain;
+}
+
+void AndroidToolChain::setSecondaryToolChain(bool b)
+{
+    m_secondaryToolChain = b;
 }
 
 QList<Abi> AndroidToolChain::detectSupportedAbis() const
@@ -297,6 +318,51 @@ QList<AndroidToolChainFactory::AndroidToolChainInformation> AndroidToolChainFact
     return result;
 }
 
+QList<int> AndroidToolChainFactory::versionNumberFromString(const QString &version)
+{
+    QList<int> result;
+    int start = 0;
+    int end = version.length();
+    while (start <= end) {
+        int index = version.indexOf(QLatin1Char('.'), start);
+        if (index == -1)
+            index = end;
+
+        bool ok;
+        int v = version.mid(start, index - start).toInt(&ok);
+        if (!ok) // unparseable, return what we have
+            return result;
+
+        result << v;
+        start = index + 1;
+    }
+    return result;
+}
+
+bool AndroidToolChainFactory::versionCompareLess(const QList<int> &a, const QList<int> &b)
+{
+    int aend = a.length();
+    int bend = b.length();
+    int end = qMax(aend, bend);
+    for (int i = 0; i < end; ++i) {
+        int an = i < aend ? a.at(i) : 0;
+        int bn = i < bend ? b.at(i) : 0;
+        if (an < bn)
+            return true;
+        if (bn < an)
+            return false;
+    }
+    return false;
+}
+
+bool AndroidToolChainFactory::versionCompareLess(AndroidToolChain *atc, AndroidToolChain *btc)
+{
+    QList<int> a = versionNumberFromString(atc->ndkToolChainVersion());
+    QList<int> b = versionNumberFromString(btc->ndkToolChainVersion());
+
+    return versionCompareLess(a, b);
+}
+
 QList<ToolChain *> AndroidToolChainFactory::createToolChainsForNdk(const Utils::FileName &ndkPath)
 {
     QList<ToolChain *> result;
@@ -306,6 +372,8 @@ QList<ToolChain *> AndroidToolChainFactory::createToolChainsForNdk(const Utils::
     FileName path = ndkPath;
     QDirIterator it(path.appendPath(QLatin1String("toolchains")).toString(),
                     QStringList() << QLatin1String("*"), QDir::Dirs);
+    QMap<Abi::Architecture, AndroidToolChain *> newestToolChainForArch;
+
     while (it.hasNext()) {
         const QString &fileName = QFileInfo(it.next()).fileName();
         int idx = versionRegExp.indexIn(fileName);
@@ -320,8 +388,52 @@ QList<ToolChain *> AndroidToolChainFactory::createToolChainsForNdk(const Utils::
         FileName compilerPath = AndroidConfigurations::instance().gccPath(arch, version);
         tc->setCompilerCommand(compilerPath);
         result.append(tc);
+
+        QMap<Abi::Architecture, AndroidToolChain *>::const_iterator it
+                = newestToolChainForArch.constFind(arch);
+        if (it == newestToolChainForArch.constEnd())
+            newestToolChainForArch.insert(arch, tc);
+        else if (versionCompareLess(it.value(), tc))
+            newestToolChainForArch[arch] = tc;
     }
+
+    foreach (ToolChain *tc, result) {
+        AndroidToolChain *atc = static_cast<AndroidToolChain *>(tc);
+        if (newestToolChainForArch.value(atc->targetAbi().architecture()) != atc)
+            atc->setSecondaryToolChain(true);
+    }
+
     return result;
+}
+
+QList<int> AndroidToolChainFactory::newestToolChainVersionForArch(Abi::Architecture arch)
+{
+    if (m_newestVersionForArch.isEmpty()
+            || m_ndkLocation != AndroidConfigurations::instance().config().ndkLocation) {
+        QRegExp versionRegExp(NDKGccVersionRegExp);
+        m_ndkLocation = AndroidConfigurations::instance().config().ndkLocation;
+        FileName path = m_ndkLocation;
+        QDirIterator it(path.appendPath(QLatin1String("toolchains")).toString(),
+                        QStringList() << QLatin1String("*"), QDir::Dirs);
+        while (it.hasNext()) {
+            const QString &fileName = QFileInfo(it.next()).fileName();
+            int idx = versionRegExp.indexIn(fileName);
+            if (idx == -1)
+                continue;
+            QList<int> version = versionNumberFromString(fileName.mid(idx + 1));
+            QString platform = fileName.left(idx);
+            Abi::Architecture arch = AndroidConfigurations::architectureForToolChainPrefix(platform);
+            if (arch == Abi::UnknownArchitecture) // e.g. mipsel which is not yet supported
+                continue;
+            QMap<Abi::Architecture, QList<int> >::const_iterator it
+                    = m_newestVersionForArch.constFind(arch);
+            if (it == m_newestVersionForArch.constEnd())
+                m_newestVersionForArch.insert(arch, version);
+            else if (versionCompareLess(it.value(), version))
+                m_newestVersionForArch[arch] = version;
+        }
+    }
+    return m_newestVersionForArch.value(arch);
 }
 
 } // namespace Internal
