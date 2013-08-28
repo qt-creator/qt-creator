@@ -104,7 +104,15 @@ namespace {
 
     bool androidDevicesLessThan(const AndroidDeviceInfo &dev1, const AndroidDeviceInfo &dev2)
     {
-        return dev1.sdk < dev2.sdk;
+        if (dev1.serialNumber.contains("????") == dev2.serialNumber.contains("????"))
+            return !dev1.serialNumber.contains("????");
+        bool dev1IsEmulator = dev1.serialNumber.startsWith(QLatin1String("emulator"));
+        bool dev2IsEmulator = dev2.serialNumber.startsWith(QLatin1String("emulator"));
+        if (dev1IsEmulator != dev2IsEmulator)
+            return !dev1IsEmulator;
+        if (dev1.sdk != dev2.sdk)
+            return dev1.sdk < dev2.sdk;
+        return dev1.serialNumber < dev2.serialNumber;
     }
 }
 
@@ -425,19 +433,8 @@ QVector<AndroidDeviceInfo> AndroidConfigurations::connectedDevices(QString *erro
 
     // workaround for '????????????' serial numbers:
     // can use "adb -d" when only one usb device attached
-    int usbDevicesNum = 0;
-    QStringList serialNumbers;
     foreach (const QByteArray &device, adbDevs) {
         const QString serialNo = QString::fromLatin1(device.left(device.indexOf('\t')).trimmed());;
-        if (!serialNo.startsWith(QLatin1String("emulator")))
-            ++usbDevicesNum;
-        serialNumbers << serialNo;
-    }
-
-    foreach (const QString &serialNo, serialNumbers) {
-        if (serialNo.contains(QLatin1String("????")) && usbDevicesNum > 1)
-            continue;
-
         dev.serialNumber = serialNo;
         dev.sdk = getSDKVersion(dev.serialNumber);
         dev.cpuAbi = getAbis(dev.serialNumber);
