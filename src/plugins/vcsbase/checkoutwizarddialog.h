@@ -35,7 +35,7 @@
 #include <utils/wizard.h>
 
 namespace VcsBase {
-class AbstractCheckoutJob;
+class Command;
 
 namespace Internal {
 class CheckoutProgressWizardPage;
@@ -48,7 +48,7 @@ public:
     explicit CheckoutWizardDialog(const QList<QWizardPage *> &parameterPages,
                                   QWidget *parent = 0);
 
-    void start(const QSharedPointer<AbstractCheckoutJob> &job);
+    void start(VcsBase::Command *command);
 
 signals:
     void progressPageShown();

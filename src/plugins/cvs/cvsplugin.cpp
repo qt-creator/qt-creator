@@ -225,6 +225,7 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     using namespace Core::Constants;
     using namespace ExtensionSystem;
+    using Core::Command;
 
     initializeVcs(new CvsControl(this));
 

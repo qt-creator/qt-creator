@@ -29,7 +29,6 @@
 
 #include "basecheckoutwizard.h"
 #include "checkoutwizarddialog.h"
-#include "checkoutjobs.h"
 
 #include <coreplugin/featureprovider.h>
 
@@ -215,8 +214,8 @@ QString BaseCheckoutWizard::openProject(const QString &path, QString *errorMessa
 
 void BaseCheckoutWizard::slotProgressPageShown()
 {
-    const QSharedPointer<AbstractCheckoutJob> job = createJob(d->parameterPages, &(d->checkoutPath));
-    d->dialog->start(job);
+    Command *command = createCommand(d->parameterPages, &(d->checkoutPath));
+    d->dialog->start(command);
 }
 
 } // namespace VcsBase

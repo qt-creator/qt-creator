@@ -33,7 +33,6 @@
 #include "gitsettings.h"
 
 #include <coreplugin/editormanager/ieditor.h>
-#include <vcsbase/command.h>
 
 #include <QObject>
 #include <QString>
@@ -52,8 +51,9 @@ namespace Core {
 }
 
 namespace VcsBase {
-    class VcsBaseEditorWidget;
+    class Command;
     class SubmitFileModel;
+    class VcsBaseEditorWidget;
 }
 
 namespace Utils {

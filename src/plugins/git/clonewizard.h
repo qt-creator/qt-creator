@@ -49,8 +49,8 @@ public:
 protected:
     // BaseCheckoutWizard
     QList<QWizardPage*> createParameterPages(const QString &path);
-    QSharedPointer<VcsBase::AbstractCheckoutJob> createJob(const QList<QWizardPage*> &parameterPages,
-                                                           QString *checkoutPath);
+    VcsBase::Command *createCommand(const QList<QWizardPage*> &parameterPages,
+                                    QString *checkoutPath);
 };
 
 } // namespace Internal

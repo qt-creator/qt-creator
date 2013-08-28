@@ -101,6 +101,7 @@ public:
     void setCodec(QTextCodec *codec);
 
     void setProgressParser(ProgressParser *parser);
+    void setProgressiveOutput(bool progressive);
 
     Utils::SynchronousProcessResponse runVcs(const QStringList &arguments, int timeoutMS);
     // Make sure to not pass through the event loop at all:
@@ -113,6 +114,7 @@ private:
 
 private slots:
     void bufferedOutput(const QString &text);
+    void bufferedError(const QString &text);
 
 signals:
     void output(const QString &);

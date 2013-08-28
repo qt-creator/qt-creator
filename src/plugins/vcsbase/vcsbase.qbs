@@ -25,8 +25,6 @@ QtcPlugin {
         "basevcseditorfactory.h",
         "basevcssubmiteditorfactory.cpp",
         "basevcssubmiteditorfactory.h",
-        "checkoutjobs.cpp",
-        "checkoutjobs.h",
         "checkoutprogresswizardpage.cpp",
         "checkoutprogresswizardpage.h",
         "checkoutprogresswizardpage.ui",

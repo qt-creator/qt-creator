@@ -32,7 +32,7 @@
 #include "cvsplugin.h"
 
 #include <coreplugin/iversioncontrol.h>
-#include <vcsbase/checkoutjobs.h>
+#include <vcsbase/command.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsconfigurationpage.h>
 #include <utils/qtcassert.h>
@@ -75,13 +75,13 @@ QList<QWizardPage*> CheckoutWizard::createParameterPages(const QString &path)
     return rc;
 }
 
-QSharedPointer<VcsBase::AbstractCheckoutJob> CheckoutWizard::createJob(const QList<QWizardPage*> &parameterPages,
-                                                                    QString *checkoutPath)
+VcsBase::Command *CheckoutWizard::createCommand(const QList<QWizardPage*> &parameterPages,
+                                                QString *checkoutPath)
 {
     // Collect parameters for the checkout command.
     // CVS does not allow for checking out into a different directory.
     const CheckoutWizardPage *cwp = qobject_cast<const CheckoutWizardPage *>(parameterPages.front());
-    QTC_ASSERT(cwp, return QSharedPointer<VcsBase::AbstractCheckoutJob>());
+    QTC_ASSERT(cwp, return 0);
     const CvsSettings settings = CvsPlugin::instance()->settings();
     const QString binary = settings.cvsBinaryPath;
     QStringList args;
@@ -90,9 +90,10 @@ QSharedPointer<VcsBase::AbstractCheckoutJob> CheckoutWizard::createJob(const QLi
     const QString workingDirectory = cwp->path();
     *checkoutPath = workingDirectory + QLatin1Char('/') + repository;
 
-    VcsBase::ProcessCheckoutJob *job = new VcsBase::ProcessCheckoutJob;
-    job->addStep(binary, settings.addOptions(args), workingDirectory);
-    return QSharedPointer<VcsBase::AbstractCheckoutJob>(job);
+    VcsBase::Command *command = new VcsBase::Command(binary, workingDirectory,
+                                                     QProcessEnvironment::systemEnvironment());
+    command->addJob(settings.addOptions(args), -1);
+    return command;
 }
 
 } // namespace Internal

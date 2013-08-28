@@ -36,7 +36,6 @@
 #include "../gitplugin.h"
 
 #include <coreplugin/iversioncontrol.h>
-#include <vcsbase/checkoutjobs.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsconfigurationpage.h>
 #include <utils/qtcassert.h>
@@ -109,11 +108,11 @@ QList<QWizardPage*> GitoriousCloneWizard::createParameterPages(const QString &pa
     return rc;
 }
 
-QSharedPointer<VcsBase::AbstractCheckoutJob> GitoriousCloneWizard::createJob(const QList<QWizardPage*> &parameterPages,
-                                                                    QString *checkoutPath)
+VcsBase::Command *GitoriousCloneWizard::createCommand(const QList<QWizardPage*> &parameterPages,
+                                                      QString *checkoutPath)
 {
     const Git::CloneWizardPage *cwp = qobject_cast<const Git::CloneWizardPage *>(parameterPages.back());
-    QTC_ASSERT(cwp, return QSharedPointer<VcsBase::AbstractCheckoutJob>());
+    QTC_ASSERT(cwp, return 0);
     return cwp->createCheckoutJob(checkoutPath);
 }
 

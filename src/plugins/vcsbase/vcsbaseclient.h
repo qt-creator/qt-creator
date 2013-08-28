@@ -118,6 +118,7 @@ public:
     virtual QString findTopLevelForFile(const QFileInfo &file) const = 0;
 
     virtual VcsBaseClientSettings *settings() const;
+    virtual QProcessEnvironment processEnvironment() const;
 
 signals:
     void parsedStatus(const QList<VcsBase::VcsBaseClient::StatusItem> &statusList);
@@ -174,8 +175,6 @@ protected:
                                                   const QString &source, bool setSourceCodec,
                                                   const char *registerDynamicProperty,
                                                   const QString &dynamicPropertyValue) const;
-
-    virtual QProcessEnvironment processEnvironment() const;
 
     enum JobOutputBindMode {
         NoOutputBind,

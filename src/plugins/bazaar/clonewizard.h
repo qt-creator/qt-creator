@@ -50,8 +50,8 @@ public:
 
 protected:
     QList<QWizardPage *> createParameterPages(const QString &path);
-    QSharedPointer<VcsBase::AbstractCheckoutJob> createJob(const QList<QWizardPage *> &parameterPages,
-                                                           QString *checkoutPath);
+    VcsBase::Command *createCommand(const QList<QWizardPage *> &parameterPages,
+                                    QString *checkoutPath);
 
 private:
     const QIcon m_icon;

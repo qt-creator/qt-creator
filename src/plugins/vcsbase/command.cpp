@@ -99,6 +99,8 @@ public:
     QTextCodec *m_codec;
     const QString m_sshPasswordPrompt;
     ProgressParser *m_progressParser;
+    VcsBase::VcsBaseOutputWindow *m_outputWindow;
+    bool m_progressiveOutput;
 
     QList<Job> m_jobs;
 
@@ -117,6 +119,8 @@ CommandPrivate::CommandPrivate(const QString &binary,
     m_codec(0),
     m_sshPasswordPrompt(VcsBasePlugin::sshPrompt()),
     m_progressParser(0),
+    m_outputWindow(VcsBase::VcsBaseOutputWindow::instance()),
+    m_progressiveOutput(false),
     m_lastExecSuccess(false),
     m_lastExecExitCode(-1)
 {
@@ -258,9 +262,11 @@ void Command::run(QFutureInterface<void> &future)
     }
 
     if (!future.isCanceled()) {
-        emit output(stdOut);
-        if (!stdErr.isEmpty())
-            emit errorText(stdErr);
+        if (!d->m_progressiveOutput) {
+            emit output(stdOut);
+            if (!stdErr.isEmpty())
+                emit errorText(stdErr);
+        }
 
         emit finished(d->m_lastExecSuccess, d->m_lastExecExitCode, cookie());
         if (d->m_lastExecSuccess)
@@ -312,8 +318,6 @@ Utils::SynchronousProcessResponse Command::runVcs(const QStringList &arguments, 
         response.result = Utils::SynchronousProcessResponse::StartFailed;
         return response;
     }
-
-    VcsBase::VcsBaseOutputWindow *outputWindow = VcsBase::VcsBaseOutputWindow::instance();
 
     if (!(d->m_flags & VcsBasePlugin::SuppressCommandLogging))
         emit outputProxy.appendCommand(d->m_workingDirectory, d->m_binaryPath, arguments);
@@ -372,16 +376,19 @@ Utils::SynchronousProcessResponse Command::runVcs(const QStringList &arguments, 
         // connect stderr to the output window if desired
         if (d->m_flags & VcsBasePlugin::MergeOutputChannels) {
             process.setProcessChannelMode(QProcess::MergedChannels);
-        } else if (!(d->m_flags & VcsBasePlugin::SuppressStdErrInLogWindow)) {
+        } else if (d->m_progressiveOutput
+                   || !(d->m_flags & VcsBasePlugin::SuppressStdErrInLogWindow)) {
             process.setStdErrBufferedSignalsEnabled(true);
-            connect(&process, SIGNAL(stdErrBuffered(QString,bool)), outputWindow, SLOT(appendError(QString)));
+            connect(&process, SIGNAL(stdErrBuffered(QString,bool)),
+                    this, SLOT(bufferedError(QString)));
         }
 
         // connect stdout to the output window if desired
-        process.setStdOutBufferedSignalsEnabled(true);
-        connect(&process, SIGNAL(stdOutBuffered(QString,bool)), this, SLOT(bufferedOutput(QString)));
-        if (d->m_flags & VcsBasePlugin::ShowStdOutInLogWindow)
-            connect(&process, SIGNAL(stdOutBuffered(QString,bool)), outputWindow, SLOT(append(QString)));
+        if (d->m_progressParser || d->m_progressiveOutput
+                || (d->m_flags & VcsBasePlugin::ShowStdOutInLogWindow)) {
+            process.setStdOutBufferedSignalsEnabled(true);
+            connect(&process, SIGNAL(stdOutBuffered(QString,bool)), this, SLOT(bufferedOutput(QString)));
+        }
 
         process.setTimeOutMessageBoxEnabled(true);
 
@@ -519,6 +526,18 @@ void Command::bufferedOutput(const QString &text)
 {
     if (d->m_progressParser)
         d->m_progressParser->parseProgress(text);
+    if (d->m_flags & VcsBasePlugin::ShowStdOutInLogWindow)
+        d->m_outputWindow->append(text);
+    if (d->m_progressiveOutput)
+        emit output(text);
+}
+
+void Command::bufferedError(const QString &text)
+{
+    if (!(d->m_flags & VcsBasePlugin::SuppressStdErrInLogWindow))
+        d->m_outputWindow->appendError(text);
+    if (d->m_progressiveOutput)
+        emit errorText(text);
 }
 
 const QVariant &Command::cookie() const
@@ -546,6 +565,11 @@ void Command::setProgressParser(ProgressParser *parser)
 {
     QTC_ASSERT(!d->m_progressParser, return);
     d->m_progressParser = parser;
+}
+
+void Command::setProgressiveOutput(bool progressive)
+{
+    d->m_progressiveOutput = progressive;
 }
 
 ProgressParser::ProgressParser() :

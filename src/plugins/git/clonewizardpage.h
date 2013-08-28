@@ -35,7 +35,7 @@
 #include <QSharedPointer>
 
 namespace VcsBase {
-    class AbstractCheckoutJob;
+    class Command;
 }
 
 namespace Git {
@@ -50,7 +50,7 @@ public:
     explicit CloneWizardPage(QWidget *parent = 0);
     ~CloneWizardPage();
 
-    QSharedPointer<VcsBase::AbstractCheckoutJob> createCheckoutJob(QString *checkoutPath) const;
+    VcsBase::Command *createCheckoutJob(QString *checkoutPath) const;
 
 protected:
     QString directoryFromRepository(const QString &r) const;

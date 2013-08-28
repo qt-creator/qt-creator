@@ -34,7 +34,7 @@
 #include <QWizardPage>
 
 namespace VcsBase {
-class AbstractCheckoutJob;
+class Command;
 
 namespace Internal {
 
@@ -50,7 +50,7 @@ public:
     explicit CheckoutProgressWizardPage(QWidget *parent = 0);
     ~CheckoutProgressWizardPage();
 
-    void start(const QSharedPointer<AbstractCheckoutJob> &job);
+    void start(Command *command);
 
     virtual bool isComplete() const;
     bool isRunning() const{ return m_state == Running; }
@@ -61,12 +61,15 @@ signals:
     void terminated(bool success);
 
 private slots:
-    void slotFailed(const QString &);
-    void slotSucceeded();
+    void slotFinished(bool ok, int exitCode, const QVariant &cookie);
+    void slotOutput(const QString &text);
+    void slotError(const QString &text);
 
 private:
     Ui::CheckoutProgressWizardPage *ui;
-    QSharedPointer<AbstractCheckoutJob> m_job;
+
+    Command *m_command;
+    QString m_error;
 
     State m_state;
 };
