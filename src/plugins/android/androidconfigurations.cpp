@@ -392,7 +392,12 @@ QString AndroidConfigurations::getDeployDeviceSerialNumber(int *apiLevel, const 
     QVector<AndroidDeviceInfo> devices = connectedDevices(error);
 
     foreach (AndroidDeviceInfo device, devices) {
-        if (!device.cpuAbi.contains(abi)) {
+        if (device.unauthorized) {
+            if (error) {
+                *error += tr("Skipping %1: Unauthorized. Please check the confirmation dialog on your device..").arg(device.serialNumber);
+                *error += QLatin1Char('\n');
+            }
+        } else if (!device.cpuAbi.contains(abi)) {
             if (error) {
                 *error += tr("Skipping %1: ABI is incompatible, device supports ABIs: %2.")
                     .arg(getProductModel(device.serialNumber))
@@ -429,17 +434,20 @@ QVector<AndroidDeviceInfo> AndroidConfigurations::connectedDevices(QString *erro
     }
     QList<QByteArray> adbDevs = adbProc.readAll().trimmed().split('\n');
     adbDevs.removeFirst();
-    AndroidDeviceInfo dev;
 
     // workaround for '????????????' serial numbers:
     // can use "adb -d" when only one usb device attached
     foreach (const QByteArray &device, adbDevs) {
-        const QString serialNo = QString::fromLatin1(device.left(device.indexOf('\t')).trimmed());;
+        const QString serialNo = QString::fromLatin1(device.left(device.indexOf('\t')).trimmed());
+        const QString deviceType = QString::fromLatin1(device.mid(device.indexOf('\t'))).trimmed();
+        AndroidDeviceInfo dev;
         dev.serialNumber = serialNo;
         dev.sdk = getSDKVersion(dev.serialNumber);
         dev.cpuAbi = getAbis(dev.serialNumber);
+        dev.unauthorized = (deviceType == QLatin1String("unauthorized"));
         devices.push_back(dev);
     }
+
     qSort(devices.begin(), devices.end(), androidDevicesLessThan);
     if (devices.isEmpty() && error)
         *error = tr("No devices found in output of: %1").arg(adbToolPath().toString() + QLatin1String(" devices"));
@@ -544,6 +552,7 @@ QVector<AndroidDeviceInfo> AndroidConfigurations::androidVirtualDevices() const
         // armeabi-v7a devices can also run armeabi code
         if (dev.cpuAbi == QStringList(QLatin1String("armeabi-v7a")))
             dev.cpuAbi << QLatin1String("armeabi");
+        dev.unauthorized = false;
         devices.push_back(dev);
     }
     qSort(devices.begin(), devices.end(), androidDevicesLessThan);
