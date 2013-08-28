@@ -96,7 +96,7 @@ void AndroidDeployStep::ctor()
 bool AndroidDeployStep::init()
 {
     m_packageName = AndroidManager::packageName(target());
-    const QString targetSDK = AndroidManager::targetSDK(target());
+    const QString targetSDK = AndroidManager::buildTargetSDK(target());
     m_targetArch = AndroidManager::targetArch(target());
 
     writeOutput(tr("Please wait, searching for a suitable device for target:%1, ABI:%2").arg(targetSDK).arg(m_targetArch));
@@ -196,7 +196,7 @@ QVariantMap AndroidDeployStep::toMap() const
 
 void AndroidDeployStep::cleanLibsOnDevice()
 {
-    const QString targetSDK = AndroidManager::targetSDK(target());
+    const QString targetSDK = AndroidManager::buildTargetSDK(target());
     const QString targetArch = AndroidManager::targetArch(target());
 
     int deviceAPILevel = targetSDK.mid(targetSDK.indexOf(QLatin1Char('-')) + 1).toInt();
@@ -258,7 +258,7 @@ void AndroidDeployStep::kitUpdated(Kit *kit)
 void AndroidDeployStep::installQASIPackage(const QString &packagePath)
 {
     const QString targetArch = AndroidManager::targetArch(target());
-    const QString targetSDK = AndroidManager::targetSDK(target());
+    const QString targetSDK = AndroidManager::buildTargetSDK(target());
     int deviceAPILevel = targetSDK.mid(targetSDK.indexOf(QLatin1Char('-')) + 1).toInt();
     QString deviceSerialNumber = AndroidConfigurations::instance().getDeployDeviceSerialNumber(&deviceAPILevel, targetArch);
     if (deviceSerialNumber.isEmpty()) {

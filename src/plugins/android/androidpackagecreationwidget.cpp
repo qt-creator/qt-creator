@@ -198,7 +198,7 @@ void AndroidPackageCreationWidget::updateAndroidProjectInfo()
 
     QStringList targets = AndroidConfigurations::instance().sdkTargets(minApiLevel);
     m_ui->targetSDKComboBox->addItems(targets);
-    m_ui->targetSDKComboBox->setCurrentIndex(targets.indexOf(AndroidManager::targetSDK(target)));
+    m_ui->targetSDKComboBox->setCurrentIndex(targets.indexOf(AndroidManager::buildTargetSDK(target)));
 
     m_qtLibsModel->setAvailableItems(AndroidManager::availableQtLibs(target));
     m_qtLibsModel->setCheckedItems(AndroidManager::qtLibs(target));
@@ -208,7 +208,7 @@ void AndroidPackageCreationWidget::updateAndroidProjectInfo()
 
 void AndroidPackageCreationWidget::setTargetSDK(const QString &sdk)
 {
-    AndroidManager::setTargetSDK(m_step->target(), sdk);
+    AndroidManager::setBuildTargetSDK(m_step->target(), sdk);
     Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(m_step->target()->activeBuildConfiguration());
     if (!bc)
         return;

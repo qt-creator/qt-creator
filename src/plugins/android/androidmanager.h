@@ -72,8 +72,8 @@ public:
     static bool updateDeploymentSettings(ProjectExplorer::Target *target);
     static bool bundleQt(ProjectExplorer::Target *target);
 
-    static QString targetSDK(ProjectExplorer::Target *target);
-    static bool setTargetSDK(ProjectExplorer::Target *target, const QString &sdk);
+    static QString buildTargetSDK(ProjectExplorer::Target *target);
+    static bool setBuildTargetSDK(ProjectExplorer::Target *target, const QString &sdk);
 
     static QString targetArch(ProjectExplorer::Target *target);
 
@@ -86,7 +86,7 @@ public:
     static Utils::FileName apkPath(ProjectExplorer::Target *target, BuildType buildType);
 
     static bool createAndroidTemplatesIfNecessary(ProjectExplorer::Target *target);
-    static void updateTarget(ProjectExplorer::Target *target, const QString &targetSDK,
+    static void updateTarget(ProjectExplorer::Target *target, const QString &buildTargetSDK,
                              const QString &name = QString());
 
     static Utils::FileName localLibsRulesFilePath(ProjectExplorer::Target *target);

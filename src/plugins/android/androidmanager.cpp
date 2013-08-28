@@ -196,7 +196,7 @@ QString AndroidManager::activityName(ProjectExplorer::Target *target)
     return activityElem.attribute(QLatin1String("android:name"));
 }
 
-QString AndroidManager::targetSDK(ProjectExplorer::Target *target)
+QString AndroidManager::buildTargetSDK(ProjectExplorer::Target *target)
 {
     QVariant v = target->namedSettings(QLatin1String("AndroidManager.TargetSdk"));
     if (v.isValid())
@@ -221,7 +221,7 @@ QString AndroidManager::targetSDK(ProjectExplorer::Target *target)
     return AndroidConfigurations::instance().bestMatch(fallback);
 }
 
-bool AndroidManager::setTargetSDK(ProjectExplorer::Target *target, const QString &sdk)
+bool AndroidManager::setBuildTargetSDK(ProjectExplorer::Target *target, const QString &sdk)
 {
     updateTarget(target, sdk, applicationName(target));
     target->setNamedSettings(QLatin1String("AndroidManager.TargetSdk"), sdk);

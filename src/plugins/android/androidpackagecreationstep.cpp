@@ -161,7 +161,7 @@ bool AndroidPackageCreationStep::init()
     if (!AndroidManager::createAndroidTemplatesIfNecessary(target()))
         return false;
 
-    AndroidManager::updateTarget(target(), AndroidManager::targetSDK(target()), AndroidManager::applicationName(target()));
+    AndroidManager::updateTarget(target(), AndroidManager::buildTargetSDK(target()), AndroidManager::applicationName(target()));
     m_antToolPath = AndroidConfigurations::instance().antToolPath();
     m_apkPathUnsigned = AndroidManager::apkPath(target(), AndroidManager::ReleaseBuildUnsigned);
     m_apkPathSigned = AndroidManager::apkPath(target(), AndroidManager::ReleaseBuildSigned);
