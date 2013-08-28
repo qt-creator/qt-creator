@@ -141,6 +141,7 @@ QString AndroidQtVersion::targetArch() const
 void AndroidQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
 {
     m_targetArch = evaluator->value(QLatin1String("ANDROID_TARGET_ARCH"));
+    BaseQtVersion::parseMkSpec(evaluator);
 }
 
 Core::FeatureSet AndroidQtVersion::availableFeatures() const
