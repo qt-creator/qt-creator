@@ -104,8 +104,8 @@ namespace {
 
     bool androidDevicesLessThan(const AndroidDeviceInfo &dev1, const AndroidDeviceInfo &dev2)
     {
-        if (dev1.serialNumber.contains("????") == dev2.serialNumber.contains("????"))
-            return !dev1.serialNumber.contains("????");
+        if (dev1.serialNumber.contains(QLatin1String("????")) == dev2.serialNumber.contains(QLatin1String("????")))
+            return !dev1.serialNumber.contains(QLatin1String("????"));
         bool dev1IsEmulator = dev1.serialNumber.startsWith(QLatin1String("emulator"));
         bool dev2IsEmulator = dev2.serialNumber.startsWith(QLatin1String("emulator"));
         if (dev1IsEmulator != dev2IsEmulator)
