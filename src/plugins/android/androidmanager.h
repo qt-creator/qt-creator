@@ -33,6 +33,7 @@
 #include <utils/fileutils.h>
 
 #include <QDomDocument>
+#include <QPair>
 #include <QObject>
 #include <QStringList>
 
