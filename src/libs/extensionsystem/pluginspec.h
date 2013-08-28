@@ -38,6 +38,7 @@
 
 QT_BEGIN_NAMESPACE
 class QStringList;
+class QRegExp;
 QT_END_NAMESPACE
 
 namespace ExtensionSystem {
@@ -90,6 +91,7 @@ public:
     QString description() const;
     QString url() const;
     QString category() const;
+    QRegExp platformSpecification() const;
     bool isExperimental() const;
     bool isDisabledByDefault() const;
     bool isEnabledInSettings() const;

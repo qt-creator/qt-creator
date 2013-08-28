@@ -15,6 +15,9 @@
 <xsl:template match="vendor">
 "Vendor" : "<xsl:apply-templates/>",
 </xsl:template>
+<xsl:template match="platform">
+"Platform" : "<xsl:apply-templates/>",
+</xsl:template>
 <xsl:template match="category">
 "Category" : "<xsl:apply-templates/>",
 </xsl:template>

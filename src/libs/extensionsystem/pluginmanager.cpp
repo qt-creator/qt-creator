@@ -38,6 +38,7 @@
 #include <QEventLoop>
 #include <QDateTime>
 #include <QDir>
+#include <QFile>
 #include <QMetaProperty>
 #include <QSettings>
 #include <QTextStream>
@@ -45,6 +46,7 @@
 #include <QWriteLocker>
 #include <QDebug>
 #include <QTimer>
+#include <QSysInfo>
 
 #ifdef WITH_TESTS
 #include <QTest>
@@ -1327,6 +1329,77 @@ void PluginManagerPrivate::profilingSummary() const
                 it2.key(), 100.0 * it2.key() / total);
          qDebug("Total: %8dms", total);
     }
+}
+
+static inline QString getPlatformName()
+{
+#if defined(Q_OS_MAC)
+    QString result = QLatin1String("Mac OS");
+    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_0)
+        result += QLatin1String(" 10.") + QString::number(QSysInfo::MacintoshVersion - QSysInfo::MV_10_0);
+    return result;
+#elif defined(Q_OS_UNIX)
+    QFile osReleaseFile(QLatin1String("/etc/os-release")); // Newer Linuxes
+    if (osReleaseFile.open(QIODevice::ReadOnly)) {
+        QString name;
+        QString version;
+        forever {
+            const QByteArray line = osReleaseFile.readLine();
+            if (line.isEmpty())
+                break;
+            if (line.startsWith("NAME=\""))
+                name = QString::fromLatin1(line.mid(6, line.size() - 8)).trimmed();
+            if (line.startsWith("VERSION_ID=\""))
+                version = QString::fromLatin1(line.mid(12, line.size() - 14)).trimmed();
+        }
+        if (!name.isEmpty()) {
+            if (!version.isEmpty())
+                name += QLatin1Char(' ') + version;
+            return name;
+        }
+    }
+    QFile issueFile(QLatin1String("/etc/issue")); // Older Linuxes
+    if (issueFile.open(QIODevice::ReadOnly)) {
+        QByteArray issue = issueFile.readAll();
+        const int end = issue.lastIndexOf(" \\n");
+        if (end >= 0)
+            issue.truncate(end);
+        return QString::fromLatin1(issue).trimmed();
+    }
+#  ifdef Q_OS_LINUX
+    return QLatin1String("Linux");
+#  else
+    return QLatin1String("Unix");
+#  endif // Q_OS_LINUX
+#elif defined(Q_OS_WIN)
+    QString result = QLatin1String("Windows");
+    switch (QSysInfo::WindowsVersion) {
+    case QSysInfo::WV_XP:
+        result += QLatin1String(" XP");
+        break;
+    case QSysInfo::WV_2003:
+        result += QLatin1String(" 2003");
+        break;
+    case QSysInfo::WV_VISTA:
+        result += QLatin1String(" Vista");
+        break;
+    case QSysInfo::WV_WINDOWS7:
+        result += QLatin1String(" 7");
+        break;
+    default:
+        break;
+    }
+    if (QSysInfo::WindowsVersion >= QSysInfo::WV_WINDOWS8)
+        result += QLatin1String(" 8");
+    return result;
+#endif // Q_OS_WIN
+    return QLatin1String("Unknown");
+}
+
+QString PluginManager::platformName()
+{
+    static const QString result = getPlatformName();
+    return result;
 }
 
 /*!

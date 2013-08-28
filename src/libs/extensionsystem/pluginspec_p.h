@@ -36,6 +36,7 @@
 #include <QObject>
 #include <QStringList>
 #include <QXmlStreamReader>
+#include <QRegExp>
 
 namespace ExtensionSystem {
 
@@ -72,6 +73,7 @@ public:
     QString description;
     QString url;
     QString category;
+    QRegExp platformSpecification;
     QList<PluginDependency> dependencies;
     bool enabledInSettings;
     bool disabledIndirectly;

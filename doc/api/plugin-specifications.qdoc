@@ -102,6 +102,10 @@
             \o copyright
             \o A short copyright notice, like \c{(C) 2007-2008 MyCompany}.
         \row
+            \o platform
+            \o A regular expression that matches the names of the platforms the plugin works on.
+               Omitting the tag implies that the plugin is loaded on all platforms.
+        \row
             \o license
             \o Possibly multi-line license information about the plugin.
                Should still be kept relatively short, since the UI is not

@@ -128,6 +128,8 @@ public:
 
     static void profilingReport(const char *what, const PluginSpec *spec = 0);
 
+    static QString platformName();
+
 signals:
     void objectAdded(QObject *obj);
     void aboutToRemoveObject(QObject *obj);

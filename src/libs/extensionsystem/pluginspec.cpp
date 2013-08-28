@@ -253,6 +253,16 @@ QString PluginSpec::category() const
 }
 
 /*!
+    A QRegExp matching the platforms this plugin works on. An empty pattern implies all platforms.
+    \since 3.0
+*/
+
+QRegExp PluginSpec::platformSpecification() const
+{
+    return d->platformSpecification;
+}
+
+/*!
     Returns if the plugin has its experimental flag set.
 */
 bool PluginSpec::isExperimental() const
@@ -287,9 +297,12 @@ bool PluginSpec::isEnabledInSettings() const
 */
 bool PluginSpec::isEffectivelyEnabled() const
 {
-    return !d->disabledIndirectly
-            && (d->enabledInSettings || d->forceEnabled)
-            && !d->forceDisabled;
+    if (d->disabledIndirectly
+        || (!d->enabledInSettings && !d->forceEnabled)
+        || d->forceDisabled) {
+        return false;
+    }
+    return d->platformSpecification.isEmpty() || d->platformSpecification.exactMatch(PluginManager::platformName());
 }
 
 /*!
@@ -450,6 +463,7 @@ namespace {
     const char DESCRIPTION[] = "description";
     const char URL[] = "url";
     const char CATEGORY[] = "category";
+    const char PLATFORM[] = "platform";
     const char DEPENDENCYLIST[] = "dependencyList";
     const char DEPENDENCY[] = "dependency";
     const char DEPENDENCY_NAME[] = "name";
@@ -647,7 +661,16 @@ void PluginSpecPrivate::readPluginSpec(QXmlStreamReader &reader)
                 url = reader.readElementText().trimmed();
             else if (element == QLatin1String(CATEGORY))
                 category = reader.readElementText().trimmed();
-            else if (element == QLatin1String(DEPENDENCYLIST))
+            else if (element == QLatin1String(PLATFORM)) {
+                const QString platformSpec = reader.readElementText().trimmed();
+                if (!platformSpec.isEmpty()) {
+                    platformSpecification.setPattern(platformSpec);
+                    if (!platformSpecification.isValid())
+                        reader.raiseError(QLatin1String("Invalid platform specification \"")
+                                          + platformSpec + QLatin1String("\": ")
+                                          + platformSpecification.errorString());
+                }
+            } else if (element == QLatin1String(DEPENDENCYLIST))
                 readDependencies(reader);
             else if (element == QLatin1String(ARGUMENTLIST))
                 readArgumentDescriptions(reader);
