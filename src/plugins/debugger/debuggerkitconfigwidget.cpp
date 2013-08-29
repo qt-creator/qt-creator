@@ -935,7 +935,7 @@ void DebuggerKitConfigWidget::manageDebuggers()
 
 void DebuggerKitConfigWidget::currentDebuggerChanged(int)
 {
-    m_kit->setValue(DEBUGGER_INFORMATION, m_comboBox->currentData());
+    m_kit->setValue(DEBUGGER_INFORMATION, m_comboBox->itemData(m_comboBox->currentIndex()));
 }
 
 void DebuggerKitConfigWidget::onDebuggerAdded(DebuggerItem *item)
