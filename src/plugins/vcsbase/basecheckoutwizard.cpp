@@ -72,6 +72,8 @@ public:
     QList<QWizardPage *> parameterPages;
     QString checkoutPath;
     QString id;
+    QString progressTitle;
+    QString startedStatus;
 };
 
 void BaseCheckoutWizardPrivate::clear()
@@ -130,6 +132,10 @@ void BaseCheckoutWizard::runWizard(const QString &path, QWidget *parent, const Q
     // Create dialog and launch
     d->parameterPages = createParameterPages(path);
     Internal::CheckoutWizardDialog dialog(d->parameterPages, parent);
+    if (!d->progressTitle.isEmpty())
+        dialog.setTitle(d->progressTitle);
+    if (!d->startedStatus.isEmpty())
+        dialog.setStartedStatus(d->startedStatus);
     d->dialog = &dialog;
     connect(&dialog, SIGNAL(progressPageShown()), this, SLOT(slotProgressPageShown()));
     dialog.setWindowTitle(displayName());
@@ -210,6 +216,12 @@ QString BaseCheckoutWizard::openProject(const QString &path, QString *errorMessa
         return QString();
 
     return projectFile;
+}
+
+void BaseCheckoutWizard::setCustomLabels(const QString &progressTitle, const QString &startedStatus)
+{
+    d->progressTitle = progressTitle;
+    d->startedStatus = startedStatus;
 }
 
 void BaseCheckoutWizard::slotProgressPageShown()

@@ -45,6 +45,7 @@ CloneWizard::CloneWizard(QObject *parent)
     m_icon(QIcon(QLatin1String(":/mercurial/images/hg.png")))
 {
     setId(QLatin1String(Constants::VCS_ID_MERCURIAL));
+    setCustomLabels(tr("Cloning"), tr("Cloning started..."));
 }
 
 QIcon CloneWizard::icon() const

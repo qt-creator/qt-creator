@@ -48,6 +48,7 @@ CloneWizard::CloneWizard(QObject *parent)
       m_icon(QIcon(QLatin1String(":/bazaar/images/bazaar.png")))
 {
     setId(QLatin1String(VcsBase::Constants::VCS_ID_BAZAAR));
+    setCustomLabels(tr("Cloning"), tr("Cloning started..."));
 }
 
 QIcon CloneWizard::icon() const

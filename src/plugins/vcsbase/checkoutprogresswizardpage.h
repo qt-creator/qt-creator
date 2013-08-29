@@ -50,6 +50,7 @@ public:
     explicit CheckoutProgressWizardPage(QWidget *parent = 0);
     ~CheckoutProgressWizardPage();
 
+    void setStartedStatus(const QString &startedStatus);
     void start(Command *command);
 
     virtual bool isComplete() const;
@@ -69,6 +70,7 @@ private:
     Ui::CheckoutProgressWizardPage *ui;
 
     Command *m_command;
+    QString m_startedStatus;
     QString m_error;
 
     State m_state;

@@ -94,7 +94,7 @@
          <string>The path in which the directory containing the checkout will be created.</string>
         </property>
         <property name="text">
-         <string>Checkout path:</string>
+         <string>Path:</string>
         </property>
        </widget>
       </item>
@@ -107,7 +107,7 @@
          <string>The local directory that will contain the code after the checkout.</string>
         </property>
         <property name="text">
-         <string>Checkout directory:</string>
+         <string>Directory:</string>
         </property>
        </widget>
       </item>

@@ -46,6 +46,7 @@ CloneWizard::CloneWizard(QObject *parent) :
         VcsBase::BaseCheckoutWizard(parent)
 {
     setId(QLatin1String(VcsBase::Constants::VCS_ID_GIT));
+    setCustomLabels(tr("Cloning"), tr("Cloning started..."));
 }
 
 QIcon CloneWizard::icon() const

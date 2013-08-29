@@ -72,6 +72,7 @@ public:
     static QString openProject(const QString &path, QString *errorMessage);
 
 protected:
+    void setCustomLabels(const QString &progressTitle, const QString &startedStatus);
     virtual QList<QWizardPage *> createParameterPages(const QString &path) = 0;
     virtual Command *createCommand(const QList<QWizardPage *> &parameterPages,
                                    QString *checkoutPath) = 0;

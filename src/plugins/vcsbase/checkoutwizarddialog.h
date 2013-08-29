@@ -48,6 +48,8 @@ public:
     explicit CheckoutWizardDialog(const QList<QWizardPage *> &parameterPages,
                                   QWidget *parent = 0);
 
+    void setTitle(const QString &title);
+    void setStartedStatus(const QString &title);
     void start(VcsBase::Command *command);
 
 signals:

@@ -61,6 +61,16 @@ CheckoutWizardDialog::CheckoutWizardDialog(const QList<QWizardPage *> &parameter
     Core::BaseFileWizard::setupWizard(this);
 }
 
+void CheckoutWizardDialog::setTitle(const QString &title)
+{
+    m_progressPage->setTitle(title);
+}
+
+void CheckoutWizardDialog::setStartedStatus(const QString &title)
+{
+    m_progressPage->setStartedStatus(title);
+}
+
 void CheckoutWizardDialog::slotPageChanged(int id)
 {
     if (id == m_progressPageId)

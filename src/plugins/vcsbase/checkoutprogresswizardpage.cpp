@@ -53,6 +53,7 @@ namespace Internal {
 CheckoutProgressWizardPage::CheckoutProgressWizardPage(QWidget *parent) :
     QWizardPage(parent),
     ui(new Ui::CheckoutProgressWizardPage),
+    m_startedStatus(tr("Checkout started...")),
     m_state(Idle)
 {
     ui->setupUi(this);
@@ -64,6 +65,11 @@ CheckoutProgressWizardPage::~CheckoutProgressWizardPage()
     if (m_state == Running) // Paranoia!
         QApplication::restoreOverrideCursor();
     delete ui;
+}
+
+void CheckoutProgressWizardPage::setStartedStatus(const QString &startedStatus)
+{
+    m_startedStatus = startedStatus;
 }
 
 void CheckoutProgressWizardPage::start(Command *command)
@@ -80,7 +86,7 @@ void CheckoutProgressWizardPage::start(Command *command)
     connect(command, SIGNAL(finished(bool,int,QVariant)), this, SLOT(slotFinished(bool,int,QVariant)));
     QApplication::setOverrideCursor(Qt::WaitCursor);
     ui->logPlainTextEdit->clear();
-    ui->statusLabel->setText(tr("Checkout started..."));
+    ui->statusLabel->setText(m_startedStatus);
     ui->statusLabel->setPalette(QPalette());
     m_state = Running;
     command->execute();
