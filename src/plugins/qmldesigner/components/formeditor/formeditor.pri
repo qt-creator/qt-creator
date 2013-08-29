@@ -30,7 +30,9 @@ SOURCES += formeditoritem.cpp \
     formeditorgraphicsview.cpp \
     numberseriesaction.cpp \
     lineeditaction.cpp \
-    abstractcustomtool.cpp
+    abstractcustomtool.cpp \
+    anchorindicator.cpp \
+    components/formeditor/anchorindicatorgraphicsitem.cpp
 HEADERS += formeditorscene.h \
     formeditorwidget.h \
     formeditoritem.h \
@@ -62,5 +64,7 @@ HEADERS += formeditorscene.h \
     formeditorgraphicsview.h \
     numberseriesaction.h \
     lineeditaction.h \
-    abstractcustomtool.h
+    abstractcustomtool.h \
+    anchorindicator.h \
+    components/formeditor/anchorindicatorgraphicsitem.h
 RESOURCES += formeditor.qrc

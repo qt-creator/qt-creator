@@ -45,6 +45,7 @@ ResizeTool::ResizeTool(FormEditorView *editorView)
     : AbstractFormEditorTool(editorView),
     m_selectionIndicator(editorView->scene()->manipulatorLayerItem()),
     m_resizeIndicator(editorView->scene()->manipulatorLayerItem()),
+    m_anchorIndicator(editorView->scene()->manipulatorLayerItem()),
     m_resizeManipulator(editorView->scene()->manipulatorLayerItem(), editorView)
 {
 }
@@ -66,6 +67,7 @@ void ResizeTool::mousePressEvent(const QList<QGraphicsItem*> &itemList,
             m_resizeManipulator.setHandle(resizeHandle);
             m_resizeManipulator.begin(event->scenePos());
             m_resizeIndicator.hide();
+            m_anchorIndicator.hide();
         }
     }
 
@@ -116,6 +118,7 @@ void ResizeTool::mouseReleaseEvent(const QList<QGraphicsItem*> &itemList,
 
         m_selectionIndicator.show();
         m_resizeIndicator.show();
+        m_anchorIndicator.show();
         m_resizeManipulator.end(generateUseSnapping(event->modifiers()));
     }
 
@@ -176,12 +179,14 @@ void ResizeTool::selectedItemsChanged(const QList<FormEditorItem*> & /*itemList*
 {
     m_selectionIndicator.setItems(items());
     m_resizeIndicator.setItems(items());
+    m_anchorIndicator.setItems(items());
 }
 
 void ResizeTool::clear()
 {
     m_selectionIndicator.clear();
     m_resizeIndicator.clear();
+    m_anchorIndicator.clear();
     m_resizeManipulator.clear();
 }
 
@@ -189,6 +194,7 @@ void ResizeTool::formEditorItemsChanged(const QList<FormEditorItem*> &itemList)
 {
     m_selectionIndicator.updateItems(itemList);
     m_resizeIndicator.updateItems(itemList);
+    m_anchorIndicator.updateItems(itemList);
 }
 
 void ResizeTool::instancesCompleted(const QList<FormEditorItem*> &/*itemList*/)

@@ -34,6 +34,7 @@
 #include "movemanipulator.h"
 #include "selectionindicator.h"
 #include "resizeindicator.h"
+#include "anchorindicator.h"
 
 
 namespace QmlDesigner {
@@ -93,6 +94,7 @@ private:
     MoveManipulator m_moveManipulator;
     SelectionIndicator m_selectionIndicator;
     ResizeIndicator m_resizeIndicator;
+    AnchorIndicator m_anchorIndicator;
     QList<FormEditorItem*> m_movingItems;
 };
 

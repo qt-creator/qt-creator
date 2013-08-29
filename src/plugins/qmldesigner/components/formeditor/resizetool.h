@@ -33,6 +33,7 @@
 #include "abstractformeditortool.h"
 #include "selectionindicator.h"
 #include "resizeindicator.h"
+#include "anchorindicator.h"
 #include "resizemanipulator.h"
 
 
@@ -77,6 +78,7 @@ public:
 private:
     SelectionIndicator m_selectionIndicator;
     ResizeIndicator m_resizeIndicator;
+    AnchorIndicator m_anchorIndicator;
     ResizeManipulator m_resizeManipulator;
 };
 
