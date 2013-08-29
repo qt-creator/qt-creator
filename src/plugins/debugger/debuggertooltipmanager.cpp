@@ -756,7 +756,7 @@ DebuggerToolTipWidget *DebuggerToolTipWidget::loadSessionDataI(QXmlStreamReader 
     if (attributes.hasAttribute(offsetYAttribute))
         offset.setY(attributes.value(offsetYAttribute).toString().toInt());
 
-    const QString className = attributes.value(QLatin1String(toolTipClassAttributeC)).toString();
+    const QStringRef className = attributes.value(QLatin1String(toolTipClassAttributeC));
     const QString engineType = attributes.value(QLatin1String(engineTypeAttributeC)).toString();
     const QDate creationDate = dateFromString(attributes.value(QLatin1String(dateAttributeC)).toString());
     if (!creationDate.isValid() || creationDate.daysTo(QDate::currentDate()) >  toolTipsExpiryDays) {
@@ -780,7 +780,7 @@ DebuggerToolTipWidget *DebuggerToolTipWidget::loadSessionDataI(QXmlStreamReader 
             rc->setOffset(offset);
         rc->pin();
     } else {
-        qWarning("Unable to create debugger tool tip widget of class %s", qPrintable(className));
+        qWarning("Unable to create debugger tool tip widget of class %s", qPrintable(className.toString()));
         r.readElementText(QXmlStreamReader::SkipChildElements); // Skip
     }
     return rc;
