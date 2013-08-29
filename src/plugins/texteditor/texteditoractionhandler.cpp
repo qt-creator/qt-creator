@@ -107,7 +107,7 @@ TextEditorActionHandler::TextEditorActionHandler(const char *context,
     m_contextId(context),
     m_initialized(false)
 {
-    connect(Core::ICore::editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)),
+    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
         this, SLOT(updateCurrentEditor(Core::IEditor*)));
 }
 

@@ -53,8 +53,8 @@ QList<FilterEntry> *categorize(const QString &entry, const QString &candidate,
 
 } // anynoumous namespace
 
-FileSystemFilter::FileSystemFilter(EditorManager *editorManager, LocatorWidget *locatorWidget)
-        : m_editorManager(editorManager), m_locatorWidget(locatorWidget), m_includeHidden(true)
+FileSystemFilter::FileSystemFilter(LocatorWidget *locatorWidget)
+        : m_locatorWidget(locatorWidget), m_includeHidden(true)
 {
     setId("Files in file system");
     setDisplayName(tr("Files in File System"));

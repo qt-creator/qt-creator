@@ -104,7 +104,7 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     addAutoReleasedObject(new CppLocatorFilter(modelManager));
     addAutoReleasedObject(new CppClassesFilter(modelManager));
     addAutoReleasedObject(new CppFunctionsFilter(modelManager));
-    addAutoReleasedObject(new CppCurrentDocumentFilter(modelManager, Core::ICore::editorManager()));
+    addAutoReleasedObject(new CppCurrentDocumentFilter(modelManager));
     addAutoReleasedObject(new CppFileSettingsPage(m_fileSettings));
     addAutoReleasedObject(new SymbolsFindFilter(modelManager));
     addAutoReleasedObject(new CppCodeStyleSettingsPage);

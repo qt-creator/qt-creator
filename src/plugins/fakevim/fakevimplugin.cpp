@@ -1041,7 +1041,7 @@ FakeVimPluginPrivate::~FakeVimPluginPrivate()
 void FakeVimPluginPrivate::onCoreAboutToClose()
 {
     // Don't attach to editors anymore.
-    disconnect(ICore::editorManager(), SIGNAL(editorOpened(Core::IEditor*)),
+    disconnect(EditorManager::instance(), SIGNAL(editorOpened(Core::IEditor*)),
         this, SLOT(editorOpened(Core::IEditor*)));
 }
 
@@ -1051,8 +1051,6 @@ void FakeVimPluginPrivate::aboutToShutdown()
 
 bool FakeVimPluginPrivate::initialize()
 {
-    EditorManager *editorManager = ICore::editorManager();
-
     //m_wordCompletion = new WordCompletion;
     //q->addAutoReleasedObject(m_wordCompletion);
     m_wordProvider = new FakeVimCompletionAssistProvider;
@@ -1102,9 +1100,9 @@ bool FakeVimPluginPrivate::initialize()
     connect(ICore::instance(), SIGNAL(coreAboutToClose()), this, SLOT(onCoreAboutToClose()));
 
     // EditorManager
-    connect(editorManager, SIGNAL(editorAboutToClose(Core::IEditor*)),
+    connect(EditorManager::instance(), SIGNAL(editorAboutToClose(Core::IEditor*)),
         this, SLOT(editorAboutToClose(Core::IEditor*)));
-    connect(editorManager, SIGNAL(editorOpened(Core::IEditor*)),
+    connect(EditorManager::instance(), SIGNAL(editorOpened(Core::IEditor*)),
         this, SLOT(editorOpened(Core::IEditor*)));
 
     connect(theFakeVimSetting(ConfigUseFakeVim), SIGNAL(valueChanged(QVariant)),
@@ -1867,17 +1865,16 @@ void FakeVimPluginPrivate::handleDelayedQuit(bool forced, IEditor *editor)
 {
     // This tries to simulate vim behaviour. But the models of vim and
     // Qt Creator core do not match well...
-    EditorManager *editorManager = ICore::editorManager();
-    if (editorManager->hasSplitter())
+    if (EditorManager::hasSplitter())
         triggerAction(Core::Constants::REMOVE_CURRENT_SPLIT);
     else
-        editorManager->closeEditor(editor, !forced);
+        EditorManager::closeEditor(editor, !forced);
 }
 
 void FakeVimPluginPrivate::handleDelayedQuitAll(bool forced)
 {
     triggerAction(Core::Constants::REMOVE_ALL_SPLITS);
-    ICore::editorManager()->closeAllEditors(!forced);
+    EditorManager::closeAllEditors(!forced);
 }
 
 void FakeVimPluginPrivate::moveToMatchingParenthesis(bool *moved, bool *forward,

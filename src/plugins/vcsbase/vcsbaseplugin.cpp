@@ -206,9 +206,9 @@ public slots:
 StateListener::StateListener(QObject *parent) :
         QObject(parent)
 {
-    connect(Core::ICore::editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)),
+    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(slotStateChanged()));
-    connect(Core::ICore::editorManager(), SIGNAL(currentDocumentStateChanged()),
+    connect(Core::EditorManager::instance(), SIGNAL(currentDocumentStateChanged()),
             this, SLOT(slotStateChanged()));
     connect(Core::ICore::vcsManager(), SIGNAL(repositoryChanged(QString)),
             this, SLOT(slotStateChanged()));

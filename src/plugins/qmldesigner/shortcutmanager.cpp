@@ -78,28 +78,29 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
             SLOT(toggleRightSidebar()));
 
     // Revert to saved
+    QObject *em = Core::EditorManager::instance();
     Core::ActionManager::registerAction(&m_revertToSavedAction,Core::Constants::REVERTTOSAVED, qmlDesignerMainContext);
-    connect(&m_revertToSavedAction, SIGNAL(triggered()), Core::ICore::editorManager(), SLOT(revertToSaved()));
+    connect(&m_revertToSavedAction, SIGNAL(triggered()), em, SLOT(revertToSaved()));
 
     //Save
     Core::ActionManager::registerAction(&m_saveAction, Core::Constants::SAVE, qmlDesignerMainContext);
-    connect(&m_saveAction, SIGNAL(triggered()), Core::ICore::editorManager(), SLOT(saveDocument()));
+    connect(&m_saveAction, SIGNAL(triggered()), em, SLOT(saveDocument()));
 
     //Save As
     Core::ActionManager::registerAction(&m_saveAsAction, Core::Constants::SAVEAS, qmlDesignerMainContext);
-    connect(&m_saveAsAction, SIGNAL(triggered()), Core::ICore::editorManager(), SLOT(saveDocumentAs()));
+    connect(&m_saveAsAction, SIGNAL(triggered()), em, SLOT(saveDocumentAs()));
 
     //Close Editor
     Core::ActionManager::registerAction(&m_closeCurrentEditorAction, Core::Constants::CLOSE, qmlDesignerMainContext);
-    connect(&m_closeCurrentEditorAction, SIGNAL(triggered()), Core::ICore::editorManager(), SLOT(closeEditor()));
+    connect(&m_closeCurrentEditorAction, SIGNAL(triggered()), em, SLOT(closeEditor()));
 
     //Close All
     Core::ActionManager::registerAction(&m_closeAllEditorsAction, Core::Constants::CLOSEALL, qmlDesignerMainContext);
-    connect(&m_closeAllEditorsAction, SIGNAL(triggered()), Core::ICore::editorManager(), SLOT(closeAllEditors()));
+    connect(&m_closeAllEditorsAction, SIGNAL(triggered()), em, SLOT(closeAllEditors()));
 
     //Close All Others Action
     Core::ActionManager::registerAction(&m_closeOtherEditorsAction, Core::Constants::CLOSEOTHERS, qmlDesignerMainContext);
-    connect(&m_closeOtherEditorsAction, SIGNAL(triggered()), Core::ICore::editorManager(), SLOT(closeOtherEditors()));
+    connect(&m_closeOtherEditorsAction, SIGNAL(triggered()), em, SLOT(closeOtherEditors()));
 
     // Undo / Redo
     Core::ActionManager::registerAction(&m_undoAction, Core::Constants::UNDO, qmlDesignerMainContext);

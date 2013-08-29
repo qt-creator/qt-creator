@@ -40,17 +40,16 @@ using namespace Locator;
 using namespace Locator::Internal;
 using namespace Utils;
 
-OpenDocumentsFilter::OpenDocumentsFilter(EditorManager *editorManager) :
-    m_editorManager(editorManager)
+OpenDocumentsFilter::OpenDocumentsFilter()
 {
     setId("Open documents");
     setDisplayName(tr("Open Documents"));
     setShortcutString(QString(QLatin1Char('o')));
     setIncludedByDefault(true);
 
-    connect(m_editorManager, SIGNAL(editorOpened(Core::IEditor*)),
+    connect(EditorManager::instance(), SIGNAL(editorOpened(Core::IEditor*)),
             this, SLOT(refreshInternally()));
-    connect(m_editorManager, SIGNAL(editorsClosed(QList<Core::IEditor*>)),
+    connect(EditorManager::instance(), SIGNAL(editorsClosed(QList<Core::IEditor*>)),
             this, SLOT(refreshInternally()));
 }
 

@@ -152,12 +152,12 @@ void QmlDesignerPlugin::createDesignModeWidget()
 
     m_shortCutManager.registerActions(qmlDesignerMainContext, qmlDesignerFormEditorContext, qmlDesignerNavigatorContext);
 
-    connect(Core::ICore::editorManager(),
+    connect(Core::EditorManager::instance(),
             SIGNAL(currentEditorChanged(Core::IEditor*)),
             this,
             SLOT(onCurrentEditorChanged(Core::IEditor*)));
 
-    connect(Core::ICore::editorManager(),
+    connect(Core::EditorManager::instance(),
             SIGNAL(editorsClosed(QList<Core::IEditor*>)),
             this,
             SLOT(onTextEditorsClosed(QList<Core::IEditor*>)));

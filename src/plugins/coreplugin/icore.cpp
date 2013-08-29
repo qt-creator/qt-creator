@@ -422,11 +422,6 @@ MessageManager *ICore::messageManager()
     return m_mainwindow->messageManager();
 }
 
-EditorManager *ICore::editorManager()
-{
-    return m_mainwindow->editorManager();
-}
-
 ProgressManager *ICore::progressManager()
 {
     return m_mainwindow->progressManager();

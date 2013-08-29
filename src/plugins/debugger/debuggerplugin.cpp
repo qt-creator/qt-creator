@@ -3223,10 +3223,9 @@ void DebuggerPluginPrivate::extensionsInitialized()
         SLOT(updateDebugActions()));
 
     // EditorManager
-    QObject *editorManager = ICore::editorManager();
-    connect(editorManager, SIGNAL(editorOpened(Core::IEditor*)),
+    connect(EditorManager::instance(), SIGNAL(editorOpened(Core::IEditor*)),
         SLOT(editorOpened(Core::IEditor*)));
-    connect(editorManager, SIGNAL(currentEditorChanged(Core::IEditor*)),
+    connect(EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
             SLOT(updateBreakMenuItem(Core::IEditor*)));
 
     // Application interaction

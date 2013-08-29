@@ -155,10 +155,9 @@ EditorView *EditorView::findNextView()
 
 void EditorView::closeView()
 {
-    EditorManager *em = ICore::editorManager();
     IEditor *editor = currentEditor();
     if (editor)
-       em->closeEditor(editor);
+       EditorManager::closeEditor(editor);
 }
 
 void EditorView::showEditorStatusBar(const QString &id,
@@ -226,7 +225,7 @@ void EditorView::updateEditorHistory(IEditor *editor, QList<EditLocation> &histo
 
 void EditorView::paintEvent(QPaintEvent *)
 {
-    EditorView *editorView = ICore::editorManager()->currentEditorView();
+    EditorView *editorView = EditorManager::currentEditorView();
     if (editorView != this)
         return;
 
@@ -251,7 +250,7 @@ void EditorView::mousePressEvent(QMouseEvent *e)
 
 void EditorView::focusInEvent(QFocusEvent *)
 {
-    ICore::editorManager()->setCurrentView(this);
+    EditorManager::setCurrentView(this);
 }
 
 void EditorView::addEditor(IEditor *editor)
@@ -459,18 +458,17 @@ void EditorView::updateCurrentPositionInNavigationHistory()
 
 void EditorView::goBackInNavigationHistory()
 {
-    EditorManager *em = ICore::editorManager();
     updateCurrentPositionInNavigationHistory();
     while (m_currentNavigationHistoryPosition > 0) {
         --m_currentNavigationHistoryPosition;
         EditLocation location = m_navigationHistory.at(m_currentNavigationHistoryPosition);
         IEditor *editor = 0;
         if (location.document) {
-            editor = em->activateEditorForDocument(this, location.document,
+            editor = EditorManager::activateEditorForDocument(this, location.document,
                                         EditorManager::IgnoreNavigationHistory);
         }
         if (!editor) {
-            editor = em->openEditor(this, location.fileName, location.id,
+            editor = EditorManager::openEditor(this, location.fileName, location.id,
                                     EditorManager::IgnoreNavigationHistory);
             if (!editor) {
                 m_navigationHistory.removeAt(m_currentNavigationHistoryPosition);
@@ -485,7 +483,6 @@ void EditorView::goBackInNavigationHistory()
 
 void EditorView::goForwardInNavigationHistory()
 {
-    EditorManager *em = ICore::editorManager();
     updateCurrentPositionInNavigationHistory();
     if (m_currentNavigationHistoryPosition >= m_navigationHistory.size()-1)
         return;
@@ -493,11 +490,11 @@ void EditorView::goForwardInNavigationHistory()
     EditLocation location = m_navigationHistory.at(m_currentNavigationHistoryPosition);
     IEditor *editor = 0;
     if (location.document) {
-        editor = em->activateEditorForDocument(this, location.document,
+        editor = EditorManager::activateEditorForDocument(this, location.document,
                                     EditorManager::IgnoreNavigationHistory);
     }
     if (!editor) {
-        editor = em->openEditor(this, location.fileName, location.id, EditorManager::IgnoreNavigationHistory);
+        editor = EditorManager::openEditor(this, location.fileName, location.id, EditorManager::IgnoreNavigationHistory);
         if (!editor) {
             //TODO
             qDebug() << Q_FUNC_INFO << "can't open file" << location.fileName;
@@ -607,12 +604,11 @@ void SplitterOrView::split(Qt::Orientation orientation)
     m_layout->removeWidget(m_view);
     EditorView *editorView = m_view;
     m_view = 0;
-    EditorManager *em = ICore::editorManager();
-    Core::IEditor *e = editorView->currentEditor();
+    IEditor *e = editorView->currentEditor();
 
     SplitterOrView *view = 0;
     SplitterOrView *otherView = 0;
-    Core::IEditor *duplicate = e && e->duplicateSupported() ? em->duplicateEditor(e) : 0;
+    IEditor *duplicate = e && e->duplicateSupported() ? EditorManager::duplicateEditor(e) : 0;
     m_splitter->addWidget((view = new SplitterOrView(duplicate)));
     m_splitter->addWidget((otherView = new SplitterOrView(editorView)));
 
@@ -630,9 +626,9 @@ void SplitterOrView::split(Qt::Orientation orientation)
     }
 
     if (e)
-        em->activateEditor(otherView->view(), e);
+        EditorManager::activateEditor(otherView->view(), e);
     else
-        em->setCurrentView(otherView->view());
+        EditorManager::setCurrentView(otherView->view());
 }
 
 void SplitterOrView::unsplitAll()
@@ -657,7 +653,7 @@ void SplitterOrView::unsplitAll()
 void SplitterOrView::unsplitAll_helper()
 {
     if (m_view)
-        ICore::editorManager()->emptyView(m_view);
+        EditorManager::emptyView(m_view);
     if (m_splitter) {
         for (int i = 0; i < m_splitter->count(); ++i) {
             if (SplitterOrView *splitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(i)))
@@ -672,7 +668,6 @@ void SplitterOrView::unsplit()
         return;
 
     Q_ASSERT(m_splitter->count() == 1);
-    EditorManager *em = ICore::editorManager();
     SplitterOrView *childSplitterOrView = qobject_cast<SplitterOrView*>(m_splitter->widget(0));
     QSplitter *oldSplitter = m_splitter;
     m_splitter = 0;
@@ -692,7 +687,7 @@ void SplitterOrView::unsplit()
                 m_view->addEditor(e);
                 m_view->setCurrentEditor(e);
             }
-            em->emptyView(childView);
+            EditorManager::emptyView(childView);
         } else {
             m_view = childSplitterOrView->takeView();
             m_view->setParentSplitterOrView(this);
@@ -715,7 +710,7 @@ void SplitterOrView::unsplit()
         m_layout->setCurrentWidget(m_view);
     }
     delete oldSplitter;
-    em->setCurrentView(findFirstView());
+    EditorManager::setCurrentView(findFirstView());
 }
 
 
@@ -772,27 +767,26 @@ void SplitterOrView::restoreState(const QByteArray &state)
         static_cast<SplitterOrView*>(m_splitter->widget(0))->restoreState(first);
         static_cast<SplitterOrView*>(m_splitter->widget(1))->restoreState(second);
     } else if (mode == "editor" || mode == "currenteditor") {
-        EditorManager *em = ICore::editorManager();
         QString fileName;
         QString id;
         QByteArray editorState;
         stream >> fileName >> id >> editorState;
         if (!QFile::exists(fileName))
             return;
-        IEditor *e = em->openEditor(view(), fileName, Id::fromString(id), Core::EditorManager::IgnoreNavigationHistory
+        IEditor *e = EditorManager::openEditor(view(), fileName, Id::fromString(id), Core::EditorManager::IgnoreNavigationHistory
                                     | Core::EditorManager::DoNotChangeCurrentEditor);
 
         if (!e) {
             DocumentModel::Entry *entry = EditorManager::documentModel()->firstRestoredDocument();
             if (entry)
-                em->activateEditorForEntry(view(), entry, Core::EditorManager::IgnoreNavigationHistory
+                EditorManager::activateEditorForEntry(view(), entry, Core::EditorManager::IgnoreNavigationHistory
                                     | Core::EditorManager::DoNotChangeCurrentEditor);
         }
 
         if (e) {
             e->restoreState(editorState);
             if (mode == "currenteditor")
-                em->setCurrentEditor(e);
+                EditorManager::setCurrentEditor(e);
         }
     }
 }

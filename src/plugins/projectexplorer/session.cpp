@@ -87,15 +87,13 @@ SessionManager::SessionManager(QObject *parent)
     connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
             this, SLOT(saveActiveMode(Core::IMode*)));
 
-    EditorManager *em = ICore::editorManager();
-
-    connect(em, SIGNAL(editorCreated(Core::IEditor*,QString)),
+    connect(EditorManager::instance(), SIGNAL(editorCreated(Core::IEditor*,QString)),
             this, SLOT(configureEditor(Core::IEditor*,QString)));
     connect(ProjectExplorerPlugin::instance(), SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
             this, SLOT(updateWindowTitle()));
-    connect(em, SIGNAL(editorOpened(Core::IEditor*)),
+    connect(EditorManager::instance(), SIGNAL(editorOpened(Core::IEditor*)),
             this, SLOT(markSessionFileDirty()));
-    connect(em, SIGNAL(editorsClosed(QList<Core::IEditor*>)),
+    connect(EditorManager::instance(), SIGNAL(editorsClosed(QList<Core::IEditor*>)),
             this, SLOT(markSessionFileDirty()));
 }
 
@@ -339,7 +337,7 @@ bool SessionManager::save()
         ++i;
     }
     data.insert(QLatin1String("ProjectDependencies"), QVariant(depMap));
-    data.insert(QLatin1String("EditorSettings"), ICore::editorManager()->saveState().toBase64());
+    data.insert(QLatin1String("EditorSettings"), EditorManager::saveState().toBase64());
 
     QMap<QString, QVariant>::const_iterator it, end;
     end = m_values.constEnd();
@@ -536,14 +534,14 @@ void SessionManager::updateWindowTitle()
 {
     if (isDefaultSession(m_sessionName)) {
         if (Project *currentProject = ProjectExplorerPlugin::currentProject())
-            ICore::editorManager()->setWindowTitleAddition(currentProject->displayName());
+            EditorManager::setWindowTitleAddition(currentProject->displayName());
         else
-            ICore::editorManager()->setWindowTitleAddition(QString());
+            EditorManager::setWindowTitleAddition(QString());
     } else {
         QString sessionName = m_sessionName;
         if (sessionName.isEmpty())
             sessionName = tr("Untitled");
-        ICore::editorManager()->setWindowTitleAddition(sessionName);
+        EditorManager::setWindowTitleAddition(sessionName);
     }
 }
 
@@ -782,8 +780,7 @@ void SessionManager::restoreEditors(const Utils::PersistentSettingsReader &reade
 {
     const QVariant &editorsettings = reader.restoreValue(QLatin1String("EditorSettings"));
     if (editorsettings.isValid()) {
-        ICore::editorManager()->restoreState(
-            QByteArray::fromBase64(editorsettings.toByteArray()));
+        EditorManager::restoreState(QByteArray::fromBase64(editorsettings.toByteArray()));
         sessionLoadingProgress();
     }
 }
@@ -841,7 +838,7 @@ bool SessionManager::loadSession(const QString &session)
     }
 
     // Clean up
-    if (!ICore::editorManager()->closeAllEditors()) {
+    if (!EditorManager::closeAllEditors()) {
         m_loadingSession = false;
         return false;
     }

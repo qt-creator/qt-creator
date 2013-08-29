@@ -128,10 +128,9 @@ bool BookmarksPlugin::initialize(const QStringList & /*arguments*/, QString *)
         this, SLOT(bookmarkMarginActionTriggered()));
 
     // EditorManager
-    QObject *editorManager = Core::ICore::editorManager();
-    connect(editorManager, SIGNAL(editorAboutToClose(Core::IEditor*)),
+    connect(Core::EditorManager::instance(), SIGNAL(editorAboutToClose(Core::IEditor*)),
         this, SLOT(editorAboutToClose(Core::IEditor*)));
-    connect(editorManager, SIGNAL(editorOpened(Core::IEditor*)),
+    connect(Core::EditorManager::instance(), SIGNAL(editorOpened(Core::IEditor*)),
         this, SLOT(editorOpened(Core::IEditor*)));
 
     return true;

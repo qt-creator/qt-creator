@@ -286,7 +286,7 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     connect(Core::ICore::progressManager(), SIGNAL(allTasksFinished(QString)),
             this, SLOT(onAllTasksFinished(QString)));
 
-    connect(Core::ICore::editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)), SLOT(currentEditorChanged(Core::IEditor*)));
+    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)), SLOT(currentEditorChanged(Core::IEditor*)));
 
     readSettings();
     return true;

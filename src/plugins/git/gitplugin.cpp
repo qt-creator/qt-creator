@@ -1053,7 +1053,7 @@ void GitPlugin::submitCurrentLog()
 {
     // Close the submit editor
     m_submitActionTriggered = true;
-    Core::ICore::editorManager()->closeEditor();
+    Core::EditorManager::closeEditor();
 }
 
 bool GitPlugin::submitEditorAboutToClose()

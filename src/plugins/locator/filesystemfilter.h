@@ -38,8 +38,6 @@
 #include <QByteArray>
 #include <QFutureInterface>
 
-namespace Core { class EditorManager; }
-
 namespace Locator {
 namespace Internal {
 
@@ -50,7 +48,7 @@ class FileSystemFilter : public Locator::ILocatorFilter
     Q_OBJECT
 
 public:
-    FileSystemFilter(Core::EditorManager *editorManager, LocatorWidget *locatorWidget);
+    explicit FileSystemFilter(LocatorWidget *locatorWidget);
     QList<Locator::FilterEntry> matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry);
     void accept(Locator::FilterEntry selection) const;
     QByteArray saveState() const;
@@ -59,7 +57,6 @@ public:
     void refresh(QFutureInterface<void> &) {}
 
 private:
-    Core::EditorManager *m_editorManager;
     LocatorWidget *m_locatorWidget;
     bool m_includeHidden;
 };

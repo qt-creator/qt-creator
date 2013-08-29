@@ -122,10 +122,10 @@ bool LocatorPlugin::initialize(const QStringList &, QString *)
 
     addObject(new LocatorManager(m_locatorWidget));
 
-    m_openDocumentsFilter = new OpenDocumentsFilter(Core::ICore::editorManager());
+    m_openDocumentsFilter = new OpenDocumentsFilter;
     addObject(m_openDocumentsFilter);
 
-    m_fileSystemFilter = new FileSystemFilter(Core::ICore::editorManager(), m_locatorWidget);
+    m_fileSystemFilter = new FileSystemFilter(m_locatorWidget);
     addObject(m_fileSystemFilter);
 
     m_executeFilter = new ExecuteFilter();

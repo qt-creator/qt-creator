@@ -242,7 +242,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     addAutoReleasedObject(new QuickToolBar);
     addAutoReleasedObject(new Internal::QuickToolBarSettingsPage);
 
-    connect(Core::ICore::editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)), SLOT(currentEditorChanged(Core::IEditor*)));
+    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)), SLOT(currentEditorChanged(Core::IEditor*)));
 
     return true;
 }

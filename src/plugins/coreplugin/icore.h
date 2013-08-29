@@ -96,7 +96,6 @@ public:
     static QT_DEPRECATED ActionManager *actionManager(); // Use Actionmanager::... directly.
     static QT_DEPRECATED DocumentManager *documentManager(); // Use DocumentManager::... directly.
     static QT_DEPRECATED MessageManager *messageManager(); // Use MessageManager::... directly.
-    static EditorManager *editorManager();
     static ProgressManager *progressManager();
     static QT_DEPRECATED VariableManager *variableManager(); // Use VariableManager::... directly.
     static VcsManager *vcsManager();

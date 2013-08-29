@@ -36,7 +36,7 @@
 using namespace CppTools::Internal;
 using namespace CPlusPlus;
 
-CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppModelManager *manager, Core::EditorManager *editorManager)
+CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppModelManager *manager)
     : m_modelManager(manager)
 {
     setId("Methods in current Document");
@@ -51,9 +51,9 @@ CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppModelManager *manager, Cor
 
     connect(manager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
             this,    SLOT(onDocumentUpdated(CPlusPlus::Document::Ptr)));
-    connect(editorManager, SIGNAL(currentEditorChanged(Core::IEditor*)),
+    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
             this,          SLOT(onCurrentEditorChanged(Core::IEditor*)));
-    connect(editorManager, SIGNAL(editorAboutToClose(Core::IEditor*)),
+    connect(Core::EditorManager::instance(), SIGNAL(editorAboutToClose(Core::IEditor*)),
             this,          SLOT(onEditorAboutToClose(Core::IEditor*)));
 }
 

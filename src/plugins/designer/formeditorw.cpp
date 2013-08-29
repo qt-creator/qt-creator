@@ -169,7 +169,7 @@ FormEditorW::FormEditorW() :
         m_settingsPages.append(settingsPage);
     }
 
-    connect(Core::ICore::editorManager(), SIGNAL(currentEditorChanged(Core::IEditor*)),
+    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(currentEditorChanged(Core::IEditor*)));
     connect(m_shortcutMapper, SIGNAL(mapped(QObject*)),
             this, SLOT(updateShortcut(QObject*)));
@@ -289,7 +289,7 @@ void FormEditorW::fullInit()
         delete initTime;
     }
 
-    connect(Core::ICore::editorManager(), SIGNAL(editorsClosed(QList<Core::IEditor*>)),
+    connect(Core::EditorManager::instance(), SIGNAL(editorsClosed(QList<Core::IEditor*>)),
             SLOT(closeFormEditorsForXmlEditors(QList<Core::IEditor*>)));
     // Nest toolbar and editor widget
     m_editorWidget = new EditorWidget(this);

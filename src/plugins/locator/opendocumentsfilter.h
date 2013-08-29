@@ -38,10 +38,6 @@
 #include <QList>
 #include <QFutureInterface>
 
-namespace Core {
-    class EditorManager;
-}
-
 namespace Locator {
 namespace Internal {
 
@@ -50,7 +46,7 @@ class OpenDocumentsFilter : public Locator::ILocatorFilter
     Q_OBJECT
 
 public:
-    explicit OpenDocumentsFilter(Core::EditorManager *editorManager);
+    OpenDocumentsFilter();
     QList<Locator::FilterEntry> matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry);
     void accept(Locator::FilterEntry selection) const;
     void refresh(QFutureInterface<void> &future);
@@ -59,8 +55,6 @@ public slots:
     void refreshInternally();
 
 private:
-    Core::EditorManager *m_editorManager;
-
     QList<Core::DocumentModel::Entry> m_editors;
 };
 

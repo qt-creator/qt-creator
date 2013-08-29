@@ -311,7 +311,7 @@ void CallgrindToolPrivate::selectFunction(const Function *func)
     if (QFile::exists(func->file())) {
         ///TODO: custom position support?
         int line = func->lineNumber();
-        Core::EditorManager::openEditorAt(func->file(), qMax(line, 0));
+        EditorManager::openEditorAt(func->file(), qMax(line, 0));
     }
 }
 
@@ -493,7 +493,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
     d = new CallgrindToolPrivate(this);
     setObjectName(QLatin1String("CallgrindTool"));
 
-    connect(Core::ICore::editorManager(), SIGNAL(editorOpened(Core::IEditor*)),
+    connect(EditorManager::instance(), SIGNAL(editorOpened(Core::IEditor*)),
         d, SLOT(editorOpened(Core::IEditor*)));
 }
 
@@ -846,7 +846,7 @@ void CallgrindToolPrivate::showParserResults(const ParseData *data)
     AnalyzerManager::showStatusMessage(msg);
 }
 
-void CallgrindToolPrivate::editorOpened(Core::IEditor *editor)
+void CallgrindToolPrivate::editorOpened(IEditor *editor)
 {
     TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor *>(editor);
     if (!textEditor)

@@ -33,10 +33,7 @@
 
 #include <locator/ilocatorfilter.h>
 
-namespace Core {
-class EditorManager;
-class IEditor;
-}
+namespace Core { class IEditor; }
 
 namespace CppTools {
 namespace Internal {
@@ -48,7 +45,7 @@ class CppCurrentDocumentFilter : public  Locator::ILocatorFilter
     Q_OBJECT
 
 public:
-    CppCurrentDocumentFilter(CppModelManager *manager, Core::EditorManager *editorManager);
+    explicit CppCurrentDocumentFilter(CppModelManager *manager);
     ~CppCurrentDocumentFilter() {}
 
     QList<Locator::FilterEntry> matchesFor(QFutureInterface<Locator::FilterEntry> &future, const QString &entry);
