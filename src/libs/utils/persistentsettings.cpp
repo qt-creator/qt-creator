@@ -316,7 +316,7 @@ ParseContext::Element ParseContext::element(const QStringRef &r) const
 QVariant ParseContext::readSimpleValue(QXmlStreamReader &r, const QXmlStreamAttributes &attributes) const
 {
     // Simple value
-    const QString type = attributes.value(typeAttribute).toString();
+    const QStringRef type = attributes.value(typeAttribute);
     const QString text = r.readElementText();
     if (type == QLatin1String("QChar")) { // Workaround: QTBUG-12345
         QTC_ASSERT(text.size() == 1, return QVariant());
