@@ -992,7 +992,7 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
             if (property->name.isEmpty() || property->memberType.isEmpty())
                 continue; // better safe than sorry.
 
-            const QString &astName = property->name.toString();
+            const QStringRef astName = property->name;
             QString astValue;
             if (property->statement)
                 astValue = textAt(context->doc(),
