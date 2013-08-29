@@ -30,11 +30,11 @@
 #ifndef IPCENGINEGUEST_H
 #define IPCENGINEGUEST_H
 
-#include "breakhandler.h"
-#include "debuggerengine.h"
-#include "disassemblerlines.h"
-#include "stackhandler.h"
-#include "threadshandler.h"
+#include <debugger/breakhandler.h>
+#include <debugger/debuggerengine.h>
+#include <debugger/disassemblerlines.h>
+#include <debugger/stackhandler.h>
+#include <debugger/threadshandler.h>
 
 #include <QQueue>
 #include <QThread>

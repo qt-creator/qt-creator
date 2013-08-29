@@ -1,8 +1,6 @@
 include(../../qtcreatorplugin.pri)
 include(qrceditor/qrceditor.pri)
 
-INCLUDEPATH += $$PWD/../../tools/utils
-
 HEADERS += resourceeditorfactory.h \
 resourceeditorplugin.h \
 resourcewizard.h \

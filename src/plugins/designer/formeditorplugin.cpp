@@ -33,8 +33,8 @@
 #include "formwizard.h"
 
 #ifdef CPP_ENABLED
-#  include "formclasswizard.h"
-#  include "cppsettingspage.h"
+#  include "cpp/formclasswizard.h"
+#  include "cpp/cppsettingspage.h"
 #endif
 
 #include "settingspage.h"

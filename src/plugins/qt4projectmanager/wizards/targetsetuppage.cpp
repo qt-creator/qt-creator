@@ -31,10 +31,10 @@
 #include "importwidget.h"
 #include "../qt4targetsetupwidget.h"
 
-#include "buildconfigurationinfo.h"
-#include "qt4buildconfiguration.h"
-#include "qt4project.h"
-#include "qmakekitinformation.h"
+#include <qt4projectmanager/buildconfigurationinfo.h>
+#include <qt4projectmanager/qt4buildconfiguration.h>
+#include <qt4projectmanager/qt4project.h>
+#include <qt4projectmanager/qmakekitinformation.h>
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorerconstants.h>

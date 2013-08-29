@@ -300,7 +300,7 @@
   <customwidget>
    <class>QmlEditorWidgets::FileWidget</class>
    <extends>QComboBox</extends>
-   <header location="global">filewidget.h</header>
+   <header location="global">qmleditorwidgets/filewidget.h</header>
   </customwidget>
  </customwidgets>
  <resources>

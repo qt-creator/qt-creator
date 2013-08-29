@@ -28,8 +28,8 @@
 ****************************************************************************/
 
 #include "qtdesignerformclasscodegenerator.h"
-#include "formclasswizardparameters.h"
 #include "formtemplatewizardpage.h"
+#include <designer/cpp/formclasswizardparameters.h>
 
 #include <utils/codegeneration.h>
 #include <coreplugin/icore.h>

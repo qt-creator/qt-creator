@@ -5,10 +5,7 @@ QtcTool {
     name: "qtcdebugger"
     condition: qbs.targetOS.contains("windows")
 
-    cpp.includePaths: [
-        buildDirectory,
-        "../../shared/registryaccess"
-    ]
+    cpp.includePaths: base.concat(["../../shared/registryaccess"])
     cpp.dynamicLibraries: [
         "psapi",
         "advapi32"

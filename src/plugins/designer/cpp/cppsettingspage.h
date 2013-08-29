@@ -31,7 +31,7 @@
 #define CPPSETTINGSPAGE_H
 
 #include "ui_cppsettingspagewidget.h"
-#include "qtdesignerformclasscodegenerator.h"
+#include <designer/qtdesignerformclasscodegenerator.h>
 
 #include <coreplugin/dialogs/ioptionspage.h>
 

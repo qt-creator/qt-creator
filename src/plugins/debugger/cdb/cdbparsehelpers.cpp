@@ -30,10 +30,11 @@
 #include "cdbparsehelpers.h"
 
 #include "bytearrayinputstream.h"
-#include "debuggerprotocol.h"
-#include "disassemblerlines.h"
-#include "shared/hostutils.h"
-#include "threaddata.h"
+
+#include <debugger/debuggerprotocol.h>
+#include <debugger/disassemblerlines.h>
+#include <debugger/shared/hostutils.h>
+#include <debugger/threaddata.h>
 
 #include <utils/qtcassert.h>
 

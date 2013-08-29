@@ -4,8 +4,6 @@ include(../../qtcreatorplugin.pri)
 include(../../shared/designerintegrationv2/designerintegration.pri)
 include(cpp/cpp.pri)
 
-INCLUDEPATH += ../../tools/utils
-
 greaterThan(QT_MAJOR_VERSION, 4) {
     QT += printsupport designer designercomponents-private
 } else {

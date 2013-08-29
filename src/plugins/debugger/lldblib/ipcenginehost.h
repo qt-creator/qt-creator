@@ -30,11 +30,11 @@
 #ifndef DEBUGGER_IPCENGINE_HOST_H
 #define DEBUGGER_IPCENGINE_HOST_H
 
-#include "debuggerengine.h"
-#include "threadshandler.h"
-#include "stackhandler.h"
-#include "breakhandler.h"
-#include "sourceagent.h"
+#include <debugger/debuggerengine.h>
+#include <debugger/threadshandler.h>
+#include <debugger/stackhandler.h>
+#include <debugger/breakhandler.h>
+#include <debugger/sourceagent.h>
 
 #include <QQueue>
 #include <QVariant>

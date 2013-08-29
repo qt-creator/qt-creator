@@ -273,7 +273,7 @@ Snippet::ParsedSnippet Snippet::parse(const QString &snippet)
 #ifdef WITH_TESTS
 #   include <QTest>
 
-#   include "texteditorplugin.h"
+#   include "../texteditorplugin.h"
 
 void Internal::TextEditorPlugin::testSnippetParsing_data()
 {

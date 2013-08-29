@@ -29,11 +29,12 @@
 
 #include "qtwizard.h"
 
-#include "qt4project.h"
-#include "qt4projectmanager.h"
-#include "qt4projectmanagerconstants.h"
 #include "modulespage.h"
 #include "targetsetuppage.h"
+
+#include <qt4projectmanager/qt4project.h>
+#include <qt4projectmanager/qt4projectmanager.h>
+#include <qt4projectmanager/qt4projectmanagerconstants.h>
 
 #include <coreplugin/icore.h>
 

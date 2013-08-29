@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 #include "cppsettingspage.h"
-#include "designerconstants.h"
+#include <designer/designerconstants.h>
 
 #include <QCoreApplication>
 #include <QTextStream>

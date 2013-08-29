@@ -29,8 +29,8 @@
 
 #include "command_p.h"
 
-#include "icontext.h"
-#include "id.h"
+#include <coreplugin/icontext.h>
+#include <coreplugin/id.h>
 
 #include <utils/hostosinfo.h>
 

@@ -19,8 +19,6 @@ QtcPlugin {
     Depends { name: "QmlJSTools" }
     Depends { name: "CPlusPlus" }
 
-    cpp.includePaths: base.concat(canvasGroup.prefix)
-
     Group {
         name: "General"
         files: [
@@ -58,7 +56,6 @@ QtcPlugin {
 
     Group {
         name: "Canvas"
-        id: canvasGroup
         prefix: "canvas/"
         files: [
             "qdeclarativecanvas.cpp", "qdeclarativecanvas_p.h",

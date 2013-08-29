@@ -29,11 +29,11 @@
 
 #include "abstractplaingdbadapter.h"
 
-#include "debuggeractions.h"
-#include "debuggercore.h"
-#include "debuggerprotocol.h"
-#include "debuggerstartparameters.h"
-#include "debuggerstringutils.h"
+#include <debugger/debuggeractions.h>
+#include <debugger/debuggercore.h>
+#include <debugger/debuggerprotocol.h>
+#include <debugger/debuggerstartparameters.h>
+#include <debugger/debuggerstringutils.h>
 
 #include <utils/qtcassert.h>
 

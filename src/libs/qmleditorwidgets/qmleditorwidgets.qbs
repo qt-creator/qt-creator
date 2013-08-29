@@ -4,7 +4,6 @@ import "../QtcLibrary.qbs" as QtcLibrary
 QtcLibrary {
     name: "QmlEditorWidgets"
 
-    cpp.includePaths: base.concat(easingPane.prefix)
     cpp.defines: base.concat([
         "QWEAKPOINTER_ENABLE_ARROW",
         "BUILD_QMLEDITORWIDGETS_LIB"

@@ -14,8 +14,6 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "ProjectExplorer" }
 
-    cpp.includePaths: base.concat("../../libs/3rdparty")
-
     files: [
         "cppautocompleter.cpp",
         "cppautocompleter.h",

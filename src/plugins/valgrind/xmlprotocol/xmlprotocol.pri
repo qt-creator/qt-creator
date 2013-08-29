@@ -1,7 +1,5 @@
 QT *= network
 
-INCLUDEPATH *= $$PWD
-
 HEADERS += \
     $$PWD/frame.h \
     $$PWD/parser.h \

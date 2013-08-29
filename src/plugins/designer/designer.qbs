@@ -16,7 +16,6 @@ QtcPlugin {
 
     cpp.defines: base.concat(["CPP_ENABLED"])
     cpp.includePaths: base.concat([
-        cppGroup.prefix,
         sharedSources.prefix
     ])
 
@@ -63,7 +62,6 @@ QtcPlugin {
 
     Group {
         name: "cpp"
-        id: cppGroup
         prefix: "cpp/"
         files: [
             "cppsettingspage.cpp", "cppsettingspage.h",

@@ -29,11 +29,11 @@
 
 #include "termgdbadapter.h"
 
-#include "debuggercore.h"
-#include "debuggerprotocol.h"
-#include "debuggerstartparameters.h"
-#include "debuggerstringutils.h"
-#include "shared/hostutils.h"
+#include <debugger/debuggercore.h>
+#include <debugger/debuggerprotocol.h>
+#include <debugger/debuggerstartparameters.h>
+#include <debugger/debuggerstringutils.h>
+#include <debugger/shared/hostutils.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>

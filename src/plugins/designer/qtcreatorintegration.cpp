@@ -29,10 +29,10 @@
 
 #include "qtcreatorintegration.h"
 #include "formwindoweditor.h"
-#include "formclasswizardpage.h"
 #include "formeditorw.h"
 #include "editordata.h"
 #include <widgethost.h>
+#include <designer/cpp/formclasswizardpage.h>
 
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <cpptools/cpptoolsconstants.h>

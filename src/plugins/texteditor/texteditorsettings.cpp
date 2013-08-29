@@ -40,10 +40,10 @@
 #include "storagesettings.h"
 #include "tabsettings.h"
 #include "extraencodingsettings.h"
-#include "highlightersettingspage.h"
-#include "snippetssettingspage.h"
 #include "icodestylepreferences.h"
 #include "icodestylepreferencesfactory.h"
+#include <texteditor/generichighlighter/highlightersettingspage.h>
+#include <texteditor/snippets/snippetssettingspage.h>
 
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/icore.h>

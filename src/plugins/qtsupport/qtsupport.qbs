@@ -14,7 +14,6 @@ QtcPlugin {
 
     cpp.includePaths: base.concat([
         "../../shared",
-        "../../shared/proparser"
     ])
 
     cpp.defines: base.concat([

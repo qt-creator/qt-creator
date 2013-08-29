@@ -1,7 +1,5 @@
 QT *= network
 
-INCLUDEPATH *= $$PWD
-
 HEADERS += \
     $$PWD/callgrindparser.h \
     $$PWD/callgrindparsedata.h \

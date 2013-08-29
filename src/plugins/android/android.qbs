@@ -22,7 +22,6 @@ QtcPlugin {
     property bool enable: false
     pluginspecreplacements: ({"ANDROID_EXPERIMENTAL_STR": (enable ? "false": "true")})
 
-    cpp.includePaths: base.concat("../../shared")
     cpp.defines: base.concat(project.buildQbsProjectManager ? ['HAVE_QBS'] : [])
 
     files: [

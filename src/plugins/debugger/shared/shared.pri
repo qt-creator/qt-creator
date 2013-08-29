@@ -10,8 +10,6 @@ HEADERS += $$PWD/backtrace.h \
            $$PWD/peutils.h \
     shared/symbolpathsdialog.h
 
-INCLUDEPATH += $$PWD
-
 win32-msvc* {
 #   For the Privilege manipulation functions in sharedlibraryinjector.cpp.
     LIBS += -ladvapi32

@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 #include "systemeditor.h"
-#include "id.h"
+#include <coreplugin/id.h>
 
 #include <QStringList>
 #include <QUrl>

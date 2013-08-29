@@ -29,7 +29,7 @@
 
 #include "settingsdialog.h"
 
-#include "icore.h"
+#include <coreplugin/icore.h>
 
 #include <extensionsystem/pluginmanager.h>
 #include <utils/hostosinfo.h>

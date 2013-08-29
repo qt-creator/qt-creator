@@ -4,7 +4,6 @@ import "../QtcLibrary.qbs" as QtcLibrary
 QtcLibrary {
     name: "QmlJS"
 
-    cpp.includePaths: base.concat("parser")
     cpp.defines: base.concat([
         "QMLJS_BUILD_DIR"
     ])

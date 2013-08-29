@@ -29,13 +29,13 @@
 
 #include "gdbengine.h"
 
-#include "debuggerprotocol.h"
-#include "debuggeractions.h"
-#include "debuggercore.h"
-#include "debuggerstringutils.h"
-#include "debuggertooltipmanager.h"
+#include <debugger/debuggerprotocol.h>
+#include <debugger/debuggeractions.h>
+#include <debugger/debuggercore.h>
+#include <debugger/debuggerstringutils.h>
+#include <debugger/debuggertooltipmanager.h>
 
-#include "stackhandler.h"
+#include <debugger/stackhandler.h>
 
 #include <utils/qtcassert.h>
 

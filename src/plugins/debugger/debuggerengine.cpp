@@ -40,12 +40,12 @@
 #include "disassembleragent.h"
 #include "memoryagent.h"
 #include "moduleshandler.h"
-#include "peutils.h"
 #include "registerhandler.h"
 #include "sourcefileshandler.h"
 #include "stackhandler.h"
 #include "threadshandler.h"
 #include "watchhandler.h"
+#include <debugger/shared/peutils.h>
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>

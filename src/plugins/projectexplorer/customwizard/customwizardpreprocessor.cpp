@@ -29,7 +29,7 @@
 
 #include "customwizardpreprocessor.h"
 #ifdef WITH_TESTS
-#  include "projectexplorer.h"
+#  include "../projectexplorer.h"
 #  include <QTest>
 #endif
 

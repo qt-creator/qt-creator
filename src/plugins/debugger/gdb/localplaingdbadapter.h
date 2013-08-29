@@ -32,7 +32,7 @@
 
 #include "abstractplaingdbadapter.h"
 #include "localgdbprocess.h"
-#include <outputcollector.h>
+#include <debugger/outputcollector.h>
 
 namespace Debugger {
 namespace Internal {

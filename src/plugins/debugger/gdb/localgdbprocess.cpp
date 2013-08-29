@@ -29,8 +29,8 @@
 
 #include "localgdbprocess.h"
 
-#include "procinterrupt.h"
-#include "debuggerconstants.h"
+#include <debugger/procinterrupt.h>
+#include <debugger/debuggerconstants.h>
 
 #include <utils/qtcprocess.h>
 

@@ -28,16 +28,16 @@
 ****************************************************************************/
 
 #include "coreplugin.h"
-#include "actionmanager.h"
 #include "designmode.h"
 #include "editmode.h"
-#include "editormanager.h"
 #include "fileiconprovider.h"
 #include "helpmanager.h"
 #include "mainwindow.h"
 #include "mimedatabase.h"
 #include "modemanager.h"
 #include "infobar.h"
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
 
 #include <utils/savefile.h>
 

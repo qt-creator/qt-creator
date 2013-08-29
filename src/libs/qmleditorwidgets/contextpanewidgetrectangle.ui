@@ -298,12 +298,12 @@
   <customwidget>
    <class>QmlEditorWidgets::ColorButton</class>
    <extends>QToolButton</extends>
-   <header location="global">colorbutton.h</header>
+   <header location="global">qmleditorwidgets/colorbutton.h</header>
   </customwidget>
   <customwidget>
    <class>QmlEditorWidgets::GradientLine</class>
    <extends>QWidget</extends>
-   <header location="global">gradientline.h</header>
+   <header location="global">qmleditorwidgets/gradientline.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

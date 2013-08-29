@@ -9,8 +9,6 @@ QtcPlugin {
     Depends { name: "Find" }
     Depends { name: "Qt"; submodules: ["widgets", "xml"] }
 
-    cpp.includePaths: base.concat(qrcEdtitor.prefix)
-
     Group {
         name: "General"
         files: [
@@ -25,7 +23,6 @@ QtcPlugin {
 
     Group {
         name: "QRC Editor"
-        id: qrcEdtitor
         prefix: "qrceditor/"
         files: [
             "qrceditor.cpp", "qrceditor.h", "qrceditor.ui",

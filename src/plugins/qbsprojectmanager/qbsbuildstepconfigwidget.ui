@@ -168,7 +168,7 @@
   <customwidget>
    <class>QbsPropertyLineEdit</class>
    <extends>QLineEdit</extends>
-   <header>qbspropertylineedit.h</header>
+   <header location="global">qbsprojectmanager/qbspropertylineedit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

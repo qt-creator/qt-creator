@@ -30,7 +30,7 @@
 #ifndef BASEQMLDEBUGGERCLIENT_H
 #define BASEQMLDEBUGGERCLIENT_H
 
-#include "debuggerengine.h"
+#include <debugger/debuggerengine.h>
 #include <qmldebug/qmldebugclient.h>
 
 namespace Debugger {

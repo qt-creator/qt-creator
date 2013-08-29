@@ -9,8 +9,8 @@ QtcTool {
         submodules: ["gui", "network"]
     }
     Depends { name: "Core" }
+    Depends { name: "CppTools" }
 
-    cpp.includePaths: ["../../"]
     cpp.rpaths: [
         "$ORIGIN/../lib/qtcreator",
         "$ORIGIN/../lib/qtcreator/plugins",

@@ -28,14 +28,14 @@
 ****************************************************************************/
 
 #include "editmode.h"
-#include "editormanager.h"
 #include "coreconstants.h"
 #include "modemanager.h"
 #include "minisplitter.h"
 #include "outputpane.h"
 #include "navigationwidget.h"
 #include "rightpane.h"
-#include "ieditor.h"
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
 
 #include <QLatin1String>
 #include <QHBoxLayout>

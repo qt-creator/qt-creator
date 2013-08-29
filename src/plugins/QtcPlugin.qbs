@@ -26,7 +26,7 @@ Product {
         if (qbs.buildVariant == "release" && (qbs.toolchain.contains("gcc") || qbs.toolchain.contains("mingw")))
             return ["-Wl,-s"]
     }
-    cpp.includePaths: [ ".", ".." ]
+    cpp.includePaths: [path]
 
     Group {
         name: "PluginSpec"
@@ -47,5 +47,7 @@ Product {
 
     Export {
         Depends { name: "ExtensionSystem" }
+        Depends { name: "cpp" }
+        cpp.includePaths: [path]
     }
 }

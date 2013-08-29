@@ -29,13 +29,13 @@
 
 #include "qmlinspectoradapter.h"
 
-#include "debuggeractions.h"
-#include "debuggercore.h"
-#include "debuggerstringutils.h"
 #include "qmladapter.h"
-#include "debuggerengine.h"
 #include "qmlinspectoragent.h"
 #include "qmllivetextpreview.h"
+#include <debugger/debuggeractions.h>
+#include <debugger/debuggercore.h>
+#include <debugger/debuggerstringutils.h>
+#include <debugger/debuggerengine.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icore.h>

@@ -33,9 +33,9 @@
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/functionhintproposal.h>
 #include <texteditor/codeassist/basicproposalitemlistmodel.h>
-#include "completionsettings.h"
-#include "texteditorsettings.h"
-#include "basetexteditor.h"
+#include <texteditor/completionsettings.h>
+#include <texteditor/texteditorsettings.h>
+#include <texteditor/basetexteditor.h>
 
 using namespace TextEditor;
 

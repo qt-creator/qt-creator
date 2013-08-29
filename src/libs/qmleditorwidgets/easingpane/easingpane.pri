@@ -1,5 +1,4 @@
 VPATH += $$PWD
-INCLUDEPATH += $$PWD
 SOURCES += $$PWD/easinggraph.cpp \
     $$PWD/easingcontextpane.cpp
 

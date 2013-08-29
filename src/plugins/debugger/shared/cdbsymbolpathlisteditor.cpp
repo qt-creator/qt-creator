@@ -34,7 +34,7 @@
 #include <utils/pathchooser.h>
 #include <utils/checkablemessagebox.h>
 
-#include <symbolpathsdialog.h>
+#include "symbolpathsdialog.h"
 
 #include <QCheckBox>
 #include <QDir>

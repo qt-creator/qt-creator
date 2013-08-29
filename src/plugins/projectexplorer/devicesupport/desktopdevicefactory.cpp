@@ -29,7 +29,7 @@
 
 #include "desktopdevicefactory.h"
 #include "desktopdevice.h"
-#include "projectexplorerconstants.h"
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/qtcassert.h>
 

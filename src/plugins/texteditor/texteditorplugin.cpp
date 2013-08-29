@@ -38,10 +38,10 @@
 #include "textfilewizard.h"
 #include "plaintexteditorfactory.h"
 #include "plaintexteditor.h"
-#include "manager.h"
 #include "outlinefactory.h"
 #include "snippets/plaintextsnippetprovider.h"
 #include "basetextmarkregistry.h"
+#include <texteditor/generichighlighter/manager.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/variablemanager.h>

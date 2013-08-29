@@ -28,12 +28,12 @@
 ****************************************************************************/
 
 #include "cdboptionspage.h"
-#include "commonoptionspage.h"
-#include "debuggeractions.h"
-#include "debuggercore.h"
-#include "debuggerinternalconstants.h"
 #include "cdbengine.h"
-#include "cdbsymbolpathlisteditor.h"
+#include <debugger/commonoptionspage.h>
+#include <debugger/debuggeractions.h>
+#include <debugger/debuggercore.h>
+#include <debugger/debuggerinternalconstants.h>
+#include <debugger/shared/cdbsymbolpathlisteditor.h>
 
 #include <coreplugin/icore.h>
 

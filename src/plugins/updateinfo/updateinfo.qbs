@@ -11,11 +11,6 @@ QtcPlugin {
     property bool enable: false
     pluginspecreplacements: ({"UPDATEINFO_EXPERIMENTAL_STR": (enable ? "false": "true")})
 
-    cpp.includePaths: [
-        "..",
-        buildDirectory,
-    ]
-
     files: [
         "updateinfobutton.cpp",
         "updateinfobutton.h",

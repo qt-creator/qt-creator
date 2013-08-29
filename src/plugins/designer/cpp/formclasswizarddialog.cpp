@@ -28,9 +28,9 @@
 ****************************************************************************/
 
 #include "formclasswizarddialog.h"
-#include "formtemplatewizardpage.h"
 #include "formclasswizardpage.h"
 #include "formclasswizardparameters.h"
+#include <designer/formtemplatewizardpage.h>
 
 #include <coreplugin/basefilewizard.h>
 

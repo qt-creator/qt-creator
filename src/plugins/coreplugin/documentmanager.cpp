@@ -29,17 +29,17 @@
 
 #include "documentmanager.h"
 
-#include "editormanager.h"
 #include "icore.h"
-#include "ieditor.h"
-#include "ieditorfactory.h"
-#include "iexternaleditor.h"
 #include "idocument.h"
 #include "mimedatabase.h"
-#include "saveitemsdialog.h"
 #include "coreconstants.h"
 
-#include "dialogs/readonlyfilesdialog.h"
+#include <coreplugin/dialogs/readonlyfilesdialog.h>
+#include <coreplugin/dialogs/saveitemsdialog.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/editormanager/ieditorfactory.h>
+#include <coreplugin/editormanager/iexternaleditor.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>

@@ -29,8 +29,8 @@
 
 #include "formclasswizard.h"
 #include "formclasswizarddialog.h"
-#include "designerconstants.h"
-#include "qtdesignerformclasscodegenerator.h"
+#include <designer/designerconstants.h>
+#include <designer/qtdesignerformclasscodegenerator.h>
 #include <qtsupport/qtsupportconstants.h>
 
 #include <cppeditor/cppeditorconstants.h>

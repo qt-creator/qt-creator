@@ -4,8 +4,6 @@ contains(CONFIG, dll) {
     DEFINES += QMLDEBUG_STATIC_LIB
 }
 
-INCLUDEPATH += $$PWD/..
-
 HEADERS += \
     $$PWD/qmlprofilereventlocation.h \
     $$PWD/qmldebugclient.h \

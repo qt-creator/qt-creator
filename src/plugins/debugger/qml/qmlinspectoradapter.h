@@ -30,7 +30,7 @@
 #ifndef QMLINSPECTORADAPTER_H
 #define QMLINSPECTORADAPTER_H
 
-#include "debuggerconstants.h"
+#include <debugger/debuggerconstants.h>
 
 #include <coreplugin/icontext.h>
 #include <qmldebug/qmldebugclient.h>

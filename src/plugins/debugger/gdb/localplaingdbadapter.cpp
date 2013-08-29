@@ -29,8 +29,8 @@
 
 #include "localplaingdbadapter.h"
 
-#include "debuggerstartparameters.h"
-#include "debuggerstringutils.h"
+#include <debugger/debuggerstartparameters.h>
+#include <debugger/debuggerstringutils.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>

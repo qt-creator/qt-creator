@@ -28,32 +28,21 @@
 ****************************************************************************/
 
 #include "mainwindow.h"
-#include "actioncontainer.h"
-#include "command.h"
-#include "actionmanager.h"
-#include "actionmanager_p.h"
 #include "icore.h"
 #include "coreconstants.h"
-#include "editormanager.h"
 #include "toolsettings.h"
 #include "mimetypesettings.h"
 #include "fancytabwidget.h"
 #include "documentmanager.h"
 #include "generalsettings.h"
 #include "helpmanager.h"
-#include "ieditor.h"
 #include "idocumentfactory.h"
 #include "messagemanager.h"
 #include "modemanager.h"
 #include "mimedatabase.h"
-#include "newdialog.h"
 #include "outputpanemanager.h"
 #include "plugindialog.h"
-#include "progressmanager_p.h"
-#include "progressview.h"
-#include "shortcutsettings.h"
 #include "vcsmanager.h"
-#include "settingsdialog.h"
 #include "variablemanager.h"
 #include "versiondialog.h"
 #include "statusbarmanager.h"
@@ -71,8 +60,19 @@
 #endif
 
 #include <app/app_version.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/actionmanager_p.h>
+#include <coreplugin/actionmanager/command.h>
+#include <coreplugin/dialogs/newdialog.h>
+#include <coreplugin/dialogs/settingsdialog.h>
+#include <coreplugin/dialogs/shortcutsettings.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icorelistener.h>
 #include <coreplugin/inavigationwidgetfactory.h>
+#include <coreplugin/progressmanager/progressmanager_p.h>
+#include <coreplugin/progressmanager/progressview.h>
 #include <coreplugin/settingsdatabase.h>
 #include <utils/historycompleter.h>
 #include <utils/hostosinfo.h>

@@ -28,14 +28,14 @@
 ****************************************************************************/
 
 #include "coreconstants.h"
-#include "editormanager.h"
 #include "icore.h"
-#include "ieditorfactory.h"
-#include "iexternaleditor.h"
 #include "mimedatabase.h"
 #include "mimetypemagicdialog.h"
 #include "mimetypesettings.h"
 #include "ui_mimetypesettingspage.h"
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditorfactory.h>
+#include <coreplugin/editormanager/iexternaleditor.h>
 
 #include <QAbstractTableModel>
 #include <QCoreApplication>

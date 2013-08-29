@@ -29,9 +29,9 @@
 
 #include "attachgdbadapter.h"
 
-#include "debuggerprotocol.h"
-#include "debuggerstringutils.h"
-#include "debuggerstartparameters.h"
+#include <debugger/debuggerprotocol.h>
+#include <debugger/debuggerstringutils.h>
+#include <debugger/debuggerstartparameters.h>
 
 #include <utils/qtcassert.h>
 

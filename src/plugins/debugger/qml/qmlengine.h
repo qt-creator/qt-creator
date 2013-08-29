@@ -30,10 +30,10 @@
 #ifndef QMLENGINE_H
 #define QMLENGINE_H
 
-#include "debuggerengine.h"
 #include "interactiveinterpreter.h"
 #include "qmladapter.h"
 #include "qmlinspectoradapter.h"
+#include <debugger/debuggerengine.h>
 
 #include <projectexplorer/applicationlauncher.h>
 #include <qmldebug/qdebugmessageclient.h>

@@ -29,11 +29,11 @@
 
 #include "qmlinspectoragent.h"
 
-#include "debuggeractions.h"
-#include "debuggercore.h"
-#include "debuggerengine.h"
-#include "debuggerstringutils.h"
-#include "watchhandler.h"
+#include <debugger/debuggeractions.h>
+#include <debugger/debuggercore.h>
+#include <debugger/debuggerengine.h>
+#include <debugger/debuggerstringutils.h>
+#include <debugger/watchhandler.h>
 
 #include <qmldebug/qmldebugconstants.h>
 #include <utils/qtcassert.h>

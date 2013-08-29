@@ -17,8 +17,6 @@ QtcPlugin {
     Depends { name: "QmlDebug" }
     Depends { name: "QtSupport" }
 
-    cpp.includePaths: base.concat("../../libs/3rdparty")
-
     files: [
         "QmlJSTools.mimetypes.xml",
         "qmljsbundleprovider.cpp",

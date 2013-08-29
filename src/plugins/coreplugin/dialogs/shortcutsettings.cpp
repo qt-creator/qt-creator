@@ -28,14 +28,14 @@
 ****************************************************************************/
 
 #include "shortcutsettings.h"
-#include "actionmanager/actionmanager.h"
-#include "actionmanager/command.h"
-#include "command_p.h"
-#include "commandsfile.h"
-#include "coreconstants.h"
-#include "documentmanager.h"
-#include "icore.h"
-#include "id.h"
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/documentmanager.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/id.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/command.h>
+#include <coreplugin/actionmanager/command_p.h>
+#include <coreplugin/actionmanager/commandsfile.h>
 
 #include <QKeyEvent>
 #include <QFileDialog>

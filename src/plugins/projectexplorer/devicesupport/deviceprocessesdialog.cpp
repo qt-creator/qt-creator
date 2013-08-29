@@ -27,10 +27,10 @@
 **
 ****************************************************************************/
 
-#include "devicesupport/deviceprocessesdialog.h"
-#include "devicesupport/deviceprocesslist.h"
-#include "kitchooser.h"
-#include "kitinformation.h"
+#include "deviceprocessesdialog.h"
+#include "deviceprocesslist.h"
+#include <projectexplorer/kitchooser.h>
+#include <projectexplorer/kitinformation.h>
 
 #include <utils/filterlineedit.h>
 #include <utils/qtcassert.h>

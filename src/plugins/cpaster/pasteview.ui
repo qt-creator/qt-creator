@@ -216,7 +216,7 @@ p, li { white-space: pre-wrap; }
   <customwidget>
    <class>CodePaster::ColumnIndicatorTextEdit</class>
    <extends>QTextEdit</extends>
-   <header>columnindicatortextedit.h</header>
+   <header location="global">cpaster/columnindicatortextedit.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

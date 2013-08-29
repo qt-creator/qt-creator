@@ -14,10 +14,6 @@ QtcPlugin {
     Depends { name: "QtcSsh" }
 
     cpp.defines: base.concat("QTC_CPU=X86Architecture")
-    cpp.includePaths: base.concat([
-        customWizard.prefix,
-        publishing.prefix
-    ])
     Properties {
         condition: qbs.targetOS.contains("osx")
         cpp.frameworks: base.concat(["Carbon"])
@@ -145,7 +141,6 @@ QtcPlugin {
 
     Group {
         name: "CustomWizard"
-        id: customWizard
         prefix: "customwizard/"
         files: [
             "customwizard.cpp", "customwizard.h",
@@ -237,7 +232,6 @@ QtcPlugin {
 
     Group {
         name: "Publishing"
-        id: publishing
         prefix: "publishing/"
         files: [
             "ipublishingwizardfactory.h",

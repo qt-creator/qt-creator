@@ -43,11 +43,11 @@
 #include <QGraphicsEffect>
 #include <QAction>
 #include "contextpanetextwidget.h"
-#include "easingcontextpane.h"
 #include "contextpanewidgetimage.h"
 #include "contextpanewidgetrectangle.h"
 #include "customcolordialog.h"
 #include "colorbutton.h"
+#include <qmleditorwidgets/easingpane/easingcontextpane.h>
 
 using namespace Utils;
 

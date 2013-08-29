@@ -15,15 +15,6 @@ QtcPlugin {
     Depends { name: "Aggregation" }
     Depends { name: "app_version_header" }
 
-    cpp.includePaths: base.concat([
-        "../..",
-        "../../shared/scriptwrapper",
-        "dialogs",
-        "editormanager",
-        "progressmanager",
-        "actionmanager"
-    ])
-
     cpp.dynamicLibraries: {
         if (qbs.targetOS.contains("windows")) return [
             "ole32",

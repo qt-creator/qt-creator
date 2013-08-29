@@ -18,12 +18,7 @@ QtcPlugin {
     Depends { name: "QtcSsh" }
     Depends { name: "Utils" }
 
-    cpp.includePaths: base.concat([
-        "shared",
-        lldblib.prefix,
-        "../../shared/json",
-        "../../shared/registryaccess"
-    ])
+    cpp.includePaths: base.concat(["../../shared/registryaccess"])
 
     pluginRecommends: [
         "CppEditor"
@@ -283,6 +278,5 @@ QtcPlugin {
     Export {
         Depends { name: "cpp" }
         Depends { name: "QtcSsh" }
-        cpp.includePaths: ["."]
     }
 }

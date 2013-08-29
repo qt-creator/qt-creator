@@ -28,11 +28,11 @@
 ****************************************************************************/
 
 #include "desktopdevice.h"
-#include "projectexplorerconstants.h"
 #include "desktopdeviceprocess.h"
 #include "deviceprocesslist.h"
 #include "localprocesslist.h"
 #include "desktopdeviceconfigurationwidget.h"
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <ssh/sshconnection.h>
 #include <utils/portlist.h>

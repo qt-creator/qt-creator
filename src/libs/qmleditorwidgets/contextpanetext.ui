@@ -438,12 +438,12 @@
   <customwidget>
    <class>QmlEditorWidgets::ColorButton</class>
    <extends>QToolButton</extends>
-   <header location="global">colorbutton.h</header>
+   <header location="global">qmleditorwidgets/colorbutton.h</header>
   </customwidget>
   <customwidget>
    <class>QmlEditorWidgets::FontSizeSpinBox</class>
    <extends>QSpinBox</extends>
-   <header location="global">fontsizespinbox.h</header>
+   <header location="global">qmleditorwidgets/fontsizespinbox.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

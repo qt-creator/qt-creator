@@ -10,13 +10,6 @@ QtcPlugin {
     Depends { name: "Find" }
     Depends { name: "Locator" }
 
-    cpp.includePaths: base.concat([
-        "generichighlighter",
-        "snippets",
-        "codeassist",
-        "."
-    ])
-
     files: [
         "autocompleter.cpp",
         "autocompleter.h",

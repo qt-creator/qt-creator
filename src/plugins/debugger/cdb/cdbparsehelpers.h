@@ -30,7 +30,7 @@
 #ifndef CDBPARSEHELPERS_H
 #define CDBPARSEHELPERS_H
 
-#include "breakpoint.h"
+#include <debugger/breakpoint.h>
 
 #include <QPair>
 

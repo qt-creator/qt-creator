@@ -32,13 +32,13 @@
 #include "texteditorplugin.h"
 #include "texteditorsettings.h"
 #include "basetextdocument.h"
-#include "highlightdefinition.h"
-#include "highlighter.h"
-#include "highlightersettings.h"
-#include "manager.h"
-#include "context.h"
 #include "normalindenter.h"
 #include "generichighlighter/highlighterutils.h"
+#include <texteditor/generichighlighter/context.h>
+#include <texteditor/generichighlighter/highlightdefinition.h>
+#include <texteditor/generichighlighter/highlighter.h>
+#include <texteditor/generichighlighter/highlightersettings.h>
+#include <texteditor/generichighlighter/manager.h>
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>

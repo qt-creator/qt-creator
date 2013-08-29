@@ -29,13 +29,13 @@
 
 #include "editorview.h"
 #include "editormanager.h"
-#include "icore.h"
-#include "minisplitter.h"
 #include "documentmodel.h"
 
 #include <coreplugin/editortoolbar.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/infobar.h>
+#include <coreplugin/minisplitter.h>
 #include <coreplugin/editormanager/ieditor.h>
 
 #include <coreplugin/findplaceholder.h>

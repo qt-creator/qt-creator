@@ -30,9 +30,9 @@
 #include "contextpanewidgetrectangle.h"
 #include "ui_contextpanewidgetrectangle.h"
 #include "contextpanewidget.h"
+#include "customcolordialog.h"
 #include <qmljs/qmljspropertyreader.h>
 #include <qmljs/qmljsutils.h>
-#include <customcolordialog.h>
 #include <QDebug>
 
 namespace QmlEditorWidgets {

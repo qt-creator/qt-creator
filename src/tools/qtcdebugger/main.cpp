@@ -45,7 +45,7 @@
 #include <QProcess>
 #include <QPushButton>
 
-#include "registryaccess.h"
+#include <registryaccess.h>
 
 #include <windows.h>
 #include <psapi.h>

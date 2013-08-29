@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 #include "remoteplaingdbadapter.h"
-#include "debuggerstartparameters.h"
+#include <debugger/debuggerstartparameters.h>
 
 #include <utils/qtcassert.h>
 

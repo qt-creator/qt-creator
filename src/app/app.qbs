@@ -13,11 +13,8 @@ Application {
             return ["-Wl,-s"]
     }
     cpp.includePaths: [
-        "..",
-        "../libs",
         "../shared/qtsingleapplication",
         "../shared/qtlockedfile",
-        buildDirectory
     ]
 
     Depends { name: "app_version_header" }

@@ -19,11 +19,11 @@ DynamicLibrary {
     cpp.rpaths: qbs.targetOS.contains("osx")
             ? ["@loader_path/..", "@executable_path/.."]
             : ["$ORIGIN", "$ORIGIN/.."]
-    cpp.includePaths: [ ".", ".." ]
+    cpp.includePaths: [path]
 
     Export {
         Depends { name: "cpp" }
-        cpp.includePaths: [ "." ]
+        cpp.includePaths: [path]
     }
 
     Group {

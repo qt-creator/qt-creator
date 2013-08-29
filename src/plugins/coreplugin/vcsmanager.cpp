@@ -31,12 +31,12 @@
 #include "iversioncontrol.h"
 #include "icore.h"
 #include "documentmanager.h"
-#include "editormanager.h"
-#include "ieditor.h"
 #include "idocument.h"
 #include "infobar.h"
 
-#include "addtovcsdialog.h"
+#include <coreplugin/dialogs/addtovcsdialog.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
 
 #include <vcsbase/vcsbaseconstants.h>
 #include <extensionsystem/pluginmanager.h>

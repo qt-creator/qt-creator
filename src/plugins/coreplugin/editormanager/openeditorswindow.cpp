@@ -31,7 +31,7 @@
 #include "documentmodel.h"
 #include "editormanager.h"
 #include "editorview.h"
-#include "idocument.h"
+#include <coreplugin/idocument.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>

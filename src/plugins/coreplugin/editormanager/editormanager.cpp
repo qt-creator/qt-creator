@@ -29,34 +29,34 @@
 
 #include "editormanager.h"
 #include "editorview.h"
-#include "findplaceholder.h"
 #include "openeditorswindow.h"
 #include "openeditorsview.h"
 #include "documentmodel.h"
-#include "openwithdialog.h"
-#include "outputpane.h"
-#include "outputpanemanager.h"
-#include "rightpane.h"
-#include "documentmanager.h"
-#include "icore.h"
 #include "ieditor.h"
-#include "iversioncontrol.h"
-#include "mimedatabase.h"
-#include "vcsmanager.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/dialogs/openwithdialog.h>
+#include <coreplugin/dialogs/readonlyfilesdialog.h>
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/editormanager/iexternaleditor.h>
 #include <coreplugin/editortoolbar.h>
 #include <coreplugin/fileutils.h>
+#include <coreplugin/findplaceholder.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/icorelistener.h>
 #include <coreplugin/infobar.h>
+#include <coreplugin/iversioncontrol.h>
+#include <coreplugin/mimedatabase.h>
 #include <coreplugin/modemanager.h>
+#include <coreplugin/outputpane.h>
+#include <coreplugin/outputpanemanager.h>
+#include <coreplugin/rightpane.h>
 #include <coreplugin/settingsdatabase.h>
 #include <coreplugin/variablemanager.h>
-#include <coreplugin/dialogs/readonlyfilesdialog.h>
+#include <coreplugin/vcsmanager.h>
 
 #include <extensionsystem/pluginmanager.h>
 

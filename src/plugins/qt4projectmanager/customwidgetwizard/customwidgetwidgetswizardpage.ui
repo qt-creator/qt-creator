@@ -94,7 +94,7 @@
   <customwidget>
    <class>Qt4ProjectManager::Internal::ClassList</class>
    <extends>QListWidget</extends>
-   <header>classlist.h</header>
+   <header location="global">qt4projectmanager/customwidgetwizard/classlist.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

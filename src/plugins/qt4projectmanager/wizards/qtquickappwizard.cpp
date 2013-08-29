@@ -32,7 +32,7 @@
 #include "qtquickapp.h"
 #include "qtquickappwizardpages.h"
 #include "targetsetuppage.h"
-#include "qt4projectmanagerconstants.h"
+#include <qt4projectmanager/qt4projectmanagerconstants.h>
 
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/baseqtversion.h>

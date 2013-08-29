@@ -16,11 +16,6 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "QmlJSTools" }
 
-    cpp.includePaths: base.concat([
-        customWidgetWizard.prefix,
-        "../../shared",
-    ])
-
     pluginRecommends: [
         "Designer"
     ]
@@ -66,7 +61,6 @@ QtcPlugin {
 
     Group {
         name: "Custom Widget Wizard"
-        id: customWidgetWizard
         prefix: "customwidgetwizard/"
         files: [
             "classdefinition.cpp", "classdefinition.h", "classdefinition.ui",

@@ -29,10 +29,6 @@
 
 #include "gdbengine.h"
 
-#include "debuggerstartparameters.h"
-#include "debuggerinternalconstants.h"
-#include "debuggerruncontrolfactory.h"
-#include "disassemblerlines.h"
 #include "attachgdbadapter.h"
 #include "coregdbadapter.h"
 #include "localplaingdbadapter.h"
@@ -40,28 +36,34 @@
 #include "remotegdbserveradapter.h"
 #include "remoteplaingdbadapter.h"
 
-#include "debuggeractions.h"
-#include "debuggercore.h"
-#include "debuggermainwindow.h"
-#include "debuggerplugin.h"
-#include "debuggerprotocol.h"
-#include "debuggerstringutils.h"
-#include "debuggertooltipmanager.h"
-#include "disassembleragent.h"
 #include "gdboptionspage.h"
-#include "memoryagent.h"
-#include "sourceutils.h"
 
-#include "breakhandler.h"
-#include "moduleshandler.h"
-#include "registerhandler.h"
-#include "sourcefileshandler.h"
-#include "stackhandler.h"
-#include "threadshandler.h"
-#include "debuggersourcepathmappingwidget.h"
-#include "hostutils.h"
-#include "logwindow.h"
-#include "procinterrupt.h"
+#include <debugger/debuggerstartparameters.h>
+#include <debugger/debuggerinternalconstants.h>
+#include <debugger/debuggerruncontrolfactory.h>
+#include <debugger/disassemblerlines.h>
+
+#include <debugger/debuggeractions.h>
+#include <debugger/debuggercore.h>
+#include <debugger/debuggermainwindow.h>
+#include <debugger/debuggerplugin.h>
+#include <debugger/debuggerprotocol.h>
+#include <debugger/debuggerstringutils.h>
+#include <debugger/debuggertooltipmanager.h>
+#include <debugger/disassembleragent.h>
+#include <debugger/memoryagent.h>
+#include <debugger/sourceutils.h>
+
+#include <debugger/breakhandler.h>
+#include <debugger/moduleshandler.h>
+#include <debugger/registerhandler.h>
+#include <debugger/sourcefileshandler.h>
+#include <debugger/stackhandler.h>
+#include <debugger/threadshandler.h>
+#include <debugger/debuggersourcepathmappingwidget.h>
+#include <debugger/logwindow.h>
+#include <debugger/procinterrupt.h>
+#include <debugger/shared/hostutils.h>
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/taskhub.h>

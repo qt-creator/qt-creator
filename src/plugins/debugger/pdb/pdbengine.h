@@ -30,7 +30,7 @@
 #ifndef DEBUGGER_PDBENGINE_H
 #define DEBUGGER_PDBENGINE_H
 
-#include "debuggerengine.h"
+#include <debugger/debuggerengine.h>
 
 #include <QProcess>
 #include <QQueue>

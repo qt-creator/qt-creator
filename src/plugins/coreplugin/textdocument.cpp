@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 #include "textdocument.h"
-#include "editormanager.h"
+#include <coreplugin/editormanager/editormanager.h>
 
 #include <QDebug>
 #include <QTextCodec>

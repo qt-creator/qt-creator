@@ -30,9 +30,9 @@
 #include "customwizard.h"
 #include "customwizardparameters.h"
 #include "customwizardpage.h"
-#include "projectexplorer.h"
-#include "baseprojectwizarddialog.h"
 #include "customwizardscriptgenerator.h"
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/baseprojectwizarddialog.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>

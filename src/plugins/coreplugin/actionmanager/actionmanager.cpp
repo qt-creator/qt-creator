@@ -29,10 +29,10 @@
 
 #include "actionmanager.h"
 #include "actionmanager_p.h"
-#include "mainwindow.h"
 #include "actioncontainer_p.h"
 #include "command_p.h"
-#include "id.h"
+#include <coreplugin/id.h>
+#include <coreplugin/mainwindow.h>
 
 #include <utils/qtcassert.h>
 

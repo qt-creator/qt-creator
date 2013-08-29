@@ -32,7 +32,7 @@
 #ifndef BLACKBERRYCONFIGURATIONS_H
 #define BLACKBERRYCONFIGURATIONS_H
 
-#include <qnxconstants.h>
+#include "qnxconstants.h"
 
 #include <utils/environment.h>
 #include <utils/fileutils.h>

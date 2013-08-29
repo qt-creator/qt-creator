@@ -29,23 +29,23 @@
 
 #include "lldbenginehost.h"
 
-#include "debuggerstartparameters.h"
-#include "debuggeractions.h"
-#include "debuggerconstants.h"
-#include "debuggerdialogs.h"
-#include "debuggerplugin.h"
-#include "debuggerstringutils.h"
+#include <debugger/debuggerstartparameters.h>
+#include <debugger/debuggeractions.h>
+#include <debugger/debuggerconstants.h>
+#include <debugger/debuggerdialogs.h>
+#include <debugger/debuggerplugin.h>
+#include <debugger/debuggerstringutils.h>
 
-#include "breakhandler.h"
-#include "breakpoint.h"
-#include "moduleshandler.h"
-#include "registerhandler.h"
-#include "stackhandler.h"
-#include "watchhandler.h"
-#include "watchutils.h"
-#include "threadshandler.h"
-#include "disassembleragent.h"
-#include "memoryagent.h"
+#include <debugger/breakhandler.h>
+#include <debugger/breakpoint.h>
+#include <debugger/moduleshandler.h>
+#include <debugger/registerhandler.h>
+#include <debugger/stackhandler.h>
+#include <debugger/watchhandler.h>
+#include <debugger/watchutils.h>
+#include <debugger/threadshandler.h>
+#include <debugger/disassembleragent.h>
+#include <debugger/memoryagent.h>
 
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>

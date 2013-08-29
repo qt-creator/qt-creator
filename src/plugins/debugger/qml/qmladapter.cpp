@@ -29,7 +29,7 @@
 
 #include "qmladapter.h"
 
-#include "debuggerstringutils.h"
+#include <debugger/debuggerstringutils.h>
 #include "qmlengine.h"
 #include "qmlv8debuggerclient.h"
 #include "qscriptdebuggerclient.h"

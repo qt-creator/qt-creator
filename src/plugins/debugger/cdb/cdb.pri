@@ -10,4 +10,3 @@ SOURCES += $$PWD/cdbengine.cpp \
 
 FORMS += cdb/cdboptionspagewidget.ui
 
-INCLUDEPATH*=$$PWD

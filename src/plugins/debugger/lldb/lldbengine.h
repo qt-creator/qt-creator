@@ -30,9 +30,9 @@
 #ifndef DEBUGGER_LLDBENGINE
 #define DEBUGGER_LLDBENGINE
 
-#include "debuggerengine.h"
-#include "disassembleragent.h"
-#include "memoryagent.h"
+#include <debugger/debuggerengine.h>
+#include <debugger/disassembleragent.h>
+#include <debugger/memoryagent.h>
 
 #include <QPointer>
 #include <QProcess>

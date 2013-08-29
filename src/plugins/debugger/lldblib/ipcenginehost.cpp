@@ -30,20 +30,20 @@
 #include "ipcenginehost.h"
 
 #include "ipcengineguest.h"
-#include "debuggerstartparameters.h"
-#include "breakhandler.h"
-#include "breakpoint.h"
-#include "disassemblerlines.h"
-#include "moduleshandler.h"
-#include "registerhandler.h"
-#include "stackhandler.h"
-#include "watchhandler.h"
-#include "watchutils.h"
-#include "threadshandler.h"
-#include "disassembleragent.h"
-#include "memoryagent.h"
-#include "debuggerstreamops.h"
-#include "debuggercore.h"
+#include <debugger/debuggerstartparameters.h>
+#include <debugger/breakhandler.h>
+#include <debugger/breakpoint.h>
+#include <debugger/disassemblerlines.h>
+#include <debugger/moduleshandler.h>
+#include <debugger/registerhandler.h>
+#include <debugger/stackhandler.h>
+#include <debugger/watchhandler.h>
+#include <debugger/watchutils.h>
+#include <debugger/threadshandler.h>
+#include <debugger/disassembleragent.h>
+#include <debugger/memoryagent.h>
+#include <debugger/debuggerstreamops.h>
+#include <debugger/debuggercore.h>
 
 #include <utils/qtcassert.h>
 

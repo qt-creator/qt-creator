@@ -30,7 +30,7 @@
 #ifndef DEVICESETTINGSWIDGET_H
 #define DEVICESETTINGSWIDGET_H
 
-#include "devicesupport/idevice.h"
+#include "idevice.h"
 
 #include <QList>
 #include <QString>

@@ -27,7 +27,6 @@
 **
 ****************************************************************************/
 
-#include "qtsingleapplication.h"
 #include "../tools/qtcreatorcrashhandler/crashhandlersetup.h"
 
 #include <app/app_version.h>
@@ -35,6 +34,7 @@
 #include <extensionsystem/pluginerroroverview.h>
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
+#include <qtsingleapplication.h>
 
 #include <QDebug>
 #include <QDir>

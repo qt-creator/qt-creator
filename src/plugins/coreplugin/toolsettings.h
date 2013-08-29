@@ -30,7 +30,7 @@
 #ifndef TOOLSETTINGS_H
 #define TOOLSETTINGS_H
 
-#include "ioptionspage.h"
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QPointer>
 

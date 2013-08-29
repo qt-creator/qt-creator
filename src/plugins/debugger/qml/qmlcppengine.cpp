@@ -28,11 +28,11 @@
 ****************************************************************************/
 
 #include "qmlcppengine.h"
-#include "debuggerruncontrolfactory.h"
-#include "debuggerstartparameters.h"
-#include "stackhandler.h"
 #include "qmlengine.h"
-#include "watchhandler.h"
+#include <debugger/debuggerruncontrolfactory.h>
+#include <debugger/debuggerstartparameters.h>
+#include <debugger/stackhandler.h>
+#include <debugger/watchhandler.h>
 
 #include <utils/qtcassert.h>
 #include <texteditor/itexteditor.h>

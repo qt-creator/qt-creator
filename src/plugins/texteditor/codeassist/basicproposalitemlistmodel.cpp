@@ -29,8 +29,8 @@
 
 #include "basicproposalitemlistmodel.h"
 #include "basicproposalitem.h"
-#include "texteditorsettings.h"
-#include "completionsettings.h"
+#include <texteditor/texteditorsettings.h>
+#include <texteditor/completionsettings.h>
 
 #include <QDebug>
 #include <QRegExp>

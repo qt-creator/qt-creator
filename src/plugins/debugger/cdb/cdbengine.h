@@ -30,7 +30,7 @@
 #ifndef DEBUGGER_CDBENGINE_H
 #define DEBUGGER_CDBENGINE_H
 
-#include "debuggerengine.h"
+#include <debugger/debuggerengine.h>
 
 #include <QSharedPointer>
 #include <QProcess>

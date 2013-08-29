@@ -31,21 +31,21 @@
 #include "baseqmldebuggerclient.h"
 #include "qmlinspectoragent.h"
 
-#include "debuggerstartparameters.h"
-#include "debuggeractions.h"
-#include "debuggercore.h"
-#include "debuggerinternalconstants.h"
-#include "debuggermainwindow.h"
-#include "debuggerrunner.h"
-#include "debuggerstringutils.h"
-#include "debuggertooltipmanager.h"
-#include "localsandexpressionswindow.h"
-#include "watchwindow.h"
+#include <debugger/debuggerstartparameters.h>
+#include <debugger/debuggeractions.h>
+#include <debugger/debuggercore.h>
+#include <debugger/debuggerinternalconstants.h>
+#include <debugger/debuggermainwindow.h>
+#include <debugger/debuggerrunner.h>
+#include <debugger/debuggerstringutils.h>
+#include <debugger/debuggertooltipmanager.h>
+#include <debugger/localsandexpressionswindow.h>
+#include <debugger/watchwindow.h>
 
-#include "breakhandler.h"
-#include "stackhandler.h"
-#include "watchhandler.h"
-#include "sourcefileshandler.h"
+#include <debugger/breakhandler.h>
+#include <debugger/stackhandler.h>
+#include <debugger/watchhandler.h>
+#include <debugger/sourcefileshandler.h>
 #include <qmljseditor/qmljseditorconstants.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>

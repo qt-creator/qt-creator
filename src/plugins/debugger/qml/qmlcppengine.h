@@ -30,7 +30,7 @@
 #ifndef QMLCPPENGINE_H
 #define QMLCPPENGINE_H
 
-#include "debuggerengine.h"
+#include <debugger/debuggerengine.h>
 
 namespace Debugger {
 namespace Internal {

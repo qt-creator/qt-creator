@@ -28,8 +28,8 @@
 ****************************************************************************/
 
 #include "iwizard.h"
-#include "icore.h"
-#include "featureprovider.h"
+#include <coreplugin/icore.h>
+#include <coreplugin/featureprovider.h>
 
 #include <extensionsystem/pluginmanager.h>
 

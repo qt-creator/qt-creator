@@ -17,8 +17,6 @@ QtcPlugin {
     Depends { name: "QmlDebug" }
     Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
 
-    cpp.includePaths: base.concat("../../shared")
-
     files: [
         "bardescriptordocument.cpp",
         "bardescriptordocument.h",

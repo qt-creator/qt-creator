@@ -28,9 +28,9 @@
 ****************************************************************************/
 
 #include "commandmappings.h"
-#include "shortcutsettings.h"
 #include "ui_commandmappings.h"
 #include "commandsfile.h"
+#include <coreplugin/dialogs/shortcutsettings.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/headerviewstretcher.h>

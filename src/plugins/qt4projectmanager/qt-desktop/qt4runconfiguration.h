@@ -30,7 +30,7 @@
 #ifndef QT4RUNCONFIGURATION_H
 #define QT4RUNCONFIGURATION_H
 
-#include "qmakerunconfigurationfactory.h"
+#include <qt4projectmanager/qmakerunconfigurationfactory.h>
 
 #include <projectexplorer/localapplicationrunconfiguration.h>
 

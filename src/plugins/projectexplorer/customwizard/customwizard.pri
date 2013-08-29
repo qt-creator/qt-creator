@@ -1,4 +1,3 @@
-INCLUDEPATH *= $$PWD
 HEADERS += $$PWD/customwizard.h \
     $$PWD/customwizardparameters.h \
     $$PWD/customwizardpage.h \

@@ -1,5 +1,3 @@
-INCLUDEPATH += $$PWD
-
 SOURCES += $$PWD/gerritdialog.cpp \
     $$PWD/gerritmodel.cpp \
     $$PWD/gerritparameters.cpp \

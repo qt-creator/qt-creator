@@ -42,14 +42,13 @@
 #include "syntaxhighlighter.h"
 #include "indenter.h"
 #include "autocompleter.h"
-#include "snippet.h"
-#include "codeassistant.h"
-#include "defaultassistinterface.h"
 #include "convenience.h"
 #include "texteditorsettings.h"
 #include "texteditoroverlay.h"
 #include "circularclipboard.h"
 #include "circularclipboardassist.h"
+#include <texteditor/codeassist/codeassistant.h>
+#include <texteditor/codeassist/defaultassistinterface.h>
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/actionmanager/actionmanager.h>

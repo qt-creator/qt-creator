@@ -29,7 +29,7 @@
 
 #include "documentmodel.h"
 #include "ieditor.h"
-#include "idocument.h"
+#include <coreplugin/idocument.h>
 
 #include <utils/qtcassert.h>
 

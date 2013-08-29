@@ -61,8 +61,8 @@
 #include "debuggertooltipmanager.h"
 #include "localsandexpressionswindow.h"
 #include "loadcoredialog.h"
-#include "hostutils.h"
 #include "sourceutils.h"
+#include <debugger/shared/hostutils.h>
 
 #include "snapshothandler.h"
 #include "threadshandler.h"

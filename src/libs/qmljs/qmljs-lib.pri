@@ -6,8 +6,6 @@ contains(CONFIG, dll) {
 
 include(parser/parser.pri)
 
-INCLUDEPATH += $$PWD/..
-
 HEADERS += \
     $$PWD/qmljs_global.h \
     $$PWD/qmljsbind.h \

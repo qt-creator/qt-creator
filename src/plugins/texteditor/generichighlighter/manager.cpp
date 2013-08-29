@@ -33,10 +33,10 @@
 #include "highlighterexception.h"
 #include "definitiondownloader.h"
 #include "highlightersettings.h"
-#include "plaintexteditorfactory.h"
-#include "texteditorconstants.h"
-#include "texteditorplugin.h"
-#include "texteditorsettings.h"
+#include <texteditor/plaintexteditorfactory.h>
+#include <texteditor/texteditorconstants.h>
+#include <texteditor/texteditorplugin.h>
+#include <texteditor/texteditorsettings.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>

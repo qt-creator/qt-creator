@@ -6,8 +6,6 @@ QT *= network
 
 CONFIG += exceptions
 
-INCLUDEPATH *= $$PWD
-
 HEADERS += \
     valgrindplugin.h \
     valgrindengine.h \

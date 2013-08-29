@@ -244,7 +244,7 @@
   <customwidget>
    <class>Qt4ProjectManager::Internal::LibraryPathChooser</class>
    <extends>QWidget</extends>
-   <header>addlibrarywizard.h</header>
+   <header location="global">qt4projectmanager/addlibrarywizard.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

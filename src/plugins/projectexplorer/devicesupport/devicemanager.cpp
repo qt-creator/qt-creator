@@ -413,7 +413,7 @@ IDevice::ConstPtr DeviceManager::fromRawPointer(const IDevice *device) const
 
 
 #ifdef WITH_TESTS
-#include "projectexplorer.h"
+#include <projectexplorer/projectexplorer.h>
 #include <QSignalSpy>
 #include <QTest>
 #include <QUuid>

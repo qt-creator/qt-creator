@@ -42,7 +42,7 @@
 #include "breakhandler.h"
 
 #ifdef Q_OS_WIN
-#  include "peutils.h"
+#  include "shared/peutils.h"
 #  include <utils/winutils.h>
 #endif
 

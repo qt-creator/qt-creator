@@ -1,5 +1,3 @@
-INCLUDEPATH+=$$PWD
-
 DEFINES+=CPP_ENABLED
 
 HEADERS+=$$PWD/formclasswizardpage.h \

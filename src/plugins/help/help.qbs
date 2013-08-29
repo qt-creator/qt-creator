@@ -20,7 +20,6 @@ QtcPlugin {
     Depends { name: "Locator" }
     Depends { name: "app_version_header" }
 
-
     cpp.defines: {
         var list = base;
         if (qtcore.versionMajor >= 5)
@@ -29,7 +28,8 @@ QtcPlugin {
         return list;
     }
 
-    cpp.includePaths: base.concat(sharedSources.prefix)
+    // We include headers from src/shared/help, and their sources include headers from here...
+    cpp.includePaths: base.concat([sharedSources.prefix, path])
 
     Group {
         name: "Sources"

@@ -29,11 +29,11 @@
 
 #include "startgdbserverdialog.h"
 
-#include "debuggermainwindow.h"
-#include "debuggerplugin.h"
-#include "debuggerkitinformation.h"
-#include "debuggerruncontrolfactory.h"
-#include "debuggerstartparameters.h"
+#include <debugger/debuggermainwindow.h>
+#include <debugger/debuggerplugin.h>
+#include <debugger/debuggerkitinformation.h>
+#include <debugger/debuggerruncontrolfactory.h>
+#include <debugger/debuggerstartparameters.h>
 
 #include <projectexplorer/kitchooser.h>
 #include <projectexplorer/devicesupport/deviceprocesslist.h>

@@ -8,7 +8,6 @@ QtcTool {
     Depends { name: "Utils" }
     Depends { name: "app_version_header" }
 
-    cpp.includePaths: "../../libs"
     cpp.defines: base.concat([qbs.targetOS.contains("osx")
             ? 'DATA_PATH="."' : 'DATA_PATH="../share/qtcreator"'])
 

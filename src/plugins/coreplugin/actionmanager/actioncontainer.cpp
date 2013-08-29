@@ -30,8 +30,8 @@
 #include "actioncontainer_p.h"
 #include "actionmanager.h"
 
-#include "coreconstants.h"
-#include "id.h"
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/id.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>

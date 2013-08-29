@@ -28,10 +28,10 @@
 ****************************************************************************/
 
 #include "gdboptionspage.h"
-#include "commonoptionspage.h"
-#include "debuggeractions.h"
-#include "debuggercore.h"
-#include "debuggerinternalconstants.h"
+#include <debugger/commonoptionspage.h>
+#include <debugger/debuggeractions.h>
+#include <debugger/debuggercore.h>
+#include <debugger/debuggerinternalconstants.h>
 
 #include <coreplugin/icore.h>
 

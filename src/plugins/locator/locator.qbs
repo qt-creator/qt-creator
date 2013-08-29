@@ -10,13 +10,6 @@ QtcPlugin {
     Depends { name: "Qt"; submodules: ["widgets", "xml", "network", "script"] }
     Depends { name: "Core" }
 
-    cpp.includePaths: base.concat([
-        "generichighlighter",
-        "tooltip",
-        "snippets",
-        "codeassist"
-    ])
-
     files: [
         "basefilefilter.cpp",
         "basefilefilter.h",

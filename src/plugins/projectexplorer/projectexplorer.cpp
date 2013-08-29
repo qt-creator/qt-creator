@@ -61,7 +61,6 @@
 #include "appoutputpane.h"
 #include "pluginfilefactory.h"
 #include "processstep.h"
-#include "customwizard.h"
 #include "kitinformation.h"
 #include "projectfilewizardextension.h"
 #include "projecttreewidget.h"
@@ -77,6 +76,7 @@
 #include "miniprojecttargetselector.h"
 #include "taskhub.h"
 #include "customtoolchain.h"
+#include <projectexplorer/customwizard/customwizard.h>
 #include "devicesupport/desktopdevice.h"
 #include "devicesupport/desktopdevicefactory.h"
 #include "devicesupport/devicemanager.h"

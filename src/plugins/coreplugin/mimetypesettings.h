@@ -30,7 +30,7 @@
 #ifndef MIMETYPESETTINGSPAGE_H
 #define MIMETYPESETTINGSPAGE_H
 
-#include "ioptionspage.h"
+#include <coreplugin/dialogs/ioptionspage.h>
 
 namespace Core {
 namespace Internal {

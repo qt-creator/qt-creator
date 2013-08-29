@@ -29,13 +29,13 @@
 
 #include "gdbengine.h"
 
-#include "debuggeractions.h"
-#include "debuggercore.h"
-#include "debuggerprotocol.h"
-#include "debuggerstartparameters.h"
-#include "debuggerstringutils.h"
-#include "sourceutils.h"
-#include "stackhandler.h"
+#include <debugger/debuggeractions.h>
+#include <debugger/debuggercore.h>
+#include <debugger/debuggerprotocol.h>
+#include <debugger/debuggerstartparameters.h>
+#include <debugger/debuggerstringutils.h>
+#include <debugger/sourceutils.h>
+#include <debugger/stackhandler.h>
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorerconstants.h>

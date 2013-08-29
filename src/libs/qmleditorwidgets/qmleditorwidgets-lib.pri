@@ -1,7 +1,5 @@
 QT += script declarative
 
-INCLUDEPATH += $$PWD
-
 contains(CONFIG, dll) {
     DEFINES += BUILD_QMLEDITORWIDGETS_LIB
 } else {

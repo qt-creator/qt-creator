@@ -29,7 +29,7 @@
 
 #include "desktopdeviceconfigurationwidget.h"
 #include "ui_desktopdeviceconfigurationwidget.h"
-#include "projectexplorerconstants.h"
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>

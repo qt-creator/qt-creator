@@ -28,12 +28,12 @@
 ****************************************************************************/
 #include "qscriptdebuggerclient.h"
 
-#include "watchhandler.h"
-#include "breakhandler.h"
 #include "qmlengine.h"
-#include "stackhandler.h"
-#include "debuggercore.h"
-#include "debuggerstringutils.h"
+#include <debugger/watchhandler.h>
+#include <debugger/breakhandler.h>
+#include <debugger/stackhandler.h>
+#include <debugger/debuggercore.h>
+#include <debugger/debuggerstringutils.h>
 
 #include <QFileInfo>
 #include <QMessageBox>

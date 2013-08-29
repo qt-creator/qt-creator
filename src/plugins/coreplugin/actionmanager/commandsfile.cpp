@@ -28,8 +28,8 @@
 ****************************************************************************/
 
 #include "commandsfile.h"
-#include "shortcutsettings.h"
 #include "command_p.h"
+#include <coreplugin/dialogs/shortcutsettings.h>
 
 #include <app/app_version.h>
 

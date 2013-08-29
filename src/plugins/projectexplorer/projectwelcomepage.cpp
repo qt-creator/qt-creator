@@ -40,7 +40,7 @@
 #include <coreplugin/dialogs/iwizard.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/projectexplorer.h>
-#include <sessiondialog.h>
+#include <projectexplorer/sessiondialog.h>
 
 #ifdef Q_OS_WIN
 #include <utils/winutils.h>

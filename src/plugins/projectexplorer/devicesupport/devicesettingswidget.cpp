@@ -29,7 +29,6 @@
 #include "devicesettingswidget.h"
 #include "ui_devicesettingswidget.h"
 
-#include "projectexplorerconstants.h"
 #include "devicefactoryselectiondialog.h"
 #include "devicemanager.h"
 #include "devicemanagermodel.h"
@@ -38,6 +37,7 @@
 #include "idevice.h"
 #include "idevicefactory.h"
 #include "idevicewidget.h"
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>

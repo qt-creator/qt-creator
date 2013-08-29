@@ -28,5 +28,5 @@
 ****************************************************************************/
 
 #include "formclasswizardparameters.h"
-#include "formtemplatewizardpage.h"
+#include <designer/formtemplatewizardpage.h>
 

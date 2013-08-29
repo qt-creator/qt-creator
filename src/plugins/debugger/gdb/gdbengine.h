@@ -30,10 +30,10 @@
 #ifndef DEBUGGER_GDBENGINE_H
 #define DEBUGGER_GDBENGINE_H
 
-#include "debuggerengine.h"
+#include <debugger/debuggerengine.h>
 
-#include "watchhandler.h"
-#include "watchutils.h"
+#include <debugger/watchhandler.h>
+#include <debugger/watchutils.h>
 
 #include <coreplugin/id.h>
 

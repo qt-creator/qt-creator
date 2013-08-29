@@ -31,7 +31,7 @@
 #include "resourceeditorplugin.h"
 #include "resourceeditorconstants.h"
 
-#include <qrceditor.h>
+#include <resourceeditor/qrceditor/qrceditor.h>
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/icore.h>

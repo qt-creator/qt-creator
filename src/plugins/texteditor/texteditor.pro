@@ -3,9 +3,6 @@ QT += xml network
 CONFIG += exceptions
 greaterThan(QT_MAJOR_VERSION, 4): QT += printsupport
 include(../../qtcreatorplugin.pri)
-INCLUDEPATH += generichighlighter \
-    snippets \
-    codeassist
 SOURCES += texteditorplugin.cpp \
     textfilewizard.cpp \
     plaintexteditor.cpp \
