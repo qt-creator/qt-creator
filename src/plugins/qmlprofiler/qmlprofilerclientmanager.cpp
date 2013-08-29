@@ -48,11 +48,10 @@ using namespace Core;
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerClientManager::QmlProfilerClientManagerPrivate {
+class QmlProfilerClientManager::QmlProfilerClientManagerPrivate
+{
 public:
-    QmlProfilerClientManagerPrivate(QmlProfilerClientManager *qq) { Q_UNUSED(qq); }
-
-    QmlProfilerStateManager* profilerState;
+    QmlProfilerStateManager *profilerState;
 
     QmlDebugConnection *connection;
     QPointer<QmlProfilerTraceClient> qmlclientplugin;
@@ -77,7 +76,7 @@ public:
 };
 
 QmlProfilerClientManager::QmlProfilerClientManager(QObject *parent) :
-    QObject(parent), d(new QmlProfilerClientManagerPrivate(this))
+    QObject(parent), d(new QmlProfilerClientManagerPrivate)
 {
     setObjectName(QLatin1String("QML Profiler Connections"));
 
