@@ -73,5 +73,7 @@
         <file>images/splitbutton_closetop.png</file>
         <file>images/splitbutton_vertical.png</file>
         <file>images/panel_manage_button.png</file>
+        <file>images/sidebysidediff.png</file>
+        <file>images/textdiff.png</file>
     </qresource>
 </RCC>

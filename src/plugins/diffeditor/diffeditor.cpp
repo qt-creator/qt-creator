@@ -89,7 +89,7 @@ static QToolBar *createToolBar(const QWidget *someWidget)
 {
     // Create
     QToolBar *toolBar = new QToolBar;
-    toolBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    toolBar->setToolButtonStyle(Qt::ToolButtonIconOnly);
     const int size = someWidget->style()->pixelMetric(QStyle::PM_SmallIconSize);
     toolBar->setIconSize(QSize(size, size));
 
