@@ -197,7 +197,8 @@ void QmlDesignerPlugin::showDesigner()
 
 void QmlDesignerPlugin::hideDesigner()
 {
-    if (currentDesignDocument()->currentModel()
+    if (currentDesignDocument()
+            && currentDesignDocument()->currentModel()
             && !currentDesignDocument()->hasQmlSyntaxErrors())
         jumpTextCursorToSelectedModelNode();
 
