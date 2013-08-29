@@ -801,6 +801,7 @@ void AndroidConfigurations::updateAutomaticKitList()
             if (equalKits(existingKit, newKit)) {
                 // Kit is already registered, nothing to do
                 newKits.removeAt(j);
+                existingKits.at(i)->makeSticky();
                 existingKits.removeAt(i);
                 KitManager::deleteKit(newKit);
                 j = newKits.count();
