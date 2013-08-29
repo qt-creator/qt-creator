@@ -1804,11 +1804,14 @@ void GitClient::synchronousTagsForCommit(const QString &workingDirectory, const 
 
 QStringList GitClient::synchronousBranchesForCommit(const QString &workingDirectory, const QString &revision)
 {
+    QByteArray outputData;
     QString output;
     QStringList arguments;
-    arguments << QLatin1String(noColorOption) << QLatin1String("-a")
-              << QLatin1String("--contains") << revision;
-    synchronousBranchCmd(workingDirectory, arguments, &output, 0);
+    arguments << QLatin1String("branch") << QLatin1String(noColorOption)
+              << QLatin1String("-a") << QLatin1String("--contains") << revision;
+    fullySynchronousGit(workingDirectory, arguments, &outputData, 0,
+                        VcsBasePlugin::SuppressCommandLogging);
+    output = commandOutputFromLocal8Bit(outputData);
     QStringList res;
     foreach (const QString &branch, output.split(QLatin1Char('\n'))) {
         const QString b = branch.mid(2).trimmed();
@@ -2577,9 +2580,11 @@ QString GitClient::extendedShowDescription(const QString &workingDirectory, cons
         moreBranches = tr(" and %1 more").arg(branchCount - leave);
         branches.erase(branches.begin() + leave, branches.end());
     }
-    modText.insert(lastHeaderLine, QLatin1String("Branches: ")
-                   + branches.join(QLatin1String(", ")) + moreBranches
-                   + QLatin1Char('\n'));
+    if (!branches.isEmpty()) {
+        modText.insert(lastHeaderLine, QLatin1String("Branches: ")
+                       + branches.join(QLatin1String(", ")) + moreBranches
+                       + QLatin1Char('\n'));
+    }
     return modText;
 }
 
