@@ -38,27 +38,29 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
-using namespace TextEditor;
-using namespace TextEditor::Internal;
+using namespace Core;
+using namespace Utils;
+
+namespace TextEditor {
+namespace Internal {
 
 BaseTextMarkRegistry::BaseTextMarkRegistry(QObject *parent)
     : QObject(parent)
 {
-    connect(Core::EditorManager::instance(), SIGNAL(editorOpened(Core::IEditor*)),
+    connect(EditorManager::instance(), SIGNAL(editorOpened(Core::IEditor*)),
         SLOT(editorOpened(Core::IEditor*)));
 
-    Core::DocumentManager *dm = Core::DocumentManager::instance();
-    connect(dm, SIGNAL(allDocumentsRenamed(QString,QString)),
+    connect(DocumentManager::instance(), SIGNAL(allDocumentsRenamed(QString,QString)),
             this, SLOT(allDocumentsRenamed(QString,QString)));
-    connect(dm, SIGNAL(documentRenamed(Core::IDocument*,QString,QString)),
+    connect(DocumentManager::instance(), SIGNAL(documentRenamed(Core::IDocument*,QString,QString)),
             this, SLOT(documentRenamed(Core::IDocument*,QString,QString)));
 }
 
 void BaseTextMarkRegistry::add(BaseTextMark *mark)
 {
-    m_marks[Utils::FileName::fromString(mark->fileName())].insert(mark);
-    Core::DocumentModel *documentModel = Core::EditorManager::documentModel();
-    Core::IDocument *document = documentModel->documentForFilePath(mark->fileName());
+    m_marks[FileName::fromString(mark->fileName())].insert(mark);
+    DocumentModel *documentModel = EditorManager::documentModel();
+    IDocument *document = documentModel->documentForFilePath(mark->fileName());
     if (!document)
         return;
     // TODO: markableInterface should be moved to ITextEditorDocument
@@ -70,7 +72,7 @@ void BaseTextMarkRegistry::add(BaseTextMark *mark)
 
 bool BaseTextMarkRegistry::remove(BaseTextMark *mark)
 {
-    return m_marks[Utils::FileName::fromString(mark->fileName())].remove(mark);
+    return m_marks[FileName::fromString(mark->fileName())].remove(mark);
 }
 
 void BaseTextMarkRegistry::editorOpened(Core::IEditor *editor)
@@ -78,24 +80,24 @@ void BaseTextMarkRegistry::editorOpened(Core::IEditor *editor)
     ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor);
     if (!textEditor)
         return;
-    if (!m_marks.contains(Utils::FileName::fromString(editor->document()->filePath())))
+    if (!m_marks.contains(FileName::fromString(editor->document()->filePath())))
         return;
 
-    foreach (BaseTextMark *mark, m_marks.value(Utils::FileName::fromString(editor->document()->filePath()))) {
+    foreach (BaseTextMark *mark, m_marks.value(FileName::fromString(editor->document()->filePath()))) {
         ITextMarkable *markableInterface = textEditor->markableInterface();
         markableInterface->addMark(mark);
     }
 }
 
-void BaseTextMarkRegistry::documentRenamed(Core::IDocument *document, const
+void BaseTextMarkRegistry::documentRenamed(IDocument *document, const
                                            QString &oldName, const QString &newName)
 {
     TextEditor::BaseTextDocument *baseTextDocument
             = qobject_cast<TextEditor::BaseTextDocument *>(document);
     if (!document)
         return;
-    Utils::FileName oldFileName = Utils::FileName::fromString(oldName);
-    Utils::FileName newFileName = Utils::FileName::fromString(newName);
+    FileName oldFileName = FileName::fromString(oldName);
+    FileName newFileName = FileName::fromString(newName);
     if (!m_marks.contains(oldFileName))
         return;
 
@@ -113,8 +115,8 @@ void BaseTextMarkRegistry::documentRenamed(Core::IDocument *document, const
 
 void BaseTextMarkRegistry::allDocumentsRenamed(const QString &oldName, const QString &newName)
 {
-    Utils::FileName oldFileName = Utils::FileName::fromString(oldName);
-    Utils::FileName newFileName = Utils::FileName::fromString(newName);
+    FileName oldFileName = FileName::fromString(oldName);
+    FileName newFileName = FileName::fromString(newName);
     if (!m_marks.contains(oldFileName))
         return;
 
@@ -126,6 +128,8 @@ void BaseTextMarkRegistry::allDocumentsRenamed(const QString &oldName, const QSt
     foreach (BaseTextMark *mark, oldFileNameMarks)
         mark->updateFileName(newName);
 }
+
+} // namespace Internal
 
 BaseTextMark::BaseTextMark(const QString &fileName, int lineNumber)
     : ITextMark(lineNumber), m_fileName(fileName)
@@ -152,3 +156,5 @@ void BaseTextMark::updateFileName(const QString &fileName)
 {
     m_fileName = fileName;
 }
+
+} // namespace TextEditor

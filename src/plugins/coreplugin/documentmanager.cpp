@@ -228,7 +228,7 @@ DocumentManager::~DocumentManager()
     delete d;
 }
 
-DocumentManager *DocumentManager::instance()
+QObject *DocumentManager::instance()
 {
     return m_instance;
 }

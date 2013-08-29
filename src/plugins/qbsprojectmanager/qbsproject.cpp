@@ -66,6 +66,11 @@
 
 #include <QFileInfo>
 
+using namespace Core;
+
+namespace QbsProjectManager {
+namespace Internal {
+
 // --------------------------------------------------------------------
 // Constants:
 // --------------------------------------------------------------------
@@ -77,11 +82,7 @@ static const char CONFIG_DEFINES[] = "defines";
 static const char CONFIG_INCLUDEPATHS[] = "includePaths";
 static const char CONFIG_FRAMEWORKPATHS[] = "frameworkPaths";
 static const char CONFIG_PRECOMPILEDHEADER[] = "precompiledHeader";
-
 static const char CONFIGURATION_PATH[] = "<configuration>";
-
-namespace QbsProjectManager {
-namespace Internal {
 
 // --------------------------------------------------------------------
 // QbsProject:
@@ -100,8 +101,8 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
 {
     m_parsingDelay.setInterval(1000); // delay parsing by 1s.
 
-    setProjectContext(Core::Context(Constants::PROJECT_ID));
-    setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
+    setProjectContext(Context(Constants::PROJECT_ID));
+    setProjectLanguages(Context(ProjectExplorer::Constants::LANG_CXX));
 
     connect(this, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
             this, SLOT(changeActiveTarget(ProjectExplorer::Target*)));
@@ -125,14 +126,14 @@ QString QbsProject::displayName() const
     return m_projectName;
 }
 
-Core::Id QbsProject::id() const
+Id QbsProject::id() const
 {
-    return Core::Id(Constants::PROJECT_ID);
+    return Constants::PROJECT_ID;
 }
 
-Core::IDocument *QbsProject::document() const
+IDocument *QbsProject::document() const
 {
-    foreach (Core::IDocument *doc, m_qbsDocuments) {
+    foreach (IDocument *doc, m_qbsDocuments) {
         if (doc->filePath() == m_fileName)
             return doc;
     }
@@ -452,7 +453,7 @@ void QbsProject::prepareForParsing()
     m_currentProgressBase = 0;
     m_qbsUpdateFutureInterface = new QFutureInterface<void>();
     m_qbsUpdateFutureInterface->setProgressRange(0, 0);
-    Core::ICore::progressManager()->addTask(m_qbsUpdateFutureInterface->future(), tr("Evaluating"),
+    ICore::progressManager()->addTask(m_qbsUpdateFutureInterface->future(), tr("Evaluating"),
                                             QLatin1String(Constants::QBS_EVALUATE));
     m_qbsUpdateFutureInterface->reportStarted();
 }
@@ -463,7 +464,7 @@ void QbsProject::updateDocuments(const QSet<QString> &files)
     QSet<QString> newFiles = files;
     QTC_ASSERT(!newFiles.isEmpty(), newFiles << m_fileName);
     QSet<QString> oldFiles;
-    foreach (Core::IDocument *doc, m_qbsDocuments)
+    foreach (IDocument *doc, m_qbsDocuments)
         oldFiles.insert(doc->filePath());
 
     QSet<QString> filesToAdd = newFiles;
@@ -471,18 +472,18 @@ void QbsProject::updateDocuments(const QSet<QString> &files)
     QSet<QString> filesToRemove = oldFiles;
     filesToRemove.subtract(newFiles);
 
-    QSet<Core::IDocument *> currentDocuments = m_qbsDocuments;
-    foreach (Core::IDocument *doc, currentDocuments) {
+    QSet<IDocument *> currentDocuments = m_qbsDocuments;
+    foreach (IDocument *doc, currentDocuments) {
         if (filesToRemove.contains(doc->filePath())) {
             m_qbsDocuments.remove(doc);
             delete doc;
         }
     }
-    QSet<Core::IDocument *> toAdd;
+    QSet<IDocument *> toAdd;
     foreach (const QString &f, filesToAdd)
         toAdd.insert(new QbsProjectFile(this, f));
 
-    Core::DocumentManager::instance()->addDocuments(toAdd.toList());
+    DocumentManager::addDocuments(toAdd.toList());
     m_qbsDocuments.unite(toAdd);
 }
 
@@ -620,7 +621,7 @@ QString QbsProject::qbsBuildDir() const
     QString buildDir = Utils::Environment::systemEnvironment()
             .value(QLatin1String("QBS_BUILD_DIR"));
     if (buildDir.isEmpty())
-        buildDir = Core::ICore::resourcePath() + QLatin1String("/qbs");
+        buildDir = ICore::resourcePath() + QLatin1String("/qbs");
     return buildDir;
 }
 

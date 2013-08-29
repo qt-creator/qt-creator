@@ -60,7 +60,7 @@ public:
 
     typedef QPair<QString, Id> RecentFile;
 
-    static DocumentManager *instance();
+    static QObject *instance();
 
     // file pool to monitor
     static void addDocuments(const QList<IDocument *> &documents, bool addWatcher = true);
@@ -154,7 +154,7 @@ private slots:
 
 private:
     explicit DocumentManager(QMainWindow *ew);
-    virtual ~DocumentManager();
+    ~DocumentManager();
 
     friend class Core::Internal::MainWindow;
 };
