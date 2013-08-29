@@ -587,8 +587,7 @@ QMessageBox *QmlProfilerTool::requestMessageBox()
 
 void QmlProfilerTool::handleHelpRequest(const QString &link)
 {
-    HelpManager *helpManager = HelpManager::instance();
-    helpManager->handleHelpRequest(link);
+    HelpManager::handleHelpRequest(link);
 }
 
 void QmlProfilerTool::profilerStateChanged()

@@ -38,6 +38,7 @@
 #include <QKeyEvent>
 #include <QMessageBox>
 
+using namespace Core;
 using namespace Help::Internal;
 
 DocSettingsPage::DocSettingsPage()
@@ -59,11 +60,10 @@ QWidget *DocSettingsPage::createPage(QWidget *parent)
 
     m_ui.docsListWidget->installEventFilter(this);
 
-    Core::HelpManager *manager = Core::HelpManager::instance();
-    const QStringList &nameSpaces = manager->registeredNamespaces();
+    const QStringList nameSpaces = HelpManager::registeredNamespaces();
     foreach (const QString &nameSpace, nameSpaces) {
-        addItem(nameSpace, manager->fileFromNamespace(nameSpace));
-        m_filesToRegister.insert(nameSpace, manager->fileFromNamespace(nameSpace));
+        addItem(nameSpace, HelpManager::fileFromNamespace(nameSpace));
+        m_filesToRegister.insert(nameSpace, HelpManager::fileFromNamespace(nameSpace));
     }
 
     m_filesToUnregister.clear();
@@ -84,10 +84,9 @@ void DocSettingsPage::addDocumentation()
     m_recentDialogPath = QFileInfo(files.first()).canonicalPath();
 
     NameSpaceToPathHash docsUnableToRegister;
-    Core::HelpManager *manager = Core::HelpManager::instance();
     foreach (const QString &file, files) {
         const QString filePath = QDir::cleanPath(file);
-        const QString &nameSpace = manager->namespaceFromFile(filePath);
+        const QString &nameSpace = HelpManager::namespaceFromFile(filePath);
         if (nameSpace.isEmpty()) {
             docsUnableToRegister.insertMulti(QLatin1String("UnknownNamespace"),
                 QDir::toNativeSeparators(filePath));
@@ -150,10 +149,8 @@ void DocSettingsPage::removeDocumentation()
 
 void DocSettingsPage::apply()
 {
-    Core::HelpManager *manager = Core::HelpManager::instance();
-
-    manager->unregisterDocumentation(m_filesToUnregister.keys());
-    manager->registerDocumentation(m_filesToRegister.values());
+    HelpManager::unregisterDocumentation(m_filesToUnregister.keys());
+    HelpManager::registerDocumentation(m_filesToRegister.values());
 
     m_filesToUnregister.clear();
 }
@@ -166,7 +163,7 @@ bool DocSettingsPage::matches(const QString &s) const
 bool DocSettingsPage::eventFilter(QObject *object, QEvent *event)
 {
     if (object != m_ui.docsListWidget)
-        return Core::IOptionsPage::eventFilter(object, event);
+        return IOptionsPage::eventFilter(object, event);
 
     if (event->type() == QEvent::KeyPress) {
         QKeyEvent *ke = static_cast<QKeyEvent*>(event);
@@ -178,7 +175,7 @@ bool DocSettingsPage::eventFilter(QObject *object, QEvent *event)
         }
     }
 
-    return Core::IOptionsPage::eventFilter(object, event);
+    return IOptionsPage::eventFilter(object, event);
 }
 
 void DocSettingsPage::removeDocumentation(const QList<QListWidgetItem*> items)
@@ -187,12 +184,11 @@ void DocSettingsPage::removeDocumentation(const QList<QListWidgetItem*> items)
         return;
 
     int row = 0;
-    Core::HelpManager *manager = Core::HelpManager::instance();
     foreach (QListWidgetItem* item, items) {
         const QString nameSpace = item->text();
 
         m_filesToRegister.remove(nameSpace);
-        m_filesToUnregister.insertMulti(nameSpace, QDir::cleanPath(manager->fileFromNamespace(nameSpace)));
+        m_filesToUnregister.insertMulti(nameSpace, QDir::cleanPath(HelpManager::fileFromNamespace(nameSpace)));
 
         row = m_ui.docsListWidget->row(item);
         delete m_ui.docsListWidget->takeItem(row);

@@ -137,7 +137,7 @@ public slots:
 
         if (Core::HelpManager::instance()) {
             QMutexLocker dataLock(&m_dataMutex);
-            m_fetchedData = Core::HelpManager::instance()->fileData(url);
+            m_fetchedData = Core::HelpManager::fileData(url);
         }
         m_waitcondition.wakeAll();
     }
@@ -306,12 +306,12 @@ ExamplesWelcomePage::Id ExamplesWelcomePage::id() const
 
 void ExamplesWelcomePage::openSplitHelp(const QUrl &help)
 {
-    Core::ICore::helpManager()->handleHelpRequest(help.toString()+QLatin1String("?view=split"));
+    Core::HelpManager::handleHelpRequest(help.toString()+QLatin1String("?view=split"));
 }
 
 void ExamplesWelcomePage::openHelp(const QUrl &help)
 {
-    Core::ICore::helpManager()->handleHelpRequest(help.toString());
+    Core::HelpManager::handleHelpRequest(help.toString());
 }
 
 void ExamplesWelcomePage::openUrl(const QUrl &url)
@@ -433,7 +433,7 @@ void ExamplesWelcomePage::openProject(const QString &projectFile, const QStringL
             project->configureAsExampleProject(platforms);
         Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
         if (help.isValid())
-            Core::ICore::helpManager()->handleHelpRequest(help.toString() + QLatin1String("?view=split"));
+            Core::HelpManager::handleHelpRequest(help.toString() + QLatin1String("?view=split"));
     }
     if (!errorMessage.isEmpty())
         QMessageBox::critical(Core::ICore::mainWindow(), tr("Failed to Open Project"), errorMessage);

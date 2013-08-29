@@ -51,6 +51,7 @@
 #include <QTcpServer>
 
 using namespace Analyzer;
+using namespace Core;
 using namespace ProjectExplorer;
 
 namespace QmlProfiler {
@@ -75,8 +76,8 @@ public:
 // QmlProfilerEngine
 //
 
-QmlProfilerRunControl::QmlProfilerRunControl(const Analyzer::AnalyzerStartParameters &sp,
-                                     ProjectExplorer::RunConfiguration *runConfiguration)
+QmlProfilerRunControl::QmlProfilerRunControl(const AnalyzerStartParameters &sp,
+                                     RunConfiguration *runConfiguration)
     : AnalyzerRunControl(sp, runConfiguration)
     , d(new QmlProfilerEnginePrivate)
 {
@@ -215,7 +216,7 @@ void QmlProfilerRunControl::logApplicationMessage(const QString &msg, Utils::Out
 
 void QmlProfilerRunControl::wrongSetupMessageBox(const QString &errorMessage)
 {
-    QMessageBox *infoBox = new QMessageBox(Core::ICore::mainWindow());
+    QMessageBox *infoBox = new QMessageBox(ICore::mainWindow());
     infoBox->setIcon(QMessageBox::Critical);
     infoBox->setWindowTitle(tr("Qt Creator"));
     //: %1 is detailed error message
@@ -239,15 +240,14 @@ void QmlProfilerRunControl::wrongSetupMessageBox(const QString &errorMessage)
 void QmlProfilerRunControl::wrongSetupMessageBoxFinished(int button)
 {
     if (button == QMessageBox::Help) {
-        Core::HelpManager *helpManager = Core::HelpManager::instance();
-        helpManager->handleHelpRequest(QLatin1String("qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html"
+        HelpManager::handleHelpRequest(QLatin1String("qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html"
                                "#setting-up-qml-debugging"));
     }
 }
 
 void QmlProfilerRunControl::showNonmodalWarning(const QString &warningMsg)
 {
-    QMessageBox *noExecWarning = new QMessageBox(Core::ICore::mainWindow());
+    QMessageBox *noExecWarning = new QMessageBox(ICore::mainWindow());
     noExecWarning->setIcon(QMessageBox::Warning);
     noExecWarning->setWindowTitle(tr("QML Profiler"));
     noExecWarning->setText(warningMsg);

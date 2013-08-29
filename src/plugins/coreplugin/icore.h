@@ -53,7 +53,6 @@ class ActionManager;
 class Context;
 class EditorManager;
 class DocumentManager;
-class HelpManager;
 class IContext;
 class MessageManager;
 class MimeDatabase;
@@ -96,7 +95,6 @@ public:
     static ProgressManager *progressManager();
     static VcsManager *vcsManager();
     static MimeDatabase *mimeDatabase();
-    static HelpManager *helpManager();
 
     static QSettings *settings(QSettings::Scope scope = QSettings::UserScope);
     static SettingsDatabase *settingsDatabase();

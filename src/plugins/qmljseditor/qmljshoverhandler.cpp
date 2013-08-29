@@ -160,21 +160,21 @@ bool HoverHandler::setQmlTypeHelp(const ScopeChain &scopeChain, const Document::
         helpIdPieces.prepend(moduleName);
         helpIdPieces.prepend(QLatin1String("QML"));
         helpId = helpIdPieces.join(QLatin1String("."));
-        if (!Core::HelpManager::instance()->linksForIdentifier(helpId).isEmpty())
+        if (!HelpManager::linksForIdentifier(helpId).isEmpty())
             break;
         if (helpIdPieces.size() > 3) {
             QString lm = helpIdPieces.value(2);
             helpIdPieces.removeAt(2);
             helpId = helpIdPieces.join(QLatin1String("."));
-            if (!Core::HelpManager::instance()->linksForIdentifier(helpId).isEmpty())
+            if (!HelpManager::linksForIdentifier(helpId).isEmpty())
                 break;
             helpIdPieces.replace(1, lm);
-            if (!Core::HelpManager::instance()->linksForIdentifier(helpId).isEmpty())
+            if (!HelpManager::linksForIdentifier(helpId).isEmpty())
                 break;
         }
         helpIdPieces.removeAt(1);
         helpId = helpIdPieces.join(QLatin1String("."));
-        if (!Core::HelpManager::instance()->linksForIdentifier(helpId).isEmpty())
+        if (!HelpManager::linksForIdentifier(helpId).isEmpty())
             break;
         return false;
     } while (0);
@@ -483,13 +483,13 @@ bool HoverHandler::setQmlHelpItem(const ScopeChain &scopeChain,
                 do {
                     helpId = QLatin1String("QML.") + moduleName + QLatin1Char('.') + className
                             + QLatin1String("::") + name;
-                    if (!Core::HelpManager::instance()->linksForIdentifier(helpId).isEmpty())
+                    if (!HelpManager::linksForIdentifier(helpId).isEmpty())
                         break;
                     helpId = QLatin1String("QML.") + className + QLatin1String("::") + name;
-                    if (!Core::HelpManager::instance()->linksForIdentifier(helpId).isEmpty())
+                    if (!HelpManager::linksForIdentifier(helpId).isEmpty())
                         break;
                     helpId = className + QLatin1String("::") + name;
-                    if (!Core::HelpManager::instance()->linksForIdentifier(helpId).isEmpty())
+                    if (!HelpManager::linksForIdentifier(helpId).isEmpty())
                         break;
                     helpId.clear();
                 } while (0);

@@ -422,11 +422,6 @@ MimeDatabase *ICore::mimeDatabase()
     return m_mainwindow->mimeDatabase();
 }
 
-HelpManager *ICore::helpManager()
-{
-    return m_mainwindow->helpManager();
-}
-
 QSettings *ICore::settings(QSettings::Scope scope)
 {
     return m_mainwindow->settings(scope);

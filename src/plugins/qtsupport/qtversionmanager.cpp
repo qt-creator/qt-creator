@@ -426,8 +426,6 @@ void QtVersionManager::removeVersion(BaseQtVersion *version)
 
 void QtVersionManager::updateDocumentation()
 {
-    Core::HelpManager *helpManager = Core::HelpManager::instance();
-    Q_ASSERT(helpManager);
     QStringList files;
     foreach (BaseQtVersion *v, m_versions) {
         const QStringList docPaths = QStringList() << v->documentationPath() + QLatin1Char('/')
@@ -439,7 +437,7 @@ void QtVersionManager::updateDocumentation()
                 files << docPath + helpFile;
         }
     }
-    helpManager->registerDocumentation(files);
+    Core::HelpManager::registerDocumentation(files);
 }
 
 void QtVersionManager::updateDumpFor(const FileName &qmakeCommand)

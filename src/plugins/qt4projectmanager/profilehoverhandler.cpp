@@ -149,7 +149,7 @@ void ProFileHoverHandler::identifyDocFragment(ProFileHoverHandler::ManualKind ma
 
     if (m_manualKind == FunctionManual) {
         QUrl url(QString::fromLatin1("qthelp://com.trolltech.qmake/qdoc/qmake-%1-reference.html").arg(manualName()));
-        const QByteArray &html = Core::HelpManager::instance()->fileData(url);
+        const QByteArray html = Core::HelpManager::fileData(url);
 
         Utils::HtmlDocExtractor htmlExtractor;
         htmlExtractor.setMode(Utils::HtmlDocExtractor::FirstParagraph);

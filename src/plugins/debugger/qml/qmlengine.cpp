@@ -479,8 +479,7 @@ void QmlEngine::errorMessageBoxFinished(int result)
         break;
     }
     case QMessageBox::Help: {
-        Core::HelpManager *helpManager = Core::HelpManager::instance();
-        helpManager->handleHelpRequest(QLatin1String("qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html"));
+        Core::HelpManager::handleHelpRequest(QLatin1String("qthelp://org.qt-project.qtcreator/doc/creator-debugging-qml.html"));
         // fall through
     }
     default:

@@ -40,6 +40,7 @@
 #include <QMessageBox>
 
 using namespace Help::Internal;
+using namespace Core;
 
 FilterSettingsPage::FilterSettingsPage()
 {
@@ -65,7 +66,7 @@ QWidget *FilterSettingsPage::createPage(QWidget *parent)
     connect(m_ui.filterAddButton, SIGNAL(clicked()), this, SLOT(addFilter()));
     connect(m_ui.filterRemoveButton, SIGNAL(clicked()), this,
         SLOT(removeFilter()));
-    connect(Core::HelpManager::instance(), SIGNAL(documentationChanged()),
+    connect(HelpManager::instance(), SIGNAL(documentationChanged()),
         this, SLOT(updateFilterPage()));
 
     if (m_searchKeywords.isEmpty()) {
@@ -84,14 +85,13 @@ void FilterSettingsPage::updateFilterPage()
 
     QString lastTrUnfiltered;
     const QString trUnfiltered = tr("Unfiltered");
-    Core::HelpManager *manager = Core::HelpManager::instance();
-    if (manager->customValue(Help::Constants::WeAddedFilterKey).toInt() == 1) {
+    if (HelpManager::customValue(Help::Constants::WeAddedFilterKey).toInt() == 1) {
         lastTrUnfiltered =
-            manager->customValue(Help::Constants::PreviousFilterNameKey).toString();
+            HelpManager::customValue(Help::Constants::PreviousFilterNameKey).toString();
     }
 
-    Core::HelpManager::Filters filters = manager->userDefinedFilters();
-    Core::HelpManager::Filters::const_iterator it;
+    HelpManager::Filters filters = HelpManager::userDefinedFilters();
+    HelpManager::Filters::const_iterator it;
     for (it = filters.constBegin(); it != filters.constEnd(); ++it) {
         const QString &filter = it.key();
         if (filter == trUnfiltered || filter == lastTrUnfiltered)
@@ -104,7 +104,7 @@ void FilterSettingsPage::updateFilterPage()
     m_ui.filterWidget->addItems(m_filterMap.keys());
 
     QSet<QString> attributes;
-    filters = manager->filters();
+    filters = HelpManager::filters();
     for (it = filters.constBegin(); it != filters.constEnd(); ++it)
         attributes += it.value().toSet();
 
@@ -213,13 +213,12 @@ void FilterSettingsPage::apply()
     }
 
     if (changed) {
-        Core::HelpManager *manager = Core::HelpManager::instance();
         foreach (const QString &filter, m_removedFilters)
-           manager->removeUserDefinedFilter(filter);
+            HelpManager::removeUserDefinedFilter(filter);
 
         FilterMap::const_iterator it;
         for (it = m_filterMap.constBegin(); it != m_filterMap.constEnd(); ++it)
-            manager->addUserDefinedFilter(it.key(), it.value());
+            HelpManager::addUserDefinedFilter(it.key(), it.value());
 
         // emit this signal to the help plugin, since we don't want
         // to force gui help engine setup if we are not in help mode
@@ -229,7 +228,7 @@ void FilterSettingsPage::apply()
 
 void FilterSettingsPage::finish()
 {
-    disconnect(Core::HelpManager::instance(), SIGNAL(documentationChanged()),
+    disconnect(HelpManager::instance(), SIGNAL(documentationChanged()),
         this, SLOT(updateFilterPage()));
 }
 

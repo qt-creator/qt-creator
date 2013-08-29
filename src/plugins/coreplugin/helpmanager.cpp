@@ -99,7 +99,7 @@ HelpManager::~HelpManager()
     delete d;
 }
 
-HelpManager *HelpManager::instance()
+QObject *HelpManager::instance()
 {
     Q_ASSERT(m_instance);
     return m_instance;
@@ -145,7 +145,7 @@ void HelpManager::registerDocumentation(const QStringList &files)
         }
     }
     if (docsChanged)
-        emit documentationChanged();
+        emit m_instance->documentationChanged();
 }
 
 void HelpManager::unregisterDocumentation(const QStringList &nameSpaces)
@@ -166,7 +166,7 @@ void HelpManager::unregisterDocumentation(const QStringList &nameSpaces)
         }
     }
     if (docsChanged)
-        emit documentationChanged();
+        emit m_instance->documentationChanged();
 }
 
 static QUrl buildQUrl(const QString &ns, const QString &folder,
@@ -181,7 +181,7 @@ static QUrl buildQUrl(const QString &ns, const QString &folder,
 }
 
 // This should go into Qt 4.8 once we start using it for Qt Creator
-QMap<QString, QUrl> HelpManager::linksForKeyword(const QString &key) const
+QMap<QString, QUrl> HelpManager::linksForKeyword(const QString &key)
 {
     QMap<QString, QUrl> links;
     if (d->m_needsSetup)
@@ -214,7 +214,7 @@ QMap<QString, QUrl> HelpManager::linksForKeyword(const QString &key) const
     return links;
 }
 
-QMap<QString, QUrl> HelpManager::linksForIdentifier(const QString &id) const
+QMap<QString, QUrl> HelpManager::linksForIdentifier(const QString &id)
 {
     if (d->m_needsSetup)
         return QMap<QString, QUrl>();
@@ -223,7 +223,7 @@ QMap<QString, QUrl> HelpManager::linksForIdentifier(const QString &id) const
 
 // This should go into Qt 4.8 once we start using it for Qt Creator
 QStringList HelpManager::findKeywords(const QString &key, Qt::CaseSensitivity caseSensitivity,
-                                      int maxHits) const
+                                      int maxHits)
 {
     if (d->m_needsSetup)
         return QStringList();
@@ -267,14 +267,14 @@ QStringList HelpManager::findKeywords(const QString &key, Qt::CaseSensitivity ca
     return keywordsSorted + keywords.toList();
 }
 
-QUrl HelpManager::findFile(const QUrl &url) const
+QUrl HelpManager::findFile(const QUrl &url)
 {
     if (d->m_needsSetup)
         return QUrl();
     return d->m_helpEngine->findFile(url);
 }
 
-QByteArray HelpManager::fileData(const QUrl &url) const
+QByteArray HelpManager::fileData(const QUrl &url)
 {
     if (d->m_needsSetup)
         return QByteArray();
@@ -283,24 +283,24 @@ QByteArray HelpManager::fileData(const QUrl &url) const
 
 void HelpManager::handleHelpRequest(const QString &url)
 {
-    emit helpRequested(QUrl(url));
+    emit m_instance->helpRequested(QUrl(url));
 }
 
-QStringList HelpManager::registeredNamespaces() const
+QStringList HelpManager::registeredNamespaces()
 {
     if (d->m_needsSetup)
         return QStringList();
     return d->m_helpEngine->registeredDocumentations();
 }
 
-QString HelpManager::namespaceFromFile(const QString &file) const
+QString HelpManager::namespaceFromFile(const QString &file)
 {
     if (d->m_needsSetup)
         return QString();
     return d->m_helpEngine->namespaceName(file);
 }
 
-QString HelpManager::fileFromNamespace(const QString &nameSpace) const
+QString HelpManager::fileFromNamespace(const QString &nameSpace)
 {
     if (d->m_needsSetup)
         return QString();
@@ -314,17 +314,17 @@ void HelpManager::setCustomValue(const QString &key, const QVariant &value)
         return;
     }
     if (d->m_helpEngine->setCustomValue(key, value))
-        emit collectionFileChanged();
+        emit m_instance->collectionFileChanged();
 }
 
-QVariant HelpManager::customValue(const QString &key, const QVariant &value) const
+QVariant HelpManager::customValue(const QString &key, const QVariant &value)
 {
     if (d->m_needsSetup)
         return QVariant();
     return d->m_helpEngine->customValue(key, value);
 }
 
-HelpManager::Filters HelpManager::filters() const
+HelpManager::Filters HelpManager::filters()
 {
     if (d->m_needsSetup)
         return Filters();
@@ -336,7 +336,7 @@ HelpManager::Filters HelpManager::filters() const
     return filters;
 }
 
-HelpManager::Filters HelpManager::fixedFilters() const
+HelpManager::Filters HelpManager::fixedFilters()
 {
     Filters fixedFilters;
     if (d->m_needsSetup)
@@ -365,7 +365,7 @@ HelpManager::Filters HelpManager::fixedFilters() const
     return fixedFilters;
 }
 
-HelpManager::Filters HelpManager::userDefinedFilters() const
+HelpManager::Filters HelpManager::userDefinedFilters()
 {
     if (d->m_needsSetup)
         return Filters();
@@ -383,7 +383,7 @@ void HelpManager::removeUserDefinedFilter(const QString &filter)
         return;
 
     if (d->m_helpEngine->removeCustomFilter(filter))
-        emit collectionFileChanged();
+        emit m_instance->collectionFileChanged();
 }
 
 void HelpManager::addUserDefinedFilter(const QString &filter, const QStringList &attr)
@@ -392,7 +392,7 @@ void HelpManager::addUserDefinedFilter(const QString &filter, const QStringList 
         return;
 
     if (d->m_helpEngine->addCustomFilter(filter, attr))
-        emit collectionFileChanged();
+        emit m_instance->collectionFileChanged();
 }
 
 // -- private slots
@@ -403,7 +403,7 @@ void HelpManager::setupHelpManager()
         return;
     d->m_needsSetup = false;
 
-    d->m_helpEngine = new QHelpEngineCore(collectionFilePath(), this);
+    d->m_helpEngine = new QHelpEngineCore(collectionFilePath(), m_instance);
     d->m_helpEngine->setAutoSaveFilter(false);
     d->m_helpEngine->setCurrentFilter(tr("Unfiltered"));
     d->m_helpEngine->setupData();
@@ -425,7 +425,7 @@ void HelpManager::setupHelpManager()
     for (it = d->m_customValues.constBegin(); it != d->m_customValues.constEnd(); ++it)
         setCustomValue(it.key(), it.value());
 
-    emit setupFinished();
+    emit m_instance->setupFinished();
 }
 
 // -- private

@@ -114,7 +114,7 @@ void CorePlugin::extensionsInitialized()
 
 bool CorePlugin::delayedInitialize()
 {
-    HelpManager::instance()->setupHelpManager();
+    HelpManager::setupHelpManager();
     return true;
 }
 
