@@ -83,8 +83,6 @@ DesignDocument::~DesignDocument()
 
 Model *DesignDocument::currentModel() const
 {
-    Q_ASSERT(m_documentModel);
-
     if (m_inFileComponentModel)
         return m_inFileComponentModel.data();
 
