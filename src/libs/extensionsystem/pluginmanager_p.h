@@ -36,6 +36,7 @@
 #include <QStringList>
 #include <QObject>
 #include <QScopedPointer>
+#include <QReadWriteLock>
 
 QT_BEGIN_NAMESPACE
 class QTime;
@@ -128,6 +129,8 @@ public:
     // used by tests
     static PluginSpec *createSpec();
     static PluginSpecPrivate *privateSpec(PluginSpec *spec);
+
+    mutable QReadWriteLock m_lock;
 
 private slots:
     void nextDelayedInitialize();

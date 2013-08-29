@@ -239,12 +239,13 @@ enum { debugLeaks = 0 };
 using namespace ExtensionSystem;
 using namespace ExtensionSystem::Internal;
 
+static Internal::PluginManagerPrivate *d = 0;
+static PluginManager *m_instance = 0;
+
 static bool lessThanByPluginName(const PluginSpec *one, const PluginSpec *two)
 {
     return one->name() < two->name();
 }
-
-PluginManager *PluginManager::m_instance = 0;
 
 /*!
     Get the unique plugin manager instance.
@@ -258,9 +259,9 @@ PluginManager *PluginManager::instance()
     Create a plugin manager. Should be done only once per application.
 */
 PluginManager::PluginManager()
-    : d(new PluginManagerPrivate(this))
 {
     m_instance = this;
+    d = new PluginManagerPrivate(this);
 }
 
 /*!
@@ -285,7 +286,7 @@ PluginManager::~PluginManager()
 */
 void PluginManager::addObject(QObject *obj)
 {
-    m_instance->d->addObject(obj);
+    d->addObject(obj);
 }
 
 /*!
@@ -294,7 +295,7 @@ void PluginManager::addObject(QObject *obj)
 */
 void PluginManager::removeObject(QObject *obj)
 {
-    m_instance->d->removeObject(obj);
+    d->removeObject(obj);
 }
 
 /*!
@@ -305,7 +306,12 @@ void PluginManager::removeObject(QObject *obj)
 */
 QList<QObject *> PluginManager::allObjects()
 {
-    return m_instance->d->allObjects;
+    return d->allObjects;
+}
+
+QReadWriteLock *PluginManager::listLock()
+{
+    return &d->m_lock;
 }
 
 /*!
@@ -318,7 +324,7 @@ QList<QObject *> PluginManager::allObjects()
 */
 void PluginManager::loadPlugins()
 {
-    return m_instance->d->loadPlugins();
+    return d->loadPlugins();
 }
 
 /*!
@@ -350,7 +356,7 @@ void PluginManager::shutdown()
 */
 QStringList PluginManager::pluginPaths()
 {
-    return m_instance->d->pluginPaths;
+    return d->pluginPaths;
 }
 
 /*!
@@ -363,7 +369,7 @@ QStringList PluginManager::pluginPaths()
 */
 void PluginManager::setPluginPaths(const QStringList &paths)
 {
-    m_instance->d->setPluginPaths(paths);
+    d->setPluginPaths(paths);
 }
 
 /*!
@@ -374,7 +380,7 @@ void PluginManager::setPluginPaths(const QStringList &paths)
 */
 QString PluginManager::fileExtension()
 {
-    return m_instance->d->extension;
+    return d->extension;
 }
 
 /*!
@@ -385,7 +391,7 @@ QString PluginManager::fileExtension()
 */
 void PluginManager::setFileExtension(const QString &extension)
 {
-    m_instance->d->extension = extension;
+    d->extension = extension;
 }
 
 /*!
@@ -394,7 +400,7 @@ void PluginManager::setFileExtension(const QString &extension)
 */
 void PluginManager::setSettings(QSettings *settings)
 {
-    m_instance->d->setSettings(settings);
+    d->setSettings(settings);
 }
 
 /*!
@@ -403,7 +409,7 @@ void PluginManager::setSettings(QSettings *settings)
 */
 void PluginManager::setGlobalSettings(QSettings *settings)
 {
-    m_instance->d->setGlobalSettings(settings);
+    d->setGlobalSettings(settings);
 }
 
 /*!
@@ -411,7 +417,7 @@ void PluginManager::setGlobalSettings(QSettings *settings)
 */
 QSettings *PluginManager::settings()
 {
-    return m_instance->d->settings;
+    return d->settings;
 }
 
 /*!
@@ -419,12 +425,12 @@ QSettings *PluginManager::settings()
 */
 QSettings *PluginManager::globalSettings()
 {
-    return m_instance->d->globalSettings;
+    return d->globalSettings;
 }
 
 void PluginManager::writeSettings()
 {
-    m_instance->d->writeSettings();
+    d->writeSettings();
 }
 
 /*!
@@ -433,7 +439,7 @@ void PluginManager::writeSettings()
 */
 QStringList PluginManager::arguments()
 {
-    return m_instance->d->arguments;
+    return d->arguments;
 }
 
 /*!
@@ -447,12 +453,12 @@ QStringList PluginManager::arguments()
 */
 QList<PluginSpec *> PluginManager::plugins()
 {
-    return m_instance->d->pluginSpecs;
+    return d->pluginSpecs;
 }
 
 QHash<QString, PluginCollection *> PluginManager::pluginCollections()
 {
-    return m_instance->d->pluginCategories;
+    return d->pluginCategories;
 }
 
 static const char argumentKeywordC[] = ":arguments";
@@ -479,13 +485,13 @@ QString PluginManager::serializedArguments()
             rc +=  ps->arguments().join(QString(separator));
         }
     }
-    if (!m_instance->d->arguments.isEmpty()) {
+    if (!d->arguments.isEmpty()) {
         if (!rc.isEmpty())
             rc += separator;
         rc += QLatin1String(argumentKeywordC);
         // If the argument appears to be a file, make it absolute
         // when sending to another instance.
-        foreach (const QString &argument, m_instance->d->arguments) {
+        foreach (const QString &argument, d->arguments) {
             rc += separator;
             const QFileInfo fi(argument);
             if (fi.exists() && fi.isRelative())
@@ -563,7 +569,7 @@ bool PluginManager::parseOptions(const QStringList &args,
     QMap<QString, QString> *foundAppOptions,
     QString *errorString)
 {
-    OptionsParser options(args, appOptions, foundAppOptions, errorString, m_instance->d);
+    OptionsParser options(args, appOptions, foundAppOptions, errorString, d);
     return options.parse();
 }
 
@@ -624,8 +630,8 @@ void PluginManager::formatPluginOptions(QTextStream &str, int optionIndentation,
 {
     typedef PluginSpec::PluginArgumentDescriptions PluginArgumentDescriptions;
     // Check plugins for options
-    const PluginSpecSet::const_iterator pcend = m_instance->d->pluginSpecs.constEnd();
-    for (PluginSpecSet::const_iterator pit = m_instance->d->pluginSpecs.constBegin(); pit != pcend; ++pit) {
+    const PluginSpecSet::const_iterator pcend = d->pluginSpecs.constEnd();
+    for (PluginSpecSet::const_iterator pit = d->pluginSpecs.constBegin(); pit != pcend; ++pit) {
         const PluginArgumentDescriptions pargs = (*pit)->argumentDescriptions();
         if (!pargs.empty()) {
             str << "\nPlugin: " <<  (*pit)->name() << '\n';
@@ -641,8 +647,8 @@ void PluginManager::formatPluginOptions(QTextStream &str, int optionIndentation,
 */
 void PluginManager::formatPluginVersions(QTextStream &str)
 {
-    const PluginSpecSet::const_iterator cend = m_instance->d->pluginSpecs.constEnd();
-    for (PluginSpecSet::const_iterator it = m_instance->d->pluginSpecs.constBegin(); it != cend; ++it) {
+    const PluginSpecSet::const_iterator cend = d->pluginSpecs.constEnd();
+    for (PluginSpecSet::const_iterator it = d->pluginSpecs.constBegin(); it != cend; ++it) {
         const PluginSpec *ps = *it;
         str << "  " << ps->name() << ' ' << ps->version() << ' ' << ps->description() <<  '\n';
     }
@@ -735,7 +741,7 @@ void PluginManager::startTests()
  */
 bool PluginManager::testRunRequested()
 {
-    return !m_instance->d->testSpecs.isEmpty();
+    return !d->testSpecs.isEmpty();
 }
 
 /*!
@@ -759,7 +765,7 @@ QString PluginManager::testDataDirectory()
 
 void PluginManager::profilingReport(const char *what, const PluginSpec *spec)
 {
-    m_instance->d->profilingReport(what, spec);
+    d->profilingReport(what, spec);
 }
 
 
@@ -768,7 +774,7 @@ void PluginManager::profilingReport(const char *what, const PluginSpec *spec)
 */
 QList<PluginSpec *> PluginManager::loadQueue()
 {
-    return m_instance->d->loadQueue();
+    return d->loadQueue();
 }
 
 //============PluginManagerPrivate===========
@@ -930,7 +936,7 @@ void PluginManagerPrivate::deleteAll()
 void PluginManagerPrivate::addObject(QObject *obj)
 {
     {
-        QWriteLocker lock(&(q->m_lock));
+        QWriteLocker lock(&m_lock);
         if (obj == 0) {
             qWarning() << "PluginManagerPrivate::addObject(): trying to add null object";
             return;
@@ -974,7 +980,7 @@ void PluginManagerPrivate::removeObject(QObject *obj)
         qDebug() << "PluginManagerPrivate::removeObject" << obj << obj->objectName();
 
     emit q->aboutToRemoveObject(obj);
-    QWriteLocker lock(&(q->m_lock));
+    QWriteLocker lock(&m_lock);
     allObjects.removeAll(obj);
 }
 
@@ -1330,7 +1336,7 @@ void PluginManagerPrivate::profilingSummary() const
 
 QObject *PluginManager::getObjectByName(const QString &name)
 {
-    QReadLocker lock(&m_instance->m_lock);
+    QReadLocker lock(&d->m_lock);
     QList<QObject *> all = allObjects();
     foreach (QObject *obj, all) {
         if (obj->objectName() == name)
@@ -1347,7 +1353,7 @@ QObject *PluginManager::getObjectByName(const QString &name)
 QObject *PluginManager::getObjectByClassName(const QString &className)
 {
     const QByteArray ba = className.toUtf8();
-    QReadLocker lock(&m_instance->m_lock);
+    QReadLocker lock(&d->m_lock);
     QList<QObject *> all = allObjects();
     foreach (QObject *obj, all) {
         if (obj->inherits(ba.constData()))
