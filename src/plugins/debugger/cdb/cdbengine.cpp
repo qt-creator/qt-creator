@@ -150,6 +150,7 @@ enum HandleLocalsFlags
 */
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace Debugger {
 namespace Internal {
@@ -315,7 +316,7 @@ static inline bool validMode(DebuggerStartMode sm)
 // Accessed by RunControlFactory
 DebuggerEngine *createCdbEngine(const DebuggerStartParameters &sp, QString *errorMessage)
 {
-    if (Utils::HostOsInfo::isWindowsHost()) {
+    if (HostOsInfo::isWindowsHost()) {
         if (validMode(sp.startMode))
             return new CdbEngine(sp);
         *errorMessage = QLatin1String("Internal error: Invalid start parameters passed for thee CDB engine.");
@@ -327,7 +328,7 @@ DebuggerEngine *createCdbEngine(const DebuggerStartParameters &sp, QString *erro
 
 void addCdbOptionPages(QList<Core::IOptionsPage *> *opts)
 {
-    if (Utils::HostOsInfo::isWindowsHost()) {
+    if (HostOsInfo::isWindowsHost()) {
         opts->push_back(new CdbOptionsPage);
         opts->push_back(new CdbPathsPage);
     }
@@ -413,7 +414,7 @@ void CdbEngine::init()
     }
     // update source path maps from debugger start params
     mergeStartParametersSourcePathMap();
-    QTC_ASSERT(m_process.state() != QProcess::Running, Utils::SynchronousProcess::stopProcess(m_process));
+    QTC_ASSERT(m_process.state() != QProcess::Running, SynchronousProcess::stopProcess(m_process));
 }
 
 CdbEngine::~CdbEngine()
@@ -538,8 +539,8 @@ bool CdbEngine::startConsole(const DebuggerStartParameters &sp, QString *errorMe
 {
     if (debug)
         qDebug("startConsole %s", qPrintable(sp.executable));
-    m_consoleStub.reset(new Utils::ConsoleProcess);
-    m_consoleStub->setMode(Utils::ConsoleProcess::Suspend);
+    m_consoleStub.reset(new ConsoleProcess);
+    m_consoleStub->setMode(ConsoleProcess::Suspend);
     connect(m_consoleStub.data(), SIGNAL(processError(QString)),
             SLOT(consoleStubError(QString)));
     connect(m_consoleStub.data(), SIGNAL(processStarted()),
@@ -701,8 +702,7 @@ bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessa
     case StartExternal:
         if (!nativeArguments.isEmpty())
             nativeArguments.push_back(blank);
-        Utils::QtcProcess::addArgs(&nativeArguments,
-                                   QStringList(QDir::toNativeSeparators(sp.executable)));
+        QtcProcess::addArgs(&nativeArguments, QStringList(QDir::toNativeSeparators(sp.executable)));
         break;
     case AttachToRemoteServer:
         break;
@@ -941,7 +941,7 @@ void CdbEngine::shutdownEngine()
     } else {
         // Remote process. No can do, currently
         m_notifyEngineShutdownOnTermination = true;
-        Utils::SynchronousProcess::stopProcess(m_process);
+        SynchronousProcess::stopProcess(m_process);
         return;
     }
     // Lost debuggee, debugger should quit anytime now
@@ -2470,13 +2470,12 @@ void CdbEngine::handleExtensionMessage(char t, int token, const QByteArray &what
                 && exception.exceptionCode != winExceptionSetThreadName) {
             const Task::TaskType type =
                     isFatalWinException(exception.exceptionCode) ? Task::Error : Task::Warning;
-            const Utils::FileName fileName = exception.file.isEmpty() ?
-                        Utils::FileName() :
-                        Utils::FileName::fromUserInput(QString::fromLocal8Bit(exception.file));
-            const Task task(type, exception.toString(false).trimmed(),
-                            fileName, exception.lineNumber,
-                            Core::Id(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME));
-            TaskHub::addTask(task);
+            const FileName fileName = exception.file.isEmpty() ?
+                        FileName() :
+                        FileName::fromUserInput(QString::fromLocal8Bit(exception.file));
+            TaskHub::addTask(type, exception.toString(false).trimmed(),
+                             Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME,
+                             fileName, exception.lineNumber);
         }
         return;
     }
@@ -2706,7 +2705,7 @@ static CPlusPlus::Document::Ptr getParsedDocument(const QString &fileName,
     if (workingCopy.contains(fileName)) {
         src = workingCopy.source(fileName);
     } else {
-        Utils::FileReader reader;
+        FileReader reader;
         if (reader.fetch(fileName)) // ### FIXME error reporting
             src = QString::fromLocal8Bit(reader.data()); // ### FIXME encoding
     }

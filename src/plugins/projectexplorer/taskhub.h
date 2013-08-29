@@ -38,13 +38,18 @@
 namespace ProjectExplorer {
 
 class ProjectExplorerPlugin;
-class Task;
 
 class PROJECTEXPLORER_EXPORT TaskHub : public QObject
 {
     Q_OBJECT
 public:
     static TaskHub *instance();
+
+    // Convenience overload
+    static void addTask(Task::TaskType type, const QString &description,
+                        Core::Id category,
+                        const Utils::FileName &file = Utils::FileName(),
+                        int line = -1);
 
 public slots:
     static void addTask(ProjectExplorer::Task task);
@@ -81,8 +86,6 @@ private:
 
     const QIcon m_errorIcon;
     const QIcon m_warningIcon;
-
-    static TaskHub *m_instance;
 
     friend class ProjectExplorerPlugin;
 };

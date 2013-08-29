@@ -687,9 +687,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                 m_lastWinException = msgWinException(data, &exCode);
                 showMessage(m_lastWinException, LogMisc);
                 const Task::TaskType type = isFatalWinException(exCode) ? Task::Error : Task::Warning;
-                const Task task(type, m_lastWinException, Utils::FileName(), 0,
-                                Core::Id(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME));
-                TaskHub::addTask(task);
+                TaskHub::addTask(type, m_lastWinException, Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
             }
 
             if (data.startsWith("QMLBP:")) {

@@ -34,7 +34,7 @@
 
 using namespace ProjectExplorer;
 
-TaskHub *TaskHub::m_instance = 0;
+TaskHub *m_instance = 0;
 
 class TaskMark : public TextEditor::BaseTextMark
 {
@@ -105,6 +105,11 @@ void TaskHub::addCategory(Core::Id categoryId, const QString &displayName, bool 
 TaskHub *TaskHub::instance()
 {
     return m_instance;
+}
+
+void TaskHub::addTask(Task::TaskType type, const QString &description, Core::Id category, const Utils::FileName &file, int line)
+{
+    addTask(Task(type, description, file, line, category));
 }
 
 void TaskHub::addTask(Task task)

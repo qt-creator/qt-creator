@@ -268,7 +268,7 @@ TaskWindow::TaskWindow() : d(new TaskWindowPrivate)
 
     d->m_categoriesButton->setMenu(d->m_categoriesMenu);
 
-    TaskHub *hub = TaskHub::instance();
+    QObject *hub = TaskHub::instance();
     connect(hub, SIGNAL(categoryAdded(Core::Id,QString,bool)),
             this, SLOT(addCategory(Core::Id,QString,bool)));
     connect(hub, SIGNAL(taskAdded(ProjectExplorer::Task)),

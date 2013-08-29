@@ -43,11 +43,12 @@
 #include <QAction>
 #include <QToolBar>
 
-using namespace Qnx;
-using namespace Qnx::Internal;
+using namespace ProjectExplorer;
+
+namespace Qnx {
+namespace Internal {
 
 BarDescriptorEditor::BarDescriptorEditor(BarDescriptorEditorWidget *editorWidget)
-    : Core::IEditor()
 {
     setWidget(editorWidget);
 
@@ -128,14 +129,13 @@ void BarDescriptorEditor::setActivePage(BarDescriptorEditor::EditorPage page)
     if (page == Source) {
         editorWidget->setXmlSource(m_file->xmlSource());
     } else if (prevPage == Source) {
-        ProjectExplorer::TaskHub::clearTasks(Constants::QNX_TASK_CATEGORY_BARDESCRIPTOR);
+        TaskHub::clearTasks(Constants::QNX_TASK_CATEGORY_BARDESCRIPTOR);
         QString errorMsg;
         int errorLine;
         if (!m_file->loadContent(editorWidget->xmlSource(), &errorMsg, &errorLine)) {
-            const ProjectExplorer::Task task(ProjectExplorer::Task::Error, errorMsg, Utils::FileName::fromString(m_file->filePath()),
-                                       errorLine, Constants::QNX_TASK_CATEGORY_BARDESCRIPTOR);
-            ProjectExplorer::TaskHub::addTask(task);
-            ProjectExplorer::TaskHub::requestPopup();
+            TaskHub::addTask(Task::Error, errorMsg, Constants::QNX_TASK_CATEGORY_BARDESCRIPTOR,
+                             Utils::FileName::fromString(m_file->filePath()), errorLine);
+            TaskHub::requestPopup();
 
             foreach (QAction *action, m_actionGroup->actions())
                 if (action->data().toInt() == Source)
@@ -147,3 +147,6 @@ void BarDescriptorEditor::setActivePage(BarDescriptorEditor::EditorPage page)
 
     editorWidget->setCurrentIndex(page);
 }
+
+} // namespace Internal
+} // namespace Qnx

@@ -32,14 +32,9 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace ProjectExplorer {
-class Project;
-} // namespace ProjectExplorer
+namespace ProjectExplorer { class Project; }
 
 namespace TaskList {
-namespace Internal {
-class TaskListPluginPrivate;
-} // namespace
 
 class TaskListPlugin : public ExtensionSystem::IPlugin
 {
@@ -47,22 +42,14 @@ class TaskListPlugin : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "TaskList.json")
 
 public:
-    TaskListPlugin();
-    ~TaskListPlugin();
-
     bool initialize(const QStringList &arguments, QString *errorMessage);
-
-    void extensionsInitialized();
+    void extensionsInitialized() {}
 
     static bool loadFile(QString *errorString, ProjectExplorer::Project *context, const QString &fileName);
     static bool monitorFile(ProjectExplorer::Project *context, const QString &fileName);
 
     static void stopMonitoring();
     static void clearTasks();
-
-private:
-    static TaskListPlugin *m_instance;
-    Internal::TaskListPluginPrivate * const d;
 };
 
 } // namespace TaskList

@@ -45,181 +45,156 @@
 #include <QStringList>
 #include <QtPlugin>
 
-namespace {
+using namespace ProjectExplorer;
+using namespace TaskList::Internal;
 
-ProjectExplorer::Task::TaskType typeFrom(const QString &typeName)
+namespace TaskList {
+
+static Task::TaskType typeFrom(const QString &typeName)
 {
-    ProjectExplorer::Task::TaskType type = ProjectExplorer::Task::Unknown;
+    Task::TaskType type = Task::Unknown;
     QString tmp = typeName.toLower();
     if (tmp.startsWith(QLatin1String("warn")))
-        type = ProjectExplorer::Task::Warning;
+        type = Task::Warning;
     else if (tmp.startsWith(QLatin1String("err")))
-        type = ProjectExplorer::Task::Error;
+        type = Task::Error;
     return type;
 }
 
-} // namespace
-
-using namespace TaskList;
-
-TaskListPlugin *TaskListPlugin::m_instance = 0;
-
-// --------------------------------------------------------------------------
-// TaskListPluginPrivate
-// --------------------------------------------------------------------------
-
-class Internal::TaskListPluginPrivate {
-public:
-    bool parseTaskFile(QString *errorString, ProjectExplorer::Project *context, const QString &name)
-    {
-        QFile tf(name);
-        if (!tf.open(QIODevice::ReadOnly)) {
-            *errorString = TaskListPlugin::tr("Cannot open task file %1: %2").arg(
-                    QDir::toNativeSeparators(name), tf.errorString());
-            return false;
-        }
-
-        while (!tf.atEnd())
-        {
-            QStringList chunks = parseRawLine(tf.readLine());
-            if (chunks.isEmpty())
-                continue;
-
-            QString description;
-            QString file;
-            ProjectExplorer::Task::TaskType type = ProjectExplorer::Task::Unknown;
-            int line = -1;
-
-            if (chunks.count() == 1) {
-                description = chunks.at(0);
-            } else if (chunks.count() == 2) {
-                type = typeFrom(chunks.at(0));
-                description = chunks.at(1);
-            } else if (chunks.count() == 3) {
-                file = chunks.at(0);
-                type = typeFrom(chunks.at(1));
-                description = chunks.at(2);
-            } else if (chunks.count() >= 4) {
-                file = chunks.at(0);
-                bool ok;
-                line = chunks.at(1).toInt(&ok);
-                if (!ok)
-                    line = -1;
-                type = typeFrom(chunks.at(2));
-                description = chunks.at(3);
-            }
-            if (!file.isEmpty()) {
-                file = QDir::fromNativeSeparators(file);
-                QFileInfo fi(file);
-                if (fi.isRelative() && context) {
-                    QString fullPath = context->projectDirectory() + QLatin1Char('/') + file;
-                    fi.setFile(fullPath);
-                    file = fi.absoluteFilePath();
-                }
-            }
-            description = unescape(description);
-
-            ProjectExplorer::TaskHub::addTask(
-                        ProjectExplorer::Task(type, description,
-                                              Utils::FileName::fromUserInput(file), line,
-                                              Core::Id(Constants::TASKLISTTASK_ID)));
-        }
-        return true;
-    }
-
-    QStringList parseRawLine(const QByteArray &raw)
-    {
-        QStringList result;
-        QString line = QString::fromUtf8(raw.constData());
-        if (line.startsWith(QLatin1Char('#')))
-            return result;
-
-        return line.split(QLatin1Char('\t'));
-    }
-
-    QString unescape(const QString &input) const
-    {
-        QString result;
-        for (int i = 0; i < input.count(); ++i) {
-            if (input.at(i) == QLatin1Char('\\')) {
-                if (i == input.count() - 1)
-                    continue;
-                if (input.at(i + 1) == QLatin1Char('n')) {
-                    result.append(QLatin1Char('\n'));
-                    ++i;
-                    continue;
-                } else if (input.at(i + 1) == QLatin1Char('t')) {
-                    result.append(QLatin1Char('\t'));
-                    ++i;
-                    continue;
-                } else if (input.at(i + 1) == QLatin1Char('\\')) {
-                    result.append(QLatin1Char('\\'));
-                    ++i;
-                    continue;
-                }
-                continue;
-            }
-            result.append(input.at(i));
-        }
+static QStringList parseRawLine(const QByteArray &raw)
+{
+    QStringList result;
+    QString line = QString::fromUtf8(raw.constData());
+    if (line.startsWith(QLatin1Char('#')))
         return result;
+
+    return line.split(QLatin1Char('\t'));
+}
+
+static QString unescape(const QString &input)
+{
+    QString result;
+    for (int i = 0; i < input.count(); ++i) {
+        if (input.at(i) == QLatin1Char('\\')) {
+            if (i == input.count() - 1)
+                continue;
+            if (input.at(i + 1) == QLatin1Char('n')) {
+                result.append(QLatin1Char('\n'));
+                ++i;
+                continue;
+            } else if (input.at(i + 1) == QLatin1Char('t')) {
+                result.append(QLatin1Char('\t'));
+                ++i;
+                continue;
+            } else if (input.at(i + 1) == QLatin1Char('\\')) {
+                result.append(QLatin1Char('\\'));
+                ++i;
+                continue;
+            }
+            continue;
+        }
+        result.append(input.at(i));
+    }
+    return result;
+}
+
+static bool parseTaskFile(QString *errorString, Project *context, const QString &name)
+{
+    QFile tf(name);
+    if (!tf.open(QIODevice::ReadOnly)) {
+        *errorString = TaskListPlugin::tr("Cannot open task file %1: %2").arg(
+                QDir::toNativeSeparators(name), tf.errorString());
+        return false;
     }
 
-    TaskFileFactory *fileFactory;
-};
+    while (!tf.atEnd()) {
+        QStringList chunks = parseRawLine(tf.readLine());
+        if (chunks.isEmpty())
+            continue;
+
+        QString description;
+        QString file;
+        Task::TaskType type = Task::Unknown;
+        int line = -1;
+
+        if (chunks.count() == 1) {
+            description = chunks.at(0);
+        } else if (chunks.count() == 2) {
+            type = typeFrom(chunks.at(0));
+            description = chunks.at(1);
+        } else if (chunks.count() == 3) {
+            file = chunks.at(0);
+            type = typeFrom(chunks.at(1));
+            description = chunks.at(2);
+        } else if (chunks.count() >= 4) {
+            file = chunks.at(0);
+            bool ok;
+            line = chunks.at(1).toInt(&ok);
+            if (!ok)
+                line = -1;
+            type = typeFrom(chunks.at(2));
+            description = chunks.at(3);
+        }
+        if (!file.isEmpty()) {
+            file = QDir::fromNativeSeparators(file);
+            QFileInfo fi(file);
+            if (fi.isRelative() && context) {
+                QString fullPath = context->projectDirectory() + QLatin1Char('/') + file;
+                fi.setFile(fullPath);
+                file = fi.absoluteFilePath();
+            }
+        }
+        description = unescape(description);
+
+        TaskHub::addTask(type, description, Constants::TASKLISTTASK_ID,
+                         Utils::FileName::fromUserInput(file), line);
+    }
+    return true;
+}
 
 // --------------------------------------------------------------------------
 // TaskListPlugin
 // --------------------------------------------------------------------------
 
-TaskListPlugin::TaskListPlugin() :
-    d(new Internal::TaskListPluginPrivate)
-{
-    m_instance = this;
-}
-
-TaskListPlugin::~TaskListPlugin()
-{
-    delete d;
-}
+static TaskFileFactory *m_fileFactory = 0;
 
 bool TaskListPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
 
     //: Category under which tasklist tasks are listed in Issues view
-    ProjectExplorer::TaskHub::addCategory(Core::Id(Constants::TASKLISTTASK_ID), tr("My Tasks"));
+    TaskHub::addCategory(Constants::TASKLISTTASK_ID, tr("My Tasks"));
 
     if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":tasklist/TaskList.mimetypes.xml"), errorMessage))
         return false;
 
-    d->fileFactory = new Internal::TaskFileFactory(this);
-    addAutoReleasedObject(d->fileFactory);
-    addAutoReleasedObject(new Internal::StopMonitoringHandler);
+    m_fileFactory = new TaskFileFactory(this);
+    addAutoReleasedObject(m_fileFactory);
+    addAutoReleasedObject(new StopMonitoringHandler);
     return true;
 }
 
-void TaskListPlugin::extensionsInitialized()
-{ }
-
-bool TaskListPlugin::loadFile(QString *errorString, ProjectExplorer::Project *context, const QString &fileName)
+bool TaskListPlugin::loadFile(QString *errorString, Project *context, const QString &fileName)
 {
     clearTasks();
-    return m_instance->d->parseTaskFile(errorString, context, fileName);
+    return parseTaskFile(errorString, context, fileName);
 }
 
-bool TaskListPlugin::monitorFile(ProjectExplorer::Project *context, const QString &fileName)
+bool TaskListPlugin::monitorFile(Project *context, const QString &fileName)
 {
-    return m_instance->d->fileFactory->open(context, fileName);
+    return m_fileFactory->open(context, fileName);
 }
 
 void TaskListPlugin::stopMonitoring()
 {
-    m_instance->d->fileFactory->closeAllFiles();
+    m_fileFactory->closeAllFiles();
 }
 
 void TaskListPlugin::clearTasks()
 {
-    ProjectExplorer::TaskHub::clearTasks(Core::Id(Constants::TASKLISTTASK_ID));
+    TaskHub::clearTasks(Constants::TASKLISTTASK_ID);
 }
+
+} // namespace TaskList
 
 Q_EXPORT_PLUGIN(TaskListPlugin)
