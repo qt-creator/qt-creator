@@ -1043,7 +1043,7 @@ static bool addMagicMatchRule(const QXmlStreamAttributes &atts,
                               const MagicRuleMatcherPtr  &ruleMatcher,
                               QString *errorMessage)
 {
-    const QString type = atts.value(QLatin1String(matchTypeAttributeC)).toString();
+    const QStringRef type = atts.value(QLatin1String(matchTypeAttributeC));
     if (type != QLatin1String(matchStringTypeValueC) &&
         type != QLatin1String(matchByteTypeValueC)) {
         qWarning("%s: match type %s is not supported.", Q_FUNC_INFO, type.toUtf8().constData());
@@ -1105,25 +1105,25 @@ bool BaseMimeTypeParser::parse(QIODevice *dev, const QString &fileName, QString 
                 break;
             case ParseComment: {
                 // comments have locale attributes. We want the default, English one
-                QString locale = atts.value(QLatin1String(localeAttributeC)).toString();
+                const QStringRef locale = atts.value(QLatin1String(localeAttributeC));
                 const QString comment = QCoreApplication::translate("MimeType", reader.readElementText().toLatin1());
                 if (locale.isEmpty())
                     data.comment = comment;
                 else
-                    data.localeComments.insert(locale, comment);
+                    data.localeComments.insert(locale.toString(), comment);
             }
                 break;
             case ParseAlias: {
-                const QString alias = atts.value(QLatin1String(mimeTypeAttributeC)).toString();
+                const QStringRef alias = atts.value(QLatin1String(mimeTypeAttributeC));
                 if (!alias.isEmpty())
-                    data.aliases.push_back(alias);
+                    data.aliases.push_back(alias.toString());
             }
                 break;
             case ParseMagic: {
                 int priority = 0;
-                const QString priorityS = atts.value(QLatin1String(priorityAttributeC)).toString();
+                const QStringRef priorityS = atts.value(QLatin1String(priorityAttributeC));
                 if (!priorityS.isEmpty()) {
-                    if (!parseNumber(priorityS, &priority, errorMessage))
+                    if (!parseNumber(priorityS.toString(), &priority, errorMessage))
                         return false;
 
                 }
@@ -1694,7 +1694,7 @@ QList<MimeType> MimeDatabasePrivate::readUserModifiedMimeTypes()
                     mimeType.setGlobPatterns(toGlobPatterns(patterns.split(kSemiColon)));
                 } else if (reader.name() == QLatin1String(matchTagC)) {
                     const QString &value = atts.value(matchValueAttribute).toString();
-                    const QString &type = atts.value(matchTypeAttribute).toString();
+                    const QStringRef type = atts.value(matchTypeAttribute);
                     const QString &offset = atts.value(matchOffsetAttribute).toString();
                     QPair<int, int> range = MagicRule::fromOffset(offset);
                     const int priority = atts.value(priorityAttribute).toString().toInt();
