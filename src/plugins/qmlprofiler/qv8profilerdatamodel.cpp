@@ -354,7 +354,7 @@ void QV8ProfilerDataModel::load(QXmlStreamReader &stream)
 
     while (!stream.atEnd() && !stream.hasError()) {
         QXmlStreamReader::TokenType token = stream.readNext();
-        QString elementName = stream.name().toString();
+        const QStringRef elementName = stream.name();
         switch (token) {
         case QXmlStreamReader::StartDocument :  continue;
         case QXmlStreamReader::StartElement : {

@@ -136,15 +136,14 @@ bool QmlProfilerFileReader::load(QIODevice *device)
 
     while (validVersion && !stream.atEnd() && !stream.hasError()) {
          QXmlStreamReader::TokenType token = stream.readNext();
-         QString elementName = stream.name().toString();
+         const QStringRef elementName = stream.name();
          switch (token) {
          case QXmlStreamReader::StartDocument :  continue;
          case QXmlStreamReader::StartElement : {
              if (elementName == _("trace")) {
                  QXmlStreamAttributes attributes = stream.attributes();
                  if (attributes.hasAttribute(_("version")))
-                     validVersion = attributes.value(_("version")).toString()
-                             == _(PROFILER_FILE_VERSION);
+                     validVersion = attributes.value(_("version")) == _(PROFILER_FILE_VERSION);
                  else
                      validVersion = false;
                  if (attributes.hasAttribute(_("traceStart")))
@@ -187,7 +186,7 @@ bool QmlProfilerFileReader::load(QIODevice *device)
 
 void QmlProfilerFileReader::loadEventData(QXmlStreamReader &stream)
 {
-    QTC_ASSERT(stream.name().toString() == _("eventData"), return);
+    QTC_ASSERT(stream.name() == _("eventData"), return);
 
     QXmlStreamAttributes attributes = stream.attributes();
     if (attributes.hasAttribute(_("totalTime"))) {
@@ -208,7 +207,7 @@ void QmlProfilerFileReader::loadEventData(QXmlStreamReader &stream)
 
     while (!stream.atEnd() && !stream.hasError()) {
         QXmlStreamReader::TokenType token = stream.readNext();
-        const QString elementName = stream.name().toString();
+        const QStringRef elementName = stream.name();
 
         switch (token) {
         case QXmlStreamReader::StartElement: {
@@ -294,11 +293,11 @@ void QmlProfilerFileReader::loadEventData(QXmlStreamReader &stream)
 
 void QmlProfilerFileReader::loadProfilerDataModel(QXmlStreamReader &stream)
 {
-    QTC_ASSERT(stream.name().toString() == _("profilerDataModel"), return);
+    QTC_ASSERT(stream.name() == _("profilerDataModel"), return);
 
     while (!stream.atEnd() && !stream.hasError()) {
         QXmlStreamReader::TokenType token = stream.readNext();
-        const QString elementName = stream.name().toString();
+        const QStringRef elementName = stream.name();
 
         switch (token) {
         case QXmlStreamReader::StartElement: {
