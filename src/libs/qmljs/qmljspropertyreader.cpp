@@ -229,7 +229,7 @@ QLinearGradient PropertyReader::parseGradient(const QString &propertyName,  bool
                                                              initializer->lbraceToken,
                                                              initializer->rbraceToken));
             const QString objectPropertyName = objectBinding->qualifiedId->name.toString();
-            const QString typeName = objectBinding->qualifiedTypeNameId->name.toString();
+            const QStringRef typeName = objectBinding->qualifiedTypeNameId->name;
             if (objectPropertyName == propertyName && typeName.contains(QLatin1String("Gradient"))) {
                 QLinearGradient gradient;
                 QVector<QGradientStop> stops;

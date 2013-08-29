@@ -862,10 +862,11 @@ bool Check::visit(UiPublicMember *ast)
     if (ast->type == UiPublicMember::Property) {
         // check if the member type is valid
         if (!ast->memberType.isEmpty()) {
-            const QString &name = ast->memberType.toString();
+            const QStringRef name = ast->memberType;
             if (!name.isEmpty() && name.at(0).isLower()) {
-                if (!isValidBuiltinPropertyType(name))
-                    addMessage(ErrInvalidPropertyType, ast->typeToken, name);
+                const QString nameS = name.toString();
+                if (!isValidBuiltinPropertyType(nameS))
+                    addMessage(ErrInvalidPropertyType, ast->typeToken, nameS);
             }
 
             // warn about dubious use of var/variant

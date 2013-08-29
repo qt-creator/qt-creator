@@ -272,12 +272,12 @@ bool JsonCheck::visit(StringLiteral *ast)
 
     analysis()->boostRanking();
 
-    const QString &literal = ast->value.toString();
+    const QStringRef literal = ast->value;
 
     const QString &pattern = m_schema->pattern();
     if (!pattern.isEmpty()) {
         QRegExp regExp(pattern);
-        if (regExp.indexIn(literal) == -1) {
+        if (regExp.indexIn(literal.toString()) == -1) {
             analysis()->m_messages.append(Message(ErrInvalidStringValuePattern,
                                                   ast->firstSourceLocation(),
                                                   QString(), QString(), false));

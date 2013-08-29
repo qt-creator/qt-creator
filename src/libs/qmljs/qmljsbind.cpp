@@ -201,10 +201,11 @@ bool Bind::visit(UiImport *ast)
             _diagnosticMessages->append(
                         errorMessage(ast, tr("package import requires a version number")));
         }
+        const QString importId = ast->importId.toString();
         ImportInfo import = ImportInfo::moduleImport(toString(ast->importUri), version,
-                                                     ast->importId.toString(), ast);
+                                                     importId, ast);
         if (_doc->language() == Document::QmlLanguage) {
-            QString importStr = import.name() + ast->importId.toString();
+            const QString importStr = import.name() + importId;
             QmlLanguageBundles langBundles = ModelManagerInterface::instance()->extendedBundles();
             QmlBundle qq1 = langBundles.bundleForLanguage(Document::QmlQtQuick1Language);
             QmlBundle qq2 = langBundles.bundleForLanguage(Document::QmlQtQuick2Language);
