@@ -124,7 +124,7 @@ VcsBase::Command *CloneWizardPage::createCheckoutJob(QString *checkoutPath) cons
      QStringList args(QLatin1String("clone"));
      if (!checkoutBranch.isEmpty())
          args << QLatin1String("--branch") << checkoutBranch;
-     args << repository() << checkoutDir;
+     args << QLatin1String("--progress") << repository() << checkoutDir;
      VcsBase::Command *command = new VcsBase::Command(client->gitBinaryPath(), workingDirectory,
                                                       client->processEnvironment());
      command->addFlags(VcsBase::VcsBasePlugin::MergeOutputChannels);
