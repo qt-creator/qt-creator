@@ -276,7 +276,7 @@ Utils::AbstractMacroExpander *VariableManager::macroExpander()
  * Returns the variable manager instance, for connecting to signals. All other methods are static
  * and should be called as class methods, not through the instance.
  */
-VariableManager *VariableManager::instance()
+QObject *VariableManager::instance()
 {
     return variableManagerInstance;
 }

@@ -117,18 +117,18 @@ void QtSupportPlugin::updateVariable(const QByteArray &variable)
 
     ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::currentProject();
     if (!project || !project->activeTarget()) {
-        Core::VariableManager::instance()->remove(variable);
+        Core::VariableManager::remove(variable);
         return;
     }
 
     const BaseQtVersion *qtVersion = QtKitInformation::qtVersion(project->activeTarget()->kit());
     if (!qtVersion) {
-        Core::VariableManager::instance()->remove(variable);
+        Core::VariableManager::remove(variable);
         return;
     }
 
     QString value = qtVersion->qmakeProperty(variable == kHostBins ? "QT_HOST_BINS" : "QT_INSTALL_BINS");
-    Core::VariableManager::instance()->insert(variable, value);
+    Core::VariableManager::insert(variable, value);
 }
 
 Q_EXPORT_PLUGIN(QtSupportPlugin)

@@ -50,7 +50,7 @@ class CORE_EXPORT VariableManager : public QObject
     Q_OBJECT
 
 public:
-    static VariableManager *instance();
+    static QObject *instance();
 
     static void insert(const QByteArray &variable, const QString &value);
     static bool remove(const QByteArray &variable);

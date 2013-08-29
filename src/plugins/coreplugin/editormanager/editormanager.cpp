@@ -2520,7 +2520,7 @@ QString EditorManager::windowTitleVcsTopic()
 
 void EditorManager::updateVariable(const QByteArray &variable)
 {
-    if (VariableManager::instance()->isFileVariable(variable, kCurrentDocumentPrefix)) {
+    if (VariableManager::isFileVariable(variable, kCurrentDocumentPrefix)) {
         QString value;
         IDocument *document = currentDocument();
         if (document) {
