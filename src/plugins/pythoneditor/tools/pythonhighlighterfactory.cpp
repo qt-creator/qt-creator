@@ -28,8 +28,8 @@
 ****************************************************************************/
 
 #include "pythonhighlighterfactory.h"
-#include "pythoneditorconstants.h"
-#include "tools/pythonhighlighter.h"
+#include "../pythoneditorconstants.h"
+#include "pythonhighlighter.h"
 
 using namespace PythonEditor::Internal;
 
