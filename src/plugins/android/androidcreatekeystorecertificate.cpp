@@ -137,8 +137,10 @@ void AndroidCreateKeystoreCertificate::on_buttonBox_accepted()
         break;
     }
 
-    if (!ui->aliasNameLineEdit->text().length())
+    if (!ui->aliasNameLineEdit->text().length()) {
         ui->aliasNameLineEdit->setFocus();
+        return;
+    }
 
     if (!ui->commonNameLineEdit->text().length())
         ui->commonNameLineEdit->setFocus();
