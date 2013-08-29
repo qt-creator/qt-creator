@@ -111,7 +111,8 @@ StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, State
         throw InvalidQmlSourceException(__LINE__, __FUNCTION__, __FILE__);
 
     m_declarativeView->setFocusPolicy(Qt::ClickFocus);
-    QApplication::sendEvent(m_declarativeView->scene(), new QEvent(QEvent::WindowActivate));
+    QEvent event(QEvent::WindowActivate);
+    QApplication::sendEvent(m_declarativeView->scene(), &event);
 
     connect(m_declarativeView->rootObject(), SIGNAL(currentStateInternalIdChanged()), statesEditorView, SLOT(synchonizeCurrentStateFromWidget()));
     connect(m_declarativeView->rootObject(), SIGNAL(createNewState()), statesEditorView, SLOT(createNewState()));
