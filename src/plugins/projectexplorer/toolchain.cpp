@@ -131,7 +131,7 @@ QList<Utils::FileName> ToolChain::suggestedMkspecList() const
 
 Utils::FileName ToolChain::suggestedDebugger() const
 {
-    return ToolChainManager::instance()->defaultDebugger(targetAbi());
+    return ToolChainManager::defaultDebugger(targetAbi());
 }
 
 bool ToolChain::canClone() const
@@ -169,7 +169,7 @@ QVariantMap ToolChain::toMap() const
 
 void ToolChain::toolChainUpdated()
 {
-    ToolChainManager::instance()->notifyAboutUpdate(this);
+    ToolChainManager::notifyAboutUpdate(this);
 }
 
 void ToolChain::setAutoDetected(bool autodetect)

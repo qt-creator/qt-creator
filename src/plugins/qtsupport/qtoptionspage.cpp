@@ -42,11 +42,11 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <utils/qtcassert.h>
-#include <utils/pathchooser.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/hostosinfo.h>
+#include <utils/pathchooser.h>
+#include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 
 #include <QDir>
@@ -55,11 +55,13 @@
 #include <QTextBrowser>
 #include <QDesktopServices>
 
-enum ModelRoles { VersionIdRole = Qt::UserRole, ToolChainIdRole, BuildLogRole, BuildRunningRole};
-
-using namespace QtSupport;
-using namespace QtSupport::Internal;
+using namespace ProjectExplorer;
 using namespace Utils;
+
+namespace QtSupport {
+namespace Internal {
+
+enum ModelRoles { VersionIdRole = Qt::UserRole, ToolChainIdRole, BuildLogRole, BuildRunningRole};
 
 ///
 // QtOptionsPage
@@ -116,7 +118,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
 {
     QWidget *versionInfoWidget = new QWidget();
     m_versionUi->setupUi(versionInfoWidget);
-    m_versionUi->editPathPushButton->setText(QCoreApplication::translate("Utils::PathChooser", Utils::PathChooser::browseButtonLabel));
+    m_versionUi->editPathPushButton->setText(QCoreApplication::translate("Utils::PathChooser", PathChooser::browseButtonLabel));
 
     QWidget *debuggingHelperDetailsWidget = new QWidget();
     m_debuggingHelperUi->setupUi(debuggingHelperDetailsWidget);
@@ -131,7 +133,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
             this, SLOT(setInfoWidgetVisibility()));
 
     m_ui->versionInfoWidget->setWidget(versionInfoWidget);
-    m_ui->versionInfoWidget->setState(Utils::DetailsWidget::NoSummary);
+    m_ui->versionInfoWidget->setState(DetailsWidget::NoSummary);
 
     m_ui->debuggingHelperWidget->setWidget(debuggingHelperDetailsWidget);
     connect(m_ui->debuggingHelperWidget, SIGNAL(expanded(bool)),
@@ -319,7 +321,7 @@ void QtOptionsPageWidget::selectedToolChainChanged(int comboIndex)
     item->setData(0, ToolChainIdRole, toolChainId);
 }
 
-void QtOptionsPageWidget::qtVersionsDumpUpdated(const Utils::FileName &qmakeCommand)
+void QtOptionsPageWidget::qtVersionsDumpUpdated(const FileName &qmakeCommand)
 {
     foreach (BaseQtVersion *version, m_versions) {
         if (version->qmakeCommand() == qmakeCommand)
@@ -364,9 +366,9 @@ QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const Ba
     // Do we have tool chain issues?
     QStringList missingToolChains;
     int abiCount = 0;
-    foreach (const ProjectExplorer::Abi &a, version->qtAbis()) {
-        if (ProjectExplorer::ToolChainManager::instance()->findToolChains(a).isEmpty())
-            missingToolChains.append(a.toString());
+    foreach (const Abi &abi, version->qtAbis()) {
+        if (ToolChainManager::findToolChains(abi).isEmpty())
+            missingToolChains.append(abi.toString());
         ++abiCount;
     }
 
@@ -398,25 +400,22 @@ QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const Ba
     return info;
 }
 
-QList<ProjectExplorer::ToolChain*> QtOptionsPageWidget::toolChains(const BaseQtVersion *version)
+QList<ToolChain*> QtOptionsPageWidget::toolChains(const BaseQtVersion *version)
 {
-    QHash<QString,ProjectExplorer::ToolChain*> toolChains;
+    QHash<QString,ToolChain*> toolChains;
     if (!version)
         return toolChains.values();
 
-    foreach (const ProjectExplorer::Abi &a, version->qtAbis()) {
-        foreach (ProjectExplorer::ToolChain *tc,
-                 ProjectExplorer::ToolChainManager::instance()->findToolChains(a)) {
+    foreach (const Abi &a, version->qtAbis())
+        foreach (ToolChain *tc, ToolChainManager::findToolChains(a))
             toolChains.insert(tc->id(), tc);
-        }
-    }
 
     return toolChains.values();
 }
 
 QString QtOptionsPageWidget::defaultToolChainId(const BaseQtVersion *version)
 {
-    QList<ProjectExplorer::ToolChain*> possibleToolChains = toolChains(version);
+    QList<ToolChain*> possibleToolChains = toolChains(version);
     if (!possibleToolChains.isEmpty())
         return possibleToolChains.first()->id();
     return QString();
@@ -448,8 +447,7 @@ void QtOptionsPageWidget::buildDebuggingHelper(DebuggingHelperBuildTask::Tools t
     // Run a debugging helper build task in the background.
     QString toolChainId = m_debuggingHelperUi->toolChainComboBox->itemData(
                 m_debuggingHelperUi->toolChainComboBox->currentIndex()).toString();
-    ProjectExplorer::ToolChainManager *tcMgr = ProjectExplorer::ToolChainManager::instance();
-    ProjectExplorer::ToolChain *toolChain = tcMgr->findToolChain(toolChainId);
+    ToolChain *toolChain = ToolChainManager::findToolChain(toolChainId);
     if (!toolChain)
         return;
 
@@ -607,15 +605,15 @@ QtOptionsPageWidget::~QtOptionsPageWidget()
 static QString filterForQmakeFileDialog()
 {
     QString filter = QLatin1String("qmake (");
-    const QStringList commands = Utils::BuildableHelperLibrary::possibleQMakeCommands();
+    const QStringList commands = BuildableHelperLibrary::possibleQMakeCommands();
     for (int i = 0; i < commands.size(); ++i) {
         if (i)
             filter += QLatin1Char(' ');
-        if (Utils::HostOsInfo::isMacHost())
+        if (HostOsInfo::isMacHost())
             // work around QTBUG-7739 that prohibits filters that don't start with *
             filter += QLatin1Char('*');
         filter += commands.at(i);
-        if (Utils::HostOsInfo::isAnyUnixHost() && !Utils::HostOsInfo::isMacHost())
+        if (HostOsInfo::isAnyUnixHost() && !HostOsInfo::isMacHost())
             // kde bug, we need at least one wildcard character
             // see QTCREATORBUG-7771
             filter += QLatin1Char('*');
@@ -626,7 +624,7 @@ static QString filterForQmakeFileDialog()
 
 void QtOptionsPageWidget::addQtDir()
 {
-    Utils::FileName qtVersion = Utils::FileName::fromString(
+    FileName qtVersion = FileName::fromString(
                 QFileDialog::getOpenFileName(this,
                                              tr("Select a qmake Executable"),
                                              QString(),
@@ -639,7 +637,7 @@ void QtOptionsPageWidget::addQtDir()
     QFileInfo fi(qtVersion.toString());
     // should add all qt versions here ?
     if (BuildableHelperLibrary::isQtChooser(fi))
-        qtVersion = Utils::FileName::fromString(BuildableHelperLibrary::qtChooserToQmakePath(fi.symLinkTarget()));
+        qtVersion = FileName::fromString(BuildableHelperLibrary::qtChooserToQmakePath(fi.symLinkTarget()));
 
     BaseQtVersion *version = 0;
     foreach (BaseQtVersion *v, m_versions) {
@@ -697,7 +695,7 @@ void QtOptionsPageWidget::editPath()
 {
     BaseQtVersion *current = currentVersion();
     QString dir = currentVersion()->qmakeCommand().toFileInfo().absolutePath();
-    Utils::FileName qtVersion = Utils::FileName::fromString(
+    FileName qtVersion = FileName::fromString(
                 QFileDialog::getOpenFileName(this,
                                              tr("Select a qmake executable"),
                                              dir,
@@ -740,7 +738,7 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
     BaseQtVersion *version = currentVersion();
     const QTreeWidgetItem *currentItem = m_ui->qtdirList->currentItem();
 
-    QList<ProjectExplorer::ToolChain*> toolchains = toolChains(currentVersion());
+    QList<ToolChain*> toolchains = toolChains(currentVersion());
 
     if (!version || !version->isValid() || toolchains.isEmpty()) {
         m_ui->debuggingHelperWidget->setVisible(false);
@@ -890,7 +888,7 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
         m_debuggingHelperUi->qmlObserverBuildButton->setEnabled(canBuildQmlObserver
                                                                 & !isBuildingQmlObserver);
 
-        QList<ProjectExplorer::ToolChain*> toolchains = toolChains(currentVersion());
+        QList<ToolChain*> toolchains = toolChains(currentVersion());
         QString selectedToolChainId = currentItem->data(0, ToolChainIdRole).toString();
         m_debuggingHelperUi->toolChainComboBox->clear();
         for (int i = 0; i < toolchains.size(); ++i) {
@@ -1126,3 +1124,6 @@ QString QtOptionsPageWidget::searchKeywords() const
     rc.remove(QLatin1Char('&'));
     return rc;
 }
+
+} // namespace Internal
+} // namespace QtSupport

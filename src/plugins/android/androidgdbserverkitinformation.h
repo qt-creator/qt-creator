@@ -33,11 +33,10 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitconfigwidget.h>
 
-QT_FORWARD_DECLARE_CLASS(QLabel);
-QT_FORWARD_DECLARE_CLASS(QPushButton);
-
-namespace ProjectExplorer {
-}
+QT_BEGIN_NAMESPACE
+class QLabel;
+class QPushButton;
+QT_END_NAMESPACE
 
 namespace Android {
 namespace Internal {

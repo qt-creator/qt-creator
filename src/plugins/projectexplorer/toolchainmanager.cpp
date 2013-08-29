@@ -53,19 +53,15 @@ static const char DEFAULT_DEBUGGER_PATH_KEY[] = "DefaultDebugger.Path.";
 static const char TOOLCHAIN_FILENAME[] = "/qtcreator/toolchains.xml";
 static const char LEGACY_TOOLCHAIN_FILENAME[] = "/toolChains.xml";
 
-using Utils::PersistentSettingsWriter;
-using Utils::PersistentSettingsReader;
+using namespace Utils;
 
-static Utils::FileName settingsFileName(const QString &path)
+static FileName settingsFileName(const QString &path)
 {
     QFileInfo settingsLocation(Core::ICore::settings()->fileName());
-    return Utils::FileName::fromString(settingsLocation.absolutePath() + path);
+    return FileName::fromString(settingsLocation.absolutePath() + path);
 }
 
 namespace ProjectExplorer {
-
-ToolChainManager *ToolChainManager::m_instance = 0;
-
 namespace Internal {
 
 // --------------------------------------------------------------------------
@@ -75,19 +71,14 @@ namespace Internal {
 class ToolChainManagerPrivate
 {
 public:
-    ToolChainManagerPrivate(ToolChainManager *parent);
+    ToolChainManagerPrivate() : m_writer(0) {}
     ~ToolChainManagerPrivate();
 
-    ToolChainManager *q;
-    QMap<QString, Utils::FileName> m_abiToDebugger;
-    Utils::PersistentSettingsWriter *m_writer;
+    QMap<QString, FileName> m_abiToDebugger;
+    PersistentSettingsWriter *m_writer;
 
     QList<ToolChain *> m_toolChains;
 };
-
-ToolChainManagerPrivate::ToolChainManagerPrivate(ToolChainManager *parent)
-    : q(parent), m_writer(0)
-{ }
 
 ToolChainManagerPrivate::~ToolChainManagerPrivate()
 {
@@ -96,23 +87,24 @@ ToolChainManagerPrivate::~ToolChainManagerPrivate()
     delete m_writer;
 }
 
+static ToolChainManager *m_instance = 0;
+static ToolChainManagerPrivate *d;
+
 } // namespace Internal
+
+using namespace Internal;
 
 // --------------------------------------------------------------------------
 // ToolChainManager
 // --------------------------------------------------------------------------
 
-ToolChainManager *ToolChainManager::instance()
-{
-    return m_instance;
-}
-
 ToolChainManager::ToolChainManager(QObject *parent) :
-    QObject(parent),
-    d(new Internal::ToolChainManagerPrivate(this))
+    QObject(parent)
 {
     Q_ASSERT(!m_instance);
     m_instance = this;
+
+    d = new ToolChainManagerPrivate;
 
     connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()),
             this, SLOT(saveToolChains()));
@@ -124,11 +116,78 @@ ToolChainManager::ToolChainManager(QObject *parent) :
             this, SIGNAL(toolChainsChanged()));
 }
 
+ToolChainManager::~ToolChainManager()
+{
+    delete d;
+    m_instance = 0;
+}
+
+QObject *ToolChainManager::instance()
+{
+    return m_instance;
+}
+
+static QList<ToolChain *> restoreFromFile(const FileName &fileName)
+{
+    QList<ToolChain *> result;
+
+    PersistentSettingsReader reader;
+    if (!reader.load(fileName))
+        return result;
+    QVariantMap data = reader.restoreValues();
+
+    // Check version:
+    int version = data.value(QLatin1String(TOOLCHAIN_FILE_VERSION_KEY), 0).toInt();
+    if (version < 1)
+        return result;
+
+    // Read default debugger settings (if any)
+    int count = data.value(QLatin1String(DEFAULT_DEBUGGER_COUNT_KEY)).toInt();
+    for (int i = 0; i < count; ++i) {
+        const QString abiKey = QString::fromLatin1(DEFAULT_DEBUGGER_ABI_KEY) + QString::number(i);
+        if (!data.contains(abiKey))
+            continue;
+        const QString pathKey = QString::fromLatin1(DEFAULT_DEBUGGER_PATH_KEY) + QString::number(i);
+        if (!data.contains(pathKey))
+            continue;
+        d->m_abiToDebugger.insert(data.value(abiKey).toString(),
+                                  FileName::fromString(data.value(pathKey).toString()));
+    }
+
+    QList<ToolChainFactory *> factories = ExtensionSystem::PluginManager::getObjects<ToolChainFactory>();
+
+    count = data.value(QLatin1String(TOOLCHAIN_COUNT_KEY), 0).toInt();
+    for (int i = 0; i < count; ++i) {
+        const QString key = QString::fromLatin1(TOOLCHAIN_DATA_KEY) + QString::number(i);
+        if (!data.contains(key))
+            break;
+
+        const QVariantMap tcMap = data.value(key).toMap();
+
+        bool restored = false;
+        foreach (ToolChainFactory *f, factories) {
+            if (f->canRestore(tcMap)) {
+                if (ToolChain *tc = f->restore(tcMap)) {
+                    result.append(tc);
+                    restored = true;
+                    break;
+                }
+            }
+        }
+        if (!restored)
+            qWarning("Warning: Unable to restore compiler '%s' stored in %s.",
+                     qPrintable(ToolChainFactory::idFromMap(tcMap)),
+                     qPrintable(fileName.toUserOutput()));
+    }
+
+    return result;
+}
+
 void ToolChainManager::restoreToolChains()
 {
     QTC_ASSERT(!d->m_writer, return);
     d->m_writer =
-            new Utils::PersistentSettingsWriter(settingsFileName(QLatin1String(TOOLCHAIN_FILENAME)), QLatin1String("QtCreatorToolChains"));
+            new PersistentSettingsWriter(settingsFileName(QLatin1String(TOOLCHAIN_FILENAME)), QLatin1String("QtCreatorToolChains"));
 
     QList<ToolChain *> tcsToRegister;
     QList<ToolChain *> tcsToCheck;
@@ -136,7 +195,7 @@ void ToolChainManager::restoreToolChains()
     // read all tool chains from SDK
     QFileInfo systemSettingsFile(Core::ICore::settings(QSettings::SystemScope)->fileName());
     QList<ToolChain *> readTcs =
-            restoreToolChains(Utils::FileName::fromString(systemSettingsFile.absolutePath() + QLatin1String(TOOLCHAIN_FILENAME)));
+            restoreFromFile(FileName::fromString(systemSettingsFile.absolutePath() + QLatin1String(TOOLCHAIN_FILENAME)));
     // make sure we mark these as autodetected!
     foreach (ToolChain *tc, readTcs)
         tc->setAutoDetected(true);
@@ -146,10 +205,10 @@ void ToolChainManager::restoreToolChains()
 
     // read all tool chains from user file.
     // Read legacy settings once and keep them around...
-    Utils::FileName fileName = settingsFileName(QLatin1String(TOOLCHAIN_FILENAME));
+    FileName fileName = settingsFileName(QLatin1String(TOOLCHAIN_FILENAME));
     if (!fileName.toFileInfo().exists())
         fileName = settingsFileName(QLatin1String(LEGACY_TOOLCHAIN_FILENAME));
-    readTcs = restoreToolChains(fileName);
+    readTcs = restoreFromFile(fileName);
 
     foreach (ToolChain *tc, readTcs) {
         if (tc->isAutoDetected())
@@ -207,13 +266,7 @@ void ToolChainManager::restoreToolChains()
     foreach (ToolChain *tc, tcsToRegister)
         registerToolChain(tc);
 
-    emit toolChainsLoaded();
-}
-
-ToolChainManager::~ToolChainManager()
-{
-    delete d;
-    m_instance = 0;
+    emit m_instance->toolChainsLoaded();
 }
 
 void ToolChainManager::saveToolChains()
@@ -237,68 +290,12 @@ void ToolChainManager::saveToolChains()
     // Do not save default debuggers! Those are set by the SDK!
 }
 
-QList<ToolChain *> ToolChainManager::restoreToolChains(const Utils::FileName &fileName)
-{
-    QList<ToolChain *> result;
-
-    PersistentSettingsReader reader;
-    if (!reader.load(fileName))
-        return result;
-    QVariantMap data = reader.restoreValues();
-
-    // Check version:
-    int version = data.value(QLatin1String(TOOLCHAIN_FILE_VERSION_KEY), 0).toInt();
-    if (version < 1)
-        return result;
-
-    // Read default debugger settings (if any)
-    int count = data.value(QLatin1String(DEFAULT_DEBUGGER_COUNT_KEY)).toInt();
-    for (int i = 0; i < count; ++i) {
-        const QString abiKey = QString::fromLatin1(DEFAULT_DEBUGGER_ABI_KEY) + QString::number(i);
-        if (!data.contains(abiKey))
-            continue;
-        const QString pathKey = QString::fromLatin1(DEFAULT_DEBUGGER_PATH_KEY) + QString::number(i);
-        if (!data.contains(pathKey))
-            continue;
-        d->m_abiToDebugger.insert(data.value(abiKey).toString(),
-                                  Utils::FileName::fromString(data.value(pathKey).toString()));
-    }
-
-    QList<ToolChainFactory *> factories = ExtensionSystem::PluginManager::getObjects<ToolChainFactory>();
-
-    count = data.value(QLatin1String(TOOLCHAIN_COUNT_KEY), 0).toInt();
-    for (int i = 0; i < count; ++i) {
-        const QString key = QString::fromLatin1(TOOLCHAIN_DATA_KEY) + QString::number(i);
-        if (!data.contains(key))
-            break;
-
-        const QVariantMap tcMap = data.value(key).toMap();
-
-        bool restored = false;
-        foreach (ToolChainFactory *f, factories) {
-            if (f->canRestore(tcMap)) {
-                if (ToolChain *tc = f->restore(tcMap)) {
-                    result.append(tc);
-                    restored = true;
-                    break;
-                }
-            }
-        }
-        if (!restored)
-            qWarning("Warning: Unable to restore compiler '%s' stored in %s.",
-                     qPrintable(ToolChainFactory::idFromMap(tcMap)),
-                     qPrintable(fileName.toUserOutput()));
-    }
-
-    return result;
-}
-
-QList<ToolChain *> ToolChainManager::toolChains() const
+QList<ToolChain *> ToolChainManager::toolChains()
 {
     return d->m_toolChains;
 }
 
-QList<ToolChain *> ToolChainManager::findToolChains(const Abi &abi) const
+QList<ToolChain *> ToolChainManager::findToolChains(const Abi &abi)
 {
     QList<ToolChain *> result;
     foreach (ToolChain *tc, d->m_toolChains) {
@@ -309,7 +306,7 @@ QList<ToolChain *> ToolChainManager::findToolChains(const Abi &abi) const
     return result;
 }
 
-ToolChain *ToolChainManager::findToolChain(const QString &id) const
+ToolChain *ToolChainManager::findToolChain(const QString &id)
 {
     if (id.isEmpty())
         return 0;
@@ -321,21 +318,21 @@ ToolChain *ToolChainManager::findToolChain(const QString &id) const
     return 0;
 }
 
-Utils::FileName ToolChainManager::defaultDebugger(const Abi &abi) const
+FileName ToolChainManager::defaultDebugger(const Abi &abi)
 {
     return d->m_abiToDebugger.value(abi.toString());
 }
 
-bool ToolChainManager::isLoaded() const
+bool ToolChainManager::isLoaded()
 {
     return d->m_writer;
 }
 
-void ToolChainManager::notifyAboutUpdate(ProjectExplorer::ToolChain *tc)
+void ToolChainManager::notifyAboutUpdate(ToolChain *tc)
 {
     if (!tc || !d->m_toolChains.contains(tc))
         return;
-    emit toolChainUpdated(tc);
+    emit m_instance->toolChainUpdated(tc);
 }
 
 bool ToolChainManager::registerToolChain(ToolChain *tc)
@@ -351,7 +348,7 @@ bool ToolChainManager::registerToolChain(ToolChain *tc)
     }
 
     d->m_toolChains.append(tc);
-    emit toolChainAdded(tc);
+    emit m_instance->toolChainAdded(tc);
     return true;
 }
 
@@ -360,7 +357,7 @@ void ToolChainManager::deregisterToolChain(ToolChain *tc)
     if (!tc || !d->m_toolChains.contains(tc))
         return;
     d->m_toolChains.removeOne(tc);
-    emit toolChainRemoved(tc);
+    emit m_instance->toolChainRemoved(tc);
     delete tc;
 }
 

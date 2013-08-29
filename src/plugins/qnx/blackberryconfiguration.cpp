@@ -51,10 +51,14 @@
 #include <QDir>
 #include <QMessageBox>
 
+using namespace ProjectExplorer;
+using namespace QtSupport;
+using namespace Utils;
+
 namespace Qnx {
 namespace Internal {
 
-BlackBerryConfiguration::BlackBerryConfiguration(const Utils::FileName &ndkEnvFile, bool isAutoDetected,
+BlackBerryConfiguration::BlackBerryConfiguration(const FileName &ndkEnvFile, bool isAutoDetected,
                                                  const QString &displayName)
 {
     Q_ASSERT(!QFileInfo(ndkEnvFile.toString()).isDir());
@@ -69,14 +73,14 @@ BlackBerryConfiguration::BlackBerryConfiguration(const Utils::FileName &ndkEnvFi
     m_targetName = ndkTarget.split(sep).first().split(QDir::separator()).last();
 
     if (QDir(ndkTarget).exists())
-        m_sysRoot = Utils::FileName::fromString(ndkTarget);
+        m_sysRoot = FileName::fromString(ndkTarget);
 
     QString qnxHost = m_qnxEnv.value(QLatin1String("QNX_HOST"));
-    Utils::FileName qmake4Path = QnxUtils::executableWithExtension(Utils::FileName::fromString(qnxHost + QLatin1String("/usr/bin/qmake")));
-    Utils::FileName qmake5Path = QnxUtils::executableWithExtension(Utils::FileName::fromString(qnxHost + QLatin1String("/usr/bin/qt5/qmake")));
-    Utils::FileName gccPath = QnxUtils::executableWithExtension(Utils::FileName::fromString(qnxHost + QLatin1String("/usr/bin/qcc")));
-    Utils::FileName deviceGdbPath = QnxUtils::executableWithExtension(Utils::FileName::fromString(qnxHost + QLatin1String("/usr/bin/ntoarm-gdb")));
-    Utils::FileName simulatorGdbPath = QnxUtils::executableWithExtension(Utils::FileName::fromString(qnxHost + QLatin1String("/usr/bin/ntox86-gdb")));
+    FileName qmake4Path = QnxUtils::executableWithExtension(FileName::fromString(qnxHost + QLatin1String("/usr/bin/qmake")));
+    FileName qmake5Path = QnxUtils::executableWithExtension(FileName::fromString(qnxHost + QLatin1String("/usr/bin/qt5/qmake")));
+    FileName gccPath = QnxUtils::executableWithExtension(FileName::fromString(qnxHost + QLatin1String("/usr/bin/qcc")));
+    FileName deviceGdbPath = QnxUtils::executableWithExtension(FileName::fromString(qnxHost + QLatin1String("/usr/bin/ntoarm-gdb")));
+    FileName simulatorGdbPath = QnxUtils::executableWithExtension(FileName::fromString(qnxHost + QLatin1String("/usr/bin/ntox86-gdb")));
 
     if (qmake4Path.toFileInfo().exists())
         m_qmake4BinaryFile = qmake4Path;
@@ -117,8 +121,8 @@ bool BlackBerryConfiguration::isAutoDetected() const
 
 bool BlackBerryConfiguration::isActive() const
 {
-    QtSupport::BaseQtVersion *qt4Version = QtSupport::QtVersionManager::instance()->qtVersionForQMakeBinary(m_qmake4BinaryFile);
-    QtSupport::BaseQtVersion *qt5Version = QtSupport::QtVersionManager::instance()->qtVersionForQMakeBinary(m_qmake5BinaryFile);
+    BaseQtVersion *qt4Version = QtVersionManager::instance()->qtVersionForQMakeBinary(m_qmake4BinaryFile);
+    BaseQtVersion *qt5Version = QtVersionManager::instance()->qtVersionForQMakeBinary(m_qmake5BinaryFile);
     return (qt4Version || qt5Version);
 }
 
@@ -128,37 +132,37 @@ bool BlackBerryConfiguration::isValid() const
             || m_deviceDebuger.isEmpty() || m_simulatorDebuger.isEmpty());
 }
 
-Utils::FileName BlackBerryConfiguration::ndkEnvFile() const
+FileName BlackBerryConfiguration::ndkEnvFile() const
 {
     return m_ndkEnvFile;
 }
 
-Utils::FileName BlackBerryConfiguration::qmake4BinaryFile() const
+FileName BlackBerryConfiguration::qmake4BinaryFile() const
 {
     return m_qmake4BinaryFile;
 }
 
-Utils::FileName BlackBerryConfiguration::qmake5BinaryFile() const
+FileName BlackBerryConfiguration::qmake5BinaryFile() const
 {
     return m_qmake5BinaryFile;
 }
 
-Utils::FileName BlackBerryConfiguration::gccCompiler() const
+FileName BlackBerryConfiguration::gccCompiler() const
 {
     return m_gccCompiler;
 }
 
-Utils::FileName BlackBerryConfiguration::deviceDebuger() const
+FileName BlackBerryConfiguration::deviceDebuger() const
 {
     return m_deviceDebuger;
 }
 
-Utils::FileName BlackBerryConfiguration::simulatorDebuger() const
+FileName BlackBerryConfiguration::simulatorDebuger() const
 {
     return m_simulatorDebuger;
 }
 
-Utils::FileName BlackBerryConfiguration::sysRoot() const
+FileName BlackBerryConfiguration::sysRoot() const
 {
     return m_sysRoot;
 }
@@ -168,32 +172,32 @@ QMultiMap<QString, QString> BlackBerryConfiguration::qnxEnv() const
     return m_qnxEnv;
 }
 
-void BlackBerryConfiguration::setupConfigurationPerQtVersion(const Utils::FileName &qmakePath, ProjectExplorer::GccToolChain *tc)
+void BlackBerryConfiguration::setupConfigurationPerQtVersion(const FileName &qmakePath, GccToolChain *tc)
 {
     if (qmakePath.isEmpty() || !tc)
         return;
 
-    QtSupport::BaseQtVersion *qtVersion = createQtVersion(qmakePath);
-    ProjectExplorer::Kit *deviceKit = createKit(ArmLeV7, qtVersion, tc);
-    ProjectExplorer::Kit *simulatorKit = createKit(X86, qtVersion, tc);
+    BaseQtVersion *qtVersion = createQtVersion(qmakePath);
+    Kit *deviceKit = createKit(ArmLeV7, qtVersion, tc);
+    Kit *simulatorKit = createKit(X86, qtVersion, tc);
     if (qtVersion && tc && deviceKit && simulatorKit) {
         if (!qtVersion->qtAbis().isEmpty())
             tc->setTargetAbi(qtVersion->qtAbis().first());
         // register
-        QtSupport::QtVersionManager::instance()->addVersion(qtVersion);
-        ProjectExplorer::ToolChainManager::instance()->registerToolChain(tc);
-        ProjectExplorer::KitManager::registerKit(deviceKit);
-        ProjectExplorer::KitManager::registerKit(simulatorKit);
+        QtVersionManager::instance()->addVersion(qtVersion);
+        ToolChainManager::registerToolChain(tc);
+        KitManager::registerKit(deviceKit);
+        KitManager::registerKit(simulatorKit);
     }
 }
 
-QtSupport::BaseQtVersion *BlackBerryConfiguration::createQtVersion(const Utils::FileName &qmakePath)
+BaseQtVersion *BlackBerryConfiguration::createQtVersion(const FileName &qmakePath)
 {
     if (qmakePath.isEmpty())
         return 0;
 
     QString cpuDir = m_qnxEnv.value(QLatin1String("CPUVARDIR"));
-    QtSupport::BaseQtVersion *version = QtSupport::QtVersionManager::instance()->qtVersionForQMakeBinary(qmakePath);
+    BaseQtVersion *version = QtVersionManager::instance()->qtVersionForQMakeBinary(qmakePath);
     if (version) {
         if (!m_isAutoDetected)
             QMessageBox::warning(0, QObject::tr("Qt Version Already Known"),
@@ -213,38 +217,37 @@ QtSupport::BaseQtVersion *BlackBerryConfiguration::createQtVersion(const Utils::
     return version;
 }
 
-ProjectExplorer::GccToolChain *BlackBerryConfiguration::createGccToolChain()
+GccToolChain *BlackBerryConfiguration::createGccToolChain()
 {
     if ((m_qmake4BinaryFile.isEmpty() && m_qmake5BinaryFile.isEmpty()) || m_gccCompiler.isEmpty())
         return 0;
 
-    foreach (ProjectExplorer::ToolChain* tc, ProjectExplorer::ToolChainManager::instance()->toolChains()) {
+    foreach (ToolChain *tc, ToolChainManager::toolChains()) {
         if (tc->compilerCommand() == m_gccCompiler) {
             if (!m_isAutoDetected)
                 QMessageBox::warning(0, QObject::tr("Compiler Already Known"),
                                  QObject::tr("This compiler was already registered."), QMessageBox::Ok);
-            return dynamic_cast<ProjectExplorer::GccToolChain*>(tc);
+            return dynamic_cast<GccToolChain *>(tc);
         }
     }
 
-    ProjectExplorer::GccToolChain* tc = new ProjectExplorer::GccToolChain(QLatin1String(ProjectExplorer::Constants::GCC_TOOLCHAIN_ID), m_isAutoDetected);
+    GccToolChain* tc = new GccToolChain(QLatin1String(ProjectExplorer::Constants::GCC_TOOLCHAIN_ID), m_isAutoDetected);
     tc->setDisplayName(QString::fromLatin1("GCC BlackBerry 10 (%1)").arg(m_targetName));
     tc->setCompilerCommand(m_gccCompiler);
 
     return tc;
 }
 
-ProjectExplorer::Kit *BlackBerryConfiguration::createKit(QnxArchitecture arch, QtSupport::BaseQtVersion *qtVersion, ProjectExplorer::GccToolChain *tc)
+Kit *BlackBerryConfiguration::createKit(QnxArchitecture arch, BaseQtVersion *qtVersion, GccToolChain *tc)
 {
     if (!qtVersion || !tc || m_targetName.isEmpty())
         return 0;
 
     // Check if an identical kit already exists
-    foreach (ProjectExplorer::Kit *kit, ProjectExplorer::KitManager::kits())
-    {
-        if (QtSupport::QtKitInformation::qtVersion(kit) == qtVersion && ProjectExplorer::ToolChainKitInformation::toolChain(kit) == tc
-                && ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(kit) == Constants::QNX_BB_OS_TYPE
-                && ProjectExplorer::SysRootKitInformation::sysRoot(kit) == m_sysRoot) {
+    foreach (Kit *kit, KitManager::kits()) {
+        if (QtKitInformation::qtVersion(kit) == qtVersion && ToolChainKitInformation::toolChain(kit) == tc
+                && DeviceTypeKitInformation::deviceTypeId(kit) == Constants::QNX_BB_OS_TYPE
+                && SysRootKitInformation::sysRoot(kit) == m_sysRoot) {
             if ((arch == X86 && Qt4ProjectManager::QmakeKitInformation::mkspec(kit).toString() == QString::fromLatin1("blackberry-x86-qcc")
                  && Debugger::DebuggerKitInformation::debuggerCommand(kit) == m_simulatorDebuger)
                     || (arch == ArmLeV7 && Debugger::DebuggerKitInformation::debuggerCommand(kit) == m_deviceDebuger)) {
@@ -257,12 +260,12 @@ ProjectExplorer::Kit *BlackBerryConfiguration::createKit(QnxArchitecture arch, Q
         }
     }
 
-    ProjectExplorer::Kit *kit = new ProjectExplorer::Kit;
-    QtSupport::QtKitInformation::setQtVersion(kit, qtVersion);
-    ProjectExplorer::ToolChainKitInformation::setToolChain(kit, tc);
+    Kit *kit = new Kit;
+    QtKitInformation::setQtVersion(kit, qtVersion);
+    ToolChainKitInformation::setToolChain(kit, tc);
     if (arch == X86) {
         Debugger::DebuggerKitInformation::setDebuggerCommand(kit, m_simulatorDebuger);
-        Qt4ProjectManager::QmakeKitInformation::setMkspec(kit, Utils::FileName::fromString(QString::fromLatin1("blackberry-x86-qcc")));
+        Qt4ProjectManager::QmakeKitInformation::setMkspec(kit, FileName::fromString(QString::fromLatin1("blackberry-x86-qcc")));
         // TODO: Check if the name already exists(?)
         kit->setDisplayName(QObject::tr("BlackBerry 10 (%1 - %2) - Simulator").arg(qtVersion->qtVersionString(), m_targetName));
     } else {
@@ -272,20 +275,20 @@ ProjectExplorer::Kit *BlackBerryConfiguration::createKit(QnxArchitecture arch, Q
 
 
     kit->setAutoDetected(m_isAutoDetected);
-    kit->setIconPath(Utils::FileName::fromString(QLatin1String(Constants::QNX_BB_CATEGORY_ICON)));
+    kit->setIconPath(FileName::fromString(QLatin1String(Constants::QNX_BB_CATEGORY_ICON)));
     setSticky(kit);
-    ProjectExplorer::DeviceTypeKitInformation::setDeviceTypeId(kit, Constants::QNX_BB_OS_TYPE);
-    ProjectExplorer::SysRootKitInformation::setSysRoot(kit, m_sysRoot);
+    DeviceTypeKitInformation::setDeviceTypeId(kit, Constants::QNX_BB_OS_TYPE);
+    SysRootKitInformation::setSysRoot(kit, m_sysRoot);
 
     return kit;
 }
 
-void BlackBerryConfiguration::setSticky(ProjectExplorer::Kit *kit)
+void BlackBerryConfiguration::setSticky(Kit *kit)
 {
-    QtSupport::QtKitInformation::makeSticky(kit);
-    ProjectExplorer::ToolChainKitInformation::makeSticky(kit);
-    ProjectExplorer::DeviceTypeKitInformation::makeSticky(kit);
-    ProjectExplorer::SysRootKitInformation::makeSticky(kit);
+    QtKitInformation::makeSticky(kit);
+    ToolChainKitInformation::makeSticky(kit);
+    DeviceTypeKitInformation::makeSticky(kit);
+    SysRootKitInformation::makeSticky(kit);
     Debugger::DebuggerKitInformation::makeSticky(kit);
     Qt4ProjectManager::QmakeKitInformation::makeSticky(kit);
 }
@@ -317,7 +320,7 @@ bool BlackBerryConfiguration::activate()
     if (isActive() && !m_isAutoDetected)
         return true;
 
-    ProjectExplorer::GccToolChain *tc = createGccToolChain();
+    GccToolChain *tc = createGccToolChain();
     if (!m_qmake4BinaryFile.isEmpty())
         setupConfigurationPerQtVersion(m_qmake4BinaryFile, tc);
 
@@ -329,29 +332,28 @@ bool BlackBerryConfiguration::activate()
 
 void BlackBerryConfiguration::deactivate()
 {
-    QtSupport::BaseQtVersion *qt4Version = QtSupport::QtVersionManager::instance()->qtVersionForQMakeBinary(m_qmake4BinaryFile);
-    QtSupport::BaseQtVersion *qt5Version = QtSupport::QtVersionManager::instance()->qtVersionForQMakeBinary(m_qmake5BinaryFile);
+    BaseQtVersion *qt4Version = QtVersionManager::instance()->qtVersionForQMakeBinary(m_qmake4BinaryFile);
+    BaseQtVersion *qt5Version = QtVersionManager::instance()->qtVersionForQMakeBinary(m_qmake5BinaryFile);
     if (qt4Version || qt5Version) {
-        foreach (ProjectExplorer::Kit *kit, ProjectExplorer::KitManager::kits()) {
-            if (qt4Version && qt4Version == QtSupport::QtKitInformation::qtVersion(kit))
-                ProjectExplorer::KitManager::deregisterKit(kit);
+        foreach (Kit *kit, KitManager::kits()) {
+            if (qt4Version && qt4Version == QtKitInformation::qtVersion(kit))
+                KitManager::deregisterKit(kit);
 
-            else if (qt5Version && qt5Version == QtSupport::QtKitInformation::qtVersion(kit))
-                ProjectExplorer::KitManager::deregisterKit(kit);
+            else if (qt5Version && qt5Version == QtKitInformation::qtVersion(kit))
+                KitManager::deregisterKit(kit);
         }
 
         if (qt4Version)
-            QtSupport::QtVersionManager::instance()->removeVersion(qt4Version);
+            QtVersionManager::instance()->removeVersion(qt4Version);
 
         if (qt5Version)
-            QtSupport::QtVersionManager::instance()->removeVersion(qt5Version);
+            QtVersionManager::instance()->removeVersion(qt5Version);
 
     }
 
-    foreach (ProjectExplorer::ToolChain* tc, ProjectExplorer::ToolChainManager::instance()->toolChains()) {
+    foreach (ToolChain *tc, ToolChainManager::toolChains())
         if (tc->compilerCommand() == m_gccCompiler)
-            ProjectExplorer::ToolChainManager::instance()->deregisterToolChain(tc);
-    }
+            ToolChainManager::deregisterToolChain(tc);
 }
 
 } // namespace Internal

@@ -52,6 +52,8 @@
 #include <QFile>
 #include <QMessageBox>
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 namespace Internal {
 
@@ -111,11 +113,8 @@ QVariantMap UserFileVersionHandler::renameKeys(const QList<Change> &changes, QVa
 } // Internal
 } // ProjectExplorer
 
-
 using namespace ProjectExplorer;
 using namespace Internal;
-using Utils::PersistentSettingsReader;
-using Utils::PersistentSettingsWriter;
 
 namespace {
 
@@ -669,7 +668,7 @@ bool SettingsAccessor::saveSettings(const QVariantMap &map) const
     backupUserFile();
 
     SettingsData settings(map);
-    settings.m_fileName = Utils::FileName::fromString(defaultFileName(m_userFileAcessor.suffix()));
+    settings.m_fileName = FileName::fromString(defaultFileName(m_userFileAcessor.suffix()));
     const QVariant &shared = m_project->property(SHARED_SETTINGS);
     if (shared.isValid())
         trackUserStickySettings(settings.m_map, shared.toMap());
@@ -746,7 +745,7 @@ int SettingsAccessor::currentVersion() const
 void SettingsAccessor::backupUserFile() const
 {
     SettingsData oldSettings;
-    oldSettings.m_fileName = Utils::FileName::fromString(defaultFileName(m_userFileAcessor.suffix()));
+    oldSettings.m_fileName = FileName::fromString(defaultFileName(m_userFileAcessor.suffix()));
     if (!m_userFileAcessor.readFile(&oldSettings))
         return;
 
@@ -839,7 +838,7 @@ SettingsAccessor::SettingsData SettingsAccessor::readSharedSettings() const
 {
     SettingsData sharedSettings;
     QString fn = project()->projectFilePath() + m_sharedFileAcessor.suffix();
-    sharedSettings.m_fileName = Utils::FileName::fromString(fn);
+    sharedSettings.m_fileName = FileName::fromString(fn);
 
     if (!m_sharedFileAcessor.readFile(&sharedSettings))
         return sharedSettings;
@@ -879,7 +878,7 @@ SettingsAccessor::SettingsData SettingsAccessor::findBestSettings(const QStringL
 
     foreach (const QString &file, candidates) {
         tmp.clear();
-        tmp.m_fileName = Utils::FileName::fromString(file);
+        tmp.m_fileName = FileName::fromString(file);
         if (!m_userFileAcessor.readFile(&tmp))
             continue;
 
@@ -1026,7 +1025,7 @@ bool SettingsAccessor::FileAccessor::writeFile(const SettingsData *settings) con
 {
     if (!m_writer || m_writer->fileName() != settings->fileName()) {
         delete m_writer;
-        m_writer = new Utils::PersistentSettingsWriter(settings->fileName(), QLatin1String("QtCreatorProject"));
+        m_writer = new PersistentSettingsWriter(settings->fileName(), QLatin1String("QtCreatorProject"));
     }
 
     QVariantMap data;
@@ -2011,7 +2010,7 @@ static QVariant version8ArgNodeHandler(const QVariant &var)
 {
     QString ret;
     foreach (const QVariant &svar, var.toList()) {
-        if (Utils::HostOsInfo::isAnyUnixHost()) {
+        if (HostOsInfo::isAnyUnixHost()) {
             // We don't just addArg, so we don't disarm existing env expansions.
             // This is a bit fuzzy logic ...
             QString s = svar.toString();
@@ -2020,10 +2019,10 @@ static QVariant version8ArgNodeHandler(const QVariant &var)
             s.replace(QLatin1Char('`'), QLatin1String("\\`"));
             if (s != svar.toString() || hasSpecialChars(s))
                 s.prepend(QLatin1Char('"')).append(QLatin1Char('"'));
-            Utils::QtcProcess::addArgs(&ret, s);
+            QtcProcess::addArgs(&ret, s);
         } else {
             // Under windows, env expansions cannot be quoted anyway.
-            Utils::QtcProcess::addArg(&ret, svar.toString());
+            QtcProcess::addArg(&ret, svar.toString());
         }
     }
     return QVariant(ret);
@@ -2034,7 +2033,7 @@ static QVariant version8LameArgNodeHandler(const QVariant &var)
 {
     QString ret;
     foreach (const QVariant &svar, var.toList())
-        Utils::QtcProcess::addArgs(&ret, svar.toString());
+        QtcProcess::addArgs(&ret, svar.toString());
     return QVariant(ret);
 }
 
@@ -2079,7 +2078,7 @@ static const char * const envExpandedKeys[] = {
 static QString version8NewVar(const QString &old)
 {
     QString ret = old;
-    if (Utils::HostOsInfo::isAnyUnixHost()) {
+    if (HostOsInfo::isAnyUnixHost()) {
         ret.prepend(QLatin1String("${"));
         ret.append(QLatin1Char('}'));
     } else {
@@ -2099,7 +2098,7 @@ static QVariant version8EnvNodeTransform(const QVariant &var)
                    QLatin1String("%{sourceDir}"));
     result.replace(QRegExp(QLatin1String("%BUILDDIR%|\\$(BUILDDIR\\b|\\{BUILDDIR\\})")),
                    QLatin1String("%{buildDir}"));
-    if (Utils::HostOsInfo::isAnyUnixHost()) {
+    if (HostOsInfo::isAnyUnixHost()) {
         for (int vStart = -1, i = 0; i < result.length(); ) {
             QChar c = result.at(i++);
             if (c == QLatin1Char('%')) {
@@ -2414,35 +2413,35 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
             Kit *tmpKit = rawKit;
 
             if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.AndroidDeviceTarget")) {
-                tmpKit->setIconPath(Utils::FileName::fromString(QLatin1String(":/android/images/QtAndroid.png")));
+                tmpKit->setIconPath(FileName::fromString(QLatin1String(":/android/images/QtAndroid.png")));
                 tmpKit->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("Desktop"));
                 tmpKit->setValue(Core::Id("PE.Profile.Device"), QString());
             } else if (oldTargetId == QLatin1String("RemoteLinux.EmbeddedLinuxTarget")) {
-                tmpKit->setIconPath(Utils::FileName::fromString(QLatin1String(":///DESKTOP///")));
+                tmpKit->setIconPath(FileName::fromString(QLatin1String(":///DESKTOP///")));
                 tmpKit->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("GenericLinuxOsType"));
                 tmpKit->setValue(Core::Id("PE.Profile.Device"), QString());
             } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.HarmattanDeviceTarget")) {
-                tmpKit->setIconPath(Utils::FileName::fromString(QLatin1String(":/projectexplorer/images/MaemoDevice.png")));
+                tmpKit->setIconPath(FileName::fromString(QLatin1String(":/projectexplorer/images/MaemoDevice.png")));
                 tmpKit->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("HarmattanOsType"));
                 tmpKit->setValue(Core::Id("PE.Profile.Device"), QString());
             } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.MaemoDeviceTarget")) {
-                tmpKit->setIconPath(Utils::FileName::fromString(QLatin1String(":/projectexplorer/images/MaemoDevice.png")));
+                tmpKit->setIconPath(FileName::fromString(QLatin1String(":/projectexplorer/images/MaemoDevice.png")));
                 tmpKit->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("Maemo5OsType"));
                 tmpKit->setValue(Core::Id("PE.Profile.Device"), QString());
             } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.MeegoDeviceTarget")) {
-                tmpKit->setIconPath(Utils::FileName::fromString(QLatin1String(":/projectexplorer/images/MaemoDevice.png")));
+                tmpKit->setIconPath(FileName::fromString(QLatin1String(":/projectexplorer/images/MaemoDevice.png")));
                 tmpKit->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("MeegoOsType"));
                 tmpKit->setValue(Core::Id("PE.Profile.Device"), QString());
             } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.S60DeviceTarget")) {
-                tmpKit->setIconPath(Utils::FileName::fromString(QLatin1String(":/projectexplorer/images/SymbianDevice.png")));
+                tmpKit->setIconPath(FileName::fromString(QLatin1String(":/projectexplorer/images/SymbianDevice.png")));
                 tmpKit->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("Qt4ProjectManager.SymbianDevice"));
                 tmpKit->setValue(Core::Id("PE.Profile.Device"), QString::fromLatin1("Symbian Device"));
             } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.QtSimulatorTarget")) {
-                tmpKit->setIconPath(Utils::FileName::fromString(QLatin1String(":/projectexplorer/images/Simulator.png")));
+                tmpKit->setIconPath(FileName::fromString(QLatin1String(":/projectexplorer/images/Simulator.png")));
                 tmpKit->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("Desktop"));
                 tmpKit->setValue(Core::Id("PE.Profile.Device"), QString::fromLatin1("Desktop Device"));
             } else {
-                tmpKit->setIconPath(Utils::FileName::fromString(QLatin1String(":///DESKTOP///")));
+                tmpKit->setIconPath(FileName::fromString(QLatin1String(":///DESKTOP///")));
                 tmpKit->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("Desktop"));
                 tmpKit->setValue(Core::Id("PE.Profile.Device"), QString::fromLatin1("Desktop Device"));
             }
@@ -2474,8 +2473,8 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
                 for (int j = i + 2; j < split.count(); ++j)
                     debuggerPath = debuggerPath + QLatin1Char('.') + split.at(j);
 
-                foreach (ToolChain *tc, ToolChainManager::instance()->toolChains()) {
-                    if ((tc->compilerCommand() == Utils::FileName::fromString(compilerPath))
+                foreach (ToolChain *tc, ToolChainManager::toolChains()) {
+                    if ((tc->compilerCommand() == FileName::fromString(compilerPath))
                             && (tc->targetAbi() == compilerAbi)) {
                         tcId = tc->id();
                         break;
@@ -2494,7 +2493,7 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
             if (m_toolChainExtras.contains(origTcId)) {
                 debuggerPath = m_toolChainExtras.value(origTcId).m_debugger;
                 if (!debuggerPath.isEmpty() && !QFileInfo(debuggerPath).isAbsolute())
-                    debuggerPath = Utils::Environment::systemEnvironment().searchInPath(debuggerPath);
+                    debuggerPath = Environment::systemEnvironment().searchInPath(debuggerPath);
                 if (debuggerPath.contains(QLatin1String("cdb")))
                     debuggerEngine = 4; // CDB
                 mkspec = m_toolChainExtras.value(origTcId).m_mkspec;
@@ -2650,7 +2649,7 @@ void Version11Handler::addRunConfigurations(Kit *k,
         if (!proFile.isEmpty()) {
             QString newId = rcData.value(QLatin1String("ProjectExplorer.ProjectConfiguration.Id")).toString();
             newId.append(QLatin1Char(':'));
-            Utils::FileName fn = Utils::FileName::fromString(projectDir);
+            FileName fn = FileName::fromString(projectDir);
             fn.appendPath(proFile);
             newId.append(fn.toString());
             rcData.insert(QLatin1String("ProjectExplorer.ProjectConfiguration.Id"), newId);
@@ -2665,7 +2664,7 @@ void Version11Handler::addRunConfigurations(Kit *k,
 static QString targetRoot(const QString &qmakePath)
 {
     return QDir::cleanPath(qmakePath).remove(QLatin1String("/bin/qmake" QTC_HOST_EXE_SUFFIX),
-            Utils::HostOsInfo::fileNameCaseSensitivity());
+            HostOsInfo::fileNameCaseSensitivity());
 }
 
 static QString maddeRoot(const QString &qmakePath)
@@ -2678,8 +2677,8 @@ static QString maddeRoot(const QString &qmakePath)
 void Version11Handler::parseQtversionFile()
 {
     QFileInfo settingsLocation(Core::ICore::settings()->fileName());
-    Utils::FileName fileName = Utils::FileName::fromString(settingsLocation.absolutePath() + QLatin1String("/qtversion.xml"));
-    Utils::PersistentSettingsReader reader;
+    FileName fileName = FileName::fromString(settingsLocation.absolutePath() + QLatin1String("/qtversion.xml"));
+    PersistentSettingsReader reader;
     if (!reader.load(fileName)) {
         qWarning("Failed to open legacy qtversions.xml file.");
         return;
@@ -2721,8 +2720,8 @@ void Version11Handler::parseQtversionFile()
 void Version11Handler::parseToolChainFile()
 {
     QFileInfo settingsLocation(Core::ICore::settings()->fileName());
-    Utils::FileName fileName = Utils::FileName::fromString(settingsLocation.absolutePath() + QLatin1String("/toolChains.xml"));
-    Utils::PersistentSettingsReader reader;
+    FileName fileName = FileName::fromString(settingsLocation.absolutePath() + QLatin1String("/toolChains.xml"));
+    PersistentSettingsReader reader;
     if (!reader.load(fileName)) {
         qWarning("Failed to open legacy toolChains.xml file.");
         return;

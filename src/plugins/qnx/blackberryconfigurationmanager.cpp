@@ -51,6 +51,8 @@
 #include <QMessageBox>
 #include <QFileInfo>
 
+using namespace ProjectExplorer;
+
 namespace Qnx {
 namespace Internal {
 
@@ -182,7 +184,7 @@ void BlackBerryConfigurationManager::saveManualConfigurations()
 void BlackBerryConfigurationManager::clearInvalidConfigurations()
 {
     QList<NdkInstallInformation> autoNdks = QnxUtils::installedNdks();
-    foreach (ProjectExplorer::Kit *kit, ProjectExplorer::KitManager::kits()) {
+    foreach (Kit *kit, KitManager::kits()) {
         if (!kit->isAutoDetected())
             continue;
 
@@ -190,7 +192,7 @@ void BlackBerryConfigurationManager::clearInvalidConfigurations()
             // Check if related target is still installed
             bool isValid = false;
             foreach (const NdkInstallInformation &ndkInfo, autoNdks) {
-                if (ndkInfo.target == ProjectExplorer::SysRootKitInformation::sysRoot(kit).toString()) {
+                if (ndkInfo.target == SysRootKitInformation::sysRoot(kit).toString()) {
                     isValid = true;
                     break;
                 }
@@ -198,9 +200,8 @@ void BlackBerryConfigurationManager::clearInvalidConfigurations()
 
             if (!isValid) {
                 QtSupport::QtVersionManager::instance()->removeVersion(QtSupport::QtKitInformation::qtVersion(kit));
-                ProjectExplorer::ToolChainManager::instance()->deregisterToolChain(
-                            ProjectExplorer::ToolChainKitInformation::toolChain(kit));
-                ProjectExplorer::KitManager::deregisterKit(kit);
+                ToolChainManager::deregisterToolChain(ToolChainKitInformation::toolChain(kit));
+                KitManager::deregisterKit(kit);
             }
         }
     }

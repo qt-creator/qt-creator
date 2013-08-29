@@ -37,117 +37,110 @@
 
 #include <qtsupport/qtkitinformation.h>
 
+using namespace ProjectExplorer;
+using namespace Utils;
+
 namespace Qt4ProjectManager {
-namespace Internal {
+
 const char MKSPEC_INFORMATION[] = "QtPM4.mkSpecInformation";
-} // namespace Internal
 
 QmakeKitInformation::QmakeKitInformation()
 {
     setObjectName(QLatin1String("QmakeKitInformation"));
-    setDataId(Internal::MKSPEC_INFORMATION);
+    setDataId(MKSPEC_INFORMATION);
     setPriority(24000);
 }
 
-QVariant QmakeKitInformation::defaultValue(ProjectExplorer::Kit *k) const
+QVariant QmakeKitInformation::defaultValue(Kit *k) const
 {
     Q_UNUSED(k);
     return QString();
 }
 
-QList<ProjectExplorer::Task> QmakeKitInformation::validate(const ProjectExplorer::Kit *k) const
+QList<Task> QmakeKitInformation::validate(const Kit *k) const
 {
-    QList<ProjectExplorer::Task> result;
+    QList<Task> result;
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
 
-    Utils::FileName mkspec = QmakeKitInformation::mkspec(k);
+    FileName mkspec = QmakeKitInformation::mkspec(k);
     if (!version && !mkspec.isEmpty())
-        result << ProjectExplorer::Task(ProjectExplorer::Task::Warning,
-                                        tr("No Qt version set, so mkspec is ignored."),
-                                        Utils::FileName(), -1,
-                                        Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        result << Task(Task::Warning, tr("No Qt version set, so mkspec is ignored."),
+                       FileName(), -1, Constants::TASK_CATEGORY_BUILDSYSTEM);
     if (version && !version->hasMkspec(mkspec))
-        result << ProjectExplorer::Task(ProjectExplorer::Task::Error,
-                                        tr("Mkspec not found for Qt version."),
-                                        Utils::FileName(), -1,
-                                        Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        result << Task(Task::Error, tr("Mkspec not found for Qt version."),
+                       FileName(), -1, Constants::TASK_CATEGORY_BUILDSYSTEM);
     return result;
 }
 
-void QmakeKitInformation::setup(ProjectExplorer::Kit *k)
+void QmakeKitInformation::setup(Kit *k)
 {
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
     if (!version)
         return;
 
-    Utils::FileName spec = QmakeKitInformation::mkspec(k);
+    FileName spec = QmakeKitInformation::mkspec(k);
     if (spec.isEmpty())
         spec = version->mkspec();
 
-    ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k);
+    ToolChain *tc = ToolChainKitInformation::toolChain(k);
 
     if (!tc || (!tc->suggestedMkspecList().empty() && !tc->suggestedMkspecList().contains(spec))) {
-        QList<ProjectExplorer::ToolChain *> tcList = ProjectExplorer::ToolChainManager::instance()->toolChains();
-        ProjectExplorer::ToolChain *possibleTc = 0;
-        foreach (ProjectExplorer::ToolChain *current, tcList) {
+        ToolChain *possibleTc = 0;
+        foreach (ToolChain *current, ToolChainManager::toolChains()) {
             if (version->qtAbis().contains(current->targetAbi())) {
                 possibleTc = current;
                 if (current->suggestedMkspecList().contains(spec))
                     break;
             }
         }
-        ProjectExplorer::ToolChainKitInformation::setToolChain(k, possibleTc);
+        ToolChainKitInformation::setToolChain(k, possibleTc);
     }
 }
 
-ProjectExplorer::KitConfigWidget *
-QmakeKitInformation::createConfigWidget(ProjectExplorer::Kit *k) const
+KitConfigWidget *QmakeKitInformation::createConfigWidget(Kit *k) const
 {
     return new Internal::QmakeKitConfigWidget(k, isSticky(k));
 }
 
-ProjectExplorer::KitInformation::ItemList QmakeKitInformation::toUserOutput(const ProjectExplorer::Kit *k) const
+KitInformation::ItemList QmakeKitInformation::toUserOutput(const Kit *k) const
 {
     return ItemList() << qMakePair(tr("mkspec"), mkspec(k).toUserOutput());
 }
 
-Utils::FileName QmakeKitInformation::mkspec(const ProjectExplorer::Kit *k)
+FileName QmakeKitInformation::mkspec(const Kit *k)
 {
     if (!k)
-        return Utils::FileName();
-    return Utils::FileName::fromString(k->value(Core::Id(Internal::MKSPEC_INFORMATION)).toString());
+        return FileName();
+    return FileName::fromString(k->value(MKSPEC_INFORMATION).toString());
 }
 
-Utils::FileName QmakeKitInformation::effectiveMkspec(const ProjectExplorer::Kit *k)
+FileName QmakeKitInformation::effectiveMkspec(const Kit *k)
 {
     if (!k)
-        return Utils::FileName();
-    Utils::FileName spec = mkspec(k);
+        return FileName();
+    FileName spec = mkspec(k);
     if (spec.isEmpty())
         return defaultMkspec(k);
     return spec;
 }
 
-void QmakeKitInformation::setMkspec(ProjectExplorer::Kit *k, const Utils::FileName &fn)
+void QmakeKitInformation::setMkspec(Kit *k, const FileName &fn)
 {
-    if (fn == defaultMkspec(k))
-        k->setValue(Core::Id(Internal::MKSPEC_INFORMATION), QString());
-    else
-        k->setValue(Core::Id(Internal::MKSPEC_INFORMATION), fn.toString());
+    k->setValue(MKSPEC_INFORMATION, fn == defaultMkspec(k) ? QString() : fn.toString());
 }
 
-Utils::FileName QmakeKitInformation::defaultMkspec(const ProjectExplorer::Kit *k)
+FileName QmakeKitInformation::defaultMkspec(const Kit *k)
 {
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
     if (!version) // No version, so no qmake
-        return Utils::FileName();
+        return FileName();
 
-    return version->mkspecFor(ProjectExplorer::ToolChainKitInformation::toolChain(k));
+    return version->mkspecFor(ToolChainKitInformation::toolChain(k));
 }
 
-void QmakeKitInformation::makeSticky(ProjectExplorer::Kit *k)
+void QmakeKitInformation::makeSticky(Kit *k)
 {
-    k->makeSticky(Internal::MKSPEC_INFORMATION);
+    k->makeSticky(MKSPEC_INFORMATION);
 }
 
 } // namespace Qt4ProjectManager

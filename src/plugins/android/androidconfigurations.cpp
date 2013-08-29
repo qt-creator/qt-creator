@@ -739,7 +739,7 @@ void AndroidConfigurations::updateAutomaticKitList()
     if (AndroidConfigurations::instance().config().automaticKitCreation) {
         // having a empty toolchains list will remove all autodetected kits for android
         // exactly what we want in that case
-        foreach (ToolChain *tc, ToolChainManager::instance()->toolChains()) {
+        foreach (ToolChain *tc, ToolChainManager::toolChains()) {
             if (!tc->isAutoDetected())
                 continue;
             if (tc->type() != QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE))

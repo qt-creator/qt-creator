@@ -246,7 +246,6 @@ QVariant DebuggerKitInformation::defaultValue(Kit *k) const
 
 void DebuggerKitInformation::setup(Kit *k)
 {
-    QTC_ASSERT(ToolChainManager::instance()->isLoaded(), return);
     k->setValue(DEBUGGER_INFORMATION, defaultValue(k));
 }
 

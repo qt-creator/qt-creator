@@ -128,11 +128,11 @@ ToolChainKitInformation::ToolChainKitInformation()
 QVariant ToolChainKitInformation::defaultValue(Kit *k) const
 {
     Q_UNUSED(k);
-    QList<ToolChain *> tcList = ToolChainManager::instance()->toolChains();
+    QList<ToolChain *> tcList = ToolChainManager::toolChains();
     if (tcList.isEmpty())
         return QString();
 
-    ProjectExplorer::Abi abi = ProjectExplorer::Abi::hostAbi();
+    Abi abi = Abi::hostAbi();
 
     foreach (ToolChain *tc, tcList) {
         if (tc->targetAbi() == abi)
@@ -158,7 +158,7 @@ QList<Task> ToolChainKitInformation::validate(const Kit *k) const
 
 void ToolChainKitInformation::fix(Kit *k)
 {
-    QTC_ASSERT(ToolChainManager::instance()->isLoaded(), return);
+    QTC_ASSERT(ToolChainManager::isLoaded(), return);
     if (toolChain(k))
         return;
 
@@ -169,17 +169,17 @@ void ToolChainKitInformation::fix(Kit *k)
 
 void ToolChainKitInformation::setup(Kit *k)
 {
-    QTC_ASSERT(ToolChainManager::instance()->isLoaded(), return);
-    const QString id = k->value(Core::Id(TOOLCHAIN_INFORMATION)).toString();
+    QTC_ASSERT(ToolChainManager::isLoaded(), return);
+    const QString id = k->value(TOOLCHAIN_INFORMATION).toString();
     if (id.isEmpty())
         return;
 
-    ToolChain *tc = ToolChainManager::instance()->findToolChain(id);
+    ToolChain *tc = ToolChainManager::findToolChain(id);
     if (tc)
         return;
 
     // ID is not found: Might be an ABI string...
-    foreach (ToolChain *current, ToolChainManager::instance()->toolChains()) {
+    foreach (ToolChain *current, ToolChainManager::toolChains()) {
         if (current->targetAbi().toString() == id)
             return setToolChain(k, current);
     }
@@ -219,16 +219,15 @@ IOutputParser *ToolChainKitInformation::createOutputParser(const Kit *k) const
 
 ToolChain *ToolChainKitInformation::toolChain(const Kit *k)
 {
-    QTC_ASSERT(ToolChainManager::instance()->isLoaded(), return 0);
+    QTC_ASSERT(ToolChainManager::isLoaded(), return 0);
     if (!k)
         return 0;
-    return ToolChainManager::instance()
-            ->findToolChain(k->value(Core::Id(TOOLCHAIN_INFORMATION)).toString());
+    return ToolChainManager::findToolChain(k->value(TOOLCHAIN_INFORMATION).toString());
 }
 
 void ToolChainKitInformation::setToolChain(Kit *k, ToolChain *tc)
 {
-    k->setValue(Core::Id(TOOLCHAIN_INFORMATION), tc ? tc->id() : QString());
+    k->setValue(TOOLCHAIN_INFORMATION, tc ? tc->id() : QString());
 }
 
 QString ToolChainKitInformation::msgNoToolChainInTarget()

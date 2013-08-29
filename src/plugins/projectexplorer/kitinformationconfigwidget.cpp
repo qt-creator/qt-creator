@@ -116,13 +116,11 @@ void SysRootInformationConfigWidget::pathWasChanged()
 ToolChainInformationConfigWidget::ToolChainInformationConfigWidget(Kit *k, bool sticky) :
     KitConfigWidget(k, sticky), m_isReadOnly(false)
 {
-    ToolChainManager *tcm = ToolChainManager::instance();
-
     m_comboBox = new QComboBox;
     m_comboBox->setEnabled(false);
     m_comboBox->setToolTip(toolTip());
 
-    foreach (ToolChain *tc, tcm->toolChains())
+    foreach (ToolChain *tc, ToolChainManager::toolChains())
         toolChainAdded(tc);
 
     updateComboBox();
@@ -134,6 +132,7 @@ ToolChainInformationConfigWidget::ToolChainInformationConfigWidget(Kit *k, bool 
     m_manageButton->setContentsMargins(0, 0, 0, 0);
     connect(m_manageButton, SIGNAL(clicked()), this, SLOT(manageToolChains()));
 
+    QObject *tcm = ToolChainManager::instance();
     connect(tcm, SIGNAL(toolChainAdded(ProjectExplorer::ToolChain*)),
             this, SLOT(toolChainAdded(ProjectExplorer::ToolChain*)));
     connect(tcm, SIGNAL(toolChainRemoved(ProjectExplorer::ToolChain*)),
@@ -211,8 +210,7 @@ void ToolChainInformationConfigWidget::manageToolChains()
 void ToolChainInformationConfigWidget::currentToolChainChanged(int idx)
 {
     const QString id = m_comboBox->itemData(idx).toString();
-    ToolChain *tc = ToolChainManager::instance()->findToolChain(id);
-    ToolChainKitInformation::setToolChain(m_kit, tc);
+    ToolChainKitInformation::setToolChain(m_kit, ToolChainManager::findToolChain(id));
 }
 
 void ToolChainInformationConfigWidget::updateComboBox()

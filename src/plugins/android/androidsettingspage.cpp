@@ -36,6 +36,8 @@
 
 #include <QCoreApplication>
 
+using namespace ProjectExplorer;
+
 namespace Android {
 namespace Internal {
 
@@ -67,9 +69,9 @@ void AndroidSettingsPage::apply()
 {
     m_widget->saveSettings();
 
-    QList<ProjectExplorer::ToolChain *> existingToolChains = ProjectExplorer::ToolChainManager::instance()->toolChains();
-    QList<ProjectExplorer::ToolChain *> toolchains = AndroidToolChainFactory::createToolChainsForNdk(AndroidConfigurations::instance().config().ndkLocation);
-    foreach (ProjectExplorer::ToolChain *tc, toolchains) {
+    QList<ToolChain *> existingToolChains = ToolChainManager::toolChains();
+    QList<ToolChain *> toolchains = AndroidToolChainFactory::createToolChainsForNdk(AndroidConfigurations::instance().config().ndkLocation);
+    foreach (ToolChain *tc, toolchains) {
         bool found = false;
         for (int i = 0; i < existingToolChains.count(); ++i) {
             if (*(existingToolChains.at(i)) == *tc) {
@@ -80,15 +82,13 @@ void AndroidSettingsPage::apply()
         if (found)
             delete tc;
         else
-            ProjectExplorer::ToolChainManager::instance()->registerToolChain(tc);
+            ToolChainManager::registerToolChain(tc);
     }
 
-    for (int i = 0; i < existingToolChains.count(); ++i) {
-        ProjectExplorer::ToolChain *tc = existingToolChains.at(i);
+    foreach (ToolChain *tc, existingToolChains) {
         if (tc->type() == QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE)) {
-            if (!tc->isValid()) {
-                ProjectExplorer::ToolChainManager::instance()->deregisterToolChain(tc);
-            }
+            if (!tc->isValid())
+                ToolChainManager::deregisterToolChain(tc);
         }
     }
 

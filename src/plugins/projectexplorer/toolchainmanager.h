@@ -32,21 +32,17 @@
 
 #include "projectexplorer_export.h"
 
-
 #include <QList>
 #include <QObject>
 #include <QString>
 
 namespace Utils { class FileName; }
+
 namespace ProjectExplorer {
+
 class ProjectExplorerPlugin;
 class ToolChain;
-class ToolChainFactory;
 class Abi;
-
-namespace Internal {
-class ToolChainManagerPrivate;
-}
 
 // --------------------------------------------------------------------------
 // ToolChainManager
@@ -57,21 +53,21 @@ class PROJECTEXPLORER_EXPORT ToolChainManager : public QObject
     Q_OBJECT
 
 public:
-    static ToolChainManager *instance();
+    static QObject *instance();
     ~ToolChainManager();
 
-    QList<ToolChain *> toolChains() const;
-    QList<ToolChain *> findToolChains(const Abi &abi) const;
-    ToolChain *findToolChain(const QString &id) const;
+    static QList<ToolChain *> toolChains();
+    static QList<ToolChain *> findToolChains(const Abi &abi);
+    static ToolChain *findToolChain(const QString &id);
 
-    Utils::FileName defaultDebugger(const Abi &abi) const;
+    static Utils::FileName defaultDebugger(const Abi &abi);
 
-    bool isLoaded() const;
+    static bool isLoaded();
+
+    static bool registerToolChain(ToolChain *tc);
+    static void deregisterToolChain(ToolChain *tc);
 
 public slots:
-    bool registerToolChain(ProjectExplorer::ToolChain *tc);
-    void deregisterToolChain(ProjectExplorer::ToolChain *tc);
-
     void saveToolChains();
 
 signals:
@@ -80,9 +76,9 @@ signals:
     void toolChainRemoved(ProjectExplorer::ToolChain *);
     // Tool chain was updated.
     void toolChainUpdated(ProjectExplorer::ToolChain *);
-    // Something changed:
+    // Something changed.
     void toolChainsChanged();
-
+    //
     void toolChainsLoaded();
 
 private:
@@ -90,16 +86,9 @@ private:
 
     // Make sure the this is only called after all
     // Tool chain Factories are registered!
-    void restoreToolChains();
-    QList<ToolChain *> restoreToolChains(const Utils::FileName &fileName);
+    static void restoreToolChains();
+    static void notifyAboutUpdate(ToolChain *);
 
-    void notifyAboutUpdate(ProjectExplorer::ToolChain *);
-
-    Internal::ToolChainManagerPrivate *const d;
-
-    static ToolChainManager *m_instance;
-
-    friend class Internal::ToolChainManagerPrivate; // for the restoreToolChains methods
     friend class ProjectExplorerPlugin; // for constructor
     friend class ToolChain;
 };

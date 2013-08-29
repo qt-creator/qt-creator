@@ -1108,7 +1108,7 @@ void ProjectExplorerPlugin::extensionsInitialized()
 
     DeviceManager::instance()->addDevice(IDevice::Ptr(new DesktopDevice));
     DeviceManager::instance()->load();
-    d->m_toolChainManager->restoreToolChains();
+    ToolChainManager::restoreToolChains();
     d->m_kitManager->restoreKits();
 }
 
