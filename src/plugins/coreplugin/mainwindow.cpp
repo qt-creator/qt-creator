@@ -1139,7 +1139,7 @@ void MainWindow::readSettings()
     restoreState(m_settings->value(QLatin1String(windowStateKey)).toByteArray());
 
     bool modeSelectorVisible = m_settings->value(QLatin1String(modeSelectorVisibleKey), true).toBool();
-    ModeManager::instance()->setModeSelectorVisible(modeSelectorVisible);
+    ModeManager::setModeSelectorVisible(modeSelectorVisible);
     m_toggleModeSelectorAction->setChecked(modeSelectorVisible);
 
     m_settings->endGroup();

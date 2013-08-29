@@ -52,7 +52,7 @@ class CORE_EXPORT ModeManager : public QObject
     Q_OBJECT
 
 public:
-    static ModeManager *instance();
+    static QObject *instance();
 
     static IMode *currentMode();
     static IMode *mode(Id id);
@@ -66,7 +66,7 @@ public:
     static bool isModeSelectorVisible();
 
 public slots:
-    void setModeSelectorVisible(bool visible);
+    static void setModeSelectorVisible(bool visible);
 
 signals:
     void currentModeAboutToChange(Core::IMode *mode);
@@ -87,7 +87,7 @@ private slots:
 
 private:
     explicit ModeManager(Internal::MainWindow *mainWindow, Internal::FancyTabWidget *modeStack);
-    virtual ~ModeManager();
+    ~ModeManager();
 
     static void init();
 

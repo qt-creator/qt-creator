@@ -1495,6 +1495,6 @@ void MiniProjectTargetSelector::paintEvent(QPaintEvent *)
 
 void MiniProjectTargetSelector::switchToProjectsMode()
 {
-    Core::ModeManager::instance()->activateMode(Constants::MODE_SESSION);
+    Core::ModeManager::activateMode(Constants::MODE_SESSION);
     hide();
 }

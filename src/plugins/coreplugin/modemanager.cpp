@@ -188,7 +188,7 @@ void ModeManager::objectAdded(QObject *obj)
     Command *cmd = ActionManager::registerShortcut(shortcut, shortcutId, Context(Constants::C_GLOBAL));
 
     d->m_modeShortcuts.insert(index, cmd);
-    connect(cmd, SIGNAL(keySequenceChanged()), this, SLOT(updateModeToolTip()));
+    connect(cmd, SIGNAL(keySequenceChanged()), m_instance, SLOT(updateModeToolTip()));
     for (int i = 0; i < d->m_modeShortcuts.size(); ++i) {
         Command *currentCmd = d->m_modeShortcuts.at(i);
         // we need this hack with currentlyHasDefaultSequence
@@ -205,7 +205,7 @@ void ModeManager::objectAdded(QObject *obj)
     d->m_signalMapper->setMapping(shortcut, mode->id().uniqueIdentifier());
     connect(shortcut, SIGNAL(activated()), d->m_signalMapper, SLOT(map()));
     connect(mode, SIGNAL(enabledStateChanged(bool)),
-            this, SLOT(enabledStateChanged()));
+            m_instance, SLOT(enabledStateChanged()));
 }
 
 void ModeManager::updateModeToolTip()
@@ -336,7 +336,7 @@ bool ModeManager::isModeSelectorVisible()
     return d->m_modeSelectorVisible;
 }
 
-ModeManager *ModeManager::instance()
+QObject *ModeManager::instance()
 {
     return m_instance;
 }
