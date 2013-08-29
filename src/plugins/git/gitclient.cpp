@@ -262,7 +262,7 @@ void GitDiffHandler::collectShowDescription(const QString &id)
     command->setCodec(m_editor->editorWidget()->codec());
     connect(command, SIGNAL(output(QString)), this, SLOT(slotShowDescriptionReceived(QString)));
     QStringList arguments;
-    arguments << QLatin1String("show") << QLatin1String("-s") << QLatin1String("--format=fuller")
+    arguments << QLatin1String("show") << QLatin1String("-s")
               << QLatin1String(noColorOption) << QLatin1String(decorateOption) << id;
     command->addJob(arguments, m_timeout);
     command->execute();
