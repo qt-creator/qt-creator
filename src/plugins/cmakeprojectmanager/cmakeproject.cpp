@@ -969,7 +969,7 @@ void CMakeCbpParser::parseBuildTargetOption()
     if (attributes().hasAttribute(QLatin1String("output"))) {
         m_buildTarget.executable = attributes().value(QLatin1String("output")).toString();
     } else if (attributes().hasAttribute(QLatin1String("type"))) {
-        const QString value = attributes().value(QLatin1String("type")).toString();
+        const QStringRef value = attributes().value(QLatin1String("type"));
         if (value == QLatin1String("2") || value == QLatin1String("3"))
             m_buildTarget.library = true;
     } else if (attributes().hasAttribute(QLatin1String("working_dir"))) {
