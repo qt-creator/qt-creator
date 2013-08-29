@@ -49,7 +49,7 @@ ProMessageHandler::ProMessageHandler(bool verbose)
     : m_verbose(verbose)
 {
     QObject::connect(this, SIGNAL(errorFound(QString,Core::MessageManager::PrintToOutputPaneFlags)),
-                     Core::ICore::messageManager(), SLOT(printToOutputPane(QString,Core::MessageManager::PrintToOutputPaneFlags)),
+                     Core::MessageManager::instance(), SLOT(printToOutputPane(QString,Core::MessageManager::PrintToOutputPaneFlags)),
                      Qt::QueuedConnection);
 }
 

@@ -196,14 +196,14 @@ void TargetSetupPageWrapper::cancel()
 {
     ProjectExplorer::ProjectExplorerPlugin::instance()->unloadProject(m_project);
     if (ProjectExplorer::ProjectExplorerPlugin::instance()->session()->projects().isEmpty())
-        Core::ICore::instance()->modeManager()->activateMode(Core::Constants::MODE_WELCOME);
+        Core::ModeManager::instance()->activateMode(Core::Constants::MODE_WELCOME);
 }
 
 void TargetSetupPageWrapper::done()
 {
     m_targetSetupPage->setupProject(m_project);
     ProjectExplorer::ProjectExplorerPlugin::instance()->requestProjectModeUpdate(m_project);
-    Core::ICore::instance()->modeManager()->activateMode(Core::Constants::MODE_EDIT);
+    Core::ModeManager::instance()->activateMode(Core::Constants::MODE_EDIT);
 }
 
 void TargetSetupPageWrapper::completeChanged()

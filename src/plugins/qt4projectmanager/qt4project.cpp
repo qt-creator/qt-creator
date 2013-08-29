@@ -969,7 +969,7 @@ QString Qt4Project::generatedUiHeader(const QString &formFile) const
 
 void Qt4Project::proFileParseError(const QString &errorMessage)
 {
-    Core::ICore::messageManager()->printToOutputPane(errorMessage, Core::MessageManager::NoModeSwitch);
+    Core::MessageManager::instance()->printToOutputPane(errorMessage, Core::MessageManager::NoModeSwitch);
 }
 
 QtSupport::ProFileReader *Qt4Project::createProFileReader(const Qt4ProFileNode *qt4ProFileNode, Qt4BuildConfiguration *bc)

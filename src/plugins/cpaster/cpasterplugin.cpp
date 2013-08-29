@@ -306,7 +306,7 @@ void CodepasterPlugin::finishPost(const QString &link)
 {
     if (m_settings->copyToClipboard)
         QApplication::clipboard()->setText(link);
-    ICore::messageManager()->printToOutputPane(link, m_settings->displayOutput ? Core::MessageManager::ModeSwitch : Core::MessageManager::Silent);
+    MessageManager::instance()->printToOutputPane(link, m_settings->displayOutput ? Core::MessageManager::ModeSwitch : Core::MessageManager::Silent);
 }
 
 // Extract the characters that can be used for a file name from a title
@@ -346,7 +346,7 @@ void CodepasterPlugin::finishFetch(const QString &titleDescription,
                                    const QString &content,
                                    bool error)
 {
-    Core::MessageManager *messageManager = ICore::messageManager();
+    Core::MessageManager *messageManager = MessageManager::instance();
     // Failure?
     if (error) {
         messageManager->printToOutputPane(content, Core::MessageManager::NoModeSwitch);

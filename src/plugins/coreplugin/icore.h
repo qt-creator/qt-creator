@@ -93,13 +93,8 @@ public:
                                        Id settingsId = Id(),
                                        QWidget *parent = 0);
 
-    static QT_DEPRECATED ActionManager *actionManager(); // Use Actionmanager::... directly.
-    static QT_DEPRECATED DocumentManager *documentManager(); // Use DocumentManager::... directly.
-    static QT_DEPRECATED MessageManager *messageManager(); // Use MessageManager::... directly.
     static ProgressManager *progressManager();
-    static QT_DEPRECATED VariableManager *variableManager(); // Use VariableManager::... directly.
     static VcsManager *vcsManager();
-    static QT_DEPRECATED ModeManager *modeManager(); // Use ModeManager::... directly.
     static MimeDatabase *mimeDatabase();
     static HelpManager *helpManager();
 

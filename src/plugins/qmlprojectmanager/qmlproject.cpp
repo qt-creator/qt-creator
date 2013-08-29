@@ -179,7 +179,7 @@ static QmlProject::QmlImport detectImport(const QString &qml) {
 
 void QmlProject::parseProject(RefreshOptions options)
 {
-    Core::MessageManager *messageManager = Core::ICore::messageManager();
+    Core::MessageManager *messageManager = Core::MessageManager::instance();
     if (options & Files) {
         if (options & ProjectFile)
             delete m_projectItem.data();

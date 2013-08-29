@@ -407,39 +407,14 @@ bool ICore::showWarningWithOptions(const QString &title, const QString &text,
                                                 settingsId, parent);
 }
 
-ActionManager *ICore::actionManager()
-{
-    return m_mainwindow->actionManager();
-}
-
-DocumentManager *ICore::documentManager()
-{
-    return DocumentManager::instance();
-}
-
-MessageManager *ICore::messageManager()
-{
-    return m_mainwindow->messageManager();
-}
-
 ProgressManager *ICore::progressManager()
 {
     return m_mainwindow->progressManager();
 }
 
-VariableManager *ICore::variableManager()
-{
-    return m_mainwindow->variableManager();
-}
-
 VcsManager *ICore::vcsManager()
 {
     return m_mainwindow->vcsManager();
-}
-
-ModeManager *ICore::modeManager()
-{
-    return m_mainwindow->modeManager();
 }
 
 MimeDatabase *ICore::mimeDatabase()
