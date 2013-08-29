@@ -102,12 +102,12 @@ void QtSupportPlugin::extensionsInitialized()
     connect(Core::VariableManager::instance(), SIGNAL(variableUpdateRequested(QByteArray)),
             this, SLOT(updateVariable(QByteArray)));
 
-    QtVersionManager::instance()->extensionsInitialized();
+    QtVersionManager::extensionsInitialized();
 }
 
 bool QtSupportPlugin::delayedInitialize()
 {
-    return QtVersionManager::instance()->delayedInitialize();
+    return QtVersionManager::delayedInitialize();
 }
 
 void QtSupportPlugin::updateVariable(const QByteArray &variable)

@@ -34,7 +34,7 @@ DesignDocument *ViewManager::currentDesignDocument() const
 
 QString ViewManager::pathToQt() const
 {
-    QtSupport::BaseQtVersion *activeQtVersion = QtSupport::QtVersionManager::instance()->version(currentDesignDocument()->qtVersionId());
+    QtSupport::BaseQtVersion *activeQtVersion = QtSupport::QtVersionManager::version(currentDesignDocument()->qtVersionId());
     if (activeQtVersion && (activeQtVersion->qtVersion() >= QtSupport::QtVersionNumber(4, 7, 1))
             && (activeQtVersion->type() == QLatin1String(QtSupport::Constants::DESKTOPQT)
                 || activeQtVersion->type() == QLatin1String(QtSupport::Constants::SIMULATORQT)))

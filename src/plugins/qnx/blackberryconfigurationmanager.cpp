@@ -199,7 +199,7 @@ void BlackBerryConfigurationManager::clearInvalidConfigurations()
             }
 
             if (!isValid) {
-                QtSupport::QtVersionManager::instance()->removeVersion(QtSupport::QtKitInformation::qtVersion(kit));
+                QtSupport::QtVersionManager::removeVersion(QtSupport::QtKitInformation::qtVersion(kit));
                 ToolChainManager::deregisterToolChain(ToolChainKitInformation::toolChain(kit));
                 KitManager::deregisterKit(kit);
             }

@@ -101,7 +101,7 @@ QWidget *DesignDocument::centralWidget() const
 
 QString DesignDocument::pathToQt() const
 {
-    QtSupport::BaseQtVersion *activeQtVersion = QtSupport::QtVersionManager::instance()->version(m_qtVersionId);
+    QtSupport::BaseQtVersion *activeQtVersion = QtSupport::QtVersionManager::version(m_qtVersionId);
     if (activeQtVersion && (activeQtVersion->qtVersion() >= QtSupport::QtVersionNumber(4, 7, 1))
             && (activeQtVersion->type() == QLatin1String(QtSupport::Constants::DESKTOPQT)
                 || activeQtVersion->type() == QLatin1String(QtSupport::Constants::SIMULATORQT)))

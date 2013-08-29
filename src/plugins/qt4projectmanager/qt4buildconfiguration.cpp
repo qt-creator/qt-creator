@@ -509,8 +509,8 @@ Qt4BuildConfigurationFactory::Qt4BuildConfigurationFactory(QObject *parent) :
 {
     update();
 
-    QtVersionManager *vm = QtVersionManager::instance();
-    connect(vm, SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
+    connect(QtVersionManager::instance(),
+            SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
             this, SLOT(update()));
 }
 

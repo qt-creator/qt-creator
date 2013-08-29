@@ -102,7 +102,7 @@ public:
 private slots:
     void finish(int qtId, const QString &output, DebuggingHelperBuildTask::Tools tools)
     {
-        BaseQtVersion *version = QtVersionManager::instance()->version(qtId);
+        BaseQtVersion *version = QtVersionManager::version(qtId);
 
         QTC_ASSERT(tools == DebuggingHelperBuildTask::QmlDump, return);
         QString errorMessage;

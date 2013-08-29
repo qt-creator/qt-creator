@@ -153,8 +153,7 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
     m_manualItem->setFlags(Qt::ItemIsEnabled);
 
     QList<int> additions;
-    QList<BaseQtVersion *> versions = QtVersionManager::instance()->versions();
-    foreach (BaseQtVersion *v, versions)
+    foreach (BaseQtVersion *v, QtVersionManager::versions())
         additions.append(v->uniqueId());
 
     updateQtVersions(additions, QList<int>(), QList<int>());
@@ -529,8 +528,6 @@ void QtOptionsPageWidget::showDebuggingBuildLog(const QTreeWidgetItem *currentIt
 void QtOptionsPageWidget::updateQtVersions(const QList<int> &additions, const QList<int> &removals,
                                            const QList<int> &changes)
 {
-    QtVersionManager *vm = QtVersionManager::instance();
-
     QList<QTreeWidgetItem *> toRemove;
     QList<int> toAdd = additions;
 
@@ -566,7 +563,7 @@ void QtOptionsPageWidget::updateQtVersions(const QList<int> &additions, const QL
 
     // Add changed/added items:
     foreach (int a, toAdd) {
-        BaseQtVersion *version = vm->version(a)->clone();
+        BaseQtVersion *version = QtVersionManager::version(a)->clone();
         m_versions.append(version);
         QTreeWidgetItem *item = new QTreeWidgetItem;
 
@@ -1058,8 +1055,7 @@ void QtOptionsPageWidget::apply()
     disconnect(QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
             this, SLOT(updateQtVersions(QList<int>,QList<int>,QList<int>)));
 
-    QtVersionManager *vm = QtVersionManager::instance();
-    vm->setNewQtVersions(versions());
+    QtVersionManager::setNewQtVersions(versions());
 
     connect(QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
             this, SLOT(updateQtVersions(QList<int>,QList<int>,QList<int>)));

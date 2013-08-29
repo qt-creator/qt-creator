@@ -762,7 +762,7 @@ void AndroidConfigurations::updateAutomaticKitList()
     }
 
     QMap<Abi::Architecture, QList<QtSupport::BaseQtVersion *> > qtVersionsForArch;
-    foreach (QtSupport::BaseQtVersion *qtVersion, QtSupport::QtVersionManager::instance()->versions()) {
+    foreach (QtSupport::BaseQtVersion *qtVersion, QtSupport::QtVersionManager::versions()) {
         if (qtVersion->type() != QLatin1String(Constants::ANDROIDQT))
             continue;
         QList<Abi> qtAbis = qtVersion->qtAbis();

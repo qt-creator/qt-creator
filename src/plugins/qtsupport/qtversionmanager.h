@@ -62,40 +62,39 @@ class QTSUPPORT_EXPORT QtVersionManager : public QObject
     friend class BaseQtVersion;
     friend class Internal::QtOptionsPageWidget;
 public:
-    static QtVersionManager *instance();
+    static QObject *instance();
     QtVersionManager();
     ~QtVersionManager();
-    void extensionsInitialized();
-    bool delayedInitialize();
+    static void extensionsInitialized();
+    static bool delayedInitialize();
 
-    bool isLoaded() const;
+    static bool isLoaded();
 
     // This will *always* return at least one (Qt in Path), even if that is
     // unconfigured.
-    QList<BaseQtVersion *> versions() const;
-    QList<BaseQtVersion *> validVersions() const;
+    static QList<BaseQtVersion *> versions();
+    static QList<BaseQtVersion *> validVersions();
 
     // Note: DO NOT STORE THIS POINTER!
     //       The QtVersionManager will delete it at random times and you will
     //       need to get a new pointer by calling this method again!
-    BaseQtVersion *version(int id) const;
+    static BaseQtVersion *version(int id);
 
-    BaseQtVersion *qtVersionForQMakeBinary(const Utils::FileName &qmakePath);
+    static BaseQtVersion *qtVersionForQMakeBinary(const Utils::FileName &qmakePath);
 
-    void addVersion(BaseQtVersion *version);
-    void removeVersion(BaseQtVersion *version);
+    static void addVersion(BaseQtVersion *version);
+    static void removeVersion(BaseQtVersion *version);
 
-    // Static Methods
     enum MakefileCompatible { CouldNotParse, DifferentProject, SameProject };
     static MakefileCompatible makefileIsFor(const QString &makefile, const QString &proFile);
     static QPair<BaseQtVersion::QmakeBuildConfigs, QString> scanMakeFile(const QString &makefile,
                                                                      BaseQtVersion::QmakeBuildConfigs defaultBuildConfig);
     static Utils::FileName findQMakeBinaryFromMakefile(const QString &directory);
-    bool isValidId(int id) const;
+    static bool isValidId(int id);
 
-    Core::FeatureSet availableFeatures(const QString &platformName) const;
-    QStringList availablePlatforms() const;
-    QString displayNameForPlatform(const QString &string) const;
+    static Core::FeatureSet availableFeatures(const QString &platformName);
+    static QStringList availablePlatforms();
+    static QString displayNameForPlatform(const QString &string);
 
 signals:
     // content of BaseQtVersion objects with qmake path might have changed
@@ -120,27 +119,18 @@ private:
                           QString *additionalArguments);
     static BaseQtVersion::QmakeBuildConfigs qmakeBuildConfigFromCmdArgs(QList<QMakeAssignment> *assignments,
                                                                     BaseQtVersion::QmakeBuildConfigs defaultBuildConfig);
-    bool restoreQtVersions();
-    void findSystemQt();
-    void saveQtVersions();
-    void updateDocumentation();
+    static bool restoreQtVersions();
+    static void findSystemQt();
+    static void saveQtVersions();
+    static void updateDocumentation();
     // Used by QtOptionsPage
-    void setNewQtVersions(QList<BaseQtVersion *> newVersions);
+    static void setNewQtVersions(QList<BaseQtVersion *> newVersions);
     // Used by QtVersion
-    int getUniqueId();
-    void addNewVersionsFromInstaller();
+    static int getUniqueId();
+    static void addNewVersionsFromInstaller();
 
     static int indexOfVersionInList(const BaseQtVersion * const version, const QList<BaseQtVersion *> &list);
-    void updateUniqueIdToIndexMap();
-
-    QMap<int, BaseQtVersion *> m_versions;
-    int m_idcount;
-    // managed by QtProjectManagerPlugin
-    static QtVersionManager *m_self;
-
-    Utils::FileSystemWatcher *m_configFileWatcher;
-    QTimer *m_fileWatcherTimer;
-    Utils::PersistentSettingsWriter *m_writer;
+    static void updateUniqueIdToIndexMap();
 };
 
 } // namespace QtSupport

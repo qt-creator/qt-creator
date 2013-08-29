@@ -65,6 +65,7 @@
 #include <limits.h>
 
 using namespace ProjectExplorer;
+using namespace QtSupport;
 using namespace RemoteLinux;
 
 namespace Madde {
@@ -102,7 +103,7 @@ MaemoQemuManager::MaemoQemuManager(QObject *parent)
     m_qemuAction->setVisible(false);
 
     // listen to Qt version changes to update the start button
-    connect(QtSupport::QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
+    connect(QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
         this, SLOT(qtVersionsChanged(QList<int>,QList<int>,QList<int>)));
 
     // listen to project add, remove and startup changes to udate start button
@@ -176,10 +177,9 @@ void MaemoQemuManager::qtVersionsChanged(const QList<int> &added, const QList<in
 {
     QList<int> uniqueIds;
     uniqueIds << added << removed << changed;
-    QtSupport::QtVersionManager *manager = QtSupport::QtVersionManager::instance();
     foreach (int uniqueId, uniqueIds) {
-        if (manager->isValidId(uniqueId)) {
-            MaemoQtVersion *version = dynamic_cast<MaemoQtVersion *>(manager->version(uniqueId));
+        if (QtVersionManager::isValidId(uniqueId)) {
+            MaemoQtVersion *version = dynamic_cast<MaemoQtVersion *>(QtVersionManager::version(uniqueId));
 
             if (version) {
                 MaemoQemuRuntime runtime
@@ -300,7 +300,7 @@ void MaemoQemuManager::startRuntime()
     Project *p = ProjectExplorerPlugin::instance()->session()->startupProject();
     if (!p)
         return;
-    QtSupport::BaseQtVersion *version;
+    BaseQtVersion *version;
     if (!targetUsesMatchingRuntimeConfig(p->activeTarget(), &version)) {
         qWarning("Strange: Qemu button was enabled, but target does not match.");
         return;
@@ -458,7 +458,7 @@ void MaemoQemuManager::toggleStarterButton(Target *target)
 {
     int uniqueId = -1;
     if (target) {
-        QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
+        BaseQtVersion *version = QtKitInformation::qtVersion(target->kit());
         if (version)
             uniqueId = version->uniqueId();
     }
@@ -494,7 +494,7 @@ bool MaemoQemuManager::sessionHasMaemoTarget() const
 }
 
 bool MaemoQemuManager::targetUsesMatchingRuntimeConfig(Target *target,
-    QtSupport::BaseQtVersion **qtVersion)
+    BaseQtVersion **qtVersion)
 {
     if (!target)
         return false;
@@ -506,7 +506,7 @@ bool MaemoQemuManager::targetUsesMatchingRuntimeConfig(Target *target,
     if (!mrc)
         return false;
 
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
+    BaseQtVersion *version = QtKitInformation::qtVersion(target->kit());
     if (!version || !m_runtimes.value(version->uniqueId(), MaemoQemuRuntime()).isValid())
         return false;
 

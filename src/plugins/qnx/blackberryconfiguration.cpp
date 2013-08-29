@@ -121,8 +121,8 @@ bool BlackBerryConfiguration::isAutoDetected() const
 
 bool BlackBerryConfiguration::isActive() const
 {
-    BaseQtVersion *qt4Version = QtVersionManager::instance()->qtVersionForQMakeBinary(m_qmake4BinaryFile);
-    BaseQtVersion *qt5Version = QtVersionManager::instance()->qtVersionForQMakeBinary(m_qmake5BinaryFile);
+    BaseQtVersion *qt4Version = QtVersionManager::qtVersionForQMakeBinary(m_qmake4BinaryFile);
+    BaseQtVersion *qt5Version = QtVersionManager::qtVersionForQMakeBinary(m_qmake5BinaryFile);
     return (qt4Version || qt5Version);
 }
 
@@ -184,7 +184,7 @@ void BlackBerryConfiguration::setupConfigurationPerQtVersion(const FileName &qma
         if (!qtVersion->qtAbis().isEmpty())
             tc->setTargetAbi(qtVersion->qtAbis().first());
         // register
-        QtVersionManager::instance()->addVersion(qtVersion);
+        QtVersionManager::addVersion(qtVersion);
         ToolChainManager::registerToolChain(tc);
         KitManager::registerKit(deviceKit);
         KitManager::registerKit(simulatorKit);
@@ -197,7 +197,7 @@ BaseQtVersion *BlackBerryConfiguration::createQtVersion(const FileName &qmakePat
         return 0;
 
     QString cpuDir = m_qnxEnv.value(QLatin1String("CPUVARDIR"));
-    BaseQtVersion *version = QtVersionManager::instance()->qtVersionForQMakeBinary(qmakePath);
+    BaseQtVersion *version = QtVersionManager::qtVersionForQMakeBinary(qmakePath);
     if (version) {
         if (!m_isAutoDetected)
             QMessageBox::warning(0, QObject::tr("Qt Version Already Known"),
@@ -332,8 +332,8 @@ bool BlackBerryConfiguration::activate()
 
 void BlackBerryConfiguration::deactivate()
 {
-    BaseQtVersion *qt4Version = QtVersionManager::instance()->qtVersionForQMakeBinary(m_qmake4BinaryFile);
-    BaseQtVersion *qt5Version = QtVersionManager::instance()->qtVersionForQMakeBinary(m_qmake5BinaryFile);
+    BaseQtVersion *qt4Version = QtVersionManager::qtVersionForQMakeBinary(m_qmake4BinaryFile);
+    BaseQtVersion *qt5Version = QtVersionManager::qtVersionForQMakeBinary(m_qmake5BinaryFile);
     if (qt4Version || qt5Version) {
         foreach (Kit *kit, KitManager::kits()) {
             if (qt4Version && qt4Version == QtKitInformation::qtVersion(kit))
@@ -344,10 +344,10 @@ void BlackBerryConfiguration::deactivate()
         }
 
         if (qt4Version)
-            QtVersionManager::instance()->removeVersion(qt4Version);
+            QtVersionManager::removeVersion(qt4Version);
 
         if (qt5Version)
-            QtVersionManager::instance()->removeVersion(qt5Version);
+            QtVersionManager::removeVersion(qt5Version);
 
     }
 

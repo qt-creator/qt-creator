@@ -132,7 +132,7 @@ bool QtVersionNumber::operator >=(const QtVersionNumber &b) const
 ///////////////
 int BaseQtVersion::getUniqueId()
 {
-    return QtVersionManager::instance()->getUniqueId();
+    return QtVersionManager::getUniqueId();
 }
 
 BaseQtVersion::BaseQtVersion(const FileName &qmakeCommand, bool isAutodetected, const QString &autodetectionSource)
@@ -385,7 +385,7 @@ void BaseQtVersion::fromMap(const QVariantMap &map)
 {
     m_id = map.value(QLatin1String(Constants::QTVERSIONID)).toInt();
     if (m_id == -1) // this happens on adding from installer, see updateFromInstaller => get a new unique id
-        m_id = QtVersionManager::instance()->getUniqueId();
+        m_id = QtVersionManager::getUniqueId();
     m_displayName = map.value(QLatin1String(Constants::QTVERSIONNAME)).toString();
     m_isAutodetected = map.value(QLatin1String(QTVERSIONAUTODETECTED)).toBool();
     if (m_isAutodetected)
