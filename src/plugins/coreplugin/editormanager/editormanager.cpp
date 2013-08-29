@@ -1881,15 +1881,21 @@ void EditorManager::updateWindowTitle()
 {
     QString windowTitle = tr("Qt Creator");
     const QString dashSep = QLatin1String(" - ");
-    if (!d->m_titleVcsTopic.isEmpty())
-        windowTitle.prepend(QLatin1Char('[') + d->m_titleVcsTopic + QLatin1String("] - "));
-    if (!d->m_titleAddition.isEmpty())
-        windowTitle.prepend(d->m_titleAddition + dashSep);
+    QString vcsTopic;
     IDocument *document = currentDocument();
+
+    if (!d->m_titleVcsTopic.isEmpty())
+        vcsTopic = QLatin1String(" [") + d->m_titleVcsTopic + QLatin1Char(']');
+    if (!d->m_titleAddition.isEmpty()) {
+        windowTitle.prepend(dashSep);
+        if (!document)
+            windowTitle.prepend(vcsTopic);
+        windowTitle.prepend(d->m_titleAddition);
+    }
     if (document) {
         QString editorName = document->displayName();
         if (!editorName.isEmpty())
-            windowTitle.prepend(editorName + dashSep);
+            windowTitle.prepend(editorName + vcsTopic + dashSep);
         QString filePath = QFileInfo(document->filePath()).absoluteFilePath();
         if (!filePath.isEmpty())
             ICore::mainWindow()->setWindowFilePath(filePath);
