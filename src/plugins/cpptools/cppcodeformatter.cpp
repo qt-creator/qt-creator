@@ -840,7 +840,7 @@ bool CodeFormatter::tryDeclaration()
         return true;
     case T_IDENTIFIER:
         if (m_tokenIndex == 0) {
-            QString tokenText = currentTokenText().toString();
+            const QStringRef tokenText = currentTokenText();
             if (tokenText.startsWith(QLatin1String("Q_"))
                     || tokenText.startsWith(QLatin1String("QT_"))
                     || tokenText.startsWith(QLatin1String("QML_"))
