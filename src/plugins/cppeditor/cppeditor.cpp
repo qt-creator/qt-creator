@@ -635,7 +635,6 @@ void CPPEditorWidget::createToolBar(CPPEditor *editor)
 
     // set up slots to document changes
     updateContentsChangedSignal();
-    connect(editorDocument(), SIGNAL(changed()), this, SLOT(updateFileName()));
 
     // set up function declaration - definition link
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateFunctionDeclDefLink()));
@@ -991,9 +990,6 @@ void CPPEditorWidget::onContentsChanged(int position, int charsRemoved, int char
     if (charsRemoved > 0)
         updateUses();
 }
-
-void CPPEditorWidget::updateFileName()
-{}
 
 void CPPEditorWidget::jumpToOutlineElement(int index)
 {

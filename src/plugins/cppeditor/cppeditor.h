@@ -158,7 +158,6 @@ protected Q_SLOTS:
     void slotCodeStyleSettingsChanged(const QVariant &);
 
 private Q_SLOTS:
-    void updateFileName();
     void jumpToOutlineElement(int index);
     void updateOutlineNow();
     void updateOutlineIndex();
