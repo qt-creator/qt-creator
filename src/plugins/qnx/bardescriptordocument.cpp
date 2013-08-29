@@ -78,7 +78,7 @@ BarDescriptorDocument::BarDescriptorDocument(BarDescriptorEditorWidget *editorWi
     if (QTextCodec *defaultUTF8 = QTextCodec::codecForName("UTF-8"))
         setCodec(defaultUTF8);
     else
-        setCodec(Core::EditorManager::instance()->defaultTextCodec());
+        setCodec(Core::EditorManager::defaultTextCodec());
 }
 
 BarDescriptorDocument::~BarDescriptorDocument()

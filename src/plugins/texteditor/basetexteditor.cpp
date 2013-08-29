@@ -521,7 +521,7 @@ void BaseTextEditorWidget::selectEncoding()
         break; }
     case CodecSelector::Save:
         doc->setCodec(codecSelector.selectedCodec());
-        Core::EditorManager::instance()->saveEditor(editor());
+        Core::EditorManager::saveEditor(editor());
         updateTextCodecLabel();
         break;
     case CodecSelector::Cancel:
@@ -4004,7 +4004,7 @@ void BaseTextEditorWidget::slotCursorPositionChanged()
             << "indent:" << BaseTextDocumentLayout::userData(textCursor().block())->foldingIndent();
 #endif
     if (!d->m_contentsChanged && d->m_lastCursorChangeWasInteresting) {
-        Core::EditorManager::instance()->addCurrentPositionToNavigationHistory(editor(), d->m_tempNavigationState);
+        Core::EditorManager::addCurrentPositionToNavigationHistory(editor(), d->m_tempNavigationState);
         d->m_lastCursorChangeWasInteresting = false;
     } else if (d->m_contentsChanged) {
         saveCurrentCursorPositionForNavigation();
@@ -4170,11 +4170,11 @@ void BaseTextEditorWidget::mouseMoveEvent(QMouseEvent *e)
 static bool handleForwardBackwardMouseButtons(QMouseEvent *e)
 {
     if (e->button() == Qt::XButton1) {
-        Core::EditorManager::instance()->goBackInNavigationHistory();
+        Core::EditorManager::goBackInNavigationHistory();
         return true;
     }
     if (e->button() == Qt::XButton2) {
-        Core::EditorManager::instance()->goForwardInNavigationHistory();
+        Core::EditorManager::goForwardInNavigationHistory();
         return true;
     }
 
@@ -4224,7 +4224,7 @@ void BaseTextEditorWidget::mouseReleaseEvent(QMouseEvent *e)
             && e->button() == Qt::LeftButton
             ) {
 
-        Core::EditorManager::instance()->addCurrentPositionToNavigationHistory();
+        Core::EditorManager::addCurrentPositionToNavigationHistory();
         bool inNextSplit = ((e->modifiers() & Qt::AltModifier) && !alwaysOpenLinksInNextSplit())
                 || (alwaysOpenLinksInNextSplit() && !(e->modifiers() & Qt::AltModifier));
         if (openLink(findLinkAt(cursorForPosition(e->pos())), inNextSplit)) {
@@ -4815,11 +4815,10 @@ bool BaseTextEditorWidget::openLink(const Link &link, bool inNextSplit)
     if (!link.hasValidTarget())
         return false;
 
-    Core::EditorManager *editorManager = Core::EditorManager::instance();
     if (inNextSplit) {
-        editorManager->gotoOtherSplit();
+        Core::EditorManager::gotoOtherSplit();
     } else if (baseTextDocument()->filePath() == link.targetFileName) {
-        editorManager->addCurrentPositionToNavigationHistory();
+        Core::EditorManager::addCurrentPositionToNavigationHistory();
         gotoLine(link.targetLine, link.targetColumn);
         setFocus();
         return true;

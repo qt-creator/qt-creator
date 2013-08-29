@@ -1356,7 +1356,7 @@ void FakeVimPluginPrivate::moveSomewhere(DistFunction f, int count)
     IEditor *bestEditor = 0;
     int repeat = count;
 
-    QList<IEditor *> editors = EditorManager::instance()->visibleEditors();
+    QList<IEditor *> editors = EditorManager::visibleEditors();
     while (repeat < 0 || repeat-- > 0) {
         editors.removeOne(currentEditor);
         int bestValue = -1;
@@ -1389,7 +1389,7 @@ void FakeVimPluginPrivate::moveSomewhere(DistFunction f, int count)
 void FakeVimPluginPrivate::keepOnlyWindow()
 {
     IEditor *currentEditor = EditorManager::currentEditor();
-    QList<IEditor *> editors = EditorManager::instance()->visibleEditors();
+    QList<IEditor *> editors = EditorManager::visibleEditors();
     editors.removeOne(currentEditor);
 
     foreach (IEditor *editor, editors) {
@@ -1988,7 +1988,7 @@ void FakeVimPluginPrivate::changeSelection(const QList<QTextEdit::ExtraSelection
 
 void FakeVimPluginPrivate::highlightMatches(const QString &needle)
 {
-    foreach (IEditor *editor, EditorManager::instance()->visibleEditors()) {
+    foreach (IEditor *editor, EditorManager::visibleEditors()) {
         QWidget *w = editor->widget();
         Find::IFindSupport *find = Aggregation::query<Find::IFindSupport>(w);
         if (find != 0)
@@ -2011,7 +2011,7 @@ void FakeVimPluginPrivate::switchToFile(int n)
     n = n % size;
     if (n < 0)
         n += size;
-    EditorManager::instance()->activateEditorForEntry(EditorManager::documentModel()->documents().at(n));
+    EditorManager::activateEditorForEntry(EditorManager::documentModel()->documents().at(n));
 }
 
 ExCommandMap &FakeVimExCommandsPage::exCommandMap()

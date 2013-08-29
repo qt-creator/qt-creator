@@ -299,9 +299,8 @@ void TestActionsTestCase::moveWordCamelCaseToToken(TranslationUnit *translationU
 
 void TestActionsTestCase::undoAllChangesAndCloseAllEditors()
 {
-    EditorManager *em = EditorManager::instance();
     undoChangesInAllEditorWidgets();
-    em->closeAllEditors(/*askAboutModifiedEditors =*/ false);
+    EditorManager::closeAllEditors(/*askAboutModifiedEditors =*/ false);
     QApplication::processEvents();
     QCOMPARE(EditorManager::documentModel()->openedDocuments().size(), 0);
 }
@@ -332,10 +331,8 @@ public:
 
 void FollowSymbolUnderCursorTokenAction::run(CPPEditorWidget *editorWidget)
 {
-    EditorManager *em = EditorManager::instance();
-
     // Follow link
-    IEditor *editorBefore = em->currentEditor();
+    IEditor *editorBefore = EditorManager::currentEditor();
     const int originalLine = editorBefore->currentLine();
     const int originalColumn = editorBefore->currentColumn();
     editorWidget->openLinkUnderCursor();
@@ -343,9 +340,9 @@ void FollowSymbolUnderCursorTokenAction::run(CPPEditorWidget *editorWidget)
     QApplication::processEvents();
 
     // Go back
-    IEditor *editorAfter = em->currentEditor();
+    IEditor *editorAfter = EditorManager::currentEditor();
     if (editorAfter != editorBefore)
-        em->goBackInNavigationHistory();
+        EditorManager::goBackInNavigationHistory();
     else
         editorBefore->gotoLine(originalLine, originalColumn);
     QApplication::processEvents();
@@ -360,19 +357,17 @@ public:
 
 void SwitchDeclarationDefinitionTokenAction::run(CPPEditorWidget *)
 {
-    EditorManager *em = EditorManager::instance();
-
     // Switch Declaration/Definition
-    IEditor *editorBefore = em->currentEditor();
+    IEditor *editorBefore = EditorManager::currentEditor();
     const int originalLine = editorBefore->currentLine();
     const int originalColumn = editorBefore->currentColumn();
     CppEditor::Internal::CppEditorPlugin::instance()->switchDeclarationDefinition();
     QApplication::processEvents();
 
     // Go back
-    IEditor *editorAfter = em->currentEditor();
+    IEditor *editorAfter = EditorManager::currentEditor();
     if (editorAfter != editorBefore)
-        em->goBackInNavigationHistory();
+        EditorManager::goBackInNavigationHistory();
     else
         editorBefore->gotoLine(originalLine, originalColumn);
     QApplication::processEvents();
@@ -500,17 +495,15 @@ public:
 
 void SwitchHeaderSourceFileAction::run(CPPEditorWidget *)
 {
-    EditorManager *em = EditorManager::instance();
-
     // Switch Header/Source
-    IEditor *editorBefore = em->currentEditor();
+    IEditor *editorBefore = EditorManager::currentEditor();
     CppTools::Internal::CppToolsPlugin::instance()->switchHeaderSource();
     QApplication::processEvents();
 
     // Go back
-    IEditor *editorAfter = em->currentEditor();
+    IEditor *editorAfter = EditorManager::currentEditor();
     if (editorAfter != editorBefore)
-        em->goBackInNavigationHistory();
+        EditorManager::goBackInNavigationHistory();
     QApplication::processEvents();
 }
 

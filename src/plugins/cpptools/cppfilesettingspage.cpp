@@ -205,9 +205,8 @@ QString CppFileSettings::licenseTemplate(const QString &fileName, const QString 
         return QString();
     }
 
-    QTextCodec *codec = Core::EditorManager::instance()->defaultTextCodec();
     QTextStream licenseStream(&file);
-    licenseStream.setCodec(codec);
+    licenseStream.setCodec(Core::EditorManager::defaultTextCodec());
     licenseStream.setAutoDetectUnicode(true);
     QString license = licenseStream.readAll();
 

@@ -67,7 +67,7 @@ struct EditorConfigurationPrivate
         , m_storageSettings(TextEditorSettings::instance()->storageSettings())
         , m_behaviorSettings(TextEditorSettings::instance()->behaviorSettings())
         , m_extraEncodingSettings(TextEditorSettings::instance()->extraEncodingSettings())
-        , m_textCodec(Core::EditorManager::instance()->defaultTextCodec())
+        , m_textCodec(Core::EditorManager::defaultTextCodec())
     {
     }
 
@@ -129,7 +129,7 @@ void EditorConfiguration::cloneGlobalSettings()
     setStorageSettings(textEditorSettings->storageSettings());
     setBehaviorSettings(textEditorSettings->behaviorSettings());
     setExtraEncodingSettings(textEditorSettings->extraEncodingSettings());
-    d->m_textCodec = Core::EditorManager::instance()->defaultTextCodec();
+    d->m_textCodec = Core::EditorManager::defaultTextCodec();
 }
 
 QTextCodec *EditorConfiguration::textCodec() const
@@ -208,7 +208,7 @@ void EditorConfiguration::fromMap(const QVariantMap &map)
     const QByteArray &codecName = map.value(kCodec, d->m_textCodec->name()).toByteArray();
     d->m_textCodec = QTextCodec::codecForName(codecName);
     if (!d->m_textCodec)
-        d->m_textCodec = Core::EditorManager::instance()->defaultTextCodec();
+        d->m_textCodec = Core::EditorManager::defaultTextCodec();
 
     const int codeStyleCount = map.value(kCodeStyleCount, 0).toInt();
     for (int i = 0; i < codeStyleCount; ++i) {

@@ -712,12 +712,11 @@ void CppToolsPlugin::test_modelmanager_gc_if_last_cppeditor_closed()
     MyTestDataDir testDataDirectory(QLatin1String("testdata_guiproject1"));
     const QString file = testDataDirectory.file(QLatin1String("main.cpp"));
 
-    Core::EditorManager *em = Core::EditorManager::instance();
     CppModelManager *mm = CppModelManager::instance();
 
     // Open a file in the editor
     QCOMPARE(Core::EditorManager::documentModel()->openedDocuments().size(), 0);
-    Core::IEditor *editor = em->openEditor(file);
+    Core::IEditor *editor = Core::EditorManager::openEditor(file);
     QVERIFY(editor);
     QCOMPARE(Core::EditorManager::documentModel()->openedDocuments().size(), 1);
     QVERIFY(mm->isCppEditor(editor));
@@ -727,7 +726,7 @@ void CppToolsPlugin::test_modelmanager_gc_if_last_cppeditor_closed()
     QVERIFY(mm->snapshot().contains(file));
 
     // Close file/editor
-    em->closeEditor(editor, /*askAboutModifiedEditors=*/ false);
+    Core::EditorManager::closeEditor(editor, /*askAboutModifiedEditors=*/ false);
     helper.waitForFinishedGc();
 
     // Check: File is removed from the snapshpt
@@ -743,12 +742,11 @@ void CppToolsPlugin::test_modelmanager_dont_gc_opened_files()
     MyTestDataDir testDataDirectory(QLatin1String("testdata_guiproject1"));
     const QString file = testDataDirectory.file(QLatin1String("main.cpp"));
 
-    Core::EditorManager *em = Core::EditorManager::instance();
     CppModelManager *mm = CppModelManager::instance();
 
     // Open a file in the editor
     QCOMPARE(Core::EditorManager::documentModel()->openedDocuments().size(), 0);
-    Core::IEditor *editor = em->openEditor(file);
+    Core::IEditor *editor = Core::EditorManager::openEditor(file);
     QVERIFY(editor);
     QCOMPARE(Core::EditorManager::documentModel()->openedDocuments().size(), 1);
     QVERIFY(mm->isCppEditor(editor));
@@ -765,7 +763,7 @@ void CppToolsPlugin::test_modelmanager_dont_gc_opened_files()
     QVERIFY(mm->snapshot().contains(file));
 
     // Close editor
-    em->closeEditors(QList<Core::IEditor*>() << editor);
+    Core::EditorManager::closeEditors(QList<Core::IEditor*>() << editor);
     helper.waitForFinishedGc();
     QVERIFY(mm->snapshot().isEmpty());
 }

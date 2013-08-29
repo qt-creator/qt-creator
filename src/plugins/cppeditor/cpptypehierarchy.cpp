@@ -165,7 +165,7 @@ void CppTypeHierarchyWidget::perform()
 {
     showNoTypeHierarchyLabel();
 
-    CPPEditor *editor = qobject_cast<CPPEditor *>(Core::EditorManager::instance()->currentEditor());
+    CPPEditor *editor = qobject_cast<CPPEditor *>(Core::EditorManager::currentEditor());
     if (!editor)
         return;
 

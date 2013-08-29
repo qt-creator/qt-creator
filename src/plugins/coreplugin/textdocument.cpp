@@ -64,7 +64,7 @@ public:
 TextDocument::TextDocument(QObject *parent) :
     IDocument(parent), d(new Internal::TextDocumentPrivate)
 {
-    setCodec(Core::EditorManager::instance()->defaultTextCodec());
+    setCodec(Core::EditorManager::defaultTextCodec());
 }
 
 TextDocument::~TextDocument()

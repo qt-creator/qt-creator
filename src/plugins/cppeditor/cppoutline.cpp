@@ -171,9 +171,8 @@ void CppOutlineWidget::updateTextCursor(const QModelIndex &proxyIndex)
         if (debug)
             qDebug() << "CppOutline - moving cursor to" << symbol->line() << symbol->column() - 1;
 
-        Core::EditorManager *editorManager = Core::EditorManager::instance();
-        editorManager->cutForwardNavigationHistory();
-        editorManager->addCurrentPositionToNavigationHistory();
+        Core::EditorManager::cutForwardNavigationHistory();
+        Core::EditorManager::addCurrentPositionToNavigationHistory();
 
         // line has to be 1 based, column 0 based!
         m_editor->gotoLine(symbol->line(), symbol->column() - 1);

@@ -44,8 +44,7 @@ using namespace TextEditor::Internal;
 BaseTextMarkRegistry::BaseTextMarkRegistry(QObject *parent)
     : QObject(parent)
 {
-    Core::EditorManager *em = Core::EditorManager::instance();
-    connect(em, SIGNAL(editorOpened(Core::IEditor*)),
+    connect(Core::EditorManager::instance(), SIGNAL(editorOpened(Core::IEditor*)),
         SLOT(editorOpened(Core::IEditor*)));
 
     Core::DocumentManager *dm = Core::DocumentManager::instance();

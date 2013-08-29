@@ -267,7 +267,7 @@ int ReadOnlyFilesDialog::exec()
             }
             break;
         case RO_SaveAs:
-            if (!EditorManager::instance()->saveDocumentAs(d->document)) {
+            if (!EditorManager::saveDocumentAs(d->document)) {
                 failedToMakeWritable << buttengroup.fileName;
                 continue;
             }

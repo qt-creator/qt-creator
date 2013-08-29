@@ -91,7 +91,7 @@ public:
 
     ~CompletionTestCase()
     {
-        EditorManager::instance()->closeEditors(QList<IEditor*>() << editor,
+        EditorManager::closeEditors(QList<IEditor*>() << editor,
                                                 /*askAboutModifiedEditors=*/ false);
         cmm->GC();
         QVERIFY(cmm->snapshot().isEmpty());

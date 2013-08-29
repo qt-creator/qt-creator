@@ -49,7 +49,6 @@ EditMode::EditMode() :
     m_splitter(new MiniSplitter),
     m_rightSplitWidgetLayout(new QVBoxLayout)
 {
-    m_editorManager = EditorManager::instance();
     setObjectName(QLatin1String("EditMode"));
     setDisplayName(tr("Edit"));
     setIcon(QIcon(QLatin1String(":/fancyactionbar/images/mode_Edit.png")));
@@ -84,7 +83,7 @@ EditMode::EditMode() :
 
     connect(ModeManager::instance(), SIGNAL(currentModeChanged(Core::IMode*)),
             this, SLOT(grabEditorManager(Core::IMode*)));
-    m_splitter->setFocusProxy(m_editorManager);
+    m_splitter->setFocusProxy(EditorManager::instance());
 
     setWidget(m_splitter);
     setContext(Context(Constants::C_EDIT_MODE,
@@ -95,7 +94,7 @@ EditMode::EditMode() :
 EditMode::~EditMode()
 {
     // Make sure the editor manager does not get deleted
-    m_editorManager->setParent(0);
+    EditorManager::instance()->setParent(0);
     delete m_splitter;
 }
 

@@ -110,7 +110,7 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
     fillLanguageBox();
 
     m_page->colorButton->setColor(StyleHelper::requestedBaseColor());
-    m_page->reloadBehavior->setCurrentIndex(EditorManager::instance()->reloadSetting());
+    m_page->reloadBehavior->setCurrentIndex(EditorManager::reloadSetting());
     if (HostOsInfo::isAnyUnixHost()) {
         QSettings *settings = Core::ICore::settings();
         const QStringList availableTerminals = ConsoleProcess::availableTerminalEmulators();
@@ -135,8 +135,8 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
         m_page->helpExternalFileBrowserButton->hide();
     }
 
-    m_page->autoSaveCheckBox->setChecked(EditorManager::instance()->autoSaveEnabled());
-    m_page->autoSaveInterval->setValue(EditorManager::instance()->autoSaveInterval());
+    m_page->autoSaveCheckBox->setChecked(EditorManager::autoSaveEnabled());
+    m_page->autoSaveInterval->setValue(EditorManager::autoSaveInterval());
     m_page->resetWarningsButton->setEnabled(Core::InfoBar::anyGloballySuppressed());
 
     connect(m_page->resetColorButton, SIGNAL(clicked()),
@@ -179,7 +179,7 @@ void GeneralSettings::apply()
     setLanguage(m_page->languageBox->itemData(currentIndex, Qt::UserRole).toString());
     // Apply the new base color if accepted
     StyleHelper::setBaseColor(m_page->colorButton->color());
-    EditorManager::instance()->setReloadSetting(IDocument::ReloadSetting(m_page->reloadBehavior->currentIndex()));
+    EditorManager::setReloadSetting(IDocument::ReloadSetting(m_page->reloadBehavior->currentIndex()));
     if (HostOsInfo::isAnyUnixHost()) {
         ConsoleProcess::setTerminalEmulator(Core::ICore::settings(),
                                             m_page->terminalComboBox->lineEdit()->text());
@@ -188,8 +188,8 @@ void GeneralSettings::apply()
                                              m_page->externalFileBrowserEdit->text());
         }
     }
-    EditorManager::instance()->setAutoSaveEnabled(m_page->autoSaveCheckBox->isChecked());
-    EditorManager::instance()->setAutoSaveInterval(m_page->autoSaveInterval->value());
+    EditorManager::setAutoSaveEnabled(m_page->autoSaveCheckBox->isChecked());
+    EditorManager::setAutoSaveInterval(m_page->autoSaveInterval->value());
 }
 
 void GeneralSettings::finish()

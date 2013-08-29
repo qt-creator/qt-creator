@@ -290,7 +290,7 @@ void MacroManager::startMacro()
     QString executeShortcut = Core::ActionManager::command(Constants::EXECUTE_LAST_MACRO)->defaultKeySequence().toString();
     QString help = tr("Macro mode. Type \"%1\" to stop recording and \"%2\" to play it")
         .arg(endShortcut).arg(executeShortcut);
-    Core::EditorManager::instance()->showEditorStatusBar(
+    Core::EditorManager::showEditorStatusBar(
                 QLatin1String(Constants::M_STATUS_BUFFER),
                 help,
                 tr("Stop Recording Macro"), this, SLOT(endMacro()));
@@ -298,7 +298,7 @@ void MacroManager::startMacro()
 
 void MacroManager::endMacro()
 {
-    Core::EditorManager::instance()->hideEditorStatusBar(QLatin1String(Constants::M_STATUS_BUFFER));
+    Core::EditorManager::hideEditorStatusBar(QLatin1String(Constants::M_STATUS_BUFFER));
 
     Core::ActionManager::command(Constants::START_MACRO)->action()->setEnabled(true);
     Core::ActionManager::command(Constants::END_MACRO)->action()->setEnabled(false);

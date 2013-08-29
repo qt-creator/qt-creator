@@ -75,7 +75,7 @@ Utils::FileIterator *FindInFiles::files(const QStringList &nameFilters,
 {
     return new Utils::SubDirFileIterator(QStringList() << additionalParameters.toString(),
                                          nameFilters,
-                                         Core::EditorManager::instance()->defaultTextCodec());
+                                         Core::EditorManager::defaultTextCodec());
 }
 
 QVariant FindInFiles::additionalParameters() const

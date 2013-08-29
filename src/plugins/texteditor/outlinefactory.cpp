@@ -71,8 +71,7 @@ OutlineWidgetStack::OutlineWidgetStack(OutlineFactory *factory) :
     m_filterMenu = new QMenu(m_filterButton);
     m_filterButton->setMenu(m_filterMenu);
 
-    Core::EditorManager *editorManager = Core::EditorManager::instance();
-    connect(editorManager, SIGNAL(currentEditorChanged(Core::IEditor*)),
+    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(updateCurrentEditor(Core::IEditor*)));
     updateCurrentEditor(Core::EditorManager::currentEditor());
 }

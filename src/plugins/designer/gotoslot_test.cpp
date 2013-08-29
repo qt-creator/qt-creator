@@ -134,7 +134,7 @@ public:
 private:
     void cleanup()
     {
-        EditorManager::instance()->closeAllEditors(/*askAboutModifiedEditors =*/ false);
+        EditorManager::closeAllEditors(/*askAboutModifiedEditors =*/ false);
         QVERIFY(EditorManager::documentModel()->openedDocuments().isEmpty());
 
         m_modelManager->GC();

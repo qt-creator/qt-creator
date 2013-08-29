@@ -878,8 +878,7 @@ void VcsBaseEditorWidget::slotJumpToEntry(int index)
     int currentLine, currentColumn;
     convertPosition(position(), &currentLine, &currentColumn);
     if (lineNumber != currentLine) {
-        Core::EditorManager *editorManager = Core::EditorManager::instance();
-        editorManager->addCurrentPositionToNavigationHistory();
+        Core::EditorManager::addCurrentPositionToNavigationHistory();
         gotoLine(lineNumber, 0);
     }
 }

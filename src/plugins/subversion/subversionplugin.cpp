@@ -1074,7 +1074,7 @@ void SubversionPlugin::slotDescribe()
 void SubversionPlugin::submitCurrentLog()
 {
     m_submitActionTriggered = true;
-    Core::EditorManager::instance()->closeEditors(QList<Core::IEditor*>()
+    Core::EditorManager::closeEditors(QList<Core::IEditor*>()
         << Core::EditorManager::currentEditor());
 }
 

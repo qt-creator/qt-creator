@@ -125,7 +125,7 @@ private:
 
     virtual void doAfterLocatorRun()
     {
-        EditorManager::instance()->closeEditor(m_editor, /*askAboutModifiedEditors=*/ false);
+        EditorManager::closeEditor(m_editor, /*askAboutModifiedEditors=*/ false);
         QCoreApplication::processEvents();
         QVERIFY(EditorManager::documentModel()->openedDocuments().isEmpty());
         m_modelManager->GC();

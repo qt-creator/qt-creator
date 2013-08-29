@@ -115,7 +115,7 @@ TestCase::TestCase(const QByteArray &input)
 
 TestCase::~TestCase()
 {
-    EditorManager::instance()->closeEditor(editor, false);
+    EditorManager::closeEditor(editor, false);
     QCoreApplication::processEvents(); // process any pending events
 
     // Remove the test file from the code-model

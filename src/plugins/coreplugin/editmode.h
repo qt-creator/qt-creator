@@ -55,7 +55,6 @@ private slots:
     void grabEditorManager(Core::IMode *mode);
 
 private:
-    EditorManager *m_editorManager;
     QSplitter *m_splitter;
     QVBoxLayout *m_rightSplitWidgetLayout;
 };

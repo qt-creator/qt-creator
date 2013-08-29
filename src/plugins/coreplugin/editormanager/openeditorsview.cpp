@@ -192,13 +192,13 @@ void OpenEditorsWidget::handleClicked(const QModelIndex &index)
 void OpenEditorsWidget::activateEditor(const QModelIndex &index)
 {
     selectionModel()->select(index, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-    EditorManager::instance()->activateEditorForEntry(
+    EditorManager::activateEditorForEntry(
                 EditorManager::documentModel()->documentAtRow(m_model->mapToSource(index).row()));
 }
 
 void OpenEditorsWidget::closeEditor(const QModelIndex &index)
 {
-    EditorManager::instance()->closeEditor(
+    EditorManager::closeEditor(
                 EditorManager::documentModel()->documentAtRow(m_model->mapToSource(index).row()));
     // work around selection changes
     updateCurrentItem(EditorManager::currentEditor());
@@ -210,9 +210,9 @@ void OpenEditorsWidget::contextMenuRequested(QPoint pos)
     QModelIndex editorIndex = indexAt(pos);
     DocumentModel::Entry *entry = EditorManager::documentModel()->documentAtRow(
                 m_model->mapToSource(editorIndex).row());
-    EditorManager::instance()->addSaveAndCloseEditorActions(&contextMenu, entry);
+    EditorManager::addSaveAndCloseEditorActions(&contextMenu, entry);
     contextMenu.addSeparator();
-    EditorManager::instance()->addNativeDirActions(&contextMenu, entry);
+    EditorManager::addNativeDirActions(&contextMenu, entry);
     contextMenu.exec(mapToGlobal(pos));
 }
 

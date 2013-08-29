@@ -303,36 +303,33 @@ IEditor *EditorView::currentEditor() const
 
 void EditorView::listSelectionActivated(int index)
 {
-    EditorManager::instance()->activateEditorForEntry(
+    EditorManager::activateEditorForEntry(
                 this, EditorManager::documentModel()->documentAtRow(index));
 }
 
 void EditorView::splitHorizontally()
 {
-    EditorManager *editorManager = EditorManager::instance();
     if (m_parentSplitterOrView)
         m_parentSplitterOrView->split(Qt::Vertical);
-    editorManager->updateActions();
+    EditorManager::updateActions();
 }
 
 void EditorView::splitVertically()
 {
-    EditorManager *editorManager = EditorManager::instance();
     if (m_parentSplitterOrView)
         m_parentSplitterOrView->split(Qt::Horizontal);
-    editorManager->updateActions();
+    EditorManager::updateActions();
 }
 
 void EditorView::splitNewWindow()
 {
-    EditorManager::instance()->splitNewWindow(this);
+    EditorManager::splitNewWindow(this);
 }
 
 void EditorView::closeSplit()
 {
-    EditorManager *editorManager = EditorManager::instance();
-    editorManager->closeView(this);
-    editorManager->updateActions();
+    EditorManager::closeView(this);
+    EditorManager::updateActions();
 }
 
 void EditorView::setParentSplitterOrView(SplitterOrView *splitterOrView)
@@ -539,7 +536,7 @@ SplitterOrView::~SplitterOrView()
     delete m_layout;
     m_layout = 0;
     if (m_view)
-        EditorManager::instance()->emptyView(m_view);
+        EditorManager::emptyView(m_view);
     delete m_view;
     m_view = 0;
     delete m_splitter;
@@ -641,7 +638,7 @@ void SplitterOrView::split(Qt::Orientation orientation)
 void SplitterOrView::unsplitAll()
 {
     QTC_ASSERT(m_splitter, return);
-    EditorView *currentView = EditorManager::instance()->currentEditorView();
+    EditorView *currentView = EditorManager::currentEditorView();
     if (currentView) {
         currentView->parentSplitterOrView()->takeView();
         currentView->setParentSplitterOrView(this);

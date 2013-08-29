@@ -94,7 +94,7 @@ bool RefactoringChanges::createFile(const QString &fileName, const QString &cont
 
     // Write the file to disk:
     Utils::TextFileFormat format;
-    format.codec = Core::EditorManager::instance()->defaultTextCodec();
+    format.codec = Core::EditorManager::defaultTextCodec();
     QString error;
     bool saveOk = format.writeFile(fileName, document->toPlainText(), &error);
     delete document;
@@ -207,7 +207,7 @@ QTextDocument *RefactoringFile::mutableDocument() const
         QString fileContents;
         if (!m_fileName.isEmpty()) {
             QString error;
-            QTextCodec *defaultCodec = Core::EditorManager::instance()->defaultTextCodec();
+            QTextCodec *defaultCodec = Core::EditorManager::defaultTextCodec();
             Utils::TextFileFormat::ReadResult result = Utils::TextFileFormat::readFile(
                         m_fileName, defaultCodec,
                         &fileContents, &m_textFileFormat,

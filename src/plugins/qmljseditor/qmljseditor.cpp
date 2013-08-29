@@ -692,9 +692,8 @@ void QmlJSTextEditorWidget::jumpToOutlineElement(int /*index*/)
     if (!location.isValid())
         return;
 
-    Core::EditorManager *editorManager = Core::EditorManager::instance();
-    editorManager->cutForwardNavigationHistory();
-    editorManager->addCurrentPositionToNavigationHistory();
+    Core::EditorManager::cutForwardNavigationHistory();
+    Core::EditorManager::addCurrentPositionToNavigationHistory();
 
     QTextCursor cursor = textCursor();
     cursor.setPosition(location.offset);

@@ -222,8 +222,7 @@ void BehaviorSettingsPage::settingsToUI()
     d->m_page->behaviorWidget->setAssignedStorageSettings(d->m_storageSettings);
     d->m_page->behaviorWidget->setAssignedBehaviorSettings(d->m_behaviorSettings);
     d->m_page->behaviorWidget->setAssignedExtraEncodingSettings(d->m_extraEncodingSettings);
-    d->m_page->behaviorWidget->setAssignedCodec(
-        Core::EditorManager::instance()->defaultTextCodec());
+    d->m_page->behaviorWidget->setAssignedCodec(Core::EditorManager::defaultTextCodec());
 }
 
 void BehaviorSettingsPage::finish()

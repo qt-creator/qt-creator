@@ -43,9 +43,9 @@ using namespace TextEditor::Internal;
 
 FindInOpenFiles::FindInOpenFiles()
 {
-    connect(Core::ICore::instance()->editorManager(), SIGNAL(editorOpened(Core::IEditor*)),
+    connect(Core::EditorManager::instance(), SIGNAL(editorOpened(Core::IEditor*)),
             this, SLOT(updateEnabledState()));
-    connect(Core::ICore::instance()->editorManager(), SIGNAL(editorsClosed(QList<Core::IEditor*>)),
+    connect(Core::EditorManager::instance(), SIGNAL(editorsClosed(QList<Core::IEditor*>)),
             this, SLOT(updateEnabledState()));
 }
 
@@ -74,7 +74,7 @@ Utils::FileIterator *FindInOpenFiles::files(const QStringList &nameFilters,
             fileNames.append(fileName);
             QTextCodec *codec = openEditorEncodings.value(fileName);
             if (!codec)
-                codec = Core::EditorManager::instance()->defaultTextCodec();
+                codec = Core::EditorManager::defaultTextCodec();
             codecs.append(codec);
         }
     }

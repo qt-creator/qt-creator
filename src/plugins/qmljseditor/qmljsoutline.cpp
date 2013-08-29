@@ -217,9 +217,8 @@ void QmlJSOutlineWidget::updateTextCursor(const QModelIndex &index)
     if (location.offset >= textLength)
         return;
 
-    Core::EditorManager *editorManager = Core::EditorManager::instance();
-    editorManager->cutForwardNavigationHistory();
-    editorManager->addCurrentPositionToNavigationHistory();
+    Core::EditorManager::cutForwardNavigationHistory();
+    Core::EditorManager::addCurrentPositionToNavigationHistory();
 
     QTextCursor textCursor = m_editor->textCursor();
     m_blockCursorSync = true;

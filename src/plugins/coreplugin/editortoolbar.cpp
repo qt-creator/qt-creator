@@ -238,7 +238,7 @@ void EditorToolBar::closeEditor()
         return;
 
     if (d->m_isStandalone)
-        EditorManager::instance()->closeEditor(current);
+        EditorManager::closeEditor(current);
     emit closeClicked();
 }
 
@@ -278,7 +278,7 @@ void EditorToolBar::setToolbarCreationFlags(ToolbarCreationFlags flags)
 {
     d->m_isStandalone = flags & FlagsStandalone;
     if (d->m_isStandalone) {
-        EditorManager *em = EditorManager::instance();
+        QWidget *em = EditorManager::instance();
         connect(em, SIGNAL(currentEditorChanged(Core::IEditor*)), SLOT(updateEditorListSelection(Core::IEditor*)));
 
         disconnect(d->m_editorList, SIGNAL(activated(int)), this, SIGNAL(listSelectionActivated(int)));
@@ -309,8 +309,7 @@ void EditorToolBar::updateEditorListSelection(IEditor *newSelection)
 
 void EditorToolBar::changeActiveEditor(int row)
 {
-    EditorManager *em = EditorManager::instance();
-    em->activateEditorForEntry(d->m_editorsListModel->documentAtRow(row));
+    EditorManager::activateEditorForEntry(d->m_editorsListModel->documentAtRow(row));
 }
 
 void EditorToolBar::listContextMenu(QPoint pos)
@@ -323,9 +322,9 @@ void EditorToolBar::listContextMenu(QPoint pos)
     QMenu menu;
     QAction *copyPath = menu.addAction(tr("Copy Full Path to Clipboard"));
     menu.addSeparator();
-    EditorManager::instance()->addSaveAndCloseEditorActions(&menu, entry);
+    EditorManager::addSaveAndCloseEditorActions(&menu, entry);
     menu.addSeparator();
-    EditorManager::instance()->addNativeDirActions(&menu, entry);
+    EditorManager::addNativeDirActions(&menu, entry);
     QAction *result = menu.exec(d->m_editorList->mapToGlobal(pos));
     if (result == copyPath)
         QApplication::clipboard()->setText(QDir::toNativeSeparators(fileName));
@@ -334,7 +333,7 @@ void EditorToolBar::listContextMenu(QPoint pos)
 void EditorToolBar::makeEditorWritable()
 {
     if (IDocument *current = EditorManager::currentDocument())
-        EditorManager::instance()->makeFileWritable(current);
+        EditorManager::makeFileWritable(current);
 }
 
 void EditorToolBar::setCanGoBack(bool canGoBack)

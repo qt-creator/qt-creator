@@ -280,7 +280,7 @@ void FakeVimPlugin::setup(TestData *data)
 
 void FakeVimPlugin::cleanup()
 {
-    Core::EditorManager::instance()->closeAllEditors(false);
+    Core::EditorManager::closeAllEditors(false);
 }
 
 

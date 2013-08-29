@@ -264,7 +264,7 @@ TestCase::~TestCase()
         if (testFile->editor)
             editorsToClose << testFile->editor;
     }
-    EditorManager::instance()->closeEditors(editorsToClose, false);
+    EditorManager::closeEditors(editorsToClose, false);
     QCoreApplication::processEvents(); // process any pending events
 
     // Remove the test files from the code-model

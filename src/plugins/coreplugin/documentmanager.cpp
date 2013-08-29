@@ -646,7 +646,7 @@ static QList<IDocument *> saveModifiedFilesHelper(const QList<IDocument *> &docu
             }
         }
         foreach (IDocument *document, documentsToSave) {
-            if (!EditorManager::instance()->saveDocument(document)) {
+            if (!EditorManager::saveDocument(document)) {
                 if (cancelled)
                     *cancelled = true;
                 notSaved.append(document);
@@ -823,7 +823,7 @@ void DocumentManager::checkForReload()
 
     d->m_blockActivated = true;
 
-    IDocument::ReloadSetting defaultBehavior = EditorManager::instance()->reloadSetting();
+    IDocument::ReloadSetting defaultBehavior = EditorManager::reloadSetting();
     Utils::ReloadPromptAnswer previousAnswer = Utils::ReloadCurrent;
 
     QList<IDocument *> documentsToClose;
@@ -1340,7 +1340,7 @@ void DocumentManager::executeOpenWithMenuAction(QAction *action)
                 if (entry.editorFactory->id() == openEditor->id())
                     editorsOpenForFile.removeAll(openEditor);
             }
-            if (!EditorManager::instance()->closeEditors(editorsOpenForFile)) // don't open if cancel was pressed
+            if (!EditorManager::closeEditors(editorsOpenForFile)) // don't open if cancel was pressed
                 return;
         }
 

@@ -171,9 +171,8 @@ void CppPreprocessor::getFileContents(const QString &absoluteFilePath,
 
     QFile file(absoluteFilePath);
     if (file.open(QFile::ReadOnly | QFile::Text)) {
-        QTextCodec *defaultCodec = Core::EditorManager::instance()->defaultTextCodec();
         QTextStream stream(&file);
-        stream.setCodec(defaultCodec);
+        stream.setCodec(Core::EditorManager::defaultTextCodec());
         if (contents)
             *contents = stream.readAll();
         if (revision)

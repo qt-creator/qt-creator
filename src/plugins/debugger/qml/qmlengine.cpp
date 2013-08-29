@@ -342,7 +342,7 @@ QmlEngine::~QmlEngine()
         if (textEditPtr)
             editorsToClose << textEditPtr.data();
     }
-    Core::EditorManager::instance()->closeEditors(editorsToClose);
+    Core::EditorManager::closeEditors(editorsToClose);
 }
 
 void QmlEngine::notifyInferiorSetupOk()
@@ -539,7 +539,7 @@ void QmlEngine::gotoLocation(const Location &location)
         //Check if there are open documents with the same title
         foreach (Core::IDocument *document, Core::EditorManager::documentModel()->openedDocuments()) {
             if (document->displayName() == titlePattern) {
-                Core::EditorManager::instance()->activateEditorForDocument(document);
+                Core::EditorManager::activateEditorForDocument(document);
                 return;
             }
         }

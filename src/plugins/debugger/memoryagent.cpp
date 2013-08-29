@@ -110,7 +110,7 @@ void MemoryAgent::closeEditors()
     foreach (QPointer<IEditor> editor, m_editors)
         if (editor)
             editors.append(editor.data());
-    EditorManager::instance()->closeEditors(editors);
+    EditorManager::closeEditors(editors);
     m_editors.clear();
 }
 
@@ -254,7 +254,7 @@ void MemoryAgent::updateContents()
 
 bool MemoryAgent::hasVisibleEditor() const
 {
-    QList<IEditor *> visible = EditorManager::instance()->visibleEditors();
+    QList<IEditor *> visible = EditorManager::visibleEditors();
     foreach (QPointer<IEditor> editor, m_editors)
         if (visible.contains(editor.data()))
             return true;

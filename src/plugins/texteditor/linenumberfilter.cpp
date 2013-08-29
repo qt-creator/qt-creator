@@ -91,8 +91,7 @@ void LineNumberFilter::accept(FilterEntry selection) const
 {
     ITextEditor *editor = currentTextEditor();
     if (editor) {
-        Core::EditorManager *editorManager = Core::EditorManager::instance();
-        editorManager->addCurrentPositionToNavigationHistory();
+        EditorManager::addCurrentPositionToNavigationHistory();
         LineColumn data = selection.internalData.value<LineColumn>();
         if (data.first < 1) { // jump to column in same line
             int currLine, currColumn;
@@ -100,7 +99,7 @@ void LineNumberFilter::accept(FilterEntry selection) const
             data.first = currLine;
         }
         editor->gotoLine(data.first, data.second);
-        Core::EditorManager::activateEditor(editor);
+        EditorManager::activateEditor(editor);
     }
 }
 

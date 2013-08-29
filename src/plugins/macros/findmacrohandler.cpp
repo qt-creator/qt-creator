@@ -60,8 +60,7 @@ static const quint8 RESET = 5;
 FindMacroHandler::FindMacroHandler():
     IMacroHandler()
 {
-    const Core::EditorManager *editorManager = Core::EditorManager::instance();
-    connect(editorManager, SIGNAL(currentEditorChanged(Core::IEditor*)),
+    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(changeEditor(Core::IEditor*)));
 }
 

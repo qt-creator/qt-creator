@@ -1216,7 +1216,7 @@ bool CvsPlugin::describe(const QString &repositoryPath,
 void CvsPlugin::submitCurrentLog()
 {
     m_submitActionTriggered = true;
-    EditorManager::instance()->closeEditor(EditorManager::currentEditor());
+    EditorManager::closeEditor(EditorManager::currentEditor());
 }
 
 // Run CVS. At this point, file arguments must be relative to

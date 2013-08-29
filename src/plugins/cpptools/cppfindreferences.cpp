@@ -61,7 +61,7 @@ static QString getSource(const QString &fileName,
         QString fileContents;
         Utils::TextFileFormat format;
         QString error;
-        QTextCodec *defaultCodec = Core::EditorManager::instance()->defaultTextCodec();
+        QTextCodec *defaultCodec = Core::EditorManager::defaultTextCodec();
         Utils::TextFileFormat::ReadResult result = Utils::TextFileFormat::readFile(
                     fileName, defaultCodec, &fileContents, &format, &error);
         if (result != Utils::TextFileFormat::ReadSuccess)

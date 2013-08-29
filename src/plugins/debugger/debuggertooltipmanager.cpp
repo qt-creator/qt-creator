@@ -1359,7 +1359,7 @@ void DebuggerToolTipManager::debugModeEntered()
         m_debugModeActive = true;
         QWidget *topLevel = ICore::mainWindow()->topLevelWidget();
         topLevel->installEventFilter(this);
-        EditorManager *em = EditorManager::instance();
+        QObject *em = EditorManager::instance();
         connect(em, SIGNAL(currentEditorChanged(Core::IEditor*)),
                 this, SLOT(slotUpdateVisibleToolTips()));
         connect(em, SIGNAL(editorOpened(Core::IEditor*)),

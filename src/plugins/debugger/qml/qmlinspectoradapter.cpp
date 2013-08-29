@@ -438,7 +438,6 @@ void QmlInspectorAdapter::setActiveEngineClient(BaseEngineDebugClient *client)
 
 void QmlInspectorAdapter::initializePreviews()
 {
-    Core::EditorManager *em = Core::EditorManager::instance();
     QmlJS::ModelManagerInterface *modelManager
             = QmlJS::ModelManagerInterface::instance();
     if (modelManager) {
@@ -446,6 +445,7 @@ void QmlInspectorAdapter::initializePreviews()
 
         if (!m_listeningToEditorManager) {
             m_listeningToEditorManager = true;
+            QObject *em = Core::EditorManager::instance();
             connect(em, SIGNAL(editorAboutToClose(Core::IEditor*)),
                     this, SLOT(removePreviewForEditor(Core::IEditor*)));
             connect(em, SIGNAL(editorOpened(Core::IEditor*)),

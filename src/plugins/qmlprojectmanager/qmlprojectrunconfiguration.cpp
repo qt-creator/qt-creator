@@ -90,8 +90,7 @@ QString QmlProjectRunConfiguration::disabledReason() const
 void QmlProjectRunConfiguration::ctor()
 {
     // reset default settings in constructor
-    EditorManager *em = Core::EditorManager::instance();
-    connect(em, SIGNAL(currentEditorChanged(Core::IEditor*)),
+    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(changeCurrentFile(Core::IEditor*)));
 
     connect(target(), SIGNAL(kitChanged()),
