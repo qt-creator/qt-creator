@@ -71,6 +71,7 @@ public:
     QList<DebuggerItem *> findDebuggers(const ProjectExplorer::Abi &abi) const;
     DebuggerItem *currentDebugger() const { return m_currentDebugger; }
     static DebuggerItem *debuggerFromId(const QVariant &id);
+    static DebuggerItem *debuggerFromPath(const QString &path);
     QModelIndex currentIndex() const;
     void setCurrentIndex(const QModelIndex &index);
 

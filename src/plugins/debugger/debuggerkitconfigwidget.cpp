@@ -159,26 +159,6 @@ void DebuggerItem::fromMap(const QVariantMap &data)
         if (abi.isValid())
             abis.append(abi);
     }
-
-//    // Check for special 'auto' entry for binary written by the sdktool during
-//    // installation. Try to autodetect.
-//    if (command == QLatin1String("auto")) {
-//        command.clear();
-//        switch (engineType) {
-//        case Debugger::GdbEngineType: // Auto-detect system gdb on Unix
-//            if (Abi::hostAbi().os() != Abi::WindowsOS)
-//                comman = Environment::systemEnvironment().searchInPath(QLatin1String("gdb"));
-//            break;
-//        case Debugger::CdbEngineType: { // Auto-detect system CDB on Windows.
-//             const QPair<QString, QString> cdbs = autoDetectCdbDebugger();
-//             binary = cdbs.second.isEmpty() ? cdbs.first : cdbs.second;
-//        }
-//            break;
-//        default:
-//            break;
-//        }
-//    }
-//    command = FileName::fromString(binary);
 }
 
 QString DebuggerItem::userOutput() const
@@ -330,15 +310,31 @@ DebuggerItem DebuggerKitInformation::debuggerItem(const ProjectExplorer::Kit *k)
     if (!k)
         return DebuggerItem();
 
-    QVariant id = k->value(DEBUGGER_INFORMATION);
-    if (!id.isValid())
-        return DebuggerItem();
+    // We used to have:
+    // <valuemap type="QVariantMap" key="Debugger.Information">
+    //    <value type="QString" key="Binary">/data/dev/debugger/gdb-git/gdb/gdb</value>
+    //    <value type="int" key="EngineType">1</value>
+    //  </valuemap>
+    // Starting with 3.0 we have:
+    // <value type="QString" key="Debugger.Information">{75ecf347-f221-44c3-b613-ea1d29929cd4}</value>
 
-    DebuggerItem *item = DebuggerItemManager::debuggerFromId(id);
+    QVariant id = k->value(DEBUGGER_INFORMATION);
+
+    QString pathOrUid;
+    if (id.type() == QVariant::Map) // 2.x
+        pathOrUid = id.toMap().value(QLatin1String("Binary")).toString();
+    else if (id.type() == QVariant::String) // 3.x
+        pathOrUid = id.toString();
+
+    DebuggerItem *item;
+    if (pathOrUid.startsWith(QLatin1Char('{')))
+        item = DebuggerItemManager::debuggerFromId(id);
+    else
+        item = DebuggerItemManager::debuggerFromPath(pathOrUid);
+
     QTC_ASSERT(item, return DebuggerItem());
     return *item;
 }
-
 
 void DebuggerKitInformation::setDebuggerItem(Kit *k,
     DebuggerEngineType type, const Utils::FileName &command)
@@ -737,6 +733,14 @@ DebuggerItem *DebuggerItemManager::debuggerFromId(const QVariant &id)
 {
     foreach (DebuggerItem *item, theDebuggerItemManager()->m_debuggers)
         if (item->id == id)
+            return item;
+    return 0;
+}
+
+DebuggerItem *DebuggerItemManager::debuggerFromPath(const QString &path)
+{
+    foreach (DebuggerItem *item, theDebuggerItemManager()->m_debuggers)
+        if (item->command.toString() == path)
             return item;
     return 0;
 }
