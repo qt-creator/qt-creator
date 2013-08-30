@@ -89,7 +89,7 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
     androidManifestMimeType.setGlobPatterns(QList<Core::MimeGlobPattern>() << androidManifestGlobPattern);
     androidManifestMimeType.setSubClassesOf(QStringList() << QLatin1String("application/xml"));
 
-    if (!Core::ICore::mimeDatabase()->addMimeType(androidManifestMimeType)) {
+    if (!Core::MimeDatabase::addMimeType(androidManifestMimeType)) {
         *errorMessage = tr("Could not add mime-type for AndroidManifest.xml editor.");
         return false;
     }

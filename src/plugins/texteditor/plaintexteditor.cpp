@@ -74,7 +74,7 @@ PlainTextEditorWidget::PlainTextEditorWidget(QWidget *parent)
     connect(Manager::instance(), SIGNAL(mimeTypesRegistered()), this, SLOT(configure()));
 }
 
-Core::IEditor *PlainTextEditor::duplicate(QWidget *parent)
+IEditor *PlainTextEditor::duplicate(QWidget *parent)
 {
     PlainTextEditorWidget *newWidget = new PlainTextEditorWidget(parent);
     newWidget->duplicateFrom(editorWidget());
@@ -82,9 +82,9 @@ Core::IEditor *PlainTextEditor::duplicate(QWidget *parent)
     return newWidget->editor();
 }
 
-Core::Id PlainTextEditor::id() const
+Id PlainTextEditor::id() const
 {
-    return Core::Id(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
+    return Core::Constants::K_DEFAULT_TEXT_EDITOR_ID;
 }
 
 void PlainTextEditorWidget::unCommentSelection()
@@ -105,18 +105,18 @@ void PlainTextEditorWidget::setTabSettings(const TextEditor::TabSettings &ts)
 
 void PlainTextEditorWidget::configure()
 {
-    Core::MimeType mimeType;
+    MimeType mimeType;
     if (editorDocument())
-        mimeType = Core::ICore::mimeDatabase()->findByFile(editorDocument()->filePath());
+        mimeType = MimeDatabase::findByFile(editorDocument()->filePath());
     configure(mimeType);
 }
 
 void PlainTextEditorWidget::configure(const QString &mimeType)
 {
-    configure(Core::ICore::mimeDatabase()->findByType(mimeType));
+    configure(MimeDatabase::findByType(mimeType));
 }
 
-void PlainTextEditorWidget::configure(const Core::MimeType &mimeType)
+void PlainTextEditorWidget::configure(const MimeType &mimeType)
 {
     Highlighter *highlighter = new Highlighter();
     baseTextDocument()->setSyntaxHighlighter(highlighter);

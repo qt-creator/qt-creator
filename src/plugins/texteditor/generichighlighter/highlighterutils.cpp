@@ -44,8 +44,7 @@ QString TextEditor::findDefinitionId(const Core::MimeType &mimeType,
         definitionId = Manager::instance()->definitionIdByAnyMimeType(mimeType.subClassesOf());
         if (definitionId.isEmpty()) {
             foreach (const QString &parent, mimeType.subClassesOf()) {
-                const Core::MimeType &parentMimeType =
-                    Core::ICore::mimeDatabase()->findByType(parent);
+                const Core::MimeType &parentMimeType = Core::MimeDatabase::findByType(parent);
                 definitionId = findDefinitionId(parentMimeType, considerParents);
             }
         }

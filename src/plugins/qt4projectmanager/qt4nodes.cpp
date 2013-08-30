@@ -944,9 +944,8 @@ bool Qt4PriFileNode::addFiles(const QStringList &filePaths, QStringList *notAdde
     typedef QMap<QString, QStringList> TypeFileMap;
     // Split into lists by file type and bulk-add them.
     TypeFileMap typeFileMap;
-    const Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
     foreach (const QString file, filePaths) {
-        const Core::MimeType mt = mdb->findByFile(file);
+        const Core::MimeType mt = Core::MimeDatabase::findByFile(file);
         typeFileMap[mt.type()] << file;
     }
 
@@ -992,9 +991,8 @@ bool Qt4PriFileNode::removeFiles(const QStringList &filePaths,
     typedef QMap<QString, QStringList> TypeFileMap;
     // Split into lists by file type and bulk-add them.
     TypeFileMap typeFileMap;
-    const Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
     foreach (const QString file, filePaths) {
-        const Core::MimeType mt = mdb->findByFile(file);
+        const Core::MimeType mt = Core::MimeDatabase::findByFile(file);
         typeFileMap[mt.type()] << file;
     }
     foreach (const QString &type, typeFileMap.keys()) {
@@ -1012,9 +1010,8 @@ bool Qt4PriFileNode::deleteFiles(const QStringList &filePaths)
     typedef QMap<QString, QStringList> TypeFileMap;
     // Split into lists by file type and bulk-add them.
     TypeFileMap typeFileMap;
-    const Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
     foreach (const QString file, filePaths) {
-        const Core::MimeType mt = mdb->findByFile(file);
+        const Core::MimeType mt = Core::MimeDatabase::findByFile(file);
         typeFileMap[mt.type()] << file;
     }
     foreach (const QString &type, typeFileMap.keys()) {
@@ -1030,8 +1027,7 @@ bool Qt4PriFileNode::renameFile(const QString &filePath, const QString &newFileP
         return false;
 
     bool changeProFileOptional = deploysFolder(QFileInfo(filePath).absolutePath());
-    const Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
-    const Core::MimeType mt = mdb->findByFile(newFilePath);
+    const Core::MimeType mt = Core::MimeDatabase::findByFile(newFilePath);
     QStringList dummy;
 
     changeFiles(mt.type(), QStringList() << filePath, &dummy, RemoveFromProFile);

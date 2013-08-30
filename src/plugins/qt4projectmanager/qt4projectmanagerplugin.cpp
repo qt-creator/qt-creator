@@ -106,7 +106,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     const Core::Context projectContext(Qt4ProjectManager::Constants::PROJECT_ID);
     Core::Context projecTreeContext(ProjectExplorer::Constants::C_PROJECT_TREE);
 
-    if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":qt4projectmanager/Qt4ProjectManager.mimetypes.xml"), errorMessage))
+    if (!Core::MimeDatabase::addMimeTypes(QLatin1String(":qt4projectmanager/Qt4ProjectManager.mimetypes.xml"), errorMessage))
         return false;
 
     m_projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();

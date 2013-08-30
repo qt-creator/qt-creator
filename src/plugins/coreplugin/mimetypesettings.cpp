@@ -126,10 +126,10 @@ QVariant MimeTypeSettingsModel::data(const QModelIndex &modelIndex, int role) co
 
 void MimeTypeSettingsModel::load()
 {
-    m_mimeTypes = ICore::mimeDatabase()->mimeTypes();
+    m_mimeTypes = MimeDatabase::mimeTypes();
     qSort(m_mimeTypes.begin(), m_mimeTypes.end(), MimeTypeComp());
     m_knownPatterns = QSet<QString>::fromList(
-        MimeDatabase::fromGlobPatterns(ICore::mimeDatabase()->globPatterns()));
+        MimeDatabase::fromGlobPatterns(MimeDatabase::globPatterns()));
 
     foreach (const MimeType &mimeType, m_mimeTypes) {
         QString value;
@@ -240,7 +240,6 @@ public:
     static const QChar kSemiColon;
 
     QString m_keywords;
-    MimeDatabase *m_mimeDatabase;
     MimeTypeSettingsModel *m_model;
     QSortFilterProxyModel *m_filterModel;
     int m_mimeForPatternSync;
@@ -255,8 +254,7 @@ public:
 const QChar MimeTypeSettingsPrivate::kSemiColon(QLatin1Char(';'));
 
 MimeTypeSettingsPrivate::MimeTypeSettingsPrivate()
-    : m_mimeDatabase(ICore::mimeDatabase())
-    , m_model(new MimeTypeSettingsModel(this))
+    : m_model(new MimeTypeSettingsModel(this))
     , m_filterModel(new QSortFilterProxyModel(this))
     , m_mimeForPatternSync(-1)
     , m_mimeForMagicSync(-1)
@@ -529,15 +527,14 @@ void MimeTypeSettingsPrivate::updateMimeDatabase()
     m_modifiedMimeTypes.erase(std::unique(m_modifiedMimeTypes.begin(), m_modifiedMimeTypes.end()),
                               m_modifiedMimeTypes.end());
 
-    MimeDatabase *db = ICore::mimeDatabase();
     QList<MimeType> allModified;
     foreach (int index, m_modifiedMimeTypes) {
         const MimeType &mimeType = m_model->m_mimeTypes.at(index);
-        db->setGlobPatterns(mimeType.type(), mimeType.globPatterns());
-        db->setMagicMatchers(mimeType.type(), mimeType.magicMatchers());
+        MimeDatabase::setGlobPatterns(mimeType.type(), mimeType.globPatterns());
+        MimeDatabase::setMagicMatchers(mimeType.type(), mimeType.magicMatchers());
         allModified.append(mimeType);
     }
-    db->writeUserModifiedMimeTypes(allModified);
+    MimeDatabase::writeUserModifiedMimeTypes(allModified);
 }
 
 void MimeTypeSettingsPrivate::resetState()
@@ -623,7 +620,7 @@ void MimeTypeSettings::finish()
 {
     if (d->m_persist) {
         if (d->m_reset)
-            ICore::mimeDatabase()->clearUserModifiedMimeTypes();
+            MimeDatabase::clearUserModifiedMimeTypes();
         else
             d->updateMimeDatabase();
     }

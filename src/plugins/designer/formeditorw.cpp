@@ -113,6 +113,7 @@ static inline QIcon designerIcon(const QString &iconName)
     return icon;
 }
 
+using namespace Core;
 using namespace Designer::Constants;
 
 namespace Designer {
@@ -150,7 +151,7 @@ FormEditorW::FormEditorW() :
     qFill(m_designerSubWindows, m_designerSubWindows + Designer::Constants::DesignerSubWindowCount,
           static_cast<QWidget *>(0));
 
-    m_formeditor->setTopLevel(Core::ICore::mainWindow());
+    m_formeditor->setTopLevel(ICore::mainWindow());
     m_formeditor->setSettingsManager(new SettingsManager());
 
 #if QT_VERSION >= 0x050000
@@ -169,7 +170,7 @@ FormEditorW::FormEditorW() :
         m_settingsPages.append(settingsPage);
     }
 
-    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
+    connect(EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(currentEditorChanged(Core::IEditor*)));
     connect(m_shortcutMapper, SIGNAL(mapped(QObject*)),
             this, SLOT(updateShortcut(QObject*)));
@@ -178,9 +179,9 @@ FormEditorW::FormEditorW() :
 FormEditorW::~FormEditorW()
 {
     if (m_context)
-        Core::ICore::removeContextObject(m_context);
+        ICore::removeContextObject(m_context);
     if (m_initStage == FullyInitialized) {
-        QSettings *s = Core::ICore::settings();
+        QSettings *s = ICore::settings();
         s->beginGroup(QLatin1String(settingsGroupC));
         m_editorWidget->saveSettings(s);
         s->endGroup();
@@ -199,51 +200,51 @@ FormEditorW::~FormEditorW()
 }
 
 // Add an actioon to toggle the view state of a dock window
-void FormEditorW::addDockViewAction(Core::ActionContainer *viewMenu,
-                                    int index, const Core::Context &context,
-                                    const QString &title, const Core::Id &id)
+void FormEditorW::addDockViewAction(ActionContainer *viewMenu,
+                                    int index, const Context &context,
+                                    const QString &title, const Id &id)
 {
     if (const QDockWidget *dw = m_editorWidget->designerDockWidgets()[index]) {
         QAction *action = dw->toggleViewAction();
         action->setText(title);
-        Core::Command *cmd = addToolAction(action, context, id, viewMenu, QString());
-        cmd->setAttribute(Core::Command::CA_Hide);
+        Command *cmd = addToolAction(action, context, id, viewMenu, QString());
+        cmd->setAttribute(Command::CA_Hide);
     }
 }
 
 void FormEditorW::setupViewActions()
 {
     // Populate "View" menu of form editor menu
-    Core::ActionContainer *viewMenu = Core::ActionManager::actionContainer(Core::Id(Core::Constants::M_WINDOW_VIEWS));
+    ActionContainer *viewMenu = ActionManager::actionContainer(Core::Constants::M_WINDOW_VIEWS);
     QTC_ASSERT(viewMenu, return);
 
     addDockViewAction(viewMenu, WidgetBoxSubWindow, m_contexts,
-                      tr("Widget box"), Core::Id("FormEditor.WidgetBox"));
+                      tr("Widget box"), "FormEditor.WidgetBox");
 
     addDockViewAction(viewMenu, ObjectInspectorSubWindow, m_contexts,
-                      tr("Object Inspector"), Core::Id("FormEditor.ObjectInspector"));
+                      tr("Object Inspector"), "FormEditor.ObjectInspector");
 
     addDockViewAction(viewMenu, PropertyEditorSubWindow, m_contexts,
-                      tr("Property Editor"), Core::Id("FormEditor.PropertyEditor"));
+                      tr("Property Editor"), "FormEditor.PropertyEditor");
 
     addDockViewAction(viewMenu, SignalSlotEditorSubWindow, m_contexts,
-                      tr("Signals && Slots Editor"), Core::Id("FormEditor.SignalsAndSlotsEditor"));
+                      tr("Signals && Slots Editor"), "FormEditor.SignalsAndSlotsEditor");
 
     addDockViewAction(viewMenu, ActionEditorSubWindow, m_contexts,
-                      tr("Action Editor"), Core::Id("FormEditor.ActionEditor"));
+                      tr("Action Editor"), "FormEditor.ActionEditor");
     // Lock/Reset
-    Core::Command *cmd = addToolAction(m_editorWidget->menuSeparator1(), m_contexts, Core::Id("FormEditor.SeparatorLock"), viewMenu, QString());
-    cmd->setAttribute(Core::Command::CA_Hide);
+    Command *cmd = addToolAction(m_editorWidget->menuSeparator1(), m_contexts, "FormEditor.SeparatorLock", viewMenu);
+    cmd->setAttribute(Command::CA_Hide);
 
-    cmd = addToolAction(m_editorWidget->toggleLockedAction(), m_contexts, Core::Id("FormEditor.Locked"), viewMenu, QString());
-    cmd->setAttribute(Core::Command::CA_Hide);
+    cmd = addToolAction(m_editorWidget->toggleLockedAction(), m_contexts, "FormEditor.Locked", viewMenu);
+    cmd->setAttribute(Command::CA_Hide);
 
-    cmd = addToolAction(m_editorWidget->menuSeparator2(), m_contexts, Core::Id("FormEditor.SeparatorReset"), viewMenu, QString());
-    cmd->setAttribute(Core::Command::CA_Hide);
+    cmd = addToolAction(m_editorWidget->menuSeparator2(), m_contexts, "FormEditor.SeparatorReset", viewMenu);
+    cmd->setAttribute(Command::CA_Hide);
 
-    cmd = addToolAction(m_editorWidget->resetLayoutAction(), m_contexts, Core::Id("FormEditor.ResetToDefaultLayout"), viewMenu, QString());
+    cmd = addToolAction(m_editorWidget->resetLayoutAction(), m_contexts, "FormEditor.ResetToDefaultLayout", viewMenu);
     connect(m_editorWidget, SIGNAL(resetLayout()), m_editorWidget, SLOT(resetToDefaultLayout()));
-    cmd->setAttribute(Core::Command::CA_Hide);
+    cmd->setAttribute(Command::CA_Hide);
 }
 
 void FormEditorW::fullInit()
@@ -263,7 +264,7 @@ void FormEditorW::fullInit()
     m_formeditor->setIntegration(m_integration);
     // Connect Qt Designer help request to HelpManager.
     connect(m_integration, SIGNAL(creatorHelpRequested(QUrl)),
-        Core::HelpManager::instance(), SIGNAL(helpRequested(QUrl)));
+        HelpManager::instance(), SIGNAL(helpRequested(QUrl)));
 
     /**
      * This will initialize our TabOrder, Signals and slots and Buddy editors.
@@ -289,22 +290,22 @@ void FormEditorW::fullInit()
         delete initTime;
     }
 
-    connect(Core::EditorManager::instance(), SIGNAL(editorsClosed(QList<Core::IEditor*>)),
+    connect(EditorManager::instance(), SIGNAL(editorsClosed(QList<Core::IEditor*>)),
             SLOT(closeFormEditorsForXmlEditors(QList<Core::IEditor*>)));
     // Nest toolbar and editor widget
     m_editorWidget = new EditorWidget(this);
-    QSettings *settings = Core::ICore::settings();
+    QSettings *settings = ICore::settings();
     settings->beginGroup(QLatin1String(settingsGroupC));
     m_editorWidget->restoreSettings(settings);
     settings->endGroup();
 
     m_editorToolBar = createEditorToolBar();
-    m_toolBar = Core::EditorManager::createToolBar();
-    m_toolBar->setToolbarCreationFlags(Core::EditorToolBar::FlagsStandalone);
+    m_toolBar = EditorManager::createToolBar();
+    m_toolBar->setToolbarCreationFlags(EditorToolBar::FlagsStandalone);
     m_toolBar->setNavigationVisible(false);
     m_toolBar->addCenterToolBar(m_editorToolBar);
 
-    m_designMode = Core::DesignMode::instance();
+    m_designMode = DesignMode::instance();
     m_modeWidget = new QWidget;
     m_modeWidget->setObjectName(QLatin1String("DesignerModeWidget"));
     QVBoxLayout *layout = new QVBoxLayout;
@@ -313,18 +314,18 @@ void FormEditorW::fullInit()
     layout->addWidget(m_toolBar);
     // Avoid mode switch to 'Edit' mode when the application started by
     // 'Run' in 'Design' mode emits output.
-    Core::MiniSplitter *splitter = new Core::MiniSplitter(Qt::Vertical);
+    MiniSplitter *splitter = new MiniSplitter(Qt::Vertical);
     splitter->addWidget(m_editorWidget);
-    QWidget *outputPane = new Core::OutputPanePlaceHolder(m_designMode, splitter);
+    QWidget *outputPane = new OutputPanePlaceHolder(m_designMode, splitter);
     outputPane->setObjectName(QLatin1String("DesignerOutputPanePlaceHolder"));
     splitter->addWidget(outputPane);
     layout->addWidget(splitter);
     m_modeWidget->setLayout(layout);
 
-    Core::Context designerContexts = m_contexts;
+    Context designerContexts = m_contexts;
     designerContexts.add(Core::Constants::C_EDITORMANAGER);
     m_context = new DesignerContext(designerContexts, m_modeWidget, this);
-    Core::ICore::addContextObject(m_context);
+    ICore::addContextObject(m_context);
 
     m_designMode->registerDesignWidget(m_modeWidget, QStringList(QLatin1String(FORM_MIMETYPE)), m_contexts);
 
@@ -398,37 +399,33 @@ void FormEditorW::deleteInstance()
 
 void FormEditorW::setupActions()
 {
-    Core::Command *command;
-
     //menus
-    Core::ActionContainer *medit =
-        Core::ActionManager::actionContainer(Core::Constants::M_EDIT);
-    Core::ActionContainer *mtools =
-        Core::ActionManager::actionContainer(Core::Constants::M_TOOLS);
+    ActionContainer *medit = ActionManager::actionContainer(Core::Constants::M_EDIT);
+    ActionContainer *mtools = ActionManager::actionContainer(Core::Constants::M_TOOLS);
 
-    Core::ActionContainer *mformtools =
-        Core::ActionManager::createMenu(M_FORMEDITOR);
+    ActionContainer *mformtools = ActionManager::createMenu(M_FORMEDITOR);
     mformtools->menu()->setTitle(tr("For&m Editor"));
     mtools->addMenu(mformtools);
 
     //overridden actions
-    bindShortcut(Core::ActionManager::registerAction(m_fwm->actionUndo(), Core::Constants::UNDO, m_contexts), m_fwm->actionUndo());
-    bindShortcut(Core::ActionManager::registerAction(m_fwm->actionRedo(), Core::Constants::REDO, m_contexts), m_fwm->actionRedo());
-    bindShortcut(Core::ActionManager::registerAction(m_fwm->actionCut(), Core::Constants::CUT, m_contexts), m_fwm->actionCut());
-    bindShortcut(Core::ActionManager::registerAction(m_fwm->actionCopy(), Core::Constants::COPY, m_contexts), m_fwm->actionCopy());
-    bindShortcut(Core::ActionManager::registerAction(m_fwm->actionPaste(), Core::Constants::PASTE, m_contexts), m_fwm->actionPaste());
-    bindShortcut(Core::ActionManager::registerAction(m_fwm->actionSelectAll(), Core::Constants::SELECTALL, m_contexts), m_fwm->actionSelectAll());
+    bindShortcut(ActionManager::registerAction(m_fwm->actionUndo(), Core::Constants::UNDO, m_contexts), m_fwm->actionUndo());
+    bindShortcut(ActionManager::registerAction(m_fwm->actionRedo(), Core::Constants::REDO, m_contexts), m_fwm->actionRedo());
+    bindShortcut(ActionManager::registerAction(m_fwm->actionCut(), Core::Constants::CUT, m_contexts), m_fwm->actionCut());
+    bindShortcut(ActionManager::registerAction(m_fwm->actionCopy(), Core::Constants::COPY, m_contexts), m_fwm->actionCopy());
+    bindShortcut(ActionManager::registerAction(m_fwm->actionPaste(), Core::Constants::PASTE, m_contexts), m_fwm->actionPaste());
+    bindShortcut(ActionManager::registerAction(m_fwm->actionSelectAll(), Core::Constants::SELECTALL, m_contexts), m_fwm->actionSelectAll());
 
     m_actionPrint = new QAction(this);
-    bindShortcut(Core::ActionManager::registerAction(m_actionPrint, Core::Constants::PRINT, m_contexts), m_actionPrint);
+    bindShortcut(ActionManager::registerAction(m_actionPrint, Core::Constants::PRINT, m_contexts), m_actionPrint);
     connect(m_actionPrint, SIGNAL(triggered()), this, SLOT(print()));
 
     //'delete' action. Do not set a shortcut as Designer handles
     // the 'Delete' key by event filter. Setting a shortcut triggers
     // buggy behaviour on Mac (Pressing Delete in QLineEdit removing the widget).
-    command = Core::ActionManager::registerAction(m_fwm->actionDelete(), Core::Id("FormEditor.Edit.Delete"), m_contexts);
+    Command *command;
+    command = ActionManager::registerAction(m_fwm->actionDelete(), Id("FormEditor.Edit.Delete"), m_contexts);
     bindShortcut(command, m_fwm->actionDelete());
-    command->setAttribute(Core::Command::CA_Hide);
+    command->setAttribute(Command::CA_Hide);
     medit->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
 
     m_actionGroupEditMode = new QActionGroup(this);
@@ -437,74 +434,74 @@ void FormEditorW::setupActions()
 
     medit->addSeparator(m_contexts, Core::Constants::G_EDIT_OTHER);
 
-    m_toolActionIds.push_back(Core::Id("FormEditor.WidgetEditor"));
+    m_toolActionIds.push_back(Id("FormEditor.WidgetEditor"));
     createEditModeAction(m_actionGroupEditMode, m_contexts, medit,
                          tr("Edit Widgets"), m_toolActionIds.back(),
                          EditModeWidgetEditor, QLatin1String("widgettool.png"), tr("F3"));
 
-    m_toolActionIds.push_back(Core::Id("FormEditor.SignalsSlotsEditor"));
+    m_toolActionIds.push_back(Id("FormEditor.SignalsSlotsEditor"));
     createEditModeAction(m_actionGroupEditMode, m_contexts, medit,
                          tr("Edit Signals/Slots"), m_toolActionIds.back(),
                          EditModeSignalsSlotEditor, QLatin1String("signalslottool.png"), tr("F4"));
 
-    m_toolActionIds.push_back(Core::Id("FormEditor.BuddyEditor"));
+    m_toolActionIds.push_back(Id("FormEditor.BuddyEditor"));
     createEditModeAction(m_actionGroupEditMode, m_contexts, medit,
                          tr("Edit Buddies"), m_toolActionIds.back(),
                          EditModeBuddyEditor, QLatin1String("buddytool.png"));
 
-    m_toolActionIds.push_back(Core::Id("FormEditor.TabOrderEditor"));
+    m_toolActionIds.push_back(Id("FormEditor.TabOrderEditor"));
     createEditModeAction(m_actionGroupEditMode, m_contexts, medit,
                          tr("Edit Tab Order"),  m_toolActionIds.back(),
                          EditModeTabOrderEditor, QLatin1String("tabordertool.png"));
 
     //tool actions
-    m_toolActionIds.push_back(Core::Id("FormEditor.LayoutHorizontally"));
-    const QString horizLayoutShortcut = Core::UseMacShortcuts ? tr("Meta+Shift+H") : tr("Ctrl+H");
+    m_toolActionIds.push_back(Id("FormEditor.LayoutHorizontally"));
+    const QString horizLayoutShortcut = UseMacShortcuts ? tr("Meta+Shift+H") : tr("Ctrl+H");
     addToolAction(m_fwm->actionHorizontalLayout(), m_contexts,
                   m_toolActionIds.back(), mformtools, horizLayoutShortcut);
 
-    m_toolActionIds.push_back(Core::Id("FormEditor.LayoutVertically"));
-    const QString vertLayoutShortcut = Core::UseMacShortcuts ? tr("Meta+L") : tr("Ctrl+L");
+    m_toolActionIds.push_back(Id("FormEditor.LayoutVertically"));
+    const QString vertLayoutShortcut = UseMacShortcuts ? tr("Meta+L") : tr("Ctrl+L");
     addToolAction(m_fwm->actionVerticalLayout(), m_contexts,
                   m_toolActionIds.back(),  mformtools, vertLayoutShortcut);
 
-    m_toolActionIds.push_back(Core::Id("FormEditor.SplitHorizontal"));
+    m_toolActionIds.push_back(Id("FormEditor.SplitHorizontal"));
     addToolAction(m_fwm->actionSplitHorizontal(), m_contexts,
                   m_toolActionIds.back(), mformtools);
 
-    m_toolActionIds.push_back(Core::Id("FormEditor.SplitVertical"));
+    m_toolActionIds.push_back(Id("FormEditor.SplitVertical"));
     addToolAction(m_fwm->actionSplitVertical(), m_contexts,
                   m_toolActionIds.back(), mformtools);
 
-    m_toolActionIds.push_back(Core::Id("FormEditor.LayoutForm"));
+    m_toolActionIds.push_back(Id("FormEditor.LayoutForm"));
     addToolAction(m_fwm->actionFormLayout(), m_contexts,
                   m_toolActionIds.back(),  mformtools);
 
-    m_toolActionIds.push_back(Core::Id("FormEditor.LayoutGrid"));
-    const QString gridShortcut = Core::UseMacShortcuts ? tr("Meta+Shift+G") : tr("Ctrl+G");
+    m_toolActionIds.push_back(Id("FormEditor.LayoutGrid"));
+    const QString gridShortcut = UseMacShortcuts ? tr("Meta+Shift+G") : tr("Ctrl+G");
     addToolAction(m_fwm->actionGridLayout(), m_contexts,
                   m_toolActionIds.back(),  mformtools, gridShortcut);
 
-    m_toolActionIds.push_back(Core::Id("FormEditor.LayoutBreak"));
+    m_toolActionIds.push_back(Id("FormEditor.LayoutBreak"));
     addToolAction(m_fwm->actionBreakLayout(), m_contexts,
                   m_toolActionIds.back(), mformtools);
 
-    m_toolActionIds.push_back(Core::Id("FormEditor.LayoutAdjustSize"));
-    const QString adjustShortcut = Core::UseMacShortcuts ? tr("Meta+J") : tr("Ctrl+J");
+    m_toolActionIds.push_back(Id("FormEditor.LayoutAdjustSize"));
+    const QString adjustShortcut = UseMacShortcuts ? tr("Meta+J") : tr("Ctrl+J");
     addToolAction(m_fwm->actionAdjustSize(), m_contexts,
                   m_toolActionIds.back(),  mformtools, adjustShortcut);
 
-    m_toolActionIds.push_back(Core::Id("FormEditor.SimplifyLayout"));
+    m_toolActionIds.push_back(Id("FormEditor.SimplifyLayout"));
     addToolAction(m_fwm->actionSimplifyLayout(), m_contexts,
                   m_toolActionIds.back(),  mformtools);
 
     mformtools->addSeparator(m_contexts);
 
     addToolAction(m_fwm->actionLower(), m_contexts,
-                  Core::Id("FormEditor.Lower"), mformtools);
+                  Id("FormEditor.Lower"), mformtools);
 
     addToolAction(m_fwm->actionRaise(), m_contexts,
-                  Core::Id("FormEditor.Raise"), mformtools);
+                  Id("FormEditor.Raise"), mformtools);
 
     // Commands that do not go into the editor toolbar
     mformtools->addSeparator(m_contexts);
@@ -516,7 +513,7 @@ void FormEditorW::setupActions()
 #endif
     QTC_ASSERT(m_actionPreview, return);
     addToolAction(m_actionPreview, m_contexts,
-                   Core::Id("FormEditor.Preview"), mformtools, tr("Alt+Shift+R"));
+                   Id("FormEditor.Preview"), mformtools, tr("Alt+Shift+R"));
 
     // Preview in style...
 #if QT_VERSION >= 0x050000
@@ -525,7 +522,7 @@ void FormEditorW::setupActions()
     m_actionGroupPreviewInStyle = m_fwm->actionGroupPreviewInStyle();
 #endif
 
-    Core::ActionContainer *previewAC = createPreviewStyleMenu(m_actionGroupPreviewInStyle);
+    ActionContainer *previewAC = createPreviewStyleMenu(m_actionGroupPreviewInStyle);
     m_previewInStyleMenu = previewAC->menu();
     mformtools->addMenu(previewAC);
     setPreviewMenuEnabled(false);
@@ -539,9 +536,9 @@ void FormEditorW::setupActions()
     connect(m_actionSwitchSource, SIGNAL(triggered()), this, SLOT(switchSourceForm()));
 
     // Switch form/source in editor/design contexts.
-    Core::Context switchContexts = m_contexts;
+    Context switchContexts = m_contexts;
     switchContexts.add(Core::Constants::C_EDITORMANAGER);
-    addToolAction(m_actionSwitchSource, switchContexts, Core::Id("FormEditor.FormSwitchSource"), mformtools,
+    addToolAction(m_actionSwitchSource, switchContexts, Id("FormEditor.FormSwitchSource"), mformtools,
                   tr("Shift+F4"));
 
     mformtools->addSeparator(m_contexts);
@@ -550,13 +547,13 @@ void FormEditorW::setupActions()
 #else
     QAction *actionFormSettings = m_fwm->actionShowFormWindowSettingsDialog();
 #endif
-    addToolAction(actionFormSettings, m_contexts, Core::Id("FormEditor.FormSettings"), mformtools);
+    addToolAction(actionFormSettings, m_contexts, Id("FormEditor.FormSettings"), mformtools);
 
     mformtools->addSeparator(m_contexts);
     m_actionAboutPlugins = new QAction(tr("About Qt Designer Plugins..."), this);
     m_actionAboutPlugins->setMenuRole(QAction::NoRole);
     addToolAction(m_actionAboutPlugins, m_contexts,
-                   Core::Id("FormEditor.AboutPlugins"), mformtools);
+                   Id("FormEditor.AboutPlugins"), mformtools);
     connect(m_actionAboutPlugins,  SIGNAL(triggered()), m_fwm,
 #if QT_VERSION >= 0x050000
             SLOT(showPluginDialog())
@@ -573,9 +570,9 @@ void FormEditorW::setupActions()
 QToolBar *FormEditorW::createEditorToolBar() const
 {
     QToolBar *editorToolBar = new QToolBar;
-    const QList<Core::Id>::const_iterator cend = m_toolActionIds.constEnd();
-    for (QList<Core::Id>::const_iterator it = m_toolActionIds.constBegin(); it != cend; ++it) {
-        Core::Command *cmd = Core::ActionManager::command(*it);
+    const QList<Id>::const_iterator cend = m_toolActionIds.constEnd();
+    for (QList<Id>::const_iterator it = m_toolActionIds.constBegin(); it != cend; ++it) {
+        Command *cmd = ActionManager::command(*it);
         QTC_ASSERT(cmd, continue);
         QAction *action = cmd->action();
         if (!action->icon().isNull()) // Simplify grid has no action yet
@@ -587,10 +584,10 @@ QToolBar *FormEditorW::createEditorToolBar() const
     return editorToolBar;
 }
 
-Core::ActionContainer *FormEditorW::createPreviewStyleMenu(QActionGroup *actionGroup)
+ActionContainer *FormEditorW::createPreviewStyleMenu(QActionGroup *actionGroup)
 {
     const QString menuId = QLatin1String(M_FORMEDITOR_PREVIEW);
-    Core::ActionContainer *menuPreviewStyle = Core::ActionManager::createMenu(M_FORMEDITOR_PREVIEW);
+    ActionContainer *menuPreviewStyle = ActionManager::createMenu(M_FORMEDITOR_PREVIEW);
     menuPreviewStyle->menu()->setTitle(tr("Preview in"));
 
     // The preview menu is a list of invisible actions for the embedded design
@@ -612,11 +609,11 @@ Core::ActionContainer *FormEditorW::createPreviewStyleMenu(QActionGroup *actionG
             name += dot;
         }
         name += data.toString();
-        Core::Command *command = Core::ActionManager::registerAction(a, Core::Id::fromString(name), m_contexts);
+        Command *command = ActionManager::registerAction(a, Id::fromString(name), m_contexts);
         bindShortcut(command, a);
         if (isDeviceProfile) {
-            command->setAttribute(Core::Command::CA_UpdateText);
-            command->setAttribute(Core::Command::CA_NonConfigurable);
+            command->setAttribute(Command::CA_UpdateText);
+            command->setAttribute(Command::CA_NonConfigurable);
         }
         menuPreviewStyle->addAction(command);
     }
@@ -638,11 +635,11 @@ void FormEditorW::saveSettings(QSettings *s)
 
 void FormEditorW::critical(const QString &errorMessage)
 {
-    QMessageBox::critical(Core::ICore::mainWindow(), tr("Designer"),  errorMessage);
+    QMessageBox::critical(ICore::mainWindow(), tr("Designer"),  errorMessage);
 }
 
 // Apply the command shortcut to the action and connects to the command's keySequenceChanged signal
-void FormEditorW::bindShortcut(Core::Command *command, QAction *action)
+void FormEditorW::bindShortcut(Command *command, QAction *action)
 {
     m_commandToDesignerAction.insert(command, action);
     connect(command, SIGNAL(keySequenceChanged()),
@@ -653,10 +650,10 @@ void FormEditorW::bindShortcut(Core::Command *command, QAction *action)
 
 // Create an action to activate a designer tool
 QAction *FormEditorW::createEditModeAction(QActionGroup *ag,
-                                     const Core::Context &context,
-                                     Core::ActionContainer *medit,
+                                     const Context &context,
+                                     ActionContainer *medit,
                                      const QString &actionName,
-                                     const Core::Id &id,
+                                     const Id &id,
                                      int toolNumber,
                                      const QString &iconName,
                                      const QString &keySequence)
@@ -665,7 +662,7 @@ QAction *FormEditorW::createEditModeAction(QActionGroup *ag,
     rc->setCheckable(true);
     if (!iconName.isEmpty())
          rc->setIcon(designerIcon(iconName));
-    Core::Command *command = Core::ActionManager::registerAction(rc, id, context);
+    Command *command = ActionManager::registerAction(rc, id, context);
     command->setAttribute(Core::Command::CA_Hide);
     if (!keySequence.isEmpty())
         command->setDefaultKeySequence(QKeySequence(keySequence));
@@ -677,11 +674,10 @@ QAction *FormEditorW::createEditModeAction(QActionGroup *ag,
 }
 
 // Create a tool action
-Core::Command *FormEditorW::addToolAction(QAction *a,
-                                          const Core::Context &context, const Core::Id &id,
-                                          Core::ActionContainer *c1, const QString &keySequence)
+Command *FormEditorW::addToolAction(QAction *a, const Context &context, const Id &id,
+                                          ActionContainer *c1, const QString &keySequence)
 {
-    Core::Command *command = Core::ActionManager::registerAction(a, id, context);
+    Command *command = ActionManager::registerAction(a, id, context);
     if (!keySequence.isEmpty())
         command->setDefaultKeySequence(QKeySequence(keySequence));
     if (!a->isSeparator())
@@ -726,7 +722,7 @@ EditorData FormEditorW::createEditor(QWidget *parent)
 
 void FormEditorW::updateShortcut(QObject *command)
 {
-    Core::Command *c = qobject_cast<Core::Command *>(command);
+    Command *c = qobject_cast<Command *>(command);
     if (!c)
         return;
     QAction *a = m_commandToDesignerAction.value(c);
@@ -735,7 +731,7 @@ void FormEditorW::updateShortcut(QObject *command)
     a->setShortcut(c->action()->shortcut());
 }
 
-void FormEditorW::currentEditorChanged(Core::IEditor *editor)
+void FormEditorW::currentEditorChanged(IEditor *editor)
 {
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << editor << " of " << m_fwm->formWindowCount();
@@ -794,11 +790,10 @@ void FormEditorW::toolChanged(int t)
         }
 }
 
-void FormEditorW::closeFormEditorsForXmlEditors(QList<Core::IEditor*> editors)
+void FormEditorW::closeFormEditorsForXmlEditors(QList<IEditor*> editors)
 {
-    foreach (Core::IEditor *editor, editors) {
+    foreach (IEditor *editor, editors)
         m_editorWidget->removeFormWindowEditor(editor);
-    }
 }
 
 void FormEditorW::print()
@@ -808,7 +803,7 @@ void FormEditorW::print()
     if (!fw)
         return;
 
-    QPrinter *printer = Core::ICore::printer();
+    QPrinter *printer = ICore::printer();
     const bool oldFullPage =  printer->fullPage();
     const QPrinter::Orientation oldOrientation =  printer->orientation ();
     printer->setFullPage(false);
@@ -833,7 +828,7 @@ void FormEditorW::print()
         if (!dialog.exec())
            break;
 
-        QWidget *mainWindow = Core::ICore::mainWindow();
+        QWidget *mainWindow = ICore::mainWindow();
         const QCursor oldCursor = mainWindow->cursor();
         mainWindow->setCursor(Qt::WaitCursor);
         // Estimate of required scaling to make form look the same on screen and printer.
@@ -864,7 +859,7 @@ void FormEditorW::print()
 // Find out current existing editor file
 static QString currentFile()
 {
-    if (const Core::IDocument *document = Core::EditorManager::currentDocument()) {
+    if (const IDocument *document = EditorManager::currentDocument()) {
         const QString fileName = document->filePath();
         if (!fileName.isEmpty() && QFileInfo(fileName).isFile())
             return fileName;
@@ -880,18 +875,17 @@ static QString otherFile()
     const QString current = currentFile();
     if (current.isEmpty())
         return QString();
-    const Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
-    const Core::MimeType currentMimeType = mdb->findByFile(current);
+    const MimeType currentMimeType = MimeDatabase::findByFile(current);
     if (!currentMimeType)
         return QString();
     // Determine potential suffixes of candidate files
     // 'ui' -> 'cpp', 'cpp/h' -> 'ui'.
     QStringList candidateSuffixes;
     if (currentMimeType.type() == QLatin1String(FORM_MIMETYPE)) {
-        candidateSuffixes += mdb->findByType(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)).suffixes();
+        candidateSuffixes += MimeDatabase::findByType(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)).suffixes();
     } else if (currentMimeType.type() == QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)
                || currentMimeType.type() == QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)) {
-        candidateSuffixes += mdb->findByType(QLatin1String(FORM_MIMETYPE)).suffixes();
+        candidateSuffixes += MimeDatabase::findByType(QLatin1String(FORM_MIMETYPE)).suffixes();
     } else {
         return QString();
     }
@@ -911,7 +905,7 @@ void FormEditorW::switchSourceForm()
 {
     const QString fileToOpen = otherFile();
     if (!fileToOpen.isEmpty())
-        Core::EditorManager::openEditor(fileToOpen);
+        EditorManager::openEditor(fileToOpen);
 }
 
 } // namespace Internal

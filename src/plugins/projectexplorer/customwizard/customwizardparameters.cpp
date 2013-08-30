@@ -998,11 +998,10 @@ void CustomWizardContext::reset()
 {
     // Basic replacement fields: Suffixes.
     baseReplacements.clear();
-    const MimeDatabase *mdb = ICore::mimeDatabase();
     baseReplacements.insert(QLatin1String("CppSourceSuffix"),
-                            mdb->preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)));
+                            MimeDatabase::preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)));
     baseReplacements.insert(QLatin1String("CppHeaderSuffix"),
-                            mdb->preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)));
+                            MimeDatabase::preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)));
     replacements.clear();
     path.clear();
     targetPath.clear();

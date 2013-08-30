@@ -374,7 +374,7 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
     connect(ProgressManager::instance(), SIGNAL(allTasksFinished(QString)),
             this, SLOT(tasksFinished(QString)));
 
-    if (!ICore::mimeDatabase()->addMimeTypes(QLatin1String(":/clearcase/ClearCase.mimetypes.xml"), errorMessage))
+    if (!MimeDatabase::addMimeTypes(QLatin1String(":/clearcase/ClearCase.mimetypes.xml"), errorMessage))
         return false;
 
     m_settings.fromSettings(ICore::settings());

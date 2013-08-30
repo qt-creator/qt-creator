@@ -115,13 +115,6 @@
 */
 
 /*!
-    \fn MimeDatabase *ICore::mimeDatabase()
-    \brief Returns the application's mime database.
-
-    Use the mime database to manage mime types.
-*/
-
-/*!
     \fn QSettings *ICore::settings(QSettings::Scope scope = QSettings::UserScope)
     \brief Returns the application's main settings object.
 
@@ -359,11 +352,6 @@ bool ICore::showWarningWithOptions(const QString &title, const QString &text,
 VcsManager *ICore::vcsManager()
 {
     return m_mainwindow->vcsManager();
-}
-
-MimeDatabase *ICore::mimeDatabase()
-{
-    return m_mainwindow->mimeDatabase();
 }
 
 QSettings *ICore::settings(QSettings::Scope scope)

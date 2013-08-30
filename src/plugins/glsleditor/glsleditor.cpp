@@ -197,12 +197,12 @@ Core::IEditor *GLSLEditorEditable::duplicate(QWidget *parent)
 
 Core::Id GLSLEditorEditable::id() const
 {
-    return Core::Id(GLSLEditor::Constants::C_GLSLEDITOR_ID);
+    return GLSLEditor::Constants::C_GLSLEDITOR_ID;
 }
 
 bool GLSLEditorEditable::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
-    editorWidget()->setMimeType(Core::ICore::mimeDatabase()->findByFile(QFileInfo(fileName)).type());
+    editorWidget()->setMimeType(Core::MimeDatabase::findByFile(QFileInfo(fileName)).type());
     bool b = TextEditor::BaseTextEditor::open(errorString, fileName, realFileName);
     return b;
 }

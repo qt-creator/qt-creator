@@ -60,6 +60,7 @@
 #include <QMenu>
 #include <QAction>
 
+using namespace Core;
 using namespace CPlusPlus;
 
 namespace CppTools {
@@ -96,10 +97,10 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
 
     // Objects
     CppModelManager *modelManager = CppModelManager::instance();
-    Core::VcsManager *vcsManager = Core::ICore::vcsManager();
+    VcsManager *vcsManager = ICore::vcsManager();
     connect(vcsManager, SIGNAL(repositoryChanged(QString)),
             modelManager, SLOT(updateModifiedSourceFiles()));
-    connect(Core::DocumentManager::instance(), SIGNAL(filesChangedInternally(QStringList)),
+    connect(DocumentManager::instance(), SIGNAL(filesChangedInternally(QStringList)),
             modelManager, SLOT(updateSourceFiles(QStringList)));
 
     CppLocatorData *locatorData = new CppLocatorData(modelManager);
@@ -113,24 +114,24 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     addAutoReleasedObject(new CppCodeStyleSettingsPage);
 
     // Menus
-    Core::ActionContainer *mtools = Core::ActionManager::actionContainer(Core::Constants::M_TOOLS);
-    Core::ActionContainer *mcpptools = Core::ActionManager::createMenu(CppTools::Constants::M_TOOLS_CPP);
+    ActionContainer *mtools = ActionManager::actionContainer(Core::Constants::M_TOOLS);
+    ActionContainer *mcpptools = ActionManager::createMenu(CppTools::Constants::M_TOOLS_CPP);
     QMenu *menu = mcpptools->menu();
     menu->setTitle(tr("&C++"));
     menu->setEnabled(true);
     mtools->addMenu(mcpptools);
 
     // Actions
-    Core::Context context(CppEditor::Constants::C_CPPEDITOR);
+    Context context(CppEditor::Constants::C_CPPEDITOR);
 
     QAction *switchAction = new QAction(tr("Switch Header/Source"), this);
-    Core::Command *command = Core::ActionManager::registerAction(switchAction, Constants::SWITCH_HEADER_SOURCE, context, true);
+    Command *command = ActionManager::registerAction(switchAction, Constants::SWITCH_HEADER_SOURCE, context, true);
     command->setDefaultKeySequence(QKeySequence(Qt::Key_F4));
     mcpptools->addAction(command);
     connect(switchAction, SIGNAL(triggered()), this, SLOT(switchHeaderSource()));
 
     QAction *openInNextSplitAction = new QAction(tr("Open Corresponding Header/Source in Next Split"), this);
-    command = Core::ActionManager::registerAction(openInNextSplitAction, Constants::OPEN_HEADER_SOURCE_IN_NEXT_SPLIT, context, true);
+    command = ActionManager::registerAction(openInNextSplitAction, Constants::OPEN_HEADER_SOURCE_IN_NEXT_SPLIT, context, true);
     command->setDefaultKeySequence(QKeySequence(Utils::HostOsInfo::isMacHost()
                                                 ? tr("Meta+E, F4")
                                                 : tr("Ctrl+E, F4")));
@@ -144,7 +145,7 @@ void CppToolsPlugin::extensionsInitialized()
 {
     // The Cpp editor plugin, which is loaded later on, registers the Cpp mime types,
     // so, apply settings here
-    m_fileSettings->fromSettings(Core::ICore::settings());
+    m_fileSettings->fromSettings(ICore::settings());
     if (!m_fileSettings->applySuffixesToMimeDB())
         qWarning("Unable to apply cpp suffixes to mime database (cpp mime types not found).\n");
 }
@@ -157,17 +158,17 @@ ExtensionSystem::IPlugin::ShutdownFlag CppToolsPlugin::aboutToShutdown()
 void CppToolsPlugin::switchHeaderSource()
 {
     QString otherFile = correspondingHeaderOrSource(
-                Core::EditorManager::currentDocument()->filePath());
+                EditorManager::currentDocument()->filePath());
     if (!otherFile.isEmpty())
-        Core::EditorManager::openEditor(otherFile);
+        EditorManager::openEditor(otherFile);
 }
 
 void CppToolsPlugin::switchHeaderSourceInNextSplit()
 {
     QString otherFile = correspondingHeaderOrSource(
-                Core::EditorManager::currentDocument()->filePath());
+                EditorManager::currentDocument()->filePath());
     if (!otherFile.isEmpty())
-        Core::EditorManager::openEditor(otherFile, Core::Id(), Core::EditorManager::OpenInOtherSplit);
+        EditorManager::openEditor(otherFile, Id(), EditorManager::OpenInOtherSplit);
 }
 
 static QStringList findFilesInProject(const QString &name,
@@ -195,25 +196,24 @@ static QStringList findFilesInProject(const QString &name,
 // source belonging to a header and vice versa
 static QStringList matchingCandidateSuffixes(ProjectFile::Kind kind)
 {
-    Core::MimeDatabase *md = Core::ICore::instance()->mimeDatabase();
     switch (kind) {
      // Note that C/C++ headers are undistinguishable
     case ProjectFile::CHeader:
     case ProjectFile::CXXHeader:
     case ProjectFile::ObjCHeader:
     case ProjectFile::ObjCXXHeader:
-        return md->findByType(QLatin1String(Constants::C_SOURCE_MIMETYPE)).suffixes()
-                + md->findByType(QLatin1String(Constants::CPP_SOURCE_MIMETYPE)).suffixes()
-                + md->findByType(QLatin1String(Constants::OBJECTIVE_C_SOURCE_MIMETYPE)).suffixes()
-                + md->findByType(QLatin1String(Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)).suffixes();
+        return MimeDatabase::findByType(QLatin1String(Constants::C_SOURCE_MIMETYPE)).suffixes()
+                + MimeDatabase::findByType(QLatin1String(Constants::CPP_SOURCE_MIMETYPE)).suffixes()
+                + MimeDatabase::findByType(QLatin1String(Constants::OBJECTIVE_C_SOURCE_MIMETYPE)).suffixes()
+                + MimeDatabase::findByType(QLatin1String(Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)).suffixes();
     case ProjectFile::CSource:
     case ProjectFile::ObjCSource:
-        return md->findByType(QLatin1String(Constants::C_HEADER_MIMETYPE)).suffixes();
+        return MimeDatabase::findByType(QLatin1String(Constants::C_HEADER_MIMETYPE)).suffixes();
     case ProjectFile::CXXSource:
     case ProjectFile::ObjCXXSource:
     case ProjectFile::CudaSource:
     case ProjectFile::OpenCLSource:
-        return md->findByType(QLatin1String(Constants::CPP_HEADER_MIMETYPE)).suffixes();
+        return MimeDatabase::findByType(QLatin1String(Constants::CPP_HEADER_MIMETYPE)).suffixes();
     default:
         return QStringList();
     }

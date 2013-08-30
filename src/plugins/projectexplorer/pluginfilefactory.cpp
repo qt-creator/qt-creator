@@ -82,7 +82,7 @@ QList<ProjectFileFactory *> ProjectFileFactory::createFactories(QString *filterS
         if (!filterString->isEmpty())
             *filterString += filterSeparator;
         const QString mimeType = manager->mimeType();
-        Core::MimeType mime = Core::ICore::mimeDatabase()->findByType(mimeType);
+        Core::MimeType mime = Core::MimeDatabase::findByType(mimeType);
         const QString pFilterString = mime.filterString();
         allGlobPatterns.append(mime.globPatterns());
         *filterString += pFilterString;

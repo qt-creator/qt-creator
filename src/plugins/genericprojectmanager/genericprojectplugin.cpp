@@ -69,11 +69,9 @@ bool GenericProjectPlugin::initialize(const QStringList &, QString *errorMessage
 {
     using namespace Core;
 
-    Core::MimeDatabase *mimeDB = ICore::mimeDatabase();
-
     const QLatin1String mimetypesXml(":genericproject/GenericProjectManager.mimetypes.xml");
 
-    if (! mimeDB->addMimeTypes(mimetypesXml, errorMessage))
+    if (!MimeDatabase::addMimeTypes(mimetypesXml, errorMessage))
         return false;
 
     Manager *manager = new Manager;
@@ -89,13 +87,13 @@ bool GenericProjectPlugin::initialize(const QStringList &, QString *errorMessage
     addAutoReleasedObject(new GenericProjectWizard);
     addAutoReleasedObject(new GenericBuildConfigurationFactory);
 
-    const Core::Context projectContext(Constants::PROJECTCONTEXT);
-    Core::ActionContainer *mproject =
-            Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);
+    const Context projectContext(Constants::PROJECTCONTEXT);
+    ActionContainer *mproject =
+            ActionManager::actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT);
     m_editFilesAction = new QAction(tr("Edit Files..."), this);
 
-    Core::Command *command = Core::ActionManager::registerAction(m_editFilesAction, "GenericProjectManager.EditFiles", projectContext);
-    command->setAttribute(Core::Command::CA_Hide);
+    Command *command = ActionManager::registerAction(m_editFilesAction, "GenericProjectManager.EditFiles", projectContext);
+    command->setAttribute(Command::CA_Hide);
     mproject->addAction(command, ProjectExplorer::Constants::G_PROJECT_FILES);
     connect(m_editFilesAction, SIGNAL(triggered()), this, SLOT(editFiles()));
 

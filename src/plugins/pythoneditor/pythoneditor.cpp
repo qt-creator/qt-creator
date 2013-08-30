@@ -79,16 +79,9 @@ bool PythonEditor::open(QString *errorString,
                         const QString &fileName,
                         const QString &realFileName)
 {
-    Core::MimeType mimeType;
-    Core::MimeDatabase *mimeDB = Core::ICore::instance()->mimeDatabase();
-
-    mimeType = mimeDB->findByFile(QFileInfo(fileName));
+    Core::MimeType mimeType = Core::MimeDatabase::findByFile(QFileInfo(fileName));
     editorWidget()->setMimeType(mimeType.type());
-
-    bool status = TextEditor::BaseTextEditor::open(errorString,
-                                                   fileName,
-                                                   realFileName);
-    return status;
+    return TextEditor::BaseTextEditor::open(errorString, fileName, realFileName);
 }
 
 } // namespace Internal

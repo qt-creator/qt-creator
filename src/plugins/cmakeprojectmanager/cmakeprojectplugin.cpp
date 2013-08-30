@@ -39,7 +39,6 @@
 #include "cmakehighlighterfactory.h"
 
 #include <coreplugin/featureprovider.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 #include <texteditor/texteditoractionhandler.h>
 
@@ -69,7 +68,7 @@ CMakeProjectPlugin::~CMakeProjectPlugin()
 
 bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
 {
-    if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":cmakeproject/CMakeProjectManager.mimetypes.xml"), errorMessage))
+    if (!Core::MimeDatabase::addMimeTypes(QLatin1String(":cmakeproject/CMakeProjectManager.mimetypes.xml"), errorMessage))
         return false;
     CMakeSettingsPage *cmp = new CMakeSettingsPage();
     addAutoReleasedObject(cmp);

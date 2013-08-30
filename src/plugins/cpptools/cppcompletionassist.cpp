@@ -1155,7 +1155,7 @@ bool CppCompletionAssistProcessor::completeInclude(const QTextCursor &cursor)
         includePaths.append(currentFilePath);
 
     const Core::MimeType mimeType =
-            Core::ICore::mimeDatabase()->findByType(QLatin1String("text/x-c++hdr"));
+            Core::MimeDatabase::findByType(QLatin1String("text/x-c++hdr"));
     const QStringList suffixes = mimeType.suffixes();
 
     foreach (const QString &includePath, includePaths) {
@@ -1213,8 +1213,7 @@ bool CppCompletionAssistProcessor::objcKeywordsWanted() const
 
     const QString fileName = m_interface->fileName();
 
-    const Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
-    const QString mt = mdb->findByFile(fileName).type();
+    const QString mt = Core::MimeDatabase::findByFile(fileName).type();
     return mt == QLatin1String(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
             || mt == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE);
 }

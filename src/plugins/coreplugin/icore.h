@@ -47,7 +47,6 @@ namespace Core {
 class IWizard;
 class Context;
 class IContext;
-class MimeDatabase;
 class ProgressManager;
 class SettingsDatabase;
 class VcsManager;
@@ -82,7 +81,6 @@ public:
                                        QWidget *parent = 0);
 
     static VcsManager *vcsManager();
-    static MimeDatabase *mimeDatabase();
 
     static QSettings *settings(QSettings::Scope scope = QSettings::UserScope);
     static SettingsDatabase *settingsDatabase();

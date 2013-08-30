@@ -75,10 +75,8 @@ ModelManagerInterface::ProjectInfo QmlJSTools::defaultProjectInfoForProject(
     ModelManagerInterface::ProjectInfo projectInfo(project);
     ProjectExplorer::Target *activeTarget = 0;
     if (project) {
-        MimeDatabase *db = ICore::mimeDatabase();
         QList<MimeGlobPattern> globs;
-        QList<MimeType> mimeTypes = db->mimeTypes();
-        foreach (const MimeType &mimeType, mimeTypes)
+        foreach (const MimeType &mimeType, MimeDatabase::mimeTypes())
             if (mimeType.type() == QLatin1String(Constants::QML_MIMETYPE)
                     || mimeType.subClassesOf().contains(QLatin1String(Constants::QML_MIMETYPE)))
                 globs << mimeType.globPatterns();
@@ -189,16 +187,15 @@ QmlJS::Document::Language QmlJSTools::languageOfFile(const QString &fileName)
     QStringList qbsSuffixes(QLatin1String("qbs"));
 
     if (ICore::instance()) {
-        MimeDatabase *db = ICore::mimeDatabase();
-        MimeType jsSourceTy = db->findByType(QLatin1String(Constants::JS_MIMETYPE));
+        MimeType jsSourceTy = MimeDatabase::findByType(QLatin1String(Constants::JS_MIMETYPE));
         mergeSuffixes(jsSuffixes, jsSourceTy.suffixes());
-        MimeType qmlSourceTy = db->findByType(QLatin1String(Constants::QML_MIMETYPE));
+        MimeType qmlSourceTy = MimeDatabase::findByType(QLatin1String(Constants::QML_MIMETYPE));
         mergeSuffixes(qmlSuffixes, qmlSourceTy.suffixes());
-        MimeType qbsSourceTy = db->findByType(QLatin1String(Constants::QBS_MIMETYPE));
+        MimeType qbsSourceTy = MimeDatabase::findByType(QLatin1String(Constants::QBS_MIMETYPE));
         mergeSuffixes(qbsSuffixes, qbsSourceTy.suffixes());
-        MimeType qmlProjectSourceTy = db->findByType(QLatin1String(Constants::QMLPROJECT_MIMETYPE));
+        MimeType qmlProjectSourceTy = MimeDatabase::findByType(QLatin1String(Constants::QMLPROJECT_MIMETYPE));
         mergeSuffixes(qmlProjectSuffixes, qmlProjectSourceTy.suffixes());
-        MimeType jsonSourceTy = db->findByType(QLatin1String(Constants::JSON_MIMETYPE));
+        MimeType jsonSourceTy = MimeDatabase::findByType(QLatin1String(Constants::JSON_MIMETYPE));
         mergeSuffixes(jsonSuffixes, jsonSourceTy.suffixes());
     }
 
@@ -219,9 +216,8 @@ QStringList QmlJSTools::qmlAndJsGlobPatterns()
 {
     QStringList pattern;
     if (ICore::instance()) {
-        MimeDatabase *db = ICore::mimeDatabase();
-        MimeType jsSourceTy = db->findByType(QLatin1String(Constants::JS_MIMETYPE));
-        MimeType qmlSourceTy = db->findByType(QLatin1String(Constants::QML_MIMETYPE));
+        MimeType jsSourceTy = MimeDatabase::findByType(QLatin1String(Constants::JS_MIMETYPE));
+        MimeType qmlSourceTy = MimeDatabase::findByType(QLatin1String(Constants::QML_MIMETYPE));
 
         QStringList pattern;
         foreach (const MimeGlobPattern &glob, jsSourceTy.globPatterns())
@@ -892,8 +888,6 @@ void ModelManager::parse(QFutureInterface<void> &future,
 // Check whether fileMimeType is the same or extends knownMimeType
 bool ModelManager::matchesMimeType(const MimeType &fileMimeType, const MimeType &knownMimeType)
 {
-    MimeDatabase *db = ICore::mimeDatabase();
-
     const QStringList knownTypeNames = QStringList(knownMimeType.type()) + knownMimeType.aliases();
 
     foreach (const QString &knownTypeName, knownTypeNames)
@@ -901,10 +895,9 @@ bool ModelManager::matchesMimeType(const MimeType &fileMimeType, const MimeType 
             return true;
 
     // recursion to parent types of fileMimeType
-    foreach (const QString &parentMimeType, fileMimeType.subClassesOf()) {
-        if (matchesMimeType(db->findByType(parentMimeType), knownMimeType))
+    foreach (const QString &parentMimeType, fileMimeType.subClassesOf())
+        if (matchesMimeType(MimeDatabase::findByType(parentMimeType), knownMimeType))
             return true;
-    }
 
     return false;
 }

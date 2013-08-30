@@ -231,7 +231,7 @@ bool CvsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
     m_cvsPluginInstance = this;
 
-    if (!ICore::mimeDatabase()->addMimeTypes(QLatin1String(":/trolltech.cvs/CVS.mimetypes.xml"), errorMessage))
+    if (!MimeDatabase::addMimeTypes(QLatin1String(":/trolltech.cvs/CVS.mimetypes.xml"), errorMessage))
         return false;
 
     m_settings.fromSettings(ICore::settings());

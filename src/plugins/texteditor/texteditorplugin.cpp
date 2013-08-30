@@ -145,7 +145,7 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
 {
     Q_UNUSED(arguments)
 
-    if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":/texteditor/TextEditor.mimetypes.xml"), errorMessage))
+    if (!Core::MimeDatabase::addMimeTypes(QLatin1String(":/texteditor/TextEditor.mimetypes.xml"), errorMessage))
         return false;
 
     Core::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);

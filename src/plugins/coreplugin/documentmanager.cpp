@@ -759,7 +759,7 @@ QString DocumentManager::getSaveAsFileName(const IDocument *document, const QStr
 
     QString filterString;
     if (filter.isEmpty()) {
-        if (const MimeType &mt = Core::ICore::mimeDatabase()->findByFile(fi))
+        if (const MimeType &mt = MimeDatabase::findByFile(fi))
             filterString = mt.filterString();
         selectedFilter = &filterString;
     } else {
@@ -1298,7 +1298,7 @@ void DocumentManager::populateOpenWithMenu(QMenu *menu, const QString &fileName)
 
     bool anyMatches = false;
 
-    if (const MimeType mt = ICore::mimeDatabase()->findByFile(QFileInfo(fileName))) {
+    if (const MimeType mt = MimeDatabase::findByFile(QFileInfo(fileName))) {
         const EditorFactoryList factories = EditorManager::editorFactories(mt, false);
         const ExternalEditorList externalEditors = EditorManager::externalEditors(mt, false);
         anyMatches = !factories.empty() || !externalEditors.empty();

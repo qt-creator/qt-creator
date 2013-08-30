@@ -546,8 +546,7 @@ void ProjectFileWizardExtension::applyCodeStyle(Core::GeneratedFile *file) const
     if (file->isBinary() || file->contents().isEmpty())
         return; // nothing to do
 
-    const Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
-    Core::MimeType mt = mdb->findByFile(QFileInfo(file->path()));
+    Core::MimeType mt = Core::MimeDatabase::findByFile(QFileInfo(file->path()));
     Core::Id languageId = TextEditor::TextEditorSettings::instance()->languageId(mt.type());
 
     if (!languageId.isValid())

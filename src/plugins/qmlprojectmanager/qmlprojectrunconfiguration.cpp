@@ -46,18 +46,14 @@
 #include <utils/winutils.h>
 #endif
 
-using Core::EditorManager;
-using Core::ICore;
-using Core::IEditor;
-
+using namespace Core;
 using namespace QmlProjectManager::Internal;
 
 namespace QmlProjectManager {
 
-const char * const M_CURRENT_FILE = "CurrentFile";
+const char M_CURRENT_FILE[] = "CurrentFile";
 
-QmlProjectRunConfiguration::QmlProjectRunConfiguration(ProjectExplorer::Target *parent,
-                                                       Core::Id id) :
+QmlProjectRunConfiguration::QmlProjectRunConfiguration(ProjectExplorer::Target *parent, Id id) :
     ProjectExplorer::RunConfiguration(parent, id),
     m_scriptFile(QLatin1String(M_CURRENT_FILE)),
     m_isEnabled(false)
@@ -90,7 +86,7 @@ QString QmlProjectRunConfiguration::disabledReason() const
 void QmlProjectRunConfiguration::ctor()
 {
     // reset default settings in constructor
-    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
+    connect(EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(changeCurrentFile(Core::IEditor*)));
 
     connect(target(), SIGNAL(kitChanged()),
@@ -269,7 +265,7 @@ bool QmlProjectRunConfiguration::fromMap(const QVariantMap &map)
     return RunConfiguration::fromMap(map);
 }
 
-void QmlProjectRunConfiguration::changeCurrentFile(Core::IEditor *editor)
+void QmlProjectRunConfiguration::changeCurrentFile(IEditor *editor)
 {
     if (editor)
         m_currentFileFilename = editor->document()->filePath();
@@ -280,22 +276,21 @@ void QmlProjectRunConfiguration::updateEnabled()
 {
     bool qmlFileFound = false;
     if (mainScriptSource() == FileInEditor) {
-        Core::IDocument *document= Core::EditorManager::currentDocument();
-        Core::MimeDatabase *db = ICore::mimeDatabase();
+        IDocument *document = EditorManager::currentDocument();
         if (document) {
             m_currentFileFilename = document->filePath();
-            if (db->findByFile(mainScript()).type() == QLatin1String("application/x-qml"))
+            if (MimeDatabase::findByFile(mainScript()).type() == QLatin1String("application/x-qml"))
                 qmlFileFound = true;
         }
         if (!document
-                || db->findByFile(mainScript()).type() == QLatin1String("application/x-qmlproject")) {
+                || MimeDatabase::findByFile(mainScript()).type() == QLatin1String("application/x-qmlproject")) {
             // find a qml file with lowercase filename. This is slow, but only done
             // in initialization/other border cases.
             foreach (const QString &filename, target()->project()->files(ProjectExplorer::Project::AllFiles)) {
                 const QFileInfo fi(filename);
 
                 if (!filename.isEmpty() && fi.baseName()[0].isLower()
-                        && db->findByFile(fi).type() == QLatin1String("application/x-qml"))
+                        && MimeDatabase::findByFile(fi).type() == QLatin1String("application/x-qml"))
                 {
                     m_currentFileFilename = filename;
                     qmlFileFound = true;

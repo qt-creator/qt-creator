@@ -363,7 +363,7 @@ void CodepasterPlugin::finishFetch(const QString &titleDescription,
     // Default to "txt".
     QByteArray byteContent = content.toUtf8();
     QString suffix;
-    if (const Core::MimeType mimeType = Core::ICore::mimeDatabase()->findByData(byteContent))
+    if (const Core::MimeType mimeType = Core::MimeDatabase::findByData(byteContent))
         suffix = mimeType.preferredSuffix();
     if (suffix.isEmpty())
          suffix = QLatin1String("txt");

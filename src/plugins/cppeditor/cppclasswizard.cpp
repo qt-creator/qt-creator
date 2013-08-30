@@ -96,9 +96,8 @@ static bool lowerCaseFiles()
 // Set up new class widget from settings
 void ClassNamePage::initParameters()
 {
-    const Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
-    m_newClassWidget->setHeaderExtension(mdb->preferredSuffixByType(QLatin1String(Constants::CPP_HEADER_MIMETYPE)));
-    m_newClassWidget->setSourceExtension(mdb->preferredSuffixByType(QLatin1String(Constants::CPP_SOURCE_MIMETYPE)));
+    m_newClassWidget->setHeaderExtension(Core::MimeDatabase::preferredSuffixByType(QLatin1String(Constants::CPP_HEADER_MIMETYPE)));
+    m_newClassWidget->setSourceExtension(Core::MimeDatabase::preferredSuffixByType(QLatin1String(Constants::CPP_SOURCE_MIMETYPE)));
     m_newClassWidget->setLowerCaseFiles(lowerCaseFiles());
 }
 

@@ -93,9 +93,8 @@ void CppFileSettings::fromSettings(QSettings *s)
 
 bool CppFileSettings::applySuffixesToMimeDB()
 {
-    Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
-    return mdb->setPreferredSuffix(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE), sourceSuffix)
-            && mdb->setPreferredSuffix(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE), headerSuffix);
+    return Core::MimeDatabase::setPreferredSuffix(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE), sourceSuffix)
+            && Core::MimeDatabase::setPreferredSuffix(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE), headerSuffix);
 }
 
 bool CppFileSettings::equals(const CppFileSettings &rhs) const
@@ -226,13 +225,12 @@ CppFileSettingsWidget::CppFileSettingsWidget(QWidget *parent) :
     m_ui(new Internal::Ui::CppFileSettingsPage)
 {
     m_ui->setupUi(this);
-    const Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
     // populate suffix combos
-    if (const Core::MimeType sourceMt = mdb->findByType(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)))
+    if (const Core::MimeType sourceMt = Core::MimeDatabase::findByType(QLatin1String(CppTools::Constants::CPP_SOURCE_MIMETYPE)))
         foreach (const QString &suffix, sourceMt.suffixes())
             m_ui->sourceSuffixComboBox->addItem(suffix);
 
-    if (const Core::MimeType headerMt = mdb->findByType(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)))
+    if (const Core::MimeType headerMt = Core::MimeDatabase::findByType(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)))
         foreach (const QString &suffix, headerMt.suffixes())
             m_ui->headerSuffixComboBox->addItem(suffix);
     m_ui->licenseTemplatePathChooser->setExpectedKind(Utils::PathChooser::File);

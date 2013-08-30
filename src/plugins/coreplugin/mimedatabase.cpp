@@ -1276,7 +1276,6 @@ public:
 
     void debug(QTextStream &str) const;
 
-private:
     typedef QHash<QString, MimeMapEntry> TypeMimeTypeMap;
     typedef QHash<QString, QString> AliasMap;
     typedef QMultiHash<QString, QString> ParentChildrenMap;
@@ -1297,6 +1296,7 @@ private:
     AliasMap m_aliasMap;
     ParentChildrenMap m_parentChildrenMap;
     int m_maxLevel;
+    QMutex m_mutex;
 };
 
 const QChar MimeDatabasePrivate::kSemiColon(QLatin1Char(';'));
@@ -1825,9 +1825,11 @@ void MimeDatabasePrivate::debug(QTextStream &str) const
     str << "<MimeDatabase\n";
 }
 
-MimeDatabase::MimeDatabase() :
-    d(new MimeDatabasePrivate)
+static MimeDatabasePrivate *d;
+
+MimeDatabase::MimeDatabase()
 {
+    d = new MimeDatabasePrivate;
 }
 
 MimeDatabase::~MimeDatabase()
@@ -1835,75 +1837,75 @@ MimeDatabase::~MimeDatabase()
     delete d;
 }
 
-MimeType MimeDatabase::findByType(const QString &typeOrAlias) const
+MimeType MimeDatabase::findByType(const QString &typeOrAlias)
 {
-    m_mutex.lock();
+    d->m_mutex.lock();
     const MimeType rc = d->findByType(typeOrAlias);
-    m_mutex.unlock();
+    d->m_mutex.unlock();
     return rc;
 }
 
-MimeType MimeDatabase::findByFileUnlocked(const QFileInfo &f) const
+MimeType MimeDatabase::findByFileUnlocked(const QFileInfo &f)
 {
     return d->findByFile(f);
 }
 
-MimeType MimeDatabase::findByFile(const QFileInfo &f) const
+MimeType MimeDatabase::findByFile(const QFileInfo &f)
 {
-    m_mutex.lock();
+    d->m_mutex.lock();
     const MimeType rc = findByFileUnlocked(f);
-    m_mutex.unlock();
+    d->m_mutex.unlock();
     return rc;
 }
 
-MimeType MimeDatabase::findByData(const QByteArray &data) const
+MimeType MimeDatabase::findByData(const QByteArray &data)
 {
-    m_mutex.lock();
+    d->m_mutex.lock();
     const MimeType rc = d->findByData(data);
-    m_mutex.unlock();
+    d->m_mutex.unlock();
     return rc;
 }
 
 bool MimeDatabase::addMimeType(const  MimeType &mt)
 {
-    m_mutex.lock();
+    d->m_mutex.lock();
     const bool rc = d->addMimeType(mt);
-    m_mutex.unlock();
+    d->m_mutex.unlock();
     return rc;
 }
 
 bool MimeDatabase::addMimeTypes(const QString &fileName, QString *errorMessage)
 {
-    m_mutex.lock();
+    d->m_mutex.lock();
     const bool rc = d->addMimeTypes(fileName, errorMessage);
-    m_mutex.unlock();
+    d->m_mutex.unlock();
     return rc;
 }
 
 bool MimeDatabase::addMimeTypes(QIODevice *device, QString *errorMessage)
 {
-    m_mutex.lock();
+    d->m_mutex.lock();
     const bool rc = d->addMimeTypes(device, errorMessage);
-    m_mutex.unlock();
+    d->m_mutex.unlock();
     return rc;
 }
 
-QStringList MimeDatabase::suffixes() const
+QStringList MimeDatabase::suffixes()
 {
-    m_mutex.lock();
+    d->m_mutex.lock();
     const QStringList rc = d->suffixes();
-    m_mutex.unlock();
+    d->m_mutex.unlock();
     return rc;
 }
 
-QStringList MimeDatabase::filterStrings() const
+QStringList MimeDatabase::filterStrings()
 {
-    m_mutex.lock();
+    d->m_mutex.lock();
     const QStringList rc = d->filterStrings();
-    m_mutex.unlock();
+    d->m_mutex.unlock();
     return rc;
 }
-QString MimeDatabase::allFiltersString(QString *allFilesFilter) const
+QString MimeDatabase::allFiltersString(QString *allFilesFilter)
 {
     if (allFilesFilter)
         allFilesFilter->clear();
@@ -1927,58 +1929,58 @@ QString MimeDatabase::allFiltersString(QString *allFilesFilter) const
     return filters.join(QLatin1String(";;"));
 }
 
-QList<MimeGlobPattern> MimeDatabase::globPatterns() const
+QList<MimeGlobPattern> MimeDatabase::globPatterns()
 {
-    m_mutex.lock();
+    d->m_mutex.lock();
     const QList<MimeGlobPattern> rc = d->globPatterns();
-    m_mutex.unlock();
+    d->m_mutex.unlock();
     return rc;
 }
 
 void MimeDatabase::setGlobPatterns(const QString &typeOrAlias,
                                    const QList<MimeGlobPattern> &globPatterns)
 {
-    m_mutex.lock();
+    d->m_mutex.lock();
     d->setGlobPatterns(typeOrAlias, globPatterns);
-    m_mutex.unlock();
+    d->m_mutex.unlock();
 }
 
-MimeDatabase::IMagicMatcherList MimeDatabase::magicMatchers() const
+MimeDatabase::IMagicMatcherList MimeDatabase::magicMatchers()
 {
-    m_mutex.lock();
+    d->m_mutex.lock();
     const IMagicMatcherList rc = d->magicMatchers();
-    m_mutex.unlock();
+    d->m_mutex.unlock();
     return rc;
 }
 
 void MimeDatabase::setMagicMatchers(const QString &typeOrAlias,
                                     const IMagicMatcherList &matchers)
 {
-    m_mutex.lock();
+    d->m_mutex.lock();
     d->setMagicMatchers(typeOrAlias, matchers);
-    m_mutex.unlock();
+    d->m_mutex.unlock();
 }
 
-QList<MimeType> MimeDatabase::mimeTypes() const
+QList<MimeType> MimeDatabase::mimeTypes()
 {
-    m_mutex.lock();
+    d->m_mutex.lock();
     const QList<MimeType> &mimeTypes = d->mimeTypes();
-    m_mutex.unlock();
+    d->m_mutex.unlock();
     return mimeTypes;
 }
 
 void MimeDatabase::syncUserModifiedMimeTypes()
 {
-    m_mutex.lock();
+    d->m_mutex.lock();
     d->syncUserModifiedMimeTypes();
-    m_mutex.unlock();
+    d->m_mutex.unlock();
 }
 
 void MimeDatabase::clearUserModifiedMimeTypes()
 {
-    m_mutex.lock();
+    d->m_mutex.lock();
     d->clearUserModifiedMimeTypes();
-    m_mutex.unlock();
+    d->m_mutex.unlock();
 }
 
 QList<MimeType> MimeDatabase::readUserModifiedMimeTypes()
@@ -1991,14 +1993,14 @@ void MimeDatabase::writeUserModifiedMimeTypes(const QList<MimeType> &mimeTypes)
     MimeDatabasePrivate::writeUserModifiedMimeTypes(mimeTypes);
 }
 
-QString MimeDatabase::preferredSuffixByType(const QString &type) const
+QString MimeDatabase::preferredSuffixByType(const QString &type)
 {
     if (const MimeType mt = findByType(type))
         return mt.preferredSuffix(); // already does Mutex locking
     return QString();
 }
 
-QString MimeDatabase::preferredSuffixByFile(const QFileInfo &f) const
+QString MimeDatabase::preferredSuffixByFile(const QFileInfo &f)
 {
     if (const MimeType mt = findByFile(f))
         return mt.preferredSuffix(); // already does Mutex locking
@@ -2007,9 +2009,9 @@ QString MimeDatabase::preferredSuffixByFile(const QFileInfo &f) const
 
 bool MimeDatabase::setPreferredSuffix(const QString &typeOrAlias, const QString &suffix)
 {
-    m_mutex.lock();
+    d->m_mutex.lock();
     const bool rc = d->setPreferredSuffix(typeOrAlias, suffix);
-    m_mutex.unlock();
+    d->m_mutex.unlock();
     return rc;
 }
 
@@ -2023,15 +2025,15 @@ QStringList MimeDatabase::fromGlobPatterns(const QList<MimeGlobPattern> &globPat
     return MimeDatabasePrivate::fromGlobPatterns(globPatterns);
 }
 
-QDebug operator<<(QDebug d, const MimeDatabase &mt)
-{
-    QString s;
-    {
-        QTextStream str(&s);
-        mt.d->debug(str);
-    }
-    d << s;
-    return d;
-}
+//QDebug operator<<(QDebug d, const MimeDatabase &mt)
+//{
+//    QString s;
+//    {
+//        QTextStream str(&s);
+//        d->debug(str);
+//    }
+//    db << s;
+//    return db;
+//}
 
 } // namespace Core

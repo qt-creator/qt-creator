@@ -212,17 +212,12 @@ PythonEditorPlugin::~PythonEditorPlugin()
     m_instance = 0;
 }
 
-bool PythonEditorPlugin::initialize(
-        const QStringList &arguments, QString *errorMessage)
+bool PythonEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
 
-    if (! Core::ICore::mimeDatabase()->addMimeTypes(
-            QLatin1String(RC_PY_MIME_XML),
-            errorMessage))
-    {
+    if (!Core::MimeDatabase::addMimeTypes(QLatin1String(RC_PY_MIME_XML), errorMessage))
         return false;
-    }
 
     m_factory = new EditorFactory(this);
     addObject(m_factory);
@@ -243,9 +238,8 @@ bool PythonEditorPlugin::initialize(
     const QIcon icon = QIcon::fromTheme(QLatin1String(C_PY_MIME_ICON));
     if (!icon.isNull()) {
         Core::FileIconProvider *iconProv = Core::FileIconProvider::instance();
-        Core::MimeDatabase *mimeDB = Core::ICore::instance()->mimeDatabase();
         iconProv->registerIconOverlayForMimeType(
-                    icon, mimeDB->findByType(QLatin1String(C_PY_MIMETYPE)));
+                    icon, Core::MimeDatabase::findByType(QLatin1String(C_PY_MIMETYPE)));
     }
 
     ////////////////////////////////////////////////////////////////////////////

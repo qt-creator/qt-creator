@@ -261,79 +261,56 @@ public:
     typedef IMagicMatcher::IMagicMatcherList IMagicMatcherList;
     typedef IMagicMatcher::IMagicMatcherSharedPointer IMagicMatcherSharedPointer;
 
-    bool addMimeTypes(const QString &fileName, QString *errorMessage);
-    bool addMimeTypes(QIODevice *device, QString *errorMessage);
-    bool addMimeType(const  MimeType &mt);
+    static bool addMimeTypes(const QString &fileName, QString *errorMessage);
+    static bool addMimeTypes(QIODevice *device, QString *errorMessage);
+    static bool addMimeType(const  MimeType &mt);
 
     // Returns a mime type or Null one if none found
-    MimeType findByType(const QString &type) const;
+    static MimeType findByType(const QString &type);
 
     // Returns a mime type or Null one if none found
-    MimeType findByFile(const QFileInfo &f) const;
+    static MimeType findByFile(const QFileInfo &f);
 
     // Returns a mime type or Null one if none found
-    MimeType findByData(const QByteArray &data) const;
-
-    // Convenience that mutex-locks the DB and calls a function
-    // of the signature 'void f(const MimeType &, const QFileInfo &, const QString &)'
-    // for each filename of a sequence. This avoids locking the DB for each
-    // single file.
-    template <class Iterator, typename Function>
-    inline void findByFile(Iterator i1, const Iterator &i2, Function f) const;
+    static MimeType findByData(const QByteArray &data);
 
     // Return all known suffixes
-    QStringList suffixes() const;
-    bool setPreferredSuffix(const QString &typeOrAlias, const QString &suffix);
-    QString preferredSuffixByType(const QString &type) const;
-    QString preferredSuffixByFile(const QFileInfo &f) const;
+    static QStringList suffixes();
+    static bool setPreferredSuffix(const QString &typeOrAlias, const QString &suffix);
+    static QString preferredSuffixByType(const QString &type);
+    static QString preferredSuffixByFile(const QFileInfo &f);
 
-    QStringList filterStrings() const;
+    static QStringList filterStrings();
     // Return a string with all the possible file filters, for use with file dialogs
-    QString allFiltersString(QString *allFilesFilter = 0) const;
+    static QString allFiltersString(QString *allFilesFilter = 0);
 
-    QList<MimeGlobPattern> globPatterns() const;
-    void setGlobPatterns(const QString &typeOrAlias, const QList<MimeGlobPattern> &globPatterns);
+    static QList<MimeGlobPattern> globPatterns();
+    static void setGlobPatterns(const QString &typeOrAlias, const QList<MimeGlobPattern> &globPatterns);
 
-    IMagicMatcherList magicMatchers() const;
-    void setMagicMatchers(const QString &typeOrAlias, const IMagicMatcherList &matchers);
+    static IMagicMatcherList magicMatchers();
+    static void setMagicMatchers(const QString &typeOrAlias, const IMagicMatcherList &matchers);
 
-    QList<MimeType> mimeTypes() const;
+    static QList<MimeType> mimeTypes();
 
     // The mime types from the functions bellow are considered only in regard to
     // their glob patterns and rule-based magic matchers.
-    void syncUserModifiedMimeTypes();
+    static void syncUserModifiedMimeTypes();
     static QList<MimeType> readUserModifiedMimeTypes();
     static void writeUserModifiedMimeTypes(const QList<MimeType> &mimeTypes);
-    void clearUserModifiedMimeTypes();
+    static void clearUserModifiedMimeTypes();
 
     static QList<MimeGlobPattern> toGlobPatterns(const QStringList &patterns,
                                                  int weight = MimeGlobPattern::MaxWeight);
     static QStringList fromGlobPatterns(const QList<MimeGlobPattern> &globPatterns);
 
-    friend QDebug operator<<(QDebug d, const MimeDatabase &mt);
-
 private:
     MimeDatabase();
     ~MimeDatabase();
 
-    MimeType findByFileUnlocked(const QFileInfo &f) const;
-
-    MimeDatabasePrivate *d;
-    mutable QMutex m_mutex;
+    static MimeType findByFileUnlocked(const QFileInfo &f);
 
     friend class Core::Internal::MainWindow;
 };
-
-template <class Iterator, typename Function>
-    void MimeDatabase::findByFile(Iterator i1, const Iterator &i2, Function f) const
-{
-    m_mutex.lock();
-    for ( ; i1 != i2; ++i1) {
-        const QFileInfo fi(*i1);
-        f(findByFileUnlocked(fi), fi, *i1);
-    }
-    m_mutex.unlock();
-}
 
 } // namespace Core
 

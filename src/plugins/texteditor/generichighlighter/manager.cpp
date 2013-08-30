@@ -183,17 +183,16 @@ bool priorityComp(const QSharedPointer<HighlightDefinitionMetaData> &a,
 const int ManagerProcessor::kMaxProgress = 200;
 
 ManagerProcessor::ManagerProcessor()
-    : m_knownSuffixes(QSet<QString>::fromList(ICore::mimeDatabase()->suffixes()))
+    : m_knownSuffixes(QSet<QString>::fromList(MimeDatabase::suffixes()))
 {
     const HighlighterSettings &settings = TextEditorSettings::instance()->highlighterSettings();
     m_definitionsPaths.append(settings.definitionFilesPath());
     if (settings.useFallbackLocation())
         m_definitionsPaths.append(settings.fallbackDefinitionFilesPath());
 
-    MimeDatabase *mimeDatabase = ICore::mimeDatabase();
-    foreach (const MimeType &userMimeType, mimeDatabase->readUserModifiedMimeTypes())
+    foreach (const MimeType &userMimeType, MimeDatabase::readUserModifiedMimeTypes())
         m_userModified.insert(userMimeType.type(), userMimeType);
-    foreach (const MimeType &mimeType, mimeDatabase->mimeTypes())
+    foreach (const MimeType &mimeType, MimeDatabase::mimeTypes())
         m_knownMimeTypes.insert(mimeType.type());
 }
 
@@ -331,7 +330,7 @@ void Manager::registerMimeTypesFinished()
         PlainTextEditorFactory *factory = TextEditorPlugin::instance()->editorFactory();
         const QSet<QString> &inFactory = factory->mimeTypes().toSet();
         foreach (const MimeType &mimeType, result.second) {
-            ICore::mimeDatabase()->addMimeType(mimeType);
+            MimeDatabase::addMimeType(mimeType);
             if (!inFactory.contains(mimeType.type()))
                 factory->addMimeType(mimeType.type());
         }

@@ -77,8 +77,8 @@ public:
     QString id;
     QString category;
     QString displayCategory;
-    Core::FeatureSet requiredFeatures;
-    Core::IWizard::WizardFlags flags;
+    FeatureSet requiredFeatures;
+    IWizard::WizardFlags flags;
     QString descriptionImage;
 };
 
@@ -210,12 +210,12 @@ QString BaseFileWizardParameters::displayCategory() const
     return m_d->displayCategory;
 }
 
-Core::FeatureSet BaseFileWizardParameters::requiredFeatures() const
+FeatureSet BaseFileWizardParameters::requiredFeatures() const
 {
     return m_d->requiredFeatures;
 }
 
-void BaseFileWizardParameters::setRequiredFeatures(Core::FeatureSet features)
+void BaseFileWizardParameters::setRequiredFeatures(FeatureSet features)
 {
 
     m_d->requiredFeatures = features;
@@ -226,12 +226,12 @@ void BaseFileWizardParameters::setDisplayCategory(const QString &v)
     m_d->displayCategory = v;
 }
 
-Core::IWizard::WizardFlags BaseFileWizardParameters::flags() const
+IWizard::WizardFlags BaseFileWizardParameters::flags() const
 {
     return m_d->flags;
 }
 
-void BaseFileWizardParameters::setFlags(Core::IWizard::WizardFlags flags)
+void BaseFileWizardParameters::setFlags(IWizard::WizardFlags flags)
 {
     m_d->flags = flags;
 }
@@ -537,8 +537,8 @@ void BaseFileWizard::runWizard(const QString &path, QWidget *parent, const QStri
 
     if (removeOpenProjectAttribute) {
         for (int i = 0; i < files.count(); i++) {
-            if (files[i].attributes() & Core::GeneratedFile::OpenProjectAttribute)
-                files[i].setAttributes(Core::GeneratedFile::OpenEditorAttribute);
+            if (files[i].attributes() & GeneratedFile::OpenProjectAttribute)
+                files[i].setAttributes(GeneratedFile::OpenEditorAttribute);
         }
     }
 
@@ -549,12 +549,12 @@ void BaseFileWizard::runWizard(const QString &path, QWidget *parent, const QStri
 }
 
 
-Core::FeatureSet BaseFileWizard::requiredFeatures() const
+FeatureSet BaseFileWizard::requiredFeatures() const
 {
     return d->m_parameters.requiredFeatures();
 }
 
-Core::IWizard::WizardFlags BaseFileWizard::flags() const
+IWizard::WizardFlags BaseFileWizard::flags() const
 {
     return d->m_parameters.flags();
 }
@@ -649,9 +649,9 @@ bool BaseFileWizard::postGenerateFiles(const QWizard *, const GeneratedFiles &l,
 
 bool BaseFileWizard::postGenerateOpenEditors(const GeneratedFiles &l, QString *errorMessage)
 {
-    foreach (const Core::GeneratedFile &file, l) {
-        if (file.attributes() & Core::GeneratedFile::OpenEditorAttribute) {
-            if (!Core::EditorManager::openEditor(file.path(), file.editorId())) {
+    foreach (const GeneratedFile &file, l) {
+        if (file.attributes() & GeneratedFile::OpenEditorAttribute) {
+            if (!EditorManager::openEditor(file.path(), file.editorId())) {
                 if (errorMessage)
                     *errorMessage = tr("Failed to open an editor for '%1'.").arg(QDir::toNativeSeparators(file.path()));
                 return false;
@@ -773,7 +773,7 @@ QString BaseFileWizard::buildFileName(const QString &path,
 
 QString BaseFileWizard::preferredSuffix(const QString &mimeType)
 {
-    const QString rc = Core::ICore::mimeDatabase()->preferredSuffixByType(mimeType);
+    const QString rc = MimeDatabase::preferredSuffixByType(mimeType);
     if (rc.isEmpty())
         qWarning("%s: WARNING: Unable to find a preferred suffix for %s.",
                  Q_FUNC_INFO, mimeType.toUtf8().constData());

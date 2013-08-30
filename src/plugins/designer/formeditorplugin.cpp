@@ -50,6 +50,7 @@
 #include <QTranslator>
 #include <QtPlugin>
 
+using namespace Core;
 using namespace Designer::Internal;
 using namespace Designer::Constants;
 
@@ -70,9 +71,8 @@ FormEditorPlugin::~FormEditorPlugin()
 bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
 {
     Q_UNUSED(arguments)
-    Q_UNUSED(error)
 
-    if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":/formeditor/Designer.mimetypes.xml"), error))
+    if (!MimeDatabase::addMimeTypes(QLatin1String(":/formeditor/Designer.mimetypes.xml"), error))
         return false;
 
     initializeTemplates();
@@ -81,11 +81,11 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
     addAutoReleasedObject(new SettingsPageProvider);
     addAutoReleasedObject(new QtDesignerFormClassCodeGenerator);
     // Ensure that loading designer translations is done before FormEditorW is instantiated
-    const QString locale = Core::ICore::userInterfaceLanguage();
+    const QString locale = ICore::userInterfaceLanguage();
     if (!locale.isEmpty()) {
         QTranslator *qtr = new QTranslator(this);
         const QString &creatorTrPath =
-                Core::ICore::resourcePath() + QLatin1String("/translations");
+                ICore::resourcePath() + QLatin1String("/translations");
         const QString &qtTrPath = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
         const QString &trFile = QLatin1String("designer_") + locale;
         if (qtr->load(trFile, qtTrPath) || qtr->load(trFile, creatorTrPath))
@@ -97,7 +97,7 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
 
 void FormEditorPlugin::extensionsInitialized()
 {
-    Core::DesignMode::instance()->setDesignModeIsRequired();
+    DesignMode::instance()->setDesignModeIsRequired();
     // 4) test and make sure everything works (undo, saving, editors, opening/closing multiple files, dirtiness etc)
 }
 
@@ -109,7 +109,7 @@ void FormEditorPlugin::extensionsInitialized()
 
 void FormEditorPlugin::initializeTemplates()
 {
-    FormWizard::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
+    FormWizard::BaseFileWizardParameters wizardParameters(IWizard::FileWizard);
     wizardParameters.setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
     wizardParameters.setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::WIZARD_TR_CATEGORY_QT));
     const QString formFileType = QLatin1String(Constants::FORM_FILE_TYPE);
@@ -120,7 +120,7 @@ void FormEditorPlugin::initializeTemplates()
     addAutoReleasedObject(new FormWizard(wizardParameters, this));
 
 #ifdef CPP_ENABLED
-    wizardParameters.setKind(Core::IWizard::ClassWizard);
+    wizardParameters.setKind(IWizard::ClassWizard);
     wizardParameters.setDisplayName(tr("Qt Designer Form Class"));
     wizardParameters.setId(QLatin1String("C.FormClass"));
     wizardParameters.setDescription(tr("Creates a Qt Designer form along with a matching class (C++ header and source file) "

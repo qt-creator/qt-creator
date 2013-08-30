@@ -1364,7 +1364,7 @@ QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileName
             continue;
         }
 
-        if (const Core::MimeType mt = Core::ICore::mimeDatabase()->findByFile(QFileInfo(fileName))) {
+        if (const Core::MimeType mt = Core::MimeDatabase::findByFile(QFileInfo(fileName))) {
             foreach (IProjectManager *manager, projectManagers) {
                 if (manager->mimeType() == mt.type()) {
                     QString tmp;
@@ -1505,9 +1505,8 @@ void ProjectExplorerPlugin::determineSessionToRestoreAtStartup()
 static inline QStringList projectFileGlobs()
 {
     QStringList result;
-    const Core::MimeDatabase *mimeDatabase = Core::ICore::instance()->mimeDatabase();
     foreach (const IProjectManager *ipm, ExtensionSystem::PluginManager::getObjects<IProjectManager>()) {
-        if (const Core::MimeType mimeType = mimeDatabase->findByType(ipm->mimeType())) {
+        if (const Core::MimeType mimeType = Core::MimeDatabase::findByType(ipm->mimeType())) {
             const QList<Core::MimeGlobPattern> patterns = mimeType.globPatterns();
             if (!patterns.isEmpty())
                 result.push_back(patterns.front().pattern());
@@ -3030,9 +3029,8 @@ Internal::ProjectExplorerSettings ProjectExplorerPlugin::projectExplorerSettings
 QStringList ProjectExplorerPlugin::projectFilePatterns()
 {
     QStringList patterns;
-    const Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
     foreach (const IProjectManager *pm, allProjectManagers())
-        if (const Core::MimeType mt = mdb->findByType(pm->mimeType()))
+        if (const Core::MimeType mt = Core::MimeDatabase::findByType(pm->mimeType()))
             foreach (const Core::MimeGlobPattern &gp, mt.globPatterns())
                 patterns.append(gp.pattern());
     return patterns;

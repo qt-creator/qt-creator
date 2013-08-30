@@ -248,7 +248,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
 
     m_subversionPluginInstance = this;
 
-    if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":/trolltech.subversion/Subversion.mimetypes.xml"), errorMessage))
+    if (!Core::MimeDatabase::addMimeTypes(QLatin1String(":/trolltech.subversion/Subversion.mimetypes.xml"), errorMessage))
         return false;
 
     m_settings.readSettings(Core::ICore::settings());

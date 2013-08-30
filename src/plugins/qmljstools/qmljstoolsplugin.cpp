@@ -72,9 +72,8 @@ QmlJSToolsPlugin::~QmlJSToolsPlugin()
 bool QmlJSToolsPlugin::initialize(const QStringList &arguments, QString *error)
 {
     Q_UNUSED(arguments)
-    Q_UNUSED(error)
 
-    if (!ICore::mimeDatabase()->addMimeTypes(QLatin1String(":/qmljstools/QmlJSTools.mimetypes.xml"), error))
+    if (!MimeDatabase::addMimeTypes(QLatin1String(":/qmljstools/QmlJSTools.mimetypes.xml"), error))
         return false;
 
     m_settings = new QmlJSToolsSettings(this); // force registration of qmljstools settings

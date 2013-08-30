@@ -1863,15 +1863,14 @@ Core::IEditor *CPPEditor::duplicate(QWidget *parent)
 
 Core::Id CPPEditor::id() const
 {
-    return Core::Id(CppEditor::Constants::CPPEDITOR_ID);
+    return CppEditor::Constants::CPPEDITOR_ID;
 }
 
 bool CPPEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
     if (!TextEditor::BaseTextEditor::open(errorString, fileName, realFileName))
         return false;
-    editorWidget()->setMimeType(
-                Core::ICore::mimeDatabase()->findByFile(QFileInfo(fileName)).type());
+    editorWidget()->setMimeType(Core::MimeDatabase::findByFile(QFileInfo(fileName)).type());
     return true;
 }
 

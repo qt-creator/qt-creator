@@ -266,14 +266,12 @@ void MultiHighlighter::setDocuments(const QList<QPair<DiffEditorWidget::DiffFile
     qDeleteAll(m_highlighters);
     m_highlighters.clear();
 
-    const MimeDatabase *mimeDatabase = ICore::mimeDatabase();
-
     // create new documents
     for (int i = 0; i < documents.count(); i++) {
         DiffEditorWidget::DiffFileInfo fileInfo = documents.at(i).first;
         const QString contents = documents.at(i).second;
         QTextDocument *document = new QTextDocument(contents);
-        const MimeType mimeType = mimeDatabase->findByFile(QFileInfo(fileInfo.fileName));
+        const MimeType mimeType = MimeDatabase::findByFile(QFileInfo(fileInfo.fileName));
         SyntaxHighlighter *highlighter = 0;
         if (const IHighlighterFactory *factory = m_mimeTypeToHighlighterFactory.value(mimeType.type())) {
             highlighter = factory->createHighlighter();

@@ -33,7 +33,6 @@
 #include "vcsbaseoutputwindow.h"
 #include "corelistener.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
 
 #include <QtPlugin>
@@ -61,7 +60,7 @@ bool VcsPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
 
-    if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":/vcsbase/VcsBase.mimetypes.xml"), errorMessage))
+    if (!Core::MimeDatabase::addMimeTypes(QLatin1String(":/vcsbase/VcsBase.mimetypes.xml"), errorMessage))
         return false;
 
     m_coreListener = new CoreListener;

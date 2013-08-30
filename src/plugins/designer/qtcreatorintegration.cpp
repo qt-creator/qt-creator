@@ -647,8 +647,7 @@ void QtCreatorIntegration::slotSyncSettingsToDesigner()
 {
 #if QT_VERSION > 0x040800
     // Set promotion-relevant parameters on integration.
-    const Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();
-    setHeaderSuffix(mdb->preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)));
+    setHeaderSuffix(Core::MimeDatabase::preferredSuffixByType(QLatin1String(CppTools::Constants::CPP_HEADER_MIMETYPE)));
     setHeaderLowercase(FormClassWizardPage::lowercaseHeaderFiles());
 #endif
 }

@@ -79,13 +79,12 @@ CppEditorFactory::CppEditorFactory(CppEditorPlugin *owner) :
 
     if (!Utils::HostOsInfo::isMacHost() && !Utils::HostOsInfo::isWindowsHost()) {
         FileIconProvider *iconProvider = FileIconProvider::instance();
-        MimeDatabase *mimeDatabase = ICore::mimeDatabase();
         iconProvider->registerIconOverlayForMimeType(QIcon(QLatin1String(":/cppeditor/images/qt_cpp.png")),
-                                                     mimeDatabase->findByType(QLatin1String(CppEditor::Constants::CPP_SOURCE_MIMETYPE)));
+                                                     MimeDatabase::findByType(QLatin1String(CppEditor::Constants::CPP_SOURCE_MIMETYPE)));
         iconProvider->registerIconOverlayForMimeType(QIcon(QLatin1String(":/cppeditor/images/qt_c.png")),
-                                                     mimeDatabase->findByType(QLatin1String(CppEditor::Constants::C_SOURCE_MIMETYPE)));
+                                                     MimeDatabase::findByType(QLatin1String(CppEditor::Constants::C_SOURCE_MIMETYPE)));
         iconProvider->registerIconOverlayForMimeType(QIcon(QLatin1String(":/cppeditor/images/qt_h.png")),
-                                                     mimeDatabase->findByType(QLatin1String(CppEditor::Constants::CPP_HEADER_MIMETYPE)));
+                                                     MimeDatabase::findByType(QLatin1String(CppEditor::Constants::CPP_HEADER_MIMETYPE)));
     }
 }
 
@@ -154,7 +153,7 @@ CppQuickFixAssistProvider *CppEditorPlugin::quickFixProvider() const
 
 bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage)
 {
-    if (!ICore::mimeDatabase()->addMimeTypes(QLatin1String(":/cppeditor/CppEditor.mimetypes.xml"), errorMessage))
+    if (!Core::MimeDatabase::addMimeTypes(QLatin1String(":/cppeditor/CppEditor.mimetypes.xml"), errorMessage))
         return false;
 
     addAutoReleasedObject(new CppEditorFactory(this));

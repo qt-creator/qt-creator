@@ -210,7 +210,7 @@ bool PerforcePlugin::initialize(const QStringList & /* arguments */, QString *er
 
     initializeVcs(new PerforceVersionControl(this));
 
-    if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":/trolltech.perforce/Perforce.mimetypes.xml"), errorMessage))
+    if (!Core::MimeDatabase::addMimeTypes(QLatin1String(":/trolltech.perforce/Perforce.mimetypes.xml"), errorMessage))
         return false;
     m_instance = this;
 

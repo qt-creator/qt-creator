@@ -50,9 +50,8 @@ ProjectFile::ProjectFile(const QString &file, Kind kind)
 
 ProjectFile::Kind ProjectFile::classify(const QString &file)
 {
-    const Core::MimeDatabase *mimeDatabase = Core::ICore::mimeDatabase();
     const QFileInfo fi(file);
-    const Core::MimeType mimeType = mimeDatabase->findByFile(fi);
+    const Core::MimeType mimeType = Core::MimeDatabase::findByFile(fi);
     if (!mimeType)
         return Unclassified;
     const QString mt = mimeType.type();
@@ -130,8 +129,7 @@ bool ProjectFileAdder::maybeAdd(const QString &path)
 
 void ProjectFileAdder::addMapping(const char *mimeName, ProjectFile::Kind kind)
 {
-    const Core::MimeDatabase *mimeDatabase = Core::ICore::mimeDatabase();
-    Core::MimeType mimeType = mimeDatabase->findByType(QLatin1String(mimeName));
+    Core::MimeType mimeType = Core::MimeDatabase::findByType(QLatin1String(mimeName));
     if (!mimeType.isNull())
         m_mapping.append(Pair(mimeType, kind));
 }

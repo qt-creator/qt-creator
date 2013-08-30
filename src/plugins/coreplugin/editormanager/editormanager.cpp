@@ -1280,8 +1280,7 @@ Core::IEditor *EditorManager::activateEditorForDocument(Core::Internal::EditorVi
  * or IExternalEditor), find the one best matching the mimetype passed in.
  *  Recurse over the parent classes of the mimetype to find them. */
 template <class EditorFactoryLike>
-static void mimeTypeFactoryRecursion(const MimeDatabase *db,
-                                     const MimeType &mimeType,
+static void mimeTypeFactoryRecursion(const MimeType &mimeType,
                                      const QList<EditorFactoryLike*> &allFactories,
                                      bool firstMatchOnly,
                                      QList<EditorFactoryLike*> *list)
@@ -1305,8 +1304,8 @@ static void mimeTypeFactoryRecursion(const MimeDatabase *db,
         return;
     const QStringList::const_iterator pcend = parentTypes .constEnd();
     for (QStringList::const_iterator pit = parentTypes .constBegin(); pit != pcend; ++pit) {
-        if (const MimeType parent = db->findByType(*pit))
-            mimeTypeFactoryRecursion(db, parent, allFactories, firstMatchOnly, list);
+        if (const MimeType parent = MimeDatabase::findByType(*pit))
+            mimeTypeFactoryRecursion(parent, allFactories, firstMatchOnly, list);
     }
 }
 
@@ -1315,7 +1314,7 @@ EditorManager::EditorFactoryList
 {
     EditorFactoryList rc;
     const EditorFactoryList allFactories = ExtensionSystem::PluginManager::getObjects<IEditorFactory>();
-    mimeTypeFactoryRecursion(ICore::mimeDatabase(), mimeType, allFactories, bestMatchOnly, &rc);
+    mimeTypeFactoryRecursion(mimeType, allFactories, bestMatchOnly, &rc);
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO << mimeType.type() << " returns " << rc;
     return rc;
@@ -1326,7 +1325,7 @@ EditorManager::ExternalEditorList
 {
     ExternalEditorList rc;
     const ExternalEditorList allEditors = ExtensionSystem::PluginManager::getObjects<IExternalEditor>();
-    mimeTypeFactoryRecursion(ICore::mimeDatabase(), mimeType, allEditors, bestMatchOnly, &rc);
+    mimeTypeFactoryRecursion(mimeType, allEditors, bestMatchOnly, &rc);
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO << mimeType.type() << " returns " << rc;
     return rc;
@@ -1353,15 +1352,15 @@ IEditor *EditorManager::createEditor(const Id &editorId, const QString &fileName
     if (!editorId.isValid()) {
         const QFileInfo fileInfo(fileName);
         // Find by mime type
-        MimeType mimeType = ICore::mimeDatabase()->findByFile(fileInfo);
+        MimeType mimeType = MimeDatabase::findByFile(fileInfo);
         if (!mimeType) {
             qWarning("%s unable to determine mime type of %s/%s. Falling back to text/plain",
                      Q_FUNC_INFO, fileName.toUtf8().constData(), editorId.name().constData());
-            mimeType = ICore::mimeDatabase()->findByType(QLatin1String("text/plain"));
+            mimeType = MimeDatabase::findByType(QLatin1String("text/plain"));
         }
         // open text files > 48 MB in binary editor
         if (fileInfo.size() >  maxTextFileSize() && mimeType.type().startsWith(QLatin1String("text")))
-            mimeType = ICore::mimeDatabase()->findByType(QLatin1String("application/octet-stream"));
+            mimeType = MimeDatabase::findByType(QLatin1String("application/octet-stream"));
         factories = editorFactories(mimeType, true);
     } else {
         // Find by editor id
@@ -1406,10 +1405,10 @@ Core::Id EditorManager::getOpenWithEditorId(const QString &fileName,
                                            bool *isExternalEditor)
 {
     // Collect editors that can open the file
-    MimeType mt = ICore::mimeDatabase()->findByFile(fileName);
+    MimeType mt = MimeDatabase::findByFile(fileName);
     //Unable to determine mime type of fileName. Falling back to text/plain",
     if (!mt)
-        mt = ICore::mimeDatabase()->findByType(QLatin1String("text/plain"));
+        mt = MimeDatabase::findByType(QLatin1String("text/plain"));
     QList<Id> allEditorIds;
     QStringList allEditorDisplayNames;
     QList<Id> externalEditorIds;
@@ -1606,7 +1605,7 @@ bool EditorManager::openExternalEditor(const QString &fileName, const Core::Id &
 QStringList EditorManager::getOpenFileNames()
 {
     QString selectedFilter;
-    const QString &fileFilters = ICore::mimeDatabase()->allFiltersString(&selectedFilter);
+    const QString &fileFilters = MimeDatabase::allFiltersString(&selectedFilter);
     return DocumentManager::getOpenFileNames(fileFilters, QString(), &selectedFilter);
 }
 
@@ -1769,9 +1768,9 @@ bool EditorManager::saveDocumentAs(IDocument *documentParam)
     if (!document)
         return false;
 
-    const QString &filter = ICore::mimeDatabase()->allFiltersString();
+    const QString filter = MimeDatabase::allFiltersString();
     QString selectedFilter =
-        ICore::mimeDatabase()->findByFile(QFileInfo(document->filePath())).filterString();
+        MimeDatabase::findByFile(QFileInfo(document->filePath())).filterString();
     const QString &absoluteFilePath =
         DocumentManager::getSaveAsFileName(document, filter, &selectedFilter);
 

@@ -60,23 +60,18 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
 {
     using namespace Core;
 
-    Core::MimeDatabase *mimeDB = Core::ICore::mimeDatabase();
-
     const QLatin1String mimetypesXml(":/qmlproject/QmlProjectManager.mimetypes.xml");
 
-    if (! mimeDB->addMimeTypes(mimetypesXml, errorMessage))
+    if (!MimeDatabase::addMimeTypes(mimetypesXml, errorMessage))
         return false;
 
-    Internal::Manager *manager = new Internal::Manager;
-
-    addAutoReleasedObject(manager);
+    addAutoReleasedObject(new Internal::Manager);
     addAutoReleasedObject(new Internal::QmlProjectRunConfigurationFactory);
     addAutoReleasedObject(new Internal::QmlProjectRunControlFactory);
 
-
     Internal::QmlApplicationWizard::createInstances(this);
 
-    Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
+    FileIconProvider *iconProvider = FileIconProvider::instance();
     iconProvider->registerIconOverlayForSuffix(QIcon(QLatin1String(":/qmlproject/images/qmlproject.png")),
                                                QLatin1String("qmlproject"));
     return true;
