@@ -505,7 +505,7 @@ void DebuggerItemManager::autoDetectCdbDebugger()
         item.abis = Abi::abisOfBinary(cdb);
         item.command = cdb;
         item.engineType = CdbEngineType;
-        item.displayName = tr("Auto-detected CDB at %s").arg(cdb.toUserOutput());
+        item.displayName = tr("Auto-detected CDB at %1").arg(cdb.toUserOutput());
         maybeAddDebugger(item, false);
     }
 }
