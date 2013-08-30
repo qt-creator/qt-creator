@@ -4852,12 +4852,12 @@ void GdbEngine::startGdb(const QStringList &args)
     postCommand("set width 0");
     postCommand("set height 0");
 
+    // FIXME: Provide proper Gui settings for these:
     //postCommand("set breakpoint always-inserted on", ConsoleCommand);
     // displaced-stepping does not work in Thumb mode.
     //postCommand("set displaced-stepping on");
     //postCommand("set trust-readonly-sections on", ConsoleCommand);
-
-    postCommand("set remotecache on", ConsoleCommand);
+    //postCommand("set remotecache on", ConsoleCommand);
     //postCommand("set non-stop on", ConsoleCommand);
 
     typedef GlobalDebuggerOptions::SourcePathMap SourcePathMap;
