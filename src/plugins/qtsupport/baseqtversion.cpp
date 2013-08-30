@@ -169,6 +169,7 @@ BaseQtVersion::BaseQtVersion()
     m_mkspecReadUpToDate(false),
     m_defaultConfigIsDebug(true),
     m_defaultConfigIsDebugAndRelease(true),
+    m_frameworkBuild(false),
     m_versionInfoUpToDate(false),
     m_installed(true),
     m_hasExamples(false),
@@ -363,6 +364,7 @@ QString BaseQtVersion::qtLibInfix() const
 
 bool BaseQtVersion::isFrameworkBuild() const
 {
+    ensureMkSpecParsed();
     return m_frameworkBuild;
 }
 
