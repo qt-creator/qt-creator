@@ -44,6 +44,7 @@
 #include <cpptools/cppchecksymbols.h>
 #include <cpptools/cppcodeformatter.h>
 #include <cpptools/cppcompletionsupport.h>
+#include <cpptools/cppcompletionassistprovider.h>
 #include <cpptools/cpphighlightingsupport.h>
 #include <cpptools/cpplocalsymbols.h>
 #include <cpptools/cppqtstyleindenter.h>
@@ -1877,6 +1878,11 @@ bool CPPEditor::open(QString *errorString, const QString &fileName, const QStrin
 const Utils::CommentDefinition *CPPEditor::commentDefinition() const
 {
     return &m_commentDefinition;
+}
+
+TextEditor::CompletionAssistProvider *CPPEditor::completionAssistProvider()
+{
+    return CppModelManagerInterface::instance()->cppEditorSupport(this)->completionAssistProvider();
 }
 
 void CPPEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)

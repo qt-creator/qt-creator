@@ -27,6 +27,7 @@
 **
 ****************************************************************************/
 
+#include "cppcompletionassistprovider.h"
 #include "cpptoolseditorsupport.h"
 #include "cppmodelmanager.h"
 #include "cpplocalsymbols.h"
@@ -227,6 +228,11 @@ void CppEditorSupport::recalculateSemanticInfoDetached(bool force)
 
     if (force && m_highlightingSupport && !m_highlightingSupport->requiresSemanticInfo())
         startHighlighting();
+}
+
+CppCompletionAssistProvider *CppEditorSupport::completionAssistProvider() const
+{
+    return m_completionAssistProvider.data();
 }
 
 void CppEditorSupport::updateDocument()

@@ -58,6 +58,7 @@ class IAssistMonitorInterface;
 class IAssistInterface;
 class IAssistProvider;
 class ICodeStylePreferences;
+class CompletionAssistProvider;
 typedef QList<RefactorMarker> RefactorMarkers;
 
 namespace Internal {
@@ -632,6 +633,8 @@ public:
     void setCursorPosition(int pos);
     void select(int toPos);
     const Utils::CommentDefinition *commentDefinition() const;
+
+    virtual CompletionAssistProvider *completionAssistProvider();
 
 private slots:
     void updateCursorPosition();

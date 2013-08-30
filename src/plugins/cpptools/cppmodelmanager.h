@@ -105,6 +105,7 @@ public:
     void finishedRefreshingSourceFiles(const QStringList &files);
 
     virtual CppCompletionSupport *completionSupport(Core::IEditor *editor) const;
+    virtual CppCompletionAssistProvider *completionAssistProvider(Core::IEditor *editor) const;
     virtual void setCppCompletionAssistProvider(CppCompletionAssistProvider *completionAssistProvider);
 
     virtual CppHighlightingSupport *highlightingSupport(Core::IEditor *editor) const;

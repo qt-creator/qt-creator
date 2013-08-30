@@ -50,6 +50,8 @@ class ITextMark;
 
 namespace CppTools {
 
+class CppCompletionAssistProvider;
+
 /**
  * \brief The CppEditorSupport class oversees the actions that happen when a C++ text editor updates
  *        its document.
@@ -114,6 +116,8 @@ public:
     /// Requires that initialized() is true.
     /// \param force do not check if the old semantic info is still valid
     void recalculateSemanticInfoDetached(bool force = false);
+
+    CppCompletionAssistProvider *completionAssistProvider() const;
 
 signals:
     void documentUpdated();
@@ -189,6 +193,9 @@ private:
     unsigned m_lastHighlightRevision;
     QFuture<TextEditor::HighlightingResult> m_highlighter;
     QScopedPointer<CppTools::CppHighlightingSupport> m_highlightingSupport;
+
+    // Completion:
+    QScopedPointer<CppCompletionAssistProvider> m_completionAssistProvider;
 };
 
 } // namespace CppTools

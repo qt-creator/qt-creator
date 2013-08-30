@@ -30,6 +30,7 @@
 #include "qmljseditoreditable.h"
 #include "qmljseditor.h"
 #include "qmljseditorconstants.h"
+#include "qmljscompletionassist.h"
 
 #include <qmljstools/qmljstoolsconstants.h>
 #include <texteditor/texteditorconstants.h>
@@ -40,6 +41,8 @@
 #include <coreplugin/designmode.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/coreconstants.h>
+
+#include <extensionsystem/pluginmanager.h>
 
 namespace QmlJSEditor {
 
@@ -63,6 +66,11 @@ bool QmlJSEditor::isDesignModePreferred() const
 const Utils::CommentDefinition *QmlJSEditor::commentDefinition() const
 {
     return &m_commentDefinition;
+}
+
+TextEditor::CompletionAssistProvider *QmlJSEditor::completionAssistProvider()
+{
+    return ExtensionSystem::PluginManager::getObject<Internal::QmlJSCompletionAssistProvider>();
 }
 
 } // namespace QmlJSEditor

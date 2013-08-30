@@ -207,6 +207,11 @@ bool GLSLEditorEditable::open(QString *errorString, const QString &fileName, con
     return b;
 }
 
+TextEditor::CompletionAssistProvider *GLSLEditorEditable::completionAssistProvider()
+{
+    return ExtensionSystem::PluginManager::getObject<GLSLCompletionAssistProvider>();
+}
+
 QString GLSLTextEditorWidget::wordUnderCursor() const
 {
     QTextCursor tc = textCursor();

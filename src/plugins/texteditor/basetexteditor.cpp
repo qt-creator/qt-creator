@@ -500,6 +500,8 @@ BaseTextEditor *BaseTextEditorWidget::editor() const
                 d->m_editor, SIGNAL(contentsChanged()));
         connect(this, SIGNAL(changed()),
                 d->m_editor->document(), SIGNAL(changed()));
+        connect(qobject_cast<BaseTextDocument *>(d->m_editor->document()),SIGNAL(mimeTypeChanged()),
+                d->m_codeAssistant.data(), SLOT(reconfigure()));
     }
     return d->m_editor;
 }
@@ -6307,6 +6309,11 @@ void BaseTextEditor::select(int toPos)
 }
 
 const CommentDefinition *BaseTextEditor::commentDefinition() const
+{
+    return 0;
+}
+
+CompletionAssistProvider *BaseTextEditor::completionAssistProvider()
 {
     return 0;
 }

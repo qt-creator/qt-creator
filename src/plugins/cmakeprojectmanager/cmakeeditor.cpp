@@ -29,6 +29,7 @@
 
 #include "cmakeeditor.h"
 
+#include "cmakefilecompletionassist.h"
 #include "cmakehighlighter.h"
 #include "cmakeeditorfactory.h"
 #include "cmakeprojectconstants.h"
@@ -38,6 +39,7 @@
 #include <coreplugin/infobar.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <extensionsystem/pluginmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <texteditor/texteditoractionhandler.h>
@@ -75,6 +77,11 @@ Core::IEditor *CMakeEditor::duplicate(QWidget *parent)
 Core::Id CMakeEditor::id() const
 {
     return Core::Id(CMakeProjectManager::Constants::CMAKE_EDITOR_ID);
+}
+
+TextEditor::CompletionAssistProvider *CMakeEditor::completionAssistProvider()
+{
+    return ExtensionSystem::PluginManager::getObject<CMakeFileCompletionAssistProvider>();
 }
 
 void CMakeEditor::markAsChanged()

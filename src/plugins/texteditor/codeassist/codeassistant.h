@@ -62,6 +62,9 @@ public:
 signals:
     void finished();
 
+public slots:
+    void reconfigure();
+
 private:
     CodeAssistantPrivate *d;
 };

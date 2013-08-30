@@ -82,6 +82,8 @@ public:
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
 
     const Utils::CommentDefinition *commentDefinition() const;
+    TextEditor::CompletionAssistProvider *completionAssistProvider();
+
 private:
     Utils::CommentDefinition m_commentDefinition;
 };

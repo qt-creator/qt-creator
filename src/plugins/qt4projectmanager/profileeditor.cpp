@@ -32,6 +32,9 @@
 #include "profilehighlighter.h"
 #include "qt4projectmanagerconstants.h"
 #include "profileeditorfactory.h"
+#include "profilecompletionassist.h"
+
+#include <extensionsystem/pluginmanager.h>
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditoractionhandler.h>
@@ -68,6 +71,11 @@ Core::IEditor *ProFileEditor::duplicate(QWidget *parent)
 Core::Id ProFileEditor::id() const
 {
     return Core::Id(Constants::PROFILE_EDITOR_ID);
+}
+
+TextEditor::CompletionAssistProvider *ProFileEditor::completionAssistProvider()
+{
+    return ExtensionSystem::PluginManager::getObject<ProFileCompletionAssistProvider>();
 }
 
 //

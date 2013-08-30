@@ -907,6 +907,13 @@ CppCompletionSupport *CppModelManager::completionSupport(Core::IEditor *editor) 
         return 0;
 }
 
+CppCompletionAssistProvider *CppModelManager::completionAssistProvider(Core::IEditor *editor) const
+{
+    Q_UNUSED(editor);
+
+    return m_completionAssistProvider;
+}
+
 void CppModelManager::setCppCompletionAssistProvider(CppCompletionAssistProvider *completionAssistProvider)
 {
     ExtensionSystem::PluginManager::removeObject(m_completionAssistProvider);

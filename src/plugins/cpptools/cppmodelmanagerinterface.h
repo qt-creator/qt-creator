@@ -242,6 +242,7 @@ public:
                                      const QList<TextEditor::BlockRange> &ifdeffedOutBlocks) = 0;
 
     virtual CppTools::CppCompletionSupport *completionSupport(Core::IEditor *editor) const = 0;
+    virtual CppCompletionAssistProvider *completionAssistProvider(Core::IEditor *editor) const = 0;
     virtual void setCppCompletionAssistProvider(CppTools::CppCompletionAssistProvider *completionAssistProvider) = 0;
 
     virtual CppTools::CppHighlightingSupport *highlightingSupport(Core::IEditor *editor) const = 0;

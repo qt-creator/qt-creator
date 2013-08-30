@@ -55,6 +55,7 @@ public:
     bool duplicateSupported() const { return true; }
     Core::IEditor *duplicate(QWidget *parent);
     Core::Id id() const;
+    TextEditor::CompletionAssistProvider *completionAssistProvider();
 };
 
 class ProFileEditorWidget : public TextEditor::BaseTextEditorWidget

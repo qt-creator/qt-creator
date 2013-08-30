@@ -39,6 +39,8 @@ class CMakeSettingsPage;
 
 class CMakeFileCompletionAssistProvider : public TextEditor::CompletionAssistProvider
 {
+    Q_OBJECT
+
 public:
     CMakeFileCompletionAssistProvider(CMakeSettingsPage *settingsPage);
     ~CMakeFileCompletionAssistProvider();

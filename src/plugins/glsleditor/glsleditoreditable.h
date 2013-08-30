@@ -48,6 +48,7 @@ public:
     Core::IEditor *duplicate(QWidget *parent);
     Core::Id id() const;
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
+    TextEditor::CompletionAssistProvider *completionAssistProvider();
 };
 
 } // namespace Internal

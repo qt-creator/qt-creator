@@ -34,6 +34,7 @@
 
 #include <texteditor/basetextdocument.h>
 #include <texteditor/basetexteditor.h>
+#include <texteditor/codeassist/completionassistprovider.h>
 #include <utils/uncommentselection.h>
 
 
@@ -58,6 +59,7 @@ public:
     bool duplicateSupported() const { return true; }
     Core::IEditor *duplicate(QWidget *parent);
     Core::Id id() const;
+    TextEditor::CompletionAssistProvider *completionAssistProvider();
 
 private slots:
     void markAsChanged();

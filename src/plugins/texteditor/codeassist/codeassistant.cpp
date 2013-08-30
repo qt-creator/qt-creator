@@ -79,6 +79,7 @@ public:
     virtual ~CodeAssistantPrivate();
 
     void configure(BaseTextEditor *textEditor);
+    void reconfigure();
     bool isConfigured() const;
 
     void invoke(AssistKind kind, IAssistProvider *provider = 0);
@@ -116,7 +117,7 @@ private slots:
 private:
     CodeAssistant *m_q;
     BaseTextEditor *m_textEditor;
-    QList<CompletionAssistProvider *> m_completionProviders;
+    CompletionAssistProvider *m_completionProvider;
     QList<QuickFixAssistProvider *> m_quickFixProviders;
     Internal::ProcessorRunner *m_requestRunner;
     CompletionAssistProvider *m_requestProvider;
@@ -169,14 +170,18 @@ void CodeAssistantPrivate::configure(BaseTextEditor *textEditor)
     // completion and quick-fix provider (getting rid of the list).
 
     m_textEditor = textEditor;
-    m_completionProviders =
-        ExtensionSystem::PluginManager::getObjects<CompletionAssistProvider>();
-    filterEditorSpecificProviders(&m_completionProviders, m_textEditor->id());
+    m_completionProvider = textEditor->completionAssistProvider();
     m_quickFixProviders =
         ExtensionSystem::PluginManager::getObjects<QuickFixAssistProvider>();
     filterEditorSpecificProviders(&m_quickFixProviders, m_textEditor->id());
 
     m_textEditor->editorWidget()->installEventFilter(this);
+}
+
+void CodeAssistantPrivate::reconfigure()
+{
+    if (isConfigured())
+        m_completionProvider = m_textEditor->completionAssistProvider();
 }
 
 bool CodeAssistantPrivate::isConfigured() const
@@ -229,12 +234,10 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
     QTC_ASSERT(!isWaitingForProposal(), return);
 
     if (!provider) {
-        if (kind == Completion) {
-            if (!m_completionProviders.isEmpty())
-                provider = m_completionProviders.at(0);
-        } else if (!m_quickFixProviders.isEmpty()) {
+        if (kind == Completion)
+            provider = m_completionProvider;
+        else if (!m_quickFixProviders.isEmpty())
             provider = m_quickFixProviders.at(0);
-        }
 
         if (!provider)
             return;
@@ -382,23 +385,22 @@ void CodeAssistantPrivate::invalidateCurrentRequestData()
 
 CompletionAssistProvider *CodeAssistantPrivate::identifyActivationSequence()
 {
-    for (int i = 0; i < m_completionProviders.size(); ++i) {
-        CompletionAssistProvider *provider = m_completionProviders.at(i);
-        const int length = provider->activationCharSequenceLength();
-        if (length == 0)
-            continue;
-        QString sequence = m_textEditor->textDocument()->textAt(m_textEditor->position() - length, length);
-        // In pretty much all cases the sequence will have the appropriate length. Only in the
-        // case of typing the very first characters in the document for providers that request a
-        // length greater than 1 (currently only C++, which specifies 3), the sequence needs to
-        // be preprended so it has the expected length.
-        const int lengthDiff = length - sequence.length();
-        for (int j = 0; j < lengthDiff; ++j)
-            sequence.prepend(m_null);
-        if (provider->isActivationCharSequence(sequence))
-            return provider;
-    }
-    return 0;
+    if (!m_completionProvider)
+        return 0;
+
+    const int length = m_completionProvider->activationCharSequenceLength();
+    if (length == 0)
+        return 0;
+    QString sequence = m_textEditor->textDocument()->textAt(m_textEditor->position() - length,
+                                                            length);
+    // In pretty much all cases the sequence will have the appropriate length. Only in the
+    // case of typing the very first characters in the document for providers that request a
+    // length greater than 1 (currently only C++, which specifies 3), the sequence needs to
+    // be preprended so it has the expected length.
+    const int lengthDiff = length - sequence.length();
+    for (int j = 0; j < lengthDiff; ++j)
+        sequence.prepend(m_null);
+    return m_completionProvider->isActivationCharSequence(sequence) ? m_completionProvider : 0;
 }
 
 void CodeAssistantPrivate::notifyChange()
@@ -530,6 +532,11 @@ void CodeAssistant::destroyContext()
 void CodeAssistant::invoke(AssistKind kind, IAssistProvider *provider)
 {
     d->invoke(kind, provider);
+}
+
+void CodeAssistant::reconfigure()
+{
+    d->reconfigure();
 }
 
 #include "codeassistant.moc"
