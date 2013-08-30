@@ -89,7 +89,8 @@ ResourceHandler::ResourceHandler(qdesigner_internal::FormWindowBase *fw) :
     QObject(fw),
     m_form(fw),
     m_sessionNode(0),
-    m_sessionWatcher(0)
+    m_sessionWatcher(0),
+    m_handlingResources(false)
 {
 }
 
@@ -124,8 +125,11 @@ ResourceHandler::~ResourceHandler()
     }
 }
 
-void ResourceHandler::updateResources()
+void ResourceHandler::updateResources(bool updateProjectResources)
 {
+    if (m_handlingResources)
+        return;
+
     ensureInitialized();
 
     const QString fileName = m_form->fileName();
@@ -136,6 +140,9 @@ void ResourceHandler::updateResources()
 
     // Filename could change in the meantime.
     Project *project = SessionManager::projectForFile(fileName);
+    const bool dirty = m_form->property("_q_resourcepathchanged").toBool();
+    if (dirty)
+        m_form->setDirty(true);
 
     // Does the file belong to a project?
     if (project) {
@@ -143,7 +150,29 @@ void ResourceHandler::updateResources()
         ProjectNode *root = project->rootProjectNode();
         QrcFilesVisitor qrcVisitor;
         root->accept(&qrcVisitor);
-        const QStringList projectQrcFiles = qrcVisitor.qrcFiles();
+        QStringList projectQrcFiles = qrcVisitor.qrcFiles();
+        // Check if the user has chosen to update the lacking resource inside designer
+        if (dirty && updateProjectResources) {
+            QStringList qrcPathsToBeAdded;
+            foreach (const QString &originalQrcPath, m_originalUiQrcPaths) {
+                if (!projectQrcFiles.contains(originalQrcPath) && !qrcPathsToBeAdded.contains(originalQrcPath))
+                    qrcPathsToBeAdded.append(originalQrcPath);
+            }
+            if (!qrcPathsToBeAdded.isEmpty()) {
+                m_handlingResources = true;
+                root->addFiles(qrcPathsToBeAdded);
+                m_handlingResources = false;
+                projectQrcFiles += qrcPathsToBeAdded;
+            }
+        }
+
+        QStringList originalSorted = m_originalUiQrcPaths;
+        originalSorted.sort();
+        QStringList projectSorted = projectQrcFiles;
+        projectSorted.sort();
+        if (originalSorted != projectSorted)
+            m_form->setDirty(true);
+
 #if QT_VERSION >= 0x050000
         m_form->activateResourceFilePaths(projectQrcFiles);
         m_form->setResourceFileSaveMode(QDesignerFormWindowInterface::SaveOnlyUsedResourceFiles);

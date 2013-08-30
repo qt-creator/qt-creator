@@ -111,7 +111,7 @@ bool FormWindowEditor::open(QString *errorString, const QString &fileName, const
     d->m_widget->formWindowFile()->setShouldAutoSave(false);
 
     if (Internal::ResourceHandler *rh = form->findChild<Designer::Internal::ResourceHandler*>())
-        rh->updateResources();
+        rh->updateResources(true);
 
     return true;
 }

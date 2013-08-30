@@ -73,7 +73,7 @@ public:
     virtual ~ResourceHandler();
 
 public slots:
-    void updateResources();
+    void updateResources(bool updateProjectResources = false);
 
 private:
     void ensureInitialized();
@@ -85,6 +85,7 @@ private:
     QStringList m_originalUiQrcPaths;
     ProjectExplorer::SessionNode *m_sessionNode;
     ProjectExplorer::NodesWatcher *m_sessionWatcher;
+    bool m_handlingResources;
 };
 
 } // namespace Internal
