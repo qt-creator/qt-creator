@@ -23,11 +23,7 @@ QtcPlugin {
     pluginspecreplacements: ({"ANDROID_EXPERIMENTAL_STR": (enable ? "false": "true")})
 
     cpp.includePaths: base.concat("../../shared")
-
-    Properties {
-        condition: project.buildQbsProjectManager
-        cpp.defines: base.concat(['HAVE_QBS'])
-    }
+    cpp.defines: base.concat(project.buildQbsProjectManager ? ['HAVE_QBS'] : [])
 
     files: [
         "addnewavddialog.ui",
