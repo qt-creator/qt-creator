@@ -799,7 +799,7 @@ void MainWindow::newFile()
 
 void MainWindow::openFile()
 {
-    openFiles(editorManager()->getOpenFileNames(), ICore::SwitchMode);
+    openFiles(EditorManager::getOpenFileNames(), ICore::SwitchMode);
 }
 
 static QList<IDocumentFactory*> getNonEditorDocumentFactories()
@@ -951,10 +951,9 @@ void MainWindow::exit()
 
 void MainWindow::openFileWith()
 {
-    QStringList fileNames = editorManager()->getOpenFileNames();
-    foreach (const QString &fileName, fileNames) {
+    foreach (const QString &fileName, EditorManager::getOpenFileNames()) {
         bool isExternal;
-        const Id editorId = editorManager()->getOpenWithEditorId(fileName, &isExternal);
+        const Id editorId = EditorManager::getOpenWithEditorId(fileName, &isExternal);
         if (!editorId.isValid())
             continue;
         if (isExternal)
@@ -975,11 +974,6 @@ QSettings *MainWindow::settings(QSettings::Scope scope) const
         return m_settings;
     else
         return m_globalSettings;
-}
-
-EditorManager *MainWindow::editorManager() const
-{
-    return m_editorManager;
 }
 
 MimeDatabase *MainWindow::mimeDatabase() const

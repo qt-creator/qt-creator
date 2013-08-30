@@ -96,7 +96,6 @@ public:
 
     Core::IDocument *openFiles(const QStringList &fileNames, ICore::OpenFilesFlags flags);
 
-    Core::EditorManager *editorManager() const;
     Core::MimeDatabase *mimeDatabase() const;
 
     VcsManager *vcsManager() const;
