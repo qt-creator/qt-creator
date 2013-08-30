@@ -53,7 +53,7 @@ class ProgressManagerPrivate : public Core::ProgressManager
 {
     Q_OBJECT
 public:
-    ProgressManagerPrivate(QObject *parent = 0);
+    ProgressManagerPrivate();
     ~ProgressManagerPrivate();
     void init();
     void cleanup();

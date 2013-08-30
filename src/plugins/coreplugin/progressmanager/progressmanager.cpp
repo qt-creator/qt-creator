@@ -265,9 +265,8 @@ using namespace Core::Internal;
     Sent when all tasks of a \a type have finished.
 */
 
-ProgressManagerPrivate::ProgressManagerPrivate(QObject *parent)
-  : ProgressManager(parent),
-    m_applicationTask(0),
+ProgressManagerPrivate::ProgressManagerPrivate()
+  : m_applicationTask(0),
     m_currentStatusDetailsWidget(0),
     m_opacityEffect(new QGraphicsOpacityEffect(this)),
     m_progressViewPinned(false),
@@ -721,7 +720,7 @@ void ToggleButton::paintEvent(QPaintEvent *event)
 
 static ProgressManager *m_instance = 0;
 
-ProgressManager::ProgressManager(QObject *parent)
+ProgressManager::ProgressManager()
 {
     m_instance = this;
 }

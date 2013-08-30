@@ -70,7 +70,7 @@ protected:
     virtual void doSetApplicationLabel(const QString &text) = 0;
 
 private:
-    ProgressManager(QObject *parent = 0);
+    ProgressManager();
     ~ProgressManager();
 
     friend class Core::Internal::ProgressManagerPrivate;
