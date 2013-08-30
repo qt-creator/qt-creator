@@ -178,11 +178,13 @@ public:
     IVersionControl *m_unconfiguredVcs;
 };
 
-static VcsManagerPrivate *d;
+static VcsManagerPrivate *d = 0;
+static VcsManager *m_instance = 0;
 
 VcsManager::VcsManager(QObject *parent) :
    QObject(parent)
 {
+    m_instance = this;
     d = new VcsManagerPrivate;
 }
 
@@ -190,7 +192,13 @@ VcsManager::VcsManager(QObject *parent) :
 
 VcsManager::~VcsManager()
 {
+    m_instance = 0;
     delete d;
+}
+
+QObject *VcsManager::instance()
+{
+    return m_instance;
 }
 
 void VcsManager::extensionsInitialized()
@@ -200,7 +208,7 @@ void VcsManager::extensionsInitialized()
         connect(versionControl, SIGNAL(filesChanged(QStringList)),
                 DocumentManager::instance(), SIGNAL(filesChangedInternally(QStringList)));
         connect(versionControl, SIGNAL(repositoryChanged(QString)),
-                this, SIGNAL(repositoryChanged(QString)));
+                m_instance, SIGNAL(repositoryChanged(QString)));
     }
 }
 
@@ -217,7 +225,7 @@ void VcsManager::resetVersionControlForDirectory(const QString &inputDirectory)
     const QString directory = QDir(inputDirectory).absolutePath();
 
     d->resetCache(directory);
-    emit repositoryChanged(directory);
+    emit m_instance->repositoryChanged(directory);
 }
 
 IVersionControl* VcsManager::findVersionControlForDirectory(const QString &inputDirectory,
@@ -295,7 +303,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
                                   .arg(versionControl->displayName()),
                                   InfoBarEntry::GlobalSuppressionEnabled);
                 d->m_unconfiguredVcs = versionControl;
-                info.setCustomButtonInfo(tr("Configure"), this, SLOT(configureVcs()));
+                info.setCustomButtonInfo(tr("Configure"), m_instance, SLOT(configureVcs()));
                 infoBar->addInfo(info);
             }
             return 0;
@@ -304,7 +312,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
     return versionControl;
 }
 
-QStringList VcsManager::repositories(const IVersionControl *vc) const
+QStringList VcsManager::repositories(const IVersionControl *vc)
 {
     QStringList result;
     foreach (const VcsManagerPrivate::VcsInfo *vi, d->m_vcsInfoList)
@@ -422,7 +430,7 @@ void VcsManager::promptToAdd(const QString &directory, const QStringList &fileNa
 
 void VcsManager::emitRepositoryChanged(const QString &repository)
 {
-    emit repositoryChanged(repository);
+    emit m_instance->repositoryChanged(repository);
 }
 
 void VcsManager::clearVersionControlCache()
@@ -430,7 +438,7 @@ void VcsManager::clearVersionControlCache()
     QStringList repoList = d->m_cachedMatches.keys();
     d->clearCache();
     foreach (const QString &repo, repoList)
-        emit repositoryChanged(repo);
+        emit m_instance->repositoryChanged(repo);
 }
 
 void VcsManager::configureVcs()

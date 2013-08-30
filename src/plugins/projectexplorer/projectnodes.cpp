@@ -348,11 +348,12 @@ ProjectNode::ProjectNode(const QString &projectFilePath)
     setDisplayName(QFileInfo(projectFilePath).fileName());
 }
 
-QString ProjectNode::vcsTopic() const {
+QString ProjectNode::vcsTopic() const
+{
     const QString dir = QFileInfo(path()).absolutePath();
 
     if (Core::IVersionControl *const vc =
-            Core::ICore::vcsManager()->findVersionControlForDirectory(dir))
+            Core::VcsManager::findVersionControlForDirectory(dir))
         return vc->vcsTopic(dir);
 
     return QString();

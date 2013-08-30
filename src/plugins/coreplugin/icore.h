@@ -80,8 +80,6 @@ public:
                                        Id settingsId = Id(),
                                        QWidget *parent = 0);
 
-    static VcsManager *vcsManager();
-
     static QSettings *settings(QSettings::Scope scope = QSettings::UserScope);
     static SettingsDatabase *settingsDatabase();
     static QPrinter *printer();

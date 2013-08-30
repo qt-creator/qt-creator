@@ -108,7 +108,7 @@ public:
         if (!refactoring.createFile(newFileName, txt))
             return;
 
-        Core::IVersionControl *versionControl = Core::ICore::vcsManager()->findVersionControlForDirectory(path);
+        Core::IVersionControl *versionControl = Core::VcsManager::findVersionControlForDirectory(path);
         if (versionControl
                 && versionControl->supportsOperation(Core::IVersionControl::AddOperation)) {
             const QMessageBox::StandardButton button =

@@ -210,7 +210,7 @@ StateListener::StateListener(QObject *parent) :
             this, SLOT(slotStateChanged()));
     connect(Core::EditorManager::instance(), SIGNAL(currentDocumentStateChanged()),
             this, SLOT(slotStateChanged()));
-    connect(Core::ICore::vcsManager(), SIGNAL(repositoryChanged(QString)),
+    connect(Core::VcsManager::instance(), SIGNAL(repositoryChanged(QString)),
             this, SLOT(slotStateChanged()));
 
     if (ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance())
@@ -228,8 +228,6 @@ static inline QString displayNameOfEditor(const QString &fileName)
 
 void StateListener::slotStateChanged()
 {
-    Core::VcsManager *vcsManager = Core::ICore::vcsManager();
-
     // Get the current file. Are we on a temporary submit editor indicated by
     // temporary path prefix or does the file contains a hash, indicating a project
     // folder?
@@ -280,7 +278,7 @@ void StateListener::slotStateChanged()
                 currentFileInfo->isDir() ? currentFileInfo->absoluteFilePath() :
                                            currentFileInfo->absolutePath();
         state.currentFileName = currentFileInfo->fileName();
-        fileControl = vcsManager->findVersionControlForDirectory(state.currentFileDirectory,
+        fileControl = Core::VcsManager::findVersionControlForDirectory(state.currentFileDirectory,
                                                                  &state.currentFileTopLevel);
         if (!fileControl)
             state.clearFile();
@@ -290,7 +288,7 @@ void StateListener::slotStateChanged()
     if (const ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectExplorerPlugin::currentProject()) {
         state.currentProjectPath = currentProject->projectDirectory();
         state.currentProjectName = currentProject->displayName();
-        projectControl = vcsManager->findVersionControlForDirectory(state.currentProjectPath,
+        projectControl = Core::VcsManager::findVersionControlForDirectory(state.currentProjectPath,
                                                                     &state.currentProjectTopLevel);
         if (projectControl) {
             // If we have both, let the file's one take preference
@@ -561,7 +559,7 @@ void VcsBasePlugin::initializeVcs(Core::IVersionControl *vc)
             SLOT(slotStateChanged(VcsBase::Internal::State,Core::IVersionControl*)));
     // VCSes might have become (un-)available, so clear the VCS directory cache
     connect(vc, SIGNAL(configurationChanged()),
-            Core::ICore::vcsManager(), SLOT(clearVersionControlCache()));
+            Core::VcsManager::instance(), SLOT(clearVersionControlCache()));
     connect(vc, SIGNAL(configurationChanged()),
             VcsBasePluginPrivate::m_listener, SLOT(slotStateChanged()));
 }
@@ -639,7 +637,7 @@ void VcsBasePlugin::promptToDeleteCurrentFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    const bool rc = Core::ICore::vcsManager()->promptToDelete(versionControl(), state.currentFile());
+    const bool rc = Core::VcsManager::promptToDelete(versionControl(), state.currentFile());
     if (!rc)
         QMessageBox::warning(0, tr("Version Control"),
                              tr("The file '%1' could not be deleted.").
@@ -667,7 +665,7 @@ void VcsBasePlugin::createRepository()
         directory = QFileDialog::getExistingDirectory(mw, tr("Choose Repository Directory"), directory);
         if (directory.isEmpty())
             return;
-        const Core::IVersionControl *managingControl = Core::ICore::vcsManager()->findVersionControlForDirectory(directory);
+        const Core::IVersionControl *managingControl = Core::VcsManager::findVersionControlForDirectory(directory);
         if (managingControl == 0)
             break;
         const QString question = tr("The directory '%1' is already managed by a version control system (%2)."

@@ -159,7 +159,7 @@ QString FileUtils::msgTerminalAction()
 void FileUtils::removeFile(const QString &filePath, bool deleteFromFS)
 {
     // remove from version control
-    ICore::vcsManager()->promptToDelete(filePath);
+    VcsManager::promptToDelete(filePath);
 
     // remove from file system
     if (deleteFromFS) {
@@ -194,7 +194,7 @@ bool FileUtils::renameFile(const QString &orgFilePath, const QString &newFilePat
         return false;
 
     QString dir = QFileInfo(orgFilePath).absolutePath();
-    IVersionControl *vc = ICore::vcsManager()->findVersionControlForDirectory(dir);
+    IVersionControl *vc = VcsManager::findVersionControlForDirectory(dir);
 
     bool result = false;
     if (vc && vc->supportsOperation(IVersionControl::MoveOperation))

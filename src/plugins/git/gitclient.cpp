@@ -1714,7 +1714,7 @@ bool GitClient::synchronousInit(const QString &workingDirectory)
         outputWindow()->appendError(commandOutputFromLocal8Bit(errorText));
     } else {
         // TODO: Turn this into a VcsBaseClient and use resetCachedVcsInfo(...)
-        Core::ICore::vcsManager()->resetVersionControlForDirectory(workingDirectory);
+        Core::VcsManager::resetVersionControlForDirectory(workingDirectory);
     }
     return rc;
 }
@@ -3760,7 +3760,7 @@ bool GitClient::cloneRepository(const QString &directory,const QByteArray &url)
         const Utils::SynchronousProcessResponse resp =
                 synchronousGit(workingDirectory.path(), arguments, flags);
         // TODO: Turn this into a VcsBaseClient and use resetCachedVcsInfo(...)
-        Core::ICore::vcsManager()->resetVersionControlForDirectory(workingDirectory.absolutePath());
+        Core::VcsManager::resetVersionControlForDirectory(workingDirectory.absolutePath());
         return (resp.result == Utils::SynchronousProcessResponse::Finished);
     }
 }

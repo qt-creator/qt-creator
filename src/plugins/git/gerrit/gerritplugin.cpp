@@ -512,8 +512,7 @@ void GerritPlugin::fetch(const QSharedPointer<Gerrit::Internal::GerritChange> &c
 // Try to find a matching repository for a project by asking the VcsManager.
 QString GerritPlugin::findLocalRepository(QString project, const QString &branch) const
 {
-    const Core::VcsManager *vcsManager = ICore::instance()->vcsManager();
-    const QStringList gitRepositories = vcsManager->repositories(Git::Internal::GitPlugin::instance()->gitVersionControl());
+    const QStringList gitRepositories = VcsManager::repositories(Git::Internal::GitPlugin::instance()->gitVersionControl());
     // Determine key (file name) to look for (qt/qtbase->'qtbase').
     const int slashPos = project.lastIndexOf(QLatin1Char('/'));
     if (slashPos != -1)

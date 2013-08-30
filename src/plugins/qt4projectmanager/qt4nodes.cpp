@@ -1117,8 +1117,7 @@ void Qt4PriFileNode::changeFiles(const QString &mimeType,
     QFileInfo fi(m_projectFilePath);
     if (!fi.isWritable()) {
         // Try via vcs manager
-        Core::VcsManager *vcsManager = Core::ICore::vcsManager();
-        Core::IVersionControl *versionControl = vcsManager->findVersionControlForDirectory(fi.absolutePath());
+        Core::IVersionControl *versionControl = Core::VcsManager::findVersionControlForDirectory(fi.absolutePath());
         if (!versionControl || versionControl->vcsOpen(m_projectFilePath)) {
             bool makeWritable = QFile::setPermissions(m_projectFilePath, fi.permissions() | QFile::WriteUser);
             if (!makeWritable) {

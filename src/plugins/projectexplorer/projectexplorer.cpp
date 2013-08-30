@@ -1761,7 +1761,7 @@ void ProjectExplorerPlugin::updateExternalFileWarning()
         return;
     // External file. Test if it under the same VCS
     QString topLevel;
-    if (Core::ICore::vcsManager()->findVersionControlForDirectory(projectDir.toString(), &topLevel)
+    if (Core::VcsManager::findVersionControlForDirectory(projectDir.toString(), &topLevel)
             && fileName.isChildOf(Utils::FileName::fromString(topLevel))) {
         return;
     }
@@ -2841,7 +2841,7 @@ void ProjectExplorerPlugin::addExistingFiles(ProjectNode *projectNode, const QSt
             fileNames.removeOne(file);
     }
 
-    Core::ICore::vcsManager()->promptToAdd(dir, fileNames);
+    Core::VcsManager::promptToAdd(dir, fileNames);
 }
 
 void ProjectExplorerPlugin::removeProject()
@@ -2929,7 +2929,7 @@ void ProjectExplorerPlugin::deleteFile()
 
     Core::DocumentManager::expectFileChange(filePath);
     if (Core::IVersionControl *vc =
-            Core::ICore::vcsManager()->findVersionControlForDirectory(QFileInfo(filePath).absolutePath())) {
+            Core::VcsManager::findVersionControlForDirectory(QFileInfo(filePath).absolutePath())) {
         vc->vcsDelete(filePath);
     }
     QFile file(filePath);

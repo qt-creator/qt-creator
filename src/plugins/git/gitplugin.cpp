@@ -697,9 +697,9 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     m_redoAction = new QAction(tr("&Redo"), this);
     command = Core::ActionManager::registerAction(m_redoAction, Core::Constants::REDO, submitContext);
 
-    connect(Core::ICore::vcsManager(), SIGNAL(repositoryChanged(QString)),
+    connect(Core::VcsManager::instance(), SIGNAL(repositoryChanged(QString)),
             this, SLOT(updateContinueAndAbortCommands()));
-    connect(Core::ICore::vcsManager(), SIGNAL(repositoryChanged(QString)),
+    connect(Core::VcsManager::instance(), SIGNAL(repositoryChanged(QString)),
             this, SLOT(updateBranches(QString)), Qt::QueuedConnection);
 
     if (!Core::MimeDatabase::addMimeTypes(QLatin1String(RC_GIT_MIME_XML), errorMessage))

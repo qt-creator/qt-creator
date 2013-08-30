@@ -349,11 +349,6 @@ bool ICore::showWarningWithOptions(const QString &title, const QString &text,
                                                 settingsId, parent);
 }
 
-VcsManager *ICore::vcsManager()
-{
-    return m_mainwindow->vcsManager();
-}
-
 QSettings *ICore::settings(QSettings::Scope scope)
 {
     return m_mainwindow->settings(scope);

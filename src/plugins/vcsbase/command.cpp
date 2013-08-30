@@ -405,7 +405,7 @@ Utils::SynchronousProcessResponse Command::runVcs(const QStringList &arguments, 
     if (d->m_flags & VcsBasePlugin::ExpectRepoChanges) {
         // TODO tell the document manager that the directory now received all expected changes
         // Core::DocumentManager::unexpectDirectoryChange(d->m_workingDirectory);
-        Core::ICore::vcsManager()->emitRepositoryChanged(d->m_workingDirectory);
+        Core::VcsManager::emitRepositoryChanged(d->m_workingDirectory);
     }
 
     return response;
@@ -515,7 +515,7 @@ bool Command::runFullySynchronous(const QStringList &arguments, int timeoutMS,
     if (d->m_flags & VcsBasePlugin::ExpectRepoChanges) {
         // TODO tell the document manager that the directory now received all expected changes
         // Core::DocumentManager::unexpectDirectoryChange(workingDirectory);
-        Core::ICore::vcsManager()->emitRepositoryChanged(d->m_workingDirectory);
+        Core::VcsManager::emitRepositoryChanged(d->m_workingDirectory);
     }
 
     return process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0;

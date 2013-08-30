@@ -613,7 +613,7 @@ void VcsBaseClient::enqueueJob(Command *cmd, const QStringList &args)
 
 void VcsBaseClient::resetCachedVcsInfo(const QString &workingDir)
 {
-    Core::ICore::vcsManager()->resetVersionControlForDirectory(workingDir);
+    Core::VcsManager::resetVersionControlForDirectory(workingDir);
 }
 
 } // namespace VcsBase

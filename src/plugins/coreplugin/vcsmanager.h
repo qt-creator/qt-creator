@@ -58,33 +58,35 @@ class CORE_EXPORT VcsManager : public QObject
     Q_OBJECT
 
 public:
-    void extensionsInitialized();
+    static QObject *instance();
 
-    void resetVersionControlForDirectory(const QString &inputDirectory);
-    IVersionControl *findVersionControlForDirectory(const QString &directory,
+    static void extensionsInitialized();
+
+    static void resetVersionControlForDirectory(const QString &inputDirectory);
+    static IVersionControl *findVersionControlForDirectory(const QString &directory,
                                                     QString *topLevelDirectory = 0);
 
-    QStringList repositories(const IVersionControl *) const;
+    static QStringList repositories(const IVersionControl *);
 
-    IVersionControl *checkout(const QString &versionControlType,
+    static IVersionControl *checkout(const QString &versionControlType,
                               const QString &directory,
                               const QByteArray &url);
     // Used only by Trac plugin.
     bool findVersionControl(const QString &versionControl);
     // Used only by Trac plugin.
-    QString repositoryUrl(const QString &directory);
+    static QString repositoryUrl(const QString &directory);
 
     // Shows a confirmation dialog, whether the file should also be deleted
     // from revision control. Calls vcsDelete on the file. Returns false
     // if a failure occurs
-    bool promptToDelete(const QString &fileName);
-    bool promptToDelete(IVersionControl *versionControl, const QString &fileName);
+    static bool promptToDelete(const QString &fileName);
+    static bool promptToDelete(IVersionControl *versionControl, const QString &fileName);
 
     // Shows a confirmation dialog, whether the files in the list should be
     // added to revision control. Calls vcsAdd for each file.
-    void promptToAdd(const QString &directory, const QStringList &fileNames);
+    static void promptToAdd(const QString &directory, const QStringList &fileNames);
 
-    void emitRepositoryChanged(const QString &repository);
+    static void emitRepositoryChanged(const QString &repository);
 
     // Utility messages for adding files
     static QString msgAddToVcsTitle();
@@ -96,14 +98,14 @@ signals:
     void repositoryChanged(const QString &repository);
 
 public slots:
-    void clearVersionControlCache();
+    static void clearVersionControlCache();
 
 private slots:
-    void configureVcs();
+    static void configureVcs();
 
 private:
     explicit VcsManager(QObject *parent = 0);
-    virtual ~VcsManager();
+    ~VcsManager();
 
     friend class Core::Internal::MainWindow;
 };

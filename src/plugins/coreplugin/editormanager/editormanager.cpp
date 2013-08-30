@@ -1850,7 +1850,7 @@ void EditorManager::vcsOpenCurrentEditor()
         return;
 
     const QString directory = QFileInfo(document->filePath()).absolutePath();
-    IVersionControl *versionControl = ICore::vcsManager()->findVersionControlForDirectory(directory);
+    IVersionControl *versionControl = VcsManager::findVersionControlForDirectory(directory);
     if (!versionControl || versionControl->openSupportMode() == IVersionControl::NoOpen)
         return;
 
@@ -1912,7 +1912,7 @@ void EditorManager::updateMakeWritableWarning()
         // if we do not really show a warning.
         bool promptVCS = false;
         const QString directory = QFileInfo(document->filePath()).absolutePath();
-        IVersionControl *versionControl = ICore::vcsManager()->findVersionControlForDirectory(directory);
+        IVersionControl *versionControl = VcsManager::findVersionControlForDirectory(directory);
         if (versionControl && versionControl->openSupportMode() != IVersionControl::NoOpen) {
             if (versionControl->settingsFlags() & IVersionControl::AutoOpen) {
                 vcsOpenCurrentEditor();

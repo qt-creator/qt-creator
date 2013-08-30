@@ -1366,8 +1366,7 @@ QString VcsBaseEditorWidget::findDiffFile(const QString &f) const
             return sourceFileInfo.absoluteFilePath();
 
         QString topLevel;
-        Core::VcsManager *vcsManager = Core::ICore::vcsManager();
-        vcsManager->findVersionControlForDirectory(sourceDir, &topLevel); //
+        Core::VcsManager::findVersionControlForDirectory(sourceDir, &topLevel); //
         if (topLevel.isEmpty())
             return QString();
 

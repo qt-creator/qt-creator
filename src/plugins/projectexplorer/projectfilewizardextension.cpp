@@ -349,7 +349,7 @@ void ProjectFileWizardExtension::initializeVersionControlChoices()
 
     QStringList versionControlChoices = QStringList(tr("<None>"));
     if (!m_context->commonDirectory.isEmpty()) {
-        Core::IVersionControl *managingControl = Core::ICore::vcsManager()->findVersionControlForDirectory(m_context->commonDirectory);
+        Core::IVersionControl *managingControl = Core::VcsManager::findVersionControlForDirectory(m_context->commonDirectory);
         if (managingControl) {
             // Under VCS
             if (managingControl->supportsOperation(Core::IVersionControl::AddOperation)) {
