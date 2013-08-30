@@ -18,6 +18,10 @@ QtcPlugin {
         customWizard.prefix,
         publishing.prefix
     ])
+    Properties {
+        condition: qbs.targetOS.contains("osx")
+        cpp.frameworks: base.concat(["Carbon"])
+    }
 
     Group {
         name: "General"
