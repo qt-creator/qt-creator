@@ -964,16 +964,6 @@ void MainWindow::openFileWith()
     }
 }
 
-ActionManager *MainWindow::actionManager() const
-{
-    return m_actionManager;
-}
-
-MessageManager *MainWindow::messageManager() const
-{
-    return m_messageManager;
-}
-
 VcsManager *MainWindow::vcsManager() const
 {
     return m_vcsManager;
@@ -992,29 +982,9 @@ EditorManager *MainWindow::editorManager() const
     return m_editorManager;
 }
 
-ProgressManager *MainWindow::progressManager() const
-{
-    return m_progressManager;
-}
-
-VariableManager *MainWindow::variableManager() const
-{
-     return m_variableManager;
-}
-
-ModeManager *MainWindow::modeManager() const
-{
-    return m_modeManager;
-}
-
 MimeDatabase *MainWindow::mimeDatabase() const
 {
     return m_mimeDatabase;
-}
-
-HelpManager *MainWindow::helpManager() const
-{
-    return m_helpManager;
 }
 
 IContext *MainWindow::contextObject(QWidget *widget)

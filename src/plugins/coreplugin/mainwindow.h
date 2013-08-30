@@ -96,14 +96,8 @@ public:
 
     Core::IDocument *openFiles(const QStringList &fileNames, ICore::OpenFilesFlags flags);
 
-    Core::ActionManager *actionManager() const;
-    Core::MessageManager *messageManager() const;
     Core::EditorManager *editorManager() const;
-    Core::ProgressManager *progressManager() const;
-    Core::VariableManager *variableManager() const;
-    Core::ModeManager *modeManager() const;
     Core::MimeDatabase *mimeDatabase() const;
-    Core::HelpManager *helpManager() const;
 
     VcsManager *vcsManager() const;
     QSettings *settings(QSettings::Scope scope) const;
