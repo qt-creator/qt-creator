@@ -65,8 +65,8 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
 
     if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":qtsupport/QtSupport.mimetypes.xml"), errorMessage))
         return false;
-    QtVersionManager *mgr = new QtVersionManager;
-    addAutoReleasedObject(mgr);
+
+    addAutoReleasedObject(new QtVersionManager);
     addAutoReleasedObject(new UiCodeModelManager);
 
     QtFeatureProvider *featureMgr = new QtFeatureProvider;

@@ -45,11 +45,6 @@ class Node;
 class ToolChain;
 }
 
-namespace QtSupport {
-class QtVersionManager;
-class BaseQtVersion;
-}
-
 namespace Qt4ProjectManager {
 
 namespace Internal {
