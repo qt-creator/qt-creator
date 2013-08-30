@@ -49,18 +49,11 @@ class AppMainWindow;
 
 namespace Core {
 class IWizard;
-class ActionManager;
 class Context;
-class EditorManager;
-class DocumentManager;
 class IContext;
-class MessageManager;
 class MimeDatabase;
-class ModeManager;
 class ProgressManager;
-class ScriptManager;
 class SettingsDatabase;
-class VariableManager;
 class VcsManager;
 
 namespace Internal { class MainWindow; }

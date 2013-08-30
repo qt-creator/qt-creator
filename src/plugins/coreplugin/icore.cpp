@@ -96,48 +96,11 @@
 
 
 /*!
-    \fn ActionManager *ICore::actionManager()
-    \obsolete
-
-    Use Core::ActionManager directly.
-*/
-
-/*!
-    \fn DocumentManager *ICore::documentManager()
-    \obsolete
-
-    Use Core::DocumentManager directly.
-*/
-
-/*!
-    \fn MessageManager *ICore::messageManager()
-    \obsolete
-
-    Use Core::MessageManager directly.
-*/
-
-/*!
-    \fn EditorManager *ICore::editorManager()
-    \brief Returns the application's editor manager.
-
-    The editor manager handles all editor related tasks like opening
-    documents, the stack of currently open documents and the currently
-    active document.
-*/
-
-/*!
     \fn ProgressManager *ICore::progressManager()
     \brief Returns the application's progress manager.
 
     Use the progress manager to register a concurrent task to
     show a progress bar the way Qt Creator does it.
-*/
-
-/*!
-    \fn VariableManager *ICore::variableManager()
-    \obsolete
-
-    Use \c VariableManager::variableManager() directly.
 */
 
 /*!
@@ -152,24 +115,10 @@
 */
 
 /*!
-    \fn ModeManager *ICore::modeManager()
-    \obsolete
-
-    Use \c ModeManager::modeManager() directly.
-*/
-
-/*!
     \fn MimeDatabase *ICore::mimeDatabase()
     \brief Returns the application's mime database.
 
     Use the mime database to manage mime types.
-*/
-
-/*!
-    \fn HelpManager *ICore::helpManager()
-    \brief Returns the application's help manager.
-
-    Use the help manager to register documentation sets.
 */
 
 /*!
