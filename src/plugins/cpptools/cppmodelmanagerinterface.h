@@ -53,7 +53,6 @@ namespace CppTools {
 
 class AbstractEditorSupport;
 class CppCompletionAssistProvider;
-class CppCompletionSupport;
 class CppEditorSupport;
 class CppHighlightingSupport;
 class CppHighlightingSupportFactory;
@@ -241,7 +240,6 @@ public:
     virtual void setIfdefedOutBlocks(const QString &fileName,
                                      const QList<TextEditor::BlockRange> &ifdeffedOutBlocks) = 0;
 
-    virtual CppTools::CppCompletionSupport *completionSupport(Core::IEditor *editor) const = 0;
     virtual CppCompletionAssistProvider *completionAssistProvider(Core::IEditor *editor) const = 0;
     virtual void setCppCompletionAssistProvider(CppTools::CppCompletionAssistProvider *completionAssistProvider) = 0;
 

@@ -32,7 +32,6 @@ HEADERS += completionsettingspage.h \
     doxygengenerator.h \
     commentssettings.h \
     symbolfinder.h \
-    cppcompletionsupport.h \
     cpphighlightingsupport.h \
     cpphighlightingsupportinternal.h \
     cppchecksymbols.h \
@@ -77,7 +76,6 @@ SOURCES += completionsettingspage.cpp \
     doxygengenerator.cpp \
     commentssettings.cpp \
     symbolfinder.cpp \
-    cppcompletionsupport.cpp \
     cpphighlightingsupport.cpp \
     cpphighlightingsupportinternal.cpp \
     cppchecksymbols.cpp \

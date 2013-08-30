@@ -262,8 +262,6 @@ private:
     QSharedPointer<FunctionDeclDefLink> m_declDefLink;
 
     CppTools::CommentsSettings m_commentsSettings;
-
-    CppTools::CppCompletionSupport *m_completionSupport;
 };
 
 } // namespace Internal

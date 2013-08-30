@@ -259,9 +259,8 @@ CppModelManager::CppModelManager(QObject *parent)
 
     qRegisterMetaType<CPlusPlus::Document::Ptr>("CPlusPlus::Document::Ptr");
 
-    m_completionFallback = new InternalCompletionAssistProvider;
-    m_completionAssistProvider = m_completionFallback;
-    ExtensionSystem::PluginManager::addObject(m_completionAssistProvider);
+    m_completionFallback.reset(new InternalCompletionAssistProvider);
+    m_completionAssistProvider = m_completionFallback.data();
     m_highlightingFallback = new CppHighlightingSupportInternalFactory;
     m_highlightingFactory = m_highlightingFallback;
     m_internalIndexingSupport = new BuiltinIndexingSupport;
@@ -269,8 +268,6 @@ CppModelManager::CppModelManager(QObject *parent)
 
 CppModelManager::~CppModelManager()
 {
-    ExtensionSystem::PluginManager::removeObject(m_completionAssistProvider);
-    delete m_completionFallback;
     delete m_highlightingFallback;
     delete m_internalIndexingSupport;
 }
@@ -899,14 +896,6 @@ void CppModelManager::finishedRefreshingSourceFiles(const QStringList &files)
     emit sourceFilesRefreshed(files);
 }
 
-CppCompletionSupport *CppModelManager::completionSupport(Core::IEditor *editor) const
-{
-    if (TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor *>(editor))
-        return m_completionAssistProvider->completionSupport(textEditor);
-    else
-        return 0;
-}
-
 CppCompletionAssistProvider *CppModelManager::completionAssistProvider(Core::IEditor *editor) const
 {
     Q_UNUSED(editor);
@@ -916,12 +905,10 @@ CppCompletionAssistProvider *CppModelManager::completionAssistProvider(Core::IEd
 
 void CppModelManager::setCppCompletionAssistProvider(CppCompletionAssistProvider *completionAssistProvider)
 {
-    ExtensionSystem::PluginManager::removeObject(m_completionAssistProvider);
     if (completionAssistProvider)
         m_completionAssistProvider = completionAssistProvider;
     else
-        m_completionAssistProvider = m_completionFallback;
-    ExtensionSystem::PluginManager::addObject(m_completionAssistProvider);
+        m_completionAssistProvider = m_completionFallback.data();
 }
 
 CppHighlightingSupport *CppModelManager::highlightingSupport(Core::IEditor *editor) const

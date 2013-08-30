@@ -30,10 +30,22 @@
 #ifndef CPPTOOLS_CPPCOMPLETIONASSISTPROVIDER_H
 #define CPPTOOLS_CPPCOMPLETIONASSISTPROVIDER_H
 
-#include "cppcompletionsupport.h"
 #include "cpptools_global.h"
 
+#include <texteditor/codeassist/assistenums.h>
 #include <texteditor/codeassist/completionassistprovider.h>
+
+QT_BEGIN_NAMESPACE
+class QTextDocument;
+QT_END_NAMESPACE
+
+namespace ProjectExplorer {
+class Project;
+}
+
+namespace TextEditor {
+class IAssistInterface;
+}
 
 namespace CppTools {
 
@@ -46,7 +58,9 @@ public:
     virtual int activationCharSequenceLength() const;
     virtual bool isActivationCharSequence(const QString &sequence) const;
 
-    virtual CppCompletionSupport *completionSupport(TextEditor::ITextEditor *editor) = 0;
+    virtual TextEditor::IAssistInterface *createAssistInterface(
+            ProjectExplorer::Project *project, const QString &filePath, QTextDocument *document,
+            int position, TextEditor::AssistReason reason) const = 0;
 
     static int activationSequenceChar(const QChar &ch, const QChar &ch2,
                                       const QChar &ch3, unsigned *kind,

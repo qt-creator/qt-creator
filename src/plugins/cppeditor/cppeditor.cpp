@@ -43,7 +43,6 @@
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cppchecksymbols.h>
 #include <cpptools/cppcodeformatter.h>
-#include <cpptools/cppcompletionsupport.h>
 #include <cpptools/cppcompletionassistprovider.h>
 #include <cpptools/cpphighlightingsupport.h>
 #include <cpptools/cpplocalsymbols.h>
@@ -511,7 +510,6 @@ CPPEditorWidget::CPPEditorWidget(QWidget *parent)
     , m_firstRenameChange(false)
     , m_objcEnabled(false)
     , m_commentsSettings(CppTools::CppToolsSettings::instance()->commentsSettings())
-    , m_completionSupport(0)
 {
     qRegisterMetaType<SemanticInfo>("CppTools::SemanticInfo");
 
@@ -532,8 +530,6 @@ CPPEditorWidget::CPPEditorWidget(QWidget *parent)
                 this, SLOT(updateSemanticInfo(CppTools::SemanticInfo)));
         connect(editorSupport, SIGNAL(highlighterStarted(QFuture<TextEditor::HighlightingResult>*,uint)),
                 this, SLOT(highlighterStarted(QFuture<TextEditor::HighlightingResult>*,uint)));
-
-        m_completionSupport = m_modelManager->completionSupport(editor());
     }
 
     m_highlightRevision = 0;
@@ -563,8 +559,6 @@ CPPEditorWidget::~CPPEditorWidget()
 {
     if (m_modelManager)
         m_modelManager->deleteCppEditorSupport(editor());
-
-    delete m_completionSupport;
 }
 
 TextEditor::BaseTextEditor *CPPEditorWidget::createEditor()
@@ -2111,10 +2105,12 @@ TextEditor::IAssistInterface *CPPEditorWidget::createAssistInterface(
     TextEditor::AssistReason reason) const
 {
     if (kind == TextEditor::Completion) {
-        if (m_completionSupport)
-            return m_completionSupport->createAssistInterface(
+        CppEditorSupport *ces = CppModelManagerInterface::instance()->cppEditorSupport(editor());
+        CppCompletionAssistProvider *cap = ces->completionAssistProvider();
+        if (cap)
+            return cap->createAssistInterface(
                         ProjectExplorer::ProjectExplorerPlugin::currentProject(),
-                        document(), position(), reason);
+                        editor()->document()->filePath(), document(), position(), reason);
     } else if (kind == TextEditor::QuickFix) {
         if (!semanticInfo().doc || isOutdated())
             return 0;

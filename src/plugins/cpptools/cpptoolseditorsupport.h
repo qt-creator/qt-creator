@@ -195,7 +195,7 @@ private:
     QScopedPointer<CppTools::CppHighlightingSupport> m_highlightingSupport;
 
     // Completion:
-    QScopedPointer<CppCompletionAssistProvider> m_completionAssistProvider;
+    CppCompletionAssistProvider *m_completionAssistProvider;
 };
 
 } // namespace CppTools

@@ -232,7 +232,7 @@ void CppEditorSupport::recalculateSemanticInfoDetached(bool force)
 
 CppCompletionAssistProvider *CppEditorSupport::completionAssistProvider() const
 {
-    return m_completionAssistProvider.data();
+    return m_completionAssistProvider;
 }
 
 void CppEditorSupport::updateDocument()
@@ -525,6 +525,8 @@ void CppEditorSupport::onMimeTypeChanged()
     if (m_highlightingSupport && m_highlightingSupport->requiresSemanticInfo())
         connect(this, SIGNAL(semanticInfoUpdated(CppTools::SemanticInfo)),
                 this, SLOT(startHighlighting()));
+
+    m_completionAssistProvider = m_modelManager->completionAssistProvider(m_textEditor);
 
     updateDocumentNow();
 }

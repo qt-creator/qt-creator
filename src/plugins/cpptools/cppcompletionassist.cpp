@@ -416,44 +416,25 @@ IAssistProcessor *InternalCompletionAssistProvider::createProcessor() const
     return new CppCompletionAssistProcessor;
 }
 
-namespace {
-class CppCompletionSupportInternal: public CppCompletionSupport
+TextEditor::IAssistInterface *InternalCompletionAssistProvider::createAssistInterface(
+        ProjectExplorer::Project *project, const QString &filePath, QTextDocument *document,
+        int position, TextEditor::AssistReason reason) const
 {
-public:
-    CppCompletionSupportInternal(TextEditor::ITextEditor *editor)
-        : CppCompletionSupport(editor)
-    {}
-
-    virtual ~CppCompletionSupportInternal()
-    {}
-
-    virtual TextEditor::IAssistInterface *createAssistInterface(ProjectExplorer::Project *project,
-                                                                QTextDocument *document,
-                                                                int position,
-                                                                TextEditor::AssistReason reason) const
-    {
-        CppModelManagerInterface *modelManager = CppModelManagerInterface::instance();
-        QStringList includePaths;
-        QStringList frameworkPaths;
-        if (project) {
-            includePaths = modelManager->projectInfo(project).includePaths();
-            frameworkPaths = modelManager->projectInfo(project).frameworkPaths();
-        }
-        return new CppTools::Internal::CppCompletionAssistInterface(
-                    document,
-                    position,
-                    editor()->document()->filePath(),
-                    reason,
-                    modelManager->snapshot(),
-                    includePaths,
-                    frameworkPaths);
+    CppModelManagerInterface *modelManager = CppModelManagerInterface::instance();
+    QStringList includePaths;
+    QStringList frameworkPaths;
+    if (project) {
+        includePaths = modelManager->projectInfo(project).includePaths();
+        frameworkPaths = modelManager->projectInfo(project).frameworkPaths();
     }
-};
-}
-
-CppCompletionSupport *InternalCompletionAssistProvider::completionSupport(ITextEditor *editor)
-{
-    return new CppCompletionSupportInternal(editor);
+    return new CppTools::Internal::CppCompletionAssistInterface(
+                document,
+                position,
+                filePath,
+                reason,
+                modelManager->snapshot(),
+                includePaths,
+                frameworkPaths);
 }
 
 // -----------------

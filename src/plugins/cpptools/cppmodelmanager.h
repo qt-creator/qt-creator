@@ -104,7 +104,6 @@ public:
 
     void finishedRefreshingSourceFiles(const QStringList &files);
 
-    virtual CppCompletionSupport *completionSupport(Core::IEditor *editor) const;
     virtual CppCompletionAssistProvider *completionAssistProvider(Core::IEditor *editor) const;
     virtual void setCppCompletionAssistProvider(CppCompletionAssistProvider *completionAssistProvider);
 
@@ -204,7 +203,7 @@ private:
 
     // Completion
     CppCompletionAssistProvider *m_completionAssistProvider;
-    CppCompletionAssistProvider *m_completionFallback;
+    QScopedPointer<CppCompletionAssistProvider> m_completionFallback;
 
     // Highlighting
     CppHighlightingSupportFactory *m_highlightingFactory;

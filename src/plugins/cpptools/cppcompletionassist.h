@@ -89,7 +89,11 @@ class InternalCompletionAssistProvider : public CppCompletionAssistProvider
 
 public:
     virtual TextEditor::IAssistProcessor *createProcessor() const;
-    virtual CppCompletionSupport *completionSupport(TextEditor::ITextEditor *editor);
+
+    virtual TextEditor::IAssistInterface *createAssistInterface(
+            ProjectExplorer::Project *project, const QString &filePath, QTextDocument *document,
+            int position, TextEditor::AssistReason reason) const;
+
 };
 
 class CppCompletionAssistProcessor : public TextEditor::IAssistProcessor
