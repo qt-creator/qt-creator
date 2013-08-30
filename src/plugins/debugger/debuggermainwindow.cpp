@@ -270,10 +270,10 @@ DebuggerMainWindow::~DebuggerMainWindow()
 void DebuggerMainWindow::setCurrentEngine(DebuggerEngine *engine)
 {
     if (d->m_engine)
-        disconnect(d->m_engine, SIGNAL(raiseWindow()), ICore::appMainWindow(), SLOT(raiseWindow()));
+        disconnect(d->m_engine, SIGNAL(raiseWindow()), ICore::mainWindow(), SLOT(raiseWindow()));
     d->m_engine = engine;
     if (d->m_engine)
-        connect(d->m_engine, SIGNAL(raiseWindow()), ICore::appMainWindow(), SLOT(raiseWindow()));
+        connect(d->m_engine, SIGNAL(raiseWindow()), ICore::mainWindow(), SLOT(raiseWindow()));
 }
 
 DebuggerLanguages DebuggerMainWindow::activeDebugLanguages() const

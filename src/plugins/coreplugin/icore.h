@@ -43,10 +43,6 @@ class QWidget;
 template <class T> class QList;
 QT_END_NAMESPACE
 
-namespace Utils {
-class AppMainWindow;
-}
-
 namespace Core {
 class IWizard;
 class Context;
@@ -101,7 +97,6 @@ public:
     static QString buildCompatibilityString();
 
     static QWidget *mainWindow();
-    static Utils::AppMainWindow *appMainWindow();
     static QStatusBar *statusBar();
     /* Raises and activates the window for the widget. This contains workarounds for X11. */
     static void raiseWindow(QWidget *widget);

@@ -462,11 +462,6 @@ QWidget *ICore::mainWindow()
     return m_mainwindow;
 }
 
-Utils::AppMainWindow *ICore::appMainWindow()
-{
-    return m_mainwindow;
-}
-
 QStatusBar *ICore::statusBar()
 {
     return m_mainwindow->statusBar();
