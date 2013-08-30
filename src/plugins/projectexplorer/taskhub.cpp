@@ -102,7 +102,7 @@ void TaskHub::addCategory(Core::Id categoryId, const QString &displayName, bool 
     emit m_instance->categoryAdded(categoryId, displayName, visible);
 }
 
-TaskHub *TaskHub::instance()
+QObject *TaskHub::instance()
 {
     return m_instance;
 }

@@ -43,7 +43,7 @@ class PROJECTEXPLORER_EXPORT TaskHub : public QObject
 {
     Q_OBJECT
 public:
-    static TaskHub *instance();
+    static QObject *instance();
 
     // Convenience overload
     static void addTask(Task::TaskType type, const QString &description,
