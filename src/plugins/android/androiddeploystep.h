@@ -146,7 +146,7 @@ private:
     QString m_avdName;
     QString m_packageName;
     QString m_qtVersionSourcePath;
-    QtSupport::BaseQtVersion::QmakeBuildConfigs m_qtVersionQMakeBuildConfig;
+    bool m_signPackage;
     Utils::FileName m_androidDirPath;
     QString m_apkPathDebug;
     QString m_apkPathRelease;

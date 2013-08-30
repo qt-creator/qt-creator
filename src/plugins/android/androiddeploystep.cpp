@@ -39,7 +39,9 @@
 
 #include <coreplugin/messagemanager.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
 #include <qt4projectmanager/qt4project.h>
@@ -133,8 +135,16 @@ bool AndroidDeployStep::init()
     if (!bc)
         return false;
 
+    m_signPackage = false;
+    // find AndroidPackageCreationStep
+    foreach (BuildStep *step, target()->activeDeployConfiguration()->stepList()->steps()) {
+        if (AndroidPackageCreationStep *apcs = qobject_cast<AndroidPackageCreationStep *>(step)) {
+            m_signPackage = apcs->signPackage();
+            break;
+        }
+    }
+
     m_qtVersionSourcePath = version->qmakeProperty("QT_INSTALL_PREFIX");
-    m_qtVersionQMakeBuildConfig = bc->qmakeBuildConfiguration();
     m_androidDirPath = AndroidManager::dirPath(target());
     m_apkPathDebug = AndroidManager::apkPath(target(), AndroidManager::DebugBuild).toString();
     m_apkPathRelease = AndroidManager::apkPath(target(), AndroidManager::ReleaseBuildSigned).toString();
@@ -544,8 +554,7 @@ bool AndroidDeployStep::deployPackage()
                AndroidDeviceInfo::adbSelector(m_deviceSerialNumber) << QLatin1String("uninstall") << m_packageName);
     QString package = m_apkPathDebug;
 
-    if (!(m_qtVersionQMakeBuildConfig & QtSupport::BaseQtVersion::DebugBuild)
-         && QFile::exists(m_apkPathRelease))
+    if (m_signPackage && QFile::exists(m_apkPathRelease))
         package = m_apkPathRelease;
 
     if (!runCommand(deployProc, AndroidConfigurations::instance().adbToolPath().toString(),

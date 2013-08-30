@@ -72,6 +72,8 @@ public:
     void setCertificatePassword(const QString &pwd);
     void setOpenPackageLocation(bool open);
     QAbstractItemModel *keystoreCertificates();
+    bool signPackage() const;
+    void setSignPackage(bool b);
 
 protected:
     bool fromMap(const QVariantMap &map);
@@ -115,6 +117,7 @@ private:
 
 private:
     void handleProcessOutput(QProcess *process, bool stdErr);
+    bool m_signPackage;
     Utils::FileName m_keystorePath;
     QString m_keystorePasswd;
     QString m_certificateAlias;
@@ -126,10 +129,10 @@ private:
     Utils::FileName m_androidDir;
     Utils::FileName m_gdbServerSource;
     Utils::FileName m_gdbServerDestination;
-    bool m_debugBuild;
     Utils::FileName m_antToolPath;
     Utils::FileName m_apkPathUnsigned;
     Utils::FileName m_apkPathSigned;
+    bool m_signPackageForRun;
     Utils::FileName m_keystorePathForRun;
     QString m_certificatePasswdForRun;
     Utils::FileName m_jarSigner;

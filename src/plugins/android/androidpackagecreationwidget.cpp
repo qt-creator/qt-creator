@@ -139,12 +139,15 @@ AndroidPackageCreationWidget::AndroidPackageCreationWidget(AndroidPackageCreatio
     : ProjectExplorer::BuildStepConfigWidget(),
       m_step(step),
       m_ui(new Ui::AndroidPackageCreationWidget),
-      m_fileSystemWatcher(new QFileSystemWatcher(this))
+      m_fileSystemWatcher(new QFileSystemWatcher(this)),
+      m_currentBuildConfiguration(0)
 {
     m_qtLibsModel = new CheckModel(this);
     m_prebundledLibs = new CheckModel(this);
 
     m_ui->setupUi(this);
+    m_ui->signingDebugWarningIcon->hide();
+    m_ui->signingDebugWarningLabel->hide();
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     QTimer::singleShot(50, this, SLOT(initGui()));
     connect(m_step, SIGNAL(updateRequiredLibrariesModels()), SLOT(updateRequiredLibrariesModels()));
@@ -184,6 +187,36 @@ void AndroidPackageCreationWidget::initGui()
     bool use = bc->useSystemEnvironment();
     bc->setUseSystemEnvironment(!use);
     bc->setUseSystemEnvironment(use);
+
+    activeBuildConfigurationChanged();
+    connect(m_step->target(), SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
+            this, SLOT(activeBuildConfigurationChanged()));
+}
+
+void AndroidPackageCreationWidget::updateSigningWarning()
+{
+    Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(m_step->target()->activeBuildConfiguration());
+    bool debug = bc && (bc->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild);
+    if (m_step->signPackage() && debug) {
+        m_ui->signingDebugWarningIcon->setVisible(true);
+        m_ui->signingDebugWarningLabel->setVisible(true);
+    } else {
+        m_ui->signingDebugWarningIcon->setVisible(false);
+        m_ui->signingDebugWarningLabel->setVisible(false);
+    }
+}
+
+void AndroidPackageCreationWidget::activeBuildConfigurationChanged()
+{
+    if (m_currentBuildConfiguration)
+        disconnect(m_currentBuildConfiguration, SIGNAL(qmakeBuildConfigurationChanged()),
+                   this, SLOT(updateSigningWarning()));
+    updateSigningWarning();
+    Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(m_step->target()->activeBuildConfiguration());
+    m_currentBuildConfiguration = bc;
+    if (bc)
+        connect(bc, SIGNAL(qmakeBuildConfigurationChanged()), this, SLOT(updateSigningWarning()));
+                m_currentBuildConfiguration = bc;
 }
 
 void AndroidPackageCreationWidget::updateAndroidProjectInfo()
@@ -304,6 +337,8 @@ void AndroidPackageCreationWidget::setCertificates()
 
 void AndroidPackageCreationWidget::on_signPackageCheckBox_toggled(bool checked)
 {
+    m_step->setSignPackage(checked);
+    updateSigningWarning();
     if (!checked)
         return;
     if (!m_step->keystorePath().isEmpty())

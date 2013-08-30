@@ -66,6 +66,7 @@ namespace Internal {
 
 namespace {
     const QLatin1String KeystoreLocationKey("KeystoreLocation");
+    const QLatin1String SignPackageKey("SignPackage");
     const QLatin1String AliasString("Alias name:");
     const QLatin1String CertificateSeparator("*******************************************");
 }
@@ -131,6 +132,7 @@ void AndroidPackageCreationStep::ctor()
     setDefaultDisplayName(tr("Packaging for Android"));
     m_openPackageLocation = true;
     m_bundleQt = false;
+    m_signPackage = false;
     connect(&m_outputParser, SIGNAL(addTask(ProjectExplorer::Task)), this, SIGNAL(addTask(ProjectExplorer::Task)));
 }
 
@@ -156,7 +158,6 @@ bool AndroidPackageCreationStep::init()
     Utils::FileName androidLibPath = path.appendPath(QLatin1String("libs/") + androidTargetArch);
     m_gdbServerDestination = androidLibPath.appendPath(QLatin1String("gdbserver"));
     m_gdbServerSource = AndroidGdbServerKitInformation::gdbServer(target()->kit());
-    m_debugBuild = bc->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild;
 
     if (!AndroidManager::createAndroidTemplatesIfNecessary(target()))
         return false;
@@ -165,6 +166,7 @@ bool AndroidPackageCreationStep::init()
     m_antToolPath = AndroidConfigurations::instance().antToolPath();
     m_apkPathUnsigned = AndroidManager::apkPath(target(), AndroidManager::ReleaseBuildUnsigned);
     m_apkPathSigned = AndroidManager::apkPath(target(), AndroidManager::ReleaseBuildSigned);
+    m_signPackageForRun = m_signPackage;
     m_keystorePathForRun = m_keystorePath;
     m_certificatePasswdForRun = m_certificatePasswd;
     m_jarSigner = AndroidConfigurations::instance().jarsignerPath();
@@ -176,6 +178,10 @@ bool AndroidPackageCreationStep::init()
         return false;
 
     initCheckRequiredLibrariesForRun();
+
+    if (m_signPackage && (bc->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild))
+        emit addOutput(tr("Warning: Signing a debug package."), BuildStep::ErrorMessageOutput);
+
     return true;
 }
 
@@ -418,11 +424,22 @@ QAbstractItemModel *AndroidPackageCreationStep::keystoreCertificates()
     return new CertificatesModel(rawCerts, this);
 }
 
+bool AndroidPackageCreationStep::signPackage() const
+{
+    return m_signPackage;
+}
+
+void AndroidPackageCreationStep::setSignPackage(bool b)
+{
+    m_signPackage = b;
+}
+
 bool AndroidPackageCreationStep::fromMap(const QVariantMap &map)
 {
     if (!BuildStep::fromMap(map))
         return false;
     m_keystorePath = Utils::FileName::fromString(map.value(KeystoreLocationKey).toString());
+    m_signPackage = map.value(SignPackageKey).toBool();
     return true;
 }
 
@@ -430,6 +447,7 @@ QVariantMap AndroidPackageCreationStep::toMap() const
 {
     QVariantMap map(BuildStep::toMap());
     map.insert(KeystoreLocationKey, m_keystorePath.toString());
+    map.insert(SignPackageKey, m_signPackage);
     return map;
 }
 
@@ -637,7 +655,9 @@ bool AndroidPackageCreationStep::createPackage()
     QStringList build;
     build << QLatin1String("clean");
     QFile::remove(m_gdbServerDestination.toString());
-    if (m_debugBuild || !m_certificateAlias.length()) {
+    if (m_signPackageForRun) {
+        build << QLatin1String("release");
+    } else {
         build << QLatin1String("debug");
         QDir dir;
         dir.mkpath(m_gdbServerDestination.toFileInfo().absolutePath());
@@ -646,8 +666,6 @@ bool AndroidPackageCreationStep::createPackage()
                        .arg(m_gdbServerDestination.toUserOutput()));
             return false;
         }
-    } else {
-        build << QLatin1String("release");
     }
 
     QList<DeployItem> deployFiles;
@@ -711,7 +729,7 @@ bool AndroidPackageCreationStep::createPackage()
         return false;
     }
 
-    if (!(m_debugBuild) && m_certificateAlias.length()) {
+    if (m_signPackageForRun) {
         emit addOutput(tr("Signing package ..."), MessageOutput);
         while (true) {
             if (m_certificatePasswdForRun.isEmpty())

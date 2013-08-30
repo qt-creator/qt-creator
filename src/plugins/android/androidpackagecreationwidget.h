@@ -41,6 +41,8 @@ class QFileSystemWatcher;
 namespace Ui { class AndroidPackageCreationWidget; }
 QT_END_NAMESPACE
 
+namespace Qt4ProjectManager { class Qt4BuildConfiguration; }
+
 namespace Android {
 namespace Internal {
 class AndroidPackageCreationStep;
@@ -102,12 +104,15 @@ private slots:
 
     void on_openPackageLocationCheckBox_toggled(bool checked);
 
+    void updateSigningWarning();
+    void activeBuildConfigurationChanged();
 private:
     AndroidPackageCreationStep *const m_step;
     Ui::AndroidPackageCreationWidget *const m_ui;
     CheckModel *m_qtLibsModel;
     CheckModel *m_prebundledLibs;
     QFileSystemWatcher *m_fileSystemWatcher;
+    Qt4ProjectManager::Qt4BuildConfiguration *m_currentBuildConfiguration;
 };
 
 } // namespace Internal
