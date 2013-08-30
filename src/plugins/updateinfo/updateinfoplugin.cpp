@@ -57,6 +57,8 @@ namespace {
     static const quint32 OneMinute = 60000;
 }
 
+using namespace Core;
+
 namespace UpdateInfo {
 namespace Internal {
 
@@ -79,7 +81,7 @@ public:
     QString updaterRunUiArgument;
     int currentTimerId;
     QFuture<QDomDocument> lastCheckUpdateInfoTask;
-    QPointer<Core::FutureProgress> updateInfoProgress;
+    QPointer<FutureProgress> updateInfoProgress;
     UpdateInfoButton *progressUpdateInfoButton;
     QFutureWatcher<QDomDocument> *checkUpdateInfoWatcher;
 };
@@ -120,7 +122,7 @@ bool UpdateInfoPlugin::initialize(const QStringList & /* arguments */, QString *
     d->checkUpdateInfoWatcher = new QFutureWatcher<QDomDocument>(this);
     connect(d->checkUpdateInfoWatcher, SIGNAL(finished()), this, SLOT(reactOnUpdaterOutput()));
 
-    QSettings *settings = Core::ICore::settings();
+    QSettings *settings = ICore::settings();
     d->updaterProgram = settings->value(QLatin1String("Updater/Application")).toString();
     d->updaterCheckOnlyArgument = settings->value(QLatin1String("Updater/CheckOnlyArgument")).toString();
     d->updaterRunUiArgument = settings->value(QLatin1String("Updater/RunUiArgument")).toString();
@@ -137,7 +139,7 @@ bool UpdateInfoPlugin::initialize(const QStringList & /* arguments */, QString *
         return false;
     }
 
-    Core::ActionContainer* const helpActionContainer = Core::ActionManager::actionContainer(Core::Constants::M_HELP);
+    ActionContainer *const helpActionContainer = ActionManager::actionContainer(Core::Constants::M_HELP);
     helpActionContainer->menu()->addAction(tr("Start Updater"), this, SLOT(startUpdaterUiApplication()));
 
     //wait some time before we want to have the first check
@@ -181,10 +183,10 @@ void UpdateInfoPlugin::reactOnUpdaterOutput()
         startCheckTimer(60 * OneMinute);
     } else {
         //added the current almost finished task to the progressmanager
-        d->updateInfoProgress = Core::ICore::progressManager()->addTask(
-                d->lastCheckUpdateInfoTask, tr("Update"), QLatin1String("Update.GetInfo"), Core::ProgressManager::KeepOnFinish);
+        d->updateInfoProgress = ProgressManager::addTask(
+                d->lastCheckUpdateInfoTask, tr("Update"), QLatin1String("Update.GetInfo"), ProgressManager::KeepOnFinish);
 
-        d->updateInfoProgress->setKeepOnFinish(Core::FutureProgress::KeepOnFinish);
+        d->updateInfoProgress->setKeepOnFinish(FutureProgress::KeepOnFinish);
 
         d->progressUpdateInfoButton = new UpdateInfoButton();
         //the old widget is deleted inside this function
@@ -201,7 +203,7 @@ void UpdateInfoPlugin::startUpdaterUiApplication()
 {
     QProcess::startDetached(d->updaterProgram, QStringList() << d->updaterRunUiArgument);
     if (!d->updateInfoProgress.isNull())
-        d->updateInfoProgress->setKeepOnFinish(Core::FutureProgress::HideOnFinish); //this is fading out the last updateinfo
+        d->updateInfoProgress->setKeepOnFinish(FutureProgress::HideOnFinish); //this is fading out the last updateinfo
     startCheckTimer(OneMinute);
 }
 

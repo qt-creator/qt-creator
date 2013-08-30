@@ -37,7 +37,7 @@ void Core::Internal::ProgressManagerPrivate::cleanup()
 {
 }
 
-void Core::Internal::ProgressManagerPrivate::setApplicationLabel(const QString &text)
+void Core::Internal::ProgressManagerPrivate::doSetApplicationLabel(const QString &text)
 {
     Q_UNUSED(text)
 }

@@ -49,8 +49,7 @@
 namespace {
 
 using namespace QtSupport;
-using QtSupport::DebuggingHelperBuildTask;
-using ProjectExplorer::ToolChain;
+using namespace ProjectExplorer;
 
 class QmlDumpBuildTask;
 
@@ -81,7 +80,7 @@ public:
         m_buildTask->run(future);
     }
 
-    void updateProjectWhenDone(QPointer<ProjectExplorer::Project> project, bool preferDebug)
+    void updateProjectWhenDone(QPointer<Project> project, bool preferDebug)
     {
         foreach (const ProjectToUpdate &update, m_projectsToUpdate) {
             if (update.project == project)
@@ -146,7 +145,7 @@ private slots:
 private:
     class ProjectToUpdate {
     public:
-        QPointer<ProjectExplorer::Project> project;
+        QPointer<Project> project;
         bool preferDebug;
     };
 
@@ -313,8 +312,8 @@ QStringList QmlDumpTool::installDirectories(const QString &qtInstallData)
     return directories;
 }
 
-void QmlDumpTool::pathAndEnvironment(ProjectExplorer::Project *project, BaseQtVersion *version,
-                                     ProjectExplorer::ToolChain *toolChain,
+void QmlDumpTool::pathAndEnvironment(Project *project, BaseQtVersion *version,
+                                     ToolChain *toolChain,
                                      bool preferDebug, QString *dumperPath, Utils::Environment *env)
 {
     QString path;
@@ -328,8 +327,7 @@ void QmlDumpTool::pathAndEnvironment(ProjectExplorer::Project *project, BaseQtVe
             buildTask->updateProjectWhenDone(project, preferDebug);
             QFuture<void> task = QtConcurrent::run(&QmlDumpBuildTask::run, buildTask);
             const QString taskName = QmlDumpBuildTask::tr("Building helper");
-            Core::ICore::progressManager()->addTask(task, taskName,
-                                                                QLatin1String("Qt4ProjectManager::BuildHelpers"));
+            Core::ProgressManager::addTask(task, taskName, QLatin1String("Qt4ProjectManager::BuildHelpers"));
         }
         return;
     }

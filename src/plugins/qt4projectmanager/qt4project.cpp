@@ -40,7 +40,6 @@
 #include "qt4projectmanager/wizards/qtquickapp.h"
 #include "qt4projectmanager/wizards/html5app.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/documentmanager.h>
@@ -858,10 +857,8 @@ void Qt4Project::asyncUpdate()
     Q_ASSERT(!m_asyncUpdateFutureInterface);
     m_asyncUpdateFutureInterface = new QFutureInterface<void>();
 
-    Core::ProgressManager *progressManager = Core::ICore::progressManager();
-
     m_asyncUpdateFutureInterface->setProgressRange(0, 0);
-    progressManager->addTask(m_asyncUpdateFutureInterface->future(), tr("Evaluating"),
+    Core::ProgressManager::addTask(m_asyncUpdateFutureInterface->future(), tr("Evaluating"),
                              QLatin1String(Constants::PROFILE_EVALUATE));
     if (debug)
         qDebug()<<"  adding task";

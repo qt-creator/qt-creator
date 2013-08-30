@@ -356,11 +356,6 @@ bool ICore::showWarningWithOptions(const QString &title, const QString &text,
                                                 settingsId, parent);
 }
 
-ProgressManager *ICore::progressManager()
-{
-    return m_mainwindow->progressManager();
-}
-
 VcsManager *ICore::vcsManager()
 {
     return m_mainwindow->vcsManager();

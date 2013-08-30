@@ -67,6 +67,8 @@
 #include <QDir>
 #include <QMap>
 
+using namespace Core;
+
 enum { debug = 0 };
 
 namespace Gerrit {
@@ -165,10 +167,9 @@ FetchContext::~FetchContext()
 void FetchContext::start()
 {
     m_progress.setProgressRange(0, 2);
-    Core::ProgressManager *pm = Core::ICore::instance()->progressManager();
-    Core::FutureProgress *fp = pm->addTask(m_progress.future(), tr("Gerrit Fetch"),
+    FutureProgress *fp = ProgressManager::addTask(m_progress.future(), tr("Gerrit Fetch"),
                                            QLatin1String("gerrit-fetch"));
-    fp->setKeepOnFinish(Core::FutureProgress::HideOnFinish);
+    fp->setKeepOnFinish(FutureProgress::HideOnFinish);
     m_progress.reportStarted();
     // Order: initialize future before starting the process in case error handling is invoked.
     const QStringList args = m_change->gitFetchArguments(m_parameters);
@@ -247,8 +248,8 @@ void FetchContext::show()
 void FetchContext::cherryPick()
 {
     // Point user to errors.
-    VcsBase::VcsBaseOutputWindow::instance()->popup(Core::IOutputPane::ModeSwitch
-                                                  | Core::IOutputPane::WithFocus);
+    VcsBase::VcsBaseOutputWindow::instance()->popup(IOutputPane::ModeSwitch
+                                                  | IOutputPane::WithFocus);
     Git::Internal::GitPlugin::instance()->gitClient()->synchronousCherryPick(
                 m_repository, QLatin1String("FETCH_HEAD"));
 }
@@ -270,23 +271,23 @@ GerritPlugin::~GerritPlugin()
 {
 }
 
-bool GerritPlugin::initialize(Core::ActionContainer *ac)
+bool GerritPlugin::initialize(ActionContainer *ac)
 {
-    m_parameters->fromSettings(Core::ICore::instance()->settings());
+    m_parameters->fromSettings(ICore::instance()->settings());
 
     QAction *openViewAction = new QAction(tr("Gerrit..."), this);
 
     m_gerritCommand =
-        Core::ActionManager::registerAction(openViewAction, Constants::GERRIT_OPEN_VIEW,
-                           Core::Context(Core::Constants::C_GLOBAL));
+        ActionManager::registerAction(openViewAction, Constants::GERRIT_OPEN_VIEW,
+                           Context(Core::Constants::C_GLOBAL));
     connect(openViewAction, SIGNAL(triggered()), this, SLOT(openView()));
     ac->addAction(m_gerritCommand);
 
     QAction *pushAction = new QAction(tr("Push to Gerrit..."), this);
 
-    Core::Command *pushCommand =
-        Core::ActionManager::registerAction(pushAction, Constants::GERRIT_PUSH,
-                           Core::Context(Core::Constants::C_GLOBAL));
+    Command *pushCommand =
+        ActionManager::registerAction(pushAction, Constants::GERRIT_PUSH,
+                           Context(Core::Constants::C_GLOBAL));
     connect(pushAction, SIGNAL(triggered()), this, SLOT(push()));
     ac->addAction(pushCommand);
 
@@ -312,13 +313,13 @@ void GerritPlugin::push()
     const QString topLevel = Git::Internal::GitPlugin::instance()->currentState().topLevel();
 
     // QScopedPointer is required to delete the dialog when leaving the function
-    GerritPushDialog dialog(topLevel, m_reviewers, Core::ICore::mainWindow());
+    GerritPushDialog dialog(topLevel, m_reviewers, ICore::mainWindow());
 
     if (!dialog.localChangesFound())
         return;
 
     if (!dialog.valid()) {
-        QMessageBox::warning(Core::ICore::mainWindow(), tr("Initialization Failed"),
+        QMessageBox::warning(ICore::mainWindow(), tr("Initialization Failed"),
                               tr("Failed to initialize dialog. Aborting."));
         return;
     }
@@ -362,11 +363,11 @@ void GerritPlugin::openView()
         while (!m_parameters->isValid()) {
             QMessageBox::warning(0, tr("Error"),
                     tr("Invalid Gerrit configuration. Host, user and ssh binary are mandatory."));
-            const Core::Id group = VcsBase::Constants::VCS_SETTINGS_CATEGORY;
-            if (!Core::ICore::instance()->showOptionsDialog(group, Core::Id("Gerrit")))
+            const Id group = VcsBase::Constants::VCS_SETTINGS_CATEGORY;
+            if (!ICore::instance()->showOptionsDialog(group, "Gerrit"))
                 return;
         }
-        GerritDialog *gd = new GerritDialog(m_parameters, Core::ICore::mainWindow());
+        GerritDialog *gd = new GerritDialog(m_parameters, ICore::mainWindow());
         gd->setModal(false);
         connect(gd, SIGNAL(fetchDisplay(QSharedPointer<Gerrit::Internal::GerritChange>)),
                 this, SLOT(fetchDisplay(QSharedPointer<Gerrit::Internal::GerritChange>)));
@@ -467,7 +468,7 @@ void GerritPlugin::fetch(const QSharedPointer<Gerrit::Internal::GerritChange> &c
 
             if (!verifiedRepository) {
                 QMessageBox::StandardButton answer = QMessageBox::question(
-                            Core::ICore::mainWindow(), tr("Remote Not Verified"),
+                            ICore::mainWindow(), tr("Remote Not Verified"),
                             tr("Change host %1\nand project %2\n\nwere not verified among remotes"
                                " in %3. Select different folder?")
                             .arg(m_parameters->host,
@@ -511,7 +512,7 @@ void GerritPlugin::fetch(const QSharedPointer<Gerrit::Internal::GerritChange> &c
 // Try to find a matching repository for a project by asking the VcsManager.
 QString GerritPlugin::findLocalRepository(QString project, const QString &branch) const
 {
-    const Core::VcsManager *vcsManager = Core::ICore::instance()->vcsManager();
+    const Core::VcsManager *vcsManager = ICore::instance()->vcsManager();
     const QStringList gitRepositories = vcsManager->repositories(Git::Internal::GitPlugin::instance()->gitVersionControl());
     // Determine key (file name) to look for (qt/qtbase->'qtbase').
     const int slashPos = project.lastIndexOf(QLatin1Char('/'));
@@ -546,7 +547,7 @@ QString GerritPlugin::findLocalRepository(QString project, const QString &branch
     } // for repositories
     // No match, do we have  a projects folder?
     if (Core::DocumentManager::useProjectsDirectory())
-        return Core::DocumentManager::projectsDirectory();
+        return DocumentManager::projectsDirectory();
 
     return QDir::currentPath();
 }

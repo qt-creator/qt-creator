@@ -58,14 +58,14 @@ public:
     void init();
     void cleanup();
 
-    FutureProgress *addTask(const QFuture<void> &future, const QString &title, const QString &type,
+    FutureProgress *doAddTask(const QFuture<void> &future, const QString &title, const QString &type,
                             ProgressFlags flags);
 
-    void setApplicationLabel(const QString &text);
+    void doSetApplicationLabel(const QString &text);
     ProgressView *progressView();
 
 public slots:
-    void cancelTasks(const QString &type);
+    void doCancelTasks(const QString &type);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);

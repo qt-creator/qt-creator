@@ -62,6 +62,7 @@
 
 #include <functional>
 
+using namespace Core;
 using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace QmlJSEditor;
@@ -937,10 +938,9 @@ void FindReferences::displayResults(int first, int last)
                 this, SLOT(openEditor(Find::SearchResultItem)));
         connect(m_currentSearch, SIGNAL(cancelled()), this, SLOT(cancel()));
         connect(m_currentSearch, SIGNAL(paused(bool)), this, SLOT(setPaused(bool)));
-        Find::SearchResultWindow::instance()->popup(Core::IOutputPane::Flags(Core::IOutputPane::ModeSwitch | Core::IOutputPane::WithFocus));
+        Find::SearchResultWindow::instance()->popup(IOutputPane::Flags(IOutputPane::ModeSwitch | IOutputPane::WithFocus));
 
-        Core::ProgressManager *progressManager = Core::ICore::progressManager();
-        Core::FutureProgress *progress = progressManager->addTask(
+        FutureProgress *progress = ProgressManager::addTask(
                     m_watcher.future(), tr("Searching"),
                     QLatin1String(QmlJSEditor::Constants::TASK_SEARCH));
         connect(progress, SIGNAL(clicked()), m_currentSearch, SLOT(popup()));
@@ -984,10 +984,10 @@ void FindReferences::setPaused(bool paused)
 void FindReferences::openEditor(const Find::SearchResultItem &item)
 {
     if (item.path.size() > 0) {
-        Core::EditorManager::openEditorAt(QDir::fromNativeSeparators(item.path.first()),
+        EditorManager::openEditorAt(QDir::fromNativeSeparators(item.path.first()),
                                               item.lineNumber, item.textMarkPos);
     } else {
-        Core::EditorManager::openEditor(QDir::fromNativeSeparators(item.text));
+        EditorManager::openEditor(QDir::fromNativeSeparators(item.text));
     }
 }
 
@@ -998,7 +998,7 @@ void FindReferences::onReplaceButtonClicked(const QString &text, const QList<Fin
     // files that are opened in an editor are changed, but not saved
     QStringList changedOnDisk;
     QStringList changedUnsavedEditors;
-    Core::DocumentModel *documentModel = Core::EditorManager::documentModel();
+    DocumentModel *documentModel = EditorManager::documentModel();
     foreach (const QString &fileName, fileNames) {
         if (documentModel->documentForFilePath(fileName))
             changedOnDisk += fileName;

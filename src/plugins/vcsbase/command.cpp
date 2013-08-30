@@ -30,7 +30,6 @@
 #include "command.h"
 #include "vcsbaseplugin.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/icore.h>
@@ -214,7 +213,7 @@ void Command::execute()
         binary = binary.replace(0, 1, binary[0].toUpper()); // Upper the first letter
     const QString taskName = binary + QLatin1Char(' ') + d->m_jobs.front().arguments.at(0);
 
-    Core::ICore::progressManager()->addTask(task, taskName, binary + QLatin1String(".action"));
+    Core::ProgressManager::addTask(task, taskName, binary + QLatin1String(".action"));
 }
 
 void Command::terminate()

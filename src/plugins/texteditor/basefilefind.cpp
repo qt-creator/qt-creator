@@ -71,6 +71,7 @@ public:
 } // namespace Internal
 } // namespace TextEditor
 
+using namespace Core;
 using namespace Utils;
 using namespace Find;
 using namespace TextEditor;
@@ -163,7 +164,7 @@ void BaseFileFind::runSearch(Find::SearchResult *search)
     connect(search, SIGNAL(countChanged(int)), label, SLOT(updateCount(int)));
     CountingLabel *statusLabel = new CountingLabel;
     connect(search, SIGNAL(countChanged(int)), statusLabel, SLOT(updateCount(int)));
-    Find::SearchResultWindow::instance()->popup(Core::IOutputPane::Flags(Core::IOutputPane::ModeSwitch | Core::IOutputPane::WithFocus));
+    Find::SearchResultWindow::instance()->popup(IOutputPane::Flags(IOutputPane::ModeSwitch|IOutputPane::WithFocus));
     QFutureWatcher<FileSearchResultList> *watcher = new QFutureWatcher<FileSearchResultList>();
     d->m_watchers.insert(watcher, search);
     watcher->setPendingResultsLimit(1);
@@ -180,11 +181,8 @@ void BaseFileFind::runSearch(Find::SearchResult *search)
             textDocumentFlagsForFindFlags(parameters.flags),
             ITextEditor::openedTextDocumentContents()));
     }
-    Core::FutureProgress *progress =
-        Core::ICore::progressManager()->addTask(watcher->future(),
-                                                                        tr("Search"),
-                                                                        QLatin1String(Constants::TASK_SEARCH));
-    progress->setWidget(label);
+    FutureProgress *progress = ProgressManager::addTask(watcher->future(), tr("Search"),
+        QLatin1String(Constants::TASK_SEARCH)); progress->setWidget(label);
     progress->setStatusBarWidget(statusLabel);
     connect(progress, SIGNAL(clicked()), search, SLOT(popup()));
 }
@@ -205,7 +203,7 @@ void BaseFileFind::doReplace(const QString &text,
 {
     QStringList files = replaceAll(text, items, preserveCase);
     if (!files.isEmpty()) {
-        Core::DocumentManager::notifyFilesChangedInternally(files);
+        DocumentManager::notifyFilesChangedInternally(files);
         Find::SearchResultWindow::instance()->hide();
     }
 }
@@ -308,13 +306,13 @@ void BaseFileFind::updateComboEntries(QComboBox *combo, bool onTop)
 void BaseFileFind::openEditor(const Find::SearchResultItem &item)
 {
     SearchResult *result = qobject_cast<SearchResult *>(sender());
-    Core::IEditor *openedEditor = 0;
+    IEditor *openedEditor = 0;
     if (item.path.size() > 0) {
-        openedEditor = Core::EditorManager::openEditorAt(QDir::fromNativeSeparators(item.path.first()),
+        openedEditor = EditorManager::openEditorAt(QDir::fromNativeSeparators(item.path.first()),
                                                          item.lineNumber,
                                                          item.textMarkPos);
     } else {
-        openedEditor = Core::EditorManager::openEditor(QDir::fromNativeSeparators(item.text));
+        openedEditor = EditorManager::openEditor(QDir::fromNativeSeparators(item.text));
     }
     if (d->m_currentFindSupport)
         d->m_currentFindSupport->clearResults();
@@ -378,7 +376,7 @@ QStringList BaseFileFind::replaceAll(const QString &text,
     // Query the user for permissions
     if (!roFiles.isEmpty()) {
         Core::Internal::ReadOnlyFilesDialog roDialog(roFiles.toList(),
-                                                     Core::ICore::instance()->mainWindow());
+                                                     ICore::instance()->mainWindow());
         roDialog.setShowFailWarning(true, tr("Aborting replace."));
         if (roDialog.exec() == Core::Internal::ReadOnlyFilesDialog::RO_Cancel)
             return QStringList();

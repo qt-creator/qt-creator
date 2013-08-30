@@ -100,6 +100,9 @@
 #include <QTest>
 #endif
 
+using namespace Core;
+using namespace ProjectExplorer;
+
 namespace ClearCase {
 namespace Internal {
 
@@ -367,17 +370,17 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
     initializeVcs(new ClearCaseControl(this));
 
     m_clearcasePluginInstance = this;
-    connect(Core::ICore::instance(), SIGNAL(coreAboutToClose()), this, SLOT(closing()));
-    connect(Core::ICore::progressManager(), SIGNAL(allTasksFinished(QString)),
+    connect(ICore::instance(), SIGNAL(coreAboutToClose()), this, SLOT(closing()));
+    connect(ProgressManager::instance(), SIGNAL(allTasksFinished(QString)),
             this, SLOT(tasksFinished(QString)));
 
-    if (!Core::ICore::mimeDatabase()->addMimeTypes(QLatin1String(":/clearcase/ClearCase.mimetypes.xml"), errorMessage))
+    if (!ICore::mimeDatabase()->addMimeTypes(QLatin1String(":/clearcase/ClearCase.mimetypes.xml"), errorMessage))
         return false;
 
-    m_settings.fromSettings(Core::ICore::settings());
+    m_settings.fromSettings(ICore::settings());
 
     // update view name when changing active project
-    if (ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance())
+    if (ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance())
         connect(pe, SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
                 this, SLOT(projectChanged(ProjectExplorer::Project*)));
 
@@ -398,44 +401,44 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
     addAutoReleasedObject(m_commandLocator);
 
     //register actions
-    Core::ActionContainer *toolsContainer = Core::ActionManager::actionContainer(M_TOOLS);
+    ActionContainer *toolsContainer = ActionManager::actionContainer(M_TOOLS);
 
-    Core::ActionContainer *clearcaseMenu = Core::ActionManager::createMenu(Core::Id(CMD_ID_CLEARCASE_MENU));
+    ActionContainer *clearcaseMenu = ActionManager::createMenu(CMD_ID_CLEARCASE_MENU);
     clearcaseMenu->menu()->setTitle(tr("C&learCase"));
     toolsContainer->addMenu(clearcaseMenu);
     m_menuAction = clearcaseMenu->menu()->menuAction();
-    Core::Context globalcontext(C_GLOBAL);
-    Core::Command *command;
+    Context globalcontext(C_GLOBAL);
+    Command *command;
 
     m_checkOutAction = new Utils::ParameterAction(tr("Check Out..."), tr("Check &Out \"%1\"..."), Utils::ParameterAction::AlwaysEnabled, this);
-    command = Core::ActionManager::registerAction(m_checkOutAction, CMD_ID_CHECKOUT,
+    command = ActionManager::registerAction(m_checkOutAction, CMD_ID_CHECKOUT,
         globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+L,Meta+O") : tr("Alt+L,Alt+O")));
+    command->setAttribute(Command::CA_UpdateText);
+    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+L,Meta+O") : tr("Alt+L,Alt+O")));
     connect(m_checkOutAction, SIGNAL(triggered()), this, SLOT(checkOutCurrentFile()));
     clearcaseMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_checkInCurrentAction = new Utils::ParameterAction(tr("Check &In..."), tr("Check &In \"%1\"..."), Utils::ParameterAction::AlwaysEnabled, this);
-    command = Core::ActionManager::registerAction(m_checkInCurrentAction, CMD_ID_CHECKIN, globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+L,Meta+I") : tr("Alt+L,Alt+I")));
+    command = ActionManager::registerAction(m_checkInCurrentAction, CMD_ID_CHECKIN, globalcontext);
+    command->setAttribute(Command::CA_UpdateText);
+    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+L,Meta+I") : tr("Alt+L,Alt+I")));
     connect(m_checkInCurrentAction, SIGNAL(triggered()), this, SLOT(startCheckInCurrentFile()));
     clearcaseMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_undoCheckOutAction = new Utils::ParameterAction(tr("Undo Check Out"), tr("&Undo Check Out \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
-    command = Core::ActionManager::registerAction(m_undoCheckOutAction, CMD_ID_UNDOCHECKOUT, globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+L,Meta+U") : tr("Alt+L,Alt+U")));
+    command = ActionManager::registerAction(m_undoCheckOutAction, CMD_ID_UNDOCHECKOUT, globalcontext);
+    command->setAttribute(Command::CA_UpdateText);
+    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+L,Meta+U") : tr("Alt+L,Alt+U")));
     connect(m_undoCheckOutAction, SIGNAL(triggered()), this, SLOT(undoCheckOutCurrent()));
     clearcaseMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_undoHijackAction = new Utils::ParameterAction(tr("Undo Hijack"), tr("Undo Hi&jack \"%1\""), Utils::ParameterAction::AlwaysEnabled, this);
-    command = Core::ActionManager::registerAction(m_undoHijackAction, CMD_ID_UNDOHIJACK, globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+L,Meta+R") : tr("Alt+L,Alt+R")));
+    command = ActionManager::registerAction(m_undoHijackAction, CMD_ID_UNDOHIJACK, globalcontext);
+    command->setAttribute(Command::CA_UpdateText);
+    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+L,Meta+R") : tr("Alt+L,Alt+R")));
     connect(m_undoHijackAction, SIGNAL(triggered()), this, SLOT(undoHijackCurrent()));
     clearcaseMenu->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -443,100 +446,100 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
     clearcaseMenu->addSeparator(globalcontext);
 
     m_diffCurrentAction = new Utils::ParameterAction(tr("Diff Current File"), tr("&Diff \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_diffCurrentAction,
+    command = ActionManager::registerAction(m_diffCurrentAction,
         CMD_ID_DIFF_CURRENT, globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+L,Meta+D") : tr("Alt+L,Alt+D")));
+    command->setAttribute(Command::CA_UpdateText);
+    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+L,Meta+D") : tr("Alt+L,Alt+D")));
     connect(m_diffCurrentAction, SIGNAL(triggered()), this, SLOT(diffCurrentFile()));
     clearcaseMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_historyCurrentAction = new Utils::ParameterAction(tr("History Current File"), tr("&History \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_historyCurrentAction,
+    command = ActionManager::registerAction(m_historyCurrentAction,
         CMD_ID_HISTORY_CURRENT, globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+L,Meta+H") : tr("Alt+L,Alt+H")));
+    command->setAttribute(Command::CA_UpdateText);
+    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+L,Meta+H") : tr("Alt+L,Alt+H")));
     connect(m_historyCurrentAction, SIGNAL(triggered()), this,
         SLOT(historyCurrentFile()));
     clearcaseMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_annotateCurrentAction = new Utils::ParameterAction(tr("Annotate Current File"), tr("&Annotate \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_annotateCurrentAction,
+    command = ActionManager::registerAction(m_annotateCurrentAction,
         CMD_ID_ANNOTATE, globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+L,Meta+A") : tr("Alt+L,Alt+A")));
+    command->setAttribute(Command::CA_UpdateText);
+    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+L,Meta+A") : tr("Alt+L,Alt+A")));
     connect(m_annotateCurrentAction, SIGNAL(triggered()), this,
         SLOT(annotateCurrentFile()));
     clearcaseMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_addFileAction = new Utils::ParameterAction(tr("Add File..."), tr("Add File \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_addFileAction, CMD_ID_ADD_FILE, globalcontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
+    command = ActionManager::registerAction(m_addFileAction, CMD_ID_ADD_FILE, globalcontext);
+    command->setAttribute(Command::CA_UpdateText);
     connect(m_addFileAction, SIGNAL(triggered()), this, SLOT(addCurrentFile()));
     clearcaseMenu->addAction(command);
 
     clearcaseMenu->addSeparator(globalcontext);
 
     m_diffActivityAction = new QAction(tr("Diff A&ctivity..."), this);
-    command = Core::ActionManager::registerAction(m_diffActivityAction, CMD_ID_DIFF_ACTIVITY, globalcontext);
+    command = ActionManager::registerAction(m_diffActivityAction, CMD_ID_DIFF_ACTIVITY, globalcontext);
     connect(m_diffActivityAction, SIGNAL(triggered()), this, SLOT(diffActivity()));
     clearcaseMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_checkInActivityAction = new Utils::ParameterAction(tr("Ch&eck In Activity"), tr("Chec&k In Activity \"%1\"..."), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_checkInActivityAction, CMD_ID_CHECKIN_ACTIVITY, globalcontext);
+    command = ActionManager::registerAction(m_checkInActivityAction, CMD_ID_CHECKIN_ACTIVITY, globalcontext);
     connect(m_checkInActivityAction, SIGNAL(triggered()), this, SLOT(startCheckInActivity()));
-    command->setAttribute(Core::Command::CA_UpdateText);
+    command->setAttribute(Command::CA_UpdateText);
     clearcaseMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     clearcaseMenu->addSeparator(globalcontext);
 
     m_updateIndexAction = new QAction(tr("Update Index"), this);
-    command = Core::ActionManager::registerAction(m_updateIndexAction, CMD_ID_UPDATEINDEX, globalcontext);
+    command = ActionManager::registerAction(m_updateIndexAction, CMD_ID_UPDATEINDEX, globalcontext);
     connect(m_updateIndexAction, SIGNAL(triggered()), this, SLOT(updateIndex()));
     clearcaseMenu->addAction(command);
 
     m_updateViewAction = new Utils::ParameterAction(tr("Update View"), tr("U&pdate View \"%1\""), Utils::ParameterAction::EnabledWithParameter, this);
-    command = Core::ActionManager::registerAction(m_updateViewAction, CMD_ID_UPDATE_VIEW, globalcontext);
+    command = ActionManager::registerAction(m_updateViewAction, CMD_ID_UPDATE_VIEW, globalcontext);
     connect(m_updateViewAction, SIGNAL(triggered()), this, SLOT(updateView()));
-    command->setAttribute(Core::Command::CA_UpdateText);
+    command->setAttribute(Command::CA_UpdateText);
     clearcaseMenu->addAction(command);
 
     clearcaseMenu->addSeparator(globalcontext);
 
     m_checkInAllAction = new QAction(tr("Check In All &Files..."), this);
-    command = Core::ActionManager::registerAction(m_checkInAllAction, CMD_ID_CHECKIN_ALL, globalcontext);
-    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+L,Meta+F") : tr("Alt+L,Alt+F")));
+    command = ActionManager::registerAction(m_checkInAllAction, CMD_ID_CHECKIN_ALL, globalcontext);
+    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+L,Meta+F") : tr("Alt+L,Alt+F")));
     connect(m_checkInAllAction, SIGNAL(triggered()), this, SLOT(startCheckInAll()));
     clearcaseMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_statusAction = new QAction(tr("View &Status"), this);
-    command = Core::ActionManager::registerAction(m_statusAction, CMD_ID_STATUS, globalcontext);
-    command->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+L,Meta+S") : tr("Alt+L,Alt+S")));
+    command = ActionManager::registerAction(m_statusAction, CMD_ID_STATUS, globalcontext);
+    command->setDefaultKeySequence(QKeySequence(UseMacShortcuts ? tr("Meta+L,Meta+S") : tr("Alt+L,Alt+S")));
     connect(m_statusAction, SIGNAL(triggered()), this, SLOT(viewStatus()));
     clearcaseMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
     // Actions of the submit editor
-    Core::Context clearcasecheckincontext(Constants::CLEARCASECHECKINEDITOR);
+    Context clearcasecheckincontext(Constants::CLEARCASECHECKINEDITOR);
 
     m_checkInSelectedAction = new QAction(VcsBase::VcsBaseSubmitEditor::submitIcon(), tr("Check In"), this);
-    command = Core::ActionManager::registerAction(m_checkInSelectedAction, Constants::CHECKIN_SELECTED, clearcasecheckincontext);
-    command->setAttribute(Core::Command::CA_UpdateText);
+    command = ActionManager::registerAction(m_checkInSelectedAction, Constants::CHECKIN_SELECTED, clearcasecheckincontext);
+    command->setAttribute(Command::CA_UpdateText);
     connect(m_checkInSelectedAction, SIGNAL(triggered()), this, SLOT(checkInSelected()));
 
     m_checkInDiffAction = new QAction(VcsBase::VcsBaseSubmitEditor::diffIcon(), tr("Diff Selected Files"), this);
-    command = Core::ActionManager::registerAction(m_checkInDiffAction , Constants::DIFF_SELECTED, clearcasecheckincontext);
+    command = ActionManager::registerAction(m_checkInDiffAction , Constants::DIFF_SELECTED, clearcasecheckincontext);
 
     m_submitUndoAction = new QAction(tr("&Undo"), this);
-    command = Core::ActionManager::registerAction(m_submitUndoAction, Core::Constants::UNDO, clearcasecheckincontext);
+    command = ActionManager::registerAction(m_submitUndoAction, Core::Constants::UNDO, clearcasecheckincontext);
 
     m_submitRedoAction = new QAction(tr("&Redo"), this);
-    command = Core::ActionManager::registerAction(m_submitRedoAction, Core::Constants::REDO, clearcasecheckincontext);
+    command = ActionManager::registerAction(m_submitRedoAction, Core::Constants::REDO, clearcasecheckincontext);
 
     return true;
 }
@@ -549,7 +552,7 @@ bool ClearCasePlugin::submitEditorAboutToClose()
 
     ClearCaseSubmitEditor *editor = qobject_cast<ClearCaseSubmitEditor *>(submitEditor());
     QTC_ASSERT(editor, return true);
-    Core::IDocument *editorDocument = editor->document();
+    IDocument *editorDocument = editor->document();
     QTC_ASSERT(editorDocument, return true);
 
     // Submit editor closing. Make it write out the check in message
@@ -580,14 +583,14 @@ bool ClearCasePlugin::submitEditorAboutToClose()
     // If user changed
     if (prompt != m_settings.promptToCheckIn) {
         m_settings.promptToCheckIn = prompt;
-        m_settings.toSettings(Core::ICore::settings());
+        m_settings.toSettings(ICore::settings());
     }
 
     const QStringList fileList = editor->checkedFiles();
     bool closeEditor = true;
     if (!fileList.empty()) {
         // get message & check in
-        closeEditor = Core::DocumentManager::saveDocument(editorDocument);
+        closeEditor = DocumentManager::saveDocument(editorDocument);
         if (closeEditor) {
             ClearCaseSubmitEditorWidget *widget = editor->submitEditorWidget();
             closeEditor = vcsCheckIn(m_checkInMessageFileName, fileList, widget->activity(),
@@ -609,7 +612,7 @@ void ClearCasePlugin::diffCheckInFiles(const QStringList &files)
     ccDiffWithPred(m_checkInView, files);
 }
 
-static inline void setDiffBaseDirectory(Core::IEditor *editor, const QString &db)
+static inline void setDiffBaseDirectory(IEditor *editor, const QString &db)
 {
     if (VcsBase::VcsBaseEditorWidget *ve = qobject_cast<VcsBase::VcsBaseEditorWidget*>(editor->widget()))
         ve->setDiffBaseDirectory(db);
@@ -686,8 +689,8 @@ QString ClearCasePlugin::ccGetFileActivity(const QString &workingDir, const QStr
 
 ClearCaseSubmitEditor *ClearCasePlugin::openClearCaseSubmitEditor(const QString &fileName, bool isUcm)
 {
-    Core::IEditor *editor =
-            Core::EditorManager::openEditor(fileName, Constants::CLEARCASECHECKINEDITOR_ID);
+    IEditor *editor =
+            EditorManager::openEditor(fileName, Constants::CLEARCASECHECKINEDITOR_ID);
     ClearCaseSubmitEditor *submitEditor = qobject_cast<ClearCaseSubmitEditor*>(editor);
     QTC_CHECK(submitEditor);
     submitEditor->registerActions(m_submitUndoAction, m_submitRedoAction, m_checkInSelectedAction, m_checkInDiffAction);
@@ -802,7 +805,7 @@ bool ClearCasePlugin::vcsUndoCheckOut(const QString &workingDir, const QString &
     if (ClearCase::Constants::debug)
         qDebug() << Q_FUNC_INFO << workingDir << fileName << keep;
 
-    Core::FileChangeBlocker fcb(fileName);
+    FileChangeBlocker fcb(fileName);
 
     // revert
     QStringList args(QLatin1String("uncheckout"));
@@ -877,7 +880,7 @@ void ClearCasePlugin::undoHijackCurrent()
         keep = unhijackUi.chkKeep->isChecked();
     }
 
-    Core::FileChangeBlocker fcb(state.currentFile());
+    FileChangeBlocker fcb(state.currentFile());
 
     // revert
     if (vcsUndoHijack(state.currentFileTopLevel(), fileName, keep))
@@ -928,16 +931,16 @@ void ClearCasePlugin::ccDiffWithPred(const QString &workingDir, const QStringLis
     const QString tag = VcsBase::VcsBaseEditorWidget::editorTag(VcsBase::DiffOutput, workingDir, files);
     if (files.count() == 1) {
         // Show in the same editor if diff has been executed before
-        if (Core::IEditor *existingEditor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
+        if (IEditor *existingEditor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
             existingEditor->document()->setContents(result.toUtf8());
-            Core::EditorManager::activateEditor(existingEditor);
+            EditorManager::activateEditor(existingEditor);
             setDiffBaseDirectory(existingEditor, workingDir);
             return;
         }
         diffname = QDir::toNativeSeparators(files.first());
     }
     const QString title = QString::fromLatin1("cc diff %1").arg(diffname);
-    Core::IEditor *editor = showOutputInEditor(title, result, VcsBase::DiffOutput, source, codec);
+    IEditor *editor = showOutputInEditor(title, result, VcsBase::DiffOutput, source, codec);
     setDiffBaseDirectory(editor, workingDir);
     VcsBase::VcsBaseEditorWidget::tagEditor(editor, tag);
     ClearCaseEditor *diffEditorWidget = qobject_cast<ClearCaseEditor *>(editor->widget());
@@ -1033,7 +1036,7 @@ void ClearCasePlugin::diffActivity()
     }
     m_diffPrefix.clear();
     const QString title = QString::fromLatin1("%1.patch").arg(activity);
-    Core::IEditor *editor = showOutputInEditor(title, result, VcsBase::DiffOutput, activity, 0);
+    IEditor *editor = showOutputInEditor(title, result, VcsBase::DiffOutput, activity, 0);
     setDiffBaseDirectory(editor, topLevel);
 }
 
@@ -1188,13 +1191,13 @@ void ClearCasePlugin::history(const QString &workingDir,
 
     const QString id = VcsBase::VcsBaseEditorWidget::getTitleId(workingDir, files);
     const QString tag = VcsBase::VcsBaseEditorWidget::editorTag(VcsBase::LogOutput, workingDir, files);
-    if (Core::IEditor *editor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
+    if (IEditor *editor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
         editor->document()->setContents(response.stdOut.toUtf8());
-        Core::EditorManager::activateEditor(editor);
+        EditorManager::activateEditor(editor);
     } else {
         const QString title = QString::fromLatin1("cc history %1").arg(id);
         const QString source = VcsBase::VcsBaseEditorWidget::getSource(workingDir, files);
-        Core::IEditor *newEditor = showOutputInEditor(title, response.stdOut, VcsBase::LogOutput, source, codec);
+        IEditor *newEditor = showOutputInEditor(title, response.stdOut, VcsBase::LogOutput, source, codec);
         VcsBase::VcsBaseEditorWidget::tagEditor(newEditor, tag);
         if (enableAnnotationContextMenu)
             VcsBase::VcsBaseEditorWidget::getVcsBaseEditor(newEditor)->setFileLogAnnotateEnabled(true);
@@ -1300,13 +1303,13 @@ void ClearCasePlugin::vcsAnnotate(const QString &workingDir, const QString &file
            << headerSep << QLatin1Char('\n') << response.stdOut.left(pos);
     const QStringList files = QStringList(file);
     const QString tag = VcsBase::VcsBaseEditorWidget::editorTag(VcsBase::AnnotateOutput, workingDir, files);
-    if (Core::IEditor *editor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
+    if (IEditor *editor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
         editor->document()->setContents(res.toUtf8());
         VcsBase::VcsBaseEditorWidget::gotoLineOfEditor(editor, lineNumber);
-        Core::EditorManager::activateEditor(editor);
+        EditorManager::activateEditor(editor);
     } else {
         const QString title = QString::fromLatin1("cc annotate %1").arg(id);
-        Core::IEditor *newEditor = showOutputInEditor(title, res, VcsBase::AnnotateOutput, source, codec);
+        IEditor *newEditor = showOutputInEditor(title, res, VcsBase::AnnotateOutput, source, codec);
         VcsBase::VcsBaseEditorWidget::tagEditor(newEditor, tag);
         VcsBase::VcsBaseEditorWidget::gotoLineOfEditor(newEditor, lineNumber);
     }
@@ -1337,12 +1340,12 @@ void ClearCasePlugin::describe(const QString &source, const QString &changeNr)
     // Re-use an existing view if possible to support
     // the common usage pattern of continuously changing and diffing a file
     const QString tag = VcsBase::VcsBaseEditorWidget::editorTag(VcsBase::DiffOutput, source, QStringList(), changeNr);
-    if (Core::IEditor *editor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
+    if (IEditor *editor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
         editor->document()->setContents(description.toUtf8());
-        Core::EditorManager::activateEditor(editor);
+        EditorManager::activateEditor(editor);
     } else {
         const QString title = QString::fromLatin1("cc describe %1").arg(id);
-        Core::IEditor *newEditor = showOutputInEditor(title, description, VcsBase::DiffOutput, source, codec);
+        IEditor *newEditor = showOutputInEditor(title, description, VcsBase::DiffOutput, source, codec);
         VcsBase::VcsBaseEditorWidget::tagEditor(newEditor, tag);
     }
 }
@@ -1350,7 +1353,7 @@ void ClearCasePlugin::describe(const QString &source, const QString &changeNr)
 void ClearCasePlugin::checkInSelected()
 {
     m_submitActionTriggered = true;
-    Core::EditorManager::closeEditor();
+    EditorManager::closeEditor();
 }
 
 QString ClearCasePlugin::runCleartoolSync(const QString &workingDir,
@@ -1387,18 +1390,18 @@ ClearCaseResponse
     return response;
 }
 
-Core::IEditor *ClearCasePlugin::showOutputInEditor(const QString& title, const QString &output,
+IEditor *ClearCasePlugin::showOutputInEditor(const QString& title, const QString &output,
                                                    int editorType, const QString &source,
                                                    QTextCodec *codec) const
 {
     const VcsBase::VcsBaseEditorParameters *params = findType(editorType);
     QTC_ASSERT(params, return 0);
-    const Core::Id id = params->id;
+    const Id id = params->id;
     if (ClearCase::Constants::debug)
         qDebug() << "ClearCasePlugin::showOutputInEditor" << title << id.name()
                  <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
-    Core::IEditor *editor = Core::EditorManager::openEditorWithContents(id, &s, output.toUtf8());
+    IEditor *editor = EditorManager::openEditorWithContents(id, &s, output.toUtf8());
     connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,int)),
             this, SLOT(annotateVersion(QString,QString,int)));
     ClearCaseEditor *e = qobject_cast<ClearCaseEditor*>(editor->widget());
@@ -1411,8 +1414,8 @@ Core::IEditor *ClearCasePlugin::showOutputInEditor(const QString& title, const Q
         e->setSource(source);
     if (codec)
         e->setCodec(codec);
-    Core::IEditor *ie = e->editor();
-    Core::EditorManager::activateEditor(ie);
+    IEditor *ie = e->editor();
+    EditorManager::activateEditor(ie);
     return ie;
 }
 
@@ -1425,7 +1428,7 @@ void ClearCasePlugin::setSettings(const ClearCaseSettings &s)
 {
     if (s != m_settings) {
         m_settings = s;
-        m_settings.toSettings(Core::ICore::settings());
+        m_settings.toSettings(ICore::settings());
         clearCaseControl()->emitConfigurationChanged();
     }
 }
@@ -1467,7 +1470,7 @@ bool ClearCasePlugin::vcsOpen(const QString &workingDir, const QString &fileName
         if (m_viewData.isUcm && !vcsSetActivity(topLevel, title, coDialog.activity()))
             return false;
 
-        Core::FileChangeBlocker fcb(absPath);
+        FileChangeBlocker fcb(absPath);
         QStringList args(QLatin1String("checkout"));
         QString comment = coDialog.comment();
         if (comment.isEmpty())
@@ -1555,7 +1558,7 @@ bool ClearCasePlugin::vcsCheckIn(const QString &messageFile, const QStringList &
     if (files.isEmpty())
         return true;
     const QString title = QString::fromLatin1("Checkin %1").arg(files.join(QLatin1String("; ")));
-    typedef QSharedPointer<Core::FileChangeBlocker> FCBPointer;
+    typedef QSharedPointer<FileChangeBlocker> FCBPointer;
     replaceActivity &= (activity != QLatin1String(Constants::KEEP_ACTIVITY));
     if (replaceActivity && !vcsSetActivity(m_checkInView, title, activity))
         return false;
@@ -1576,7 +1579,7 @@ bool ClearCasePlugin::vcsCheckIn(const QString &messageFile, const QStringList &
     args << files;
     QList<FCBPointer> blockers;
     foreach (const QString &fileName, files) {
-        FCBPointer fcb(new Core::FileChangeBlocker(QFileInfo(m_checkInView, fileName).canonicalFilePath()));
+        FCBPointer fcb(new FileChangeBlocker(QFileInfo(m_checkInView, fileName).canonicalFilePath()));
         blockers.append(fcb);
     }
     const ClearCaseResponse response =
@@ -1880,22 +1883,22 @@ void ClearCasePlugin::updateStreamAndView()
     m_updateViewAction->setParameter(m_viewData.isDynamic ? QString() : m_viewData.name);
 }
 
-void ClearCasePlugin::projectChanged(ProjectExplorer::Project *project)
+void ClearCasePlugin::projectChanged(Project *project)
 {
     if (m_viewData.name == ccGetView(m_topLevel).name) // New project on same view as old project
         return;
     m_viewData = ViewData();
     m_stream.clear();
     m_intStream.clear();
-    disconnect(Core::ICore::mainWindow(), SIGNAL(windowActivated()), this, SLOT(syncSlot()));
-    Core::ICore::progressManager()->cancelTasks(QLatin1String(ClearCase::Constants::TASK_INDEX));
+    disconnect(ICore::mainWindow(), SIGNAL(windowActivated()), this, SLOT(syncSlot()));
+    ProgressManager::cancelTasks(QLatin1String(ClearCase::Constants::TASK_INDEX));
     if (project) {
         QString projDir = project->projectDirectory();
         QString topLevel = findTopLevel(projDir);
         m_topLevel = topLevel;
         if (topLevel.isEmpty())
             return;
-        connect(Core::ICore::mainWindow(), SIGNAL(windowActivated()), this, SLOT(syncSlot()));
+        connect(ICore::mainWindow(), SIGNAL(windowActivated()), this, SLOT(syncSlot()));
         updateStreamAndView();
         if (m_viewData.name.isEmpty())
             return;
@@ -1914,16 +1917,16 @@ void ClearCasePlugin::tasksFinished(const QString &type)
 void ClearCasePlugin::updateIndex()
 {
     QTC_ASSERT(currentState().hasTopLevel(), return);
-    Core::ICore::progressManager()->cancelTasks(QLatin1String(ClearCase::Constants::TASK_INDEX));
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::currentProject();
+    ProgressManager::cancelTasks(QLatin1String(ClearCase::Constants::TASK_INDEX));
+    Project *project = ProjectExplorerPlugin::currentProject();
     if (!project)
         return;
     m_checkInAllAction->setEnabled(false);
     m_statusMap->clear();
     QFuture<void> result = QtConcurrent::run(&sync,
-               project->files(ProjectExplorer::Project::ExcludeGeneratedFiles));
+               project->files(Project::ExcludeGeneratedFiles));
     if (!m_settings.disableIndexer)
-        Core::ICore::progressManager()->addTask(result, tr("CC Indexing"),
+        ProgressManager::addTask(result, tr("CC Indexing"),
                             QLatin1String(ClearCase::Constants::TASK_INDEX));
 }
 
@@ -2066,8 +2069,8 @@ void ClearCasePlugin::syncSlot()
 void ClearCasePlugin::closing()
 {
     // prevent syncSlot from being called on shutdown
-    Core::ICore::progressManager()->cancelTasks(QLatin1String(ClearCase::Constants::TASK_INDEX));
-    disconnect(Core::ICore::mainWindow(), SIGNAL(windowActivated()), this, SLOT(syncSlot()));
+    ProgressManager::cancelTasks(QLatin1String(ClearCase::Constants::TASK_INDEX));
+    disconnect(ICore::mainWindow(), SIGNAL(windowActivated()), this, SLOT(syncSlot()));
 }
 
 void ClearCasePlugin::sync(QFutureInterface<void> &future, QStringList files)

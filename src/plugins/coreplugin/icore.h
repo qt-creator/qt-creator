@@ -85,7 +85,6 @@ public:
                                        Id settingsId = Id(),
                                        QWidget *parent = 0);
 
-    static ProgressManager *progressManager();
     static VcsManager *vcsManager();
     static MimeDatabase *mimeDatabase();
 

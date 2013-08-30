@@ -48,6 +48,7 @@
 
 #include <functional>
 
+using namespace Core;
 using namespace CppTools::Internal;
 using namespace CppTools;
 using namespace CPlusPlus;
@@ -61,7 +62,7 @@ static QString getSource(const QString &fileName,
         QString fileContents;
         Utils::TextFileFormat format;
         QString error;
-        QTextCodec *defaultCodec = Core::EditorManager::defaultTextCodec();
+        QTextCodec *defaultCodec = EditorManager::defaultTextCodec();
         Utils::TextFileFormat::ReadResult result = Utils::TextFileFormat::readFile(
                     fileName, defaultCodec, &fileContents, &format, &error);
         if (result != Utils::TextFileFormat::ReadSuccess)
@@ -272,15 +273,14 @@ void CppFindReferences::findAll_helper(Find::SearchResult *search)
     connect(search, SIGNAL(activated(Find::SearchResultItem)),
             this, SLOT(openEditor(Find::SearchResultItem)));
 
-    Find::SearchResultWindow::instance()->popup(Core::IOutputPane::ModeSwitch | Core::IOutputPane::WithFocus);
+    Find::SearchResultWindow::instance()->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
     const CppModelManagerInterface::WorkingCopy workingCopy = _modelManager->workingCopy();
     QFuture<Usage> result;
     result = QtConcurrent::run(&find_helper, workingCopy,
                                parameters.context, this, parameters.symbol);
     createWatcher(result, search);
 
-    Core::ProgressManager *progressManager = Core::ICore::progressManager();
-    Core::FutureProgress *progress = progressManager->addTask(result, tr("Searching"),
+    FutureProgress *progress = ProgressManager::addTask(result, tr("Searching"),
                                                               QLatin1String(CppTools::Constants::TASK_SEARCH));
 
     connect(progress, SIGNAL(clicked()), search, SLOT(popup()));
@@ -512,10 +512,10 @@ void CppFindReferences::setPaused(bool paused)
 void CppFindReferences::openEditor(const Find::SearchResultItem &item)
 {
     if (item.path.size() > 0) {
-        Core::EditorManager::openEditorAt(QDir::fromNativeSeparators(item.path.first()),
+        EditorManager::openEditorAt(QDir::fromNativeSeparators(item.path.first()),
                                               item.lineNumber, item.textMarkPos);
     } else {
-        Core::EditorManager::openEditor(QDir::fromNativeSeparators(item.text));
+        EditorManager::openEditor(QDir::fromNativeSeparators(item.text));
     }
 }
 
@@ -640,7 +640,7 @@ void CppFindReferences::findMacroUses(const Macro &macro, const QString &replace
     connect(search, SIGNAL(replaceButtonClicked(QString,QList<Find::SearchResultItem>,bool)),
             SLOT(onReplaceButtonClicked(QString,QList<Find::SearchResultItem>,bool)));
 
-    Find::SearchResultWindow::instance()->popup(Core::IOutputPane::ModeSwitch | Core::IOutputPane::WithFocus);
+    Find::SearchResultWindow::instance()->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
 
     connect(search, SIGNAL(activated(Find::SearchResultItem)),
             this, SLOT(openEditor(Find::SearchResultItem)));
@@ -663,8 +663,7 @@ void CppFindReferences::findMacroUses(const Macro &macro, const QString &replace
     result = QtConcurrent::run(&findMacroUses_helper, workingCopy, snapshot, this, macro);
     createWatcher(result, search);
 
-    Core::ProgressManager *progressManager = Core::ICore::progressManager();
-    Core::FutureProgress *progress = progressManager->addTask(result, tr("Searching"),
+    FutureProgress *progress = ProgressManager::addTask(result, tr("Searching"),
                                                               QLatin1String(CppTools::Constants::TASK_SEARCH));
     connect(progress, SIGNAL(clicked()), search, SLOT(popup()));
 }

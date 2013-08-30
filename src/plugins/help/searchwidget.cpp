@@ -194,7 +194,7 @@ void SearchWidget::indexingStarted()
 {
     Q_ASSERT(!m_progress);
     m_progress = new QFutureInterface<void>();
-    Core::ICore::progressManager() ->addTask(m_progress->future(),
+    Core::ProgressManager::addTask(m_progress->future(),
         tr("Indexing"), QLatin1String("Help.Indexer"));
     m_progress->setProgressRange(0, 2);
     m_progress->setProgressValueAndText(1, tr("Indexing Documentation..."));

@@ -38,7 +38,6 @@
 #include <projectexplorer/session.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <cpptools/cpptoolsconstants.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -47,6 +46,8 @@
 #include <QThread>
 #include <QMutex>
 #include <QMutexLocker>
+
+using namespace Core;
 
 namespace ClassView {
 namespace Internal {
@@ -234,9 +235,9 @@ void Manager::initialize()
             SLOT(onProjectListChanged()), Qt::QueuedConnection);
 
     // connect to the progress manager for signals about Parsing tasks
-    connect(Core::ICore::progressManager(), SIGNAL(taskStarted(QString)),
+    connect(ProgressManager::instance(), SIGNAL(taskStarted(QString)),
             SLOT(onTaskStarted(QString)), Qt::QueuedConnection);
-    connect(Core::ICore::progressManager(), SIGNAL(allTasksFinished(QString)),
+    connect(ProgressManager::instance(), SIGNAL(allTasksFinished(QString)),
             SLOT(onAllTasksFinished(QString)), Qt::QueuedConnection);
 
     // when we signals that really document is updated - sent it to the parser
@@ -440,7 +441,7 @@ void Manager::onDocumentUpdated(CPlusPlus::Document::Ptr doc)
 
 void Manager::gotoLocation(const QString &fileName, int line, int column)
 {
-    Core::EditorManager::openEditorAt(fileName, line, column);
+    EditorManager::openEditorAt(fileName, line, column);
 }
 
 /*!
@@ -462,9 +463,9 @@ void Manager::gotoLocations(const QList<QVariant> &list)
     bool currentPositionAvailable = false;
 
     // what is open now?
-    if (Core::IEditor *editor = Core::EditorManager::currentEditor()) {
+    if (IEditor *editor = EditorManager::currentEditor()) {
         // get current file name
-        if (Core::IDocument *document = editor->document())
+        if (IDocument *document = editor->document())
             fileName = document->filePath();
 
         // if text file - what is current position?

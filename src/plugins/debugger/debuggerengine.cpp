@@ -47,7 +47,6 @@
 #include "threadshandler.h"
 #include "watchhandler.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -489,10 +488,9 @@ void DebuggerEngine::startDebugger(DebuggerRunControl *runControl)
     QTC_ASSERT(!d->m_runControl, notifyEngineSetupFailed(); return);
 
     d->m_progress.setProgressRange(0, 1000);
-    Core::FutureProgress *fp = Core::ICore::progressManager()
-        ->addTask(d->m_progress.future(),
+    FutureProgress *fp = ProgressManager::addTask(d->m_progress.future(),
         tr("Launching"), _("Debugger.Launcher"));
-    fp->setKeepOnFinish(Core::FutureProgress::HideOnFinish);
+    fp->setKeepOnFinish(FutureProgress::HideOnFinish);
     d->m_progress.reportStarted();
 
     d->m_runControl = runControl;
@@ -539,7 +537,7 @@ void DebuggerEngine::gotoLocation(const Location &loc)
     const QString file = loc.fileName();
     const int line = loc.lineNumber();
     bool newEditor = false;
-    IEditor *editor = EditorManager::openEditor(file, Core::Id(),
+    IEditor *editor = EditorManager::openEditor(file, Id(),
                                                 EditorManager::IgnoreNavigationHistory, &newEditor);
     QTC_ASSERT(editor, return); // Unreadable file?
     editor->gotoLine(line, 0);
@@ -1408,7 +1406,7 @@ void DebuggerEngine::reloadDebuggingHelpers()
 {
 }
 
-void DebuggerEngine::addOptionPages(QList<Core::IOptionsPage*> *) const
+void DebuggerEngine::addOptionPages(QList<IOptionsPage*> *) const
 {
 }
 

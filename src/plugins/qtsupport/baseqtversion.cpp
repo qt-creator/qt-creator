@@ -59,6 +59,7 @@
 #include <QCoreApplication>
 #include <QProcess>
 
+using namespace Core;
 using namespace QtSupport;
 using namespace QtSupport::Internal;
 using namespace ProjectExplorer;
@@ -231,23 +232,23 @@ QString BaseQtVersion::defaultDisplayName(const QString &versionString, const Fi
         QCoreApplication::translate("QtVersion", "Qt %1 (%2)").arg(versionString, location);
 }
 
-Core::FeatureSet BaseQtVersion::availableFeatures() const
+FeatureSet BaseQtVersion::availableFeatures() const
 {
-    Core::FeatureSet features = Core::FeatureSet(Constants::FEATURE_QWIDGETS)
-            | Core::FeatureSet(Constants::FEATURE_QT)
-            | Core::FeatureSet(Constants::FEATURE_QT_WEBKIT)
-            | Core::FeatureSet(Constants::FEATURE_QT_CONSOLE);
+    FeatureSet features = FeatureSet(Constants::FEATURE_QWIDGETS)
+            | FeatureSet(Constants::FEATURE_QT)
+            | FeatureSet(Constants::FEATURE_QT_WEBKIT)
+            | FeatureSet(Constants::FEATURE_QT_CONSOLE);
 
      if (qtVersion() >= QtVersionNumber(4, 7, 0)) {
-         features |= Core::FeatureSet(Constants::FEATURE_QT_QUICK);
-         features |= Core::FeatureSet(Constants::FEATURE_QT_QUICK_1);
+         features |= FeatureSet(Constants::FEATURE_QT_QUICK);
+         features |= FeatureSet(Constants::FEATURE_QT_QUICK_1);
      }
      if (qtVersion() >= QtVersionNumber(4, 7, 1))
-         features |= Core::FeatureSet(Constants::FEATURE_QT_QUICK_1_1);
+         features |= FeatureSet(Constants::FEATURE_QT_QUICK_1_1);
      if (qtVersion() >= QtVersionNumber(5, 0, 0))
-         features |= Core::FeatureSet(Constants::FEATURE_QT_QUICK_2);
+         features |= FeatureSet(Constants::FEATURE_QT_QUICK_2);
      if (qtVersion() >= QtVersionNumber(5, 1, 0))
-         features |= Core::FeatureSet(Constants::FEATURE_QT_QUICK_CONTROLS);
+         features |= FeatureSet(Constants::FEATURE_QT_QUICK_CONTROLS);
 
      return features;
 }
@@ -1516,8 +1517,7 @@ void BaseQtVersion::buildDebuggingHelper(ToolChain *tc, int tools)
 
     QFuture<void> task = QtConcurrent::run(&QtSupport::DebuggingHelperBuildTask::run, buildTask);
     const QString taskName = QCoreApplication::translate("BaseQtVersion", "Building helpers");
-    Core::ICore::progressManager()->addTask(task, taskName,
-                                            QLatin1String("Qt::BuildHelpers"));
+    ProgressManager::addTask(task, taskName, QLatin1String("Qt::BuildHelpers"));
 }
 
 FileName BaseQtVersion::qtCorePath(const QHash<QString,QString> &versionInfo, const QString &versionString)

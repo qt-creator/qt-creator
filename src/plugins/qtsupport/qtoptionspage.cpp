@@ -40,7 +40,6 @@
 #include "qmldebugginglibrary.h"
 #include "qmlobservertool.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -459,8 +458,7 @@ void QtOptionsPageWidget::buildDebuggingHelper(DebuggingHelperBuildTask::Tools t
     QFuture<void> task = QtConcurrent::run(&DebuggingHelperBuildTask::run, buildTask);
     const QString taskName = tr("Building helpers");
 
-    Core::ICore::progressManager()->addTask(task, taskName,
-                                                        QLatin1String("Qt4ProjectManager::BuildHelpers"));
+    Core::ProgressManager::addTask(task, taskName, QLatin1String("Qt4ProjectManager::BuildHelpers"));
 }
 void QtOptionsPageWidget::buildGdbHelper()
 {

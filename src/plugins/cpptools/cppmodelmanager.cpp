@@ -828,8 +828,8 @@ void CppModelManager::onAboutToLoadSession()
 
 void CppModelManager::onAboutToUnloadSession()
 {
-    if (Core::ProgressManager *pm = Core::ICore::progressManager())
-        pm->cancelTasks(QLatin1String(CppTools::Constants::TASK_INDEX));
+    if (Core::ProgressManager::instance())
+        Core::ProgressManager::cancelTasks(QLatin1String(CppTools::Constants::TASK_INDEX));
     do {
         QMutexLocker locker(&m_projectMutex);
         m_projectToProjectsInfo.clear();

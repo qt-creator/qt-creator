@@ -348,7 +348,7 @@ void ProgressManagerPrivate::init()
     initInternal();
 }
 
-void ProgressManagerPrivate::cancelTasks(const QString &type)
+void ProgressManagerPrivate::doCancelTasks(const QString &type)
 {
     bool found = false;
     QMap<QFutureWatcher<void> *, QString>::iterator task = m_runningTasks.begin();
@@ -412,7 +412,7 @@ void ProgressManagerPrivate::cancelAllRunningTasks()
     updateSummaryProgressBar();
 }
 
-FutureProgress *ProgressManagerPrivate::addTask(const QFuture<void> &future, const QString &title,
+FutureProgress *ProgressManagerPrivate::doAddTask(const QFuture<void> &future, const QString &title,
                                                 const QString &type, ProgressFlags flags)
 {
     // watch
@@ -716,4 +716,37 @@ void ToggleButton::paintEvent(QPaintEvent *event)
     arrowOpt.initFrom(this);
     arrowOpt.rect = QRect(rect().center().x() - 3, rect().center().y() - 6, 9, 9);
     s->drawPrimitive(QStyle::PE_IndicatorArrowUp, &arrowOpt, &p, this);
+}
+
+
+static ProgressManager *m_instance = 0;
+
+ProgressManager::ProgressManager(QObject *parent)
+{
+    m_instance = this;
+}
+
+ProgressManager::~ProgressManager()
+{
+    m_instance = 0;
+}
+
+QObject *ProgressManager::instance()
+{
+    return m_instance;
+}
+
+FutureProgress *ProgressManager::addTask(const QFuture<void> &future, const QString &title, const QString &type, ProgressFlags flags)
+{
+    return m_instance->doAddTask(future, title, type, flags);
+}
+
+void ProgressManager::setApplicationLabel(const QString &text)
+{
+    m_instance->doSetApplicationLabel(text);
+}
+
+void ProgressManager::cancelTasks(const QString &type)
+{
+    m_instance->doCancelTasks(type);
 }
