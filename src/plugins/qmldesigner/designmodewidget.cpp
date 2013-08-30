@@ -174,6 +174,8 @@ DesignModeWidget::DesignModeWidget(QWidget *parent) :
     m_mainSplitter(0),
     m_toolBar(Core::EditorManager::createToolBar(this)),
     m_crumbleBar(new CrumbleBar(this)),
+    m_outputPanePlaceholder(0),
+    m_outputPlaceholderSplitter(0),
     m_isDisabled(false),
     m_showSidebars(true),
     m_initStatus(NotInitialized),
@@ -181,8 +183,6 @@ DesignModeWidget::DesignModeWidget(QWidget *parent) :
     m_navigatorHistoryCounter(-1),
     m_keepNavigatorHistory(false)
 {
-    m_outputPlaceholderSplitter = new Core::MiniSplitter;
-    m_outputPanePlaceholder = new StyledOutputpanePlaceHolder(Core::DesignMode::instance(), m_outputPlaceholderSplitter);
 }
 
 DesignModeWidget::~DesignModeWidget()
@@ -554,6 +554,9 @@ QWidget *DesignModeWidget::createCenterWidget()
     }
 
     // editor and output panes
+    m_outputPlaceholderSplitter = new Core::MiniSplitter;
+    m_outputPanePlaceholder = new StyledOutputpanePlaceHolder(Core::DesignMode::instance(), m_outputPlaceholderSplitter);
+
     if (centralWidgetInfos.count() == 1)
         m_outputPlaceholderSplitter->addWidget(centralWidgetInfos.first().widget);
     else
