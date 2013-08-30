@@ -38,6 +38,7 @@
 #include "manager.h"
 #include "context.h"
 #include "normalindenter.h"
+#include "generichighlighter/highlighterutils.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
@@ -125,13 +126,13 @@ void PlainTextEditorWidget::configure(const Core::MimeType &mimeType)
     if (!mimeType.isNull()) {
         m_isMissingSyntaxDefinition = true;
 
-        highlighter->setMimeType(mimeType);
+        setMimeTypeForHighlighter(highlighter, mimeType);
         const QString &type = mimeType.type();
         setMimeType(type);
 
         QString definitionId = Manager::instance()->definitionIdByMimeType(type);
         if (definitionId.isEmpty())
-            definitionId = Highlighter::findDefinitionId(mimeType, true);
+            definitionId = findDefinitionId(mimeType, true);
 
         if (!definitionId.isEmpty()) {
             m_isMissingSyntaxDefinition = false;

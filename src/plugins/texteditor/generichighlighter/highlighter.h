@@ -32,6 +32,9 @@
 
 #include <texteditor/basetextdocumentlayout.h>
 #include <texteditor/syntaxhighlighter.h>
+#include <texteditor/texteditor_global.h>
+
+#include "context.h"
 
 #include <QString>
 #include <QVector>
@@ -41,16 +44,12 @@
 
 #include <QTextCharFormat>
 
-namespace Core {
-class MimeType;
-}
 namespace TextEditor {
 
 class TabSettings;
 namespace Internal {
 
 class Rule;
-class Context;
 class HighlightDefinition;
 class ProgressData;
 
@@ -83,9 +82,7 @@ public:
     };
 
     void setTabSettings(const TabSettings &ts);
-    void setMimeType(const Core::MimeType &mimeType);
-
-    static QString findDefinitionId(const Core::MimeType &mimeType, bool considerParents);
+    void setDefaultContext(const QSharedPointer<Internal::Context> &defaultContext);
 
 protected:
     virtual void highlightBlock(const QString &text);
@@ -104,7 +101,6 @@ private:
                              const bool childRule,
                              const QList<QSharedPointer<Internal::Rule> > &rules);
 
-    void setDefaultContext(const QSharedPointer<Internal::Context> &defaultContext);
     void assignCurrentContext();
     bool contextChangeRequired(const QString &contextName) const;
     void handleContextChange(const QString &contextName,

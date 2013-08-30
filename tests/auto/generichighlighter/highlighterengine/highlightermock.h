@@ -58,7 +58,7 @@ struct HighlightSequence
     QList<QTextCharFormat> m_formats;
 };
 
-class HighlighterMock : public TextEditor::Internal::Highlighter
+class HighlighterMock : public TextEditor::Highlighter
 {
 public:
     HighlighterMock(QTextDocument *parent = 0);

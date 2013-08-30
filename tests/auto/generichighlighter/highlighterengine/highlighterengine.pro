@@ -1,6 +1,5 @@
 include(../../qttest.pri)
 QT += gui
-
 PLUGINSDIR = $$IDE_SOURCE_TREE/src/plugins
 GENERICHIGHLIGHTERDIR = $$PLUGINSDIR/texteditor/generichighlighter
 
@@ -8,7 +7,7 @@ SOURCES += \
     tst_highlighterengine.cpp \
     highlightermock.cpp \
     formats.cpp \
-    syntaxhighlighter.cpp \
+    texteditor/syntaxhighlighter.cpp \
     $$GENERICHIGHLIGHTERDIR/highlighter.cpp \
     $$GENERICHIGHLIGHTERDIR/context.cpp \
     $$GENERICHIGHLIGHTERDIR/dynamicrule.cpp \
@@ -21,10 +20,10 @@ SOURCES += \
 
 HEADERS += \
     highlightermock.h \
-    basetextdocumentlayout.h \
     formats.h \
-    tabsettings.h \
-    syntaxhighlighter.h \
+    texteditor/basetextdocumentlayout.h \
+    texteditor/syntaxhighlighter.h \
+    texteditor/tabsettings.h \
     $$GENERICHIGHLIGHTERDIR/highlighter.h \
     $$GENERICHIGHLIGHTERDIR/context.h \
     $$GENERICHIGHLIGHTERDIR/dynamicrule.h \
@@ -35,4 +34,4 @@ HEADERS += \
     $$GENERICHIGHLIGHTERDIR/keywordlist.h \
     $$GENERICHIGHLIGHTERDIR/itemdata.h
 
-INCLUDEPATH += $$GENERICHIGHLIGHTERDIR $$PWD
+INCLUDEPATH += $$PWD $$GENERICHIGHLIGHTERDIR

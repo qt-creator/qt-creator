@@ -57,6 +57,7 @@ SOURCES += texteditorplugin.cpp \
     generichighlighter/highlightersettings.cpp \
     generichighlighter/managedefinitionsdialog.cpp \
     generichighlighter/definitiondownloader.cpp \
+    generichighlighter/highlighterutils.cpp \
     refactoringchanges.cpp \
     refactoroverlay.cpp \
     outlinefactory.cpp \
@@ -168,6 +169,7 @@ HEADERS += texteditorplugin.h \
     generichighlighter/managedefinitionsdialog.h \
     generichighlighter/highlightdefinitionmetadata.h \
     generichighlighter/definitiondownloader.h \
+    generichighlighter/highlighterutils.h \
     refactoringchanges.h \
     refactoroverlay.h \
     outlinefactory.h \

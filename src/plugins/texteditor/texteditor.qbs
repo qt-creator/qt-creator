@@ -223,6 +223,8 @@ QtcPlugin {
             "highlightersettingspage.cpp",
             "highlightersettingspage.h",
             "highlightersettingspage.ui",
+            "highlighterutils.cpp",
+            "highlighterutils.h",
             "includerulesinstruction.cpp",
             "includerulesinstruction.h",
             "itemdata.cpp",
