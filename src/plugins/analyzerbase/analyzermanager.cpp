@@ -71,6 +71,7 @@
 #include <QPushButton>
 
 using namespace Core;
+using namespace Utils;
 using namespace Core::Constants;
 using namespace Analyzer::Internal;
 using namespace Analyzer::Constants;
@@ -168,7 +169,7 @@ public:
     AnalyzerManager *q;
     AnalyzerMode *m_mode;
     bool m_isRunning;
-    Utils::FancyMainWindow *m_mainWindow;
+    FancyMainWindow *m_mainWindow;
     AnalyzerAction *m_currentAction;
     QList<AnalyzerAction *> m_actions;
     QAction *m_startAction;
@@ -176,7 +177,7 @@ public:
     ActionContainer *m_menu;
     QComboBox *m_toolBox;
     QStackedWidget *m_controlsStackWidget;
-    Utils::StatusLabel *m_statusLabel;
+    StatusLabel *m_statusLabel;
     typedef QMap<IAnalyzerTool *, FancyMainWindowSettings> MainWindowSettingsMap;
     QHash<IAnalyzerTool *, QList<QDockWidget *> > m_toolWidgets;
     QHash<IAnalyzerTool *, QWidget *> m_controlsWidgetFromTool;
@@ -198,7 +199,7 @@ AnalyzerManagerPrivate::AnalyzerManagerPrivate(AnalyzerManager *qq):
     m_menu(0),
     m_toolBox(new QComboBox),
     m_controlsStackWidget(new QStackedWidget),
-    m_statusLabel(new Utils::StatusLabel)
+    m_statusLabel(new StatusLabel)
 {
     m_toolBox->setObjectName(QLatin1String("AnalyzerManagerToolBox"));
     connect(m_toolBox, SIGNAL(activated(int)), SLOT(selectToolboxAction(int)));
@@ -313,7 +314,7 @@ static QToolButton *toolButton(QAction *action)
 
 void AnalyzerManagerPrivate::createModeMainWindow()
 {
-    m_mainWindow = new Utils::FancyMainWindow();
+    m_mainWindow = new FancyMainWindow();
     m_mainWindow->setObjectName(QLatin1String("AnalyzerManagerMainWindow"));
     m_mainWindow->setDocumentMode(true);
     m_mainWindow->setDockNestingEnabled(true);
@@ -335,14 +336,14 @@ void AnalyzerManagerPrivate::createModeMainWindow()
     documentAndRightPane->setStretchFactor(0, 1);
     documentAndRightPane->setStretchFactor(1, 0);
 
-    Utils::StyledBar *analyzeToolBar = new Utils::StyledBar;
+    StyledBar *analyzeToolBar = new StyledBar;
     analyzeToolBar->setProperty("topBorder", true);
     QHBoxLayout *analyzeToolBarLayout = new QHBoxLayout(analyzeToolBar);
     analyzeToolBarLayout->setMargin(0);
     analyzeToolBarLayout->setSpacing(0);
     analyzeToolBarLayout->addWidget(toolButton(m_startAction));
     analyzeToolBarLayout->addWidget(toolButton(m_stopAction));
-    analyzeToolBarLayout->addWidget(new Utils::StyledSeparator);
+    analyzeToolBarLayout->addWidget(new StyledSeparator);
     analyzeToolBarLayout->addWidget(m_toolBox);
     analyzeToolBarLayout->addWidget(m_controlsStackWidget);
     analyzeToolBarLayout->addWidget(m_statusLabel);
@@ -402,7 +403,7 @@ void AnalyzerManagerPrivate::deactivateDock(QDockWidget *dockWidget)
 bool AnalyzerManagerPrivate::showPromptDialog(const QString &title, const QString &text,
     const QString &stopButtonText, const QString &cancelButtonText) const
 {
-    Utils::CheckableMessageBox messageBox(ICore::mainWindow());
+    CheckableMessageBox messageBox(ICore::mainWindow());
     messageBox.setWindowTitle(title);
     messageBox.setText(text);
     messageBox.setStandardButtons(QDialogButtonBox::Yes|QDialogButtonBox::Cancel);
@@ -652,7 +653,7 @@ void AnalyzerManager::startTool()
     d->startTool();
 }
 
-Utils::FancyMainWindow *AnalyzerManager::mainWindow()
+FancyMainWindow *AnalyzerManager::mainWindow()
 {
     return d->m_mainWindow;
 }
