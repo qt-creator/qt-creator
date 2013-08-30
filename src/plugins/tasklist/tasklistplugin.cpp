@@ -197,4 +197,4 @@ void TaskListPlugin::clearTasks()
 
 } // namespace TaskList
 
-Q_EXPORT_PLUGIN(TaskListPlugin)
+Q_EXPORT_PLUGIN(TaskList::TaskListPlugin)
