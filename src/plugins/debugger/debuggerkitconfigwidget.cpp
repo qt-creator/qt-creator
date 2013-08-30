@@ -319,6 +319,8 @@ DebuggerItem DebuggerKitInformation::debuggerItem(const ProjectExplorer::Kit *k)
     // <value type="QString" key="Debugger.Information">{75ecf347-f221-44c3-b613-ea1d29929cd4}</value>
 
     QVariant id = k->value(DEBUGGER_INFORMATION);
+    if (!id.isValid())
+        return DebuggerItem();
 
     QString pathOrUid;
     if (id.type() == QVariant::Map) // 2.x
@@ -326,7 +328,10 @@ DebuggerItem DebuggerKitInformation::debuggerItem(const ProjectExplorer::Kit *k)
     else if (id.type() == QVariant::String) // 3.x
         pathOrUid = id.toString();
 
-    DebuggerItem *item;
+    if (pathOrUid.isEmpty())
+        return DebuggerItem();
+
+    DebuggerItem *item = 0;
     if (pathOrUid.startsWith(QLatin1Char('{')))
         item = DebuggerItemManager::debuggerFromId(id);
     else
