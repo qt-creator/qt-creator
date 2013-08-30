@@ -93,9 +93,9 @@ enum { debugLeaks = 0 };
 
     Usually the application creates a PluginManager instance and initiates the loading.
     \code
-        ExtensionSystem::PluginManager *manager = new ExtensionSystem::PluginManager();
-        manager->setPluginPaths(QStringList() << "plugins"); // 'plugins' and subdirs will be searched for plugins
-        manager->loadPlugins(); // try to load all the plugins
+        // 'plugins' and subdirs will be searched for plugins
+        ExtensionSystem::PluginManager::setPluginPaths(QStringList() << "plugins");
+        ExtensionSystem::PluginManager::loadPlugins(); // try to load all the plugins
     \endcode
     Additionally it is possible to directly access to the plugin specifications
     (the information in the descriptor file), and the plugin instances (via PluginSpec),
@@ -122,7 +122,7 @@ enum { debugLeaks = 0 };
         ExtensionSystem::PluginManager::instance()->addObject(handler);
         // In plugin A:
         QList<MimeTypeHandler *> mimeHandlers =
-            ExtensionSystem::PluginManager::instance()->getObjects<MimeTypeHandler>();
+            ExtensionSystem::PluginManager::getObjects<MimeTypeHandler>();
     \endcode
 
 
@@ -159,8 +159,7 @@ enum { debugLeaks = 0 };
         {
             using namespace ExtensionSystem;
 
-            QObject *target = PluginManager::instance()
-                ->getObjectByClassName("PluginA::SomeProvider");
+            QObject *target = PluginManager::getObjectByClassName("PluginA::SomeProvider");
 
             if (target) {
                 // Some random argument.
