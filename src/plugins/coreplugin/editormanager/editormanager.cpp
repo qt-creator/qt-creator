@@ -1877,9 +1877,9 @@ void EditorManager::updateWindowTitle()
         windowTitle.prepend(d->m_titleAddition);
     }
     if (document) {
-        QString editorName = document->displayName();
-        if (!editorName.isEmpty())
-            windowTitle.prepend(editorName + vcsTopic + dashSep);
+        const QString documentName = document->displayName();
+        if (!documentName.isEmpty())
+            windowTitle.prepend(documentName + vcsTopic + dashSep);
         QString filePath = QFileInfo(document->filePath()).absoluteFilePath();
         if (!filePath.isEmpty())
             ICore::mainWindow()->setWindowFilePath(filePath);
