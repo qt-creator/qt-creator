@@ -97,10 +97,19 @@ static QByteArray runGcc(const FileName &gcc, const QStringList &arguments, cons
         return QByteArray();
     }
 
+    const QByteArray stdErr = cpp.readAllStandardError();
+    if (cpp.exitCode() != 0) {
+        qWarning().nospace()
+            << Q_FUNC_INFO << ": " << gcc.toUserOutput() << ' '
+            << arguments.join(QLatin1String(" ")) << " returned exit code "
+            << cpp.exitCode() << ": " << stdErr;
+        return QByteArray();
+    }
+
     QByteArray data = cpp.readAllStandardOutput();
     if (!data.isEmpty() && !data.endsWith('\n'))
         data.append('\n');
-    data.append(cpp.readAllStandardError());
+    data.append(stdErr);
     return data;
 }
 
