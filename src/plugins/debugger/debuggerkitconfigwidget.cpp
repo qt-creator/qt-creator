@@ -1015,7 +1015,6 @@ public:
     void saveItem(DebuggerItem *item);
 private:
     QLineEdit *m_displayNameLineEdit;
-    QComboBox *m_engineTypeComboBox;
     QLabel *m_cdbLabel;
     PathChooser *m_binaryChooser;
     QLineEdit *m_abis;
@@ -1024,8 +1023,6 @@ private:
 DebuggerItemConfigWidget::DebuggerItemConfigWidget()
 {
     m_displayNameLineEdit = new QLineEdit(this);
-
-    m_engineTypeComboBox = new QComboBox(this);
 
     m_binaryChooser = new PathChooser(this);
     m_binaryChooser->setExpectedKind(PathChooser::ExistingCommand);
@@ -1038,15 +1035,9 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget()
     m_abis = new QLineEdit(this);
     m_abis->setEnabled(false);
 
-    QHBoxLayout *nameLayout = new QHBoxLayout;
-    nameLayout->addWidget(m_displayNameLineEdit);
-    nameLayout->addWidget(new QLabel(tr("Type:")));
-    nameLayout->addWidget(m_engineTypeComboBox);
-
     QFormLayout *formLayout = new QFormLayout;
     formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
-    formLayout->addRow(new QLabel(tr("Name:")), nameLayout);
-//    formLayout->addRow(new QLabel(tr("Name:")), m_displayNameLineEdit);
+    formLayout->addRow(new QLabel(tr("Name:")), m_displayNameLineEdit);
 //    formLayout->addRow(new QLabel(tr("Type:")), m_engineTypeComboBox);
     formLayout->addRow(m_cdbLabel);
     formLayout->addRow(new QLabel(tr("Path:")), m_binaryChooser);
@@ -1062,12 +1053,6 @@ void DebuggerItemConfigWidget::loadItem(DebuggerItem *item)
 
     m_displayNameLineEdit->setEnabled(!item->isAutoDetected);
     m_displayNameLineEdit->setText(item->displayName);
-
-    // This is immutable.
-    m_engineTypeComboBox->clear();
-    m_engineTypeComboBox->addItem(item->engineTypeName());
-    m_engineTypeComboBox->setCurrentIndex(0);
-    //m_engineTypeComboBox->setEnabled(false);
 
     m_binaryChooser->setEnabled(!item->isAutoDetected);
     m_binaryChooser->setFileName(item->command);
