@@ -91,6 +91,8 @@ public:
 
     ToolChain *clone() const;
 
+    static void addCommandPathToEnvironment(const Utils::FileName &command, Utils::Environment &env);
+
 protected:
     typedef QList<QPair<QStringList, QByteArray> > GccCache;
 

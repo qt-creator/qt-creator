@@ -500,12 +500,15 @@ QList<HeaderPath> GccToolChain::systemHeaderPaths(const QStringList &cxxflags, c
     return m_headerPaths;
 }
 
+void GccToolChain::addCommandPathToEnvironment(const FileName &command, Environment &env)
+{
+    if (!command.isEmpty())
+        env.prependOrSetPath(command.parentDir().toString());
+}
+
 void GccToolChain::addToEnvironment(Environment &env) const
 {
-    if (!m_compilerCommand.isEmpty()) {
-        FileName path = m_compilerCommand.parentDir();
-        env.prependOrSetPath(path.toString());
-    }
+    addCommandPathToEnvironment(m_compilerCommand, env);
 }
 
 QList<FileName> GccToolChain::suggestedMkspecList() const
@@ -768,11 +771,12 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(const QString &comp
 {
     QList<ToolChain *> result;
 
-    const Environment systemEnvironment = Environment::systemEnvironment();
+    Environment systemEnvironment = Environment::systemEnvironment();
     const FileName compilerPath = FileName::fromString(systemEnvironment.searchInPath(compiler));
     if (compilerPath.isEmpty())
         return result;
 
+    GccToolChain::addCommandPathToEnvironment(compilerPath, systemEnvironment);
     QList<Abi> abiList = guessGccAbi(compilerPath, systemEnvironment.toStringList());
     if (!abiList.contains(requiredAbi)) {
         if (requiredAbi.wordWidth() != 64
@@ -904,9 +908,12 @@ void GccToolChainConfigWidget::handleCompilerCommandChange()
         QFileInfo fi(path.toFileInfo());
         haveCompiler = fi.isExecutable() && fi.isFile();
     }
-    if (haveCompiler)
-        abiList = guessGccAbi(path, Environment::systemEnvironment().toStringList(),
+    if (haveCompiler) {
+        Environment env = Environment::systemEnvironment();
+        GccToolChain::addCommandPathToEnvironment(path, env);
+        abiList = guessGccAbi(path, env.toStringList(),
                               splitString(m_platformCodeGenFlagsLineEdit->text()));
+    }
     m_abiWidget->setEnabled(haveCompiler);
     Abi currentAbi = m_abiWidget->currentAbi();
     m_abiWidget->setAbis(abiList, abiList.contains(currentAbi) ? currentAbi : Abi());
