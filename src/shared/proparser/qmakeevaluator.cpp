@@ -1303,7 +1303,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConfigFeatures()
                 config.detach();
                 processed.insert(config);
                 VisitReturn vr = evaluateFeatureFile(config, true);
-                if (vr == ReturnError)
+                if (vr == ReturnError && !m_cumulative)
                     return vr;
                 if (vr == ReturnTrue) {
                     finished = false;
