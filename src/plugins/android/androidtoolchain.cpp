@@ -201,10 +201,9 @@ bool AndroidToolChain::fromMap(const QVariantMap &data)
         m_ndkToolChainVersion = data.value(QLatin1String(ANDROID_NDK_TC_VERION)).toString();
     }
 
-    AndroidToolChainFactory *factory = ExtensionSystem::PluginManager::getObject<AndroidToolChainFactory>();
     ProjectExplorer::Abi::Architecture arch = targetAbi().architecture();
     m_secondaryToolChain = AndroidToolChainFactory::versionCompareLess(AndroidToolChainFactory::versionNumberFromString(m_ndkToolChainVersion),
-                                                                       factory->newestToolChainVersionForArch(arch));
+                                                                       AndroidToolChainFactory::newestToolChainVersionForArch(arch));
     return isValid();
 }
 
