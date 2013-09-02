@@ -209,7 +209,7 @@ IOutputParser *CustomToolChain::outputParser() const
     case Gcc: return new GccParser;
     case Clang: return new ClangParser;
     case LinuxIcc: return new LinuxIccParser;
-#if defined(QT_OS_WIN)
+#if defined(Q_OS_WIN)
     case Msvc: return new MsvcParser;
 #endif
     case Custom: return new CustomParser(m_customParserSettings);
