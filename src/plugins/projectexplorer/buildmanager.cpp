@@ -293,7 +293,6 @@ void BuildManager::startBuildQueue(const QStringList &preambleMessage)
         // Progress Reporting
         d->m_progressFutureInterface = new QFutureInterface<void>;
         d->m_progressWatcher.setFuture(d->m_progressFutureInterface->future());
-        d->m_outputWindow->clearContents();
         foreach (const QString &str, preambleMessage)
             addToOutputWindow(str, BuildStep::MessageOutput, BuildStep::DontAppendNewline);
         TaskHub::clearTasks(Constants::TASK_CATEGORY_COMPILE);
@@ -466,6 +465,7 @@ void BuildManager::nextStep()
 
 bool BuildManager::buildQueueAppend(QList<BuildStep *> steps, QStringList names)
 {
+    d->m_outputWindow->clearContents();
     int count = steps.size();
     bool init = true;
     int i = 0;
