@@ -70,7 +70,6 @@
 #include "projectnodes.h"
 #include "sessiondialog.h"
 #include "projectexplorersettingspage.h"
-#include "projectwelcomepage.h"
 #include "corelistenercheckingforrunningbuild.h"
 #include "buildconfiguration.h"
 #include "miniprojecttargetselector.h"
@@ -88,6 +87,10 @@
 #    include "windebuginterface.h"
 #    include "msvctoolchain.h"
 #    include "wincetoolchain.h"
+#endif
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+#include "projectwelcomepage.h"
 #endif
 
 #include <extensionsystem/pluginspec.h>
@@ -228,8 +231,11 @@ struct ProjectExplorerPluginPrivate {
     QString m_projectFilterString;
     Internal::MiniProjectTargetSelector * m_targetSelector;
     Internal::ProjectExplorerSettings m_projectExplorerSettings;
-    Internal::ProjectWelcomePage *m_welcomePage;
 
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+    Internal::ProjectWelcomePage *m_welcomePage;
+#endif
     IMode *m_projectsMode;
 
     TaskHub *m_taskHub;
@@ -284,8 +290,10 @@ ProjectExplorerPlugin::ProjectExplorerPlugin()
 
 ProjectExplorerPlugin::~ProjectExplorerPlugin()
 {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
     removeObject(d->m_welcomePage);
     delete d->m_welcomePage;
+#endif
     removeObject(this);
     // Force sequence of deletion:
     delete d->m_kitManager; // remove all the profile informations
@@ -348,9 +356,11 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     connect(ICore::instance(), SIGNAL(newItemsDialogRequested()), this, SLOT(loadCustomWizards()));
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
     d->m_welcomePage = new ProjectWelcomePage;
     connect(d->m_welcomePage, SIGNAL(manageSessions()), this, SLOT(showSessionManager()));
     addObject(d->m_welcomePage);
+#endif
 
     connect(DocumentManager::instance(), SIGNAL(currentFileChanged(QString)),
             this, SLOT(setCurrentFile(QString)));
@@ -1085,7 +1095,9 @@ void ProjectExplorerPlugin::closeAllProjects()
     SessionManager::closeAllProjects();
     updateActions();
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
     ModeManager::activateMode(Core::Constants::MODE_WELCOME);
+#endif
 }
 
 void ProjectExplorerPlugin::extensionsInitialized()
@@ -1212,9 +1224,11 @@ void ProjectExplorerPlugin::showSessionManager()
 
     updateActions();
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
     IMode *welcomeMode = ModeManager::mode(Core::Constants::MODE_WELCOME);
     if (ModeManager::currentMode() == welcomeMode)
         updateWelcomePage();
+#endif
 }
 
 void ProjectExplorerPlugin::setStartupProject(Project *project)
@@ -1443,7 +1457,9 @@ void ProjectExplorerPlugin::setCurrentNode(Node *node)
 
 void ProjectExplorerPlugin::updateWelcomePage()
 {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
     d->m_welcomePage->reloadWelcomeScreenData();
+#endif
 }
 
 void ProjectExplorerPlugin::currentModeChanged(IMode *mode, IMode *oldMode)
@@ -1564,9 +1580,10 @@ void ProjectExplorerPlugin::restoreSession()
     connect(ModeManager::instance(),
             SIGNAL(currentModeChanged(Core::IMode*,Core::IMode*)),
             SLOT(currentModeChanged(Core::IMode*,Core::IMode*)));
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
     connect(d->m_welcomePage, SIGNAL(requestSession(QString)), this, SLOT(loadSession(QString)));
     connect(d->m_welcomePage, SIGNAL(requestProject(QString)), this, SLOT(openProjectWelcomePage(QString)));
-
+#endif
     d->m_arguments = arguments;
     QTimer::singleShot(0, this, SLOT(restoreSession2()));
     updateActions();

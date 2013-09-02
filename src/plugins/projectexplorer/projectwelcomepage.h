@@ -35,7 +35,7 @@
 #include <utils/iwelcomepage.h>
 
 QT_BEGIN_NAMESPACE
-class QDeclarativeEngine;
+class QQmlEngine;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -87,7 +87,7 @@ class ProjectWelcomePage : public Utils::IWelcomePage
 public:
     ProjectWelcomePage();
 
-    void facilitateQml(QDeclarativeEngine *engine);
+    void facilitateQml(QQmlEngine *engine);
     QUrl pageLocation() const;
     QWidget *page() { return 0; }
     QString title() const { return tr("Develop"); }

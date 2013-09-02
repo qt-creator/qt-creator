@@ -1,5 +1,4 @@
-import QtQuick 1.1
-import qtcomponents 1.0
+import QtQuick 2.1
 
 Item {
     id: gettingStartedItem
@@ -12,16 +11,6 @@ Item {
     property alias imageUrl: image.source
 
     signal clicked
-
-    CustomColors {
-        id: colors
-    }
-
-    CustomFonts {
-        id: fonts
-    }
-
-    QStyleItem { cursor: "pointinghandcursor"; anchors.fill: parent }
 
     Rectangle {
         y: 170
@@ -106,6 +95,7 @@ Item {
     MouseArea {
         anchors.fill: parent
         hoverEnabled: true
+        cursorShape: Qt.PointingHandCursor
         onEntered: {
             gettingStartedItem.state="hover"
         }

@@ -33,7 +33,7 @@
 #include <extensionsystem/iplugin.h>
 
 QT_BEGIN_NAMESPACE
-class QDeclarativeEngine;
+class QQmlEngine;
 QT_END_NAMESPACE
 
 namespace Welcome {

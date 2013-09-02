@@ -27,32 +27,24 @@
 **
 ****************************************************************************/
 
-import QtQuick 1.0
-import qtcomponents 1.0
+import QtQuick 2.1
+import widgets 1.0
 
 Item {
-    property alias model: root.model
+    id: root
+    property var model
     property int topMargin: 6
-    height: Math.min(root.contentHeight + topMargin, parent.height - 260)
-
-    property alias scrollBarVisible: vscrollbar.visible
+    height: Math.min(content.contentHeight + topMargin, parent.height - 260)
 
     ListView {
-        id: root
+        id: content
+        model: root.model
 
         anchors.fill: parent
         anchors.topMargin: topMargin
-
         snapMode: ListView.SnapToItem
-        property int delegateHeight: currentItem.height + spacing
-        //property int delegateHeight: 22
-
-        interactive: false
-
         spacing: 4
-        cacheBuffer: 800 //We need a big cache to avoid artefacts caused by delegate recreation
         clip: true
-
 
         delegate: SessionItem {
             function fullSessionName()
@@ -64,35 +56,7 @@ Item {
                     newSessionName = qsTr("%1 (current session)").arg(sessionName);
                 return newSessionName;
             }
-
             name: fullSessionName()
         }
-
-        WheelArea {
-            id: wheelarea
-            anchors.fill: parent
-            verticalMinimumValue: vscrollbar.minimumValue
-            verticalMaximumValue: vscrollbar.maximumValue
-            onVerticalValueChanged: root.contentY =  verticalValue
-        }
-
-        ScrollBar {
-            id: vscrollbar
-            orientation: Qt.Vertical
-            property int availableHeight : root.height
-            visible: root.contentHeight > availableHeight
-            maximumValue: root.contentHeight > availableHeight ? root.contentHeight - availableHeight : 0
-            minimumValue: 0
-            anchors.right: parent.right
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
-            singleStep: root.delegateHeight
-            anchors.topMargin: styleitem.style === "mac" ? 1 : 0
-            onValueChanged: root.contentY = value
-            anchors.rightMargin: styleitem.frameoffset
-            anchors.bottomMargin: styleitem.frameoffset
-            value: root.contentY
-        }
     }
-
 }

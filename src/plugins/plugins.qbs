@@ -2,6 +2,7 @@ import qbs
 
 Project {
     name: "Plugins"
+
     references: [
         "analyzerbase/analyzerbase.qbs",
         "android/android.qbs",
@@ -56,6 +57,11 @@ Project {
         "updateinfo/updateinfo.qbs",
         "valgrind/valgrind.qbs",
         "vcsbase/vcsbase.qbs",
-        "welcome/welcome.qbs"
     ]
+
+    Group {
+        condition: qtcore.versionMajor >= 5
+        references: [ "welcome/welcome.qbs" ]
+    }
+
 }

@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-import QtQuick 1.0
-import qtcomponents 1.0
+import QtQuick 2.1
+import QtQuick.Controls 1.0
 
-ChoiceList {
+ComboBox {
 }

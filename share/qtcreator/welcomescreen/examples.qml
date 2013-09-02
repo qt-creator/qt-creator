@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-import QtQuick 1.0
+import QtQuick 2.1
 import widgets 1.0
 
 Rectangle {
@@ -82,6 +82,8 @@ Rectangle {
         anchors.rightMargin: 80
         anchors.right: parent.right
         model: qtVersionModel
+        textRole: "text"
+
 
         onCurrentIndexChanged: {
             if (comboBox.model === undefined)

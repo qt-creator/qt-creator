@@ -1,4 +1,4 @@
-QT += xml script declarative
+QT += xml script
 
 include(../../qtcreatorplugin.pri)
 include(customwizard/customwizard.pri)
@@ -84,7 +84,6 @@ HEADERS += projectexplorer.h \
     cesdkhandler.h \
     gccparser.h \
     projectexplorersettingspage.h \
-    projectwelcomepage.h \
     baseprojectwizarddialog.h \
     miniprojecttargetselector.h \
     targetselector.h \
@@ -214,7 +213,6 @@ SOURCES += projectexplorer.cpp \
     cesdkhandler.cpp \
     gccparser.cpp \
     projectexplorersettingspage.cpp \
-    projectwelcomepage.cpp \
     corelistenercheckingforrunningbuild.cpp \
     baseprojectwizarddialog.cpp \
     miniprojecttargetselector.cpp \
@@ -302,6 +300,11 @@ equals(TEST, 1) {
         outputparser_test.h
 }
 
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += quick
+    HEADERS += projectwelcomepage.h
+    SOURCES += projectwelcomepage.cpp
+}
 macx:LIBS += -framework Carbon
 
 RESOURCES += projectexplorer.qrc

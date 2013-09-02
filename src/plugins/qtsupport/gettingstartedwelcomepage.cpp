@@ -61,9 +61,9 @@
 #include <QPushButton>
 #include <QMessageBox>
 #include <QApplication>
-#include <QDeclarativeImageProvider>
-#include <QDeclarativeEngine>
-#include <QDeclarativeContext>
+#include <QQuickImageProvider>
+#include <QQmlEngine>
+#include <QQmlContext>
 #include <QDesktopServices>
 
 using namespace Utils;
@@ -170,11 +170,11 @@ public:
     bool m_shutdown;
 };
 
-class HelpImageProvider : public QDeclarativeImageProvider
+class HelpImageProvider : public QQuickImageProvider
 {
 public:
     HelpImageProvider()
-        : QDeclarativeImageProvider(QDeclarativeImageProvider::Image)
+        : QQuickImageProvider(QQuickImageProvider::Image)
     {
     }
 
@@ -231,7 +231,7 @@ int GettingStartedWelcomePage::priority() const
     return 4;
 }
 
-void GettingStartedWelcomePage::facilitateQml(QDeclarativeEngine *engine)
+void GettingStartedWelcomePage::facilitateQml(QQmlEngine *engine)
 {
     m_engine = engine;
 }
@@ -288,7 +288,7 @@ QUrl ExamplesWelcomePage::pageLocation() const
         return QUrl::fromLocalFile(resourcePath + QLatin1String("/welcomescreen/tutorials.qml"));
 }
 
-void ExamplesWelcomePage::facilitateQml(QDeclarativeEngine *engine)
+void ExamplesWelcomePage::facilitateQml(QQmlEngine *engine)
 {
     m_engine = engine;
     m_engine->addImageProvider(QLatin1String("helpimage"), new HelpImageProvider);
@@ -299,7 +299,7 @@ void ExamplesWelcomePage::facilitateQml(QDeclarativeEngine *engine)
     proxy->sort(0);
     proxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
-    QDeclarativeContext *rootContenxt = m_engine->rootContext();
+    QQmlContext *rootContenxt = m_engine->rootContext();
     if (m_showExamples) {
         proxy->setShowTutorialsOnly(false);
         rootContenxt->setContextProperty(QLatin1String("examplesModel"), proxy);

@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-import QtQuick 1.0
+import QtQuick 2.1
 
 Item {
     id: projectItem
@@ -46,10 +46,6 @@ Item {
     Image {
         source: "images/bullet.png"
         anchors.verticalCenter: projectNameText.verticalCenter
-    }
-
-    CustomFonts {
-        id: fonts
     }
 
     LinkedText {

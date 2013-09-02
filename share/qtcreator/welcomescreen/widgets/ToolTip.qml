@@ -27,14 +27,12 @@
 **
 ****************************************************************************/
 
-import QtQuick 1.1
+import QtQuick 2.1
 
 Item {
     id: toolTip
 
     property alias text: text.text
-
-
     property int margin: 4
 
     width: text.width + margin * 2

@@ -61,10 +61,10 @@
 #include <QUrl>
 #include <QtPlugin>
 
-#include <QDeclarativeView>
-#include <QDeclarativeContext>
-#include <QDeclarativeEngine>
-#include <QDeclarativeNetworkAccessManagerFactory>
+#include <QtQuick/QQuickView>
+#include <QtQml/QQmlContext>
+#include <QtQml/QQmlEngine>
+#include <QtQml/QQmlNetworkAccessManagerFactory>
 
 enum { debug = 0 };
 
@@ -76,10 +76,10 @@ static const char currentPageSettingsKeyC[] = "WelcomeTab";
 namespace Welcome {
 namespace Internal {
 
-class NetworkAccessManagerFactory : public QDeclarativeNetworkAccessManagerFactory
+class NetworkAccessManagerFactory : public QQmlNetworkAccessManagerFactory
 {
 public:
-    NetworkAccessManagerFactory(): QDeclarativeNetworkAccessManagerFactory() {}
+    NetworkAccessManagerFactory(): QQmlNetworkAccessManagerFactory() {}
     QNetworkAccessManager* create(QObject *parent) { return new Utils::NetworkAccessManager(parent); }
 };
 
@@ -103,7 +103,7 @@ public:
 
     Q_SCRIPTABLE QString platform() const;
 
-    bool eventFilter(QObject *, QEvent *);
+//    bool eventFilter(QObject *, QEvent *);
 
 public slots:
     void setActivePlugin(int pos)
@@ -121,10 +121,10 @@ private slots:
     void welcomePluginAdded(QObject*);
 
 private:
-    void facilitateQml(QDeclarativeEngine *engine);
+    void facilitateQml(QQmlEngine *engine);
 
     QWidget *m_modeWidget;
-    QDeclarativeView *m_welcomePage;
+    QQuickView *m_welcomePage;
     QList<QObject*> m_pluginList;
     int m_activePlugin;
     NetworkAccessManagerFactory *m_networkAccessManagerFactory;
@@ -146,40 +146,46 @@ WelcomeMode::WelcomeMode() :
     setContextHelpId(QLatin1String("Qt Creator Manual"));
     setContext(Core::Context(Core::Constants::C_WELCOME_MODE));
 
-    m_welcomePage = new QDeclarativeView;
-    m_welcomePage->setResizeMode(QDeclarativeView::SizeRootObjectToView);
-    // filter to forward dragEnter events
-    m_welcomePage->installEventFilter(this);
-    m_welcomePage->viewport()->installEventFilter(this);
+    m_welcomePage = new QQuickView;
+    m_welcomePage->setResizeMode(QQuickView::SizeRootObjectToView);
+
+//  filter to forward dragEnter events
+//    m_welcomePage->installEventFilter(this);
+//    m_welcomePage->viewport()->installEventFilter(this);
 
     m_modeWidget = new QWidget;
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setMargin(0);
     layout->setSpacing(0);
-    m_modeWidget->setLayout(layout);
 
     Utils::StyledBar* styledBar = new Utils::StyledBar(m_modeWidget);
     layout->addWidget(styledBar);
-    QScrollArea *scrollArea = new QScrollArea(m_modeWidget);
-    scrollArea->setFrameShape(QFrame::NoFrame);
-    layout->addWidget(scrollArea);
-    scrollArea->setWidget(m_welcomePage);
-    scrollArea->setWidgetResizable(true);
+
+    // QScrollArea *scrollArea = new QScrollArea(m_modeWidget);
+    // scrollArea->setFrameShape(QFrame::NoFrame);
+    // layout->addWidget(scrollArea);
+    // scrollArea->setWidget(m_welcomePage);
+    // scrollArea->setWidgetResizable(true);
+
     m_welcomePage->setMinimumWidth(880);
     m_welcomePage->setMinimumHeight(548);
+    QWidget *container = QWidget::createWindowContainer(m_welcomePage, m_modeWidget);
+    layout->addWidget(container);
+    m_modeWidget->setLayout(layout);
+
     connect(PluginManager::instance(), SIGNAL(objectAdded(QObject*)), SLOT(welcomePluginAdded(QObject*)));
 
     setWidget(m_modeWidget);
 }
 
-bool WelcomeMode::eventFilter(QObject *, QEvent *e)
-{
-    if (e->type() == QEvent::DragEnter) {
-        e->ignore();
-        return true;
-    }
-    return false;
-}
+//bool WelcomeMode::eventFilter(QObject *, QEvent *e)
+//{
+//    if (e->type() == QEvent::DragEnter) {
+//        e->ignore();
+//        return true;
+//    }
+//    return false;
+//}
 
 WelcomeMode::~WelcomeMode()
 {
@@ -194,7 +200,7 @@ bool sortFunction(Utils::IWelcomePage * a, Utils::IWelcomePage *b)
     return a->priority() < b->priority();
 }
 
-void WelcomeMode::facilitateQml(QDeclarativeEngine * /*engine*/)
+void WelcomeMode::facilitateQml(QQmlEngine * /*engine*/)
 {
 }
 
@@ -227,7 +233,7 @@ void WelcomeMode::initPlugins()
     if (activePlugin() > 1)
         setActivePlugin(1);
 
-    QDeclarativeContext *ctx = m_welcomePage->rootContext();
+    QQmlContext *ctx = m_welcomePage->rootContext();
     ctx->setContextProperty(QLatin1String("welcomeMode"), this);
 
     QList<Utils::IWelcomePage*> duplicatePlugins = PluginManager::getObjects<Utils::IWelcomePage>();
@@ -255,7 +261,7 @@ void WelcomeMode::initPlugins()
     }
 
 
-    QDeclarativeEngine *engine = m_welcomePage->engine();
+    QQmlEngine *engine = m_welcomePage->engine();
     QStringList importPathList = engine->importPathList();
     importPathList << resourcePath() + QLatin1String("/welcomescreen");
     engine->setImportPathList(importPathList);
@@ -322,7 +328,7 @@ void WelcomeMode::welcomePluginAdded(QObject *obj)
         }
         m_pluginList.insert(insertPos, plugin);
         // update model through reset
-        QDeclarativeContext *ctx = m_welcomePage->rootContext();
+        QQmlContext *ctx = m_welcomePage->rootContext();
         ctx->setContextProperty(QLatin1String("pagesModel"), QVariant::fromValue(m_pluginList));
     }
 }

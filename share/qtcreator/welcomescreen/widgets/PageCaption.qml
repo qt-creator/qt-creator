@@ -27,16 +27,16 @@
 **
 ****************************************************************************/
 
-import QtQuick 1.1
-import QtQuick 1.0
+import QtQuick 2.1
 
 Item {
     id: pageCaption
     width: 960
     height: 40
-    property int textOffset: captionText.x + captionText.width
 
+    property int textOffset: captionText.x + captionText.width
     property alias caption: captionText.text
+
     Text {
         id: captionText
         y: 9
@@ -54,9 +54,5 @@ Item {
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right
-    }
-
-    CustomColors {
-        id: colors
     }
 }

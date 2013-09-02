@@ -35,7 +35,7 @@
 #include <QStringList>
 
 QT_BEGIN_NAMESPACE
-class QDeclarativeEngine;
+class QQmlEngine;
 class QFileInfo;
 QT_END_NAMESPACE
 
@@ -54,11 +54,11 @@ public:
     QUrl pageLocation() const;
     QString title() const;
     int priority() const;
-    void facilitateQml(QDeclarativeEngine *);
+    void facilitateQml(QQmlEngine *);
     Id id() const;
 
 private:
-    QDeclarativeEngine *m_engine;
+    QQmlEngine *m_engine;
 };
 
 
@@ -74,7 +74,7 @@ public:
     QString title() const;
     int priority() const;
     bool hasSearchBar() const;
-    void facilitateQml(QDeclarativeEngine *);
+    void facilitateQml(QQmlEngine *);
     Id id() const;
     Q_INVOKABLE QStringList tagList() const;
     Q_INVOKABLE void openUrl(const QUrl &url);
@@ -92,7 +92,7 @@ public slots:
 private:
     ExamplesListModel *examplesModel() const;
     QString copyToAlternativeLocation(const QFileInfo &fileInfo, QStringList &filesToOpen, const QStringList &dependencies);
-    QDeclarativeEngine *m_engine;
+    QQmlEngine *m_engine;
     bool m_showExamples;
 };
 

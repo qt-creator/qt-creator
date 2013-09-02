@@ -27,8 +27,7 @@
 **
 ****************************************************************************/
 
-import QtQuick 1.1
-import qtcomponents 1.0
+import QtQuick 2.1
 
 Text {
     id: root
@@ -51,14 +50,6 @@ Text {
     }
 
     property bool enlargeMouseArea: true
-
-    CustomFonts {
-        id: fonts
-    }
-
-    CustomColors {
-        id: colors
-    }
 
     Rectangle {
         color: "#909090"
@@ -89,8 +80,7 @@ Text {
         anchors.margins: enlargeMouseArea ? -8 : 0
         hoverEnabled: true
 
-        QStyleItem { cursor: "pointinghandcursor"; anchors.fill: parent }
-
+        cursorShape: Qt.PointingHandCursor
         onEntered: {
             if (!root.active)
                 mouseArea.state = "hovered"

@@ -27,8 +27,7 @@
 **
 ****************************************************************************/
 
-import QtQuick 1.1
-import qtcomponents 1.0 as Components
+import QtQuick 2.1
 
 Item {
     id: tabBar

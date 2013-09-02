@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-import QtQuick 1.1
+import QtQuick 2.1
 
 Item {
     x: 5
@@ -35,10 +35,6 @@ Item {
     property bool expanded: false
     height: column.height
     property alias name: text.text
-
-    CustomFonts {
-        id: fonts
-    }
 
     Column {
         id: column
@@ -100,14 +96,13 @@ Item {
         Item {
             z: -1
             property int margin: 6
-            height: innerColumn.height + margin * 2
+            height: expanded ? innerColumn.height + margin * 2 : 0
             width: delegate.ListView.view.width - 8 - margin * 2
             opacity: delegate.expanded ? 1 : 0
 
-            Behavior on opacity {
+            Behavior on height {
                 ParallelAnimation {
-                    PauseAnimation { duration: delegate.expanded ? 100 : 0; }
-                    PropertyAnimation { duration:  100; }
+                    PropertyAnimation { duration:  160 ; easing.type: Easing.OutCubic }
                 }
             }
 

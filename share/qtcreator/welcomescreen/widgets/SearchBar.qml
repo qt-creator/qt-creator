@@ -27,35 +27,42 @@
 **
 ****************************************************************************/
 
-import QtQuick 1.0
-import qtcomponents 1.0
+import QtQuick 2.1
 
 Rectangle {
     id: searchBar
+
     width: 930
-    height: 31
+    height: 27
     color: "#ffffff"
     radius: 6
     border.color: "#cccccc"
-    property alias placeholderText: lineEdit.placeholderText
+
+    property alias placeholderText: placeHolderText.text
     property alias text: lineEdit.text
 
-    CustomFonts {
-        id: fonts
-    }
-
-    TextField {
+    TextInput {
         id: lineEdit
-        placeholderText: qsTr("Search...")
+        anchors.topMargin: 1
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.rightMargin: 12
         anchors.leftMargin: 12
-        anchors.verticalCenter: parent.verticalCenter
-        background: Item {}
+        anchors.fill: parent
+        verticalAlignment: Text.AlignVCenter
+        renderType: Text.NativeRendering
         font.pixelSize: 14
-        font.bold: false
         font.family: "Helvetica"
     }
 
+    Text {
+        id: placeHolderText
+        visible: !lineEdit.text.length
+        text: qsTr("Search...")
+        anchors.fill: lineEdit
+        font: lineEdit.font
+        verticalAlignment: Text.AlignVCenter
+        renderType: Text.NativeRendering
+        color: "gray"
+    }
 }

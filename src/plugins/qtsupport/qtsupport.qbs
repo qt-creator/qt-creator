@@ -5,7 +5,7 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "QtSupport"
 
-    Depends { name: "Qt"; submodules: ["widgets", "declarative"] }
+    Depends { name: "Qt"; submodules: ["widgets", "quick"] }
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
@@ -70,8 +70,6 @@ QtcPlugin {
         "debugginghelperbuildtask.h",
         "exampleslistmodel.cpp",
         "exampleslistmodel.h",
-        "gettingstartedwelcomepage.cpp",
-        "gettingstartedwelcomepage.h",
         "profilereader.cpp",
         "profilereader.h",
         "qmldebugginglibrary.cpp",
@@ -111,6 +109,15 @@ QtcPlugin {
         "images/qt_project.png",
         "images/qt_qrc.png",
     ]
+
+    Group {
+        condition: qtcore.versionMajor >= 5
+        files: [
+            "gettingstartedwelcomepage.cpp",
+            "gettingstartedwelcomepage.h"
+        ]
+    }
+
 
     Export {
         Depends { name: "cpp" }

@@ -27,23 +27,21 @@
 **
 ****************************************************************************/
 
-import QtQuick 1.0
-import qtcomponents 1.0
+import QtQuick 2.1
+import QtQuick.Controls 1.0
 
-ScrollArea {
-    property bool scrollBarVisible: projectList.verticalScrollBar.visible
+ScrollView {
     id: projectList
+
+    property bool scrollBarVisible: false//projectList.verticalScrollBar.visible
     property alias model: repeater.model
+//    Behavior on verticalScrollBar.opacity  {
+//        PropertyAnimation {
 
-    Behavior on verticalScrollBar.opacity  {
-        PropertyAnimation {
+//        }
+//    }
 
-        }
-    }
-
-    frame: false
-    horizontalScrollBar.visible: false
-    clip: true
+//    frameVisible: false
 
     Column {
         id: column

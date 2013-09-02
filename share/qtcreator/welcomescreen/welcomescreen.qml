@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-import QtQuick 1.0
+import QtQuick 2.1
 import widgets 1.0
 
 Rectangle {
@@ -36,13 +36,13 @@ Rectangle {
     color: "#edf0f2"
     id: root
 
+    property var fonts: CustomFonts {}
+    property var colors: CustomColors { }
+
     Rectangle {
         id: canvas
 
         width: Math.min(1024, parent.width)
-        //this is a workaround for QTCREATORBUG-6803
-        anchors.topMargin: (root.height > 700) ? 0 : 0
-
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter

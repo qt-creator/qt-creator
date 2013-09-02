@@ -5,7 +5,7 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "ProjectExplorer"
 
-    Depends { name: "Qt"; submodules: ["widgets", "xml", "network", "script", "declarative"] }
+    Depends { name: "Qt"; submodules: ["widgets", "xml", "network", "script", "quick"] }
     Depends { name: "Core" }
     Depends { name: "Locator" }
     Depends { name: "Find" }
@@ -109,7 +109,6 @@ QtcPlugin {
             "projectmodels.cpp", "projectmodels.h",
             "projectnodes.cpp", "projectnodes.h",
             "projecttreewidget.cpp", "projecttreewidget.h",
-            "projectwelcomepage.cpp", "projectwelcomepage.h",
             "projectwindow.cpp", "projectwindow.h",
             "projectwizardpage.cpp", "projectwizardpage.h", "projectwizardpage.ui",
             "removetaskhandler.cpp", "removetaskhandler.h",
@@ -136,6 +135,15 @@ QtcPlugin {
             "toolchainoptionspage.cpp", "toolchainoptionspage.h",
             "vcsannotatetaskhandler.cpp", "vcsannotatetaskhandler.h",
         ]
+
+        Group {
+            condition: qtcore.versionMajor >= 5
+            references: [
+                "projectwelcomepage.cpp",
+                "projectwelcomepage.h"
+            ]
+        }
+
     }
 
     Group {

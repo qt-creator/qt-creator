@@ -4,7 +4,6 @@ TEMPLATE  = subdirs
 
 SUBDIRS   = \
     coreplugin \
-    welcome \
     find \
     texteditor \
     cppeditor \
@@ -70,7 +69,8 @@ contains(QT_CONFIG, declarative)|!isEmpty(QT.declarative.name) {
 
     greaterThan(QT_MAJOR_VERSION, 4) {
         SUBDIRS += \
-            qmldesigner
+            qmldesigner \
+            welcome
     } else {
         include(../private_headers.pri)
         exists($${QT_PRIVATE_HEADERS}/QtDeclarative/private/qdeclarativecontext_p.h) {

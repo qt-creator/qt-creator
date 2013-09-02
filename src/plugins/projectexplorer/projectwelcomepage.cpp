@@ -31,8 +31,8 @@
 
 #include <utils/stringutils.h>
 
-#include <QDeclarativeEngine>
-#include <QDeclarativeContext>
+#include <QQmlContext>
+#include <QQmlEngine>
 #include <QFileInfo>
 #include <QDir>
 
@@ -212,12 +212,12 @@ ProjectWelcomePage::ProjectWelcomePage() :
 {
 }
 
-void ProjectWelcomePage::facilitateQml(QDeclarativeEngine *engine)
+void ProjectWelcomePage::facilitateQml(QQmlEngine *engine)
 {
     m_sessionModel = new SessionModel(this);
     m_projectModel = new ProjectModel(ProjectExplorerPlugin::instance(), this);
 
-    QDeclarativeContext *ctx = engine->rootContext();
+    QQmlContext *ctx = engine->rootContext();
     ctx->setContextProperty(QLatin1String("sessionList"), m_sessionModel);
     ctx->setContextProperty(QLatin1String("projectList"), m_projectModel);
     ctx->setContextProperty(QLatin1String("projectWelcomePage"), this);

@@ -35,7 +35,7 @@
 #include <QObject>
 
 QT_FORWARD_DECLARE_CLASS(QUrl)
-QT_FORWARD_DECLARE_CLASS(QDeclarativeEngine)
+QT_FORWARD_DECLARE_CLASS(QQmlEngine)
 
 namespace Utils {
 
@@ -63,7 +63,7 @@ public:
     virtual QUrl pageLocation() const = 0;
     virtual QString title() const = 0;
     virtual int priority() const { return 0; }
-    virtual void facilitateQml(QDeclarativeEngine *) {}
+    virtual void facilitateQml(QQmlEngine *) {}
     virtual bool hasSearchBar() const { return false; }
     virtual Id id() const = 0;
 };

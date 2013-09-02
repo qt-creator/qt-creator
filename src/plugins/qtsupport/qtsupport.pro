@@ -1,5 +1,5 @@
 DEFINES += QTSUPPORT_LIBRARY
-QT += network declarative
+QT += network
 
 include(../../qtcreatorplugin.pri)
 
@@ -27,7 +27,6 @@ HEADERS += \
     qtsupportconstants.h \
     profilereader.h \
     qtparser.h \
-    gettingstartedwelcomepage.h \
     exampleslistmodel.h \
     screenshotcropper.h \
     qtconfigwidget.h \
@@ -52,10 +51,15 @@ SOURCES += \
     debugginghelperbuildtask.cpp \
     profilereader.cpp \
     qtparser.cpp \
-    gettingstartedwelcomepage.cpp \
     exampleslistmodel.cpp \
     screenshotcropper.cpp \
     qtconfigwidget.cpp
+
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += quick
+    HEADERS += gettingstartedwelcomepage.h
+    SOURCES += gettingstartedwelcomepage.cpp
+}
 
 FORMS   +=  \
     showbuildlog.ui \
