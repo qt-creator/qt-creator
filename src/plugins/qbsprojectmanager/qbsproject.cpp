@@ -47,6 +47,8 @@
 #include <coreplugin/mimedatabase.h>
 #include <cpptools/cppmodelmanager.h>
 #include <projectexplorer/buildenvironmentwidget.h>
+#include <projectexplorer/buildtargetinfo.h>
+#include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
@@ -280,6 +282,8 @@ void QbsProject::handleQbsParsingDone(bool success)
 
     updateCppCodeModel(m_rootProjectNode->qbsProjectData());
     updateQmlJsCodeModel(m_rootProjectNode->qbsProjectData());
+    updateApplicationTargets(m_rootProjectNode->qbsProjectData());
+    updateDeploymentInfo(m_rootProjectNode->qbsProject());
 
     foreach (Target *t, targets())
         t->updateDefaultRunConfigurations();
@@ -615,6 +619,37 @@ void QbsProject::updateQmlJsCodeModel(const qbs::ProjectData &prj)
 
     setProjectLanguage(ProjectExplorer::Constants::LANG_QMLJS, !projectInfo.sourceFiles.isEmpty());
     modelManager->updateProjectInfo(projectInfo);
+}
+
+void QbsProject::updateApplicationTargets(const qbs::ProjectData &projectData)
+{
+    ProjectExplorer::BuildTargetInfoList applications;
+    foreach (const qbs::ProductData &productData, projectData.allProducts()) {
+        foreach (const qbs::TargetArtifact &ta, productData.targetArtifacts()) {
+            QTC_ASSERT(ta.isValid(), continue);
+            if (!ta.isExecutable())
+                continue;
+            applications.list << ProjectExplorer::BuildTargetInfo(Utils::FileName::fromString(ta.filePath()),
+                    Utils::FileName::fromString(productData.location().fileName()));
+        }
+    }
+    activeTarget()->setApplicationTargets(applications);
+}
+
+void QbsProject::updateDeploymentInfo(const qbs::Project *project)
+{
+    ProjectExplorer::DeploymentData deploymentData;
+    if (project) {
+        qbs::InstallOptions installOptions;
+        installOptions.setInstallRoot(QLatin1String("/"));
+        foreach (const qbs::InstallableFile &f,
+                 project->installableFilesForProject(project->projectData(), installOptions)) {
+            deploymentData.addFile(f.sourceFilePath(), f.targetDirectory(), f.isExecutable()
+                                   ? ProjectExplorer::DeployableFile::TypeExecutable
+                                   : ProjectExplorer::DeployableFile::TypeNormal);
+        }
+    }
+    activeTarget()->setDeploymentData(deploymentData);
 }
 
 QString QbsProject::qbsBuildDir() const

@@ -128,6 +128,8 @@ private:
     void updateDocuments(const QSet<QString> &files);
     void updateCppCodeModel(const qbs::ProjectData &prj);
     void updateQmlJsCodeModel(const qbs::ProjectData &prj);
+    void updateApplicationTargets(const qbs::ProjectData &projectData);
+    void updateDeploymentInfo(const qbs::Project *project);
     QString qbsBuildDir() const;
 
     QbsManager *const m_manager;

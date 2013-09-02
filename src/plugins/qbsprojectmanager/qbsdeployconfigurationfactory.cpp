@@ -33,6 +33,8 @@
 #include "qbsproject.h"
 
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
 namespace QbsProjectManager {
@@ -88,8 +90,11 @@ QbsDeployConfigurationFactory::QbsDeployConfigurationFactory(QObject *parent) :
 QList<Core::Id> QbsDeployConfigurationFactory::availableCreationIds(ProjectExplorer::Target *parent) const
 {
     QList<Core::Id> ids;
-    if (qobject_cast<QbsProject *>(parent->project()))
+    const Core::Id deviceId = ProjectExplorer::DeviceKitInformation::deviceId(parent->kit());
+    if (qobject_cast<QbsProject *>(parent->project())
+            && deviceId == ProjectExplorer::Constants::DESKTOP_DEVICE_ID) {
         ids << genericQbsDeployConfigurationId();
+    }
     return ids;
 }
 
