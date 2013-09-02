@@ -114,6 +114,8 @@ bool DebuggerItem::looksLike(const DebuggerItem &rhs) const
 QString DebuggerItem::engineTypeName() const
 {
     switch (engineType) {
+    case Debugger::NoEngineType:
+        return DebuggerOptionsPage::tr("Not recognized");
     case Debugger::GdbEngineType:
         return QLatin1String("GDB");
     case Debugger::CdbEngineType:
@@ -378,7 +380,7 @@ static QList<QStandardItem *> describeItem(DebuggerItem *item)
 {
     QList<QStandardItem *> row;
     row.append(new QStandardItem(item->displayName));
-    row.append(new QStandardItem(item->command.toString()));
+    row.append(new QStandardItem(item->command.toUserOutput()));
     row.append(new QStandardItem(item->engineTypeName()));
     row.at(0)->setData(item->id);
     row.at(0)->setEditable(false);
@@ -579,7 +581,7 @@ void DebuggerItemManager::updateCurrentItem()
     QTC_ASSERT(parent, return);
     int row = item->row();
     parent->child(row, 0)->setData(m_currentDebugger->displayName, Qt::DisplayRole);
-    parent->child(row, 1)->setData(m_currentDebugger->command.toString(), Qt::DisplayRole);
+    parent->child(row, 1)->setData(m_currentDebugger->command.toUserOutput(), Qt::DisplayRole);
     parent->child(row, 2)->setData(m_currentDebugger->engineTypeName(), Qt::DisplayRole);
     emit debuggerUpdated(m_currentDebugger);
 }
