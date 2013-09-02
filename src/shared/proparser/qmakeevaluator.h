@@ -65,6 +65,8 @@ public:
     enum {
         SourceEvaluator = 0x10,
 
+        CumulativeEvalMessage = 0x1000,
+
         EvalWarnLanguage = SourceEvaluator |  WarningMessage | WarnLanguage,
         EvalWarnDeprecated = SourceEvaluator | WarningMessage | WarnDeprecated,
 
@@ -72,7 +74,7 @@ public:
     };
 
     // error(), warning() and message() from .pro file
-    virtual void fileMessage(const QString &msg) = 0;
+    virtual void fileMessage(int type, const QString &msg) = 0;
 
     enum EvalFileType { EvalProjectFile, EvalIncludeFile, EvalConfigFile, EvalFeatureFile, EvalAuxFile };
     virtual void aboutToEval(ProFile *parent, ProFile *proFile, EvalFileType type) = 0;

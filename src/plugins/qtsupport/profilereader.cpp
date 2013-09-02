@@ -60,8 +60,9 @@ void ProMessageHandler::message(int type, const QString &msg, const QString &fil
         emit writeMessage(format(fileName, lineNo, msg), Core::MessageManager::NoModeSwitch);
 }
 
-void ProMessageHandler::fileMessage(const QString &msg)
+void ProMessageHandler::fileMessage(int type, const QString &msg)
 {
+    Q_UNUSED(type)
     if (m_verbose)
         emit writeMessage(msg, Core::MessageManager::NoModeSwitch);
 }

@@ -55,7 +55,7 @@ public:
     virtual void aboutToEval(ProFile *, ProFile *, EvalFileType) {}
     virtual void doneWithEval(ProFile *) {}
     virtual void message(int type, const QString &msg, const QString &fileName, int lineNo);
-    virtual void fileMessage(const QString &msg);
+    virtual void fileMessage(int type, const QString &msg);
 
     void setVerbose(bool on) { m_verbose = on; }
 
