@@ -29,13 +29,13 @@
 
 #include "filtersettingspage.h"
 
-#include "filternamedialog.h"
 #include "helpconstants.h"
+
+#include <filternamedialog.h>
 
 #include <coreplugin/helpmanager.h>
 
 #include <QCoreApplication>
-
 #include <QFileDialog>
 #include <QMessageBox>
 

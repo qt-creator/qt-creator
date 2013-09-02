@@ -29,7 +29,8 @@
 
 #include "symbolpathsdialog.h"
 #include "ui_symbolpathsdialog.h"
-#include "QMessageBox"
+
+#include <QMessageBox>
 
 using namespace Debugger;
 using namespace Internal;

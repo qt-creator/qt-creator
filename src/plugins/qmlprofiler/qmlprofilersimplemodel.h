@@ -31,10 +31,12 @@
 #define QMLPROFILERSIMPLEMODEL_H
 
 #include "qmlprofiler_global.h"
+
+#include <qmldebug/qmlprofilereventlocation.h>
+
 #include <QObject>
 #include <QVector>
 #include <QStringList>
-#include "qmldebug/qmlprofilereventlocation.h"
 
 namespace QmlProfiler {
 

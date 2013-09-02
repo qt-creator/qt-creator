@@ -28,7 +28,8 @@
 ****************************************************************************/
 
 #include "localhelpmanager.h"
-#include "bookmarkmanager.h"
+
+#include <bookmarkmanager.h>
 
 #include <app/app_version.h>
 #include <coreplugin/helpmanager.h>

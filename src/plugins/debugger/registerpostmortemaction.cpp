@@ -33,7 +33,7 @@
 
 #include "registerpostmortemaction.h"
 
-#include "registryaccess.h"
+#include <registryaccess.h>
 
 #include <QCoreApplication>
 #include <QDir>

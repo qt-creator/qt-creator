@@ -31,7 +31,7 @@
 #ifndef IMAGEVIEWERACTIONHANDLER_H
 #define IMAGEVIEWERACTIONHANDLER_H
 
-#include "coreplugin/id.h"
+#include <coreplugin/id.h>
 
 #include <QObject>
 

@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 #include "mainwindow.h"
-#include "qrceditor.h"
+#include <resourceeditor/qrceditor/qrceditor.h>
 
 #include <QAction>
 #include <QDebug>

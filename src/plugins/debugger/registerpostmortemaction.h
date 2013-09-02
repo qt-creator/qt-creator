@@ -30,7 +30,7 @@
 #ifndef REGISTERPOSTMORTEMACTION_H
 #define REGISTERPOSTMORTEMACTION_H
 
-#include "utils/savedaction.h"
+#include <utils/savedaction.h>
 
 namespace Debugger {
 namespace Internal {

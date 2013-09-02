@@ -28,8 +28,9 @@
 ****************************************************************************/
 
 #include "qtmenu.h"
-#include "qdebug.h"
-#include <qapplication.h>
+
+#include <QApplication>
+#include <QtDebug>
 
 QtMenu::QtMenu(QObject *parent)
     : QObject(parent)

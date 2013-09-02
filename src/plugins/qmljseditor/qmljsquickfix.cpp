@@ -30,13 +30,13 @@
 #include "qmljsquickfix.h"
 #include "qmljscomponentfromobjectdef.h"
 #include "qmljseditor.h"
-#include "qmljs/parser/qmljsast_p.h"
 #include "qmljsquickfixassist.h"
 
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#include <qmljs/parser/qmljsast_p.h>
 
 #include <QDebug>
 

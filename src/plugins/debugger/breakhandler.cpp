@@ -40,7 +40,7 @@
 #include <utils/qtcassert.h>
 
 #if USE_BREAK_MODEL_TEST
-#include "modeltest.h"
+#include <modeltest.h>
 #endif
 
 #include <QTimerEvent>

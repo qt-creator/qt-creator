@@ -31,7 +31,7 @@
 
 #include "settings.h"
 
-#include "utils/persistentsettings.h"
+#include <utils/persistentsettings.h>
 
 #include <QDir>
 #include <QFile>

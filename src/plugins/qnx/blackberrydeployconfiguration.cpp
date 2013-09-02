@@ -35,8 +35,6 @@
 #include "blackberrydeployconfigurationwidget.h"
 #include "blackberrydeployinformation.h"
 
-#include "utils/checkablemessagebox.h"
-
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/projectexplorer.h>
@@ -46,6 +44,7 @@
 #include <qtsupport/qtkitinformation.h>
 #include <coreplugin/icore.h>
 #include <ssh/sshconnection.h>
+#include <utils/checkablemessagebox.h>
 
 #include <QMessageBox>
 

@@ -29,10 +29,10 @@
 
 #include "contentwindow.h"
 
-#include "centralwidget.h"
-#include "helpviewer.h"
-#include "localhelpmanager.h"
-#include "openpagesmanager.h"
+#include <centralwidget.h>
+#include <helpviewer.h>
+#include <localhelpmanager.h>
+#include <openpagesmanager.h>
 
 #include <QLayout>
 #include <QFocusEvent>

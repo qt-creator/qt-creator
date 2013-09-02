@@ -32,7 +32,7 @@
 
 #include "gitsettings.h"
 
-#include "vcsbase/vcsbaseplugin.h"
+#include <vcsbase/vcsbaseplugin.h>
 
 #include <QStringList>
 #include <QPointer>

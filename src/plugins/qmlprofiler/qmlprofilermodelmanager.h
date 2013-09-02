@@ -30,10 +30,12 @@
 #ifndef QMLPROFILERMODELMANAGER_H
 #define QMLPROFILERMODELMANAGER_H
 
-#include <QObject>
 #include "qmlprofiler_global.h"
-#include "qmldebug/qmlprofilereventlocation.h"
+
+#include <qmldebug/qmlprofilereventlocation.h>
 #include <utils/fileinprojectfinder.h>
+
+#include <QObject>
 
 namespace QmlProfiler {
 class QmlProfilerSimpleModel;

@@ -27,8 +27,9 @@
 **
 ****************************************************************************/
 
-#include "qrceditor.h"
 #include "mainwindow.h"
+
+#include <resourceeditor/qrceditor/qrceditor.h>
 
 int main(int argc, char *argv[])
 {

@@ -29,7 +29,7 @@
 
 #include "breakpoint.h"
 
-#include "utils/qtcassert.h"
+#include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QFileInfo>

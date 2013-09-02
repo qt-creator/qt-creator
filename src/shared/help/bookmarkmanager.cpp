@@ -29,7 +29,7 @@
 
 #include "bookmarkmanager.h"
 
-#include "localhelpmanager.h"
+#include <localhelpmanager.h>
 
 #include <utils/filterlineedit.h>
 #include <utils/styledbar.h>

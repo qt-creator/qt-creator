@@ -30,7 +30,8 @@
 #include "helpindexfilter.h"
 
 #include "centralwidget.h"
-#include "topicchooser.h"
+
+#include <topicchooser.h>
 
 #include <extensionsystem/pluginmanager.h>
 #include <coreplugin/icore.h>

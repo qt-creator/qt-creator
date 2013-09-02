@@ -55,7 +55,7 @@
 //#define USE_EXPENSIVE_CHECKS 0
 
 #if USE_WATCH_MODEL_TEST
-#include "modeltest.h"
+#include <modeltest.h>
 #endif
 
 namespace Debugger {

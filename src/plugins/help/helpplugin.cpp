@@ -29,9 +29,7 @@
 
 #include "helpplugin.h"
 
-#include "bookmarkmanager.h"
 #include "centralwidget.h"
-#include "contentwindow.h"
 #include "docsettingspage.h"
 #include "externalhelpwindow.h"
 #include "filtersettingspage.h"
@@ -41,12 +39,15 @@
 #include "helpindexfilter.h"
 #include "helpmode.h"
 #include "helpviewer.h"
-#include "indexwindow.h"
 #include "localhelpmanager.h"
 #include "openpagesmanager.h"
 #include "openpagesmodel.h"
 #include "remotehelpfilter.h"
 #include "searchwidget.h"
+
+#include <bookmarkmanager.h>
+#include <contentwindow.h>
+#include <indexwindow.h>
 
 #include <app/app_version.h>
 #include <coreplugin/actionmanager/actionmanager.h>

@@ -31,7 +31,8 @@
 
 #include "helpviewer.h"
 #include "localhelpmanager.h"
-#include "topicchooser.h"
+
+#include <topicchooser.h>
 
 #include <QEvent>
 #include <QTimer>

@@ -28,7 +28,8 @@
 ****************************************************************************/
 
 #include "xbelsupport.h"
-#include "bookmarkmanager.h"
+
+#include <bookmarkmanager.h>
 
 #include <QCoreApplication>
 

@@ -29,12 +29,13 @@
 
 #include "generalsettingspage.h"
 
-#include "bookmarkmanager.h"
 #include "centralwidget.h"
 #include "helpconstants.h"
 #include "helpviewer.h"
 #include "localhelpmanager.h"
 #include "xbelsupport.h"
+
+#include <bookmarkmanager.h>
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/helpmanager.h>

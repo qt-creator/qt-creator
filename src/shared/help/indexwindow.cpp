@@ -28,12 +28,13 @@
 ****************************************************************************/
 
 #include "indexwindow.h"
-#include "centralwidget.h"
 
-#include "helpviewer.h"
-#include "localhelpmanager.h"
-#include "openpagesmanager.h"
 #include "topicchooser.h"
+
+#include <centralwidget.h>
+#include <helpviewer.h>
+#include <localhelpmanager.h>
+#include <openpagesmanager.h>
 
 #include <utils/filterlineedit.h>
 #include <utils/hostosinfo.h>

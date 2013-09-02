@@ -30,7 +30,7 @@
 #ifndef TOOLBOX_H
 #define TOOLBOX_H
 
-#include "utils/styledbar.h"
+#include <utils/styledbar.h>
 
 QT_BEGIN_NAMESPACE
 class QToolBar;

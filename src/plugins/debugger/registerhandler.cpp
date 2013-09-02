@@ -31,7 +31,7 @@
 #include "watchdelegatewidgets.h"
 
 #if USE_REGISTER_MODEL_TEST
-#include "modeltest.h"
+#include <modeltest.h>
 #endif
 
 #include <utils/qtcassert.h>

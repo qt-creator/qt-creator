@@ -31,7 +31,8 @@
 #define PASTEVIEW_H
 
 #include "ui_pasteview.h"
-#include "splitter.h"
+
+#include <splitter.h>
 
 #include <QDialog>
 

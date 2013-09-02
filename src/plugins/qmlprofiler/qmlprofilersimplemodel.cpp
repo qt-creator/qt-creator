@@ -28,11 +28,14 @@
 ****************************************************************************/
 
 #include "qmlprofilersimplemodel.h"
+
 #include "qmlprofilermodelmanager.h"
+
+#include <qmldebug/qmlprofilereventtypes.h>
+
 #include <QStringList>
 #include <QVector>
 #include <QDebug>
-#include "qmldebug/qmlprofilereventtypes.h"
 
 namespace QmlProfiler {
 
