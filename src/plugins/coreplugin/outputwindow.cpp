@@ -177,7 +177,7 @@ void OutputWindow::showEvent(QShowEvent *e)
     m_scrollToBottom = false;
 }
 
-QString OutputWindow::doNewlineEnfocement(const QString &out)
+QString OutputWindow::doNewlineEnforcement(const QString &out)
 {
     m_scrollToBottom = true;
     QString s = out;
@@ -208,7 +208,7 @@ void OutputWindow::appendMessage(const QString &output, OutputFormat format)
 
     if (format == ErrorMessageFormat || format == NormalMessageFormat) {
 
-        m_formatter->appendMessage(doNewlineEnfocement(out), format);
+        m_formatter->appendMessage(doNewlineEnforcement(out), format);
 
     } else {
 
@@ -240,7 +240,7 @@ void OutputWindow::appendMessage(const QString &output, OutputFormat format)
                 m_formatter->appendMessage(QLatin1Char('\n') + s, format);
             }
         } else {
-            m_formatter->appendMessage(doNewlineEnfocement(out), format);
+            m_formatter->appendMessage(doNewlineEnforcement(out), format);
         }
     }
 
@@ -259,12 +259,12 @@ void OutputWindow::appendText(const QString &textIn, const QTextCharFormat &form
     QTextCursor cursor = QTextCursor(document());
     cursor.movePosition(QTextCursor::End);
     cursor.beginEditBlock();
-    cursor.insertText(doNewlineEnfocement(text), format);
+    cursor.insertText(doNewlineEnforcement(text), format);
 
     if (m_maxLineCount > 0 && document()->blockCount() >= m_maxLineCount) {
         QTextCharFormat tmp;
         tmp.setFontWeight(QFont::Bold);
-        cursor.insertText(doNewlineEnfocement(tr("Additional output omitted\n")), tmp);
+        cursor.insertText(doNewlineEnforcement(tr("Additional output omitted\n")), tmp);
     }
 
     cursor.endEditBlock();

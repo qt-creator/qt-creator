@@ -80,7 +80,7 @@ protected:
 
 private:
     void enableUndoRedo();
-    QString doNewlineEnfocement(const QString &out);
+    QString doNewlineEnforcement(const QString &out);
 
     Core::IContext *m_outputWindowContext;
     Utils::OutputFormatter *m_formatter;
