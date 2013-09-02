@@ -57,7 +57,7 @@ public:
     static Utils::FileName effectiveMkspec(const ProjectExplorer::Kit *k);
     static Utils::FileName defaultMkspec(const ProjectExplorer::Kit *k);
 
-    static void makeSticky(ProjectExplorer::Kit *k);
+    static void setSticky(ProjectExplorer::Kit *k, bool b);
 };
 
 } // namespace Qt4ProjectManager

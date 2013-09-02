@@ -70,7 +70,7 @@ public:
     static QString dumperLibrary(const ProjectExplorer::Kit *k);
     static QStringList dumperLibraryLocations(const ProjectExplorer::Kit *k);
 
-    static void makeSticky(ProjectExplorer::Kit *k);
+    static void setSticky(ProjectExplorer::Kit *k, bool b);
 
 private slots:
     void qtVersionsChanged(const QList<int> &addedIds,

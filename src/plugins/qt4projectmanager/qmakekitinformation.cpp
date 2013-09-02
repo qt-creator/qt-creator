@@ -138,9 +138,9 @@ FileName QmakeKitInformation::defaultMkspec(const Kit *k)
     return version->mkspecFor(ToolChainKitInformation::toolChain(k));
 }
 
-void QmakeKitInformation::makeSticky(Kit *k)
+void QmakeKitInformation::setSticky(Kit *k, bool b)
 {
-    k->makeSticky(MKSPEC_INFORMATION);
+    k->setSticky(MKSPEC_INFORMATION, b);
 }
 
 } // namespace Qt4ProjectManager

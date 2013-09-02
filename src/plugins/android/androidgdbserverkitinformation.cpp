@@ -110,9 +110,9 @@ FileName AndroidGdbServerKitInformation::autoDetect(Kit *kit)
     return atc->suggestedGdbServer();
 }
 
-void AndroidGdbServerKitInformation::makeSticky(Kit *k)
+void AndroidGdbServerKitInformation::setSticky(Kit *k, bool b)
 {
-    k->makeSticky(ANDROID_GDBSERVER_INFORMATION);
+    k->setSticky(ANDROID_GDBSERVER_INFORMATION, b);
 }
 
 ///////////////

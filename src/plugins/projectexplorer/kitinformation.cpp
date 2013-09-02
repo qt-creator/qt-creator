@@ -104,9 +104,9 @@ void SysRootKitInformation::setSysRoot(Kit *k, const Utils::FileName &v)
     k->setValue(Core::Id(SYSROOT_INFORMATION), v.toString());
 }
 
-void SysRootKitInformation::makeSticky(Kit *k)
+void SysRootKitInformation::setSticky(Kit *k, bool b)
 {
-    k->makeSticky(SYSROOT_INFORMATION);
+    k->setSticky(SYSROOT_INFORMATION, b);
 }
 
 // --------------------------------------------------------------------------
@@ -235,9 +235,9 @@ QString ToolChainKitInformation::msgNoToolChainInTarget()
     return tr("No compiler set in kit.");
 }
 
-void ToolChainKitInformation::makeSticky(Kit *k)
+void ToolChainKitInformation::setSticky(Kit *k, bool b)
 {
-    k->makeSticky(TOOLCHAIN_INFORMATION);
+    k->setSticky(TOOLCHAIN_INFORMATION, b);
 }
 
 void ToolChainKitInformation::kitsWereLoaded()
@@ -322,9 +322,9 @@ void DeviceTypeKitInformation::setDeviceTypeId(Kit *k, Core::Id type)
     k->setValue(DEVICETYPE_INFORMATION, type.toSetting());
 }
 
-void DeviceTypeKitInformation::makeSticky(Kit *k)
+void DeviceTypeKitInformation::setSticky(Kit *k, bool b)
 {
-    k->makeSticky(DEVICETYPE_INFORMATION);
+    k->setSticky(DEVICETYPE_INFORMATION, b);
 }
 
 // --------------------------------------------------------------------------
@@ -421,9 +421,9 @@ void DeviceKitInformation::setDeviceId(Kit *k, const Core::Id id)
     k->setValue(DEVICE_INFORMATION, id.toSetting());
 }
 
-void DeviceKitInformation::makeSticky(Kit *k)
+void DeviceKitInformation::setSticky(Kit *k, bool b)
 {
-    k->makeSticky(DEVICE_INFORMATION);
+    k->setSticky(DEVICE_INFORMATION, b);
 }
 
 void DeviceKitInformation::kitsWereLoaded()

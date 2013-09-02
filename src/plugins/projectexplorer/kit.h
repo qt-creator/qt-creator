@@ -102,7 +102,7 @@ public:
 
     void setAutoDetected(bool detected);
     void makeSticky();
-    void makeSticky(Core::Id id);
+    void setSticky(Core::Id id, bool b);
     void makeUnSticky();
 
 private:

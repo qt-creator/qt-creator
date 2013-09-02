@@ -362,9 +362,9 @@ void DebuggerKitInformation::setDebuggerCommand(Kit *k, const FileName &command)
     k->setValue(DEBUGGER_INFORMATION, id);
 }
 
-void DebuggerKitInformation::makeSticky(Kit *k)
+void DebuggerKitInformation::setSticky(Kit *k, bool b)
 {
-    k->makeSticky(DEBUGGER_INFORMATION);
+    k->setSticky(DEBUGGER_INFORMATION, b);
 }
 
 

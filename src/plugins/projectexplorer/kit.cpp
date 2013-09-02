@@ -472,13 +472,16 @@ void Kit::makeSticky()
 {
     foreach (KitInformation *ki, KitManager::kitInformation()) {
         if (hasValue(ki->dataId()))
-            makeSticky(ki->dataId());
+            setSticky(ki->dataId(), true);
     }
 }
 
-void Kit::makeSticky(Core::Id id)
+void Kit::setSticky(Core::Id id, bool b)
 {
-    d->m_sticky.insert(id);
+    if (b)
+        d->m_sticky.insert(id);
+    else
+        d->m_sticky.remove(id);
 }
 
 void Kit::makeUnSticky()

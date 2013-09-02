@@ -95,7 +95,7 @@ public:
     static DebuggerEngineType engineType(const ProjectExplorer::Kit *k)
         { return debuggerItem(k).engineType; }
 
-    static void makeSticky(ProjectExplorer::Kit *k);
+    static void setSticky(ProjectExplorer::Kit *k, bool b);
 };
 
 inline bool operator==(const DebuggerItem &i1, const DebuggerItem &i2)

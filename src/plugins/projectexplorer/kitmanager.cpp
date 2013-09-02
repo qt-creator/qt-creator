@@ -219,7 +219,7 @@ void KitManager::restoreKits()
                     // Copy sticky settings over:
                     if (current->isSticky(ki->dataId())) {
                         toStore->setValue(ki->dataId(), current->value(ki->dataId()));
-                        toStore->makeSticky(ki->dataId());
+                        toStore->setSticky(ki->dataId(), true);
                     }
                 }
 
