@@ -117,6 +117,8 @@ QtcPlugin {
         "blackberrydevicelistdetector.h",
         "blackberrydeviceprocesssupport.h",
         "blackberrydeviceprocesssupport.cpp",
+        "blackberrylogprocessrunner.cpp",
+        "blackberrylogprocessrunner.h",
         "blackberryqtversion.cpp",
         "blackberryqtversion.h",
         "blackberryqtversionfactory.cpp",

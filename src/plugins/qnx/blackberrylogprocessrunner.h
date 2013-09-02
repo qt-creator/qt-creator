@@ -29,20 +29,17 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BLACKBERRYAPPLICATIONRUNNER_H
-#define QNX_INTERNAL_BLACKBERRYAPPLICATIONRUNNER_H
+#ifndef BLACKBERRYSLOGPROCESS_H
+#define BLACKBERRYSLOGPROCESS_H
 
 #include "blackberrydeviceconfiguration.h"
-#include "blackberryprocessparser.h"
 
-#include <projectexplorer/runconfiguration.h>
-
+#include <utils/outputformat.h>
 #include <ssh/sshconnection.h>
-#include <utils/environment.h>
+
+#include <QDateTime>
 
 #include <QObject>
-#include <QProcess>
-#include <QDateTime>
 
 namespace QSsh {
 class SshRemoteProcessRunner;
@@ -51,74 +48,56 @@ class SshRemoteProcessRunner;
 namespace Qnx {
 namespace Internal {
 
-class BlackBerryRunConfiguration;
-class BlackBerryLogProcessRunner;
-
-class BlackBerryApplicationRunner : public QObject
+class BlackBerryLogProcessRunner : public QObject
 {
     Q_OBJECT
 public:
-    explicit BlackBerryApplicationRunner(bool debugMode, BlackBerryRunConfiguration *runConfiguration, QObject *parent = 0);
-
-    bool isRunning() const;
-    qint64 pid() const;
-
-    ProjectExplorer::RunControl::StopResult stop();
-
-public slots:
+    explicit BlackBerryLogProcessRunner(QObject *parent, const QString &appId, const BlackBerryDeviceConfiguration::ConstPtr &device);
     void start();
 
 signals:
     void output(const QString &msg, Utils::OutputFormat format);
-    void started();
     void finished();
 
-    void startFailed(const QString &msg);
+public slots:
+    void stop();
 
 private slots:
-    void startFinished(int exitCode, QProcess::ExitStatus exitStatus);
-    void stopFinished(int exitCode, QProcess::ExitStatus exitStatus);
+    void handleSlog2infoFound();
+    void readLaunchTime();
+    void readApplicationLog();
 
-    void readStandardOutput();
-    void readStandardError();
+    void handleTailOutput();
+    void handleTailProcessConnectionError();
 
-    void startRunningStateTimer();
-    void determineRunningState();
-    void readRunningStateStandardOutput();
+    void handleSlog2infoOutput();
+    void handleSlog2infoProcessConnectionError();
 
-    void setPid(qint64 pid);
-    void setApplicationId(const QString &applicationId);
-
-    void startLogProcessRunner();
+    void handleLogError();
 
 private:
-    void reset();
-
-    bool m_debugMode;
-
-    qint64 m_pid;
     QString m_appId;
+    QString m_tailCommand;
+    QString m_slog2infoCommand;
 
-    bool m_running;
-    bool m_stopping;
+    bool m_currentLogs;
+    bool m_slog2infoFound;
 
-    Utils::Environment m_environment;
-    QString m_deployCmd;
+    QDateTime m_launchDateTime;
+
     BlackBerryDeviceConfiguration::ConstPtr m_device;
-    QString m_barPackage;
     QSsh::SshConnectionParameters m_sshParams;
 
-    QProcess *m_launchProcess;
-    QProcess *m_stopProcess;
-    BlackBerryProcessParser m_launchStopProcessParser;
+    QSsh::SshRemoteProcessRunner *m_tailProcess;
+    QSsh::SshRemoteProcessRunner *m_slog2infoProcess;
 
-    BlackBerryLogProcessRunner *m_logProcessRunner;
+    QSsh::SshRemoteProcessRunner *m_testSlog2Process;
+    QSsh::SshRemoteProcessRunner *m_launchDateTimeProcess;
 
-    QTimer *m_runningStateTimer;
-    QProcess *m_runningStateProcess;
+    bool showQtMessage(const QString& pattern, const QString& line);
+    void killProcessRunner(QSsh::SshRemoteProcessRunner *processRunner, const QString& command);
 };
-
 } // namespace Internal
 } // namespace Qnx
 
-#endif // QNX_INTERNAL_BLACKBERRYAPPLICATIONRUNNER_H
+#endif // BLACKBERRYSLOGPROCESS_H
