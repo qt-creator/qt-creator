@@ -96,7 +96,7 @@ AndroidToolChain::~AndroidToolChain()
 
 QString AndroidToolChain::type() const
 {
-    return QLatin1String(Android::Constants::ANDROID_TOOLCHAIN_TYPE);
+    return QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE);
 }
 
 QString AndroidToolChain::typeDisplayName() const

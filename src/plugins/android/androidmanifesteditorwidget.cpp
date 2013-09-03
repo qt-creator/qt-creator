@@ -65,6 +65,9 @@
 #include <QFileDialog>
 #include <QTimer>
 
+using namespace Android;
+using namespace Android::Internal;
+
 namespace {
 const QLatin1String packageNameRegExp("^([a-z_]{1}[a-z0-9_]+(\\.[a-zA-Z_]{1}[a-zA-Z0-9_]*)*)$");
 const char infoBarId[] = "Android.AndroidManifestEditor.InfoBar";
@@ -83,17 +86,14 @@ ProjectExplorer::Project *androidProject(const QString &file)
         if (!project->activeTarget())
             continue;
         ProjectExplorer::Kit *kit = project->activeTarget()->kit();
-        if (ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(kit) == Android::Constants::ANDROID_DEVICE_TYPE
+        if (ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(kit) == Constants::ANDROID_DEVICE_TYPE
                 && fileName.isChildOf(Utils::FileName::fromString(project->projectDirectory())))
             return project;
     }
     return 0;
 }
+
 } // anonymous namespace
-
-
-using namespace Android;
-using namespace Android::Internal;
 
 AndroidManifestEditorWidget::AndroidManifestEditorWidget(QWidget *parent, TextEditor::TextEditorActionHandler *ah)
     : TextEditor::PlainTextEditorWidget(parent),

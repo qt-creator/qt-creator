@@ -85,8 +85,8 @@ bool AndroidGdbServerKitInformation::isAndroidKit(const Kit *kit)
     QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(kit);
     ToolChain *tc = ToolChainKitInformation::toolChain(kit);
     if (qt && tc)
-        return qt->type() == QLatin1String(Android::Constants::ANDROIDQT)
-                && tc->type() == QLatin1String(Android::Constants::ANDROID_TOOLCHAIN_TYPE);
+        return qt->type() == QLatin1String(Constants::ANDROIDQT)
+                && tc->type() == QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE);
     return false;
 
 }

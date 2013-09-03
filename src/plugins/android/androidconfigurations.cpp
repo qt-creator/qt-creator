@@ -813,7 +813,7 @@ void AndroidConfigurations::updateAutomaticKitList()
 
     foreach (Kit *k, existingKits) {
         ProjectExplorer::ToolChain *tc = ToolChainKitInformation::toolChain(k);
-        if (tc && tc->type() == QLatin1String(Android::Constants::ANDROID_TOOLCHAIN_TYPE)) {
+        if (tc && tc->type() == QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE)) {
             k->makeUnSticky();
             k->setAutoDetected(false);
         } else {
