@@ -533,7 +533,7 @@ Rectangle {
             id: col
             Repeater {
                 model: labels.rowCount
-                delegate: Label { }
+                delegate: CategoryLabel { }
             }
         }
     }

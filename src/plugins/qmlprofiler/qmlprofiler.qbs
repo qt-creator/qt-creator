@@ -71,7 +71,7 @@ QtcPlugin {
         prefix: "qml/"
         files: [
             "Detail.qml",
-            "Label.qml",
+            "CategoryLabel.qml",
             "MainView.qml",
             "Overview.js",
             "Overview.qml",
