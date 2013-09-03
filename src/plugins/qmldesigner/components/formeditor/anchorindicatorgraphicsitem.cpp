@@ -228,6 +228,7 @@ void AnchorIndicatorGraphicsItem::updateAnchorIndicator(const AnchorLine &source
     updateAnchorLinePoints(&m_targetAnchorLineFirstPoint, &m_targetAnchorLineSecondPoint, targetAnchorLine);
 
     updateBoundingRect();
+    update();
 }
 
 void AnchorIndicatorGraphicsItem::updateBoundingRect()
