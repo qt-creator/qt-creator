@@ -122,11 +122,11 @@ public:
     static QString parserName(OutputParser parser);
 
 protected:
-    CustomToolChain(const QString &id, bool autodetect);
+    explicit CustomToolChain(const QString &id, Detection d);
     CustomToolChain(const CustomToolChain &);
 
 private:
-    CustomToolChain(bool autodetect);
+    explicit CustomToolChain(Detection d);
 
     Utils::FileName m_compilerCommand;
     Utils::FileName m_makeCommand;

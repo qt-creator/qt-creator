@@ -68,7 +68,7 @@ protected:
     QList<ProjectExplorer::Abi> detectSupportedAbis() const;
 
 private:
-    AndroidToolChain(ProjectExplorer::Abi::Architecture arch, const QString &ndkToolChainVersion, bool autodetected);
+    explicit AndroidToolChain(ProjectExplorer::Abi::Architecture arch, const QString &ndkToolChainVersion, Detection d);
     AndroidToolChain();
     AndroidToolChain(const AndroidToolChain &);
 

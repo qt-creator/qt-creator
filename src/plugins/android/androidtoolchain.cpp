@@ -66,8 +66,8 @@ static const char ANDROID_NDK_TC_VERION[] = "Qt4ProjectManager.Android.NDK_TC_VE
 QMap<ProjectExplorer::Abi::Architecture, QList<int> > AndroidToolChainFactory::m_newestVersionForArch;
 Utils::FileName AndroidToolChainFactory::m_ndkLocation;
 
-AndroidToolChain::AndroidToolChain(Abi::Architecture arch, const QString &ndkToolChainVersion, bool autodetected)
-    : GccToolChain(QLatin1String(Constants::ANDROID_TOOLCHAIN_ID), autodetected),
+AndroidToolChain::AndroidToolChain(Abi::Architecture arch, const QString &ndkToolChainVersion, Detection d)
+    : GccToolChain(QLatin1String(Constants::ANDROID_TOOLCHAIN_ID), d),
       m_ndkToolChainVersion(ndkToolChainVersion), m_secondaryToolChain(false)
 {
     ProjectExplorer::Abi abi = ProjectExplorer::Abi(arch, ProjectExplorer::Abi::LinuxOS,
@@ -81,7 +81,7 @@ AndroidToolChain::AndroidToolChain(Abi::Architecture arch, const QString &ndkToo
 
 // for fromMap
 AndroidToolChain::AndroidToolChain()
-    : GccToolChain(QLatin1String(Constants::ANDROID_TOOLCHAIN_ID), false),
+    : GccToolChain(QLatin1String(Constants::ANDROID_TOOLCHAIN_ID), ToolChain::ManualDetection),
       m_secondaryToolChain(false)
 {
 }
@@ -383,7 +383,7 @@ QList<ToolChain *> AndroidToolChainFactory::createToolChainsForNdk(const Utils::
         Abi::Architecture arch = AndroidConfigurations::architectureForToolChainPrefix(platform);
         if (arch == Abi::UnknownArchitecture) // e.g. mipsel which is not yet supported
             continue;
-        AndroidToolChain *tc = new AndroidToolChain(arch, version, true);
+        AndroidToolChain *tc = new AndroidToolChain(arch, version, ToolChain::AutoDetection);
         FileName compilerPath = AndroidConfigurations::instance().gccPath(arch, version);
         tc->setCompilerCommand(compilerPath);
         result.append(tc);

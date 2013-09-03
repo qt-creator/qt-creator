@@ -625,7 +625,7 @@ void ToolChainOptionsPage::updateState()
     ToolChain *tc = m_model->toolChain(currentIndex());
     if (tc) {
         canCopy = tc->isValid() && tc->canClone();
-        canDelete = !tc->isAutoDetected();
+        canDelete = tc->detection() != ToolChain::AutoDetection;
     }
 
     m_cloneButton->setEnabled(canCopy);

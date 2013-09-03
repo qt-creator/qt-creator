@@ -76,13 +76,13 @@ static const char messageCapKeyC[] = "ProjectExplorer.CustomToolChain.MessageCap
 // CustomToolChain
 // --------------------------------------------------------------------------
 
-CustomToolChain::CustomToolChain(bool autodetect) :
-    ToolChain(QLatin1String(Constants::CUSTOM_TOOLCHAIN_ID), autodetect),
+CustomToolChain::CustomToolChain(Detection d) :
+    ToolChain(QLatin1String(Constants::CUSTOM_TOOLCHAIN_ID), d),
     m_outputParser(Gcc)
 { }
 
-CustomToolChain::CustomToolChain(const QString &id, bool autodetect) :
-    ToolChain(id, autodetect)
+CustomToolChain::CustomToolChain(const QString &id, Detection d) :
+    ToolChain(id, d)
 { }
 
 CustomToolChain::CustomToolChain(const CustomToolChain &tc) :
@@ -416,7 +416,7 @@ bool CustomToolChainFactory::canRestore(const QVariantMap &data)
 
 ToolChain *CustomToolChainFactory::restore(const QVariantMap &data)
 {
-    CustomToolChain *tc = new CustomToolChain(false);
+    CustomToolChain *tc = new CustomToolChain(ToolChain::ManualDetection);
     if (tc->fromMap(data))
         return tc;
 
@@ -426,7 +426,7 @@ ToolChain *CustomToolChainFactory::restore(const QVariantMap &data)
 
 CustomToolChain *CustomToolChainFactory::createToolChain(bool autoDetect)
 {
-    return new CustomToolChain(autoDetect);
+    return new CustomToolChain(autoDetect ? ToolChain::AutoDetection : ToolChain::ManualDetection);
 }
 
 // --------------------------------------------------------------------------

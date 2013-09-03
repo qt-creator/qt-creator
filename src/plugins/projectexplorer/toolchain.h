@@ -64,12 +64,20 @@ class Kit;
 class PROJECTEXPLORER_EXPORT ToolChain
 {
 public:
+    enum Detection {
+        ManualDetection,
+        AutoDetection,
+        AutoDetectionFromSettings
+    };
+
     virtual ~ToolChain();
 
     QString displayName() const;
     void setDisplayName(const QString &name);
 
-    bool isAutoDetected() const;
+    inline bool isAutoDetected() const { return detection() != ManualDetection; }
+    Detection detection() const;
+
     QString id() const;
 
     virtual QList<Utils::FileName> suggestedMkspecList() const;
@@ -146,7 +154,7 @@ public:
     virtual QVariantMap toMap() const;
     virtual QList<Task> validateKit(const Kit *k) const;
 protected:
-    ToolChain(const QString &id, bool autoDetect);
+    explicit ToolChain(const QString &id, Detection d);
     explicit ToolChain(const ToolChain &);
 
     void toolChainUpdated();
@@ -155,7 +163,7 @@ protected:
     virtual bool fromMap(const QVariantMap &data);
 
 private:
-    void setAutoDetected(bool);
+    void setDetection(Detection d);
 
     Internal::ToolChainPrivate *const d;
 

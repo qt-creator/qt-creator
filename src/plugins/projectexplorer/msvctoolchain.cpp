@@ -304,8 +304,8 @@ Utils::Environment MsvcToolChain::readEnvironmentSetting(Utils::Environment& env
 // --------------------------------------------------------------------------
 
 MsvcToolChain::MsvcToolChain(const QString &name, const Abi &abi,
-                             const QString &varsBat, const QString &varsBatArg, bool autodetect) :
-    AbstractMsvcToolChain(QLatin1String(Constants::MSVC_TOOLCHAIN_ID), autodetect, abi, varsBat),
+                             const QString &varsBat, const QString &varsBatArg, Detection d) :
+    AbstractMsvcToolChain(QLatin1String(Constants::MSVC_TOOLCHAIN_ID), d, abi, varsBat),
     m_varsBatArg(varsBatArg)
 {
     Q_ASSERT(!name.isEmpty());
@@ -322,7 +322,7 @@ bool MsvcToolChain::isValid() const
 }
 
 MsvcToolChain::MsvcToolChain() :
-    AbstractMsvcToolChain(QLatin1String(Constants::MSVC_TOOLCHAIN_ID), false)
+    AbstractMsvcToolChain(QLatin1String(Constants::MSVC_TOOLCHAIN_ID), ManualDetection)
 {
 }
 
@@ -497,14 +497,14 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect()
             QList<ToolChain *> tmp;
             tmp.append(new MsvcToolChain(generateDisplayName(name, MsvcToolChain::WindowsSDK, MsvcToolChain::x86),
                                          findAbiOfMsvc(MsvcToolChain::WindowsSDK, MsvcToolChain::x86, sdkKey),
-                                         fi.absoluteFilePath(), QLatin1String("/x86"), true));
+                                         fi.absoluteFilePath(), QLatin1String("/x86"), ToolChain::AutoDetection));
             // Add all platforms, cross-compiler is automatically selected by SetEnv.cmd if needed
             tmp.append(new MsvcToolChain(generateDisplayName(name, MsvcToolChain::WindowsSDK, MsvcToolChain::amd64),
                                          findAbiOfMsvc(MsvcToolChain::WindowsSDK, MsvcToolChain::amd64, sdkKey),
-                                         fi.absoluteFilePath(), QLatin1String("/x64"), true));
+                                         fi.absoluteFilePath(), QLatin1String("/x64"), ToolChain::AutoDetection));
             tmp.append(new MsvcToolChain(generateDisplayName(name, MsvcToolChain::WindowsSDK, MsvcToolChain::ia64),
                                          findAbiOfMsvc(MsvcToolChain::WindowsSDK, MsvcToolChain::ia64, sdkKey),
-                                         fi.absoluteFilePath(), QLatin1String("/ia64"), true));
+                                         fi.absoluteFilePath(), QLatin1String("/ia64"), ToolChain::AutoDetection));
             // Make sure the default is front.
             if (folder == defaultSdkPath)
                 results = tmp + results;
@@ -539,23 +539,23 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect()
             if (QFileInfo(vcVarsBatFor(path, QLatin1String("x86"))).isFile())
                 results.append(new MsvcToolChain(generateDisplayName(vsName, MsvcToolChain::VS, MsvcToolChain::x86),
                                                  findAbiOfMsvc(MsvcToolChain::VS, MsvcToolChain::x86, vsName),
-                                                 vcvarsAllbat, QLatin1String("x86"), true));
+                                                 vcvarsAllbat, QLatin1String("x86"), ToolChain::AutoDetection));
 
             if (arch == Utils::HostOsInfo::HostArchitectureX86) {
                 if (QFileInfo(vcVarsBatFor(path, QLatin1String("x86_amd64"))).isFile())
                     results.append(new MsvcToolChain(generateDisplayName(vsName, MsvcToolChain::VS, MsvcToolChain::amd64),
                                                      findAbiOfMsvc(MsvcToolChain::VS, MsvcToolChain::amd64, vsName),
-                                                     vcvarsAllbat, QLatin1String("x86_amd64"), true));
+                                                     vcvarsAllbat, QLatin1String("x86_amd64"), ToolChain::AutoDetection));
             } else if (arch == Utils::HostOsInfo::HostArchitectureAMD64) {
                 if (QFileInfo(vcVarsBatFor(path, QLatin1String("amd64"))).isFile()) {
                     results.append(new MsvcToolChain(generateDisplayName(vsName, MsvcToolChain::VS, MsvcToolChain::amd64),
                                                      findAbiOfMsvc(MsvcToolChain::VS, MsvcToolChain::amd64, vsName),
-                                                     vcvarsAllbat, QLatin1String("amd64"), true));
+                                                     vcvarsAllbat, QLatin1String("amd64"), ToolChain::AutoDetection));
                 } else if (QFileInfo(vcVarsBatFor(path, QLatin1String("x86_amd64"))).isFile()) {
                     // Fall back to 32 bit to 4 bit
                     results.append(new MsvcToolChain(generateDisplayName(vsName, MsvcToolChain::VS, MsvcToolChain::amd64),
                                                      findAbiOfMsvc(MsvcToolChain::VS, MsvcToolChain::amd64, vsName),
-                                                     vcvarsAllbat, QLatin1String("x86_amd64"), true));
+                                                     vcvarsAllbat, QLatin1String("x86_amd64"), ToolChain::AutoDetection));
                 }
             }
 
@@ -564,25 +564,25 @@ QList<ToolChain *> MsvcToolChainFactory::autoDetect()
                 if (QFileInfo(vcVarsBatFor(path, QLatin1String("x86_arm"))).isFile())
                     results.append(new MsvcToolChain(generateDisplayName(vsName, MsvcToolChain::VS, MsvcToolChain::arm),
                                                      findAbiOfMsvc(MsvcToolChain::VS, MsvcToolChain::arm, vsName),
-                                                     vcvarsAllbat, QLatin1String("x86_arm"), true));
+                                                     vcvarsAllbat, QLatin1String("x86_arm"), ToolChain::AutoDetection));
             } else if (arch == Utils::HostOsInfo::HostArchitectureArm) {
                 if (QFileInfo(vcVarsBatFor(path, QLatin1String("arm"))).isFile())
                     results.append(new MsvcToolChain(generateDisplayName(vsName, MsvcToolChain::VS, MsvcToolChain::arm),
                                                      findAbiOfMsvc(MsvcToolChain::VS, MsvcToolChain::arm, vsName),
-                                                     vcvarsAllbat, QLatin1String("arm"), true));
+                                                     vcvarsAllbat, QLatin1String("arm"), ToolChain::AutoDetection));
             }
 
             if (arch == Utils::HostOsInfo::HostArchitectureItanium) {
                 if (QFileInfo(vcVarsBatFor(path, QLatin1String("ia64"))).isFile())
                     results.append(new MsvcToolChain(generateDisplayName(vsName, MsvcToolChain::VS, MsvcToolChain::ia64),
                                                      findAbiOfMsvc(MsvcToolChain::VS, MsvcToolChain::ia64, vsName),
-                                                     vcvarsAllbat, QLatin1String("ia64"), true));
+                                                     vcvarsAllbat, QLatin1String("ia64"), ToolChain::AutoDetection));
             } else if (arch == Utils::HostOsInfo::HostArchitectureX86
                        || arch == Utils::HostOsInfo::HostArchitectureAMD64) {
                 if (QFileInfo(vcVarsBatFor(path, QLatin1String("x86_ia64"))).isFile())
                     results.append(new MsvcToolChain(generateDisplayName(vsName, MsvcToolChain::VS, MsvcToolChain::ia64),
                                                      findAbiOfMsvc(MsvcToolChain::VS, MsvcToolChain::ia64, vsName),
-                                                     vcvarsAllbat, QLatin1String("x86_ia64"), true));
+                                                     vcvarsAllbat, QLatin1String("x86_ia64"), ToolChain::AutoDetection));
             }
         } else {
             qWarning("Unable to find MSVC setup script %s in version %d", qPrintable(vcvarsAllbat), version);

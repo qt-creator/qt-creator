@@ -240,8 +240,8 @@ WinCEToolChain::WinCEToolChain(const QString &name,
                                const QString &binPath,
                                const QString &includePath,
                                const QString &libPath,
-                               bool autodetect) :
-    AbstractMsvcToolChain(QLatin1String(Constants::WINCE_TOOLCHAIN_ID), autodetect, abi, vcvarsBat),
+                               Detection d) :
+    AbstractMsvcToolChain(QLatin1String(Constants::WINCE_TOOLCHAIN_ID), d, abi, vcvarsBat),
     m_msvcVer(msvcVer),
     m_ceVer(ceVer),
     m_binPath(binPath),
@@ -257,7 +257,7 @@ WinCEToolChain::WinCEToolChain(const QString &name,
 }
 
 WinCEToolChain::WinCEToolChain() :
-    AbstractMsvcToolChain(QLatin1String(Constants::WINCE_TOOLCHAIN_ID), false)
+    AbstractMsvcToolChain(QLatin1String(Constants::WINCE_TOOLCHAIN_ID), ManualDetection)
 {
 }
 
@@ -410,7 +410,7 @@ QList<ToolChain *> WinCEToolChainFactory::autoDetect()
                                                                         binPath,
                                                                         includePath,
                                                                         libPath,
-                                                                        true);
+                                                                        ToolChain::AutoDetection);
                             results.append(pChain);
                         }
                     }

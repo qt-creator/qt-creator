@@ -198,7 +198,7 @@ void ToolChainManager::restoreToolChains()
             restoreFromFile(FileName::fromString(systemSettingsFile.absolutePath() + QLatin1String(TOOLCHAIN_FILENAME)));
     // make sure we mark these as autodetected!
     foreach (ToolChain *tc, readTcs)
-        tc->setAutoDetected(true);
+        tc->setDetection(ToolChain::AutoDetection);
 
     tcsToRegister = readTcs; // SDK TCs are always considered to be up-to-date, so no need to
                              // recheck them.
@@ -239,10 +239,12 @@ void ToolChainManager::restoreToolChains()
     foreach (ToolChain *currentDetected, detectedTcs) {
         toStore = currentDetected;
 
-        // Check whether we had this TC stored and prefer the old one with the old id:
+        // Check whether we had this TC stored and prefer the old one with the old id, marked
+        // as auto-detection.
         for (int i = 0; i < tcsToCheck.count(); ++i) {
             if (*(tcsToCheck.at(i)) == *currentDetected) {
                 toStore = tcsToCheck.at(i);
+                toStore->setDetection(ToolChain::AutoDetection);
                 tcsToCheck.removeAt(i);
                 delete currentDetected;
                 break;

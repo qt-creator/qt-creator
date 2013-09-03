@@ -53,8 +53,10 @@ namespace Internal {
 class ToolChainPrivate
 {
 public:
-    ToolChainPrivate(const QString &id, bool autodetect) :
-        m_autodetect(autodetect)
+    typedef ToolChain::Detection Detection;
+
+    explicit ToolChainPrivate(const QString &id, Detection d) :
+        m_detection(d)
     {
         m_id = createId(id);
     }
@@ -67,7 +69,7 @@ public:
     }
 
     QString m_id;
-    bool m_autodetect;
+    Detection m_detection;
     mutable QString m_displayName;
 };
 
@@ -81,12 +83,12 @@ public:
 
 // --------------------------------------------------------------------------
 
-ToolChain::ToolChain(const QString &id, bool autodetect) :
-    d(new Internal::ToolChainPrivate(id, autodetect))
+ToolChain::ToolChain(const QString &id, Detection d) :
+    d(new Internal::ToolChainPrivate(id, d))
 { }
 
 ToolChain::ToolChain(const ToolChain &other) :
-    d(new Internal::ToolChainPrivate(other.d->m_id, false))
+    d(new Internal::ToolChainPrivate(other.d->m_id, ManualDetection))
 {
     // leave the autodetection bit at false.
     d->m_displayName = QCoreApplication::translate("ProjectExplorer::ToolChain", "Clone of %1")
@@ -114,9 +116,9 @@ void ToolChain::setDisplayName(const QString &name)
     toolChainUpdated();
 }
 
-bool ToolChain::isAutoDetected() const
+ToolChain::Detection ToolChain::detection() const
 {
-    return d->m_autodetect;
+    return d->m_detection;
 }
 
 QString ToolChain::id() const
@@ -172,11 +174,11 @@ void ToolChain::toolChainUpdated()
     ToolChainManager::notifyAboutUpdate(this);
 }
 
-void ToolChain::setAutoDetected(bool autodetect)
+void ToolChain::setDetection(ToolChain::Detection de)
 {
-    if (d->m_autodetect == autodetect)
+    if (d->m_detection == de)
         return;
-    d->m_autodetect = autodetect;
+    d->m_detection = de;
     toolChainUpdated();
 }
 
@@ -191,7 +193,8 @@ bool ToolChain::fromMap(const QVariantMap &data)
     d->m_displayName = data.value(QLatin1String(DISPLAY_NAME_KEY)).toString();
     // make sure we have new style ids:
     d->m_id = data.value(QLatin1String(ID_KEY)).toString();
-    d->m_autodetect = data.value(QLatin1String(AUTODETECT_KEY), false).toBool();
+    const bool autoDetect = data.value(QLatin1String(AUTODETECT_KEY), false).toBool();
+    d->m_detection = autoDetect ? AutoDetectionFromSettings : ManualDetection;
 
     return true;
 }

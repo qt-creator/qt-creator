@@ -48,7 +48,7 @@ public:
                    const QString &binPath,
                    const QString &includePath,
                    const QString &libPath,
-                   bool autodetect = false);
+                   Detection d = ManualDetection);
 
     QList<Utils::FileName> suggestedMkspecList() const;
 

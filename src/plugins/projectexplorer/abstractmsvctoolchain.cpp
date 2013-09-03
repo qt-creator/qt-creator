@@ -47,10 +47,10 @@ namespace Internal {
 
 
 AbstractMsvcToolChain::AbstractMsvcToolChain(const QString &id,
-                                             bool autodetect,
+                                             Detection d,
                                              const Abi &abi,
                                              const QString& vcvarsBat) :
-    ToolChain(id, autodetect),
+    ToolChain(id, d),
     m_lastEnvironment(Utils::Environment::systemEnvironment()),
     m_abi(abi),
     m_vcvarsBat(vcvarsBat)
@@ -61,8 +61,8 @@ AbstractMsvcToolChain::AbstractMsvcToolChain(const QString &id,
     Q_ASSERT(!m_vcvarsBat.isEmpty());
 }
 
-AbstractMsvcToolChain::AbstractMsvcToolChain(const QString &id, bool autodetect) :
-    ToolChain(id, autodetect),
+AbstractMsvcToolChain::AbstractMsvcToolChain(const QString &id, Detection d) :
+    ToolChain(id, d),
     m_lastEnvironment(Utils::Environment::systemEnvironment())
 {
 

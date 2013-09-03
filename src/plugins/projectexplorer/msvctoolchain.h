@@ -54,7 +54,7 @@ public:
                   };
 
     MsvcToolChain(const QString &name, const Abi &abi,
-                  const QString &varsBat, const QString &varsBatArg, bool autodetect = false);
+                  const QString &varsBat, const QString &varsBatArg, Detection d = ManualDetection);
     bool isValid() const;
     QList<Utils::FileName> suggestedMkspecList() const;
 

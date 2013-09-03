@@ -231,7 +231,7 @@ GccToolChain *BlackBerryConfiguration::createGccToolChain()
         }
     }
 
-    GccToolChain* tc = new GccToolChain(QLatin1String(ProjectExplorer::Constants::GCC_TOOLCHAIN_ID), m_isAutoDetected);
+    GccToolChain* tc = new GccToolChain(QLatin1String(ProjectExplorer::Constants::GCC_TOOLCHAIN_ID), m_isAutoDetected ? ToolChain::AutoDetection : ToolChain::ManualDetection);
     tc->setDisplayName(QString::fromLatin1("GCC BlackBerry 10 (%1)").arg(m_targetName));
     tc->setCompilerCommand(m_gccCompiler);
 
