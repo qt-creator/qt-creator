@@ -264,12 +264,12 @@ Kit *BlackBerryConfiguration::createKit(QnxArchitecture arch, BaseQtVersion *qtV
     QtKitInformation::setQtVersion(kit, qtVersion);
     ToolChainKitInformation::setToolChain(kit, tc);
     if (arch == X86) {
-        Debugger::DebuggerKitInformation::setDebuggerCommand(kit, m_simulatorDebuger);
+        Debugger::DebuggerKitInformation::setDebugger(kit, Debugger::GdbEngineType, m_simulatorDebuger);
         Qt4ProjectManager::QmakeKitInformation::setMkspec(kit, FileName::fromString(QString::fromLatin1("blackberry-x86-qcc")));
         // TODO: Check if the name already exists(?)
         kit->setDisplayName(tr("BlackBerry 10 (%1 - %2) - Simulator").arg(qtVersion->qtVersionString(), m_targetName));
     } else {
-        Debugger::DebuggerKitInformation::setDebuggerCommand(kit, m_deviceDebuger);
+        Debugger::DebuggerKitInformation::setDebugger(kit, Debugger::GdbEngineType, m_deviceDebuger);
         kit->setDisplayName(tr("BlackBerry 10 (%1 - %2)").arg(qtVersion->qtVersionString(), m_targetName));
     }
 

@@ -1627,8 +1627,7 @@ void DebuggerPluginPrivate::attachCore()
     DebuggerStartParameters sp;
     QString display = dlg.useLocalCoreFile() ? dlg.localCoreFile() : dlg.remoteCoreFile();
     QTC_ASSERT(fillParameters(&sp, dlg.kit()), return);
-    DebuggerItem info = DebuggerKitInformation::debuggerItem(dlg.kit());
-    sp.masterEngineType = info.engineType;
+    sp.masterEngineType = DebuggerKitInformation::engineType(dlg.kit());
     sp.executable = dlg.localExecutableFile();
     sp.coreFile = dlg.localCoreFile();
     sp.displayName = tr("Core file \"%1\"").arg(display);

@@ -75,7 +75,10 @@ static const char DEFAULT_DEBUGGER_COUNT_KEY[] = "DefaultDebugger.Count";
 static const char DEFAULT_DEBUGGER_ABI_KEY[] = "DefaultDebugger.Abi.";
 static const char DEFAULT_DEBUGGER_PATH_KEY[] = "DefaultDebugger.Path.";
 static const char DEBUGGER_FILENAME[] = "/qtcreator/debuggers.xml";
+static const char DEBUGGER_LEGACY_FILENAME[] = "/qtcreator/profiles.xml";
 
+static const char DEBUGGER_INFORMATION_LEGACY[] = "Debugger.Information";
+//static const char DEBUGGER_INFORMATION[] = "Debugger.InformationV3";
 static const char DEBUGGER_INFORMATION[] = "Debugger.Information";
 static const char DEBUGGER_INFORMATION_COMMAND[] = "Binary";
 static const char DEBUGGER_INFORMATION_DISPLAYNAME[] = "DisplayName";
@@ -98,17 +101,36 @@ static DebuggerItemManager *theDebuggerItemManager()
 // DebuggerItem
 // --------------------------------------------------------------------------
 
+namespace Internal {
+
+class DebuggerItem
+{
+public:
+    DebuggerItem();
+
+    bool canClone() const { return true; }
+    bool isValid() const { return engineType != NoEngineType; }
+    QString engineTypeName() const;
+
+    QVariantMap toMap() const;
+    void fromMap(const QVariantMap &data);
+    void reinitializeFromFile();
+
+public:
+    QVariant id;
+    QString displayName;
+    DebuggerEngineType engineType;
+    Utils::FileName command;
+    bool isAutoDetected;
+    QList<ProjectExplorer::Abi> abis;
+};
+
+} // namespace Internal
+
 DebuggerItem::DebuggerItem()
 {
     engineType = NoEngineType;
     isAutoDetected = false;
-}
-
-bool DebuggerItem::looksLike(const DebuggerItem &rhs) const
-{
-    return engineType == rhs.engineType
-        && displayName == rhs.displayName
-            && command == rhs.command;
 }
 
 QString DebuggerItem::engineTypeName() const
@@ -163,15 +185,6 @@ void DebuggerItem::fromMap(const QVariantMap &data)
     }
 }
 
-QString DebuggerItem::userOutput() const
-{
-    const QString binary = command.toUserOutput();
-    const QString name = DebuggerKitInformation::tr("%1 Engine").arg(engineTypeName());
-
-    return binary.isEmpty() ? DebuggerKitInformation::tr("%1 <None>").arg(name)
-                            : DebuggerKitInformation::tr("%1 using \"%2\"").arg(name, binary);
-}
-
 void DebuggerItem::reinitializeFromFile()
 {
     QProcess proc;
@@ -217,11 +230,12 @@ DebuggerKitInformation::DebuggerKitInformation()
 
 QVariant DebuggerKitInformation::defaultValue(Kit *k) const
 {
-    if (isValidDebugger(k)) {
-        DebuggerItem item = debuggerItem(k);
-        return theDebuggerItemManager()->maybeAddDebugger(item, false);
-    }
-
+// This is only called from Kit::Kit()
+//    if (isValidDebugger(k)) {
+//        DebuggerItem *item = DebuggerItemManager::debuggerFromKit(k);
+//        QTC_ASSERT(item, return QVariant());
+//        return item->id;
+//    }
     ToolChain *tc = ToolChainKitInformation::toolChain(k);
     return theDebuggerItemManager()->defaultDebugger(tc);
 }
@@ -241,25 +255,54 @@ enum DebuggerConfigurationErrors {
     DebuggerNeedsAbsolutePath = 0x8
 };
 
+static QVariant debuggerPathOrId(const Kit *k)
+{
+    QTC_ASSERT(k, return QString());
+    QVariant id = k->value(DEBUGGER_INFORMATION);
+    if (!id.isValid())
+        return id; // Invalid.
+
+    // With 3.0 we have:
+    // <value type="QString" key="Debugger.Information">{75ecf347-f221-44c3-b613-ea1d29929cd4}</value>
+    if (id.type() == QVariant::String)
+        return id;
+
+    // Before we had:
+    // <valuemap type="QVariantMap" key="Debugger.Information">
+    //    <value type="QString" key="Binary">/data/dev/debugger/gdb-git/gdb/gdb</value>
+    //    <value type="int" key="EngineType">1</value>
+    //  </valuemap>
+    return id.toMap().value(QLatin1String("Binary"));
+}
+
 static unsigned debuggerConfigurationErrors(const Kit *k)
 {
-    unsigned result = 0;
-    const DebuggerItem item = DebuggerKitInformation::debuggerItem(k);
-    if (item.engineType == NoEngineType || item.command.isEmpty())
+    QTC_ASSERT(k, return NoDebugger);
+
+    const DebuggerItem *item = DebuggerItemManager::debuggerFromKit(k);
+    if (!item)
         return NoDebugger;
 
-    const QFileInfo fi = item.command.toFileInfo();
+    if (item->command.isEmpty())
+        return NoDebugger;
+
+    unsigned result = 0;
+    const QFileInfo fi = item->command.toFileInfo();
     if (!fi.exists() || fi.isDir())
         result |= DebuggerNotFound;
     else if (!fi.isExecutable())
         result |= DebuggerNotExecutable;
 
-    if (!fi.exists() || fi.isDir())
+    if (!fi.exists() || fi.isDir()) {
+        if (item->engineType == NoEngineType)
+            return NoDebugger;
+
         // We need an absolute path to be able to locate Python on Windows.
-        if (item.engineType == GdbEngineType)
+        if (item->engineType == GdbEngineType)
             if (const ToolChain *tc = ToolChainKitInformation::toolChain(k))
                 if (tc->targetAbi().os() == Abi::WindowsOS && !fi.isAbsolute())
                     result |= DebuggerNeedsAbsolutePath;
+    }
     return result;
 }
 
@@ -271,12 +314,14 @@ bool DebuggerKitInformation::isValidDebugger(const Kit *k)
 QList<Task> DebuggerKitInformation::validateDebugger(const Kit *k)
 {
     QList<Task> result;
-    const unsigned errors = debuggerConfigurationErrors(k);
 
+    const unsigned errors = debuggerConfigurationErrors(k);
     if (!errors)
         return result;
 
-    const QString path = DebuggerKitInformation::debuggerCommand(k).toUserOutput();
+    QString path;
+    if (const DebuggerItem *item = DebuggerItemManager::debuggerFromKit(k))
+        path = item->command.toUserOutput();
 
     const Core::Id id = ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM;
     if (errors & NoDebugger)
@@ -304,62 +349,37 @@ KitConfigWidget *DebuggerKitInformation::createConfigWidget(Kit *k) const
 
 KitInformation::ItemList DebuggerKitInformation::toUserOutput(const Kit *k) const
 {
-    return ItemList() << qMakePair(tr("Debugger"), debuggerItem(k).userOutput());
+    return ItemList() << qMakePair(tr("Debugger"), displayString(k));
 }
 
-DebuggerItem DebuggerKitInformation::debuggerItem(const ProjectExplorer::Kit *k)
+FileName DebuggerKitInformation::debuggerCommand(const ProjectExplorer::Kit *k)
 {
-    if (!k)
-        return DebuggerItem();
-
-    // We used to have:
-    // <valuemap type="QVariantMap" key="Debugger.Information">
-    //    <value type="QString" key="Binary">/data/dev/debugger/gdb-git/gdb/gdb</value>
-    //    <value type="int" key="EngineType">1</value>
-    //  </valuemap>
-    // Starting with 3.0 we have:
-    // <value type="QString" key="Debugger.Information">{75ecf347-f221-44c3-b613-ea1d29929cd4}</value>
-
-    QVariant id = k->value(DEBUGGER_INFORMATION);
-    if (!id.isValid())
-        return DebuggerItem();
-
-    QString pathOrUid;
-    if (id.type() == QVariant::Map) // 2.x
-        pathOrUid = id.toMap().value(QLatin1String("Binary")).toString();
-    else if (id.type() == QVariant::String) // 3.x
-        pathOrUid = id.toString();
-
-    if (pathOrUid.isEmpty())
-        return DebuggerItem();
-
-    DebuggerItem *item = 0;
-    if (pathOrUid.startsWith(QLatin1Char('{')))
-        item = DebuggerItemManager::debuggerFromId(id);
-    else
-        item = DebuggerItemManager::debuggerFromPath(pathOrUid);
-
-    QTC_ASSERT(item, return DebuggerItem());
-    return *item;
+    const DebuggerItem *item = DebuggerItemManager::debuggerFromKit(k);
+    QTC_ASSERT(item, return FileName());
+    return item->command;
 }
 
-void DebuggerKitInformation::setDebuggerItem(Kit *k,
-    DebuggerEngineType type, const Utils::FileName &command)
+DebuggerEngineType DebuggerKitInformation::engineType(const ProjectExplorer::Kit *k)
 {
-    QTC_ASSERT(k, return);
-    DebuggerItem item;
-    item.engineType = type;
-    item.command = command;
-    QVariant id = theDebuggerItemManager()->maybeAddDebugger(item);
-    k->setValue(DEBUGGER_INFORMATION, id);
+    const DebuggerItem *item = DebuggerItemManager::debuggerFromKit(k);
+    QTC_ASSERT(item, return NoEngineType);
+    return item->engineType;
 }
 
-void DebuggerKitInformation::setDebuggerCommand(Kit *k, const FileName &command)
+QString DebuggerKitInformation::displayString(const Kit *k)
 {
-    DebuggerItem item = debuggerItem(k);
-    item.command = command;
-    QVariant id = theDebuggerItemManager()->maybeAddDebugger(item);
-    k->setValue(DEBUGGER_INFORMATION, id);
+    const DebuggerItem *item = DebuggerItemManager::debuggerFromKit(k);
+    if (!item)
+        return tr("No Debugger");
+    QString binary = item->command.toUserOutput();
+    QString name = tr("%1 Engine").arg(item->engineTypeName());
+    return binary.isEmpty() ? tr("%1 <None>").arg(name) : tr("%1 using \"%2\"").arg(name, binary);
+}
+
+void DebuggerKitInformation::setDebugger(Kit *k,
+    DebuggerEngineType type, const FileName &command)
+{
+    theDebuggerItemManager()->setDebugger(k, type, command);
 }
 
 void DebuggerKitInformation::setSticky(Kit *k, bool b)
@@ -376,13 +396,13 @@ static FileName userSettingsFileName()
     return FileName::fromString(settingsLocation.absolutePath() + QLatin1String(DEBUGGER_FILENAME));
 }
 
-static QList<QStandardItem *> describeItem(DebuggerItem *item)
+static QList<QStandardItem *> describeItem(const DebuggerItem &item)
 {
     QList<QStandardItem *> row;
-    row.append(new QStandardItem(item->displayName));
-    row.append(new QStandardItem(item->command.toUserOutput()));
-    row.append(new QStandardItem(item->engineTypeName()));
-    row.at(0)->setData(item->id);
+    row.append(new QStandardItem(item.displayName));
+    row.append(new QStandardItem(item.command.toUserOutput()));
+    row.append(new QStandardItem(item.engineTypeName()));
+    row.at(0)->setData(item.id);
     row.at(0)->setEditable(false);
     row.at(1)->setEditable(false);
     row.at(2)->setEditable(false);
@@ -416,7 +436,6 @@ class DebuggerItemConfigWidget;
 DebuggerItemManager::DebuggerItemManager(QObject *parent)
     : QStandardItemModel(parent)
 {
-    m_currentDebugger = 0;
     setColumnCount(3);
 
     QList<QStandardItem *> row = createRow(tr("Auto-detected"));
@@ -437,8 +456,6 @@ DebuggerItemManager::~DebuggerItemManager()
 {
     disconnect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()),
             this, SLOT(saveDebuggers()));
-    qDeleteAll(m_debuggers);
-    m_debuggers.clear();
     delete m_writer;
 }
 
@@ -455,6 +472,15 @@ QVariant DebuggerItemManager::headerData(int section, Qt::Orientation orientatio
         }
     }
     return QVariant();
+}
+
+QString DebuggerItemManager::uniqueDisplayName(const QString &base) const
+{
+    foreach (const DebuggerItem &item, m_debuggers)
+        if (item.displayName == base)
+            return uniqueDisplayName(base + QLatin1String(" (1)"));
+
+    return base;
 }
 
 void DebuggerItemManager::autoDetectCdbDebugger()
@@ -503,13 +529,15 @@ void DebuggerItemManager::autoDetectCdbDebugger()
     }
 
     foreach (const FileName &cdb, cdbs) {
+        if (findByCommand(cdb))
+            continue;
         DebuggerItem item;
         item.isAutoDetected = true;
         item.abis = Abi::abisOfBinary(cdb);
         item.command = cdb;
         item.engineType = CdbEngineType;
-        item.displayName = tr("Auto-detected CDB at %1").arg(cdb.toUserOutput());
-        maybeAddDebugger(item, false);
+        item.displayName = uniqueDisplayName(tr("Auto-detected CDB at %1").arg(cdb.toUserOutput()));
+        doAddDebugger(item);
     }
 }
 
@@ -534,61 +562,107 @@ void DebuggerItemManager::autoDetectDebuggers()
 
     foreach (const QFileInfo &fi, suspects) {
         if (fi.exists()) {
+            FileName command = FileName::fromString(fi.absoluteFilePath());
+            if (findByCommand(command))
+                continue;
             DebuggerItem item;
-            item.command = FileName::fromString(fi.absoluteFilePath());
+            item.command = command;
+            item.id = QUuid::createUuid().toString();
             item.reinitializeFromFile();
             item.displayName = tr("System %1 at %2")
                 .arg(item.engineTypeName()).arg(fi.absoluteFilePath());
             item.isAutoDetected = true;
-            maybeAddDebugger(item);
+            doAddDebugger(item);
         }
     }
 }
 
-QVariant DebuggerItemManager::maybeAddDebugger(const DebuggerItem &testItem, bool makeCurrent)
+void DebuggerItemManager::readLegacyDebuggers()
 {
-    foreach (DebuggerItem *it, m_debuggers) {
-        if (it->looksLike(testItem)) {
-            m_currentDebugger = it;
-            return it->id;
-        }
+    QFileInfo settingsLocation(Core::ICore::settings()->fileName());
+    FileName legacyKits = FileName::fromString(settingsLocation.absolutePath() + QLatin1String(DEBUGGER_LEGACY_FILENAME));
+
+    PersistentSettingsReader reader;
+    if (!reader.load(legacyKits))
+        return;
+
+    foreach (const QVariant &v, reader.restoreValues()) {
+        QVariantMap data1 = v.toMap();
+        QString kitName = data1.value(QLatin1String("PE.Profile.Name")).toString();
+        QVariantMap data2 = data1.value(QLatin1String("PE.Profile.Data")).toMap();
+        QVariant v3 = data2.value(QLatin1String(DEBUGGER_INFORMATION));
+        QString fn;
+        if (v3.type() == QVariant::String)
+            fn = v3.toString();
+        else
+            fn = v3.toMap().value(QLatin1String(DEBUGGER_INFORMATION_COMMAND)).toString();
+        if (fn.isEmpty())
+            continue;
+        if (fn.startsWith(QLatin1Char('{')))
+            continue;
+        FileName command = FileName::fromUserInput(fn);
+        if (findByCommand(command))
+            continue;
+        DebuggerItem item;
+        item.command = command;
+        item.isAutoDetected = true;
+        item.reinitializeFromFile();
+        item.displayName = tr("Extracted from Kit %1").arg(kitName);
+        item.id = QUuid::createUuid().toString();
+        doAddDebugger(item);
     }
+}
 
-    DebuggerItem *item = new DebuggerItem(testItem);
-    if (item->id.isNull())
-        item->id = QUuid::createUuid().toString();
-
+QVariant DebuggerItemManager::doAddDebugger(const DebuggerItem &item0)
+{
+    DebuggerItem item = item0;
+    if (item.id.isNull()) {
+        QTC_CHECK(false);
+        item.id = QUuid::createUuid().toString();
+    }
     QList<QStandardItem *> row = describeItem(item);
-    (item->isAutoDetected ? m_autoRoot : m_manualRoot)->appendRow(row);
+    (item.isAutoDetected ? m_autoRoot : m_manualRoot)->appendRow(row);
     m_debuggers.append(item);
-    m_itemFromDebugger[item] = row.at(0);
-    m_debuggerFromItem[row.at(0)] = item;
-
-    if (makeCurrent)
-        m_currentDebugger = item;
-
-    emit debuggerAdded(item);
-    return item->id;
+    emit debuggerAdded(item.id, item.displayName);
+    return item.id;
 }
 
-void DebuggerItemManager::updateCurrentItem()
+const DebuggerItem *DebuggerItemManager::findByCommand(const FileName &command)
 {
-    QTC_ASSERT(m_currentDebugger, return);
-    QStandardItem *item = m_itemFromDebugger.value(m_currentDebugger);
-    QTC_ASSERT(item, return);
-    m_currentDebugger->reinitializeFromFile();
-    QStandardItem *parent = item->parent();
-    QTC_ASSERT(parent, return);
-    int row = item->row();
-    parent->child(row, 0)->setData(m_currentDebugger->displayName, Qt::DisplayRole);
-    parent->child(row, 1)->setData(m_currentDebugger->command.toUserOutput(), Qt::DisplayRole);
-    parent->child(row, 2)->setData(m_currentDebugger->engineTypeName(), Qt::DisplayRole);
-    emit debuggerUpdated(m_currentDebugger);
+    foreach (const DebuggerItem &item, m_debuggers)
+        if (item.command == command)
+            return &item;
+
+    return 0;
 }
 
-static QList<DebuggerItem *> readDebuggers(const FileName &fileName)
+const DebuggerItem *DebuggerItemManager::findById(const QVariant &id)
 {
-    QList<DebuggerItem *> result;
+    foreach (const DebuggerItem &item, m_debuggers)
+        if (item.id == id)
+            return &item;
+
+    return 0;
+}
+
+QStandardItem *DebuggerItemManager::currentStandardItem() const
+{
+    for (int i = 0, n = m_autoRoot->rowCount(); i != n; ++i) {
+        QStandardItem *sitem = m_autoRoot->child(i);
+        if (sitem->data() == m_currentDebugger)
+            return sitem;
+    }
+    for (int i = 0, n = m_manualRoot->rowCount(); i != n; ++i) {
+        QStandardItem *sitem = m_manualRoot->child(i);
+        if (sitem->data() == m_currentDebugger)
+            return sitem;
+    }
+    return 0;
+}
+
+static QList<DebuggerItem> readDebuggers(const FileName &fileName)
+{
+    QList<DebuggerItem> result;
 
     PersistentSettingsReader reader;
     if (!reader.load(fileName))
@@ -621,9 +695,9 @@ static QList<DebuggerItem *> readDebuggers(const FileName &fileName)
         if (!data.contains(key))
             break;
         const QVariantMap dbMap = data.value(key).toMap();
-        DebuggerItem *debugger = new DebuggerItem;
-        debugger->fromMap(dbMap);
-        result.append(debugger);
+        DebuggerItem item;
+        item.fromMap(dbMap);
+        result.append(item);
     }
 
     return result;
@@ -631,36 +705,34 @@ static QList<DebuggerItem *> readDebuggers(const FileName &fileName)
 
 void DebuggerItemManager::restoreDebuggers()
 {
-    QList<DebuggerItem *> dbsToCheck;
+    QList<DebuggerItem> dbsToCheck;
 
     // Read debuggers from SDK
     QFileInfo systemSettingsFile(Core::ICore::settings(QSettings::SystemScope)->fileName());
-    QList<DebuggerItem *> dbsToRegister =
+    QList<DebuggerItem> dbsToRegister =
             readDebuggers(FileName::fromString(systemSettingsFile.absolutePath() + QLatin1String(DEBUGGER_FILENAME)));
 
     // These are autodetected.
-    foreach (DebuggerItem *item, dbsToRegister)
-        item->isAutoDetected = true;
+    for (int i = 0, n = dbsToRegister.size(); i != n; ++i)
+        dbsToRegister[i].isAutoDetected = true;
 
     // SDK debuggers are always considered to be up-to-date, so no need to recheck them.
 
     // Read all debuggers from user file.
-    foreach (DebuggerItem *item, readDebuggers(userSettingsFileName())) {
-        if (item->isAutoDetected)
+    foreach (const DebuggerItem &item, readDebuggers(userSettingsFileName())) {
+        if (item.isAutoDetected)
             dbsToCheck.append(item);
         else
             dbsToRegister.append(item);
     }
 
     // Remove debuggers configured by the SDK.
-    foreach (DebuggerItem *item, dbsToRegister) {
-        for (int i = dbsToCheck.count(); --i >= 0; ) {
-            if (dbsToCheck.at(i)->id == item->id) {
-                delete dbsToCheck.at(i);
-                dbsToCheck.removeAt(i);
-            }
-        }
-    }
+//    foreach (const DebuggerItem &item, dbsToRegister) {
+//        for (int i = dbsToCheck.count(); --i >= 0; ) {
+//            if (dbsToCheck.at(i).id == item.id)
+//                dbsToCheck.removeAt(i);
+//        }
+//    }
 
 //    QList<DebuggerItem *> detectedDbs;
 //    QList<DebuggerFactory *> factories = ExtensionSystem::PluginManager::getObjects<DebuggerFactory>();
@@ -685,23 +757,31 @@ void DebuggerItemManager::restoreDebuggers()
 //    }
 
     // Keep debuggers that were not rediscovered but are still executable and delete the rest
-    foreach (DebuggerItem *item, dbsToCheck) {
-        if (!item->isValid()) {
+    foreach (const DebuggerItem &item, dbsToCheck) {
+        if (!item.isValid()) {
             qWarning() << QString::fromLatin1("DebuggerItem \"%1\" (%2) dropped since it is not valid")
-                          .arg(item->command.toString()).arg(item->id.toString());
-            delete item;
+                          .arg(item.command.toString()).arg(item.id.toString());
         } else {
-            dbsToRegister += item;
+            dbsToRegister.append(item);
         }
     }
 
     // Store manual debuggers
     DebuggerItemManager *manager = theDebuggerItemManager();
-    foreach (DebuggerItem *item, dbsToRegister)
-        manager->maybeAddDebugger(*item);
+    for (int i = 0, n = dbsToRegister.size(); i != n; ++i) {
+        DebuggerItem item = dbsToRegister.at(i);
+        if (manager->findByCommand(item.command))
+            continue;
+        if (item.id.isNull())
+            item.id = QUuid::createUuid().toString();
+        manager->doAddDebugger(item);
+    }
 
-    // Then auto detect
+    // Auto detect current.
     manager->autoDetectDebuggers();
+
+    // Add debuggers from pre-3.x profiles.xml
+    manager->readLegacyDebuggers();
 }
 
 void DebuggerItemManager::saveDebuggers()
@@ -711,9 +791,9 @@ void DebuggerItemManager::saveDebuggers()
     data.insert(QLatin1String(DEBUGGER_FILE_VERSION_KEY), 1);
 
     int count = 0;
-    foreach (DebuggerItem *item, m_debuggers) {
-        if (item->isValid()) {
-            QVariantMap tmp = item->toMap();
+    foreach (const DebuggerItem &item, m_debuggers) {
+        if (item.isValid()) {
+            QVariantMap tmp = item.toMap();
             if (tmp.isEmpty())
                 continue;
             data.insert(QString::fromLatin1(DEBUGGER_DATA_KEY) + QString::number(count), tmp);
@@ -726,87 +806,132 @@ void DebuggerItemManager::saveDebuggers()
     // Do not save default debuggers as they are set by the SDK.
 }
 
-QList<DebuggerItem *> DebuggerItemManager::findDebuggers(const Abi &abi) const
+const DebuggerItem *DebuggerItemManager::debuggerFromKit(const Kit *kit)
 {
-    QList<DebuggerItem *> result;
-    foreach (DebuggerItem *item, m_debuggers)
-        foreach (const Abi targetAbi, item->abis)
-            if (targetAbi.isCompatibleWith(abi))
-                result.append(item);
-    return result;
-}
-
-DebuggerItem *DebuggerItemManager::debuggerFromId(const QVariant &id)
-{
-    foreach (DebuggerItem *item, theDebuggerItemManager()->m_debuggers)
-        if (item->id == id)
-            return item;
+    if (!kit)
+        return 0;
+    QVariant pathOrId = debuggerPathOrId(kit);
+    foreach (const DebuggerItem &item, theDebuggerItemManager()->m_debuggers) {
+        if (item.id == pathOrId)
+            return &item;
+        if (item.command == FileName::fromUserInput(pathOrId.toString()))
+            return &item;
+    }
     return 0;
 }
 
-DebuggerItem *DebuggerItemManager::debuggerFromPath(const QString &path)
+void DebuggerItemManager::setDebugger(Kit *kit, Debugger::DebuggerEngineType type, const FileName &command)
 {
-    foreach (DebuggerItem *item, theDebuggerItemManager()->m_debuggers)
-        if (item->command.toString() == path)
-            return item;
-    return 0;
+    QTC_ASSERT(kit, return);
+    // This should only operate on fresh kits.
+    //QVariant id = k->value(DEBUGGER_INFORMATION);
+    //QTC_CHECK(id.isNull());
+    if (!findByCommand(command)) {
+        DebuggerItem item;
+        item.engineType = type;
+        item.command = command;
+        item.id = QUuid::createUuid().toString();
+        item.displayName = uniqueDisplayName(tr("Created by tool chain."));
+        doAddDebugger(item);
+    }
+
+    const DebuggerItem *it = findByCommand(command);
+    QTC_ASSERT(it, return);
+    QTC_ASSERT(it->id.isValid(), return);
+    kit->setValue(DEBUGGER_INFORMATION, it->id);
+
 }
 
 QModelIndex DebuggerItemManager::currentIndex() const
 {
-    QStandardItem *current = m_itemFromDebugger.value(m_currentDebugger);
+    QStandardItem *current = currentStandardItem();
     return current ? current->index() : QModelIndex();
-}
-
-bool DebuggerItemManager::isLoaded() const
-{
-    return m_writer;
 }
 
 void DebuggerItemManager::addDebugger()
 {
     DebuggerItem item;
-    item.displayName = tr("New Debugger");
     item.engineType = NoEngineType;
+    item.id = QUuid::createUuid().toString();
+    item.displayName = uniqueDisplayName(tr("New Debugger"));
     item.isAutoDetected = false;
-    maybeAddDebugger(item);
+    doAddDebugger(item);
 }
 
 void DebuggerItemManager::cloneDebugger()
 {
-    DebuggerItem item;
-    if (m_currentDebugger)
-        item = *m_currentDebugger;
-    item.displayName = tr("Clone of %1").arg(item.displayName);
-    item.isAutoDetected = false;
-    maybeAddDebugger(item);
+    const DebuggerItem *item = findById(m_currentDebugger);
+    QTC_ASSERT(item, return);
+    DebuggerItem newItem = *item;
+    newItem.id = QUuid::createUuid().toString();
+    newItem.displayName = uniqueDisplayName(tr("Clone of %1").arg(item->displayName));
+    newItem.isAutoDetected = false;
+    doAddDebugger(newItem);
 }
 
 void DebuggerItemManager::removeDebugger()
 {
-    if (!m_currentDebugger)
-        return;
-
-    emit debuggerRemoved(m_currentDebugger);
-    bool ok = m_debuggers.removeOne(m_currentDebugger);
+    QTC_ASSERT(m_currentDebugger.isValid(), return);
+    QVariant id = m_currentDebugger;
+    bool ok = false;
+    for (int i = 0, n = m_debuggers.size(); i != n; ++i) {
+        if (m_debuggers.at(i).id == id) {
+            m_debuggers.removeAt(i);
+            ok = true;
+            break;
+        }
+    }
     QTC_ASSERT(ok, return);
-    QStandardItem *item = m_itemFromDebugger.take(m_currentDebugger);
-    DebuggerItem *debugger = m_debuggerFromItem.take(item);
-    QTC_ASSERT(debugger == m_currentDebugger, return);
-    QTC_ASSERT(item, return);
-    QTC_ASSERT(debugger, return);
-    QStandardItem *parent = item->parent();
+    QStandardItem *sitem = currentStandardItem();
+    QTC_ASSERT(sitem, return);
+    QStandardItem *parent = sitem->parent();
     QTC_ASSERT(parent, return);
     // This will trigger a change of m_currentDebugger via changing the
-    // view selection. So don't delete m_currentDebugger but debugger.
-    parent->removeRow(item->row());
-    QTC_ASSERT(debugger != m_currentDebugger, return);
-    delete debugger;
+    // view selection.
+    parent->removeRow(sitem->row());
+    emit debuggerRemoved(id);
+}
+
+void DebuggerItemManager::markCurrentDirty()
+{
+    QStandardItem *sitem = currentStandardItem();
+    QTC_ASSERT(sitem, return);
+    QFont font = sitem->font();
+    font.setBold(true);
+    sitem->setFont(font);
 }
 
 void DebuggerItemManager::setCurrentIndex(const QModelIndex &index)
 {
-    m_currentDebugger = m_debuggerFromItem.value(itemFromIndex(index));
+    QStandardItem *sit = itemFromIndex(index);
+    m_currentDebugger = sit ? sit->data() : QVariant();
+}
+
+void DebuggerItemManager::setCurrentData(const QString &displayName, const FileName &fileName)
+{
+    for (int i = 0, n = m_debuggers.size(); i != n; ++i) {
+        DebuggerItem &item = m_debuggers[i];
+        if (item.id == m_currentDebugger) {
+            item.displayName = displayName;
+            item.command = fileName;
+            item.reinitializeFromFile();
+            QStandardItem *sitem = currentStandardItem();
+            QTC_ASSERT(sitem, return);
+            QStandardItem *parent = sitem->parent();
+            QTC_ASSERT(parent, return);
+            int row = sitem->row();
+            QFont font = sitem->font();
+            font.setBold(false);
+            parent->child(row, 0)->setData(item.displayName, Qt::DisplayRole);
+            parent->child(row, 0)->setFont(font);
+            parent->child(row, 1)->setData(item.command.toUserOutput(), Qt::DisplayRole);
+            parent->child(row, 1)->setFont(font);
+            parent->child(row, 2)->setData(item.engineTypeName(), Qt::DisplayRole);
+            parent->child(row, 2)->setFont(font);
+            emit debuggerUpdated(m_currentDebugger, displayName);
+            return;
+        }
+    }
 }
 
 QVariant DebuggerItemManager::defaultDebugger(ToolChain *tc)
@@ -830,9 +955,10 @@ QVariant DebuggerItemManager::defaultDebugger(ToolChain *tc)
 //        result.first = result.second;
 
 
-    QList<DebuggerItem *> compatible = findDebuggers(abi);
-    if (!compatible.isEmpty())
-        return compatible.front()->id;
+    foreach (const DebuggerItem &item, m_debuggers)
+        foreach (const Abi targetAbi, item.abis)
+            if (targetAbi.isCompatibleWith(abi))
+                return item.id;
 
     return QVariant();
 
@@ -888,8 +1014,8 @@ DebuggerKitConfigWidget::DebuggerKitConfigWidget(Kit *workingCopy, bool sticky)
     m_comboBox->setEnabled(true);
     m_comboBox->setToolTip(toolTip());
     m_comboBox->addItem(tr("None"), QString());
-    foreach (DebuggerItem *item, manager->debuggers())
-        m_comboBox->addItem(item->displayName, item->id);
+    foreach (const DebuggerItem &item, manager->m_debuggers)
+        m_comboBox->addItem(item.displayName, item.id);
 
     refresh();
     connect(m_comboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(currentDebuggerChanged(int)));
@@ -898,12 +1024,12 @@ DebuggerKitConfigWidget::DebuggerKitConfigWidget(Kit *workingCopy, bool sticky)
     m_manageButton->setContentsMargins(0, 0, 0, 0);
     connect(m_manageButton, SIGNAL(clicked()), this, SLOT(manageDebuggers()));
 
-    connect(manager, SIGNAL(debuggerAdded(DebuggerItem*)),
-            this, SLOT(onDebuggerAdded(DebuggerItem*)));
-    connect(manager, SIGNAL(debuggerUpdated(DebuggerItem*)),
-            this, SLOT(onDebuggerUpdated(DebuggerItem*)));
-    connect(manager, SIGNAL(debuggerRemoved(DebuggerItem*)),
-            this, SLOT(onDebuggerRemoved(DebuggerItem*)));
+    connect(manager, SIGNAL(debuggerAdded(QVariant,QString)),
+            this, SLOT(onDebuggerAdded(QVariant,QString)));
+    connect(manager, SIGNAL(debuggerUpdated(QVariant,QString)),
+            this, SLOT(onDebuggerUpdated(QVariant,QString)));
+    connect(manager, SIGNAL(debuggerRemoved(QVariant)),
+            this, SLOT(onDebuggerRemoved(QVariant)));
 }
 
 QString DebuggerKitConfigWidget::toolTip() const
@@ -924,8 +1050,8 @@ void DebuggerKitConfigWidget::makeReadOnly()
 
 void DebuggerKitConfigWidget::refresh()
 {
-    DebuggerItem item = DebuggerKitInformation::debuggerItem(m_kit);
-    updateComboBox(item.id);
+    const DebuggerItem *item = DebuggerItemManager::debuggerFromKit(m_kit);
+    updateComboBox(item ? item->id : QVariant());
 }
 
 QWidget *DebuggerKitConfigWidget::buttonWidget() const
@@ -949,37 +1075,33 @@ void DebuggerKitConfigWidget::currentDebuggerChanged(int)
     m_kit->setValue(DEBUGGER_INFORMATION, m_comboBox->itemData(m_comboBox->currentIndex()));
 }
 
-void DebuggerKitConfigWidget::onDebuggerAdded(DebuggerItem *item)
+void DebuggerKitConfigWidget::onDebuggerAdded(const QVariant &id, const QString &displayName)
 {
     m_comboBox->setEnabled(true);
-    QVariant id = currentId();
-    m_comboBox->addItem(item->displayName, item->id);
+    m_comboBox->addItem(displayName, id);
     updateComboBox(id);
 }
 
-void DebuggerKitConfigWidget::onDebuggerUpdated(DebuggerItem *item)
+void DebuggerKitConfigWidget::onDebuggerUpdated(const QVariant &id, const QString &displayName)
 {
     m_comboBox->setEnabled(true);
-    const int pos = indexOf(item);
+    const int pos = indexOf(id);
     if (pos < 0)
         return;
-    m_comboBox->setItemText(pos, item->displayName);
+    m_comboBox->setItemText(pos, displayName);
 }
 
-void DebuggerKitConfigWidget::onDebuggerRemoved(DebuggerItem *item)
+void DebuggerKitConfigWidget::onDebuggerRemoved(const QVariant &id)
 {
-    const int pos = indexOf(item);
-    if (pos <= 0)
-        return;
-    QVariant id = currentId();
-    m_comboBox->removeItem(pos);
-    updateComboBox(id);
+    if (const int pos = indexOf(id)) {
+        m_comboBox->removeItem(pos);
+        updateComboBox(id);
+    }
 }
 
-int DebuggerKitConfigWidget::indexOf(const DebuggerItem *debugger)
+int DebuggerKitConfigWidget::indexOf(const QVariant &id)
 {
-    QTC_ASSERT(debugger, return -1);
-    const QVariant id = debugger->id;
+    QTC_ASSERT(id.isValid(), return -1);
     for (int i = 0; i < m_comboBox->count(); ++i) {
         if (id == m_comboBox->itemData(i))
             return i;
@@ -1012,8 +1134,11 @@ class DebuggerItemConfigWidget : public QWidget
     Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::DebuggerItemConfigWidget)
 public:
     explicit DebuggerItemConfigWidget();
-    void loadItem(DebuggerItem *item);
-    void saveItem(DebuggerItem *item);
+    void loadItem();
+    void saveItem();
+    void connectDirty();
+    void disconnectDirty();
+
 private:
     QLineEdit *m_displayNameLineEdit;
     QLabel *m_cdbLabel;
@@ -1036,7 +1161,7 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget()
     m_abis = new QLineEdit(this);
     m_abis->setEnabled(false);
 
-    QFormLayout *formLayout = new QFormLayout;
+    QFormLayout *formLayout = new QFormLayout(this);
     formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
     formLayout->addRow(new QLabel(tr("Name:")), m_displayNameLineEdit);
 //    formLayout->addRow(new QLabel(tr("Type:")), m_engineTypeComboBox);
@@ -1044,19 +1169,41 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget()
     formLayout->addRow(new QLabel(tr("Path:")), m_binaryChooser);
     formLayout->addRow(new QLabel(tr("Abis:")), m_abis);
 
-    setLayout(formLayout);
+    connectDirty();
 }
 
-void DebuggerItemConfigWidget::loadItem(DebuggerItem *item)
+void DebuggerItemConfigWidget::connectDirty()
 {
+    DebuggerItemManager *manager = theDebuggerItemManager();
+    connect(m_displayNameLineEdit, SIGNAL(textChanged(QString)),
+            manager, SLOT(markCurrentDirty()));
+    connect(m_binaryChooser, SIGNAL(changed(QString)),
+            manager, SLOT(markCurrentDirty()));
+}
+
+void DebuggerItemConfigWidget::disconnectDirty()
+{
+    DebuggerItemManager *manager = theDebuggerItemManager();
+    disconnect(m_displayNameLineEdit, SIGNAL(textChanged(QString)),
+            manager, SLOT(markCurrentDirty()));
+    disconnect(m_binaryChooser, SIGNAL(changed(QString)),
+            manager, SLOT(markCurrentDirty()));
+}
+
+void DebuggerItemConfigWidget::loadItem()
+{
+    DebuggerItemManager *manager = theDebuggerItemManager();
+    const DebuggerItem *item = manager->findById(manager->m_currentDebugger);
     if (!item)
         return;
 
+    disconnectDirty();
     m_displayNameLineEdit->setEnabled(!item->isAutoDetected);
     m_displayNameLineEdit->setText(item->displayName);
 
     m_binaryChooser->setEnabled(!item->isAutoDetected);
     m_binaryChooser->setFileName(item->command);
+    connectDirty();
 
     QString text;
     QString versionCommand;
@@ -1084,12 +1231,9 @@ void DebuggerItemConfigWidget::loadItem(DebuggerItem *item)
     m_abis->setText(toList(item->abis).join(QLatin1String(", ")));
 }
 
-void DebuggerItemConfigWidget::saveItem(DebuggerItem *item)
+void DebuggerItemConfigWidget::saveItem()
 {
-    QTC_ASSERT(item, return);
-    item->displayName = m_displayNameLineEdit->text();
-    item->command = m_binaryChooser->fileName();
-    // item->engineType is immutable
+    theDebuggerItemManager()->setCurrentData(m_displayNameLineEdit->text(), m_binaryChooser->fileName());
 }
 
 // --------------------------------------------------------------------------
@@ -1175,8 +1319,7 @@ QWidget *DebuggerOptionsPage::createPage(QWidget *parent)
 
 void DebuggerOptionsPage::apply()
 {
-    m_itemConfigWidget->saveItem(m_manager->currentDebugger());
-    m_manager->updateCurrentItem();
+    m_itemConfigWidget->saveItem();
     debuggerModelChanged();
 }
 
@@ -1224,9 +1367,8 @@ void DebuggerOptionsPage::debuggerSelectionChanged()
     mi = mi.sibling(mi.row(), 0);
     m_manager->setCurrentIndex(mi);
 
-    DebuggerItem *item = m_manager->currentDebugger();
-    m_itemConfigWidget->loadItem(item);
-    m_container->setVisible(item != 0);
+    m_itemConfigWidget->loadItem();
+    m_container->setVisible(m_manager->m_currentDebugger.isValid());
     updateState();
 }
 
@@ -1234,9 +1376,8 @@ void DebuggerOptionsPage::debuggerModelChanged()
 {
     QTC_ASSERT(m_container, return);
 
-    DebuggerItem *item = m_manager->currentDebugger();
-    m_itemConfigWidget->loadItem(item);
-    m_container->setVisible(item != 0);
+    m_itemConfigWidget->loadItem();
+    m_container->setVisible(m_manager->m_currentDebugger.isValid());
     m_debuggerView->setCurrentIndex(m_manager->currentIndex());
     updateState();
 }
@@ -1249,7 +1390,7 @@ void DebuggerOptionsPage::updateState()
     bool canCopy = false;
     bool canDelete = false;
 
-    if (DebuggerItem *item = m_manager->currentDebugger()) {
+    if (const DebuggerItem *item = m_manager->findById(m_manager->m_currentDebugger)) {
         canCopy = item->isValid() && item->canClone();
         canDelete = !item->isAutoDetected;
         canDelete = true; // Do we want to remove auto-detected items?

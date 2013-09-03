@@ -265,6 +265,7 @@ static inline QSettings *userSettings()
                 || lowerFile.startsWith(QLatin1String("toolchains.xml"))
                 || lowerFile.startsWith(QLatin1String("qtversion.xml"))
                 || lowerFile.startsWith(QLatin1String("devices.xml"))
+                || lowerFile.startsWith(QLatin1String("debuggers.xml"))
                 || lowerFile.startsWith(QLatin1String("qtcreator.")))
             QFile::copy(srcDir.absoluteFilePath(file), destDir.absoluteFilePath(file));
         if (file == QLatin1String("qtcreator"))

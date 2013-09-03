@@ -38,30 +38,6 @@
 
 namespace Debugger {
 
-class DEBUGGER_EXPORT DebuggerItem
-{
-public:
-    DebuggerItem();
-
-    bool looksLike(const DebuggerItem &rhs) const;
-    bool canClone() const { return true; }
-    bool isValid() const { return true; }
-    QString engineTypeName() const;
-    QString userOutput() const;
-
-    QVariantMap toMap() const;
-    void fromMap(const QVariantMap &data);
-    void reinitializeFromFile();
-
-public:
-    QVariant id;
-    QString displayName;
-    DebuggerEngineType engineType;
-    Utils::FileName command;
-    bool isAutoDetected;
-    QList<ProjectExplorer::Abi> abis;
-};
-
 class DEBUGGER_EXPORT DebuggerKitInformation : public ProjectExplorer::KitInformation
 {
     Q_OBJECT
@@ -83,25 +59,15 @@ public:
 
     ItemList toUserOutput(const ProjectExplorer::Kit *k) const;
 
-    static DebuggerItem debuggerItem(const ProjectExplorer::Kit *k);
-    static void setDebuggerItem(ProjectExplorer::Kit *k,
+    static void setDebugger(ProjectExplorer::Kit *k,
         DebuggerEngineType type, const Utils::FileName &command);
 
-    static Utils::FileName debuggerCommand(const ProjectExplorer::Kit *k)
-        { return debuggerItem(k).command; }
-
-    static void setDebuggerCommand(ProjectExplorer::Kit *k, const Utils::FileName &command);
-
-    static DebuggerEngineType engineType(const ProjectExplorer::Kit *k)
-        { return debuggerItem(k).engineType; }
+    static Utils::FileName debuggerCommand(const ProjectExplorer::Kit *k);
+    static DebuggerEngineType engineType(const ProjectExplorer::Kit *k);
+    static QString displayString(const ProjectExplorer::Kit *k);
 
     static void setSticky(ProjectExplorer::Kit *k, bool b);
 };
-
-inline bool operator==(const DebuggerItem &i1, const DebuggerItem &i2)
-    { return i1.looksLike(i2); }
-inline bool operator!=(const DebuggerItem &i1, const DebuggerItem &i2)
-    { return !i1.looksLike(i2); }
 
 } // namespace Debugger
 

@@ -53,7 +53,9 @@ QT_END_NAMESPACE
 namespace Debugger {
 namespace Internal {
 
+class DebuggerItem;
 class DebuggerItemConfigWidget;
+class DebuggerKitConfigWidget;
 
 // -----------------------------------------------------------------------
 // DebuggerItemManager
@@ -67,51 +69,53 @@ public:
     DebuggerItemManager(QObject *parent);
     ~DebuggerItemManager();
 
-    QList<DebuggerItem *> debuggers() const { return m_debuggers; }
-    QList<DebuggerItem *> findDebuggers(const ProjectExplorer::Abi &abi) const;
-    DebuggerItem *currentDebugger() const { return m_currentDebugger; }
-    static DebuggerItem *debuggerFromId(const QVariant &id);
-    static DebuggerItem *debuggerFromPath(const QString &path);
+    static const DebuggerItem *debuggerFromKit(const ProjectExplorer::Kit *kit);
+    void setDebugger(ProjectExplorer::Kit *kit,
+        DebuggerEngineType type, const Utils::FileName &command);
+
     QModelIndex currentIndex() const;
     void setCurrentIndex(const QModelIndex &index);
+    void setCurrentData(const QString &displayName, const Utils::FileName &fileName);
 
-    bool isLoaded() const;
-    void updateCurrentItem();
     // Returns id.
     QVariant defaultDebugger(ProjectExplorer::ToolChain *tc);
-    // Adds item unless present. Return id of a matching item.
-    QVariant maybeAddDebugger(const DebuggerItem &item, bool makeCurrent = true);
     static void restoreDebuggers();
 
 public slots:
     void saveDebuggers();
     void autoDetectDebuggers();
+    void readLegacyDebuggers();
     void addDebugger();
     void cloneDebugger();
     void removeDebugger();
+    void markCurrentDirty();
 
 signals:
-    void debuggerAdded(DebuggerItem *item);
-    void debuggerRemoved(DebuggerItem *item);
-    void debuggerUpdated(DebuggerItem *item);
+    void debuggerAdded(const QVariant &id, const QString &display);
+    void debuggerUpdated(const QVariant &id, const QString &display);
+    void debuggerRemoved(const QVariant &id);
 
 private:
+    friend class Debugger::DebuggerKitInformation;
+    friend class DebuggerKitConfigWidget;
+    friend class DebuggerItemConfigWidget;
     friend class DebuggerOptionsPage;
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
+    QVariant doAddDebugger(const DebuggerItem &item);
+    const DebuggerItem *findByCommand(const Utils::FileName &command);
+    const DebuggerItem *findById(const QVariant &id);
+    QStandardItem *currentStandardItem() const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    QString uniqueDisplayName(const QString &base) const;
     void autoDetectCdbDebugger();
 
-    QMap<QString, Utils::FileName> m_abiToDebugger;
     Utils::PersistentSettingsWriter *m_writer;
-    QList<DebuggerItem *> m_debuggers;
-    DebuggerItem *m_currentDebugger;
+    QList<DebuggerItem> m_debuggers;
+    QVariant m_currentDebugger;
 
     QStandardItem *m_autoRoot;
     QStandardItem *m_manualRoot;
-    QStringList added;
     QStringList removed;
-    QHash<DebuggerItem *, QStandardItem *> m_itemFromDebugger;
-    QHash<QStandardItem *, DebuggerItem *> m_debuggerFromItem;
 };
 
 // -----------------------------------------------------------------------
@@ -135,12 +139,12 @@ public:
 private slots:
     void manageDebuggers();
     void currentDebuggerChanged(int idx);
-    void onDebuggerAdded(DebuggerItem *);
-    void onDebuggerUpdated(DebuggerItem *);
-    void onDebuggerRemoved(DebuggerItem *);
+    void onDebuggerAdded(const QVariant &id, const QString &displayName);
+    void onDebuggerUpdated(const QVariant &id, const QString &displayName);
+    void onDebuggerRemoved(const QVariant &id);
 
 private:
-    int indexOf(const DebuggerItem *debugger);
+    int indexOf(const QVariant &id);
     QVariant currentId() const;
     void updateComboBox(const QVariant &id);
 
