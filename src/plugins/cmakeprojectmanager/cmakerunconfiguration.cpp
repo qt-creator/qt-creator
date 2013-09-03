@@ -283,7 +283,7 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     m_details->setLayout(fl);
 
     QVBoxLayout *vbx = new QVBoxLayout(this);
-    vbx->setMargin(0);;
+    vbx->setMargin(0);
     vbx->addWidget(m_detailsContainer);
 
     connect(m_workingDirectoryEdit, SIGNAL(changed(QString)),

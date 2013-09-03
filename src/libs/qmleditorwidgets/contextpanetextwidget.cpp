@@ -283,9 +283,9 @@ void ContextPaneTextWidget::onColorDialogApplied(const QColor &)
     ContextPaneWidget *parentContextWidget = qobject_cast<ContextPaneWidget*>(parentWidget());
     parentContextWidget->onShowColorDialog(false, QPoint());
     if (ui->textColorButton->isChecked())
-        emit  propertyChanged(QLatin1String("styleColor"),parentContextWidget->colorDialog()->color());; //write back color
+        emit  propertyChanged(QLatin1String("styleColor"),parentContextWidget->colorDialog()->color()); //write back color
     if (ui->colorButton->isChecked())
-        emit  propertyChanged(QLatin1String("color"),parentContextWidget->colorDialog()->color());; //write back color
+        emit  propertyChanged(QLatin1String("color"),parentContextWidget->colorDialog()->color()); //write back color
     ui->textColorButton->setChecked(false);
     ui->colorButton->setChecked(false);
 }

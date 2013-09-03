@@ -107,7 +107,7 @@ QDataStream &operator<<(QDataStream &out, const ValuesChangedCommand &command)
         QDataStream temporaryOutDataStream(&outDataStreamByteArray, QIODevice::WriteOnly);
         temporaryOutDataStream.setVersion(QDataStream::Qt_4_8);
 
-        temporaryOutDataStream << command.valueChanges();;
+        temporaryOutDataStream << command.valueChanges();
 
         QSharedMemory *sharedMemory = createSharedMemory(keyCounter, outDataStreamByteArray.size());
 

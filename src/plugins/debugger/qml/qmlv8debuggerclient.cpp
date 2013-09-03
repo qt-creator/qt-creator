@@ -1905,7 +1905,7 @@ void QmlV8DebuggerClient::updateBreakpoints(const QVariant &bodyVal)
         const QVariantList actualLocations = breakpointData.value(_("actual_locations")).toList();
         foreach (const QVariant &location, actualLocations) {
             const QVariantMap locationData = location.toMap();
-            br.lineNumber = locationData.value(_("line")).toInt() + 1;;
+            br.lineNumber = locationData.value(_("line")).toInt() + 1;
             br.enabled = breakpointData.value(_("active")).toBool();
             br.hitCount = breakpointData.value(_("hit_count")).toInt();
             br.ignoreCount = breakpointData.value(_("ignoreCount")).toInt();

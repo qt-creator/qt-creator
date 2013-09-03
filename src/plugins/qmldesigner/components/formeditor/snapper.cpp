@@ -478,7 +478,7 @@ static QLineF mergedHorizontalLine(const QList<QLineF> &lineList)
     }
 
     double y(lineList.first().y1());
-    return QLineF(minimumX, y, maximumX, y);;
+    return QLineF(minimumX, y, maximumX, y);
 }
 
 static QLineF mergedVerticalLine(const QList<QLineF> &lineList)
@@ -496,7 +496,7 @@ static QLineF mergedVerticalLine(const QList<QLineF> &lineList)
     }
 
     double x(lineList.first().x1());
-    return QLineF(x, minimumY, x, maximumY);;
+    return QLineF(x, minimumY, x, maximumY);
 }
 
 static QList<QLineF> mergedHorizontalLines(const QList<QLineF> &lineList)

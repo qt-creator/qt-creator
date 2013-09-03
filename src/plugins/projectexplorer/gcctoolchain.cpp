@@ -1000,7 +1000,7 @@ ToolChain::CompilerFlags ClangToolChain::compilerFlags(const QStringList &cxxfla
 
 ToolChain::WarningFlags ClangToolChain::warningFlags(const QStringList &cflags) const
 {
-    WarningFlags flags = GccToolChain::warningFlags(cflags);;
+    WarningFlags flags = GccToolChain::warningFlags(cflags);
     foreach (const QString &flag, cflags) {
         if (flag == QLatin1String("-Wdocumentation"))
             flags |= WarnDocumentation;

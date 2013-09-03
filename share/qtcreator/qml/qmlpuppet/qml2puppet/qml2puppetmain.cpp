@@ -134,5 +134,5 @@ int main(int argc, char *argv[])
     if (application.arguments().at(1) == "--readcapturedstream")
         return 0;
 
-    return application.exec();;
+    return application.exec();
 }

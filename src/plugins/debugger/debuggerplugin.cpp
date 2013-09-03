@@ -816,7 +816,7 @@ public slots:
     {
         const QAction *act = qobject_cast<QAction *>(sender());
         QTC_ASSERT(act, return);
-        BreakpointModelId id = act->data().value<BreakpointModelId>();;
+        BreakpointModelId id = act->data().value<BreakpointModelId>();
         breakHandler()->setEnabled(id, false);
     }
 

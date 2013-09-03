@@ -244,7 +244,7 @@ static QList<Abi> abiOf(const QByteArray &data)
             result.append(Abi(Abi::ItaniumArchitecture, os, flavor, Abi::ElfFormat, 64));
             break;
         default:
-            ;;
+            ;
         }
     } else if (((getUint8(data, 0) == 0xce || getUint8(data, 0) == 0xcf)
              && getUint8(data, 1) == 0xfa && getUint8(data, 2) == 0xed && getUint8(data, 3) == 0xfe

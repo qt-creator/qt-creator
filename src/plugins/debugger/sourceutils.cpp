@@ -368,7 +368,7 @@ QString cppExpressionAt(TextEditor::ITextEditor *editor, int pos,
 // free debugger expression.
 QString fixCppExpression(const QString &expIn)
 {
-    QString exp = expIn.trimmed();;
+    QString exp = expIn.trimmed();
     // Extract the first identifier, everything else is considered
     // too dangerous.
     int pos1 = 0, pos2 = exp.size();

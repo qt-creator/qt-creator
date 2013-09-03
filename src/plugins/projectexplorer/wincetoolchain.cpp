@@ -67,7 +67,7 @@ static QString findMsvcVer(int version)
     if (version == 10)
         return QLatin1String("msvc2010");
     if (version == 9)
-        return QLatin1String("msvc2008");;
+        return QLatin1String("msvc2008");
     return QLatin1String("msvc2005");
 }
 

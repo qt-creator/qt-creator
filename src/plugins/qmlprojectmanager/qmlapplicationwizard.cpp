@@ -90,7 +90,7 @@ void QmlApplicationWizard::createInstances(ExtensionSystem::IPlugin *plugin)
         parameters.setId(templateInfo.wizardId);
 
         QStringList stringList =
-                templateInfo.featuresRequired.split(QLatin1Char(','), QString::SkipEmptyParts);;
+                templateInfo.featuresRequired.split(QLatin1Char(','), QString::SkipEmptyParts);
         FeatureSet features;
         foreach (const QString &string, stringList) {
             Feature feature(Id::fromString(string.trimmed()));

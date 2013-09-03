@@ -80,7 +80,7 @@ static QTransform transformForItem(QQuickItem *item, NodeInstanceServer *nodeIns
 
 QTransform QuickItemNodeInstance::transform() const
 {   if (quickItem()->parentItem())
-        return DesignerSupport::parentTransform(quickItem());;
+        return DesignerSupport::parentTransform(quickItem());
 
     return QTransform();
 }

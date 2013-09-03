@@ -750,9 +750,9 @@ void LldbEngineGuest::lldbEvent(lldb::SBEvent *ev)
                     qDebug("unexpected ProcessEvent");
                     break;
             }
-            break;;
+            break;
         default:
-            break;;
+            break;
     };
 }
 

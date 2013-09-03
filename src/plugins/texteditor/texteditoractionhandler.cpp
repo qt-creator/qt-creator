@@ -248,7 +248,7 @@ void TextEditorActionHandler::createActions()
     m_cleanWhitespaceAction = registerAction(CLEAN_WHITESPACE,
             SLOT(setTextWrapping(bool)), true, tr("Clean Whitespace"),
             QKeySequence(),
-            G_EDIT_FORMAT, advancedEditMenu);;
+            G_EDIT_FORMAT, advancedEditMenu);
     m_textWrappingAction = registerAction(TEXT_WRAPPING,
             SLOT(setTextWrapping(bool)), false, tr("Enable Text &Wrapping"),
             QKeySequence(Core::UseMacShortcuts ? tr("Meta+E, Meta+W") : tr("Ctrl+E, Ctrl+W")),

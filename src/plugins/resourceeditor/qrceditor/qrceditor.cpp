@@ -49,7 +49,7 @@ QrcEditor::QrcEditor(QWidget *parent)
     layout->setSpacing(0);
     layout->setMargin(0);
     m_ui.centralWidget->setLayout(layout);
-    m_treeview->setFrameStyle(QFrame::NoFrame);;
+    m_treeview->setFrameStyle(QFrame::NoFrame);
     layout->addWidget(m_treeview);
 
     connect(m_ui.removeButton, SIGNAL(clicked()), this, SLOT(onRemove()));

@@ -73,7 +73,7 @@ std::string msgDebugEngineComResult(HRESULT hr)
         return std::string("E_NOTIMPL");
     }
     if (hr == HRESULT_FROM_WIN32(ERROR_ACCESS_DENIED))
-        return std::string("ERROR_ACCESS_DENIED");;
+        return std::string("ERROR_ACCESS_DENIED");
     if (hr == HRESULT_FROM_NT(STATUS_CONTROL_C_EXIT))
         return std::string("STATUS_CONTROL_C_EXIT");
     return std::string("E_FAIL ") + winErrorMessage(HRESULT_CODE(hr));

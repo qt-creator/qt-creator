@@ -616,7 +616,7 @@ QByteArray CMakeRunPage::cachedGeneratorFromFile(const QString &cache)
 void CMakeRunPage::initializePage()
 {
     if (m_mode == Initial) {
-        bool upToDateXmlFile = m_cmakeWizard->existsUpToDateXmlFile();;
+        bool upToDateXmlFile = m_cmakeWizard->existsUpToDateXmlFile();
         m_buildDirectory = m_cmakeWizard->buildDirectory();
 
         if (upToDateXmlFile) {

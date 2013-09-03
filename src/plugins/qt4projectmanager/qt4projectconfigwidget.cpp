@@ -242,7 +242,7 @@ void Qt4ProjectConfigWidget::updateProblemLabel()
     }
 
     if (allGood) {
-        QString buildDirectory = m_buildConfiguration->target()->project()->projectDirectory();;
+        QString buildDirectory = m_buildConfiguration->target()->project()->projectDirectory();
         if (m_buildConfiguration->isShadowBuild())
             buildDirectory = m_buildConfiguration->buildDirectory().toString();
         QList<ProjectExplorer::Task> issues;

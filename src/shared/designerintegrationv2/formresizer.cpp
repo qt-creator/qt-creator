@@ -83,7 +83,7 @@ void FormResizer::updateGeometry()
 
     const Handles::iterator hend =  m_handles.end();
     for (Handles::iterator it = m_handles.begin(); it != hend; ++it) {
-        SizeHandleRect *hndl = *it;;
+        SizeHandleRect *hndl = *it;
         switch (hndl->dir()) {
         case SizeHandleRect::LeftTop:
             hndl->move(geom.x() - w / 2, geom.y() - h / 2);

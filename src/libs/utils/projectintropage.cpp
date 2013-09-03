@@ -183,7 +183,7 @@ bool ProjectIntroPage::validate()
 
     if (projectDirFile.isDir()) {
         displayStatusMessage(Warning, tr("The project already exists."));
-        return nameValid;;
+        return nameValid;
     }
     // Not a directory, but something else, likely causing directory creation to fail
     displayStatusMessage(Error, tr("A file with that name already exists."));

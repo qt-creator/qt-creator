@@ -5122,7 +5122,7 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
             int pos1 = findUnescaped(separator, line, 1);
             if (pos1 == -1)
                 return false;
-            int pos2 = findUnescaped(separator, line, pos1 + 1);;
+            int pos2 = findUnescaped(separator, line, pos1 + 1);
             if (pos2 == -1)
                 pos2 = line.size();
 

@@ -189,7 +189,7 @@ static QFileInfoList findProjectFiles(const QDir &projectDir, QString *errorMess
         *errorMessage = msgNoProjectFiles(srcDir, projectFilePatterns);
         return QFileInfoList();
     }
-    return projectFiles;;
+    return projectFiles;
 }
 
 QString BaseCheckoutWizard::openProject(const QString &path, QString *errorMessage)

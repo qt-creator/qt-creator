@@ -168,9 +168,9 @@ void ContextPaneWidgetRectangle::onColorDialogApplied(const QColor &)
     ContextPaneWidget *parentContextWidget = qobject_cast<ContextPaneWidget*>(parentWidget());
     parentContextWidget->onShowColorDialog(false, QPoint());
     if (ui->colorColorButton->isChecked())
-        emit  propertyChanged(QLatin1String("color"),parentContextWidget->colorDialog()->color());; //write back color
+        emit  propertyChanged(QLatin1String("color"),parentContextWidget->colorDialog()->color()); //write back color
     if (ui->borderColorButton->isChecked())
-        emit  propertyChanged(QLatin1String("border.color"),parentContextWidget->colorDialog()->color());; //write back color
+        emit  propertyChanged(QLatin1String("border.color"),parentContextWidget->colorDialog()->color()); //write back color
     if (m_gradientLineDoubleClicked)
         ui->gradientLine->setActiveColor(parentContextWidget->colorDialog()->color());
     ui->colorColorButton->setChecked(false);

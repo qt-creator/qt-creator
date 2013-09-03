@@ -754,7 +754,7 @@ QVector<AndroidManager::Library> AndroidManager::availableQtLibsWithDependencies
     }
 
     const QString library = libgnustl.mid(libgnustl.lastIndexOf(QLatin1Char('/')) + 1);
-    mapLibs[library] = Library();;
+    mapLibs[library] = Library();
 
     // clean dependencies
     const LibrariesMap::Iterator lend = mapLibs.end();

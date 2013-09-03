@@ -160,5 +160,5 @@ void CallgrindRunControl::slotFinished()
 
 void CallgrindRunControl::slotStarted()
 {
-    m_progress->setProgressValue(1);;
+    m_progress->setProgressValue(1);
 }

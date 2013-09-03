@@ -237,7 +237,7 @@ void MakeStep::stdOutput(const QString &line)
 {
     if (m_percentProgress.indexIn(line) != -1) {
         bool ok = false;
-        int percent = m_percentProgress.cap(1).toInt(&ok);;
+        int percent = m_percentProgress.cap(1).toInt(&ok);
         if (ok)
             futureInterface()->setProgressValue(percent);
     } else if (m_ninjaProgress.indexIn(line) != -1) {

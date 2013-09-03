@@ -413,7 +413,7 @@ bool AnalyzerManagerPrivate::showPromptDialog(const QString &title, const QStrin
         messageBox.button(QDialogButtonBox::Cancel)->setText(cancelButtonText);
     messageBox.setDefaultButton(QDialogButtonBox::Yes);
     messageBox.setCheckBoxVisible(false);
-    messageBox.exec();;
+    messageBox.exec();
     return messageBox.clickedStandardButton() == QDialogButtonBox::Yes;
 }
 
