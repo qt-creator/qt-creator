@@ -1,7 +1,7 @@
 <RCC>
     <qresource prefix="/qmlprofiler">
         <file>Detail.qml</file>
-        <file>Label.qml</file>
+        <file>CategoryLabel.qml</file>
         <file>MainView.qml</file>
         <file>RangeDetails.qml</file>
         <file>RangeMover.qml</file>
