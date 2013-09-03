@@ -56,7 +56,7 @@ int startAngleForAnchorLine(const AnchorLine::Type &anchorLineType)
     }
 }
 
-void AnchorIndicatorGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem */*option*/, QWidget */*widget*/)
+void AnchorIndicatorGraphicsItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /* option */, QWidget * /* widget */)
 {
     painter->save();
 

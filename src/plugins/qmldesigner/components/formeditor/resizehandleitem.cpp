@@ -56,7 +56,7 @@ QRectF ResizeHandleItem::boundingRect() const
     return QRectF(- 3., - 3., 7., 7.);
 }
 
-void ResizeHandleItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void ResizeHandleItem::paint(QPainter *painter, const QStyleOptionGraphicsItem * /* option */, QWidget * /* widget */)
 {
     painter->save();
     painter->setRenderHint(QPainter::Antialiasing, false);
