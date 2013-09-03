@@ -37,8 +37,8 @@ Canvas2D {
     // ***** properties
     height: 50
     property bool dataReady: false
-    property variant startTime : 0
-    property variant endTime : 0
+    property real startTime : 0
+    property real endTime : 0
 
     // ***** functions
     function clearDisplay()

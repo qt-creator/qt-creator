@@ -65,7 +65,7 @@ Item {
         onCandidateHeightChanged: fitInView();
     }
 
-    //property variant eventInfo
+    //property int eventInfo
 
     ListModel {
         id: eventInfo

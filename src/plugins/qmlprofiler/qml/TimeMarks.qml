@@ -33,9 +33,9 @@ import Monitor 1.0
 Canvas2D {
     id: timeDisplay
 
-    property variant startTime
-    property variant endTime
-    property variant timePerPixel
+    property real startTime
+    property real endTime
+    property real timePerPixel
 
     Component.onCompleted: {
         requestRedraw();

@@ -51,7 +51,7 @@ Rectangle {
     signal selectedEventChanged(int eventId)
     property bool lockItemSelection : false
 
-    property variant mainviewTimePerPixel : 0
+    property real mainviewTimePerPixel : 0
 
     signal updateCursorPosition
     property string fileName: ""
@@ -62,8 +62,8 @@ Rectangle {
     property bool selectionRangeMode: false
 
     property bool selectionRangeReady: selectionRange.ready
-    property variant selectionRangeStart: selectionRange.startTime
-    property variant selectionRangeEnd: selectionRange.startTime + selectionRange.duration
+    property real selectionRangeStart: selectionRange.startTime
+    property real selectionRangeEnd: selectionRange.startTime + selectionRange.duration
 
     signal changeToolTip(string text)
     signal updateVerticalScroll(int newPosition)
@@ -410,7 +410,7 @@ Rectangle {
             width: flick.width
             height: root.height
 
-            property variant startX: 0
+            property real startX: 0
             onStartXChanged: {
                 var newStartTime = Math.round(startX * (endTime - startTime) / flick.width) +
                         qmlProfilerModelProxy.traceStartTime();

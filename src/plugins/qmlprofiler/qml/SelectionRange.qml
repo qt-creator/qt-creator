@@ -47,15 +47,15 @@ Rectangle {
     property string endTimeString: detailedPrintTime(startTime+duration)
     property string durationString: detailedPrintTime(duration)
 
-    property variant startTime: x * selectionRange.viewTimePerPixel + qmlProfilerModelProxy.traceStartTime()
-    property variant duration: width * selectionRange.viewTimePerPixel
-    property variant viewTimePerPixel: 1
-    property variant creationState : 0
+    property real startTime: x * selectionRange.viewTimePerPixel + qmlProfilerModelProxy.traceStartTime()
+    property real duration: width * selectionRange.viewTimePerPixel
+    property real viewTimePerPixel: 1
+    property int creationState : 0
 
-    property variant x1
-    property variant x2
-    property variant x3: Math.min(x1, x2)
-    property variant x4: Math.max(x1, x2)
+    property real x1
+    property real x2
+    property real x3: Math.min(x1, x2)
+    property real x4: Math.max(x1, x2)
 
     property bool isDragging: false
 
