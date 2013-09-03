@@ -83,7 +83,7 @@ def performTest(templateDir, qmlFile, isMaddeDisabled):
             template = template.replace(".", "\\.")
             # skip non-configurable
             if not (template in ("Qt Quick 1 UI", "Qt Quick 2 UI", "Qt Quick 2 UI with Controls")
-                    or "(CMake Build)" in template):
+                    or "(CMake Build)" in template or "(Qbs Build)" in template):
                 availableProjectTypes.append({category:template})
     clickButton(waitForObject("{text='Cancel' type='QPushButton' unnamed='1' visible='1'}"))
     for current in availableProjectTypes:
