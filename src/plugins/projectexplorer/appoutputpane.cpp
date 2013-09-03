@@ -568,6 +568,7 @@ void AppOutputPane::slotRunControlFinished()
     ProjectExplorer::RunControl *rc = qobject_cast<RunControl *>(sender());
     QMetaObject::invokeMethod(this, "slotRunControlFinished2", Qt::QueuedConnection,
                               Q_ARG(ProjectExplorer::RunControl *, rc));
+    rc->outputFormatter()->flush();
 }
 
 void AppOutputPane::slotRunControlFinished2(RunControl *sender)

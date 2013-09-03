@@ -25,6 +25,8 @@ QtcLibrary {
     files: [
         "annotateditemdelegate.cpp",
         "annotateditemdelegate.h",
+        "ansiescapecodehandler.cpp",
+        "ansiescapecodehandler.h",
         "appmainwindow.cpp",
         "appmainwindow.h",
         "basetreeview.cpp",

@@ -371,6 +371,7 @@ void BuildManager::buildStepFinishedAsync()
 
 void BuildManager::nextBuildQueue()
 {
+    d->m_outputWindow->flush();
     if (d->m_canceling) {
         d->m_canceling = false;
         QTimer::singleShot(0, m_instance, SLOT(emitCancelMessage()));

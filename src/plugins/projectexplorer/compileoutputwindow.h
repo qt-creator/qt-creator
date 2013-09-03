@@ -41,6 +41,8 @@ class QTextCharFormat;
 class QToolButton;
 QT_END_NAMESPACE
 
+namespace Utils { class AnsiEscapeCodeHandler; }
+
 namespace ProjectExplorer {
 
 class BuildManager;
@@ -80,6 +82,8 @@ public:
     bool knowsPositionOf(const Task &task);
     void showPositionOf(const Task &task);
 
+    void flush();
+
 private slots:
     void updateWordWrapMode();
 
@@ -88,6 +92,7 @@ private:
     QHash<unsigned int, int> m_taskPositions;
     ShowOutputTaskHandler * m_handler;
     QToolButton *m_cancelBuildButton;
+    Utils::AnsiEscapeCodeHandler *m_escapeCodeHandler;
 };
 
 } // namespace Internal

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2013 Petar Perisin <petar.perisin@gmail.com>
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -27,57 +27,46 @@
 **
 ****************************************************************************/
 
-#ifndef OUTPUTFORMATTER_H
-#define OUTPUTFORMATTER_H
+
+#ifndef UTILS_ANSIESCAPECODEHANDLER_H
+#define UTILS_ANSIESCAPECODEHANDLER_H
 
 #include "utils_global.h"
-#include "outputformat.h"
 
-#include <QObject>
-#include <QFont>
-
-QT_BEGIN_NAMESPACE
-class QPlainTextEdit;
-class QTextCharFormat;
-class QColor;
-QT_END_NAMESPACE
+#include <QTextCharFormat>
 
 namespace Utils {
 
-class AnsiEscapeCodeHandler;
+typedef QPair<QString, QTextCharFormat> StringFormatPair;
 
-class QTCREATOR_UTILS_EXPORT OutputFormatter : public QObject
+class QTCREATOR_UTILS_EXPORT AnsiEscapeCodeHandler
 {
-    Q_OBJECT
+
+enum AnsiEscapeCodes {
+    ResetFormat            =  0,
+    BoldText               =  1,
+    TextColorStart         = 30,
+    TextColorEnd           = 37,
+    RgbTextColor           = 38,
+    DefaultTextColor       = 39,
+    BackgroundColorStart   = 40,
+    BackgroundColorEnd     = 47,
+    RgbBackgroundColor     = 48,
+    DefaultBackgroundColor = 49
+};
 
 public:
-    OutputFormatter();
-    virtual ~OutputFormatter();
-
-    QPlainTextEdit *plainTextEdit() const;
-    void setPlainTextEdit(QPlainTextEdit *plainText);
-
-    QFont font() const;
-    void setFont(const QFont &font);
-    void flush();
-
-    virtual void appendMessage(const QString &text, OutputFormat format);
-    virtual void handleLink(const QString &href);
-
-protected:
-    void initFormats();
-    virtual void clearLastLine();
-    QTextCharFormat charFormat(OutputFormat format) const;
-
-    static QColor mixColors(const QColor &a, const QColor &b);
+    AnsiEscapeCodeHandler();
+    QList<StringFormatPair> parseText(const QString &text, const QTextCharFormat &defaultFormat);
+    void endFormatScope();
 
 private:
-    QPlainTextEdit *m_plainTextEdit;
-    QTextCharFormat *m_formats;
-    QFont m_font;
-    AnsiEscapeCodeHandler *m_escapeCodeHandler;
+    void setFormatScope(const QTextCharFormat &charFormat);
+
+    bool            m_previousFormatClosed;
+    QTextCharFormat m_previousFormat;
 };
 
 } // namespace Utils
 
-#endif // OUTPUTFORMATTER_H
+#endif // UTILS_ANSIESCAPECODEHANDLER_H

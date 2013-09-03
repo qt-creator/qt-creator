@@ -40,6 +40,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
+#include <utils/ansiescapecodehandler.h>
 
 #include <QIcon>
 #include <QTextCharFormat>
@@ -103,7 +104,8 @@ private:
 } // namespace ProjectExplorer
 
 CompileOutputWindow::CompileOutputWindow(BuildManager * /*bm*/, QAction *cancelBuildAction) :
-    m_cancelBuildButton(new QToolButton)
+    m_cancelBuildButton(new QToolButton),
+    m_escapeCodeHandler(new Utils::AnsiEscapeCodeHandler)
 {
     Core::Context context(Constants::C_COMPILE_OUTPUT);
     m_outputWindow = new CompileOutputTextEdit(context);
@@ -142,6 +144,7 @@ CompileOutputWindow::~CompileOutputWindow()
     ExtensionSystem::PluginManager::removeObject(m_handler);
     delete m_handler;
     delete m_cancelBuildButton;
+    delete m_escapeCodeHandler;
 }
 
 void CompileOutputWindow::updateWordWrapMode()
@@ -203,7 +206,8 @@ void CompileOutputWindow::appendText(const QString &text, ProjectExplorer::Build
 
     }
 
-    m_outputWindow->appendText(text, textFormat);
+    foreach (const Utils::StringFormatPair &pair, m_escapeCodeHandler->parseText(text, textFormat))
+        m_outputWindow->appendText(pair.first, pair.second);
 }
 
 void CompileOutputWindow::clearContents()
@@ -269,6 +273,12 @@ void CompileOutputWindow::showPositionOf(const Task &task)
     QTextCursor newCursor(m_outputWindow->document()->findBlockByNumber(position));
     newCursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
     m_outputWindow->setTextCursor(newCursor);
+}
+
+void CompileOutputWindow::flush()
+{
+    if (m_escapeCodeHandler)
+        m_escapeCodeHandler->endFormatScope();
 }
 
 #include "compileoutputwindow.moc"
