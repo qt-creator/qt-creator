@@ -47,6 +47,8 @@ namespace Utils {
 
 class SavedAction : public QObject
 {
+    Q_OBJECT
+
 public:
     SavedAction(QObject *parent);
     void setValue(const QVariant &value);
