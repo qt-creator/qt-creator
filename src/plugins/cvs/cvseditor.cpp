@@ -87,7 +87,7 @@ QSet<QString> CvsEditor::annotationChanges() const
             changes.insert(r.cap(1));
         }
     }
-    if (Cvs::Constants::debug)
+    if (Constants::debug)
         qDebug() << "CVSEditor::annotationChanges() returns #" << changes.size();
     return changes;
 }

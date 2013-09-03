@@ -560,9 +560,9 @@ void CvsPlugin::cvsDiff(const QString &workingDir, const QStringList &files)
     cvsDiff(p);
 }
 
-void CvsPlugin::cvsDiff(const CvsDiffParameters &p)
+void CvsPlugin::cvsDiff(const Cvs::Internal::CvsDiffParameters &p)
 {
-    if (Cvs::Constants::debug)
+    if (Constants::debug)
         qDebug() << Q_FUNC_INFO << p.files;
     const QString source = VcsBaseEditorWidget::getSource(p.workingDir, p.files);
     QTextCodec *codec = VcsBaseEditorWidget::getCodec(p.workingDir, p.files);
@@ -809,7 +809,7 @@ void CvsPlugin::startCommit(const QString &workingDir, const QString &file)
 bool CvsPlugin::commit(const QString &messageFile,
                               const QStringList &fileList)
 {
-    if (Cvs::Constants::debug)
+    if (Constants::debug)
         qDebug() << Q_FUNC_INFO << messageFile << fileList;
     QStringList args = QStringList(QLatin1String("commit"));
     args << QLatin1String("-F") << messageFile;
@@ -1094,7 +1094,7 @@ bool CvsPlugin::describe(const QString &toplevel, const QString &file, const
     // This function makes use of it to find all files related to
     // a commit in order to emulate a "describe global change" functionality
     // if desired.
-    if (Cvs::Constants::debug)
+    if (Constants::debug)
         qDebug() << Q_FUNC_INFO << file << changeNr;
     // Number must be > 1
     if (isFirstRevision(changeNr)) {
@@ -1269,7 +1269,7 @@ IEditor *CvsPlugin::showOutputInEditor(const QString& title, const QString &outp
     const VcsBaseEditorParameters *params = findType(editorType);
     QTC_ASSERT(params, return 0);
     const Id id = params->id;
-    if (Cvs::Constants::debug)
+    if (Constants::debug)
         qDebug() << "CVSPlugin::showOutputInEditor" << title << id.name()
                  <<  "source=" << source << "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
@@ -1356,7 +1356,7 @@ bool CvsPlugin::managesDirectory(const QString &directory, QString *topLevel /* 
             }
         }
     } while (false);
-    if (Cvs::Constants::debug) {
+    if (Constants::debug) {
         QDebug nsp = qDebug().nospace();
         nsp << "CVSPlugin::managesDirectory" << directory << manages;
         if (topLevel)
