@@ -351,10 +351,10 @@ QString ClearCasePlugin::findTopLevel(const QString &directory) const
 }
 
 static const VcsBase::VcsBaseSubmitEditorParameters submitParameters = {
-    ClearCase::Constants::CLEARCASE_SUBMIT_MIMETYPE,
-    ClearCase::Constants::CLEARCASECHECKINEDITOR_ID,
-    ClearCase::Constants::CLEARCASECHECKINEDITOR_DISPLAY_NAME,
-    ClearCase::Constants::CLEARCASECHECKINEDITOR,
+    Constants::CLEARCASE_SUBMIT_MIMETYPE,
+    Constants::CLEARCASECHECKINEDITOR_ID,
+    Constants::CLEARCASECHECKINEDITOR_DISPLAY_NAME,
+    Constants::CLEARCASECHECKINEDITOR,
     VcsBase::VcsBaseSubmitEditorParameters::DiffFiles
 };
 
@@ -708,7 +708,7 @@ void ClearCasePlugin::updateStatusActions()
         QString absoluteFileName = currentState().currentFile();
         fileStatus = m_statusMap->value(absoluteFileName, FileStatus(FileStatus::Unknown));
 
-        if (ClearCase::Constants::debug)
+        if (Constants::debug)
             qDebug() << Q_FUNC_INFO << absoluteFileName << ", status = " << fileStatus.status;
     }
 
@@ -802,7 +802,7 @@ void ClearCasePlugin::undoCheckOutCurrent()
 
 bool ClearCasePlugin::vcsUndoCheckOut(const QString &workingDir, const QString &fileName, bool keep)
 {
-    if (ClearCase::Constants::debug)
+    if (Constants::debug)
         qDebug() << Q_FUNC_INFO << workingDir << fileName << keep;
 
     FileChangeBlocker fcb(fileName);
@@ -834,7 +834,7 @@ bool ClearCasePlugin::vcsUndoCheckOut(const QString &workingDir, const QString &
  */
 bool ClearCasePlugin::vcsUndoHijack(const QString &workingDir, const QString &fileName, bool keep)
 {
-    if (ClearCase::Constants::debug)
+    if (Constants::debug)
         qDebug() << Q_FUNC_INFO << workingDir << fileName << keep;
     QStringList args(QLatin1String("update"));
     args << QLatin1String(keep ? "-rename" : "-overwrite");
@@ -896,7 +896,7 @@ QString ClearCasePlugin::ccGetFileVersion(const QString &workingDir, const QStri
 
 void ClearCasePlugin::ccDiffWithPred(const QString &workingDir, const QStringList &files)
 {
-    if (ClearCase::Constants::debug)
+    if (Constants::debug)
         qDebug() << Q_FUNC_INFO << files;
     const QString source = VcsBase::VcsBaseEditorWidget::getSource(workingDir, files);
     QTextCodec *codec = source.isEmpty() ? static_cast<QTextCodec *>(0) : VcsBase::VcsBaseEditorWidget::getCodec(source);
@@ -981,7 +981,7 @@ void ClearCasePlugin::diffActivity()
 
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
-    if (ClearCase::Constants::debug)
+    if (Constants::debug)
         qDebug() << Q_FUNC_INFO;
     if (!m_settings.extDiffAvailable) {
         VcsBase::VcsBaseOutputWindow::instance()->appendError(
@@ -1265,7 +1265,7 @@ void ClearCasePlugin::vcsAnnotate(const QString &workingDir, const QString &file
                                 const QString &revision /* = QString() */,
                                 int lineNumber /* = -1 */) const
 {
-    if (ClearCase::Constants::debug)
+    if (Constants::debug)
         qDebug() << Q_FUNC_INFO << file;
 
     QTextCodec *codec = VcsBase::VcsBaseEditorWidget::getCodec(file);
@@ -1322,7 +1322,7 @@ void ClearCasePlugin::describe(const QString &source, const QString &changeNr)
     const bool manages = managesDirectory(fi.isDir() ? source : fi.absolutePath(), &topLevel);
     if (!manages || topLevel.isEmpty())
         return;
-    if (ClearCase::Constants::debug)
+    if (Constants::debug)
         qDebug() << Q_FUNC_INFO << source << topLevel << changeNr;
     QString description;
     QString relPath = QDir::toNativeSeparators(QDir(topLevel).relativeFilePath(source));
@@ -1397,7 +1397,7 @@ IEditor *ClearCasePlugin::showOutputInEditor(const QString& title, const QString
     const VcsBase::VcsBaseEditorParameters *params = findType(editorType);
     QTC_ASSERT(params, return 0);
     const Id id = params->id;
-    if (ClearCase::Constants::debug)
+    if (Constants::debug)
         qDebug() << "ClearCasePlugin::showOutputInEditor" << title << id.name()
                  <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
@@ -1443,7 +1443,7 @@ bool ClearCasePlugin::vcsOpen(const QString &workingDir, const QString &fileName
 {
     QTC_ASSERT(currentState().hasTopLevel(), return false);
 
-    if (ClearCase::Constants::debug)
+    if (Constants::debug)
         qDebug() << Q_FUNC_INFO << workingDir << fileName;
 
     QFileInfo fi(workingDir, fileName);
@@ -1485,7 +1485,7 @@ bool ClearCasePlugin::vcsOpen(const QString &workingDir, const QString &fileName
         if (coDialog.isPreserveTime())
             args << QLatin1String("-ptime");
         if (isHijacked) {
-            if (ClearCase::Constants::debug)
+            if (Constants::debug)
                 qDebug() << Q_FUNC_INFO << file << " seems to be hijacked";
 
             // A hijacked files means that the file is modified but was
@@ -1553,7 +1553,7 @@ bool ClearCasePlugin::vcsSetActivity(const QString &workingDir, const QString &t
 bool ClearCasePlugin::vcsCheckIn(const QString &messageFile, const QStringList &files, const QString &activity,
                                  bool isIdentical, bool isPreserve, bool replaceActivity)
 {
-    if (ClearCase::Constants::debug)
+    if (Constants::debug)
         qDebug() << Q_FUNC_INFO << messageFile << files << activity;
     if (files.isEmpty())
         return true;
@@ -1891,7 +1891,7 @@ void ClearCasePlugin::projectChanged(Project *project)
     m_stream.clear();
     m_intStream.clear();
     disconnect(ICore::mainWindow(), SIGNAL(windowActivated()), this, SLOT(syncSlot()));
-    ProgressManager::cancelTasks(QLatin1String(ClearCase::Constants::TASK_INDEX));
+    ProgressManager::cancelTasks(QLatin1String(Constants::TASK_INDEX));
     if (project) {
         QString projDir = project->projectDirectory();
         QString topLevel = findTopLevel(projDir);
@@ -1904,20 +1904,20 @@ void ClearCasePlugin::projectChanged(Project *project)
             return;
         updateIndex();
     }
-    if ( ClearCase::Constants::debug )
+    if (Constants::debug)
         qDebug() << "stream: " << m_stream << "; intStream: " << m_intStream << "view: " << m_viewData.name;
 }
 
 void ClearCasePlugin::tasksFinished(const QString &type)
 {
-    if (type == QLatin1String(ClearCase::Constants::TASK_INDEX))
+    if (type == QLatin1String(Constants::TASK_INDEX))
         m_checkInAllAction->setEnabled(true);
 }
 
 void ClearCasePlugin::updateIndex()
 {
     QTC_ASSERT(currentState().hasTopLevel(), return);
-    ProgressManager::cancelTasks(QLatin1String(ClearCase::Constants::TASK_INDEX));
+    ProgressManager::cancelTasks(QLatin1String(Constants::TASK_INDEX));
     Project *project = ProjectExplorerPlugin::currentProject();
     if (!project)
         return;
@@ -1927,7 +1927,7 @@ void ClearCasePlugin::updateIndex()
                project->files(Project::ExcludeGeneratedFiles));
     if (!m_settings.disableIndexer)
         ProgressManager::addTask(result, tr("CC Indexing"),
-                            QLatin1String(ClearCase::Constants::TASK_INDEX));
+                            QLatin1String(Constants::TASK_INDEX));
 }
 
 /*! retrieve a \a file (usually of the form path\to\filename.cpp@@\main\ver)
@@ -1951,7 +1951,7 @@ QString ClearCasePlugin::getFile(const QString &nativeFile, const QString &prefi
             tempDir.mkpath(file.left(slash));
         tempFile = tempDir.absoluteFilePath(file);
     }
-    if (ClearCase::Constants::debug)
+    if (Constants::debug)
         qDebug() << Q_FUNC_INFO << nativeFile;
     if ((atatpos != -1) && (nativeFile.indexOf(QLatin1String("CHECKEDOUT"), atatpos) != -1)) {
         bool res = QFile::copy(QDir(m_topLevel).absoluteFilePath(file), tempFile);
@@ -2069,7 +2069,7 @@ void ClearCasePlugin::syncSlot()
 void ClearCasePlugin::closing()
 {
     // prevent syncSlot from being called on shutdown
-    ProgressManager::cancelTasks(QLatin1String(ClearCase::Constants::TASK_INDEX));
+    ProgressManager::cancelTasks(QLatin1String(Constants::TASK_INDEX));
     disconnect(ICore::mainWindow(), SIGNAL(windowActivated()), this, SLOT(syncSlot()));
 }
 
