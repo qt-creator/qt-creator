@@ -113,7 +113,7 @@ void MaddeQemuStartStep::ctor()
 
 Core::Id MaddeQemuStartStep::stepId()
 {
-    return Core::Id("Madde.MaddeQemuCheckStep");
+    return "Madde.MaddeQemuCheckStep";
 }
 
 QString MaddeQemuStartStep::stepDisplayName()

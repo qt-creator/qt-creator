@@ -242,7 +242,7 @@ void OutputPaneManager::init()
     const int n = m_panes.size();
 
     int shortcutNumber = 1;
-    const Id baseId = Id("QtCreator.Pane.");
+    const Id baseId = "QtCreator.Pane.";
     for (int i = 0; i != n; ++i) {
         IOutputPane *outPane = m_panes.at(i);
         const int idx = m_outputWidgetPane->addWidget(outPane->outputWidget(this));

@@ -322,25 +322,24 @@ void DebuggerMainWindowPrivate::createViewsMenuItems()
     // Add menu items
     Command *cmd = 0;
     cmd = Core::ActionManager::registerAction(openMemoryEditorAction,
-        Core::Id("Debugger.Views.OpenMemoryEditor"),
-        debugcontext);
+        "Debugger.Views.OpenMemoryEditor", debugcontext);
     cmd->setAttribute(Command::CA_Hide);
     m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
 
     cmd = Core::ActionManager::registerAction(q->menuSeparator1(),
-        Core::Id("Debugger.Views.Separator1"), debugcontext);
+        "Debugger.Views.Separator1", debugcontext);
     cmd->setAttribute(Command::CA_Hide);
     m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
     cmd = Core::ActionManager::registerAction(q->toggleLockedAction(),
-        Core::Id("Debugger.Views.ToggleLocked"), debugcontext);
+        "Debugger.Views.ToggleLocked", debugcontext);
     cmd->setAttribute(Command::CA_Hide);
     m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
     cmd = Core::ActionManager::registerAction(q->menuSeparator2(),
-        Core::Id("Debugger.Views.Separator2"), debugcontext);
+        "Debugger.Views.Separator2", debugcontext);
     cmd->setAttribute(Command::CA_Hide);
     m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
     cmd = Core::ActionManager::registerAction(q->resetLayoutAction(),
-        Core::Id("Debugger.Views.ResetSimple"), debugcontext);
+        "Debugger.Views.ResetSimple", debugcontext);
     cmd->setAttribute(Command::CA_Hide);
     m_viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
 }

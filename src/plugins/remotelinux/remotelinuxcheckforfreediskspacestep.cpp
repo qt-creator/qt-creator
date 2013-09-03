@@ -176,7 +176,7 @@ AbstractRemoteLinuxDeployService *RemoteLinuxCheckForFreeDiskSpaceStep::deploySe
 
 Core::Id RemoteLinuxCheckForFreeDiskSpaceStep::stepId()
 {
-    return Core::Id("RemoteLinux.CheckForFreeDiskSpaceStep");
+    return "RemoteLinux.CheckForFreeDiskSpaceStep";
 }
 
 QString RemoteLinuxCheckForFreeDiskSpaceStep::stepDisplayName()

@@ -196,7 +196,7 @@ int OutlineFactory::priority() const
 
 Core::Id OutlineFactory::id() const
 {
-    return Core::Id("Outline");
+    return "Outline";
 }
 
 QKeySequence OutlineFactory::activationSequence() const

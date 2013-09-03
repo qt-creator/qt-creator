@@ -348,7 +348,7 @@ void NavigationWidget::restoreSettings(QSettings *settings)
 
     if (d->m_subWidgets.isEmpty())
         // Make sure we have at least the projects widget
-        insertSubItem(0, qMax(0, factoryIndex(Id("Projects"))));
+        insertSubItem(0, qMax(0, factoryIndex("Projects")));
 
     setShown(settings->value(QLatin1String("Navigation/Visible"), true).toBool());
 

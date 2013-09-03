@@ -100,7 +100,7 @@ BuildStepConfigWidget *DeviceCheckBuildStep::createConfigWidget()
 
 Core::Id DeviceCheckBuildStep::stepId()
 {
-    return Core::Id("ProjectExplorer.DeviceCheckBuildStep");
+    return "ProjectExplorer.DeviceCheckBuildStep";
 }
 
 QString DeviceCheckBuildStep::stepDisplayName()

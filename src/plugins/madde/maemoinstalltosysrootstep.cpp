@@ -242,7 +242,7 @@ QStringList MaemoInstallDebianPackageToSysrootStep::madArguments() const
 }
 
 const Core::Id MaemoInstallDebianPackageToSysrootStep::Id
-    = Core::Id("MaemoInstallDebianPackageToSysrootStep");
+    = "MaemoInstallDebianPackageToSysrootStep";
 
 QString MaemoInstallDebianPackageToSysrootStep::displayName()
 {
@@ -317,7 +317,7 @@ BuildStepConfigWidget *MaemoCopyToSysrootStep::createConfigWidget()
 }
 
 const Core::Id MaemoCopyToSysrootStep::Id
-    = Core::Id("MaemoCopyToSysrootStep");
+    = "MaemoCopyToSysrootStep";
 QString MaemoCopyToSysrootStep::displayName()
 {
     return tr("Copy files to sysroot");
@@ -376,7 +376,7 @@ BuildStepConfigWidget *MaemoMakeInstallToSysrootStep::createConfigWidget()
 }
 
 const Core::Id MaemoMakeInstallToSysrootStep::Id
-    = Core::Id("MaemoMakeInstallToSysrootStep");
+    = "MaemoMakeInstallToSysrootStep";
 QString MaemoMakeInstallToSysrootStep::displayName()
 {
     return tr("Copy files to sysroot");

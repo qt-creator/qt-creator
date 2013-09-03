@@ -149,7 +149,7 @@ bool GenericDirectUploadStep::incrementalDeployment() const
 
 Core::Id GenericDirectUploadStep::stepId()
 {
-    return Core::Id("RemoteLinux.DirectUploadStep");
+    return "RemoteLinux.DirectUploadStep";
 }
 
 QString GenericDirectUploadStep::displayName()

@@ -334,7 +334,7 @@ void ProgressManagerPrivate::init()
     p.fill(Qt::transparent);
     toggleProgressView->setIcon(QIcon(p));
     Command *cmd = ActionManager::registerAction(toggleProgressView,
-                                                 Id("QtCreator.ToggleProgressDetails"),
+                                                 "QtCreator.ToggleProgressDetails",
                                                  Context(Constants::C_GLOBAL));
     cmd->setDefaultKeySequence(QKeySequence(Utils::HostOsInfo::isMacHost()
                                                ? tr("Ctrl+Shift+0")

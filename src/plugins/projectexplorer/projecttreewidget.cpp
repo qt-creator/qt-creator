@@ -420,7 +420,7 @@ int ProjectTreeWidgetFactory::priority() const
 
 Id ProjectTreeWidgetFactory::id() const
 {
-    return Id("Projects");
+    return "Projects";
 }
 
 QKeySequence ProjectTreeWidgetFactory::activationSequence() const

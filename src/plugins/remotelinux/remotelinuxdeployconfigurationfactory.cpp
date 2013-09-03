@@ -126,7 +126,7 @@ DeployConfiguration *RemoteLinuxDeployConfigurationFactory::clone(Target *parent
 
 Core::Id RemoteLinuxDeployConfigurationFactory::genericDeployConfigurationId()
 {
-    return Core::Id("DeployToGenericLinux");
+    return "DeployToGenericLinux";
 }
 
 } // namespace Internal

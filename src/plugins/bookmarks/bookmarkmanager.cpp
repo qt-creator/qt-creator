@@ -888,7 +888,7 @@ int BookmarkViewFactory::priority() const
 
 Id BookmarkViewFactory::id() const
 {
-    return Id("Bookmarks");
+    return "Bookmarks";
 }
 
 QKeySequence BookmarkViewFactory::activationSequence() const

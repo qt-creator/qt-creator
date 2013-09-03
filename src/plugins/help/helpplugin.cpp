@@ -1048,10 +1048,10 @@ Utils::StyledBar *HelpPlugin::createIconToolBar(bool external)
             tr("Add Bookmark"), toolBar);
         connect(bookmark, SIGNAL(triggered()), this, SLOT(addBookmark()));
     } else {
-        home = Core::ActionManager::command(Core::Id("Help.Home"))->action();
-        back = Core::ActionManager::command(Core::Id("Help.Previous"))->action();
-        next = Core::ActionManager::command(Core::Id("Help.Next"))->action();
-        bookmark = Core::ActionManager::command(Core::Id("Help.AddBookmark"))->action();
+        home = Core::ActionManager::command("Help.Home")->action();
+        back = Core::ActionManager::command("Help.Previous")->action();
+        next = Core::ActionManager::command("Help.Next")->action();
+        bookmark = Core::ActionManager::command("Help.AddBookmark")->action();
     }
 
     setupNavigationMenus(back, next, toolBar);

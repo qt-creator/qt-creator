@@ -257,7 +257,7 @@ MaemoDebianPackageCreationStep::MaemoDebianPackageCreationStep(BuildStepList *bs
 }
 
 const Core::Id MaemoDebianPackageCreationStep::CreatePackageId
-    = Core::Id("MaemoDebianPackageCreationStep");
+    = "MaemoDebianPackageCreationStep";
 
 MaemoDebianPackageCreationStep::MaemoDebianPackageCreationStep(BuildStepList *buildConfig,
     MaemoDebianPackageCreationStep *other)

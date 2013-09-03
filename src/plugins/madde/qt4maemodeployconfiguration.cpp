@@ -87,17 +87,17 @@ Qt4MaemoDeployConfiguration::~Qt4MaemoDeployConfiguration() {}
 
 Core::Id Qt4MaemoDeployConfiguration::fremantleWithPackagingId()
 {
-    return Core::Id("DeployToFremantleWithPackaging");
+    return "DeployToFremantleWithPackaging";
 }
 
 Core::Id Qt4MaemoDeployConfiguration::fremantleWithoutPackagingId()
 {
-    return Core::Id("DeployToFremantleWithoutPackaging");
+    return "DeployToFremantleWithoutPackaging";
 }
 
 Core::Id Qt4MaemoDeployConfiguration::harmattanId()
 {
-    return Core::Id("DeployToHarmattan");
+    return "DeployToHarmattan";
 }
 
 void Qt4MaemoDeployConfiguration::debianDirChanged(const Utils::FileName &dir)

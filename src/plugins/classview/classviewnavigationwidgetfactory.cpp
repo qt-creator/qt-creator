@@ -89,7 +89,7 @@ int NavigationWidgetFactory::priority() const
 
 Core::Id NavigationWidgetFactory::id() const
 {
-    return Core::Id("Class View");
+    return "Class View";
 }
 
 QKeySequence NavigationWidgetFactory::activationSequence() const

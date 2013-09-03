@@ -113,7 +113,7 @@ public:
     ~OpenEditorsViewFactory();
     QString displayName() const;
     int priority() const;
-    Core::Id id() const;
+    Id id() const;
     QKeySequence activationSequence() const;
     Core::NavigationView createWidget();
 };

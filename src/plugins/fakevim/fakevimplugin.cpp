@@ -1087,7 +1087,7 @@ bool FakeVimPluginPrivate::initialize()
         ActionManager::actionContainer(Core::Constants::M_EDIT_ADVANCED);
     advancedMenu->addAction(cmd, Core::Constants::G_EDIT_EDITOR);
 
-    const Id base = Id("FakeVim.UserAction");
+    const Id base = "FakeVim.UserAction";
     for (int i = 1; i < 10; ++i) {
         QAction *act = new QAction(this);
         act->setText(tr("Execute User Action #%1").arg(i));

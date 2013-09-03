@@ -184,7 +184,7 @@ RemoteLinuxCustomCommandDeployService *GenericRemoteLinuxCustomCommandDeployment
 
 Core::Id GenericRemoteLinuxCustomCommandDeploymentStep::stepId()
 {
-    return Core::Id("RemoteLinux.GenericRemoteLinuxCustomCommandDeploymentStep");
+    return "RemoteLinux.GenericRemoteLinuxCustomCommandDeploymentStep";
 }
 
 QString GenericRemoteLinuxCustomCommandDeploymentStep::stepDisplayName()

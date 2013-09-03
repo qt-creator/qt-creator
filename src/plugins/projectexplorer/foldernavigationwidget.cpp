@@ -410,7 +410,7 @@ int FolderNavigationWidgetFactory::priority() const
 
 Core::Id FolderNavigationWidgetFactory::id() const
 {
-    return Core::Id("File System");
+    return "File System";
 }
 
 QKeySequence FolderNavigationWidgetFactory::activationSequence() const

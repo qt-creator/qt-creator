@@ -805,7 +805,7 @@ void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<Internal:
     }
     qDeleteAll(m_tools);
     QMapIterator<QString, QAction *> remainingActions(m_actions);
-    const Id externalToolsPrefix = Id("Tools.External.");
+    const Id externalToolsPrefix = "Tools.External.";
     while (remainingActions.hasNext()) {
         remainingActions.next();
         ActionManager::unregisterAction(remainingActions.value(),

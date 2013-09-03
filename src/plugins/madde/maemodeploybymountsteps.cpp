@@ -410,7 +410,7 @@ bool MaemoInstallPackageViaMountStep::initInternal(QString *error)
 
 Core::Id MaemoInstallPackageViaMountStep::stepId()
 {
-    return Core::Id("MaemoMountAndInstallDeployStep");
+    return "MaemoMountAndInstallDeployStep";
 }
 
 QString MaemoInstallPackageViaMountStep::displayName()
@@ -451,7 +451,7 @@ bool MaemoCopyFilesViaMountStep::initInternal(QString *error)
 
 Core::Id MaemoCopyFilesViaMountStep::stepId()
 {
-    return Core::Id("MaemoMountAndCopyDeployStep");
+    return "MaemoMountAndCopyDeployStep";
 }
 
 QString MaemoCopyFilesViaMountStep::displayName()

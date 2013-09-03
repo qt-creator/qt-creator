@@ -423,7 +423,7 @@ void FormEditorW::setupActions()
     // the 'Delete' key by event filter. Setting a shortcut triggers
     // buggy behaviour on Mac (Pressing Delete in QLineEdit removing the widget).
     Command *command;
-    command = ActionManager::registerAction(m_fwm->actionDelete(), Id("FormEditor.Edit.Delete"), m_contexts);
+    command = ActionManager::registerAction(m_fwm->actionDelete(), "FormEditor.Edit.Delete", m_contexts);
     bindShortcut(command, m_fwm->actionDelete());
     command->setAttribute(Command::CA_Hide);
     medit->addAction(command, Core::Constants::G_EDIT_COPYPASTE);
@@ -434,74 +434,71 @@ void FormEditorW::setupActions()
 
     medit->addSeparator(m_contexts, Core::Constants::G_EDIT_OTHER);
 
-    m_toolActionIds.push_back(Id("FormEditor.WidgetEditor"));
+    m_toolActionIds.push_back("FormEditor.WidgetEditor");
     createEditModeAction(m_actionGroupEditMode, m_contexts, medit,
                          tr("Edit Widgets"), m_toolActionIds.back(),
                          EditModeWidgetEditor, QLatin1String("widgettool.png"), tr("F3"));
 
-    m_toolActionIds.push_back(Id("FormEditor.SignalsSlotsEditor"));
+    m_toolActionIds.push_back("FormEditor.SignalsSlotsEditor");
     createEditModeAction(m_actionGroupEditMode, m_contexts, medit,
                          tr("Edit Signals/Slots"), m_toolActionIds.back(),
                          EditModeSignalsSlotEditor, QLatin1String("signalslottool.png"), tr("F4"));
 
-    m_toolActionIds.push_back(Id("FormEditor.BuddyEditor"));
+    m_toolActionIds.push_back("FormEditor.BuddyEditor");
     createEditModeAction(m_actionGroupEditMode, m_contexts, medit,
                          tr("Edit Buddies"), m_toolActionIds.back(),
                          EditModeBuddyEditor, QLatin1String("buddytool.png"));
 
-    m_toolActionIds.push_back(Id("FormEditor.TabOrderEditor"));
+    m_toolActionIds.push_back("FormEditor.TabOrderEditor");
     createEditModeAction(m_actionGroupEditMode, m_contexts, medit,
                          tr("Edit Tab Order"),  m_toolActionIds.back(),
                          EditModeTabOrderEditor, QLatin1String("tabordertool.png"));
 
     //tool actions
-    m_toolActionIds.push_back(Id("FormEditor.LayoutHorizontally"));
+    m_toolActionIds.push_back("FormEditor.LayoutHorizontally");
     const QString horizLayoutShortcut = UseMacShortcuts ? tr("Meta+Shift+H") : tr("Ctrl+H");
     addToolAction(m_fwm->actionHorizontalLayout(), m_contexts,
                   m_toolActionIds.back(), mformtools, horizLayoutShortcut);
 
-    m_toolActionIds.push_back(Id("FormEditor.LayoutVertically"));
+    m_toolActionIds.push_back("FormEditor.LayoutVertically");
     const QString vertLayoutShortcut = UseMacShortcuts ? tr("Meta+L") : tr("Ctrl+L");
     addToolAction(m_fwm->actionVerticalLayout(), m_contexts,
                   m_toolActionIds.back(),  mformtools, vertLayoutShortcut);
 
-    m_toolActionIds.push_back(Id("FormEditor.SplitHorizontal"));
+    m_toolActionIds.push_back("FormEditor.SplitHorizontal");
     addToolAction(m_fwm->actionSplitHorizontal(), m_contexts,
                   m_toolActionIds.back(), mformtools);
 
-    m_toolActionIds.push_back(Id("FormEditor.SplitVertical"));
+    m_toolActionIds.push_back("FormEditor.SplitVertical");
     addToolAction(m_fwm->actionSplitVertical(), m_contexts,
                   m_toolActionIds.back(), mformtools);
 
-    m_toolActionIds.push_back(Id("FormEditor.LayoutForm"));
+    m_toolActionIds.push_back("FormEditor.LayoutForm");
     addToolAction(m_fwm->actionFormLayout(), m_contexts,
                   m_toolActionIds.back(),  mformtools);
 
-    m_toolActionIds.push_back(Id("FormEditor.LayoutGrid"));
+    m_toolActionIds.push_back("FormEditor.LayoutGrid");
     const QString gridShortcut = UseMacShortcuts ? tr("Meta+Shift+G") : tr("Ctrl+G");
     addToolAction(m_fwm->actionGridLayout(), m_contexts,
                   m_toolActionIds.back(),  mformtools, gridShortcut);
 
-    m_toolActionIds.push_back(Id("FormEditor.LayoutBreak"));
+    m_toolActionIds.push_back("FormEditor.LayoutBreak");
     addToolAction(m_fwm->actionBreakLayout(), m_contexts,
                   m_toolActionIds.back(), mformtools);
 
-    m_toolActionIds.push_back(Id("FormEditor.LayoutAdjustSize"));
+    m_toolActionIds.push_back("FormEditor.LayoutAdjustSize");
     const QString adjustShortcut = UseMacShortcuts ? tr("Meta+J") : tr("Ctrl+J");
     addToolAction(m_fwm->actionAdjustSize(), m_contexts,
                   m_toolActionIds.back(),  mformtools, adjustShortcut);
 
-    m_toolActionIds.push_back(Id("FormEditor.SimplifyLayout"));
+    m_toolActionIds.push_back("FormEditor.SimplifyLayout");
     addToolAction(m_fwm->actionSimplifyLayout(), m_contexts,
                   m_toolActionIds.back(),  mformtools);
 
     mformtools->addSeparator(m_contexts);
 
-    addToolAction(m_fwm->actionLower(), m_contexts,
-                  Id("FormEditor.Lower"), mformtools);
-
-    addToolAction(m_fwm->actionRaise(), m_contexts,
-                  Id("FormEditor.Raise"), mformtools);
+    addToolAction(m_fwm->actionLower(), m_contexts, "FormEditor.Lower", mformtools);
+    addToolAction(m_fwm->actionRaise(), m_contexts, "FormEditor.Raise", mformtools);
 
     // Commands that do not go into the editor toolbar
     mformtools->addSeparator(m_contexts);
@@ -512,8 +509,7 @@ void FormEditorW::setupActions()
     m_actionPreview = m_fwm->actionDefaultPreview();
 #endif
     QTC_ASSERT(m_actionPreview, return);
-    addToolAction(m_actionPreview, m_contexts,
-                   Id("FormEditor.Preview"), mformtools, tr("Alt+Shift+R"));
+    addToolAction(m_actionPreview, m_contexts, "FormEditor.Preview", mformtools, tr("Alt+Shift+R"));
 
     // Preview in style...
 #if QT_VERSION >= 0x050000
@@ -538,8 +534,7 @@ void FormEditorW::setupActions()
     // Switch form/source in editor/design contexts.
     Context switchContexts = m_contexts;
     switchContexts.add(Core::Constants::C_EDITORMANAGER);
-    addToolAction(m_actionSwitchSource, switchContexts, Id("FormEditor.FormSwitchSource"), mformtools,
-                  tr("Shift+F4"));
+    addToolAction(m_actionSwitchSource, switchContexts, "FormEditor.FormSwitchSource", mformtools, tr("Shift+F4"));
 
     mformtools->addSeparator(m_contexts);
 #if QT_VERSION >= 0x050000
@@ -547,13 +542,12 @@ void FormEditorW::setupActions()
 #else
     QAction *actionFormSettings = m_fwm->actionShowFormWindowSettingsDialog();
 #endif
-    addToolAction(actionFormSettings, m_contexts, Id("FormEditor.FormSettings"), mformtools);
+    addToolAction(actionFormSettings, m_contexts, "FormEditor.FormSettings", mformtools);
 
     mformtools->addSeparator(m_contexts);
     m_actionAboutPlugins = new QAction(tr("About Qt Designer Plugins..."), this);
     m_actionAboutPlugins->setMenuRole(QAction::NoRole);
-    addToolAction(m_actionAboutPlugins, m_contexts,
-                   Id("FormEditor.AboutPlugins"), mformtools);
+    addToolAction(m_actionAboutPlugins, m_contexts, "FormEditor.AboutPlugins", mformtools);
     connect(m_actionAboutPlugins,  SIGNAL(triggered()), m_fwm,
 #if QT_VERSION >= 0x050000
             SLOT(showPluginDialog())

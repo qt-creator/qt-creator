@@ -66,7 +66,7 @@ namespace Internal {
 class QbsFeatureProvider : public Core::IFeatureProvider
 {
     Core::FeatureSet availableFeatures(const QString & /* platform */) const {
-        return Core::FeatureSet(Core::Id("Qbs.QbsSupport"));
+        return Core::FeatureSet("Qbs.QbsSupport");
     }
 
     QStringList availablePlatforms() const { return QStringList(); }

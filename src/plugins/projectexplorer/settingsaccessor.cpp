@@ -2414,36 +2414,36 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
 
             if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.AndroidDeviceTarget")) {
                 tmpKit->setIconPath(FileName::fromString(QLatin1String(":/android/images/QtAndroid.png")));
-                tmpKit->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("Desktop"));
-                tmpKit->setValue(Core::Id("PE.Profile.Device"), QString());
+                tmpKit->setValue("PE.Profile.DeviceType", QString::fromLatin1("Desktop"));
+                tmpKit->setValue("PE.Profile.Device", QString());
             } else if (oldTargetId == QLatin1String("RemoteLinux.EmbeddedLinuxTarget")) {
                 tmpKit->setIconPath(FileName::fromString(QLatin1String(":///DESKTOP///")));
-                tmpKit->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("GenericLinuxOsType"));
-                tmpKit->setValue(Core::Id("PE.Profile.Device"), QString());
+                tmpKit->setValue("PE.Profile.DeviceType", QString::fromLatin1("GenericLinuxOsType"));
+                tmpKit->setValue("PE.Profile.Device", QString());
             } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.HarmattanDeviceTarget")) {
                 tmpKit->setIconPath(FileName::fromString(QLatin1String(":/projectexplorer/images/MaemoDevice.png")));
-                tmpKit->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("HarmattanOsType"));
-                tmpKit->setValue(Core::Id("PE.Profile.Device"), QString());
+                tmpKit->setValue("PE.Profile.DeviceType", QString::fromLatin1("HarmattanOsType"));
+                tmpKit->setValue("PE.Profile.Device", QString());
             } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.MaemoDeviceTarget")) {
                 tmpKit->setIconPath(FileName::fromString(QLatin1String(":/projectexplorer/images/MaemoDevice.png")));
-                tmpKit->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("Maemo5OsType"));
-                tmpKit->setValue(Core::Id("PE.Profile.Device"), QString());
+                tmpKit->setValue("PE.Profile.DeviceType", QString::fromLatin1("Maemo5OsType"));
+                tmpKit->setValue("PE.Profile.Device", QString());
             } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.MeegoDeviceTarget")) {
                 tmpKit->setIconPath(FileName::fromString(QLatin1String(":/projectexplorer/images/MaemoDevice.png")));
-                tmpKit->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("MeegoOsType"));
-                tmpKit->setValue(Core::Id("PE.Profile.Device"), QString());
+                tmpKit->setValue("PE.Profile.DeviceType", QString::fromLatin1("MeegoOsType"));
+                tmpKit->setValue("PE.Profile.Device", QString());
             } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.S60DeviceTarget")) {
                 tmpKit->setIconPath(FileName::fromString(QLatin1String(":/projectexplorer/images/SymbianDevice.png")));
-                tmpKit->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("Qt4ProjectManager.SymbianDevice"));
-                tmpKit->setValue(Core::Id("PE.Profile.Device"), QString::fromLatin1("Symbian Device"));
+                tmpKit->setValue("PE.Profile.DeviceType", QString::fromLatin1("Qt4ProjectManager.SymbianDevice"));
+                tmpKit->setValue("PE.Profile.Device", QString::fromLatin1("Symbian Device"));
             } else if (oldTargetId == QLatin1String("Qt4ProjectManager.Target.QtSimulatorTarget")) {
                 tmpKit->setIconPath(FileName::fromString(QLatin1String(":/projectexplorer/images/Simulator.png")));
-                tmpKit->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("Desktop"));
-                tmpKit->setValue(Core::Id("PE.Profile.Device"), QString::fromLatin1("Desktop Device"));
+                tmpKit->setValue("PE.Profile.DeviceType", QString::fromLatin1("Desktop"));
+                tmpKit->setValue("PE.Profile.Device", QString::fromLatin1("Desktop Device"));
             } else {
                 tmpKit->setIconPath(FileName::fromString(QLatin1String(":///DESKTOP///")));
-                tmpKit->setValue(Core::Id("PE.Profile.DeviceType"), QString::fromLatin1("Desktop"));
-                tmpKit->setValue(Core::Id("PE.Profile.Device"), QString::fromLatin1("Desktop Device"));
+                tmpKit->setValue("PE.Profile.DeviceType", QString::fromLatin1("Desktop"));
+                tmpKit->setValue("PE.Profile.Device", QString::fromLatin1("Desktop Device"));
             }
 
             // Tool chain
@@ -2481,11 +2481,11 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
                     }
                 }
             }
-            tmpKit->setValue(Core::Id("PE.Profile.ToolChain"), tcId);
+            tmpKit->setValue("PE.Profile.ToolChain", tcId);
 
             // QtVersion
             int qtVersionId = bc.value(QLatin1String("Qt4ProjectManager.Qt4BuildConfiguration.QtVersionId"), -1).toInt();
-            tmpKit->setValue(Core::Id("QtSupport.QtInformation"), qtVersionId);
+            tmpKit->setValue("QtSupport.QtInformation", qtVersionId);
 
             // Debugger + mkspec
             QVariantMap debugger;
@@ -2500,11 +2500,11 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
             }
             debugger.insert(QLatin1String("EngineType"), debuggerEngine);
             debugger.insert(QLatin1String("Binary"), debuggerPath);
-            tmpKit->setValue(Core::Id("Debugger.Information"), debugger);
-            tmpKit->setValue(Core::Id("QtPM4.mkSpecInformation"), mkspec);
+            tmpKit->setValue("Debugger.Information", debugger);
+            tmpKit->setValue("QtPM4.mkSpecInformation", mkspec);
 
             // SysRoot
-            tmpKit->setValue(Core::Id("PE.Profile.SysRoot"), m_qtVersionExtras.value(qtVersionId));
+            tmpKit->setValue("PE.Profile.SysRoot", m_qtVersionExtras.value(qtVersionId));
 
             QMapIterator<int, QVariantMap> deployIt(dcs);
             while (deployIt.hasNext()) {
@@ -2517,7 +2517,7 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
                     devId = QByteArray("Desktop Device");
                 if (!devId.isEmpty() && !DeviceManager::instance()->find(Core::Id::fromName(devId))) // We do not know that device
                     devId.clear();
-                tmpKit->setValue(Core::Id("PE.Profile.Device"), devId);
+                tmpKit->setValue("PE.Profile.Device", devId);
 
                 // Set display name last:
                 tmpKit->setDisplayName(extraTargetData.value(QLatin1String("ProjectExplorer.ProjectConfiguration.DisplayName")).toString());
@@ -2560,22 +2560,22 @@ QVariantMap Version11Handler::update(Project *project, const QVariantMap &map)
 
 Kit *Version11Handler::uniqueKit(Kit *k)
 {
-    const QString tc = k->value(Core::Id("PE.Profile.ToolChain")).toString();
-    const int qt = k->value(Core::Id("QtSupport.QtInformation")).toInt();
-    const QString debugger = k->value(Core::Id("Debugger.Information")).toString();
-    const QString mkspec = k->value(Core::Id("QtPM4.mkSpecInformation")).toString();
-    const QString deviceType = k->value(Core::Id("PE.Profile.DeviceType")).toString();
-    const QString device = k->value(Core::Id("PE.Profile.Device")).toString();
-    const QString sysroot = k->value(Core::Id("PE.Profile.SysRoot")).toString();
+    const QString tc = k->value("PE.Profile.ToolChain").toString();
+    const int qt = k->value("QtSupport.QtInformation").toInt();
+    const QString debugger = k->value("Debugger.Information").toString();
+    const QString mkspec = k->value("QtPM4.mkSpecInformation").toString();
+    const QString deviceType = k->value("PE.Profile.DeviceType").toString();
+    const QString device = k->value("PE.Profile.Device").toString();
+    const QString sysroot = k->value("PE.Profile.SysRoot").toString();
 
     foreach (Kit *i, m_targets.keys()) {
-        const QString currentTc = i->value(Core::Id("PE.Profile.ToolChain")).toString();
-        const int currentQt = i->value(Core::Id("QtSupport.QtInformation")).toInt();
-        const QString currentDebugger = i->value(Core::Id("Debugger.Information")).toString();
-        const QString currentMkspec = i->value(Core::Id("QtPM4.mkSpecInformation")).toString();
-        const QString currentDeviceType = i->value(Core::Id("PE.Profile.DeviceType")).toString();
-        const QString currentDevice = i->value(Core::Id("PE.Profile.Device")).toString();
-        const QString currentSysroot = i->value(Core::Id("PE.Profile.SysRoot")).toString();
+        const QString currentTc = i->value("PE.Profile.ToolChain").toString();
+        const int currentQt = i->value("QtSupport.QtInformation").toInt();
+        const QString currentDebugger = i->value("Debugger.Information").toString();
+        const QString currentMkspec = i->value("QtPM4.mkSpecInformation").toString();
+        const QString currentDeviceType = i->value("PE.Profile.DeviceType").toString();
+        const QString currentDevice = i->value("PE.Profile.Device").toString();
+        const QString currentSysroot = i->value("PE.Profile.SysRoot").toString();
 
         bool deviceTypeOk = deviceType == currentDeviceType;
         bool deviceOk = device.isEmpty() || currentDevice == device;

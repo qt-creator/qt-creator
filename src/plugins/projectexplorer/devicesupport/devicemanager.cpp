@@ -426,7 +426,7 @@ public:
     TestDevice()
         : IDevice(testTypeId(), AutoDetected, Hardware, Core::Id::fromString(QUuid::createUuid().toString())) {}
 
-    static Core::Id testTypeId() { return Core::Id("TestType"); }
+    static Core::Id testTypeId() { return "TestType"; }
 private:
     TestDevice(const TestDevice &other) : IDevice(other) {}
     QString displayType() const { return QLatin1String("blubb"); }

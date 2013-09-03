@@ -70,7 +70,7 @@ void LldbOptionsPageWidget::load()
 LldbOptionsPage::LldbOptionsPage()
 {
     //    m_options->fromSettings(Core::ICore::settings());
-    setId(Core::Id("F.Lldb"));
+    setId("F.Lldb");
     setDisplayName(tr("LLDB"));
     setCategory(Debugger::Constants::DEBUGGER_SETTINGS_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("Debugger", Constants::DEBUGGER_SETTINGS_TR_CATEGORY));

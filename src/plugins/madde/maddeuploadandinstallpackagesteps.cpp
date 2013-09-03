@@ -143,7 +143,7 @@ bool MaemoUploadAndInstallPackageStep::initInternal(QString *error)
 
 Core::Id MaemoUploadAndInstallPackageStep::stepId()
 {
-    return Core::Id("MaemoUploadAndInstallDpkgPackageStep");
+    return "MaemoUploadAndInstallDpkgPackageStep";
 }
 
 QString MaemoUploadAndInstallPackageStep::displayName()

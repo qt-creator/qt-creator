@@ -316,7 +316,7 @@ QString QmlProject::displayName() const
 
 Core::Id QmlProject::id() const
 {
-    return Core::Id("QmlProjectManager.QmlProject");
+    return "QmlProjectManager.QmlProject";
 }
 
 Core::IDocument *QmlProject::document() const

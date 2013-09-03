@@ -49,7 +49,7 @@ QStringList SystemEditor::mimeTypes() const
 
 Id SystemEditor::id() const
 {
-    return Id("CorePlugin.OpenWithSystemEditor");
+    return "CorePlugin.OpenWithSystemEditor";
 }
 
 QString SystemEditor::displayName() const

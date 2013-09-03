@@ -48,7 +48,7 @@ static QString genericQbsDisplayName() {
 
 static Core::Id genericQbsDeployConfigurationId()
 {
-    return Core::Id("Qbs.Deploy");
+    return "Qbs.Deploy";
 }
 
 // --------------------------------------------------------------------
