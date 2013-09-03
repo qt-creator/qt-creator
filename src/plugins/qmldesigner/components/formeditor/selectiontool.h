@@ -37,6 +37,7 @@
 #include "selectionindicator.h"
 #include "resizeindicator.h"
 #include "anchorindicator.h"
+#include "bindingindicator.h"
 
 #include <QTime>
 
@@ -94,6 +95,7 @@ private:
     SelectionIndicator m_selectionIndicator;
     ResizeIndicator m_resizeIndicator;
     AnchorIndicator m_anchorIndicator;
+    BindingIndicator m_bindingIndicator;
     QTime m_mousePressTimer;
     bool m_selectOnlyContentItems;
     QCursor m_cursor;

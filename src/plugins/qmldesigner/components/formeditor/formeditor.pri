@@ -32,7 +32,9 @@ SOURCES += formeditoritem.cpp \
     lineeditaction.cpp \
     abstractcustomtool.cpp \
     anchorindicator.cpp \
-    components/formeditor/anchorindicatorgraphicsitem.cpp
+    anchorindicatorgraphicsitem.cpp \
+    bindingindicator.cpp \
+    bindingindicatorgraphicsitem.cpp
 HEADERS += formeditorscene.h \
     formeditorwidget.h \
     formeditoritem.h \
@@ -66,5 +68,7 @@ HEADERS += formeditorscene.h \
     lineeditaction.h \
     abstractcustomtool.h \
     anchorindicator.h \
-    components/formeditor/anchorindicatorgraphicsitem.h
+    anchorindicatorgraphicsitem.h \
+    bindingindicator.h \
+    bindingindicatorgraphicsitem.h
 RESOURCES += formeditor.qrc
