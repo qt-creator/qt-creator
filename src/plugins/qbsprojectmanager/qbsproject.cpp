@@ -123,6 +123,11 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
 QbsProject::~QbsProject()
 {
     m_codeModelFuture.cancel();
+    if (m_qbsSetupProjectJob) {
+        m_qbsSetupProjectJob->disconnect(this);
+        m_qbsSetupProjectJob->cancel();
+        delete m_qbsSetupProjectJob;
+    }
 }
 
 QString QbsProject::displayName() const
@@ -452,8 +457,12 @@ void QbsProject::prepareForParsing()
     delete m_qbsUpdateFutureInterface;
     m_qbsUpdateFutureInterface = 0;
 
-    delete m_qbsSetupProjectJob;
-    m_qbsSetupProjectJob = 0;
+    if (m_qbsSetupProjectJob) {
+        m_qbsSetupProjectJob->disconnect(this);
+        m_qbsSetupProjectJob->cancel();
+        m_qbsSetupProjectJob->deleteLater();
+        m_qbsSetupProjectJob = 0;
+    }
 
     m_currentProgressBase = 0;
     m_qbsUpdateFutureInterface = new QFutureInterface<void>();
