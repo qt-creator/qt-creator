@@ -179,6 +179,9 @@ private slots:
     void test_completion_lambdaCalls_4();
     void test_completion_lambdaCalls_5();
 
+    void test_completion_member_of_class_accessed_by_using_QTCREATORBUG9037_1();
+    void test_completion_member_of_class_accessed_by_using_QTCREATORBUG9037_2();
+
     void test_completion_local_type_and_member_1();
     void test_completion_local_type_and_member_2();
     void test_completion_local_type_and_member_3();

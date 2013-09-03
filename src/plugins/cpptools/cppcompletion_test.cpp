@@ -2821,3 +2821,46 @@ void CppToolsPlugin::test_completion_signals_hide_QPrivateSignal()
     QCOMPARE(completions.size(), 1);
     QVERIFY(completions.contains(QLatin1String("timeout()")));
 }
+
+void CppToolsPlugin::test_completion_member_of_class_accessed_by_using_QTCREATORBUG9037_1()
+{
+    const QByteArray source =
+            "namespace NS { struct S { int member; void fun(); }; }\n"
+            "using NS::S;\n"
+            "void S::fun()\n"
+            "{\n"
+            "    @\n"
+            "    // padding so we get the scope right\n"
+            "}\n"
+            ;
+    CompletionTestCase test(source, "mem");
+
+    QStringList completions = test.getCompletions();
+    QCOMPARE(completions.size(), 1);
+    QVERIFY(completions.contains(QLatin1String("member")));
+}
+
+void CppToolsPlugin::test_completion_member_of_class_accessed_by_using_QTCREATORBUG9037_2()
+{
+    const QByteArray source =
+            "namespace NS \n"
+            "{\n"
+            "   namespace Internal\n"
+            "   {\n"
+            "   struct S { int member; void fun(); };\n"
+            "   }\n"
+            "   using Internal::S;\n"
+            "}\n"
+            "using NS::S;\n"
+            "void S::fun()\n"
+            "{\n"
+            "    @\n"
+            "    // padding so we get the scope right\n"
+            "}\n"
+            ;
+    CompletionTestCase test(source, "mem");
+
+    QStringList completions = test.getCompletions();
+    QCOMPARE(completions.size(), 1);
+    QVERIFY(completions.contains(QLatin1String("member")));
+}

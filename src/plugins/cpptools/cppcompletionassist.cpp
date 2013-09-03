@@ -1380,6 +1380,9 @@ void CppCompletionAssistProcessor::globalCompletion(CPlusPlus::Scope *currentSco
     }
 
     for (; currentBinding; currentBinding = currentBinding->parent()) {
+        foreach (ClassOrNamespace* u, currentBinding->usings())
+            usingBindings.append(u);
+
         const QList<Symbol *> symbols = currentBinding->symbols();
 
         if (!symbols.isEmpty()) {
