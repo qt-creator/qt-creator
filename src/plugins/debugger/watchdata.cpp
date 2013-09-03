@@ -98,6 +98,7 @@ bool isIntType(const QByteArray &type)
                     (  type == "unsigned char"
                     || type == "unsigned short"
                     || type == "unsigned short int"
+                    || type == "unsigned int"
                     || type == "unsigned long"
                     || type == "unsigned long int"
                     || type == "unsigned long long"
