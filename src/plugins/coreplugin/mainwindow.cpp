@@ -312,7 +312,7 @@ bool MainWindow::init(QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
 
-    if (!mimeDatabase()->addMimeTypes(QLatin1String(":/core/editormanager/BinFiles.mimetypes.xml"), errorMessage))
+    if (!MimeDatabase::addMimeTypes(QLatin1String(":/core/editormanager/BinFiles.mimetypes.xml"), errorMessage))
         return false;
 
     ExtensionSystem::PluginManager::addObject(m_coreImpl);
@@ -805,10 +805,9 @@ static QList<IDocumentFactory*> getNonEditorDocumentFactories()
 }
 
 static IDocumentFactory *findDocumentFactory(const QList<IDocumentFactory*> &fileFactories,
-                                     const MimeDatabase *db,
                                      const QFileInfo &fi)
 {
-    if (const MimeType mt = db->findByFile(fi)) {
+    if (const MimeType mt = MimeDatabase::findByFile(fi)) {
         const QString type = mt.type();
         foreach (IDocumentFactory *factory, fileFactories) {
             if (factory->mimeTypes().contains(type))
@@ -836,7 +835,7 @@ IDocument *MainWindow::openFiles(const QStringList &fileNames, ICore::OpenFilesF
     foreach (const QString &fileName, fileNames) {
         const QFileInfo fi(fileName);
         const QString absoluteFilePath = fi.absoluteFilePath();
-        if (IDocumentFactory *documentFactory = findDocumentFactory(nonEditorFileFactories, mimeDatabase(), fi)) {
+        if (IDocumentFactory *documentFactory = findDocumentFactory(nonEditorFileFactories, fi)) {
             IDocument *document = documentFactory->open(absoluteFilePath);
             if (!document) {
                 if (flags & ICore::StopOnLoadFail)
@@ -953,22 +952,12 @@ void MainWindow::openFileWith()
     }
 }
 
-VcsManager *MainWindow::vcsManager() const
-{
-    return m_vcsManager;
-}
-
 QSettings *MainWindow::settings(QSettings::Scope scope) const
 {
     if (scope == QSettings::UserScope)
         return m_settings;
     else
         return m_globalSettings;
-}
-
-MimeDatabase *MainWindow::mimeDatabase() const
-{
-    return m_mimeDatabase;
 }
 
 IContext *MainWindow::contextObject(QWidget *widget)

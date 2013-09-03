@@ -96,9 +96,6 @@ public:
 
     Core::IDocument *openFiles(const QStringList &fileNames, ICore::OpenFilesFlags flags);
 
-    Core::MimeDatabase *mimeDatabase() const;
-
-    VcsManager *vcsManager() const;
     QSettings *settings(QSettings::Scope scope) const;
     inline SettingsDatabase *settingsDatabase() const { return m_settingsDatabase; }
     virtual QPrinter *printer() const;

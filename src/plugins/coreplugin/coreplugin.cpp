@@ -106,7 +106,7 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 
 void CorePlugin::extensionsInitialized()
 {
-    m_mainWindow->mimeDatabase()->syncUserModifiedMimeTypes();
+    MimeDatabase::syncUserModifiedMimeTypes();
     if (m_designMode->designModeIsRequired())
         addObject(m_designMode);
     m_mainWindow->extensionsInitialized();
