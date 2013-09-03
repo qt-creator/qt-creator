@@ -168,7 +168,7 @@ void FetchContext::start()
 {
     m_progress.setProgressRange(0, 2);
     FutureProgress *fp = ProgressManager::addTask(m_progress.future(), tr("Gerrit Fetch"),
-                                           QLatin1String("gerrit-fetch"));
+                                           "gerrit-fetch");
     fp->setKeepOnFinish(FutureProgress::HideOnFinish);
     m_progress.reportStarted();
     // Order: initialize future before starting the process in case error handling is invoked.

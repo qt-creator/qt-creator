@@ -300,8 +300,7 @@ void BuildManager::startBuildQueue(const QStringList &preambleMessage)
         TaskHub::clearTasks(Constants::TASK_CATEGORY_DEPLOYMENT);
         ProgressManager::setApplicationLabel(QString());
         d->m_futureProgress = ProgressManager::addTask(d->m_progressFutureInterface->future(),
-              QString(),
-              QLatin1String(Constants::TASK_BUILD),
+              QString(), "ProjectExplorer.Task.Build",
               ProgressManager::KeepOnFinish | ProgressManager::ShowInApplicationIcon);
         connect(d->m_futureProgress.data(), SIGNAL(clicked()), this, SLOT(showBuildResults()));
         d->m_futureProgress.data()->setWidget(new Internal::BuildProgress(d->m_taskWindow));

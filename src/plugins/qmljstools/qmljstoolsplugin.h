@@ -30,6 +30,7 @@
 #ifndef QMLJSTOOLS_H
 #define QMLJSTOOLS_H
 
+#include <coreplugin/id.h>
 #include <extensionsystem/iplugin.h>
 
 QT_BEGIN_NAMESPACE
@@ -64,8 +65,8 @@ public:
     ModelManager *modelManager() { return m_modelManager; }
 
 private slots:
-    void onTaskStarted(const QString &type);
-    void onAllTasksFinished(const QString &type);
+    void onTaskStarted(Core::Id type);
+    void onAllTasksFinished(Core::Id type);
 
 #ifdef WITH_TESTS
     void test_basic();

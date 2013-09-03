@@ -371,8 +371,8 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
 
     m_clearcasePluginInstance = this;
     connect(ICore::instance(), SIGNAL(coreAboutToClose()), this, SLOT(closing()));
-    connect(ProgressManager::instance(), SIGNAL(allTasksFinished(QString)),
-            this, SLOT(tasksFinished(QString)));
+    connect(ProgressManager::instance(), SIGNAL(allTasksFinished(Core::Id)),
+            this, SLOT(tasksFinished(Core::Id)));
 
     if (!MimeDatabase::addMimeTypes(QLatin1String(":/clearcase/ClearCase.mimetypes.xml"), errorMessage))
         return false;
@@ -1891,7 +1891,7 @@ void ClearCasePlugin::projectChanged(Project *project)
     m_stream.clear();
     m_intStream.clear();
     disconnect(ICore::mainWindow(), SIGNAL(windowActivated()), this, SLOT(syncSlot()));
-    ProgressManager::cancelTasks(QLatin1String(Constants::TASK_INDEX));
+    ProgressManager::cancelTasks(ClearCase::Constants::TASK_INDEX);
     if (project) {
         QString projDir = project->projectDirectory();
         QString topLevel = findTopLevel(projDir);
@@ -1908,16 +1908,16 @@ void ClearCasePlugin::projectChanged(Project *project)
         qDebug() << "stream: " << m_stream << "; intStream: " << m_intStream << "view: " << m_viewData.name;
 }
 
-void ClearCasePlugin::tasksFinished(const QString &type)
+void ClearCasePlugin::tasksFinished(Core::Id type)
 {
-    if (type == QLatin1String(Constants::TASK_INDEX))
+    if (type == ClearCase::Constants::TASK_INDEX)
         m_checkInAllAction->setEnabled(true);
 }
 
 void ClearCasePlugin::updateIndex()
 {
     QTC_ASSERT(currentState().hasTopLevel(), return);
-    ProgressManager::cancelTasks(QLatin1String(Constants::TASK_INDEX));
+    ProgressManager::cancelTasks(ClearCase::Constants::TASK_INDEX);
     Project *project = ProjectExplorerPlugin::currentProject();
     if (!project)
         return;
@@ -1926,8 +1926,7 @@ void ClearCasePlugin::updateIndex()
     QFuture<void> result = QtConcurrent::run(&sync,
                project->files(Project::ExcludeGeneratedFiles));
     if (!m_settings.disableIndexer)
-        ProgressManager::addTask(result, tr("CC Indexing"),
-                            QLatin1String(Constants::TASK_INDEX));
+        ProgressManager::addTask(result, tr("CC Indexing"), ClearCase::Constants::TASK_INDEX);
 }
 
 /*! retrieve a \a file (usually of the form path\to\filename.cpp@@\main\ver)
@@ -2069,7 +2068,7 @@ void ClearCasePlugin::syncSlot()
 void ClearCasePlugin::closing()
 {
     // prevent syncSlot from being called on shutdown
-    ProgressManager::cancelTasks(QLatin1String(Constants::TASK_INDEX));
+    ProgressManager::cancelTasks(ClearCase::Constants::TASK_INDEX);
     disconnect(ICore::mainWindow(), SIGNAL(windowActivated()), this, SLOT(syncSlot()));
 }
 

@@ -245,7 +245,7 @@ using namespace Core::Internal;
 */
 
 /*!
-    \fn void Core::ProgressManager::cancelTasks(const QString &type)
+    \fn void Core::ProgressManager::cancelTasks(Core::Id type)
 
     Schedules a cancel for all running tasks of the given \a type.
     Please note that the cancel functionality depends on the
@@ -254,13 +254,13 @@ using namespace Core::Internal;
 */
 
 /*!
-    \fn void Core::ProgressManager::taskStarted(const QString &type)
+    \fn void Core::ProgressManager::taskStarted(Core::Id type)
 
     Sent whenever a task of a given \a type is started.
 */
 
 /*!
-    \fn void Core::ProgressManager::allTasksFinished(const QString &type)
+    \fn void Core::ProgressManager::allTasksFinished(Core::Id type)
 
     Sent when all tasks of a \a type have finished.
 */
@@ -347,10 +347,10 @@ void ProgressManagerPrivate::init()
     initInternal();
 }
 
-void ProgressManagerPrivate::doCancelTasks(const QString &type)
+void ProgressManagerPrivate::doCancelTasks(Id type)
 {
     bool found = false;
-    QMap<QFutureWatcher<void> *, QString>::iterator task = m_runningTasks.begin();
+    QMap<QFutureWatcher<void> *, Id>::iterator task = m_runningTasks.begin();
     while (task != m_runningTasks.end()) {
         if (task.value() != type) {
             ++task;
@@ -398,7 +398,7 @@ bool ProgressManagerPrivate::eventFilter(QObject *obj, QEvent *event)
 
 void ProgressManagerPrivate::cancelAllRunningTasks()
 {
-    QMap<QFutureWatcher<void> *, QString>::const_iterator task = m_runningTasks.constBegin();
+    QMap<QFutureWatcher<void> *, Id>::const_iterator task = m_runningTasks.constBegin();
     while (task != m_runningTasks.constEnd()) {
         disconnect(task.key(), SIGNAL(finished()), this, SLOT(taskFinished()));
         if (m_applicationTask == task.key())
@@ -412,7 +412,7 @@ void ProgressManagerPrivate::cancelAllRunningTasks()
 }
 
 FutureProgress *ProgressManagerPrivate::doAddTask(const QFuture<void> &future, const QString &title,
-                                                const QString &type, ProgressFlags flags)
+                                                Id type, ProgressFlags flags)
 {
     // watch
     QFutureWatcher<void> *watcher = new QFutureWatcher<void>();
@@ -473,7 +473,7 @@ void ProgressManagerPrivate::taskFinished()
     QFutureWatcher<void> *task = static_cast<QFutureWatcher<void> *>(taskObject);
     if (m_applicationTask == task)
         disconnectApplicationTask();
-    QString type = m_runningTasks.value(task);
+    Id type = m_runningTasks.value(task);
     m_runningTasks.remove(task);
     delete task;
     updateSummaryProgressBar();
@@ -506,7 +506,7 @@ void ProgressManagerPrivate::updateSummaryProgressBar()
     stopFadeOfSummaryProgress();
 
     m_summaryProgressBar->setFinished(false);
-    QMapIterator<QFutureWatcher<void> *, QString> it(m_runningTasks);
+    QMapIterator<QFutureWatcher<void> *, Id> it(m_runningTasks);
     static const int TASK_RANGE = 100;
     int value = 0;
     while (it.hasNext()) {
@@ -563,12 +563,12 @@ void ProgressManagerPrivate::slotRemoveTask()
 {
     FutureProgress *progress = qobject_cast<FutureProgress *>(sender());
     QTC_ASSERT(progress, return);
-    QString type = progress->type();
+    Id type = progress->type();
     removeTask(progress);
     removeOldTasks(type, true);
 }
 
-void ProgressManagerPrivate::removeOldTasks(const QString &type, bool keepOne)
+void ProgressManagerPrivate::removeOldTasks(const Id type, bool keepOne)
 {
     bool firstFound = !keepOne; // start with false if we want to keep one
     QList<FutureProgress *>::iterator i = m_taskList.end();
@@ -600,7 +600,7 @@ void ProgressManagerPrivate::removeOneOldTask()
     }
     // no ended process, look for a task type with multiple running tasks and remove the oldest one
     for (QList<FutureProgress *>::iterator i = m_taskList.begin(); i != m_taskList.end(); ++i) {
-        QString type = (*i)->type();
+        Id type = (*i)->type();
 
         int taskCount = 0;
         foreach (FutureProgress *p, m_taskList)
@@ -735,7 +735,7 @@ QObject *ProgressManager::instance()
     return m_instance;
 }
 
-FutureProgress *ProgressManager::addTask(const QFuture<void> &future, const QString &title, const QString &type, ProgressFlags flags)
+FutureProgress *ProgressManager::addTask(const QFuture<void> &future, const QString &title, Id type, ProgressFlags flags)
 {
     return m_instance->doAddTask(future, title, type, flags);
 }
@@ -745,7 +745,8 @@ void ProgressManager::setApplicationLabel(const QString &text)
     m_instance->doSetApplicationLabel(text);
 }
 
-void ProgressManager::cancelTasks(const QString &type)
+void ProgressManager::cancelTasks(const Id type)
 {
-    m_instance->doCancelTasks(type);
+    if (m_instance)
+        m_instance->doCancelTasks(type);
 }

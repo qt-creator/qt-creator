@@ -181,8 +181,9 @@ void BaseFileFind::runSearch(Find::SearchResult *search)
             textDocumentFlagsForFindFlags(parameters.flags),
             ITextEditor::openedTextDocumentContents()));
     }
-    FutureProgress *progress = ProgressManager::addTask(watcher->future(), tr("Search"),
-        QLatin1String(Constants::TASK_SEARCH)); progress->setWidget(label);
+    FutureProgress *progress =
+        ProgressManager::addTask(watcher->future(), tr("Search"), Constants::TASK_SEARCH);
+    progress->setWidget(label);
     progress->setStatusBarWidget(statusLabel);
     connect(progress, SIGNAL(clicked()), search, SLOT(popup()));
 }

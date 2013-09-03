@@ -467,8 +467,8 @@ void QbsProject::prepareForParsing()
     m_currentProgressBase = 0;
     m_qbsUpdateFutureInterface = new QFutureInterface<void>();
     m_qbsUpdateFutureInterface->setProgressRange(0, 0);
-    ProgressManager::addTask(m_qbsUpdateFutureInterface->future(), tr("Evaluating"),
-                                            QLatin1String(Constants::QBS_EVALUATE));
+    ProgressManager::addTask(m_qbsUpdateFutureInterface->future(),
+        tr("Evaluating"), "Qbs.QbsEvaluate");
     m_qbsUpdateFutureInterface->reportStarted();
 }
 

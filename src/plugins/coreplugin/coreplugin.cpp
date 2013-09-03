@@ -48,9 +48,10 @@
 using namespace Core;
 using namespace Core::Internal;
 
-CorePlugin::CorePlugin() :
-    m_mainWindow(new MainWindow), m_editMode(0), m_designMode(0)
+CorePlugin::CorePlugin() : m_editMode(0), m_designMode(0)
 {
+    qRegisterMetaType<Core::Id>();
+    m_mainWindow = new MainWindow;
 }
 
 CorePlugin::~CorePlugin()

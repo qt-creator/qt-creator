@@ -82,8 +82,8 @@ private slots:
     void finish();
     void cancel();
     void setPaused(bool paused);
-    void onTaskStarted(const QString &type);
-    void onAllTasksFinished(const QString &type);
+    void onTaskStarted(Core::Id type);
+    void onAllTasksFinished(Core::Id type);
     void searchAgain();
 
 private:

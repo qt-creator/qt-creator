@@ -112,10 +112,10 @@ bool QmlJSToolsPlugin::initialize(const QStringList &arguments, QString *error)
     mqmljstools->addAction(cmd);
 
     // watch task progress
-    connect(ProgressManager::instance(), SIGNAL(taskStarted(QString)),
-            this, SLOT(onTaskStarted(QString)));
-    connect(ProgressManager::instance(), SIGNAL(allTasksFinished(QString)),
-            this, SLOT(onAllTasksFinished(QString)));
+    connect(ProgressManager::instance(), SIGNAL(taskStarted(Core::Id)),
+            this, SLOT(onTaskStarted(Core::Id)));
+    connect(ProgressManager::instance(), SIGNAL(allTasksFinished(Core::Id)),
+            this, SLOT(onAllTasksFinished(Core::Id)));
 
     return true;
 }
@@ -130,15 +130,15 @@ ExtensionSystem::IPlugin::ShutdownFlag QmlJSToolsPlugin::aboutToShutdown()
     return SynchronousShutdown;
 }
 
-void QmlJSToolsPlugin::onTaskStarted(const QString &type)
+void QmlJSToolsPlugin::onTaskStarted(Core::Id type)
 {
-    if (type == QLatin1String(QmlJSTools::Constants::TASK_INDEX))
+    if (type == QmlJSTools::Constants::TASK_INDEX)
         m_resetCodeModelAction->setEnabled(false);
 }
 
-void QmlJSToolsPlugin::onAllTasksFinished(const QString &type)
+void QmlJSToolsPlugin::onAllTasksFinished(Core::Id type)
 {
-    if (type == QLatin1String(QmlJSTools::Constants::TASK_INDEX))
+    if (type == QmlJSTools::Constants::TASK_INDEX)
         m_resetCodeModelAction->setEnabled(true);
 }
 

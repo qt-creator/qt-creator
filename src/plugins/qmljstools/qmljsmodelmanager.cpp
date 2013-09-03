@@ -380,8 +380,7 @@ QFuture<void> ModelManager::refreshSourceFiles(const QStringList &sourceFiles,
     m_synchronizer.addFuture(result);
 
     if (sourceFiles.count() > 1) {
-        ProgressManager::addTask(result, tr("Indexing"),
-                        QLatin1String(Constants::TASK_INDEX));
+        ProgressManager::addTask(result, tr("Indexing"), Constants::TASK_INDEX);
     }
 
     return result;

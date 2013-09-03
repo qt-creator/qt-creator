@@ -66,7 +66,7 @@ public:
     QWidget *m_widget;
     QHBoxLayout *m_widgetLayout;
     QWidget *m_statusBarWidget;
-    QString m_type;
+    Id m_type;
     FutureProgress::KeepOnFinishType m_keep;
     bool m_waitingForUserInteraction;
     FutureProgress *m_q;
@@ -304,12 +304,12 @@ bool FutureProgress::hasError() const
     return d->m_progress->hasError();
 }
 
-void FutureProgress::setType(const QString &type)
+void FutureProgress::setType(Id type)
 {
     d->m_type = type;
 }
 
-QString FutureProgress::type() const
+Id FutureProgress::type() const
 {
     return d->m_type;
 }

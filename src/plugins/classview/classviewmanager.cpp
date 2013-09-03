@@ -235,10 +235,10 @@ void Manager::initialize()
             SLOT(onProjectListChanged()), Qt::QueuedConnection);
 
     // connect to the progress manager for signals about Parsing tasks
-    connect(ProgressManager::instance(), SIGNAL(taskStarted(QString)),
-            SLOT(onTaskStarted(QString)), Qt::QueuedConnection);
-    connect(ProgressManager::instance(), SIGNAL(allTasksFinished(QString)),
-            SLOT(onAllTasksFinished(QString)), Qt::QueuedConnection);
+    connect(ProgressManager::instance(), SIGNAL(taskStarted(Core::Id)),
+            SLOT(onTaskStarted(Core::Id)), Qt::QueuedConnection);
+    connect(ProgressManager::instance(), SIGNAL(allTasksFinished(Core::Id)),
+            SLOT(onAllTasksFinished(Core::Id)), Qt::QueuedConnection);
 
     // when we signals that really document is updated - sent it to the parser
     connect(this, SIGNAL(requestDocumentUpdated(CPlusPlus::Document::Ptr)),
@@ -379,9 +379,9 @@ void Manager::onProjectListChanged()
    \sa CppTools::Constants::TASK_INDEX
 */
 
-void Manager::onTaskStarted(const QString &type)
+void Manager::onTaskStarted(Core::Id type)
 {
-    if (type != QLatin1String(CppTools::Constants::TASK_INDEX))
+    if (type != CppTools::Constants::TASK_INDEX)
         return;
 
     // disable tree updates to speed up
@@ -395,9 +395,9 @@ void Manager::onTaskStarted(const QString &type)
    \sa CppTools::Constants::TASK_INDEX
 */
 
-void Manager::onAllTasksFinished(const QString &type)
+void Manager::onAllTasksFinished(Core::Id type)
 {
-    if (type != QLatin1String(CppTools::Constants::TASK_INDEX))
+    if (type != CppTools::Constants::TASK_INDEX)
         return;
 
     // parsing is finished, enable tree updates

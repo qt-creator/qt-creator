@@ -184,7 +184,7 @@ void UpdateInfoPlugin::reactOnUpdaterOutput()
     } else {
         //added the current almost finished task to the progressmanager
         d->updateInfoProgress = ProgressManager::addTask(
-                d->lastCheckUpdateInfoTask, tr("Update"), QLatin1String("Update.GetInfo"), ProgressManager::KeepOnFinish);
+                d->lastCheckUpdateInfoTask, tr("Update"), "Update.GetInfo", ProgressManager::KeepOnFinish);
 
         d->updateInfoProgress->setKeepOnFinish(FutureProgress::KeepOnFinish);
 

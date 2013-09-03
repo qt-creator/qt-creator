@@ -857,7 +857,7 @@ bool SessionManager::loadSession(const QString &session)
         m_virginSession = false;
 
         ProgressManager::addTask(m_future.future(), tr("Session"),
-           QLatin1String("ProjectExplorer.SessionFile.Load"));
+           "ProjectExplorer.SessionFile.Load");
 
         m_future.setProgressRange(0, 1);
         m_future.setProgressValue(0);

@@ -31,6 +31,7 @@
 #define FUTUREPROGRESS_H
 
 #include <coreplugin/core_global.h>
+#include <coreplugin/id.h>
 
 #include <QString>
 #include <QFuture>
@@ -60,8 +61,8 @@ public:
     void setTitle(const QString &title);
     QString title() const;
 
-    void setType(const QString &type);
-    QString type() const;
+    void setType(Id type);
+    Id type() const;
 
     void setKeepOnFinish(KeepOnFinishType keepType);
     bool keepOnFinish() const;

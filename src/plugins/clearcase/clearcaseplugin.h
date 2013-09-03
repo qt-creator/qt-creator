@@ -33,7 +33,9 @@
 
 #include "clearcasesettings.h"
 
+#include <coreplugin/id.h>
 #include <vcsbase/vcsbaseplugin.h>
+
 #include <QFile>
 #include <QPair>
 #include <QStringList>
@@ -191,7 +193,7 @@ private slots:
     void updateIndex();
     void updateView();
     void projectChanged(ProjectExplorer::Project *project);
-    void tasksFinished(const QString &type);
+    void tasksFinished(Core::Id type);
     void syncSlot();
     void closing();
     void updateStatusActions();

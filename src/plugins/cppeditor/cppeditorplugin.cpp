@@ -281,10 +281,10 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     cmd = ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION);
     contextMenu->addAction(cmd);
 
-    connect(ProgressManager::instance(), SIGNAL(taskStarted(QString)),
-            this, SLOT(onTaskStarted(QString)));
-    connect(ProgressManager::instance(), SIGNAL(allTasksFinished(QString)),
-            this, SLOT(onAllTasksFinished(QString)));
+    connect(ProgressManager::instance(), SIGNAL(taskStarted(Core::Id)),
+            this, SLOT(onTaskStarted(Core::Id)));
+    connect(ProgressManager::instance(), SIGNAL(allTasksFinished(Core::Id)),
+            this, SLOT(onAllTasksFinished(Core::Id)));
 
     connect(EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
             SLOT(currentEditorChanged(Core::IEditor*)));
@@ -341,9 +341,9 @@ void CppEditorPlugin::findUsages()
         editor->findUsages();
 }
 
-void CppEditorPlugin::onTaskStarted(const QString &type)
+void CppEditorPlugin::onTaskStarted(Core::Id type)
 {
-    if (type == QLatin1String(CppTools::Constants::TASK_INDEX)) {
+    if (type == CppTools::Constants::TASK_INDEX) {
         m_renameSymbolUnderCursorAction->setEnabled(false);
         m_findUsagesAction->setEnabled(false);
         m_updateCodeModelAction->setEnabled(false);
@@ -351,9 +351,9 @@ void CppEditorPlugin::onTaskStarted(const QString &type)
     }
 }
 
-void CppEditorPlugin::onAllTasksFinished(const QString &type)
+void CppEditorPlugin::onAllTasksFinished(Core::Id type)
 {
-    if (type == QLatin1String(CppTools::Constants::TASK_INDEX)) {
+    if (type == CppTools::Constants::TASK_INDEX) {
         m_renameSymbolUnderCursorAction->setEnabled(true);
         m_findUsagesAction->setEnabled(true);
         m_updateCodeModelAction->setEnabled(true);

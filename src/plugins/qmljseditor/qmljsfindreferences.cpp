@@ -942,7 +942,7 @@ void FindReferences::displayResults(int first, int last)
 
         FutureProgress *progress = ProgressManager::addTask(
                     m_watcher.future(), tr("Searching"),
-                    QLatin1String(QmlJSEditor::Constants::TASK_SEARCH));
+                    QmlJSEditor::Constants::TASK_SEARCH);
         connect(progress, SIGNAL(clicked()), m_currentSearch, SLOT(popup()));
 
         ++first;

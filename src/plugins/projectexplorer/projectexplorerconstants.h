@@ -162,8 +162,6 @@ const char ICON_STOP[]            = ":/projectexplorer/images/stop.png";
 const char ICON_STOP_SMALL[]      = ":/projectexplorer/images/stop_small.png";
 const char ICON_WINDOW[]          = ":/projectexplorer/images/window.png";
 
-const char TASK_BUILD[]           = "ProjectExplorer.Task.Build";
-
 // Mime types
 const char C_SOURCE_MIMETYPE[]    = "text/x-csrc";
 const char C_HEADER_MIMETYPE[]    = "text/x-chdr";

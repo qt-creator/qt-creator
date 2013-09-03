@@ -193,7 +193,7 @@ QFuture<void> BuiltinIndexingSupport::refreshSourceFiles(const QStringList &sour
 
     if (mode == CppModelManagerInterface::ForcedProgressNotification || sourceFiles.count() > 1) {
         Core::ProgressManager::addTask(result, QCoreApplication::translate("CppTools::Internal::BuiltinIndexingSupport", "Parsing"),
-                                                QLatin1String(CppTools::Constants::TASK_INDEX));
+                                                CppTools::Constants::TASK_INDEX);
     }
 
     return result;

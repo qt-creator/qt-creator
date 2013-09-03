@@ -85,8 +85,8 @@ public slots:
     void setSortedOutline(bool sorted);
 
 private slots:
-    void onTaskStarted(const QString &type);
-    void onAllTasksFinished(const QString &type);
+    void onTaskStarted(Core::Id type);
+    void onAllTasksFinished(Core::Id type);
     void currentEditorChanged(Core::IEditor *editor);
 
 #ifdef WITH_TESTS

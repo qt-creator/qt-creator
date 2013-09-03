@@ -323,7 +323,7 @@ QueryContext::~QueryContext()
 void QueryContext::start()
 {
     Core::FutureProgress *fp = Core::ProgressManager::addTask(m_progress.future(), tr("Gerrit"),
-                                           QLatin1String("gerrit-query"));
+                                           "gerrit-query");
     fp->setKeepOnFinish(Core::FutureProgress::HideOnFinish);
     m_progress.reportStarted();
     startQuery(m_queries.front()); // Order: synchronous call to  error handling if something goes wrong.

@@ -34,6 +34,7 @@
 #include <QSharedPointer>
 #include <QStandardItem>
 
+#include <coreplugin/id.h>
 #include <cplusplus/CppDocument.h>
 
 namespace ClassView {
@@ -85,19 +86,12 @@ public slots:
 
 protected slots:
     void onWidgetIsCreated();
-
     void onWidgetVisibilityIsChanged(bool visibility);
-
     void onStateChanged(bool state);
-
     void onProjectListChanged();
-
     void onDocumentUpdated(CPlusPlus::Document::Ptr doc);
-
-    void onTaskStarted(const QString &type);
-
-    void onAllTasksFinished(const QString &type);
-
+    void onTaskStarted(Core::Id type);
+    void onAllTasksFinished(Core::Id type);
     void onTreeDataUpdate(QSharedPointer<QStandardItem> result);
 
 protected:

@@ -31,6 +31,7 @@
 #define PROGRESSMANAGER_H
 
 #include <coreplugin/core_global.h>
+#include <coreplugin/id.h>
 
 #include <QObject>
 #include <QFuture>
@@ -53,20 +54,20 @@ public:
     static QObject *instance();
 
     static FutureProgress *addTask(const QFuture<void> &future, const QString &title,
-                                    const QString &type, ProgressFlags flags = 0);
+                                   Core::Id type, ProgressFlags flags = 0);
     static void setApplicationLabel(const QString &text);
 
 public slots:
-    static void cancelTasks(const QString &type);
+    static void cancelTasks(const Core::Id type);
 
 signals:
-    void taskStarted(const QString &type);
-    void allTasksFinished(const QString &type);
+    void taskStarted(Core::Id type);
+    void allTasksFinished(Core::Id type);
 
 protected:
-    virtual void doCancelTasks(const QString &type) = 0;
+    virtual void doCancelTasks(Core::Id type) = 0;
     virtual FutureProgress *doAddTask(const QFuture<void> &future, const QString &title,
-                                    const QString &type, ProgressFlags flags = 0) = 0;
+                                      Core::Id type, ProgressFlags flags = 0) = 0;
     virtual void doSetApplicationLabel(const QString &text) = 0;
 
 private:

@@ -118,7 +118,7 @@ MainWindow::MainWindow() :
     m_actionManager(new ActionManager(this)),
     m_editorManager(0),
     m_externalToolManager(0),
-    m_progressManager(new ProgressManagerPrivate()),
+    m_progressManager(new ProgressManagerPrivate),
     m_variableManager(new VariableManager),
     m_vcsManager(new VcsManager),
     m_statusBarManager(0),

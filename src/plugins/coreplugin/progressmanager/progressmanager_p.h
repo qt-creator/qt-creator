@@ -58,14 +58,14 @@ public:
     void init();
     void cleanup();
 
-    FutureProgress *doAddTask(const QFuture<void> &future, const QString &title, const QString &type,
+    FutureProgress *doAddTask(const QFuture<void> &future, const QString &title, Id type,
                             ProgressFlags flags);
 
     void doSetApplicationLabel(const QString &text);
     ProgressView *progressView();
 
 public slots:
-    void doCancelTasks(const QString &type);
+    void doCancelTasks(Core::Id type);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
@@ -94,14 +94,14 @@ private:
     bool hasError() const;
     bool isLastFading() const;
 
-    void removeOldTasks(const QString &type, bool keepOne = false);
+    void removeOldTasks(Id type, bool keepOne = false);
     void removeOneOldTask();
     void removeTask(FutureProgress *task);
     void deleteTask(FutureProgress *task);
 
     QPointer<ProgressView> m_progressView;
     QList<FutureProgress *> m_taskList;
-    QMap<QFutureWatcher<void> *, QString> m_runningTasks;
+    QMap<QFutureWatcher<void> *, Id> m_runningTasks;
     QFutureWatcher<void> *m_applicationTask;
     Core::StatusBarWidget *m_statusBarWidgetContainer;
     QWidget *m_statusBarWidget;

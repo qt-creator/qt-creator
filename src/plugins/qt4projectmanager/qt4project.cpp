@@ -859,7 +859,7 @@ void Qt4Project::asyncUpdate()
 
     m_asyncUpdateFutureInterface->setProgressRange(0, 0);
     Core::ProgressManager::addTask(m_asyncUpdateFutureInterface->future(), tr("Evaluating"),
-                             QLatin1String(Constants::PROFILE_EVALUATE));
+                             Constants::PROFILE_EVALUATE);
     if (debug)
         qDebug()<<"  adding task";
 

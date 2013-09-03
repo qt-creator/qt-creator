@@ -61,10 +61,10 @@ SymbolsFindFilter::SymbolsFindFilter(CppModelManager *manager)
       m_scope(SymbolSearcher::SearchProjectsOnly)
 {
     // for disabling while parser is running
-    connect(ProgressManager::instance(), SIGNAL(taskStarted(QString)),
-            this, SLOT(onTaskStarted(QString)));
-    connect(ProgressManager::instance(), SIGNAL(allTasksFinished(QString)),
-            this, SLOT(onAllTasksFinished(QString)));
+    connect(ProgressManager::instance(), SIGNAL(taskStarted(Core::Id)),
+            this, SLOT(onTaskStarted(Core::Id)));
+    connect(ProgressManager::instance(), SIGNAL(allTasksFinished(Core::Id)),
+            this, SLOT(onAllTasksFinished(Core::Id)));
 }
 
 QString SymbolsFindFilter::id() const
@@ -150,7 +150,7 @@ void SymbolsFindFilter::startSearch(Find::SearchResult *search)
             symbolSearcher, SLOT(deleteLater()));
     watcher->setFuture(QtConcurrent::run(&SymbolSearcher::runSearch, symbolSearcher));
     FutureProgress *progress = ProgressManager::addTask(watcher->future(), tr("Searching"),
-                                                        QLatin1String(Find::Constants::TASK_SEARCH));
+                                                        Find::Constants::TASK_SEARCH);
     connect(progress, SIGNAL(clicked()), search, SLOT(popup()));
 }
 
@@ -213,17 +213,17 @@ void SymbolsFindFilter::readSettings(QSettings *settings)
     emit symbolsToSearchChanged();
 }
 
-void SymbolsFindFilter::onTaskStarted(const QString &type)
+void SymbolsFindFilter::onTaskStarted(Id type)
 {
-    if (type == QLatin1String(CppTools::Constants::TASK_INDEX)) {
+    if (type == CppTools::Constants::TASK_INDEX) {
         m_enabled = false;
         emit enabledChanged(m_enabled);
     }
 }
 
-void SymbolsFindFilter::onAllTasksFinished(const QString &type)
+void SymbolsFindFilter::onAllTasksFinished(Core::Id type)
 {
-    if (type == QLatin1String(CppTools::Constants::TASK_INDEX)) {
+    if (type == CppTools::Constants::TASK_INDEX) {
         m_enabled = true;
         emit enabledChanged(m_enabled);
     }

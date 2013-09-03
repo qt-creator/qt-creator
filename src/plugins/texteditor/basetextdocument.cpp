@@ -367,8 +367,7 @@ bool BaseTextDocument::open(QString *errorString, const QString &fileName, const
         } else {
             QFutureInterface<void> interface;
             interface.setProgressRange(0, chunks);
-            ProgressManager::addTask(interface.future(),
-                tr("Opening file"), QLatin1String(Constants::TASK_OPEN_FILE));
+            ProgressManager::addTask(interface.future(), tr("Opening file"), Constants::TASK_OPEN_FILE);
             interface.reportStarted();
             d->m_document->setUndoRedoEnabled(false);
             QTextCursor c(d->m_document);

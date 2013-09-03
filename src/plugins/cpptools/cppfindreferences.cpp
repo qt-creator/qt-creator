@@ -281,7 +281,7 @@ void CppFindReferences::findAll_helper(Find::SearchResult *search)
     createWatcher(result, search);
 
     FutureProgress *progress = ProgressManager::addTask(result, tr("Searching"),
-                                                              QLatin1String(CppTools::Constants::TASK_SEARCH));
+                                                              CppTools::Constants::TASK_SEARCH);
 
     connect(progress, SIGNAL(clicked()), search, SLOT(popup()));
 }
@@ -664,7 +664,7 @@ void CppFindReferences::findMacroUses(const Macro &macro, const QString &replace
     createWatcher(result, search);
 
     FutureProgress *progress = ProgressManager::addTask(result, tr("Searching"),
-                                                              QLatin1String(CppTools::Constants::TASK_SEARCH));
+                                                              CppTools::Constants::TASK_SEARCH);
     connect(progress, SIGNAL(clicked()), search, SLOT(popup()));
 }
 

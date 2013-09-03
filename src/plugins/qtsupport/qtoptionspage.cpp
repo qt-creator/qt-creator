@@ -458,7 +458,7 @@ void QtOptionsPageWidget::buildDebuggingHelper(DebuggingHelperBuildTask::Tools t
     QFuture<void> task = QtConcurrent::run(&DebuggingHelperBuildTask::run, buildTask);
     const QString taskName = tr("Building helpers");
 
-    Core::ProgressManager::addTask(task, taskName, QLatin1String("Qt4ProjectManager::BuildHelpers"));
+    Core::ProgressManager::addTask(task, taskName, "Qt4ProjectManager::BuildHelpers");
 }
 void QtOptionsPageWidget::buildGdbHelper()
 {

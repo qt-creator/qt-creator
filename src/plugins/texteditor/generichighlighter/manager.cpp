@@ -310,8 +310,7 @@ void Manager::registerMimeTypes()
         connect(&m_registeringWatcher, SIGNAL(finished()), processor, SLOT(deleteLater()));
         m_registeringWatcher.setFuture(future);
 
-        ProgressManager::addTask(future, tr("Registering definitions"),
-                                                            QLatin1String(Constants::TASK_REGISTER_DEFINITIONS));
+        ProgressManager::addTask(future, tr("Registering definitions"), "TextEditor.Task.Register");
     } else {
         m_hasQueuedRegistration = true;
         m_registeringWatcher.cancel();
@@ -444,8 +443,7 @@ void Manager::downloadDefinitions(const QList<QUrl> &urls, const QString &savePa
     m_isDownloadingDefinitionsSpec = true;
     QFuture<void> future = QtConcurrent::map(m_downloaders, DownloaderStarter());
     m_downloadWatcher.setFuture(future);
-    ProgressManager::addTask(future, tr("Downloading definitions"),
-                                                        QLatin1String(Constants::TASK_DOWNLOAD_DEFINITIONS));
+    ProgressManager::addTask(future, tr("Downloading definitions"), "TextEditor.Task.Download");
 }
 
 void Manager::downloadDefinitionsFinished()

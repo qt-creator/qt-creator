@@ -41,9 +41,6 @@ const char PROJECT_ID[] = "Qbs.QbsProject";
 // MIME types:
 const char MIME_TYPE[] = "application/x-qt.qbs+qml";
 
-// Progress reports:
-const char QBS_EVALUATE[] = "Qbs.QbsEvaluate";
-
 // Actions:
 const char ACTION_REPARSE_QBS[] = "Qbs.Reparse";
 const char ACTION_REPARSE_QBS_CONTEXT[] = "Qbs.ReparseCtx";
