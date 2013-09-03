@@ -121,11 +121,10 @@ bool BaseTextFind::supportsReplace() const
     return !isReadOnly();
 }
 
-Find::FindFlags BaseTextFind::supportedFindFlags() const
+FindFlags BaseTextFind::supportedFindFlags() const
 {
-    return Find::FindBackward | Find::FindCaseSensitively
-            | Find::FindRegularExpression | Find::FindWholeWords
-            | Find::FindPreserveCase;
+    return FindBackward | FindCaseSensitively | FindRegularExpression
+            | FindWholeWords | FindPreserveCase;
 }
 
 void BaseTextFind::resetIncrementalSearch()
@@ -172,7 +171,7 @@ QString BaseTextFind::completedFindString() const
     return cursor.selectedText();
 }
 
-IFindSupport::Result BaseTextFind::findIncremental(const QString &txt, Find::FindFlags findFlags)
+IFindSupport::Result BaseTextFind::findIncremental(const QString &txt, FindFlags findFlags)
 {
     QTextCursor cursor = textCursor();
     if (d->m_incrementalStartPos < 0)
@@ -191,7 +190,7 @@ IFindSupport::Result BaseTextFind::findIncremental(const QString &txt, Find::Fin
     return found ? Found : NotFound;
 }
 
-IFindSupport::Result BaseTextFind::findStep(const QString &txt, Find::FindFlags findFlags)
+IFindSupport::Result BaseTextFind::findStep(const QString &txt, FindFlags findFlags)
 {
     bool wrapped = false;
     bool found = find(txt, findFlags, textCursor(), &wrapped);
@@ -204,21 +203,20 @@ IFindSupport::Result BaseTextFind::findStep(const QString &txt, Find::FindFlags 
     return found ? Found : NotFound;
 }
 
-void BaseTextFind::replace(const QString &before, const QString &after,
-                           Find::FindFlags findFlags)
+void BaseTextFind::replace(const QString &before, const QString &after, FindFlags findFlags)
 {
     QTextCursor cursor = replaceInternal(before, after, findFlags);
     setTextCursor(cursor);
 }
 
 QTextCursor BaseTextFind::replaceInternal(const QString &before, const QString &after,
-                                          Find::FindFlags findFlags)
+                                          FindFlags findFlags)
 {
     QTextCursor cursor = textCursor();
-    bool usesRegExp = (findFlags & Find::FindRegularExpression);
-    bool preserveCase = (findFlags & Find::FindPreserveCase);
+    bool usesRegExp = (findFlags & FindRegularExpression);
+    bool preserveCase = (findFlags & FindPreserveCase);
     QRegExp regexp(before,
-                   (findFlags & Find::FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive,
+                   (findFlags & FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive,
                    usesRegExp ? QRegExp::RegExp : QRegExp::FixedString);
 
     if (regexp.exactMatch(cursor.selectedText())) {
@@ -231,14 +229,13 @@ QTextCursor BaseTextFind::replaceInternal(const QString &before, const QString &
             realAfter = after;
         int start = cursor.selectionStart();
         cursor.insertText(realAfter);
-        if ((findFlags&Find::FindBackward) != 0)
+        if ((findFlags & FindBackward) != 0)
             cursor.setPosition(start);
     }
     return cursor;
 }
 
-bool BaseTextFind::replaceStep(const QString &before, const QString &after,
-    Find::FindFlags findFlags)
+bool BaseTextFind::replaceStep(const QString &before, const QString &after, FindFlags findFlags)
 {
     QTextCursor cursor = replaceInternal(before, after, findFlags);
     bool wrapped = false;
@@ -248,8 +245,7 @@ bool BaseTextFind::replaceStep(const QString &before, const QString &after,
     return found;
 }
 
-int BaseTextFind::replaceAll(const QString &before, const QString &after,
-    Find::FindFlags findFlags)
+int BaseTextFind::replaceAll(const QString &before, const QString &after, FindFlags findFlags)
 {
     QTextCursor editCursor = textCursor();
     if (!d->m_findScopeStart.isNull())
@@ -258,12 +254,12 @@ int BaseTextFind::replaceAll(const QString &before, const QString &after,
         editCursor.movePosition(QTextCursor::Start);
     editCursor.beginEditBlock();
     int count = 0;
-    bool usesRegExp = (findFlags & Find::FindRegularExpression);
-    bool preserveCase = (findFlags & Find::FindPreserveCase);
+    bool usesRegExp = (findFlags & FindRegularExpression);
+    bool preserveCase = (findFlags & FindPreserveCase);
     QRegExp regexp(before);
     regexp.setPatternSyntax(usesRegExp ? QRegExp::RegExp : QRegExp::FixedString);
-    regexp.setCaseSensitivity((findFlags & Find::FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive);
-    QTextCursor found = findOne(regexp, editCursor, Find::textDocumentFlagsForFindFlags(findFlags));
+    regexp.setCaseSensitivity((findFlags & FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive);
+    QTextCursor found = findOne(regexp, editCursor, textDocumentFlagsForFindFlags(findFlags));
     bool first = true;
     while (!found.isNull() && inScope(found.selectionStart(), found.selectionEnd())) {
         if (found == editCursor && !first) {
@@ -273,10 +269,10 @@ int BaseTextFind::replaceAll(const QString &before, const QString &after,
             // otherwise we would run into an endless loop for some regular expressions
             // like ^ or \b.
             QTextCursor newPosCursor = editCursor;
-            newPosCursor.movePosition(findFlags & Find::FindBackward ?
+            newPosCursor.movePosition(findFlags & FindBackward ?
                                           QTextCursor::PreviousCharacter :
                                           QTextCursor::NextCharacter);
-            found = findOne(regexp, newPosCursor, Find::textDocumentFlagsForFindFlags(findFlags));
+            found = findOne(regexp, newPosCursor, textDocumentFlagsForFindFlags(findFlags));
             continue;
         }
         if (first)
@@ -294,13 +290,13 @@ int BaseTextFind::replaceAll(const QString &before, const QString &after,
         else
             realAfter = after;
         editCursor.insertText(realAfter);
-        found = findOne(regexp, editCursor, Find::textDocumentFlagsForFindFlags(findFlags));
+        found = findOne(regexp, editCursor, textDocumentFlagsForFindFlags(findFlags));
     }
     editCursor.endEditBlock();
     return count;
 }
 
-bool BaseTextFind::find(const QString &txt, Find::FindFlags findFlags,
+bool BaseTextFind::find(const QString &txt, FindFlags findFlags,
     QTextCursor start, bool *wrapped)
 {
     if (txt.isEmpty()) {
@@ -308,9 +304,9 @@ bool BaseTextFind::find(const QString &txt, Find::FindFlags findFlags,
         return true;
     }
     QRegExp regexp(txt);
-    regexp.setPatternSyntax((findFlags&Find::FindRegularExpression) ? QRegExp::RegExp : QRegExp::FixedString);
-    regexp.setCaseSensitivity((findFlags&Find::FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive);
-    QTextCursor found = findOne(regexp, start, Find::textDocumentFlagsForFindFlags(findFlags));
+    regexp.setPatternSyntax((findFlags & FindRegularExpression) ? QRegExp::RegExp : QRegExp::FixedString);
+    regexp.setCaseSensitivity((findFlags & FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive);
+    QTextCursor found = findOne(regexp, start, textDocumentFlagsForFindFlags(findFlags));
     if (wrapped)
         *wrapped = false;
 
@@ -318,11 +314,11 @@ bool BaseTextFind::find(const QString &txt, Find::FindFlags findFlags,
 
         // scoped
         if (found.isNull() || !inScope(found.selectionStart(), found.selectionEnd())) {
-            if ((findFlags&Find::FindBackward) == 0)
+            if ((findFlags & FindBackward) == 0)
                 start.setPosition(d->m_findScopeStart.position());
             else
                 start.setPosition(d->m_findScopeEnd.position());
-            found = findOne(regexp, start, Find::textDocumentFlagsForFindFlags(findFlags));
+            found = findOne(regexp, start, textDocumentFlagsForFindFlags(findFlags));
             if (found.isNull() || !inScope(found.selectionStart(), found.selectionEnd()))
                 return false;
             if (wrapped)
@@ -332,11 +328,11 @@ bool BaseTextFind::find(const QString &txt, Find::FindFlags findFlags,
 
         // entire document
         if (found.isNull()) {
-            if ((findFlags&Find::FindBackward) == 0)
+            if ((findFlags & FindBackward) == 0)
                 start.movePosition(QTextCursor::Start);
             else
                 start.movePosition(QTextCursor::End);
-            found = findOne(regexp, start, Find::textDocumentFlagsForFindFlags(findFlags));
+            found = findOne(regexp, start, textDocumentFlagsForFindFlags(findFlags));
             if (found.isNull())
                 return false;
             if (wrapped)

@@ -1229,7 +1229,7 @@ void HelpPlugin::slotReportBug()
 void HelpPlugin::openFindToolBar()
 {
     if (Find::FindPlugin::instance())
-        Find::FindPlugin::instance()->openFindToolBar(Find::FindPlugin::FindForward);
+        Find::FindPlugin::instance()->openFindToolBar(Find::FindPlugin::FindForwardDirection);
 }
 
 void  HelpPlugin::onSideBarVisibilityChanged()

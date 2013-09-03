@@ -40,7 +40,7 @@ QT_END_NAMESPACE
 namespace Find {
 class ItemModelFindPrivate;
 
-class FIND_EXPORT TreeViewFind : public Find::IFindSupport
+class FIND_EXPORT TreeViewFind : public IFindSupport
 {
     Q_OBJECT
 public:
@@ -48,18 +48,18 @@ public:
     virtual ~TreeViewFind();
 
     bool supportsReplace() const;
-    Find::FindFlags supportedFindFlags() const;
+    FindFlags supportedFindFlags() const;
     void resetIncrementalSearch();
     void clearResults();
     QString currentFindString() const;
     QString completedFindString() const;
 
     virtual void highlightAll(const QString &txt, FindFlags findFlags);
-    Result findIncremental(const QString &txt, Find::FindFlags findFlags);
-    Result findStep(const QString &txt, Find::FindFlags findFlags);
+    Result findIncremental(const QString &txt, FindFlags findFlags);
+    Result findStep(const QString &txt, FindFlags findFlags);
 
 private:
-    Result find(const QString &txt, Find::FindFlags findFlags,
+    Result find(const QString &txt, FindFlags findFlags,
                 bool startFromCurrentIndex, bool *wrapped);
     QModelIndex nextIndex(const QModelIndex &idx, bool *wrapped) const;
     QModelIndex prevIndex(const QModelIndex &idx, bool *wrapped) const;

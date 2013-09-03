@@ -41,7 +41,7 @@ QT_END_NAMESPACE
 
 namespace Find {
 class IFindFilter;
-struct FindPluginPrivate;
+class FindPluginPrivate;
 
 namespace Internal {
 class FindToolBar;
@@ -59,8 +59,8 @@ public:
     static FindPlugin *instance();
 
     enum FindDirection {
-        FindForward,
-        FindBackward
+        FindForwardDirection,
+        FindBackwardDirection
     };
 
     // IPlugin
@@ -68,8 +68,8 @@ public:
     void extensionsInitialized();
     ShutdownFlag aboutToShutdown();
 
-    Find::FindFlags findFlags() const;
-    bool hasFindFlag(Find::FindFlag flag);
+    FindFlags findFlags() const;
+    bool hasFindFlag(FindFlag flag);
     void updateFindCompletion(const QString &text);
     void updateReplaceCompletion(const QString &text);
     QStringListModel *findCompletionModel() const;
@@ -93,7 +93,7 @@ private slots:
     void openFindFilter();
 
 private:
-    void setFindFlag(Find::FindFlag flag, bool enabled);
+    void setFindFlag(FindFlag flag, bool enabled);
     void updateCompletion(const QString &text, QStringList &completions, QStringListModel *model);
     void setupMenu();
     void setupFilterMenuItems();

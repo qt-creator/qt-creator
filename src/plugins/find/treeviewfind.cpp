@@ -66,10 +66,9 @@ bool TreeViewFind::supportsReplace() const
     return false;
 }
 
-Find::FindFlags TreeViewFind::supportedFindFlags() const
+FindFlags TreeViewFind::supportedFindFlags() const
 {
-    return Find::FindBackward | Find::FindCaseSensitively
-            | Find::FindRegularExpression | Find::FindWholeWords;
+    return FindBackward | FindCaseSensitively | FindRegularExpression | FindWholeWords;
 }
 
 void TreeViewFind::resetIncrementalSearch()
@@ -96,8 +95,7 @@ void TreeViewFind::highlightAll(const QString &/*txt*/, FindFlags /*findFlags*/)
 {
 }
 
-IFindSupport::Result TreeViewFind::findIncremental(const QString &txt,
-                                                    Find::FindFlags findFlags)
+IFindSupport::Result TreeViewFind::findIncremental(const QString &txt, FindFlags findFlags)
 {
     if (!d->m_incrementalFindStart.isValid()) {
         d->m_incrementalFindStart = d->m_view->currentIndex();
@@ -114,8 +112,7 @@ IFindSupport::Result TreeViewFind::findIncremental(const QString &txt,
     return result;
 }
 
-IFindSupport::Result TreeViewFind::findStep(const QString &txt,
-                                             Find::FindFlags findFlags)
+IFindSupport::Result TreeViewFind::findStep(const QString &txt, FindFlags findFlags)
 {
     bool wrapped = false;
     IFindSupport::Result result = find(txt, findFlags, false/*startFromNext*/,
@@ -130,7 +127,7 @@ IFindSupport::Result TreeViewFind::findStep(const QString &txt,
 }
 
 IFindSupport::Result TreeViewFind::find(const QString &searchTxt,
-                                        Find::FindFlags findFlags,
+                                        FindFlags findFlags,
                                         bool startFromCurrentIndex,
                                         bool *wrapped)
 {
@@ -139,8 +136,7 @@ IFindSupport::Result TreeViewFind::find(const QString &searchTxt,
     if (searchTxt.isEmpty())
         return IFindSupport::NotFound;
 
-    QTextDocument::FindFlags flags =
-            Find::textDocumentFlagsForFindFlags(findFlags);
+    QTextDocument::FindFlags flags = textDocumentFlagsForFindFlags(findFlags);
     QModelIndex resultIndex;
     QModelIndex currentIndex = d->m_view->currentIndex();
     QModelIndex index = currentIndex;
@@ -160,8 +156,8 @@ IFindSupport::Result TreeViewFind::find(const QString &searchTxt,
         if (index.isValid()) {
             const QString &text = d->m_view->model()->data(
                         index, d->m_role).toString();
-            if (findFlags & Find::FindRegularExpression) {
-                bool sensitive = (findFlags & Find::FindCaseSensitively);
+            if (findFlags & FindRegularExpression) {
+                bool sensitive = (findFlags & FindCaseSensitively);
                 QRegExp searchExpr = QRegExp(searchTxt,
                                              (sensitive ? Qt::CaseSensitive :
                                                           Qt::CaseInsensitive));
@@ -172,8 +168,7 @@ IFindSupport::Result TreeViewFind::find(const QString &searchTxt,
             } else {
                 QTextDocument doc(text);
                 if (!doc.find(searchTxt, 0,
-                              flags & (Find::FindCaseSensitively |
-                                       Find::FindWholeWords)).isNull()
+                              flags & (FindCaseSensitively | FindWholeWords)).isNull()
                         && d->m_view->model()->flags(index) & Qt::ItemIsSelectable
                         && (index.row() != currentRow || index.parent() != currentIndex.parent()))
                     resultIndex = index;

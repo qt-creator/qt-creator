@@ -103,9 +103,9 @@ private:
     void installEventFilters();
     void invokeClearResults();
     bool setFocusToCurrentFindSupport();
-    void setFindFlag(Find::FindFlag flag, bool enabled);
-    bool hasFindFlag(Find::FindFlag flag);
-    Find::FindFlags effectiveFindFlags();
+    void setFindFlag(FindFlag flag, bool enabled);
+    bool hasFindFlag(FindFlag flag);
+    FindFlags effectiveFindFlags();
     Core::FindToolBarPlaceHolder *findToolBarPlaceHolder() const;
 
     bool eventFilter(QObject *obj, QEvent *event);
@@ -137,7 +137,7 @@ private:
     QAction *m_wholeWordAction;
     QAction *m_regularExpressionAction;
     QAction *m_preserveCaseAction;
-    Find::FindFlags m_findFlags;
+    FindFlags m_findFlags;
 
     QTimer m_findIncrementalTimer;
     QTimer m_findStepTimer;

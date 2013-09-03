@@ -71,7 +71,7 @@ void SearchResultTreeView::clear()
     m_model->clear();
 }
 
-void SearchResultTreeView::addResults(const QList<Find::SearchResultItem> &items, Find::SearchResult::AddMode mode)
+void SearchResultTreeView::addResults(const QList<SearchResultItem> &items, SearchResult::AddMode mode)
 {
     QList<QModelIndex> addedParents = m_model->addResults(items, mode);
     if (m_autoExpandResults && !addedParents.isEmpty()) {

@@ -1401,8 +1401,8 @@ void FakeVimPluginPrivate::find(bool reverse)
     if (Find::FindPlugin *plugin = Find::FindPlugin::instance()) {
         plugin->setUseFakeVim(true);
         plugin->openFindToolBar(reverse
-                ? Find::FindPlugin::FindBackward
-                : Find::FindPlugin::FindForward);
+                ? Find::FindPlugin::FindBackwardDirection
+                : Find::FindPlugin::FindForwardDirection);
     }
 }
 

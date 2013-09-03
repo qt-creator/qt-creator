@@ -42,7 +42,7 @@ QT_END_NAMESPACE
 namespace Find {
 struct BaseTextFindPrivate;
 
-class FIND_EXPORT BaseTextFind : public Find::IFindSupport
+class FIND_EXPORT BaseTextFind : public IFindSupport
 {
     Q_OBJECT
 
@@ -52,20 +52,17 @@ public:
     virtual ~BaseTextFind();
 
     bool supportsReplace() const;
-    Find::FindFlags supportedFindFlags() const;
+    FindFlags supportedFindFlags() const;
     void resetIncrementalSearch();
     void clearResults();
     QString currentFindString() const;
     QString completedFindString() const;
 
-    Result findIncremental(const QString &txt, Find::FindFlags findFlags);
-    Result findStep(const QString &txt, Find::FindFlags findFlags);
-    void replace(const QString &before, const QString &after,
-        Find::FindFlags findFlags);
-    bool replaceStep(const QString &before, const QString &after,
-        Find::FindFlags findFlags);
-    int replaceAll(const QString &before, const QString &after,
-        Find::FindFlags findFlags);
+    Result findIncremental(const QString &txt, FindFlags findFlags);
+    Result findStep(const QString &txt, FindFlags findFlags);
+    void replace(const QString &before, const QString &after, FindFlags findFlags);
+    bool replaceStep(const QString &before, const QString &after, FindFlags findFlags);
+    int replaceAll(const QString &before, const QString &after, FindFlags findFlags);
 
     void defineFindScope();
     void clearFindScope();
@@ -77,12 +74,8 @@ signals:
                           int verticalBlockSelectionLastColumn);
 
 private:
-    bool find(const QString &txt,
-              Find::FindFlags findFlags,
-              QTextCursor start,
-              bool *wrapped);
-    QTextCursor replaceInternal(const QString &before, const QString &after,
-                                Find::FindFlags findFlags);
+    bool find(const QString &txt, FindFlags findFlags, QTextCursor start, bool *wrapped);
+    QTextCursor replaceInternal(const QString &before, const QString &after, FindFlags findFlags);
 
     QTextCursor textCursor() const;
     void setTextCursor(const QTextCursor&);

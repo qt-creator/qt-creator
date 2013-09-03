@@ -57,8 +57,8 @@ public:
     virtual bool isReplaceSupported() const { return false; }
     virtual FindFlags supportedFindFlags() const;
 
-    virtual void findAll(const QString &txt, Find::FindFlags findFlags) = 0;
-    virtual void replaceAll(const QString &txt, Find::FindFlags findFlags)
+    virtual void findAll(const QString &txt, FindFlags findFlags) = 0;
+    virtual void replaceAll(const QString &txt, FindFlags findFlags)
     { Q_UNUSED(txt) Q_UNUSED(findFlags) }
 
     virtual QWidget *createConfigWidget() { return 0; }

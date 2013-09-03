@@ -167,7 +167,7 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     m_preserveCaseCheck->setEnabled(false);
 
     if (FindPlugin * plugin = FindPlugin::instance()) {
-        m_preserveCaseCheck->setChecked(plugin->hasFindFlag(Find::FindPreserveCase));
+        m_preserveCaseCheck->setChecked(plugin->hasFindFlag(FindPreserveCase));
         connect(m_preserveCaseCheck, SIGNAL(clicked(bool)), plugin, SLOT(setPreserveCase(bool)));
     }
 

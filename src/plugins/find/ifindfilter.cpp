@@ -215,22 +215,25 @@
     The default is Find::FindCaseSensitively, Find::FindRegularExpression
     and Find::FindWholeWords
 */
-Find::FindFlags Find::IFindFilter::supportedFindFlags() const
+
+namespace Find {
+
+FindFlags IFindFilter::supportedFindFlags() const
 {
-    return Find::FindCaseSensitively
-            | Find::FindRegularExpression | Find::FindWholeWords;
+    return FindCaseSensitively
+            | FindRegularExpression | FindWholeWords;
 }
 
-QPixmap Find::IFindFilter::pixmapForFindFlags(Find::FindFlags flags)
+QPixmap IFindFilter::pixmapForFindFlags(FindFlags flags)
 {
     static const QPixmap casesensitiveIcon = QPixmap(QLatin1String(":/find/images/casesensitively.png"));
     static const QPixmap regexpIcon = QPixmap(QLatin1String(":/find/images/regexp.png"));
     static const QPixmap wholewordsIcon = QPixmap(QLatin1String(":/find/images/wholewords.png"));
     static const QPixmap preservecaseIcon = QPixmap(QLatin1String(":/find/images/preservecase.png"));
-    bool casesensitive = flags & Find::FindCaseSensitively;
-    bool wholewords = flags & Find::FindWholeWords;
-    bool regexp = flags & Find::FindRegularExpression;
-    bool preservecase = flags & Find::FindPreserveCase;
+    bool casesensitive = flags & FindCaseSensitively;
+    bool wholewords = flags & FindWholeWords;
+    bool regexp = flags & FindRegularExpression;
+    bool preservecase = flags & FindPreserveCase;
     int width = 0;
     if (casesensitive) width += 6;
     if (wholewords) width += 6;
@@ -259,16 +262,16 @@ QPixmap Find::IFindFilter::pixmapForFindFlags(Find::FindFlags flags)
     return pixmap;
 }
 
-QString Find::IFindFilter::descriptionForFindFlags(Find::FindFlags flags)
+QString IFindFilter::descriptionForFindFlags(FindFlags flags)
 {
     QStringList flagStrings;
-    if (flags & Find::FindCaseSensitively)
+    if (flags & FindCaseSensitively)
         flagStrings.append(tr("Case sensitive"));
-    if (flags & Find::FindWholeWords)
+    if (flags & FindWholeWords)
         flagStrings.append(tr("Whole words"));
-    if (flags & Find::FindRegularExpression)
+    if (flags & FindRegularExpression)
         flagStrings.append(tr("Regular expressions"));
-    if (flags & Find::FindPreserveCase)
+    if (flags & FindPreserveCase)
         flagStrings.append(tr("Preserve case"));
     QString description = tr("Flags: %1");
     if (flagStrings.isEmpty())
@@ -277,3 +280,5 @@ QString Find::IFindFilter::descriptionForFindFlags(Find::FindFlags flags)
         description = description.arg(flagStrings.join(tr(", ")));
     return description;
 }
+
+} // namespace Find

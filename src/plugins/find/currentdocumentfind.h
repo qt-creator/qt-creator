@@ -47,21 +47,18 @@ public:
     void resetIncrementalSearch();
     void clearResults();
     bool supportsReplace() const;
-    Find::FindFlags supportedFindFlags() const;
+    FindFlags supportedFindFlags() const;
     QString currentFindString() const;
     QString completedFindString() const;
 
     bool isEnabled() const;
     bool candidateIsEnabled() const;
-    void highlightAll(const QString &txt, Find::FindFlags findFlags);
-    IFindSupport::Result findIncremental(const QString &txt, Find::FindFlags findFlags);
-    IFindSupport::Result findStep(const QString &txt, Find::FindFlags findFlags);
-    void replace(const QString &before, const QString &after,
-        Find::FindFlags findFlags);
-    bool replaceStep(const QString &before, const QString &after,
-        Find::FindFlags findFlags);
-    int replaceAll(const QString &before, const QString &after,
-        Find::FindFlags findFlags);
+    void highlightAll(const QString &txt, FindFlags findFlags);
+    IFindSupport::Result findIncremental(const QString &txt, FindFlags findFlags);
+    IFindSupport::Result findStep(const QString &txt, FindFlags findFlags);
+    void replace(const QString &before, const QString &after, FindFlags findFlags);
+    bool replaceStep(const QString &before, const QString &after, FindFlags findFlags);
+    int replaceAll(const QString &before, const QString &after, FindFlags findFlags);
     void defineFindScope();
     void clearFindScope();
     void acceptCandidate();

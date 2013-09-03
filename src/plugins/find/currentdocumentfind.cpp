@@ -82,7 +82,7 @@ bool CurrentDocumentFind::supportsReplace() const
     return m_currentFind->supportsReplace();
 }
 
-Find::FindFlags CurrentDocumentFind::supportedFindFlags() const
+FindFlags CurrentDocumentFind::supportedFindFlags() const
 {
     QTC_ASSERT(m_currentFind, return 0);
     return m_currentFind->supportedFindFlags();
@@ -100,40 +100,37 @@ QString CurrentDocumentFind::completedFindString() const
     return m_currentFind->completedFindString();
 }
 
-void CurrentDocumentFind::highlightAll(const QString &txt, Find::FindFlags findFlags)
+void CurrentDocumentFind::highlightAll(const QString &txt, FindFlags findFlags)
 {
     QTC_ASSERT(m_currentFind, return);
     m_currentFind->highlightAll(txt, findFlags);
 }
 
-IFindSupport::Result CurrentDocumentFind::findIncremental(const QString &txt, Find::FindFlags findFlags)
+IFindSupport::Result CurrentDocumentFind::findIncremental(const QString &txt, FindFlags findFlags)
 {
     QTC_ASSERT(m_currentFind, return IFindSupport::NotFound);
     return m_currentFind->findIncremental(txt, findFlags);
 }
 
-IFindSupport::Result CurrentDocumentFind::findStep(const QString &txt, Find::FindFlags findFlags)
+IFindSupport::Result CurrentDocumentFind::findStep(const QString &txt, FindFlags findFlags)
 {
     QTC_ASSERT(m_currentFind, return IFindSupport::NotFound);
     return m_currentFind->findStep(txt, findFlags);
 }
 
-void CurrentDocumentFind::replace(const QString &before, const QString &after,
-    Find::FindFlags findFlags)
+void CurrentDocumentFind::replace(const QString &before, const QString &after, FindFlags findFlags)
 {
     QTC_ASSERT(m_currentFind, return);
     m_currentFind->replace(before, after, findFlags);
 }
 
-bool CurrentDocumentFind::replaceStep(const QString &before, const QString &after,
-    Find::FindFlags findFlags)
+bool CurrentDocumentFind::replaceStep(const QString &before, const QString &after, FindFlags findFlags)
 {
     QTC_ASSERT(m_currentFind, return false);
     return m_currentFind->replaceStep(before, after, findFlags);
 }
 
-int CurrentDocumentFind::replaceAll(const QString &before, const QString &after,
-    Find::FindFlags findFlags)
+int CurrentDocumentFind::replaceAll(const QString &before, const QString &after, FindFlags findFlags)
 {
     QTC_ASSERT(m_currentFind, return 0);
     return m_currentFind->replaceAll(before, after, findFlags);

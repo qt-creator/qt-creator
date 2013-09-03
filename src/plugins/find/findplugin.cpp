@@ -74,7 +74,8 @@ namespace {
 
 namespace Find {
 
-struct FindPluginPrivate {
+class FindPluginPrivate {
+public:
     explicit FindPluginPrivate(FindPlugin *q);
 
     //variables
@@ -85,7 +86,7 @@ struct FindPluginPrivate {
     Internal::CurrentDocumentFind *m_currentDocumentFind;
     Internal::FindToolBar *m_findToolBar;
     Internal::FindToolWindow *m_findDialog;
-    Find::FindFlags m_findFlags;
+    FindFlags m_findFlags;
     QStringListModel *m_findCompletionModel;
     QStringListModel *m_replaceCompletionModel;
     QStringList m_findCompletions;
@@ -244,37 +245,37 @@ void FindPlugin::setupFilterMenuItems()
     d->m_openFindDialog->setEnabled(haveEnabledFilters);
 }
 
-Find::FindFlags FindPlugin::findFlags() const
+FindFlags FindPlugin::findFlags() const
 {
     return d->m_findFlags;
 }
 
 void FindPlugin::setCaseSensitive(bool sensitive)
 {
-    setFindFlag(Find::FindCaseSensitively, sensitive);
+    setFindFlag(FindCaseSensitively, sensitive);
 }
 
 void FindPlugin::setWholeWord(bool wholeOnly)
 {
-    setFindFlag(Find::FindWholeWords, wholeOnly);
+    setFindFlag(FindWholeWords, wholeOnly);
 }
 
 void FindPlugin::setBackward(bool backward)
 {
-    setFindFlag(Find::FindBackward, backward);
+    setFindFlag(FindBackward, backward);
 }
 
 void FindPlugin::setRegularExpression(bool regExp)
 {
-    setFindFlag(Find::FindRegularExpression, regExp);
+    setFindFlag(FindRegularExpression, regExp);
 }
 
 void FindPlugin::setPreserveCase(bool preserveCase)
 {
-    setFindFlag(Find::FindPreserveCase, preserveCase);
+    setFindFlag(FindPreserveCase, preserveCase);
 }
 
-void FindPlugin::setFindFlag(Find::FindFlag flag, bool enabled)
+void FindPlugin::setFindFlag(FindFlag flag, bool enabled)
 {
     bool hasFlag = hasFindFlag(flag);
     if ((hasFlag && enabled) || (!hasFlag && !enabled))
@@ -283,11 +284,11 @@ void FindPlugin::setFindFlag(Find::FindFlag flag, bool enabled)
         d->m_findFlags |= flag;
     else
         d->m_findFlags &= ~flag;
-    if (flag != Find::FindBackward)
+    if (flag != FindBackward)
         emit findFlagsChanged();
 }
 
-bool FindPlugin::hasFindFlag(Find::FindFlag flag)
+bool FindPlugin::hasFindFlag(FindFlag flag)
 {
     return d->m_findFlags & flag;
 }
@@ -296,11 +297,11 @@ void FindPlugin::writeSettings()
 {
     QSettings *settings = Core::ICore::settings();
     settings->beginGroup(QLatin1String("Find"));
-    settings->setValue(QLatin1String("Backward"), hasFindFlag(Find::FindBackward));
-    settings->setValue(QLatin1String("CaseSensitively"), hasFindFlag(Find::FindCaseSensitively));
-    settings->setValue(QLatin1String("WholeWords"), hasFindFlag(Find::FindWholeWords));
-    settings->setValue(QLatin1String("RegularExpression"), hasFindFlag(Find::FindRegularExpression));
-    settings->setValue(QLatin1String("PreserveCase"), hasFindFlag(Find::FindPreserveCase));
+    settings->setValue(QLatin1String("Backward"), hasFindFlag(FindBackward));
+    settings->setValue(QLatin1String("CaseSensitively"), hasFindFlag(FindCaseSensitively));
+    settings->setValue(QLatin1String("WholeWords"), hasFindFlag(FindWholeWords));
+    settings->setValue(QLatin1String("RegularExpression"), hasFindFlag(FindRegularExpression));
+    settings->setValue(QLatin1String("PreserveCase"), hasFindFlag(FindPreserveCase));
     settings->setValue(QLatin1String("FindStrings"), d->m_findCompletions);
     settings->setValue(QLatin1String("ReplaceStrings"), d->m_replaceCompletions);
     settings->endGroup();
@@ -359,7 +360,7 @@ void FindPlugin::setUseFakeVim(bool on)
 void FindPlugin::openFindToolBar(FindDirection direction)
 {
     if (d->m_findToolBar) {
-        d->m_findToolBar->setBackward(direction == FindBackward);
+        d->m_findToolBar->setBackward(direction == FindBackwardDirection);
         d->m_findToolBar->openFindToolBar();
     }
 }
@@ -385,7 +386,7 @@ QKeySequence IFindFilter::defaultShortcut() const
 QTextDocument::FindFlags Find::textDocumentFlagsForFindFlags(Find::FindFlags flags)
 {
     QTextDocument::FindFlags textDocFlags;
-    if (flags & Find::FindBackward)
+    if (flags & FindBackward)
         textDocFlags |= QTextDocument::FindBackward;
     if (flags & Find::FindCaseSensitively)
         textDocFlags |= QTextDocument::FindCaseSensitively;

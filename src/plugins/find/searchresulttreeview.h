@@ -51,7 +51,7 @@ public:
     void setTextEditorFont(const QFont &font, const SearchResultColor color);
 
     SearchResultTreeModel *model() const;
-    void addResults(const QList<Find::SearchResultItem> &items, SearchResult::AddMode mode);
+    void addResults(const QList<SearchResultItem> &items, SearchResult::AddMode mode);
 
 signals:
     void jumpToSearchResult(const SearchResultItem &item);

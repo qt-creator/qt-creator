@@ -124,19 +124,19 @@ void FindToolWindow::updateButtonStates()
         m_configWidget->setEnabled(filterEnabled);
 
     m_ui.matchCase->setEnabled(filterEnabled
-                               && (m_currentFilter->supportedFindFlags() & Find::FindCaseSensitively));
+                               && (m_currentFilter->supportedFindFlags() & FindCaseSensitively));
     m_ui.wholeWords->setEnabled(filterEnabled
-                                && (m_currentFilter->supportedFindFlags() & Find::FindWholeWords));
+                                && (m_currentFilter->supportedFindFlags() & FindWholeWords));
     m_ui.regExp->setEnabled(filterEnabled
-                            && (m_currentFilter->supportedFindFlags() & Find::FindRegularExpression));
+                            && (m_currentFilter->supportedFindFlags() & FindRegularExpression));
     m_ui.searchTerm->setEnabled(filterEnabled);
 }
 
 void FindToolWindow::updateFindFlags()
 {
-    m_ui.matchCase->setChecked(m_plugin->hasFindFlag(Find::FindCaseSensitively));
-    m_ui.wholeWords->setChecked(m_plugin->hasFindFlag(Find::FindWholeWords));
-    m_ui.regExp->setChecked(m_plugin->hasFindFlag(Find::FindRegularExpression));
+    m_ui.matchCase->setChecked(m_plugin->hasFindFlag(FindCaseSensitively));
+    m_ui.wholeWords->setChecked(m_plugin->hasFindFlag(FindWholeWords));
+    m_ui.regExp->setChecked(m_plugin->hasFindFlag(FindRegularExpression));
 }
 
 
