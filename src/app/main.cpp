@@ -82,6 +82,7 @@ static const char HELP_OPTION4[] = "--help";
 static const char VERSION_OPTION[] = "-version";
 static const char CLIENT_OPTION[] = "-client";
 static const char SETTINGS_OPTION[] = "-settingspath";
+static const char TEST_OPTION[] = "-test";
 static const char PID_OPTION[] = "-pid";
 static const char BLOCK_OPTION[] = "-block";
 static const char PLUGINPATH_OPTION[] = "-pluginpath";
@@ -319,6 +320,7 @@ int main(int argc, char **argv)
     QStringList customPluginPaths;
     QStringList arguments = app.arguments(); // adapted arguments list is passed to plugin manager later
     QMutableStringListIterator it(arguments);
+    bool testOptionProvided = false;
     while (it.hasNext()) {
         const QString &arg = it.next();
         if (arg == QLatin1String(SETTINGS_OPTION)) {
@@ -333,7 +335,14 @@ int main(int argc, char **argv)
                 customPluginPaths << QDir::fromNativeSeparators(it.next());
                 it.remove();
             }
+        } else if (arg == QLatin1String(TEST_OPTION)) {
+            testOptionProvided = true;
         }
+    }
+    if (settingsPath.isEmpty() && testOptionProvided) {
+        settingsPath = QDir::tempPath() + QString::fromLatin1("/qtc-%1-test-settings")
+                .arg(QLatin1String(Core::Constants::IDE_VERSION_LONG));
+        settingsPath = QDir::cleanPath(settingsPath);
     }
     if (!settingsPath.isEmpty())
         QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, settingsPath);

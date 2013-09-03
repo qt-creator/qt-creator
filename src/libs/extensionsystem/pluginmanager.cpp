@@ -614,7 +614,8 @@ void PluginManager::formatOptions(QTextStream &str, int optionIndentation, int d
 #ifdef WITH_TESTS
     formatOption(str, QString::fromLatin1(OptionsParser::TEST_OPTION)
                  + QLatin1String(" <plugin>[,testfunction[:testdata]]..."), QString(),
-                 QLatin1String("Run plugin's tests"), optionIndentation, descriptionIndentation);
+                 QLatin1String("Run plugin's tests (by default a separate settings path is used)"),
+                 optionIndentation, descriptionIndentation);
     formatOption(str, QString::fromLatin1(OptionsParser::TEST_OPTION) + QLatin1String(" all"),
                  QString(), QLatin1String("Run tests from all plugins"),
                  optionIndentation, descriptionIndentation);
