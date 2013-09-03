@@ -41,9 +41,11 @@ class MacroManager;
 
 class IMacroHandler: public QObject
 {
+    Q_OBJECT
+
 public:
     IMacroHandler();
-    virtual ~IMacroHandler();
+    ~IMacroHandler();
 
     virtual void startRecording(Macro* macro);
     virtual void endRecordingMacro(Macro* macro);
