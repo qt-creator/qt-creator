@@ -100,16 +100,6 @@
 #include <QPushButton>
 #include <QStyleFactory>
 
-/*
-#include <signal.h>
-extern "C" void handleSigInt(int sig)
-{
-    Q_UNUSED(sig)
-    Core::ICore::exit();
-    qDebug() << "SIGINT caught. Shutting down.";
-}
-*/
-
 using namespace Core;
 using namespace Core::Internal;
 
