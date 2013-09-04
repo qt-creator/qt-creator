@@ -74,6 +74,7 @@ void ResizeIndicator::setItems(const QList<FormEditorItem*> &itemList)
         if (item
                 && item->qmlItemNode().isValid()
                 && item->qmlItemNode().instanceIsResizable()
+                && item->qmlItemNode().modelIsMovable()
                 && item->qmlItemNode().modelIsResizable()
                 && !item->qmlItemNode().instanceHasRotationTransform()
                 && !item->qmlItemNode().instanceIsInLayoutable()) {
