@@ -612,8 +612,9 @@ bool FormEditorView::isMoveToolAvailable() const
 {
     if (hasSingleSelectedModelNode() && QmlItemNode::isValidQmlItemNode(singleSelectedModelNode())) {
         QmlItemNode selectedQmlItemNode(singleSelectedModelNode());
-        return selectedQmlItemNode.instanceIsMovable() &&
-               !selectedQmlItemNode.instanceIsInLayoutable();
+        return selectedQmlItemNode.instanceIsMovable()
+                && selectedQmlItemNode.modelIsMovable()
+                && !selectedQmlItemNode.instanceIsInLayoutable();
     }
 
     return true;
