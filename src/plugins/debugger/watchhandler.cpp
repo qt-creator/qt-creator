@@ -1442,8 +1442,7 @@ WatchHandler::WatchHandler(DebuggerEngine *engine)
 {
     m_separateWindow = 0;
     m_engine = engine;
-    m_watcherCounter = debuggerCore()->sessionValue(QLatin1String("Watchers"))
-            .toStringList().count();
+    m_watcherCounter = DebuggerCore::sessionValue("Watchers").toStringList().count();
     m_model = new WatchModel(this);
     m_contentsValid = false;
     m_contentsValid = true; // FIXME
@@ -1453,7 +1452,7 @@ WatchHandler::WatchHandler(DebuggerEngine *engine)
 WatchHandler::~WatchHandler()
 {
     if (m_separateWindow) {
-        debuggerCore()->setSessionValue(QLatin1String("DebuggerSeparateWidgetGeometry"),
+        DebuggerCore::setSessionValue("DebuggerSeparateWidgetGeometry",
                 m_separateWindow->geometry());
         delete m_separateWindow;
         m_separateWindow = 0;
@@ -1644,8 +1643,7 @@ void WatchHandler::showSeparateWidget(QWidget *w)
 {
     if (m_separateWindow.isNull()) {
         m_separateWindow = new SeparateViewWidget(debuggerCore()->mainWindow());
-        QVariant geometry = debuggerCore()->
-                sessionValue(QLatin1String("DebuggerSeparateWidgetGeometry"));
+        QVariant geometry = DebuggerCore::sessionValue("DebuggerSeparateWidgetGeometry");
         if (geometry.isValid())
             m_separateWindow->setGeometry(geometry.toRect());
     }
@@ -1803,12 +1801,12 @@ QStringList WatchHandler::watchedExpressions()
 
 void WatchHandler::saveWatchers()
 {
-    debuggerCore()->setSessionValue(QLatin1String("Watchers"), QVariant(watchedExpressions()));
+    DebuggerCore::setSessionValue("Watchers", watchedExpressions());
 }
 
 void WatchHandler::loadTypeFormats()
 {
-    QVariant value = debuggerCore()->sessionValue(QLatin1String("DefaultFormats"));
+    QVariant value = DebuggerCore::sessionValue("DefaultFormats");
     QMap<QString, QVariant> typeFormats = value.toMap();
     QMapIterator<QString, QVariant> it(typeFormats);
     while (it.hasNext()) {
@@ -1831,8 +1829,7 @@ void WatchHandler::saveTypeFormats()
                 typeFormats.insert(QLatin1String(key), format);
         }
     }
-    debuggerCore()->setSessionValue(QLatin1String("DefaultFormats"),
-                                    QVariant(typeFormats));
+    DebuggerCore::setSessionValue("DefaultFormats", typeFormats);
 }
 
 void WatchHandler::saveSessionData()
@@ -1846,7 +1843,7 @@ void WatchHandler::loadSessionData()
     loadTypeFormats();
     theWatcherNames.clear();
     m_watcherCounter = 0;
-    QVariant value = debuggerCore()->sessionValue(QLatin1String("Watchers"));
+    QVariant value = DebuggerCore::sessionValue("Watchers");
     m_model->destroyChildren(m_model->m_watchRoot);
     foreach (const QString &exp, value.toStringList())
         watchExpression(exp);

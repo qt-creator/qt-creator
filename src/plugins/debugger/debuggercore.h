@@ -81,10 +81,11 @@ class DebuggerCore : public QObject
 public:
     DebuggerCore() {}
 
-    virtual QVariant sessionValue(const QString &name) = 0;
-    virtual void setSessionValue(const QString &name, const QVariant &value) = 0;
-    virtual QVariant configValue(const QString &name) const = 0;
-    virtual void setConfigValue(const QString &name, const QVariant &value) = 0;
+    static QVariant sessionValue(const QByteArray &name);
+    static void setSessionValue(const QByteArray &name, const QVariant &value);
+    static QVariant configValue(const QByteArray &name);
+    static void setConfigValue(const QByteArray &name, const QVariant &value);
+
     virtual void updateState(DebuggerEngine *engine) = 0;
     virtual void updateWatchersWindow(bool showWatch, bool showReturn) = 0;
     virtual QIcon locationMarkIcon() const = 0;

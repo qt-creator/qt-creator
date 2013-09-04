@@ -343,13 +343,14 @@ void StartApplicationDialog::updateState()
     d->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(okEnabled);
 }
 
-bool StartApplicationDialog::run(QWidget *parent, QSettings *settings, DebuggerStartParameters *sp)
+bool StartApplicationDialog::run(QWidget *parent, DebuggerStartParameters *sp)
 {
     const bool attachRemote = sp->startMode == AttachToRemoteServer;
     const QString settingsGroup = QLatin1String("DebugMode");
     const QString arrayName = QLatin1String("StartApplication");
 
     QList<StartApplicationParameters> history;
+    QSettings *settings = ICore::settings();
     settings->beginGroup(settingsGroup);
     if (const int arraySize = settings->beginReadArray(arrayName)) {
         for (int i = 0; i < arraySize; ++i) {

@@ -34,13 +34,7 @@
 #include <QHash>
 #include <QMap>
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
-
-namespace Utils {
-class SavedAction;
-}
+namespace Utils { class SavedAction; }
 
 namespace Debugger {
 namespace Internal {
@@ -51,8 +45,8 @@ class GlobalDebuggerOptions
 public:
     typedef QMap<QString, QString> SourcePathMap;
 
-    void toSettings(QSettings *) const;
-    void fromSettings(QSettings *);
+    void toSettings() const;
+    void fromSettings();
     bool operator==(const GlobalDebuggerOptions &rhs) const
         { return sourcePathMap == rhs.sourcePathMap; }
     bool operator!=(const GlobalDebuggerOptions &rhs) const
@@ -66,7 +60,7 @@ class DebuggerSettings : public QObject
     Q_OBJECT // For tr().
 
 public:
-    explicit DebuggerSettings(QSettings *setting);
+    explicit DebuggerSettings();
     ~DebuggerSettings();
 
     void insertItem(int code, Utils::SavedAction *item);
@@ -79,7 +73,6 @@ public:
 
 private:
     QHash<int, Utils::SavedAction *> m_items;
-    QSettings *m_settings;
 };
 
 ///////////////////////////////////////////////////////////

@@ -260,13 +260,12 @@ void CommonOptionsPage::apply()
 {
     QTC_ASSERT(!m_widget.isNull() && !m_group.isNull(), return);
 
-    QSettings *settings = ICore::settings();
-    m_group->apply(settings);
+    m_group->apply(ICore::settings());
 
     const GlobalDebuggerOptions newGlobalOptions = m_widget->globalOptions();
     if (newGlobalOptions != *m_options) {
         *m_options = newGlobalOptions;
-        m_options->toSettings(settings);
+        m_options->toSettings();
     }
 }
 

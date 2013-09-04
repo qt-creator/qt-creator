@@ -1176,7 +1176,7 @@ void DebuggerToolTipManager::sessionAboutToChange()
 
 void DebuggerToolTipManager::loadSessionData()
 {
-    const QString data = debuggerCore()->sessionValue(QLatin1String(sessionSettingsKeyC)).toString();
+    const QString data = DebuggerCore::sessionValue(sessionSettingsKeyC).toString();
     if (data.isEmpty())
         return;
     QXmlStreamReader r(data);
@@ -1209,7 +1209,7 @@ void DebuggerToolTipManager::saveSessionData()
     }
     if (debugToolTips)
         qDebug() << "DebuggerToolTipManager::saveSessionData" << m_tooltips.size() << data ;
-    debuggerCore()->setSessionValue(QLatin1String(sessionSettingsKeyC), QVariant(data));
+    DebuggerCore::setSessionValue(sessionSettingsKeyC, QVariant(data));
 }
 
 void DebuggerToolTipManager::closeAllToolTips()

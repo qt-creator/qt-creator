@@ -33,6 +33,7 @@
 #include "registerpostmortemaction.h"
 #endif
 
+#include <coreplugin/icore.h>
 #include <utils/savedaction.h>
 #include <utils/qtcassert.h>
 
@@ -50,8 +51,9 @@ static const char sourcePathMappingTargetKeyC[] = "Target";
 namespace Debugger {
 namespace Internal {
 
-void GlobalDebuggerOptions::toSettings(QSettings *s) const
+void GlobalDebuggerOptions::toSettings() const
 {
+    QSettings *s = Core::ICore::settings();
     s->beginWriteArray(QLatin1String(sourcePathMappingArrayNameC));
     if (!sourcePathMap.isEmpty()) {
         const QString sourcePathMappingSourceKey = QLatin1String(sourcePathMappingSourceKeyC);
@@ -67,8 +69,9 @@ void GlobalDebuggerOptions::toSettings(QSettings *s) const
     s->endArray();
 }
 
-void GlobalDebuggerOptions::fromSettings(QSettings *s)
+void GlobalDebuggerOptions::fromSettings()
 {
+    QSettings *s = Core::ICore::settings();
     sourcePathMap.clear();
     if (const int count = s->beginReadArray(QLatin1String(sourcePathMappingArrayNameC))) {
         const QString sourcePathMappingSourceKey = QLatin1String(sourcePathMappingSourceKeyC);
@@ -88,9 +91,8 @@ void GlobalDebuggerOptions::fromSettings(QSettings *s)
 //
 //////////////////////////////////////////////////////////////////////////
 
-DebuggerSettings::DebuggerSettings(QSettings *settings)
+DebuggerSettings::DebuggerSettings()
 {
-    m_settings = settings;
     const QString debugModeGroup = QLatin1String(debugModeSettingsGroupC);
     const QString cdbSettingsGroup = QLatin1String(cdbSettingsGroupC);
 
@@ -667,14 +669,16 @@ void DebuggerSettings::insertItem(int code, SavedAction *item)
 
 void DebuggerSettings::readSettings()
 {
+    QSettings *settings = Core::ICore::settings();
     foreach (SavedAction *item, m_items)
-        item->readSettings(m_settings);
+        item->readSettings(settings);
 }
 
 void DebuggerSettings::writeSettings() const
 {
+    QSettings *settings = Core::ICore::settings();
     foreach (SavedAction *item, m_items)
-        item->writeSettings(m_settings);
+        item->writeSettings(settings);
 }
 
 SavedAction *DebuggerSettings::item(int code) const

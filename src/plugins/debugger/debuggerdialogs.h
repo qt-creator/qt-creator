@@ -82,8 +82,7 @@ public:
     explicit StartApplicationDialog(QWidget *parent);
     ~StartApplicationDialog();
 
-    static bool run(QWidget *parent, QSettings *settings,
-                    DebuggerStartParameters *sp);
+    static bool run(QWidget *parent, DebuggerStartParameters *sp);
 
 private slots:
     void historyIndexChanged(int);
