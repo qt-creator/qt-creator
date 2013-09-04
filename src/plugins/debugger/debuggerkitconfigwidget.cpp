@@ -1009,6 +1009,7 @@ void DebuggerKitConfigWidget::updateComboBox(const QVariant &id)
 
 class DebuggerItemConfigWidget : public QWidget
 {
+    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::DebuggerItemConfigWidget)
 public:
     explicit DebuggerItemConfigWidget();
     void loadItem(DebuggerItem *item);
