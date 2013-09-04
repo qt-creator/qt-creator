@@ -66,18 +66,22 @@ void ResizeIndicator::clear()
     m_itemControllerHash.clear();
 }
 
+bool itemIsResizable(const QmlItemNode &qmlItemNode)
+{
+    return qmlItemNode.isValid()
+            && qmlItemNode.instanceIsResizable()
+            && qmlItemNode.modelIsMovable()
+            && qmlItemNode.modelIsResizable()
+            && !qmlItemNode.instanceHasRotationTransform()
+            && !qmlItemNode.instanceIsInLayoutable();
+}
+
 void ResizeIndicator::setItems(const QList<FormEditorItem*> &itemList)
 {
     clear();
 
     foreach (FormEditorItem* item, itemList) {
-        if (item
-                && item->qmlItemNode().isValid()
-                && item->qmlItemNode().instanceIsResizable()
-                && item->qmlItemNode().modelIsMovable()
-                && item->qmlItemNode().modelIsResizable()
-                && !item->qmlItemNode().instanceHasRotationTransform()
-                && !item->qmlItemNode().instanceIsInLayoutable()) {
+        if (item && itemIsResizable(item->qmlItemNode())) {
             ResizeController controller(m_layerItem, item);
             m_itemControllerHash.insert(item, controller);
         }
@@ -88,7 +92,7 @@ void ResizeIndicator::updateItems(const QList<FormEditorItem*> &itemList)
 {
     foreach (FormEditorItem* item, itemList) {
         if (m_itemControllerHash.contains(item)) {
-            if (item->qmlItemNode().instanceHasRotationTransform()) {
+            if (!item || !itemIsResizable(item->qmlItemNode())) {
                 m_itemControllerHash.take(item);
             } else {
                 ResizeController controller(m_itemControllerHash.value(item));
