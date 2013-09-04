@@ -29,7 +29,8 @@
 
 #include "searchresulttreeitems.h"
 
-using namespace Find::Internal;
+namespace Find {
+namespace Internal {
 
 SearchResultTreeItem::SearchResultTreeItem(const SearchResultItem &item,
                                            SearchResultTreeItem *parent)
@@ -139,3 +140,6 @@ void SearchResultTreeItem::appendChild(const SearchResultItem &item)
 {
     insertChild(m_children.count(), item);
 }
+
+} // namespace Internal
+} // namespace Find
