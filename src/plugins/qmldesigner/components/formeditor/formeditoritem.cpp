@@ -183,20 +183,24 @@ void FormEditorItem::paintBoundingRect(QPainter *painter) const
 
     QPen pen;
     pen.setJoinStyle(Qt::MiterJoin);
-    pen.setStyle(Qt::DotLine);
+
 
     QColor frameColor("#AAAAAA");
 
     if (scene()->showBoundingRects()) {
-        if (m_highlightBoundingRect)
+        if (m_highlightBoundingRect) {
             pen.setColor(frameColor);
-        else
+        } else {
             pen.setColor(frameColor.darker(150));
+            pen.setStyle(Qt::DotLine);
+        }
     } else {
-        if (m_highlightBoundingRect)
+        if (m_highlightBoundingRect) {
             pen.setColor(frameColor);
-        else
+        } else {
             pen.setColor(Qt::transparent);
+            pen.setStyle(Qt::DotLine);
+        }
     }
 
     painter->setPen(pen);
