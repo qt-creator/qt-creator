@@ -39,34 +39,34 @@ QString AndroidErrorMessage::getMessage(ErrorCode errorCode, const QVariantList 
     Q_UNUSED(parameters);
     switch (errorCode) {
     case SDKInstallationError:
-        return QObject::tr("Android: SDK installation error 0x%1").arg(errorCode, 0, 16);
+        return tr("Android: SDK installation error 0x%1").arg(errorCode, 0, 16);
 
     case NDKInstallationError:
-        return QObject::tr("Android: NDK installation error 0x%1").arg(errorCode, 0, 16);
+        return tr("Android: NDK installation error 0x%1").arg(errorCode, 0, 16);
 
     case JavaInstallationError:
-        return QObject::tr("Android: Java installation error 0x%1").arg(errorCode, 0, 16);
+        return tr("Android: Java installation error 0x%1").arg(errorCode, 0, 16);
 
     case AntInstallationError:
-        return QObject::tr("Android: ant installation error 0x%1").arg(errorCode, 0, 16);
+        return tr("Android: ant installation error 0x%1").arg(errorCode, 0, 16);
 
     case AdbInstallationError:
-        return QObject::tr("Android: adb installation error 0x%1").arg(errorCode, 0, 16);
+        return tr("Android: adb installation error 0x%1").arg(errorCode, 0, 16);
 
     case DeviceConnectionError:
-        return QObject::tr("Android: Device connection error 0x%1").arg(errorCode, 0, 16);
+        return tr("Android: Device connection error 0x%1").arg(errorCode, 0, 16);
 
     case DevicePermissionError:
-        return QObject::tr("Android: Device permission error 0x%1").arg(errorCode, 0, 16);
+        return tr("Android: Device permission error 0x%1").arg(errorCode, 0, 16);
 
     case DeviceAuthorizationError:
-        return QObject::tr("Android: Device authorization error 0x%1").arg(errorCode, 0, 16);
+        return tr("Android: Device authorization error 0x%1").arg(errorCode, 0, 16);
 
     case DeviceAPILevelError:
-        return QObject::tr("Android: Device API level not supported: error 0x%1").arg(errorCode, 0, 16);
+        return tr("Android: Device API level not supported: error 0x%1").arg(errorCode, 0, 16);
 
     default:
-        return QObject::tr("Android: Unknown error 0x%1").arg(errorCode, 0, 16);
+        return tr("Android: Unknown error 0x%1").arg(errorCode, 0, 16);
     }
 }
 

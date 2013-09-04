@@ -43,12 +43,14 @@
 #include <projectexplorer/gcctoolchain.h>
 
 #include <QObject>
+#include <QCoreApplication>
 
 namespace Qnx {
 namespace Internal {
 
 class BlackBerryConfiguration
 {
+    Q_DECLARE_TR_FUNCTIONS(Qnx::Internal::BlackBerryConfiguration)
 public:
     BlackBerryConfiguration(const Utils::FileName &ndkEnvFile, bool isAutoDetected, const QString &displayName = QString());
     bool activate();

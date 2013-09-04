@@ -31,12 +31,14 @@
 #define ANDROIDERRORMESSAGE_H
 
 #include <QVariantList>
+#include <QCoreApplication>
 
 namespace Android {
 namespace Internal {
 
 class AndroidErrorMessage
 {
+    Q_DECLARE_TR_FUNCTIONS(Android::Internal::AndroidErrorMessage)
 public:
     enum ErrorCode {
         UnknownError = 0x3000,

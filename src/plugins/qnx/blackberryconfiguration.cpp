@@ -200,16 +200,16 @@ BaseQtVersion *BlackBerryConfiguration::createQtVersion(const FileName &qmakePat
     BaseQtVersion *version = QtVersionManager::qtVersionForQMakeBinary(qmakePath);
     if (version) {
         if (!m_isAutoDetected)
-            QMessageBox::warning(0, QObject::tr("Qt Version Already Known"),
-                             QObject::tr("This Qt version was already registered."), QMessageBox::Ok);
+            QMessageBox::warning(0, tr("Qt Version Already Known"),
+                             tr("This Qt version was already registered."), QMessageBox::Ok);
         return version;
     }
 
     version = new BlackBerryQtVersion(QnxUtils::cpudirToArch(cpuDir), qmakePath, m_isAutoDetected, QString(), m_ndkEnvFile.toString());
     if (!version) {
         if (!m_isAutoDetected)
-            QMessageBox::warning(0, QObject::tr("Invalid Qt Version"),
-                             QObject::tr("Unable to add BlackBerry Qt version."), QMessageBox::Ok);
+            QMessageBox::warning(0, tr("Invalid Qt Version"),
+                             tr("Unable to add BlackBerry Qt version."), QMessageBox::Ok);
         return 0;
     }
 
@@ -225,8 +225,8 @@ GccToolChain *BlackBerryConfiguration::createGccToolChain()
     foreach (ToolChain *tc, ToolChainManager::toolChains()) {
         if (tc->compilerCommand() == m_gccCompiler) {
             if (!m_isAutoDetected)
-                QMessageBox::warning(0, QObject::tr("Compiler Already Known"),
-                                 QObject::tr("This compiler was already registered."), QMessageBox::Ok);
+                QMessageBox::warning(0, tr("Compiler Already Known"),
+                                 tr("This compiler was already registered."), QMessageBox::Ok);
             return dynamic_cast<GccToolChain *>(tc);
         }
     }
@@ -252,8 +252,8 @@ Kit *BlackBerryConfiguration::createKit(QnxArchitecture arch, BaseQtVersion *qtV
                  && Debugger::DebuggerKitInformation::debuggerCommand(kit) == m_simulatorDebuger)
                     || (arch == ArmLeV7 && Debugger::DebuggerKitInformation::debuggerCommand(kit) == m_deviceDebuger)) {
                 if (!m_isAutoDetected)
-                    QMessageBox::warning(0, QObject::tr("Kit Already Known"),
-                                     QObject::tr("This kit was already registered."), QMessageBox::Ok);
+                    QMessageBox::warning(0, tr("Kit Already Known"),
+                                     tr("This kit was already registered."), QMessageBox::Ok);
                 setSticky(kit);
                 return kit;
             }
@@ -267,10 +267,10 @@ Kit *BlackBerryConfiguration::createKit(QnxArchitecture arch, BaseQtVersion *qtV
         Debugger::DebuggerKitInformation::setDebuggerCommand(kit, m_simulatorDebuger);
         Qt4ProjectManager::QmakeKitInformation::setMkspec(kit, FileName::fromString(QString::fromLatin1("blackberry-x86-qcc")));
         // TODO: Check if the name already exists(?)
-        kit->setDisplayName(QObject::tr("BlackBerry 10 (%1 - %2) - Simulator").arg(qtVersion->qtVersionString(), m_targetName));
+        kit->setDisplayName(tr("BlackBerry 10 (%1 - %2) - Simulator").arg(qtVersion->qtVersionString(), m_targetName));
     } else {
         Debugger::DebuggerKitInformation::setDebuggerCommand(kit, m_deviceDebuger);
-        kit->setDisplayName(QObject::tr("BlackBerry 10 (%1 - %2)").arg(qtVersion->qtVersionString(), m_targetName));
+        kit->setDisplayName(tr("BlackBerry 10 (%1 - %2)").arg(qtVersion->qtVersionString(), m_targetName));
     }
 
 
@@ -299,20 +299,20 @@ bool BlackBerryConfiguration::activate()
         if (m_isAutoDetected)
             return false;
 
-        QString errorMessage = QObject::tr("The following errors occurred while activating Target: %1").arg(m_targetName);
+        QString errorMessage = tr("The following errors occurred while activating Target: %1").arg(m_targetName);
         if (m_qmake4BinaryFile.isEmpty() && m_qmake4BinaryFile.isEmpty())
-            errorMessage += QLatin1Char('\n') + QObject::tr("- No Qt version found.");
+            errorMessage += QLatin1Char('\n') + tr("- No Qt version found.");
 
         if (m_gccCompiler.isEmpty())
-            errorMessage += QLatin1Char('\n') + QObject::tr("- No GCC compiler found.");
+            errorMessage += QLatin1Char('\n') + tr("- No GCC compiler found.");
 
         if (m_deviceDebuger.isEmpty())
-            errorMessage += QLatin1Char('\n') + QObject::tr("- No GDB debugger found for BB10 Device.");
+            errorMessage += QLatin1Char('\n') + tr("- No GDB debugger found for BB10 Device.");
 
         if (!m_simulatorDebuger.isEmpty())
-            errorMessage += QLatin1Char('\n') + QObject::tr("- No GDB debugger found for BB10 Simulator.");
+            errorMessage += QLatin1Char('\n') + tr("- No GDB debugger found for BB10 Simulator.");
 
-        QMessageBox::warning(0, QObject::tr("Cannot Set up BB10 Configuration"),
+        QMessageBox::warning(0, tr("Cannot Set up BB10 Configuration"),
                              errorMessage, QMessageBox::Ok);
         return false;
     }
