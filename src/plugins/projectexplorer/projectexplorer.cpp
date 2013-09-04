@@ -3013,7 +3013,7 @@ void ProjectExplorerPlugin::setSession(QAction *action)
         d->m_session->loadSession(session);
 }
 
-void ProjectExplorerPlugin::setProjectExplorerSettings(const Internal::ProjectExplorerSettings &pes)
+void ProjectExplorerPlugin::setProjectExplorerSettings(const ProjectExplorer::Internal::ProjectExplorerSettings &pes)
 {
     QTC_ASSERT(d->m_projectExplorerSettings.environmentId == pes.environmentId, return);
 
