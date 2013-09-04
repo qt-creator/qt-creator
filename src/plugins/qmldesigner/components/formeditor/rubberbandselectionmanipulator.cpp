@@ -103,6 +103,7 @@ void RubberBandSelectionManipulator::select(SelectionType selectionType)
                 && formEditorItem->qmlItemNode().isValid()
                 && m_beginFormEditorItem->childItems().contains(formEditorItem)
                 && formEditorItem->qmlItemNode().instanceIsMovable()
+                && formEditorItem->qmlItemNode().modelIsMovable()
                 && !formEditorItem->qmlItemNode().instanceIsInLayoutable())
         {
             newNodeList.append(formEditorItem->qmlItemNode());
@@ -112,6 +113,7 @@ void RubberBandSelectionManipulator::select(SelectionType selectionType)
     if (newNodeList.isEmpty()
             && m_beginFormEditorItem->qmlItemNode().isValid()
             && m_beginFormEditorItem->qmlItemNode().instanceIsMovable()
+            && m_beginFormEditorItem->qmlItemNode().modelIsMovable()
             && !m_beginFormEditorItem->qmlItemNode().instanceIsInLayoutable())
         newNodeList.append(m_beginFormEditorItem->qmlItemNode());
 
