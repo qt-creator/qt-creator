@@ -139,12 +139,16 @@ QGraphicsItem *AbstractFormEditorTool::topMovableGraphicsItem(const QList<QGraph
 
     return 0;
 }
-FormEditorItem *AbstractFormEditorTool::topMovableFormEditorItem(const QList<QGraphicsItem*> &itemList)
+FormEditorItem *AbstractFormEditorTool::topMovableFormEditorItem(const QList<QGraphicsItem*> &itemList, bool selectOnlyContentItems)
 {
     foreach (QGraphicsItem *item, itemList) {
         FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
         if (formEditorItem
-           && (formEditorItem->qmlItemNode().instanceHasShowContent()))
+                && formEditorItem->qmlItemNode().isValid()
+                && !formEditorItem->qmlItemNode().instanceIsInLayoutable()
+                && formEditorItem->qmlItemNode().instanceIsMovable()
+                && formEditorItem->qmlItemNode().modelIsMovable()
+                && (formEditorItem->qmlItemNode().instanceHasShowContent() || !selectOnlyContentItems))
             return formEditorItem;
     }
 

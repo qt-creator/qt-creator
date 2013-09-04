@@ -90,7 +90,7 @@ public:
     QList<FormEditorItem*> items() const;
 
     static QGraphicsItem* topMovableGraphicsItem(const QList<QGraphicsItem*> &itemList);
-    static FormEditorItem* topMovableFormEditorItem(const QList<QGraphicsItem*> &itemList);
+    static FormEditorItem* topMovableFormEditorItem(const QList<QGraphicsItem*> &itemList, bool selectOnlyContentItems);
     bool topItemIsMovable(const QList<QGraphicsItem*> &itemList);
     bool topSelectedItemIsMovable(const QList<QGraphicsItem*> &itemList);
     bool topItemIsResizeHandle(const QList<QGraphicsItem*> &itemList);
