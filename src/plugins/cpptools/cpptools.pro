@@ -32,6 +32,7 @@ HEADERS += completionsettingspage.h \
     doxygengenerator.h \
     commentssettings.h \
     symbolfinder.h \
+    cppmodelmanagersupport.h \
     cpphighlightingsupport.h \
     cpphighlightingsupportinternal.h \
     cppchecksymbols.h \
@@ -45,7 +46,8 @@ HEADERS += completionsettingspage.h \
     cppprojectfile.h \
     cpppreprocessor.h \
     includeutils.h \
-    cpplocatordata.h
+    cpplocatordata.h \
+    cppmodelmanagersupportinternal.h
 
 SOURCES += completionsettingspage.cpp \
     cppclassesfilter.cpp \
@@ -76,6 +78,7 @@ SOURCES += completionsettingspage.cpp \
     doxygengenerator.cpp \
     commentssettings.cpp \
     symbolfinder.cpp \
+    cppmodelmanagersupport.cpp \
     cpphighlightingsupport.cpp \
     cpphighlightingsupportinternal.cpp \
     cppchecksymbols.cpp \
@@ -89,7 +92,8 @@ SOURCES += completionsettingspage.cpp \
     cppprojectfile.cpp \
     cpppreprocessor.cpp \
     includeutils.cpp \
-    cpplocatordata.cpp
+    cpplocatordata.cpp \
+    cppmodelmanagersupportinternal.cpp
 
 FORMS += completionsettingspage.ui \
     cppfilesettingspage.ui \

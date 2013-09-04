@@ -57,14 +57,6 @@ public:
             const CPlusPlus::Snapshot &snapshot) const;
 };
 
-class CppHighlightingSupportInternalFactory: public CppHighlightingSupportFactory
-{
-public:
-    virtual ~CppHighlightingSupportInternalFactory();
-
-    virtual CppHighlightingSupport *highlightingSupport(TextEditor::ITextEditor *editor);
-};
-
 } // namespace Internal
 } // namespace CppTools
 

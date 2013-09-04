@@ -52,6 +52,7 @@ namespace Utils { class FileName; }
 namespace CppTools {
 
 class AbstractEditorSupport;
+class ModelManagerSupport;
 class CppCompletionAssistProvider;
 class CppEditorSupport;
 class CppHighlightingSupport;
@@ -243,14 +244,13 @@ public:
     virtual void setIfdefedOutBlocks(const QString &fileName,
                                      const QList<TextEditor::BlockRange> &ifdeffedOutBlocks) = 0;
 
+    virtual void addModelManagerSupport(ModelManagerSupport *modelManagerSupport) = 0;
+    virtual ModelManagerSupport *modelManagerSupportForMimeType(const QString &mimeType) const = 0;
     virtual CppCompletionAssistProvider *completionAssistProvider(Core::IEditor *editor) const = 0;
-    virtual void setCppCompletionAssistProvider(CppTools::CppCompletionAssistProvider *completionAssistProvider) = 0;
-
-    virtual CppTools::CppHighlightingSupport *highlightingSupport(Core::IEditor *editor) const = 0;
-    virtual void setHighlightingSupportFactory(CppTools::CppHighlightingSupportFactory *highlightingFactory) = 0;
+    virtual CppHighlightingSupport *highlightingSupport(Core::IEditor *editor) const = 0;
 
     virtual void setIndexingSupport(CppTools::CppIndexingSupport *indexingSupport) = 0;
-    virtual CppTools::CppIndexingSupport *indexingSupport() = 0;
+    virtual CppIndexingSupport *indexingSupport() = 0;
 
 signals:
     /// Project data might be locked while this is emitted.

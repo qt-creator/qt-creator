@@ -27,16 +27,32 @@
 **
 ****************************************************************************/
 
-#include "cpphighlightingsupport.h"
+#ifndef CPPTOOLS_CPPMODELMANAGERSUPPORT_H
+#define CPPTOOLS_CPPMODELMANAGERSUPPORT_H
 
-using namespace CppTools;
+#include "cpptools_global.h"
 
-CppHighlightingSupport::CppHighlightingSupport(TextEditor::ITextEditor *editor)
-    : m_editor(editor)
+#include <QString>
+
+namespace TextEditor { class ITextEditor; }
+
+namespace CppTools {
+
+class CppCompletionAssistProvider;
+class CppHighlightingSupport;
+
+class CPPTOOLS_EXPORT ModelManagerSupport
 {
-    Q_ASSERT(editor);
-}
+public:
+    virtual ~ModelManagerSupport() = 0;
 
-CppHighlightingSupport::~CppHighlightingSupport()
-{
-}
+    virtual QString id() const = 0;
+    virtual QString displayName() const = 0;
+
+    virtual CppCompletionAssistProvider *completionAssistProvider() = 0;
+    virtual CppHighlightingSupport *highlightingSupport(TextEditor::ITextEditor *editor) = 0;
+};
+
+} // CppTools namespace
+
+#endif // CPPTOOLS_CPPMODELMANAGERSUPPORT_H

@@ -105,11 +105,10 @@ public:
 
     void finishedRefreshingSourceFiles(const QStringList &files);
 
+    virtual void addModelManagerSupport(ModelManagerSupport *codeModelSupport);
+    virtual ModelManagerSupport *modelManagerSupportForMimeType(const QString &mimeType) const;
     virtual CppCompletionAssistProvider *completionAssistProvider(Core::IEditor *editor) const;
-    virtual void setCppCompletionAssistProvider(CppCompletionAssistProvider *completionAssistProvider);
-
     virtual CppHighlightingSupport *highlightingSupport(Core::IEditor *editor) const;
-    virtual void setHighlightingSupportFactory(CppHighlightingSupportFactory *highlightingFactory);
 
     virtual void setIndexingSupport(CppIndexingSupport *indexingSupport);
     virtual CppIndexingSupport *indexingSupport();
@@ -202,13 +201,10 @@ private:
     QMap<TextEditor::BaseTextEditor *, CppEditorSupport *> m_cppEditorSupports;
     QSet<AbstractEditorSupport *> m_extraEditorSupports;
 
-    // Completion
-    CppCompletionAssistProvider *m_completionAssistProvider;
-    QScopedPointer<CppCompletionAssistProvider> m_completionFallback;
-
-    // Highlighting
-    CppHighlightingSupportFactory *m_highlightingFactory;
-    CppHighlightingSupportFactory *m_highlightingFallback;
+    // Completion & highlighting
+    QList<ModelManagerSupport *> m_codeModelSupporters;
+    QScopedPointer<ModelManagerSupport> m_modelManagerSupportFallback;
+    QHash<QString, ModelManagerSupport *> m_mimeTypeToCodeModelSupport;
 
     // Indexing
     CppIndexingSupport *m_indexingSupporter;

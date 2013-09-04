@@ -27,16 +27,41 @@
 **
 ****************************************************************************/
 
-#include "cpphighlightingsupport.h"
+#include "cppcompletionassist.h"
+#include "cpphighlightingsupportinternal.h"
+#include "cppmodelmanagersupportinternal.h"
+
+#include <QCoreApplication>
 
 using namespace CppTools;
+using namespace CppTools::Internal;
 
-CppHighlightingSupport::CppHighlightingSupport(TextEditor::ITextEditor *editor)
-    : m_editor(editor)
+ModelManagerSupportInternal::ModelManagerSupportInternal()
+    : m_completionAssistProvider(new InternalCompletionAssistProvider)
 {
-    Q_ASSERT(editor);
 }
 
-CppHighlightingSupport::~CppHighlightingSupport()
+ModelManagerSupportInternal::~ModelManagerSupportInternal()
 {
+}
+
+QString ModelManagerSupportInternal::id() const
+{
+    return QLatin1String("CppTools.BuiltinCodeModel");
+}
+
+QString ModelManagerSupportInternal::displayName() const
+{
+    return QCoreApplication::translate("ModelManagerSupportInternal::displayName",
+                                       "Qt Creator Built-in");
+}
+
+CppCompletionAssistProvider *ModelManagerSupportInternal::completionAssistProvider()
+{
+    return m_completionAssistProvider.data();
+}
+
+CppHighlightingSupport *ModelManagerSupportInternal::highlightingSupport(TextEditor::ITextEditor *editor)
+{
+    return new CppHighlightingSupportInternal(editor);
 }

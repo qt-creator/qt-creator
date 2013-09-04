@@ -81,14 +81,6 @@ private:
     TextEditor::ITextEditor *m_editor;
 };
 
-class CPPTOOLS_EXPORT CppHighlightingSupportFactory
-{
-public:
-    virtual ~CppHighlightingSupportFactory() = 0;
-
-    virtual CppHighlightingSupport *highlightingSupport(TextEditor::ITextEditor *editor) = 0;
-};
-
 } // namespace CppTools
 
 #endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H

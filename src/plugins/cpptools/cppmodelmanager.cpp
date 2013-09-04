@@ -31,11 +31,10 @@
 
 #include "abstracteditorsupport.h"
 #include "builtinindexingsupport.h"
-#include "cppcompletionassist.h"
 #include "cppfindreferences.h"
 #include "cpphighlightingsupport.h"
-#include "cpphighlightingsupportinternal.h"
 #include "cppindexingsupport.h"
+#include "cppmodelmanagersupportinternal.h"
 #include "cpppreprocessor.h"
 #include "cpptoolsconstants.h"
 #include "cpptoolseditorsupport.h"
@@ -230,8 +229,6 @@ CppModelManager *CppModelManager::instance()
 
 CppModelManager::CppModelManager(QObject *parent)
     : CppModelManagerInterface(parent)
-    , m_completionAssistProvider(0)
-    , m_highlightingFactory(0)
     , m_indexingSupporter(0)
     , m_enableGC(true)
 {
@@ -259,16 +256,14 @@ CppModelManager::CppModelManager(QObject *parent)
 
     qRegisterMetaType<CPlusPlus::Document::Ptr>("CPlusPlus::Document::Ptr");
 
-    m_completionFallback.reset(new InternalCompletionAssistProvider);
-    m_completionAssistProvider = m_completionFallback.data();
-    m_highlightingFallback = new CppHighlightingSupportInternalFactory;
-    m_highlightingFactory = m_highlightingFallback;
+    m_modelManagerSupportFallback.reset(new ModelManagerSupportInternal);
+    addModelManagerSupport(m_modelManagerSupportFallback.data());
+
     m_internalIndexingSupport = new BuiltinIndexingSupport;
 }
 
 CppModelManager::~CppModelManager()
 {
-    delete m_highlightingFallback;
     delete m_internalIndexingSupport;
 }
 
@@ -911,35 +906,33 @@ void CppModelManager::finishedRefreshingSourceFiles(const QStringList &files)
     emit sourceFilesRefreshed(files);
 }
 
-CppCompletionAssistProvider *CppModelManager::completionAssistProvider(Core::IEditor *editor) const
+void CppModelManager::addModelManagerSupport(ModelManagerSupport *modelManagerSupport)
 {
-    Q_UNUSED(editor);
-
-    return m_completionAssistProvider;
+    if (!m_codeModelSupporters.contains(modelManagerSupport))
+        m_codeModelSupporters.append(modelManagerSupport);
 }
 
-void CppModelManager::setCppCompletionAssistProvider(CppCompletionAssistProvider *completionAssistProvider)
+ModelManagerSupport *CppModelManager::modelManagerSupportForMimeType(const QString &mimeType) const
 {
-    if (completionAssistProvider)
-        m_completionAssistProvider = completionAssistProvider;
-    else
-        m_completionAssistProvider = m_completionFallback.data();
+    return m_mimeTypeToCodeModelSupport.value(mimeType, m_modelManagerSupportFallback.data());
+}
+
+CppCompletionAssistProvider *CppModelManager::completionAssistProvider(Core::IEditor *editor) const
+{
+    ModelManagerSupport *cms = modelManagerSupportForMimeType(editor->document()->mimeType());
+
+    return cms->completionAssistProvider();
 }
 
 CppHighlightingSupport *CppModelManager::highlightingSupport(Core::IEditor *editor) const
 {
-    if (TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor *>(editor))
-        return m_highlightingFactory->highlightingSupport(textEditor);
-    else
+    TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor *>(editor);
+    if (!textEditor)
         return 0;
-}
 
-void CppModelManager::setHighlightingSupportFactory(CppHighlightingSupportFactory *highlightingFactory)
-{
-    if (highlightingFactory)
-        m_highlightingFactory = highlightingFactory;
-    else
-        m_highlightingFactory = m_highlightingFallback;
+    ModelManagerSupport *cms = modelManagerSupportForMimeType(editor->document()->mimeType());
+
+    return cms->highlightingSupport(textEditor);
 }
 
 void CppModelManager::setIndexingSupport(CppIndexingSupport *indexingSupport)

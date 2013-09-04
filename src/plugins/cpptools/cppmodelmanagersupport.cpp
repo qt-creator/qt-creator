@@ -27,16 +27,10 @@
 **
 ****************************************************************************/
 
-#include "cpphighlightingsupport.h"
+#include "cppmodelmanagersupport.h"
 
 using namespace CppTools;
 
-CppHighlightingSupport::CppHighlightingSupport(TextEditor::ITextEditor *editor)
-    : m_editor(editor)
-{
-    Q_ASSERT(editor);
-}
-
-CppHighlightingSupport::~CppHighlightingSupport()
+ModelManagerSupport::~ModelManagerSupport()
 {
 }

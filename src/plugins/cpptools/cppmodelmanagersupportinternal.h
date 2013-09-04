@@ -27,16 +27,35 @@
 **
 ****************************************************************************/
 
-#include "cpphighlightingsupport.h"
+#ifndef CPPTOOLS_INTERNAL_CPPMODELMANAGERSUPPORTINTERNAL_H
+#define CPPTOOLS_INTERNAL_CPPMODELMANAGERSUPPORTINTERNAL_H
 
-using namespace CppTools;
+#include "cppmodelmanagersupport.h"
 
-CppHighlightingSupport::CppHighlightingSupport(TextEditor::ITextEditor *editor)
-    : m_editor(editor)
+#include <QScopedPointer>
+
+namespace CppTools {
+namespace Internal {
+
+class ModelManagerSupportInternal: public ModelManagerSupport
 {
-    Q_ASSERT(editor);
-}
+    Q_DISABLE_COPY(ModelManagerSupportInternal)
 
-CppHighlightingSupport::~CppHighlightingSupport()
-{
-}
+public:
+    ModelManagerSupportInternal();
+    virtual ~ModelManagerSupportInternal();
+
+    virtual QString id() const;
+    virtual QString displayName() const;
+
+    virtual CppCompletionAssistProvider *completionAssistProvider();
+    virtual CppHighlightingSupport *highlightingSupport(TextEditor::ITextEditor *editor);
+
+private:
+    QScopedPointer<CppCompletionAssistProvider> m_completionAssistProvider;
+};
+
+} // Internal namespace
+} // CppTools namespace
+
+#endif // CPPTOOLS_INTERNAL_CPPMODELMANAGERSUPPORTINTERNAL_H

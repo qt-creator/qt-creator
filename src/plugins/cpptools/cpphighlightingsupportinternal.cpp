@@ -92,12 +92,3 @@ QFuture<TextEditor::HighlightingResult> CppHighlightingSupportInternal::highligh
     LookupContext context(doc, snapshot);
     return CheckSymbols::go(doc, context, macroUses);
 }
-
-CppHighlightingSupportInternalFactory::~CppHighlightingSupportInternalFactory()
-{
-}
-
-CppHighlightingSupport *CppHighlightingSupportInternalFactory::highlightingSupport(TextEditor::ITextEditor *editor)
-{
-    return new CppHighlightingSupportInternal(editor);
-}
