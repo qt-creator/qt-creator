@@ -35,7 +35,8 @@
 #include <QHeaderView>
 #include <QKeyEvent>
 
-using namespace Find::Internal;
+namespace Find {
+namespace Internal {
 
 SearchResultTreeView::SearchResultTreeView(QWidget *parent)
     : QTreeView(parent)
@@ -103,3 +104,6 @@ SearchResultTreeModel *SearchResultTreeView::model() const
 {
     return m_model;
 }
+
+} // namespace Internal
+} // namespace Find
