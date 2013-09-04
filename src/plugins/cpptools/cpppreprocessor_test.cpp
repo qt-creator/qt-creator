@@ -36,6 +36,8 @@
 #include <cplusplus/CppDocument.h>
 #include <utils/fileutils.h>
 
+#include <QFile>
+#include <QFileInfo>
 #include <QtTest>
 
 using namespace CPlusPlus;
@@ -56,7 +58,10 @@ public:
     Document::Ptr run(const QByteArray &source)
     {
         const QString fileName = TestIncludePaths::directoryOfTestFile()
-            + QLatin1String("/file.cpp");
+                + QLatin1String("/file.cpp");
+        if (QFileInfo(fileName).exists())
+            return Document::Ptr(); // Test file was not removed.
+
         Utils::FileSaver srcSaver(fileName);
         srcSaver.write(source);
         srcSaver.finalize();
@@ -65,7 +70,9 @@ public:
         pp.setIncludePaths(QStringList(TestIncludePaths::directoryOfTestFile()));
         pp.run(fileName);
 
-        return m_cmm->snapshot().document(fileName);
+        Document::Ptr document = m_cmm->snapshot().document(fileName);
+        QFile(fileName).remove();
+        return document;
     }
 
     ~SourcePreprocessor()
