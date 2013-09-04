@@ -42,8 +42,8 @@
 QT_FORWARD_DECLARE_CLASS(QTimer)
 
 namespace Find {
-    struct SearchResultItem;
-    class SearchResult;
+class SearchResultItem;
+class SearchResult;
 } // namespace Find
 
 namespace CppTools {

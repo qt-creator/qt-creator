@@ -50,8 +50,9 @@ namespace Internal {
 }
 class SearchResultWindow;
 
-struct FIND_EXPORT SearchResultItem
+class FIND_EXPORT SearchResultItem
 {
+public:
     SearchResultItem()
         : textMarkPos(-1),
         textMarkLength(0),

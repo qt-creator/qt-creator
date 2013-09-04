@@ -40,14 +40,12 @@ class QLabel;
 class QComboBox;
 QT_END_NAMESPACE
 
-namespace Utils {
-class FileIterator;
-}
+namespace Utils { class FileIterator; }
 namespace Find {
 class SearchResult;
-struct SearchResultItem;
+class SearchResultItem;
 class IFindSupport;
-}
+} // namespace Find
 
 namespace TextEditor {
 namespace Internal {
