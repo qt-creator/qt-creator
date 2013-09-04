@@ -63,9 +63,8 @@ void QbsLogSink::sendMessages()
         m_messages.clear();
     }
 
-    Core::MessageManager *mm = Core::MessageManager::instance();
     foreach (const QString &msg, toSend)
-        mm->printToOutputPane(msg, Core::MessageManager::NoModeSwitch);
+        Core::MessageManager::write(msg);
 }
 
 void QbsLogSink::doPrintWarning(const qbs::ErrorInfo &warning)

@@ -205,11 +205,10 @@ void FileShareProtocol::paste(const QString &text,
         saver.setResult(&writer);
     }
     if (!saver.finalize()) {
-        Core::MessageManager::instance()->printToOutputPane(saver.errorString(), Core::MessageManager::NoModeSwitch);
+        Core::MessageManager::write(saver.errorString());
         return;
     }
 
-    const QString msg = tr("Pasted: %1").arg(saver.fileName());
-    Core::MessageManager::instance()->printToOutputPane(msg, Core::MessageManager::NoModeSwitch);
+    Core::MessageManager::write(tr("Pasted: %1").arg(saver.fileName()));
 }
 } // namespace CodePaster

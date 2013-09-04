@@ -126,9 +126,9 @@ void ExecuteFilter::finished(int exitCode, QProcess::ExitStatus status)
 {
     QString log = QLatin1Char('\'') + headCommand() + QLatin1String("' ");
     if (status == QProcess::NormalExit && exitCode == 0)
-        MessageManager::instance()->printToOutputPane(log + tr("finished"), MessageManager::NoModeSwitch);
+        MessageManager::write(log + tr("finished"));
     else
-        MessageManager::instance()->printToOutputPane(log + tr("failed"), MessageManager::NoModeSwitch);
+        MessageManager::write(log + tr("failed"));
 
     m_taskQueue.dequeue();
     if (!m_taskQueue.isEmpty())
@@ -138,13 +138,13 @@ void ExecuteFilter::finished(int exitCode, QProcess::ExitStatus status)
 void ExecuteFilter::readStandardOutput()
 {
     QByteArray data = m_process->readAllStandardOutput();
-    MessageManager::instance()->printToOutputPane(QString::fromLocal8Bit(data), MessageManager::NoModeSwitch);
+    MessageManager::write(QString::fromLocal8Bit(data));
 }
 
 void ExecuteFilter::readStandardError()
 {
     QByteArray data = m_process->readAllStandardError();
-    MessageManager::instance()->printToOutputPane(QString::fromLocal8Bit(data), MessageManager::NoModeSwitch);
+    MessageManager::write(QString::fromLocal8Bit(data));
 }
 
 void ExecuteFilter::runHeadCommand()
@@ -153,14 +153,12 @@ void ExecuteFilter::runHeadCommand()
         const ExecuteData &d = m_taskQueue.head();
         const QString fullPath = Utils::Environment::systemEnvironment().searchInPath(d.executable);
         if (fullPath.isEmpty()) {
-            const QString log = tr("Could not find executable for '%1'").arg(d.executable);
-            MessageManager::instance()->printToOutputPane(log, MessageManager::NoModeSwitch);
+            MessageManager::write(tr("Could not find executable for '%1'").arg(d.executable));
             m_taskQueue.dequeue();
             runHeadCommand();
             return;
         }
-        QString log(tr("Starting command '%1'").arg(headCommand()));
-        MessageManager::instance()->printToOutputPane(log, MessageManager::NoModeSwitch);
+        MessageManager::write(tr("Starting command '%1'").arg(headCommand()));
         m_process->setWorkingDirectory(d.workingDirectory);
         m_process->setCommand(fullPath, d.arguments);
         m_process->start();

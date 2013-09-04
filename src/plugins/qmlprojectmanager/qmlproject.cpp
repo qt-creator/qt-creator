@@ -49,11 +49,10 @@
 
 #include <QDebug>
 
+using namespace Core;
+
 namespace QmlProjectManager {
-
 namespace Internal {
-
-
 
 class QmlProjectKitMatcher : public ProjectExplorer::KitMatcher
 {
@@ -110,8 +109,8 @@ QmlProject::QmlProject(Internal::Manager *manager, const QString &fileName)
       m_defaultImport(UnknownImport),
       m_modelManager(QmlJS::ModelManagerInterface::instance())
 {
-    setProjectContext(Core::Context(QmlProjectManager::Constants::PROJECTCONTEXT));
-    setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_QMLJS));
+    setProjectContext(Context(QmlProjectManager::Constants::PROJECTCONTEXT));
+    setProjectLanguages(Context(ProjectExplorer::Constants::LANG_QMLJS));
 
     QFileInfo fileInfo(m_fileName);
     m_projectName = fileInfo.completeBaseName();
@@ -119,7 +118,7 @@ QmlProject::QmlProject(Internal::Manager *manager, const QString &fileName)
     m_file = new Internal::QmlProjectFile(this, fileName);
     m_rootNode = new Internal::QmlProjectNode(this, m_file);
 
-    Core::DocumentManager::addDocument(m_file, true);
+    DocumentManager::addDocument(m_file, true);
 
     m_manager->registerProject(this);
 }
@@ -128,7 +127,7 @@ QmlProject::~QmlProject()
 {
     m_manager->unregisterProject(this);
 
-    Core::DocumentManager::removeDocument(m_file);
+    DocumentManager::removeDocument(m_file);
 
     delete m_projectItem.data();
     delete m_rootNode;
@@ -179,7 +178,6 @@ static QmlProject::QmlImport detectImport(const QString &qml) {
 
 void QmlProject::parseProject(RefreshOptions options)
 {
-    Core::MessageManager *messageManager = Core::MessageManager::instance();
     if (options & Files) {
         if (options & ProjectFile)
             delete m_projectItem.data();
@@ -191,8 +189,8 @@ void QmlProject::parseProject(RefreshOptions options)
                           this, SLOT(refreshFiles(QSet<QString>,QSet<QString>)));
 
               } else {
-                  messageManager->printToOutputPane(tr("Error while loading project file %1.").arg(m_fileName), Core::MessageManager::NoModeSwitch);
-                  messageManager->printToOutputPane(errorMessage, Core::MessageManager::NoModeSwitch);
+                  MessageManager::write(tr("Error while loading project file %1.").arg(m_fileName), MessageManager::NoModeSwitch);
+                  MessageManager::write(errorMessage);
               }
         }
         if (m_projectItem) {
@@ -205,10 +203,8 @@ void QmlProject::parseProject(RefreshOptions options)
                 Utils::FileReader reader;
                 QString errorMessage;
                 if (!reader.fetch(mainFilePath, &errorMessage)) {
-                    messageManager->printToOutputPane(
-                                tr("Warning while loading project file %1.").arg(m_fileName),
-                                Core::MessageManager::NoModeSwitch);
-                    messageManager->printToOutputPane(errorMessage, Core::MessageManager::NoModeSwitch);
+                    MessageManager::write(tr("Warning while loading project file %1.").arg(m_fileName));
+                    MessageManager::write(errorMessage);
                 } else {
                     m_defaultImport = detectImport(QString::fromUtf8(reader.data()));
                 }
@@ -314,12 +310,12 @@ QString QmlProject::displayName() const
     return m_projectName;
 }
 
-Core::Id QmlProject::id() const
+Id QmlProject::id() const
 {
     return "QmlProjectManager.QmlProject";
 }
 
-Core::IDocument *QmlProject::document() const
+IDocument *QmlProject::document() const
 {
     return m_file;
 }
@@ -331,7 +327,7 @@ ProjectExplorer::IProjectManager *QmlProject::projectManager() const
 
 bool QmlProject::supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const
 {
-    Core::Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(k);
+    Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(k);
     if (deviceType != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         if (errorMessage)
             *errorMessage = tr("Device type is not desktop.");

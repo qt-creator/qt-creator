@@ -38,39 +38,37 @@
 
 namespace Core {
 
-namespace Internal {
-class MessageOutputWindow;
-class MainWindow;
-}
+namespace Internal { class MainWindow; }
 
 class CORE_EXPORT MessageManager : public QObject
 {
     Q_OBJECT
 
 public:
-    static MessageManager *instance();
+    static QObject *instance();
 
-    void showOutputPane();
+    static void showOutputPane();
+
     enum PrintToOutputPaneFlag {
-        NoModeSwitch = Core::IOutputPane::NoModeSwitch,
-        ModeSwitch = Core::IOutputPane::ModeSwitch,
-        WithFocus = Core::IOutputPane::WithFocus,
-        EnsureSizeHint = Core::IOutputPane::EnsureSizeHint,
-        Silent = 256,
-        Flash = 512 };
+        NoModeSwitch   = IOutputPane::NoModeSwitch,
+        ModeSwitch     = IOutputPane::ModeSwitch,
+        WithFocus      = IOutputPane::WithFocus,
+        EnsureSizeHint = IOutputPane::EnsureSizeHint,
+        Silent         = 256,
+        Flash          = 51
+    };
 
     Q_DECLARE_FLAGS(PrintToOutputPaneFlags, PrintToOutputPaneFlag)
 
+    static void write(const QString &text); // imply NoModeSwitch
+
 public slots:
-    void printToOutputPane(const QString &text, Core::MessageManager::PrintToOutputPaneFlags flags);
+    static void write(const QString &text, Core::MessageManager::PrintToOutputPaneFlags flags);
 
 private:
     MessageManager();
     ~MessageManager();
-    void init();
-
-    Internal::MessageOutputWindow *m_messageOutputWindow;
-
+    static void init();
     friend class Core::Internal::MainWindow;
 };
 

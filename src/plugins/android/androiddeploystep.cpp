@@ -53,6 +53,7 @@
 
 #define ASSERT_STATE(state) ASSERT_STATE_GENERIC(State, state, m_state)
 
+using namespace Core;
 using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
 
@@ -62,7 +63,7 @@ namespace Internal {
 static const char USE_LOCAL_QT_KEY[] = "Qt4ProjectManager.AndroidDeployStep.UseLocalQtLibs";
 static const char DEPLOY_ACTION_KEY[] = "Qt4ProjectManager.AndroidDeployStep.DeployAction";
 
-const Core::Id AndroidDeployStep::Id("Qt4ProjectManager.AndroidDeployStep");
+const Id AndroidDeployStep::Id("Qt4ProjectManager.AndroidDeployStep");
 
 AndroidDeployStep::AndroidDeployStep(ProjectExplorer::BuildStepList *parent)
     : BuildStep(parent, Id)
@@ -216,13 +217,13 @@ void AndroidDeployStep::cleanLibsOnDevice()
         QString avdName = AndroidConfigurations::instance().findAvd(&deviceAPILevel, targetArch);
         if (avdName.isEmpty()) {
             // No avd found, don't create one just error out
-            Core::MessageManager::instance()->printToOutputPane(tr("Could not find a device."), Core::MessageManager::NoModeSwitch);
+            MessageManager::write(tr("Could not find a device."));
             return;
         }
         deviceSerialNumber = AndroidConfigurations::instance().startAVD(avdName, deviceAPILevel, targetArch);
     }
     if (!deviceSerialNumber.length()) {
-        Core::MessageManager::instance()->printToOutputPane(tr("Could not run adb. No device found."), Core::MessageManager::NoModeSwitch);
+        MessageManager::write(tr("Could not run adb. No device found."));
         return;
     }
     QProcess *process = new QProcess(this);
@@ -230,9 +231,7 @@ void AndroidDeployStep::cleanLibsOnDevice()
     arguments << QLatin1String("shell") << QLatin1String("rm") << QLatin1String("-r") << QLatin1String("/data/local/tmp/qt");
     connect(process, SIGNAL(finished(int)), this, SLOT(processFinished()));
     const QString adb = AndroidConfigurations::instance().adbToolPath().toString();
-    Core::MessageManager::instance()->printToOutputPane(adb + QLatin1String(" ")
-                                                        + arguments.join(QLatin1String(" ")),
-                                                        Core::MessageManager::NoModeSwitch);
+    MessageManager::write(adb + QLatin1Char(' ') + arguments.join(QLatin1Char(' ')));
     process->start(adb, arguments);
     if (!process->waitForStarted(500))
         delete process;
@@ -242,9 +241,8 @@ void AndroidDeployStep::processFinished()
 {
     QProcess *process = qobject_cast<QProcess *>(sender());
     QTC_ASSERT(process, return);
-    Core::MessageManager::instance()->printToOutputPane(QString::fromLocal8Bit(process->readAll()), Core::MessageManager::NoModeSwitch);
-    Core::MessageManager::instance()->printToOutputPane(tr("adb finished with exit code %1.").arg(process->exitCode()),
-                                                        Core::MessageManager::NoModeSwitch);
+    MessageManager::write(QString::fromLocal8Bit(process->readAll()));
+    MessageManager::write(tr("adb finished with exit code %1.").arg(process->exitCode()));
     process->deleteLater();
 }
 
@@ -274,14 +272,13 @@ void AndroidDeployStep::installQASIPackage(const QString &packagePath)
     if (deviceSerialNumber.isEmpty()) {
         QString avdName = AndroidConfigurations::instance().findAvd(&deviceAPILevel, targetArch);
         if (avdName.isEmpty()) {
-            Core::MessageManager::instance()->printToOutputPane(tr("No device found."),
-                                                                Core::MessageManager::NoModeSwitch);
+            MessageManager::write(tr("No device found."));
             return;
         }
         deviceSerialNumber = AndroidConfigurations::instance().startAVD(avdName, deviceAPILevel, targetArch);
     }
     if (!deviceSerialNumber.length()) {
-        Core::MessageManager::instance()->printToOutputPane(tr("Could not run adb. No device found."), Core::MessageManager::NoModeSwitch);
+        MessageManager::write(tr("Could not run adb. No device found."));
         return;
     }
 
@@ -291,9 +288,7 @@ void AndroidDeployStep::installQASIPackage(const QString &packagePath)
 
     connect(process, SIGNAL(finished(int)), this, SLOT(processFinished()));
     const QString adb = AndroidConfigurations::instance().adbToolPath().toString();
-    Core::MessageManager::instance()->printToOutputPane(adb + QLatin1String(" ")
-                                                        + arguments.join(QLatin1String(" ")),
-                                                        Core::MessageManager::NoModeSwitch);
+    MessageManager::write(adb + QLatin1Char(' ') + arguments.join(QLatin1Char(' ')));
     process->start(adb, arguments);
     if (!process->waitForFinished(500))
         delete process;

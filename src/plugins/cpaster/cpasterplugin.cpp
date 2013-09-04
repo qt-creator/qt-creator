@@ -306,7 +306,7 @@ void CodepasterPlugin::finishPost(const QString &link)
 {
     if (m_settings->copyToClipboard)
         QApplication::clipboard()->setText(link);
-    MessageManager::instance()->printToOutputPane(link, m_settings->displayOutput ? Core::MessageManager::ModeSwitch : Core::MessageManager::Silent);
+    MessageManager::write(link, m_settings->displayOutput ? Core::MessageManager::ModeSwitch : Core::MessageManager::Silent);
 }
 
 // Extract the characters that can be used for a file name from a title
@@ -346,14 +346,13 @@ void CodepasterPlugin::finishFetch(const QString &titleDescription,
                                    const QString &content,
                                    bool error)
 {
-    Core::MessageManager *messageManager = MessageManager::instance();
     // Failure?
     if (error) {
-        messageManager->printToOutputPane(content, Core::MessageManager::NoModeSwitch);
+        MessageManager::write(content);
         return;
     }
     if (content.isEmpty()) {
-        messageManager->printToOutputPane(tr("Empty snippet received for \"%1\".").arg(titleDescription), Core::MessageManager::NoModeSwitch);
+        MessageManager::write(tr("Empty snippet received for \"%1\".").arg(titleDescription));
         return;
     }
     // If the mime type has a preferred suffix (cpp/h/patch...), use that for
@@ -363,7 +362,7 @@ void CodepasterPlugin::finishFetch(const QString &titleDescription,
     // Default to "txt".
     QByteArray byteContent = content.toUtf8();
     QString suffix;
-    if (const Core::MimeType mimeType = Core::MimeDatabase::findByData(byteContent))
+    if (const MimeType mimeType = MimeDatabase::findByData(byteContent))
         suffix = mimeType.preferredSuffix();
     if (suffix.isEmpty())
          suffix = QLatin1String("txt");
@@ -372,7 +371,7 @@ void CodepasterPlugin::finishFetch(const QString &titleDescription,
     saver.setAutoRemove(false);
     saver.write(byteContent);
     if (!saver.finalize()) {
-        messageManager->printToOutputPane(saver.errorString(), Core::MessageManager::NoModeSwitch);
+        MessageManager::write(saver.errorString());
         return;
     }
     const QString fileName = saver.fileName();

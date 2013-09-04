@@ -332,7 +332,7 @@ bool MainWindow::init(QString *errorMessage)
     m_outputView->setWidget(OutputPaneManager::instance()->buttonsWidget());
     m_outputView->setPosition(Core::StatusBarWidget::Second);
     ExtensionSystem::PluginManager::addObject(m_outputView);
-    m_messageManager->init();
+    MessageManager::init();
     return true;
 }
 

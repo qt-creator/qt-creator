@@ -59,7 +59,7 @@ DebuggingHelperBuildTask::DebuggingHelperBuildTask(const BaseQtVersion *version,
 
     // Print result in application ouptut
     connect(this, SIGNAL(logOutput(QString,Core::MessageManager::PrintToOutputPaneFlags)),
-            Core::MessageManager::instance(), SLOT(printToOutputPane(QString,Core::MessageManager::PrintToOutputPaneFlags)),
+            Core::MessageManager::instance(), SLOT(write(QString,Core::MessageManager::PrintToOutputPaneFlags)),
             Qt::QueuedConnection);
 
     //

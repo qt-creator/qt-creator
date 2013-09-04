@@ -468,14 +468,12 @@ void QmlProfilerTool::startTool(StartMode mode)
 
 void QmlProfilerTool::logStatus(const QString &msg)
 {
-    MessageManager *messageManager = MessageManager::instance();
-    messageManager->printToOutputPane(msg, Core::MessageManager::Flash);
+    MessageManager::write(msg, Core::MessageManager::Flash);
 }
 
 void QmlProfilerTool::logError(const QString &msg)
 {
-    MessageManager *messageManager = MessageManager::instance();
-    messageManager->printToOutputPane(msg, Core::MessageManager::NoModeSwitch);
+    MessageManager::write(msg);
 }
 
 void QmlProfilerTool::showErrorDialog(const QString &error)

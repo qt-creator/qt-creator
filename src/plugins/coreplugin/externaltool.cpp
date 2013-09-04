@@ -610,7 +610,7 @@ void ExternalToolRunner::run()
     if (!m_resolvedWorkingDirectory.isEmpty())
         m_process->setWorkingDirectory(m_resolvedWorkingDirectory);
     m_process->setCommand(m_resolvedExecutable, m_resolvedArguments);
-    MessageManager::instance()->printToOutputPane(
+    MessageManager::write(
                 tr("Starting external tool '%1' %2").arg(m_resolvedExecutable, m_resolvedArguments), MessageManager::Silent);
     m_process->start();
 }
@@ -632,7 +632,7 @@ void ExternalToolRunner::finished(int exitCode, QProcess::ExitStatus status)
         if (m_tool->modifiesCurrentDocument())
             DocumentManager::unexpectFileChange(m_expectedFileName);
     }
-    MessageManager::instance()->printToOutputPane(
+    MessageManager::write(
                 tr("'%1' finished").arg(m_resolvedExecutable), MessageManager::Silent);
     deleteLater();
 }
@@ -653,7 +653,7 @@ void ExternalToolRunner::readStandardOutput()
     QByteArray data = m_process->readAllStandardOutput();
     QString output = m_outputCodec->toUnicode(data.constData(), data.length(), &m_outputCodecState);
     if (m_tool->outputHandling() == ExternalTool::ShowInPane)
-        MessageManager::instance()->printToOutputPane(output, MessageManager::NoModeSwitch);
+        MessageManager::write(output);
     else if (m_tool->outputHandling() == ExternalTool::ReplaceSelection)
         m_processOutput.append(output);
 }
@@ -665,7 +665,7 @@ void ExternalToolRunner::readStandardError()
     QByteArray data = m_process->readAllStandardError();
     QString output = m_outputCodec->toUnicode(data.constData(), data.length(), &m_errorCodecState);
     if (m_tool->errorHandling() == ExternalTool::ShowInPane)
-        MessageManager::instance()->printToOutputPane(output, MessageManager::NoModeSwitch);
+        MessageManager::write(output);
     else if (m_tool->errorHandling() == ExternalTool::ReplaceSelection)
         m_processOutput.append(output);
 }
@@ -767,7 +767,7 @@ void ExternalToolManager::menuActivated()
     QTC_ASSERT(tool, return);
     ExternalToolRunner *runner = new ExternalToolRunner(tool);
     if (runner->hasError())
-        MessageManager::instance()->printToOutputPane(runner->errorString(), MessageManager::NoModeSwitch);
+        MessageManager::write(runner->errorString());
 }
 
 QMap<QString, QList<Internal::ExternalTool *> > ExternalToolManager::toolsByCategory() const

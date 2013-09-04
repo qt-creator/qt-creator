@@ -313,11 +313,10 @@ void ModelManager::loadQmlTypeDescriptions(const QString &resourcePath)
     CppQmlTypesLoader::defaultLibraryObjects.unite(
                 CppQmlTypesLoader::loadQmlTypes(qmlTypesFiles, &errors, &warnings));
 
-    MessageManager *messageManager = MessageManager::instance();
     foreach (const QString &error, errors)
-        messageManager->printToOutputPane(error, MessageManager::Flash);
+        MessageManager::write(error, MessageManager::Flash);
     foreach (const QString &warning, warnings)
-        messageManager->printToOutputPane(warning, MessageManager::Flash);
+        MessageManager::write(warning, MessageManager::Flash);
 }
 
 ModelManagerInterface::WorkingCopy ModelManager::workingCopy() const
