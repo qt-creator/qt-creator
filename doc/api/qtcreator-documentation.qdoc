@@ -62,7 +62,8 @@
     \section1 Configuring the Documentation Project
 
     \QC documentation is written by using QDoc. For more information about using
-    QDoc, see \l{http://qt-project.org/doc/qdoc/}{QDoc Reference Documentation}.
+    QDoc, see the \l{http://qt-project.org/doc/qt-5.1/qdoc/qdoc-index.html}
+    {QDoc Manual}.
 
     QDoc finds the new topics automatically, when you place them as .qdoc files
     in the correct folder. However, to make the topics accessible to readers,
