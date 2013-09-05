@@ -46,4 +46,8 @@ QtcLibrary {
         "images/notloaded.png",
         "images/ok.png",
     ]
+
+    Export {
+        Depends { name: "Qt.core" }
+    }
 }

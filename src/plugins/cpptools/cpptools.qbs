@@ -131,5 +131,6 @@ QtcPlugin {
 
     Export {
         Depends { name: "CPlusPlus" }
+        Depends { name: "Qt.concurrent" }
     }
 }

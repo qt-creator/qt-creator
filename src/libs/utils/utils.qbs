@@ -217,7 +217,6 @@ QtcLibrary {
     }
 
     Export {
-        cpp.includePaths: [ ".." ]
         Depends { name: "Qt"; submodules: ["concurrent", "widgets" ] }
     }
 }
