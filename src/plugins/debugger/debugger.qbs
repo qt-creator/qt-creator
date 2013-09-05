@@ -1,7 +1,6 @@
 import qbs.base 1.0
 
 import "../QtcPlugin.qbs" as QtcPlugin
-import "../../../qbs/defaults.js" as Defaults
 
 QtcPlugin {
     name: "Debugger"
@@ -26,7 +25,7 @@ QtcPlugin {
 
     Group {
         name: "Tests"
-        condition: Defaults.testsEnabled(qbs)
+        condition: project.testsEnabled
         qbs.install: true
         qbs.installDir: "tests/manual/debugger/simple/"
         files: ["../../../tests/manual/debugger/simple/simple.pro"]

@@ -1,7 +1,6 @@
 import qbs.base 1.0
 
 import "../QtcPlugin.qbs" as QtcPlugin
-import "../../../qbs/defaults.js" as Defaults
 
 QtcPlugin {
     name: "ProjectExplorer"
@@ -241,7 +240,7 @@ QtcPlugin {
 
     Group {
         name: "WindowsToolChains"
-        condition: qbs.targetOS.contains("windows") || Defaults.testsEnabled(qbs)
+        condition: qbs.targetOS.contains("windows") || project.testsEnabled
         files: [
            "abstractmsvctoolchain.cpp",
            "abstractmsvctoolchain.h",
@@ -258,7 +257,7 @@ QtcPlugin {
 
     Group {
         name: "Tests"
-        condition: Defaults.testsEnabled(qbs)
+        condition: project.testsEnabled
         files: ["outputparser_test.h", "outputparser_test.cpp"]
     }
 

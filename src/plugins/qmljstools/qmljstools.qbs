@@ -1,7 +1,6 @@
 import qbs.base 1.0
 
 import "../QtcPlugin.qbs" as QtcPlugin
-import "../../../qbs/defaults.js" as Defaults
 
 QtcPlugin {
     name: "QmlJSTools"
@@ -73,7 +72,7 @@ QtcPlugin {
 
     Group {
         name: "Tests"
-        condition: Defaults.testsEnabled(qbs)
+        condition: project.testsEnabled
         files: ["qmljstools_test.cpp"]
     }
 

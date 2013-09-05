@@ -4,13 +4,13 @@ import "../../qbs/defaults.js" as Defaults
 DynamicLibrary {
     Depends { name: "cpp" }
     Depends {
-        condition: Defaults.testsEnabled(qbs)
+        condition: project.testsEnabled
         name: "Qt.test"
     }
 
     targetName: Defaults.qtLibraryName(qbs, name)
 
-    cpp.defines: Defaults.defines(qbs)
+    cpp.defines: project.generalDefines
     cpp.linkerFlags: {
         if (qbs.buildVariant == "release" && (qbs.toolchain.contains("gcc") || qbs.toolchain.contains("mingw")))
             return ["-Wl,-s"]

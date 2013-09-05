@@ -2,7 +2,6 @@ import qbs.base 1.0
 import qbs.FileInfo
 
 import "../QtcPlugin.qbs" as QtcPlugin
-import "../../../qbs/defaults.js" as Defaults
 
 QtcPlugin {
     name: "CppTools"
@@ -112,7 +111,7 @@ QtcPlugin {
 
     Group {
         name: "Tests"
-        condition: Defaults.testsEnabled(qbs)
+        condition: project.testsEnabled
         files: [
             "cppcodegen_test.cpp",
             "cppcompletion_test.cpp",

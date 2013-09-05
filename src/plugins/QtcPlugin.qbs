@@ -14,11 +14,11 @@ Product {
     Depends { name: "pluginspec" }
     Depends { name: "cpp" }
     Depends {
-        condition: Defaults.testsEnabled(qbs)
+        condition: project.testsEnabled
         name: "Qt.test"
     }
 
-    cpp.defines: Defaults.defines(qbs).concat([name.toUpperCase() + "_LIBRARY"])
+    cpp.defines: project.generalDefines.concat([name.toUpperCase() + "_LIBRARY"])
     cpp.installNamePrefix: "@rpath/PlugIns/" + provider + "/"
     cpp.rpaths: qbs.targetOS.contains("osx") ? ["@loader_path/../..", "@executable_path/.."]
                                       : ["$ORIGIN", "$ORIGIN/..", "$ORIGIN/../.."]

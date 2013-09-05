@@ -40,6 +40,14 @@ Project {
     property string ide_bin_path: qbs.targetOS.contains("osx")
             ? ide_app_target + ".app/Contents/MacOS"
             : ide_app_path
+    property bool testsEnabled: qbs.getenv("TEST") || qbs.buildVariant === "debug"
+    property stringList generalDefines: [
+        "QT_CREATOR",
+        'IDE_LIBRARY_BASENAME="lib"',
+        "QT_DISABLE_DEPRECATED_BEFORE=0x040900",
+        "QT_NO_CAST_TO_ASCII",
+        "QT_NO_CAST_FROM_ASCII"
+    ].concat(testsEnabled ? ["WITH_TESTS"] : [])
     moduleSearchPaths: "qbs"
 
     references: [
