@@ -49,12 +49,12 @@
 #endif
 
 using namespace CppTools::Internal;
+using namespace ProjectExplorer;
 
 typedef CPlusPlus::Document Document;
 typedef CppTools::CppModelManagerInterface::ProjectInfo ProjectInfo;
 typedef CppTools::ProjectPart ProjectPart;
 typedef CppTools::ProjectFile ProjectFile;
-typedef ProjectExplorer::Project Project;
 
 Q_DECLARE_METATYPE(QList<ProjectFile>)
 
@@ -119,7 +119,7 @@ class ExampleProjectConfigurator
 {
 public:
     ExampleProjectConfigurator(const QString &projectFile,
-                               ProjectExplorer::ProjectExplorerPlugin *projectExplorer)
+                               ProjectExplorerPlugin *projectExplorer)
     {
         const QString projectUserFile = projectFile + QLatin1String(".user");
         QVERIFY(!QFileInfo(projectUserFile).exists());
@@ -142,13 +142,13 @@ public:
         QVERIFY(QFile::remove(m_fileToRemove));
     }
 
-    ProjectExplorer::Project *project() const
+    Project *project() const
     {
         return m_project;
     }
 
 private:
-    ProjectExplorer::Project *m_project;
+    Project *m_project;
     QString m_fileToRemove;
 };
 
@@ -661,7 +661,7 @@ void CppToolsPlugin::test_modelmanager_extraeditorsupport_uiFiles()
     const QString projectFile = testDataDirectory.file(QLatin1String("testdata_guiproject1.pro"));
 
     // Open project with *.ui file
-    ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
+    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
     ExampleProjectConfigurator exampleProjectConfigurator(projectFile, pe);
     Project *project = exampleProjectConfigurator.project();
 
@@ -698,8 +698,7 @@ void CppToolsPlugin::test_modelmanager_extraeditorsupport_uiFiles()
     QCOMPARE(QFileInfo(includedFiles.at(1)).fileName(), QLatin1String("ui_mainwindow.h"));
 
     // Close Project
-    ProjectExplorer::SessionManager *sm = pe->session();
-    sm->removeProject(project);
+    SessionManager::removeProject(project);
     helper.waitForFinishedGc();
 }
 

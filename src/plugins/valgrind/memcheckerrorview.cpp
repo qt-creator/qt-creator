@@ -44,6 +44,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/session.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
@@ -185,8 +186,7 @@ static QString makeFrameName(const Frame &frame, const QString &relativeTo,
 static QString relativeToPath()
 {
     // The project for which we insert the snippet.
-    const ProjectExplorer::Project *project =
-            ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
+    const ProjectExplorer::Project *project = ProjectExplorer::SessionManager::startupProject();
 
     QString relativeTo(project ? project->projectDirectory() : QDir::homePath());
     if (!relativeTo.endsWith(QDir::separator()))

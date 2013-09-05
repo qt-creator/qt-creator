@@ -41,6 +41,7 @@
 
 using namespace CMakeProjectManager;
 using namespace CMakeProjectManager::Internal;
+using namespace ProjectExplorer;
 using namespace Utils;
 
 CMakeLocatorFilter::CMakeLocatorFilter()
@@ -49,10 +50,9 @@ CMakeLocatorFilter::CMakeLocatorFilter()
     setDisplayName(tr("Build CMake target"));
     setShortcutString(QLatin1String("cm"));
 
-    ProjectExplorer::SessionManager *sm = ProjectExplorer::ProjectExplorerPlugin::instance()->session();
-    connect(sm, SIGNAL(projectAdded(ProjectExplorer::Project*)),
+    connect(SessionManager::instance(), SIGNAL(projectAdded(ProjectExplorer::Project*)),
             this, SLOT(slotProjectListUpdated()));
-    connect(sm, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
+    connect(SessionManager::instance(), SIGNAL(projectRemoved(ProjectExplorer::Project*)),
             this, SLOT(slotProjectListUpdated()));
 
     // Initialize the filter
@@ -69,9 +69,7 @@ QList<Locator::FilterEntry> CMakeLocatorFilter::matchesFor(QFutureInterface<Loca
     Q_UNUSED(future)
     QList<Locator::FilterEntry> result;
 
-    QList<ProjectExplorer::Project *> projects =
-            ProjectExplorer::ProjectExplorerPlugin::instance()->session()->projects();
-    foreach (ProjectExplorer::Project *p, projects) {
+    foreach (Project *p, SessionManager::projects()) {
         CMakeProject *cmakeProject = qobject_cast<CMakeProject *>(p);
         if (cmakeProject) {
             foreach (const CMakeBuildTarget &ct, cmakeProject->buildTargets()) {
@@ -93,9 +91,7 @@ void CMakeLocatorFilter::accept(Locator::FilterEntry selection) const
     // Get the project containing the target selected
     CMakeProject *cmakeProject = 0;
 
-    QList<ProjectExplorer::Project *> projects =
-            ProjectExplorer::ProjectExplorerPlugin::instance()->session()->projects();
-    foreach (ProjectExplorer::Project *p, projects) {
+    foreach (Project *p, SessionManager::projects()) {
         cmakeProject = qobject_cast<CMakeProject *>(p);
         if (cmakeProject && cmakeProject->projectFilePath() == selection.internalData.toString())
             break;
@@ -136,9 +132,7 @@ void CMakeLocatorFilter::slotProjectListUpdated()
 {
     CMakeProject *cmakeProject = 0;
 
-    QList<ProjectExplorer::Project *> projects =
-            ProjectExplorer::ProjectExplorerPlugin::instance()->session()->projects();
-    foreach (ProjectExplorer::Project *p, projects) {
+    foreach (Project *p, SessionManager::projects()) {
         cmakeProject = qobject_cast<CMakeProject *>(p);
         if (cmakeProject)
             break;

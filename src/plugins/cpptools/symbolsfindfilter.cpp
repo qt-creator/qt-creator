@@ -133,10 +133,8 @@ void SymbolsFindFilter::startSearch(Find::SearchResult *search)
     SymbolSearcher::Parameters parameters = search->userData().value<SymbolSearcher::Parameters>();
     QSet<QString> projectFileNames;
     if (parameters.scope == SymbolSearcher::SearchProjectsOnly) {
-        foreach (ProjectExplorer::Project *project,
-                 ProjectExplorer::ProjectExplorerPlugin::instance()->session()->projects()) {
+        foreach (ProjectExplorer::Project *project, ProjectExplorer::SessionManager::projects())
             projectFileNames += project->files(ProjectExplorer::Project::AllFiles).toSet();
-        }
     }
 
     QFutureWatcher<Find::SearchResultItem> *watcher = new QFutureWatcher<Find::SearchResultItem>();

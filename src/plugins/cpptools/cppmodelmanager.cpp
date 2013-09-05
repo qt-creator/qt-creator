@@ -240,24 +240,18 @@ CppModelManager::CppModelManager(QObject *parent)
 
     m_dirty = true;
 
-    ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
-    QTC_ASSERT(pe, return);
-
     m_delayedGcTimer = new QTimer(this);
     m_delayedGcTimer->setSingleShot(true);
     connect(m_delayedGcTimer, SIGNAL(timeout()), this, SLOT(GC()));
 
-    ProjectExplorer::SessionManager *session = pe->session();
-    connect(session, SIGNAL(projectAdded(ProjectExplorer::Project*)),
+    QObject *sessionManager = ProjectExplorer::SessionManager::instance();
+    connect(sessionManager, SIGNAL(projectAdded(ProjectExplorer::Project*)),
             this, SLOT(onProjectAdded(ProjectExplorer::Project*)));
-
-    connect(session, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
+    connect(sessionManager, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
             this, SLOT(onAboutToRemoveProject(ProjectExplorer::Project*)));
-
-    connect(session, SIGNAL(aboutToLoadSession(QString)),
+    connect(sessionManager, SIGNAL(aboutToLoadSession(QString)),
             this, SLOT(onAboutToLoadSession()));
-
-    connect(session, SIGNAL(aboutToUnloadSession(QString)),
+    connect(sessionManager, SIGNAL(aboutToUnloadSession(QString)),
             this, SLOT(onAboutToUnloadSession()));
 
     connect(Core::ICore::instance(), SIGNAL(coreAboutToClose()),

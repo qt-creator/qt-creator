@@ -227,8 +227,7 @@ void Manager::initialize()
     connect(this, SIGNAL(stateChanged(bool)), SLOT(onStateChanged(bool)), Qt::QueuedConnection);
 
     // connections to enable/disable navi widget factory
-    ProjectExplorer::SessionManager *sessionManager =
-        ProjectExplorer::ProjectExplorerPlugin::instance()->session();
+    QObject *sessionManager = ProjectExplorer::SessionManager::instance();
     connect(sessionManager, SIGNAL(projectAdded(ProjectExplorer::Project*)),
             SLOT(onProjectListChanged()), Qt::QueuedConnection);
     connect(sessionManager, SIGNAL(projectRemoved(ProjectExplorer::Project*)),

@@ -58,6 +58,8 @@
 
 enum { debug = false };
 
+using namespace ProjectExplorer;
+
 namespace ClassView {
 namespace Internal {
 
@@ -274,8 +276,7 @@ ParserTreeItem::ConstPtr Parser::parse()
     ParserTreeItem::Ptr rootItem(new ParserTreeItem());
 
     // check all projects
-    QList<ProjectExplorer::Project *> projects = getProjectList();
-    foreach (const ProjectExplorer::Project *prj, projects) {
+    foreach (const Project *prj, SessionManager::projects()) {
         if (!prj)
             continue;
 
@@ -293,7 +294,7 @@ ParserTreeItem::ConstPtr Parser::parse()
 
         if (d->flatMode) {
             // use prj path (prjType) as a project id
-//            addProject(item, prj->files(ProjectExplorer::Project::ExcludeGeneratedFiles), prjType);
+//            addProject(item, prj->files(Project::ExcludeGeneratedFiles), prjType);
             //! \todo return back, works too long
             ParserTreeItem::Ptr flatItem = createFlatTree(projectList);
             item.swap(flatItem);
@@ -673,10 +674,9 @@ void Parser::resetData(const CPlusPlus::Snapshot &snapshot)
     QStringList fileList;
 
     // check all projects
-    QList<ProjectExplorer::Project *> projects = getProjectList();
-    foreach (const ProjectExplorer::Project *prj, projects) {
+    foreach (const Project *prj, SessionManager::projects()) {
         if (prj)
-            fileList += prj->files(ProjectExplorer::Project::ExcludeGeneratedFiles);
+            fileList += prj->files(Project::ExcludeGeneratedFiles);
     }
     setFileList(fileList);
 
@@ -817,23 +817,6 @@ QStringList Parser::addProjectNode(const ParserTreeItem::Ptr &item,
     }
 
     return projectList;
-}
-
-/*!
-    Returns the current project list.
-*/
-
-QList<ProjectExplorer::Project *> Parser::getProjectList() const
-{
-    QList<ProjectExplorer::Project *> list;
-
-    // check all projects
-    ProjectExplorer::SessionManager *sessionManager
-            = ProjectExplorer::ProjectExplorerPlugin::instance()->session();
-
-    list = sessionManager->projects();
-
-    return list;
 }
 
 } // namespace Internal

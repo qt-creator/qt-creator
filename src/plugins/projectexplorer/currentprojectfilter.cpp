@@ -38,8 +38,8 @@ using namespace Locator;
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 
-CurrentProjectFilter::CurrentProjectFilter(ProjectExplorerPlugin *pe)
-  : BaseFileFilter(), m_projectExplorer(pe), m_project(0), m_filesUpToDate(false)
+CurrentProjectFilter::CurrentProjectFilter()
+  : BaseFileFilter(), m_project(0), m_filesUpToDate(false)
 {
     setId("Files in current project");
     setDisplayName(tr("Files in Current Project"));
@@ -47,7 +47,7 @@ CurrentProjectFilter::CurrentProjectFilter(ProjectExplorerPlugin *pe)
     setShortcutString(QString(QLatin1Char('p')));
     setIncludedByDefault(false);
 
-    connect(m_projectExplorer, SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
+    connect(ProjectExplorerPlugin::instance(), SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
             this, SLOT(currentProjectChanged(ProjectExplorer::Project*)));
 }
 

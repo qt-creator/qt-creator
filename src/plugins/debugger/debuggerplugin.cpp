@@ -425,11 +425,6 @@ void addTcfOptionPages(QList<IOptionsPage*> *opts);
 void addLldbOptionPages(QList<IOptionsPage*> *opts);
 #endif
 
-static SessionManager *sessionManager()
-{
-    return ProjectExplorerPlugin::instance()->session();
-}
-
 static QToolButton *toolButton(QAction *action)
 {
     QToolButton *button = new QToolButton;
@@ -1565,23 +1560,20 @@ void DebuggerPluginPrivate::languagesChanged()
 
 void DebuggerPluginPrivate::debugProject()
 {
-    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
-    if (Project *pro = pe->startupProject())
-        pe->runProject(pro, DebugRunMode);
+    if (Project *pro = SessionManager::startupProject())
+        ProjectExplorerPlugin::instance()->runProject(pro, DebugRunMode);
 }
 
 void DebuggerPluginPrivate::debugProjectWithoutDeploy()
 {
-    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
-    if (Project *pro = pe->startupProject())
-        pe->runProject(pro, DebugRunMode, true);
+    if (Project *pro = SessionManager::startupProject())
+        ProjectExplorerPlugin::instance()->runProject(pro, DebugRunMode, true);
 }
 
 void DebuggerPluginPrivate::debugProjectBreakMain()
 {
-    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
-    if (Project *pro = pe->startupProject())
-        pe->runProject(pro, DebugRunModeWithBreakOnMain);
+    if (Project *pro = SessionManager::startupProject())
+        ProjectExplorerPlugin::instance()->runProject(pro, DebugRunModeWithBreakOnMain);
 }
 
 void DebuggerPluginPrivate::startAndDebugApplication()
@@ -1776,11 +1768,10 @@ void DebuggerPluginPrivate::attachToQmlPort()
     //
     // get files from all the projects in the session
     //
-    SessionManager *sessionManager = ProjectExplorerPlugin::instance()->session();
-    QList<Project *> projects = sessionManager->projects();
-    if (Project *startupProject = ProjectExplorerPlugin::instance()->startupProject()) {
+    QList<Project *> projects = SessionManager::projects();
+    if (Project *startupProject = SessionManager::startupProject()) {
         // startup project first
-        projects.removeOne(ProjectExplorerPlugin::instance()->startupProject());
+        projects.removeOne(startupProject);
         projects.insert(0, startupProject);
     }
     QStringList sourceFiles;
@@ -2354,7 +2345,7 @@ void DebuggerPluginPrivate::updateDebugActions()
         return;
 
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
-    Project *project = pe->startupProject();
+    Project *project = SessionManager::startupProject();
     const bool canRun = pe->canRun(project, DebugRunMode);
     m_startAction->setEnabled(canRun);
     m_startAction->setToolTip(canRun ? QString() : pe->cannotRunReason(project, DebugRunMode));
@@ -2507,14 +2498,12 @@ const CPlusPlus::Snapshot &DebuggerPluginPrivate::cppCodeModelSnapshot() const
 
 void DebuggerCore::setSessionValue(const QByteArray &key, const QVariant &value)
 {
-    QTC_ASSERT(sessionManager(), return);
-    sessionManager()->setValue(QString::fromUtf8(key), value);
+    SessionManager::setValue(QString::fromUtf8(key), value);
 }
 
 QVariant DebuggerCore::sessionValue(const QByteArray &key)
 {
-    QTC_ASSERT(sessionManager(), return QVariant());
-    return sessionManager()->value(QString::fromUtf8(key));
+    return SessionManager::value(QString::fromUtf8(key));
 }
 
 void DebuggerPluginPrivate::openTextEditor(const QString &titlePattern0,
@@ -3198,11 +3187,11 @@ void DebuggerPluginPrivate::extensionsInitialized()
         SLOT(fontSettingsChanged(TextEditor::FontSettings)));
 
     // ProjectExplorer
-    connect(sessionManager(), SIGNAL(sessionLoaded(QString)),
+    connect(SessionManager::instance(), SIGNAL(sessionLoaded(QString)),
         SLOT(sessionLoaded()));
-    connect(sessionManager(), SIGNAL(aboutToSaveSession()),
+    connect(SessionManager::instance(), SIGNAL(aboutToSaveSession()),
         SLOT(aboutToSaveSession()));
-    connect(sessionManager(), SIGNAL(aboutToUnloadSession(QString)),
+    connect(SessionManager::instance(), SIGNAL(aboutToUnloadSession(QString)),
         SLOT(aboutToUnloadSession()));
     connect(ProjectExplorerPlugin::instance(), SIGNAL(updateRunActions()),
         SLOT(updateDebugActions()));
@@ -3273,7 +3262,7 @@ void DebuggerPluginPrivate::extensionsInitialized()
     setInitialState();
     connectEngine(0);
 
-    connect(sessionManager(),
+    connect(SessionManager::instance(),
         SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
         SLOT(onCurrentProjectChanged(ProjectExplorer::Project*)));
 
@@ -3370,7 +3359,7 @@ void DebuggerPluginPrivate::showModuleSections(const QString &moduleName,
 void DebuggerPluginPrivate::aboutToShutdown()
 {
     m_plugin->removeObject(this);
-    disconnect(sessionManager(),
+    disconnect(SessionManager::instance(),
         SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
         this, 0);
 }

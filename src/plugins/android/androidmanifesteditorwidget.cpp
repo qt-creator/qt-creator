@@ -65,6 +65,7 @@
 #include <QFileDialog>
 #include <QTimer>
 
+using namespace ProjectExplorer;
 using namespace Android;
 using namespace Android::Internal;
 
@@ -78,15 +79,14 @@ bool checkPackageName(const QString &packageName)
     return QRegExp(packageNameRegExp).exactMatch(packageName);
 }
 
-ProjectExplorer::Project *androidProject(const QString &file)
+Project *androidProject(const QString &file)
 {
-    ProjectExplorer::SessionManager *session = ProjectExplorer::ProjectExplorerPlugin::instance()->session();
     Utils::FileName fileName = Utils::FileName::fromString(file);
-    foreach (ProjectExplorer::Project *project, session->projects()) {
+    foreach (Project *project, SessionManager::projects()) {
         if (!project->activeTarget())
             continue;
-        ProjectExplorer::Kit *kit = project->activeTarget()->kit();
-        if (ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(kit) == Constants::ANDROID_DEVICE_TYPE
+        Kit *kit = project->activeTarget()->kit();
+        if (DeviceTypeKitInformation::deviceTypeId(kit) == Android::Constants::ANDROID_DEVICE_TYPE
                 && fileName.isChildOf(Utils::FileName::fromString(project->projectDirectory())))
             return project;
     }

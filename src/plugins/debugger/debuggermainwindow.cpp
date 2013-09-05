@@ -48,7 +48,6 @@
 #include <coreplugin/rightpane.h>
 
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
@@ -469,8 +468,7 @@ void DebuggerMainWindow::addStagedMenuEntries()
 
 QWidget *DebuggerMainWindow::createContents(IMode *mode)
 {
-    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
-    connect(pe->session(), SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
+    connect(SessionManager::instance(), SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
         d, SLOT(updateUiForProject(ProjectExplorer::Project*)));
 
     d->m_viewsMenu = Core::ActionManager::actionContainer(Core::Id(Core::Constants::M_WINDOW_VIEWS));

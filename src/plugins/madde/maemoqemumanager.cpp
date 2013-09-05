@@ -107,12 +107,12 @@ MaemoQemuManager::MaemoQemuManager(QObject *parent)
         this, SLOT(qtVersionsChanged(QList<int>,QList<int>,QList<int>)));
 
     // listen to project add, remove and startup changes to udate start button
-    SessionManager *session = ProjectExplorerPlugin::instance()->session();
-    connect(session, SIGNAL(projectAdded(ProjectExplorer::Project*)), this,
+    QObject *sessionManager = SessionManager::instance();
+    connect(sessionManager, SIGNAL(projectAdded(ProjectExplorer::Project*)), this,
         SLOT(projectAdded(ProjectExplorer::Project*)));
-    connect(session, SIGNAL(projectRemoved(ProjectExplorer::Project*)), this,
+    connect(sessionManager, SIGNAL(projectRemoved(ProjectExplorer::Project*)), this,
         SLOT(projectRemoved(ProjectExplorer::Project*)));
-    connect(session, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
+    connect(sessionManager, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
         this, SLOT(projectChanged(ProjectExplorer::Project*)));
 
     connect(m_qemuProcess, SIGNAL(error(QProcess::ProcessError)), this,
@@ -283,10 +283,8 @@ void MaemoQemuManager::systemChanged()
 void MaemoQemuManager::environmentChanged()
 {
     // likely to happen when the Qt version changes the build config is using
-    if (ProjectExplorerPlugin *explorer = ProjectExplorerPlugin::instance()) {
-        if (Project *project = explorer->session()->startupProject())
-            toggleStarterButton(project->activeTarget());
-    }
+    if (Project *project = SessionManager::startupProject())
+        toggleStarterButton(project->activeTarget());
 }
 
 void MaemoQemuManager::deviceConfigurationChanged(ProjectExplorer::Target *target)
@@ -297,7 +295,7 @@ void MaemoQemuManager::deviceConfigurationChanged(ProjectExplorer::Target *targe
 void MaemoQemuManager::startRuntime()
 {
     m_userTerminated = false;
-    Project *p = ProjectExplorerPlugin::instance()->session()->startupProject();
+    Project *p = SessionManager::startupProject();
     if (!p)
         return;
     BaseQtVersion *version;
@@ -470,8 +468,7 @@ void MaemoQemuManager::toggleStarterButton(Target *target)
     if (m_runningQtId == uniqueId)
         isRunning = false;
 
-    const Project * const p
-        = ProjectExplorerPlugin::instance()->session()->startupProject();
+    const Project * const p = SessionManager::startupProject();
     const bool qemuButtonEnabled
         = p && p->activeTarget() && MaemoGlobal::hasMaemoDevice(target->kit())
             && m_runtimes.value(uniqueId, MaemoQemuRuntime()).isValid()
@@ -482,9 +479,7 @@ void MaemoQemuManager::toggleStarterButton(Target *target)
 
 bool MaemoQemuManager::sessionHasMaemoTarget() const
 {
-    ProjectExplorerPlugin *explorer = ProjectExplorerPlugin::instance();
-    const QList<Project*> &projects = explorer->session()->projects();
-    foreach (const Project *p, projects) {
+    foreach (const Project *p, SessionManager::projects()) {
         foreach (const Target * const target, p->targets()) {
             if (MaemoGlobal::hasMaemoDevice(target->kit()))
                 return true;

@@ -32,13 +32,8 @@
 
 #include "allprojectsfind.h"
 
-QT_BEGIN_NAMESPACE
-class QWidget;
-QT_END_NAMESPACE
-
 namespace ProjectExplorer {
 
-class ProjectExplorerPlugin;
 class Project;
 
 namespace Internal {
@@ -48,7 +43,7 @@ class CurrentProjectFind : public AllProjectsFind
     Q_OBJECT
 
 public:
-    CurrentProjectFind(ProjectExplorerPlugin *plugin);
+    CurrentProjectFind();
 
     QString id() const;
     QString displayName() const;
@@ -67,9 +62,6 @@ protected:
 private slots:
     void handleProjectChanged();
     void recheckEnabled();
-
-private:
-    ProjectExplorerPlugin *m_plugin;
 };
 
 } // namespace Internal

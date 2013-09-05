@@ -1206,8 +1206,7 @@ static QTextCodec *findProjectCodec(const QString &dir)
 {
     typedef  QList<ProjectExplorer::Project*> ProjectList;
     // Try to find a project under which file tree the file is.
-    const ProjectExplorer::SessionManager *sm = ProjectExplorer::ProjectExplorerPlugin::instance()->session();
-    const ProjectList projects = sm->projects();
+    const ProjectList projects = ProjectExplorer::SessionManager::projects();
     if (!projects.empty()) {
         const ProjectList::const_iterator pcend = projects.constEnd();
         for (ProjectList::const_iterator it = projects.constBegin(); it != pcend; ++it)

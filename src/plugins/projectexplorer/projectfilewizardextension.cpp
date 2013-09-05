@@ -107,7 +107,7 @@ private:
 ProjectNodeList AllProjectNodesVisitor::allProjects(ProjectNode::ProjectAction action)
 {
     AllProjectNodesVisitor visitor(action);
-    ProjectExplorerPlugin::instance()->session()->sessionNode()->accept(&visitor);
+    SessionManager::sessionNode()->accept(&visitor);
     return visitor.m_projectNodes;
 }
 
@@ -557,8 +557,7 @@ void ProjectFileWizardExtension::applyCodeStyle(Core::GeneratedFile *file) const
     if (projectIndex >= 0 && projectIndex < m_context->projects.size())
         project = m_context->projects.at(projectIndex).node;
 
-    ProjectExplorer::Project *baseProject
-            = ProjectExplorer::ProjectExplorerPlugin::instance()->session()->projectForNode(project);
+    Project *baseProject = SessionManager::projectForNode(project);
 
     TextEditor::ICodeStylePreferencesFactory *factory
             = TextEditor::TextEditorSettings::instance()->codeStyleFactory(languageId);

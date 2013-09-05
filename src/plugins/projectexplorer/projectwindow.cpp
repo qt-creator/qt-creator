@@ -228,8 +228,6 @@ ProjectWindow::ProjectWindow(QWidget *parent)
       m_currentWidget(0),
       m_previousTargetSubIndex(-1)
 {
-    ProjectExplorer::SessionManager *session = ProjectExplorerPlugin::instance()->session();
-
     // Setup overall layout:
     QVBoxLayout *viewLayout = new QVBoxLayout(this);
     viewLayout->setMargin(0);
@@ -242,19 +240,20 @@ ProjectWindow::ProjectWindow(QWidget *parent)
     m_centralWidget = new QStackedWidget(this);
     viewLayout->addWidget(m_centralWidget);
 
-    // connects:
+    // Connections
     connect(m_tabWidget, SIGNAL(currentIndexChanged(int,int)),
             this, SLOT(showProperties(int,int)));
 
-    connect(session, SIGNAL(projectAdded(ProjectExplorer::Project*)),
+    QObject *sessionManager = SessionManager::instance();
+    connect(sessionManager, SIGNAL(projectAdded(ProjectExplorer::Project*)),
             this, SLOT(registerProject(ProjectExplorer::Project*)));
-    connect(session, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
+    connect(sessionManager, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
             this, SLOT(deregisterProject(ProjectExplorer::Project*)));
 
-    connect(session, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
+    connect(sessionManager, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
             this, SLOT(startupProjectChanged(ProjectExplorer::Project*)));
 
-    connect(session, SIGNAL(projectDisplayNameChanged(ProjectExplorer::Project*)),
+    connect(sessionManager, SIGNAL(projectDisplayNameChanged(ProjectExplorer::Project*)),
             this, SLOT(projectUpdated(ProjectExplorer::Project*)));
 
     // Update properties to empty project for now:
@@ -274,7 +273,7 @@ void ProjectWindow::aboutToShutdown()
 {
     showProperties(-1, -1); // that's a bit stupid, but otherwise stuff is still
                             // connected to the session
-    disconnect(ProjectExplorerPlugin::instance()->session(), 0, this, 0);
+    disconnect(SessionManager::instance(), 0, this, 0);
 }
 
 void ProjectWindow::removedTarget(Target *)
@@ -434,7 +433,7 @@ void ProjectWindow::showProperties(int index, int subIndex)
 
     }
 
-    ProjectExplorerPlugin::instance()->session()->setStartupProject(project);
+    SessionManager::setStartupProject(project);
 }
 
 void ProjectWindow::removeCurrentWidget()

@@ -66,62 +66,66 @@ public:
     explicit SessionManager(QObject *parent = 0);
     ~SessionManager();
 
+    static QObject *instance();
+
     // higher level session management
-    QString activeSession() const;
-    QString lastSession() const;
-    QStringList sessions() const;
+    static QString activeSession();
+    static QString lastSession();
+    static QStringList sessions();
 
-    bool createSession(const QString &session);
+    static bool createSession(const QString &session);
 
-    bool confirmSessionDelete(const QString &session);
-    bool deleteSession(const QString &session);
+    static bool confirmSessionDelete(const QString &session);
+    static bool deleteSession(const QString &session);
 
-    bool cloneSession(const QString &original, const QString &clone);
-    bool renameSession(const QString &original, const QString &newName);
+    static bool cloneSession(const QString &original, const QString &clone);
+    static bool renameSession(const QString &original, const QString &newName);
 
-    bool loadSession(const QString &session);
+    static bool loadSession(const QString &session);
 
-    bool save();
-    void closeAllProjects();
+    static bool save();
+    static void closeAllProjects();
 
-    void addProject(Project *project);
-    void addProjects(const QList<Project*> &projects);
-    void removeProject(Project *project);
-    void removeProjects(QList<Project *> remove);
+    static void addProject(Project *project);
+    static void addProjects(const QList<Project*> &projects);
+    static void removeProject(Project *project);
+    static void removeProjects(QList<Project *> remove);
 
-    void setStartupProject(Project *startupProject);
+    static void setStartupProject(Project *startupProject);
 
-    QList<Project *> dependencies(const Project *project) const;
-    bool hasDependency(const Project *project, const Project *depProject) const;
-    bool canAddDependency(const Project *project, const Project *depProject) const;
-    bool addDependency(Project *project, Project *depProject);
-    void removeDependency(Project *project, Project *depProject);
+    static QList<Project *> dependencies(const Project *project);
+    static bool hasDependency(const Project *project, const Project *depProject);
+    static bool canAddDependency(const Project *project, const Project *depProject);
+    static bool addDependency(Project *project, Project *depProject);
+    static void removeDependency(Project *project, Project *depProject);
 
-    Utils::FileName sessionNameToFileName(const QString &session) const;
-    Project *startupProject() const;
+    static Utils::FileName sessionNameToFileName(const QString &session);
+    static Project *startupProject();
 
-    const QList<Project *> &projects() const;
+    static const QList<Project *> &projects();
+    static bool hasProjects();
 
-    bool isDefaultVirgin() const;
-    bool isDefaultSession(const QString &session) const;
+    static bool isDefaultVirgin();
+    static bool isDefaultSession(const QString &session);
 
     // Let other plugins store persistent values within the session file
-    void setValue(const QString &name, const QVariant &value);
-    QVariant value(const QString &name);
+    static void setValue(const QString &name, const QVariant &value);
+    static QVariant value(const QString &name);
 
     // NBS rewrite projectOrder (dependency management)
-    QList<Project *> projectOrder(Project *project = 0) const;
+    static QList<Project *> projectOrder(Project *project = 0);
 
-    SessionNode *sessionNode() const;
+    static SessionNode *sessionNode();
 
-    Project *projectForNode(ProjectExplorer::Node *node) const;
-    Node *nodeForFile(const QString &fileName, Project *project = 0) const;
-    Project *projectForFile(const QString &fileName) const;
+    static Project *projectForNode(ProjectExplorer::Node *node);
+    static Node *nodeForFile(const QString &fileName, Project *project = 0);
+    static Project *projectForFile(const QString &fileName);
 
-    QStringList projectsForSessionName(const QString &session) const;
+    static QStringList projectsForSessionName(const QString &session);
 
-    void reportProjectLoadingProgress();
-    bool loadingSession();
+    static void reportProjectLoadingProgress();
+    static bool loadingSession();
+
 signals:
     void projectAdded(ProjectExplorer::Project *project);
     void singleProjectAdded(ProjectExplorer::Project *project);
@@ -138,46 +142,12 @@ signals:
     void dependencyChanged(ProjectExplorer::Project *a, ProjectExplorer::Project *b);
 
 private slots:
-    void saveActiveMode(Core::IMode *mode);
-    void clearProjectFileCache();
-    void configureEditor(Core::IEditor *editor, const QString &fileName);
-    void updateWindowTitle();
-
-    void markSessionFileDirty(bool makeDefaultVirginDirty = true);
-    void sessionLoadingProgress();
-
-    void projectDisplayNameChanged();
-
-private:
-    bool projectContainsFile(Project *p, const QString &fileName) const;
-    void restoreValues(const Utils::PersistentSettingsReader &reader);
-    void restoreDependencies(const Utils::PersistentSettingsReader &reader);
-    void restoreStartupProject(const Utils::PersistentSettingsReader &reader);
-    void restoreEditors(const Utils::PersistentSettingsReader &reader);
-    void restoreProjects(const QStringList &fileList);
-    void askUserAboutFailedProjects();
-
-    bool recursiveDependencyCheck(const QString &newDep, const QString &checkDep) const;
-    QStringList dependencies(const QString &proName) const;
-    QStringList dependenciesOrder() const;
-    void dependencies(const QString &proName, QStringList &result) const;
-
-    SessionNode *m_sessionNode;
-    QString m_sessionName;
-    bool m_virginSession;
-
-    mutable QStringList m_sessions;
-
-    mutable QHash<Project *, QStringList> m_projectFileCache;
-    bool m_loadingSession;
-
-    Project *m_startupProject;
-    QList<Project *> m_projects;
-    QStringList m_failedProjects;
-    QMap<QString, QStringList> m_depMap;
-    QMap<QString, QVariant> m_values;
-    QFutureInterface<void> m_future;
-    Utils::PersistentSettingsWriter *m_writer;
+    static void saveActiveMode(Core::IMode *mode);
+    static void clearProjectFileCache();
+    static void configureEditor(Core::IEditor *editor, const QString &fileName);
+    static void updateWindowTitle();
+    static void markSessionFileDirty(bool makeDefaultVirginDirty = true);
+    static void projectDisplayNameChanged();
 };
 
 } // namespace ProjectExplorer

@@ -36,7 +36,6 @@
 
 namespace ProjectExplorer {
 
-class ProjectExplorerPlugin;
 class Project;
 
 namespace Internal {
@@ -46,7 +45,7 @@ class AllProjectsFind : public TextEditor::BaseFileFind
     Q_OBJECT
 
 public:
-    AllProjectsFind(ProjectExplorerPlugin *plugin);
+    AllProjectsFind();
 
     QString id() const;
     QString displayName() const;
@@ -71,7 +70,6 @@ private slots:
     void handleFileListChanged();
 
 private:
-    ProjectExplorerPlugin *m_plugin;
     QPointer<QWidget> m_configWidget;
 };
 

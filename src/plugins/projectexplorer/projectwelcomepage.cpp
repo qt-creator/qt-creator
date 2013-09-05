@@ -49,8 +49,8 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-SessionModel::SessionModel(SessionManager *manager, QObject *parent)
-    : QAbstractListModel(parent), m_manager(manager)
+SessionModel::SessionModel(QObject *parent)
+    : QAbstractListModel(parent)
 {
     QHash<int, QByteArray> roleNames;
     roleNames[Qt::DisplayRole] = "sessionName";
@@ -60,12 +60,12 @@ SessionModel::SessionModel(SessionManager *manager, QObject *parent)
     roleNames[ProjectsPathRole] = "projectsPath";
     roleNames[ProjectsDisplayRole] = "projectsName";
     setRoleNames(roleNames);
-    connect(manager, SIGNAL(sessionLoaded(QString)), SLOT(resetSessions()));
+    connect(SessionManager::instance(), SIGNAL(sessionLoaded(QString)), SLOT(resetSessions()));
 }
 
 int SessionModel::rowCount(const QModelIndex &) const
 {
-    return m_manager->sessions().count();
+    return SessionManager::sessions().count();
 }
 
 QStringList pathsToBaseNames(const QStringList &paths)
@@ -90,26 +90,26 @@ QVariant SessionModel::data(const QModelIndex &index, int role) const
 {
     if (role == Qt::DisplayRole || role == DefaultSessionRole ||
             role == LastSessionRole || role == ActiveSessionRole || role == ProjectsPathRole  || role == ProjectsDisplayRole) {
-        QString sessionName = m_manager->sessions().at(index.row());
+        QString sessionName = SessionManager::sessions().at(index.row());
         if (role == Qt::DisplayRole)
             return sessionName;
         else if (role == DefaultSessionRole)
-            return m_manager->isDefaultSession(sessionName);
+            return SessionManager::isDefaultSession(sessionName);
         else if (role == LastSessionRole)
-            return m_manager->lastSession() == sessionName;
+            return SessionManager::lastSession() == sessionName;
         else if (role == ActiveSessionRole)
-            return m_manager->activeSession() == sessionName;
+            return SessionManager::activeSession() == sessionName;
         else if (role == ProjectsPathRole)
-            return pathsWithTildeHomePath(m_manager->projectsForSessionName(sessionName));
+            return pathsWithTildeHomePath(SessionManager::projectsForSessionName(sessionName));
         else if (role == ProjectsDisplayRole)
-            return pathsToBaseNames(m_manager->projectsForSessionName(sessionName));
+            return pathsToBaseNames(SessionManager::projectsForSessionName(sessionName));
     }
     return QVariant();
 }
 
 bool SessionModel::isDefaultVirgin() const
 {
-    return m_manager->isDefaultVirgin();
+    return SessionManager::isDefaultVirgin();
 }
 
 void SessionModel::resetSessions()
@@ -120,48 +120,48 @@ void SessionModel::resetSessions()
 
 void SessionModel::cloneSession(const QString &session)
 {
-    SessionNameInputDialog newSessionInputDialog(m_manager->sessions(), 0);
+    SessionNameInputDialog newSessionInputDialog(SessionManager::sessions(), 0);
     newSessionInputDialog.setWindowTitle(tr("New session name"));
     newSessionInputDialog.setValue(session + QLatin1String(" (2)"));
 
     if (newSessionInputDialog.exec() == QDialog::Accepted) {
         QString newSession = newSessionInputDialog.value();
-        if (newSession.isEmpty() || m_manager->sessions().contains(newSession))
+        if (newSession.isEmpty() || SessionManager::sessions().contains(newSession))
             return;
         beginResetModel();
-        m_manager->cloneSession(session, newSession);
+        SessionManager::cloneSession(session, newSession);
         endResetModel();
 
         if (newSessionInputDialog.isSwitchToRequested())
-            m_manager->loadSession(newSession);
+            SessionManager::loadSession(newSession);
     }
 }
 
 void SessionModel::deleteSession(const QString &session)
 {
-    if (!m_manager->confirmSessionDelete(session))
+    if (!SessionManager::confirmSessionDelete(session))
         return;
     beginResetModel();
-    m_manager->deleteSession(session);
+    SessionManager::deleteSession(session);
     endResetModel();
 }
 
 void SessionModel::renameSession(const QString &session)
 {
-    SessionNameInputDialog newSessionInputDialog(m_manager->sessions(), 0);
+    SessionNameInputDialog newSessionInputDialog(SessionManager::sessions(), 0);
     newSessionInputDialog.setWindowTitle(tr("New session name"));
     newSessionInputDialog.setValue(session);
 
     if (newSessionInputDialog.exec() == QDialog::Accepted) {
         QString newSession = newSessionInputDialog.value();
-        if (newSession.isEmpty() || m_manager->sessions().contains(newSession))
+        if (newSession.isEmpty() || SessionManager::sessions().contains(newSession))
             return;
         beginResetModel();
-        m_manager->renameSession(session, newSession);
+        SessionManager::renameSession(session, newSession);
         endResetModel();
 
         if (newSessionInputDialog.isSwitchToRequested())
-            m_manager->loadSession(newSession);
+            SessionManager::loadSession(newSession);
     }
 }
 
@@ -214,9 +214,8 @@ ProjectWelcomePage::ProjectWelcomePage() :
 
 void ProjectWelcomePage::facilitateQml(QDeclarativeEngine *engine)
 {
-    ProjectExplorerPlugin *pePlugin = ProjectExplorer::ProjectExplorerPlugin::instance();
-    m_sessionModel = new SessionModel(pePlugin->session(), this);
-    m_projectModel = new ProjectModel(pePlugin, this);
+    m_sessionModel = new SessionModel(this);
+    m_projectModel = new ProjectModel(ProjectExplorerPlugin::instance(), this);
 
     QDeclarativeContext *ctx = engine->rootContext();
     ctx->setContextProperty(QLatin1String("sessionList"), m_sessionModel);

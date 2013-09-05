@@ -112,12 +112,12 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
           m_autoSync(false),
           m_autoExpand(true)
 {
-    m_model = new FlatModel(m_explorer->session()->sessionNode(), this);
-    Project *pro = m_explorer->session()->startupProject();
+    m_model = new FlatModel(SessionManager::sessionNode(), this);
+    Project *pro = SessionManager::startupProject();
     if (pro)
         m_model->setStartupProject(pro->rootProjectNode());
     NodesWatcher *watcher = new NodesWatcher(this);
-    m_explorer->session()->sessionNode()->registerWatcher(watcher);
+    SessionManager::sessionNode()->registerWatcher(watcher);
 
     connect(watcher, SIGNAL(foldersAboutToBeRemoved(FolderNode*,QList<FolderNode*>)),
             this, SLOT(foldersAboutToBeRemoved(FolderNode*,QList<FolderNode*>)));
@@ -154,16 +154,18 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent)
             this, SLOT(handleCurrentItemChange(QModelIndex)));
     connect(m_view, SIGNAL(customContextMenuRequested(QPoint)),
             this, SLOT(showContextMenu(QPoint)));
-    connect(m_explorer->session(), SIGNAL(singleProjectAdded(ProjectExplorer::Project*)),
+
+    QObject *sessionManager = SessionManager::instance();
+    connect(sessionManager, SIGNAL(singleProjectAdded(ProjectExplorer::Project*)),
             this, SLOT(handleProjectAdded(ProjectExplorer::Project*)));
-    connect(m_explorer->session(), SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
+    connect(sessionManager, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
             this, SLOT(startupProjectChanged(ProjectExplorer::Project*)));
 
-    connect(m_explorer->session(), SIGNAL(aboutToLoadSession(QString)),
+    connect(sessionManager, SIGNAL(aboutToLoadSession(QString)),
             this, SLOT(disableAutoExpand()));
-    connect(m_explorer->session(), SIGNAL(sessionLoaded(QString)),
+    connect(sessionManager, SIGNAL(sessionLoaded(QString)),
             this, SLOT(loadExpandData()));
-    connect(m_explorer->session(), SIGNAL(aboutToSaveSession()),
+    connect(sessionManager, SIGNAL(aboutToSaveSession()),
             this, SLOT(saveExpandData()));
 
     m_toggleSync = new QToolButton;
@@ -184,7 +186,7 @@ void ProjectTreeWidget::disableAutoExpand()
 void ProjectTreeWidget::loadExpandData()
 {
     m_autoExpand = true;
-    QStringList data = m_explorer->session()->value(QLatin1String("ProjectTree.ExpandData")).toStringList();
+    QStringList data = SessionManager::value(QLatin1String("ProjectTree.ExpandData")).toStringList();
     recursiveLoadExpandData(m_view->rootIndex(), data.toSet());
 }
 
@@ -203,7 +205,7 @@ void ProjectTreeWidget::saveExpandData()
     QStringList data;
     recursiveSaveExpandData(m_view->rootIndex(), &data);
     // TODO if there are multiple ProjectTreeWidgets, the last one saves the data
-    m_explorer->session()->setValue(QLatin1String("ProjectTree.ExpandData"), data);
+    SessionManager::setValue(QLatin1String("ProjectTree.ExpandData"), data);
 }
 
 void ProjectTreeWidget::recursiveSaveExpandData(const QModelIndex &index, QStringList *data)

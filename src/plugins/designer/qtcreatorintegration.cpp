@@ -60,6 +60,7 @@ enum { indentation = 4 };
 using namespace Designer::Internal;
 using namespace CPlusPlus;
 using namespace TextEditor;
+using namespace ProjectExplorer;
 
 static QString msgClassNotFound(const QString &uiClassName, const QList<Document::Ptr> &docList)
 {
@@ -535,12 +536,11 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     // Retrieve code model snapshot restricted to project of ui file or the working copy.
     Snapshot docTable = CppTools::CppModelManagerInterface::instance()->snapshot();
     Snapshot newDocTable;
-    ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
-    const ProjectExplorer::Project *uiProject = pe->session()->projectForFile(currentUiFile);
+    const Project *uiProject = SessionManager::projectForFile(currentUiFile);
     if (uiProject) {
         Snapshot::const_iterator end = docTable.end();
         for (Snapshot::iterator it = docTable.begin(); it != end; ++it) {
-            const ProjectExplorer::Project *project = pe->session()->projectForFile(it.key());
+            const Project *project = SessionManager::projectForFile(it.key());
             if (project == uiProject)
                 newDocTable.insert(it.value());
         }

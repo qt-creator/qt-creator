@@ -314,7 +314,7 @@ UiCodeModelManager::UiCodeModelManager() :
             = ProjectExplorer::ProjectExplorerPlugin::instance()->buildManager();
     connect(bm, SIGNAL(buildStateChanged(ProjectExplorer::Project*)),
             this, SLOT(buildStateHasChanged(ProjectExplorer::Project*)));
-    connect(ProjectExplorer::ProjectExplorerPlugin::instance()->session(),
+    connect(ProjectExplorer::SessionManager::instance(),
             SIGNAL(projectRemoved(ProjectExplorer::Project*)),
             this, SLOT(projectWasRemoved(ProjectExplorer::Project*)));
 

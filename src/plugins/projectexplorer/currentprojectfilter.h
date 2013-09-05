@@ -36,7 +36,6 @@
 
 namespace ProjectExplorer {
 
-class ProjectExplorerPlugin;
 class Project;
 
 namespace Internal {
@@ -46,7 +45,7 @@ class CurrentProjectFilter : public Locator::BaseFileFilter
     Q_OBJECT
 
 public:
-    CurrentProjectFilter(ProjectExplorerPlugin *pe);
+    CurrentProjectFilter();
     void refresh(QFutureInterface<void> &future);
 
 protected:
@@ -57,7 +56,6 @@ private slots:
     void markFilesAsOutOfDate();
 
 private:
-    ProjectExplorerPlugin *m_projectExplorer;
     Project *m_project;
     bool m_filesUpToDate;
 };

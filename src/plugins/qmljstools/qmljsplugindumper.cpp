@@ -31,7 +31,7 @@
 #include "qmljsmodelmanager.h"
 
 #include <qmljs/qmljsinterpreter.h>
-#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/session.h>
 #include <coreplugin/messagemanager.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/fileutils.h>
@@ -437,7 +437,7 @@ void PluginDumper::dump(const Plugin &plugin)
         return;
     }
 
-    ProjectExplorer::Project *activeProject = ProjectExplorer::ProjectExplorerPlugin::instance()->startupProject();
+    ProjectExplorer::Project *activeProject = ProjectExplorer::SessionManager::startupProject();
     if (!activeProject)
         return;
 

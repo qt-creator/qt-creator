@@ -94,9 +94,7 @@ void CMakeEditor::markAsChanged()
 
 void CMakeEditor::build()
 {
-    QList<ProjectExplorer::Project *> projects =
-            ProjectExplorer::ProjectExplorerPlugin::instance()->session()->projects();
-    foreach (ProjectExplorer::Project *p, projects) {
+    foreach (ProjectExplorer::Project *p, ProjectExplorer::SessionManager::projects()) {
         CMakeProject *cmakeProject = qobject_cast<CMakeProject *>(p);
         if (cmakeProject) {
             if (cmakeProject->isProjectFile(document()->filePath())) {

@@ -139,9 +139,8 @@ bool MemcheckErrorFilterProxyModel::filterAcceptsRow(int sourceRow, const QModel
     if (m_filterExternalIssues && !error.stacks().isEmpty()) {
         // ALGORITHM: look at last five stack frames, if none of these is inside any open projects,
         // assume this error was created by an external library
-        SessionManager *session = ProjectExplorerPlugin::instance()->session();
         QSet<QString> validFolders;
-        foreach (Project *project, session->projects()) {
+        foreach (Project *project, SessionManager::projects()) {
             validFolders << project->projectDirectory();
             foreach (Target *target, project->targets()) {
                 foreach (BuildConfiguration *config, target->buildConfigurations())
@@ -227,8 +226,7 @@ void MemcheckTool::settingsDestroyed(QObject *settings)
 void MemcheckTool::maybeActiveRunConfigurationChanged()
 {
     ValgrindBaseSettings *settings = 0;
-    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
-    if (Project *project = pe->startupProject())
+    if (Project *project = SessionManager::startupProject())
         if (Target *target = project->activeTarget())
             if (RunConfiguration *rc = target->activeRunConfiguration())
                 if (IRunConfigurationAspect *aspect = rc->extraAspect(ANALYZER_VALGRIND_SETTINGS))

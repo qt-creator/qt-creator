@@ -408,11 +408,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(d->m_outputPane, SIGNAL(runControlFinished(ProjectExplorer::RunControl*)),
             this, SIGNAL(runControlFinished(ProjectExplorer::RunControl*)));
 
-    AllProjectsFilter *allProjectsFilter = new AllProjectsFilter(this);
-    addAutoReleasedObject(allProjectsFilter);
-
-    CurrentProjectFilter *currentProjectFilter = new CurrentProjectFilter(this);
-    addAutoReleasedObject(currentProjectFilter);
+    addAutoReleasedObject(new AllProjectsFilter);
+    addAutoReleasedObject(new CurrentProjectFilter);
 
     addAutoReleasedObject(new BuildSettingsPanelFactory);
     addAutoReleasedObject(new RunSettingsPanelFactory);
@@ -420,14 +417,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     addAutoReleasedObject(new CodeStyleSettingsPanelFactory);
     addAutoReleasedObject(new DependenciesPanelFactory(d->m_session));
 
-    ProcessStepFactory *processStepFactory = new ProcessStepFactory;
-    addAutoReleasedObject(processStepFactory);
+    addAutoReleasedObject(new ProcessStepFactory);
 
-    AllProjectsFind *allProjectsFind = new AllProjectsFind(this);
-    addAutoReleasedObject(allProjectsFind);
-
-    CurrentProjectFind *currentProjectFind = new CurrentProjectFind(this);
-    addAutoReleasedObject(currentProjectFind);
+    addAutoReleasedObject(new AllProjectsFind);
+    addAutoReleasedObject(new CurrentProjectFind);
 
     addAutoReleasedObject(new LocalApplicationRunControlFactory);
 
@@ -1353,7 +1346,7 @@ QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileName
         QFileInfo fi = QFileInfo(fileName);
         QString canonicalFilePath = fi.canonicalFilePath();
         bool found = false;
-        foreach (ProjectExplorer::Project *pi, session()->projects()) {
+        foreach (Project *pi, SessionManager::projects()) {
             if (canonicalFilePath == pi->projectFilePath()) {
                 found = true;
                 break;
@@ -1449,19 +1442,6 @@ void ProjectExplorerPlugin::setCurrentFile(const QString &filePath)
 void ProjectExplorerPlugin::setCurrentNode(Node *node)
 {
     setCurrent(d->m_session->projectForNode(node), QString(), node);
-}
-
-SessionManager *ProjectExplorerPlugin::session() const
-{
-    return d->m_session;
-}
-
-Project *ProjectExplorerPlugin::startupProject() const
-{
-    if (debug)
-        qDebug() << "ProjectExplorerPlugin::startupProject";
-
-    return d->m_session->startupProject();
 }
 
 void ProjectExplorerPlugin::updateWelcomePage()
@@ -1848,11 +1828,12 @@ void ProjectExplorerPlugin::updateActions()
     if (debug)
         qDebug() << "ProjectExplorerPlugin::updateActions";
 
-    QPair<bool, QString> buildActionState = buildSettingsEnabled(startupProject());
+    Project *project = SessionManager::startupProject();
+
+    QPair<bool, QString> buildActionState = buildSettingsEnabled(project);
     QPair<bool, QString> buildActionContextState = buildSettingsEnabled(d->m_currentProject);
     QPair<bool, QString> buildSessionState = buildSettingsEnabledForSession();
 
-    Project *project = startupProject();
     QString projectName = project ? project->displayName() : QString();
     QString projectNameContextMenu = d->m_currentProject ? d->m_currentProject->displayName() : QString();
 
@@ -1875,7 +1856,7 @@ void ProjectExplorerPlugin::updateActions()
     // Context menu actions
     d->m_setStartupProjectAction->setParameter(projectNameContextMenu);
 
-    bool hasDependencies = session()->projectOrder(d->m_currentProject).size() > 1;
+    bool hasDependencies = SessionManager::projectOrder(d->m_currentProject).size() > 1;
     if (hasDependencies) {
         d->m_buildActionContextMenu->setText(tr("Build Without Dependencies"));
         d->m_rebuildActionContextMenu->setText(tr("Rebuild Without Dependencies"));
@@ -1929,9 +1910,10 @@ void ProjectExplorerPlugin::updateActions()
     }
     d->m_publishAction->setEnabled(canPublish);
 
-    d->m_projectSelectorAction->setEnabled(!session()->projects().isEmpty());
-    d->m_projectSelectorActionMenu->setEnabled(!session()->projects().isEmpty());
-    d->m_projectSelectorActionQuick->setEnabled(!session()->projects().isEmpty());
+    const bool hasProjects = SessionManager::hasProjects();
+    d->m_projectSelectorAction->setEnabled(hasProjects);
+    d->m_projectSelectorActionMenu->setEnabled(hasProjects);
+    d->m_projectSelectorActionQuick->setEnabled(hasProjects);
 
     updateDeployActions();
     updateRunWithoutDeployMenu();
@@ -1945,7 +1927,7 @@ QStringList ProjectExplorerPlugin::allFilesWithDependencies(Project *pro)
         qDebug() << "ProjectExplorerPlugin::allFilesWithDependencies(" << pro->projectFilePath() << ")";
 
     QStringList filesToSave;
-    foreach (Project *p, d->m_session->projectOrder(pro)) {
+    foreach (Project *p, SessionManager::projectOrder(pro)) {
         FindAllFilesVisitor filesVisitor;
         p->rootProjectNode()->accept(&filesVisitor);
         filesToSave << filesVisitor.filePaths();
@@ -2054,7 +2036,7 @@ int ProjectExplorerPlugin::queue(QList<Project *> projects, QList<Id> stepIds)
 
 void ProjectExplorerPlugin::buildProjectOnly()
 {
-    queue(QList<Project *>() << session()->startupProject(), QList<Id>() << Id(Constants::BUILDSTEPS_BUILD));
+    queue(QList<Project *>() << SessionManager::startupProject(), QList<Id>() << Id(Constants::BUILDSTEPS_BUILD));
 }
 
 void ProjectExplorerPlugin::buildProject(ProjectExplorer::Project *p)
@@ -2070,7 +2052,7 @@ void ProjectExplorerPlugin::requestProjectModeUpdate(Project *p)
 
 void ProjectExplorerPlugin::buildProject()
 {
-    queue(d->m_session->projectOrder(session()->startupProject()),
+    queue(SessionManager::projectOrder(SessionManager::startupProject()),
           QList<Id>() << Id(Constants::BUILDSTEPS_BUILD));
 }
 
@@ -2088,13 +2070,13 @@ void ProjectExplorerPlugin::buildSession()
 
 void ProjectExplorerPlugin::rebuildProjectOnly()
 {
-    queue(QList<Project *>() << session()->startupProject(),
+    queue(QList<Project *>() << SessionManager::startupProject(),
           QList<Id>() << Id(Constants::BUILDSTEPS_CLEAN) << Id(Constants::BUILDSTEPS_BUILD));
 }
 
 void ProjectExplorerPlugin::rebuildProject()
 {
-    queue(d->m_session->projectOrder(session()->startupProject()),
+    queue(SessionManager::projectOrder(SessionManager::startupProject()),
           QList<Id>() << Id(Constants::BUILDSTEPS_CLEAN) << Id(Constants::BUILDSTEPS_BUILD));
 }
 
@@ -2106,18 +2088,18 @@ void ProjectExplorerPlugin::rebuildProjectContextMenu()
 
 void ProjectExplorerPlugin::rebuildSession()
 {
-    queue(d->m_session->projectOrder(),
+    queue(SessionManager::projectOrder(),
           QList<Id>() << Id(Constants::BUILDSTEPS_CLEAN) << Id(Constants::BUILDSTEPS_BUILD));
 }
 
 void ProjectExplorerPlugin::deployProjectOnly()
 {
-    deploy(QList<Project *>() << session()->startupProject());
+    deploy(QList<Project *>() << SessionManager::startupProject());
 }
 
 void ProjectExplorerPlugin::deployProject()
 {
-    deploy(d->m_session->projectOrder(session()->startupProject()));
+    deploy(SessionManager::projectOrder(SessionManager::startupProject()));
 }
 
 void ProjectExplorerPlugin::deployProjectContextMenu()
@@ -2132,13 +2114,13 @@ void ProjectExplorerPlugin::deploySession()
 
 void ProjectExplorerPlugin::cleanProjectOnly()
 {
-    queue(QList<Project *>() << session()->startupProject(),
+    queue(QList<Project *>() << SessionManager::startupProject(),
           QList<Id>() << Id(Constants::BUILDSTEPS_CLEAN));
 }
 
 void ProjectExplorerPlugin::cleanProject()
 {
-    queue(d->m_session->projectOrder(session()->startupProject()),
+    queue(SessionManager::projectOrder(SessionManager::startupProject()),
           QList<Id>() << Id(Constants::BUILDSTEPS_CLEAN));
 }
 
@@ -2156,12 +2138,12 @@ void ProjectExplorerPlugin::cleanSession()
 
 void ProjectExplorerPlugin::runProject()
 {
-    runProject(startupProject(), NormalRunMode);
+    runProject(SessionManager::startupProject(), NormalRunMode);
 }
 
 void ProjectExplorerPlugin::runProjectWithoutDeploy()
 {
-    runProject(startupProject(), NormalRunMode, true);
+    runProject(SessionManager::startupProject(), NormalRunMode, true);
 }
 
 void ProjectExplorerPlugin::runProjectContextMenu()
@@ -2342,7 +2324,7 @@ void ProjectExplorerPlugin::projectAdded(ProjectExplorer::Project *pro)
 void ProjectExplorerPlugin::projectRemoved(ProjectExplorer::Project * pro)
 {
     if (d->m_projectsMode)
-        d->m_projectsMode->setEnabled(!session()->projects().isEmpty());
+        d->m_projectsMode->setEnabled(SessionManager::hasProjects());
     // more specific action en and disabling ?
     disconnect(pro, SIGNAL(buildConfigurationEnabledChanged()),
                this, SLOT(updateActions()));
@@ -2357,7 +2339,7 @@ void ProjectExplorerPlugin::projectDisplayNameChanged(Project *pro)
 void ProjectExplorerPlugin::startupProjectChanged()
 {
     static QPointer<Project> previousStartupProject = 0;
-    Project *project = startupProject();
+    Project *project = SessionManager::startupProject();
     if (project == previousStartupProject)
         return;
 
@@ -2381,8 +2363,9 @@ void ProjectExplorerPlugin::activeTargetChanged()
 {
     static QPointer<Target> previousTarget = 0;
     Target *target = 0;
-    if (startupProject())
-        target = startupProject()->activeTarget();
+    Project *startupProject = SessionManager::startupProject();
+    if (startupProject)
+        target = startupProject->activeTarget();
     if (target == previousTarget)
         return;
 
@@ -2404,8 +2387,9 @@ void ProjectExplorerPlugin::activeRunConfigurationChanged()
 {
     static QPointer<RunConfiguration> previousRunConfiguration = 0;
     RunConfiguration *rc = 0;
-    if (startupProject() && startupProject()->activeTarget())
-        rc = startupProject()->activeTarget()->activeRunConfiguration();
+    Project *startupProject = SessionManager::startupProject();
+    if (startupProject && startupProject->activeTarget())
+        rc = startupProject->activeTarget()->activeRunConfiguration();
     if (rc == previousRunConfiguration)
         return;
     if (previousRunConfiguration) {
@@ -2432,7 +2416,7 @@ IRunControlFactory *ProjectExplorerPlugin::findRunControlFactory(RunConfiguratio
 
 void ProjectExplorerPlugin::updateDeployActions()
 {
-    Project *project = startupProject();
+    Project *project = SessionManager::startupProject();
 
     bool enableDeployActions = project
             && ! (d->m_buildManager->isBuilding(project))
@@ -2451,8 +2435,7 @@ void ProjectExplorerPlugin::updateDeployActions()
     }
 
     const QString projectName = project ? project->displayName() : QString();
-    const QString projectNameContextMenu = d->m_currentProject ? d->m_currentProject->displayName() : QString();
-    bool hasProjects = !d->m_session->projects().isEmpty();
+    bool hasProjects = SessionManager::hasProjects();
 
     d->m_deployAction->setParameter(projectName);
     d->m_deployAction->setEnabled(enableDeployActions);
@@ -2547,7 +2530,7 @@ QString ProjectExplorerPlugin::cannotRunReason(Project *project, RunMode runMode
 
 void ProjectExplorerPlugin::slotUpdateRunActions()
 {
-    Project *project = startupProject();
+    Project *project = SessionManager::startupProject();
     const bool state = canRun(project, NormalRunMode);
     d->m_runAction->setEnabled(state);
     d->m_runAction->setToolTip(cannotRunReason(project, NormalRunMode));

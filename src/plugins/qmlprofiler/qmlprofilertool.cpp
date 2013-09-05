@@ -297,11 +297,10 @@ void QmlProfilerTool::populateFileFinder(QString projectDirectory, QString activ
 {
     // Initialize filefinder with some sensible default
     QStringList sourceFiles;
-    SessionManager *sessionManager = ProjectExplorerPlugin::instance()->session();
-    QList<Project *> projects = sessionManager->projects();
-    if (Project *startupProject = ProjectExplorerPlugin::instance()->startupProject()) {
+    QList<Project *> projects = SessionManager::projects();
+    if (Project *startupProject = SessionManager::startupProject()) {
         // startup project first
-        projects.removeOne(ProjectExplorerPlugin::instance()->startupProject());
+        projects.removeOne(startupProject);
         projects.insert(0, startupProject);
     }
     foreach (Project *project, projects)
@@ -459,10 +458,9 @@ void QmlProfilerTool::startTool(StartMode mode)
     AnalyzerManager::showMode();
 
     if (mode == StartLocal) {
-        ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
         // ### not sure if we're supposed to check if the RunConFiguration isEnabled
-        Project *pro = pe->startupProject();
-        pe->runProject(pro, runMode());
+        Project *pro = SessionManager::startupProject();
+        ProjectExplorerPlugin::instance()->runProject(pro, runMode());
     } else if (mode == StartRemote) {
         startRemoteTool(this, mode);
     }

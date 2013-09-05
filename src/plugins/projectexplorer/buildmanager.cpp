@@ -111,7 +111,7 @@ BuildManagerPrivate::BuildManagerPrivate() :
 {
 }
 
-BuildManager::BuildManager(ProjectExplorerPlugin *parent, QAction *cancelBuildAction)
+BuildManager::BuildManager(QObject *parent, QAction *cancelBuildAction)
     : QObject(parent), d(new BuildManagerPrivate)
 {
     connect(&d->m_watcher, SIGNAL(finished()),
@@ -124,7 +124,7 @@ BuildManager::BuildManager(ProjectExplorerPlugin *parent, QAction *cancelBuildAc
     connect(&d->m_watcher, SIGNAL(progressRangeChanged(int,int)),
             this, SLOT(progressChanged()));
 
-    connect(parent->session(), SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
+    connect(SessionManager::instance(), SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
             this, SLOT(aboutToRemoveProject(ProjectExplorer::Project*)));
 
     d->m_outputWindow = new Internal::CompileOutputWindow(this, cancelBuildAction);

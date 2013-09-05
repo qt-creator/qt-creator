@@ -50,8 +50,7 @@ static const char setupUiC[] = "setupUi";
 // Find the generated "ui_form.h" header of the form via project.
 static QString generatedHeaderOf(const QString &uiFileName)
 {
-    const ProjectExplorer::SessionManager *sessionMgr = ProjectExplorer::ProjectExplorerPlugin::instance()->session();
-    if (const ProjectExplorer::Project *uiProject = sessionMgr->projectForFile(uiFileName))
+    if (const ProjectExplorer::Project *uiProject = ProjectExplorer::SessionManager::projectForFile(uiFileName))
         return uiProject->generatedUiHeader(uiFileName);
     return QString();
 }

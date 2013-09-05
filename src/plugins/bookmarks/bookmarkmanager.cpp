@@ -355,7 +355,7 @@ BookmarkManager::BookmarkManager() :
     connect(Core::ICore::instance(), SIGNAL(contextChanged(QList<Core::IContext*>,Core::Context)),
             this, SLOT(updateActionStatus()));
 
-    connect(ProjectExplorerPlugin::instance()->session(), SIGNAL(sessionLoaded(QString)),
+    connect(SessionManager::instance(), SIGNAL(sessionLoaded(QString)),
             this, SLOT(loadBookmarks()));
 
     updateActionStatus();
@@ -645,12 +645,6 @@ TextEditor::ITextEditor *BookmarkManager::currentTextEditor() const
     return qobject_cast<TextEditor::ITextEditor *>(currEditor);
 }
 
-/* Returns the current session. */
-SessionManager *BookmarkManager::sessionManager() const
-{
-    return ProjectExplorerPlugin::instance()->session();
-}
-
 BookmarkManager::State BookmarkManager::state() const
 {
     if (m_bookmarksMap.empty())
@@ -826,7 +820,7 @@ void BookmarkManager::saveBookmarks()
     foreach (const Bookmark *bookmark, m_bookmarksList)
             list << bookmarkToString(bookmark);
 
-    sessionManager()->setValue(QLatin1String("Bookmarks"), list);
+    SessionManager::setValue(QLatin1String("Bookmarks"), list);
 }
 
 void BookmarkManager::operateTooltip(TextEditor::ITextEditor *textEditor, const QPoint &pos, Bookmark *mark)
@@ -844,7 +838,7 @@ void BookmarkManager::operateTooltip(TextEditor::ITextEditor *textEditor, const 
 void BookmarkManager::loadBookmarks()
 {
     removeAllBookmarks();
-    const QStringList &list = sessionManager()->value(QLatin1String("Bookmarks")).toStringList();
+    const QStringList &list = SessionManager::value(QLatin1String("Bookmarks")).toStringList();
     foreach (const QString &bookmarkString, list)
         addBookmark(bookmarkString);
 

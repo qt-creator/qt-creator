@@ -48,6 +48,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
 #include <utils/fancymainwindow.h>
@@ -425,7 +426,7 @@ bool AnalyzerManagerPrivate::isActionRunnable(AnalyzerAction *action) const
         return true;
 
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
-    return pe->canRun(pe->startupProject(), action->tool()->runMode());
+    return pe->canRun(SessionManager::startupProject(), action->tool()->runMode());
 }
 
 void AnalyzerManagerPrivate::startTool()
@@ -578,7 +579,7 @@ void AnalyzerManagerPrivate::saveToolSettings(AnalyzerAction *action)
 void AnalyzerManagerPrivate::updateRunActions()
 {
     ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
-    Project *project = pe->startupProject();
+    Project *project = SessionManager::startupProject();
 
     QString disabledReason;
     if (m_isRunning)

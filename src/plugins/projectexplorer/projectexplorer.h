@@ -51,7 +51,6 @@ class Id;
 namespace ProjectExplorer {
 class BuildManager;
 class RunControl;
-class SessionManager;
 class RunConfiguration;
 class IRunControlFactory;
 class Project;
@@ -81,15 +80,11 @@ public:
     Q_SLOT void openProjectWelcomePage(const QString &fileName);
     void unloadProject(Project *project);
 
-    SessionManager *session() const;
-
     static Project *currentProject();
     Node *currentNode() const;
 
     void setCurrentFile(Project *project, const QString &file);
     void setCurrentNode(Node *node);
-
-    Project *startupProject() const;
 
     BuildManager *buildManager() const;
 

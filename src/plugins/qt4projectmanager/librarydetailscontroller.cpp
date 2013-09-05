@@ -45,6 +45,7 @@
 #include <QDir>
 #include <QTextStream>
 
+using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
@@ -83,7 +84,7 @@ LibraryDetailsController::LibraryDetailsController(
     if (!Utils::HostOsInfo::isLinuxHost()) {
         // project for which we are going to insert the snippet
         const ProjectExplorer::Project *project =
-                ProjectExplorer::ProjectExplorerPlugin::instance()->session()->projectForFile(proFile);
+                ProjectExplorer::SessionManager::projectForFile(proFile);
         // if its tool chain is maemo behave the same as we would be on linux
         ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(project->activeTarget()->kit());
         if (tc
@@ -816,8 +817,7 @@ QString PackageLibraryDetailsController::snippet() const
 
 bool PackageLibraryDetailsController::isLinkPackageGenerated() const
 {
-    const ProjectExplorer::Project *project =
-            ProjectExplorer::ProjectExplorerPlugin::instance()->session()->projectForFile(proFile());
+    const Project *project = SessionManager::projectForFile(proFile());
     if (!project)
         return false;
 
@@ -969,8 +969,7 @@ void InternalLibraryDetailsController::updateProFile()
     m_proFileNodes.clear();
     libraryDetailsWidget()->libraryComboBox->clear();
 
-    const ProjectExplorer::Project *project =
-            ProjectExplorer::ProjectExplorerPlugin::instance()->session()->projectForFile(proFile());
+    const Project *project = SessionManager::projectForFile(proFile());
     if (!project)
         return;
 
@@ -1053,8 +1052,7 @@ QString InternalLibraryDetailsController::snippet() const
     const QString proRelavitePath = rootDir.relativeFilePath(proFile());
 
     // project for which we insert the snippet
-    const ProjectExplorer::Project *project =
-            ProjectExplorer::ProjectExplorerPlugin::instance()->session()->projectForFile(proFile());
+    const Project *project = SessionManager::projectForFile(proFile());
 
     // the build directory of the active build configuration
     QDir rootBuildDir = rootDir; // If the project is unconfigured use the project dir

@@ -54,8 +54,7 @@ namespace Internal {
 // Figure out the Qt4 project used by the file if any
 static Qt4Project *qt4ProjectFor(const QString &fileName)
 {
-    ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
-    if (ProjectExplorer::Project *baseProject = pe->session()->projectForFile(fileName))
+    if (ProjectExplorer::Project *baseProject = ProjectExplorer::SessionManager::projectForFile(fileName))
         if (Qt4Project *project = qobject_cast<Qt4Project*>(baseProject))
             return project;
     return 0;

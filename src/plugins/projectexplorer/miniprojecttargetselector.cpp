@@ -267,7 +267,7 @@ void ProjectListWidget::addProject(Project *project)
     item->setText(displayName);
     insertItem(pos, item);
 
-    if (project == ProjectExplorerPlugin::instance()->startupProject())
+    if (project == SessionManager::startupProject())
         setCurrentItem(item);
 
     QFontMetrics fn(font());
@@ -1389,10 +1389,10 @@ void MiniProjectTargetSelector::updateActionAndSummary()
     QString runConfig;
     QIcon targetIcon = style()->standardIcon(QStyle::SP_ComputerIcon);
 
-    Project *project = ProjectExplorerPlugin::instance()->startupProject();
+    Project *project = SessionManager::startupProject();
     if (project) {
         projectName = project->displayName();
-        foreach (Project *p, ProjectExplorerPlugin::instance()->session()->projects()) {
+        foreach (Project *p, SessionManager::projects()) {
             if (p != project && p->displayName() == projectName) {
                 fileName = project->projectFilePath();
                 break;

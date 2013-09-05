@@ -44,15 +44,13 @@ using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 using namespace TextEditor;
 
-CurrentProjectFind::CurrentProjectFind(ProjectExplorerPlugin *plugin)
-  : AllProjectsFind(plugin),
-    m_plugin(plugin)
+CurrentProjectFind::CurrentProjectFind()
 {
-    connect(m_plugin, SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
+    connect(ProjectExplorerPlugin::instance(), SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
             this, SLOT(handleProjectChanged()));
-    connect(m_plugin->session(), SIGNAL(projectRemoved(ProjectExplorer::Project*)),
+    connect(SessionManager::instance(), SIGNAL(projectRemoved(ProjectExplorer::Project*)),
             this, SLOT(handleProjectChanged()));
-    connect(m_plugin->session(), SIGNAL(projectAdded(ProjectExplorer::Project*)),
+    connect(SessionManager::instance(), SIGNAL(projectAdded(ProjectExplorer::Project*)),
             this, SLOT(handleProjectChanged()));
 }
 
@@ -83,9 +81,8 @@ Utils::FileIterator *CurrentProjectFind::files(const QStringList &nameFilters,
                            const QVariant &additionalParameters) const
 {
     QTC_ASSERT(additionalParameters.isValid(), return new Utils::FileIterator());
-    QList<Project *> allProjects = m_plugin->session()->projects();
     QString projectFile = additionalParameters.toString();
-    foreach (Project *project, allProjects) {
+    foreach (Project *project, SessionManager::projects()) {
         if (project->document() && projectFile == project->projectFilePath())
             return filesForProjects(nameFilters, QList<Project *>() << project);
     }
@@ -109,8 +106,7 @@ void CurrentProjectFind::recheckEnabled()
     if (!search)
         return;
     QString projectFile = getAdditionalParameters(search).toString();
-    QList<Project *> allProjects = m_plugin->session()->projects();
-    foreach (Project *project, allProjects) {
+    foreach (Project *project, SessionManager::projects()) {
         if (projectFile == project->projectFilePath()) {
             search->setSearchAgainEnabled(true);
             return;

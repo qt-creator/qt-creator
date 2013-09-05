@@ -248,12 +248,11 @@ void EditorConfiguration::setUseGlobalSettings(bool use)
     d->m_useGlobal = use;
     d->m_defaultCodeStyle->setCurrentDelegate(d->m_useGlobal
                     ? TextEditorSettings::instance()->codeStyle() : 0);
-    const SessionManager *session = ProjectExplorerPlugin::instance()->session();
     QList<Core::IEditor *> opened = Core::EditorManager::documentModel()->editorsForDocuments(
                 Core::EditorManager::documentModel()->openedDocuments());
     foreach (Core::IEditor *editor, opened) {
         if (BaseTextEditorWidget *baseTextEditor = qobject_cast<BaseTextEditorWidget *>(editor->widget())) {
-            Project *project = session->projectForFile(editor->document()->filePath());
+            Project *project = SessionManager::projectForFile(editor->document()->filePath());
             if (project && project->editorConfiguration() == this)
                 switchSettings(baseTextEditor);
         }
@@ -326,18 +325,13 @@ void EditorConfiguration::setTextCodec(QTextCodec *textCodec)
     d->m_textCodec = textCodec;
 }
 
-TabSettings actualTabSettings(const QString &fileName,
-                                     const BaseTextEditorWidget *baseTextEditor)
+TabSettings actualTabSettings(const QString &fileName, const BaseTextEditorWidget *baseTextEditor)
 {
-    if (baseTextEditor) {
+    if (baseTextEditor)
         return baseTextEditor->tabSettings();
-    } else {
-        const SessionManager *session = ProjectExplorerPlugin::instance()->session();
-        if (Project *project = session->projectForFile(fileName))
-            return project->editorConfiguration()->codeStyle()->tabSettings();
-        else
-            return TextEditorSettings::instance()->codeStyle()->tabSettings();
-    }
+    if (Project *project = SessionManager::projectForFile(fileName))
+        return project->editorConfiguration()->codeStyle()->tabSettings();
+    return TextEditorSettings::instance()->codeStyle()->tabSettings();
 }
 
 } // ProjectExplorer

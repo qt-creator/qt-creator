@@ -118,8 +118,6 @@ protected:
 
     QStringList projectNodeFileList(const ProjectExplorer::FolderNode *node) const;
 
-    QList<ProjectExplorer::Project *> getProjectList() const;
-
     ParserTreeItem::Ptr createFlatTree(const QStringList &projectList);
 
 private:

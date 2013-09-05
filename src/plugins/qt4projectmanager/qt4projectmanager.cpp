@@ -51,16 +51,9 @@
 #include <QVariant>
 #include <QMessageBox>
 
+using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
-
-using ProjectExplorer::BuildStep;
-using ProjectExplorer::FileType;
-using ProjectExplorer::HeaderType;
-using ProjectExplorer::SourceType;
-using ProjectExplorer::FormType;
-using ProjectExplorer::ResourceType;
-using ProjectExplorer::UnknownFileType;
 
 // Known file types of a Qt 4 project
 static const char *qt4FileTypes[] = {
@@ -198,7 +191,7 @@ void Qt4Manager::addLibrary(const QString &fileName, ProFileEditorWidget *editor
 
 void Qt4Manager::runQMake()
 {
-    runQMake(projectExplorer()->startupProject(), 0);
+    runQMake(SessionManager::startupProject(), 0);
 }
 
 void Qt4Manager::runQMakeContextMenu()
@@ -257,13 +250,11 @@ void Qt4Manager::buildFile()
 {
     if (Core::IDocument *currentDocument= Core::EditorManager::currentDocument()) {
         QString file = currentDocument->filePath();
-        ProjectExplorer::SessionManager *session = projectExplorer()->session();
-        ProjectExplorer::FileNode *node  = qobject_cast<FileNode *>(session->nodeForFile(file));
-        ProjectExplorer::Project *project = session->projectForFile(file);
+        FileNode *node  = qobject_cast<FileNode *>(SessionManager::nodeForFile(file));
+        Project *project = SessionManager::projectForFile(file);
 
         if (project && node)
             handleSubDirContextMenu(BUILD, true, project, node->projectNode(), node);
-
     }
 }
 

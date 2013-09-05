@@ -45,10 +45,7 @@
 
 #include <utils/qtcassert.h>
 
-using ProjectExplorer::NodesVisitor;
-using ProjectExplorer::ProjectNode;
-using ProjectExplorer::FolderNode;
-using ProjectExplorer::FileNode;
+using namespace ProjectExplorer;
 
 namespace Designer {
 namespace Internal {
@@ -100,8 +97,8 @@ void ResourceHandler::ensureInitialized()
 {
     if (m_sessionNode)
         return;
-    ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
-    m_sessionNode = pe->session()->sessionNode();
+
+    m_sessionNode = ProjectExplorer::SessionManager::sessionNode();
     m_sessionWatcher = new ProjectExplorer::NodesWatcher();
 
     connect(m_sessionWatcher, SIGNAL(filesAdded()), this, SLOT(updateResources()));
@@ -137,9 +134,8 @@ void ResourceHandler::updateResources()
     if (Designer::Constants::Internal::debug)
         qDebug() << "ResourceHandler::updateResources()" << fileName;
 
-    ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
-    // filename could change in the meantime.
-    ProjectExplorer::Project *project = pe->session()->projectForFile(fileName);
+    // Filename could change in the meantime.
+    Project *project = SessionManager::projectForFile(fileName);
 
     // Does the file belong to a project?
     if (project) {

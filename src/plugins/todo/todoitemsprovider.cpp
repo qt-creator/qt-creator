@@ -41,6 +41,8 @@
 
 #include <QTimer>
 
+using namespace ProjectExplorer;
+
 namespace Todo {
 namespace Internal {
 
@@ -150,12 +152,10 @@ void TodoItemsProvider::updateListTimeoutElapsed()
 
 void TodoItemsProvider::setupStartupProjectBinding()
 {
-    ProjectExplorer::ProjectExplorerPlugin *projectExplorerPlugin = ProjectExplorer::ProjectExplorerPlugin::instance();
-
-    m_startupProject = projectExplorerPlugin->startupProject();
-    connect(projectExplorerPlugin->session(), SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
+    m_startupProject = SessionManager::startupProject();
+    connect(SessionManager::instance(), SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
         SLOT(startupProjectChanged(ProjectExplorer::Project*)));
-    connect(projectExplorerPlugin, SIGNAL(fileListChanged()), SLOT(projectsFilesChanged()));
+    connect(ProjectExplorerPlugin::instance(), SIGNAL(fileListChanged()), SLOT(projectsFilesChanged()));
 }
 
 void TodoItemsProvider::setupCurrentEditorBinding()

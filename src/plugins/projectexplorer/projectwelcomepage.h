@@ -41,7 +41,6 @@ QT_END_NAMESPACE
 namespace ProjectExplorer {
 
 class ProjectExplorerPlugin;
-class SessionManager;
 
 namespace Internal {
 
@@ -51,7 +50,7 @@ class SessionModel : public QAbstractListModel
 public:
     enum { DefaultSessionRole = Qt::UserRole+1, LastSessionRole, ActiveSessionRole, ProjectsPathRole, ProjectsDisplayRole };
 
-    SessionModel(SessionManager* manager, QObject* parent = 0);
+    explicit SessionModel(QObject *parent = 0);
     int rowCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
 
@@ -62,9 +61,6 @@ public slots:
     void cloneSession(const QString &session);
     void deleteSession(const QString &session);
     void renameSession(const QString &session);
-
-private:
-    SessionManager *m_manager;
 };
 
 

@@ -41,6 +41,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
 #include <utils/qtcassert.h>
@@ -83,10 +84,8 @@ static void startLocalTool(IAnalyzerTool *tool)
     // Make sure mode is shown.
     AnalyzerManager::showMode();
 
-    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
-
     // ### not sure if we're supposed to check if the RunConFiguration isEnabled
-    Project *pro = pe->startupProject();
+    Project *pro = SessionManager::startupProject();
     BuildConfiguration::BuildType buildType = BuildConfiguration::Unknown;
     if (pro) {
         if (const Target *target = pro->activeTarget()) {
@@ -147,7 +146,7 @@ static void startLocalTool(IAnalyzerTool *tool)
             return;
     }
 
-    pe->runProject(pro, tool->runMode());
+    ProjectExplorerPlugin::instance()->runProject(pro, tool->runMode());
 }
 
 static void startRemoteTool(IAnalyzerTool *tool)

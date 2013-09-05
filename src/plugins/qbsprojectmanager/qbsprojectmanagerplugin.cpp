@@ -60,6 +60,8 @@
 #include <QAction>
 #include <QtPlugin>
 
+using namespace ProjectExplorer;
+
 namespace QbsProjectManager {
 namespace Internal {
 
@@ -239,10 +241,8 @@ void QbsProjectManagerPlugin::updateBuildActions()
 
     if (Core::IDocument *currentDocument= Core::EditorManager::currentDocument()) {
         file = currentDocument->filePath();
-        ProjectExplorer::SessionManager *session = m_projectExplorer->session();
-        ProjectExplorer::Node *node  = session->nodeForFile(file);
-        ProjectExplorer::Project *project
-                = qobject_cast<QbsProject *>(session->projectForFile(file));
+        Node *node  = SessionManager::nodeForFile(file);
+        Project *project = qobject_cast<QbsProject *>(SessionManager::projectForFile(file));
 
         m_buildFile->setParameter(QFileInfo(file).fileName());
         fileVisible = project && node && qobject_cast<QbsBaseProjectNode *>(node->projectNode());
@@ -310,7 +310,7 @@ void QbsProjectManagerPlugin::buildFile()
     QbsProject *project = 0;
     if (Core::IDocument *currentDocument= Core::EditorManager::currentDocument()) {
         file = currentDocument->filePath();
-        project = qobject_cast<QbsProject *>(m_projectExplorer->session()->projectForFile(file));
+        project = qobject_cast<QbsProject *>(SessionManager::projectForFile(file));
     }
 
     if (!project || file.isEmpty())
@@ -333,10 +333,9 @@ void QbsProjectManagerPlugin::buildProduct()
     QbsProductNode *product = 0;
     if (Core::IDocument *currentDocument= Core::EditorManager::currentDocument()) {
         const QString file = currentDocument->filePath();
-        ProjectExplorer::SessionManager *session = m_projectExplorer->session();
 
-        project = qobject_cast<QbsProject *>(session->projectForFile(file));
-        product = qobject_cast<QbsProductNode *>(session->nodeForFile(file)->projectNode());
+        project = qobject_cast<QbsProject *>(SessionManager::projectForFile(file));
+        product = qobject_cast<QbsProductNode *>(SessionManager::nodeForFile(file)->projectNode());
     }
 
     if (!project || !product)

@@ -42,14 +42,6 @@
 #include <QPixmap>
 #include <QStyledItemDelegate>
 
-namespace ProjectExplorer {
-class SessionManager;
-}
-
-namespace Core {
-class IEditor;
-}
-
 namespace Bookmarks {
 namespace Internal {
 
@@ -124,7 +116,6 @@ private slots:
 
 private:
     TextEditor::ITextEditor *currentTextEditor() const;
-    ProjectExplorer::SessionManager* sessionManager() const;
 
     void documentPrevNext(bool next);
 

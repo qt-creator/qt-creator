@@ -113,8 +113,8 @@ Kit *ClassWizard::kitForWizard(const ClassWizardDialog *wizard) const
     const QString nodePath = wizard->extraValues().value(key).toString();
 
     // projectForFile doesn't find project if project file path passed
-    Node *node = ProjectExplorerPlugin::instance()->session()->nodeForFile(nodePath);
-    Project *proj = ProjectExplorerPlugin::instance()->session()->projectForNode(node);
+    Node *node = SessionManager::nodeForFile(nodePath);
+    Project *proj = SessionManager::projectForNode(node);
     if (proj && proj->activeTarget())
         return proj->activeTarget()->kit();
 

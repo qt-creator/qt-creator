@@ -81,7 +81,7 @@
 
 using namespace Qt4ProjectManager::Internal;
 using namespace Qt4ProjectManager;
-using ProjectExplorer::Project;
+using namespace ProjectExplorer;
 
 Qt4ProjectManagerPlugin::Qt4ProjectManagerPlugin()
     : m_previousStartupProject(0), m_previousTarget(0)
@@ -259,7 +259,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
 
     connect(m_projectExplorer->buildManager(), SIGNAL(buildStateChanged(ProjectExplorer::Project*)),
             this, SLOT(buildStateChanged(ProjectExplorer::Project*)));
-    connect(m_projectExplorer->session(), SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
+    connect(SessionManager::instance(), SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
             this, SLOT(startupProjectChanged()));
     connect(m_projectExplorer, SIGNAL(currentNodeChanged(ProjectExplorer::Node*,ProjectExplorer::Project*)),
             this, SLOT(updateContextActions(ProjectExplorer::Node*,ProjectExplorer::Project*)));
@@ -306,7 +306,7 @@ void Qt4ProjectManagerPlugin::startupProjectChanged()
         disconnect(m_previousStartupProject, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
                    this, SLOT(activeTargetChanged()));
 
-    m_previousStartupProject = qobject_cast<Qt4Project *>(m_projectExplorer->session()->startupProject());
+    m_previousStartupProject = qobject_cast<Qt4Project *>(SessionManager::startupProject());
 
     if (m_previousStartupProject)
         connect(m_previousStartupProject, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
@@ -415,12 +415,10 @@ void Qt4ProjectManagerPlugin::updateBuildFileAction()
     bool visible = false;
     bool enabled = false;
 
-    QString file;
     if (Core::IDocument *currentDocument= Core::EditorManager::currentDocument()) {
-        file = currentDocument->filePath();
-        ProjectExplorer::SessionManager *session = m_projectExplorer->session();
-        ProjectExplorer::Node *node  = session->nodeForFile(file);
-        ProjectExplorer::Project *project = session->projectForFile(file);
+        QString file = currentDocument->filePath();
+        Node *node  = SessionManager::nodeForFile(file);
+        Project *project = SessionManager::projectForFile(file);
         m_buildFileAction->setParameter(QFileInfo(file).fileName());
         visible = qobject_cast<Qt4Project *>(project)
                 && node

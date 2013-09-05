@@ -45,6 +45,7 @@
 #include <QPushButton>
 #include <QDialogButtonBox>
 
+using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
@@ -194,15 +195,15 @@ void TargetSetupPageWrapper::keyReleaseEvent(QKeyEvent *event)
 
 void TargetSetupPageWrapper::cancel()
 {
-    ProjectExplorer::ProjectExplorerPlugin::instance()->unloadProject(m_project);
-    if (ProjectExplorer::ProjectExplorerPlugin::instance()->session()->projects().isEmpty())
+    ProjectExplorerPlugin::instance()->unloadProject(m_project);
+    if (!SessionManager::hasProjects())
         Core::ModeManager::activateMode(Core::Constants::MODE_WELCOME);
 }
 
 void TargetSetupPageWrapper::done()
 {
     m_targetSetupPage->setupProject(m_project);
-    ProjectExplorer::ProjectExplorerPlugin::instance()->requestProjectModeUpdate(m_project);
+    ProjectExplorerPlugin::instance()->requestProjectModeUpdate(m_project);
     Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
 }
 

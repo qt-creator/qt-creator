@@ -273,8 +273,7 @@ void ModelManager::delayedInitialization()
                 this, SLOT(maybeQueueCppQmlTypeUpdate(CPlusPlus::Document::Ptr)), Qt::DirectConnection);
     }
 
-    ProjectExplorer::SessionManager *sessionManager = ProjectExplorer::ProjectExplorerPlugin::instance()->session();
-    connect(sessionManager, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
+    connect(ProjectExplorer::SessionManager::instance(), SIGNAL(projectRemoved(ProjectExplorer::Project*)),
             this, SLOT(removeProjectInfo(ProjectExplorer::Project*)));
 }
 
@@ -1111,8 +1110,7 @@ ModelManager::CppDataHash ModelManager::cppData() const
 
 LibraryInfo ModelManager::builtins(const Document::Ptr &doc) const
 {
-    ProjectExplorer::SessionManager *sessionManager = ProjectExplorer::ProjectExplorerPlugin::instance()->session();
-    ProjectExplorer::Project *project = sessionManager->projectForFile(doc->fileName());
+    ProjectExplorer::Project *project = ProjectExplorer::SessionManager::projectForFile(doc->fileName());
     if (!project)
         return LibraryInfo();
 
