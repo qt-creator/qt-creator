@@ -184,7 +184,6 @@ void FormEditorItem::paintBoundingRect(QPainter *painter) const
     QPen pen;
     pen.setJoinStyle(Qt::MiterJoin);
 
-
     QColor frameColor("#AAAAAA");
 
     if (scene()->showBoundingRects()) {
