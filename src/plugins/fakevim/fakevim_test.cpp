@@ -274,7 +274,10 @@ void FakeVimPlugin::setup(TestData *data)
 {
     setupTest(&data->title, &data->handler, &data->edit);
     data->reset();
-    data->doCommand("set nopasskeys | set nopasscontrolkey");
+    data->doCommand("| set nopasskeys"
+                    "| set nopasscontrolkey"
+                    "| set smartindent"
+                    "| set autoindent");
 }
 
 
