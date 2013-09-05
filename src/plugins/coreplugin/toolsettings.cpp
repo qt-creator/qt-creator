@@ -64,12 +64,11 @@ bool ToolSettings::matches(const QString & searchKeyWord) const
 QWidget *ToolSettings::createPage(QWidget *parent)
 {
     m_widget = new ExternalToolConfig(parent);
-    m_widget->setTools(ExternalToolManager::instance()->toolsByCategory());
+    m_widget->setTools(ExternalToolManager::toolsByCategory());
     if (m_searchKeywords.isEmpty())
         m_searchKeywords = m_widget->searchKeywords();
     return m_widget;
 }
-
 
 static QString getUserFilePath(const QString &proposalFileName)
 {
@@ -132,7 +131,7 @@ void ToolSettings::apply()
     if (!m_widget)
         return;
     m_widget->apply();
-    QMap<QString, ExternalTool *> originalTools = ExternalToolManager::instance()->toolsById();
+    QMap<QString, ExternalTool *> originalTools = ExternalToolManager::toolsById();
     QMap<QString, QList<ExternalTool *> > newToolsMap = m_widget->tools();
     QMap<QString, QList<ExternalTool *> > resultMap;
     QMapIterator<QString, QList<ExternalTool *> > it(newToolsMap);
@@ -202,9 +201,8 @@ void ToolSettings::apply()
         QFile::remove(tool->fileName());
     }
 
-    ExternalToolManager::instance()->setToolsByCategory(resultMap);
+    ExternalToolManager::setToolsByCategory(resultMap);
 }
-
 
 void ToolSettings::finish()
 {

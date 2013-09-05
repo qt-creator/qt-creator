@@ -37,30 +37,23 @@
 #include <QList>
 #include <QString>
 
-QT_FORWARD_DECLARE_CLASS(QAction)
-
 namespace Core {
-class ActionContainer;
 
-namespace Internal {
-class ExternalToolRunner;
-class ExternalTool;
-}
+namespace Internal { class ExternalTool; }
 
 class CORE_EXPORT ExternalToolManager : public QObject
 {
     Q_OBJECT
 
 public:
-    static ExternalToolManager *instance() { return m_instance; }
-
     ExternalToolManager();
     ~ExternalToolManager();
 
-    QMap<QString, QList<Internal::ExternalTool *> > toolsByCategory() const;
-    QMap<QString, Internal::ExternalTool *> toolsById() const;
-
-    void setToolsByCategory(const QMap<QString, QList<Internal::ExternalTool *> > &tools);
+    static QObject *instance();
+    static QMap<QString, QList<Internal::ExternalTool *> > toolsByCategory();
+    static QMap<QString, Internal::ExternalTool *> toolsById();
+    static void setToolsByCategory(const QMap<QString, QList<Internal::ExternalTool *> > &tools);
+    static void emitReplaceSelectionRequested(const QString &output);
 
 signals:
     void replaceSelectionRequested(const QString &text);
@@ -68,30 +61,9 @@ signals:
 private slots:
     void menuActivated();
     void openPreferences();
-
-private:
-    void initialize();
-    void parseDirectory(const QString &directory,
-                        QMap<QString, QMultiMap<int, Internal::ExternalTool*> > *categoryMenus,
-                        QMap<QString, Internal::ExternalTool *> *tools,
-                        bool isPreset = false);
-    void readSettings(const QMap<QString, Internal::ExternalTool *> &tools,
-                      QMap<QString, QList<Internal::ExternalTool*> > *categoryPriorityMap);
-    void writeSettings();
-
-    static ExternalToolManager *m_instance;
-    QMap<QString, Internal::ExternalTool *> m_tools;
-    QMap<QString, QList<Internal::ExternalTool *> > m_categoryMap;
-    QMap<QString, QAction *> m_actions;
-    QMap<QString, ActionContainer *> m_containers;
-    QAction *m_configureSeparator;
-    QAction *m_configureAction;
-
-    // for sending the replaceSelectionRequested signal
-    friend class Core::Internal::ExternalToolRunner;
 };
 
-} // Core
+} // namespace Core
 
 
 #endif // EXTERNALTOOLMANAGER_H

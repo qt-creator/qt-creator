@@ -447,11 +447,11 @@ ExternalTool * ExternalTool::createFromFile(const QString &fileName, QString *er
 static QLatin1String stringForOutputHandling(ExternalTool::OutputHandling handling)
 {
     switch (handling) {
-    case Core::Internal::ExternalTool::Ignore:
+    case ExternalTool::Ignore:
         return QLatin1String(kOutputIgnore);
-    case Core::Internal::ExternalTool::ShowInPane:
+    case ExternalTool::ShowInPane:
         return QLatin1String(kOutputShowInPane);
-    case Core::Internal::ExternalTool::ReplaceSelection:
+    case ExternalTool::ReplaceSelection:
         return QLatin1String(kOutputReplaceSelection);
     }
     return QLatin1String("");
@@ -627,7 +627,7 @@ void ExternalToolRunner::finished(int exitCode, QProcess::ExitStatus status)
     if (status == QProcess::NormalExit && exitCode == 0) {
         if (m_tool->outputHandling() == ExternalTool::ReplaceSelection
                 || m_tool->errorHandling() == ExternalTool::ReplaceSelection) {
-            emit ExternalToolManager::instance()->replaceSelectionRequested(m_processOutput);
+            ExternalToolManager::emitReplaceSelectionRequested(m_processOutput);
         }
         if (m_tool->modifiesCurrentDocument())
             DocumentManager::unexpectFileChange(m_expectedFileName);
@@ -670,34 +670,44 @@ void ExternalToolRunner::readStandardError()
         m_processOutput.append(output);
 }
 
-// #pragma mark -- ExternalToolManager
+// ExternalToolManager
 
-ExternalToolManager *ExternalToolManager::m_instance = 0;
+struct ExternalToolManagerPrivate
+{
+    QMap<QString, ExternalTool *> m_tools;
+    QMap<QString, QList<ExternalTool *> > m_categoryMap;
+    QMap<QString, QAction *> m_actions;
+    QMap<QString, ActionContainer *> m_containers;
+    QAction *m_configureSeparator;
+    QAction *m_configureAction;
+};
+
+static ExternalToolManager *m_instance = 0;
+static ExternalToolManagerPrivate *d = 0;
+
+static void writeSettings();
+static void readSettings(const QMap<QString, ExternalTool *> &tools,
+                  QMap<QString, QList<ExternalTool*> > *categoryPriorityMap);
+
+static void parseDirectory(const QString &directory,
+                     QMap<QString, QMultiMap<int, ExternalTool*> > *categoryMenus,
+                     QMap<QString, ExternalTool *> *tools,
+                     bool isPreset = false);
 
 ExternalToolManager::ExternalToolManager()
     : QObject(ICore::instance())
 {
     m_instance = this;
-    initialize();
-}
+    d = new ExternalToolManagerPrivate;
 
-ExternalToolManager::~ExternalToolManager()
-{
-    writeSettings();
-    // TODO kill running tools
-    qDeleteAll(m_tools);
-}
-
-void ExternalToolManager::initialize()
-{
-    m_configureSeparator = new QAction(this);
-    m_configureSeparator->setSeparator(true);
-    m_configureAction = new QAction(tr("Configure..."), this);
-    connect(m_configureAction, SIGNAL(triggered()), this, SLOT(openPreferences()));
+    d->m_configureSeparator = new QAction(this);
+    d->m_configureSeparator->setSeparator(true);
+    d->m_configureAction = new QAction(tr("Configure..."), this);
+    connect(d->m_configureAction, SIGNAL(triggered()), this, SLOT(openPreferences()));
 
     // add the external tools menu
     ActionContainer *mexternaltools = ActionManager::createMenu(Id(Constants::M_TOOLS_EXTERNAL));
-    mexternaltools->menu()->setTitle(tr("&External"));
+    mexternaltools->menu()->setTitle(ExternalToolManager::tr("&External"));
     ActionContainer *mtools = ActionManager::actionContainer(Constants::M_TOOLS);
     mtools->addMenu(mexternaltools, Constants::G_DEFAULT_THREE);
 
@@ -711,7 +721,7 @@ void ExternalToolManager::initialize()
                    &tools,
                    true);
 
-    QMap<QString, QList<Internal::ExternalTool *> > categoryMap;
+    QMap<QString, QList<ExternalTool *> > categoryMap;
     QMapIterator<QString, QMultiMap<int, ExternalTool*> > it(categoryPriorityMap);
     while (it.hasNext()) {
         it.next();
@@ -723,10 +733,23 @@ void ExternalToolManager::initialize()
     setToolsByCategory(categoryMap);
 }
 
-void ExternalToolManager::parseDirectory(const QString &directory,
-                                         QMap<QString, QMultiMap<int, Internal::ExternalTool*> > *categoryMenus,
-                                         QMap<QString, ExternalTool *> *tools,
-                                         bool isPreset)
+ExternalToolManager::~ExternalToolManager()
+{
+    writeSettings();
+    // TODO kill running tools
+    qDeleteAll(d->m_tools);
+    delete d;
+}
+
+QObject *ExternalToolManager::instance()
+{
+    return m_instance;
+}
+
+static void parseDirectory(const QString &directory,
+                           QMap<QString, QMultiMap<int, ExternalTool*> > *categoryMenus,
+                           QMap<QString, ExternalTool *> *tools,
+                           bool isPreset)
 {
     QTC_ASSERT(categoryMenus, return);
     QTC_ASSERT(tools, return);
@@ -736,7 +759,7 @@ void ExternalToolManager::parseDirectory(const QString &directory,
         QString error;
         ExternalTool *tool = ExternalTool::createFromFile(fileName, &error, ICore::userInterfaceLanguage());
         if (!tool) {
-            qWarning() << tr("Error while parsing external tool %1: %2").arg(fileName, error);
+            qWarning() << ExternalTool::tr("Error while parsing external tool %1: %2").arg(fileName, error);
             continue;
         }
         if (tools->contains(tool->id())) {
@@ -745,7 +768,7 @@ void ExternalToolManager::parseDirectory(const QString &directory,
                 ExternalTool *other = tools->value(tool->id());
                 other->setPreset(QSharedPointer<ExternalTool>(tool));
             } else {
-                qWarning() << tr("Error: External tool in %1 has duplicate id").arg(fileName);
+                qWarning() << ExternalToolManager::tr("Error: External tool in %1 has duplicate id").arg(fileName);
                 delete tool;
             }
             continue;
@@ -763,24 +786,24 @@ void ExternalToolManager::menuActivated()
 {
     QAction *action = qobject_cast<QAction *>(sender());
     QTC_ASSERT(action, return);
-    ExternalTool *tool = m_tools.value(action->data().toString());
+    ExternalTool *tool = d->m_tools.value(action->data().toString());
     QTC_ASSERT(tool, return);
     ExternalToolRunner *runner = new ExternalToolRunner(tool);
     if (runner->hasError())
         MessageManager::write(runner->errorString());
 }
 
-QMap<QString, QList<Internal::ExternalTool *> > ExternalToolManager::toolsByCategory() const
+QMap<QString, QList<ExternalTool *> > ExternalToolManager::toolsByCategory()
 {
-    return m_categoryMap;
+    return d->m_categoryMap;
 }
 
-QMap<QString, ExternalTool *> ExternalToolManager::toolsById() const
+QMap<QString, ExternalTool *> ExternalToolManager::toolsById()
 {
-    return m_tools;
+    return d->m_tools;
 }
 
-void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<Internal::ExternalTool *> > &tools)
+void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<ExternalTool *> > &tools)
 {
     // clear menu
     ActionContainer *mexternaltools = ActionManager::actionContainer(Id(Constants::M_TOOLS_EXTERNAL));
@@ -793,18 +816,18 @@ void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<Internal:
     while (it.hasNext()) {
         it.next();
         foreach (ExternalTool *tool, it.value()) {
-            const QString &id = tool->id();
-            if (m_tools.value(id) == tool) {
-                newActions.insert(id, m_actions.value(id));
+            const QString id = tool->id();
+            if (d->m_tools.value(id) == tool) {
+                newActions.insert(id, d->m_actions.value(id));
                 // remove from list to prevent deletion
-                m_tools.remove(id);
-                m_actions.remove(id);
+                d->m_tools.remove(id);
+                d->m_actions.remove(id);
             }
             newTools.insert(id, tool);
         }
     }
-    qDeleteAll(m_tools);
-    QMapIterator<QString, QAction *> remainingActions(m_actions);
+    qDeleteAll(d->m_tools);
+    QMapIterator<QString, QAction *> remainingActions(d->m_actions);
     const Id externalToolsPrefix = "Tools.External.";
     while (remainingActions.hasNext()) {
         remainingActions.next();
@@ -812,11 +835,11 @@ void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<Internal:
             externalToolsPrefix.withSuffix(remainingActions.key()));
         delete remainingActions.value();
     }
-    m_actions.clear();
+    d->m_actions.clear();
     // assign the new stuff
-    m_tools = newTools;
-    m_actions = newActions;
-    m_categoryMap = tools;
+    d->m_tools = newTools;
+    d->m_actions = newActions;
+    d->m_categoryMap = tools;
     // create menu structure and remove no-longer used containers
     // add all the category menus, QMap is nicely sorted
     QMap<QString, ActionContainer *> newContainers;
@@ -828,8 +851,8 @@ void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<Internal:
         if (containerName.isEmpty()) { // no displayCategory, so put into external tools menu directly
             container = mexternaltools;
         } else {
-            if (m_containers.contains(containerName))
-                container = m_containers.take(containerName); // remove to avoid deletion below
+            if (d->m_containers.contains(containerName))
+                container = d->m_containers.take(containerName); // remove to avoid deletion below
             else
                 container = ActionManager::createMenu(Id("Tools.External.Category.").withSuffix(containerName));
             newContainers.insert(containerName, container);
@@ -841,14 +864,14 @@ void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<Internal:
             // tool action and command
             QAction *action = 0;
             Command *command = 0;
-            if (m_actions.contains(toolId)) {
-                action = m_actions.value(toolId);
+            if (d->m_actions.contains(toolId)) {
+                action = d->m_actions.value(toolId);
                 command = ActionManager::command(externalToolsPrefix.withSuffix(toolId));
             } else {
-                action = new QAction(tool->displayName(), this);
+                action = new QAction(tool->displayName(), m_instance);
                 action->setData(toolId);
-                m_actions.insert(toolId, action);
-                connect(action, SIGNAL(triggered()), this, SLOT(menuActivated()));
+                d->m_actions.insert(toolId, action);
+                connect(action, SIGNAL(triggered()), m_instance, SLOT(menuActivated()));
                 command = ActionManager::registerAction(action, externalToolsPrefix.withSuffix(toolId), Context(Constants::C_GLOBAL));
                 command->setAttribute(Command::CA_UpdateText);
             }
@@ -860,16 +883,16 @@ void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<Internal:
     }
 
     // delete the unused containers
-    qDeleteAll(m_containers);
+    qDeleteAll(d->m_containers);
     // remember the new containers
-    m_containers = newContainers;
+    d->m_containers = newContainers;
 
     // (re)add the configure menu item
-    mexternaltools->menu()->addAction(m_configureSeparator);
-    mexternaltools->menu()->addAction(m_configureAction);
+    mexternaltools->menu()->addAction(d->m_configureSeparator);
+    mexternaltools->menu()->addAction(d->m_configureAction);
 }
 
-void ExternalToolManager::readSettings(const QMap<QString, ExternalTool *> &tools,
+static void readSettings(const QMap<QString, ExternalTool *> &tools,
                                        QMap<QString, QList<ExternalTool *> > *categoryMap)
 {
     QSettings *settings = ICore::settings();
@@ -903,14 +926,14 @@ void ExternalToolManager::readSettings(const QMap<QString, ExternalTool *> &tool
     settings->endGroup();
 }
 
-void ExternalToolManager::writeSettings()
+static void writeSettings()
 {
     QSettings *settings = ICore::settings();
     settings->beginGroup(QLatin1String("ExternalTools"));
     settings->remove(QLatin1String(""));
 
     settings->beginGroup(QLatin1String("OverrideCategories"));
-    QMapIterator<QString, QList<ExternalTool *> > it(m_categoryMap);
+    QMapIterator<QString, QList<ExternalTool *> > it(d->m_categoryMap);
     while (it.hasNext()) {
         it.next();
         QString category = it.key();
@@ -933,4 +956,9 @@ void ExternalToolManager::writeSettings()
 void ExternalToolManager::openPreferences()
 {
     ICore::showOptionsDialog(Constants::SETTINGS_CATEGORY_CORE, Constants::SETTINGS_ID_TOOLS);
+}
+
+void ExternalToolManager::emitReplaceSelectionRequested(const QString &output)
+{
+    emit m_instance->replaceSelectionRequested(output);
 }
