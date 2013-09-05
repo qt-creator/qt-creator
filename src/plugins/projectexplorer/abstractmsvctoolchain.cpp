@@ -181,7 +181,7 @@ void AbstractMsvcToolChain::addToEnvironment(Utils::Environment &env) const
 
 QString AbstractMsvcToolChain::makeCommand(const Utils::Environment &environment) const
 {
-    bool useJom = ProjectExplorerPlugin::instance()->projectExplorerSettings().useJom;
+    bool useJom = ProjectExplorerPlugin::projectExplorerSettings().useJom;
     const QString jom = QLatin1String("jom.exe");
     const QString nmake = QLatin1String("nmake.exe");
     QString tmp;

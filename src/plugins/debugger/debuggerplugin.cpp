@@ -2403,7 +2403,7 @@ void DebuggerPluginPrivate::showSettingsDialog()
 
 void DebuggerPluginPrivate::updateDebugWithoutDeployMenu()
 {
-    const bool state = ProjectExplorerPlugin::instance()->projectExplorerSettings().deployBeforeRun;
+    const bool state = ProjectExplorerPlugin::projectExplorerSettings().deployBeforeRun;
     m_debugWithoutDeployAction->setVisible(state);
 }
 

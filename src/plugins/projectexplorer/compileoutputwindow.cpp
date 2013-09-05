@@ -146,7 +146,7 @@ CompileOutputWindow::~CompileOutputWindow()
 
 void CompileOutputWindow::updateWordWrapMode()
 {
-    m_outputWindow->setWordWrapEnabled(ProjectExplorerPlugin::instance()->projectExplorerSettings().wrapAppOutput);
+    m_outputWindow->setWordWrapEnabled(ProjectExplorerPlugin::projectExplorerSettings().wrapAppOutput);
 }
 
 bool CompileOutputWindow::hasFocus() const

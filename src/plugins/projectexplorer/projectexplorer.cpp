@@ -2981,17 +2981,17 @@ void ProjectExplorerPlugin::setSession(QAction *action)
 
 void ProjectExplorerPlugin::setProjectExplorerSettings(const ProjectExplorerSettings &pes)
 {
-    QTC_ASSERT(d->m_projectExplorerSettings.environmentId == pes.environmentId, return);
+    QTC_ASSERT(m_instance->d->m_projectExplorerSettings.environmentId == pes.environmentId, return);
 
-    if (d->m_projectExplorerSettings == pes)
+    if (m_instance->d->m_projectExplorerSettings == pes)
         return;
-    d->m_projectExplorerSettings = pes;
-    emit settingsChanged();
+    m_instance->d->m_projectExplorerSettings = pes;
+    emit m_instance->settingsChanged();
 }
 
-ProjectExplorerSettings ProjectExplorerPlugin::projectExplorerSettings() const
+ProjectExplorerSettings ProjectExplorerPlugin::projectExplorerSettings()
 {
-    return d->m_projectExplorerSettings;
+    return m_instance->d->m_projectExplorerSettings;
 }
 
 QStringList ProjectExplorerPlugin::projectFilePatterns()

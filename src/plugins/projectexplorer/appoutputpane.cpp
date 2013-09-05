@@ -327,8 +327,8 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     ow->setWindowTitle(tr("Application Output Window"));
     ow->setWindowIcon(QIcon(QLatin1String(Constants::ICON_WINDOW)));
     ow->setFormatter(formatter);
-    ow->setWordWrapEnabled(ProjectExplorerPlugin::instance()->projectExplorerSettings().wrapAppOutput);
-    ow->setMaxLineCount(ProjectExplorerPlugin::instance()->projectExplorerSettings().maxAppOutputLines);
+    ow->setWordWrapEnabled(ProjectExplorerPlugin::projectExplorerSettings().wrapAppOutput);
+    ow->setMaxLineCount(ProjectExplorerPlugin::projectExplorerSettings().maxAppOutputLines);
     Aggregation::Aggregate *agg = new Aggregation::Aggregate;
     agg->add(ow);
     agg->add(new Find::BaseTextFind(ow));
@@ -341,7 +341,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
 
 void AppOutputPane::handleOldOutput(Core::OutputWindow *window) const
 {
-    if (ProjectExplorerPlugin::instance()->projectExplorerSettings().cleanOldAppOutput)
+    if (ProjectExplorerPlugin::projectExplorerSettings().cleanOldAppOutput)
         window->clear();
     else
         window->grayOutOldContent();
@@ -352,8 +352,8 @@ void AppOutputPane::updateFromSettings()
     const int size = m_runControlTabs.size();
     for (int i = 0; i < size; i++) {
         RunControlTab &tab =m_runControlTabs[i];
-        tab.window->setWordWrapEnabled(ProjectExplorerPlugin::instance()->projectExplorerSettings().wrapAppOutput);
-        tab.window->setMaxLineCount(ProjectExplorerPlugin::instance()->projectExplorerSettings().maxAppOutputLines);
+        tab.window->setWordWrapEnabled(ProjectExplorerPlugin::projectExplorerSettings().wrapAppOutput);
+        tab.window->setMaxLineCount(ProjectExplorerPlugin::projectExplorerSettings().maxAppOutputLines);
     }
 }
 
@@ -486,11 +486,10 @@ bool AppOutputPane::closeTab(int tabIndex, CloseTabMode closeTabMode)
 
 bool AppOutputPane::optionallyPromptToStop(RunControl *runControl)
 {
-    ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance();
-    ProjectExplorerSettings settings = pe->projectExplorerSettings();
+    ProjectExplorerSettings settings = ProjectExplorerPlugin::projectExplorerSettings();
     if (!runControl->promptToStop(&settings.prompToStopRunControl))
         return false;
-    pe->setProjectExplorerSettings(settings);
+    ProjectExplorerPlugin::setProjectExplorerSettings(settings);
     return true;
 }
 

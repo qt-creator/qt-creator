@@ -729,7 +729,7 @@ QStringList SettingsAccessor::findSettingsFiles(const QString &suffix) const
 
 QByteArray SettingsAccessor::creatorId()
 {
-    return ProjectExplorerPlugin::instance()->projectExplorerSettings().environmentId.toByteArray();
+    return ProjectExplorerPlugin::projectExplorerSettings().environmentId.toByteArray();
 }
 
 QString SettingsAccessor::defaultFileName(const QString &suffix) const

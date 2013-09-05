@@ -544,7 +544,7 @@ bool BuildManager::buildLists(QList<BuildStepList *> bsls, const QStringList &st
         return false;
     }
 
-    if (ProjectExplorerPlugin::instance()->projectExplorerSettings().showCompilerOutput)
+    if (ProjectExplorerPlugin::projectExplorerSettings().showCompilerOutput)
         d->m_outputWindow->popup(IOutputPane::NoModeSwitch);
     startBuildQueue(preambelMessage);
     return true;
@@ -557,7 +557,7 @@ void BuildManager::appendStep(BuildStep *step, const QString &name)
         d->m_outputWindow->popup(IOutputPane::NoModeSwitch);
         return;
     }
-    if (ProjectExplorerPlugin::instance()->projectExplorerSettings().showCompilerOutput)
+    if (ProjectExplorerPlugin::projectExplorerSettings().showCompilerOutput)
         d->m_outputWindow->popup(IOutputPane::NoModeSwitch);
     startBuildQueue();
 }

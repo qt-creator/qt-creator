@@ -191,7 +191,7 @@ ProjectExplorerSettingsPage::~ProjectExplorerSettingsPage()
 QWidget *ProjectExplorerSettingsPage::createPage(QWidget *parent)
 {
     m_widget = new ProjectExplorerSettingsWidget(parent);
-    m_widget->setSettings(ProjectExplorerPlugin::instance()->projectExplorerSettings());
+    m_widget->setSettings(ProjectExplorerPlugin::projectExplorerSettings());
     m_widget->setProjectsDirectory(Core::DocumentManager::projectsDirectory());
     m_widget->setUseProjectsDirectory(Core::DocumentManager::useProjectsDirectory());
     m_widget->setBuildDirectory(Core::DocumentManager::buildDirectory());
@@ -203,7 +203,7 @@ QWidget *ProjectExplorerSettingsPage::createPage(QWidget *parent)
 void ProjectExplorerSettingsPage::apply()
 {
     if (m_widget) {
-        ProjectExplorerPlugin::instance()->setProjectExplorerSettings(m_widget->settings());
+        ProjectExplorerPlugin::setProjectExplorerSettings(m_widget->settings());
         Core::DocumentManager::setProjectsDirectory(m_widget->projectsDirectory());
         Core::DocumentManager::setUseProjectsDirectory(m_widget->useProjectsDirectory());
         Core::DocumentManager::setBuildDirectory(m_widget->buildDirectory());

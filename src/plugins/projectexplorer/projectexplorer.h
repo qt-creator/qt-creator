@@ -94,8 +94,8 @@ public:
     void extensionsInitialized();
     ShutdownFlag aboutToShutdown();
 
-    void setProjectExplorerSettings(const Internal::ProjectExplorerSettings &pes);
-    Internal::ProjectExplorerSettings projectExplorerSettings() const;
+    static void setProjectExplorerSettings(const Internal::ProjectExplorerSettings &pes);
+    static Internal::ProjectExplorerSettings projectExplorerSettings();
 
     void startRunControl(RunControl *runControl, RunMode runMode);
     static void showRunErrorMessage(const QString &errorMessage);
