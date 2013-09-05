@@ -135,6 +135,7 @@ public:
 
     QString expandEnvVars(const QString &str) const;
     QString shadowedPath(const QString &fileName) const;
+    QStringList splitPathList(const QString &value) const;
 
 private:
     QString getEnv(const QString &) const;

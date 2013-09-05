@@ -258,6 +258,19 @@ QString QMakeGlobals::shadowedPath(const QString &fileName) const
     return QString();
 }
 
+QStringList QMakeGlobals::splitPathList(const QString &val) const
+{
+    QStringList ret;
+    if (!val.isEmpty()) {
+        QDir bdir;
+        QStringList vals = val.split(dirlist_sep);
+        ret.reserve(vals.length());
+        foreach (const QString &it, vals)
+            ret << QDir::cleanPath(bdir.absoluteFilePath(it));
+    }
+    return ret;
+}
+
 QString QMakeGlobals::getEnv(const QString &var) const
 {
 #ifdef PROEVALUATOR_SETENV
@@ -269,16 +282,7 @@ QString QMakeGlobals::getEnv(const QString &var) const
 
 QStringList QMakeGlobals::getPathListEnv(const QString &var) const
 {
-    QStringList ret;
-    QString val = getEnv(var);
-    if (!val.isEmpty()) {
-        QDir bdir;
-        QStringList vals = val.split(dirlist_sep);
-        ret.reserve(vals.length());
-        foreach (const QString &it, vals)
-            ret << QDir::cleanPath(bdir.absoluteFilePath(it));
-    }
-    return ret;
+    return splitPathList(getEnv(var));
 }
 
 QString QMakeGlobals::expandEnvVars(const QString &str) const

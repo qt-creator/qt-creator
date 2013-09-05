@@ -1445,8 +1445,8 @@ void QMakeEvaluator::updateFeaturePaths()
 
     feature_roots += m_qmakefeatures;
 
-    feature_roots += m_option->propertyValue(ProKey("QMAKEFEATURES")).toQString(m_mtmp).split(
-            m_option->dirlist_sep, QString::SkipEmptyParts);
+    feature_roots += m_option->splitPathList(
+                m_option->propertyValue(ProKey("QMAKEFEATURES")).toQString(m_mtmp));
 
     QStringList feature_bases;
     if (!m_buildRoot.isEmpty()) {
