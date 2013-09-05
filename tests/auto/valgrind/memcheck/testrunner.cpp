@@ -76,7 +76,8 @@ TestRunner::TestRunner(QObject *parent)
 QString TestRunner::runTestBinary(const QString &binary, const QStringList &vArgs)
 {
     const QString binPath = appBinDir + QDir::separator() + binary;
-    Q_ASSERT(QFileInfo(binPath).isExecutable());
+    if (!QFileInfo(binPath).isExecutable())
+        qFatal("No such test app: %s", qPrintable(binPath));
     m_runner->setValgrindArguments(QStringList() << "--num-callers=50" << "--track-origins=yes" << vArgs);
     m_runner->setDebuggeeExecutable(binPath);
     m_runner->start();

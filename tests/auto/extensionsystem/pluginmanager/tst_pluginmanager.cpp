@@ -209,7 +209,7 @@ void tst_PluginManager::circularPlugins()
             QCOMPARE(spec->state(), PluginSpec::Resolved);
             QCOMPARE(spec->plugin(), (IPlugin*)0);
         } else if (spec->name() == "plugin2") {
-            QVERIFY(!spec->hasError());
+            QVERIFY2(!spec->hasError(), qPrintable(spec->errorString()));
             QCOMPARE(spec->state(), PluginSpec::Running);
         } else if (spec->name() == "plugin3") {
             QVERIFY(spec->hasError());

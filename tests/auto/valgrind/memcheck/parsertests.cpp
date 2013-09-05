@@ -91,11 +91,7 @@ void dumpError(const Error &e)
 
 static QString fakeValgrindExecutable()
 {
-    QString ret(VALGRIND_FAKE_PATH);
-    QFileInfo fileInfo(ret);
-    Q_ASSERT(fileInfo.isExecutable());
-    Q_ASSERT(!fileInfo.isDir());
-    return ret;
+    return QLatin1String(VALGRIND_FAKE_PATH);
 }
 
 static QString dataFile(const QLatin1String &file)
@@ -118,8 +114,13 @@ void ParserTests::initTest(const QLatin1String &testfile, const QStringList &oth
 
     m_process = new QProcess(m_server);
     m_process->setProcessChannelMode(QProcess::ForwardedChannels);
+    const QString fakeValgrind = fakeValgrindExecutable();
+    QFileInfo fileInfo(fakeValgrind);
+    QVERIFY2(fileInfo.isExecutable(), qPrintable(fakeValgrind));
+    QVERIFY2(!fileInfo.isDir(), qPrintable(fakeValgrind));
+
     m_process->start(
-        fakeValgrindExecutable(),
+        fakeValgrind,
         QStringList()
             << QString::fromLatin1("--xml-socket=127.0.0.1:%1").arg(m_server->serverPort())
             << QLatin1String("-i")
