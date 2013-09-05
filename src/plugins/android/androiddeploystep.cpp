@@ -231,7 +231,7 @@ void AndroidDeployStep::cleanLibsOnDevice()
     arguments << QLatin1String("shell") << QLatin1String("rm") << QLatin1String("-r") << QLatin1String("/data/local/tmp/qt");
     connect(process, SIGNAL(finished(int)), this, SLOT(processFinished()));
     const QString adb = AndroidConfigurations::instance().adbToolPath().toString();
-    MessageManager::write(adb + QLatin1Char(' ') + arguments.join(QLatin1Char(' ')));
+    MessageManager::write(adb + QLatin1Char(' ') + arguments.join(QLatin1String(" ")));
     process->start(adb, arguments);
     if (!process->waitForStarted(500))
         delete process;
@@ -288,7 +288,7 @@ void AndroidDeployStep::installQASIPackage(const QString &packagePath)
 
     connect(process, SIGNAL(finished(int)), this, SLOT(processFinished()));
     const QString adb = AndroidConfigurations::instance().adbToolPath().toString();
-    MessageManager::write(adb + QLatin1Char(' ') + arguments.join(QLatin1Char(' ')));
+    MessageManager::write(adb + QLatin1Char(' ') + arguments.join(QLatin1String(" ")));
     process->start(adb, arguments);
     if (!process->waitForFinished(500))
         delete process;
