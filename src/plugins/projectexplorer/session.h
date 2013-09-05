@@ -48,7 +48,6 @@ QT_END_NAMESPACE
 namespace Core {
 class IMode;
 class IEditor;
-class IDocument;
 }
 
 namespace ProjectExplorer {
@@ -56,7 +55,6 @@ namespace ProjectExplorer {
 class Project;
 class Node;
 class SessionNode;
-class SessionManager;
 
 class PROJECTEXPLORER_EXPORT SessionManager : public QObject
 {

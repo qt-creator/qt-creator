@@ -36,33 +36,24 @@
 
 #include <QTreeView>
 
-namespace Utils {
-    class DetailsWidget;
-}
+namespace Utils { class DetailsWidget; }
 
 namespace ProjectExplorer {
 
 class Project;
-class SessionManager;
 
 namespace Internal {
-
-const char DEPENDENCIES_PANEL_ID[] = "ProjectExplorer.DependenciesPanel";
-
-class DependenciesWidget;
 
 class DependenciesPanelFactory : public IProjectPanelFactory
 {
 public:
-    DependenciesPanelFactory(SessionManager *session);
+    DependenciesPanelFactory() {}
 
     QString id() const;
     QString displayName() const;
     int priority() const;
     bool supports(Project *project);
     PropertiesPanel *createPanel(Project *project);
-private:
-    SessionManager *m_session;
 };
 
 
@@ -73,9 +64,9 @@ private:
 class DependenciesModel : public QAbstractListModel
 {
     Q_OBJECT
+
 public:
-    DependenciesModel(SessionManager *session, Project *project, QObject *parent = 0);
-    ~DependenciesModel();
+    explicit DependenciesModel(Project *project, QObject *parent = 0);
 
     int rowCount(const QModelIndex &index) const;
     int columnCount(const QModelIndex &index) const;
@@ -87,7 +78,6 @@ public slots:
     void resetModel();
 
 private:
-    SessionManager *m_session;
     Project *m_project;
     QList<Project *> m_projects;
 };
@@ -95,13 +85,16 @@ private:
 class DependenciesView : public QTreeView
 {
     Q_OBJECT
+
 public:
     DependenciesView(QWidget *parent);
-    ~DependenciesView();
-    virtual QSize sizeHint() const;
-    virtual void setModel(QAbstractItemModel *model);
+
+    QSize sizeHint() const;
+    void setModel(QAbstractItemModel *model);
+
 private slots:
     void updateSizeHint();
+
 private:
     QSize m_sizeHint;
 };
@@ -109,11 +102,11 @@ private:
 class DependenciesWidget : public QWidget
 {
     Q_OBJECT
+
 public:
-    DependenciesWidget(SessionManager *session, Project *project,
-                       QWidget *parent = 0);
+    explicit DependenciesWidget(Project *project, QWidget *parent = 0);
+
 private:
-    SessionManager *m_session;
     Project *m_project;
     DependenciesModel *m_model;
     Utils::DetailsWidget *m_detailsContainer;

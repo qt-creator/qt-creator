@@ -122,8 +122,8 @@ bool SessionNameInputDialog::isSwitchToRequested() const
 }
 
 
-SessionDialog::SessionDialog(SessionManager *sessionManager, QWidget *parent)
-    : QDialog(parent), m_sessionManager(sessionManager)
+SessionDialog::SessionDialog(QWidget *parent)
+    : QDialog(parent)
 {
     m_ui.setupUi(this);
 
@@ -161,10 +161,10 @@ bool SessionDialog::autoLoadSession() const
 
 void SessionDialog::addItems(bool setDefaultSession)
 {
-    QStringList sessions = m_sessionManager->sessions();
+    QStringList sessions = SessionManager::sessions();
     foreach (const QString &session, sessions) {
         m_ui.sessionList->addItem(session);
-        if (setDefaultSession && session == m_sessionManager->activeSession())
+        if (setDefaultSession && session == SessionManager::activeSession())
             m_ui.sessionList->setCurrentRow(m_ui.sessionList->count() - 1);
     }
 }
@@ -174,11 +174,11 @@ void SessionDialog::markItems()
         QListWidgetItem *item = m_ui.sessionList->item(i);
         QFont f = item->font();
         QString session = item->data(Qt::DisplayRole).toString();
-        if (m_sessionManager->isDefaultSession(session))
+        if (SessionManager::isDefaultSession(session))
             f.setItalic(true);
         else
             f.setItalic(false);
-        if (m_sessionManager->activeSession() == session && !m_sessionManager->isDefaultVirgin())
+        if (SessionManager::activeSession() == session && !SessionManager::isDefaultVirgin())
             f.setBold(true);
         else
             f.setBold(false);
@@ -190,7 +190,7 @@ void SessionDialog::updateActions()
 {
     if (m_ui.sessionList->currentItem()) {
         bool isDefault = (m_ui.sessionList->currentItem()->text() == QLatin1String("default"));
-        bool isActive = (m_ui.sessionList->currentItem()->text() == m_sessionManager->activeSession());
+        bool isActive = (m_ui.sessionList->currentItem()->text() == SessionManager::activeSession());
         m_ui.btDelete->setEnabled(!isActive && !isDefault);
         m_ui.btRename->setEnabled(!isDefault);
         m_ui.btClone->setEnabled(true);
@@ -205,17 +205,17 @@ void SessionDialog::updateActions()
 
 void SessionDialog::createNew()
 {
-    SessionNameInputDialog newSessionInputDialog(m_sessionManager->sessions(), this);
+    SessionNameInputDialog newSessionInputDialog(SessionManager::sessions(), this);
     newSessionInputDialog.setWindowTitle(tr("New session name"));
 
     if (newSessionInputDialog.exec() == QDialog::Accepted) {
         QString newSession = newSessionInputDialog.value();
-        if (newSession.isEmpty() || m_sessionManager->sessions().contains(newSession))
+        if (newSession.isEmpty() || SessionManager::sessions().contains(newSession))
             return;
 
-        m_sessionManager->createSession(newSession);
+        SessionManager::createSession(newSession);
         m_ui.sessionList->clear();
-        QStringList sessions = m_sessionManager->sessions();
+        QStringList sessions = SessionManager::sessions();
         m_ui.sessionList->addItems(sessions);
         m_ui.sessionList->setCurrentRow(sessions.indexOf(newSession));
         markItems();
@@ -226,15 +226,15 @@ void SessionDialog::createNew()
 
 void SessionDialog::clone()
 {
-    SessionNameInputDialog newSessionInputDialog(m_sessionManager->sessions(), this);
+    SessionNameInputDialog newSessionInputDialog(SessionManager::sessions(), this);
     newSessionInputDialog.setValue(m_ui.sessionList->currentItem()->text());
     newSessionInputDialog.setWindowTitle(tr("New session name"));
 
     if (newSessionInputDialog.exec() == QDialog::Accepted) {
         QString newSession = newSessionInputDialog.value();
-        if (m_sessionManager->cloneSession(m_ui.sessionList->currentItem()->text(), newSession)) {
+        if (SessionManager::cloneSession(m_ui.sessionList->currentItem()->text(), newSession)) {
             m_ui.sessionList->clear();
-            QStringList sessions = m_sessionManager->sessions();
+            QStringList sessions = SessionManager::sessions();
             m_ui.sessionList->addItems(sessions);
             m_ui.sessionList->setCurrentRow(sessions.indexOf(newSession));
             markItems();
@@ -246,9 +246,9 @@ void SessionDialog::remove()
 {
     const QString name = m_ui.sessionList->currentItem()->text();
 
-    if (!m_sessionManager->confirmSessionDelete(name))
+    if (!SessionManager::confirmSessionDelete(name))
         return;
-    m_sessionManager->deleteSession(name);
+    SessionManager::deleteSession(name);
     m_ui.sessionList->clear();
     addItems(false);
     markItems();
@@ -256,12 +256,12 @@ void SessionDialog::remove()
 
 void SessionDialog::rename()
 {
-    SessionNameInputDialog newSessionInputDialog(m_sessionManager->sessions(), this);
+    SessionNameInputDialog newSessionInputDialog(SessionManager::sessions(), this);
     newSessionInputDialog.setValue(m_ui.sessionList->currentItem()->text());
     newSessionInputDialog.setWindowTitle(tr("Rename session"));
 
     if (newSessionInputDialog.exec() == QDialog::Accepted) {
-        m_sessionManager->renameSession(m_ui.sessionList->currentItem()->text(), newSessionInputDialog.value());
+        SessionManager::renameSession(m_ui.sessionList->currentItem()->text(), newSessionInputDialog.value());
         m_ui.sessionList->clear();
         addItems(false);
         markItems();
@@ -271,7 +271,7 @@ void SessionDialog::rename()
 void SessionDialog::switchToSession()
 {
     QString session = m_ui.sessionList->currentItem()->text();
-    m_sessionManager->loadSession(session);
+    SessionManager::loadSession(session);
     markItems();
     updateActions();
     reject();

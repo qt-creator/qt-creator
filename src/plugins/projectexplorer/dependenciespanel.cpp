@@ -46,34 +46,28 @@
 namespace ProjectExplorer {
 namespace Internal {
 
-DependenciesModel::DependenciesModel(SessionManager *session,
-                                     Project *project,
-                                     QObject *parent)
+DependenciesModel::DependenciesModel(Project *project, QObject *parent)
     : QAbstractListModel(parent)
-    , m_session(session)
     , m_project(project)
-    , m_projects(session->projects())
+    , m_projects(SessionManager::projects())
 {
     // We can't select ourselves as a dependency
     m_projects.removeAll(m_project);
-    connect(session, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
+
+    QObject *sessionManager = SessionManager::instance();
+    connect(sessionManager, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
             this, SLOT(resetModel()));
-    connect(session, SIGNAL(projectAdded(ProjectExplorer::Project*)),
+    connect(sessionManager, SIGNAL(projectAdded(ProjectExplorer::Project*)),
             this, SLOT(resetModel()));
-    connect(session, SIGNAL(sessionLoaded(QString)),
+    connect(sessionManager, SIGNAL(sessionLoaded(QString)),
             this, SLOT(resetModel()));
 //    qDebug()<<"Dependencies Model"<<this<<"for project"<<project<<"("<<project->file()->fileName()<<")";
-}
-
-DependenciesModel::~DependenciesModel()
-{
-//    qDebug()<<"~DependenciesModel"<<this;
 }
 
 void DependenciesModel::resetModel()
 {
     beginResetModel();
-    m_projects = m_session->projects();
+    m_projects = SessionManager::projects();
     m_projects.removeAll(m_project);
     endResetModel();
 }
@@ -101,7 +95,7 @@ QVariant DependenciesModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         return p->displayName();
     case Qt::CheckStateRole:
-        return m_session->hasDependency(m_project, p) ? Qt::Checked : Qt::Unchecked;
+        return SessionManager::hasDependency(m_project, p) ? Qt::Checked : Qt::Unchecked;
     case Qt::DecorationRole:
         return Core::FileIconProvider::instance()->icon(QFileInfo(p->projectFilePath()));
     default:
@@ -116,7 +110,7 @@ bool DependenciesModel::setData(const QModelIndex &index, const QVariant &value,
         const Qt::CheckState c = static_cast<Qt::CheckState>(value.toInt());
 
         if (c == Qt::Checked) {
-            if (m_session->addDependency(m_project, p)) {
+            if (SessionManager::addDependency(m_project, p)) {
                 emit dataChanged(index, index);
                 return true;
             } else {
@@ -124,8 +118,8 @@ bool DependenciesModel::setData(const QModelIndex &index, const QVariant &value,
                                      QCoreApplication::translate("DependenciesModel", "This would create a circular dependency."));
             }
         } else if (c == Qt::Unchecked) {
-            if (m_session->hasDependency(m_project, p)) {
-                m_session->removeDependency(m_project, p);
+            if (SessionManager::hasDependency(m_project, p)) {
+                SessionManager::removeDependency(m_project, p);
                 emit dataChanged(index, index);
                 return true;
             }
@@ -155,11 +149,6 @@ DependenciesView::DependenciesView(QWidget *parent)
     setUniformRowHeights(true);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
     setRootIsDecorated(false);
-}
-
-DependenciesView::~DependenciesView()
-{
-
 }
 
 QSize DependenciesView::sizeHint() const
@@ -219,13 +208,10 @@ void DependenciesView::updateSizeHint()
 // DependenciesWidget
 //
 
-DependenciesWidget::DependenciesWidget(SessionManager *session,
-                                       Project *project,
-                                       QWidget *parent)
+DependenciesWidget::DependenciesWidget(Project *project, QWidget *parent)
     : QWidget(parent)
-    , m_session(session)
     , m_project(project)
-    , m_model(new DependenciesModel(session, project, this))
+    , m_model(new DependenciesModel(project, this))
 {
     QVBoxLayout *vbox = new QVBoxLayout(this);
     vbox->setContentsMargins(0, 0, 0, 0);
@@ -248,14 +234,9 @@ DependenciesWidget::DependenciesWidget(SessionManager *session,
 // DependenciesPanelFactory
 //
 
-DependenciesPanelFactory::DependenciesPanelFactory(SessionManager *session)
-    : m_session(session)
-{
-}
-
 QString DependenciesPanelFactory::id() const
 {
-    return QLatin1String(DEPENDENCIES_PANEL_ID);
+    return QLatin1String("ProjectExplorer.DependenciesPanel");
 }
 
 QString DependenciesPanelFactory::displayName() const
@@ -277,7 +258,7 @@ bool DependenciesPanelFactory::supports(Project *project)
 PropertiesPanel *DependenciesPanelFactory::createPanel(Project *project)
 {
     PropertiesPanel *panel = new PropertiesPanel;
-    panel->setWidget(new DependenciesWidget(m_session, project));
+    panel->setWidget(new DependenciesWidget(project));
     panel->setIcon(QIcon(QLatin1String(":/projectexplorer/images/ProjectDependencies.png")));
     panel->setDisplayName(QCoreApplication::translate("DependenciesPanel", "Dependencies"));
     return panel;

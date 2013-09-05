@@ -30,10 +30,10 @@
 #ifndef SESSIONDIALOG_H
 #define SESSIONDIALOG_H
 
+#include "ui_sessiondialog.h"
+
 #include <QString>
 #include <QDialog>
-
-#include "ui_sessiondialog.h"
 
 QT_BEGIN_NAMESPACE
 class QLineEdit;
@@ -41,16 +41,14 @@ class QPushButton;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
-
-class SessionManager;
-
 namespace Internal {
 
 class SessionDialog : public QDialog
 {
     Q_OBJECT
+
 public:
-    SessionDialog(SessionManager *sessionManager, QWidget *parent = 0);
+    explicit SessionDialog(QWidget *parent = 0);
 
     void setAutoLoadSession(bool);
     bool autoLoadSession() const;
@@ -68,7 +66,6 @@ private:
     void addItems(bool setDefaultSession);
     void markItems();
     Ui::SessionDialog m_ui;
-    SessionManager *m_sessionManager;
 };
 
 class SessionNameInputDialog : public QDialog

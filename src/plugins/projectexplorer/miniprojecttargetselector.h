@@ -47,7 +47,6 @@ class BuildConfiguration;
 class DeployConfiguration;
 class ProjectConfiguration;
 class RunConfiguration;
-class SessionManager;
 
 namespace Internal {
 
@@ -75,7 +74,7 @@ class ProjectListWidget : public ListWidget
 {
     Q_OBJECT
 public:
-    explicit ProjectListWidget(SessionManager *sessionManager, QWidget *parent = 0);
+    explicit ProjectListWidget(QWidget *parent = 0);
 private slots:
     void addProject(ProjectExplorer::Project *project);
     void removeProject(ProjectExplorer::Project *project);
@@ -85,7 +84,6 @@ private slots:
 private:
     QListWidgetItem *itemForProject(Project *project);
     QString fullName(ProjectExplorer::Project *project);
-    SessionManager *m_sessionManager;
     bool m_ignoreIndexChange;
 };
 
@@ -114,7 +112,7 @@ class MiniProjectTargetSelector : public QWidget
 {
     Q_OBJECT
 public:
-    explicit MiniProjectTargetSelector(QAction *projectAction, SessionManager *sessionManager, QWidget *parent = 0);
+    explicit MiniProjectTargetSelector(QAction *projectAction, QWidget *parent = 0);
     void setVisible(bool visible);
 
     void keyPressEvent(QKeyEvent *ke);
@@ -175,7 +173,6 @@ private:
     QWidget *createTitleLabel(const QString &text);
 
     QAction *m_projectAction;
-    SessionManager *m_sessionManager;
 
     enum TYPES { PROJECT = 0, TARGET = 1, BUILD = 2, DEPLOY = 3, RUN = 4, LAST = 5 };
     ProjectListWidget *m_projectListWidget;

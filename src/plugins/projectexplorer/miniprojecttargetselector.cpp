@@ -209,16 +209,17 @@ int ListWidget::padding()
 ////////
 // ProjectListWidget
 ////////
-ProjectListWidget::ProjectListWidget(SessionManager *sessionManager, QWidget *parent)
-    : ListWidget(parent), m_sessionManager(sessionManager), m_ignoreIndexChange(false)
+ProjectListWidget::ProjectListWidget(QWidget *parent)
+    : ListWidget(parent), m_ignoreIndexChange(false)
 {
-    connect(m_sessionManager, SIGNAL(projectAdded(ProjectExplorer::Project*)),
+    QObject *sessionManager = SessionManager::instance();
+    connect(sessionManager, SIGNAL(projectAdded(ProjectExplorer::Project*)),
             this, SLOT(addProject(ProjectExplorer::Project*)));
-    connect(m_sessionManager, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
+    connect(sessionManager, SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
             this, SLOT(removeProject(ProjectExplorer::Project*)));
-    connect(m_sessionManager, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
+    connect(sessionManager, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
             this, SLOT(changeStartupProject(ProjectExplorer::Project*)));
-    connect(m_sessionManager, SIGNAL(projectDisplayNameChanged(ProjectExplorer::Project*)),
+    connect(sessionManager, SIGNAL(projectDisplayNameChanged(ProjectExplorer::Project*)),
             this, SLOT(projectDisplayNameChanged(ProjectExplorer::Project*)));
     connect(this, SIGNAL(currentRowChanged(int)),
             this, SLOT(setProject(int)));
@@ -363,7 +364,7 @@ void ProjectListWidget::setProject(int index)
     if (index < 0)
         return;
     Project *p = item(index)->data(Qt::UserRole).value<Project *>();
-    m_sessionManager->setStartupProject(p);
+    SessionManager::setStartupProject(p);
 }
 
 void ProjectListWidget::changeStartupProject(Project *project)
@@ -539,8 +540,8 @@ QWidget *MiniProjectTargetSelector::createTitleLabel(const QString &text)
     return bar;
 }
 
-MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorAction, SessionManager *sessionManager, QWidget *parent) :
-    QWidget(parent), m_projectAction(targetSelectorAction), m_sessionManager(sessionManager),
+MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorAction, QWidget *parent) :
+    QWidget(parent), m_projectAction(targetSelectorAction),
     m_project(0),
     m_target(0),
     m_buildConfiguration(0),
@@ -570,7 +571,7 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
     m_listWidgets[PROJECT] = 0; //project is not a generic list widget
 
     m_titleWidgets[PROJECT] = createTitleLabel(tr("Project"));
-    m_projectListWidget = new ProjectListWidget(m_sessionManager, this);
+    m_projectListWidget = new ProjectListWidget(this);
 
     QStringList titles;
     titles << tr("Kit") << tr("Build")
@@ -581,21 +582,23 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
         m_listWidgets[i] = new GenericListWidget(this);
     }
 
-    changeStartupProject(m_sessionManager->startupProject());
-    if (m_sessionManager->startupProject())
-        activeTargetChanged(m_sessionManager->startupProject()->activeTarget());
+    Project *startup = SessionManager::startupProject();
+    changeStartupProject(startup);
+    if (startup)
+        activeTargetChanged(startup->activeTarget());
 
     connect(m_summaryLabel, SIGNAL(linkActivated(QString)),
             this, SLOT(switchToProjectsMode()));
 
-    connect(m_sessionManager, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
+    QObject *sessionManager = SessionManager::instance();
+    connect(sessionManager, SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
             this, SLOT(changeStartupProject(ProjectExplorer::Project*)));
 
-    connect(m_sessionManager, SIGNAL(projectAdded(ProjectExplorer::Project*)),
+    connect(sessionManager, SIGNAL(projectAdded(ProjectExplorer::Project*)),
             this, SLOT(projectAdded(ProjectExplorer::Project*)));
-    connect(m_sessionManager, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
+    connect(sessionManager, SIGNAL(projectRemoved(ProjectExplorer::Project*)),
             this, SLOT(projectRemoved(ProjectExplorer::Project*)));
-    connect(m_sessionManager, SIGNAL(projectDisplayNameChanged(ProjectExplorer::Project*)),
+    connect(sessionManager, SIGNAL(projectDisplayNameChanged(ProjectExplorer::Project*)),
             this, SLOT(updateActionAndSummary()));
 
     // for icon changes:
@@ -760,7 +763,7 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
         onlySummary = true;
     } else {
         if (visibleLineCount < 3) {
-            foreach (Project *p, m_sessionManager->projects()) {
+            foreach (Project *p, SessionManager::projects()) {
                 if (p->needsConfiguration()) {
                     visibleLineCount = 3;
                     break;
@@ -1063,10 +1066,11 @@ void MiniProjectTargetSelector::slotRemovedRunConfiguration(ProjectExplorer::Run
 
 void MiniProjectTargetSelector::updateProjectListVisible()
 {
-    bool visible = m_sessionManager->projects().size() > 1;
+    int count = SessionManager::projects().size();
+    bool visible = count > 1;
 
     m_projectListWidget->setVisible(visible);
-    m_projectListWidget->setMaxCount(m_sessionManager->projects().size());
+    m_projectListWidget->setMaxCount(count);
     m_titleWidgets[PROJECT]->setVisible(visible);
 
     updateSummary();
@@ -1075,7 +1079,7 @@ void MiniProjectTargetSelector::updateProjectListVisible()
 void MiniProjectTargetSelector::updateTargetListVisible()
 {
     int maxCount = 0;
-    foreach (Project *p, m_sessionManager->projects())
+    foreach (Project *p, SessionManager::projects())
         maxCount = qMax(p->targets().size(), maxCount);
 
     bool visible = maxCount > 1;
@@ -1088,7 +1092,7 @@ void MiniProjectTargetSelector::updateTargetListVisible()
 void MiniProjectTargetSelector::updateBuildListVisible()
 {
     int maxCount = 0;
-    foreach (Project *p, m_sessionManager->projects())
+    foreach (Project *p, SessionManager::projects())
         foreach (Target *t, p->targets())
             maxCount = qMax(t->buildConfigurations().size(), maxCount);
 
@@ -1102,7 +1106,7 @@ void MiniProjectTargetSelector::updateBuildListVisible()
 void MiniProjectTargetSelector::updateDeployListVisible()
 {
     int maxCount = 0;
-    foreach (Project *p, m_sessionManager->projects())
+    foreach (Project *p, SessionManager::projects())
         foreach (Target *t, p->targets())
             maxCount = qMax(t->deployConfigurations().size(), maxCount);
 
@@ -1116,7 +1120,7 @@ void MiniProjectTargetSelector::updateDeployListVisible()
 void MiniProjectTargetSelector::updateRunListVisible()
 {
     int maxCount = 0;
-    foreach (Project *p, m_sessionManager->projects())
+    foreach (Project *p, SessionManager::projects())
         foreach (Target *t, p->targets())
             maxCount = qMax(t->runConfigurations().size(), maxCount);
 
@@ -1444,10 +1448,10 @@ void MiniProjectTargetSelector::updateActionAndSummary()
 void MiniProjectTargetSelector::updateSummary()
 {
     QString summary;
-    if (Project *startupProject = m_sessionManager->startupProject()) {
+    if (Project *startupProject = SessionManager::startupProject()) {
         if (!m_projectListWidget->isVisibleTo(this))
             summary.append(tr("Project: <b>%1</b><br/>").arg(startupProject->displayName()));
-        if (Target *activeTarget = m_sessionManager->startupProject()->activeTarget()) {
+        if (Target *activeTarget = startupProject->activeTarget()) {
             if (!m_listWidgets[TARGET]->isVisibleTo(this))
                 summary.append(tr("Kit: <b>%1</b><br/>").arg( activeTarget->displayName()));
             if (!m_listWidgets[BUILD]->isVisibleTo(this) && activeTarget->activeBuildConfiguration())
