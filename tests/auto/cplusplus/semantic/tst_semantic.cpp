@@ -766,7 +766,7 @@ void tst_Semantic::lambda_2()
     QVERIFY(arg);
     const StringLiteral *init = arg->initializer();
     QVERIFY(init);
-    QCOMPARE(init->chars(), " [](){}");
+    QCOMPARE(init->chars(), "[](){}");
 }
 
 
