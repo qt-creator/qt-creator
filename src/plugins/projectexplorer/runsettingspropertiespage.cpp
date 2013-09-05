@@ -436,8 +436,7 @@ void RunSettingsWidget::addDeployConfiguration()
 void RunSettingsWidget::removeDeployConfiguration()
 {
     DeployConfiguration *dc = m_target->activeDeployConfiguration();
-    ProjectExplorer::BuildManager *bm = ProjectExplorerPlugin::instance()->buildManager();
-    if (bm->isBuilding(dc)) {
+    if (BuildManager::isBuilding(dc)) {
         QMessageBox box;
         QPushButton *closeAnyway = box.addButton(tr("Cancel Build && Remove Deploy Configuration"), QMessageBox::AcceptRole);
         QPushButton *cancelClose = box.addButton(tr("Do Not Remove"), QMessageBox::RejectRole);
@@ -448,7 +447,7 @@ void RunSettingsWidget::removeDeployConfiguration()
         box.exec();
         if (box.clickedButton() != closeAnyway)
             return;
-        bm->cancel();
+        BuildManager::cancel();
     } else {
         QMessageBox msgBox(QMessageBox::Question, tr("Remove Deploy Configuration?"),
                            tr("Do you really want to delete deploy configuration <b>%1</b>?").arg(dc->displayName()),

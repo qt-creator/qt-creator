@@ -349,8 +349,7 @@ Qt4Project::Qt4Project(Qt4Manager *manager, const QString& fileName) :
     m_asyncUpdateTimer.setInterval(3000);
     connect(&m_asyncUpdateTimer, SIGNAL(timeout()), this, SLOT(asyncUpdate()));
 
-    connect(ProjectExplorerPlugin::instance()->buildManager(),
-            SIGNAL(buildQueueFinished(bool)),
+    connect(BuildManager::instance(), SIGNAL(buildQueueFinished(bool)),
             SLOT(buildFinished(bool)));
 }
 

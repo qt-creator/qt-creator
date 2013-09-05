@@ -443,8 +443,7 @@ void TargetSettingsPanelWidget::removeTarget()
 
 void TargetSettingsPanelWidget::removeTarget(Target *t)
 {
-    ProjectExplorer::BuildManager *bm = ProjectExplorerPlugin::instance()->buildManager();
-    if (bm->isBuilding(t)) {
+    if (BuildManager::isBuilding(t)) {
         QMessageBox box;
         QPushButton *closeAnyway = box.addButton(tr("Cancel Build && Remove Kit"), QMessageBox::AcceptRole);
         QPushButton *cancelClose = box.addButton(tr("Do Not Remove"), QMessageBox::RejectRole);
@@ -455,7 +454,7 @@ void TargetSettingsPanelWidget::removeTarget(Target *t)
         box.exec();
         if (box.clickedButton() != closeAnyway)
             return;
-        bm->cancel();
+        BuildManager::cancel();
     } else {
         // We don't show the generic message box on removing the target, if we showed the still building one
         int ret = QMessageBox::warning(this, tr("Qt Creator"),

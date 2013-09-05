@@ -172,9 +172,7 @@ bool Project::removeTarget(Target *target)
     if (!target || !d->m_targets.contains(target))
         return false;
 
-    ProjectExplorer::BuildManager *bm =
-            ProjectExplorer::ProjectExplorerPlugin::instance()->buildManager();
-    if (bm->isBuilding(target))
+    if (BuildManager::isBuilding(target))
         return false;
 
     if (target == activeTarget()) {

@@ -257,7 +257,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     mbuild->addAction(command, ProjectExplorer::Constants::G_BUILD_BUILD);
     connect(m_buildFileAction, SIGNAL(triggered()), m_qt4ProjectManager, SLOT(buildFile()));
 
-    connect(m_projectExplorer->buildManager(), SIGNAL(buildStateChanged(ProjectExplorer::Project*)),
+    connect(BuildManager::instance(), SIGNAL(buildStateChanged(ProjectExplorer::Project*)),
             this, SLOT(buildStateChanged(ProjectExplorer::Project*)));
     connect(SessionManager::instance(), SIGNAL(startupProjectChanged(ProjectExplorer::Project*)),
             this, SLOT(startupProjectChanged()));
@@ -333,7 +333,7 @@ void Qt4ProjectManagerPlugin::activeTargetChanged()
 void Qt4ProjectManagerPlugin::updateRunQMakeAction()
 {
     bool enable = true;
-    if (m_projectExplorer->buildManager()->isBuilding(m_projectExplorer->currentProject()))
+    if (BuildManager::isBuilding(m_projectExplorer->currentProject()))
         enable = false;
     Qt4Project *pro = qobject_cast<Qt4Project *>(m_projectExplorer->currentProject());
     if (!pro
@@ -374,7 +374,7 @@ void Qt4ProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node, 
     Qt4BuildConfiguration *buildConfiguration = (qt4Project && qt4Project->activeTarget()) ?
                 static_cast<Qt4BuildConfiguration *>(qt4Project->activeTarget()->activeBuildConfiguration()) : 0;
     bool isProjectNode = qt4Project && proFileNode && buildConfiguration;
-    bool isBuilding = m_projectExplorer->buildManager()->isBuilding(project);
+    bool isBuilding = BuildManager::isBuilding(project);
     bool enabled = subProjectActionsVisible && !isBuilding;
 
     m_buildSubProjectAction->setVisible(subProjectActionsVisible);
@@ -424,7 +424,7 @@ void Qt4ProjectManagerPlugin::updateBuildFileAction()
                 && node
                 && qobject_cast<Qt4ProFileNode *>(node->projectNode());
 
-        enabled = !m_projectExplorer->buildManager()->isBuilding(project);
+        enabled = !BuildManager::isBuilding(project);
     }
     m_buildFileAction->setVisible(visible);
     m_buildFileAction->setEnabled(enabled);

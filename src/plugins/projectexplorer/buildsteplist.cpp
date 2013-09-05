@@ -184,10 +184,8 @@ void BuildStepList::insertStep(int position, BuildStep *step)
 
 bool BuildStepList::removeStep(int position)
 {
-    ProjectExplorer::BuildManager *bm =
-            ProjectExplorer::ProjectExplorerPlugin::instance()->buildManager();
     BuildStep *bs = at(position);
-    if (bm->isBuilding(bs))
+    if (BuildManager::isBuilding(bs))
         return false;
 
     emit aboutToRemoveStep(position);

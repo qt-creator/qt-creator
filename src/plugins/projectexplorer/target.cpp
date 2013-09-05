@@ -248,9 +248,7 @@ bool Target::removeBuildConfiguration(BuildConfiguration *configuration)
     if (!d->m_buildConfigurations.contains(configuration))
         return false;
 
-    ProjectExplorer::BuildManager *bm =
-            ProjectExplorer::ProjectExplorerPlugin::instance()->buildManager();
-    if (bm->isBuilding(configuration))
+    if (BuildManager::isBuilding(configuration))
         return false;
 
     d->m_buildConfigurations.removeOne(configuration);
@@ -325,9 +323,7 @@ bool Target::removeDeployConfiguration(DeployConfiguration *dc)
     if (!d->m_deployConfigurations.contains(dc))
         return false;
 
-    ProjectExplorer::BuildManager *bm =
-            ProjectExplorer::ProjectExplorerPlugin::instance()->buildManager();
-    if (bm->isBuilding(dc))
+    if (BuildManager::isBuilding(dc))
         return false;
 
     d->m_deployConfigurations.removeOne(dc);

@@ -357,8 +357,7 @@ void BuildSettingsWidget::deleteConfiguration(BuildConfiguration *deleteConfigur
         m_target->buildConfigurations().size() <= 1)
         return;
 
-    ProjectExplorer::BuildManager *bm = ProjectExplorerPlugin::instance()->buildManager();
-    if (bm->isBuilding(deleteConfiguration)) {
+    if (BuildManager::isBuilding(deleteConfiguration)) {
         QMessageBox box;
         QPushButton *closeAnyway = box.addButton(tr("Cancel Build && Remove Build Configuration"), QMessageBox::AcceptRole);
         QPushButton *cancelClose = box.addButton(tr("Do Not Remove"), QMessageBox::RejectRole);
@@ -369,7 +368,7 @@ void BuildSettingsWidget::deleteConfiguration(BuildConfiguration *deleteConfigur
         box.exec();
         if (box.clickedButton() != closeAnyway)
             return;
-        bm->cancel();
+        BuildManager::cancel();
     } else {
         QMessageBox msgBox(QMessageBox::Question, tr("Remove Build Configuration?"),
                            tr("Do you really want to delete build configuration <b>%1</b>?").arg(deleteConfiguration->displayName()),

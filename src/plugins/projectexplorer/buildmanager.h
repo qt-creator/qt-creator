@@ -37,11 +37,9 @@
 #include <QStringList>
 
 namespace ProjectExplorer {
-class Task;
-class ProjectExplorerPlugin;
-class Project;
 
-struct BuildManagerPrivate;
+class Task;
+class Project;
 
 class PROJECTEXPLORER_EXPORT BuildManager : public QObject
 {
@@ -49,35 +47,35 @@ class PROJECTEXPLORER_EXPORT BuildManager : public QObject
 
 public:
     explicit BuildManager(QObject *parent, QAction *cancelBuildAction);
-    virtual ~BuildManager();
+    ~BuildManager();
+    static QObject *instance();
 
-    void extensionsInitialized();
+    static void extensionsInitialized();
 
-    bool isBuilding() const;
+    static bool isBuilding();
+    static bool tasksAvailable();
 
-    bool tasksAvailable() const;
-
-    bool buildLists(QList<BuildStepList *> bsls, const QStringList &stepListNames,
+    static bool buildLists(QList<BuildStepList *> bsls, const QStringList &stepListNames,
                     const QStringList &preambelMessage = QStringList());
-    bool buildList(BuildStepList *bsl, const QString &stepListName);
+    static bool buildList(BuildStepList *bsl, const QString &stepListName);
 
-    bool isBuilding(Project *p);
-    bool isBuilding(Target *t);
-    bool isBuilding(ProjectConfiguration *p);
-    bool isBuilding(BuildStep *step);
+    static bool isBuilding(Project *p);
+    static bool isBuilding(Target *t);
+    static bool isBuilding(ProjectConfiguration *p);
+    static bool isBuilding(BuildStep *step);
 
     // Append any build step to the list of build steps (currently only used to add the QMakeStep)
-    void appendStep(BuildStep *step, const QString &name);
+    static void appendStep(BuildStep *step, const QString &name);
 
-    int getErrorTaskCount() const;
+    static int getErrorTaskCount();
 
 public slots:
-    void cancel();
+    static void cancel();
     // Shows without focus
-    void showTaskWindow();
-    void toggleTaskWindow();
-    void toggleOutputWindow();
-    void aboutToRemoveProject(ProjectExplorer::Project *p);
+    static void showTaskWindow();
+    static void toggleTaskWindow();
+    static void toggleOutputWindow();
+    static void aboutToRemoveProject(ProjectExplorer::Project *p);
 
 signals:
     void buildStateChanged(ProjectExplorer::Project *pro);
@@ -87,30 +85,29 @@ signals:
     void tasksCleared();
 
 private slots:
-    void addToTaskWindow(const ProjectExplorer::Task &task);
-    void addToOutputWindow(const QString &string, ProjectExplorer::BuildStep::OutputFormat,
+    static void addToTaskWindow(const ProjectExplorer::Task &task);
+    static void addToOutputWindow(const QString &string, ProjectExplorer::BuildStep::OutputFormat,
         ProjectExplorer::BuildStep::OutputNewlineSetting = BuildStep::DoAppendNewline);
 
-    void buildStepFinishedAsync();
-    void nextBuildQueue();
-    void progressChanged();
-    void progressTextChanged();
-    void emitCancelMessage();
-    void showBuildResults();
-    void updateTaskCount();
-    void finish();
+    static void buildStepFinishedAsync();
+    static void nextBuildQueue();
+    static void progressChanged();
+    static void progressTextChanged();
+    static void emitCancelMessage();
+    static void showBuildResults();
+    static void updateTaskCount();
+    static void finish();
 
 private:
-    void startBuildQueue(const QStringList &preambleMessage = QStringList());
-    void nextStep();
-    void clearBuildQueue();
-    bool buildQueueAppend(QList<BuildStep *> steps, QStringList names);
-    void incrementActiveBuildSteps(BuildStep *bs);
-    void decrementActiveBuildSteps(BuildStep *bs);
-    void disconnectOutput(BuildStep *bs);
-
-    BuildManagerPrivate *d;
+    static void startBuildQueue(const QStringList &preambleMessage = QStringList());
+    static void nextStep();
+    static void clearBuildQueue();
+    static bool buildQueueAppend(QList<BuildStep *> steps, QStringList names);
+    static void incrementActiveBuildSteps(BuildStep *bs);
+    static void decrementActiveBuildSteps(BuildStep *bs);
+    static void disconnectOutput(BuildStep *bs);
 };
+
 } // namespace ProjectExplorer
 
 #endif // BUILDMANAGER_H

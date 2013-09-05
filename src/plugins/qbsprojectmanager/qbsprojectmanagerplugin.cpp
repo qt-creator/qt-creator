@@ -172,7 +172,7 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     connect(m_projectExplorer, SIGNAL(currentNodeChanged(ProjectExplorer::Node*,ProjectExplorer::Project*)),
             this, SLOT(updateContextActions(ProjectExplorer::Node*,ProjectExplorer::Project*)));
 
-    connect(m_projectExplorer->buildManager(), SIGNAL(buildStateChanged(ProjectExplorer::Project*)),
+    connect(BuildManager::instance(), SIGNAL(buildStateChanged(ProjectExplorer::Project*)),
             this, SLOT(buildStateChanged(ProjectExplorer::Project*)));
 
     connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
@@ -213,7 +213,7 @@ void QbsProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node, 
 
     activeTargetChanged();
 
-    bool isBuilding = m_projectExplorer->buildManager()->isBuilding(project);
+    bool isBuilding = BuildManager::isBuilding(project);
     bool isFile = m_currentProject && node && (node->nodeType() == ProjectExplorer::FileNodeType);
     bool isProduct = m_currentProject && node && qobject_cast<QbsProductNode *>(node->projectNode());
     bool isFileEnabled = isFile && node->isEnabled();
@@ -226,7 +226,7 @@ void QbsProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node, 
 void QbsProjectManagerPlugin::updateReparseQbsAction()
 {
     m_reparseQbs->setEnabled(m_currentProject
-                             && !m_projectExplorer->buildManager()->isBuilding(m_currentProject)
+                             && !BuildManager::isBuilding(m_currentProject)
                              && !m_currentProject->isParsing());
 }
 
@@ -246,7 +246,7 @@ void QbsProjectManagerPlugin::updateBuildActions()
 
         m_buildFile->setParameter(QFileInfo(file).fileName());
         fileVisible = project && node && qobject_cast<QbsBaseProjectNode *>(node->projectNode());
-        fileEnabled = !m_projectExplorer->buildManager()->isBuilding(project)
+        fileEnabled = !BuildManager::isBuilding(project)
                 && m_currentProject && !m_currentProject->isParsing();
 
         if (QbsProductNode *productNode
@@ -357,18 +357,17 @@ void QbsProjectManagerPlugin::buildFiles(QbsProject *project, const QStringList 
     if (!bc)
         return;
 
-    ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
-    if (!pe->saveModifiedFiles())
+    if (!ProjectExplorerPlugin::instance()->saveModifiedFiles())
         return;
 
     bc->setChangedFiles(files);
     bc->setActiveFileTags(activeFileTags);
     bc->setProducts(QStringList());
 
-    const Core::Id buildStep = Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    const Core::Id buildStep = ProjectExplorer::Constants::BUILDSTEPS_BUILD;
 
     const QString name = ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(buildStep);
-    pe->buildManager()->buildList(bc->stepList(buildStep), name);
+    BuildManager::buildList(bc->stepList(buildStep), name);
 
     bc->setChangedFiles(QStringList());
 }
@@ -391,17 +390,16 @@ void QbsProjectManagerPlugin::buildProducts(QbsProject *project, const QStringLi
     if (!bc)
         return;
 
-    ProjectExplorer::ProjectExplorerPlugin *pe = ProjectExplorer::ProjectExplorerPlugin::instance();
-    if (!pe->saveModifiedFiles())
+    if (!ProjectExplorerPlugin::instance()->saveModifiedFiles())
         return;
 
     bc->setChangedFiles(QStringList());
     bc->setProducts(products);
 
-    const Core::Id buildStep = Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    const Core::Id buildStep = ProjectExplorer::Constants::BUILDSTEPS_BUILD;
 
-    const QString name = ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(buildStep);
-    pe->buildManager()->buildList(bc->stepList(buildStep), name);
+    const QString name = ProjectExplorerPlugin::displayNameForStepId(buildStep);
+    BuildManager::buildList(bc->stepList(buildStep), name);
 
     bc->setProducts(QStringList());
 }

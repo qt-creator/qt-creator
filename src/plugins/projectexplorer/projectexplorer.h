@@ -49,7 +49,6 @@ class Id;
 }
 
 namespace ProjectExplorer {
-class BuildManager;
 class RunControl;
 class RunConfiguration;
 class IRunControlFactory;
@@ -85,8 +84,6 @@ public:
 
     void setCurrentFile(Project *project, const QString &file);
     void setCurrentNode(Node *node);
-
-    BuildManager *buildManager() const;
 
     bool saveModifiedFiles();
 

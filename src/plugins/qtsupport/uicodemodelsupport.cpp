@@ -47,6 +47,7 @@
 
 enum { debug = 0 };
 
+using namespace ProjectExplorer;
 using namespace CPlusPlus;
 
 // Test for form editor (loosely coupled)
@@ -310,11 +311,9 @@ UiCodeModelManager::UiCodeModelManager() :
     m_dirty(false)
 {
     m_instance = this;
-    ProjectExplorer::BuildManager *bm
-            = ProjectExplorer::ProjectExplorerPlugin::instance()->buildManager();
-    connect(bm, SIGNAL(buildStateChanged(ProjectExplorer::Project*)),
+    connect(BuildManager::instance(), SIGNAL(buildStateChanged(ProjectExplorer::Project*)),
             this, SLOT(buildStateHasChanged(ProjectExplorer::Project*)));
-    connect(ProjectExplorer::SessionManager::instance(),
+    connect(SessionManager::instance(),
             SIGNAL(projectRemoved(ProjectExplorer::Project*)),
             this, SLOT(projectWasRemoved(ProjectExplorer::Project*)));
 
@@ -370,7 +369,7 @@ void UiCodeModelManager::update(ProjectExplorer::Project *project, QHash<QString
 
 void UiCodeModelManager::updateContents(const QString &uiFileName, const QString &contents)
 {
-    QHash<ProjectExplorer::Project *, QList<UiCodeModelSupport *> >::iterator i;
+    QHash<Project *, QList<UiCodeModelSupport *> >::iterator i;
     for (i = m_instance->m_projectUiSupport.begin();
          i != m_instance->m_projectUiSupport.end(); ++i) {
         foreach (UiCodeModelSupport *support, i.value()) {
@@ -380,9 +379,9 @@ void UiCodeModelManager::updateContents(const QString &uiFileName, const QString
     }
 }
 
-void UiCodeModelManager::buildStateHasChanged(ProjectExplorer::Project *project)
+void UiCodeModelManager::buildStateHasChanged(Project *project)
 {
-    if (ProjectExplorer::ProjectExplorerPlugin::instance()->buildManager()->isBuilding(project))
+    if (BuildManager::isBuilding(project))
         return;
 
     QList<UiCodeModelSupport *> projectSupport = m_projectUiSupport.value(project);
@@ -390,7 +389,7 @@ void UiCodeModelManager::buildStateHasChanged(ProjectExplorer::Project *project)
         i->updateFromBuild();
 }
 
-void UiCodeModelManager::projectWasRemoved(ProjectExplorer::Project *project)
+void UiCodeModelManager::projectWasRemoved(Project *project)
 {
     CppTools::CppModelManagerInterface *mm = CppTools::CppModelManagerInterface::instance();
 

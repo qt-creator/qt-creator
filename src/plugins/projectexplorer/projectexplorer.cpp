@@ -215,8 +215,6 @@ struct ProjectExplorerPluginPrivate {
     Context m_lastProjectContext;
     Node *m_currentNode;
 
-    BuildManager *m_buildManager;
-
     QList<Internal::ProjectFileFactory*> m_fileFactories;
     QStringList m_profileMimeTypes;
     Internal::AppOutputPane *m_outputPane;
@@ -971,10 +969,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(this, SIGNAL(updateRunActions()), this, SLOT(slotUpdateRunActions()));
     connect(this, SIGNAL(settingsChanged()), this, SLOT(updateRunWithoutDeployMenu()));
 
-    d->m_buildManager = new BuildManager(this, d->m_cancelBuildAction);
-    connect(d->m_buildManager, SIGNAL(buildStateChanged(ProjectExplorer::Project*)),
+    QObject *buildManager = new BuildManager(this, d->m_cancelBuildAction);
+    connect(buildManager, SIGNAL(buildStateChanged(ProjectExplorer::Project*)),
             this, SLOT(buildStateChanged(ProjectExplorer::Project*)));
-    connect(d->m_buildManager, SIGNAL(buildQueueFinished(bool)),
+    connect(buildManager, SIGNAL(buildQueueFinished(bool)),
             this, SLOT(buildQueueFinished(bool)));
 
     updateActions();
@@ -1036,7 +1034,7 @@ void ProjectExplorerPlugin::unloadProject()
     if (debug)
         qDebug() << "ProjectExplorerPlugin::unloadProject";
 
-    if (buildManager()->isBuilding(d->m_currentProject)) {
+    if (BuildManager::isBuilding(d->m_currentProject)) {
         QMessageBox box;
         QPushButton *closeAnyway = box.addButton(tr("Cancel Build && Unload"), QMessageBox::AcceptRole);
         QPushButton *cancelClose = box.addButton(tr("Do Not Unload"), QMessageBox::RejectRole);
@@ -1047,7 +1045,7 @@ void ProjectExplorerPlugin::unloadProject()
         box.exec();
         if (box.clickedButton() != closeAnyway)
             return;
-        buildManager()->cancel();
+        BuildManager::cancel();
     }
 
     IDocument *document = d->m_currentProject->document();
@@ -1098,7 +1096,7 @@ void ProjectExplorerPlugin::extensionsInitialized()
         d->m_profileMimeTypes += pf->mimeTypes();
         addAutoReleasedObject(pf);
     }
-    d->m_buildManager->extensionsInitialized();
+    BuildManager::extensionsInitialized();
 
     DeviceManager::instance()->addDevice(IDevice::Ptr(new DesktopDevice));
     DeviceManager::instance()->load();
@@ -1630,16 +1628,11 @@ void ProjectExplorerPlugin::showContextMenu(QWidget *view, const QPoint &globalP
         contextMenu->popup(globalPos);
 }
 
-BuildManager *ProjectExplorerPlugin::buildManager() const
-{
-    return d->m_buildManager;
-}
-
 void ProjectExplorerPlugin::buildStateChanged(Project * pro)
 {
     if (debug) {
         qDebug() << "buildStateChanged";
-        qDebug() << pro->document()->filePath() << "isBuilding()" << d->m_buildManager->isBuilding(pro);
+        qDebug() << pro->document()->filePath() << "isBuilding()" << BuildManager::isBuilding(pro);
     }
     Q_UNUSED(pro)
     updateActions();
@@ -1704,7 +1697,7 @@ void ProjectExplorerPlugin::buildQueueFinished(bool success)
     updateActions();
 
     bool ignoreErrors = true;
-    if (d->m_delayedRunConfiguration && success && d->m_buildManager->getErrorTaskCount() > 0) {
+    if (d->m_delayedRunConfiguration && success && BuildManager::getErrorTaskCount() > 0) {
         ignoreErrors = QMessageBox::question(ICore::mainWindow(),
                                              tr("Ignore all errors?"),
                                              tr("Found some build errors in current task.\n"
@@ -1716,8 +1709,8 @@ void ProjectExplorerPlugin::buildQueueFinished(bool success)
     if (success && ignoreErrors && d->m_delayedRunConfiguration) {
         executeRunConfiguration(d->m_delayedRunConfiguration, d->m_runMode);
     } else {
-        if (d->m_buildManager->tasksAvailable())
-            d->m_buildManager->showTaskWindow();
+        if (BuildManager::tasksAvailable())
+            BuildManager::showTaskWindow();
     }
     d->m_delayedRunConfiguration = 0;
     d->m_runMode = NoRunMode;
@@ -1894,7 +1887,7 @@ void ProjectExplorerPlugin::updateActions()
     d->m_rebuildSessionAction->setToolTip(buildSessionState.second);
     d->m_cleanSessionAction->setToolTip(buildSessionState.second);
 
-    d->m_cancelBuildAction->setEnabled(d->m_buildManager->isBuilding());
+    d->m_cancelBuildAction->setEnabled(BuildManager::isBuilding());
 
     bool canPublish = false;
     if (project) {
@@ -2028,7 +2021,7 @@ int ProjectExplorerPlugin::queue(QList<Project *> projects, QList<Id> stepIds)
     if (stepLists.isEmpty())
         return 0;
 
-    if (!d->m_buildManager->buildLists(stepLists, names, preambleMessage))
+    if (!BuildManager::buildLists(stepLists, names, preambleMessage))
         return -1;
     return stepLists.count();
 }
@@ -2178,7 +2171,7 @@ QPair<bool, QString> ProjectExplorerPlugin::buildSettingsEnabled(Project *pro)
     if (!pro) {
         result.first = false;
         result.second = tr("No project loaded.");
-    } else if (d->m_buildManager->isBuilding(pro)) {
+    } else if (BuildManager::isBuilding(pro)) {
         result.first = false;
         result.second = tr("Currently building the active project.");
     } else if (pro->needsConfiguration()) {
@@ -2211,7 +2204,7 @@ QPair<bool, QString> ProjectExplorerPlugin::buildSettingsEnabledForSession()
     if (!SessionManager::hasProjects()) {
         result.first = false;
         result.second = tr("No project loaded");
-    } else if (d->m_buildManager->isBuilding()) {
+    } else if (BuildManager::isBuilding()) {
         result.first = false;
         result.second = tr("A build is in progress");
     } else if (!hasBuildSettings(0)) {
@@ -2235,7 +2228,7 @@ QPair<bool, QString> ProjectExplorerPlugin::buildSettingsEnabledForSession()
 
 bool ProjectExplorerPlugin::coreAboutToClose()
 {
-    if (d->m_buildManager->isBuilding()) {
+    if (BuildManager::isBuilding()) {
         QMessageBox box;
         QPushButton *closeAnyway = box.addButton(tr("Cancel Build && Close"), QMessageBox::AcceptRole);
         QPushButton *cancelClose = box.addButton(tr("Do Not Close"), QMessageBox::RejectRole);
@@ -2414,10 +2407,10 @@ void ProjectExplorerPlugin::updateDeployActions()
     Project *project = SessionManager::startupProject();
 
     bool enableDeployActions = project
-            && ! (d->m_buildManager->isBuilding(project))
+            && BuildManager::isBuilding(project)
             && hasDeploySettings(project);
     bool enableDeployActionsContextMenu = d->m_currentProject
-                              && ! (d->m_buildManager->isBuilding(d->m_currentProject))
+                              && !BuildManager::isBuilding(d->m_currentProject)
                               && hasDeploySettings(d->m_currentProject);
 
     if (d->m_projectExplorerSettings.buildBeforeDeploy) {
@@ -2451,9 +2444,7 @@ void ProjectExplorerPlugin::updateDeployActions()
             }
         }
     }
-    if (!hasProjects
-            || !hasDeploySettings(0)
-            || d->m_buildManager->isBuilding())
+    if (!hasProjects || !hasDeploySettings(0) || BuildManager::isBuilding())
         enableDeploySessionAction = false;
     d->m_deploySessionAction->setEnabled(enableDeploySessionAction);
 
@@ -2479,8 +2470,7 @@ bool ProjectExplorerPlugin::canRun(Project *project, RunMode runMode)
 
     bool canRun = findRunControlFactory(activeRC, runMode)
                   && activeRC->isEnabled();
-    const bool building = d->m_buildManager->isBuilding();
-    return (canRun && !building);
+    return canRun && !BuildManager::isBuilding();
 }
 
 QString ProjectExplorerPlugin::cannotRunReason(Project *project, RunMode runMode)
@@ -2516,8 +2506,7 @@ QString ProjectExplorerPlugin::cannotRunReason(Project *project, RunMode runMode
     if (!findRunControlFactory(activeRC, runMode))
         return tr("Cannot run '%1'.").arg(activeRC->displayName());
 
-
-    if (d->m_buildManager->isBuilding())
+    if (BuildManager::isBuilding())
         return tr("A build is still in progress.");
     return QString();
 }
@@ -2536,8 +2525,8 @@ void ProjectExplorerPlugin::cancelBuild()
     if (debug)
         qDebug() << "ProjectExplorerPlugin::cancelBuild";
 
-    if (d->m_buildManager->isBuilding())
-        d->m_buildManager->cancel();
+    if (BuildManager::isBuilding())
+        BuildManager::cancel();
 }
 
 void ProjectExplorerPlugin::addToRecentProjects(const QString &fileName, const QString &displayName)

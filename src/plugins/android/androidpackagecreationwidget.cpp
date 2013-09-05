@@ -55,6 +55,7 @@
 namespace Android {
 namespace Internal {
 
+using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
 
 ///////////////////////////// CheckModel /////////////////////////////
@@ -251,10 +252,9 @@ void AndroidPackageCreationWidget::setTargetSDK(const QString &sdk)
 
     qs->setForced(true);
 
-    ProjectExplorer::BuildManager *bm = ProjectExplorer::ProjectExplorerPlugin::instance()->buildManager();
-    bm->buildList(bc->stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)),
-                  ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)));
-    bm->appendStep(qs, ProjectExplorer::ProjectExplorerPlugin::displayNameForStepId(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_CLEAN)));
+    BuildManager::buildList(bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN),
+                  ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
+    BuildManager::appendStep(qs, ProjectExplorerPlugin::displayNameForStepId(ProjectExplorer::Constants::BUILDSTEPS_CLEAN));
     bc->setSubNodeBuild(0);
     // Make the buildconfiguration emit a evironmentChanged() signal
     // TODO find a better way
