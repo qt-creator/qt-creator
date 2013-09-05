@@ -9,6 +9,7 @@ Project {
     property string ide_compat_version_minor: '8'
     property string ide_compat_version_release: '81'
     property string qtcreator_compat_version: ide_compat_version_major + '.' + ide_compat_version_minor + '.' + ide_compat_version_release
+    property path ide_source_tree: path
     property string ide_app_path: qbs.targetOS.contains("osx") ? "" : "bin"
     property string ide_app_target: qbs.targetOS.contains("osx") ? "Qt Creator" : "qtcreator"
     property string ide_library_path: {
