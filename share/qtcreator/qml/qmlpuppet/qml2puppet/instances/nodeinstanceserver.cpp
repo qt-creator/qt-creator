@@ -413,8 +413,7 @@ void NodeInstanceServer::setupDummyData(const QUrl &fileUrl)
 void NodeInstanceServer::setupDefaultDummyData()
 {
     QQmlComponent component(engine());
-    QByteArray defaultContextObjectArray("import QtQuick 1.0\n"
-                                         "import QmlDesigner 1.0\n"
+    QByteArray defaultContextObjectArray("import QmlDesigner 1.0\n"
                                          "DummyContextObject {\n"
                                          "    parent: QtObject {\n"
                                          "        property real width: 360\n"
