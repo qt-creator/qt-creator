@@ -36,9 +36,7 @@
 
 namespace Locator {
 
-namespace Internal {
-class LocatorWidget;
-}
+namespace Internal { class LocatorWidget; }
 
 class LOCATOR_EXPORT LocatorManager : public QObject
 {
@@ -48,13 +46,7 @@ public:
     LocatorManager(Internal::LocatorWidget *locatorWidget);
     ~LocatorManager();
 
-    static LocatorManager *instance() { return m_instance; }
-
-    void show(const QString &text, int selectionStart = -1, int selectionLength = 0);
-
-private:
-    Internal::LocatorWidget *m_locatorWidget;
-    static LocatorManager *m_instance;
+    static void show(const QString &text, int selectionStart = -1, int selectionLength = 0);
 };
 
 } // namespace Locator

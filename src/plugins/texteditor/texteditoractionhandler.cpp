@@ -448,13 +448,11 @@ void TextEditorActionHandler::updateCopyAction()
 
 void TextEditorActionHandler::gotoAction()
 {
-    Locator::LocatorManager *locatorManager = Locator::LocatorManager::instance();
-    QTC_ASSERT(locatorManager, return);
     QString locatorString = TextEditorPlugin::instance()->lineNumberFilter()->shortcutString();
     locatorString += QLatin1Char(' ');
     const int selectionStart = locatorString.size();
     locatorString += tr("<line>:<column>");
-    locatorManager->show(locatorString, selectionStart, locatorString.size() - selectionStart);
+    Locator::LocatorManager::show(locatorString, selectionStart, locatorString.size() - selectionStart);
 }
 
 void TextEditorActionHandler::printAction()

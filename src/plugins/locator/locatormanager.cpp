@@ -33,27 +33,26 @@
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
-using namespace Locator;
-using namespace Locator::Internal;
+namespace Locator {
 
-LocatorManager *LocatorManager::m_instance = 0;
+static Internal::LocatorWidget *m_locatorWidget = 0;
 
-LocatorManager::LocatorManager(LocatorWidget *locatorWidget)
-  : QObject(locatorWidget),
-    m_locatorWidget(locatorWidget)
+LocatorManager::LocatorManager(Internal::LocatorWidget *locatorWidget)
+  : QObject(locatorWidget)
 {
-    m_instance = this;
+    m_locatorWidget = locatorWidget;
 }
 
 LocatorManager::~LocatorManager()
 {
     ExtensionSystem::PluginManager::removeObject(this);
-    m_instance = 0;
 }
 
 void LocatorManager::show(const QString &text,
-                            int selectionStart, int selectionLength)
+                          int selectionStart, int selectionLength)
 {
     QTC_ASSERT(m_locatorWidget, return);
     m_locatorWidget->show(text, selectionStart, selectionLength);
 }
+
+} // namespace Internal
