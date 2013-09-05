@@ -32,8 +32,6 @@
 
 #include <QWidget>
 
-QT_FORWARD_DECLARE_CLASS(QLabel)
-
 namespace HelloWorld {
 namespace Internal {
 
