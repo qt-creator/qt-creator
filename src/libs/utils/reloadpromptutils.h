@@ -39,10 +39,20 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
-enum ReloadPromptAnswer { ReloadCurrent, ReloadAll, ReloadSkipCurrent, ReloadNone, CloseCurrent };
+enum ReloadPromptAnswer {
+    ReloadCurrent,
+    ReloadAll,
+    ReloadSkipCurrent,
+    ReloadNone,
+    CloseCurrent
+};
 
-QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &fileName, bool modified, QWidget *parent);
-QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &title, const QString &prompt, const QString &details, QWidget *parent);
+QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &fileName,
+                                                       bool modified,
+                                                       QWidget *parent);
+QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &title,
+                                                       const QString &prompt,
+                                                       const QString &details, QWidget *parent);
 
 enum FileDeletedPromptAnswer {
     FileDeletedClose,
@@ -51,7 +61,9 @@ enum FileDeletedPromptAnswer {
     FileDeletedSave
 };
 
-QTCREATOR_UTILS_EXPORT FileDeletedPromptAnswer fileDeletedPrompt(const QString &fileName, bool triggerExternally, QWidget *parent);
+QTCREATOR_UTILS_EXPORT FileDeletedPromptAnswer fileDeletedPrompt(const QString &fileName,
+                                                                 bool triggerExternally,
+                                                                 QWidget *parent);
 
 } // namespace Utils
 

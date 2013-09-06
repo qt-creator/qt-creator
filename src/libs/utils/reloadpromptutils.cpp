@@ -36,28 +36,34 @@
 
 using namespace Utils;
 
-QTCREATOR_UTILS_EXPORT Utils::ReloadPromptAnswer
-    Utils::reloadPrompt(const QString &fileName, bool modified, QWidget *parent)
+QTCREATOR_UTILS_EXPORT Utils::ReloadPromptAnswer Utils::reloadPrompt(const QString &fileName,
+                                                                     bool modified,
+                                                                     QWidget *parent)
 {
 
     const QString title = QCoreApplication::translate("Utils::reloadPrompt", "File Changed");
     QString msg;
 
-    if (modified)
+    if (modified) {
         msg = QCoreApplication::translate("Utils::reloadPrompt",
-                                          "The unsaved file <i>%1</i> has been changed outside Qt Creator. Do you want to reload it and discard your changes?");
-    else
+                "The unsaved file <i>%1</i> has changed outside Qt Creator. "
+                "Do you want to reload it and discard your changes?");
+    } else {
         msg = QCoreApplication::translate("Utils::reloadPrompt",
-                                          "The file <i>%1</i> has changed outside Qt Creator. Do you want to reload it?");
+                "The file <i>%1</i> has changed outside Qt Creator. Do you want to reload it?");
+    }
     msg = msg.arg(QFileInfo(fileName).fileName());
     return reloadPrompt(title, msg, QDir::toNativeSeparators(fileName), parent);
 }
 
-QTCREATOR_UTILS_EXPORT Utils::ReloadPromptAnswer
-    Utils::reloadPrompt(const QString &title, const QString &prompt, const QString &details, QWidget *parent)
+QTCREATOR_UTILS_EXPORT Utils::ReloadPromptAnswer Utils::reloadPrompt(const QString &title,
+                                                                     const QString &prompt,
+                                                                     const QString &details,
+                                                                     QWidget *parent)
 {
     QMessageBox msg(parent);
-    msg.setStandardButtons(QMessageBox::Yes|QMessageBox::YesToAll|QMessageBox::Close|QMessageBox::No|QMessageBox::NoToAll);
+    msg.setStandardButtons(QMessageBox::Yes | QMessageBox::YesToAll | QMessageBox::Close
+                           | QMessageBox::No | QMessageBox::NoToAll);
     msg.setDefaultButton(QMessageBox::YesToAll);
     msg.setWindowTitle(title);
     msg.setText(prompt);
@@ -81,19 +87,33 @@ QTCREATOR_UTILS_EXPORT Utils::ReloadPromptAnswer
 QTCREATOR_UTILS_EXPORT Utils::FileDeletedPromptAnswer
         Utils::fileDeletedPrompt(const QString &fileName, bool triggerExternally, QWidget *parent)
 {
-    const QString title = QCoreApplication::translate("Utils::fileDeletedPrompt", "File has been removed");
+    const QString title = QCoreApplication::translate("Utils::fileDeletedPrompt",
+                                                      "File has been removed");
     QString msg;
-    if (triggerExternally)
+    if (triggerExternally) {
         msg = QCoreApplication::translate("Utils::fileDeletedPrompt",
-                                          "The file %1 has been removed outside Qt Creator. Do you want to save it under a different name, or close the editor?").arg(QDir::toNativeSeparators(fileName));
-    else
+                                          "The file %1 has been removed outside Qt Creator. "
+                                          "Do you want to save it under a different name, or close "
+                                          "the editor?").arg(QDir::toNativeSeparators(fileName));
+    } else {
         msg = QCoreApplication::translate("Utils::fileDeletedPrompt",
-                                          "The file %1 was removed. Do you want to save it under a different name, or close the editor?").arg(QDir::toNativeSeparators(fileName));
+                                          "The file %1 was removed. "
+                                          "Do you want to save it under a different name, or close "
+                                          "the editor?").arg(QDir::toNativeSeparators(fileName));
+    }
     QMessageBox box(QMessageBox::Question, title, msg, QMessageBox::NoButton, parent);
-    QPushButton *close = box.addButton(QCoreApplication::translate("Utils::fileDeletedPrompt", "&Close"), QMessageBox::RejectRole);
-    QPushButton *closeAll = box.addButton(QCoreApplication::translate("Utils::fileDeletedPrompt", "C&lose All"), QMessageBox::RejectRole);
-    QPushButton *saveas = box.addButton(QCoreApplication::translate("Utils::fileDeletedPrompt", "Save &as..."), QMessageBox::ActionRole);
-    QPushButton *save = box.addButton(QCoreApplication::translate("Utils::fileDeletedPrompt", "&Save"), QMessageBox::AcceptRole);
+    QPushButton *close =
+            box.addButton(QCoreApplication::translate("Utils::fileDeletedPrompt", "&Close"),
+                          QMessageBox::RejectRole);
+    QPushButton *closeAll =
+            box.addButton(QCoreApplication::translate("Utils::fileDeletedPrompt", "C&lose All"),
+                          QMessageBox::RejectRole);
+    QPushButton *saveas =
+            box.addButton(QCoreApplication::translate("Utils::fileDeletedPrompt", "Save &as..."),
+                          QMessageBox::ActionRole);
+    QPushButton *save =
+            box.addButton(QCoreApplication::translate("Utils::fileDeletedPrompt", "&Save"),
+                          QMessageBox::AcceptRole);
     box.setDefaultButton(saveas);
     box.exec();
     QAbstractButton *clickedbutton = box.clickedButton();
