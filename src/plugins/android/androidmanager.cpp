@@ -914,7 +914,9 @@ QString AndroidManager::loadLocal(ProjectExplorer::Target *target, int apiLevel,
                 while (!libElement.isNull()) {
                     if (libElement.attribute(QLatin1String("bundling")).toInt() == (item == BundledJar ? 1 : 0)) {
                         if (libElement.hasAttribute(attribute)) {
-                            QString dependencyLib = libElement.attribute(attribute).arg(apiLevel);
+                            QString dependencyLib = libElement.attribute(attribute);
+                            if (dependencyLib.contains(QLatin1String("%1")))
+                                dependencyLib = dependencyLib.arg(apiLevel);
                             if (libElement.hasAttribute(QLatin1String("extends"))) {
                                 const QString extends = libElement.attribute(QLatin1String("extends"));
                                 if (libs.contains(extends)) {
@@ -926,7 +928,9 @@ QString AndroidManager::loadLocal(ProjectExplorer::Target *target, int apiLevel,
                         }
 
                         if (libElement.hasAttribute(QLatin1String("replaces"))) {
-                            QString replacedLib = libElement.attribute(QLatin1String("replaces")).arg(apiLevel);
+                            QString replacedLib = libElement.attribute(QLatin1String("replaces"));
+                            if (replacedLib.contains(QLatin1String("%1")))
+                                replacedLib = replacedLib.arg(apiLevel);
                             if (!replacedLibs.contains(replacedLib))
                                 replacedLibs << replacedLib;
                         }
