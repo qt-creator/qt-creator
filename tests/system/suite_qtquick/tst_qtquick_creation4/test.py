@@ -33,13 +33,16 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    # using a temporary directory won't mess up a potentially existing
-    createNewQmlExtension(tempDir())
-    # wait for parsing to complete
-    progressBarWait(30000)
-    test.log("Building project")
-    invokeMenuItem("Build","Build All")
-    waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)")
-    checkCompile()
-    checkLastBuild()
+    for targ, quickVer in {Targets.DESKTOP_480_GCC:1, Targets.DESKTOP_501_DEFAULT:2}.items():
+        # using a temporary directory won't mess up a potentially existing
+        createNewQmlExtension(tempDir(), targ, quickVer)
+        # wait for parsing to complete
+        progressBarWait(30000)
+        test.log("Building project Qt Quick %d Extension Plugin (%s)"
+                 % (quickVer, Targets.getStringForTarget(targ)))
+        invokeMenuItem("Build","Build All")
+        waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)")
+        checkCompile()
+        checkLastBuild()
+        invokeMenuItem("File", "Close All Projects and Editors")
     invokeMenuItem("File", "Exit")

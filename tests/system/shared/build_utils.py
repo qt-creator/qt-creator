@@ -204,25 +204,33 @@ def verifyBuildConfig(targetCount, currentTarget, shouldBeDebug=False, enableSha
         test.compare(buildCfCombo.currentText, 'Debug', "Verifying whether it's a debug build")
     else:
         test.compare(buildCfCombo.currentText, 'Release', "Verifying whether it's a release build")
-    try:
-        libLabel = waitForObject(":scrollArea.Library not available_QLabel", 2000)
-        mouseClick(libLabel, libLabel.width - 10, libLabel.height / 2, 0, Qt.LeftButton)
-    except:
-        pass
-    # Since waitForObject waits for the object to be enabled,
-    # it will wait here until compilation of the debug libraries has finished.
-    qmlDebugCheckbox = waitForObject(":scrollArea.qmlDebuggingLibraryCheckBox_QCheckBox", 150000)
-    if qmlDebugCheckbox.checked != enableQmlDebug:
-        clickButton(qmlDebugCheckbox)
-        # Don't rebuild now
-        clickButton(waitForObject(":QML Debugging.No_QPushButton", 5000))
-    try:
-        problemFound = waitForObject("{window=':Qt Creator_Core::Internal::MainWindow' "
-                                     "type='QLabel' name='problemLabel' visible='1'}", 1000)
-        if problemFound:
-            test.warning('%s' % problemFound.text)
-    except:
-        pass
+    if enableQmlDebug:
+        try:
+            libLabel = waitForObject(":scrollArea.Library not available_QLabel", 2000)
+            mouseClick(libLabel, libLabel.width - 10, libLabel.height / 2, 0, Qt.LeftButton)
+        except:
+            pass
+        # Since waitForObject waits for the object to be enabled,
+        # it will wait here until compilation of the debug libraries has finished.
+        qmlDebugCheckbox = waitForObject(":scrollArea.qmlDebuggingLibraryCheckBox_QCheckBox", 150000)
+        if qmlDebugCheckbox.checked != enableQmlDebug:
+            clickButton(qmlDebugCheckbox)
+            # Don't rebuild now
+            clickButton(waitForObject(":QML Debugging.No_QPushButton", 5000))
+        try:
+            problemFound = waitForObject("{window=':Qt Creator_Core::Internal::MainWindow' "
+                                         "type='QLabel' name='problemLabel' visible='1'}", 1000)
+            if problemFound:
+                test.warning('%s' % problemFound.text)
+        except:
+            pass
+    else:
+        qmlDebugCheckbox = findObject(":scrollArea.qmlDebuggingLibraryCheckBox_QCheckBox")
+        if qmlDebugCheckbox.enabled and qmlDebugCheckbox.checked:
+            test.log("Qml debugging libraries are available - unchecking qml debugging.")
+            clickButton(qmlDebugCheckbox)
+            # Don't rebuild now
+            clickButton(waitForObject(":QML Debugging.No_QPushButton", 5000))
     clickButton(waitForObject(":scrollArea.Details_Utils::DetailsButton"))
     switchViewTo(ViewConstants.EDIT)
 

@@ -33,32 +33,35 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    # using a temporary directory won't mess up a potentially existing
-    workingDir = tempDir()
-    checkedTargets, projectName = createNewQtQuickApplication(workingDir,
-                                                              targets = Targets.DESKTOP_474_GCC)
-    test.log("Building project")
-    result = modifyRunSettingsForHookInto(projectName, len(checkedTargets), 11223)
-    invokeMenuItem("Build", "Build All")
-    waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)")
-    if not checkCompile():
-        test.fatal("Compile failed")
-    else:
-        checkLastBuild()
-        test.log("Running project (includes build)")
-        if result:
-            result = addExecutableAsAttachableAUT(projectName, 11223)
-            allowAppThroughWinFW(workingDir, projectName)
-            if result:
-                result = runAndCloseApp(True, projectName, 11223, "subprocessFunction", SubprocessType.QT_QUICK_APPLICATION)
-            else:
-                result = runAndCloseApp(sType=SubprocessType.QT_QUICK_APPLICATION)
-            removeExecutableAsAttachableAUT(projectName, 11223)
-            deleteAppFromWinFW(workingDir, projectName)
+    for targ, qVer in {Targets.DESKTOP_480_GCC:1, Targets.DESKTOP_501_DEFAULT:2}.items():
+        # using a temporary directory won't mess up a potentially existing
+        workingDir = tempDir()
+        checkedTargets, projectName = createNewQtQuickApplication(workingDir, targets=targ,
+                                                                  qtQuickVersion=qVer)
+        test.log("Building project Qt Quick %d Application (%s)"
+                 % (qVer, Targets.getStringForTarget(targ)))
+        result = modifyRunSettingsForHookInto(projectName, len(checkedTargets), 11223)
+        invokeMenuItem("Build", "Build All")
+        waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)")
+        if not checkCompile():
+            test.fatal("Compile failed")
         else:
-            result = runAndCloseApp()
-        if result:
-            logApplicationOutput()
+            checkLastBuild()
+            test.log("Running project (includes build)")
+            if result:
+                result = addExecutableAsAttachableAUT(projectName, 11223)
+                allowAppThroughWinFW(workingDir, projectName)
+                if result:
+                    result = runAndCloseApp(True, projectName, 11223, "subprocessFunction", SubprocessType.QT_QUICK_APPLICATION)
+                else:
+                    result = runAndCloseApp(sType=SubprocessType.QT_QUICK_APPLICATION)
+                removeExecutableAsAttachableAUT(projectName, 11223)
+                deleteAppFromWinFW(workingDir, projectName)
+            else:
+                result = runAndCloseApp()
+            if result:
+                logApplicationOutput()
+        invokeMenuItem("File", "Close All Projects and Editors")
 
     invokeMenuItem("File", "Exit")
 

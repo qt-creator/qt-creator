@@ -49,6 +49,9 @@ def main():
         waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)")
         # check output if build successful
         ensureChecked(waitForObject(":Qt Creator_CompileOutput_Core::Internal::OutputPaneToggleButton"))
+        waitFor("object.exists(':*Qt Creator.Cancel Build_QToolButton')", 20000)
+        cancelBuildButton = findObject(':*Qt Creator.Cancel Build_QToolButton')
+        waitFor("not cancelBuildButton.enabled", 30000)
         compileOutput = waitForObject(":Qt Creator.Compile Output_Core::OutputWindow")
         if not test.verify(compileSucceeded(compileOutput.plainText),
                            "Verifying building of simple qt quick application."):

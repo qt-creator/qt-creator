@@ -286,3 +286,19 @@ def getQtInformationByQMakeCall(qtDir, which):
         test.fatal("You're trying to fetch an unknown information (%s)" % which)
         return None
     return getOutputFromCmdline("%s -query %s" % (qmake, query)).strip()
+
+def invokeContextMenuOnProject(projectName, menuItem):
+    try:
+        projItem = waitForObjectItem(":Qt Creator_Utils::NavigationTreeView", projectName, 3000)
+    except:
+        try:
+            projItem = waitForObjectItem(":Qt Creator_Utils::NavigationTreeView",
+                                         addBranchWildcardToRoot(projectName), 1000)
+        except:
+            test.fatal("Failed to find root node of the project '%s'." % projectName)
+            return
+    openItemContextMenu(waitForObject(":Qt Creator_Utils::NavigationTreeView"),
+                        str(projItem.text).replace("_", "\\_").replace(".", "\\."), 5, 5, 0)
+    activateItem(waitForObjectItem("{name='Project.Menu.Project' type='QMenu' visible='1' "
+                                   "window=':Qt Creator_Core::Internal::MainWindow'}", menuItem))
+    return projItem
