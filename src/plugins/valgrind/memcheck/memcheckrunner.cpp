@@ -181,12 +181,12 @@ bool MemcheckRunner::start()
     const quint16 logPortNumber = d->logServer.serverPort();
     connect(&d->logServer, SIGNAL(newConnection()), SLOT(logSocketConnected()));
 
-    QStringList memcheckArguments;
-    memcheckArguments << QLatin1String("--xml=yes")
+    QStringList memcheckLogArguments;
+    memcheckLogArguments << QLatin1String("--xml=yes")
                       << QString::fromLatin1("--xml-socket=%1:%2").arg(ip).arg(xmlPortNumber)
                       << QLatin1String("--child-silent-after-fork=yes")
                       << QString::fromLatin1("--log-socket=%1:%2").arg(ip).arg(logPortNumber);
-    setValgrindArguments(memcheckArguments);
+    setValgrindArguments(memcheckLogArguments + valgrindArguments());
 
     return ValgrindRunner::start();
 }
