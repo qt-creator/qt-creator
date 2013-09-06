@@ -85,11 +85,9 @@ def main():
             waitFor('"Elapsed:    5" in str(elapsedLabel.text)', 20000)
             clickButton(stopButton)
             if safeClickTab("JavaScript"):
-                model = waitForObject(":JavaScript.QmlProfilerV8ProfileTable_QmlProfiler::"
-                                      "Internal::QmlProfilerEventsMainView").model()
-                test.compare(model.rowCount(), 1) # Could change, see QTCREATORBUG-8994
-                test.compare([str(model.index(0, column).data()) for column in range(6)],
-                             ['<program>', '100.00 %', '0.000 \xc2\xb5s', '0.00 %', '0.000 \xc2\xb5s', 'Main Program'])
+                model = waitForObject(":JavaScript.QmlProfilerEventsTable_QmlProfiler::"
+                                      "Internal::QV8ProfilerEventsMainView").model()
+                test.compare(model.rowCount(), 0)
             if safeClickTab("Events"):
                 model = waitForObject(":Events.QmlProfilerEventsTable_QmlProfiler::"
                                       "Internal::QmlProfilerEventsMainView").model()
@@ -101,11 +99,9 @@ def main():
                         compareEventsTab(model, "events_qt48.tsv")
                     else:
                         compareEventsTab(model, "events_qt47.tsv")
-                    test.verify(str(model.index(0, 8).data()).endswith(' ms'))
-                    test.xverify(str(model.index(1, 8).data()).endswith(' ms')) # QTCREATORBUG-8996
                     numberOfMsRows = 2
                 test.compare(dumpItems(model, column=2)[0], '100.00 %')
-                for i in [3, 5, 6, 7]:
+                for i in [3, 5, 6, 7, 8]:
                     for item in dumpItems(model, column=i)[:numberOfMsRows]:
                         test.verify(item.endswith(' ms'))
             deleteAppFromWinFW(workingDir, projectName, False)
