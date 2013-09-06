@@ -91,6 +91,7 @@ QTCREATOR_UTILS_EXPORT Utils::FileDeletedPromptAnswer
                                           "The file %1 was removed. Do you want to save it under a different name, or close the editor?").arg(QDir::toNativeSeparators(fileName));
     QMessageBox box(QMessageBox::Question, title, msg, QMessageBox::NoButton, parent);
     QPushButton *close = box.addButton(QCoreApplication::translate("Utils::fileDeletedPrompt", "&Close"), QMessageBox::RejectRole);
+    QPushButton *closeAll = box.addButton(QCoreApplication::translate("Utils::fileDeletedPrompt", "C&lose All"), QMessageBox::RejectRole);
     QPushButton *saveas = box.addButton(QCoreApplication::translate("Utils::fileDeletedPrompt", "Save &as..."), QMessageBox::ActionRole);
     QPushButton *save = box.addButton(QCoreApplication::translate("Utils::fileDeletedPrompt", "&Save"), QMessageBox::AcceptRole);
     box.setDefaultButton(saveas);
@@ -98,6 +99,8 @@ QTCREATOR_UTILS_EXPORT Utils::FileDeletedPromptAnswer
     QAbstractButton *clickedbutton = box.clickedButton();
     if (clickedbutton == close)
         return FileDeletedClose;
+    else if (clickedbutton == closeAll)
+        return FileDeletedCloseAll;
     else if (clickedbutton == saveas)
         return FileDeletedSaveAs;
     else if (clickedbutton == save)

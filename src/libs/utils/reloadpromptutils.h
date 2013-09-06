@@ -44,7 +44,12 @@ enum ReloadPromptAnswer { ReloadCurrent, ReloadAll, ReloadSkipCurrent, ReloadNon
 QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &fileName, bool modified, QWidget *parent);
 QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const QString &title, const QString &prompt, const QString &details, QWidget *parent);
 
-enum FileDeletedPromptAnswer { FileDeletedClose, FileDeletedSaveAs, FileDeletedSave };
+enum FileDeletedPromptAnswer {
+    FileDeletedClose,
+    FileDeletedCloseAll,
+    FileDeletedSaveAs,
+    FileDeletedSave
+};
 
 QTCREATOR_UTILS_EXPORT FileDeletedPromptAnswer fileDeletedPrompt(const QString &fileName, bool triggerExternally, QWidget *parent);
 
