@@ -61,11 +61,13 @@ struct BlackBerryDeviceConfigurationWizardHolder {
     bool isSimulator;
     bool debugTokenValid;
     bool deviceInfoRetrieved;
+    bool isProductionDevice;
 
     BlackBerryDeviceConfigurationWizardHolder()
         : isSimulator(false)
         , debugTokenValid(false)
-        , deviceInfoRetrieved(false) {}
+        , deviceInfoRetrieved(false)
+        , isProductionDevice(true) {}
 };
 
 class BlackBerryDeviceConfigurationWizardSetupPage : public QWizardPage

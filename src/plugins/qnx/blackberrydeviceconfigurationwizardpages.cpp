@@ -260,6 +260,7 @@ void BlackBerryDeviceConfigurationWizardQueryPage::processQueryFinished(int stat
     m_holder.debugTokenAuthor = m_deviceInformation->debugTokenAuthor();
     m_holder.debugTokenValid = m_deviceInformation->debugTokenValid();
     m_holder.isSimulator = m_deviceInformation->isSimulator();
+    m_holder.isProductionDevice = m_deviceInformation->isProductionDevice();
 
     if (m_holder.deviceInfoRetrieved)
         checkAndGenerateSSHKeys();
@@ -391,7 +392,7 @@ bool BlackBerryDeviceConfigurationWizardConfigPage::isComplete() const
 {
     bool configurationNameComplete = !m_ui->configurationNameField->text().isEmpty();
     Utils::FileName fileName = m_ui->debugTokenField->fileName();
-    bool debugTokenComplete = m_holder.isSimulator
+    bool debugTokenComplete = m_holder.isSimulator || !m_holder.isProductionDevice
             || (!fileName.isEmpty() && QFileInfo(fileName.toString()).exists());
 
     return configurationNameComplete  &&  debugTokenComplete;

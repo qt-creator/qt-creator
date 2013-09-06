@@ -66,6 +66,7 @@ public:
     QString scmBundle() const;
     QString hostName() const;
     bool isSimulator() const;
+    bool isProductionDevice() const;
 
 private:
     QString m_devicePin;
@@ -76,6 +77,7 @@ private:
     QString m_hostName;
     bool m_debugTokenValid;
     bool m_isSimulator;
+    bool m_isProductionDevice;
 
     void processData(const QString &line);
     void resetResults();

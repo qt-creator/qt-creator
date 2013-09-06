@@ -72,6 +72,7 @@ void BlackBerryDeviceInformation::resetResults()
     m_hostName.clear();
     m_debugTokenValid = false;
     m_isSimulator = false;
+    m_isProductionDevice = true;
 }
 
 QString BlackBerryDeviceInformation::devicePin() const
@@ -114,6 +115,11 @@ bool BlackBerryDeviceInformation::isSimulator() const
     return m_isSimulator;
 }
 
+bool BlackBerryDeviceInformation::isProductionDevice() const
+{
+    return m_isProductionDevice;
+}
+
 void BlackBerryDeviceInformation::processData(const QString &line)
 {
     static const QString devicepin = QLatin1String("devicepin::0x");
@@ -124,6 +130,8 @@ void BlackBerryDeviceInformation::processData(const QString &line)
     static const QString simulator = QLatin1String("simulator:b:");
     static const QString scmbundle = QLatin1String("scmbundle::");
     static const QString hostname = QLatin1String("hostname::");
+    static const QString production_device = QLatin1String("production_device:b:");
+
     if (line.startsWith(devicepin))
         m_devicePin = line.mid(devicepin.size()).trimmed();
     else if (line.startsWith(device_os))
@@ -140,6 +148,8 @@ void BlackBerryDeviceInformation::processData(const QString &line)
         m_scmBundle = line.mid(scmbundle.size()).trimmed();
     else if (line.startsWith(hostname))
         m_hostName = line.mid(hostname.size()).trimmed();
+    else if (line.startsWith(production_device))
+        m_isProductionDevice = line.mid(production_device.size()).trimmed() == QLatin1String("true");
 }
 
 } // namespace Internal
