@@ -260,7 +260,6 @@ void Qt4BuildConfiguration::setQMakeBuildConfiguration(BaseQtVersion::QmakeBuild
     m_qmakeBuildConfiguration = config;
 
     emit qmakeBuildConfigurationChanged();
-    emitBuildDirectoryChanged();
     emitProFileEvaluateNeeded();
 }
 
