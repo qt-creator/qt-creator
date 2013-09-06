@@ -155,6 +155,7 @@ private slots:
     void test_quickfix_InsertDefFromDecl_afterClass();
     void test_quickfix_InsertDefFromDecl_headerSource_basic1();
     void test_quickfix_InsertDefFromDecl_headerSource_basic2();
+    void test_quickfix_InsertDefFromDecl_headerSource_basic3();
     void test_quickfix_InsertDefFromDecl_headerSource_namespace1();
     void test_quickfix_InsertDefFromDecl_headerSource_namespace2();
     void test_quickfix_InsertDefFromDecl_freeFunction();
@@ -165,6 +166,9 @@ private slots:
     void test_quickfix_InsertDefFromDecl_ignoreSurroundingGeneratedDeclarations();
     void test_quickfix_InsertDefFromDecl_respectWsInOperatorNames1();
     void test_quickfix_InsertDefFromDecl_respectWsInOperatorNames2();
+    void test_quickfix_InsertDefFromDecl_macroUsesAtEndOfFile1();
+    void test_quickfix_InsertDefFromDecl_macroUsesAtEndOfFile2();
+    void test_quickfix_InsertDefFromDecl_erroneousStatementAtEndOfFile();
 
     void test_quickfix_InsertDeclFromDef();
 

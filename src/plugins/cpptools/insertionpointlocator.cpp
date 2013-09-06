@@ -356,7 +356,7 @@ class FindMethodDefinitionInsertPoint : protected ASTVisitor
 {
     QList<const Identifier *> _namespaceNames;
     int _currentDepth;
-    HighestValue<int, int> _bestToken;
+    HighestValue<int, unsigned> _bestToken;
 
 public:
     FindMethodDefinitionInsertPoint(TranslationUnit *translationUnit)
@@ -366,10 +366,10 @@ public:
     void operator()(Symbol *decl, unsigned *line, unsigned *column)
     {
         // default to end of file
-        _bestToken.maybeSet(-1, translationUnit()->ast()->lastToken());
+        const unsigned lastToken = translationUnit()->ast()->lastToken();
+        _bestToken.maybeSet(-1, lastToken);
 
-        if (translationUnit()->ast()->lastToken() >= 2) {
-
+        if (lastToken >= 2) {
             QList<const Name *> names = LookupContext::fullyQualifiedName(decl);
             foreach (const Name *name, names) {
                 const Identifier *id = name->asNameId();
@@ -381,7 +381,11 @@ public:
 
             accept(translationUnit()->ast());
         }
-        translationUnit()->getTokenEndPosition(_bestToken.get(), line, column);
+
+        if (lastToken == _bestToken.get()) // No matching namespace found
+            translationUnit()->getTokenStartPosition(lastToken, line, column);
+        else // Insert at end of matching namespace
+            translationUnit()->getTokenEndPosition(_bestToken.get(), line, column);
     }
 
 protected:

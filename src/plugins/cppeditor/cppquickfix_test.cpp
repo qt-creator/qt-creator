@@ -902,6 +902,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_afterClass()
 }
 
 /// Check from header file: If there is a source file, insert the definition in the source file.
+/// Case: Source file is empty.
 void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_basic1()
 {
     QList<TestDocumentPtr> testFiles;
@@ -934,8 +935,47 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_basic1()
     data.run(&factory);
 }
 
-/// Check from source file: Insert in source file, not header file.
+/// Check from header file: If there is a source file, insert the definition in the source file.
+/// Case: Source file is not empty.
 void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_basic2()
+{
+    QList<TestDocumentPtr> testFiles;
+
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original = "void f()@;\n";
+    expected = original + "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+            "#include \"file.h\"\n"
+            "\n"
+            "int x;\n"
+            ;
+    expected =
+            "#include \"file.h\"\n"
+            "\n"
+            "int x;\n"
+            "\n"
+            "\n"
+            "void f()\n"
+            "{\n"
+            "\n"
+            "}\n"
+            "\n"
+            ;
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    InsertDefFromDecl factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+
+/// Check from source file: Insert in source file, not header file.
+void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_basic3()
 {
     QList<TestDocumentPtr> testFiles;
 
@@ -1267,6 +1307,131 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_respectWsInOperatorNames2(
 
     InsertDefFromDecl factory;
     TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check if a function like macro use is not separated by the function to insert
+/// Case: Macro preceded by preproceesor directives and declaration.
+void CppEditorPlugin::test_quickfix_InsertDefFromDecl_macroUsesAtEndOfFile1()
+{
+    QList<TestDocumentPtr> testFiles;
+
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original = "void f()@;\n";
+    expected = original + "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+            "#include \"file.h\"\n"
+            "#define MACRO(X) X x;\n"
+            "int lala;\n"
+            "\n"
+            "MACRO(int)\n"
+            ;
+    expected =
+            "#include \"file.h\"\n"
+            "#define MACRO(X) X x;\n"
+            "int lala;\n"
+            "\n"
+            "\n"
+            "\n"
+            "void f()\n"
+            "{\n"
+            "\n"
+            "}\n"
+            "\n"
+            "MACRO(int)\n"
+            "\n"
+            ;
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    InsertDefFromDecl factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+
+/// Check if a function like macro use is not separated by the function to insert
+/// Case: Marco preceded only by preprocessor directives.
+void CppEditorPlugin::test_quickfix_InsertDefFromDecl_macroUsesAtEndOfFile2()
+{
+    QList<TestDocumentPtr> testFiles;
+
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original = "void f()@;\n";
+    expected = original + "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+            "#include \"file.h\"\n"
+            "#define MACRO(X) X x;\n"
+            "\n"
+            "MACRO(int)\n"
+            ;
+    expected =
+            "#include \"file.h\"\n"
+            "#define MACRO(X) X x;\n"
+            "\n"
+            "\n"
+            "\n"
+            "void f()\n"
+            "{\n"
+            "\n"
+            "}\n"
+            "\n"
+            "MACRO(int)\n"
+            "\n"
+            ;
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    InsertDefFromDecl factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+
+/// Check if insertion happens before syntactically erroneous statements at end of file.
+void CppEditorPlugin::test_quickfix_InsertDefFromDecl_erroneousStatementAtEndOfFile()
+{
+    QList<TestDocumentPtr> testFiles;
+
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original = "void f()@;\n";
+    expected = original + "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+            "#include \"file.h\"\n"
+            "\n"
+            "MissingSemicolon(int)\n"
+            ;
+    expected =
+            "#include \"file.h\"\n"
+            "\n"
+            "\n"
+            "\n"
+            "void f()\n"
+            "{\n"
+            "\n"
+            "}\n"
+            "\n"
+            "MissingSemicolon(int)\n"
+            "\n"
+            ;
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    InsertDefFromDecl factory;
+    TestCase data(testFiles);
     data.run(&factory);
 }
 
