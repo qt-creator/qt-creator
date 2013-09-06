@@ -59,7 +59,7 @@ QT_BEGIN_NAMESPACE
                ^
     \endcode
 
-    Note that the QtQuick 1 version is named QDeclarativeError
+    \note The QtQuick 1 version is named QDeclarativeError.
 
     \sa QQuickView::errors(), QmlComponent::errors()
 */
@@ -137,7 +137,7 @@ bool QmlError::isValid() const
 }
 
 /*!
-    Returns the url for the file that caused this error.
+    Returns the URL for the file that caused this error.
 */
 QUrl QmlError::url() const
 {

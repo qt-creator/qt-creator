@@ -34,27 +34,27 @@
   persistent (not on disk but in memory).
 
   This means that several versions can coexist, as adding an element
-  is non destructive, and as much as possible is shared.
+  is non-destructive, and as much as possible is shared.
 
-  The trie is only *partially* ordered, it preserves the order
-  of what was inserted as much as possible.
+  The trie is only \e partially ordered. It preserves the order
+  of the inserted elements as much as possible.
   This makes some operations a bit slower, but is considered
   a feature.
   This means the order in which you insert the elements matters.
 
   An important use case for this is completions, and several
   strategies are available.
-  Results order can be improved using the matching strength
+  Results order can be improved by using the matching strength.
 
   All const operations are threadsafe, and copy is cheap (only a
   QSharedPointer copy).
 
-  Assigning a shared pointer is *not* threadsafe, so updating the
-  head is *not* thread safe, and should be done only on a local
+  Assigning a shared pointer is not threadsafe, so updating the
+  head is not threadsafe, and should be done only on a local
   instance (shared pointer used only from a single thread), or
   protected with locks.
 
-  This is a two level implementation, based on a fully functional
+  This is a two-level implementation, based on a fully functional
   implementation (PersistentTrie::Trie), which could be private
   but was left public because deemed useful.
 
@@ -570,10 +570,10 @@ QStringList Trie::stringList() const
 }
 
 /*!
-    \brief inserts into the current trie.
+    Inserts into the current trie.
 
-    Non thread safe, only use this on an instance that is used only
-    in a single theread, or that is protected by locks.
+    Non threadsafe. Only use this function on an instance that is used only
+    in a single thread, or that is protected by locks.
  */
 void Trie::insert(const QString &value)
 {
@@ -581,10 +581,10 @@ void Trie::insert(const QString &value)
 }
 
 /*!
-    \brief intesects into the current trie.
+    Intersects into the current trie.
 
-    Non thread safe, only use this on an instance that is used only
-    in a single theread, or that is protected by locks.
+    Non threadsafe. Only use this function on an instance that is used only
+    in a single thread, or that is protected by locks.
  */
 void Trie::intersect(const Trie &v)
 {
@@ -592,10 +592,10 @@ void Trie::intersect(const Trie &v)
 }
 
 /*!
-    \brief merges the given trie into the current one.
+    Merges the given trie into the current one.
 
-    Non thread safe, only use this on an instance that is used only
-    in a single theread, or that is protected by locks.
+    Non threadsafe. Only use this function on an instance that is used only
+    in a single thread, or that is protected by locks.
  */
 void Trie::merge(const Trie &v)
 {
@@ -643,11 +643,12 @@ Trie Trie::replaceF(const QHash<QString, QString> &replacements) const
 }
 
 /*!
-  Returns a number defining how well the serachStr matches str.
 
-  Quite simplistic, looks only at the first match, and prefers contiguos
+  Returns a number defining how well \a searchStr matches \a str.
+
+  Quite simplistic, looks only at the first match, and prefers contiguous
   matches, or matches to capitalized or separated words.
-  Match to the last char is also preferred.
+  Match to the last character is also preferred.
 */
 int matchStrength(const QString &searchStr, const QString &str)
 {
@@ -691,7 +692,7 @@ public:
 }
 
 /*!
-  returns a number defining the matching strength of res to the given searchStr
+    Returns a number defining the matching strength of \a res to \a searchStr.
 */
 QStringList matchStrengthSort(const QString &searchStr, QStringList &res)
 {

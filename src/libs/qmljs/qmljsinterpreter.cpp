@@ -369,9 +369,10 @@ const CppComponentValue *CppComponentValue::prototype() const
 }
 
 /*!
-  \returns a list started by this object and followed by all its prototypes
+  Returns a list started by this object and followed by all its prototypes.
 
-  Prefer to use this over calling prototype() in a loop, as it avoids cycles.
+  Use this function rather than calling prototype() in a loop, as it avoids
+  cycles.
 */
 QList<const CppComponentValue *> CppComponentValue::prototypes() const
 {
