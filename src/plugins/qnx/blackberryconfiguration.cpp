@@ -300,7 +300,7 @@ bool BlackBerryConfiguration::activate()
             return false;
 
         QString errorMessage = tr("The following errors occurred while activating Target: %1").arg(m_targetName);
-        if (m_qmake4BinaryFile.isEmpty() && m_qmake4BinaryFile.isEmpty())
+        if (m_qmake4BinaryFile.isEmpty() && m_qmake5BinaryFile.isEmpty())
             errorMessage += QLatin1Char('\n') + tr("- No Qt version found.");
 
         if (m_gccCompiler.isEmpty())
@@ -324,7 +324,7 @@ bool BlackBerryConfiguration::activate()
     if (!m_qmake4BinaryFile.isEmpty())
         setupConfigurationPerQtVersion(m_qmake4BinaryFile, tc);
 
-    if (!m_qmake4BinaryFile.isEmpty())
+    if (!m_qmake5BinaryFile.isEmpty())
         setupConfigurationPerQtVersion(m_qmake5BinaryFile, tc);
 
     return true;
