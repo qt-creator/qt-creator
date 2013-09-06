@@ -52,7 +52,7 @@ namespace Utils {
 
   \note The \a error parameter is optional.
 
-  \return Whether the operation succeeded.
+  Returns whether the operation succeeded.
 */
 bool FileUtils::removeRecursively(const FileName &filePath, QString *error)
 {
@@ -118,7 +118,7 @@ bool FileUtils::removeRecursively(const FileName &filePath, QString *error)
 
   \note The \a error parameter is optional.
 
-  \return Whether the operation succeeded.
+  Returns whether the operation succeeded.
 */
 bool FileUtils::copyRecursively(const FileName &srcFilePath, const FileName &tgtFilePath,
                                 QString *error)
@@ -162,7 +162,8 @@ bool FileUtils::copyRecursively(const FileName &srcFilePath, const FileName &tgt
   true if one of them is newer than \a timeStamp. If \a filePath is a single file, true will
   be returned if the file is newer than \timeStamp.
 
-  \return Whether at least one file in \a filePath has a newer date than \a timeStamp.
+  Returns whether at least one file in \a filePath has a newer date than
+  \a timeStamp.
 */
 bool FileUtils::isFileNewerThan(const FileName &filePath, const QDateTime &timeStamp)
 {
@@ -181,13 +182,13 @@ bool FileUtils::isFileNewerThan(const FileName &filePath, const QDateTime &timeS
 }
 
 /*!
-  Recursively resolve possibly present symlinks in \a filePath.
+  Recursively resolves possibly present symlinks in \a filePath.
   Unlike QFileInfo::canonicalFilePath(), this function will still return the expected target file
   even if the symlink is dangling.
 
   \note Maximum recursion depth == 16.
 
-  return Symlink target file path.
+  Returns the symlink target file path.
 */
 FileName FileUtils::resolveSymlinks(const FileName &path)
 {
@@ -204,7 +205,7 @@ FileName FileUtils::resolveSymlinks(const FileName &path)
   Like QDir::toNativeSeparators(), but use prefix '~' instead of $HOME on unix systems when an
   absolute path is given.
 
-  return Possibly shortened path with native separators.
+  Returns the possibly shortened path with native separators.
 */
 QString FileUtils::shortNativePath(const FileName &path)
 {

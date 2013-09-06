@@ -250,7 +250,8 @@ void TcpPortsGathererPrivate::updateNetstat()
     \brief The TcpPortsGatherer class gathers the list of local TCP ports
     already in use.
 
-  Query the system for the list of local TCP ports already in use. This information can be used
+    Queries the system for the list of local TCP ports already in use. This
+    information can be used
   to select a port for use in a range.
 */
 
@@ -283,7 +284,7 @@ QList<int> TcpPortsGatherer::usedPorts() const
 }
 
 /*!
-  Select a port out of \a freePorts that is not yet used.
+  Selects a port out of \a freePorts that is not yet used.
 
   Returns the port, or -1 if no free port is available.
   */

@@ -44,7 +44,7 @@ static bool isEndOfWordChar(const QChar &c)
   \brief The CompletingTextEdit class is a QTextEdit with auto-completion
   support.
 
-  Excerpted from Qt examples/tools/customcompleter
+  Excerpted from Qt examples/tools/customcompleter.
 */
 
 namespace Utils {

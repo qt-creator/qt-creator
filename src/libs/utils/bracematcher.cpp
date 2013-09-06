@@ -38,13 +38,13 @@
     and quotes.
 
     This is a helper class for autocompleter implementations. To use it,
-    define "brace", "quote", and "delimiter" characters for given language.
+    define \e brace, \e quote, and \e delimiter characters for a given language.
 */
 
 namespace Utils {
 
 /*!
- * Adds a pair of characters, corresponding to opening and closing braces.
+ * Adds a pair of characters, corresponding to \a opening and \a closing braces.
  */
 void BraceMatcher::addBraceCharPair(const QChar opening, const QChar closing)
 {
@@ -52,7 +52,7 @@ void BraceMatcher::addBraceCharPair(const QChar opening, const QChar closing)
 }
 
 /*!
- * Adds quote character
+ * Adds a \a quote character.
  */
 void BraceMatcher::addQuoteChar(const QChar quote)
 {
@@ -60,8 +60,8 @@ void BraceMatcher::addQuoteChar(const QChar quote)
 }
 
 /*!
- * Adds separator character that should be skipped when overtyping it, e.g.
- * it could be ';' or ',' in C-like languages.
+ * Adds a separator character \a sep that should be skipped when overtyping it.
+ * For example, it could be ';' or ',' in C-like languages.
  */
 void BraceMatcher::addDelimiterChar(const QChar sep)
 {
@@ -113,7 +113,7 @@ QString BraceMatcher::insertMatchingBrace(const QTextCursor &cursor,
 }
 
 /*!
- * Returns true if given character was added as one of character types.
+ * Returns true if the character \a c was added as one of character types.
  */
 bool BraceMatcher::isKnownChar(const QChar c) const
 {

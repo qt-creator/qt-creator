@@ -44,16 +44,15 @@ namespace Utils {
   \brief The FileInProjectFinder class is a helper class to find the \e original
   file in the project directory for a given file URL.
 
-  Often files are copied in the build + deploy process. findFile() searches for an existing file
-  in the project directory for a given file path:
+  Often files are copied in the build and deploy process. findFile() searches for an existing file
+  in the project directory for a given file path.
 
-  E.g. following file paths:
+  For example, the following file paths should all be mapped to
+  $PROJECTDIR/qml/app/main.qml:
   \list
   \li C:/app-build-desktop/qml/app/main.qml (shadow build directory)
   \li /Users/x/app-build-desktop/App.app/Contents/Resources/qml/App/main.qml (folder on Mac OS X)
   \endlist
-
- should all be mapped to $PROJECTDIR/qml/app/main.qml
 */
 
 FileInProjectFinder::FileInProjectFinder()
@@ -110,14 +109,14 @@ void FileInProjectFinder::setSysroot(const QString &sysroot)
     m_cache.clear();
 }
 
-/**
-  Returns the best match for the given file url in the project directory.
+/*!
+  Returns the best match for the given file URL in the project directory.
 
   The method first checks whether the file inside the project directory exists.
   If not, the leading directory in the path is stripped, and the - now shorter - path is
   checked for existence, and so on. Second, it tries to locate the file in the sysroot
   folder specified. Third, we walk the list of project files, and search for a file name match
-  there. If all fails, it returns the original path from the file url.
+  there. If all fails, it returns the original path from the file URL.
   */
 QString FileInProjectFinder::findFile(const QUrl &fileUrl, bool *success) const
 {

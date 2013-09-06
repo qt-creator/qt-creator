@@ -395,7 +395,7 @@ QDebug operator<<(QDebug dbg, const Service::ConstPtr &service){
 /*!
   \fn bool Service::outdated() const
 
-  Returns if the service data is outdated, its value might change even on
+  Returns whether the service data is outdated. Its value might change even on
   the (otherwise constant) objects returned by a ServiceBrowser.
 */
 /*!
@@ -421,7 +421,7 @@ QDebug operator<<(QDebug dbg, const Service::ConstPtr &service){
 /*!
   \fn QString Service::port() const
 
-  Return the port of the service (as a string, not as number).
+  Returns the port of the service (as a string, not as number).
 */
 /*!
   \fn const Service::ServiceTxtRecord &txtRecord() const
@@ -436,7 +436,8 @@ QDebug operator<<(QDebug dbg, const Service::ConstPtr &service){
 /*!
   \fn int Service::interfaceNr() const
 
-  returns the interface on which the service is reachable, 1 based, 0 means to try all interfaces
+    Returns the interface on which the service is reachable, 1 based, 0 means to
+    try all interfaces.
 */
 /*!
   \fn bool Service::invalidate()
@@ -452,7 +453,7 @@ QDebug operator<<(QDebug dbg, const Service::ConstPtr &service){
   service.
 
   The actual browsing starts only when startBrowsing() is called. If you want to receive all service
-  changes connect before starting browsing.
+  changes, connect before starting browsing.
 
   The current list of services can be gathered with the services() method.
 
@@ -573,23 +574,23 @@ void ServiceBrowser::autoRefresh()
   \fn void ServiceBrowser::serviceChanged(
        Service::ConstPtr oldService, Service::ConstPtr newService, ServiceBrowser *browser)
 
-   This signal is called when a service is added removed or changes.
+   This signal is called when a service is added, removed, or changed.
    Both oldService or newService might be null (covers both add and remove).
    The services list might not be synchronized with respect to this signal.
 */
 /*!
   \fn void ServiceBrowser::serviceAdded(Service::ConstPtr service, ServiceBrowser *browser)
 
-   This signal is called when a service is added (convenience method)
-   the services list might not be synchronized with respect to this signal
+   This signal is called when a service is added (convenience method).
+   The services list might not be synchronized with respect to this signal.
 
    \sa serviceChanged()
 */
 /*!
   \fn void ServiceBrowser::serviceRemoved(Service::ConstPtr service, ServiceBrowser *browser)
 
-  This signal is called when a service is removed (convenience method)
-  the services list might not be synchronized with respect to this signal
+  This signal is called when a service is removed (convenience method).
+  The services list might not be synchronized with respect to this signal.
 
    \sa serviceChanged()
 */
@@ -597,8 +598,9 @@ void ServiceBrowser::autoRefresh()
   \fn void ServiceBrowser::servicesUpdated(ServiceBrowser *browser)
 
   This signal is called when the list is updated.
-  It might collect several serviceChanged signals together, if you use the list returned by
-  services(), use this signal, not serviceChanged(), serviceAdded() or serviceRemoved() to know
+  It might collect several serviceChanged signals together. If you use the list
+  returned by services(), use this signal, not serviceChanged(), serviceAdded(),
+  or serviceRemoved() to learn
   about changes to the list.
 */
 /*!

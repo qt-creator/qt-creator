@@ -303,11 +303,12 @@ void JsonSchema::enterNestedPropertySchema(const QString &property)
 }
 
 /*!
- * An array schema is allowed to have its *items* specification in the form of another schema
+ * An array schema is allowed to have its \e items specification in the form of
+ * another schema
  * or in the form of an array of schemas [Sec. 5.5]. This methods checks whether this is case
  * in which the items are a schema.
  *
- * \return whether or not the items from the array are a schema
+ * Returns whether or not the items from the array are a schema.
  */
 bool JsonSchema::hasItemSchema() const
 {
@@ -324,11 +325,11 @@ void JsonSchema::enterNestedItemSchema()
 }
 
 /*!
- * An array schema is allowed to have its *items* specification in the form of another schema
+ * An array schema is allowed to have its \e items specification in the form of another schema
  * or in the form of an array of schemas [Sec. 5.5]. This methods checks whether this is case
  * in which the items are an array of schemas.
  *
- * \return whether or not the items from the array are a an array of schemas
+ * Returns whether or not the items from the array are a an array of schemas.
  */
 bool JsonSchema::hasItemArraySchema() const
 {
@@ -345,14 +346,16 @@ int JsonSchema::itemArraySchemaSize() const
 }
 
 /*!
- * When evaluating the items of an array it might be necessary to "enter" a particular schema,
+ * When evaluating the items of an array it might be necessary to \e enter a
+ * particular schema,
  * since this API assumes that there's always a valid schema in context (the one the user is
  * interested on). This shall only happen if the item at the supplied array index is of type
  * object, which is then assumed to be a schema.
  *
  * The method also marks the context as being inside an array evaluation.
  *
- * \return whether it was necessary to "enter" a schema for the supplied array index, false if index is out of bounds
+ * Returns whether it was necessary to enter a schema for the supplied
+ * array \a index, false if index is out of bounds.
  */
 bool JsonSchema::maybeEnterNestedArraySchema(int index)
 {
@@ -369,7 +372,7 @@ bool JsonSchema::maybeEnterNestedArraySchema(int index)
  * array of allowed types for the particular instance [Sec. 5.1]. This method checks whether
  * the current schema is one of such.
  *
- * \return whether or not the current schema specifies a union type
+ * Returns whether or not the current schema specifies a union type.
  */
 bool JsonSchema::hasUnionSchema() const
 {
@@ -382,15 +385,16 @@ int JsonSchema::unionSchemaSize() const
 }
 
 /*!
- * When evaluating union types it might be necessary to "enter" a particular schema, since this
+ * When evaluating union types it might be necessary to enter a particular
+ * schema, since this
  * API assumes that there's always a valid schema in context (the one the user is interested on).
- * This shall only happen if the item at the supplied union index, which is then assumed to be
+ * This shall only happen if the item at the supplied union \a index, which is then assumed to be
  * a schema.
  *
  * The method also marks the context as being inside an union evaluation.
  *
- * \param index
- * \return whether or not it was necessary to "enter" a schema for the supplied union index
+ * Returns whether or not it was necessary to enter a schema for the
+ * supplied union index.
  */
 bool JsonSchema::maybeEnterNestedUnionSchema(int index)
 {
@@ -673,16 +677,13 @@ JsonSchemaManager::~JsonSchemaManager()
 }
 
 /*!
- * \brief JsonManager::schemaForFile
- *
- * Try to find a JSON schema to which the supplied file can be validated against. According
+ * Tries to find a JSON schema to validate \a fileName against. According
  * to the specification, how the schema/instance association is done is implementation defined.
  * Currently we use a quite naive approach which is simply based on file names. Specifically,
  * if one opens a foo.json file we'll look for a schema named foo.json. We should probably
  * investigate alternative settings later.
  *
- * \param fileName - JSON file to be validated
- * \return a valid schema or 0
+ * Returns a valid schema or 0.
  */
 JsonSchema *JsonSchemaManager::schemaForFile(const QString &fileName) const
 {

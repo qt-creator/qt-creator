@@ -200,14 +200,14 @@ static QStringList doSplitArgs(const QString &args, QtcProcess::SplitError *err)
 }
 
 /*!
-    Splits \a args according to system shell word splitting and quoting rules.
+    Splits \a _args according to system shell word splitting and quoting rules.
 
     \section1 Unix
 
     The behavior is based on the POSIX shell and bash:
     \list
-    \li Whitespace splits tokens
-    \li The backslash quotes the following character
+    \li Whitespace splits tokens.
+    \li The backslash quotes the following character.
     \li A string enclosed in single quotes is not split. No shell meta
         characters are interpreted.
     \li A string enclosed in double quotes is not split. Within the string,
@@ -219,17 +219,25 @@ static QStringList doSplitArgs(const QString &args, QtcProcess::SplitError *err)
     If \a abortOnMeta is \c true, encounters of unhandled meta characters are
     treated as errors.
 
+    If \a err is not NULL, stores a status code at the pointer target. For more
+    information, see \l SplitError.
+
+    If \env is not NULL, performs variable substitution with the
+    given environment.
+
+    Returns a list of unquoted words or an empty list if an error occurred.
+
     \section1 Windows
 
     The behavior is defined by the Microsoft C runtime:
     \list
-    \li Whitespace splits tokens
-    \li A string enclosed in double quotes is not split
+    \li Whitespace splits tokens.
+    \li A string enclosed in double quotes is not split.
     \list
         \li 3N double quotes within a quoted string yield N literal quotes.
            This is not documented on MSDN.
     \endlist
-    \li Backslashes have special semantics iff they are followed by a double quote:
+    \li Backslashes have special semantics if they are followed by a double quote:
     \list
         \li 2N backslashes + double quote => N backslashes and begin/end quoting
         \li 2N+1 backslashes + double quote => N backslashes + literal quote
@@ -248,14 +256,6 @@ static QStringList doSplitArgs(const QString &args, QtcProcess::SplitError *err)
     As the quoting levels are independent from each other and have different
     semantics, you need a command line like \c{"foo "\^"" bar"} to get
     \c{foo " bar}.
-
-    \param cmd the command to split
-    \param abortOnMeta see above
-    \param err if not NULL, a status code will be stored at the pointer
-    target, see \l SplitError
-    \param env if not NULL, perform variable substitution with the
-    given environment.
-   \return a list of unquoted words or an empty list if an error occurred
  */
 
 QStringList QtcProcess::splitArgs(const QString &_args, bool abortOnMeta, SplitError *err,

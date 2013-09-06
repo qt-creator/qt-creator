@@ -78,7 +78,7 @@ TextFileFormat::TextFileFormat() :
 }
 
 /*!
-    \brief Detect the format of text data.
+    Detects the format of text data.
 */
 
 TextFileFormat TextFileFormat::detect(const QByteArray &data)
@@ -111,7 +111,7 @@ TextFileFormat TextFileFormat::detect(const QByteArray &data)
 }
 
 /*!
-    \brief Returns a piece of text suitable as display for a encoding error.
+    Returns a piece of text suitable as display for a encoding error.
 */
 
 QByteArray TextFileFormat::decodingErrorSample(const QByteArray &data)
@@ -179,7 +179,7 @@ bool decodeTextFileContent(const QByteArray &dataBA,
 }
 
 /*!
-    \brief Decode data to a plain string.
+    Decodes data to a plain string.
 */
 
 bool TextFileFormat::decode(const QByteArray &data, QString *target) const
@@ -189,7 +189,7 @@ bool TextFileFormat::decode(const QByteArray &data, QString *target) const
 }
 
 /*!
-    \brief Decode data to a list of strings.
+    Decodes data to a list of strings.
 
     Intended for use with progress bars loading large files.
 */
@@ -236,7 +236,7 @@ TextFileFormat::ReadResult readTextFile(const QString &fileName, const QTextCode
 }
 
 /*!
-    \brief Read text file into a list of strings.
+    Reads a text file into a list of strings.
 */
 
 TextFileFormat::ReadResult
@@ -254,7 +254,7 @@ TextFileFormat::ReadResult
 }
 
 /*!
-    \brief Read text file into a string.
+    Reads a text file into a string.
 */
 
 TextFileFormat::ReadResult
@@ -272,7 +272,7 @@ TextFileFormat::ReadResult
 }
 
 /*!
-    \brief Write out a text file.
+    Writes out a text file.
 */
 
 bool TextFileFormat::writeFile(const QString &fileName, QString plainText, QString *errorString) const
