@@ -207,7 +207,7 @@ public:
 };
 
 /*!
-  Construct a QPacketProtocol instance that works on \a dev with the
+  Constructs a QPacketProtocol instance that works on \a dev with the
   specified \a parent.
  */
 QPacketProtocol::QPacketProtocol(QIODevice *dev, QObject *parent)
@@ -265,7 +265,7 @@ QPacketAutoSend QPacketProtocol::send()
 }
 
 /*!
-  Transmit the \a packet.
+  Transmits the packet \a p.
  */
 void QPacketProtocol::send(const QPacket & p)
 {
@@ -292,7 +292,7 @@ qint64 QPacketProtocol::packetsAvailable() const
 }
 
 /*!
-  Discard any unread packets.
+  Discards any unread packets.
   */
 void QPacketProtocol::clear()
 {
@@ -300,7 +300,7 @@ void QPacketProtocol::clear()
 }
 
 /*!
-  Return the next unread packet, or an invalid QPacket instance if no packets
+  Returns the next unread packet, or an invalid QPacket instance if no packets
   are available.  This method does NOT block.
   */
 QPacket QPacketProtocol::read()
@@ -314,8 +314,8 @@ QPacket QPacketProtocol::read()
 }
 
 
-/*
-   Returns the difference between msecs and elapsed. If msecs is -1,
+/*!
+   Returns the difference between \a msecs and \a elapsed. If msecs is -1,
    however, -1 is returned.
 */
 static int qt_timeout_value(int msecs, int elapsed)
@@ -328,13 +328,13 @@ static int qt_timeout_value(int msecs, int elapsed)
 }
 
 /*!
-  This function locks until a new packet is available for reading and the
+  Locks until a new packet is available for reading and the
   \l{QIODevice::}{readyRead()} signal has been emitted. The function
   will timeout after \a msecs milliseconds; the default timeout is
   30000 milliseconds.
 
-  The function returns true if the readyRead() signal is emitted and
-  there is new data available for reading; otherwise it returns false
+  Returns true if the readyRead() signal is emitted and
+  there is new data available for reading; otherwise returns false
   (if an error occurred or the operation timed out).
   */
 
@@ -357,7 +357,7 @@ bool QPacketProtocol::waitForReadyRead(int msecs)
 }
 
 /*!
-  Return the QIODevice passed to the QPacketProtocol constructor.
+  Returns the QIODevice passed to the QPacketProtocol constructor.
 */
 QIODevice *QPacketProtocol::device()
 {
@@ -382,7 +382,7 @@ QIODevice *QPacketProtocol::device()
 /*!
   \fn void QPacketProtocol::packetWritten()
 
-  Emitted each time a packet is completing written to the device.  This signal
+  Emitted each time a packet is completely written to the device.  This signal
   may be used for communications flow control.
  */
 
@@ -521,7 +521,6 @@ void QPacket::clear()
   \class QPacketAutoSend
   \internal
 
-  \internal
   */
 QPacketAutoSend::QPacketAutoSend(QPacketProtocol *_p)
     : QPacket(), p(_p)
