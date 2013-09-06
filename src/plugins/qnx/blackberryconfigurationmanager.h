@@ -54,6 +54,7 @@ public:
     void removeConfiguration(BlackBerryConfiguration *config);
     QList<BlackBerryConfiguration*> configurations() const;
     QList<BlackBerryConfiguration*> manualConfigurations() const;
+    QList<BlackBerryConfiguration *> activeConfigurations() const;
     BlackBerryConfiguration *configurationFromEnvFile(const Utils::FileName &envFile) const;
 
     QString barsignerCskPath() const;
@@ -91,7 +92,10 @@ private:
     void loadAutoDetectedConfigurations();
     void saveCertificates();
     void saveManualConfigurations();
+    void saveActiveConfigurationNdkEnvPath();
     void clearInvalidConfigurations();
+
+    QStringList activeConfigurationNdkEnvPaths();
 };
 
 } // namespace Internal

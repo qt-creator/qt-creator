@@ -62,6 +62,7 @@ const QLatin1String NDKLocationKey("NDKLocation"); // For 10.1 NDK support (< QT
 const QLatin1String NDKEnvFileKey("NDKEnvFile");
 const QLatin1String CertificateGroup("Certificates");
 const QLatin1String ManualNDKsGroup("ManualNDKs");
+const QLatin1String ActiveNDKsGroup("ActiveNDKs");
 }
 
 BlackBerryConfigurationManager::BlackBerryConfigurationManager(QObject *parent)
@@ -129,13 +130,47 @@ void BlackBerryConfigurationManager::loadManualConfigurations()
 
 void BlackBerryConfigurationManager::loadAutoDetectedConfigurations()
 {
+    QStringList activePaths = activeConfigurationNdkEnvPaths();
     foreach (const NdkInstallInformation &ndkInfo, QnxUtils::installedNdks()) {
         QString envFilePath = QnxUtils::envFilePath(ndkInfo.path, ndkInfo.version);
         BlackBerryConfiguration *config = new BlackBerryConfiguration(Utils::FileName::fromString(envFilePath),
                                                                       true, ndkInfo.name);
-        if (!addConfiguration(config))
+        if (!addConfiguration(config)) {
             delete config;
+            continue;
+        }
+
+        // Activate targets
+        foreach (const QString activeNdkEnvPath, activePaths) {
+            if (config->ndkEnvFile().toString() == activeNdkEnvPath)
+                config->activate();
+        }
     }
+
+    // If no target was/is activated, activate one since it's needed by
+    // device connection and CSK code.
+    if (activeConfigurations().isEmpty())
+        m_configs.first()->activate();
+}
+
+QStringList BlackBerryConfigurationManager::activeConfigurationNdkEnvPaths()
+{
+    QStringList actives;
+    QSettings *settings = Core::ICore::settings();
+
+    settings->beginGroup(SettingsGroup);
+    settings->beginGroup(ActiveNDKsGroup);
+
+    foreach (const QString &activeNdkEnvPath, settings->childGroups()) {
+        settings->beginGroup(activeNdkEnvPath);
+        actives.append(settings->value(NDKEnvFileKey).toString());
+        settings->endGroup();
+    }
+
+    settings->endGroup();
+    settings->endGroup();
+
+    return actives;
 }
 
 void BlackBerryConfigurationManager::saveCertificates()
@@ -171,6 +206,26 @@ void BlackBerryConfigurationManager::saveManualConfigurations()
     settings->beginGroup(ManualNDKsGroup);
 
     foreach (BlackBerryConfiguration *config, manualConfigurations()) {
+        settings->beginGroup(config->displayName());
+        settings->setValue(NDKEnvFileKey, config->ndkEnvFile().toString());
+        settings->endGroup();
+    }
+
+    settings->endGroup();
+    settings->endGroup();
+}
+
+void BlackBerryConfigurationManager::saveActiveConfigurationNdkEnvPath()
+{
+    if (activeConfigurations().isEmpty())
+        return;
+
+    QSettings *settings = Core::ICore::settings();
+    settings->beginGroup(SettingsGroup);
+    settings->beginGroup(ActiveNDKsGroup);
+
+    settings->clear();
+    foreach (BlackBerryConfiguration *config, activeConfigurations()) {
         settings->beginGroup(config->displayName());
         settings->setValue(NDKEnvFileKey, config->ndkEnvFile().toString());
         settings->endGroup();
@@ -216,7 +271,7 @@ bool BlackBerryConfigurationManager::addConfiguration(BlackBerryConfiguration *c
         }
     }
 
-    if (config->activate()) {
+    if (config->isValid()) {
         m_configs.append(config);
         return true;
     }
@@ -252,6 +307,17 @@ QList<BlackBerryConfiguration *> BlackBerryConfigurationManager::manualConfigura
     }
 
     return manuals;
+}
+
+QList<BlackBerryConfiguration *> BlackBerryConfigurationManager::activeConfigurations() const
+{
+    QList<BlackBerryConfiguration*> actives;
+    foreach (BlackBerryConfiguration *config, m_configs) {
+        if (config->isActive())
+            actives << config;
+    }
+
+    return actives;
 }
 
 BlackBerryConfiguration *BlackBerryConfigurationManager::configurationFromEnvFile(const Utils::FileName &envFile) const
@@ -315,7 +381,7 @@ BlackBerryCertificate * BlackBerryConfigurationManager::activeCertificate()
 QMultiMap<QString, QString> BlackBerryConfigurationManager::defaultQnxEnv()
 {
     foreach (BlackBerryConfiguration *config, m_configs) {
-        if (!config->qnxEnv().isEmpty())
+        if (config->isActive() && !config->qnxEnv().isEmpty())
             return config->qnxEnv();
     }
 
@@ -354,6 +420,7 @@ void BlackBerryConfigurationManager::clearConfigurationSettings(BlackBerryConfig
 
 void BlackBerryConfigurationManager::saveSettings()
 {
+    saveActiveConfigurationNdkEnvPath();
     saveManualConfigurations();
     saveCertificates();
 }

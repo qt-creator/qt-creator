@@ -61,12 +61,18 @@ BlackBerryNDKSettingsWidget::BlackBerryNDKSettingsWidget(QWidget *parent) :
     m_ui->setupUi(this);
 
     m_ui->removeNdkButton->setEnabled(false);
+    m_ui->activateNdkTargetButton->setEnabled(false);
+    m_ui->deactivateNdkTargetButton->setEnabled(false);
+
+    m_activatedTargets << m_bbConfigManager->activeConfigurations();
 
     initNdkList();
 
     connect(m_ui->wizardButton, SIGNAL(clicked()), this, SLOT(launchBlackBerrySetupWizard()));
     connect(m_ui->addNdkButton, SIGNAL(clicked()), this, SLOT(addNdkTarget()));
     connect(m_ui->removeNdkButton, SIGNAL(clicked()), this, SLOT(removeNdkTarget()));
+    connect(m_ui->activateNdkTargetButton, SIGNAL(clicked()), this, SLOT(activateNdkTarget()));
+    connect(m_ui->deactivateNdkTargetButton, SIGNAL(clicked()), this, SLOT(deactivateNdkTarget()));
     connect(m_ui->ndksTreeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)), this, SLOT(updateInfoTable(QTreeWidgetItem*)));
 }
 
@@ -79,6 +85,16 @@ void BlackBerryNDKSettingsWidget::setWizardMessageVisible(bool visible)
 bool BlackBerryNDKSettingsWidget::hasActiveNdk() const
 {
     return !m_bbConfigManager->configurations().isEmpty();
+}
+
+QList<BlackBerryConfiguration *> BlackBerryNDKSettingsWidget::activatedTargets()
+{
+    return m_activatedTargets;
+}
+
+QList<BlackBerryConfiguration *> BlackBerryNDKSettingsWidget::deactivatedTargets()
+{
+    return m_deactivatedTargets;
 }
 
 void BlackBerryNDKSettingsWidget::launchBlackBerrySetupWizard() const
@@ -95,11 +111,16 @@ void BlackBerryNDKSettingsWidget::launchBlackBerrySetupWizard() const
     wizard.exec();
 }
 
-void BlackBerryNDKSettingsWidget::updateInfoTable(QTreeWidgetItem* currentNdk)
+void BlackBerryNDKSettingsWidget::updateInfoTable(QTreeWidgetItem* currentItem)
 {
-    QString envFilePath = currentNdk->text(1);
+    if (!currentItem)
+        return;
+
+    QString envFilePath = currentItem->text(1);
     if (envFilePath.isEmpty()) {
         m_ui->removeNdkButton->setEnabled(false);
+        m_ui->activateNdkTargetButton->setEnabled(false);
+        m_ui->deactivateNdkTargetButton->setEnabled(false);
         return;
     }
 
@@ -109,7 +130,7 @@ void BlackBerryNDKSettingsWidget::updateInfoTable(QTreeWidgetItem* currentNdk)
 
     foreach (const NdkInstallInformation &ndkInfo, QnxUtils::installedNdks())
     {
-        if (ndkInfo.target.contains(config->targetName())) {
+        if (ndkInfo.name == config->displayName()) {
             m_ui->baseNameLabel->setText(ndkInfo.name);
             m_ui->ndkPathLabel->setText(ndkInfo.path);
             m_ui->versionLabel->setText(ndkInfo.version);
@@ -119,7 +140,7 @@ void BlackBerryNDKSettingsWidget::updateInfoTable(QTreeWidgetItem* currentNdk)
         }
     }
 
-    m_ui->removeNdkButton->setEnabled(!config->isAutoDetected());
+    updateUi(currentItem, config);
 }
 
 void BlackBerryNDKSettingsWidget::updateNdkList()
@@ -129,6 +150,10 @@ void BlackBerryNDKSettingsWidget::updateNdkList()
         QTreeWidgetItem *item = new QTreeWidgetItem(parent);
         item->setText(0, config->displayName());
         item->setText(1, config->ndkEnvFile().toString());
+        QFont font;
+        font.setBold(config->isActive());
+        item->setFont(0, font);
+        item->setFont(1, font);
     }
 
     if (m_autoDetectedNdks->child(0)) {
@@ -162,6 +187,9 @@ void BlackBerryNDKSettingsWidget::addNdkTarget()
 
 void BlackBerryNDKSettingsWidget::removeNdkTarget()
 {
+    if (!m_ui->ndksTreeWidget->currentItem())
+        return;
+
     QString ndk = m_ui->ndksTreeWidget->currentItem()->text(0);
     QString envFilePath = m_ui->ndksTreeWidget->currentItem()->text(1);
     QMessageBox::StandardButton button =
@@ -172,11 +200,61 @@ void BlackBerryNDKSettingsWidget::removeNdkTarget()
 
     if (button == QMessageBox::Yes) {
         BlackBerryConfiguration *config = m_bbConfigManager->configurationFromEnvFile(Utils::FileName::fromString(envFilePath));
-        if (config)
+        if (config) {
             m_bbConfigManager->removeConfiguration(config);
             m_manualNdks->removeChild(m_ui->ndksTreeWidget->currentItem());
+        }
     }
+}
 
+void BlackBerryNDKSettingsWidget::activateNdkTarget()
+{
+    if (!m_ui->ndksTreeWidget->currentItem())
+        return;
+
+    QString envFilePath = m_ui->ndksTreeWidget->currentItem()->text(1);
+
+    BlackBerryConfiguration *config = m_bbConfigManager->configurationFromEnvFile(Utils::FileName::fromString(envFilePath));
+    if (config && !m_activatedTargets.contains(config)) {
+        m_activatedTargets << config;
+        if (m_deactivatedTargets.contains(config))
+           m_deactivatedTargets.removeAt(m_deactivatedTargets.indexOf(config));
+
+        updateUi(m_ui->ndksTreeWidget->currentItem(), config);
+    }
+}
+
+void BlackBerryNDKSettingsWidget::deactivateNdkTarget()
+{
+    if (!m_ui->ndksTreeWidget->currentItem())
+        return;
+
+    QString envFilePath = m_ui->ndksTreeWidget->currentItem()->text(1);
+
+    BlackBerryConfiguration *config = m_bbConfigManager->configurationFromEnvFile(Utils::FileName::fromString(envFilePath));
+    if (config && m_activatedTargets.contains(config)) {
+        m_deactivatedTargets << config;
+        m_activatedTargets.removeAt(m_activatedTargets.indexOf(config));
+        updateUi(m_ui->ndksTreeWidget->currentItem(), config);
+    }
+}
+
+void BlackBerryNDKSettingsWidget::updateUi(QTreeWidgetItem *item, BlackBerryConfiguration *config)
+{
+    if (!item || !config)
+        return;
+
+    QFont font;
+    font.setBold(m_activatedTargets.contains(config));
+    item->setFont(0, font);
+    item->setFont(1, font);
+
+    m_ui->activateNdkTargetButton->setEnabled((!m_activatedTargets.contains(config))
+                                               && config->isAutoDetected());
+    m_ui->deactivateNdkTargetButton->setEnabled((m_activatedTargets.contains(config))
+                                                && m_activatedTargets.size() > 1
+                                                && config->isAutoDetected());
+    m_ui->removeNdkButton->setEnabled(!config->isAutoDetected());
 }
 
 void BlackBerryNDKSettingsWidget::initNdkList()

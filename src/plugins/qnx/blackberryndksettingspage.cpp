@@ -31,6 +31,7 @@
 
 #include "blackberryndksettingspage.h"
 #include "blackberryndksettingswidget.h"
+#include "blackberryconfiguration.h"
 #include "qnxconstants.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
@@ -59,6 +60,15 @@ QWidget *BlackBerryNDKSettingsPage::createPage(QWidget *parent)
 
 void BlackBerryNDKSettingsPage::apply()
 {
+    foreach (BlackBerryConfiguration* config, m_widget->activatedTargets()) {
+        if (!config->isActive())
+            config->activate();
+    }
+
+    foreach (BlackBerryConfiguration* config, m_widget->deactivatedTargets()) {
+        if (config->isActive())
+            config->deactivate();
+    }
 }
 
 void BlackBerryNDKSettingsPage::finish()

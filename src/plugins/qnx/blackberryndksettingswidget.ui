@@ -163,14 +163,35 @@
          <item>
           <widget class="QPushButton" name="addNdkButton">
            <property name="text">
-            <string>Add Target</string>
+            <string>Add </string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QPushButton" name="removeNdkButton">
            <property name="text">
-            <string>Remove Target</string>
+            <string>Remove</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="Line" name="line">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="activateNdkTargetButton">
+           <property name="text">
+            <string>Activate</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="deactivateNdkTargetButton">
+           <property name="text">
+            <string>Deactivate</string>
            </property>
           </widget>
          </item>
