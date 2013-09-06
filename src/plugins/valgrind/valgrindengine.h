@@ -74,6 +74,9 @@ private slots:
     void receiveProcessError(const QString &message, QProcess::ProcessError error);
 
 private:
+    QStringList genericToolArguments() const;
+
+private:
     bool m_isStopping;
 };
 

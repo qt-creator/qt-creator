@@ -44,6 +44,7 @@ using namespace Analyzer;
 
 const char numCallersC[]  = "Analyzer.Valgrind.NumCallers";
 const char trackOriginsC[] = "Analyzer.Valgrind.TrackOrigins";
+const char selfModifyingCodeDetectionC[] = "Analyzer.Valgrind.SelfModifyingCodeDetection";
 const char suppressionFilesC[] = "Analyzer.Valgrind.SupressionFiles";
 const char removedSuppressionFilesC[] = "Analyzer.Valgrind.RemovedSuppressionFiles";
 const char addedSuppressionFilesC[] = "Analyzer.Valgrind.AddedSuppressionFiles";
@@ -89,6 +90,8 @@ void ValgrindBaseSettings::fromMap(const QVariantMap &map)
 {
     // General
     setIfPresent(map, QLatin1String(valgrindExeC), &m_valgrindExecutable);
+    setIfPresent(map, QLatin1String(selfModifyingCodeDetectionC),
+                 (int*) &m_selfModifyingCodeDetection);
 
     // Memcheck
     setIfPresent(map, QLatin1String(numCallersC), &m_numCallers);
@@ -117,6 +120,7 @@ void ValgrindBaseSettings::toMap(QVariantMap &map) const
 {
     // General
     map.insert(QLatin1String(valgrindExeC), m_valgrindExecutable);
+    map.insert(QLatin1String(selfModifyingCodeDetectionC), m_selfModifyingCodeDetection);
 
     // Memcheck
     map.insert(QLatin1String(numCallersC), m_numCallers);
@@ -146,9 +150,22 @@ void ValgrindBaseSettings::setValgrindExecutable(const QString &valgrindExecutab
     }
 }
 
+void ValgrindBaseSettings::setSelfModifyingCodeDetection(int smcDetection)
+{
+    if (m_selfModifyingCodeDetection != smcDetection) {
+        m_selfModifyingCodeDetection = (SelfModifyingCodeDetection) smcDetection;
+        emit selfModifyingCodeDetectionChanged(smcDetection);
+    }
+}
+
 QString ValgrindBaseSettings::valgrindExecutable() const
 {
     return m_valgrindExecutable;
+}
+
+ValgrindBaseSettings::SelfModifyingCodeDetection ValgrindBaseSettings::selfModifyingCodeDetection() const
+{
+    return m_selfModifyingCodeDetection;
 }
 
 void ValgrindBaseSettings::setNumCallers(int numCallers)
@@ -347,6 +364,7 @@ void ValgrindGlobalSettings::readSettings()
 
     // General
     defaults.insert(QLatin1String(valgrindExeC), QLatin1String("valgrind"));
+    defaults.insert(QLatin1String(selfModifyingCodeDetectionC), DetectSmcStackOnly);
 
     // Memcheck
     defaults.insert(QLatin1String(numCallersC), 25);

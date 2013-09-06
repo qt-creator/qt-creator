@@ -64,6 +64,8 @@ ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings,
             m_settings, SLOT(setValgrindExecutable(QString)));
     connect(m_settings, SIGNAL(valgrindExecutableChanged(QString)),
             m_ui->valgrindExeChooser, SLOT(setPath(QString)));
+    connect(m_ui->smcDetectionComboBox, SIGNAL(currentIndexChanged(int)),
+            m_settings, SLOT(setSelfModifyingCodeDetection(int)));
 
     if (Utils::HostOsInfo::isWindowsHost()) {
         // FIXME: On Window we know that we don't have a local valgrind
@@ -158,6 +160,7 @@ ValgrindConfigWidget::~ValgrindConfigWidget()
 void ValgrindConfigWidget::updateUi()
 {
     m_ui->valgrindExeChooser->setPath(m_settings->valgrindExecutable());
+    m_ui->smcDetectionComboBox->setCurrentIndex(m_settings->selfModifyingCodeDetection());
     m_ui->enableCacheSim->setChecked(m_settings->enableCacheSim());
     m_ui->enableBranchSim->setChecked(m_settings->enableBranchSim());
     m_ui->collectSystime->setChecked(m_settings->collectSystime());

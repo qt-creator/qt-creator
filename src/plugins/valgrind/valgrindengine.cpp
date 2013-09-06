@@ -106,7 +106,7 @@ bool ValgrindRunControl::startEngine()
     if (!sp.analyzerCmdPrefix.isEmpty())
         valgrindExe = sp.analyzerCmdPrefix + QLatin1Char(' ') + valgrindExe;
     run->setValgrindExecutable(valgrindExe);
-    run->setValgrindArguments(toolArguments());
+    run->setValgrindArguments(genericToolArguments() + toolArguments());
     run->setDebuggeeExecutable(sp.debuggee);
     run->setDebuggeeArguments(sp.debuggeeArgs);
     run->setEnvironment(sp.environment);
@@ -135,6 +135,28 @@ void ValgrindRunControl::stopEngine()
 QString ValgrindRunControl::executable() const
 {
     return startParameters().debuggee;
+}
+
+QStringList ValgrindRunControl::genericToolArguments() const
+{
+    QTC_ASSERT(m_settings, return QStringList());
+    QString smcCheckValue;
+    switch (m_settings->selfModifyingCodeDetection()) {
+    case ValgrindBaseSettings::DetectSmcNo:
+        smcCheckValue = QLatin1String("none");
+        break;
+    case ValgrindBaseSettings::DetectSmcEverywhere:
+        smcCheckValue = QLatin1String("all");
+        break;
+    case ValgrindBaseSettings::DetectSmcEverywhereButFile:
+        smcCheckValue = QLatin1String("all-non-file");
+        break;
+    case ValgrindBaseSettings::DetectSmcStackOnly:
+    default:
+        smcCheckValue = QLatin1String("stack");
+        break;
+    }
+    return QStringList() << QLatin1String("--smc-check=") + smcCheckValue;
 }
 
 void ValgrindRunControl::handleProgressCanceled()

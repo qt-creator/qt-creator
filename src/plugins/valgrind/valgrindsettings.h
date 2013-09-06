@@ -51,6 +51,13 @@ class ValgrindBaseSettings : public ProjectExplorer::ISettingsAspect
     Q_OBJECT
 
 public:
+    enum SelfModifyingCodeDetection {
+        DetectSmcNo,
+        DetectSmcStackOnly,
+        DetectSmcEverywhere,
+        DetectSmcEverywhereButFile
+    };
+
     ValgrindBaseSettings() {}
 
     void toMap(QVariantMap &map) const;
@@ -64,15 +71,19 @@ signals:
  */
 public:
     QString valgrindExecutable() const;
+    SelfModifyingCodeDetection selfModifyingCodeDetection() const;
 
 public slots:
     void setValgrindExecutable(const QString &);
+    void setSelfModifyingCodeDetection(int);
 
 signals:
     void valgrindExecutableChanged(const QString &);
+    void selfModifyingCodeDetectionChanged(int);
 
 private:
     QString m_valgrindExecutable;
+    SelfModifyingCodeDetection m_selfModifyingCodeDetection;
 
 
 /**
