@@ -156,7 +156,7 @@
 
     \brief The DebuggerEngine class is the base class of a debugger engine.
 
-    Note: the Debugger process itself and any helper processes like
+    \note The Debugger process itself and any helper processes like
     gdbserver are referred to as 'Engine', whereas the debugged process
     is referred to as 'Inferior'.
 
@@ -327,9 +327,11 @@ sg1: }
 
     GdbEngine specific startup. All happens in EngineSetupRequested state:
 
-    Transitions marked by '---' are done in the individual adapters.
+    \list
+        \li Transitions marked by '---' are done in the individual adapters.
 
-    Transitions marked by '+-+' are done in the GdbEngine.
+        \li Transitions marked by '+-+' are done in the GdbEngine.
+    \endlist
 
     \code
                   GdbEngine::setupEngine()

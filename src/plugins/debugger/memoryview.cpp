@@ -43,7 +43,7 @@ namespace Internal {
     \class Debugger::Internal::MemoryView
     \brief The MemoryView class is a base class for memory view tool windows.
 
-    Small tool-window that stays on top and displays a chunk of memory
+    This class is a small tool-window that stays on top and displays a chunk of memory
     based on the widget provided by the Bin editor plugin.
 
     Provides static functionality for handling a Bin Editor Widget

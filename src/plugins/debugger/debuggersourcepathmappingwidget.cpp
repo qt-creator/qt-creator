@@ -193,7 +193,7 @@ void SourcePathMappingModel::setTarget(int row, const QString &t)
     \brief The DebuggerSourcePathMappingWidget class is a widget for maintaining
     a set of source path mappings for the debugger.
 
-    Path mappings to be applied using source path substitution in gdb.
+    Path mappings to be applied using source path substitution in GDB.
 */
 
 DebuggerSourcePathMappingWidget::DebuggerSourcePathMappingWidget(QWidget *parent) :
