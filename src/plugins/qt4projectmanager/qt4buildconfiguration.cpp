@@ -234,10 +234,13 @@ bool Qt4BuildConfiguration::isShadowBuild() const
 
 void Qt4BuildConfiguration::setBuildDirectory(const FileName &directory)
 {
+    if (directory == buildDirectory())
+        return;
     BuildConfiguration::setBuildDirectory(directory);
     QTC_CHECK(supportsShadowBuilds()
               || (!supportsShadowBuilds()
                   && buildDirectory().toString() == target()->project()->projectDirectory()));
+    emitProFileEvaluateNeeded();
 }
 
 QString Qt4BuildConfiguration::makefile() const
