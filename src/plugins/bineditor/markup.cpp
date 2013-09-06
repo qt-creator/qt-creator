@@ -27,30 +27,15 @@
 **
 ****************************************************************************/
 
-#ifndef MARKUP_H
-#define MARKUP_H
+#include "markup.h"
 
-#include <QColor>
-#include <QString>
-#include <QList>
-#include <QMetaType>
+/*!
+    \class BINEditor::Markup
+    \brief The Markup class defines the range of the binary editor.
 
-namespace BINEditor {
+    Used for displaying class layouts by the debugger.
 
-class Markup
-{
-public:
-    Markup(quint64 a = 0, quint64 l = 0, QColor c = Qt::yellow, const QString &tt = QString()) :
-        address(a), length(l), color(c), toolTip(tt) {}
-    bool covers(quint64 a) const { return a >= address && a < (address + length); }
+    \note Must not have linkage - used for soft dependencies.
 
-    quint64 address;
-    quint64 length;
-    QColor color;
-    QString toolTip;
-};
-} // namespace BINEditor
-
-Q_DECLARE_METATYPE(QList<BINEditor::Markup>)
-
-#endif // MARKUP_H
+    \sa Debugger::Internal::MemoryAgent
+*/
