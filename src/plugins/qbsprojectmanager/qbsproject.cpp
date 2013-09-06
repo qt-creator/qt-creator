@@ -38,8 +38,6 @@
 #include <coreplugin/documentmanager.h>
 #include <utils/qtcassert.h>
 
-#include <language/language.h>
-
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/id.h>
@@ -64,7 +62,6 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
 #include <qbs.h>
-#include <tools/scripttools.h> // qbs, remove once there is a expand method in Qbs itself!
 
 #include <QFileInfo>
 
