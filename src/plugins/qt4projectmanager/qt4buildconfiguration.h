@@ -125,7 +125,6 @@ private slots:
     void kitChanged();
     void toolChainUpdated(ProjectExplorer::ToolChain *tc);
     void qtVersionsChanged(const QList<int> &, const QList<int> &, const QList<int> &changed);
-    bool emitBuildDirectoryChanged();
 
 protected:
     Qt4BuildConfiguration(ProjectExplorer::Target *target, Qt4BuildConfiguration *source);
@@ -136,6 +135,7 @@ private:
     void ctor();
     QString defaultShadowBuildDirectory() const;
     void setBuildDirectory(const Utils::FileName &directory);
+    void updateShadowBuild();
 
     class LastKitState
     {

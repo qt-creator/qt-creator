@@ -148,7 +148,7 @@ void Qt4BuildConfiguration::kitChanged()
         // For that reason the Qt4BuildConfiguration is also connected
         // to the toolchain and qtversion managers
         emitProFileEvaluateNeeded();
-        emitBuildDirectoryChanged();
+        updateShadowBuild();
         m_lastKitState = newState;
     }
 }
@@ -165,15 +165,15 @@ void Qt4BuildConfiguration::qtVersionsChanged(const QList<int> &,const QList<int
         emitProFileEvaluateNeeded();
 }
 
-bool Qt4BuildConfiguration::emitBuildDirectoryChanged()
+void Qt4BuildConfiguration::updateShadowBuild()
 {
     // We also emit buildDirectoryChanged if the the Qt version's supportShadowBuild changed
-    if (supportsShadowBuilds() != m_qtVersionSupportsShadowBuilds) {
-        m_qtVersionSupportsShadowBuilds = supportsShadowBuilds();
-        emit buildDirectoryChanged();
-        return true;
+    bool currentShadowBuild = supportsShadowBuilds();
+    if (currentShadowBuild != m_qtVersionSupportsShadowBuilds) {
+        if (!currentShadowBuild)
+            setBuildDirectory(Utils::FileName::fromString(target()->project()->projectDirectory()));
+        m_qtVersionSupportsShadowBuilds = currentShadowBuild;
     }
-    return false;
 }
 
 NamedWidget *Qt4BuildConfiguration::createConfigWidget()
