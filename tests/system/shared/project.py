@@ -33,11 +33,11 @@ import re
 processStarted = False
 processExited = False
 
-def __handleProcessStarted__(object):
+def __handleProcessStarted__(*args):
     global processStarted
     processStarted = True
 
-def __handleProcessExited__(object, exitCode):
+def __handleProcessExited__(*args):
     global processExited
     processExited = True
 
@@ -70,6 +70,9 @@ def openCmakeProject(projectPath, buildDir):
     replaceEditorContent("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'"
                          "window=':CMake Wizard_CMakeProjectManager::Internal::CMakeOpenProjectWizard'}", buildDir)
     clickButton(waitForObject(":CMake Wizard.Next_QPushButton"))
+    return __handleCmakeWizardPage__()
+
+def __handleCmakeWizardPage__():
     generatorCombo = waitForObject(":Generator:_QComboBox")
     mkspec = __getMkspecFromQmake__("qmake")
     test.log("Using mkspec '%s'" % mkspec)
@@ -255,20 +258,21 @@ def createNewQtQuickApplication(workingDir, projectName = None, templateFile = N
     progressBarWait(10000)
     return checkedTargets, projectName
 
-def createNewQtQuickUI(workingDir):
-    __createProjectOrFileSelectType__("  Applications", "Qt Quick 1 UI")
+def createNewQtQuickUI(workingDir, qtQuickVersion=1):
+    __createProjectOrFileSelectType__("  Applications", "Qt Quick %d UI" % qtQuickVersion)
     if workingDir == None:
         workingDir = tempDir()
     projectName = __createProjectSetNameAndPath__(workingDir)
     __createProjectHandleLastPage__()
     return projectName
 
-def createNewQmlExtension(workingDir):
-    available = __createProjectOrFileSelectType__("  Libraries", "Qt Quick 1 Extension Plugin")
+def createNewQmlExtension(workingDir, targets=Targets.DESKTOP_474_GCC, qtQuickVersion=1):
+    available = __createProjectOrFileSelectType__("  Libraries", "Qt Quick %d Extension Plugin"
+                                                  % qtQuickVersion)
     if workingDir == None:
         workingDir = tempDir()
     __createProjectSetNameAndPath__(workingDir)
-    checkedTargets = __chooseTargets__(Targets.DESKTOP_474_GCC, available)
+    checkedTargets = __chooseTargets__(targets, available)
     nextButton = waitForObject(":Next_QPushButton")
     clickButton(nextButton)
     nameLineEd = waitForObject("{buddy={type='QLabel' text='Object class-name:' unnamed='1' visible='1'} "
@@ -281,8 +285,42 @@ def createNewQmlExtension(workingDir):
     __createProjectHandleLastPage__()
     return checkedTargets
 
+def createEmptyQtProject(workingDir=None, projectName=None, targets=Targets.desktopTargetClasses()):
+    __createProjectOrFileSelectType__("  Other Project", "Empty Qt Project")
+    if workingDir == None:
+        workingDir = tempDir()
+    projectName = __createProjectSetNameAndPath__(workingDir, projectName)
+    checkedTargets = __chooseTargets__(targets)
+    snooze(1)
+    clickButton(waitForObject(":Next_QPushButton"))
+    __createProjectHandleLastPage__()
+    return projectName, checkedTargets
+
+def createNewNonQtProject(workingDir=None, projectName=None, target=Targets.DESKTOP_474_GCC,
+                          plainC=False, cmake=False):
+    if plainC:
+        template = "Plain C Project"
+    else:
+        template = "Plain C++ Project"
+    if cmake:
+        template += " (CMake Build)"
+    available = __createProjectOrFileSelectType__("  Non-Qt Project", template)
+    if workingDir == None:
+        workingDir = tempDir()
+    projectName = __createProjectSetNameAndPath__(workingDir, projectName)
+    if cmake:
+        __createProjectHandleLastPage__()
+        clickButton(waitForObject(":Next_QPushButton"))
+        if not __handleCmakeWizardPage__():
+            return None
+    else:
+        __chooseTargets__(target, availableTargets=available)
+        clickButton(waitForObject(":Next_QPushButton"))
+        __createProjectHandleLastPage__()
+    return projectName
+
 # parameter target can be an OR'd value of Targets
-# parameter availableTargets should be the result of __createProjectSelectType__()
+# parameter availableTargets should be the result of __createProjectOrFileSelectType__()
 #           or use None as a fallback
 def __chooseTargets__(targets=Targets.DESKTOP_474_GCC, availableTargets=None,
                       isMaddeDisabled=True):
@@ -330,8 +368,8 @@ def runAndCloseApp(withHookInto=False, executable=None, port=None, function=None
     global processStarted, processExited
     processStarted = processExited = False
     overrideInstallLazySignalHandler()
-    installLazySignalHandler("{type='ProjectExplorer::ApplicationLauncher'}", "processStarted()", "__handleProcessStarted__")
-    installLazySignalHandler("{type='ProjectExplorer::ApplicationLauncher'}", "processExited(int)", "__handleProcessExited__")
+    installLazySignalHandler("{type='QProcess'}", "started()", "__handleProcessStarted__")
+    installLazySignalHandler("{type='QProcess'}", "finished(int,QProcess::ExitStatus)", "__handleProcessExited__")
     runButton = waitForObject(":*Qt Creator.Run_Core::Internal::FancyToolButton")
     clickButton(runButton)
     if sType != SubprocessType.QT_QUICK_UI:
@@ -445,7 +483,7 @@ def __closeSubprocessByHookingInto__(executable, port, function, sType, userDefT
                        "Using fallback of pushing STOP inside Creator.")
             resetApplicationContextToCreator()
             __closeSubprocessByPushingStop__(sType)
-    waitFor("processExited==True", 10000)
+    waitFor("processExited==True and 'exited with code' in str(output.plainText)", 10000)
     if not processExited:
         test.warning("Sub-process seems not to have closed properly.")
         try:
@@ -480,18 +518,19 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False):
         supports = text[text.find('Supported Platforms'):].split(":")[1].strip().split(" ")
         result = []
         if 'Desktop' in supports:
-            result.append(Targets.DESKTOP_474_GCC)
-            result.append(Targets.DESKTOP_480_GCC)
+            if version == None or version < "5.0":
+                result.append(Targets.DESKTOP_474_GCC)
+                result.append(Targets.DESKTOP_480_GCC)
+                if platform.system() in ("Linux", "Darwin"):
+                    result.append(Targets.EMBEDDED_LINUX)
+                elif platform.system() in ('Windows', 'Microsoft'):
+                    result.append(Targets.DESKTOP_480_MSVC2010)
             result.append(Targets.DESKTOP_501_DEFAULT)
-            if platform.system() in ("Linux", "Darwin"):
-                result.append(Targets.EMBEDDED_LINUX)
-            elif platform.system() in ('Windows', 'Microsoft'):
-                result.append(Targets.DESKTOP_480_MSVC2010)
         if 'MeeGo/Harmattan' in supports:
             result.append(Targets.HARMATTAN)
         if 'Maemo/Fremantle' in supports:
             result.append(Targets.MAEMO5)
-        if not ("BlackBerry" in templateName or re.search("custom Qt Creator plugin", text)):
+        if not ("BlackBerry" in templateName or re.search("custom Qt Creator plugin", text)) and (version == None or version < "5.0"):
             result.append(Targets.SIMULATOR)
     elif 'Platform independent' in text:
         # MAEMO5 and HARMATTAN could be wrong here - depends on having Madde plugin enabled or not
@@ -583,3 +622,13 @@ def addCPlusPlusFileToCurrentProject(name, template, forceOverwrite=False):
             buttonToClick = 'Cancel'
         clickButton("{text='%s' type='QPushButton' unnamed='1' visible='1' window=%s}"
                     % (buttonToClick, overwriteDialog))
+
+def qt5SDKPath():
+    if platform.system() in ('Microsoft', 'Windows'):
+        return os.path.abspath("C:/Qt/Qt5.0.1/5.0.1/msvc2010")
+    elif platform.system() == 'Linux':
+        if __is64BitOS__():
+            return os.path.expanduser("~/Qt5.0.1/5.0.1/gcc_64")
+        return os.path.expanduser("~/Qt5.0.1/5.0.1/gcc")
+    else:
+        return os.path.expanduser("~/Qt5.0.1/5.0.1/clang_64")

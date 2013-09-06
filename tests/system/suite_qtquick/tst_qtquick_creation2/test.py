@@ -30,40 +30,49 @@
 source("../../shared/qtcreator.py")
 
 def main():
-    sourceExample = os.path.abspath(sdkPath + "/Examples/4.7/declarative/text/textselection")
-    qmlFile = os.path.join("qml", "textselection.qml")
-    if not neededFilePresent(os.path.join(sourceExample, qmlFile)):
+    sourceExampleQt4 = os.path.join(sdkPath, "Examples", "4.7", "declarative", "text",
+                                    "textselection", "qml", "textselection.qml")
+    sourceExampleQt5 = os.path.join(qt5SDKPath(), "examples", "quick", "text", "textselection",
+                                    "textselection.qml")
+    if not neededFilePresent(sourceExampleQt4):
+        return
+    if not neededFilePresent(sourceExampleQt5):
         return
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    # using a temporary directory won't mess up a potentially existing
-    workingDir = tempDir()
-    checkedTargets, projectName = createNewQtQuickApplication(workingDir, None,
-                                                              os.path.join(prepareTemplate(sourceExample), qmlFile),
-                                                              Targets.DESKTOP_474_GCC)
-    test.log("Building project")
-    result = modifyRunSettingsForHookInto(projectName, len(checkedTargets), 11223)
-    invokeMenuItem("Build","Build All")
-    waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)")
-    if not checkCompile():
-        test.fatal("Compile failed")
-    else:
-        checkLastBuild()
-        test.log("Running project (includes build)")
-        if result:
-            result = addExecutableAsAttachableAUT(projectName, 11223)
-            allowAppThroughWinFW(workingDir, projectName)
-            if result:
-                result = runAndCloseApp(True, projectName, 11223, subprocessFunction, SubprocessType.QT_QUICK_APPLICATION)
-            else:
-                result = runAndCloseApp(sType=SubprocessType.QT_QUICK_APPLICATION)
-            removeExecutableAsAttachableAUT(projectName, 11223)
-            deleteAppFromWinFW(workingDir, projectName)
+    targetsAndQuickVersion = {Targets.DESKTOP_480_GCC:[1, sourceExampleQt4],
+                              Targets.DESKTOP_501_DEFAULT:[2, sourceExampleQt5]}
+    for targ, qVerAndEx in targetsAndQuickVersion.items():
+        # using a temporary directory won't mess up a potentially existing
+        workingDir = tempDir()
+        checkedTargets, projectName = createNewQtQuickApplication(workingDir, None,
+                                                                  qVerAndEx[1],
+                                                                  targ, qVerAndEx[0])
+        test.log("Building project Qt Quick %d Application (%s)"
+                 % (qVerAndEx[0], Targets.getStringForTarget(targ)))
+        result = modifyRunSettingsForHookInto(projectName, len(checkedTargets), 11223)
+        invokeMenuItem("Build","Build All")
+        waitForSignal("{type='ProjectExplorer::BuildManager' unnamed='1'}", "buildQueueFinished(bool)")
+        if not checkCompile():
+            test.fatal("Compile failed")
         else:
-            result = runAndCloseApp()
-        if result:
-            logApplicationOutput()
+            checkLastBuild()
+            test.log("Running project (includes build)")
+            if result:
+                result = addExecutableAsAttachableAUT(projectName, 11223)
+                allowAppThroughWinFW(workingDir, projectName)
+                if result:
+                    result = runAndCloseApp(True, projectName, 11223, subprocessFunction, SubprocessType.QT_QUICK_APPLICATION)
+                else:
+                    result = runAndCloseApp(sType=SubprocessType.QT_QUICK_APPLICATION)
+                removeExecutableAsAttachableAUT(projectName, 11223)
+                deleteAppFromWinFW(workingDir, projectName)
+            else:
+                result = runAndCloseApp()
+            if result:
+                logApplicationOutput()
+        invokeMenuItem("File", "Close All Projects and Editors")
     invokeMenuItem("File", "Exit")
 
 def subprocessFunction():

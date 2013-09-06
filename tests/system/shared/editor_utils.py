@@ -216,7 +216,7 @@ def __handleColorTips__(colTip, expectedColor):
     if rgb.rgba() == cmp.rgba():
         test.passes("ColorTip verified")
     else:
-        test.fail("ColorTip does not match - expected color '%s' got '%s'" % (rgb.rgb(), cmp.rgb()))
+        test.fail("ColorTip does not match - expected color '%s' got '%s'" % (cmp.rgb(), rgb.rgb()))
 
 # function that checks whether all expected properties (including their values)
 # match the given properties

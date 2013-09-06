@@ -33,9 +33,9 @@ source("../../shared/suites_qtta.py")
 webPageContentLoadedValue = 0
 
 # wait until help gets loaded
-def webPageContentLoaded(obj, param):
+def webPageContentLoaded(*args):
     global webPageContentLoadedValue
-    objectClass = str(obj.metaObject().className())
+    objectClass = str(args[0].metaObject().className())
     if objectClass in ("QWebPage", "Help::Internal::HelpViewer"):
         webPageContentLoadedValue += 1
 
@@ -58,16 +58,6 @@ def handlePackagingMessageBoxes():
                                       "window=%s}" % messageBox))
         except:
             break
-
-def qt5SDKPath():
-    if platform.system() in ('Microsoft', 'Windows'):
-        return os.path.abspath("C:/Qt/Qt5.0.1/5.0.1/msvc2010")
-    elif platform.system() == 'Linux':
-        if __is64BitOS__():
-            return os.path.expanduser("~/Qt5.0.1/5.0.1/gcc_64")
-        return os.path.expanduser("~/Qt5.0.1/5.0.1/gcc")
-    else:
-        return os.path.expanduser("~/Qt5.0.1/5.0.1/clang_64")
 
 def main():
     global sdkPath, webPageContentLoadedValue
@@ -127,10 +117,7 @@ def main():
     test.verify(checkIfObjectExists("{column='0' container=':Qt Creator_Utils::NavigationTreeView'"
                                     " text='2dpainting' type='QModelIndex'}"),
                 "Verifying: The project is shown in 'Edit' mode.")
-    openItemContextMenu(waitForObject(":Qt Creator_Utils::NavigationTreeView"),
-                        "2dpainting", 5, 5, 0)
-    activateItem(waitForObjectItem(":Qt Creator.Project.Menu.Project_QMenu",
-                                   'Close Project "2dpainting"'))
+    invokeContextMenuOnProject('2dpainting', 'Close Project "2dpainting"')
     navTree = waitForObject(":Qt Creator_Utils::NavigationTreeView")
     res = waitFor("navTree.model().rowCount(navTree.rootIndex()) == 0", 2000)
     test.verify(not checkIfObjectItemExists(":Qt Creator_Utils::NavigationTreeView", "2dpainting"),
@@ -165,10 +152,7 @@ def main():
                 checkIfObjectExists("{column='0' container=':Qt Creator_Utils::NavigationTreeView'"
                                     " text='addressbook' type='QModelIndex'}"),
                 "Verifying: The project is shown in 'Edit' mode while old project isn't.")
-    openItemContextMenu(waitForObject(":Qt Creator_Utils::NavigationTreeView"),
-                        "addressbook", 5, 5, 0)
-    activateItem(waitForObjectItem(":Qt Creator.Project.Menu.Project_QMenu",
-                                   'Close Project "addressbook"'))
+    invokeContextMenuOnProject('addressbook', 'Close Project "addressbook"')
     navTree = waitForObject(":Qt Creator_Utils::NavigationTreeView")
     res = waitFor("navTree.model().rowCount(navTree.rootIndex()) == 0", 2000)
     test.verify(not checkIfObjectItemExists(":Qt Creator_Utils::NavigationTreeView", "addressbook"),
