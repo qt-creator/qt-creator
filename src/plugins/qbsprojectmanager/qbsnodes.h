@@ -32,7 +32,7 @@
 
 #include <projectexplorer/projectnodes.h>
 
-#include <api/projectdata.h>
+#include <qbs.h>
 
 #include <QIcon>
 
@@ -170,11 +170,11 @@ public:
     explicit QbsProjectNode(const QString &path);
     ~QbsProjectNode();
 
-    void update(const qbs::Project *prj);
+    void update(const qbs::Project &prj);
     void update(const qbs::ProjectData &prjData);
 
     QbsProject *project() const;
-    const qbs::Project *qbsProject() const;
+    const qbs::Project qbsProject() const;
     const qbs::ProjectData qbsProjectData() const;
 
 private:
@@ -185,7 +185,7 @@ private:
 
     QbsProject *m_project;
 
-    const qbs::Project *m_qbsProject;
+    qbs::Project m_qbsProject;
     qbs::ProjectData m_qbsProjectData;
     static QIcon m_projectIcon;
 };

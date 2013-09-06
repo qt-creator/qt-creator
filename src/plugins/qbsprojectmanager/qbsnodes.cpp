@@ -535,8 +535,8 @@ QList<ProjectExplorer::RunConfiguration *> QbsProductNode::runConfigurationsFor(
     Q_UNUSED(node);
     QList<ProjectExplorer::RunConfiguration *> result;
     QbsProjectNode *pn = qobject_cast<QbsProjectNode *>(projectNode());
-    if (!isEnabled() || !pn || pn->qbsProject()->targetExecutable(m_qbsProductData,
-                                                                  qbs::InstallOptions()).isEmpty()) {
+    if (!isEnabled() || !pn || !pn->qbsProject().isValid()
+            || pn->qbsProject().targetExecutable(m_qbsProductData, qbs::InstallOptions()).isEmpty()) {
         return result;
     }
 
@@ -567,14 +567,14 @@ QbsGroupNode *QbsProductNode::findGroupNode(const QString &name)
 
 QbsProjectNode::QbsProjectNode(QbsProject *project) :
     QbsBaseProjectNode(project->projectFilePath()),
-    m_project(project), m_qbsProject(0)
+    m_project(project)
 {
     ctor();
 }
 
 QbsProjectNode::QbsProjectNode(const QString &path) :
     QbsBaseProjectNode(path),
-    m_project(0), m_qbsProject(0)
+    m_project(0)
 {
     ctor();
 }
@@ -582,14 +582,11 @@ QbsProjectNode::QbsProjectNode(const QString &path) :
 QbsProjectNode::~QbsProjectNode()
 {
     // do not delete m_project
-    delete m_qbsProject;
 }
 
-void QbsProjectNode::update(const qbs::Project *prj)
+void QbsProjectNode::update(const qbs::Project &prj)
 {
-    update(prj ? prj->projectData() : qbs::ProjectData());
-
-    delete m_qbsProject;
+    update(prj.isValid() ? prj.projectData() : qbs::ProjectData());
     m_qbsProject = prj;
 }
 
@@ -638,10 +635,10 @@ QbsProject *QbsProjectNode::project() const
     return m_project;
 }
 
-const qbs::Project *QbsProjectNode::qbsProject() const
+const qbs::Project QbsProjectNode::qbsProject() const
 {
     QbsProjectNode *parent = qobject_cast<QbsProjectNode *>(projectNode());
-    if (!m_qbsProject && parent != this)
+    if (!m_qbsProject.isValid() && parent != this)
         return parent->qbsProject();
     return m_qbsProject;
 }

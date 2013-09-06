@@ -196,10 +196,10 @@ QString QbsRunConfiguration::executable() const
     QbsProject *pro = static_cast<QbsProject *>(target()->project());
     const qbs::ProductData product = findProduct(pro->qbsProjectData(), m_qbsProduct);
 
-    if (!product.isValid() || !pro->qbsProject())
+    if (!product.isValid() || !pro->qbsProject().isValid())
         return QString();
 
-    return pro->qbsProject()->targetExecutable(product, installOptions());
+    return pro->qbsProject().targetExecutable(product, installOptions());
 }
 
 ProjectExplorer::LocalApplicationRunConfiguration::RunMode QbsRunConfiguration::runMode() const
@@ -568,11 +568,11 @@ QList<Core::Id> QbsRunConfigurationFactory::availableCreationIds(ProjectExplorer
         return result;
 
     QbsProject *project = static_cast<QbsProject *>(parent->project());
-    if (!project || !project->qbsProject())
+    if (!project || !project->qbsProject().isValid())
         return result;
 
     foreach (const qbs::ProductData &product, project->qbsProjectData().allProducts()) {
-        if (!project->qbsProject()->targetExecutable(product, qbs::InstallOptions()).isEmpty())
+        if (!project->qbsProject().targetExecutable(product, qbs::InstallOptions()).isEmpty())
             result << Core::Id::fromString(QString::fromLatin1(QBS_RC_PREFIX) + product.name());
     }
     return result;
