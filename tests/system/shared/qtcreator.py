@@ -91,7 +91,7 @@ def waitForCleanShutdown(timeOut=10):
     shutdownDone = (str(appCtxt)=="")
     if platform.system() in ('Windows','Microsoft'):
         # cleaning helper for running on the build machines
-        __checkForQmlViewer__()
+        __checkForQmlViewerAndQmlScene__()
         endtime = datetime.utcnow() + timedelta(seconds=timeOut)
         while not shutdownDone:
             # following work-around because os.kill() works for win not until python 2.7
@@ -116,18 +116,19 @@ def waitForCleanShutdown(timeOut=10):
             if not shutdownDone and datetime.utcnow() > endtime:
                 break
 
-def __checkForQmlViewer__():
-    tasks = subprocess.Popen("tasklist /FI \"IMAGENAME eq qmlviewer.exe\"", shell=True,
-                             stdout=subprocess.PIPE)
-    output = tasks.communicate()[0]
-    tasks.stdout.close()
-    if "INFO: No tasks are running which match the specified criteria." in output:
-        return
-    else:
-        if subprocess.call("taskkill /F /FI \"IMAGENAME eq qmlviewer.exe\"", shell=True) == 0:
-            print "Killed still running qmlviewer"
+def __checkForQmlViewerAndQmlScene__():
+    for qmlHelper in ['qmlviewer.exe', 'qmlscene.exe']:
+        tasks = subprocess.Popen("tasklist /FI \"IMAGENAME eq %s\"" % qmlHelper, shell=True,
+                                 stdout=subprocess.PIPE)
+        output = tasks.communicate()[0]
+        tasks.stdout.close()
+        if "INFO: No tasks are running which match the specified criteria." in output:
+            continue
         else:
-            print "qmlviewer is still running - failed to kill it"
+            if subprocess.call("taskkill /F /FI \"IMAGENAME eq %s\"" % qmlHelper, shell=True) == 0:
+                print "Killed still running %s" % qmlHelper
+            else:
+                print "%s is still running - failed to kill it" % qmlHelper
 
 def __removeTestingDir__():
     def __removeIt__(directory):
