@@ -168,7 +168,7 @@ void QRangeModelPrivate::emitValueAndPositionIfChanged(const qreal oldValue, con
 }
 
 /*!
-    Constructs a QRangeModel with \a parent
+    Constructs a QRangeModel with \a parent.
 */
 
 QRangeModel::QRangeModel(QObject *parent)
@@ -180,7 +180,7 @@ QRangeModel::QRangeModel(QObject *parent)
 
 /*!
     \internal
-    Constructs a QRangeModel with private class pointer \a dd and \a parent
+    Constructs a QRangeModel with private class pointer \a dd and \a parent.
 */
 
 QRangeModel::QRangeModel(QRangeModelPrivate &dd, QObject *parent)
@@ -203,7 +203,7 @@ QRangeModel::~QRangeModel()
 /*!
     Sets the range of valid positions, that \l position can assume externally, with
     \a min and \a max.
-    Such range is represented by \l positionAtMinimum and \l positionAtMaximum
+    Such range is represented by \l positionAtMinimum and \l positionAtMaximum.
 */
 
 void QRangeModel::setPositionRange(qreal min, qreal max)
@@ -238,7 +238,7 @@ void QRangeModel::setPositionRange(qreal min, qreal max)
 /*!
     Sets the range of valid values, that \l value can assume externally, with
     \a min and \a max. The range has the following constraint: \a min must be less or equal \a max
-    Such range is represented by \l minimumValue and \l maximumValue
+    Such range is represented by \l minimumValue and \l maximumValue.
 */
 
 void QRangeModel::setRange(qreal min, qreal max)
@@ -476,7 +476,7 @@ void QRangeModel::setValue(qreal newValue)
 
 /*!
     \property QRangeModel::inverted
-    \brief the model is inverted or not
+    \brief whether the model is inverted or not
 
     The model can be represented with an inverted behavior, e.g. when \l value assumes
     the maximum value (represented by \l maximumValue) the \l position will be at its
