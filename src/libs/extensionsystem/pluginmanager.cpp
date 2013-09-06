@@ -86,19 +86,20 @@ enum { debugLeaks = 0 };
     \endlist
 
     \section1 Plugins
-    Plugins consist of an xml descriptor file, and of a library that contains a Qt plugin
+    Plugins consist of an XML descriptor file, and of a library that contains a Qt plugin
     (declared via Q_EXPORT_PLUGIN) that must derive from the IPlugin class.
     The plugin manager is used to set a list of file system directories to search for
     plugins, retrieve information about the state of these plugins, and to load them.
 
-    Usually the application creates a PluginManager instance and initiates the loading.
+    Usually, the application creates a PluginManager instance and initiates the
+    loading.
     \code
         ExtensionSystem::PluginManager *manager = new ExtensionSystem::PluginManager();
         manager->setPluginPaths(QStringList() << "plugins"); // 'plugins' and subdirs will be searched for plugins
         manager->loadPlugins(); // try to load all the plugins
     \endcode
-    Additionally it is possible to directly access to the plugin specifications
-    (the information in the descriptor file), and the plugin instances (via PluginSpec),
+    Additionally, it is possible to directly access the plugin specifications
+    (the information in the descriptor file), the plugin instances (via PluginSpec),
     and their state.
 
     \section1 Object Pool
@@ -198,26 +199,28 @@ enum { debugLeaks = 0 };
 
 /*!
     \fn void PluginManager::objectAdded(QObject *obj)
-    Signal that \a obj has been added to the object pool.
+    Signals that \a obj has been added to the object pool.
 */
 
 /*!
     \fn void PluginManager::aboutToRemoveObject(QObject *obj)
-    Signal that \a obj will be removed from the object pool.
+    Signals that \a obj will be removed from the object pool.
 */
 
 /*!
     \fn void PluginManager::pluginsChanged()
-    Signal that the list of available plugins has changed.
+    Signals that the list of available plugins has changed.
 
     \sa plugins()
 */
 
 /*!
-    \fn T *PluginManager::getObject() const
-    Retrieve the object of a given type from the object pool.
-    This method is aware of Aggregation::Aggregate, i.e. it uses
-    the Aggregation::query methods instead of qobject_cast to
+    \fn T *PluginManager::getObject()
+
+    Retrieves the object of a given type from the object pool.
+
+    This method is aware of Aggregation::Aggregate. That is, it uses
+    the \c Aggregation::query methods instead of \c qobject_cast to
     determine the type of an object.
     If there are more than one object of the given type in
     the object pool, this method will choose an arbitrary one of them.
@@ -226,10 +229,12 @@ enum { debugLeaks = 0 };
 */
 
 /*!
-    \fn QList<T *> PluginManager::getObjects() const
-    Retrieve all objects of a given type from the object pool.
-    This method is aware of Aggregation::Aggregate, i.e. it uses
-    the Aggregation::query methods instead of qobject_cast to
+    \fn QList<T *> PluginManager::getObjects()
+
+    Retrieves all objects of a given type from the object pool.
+
+    This method is aware of Aggregation::Aggregate. That is, it uses
+    the \c Aggregation::query methods instead of \c qobject_cast to
     determine the type of an object.
 
     \sa addObject()
@@ -246,7 +251,7 @@ static bool lessThanByPluginName(const PluginSpec *one, const PluginSpec *two)
 PluginManager *PluginManager::m_instance = 0;
 
 /*!
-    Get the unique plugin manager instance.
+    Gets the unique plugin manager instance.
 */
 PluginManager *PluginManager::instance()
 {
@@ -254,7 +259,7 @@ PluginManager *PluginManager::instance()
 }
 
 /*!
-    Create a plugin manager. Should be done only once per application.
+    Creates a plugin manager. Should be done only once per application.
 */
 PluginManager::PluginManager()
     : d(new PluginManagerPrivate(this))
@@ -272,7 +277,9 @@ PluginManager::~PluginManager()
 }
 
 /*!
-    Add the given object \a obj to the object pool, so it can be retrieved again from the pool by type.
+    Adds the object \a obj to the object pool, so it can be retrieved
+    again from the pool by type.
+
     The plugin manager does not do any memory management - added objects
     must be removed from the pool and deleted manually by whoever is responsible for the object.
 
@@ -297,8 +304,10 @@ void PluginManager::removeObject(QObject *obj)
 }
 
 /*!
-    Retrieve the list of all objects in the pool, unfiltered.
-    Usually clients do not need to call this.
+    Retrieves the list of all objects in the pool, unfiltered.
+
+    Usually, clients do not need to call this function.
+
     \sa PluginManager::getObject()
     \sa PluginManager::getObjects()
 */
@@ -388,7 +397,8 @@ void PluginManager::setFileExtension(const QString &extension)
 }
 
 /*!
-    Define the user specific settings to use for information about enabled/disabled plugins.
+    Defines the user specific settings to use for information about enabled and
+    disabled plugins.
     Needs to be set before the plugin search path is set with setPluginPaths().
 */
 void PluginManager::setSettings(QSettings *settings)
@@ -397,7 +407,8 @@ void PluginManager::setSettings(QSettings *settings)
 }
 
 /*!
-    Define the global (user-independent) settings to use for information about default disabled plugins.
+    Defines the global (user-independent) settings to use for information about
+    default disabled plugins.
     Needs to be set before the plugin search path is set with setPluginPaths().
 */
 void PluginManager::setGlobalSettings(QSettings *settings)
@@ -406,7 +417,8 @@ void PluginManager::setGlobalSettings(QSettings *settings)
 }
 
 /*!
-    Returns the user specific settings used for information about enabled/disabled plugins.
+    Returns the user specific settings used for information about enabled and
+    disabled plugins.
 */
 QSettings *PluginManager::settings()
 {
@@ -427,7 +439,7 @@ void PluginManager::writeSettings()
 }
 
 /*!
-    The arguments left over after parsing (Neither startup nor plugin
+    The arguments left over after parsing (that were neither startup nor plugin
     arguments). Typically, this will be the list of files to open.
 */
 QStringList PluginManager::arguments()
@@ -457,7 +469,7 @@ QHash<QString, PluginCollection *> PluginManager::pluginCollections()
 static const char argumentKeywordC[] = ":arguments";
 
 /*!
-    Serialize plugin options and arguments for sending in a single string
+    Serializes plugin options and arguments for sending in a single string
     via QtSingleApplication:
     ":myplugin|-option1|-option2|:arguments|argument1|argument2",
     as a list of lists started by a keyword with a colon. Arguments are last.
@@ -591,7 +603,7 @@ static inline void formatOption(QTextStream &str,
 }
 
 /*!
-    Format the startup options of the plugin manager for command line help.
+    Formats the startup options of the plugin manager for command line help.
 */
 
 void PluginManager::formatOptions(QTextStream &str, int optionIndentation, int descriptionIndentation)
@@ -616,7 +628,7 @@ void PluginManager::formatOptions(QTextStream &str, int optionIndentation, int d
 }
 
 /*!
-    Format the plugin  options of the plugin specs for command line help.
+    Formats the plugin options of the plugin specs for command line help.
 */
 
 void PluginManager::formatPluginOptions(QTextStream &str, int optionIndentation, int descriptionIndentation)
@@ -636,7 +648,7 @@ void PluginManager::formatPluginOptions(QTextStream &str, int optionIndentation,
 }
 
 /*!
-    Format the version of the plugin specs for command line help.
+    Formats the version of the plugin specs for command line help.
 */
 void PluginManager::formatPluginVersions(QTextStream &str)
 {
@@ -743,7 +755,8 @@ QString PluginManager::testDataDirectory()
 }
 
 /*!
-    Create a profiling entry showing the elapsed time if profiling is activated.
+    Creates a profiling entry showing the elapsed time if profiling is
+    activated.
 */
 
 void PluginManager::profilingReport(const char *what, const PluginSpec *spec)
@@ -1313,7 +1326,7 @@ void PluginManagerPrivate::profilingSummary() const
 }
 
 /*!
-    \brief Retrieves one object with a given name from the object pool.
+    Retrieves one object with \a name from the object pool.
     \sa addObject()
 */
 
@@ -1329,7 +1342,8 @@ QObject *PluginManager::getObjectByName(const QString &name)
 }
 
 /*!
-    Retrieves one object inheriting a class with a given name from the object pool.
+    Retrieves one object inheriting a class with \a className from the object
+    pool.
     \sa addObject()
 */
 
