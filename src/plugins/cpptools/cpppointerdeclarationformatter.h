@@ -63,10 +63,10 @@ public:
     /*!
         \enum PointerDeclarationFormatter::CursorHandling
 
-        This simplifies the QuickFix implementation.
+        This enum type simplifies the QuickFix implementation.
 
           \value RespectCursor
-                 Consider the cursor position / selection of the CppRefactoringFile
+                 Consider the cursor position or selection of the CppRefactoringFile
                  for rejecting edit operation candidates for the resulting ChangeSet.
                  If there is a selection, the range of the edit operation candidate
                  should be inside the selection. If there is no selection, the cursor

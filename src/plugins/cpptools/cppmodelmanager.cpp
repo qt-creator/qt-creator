@@ -198,7 +198,7 @@ void CppModelManager::updateModifiedSourceFiles()
            for each project and all the related CppCodeModelPart instances.
 
     It also takes care of updating the code models when C++ files are
-    modified within Qt Creator.
+    modified within \QC.
 */
 
 QMutex CppModelManager::m_modelManagerMutex;
