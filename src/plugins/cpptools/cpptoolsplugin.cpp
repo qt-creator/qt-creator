@@ -30,6 +30,7 @@
 #include "cpptoolsconstants.h"
 #include "cpptoolsplugin.h"
 #include "cppfilesettingspage.h"
+#include "cppcodemodelsettingspage.h"
 #include "cppcodestylesettingspage.h"
 #include "cppclassesfilter.h"
 #include "cppfunctionsfilter.h"
@@ -74,8 +75,9 @@ enum { debug = 0 };
 static CppToolsPlugin *m_instance = 0;
 static QHash<QString, QString> m_headerSourceMapping;
 
-CppToolsPlugin::CppToolsPlugin() :
-    m_fileSettings(new CppFileSettings)
+CppToolsPlugin::CppToolsPlugin()
+    : m_fileSettings(new CppFileSettings)
+    , m_codeModelSettings(new CppCodeModelSettings)
 {
     m_instance = this;
 }
@@ -127,6 +129,7 @@ bool CppToolsPlugin::initialize(const QStringList &arguments, QString *error)
     addAutoReleasedObject(new CppFunctionsFilter(locatorData));
     addAutoReleasedObject(new CppCurrentDocumentFilter(modelManager));
     addAutoReleasedObject(new CppFileSettingsPage(m_fileSettings));
+//    addAutoReleasedObject(new CppCodeModelSettingsPage(m_codeModelSettings));
     addAutoReleasedObject(new SymbolsFindFilter(modelManager));
     addAutoReleasedObject(new CppCodeStyleSettingsPage);
 
@@ -165,11 +168,17 @@ void CppToolsPlugin::extensionsInitialized()
     m_fileSettings->fromSettings(ICore::settings());
     if (!m_fileSettings->applySuffixesToMimeDB())
         qWarning("Unable to apply cpp suffixes to mime database (cpp mime types not found).\n");
+    m_codeModelSettings->fromSettings(ICore::settings());
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag CppToolsPlugin::aboutToShutdown()
 {
     return SynchronousShutdown;
+}
+
+QSharedPointer<CppCodeModelSettings> CppToolsPlugin::codeModelSettings() const
+{
+    return m_codeModelSettings;
 }
 
 void CppToolsPlugin::switchHeaderSource()

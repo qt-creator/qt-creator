@@ -49,6 +49,7 @@ namespace Internal {
 
 class CppModelManager;
 struct CppFileSettings;
+class CppCodeModelSettings;
 
 class CPPTOOLS_EXPORT CppToolsPlugin : public ExtensionSystem::IPlugin
 {
@@ -67,6 +68,8 @@ public:
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
     ShutdownFlag aboutToShutdown();
+
+    QSharedPointer<CppCodeModelSettings> codeModelSettings() const;
 
 public slots:
     void switchHeaderSource();
@@ -225,6 +228,7 @@ private:
 
 private:
     QSharedPointer<CppFileSettings> m_fileSettings;
+    QSharedPointer<CppCodeModelSettings> m_codeModelSettings;
     CppToolsSettings *m_settings;
 };
 

@@ -31,6 +31,7 @@
 
 #include "abstracteditorsupport.h"
 #include "builtinindexingsupport.h"
+#include "cppcodemodelsettings.h"
 #include "cppfindreferences.h"
 #include "cpphighlightingsupport.h"
 #include "cppindexingsupport.h"
@@ -38,6 +39,7 @@
 #include "cpppreprocessor.h"
 #include "cpptoolsconstants.h"
 #include "cpptoolseditorsupport.h"
+#include "cpptoolsplugin.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -257,6 +259,8 @@ CppModelManager::CppModelManager(QObject *parent)
     qRegisterMetaType<CPlusPlus::Document::Ptr>("CPlusPlus::Document::Ptr");
 
     m_modelManagerSupportFallback.reset(new ModelManagerSupportInternal);
+    CppToolsPlugin::instance()->codeModelSettings()->setDefaultId(
+                m_modelManagerSupportFallback->id());
     addModelManagerSupport(m_modelManagerSupportFallback.data());
 
     m_internalIndexingSupport = new BuiltinIndexingSupport;
@@ -908,13 +912,17 @@ void CppModelManager::finishedRefreshingSourceFiles(const QStringList &files)
 
 void CppModelManager::addModelManagerSupport(ModelManagerSupport *modelManagerSupport)
 {
-    if (!m_codeModelSupporters.contains(modelManagerSupport))
-        m_codeModelSupporters.append(modelManagerSupport);
+    Q_ASSERT(modelManagerSupport);
+    m_idTocodeModelSupporter[modelManagerSupport->id()] = modelManagerSupport;
+    QSharedPointer<CppCodeModelSettings> cms = CppToolsPlugin::instance()->codeModelSettings();
+    cms->setModelManagerSupports(m_idTocodeModelSupporter.values());
 }
 
 ModelManagerSupport *CppModelManager::modelManagerSupportForMimeType(const QString &mimeType) const
 {
-    return m_mimeTypeToCodeModelSupport.value(mimeType, m_modelManagerSupportFallback.data());
+    QSharedPointer<CppCodeModelSettings> cms = CppToolsPlugin::instance()->codeModelSettings();
+    const QString &id = cms->modelManagerSupportId(mimeType);
+    return m_idTocodeModelSupporter.value(id, m_modelManagerSupportFallback.data());
 }
 
 CppCompletionAssistProvider *CppModelManager::completionAssistProvider(Core::IEditor *editor) const

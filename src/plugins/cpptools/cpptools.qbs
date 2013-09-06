@@ -110,7 +110,12 @@ QtcPlugin {
         "cpppreprocessor.cpp",
         "cpppreprocessor.h",
         "includeutils.cpp",
-        "includeutils.h"
+        "includeutils.h",
+        "cppcodemodelsettings.cpp",
+        "cppcodemodelsettings.h",
+        "cppcodemodelsettingspage.cpp",
+        "cppcodemodelsettingspage.h",
+        "cppcodemodelsettingspage.ui"
     ]
 
     Group {

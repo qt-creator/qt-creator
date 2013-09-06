@@ -105,7 +105,7 @@ public:
 
     void finishedRefreshingSourceFiles(const QStringList &files);
 
-    virtual void addModelManagerSupport(ModelManagerSupport *codeModelSupport);
+    virtual void addModelManagerSupport(ModelManagerSupport *modelManagerSupport);
     virtual ModelManagerSupport *modelManagerSupportForMimeType(const QString &mimeType) const;
     virtual CppCompletionAssistProvider *completionAssistProvider(Core::IEditor *editor) const;
     virtual CppHighlightingSupport *highlightingSupport(Core::IEditor *editor) const;
@@ -202,9 +202,8 @@ private:
     QSet<AbstractEditorSupport *> m_extraEditorSupports;
 
     // Completion & highlighting
-    QList<ModelManagerSupport *> m_codeModelSupporters;
+    QHash<QString, ModelManagerSupport *> m_idTocodeModelSupporter;
     QScopedPointer<ModelManagerSupport> m_modelManagerSupportFallback;
-    QHash<QString, ModelManagerSupport *> m_mimeTypeToCodeModelSupport;
 
     // Indexing
     CppIndexingSupport *m_indexingSupporter;
