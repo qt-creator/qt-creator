@@ -808,7 +808,7 @@ WatchesSymbolGroup::InameExpressionMap
 }
 
 /*!
-    \brief Collapse all expanded pointer items.
+    Collapses all expanded pointer items.
 
     If we have an item '*(Foo*)(address_of_Foo_D_Ptr)' and the
     D-Ptr changes due to detaching, the expanded items (whose address

@@ -66,7 +66,8 @@ typedef std::vector<int>::size_type VectorIndexType;
     if (SymbolGroupValue sizeV = container["d"]["size"])
       int size = sizeV.intValue()
     \endcode
-    etc. \ingroup qtcreatorcdbext */
+    \ingroup qtcreatorcdbext
+    */
 
 unsigned SymbolGroupValue::verbose = 0;
 
@@ -691,7 +692,8 @@ static inline std::string resolveQtSymbol(const char *symbolC,
 
     Namespace, modules, and basic class
     names containing the module for fast lookup.
-    \ingroup qtcreatorcdbext */
+    \ingroup qtcreatorcdbext
+*/
 
 const QtInfo &QtInfo::get(const SymbolGroupValueContext &ctx)
 {
