@@ -423,9 +423,9 @@ void QbsProject::parse(const QVariantMap &config, const Environment &env, const 
     params.setIgnoreDifferentProjectFilePath(false);
     params.setEnvironment(env.toProcessEnvironment());
     qbs::Preferences *prefs = QbsManager::preferences();
-    const QString buildDir = qbsBuildDir();
-    params.setSearchPaths(prefs->searchPaths(buildDir));
-    params.setPluginPaths(prefs->pluginPaths(buildDir));
+    const QString qbsDir = qbsDirectory();
+    params.setSearchPaths(prefs->searchPaths(qbsDir));
+    params.setPluginPaths(prefs->pluginPaths(qbsDir));
 
     // Do the parsing:
     prepareForParsing();
@@ -658,12 +658,12 @@ void QbsProject::updateDeploymentInfo(const qbs::Project *project)
     activeTarget()->setDeploymentData(deploymentData);
 }
 
-QString QbsProject::qbsBuildDir() const
+QString QbsProject::qbsDirectory() const
 {
-    QString buildDir = Environment::systemEnvironment().value(QLatin1String("QBS_BUILD_DIR"));
-    if (buildDir.isEmpty())
-        buildDir = ICore::resourcePath() + QLatin1String("/qbs");
-    return buildDir;
+    const QString qbsInstallDir = QLatin1String(QBS_INSTALL_DIR);
+    if (!qbsInstallDir.isEmpty())
+        return qbsInstallDir;
+    return ICore::resourcePath() + QLatin1String("/qbs");
 }
 
 } // namespace Internal

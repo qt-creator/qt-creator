@@ -5,11 +5,12 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "QbsProjectManager"
 
-    property var externalQbsDefines: project.useExternalQbs
-                                     ? ['QBS_BUILD_DIR="' + project.qbs_build_dir +'"'] : []
-    property var externalQbsIncludes: project.useExternalQbs ? [project.qbs_source_dir + "/src/lib"] : []
-    property var externalQbsLibraryPaths: project.useExternalQbs ? [project.qbs_build_dir + "/lib"] : []
-    property var externalQbsRPaths: project.useExternalQbs ? [project.qbs_build_dir + "/lib"] : []
+    property var externalQbsIncludes: project.useExternalQbs
+            ? [project.qbs_install_dir + "/include/qbs"] : []
+    property var externalQbsLibraryPaths: project.useExternalQbs
+            ? [project.qbs_install_dir + "/lib"] : []
+    property var externalQbsRPaths: project.useExternalQbs
+            ? [project.qbs_install_dir + "/lib"] : []
     property var externalQbsDynamicLibraries: {
         var libs = []
         if (!project.useExternalQbs)
@@ -42,8 +43,11 @@ QtcPlugin {
     }
 
     cpp.defines: base.concat([
-        'QML_BUILD_STATIC_LIB'
-    ]).concat(externalQbsDefines)
+        'QML_BUILD_STATIC_LIB',
+        'QBS_INSTALL_DIR="'
+                + (project.useExternalQbs ? project.qbs_install_dir.split("\\").join("/") : '')
+                + '"'
+    ])
     cpp.includePaths: base.concat(externalQbsIncludes)
     cpp.libraryPaths: base.concat(externalQbsLibraryPaths)
     cpp.rpaths: base.concat(externalQbsRPaths)

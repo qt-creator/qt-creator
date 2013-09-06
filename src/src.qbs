@@ -12,9 +12,8 @@ Project {
     ]
 
     property bool qbsSubModuleExists: File.exists(qbsProject.qbsBaseDir + "/qbs.qbs")
-    property path qbs_build_dir: qbs.getenv("QBS_BUILD_DIR")
-    property path qbs_source_dir: qbs.getenv("QBS_SOURCE_DIR")
-    property bool useExternalQbs: qbs_build_dir && qbs_source_dir
+    property path qbs_install_dir: qbs.getenv("QBS_INSTALL_DIR")
+    property bool useExternalQbs: qbs_install_dir
     property bool buildQbsProjectManager: useExternalQbs || qbsSubModuleExists
     Project {
         name: "qbs"

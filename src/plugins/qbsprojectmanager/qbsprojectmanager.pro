@@ -1,18 +1,17 @@
 include(../../qtcreatorplugin.pri)
 
 # Look for qbs in the environment
-isEmpty(QBS_SOURCE_DIR): QBS_SOURCE_DIR = $$(QBS_SOURCE_DIR)
-isEmpty(QBS_BUILD_DIR): QBS_BUILD_DIR = $$(QBS_BUILD_DIR)
-# Fallback to the submodule
-isEmpty(QBS_SOURCE_DIR): QBS_SOURCE_DIR = $$PWD/../../shared/qbs
-isEmpty(QBS_BUILD_DIR): QBS_BUILD_DIR = $$IDE_BUILD_TREE/src/shared/qbs
+isEmpty(QBS_INSTALL_DIR): QBS_INSTALL_DIR = $$(QBS_INSTALL_DIR)
+isEmpty(QBS_INSTALL_DIR) {
+    QBS_SOURCE_DIR = $$PWD/../../shared/qbs
+    include($$QBS_SOURCE_DIR/src/lib/use.pri)
+    macx:QMAKE_LFLAGS += -Wl,-rpath,@loader_path/../ # Mac: fix rpath for qbscore soname
+} else {
+    include($${QBS_INSTALL_DIR}/include/qbs/use_installed.pri)
+}
+QBS_INSTALL_DIR_FWD_SLASHES = $$replace(QBS_INSTALL_DIR, \\\\, /)
+DEFINES += QBS_INSTALL_DIR=\\\"$$QBS_INSTALL_DIR_FWD_SLASHES\\\"
 
-include($$QBS_SOURCE_DIR/src/lib/use.pri)
-# Mac: fix rpath for qbscore soname
-macx:QMAKE_LFLAGS += -Wl,-rpath,@loader_path/../
-
-QBS_BUILD_DIR_FWD_SLASHES = $$replace(QBS_BUILD_DIR, \\\\, /)
-DEFINES += QBS_BUILD_DIR=\\\"$$QBS_BUILD_DIR_FWD_SLASHES\\\"
 DEFINES += \
     QBSPROJECTMANAGER_LIBRARY
 
