@@ -169,7 +169,7 @@ ActionManager *ActionManager::instance()
 }
 
 /*!
-    \brief Creates a new menu with the given \a id.
+    Creates a new menu with the given \a id.
 
     Returns a new ActionContainer that you can use to get the QMenu instance
     or to add menu items to the menu. The ActionManager owns
@@ -196,7 +196,7 @@ ActionContainer *ActionManager::createMenu(Id id)
 }
 
 /*!
-    \brief Creates a new menu bar with the given \a id.
+    Creates a new menu bar with the given \a id.
 
     Returns a new ActionContainer that you can use to get the QMenuBar instance
     or to add menus to the menu bar. The ActionManager owns
@@ -221,7 +221,7 @@ ActionContainer *ActionManager::createMenuBar(Id id)
 }
 
 /*!
-    \brief Makes an \a action known to the system under the specified \a id.
+    Makes an \a action known to the system under the specified \a id.
 
     Returns a command object that represents the action in the application and is
     owned by the ActionManager. You can register several actions with the
@@ -243,7 +243,7 @@ Command *ActionManager::registerAction(QAction *action, Id id, const Context &co
 }
 
 /*!
-    \brief Makes a \a shortcut known to the system under the specified \a id.
+    Makes a \a shortcut known to the system under the specified \a id.
 
     Returns a command object that represents the shortcut in the application and is
     owned by the ActionManager. You can registered several shortcuts with the
@@ -292,7 +292,7 @@ Command *ActionManager::registerShortcut(QShortcut *shortcut, Id id, const Conte
 }
 
 /*!
-    \brief Returns the Command object that is known to the system
+    Returns the Command object that is known to the system
     under the given \a id.
 
     \sa ActionManager::registerAction()
@@ -310,7 +310,7 @@ Command *ActionManager::command(Id id)
 }
 
 /*!
-    \brief Returns the IActionContainter object that is know to the system
+    Returns the IActionContainter object that is know to the system
     under the given \a id.
 
     \sa ActionManager::createMenu()
@@ -329,7 +329,7 @@ ActionContainer *ActionManager::actionContainer(Id id)
 }
 
 /*!
- * \brief Returns all commands that have been registered.
+ * Returns all commands that have been registered.
  */
 QList<Command *> ActionManager::commands()
 {
@@ -341,7 +341,7 @@ QList<Command *> ActionManager::commands()
 }
 
 /*!
-    \brief Removes the knowledge about an \a action under the specified \a id.
+    Removes the knowledge about an \a action under the specified \a id.
 
     Usually you do not need to unregister actions. The only valid use case for unregistering
     actions, is for actions that represent user definable actions, like for the custom Locator
@@ -372,7 +372,7 @@ void ActionManager::unregisterAction(QAction *action, Id id)
 }
 
 /*!
-    \brief Removes the knowledge about a shortcut under the specified \a id.
+    Removes the knowledge about a shortcut under the specified \a id.
 
     Usually you do not need to unregister shortcuts. The only valid use case for unregistering
     shortcuts, is for shortcuts that represent user definable actions. If the user removes such an action,

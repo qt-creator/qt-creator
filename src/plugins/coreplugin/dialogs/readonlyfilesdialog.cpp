@@ -158,7 +158,7 @@ ReadOnlyFilesDialog::~ReadOnlyFilesDialog()
 }
 
 /*!
- * \brief Set a user defined message in the dialog.
+ * Sets a user defined message in the dialog.
  * \internal
  */
 void ReadOnlyFilesDialog::setMessage(const QString &message)
@@ -167,8 +167,8 @@ void ReadOnlyFilesDialog::setMessage(const QString &message)
 }
 
 /*!
- * \brief Enable the error output to the user via a messageBox.
- * \param warning Added to the dialog, should show possible consequences if the file is still read only.
+ * Enables the error output to the user via a message box. \a warning should
+ * show the possible consequences if the file is still read only.
  * \internal
  */
 void ReadOnlyFilesDialog::setShowFailWarning(bool show, const QString &warning)
@@ -178,7 +178,7 @@ void ReadOnlyFilesDialog::setShowFailWarning(bool show, const QString &warning)
 }
 
 /*!
- * \brief Opens a message box with an error description according to the type.
+ * Opens a message box with an error description according to the type.
  * \internal
  */
 void ReadOnlyFilesDialog::promptFailWarning(const QStringList &files, ReadOnlyResult type) const
@@ -237,12 +237,13 @@ void ReadOnlyFilesDialog::promptFailWarning(const QStringList &files, ReadOnlyRe
 }
 
 /*!
- * \brief Executes the dialog.
- * \return ReadOnlyResult which gives information about the operation which was used to make the files writable.
+ * Executes the ReadOnlyFilesDialog dialog.
+ * Returns ReadOnlyResult to provide information about the operation that was
+ * used to make the files writable.
  * \internal
  *
- * Also displays an error dialog when some operations can't be executed and the function
- * setShowFailWarning was called.
+ * Also displays an error dialog when some operations cannot be executed and the
+ * function \c setShowFailWarning() was called.
  */
 int ReadOnlyFilesDialog::exec()
 {
@@ -287,9 +288,9 @@ int ReadOnlyFilesDialog::exec()
 }
 
 /*!
- * \brief Creates a radio button in the column specified with type.
- * \param group the created button will be added to this group.
- * \return the created button.
+ * Creates a radio button in the group \a group and in the column specified by
+ * \a type.
+ * Returns the created button.
  * \internal
  */
 QRadioButton* ReadOnlyFilesDialog::createRadioButtonForItem(QTreeWidgetItem *item, QButtonGroup *group,
@@ -304,7 +305,8 @@ QRadioButton* ReadOnlyFilesDialog::createRadioButtonForItem(QTreeWidgetItem *ite
 }
 
 /*!
- * \brief Checks the type of the select all combo box and change the user selection per file accordingly.
+ * Checks the type of the select all combo box and changes the user selection
+ * per file accordingly.
  * \internal
  */
 void ReadOnlyFilesDialog::setAll(int index)
@@ -331,7 +333,8 @@ void ReadOnlyFilesDialog::setAll(int index)
 }
 
 /*!
- * \brief Updates the select all combo box depending on the selection in the tree widget the user made.
+ * Updates the select all combo box depending on the selection the user made in
+ * the tree widget.
  * \internal
  */
 void ReadOnlyFilesDialog::updateSelectAll()
@@ -349,8 +352,10 @@ void ReadOnlyFilesDialog::updateSelectAll()
 }
 
 /*!
- * \brief Adds files to the dialog and check for possible operation to make the file writable.
- * \param fileNames A List of files which should be added to the dialog.
+ * Adds files to the dialog and checks for a possible operation to make the file
+ * writable.
+ * \a fileNames contains the list of the files that should be added to the
+ * dialog.
  * \internal
  */
 void ReadOnlyFilesDialog::initDialog(const QStringList &fileNames)

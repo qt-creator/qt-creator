@@ -39,15 +39,16 @@
   into the plugin manager object pool (e.g. ExtensionSystem::PluginManager::addObject).
   Guidelines for implementing:
   \list
-  \li id() is a unique identifier for referencing this page
-  \li displayName() is the (translated) name for display
-  \li category() is the unique id for the category that the page should be displayed in
-  \li displayCategory() is the translated name of the category
-  \li createPage() is called to retrieve the widget to show in the preferences dialog
+  \li \c id() is a unique identifier for referencing this page
+  \li \c displayName() is the (translated) name for display
+  \li \c category() is the unique id for the category that the page should be displayed in
+  \li \c displayCategory() is the translated name of the category
+  \li \c createPage() is called to retrieve the widget to show in the
+        \gui Options dialog
      The widget will be destroyed by the widget hierarchy when the dialog closes
-  \li apply() is called to store the settings. It should detect if any changes have been
+  \li \c apply() is called to store the settings. It should detect if any changes have been
          made and store those
-  \li finish() is called directly before the preferences dialog closes
-  \li matches() is used for the options dialog search filter
+  \li \c finish() is called directly before the \gui Options dialog closes
+  \li \c matches() is used for the \gui Options dialog search filter
   \endlist
 */

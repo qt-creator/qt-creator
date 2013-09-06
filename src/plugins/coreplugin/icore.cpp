@@ -37,7 +37,7 @@
 /*!
     \namespace Core
     \brief The Core namespace contains all classes that make up the Core plugin
-    which constitute the basic functionality of Qt Creator.
+    which constitute the basic functionality of \QC.
 */
 
 /*!
@@ -60,12 +60,14 @@
 /*!
     \fn void ICore::showNewItemDialog(const QString &title,
                                       const QList<IWizard *> &wizards,
-                                      const QString &defaultLocation = QString())
-    \brief Opens a dialog where the user can choose from a set of \a wizards that
-    create new files/classes/projects.
+                                      const QString &defaultLocation = QString(),
+                                      const QVariantMap &extraVariables = QVariantMap())
 
-    The \a title argument is shown as the dialogs title. The path where the
-    files will be created (if the user doesn't change it) is set
+    Opens a dialog where the user can choose from a set of \a wizards that
+    create new files, classes, or projects.
+
+    The \a title argument is shown as the dialog title. The path where the
+    files will be created (if the user does not change it) is set
     in \a defaultLocation. It defaults to the path of the file manager's
     current file.
 
@@ -73,11 +75,10 @@
 */
 
 /*!
-    \fn bool ICore::showOptionsDialog(const QString &group = QString(),
-                                      const QString &page = QString(),
-                                      QWidget *parent = 0)
-    \brief Opens the application options/preferences dialog with preselected
-    \a page in a specified \a group.
+    \fn bool ICore::showOptionsDialog(Id group, Id page, QWidget *parent = 0);
+
+    Opens the application \gui Options (or \gui Preferences) dialog with preselected
+    \a page in the specified \a group.
 
     The arguments refer to the string IDs of the corresponding IOptionsPage.
 */
@@ -89,16 +90,16 @@
                                    const QString &settingsId = QString(),
                                    QWidget *parent = 0);
 
-    \brief Show a warning message with a button that opens a settings page.
+    Shows a warning message with a button that opens a settings page.
 
     Should be used to display configuration errors and point users to the setting.
-    Returns true if the settings dialog was accepted.
+    Returns \c true if the settings dialog was accepted.
 */
 
 
 /*!
     \fn ActionManager *ICore::actionManager() const
-    \brief Returns the application's action manager.
+    Returns the application's action manager.
 
     The action manager is responsible for registration of menus and
     menu items and keyboard shortcuts.
@@ -112,16 +113,18 @@
 */
 
 /*!
-    \fn MessageManager *ICore::messageManager() const
-    \brief Returns the application's message manager.
+    \fn MessageManager *ICore::messageManager()
+
+    Returns the application's message manager.
 
     The message manager is the interface to the "General" output pane for
     general application debug messages.
 */
 
 /*!
-    \fn EditorManager *ICore::editorManager() const
-    \brief Returns the application's editor manager.
+    \fn EditorManager *ICore::editorManager()
+
+    Returns the application's editor manager.
 
     The editor manager handles all editor related tasks like opening
     documents, the stack of currently open documents and the currently
@@ -129,11 +132,12 @@
 */
 
 /*!
-    \fn ProgressManager *ICore::progressManager() const
-    \brief Returns the application's progress manager.
+    \fn ProgressManager *ICore::progressManager()
+
+    Returns the application's progress manager.
 
     Use the progress manager to register a concurrent task to
-    show a progress bar the way Qt Creator does it.
+    show a progress bar the way \QC does it.
 */
 
 /*!
@@ -143,7 +147,7 @@
 
 /*!
     \fn VariableManager *ICore::variableManager() const
-    \brief Returns the application's variable manager.
+    Returns the application's variable manager.
 
     The variable manager is used to register application wide string variables
     like \c MY_PROJECT_DIR such that strings like \c{somecommand ${MY_PROJECT_DIR}/sub}
@@ -151,19 +155,20 @@
 */
 
 /*!
-    \fn VcsManager *ICore::vcsManager() const
-    \brief Returns the application's vcs manager.
+    \fn VcsManager *ICore::vcsManager()
 
-    The vcs manager can be used to e.g. retrieve information about
+    Returns the application's version control system (VCS) manager.
+
+    The VCS manager can be used to retrieve information about
     the version control system used for a directory on hard disk.
     The actual functionality for a specific version control system
-    must be implemented in a IVersionControl object and registered in
+    must be implemented in an \c IVersionControl object and registered in
     the plugin manager's object pool.
 */
 
 /*!
     \fn ModeManager *ICore::modeManager() const
-    \brief Returns the application's mode manager.
+    Returns the application's mode manager.
 
     The mode manager handles everything related to the instances of IMode
     that were added to the plugin manager's object pool as well as their
@@ -172,33 +177,34 @@
 */
 
 /*!
-    \fn MimeDatabase *ICore::mimeDatabase() const
-    \brief Returns the application's mime database.
+    \fn MimeDatabase *ICore::mimeDatabase()
 
-    Use the mime database to manage mime types.
+    Uses the MIME database to manage MIME types.
 */
 
 /*!
-    \fn QSettings *ICore::settings(QSettings::Scope scope = QSettings::UserScope) const
-    \brief Returns the application's main settings object.
+    \fn QSettings *ICore::settings(QSettings::Scope scope = QSettings::UserScope)
+
+    Returns the application's main settings object.
 
     You can use it to retrieve or set application wide settings
     (in contrast to session or project specific settings).
 
-    If \a scope is QSettings::UserScope (the default), the
+    If \a scope is \c QSettings::UserScope (the default), the
     users settings will be read from the users settings, with
-    a fallback to global settings provided with Qt Creator.
+    a fallback to global settings provided with \QC.
 
-    If \a scope is QSettings::SystemScope, only the system settings
-    shipped with the current version of Qt Creator will be read. This
+    If \a scope is \c QSettings::SystemScope, only the system settings
+    shipped with the current version of \QC will be read. This
     functionality exists for internal purposes only.
 
     \see settingsDatabase()
 */
 
 /*!
-    \fn SettingsDatabase *ICore::settingsDatabase() const
-    \brief Returns the application's settings database.
+    \fn SettingsDatabase *ICore::settingsDatabase()
+
+    Returns the application's settings database.
 
     The settings database is meant as an alternative to the regular settings
     object. It is more suitable for storing large amounts of data. The settings
@@ -208,42 +214,48 @@
 */
 
 /*!
-    \fn QPrinter *ICore::printer() const
-    \brief Returns the application's printer object.
+    \fn QPrinter *ICore::printer()
+
+    Returns the application's printer object.
 
     Always use this printer object for printing, so the different parts of the
     application re-use its settings.
 */
 
 /*!
-    \fn QString ICore::resourcePath() const
-    \brief Returns the absolute path that is used for resources like
+    \fn QString ICore::resourcePath()
+
+    Returns the absolute path that is used for resources like
     project templates and the debugger macros.
 
     This abstraction is needed to avoid platform-specific code all over
-    the place, since e.g. on Mac the resources are part of the application bundle.
+    the place, since on Mac OS X, for example, the resources are part of the
+    application bundle.
 */
 
 
 /*!
-    \fn QString ICore::userResourcePath() const
-    \brief Returns the absolute path in the users directory that is used for
+    \fn QString ICore::userResourcePath()
+
+    Returns the absolute path in the users directory that is used for
     resources like project templates.
 
     Use this method for finding the place for resources that the user may
-    write to, e.g. to allow for custom palettes or templates.
+    write to, for example, to allow for custom palettes or templates.
 */
 
 /*!
-    \fn QMainWindow *ICore::mainWindow() const
-    \brief Returns the main application window.
+    \fn QWidget *ICore::mainWindow()
 
-    For use as dialog parent etc.
+    Returns the main application window.
+
+    For use as dialog parent, and so on.
 */
 
 /*!
-    \fn IContext *ICore::currentContextObject() const
-    \brief Returns the context object of the current main context.
+    \fn IContext *ICore::currentContextObject()
+
+    Returns the context object of the current main context.
 
     \sa ICore::updateAdditionalContexts()
     \sa ICore::addContextObject()
@@ -251,7 +263,7 @@
 
 /*!
     \fn void ICore::updateAdditionalContexts(const Context &remove, const Context &add)
-    \brief Change the currently active additional contexts.
+    Changes the currently active additional contexts.
 
     Removes the list of additional contexts specified by \a remove and adds the
     list of additional contexts specified by \a add.
@@ -261,7 +273,7 @@
 
 /*!
     \fn bool ICore::hasContext(int context) const
-    \brief Returns if the given \a context is currently one of the active contexts.
+    Returns whether the given \a context is currently one of the active contexts.
 
     \sa ICore::updateAdditionalContexts()
     \sa ICore::addContextObject()
@@ -269,7 +281,7 @@
 
 /*!
     \fn void ICore::addContextObject(IContext *context)
-    \brief Registers an additional \a context object.
+    Registers an additional \a context object.
 
     After registration this context object gets automatically the
     current context object whenever its widget gets focus.
@@ -281,7 +293,7 @@
 
 /*!
     \fn void ICore::removeContextObject(IContext *context)
-    \brief Unregisters a \a context object from the list of know contexts.
+    Unregisters a \a context object from the list of know contexts.
 
     \sa ICore::addContextObject()
     \sa ICore::updateAdditionalContexts()
@@ -291,9 +303,9 @@
 
 /*!
     \fn void ICore::openFiles(const QStringList &fileNames, OpenFilesFlags flags = None)
-    \brief Open all files from a list of \a fileNames like it would be
-    done if they were given to Qt Creator on the command line, or
-    they were opened via \gui{File|Open}.
+    Opens all files from a list of \a fileNames like it would be
+    done if they were given to \QC on the command line, or
+    they were opened via \gui File > \gui Open.
 */
 
 /*!
@@ -308,12 +320,12 @@
 
 /*!
     \fn void ICore::coreOpened()
-    \brief Emitted after all plugins have been loaded and the main window shown.
+    Indicates that all plugins have been loaded and the main window is shown.
 */
 
 /*!
     \fn void ICore::saveSettingsRequested()
-    \brief Emitted to signal that the user has requested that the global settings
+    Signals that the user has requested that the global settings
     should be saved to disk.
 
     At the moment that happens when the application is closed, and on \gui{Save All}.
@@ -321,29 +333,30 @@
 
 /*!
     \fn void ICore::optionsDialogRequested()
-    \brief Signal that allows plugins to perform actions just before the \gui{Tools|Options}
+    Enables plugins to perform actions just before the \gui Tools > \gui Options
     dialog is shown.
 */
 
 /*!
     \fn void ICore::coreAboutToClose()
-    \brief Plugins can do some pre-end-of-life actions when they get this signal.
+    Enables plugins to perform some pre-end-of-life actions.
 
     The application is guaranteed to shut down after this signal is emitted.
-    It's there as an addition to the usual plugin lifecycle methods, namely
-    IPlugin::aboutToShutdown(), just for convenience.
+    It is there as an addition to the usual plugin lifecycle methods, namely
+    \c IPlugin::aboutToShutdown(), just for convenience.
 */
 
 /*!
     \fn void ICore::contextAboutToChange(const QList<Core::IContext *> &context)
-    \brief Sent just before a new \a context becomes the current context
-    (meaning that itself or one of its child widgets got focus).
+    Indicates that a new \a context will shortly become the current context
+    (meaning that its widget got focus).
 */
 
 /*!
     \fn void ICore::contextChanged(Core::IContext *context, const Core::Context &additionalContexts)
-    \brief Sent just after a new \a context became the current context
-    (meaning that its widget got focus), or if the additional context ids changed.
+    Indicates that a new \a context just became the current context
+    (meaning that its widget got focus), or that the additional context ids
+    specified by \a additionalContexts changed.
 */
 
 #include "mainwindow.h"

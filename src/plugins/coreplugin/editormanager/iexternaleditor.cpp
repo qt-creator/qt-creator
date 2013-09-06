@@ -56,6 +56,6 @@
 
     \fn bool IExternalEditor::startEditor(const QString &fileName, QString *errorMessage) = 0;
 
-    Opens the editor with \param fileName. Returns true on success or false
-    on failure along with the error in \param errorMessage.
+    Opens the editor with \a fileName. Returns \c true on success or \c false
+    on failure along with the error in \a errorMessage.
 */

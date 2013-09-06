@@ -38,7 +38,7 @@
     \brief The TextFile class is a base class for text files with encoding
     helpers.
 
-    Stores the format obtained from read operations and uses that when writing
+    This class stores the format obtained from read operations and uses that when writing
     out files, thus ensuring that CRLF/encodings are preserved.
 
     \sa Utils::TextFileUtils
@@ -83,7 +83,7 @@ QByteArray TextDocument::decodingErrorSample() const
 }
 
 /*!
-    \brief Writes out text using the format obtained from the last read.
+    Writes out text using the format obtained from the last read.
 */
 
 bool TextDocument::write(const QString &fileName, const QString &data, QString *errorMessage) const
@@ -92,7 +92,7 @@ bool TextDocument::write(const QString &fileName, const QString &data, QString *
 }
 
 /*!
-    \brief Writes out text using a custom format obtained.
+    Writes out text using a custom \a format.
 */
 
 bool TextDocument::write(const QString &fileName, const Utils::TextFileFormat &format, const QString &data, QString *errorMessage) const
@@ -103,7 +103,7 @@ bool TextDocument::write(const QString &fileName, const Utils::TextFileFormat &f
 }
 
 /*!
-    \brief Autodetect format and read in a text file.
+    Autodetects format and reads in the text file specified by \a fileName.
 */
 
 TextDocument::ReadResult TextDocument::read(const QString &fileName, QStringList *plainTextList, QString *errorString)
@@ -115,7 +115,7 @@ TextDocument::ReadResult TextDocument::read(const QString &fileName, QStringList
 }
 
 /*!
-    \brief Autodetect format and read in a text file.
+    Autodetects format and reads in the text file specified by \a fileName.
 */
 
 TextDocument::ReadResult TextDocument::read(const QString &fileName, QString *plainText, QString *errorString)
@@ -146,7 +146,7 @@ void TextDocument::switchUtf8Bom()
 }
 
 /*!
-    \brief Returns the format obtained from the last call to read().
+    Returns the format obtained from the last call to \c read().
 */
 
 Utils::TextFileFormat TextDocument::format() const

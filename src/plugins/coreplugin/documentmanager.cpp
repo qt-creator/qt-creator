@@ -66,27 +66,29 @@
   \inheaderfile documentmanager.h
   \brief The DocumentManager class manages a set of IDocument objects.
 
-  The DocumentManager service monitors a set of IDocument's. Plugins should register
-  files they work with at the service. The files the IDocument's point to will be
-  monitored at filesystem level. If a file changes, the status of the IDocument's
+  The DocumentManager service monitors a set of IDocument objects. Plugins
+  should register files they work with at the service. The files the IDocument
+  objects point to will be monitored at filesystem level. If a file changes,
+  the status of the IDocument object
   will be adjusted accordingly. Furthermore, on application exit the user will
   be asked to save all modified files.
 
   Different IDocument objects in the set can point to the same file in the
-  filesystem. The monitoring for a IDocument can be blocked by blockFileChange(), and
-  enabled again by unblockFileChange().
+  filesystem. The monitoring for an IDocument can be blocked by
+  \c blockFileChange(), and enabled again by \c unblockFileChange().
 
-  The functions expectFileChange() and unexpectFileChange() mark a file change
+  The functions \c expectFileChange() and \c unexpectFileChange() mark a file change
   as expected. On expected file changes all IDocument objects are notified to reload
   themselves.
 
   The DocumentManager service also provides two convenience methods for saving
-  files: saveModifiedFiles() and saveModifiedFilesSilently(). Both take a list
+  files: \c saveModifiedFiles() and \c saveModifiedFilesSilently(). Both take a list
   of FileInterfaces as an argument, and return the list of files which were
   _not_ saved.
 
-  The service also manages the list of recent files to be shown to the user
-  (see addToRecentFiles() and recentFiles()).
+  The service also manages the list of recent files to be shown to the user.
+
+  \sa addToRecentFiles(), recentFiles()
  */
 
 static const char settingsGroupC[] = "RecentFiles";
@@ -156,7 +158,7 @@ struct DocumentManagerPrivate
     QString m_projectsDirectory;
     bool m_useProjectsDirectory;
     QString m_buildDirectory;
-    // When we are callling into a IDocument
+    // When we are calling into an IDocument
     // we don't want to receive a changed()
     // signal
     // That makes the code easier
@@ -359,12 +361,13 @@ static void dump()
 */
 
 /*!
-    \brief Tells the file manager that a file has been renamed on disk from within Qt Creator.
+    Tells the file manager that a file has been renamed on disk from within \QC.
 
-    Needs to be called right after the actual renaming on disk (i.e. before the file system
+    Needs to be called right after the actual renaming on disk (that is, before
+    the file system
     watcher can report the event during the next event loop run). \a from needs to be an absolute file path.
     This will notify all IDocument objects pointing to that file of the rename
-    by calling IDocument::rename, and update the cached time and permission
+    by calling \c IDocument::rename(), and update the cached time and permission
     information to avoid annoying the user with "file has been removed"
     popups.
 */
@@ -402,7 +405,8 @@ void DocumentManager::fileNameChanged(const QString &oldName, const QString &new
 }
 
 /*!
-    Adds a IDocument object to the collection. If \a addWatcher is true (the default),
+    Adds an IDocument object to the collection. If \a addWatcher is \c true
+    (the default),
     the file is added to a file system watcher that notifies the file manager
     about file changes.
 */
@@ -420,9 +424,10 @@ void DocumentManager::documentDestroyed(QObject *obj)
 }
 
 /*!
-    Removes a IDocument object from the collection.
+    Removes an IDocument object from the collection.
 
-    Returns true if the file specified by \a document had the addWatcher argument to addDocument() set.
+    Returns \c true if the file specified by \a document had the \a addWatcher
+    argument to \a addDocument() set.
 */
 bool DocumentManager::removeDocument(IDocument *document)
 {
@@ -481,7 +486,7 @@ QString DocumentManager::fixFileName(const QString &fileName, FixMode fixmode)
 }
 
 /*!
-    Returns the list of IDocument's that have been modified.
+    Returns the list of IDocuments that have been modified.
 */
 QList<IDocument *> DocumentManager::modifiedDocuments()
 {
@@ -501,7 +506,7 @@ QList<IDocument *> DocumentManager::modifiedDocuments()
 }
 
 /*!
-    Any subsequent change to \a fileName is treated as a expected file change.
+    Any subsequent change to \a fileName is treated as an expected file change.
 
     \see DocumentManager::unexpectFileChange(const QString &fileName)
 */
@@ -525,7 +530,7 @@ static void updateExpectedState(const QString &fileName)
 }
 
 /*!
-    Any change to \a fileName are unexpected again.
+    Any changes to \a fileName are unexpected again.
 
     \see DocumentManager::expectFileChange(const QString &fileName)
 */
@@ -550,7 +555,8 @@ void DocumentManager::unexpectFileChange(const QString &fileName)
 /*!
     Tries to save the files listed in \a documents. The \a cancelled argument is set to true
     if the user cancelled the dialog. Returns the files that could not be saved. If the files
-    listed in documents have no write permissions an additional dialog will be prompted to
+    listed in documents have no write permissions, an additional dialog will be
+    displayed to
     query the user for these permissions.
 */
 QList<IDocument *> DocumentManager::saveModifiedDocumentsSilently(const QList<IDocument *> &documents, bool *cancelled)
@@ -559,14 +565,17 @@ QList<IDocument *> DocumentManager::saveModifiedDocumentsSilently(const QList<ID
 }
 
 /*!
-    Asks the user whether to save the files listed in \a documents .
-    Opens a dialog with the given \a message, and a additional
-    text that should be used to ask if the user wants to enabled automatic save
+    Asks the user whether to save the files listed in \a documents. Opens a
+    dialog that displays the \a message, and additional text to ask the users
+    if they want to enable automatic saving
     of modified files (in this context).
-    The \a cancelled argument is set to true if the user cancelled the dialog,
-    \a alwaysSave is set to match the selection of the user, if files should
+
+    The \a cancelled argument is set to true if the user cancels the dialog.
+    \a alwaysSave is set to match the selection of the user if files should
     always automatically be saved. If the files listed in documents have no write
-    permissions an additional dialog will be prompted to query the user for these permissions.
+    permissions, an additional dialog will be displayed to query the user for
+    these permissions.
+
     Returns the files that have not been saved.
 */
 QList<IDocument *> DocumentManager::saveModifiedDocuments(const QList<IDocument *> &documents,
@@ -740,7 +749,7 @@ QString DocumentManager::getSaveFileNameWithExtension(const QString &title, cons
 }
 
 /*!
-    Asks the user for a new file name (Save File As) for /arg document.
+    Asks the user for a new file name (\gui {Save File As}) for \a document.
 */
 QString DocumentManager::getSaveAsFileName(const IDocument *document, const QString &filter, QString *selectedFilter)
 {
@@ -775,9 +784,9 @@ QString DocumentManager::getSaveAsFileName(const IDocument *document, const QStr
 
 /*!
     Asks the user for a set of file names to be opened. The \a filters
-    and \a selectedFilter parameters is interpreted like in
-    QFileDialog::getOpenFileNames(), \a pathIn specifies a path to open the dialog
-    in, if that is not overridden by the users policy.
+    and \a selectedFilter arguments are interpreted like in
+    \c QFileDialog::getOpenFileNames(). \a pathIn specifies a path to open the
+    dialog in if that is not overridden by the user's policy.
 */
 
 QStringList DocumentManager::getOpenFileNames(const QString &filters,
@@ -1047,8 +1056,8 @@ void DocumentManager::syncWithEditor(const QList<Core::IContext *> &context)
 
 /*!
     Adds the \a fileName to the list of recent files. Associates the file to
-    be reopened with an editor of the given \a editorId, if possible.
-    \a editorId defaults to the empty id, which means to let the system figure out
+    be reopened with the editor that has the specified \a editorId, if possible.
+    \a editorId defaults to the empty id, which lets \QC figure out
     the best editor itself.
 */
 void DocumentManager::addToRecentFiles(const QString &fileName, const Id &editorId)
@@ -1070,7 +1079,7 @@ void DocumentManager::addToRecentFiles(const QString &fileName, const Id &editor
 
 /*!
     Clears the list of recent files. Should only be called by
-    the core plugin when the user chooses to clear it.
+    the core plugin when the user chooses to clear the list.
 */
 void DocumentManager::clearRecentFiles()
 {
@@ -1147,8 +1156,8 @@ void readSettings()
 
 /*!
 
-  The current file is e.g. the file currently opened when an editor is active,
-  or the selected file in case a Project Explorer is active ...
+  The current file is the file currently opened when an editor is active,
+  or the selected file in case a Project Explorer is active.
 
   \sa currentFile
   */
@@ -1161,10 +1170,10 @@ void DocumentManager::setCurrentFile(const QString &filePath)
 }
 
 /*!
-  Returns the absolute path of the current file
+  Returns the absolute path of the current file.
 
-  The current file is e.g. the file currently opened when an editor is active,
-  or the selected file in case a Project Explorer is active ...
+  The current file is the file currently opened when an editor is active,
+  or the selected file in case a Project Explorer is active.
 
   \sa setCurrentFile
   */
@@ -1176,7 +1185,7 @@ QString DocumentManager::currentFile()
 /*!
 
   Returns the initial directory for a new file dialog. If there is
-  a current file, use that, else use last visited directory.
+  a current file, uses that, otherwise uses the last visited directory.
 
   \sa setFileDialogLastVisitedDirectory
 */
@@ -1202,7 +1211,7 @@ QString DocumentManager::projectsDirectory()
 
 /*!
 
-  Set the directory for projects.
+  Sets the directory for projects.
 
   \sa projectsDirectory, useProjectsDirectory
 */
@@ -1234,8 +1243,8 @@ void DocumentManager::setBuildDirectory(const QString &directory)
 
 /*!
 
-  Returns whether the directory for projects is to be
-  used or the user wants the current directory.
+    Returns whether the directory for projects is to be used or whether the user
+    chose to use the current directory.
 
   \sa setProjectsDirectory, setUseProjectsDirectory
 */
@@ -1259,7 +1268,7 @@ void DocumentManager::setUseProjectsDirectory(bool useProjectsDirectory)
 
 /*!
 
-  Returns last visited directory of a file dialog.
+  Returns the last visited directory of a file dialog.
 
   \sa setFileDialogLastVisitedDirectory, fileDialogInitialDirectory
 
@@ -1272,7 +1281,7 @@ QString DocumentManager::fileDialogLastVisitedDirectory()
 
 /*!
 
-  Set the last visited directory of a file dialog that will be remembered
+  Sets the last visited directory of a file dialog that will be remembered
   for the next one.
 
   \sa fileDialogLastVisitedDirectory, fileDialogInitialDirectory
