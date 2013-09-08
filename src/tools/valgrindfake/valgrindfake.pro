@@ -10,3 +10,7 @@ isEmpty(PRECOMPILED_HEADER):PRECOMPILED_HEADER = $$PWD/../../shared/qtcreator_pc
 HEADERS += outputgenerator.h
 SOURCES += main.cpp \
     outputgenerator.cpp
+
+QTC_LIB_DEPENDS += \
+    utils
+include(../../../qtcreator.pri)

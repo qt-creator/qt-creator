@@ -3,13 +3,12 @@ TEMPLATE = subdirs
 SUBDIRS = qtpromaker \
      qmlpuppet \
      ../plugins/cpaster/frontend \
-     sdktool
+     sdktool \
+     valgrindfake
 
 win32 {
     SUBDIRS += qtcdebugger
     SUBDIRS += wininterrupt
-} else {
-    SUBDIRS += valgrindfake
 }
 
 QT_BREAKPAD_ROOT_PATH = $$(QT_BREAKPAD_ROOT_PATH)

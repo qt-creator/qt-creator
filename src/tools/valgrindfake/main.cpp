@@ -71,12 +71,12 @@ int main(int argc, char** argv)
     uint arg_wait = 0;
 
     const QProcessEnvironment sysEnv = QProcessEnvironment::systemEnvironment();
-    arg_xmlFile = sysEnv.value("QCIT_INPUT_FILE");
+    arg_xmlFile = sysEnv.value(QLatin1String("QCIT_INPUT_FILE"));
 
     for (int i = 1; i < args.size(); ++i) {
         const QString& arg = args.at(i);
         if (arg.startsWith(QLatin1String("--xml-socket="))) {
-            arg_server = arg.mid(13, arg.indexOf(':') - 13);
+            arg_server = arg.mid(13, arg.indexOf(QLatin1Char(':')) - 13);
             arg_port = arg.mid(13 + arg_server.length() + 1);
         } else if (args.size() > i + 1
                     && (args.at(i) == QLatin1String("-i")

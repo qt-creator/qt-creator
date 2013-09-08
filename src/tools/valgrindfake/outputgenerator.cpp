@@ -30,14 +30,14 @@
 
 #include "outputgenerator.h"
 
+#include <utils/sleep.h>
+
 #include <QAbstractSocket>
 #include <QIODevice>
 #include <QTextStream>
 #include <QCoreApplication>
 #include <QStringList>
 #include <QDebug>
-
-#include <unistd.h>
 
 using namespace Valgrind::Fake;
 
@@ -104,7 +104,7 @@ void OutputGenerator::produceRuntimeError()
         m_output->flush();
     } else if (m_wait) {
         qDebug() << "waiting in fake valgrind for " << m_wait << " seconds..." << endl;
-        sleep(m_wait);
+        Utils::sleep(1000 * m_wait);
     }
 }
 
