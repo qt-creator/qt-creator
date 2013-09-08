@@ -17,6 +17,7 @@ QtcPlugin {
     Depends { name: "QtSupport" }
     Depends { name: "TextEditor" }
     Depends { name: "AnalyzerBase" }
+    Depends { name: "Utils" }
     Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }
 
     property bool enable: false

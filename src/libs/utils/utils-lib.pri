@@ -73,6 +73,7 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/portlist.cpp \
     $$PWD/tcpportsgatherer.cpp \
     $$PWD/appmainwindow.cpp \
+    $$PWD/sleep.cpp \
     $$PWD/basetreeview.cpp \
     $$PWD/qtcassert.cpp \
     $$PWD/elfreader.cpp \
@@ -163,6 +164,7 @@ HEADERS += \
     $$PWD/portlist.h \
     $$PWD/tcpportsgatherer.h \
     $$PWD/appmainwindow.h \
+    $$PWD/sleep.h \
     $$PWD/basetreeview.h \
     $$PWD/elfreader.h \
     $$PWD/bracematcher.h \

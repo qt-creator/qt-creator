@@ -47,6 +47,7 @@
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
 #include <utils/environment.h>
+#include <utils/sleep.h>
 
 #include <QDateTime>
 #include <QSettings>
@@ -58,14 +59,6 @@
 
 #include <QStringListModel>
 #include <QMessageBox>
-
-#if defined(_WIN32)
-#include <iostream>
-#include <windows.h>
-#define sleep(_n) Sleep(1000 * (_n))
-#else
-#include <unistd.h>
-#endif
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -618,11 +611,11 @@ QString AndroidConfigurations::waitForAvd(int apiLevel, const QString &cpuAbi) c
                 if (hasFinishedBooting(serialNumber))
                     return serialNumber;
                 else
-                    sleep(8);
+                    Utils::sleep(8000);
             }
             return QString();
         }
-        sleep(8);
+        Utils::sleep(8000);
     }
     return QString();
 }
