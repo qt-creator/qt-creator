@@ -33,6 +33,8 @@
 
 #include <vcsbase/command.h>
 
+#include <QCheckBox>
+
 namespace Git {
 
 struct CloneWizardPagePrivate {
@@ -43,12 +45,14 @@ struct CloneWizardPagePrivate {
     const QString mainLinePostfix;
     const QString gitPostFix;
     const QString protocolDelimiter;
+    QCheckBox *recursiveCheckBox;
 };
 
 CloneWizardPagePrivate::CloneWizardPagePrivate() :
     mainLinePostfix(QLatin1String("/mainline.git")),
     gitPostFix(QLatin1String(".git")),
-    protocolDelimiter(QLatin1String("://"))
+    protocolDelimiter(QLatin1String("://")),
+    recursiveCheckBox(0)
 {
 }
 
@@ -68,6 +72,8 @@ CloneWizardPage::CloneWizardPage(QWidget *parent) :
     setTitle(tr("Location"));
     setSubTitle(tr("Specify repository URL, checkout directory and path."));
     setRepositoryLabel(tr("Clone URL:"));
+    d->recursiveCheckBox = new QCheckBox(tr("Recursive"));
+    addLocalControl(d->recursiveCheckBox);
 }
 
 CloneWizardPage::~CloneWizardPage()
@@ -124,6 +130,8 @@ VcsBase::Command *CloneWizardPage::createCheckoutJob(QString *checkoutPath) cons
      QStringList args(QLatin1String("clone"));
      if (!checkoutBranch.isEmpty())
          args << QLatin1String("--branch") << checkoutBranch;
+     if (d->recursiveCheckBox->isChecked())
+         args << QLatin1String("--recursive");
      args << QLatin1String("--progress") << repository() << checkoutDir;
      VcsBase::Command *command = new VcsBase::Command(client->gitBinaryPath(), workingDirectory,
                                                       client->processEnvironment());
