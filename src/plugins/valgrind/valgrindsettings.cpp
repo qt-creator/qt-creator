@@ -43,6 +43,8 @@
 using namespace Analyzer;
 
 const char numCallersC[]  = "Analyzer.Valgrind.NumCallers";
+const char leakCheckOnFinishC[]  = "Analyzer.Valgrind.LeakCheckOnFinish";
+const char showReachableC[] = "Analyzer.Valgrind.ShowReachable";
 const char trackOriginsC[] = "Analyzer.Valgrind.TrackOrigins";
 const char selfModifyingCodeDetectionC[] = "Analyzer.Valgrind.SelfModifyingCodeDetection";
 const char suppressionFilesC[] = "Analyzer.Valgrind.SupressionFiles";
@@ -95,6 +97,8 @@ void ValgrindBaseSettings::fromMap(const QVariantMap &map)
 
     // Memcheck
     setIfPresent(map, QLatin1String(numCallersC), &m_numCallers);
+    setIfPresent(map, QLatin1String(leakCheckOnFinishC), (int*) &m_leakCheckOnFinish);
+    setIfPresent(map, QLatin1String(showReachableC), &m_showReachable);
     setIfPresent(map, QLatin1String(trackOriginsC), &m_trackOrigins);
     setIfPresent(map, QLatin1String(filterExternalIssuesC), &m_filterExternalIssues);
     if (map.contains(QLatin1String(visibleErrorKindsC))) {
@@ -124,6 +128,8 @@ void ValgrindBaseSettings::toMap(QVariantMap &map) const
 
     // Memcheck
     map.insert(QLatin1String(numCallersC), m_numCallers);
+    map.insert(QLatin1String(leakCheckOnFinishC), m_leakCheckOnFinish);
+    map.insert(QLatin1String(showReachableC), m_showReachable);
     map.insert(QLatin1String(trackOriginsC), m_trackOrigins);
     map.insert(QLatin1String(filterExternalIssuesC), m_filterExternalIssues);
     QVariantList errorKinds;
@@ -173,6 +179,22 @@ void ValgrindBaseSettings::setNumCallers(int numCallers)
     if (m_numCallers != numCallers) {
         m_numCallers = numCallers;
         emit numCallersChanged(numCallers);
+    }
+}
+
+void ValgrindBaseSettings::setLeakCheckOnFinish(int leakCheckOnFinish)
+{
+    if (m_leakCheckOnFinish != leakCheckOnFinish) {
+        m_leakCheckOnFinish = (LeakCheckOnFinish) leakCheckOnFinish;
+        emit leakCheckOnFinishChanged(leakCheckOnFinish);
+    }
+}
+
+void ValgrindBaseSettings::setShowReachable(bool showReachable)
+{
+    if (m_showReachable != showReachable) {
+        m_showReachable = showReachable;
+        emit showReachableChanged(showReachable);
     }
 }
 
@@ -368,6 +390,8 @@ void ValgrindGlobalSettings::readSettings()
 
     // Memcheck
     defaults.insert(QLatin1String(numCallersC), 25);
+    defaults.insert(QLatin1String(leakCheckOnFinishC), LeakCheckOnFinishSummaryOnly);
+    defaults.insert(QLatin1String(showReachableC), false);
     defaults.insert(QLatin1String(trackOriginsC), true);
     defaults.insert(QLatin1String(filterExternalIssuesC), true);
     QVariantList defaultErrorKinds;

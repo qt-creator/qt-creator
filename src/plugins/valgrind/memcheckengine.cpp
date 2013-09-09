@@ -102,6 +102,24 @@ QStringList MemcheckRunControl::toolArguments() const
     if (m_settings->trackOrigins())
         arguments << QLatin1String("--track-origins=yes");
 
+    if (m_settings->showReachable())
+        arguments << QLatin1String("--show-reachable=yes");
+
+    QString leakCheckValue;
+    switch (m_settings->leakCheckOnFinish()) {
+    case ValgrindBaseSettings::LeakCheckOnFinishNo:
+        leakCheckValue = QLatin1String("no");
+        break;
+    case ValgrindBaseSettings::LeakCheckOnFinishYes:
+        leakCheckValue = QLatin1String("full");
+        break;
+    case ValgrindBaseSettings::LeakCheckOnFinishSummaryOnly:
+    default:
+        leakCheckValue = QLatin1String("summary");
+        break;
+    }
+    arguments << QLatin1String("--leak-check=") + leakCheckValue;
+
     foreach (const QString &file, m_settings->suppressionFiles())
         arguments << QString::fromLatin1("--suppressions=%1").arg(file);
 

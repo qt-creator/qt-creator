@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>628</width>
-    <height>368</height>
+    <width>655</width>
+    <height>364</height>
    </rect>
   </property>
   <layout class="QGridLayout" name="gridLayout">
@@ -259,11 +259,71 @@ With cache simulation, further event counters are enabled:
      <property name="title">
       <string>Memory Analysis Options</string>
      </property>
-     <layout class="QFormLayout" name="formLayout_4">
-      <property name="fieldGrowthPolicy">
-       <enum>QFormLayout::ExpandingFieldsGrow</enum>
-      </property>
+     <layout class="QFormLayout" name="formLayout">
+      <item row="0" column="0" colspan="2">
+       <widget class="QCheckBox" name="trackOrigins">
+        <property name="text">
+         <string>Track origins of uninitialized memory</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="QCheckBox" name="showReachable">
+        <property name="text">
+         <string>Show reachable and indirectly lost blocks</string>
+        </property>
+       </widget>
+      </item>
       <item row="2" column="0">
+       <widget class="QLabel" name="leakCheckOnFinishLabel">
+        <property name="text">
+         <string>Check for leaks on finish:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QComboBox" name="leakCheckOnFinish">
+          <property name="currentIndex">
+           <number>0</number>
+          </property>
+          <item>
+           <property name="text">
+            <string>No</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Summary Only</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Full</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item row="3" column="0">
        <widget class="QLabel" name="numCallersLabel">
         <property name="text">
          <string>Backtrace frame count:</string>
@@ -273,7 +333,37 @@ With cache simulation, further event counters are enabled:
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
+      <item row="3" column="1">
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QSpinBox" name="numCallers">
+          <property name="minimum">
+           <number>5</number>
+          </property>
+          <property name="maximum">
+           <number>50</number>
+          </property>
+          <property name="value">
+           <number>12</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item row="4" column="0">
        <widget class="QLabel" name="label">
         <property name="text">
          <string>Suppression files:</string>
@@ -283,7 +373,7 @@ With cache simulation, further event counters are enabled:
         </property>
        </widget>
       </item>
-      <item row="4" column="0" colspan="2">
+      <item row="5" column="0" colspan="2">
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
          <widget class="QListView" name="suppressionList">
@@ -333,29 +423,6 @@ With cache simulation, further event counters are enabled:
          </layout>
         </item>
        </layout>
-      </item>
-      <item row="2" column="1">
-       <widget class="QSpinBox" name="numCallers">
-        <property name="minimum">
-         <number>5</number>
-        </property>
-        <property name="maximum">
-         <number>50</number>
-        </property>
-        <property name="value">
-         <number>12</number>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0" colspan="2">
-       <widget class="QCheckBox" name="trackOrigins">
-        <property name="text">
-         <string>Track origins of uninitialized memory</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
       </item>
      </layout>
     </widget>
