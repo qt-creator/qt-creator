@@ -599,6 +599,7 @@ void Qt4PriFileNode::update(ProFile *includeFileExact, QtSupport::ProFileReader 
             folders[i] = QDir::cleanPath(projectDir + QLatin1Char('/') + folders.at(i));
     }
 
+    folders.removeDuplicates();
 
     m_recursiveEnumerateFiles.clear();
     // Remove non existing items and non folders
@@ -620,7 +621,6 @@ void Qt4PriFileNode::update(ProFile *includeFileExact, QtSupport::ProFileReader 
         }
     }
 
-    folders.removeDuplicates();
     watchFolders(folders.toSet());
 
     foreach (const QString &folder, folders) {
@@ -638,6 +638,7 @@ void Qt4PriFileNode::update(ProFile *includeFileExact, QtSupport::ProFileReader 
     const QVector<Qt4NodeStaticData::FileTypeData> &fileTypes = qt4NodeStaticData()->fileTypeData;
 
     // update files
+    QFileInfo tmpFi;
     for (int i = 0; i < fileTypes.size(); ++i) {
         FileType type = fileTypes.at(i).type;
         QStringList qmakeVariables = varNames(type);
@@ -647,20 +648,27 @@ void Qt4PriFileNode::update(ProFile *includeFileExact, QtSupport::ProFileReader 
             if (includeFileExact) {
                 QStringList vPathsExact = fullVPaths(baseVPathsExact, readerExact, qmakeVariable, projectDir);
                 QStringList tmp = readerExact->absoluteFileValues(qmakeVariable, projectDir, vPathsExact, includeFileExact);
-                foreach (const QString &t, tmp)
-                    newFilePaths += Utils::FileName::fromString(t);
+                foreach (const QString &t, tmp) {
+                    tmpFi.setFile(t);
+                    if (tmpFi.isFile())
+                        newFilePaths += Utils::FileName::fromString(t);
+                }
             }
             if (includeFileCumlative) {
                 QStringList vPathsCumulative = fullVPaths(baseVPathsCumulative, readerCumulative, qmakeVariable, projectDir);
                 QStringList tmp = readerCumulative->absoluteFileValues(qmakeVariable, projectDir, vPathsCumulative, includeFileCumlative);
-                foreach (const QString &t, tmp)
-                    newFilePaths += Utils::FileName::fromString(t);
+                foreach (const QString &t, tmp) {
+                    tmpFi.setFile(t);
+                    if (tmpFi.isFile())
+                        newFilePaths += Utils::FileName::fromString(t);
+                }
             }
         }
 
         foundFiles[type] = newFilePaths;
         m_recursiveEnumerateFiles.subtract(newFilePaths);
     }
+
 
     for (int i = 0; i < fileTypes.size(); ++i) {
         FileType type = fileTypes.at(i).type;
@@ -1314,7 +1322,7 @@ QStringList Qt4PriFileNode::dynamicVarNames(QtSupport::ProFileReader *readerExac
             result << (var + files);
         }
     }
-
+    result.removeDuplicates();
     return result;
 }
 
