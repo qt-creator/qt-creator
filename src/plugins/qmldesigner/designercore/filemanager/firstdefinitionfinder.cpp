@@ -53,11 +53,8 @@ FirstDefinitionFinder::FirstDefinitionFinder(const QString &text):
 }
 
 /*!
-  \brief Finds the first object definition inside the object given by offset
-
-
-  \arg the offset of the object to search in
-  \return the offset of the first object definition
+    Finds the first object definition inside the object specified by \a offset.
+    Returns the offset of the first object definition.
   */
 qint32 FirstDefinitionFinder::operator()(quint32 offset)
 {
