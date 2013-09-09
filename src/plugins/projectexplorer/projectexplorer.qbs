@@ -75,7 +75,7 @@ QtcPlugin {
             "itaskhandler.h",
             "kit.cpp", "kit.h",
             "kitchooser.cpp", "kitchooser.h",
-            "kitconfigwidget.h",
+            "kitconfigwidget.cpp", "kitconfigwidget.h",
             "kitinformation.cpp", "kitinformation.h",
             "kitinformationconfigwidget.cpp", "kitinformationconfigwidget.h",
             "kitmanager.cpp", "kitmanager.h",

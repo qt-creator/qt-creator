@@ -57,7 +57,7 @@ class SysRootInformationConfigWidget : public KitConfigWidget
     Q_OBJECT
 
 public:
-    explicit SysRootInformationConfigWidget(Kit *k, bool sticky);
+    SysRootInformationConfigWidget(Kit *k, const KitInformation *ki);
     ~SysRootInformationConfigWidget();
 
     QString displayName() const;
@@ -84,7 +84,7 @@ class ToolChainInformationConfigWidget : public KitConfigWidget
     Q_OBJECT
 
 public:
-    explicit ToolChainInformationConfigWidget(Kit *k, bool sticky);
+    ToolChainInformationConfigWidget(Kit *k, const KitInformation *ki);
     ~ToolChainInformationConfigWidget();
 
     QString displayName() const;
@@ -105,7 +105,6 @@ private:
     void updateComboBox();
     int indexOf(const ToolChain *tc);
 
-    bool m_isReadOnly;
     QComboBox *m_comboBox;
     QPushButton *m_manageButton;
 };
@@ -119,7 +118,7 @@ class DeviceTypeInformationConfigWidget : public KitConfigWidget
     Q_OBJECT
 
 public:
-    explicit DeviceTypeInformationConfigWidget(Kit *workingCopy, bool sticky);
+    DeviceTypeInformationConfigWidget(Kit *workingCopy, const KitInformation *ki);
     ~DeviceTypeInformationConfigWidget();
 
     QWidget *mainWidget() const;
@@ -132,7 +131,6 @@ private slots:
     void currentTypeChanged(int idx);
 
 private:
-    bool m_isReadOnly;
     QComboBox *m_comboBox;
 };
 
@@ -145,7 +143,7 @@ class DeviceInformationConfigWidget : public KitConfigWidget
     Q_OBJECT
 
 public:
-    explicit DeviceInformationConfigWidget(Kit *workingCopy, bool sticky);
+    DeviceInformationConfigWidget(Kit *workingCopy, const KitInformation *ki);
     ~DeviceInformationConfigWidget();
 
     QWidget *mainWidget() const;

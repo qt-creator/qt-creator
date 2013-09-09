@@ -51,11 +51,9 @@ using namespace Utils;
 namespace Android {
 namespace Internal {
 
-static const char ANDROID_GDBSERVER_INFORMATION[] = "Android.GdbServer.Information";
-
 AndroidGdbServerKitInformation::AndroidGdbServerKitInformation()
 {
-    setDataId(ANDROID_GDBSERVER_INFORMATION);
+    setId(AndroidGdbServerKitInformation::id());
     setPriority(27999); // Just one less than Debugger!
 }
 
@@ -77,7 +75,12 @@ KitInformation::ItemList AndroidGdbServerKitInformation::toUserOutput(const Kit 
 
 KitConfigWidget *AndroidGdbServerKitInformation::createConfigWidget(Kit *kit) const
 {
-    return new AndroidGdbServerKitInformationWidget(kit, isSticky(kit));
+    return new AndroidGdbServerKitInformationWidget(kit, this);
+}
+
+Core::Id AndroidGdbServerKitInformation::id()
+{
+    return "Android.GdbServer.Information";
 }
 
 bool AndroidGdbServerKitInformation::isAndroidKit(const Kit *kit)
@@ -93,12 +96,12 @@ bool AndroidGdbServerKitInformation::isAndroidKit(const Kit *kit)
 
 FileName AndroidGdbServerKitInformation::gdbServer(const Kit *kit)
 {
-    return FileName::fromString(kit->value(ANDROID_GDBSERVER_INFORMATION).toString());
+    return FileName::fromString(kit->value(AndroidGdbServerKitInformation::id()).toString());
 }
 
 void AndroidGdbServerKitInformation::setGdbSever(Kit *kit, const FileName &gdbServerCommand)
 {
-    kit->setValue(ANDROID_GDBSERVER_INFORMATION, gdbServerCommand.toString());
+    kit->setValue(AndroidGdbServerKitInformation::id(), gdbServerCommand.toString());
 }
 
 FileName AndroidGdbServerKitInformation::autoDetect(Kit *kit)
@@ -110,18 +113,13 @@ FileName AndroidGdbServerKitInformation::autoDetect(Kit *kit)
     return atc->suggestedGdbServer();
 }
 
-void AndroidGdbServerKitInformation::setSticky(Kit *k, bool b)
-{
-    k->setSticky(ANDROID_GDBSERVER_INFORMATION, b);
-}
-
 ///////////////
 // AndroidGdbServerKitInformationWidget
 ///////////////
 
 
-AndroidGdbServerKitInformationWidget::AndroidGdbServerKitInformationWidget(Kit *kit, bool sticky)
-    : KitConfigWidget(kit, sticky),
+AndroidGdbServerKitInformationWidget::AndroidGdbServerKitInformationWidget(Kit *kit, const KitInformation *ki)
+    : KitConfigWidget(kit, ki),
       m_label(new ElidingLabel),
       m_button(new QPushButton(tr("Manage...")))
 {

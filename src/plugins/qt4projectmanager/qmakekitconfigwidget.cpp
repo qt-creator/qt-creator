@@ -38,8 +38,8 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-QmakeKitConfigWidget::QmakeKitConfigWidget(ProjectExplorer::Kit *k, bool sticky) :
-    ProjectExplorer::KitConfigWidget(k, sticky),
+QmakeKitConfigWidget::QmakeKitConfigWidget(ProjectExplorer::Kit *k, const ProjectExplorer::KitInformation *ki) :
+    ProjectExplorer::KitConfigWidget(k, ki),
     m_lineEdit(new QLineEdit),
     m_ignoreChange(false)
 {

@@ -107,7 +107,7 @@ Kit::Kit(Core::Id id) :
 {
     KitGuard g(this);
     foreach (KitInformation *sti, KitManager::kitInformation())
-        setValue(sti->dataId(), sti->defaultValue(this));
+        setValue(sti->id(), sti->defaultValue(this));
 
     setDisplayName(QCoreApplication::translate("ProjectExplorer::Kit", "Unnamed"));
     setIconPath(Utils::FileName::fromString(QLatin1String(":///DESKTOP///")));
@@ -471,8 +471,8 @@ void Kit::setSdkProvided(bool sdkProvided)
 void Kit::makeSticky()
 {
     foreach (KitInformation *ki, KitManager::kitInformation()) {
-        if (hasValue(ki->dataId()))
-            setSticky(ki->dataId(), true);
+        if (hasValue(ki->id()))
+            setSticky(ki->id(), true);
     }
 }
 

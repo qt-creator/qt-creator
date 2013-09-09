@@ -77,9 +77,6 @@ static const char DEFAULT_DEBUGGER_PATH_KEY[] = "DefaultDebugger.Path.";
 static const char DEBUGGER_FILENAME[] = "/qtcreator/debuggers.xml";
 static const char DEBUGGER_LEGACY_FILENAME[] = "/qtcreator/profiles.xml";
 
-static const char DEBUGGER_INFORMATION_LEGACY[] = "Debugger.Information";
-//static const char DEBUGGER_INFORMATION[] = "Debugger.InformationV3";
-static const char DEBUGGER_INFORMATION[] = "Debugger.Information";
 static const char DEBUGGER_INFORMATION_COMMAND[] = "Binary";
 static const char DEBUGGER_INFORMATION_DISPLAYNAME[] = "DisplayName";
 static const char DEBUGGER_INFORMATION_ID[] = "Id";
@@ -224,7 +221,7 @@ void DebuggerItem::reinitializeFromFile()
 DebuggerKitInformation::DebuggerKitInformation()
 {
     setObjectName(QLatin1String("DebuggerKitInformation"));
-    setDataId(DEBUGGER_INFORMATION);
+    setId(DebuggerKitInformation::id());
     setPriority(28000);
 }
 
@@ -242,7 +239,7 @@ QVariant DebuggerKitInformation::defaultValue(Kit *k) const
 
 void DebuggerKitInformation::setup(Kit *k)
 {
-    k->setValue(DEBUGGER_INFORMATION, defaultValue(k));
+    k->setValue(DebuggerKitInformation::id(), defaultValue(k));
 }
 
 // Check the configuration errors and return a flag mask. Provide a quick check and
@@ -258,7 +255,7 @@ enum DebuggerConfigurationErrors {
 static QVariant debuggerPathOrId(const Kit *k)
 {
     QTC_ASSERT(k, return QString());
-    QVariant id = k->value(DEBUGGER_INFORMATION);
+    QVariant id = k->value(DebuggerKitInformation::id());
     if (!id.isValid())
         return id; // Invalid.
 
@@ -344,7 +341,7 @@ QList<Task> DebuggerKitInformation::validateDebugger(const Kit *k)
 
 KitConfigWidget *DebuggerKitInformation::createConfigWidget(Kit *k) const
 {
-    return new Internal::DebuggerKitConfigWidget(k, isSticky(k));
+    return new Internal::DebuggerKitConfigWidget(k, this);
 }
 
 KitInformation::ItemList DebuggerKitInformation::toUserOutput(const Kit *k) const
@@ -382,11 +379,10 @@ void DebuggerKitInformation::setDebugger(Kit *k,
     theDebuggerItemManager()->setDebugger(k, type, command);
 }
 
-void DebuggerKitInformation::setSticky(Kit *k, bool b)
+Core::Id DebuggerKitInformation::id()
 {
-    k->setSticky(DEBUGGER_INFORMATION, b);
+    return "Debugger.Information";
 }
-
 
 namespace Internal {
 
@@ -590,7 +586,7 @@ void DebuggerItemManager::readLegacyDebuggers()
         QVariantMap data1 = v.toMap();
         QString kitName = data1.value(QLatin1String("PE.Profile.Name")).toString();
         QVariantMap data2 = data1.value(QLatin1String("PE.Profile.Data")).toMap();
-        QVariant v3 = data2.value(QLatin1String(DEBUGGER_INFORMATION));
+        QVariant v3 = data2.value(DebuggerKitInformation::id().toString());
         QString fn;
         if (v3.type() == QVariant::String)
             fn = v3.toString();
@@ -838,8 +834,7 @@ void DebuggerItemManager::setDebugger(Kit *kit, Debugger::DebuggerEngineType typ
     const DebuggerItem *it = findByCommand(command);
     QTC_ASSERT(it, return);
     QTC_ASSERT(it->id.isValid(), return);
-    kit->setValue(DEBUGGER_INFORMATION, it->id);
-
+    kit->setValue(DebuggerKitInformation::id(), it->id);
 }
 
 QModelIndex DebuggerItemManager::currentIndex() const
@@ -1004,8 +999,8 @@ QVariant DebuggerItemManager::defaultDebugger(ToolChain *tc)
 // DebuggerKitConfigWidget
 // -----------------------------------------------------------------------
 
-DebuggerKitConfigWidget::DebuggerKitConfigWidget(Kit *workingCopy, bool sticky)
-    : KitConfigWidget(workingCopy, sticky)
+DebuggerKitConfigWidget::DebuggerKitConfigWidget(Kit *workingCopy, const KitInformation *ki)
+    : KitConfigWidget(workingCopy, ki)
 {
     DebuggerItemManager *manager = theDebuggerItemManager();
     QTC_CHECK(manager);
@@ -1072,7 +1067,7 @@ void DebuggerKitConfigWidget::manageDebuggers()
 
 void DebuggerKitConfigWidget::currentDebuggerChanged(int)
 {
-    m_kit->setValue(DEBUGGER_INFORMATION, m_comboBox->itemData(m_comboBox->currentIndex()));
+    m_kit->setValue(DebuggerKitInformation::id(), m_comboBox->itemData(m_comboBox->currentIndex()));
 }
 
 void DebuggerKitConfigWidget::onDebuggerAdded(const QVariant &id, const QString &displayName)

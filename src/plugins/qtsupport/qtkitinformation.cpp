@@ -38,14 +38,11 @@
 #include <utils/qtcassert.h>
 
 namespace QtSupport {
-namespace Internal {
-const char QT_INFORMATION[] = "QtSupport.QtInformation";
-} // namespace Internal
 
 QtKitInformation::QtKitInformation()
 {
     setObjectName(QLatin1String("QtKitInformation"));
-    setDataId(Internal::QT_INFORMATION);
+    setId(QtKitInformation::id());
     setPriority(26000);
 
     connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsLoaded()),
@@ -98,7 +95,7 @@ void QtKitInformation::fix(ProjectExplorer::Kit *k)
 
 ProjectExplorer::KitConfigWidget *QtKitInformation::createConfigWidget(ProjectExplorer::Kit *k) const
 {
-    return new Internal::QtKitConfigWidget(k, isSticky(k));
+    return new Internal::QtKitConfigWidget(k, this);
 }
 
 QString QtKitInformation::displayNamePostfix(const ProjectExplorer::Kit *k) const
@@ -128,13 +125,18 @@ ProjectExplorer::IOutputParser *QtKitInformation::createOutputParser(const Proje
     return 0;
 }
 
+Core::Id QtKitInformation::id()
+{
+    return "QtSupport.QtInformation";
+}
+
 int QtKitInformation::qtVersionId(const ProjectExplorer::Kit *k)
 {
     if (!k)
         return -1;
 
     int id = -1;
-    QVariant data = k->value(Core::Id(Internal::QT_INFORMATION), -1);
+    QVariant data = k->value(QtKitInformation::id(), -1);
     if (data.type() == QVariant::Int) {
         bool ok;
         id = data.toInt(&ok);
@@ -154,7 +156,7 @@ int QtKitInformation::qtVersionId(const ProjectExplorer::Kit *k)
 
 void QtKitInformation::setQtVersionId(ProjectExplorer::Kit *k, const int id)
 {
-    k->setValue(Core::Id(Internal::QT_INFORMATION), id);
+    k->setValue(QtKitInformation::id(), id);
 }
 
 BaseQtVersion *QtKitInformation::qtVersion(const ProjectExplorer::Kit *k)
@@ -184,11 +186,6 @@ QStringList QtKitInformation::dumperLibraryLocations(const ProjectExplorer::Kit 
     if (version)
         return version->debuggingHelperLibraryLocations();
     return QStringList();
-}
-
-void QtKitInformation::setSticky(ProjectExplorer::Kit *k, bool b)
-{
-    k->setSticky(Internal::QT_INFORMATION, b);
 }
 
 void QtKitInformation::qtVersionsChanged(const QList<int> &addedIds,

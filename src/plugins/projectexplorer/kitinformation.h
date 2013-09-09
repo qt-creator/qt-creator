@@ -61,11 +61,10 @@ public:
 
     ItemList toUserOutput(const Kit *k) const;
 
+    static Core::Id id();
     static bool hasSysRoot(const Kit *k);
     static Utils::FileName sysRoot(const Kit *k);
     static void setSysRoot(Kit *k, const Utils::FileName &v);
-
-    static void setSticky(Kit *k, bool b);
 };
 
 class PROJECTEXPLORER_EXPORT SysRootMatcher : public KitMatcher
@@ -109,12 +108,11 @@ public:
     void addToEnvironment(const Kit *k, Utils::Environment &env) const;
     IOutputParser *createOutputParser(const Kit *k) const;
 
+    static Core::Id id();
     static ToolChain *toolChain(const Kit *k);
     static void setToolChain(Kit *k, ToolChain *tc);
 
     static QString msgNoToolChainInTarget();
-
-    static void setSticky(Kit *k, bool b);
 
 private slots:
     void kitsWereLoaded();
@@ -156,9 +154,9 @@ public:
 
     ItemList toUserOutput(const Kit *k) const;
 
+    static const Core::Id id();
     static const Core::Id deviceTypeId(const Kit *k);
     static void setDeviceTypeId(Kit *k, Core::Id type);
-    static void setSticky(Kit *k, bool b);
 };
 
 class PROJECTEXPLORER_EXPORT DeviceTypeMatcher : public KitMatcher
@@ -202,16 +200,15 @@ public:
 
     ItemList toUserOutput(const Kit *k) const;
 
+    static Core::Id id();
     static IDevice::ConstPtr device(const Kit *k);
     static Core::Id deviceId(const Kit *k);
     static void setDevice(Kit *k, IDevice::ConstPtr dev);
-    static void setDeviceId(Kit *k, const Core::Id id);
-
-    static void setSticky(Kit *k, bool b);
+    static void setDeviceId(Kit *k, const Core::Id dataId);
 
 private slots:
     void kitsWereLoaded();
-    void deviceUpdated(const Core::Id &id);
+    void deviceUpdated(const Core::Id &dataId);
     void devicesChanged();
     void kitUpdated(ProjectExplorer::Kit *k);
 };

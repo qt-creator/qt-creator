@@ -217,9 +217,9 @@ void KitManager::restoreKits()
                 // Overwrite settings that the SDK sets to those values:
                 foreach (const KitInformation *ki, kitInformation()) {
                     // Copy sticky settings over:
-                    if (current->isSticky(ki->dataId())) {
-                        toStore->setValue(ki->dataId(), current->value(ki->dataId()));
-                        toStore->setSticky(ki->dataId(), true);
+                    if (current->isSticky(ki->id())) {
+                        toStore->setValue(ki->id(), current->value(ki->id()));
+                        toStore->setSticky(ki->id(), true);
                     }
                 }
 
@@ -316,8 +316,8 @@ void KitManager::registerKitInformation(KitInformation *ki)
         return;
 
     foreach (Kit *k, kits()) {
-        if (!k->hasValue(ki->dataId()))
-            k->setValue(ki->dataId(), ki->defaultValue(k));
+        if (!k->hasValue(ki->id()))
+            k->setValue(ki->id(), ki->defaultValue(k));
         else
             ki->fix(k);
     }
@@ -546,8 +546,8 @@ void KitManager::addKit(Kit *k)
     {
         KitGuard g(k);
         foreach (KitInformation *ki, d->m_informationList) {
-            if (!k->hasValue(ki->dataId()))
-                k->setValue(ki->dataId(), ki->defaultValue(k));
+            if (!k->hasValue(ki->id()))
+                k->setValue(ki->id(), ki->defaultValue(k));
             else
                 ki->fix(k);
         }
@@ -577,11 +577,6 @@ QString KitInformation::displayNamePostfix(const Kit *k) const
 {
     Q_UNUSED(k);
     return QString();
-}
-
-bool KitInformation::isSticky(const Kit *k) const
-{
-    return k->isSticky(dataId());
 }
 
 void KitInformation::notifyAboutUpdate(Kit *k)

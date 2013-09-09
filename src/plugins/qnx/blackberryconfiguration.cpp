@@ -285,12 +285,12 @@ Kit *BlackBerryConfiguration::createKit(QnxArchitecture arch, BaseQtVersion *qtV
 
 void BlackBerryConfiguration::setSticky(Kit *kit)
 {
-    QtKitInformation::setSticky(kit, true);
-    ToolChainKitInformation::setSticky(kit, true);
-    DeviceTypeKitInformation::setSticky(kit, true);
-    SysRootKitInformation::setSticky(kit, true);
-    Debugger::DebuggerKitInformation::setSticky(kit, true);
-    Qt4ProjectManager::QmakeKitInformation::setSticky(kit, true);
+    kit->setSticky(QtKitInformation::id(), true);
+    kit->setSticky(ToolChainKitInformation::id(), true);
+    kit->setSticky(DeviceTypeKitInformation::id(), true);
+    kit->setSticky(SysRootKitInformation::id(), true);
+    kit->setSticky(Debugger::DebuggerKitInformation::id(), true);
+    kit->setSticky(Qt4ProjectManager::QmakeKitInformation::id(), true);
 }
 
 bool BlackBerryConfiguration::activate()

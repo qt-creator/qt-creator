@@ -44,7 +44,7 @@ class QmakeKitConfigWidget : public ProjectExplorer::KitConfigWidget
     Q_OBJECT
 
 public:
-    explicit QmakeKitConfigWidget(ProjectExplorer::Kit *k, bool sticky);
+    QmakeKitConfigWidget(ProjectExplorer::Kit *k, const ProjectExplorer::KitInformation *ki);
 
     QWidget *mainWidget() const;
     QString displayName() const;

@@ -42,12 +42,10 @@ using namespace Utils;
 
 namespace Qt4ProjectManager {
 
-const char MKSPEC_INFORMATION[] = "QtPM4.mkSpecInformation";
-
 QmakeKitInformation::QmakeKitInformation()
 {
     setObjectName(QLatin1String("QmakeKitInformation"));
-    setDataId(MKSPEC_INFORMATION);
+    setId(QmakeKitInformation::id());
     setPriority(24000);
 }
 
@@ -99,7 +97,7 @@ void QmakeKitInformation::setup(Kit *k)
 
 KitConfigWidget *QmakeKitInformation::createConfigWidget(Kit *k) const
 {
-    return new Internal::QmakeKitConfigWidget(k, isSticky(k));
+    return new Internal::QmakeKitConfigWidget(k, this);
 }
 
 KitInformation::ItemList QmakeKitInformation::toUserOutput(const Kit *k) const
@@ -107,11 +105,16 @@ KitInformation::ItemList QmakeKitInformation::toUserOutput(const Kit *k) const
     return ItemList() << qMakePair(tr("mkspec"), mkspec(k).toUserOutput());
 }
 
+Core::Id QmakeKitInformation::id()
+{
+    return "QtPM4.mkSpecInformation";
+}
+
 FileName QmakeKitInformation::mkspec(const Kit *k)
 {
     if (!k)
         return FileName();
-    return FileName::fromString(k->value(MKSPEC_INFORMATION).toString());
+    return FileName::fromString(k->value(QmakeKitInformation::id()).toString());
 }
 
 FileName QmakeKitInformation::effectiveMkspec(const Kit *k)
@@ -126,7 +129,7 @@ FileName QmakeKitInformation::effectiveMkspec(const Kit *k)
 
 void QmakeKitInformation::setMkspec(Kit *k, const FileName &fn)
 {
-    k->setValue(MKSPEC_INFORMATION, fn == defaultMkspec(k) ? QString() : fn.toString());
+    k->setValue(QmakeKitInformation::id(), fn == defaultMkspec(k) ? QString() : fn.toString());
 }
 
 FileName QmakeKitInformation::defaultMkspec(const Kit *k)
@@ -136,11 +139,6 @@ FileName QmakeKitInformation::defaultMkspec(const Kit *k)
         return FileName();
 
     return version->mkspecFor(ToolChainKitInformation::toolChain(k));
-}
-
-void QmakeKitInformation::setSticky(Kit *k, bool b)
-{
-    k->setSticky(MKSPEC_INFORMATION, b);
 }
 
 } // namespace Qt4ProjectManager

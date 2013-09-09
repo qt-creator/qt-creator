@@ -153,6 +153,7 @@ SOURCES += projectexplorer.cpp \
     removetaskhandler.cpp \
     kit.cpp \
     kitchooser.cpp \
+    kitconfigwidget.cpp \
     kitinformation.cpp \
     kitinformationconfigwidget.cpp \
     kitmanager.cpp \

@@ -52,12 +52,11 @@ public:
 
     ItemList toUserOutput(const ProjectExplorer::Kit *k) const;
 
+    static Core::Id id();
     static void setMkspec(ProjectExplorer::Kit *k, const Utils::FileName &fn);
     static Utils::FileName mkspec(const ProjectExplorer::Kit *k);
     static Utils::FileName effectiveMkspec(const ProjectExplorer::Kit *k);
     static Utils::FileName defaultMkspec(const ProjectExplorer::Kit *k);
-
-    static void setSticky(ProjectExplorer::Kit *k, bool b);
 };
 
 } // namespace Qt4ProjectManager

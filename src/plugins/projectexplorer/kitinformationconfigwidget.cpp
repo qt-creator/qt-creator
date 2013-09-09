@@ -55,8 +55,8 @@ namespace Internal {
 // SysRootInformationConfigWidget:
 // --------------------------------------------------------------------------
 
-SysRootInformationConfigWidget::SysRootInformationConfigWidget(Kit *k, bool sticky) :
-    KitConfigWidget(k, sticky),
+SysRootInformationConfigWidget::SysRootInformationConfigWidget(Kit *k, const KitInformation *ki) :
+    KitConfigWidget(k, ki),
     m_ignoreChange(false)
 {
     m_chooser = new Utils::PathChooser;
@@ -113,8 +113,8 @@ void SysRootInformationConfigWidget::pathWasChanged()
 // ToolChainInformationConfigWidget:
 // --------------------------------------------------------------------------
 
-ToolChainInformationConfigWidget::ToolChainInformationConfigWidget(Kit *k, bool sticky) :
-    KitConfigWidget(k, sticky), m_isReadOnly(false)
+ToolChainInformationConfigWidget::ToolChainInformationConfigWidget(Kit *k, const KitInformation *ki) :
+    KitConfigWidget(k, ki)
 {
     m_comboBox = new QComboBox;
     m_comboBox->setEnabled(false);
@@ -224,7 +224,7 @@ void ToolChainInformationConfigWidget::updateComboBox()
         m_comboBox->addItem(tr("<No compiler available>"), QString());
         m_comboBox->setEnabled(false);
     } else {
-        m_comboBox->setEnabled(!m_isReadOnly);
+        m_comboBox->setEnabled(true);
     }
 }
 
@@ -242,8 +242,8 @@ int ToolChainInformationConfigWidget::indexOf(const ToolChain *tc)
 // DeviceTypeInformationConfigWidget:
 // --------------------------------------------------------------------------
 
-DeviceTypeInformationConfigWidget::DeviceTypeInformationConfigWidget(Kit *workingCopy, bool sticky) :
-    KitConfigWidget(workingCopy, sticky), m_isReadOnly(false), m_comboBox(new QComboBox)
+DeviceTypeInformationConfigWidget::DeviceTypeInformationConfigWidget(Kit *workingCopy, const KitInformation *ki) :
+    KitConfigWidget(workingCopy, ki), m_comboBox(new QComboBox)
 {
     QList<IDeviceFactory *> factories
             = ExtensionSystem::PluginManager::getObjects<IDeviceFactory>();
@@ -306,8 +306,8 @@ void DeviceTypeInformationConfigWidget::currentTypeChanged(int idx)
 // DeviceInformationConfigWidget:
 // --------------------------------------------------------------------------
 
-DeviceInformationConfigWidget::DeviceInformationConfigWidget(Kit *workingCopy, bool sticky) :
-    KitConfigWidget(workingCopy, sticky),
+DeviceInformationConfigWidget::DeviceInformationConfigWidget(Kit *workingCopy, const KitInformation *ki) :
+    KitConfigWidget(workingCopy, ki),
     m_isReadOnly(false),
     m_ignoreChange(false),
     m_comboBox(new QComboBox),

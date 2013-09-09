@@ -60,6 +60,7 @@ public:
     void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const;
     ProjectExplorer::IOutputParser *createOutputParser(const ProjectExplorer::Kit *k) const;
 
+    static Core::Id id();
     static int qtVersionId(const ProjectExplorer::Kit *k);
     static void setQtVersionId(ProjectExplorer::Kit *k, const int id);
     static BaseQtVersion *qtVersion(const ProjectExplorer::Kit *k);
@@ -69,8 +70,6 @@ public:
     // FIXME: This should be part of an RunConfigurationAspect...
     static QString dumperLibrary(const ProjectExplorer::Kit *k);
     static QStringList dumperLibraryLocations(const ProjectExplorer::Kit *k);
-
-    static void setSticky(ProjectExplorer::Kit *k, bool b);
 
 private slots:
     void qtVersionsChanged(const QList<int> &addedIds,

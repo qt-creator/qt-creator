@@ -62,11 +62,10 @@ public:
     static void setDebugger(ProjectExplorer::Kit *k,
         DebuggerEngineType type, const Utils::FileName &command);
 
+    static Core::Id id();
     static Utils::FileName debuggerCommand(const ProjectExplorer::Kit *k);
     static DebuggerEngineType engineType(const ProjectExplorer::Kit *k);
     static QString displayString(const ProjectExplorer::Kit *k);
-
-    static void setSticky(ProjectExplorer::Kit *k, bool b);
 };
 
 } // namespace Debugger

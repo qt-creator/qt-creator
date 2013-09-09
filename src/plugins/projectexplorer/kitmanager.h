@@ -69,7 +69,7 @@ public:
     typedef QPair<QString, QString> Item;
     typedef QList<Item> ItemList;
 
-    Core::Id dataId() const { return m_dataId; }
+    Core::Id id() const { return m_id; }
     int priority() const { return m_priority; }
 
     virtual QVariant defaultValue(Kit *) const = 0;
@@ -90,15 +90,14 @@ public:
 
     virtual QString displayNamePostfix(const Kit *k) const;
 
-    bool isSticky(const Kit *k) const;
 
 protected:
-    void setDataId(Core::Id id) { m_dataId = id; }
+    void setId(Core::Id id) { m_id = id; }
     void setPriority(int priority) { m_priority = priority; }
     void notifyAboutUpdate(Kit *k);
 
 private:
-    Core::Id m_dataId;
+    Core::Id m_id;
     int m_priority; // The higher the closer to the top.
 };
 

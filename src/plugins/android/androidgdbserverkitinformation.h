@@ -45,7 +45,8 @@ class AndroidGdbServerKitInformationWidget : public ProjectExplorer::KitConfigWi
 {
     Q_OBJECT
 public:
-    AndroidGdbServerKitInformationWidget(ProjectExplorer::Kit *kit, bool sticky);
+    AndroidGdbServerKitInformationWidget(ProjectExplorer::Kit *kit,
+                                         const ProjectExplorer::KitInformation *ki);
 
     QString displayName() const;
     QString toolTip() const;
@@ -78,11 +79,11 @@ public:
 
     ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *) const;
 
+    static Core::Id id();
     static bool isAndroidKit(const ProjectExplorer::Kit *kit);
     static Utils::FileName gdbServer(const ProjectExplorer::Kit *kit);
     static void setGdbSever(ProjectExplorer::Kit *kit, const Utils::FileName &gdbServerCommand);
     static Utils::FileName autoDetect(ProjectExplorer::Kit *kit);
-    static void setSticky(ProjectExplorer::Kit *k, bool b);
 };
 
 } // namespace Internal

@@ -27,48 +27,15 @@
 **
 ****************************************************************************/
 
-#ifndef QTSUPPORT_QTKITCONFIGWIDGET_H
-#define QTSUPPORT_QTKITCONFIGWIDGET_H
+#include "kitconfigwidget.h"
 
-#include <projectexplorer/kitconfigwidget.h>
+#include "kit.h"
+#include "kitinformation.h"
 
-QT_BEGIN_NAMESPACE
-class QComboBox;
-class QPushButton;
-QT_END_NAMESPACE
+namespace ProjectExplorer {
 
-namespace QtSupport {
-namespace Internal {
+KitConfigWidget::KitConfigWidget(Kit *kit, const KitInformation *ki) : m_kit(kit),
+    m_kitInformation(ki), m_isSticky(kit->isSticky(ki->id()))
+{ }
 
-class QtKitConfigWidget : public ProjectExplorer::KitConfigWidget
-{
-    Q_OBJECT
-
-public:
-    QtKitConfigWidget(ProjectExplorer::Kit *k, const ProjectExplorer::KitInformation *ki);
-
-    QString displayName() const;
-
-    void makeReadOnly();
-
-    void refresh();
-    QWidget *mainWidget() const;
-    QWidget *buttonWidget() const;
-    QString toolTip() const;
-
-private slots:
-    void versionsChanged(const QList<int> &added, const QList<int> &removed, const QList<int> &changed);
-    void manageQtVersions();
-    void currentWasChanged(int idx);
-
-private:
-    int findQtVersion(const int id) const;
-
-    QComboBox *m_combo;
-    QPushButton *m_manageButton;
-};
-
-} // namespace Internal
-} // namespace Debugger
-
-#endif // QTSUPPORT_QTYSTEMCONFIGWIDGET_H
+} // namespace ProjectExplorer
