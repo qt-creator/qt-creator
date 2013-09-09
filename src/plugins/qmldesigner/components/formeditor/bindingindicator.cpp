@@ -89,28 +89,28 @@ void BindingIndicator::clear()
 
 QLineF topLine(const QmlItemNode &qmlItemNode)
 {
-    QRectF rectangle = qmlItemNode.instanceSceneTransform().mapRect(qmlItemNode.instanceBoundingRect()).adjusted(0, 1, 0, 0);
+    QRectF rectangle = qmlItemNode.instanceSceneTransform().mapRect(qmlItemNode.instanceBoundingRect()).adjusted(1, 1, 0, 0);
 
     return QLineF(rectangle.topLeft(), rectangle.topRight());
 }
 
 QLineF bottomLine(const QmlItemNode &qmlItemNode)
 {
-    QRectF rectangle = qmlItemNode.instanceSceneTransform().mapRect(qmlItemNode.instanceBoundingRect());
+    QRectF rectangle = qmlItemNode.instanceSceneTransform().mapRect(qmlItemNode.instanceBoundingRect()).adjusted(1, 0, 0, 0);
 
     return QLineF(rectangle.bottomLeft(), rectangle.bottomRight());
 }
 
 QLineF leftLine(const QmlItemNode &qmlItemNode)
 {
-    QRectF rectangle = qmlItemNode.instanceSceneTransform().mapRect(qmlItemNode.instanceBoundingRect()).adjusted(1, 0, 0, 0);
+    QRectF rectangle = qmlItemNode.instanceSceneTransform().mapRect(qmlItemNode.instanceBoundingRect()).adjusted(1, 1, 0, 0);
 
     return QLineF(rectangle.topLeft(), rectangle.bottomLeft());
 }
 
 QLineF rightLine(const QmlItemNode &qmlItemNode)
 {
-    QRectF rectangle = qmlItemNode.instanceSceneTransform().mapRect(qmlItemNode.instanceBoundingRect());
+    QRectF rectangle = qmlItemNode.instanceSceneTransform().mapRect(qmlItemNode.instanceBoundingRect()).adjusted(0, 1, 0, 0);
 
     return QLineF(rectangle.topRight(), rectangle.bottomRight());
 }
