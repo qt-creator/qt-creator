@@ -113,7 +113,6 @@ QtcPlugin {
         prefix: "gdb/"
         files: [
             "abstractgdbprocess.cpp", "abstractgdbprocess.h",
-            "abstractplaingdbadapter.cpp", "abstractplaingdbadapter.h",
             "attachgdbadapter.cpp", "attachgdbadapter.h",
             "classicgdbengine.cpp",
             "coregdbadapter.cpp", "coregdbadapter.h",
@@ -121,7 +120,7 @@ QtcPlugin {
             "gdbengine.cpp", "gdbengine.h",
             "gdboptionspage.cpp", "gdboptionspage.h",
             "localgdbprocess.cpp", "localgdbprocess.h",
-            "localplaingdbadapter.cpp", "localplaingdbadapter.h",
+            "gdbplainengine.cpp", "gdbplainengine.h",
             "pythongdbengine.cpp",
             "remotegdbserveradapter.cpp", "remotegdbserveradapter.h",
             "startgdbserverdialog.cpp", "startgdbserverdialog.h",

@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-#include "abstractplaingdbadapter.h"
+#include "gdbplainengine.h"
 
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggercore.h>
@@ -35,20 +35,28 @@
 #include <debugger/debuggerstartparameters.h>
 #include <debugger/debuggerstringutils.h>
 
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+
+#include <QFileInfo>
 
 namespace Debugger {
 namespace Internal {
 
 #define CB(callback) \
-    static_cast<GdbEngine::GdbCommandCallback>(&GdbAbstractPlainEngine::callback), \
+    static_cast<GdbEngine::GdbCommandCallback>(&GdbPlainEngine::callback), \
     STRINGIFY(callback)
 
-GdbAbstractPlainEngine::GdbAbstractPlainEngine(const DebuggerStartParameters &startParameters)
+GdbPlainEngine::GdbPlainEngine(const DebuggerStartParameters &startParameters)
     : GdbEngine(startParameters)
-{}
+{
+    // Output
+    connect(&m_outputCollector, SIGNAL(byteDelivery(QByteArray)),
+        this, SLOT(readDebugeeOutput(QByteArray)));
+}
 
-void GdbAbstractPlainEngine::setupInferior()
+
+void GdbPlainEngine::setupInferior()
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     if (!startParameters().processArgs.isEmpty()) {
@@ -59,7 +67,7 @@ void GdbAbstractPlainEngine::setupInferior()
         CB(handleFileExecAndSymbols));
 }
 
-void GdbAbstractPlainEngine::handleFileExecAndSymbols(const GdbResponse &response)
+void GdbPlainEngine::handleFileExecAndSymbols(const GdbResponse &response)
 {
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
     if (response.resultClass == GdbResultDone) {
@@ -74,12 +82,12 @@ void GdbAbstractPlainEngine::handleFileExecAndSymbols(const GdbResponse &respons
     }
 }
 
-void GdbAbstractPlainEngine::runEngine()
+void GdbPlainEngine::runEngine()
 {
     postCommand("-exec-run", GdbEngine::RunRequest, CB(handleExecRun));
 }
 
-void GdbAbstractPlainEngine::handleExecRun(const GdbResponse &response)
+void GdbPlainEngine::handleExecRun(const GdbResponse &response)
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
     if (response.resultClass == GdbResultRunning) {
@@ -98,6 +106,71 @@ void GdbAbstractPlainEngine::handleExecRun(const GdbResponse &response)
         showMessage(msg);
         notifyEngineRunFailed();
     }
+}
+
+GdbEngine::DumperHandling GdbPlainEngine::dumperHandling() const
+{
+    // LD_PRELOAD fails for System-Qt on Mac.
+    return Utils::HostOsInfo::isWindowsHost() || Utils::HostOsInfo::isMacHost()
+            ? DumperLoadedByGdb : DumperLoadedByGdbPreload;
+}
+
+void GdbPlainEngine::setupEngine()
+{
+    QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
+    showMessage(_("TRYING TO START ADAPTER"));
+
+    if (!prepareCommand())
+        return;
+
+    QStringList gdbArgs;
+
+    if (!m_outputCollector.listen()) {
+        handleAdapterStartFailed(tr("Cannot set up communication with child process: %1")
+                .arg(m_outputCollector.errorString()));
+        return;
+    }
+    gdbArgs.append(_("--tty=") + m_outputCollector.serverName());
+
+    if (!startParameters().workingDirectory.isEmpty())
+        m_gdbProc.setWorkingDirectory(startParameters().workingDirectory);
+    if (startParameters().environment.size())
+        m_gdbProc.setEnvironment(startParameters().environment.toStringList());
+
+    startGdb(gdbArgs);
+}
+
+void GdbPlainEngine::handleGdbStartFailed()
+{
+    m_outputCollector.shutdown();
+}
+
+void GdbPlainEngine::interruptInferior2()
+{
+    interruptLocalInferior(inferiorPid());
+}
+
+void GdbPlainEngine::shutdownEngine()
+{
+    showMessage(_("PLAIN ADAPTER SHUTDOWN %1").arg(state()));
+    m_outputCollector.shutdown();
+    notifyAdapterShutdownOk();
+}
+
+QByteArray GdbPlainEngine::execFilePath() const
+{
+    return QFileInfo(startParameters().executable)
+            .absoluteFilePath().toLocal8Bit();
+}
+
+QByteArray GdbPlainEngine::toLocalEncoding(const QString &s) const
+{
+    return s.toLocal8Bit();
+}
+
+QString GdbPlainEngine::fromLocalEncoding(const QByteArray &b) const
+{
+    return QString::fromLocal8Bit(b);
 }
 
 } // namespace Debugger

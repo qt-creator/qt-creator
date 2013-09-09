@@ -27,30 +27,30 @@
 **
 ****************************************************************************/
 
-#ifndef LOCALPLAINGDBADAPTER_H
-#define LOCALPLAINGDBADAPTER_H
+#ifndef GDBPLAINENGINE_H
+#define GDBPLAINENGINE_H
 
-#include "abstractplaingdbadapter.h"
+#include "gdbengine.h"
 #include "localgdbprocess.h"
 #include <debugger/outputcollector.h>
 
 namespace Debugger {
 namespace Internal {
 
-///////////////////////////////////////////////////////////////////////
-//
-// PlainGdbAdapter
-//
-///////////////////////////////////////////////////////////////////////
-
-class GdbLocalPlainEngine : public GdbAbstractPlainEngine
+class GdbPlainEngine : public GdbEngine
 {
+    // Needs tr - Context
     Q_OBJECT
 
 public:
-    explicit GdbLocalPlainEngine(const DebuggerStartParameters &startParameters);
+    explicit GdbPlainEngine(const DebuggerStartParameters &startParameters);
 
 private:
+    void handleExecRun(const GdbResponse &response);
+    void handleFileExecAndSymbols(const GdbResponse &response);
+
+    void setupInferior();
+    void runEngine();
     void setupEngine();
     void handleGdbStartFailed();
     void interruptInferior2();
@@ -67,7 +67,7 @@ private:
     LocalGdbProcess m_gdbProc;
 };
 
-} // namespace Internal
 } // namespace Debugger
+} // namespace Internal
 
-#endif // LOCALPLAINGDBADAPTER_H
+#endif // GDBPLAINENGINE_H

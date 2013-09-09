@@ -31,7 +31,7 @@
 
 #include "attachgdbadapter.h"
 #include "coregdbadapter.h"
-#include "localplaingdbadapter.h"
+#include "gdbplainengine.h"
 #include "termgdbadapter.h"
 #include "remotegdbserveradapter.h"
 
@@ -5464,7 +5464,7 @@ DebuggerEngine *createGdbEngine(const DebuggerStartParameters &sp)
     default:
         if (sp.useTerminal)
             return new GdbTermEngine(sp);
-        return new GdbLocalPlainEngine(sp);
+        return new GdbPlainEngine(sp);
     }
 }
 
