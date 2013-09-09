@@ -374,12 +374,10 @@ void NodeInstanceServer::setupImports(const QVector<AddImportContainer> &contain
 
     componentString += QString("Item {}\n");
 
-    if (quickView()) {
-        QQuickViewPrivate::get(quickView())->component = new QQmlComponent(engine(), quickView());
-        m_importComponent = QQuickViewPrivate::get(quickView())->component;
-    } else {
-        m_importComponent = new QQmlComponent(engine(), 0);
-    }
+    m_importComponent = new QQmlComponent(engine(), quickView());
+
+    if (quickView())
+        quickView()->setContent(fileUrl(), m_importComponent, quickView()->rootObject());
 
     m_importComponent->setData(componentString.toUtf8(), fileUrl());
     m_importComponentObject = m_importComponent->create();
