@@ -26,37 +26,53 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef IPUBLISHING_WIZARD_FACTORY_H
-#define IPUBLISHING_WIZARD_FACTORY_H
+#include <ipublishingwizardfactory.h>
 
-#include <projectexplorer/projectexplorer_export.h>
 
-#include <extensionsystem/pluginmanager.h>
+/*!
+    \class ProjectExplorer::IPublishingWizardFactory
 
-#include <QList>
-#include <QWizard>
+    \brief The IPublishingWizardFactory class provides an interface for creating
+    wizards to publish a project.
 
-namespace ProjectExplorer {
-class Project;
+    A class implementing this interface is used to create an associated wizard
+    that allows users to publish their project to a remote facility, such as an
+    app store.
 
-class PROJECTEXPLORER_EXPORT IPublishingWizardFactory : public QObject
-{
-    Q_OBJECT
+    Such a wizard would typically transform the project content into a format
+    expected by that facility (\e packaging) and also upload it, if possible.
 
-public:
+    The factory objects have to be added to the global object pool via
+    \c ExtensionSystem::PluginManager::addObject().
 
-    virtual QString displayName() const = 0;
+    \sa ExtensionSystem::PluginManager::addObject()
+*/
 
-    virtual QString description() const = 0;
+/*!
+    \fn virtual QString displayName() const = 0
 
-    virtual bool canCreateWizard(const Project *project) const = 0;
+    Describes on one line the type of wizard that this factory can create.
+*/
 
-    virtual QWizard *createWizard(const Project *project) const = 0;
+ /*!
+   \fn virtual QString description() const = 0
 
-protected:
-    IPublishingWizardFactory(QObject *parent = 0) : QObject(parent) {}
-};
+    Explains the exact purpose of the wizard created by this factory.
+*/
 
-} // namespace ProjectExplorer
+/*!
+    \fn virtual bool canCreateWizard(const Project *project) const = 0
 
-#endif // IPUBLISHING_WIZARD_FACTORY_H
+    Returns true if the type of wizard that this factory can create is available
+    for the specified \a project.
+*/
+
+/*!
+    \fn virtual QWizard *createWizard(const Project *project) const = 0
+
+    Creates a wizard that can publish \a project. Behavior is undefined if
+    canCreateWizard() returns \c false for the project. Returns the newly
+    created publishing wizard
+
+    \sa canCreateWizard()
+*/
