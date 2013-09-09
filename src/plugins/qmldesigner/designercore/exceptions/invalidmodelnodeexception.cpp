@@ -51,9 +51,7 @@ InvalidModelNodeException::InvalidModelNodeException(int line,
 }
 
 /*!
-\brief Returns the type of this exception
-
-\returns the type as a string
+    Returns the type of this exception as a string.
 */
 QString InvalidModelNodeException::type() const
 {

@@ -62,9 +62,7 @@ QString InvalidArgumentException::description() const
 }
 
 /*!
-\brief Returns the type of this exception
-
-\returns the type as a string
+    Returns the type of the exception as a string.
 */
 QString InvalidArgumentException::type() const
 {
@@ -72,9 +70,7 @@ QString InvalidArgumentException::type() const
 }
 
 /*!
-\brief Returns the argument of this exception
-
-\returns the argument as a string
+    Returns the argument of the exception as a string.
 */
 QString InvalidArgumentException::argument() const
 {
