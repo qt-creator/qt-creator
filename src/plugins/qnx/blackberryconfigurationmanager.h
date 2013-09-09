@@ -70,6 +70,7 @@ public:
 public slots:
     void loadSettings();
     void saveSettings();
+    void checkToolChainConfiguration();
 
 signals:
     void settingsLoaded();

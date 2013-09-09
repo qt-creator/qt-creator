@@ -37,20 +37,18 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 
+#include <qtsupport/baseqtversion.h>
+
 #include <projectexplorer/kit.h>
-#include <projectexplorer/gcctoolchain.h>
 
 #include <QObject>
 #include <QCoreApplication>
-
-namespace QtSupport {
-class BaseQtVersion;
-}
 
 namespace Qnx {
 namespace Internal {
 
 class QnxAbstractQtVersion;
+class QnxToolChain;
 
 class BlackBerryConfiguration
 {
@@ -91,7 +89,7 @@ private:
             const Utils::FileName &qmakePath, Qnx::QnxArchitecture arch);
     QnxAbstractQtVersion* createQtVersion(
             const Utils::FileName &qmakePath, Qnx::QnxArchitecture arch);
-    ProjectExplorer::GccToolChain* createGccToolChain(QnxAbstractQtVersion *version);
+    QnxToolChain* createToolChain(QnxAbstractQtVersion *version);
     ProjectExplorer::Kit* createKit(
             QnxAbstractQtVersion* version, ProjectExplorer::ToolChain* toolChain);
     QList<QtSupport::BaseQtVersion *> findRegisteredQtVersions() const;

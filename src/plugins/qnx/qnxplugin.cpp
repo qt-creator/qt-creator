@@ -53,6 +53,8 @@
 #include "blackberrydeviceconnectionmanager.h"
 #include "blackberryconfigurationmanager.h"
 #include "cascadesimport/cascadesimportwizard.h"
+#include "qnxtoolchain.h"
+
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
@@ -100,6 +102,9 @@ bool QNXPlugin::initialize(const QStringList &arguments, QString *errorString)
     addAutoReleasedObject(new QnxDeployStepFactory);
     addAutoReleasedObject(new QnxDeployConfigurationFactory);
     addAutoReleasedObject(new QnxRunConfigurationFactory);
+
+    // Handle Qcc Compiler
+    addAutoReleasedObject(new QnxToolChainFactory);
 
     // bar-descriptor.xml editor
     Core::MimeGlobPattern barDescriptorGlobPattern(QLatin1String("*.xml"), Core::MimeGlobPattern::MinWeight + 1);

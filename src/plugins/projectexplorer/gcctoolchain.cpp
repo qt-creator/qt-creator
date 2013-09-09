@@ -113,40 +113,7 @@ static QByteArray runGcc(const FileName &gcc, const QStringList &arguments, cons
 
 static QByteArray gccPredefinedMacros(const FileName &gcc, const QStringList &args, const QStringList &env)
 {
-    QStringList arguments;
-    arguments << QLatin1String("-xc++")
-              << QLatin1String("-E")
-              << QLatin1String("-dM");
-    foreach (const QString &a, args) {
-        if (a == QLatin1String("-m128bit-long-double") || a == QLatin1String("-m32")
-                || a == QLatin1String("-m3dnow") || a == QLatin1String("-m3dnowa")
-                || a == QLatin1String("-m64") || a == QLatin1String("-m96bit-long-double")
-                || a == QLatin1String("-mabm") || a == QLatin1String("-maes")
-                || a.startsWith(QLatin1String("-march=")) || a == QLatin1String("-mavx")
-                || a.startsWith(QLatin1String("-masm=")) || a == QLatin1String("-mcx16")
-                || a == QLatin1String("-mfma") || a == QLatin1String("-mfma4")
-                || a == QLatin1String("-mlwp") || a == QLatin1String("-mpclmul")
-                || a == QLatin1String("-mpopcnt") || a == QLatin1String("-msse")
-                || a == QLatin1String("-msse2") || a == QLatin1String("-msse2avx")
-                || a == QLatin1String("-msse3") || a == QLatin1String("-msse4")
-                || a == QLatin1String("-msse4.1") || a == QLatin1String("-msse4.2")
-                || a == QLatin1String("-msse4a") || a == QLatin1String("-mssse3")
-                || a.startsWith(QLatin1String("-mtune=")) || a == QLatin1String("-mxop")
-                || a == QLatin1String("-Os") || a == QLatin1String("-O0") || a == QLatin1String("-O1")
-                || a == QLatin1String("-O2") || a == QLatin1String("-O3")
-                || a == QLatin1String("-ffinite-math-only") || a == QLatin1String("-fshort-double")
-                || a == QLatin1String("-fshort-wchar") || a == QLatin1String("-fsignaling-nans")
-                || a == QLatin1String("-fno-inline") || a == QLatin1String("-fno-exceptions")
-                || a == QLatin1String("-fstack-protector") || a == QLatin1String("-fstack-protector-all")
-                || a == QLatin1String("-fsanitize=address") || a == QLatin1String("-fno-rtti")
-                || a.startsWith(QLatin1String("-std=")) || a.startsWith(QLatin1String("-stdlib="))
-                || a.startsWith(QLatin1String("-specs="))
-                || a == QLatin1String("-ansi") || a == QLatin1String("-undef")
-                || a.startsWith(QLatin1String("-D")) || a.startsWith(QLatin1String("-U"))
-                || a == QLatin1String("-fopenmp") || a == QLatin1String("-Wno-deprecated"))
-            arguments << a;
-    }
-
+    QStringList arguments = args;
     arguments << QLatin1String("-");
 
     QByteArray predefinedMacros = runGcc(gcc, arguments, env);
@@ -169,23 +136,10 @@ static QByteArray gccPredefinedMacros(const FileName &gcc, const QStringList &ar
 
 const int GccToolChain::PREDEFINED_MACROS_CACHE_SIZE = 16;
 
-QList<HeaderPath> GccToolChain::gccHeaderPaths(const FileName &gcc, const QStringList &args,
-                                               const QStringList &env, const FileName &sysrootPath)
+QList<HeaderPath> GccToolChain::gccHeaderPaths(const FileName &gcc, const QStringList &arguments,
+                                               const QStringList &env)
 {
     QList<HeaderPath> systemHeaderPaths;
-    QStringList arguments;
-    if (!sysrootPath.isEmpty())
-        arguments.append(QString::fromLatin1("--sysroot=%1").arg(sysrootPath.toString()));
-    foreach (const QString &a, args) {
-        if (a.startsWith(QLatin1String("-stdlib=")))
-            arguments << a;
-    }
-
-    arguments << QLatin1String("-xc++")
-              << QLatin1String("-E")
-              << QLatin1String("-v")
-              << QLatin1String("-");
-
     QByteArray line;
     QByteArray data = runGcc(gcc, arguments, env);
     QBuffer cpp(&data);
@@ -254,6 +208,16 @@ static QList<Abi> guessGccAbi(const QString &m, const QByteArray &macros)
     return abiList;
 }
 
+static QStringList gccPredefinedMacrosOptions()
+{
+    QStringList gccOptions;
+    gccOptions << QLatin1String("-xc++")
+               << QLatin1String("-E")
+               << QLatin1String("-dM");
+
+    return gccOptions;
+}
+
 static QList<Abi> guessGccAbi(const FileName &path, const QStringList &env,
                               const QStringList &extraArgs = QStringList())
 {
@@ -265,7 +229,7 @@ static QList<Abi> guessGccAbi(const FileName &path, const QStringList &env,
     QString machine = QString::fromLocal8Bit(runGcc(path, arguments, env)).trimmed();
     if (machine.isEmpty())
         return QList<Abi>(); // no need to continue if running failed once...
-    QByteArray macros = gccPredefinedMacros(path, QStringList(), env);
+    QByteArray macros = gccPredefinedMacros(path, gccPredefinedMacrosOptions(), env);
     return guessGccAbi(machine, macros);
 }
 
@@ -388,7 +352,38 @@ QByteArray GccToolChain::predefinedMacros(const QStringList &cxxflags) const
     // Using a clean environment breaks ccache/distcc/etc.
     Environment env = Environment::systemEnvironment();
     addToEnvironment(env);
-    runResults.second = gccPredefinedMacros(m_compilerCommand, allCxxflags, env.toStringList());
+    QStringList arguments = gccPredefinedMacrosOptions();
+    foreach (const QString &a, allCxxflags) {
+        if (a == QLatin1String("-m128bit-long-double") || a == QLatin1String("-m32")
+                || a == QLatin1String("-m3dnow") || a == QLatin1String("-m3dnowa")
+                || a == QLatin1String("-m64") || a == QLatin1String("-m96bit-long-double")
+                || a == QLatin1String("-mabm") || a == QLatin1String("-maes")
+                || a.startsWith(QLatin1String("-march=")) || a == QLatin1String("-mavx")
+                || a.startsWith(QLatin1String("-masm=")) || a == QLatin1String("-mcx16")
+                || a == QLatin1String("-mfma") || a == QLatin1String("-mfma4")
+                || a == QLatin1String("-mlwp") || a == QLatin1String("-mpclmul")
+                || a == QLatin1String("-mpopcnt") || a == QLatin1String("-msse")
+                || a == QLatin1String("-msse2") || a == QLatin1String("-msse2avx")
+                || a == QLatin1String("-msse3") || a == QLatin1String("-msse4")
+                || a == QLatin1String("-msse4.1") || a == QLatin1String("-msse4.2")
+                || a == QLatin1String("-msse4a") || a == QLatin1String("-mssse3")
+                || a.startsWith(QLatin1String("-mtune=")) || a == QLatin1String("-mxop")
+                || a == QLatin1String("-Os") || a == QLatin1String("-O0") || a == QLatin1String("-O1")
+                || a == QLatin1String("-O2") || a == QLatin1String("-O3")
+                || a == QLatin1String("-ffinite-math-only") || a == QLatin1String("-fshort-double")
+                || a == QLatin1String("-fshort-wchar") || a == QLatin1String("-fsignaling-nans")
+                || a == QLatin1String("-fno-inline") || a == QLatin1String("-fno-exceptions")
+                || a == QLatin1String("-fstack-protector") || a == QLatin1String("-fstack-protector-all")
+                || a == QLatin1String("-fsanitize=address") || a == QLatin1String("-fno-rtti")
+                || a.startsWith(QLatin1String("-std=")) || a.startsWith(QLatin1String("-stdlib="))
+                || a.startsWith(QLatin1String("-specs="))
+                || a == QLatin1String("-ansi") || a == QLatin1String("-undef")
+                || a.startsWith(QLatin1String("-D")) || a.startsWith(QLatin1String("-U"))
+                || a == QLatin1String("-fopenmp") || a == QLatin1String("-Wno-deprecated"))
+            arguments << a;
+    }
+
+    runResults.second = gccPredefinedMacros(m_compilerCommand, reinterpretOptions(arguments), env.toStringList());
 
     m_predefinedMacros.push_back(runResults);
     if (m_predefinedMacros.size() > PREDEFINED_MACROS_CACHE_SIZE)
@@ -501,8 +496,24 @@ QList<HeaderPath> GccToolChain::systemHeaderPaths(const QStringList &cxxflags, c
         // Using a clean environment breaks ccache/distcc/etc.
         Environment env = Environment::systemEnvironment();
         addToEnvironment(env);
-        m_headerPaths = gccHeaderPaths(m_compilerCommand, m_platformCodeGenFlags + cxxflags , // add only cxxflags is empty?
-                                       env.toStringList(), sysRoot);
+        // Prepare arguments
+        QStringList arguments;
+        if (!sysRoot.isEmpty())
+            arguments.append(QString::fromLatin1("--sysroot=%1").arg(sysRoot.toString()));
+
+        QStringList flags;
+        flags << m_platformCodeGenFlags << cxxflags;
+        foreach (const QString &a, flags) {
+            if (a.startsWith(QLatin1String("-stdlib=")))
+                arguments << a;
+        }
+
+        arguments <<  QLatin1String("-xc++")
+                   << QLatin1String("-E")
+                   << QLatin1String("-v")
+                   << QLatin1String("-");
+
+        m_headerPaths = gccHeaderPaths(m_compilerCommand, reinterpretOptions(arguments), env.toStringList());
     }
     return m_headerPaths;
 }
@@ -707,6 +718,12 @@ QString GccToolChain::detectVersion() const
     Environment env = Environment::systemEnvironment();
     addToEnvironment(env);
     return gccVersion(m_compilerCommand, env.toStringList());
+}
+
+QStringList GccToolChain::reinterpretOptions(const QStringList &arg) const
+{
+    // Nothing todo
+    return arg;
 }
 
 // --------------------------------------------------------------------------

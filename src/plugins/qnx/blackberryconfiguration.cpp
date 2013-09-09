@@ -32,6 +32,7 @@
 #include "blackberryconfiguration.h"
 #include "blackberryqtversion.h"
 
+#include "qnxtoolchain.h"
 #include "qnxutils.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
@@ -184,7 +185,7 @@ void BlackBerryConfiguration::createConfigurationPerQtVersion(
         const FileName &qmakePath, Qnx::QnxArchitecture arch)
 {
     QnxAbstractQtVersion *version = createQtVersion(qmakePath, arch);
-    ToolChain *toolChain = createGccToolChain(version);
+    ToolChain *toolChain = createToolChain(version);
     Kit *kit = createKit(version, toolChain);
 
     if (version && toolChain && kit) {
@@ -206,15 +207,15 @@ QnxAbstractQtVersion *BlackBerryConfiguration::createQtVersion(
     return version;
 }
 
-GccToolChain *BlackBerryConfiguration::createGccToolChain(QnxAbstractQtVersion *version)
+QnxToolChain *BlackBerryConfiguration::createToolChain(QnxAbstractQtVersion *version)
 {
-    GccToolChain* toolChain = new GccToolChain(
-            QLatin1String(ProjectExplorer::Constants::GCC_TOOLCHAIN_ID), ToolChain::AutoDetection);
+    QnxToolChain* toolChain = new QnxToolChain(ToolChain::AutoDetection);
     //: QCC is the compiler for QNX.
     toolChain->setDisplayName(tr("QCC for Qt %1 for %2 %3 - %4").arg(
             version->qtVersionString(), version->platformDisplayName(),
             version->archString(), m_targetName));
     toolChain->setCompilerCommand(m_gccCompiler);
+    toolChain->setNdkPath(ndkPath());
     QList<Abi> abis = version->qtAbis();
     if (!abis.isEmpty())
         toolChain->setTargetAbi(abis.first());

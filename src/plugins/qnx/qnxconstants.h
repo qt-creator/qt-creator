@@ -90,6 +90,8 @@ const char QNX_BB_PLATFORM_NAME[]  = "BlackBerry";
 
 const char QNX_DEBUG_EXECUTABLE[] = "pdebug";
 
+const char QNX_TOOLCHAIN_ID[] = "Qnx.QccToolChain";
+
 // BlackBerry settings constants
 const char QNX_BB_CATEGORY[] = "XF.BlackBerry";
 const char QNX_BB_CATEGORY_TR[] = QT_TRANSLATE_NOOP("BlackBerry", "BlackBerry");

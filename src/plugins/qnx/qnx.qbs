@@ -187,6 +187,8 @@ QtcPlugin {
         "blackberrysigningutils.h",
         "pathchooserdelegate.cpp",
         "pathchooserdelegate.h",
+        "qnxtoolchain.cpp",
+        "qnxtoolchain.h",
         "qnx.qrc",
         "qnxabstractqtversion.cpp",
         "qnxabstractqtversion.h",
