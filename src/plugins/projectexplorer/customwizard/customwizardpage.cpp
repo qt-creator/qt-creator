@@ -114,7 +114,8 @@ QString TextFieldComboBox::valueAt(int i) const
     \brief The TextFieldCheckBox class is a aheckbox that plays with
     \c QWizard::registerField.
 
-    Provides a settable 'text' property containing predefined strings for 'true'/'false').
+    Provides a settable 'text' property containing predefined strings for
+    \c true and \c false.
 
     \sa ProjectExplorer::Internal::CustomWizardFieldPage, ProjectExplorer::CustomWizard
 */
@@ -216,8 +217,8 @@ void CustomWizardFieldPage::clearError()
 }
 
 /*!
-    \brief Create widget a control based  on the control attributes map
-    and register it with the QWizard.
+    Creates a widget based on the control attributes map and registers it with
+    the QWizard.
 */
 
 void CustomWizardFieldPage::addField(const CustomWizardField &field)\
@@ -507,7 +508,8 @@ QMap<QString, QString> CustomWizardFieldPage::replacementMap(const QWizard *w,
 
 /*!
     \class ProjectExplorer::Internal::CustomWizardPage
-    \brief A custom wizard page presenting the fields to be used and a path chooser
+    \brief The CustomWizardPage class provides a custom wizard page presenting
+    the fields to be used and a path chooser
     at the bottom (for use by "class"/"file" wizards).
 
     Does validation on the Path chooser only (as the other fields can by validated by regexps).

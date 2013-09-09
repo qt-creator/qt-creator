@@ -145,9 +145,9 @@ static bool
 }
 
 /*!
-    \brief Custom wizard script generator function (Step1) - dry run.
+    Performs the first step in custom wizard script generation.
 
-    Do a dry run of the generation script to get a list of files
+    Does a dry run of the generation script to get a list of files.
     \sa runCustomWizardGeneratorScript, ProjectExplorer::CustomWizard
 */
 
@@ -205,11 +205,12 @@ Core::GeneratedFiles
 }
 
 /*!
-    \brief Custom wizard script generator function (Step2) - actual file creation.
+    Performs the second step in custom wizard script generation by actually
+    creating the files.
 
     In addition to the <file> elements
     that define template files in which macros are replaced, it is possible to have
-    a custom wizard call a generation script (specified in the "generatorscript"
+    a custom wizard call a generation script (specified in the \a generatorscript
     attribute of the <files> element) which actually creates files.
     The command line of the script must follow the convention
     \code
@@ -219,7 +220,7 @@ Core::GeneratedFiles
     Options containing field placeholders are configured in the XML files
     and will be passed with them replaced by their values.
 
-    As Qt Creator needs to know the file names before actually creates them to
+    As \QC needs to know the file names before it actually creates the files to
     do overwrite checking etc., this is  2-step process:
     \list
     \li Determine file names and attributes: The script is called with the
