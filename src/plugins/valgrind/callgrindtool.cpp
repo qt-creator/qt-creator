@@ -41,6 +41,7 @@
 #include <valgrind/callgrind/callgrindfunction.h>
 #include <valgrind/callgrind/callgrindfunctioncall.h>
 #include <valgrind/callgrind/callgrindparsedata.h>
+#include <valgrind/callgrind/callgrindparser.h>
 #include <valgrind/callgrind/callgrindproxymodel.h>
 #include <valgrind/callgrind/callgrindstackbrowser.h>
 #include <valgrind/valgrindplugin.h>
@@ -74,10 +75,12 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDockWidget>
+#include <QFileDialog>
 #include <QGraphicsItem>
 #include <QHBoxLayout>
 #include <QLineEdit>
 #include <QMenu>
+#include <QMessageBox>
 #include <QSortFilterProxyModel>
 #include <QToolBar>
 #include <QToolButton>
@@ -124,6 +127,7 @@ signals:
 public slots:
     void slotClear();
     void slotRequestDump();
+    void loadExternalXmlLogFile();
 
     void selectFunction(const Valgrind::Callgrind::Function *);
     void setCostFormat(Valgrind::Internal::CostDelegate::CostFormat format);
@@ -158,6 +162,7 @@ public slots:
     void showParserResults(const Valgrind::Callgrind::ParseData *data);
 
     void takeParserData(CallgrindRunControl *rc);
+    void takeParserData(ParseData *data);
     void engineStarting(const Analyzer::AnalyzerRunControl *);
     void engineFinished();
 
@@ -198,6 +203,7 @@ public:
 
     QVector<CallgrindTextMark *> m_textMarks;
 
+    QAction *m_loadExternalLogFile;
     QAction *m_dumpAction;
     QAction *m_resetAction;
     QAction *m_pauseAction;
@@ -562,6 +568,11 @@ void CallgrindTool::startTool(StartMode mode)
     d->setBusyCursor(true);
 }
 
+void CallgrindTool::loadExternalXmlLogFile()
+{
+    d->loadExternalXmlLogFile();
+}
+
 void CallgrindTool::handleShowCostsOfFunction()
 {
    d->handleShowCostsOfFunction();
@@ -653,6 +664,14 @@ QWidget *CallgrindToolPrivate::createWidgets()
     layout->setMargin(0);
     layout->setSpacing(0);
     widget->setLayout(layout);
+
+    // load external XML log file
+    action = new QAction(this);
+    action->setIcon(QIcon(QLatin1String(Core::Constants::ICON_OPENFILE)));
+    action->setToolTip(tr("Load External XML Log File."));
+    connect(action, SIGNAL(triggered(bool)), this, SLOT(loadExternalXmlLogFile()));
+    layout->addWidget(createToolButton(action));
+    m_loadExternalLogFile = action;
 
     // dump action
     action = new QAction(this);
@@ -810,6 +829,7 @@ void CallgrindToolPrivate::engineStarting(const Analyzer::AnalyzerRunControl *)
     // enable/disable actions
     m_resetAction->setEnabled(true);
     m_dumpAction->setEnabled(true);
+    m_loadExternalLogFile->setEnabled(false);
     clearTextMarks();
     slotClear();
 }
@@ -819,6 +839,7 @@ void CallgrindToolPrivate::engineFinished()
     // enable/disable actions
     m_resetAction->setEnabled(false);
     m_dumpAction->setEnabled(false);
+    m_loadExternalLogFile->setEnabled(true);
 
     const ParseData *data = m_dataModel->parseData();
     if (data)
@@ -913,9 +934,35 @@ void CallgrindToolPrivate::slotRequestDump()
     dumpRequested();
 }
 
+void CallgrindToolPrivate::loadExternalXmlLogFile()
+{
+    const QString filePath = QFileDialog::getOpenFileName(Core::ICore::mainWindow(),
+                                                          tr("Open Callgrind XML Log File"));
+    if (filePath.isEmpty())
+        return;
+
+    QFile logFile(filePath);
+    if (!logFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QMessageBox::critical(AnalyzerManager::mainWindow(), tr("Internal Error"),
+            tr("Failed to open file for reading: %1").arg(filePath));
+        return;
+    }
+
+    AnalyzerManager::showStatusMessage(tr("Parsing Profile Data..."));
+    QCoreApplication::processEvents();
+
+    Parser parser;
+    parser.parse(&logFile);
+    takeParserData(parser.takeData());
+}
+
 void CallgrindToolPrivate::takeParserData(CallgrindRunControl *rc)
 {
-    ParseData *data = rc->takeParserData();
+    takeParserData(rc->takeParserData());
+}
+
+void CallgrindToolPrivate::takeParserData(ParseData *data)
+{
     showParserResults(data);
 
     if (!data)

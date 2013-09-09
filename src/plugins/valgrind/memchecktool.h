@@ -88,12 +88,15 @@ private slots:
     void maybeActiveRunConfigurationChanged();
 
     void engineStarting(const Analyzer::AnalyzerRunControl *engine);
-    void finished();
+    void engineFinished();
+    void loadingExternalXmlLogFileFinished();
 
     void parserError(const Valgrind::XmlProtocol::Error &error);
     void internalParserError(const QString &errorString);
     void updateErrorFilter();
     void suppressionActionTriggered();
+
+    void loadExternalXmlLogFile();
 
 private:
     ToolMode toolMode() const;
@@ -104,6 +107,8 @@ private:
                                ProjectExplorer::RunConfiguration *runConfiguration = 0);
 
     void clearErrorView();
+    void updateFromSettings();
+    int updateUiAfterFinishedHelper();
 
 private:
     ValgrindBaseSettings *m_settings;
@@ -118,6 +123,7 @@ private:
     QAction *m_filterProjectAction;
     QList<QAction *> m_suppressionActions;
     QAction *m_suppressionSeparator;
+    QAction *m_loadExternalLogFile;
     QAction *m_goBack;
     QAction *m_goNext;
 };

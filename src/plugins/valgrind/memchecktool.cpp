@@ -69,6 +69,7 @@
 
 #include <QString>
 #include <QLatin1String>
+#include <QFileDialog>
 #include <QFileInfo>
 #include <QFile>
 #include <QDir>
@@ -223,6 +224,31 @@ void MemcheckTool::settingsDestroyed(QObject *settings)
     m_settings = ValgrindPlugin::globalSettings();
 }
 
+void MemcheckTool::updateFromSettings()
+{
+    foreach (QAction *action, m_errorFilterActions) {
+        bool contained = true;
+        foreach (const QVariant &v, action->data().toList()) {
+            bool ok;
+            int kind = v.toInt(&ok);
+            if (ok && !m_settings->visibleErrorKinds().contains(kind))
+                contained = false;
+        }
+        action->setChecked(contained);
+    }
+
+    m_filterProjectAction->setChecked(!m_settings->filterExternalIssues());
+    m_errorView->settingsChanged(m_settings);
+
+    connect(m_settings, SIGNAL(visibleErrorKindsChanged(QList<int>)),
+            m_errorProxyModel, SLOT(setAcceptedKinds(QList<int>)));
+    m_errorProxyModel->setAcceptedKinds(m_settings->visibleErrorKinds());
+
+    connect(m_settings, SIGNAL(filterExternalIssuesChanged(bool)),
+            m_errorProxyModel, SLOT(setFilterExternalIssues(bool)));
+    m_errorProxyModel->setFilterExternalIssues(m_settings->filterExternalIssues());
+}
+
 void MemcheckTool::maybeActiveRunConfigurationChanged()
 {
     ValgrindBaseSettings *settings = 0;
@@ -249,27 +275,7 @@ void MemcheckTool::maybeActiveRunConfigurationChanged()
     QTC_ASSERT(m_settings, return);
     connect(m_settings, SIGNAL(destroyed(QObject*)), SLOT(settingsDestroyed(QObject*)));
 
-    foreach (QAction *action, m_errorFilterActions) {
-        bool contained = true;
-        foreach (const QVariant &v, action->data().toList()) {
-            bool ok;
-            int kind = v.toInt(&ok);
-            if (ok && !m_settings->visibleErrorKinds().contains(kind))
-                contained = false;
-        }
-        action->setChecked(contained);
-    }
-
-    m_filterProjectAction->setChecked(!m_settings->filterExternalIssues());
-    m_errorView->settingsChanged(m_settings);
-
-    connect(m_settings, SIGNAL(visibleErrorKindsChanged(QList<int>)),
-            m_errorProxyModel, SLOT(setAcceptedKinds(QList<int>)));
-    m_errorProxyModel->setAcceptedKinds(m_settings->visibleErrorKinds());
-
-    connect(m_settings, SIGNAL(filterExternalIssuesChanged(bool)),
-            m_errorProxyModel, SLOT(setFilterExternalIssues(bool)));
-    m_errorProxyModel->setFilterExternalIssues(m_settings->filterExternalIssues());
+    updateFromSettings();
 }
 
 RunMode MemcheckTool::runMode() const
@@ -371,6 +377,16 @@ QWidget *MemcheckTool::createWidgets()
     layout->setMargin(0);
     layout->setSpacing(0);
 
+    // Load external XML log file
+    action = new QAction(this);
+    action->setIcon(QIcon(QLatin1String(Core::Constants::ICON_OPENFILE)));
+    action->setToolTip(tr("Load External XML Log File."));
+    connect(action, SIGNAL(triggered(bool)), this, SLOT(loadExternalXmlLogFile()));
+    button = new QToolButton;
+    button->setDefaultAction(action);
+    layout->addWidget(button);
+    m_loadExternalLogFile = action;
+
     // Go to previous leak.
     action = new QAction(this);
     action->setDisabled(true);
@@ -429,7 +445,7 @@ AnalyzerRunControl *MemcheckTool::createRunControl(const AnalyzerStartParameters
             this, SLOT(parserError(Valgrind::XmlProtocol::Error)));
     connect(engine, SIGNAL(internalParserError(QString)),
             this, SLOT(internalParserError(QString)));
-    connect(engine, SIGNAL(finished()), this, SLOT(finished()));
+    connect(engine, SIGNAL(finished()), this, SLOT(engineFinished()));
     return engine;
 }
 
@@ -437,6 +453,7 @@ void MemcheckTool::engineStarting(const AnalyzerRunControl *engine)
 {
     setBusyCursor(true);
     clearErrorView();
+    m_loadExternalLogFile->setDisabled(true);
 
     QString dir;
     if (RunConfiguration *rc = engine->runConfiguration())
@@ -466,6 +483,42 @@ void MemcheckTool::suppressionActionTriggered()
     QTC_ASSERT(!file.isEmpty(), return);
 
     Core::EditorManager::openEditorAt(file, 0);
+}
+
+void MemcheckTool::loadExternalXmlLogFile()
+{
+    const QString filePath = QFileDialog::getOpenFileName(Core::ICore::mainWindow(),
+                                                          tr("Open Memcheck XML Log File"));
+    if (filePath.isEmpty())
+        return;
+
+    QFile *logFile = new QFile(filePath);
+    if (!logFile->open(QIODevice::ReadOnly | QIODevice::Text)) {
+        delete logFile;
+        QMessageBox::critical(m_errorView, tr("Internal Error"),
+            tr("Failed to open file for reading: %1").arg(filePath));
+        return;
+    }
+
+    setBusyCursor(true);
+    clearErrorView();
+    m_loadExternalLogFile->setDisabled(true);
+
+    if (!m_settings || m_settings != ValgrindPlugin::globalSettings()) {
+        m_settings = ValgrindPlugin::globalSettings();
+        m_errorView->settingsChanged(m_settings);
+        updateFromSettings();
+    }
+
+    ThreadedParser *parser = new ThreadedParser;
+    connect(parser, SIGNAL(error(Valgrind::XmlProtocol::Error)),
+            this, SLOT(parserError(Valgrind::XmlProtocol::Error)));
+    connect(parser, SIGNAL(internalError(QString)),
+            this, SLOT(internalParserError(QString)));
+    connect(parser, SIGNAL(finished()), this, SLOT(loadingExternalXmlLogFileFinished()));
+    connect(parser, SIGNAL(finished()), parser, SLOT(deleteLater()));
+
+    parser->parse(logFile); // ThreadedParser owns the file
 }
 
 void MemcheckTool::parserError(const Valgrind::XmlProtocol::Error &error)
@@ -510,16 +563,30 @@ void MemcheckTool::updateErrorFilter()
     m_settings->setVisibleErrorKinds(errorKinds);
 }
 
-void MemcheckTool::finished()
+int MemcheckTool::updateUiAfterFinishedHelper()
 {
     const int issuesFound = m_errorModel->rowCount();
     m_goBack->setEnabled(issuesFound > 1);
     m_goNext->setEnabled(issuesFound > 1);
+    m_loadExternalLogFile->setEnabled(true);
+    setBusyCursor(false);
+    return issuesFound;
+}
+
+void MemcheckTool::engineFinished()
+{
+    const int issuesFound = updateUiAfterFinishedHelper();
     AnalyzerManager::showStatusMessage(issuesFound > 0
         ? AnalyzerManager::tr("Memory Analyzer Tool finished, %n issues were found.", 0, issuesFound)
         : AnalyzerManager::tr("Memory Analyzer Tool finished, no issues were found."));
+}
 
-    setBusyCursor(false);
+void MemcheckTool::loadingExternalXmlLogFileFinished()
+{
+    const int issuesFound = updateUiAfterFinishedHelper();
+    AnalyzerManager::showStatusMessage(issuesFound > 0
+        ? AnalyzerManager::tr("Log file processed, %n issues were found.", 0, issuesFound)
+        : AnalyzerManager::tr("Log file processed, no issues were found."));
 }
 
 void MemcheckTool::setBusyCursor(bool busy)

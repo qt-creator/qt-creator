@@ -53,6 +53,7 @@ public:
     QWidget *createWidgets();
 
     void startTool(Analyzer::StartMode mode);
+    void loadExternalXmlLogFile();
 
 public slots:
     void handleShowCostsOfFunction();
