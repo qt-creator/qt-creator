@@ -121,5 +121,10 @@ QByteArray DesktopDeviceProcess::readAllStandardError()
     return m_process->readAllStandardError();
 }
 
+qint64 DesktopDeviceProcess::write(const QByteArray &data)
+{
+    return m_process->write(data);
+}
+
 } // namespace Internal
 } // namespace ProjectExplorer

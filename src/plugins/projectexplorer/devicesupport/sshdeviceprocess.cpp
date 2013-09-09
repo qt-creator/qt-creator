@@ -326,4 +326,9 @@ void SshDeviceProcess::SshDeviceProcessPrivate::setState(SshDeviceProcess::SshDe
     }
 }
 
+qint64 SshDeviceProcess::write(const QByteArray &data)
+{
+    return d->process->write(data);
+}
+
 } // namespace ProjectExplorer

@@ -66,6 +66,8 @@ public:
     virtual QByteArray readAllStandardOutput() = 0;
     virtual QByteArray readAllStandardError() = 0;
 
+    virtual qint64 write(const QByteArray &data) = 0;
+
 signals:
     void started();
     void finished();

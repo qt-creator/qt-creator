@@ -61,6 +61,8 @@ public:
     QByteArray readAllStandardOutput();
     QByteArray readAllStandardError();
 
+    qint64 write(const QByteArray &data);
+
     // Default is "false" due to OpenSSH not implementing this feature for some reason.
     void setSshServerSupportsSignals(bool signalsSupported);
 

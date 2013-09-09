@@ -60,6 +60,8 @@ public:
     QByteArray readAllStandardOutput();
     QByteArray readAllStandardError();
 
+    qint64 write(const QByteArray &data);
+
 private:
     QProcess * const m_process;
 };
