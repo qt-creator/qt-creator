@@ -1,0 +1,142 @@
+Source: http://sourceware-org.1504.n7.nabble.com/PATCH-Try-to-initialize-data-directory-by-first-searching-for-quot-data-directory-quot-in-the-same-dy-td73462.html
+
+orgads: Removed last dir separator before calling stat
+diff --git a/gdb/main.c b/gdb/main.c
+--- a/gdb/main.c
++++ b/gdb/main.c
+@@ -98,17 +98,38 @@ static char *gdb_program_name;
+ 
+ static void print_gdb_help (struct ui_file *);
+ 
+-/* Relocate a file or directory.  PROGNAME is the name by which gdb
+-   was invoked (i.e., argv[0]).  INITIAL is the default value for the
+-   file or directory.  FLAG is true if the value is relocatable, false
+-   otherwise.  Returns a newly allocated string; this may return NULL
+-   under the same conditions as make_relative_prefix.  */
++/* Relocate a file or directory, checking if it exists.  PROGNAME is the
++   name by which gdb was invoked (i.e., argv[0]).  INITIAL is the default
++   value for the file or directory.  ISDIR is true if INITIAL is a
++   directory.  FLAG is true if the value is relocatable, false otherwise.
++   Returns a newly allocated string; this may return NULL under the same
++   conditions as make_relative_prefix, or if the relocated path does not
++   exist.  */
+ 
+ static char *
+-relocate_path (const char *progname, const char *initial, int flag)
++relocate_path (const char *progname, const char *initial, int isdir,
++	       int flag)
+ {
+   if (flag)
+-    return make_relative_prefix (progname, BINDIR, initial);
++    {
++      char *path;
++      path = make_relative_prefix (progname, BINDIR, initial);
++      if (path)
++	{
++	  struct stat s;
++
++    char *last = path + strlen(path) - 1;
++    if (IS_DIR_SEPARATOR(*last))
++      *last = '\0';
++
++	  if (*path == 0 || stat (path, &s) != 0 || (!isdir != !S_ISDIR (s.st_mode)))
++	    {
++	      xfree (path);
++	      path = NULL;
++	    }
++	}
++      return path;
++    }
+   return xstrdup (initial);
+ }
+ 
+@@ -123,19 +144,52 @@ relocate_gdb_directory (const char *init
+ {
+   char *dir;
+ 
+-  dir = relocate_path (gdb_program_name, initial, flag);
+-  if (dir)
++  dir = relocate_path (gdb_program_name, initial, 1, flag);
++  if (!dir)
++    dir = xstrdup (initial);
++
++  /* Canonicalize the directory.  */
++  if (*dir)
+     {
+-      struct stat s;
++      char *canon_sysroot = lrealpath (dir);
+ 
+-      if (*dir == '\0' || stat (dir, &s) != 0 || !S_ISDIR (s.st_mode))
++      if (canon_sysroot)
+ 	{
+ 	  xfree (dir);
+-	  dir = NULL;
++	  dir = canon_sysroot;
+ 	}
+     }
++
++  return dir;
++}
++
++/* Like relocate_gdb_path, but specifically for data-directory. */
++
++static char *
++relocate_gdb_data_directory (void)
++{
++  char *dir;
++
++  /* First try to find "data-directory" in the same directory as gdb.
++
++    Use relocate_path only to resolve the parent directory of
++    gdb_program_name (i.e., based on PATH if necessary); relocate_path
++    (gdb_program_name, BINDIR "/data-directory") cannot be used to resolve
++    data-directory as it returns a path relative to the _grandparent
++    directory_ of gdb_program_name (munging the parent directory).  */
++
++  dir = relocate_path (gdb_program_name, BINDIR, 1, 1);
++  if (dir)
++    dir = reconcat (dir, dir, SLASH_STRING, "data-directory", NULL);
++
++  /* Then try to find GDB_DATADIR relocated relative to gdb. */
+   if (!dir)
+-    dir = xstrdup (initial);
++    dir = relocate_path (gdb_program_name, GDB_DATADIR, 1,
++			 GDB_DATADIR_RELOCATABLE);
++
++  /* Otherwise use GDB_DATADIR as is. */
++  if (!dir)
++    dir = xstrdup (GDB_DATADIR);
+ 
+   /* Canonicalize the directory.  */
+   if (*dir)
+@@ -169,7 +223,7 @@ get_init_files (char **system_gdbinit,
+ 
+   if (!initialized)
+     {
+-      struct stat homebuf, cwdbuf, s;
++      struct stat homebuf, cwdbuf;
+       char *homedir;
+ 
+       if (SYSTEM_GDBINIT[0])
+@@ -200,9 +254,10 @@ get_init_files (char **system_gdbinit,
+ 	    {
+ 	      relocated_sysgdbinit = relocate_path (gdb_program_name,
+ 						    SYSTEM_GDBINIT,
++                                                    0,
+ 						    SYSTEM_GDBINIT_RELOCATABLE);
+ 	    }
+-	  if (relocated_sysgdbinit && stat (relocated_sysgdbinit, &s) == 0)
++	  if (relocated_sysgdbinit)
+ 	    sysgdbinit = relocated_sysgdbinit;
+ 	  else
+ 	    xfree (relocated_sysgdbinit);
+@@ -404,8 +459,7 @@ captured_main (void *data)
+   debug_file_directory = relocate_gdb_directory (DEBUGDIR,
+ 						 DEBUGDIR_RELOCATABLE);
+ 
+-  gdb_datadir = relocate_gdb_directory (GDB_DATADIR,
+-					GDB_DATADIR_RELOCATABLE);
++  gdb_datadir = relocate_gdb_data_directory ();
+ 
+ #ifdef WITH_PYTHON_PATH
+   {

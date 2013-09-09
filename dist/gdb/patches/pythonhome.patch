@@ -1,0 +1,19 @@
+--- a/gdb/python/python.c	2013-03-28 18:46:53.000000000 +0200
++++ b/gdb/python/python.c	2013-10-27 05:28:35.761204091 +0200
+@@ -1568,6 +1568,16 @@ message == an error message without a st
+ #endif
+ #endif
+ 
++
++  char readlinkbuffer[BUFSIZ];
++  int readlinks = readlink("/proc/self/exe", readlinkbuffer, BUFSIZ - 1);
++  readlinkbuffer[readlinks] = 0; 
++  char *executeablepath = dirname(readlinkbuffer);
++  char *pythonhome = malloc(strlen(executeablepath) + strlen("/python/") + 2);
++  strcpy(pythonhome, executeablepath);
++  strcat(pythonhome, "/python/");
++  setenv("PYTHONHOME", pythonhome, 1);
++
+   Py_Initialize ();
+   PyEval_InitThreads ();
+ 

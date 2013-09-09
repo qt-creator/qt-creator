@@ -6,10 +6,10 @@ pyversion=2.7
 pydir=${broot}/python
 expatversion=2.0.1
 iconvversion=1.14
-version=7.5
+version=7.6.1
 targetdir=${broot}/qtcreator-gdb-${version}
 gdbtargets=$(addprefix ${targetdir}/gdb-, ${targets})
-packageparts=${targetdir}/lib ${targetdir}/lib ${targetdir}/libiconv-2.dll ${targetdir}/python27.dll ${targetdir}/libexpat-1.dll
+packageparts=${targetdir}/lib ${targetdir}/data-directory ${targetdir}/libiconv-2.dll ${targetdir}/python27.dll ${targetdir}/libexpat-1.dll
 arch=`uname -sm | sed 's/ /-/g' | tr A-Z a-z`
 packagename=qtcreator-gdb-${version}-${arch}.tar.gz
 
@@ -73,14 +73,15 @@ ${staging}/gdb-${version}/configure: ${source}/gdb-${version}.tar.bz2 | makestag
 	tar xf ${source}/gdb-${version}.tar.bz2 && \
 	cd gdb-${version} && \
 	touch configure && \
-	patch -p2 < ${broot}/patches/gdb-ipv6.patch
+	patch -p2 < ${broot}/patches/gdb-ipv6.patch && \
+	patch -p1 < ${broot}/patches/datadir.patch
 
 ${staging}/lib/libiconv.a: ${source}/libiconv-${iconvversion}.tar.gz | makestagingdir
 	cd ${staging} && \
 	echo "Extracting iconv..." && \
 	tar xf ${source}/libiconv-${iconvversion}.tar.gz && \
 	cd libiconv-${iconvversion} && \
-	./configure -prefix=${staging} --enable-static && \
+	./configure -prefix=${staging} --enable-static --build=i686-pc-mingw32 && \
 	${MAKE} && ${MAKE} install
 
 ${staging}/lib/libexpat.a: ${source}/expat-${expatversion}.tar.gz | makestagingdir
@@ -88,7 +89,7 @@ ${staging}/lib/libexpat.a: ${source}/expat-${expatversion}.tar.gz | makestagingd
 	echo "Extracting expat..." && \
 	tar xf ${source}/expat-${expatversion}.tar.gz && \
 	cd expat-${expatversion} && \
-	./configure -prefix=${staging} --enable-static && \
+	./configure -prefix=${staging} --enable-static --build=i686-pc-mingw32 && \
 	${MAKE} && ${MAKE} install
 
 ${gdbtargets}: ${targetdir}/gdb-%: ${staging}/lib/libexpat.a ${staging}/lib/libiconv.a ${staging}/gdb-${version}/configure | maketargetdir ${broot}/python/python.exe
@@ -97,7 +98,7 @@ ${gdbtargets}: ${targetdir}/gdb-%: ${staging}/lib/libexpat.a ${staging}/lib/libi
 	LDFLAGS="L${pydir} -lpthread -ldl -lutil -lpython27" && \
 	CFLAGS="-I${pydir}/include" && \
 	cd ${staging}/gdb-${version}-$* && \
-	${staging}/gdb-${version}/configure --target=$* --disable-nls --disable-werror \
+	${staging}/gdb-${version}/configure --target=$* --disable-nls --disable-werror --build=i686-pc-mingw32 \
 	--with-libiconv-prefix=${staging} \
 	--with-expat --with-libexpat-prefix=${staging} \
 	--with-separate-debug-dir="" \
@@ -110,6 +111,8 @@ package: ${gdbtargets} ${broot}/python/python.exe
 	cp ${staging}/bin/libexpat* ${targetdir} && \
 	cp ${pydir}/python*.dll ${targetdir} && \
 	cp -r ${pydir}/lib ${targetdir} && \
+	mkdir -p ${targetdir}/data-directory && \
+	cp -r ${staging}/gdb-${version}-i686-pc-mingw32/gdb/data-directory/{python,syscalls} ${targetdir}/data-directory && \
 	mv ${targetdir} ${targetdir}-${arch} && \
 	echo "Packing..." && \
 	tar czf ${packagename} qtcreator-gdb-${version}-${arch} && \
