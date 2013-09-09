@@ -77,7 +77,7 @@ QList<StringFormatPair> AnsiEscapeCodeHandler::parseText(const QString &text,
 
     QTextCharFormat charFormat = m_previousFormatClosed ? defaultFormat : m_previousFormat;
 
-    const QString escape = QLatin1String("\e[");
+    const QString escape = QLatin1Char(27) + QLatin1Char('[');
     if (!text.contains(escape)) {
         outputData << StringFormatPair(text, charFormat);
         return outputData;
