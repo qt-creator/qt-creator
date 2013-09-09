@@ -64,6 +64,8 @@ public:
     virtual QWidget *buttonWidget() const { return 0; }
 
     bool isSticky() const { return m_isSticky; }
+    bool isMutable() const;
+    void setMutable(bool b);
 
 signals:
     void dirty();

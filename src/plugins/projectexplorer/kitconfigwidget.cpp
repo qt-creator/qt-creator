@@ -43,4 +43,14 @@ Core::Id KitConfigWidget::kitInformationId() const
     return m_kitInformation->id();
 }
 
+bool KitConfigWidget::isMutable() const
+{
+    return m_kit->isMutable(m_kitInformation->id());
+}
+
+void KitConfigWidget::setMutable(bool b)
+{
+    m_kit->setMutable(m_kitInformation->id(), b);
+}
+
 } // namespace ProjectExplorer

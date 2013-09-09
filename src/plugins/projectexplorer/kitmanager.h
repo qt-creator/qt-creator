@@ -90,7 +90,6 @@ public:
 
     virtual QString displayNamePostfix(const Kit *k) const;
 
-
 protected:
     void setId(Core::Id id) { m_id = id; }
     void setPriority(int priority) { m_priority = priority; }

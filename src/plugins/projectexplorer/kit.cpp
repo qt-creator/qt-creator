@@ -52,6 +52,7 @@ const char AUTODETECTED_KEY[] = "PE.Profile.AutoDetected";
 const char SDK_PROVIDED_KEY[] = "PE.Profile.SDK";
 const char DATA_KEY[] = "PE.Profile.Data";
 const char ICON_KEY[] = "PE.Profile.Icon";
+const char MUTABLE_INFO_KEY[] = "PE.Profile.MutableInfo";
 
 } // namespace
 
@@ -94,6 +95,7 @@ public:
 
     QHash<Core::Id, QVariant> m_data;
     QSet<Core::Id> m_sticky;
+    QSet<Core::Id> m_mutable;
 };
 
 } // namespace Internal
@@ -150,6 +152,7 @@ Kit *Kit::clone(bool keepName) const
     k->d->m_icon = d->m_icon;
     k->d->m_iconPath = d->m_iconPath;
     k->d->m_sticky = d->m_sticky;
+    k->d->m_mutable = d->m_mutable;
     return k;
 }
 
@@ -164,6 +167,7 @@ void Kit::copyFrom(const Kit *k)
     d->m_mustNotify = true;
     d->m_mustNotifyAboutDisplayName = true;
     d->m_sticky = k->d->m_sticky;
+    d->m_mutable = k->d->m_mutable;
 }
 
 bool Kit::isValid() const
@@ -336,6 +340,7 @@ void Kit::removeKey(Id key)
         return;
     d->m_data.remove(key);
     d->m_sticky.remove(key);
+    d->m_mutable.remove(key);
     kitUpdated();
 }
 
@@ -353,7 +358,9 @@ bool Kit::isEqual(const Kit *other) const
 {
     return isDataEqual(other)
             && d->m_iconPath == other->d->m_iconPath
-            && d->m_displayName == other->d->m_displayName;
+            && d->m_displayName == other->d->m_displayName
+            && d->m_mutable == other->d->m_mutable;
+
 }
 
 QVariantMap Kit::toMap() const
@@ -366,6 +373,11 @@ QVariantMap Kit::toMap() const
     data.insert(QLatin1String(AUTODETECTED_KEY), d->m_autodetected);
     data.insert(QLatin1String(SDK_PROVIDED_KEY), d->m_sdkProvided);
     data.insert(QLatin1String(ICON_KEY), d->m_iconPath.toString());
+
+    QStringList mutableInfo;
+    foreach (const Core::Id &id, d->m_mutable.values())
+        mutableInfo << id.toString();
+    data.insert(QLatin1String(MUTABLE_INFO_KEY), mutableInfo);
 
     QVariantMap extra;
 
@@ -455,6 +467,11 @@ bool Kit::fromMap(const QVariantMap &data)
     for (QVariantMap::ConstIterator it = extra.constBegin(); it != cend; ++it)
         setValue(Id::fromString(it.key()), it.value());
 
+    QStringList mutableInfoList = data.value(QLatin1String(MUTABLE_INFO_KEY)).toStringList();
+    foreach (const QString &mutableInfo, mutableInfoList) {
+        d->m_mutable.insert(Core::Id::fromString(mutableInfo));
+    }
+
     return true;
 }
 
@@ -487,6 +504,19 @@ void Kit::setSticky(Core::Id id, bool b)
 void Kit::makeUnSticky()
 {
     d->m_sticky.clear();
+}
+
+void Kit::setMutable(Id id, bool b)
+{
+    if (b)
+        d->m_mutable.insert(id);
+    else
+        d->m_mutable.remove(id);
+}
+
+bool Kit::isMutable(Id id) const
+{
+    return d->m_mutable.contains(id);
 }
 
 void Kit::kitUpdated()

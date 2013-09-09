@@ -35,6 +35,7 @@
 #include <utils/detailswidget.h>
 #include <utils/qtcassert.h>
 
+#include <QAction>
 #include <QFileDialog>
 #include <QGridLayout>
 #include <QLabel>
@@ -98,6 +99,8 @@ KitManagerConfigWidget::~KitManagerConfigWidget()
 {
     qDeleteAll(m_widgets);
     m_widgets.clear();
+    qDeleteAll(m_actions);
+    m_actions.clear();
 
     KitManager::deleteKit(m_modifiedKit);
     // Make sure our workingCopy did not get registered somehow:
@@ -173,6 +176,16 @@ void KitManagerConfigWidget::addConfigWidget(ProjectExplorer::KitConfigWidget *w
 
     QString name = widget->displayName();
     QString toolTip = widget->toolTip();
+
+    QAction *action = new QAction(tr("Mark as Mutable"), 0);
+    action->setCheckable(true);
+    action->setData(QVariant::fromValue(widget));
+    action->setChecked(widget->isMutable());
+    action->setEnabled(!widget->isSticky());
+    widget->mainWidget()->addAction(action);
+    widget->mainWidget()->setContextMenuPolicy(Qt::ActionsContextMenu);
+    connect(action, SIGNAL(toggled(bool)), this, SLOT(updateMutableState()));
+    m_actions << action;
 
     int row = m_layout->rowCount();
     m_layout->addWidget(widget->mainWidget(), row, WidgetColumn);
@@ -285,6 +298,18 @@ void KitManagerConfigWidget::kitWasUpdated(Kit *k)
     if (m_kit == k)
         discard();
     updateVisibility();
+}
+
+void KitManagerConfigWidget::updateMutableState()
+{
+    QAction *action = qobject_cast<QAction *>(sender());
+    if (!action)
+        return;
+    KitConfigWidget *widget = qobject_cast<KitConfigWidget *>(action->data().value<QObject *>());
+    if (!widget)
+        return;
+    widget->setMutable(action->isChecked());
+    emit dirty();
 }
 
 QLabel *KitManagerConfigWidget::createLabel(const QString &name, const QString &toolTip)

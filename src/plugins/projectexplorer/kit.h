@@ -100,10 +100,14 @@ public:
     Kit *clone(bool keepName = false) const;
     void copyFrom(const Kit *k);
 
+    // Note: Stickyness is *not* saved!
     void setAutoDetected(bool detected);
     void makeSticky();
     void setSticky(Core::Id id, bool b);
     void makeUnSticky();
+
+    void setMutable(Core::Id id, bool b);
+    bool isMutable(Core::Id id) const;
 
 private:
     void setSdkProvided(bool sdkProvided);
