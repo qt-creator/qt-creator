@@ -27,47 +27,54 @@
 **
 ****************************************************************************/
 
-#ifndef ABSTRACTGDBPROCESS_H
-#define ABSTRACTGDBPROCESS_H
+#ifndef GDBPROCESS_H
+#define GDBPROCESS_H
 
-#include <QProcess>
+#include <utils/qtcprocess.h>
 
 namespace Debugger {
 namespace Internal {
 
-class AbstractGdbProcess : public QObject
+class GdbProcess : public QObject
 {
     Q_OBJECT
 
-protected:
-    explicit AbstractGdbProcess(QObject *parent = 0) : QObject(parent) {}
-
 public:
-    virtual QByteArray readAllStandardOutput() = 0;
-    virtual QByteArray readAllStandardError() = 0;
+    explicit GdbProcess(QObject *parent = 0);
 
-    virtual void start(const QString &cmd, const QStringList &args) = 0;
-    virtual bool waitForStarted() = 0;
-    virtual qint64 write(const QByteArray &data) = 0;
-    virtual void kill() = 0;
-    virtual bool interrupt() = 0;
+    QByteArray readAllStandardOutput();
+    QByteArray readAllStandardError();
 
-    virtual QProcess::ProcessState state() const = 0;
-    virtual QString errorString() const = 0;
+    void start(const QString &cmd, const QStringList &args);
+    bool waitForStarted();
+    qint64 write(const QByteArray &data);
+    void kill();
+    bool interrupt();
+#ifdef Q_OS_WIN
+    void setUseCtrlCStub(bool enable);
+    void winInterruptByCtrlC();
+#endif
 
-    virtual QProcessEnvironment processEnvironment() const = 0;
-    virtual void setProcessEnvironment(const QProcessEnvironment &env) = 0;
-    virtual void setEnvironment(const QStringList &env) = 0;
-    virtual void setWorkingDirectory(const QString &dir) = 0;
+    QProcess::ProcessState state() const;
+    QString errorString() const;
+
+    QProcessEnvironment processEnvironment() const;
+    void setProcessEnvironment(const QProcessEnvironment &env);
+    void setEnvironment(const QStringList &env);
+    void setWorkingDirectory(const QString &dir);
 
 signals:
     void error(QProcess::ProcessError);
     void finished(int exitCode, QProcess::ExitStatus exitStatus);
     void readyReadStandardError();
     void readyReadStandardOutput();
+
+private:
+    Utils::QtcProcess m_gdbProc;
+    QString m_errorString;
 };
 
 } // namespace Internal
 } // namespace Debugger
 
-#endif // ABSTRACTGDBPROCESS_H
+#endif // GDBPROCESS_H

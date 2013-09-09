@@ -45,7 +45,7 @@
 namespace Debugger {
 namespace Internal {
 
-class AbstractGdbProcess;
+class GdbProcess;
 class DebugInfoTask;
 class DebugInfoTaskHandler;
 class GdbResponse;
@@ -650,7 +650,7 @@ protected:
     // Convenience Functions
     //
     QString errorMessage(QProcess::ProcessError error);
-    AbstractGdbProcess *gdbProc() const;
+    GdbProcess *gdbProc() const;
     void showExecutionError(const QString &message);
 
     static QByteArray tooltipIName(const QString &exp);
@@ -722,12 +722,13 @@ protected:
 
     virtual void write(const QByteArray &data);
 
-    virtual AbstractGdbProcess *gdbProc() = 0;
     virtual DumperHandling dumperHandling() const = 0;
 
 protected:
     bool prepareCommand();
     void interruptLocalInferior(qint64 pid);
+
+    GdbProcess *m_gdbProc;
 };
 
 

@@ -27,17 +27,15 @@
 **
 ****************************************************************************/
 
-#include "localgdbprocess.h"
+#include "gdbprocess.h"
 
-#include <debugger/procinterrupt.h>
 #include <debugger/debuggerconstants.h>
-
-#include <utils/qtcprocess.h>
+#include <debugger/procinterrupt.h>
 
 namespace Debugger {
 namespace Internal {
 
-LocalGdbProcess::LocalGdbProcess(QObject *parent) : AbstractGdbProcess(parent)
+GdbProcess::GdbProcess(QObject *parent) : QObject(parent)
 {
     connect(&m_gdbProc, SIGNAL(error(QProcess::ProcessError)),
             this, SIGNAL(error(QProcess::ProcessError)));
@@ -49,84 +47,85 @@ LocalGdbProcess::LocalGdbProcess(QObject *parent) : AbstractGdbProcess(parent)
             this, SIGNAL(readyReadStandardError()));
 }
 
-QByteArray LocalGdbProcess::readAllStandardOutput()
+QByteArray GdbProcess::readAllStandardOutput()
 {
     return m_gdbProc.readAllStandardOutput();
 }
 
-QByteArray LocalGdbProcess::readAllStandardError()
+QByteArray GdbProcess::readAllStandardError()
 {
     return m_gdbProc.readAllStandardError();
 }
 
-void LocalGdbProcess::start(const QString &cmd, const QStringList &args)
+void GdbProcess::start(const QString &cmd, const QStringList &args)
 {
     m_gdbProc.setCommand(cmd, Utils::QtcProcess::joinArgs(args));
     m_gdbProc.start();
 }
 
-bool LocalGdbProcess::waitForStarted()
+bool GdbProcess::waitForStarted()
 {
     return m_gdbProc.waitForStarted();
 }
 
-qint64 LocalGdbProcess::write(const QByteArray &data)
+qint64 GdbProcess::write(const QByteArray &data)
 {
     return m_gdbProc.write(data);
 }
 
-void LocalGdbProcess::kill()
+void GdbProcess::kill()
 {
     m_gdbProc.kill();
 }
 
-bool LocalGdbProcess::interrupt()
+bool GdbProcess::interrupt()
 {
     long pid = Utils::qPidToPid(m_gdbProc.pid());
     return interruptProcess(pid, GdbEngineType, &m_errorString);
 }
 
 #ifdef Q_OS_WIN
-void LocalGdbProcess::setUseCtrlCStub(bool enable)
+void GdbProcess::setUseCtrlCStub(bool enable)
 {
     m_gdbProc.setUseCtrlCStub(enable);
 }
 
-void LocalGdbProcess::winInterruptByCtrlC()
+void GdbProcess::winInterruptByCtrlC()
 {
     m_gdbProc.interrupt();
 }
 #endif
 
-QProcess::ProcessState LocalGdbProcess::state() const
+QProcess::ProcessState GdbProcess::state() const
 {
     return m_gdbProc.state();
 }
 
-QString LocalGdbProcess::errorString() const
+QString GdbProcess::errorString() const
 {
     return m_errorString + m_gdbProc.errorString();
 }
 
-QProcessEnvironment LocalGdbProcess::processEnvironment() const
+QProcessEnvironment GdbProcess::processEnvironment() const
 {
     return m_gdbProc.processEnvironment();
 }
 
-void LocalGdbProcess::setProcessEnvironment(const QProcessEnvironment &env)
+void GdbProcess::setProcessEnvironment(const QProcessEnvironment &env)
 {
     m_gdbProc.setProcessEnvironment(env);
 }
 
-void LocalGdbProcess::setEnvironment(const QStringList &env)
+void GdbProcess::setEnvironment(const QStringList &env)
 {
     m_gdbProc.setEnvironment(Utils::Environment(env));
 }
 
-void LocalGdbProcess::setWorkingDirectory(const QString &dir)
+void GdbProcess::setWorkingDirectory(const QString &dir)
 {
     m_gdbProc.setWorkingDirectory(dir);
 }
 
 } // namespace Internal
 } // namespace Debugger
+

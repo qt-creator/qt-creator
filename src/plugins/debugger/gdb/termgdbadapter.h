@@ -31,7 +31,6 @@
 #define DEBUGGER_TERMGDBADAPTER_H
 
 #include "gdbengine.h"
-#include "localgdbprocess.h"
 
 #include <utils/consoleprocess.h>
 
@@ -62,8 +61,6 @@ private:
     void interruptInferior2();
     void shutdownEngine();
 
-    AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
-
     void handleStubAttached(const GdbResponse &response);
 
     Q_SLOT void stubStarted();
@@ -71,7 +68,6 @@ private:
     Q_SLOT void stubError(const QString &msg);
 
     Utils::ConsoleProcess m_stubProc;
-    LocalGdbProcess m_gdbProc;
 };
 
 } // namespace Internal

@@ -31,7 +31,6 @@
 #define REMOTEGDBSERVERADAPTER_H
 
 #include "gdbengine.h"
-#include "localgdbprocess.h"
 
 namespace Debugger {
 namespace Internal {
@@ -57,8 +56,6 @@ private:
     void runEngine();
     void interruptInferior2();
     void shutdownEngine();
-
-    AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
 
 signals:
     /*
@@ -95,7 +92,6 @@ private:
     void handleExecRun(const GdbResponse &response);
 
     QProcess m_uploadProc;
-    LocalGdbProcess m_gdbProc;
     bool m_isMulti;
     int m_targetPid;
     QByteArray m_serverChannel;

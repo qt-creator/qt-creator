@@ -29,6 +29,8 @@
 
 #include "remotegdbserveradapter.h"
 
+#include "gdbprocess.h"
+
 #include <debugger/debuggeractions.h>
 #include <debugger/debuggercore.h>
 #include <debugger/debuggerprotocol.h>
@@ -99,9 +101,9 @@ void GdbRemoteServerEngine::setupEngine()
         m_uploadProc.waitForStarted();
     }
     if (!startParameters().workingDirectory.isEmpty())
-        m_gdbProc.setWorkingDirectory(startParameters().workingDirectory);
+        m_gdbProc->setWorkingDirectory(startParameters().workingDirectory);
     if (startParameters().environment.size())
-        m_gdbProc.setEnvironment(startParameters().environment.toStringList());
+        m_gdbProc->setEnvironment(startParameters().environment.toStringList());
 
     if (startParameters().remoteSetupNeeded)
         notifyEngineRequestRemoteSetup();
@@ -435,10 +437,10 @@ void GdbRemoteServerEngine::interruptInferior2()
             CB(handleInterruptInferior));
 #ifdef Q_OS_WIN
     } else if (m_isQnxGdb) {
-        m_gdbProc.winInterruptByCtrlC();
+        m_gdbProc->winInterruptByCtrlC();
 #endif
     } else {
-        bool ok = m_gdbProc.interrupt();
+        bool ok = m_gdbProc->interrupt();
         if (!ok) {
             // FIXME: Extra state needed?
             showMessage(_("NOTE: INFERIOR STOP NOT POSSIBLE"));

@@ -60,9 +60,9 @@ void GdbAttachEngine::setupEngine()
     showMessage(_("TRYING TO START ADAPTER"));
 
     if (!startParameters().workingDirectory.isEmpty())
-        m_gdbProc.setWorkingDirectory(startParameters().workingDirectory);
+        m_gdbProc->setWorkingDirectory(startParameters().workingDirectory);
     if (startParameters().environment.size())
-        m_gdbProc.setEnvironment(startParameters().environment.toStringList());
+        m_gdbProc->setEnvironment(startParameters().environment.toStringList());
 
     startGdb();
 }

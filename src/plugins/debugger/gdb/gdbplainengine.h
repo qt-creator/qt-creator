@@ -31,7 +31,6 @@
 #define GDBPLAINENGINE_H
 
 #include "gdbengine.h"
-#include "localgdbprocess.h"
 #include <debugger/outputcollector.h>
 
 namespace Debugger {
@@ -57,14 +56,12 @@ private:
     void shutdownEngine();
 
     DumperHandling dumperHandling() const;
-    AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
 
     QByteArray execFilePath() const;
     QByteArray toLocalEncoding(const QString &s) const;
     QString fromLocalEncoding(const QByteArray &b) const;
 
     OutputCollector m_outputCollector;
-    LocalGdbProcess m_gdbProc;
 };
 
 } // namespace Debugger

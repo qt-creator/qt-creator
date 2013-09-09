@@ -31,7 +31,6 @@
 #define DEBUGGER_COREGDBADAPTER_H
 
 #include "gdbengine.h"
-#include "localgdbprocess.h"
 
 #include <QFile>
 
@@ -61,8 +60,6 @@ private:
     void interruptInferior();
     void shutdownEngine();
 
-    AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
-
     void handleFileExecAndSymbols(const GdbResponse &response);
     void handleTargetCore(const GdbResponse &response);
     void handleRoundTrip(const GdbResponse &response);
@@ -78,7 +75,6 @@ private slots:
 private:
     QString m_executable;
     QString m_coreName;
-    LocalGdbProcess m_gdbProc;
     QString m_tempCoreName;
     QProcess *m_coreUnpackProcess;
     QFile m_tempCoreFile;

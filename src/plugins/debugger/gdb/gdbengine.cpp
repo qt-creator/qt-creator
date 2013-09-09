@@ -245,6 +245,7 @@ GdbEngine::GdbEngine(const DebuggerStartParameters &startParameters)
     m_systemDumpersLoaded = false;
     m_forceAsyncModel = false;
     m_pythonAttemptedToLoad = false;
+    m_gdbProc = new GdbProcess(this);
 
     invalidateSourcesList();
 
@@ -309,6 +310,11 @@ QString GdbEngine::errorMessage(QProcess::ProcessError error)
         default:
             return tr("An unknown error in the gdb process occurred. ");
     }
+}
+
+GdbProcess *GdbEngine::gdbProc() const
+{
+    return m_gdbProc;
 }
 
 #if 0

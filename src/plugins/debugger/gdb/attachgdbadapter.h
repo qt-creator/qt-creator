@@ -31,7 +31,7 @@
 #define DEBUGGER_ATTACHGDBADAPTER_H
 
 #include "gdbengine.h"
-#include "localgdbprocess.h"
+#include "gdbprocess.h"
 
 namespace Debugger {
 namespace Internal {
@@ -58,10 +58,7 @@ private:
     void interruptInferior2();
     void shutdownEngine();
 
-    AbstractGdbProcess *gdbProc() { return &m_gdbProc; }
     void handleAttach(const GdbResponse &response);
-
-    LocalGdbProcess m_gdbProc;
 };
 
 } // namespace Internal
