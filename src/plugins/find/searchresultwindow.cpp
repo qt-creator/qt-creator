@@ -191,10 +191,10 @@ using namespace Find::Internal;
 
 /*!
     \enum Find::SearchResultWindow::SearchMode
-    Specifies if a search should show the replace UI or not.
+    This enum type specifies whether a search should show the replace UI or not:
 
     \value SearchOnly
-           The search doesn't support replace.
+           The search does not support replace.
     \value SearchAndReplace
            The search supports replace, so show the UI for it.
 */
@@ -211,14 +211,14 @@ using namespace Find::Internal;
 
 /*!
     \fn void SearchResult::activated(const Find::SearchResultItem &item)
-    \brief Sent if the user activated (e.g. double-clicked) a search result
-    \a item.
+    Indicates that the user activated the search result \a item by
+    double-clicking it, for example.
 */
 
 /*!
     \fn void SearchResult::replaceButtonClicked(const QString &replaceText, const QList<Find::SearchResultItem> &checkedItems, bool preserveCase)
-    \brief Sent when the user initiated a replace, e.g. by pressing the replace
-    all button.
+    Indicates that the user initiated a text replace by selecting
+    \gui {Replace All}, for example.
 
     The signal reports the text to use for replacement in \a replaceText,
     and the list of search result items that were selected by the user
@@ -243,14 +243,14 @@ using namespace Find::Internal;
     selecting an entry and performing a global replace.
 
     Whenever you start a search, call startNewSearch(SearchMode) to initialize
-    the search result window. The parameter determines if the GUI for
+    the \gui {Search Results} output pane. The parameter determines if the GUI for
     replacing should be shown.
     The method returns a SearchResult object that is your
     hook into the signals from user interaction for this search.
     When you produce search results, call addResults or addResult to add them
-    to the search result window.
-    After the search has finished call finishSearch to inform the search
-    result window about it.
+    to the \gui {Search Results} output pane.
+    After the search has finished call finishSearch to inform the
+    \gui {Search Results} output pane about it.
 
     You will get activated signals via your SearchResult instance when
     the user selects a search result item, and, if you started the search
@@ -317,7 +317,7 @@ SearchResultWindow::~SearchResultWindow()
 }
 
 /*!
-    \brief Returns the single shared instance of the Search Results window.
+    Returns the single shared instance of the \gui {Search Results} output pane.
 */
 SearchResultWindow *SearchResultWindow::instance()
 {
@@ -350,12 +350,12 @@ QList<QWidget*> SearchResultWindow::toolBarWidgets() const
 }
 
 /*!
-    \brief Tells the search results window to start a new search.
+    Tells the \gui {Search Results} output pane to start a new search.
 
-    The \a label should be a string that shortly describes the type of
-    search, i.e. search filter and possibly a most relevant search option, followed by a colon ':'.
-    E.g. \code{Project 'myproject':}
-    The \a searchTerm will be shown behind the colon.
+    The \a label should be a string that shortly describes the type of the
+    search, that is, the search filter and possibly the most relevant search
+     option, followed by a colon ':'. For example: \c {Project 'myproject':}
+    The \a searchTerm is shown after the colon.
     The \a toolTip should elaborate on the search parameters, like file patterns that are searched and
     find flags.
     If \a cfgGroup is not empty, it will be used for storing the "do not ask again"
@@ -365,7 +365,8 @@ QList<QWidget*> SearchResultWindow::toolBarWidgets() const
     with the results of this search.
     The search result window owns the returned SearchResult
     and might delete it any time, even while the search is running
-    (e.g. when the user clears the search result pane, or if the user opens so many other searches
+    (for example, when the user clears the \gui {Search Results} pane, or when
+    the user opens so many other searches
     that this search falls out of the history).
 
 */
@@ -408,7 +409,7 @@ SearchResult *SearchResultWindow::startNewSearch(const QString &label,
 }
 
 /*!
-    \brief Clears the current contents in the search result window.
+    Clears the current contents of the \gui {Search Results} output pane.
 */
 void SearchResultWindow::clearContents()
 {
@@ -600,7 +601,7 @@ SearchResult::SearchResult(SearchResultWidget *widget)
 }
 
 /*!
-    \brief Attach some random \a data to this search, that you can use later.
+    Attaches some random \a data to this search, that you can use later.
 
     \sa userData()
 */
@@ -610,7 +611,8 @@ void SearchResult::setUserData(const QVariant &data)
 }
 
 /*!
-    \brief Return the data that was attached to this search by calling setUserData().
+    Returns the data that was attached to this search by calling
+    setUserData().
 
     \sa setUserData()
 */
@@ -620,7 +622,7 @@ QVariant SearchResult::userData() const
 }
 
 /*!
-    \brief Returns the text that should replace the text in search results.
+    Returns the text that should replace the text in search results.
 */
 QString SearchResult::textToReplace() const
 {
@@ -638,13 +640,14 @@ void SearchResult::setSearchAgainSupported(bool supported)
 }
 
 /*!
-    \brief Adds a single result line to the search results.
+    Adds a single result line to the \gui {Search Results} output pane.
 
-    The \a fileName, \a lineNumber and \a rowText are shown in the result line.
+    \a fileName, \a lineNumber, and \a lineText are shown on the result line.
     \a searchTermStart and \a searchTermLength specify the region that
-    should be visually marked (string position and length in \a rowText).
+    should be visually marked (string position and length in \a lineText).
     You can attach arbitrary \a userData to the search result, which can
-    be used e.g. when reacting to the signals of the SearchResult for your search.
+    be used, for example, when reacting to the signals of the search results
+    for your search.
 
     \sa addResults()
 */
@@ -657,8 +660,7 @@ void SearchResult::addResult(const QString &fileName, int lineNumber, const QStr
 }
 
 /*!
-    \brief Adds all of the given search result \a items to the search
-    results window.
+    Adds the search result \a items to the \gui {Search Results} output pane.
 
     \sa addResult()
 */
@@ -669,7 +671,7 @@ void SearchResult::addResults(const QList<SearchResultItem> &items, AddMode mode
 }
 
 /*!
-    \brief Notifies the search result window that the current search
+    Notifies the \gui {Search Results} output pane that the current search
     has finished, and the UI should reflect that.
 */
 void SearchResult::finishSearch(bool canceled)
@@ -678,7 +680,7 @@ void SearchResult::finishSearch(bool canceled)
 }
 
 /*!
-    \brief Sets the value in the UI element that allows the user to type
+    Sets the value in the UI element that allows the user to type
     the text that should replace text in search results to \a textToReplace.
 */
 void SearchResult::setTextToReplace(const QString &textToReplace)
@@ -687,7 +689,7 @@ void SearchResult::setTextToReplace(const QString &textToReplace)
 }
 
 /*!
- * \brief Removes all search results.
+ * Removes all search results.
  */
 void SearchResult::restart()
 {
@@ -700,7 +702,7 @@ void SearchResult::setSearchAgainEnabled(bool enabled)
 }
 
 /*!
- * \brief Pops up the search result panel with this search.
+ * Opens the \gui {Search Results} output pane with this search.
  */
 void SearchResult::popup()
 {

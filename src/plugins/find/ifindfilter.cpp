@@ -35,15 +35,15 @@
 /*!
     \class Find::IFindFilter
     \brief The IFindFilter class is the base class for find implementations
-    that are invoked via the \gui{Edit -> Find/Replace -> Advanced Find}
-    dialog.
+    that are invoked by selecting \gui Edit > \gui {Find/Replace} >
+    \gui {Advanced Find}.
 
-    Implementations of this class add an additional "Scope" to the Advanced
-    Find dialog. That can be any search that requires the user to provide
+    Implementations of this class add an additional \gui Scope to the \gui {Advanced
+    Find} dialog. That can be any search that requires the user to provide
     a text based search term (potentially with find flags like
     searching case sensitively or using regular expressions). Existing
-    scopes are e.g. "All Projects" (i.e. search in all files in all projects)
-    and "Files on File System" where the user provides a directory and file
+    scopes are \gui {All Projects} that searches from all files in all projects
+    and \gui {Files on File System} where the user provides a directory and file
     patterns to search.
 
     To make your find scope available to the user, you need to implement this
@@ -57,8 +57,7 @@
     the details for this kind of search, only requiring you to provide an
     iterator over the file names of the files that should be searched.
 
-    If you want to implement a more specialized find filter, you'll need
-    to
+    If you want to implement a more specialized find filter, you need to:
     \list
         \li Start your search in a separate thread
         \li Make this known to the Core::ProgressManager, for a progress bar
@@ -75,7 +74,7 @@
 
     The common pattern is roughly this:
 
-    Implement the actual search within a QtConcurrent based method, i.e.
+    Implement the actual search within a QtConcurrent based method, that is
     a method that takes a \c{QFutureInterface<MySearchResult> &future}
     as the first parameter and the other information needed for the search
     as additional parameters. It should set useful progress information
@@ -101,25 +100,26 @@
 
 /*!
     \fn QString IFindFilter::id() const
-    \brief Unique string identifier for this find filter.
+    Returns the unique string identifier for this find filter.
 
     Usually should be something like "MyPlugin.MyFindFilter".
 */
 
 /*!
     \fn QString IFindFilter::displayName() const
-    \brief The name of the find filter/scope as presented to the user.
+    Returns the name of the find filter or scope as presented to the user.
 
-    This is the name that e.g. appears in the scope selection combo box.
-    Always return a translatable string (i.e. use tr() for the return value).
+    This is the name that appears in the scope selection combo box, for example.
+    Always return a translatable string (that is, use tr() for the return value).
 */
 
 /*!
     \fn bool IFindFilter::isEnabled() const
-    \brief Returns if the user should be able to select this find filter
+    Returns whether the user should be able to select this find filter
     at the moment.
 
-    This is used e.g. for the "Current Projects" scope - if the user hasn't
+    This is used for the \gui {Current Projects} scope, for example. If the user
+    has not
     opened a project, the scope is disabled.
 
     \sa changed()
@@ -127,8 +127,8 @@
 
 /*!
     \fn QKeySequence IFindFilter::defaultShortcut() const
-    \brief Returns the shortcut that can be used to open the advanced find
-    dialog with this filter/scope preselected.
+    Returns the shortcut that can be used to open the advanced find
+    dialog with this filter or scope preselected.
 
     Usually return an empty shortcut here, the user can still choose and
     assign a specific shortcut to this find scope via the preferences.
@@ -136,22 +136,22 @@
 
 /*!
     \fn bool IFindFilter::isReplaceSupported() const
-    \brief Returns if the find filter supports search and replace.
+    Returns whether the find filter supports search and replace.
 
-    The default value is false, override this method to return true, if
+    The default value is false, override this method to return \c true, if
     your find filter supports global search and replace.
 */
 
 /*!
     \fn void IFindFilter::findAll(const QString &txt, Find::FindFlags findFlags)
-    \brief This method is called when the user selected this find scope and
+    This method is called when the user selected this find scope and
     initiated a search.
 
     You should start a thread which actually performs the search for \a txt
     using the given \a findFlags
     (add it to Core::ProgressManager for a progress bar!) and presents the
     search results to the user (using the \gui{Search Results} output pane).
-    For more information see the descriptions of this class,
+    For more information, see the descriptions of this class,
     Core::ProgressManager, and Find::SearchResultWindow.
 
     \sa replaceAll()
@@ -161,7 +161,7 @@
 
 /*!
     \fn void IFindFilter::replaceAll(const QString &txt, Find::FindFlags findFlags)
-    \brief Override this method if you want to support search and replace.
+    Override this method if you want to support search and replace.
 
     This method is called when the user selected this find scope and
     initiated a search and replace.
@@ -181,33 +181,34 @@
 
 /*!
     \fn QWidget *IFindFilter::createConfigWidget()
-    \brief Return a widget that contains additional controls for options
+    Returns a widget that contains additional controls for options
     for this find filter.
 
-    The widget will be shown below the common options in the Advanced Find
+    The widget will be shown below the common options in the \gui {Advanced Find}
     dialog. It will be reparented and deleted by the find plugin.
 */
 
 /*!
     \fn void IFindFilter::writeSettings(QSettings *settings)
-    \brief Called at shutdown to write the state of the additional options
+    Called at shutdown to write the state of the additional options
     for this find filter to the \a settings.
 */
 
 /*!
     \fn void IFindFilter::readSettings(QSettings *settings)
-    \brief Called at startup to read the state of the additional options
+    Called at startup to read the state of the additional options
     for this find filter from the \a settings.
 */
 
 /*!
-    \fn void IFindFilter::changed()
-    \brief Signals that the enabled state of this find filter has changed.
+    \fn void IFindFilter::enabledChanged(bool enabled)
+
+    Signals that the enabled state of this find filter has changed.
 */
 
 /*!
     \fn Find::FindFlags BaseTextFind::supportedFindFlags() const
-    \brief Returns the find flags, like whole words or regular expressions,
+    Returns the find flags, like whole words or regular expressions,
     that this find filter supports.
 
     Depending on the returned value, the default find option widgets are
