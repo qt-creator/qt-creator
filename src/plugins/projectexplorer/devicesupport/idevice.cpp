@@ -45,98 +45,56 @@
  * \class ProjectExplorer::IDevice
  * \brief The IDevice class is the base class for all devices.
  *
- * The term "device" refers
- * here to some host to which e.g. files can be deployed or on which an application can run.
+ * The term \e device refers to some host to which files can be deployed or on
+ * which an application can run, for example.
  * In the typical case, this would be some sort of embedded computer connected in some way to
- * the PC on which QtCreator runs. This class itself does not specify a connection protocol; that
+ * the PC on which \QC runs. This class itself does not specify a connection
+ * protocol; that
  * kind of detail is to be added by subclasses.
  * Devices are managed by a \c DeviceManager.
  * \sa ProjectExplorer::DeviceManager
  */
 
 /*!
- * \fn QString ProjectExplorer::IDevice::type() const
- * \brief Identifies the type of the device.
- * Devices with the same type share certain abilities.
- * This attribute is immutable.
- * \sa ProjectExplorer::IDeviceFactory
- */
-
-
-/*!
- * \fn QString ProjectExplorer::IDevice::displayName() const
- * \brief A free-text name for the device to be displayed in GUI elements.
- */
-
-/*!
- * \fn bool ProjectExplorer::IDevice::isAutoDetected() const
- * \brief True iff the device has been added via some sort of auto-detection mechanism.
- * Devices that are not auto-detected can only ever be created interactively from the
- * settings page.
- * This attribute is immutable.
- * \sa DeviceSettingsWidget
- */
-
-/*!
- * \fn Core::Id ProjectExplorer::IDevice::id() const
- * \brief Identify the device.
- * If an id is given when constructing a device then this id is used. Otherwise a UUID is
- * generated and used to identity the device.
- * \sa ProjectExplorer::DeviceManager::findInactiveAutoDetectedDevice()
- */
-
-/*!
  * \fn Core::Id ProjectExplorer::IDevice::invalidId()
- * \brief A value that no device can ever have as its internal id.
+ * A value that no device can ever have as its internal id.
  */
 
 /*!
  * \fn QString ProjectExplorer::IDevice::displayType() const
- * \brief Prints a representation of the device's type suitable for displaying to a user.
+ * Prints a representation of the device's type suitable for displaying to a
+ * user.
  */
 
 /*!
- * \fn ProjectExplorer::IDeviceWidget *ProjectExplorer::IDevice::createWidget() const
- * \brief Creates a widget that displays device information not part of the IDevice base class.
+ * \fn ProjectExplorer::IDeviceWidget *ProjectExplorer::IDevice::createWidget()
+ * Creates a widget that displays device information not part of the IDevice base class.
  *        The widget can also be used to let the user change these attributes.
  */
 
 /*!
  * \fn QStringList ProjectExplorer::IDevice::actionIds() const
- * \brief Returns a list of ids representing actions that can be run on this device.
- *        These actions will be available in the "Devices" options page.
+ * Returns a list of ids representing actions that can be run on this device.
+ * These actions will be available in the \gui Devices options page.
  */
 
 /*!
- * \fn QString ProjectExplorer::IDevice::displayNameForActionId(const QString &actionId) const
- * \brief A human-readable string for the given id. Will be displayed on a button which,
+ * \fn QString ProjectExplorer::IDevice::displayNameForActionId(Core::Id actionId) const
+ * A human-readable string for \a actionId. Will be displayed on a button which,
  *        when clicked, starts the respective action.
  */
 
 /*!
- * \fn void ProjectExplorer::IDevice::executeAction(Core::Id actionId, QWidget *parent)
- * \brief Executes the respective action. This is typically done via some sort of dialog or
- *        wizard, so a parent widget argument is provided.
+ * \fn void ProjectExplorer::IDevice::executeAction(Core::Id actionId, QWidget *parent) const
+ * Executes the action specified by \a actionId. This is typically done via some
+ * sort of dialog or wizard, so \a parent widget is provided.
  */
 
 /*!
  * \fn ProjectExplorer::IDevice::Ptr ProjectExplorer::IDevice::clone() const
- * \brief Creates an identical copy of a device object.
+ * Creates an identical copy of a device object.
  */
 
-/*!
- * \fn void fromMap(const QVariantMap &map)
- * \brief Restores a device object from a serialized state as written by \c toMap().
- * If subclasses override this to restore additional state, they must call the base class
- * implementation.
- */
-
-/*!
- * \fn QVariantMap toMap() const
- * \brief Serializes a device object, e.g. to save it to a file.
- * If subclasses override this to save additional state, they must call the base class
- * implementation.
- */
 
 static Core::Id newId()
 {
@@ -218,6 +176,10 @@ IDevice::~IDevice()
     delete d;
 }
 
+/*!
+    Specifies a free-text name for the device to be displayed in GUI elements.
+*/
+
 QString IDevice::displayName() const
 {
     return d->displayName;
@@ -236,15 +198,38 @@ IDevice::DeviceInfo IDevice::deviceInformation() const
     return DeviceInfo() << IDevice::DeviceInfoItem(key, deviceStateToString());
 }
 
+/*!
+    Identifies the type of the device. Devices with the same type share certain
+    abilities. This attribute is immutable.
+
+    \sa ProjectExplorer::IDeviceFactory
+ */
+
 Core::Id IDevice::type() const
 {
     return d->type;
 }
 
+/*!
+    Returns \c true if the device has been added via some sort of auto-detection
+    mechanism. Devices that are not auto-detected can only ever be created
+    interactively from the \gui Options page. This attribute is immutable.
+
+    \sa DeviceSettingsWidget
+*/
+
 bool IDevice::isAutoDetected() const
 {
     return d->origin == AutoDetected;
 }
+
+/*!
+    Identifies the device. If an id is given when constructing a device then
+    this id is used. Otherwise, a UUID is generated and used to identity the
+    device.
+
+    \sa ProjectExplorer::DeviceManager::findInactiveAutoDetectedDevice()
+*/
 
 Core::Id IDevice::id() const
 {
@@ -290,6 +275,12 @@ Core::Id IDevice::idFromMap(const QVariantMap &map)
     return Core::Id::fromSetting(map.value(QLatin1String(IdKey)));
 }
 
+/*!
+    Restores a device object from a serialized state as written by toMap().
+    If subclasses override this to restore additional state, they must call the
+    base class implementation.
+*/
+
 void IDevice::fromMap(const QVariantMap &map)
 {
     d->type = typeFromMap(map);
@@ -313,6 +304,12 @@ void IDevice::fromMap(const QVariantMap &map)
     d->machineType = static_cast<MachineType>(map.value(QLatin1String(MachineTypeKey), DefaultMachineType).toInt());
     d->version = map.value(QLatin1String(VersionKey), 0).toInt();
 }
+
+/*!
+    Serializes a device object, for example to save it to a file.
+    If subclasses override this function to save additional state, they must
+    call the base class implementation.
+*/
 
 QVariantMap IDevice::toMap() const
 {
