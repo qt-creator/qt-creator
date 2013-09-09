@@ -400,7 +400,7 @@ void MakeStepConfigWidget::updateDetails()
         bc = qobject_cast<Qt4BuildConfiguration *>(m_makeStep->target()->activeBuildConfiguration());
 
     if (tc && bc)
-        m_ui->makeLabel->setText(tr("Override %1:").arg(tc->makeCommand(bc->environment())));
+        m_ui->makeLabel->setText(tr("Override %1:").arg(QDir::toNativeSeparators(tc->makeCommand(bc->environment()))));
     else
         m_ui->makeLabel->setText(tr("Make:"));
 

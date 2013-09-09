@@ -47,6 +47,8 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
+#include <QDir>
+
 using namespace Core;
 using namespace ProjectExplorer;
 
@@ -290,7 +292,7 @@ void GenericMakeStepConfigWidget::updateMakeOverrrideLabel()
     if (!bc)
         bc = m_makeStep->target()->activeBuildConfiguration();
 
-    m_ui->makeLabel->setText(tr("Override %1:").arg(m_makeStep->makeCommand(bc->environment())));
+    m_ui->makeLabel->setText(tr("Override %1:").arg(QDir::toNativeSeparators(m_makeStep->makeCommand(bc->environment()))));
 }
 
 void GenericMakeStepConfigWidget::updateDetails()
