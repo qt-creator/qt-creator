@@ -8,8 +8,6 @@ HEADERS += \
     $$PWD/remotegdbserveradapter.h \
     $$PWD/abstractgdbprocess.h \
     $$PWD/localgdbprocess.h \
-    $$PWD/remotegdbprocess.h \
-    $$PWD/remoteplaingdbadapter.h \
     $$PWD/abstractplaingdbadapter.h \
     $$PWD/startgdbserverdialog.h
 
@@ -25,8 +23,6 @@ SOURCES += \
     $$PWD/remotegdbserveradapter.cpp \
     $$PWD/abstractgdbprocess.cpp \
     $$PWD/localgdbprocess.cpp \
-    $$PWD/remotegdbprocess.cpp \
-    $$PWD/remoteplaingdbadapter.cpp \
     $$PWD/abstractplaingdbadapter.cpp \
     $$PWD/startgdbserverdialog.cpp
 

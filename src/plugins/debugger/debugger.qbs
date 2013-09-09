@@ -123,9 +123,7 @@ QtcPlugin {
             "localgdbprocess.cpp", "localgdbprocess.h",
             "localplaingdbadapter.cpp", "localplaingdbadapter.h",
             "pythongdbengine.cpp",
-            "remotegdbprocess.cpp", "remotegdbprocess.h",
             "remotegdbserveradapter.cpp", "remotegdbserveradapter.h",
-            "remoteplaingdbadapter.cpp", "remoteplaingdbadapter.h",
             "startgdbserverdialog.cpp", "startgdbserverdialog.h",
             "termgdbadapter.cpp", "termgdbadapter.h"
         ]

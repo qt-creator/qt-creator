@@ -34,7 +34,6 @@
 #include "localplaingdbadapter.h"
 #include "termgdbadapter.h"
 #include "remotegdbserveradapter.h"
-#include "remoteplaingdbadapter.h"
 
 #include "gdboptionspage.h"
 
@@ -5460,8 +5459,6 @@ DebuggerEngine *createGdbEngine(const DebuggerStartParameters &sp)
     case StartRemoteProcess:
     case AttachToRemoteServer:
         return new GdbRemoteServerEngine(sp);
-    case StartRemoteGdb:
-        return new GdbRemotePlainEngine(sp);
     case AttachExternal:
         return new GdbAttachEngine(sp);
     default:
