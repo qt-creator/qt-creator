@@ -26,33 +26,26 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef IDEVICEWIDGET_H
-#define IDEVICEWIDGET_H
+#include <idevicewidget.h>
 
-#include "idevice.h"
-#include <projectexplorer/projectexplorer_export.h>
+/*!
+    \class ProjectExplorer::IDeviceWidget
+    \brief The IDeviceWidget class provides an interface for the widget
+    configuring an IDevice.
 
-#include <QWidget>
+    A class implementing this interface will display a widget on the
+    \gui Devices options page. It enables the user to configure a particular
+    device.
+*/
 
-namespace ProjectExplorer {
+/*!
+    \fn virtual void updateDeviceFromUi()
 
-class PROJECTEXPLORER_EXPORT IDeviceWidget : public QWidget
-{
-    Q_OBJECT
-public:
+    Ensures that all changes in the UI are propagated to the device object.
 
-    virtual void updateDeviceFromUi() = 0;
-
-protected:
-    IDeviceWidget(const IDevice::Ptr &device, QWidget *parent = 0)
-        : QWidget(parent), m_device(device) {}
-
-    IDevice::Ptr device() const { return m_device; }
-
-private:
-    IDevice::Ptr m_device;
-};
-
-} // namespace ProjectExplorer
-
-#endif // IDEVICEWIDGET_H
+    If the device is always updated right when the change happens, the
+    implementation of this function can be empty. However, you cannot generally
+    rely on the QLineEdit::editingFinished() signal being emitted on time if
+    some button in the dialog is clicked (such as \gui Apply). So if you have
+    any handlers for line edit changes, they should probably be called here.
+*/
