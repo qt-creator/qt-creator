@@ -115,6 +115,11 @@ QList<StringFormatPair> AnsiEscapeCodeHandler::parseText(const QString &text,
             }
             strippedText.remove(0, 1);
 
+            if (numbers.isEmpty()) {
+                charFormat = defaultFormat;
+                endFormatScope();
+            }
+
             for (int i = 0; i < numbers.size(); ++i) {
                 const int code = numbers.at(i).toInt();
 
