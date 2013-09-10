@@ -335,7 +335,7 @@ SyntaxHighlighter::SyntaxHighlighter(BaseTextDocument *parent)
 }
 
 /*!
-    Constructs a SyntaxHighlighter and installs it on \a parent 's
+    Constructs a SyntaxHighlighter and installs it on \a parent's
     QTextDocument. The specified QTextEdit also becomes the owner of
     the SyntaxHighlighter.
 */
@@ -347,7 +347,7 @@ SyntaxHighlighter::SyntaxHighlighter(QTextEdit *parent)
 }
 
 /*!
-    Destructor. Uninstalls this syntax highlighter from the text document.
+    Destructor that uninstalls this syntax highlighter from the text document.
 */
 SyntaxHighlighter::~SyntaxHighlighter()
 {
