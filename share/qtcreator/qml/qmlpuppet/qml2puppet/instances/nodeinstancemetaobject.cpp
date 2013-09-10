@@ -228,6 +228,27 @@ QVariant NodeInstanceMetaObject::propertyWriteValue(int, const QVariant &value)
     return value;
 }
 
+const QAbstractDynamicMetaObject *NodeInstanceMetaObject::dynamicMetaObjectParent() const
+{
+    if (QQmlVMEMetaObject::parent.isT1())
+        return QQmlVMEMetaObject::parent.asT1()->toDynamicMetaObject(QQmlVMEMetaObject::object);
+    else
+        return 0;
+}
+
+const QMetaObject *NodeInstanceMetaObject::metaObjectParent() const
+{
+    if (QQmlVMEMetaObject::parent.isT1())
+        return QQmlVMEMetaObject::parent.asT1()->toDynamicMetaObject(QQmlVMEMetaObject::object);
+
+    return QQmlVMEMetaObject::parent.asT2();
+}
+
+int NodeInstanceMetaObject::propertyOffset() const
+{
+    return cache->propertyOffset();
+}
+
 int NodeInstanceMetaObject::openMetaCall(QMetaObject::Call call, int id, void **a)
 {
     if ((call == QMetaObject::ReadProperty || call == QMetaObject::WriteProperty)

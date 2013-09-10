@@ -68,23 +68,11 @@ protected:
     QObject *myObject() const { return QQmlVMEMetaObject::object; }
     QAbstractDynamicMetaObject *parent() const { return const_cast<QAbstractDynamicMetaObject *>(dynamicMetaObjectParent()); }
 
-    const QAbstractDynamicMetaObject *dynamicMetaObjectParent() const
-    {
-        if (QQmlVMEMetaObject::parent.isT1())
-            return QQmlVMEMetaObject::parent.asT1()->toDynamicMetaObject(QQmlVMEMetaObject::object);
-        else
-            return 0;
-    }
+    const QAbstractDynamicMetaObject *dynamicMetaObjectParent() const;
 
-    const QMetaObject *metaObjectParent() const
-    {
-        if (QQmlVMEMetaObject::parent.isT1())
-            return QQmlVMEMetaObject::parent.asT1()->toDynamicMetaObject(QQmlVMEMetaObject::object);
+    const QMetaObject *metaObjectParent() const;
 
-        return QQmlVMEMetaObject::parent.asT2();
-    }
-
-    int propertyOffset() const { return cache->propertyOffset(); }
+    int propertyOffset() const;
 
     int count() const;
     QByteArray name(int) const;
