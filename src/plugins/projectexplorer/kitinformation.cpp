@@ -251,14 +251,13 @@ void ToolChainKitInformation::kitsWereLoaded()
             this, SLOT(toolChainUpdated(ProjectExplorer::ToolChain*)));
 }
 
-void ToolChainKitInformation::toolChainUpdated(ProjectExplorer::ToolChain *tc)
+void ToolChainKitInformation::toolChainUpdated(ToolChain *tc)
 {
-    ToolChainMatcher m(tc);
-    foreach (Kit *k, KitManager::kits(&m))
+    foreach (Kit *k, KitManager::matchingKits(ToolChainMatcher(tc)))
         notifyAboutUpdate(k);
 }
 
-void ToolChainKitInformation::toolChainRemoved(ProjectExplorer::ToolChain *tc)
+void ToolChainKitInformation::toolChainRemoved(ToolChain *tc)
 {
     Q_UNUSED(tc);
     foreach (Kit *k, KitManager::kits())

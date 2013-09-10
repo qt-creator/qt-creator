@@ -49,6 +49,7 @@
 #include <QCoreApplication>
 #include <QVariant>
 
+using namespace ProjectExplorer;
 using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
@@ -323,13 +324,10 @@ bool BaseQt4ProjectWizardDialog::isQtPlatformSelected(const QString &platform) c
 {
     QList<Core::Id> selectedKitList = selectedKits();
 
-    QtSupport::QtPlatformKitMatcher matcher(platform);
-    QList<ProjectExplorer::Kit *> kitList
-            = ProjectExplorer::KitManager::kits(&matcher);
-    foreach (ProjectExplorer::Kit *k, kitList) {
+    foreach (Kit *k, KitManager::matchingKits(QtSupport::QtPlatformKitMatcher(platform)))
         if (selectedKitList.contains(k->id()))
             return true;
-    }
+
     return false;
 }
 

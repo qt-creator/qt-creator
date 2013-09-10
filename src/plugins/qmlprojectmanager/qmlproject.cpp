@@ -50,6 +50,7 @@
 #include <QDebug>
 
 using namespace Core;
+using namespace ProjectExplorer;
 
 namespace QmlProjectManager {
 namespace Internal {
@@ -377,12 +378,12 @@ bool QmlProject::fromMap(const QVariantMap &map)
     if (!activeTarget()) {
         // find a kit that matches prerequisites (prefer default one)
         Internal::QmlProjectKitMatcher matcher(defaultImport());
-        QList<ProjectExplorer::Kit*> kits = ProjectExplorer::KitManager::kits(&matcher);
+        QList<Kit*> kits = KitManager::matchingKits(matcher);
 
         if (!kits.isEmpty()) {
-            ProjectExplorer::Kit *kit = 0;
-            if (kits.contains(ProjectExplorer::KitManager::defaultKit())) {
-                kit = ProjectExplorer::KitManager::defaultKit();
+            Kit *kit = 0;
+            if (kits.contains(KitManager::defaultKit())) {
+                kit = KitManager::defaultKit();
             } else {
                 kit = kits.first();
             }
@@ -392,7 +393,7 @@ bool QmlProject::fromMap(const QVariantMap &map)
 
     // addedTarget calls updateEnabled on the runconfigurations
     // which needs to happen after refresh
-    foreach (ProjectExplorer::Target *t, targets())
+    foreach (Target *t, targets())
         addedTarget(t);
 
     connect(this, SIGNAL(addedTarget(ProjectExplorer::Target*)),

@@ -239,13 +239,13 @@ void BlackBerryConfigurationManager::saveActiveConfigurationNdkEnvPath()
 void BlackBerryConfigurationManager::clearInvalidConfigurations()
 {
     // Deregister invalid auto deteted BlackBerry Kits
-    foreach (ProjectExplorer::Kit *kit, ProjectExplorer::KitManager::instance()->kits()) {
+    foreach (Kit *kit, KitManager::kits()) {
         if (!kit->isAutoDetected())
             continue;
 
-        if (ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(kit) == Constants::QNX_BB_OS_TYPE
+        if (DeviceTypeKitInformation::deviceTypeId(kit) == Constants::QNX_BB_OS_TYPE
                 && !kit->isValid())
-       ProjectExplorer::KitManager::instance()->deregisterKit(kit);
+        KitManager::deregisterKit(kit);
     }
 
     // Remove invalid auto detected BlackBerry qtVerions

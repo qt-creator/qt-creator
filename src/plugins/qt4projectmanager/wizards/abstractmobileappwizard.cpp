@@ -41,6 +41,8 @@
 #include <projectexplorer/customwizard/customwizard.h>
 #include <coreplugin/editormanager/editormanager.h>
 
+using namespace ProjectExplorer;
+
 namespace Qt4ProjectManager {
 
 AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent,
@@ -208,13 +210,10 @@ bool AbstractMobileAppWizardDialog::isQtPlatformSelected(const QString &platform
 {
     QList<Core::Id> selectedKitsList = selectedKits();
 
-    QtSupport::QtPlatformKitMatcher matcher(platform);
-    QList<ProjectExplorer::Kit *> kitsList
-            = ProjectExplorer::KitManager::kits(&matcher);
-    foreach (ProjectExplorer::Kit *k, kitsList) {
+    foreach (Kit *k, KitManager::matchingKits(QtSupport::QtPlatformKitMatcher(platform)))
         if (selectedKitsList.contains(k->id()))
             return true;
-    }
+
     return false;
 }
 

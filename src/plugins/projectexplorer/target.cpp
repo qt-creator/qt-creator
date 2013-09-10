@@ -130,7 +130,7 @@ Target::Target(Project *project, Kit *k) :
     setDisplayName(d->m_kit->displayName());
     setIcon(d->m_kit->icon());
 
-    KitManager *km = KitManager::instance();
+    QObject *km = KitManager::instance();
     connect(km, SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
             this, SLOT(handleKitUpdates(ProjectExplorer::Kit*)));
     connect(km, SIGNAL(kitRemoved(ProjectExplorer::Kit*)),

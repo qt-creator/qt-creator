@@ -87,7 +87,7 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
     connect(m_iconButton, SIGNAL(clicked()), this, SLOT(setIcon()));
     connect(m_nameEdit, SIGNAL(textChanged(QString)), this, SLOT(setDisplayName()));
 
-    KitManager *km = KitManager::instance();
+    QObject *km = KitManager::instance();
     connect(km, SIGNAL(unmanagedKitUpdated(ProjectExplorer::Kit*)),
             this, SLOT(workingCopyWasUpdated(ProjectExplorer::Kit*)));
     connect(km, SIGNAL(kitUpdated(ProjectExplorer::Kit*)),

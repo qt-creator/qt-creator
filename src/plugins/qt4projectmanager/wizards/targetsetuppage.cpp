@@ -50,6 +50,7 @@
 #include <QScrollArea>
 #include <QVBoxLayout>
 
+using namespace ProjectExplorer;
 using namespace QtSupport;
 
 namespace Qt4ProjectManager {
@@ -172,7 +173,7 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
 
     setTitle(tr("Kit Selection"));
 
-    ProjectExplorer::KitManager *km = ProjectExplorer::KitManager::instance();
+    QObject *km = KitManager::instance();
     connect(km, SIGNAL(kitAdded(ProjectExplorer::Kit*)),
             this, SLOT(handleKitAddition(ProjectExplorer::Kit*)));
     connect(km, SIGNAL(kitRemoved(ProjectExplorer::Kit*)),
@@ -254,7 +255,9 @@ void TargetSetupPage::setImportSearch(bool b)
 void TargetSetupPage::setupWidgets()
 {
     // Known profiles:
-    foreach (ProjectExplorer::Kit *k, ProjectExplorer::KitManager::kits(m_requiredMatcher))
+    QList<Kit *> kits = m_requiredMatcher
+            ? KitManager::matchingKits(*m_requiredMatcher) : KitManager::kits();
+    foreach (Kit *k, kits)
         addWidget(k);
 
     // Setup import widget:

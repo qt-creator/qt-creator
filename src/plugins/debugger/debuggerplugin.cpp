@@ -589,12 +589,12 @@ public:
 #ifdef Q_OS_WIN
         if (Utils::winIs64BitSystem()) {
             CdbMatcher matcher64(64);
-            if (Kit *cdb64Kit = KitManager::find(&matcher64))
+            if (Kit *cdb64Kit = KitManager::find(matcher64))
                 return cdb64Kit;
         }
 #endif
         CdbMatcher matcher;
-        return KitManager::find(&matcher);
+        return KitManager::find(matcher);
     }
 
 private:
@@ -620,12 +620,9 @@ bool fillParameters(DebuggerStartParameters *sp, const Kit *kit, QString *errorM
                 abis = Abi::abisOfBinary(Utils::FileName::fromString(sp->executable));
         }
         if (!abis.isEmpty()) {
-            AbiKitMatcher matcher(abis);
-            kit = KitManager::find(&matcher);
-            if (!kit) {
-                CompatibleAbiKitMatcher matcher(abis);
-                kit = KitManager::find(&matcher);
-            }
+            kit = KitManager::find(AbiKitMatcher(abis));
+            if (!kit)
+                kit = KitManager::find(CompatibleAbiKitMatcher(abis));
         }
         if (!kit)
             kit = KitManager::defaultKit();

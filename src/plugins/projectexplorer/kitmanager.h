@@ -51,7 +51,6 @@ class KitManager;
 
 namespace Internal {
 class KitManagerConfigWidget;
-class KitManagerPrivate;
 class KitModel;
 } // namespace Internal
 
@@ -115,12 +114,13 @@ class PROJECTEXPLORER_EXPORT KitManager : public QObject
     Q_OBJECT
 
 public:
-    static KitManager *instance();
+    static QObject *instance();
     ~KitManager();
 
-    static QList<Kit *> kits(const KitMatcher *m = 0);
+    static QList<Kit *> kits();
+    static QList<Kit *> matchingKits(const KitMatcher &matcher);
     static Kit *find(const Core::Id &id);
-    static Kit *find(const KitMatcher *m);
+    static Kit *find(const KitMatcher &matcher);
     static Kit *defaultKit();
 
     static QList<KitInformation *> kitInformation();
@@ -158,7 +158,6 @@ signals:
 private:
     explicit KitManager(QObject *parent = 0);
 
-    bool isLoaded() const;
     static bool setKeepDisplayNameUnique(bool unique);
 
     // Make sure the this is only called after all
@@ -178,11 +177,6 @@ private:
     static void notifyAboutUpdate(ProjectExplorer::Kit *k);
     void addKit(Kit *k);
 
-    Internal::KitManagerPrivate *const d;
-
-    static KitManager *m_instance;
-
-    friend class Internal::KitManagerPrivate; // for the restoreToolChains methods
     friend class ProjectExplorerPlugin; // for constructor
     friend class Kit;
     friend class Internal::KitModel;
