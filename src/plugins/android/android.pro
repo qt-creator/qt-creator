@@ -41,7 +41,8 @@ HEADERS += \
     androidmanifesteditorfactory.h \
     androidmanifesteditor.h \
     androidmanifesteditorwidget.h \
-    androidmanifestdocument.h
+    androidmanifestdocument.h \
+    androiddevicedialog.h
 
 SOURCES += \
     androidconfigurations.cpp \
@@ -77,14 +78,16 @@ SOURCES += \
     androidmanifesteditorfactory.cpp \
     androidmanifesteditor.cpp \
     androidmanifesteditorwidget.cpp \
-    androidmanifestdocument.cpp
+    androidmanifestdocument.cpp \
+    androiddevicedialog.cpp
 
 FORMS += \
     androidsettingswidget.ui \
     androidpackagecreationwidget.ui \
     androiddeploystepwidget.ui \
     addnewavddialog.ui \
-    androidcreatekeystorecertificate.ui
+    androidcreatekeystorecertificate.ui \
+    androiddevicedialog.ui
 
 exists(../../shared/qbs/qbs.pro) {
     HEADERS += \

@@ -55,6 +55,7 @@ AndroidDeployStepWidget::AndroidDeployStepWidget(AndroidDeployStep *step) :
 
     connect(ui->chooseButton, SIGNAL(clicked()), SLOT(setQASIPackagePath()));
     connect(ui->cleanLibsPushButton, SIGNAL(clicked()), SLOT(cleanLibsOnDevice()));
+    connect(ui->resetDefaultDevices, SIGNAL(clicked()), SLOT(resetDefaultDevices()));
 
     connect(m_step, SIGNAL(deployOptionsChanged()),
             this, SLOT(deployOptionsChanged()));
@@ -123,6 +124,11 @@ void AndroidDeployStepWidget::setQASIPackagePath()
 void AndroidDeployStepWidget::cleanLibsOnDevice()
 {
     m_step->cleanLibsOnDevice();
+}
+
+void AndroidDeployStepWidget::resetDefaultDevices()
+{
+    AndroidConfigurations::instance().clearDefaultDevices(m_step->project());
 }
 
 } // namespace Internal

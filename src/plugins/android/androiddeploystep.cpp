@@ -36,6 +36,7 @@
 #include "androidrunconfiguration.h"
 #include "androidmanager.h"
 #include "androidtoolchain.h"
+#include "androiddevicedialog.h"
 
 #include <coreplugin/messagemanager.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -102,31 +103,15 @@ bool AndroidDeployStep::init()
     m_deviceAPILevel = AndroidManager::minimumSDK(target());
     m_targetArch = AndroidManager::targetArch(target());
 
-    if (m_deviceAPILevel == 0) // minimum api level is unset
-        writeOutput(tr("Please wait, searching for a suitable device for target: ABI:%2").arg(m_targetArch));
-    else
-        writeOutput(tr("Please wait, searching for a suitable device for target: API %1, ABI:%2").arg(m_deviceAPILevel).arg(m_targetArch));
-
-    QString error;
-    m_deviceSerialNumber = AndroidConfigurations::instance().getDeployDeviceSerialNumber(&m_deviceAPILevel, m_targetArch, &error);
-    if (!error.isEmpty())
-        writeOutput(error);
-
-    m_avdName.clear();
-    if (m_deviceSerialNumber.isEmpty()) {
-        writeOutput(tr("Falling back to Android virtual machine device."));
-        m_avdName = AndroidConfigurations::instance().findAvd(&m_deviceAPILevel, m_targetArch);
-        if (m_avdName.isEmpty())
-            m_avdName = AndroidConfigurations::instance().createAVD(m_deviceAPILevel, m_targetArch);
-        if (m_avdName.isEmpty()) // user canceled
-            return false;
-    }
-
-    if (m_deviceSerialNumber.isEmpty() && m_avdName.isEmpty()) {
-        m_deviceSerialNumber.clear();
-        raiseError(tr("Cannot deploy: no devices or emulators found for your package."));
+    AndroidDeviceInfo info = AndroidConfigurations::instance().showDeviceDialog(project(), m_deviceAPILevel, m_targetArch);
+    if (info.serialNumber.isEmpty()) // aborted
         return false;
-    }
+
+    m_deviceAPILevel = info.sdk;
+    m_deviceSerialNumber = info.serialNumber;
+
+    if (info.type == AndroidDeviceInfo::Emulator)
+        m_avdName = m_deviceSerialNumber;
 
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
     if (!version)
@@ -212,20 +197,20 @@ void AndroidDeployStep::cleanLibsOnDevice()
 {
     const QString targetArch = AndroidManager::targetArch(target());
     int deviceAPILevel = AndroidManager::minimumSDK(target());
-    QString deviceSerialNumber = AndroidConfigurations::instance().getDeployDeviceSerialNumber(&deviceAPILevel, targetArch);
-    if (deviceSerialNumber.isEmpty()) {
-        QString avdName = AndroidConfigurations::instance().findAvd(&deviceAPILevel, targetArch);
-        if (avdName.isEmpty()) {
-            // No avd found, don't create one just error out
-            MessageManager::write(tr("Could not find a device."));
-            return;
-        }
-        deviceSerialNumber = AndroidConfigurations::instance().startAVD(avdName, deviceAPILevel, targetArch);
-    }
-    if (!deviceSerialNumber.length()) {
-        MessageManager::write(tr("Could not run adb. No device found."));
+
+    AndroidDeviceInfo info = AndroidConfigurations::instance().showDeviceDialog(project(), m_deviceAPILevel, m_targetArch);
+    if (info.serialNumber.isEmpty()) // aborted
         return;
+
+    deviceAPILevel = info.sdk;
+    QString deviceSerialNumber = info.serialNumber;
+
+    if (info.type == AndroidDeviceInfo::Emulator) {
+        deviceSerialNumber = AndroidConfigurations::instance().startAVD(deviceSerialNumber, deviceAPILevel, targetArch);
+        if (deviceSerialNumber.isEmpty())
+            MessageManager::write(tr("Starting android virtual device failed."));
     }
+
     QProcess *process = new QProcess(this);
     QStringList arguments = AndroidDeviceInfo::adbSelector(deviceSerialNumber);
     arguments << QLatin1String("shell") << QLatin1String("rm") << QLatin1String("-r") << QLatin1String("/data/local/tmp/qt");
@@ -268,18 +253,17 @@ void AndroidDeployStep::installQASIPackage(const QString &packagePath)
 {
     const QString targetArch = AndroidManager::targetArch(target());
     int deviceAPILevel = AndroidManager::minimumSDK(target());
-    QString deviceSerialNumber = AndroidConfigurations::instance().getDeployDeviceSerialNumber(&deviceAPILevel, targetArch);
-    if (deviceSerialNumber.isEmpty()) {
-        QString avdName = AndroidConfigurations::instance().findAvd(&deviceAPILevel, targetArch);
-        if (avdName.isEmpty()) {
-            MessageManager::write(tr("No device found."));
-            return;
-        }
-        deviceSerialNumber = AndroidConfigurations::instance().startAVD(avdName, deviceAPILevel, targetArch);
-    }
-    if (!deviceSerialNumber.length()) {
-        MessageManager::write(tr("Could not run adb. No device found."));
+
+    AndroidDeviceInfo info = AndroidConfigurations::instance().showDeviceDialog(project(), m_deviceAPILevel, m_targetArch);
+    if (info.serialNumber.isEmpty()) // aborted
         return;
+
+    deviceAPILevel = info.sdk;
+    QString deviceSerialNumber = info.serialNumber;
+    if (info.type == AndroidDeviceInfo::Emulator) {
+        deviceSerialNumber = AndroidConfigurations::instance().startAVD(deviceSerialNumber, deviceAPILevel, targetArch);
+        if (deviceSerialNumber.isEmpty())
+            MessageManager::write(tr("Starting android virtual device failed."));
     }
 
     QProcess *process = new QProcess(this);

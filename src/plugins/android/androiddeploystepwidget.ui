@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>678</width>
+    <width>682</width>
     <height>155</height>
    </rect>
   </property>
@@ -69,21 +69,21 @@ The APK will not be usable on any other device.</string>
       <string>Advanced Actions</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
+      <item row="1" column="0">
        <widget class="QPushButton" name="cleanLibsPushButton">
         <property name="text">
          <string>Clean Temporary Libraries Directory on Device</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
+      <item row="2" column="0">
        <widget class="QPushButton" name="chooseButton">
         <property name="text">
          <string>Install Ministro from APK</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
+      <item row="3" column="0">
        <spacer name="verticalSpacer">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
@@ -95,6 +95,13 @@ The APK will not be usable on any other device.</string>
          </size>
         </property>
        </spacer>
+      </item>
+      <item row="0" column="0">
+       <widget class="QPushButton" name="resetDefaultDevices">
+        <property name="text">
+         <string>Reset Default Devices</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>

@@ -1,6 +1,6 @@
-/**************************************************************************
+/****************************************************************************
 **
-** Copyright (c) 2013 BogDan Vatra <bog_dan_ro@yahoo.com>
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -27,46 +27,52 @@
 **
 ****************************************************************************/
 
-#ifndef ANDROIDDEPLOYSTEPWIDGET_H
-#define ANDROIDDEPLOYSTEPWIDGET_H
+#ifndef ANDROIDDEVICEDIALOG_H
+#define ANDROIDDEVICEDIALOG_H
 
-#include <projectexplorer/buildstep.h>
+#include "androidconfigurations.h"
+
+#include <QVector>
+#include <QDialog>
 
 QT_BEGIN_NAMESPACE
-namespace Ui { class AndroidDeployStepWidget; }
+class QModelIndex;
 QT_END_NAMESPACE
+
+namespace Ui {
+class AndroidDeviceDialog;
+}
 
 namespace Android {
 namespace Internal {
-class AndroidDeployStep;
 
-class AndroidDeployStepWidget : public ProjectExplorer::BuildStepConfigWidget
+class AndroidDeviceModel;
+
+class AndroidDeviceDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    AndroidDeployStepWidget(AndroidDeployStep *step);
-    ~AndroidDeployStepWidget();
+    explicit AndroidDeviceDialog(int apiLevel, const QString &abi, QWidget *parent = 0);
+    ~AndroidDeviceDialog();
+
+    AndroidDeviceInfo device();
+    void accept();
+
+    bool saveDeviceSelection();
 
 private slots:
-    void setMinistro();
-    void setDeployLocalQtLibs();
-    void setBundleQtLibs();
-
-    void setQASIPackagePath();
-    void cleanLibsOnDevice();
-    void resetDefaultDevices();
-
-    void deployOptionsChanged();
+    void refreshDeviceList();
+    void createAvd();
+    void clickedOnView(const QModelIndex &idx);
 private:
-    virtual QString summaryText() const;
-    virtual QString displayName() const;
-
-    Ui::AndroidDeployStepWidget *ui;
-    AndroidDeployStep *m_step;
+    AndroidDeviceModel *m_model;
+    Ui::AndroidDeviceDialog *m_ui;
+    int m_apiLevel;
+    QString m_abi;
 };
 
-} // namespace Internal
-} // namespace Android
+}
+}
 
-#endif // ANDROIDDEPLOYSTEPWIDGET_H
+#endif // ANDROIDDEVICEDIALOG_H

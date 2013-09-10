@@ -34,12 +34,16 @@
 #include <QString>
 #include <QStringList>
 #include <QVector>
+#include <QHash>
+#include <QMap>
 #include <projectexplorer/abi.h>
 #include <utils/fileutils.h>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
 QT_END_NAMESPACE
+
+namespace ProjectExplorer { class Project; }
 
 namespace Android {
 namespace Internal {
@@ -68,6 +72,8 @@ struct AndroidDeviceInfo
     QStringList cpuAbi;
     int sdk;
     bool unauthorized;
+    enum AndroidDeviceType { Hardware, Emulator };
+    AndroidDeviceType type;
 
     static QStringList adbSelector(const QString &serialNumber);
 };
@@ -93,13 +99,11 @@ public:
     Utils::FileName zipalignPath() const;
     Utils::FileName stripPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
     Utils::FileName readelfPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
-    QString getDeployDeviceSerialNumber(int *apiLevel, const QString &abi, QString *error = 0) const;
     QString createAVD(int minApiLevel = 0, QString targetArch = QString()) const;
     QString createAVD(const QString &target, const QString &name, const QString &abi, int sdcardSize) const;
     bool removeAVD(const QString &name) const;
     QVector<AndroidDeviceInfo> connectedDevices(QString *error = 0) const;
     QVector<AndroidDeviceInfo> androidVirtualDevices() const;
-    QString findAvd(int *apiLevel, const QString &cpuAbi);
     QString startAVD(const QString &name, int apiLevel, QString cpuAbi) const;
     bool startAVDAsync(const QString &avdName) const;
     QString waitForAvd(int apiLevel, const QString &cpuAbi) const;
@@ -116,6 +120,12 @@ public:
 
     QString getProductModel(const QString &device) const;
     bool hasFinishedBooting(const QString &device) const;
+
+    AndroidDeviceInfo showDeviceDialog(ProjectExplorer::Project *project, int apiLevel, const QString &abi);
+    void setDefaultDevice(ProjectExplorer::Project *project, const QString &abi, const QString &serialNumber); // serial number or avd name
+    QString defaultDevice(ProjectExplorer::Project *project, const QString &abi) const; // serial number or avd name
+public slots:
+    void clearDefaultDevices(ProjectExplorer::Project *project);
 
 signals:
     void updated();
@@ -140,6 +150,9 @@ private:
     static AndroidConfigurations *m_instance;
     AndroidConfig m_config;
     QVector<int> m_availablePlatforms;
+    mutable QHash<QString, QString> m_serialNumberToDeviceName;
+
+    QMap<ProjectExplorer::Project *, QMap<QString, QString> > m_defaultDeviceForAbi;
 };
 
 } // namespace Internal

@@ -34,6 +34,7 @@
 #include "androidgdbserverkitinformation.h"
 #include "ui_addnewavddialog.h"
 #include "androidqtversion.h"
+#include "androiddevicedialog.h"
 
 #include <coreplugin/icore.h>
 #include <utils/hostosinfo.h>
@@ -42,6 +43,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/toolchainmanager.h>
+#include <projectexplorer/session.h>
 #include <debugger/debuggerkitinformation.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
@@ -76,6 +78,7 @@ namespace {
     const QLatin1String KeystoreLocationKey("KeystoreLocation");
     const QLatin1String AutomaticKitCreationKey("AutomatiKitCreation");
     const QLatin1String MakeExtraSearchDirectory("MakeExtraSearchDirectory");
+    const QLatin1String DefaultDevice("DefaultDevice");
     const QLatin1String PartitionSizeKey("PartitionSize");
     const QLatin1String ToolchainHostKey("ToolchainHost");
     const QLatin1String ArmToolchainPrefix("arm-linux-androideabi");
@@ -99,12 +102,11 @@ namespace {
     {
         if (dev1.serialNumber.contains(QLatin1String("????")) == dev2.serialNumber.contains(QLatin1String("????")))
             return !dev1.serialNumber.contains(QLatin1String("????"));
-        bool dev1IsEmulator = dev1.serialNumber.startsWith(QLatin1String("emulator"));
-        bool dev2IsEmulator = dev2.serialNumber.startsWith(QLatin1String("emulator"));
-        if (dev1IsEmulator != dev2IsEmulator)
-            return !dev1IsEmulator;
+        if (dev1.type != dev2.type)
+            return dev1.type == AndroidDeviceInfo::Hardware;
         if (dev1.sdk != dev2.sdk)
             return dev1.sdk < dev2.sdk;
+
         return dev1.serialNumber < dev2.serialNumber;
     }
 }
@@ -380,38 +382,53 @@ FileName AndroidConfigurations::zipalignPath() const
     return path.appendPath(QLatin1String("tools/zipalign" QTC_HOST_EXE_SUFFIX));
 }
 
-QString AndroidConfigurations::getDeployDeviceSerialNumber(int *apiLevel, const QString &abi, QString *error) const
+AndroidDeviceInfo AndroidConfigurations::showDeviceDialog(ProjectExplorer::Project *project, int apiLevel, const QString &abi)
 {
-    QVector<AndroidDeviceInfo> devices = connectedDevices(error);
+    QString serialNumber = defaultDevice(project, abi);
+    if (!serialNumber.isEmpty()) {
+        // search for that device
+        foreach (const AndroidDeviceInfo &info, AndroidConfigurations::instance().connectedDevices())
+            if (info.serialNumber == serialNumber
+                    && info.sdk >= apiLevel)
+                return info;
 
-    foreach (AndroidDeviceInfo device, devices) {
-        if (device.unauthorized) {
-            if (error) {
-                *error += tr("Skipping %1: Unauthorized. Please check the confirmation dialog on your device..").arg(device.serialNumber);
-                *error += QLatin1Char('\n');
-            }
-        } else if (!device.cpuAbi.contains(abi)) {
-            if (error) {
-                *error += tr("Skipping %1: ABI is incompatible, device supports ABIs: %2.")
-                    .arg(getProductModel(device.serialNumber))
-                    .arg(device.cpuAbi.join(QLatin1String(" ")));
-                *error += QLatin1Char('\n');
-            }
-        } else if (device.sdk < *apiLevel) {
-            if (error) {
-                *error += tr("Skipping %1: API Level of device is: %2.")
-                        .arg(getProductModel(device.serialNumber))
-                        .arg(device.sdk);
-                *error += QLatin1Char('\n');
-            }
-        } else {
-            if (error)
-                error->clear(); // no errors if we found a device
-            *apiLevel = device.sdk;
-            return device.serialNumber;
-        }
+        foreach (const AndroidDeviceInfo &info, AndroidConfigurations::instance().androidVirtualDevices())
+            if (info.serialNumber == serialNumber
+                    && info.sdk >= apiLevel)
+                return info;
     }
-    return QString();
+
+    AndroidDeviceDialog dialog(apiLevel, abi);
+    if (dialog.exec() == QDialog::Accepted) {
+        AndroidDeviceInfo info = dialog.device();
+        if (dialog.saveDeviceSelection()) {
+            if (!info.serialNumber.isEmpty())
+                AndroidConfigurations::instance().setDefaultDevice(project, abi, info.serialNumber);
+        }
+        return info;
+    }
+    return AndroidDeviceInfo();
+}
+
+void AndroidConfigurations::clearDefaultDevices(ProjectExplorer::Project *project)
+{
+    if (m_defaultDeviceForAbi.contains(project))
+        m_defaultDeviceForAbi.remove(project);
+}
+
+void AndroidConfigurations::setDefaultDevice(ProjectExplorer::Project *project, const QString &abi, const QString &serialNumber)
+{
+    m_defaultDeviceForAbi[project][abi] = serialNumber;
+}
+
+QString AndroidConfigurations::defaultDevice(Project *project, const QString &abi) const
+{
+    if (!m_defaultDeviceForAbi.contains(project))
+        return QString();
+    const QMap<QString, QString> &map = m_defaultDeviceForAbi.value(project);
+    if (!map.contains(abi))
+        return QString();
+    return map.value(abi);
 }
 
 QVector<AndroidDeviceInfo> AndroidConfigurations::connectedDevices(QString *error) const
@@ -435,6 +452,7 @@ QVector<AndroidDeviceInfo> AndroidConfigurations::connectedDevices(QString *erro
         const QString deviceType = QString::fromLatin1(device.mid(device.indexOf('\t'))).trimmed();
         AndroidDeviceInfo dev;
         dev.serialNumber = serialNo;
+        dev.type = serialNo.startsWith(QLatin1String("emulator")) ? AndroidDeviceInfo::Emulator : AndroidDeviceInfo::Hardware;
         dev.sdk = getSDKVersion(dev.serialNumber);
         dev.cpuAbi = getAbis(dev.serialNumber);
         dev.unauthorized = (deviceType == QLatin1String("unauthorized"));
@@ -546,24 +564,12 @@ QVector<AndroidDeviceInfo> AndroidConfigurations::androidVirtualDevices() const
         if (dev.cpuAbi == QStringList(QLatin1String("armeabi-v7a")))
             dev.cpuAbi << QLatin1String("armeabi");
         dev.unauthorized = false;
+        dev.type = AndroidDeviceInfo::Emulator;
         devices.push_back(dev);
     }
     qSort(devices.begin(), devices.end(), androidDevicesLessThan);
 
     return devices;
-}
-
-QString AndroidConfigurations::findAvd(int *apiLevel, const QString &cpuAbi)
-{
-    QVector<AndroidDeviceInfo> devices = androidVirtualDevices();
-    foreach (const AndroidDeviceInfo &device, devices) {
-        // take first emulator how supports this package
-        if (device.sdk >= *apiLevel && device.cpuAbi.contains(cpuAbi)) {
-            *apiLevel = device.sdk;
-            return device.serialNumber;
-        }
-    }
-    return QString();
 }
 
 QString AndroidConfigurations::startAVD(const QString &name, int apiLevel, QString cpuAbi) const
@@ -643,6 +649,8 @@ int AndroidConfigurations::getSDKVersion(const QString &device) const
 //!
 QString AndroidConfigurations::getProductModel(const QString &device) const
 {
+    if (m_serialNumberToDeviceName.contains(device))
+        return m_serialNumberToDeviceName.value(device);
     // workaround for '????????????' serial numbers
     QStringList arguments = AndroidDeviceInfo::adbSelector(device);
     arguments << QLatin1String("shell") << QLatin1String("getprop")
@@ -657,6 +665,8 @@ QString AndroidConfigurations::getProductModel(const QString &device) const
     QString model = QString::fromLocal8Bit(adbProc.readAll().trimmed());
     if (model.isEmpty())
         return device;
+    if (!device.startsWith(QLatin1String("????")))
+        m_serialNumberToDeviceName.insert(device, model);
     return model;
 }
 
@@ -856,6 +866,9 @@ AndroidConfigurations::AndroidConfigurations(QObject *parent)
 {
     load();
     updateAvailablePlatforms();
+
+    connect(ProjectExplorer::SessionManager::instance(), SIGNAL(projectRemoved(ProjectExplorer::Project*)),
+            this, SLOT(clearDefaultDevices(ProjectExplorer::Project*)));
 }
 
 void AndroidConfigurations::load()
