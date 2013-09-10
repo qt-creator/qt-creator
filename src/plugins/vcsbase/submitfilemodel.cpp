@@ -163,7 +163,7 @@ unsigned int SubmitFileModel::filterFiles(const QStringList &filter)
 
 /*! Updates user selections from \a source model.
  *
- *  Assumption: Both model are sorted with the same order, and there
+ *  Assumes that both models are sorted with the same order, and there
  *              are no duplicate entries.
  */
 void SubmitFileModel::updateSelections(SubmitFileModel *source)
