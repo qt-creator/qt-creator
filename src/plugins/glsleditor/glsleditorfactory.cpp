@@ -59,7 +59,7 @@ GLSLEditorFactory::GLSLEditorFactory(QObject *parent)
 Core::IEditor *GLSLEditorFactory::createEditor(QWidget *parent)
 {
     GLSLTextEditorWidget *rc = new GLSLTextEditorWidget(parent);
-    GLSLEditorPlugin::instance()->initializeEditor(rc);
+    GLSLEditorPlugin::initializeEditor(rc);
     return rc->editor();
 }
 

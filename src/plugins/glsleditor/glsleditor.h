@@ -46,8 +46,6 @@ class TranslationUnitAST;
 class Scope;
 } // namespace GLSL
 
-namespace Core { class ICore; }
-
 namespace GLSLEditor {
 namespace Internal {
 
@@ -100,8 +98,6 @@ public:
 
     static int languageVariant(const QString &mimeType);
 
-    Document::Ptr glslDocument() const;
-
     TextEditor::IAssistInterface *createAssistInterface(TextEditor::AssistKind assistKind,
                                                         TextEditor::AssistReason reason) const;
 
@@ -110,7 +106,6 @@ private slots:
     void updateDocumentNow();
 
 protected:
-    bool event(QEvent *e);
     TextEditor::BaseTextEditor *createEditor();
     void createToolBar(Internal::GLSLEditorEditable *editable);
 

@@ -72,36 +72,61 @@ using namespace TextEditor;
 namespace GLSLEditor {
 namespace Internal {
 
-GLSLEditorPlugin *GLSLEditorPlugin::m_instance = 0;
+class GLSLEditorPluginPrivate
+{
+public:
+    GLSLEditorPluginPrivate() :
+        m_editor(0),
+        m_actionHandler(0),
+        m_glsl_120_frag(0),
+        m_glsl_120_vert(0),
+        m_glsl_120_common(0),
+        m_glsl_es_100_frag(0),
+        m_glsl_es_100_vert(0),
+        m_glsl_es_100_common(0)
+    {}
+
+    ~GLSLEditorPluginPrivate()
+    {
+        delete m_actionHandler;
+        delete m_glsl_120_frag;
+        delete m_glsl_120_vert;
+        delete m_glsl_120_common;
+        delete m_glsl_es_100_frag;
+        delete m_glsl_es_100_vert;
+        delete m_glsl_es_100_common;
+    }
+
+    GLSLEditorFactory *m_editor;
+    TextEditor::TextEditorActionHandler *m_actionHandler;
+    QPointer<TextEditor::ITextEditor> m_currentTextEditable;
+
+    GLSLEditorPlugin::InitFile *m_glsl_120_frag;
+    GLSLEditorPlugin::InitFile *m_glsl_120_vert;
+    GLSLEditorPlugin::InitFile *m_glsl_120_common;
+    GLSLEditorPlugin::InitFile *m_glsl_es_100_frag;
+    GLSLEditorPlugin::InitFile *m_glsl_es_100_vert;
+    GLSLEditorPlugin::InitFile *m_glsl_es_100_common;
+};
+
+static GLSLEditorPluginPrivate *dd = 0;
+static GLSLEditorPlugin *m_instance = 0;
 
 GLSLEditorPlugin::InitFile::~InitFile()
 {
     delete engine;
 }
 
-GLSLEditorPlugin::GLSLEditorPlugin() :
-    m_editor(0),
-    m_actionHandler(0),
-    m_glsl_120_frag(0),
-    m_glsl_120_vert(0),
-    m_glsl_120_common(0),
-    m_glsl_es_100_frag(0),
-    m_glsl_es_100_vert(0),
-    m_glsl_es_100_common(0)
+GLSLEditorPlugin::GLSLEditorPlugin()
 {
     m_instance = this;
+    dd = new GLSLEditorPluginPrivate;
 }
 
 GLSLEditorPlugin::~GLSLEditorPlugin()
 {
-    removeObject(m_editor);
-    delete m_actionHandler;
-    delete m_glsl_120_frag;
-    delete m_glsl_120_vert;
-    delete m_glsl_120_common;
-    delete m_glsl_es_100_frag;
-    delete m_glsl_es_100_vert;
-    delete m_glsl_es_100_common;
+    removeObject(dd->m_editor);
+    delete dd;
     m_instance = 0;
 }
 
@@ -115,16 +140,16 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
 
     addAutoReleasedObject(new GLSLHoverHandler(this));
 
-    m_editor = new GLSLEditorFactory(this);
-    addObject(m_editor);
+    dd->m_editor = new GLSLEditorFactory(this);
+    addObject(dd->m_editor);
 
     addAutoReleasedObject(new GLSLCompletionAssistProvider);
 
-    m_actionHandler = new TextEditorActionHandler(Constants::C_GLSLEDITOR_ID,
+    dd->m_actionHandler = new TextEditorActionHandler(Constants::C_GLSLEDITOR_ID,
                                                               TextEditorActionHandler::Format
                                                               | TextEditorActionHandler::UnCommentSelection
                                                               | TextEditorActionHandler::UnCollapseAll);
-    m_actionHandler->initializeActions();
+    dd->m_actionHandler->initializeActions();
 
     ActionContainer *contextMenu = ActionManager::createMenu(GLSLEditor::Constants::M_CONTEXT);
     ActionContainer *glslToolsMenu = ActionManager::createMenu(Id(Constants::M_TOOLS_GLSL));
@@ -219,20 +244,11 @@ ExtensionSystem::IPlugin::ShutdownFlag GLSLEditorPlugin::aboutToShutdown()
 void GLSLEditorPlugin::initializeEditor(GLSLTextEditorWidget *editor)
 {
     QTC_CHECK(m_instance);
-    m_actionHandler->setupActions(editor);
+    dd->m_actionHandler->setupActions(editor);
     TextEditorSettings::instance()->initializeEditor(editor);
 }
 
-GLSLEditorPlugin::InitFile *GLSLEditorPlugin::getInitFile(const QString &fileName, InitFile **initFile) const
-{
-    if (*initFile)
-        return *initFile;
-    *initFile = new GLSLEditorPlugin::InitFile;
-    parseGlslFile(fileName, *initFile);
-    return *initFile;
-}
-
-QByteArray GLSLEditorPlugin::glslFile(const QString &fileName) const
+static QByteArray glslFile(const QString &fileName)
 {
     QFile file(ICore::resourcePath() + QLatin1String("/glsl/") + fileName);
     if (file.open(QFile::ReadOnly))
@@ -240,7 +256,7 @@ QByteArray GLSLEditorPlugin::glslFile(const QString &fileName) const
     return QByteArray();
 }
 
-void GLSLEditorPlugin::parseGlslFile(const QString &fileName, InitFile *initFile) const
+static void parseGlslFile(const QString &fileName, GLSLEditorPlugin::InitFile *initFile)
 {
     // Parse the builtins for any langugage variant so we can use all keywords.
     const int variant = GLSL::Lexer::Variant_All;
@@ -251,28 +267,37 @@ void GLSLEditorPlugin::parseGlslFile(const QString &fileName, InitFile *initFile
     initFile->ast = parser.parse();
 }
 
-const GLSLEditorPlugin::InitFile *GLSLEditorPlugin::fragmentShaderInit(int variant) const
+static GLSLEditorPlugin::InitFile *getInitFile(const char *fileName, GLSLEditorPlugin::InitFile **initFile)
 {
-    if (variant & GLSL::Lexer::Variant_GLSL_120)
-        return getInitFile(QLatin1String("glsl_120.frag"), &m_glsl_120_frag);
-    else
-        return getInitFile(QLatin1String("glsl_es_100.frag"), &m_glsl_es_100_frag);
+    if (*initFile)
+        return *initFile;
+    *initFile = new GLSLEditorPlugin::InitFile;
+    parseGlslFile(QLatin1String(fileName), *initFile);
+    return *initFile;
 }
 
-const GLSLEditorPlugin::InitFile *GLSLEditorPlugin::vertexShaderInit(int variant) const
+const GLSLEditorPlugin::InitFile *GLSLEditorPlugin::fragmentShaderInit(int variant)
 {
     if (variant & GLSL::Lexer::Variant_GLSL_120)
-        return getInitFile(QLatin1String("glsl_120.vert"), &m_glsl_120_vert);
+        return getInitFile("glsl_120.frag", &dd->m_glsl_120_frag);
     else
-        return getInitFile(QLatin1String("glsl_es_100.vert"), &m_glsl_es_100_vert);
+        return getInitFile("glsl_es_100.frag", &dd->m_glsl_es_100_frag);
 }
 
-const GLSLEditorPlugin::InitFile *GLSLEditorPlugin::shaderInit(int variant) const
+const GLSLEditorPlugin::InitFile *GLSLEditorPlugin::vertexShaderInit(int variant)
 {
     if (variant & GLSL::Lexer::Variant_GLSL_120)
-        return getInitFile(QLatin1String("glsl_120_common.glsl"), &m_glsl_120_common);
+        return getInitFile("glsl_120.vert", &dd->m_glsl_120_vert);
     else
-        return getInitFile(QLatin1String("glsl_es_100_common.glsl"), &m_glsl_es_100_common);
+        return getInitFile("glsl_es_100.vert", &dd->m_glsl_es_100_vert);
+}
+
+const GLSLEditorPlugin::InitFile *GLSLEditorPlugin::shaderInit(int variant)
+{
+    if (variant & GLSL::Lexer::Variant_GLSL_120)
+        return getInitFile("glsl_120_common.glsl", &dd->m_glsl_120_common);
+    else
+        return getInitFile("glsl_es_100_common.glsl", &dd->m_glsl_es_100_common);
 }
 
 } // namespace Internal

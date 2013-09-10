@@ -191,7 +191,7 @@ Core::IEditor *GLSLEditorEditable::duplicate(QWidget *parent)
 {
     GLSLTextEditorWidget *newEditor = new GLSLTextEditorWidget(parent);
     newEditor->duplicateFrom(editorWidget());
-    GLSLEditorPlugin::instance()->initializeEditor(newEditor);
+    GLSLEditorPlugin::initializeEditor(newEditor);
     return newEditor->editor();
 }
 
@@ -256,11 +256,6 @@ void GLSLTextEditorWidget::createToolBar(GLSLEditorEditable *editor)
     editor->insertExtraToolBarWidget(TextEditor::BaseTextEditor::Left, m_outlineCombo);
 }
 
-bool GLSLTextEditorWidget::event(QEvent *e)
-{
-    return BaseTextEditorWidget::event(e);
-}
-
 void GLSLTextEditorWidget::unCommentSelection()
 {
     Utils::unCommentSelection(this);
@@ -285,16 +280,19 @@ void GLSLTextEditorWidget::updateDocumentNow()
     Parser parser(doc->_engine, preprocessedCode.constData(), preprocessedCode.size(), variant);
     TranslationUnitAST *ast = parser.parse();
     if (ast != 0 || extraSelections(CodeWarningsSelection).isEmpty()) {
-        GLSLEditorPlugin *plugin = GLSLEditorPlugin::instance();
-
         Semantic sem;
         Scope *globalScope = engine->newNamespace();
         doc->_globalScope = globalScope;
-        sem.translationUnit(plugin->shaderInit(variant)->ast, globalScope, plugin->shaderInit(variant)->engine);
-        if (variant & Lexer::Variant_VertexShader)
-            sem.translationUnit(plugin->vertexShaderInit(variant)->ast, globalScope, plugin->vertexShaderInit(variant)->engine);
-        if (variant & Lexer::Variant_FragmentShader)
-            sem.translationUnit(plugin->fragmentShaderInit(variant)->ast, globalScope, plugin->fragmentShaderInit(variant)->engine);
+        const GLSLEditorPlugin::InitFile *file = GLSLEditorPlugin::shaderInit(variant);
+        sem.translationUnit(file->ast, globalScope, file->engine);
+        if (variant & Lexer::Variant_VertexShader) {
+            file = GLSLEditorPlugin::vertexShaderInit(variant);
+            sem.translationUnit(file->ast, globalScope, file->engine);
+        }
+        if (variant & Lexer::Variant_FragmentShader) {
+            file = GLSLEditorPlugin::fragmentShaderInit(variant);
+            sem.translationUnit(file->ast, globalScope, file->engine);
+        }
         sem.translationUnit(ast, globalScope, engine);
 
         CreateRanges createRanges(document(), doc);
@@ -371,11 +369,6 @@ int GLSLTextEditorWidget::languageVariant(const QString &type)
     return variant;
 }
 
-Document::Ptr GLSLTextEditorWidget::glslDocument() const
-{
-    return m_glslDocument;
-}
-
 TextEditor::IAssistInterface *GLSLTextEditorWidget::createAssistInterface(
     TextEditor::AssistKind kind,
     TextEditor::AssistReason reason) const
@@ -386,6 +379,6 @@ TextEditor::IAssistInterface *GLSLTextEditorWidget::createAssistInterface(
                                                  editor()->document()->filePath(),
                                                  reason,
                                                  mimeType(),
-                                                 glslDocument());
+                                                 m_glslDocument);
     return BaseTextEditorWidget::createAssistInterface(kind, reason);
 }
