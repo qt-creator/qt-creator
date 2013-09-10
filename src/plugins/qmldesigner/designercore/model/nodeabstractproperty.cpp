@@ -136,7 +136,8 @@ QList<ModelNode> NodeAbstractProperty::allSubNodes()
 }
 
 /*!
-  \brief Returns if the the two property handles reference the same property in the same node
+    Returns whether property handles \a property1 and \a property2 reference
+    the same property in the same node.
 */
 bool operator ==(const NodeAbstractProperty &property1, const NodeAbstractProperty &property2)
 {
@@ -144,7 +145,8 @@ bool operator ==(const NodeAbstractProperty &property1, const NodeAbstractProper
 }
 
 /*!
-  \brief Returns if the the two property handles do not reference the same property in the same node
+    Returns whether the property handles \a property1 and \a property2 do not
+    reference the same property in the same node.
   */
 bool operator !=(const NodeAbstractProperty &property1, const NodeAbstractProperty &property2)
 {

@@ -161,9 +161,9 @@ QList<QmlModelStateOperation> QmlModelState::stateOperations() const
 }
 
 
-/*! \brief Add a ChangeSet for the specified ModelNode to this state
-  The new ChangeSet if only added if no ChangeSet for the ModelNode
-  does not exist, yet.
+/*!
+    Adds a change set for \a node to this state, but only if it does not
+    already exist.
 */
 
 void QmlModelState::addChangeSetIfNotExists(const ModelNode &node)
@@ -205,9 +205,8 @@ void QmlModelState::removePropertyChanges(const ModelNode &node)
 
 
 
-/*! \brief Returns if this state affects the specified ModelNode
-
-\return true if this state affects the specifigied ModelNode
+/*!
+     Returns \c true if this state affects \a node.
 */
 bool QmlModelState::affectsModelNode(const ModelNode &node) const
 {
@@ -260,9 +259,8 @@ void QmlModelState::destroy()
     modelNode().destroy();
 }
 
-/*! \brief Returns if this state is the base state
-
-\return true if this state is the base state
+/*!
+    Returns \c true if this state is the base state.
 */
 
 bool QmlModelState::isBaseState() const

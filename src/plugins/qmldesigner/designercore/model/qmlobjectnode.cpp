@@ -87,11 +87,10 @@ bool QmlObjectNode::isRootModelNode() const
 }
 
 
-/*! \brief returns the value of a property based on an actual instance
-The return value is not the value in the model, but the value of a real
-instanciated instance of this object.
-\return the value of this property based on the instance
-
+/*!
+    Returns the value of the property specified by \name that is based on an
+    actual instance. The return value is not the value in the model, but the
+    value of a real instantiated instance of this object.
 */
 QVariant  QmlObjectNode::instanceValue(const PropertyName &name) const
 {
@@ -222,10 +221,8 @@ QString QmlObjectNode::expression(const PropertyName &name) const
     return propertyChanges.modelNode().bindingProperty(name).expression();
 }
 
-/*! \brief returns if ObjectNode is the BaseState
-
-\return true if the ObjectNode is in the BaseState
-
+/*!
+    Returns \c true if the ObjectNode is in the BaseState.
 */
 bool QmlObjectNode::isInBaseState() const
 {
@@ -265,10 +262,10 @@ static void removeStateOperationsForChildren(const QmlObjectNode &node)
 }
 
 
-/*! \brief Deletes this objects ModeNode and its dependencies from the model
-Every thing that belongs to this Object, the ModelNode and ChangeOperations
-are deleted from the model.
-
+/*!
+    Deletes this object's node and its dependencies from the model.
+    Everything that belongs to this Object, the ModelNode, and ChangeOperations
+    is deleted from the model.
 */
 void QmlObjectNode::destroy()
 {
@@ -282,9 +279,8 @@ void QmlObjectNode::destroy()
     modelNode().destroy();
 }
 
-/*! \brief Returns a list of all states that are affecting this object.
-
-\return list of states affecting this object
+/*!
+    Returns a list of states the affect this object.
 */
 
 QList<QmlModelState> QmlObjectNode::allAffectingStates() const
@@ -301,9 +297,8 @@ QList<QmlModelState> QmlObjectNode::allAffectingStates() const
     return returnList;
 }
 
-/*! \brief Returns a list of all state operations that are affecting this object.
-
-\return list of state operations affecting this object
+/*!
+    Returns a list of all state operations that affect this object.
 */
 
 QList<QmlModelStateOperation> QmlObjectNode::allAffectingStatesOperations() const
@@ -360,8 +355,9 @@ QList<QmlModelState> QmlObjectNode::allDefinedStates() const
 }
 
 
-/*! \brief Removes a variant property of this object from the model
-
+/*!
+    Removes a variant property of the object specified by \a name from the
+    model.
 */
 
 void  QmlObjectNode::removeVariantProperty(const PropertyName &name)
