@@ -149,7 +149,7 @@ void BlackBerryConfigurationManager::loadAutoDetectedConfigurations()
 
     // If no target was/is activated, activate one since it's needed by
     // device connection and CSK code.
-    if (activeConfigurations().isEmpty())
+    if (activeConfigurations().isEmpty() && !m_configs.isEmpty())
         m_configs.first()->activate();
 }
 
