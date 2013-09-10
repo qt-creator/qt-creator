@@ -40,7 +40,7 @@ namespace CPlusPlus {
 class Lexer;
 class Token;
 
-class CPLUSPLUS_EXPORT StringRef
+class StringRef
 {
     const char *_text;
     unsigned _size;

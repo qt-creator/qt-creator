@@ -1,6 +1,5 @@
 QTC_LIB_DEPENDS += utils ssh
 include(../../qttest.pri)
-include($$IDE_SOURCE_TREE/src/libs/3rdparty/botan/botan.pri)
 include($$IDE_SOURCE_TREE/src/plugins/valgrind/valgrind_test.pri)
 
 TARGET = tst_parsertests

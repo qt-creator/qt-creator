@@ -9,6 +9,7 @@ macx {
 }
 
 include(../../../src/libs/3rdparty/cplusplus/cplusplus.pri)
+INCLUDEPATH += ../../../src/libs/3rdparty/cplusplus
 
 # Input
 HEADERS += Preprocessor.h
