@@ -427,41 +427,43 @@ void NodeInstanceClientProxy::dispatchCommand(const QVariant &command)
     static const int tokenCommandType = QMetaType::type("TokenCommand");
     static const int endPuppetCommandType = QMetaType::type("EndPuppetCommand");
 
-    if (command.userType() ==  createInstancesCommandType)
+    const int commandType = command.userType();
+
+    if (commandType == createInstancesCommandType)
         createInstances(command.value<CreateInstancesCommand>());
-    else if (command.userType() ==  changeFileUrlCommandType)
+    else if (commandType == changeFileUrlCommandType)
         changeFileUrl(command.value<ChangeFileUrlCommand>());
-    else if (command.userType() ==  createSceneCommandType)
+    else if (commandType == createSceneCommandType)
         createScene(command.value<CreateSceneCommand>());
-    else if (command.userType() ==  clearSceneCommandType)
+    else if (commandType == clearSceneCommandType)
         clearScene(command.value<ClearSceneCommand>());
-    else if (command.userType() ==  removeInstancesCommandType)
+    else if (commandType == removeInstancesCommandType)
         removeInstances(command.value<RemoveInstancesCommand>());
-    else if (command.userType() ==  removePropertiesCommandType)
+    else if (commandType == removePropertiesCommandType)
         removeProperties(command.value<RemovePropertiesCommand>());
-    else if (command.userType() ==  changeBindingsCommandType)
+    else if (commandType == changeBindingsCommandType)
         changePropertyBindings(command.value<ChangeBindingsCommand>());
-    else if (command.userType() ==  changeValuesCommandType)
+    else if (commandType == changeValuesCommandType)
         changePropertyValues(command.value<ChangeValuesCommand>());
-    else if (command.userType() ==  changeAuxiliaryCommandType)
+    else if (commandType == changeAuxiliaryCommandType)
         changeAuxiliaryValues(command.value<ChangeAuxiliaryCommand>());
-    else if (command.userType() ==  reparentInstancesCommandType)
+    else if (commandType == reparentInstancesCommandType)
         reparentInstances(command.value<ReparentInstancesCommand>());
-    else if (command.userType() ==  changeIdsCommandType)
+    else if (commandType == changeIdsCommandType)
         changeIds(command.value<ChangeIdsCommand>());
-    else if (command.userType() ==  changeStateCommandType)
+    else if (commandType == changeStateCommandType)
         changeState(command.value<ChangeStateCommand>());
-    else if (command.userType() ==  completeComponentCommandType)
+    else if (commandType == completeComponentCommandType)
         completeComponent(command.value<CompleteComponentCommand>());
-    else if (command.userType() ==  changeNodeSourceCommandType)
+    else if (commandType == changeNodeSourceCommandType)
         changeNodeSource(command.value<ChangeNodeSourceCommand>());
-    else if (command.userType() == removeSharedMemoryCommandType)
+    else if (commandType == removeSharedMemoryCommandType)
         removeSharedMemory(command.value<RemoveSharedMemoryCommand>());
-    else if (command.userType() ==  tokenCommandType)
+    else if (commandType == tokenCommandType)
         redirectToken(command.value<TokenCommand>());
-    else if (command.userType() ==  endPuppetCommandType)
+    else if (commandType == endPuppetCommandType)
         redirectToken(command.value<EndPuppetCommand>());
-    else if (command.userType() == synchronizeCommandType) {
+    else if (commandType == synchronizeCommandType) {
         SynchronizeCommand synchronizeCommand = command.value<SynchronizeCommand>();
         m_synchronizeId = synchronizeCommand.synchronizeId();
     } else {
