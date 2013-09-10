@@ -400,6 +400,12 @@ void FakeVimPlugin::test_vim_movement()
     KEYS("2B", X "123 "   "456.789 "   "abc "   "def");
     KEYS("4W",   "123 "   "456.789 "   "abc "   "de" X "f");
 
+    data.setText("assert(abc);");
+    KEYS("w",    "assert" X "(abc);");
+    KEYS("w",    "assert(" X "abc);");
+    KEYS("w",    "assert(abc" X ");");
+    KEYS("w",    "assert(abc)" X ";");
+
     data.setText("123" N   "45."   "6" N   "" N " " N   "789");
     KEYS("3w",   "123" N   "45." X "6" N   "" N " " N   "789");
     // From Vim help (motion.txt): An empty line is also considered to be a word.
