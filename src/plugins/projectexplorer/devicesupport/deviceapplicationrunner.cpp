@@ -166,7 +166,7 @@ void DeviceApplicationRunner::connectToServer()
         return;
     }
 
-    d->connection = SshConnectionManager::instance().acquireConnection(d->device->sshParameters());
+    d->connection = QSsh::acquireConnection(d->device->sshParameters());
     connect(d->connection, SIGNAL(error(QSsh::SshError)), SLOT(handleConnectionFailure()));
     if (d->connection->state() == SshConnection::Connected) {
         handleConnected();
@@ -212,7 +212,7 @@ void DeviceApplicationRunner::setFinished()
     }
     if (d->connection) {
         d->connection->disconnect(this);
-        SshConnectionManager::instance().releaseConnection(d->connection);
+        QSsh::releaseConnection(d->connection);
         d->connection = 0;
     }
 

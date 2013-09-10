@@ -111,7 +111,7 @@ void SshRemoteProcessRunner::runInternal(const QByteArray &command,
     d->m_exitSignal = SshRemoteProcess::NoSignal;
     d->m_exitCode = -1;
     d->m_command = command;
-    d->m_connection = SshConnectionManager::instance().acquireConnection(sshParams);
+    d->m_connection = QSsh::acquireConnection(sshParams);
     connect(d->m_connection, SIGNAL(error(QSsh::SshError)),
         SLOT(handleConnectionError(QSsh::SshError)));
     connect(d->m_connection, SIGNAL(disconnected()), SLOT(handleDisconnected()));
@@ -211,7 +211,7 @@ void SshRemoteProcessRunner::setState(int newState)
         }
         if (d->m_connection) {
             disconnect(d->m_connection, 0, this, 0);
-            SshConnectionManager::instance().releaseConnection(d->m_connection);
+            QSsh::releaseConnection(d->m_connection);
             d->m_connection = 0;
         }
     }

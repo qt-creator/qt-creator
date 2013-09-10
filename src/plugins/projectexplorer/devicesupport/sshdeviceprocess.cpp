@@ -87,8 +87,7 @@ void SshDeviceProcess::start(const QString &executable, const QStringList &argum
     d->exitCode = -1;
     d->executable = executable;
     d->arguments = arguments;
-    d->connection
-            = QSsh::SshConnectionManager::instance().acquireConnection(device()->sshParameters());
+    d->connection = QSsh::acquireConnection(device()->sshParameters());
     connect(d->connection, SIGNAL(error(QSsh::SshError)), SLOT(handleConnectionError()));
     connect(d->connection, SIGNAL(disconnected()), SLOT(handleDisconnected()));
     if (d->connection->state() == QSsh::SshConnection::Connected) {
@@ -321,7 +320,7 @@ void SshDeviceProcess::SshDeviceProcessPrivate::setState(SshDeviceProcess::SshDe
         process->disconnect(q);
     if (connection) {
         connection->disconnect(q);
-        QSsh::SshConnectionManager::instance().releaseConnection(connection);
+        QSsh::releaseConnection(connection);
         connection = 0;
     }
 }

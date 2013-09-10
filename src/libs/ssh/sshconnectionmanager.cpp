@@ -41,25 +41,17 @@
 namespace QSsh {
 namespace Internal {
 
-class SshConnectionManagerPrivate : public QObject
+class SshConnectionManager : public QObject
 {
     Q_OBJECT
 
 public:
-
-    static QMutex instanceMutex;
-    static SshConnectionManager &instance()
-    {
-        static SshConnectionManager manager;
-        return manager;
-    }
-
-    SshConnectionManagerPrivate()
+    SshConnectionManager()
     {
         moveToThread(QCoreApplication::instance()->thread());
     }
 
-    ~SshConnectionManagerPrivate()
+    ~SshConnectionManager()
     {
         foreach (SshConnection * const connection, m_unacquiredConnections) {
             disconnect(connection, 0, this, 0);
@@ -215,38 +207,32 @@ private:
     QMutex m_listMutex;
 };
 
-QMutex SshConnectionManagerPrivate::instanceMutex;
-
 } // namespace Internal
 
-SshConnectionManager &SshConnectionManager::instance()
+static QMutex instanceMutex;
+
+static Internal::SshConnectionManager &instance()
 {
-    QMutexLocker locker(&Internal::SshConnectionManagerPrivate::instanceMutex);
-    return Internal::SshConnectionManagerPrivate::instance();
+    static Internal::SshConnectionManager manager;
+    return manager;
 }
 
-SshConnectionManager::SshConnectionManager()
-    : d(new Internal::SshConnectionManagerPrivate)
+SshConnection *acquireConnection(const SshConnectionParameters &sshParams)
 {
+    QMutexLocker locker(&instanceMutex);
+    return instance().acquireConnection(sshParams);
 }
 
-SshConnectionManager::~SshConnectionManager()
+void releaseConnection(SshConnection *connection)
 {
+    QMutexLocker locker(&instanceMutex);
+    instance().releaseConnection(connection);
 }
 
-SshConnection *SshConnectionManager::acquireConnection(const SshConnectionParameters &sshParams)
+void forceNewConnection(const SshConnectionParameters &sshParams)
 {
-    return d->acquireConnection(sshParams);
-}
-
-void SshConnectionManager::releaseConnection(SshConnection *connection)
-{
-    d->releaseConnection(connection);
-}
-
-void SshConnectionManager::forceNewConnection(const SshConnectionParameters &sshParams)
-{
-    d->forceNewConnection(sshParams);
+    QMutexLocker locker(&instanceMutex);
+    instance().forceNewConnection(sshParams);
 }
 
 } // namespace QSsh

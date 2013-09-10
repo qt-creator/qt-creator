@@ -113,7 +113,7 @@ SftpFileSystemModel::~SftpFileSystemModel()
 void SftpFileSystemModel::setSshConnection(const SshConnectionParameters &sshParams)
 {
     QSSH_ASSERT_AND_RETURN(!d->sshConnection);
-    d->sshConnection = SshConnectionManager::instance().acquireConnection(sshParams);
+    d->sshConnection = QSsh::acquireConnection(sshParams);
     connect(d->sshConnection, SIGNAL(error(QSsh::SshError)), SLOT(handleSshConnectionFailure()));
     if (d->sshConnection->state() == SshConnection::Connected) {
         handleSshConnectionEstablished();
@@ -267,7 +267,7 @@ void SftpFileSystemModel::shutDown()
     }
     if (d->sshConnection) {
         disconnect(d->sshConnection, 0, this, 0);
-        SshConnectionManager::instance().releaseConnection(d->sshConnection);
+        QSsh::releaseConnection(d->sshConnection);
         d->sshConnection = 0;
     }
     delete d->rootNode;

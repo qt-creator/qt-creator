@@ -267,7 +267,7 @@ void AbstractRemoteLinuxDeployService::handleDeviceSetupDone(bool success)
     }
 
     d->state = Connecting;
-    d->connection = SshConnectionManager::instance().acquireConnection(deviceConfiguration()->sshParameters());
+    d->connection = QSsh::acquireConnection(deviceConfiguration()->sshParameters());
     connect(d->connection, SIGNAL(error(QSsh::SshError)),
         SLOT(handleConnectionFailure()));
     if (d->connection->state() == SshConnection::Connected) {
@@ -328,7 +328,7 @@ void AbstractRemoteLinuxDeployService::setFinished()
     d->state = Inactive;
     if (d->connection) {
         disconnect(d->connection, 0, this, 0);
-        SshConnectionManager::instance().releaseConnection(d->connection);
+        QSsh::releaseConnection(d->connection);
         d->connection = 0;
     }
     d->stopRequested = false;
