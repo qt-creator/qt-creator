@@ -188,19 +188,19 @@ void QuickItemNodeInstance::setResizable(bool resizable)
 
 void QuickItemNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParentInstance, const PropertyName &oldParentProperty, const ObjectNodeInstance::Pointer &newParentInstance, const PropertyName &newParentProperty)
 {
-    if (oldParentInstance && oldParentInstance->isPositioner()) {
+    if (oldParentInstance && oldParentInstance->isLayoutable()) {
         setInLayoutable(false);
         setMovable(true);
     }
 
     ObjectNodeInstance::reparent(oldParentInstance, oldParentProperty, newParentInstance, newParentProperty);
 
-    if (newParentInstance && newParentInstance->isPositioner()) {
+    if (newParentInstance && newParentInstance->isLayoutable()) {
         setInLayoutable(true);
         setMovable(false);
     }
 
-    if (oldParentInstance && oldParentInstance->isPositioner() && !(newParentInstance && newParentInstance->isPositioner())) {
+    if (oldParentInstance && oldParentInstance->isLayoutable() && !(newParentInstance && newParentInstance->isLayoutable())) {
         if (!hasBindingForProperty("x"))
             setPropertyVariant("x", x());
 
