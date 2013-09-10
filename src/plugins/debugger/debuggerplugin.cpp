@@ -3509,25 +3509,25 @@ void DebuggerPluginPrivate::testUnloadProject()
     invoke<void>(pe, "unloadProject");
 }
 
-static Target *activeTarget()
-{
-    Project *project = ProjectExplorerPlugin::instance()->currentProject();
-    return project->activeTarget();
-}
+//static Target *activeTarget()
+//{
+//    Project *project = ProjectExplorerPlugin::instance()->currentProject();
+//    return project->activeTarget();
+//}
 
-static Kit *currentKit()
-{
-    Target *t = activeTarget();
-    if (!t || !t->isEnabled())
-        return 0;
-    return t->kit();
-}
+//static Kit *currentKit()
+//{
+//    Target *t = activeTarget();
+//    if (!t || !t->isEnabled())
+//        return 0;
+//    return t->kit();
+//}
 
-static LocalApplicationRunConfiguration *activeLocalRunConfiguration()
-{
-    Target *t = activeTarget();
-    return t ? qobject_cast<LocalApplicationRunConfiguration *>(t->activeRunConfiguration()) : 0;
-}
+//static LocalApplicationRunConfiguration *activeLocalRunConfiguration()
+//{
+//    Target *t = activeTarget();
+//    return t ? qobject_cast<LocalApplicationRunConfiguration *>(t->activeRunConfiguration()) : 0;
+//}
 
 void DebuggerPluginPrivate::testRunProject(const DebuggerStartParameters &sp, const TestCallBack &cb)
 {
