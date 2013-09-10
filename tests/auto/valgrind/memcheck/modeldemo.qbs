@@ -1,13 +1,9 @@
 import qbs
-import "../../autotest.qbs" as Autotest
+import "../valgrindautotest.qbs" as ValgrindAutotest
 
-Autotest {
+ValgrindAutotest {
     name: "Memcheck ModelDemo autotest"
-    Depends { name: "QtcSsh" }
-    Depends { name: "Utils" }
-    Depends { name: "Valgrind" }
     Depends { name: "valgrind-fake" }
-    Depends { name: "Qt.widgets" } // TODO: Remove when qbs bug is fixed
     Depends { name: "Qt.network" }
     files: ["modeldemo.h", "modeldemo.cpp"]
     cpp.defines: base.concat([

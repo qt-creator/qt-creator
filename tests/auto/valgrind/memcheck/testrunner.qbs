@@ -1,7 +1,7 @@
 import qbs
-import "../../autotest.qbs" as Autotest
+import "../valgrindautotest.qbs" as ValgrindAutotest
 
-Autotest {
+ValgrindAutotest {
     name: "Memcheck test runner"
     Depends { name: "Memcheck free1 autotest" }
     Depends { name: "Memcheck free2 autotest" }
@@ -15,10 +15,6 @@ Autotest {
     Depends { name: "Memcheck uninit1 autotest" }
     Depends { name: "Memcheck uninit2 autotest" }
     Depends { name: "Memcheck uninit3 autotest" }
-    Depends { name: "QtcSsh" }
-    Depends { name: "Utils" }
-    Depends { name: "Valgrind" }
-    Depends { name: "Qt.widgets" } // TODO: Remove when qbs bug is fixed
     files: ["testrunner.h", "testrunner.cpp"]
     destinationDirectory: project.ide_bin_path
     cpp.defines: base.concat([
