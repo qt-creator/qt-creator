@@ -948,9 +948,9 @@ public slots:
     void testRunProject(const DebuggerStartParameters &sp, const TestCallBack &cb);
     void testRunControlFinished();
 
-    void testStateMachine1();
-    void testStateMachine2();
-    void testStateMachine3();
+//    void testStateMachine1();
+//    void testStateMachine2();
+//    void testStateMachine3();
 
     void testBenchmark1();
 
@@ -3552,37 +3552,37 @@ void DebuggerPluginPrivate::testFinished()
 
 ///////////////////////////////////////////////////////////////////////////
 
-void DebuggerPlugin::testStateMachine()
-{
-    theDebuggerCore->testStateMachine1();
-}
+//void DebuggerPlugin::testStateMachine()
+//{
+//    theDebuggerCore->testStateMachine1();
+//}
 
-void DebuggerPluginPrivate::testStateMachine1()
-{
-    m_testSuccess = true;
-    QString proFile = ICore::resourcePath();
-    if (Utils::HostOsInfo::isMacHost())
-        proFile += QLatin1String("/../..");
-    proFile += QLatin1String("/../../tests/manual/debugger/simple/simple.pro");
-    testLoadProject(proFile, TestCallBack(this,  "testStateMachine2"));
-    QVERIFY(m_testSuccess);
-    QTestEventLoop::instance().enterLoop(20);
-}
+//void DebuggerPluginPrivate::testStateMachine1()
+//{
+//    m_testSuccess = true;
+//    QString proFile = ICore::resourcePath();
+//    if (Utils::HostOsInfo::isMacHost())
+//        proFile += QLatin1String("/../..");
+//    proFile += QLatin1String("/../../tests/manual/debugger/simple/simple.pro");
+//    testLoadProject(proFile, TestCallBack(this,  "testStateMachine2"));
+//    QVERIFY(m_testSuccess);
+//    QTestEventLoop::instance().enterLoop(20);
+//}
 
-void DebuggerPluginPrivate::testStateMachine2()
-{
-    DebuggerStartParameters sp;
-    fillParameters(&sp, currentKit());
-    sp.executable = activeLocalRunConfiguration()->executable();
-    sp.testCase = TestNoBoundsOfCurrentFunction;
-    testRunProject(sp, TestCallBack(this, "testStateMachine3"));
-}
+//void DebuggerPluginPrivate::testStateMachine2()
+//{
+//    DebuggerStartParameters sp;
+//    fillParameters(&sp, currentKit());
+//    sp.executable = activeLocalRunConfiguration()->executable();
+//    sp.testCase = TestNoBoundsOfCurrentFunction;
+//    testRunProject(sp, TestCallBack(this, "testStateMachine3"));
+//}
 
-void DebuggerPluginPrivate::testStateMachine3()
-{
-    testUnloadProject();
-    testFinished();
-}
+//void DebuggerPluginPrivate::testStateMachine3()
+//{
+//    testUnloadProject();
+//    testFinished();
+//}
 
 
 ///////////////////////////////////////////////////////////////////////////

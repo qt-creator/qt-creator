@@ -77,7 +77,7 @@ private:
 #ifdef WITH_TESTS
 private slots:
     void testBenchmark();
-    void testStateMachine();
+//    void testStateMachine();
 #endif
 };
 
