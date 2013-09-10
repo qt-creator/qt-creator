@@ -142,6 +142,7 @@ static const int AutomaticProposalTimerInterval = 400;
 CodeAssistantPrivate::CodeAssistantPrivate(CodeAssistant *assistant)
     : m_q(assistant)
     , m_textEditor(0)
+    , m_completionProvider(0)
     , m_requestRunner(0)
     , m_requestProvider(0)
     , m_proposalWidget(0)
