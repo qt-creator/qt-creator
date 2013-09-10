@@ -4519,6 +4519,9 @@ EventResult FakeVimHandler::Private::handleInsertOrReplaceMode(const Input &inpu
     else
         handleReplaceMode(input);
 
+    if (!m_textedit && !m_plaintextedit)
+        return EventHandled;
+
     if (!isInsertMode() || m_breakEditBlock
             || position() < m_insertState.pos1 || position() > m_insertState.pos2) {
         commitInsertState();
@@ -6969,7 +6972,7 @@ bool FakeVimHandler::Private::handleInsertInEditor(const Input &input)
                     static_cast<Qt::KeyboardModifiers>(input.modifiers()), input.text());
     setAnchor();
     if (!passEventToEditor(event))
-        return false;
+        return !m_textedit && !m_plaintextedit; // Mark event as handled if it has destroyed editor.
 
     endEditBlock();
 
@@ -6985,6 +6988,8 @@ bool FakeVimHandler::Private::passEventToEditor(QEvent &event)
     EDITOR(setOverwriteMode(false));
     emit q->requestSetBlockSelection(false);
     bool accepted = QApplication::sendEvent(editor(), &event);
+    if (!m_textedit && !m_plaintextedit)
+        return false;
     if (isVisualBlockMode())
         emit q->requestSetBlockSelection(true);
     updateCursorShape();
