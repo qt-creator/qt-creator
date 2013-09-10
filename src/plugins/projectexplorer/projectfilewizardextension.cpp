@@ -68,10 +68,10 @@
     \brief The ProjectFileWizardExtension class implements the post-file
     generating steps of a project wizard.
 
-    Offers:
+    This class provides the following functions:
     \list
     \li Add to a project file (*.pri/ *.pro)
-    \li Initialize a version control repository (unless the path is already
+    \li Initialize a version control system repository (unless the path is already
         managed) and do 'add' if the VCS supports it.
     \endlist
 

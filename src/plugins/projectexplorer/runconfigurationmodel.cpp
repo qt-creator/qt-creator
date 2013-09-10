@@ -39,8 +39,8 @@ using namespace ProjectExplorer;
     \brief The RunConfigurationModel class provides a model to represent the
     run configurations of a target.
 
-    To be used in for the drop down of comboboxes.
-    Does automatically adjust itself to added and removed RunConfigurations
+    To be used in the dropdown lists of comboboxes.
+    Automatically adjusts itself to added and removed run configurations.
 */
 
 class RunConfigurationComparer

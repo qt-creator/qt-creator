@@ -51,15 +51,17 @@
 /*!
    \fn void ProjectExplorer::Project::environmentChanged()
 
-   \brief Convenience signal emitted if the activeBuildConfiguration emits environmentChanged
-   or if the activeBuildConfiguration changes (including due to the active target changing).
+   A convenience signal emitted if activeBuildConfiguration emits
+   environmentChanged or if the active build configuration changes
+   (including due to the active target changing).
 */
 
 /*!
    \fn void ProjectExplorer::Project::buildConfigurationEnabledChanged()
 
-   \brief Convenience signal emitted if the activeBuildConfiguration emits isEnabledChanged()
-   or if the activeBuildConfiguration changes (including due to the active target changing).
+   A convenience signal emitted if activeBuildConfiguration emits
+   isEnabledChanged() or if the active build configuration changes
+   (including due to the active target changing).
 */
 
 namespace {
@@ -300,14 +302,14 @@ bool Project::restoreSettings()
 
 
 /*!
-    \brief Serialize all data into a QVariantMap.
+    Serializes all data into a QVariantMap.
 
     This map is then saved in the .user file of the project.
     Just put all your data into the map.
 
     \note Do not forget to call your base class' toMap method.
     \note Do not forget to call setActiveBuildConfiguration when
-          creating new BuilConfigurations.
+    creating new build configurations.
 */
 
 QVariantMap Project::toMap() const

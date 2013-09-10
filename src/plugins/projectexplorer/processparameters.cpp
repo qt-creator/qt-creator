@@ -57,7 +57,7 @@ ProcessParameters::ProcessParameters() :
 }
 
 /*!
-    \brief Sets the executable to run.
+    Sets the executable to run.
 */
 
 void ProcessParameters::setCommand(const QString &cmd)
@@ -67,7 +67,7 @@ void ProcessParameters::setCommand(const QString &cmd)
 }
 
 /*!
-    \brief Sets the command line arguments used by the process
+    Sets the command line arguments used by the process.
 */
 
 void ProcessParameters::setArguments(const QString &arguments)
@@ -77,8 +77,9 @@ void ProcessParameters::setArguments(const QString &arguments)
 }
 
 /*!
-    \brief Sets the workingDirectory for the process for a buildConfiguration
-    should be called from init()
+    Sets the \a workingDirectory for the process for a build configuration.
+
+    Should be called from init().
 */
 
 void ProcessParameters::setWorkingDirectory(const QString &workingDirectory)
@@ -89,20 +90,21 @@ void ProcessParameters::setWorkingDirectory(const QString &workingDirectory)
 
 /*!
     \fn void ProjectExplorer::ProcessParameters::setEnvironment(const Utils::Environment &env)
-    \brief Set the Environment for running the command
+    Sets the environment \a env for running the command.
 
-    Should be called from init()
+    Should be called from init().
 */
 
 /*!
    \fn  void ProjectExplorer::ProcessParameters::setMacroExpander(Utils::AbstractMacroExpander *mx)
-   \brief Set the macro expander to use on the command, arguments and working dir.
+   Sets the macro expander \a mx to use on the command, arguments, and working
+   dir.
 
-   Note that the caller retains ownership of the object.
+   \note The caller retains ownership of the object.
 */
 
 /*!
-    \brief Get the fully expanded working directory.
+    Gets the fully expanded working directory.
 */
 
 QString ProcessParameters::effectiveWorkingDirectory() const
@@ -117,7 +119,7 @@ QString ProcessParameters::effectiveWorkingDirectory() const
 }
 
 /*!
-    \brief Get the fully expanded command name to run
+    Gets the fully expanded command name to run.
 */
 
 QString ProcessParameters::effectiveCommand() const
@@ -136,7 +138,7 @@ QString ProcessParameters::effectiveCommand() const
 }
 
 /*!
-    \brief True if effectiveCommand() would return only a fallback.
+    Returns \c true if effectiveCommand() would return only a fallback.
 */
 
 bool ProcessParameters::commandMissing() const

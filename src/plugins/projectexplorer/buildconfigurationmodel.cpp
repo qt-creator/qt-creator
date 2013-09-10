@@ -38,8 +38,8 @@ using namespace ProjectExplorer;
     \brief The BuildConfigurationModel class is a model to represent the build
     configurations of a target.
 
-    To be used in for the drop down of comboboxes.
-    Does automatically adjust itself to added and removed BuildConfigurations
+    To be used in the dropdown lists of comboboxes.
+    Automatically adjusts itself to added and removed BuildConfigurations.
     Very similar to the Run Configuration Model.
 
     TODO might it possible to share code without making the code a complete mess.

@@ -39,8 +39,8 @@ using namespace ProjectExplorer;
     \brief The DeployConfigurationModel class provides a model to represent
     the run configurations of a target.
 
-    To be used in for the drop down of comboboxes.  Does automatically adjust
-    itself to added and removed DeployConfigurations
+    To be used in drop down lists of comboboxes. Automatically adjusts
+    itself to added and removed deploy configurations.
 */
 
 class DeployConfigurationComparer
