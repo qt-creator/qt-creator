@@ -199,7 +199,8 @@ NodeInstanceMetaObject::~NodeInstanceMetaObject()
 
 void NodeInstanceMetaObject::createNewProperty(const QString &name)
 {
-    int id = createProperty(name.toUtf8(), 0);
+    int id = m_type->createProperty(name.toUtf8());
+    copyTypeMetaObject();
     setValue(id, QVariant());
     Q_ASSERT(id >= 0);
     Q_UNUSED(id);
@@ -212,13 +213,6 @@ void NodeInstanceMetaObject::createNewProperty(const QString &name)
 
     QQmlProperty property(myObject(), name, m_context);
     Q_ASSERT(property.isValid());
-}
-
-int NodeInstanceMetaObject::createProperty(const char *name, const char *)
-{
-    int id =  m_type->createProperty(name);
-    copyTypeMetaObject();
-    return id;
 }
 
 void NodeInstanceMetaObject::setValue(int id, const QVariant &value)

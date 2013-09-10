@@ -63,7 +63,6 @@ protected:
     int metaCall(QMetaObject::Call _c, int _id, void **_a);
     void notifyPropertyChange(int id);
     void setValue(int id, const QVariant &value);
-    int createProperty(const char *, const char *);
     QVariant propertyWriteValue(int, const QVariant &);
 
     QObject *myObject() const { return QQmlVMEMetaObject::object; }
