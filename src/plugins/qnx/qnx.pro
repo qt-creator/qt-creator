@@ -61,10 +61,7 @@ SOURCES += qnxplugin.cpp \
     bardescriptorpermissionsmodel.cpp \
     blackberrykeyswidget.cpp \
     blackberrykeyspage.cpp \
-    blackberrycsjregistrar.cpp \
     blackberrycertificate.cpp \
-    blackberrycertificatemodel.cpp \
-    blackberryregisterkeydialog.cpp \
     blackberryimportcertificatedialog.cpp \
     blackberrycreatecertificatedialog.cpp \
     blackberrydebugtokenrequester.cpp \
@@ -91,7 +88,7 @@ SOURCES += qnxplugin.cpp \
     bardescriptoreditorabstractpanelwidget.cpp \
     blackberrysetupwizard.cpp \
     blackberrysetupwizardpages.cpp \
-    blackberryutils.cpp \
+    blackberrysigningutils.cpp \
     qnxdevicetester.cpp \
     blackberryconfigurationmanager.cpp \
     blackberrydevicelistdetector.cpp \
@@ -158,10 +155,7 @@ HEADERS += qnxplugin.h\
     bardescriptorpermissionsmodel.h \
     blackberrykeyswidget.h \
     blackberrykeyspage.h \
-    blackberrycsjregistrar.h \
     blackberrycertificate.h \
-    blackberrycertificatemodel.h \
-    blackberryregisterkeydialog.h \
     blackberryimportcertificatedialog.h \
     blackberrycreatecertificatedialog.h \
     blackberrydebugtokenrequester.h \
@@ -188,7 +182,7 @@ HEADERS += qnxplugin.h\
     bardescriptoreditorabstractpanelwidget.h \
     blackberrysetupwizard.h \
     blackberrysetupwizardpages.h \
-    blackberryutils.h \
+    blackberrysigningutils.h \
     qnxdevicetester.h \
     blackberryconfigurationmanager.h \
     blackberrydevicelistdetector.h \
@@ -204,7 +198,6 @@ FORMS += \
     qnxbaseqtconfigwidget.ui \
     blackberryndksettingswidget.ui \
     blackberrykeyswidget.ui \
-    blackberryregisterkeydialog.ui \
     blackberryimportcertificatedialog.ui \
     blackberrycreatecertificatedialog.ui \
     blackberrydebugtokenrequestdialog.ui \
@@ -218,6 +211,7 @@ FORMS += \
     bardescriptoreditorenvironmentwidget.ui \
     bardescriptoreditorassetswidget.ui \
     blackberrysetupwizardkeyspage.ui \
+    blackberrysetupwizardcertificatepage.ui \
     blackberrysetupwizarddevicepage.ui \
     blackberrysetupwizardfinishpage.ui \
     blackberrydeviceconfigurationwizardconfigpage.ui \

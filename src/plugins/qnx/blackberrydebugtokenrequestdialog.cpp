@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
+** Copyright (C) 2013 BlackBerry Limited. All rights reserved.
 **
-** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -33,7 +33,7 @@
 #include "blackberrydebugtokenrequester.h"
 #include "blackberrydeviceinformation.h"
 #include "blackberryconfigurationmanager.h"
-#include "blackberrycertificate.h"
+#include "blackberrysigningutils.h"
 #include "ui_blackberrydebugtokenrequestdialog.h"
 
 #include <QPushButton>
@@ -48,7 +48,8 @@ BlackBerryDebugTokenRequestDialog::BlackBerryDebugTokenRequestDialog(
     QDialog(parent, f),
     m_ui(new Ui_BlackBerryDebugTokenRequestDialog),
     m_requester(new BlackBerryDebugTokenRequester(this)),
-    m_deviceInfo(new BlackBerryDeviceInformation(this))
+    m_deviceInfo(new BlackBerryDeviceInformation(this)),
+    m_utils(BlackBerrySigningUtils::instance())
 {
     m_ui->setupUi(this);
     m_ui->progressBar->hide();
@@ -60,8 +61,6 @@ BlackBerryDebugTokenRequestDialog::BlackBerryDebugTokenRequestDialog(
     m_cancelButton = m_ui->buttonBox->button(QDialogButtonBox::Cancel);
     m_okButton = m_ui->buttonBox->button(QDialogButtonBox::Ok);
     m_okButton->setEnabled(false);
-
-    populateComboBox();
 
     connect(m_cancelButton, SIGNAL(clicked()),
             this, SLOT(reject()));
@@ -75,14 +74,8 @@ BlackBerryDebugTokenRequestDialog::BlackBerryDebugTokenRequestDialog(
             this, SLOT(appendExtension()));
     connect(m_ui->debugTokenPath, SIGNAL(editingFinished()),
             this, SLOT(expandPath()));
-    connect(m_ui->keystorePassword, SIGNAL(textChanged(QString)),
-            this, SLOT(validate()));
-    connect(m_ui->cskPassword, SIGNAL(textChanged(QString)),
-            this, SLOT(validate()));
     connect(m_ui->devicePin, SIGNAL(textChanged(QString)),
             this, SLOT(validate()));
-    connect(m_ui->showPassword, SIGNAL(stateChanged(int)),
-            this, SLOT(checkBoxChanged(int)));
     connect(m_requester, SIGNAL(finished(int)),
             this, SLOT(debugTokenArrived(int)));
     connect(m_deviceInfo, SIGNAL(finished(int)),
@@ -112,10 +105,7 @@ void BlackBerryDebugTokenRequestDialog::setTargetDetails(const QString &deviceIp
 
 void BlackBerryDebugTokenRequestDialog::validate()
 {
-    if (!m_ui->debugTokenPath->isValid()
-            || m_ui->keystorePassword->text().isEmpty()
-            || m_ui->devicePin->text().isEmpty()
-            || m_ui->cskPassword->text().isEmpty()) {
+    if (!m_ui->debugTokenPath->isValid() || m_ui->devicePin->text().isEmpty()) {
         m_okButton->setEnabled(false);
         return;
     }
@@ -151,10 +141,11 @@ void BlackBerryDebugTokenRequestDialog::requestDebugToken()
         }
     }
 
+    BlackBerryConfigurationManager &configuration = BlackBerryConfigurationManager::instance();
+
     m_requester->requestDebugToken(m_ui->debugTokenPath->path(),
-            m_ui->cskPassword->text(),
-            m_ui->keystore->itemText(m_ui->keystore->currentIndex()),
-            m_ui->keystorePassword->text(), m_ui->devicePin->text());
+            m_utils.cskPassword(), configuration.defaultKeystorePath(),
+            m_utils.certificatePassword(), m_ui->devicePin->text());
 }
 
 void BlackBerryDebugTokenRequestDialog::setDefaultPath()
@@ -198,17 +189,6 @@ void BlackBerryDebugTokenRequestDialog::expandPath()
     m_ui->debugTokenPath->setPath(fileInfo.absoluteFilePath());
 }
 
-void BlackBerryDebugTokenRequestDialog::checkBoxChanged(int state)
-{
-    if (state == Qt::Checked) {
-        m_ui->cskPassword->setEchoMode(QLineEdit::Normal);
-        m_ui->keystorePassword->setEchoMode(QLineEdit::Normal);
-    } else {
-        m_ui->cskPassword->setEchoMode(QLineEdit::Password);
-        m_ui->keystorePassword->setEchoMode(QLineEdit::Password);
-    }
-}
-
 void BlackBerryDebugTokenRequestDialog::debugTokenArrived(int status)
 {
     QString errorString = tr("Failed to request debug token: ");
@@ -218,9 +198,11 @@ void BlackBerryDebugTokenRequestDialog::debugTokenArrived(int status)
         accept();
         return;
     case BlackBerryDebugTokenRequester::WrongCskPassword:
+        m_utils.clearCskPassword();
         errorString += tr("Wrong CSK password.");
         break;
     case BlackBerryDebugTokenRequester::WrongKeystorePassword:
+        m_utils.clearCertificatePassword();
         errorString += tr("Wrong keystore password.");
         break;
     case BlackBerryDebugTokenRequester::NetworkUnreachable:
@@ -246,6 +228,9 @@ void BlackBerryDebugTokenRequestDialog::debugTokenArrived(int status)
         errorString += tr("Not yet registered to request debug tokens.");
         break;
     case BlackBerryDebugTokenRequester::UnknownError:
+    default:
+        m_utils.clearCertificatePassword();
+        m_utils.clearCskPassword();
         errorString += tr("An unknwon error has occurred.");
         break;
     }
@@ -273,10 +258,6 @@ void BlackBerryDebugTokenRequestDialog::setBusy(bool busy)
     m_okButton->setEnabled(!busy);
     m_cancelButton->setEnabled(!busy);
     m_ui->debugTokenPath->setEnabled(!busy);
-    m_ui->keystore->setEnabled(!busy);
-    m_ui->keystorePassword->setEnabled(!busy);
-    m_ui->cskPassword->setEnabled(!busy);
-    m_ui->showPassword->setEnabled(!busy);
     m_ui->devicePin->setEnabled(!busy);
     m_ui->progressBar->setVisible(busy);
 
@@ -284,16 +265,6 @@ void BlackBerryDebugTokenRequestDialog::setBusy(bool busy)
         m_ui->status->setText(tr("Requesting debug token..."));
     else
         m_ui->status->clear();
-}
-
-void BlackBerryDebugTokenRequestDialog::populateComboBox()
-{
-    BlackBerryConfigurationManager &configManager = BlackBerryConfigurationManager::instance();
-
-    QList<BlackBerryCertificate*> certificates = configManager.certificates();
-
-    foreach (const BlackBerryCertificate *certificate, certificates)
-        m_ui->keystore->addItem(certificate->fileName());
 }
 
 }

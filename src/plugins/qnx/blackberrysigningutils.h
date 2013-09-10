@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
+** Copyright (C) 2013 BlackBerry Limited. All rights reserved.
 **
-** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -29,69 +29,63 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BLACKBERRYREGISTERKEYDIALOG_H
-#define QNX_INTERNAL_BLACKBERRYREGISTERKEYDIALOG_H
+#ifndef QNX_INTERNAL_BLACKBERRYSIGNINGUTILS_H
+#define QNX_INTERNAL_BLACKBERRYSIGNINGUTILS_H
 
-#include <QDialog>
+#include <QtGlobal>
+#include <QObject>
 
 QT_BEGIN_NAMESPACE
-class QPushButton;
+class QString;
 QT_END_NAMESPACE
-
-namespace Utils {
-class PathChooser;
-}
 
 namespace Qnx {
 namespace Internal {
 
-class Ui_BlackBerryRegisterKeyDialog;
-class BlackBerryCsjRegistrar;
 class BlackBerryCertificate;
 
-class BlackBerryRegisterKeyDialog : public QDialog
+class BlackBerrySigningUtils : public QObject
 {
-Q_OBJECT
+    Q_OBJECT
 
 public:
-    explicit BlackBerryRegisterKeyDialog(QWidget *parent = 0,
-            Qt::WindowFlags f = 0);
+    static BlackBerrySigningUtils &instance();
 
-    QString pbdtPath() const;
-    QString rdkPath() const;
-    QString csjPin() const;
-    QString cskPin() const;
-    QString keystorePassword() const;
-    QString keystorePath() const;
+    bool hasRegisteredKeys();
+    bool hasLegacyKeys();
+    bool hasDefaultCertificate();
 
-    BlackBerryCertificate *certificate() const;
+    QString cskPassword();
+    QString certificatePassword();
+
+    const BlackBerryCertificate *defaultCertificate() const;
+
+    void openDefaultCertificate();
+    void setDefaultCertificate(BlackBerryCertificate *certificate);
+    void clearCskPassword();
+    void clearCertificatePassword();
+    void deleteDefaultCertificate();
+
+signals:
+    void defaultCertificateLoaded(int status);
 
 private slots:
-    void csjAutoComplete(const QString &path);
-    void validate();
-    void createKey();
-    void pinCheckBoxChanged(int state);
-    void certCheckBoxChanged(int state);
-    void registrarFinished(int status, const QString &errorString);
-    void certificateCreated(int status);
+    void certificateLoaded(int status);
 
 private:
-    void setupCsjPathChooser(Utils::PathChooser *chooser);
-    void generateDeveloperCertificate();
-    void cleanup() const;
-    void setBusy(bool busy);
+    Q_DISABLE_COPY(BlackBerrySigningUtils)
 
-    Ui_BlackBerryRegisterKeyDialog *m_ui;
+    BlackBerrySigningUtils(QObject *parent = 0);
 
-    BlackBerryCsjRegistrar *m_registrar;
+    QString promptPassword(const QString &message) const;
 
-    BlackBerryCertificate *m_certificate;
+    BlackBerryCertificate *m_defaultCertificate;
 
-    QPushButton *m_okButton;
-    QPushButton *m_cancelButton;
+    QString m_cskPassword;
+    QString m_certificatePassword;
 };
 
 } // namespace Internal
 } // namespace Qnx
 
-#endif // QNX_INTERNAL_BLACKBERRYREGISTERKEYDIALOG_H
+#endif // QNX_INTERNAL_BLACKBERRYSIGNINGUTILS_H

@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
+** Copyright (C) 2013 BlackBerry Limited. All rights reserved.
 **
-** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -32,7 +32,7 @@
 #include "blackberryndksettingswidget.h"
 #include "ui_blackberryndksettingswidget.h"
 #include "qnxutils.h"
-#include "blackberryutils.h"
+#include "blackberrysigningutils.h"
 #include "blackberrysetupwizard.h"
 
 #include "blackberryconfigurationmanager.h"
@@ -99,7 +99,8 @@ QList<BlackBerryConfiguration *> BlackBerryNDKSettingsWidget::deactivatedTargets
 
 void BlackBerryNDKSettingsWidget::launchBlackBerrySetupWizard() const
 {
-    const bool alreadyConfigured = BlackBerryUtils::hasRegisteredKeys();
+    BlackBerrySigningUtils &blackBerryUtils = BlackBerrySigningUtils::instance();
+    const bool alreadyConfigured = blackBerryUtils.hasRegisteredKeys() && blackBerryUtils.hasDefaultCertificate();
 
     if (alreadyConfigured) {
         QMessageBox::information(0, tr("Qt Creator"),

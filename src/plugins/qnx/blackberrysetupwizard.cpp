@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
+** Copyright (C) 2013 BlackBerry Limited. All rights reserved.
 **
-** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -32,13 +32,12 @@
 #include "blackberrysetupwizard.h"
 #include "blackberrysetupwizardpages.h"
 #include "blackberrydeviceconfiguration.h"
-#include "blackberrycsjregistrar.h"
 #include "blackberrycertificate.h"
 #include "blackberryconfigurationmanager.h"
 #include "blackberrydebugtokenrequester.h"
 #include "blackberrydebugtokenuploader.h"
 #include "blackberrydeviceinformation.h"
-#include "blackberryutils.h"
+#include "blackberrysigningutils.h"
 #include "qnxconstants.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
@@ -61,12 +60,13 @@ BlackBerrySetupWizard::BlackBerrySetupWizard(QWidget *parent) :
     QWizard(parent),
     m_ndkPage(0),
     m_keysPage(0),
+    m_certificatePage(0),
     m_devicePage(0),
-    m_registrar(0),
     m_certificate(0),
     m_deviceInfo(0),
     m_requester(0),
     m_uploader(0),
+    m_utils(BlackBerrySigningUtils::instance()),
     m_keyGenerator(0),
     m_currentStep(-1),
     m_stepOffset(0)
@@ -77,23 +77,22 @@ BlackBerrySetupWizard::BlackBerrySetupWizard(QWidget *parent) :
     m_welcomePage = new BlackBerrySetupWizardWelcomePage(this);
     m_ndkPage = new BlackBerrySetupWizardNdkPage(this);
     m_keysPage = new BlackBerrySetupWizardKeysPage(this);
+    m_certificatePage = new BlackBerrySetupWizardCertificatePage(this);
     m_devicePage = new BlackBerrySetupWizardDevicePage(this);
     m_finishPage = new BlackBerrySetupWizardFinishPage(this);
 
     setPage(WelcomePageId, m_welcomePage);
     setPage(NdkPageId, m_ndkPage);
     setPage(KeysPageId, m_keysPage);
+    setPage(CertificatePageId, m_certificatePage);
     setPage(DevicePageId, m_devicePage);
     setPage(FinishPageId, m_finishPage);
 
-    m_registrar = new BlackBerryCsjRegistrar(this);
     m_deviceInfo = new BlackBerryDeviceInformation(this);
     m_requester = new BlackBerryDebugTokenRequester(this);
     m_uploader = new BlackBerryDebugTokenUploader(this);
     m_keyGenerator = new QSsh::SshKeyGenerator;
 
-    connect(m_registrar, SIGNAL(finished(int,QString)),
-            this, SLOT(registrarFinished(int,QString)));
     connect(m_deviceInfo, SIGNAL(finished(int)),
             this, SLOT(deviceInfoFinished(int)));
     connect(m_requester, SIGNAL(finished(int)),
@@ -104,7 +103,6 @@ BlackBerrySetupWizard::BlackBerrySetupWizard(QWidget *parent) :
             this, SLOT(processNextStep()));
 
     registerStep("requestDevicePin", tr("Reading device PIN..."));
-    registerStep("createKeys", tr("Registering CSJ keys..."));
     registerStep("generateDeveloperCertificate", tr("Generating developer certificate..."));
     registerStep("generateSshKeys", tr("Generating SSH keys..."));
     registerStep("requestDebugToken", tr("Requesting a debug token for the device..."));
@@ -163,18 +161,6 @@ void BlackBerrySetupWizard::deviceInfoFinished(int status)
     emit stepFinished();
 }
 
-void BlackBerrySetupWizard::registrarFinished(int status,
-        const QString &errorString)
-{
-    if (status == BlackBerryCsjRegistrar::Error) {
-        QMessageBox::critical(this, tr("Error"), errorString);
-        reset();
-        return;
-    }
-
-    emit stepFinished();
-}
-
 void BlackBerrySetupWizard::certificateCreated(int status)
 {
     if (status == BlackBerryCertificate::Error) {
@@ -184,9 +170,6 @@ void BlackBerrySetupWizard::certificateCreated(int status)
         reset();
         return;
     }
-
-    BlackBerryConfigurationManager &configManager = BlackBerryConfigurationManager::instance();
-    configManager.addCertificate(m_certificate);
 
     emit stepFinished();
 }
@@ -200,6 +183,7 @@ void BlackBerrySetupWizard::debugTokenArrived(int status)
         emit stepFinished();
         return;
     case BlackBerryDebugTokenRequester::WrongCskPassword:
+        m_utils.clearCskPassword();
         errorString += tr("Wrong CSK password.");
         break;
     case BlackBerryDebugTokenRequester::WrongKeystorePassword:
@@ -225,6 +209,8 @@ void BlackBerrySetupWizard::debugTokenArrived(int status)
         errorString += tr("Failed to communicate with the inferior process.");
         break;
     case BlackBerryDebugTokenRequester::UnknownError:
+    default:
+        m_utils.clearCskPassword();
         errorString += tr("An unknwon error has occurred.");
         break;
     }
@@ -299,11 +285,7 @@ void BlackBerrySetupWizard::cleanupFiles() const
 {
     BlackBerryConfigurationManager &configuration = BlackBerryConfigurationManager::instance();
 
-    QFile f(configuration.barsignerCskPath());
-    f.remove();
-
-    f.setFileName(configuration.barsignerDbPath());
-    f.remove();
+    QFile f;
 
     f.setFileName(configuration.defaultKeystorePath());
     f.remove();
@@ -327,8 +309,7 @@ void BlackBerrySetupWizard::reset()
     m_currentStep = -1;
 
     if (m_certificate) {
-        BlackBerryConfigurationManager &configuration = BlackBerryConfigurationManager::instance();
-        configuration.removeCertificate(m_certificate);
+        m_certificate->deleteLater();
         m_certificate = 0;
     }
 }
@@ -343,20 +324,12 @@ void BlackBerrySetupWizard::requestDevicePin()
     m_deviceInfo->setDeviceTarget(hostName(), devicePassword());
 }
 
-void BlackBerrySetupWizard::createKeys()
-{
-    QStringList csjFiles;
-    csjFiles << rdkPath() << pbdtPath();
-
-    m_registrar->tryRegister(csjFiles, csjPin(), password());
-}
-
 void BlackBerrySetupWizard::generateDeveloperCertificate()
 {
     BlackBerryConfigurationManager &configuration = BlackBerryConfigurationManager::instance();
 
     m_certificate = new BlackBerryCertificate(configuration.defaultKeystorePath(),
-            BlackBerryUtils::getCsjAuthor(rdkPath()), password());
+            certificateAuthor(), certificatePassword());
 
     connect(m_certificate, SIGNAL(finished(int)), this, SLOT(certificateCreated(int)));
 
@@ -433,7 +406,7 @@ void BlackBerrySetupWizard::requestDebugToken()
     BlackBerryConfigurationManager &configuration = BlackBerryConfigurationManager::instance();
 
     m_requester->requestDebugToken(configuration.defaultDebugTokenPath(),
-            password(), configuration.defaultKeystorePath(), password(), m_devicePin);
+            m_utils.cskPassword(), configuration.defaultKeystorePath(), certificatePassword(), m_devicePin);
 }
 
 void BlackBerrySetupWizard::uploadDebugToken()
@@ -453,6 +426,8 @@ void BlackBerrySetupWizard::writeDeviceInformation()
 {
     DeviceManager * const deviceManager = DeviceManager::instance();
     deviceManager->addDevice(device());
+
+    m_utils.setDefaultCertificate(m_certificate);
 
     QWizard::accept();
 }
@@ -477,24 +452,14 @@ QString BlackBerrySetupWizard::storeLocation() const
     return Core::ICore::userResourcePath() + QLatin1String("/qnx/") + deviceName();
 }
 
-QString BlackBerrySetupWizard::rdkPath() const
+QString BlackBerrySetupWizard::certificatePassword() const
 {
-    return field(QLatin1String(BlackBerrySetupWizardKeysPage::RdkPathField)).toString();
+    return field(QLatin1String(BlackBerrySetupWizardCertificatePage::PasswordField)).toString();
 }
 
-QString BlackBerrySetupWizard::pbdtPath() const
+QString BlackBerrySetupWizard::certificateAuthor() const
 {
-    return field(QLatin1String(BlackBerrySetupWizardKeysPage::PbdtPathField)).toString();
-}
-
-QString BlackBerrySetupWizard::csjPin() const
-{
-    return field(QLatin1String(BlackBerrySetupWizardKeysPage::CsjPinField)).toString();
-}
-
-QString BlackBerrySetupWizard::password() const
-{
-    return field(QLatin1String(BlackBerrySetupWizardKeysPage::PasswordField)).toString();
+    return field(QLatin1String(BlackBerrySetupWizardCertificatePage::AuthorField)).toString();
 }
 
 QString BlackBerrySetupWizard::hostName() const

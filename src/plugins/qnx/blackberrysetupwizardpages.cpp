@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
+** Copyright (C) 2013 BlackBerry Limited. All rights reserved.
 **
-** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -32,7 +32,9 @@
 #include "blackberrysetupwizardpages.h"
 #include "blackberryndksettingswidget.h"
 #include "blackberryconfiguration.h"
+#include "blackberrysigningutils.h"
 #include "ui_blackberrysetupwizardkeyspage.h"
+#include "ui_blackberrysetupwizardcertificatepage.h"
 #include "ui_blackberrysetupwizarddevicepage.h"
 #include "ui_blackberrysetupwizardfinishpage.h"
 
@@ -103,18 +105,12 @@ bool BlackBerrySetupWizardNdkPage::isComplete() const
 
 //-----------------------------------------------------------------------------
 
-const char BlackBerrySetupWizardKeysPage::PbdtPathField[] = "KeysPage::PbdtPath";
-const char BlackBerrySetupWizardKeysPage::RdkPathField[] = "KeysPage::RdkPath";
-const char BlackBerrySetupWizardKeysPage::CsjPinField[] = "KeysPage::CsjPin";
-const char BlackBerrySetupWizardKeysPage::PasswordField[] = "KeysPage::Password";
-const char BlackBerrySetupWizardKeysPage::Password2Field[] = "KeysPage::Password2";
-
 BlackBerrySetupWizardKeysPage::BlackBerrySetupWizardKeysPage(QWidget *parent) :
     QWizardPage(parent),
     m_ui(0),
     m_complete(false)
 {
-    setTitle(tr("Register Signing Keys"));
+    setTitle(tr("Setup Signing Keys"));
 
     initUi();
 }
@@ -123,29 +119,6 @@ BlackBerrySetupWizardKeysPage::~BlackBerrySetupWizardKeysPage()
 {
     delete m_ui;
     m_ui = 0;
-}
-
-void BlackBerrySetupWizardKeysPage::validateFields()
-{
-    if (!m_ui->pbdtPath->isValid()
-            || !m_ui->rdkPath->isValid()
-            || m_ui->csjPin->text().isEmpty()
-            || m_ui->password->text().isEmpty()
-            || m_ui->password2->text().isEmpty()) {
-        m_ui->statusLabel->clear();
-        setComplete(false);
-        return;
-    }
-
-    if (m_ui->password->text() != m_ui->password2->text()) {
-        m_ui->statusLabel->setText(tr("Passwords do not match."));
-        setComplete(false);
-        return;
-    }
-
-    m_ui->statusLabel->clear();
-
-    setComplete(true);
 }
 
 void BlackBerrySetupWizardKeysPage::showKeysMessage(const QString &url)
@@ -169,72 +142,125 @@ bool BlackBerrySetupWizardKeysPage::isComplete() const
 
 void BlackBerrySetupWizardKeysPage::initUi()
 {
+    BlackBerrySigningUtils &utils = BlackBerrySigningUtils::instance();
+
     m_ui = new Ui::BlackBerrySetupWizardKeysPage;
     m_ui->setupUi(this);
-    m_ui->statusLabel->clear();
 
-    setupCsjPathChooser(m_ui->pbdtPath);
-    setupCsjPathChooser(m_ui->rdkPath);
+    if (utils.hasLegacyKeys()) {
+        m_ui->linkLabel->setVisible(false);
+        m_ui->legacyLabel->setVisible(true);
+        m_ui->statusLabel->setVisible(false);
 
-    connect(m_ui->pbdtPath, SIGNAL(changed(QString)),
-            this, SLOT(csjAutoComplete(QString)));
-    connect(m_ui->rdkPath, SIGNAL(changed(QString)),
-            this, SLOT(csjAutoComplete(QString)));
-    connect(m_ui->pbdtPath, SIGNAL(changed(QString)), this, SLOT(validateFields()));
-    connect(m_ui->rdkPath, SIGNAL(changed(QString)), this, SLOT(validateFields()));
-    connect(m_ui->csjPin, SIGNAL(textChanged(QString)), this, SLOT(validateFields()));
-    connect(m_ui->password, SIGNAL(textChanged(QString)), this, SLOT(validateFields()));
-    connect(m_ui->password2, SIGNAL(textChanged(QString)), this, SLOT(validateFields()));
-    connect(m_ui->linkLabel, SIGNAL(linkActivated(QString)),
-            this, SLOT(showKeysMessage(QString)));
+        setComplete(false);
+    } else if (utils.hasRegisteredKeys()) {
+        m_ui->linkLabel->setVisible(false);
+        m_ui->legacyLabel->setVisible(false);
+        m_ui->statusLabel->setVisible(true);
 
-    registerField(QLatin1String(PbdtPathField) + QLatin1Char('*'),
-            m_ui->pbdtPath, "path", SIGNAL(changed(QString)));
-    registerField(QLatin1String(RdkPathField) + QLatin1Char('*'),
-            m_ui->rdkPath, "path", SIGNAL(changed(QString)));
-    registerField(QLatin1String(CsjPinField) + QLatin1Char('*'),
-            m_ui->csjPin);
-    registerField(QLatin1String(PasswordField) + QLatin1Char('*'),
-            m_ui->password);
-    registerField(QLatin1String(Password2Field) + QLatin1Char('*'),
-            m_ui->password2);
-}
+        setComplete(true);
+    } else {
+        m_ui->linkLabel->setVisible(true);
+        m_ui->legacyLabel->setVisible(false);
+        m_ui->statusLabel->setVisible(false);
 
-void BlackBerrySetupWizardKeysPage::csjAutoComplete(const QString &path)
-{
-    Utils::PathChooser *chooser = 0;
-    QString file = path;
-
-    if (file.contains(QLatin1String("PBDT"))) {
-        file.replace(QLatin1String("PBDT"), QLatin1String("RDK"));
-        chooser = m_ui->rdkPath;
-    } else if (file.contains(QLatin1String("RDK"))) {
-        file.replace(QLatin1String("RDK"), QLatin1String("PBDT"));
-        chooser = m_ui->pbdtPath;
+        setComplete(false);
     }
 
-    if (!chooser)
-        return;
-
-    QFileInfo fileInfo(file);
-
-    if (fileInfo.exists())
-        chooser->setPath(file);
-}
-
-void BlackBerrySetupWizardKeysPage::setupCsjPathChooser(Utils::PathChooser *chooser)
-{
-    chooser->setExpectedKind(Utils::PathChooser::File);
-    chooser->setPromptDialogTitle(tr("Browse CSJ File"));
-    chooser->setPromptDialogFilter(tr("CSJ files (*.csj)"));
+    connect(m_ui->linkLabel, SIGNAL(linkActivated(QString)),
+            this, SLOT(showKeysMessage(QString)));
+    connect(m_ui->legacyLabel, SIGNAL(linkActivated(QString)),
+            this, SLOT(showKeysMessage(QString)));
 }
 
 void BlackBerrySetupWizardKeysPage::setComplete(bool complete)
 {
     if (m_complete != complete) {
         m_complete = complete;
+        m_ui->linkLabel->setVisible(!complete);
+        m_ui->statusLabel->setVisible(complete);
         emit completeChanged();
     }
+}
+
+//-----------------------------------------------------------------------------
+
+const char BlackBerrySetupWizardCertificatePage::AuthorField[] = "CertificatePage::Author";
+const char BlackBerrySetupWizardCertificatePage::PasswordField[] = "CertificatePage::Password";
+const char BlackBerrySetupWizardCertificatePage::PasswordField2[] = "CertificatePage::Password2";
+
+BlackBerrySetupWizardCertificatePage::BlackBerrySetupWizardCertificatePage(QWidget *parent)
+    : QWizardPage(parent),
+    m_ui(0),
+    m_complete(false)
+{
+    setTitle(tr("Create Developer Certificate"));
+
+    initUi();
+}
+
+bool BlackBerrySetupWizardCertificatePage::isComplete() const
+{
+    return m_complete;
+}
+
+void BlackBerrySetupWizardCertificatePage::validate()
+{
+    if (m_ui->author->text().isEmpty()
+            || m_ui->password->text().isEmpty()
+            || m_ui->password2->text().isEmpty()) {
+        m_ui->status->clear();
+        setComplete(false);
+        return;
+    }
+
+    if (m_ui->password->text() != m_ui->password2->text()) {
+        m_ui->status->setText(tr("The entered passwords do not match."));
+        setComplete(false);
+        return;
+    }
+
+    m_ui->status->clear();
+    setComplete(true);
+}
+
+void BlackBerrySetupWizardCertificatePage::checkBoxChanged(int state)
+{
+    if (state == Qt::Checked) {
+        m_ui->password->setEchoMode(QLineEdit::Normal);
+        m_ui->password2->setEchoMode(QLineEdit::Normal);
+    } else {
+        m_ui->password->setEchoMode(QLineEdit::Password);
+        m_ui->password2->setEchoMode(QLineEdit::Password);
+    }
+}
+
+void BlackBerrySetupWizardCertificatePage::setComplete(bool complete)
+{
+    if (m_complete != complete) {
+        m_complete = complete;
+        emit completeChanged();
+    }
+}
+
+void BlackBerrySetupWizardCertificatePage::initUi()
+{
+    m_ui = new Ui::BlackBerrySetupWizardCertificatePage;
+    m_ui->setupUi(this);
+    m_ui->status->clear();
+
+    connect(m_ui->author, SIGNAL(textChanged(QString)),
+            this, SLOT(validate()));
+    connect(m_ui->password, SIGNAL(textChanged(QString)),
+            this, SLOT(validate()));
+    connect(m_ui->password2, SIGNAL(textChanged(QString)),
+            this, SLOT(validate()));
+    connect(m_ui->showPassword, SIGNAL(stateChanged(int)),
+            this, SLOT(checkBoxChanged(int)));
+
+    registerField(QLatin1String(AuthorField) + QLatin1Char('*'), m_ui->author);
+    registerField(QLatin1String(PasswordField) + QLatin1Char('*'), m_ui->password);
+    registerField(QLatin1String(PasswordField2) + QLatin1Char('*'), m_ui->password2);
 }
 
 //-----------------------------------------------------------------------------

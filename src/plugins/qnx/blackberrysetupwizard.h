@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
+** Copyright (C) 2013 BlackBerry Limited. All rights reserved.
 **
-** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -48,13 +48,14 @@ namespace Internal {
 class BlackBerrySetupWizardWelcomePage;
 class BlackBerrySetupWizardNdkPage;
 class BlackBerrySetupWizardKeysPage;
+class BlackBerrySetupWizardCertificatePage;
 class BlackBerrySetupWizardDevicePage;
 class BlackBerrySetupWizardFinishPage;
-class BlackBerryCsjRegistrar;
 class BlackBerryCertificate;
 class BlackBerryDeviceInformation;
 class BlackBerryDebugTokenRequester;
 class BlackBerryDebugTokenUploader;
+class BlackBerrySigningUtils;
 
 class BlackBerrySetupWizard : public QWizard
 {
@@ -72,12 +73,10 @@ signals:
 private slots:
     void processNextStep();
     void deviceInfoFinished(int status);
-    void registrarFinished(int status, const QString &errorString);
     void certificateCreated(int status);
     void debugTokenArrived(int status);
     void uploaderFinished(int status);
     void requestDevicePin();
-    void createKeys();
     void generateDeveloperCertificate();
     void generateSshKeys();
     void requestDebugToken();
@@ -89,6 +88,7 @@ private:
         WelcomePageId,
         NdkPageId,
         KeysPageId,
+        CertificatePageId,
         DevicePageId,
         FinishPageId
     };
@@ -107,10 +107,8 @@ private:
     QString publicKeyPath() const;
     QString deviceName() const;
     QString storeLocation() const;
-    QString rdkPath() const;
-    QString pbdtPath() const;
-    QString csjPin() const;
-    QString password() const;
+    QString certificatePassword() const;
+    QString certificateAuthor() const;
     QString devicePassword() const;
     QString hostName() const;
 
@@ -121,14 +119,15 @@ private:
     BlackBerrySetupWizardWelcomePage *m_welcomePage;
     BlackBerrySetupWizardNdkPage *m_ndkPage;
     BlackBerrySetupWizardKeysPage *m_keysPage;
+    BlackBerrySetupWizardCertificatePage *m_certificatePage;
     BlackBerrySetupWizardDevicePage *m_devicePage;
     BlackBerrySetupWizardFinishPage *m_finishPage;
 
-    BlackBerryCsjRegistrar *m_registrar;
     BlackBerryCertificate *m_certificate;
     BlackBerryDeviceInformation *m_deviceInfo;
     BlackBerryDebugTokenRequester *m_requester;
     BlackBerryDebugTokenUploader *m_uploader;
+    BlackBerrySigningUtils &m_utils;
 
     QSsh::SshKeyGenerator *m_keyGenerator;
 

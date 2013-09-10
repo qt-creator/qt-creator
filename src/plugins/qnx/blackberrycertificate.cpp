@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
+** Copyright (C) 2013 BlackBerry Limited. All rights reserved.
 **
-** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -50,6 +50,7 @@ BlackBerryCertificate::BlackBerryCertificate(const QString &fileName,
     m_storePass(storePass),
     m_process(new QProcess(this))
 {
+    m_process->setProcessChannelMode(QProcess::MergedChannels);
 }
 
 void BlackBerryCertificate::load()
@@ -142,9 +143,11 @@ void BlackBerryCertificate::loadFinished()
     while (!processOutput.atEnd()) {
         QString chunk = processOutput.readLine();
 
-        if (chunk.contains(
-                QLatin1String("Error: Failed to decrypt keystore, invalid password"))) {
+        if (chunk.contains(QLatin1String("invalid password"))) {
             status = WrongPassword;
+            break;
+        } else if (chunk.contains(QLatin1String("must be at least 6 characters"))) {
+            status = PasswordTooSmall;
             break;
         } else if (chunk.startsWith(QLatin1String("Owner:"))) {
             chunk.remove(QLatin1String("Owner:"));

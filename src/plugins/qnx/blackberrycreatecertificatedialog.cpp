@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
+** Copyright (C) 2013 BlackBerry Limited. All rights reserved.
 **
-** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -31,6 +31,7 @@
 
 #include "blackberrycreatecertificatedialog.h"
 #include "blackberrycertificate.h"
+#include "blackberryconfigurationmanager.h"
 #include "ui_blackberrycreatecertificatedialog.h"
 
 #include <QPushButton>
@@ -49,9 +50,6 @@ BlackBerryCreateCertificateDialog::BlackBerryCreateCertificateDialog(
 {
     m_ui->setupUi(this);
     m_ui->progressBar->hide();
-    m_ui->certPath->setExpectedKind(Utils::PathChooser::Any);
-    m_ui->certPath->setPromptDialogTitle(tr("Create Certificate"));
-    m_ui->certPath->setPromptDialogFilter(tr("PKCS 12 archives (*.p12)"));
     m_ui->status->clear();
 
     m_cancelButton = m_ui->buttonBox->button(QDialogButtonBox::Cancel);
@@ -64,10 +62,6 @@ BlackBerryCreateCertificateDialog::BlackBerryCreateCertificateDialog(
             this, SLOT(reject()));
     connect(m_okButton, SIGNAL(clicked()),
             this, SLOT(createCertificate()));
-    connect(m_ui->certPath, SIGNAL(changed(QString)),
-            this, SLOT(validate()));
-    connect(m_ui->certPath, SIGNAL(editingFinished()),
-            this, SLOT(appendExtension()));
     connect(m_ui->author, SIGNAL(textChanged(QString)),
             this, SLOT(validate()));
     connect(m_ui->password, SIGNAL(textChanged(QString)),
@@ -85,7 +79,7 @@ QString BlackBerryCreateCertificateDialog::author() const
 
 QString BlackBerryCreateCertificateDialog::certPath() const
 {
-    return m_ui->certPath->path();
+    return BlackBerryConfigurationManager::instance().defaultKeystorePath();
 }
 
 QString BlackBerryCreateCertificateDialog::keystorePassword() const
@@ -100,8 +94,7 @@ BlackBerryCertificate * BlackBerryCreateCertificateDialog::certificate() const
 
 void BlackBerryCreateCertificateDialog::validate()
 {
-    if (!m_ui->certPath->isValid()
-            || m_ui->author->text().isEmpty()
+    if (m_ui->author->text().isEmpty()
             || m_ui->password->text().isEmpty()
             || m_ui->password2->text().isEmpty()) {
         m_ui->status->clear();
@@ -109,7 +102,7 @@ void BlackBerryCreateCertificateDialog::validate()
         return;
     }
 
-    QFileInfo fileInfo(m_ui->certPath->path());
+    QFileInfo fileInfo(certPath());
 
     if (!fileInfo.dir().exists()) {
         m_ui->status->setText(tr("Base directory does not exist."));
@@ -123,6 +116,12 @@ void BlackBerryCreateCertificateDialog::validate()
         return;
     }
 
+    if (m_ui->password->text().size() < 6) {
+        m_ui->status->setText(tr("Password must be at least 6 characters long."));
+        m_okButton->setEnabled(false);
+        return;
+    }
+
     m_ui->status->clear();
     m_okButton->setEnabled(true);
 }
@@ -131,7 +130,7 @@ void BlackBerryCreateCertificateDialog::createCertificate()
 {
     setBusy(true);
 
-    QFile file(m_ui->certPath->path());
+    QFile file(certPath());
 
     if (file.exists()) {
         const int result = QMessageBox::question(this, tr("Are you sure?"),
@@ -153,16 +152,6 @@ void BlackBerryCreateCertificateDialog::createCertificate()
     m_certificate->store();
 }
 
-void BlackBerryCreateCertificateDialog::appendExtension()
-{
-    QString path = m_ui->certPath->path();
-
-    if (!path.endsWith(QLatin1String(".p12"))) {
-        path += QLatin1String(".p12");
-        m_ui->certPath->setPath(path);
-    }
-}
-
 void BlackBerryCreateCertificateDialog::checkBoxChanged(int state)
 {
     if (state == Qt::Checked) {
@@ -176,22 +165,41 @@ void BlackBerryCreateCertificateDialog::checkBoxChanged(int state)
 
 void BlackBerryCreateCertificateDialog::certificateCreated(int status)
 {
-    if (status == BlackBerryCertificate::Success) {
+    QString errorMessage;
+
+    switch (status) {
+    case BlackBerryCertificate::Success:
         accept();
-    } else {
-        m_certificate->deleteLater();
-        m_certificate = 0;
-        QMessageBox::critical(this, tr("Error"),
-                tr("An unknown error occurred while creating the certificate."));
-        reject();
+        return;
+    case BlackBerryCertificate::Busy:
+        errorMessage = tr("The blackberry-keytool process is already running");
+        break;
+    case BlackBerryCertificate::WrongPassword:
+        errorMessage = tr("The enteres password is invalid");
+        break;
+    case BlackBerryCertificate::PasswordTooSmall:
+        errorMessage = tr("The enteres password is too small");
+        break;
+    case BlackBerryCertificate::InvalidOutputFormat:
+        errorMessage = tr("Invalid output format");
+        break;
+    case BlackBerryCertificate::Error:
+    default:
+        errorMessage = tr("An unknown error occurred");
+        break;
     }
+
+    m_certificate->deleteLater();
+    m_certificate = 0;
+    QMessageBox::critical(this, tr("Error"), errorMessage);
+
+    reject();
 }
 
 void BlackBerryCreateCertificateDialog::setBusy(bool busy)
 {
     m_okButton->setEnabled(!busy);
     m_cancelButton->setEnabled(!busy);
-    m_ui->certPath->setEnabled(!busy);
     m_ui->author->setEnabled(!busy);
     m_ui->password->setEnabled(!busy);
     m_ui->password2->setEnabled(!busy);

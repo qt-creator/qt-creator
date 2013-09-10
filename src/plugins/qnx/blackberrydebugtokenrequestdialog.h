@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
+** Copyright (C) 2013 BlackBerry Limited. All rights reserved.
 **
-** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -44,6 +44,7 @@ namespace Internal {
 class Ui_BlackBerryDebugTokenRequestDialog;
 class BlackBerryDebugTokenRequester;
 class BlackBerryDeviceInformation;
+class BlackBerrySigningUtils;
 
 class BlackBerryDebugTokenRequestDialog : public QDialog
 {
@@ -64,18 +65,17 @@ private slots:
     void setDefaultPath();
     void appendExtension();
     void expandPath();
-    void checkBoxChanged(int state);
     void debugTokenArrived(int status);
     void setDevicePin(int status);
 
 private:
     void setBusy(bool busy);
-    void populateComboBox();
 
     Ui_BlackBerryDebugTokenRequestDialog *m_ui;
 
     BlackBerryDebugTokenRequester *m_requester;
     BlackBerryDeviceInformation *m_deviceInfo;
+    BlackBerrySigningUtils &m_utils;
 
     QPushButton *m_cancelButton;
     QPushButton *m_okButton;

@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
+** Copyright (C) 2013 BlackBerry Limited. All rights reserved.
 **
-** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -30,18 +30,13 @@
 ****************************************************************************/
 
 #include "blackberrykeyswidget.h"
-#include "blackberryregisterkeydialog.h"
 #include "blackberryconfigurationmanager.h"
-#include "blackberrycertificatemodel.h"
-#include "blackberryimportcertificatedialog.h"
-#include "blackberrycreatecertificatedialog.h"
 #include "blackberrycertificate.h"
-#include "blackberryutils.h"
+#include "blackberrysigningutils.h"
+#include "blackberrycreatecertificatedialog.h"
 #include "ui_blackberrykeyswidget.h"
 
-#include <QFileInfo>
-#include <QHeaderView>
-#include <QItemSelectionModel>
+#include <QInputDialog>
 #include <QMessageBox>
 
 namespace Qnx {
@@ -49,75 +44,49 @@ namespace Internal {
 
 BlackBerryKeysWidget::BlackBerryKeysWidget(QWidget *parent) :
     QWidget(parent),
-    m_ui(new Ui_BlackBerryKeysWidget),
-    m_model(new BlackBerryCertificateModel(this))
+    m_utils(BlackBerrySigningUtils::instance()),
+    m_ui(new Ui_BlackBerryKeysWidget)
 {
     m_ui->setupUi(this);
-    m_ui->certificatesView->setModel(m_model);
-    m_ui->certificatesView->resizeColumnsToContents();
+    m_ui->keyStatus->setTextFormat(Qt::RichText);
+    m_ui->keyStatus->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    m_ui->keyStatus->setOpenExternalLinks(true);
+    m_ui->openCertificateButton->setVisible(false);
 
-    QHeaderView *headerView = m_ui->certificatesView->horizontalHeader();
-    headerView->setResizeMode(QHeaderView::Stretch);
-    headerView->setResizeMode(2, QHeaderView::Fixed);
-
-    QItemSelectionModel *selectionModel = m_ui->certificatesView->selectionModel();
-    connect(selectionModel, SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SLOT(handleSelectionChanged(QItemSelection,QItemSelection)));
-
-    updateRegisterSection();
-
-    connect(m_ui->registerButton, SIGNAL(clicked()), this, SLOT(registerKey()));
-    connect(m_ui->unregisterButton, SIGNAL(clicked()), this, SLOT(unregisterKey()));
-    connect(m_ui->createCertificate, SIGNAL(clicked()), this, SLOT(createCertificate()));
-    connect(m_ui->importCertificate, SIGNAL(clicked()), this, SLOT(importCertificate()));
-    connect(m_ui->deleteCertificate, SIGNAL(clicked()), this, SLOT(deleteCertificate()));
+    connect(m_ui->createCertificateButton, SIGNAL(clicked()),
+            this, SLOT(createCertificate()));
+    connect(m_ui->clearCertificateButton, SIGNAL(clicked()),
+            this, SLOT(clearCertificate()));
+    connect(m_ui->openCertificateButton, SIGNAL(clicked()),
+            this, SLOT(loadDefaultCertificate()));
 }
 
-void BlackBerryKeysWidget::apply()
+void BlackBerryKeysWidget::certificateLoaded(int status)
 {
-    BlackBerryConfigurationManager &configManager = BlackBerryConfigurationManager::instance();
+    disconnect(&m_utils, SIGNAL(defaultCertificateLoaded(int)), this, SLOT(certificateLoaded(int)));
 
-    configManager.syncCertificates(m_model->certificates(), m_model->activeCertificate());
-}
-
-void BlackBerryKeysWidget::registerKey()
-{
-    BlackBerryRegisterKeyDialog dialog;
-
-    const int result = dialog.exec();
-
-    if (result != QDialog::Accepted)
-        return;
-
-    BlackBerryCertificate *cert = dialog.certificate();
-
-    if (cert) {
-        if (!m_model->insertCertificate(cert))
-            QMessageBox::information(this, tr("Error"), tr("Could not insert default certificate."));
+    switch (status) {
+    case BlackBerryCertificate::Success:
+        m_ui->certificateAuthor->setText(m_utils.defaultCertificate()->author());
+        m_ui->openCertificateButton->setVisible(false);
+        break;
+    case BlackBerryCertificate::WrongPassword:
+        if (QMessageBox::question(this, tr("Qt Creator"),
+                    tr("Invalid certificate password. Try again?"),
+                    QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+            loadDefaultCertificate();
+        } else {
+            m_ui->certificateAuthor->clear();
+            m_ui->openCertificateButton->setVisible(true);
+        }
+        break;
+    case BlackBerryCertificate::Busy:
+    case BlackBerryCertificate::InvalidOutputFormat:
+    case BlackBerryCertificate::Error:
+        setCertificateError(tr("Error loading certificate!"));
+        m_ui->openCertificateButton->setVisible(true);
+        break;
     }
-
-    updateRegisterSection();
-}
-
-void BlackBerryKeysWidget::unregisterKey()
-{
-    const QMessageBox::StandardButton answer =
-        QMessageBox::question(this, tr("Unregister Key"),
-        tr("Do you really want to unregister your key? This action cannot be undone."),
-        QMessageBox::Yes | QMessageBox::No);
-
-    if (answer & QMessageBox::No)
-        return;
-
-    BlackBerryConfigurationManager &configManager = BlackBerryConfigurationManager::instance();
-
-    QFile f(configManager.barsignerCskPath());
-    f.remove();
-
-    f.setFileName(configManager.barsignerDbPath());
-    f.remove();
-
-    updateRegisterSection();
 }
 
 void BlackBerryKeysWidget::createCertificate()
@@ -129,62 +98,93 @@ void BlackBerryKeysWidget::createCertificate()
     if (result == QDialog::Rejected)
         return;
 
-    BlackBerryCertificate *cert = dialog.certificate();
+    BlackBerryCertificate *certificate = dialog.certificate();
 
-    if (cert) {
-        if (!m_model->insertCertificate(cert))
-            QMessageBox::information(this, tr("Error"), tr("Error storing certificate."));
+    if (certificate) {
+        m_utils.setDefaultCertificate(certificate);
+        updateCertificateSection();
     }
 }
 
-void BlackBerryKeysWidget::importCertificate()
+void BlackBerryKeysWidget::clearCertificate()
 {
-    BlackBerryImportCertificateDialog dialog;
-
-    const int result = dialog.exec();
-
-    if (result == QDialog::Rejected)
-        return;
-
-    BlackBerryCertificate *cert = dialog.certificate();
-
-    if (cert) {
-        if (!m_model->insertCertificate(cert))
-            QMessageBox::information(this, tr("Error"), tr("This certificate already exists."));
+    if (QMessageBox::warning(this, tr("Qt Creator"),
+                tr("This action cannot be undone. Would you like to continue?"),
+                QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+        m_utils.deleteDefaultCertificate();
+        updateCertificateSection();
     }
 }
 
-void BlackBerryKeysWidget::deleteCertificate()
+void BlackBerryKeysWidget::showEvent(QShowEvent *)
 {
-    const int result = QMessageBox::question(this, tr("Delete Certificate"),
-            tr("Are you sure you want to delete this certificate?"),
-            QMessageBox::Yes | QMessageBox::No);
-
-    if (result & QMessageBox::No)
-        return;
-
-    m_model->removeRow(m_ui->certificatesView->selectionModel()->currentIndex().row());
+    updateKeysSection();
+    updateCertificateSection();
 }
 
-void BlackBerryKeysWidget::handleSelectionChanged(const QItemSelection &selected,
-        const QItemSelection &deselected)
+void BlackBerryKeysWidget::updateCertificateSection()
 {
-    Q_UNUSED(deselected);
+    if (m_utils.hasDefaultCertificate()) {
+        setCreateCertificateVisible(false);
 
-    m_ui->deleteCertificate->setEnabled(!selected.indexes().isEmpty());
-}
+        BlackBerryConfigurationManager &configManager = BlackBerryConfigurationManager::instance();
 
-void BlackBerryKeysWidget::updateRegisterSection()
-{
-    if (BlackBerryUtils::hasRegisteredKeys()) {
-        m_ui->registerButton->hide();
-        m_ui->unregisterButton->show();
-        m_ui->registeredLabel->setText(tr("Registered: Yes"));
+        m_ui->certificatePath->setText(configManager.defaultKeystorePath());
+        m_ui->certificateAuthor->setText(tr("Loading..."));
+
+        loadDefaultCertificate();
     } else {
-        m_ui->registerButton->show();
-        m_ui->unregisterButton->hide();
-        m_ui->registeredLabel->setText(tr("Registered: No"));
+        setCreateCertificateVisible(true);
     }
+}
+
+void BlackBerryKeysWidget::updateKeysSection()
+{
+    if (m_utils.hasLegacyKeys()) {
+        m_ui->keyStatus->setText(tr("It appears you are using legacy key files. "
+                    "Please refer to the "
+                    "<a href=\"https://developer.blackberry.com/native/documentation"
+                    "/core/com.qnx.doc.native_sdk.devguide/com.qnx.doc.native_sdk.devguide/topic/bbid_to_sa.html\">"
+                    "BlackBerry website</a> to find out how to update your keys."));
+    } else if (m_utils.hasRegisteredKeys()) {
+        m_ui->keyStatus->setText(tr("Your keys are ready to be used"));
+    } else {
+        m_ui->keyStatus->setText(tr("No keys found. Please refer to the "
+                    "<a href=\"https://www.blackberry.com/SignedKeys/codesigning.html\">BlackBerry website</a> "
+                    "to find out how to request your keys."));
+    }
+}
+
+void BlackBerryKeysWidget::loadDefaultCertificate()
+{
+    const BlackBerryCertificate *certificate = m_utils.defaultCertificate();
+
+    if (certificate) {
+        m_ui->certificateAuthor->setText(certificate->author());
+        m_ui->openCertificateButton->setVisible(false);
+        return;
+    }
+
+    connect(&m_utils, SIGNAL(defaultCertificateLoaded(int)), this, SLOT(certificateLoaded(int)));
+    m_utils.openDefaultCertificate();
+}
+
+void BlackBerryKeysWidget::setCertificateError(const QString &error)
+{
+    m_ui->certificateAuthor->clear();
+    QMessageBox::critical(this, tr("Qt Creator"), error);
+}
+
+void BlackBerryKeysWidget::setCreateCertificateVisible(bool visible)
+{
+    m_ui->pathLabel->setVisible(!visible);
+    m_ui->authorLabel->setVisible(!visible);
+    m_ui->certificatePath->setVisible(!visible);
+    m_ui->certificateAuthor->setVisible(!visible);
+    m_ui->clearCertificateButton->setVisible(!visible);
+    m_ui->openCertificateButton->setVisible(!visible);
+    m_ui->noCertificateLabel->setVisible(visible);
+    m_ui->createCertificateButton->setVisible(visible);
 }
 
 } // namespace Internal

@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
+** Copyright (C) 2013 BlackBerry Limited. All rights reserved.
 **
-** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -44,11 +44,11 @@ namespace Ui {
 
 class BlackBerrySetupWizardKeysPage;
 class BlackBerrySetupWizardDevicePage;
+class BlackBerrySetupWizardCertificatePage;
 class BlackBerrySetupWizardFinishPage;
 
 } // namespace Ui
 
-class BlackBerryCsjRegistrar;
 class BlackBerryCertificate;
 class BlackBerryNDKSettingsWidget;
 
@@ -80,28 +80,46 @@ class BlackBerrySetupWizardKeysPage : public QWizardPage
 {
     Q_OBJECT
 public:
-    static const char PbdtPathField[];
-    static const char RdkPathField[];
-    static const char CsjPinField[];
-    static const char PasswordField[];
-    static const char Password2Field[];
-
     explicit BlackBerrySetupWizardKeysPage(QWidget *parent = 0);
     virtual ~BlackBerrySetupWizardKeysPage();
 
     bool isComplete() const;
 
 private slots:
-    void csjAutoComplete(const QString &path);
-    void validateFields();
     void showKeysMessage(const QString &url);
 
 private:
     void initUi();
-    void setupCsjPathChooser(Utils::PathChooser *chooser);
     void setComplete(bool complete);
 
     Ui::BlackBerrySetupWizardKeysPage *m_ui;
+    bool m_complete;
+};
+
+//-----------------------------------------------------------------------------
+
+class BlackBerrySetupWizardCertificatePage : public QWizardPage
+{
+    Q_OBJECT
+public:
+    static const char AuthorField[];
+    static const char PasswordField[];
+    static const char PasswordField2[];
+
+    explicit BlackBerrySetupWizardCertificatePage(QWidget *parent = 0);
+
+    bool isComplete() const;
+
+private slots:
+    void validate();
+    void checkBoxChanged(int state);
+
+private:
+    void setComplete(bool complete);
+    void initUi();
+
+    Ui::BlackBerrySetupWizardCertificatePage *m_ui;
+
     bool m_complete;
 };
 

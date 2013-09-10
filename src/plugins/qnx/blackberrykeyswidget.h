@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
+** Copyright (C) 2013 BlackBerry Limited. All rights reserved.
 **
-** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -35,16 +35,13 @@
 #include "blackberryconfiguration.h"
 
 #include <QWidget>
-#include <QStandardItemModel>
-
-QT_BEGIN_NAMESPACE
-class QItemSelection;
-QT_END_NAMESPACE
+#include <QString>
 
 namespace Qnx {
 namespace Internal {
 
-class BlackBerryCertificateModel;
+class BlackBerryCertificate;
+class BlackBerrySigningUtils;
 class Ui_BlackBerryKeysWidget;
 
 class BlackBerryKeysWidget : public QWidget
@@ -53,27 +50,24 @@ class BlackBerryKeysWidget : public QWidget
 public:
     explicit BlackBerryKeysWidget(QWidget *parent = 0);
 
-    void apply();
-
 private slots:
-    void registerKey();
-    void unregisterKey();
+    void certificateLoaded(int status);
     void createCertificate();
-    void importCertificate();
-    void deleteCertificate();
-    void handleSelectionChanged(
-            const QItemSelection &selected,
-            const QItemSelection &deselected);
+    void clearCertificate();
+    void loadDefaultCertificate();
+
+protected:
+    void showEvent(QShowEvent *event);
 
 private:
-    void updateRegisterSection();
+    void updateKeysSection();
+    void updateCertificateSection();
+    void setCertificateError(const QString &error);
+    void setCreateCertificateVisible(bool show);
 
-    QString dataDir() const;
-    QString cskFilePath() const;
-    QString dbFilePath() const;
+    BlackBerrySigningUtils &m_utils;
 
     Ui_BlackBerryKeysWidget *m_ui;
-    BlackBerryCertificateModel *m_model;
 };
 
 } // namespace Internal

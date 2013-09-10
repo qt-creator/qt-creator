@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
+** Copyright (C) 2013 BlackBerry Limited. All rights reserved.
 **
-** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -69,33 +69,6 @@ BlackBerryConfigurationManager::BlackBerryConfigurationManager(QObject *parent)
     :QObject(parent)
 {
     connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()), this, SLOT(saveSettings()));
-}
-
-void BlackBerryConfigurationManager::loadCertificates()
-{
-    QSettings *settings = Core::ICore::settings();
-
-    settings->beginGroup(SettingsGroup);
-    settings->beginGroup(CertificateGroup);
-
-    foreach (const QString &certificateId, settings->childGroups()) {
-        settings->beginGroup(certificateId);
-
-        BlackBerryCertificate *cert =
-                new BlackBerryCertificate(settings->value(QLatin1String(Qnx::Constants::QNX_KEY_PATH)).toString(),
-                                          settings->value(QLatin1String(Qnx::Constants::QNX_KEY_AUTHOR)).toString());
-        cert->setParent(this);
-
-        if (settings->value(QLatin1String(Qnx::Constants::QNX_KEY_ACTIVE)).toBool())
-            m_activeCertificate = cert;
-
-        m_certificates << cert;
-
-        settings->endGroup();
-    }
-
-    settings->endGroup();
-    settings->endGroup();
 }
 
 void BlackBerryConfigurationManager::loadManualConfigurations()
@@ -171,29 +144,6 @@ QStringList BlackBerryConfigurationManager::activeConfigurationNdkEnvPaths()
     settings->endGroup();
 
     return actives;
-}
-
-void BlackBerryConfigurationManager::saveCertificates()
-{
-    QSettings *settings = Core::ICore::settings();
-    settings->beginGroup(SettingsGroup);
-    settings->beginGroup(CertificateGroup);
-
-    settings->remove(QString());
-
-    foreach (const BlackBerryCertificate *cert, m_certificates) {
-        settings->beginGroup(cert->id());
-        settings->setValue(QLatin1String(Qnx::Constants::QNX_KEY_PATH), cert->fileName());
-        settings->setValue(QLatin1String(Qnx::Constants::QNX_KEY_AUTHOR), cert->author());
-
-        if (cert == m_activeCertificate)
-            settings->setValue(QLatin1String(Qnx::Constants::QNX_KEY_ACTIVE), true);
-
-        settings->endGroup();
-    }
-
-    settings->endGroup();
-    settings->endGroup();
 }
 
 void BlackBerryConfigurationManager::saveManualConfigurations()
@@ -331,52 +281,6 @@ BlackBerryConfiguration *BlackBerryConfigurationManager::configurationFromEnvFil
     return 0;
 }
 
-void BlackBerryConfigurationManager::syncCertificates(QList<BlackBerryCertificate*> certificates,
-                                                      BlackBerryCertificate *activeCertificate)
-{
-    m_activeCertificate = activeCertificate;
-
-    foreach (BlackBerryCertificate *cert, certificates) {
-        if (!certificates.contains(cert))
-            removeCertificate(cert);
-    }
-
-    foreach (BlackBerryCertificate *cert, certificates)
-        addCertificate(cert);
-}
-
-void BlackBerryConfigurationManager::addCertificate(BlackBerryCertificate *certificate)
-{
-    if (m_certificates.contains(certificate))
-        return;
-
-    if (m_certificates.isEmpty())
-        m_activeCertificate = certificate;
-
-    certificate->setParent(this);
-    m_certificates << certificate;
-}
-
-void BlackBerryConfigurationManager::removeCertificate(BlackBerryCertificate *certificate)
-{
-    if (m_activeCertificate == certificate)
-        m_activeCertificate = 0;
-
-    m_certificates.removeAll(certificate);
-
-    delete certificate;
-}
-
-QList<BlackBerryCertificate*> BlackBerryConfigurationManager::certificates() const
-{
-    return m_certificates;
-}
-
-BlackBerryCertificate * BlackBerryConfigurationManager::activeCertificate()
-{
-    return m_activeCertificate;
-}
-
 // Returns a valid qnxEnv map from a valid configuration;
 // Needed by other classes to get blackberry process path (keys registration, debug token...)
 QMultiMap<QString, QString> BlackBerryConfigurationManager::defaultQnxEnv()
@@ -394,7 +298,6 @@ void BlackBerryConfigurationManager::loadSettings()
     clearInvalidConfigurations();
     loadAutoDetectedConfigurations();
     loadManualConfigurations();
-    loadCertificates();
 
     emit settingsLoaded();
 }
@@ -423,7 +326,6 @@ void BlackBerryConfigurationManager::saveSettings()
 {
     saveActiveConfigurationNdkEnvPath();
     saveManualConfigurations();
-    saveCertificates();
 }
 
 BlackBerryConfigurationManager &BlackBerryConfigurationManager::instance()
@@ -442,6 +344,11 @@ BlackBerryConfigurationManager::~BlackBerryConfigurationManager()
 QString BlackBerryConfigurationManager::barsignerCskPath() const
 {
     return QnxUtils::dataDirPath() + QLatin1String("/barsigner.csk");
+}
+
+QString BlackBerryConfigurationManager::idTokenPath() const
+{
+    return QnxUtils::dataDirPath() + QLatin1String("/bbidtoken.csk");
 }
 
 QString BlackBerryConfigurationManager::barsignerDbPath() const
