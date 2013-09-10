@@ -64,7 +64,6 @@ void LayoutNodeInstance::setPropertyBinding(const PropertyName &name, const QStr
 
 LayoutNodeInstance::Pointer LayoutNodeInstance::create(QObject *object)
 {
-    qDebug() << "layout" << object;
     QQuickItem *item = qobject_cast<QQuickItem*>(object);
 
     Q_ASSERT(item);
@@ -83,10 +82,8 @@ LayoutNodeInstance::Pointer LayoutNodeInstance::create(QObject *object)
 
 void LayoutNodeInstance::refreshLayoutable()
 {
-    qDebug() << "before";
     if (quickItem()->parent())
         QCoreApplication::postEvent(quickItem(), new QEvent(QEvent::LayoutRequest));
-    qDebug() << "refresh";
 
 }
 
