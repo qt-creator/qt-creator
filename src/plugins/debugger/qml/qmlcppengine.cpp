@@ -47,8 +47,6 @@ enum { debug = 0 };
 
 #define EDEBUG(s) do { if (debug) qDebug() << s; } while (0)
 
-const int ConnectionWaitTimeMs = 5000;
-
 DebuggerEngine *createQmlCppEngine(const DebuggerStartParameters &sp,
                                    QString *errorMessage)
 {

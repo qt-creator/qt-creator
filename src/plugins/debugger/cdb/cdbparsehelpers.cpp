@@ -260,42 +260,6 @@ QVariant cdbIntegerValue(const QByteArray &t)
     return converted;
 }
 
-/* \code
-0:002> ~ [Debugger-Id] Id: <hex pid> <hex tid> Suspends count thread environment block add state name
-   0  Id: 133c.1374 Suspend: 1 Teb: 000007ff`fffdd000 Unfrozen
-.  2  Id: 133c.1160 Suspend: 1 Teb: 000007ff`fffd9000 Unfrozen "QThread"
-   3  Id: 133c.38c Suspend: 1 Teb: 000007ff`fffd7000 Unfrozen "QThread"
-\endcode */
-
-static inline bool parseThread(QByteArray line, ThreadData *thread, bool *current)
-{
-    *current = false;
-    if (line.size() < 5)
-        return false;
-    *current = line.at(0) == '.';
-    if (*current)
-        line[0] = ' ';
-    const QList<QByteArray> tokens = simplify(line).split(' ');
-    if (tokens.size() < 8 || tokens.at(1) != "Id:")
-        return false;
-    switch (tokens.size()) { // fallthru intended
-    case 9:
-        thread->name = QString::fromLocal8Bit(tokens.at(8));
-    case 8:
-        thread->state = QString::fromLocal8Bit(tokens.at(7));
-    case 3: {
-        const QByteArray &pidTid = tokens.at(2);
-        const int dotPos = pidTid.indexOf('.');
-        if (dotPos != -1)
-            thread->targetId = QLatin1String("0x") + QString::fromLatin1(pidTid.mid(dotPos + 1));
-    }
-    case 1:
-        thread->id = ThreadId(tokens.at(0).toInt());
-        break;
-    } // switch size
-    return true;
-}
-
 // Helper to retrieve an int child from GDBMI
 static inline bool gdbmiChildToInt(const GdbMi &parent, const char *childName, int *target)
 {

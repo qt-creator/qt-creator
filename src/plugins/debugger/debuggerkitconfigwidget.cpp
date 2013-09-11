@@ -71,9 +71,6 @@ static const char debuggingToolsWikiLinkC[] = "http://qt-project.org/wiki/Qt_Cre
 static const char DEBUGGER_DATA_KEY[] = "DebuggerItem.";
 static const char DEBUGGER_COUNT_KEY[] = "DebuggerItem.Count";
 static const char DEBUGGER_FILE_VERSION_KEY[] = "Version";
-static const char DEFAULT_DEBUGGER_COUNT_KEY[] = "DefaultDebugger.Count";
-static const char DEFAULT_DEBUGGER_ABI_KEY[] = "DefaultDebugger.Abi.";
-static const char DEFAULT_DEBUGGER_PATH_KEY[] = "DefaultDebugger.Path.";
 static const char DEBUGGER_FILENAME[] = "/qtcreator/debuggers.xml";
 static const char DEBUGGER_LEGACY_FILENAME[] = "/qtcreator/profiles.xml";
 

@@ -83,8 +83,6 @@ namespace Internal {
     \sa Debugger::MemoryView,  Debugger::RegisterMemoryView
 */
 
-namespace { const int DataRange = 1024 * 1024; }
-
 MemoryAgent::MemoryAgent(DebuggerEngine *engine)
     : QObject(engine), m_engine(engine)
 {
