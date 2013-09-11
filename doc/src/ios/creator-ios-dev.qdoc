@@ -1,0 +1,145 @@
+/****************************************************************************
+**
+** Copyright (c) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of Qt Creator
+**
+**
+** GNU Free Documentation License
+**
+** Alternatively, this file may be used under the terms of the GNU Free
+** Documentation License version 1.3 as published by the Free Software
+** Foundation and appearing in the file included in the packaging of this
+** file.
+**
+**
+****************************************************************************/
+
+    /*!
+
+    \contentspage index.html
+    \previouspage creator-developing-generic-linux.html
+    \page creator-developing-ios.html
+    \nextpage creator-developing-maemo.html
+
+    \title Connecting iOS Devices
+
+    You can connect iOS devices to a Mac computer with a USB cable to
+    build and run applications on them from \QC.
+
+    To be able to use \QC on Mac OS X, you must install Xcode, and therefore,
+    you already have the tool chain for building applications for iOS. \QC
+    automatically detects the tool chain and creates the necessary
+    \l{glossary-buildandrun-kit}{kits} for building and running applications on
+    configured iOS devices.
+
+    You only need Qt libraries that are built for iOS. You can install them as
+    part of Qt 5.2, or later.
+
+    \section1 Creating Device Connections
+
+    When you connect an iOS device to a Mac computer with USB, \QC
+    automatically detects the device if you have configured it by using Xcode.
+    To view information about the connected device, select \gui Preferences >
+    \gui Devices.
+
+    \image qtcreator-ios-device-configurations.png "Devices dialog"
+
+    If the current device state is \gui Connected, (the traffic light icon is
+    orange), you need to configure the device using Xcode.
+
+    The connections between \QC and an iOS device are protected by using an
+    iOS Developer Program certificate that you receive from Apple for a charge
+    when you
+    \l{http://developer.apple.com/library/ios/documentation/IDEs/Conceptual/AppDistributionGuide/EnrollingADP/EnrollingADP.html}
+    {enroll in the iOS Developer Program}. The certificate is copied to the
+    device when you configure the device.
+
+    \section1 Testing on iOS Simulator
+
+    If you do not have an iOS device or you do not want to create an account,
+    you can test applications on
+    \l{http://developer.apple.com/library/ios/documentation/IDEs/Conceptual/iOS_Simulator_Guide/Introduction/Introduction.html}
+    {iOS Simulator}, which is installed as part of Xcode. Each Xcode version
+    simulates a predefined set of hardware devices and software versions. You
+    can change the simulated hardware and software version from within iOS
+    Simulator.
+
+    By default, \QC uses the Xcode version set as current on the Mac computer.
+    To check the version, enter the following command:
+
+    \c {xcode-select --print-path}
+
+    To change the version, select \gui Preferences > \gui iOS, and select
+    another Xcode version in the \gui {Xcode path} field. This setting overrides
+    the version set by entering the \c {xcode-select --version} command.
+
+    \section1 Configuring Devices
+
+    The process of configuring devices and the UI varies slightly depending on
+    the Xcode version that you use. The instructions in this section describe
+    the process and UI when using Xcode version 4.6.3.
+
+    To configure connections between \QC and an iOS device:
+
+    \list 1
+
+        \li Connect the device to a Mac computer with a USB cable.
+
+        \li Start Xcode to configure the device:
+
+            \list 1
+
+                \li Select \gui Windows > \gui Organizer.
+
+                \li Select the \gui + button to add the connected device.
+
+                \li Select the device you want to add in the list of devices.
+
+                \li If you do not have an Apple developer account, you can now
+                    create one, for a charge.
+
+                \li When your account is ready, you can add the device. Your
+                    Apple developer certificate is copied to the device.
+
+                \li The first time you connect the device, you are asked to
+                    enable developer mode on the device.
+
+            \endlist
+
+        The next time you connect the device to the Mac computer, \QC
+        detects it automatically. To disable automatic connections to a
+        device that you do not use for development, select \gui Preferences >
+        \gui iOS, and deselect the
+        \gui {Ask about devices not in developer mode} check box.
+
+        \li To specify build settings:
+
+        \list 1
+
+            \li Open a project for an application you want to develop for the
+                device.
+
+            \li Select \gui Projects > \gui {Build & Run} > \gui {Add Kit} to
+                add a kit for building and running applications on iOS.
+
+            \li Check that the \gui {iOS build} field contains the build
+                commands for an Xcode build. To add an Xcode build step, select
+                \gui {Add Build Step} > \gui xcodebuild.
+
+        \endlist
+
+        \li Select \gui Run to specify run settings.
+
+            Usually, you can use the default settings.
+
+    When you run the project, \QC uses Xcode to deploy the application to the
+    device.
+
+    Your signing certificate is used to sign application packages for deployment
+    to the device.
+
+    \endlist
+
+*/

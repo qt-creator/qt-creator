@@ -65,6 +65,12 @@
             Linux devices (with no MADDE support) installed on the development
             PC, you can add it and the device to \QC.
 
+        \li \l{Connecting iOS Devices}
+
+            You use the tools delivered with Xcode to connect devices to \QC.
+            \QC detects the tools and configured devices automatically and uses
+            the tools to build, deploy, and run applications.
+
         \li \l{Connecting Maemo Devices}
 
             Maemo 5 (Fremantle) is a Linux-based software platform developed by
