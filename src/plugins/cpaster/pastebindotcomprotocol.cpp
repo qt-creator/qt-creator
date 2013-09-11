@@ -216,13 +216,6 @@ void PasteBinDotComProtocol::list()
         qDebug() << "list: sending " << url << m_listReply;
 }
 
-static inline void padString(QString *s, int len)
-{
-    const int missing = len - s->length();
-    if (missing > 0)
-        s->append(QString(missing, QLatin1Char(' ')));
-}
-
 /* Quick & dirty: Parse out the 'archive' table as of 16.3.2011:
  \code
 <table class="maintable" cellspacing="0">
