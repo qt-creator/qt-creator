@@ -336,7 +336,7 @@ bool Service::operator==(const Service &o) const {
             && m_name == o.m_name && m_type == o.m_type
             && m_domain == o.m_domain && m_port == o.m_port
             && m_txtRecord == o.m_txtRecord && m_interfaceNr == o.m_interfaceNr
-            && m_outdated == m_outdated;
+            && m_outdated == o.m_outdated;
     if (eq) {
         if (m_host != o.m_host) {
             if (m_host == 0 || o.m_host == 0)
