@@ -125,8 +125,6 @@ public:
     QList<ProjectExplorer::Abi> abis;
 };
 
-} // namespace Internal
-
 DebuggerItem::DebuggerItem()
 {
     engineType = NoEngineType;
@@ -216,6 +214,8 @@ void DebuggerItem::reinitializeFromFile()
     }
     engineType = NoEngineType;
 }
+
+} // namespace Internal
 
 // --------------------------------------------------------------------------
 // DebuggerKitInformation
