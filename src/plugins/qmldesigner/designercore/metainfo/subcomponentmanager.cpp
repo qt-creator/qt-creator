@@ -360,14 +360,6 @@ void SubComponentManager::unregisterQmlFile(const QFileInfo &fileInfo, const QSt
         componentName = qualifier + '.' + componentName;
 }
 
-static inline bool isDepricatedQtType(const QString &typeName)
-{
-    if (typeName.length() < 8)
-        return false;
-
-    return typeName.contains("Qt.");
-}
-
 
 void SubComponentManager::registerQmlFile(const QFileInfo &fileInfo, const QString &qualifier,
                                                  bool addToLibrary)

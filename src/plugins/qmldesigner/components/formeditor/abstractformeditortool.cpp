@@ -193,14 +193,6 @@ void AbstractFormEditorTool::dragEnterEvent(QGraphicsSceneDragDropEvent * event)
     }
 }
 
-static inline bool checkIfNodeIsAView(const ModelNode &node)
-{
-    return node.metaInfo().isValid() &&
-            (node.metaInfo().isSubclassOf("QtQuick.ListView", -1, -1) ||
-             node.metaInfo().isSubclassOf("QtQuick.GridView", -1, -1) ||
-             node.metaInfo().isSubclassOf("QtQuick.PathView", -1, -1));
-}
-
 void AbstractFormEditorTool::mousePressEvent(const QList<QGraphicsItem*> & /*itemList*/, QGraphicsSceneMouseEvent *event)
 {
     if (event->button() == Qt::RightButton)

@@ -111,11 +111,6 @@ static inline unsigned char convertHex(ushort c)
         return (c - 'A' + 10);
 }
 
-static inline unsigned char convertHex(ushort c1, ushort c2)
-{
-    return ((convertHex(c1) << 4) + convertHex(c2));
-}
-
 QChar convertUnicode(ushort c1, ushort c2,
                              ushort c3, ushort c4)
 {

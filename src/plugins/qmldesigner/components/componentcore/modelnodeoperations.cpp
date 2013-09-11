@@ -47,11 +47,6 @@ namespace QmlDesigner {
 
 const PropertyName auxDataString("anchors_");
 
-static inline bool isItem(const ModelNode &node)
-{
-    return node.isValid() && node.metaInfo().isValid() && node.metaInfo().isSubclassOf("QtQuick.Item", -1, -1);
-}
-
 static inline QList<QmlItemNode> siblingsForNode(const QmlItemNode &itemNode)
 {
     QList<QmlItemNode> siblingList;
@@ -88,24 +83,6 @@ static signed int getMinZValue(const QList<QmlItemNode> &siblingList)
             minimum = z;
     }
     return minimum;
-}
-
-static inline void getWidthHeight(const ModelNode &node, int &width, int &height)
-{
-    QmlItemNode itemNode(node);
-    if (itemNode.isValid()) {
-        width = itemNode.instanceValue("width").toInt();
-        height = itemNode.instanceValue("height").toInt();
-    }
-}
-
-static inline bool modelNodesHaveProperty(const QList<ModelNode> &modelNodeList, const PropertyName &propertyName)
-{
-    foreach (const ModelNode &modelNode, modelNodeList)
-        if (modelNode.hasProperty(propertyName))
-            return true;
-
-    return false;
 }
 
 static inline void reparentTo(const ModelNode &node, const QmlItemNode &parent)
