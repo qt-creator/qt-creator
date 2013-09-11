@@ -61,6 +61,7 @@ using namespace Bookmarks;
 using namespace Bookmarks::Internal;
 using namespace ProjectExplorer;
 using namespace Core;
+using namespace Utils;
 
 BookmarkDelegate::BookmarkDelegate(QObject *parent)
     : QStyledItemDelegate(parent), m_normalPixmap(0), m_selectedPixmap(0)
@@ -829,9 +830,9 @@ void BookmarkManager::operateTooltip(TextEditor::ITextEditor *textEditor, const 
         return;
 
     if (mark->note().isEmpty())
-        Utils::ToolTip::instance()->hide();
+        ToolTip::hide();
     else
-        Utils::ToolTip::instance()->show(pos, Utils::TextContent(mark->note()), textEditor->widget());
+        ToolTip::show(pos, TextContent(mark->note()), textEditor->widget());
 }
 
 /* Loads the bookmarks from the session settings. */

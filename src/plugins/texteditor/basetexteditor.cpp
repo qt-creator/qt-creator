@@ -1546,7 +1546,7 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
 {
     if (!isModifier(e))
         viewport()->setCursor(Qt::BlankCursor);
-    ToolTip::instance()->hide();
+    ToolTip::hide();
 
     d->m_moveLineUndoHack = false;
     d->clearVisibleFoldedBlock();
@@ -2599,8 +2599,7 @@ bool BaseTextEditorWidget::viewportEvent(QEvent *event)
 
         RefactorMarker refactorMarker = d->m_refactorOverlay->markerAt(pos);
         if (refactorMarker.isValid() && !refactorMarker.tooltip.isEmpty()) {
-            ToolTip::instance()->show(he->globalPos(),
-                                      TextContent(refactorMarker.tooltip),
+            ToolTip::show(he->globalPos(), TextContent(refactorMarker.tooltip),
                                       viewport(),
                                       refactorMarker.rect);
             return true;
@@ -4267,8 +4266,8 @@ void BaseTextEditorWidget::keyReleaseEvent(QKeyEvent *e)
         clearLink();
     } else if (e->key() == Qt::Key_Shift
              && d->m_behaviorSettings.m_constrainHoverTooltips
-             && ToolTip::instance()->isVisible()) {
-        ToolTip::instance()->hide();
+             && ToolTip::isVisible()) {
+        ToolTip::hide();
     } else if (e->key() == Qt::Key_Alt
                && d->m_maybeFakeTooltipEvent) {
         d->m_maybeFakeTooltipEvent = false;

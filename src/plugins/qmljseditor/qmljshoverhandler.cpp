@@ -378,11 +378,11 @@ void HoverHandler::reset()
 void HoverHandler::operateTooltip(TextEditor::ITextEditor *editor, const QPoint &point)
 {
     if (toolTip().isEmpty())
-        Utils::ToolTip::instance()->hide();
+        Utils::ToolTip::hide();
     else if (m_colorTip.isValid())
-        Utils::ToolTip::instance()->show(point, Utils::ColorContent(m_colorTip), editor->widget());
+        Utils::ToolTip::show(point, Utils::ColorContent(m_colorTip), editor->widget());
     else
-        Utils::ToolTip::instance()->show(point, Utils::TextContent(toolTip()), editor->widget());
+        Utils::ToolTip::show(point, Utils::TextContent(toolTip()), editor->widget());
 }
 
 void HoverHandler::prettyPrintTooltip(const QmlJS::Value *value,

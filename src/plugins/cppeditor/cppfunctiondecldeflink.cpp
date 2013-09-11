@@ -55,6 +55,7 @@ using namespace CppEditor;
 using namespace CppEditor::Internal;
 using namespace CppTools;
 using namespace TextEditor;
+using namespace Utils;
 
 FunctionDeclDefLinkFinder::FunctionDeclDefLinkFinder(QObject *parent)
     : QObject(parent)
@@ -300,7 +301,7 @@ void FunctionDeclDefLink::apply(CPPEditorWidget *editor, bool jumpToMatch)
     const int targetStart = newTargetFile->position(targetLine, targetColumn);
     const int targetEnd = targetStart + targetInitial.size();
     if (targetInitial == newTargetFile->textOf(targetStart, targetEnd)) {
-        const Utils::ChangeSet changeset = changes(snapshot, targetStart);
+        const ChangeSet changeset = changes(snapshot, targetStart);
         newTargetFile->setChangeSet(changeset);
         if (jumpToMatch) {
             const int jumpTarget = newTargetFile->position(targetFunction->line(), targetFunction->column());
@@ -308,10 +309,8 @@ void FunctionDeclDefLink::apply(CPPEditorWidget *editor, bool jumpToMatch)
         }
         newTargetFile->apply();
     } else {
-        Utils::ToolTip::instance()->show(
-                    editor->toolTipPosition(linkSelection),
-                    Utils::TextContent(
-                        tr("Target file was changed, could not apply changes")));
+        ToolTip::show(editor->toolTipPosition(linkSelection),
+                     TextContent(tr("Target file was changed, could not apply changes")));
     }
 }
 

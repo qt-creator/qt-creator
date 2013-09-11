@@ -185,7 +185,7 @@ bool WidgetContent::pinToolTip(QWidget *w)
     for (QWidget *p = w->parentWidget(); p ; p = p->parentWidget()) {
         if (Internal::WidgetTip *wt = qobject_cast<Internal::WidgetTip *>(p)) {
             wt->pinToolTipWidget();
-            ToolTip::instance()->hide();
+            ToolTip::hide();
             return true;
         }
     }

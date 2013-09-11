@@ -60,28 +60,24 @@ class TipContent;
 class QTCREATOR_UTILS_EXPORT ToolTip : public QObject
 {
     Q_OBJECT
-private:
-    ToolTip();
 
 public:
-    virtual ~ToolTip();
+    ~ToolTip();
+
+    bool eventFilter(QObject *o, QEvent *event);
 
     static ToolTip *instance();
 
-    void show(const QPoint &pos, const TipContent &content, QWidget *w = 0);
-    void show(const QPoint &pos, const TipContent &content, QWidget *w, const QRect &rect);
-    void hide();
-    bool isVisible() const;
-
-    QFont font() const;
-    void setFont(const QFont &font);
-
-    virtual bool eventFilter(QObject *o, QEvent *event);
+    static void show(const QPoint &pos, const TipContent &content, QWidget *w = 0);
+    static void show(const QPoint &pos, const TipContent &content, QWidget *w, const QRect &rect);
+    static void hide();
+    static bool isVisible();
 
 private slots:
     void hideTipImmediately();
 
 private:
+    ToolTip();
     bool acceptShow(const TipContent &content, const QPoint &pos, QWidget *w, const QRect &rect);
     bool validateContent(const TipContent &content);
     void setUp(const QPoint &pos, const TipContent &content, QWidget *w, const QRect &rect);

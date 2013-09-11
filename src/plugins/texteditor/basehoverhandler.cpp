@@ -84,7 +84,7 @@ void BaseHoverHandler::updateContextHelpId(TextEditor::ITextEditor *editor, int 
 
     // If the tooltip is visible and there is a help match, this match is used to update
     // the help id. Otherwise, let the identification process happen.
-    if (!Utils::ToolTip::instance()->isVisible() || !lastHelpItemIdentified().isValid())
+    if (!Utils::ToolTip::isVisible() || !lastHelpItemIdentified().isValid())
         process(editor, pos);
 
     if (lastHelpItemIdentified().isValid())
@@ -157,9 +157,9 @@ void BaseHoverHandler::decorateToolTip()
 void BaseHoverHandler::operateTooltip(ITextEditor *editor, const QPoint &point)
 {
     if (m_toolTip.isEmpty())
-        Utils::ToolTip::instance()->hide();
+        Utils::ToolTip::hide();
     else
-        Utils::ToolTip::instance()->show(point, Utils::TextContent(m_toolTip), editor->widget());
+        Utils::ToolTip::show(point, Utils::TextContent(m_toolTip), editor->widget());
 }
 
 BaseTextEditorWidget *BaseHoverHandler::baseTextEditor(ITextEditor *editor)

@@ -67,7 +67,8 @@ ToolTip *ToolTip::instance()
 
 void ToolTip::show(const QPoint &pos, const TipContent &content, QWidget *w, const QRect &rect)
 {
-    if (acceptShow(content, pos, w, rect)) {
+    ToolTip *t = instance();
+    if (t->acceptShow(content, pos, w, rect)) {
         QWidget *target = 0;
         if (HostOsInfo::isWindowsHost())
             target = QApplication::desktop()->screen(Internal::screenNumber(pos, w));
@@ -76,18 +77,18 @@ void ToolTip::show(const QPoint &pos, const TipContent &content, QWidget *w, con
 
         switch (content.typeId()) {
             case TextContent::TEXT_CONTENT_ID:
-                m_tip = new TextTip(target);
+                t->m_tip = new TextTip(target);
                 break;
             case ColorContent::COLOR_CONTENT_ID:
-                m_tip = new ColorTip(target);
+                t->m_tip = new ColorTip(target);
                 break;
             case WidgetContent::WIDGET_CONTENT_ID:
-                m_tip = new WidgetTip(target);
+                t->m_tip = new WidgetTip(target);
                 break;
         }
-        setUp(pos, content, w, rect);
-        qApp->installEventFilter(this);
-        showTip();
+        t->setUp(pos, content, w, rect);
+        qApp->installEventFilter(t);
+        t->showTip();
     }
 }
 
@@ -170,9 +171,10 @@ void ToolTip::setTipRect(QWidget *w, const QRect &rect)
     }
 }
 
-bool ToolTip::isVisible() const
+bool ToolTip::isVisible()
 {
-    return m_tip && m_tip->isVisible();
+    ToolTip *t = instance();
+    return t->m_tip && t->m_tip->isVisible();
 }
 
 void ToolTip::showTip()
@@ -191,7 +193,7 @@ void ToolTip::showTip()
 
 void ToolTip::hide()
 {
-    hideTipWithDelay();
+    instance()->hideTipWithDelay();
 }
 
 void ToolTip::hideTipWithDelay()
@@ -292,14 +294,4 @@ bool ToolTip::eventFilter(QObject *o, QEvent *event)
         break;
     }
     return false;
-}
-
-QFont ToolTip::font() const
-{
-    return QApplication::font("QTipLabel");
-}
-
-void ToolTip::setFont(const QFont &font)
-{
-    QApplication::setFont(font, "QTipLabel");
 }

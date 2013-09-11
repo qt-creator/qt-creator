@@ -46,8 +46,10 @@
 #include <QPropertyAnimation>
 #include <QDebug>
 
-using namespace Core;
-using namespace Internal;
+using namespace Utils;
+
+namespace Core {
+namespace Internal {
 
 FancyToolButton::FancyToolButton(QWidget *parent)
     : QToolButton(parent), m_fader(0)
@@ -78,7 +80,7 @@ bool FancyToolButton::event(QEvent *e)
     case QEvent::ToolTip:
         {
             QHelpEvent *he = static_cast<QHelpEvent *>(e);
-            Utils::ToolTip::instance()->show(mapToGlobal(he->pos()), Utils::TextContent(toolTip()), this);
+            ToolTip::show(mapToGlobal(he->pos()), TextContent(toolTip()), this);
             return true;
         }
     default:
@@ -340,3 +342,5 @@ QSize FancyActionBar::minimumSizeHint() const
     return sizeHint();
 }
 
+} // namespace Internal
+} // namespace Core

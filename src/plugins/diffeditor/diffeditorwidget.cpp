@@ -323,11 +323,10 @@ void DiffViewEditorEditable::slotTooltipRequested(TextEditor::ITextEditor *edito
     QMap<int, DiffEditorWidget::DiffFileInfo>::const_iterator it
             = fi.constFind(ew->document()->findBlock(position).blockNumber());
     if (it != fi.constEnd()) {
-        Utils::ToolTip::instance()->show(globalPoint,
-                                         Utils::TextContent(it.value().fileName),
+        Utils::ToolTip::show(globalPoint, Utils::TextContent(it.value().fileName),
                                          editor->widget());
     } else {
-        Utils::ToolTip::instance()->hide();
+        Utils::ToolTip::hide();
     }
 }
 

@@ -1114,7 +1114,7 @@ void DebuggerToolTipManager::showToolTip(const QPoint &p, IEditor *editor,
     if (debugToolTipPositioning)
         qDebug() << "DebuggerToolTipManager::showToolTip" << p << " Mouse at " << QCursor::pos();
     const Utils::WidgetContent widgetContent(toolTipWidget, true);
-    Utils::ToolTip::instance()->show(p, widgetContent, widget);
+    Utils::ToolTip::show(p, widgetContent, widget);
     registerToolTip(toolTipWidget);
 }
 
