@@ -40,6 +40,11 @@ Q_DECLARE_METATYPE(QTextCharFormat);
 Q_DECLARE_METATYPE(StringFormatPair);
 Q_DECLARE_METATYPE(ResultList);
 
+static QString ansiEscape(const QByteArray &sequence)
+{
+    return QString::fromLatin1("\x1b[" + sequence);
+}
+
 class tst_AnsiEscapeCodeHandler : public QObject
 {
     Q_OBJECT
@@ -52,18 +57,17 @@ private Q_SLOTS:
     void testCase1_data();
 
 private:
-    static const QString red;
-    static const QString bold;
-    static const QString normal;
-    static const QString normal1;
+    const QString red;
+    const QString bold;
+    const QString normal;
+    const QString normal1;
 };
 
-const QString tst_AnsiEscapeCodeHandler::red = QChar::fromLatin1(27) + "[31m";
-const QString tst_AnsiEscapeCodeHandler::bold = QChar::fromLatin1(27) + "[1m";
-const QString tst_AnsiEscapeCodeHandler::normal = QChar::fromLatin1(27) + "[0m";
-const QString tst_AnsiEscapeCodeHandler::normal1 = QChar::fromLatin1(27) + "[m";
-
-tst_AnsiEscapeCodeHandler::tst_AnsiEscapeCodeHandler()
+tst_AnsiEscapeCodeHandler::tst_AnsiEscapeCodeHandler() :
+    red(ansiEscape("31m")),
+    bold(ansiEscape("1m")),
+    normal(ansiEscape("0m")),
+    normal1(ansiEscape("m"))
 {
 }
 
