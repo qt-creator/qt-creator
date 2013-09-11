@@ -34,8 +34,6 @@
 
 using namespace CppTools::Internal;
 
-static const int MaxPendingDocuments = 10;
-
 CppLocatorFilter::CppLocatorFilter(CppLocatorData *locatorData)
     : m_data(locatorData)
 {
