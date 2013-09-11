@@ -130,10 +130,23 @@ bool TemplateNameId::isEqualTo(const Name *other) const
 bool TemplateNameId::Compare::operator()(const TemplateNameId *name,
                                          const TemplateNameId *other) const
 {
+    if (name == 0)
+        return other != 0;
+    if (other == 0)
+        return false;
+    if (name == other)
+        return false;
+
     const Identifier *id = name->identifier();
     const Identifier *otherId = other->identifier();
 
-    if (id == otherId) {
+    if (id == 0)
+        return otherId != 0;
+    if (otherId == 0)
+        return false;
+
+    const int c = std::strcmp(id->chars(), otherId->chars());
+    if (c == 0) {
         // we have to differentiate TemplateNameId with respect to specialization or instantiation
         if (name->isSpecialization() == other->isSpecialization()) {
             return std::lexicographical_compare(name->firstTemplateArgument(),
@@ -145,7 +158,7 @@ bool TemplateNameId::Compare::operator()(const TemplateNameId *name,
         }
     }
 
-    return id < otherId;
+    return c < 0;
 }
 
 OperatorNameId::OperatorNameId(Kind kind)
