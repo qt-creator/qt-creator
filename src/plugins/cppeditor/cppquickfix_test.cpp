@@ -3326,6 +3326,189 @@ void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noSignatureMatch()
     data.run(&factory);
 }
 
+void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_typeDeduction_data()
+{
+    QTest::addColumn<QByteArray>("typeString");
+    QTest::addColumn<QByteArray>("literal");
+    QTest::newRow("int")
+            << QByteArray("int ") << QByteArray("156");
+    QTest::newRow("unsigned int")
+            << QByteArray("unsigned int ") << QByteArray("156u");
+    QTest::newRow("long")
+            << QByteArray("long ") << QByteArray("156l");
+    QTest::newRow("unsigned long")
+            << QByteArray("unsigned long ") << QByteArray("156ul");
+    QTest::newRow("long long")
+            << QByteArray("long long ") << QByteArray("156ll");
+    QTest::newRow("unsigned long long")
+            << QByteArray("unsigned long long ") << QByteArray("156ull");
+    QTest::newRow("float")
+            << QByteArray("float ") << QByteArray("3.14159f");
+    QTest::newRow("double")
+            << QByteArray("double ") << QByteArray("3.14159");
+    QTest::newRow("long double")
+            << QByteArray("long double ") << QByteArray("3.14159L");
+    QTest::newRow("bool")
+            << QByteArray("bool ") << QByteArray("true");
+    QTest::newRow("bool")
+            << QByteArray("bool ") << QByteArray("false");
+    QTest::newRow("char")
+            << QByteArray("char ") << QByteArray("'X'");
+    QTest::newRow("wchar_t")
+            << QByteArray("wchar_t ") << QByteArray("L'X'");
+    QTest::newRow("char16_t")
+            << QByteArray("char16_t ") << QByteArray("u'X'");
+    QTest::newRow("char32_t")
+            << QByteArray("char32_t ") << QByteArray("U'X'");
+    QTest::newRow("const char *")
+            << QByteArray("const char *") << QByteArray("\"narf\"");
+    QTest::newRow("const wchar_t *")
+            << QByteArray("const wchar_t *") << QByteArray("L\"narf\"");
+    QTest::newRow("const char16_t *")
+            << QByteArray("const char16_t *") << QByteArray("u\"narf\"");
+    QTest::newRow("const char32_t *")
+            << QByteArray("const char32_t *") << QByteArray("U\"narf\"");
+}
+
+void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_typeDeduction()
+{
+    QFETCH(QByteArray, typeString);
+    QFETCH(QByteArray, literal);
+    const QByteArray original = QByteArray("void foo() {return @") + literal + QByteArray(";}");
+    const QByteArray expected = QByteArray("void foo(") + typeString + QByteArray("newParameter = ")
+            + literal + QByteArray(") {return newParameter;}\n");
+
+    if (literal == "3.14159") {
+        qWarning("Literal 3.14159 is wrongly reported as int. Skipping.");
+        return;
+    } else if (literal == "3.14159L") {
+        qWarning("Literal 3.14159L is wrongly reported as long. Skipping.");
+        return;
+    }
+
+    ExtractLiteralAsParameter factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_freeFunction()
+{
+    const QByteArray original =
+        "void foo(const char *a, long b = 1)\n"
+        "{return 1@56 + 123 + 156;}";
+    const QByteArray expected =
+        "void foo(const char *a, long b = 1, int newParameter = 156)\n"
+        "{return newParameter + 123 + newParameter;}\n";
+
+    ExtractLiteralAsParameter factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_freeFunction_separateFiles()
+{
+    QList<TestDocumentPtr> testFiles;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "void foo(const char *a, long b = 1);";
+    expected =
+        "void foo(const char *a, long b = 1, int newParameter = 156);\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "void foo(const char *a, long b)\n"
+        "{return 1@56 + 123 + 156;}";
+    expected =
+        "void foo(const char *a, long b, int newParameter)\n"
+        "{return newParameter + 123 + newParameter;}\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    ExtractLiteralAsParameter factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+
+void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_memberFunction()
+{
+    const QByteArray original =
+        "class Narf {\n"
+        "public:\n"
+        "    int zort();\n"
+        "};\n\n"
+        "int Narf::zort()\n"
+        "{ return 15@5 + 1; }";
+    const QByteArray expected =
+        "class Narf {\n"
+        "public:\n"
+        "    int zort(int newParameter = 155);\n"
+        "};\n\n"
+        "int Narf::zort(int newParameter)\n"
+        "{ return newParameter + 1; }\n";
+
+    ExtractLiteralAsParameter factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_memberFunction_separateFiles()
+{
+    QList<TestDocumentPtr> testFiles;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "class Narf {\n"
+        "public:\n"
+        "    int zort();\n"
+        "};";
+    expected =
+        "class Narf {\n"
+        "public:\n"
+        "    int zort(int newParameter = 155);\n"
+        "};\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "#include \"file.h\"\n\n"
+        "int Narf::zort()\n"
+        "{ return 15@5 + 1; }";
+    expected =
+        "#include \"file.h\"\n\n"
+        "int Narf::zort(int newParameter)\n"
+        "{ return newParameter + 1; }\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    ExtractLiteralAsParameter factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+
+void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_memberFunctionInline()
+{
+    const QByteArray original =
+        "class Narf {\n"
+        "public:\n"
+        "    int zort()\n"
+        "    { return 15@5 + 1; }\n"
+        "};";
+    const QByteArray expected =
+        "class Narf {\n"
+        "public:\n"
+        "    int zort(int newParameter = 155)\n"
+        "    { return newParameter + 1; }\n"
+        "};\n";
+
+    ExtractLiteralAsParameter factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
 /// Check: Insert only declarations
 void CppEditorPlugin::test_quickfix_InsertVirtualMethods_onlyDecl()
 {

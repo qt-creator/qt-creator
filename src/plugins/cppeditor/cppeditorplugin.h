@@ -250,6 +250,14 @@ private slots:
     void test_quickfix_AssignToLocalVariable_noReturnFunc2();
     void test_quickfix_AssignToLocalVariable_noSignatureMatch();
 
+    void test_quickfix_ExtractLiteralAsParameter_typeDeduction_data();
+    void test_quickfix_ExtractLiteralAsParameter_typeDeduction();
+    void test_quickfix_ExtractLiteralAsParameter_freeFunction();
+    void test_quickfix_ExtractLiteralAsParameter_freeFunction_separateFiles();
+    void test_quickfix_ExtractLiteralAsParameter_memberFunction();
+    void test_quickfix_ExtractLiteralAsParameter_memberFunction_separateFiles();
+    void test_quickfix_ExtractLiteralAsParameter_memberFunctionInline();
+
     void test_quickfix_InsertVirtualMethods_onlyDecl();
     void test_quickfix_InsertVirtualMethods_onlyDeclWithoutVirtual();
     void test_quickfix_InsertVirtualMethods_Access();

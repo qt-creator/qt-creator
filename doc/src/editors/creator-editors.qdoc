@@ -1835,6 +1835,12 @@
             the \gui {Extract Function Refactoring} dialog.
             \li  Block of code selected
         \row
+            \li  Extract Constant as Function Parameter
+            \li  Replaces the selected literal and all its occurrences with the function parameter
+            \c{newParameter}. The parameter \c{newParameter} will have the original literal as the
+            default value.
+            \li  Block of code selected
+        \row
             \li  Add Local Declaration
             \li
             Adds the type of an assignee, if the type of the right-hand side of the assignment
