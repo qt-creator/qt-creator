@@ -118,6 +118,7 @@ CppEditorSupport::CppEditorSupport(CppModelManager *modelManager, BaseTextEditor
     , m_initialized(false)
     , m_lastHighlightRevision(0)
     , m_highlightingSupport(modelManager->highlightingSupport(textEditor))
+    , m_completionAssistProvider(0)
 {
     connect(m_modelManager, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
             this, SLOT(onDocumentUpdated(CPlusPlus::Document::Ptr)));
