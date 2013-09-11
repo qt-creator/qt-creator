@@ -54,27 +54,6 @@ using namespace Utils;
 namespace QmlEditorWidgets {
 
 /* XPM */
-static const char * const line_xpm[] = {
-        "14 14 3 1",
-        " 	c None",
-        ".	c #0c0c0c",
-        "x	c #1c1c1c",
-        "............. ",
-        ".           . ",
-        ". x       x . ",
-        ".  x     x  . ",
-        ".   x   x   . ",
-        ".    x x    . ",
-        ".     x     . ",
-        ".    x x    . ",
-        ".   x   x   . ",
-        ".  x     x  . ",
-        ". x       x . ",
-        ".           . ",
-        "............. ",
-        "              "};
-
-/* XPM */
 static const char * pin_xpm[] = {
 "12 9 7 1",
 " 	c None",

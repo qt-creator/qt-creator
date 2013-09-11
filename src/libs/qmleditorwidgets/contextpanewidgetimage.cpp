@@ -779,43 +779,6 @@ static inline int limitPositive(int i)
     return 0;
 }
 
-static inline int limit(int i, int zoom)
-{
-    static bool flag1 = 1;
-    static bool flag2 = 1;
-    if (zoom == 1)
-        return i;
-    if (i < 0) {
-        int v = i / zoom;
-        if (v)
-            return v;
-        if (zoom == 2) {
-            flag1 =!flag1;
-            return flag1 ? -1 : 0;
-        }
-        flag1 =!flag1;
-        if (flag1)
-            flag2 =!flag2;
-
-        return flag1 && flag2 ? -1 : 0;
-    }
-    if (i > 0) {
-        int v = i / zoom;
-        if (v)
-            return v;
-        if (zoom == 2) {
-            flag1 =!flag1;
-            return flag1 ? 1 : 0;
-        }
-        flag1 =!flag1;
-        if (flag1)
-            flag2 =!flag2;
-
-        return flag1 && flag2 ? 1 : 0;
-    }
-    return 0;
-}
-
 void PreviewLabel::mouseMoveEvent(QMouseEvent * event)
 {
     if (!m_borderImage)

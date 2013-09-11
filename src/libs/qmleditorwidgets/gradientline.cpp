@@ -52,13 +52,6 @@ void GradientLine::setGradient(const QLinearGradient &gradient)
     readGradient();
 }
 
-static inline QColor invertColor(const QColor color)
-{
-    QColor c = color.toHsv();
-    c.setHsv(c.hue(), c.saturation(), 255 - c.value());
-    return c;
-}
-
 GradientLine::GradientLine(QWidget *parent) :
         QWidget(parent),
         m_activeColor(Qt::black),
@@ -325,19 +318,6 @@ void GradientLine::mouseMoveEvent(QMouseEvent *event)
 void GradientLine::setup()
 {
 
-}
-
-static inline QColor normalizeColor(const QColor &color)
-{
-    QColor newColor = QColor(color.name());
-    newColor.setAlpha(color.alpha());
-    return newColor;
-}
-
-static inline qreal roundReal(qreal real)
-{
-    int i = real * 100;
-    return qreal(i) / 100;
 }
 
 void GradientLine::updateGradient()
