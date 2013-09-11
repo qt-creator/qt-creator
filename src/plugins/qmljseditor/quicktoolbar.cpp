@@ -55,13 +55,6 @@ using namespace QmlEditorWidgets;
 
 namespace QmlJSEditor {
 
-static inline QString textAt(const Document* doc,
-                                      const SourceLocation &from,
-                                      const SourceLocation &to)
-{
-    return doc->source().mid(from.offset, to.end() - from.begin());
-}
-
 static inline const ObjectValue * getPropertyChangesTarget(Node *node, const ScopeChain &scopeChain)
 {
     UiObjectInitializer *initializer = initializerOfObject(node);
