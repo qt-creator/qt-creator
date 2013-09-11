@@ -35,8 +35,6 @@
 using namespace Core;
 using namespace Core::Internal;
 
-static const int PROGRESS_WIDTH = 100;
-
 ProgressView::ProgressView(QWidget *parent)
     : QWidget(parent), m_referenceWidget(0), m_hovered(false)
 {
