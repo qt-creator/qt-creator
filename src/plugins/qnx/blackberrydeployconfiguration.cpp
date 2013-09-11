@@ -52,7 +52,6 @@ using namespace Qnx;
 using namespace Qnx::Internal;
 
 namespace {
-const char DEPLOYMENT_INFO_SETTING[] = "Qnx.BlackBerry.DeploymentInfo";
 const char DEPLOYMENT_INFO_KEY[]     = "Qnx.BlackBerry.DeployInformation";
 const char BAR_DESC_SETUP[]          = "Qnx.BlackBerry.DeployInformation.BarDescriptorSetup";
 }

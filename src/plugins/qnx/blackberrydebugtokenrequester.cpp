@@ -35,7 +35,6 @@ namespace {
 static const char PROCESS_NAME[] = "blackberry-debugtokenrequest";
 static const char ERR_WRONG_CSK_PASS[] = "The signature on the code signing request didn't verify.";
 static const char ERR_WRONG_KEYSTORE_PASS[] = "Failed to decrypt keystore, invalid password";
-static const char ERR_ILLEGAL_DEVICE_PIN[] = "Illegal device PIN";
 static const char ERR_NETWORK_UNREACHABLE[] = "Network is unreachable";
 static const char ERR_NOT_YET_REGISTGERED[] = "Not yet registered to request debug tokens";
 }
