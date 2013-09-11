@@ -834,11 +834,12 @@ def qdump__QImage(d, value):
     # QImageData:
     # - QAtomicInt ref
     # - int width, height, depth, nbytes
-    # - qreal devicePixelRatio  (+20)  # Assume qreal == double, Qt 5 only
-    # - QVector<QRgb> colortable (+20 + gap)
-    # - uchar *data (+20 + gap + ptr)
+    # - padding on 64 bit machines
+    # - qreal devicePixelRatio  (+20 + padding)  # Assume qreal == double, Qt 5 only
+    # - QVector<QRgb> colortable (+20 + padding + gap)
+    # - uchar *data (+20 + padding + gap + ptr)
     # [- uchar **jumptable jumptable with Qt 3 suppor]
-    # - enum format (+20 + gap + 2 * ptr)
+    # - enum format (+20 + padding + gap + 2 * ptr)
 
     ptrSize = d.ptrSize()
     isQt5 = d.qtVersion() >= 0x050000
@@ -847,10 +848,11 @@ def qdump__QImage(d, value):
     width = d.extractInt(base + 4)
     height = d.extractInt(base + 8)
     nbytes = d.extractInt(base + 16)
+    padding = d.ptrSize() - d.intSize()
     pixelRatioSize = 8 if isQt5 else 0
     jumpTableSize = ptrSize if not isQt5 else 0  # FIXME: Assumes Qt3 Support
-    bits = d.dereference(base + 20 + pixelRatioSize + ptrSize)
-    iformat = d.extractInt(base + 20 + pixelRatioSize + jumpTableSize + 2 * ptrSize)
+    bits = d.dereference(base + 20 + padding + pixelRatioSize + ptrSize)
+    iformat = d.extractInt(base + 20 + padding + pixelRatioSize + jumpTableSize + 2 * ptrSize)
     d.putValue("(%dx%d)" % (width, height))
     d.putNumChild(1)
     if d.isExpanded():
