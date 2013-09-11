@@ -54,6 +54,7 @@ class VcsBaseEditorWidgetPrivate;
 
 class DiffHighlighter;
 class BaseAnnotationHighlighter;
+class VcsBaseEditorParameterWidget;
 
 // Documentation inside
 enum EditorContentType
@@ -183,8 +184,8 @@ public:
                               const QStringList &fileNames,
                               const QString &revision = QString());
 
-    bool setConfigurationWidget(QWidget *w);
-    QWidget *configurationWidget() const;
+    bool setConfigurationWidget(VcsBaseEditorParameterWidget *w);
+    VcsBaseEditorParameterWidget *configurationWidget() const;
 
     /* Tagging editors: Sometimes, an editor should be re-used, for example, when showing
      * a diff of the same file with different diff-options. In order to be able to find

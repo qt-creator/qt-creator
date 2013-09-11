@@ -31,6 +31,7 @@
 #include "diffhighlighter.h"
 #include "baseannotationhighlighter.h"
 #include "vcsbaseplugin.h"
+#include "vcsbaseeditorparameterwidget.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/vcsmanager.h>
@@ -566,7 +567,7 @@ public:
     QString m_copyRevisionTextFormat;
     bool m_fileLogAnnotateEnabled;
     TextEditor::BaseTextEditor *m_editor;
-    QWidget *m_configurationWidget;
+    VcsBaseEditorParameterWidget *m_configurationWidget;
     bool m_mouseDragging;
     QList<AbstractTextCursorHandler *> m_textCursorHandlers;
 
@@ -1324,7 +1325,7 @@ QString VcsBaseEditorWidget::getTitleId(const QString &workingDirectory,
     return rc;
 }
 
-bool VcsBaseEditorWidget::setConfigurationWidget(QWidget *w)
+bool VcsBaseEditorWidget::setConfigurationWidget(VcsBaseEditorParameterWidget *w)
 {
     if (!d->m_editor || d->m_configurationWidget)
         return false;
@@ -1335,7 +1336,7 @@ bool VcsBaseEditorWidget::setConfigurationWidget(QWidget *w)
     return true;
 }
 
-QWidget *VcsBaseEditorWidget::configurationWidget() const
+VcsBaseEditorParameterWidget *VcsBaseEditorWidget::configurationWidget() const
 {
     return d->m_configurationWidget;
 }

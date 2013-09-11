@@ -1013,15 +1013,14 @@ DiffEditor::DiffEditor *GitClient::createDiffEditor(const char *registerDynamicP
  * (using the file's codec). Makes use of a dynamic property to find an
  * existing instance and to reuse it (in case, say, 'git diff foo' is
  * already open). */
-VcsBase::VcsBaseEditorWidget *GitClient::createVcsEditor(const Core::Id &id,
-                                                         QString title,
-                                                         // Source file or directory
-                                                         const QString &source,
-                                                         CodecType codecType,
-                                                         // Dynamic property and value to identify that editor
-                                                         const char *registerDynamicProperty,
-                                                         const QString &dynamicPropertyValue,
-                                                         QWidget *configWidget) const
+VcsBase::VcsBaseEditorWidget *GitClient::createVcsEditor(
+        const Core::Id &id,
+        QString title,
+        const QString &source, // Source file or directory
+        CodecType codecType,
+        const char *registerDynamicProperty, // Dynamic property and value to identify that editor
+        const QString &dynamicPropertyValue,
+        VcsBase::VcsBaseEditorParameterWidget *configWidget) const
 {
     VcsBase::VcsBaseEditorWidget *rc = 0;
     QTC_CHECK(!findExistingVCSEditor(registerDynamicProperty, dynamicPropertyValue));
@@ -1219,14 +1218,10 @@ void GitClient::diff(const QString &workingDirectory,
         }
         vcsEditor->setDiffBaseDirectory(workingDirectory);
 
-        GitFileDiffArgumentsWidget *argWidget = qobject_cast<GitFileDiffArgumentsWidget *>(
-                    vcsEditor->configurationWidget());
-        QStringList userDiffArgs = argWidget->arguments();
-
         QStringList cmdArgs;
         cmdArgs << QLatin1String("diff")
                 << QLatin1String(noColorOption)
-                << userDiffArgs;
+                << vcsEditor->configurationWidget()->arguments();
 
         if (!fileName.isEmpty())
             cmdArgs << QLatin1String("--") << fileName;
@@ -1287,14 +1282,10 @@ void GitClient::diffBranch(const QString &workingDirectory,
         }
         vcsEditor->setDiffBaseDirectory(workingDirectory);
 
-        GitBranchDiffArgumentsWidget *argWidget = qobject_cast<GitBranchDiffArgumentsWidget *>(
-                    vcsEditor->configurationWidget());
-        QStringList userDiffArgs = argWidget->arguments();
-
         QStringList cmdArgs;
         cmdArgs << QLatin1String("diff")
                 << QLatin1String(noColorOption)
-                << userDiffArgs
+                << vcsEditor->configurationWidget()->arguments()
                 << branchName;
 
         executeGit(workingDirectory, cmdArgs, vcsEditor);
@@ -1450,15 +1441,11 @@ void GitClient::show(const QString &source, const QString &id,
             newEditor = vcsEditor->editor();
         }
 
-        GitShowArgumentsWidget *argWidget = qobject_cast<GitShowArgumentsWidget *>(
-                    vcsEditor->configurationWidget());
-        QStringList userArgs = argWidget->arguments();
-
         QStringList arguments;
         arguments << QLatin1String("show")
                   << QLatin1String(noColorOption)
                   << QLatin1String(decorateOption)
-                  << userArgs
+                  << vcsEditor->configurationWidget()->arguments()
                   << id;
 
         vcsEditor->setDiffBaseDirectory(workingDirectory);
@@ -1520,12 +1507,9 @@ void GitClient::blame(const QString &workingDirectory,
         argWidget->setEditor(editor);
     }
 
-    GitBlameArgumentsWidget *argWidget = qobject_cast<GitBlameArgumentsWidget *>(editor->configurationWidget());
-    QStringList userBlameArgs = argWidget->arguments();
-
     QStringList arguments(QLatin1String("blame"));
     arguments << QLatin1String("--root");
-    arguments.append(userBlameArgs);
+    arguments.append(editor->configurationWidget()->arguments());
     arguments << QLatin1String("--") << fileName;
     if (!revision.isEmpty())
         arguments << revision;
