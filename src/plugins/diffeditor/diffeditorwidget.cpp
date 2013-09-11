@@ -57,7 +57,6 @@
 #include <utils/tooltip/tipcontents.h>
 #include <utils/tooltip/tooltip.h>
 
-static const int BASE_LEVEL = 0;
 static const int FILE_LEVEL = 1;
 static const int CHUNK_LEVEL = 2;
 
