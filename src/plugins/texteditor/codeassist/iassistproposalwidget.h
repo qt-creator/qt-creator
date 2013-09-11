@@ -65,6 +65,7 @@ public:
 signals:
     void prefixExpanded(const QString &newPrefix);
     void proposalItemActivated(IAssistProposalItem *proposalItem);
+    void explicitlyAborted();
 };
 
 } // TextEditor

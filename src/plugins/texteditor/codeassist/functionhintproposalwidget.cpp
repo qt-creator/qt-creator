@@ -215,6 +215,7 @@ bool FunctionHintProposalWidget::eventFilter(QObject *obj, QEvent *e)
     case QEvent::KeyRelease:
         if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape && d->m_escapePressed) {
             abort();
+            emit explicitlyAborted();
             return false;
         }
         d->m_assistant->notifyChange();

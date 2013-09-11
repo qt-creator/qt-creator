@@ -40,6 +40,7 @@
 #include <texteditor/basetexteditor.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/completionsettings.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
@@ -113,6 +114,8 @@ private slots:
     void finalizeProposal();
     void automaticProposalTimeout();
     void updateCompletionSettings(const TextEditor::CompletionSettings &settings);
+    void explicitlyAborted();
+    void clearAbortedPosition();
 
 private:
     CodeAssistant *m_q;
@@ -127,6 +130,7 @@ private:
     bool m_receivedContentWhileWaiting;
     QTimer m_automaticProposalTimer;
     CompletionSettings m_settings;
+    int m_abortedBasePosition;
     static const QChar m_null;
 };
 
@@ -148,6 +152,7 @@ CodeAssistantPrivate::CodeAssistantPrivate(CodeAssistant *assistant)
     , m_proposalWidget(0)
     , m_receivedContentWhileWaiting(false)
     , m_settings(TextEditorSettings::instance()->completionSettings())
+    , m_abortedBasePosition(-1)
 {
     m_automaticProposalTimer.setSingleShot(true);
     m_automaticProposalTimer.setInterval(AutomaticProposalTimerInterval);
@@ -157,6 +162,8 @@ CodeAssistantPrivate::CodeAssistantPrivate(CodeAssistant *assistant)
             SIGNAL(completionSettingsChanged(TextEditor::CompletionSettings)),
             this,
             SLOT(updateCompletionSettings(TextEditor::CompletionSettings)));
+    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
+            this, SLOT(clearAbortedPosition()));
 }
 
 CodeAssistantPrivate::~CodeAssistantPrivate()
@@ -307,33 +314,41 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
         destroyContext();
     }
 
-    if (m_textEditor->position() < proposalCandidate->basePosition())
+    int basePosition = proposalCandidate->basePosition();
+    if (m_textEditor->position() < basePosition)
         return;
 
+    if (m_abortedBasePosition == basePosition && reason != ExplicitlyInvoked)
+        return;
+
+    clearAbortedPosition();
     m_proposal.reset(proposalCandidate.take());
 
     if (m_proposal->isCorrective())
         m_proposal->makeCorrection(m_textEditor);
 
+    basePosition = m_proposal->basePosition();
     m_proposalWidget = m_proposal->createWidget();
     connect(m_proposalWidget, SIGNAL(destroyed()), this, SLOT(finalizeProposal()));
     connect(m_proposalWidget, SIGNAL(prefixExpanded(QString)),
             this, SLOT(handlePrefixExpansion(QString)));
     connect(m_proposalWidget, SIGNAL(proposalItemActivated(IAssistProposalItem*)),
             this, SLOT(processProposalItem(IAssistProposalItem*)));
+    connect(m_proposalWidget, SIGNAL(explicitlyAborted()),
+            this, SLOT(explicitlyAborted()));
     m_proposalWidget->setAssistant(m_q);
     m_proposalWidget->setReason(reason);
     m_proposalWidget->setKind(m_assistKind);
     m_proposalWidget->setUnderlyingWidget(m_textEditor->widget());
     m_proposalWidget->setModel(m_proposal->model());
-    m_proposalWidget->setDisplayRect(m_textEditor->cursorRect(m_proposal->basePosition()));
+    m_proposalWidget->setDisplayRect(m_textEditor->cursorRect(basePosition));
     if (m_receivedContentWhileWaiting)
         m_proposalWidget->setIsSynchronized(false);
     else
         m_proposalWidget->setIsSynchronized(true);
     m_proposalWidget->showProposal(m_textEditor->textDocument()->textAt(
-                                       m_proposal->basePosition(),
-                                       m_textEditor->position() - m_proposal->basePosition()));
+                                       basePosition,
+                                       m_textEditor->position() - basePosition));
 }
 
 void CodeAssistantPrivate::processProposalItem(IAssistProposalItem *proposalItem)
@@ -463,6 +478,17 @@ void CodeAssistantPrivate::stopAutomaticProposalTimer()
 void CodeAssistantPrivate::updateCompletionSettings(const TextEditor::CompletionSettings &settings)
 {
     m_settings = settings;
+}
+
+void CodeAssistantPrivate::explicitlyAborted()
+{
+    QTC_ASSERT(m_proposal, return);
+    m_abortedBasePosition = m_proposal->basePosition();
+}
+
+void CodeAssistantPrivate::clearAbortedPosition()
+{
+    m_abortedBasePosition = -1;
 }
 
 bool CodeAssistantPrivate::eventFilter(QObject *o, QEvent *e)
