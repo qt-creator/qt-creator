@@ -80,20 +80,6 @@ using namespace ProjectExplorer;
 // Open Questions
 // Who sets up the environment for cl.exe ? INCLUDEPATH and so on
 
-// Test for form editor (loosely coupled)
-static inline bool isFormWindowDocument(const QObject *o)
-{
-    return o && !qstrcmp(o->metaObject()->className(), "Designer::Internal::FormWindowFile");
-}
-
-// Return contents of form editor (loosely coupled)
-static inline QString formWindowEditorContents(const QObject *editor)
-{
-    const QVariant contentV = editor->property("contents");
-    QTC_ASSERT(contentV.isValid(), return QString());
-    return contentV.toString();
-}
-
 /*!
   \class CMakeProject
 */
