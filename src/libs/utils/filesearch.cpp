@@ -54,14 +54,6 @@ static inline QString msgFound(const QString &searchTerm, int numMatches, int nu
                                        arg(searchTerm).arg(numFilesSearched);
 }
 
-static inline QString msgFound(const QString &searchTerm, int numMatches, int numFilesSearched, int filesSize)
-{
-    return QCoreApplication::translate("Utils::FileSearch",
-                                       "%1: %n occurrences found in %2 of %3 files.",
-                                       0, QCoreApplication::CodecForTr, numMatches).
-                                       arg(searchTerm).arg(numFilesSearched).arg(filesSize);
-}
-
 namespace {
 
 const int MAX_LINE_SIZE = 400;
