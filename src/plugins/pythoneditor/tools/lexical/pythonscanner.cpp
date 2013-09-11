@@ -225,11 +225,6 @@ inline static bool isValidIntegerSuffix(QChar ch)
     return (ch == QLatin1Char('l') || ch == QLatin1Char('L'));
 }
 
-inline static bool isValidComplexSuffix(QChar ch)
-{
-    return (ch == QLatin1Char('j') || ch == QLatin1Char('J'));
-}
-
 FormatToken Scanner::readNumber()
 {
     if (!m_src.isEnd()) {
