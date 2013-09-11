@@ -612,8 +612,9 @@ def addCPlusPlusFileToCurrentProject(name, template, forceOverwrite=False):
                              "visible='1' window=%s}" % window)
     replaceEditorContent(lineEdit, name)
     clickButton(waitForObject(":Next_QPushButton"))
+    fileExistedBefore = os.path.exists(os.path.join(basePath, name))
     __createProjectHandleLastPage__()
-    if (os.path.exists(os.path.join(basePath, name))):
+    if (fileExistedBefore):
         overwriteDialog = "{type='Core::Internal::PromptOverwriteDialog' unnamed='1' visible='1'}"
         waitForObject(overwriteDialog)
         if forceOverwrite:
