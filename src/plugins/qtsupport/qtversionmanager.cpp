@@ -79,9 +79,6 @@ static FileSystemWatcher *m_configFileWatcher = 0;
 static QTimer *m_fileWatcherTimer = 0;
 static PersistentSettingsWriter *m_writer = 0;
 
-// legacy settings
-static const char QtVersionsSectionName[] = "QtVersions";
-
 enum { debug = 0 };
 
 static FileName globalSettingsFileName()
