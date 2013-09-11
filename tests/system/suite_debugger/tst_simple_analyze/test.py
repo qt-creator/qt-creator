@@ -107,7 +107,7 @@ def main():
                 test.compare(dumpItems(model, column=2)[0], '100.00 %')
                 for i in [3, 5, 6, 7]:
                     for item in dumpItems(model, column=i)[:numberOfMsRows]:
-                        test.verify(item.endswith(' ms'))
+                        test.verify(item.endswith(' ms'), "Verify that '%s' ends with ' ms'" % item)
             deleteAppFromWinFW(workingDir, projectName, False)
     invokeMenuItem("File", "Exit")
 
