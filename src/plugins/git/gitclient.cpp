@@ -1884,11 +1884,6 @@ QString GitClient::synchronousCurrentLocalBranch(const QString &workingDirectory
     return QString();
 }
 
-static inline QString msgCannotDetermineBranch(const QString &workingDirectory, const QString &why)
-{
-    return GitClient::tr("Cannot retrieve branch of \"%1\": %2").arg(QDir::toNativeSeparators(workingDirectory), why);
-}
-
 static inline QString msgCannotRun(const QString &command, const QString &workingDirectory, const QString &why)
 {
     return GitClient::tr("Cannot run \"%1\" in \"%2\": %3")
@@ -2638,21 +2633,6 @@ void GitClient::finishSubmoduleUpdate()
 void GitClient::fetchFinished(const QVariant &cookie)
 {
     GitPlugin::instance()->updateBranches(cookie.toString());
-}
-
-// Trim a git status file spec: "modified:    foo .cpp" -> "modified: foo .cpp"
-static inline QString trimFileSpecification(QString fileSpec)
-{
-    const int colonIndex = fileSpec.indexOf(QLatin1Char(':'));
-    if (colonIndex != -1) {
-        // Collapse the sequence of spaces
-        const int filePos = colonIndex + 2;
-        int nonBlankPos = filePos;
-        for ( ; fileSpec.at(nonBlankPos).isSpace(); nonBlankPos++) ;
-        if (nonBlankPos > filePos)
-            fileSpec.remove(filePos, nonBlankPos - filePos);
-    }
-    return fileSpec;
 }
 
 GitClient::StatusResult GitClient::gitStatus(const QString &workingDirectory, StatusMode mode,

@@ -139,7 +139,6 @@ static const char CMD_ID_UPDATE_PROJECT[] = "Perforce.UpdateProject";
 static const char CMD_ID_REVERT_PROJECT[] = "Perforce.RevertProject";
 static const char CMD_ID_REVERT_UNCHANGED_PROJECT[] = "Perforce.RevertUnchangedProject";
 static const char CMD_ID_DIFF_ALL[] = "Perforce.DiffAll";
-static const char CMD_ID_RESOLVE[] = "Perforce.Resolve";
 static const char CMD_ID_SUBMIT[] = "Perforce.Submit";
 static const char CMD_ID_PENDING_CHANGES[] = "Perforce.PendingChanges";
 static const char CMD_ID_DESCRIBE[] = "Perforce.Describe";

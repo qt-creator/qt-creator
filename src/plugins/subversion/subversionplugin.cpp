@@ -93,7 +93,6 @@ static const char CMD_ID_DIFF_CURRENT[]       = "Subversion.DiffCurrent";
 static const char CMD_ID_COMMIT_ALL[]         = "Subversion.CommitAll";
 static const char CMD_ID_REVERT_ALL[]         = "Subversion.RevertAll";
 static const char CMD_ID_COMMIT_CURRENT[]     = "Subversion.CommitCurrent";
-static const char CMD_ID_SEPARATOR2[]         = "Subversion.Separator2";
 static const char CMD_ID_FILELOG_CURRENT[]    = "Subversion.FilelogCurrent";
 static const char CMD_ID_ANNOTATE_CURRENT[]   = "Subversion.AnnotateCurrent";
 static const char CMD_ID_STATUS[]             = "Subversion.Status";

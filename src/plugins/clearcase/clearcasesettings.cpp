@@ -42,7 +42,6 @@ static const char historyCountKeyC[] = "HistoryCount";
 static const char timeOutKeyC[] = "TimeOut";
 static const char autoCheckOutKeyC[] = "AutoCheckOut";
 static const char diffTypeKeyC[] = "DiffType";
-static const char extDiffCommandKeyC[] = "ExternalDiffCommand";
 static const char diffArgsKeyC[] = "DiffArgs";
 static const char autoAssignActivityKeyC[] = "AutoAssignActivityName";
 static const char promptToCheckInKeyC[] = "PromptToCheckIn";
