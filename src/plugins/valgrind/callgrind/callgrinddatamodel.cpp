@@ -44,18 +44,6 @@
 namespace Valgrind {
 namespace Callgrind {
 
-//BEGIN Helper
-
-namespace {
-    // minimum amount of columns, i.e.:
-    // function name
-    // file name
-    // object name
-    // num called
-    // Additional to this, 2 * ParseData::events().size will be shown (inclusive + self cost)
-    const int MinColumnSize = 4;
-}
-
 //BEGIN DataModel::Private
 
 class DataModel::Private
