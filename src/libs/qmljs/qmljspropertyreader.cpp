@@ -99,30 +99,6 @@ static inline QString textAt(const Document::Ptr doc,
     return doc->source().mid(from.offset, to.end() - from.begin());
 }
 
-static inline int propertyType(const QString &typeName)
-{
-    if (typeName == QLatin1String("bool"))
-        return QMetaType::type("bool");
-    else if (typeName == QLatin1String("color"))
-        return QMetaType::type("QColor");
-    else if (typeName == QLatin1String("date"))
-        return QMetaType::type("QDate");
-    else if (typeName == QLatin1String("int"))
-        return QMetaType::type("int");
-    else if (typeName == QLatin1String("real"))
-        return QMetaType::type("double");
-    else if (typeName == QLatin1String("double"))
-        return QMetaType::type("double");
-    else if (typeName == QLatin1String("string"))
-        return QMetaType::type("QString");
-    else if (typeName == QLatin1String("url"))
-        return QMetaType::type("QUrl");
-    else if (typeName == QLatin1String("variant"))
-        return QMetaType::type("QVariant");
-    else
-        return -1;
-}
-
 static bool isEnum(AST::Statement *ast);
 
 bool isEnum(AST::ExpressionNode *ast)
