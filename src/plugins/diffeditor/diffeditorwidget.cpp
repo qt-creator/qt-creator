@@ -890,6 +890,16 @@ QTextCodec *DiffEditorWidget::codec() const
     return const_cast<QTextCodec *>(m_leftEditor->codec());
 }
 
+QString DiffEditorWidget::source() const
+{
+    return m_source;
+}
+
+void DiffEditorWidget::setSource(const QString &source)
+{
+    m_source = source;
+}
+
 BaseTextEditorWidget *DiffEditorWidget::leftEditor() const
 {
     return m_leftEditor;

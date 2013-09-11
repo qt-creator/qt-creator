@@ -367,6 +367,7 @@ private:
                                             VcsBase::VcsBaseEditorParameterWidget *configWidget) const;
     DiffEditor::DiffEditor *createDiffEditor(const char *registerDynamicProperty,
                                              const QString &dynamicPropertyValue,
+                                             const QString &source,
                                              const QString &titlePattern,
                                              const Core::Id editorId) const;
 

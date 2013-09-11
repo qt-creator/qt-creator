@@ -58,6 +58,7 @@ struct FileData;
 
 class DIFFEDITOR_EXPORT DiffEditorWidget : public QWidget
 {
+    Q_PROPERTY(QString source READ source WRITE setSource)
     Q_OBJECT
 public:
     struct DiffFileInfo {
@@ -82,6 +83,9 @@ public:
     void clear(const QString &message);
     void setDiff(const QList<DiffFilesContents> &diffFileList, const QString &workingDirectory = QString());
     QTextCodec *codec() const;
+
+    QString source() const;
+    void setSource(const  QString &source);
 
 #ifdef WITH_TESTS
     void testAssemblyRows();
@@ -151,6 +155,7 @@ private:
     bool m_syncScrollBars;
 
     bool m_foldingBlocker;
+    QString m_source;
 
     QTextCharFormat m_fileLineFormat;
     QTextCharFormat m_chunkLineFormat;

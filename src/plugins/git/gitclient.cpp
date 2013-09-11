@@ -997,13 +997,17 @@ DiffEditor::DiffEditor *GitClient::findExistingDiffEditor(const char *registerDy
 }
 
 DiffEditor::DiffEditor *GitClient::createDiffEditor(const char *registerDynamicProperty,
-    const QString &dynamicPropertyValue, const QString &titlePattern, const Core::Id editorId) const
+                                                    const QString &dynamicPropertyValue,
+                                                    const QString &source,
+                                                    const QString &titlePattern,
+                                                    const Core::Id editorId) const
 {
     QString title = titlePattern;
     DiffEditor::DiffEditor *diffEditor = qobject_cast<DiffEditor::DiffEditor *>(
                 Core::EditorManager::openEditorWithContents(editorId, &title, m_msgWait.toUtf8()));
     QTC_ASSERT(diffEditor, return 0);
     diffEditor->document()->setProperty(registerDynamicProperty, dynamicPropertyValue);
+    diffEditor->editorWidget()->setSource(source);
 
     Core::EditorManager::activateEditor(diffEditor);
     return diffEditor;
@@ -1068,6 +1072,7 @@ void GitClient::diff(const QString &workingDirectory,
         DiffEditor::DiffEditor *diffEditor = findExistingDiffEditor(propertyName, workingDirectory);
         if (!diffEditor) {
             newEditor = diffEditor = createDiffEditor(propertyName,
+                                                      workingDirectory,
                                                       workingDirectory,
                                                       title,
                                                       DiffEditor::Constants::DIFF_EDITOR_ID);
@@ -1189,6 +1194,7 @@ void GitClient::diff(const QString &workingDirectory,
         if (!diffEditor) {
             newEditor = diffEditor = createDiffEditor(propertyName,
                                                       sourceFile,
+                                                      sourceFile,
                                                       title,
                                                       DiffEditor::Constants::DIFF_EDITOR_ID);
         }
@@ -1252,6 +1258,7 @@ void GitClient::diffBranch(const QString &workingDirectory,
         if (!diffEditor) {
             newEditor = diffEditor = createDiffEditor(propertyName,
                                                       branchName,
+                                                      workingDirectory,
                                                       title,
                                                       DiffEditor::Constants::DIFF_EDITOR_ID);
         }
@@ -1413,6 +1420,7 @@ void GitClient::show(const QString &source, const QString &id,
         if (!diffEditor) {
             newEditor = diffEditor = createDiffEditor(propertyName,
                                                       id,
+                                                      source,
                                                       title,
                                                       DiffEditor::Constants::DIFF_SHOW_EDITOR_ID);
         }
