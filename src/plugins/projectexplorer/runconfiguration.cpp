@@ -52,16 +52,6 @@
 
 using namespace ProjectExplorer;
 
-namespace {
-
-const char USE_CPP_DEBUGGER_KEY[] = "RunConfiguration.UseCppDebugger";
-const char USE_QML_DEBUGGER_KEY[] = "RunConfiguration.UseQmlDebugger";
-const char USE_QML_DEBUGGER_AUTO_KEY[] = "RunConfiguration.UseQmlDebuggerAuto";
-const char QML_DEBUG_SERVER_PORT_KEY[] = "RunConfiguration.QmlDebugServerPort";
-const char USE_MULTIPROCESS_KEY[] = "RunConfiguration.UseMultiProcess";
-
-} // namespace
-
 /*!
     \class ProjectExplorer::ProcessHandle
     \brief The ProcessHandle class is a helper class to describe a process.

@@ -61,7 +61,6 @@ namespace ProjectExplorer {
 static const char compilerCommandKeyC[] = "ProjectExplorer.CustomToolChain.CompilerPath";
 static const char makeCommandKeyC[] = "ProjectExplorer.CustomToolChain.MakePath";
 static const char targetAbiKeyC[] = "ProjectExplorer.CustomToolChain.TargetAbi";
-static const char supportedAbisKeyC[] = "ProjectExplorer.CustomToolChain.SupportedAbis";
 static const char predefinedMacrosKeyC[] = "ProjectExplorer.CustomToolChain.PredefinedMacros";
 static const char headerPathsKeyC[] = "ProjectExplorer.CustomToolChain.HeaderPaths";
 static const char cxx11FlagsKeyC[] = "ProjectExplorer.CustomToolChain.Cxx11Flags";

@@ -88,7 +88,6 @@ static const char fieldMandatoryAttributeC[] = "mandatory";
 static const char fieldControlElementC[] = "fieldcontrol";
 
 static const char filesElementC[] = "files";
-static const char filesGeneratorScriptAttributeC[] = "generatorscript";
 static const char fileElementC[] = "file";
 static const char fileSourceAttributeC[] = "source";
 static const char fileTargetAttributeC[] = "target";
