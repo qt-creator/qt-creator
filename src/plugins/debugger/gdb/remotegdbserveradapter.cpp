@@ -63,7 +63,7 @@ GdbRemoteServerEngine::GdbRemoteServerEngine(const DebuggerStartParameters &star
     m_isMulti = false;
     m_targetPid = -1;
 #ifdef Q_OS_WIN
-    m_gdbProc.setUseCtrlCStub(!startParameters.remoteExecutable.isEmpty()); // This is only set for QNX
+    m_gdbProc->setUseCtrlCStub(!startParameters.remoteExecutable.isEmpty()); // This is only set for QNX
 #endif
     connect(&m_uploadProc, SIGNAL(error(QProcess::ProcessError)),
         SLOT(uploadProcError(QProcess::ProcessError)));
