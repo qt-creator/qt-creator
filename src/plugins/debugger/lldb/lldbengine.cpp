@@ -1031,7 +1031,7 @@ void LldbEngine::fetchMemory(MemoryAgent *agent, QObject *editorToken,
         m_memoryAgents.insert(agent, id);
         m_memoryAgentTokens.insert(id, editorToken);
     }
-    runCommand(Command("readMemory")
+    runCommand(Command("fetchMemory")
                .arg("address", addr)
                .arg("length", length)
                .arg("cookie", id));

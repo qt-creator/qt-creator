@@ -836,7 +836,8 @@ void tst_Dumpers::dumper()
                 "set auto-load python-scripts no\n";
 
         if (m_usePython) {
-            cmds += "python execfile('" + dumperDir + "/gbridge.py')\n"
+            cmds += "python sys.path.insert(1, '" + dumperDir + "')\n"
+                    "python from gbridge import *\n"
                     "run " + nograb + "\n"
                     "up\n"
                     "python print('@%sS@%s@' % ('N', qtNamespace()))\n"
@@ -3401,7 +3402,7 @@ void tst_Dumpers::dumper_data()
                % Profile("QT += network\n")
                % Check("ha", "\"127.0.0.1\"", "@QHostAddress")
                % Check("ha.a", "0", "@quint32")
-               % Check("ha.a6", "", "@Q_IPV6ADDR")
+               % Check("ha.a6", "0:0:0:0:0:0:0:0", "@Q_IPV6ADDR")
                % Check("ha.ipString", "\"127.0.0.1\"", "@QString")
                % Check("ha.isParsed", "false", "bool")
                % Check("ha.protocol", "@QAbstractSocket::UnknownNetworkLayerProtocol (-1)",
@@ -3409,7 +3410,7 @@ void tst_Dumpers::dumper_data()
                % Check("ha.scopeId", "\"\"", "@QString")
                % Check("ha1", "\"127.0.0.1\"", "@QHostAddress")
                % Check("ha1.a", "0", "@quint32")
-               % Check("ha1.a6", "", "@Q_IPV6ADDR")
+               % Check("ha1.a6", "0:0:0:0:0:0:0:0", "@Q_IPV6ADDR")
                % Check("ha1.ipString", "\"127.0.0.1\"", "@QString")
                % Check("ha1.isParsed", "false", "bool")
                % Check("ha1.protocol", "@QAbstractSocket::UnknownNetworkLayerProtocol (-1)",

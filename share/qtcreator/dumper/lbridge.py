@@ -1,3 +1,31 @@
+############################################################################
+#
+# Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+# Contact: http://www.qt-project.org/legal
+#
+# This file is part of Qt Creator.
+#
+# Commercial License Usage
+# Licensees holding valid commercial Qt licenses may use this file in
+# accordance with the commercial license agreement provided with the
+# Software or, alternatively, in accordance with the terms contained in
+# a written agreement between you and Digia.  For licensing terms and
+# conditions see http://qt.digia.com/licensing.  For further information
+# use the contact form at http://qt.digia.com/contact-us.
+#
+# GNU Lesser General Public License Usage
+# Alternatively, this file may be used under the terms of the GNU Lesser
+# General Public License version 2.1 as published by the Free Software
+# Foundation and appearing in the file LICENSE.LGPL included in the
+# packaging of this file.  Please review the following information to
+# ensure the GNU Lesser General Public License version 2.1 requirements
+# will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+#
+# In addition, as a special exception, Digia gives you certain additional
+# rights.  These rights are described in the Digia Qt LGPL Exception
+# version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+#
+#############################################################################
 
 import atexit
 import binascii
@@ -7,6 +35,14 @@ import threading
 import select
 import sys
 import subprocess
+
+currentDir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+sys.path.insert(1, currentDir)
+
+from dumper import *
+from qttypes import *
+
+
 
 proc = subprocess.Popen(args=[sys.argv[1], '-P'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 (path, error) = proc.communicate()
@@ -29,115 +65,13 @@ sys.path.insert(1, path.strip())
 
 import lldb
 
-cdbLoaded = False
-gdbLoaded = False
-lldbLoaded = True
-
-# Encodings. Keep that synchronized with DebuggerEncoding in watchutils.h
-Unencoded8Bit, \
-Base64Encoded8BitWithQuotes, \
-Base64Encoded16BitWithQuotes, \
-Base64Encoded32BitWithQuotes, \
-Base64Encoded16Bit, \
-Base64Encoded8Bit, \
-Hex2EncodedLatin1, \
-Hex4EncodedLittleEndian, \
-Hex8EncodedLittleEndian, \
-Hex2EncodedUtf8, \
-Hex8EncodedBigEndian, \
-Hex4EncodedBigEndian, \
-Hex4EncodedLittleEndianWithoutQuotes, \
-Hex2EncodedLocal8Bit, \
-JulianDate, \
-MillisecondsSinceMidnight, \
-JulianDateAndMillisecondsSinceMidnight, \
-Hex2EncodedInt1, \
-Hex2EncodedInt2, \
-Hex2EncodedInt4, \
-Hex2EncodedInt8, \
-Hex2EncodedUInt1, \
-Hex2EncodedUInt2, \
-Hex2EncodedUInt4, \
-Hex2EncodedUInt8, \
-Hex2EncodedFloat4, \
-Hex2EncodedFloat8, \
-IPv6AddressAndHexScopeId \
-    = range(28)
-
-# Display modes. Keep that synchronized with DebuggerDisplay in watchutils.h
-StopDisplay, \
-DisplayImageData, \
-DisplayUtf16String, \
-DisplayImageFile, \
-DisplayProcess, \
-DisplayLatin1String, \
-DisplayUtf8String \
-    = range(7)
-
-def isSimpleType(typeobj):
-    typeClass = typeobj.GetTypeClass()
-    #warn("TYPECLASS: %s" % typeClass)
-    return typeClass == lldb.eTypeClassBuiltin
-
-def call2(value, func, args):
-    # args is a tuple.
-    arg = ','.join(args)
-    #warn("CALL: %s -> %s(%s)" % (value, func, arg))
-    type = value.type.name
-    exp = "((%s*)%s)->%s(%s)" % (type, value.address, func, arg)
-    #warn("CALL: %s" % exp)
-    result = value.CreateValueFromExpression('$tmp', exp)
-    #warn("  -> %s" % result)
-    return result
-
-def call(value, func, *args):
-    return call2(value, func, args)
-
 #######################################################################
 #
 # Helpers
 #
 #######################################################################
 
-qqStringCutOff = 10000
 qqWatchpointOffset = 10000
-
-# This is a cache mapping from 'type name' to 'display alternatives'.
-qqFormats = {}
-
-# This is a cache of all known dumpers.
-qqDumpers = {}
-
-# This is a cache of all dumpers that support writing.
-qqEditable = {}
-
-# This keeps canonical forms of the typenames, without array indices etc.
-qqStripForFormat = {}
-
-def directBaseClass(typeobj, index = 0):
-    return typeobj.GetDirectBaseClassAtIndex(index)
-
-def stripForFormat(typeName):
-    global qqStripForFormat
-    if typeName in qqStripForFormat:
-        return qqStripForFormat[typeName]
-    stripped = ""
-    inArray = 0
-    for c in typeName:
-        if c == '<':
-            break
-        if c == ' ':
-            continue
-        if c == '[':
-            inArray += 1
-        elif c == ']':
-            inArray -= 1
-        if inArray and ord(c) >= 48 and ord(c) <= 57:
-            continue
-        stripped +=  c
-    qqStripForFormat[typeName] = stripped
-    return stripped
-
 
 def registerDumper(function):
     if hasattr(function, 'func_name'):
@@ -162,7 +96,7 @@ def registerDumper(function):
                 pass
 
 def warn(message):
-    print '\n\nWARNING="%s",\n' % message.encode("latin1").replace('"', "'")
+    print('\n\nWARNING="%s",\n' % message.encode("latin1").replace('"', "'"))
 
 def showException(msg, exType, exValue, exTraceback):
     warn("**** CAUGHT EXCEPTION: %s ****" % msg)
@@ -209,17 +143,7 @@ def check(exp):
     if not exp:
         raise RuntimeError("Check failed")
 
-def checkPointer(p, align = 1):
-    if not isNull(p):
-        p.Dereference()
-
-def isNull(p):
-    return p.GetValueAsUnsigned() == 0
-
 Value = lldb.SBValue
-
-def pointerValue(value):
-    return value.GetValueAsUnsigned()
 
 def impl_SBValue__add__(self, offset):
     if self.GetType().IsPointerType():
@@ -284,12 +208,6 @@ def impl_SBValue__getitem__(value, index):
         return value.GetChildAtIndex(index)
     return value.GetChildMemberWithName(index)
 
-def childAt(value, index):
-    return value.GetChildAtIndex(index)
-
-def fieldAt(type, index):
-    return type.GetFieldAtIndex(index)
-
 lldb.SBValue.__add__ = impl_SBValue__add__
 lldb.SBValue.__sub__ = impl_SBValue__sub__
 lldb.SBValue.__le__ = impl_SBValue__le__
@@ -346,160 +264,10 @@ def simpleEncoding(typeobj):
                 return Hex2EncodedInt8
     return None
 
-class Children:
-    def __init__(self, d, numChild = 1, childType = None, childNumChild = None,
-            maxNumChild = None, addrBase = None, addrStep = None):
-        self.d = d
-        self.numChild = numChild
-        self.childNumChild = childNumChild
-        self.maxNumChild = maxNumChild
-        self.addrBase = addrBase
-        self.addrStep = addrStep
-        self.printsAddress = True
-        if childType is None:
-            self.childType = None
-        else:
-            #self.childType = stripClassTag(str(childType))
-            self.childType = childType
-            self.d.put('childtype="%s",' % self.childType.GetName())
-            if childNumChild is None:
-                pass
-                #if isSimpleType(childType):
-                #    self.d.put('childnumchild="0",')
-                #    self.childNumChild = 0
-                #elif childType.code == lldb.eTypeClassPointer:
-                #    self.d.put('childnumchild="1",')
-                #    self.childNumChild = 1
-            else:
-                self.d.put('childnumchild="%s",' % childNumChild)
-                self.childNumChild = childNumChild
-        try:
-            if not addrBase is None and not addrStep is None:
-                self.d.put('addrbase="0x%x",' % int(addrBase))
-                self.d.put('addrstep="0x%x",' % int(addrStep))
-                self.printsAddress = False
-        except:
-            warn("ADDRBASE: %s" % addrBase)
-            warn("ADDRSTEP: %s" % addrStep)
-        #warn("CHILDREN: %s %s %s" % (numChild, childType, childNumChild))
-
-    def __enter__(self):
-        self.savedChildType = self.d.currentChildType
-        self.savedChildNumChild = self.d.currentChildNumChild
-        self.savedNumChild = self.d.currentNumChild
-        self.savedMaxNumChild = self.d.currentMaxNumChild
-        self.savedPrintsAddress = self.d.currentPrintsAddress
-        self.d.currentChildType = self.childType
-        self.d.currentChildNumChild = self.childNumChild
-        self.d.currentNumChild = self.numChild
-        self.d.currentMaxNumChild = self.maxNumChild
-        self.d.currentPrintsAddress = self.printsAddress
-        self.d.put("children=[")
-
-    def __exit__(self, exType, exValue, exTraceBack):
-        if not exType is None:
-            if self.d.passExceptions:
-                showException("CHILDREN", exType, exValue, exTraceBack)
-            self.d.putNumChild(0)
-            self.d.putValue("<not accessible>")
-        if not self.d.currentMaxNumChild is None:
-            if self.d.currentMaxNumChild < self.d.currentNumChild:
-                self.d.put('{name="<incomplete>",value="",type="",numchild="0"},')
-        self.d.currentChildType = self.savedChildType
-        self.d.currentChildNumChild = self.savedChildNumChild
-        self.d.currentNumChild = self.savedNumChild
-        self.d.currentMaxNumChild = self.savedMaxNumChild
-        self.d.currentPrintsAddress = self.savedPrintsAddress
-        self.d.put('],')
-        return True
-
-
-class NoAddress:
-    def __init__(self, d):
-        self.d = d
-
-    def __enter__(self):
-        self.savedPrintsAddress = self.d.currentPrintsAddress
-        self.d.currentPrintsAddress = False
-
-    def __exit__(self, exType, exValue, exTraceBack):
-        self.d.currentPrintsAddress = self.savedPrintsAddress
-
-
-
-class SubItem:
-    def __init__(self, d, component):
-        self.d = d
-        if isinstance(component, lldb.SBValue):
-            # Avoid $$__synth__ suffix on Mac.
-            value = component
-            value.SetPreferSyntheticValue(False)
-            self.name = value.GetName()
-            if self.name is None:
-                d.anonNumber += 1
-                self.name = "#%d" % d.anonNumber
-        else:
-            self.name = component
-        self.iname = "%s.%s" % (d.currentIName, self.name)
-
-    def __enter__(self):
-        self.d.put('{')
-        #if not self.name is None:
-        if isinstance(self.name, str):
-            if self.name == '**&':
-                self.name = '*'
-            self.d.put('name="%s",' % self.name)
-        self.savedIName = self.d.currentIName
-        self.savedCurrentAddress = self.d.currentAddress
-        self.savedValue = self.d.currentValue
-        self.savedValuePriority = self.d.currentValuePriority
-        self.savedValueEncoding = self.d.currentValueEncoding
-        self.savedType = self.d.currentType
-        self.savedTypePriority = self.d.currentTypePriority
-        self.d.currentIName = self.iname
-        self.d.currentValuePriority = -100
-        self.d.currentValueEncoding = None
-        self.d.currentType = ""
-        self.d.currentTypePriority = -100
-
-    def __exit__(self, exType, exValue, exTraceBack):
-        if not exType is None:
-            if self.d.passExceptions:
-                showException("SUBITEM", exType, exValue, exTraceBack)
-            self.d.putNumChild(0)
-            self.d.putValue("<not accessible>")
-        try:
-            typeName = self.d.currentType
-            if len(typeName) > 0 and typeName != self.d.currentChildType:
-                self.d.put('type="%s",' % typeName) # str(type.unqualified()) ?
-            if  self.d.currentValue is None:
-                self.d.put('value="<not accessible>",numchild="0",')
-            else:
-                if not self.d.currentValueEncoding is None:
-                    self.d.put('valueencoded="%d",' % self.d.currentValueEncoding)
-                self.d.put('value="%s",' % self.d.currentValue)
-        except:
-            pass
-        if not self.d.currentAddress is None:
-            self.d.put(self.d.currentAddress)
-        self.d.put('},')
-        self.d.currentIName = self.savedIName
-        self.d.currentValue = self.savedValue
-        self.d.currentValuePriority = self.savedValuePriority
-        self.d.currentValueEncoding = self.savedValueEncoding
-        self.d.currentType = self.savedType
-        self.d.currentTypePriority = self.savedTypePriority
-        self.d.currentAddress = self.savedCurrentAddress
-        return True
-
-class UnnamedSubItem(SubItem):
-    def __init__(self, d, component):
-        self.d = d
-        self.iname = "%s.%s" % (self.d.currentIName, component)
-        self.name = None
-
-class Dumper:
+class Dumper(DumperBase):
     def __init__(self):
+        DumperBase.__init__(self)
+
         self.debugger = lldb.SBDebugger.Create()
         #self.debugger.SetLoggingCallback(loggingCallback)
         #Same as: self.debugger.HandleCommand("log enable lldb dyld step")
@@ -512,6 +280,7 @@ class Dumper:
             warn("DISABLING DEFAULT FORMATTERS")
             self.debugger.HandleCommand('type category delete gnu-libstdc++')
             self.debugger.HandleCommand('type category delete libcxx')
+        self.isLldb = True
         self.process = None
         self.target = None
         self.eventState = lldb.eStateInvalid
@@ -549,6 +318,103 @@ class Dumper:
         self.isShuttingDown_ = False
         self.isInterrupting_ = False
         self.dummyValue = None
+
+    def enterSubItem(self, item):
+        if isinstance(item.name, lldb.SBValue):
+            # Avoid $$__synth__ suffix on Mac.
+            value = item.name
+            value.SetPreferSyntheticValue(False)
+            item.name = value.GetName()
+            if item.name is None:
+                self.anonNumber += 1
+                item.name = "#%d" % self.anonNumber
+        item.iname = "%s.%s" % (self.currentIName, item.name)
+        self.put('{')
+        #if not item.name is None:
+        if isinstance(item.name, str):
+            if item.name == '**&':
+                item.name = '*'
+            self.put('name="%s",' % item.name)
+        item.savedIName = self.currentIName
+        item.savedCurrentAddress = self.currentAddress
+        item.savedValue = self.currentValue
+        item.savedValuePriority = self.currentValuePriority
+        item.savedValueEncoding = self.currentValueEncoding
+        item.savedType = self.currentType
+        item.savedTypePriority = self.currentTypePriority
+        self.currentIName = item.iname
+        self.currentValuePriority = -100
+        self.currentValueEncoding = None
+        self.currentType = ""
+        self.currentTypePriority = -100
+
+    def exitSubItem(self, item, exType, exValue, exTraceBack):
+        if not exType is None:
+            if self.passExceptions:
+                showException("SUBITEM", exType, exValue, exTraceBack)
+            self.putNumChild(0)
+            self.putValue("<not accessible>")
+        try:
+            typeName = self.currentType
+            if len(typeName) > 0 and typeName != self.currentChildType:
+                self.put('type="%s",' % typeName) # str(type.unqualified()) ?
+            if  self.currentValue is None:
+                self.put('value="<not accessible>",numchild="0",')
+            else:
+                if not self.currentValueEncoding is None:
+                    self.put('valueencoded="%d",' % self.currentValueEncoding)
+                self.put('value="%s",' % self.currentValue)
+        except:
+            pass
+        if not self.currentAddress is None:
+            self.put(self.currentAddress)
+        self.put('},')
+        self.currentIName = item.savedIName
+        self.currentValue = item.savedValue
+        self.currentValuePriority = item.savedValuePriority
+        self.currentValueEncoding = item.savedValueEncoding
+        self.currentType = item.savedType
+        self.currentTypePriority = item.savedTypePriority
+        self.currentAddress = item.savedCurrentAddress
+        return True
+
+    def isSimpleType(self, typeobj):
+        typeClass = typeobj.GetTypeClass()
+        #warn("TYPECLASS: %s" % typeClass)
+        return typeClass == lldb.eTypeClassBuiltin
+
+    def childAt(self, value, index):
+        return value.GetChildAtIndex(index)
+
+    def fieldAt(self, type, index):
+        return type.GetFieldAtIndex(index)
+
+    def pointerValue(self, value):
+        return value.GetValueAsUnsigned()
+
+    def call2(self, value, func, args):
+        # args is a tuple.
+        arg = ','.join(args)
+        #warn("CALL: %s -> %s(%s)" % (value, func, arg))
+        type = value.type.name
+        exp = "((%s*)%s)->%s(%s)" % (type, value.address, func, arg)
+        #warn("CALL: %s" % exp)
+        result = value.CreateValueFromExpression('$tmp', exp)
+        #warn("  -> %s" % result)
+        return result
+
+    def call(self, value, func, *args):
+        return self.call2(value, func, args)
+
+    def checkPointer(self, p, align = 1):
+        if not self.isNull(p):
+            p.Dereference()
+
+    def isNull(self, p):
+        return p.GetValueAsUnsigned() == 0
+
+    def directBaseClass(self, typeobj, index = 0):
+        return typeobj.GetDirectBaseClassAtIndex(index)
 
     def extractTemplateArgument(self, typename, index):
         level = 0
@@ -723,7 +589,7 @@ class Dumper:
         return self.currentIName in self.expandedINames
 
     def tryPutArrayContents(self, typeobj, base, n):
-        if not isSimpleType(typeobj):
+        if not self.isSimpleType(typeobj):
             return False
         size = n * typeobj.sizeof
         self.put('childtype="%s",' % typeobj)
@@ -731,7 +597,7 @@ class Dumper:
         self.put('addrstep="%d",' % typeobj.sizeof)
         self.put('arrayencoding="%s",' % simpleEncoding(typeobj))
         self.put('arraydata="')
-        self.put(self.readRawMemory(base, size))
+        self.put(self.readMemory(base, size))
         self.put('",')
         return True
 
@@ -763,7 +629,7 @@ class Dumper:
         return self.context.CreateValueFromAddress(None, addr, referencedType)
 
     def putCallItem(self, name, value, func, *args):
-        result = call2(value, func, args)
+        result = self.call2(value, func, args)
         with SubItem(self, name):
             self.putItem(result)
 
@@ -780,13 +646,13 @@ class Dumper:
                self.putFields(value)
 
     def lookupType(self, name):
+        warn("LOOKUP TYPE NAME: %s" % name)
         if name.endswith('*'):
             type = self.lookupType(name[:-1].strip())
             return type.GetPointerType() if type.IsValid() else None
-        #warn("LOOKUP TYPE NAME: %s" % name)
-        #warn("LOOKUP RESULT: %s" % self.target.FindFirstType(name))
-        #warn("LOOKUP RESULT: %s" % self.target.FindFirstType(name))
         type = self.target.FindFirstType(name)
+        warn("LOOKUP RESULT: %s" % type.name)
+        warn("LOOKUP VALID: %s" % type.IsValid())
         return type if type.IsValid() else None
 
     def setupInferior(self, args):
@@ -925,15 +791,11 @@ class Dumper:
         self.currentTypePriority = self.currentTypePriority + 1
         #warn("BETTER TYPE: %s PRIORITY: %s" % (type, self.currentTypePriority))
 
-    def readRawMemory(self, base, size):
+    def readMemory(self, base, size):
         if size == 0:
             return ""
-        #warn("BASE: %s " % base)
-        #warn("SIZE: %s " % size)
         base = int(base) & 0xFFFFFFFFFFFFFFFF
         size = int(size) & 0xFFFFFFFF
-        #warn("BASEX: %s " % base)
-        #warn("SIZEX: %s " % size)
         error = lldb.SBError()
         contents = self.process.ReadMemory(base, size, error)
         return binascii.hexlify(contents)
@@ -948,13 +810,6 @@ class Dumper:
             return name.find("10metaObjectEv") > 0
         except:
             return False
-
-    def computeLimit(self, size, limit):
-        if limit is None:
-            return size
-        if limit == 0:
-            return min(size, qqStringCutOff)
-        return min(size, limit)
 
     def putValue(self, value, encoding = None, priority = 0):
         # Higher priority values override lower ones.
@@ -1063,7 +918,7 @@ class Dumper:
 
         # Pointers
         if value.GetType().IsPointerType():
-            if isNull(value):
+            if self.isNull(value):
                 self.putType(typeName)
                 self.putValue("0x0")
                 self.putNumChild(0)
@@ -1571,7 +1426,7 @@ class Dumper:
             result += ',offset="%s"},' % (addr - base)
         self.report(result + ']')
 
-    def readMemory(self, args):
+    def fetchMemory(self, args):
         address = args['address']
         length = args['length']
         error = lldb.SBError()

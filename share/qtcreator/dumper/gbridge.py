@@ -1,8 +1,14 @@
 
-import base64
 import binascii
-import __builtin__
-import gdb
+try:
+    import __builtin__
+except:
+    import builtins
+try:
+    import gdb
+except:
+    pass
+
 import inspect
 import os
 import os.path
@@ -10,24 +16,20 @@ import subprocess
 import sys
 import tempfile
 import traceback
+import struct
 
 
-cdbLoaded = False
-lldbLoaded = False
-gdbLoaded = True
+def warn(message):
+    print("XXX: %s\n" % message.encode("latin1"))
+
+from dumper import *
+from qttypes import *
 
 #######################################################################
 #
 # Infrastructure
 #
 #######################################################################
-
-def warn(message):
-    print "XXX: %s\n" % message.encode("latin1")
-
-def directBaseClass(typeobj, index = 0):
-    # FIXME: Check it's really a base.
-    return typeobj.fields()[index]
 
 def savePrint(output):
     try:
@@ -57,39 +59,12 @@ def registerCommand(name, func):
 def parseAndEvaluate(exp):
     return gdb.parse_and_eval(exp)
 
-def extractFields(value):
-    return value.type.fields()
-    ## Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=10953:
-    ##fields = type.fields()
-    ## Insufficient, see http://sourceware.org/bugzilla/show_bug.cgi?id=11777:
-    ##fields = defsype).fields()
-    ## This seems to work.
-    ##warn("TYPE 0: %s" % type)
-    #type = stripTypedefs(type)
-    #fields = type.fields()
-    #if len(fields):
-    #    return fields
-    ##warn("TYPE 1: %s" % type)
-    ## This fails for arrays. See comment in lookupType.
-    #type0 = lookupType(str(type))
-    #if not type0 is None:
-    #    type = type0
-    #if type.code == FunctionCode:
-    #    return []
-    ##warn("TYPE 2: %s" % type)
-    #fields = type.fields()
-    ##warn("FIELDS: %s" % fields)
-    #return fields
-
-def fieldCount(type):
-    return len(type.fields())
-
 def listOfLocals(varList):
     frame = gdb.selected_frame()
     try:
         frame = gdb.selected_frame()
         #warn("FRAME %s: " % frame)
-    except RuntimeError, error:
+    except RuntimeError as error:
         warn("FRAME NOT ACCESSIBLE: %s" % error)
         return []
     except:
@@ -99,7 +74,7 @@ def listOfLocals(varList):
     try:
         block = frame.block()
         #warn("BLOCK: %s " % block)
-    except RuntimeError, error:
+    except RuntimeError as error:
         #warn("BLOCK IN FRAME NOT ACCESSIBLE: %s" % error)
         return []
     except:
@@ -192,7 +167,7 @@ def catchCliOutput(command):
     msg = ""
     try:
         gdb.execute(command)
-    except RuntimeError, error:
+    except RuntimeError as error:
         # For the first phase of core file loading this yield
         # "No symbol table is loaded.  Use the \"file\" command."
         msg = str(error)
@@ -221,21 +196,6 @@ def selectedInferior():
         pass
     # gdb.Inferior is new in gdb 7.2
     return gdb.inferiors()[0]
-
-def readRawMemory(base, size):
-    try:
-        inferior = selectedInferior()
-        return binascii.hexlify(inferior.read_memory(base, size))
-    except:
-        pass
-    s = ""
-    t = lookupType("unsigned char").pointer()
-    base = gdb.Value(base).cast(t)
-    for i in xrange(size):
-        s += "%02x" % int(base.dereference())
-        base += 1
-    return s
-
 
 #######################################################################
 #
@@ -323,7 +283,7 @@ PPPCommand()
 
 
 def scanStack(p, n):
-    p = long(p)
+    p = int(p)
     r = []
     for i in xrange(n):
         f = gdb.parse_and_eval("{void*}%s" % p)
@@ -343,22 +303,11 @@ class ScanStackCommand(gdb.Command):
 
 ScanStackCommand()
 
-# This is a cache mapping from 'type name' to 'display alternatives'.
-qqFormats = {}
-
-# This is a cache of all known dumpers.
-qqDumpers = {}
-
-# This is a cache of all dumpers that support writing.
-qqEditable = {}
-
-# This is an approximation of the Qt Version found
-qqVersion = None
-
-def registerDumper(function):
+def registerDumper(funcname, function):
     global qqDumpers, qqFormats, qqEditable
     try:
-        funcname = function.func_name
+        #warn("FUNCTION: %s " % funcname)
+        #funcname = function.func_name
         if funcname.startswith("qdump__"):
             type = funcname[7:]
             qqDumpers[type] = function
@@ -388,19 +337,22 @@ def bbsetup(args = ''):
     typeCache = {}
     module = sys.modules[__name__]
 
-    for key, value in module.__dict__.items():
-        registerDumper(value)
+    #warn("KEYS: %s " % module.__dict__.keys())
+    for name in module.__dict__.keys():
+        #warn("KEY: %s " % name)
+        #warn("FUNCT: %s " % module.__dict__[name])
+        registerDumper(name, module.__dict__[name])
 
     result = "dumpers=["
     #qqNs = qtNamespace() # This is too early
     for key, value in qqFormats.items():
-        if qqEditable.has_key(key):
+        if key in qqEditable:
             result += '{type="%s",formats="%s",editable="true"},' % (key, value)
         else:
             result += '{type="%s",formats="%s"},' % (key, value)
     result += ']'
     #result += ',namespace="%s"' % qqNs
-    print result
+    print(result)
     return result
 
 registerCommand("bbsetup", bbsetup)
@@ -462,20 +414,6 @@ except:
         return '?'
 
 
-def childAt(value, index):
-    field = value.type.fields()[index]
-    if len(field.name):
-        return value[field.name]
-    # FIXME: Cheat. There seems to be no official way to access
-    # the real item, so we pass back the value. That at least
-    # enables later ...["name"] style accesses as gdb handles
-    # them transparently.
-    return value
-
-def fieldAt(type, index):
-    return type.fields()[index]
-
-
 #gdb.Value.child = impl_Value_child
 
 # Fails on SimulatorQt.
@@ -504,73 +442,6 @@ def removeTempFile(name):
     except:
         pass
 
-def showException(msg, exType, exValue, exTraceback):
-    warn("**** CAUGHT EXCEPTION: %s ****" % msg)
-    try:
-        import traceback
-        for line in traceback.format_exception(exType, exValue, exTraceback):
-            warn("%s" % line)
-    except:
-        pass
-
-verbosity = 0
-verbosity = 1
-
-# Some "Enums"
-
-# Encodings. Keep that synchronized with DebuggerEncoding in watchutils.h
-Unencoded8Bit, \
-Base64Encoded8BitWithQuotes, \
-Base64Encoded16BitWithQuotes, \
-Base64Encoded32BitWithQuotes, \
-Base64Encoded16Bit, \
-Base64Encoded8Bit, \
-Hex2EncodedLatin1, \
-Hex4EncodedLittleEndian, \
-Hex8EncodedLittleEndian, \
-Hex2EncodedUtf8, \
-Hex8EncodedBigEndian, \
-Hex4EncodedBigEndian, \
-Hex4EncodedLittleEndianWithoutQuotes, \
-Hex2EncodedLocal8Bit, \
-JulianDate, \
-MillisecondsSinceMidnight, \
-JulianDateAndMillisecondsSinceMidnight, \
-Hex2EncodedInt1, \
-Hex2EncodedInt2, \
-Hex2EncodedInt4, \
-Hex2EncodedInt8, \
-Hex2EncodedUInt1, \
-Hex2EncodedUInt2, \
-Hex2EncodedUInt4, \
-Hex2EncodedUInt8, \
-Hex2EncodedFloat4, \
-Hex2EncodedFloat8, \
-IPv6AddressAndHexScopeId \
-    = range(28)
-
-# Display modes. Keep that synchronized with DebuggerDisplay in watchutils.h
-StopDisplay, \
-DisplayImageData, \
-DisplayUtf16String, \
-DisplayImageFile, \
-DisplayProcess, \
-DisplayLatin1String, \
-DisplayUtf8String \
-    = range(7)
-
-
-qqStringCutOff = 10000
-
-#
-# Gnuplot based display for array-like structures.
-#
-gnuplotPipe = {}
-gnuplotPid = {}
-
-def hasPlot():
-    fileName = "/usr/bin/gnuplot"
-    return os.path.isfile(fileName) and os.access(fileName, os.X_OK)
 
 
 #
@@ -586,10 +457,10 @@ def hasVTable(type):
 
 def dynamicTypeName(value):
     if hasVTable(value.type):
-        #vtbl = str(parseAndEvaluate("{int(*)(int)}%s" % long(value.address)))
+        #vtbl = str(parseAndEvaluate("{int(*)(int)}%s" % int(value.address)))
         try:
             # Fails on 7.1 due to the missing to_string.
-            vtbl = gdb.execute("info symbol {int*}%s" % long(value.address),
+            vtbl = gdb.execute("info symbol {int*}%s" % int(value.address),
                 to_string = True)
             pos1 = vtbl.find("vtable ")
             if pos1 != -1:
@@ -714,7 +585,7 @@ def lookupType(typestring):
     try:
         #warn("LOOKING UP '%s'" % ts)
         type = gdb.lookup_type(ts)
-    except RuntimeError, error:
+    except RuntimeError as error:
         #warn("LOOKING UP '%s': %s" % (ts, error))
         # See http://sourceware.org/bugzilla/show_bug.cgi?id=11912
         exp = "(class '%s'*)0" % ts
@@ -737,15 +608,6 @@ def lookupType(typestring):
     typeCache[typestring] = type
     typesToReport[typestring] = type
     return type
-
-def cleanAddress(addr):
-    if addr is None:
-        return "<no address>"
-    # We cannot use str(addr) as it yields rubbish for char pointers
-    # that might trigger Unicode encoding errors.
-    #return addr.cast(lookupType("void").pointer())
-    # We do not use "hex(...)" as it (sometimes?) adds a "L" suffix.
-    return "0x%x" % long(addr)
 
 def extractTemplateArgument(type, position):
     level = 0
@@ -790,7 +652,7 @@ def templateArgument(type, position):
 def numericTemplateArgument(type, position):
     try:
         return int(type.template_argument(position))
-    except RuntimeError, error:
+    except RuntimeError as error:
         # ": No type named 30."
         msg = str(error)
         msg = msg[14:-1]
@@ -819,155 +681,6 @@ class OutputSafer:
         return False
 
 
-class NoAddress:
-    def __init__(self, d):
-        self.d = d
-
-    def __enter__(self):
-        self.savedPrintsAddress = self.d.currentPrintsAddress
-        self.d.currentPrintsAddress = False
-
-    def __exit__(self, exType, exValue, exTraceBack):
-        self.d.currentPrintsAddress = self.savedPrintsAddress
-
-
-
-class SubItem:
-    def __init__(self, d, component):
-        self.d = d
-        self.iname = "%s.%s" % (d.currentIName, component)
-        self.name = component
-
-    def __enter__(self):
-        self.d.put('{')
-        #if not self.name is None:
-        if isinstance(self.name, str):
-            self.d.put('name="%s",' % self.name)
-        self.savedIName = self.d.currentIName
-        self.savedValue = self.d.currentValue
-        self.savedValuePriority = self.d.currentValuePriority
-        self.savedValueEncoding = self.d.currentValueEncoding
-        self.savedType = self.d.currentType
-        self.savedTypePriority = self.d.currentTypePriority
-        self.savedCurrentAddress = self.d.currentAddress
-        self.d.currentIName = self.iname
-        self.d.currentValuePriority = -100
-        self.d.currentValueEncoding = None
-        self.d.currentType = ""
-        self.d.currentTypePriority = -100
-        self.d.currentAddress = None
-
-    def __exit__(self, exType, exValue, exTraceBack):
-        #warn(" CURRENT VALUE: %s %s %s" % (self.d.currentValue,
-        #    self.d.currentValueEncoding, self.d.currentValuePriority))
-        if not exType is None:
-            if self.d.passExceptions:
-                showException("SUBITEM", exType, exValue, exTraceBack)
-            self.d.putNumChild(0)
-            self.d.putValue("<not accessible>")
-        try:
-            #warn("TYPE VALUE: %s" % self.d.currentValue)
-            typeName = stripClassTag(self.d.currentType)
-            #warn("TYPE: '%s'  DEFAULT: '%s' % (typeName, self.d.currentChildType))
-
-            if len(typeName) > 0 and typeName != self.d.currentChildType:
-                self.d.put('type="%s",' % typeName) # str(type.unqualified()) ?
-            if  self.d.currentValue is None:
-                self.d.put('value="<not accessible>",numchild="0",')
-            else:
-                if not self.d.currentValueEncoding is None:
-                    self.d.put('valueencoded="%d",' % self.d.currentValueEncoding)
-                self.d.put('value="%s",' % self.d.currentValue)
-        except:
-            pass
-        if not self.d.currentAddress is None:
-            self.d.put(self.d.currentAddress)
-        self.d.put('},')
-        self.d.currentIName = self.savedIName
-        self.d.currentValue = self.savedValue
-        self.d.currentValuePriority = self.savedValuePriority
-        self.d.currentValueEncoding = self.savedValueEncoding
-        self.d.currentType = self.savedType
-        self.d.currentTypePriority = self.savedTypePriority
-        self.d.currentAddress = self.savedCurrentAddress
-        return True
-
-class TopLevelItem(SubItem):
-    def __init__(self, d, iname):
-        self.d = d
-        self.iname = iname
-        self.name = None
-
-class UnnamedSubItem(SubItem):
-    def __init__(self, d, component):
-        self.d = d
-        self.iname = "%s.%s" % (self.d.currentIName, component)
-        self.name = None
-
-class Children:
-    def __init__(self, d, numChild = 1, childType = None, childNumChild = None,
-            maxNumChild = None, addrBase = None, addrStep = None):
-        self.d = d
-        self.numChild = numChild
-        self.childNumChild = childNumChild
-        self.maxNumChild = maxNumChild
-        self.addrBase = addrBase
-        self.addrStep = addrStep
-        self.printsAddress = True
-        if childType is None:
-            self.childType = None
-        else:
-            self.childType = stripClassTag(str(childType))
-            self.d.put('childtype="%s",' % self.childType)
-            if childNumChild is None:
-                if isSimpleType(childType):
-                    self.d.put('childnumchild="0",')
-                    self.childNumChild = 0
-                elif childType.code == PointerCode:
-                    self.d.put('childnumchild="1",')
-                    self.childNumChild = 1
-            else:
-                self.d.put('childnumchild="%s",' % childNumChild)
-                self.childNumChild = childNumChild
-        try:
-            if not addrBase is None and not addrStep is None:
-                self.d.put('addrbase="0x%x",' % long(addrBase))
-                self.d.put('addrstep="0x%x",' % long(addrStep))
-                self.printsAddress = False
-        except:
-            warn("ADDRBASE: %s" % addrBase)
-        #warn("CHILDREN: %s %s %s" % (numChild, childType, childNumChild))
-
-    def __enter__(self):
-        self.savedChildType = self.d.currentChildType
-        self.savedChildNumChild = self.d.currentChildNumChild
-        self.savedNumChild = self.d.currentNumChild
-        self.savedMaxNumChild = self.d.currentMaxNumChild
-        self.savedPrintsAddress = self.d.currentPrintsAddress
-        self.d.currentChildType = self.childType
-        self.d.currentChildNumChild = self.childNumChild
-        self.d.currentNumChild = self.numChild
-        self.d.currentMaxNumChild = self.maxNumChild
-        self.d.currentPrintsAddress = self.printsAddress
-        self.d.put("children=[")
-
-    def __exit__(self, exType, exValue, exTraceBack):
-        if not exType is None:
-            if self.d.passExceptions:
-                showException("CHILDREN", exType, exValue, exTraceBack)
-            self.d.putNumChild(0)
-            self.d.putValue("<not accessible>")
-        if not self.d.currentMaxNumChild is None:
-            if self.d.currentMaxNumChild < self.d.currentNumChild:
-                self.d.put('{name="<incomplete>",value="",type="",numchild="0"},')
-        self.d.currentChildType = self.savedChildType
-        self.d.currentChildNumChild = self.savedChildNumChild
-        self.d.currentNumChild = self.savedNumChild
-        self.d.currentMaxNumChild = self.savedMaxNumChild
-        self.d.currentPrintsAddress = self.savedPrintsAddress
-        self.d.put('],')
-        return True
-
 
 def value(expr):
     value = parseAndEvaluate(expr)
@@ -976,48 +689,6 @@ def value(expr):
     except:
         return str(value)
 
-def isSimpleType(typeobj):
-    code = typeobj.code
-    return code == BoolCode \
-        or code == CharCode \
-        or code == IntCode \
-        or code == FloatCode \
-        or code == EnumCode \
-        or code == SimpleValueCode
-
-def simpleEncoding(typeobj):
-    code = typeobj.code
-    if code == BoolCode or code == CharCode:
-        return Hex2EncodedInt1
-    if code == IntCode:
-        if str(typeobj).find("unsigned") >= 0:
-            if typeobj.sizeof == 1:
-                return Hex2EncodedUInt1
-            if typeobj.sizeof == 2:
-                return Hex2EncodedUInt2
-            if typeobj.sizeof == 4:
-                return Hex2EncodedUInt4
-            if typeobj.sizeof == 8:
-                return Hex2EncodedUInt8
-        else:
-            if typeobj.sizeof == 1:
-                return Hex2EncodedInt1
-            if typeobj.sizeof == 2:
-                return Hex2EncodedInt2
-            if typeobj.sizeof == 4:
-                return Hex2EncodedInt4
-            if typeobj.sizeof == 8:
-                return Hex2EncodedInt8
-    if code == FloatCode:
-        if typeobj.sizeof == 4:
-            return Hex2EncodedFloat4
-        if typeobj.sizeof == 8:
-            return Hex2EncodedFloat8
-    return None
-
-def check(exp):
-    if not exp:
-        raise RuntimeError("Check failed")
 
 #def couldBePointer(p, align):
 #    type = lookupType("unsigned int")
@@ -1027,83 +698,7 @@ def check(exp):
 #    return (d & (align - 1)) and (d > 1000 or d == 0)
 
 
-def checkAccess(p, align = 1):
-    return p.dereference()
-
-def checkContents(p, expected, align = 1):
-    if int(p.dereference()) != expected:
-        raise RuntimeError("Contents check failed")
-
-def checkPointer(p, align = 1):
-    if not isNull(p):
-        p.dereference()
-
-def pointerValue(p):
-    return long(p)
-
-def isNull(p):
-    # The following can cause evaluation to abort with "UnicodeEncodeError"
-    # for invalid char *, as their "contents" is being examined
-    #s = str(p)
-    #return s == "0x0" or s.startswith("0x0 ")
-    #try:
-    #    # Can fail with: "RuntimeError: Cannot access memory at address 0x5"
-    #    return p.cast(lookupType("void").pointer()) == 0
-    #except:
-    #    return False
-    try:
-        # Can fail with: "RuntimeError: Cannot access memory at address 0x5"
-        return long(p) == 0
-    except:
-        return False
-
 Value = gdb.Value
-
-def stripClassTag(typeName):
-    if typeName.startswith("class "):
-        return typeName[6:]
-    if typeName.startswith("struct "):
-        return typeName[7:]
-    if typeName.startswith("const "):
-        return typeName[6:]
-    if typeName.startswith("volatile "):
-        return typeName[9:]
-    return typeName
-
-def checkPointerRange(p, n):
-    for i in xrange(n):
-        checkPointer(p)
-        ++p
-
-def call2(value, func, args):
-    # args is a tuple.
-    arg = ""
-    for i in range(len(args)):
-        if i:
-            arg += ','
-        a = args[i]
-        if (':' in a) and not ("'" in a):
-            arg = "'%s'" % a
-        else:
-            arg += a
-
-    #warn("CALL: %s -> %s(%s)" % (value, func, arg))
-    type = stripClassTag(str(value.type))
-    if type.find(":") >= 0:
-        type = "'" + type + "'"
-    # 'class' is needed, see http://sourceware.org/bugzilla/show_bug.cgi?id=11912
-    exp = "((class %s*)%s)->%s(%s)" % (type, value.address, func, arg)
-    #warn("CALL: %s" % exp)
-    result = None
-    try:
-        result = parseAndEvaluate(exp)
-    except:
-        pass
-    #warn("  -> %s" % result)
-    return result
-
-def call(value, func, *args):
-    return call2(value, func, args)
 
 def makeValue(type, init):
     type = "::" + stripClassTag(str(type));
@@ -1158,38 +753,6 @@ def qtNamespace():
     except:
         return ""
 
-def findFirstZero(p, maximum):
-    for i in xrange(maximum):
-        if p.dereference() == 0:
-            return i
-        p = p + 1
-    return maximum + 1
-
-def encodeCArray(p, innerType, suffix):
-    t = lookupType(innerType)
-    p = p.cast(t.pointer())
-    limit = findFirstZero(p, qqStringCutOff)
-    s = readRawMemory(p, limit * t.sizeof)
-    if limit > qqStringCutOff:
-        s += suffix
-    return s
-
-def encodeCharArray(p):
-    return encodeCArray(p, "unsigned char", "2e2e2e")
-
-def encodeChar2Array(p):
-    return encodeCArray(p, "unsigned short", "2e002e002e00")
-
-def encodeChar4Array(p):
-    return encodeCArray(p, "unsigned int", "2e0000002e0000002e000000")
-
-def computeLimit(size, limit):
-    if limit is None:
-        return size
-    if limit == 0:
-        return min(size, qqStringCutOff)
-    return min(size, limit)
-
 def stripTypedefs(type):
     type = type.unqualified()
     while type.code == TypedefCode:
@@ -1207,37 +770,6 @@ def stripTypedefs(type):
 class LocalItem:
     pass
 
-#######################################################################
-#
-# SetupCommand
-#
-#######################################################################
-
-# This keeps canonical forms of the typenames, without array indices etc.
-qqStripForFormat = {}
-
-def stripForFormat(typeName):
-    global qqStripForFormat
-    if typeName in qqStripForFormat:
-        return qqStripForFormat[typeName]
-    stripped = ""
-    inArray = 0
-    for c in stripClassTag(typeName):
-        if c == '<':
-            break
-        if c == ' ':
-            continue
-        if c == '[':
-            inArray += 1
-        elif c == ']':
-            inArray -= 1
-        if inArray and ord(c) >= 48 and ord(c) <= 57:
-            continue
-        stripped +=  c
-    qqStripForFormat[typeName] = stripped
-    return stripped
-
-
 
 #######################################################################
 #
@@ -1248,7 +780,7 @@ def stripForFormat(typeName):
 def bbedit(args):
     global qqEditable
     (type, expr, value) = args.split(",")
-    type = base64.b16decode(type, True)
+    type = b16decode(type)
     ns = qtNamespace()
     if type.startswith(ns):
         type = type[len(ns):]
@@ -1256,8 +788,8 @@ def bbedit(args):
     pos = type.find('<')
     if pos != -1:
         type = type[0:pos]
-    expr = base64.b16decode(expr, True)
-    value = base64.b16decode(value, True)
+    expr = b16decode(expr)
+    value = b16decode(value)
     #warn("EDIT: %s %s %s %s: " % (pos, type, expr, value))
     if qqEditable.has_key(type):
         qqEditable[type](expr, value)
@@ -1277,11 +809,12 @@ def bb(args):
     global typesToReport
     output = Dumper(args).output
     output.append('],typeinfo=[')
-    for name, type in typesToReport.iteritems():
+    for name in typesToReport.keys():
+        type = typesToReport[name]
         # Happens e.g. for '(anonymous namespace)::InsertDefOperation'
         if not type is None:
             output.append('{name="%s",size="%s"}'
-                % (base64.b64encode(name), type.sizeof))
+                % (b64encode(name), type.sizeof))
     output.append(']')
     typesToReport = {}
     return "".join(output)
@@ -1312,8 +845,12 @@ registerCommand("p2", p2)
 #######################################################################
 
 
-class Dumper:
-    def defaultInit(self):
+class Dumper(DumperBase):
+
+    def __init__(self, args):
+        DumperBase.__init__(self)
+
+        self.isGdb = True
         self.output = []
         self.currentIName = ""
         self.currentPrintsAddress = True
@@ -1332,9 +869,6 @@ class Dumper:
         self.useDynamicType = True
         self.expandedINames = {}
         self.childEventAddress = None
-
-    def __init__(self, args):
-        self.defaultInit()
 
         watchers = ""
         resultVarName = ""
@@ -1357,7 +891,7 @@ class Dumper:
                 for f in arg[pos:].split(","):
                     pos = f.find("=")
                     if pos != -1:
-                        type = base64.b16decode(f[0:pos], True)
+                        type = b16decode(f[0:pos])
                         self.typeformats[type] = int(f[pos+1:])
             elif arg.startswith("formats:"):
                 for f in arg[pos:].split(","):
@@ -1365,7 +899,7 @@ class Dumper:
                     if pos != -1:
                         self.formats[f[0:pos]] = int(f[pos+1:])
             elif arg.startswith("watchers:"):
-                watchers = base64.b16decode(arg[pos:], True)
+                watchers = b16decode(arg[pos:])
 
         self.useDynamicType = "dyntype" in options
         self.useFancy = "fancy" in options
@@ -1441,8 +975,8 @@ class Dumper:
                     p = value
                     # p is 0 for "optimized out" cases. Or contains rubbish.
                     try:
-                        if not isNull(p):
-                            while not isNull(p.dereference()) and n <= 100:
+                        if not self.isNull(p):
+                            while not self.isNull(p.dereference()) and n <= 100:
                                 p += 1
                                 n += 1
                     except:
@@ -1481,6 +1015,133 @@ class Dumper:
         #print('data=[' + locals + sep + watchers + ']\n')
 
 
+    def enterSubItem(self, item):
+        if not item.iname:
+            item.iname = "%s.%s" % (self.currentIName, item.name)
+        #warn("INAME %s" % item.iname)
+        self.put('{')
+        #if not item.name is None:
+        if isinstance(item.name, str):
+            self.put('name="%s",' % item.name)
+        item.savedIName = self.currentIName
+        item.savedValue = self.currentValue
+        item.savedValuePriority = self.currentValuePriority
+        item.savedValueEncoding = self.currentValueEncoding
+        item.savedType = self.currentType
+        item.savedTypePriority = self.currentTypePriority
+        item.savedCurrentAddress = self.currentAddress
+        self.currentIName = item.iname
+        self.currentValuePriority = -100
+        self.currentValueEncoding = None
+        self.currentType = ""
+        self.currentTypePriority = -100
+        self.currentAddress = None
+
+    def exitSubItem(self, item, exType, exValue, exTraceBack):
+        #warn(" CURRENT VALUE: %s %s %s" % (self.currentValue,
+        #    self.currentValueEncoding, self.currentValuePriority))
+        if not exType is None:
+            if self.passExceptions:
+                showException("SUBITEM", exType, exValue, exTraceBack)
+            self.putNumChild(0)
+            self.putValue("<not accessible>")
+        try:
+            #warn("TYPE VALUE: %s" % self.currentValue)
+            typeName = stripClassTag(self.currentType)
+            #warn("TYPE: '%s'  DEFAULT: '%s' % (typeName, self.currentChildType))
+
+            if len(typeName) > 0 and typeName != self.currentChildType:
+                self.put('type="%s",' % typeName) # str(type.unqualified()) ?
+            if  self.currentValue is None:
+                self.put('value="<not accessible>",numchild="0",')
+            else:
+                if not self.currentValueEncoding is None:
+                    self.put('valueencoded="%d",' % self.currentValueEncoding)
+                self.put('value="%s",' % self.currentValue)
+        except:
+            pass
+        if not self.currentAddress is None:
+            self.put(self.currentAddress)
+        self.put('},')
+        self.currentIName = item.savedIName
+        self.currentValue = item.savedValue
+        self.currentValuePriority = item.savedValuePriority
+        self.currentValueEncoding = item.savedValueEncoding
+        self.currentType = item.savedType
+        self.currentTypePriority = item.savedTypePriority
+        self.currentAddress = item.savedCurrentAddress
+        return True
+
+    def call2(self, value, func, args):
+        # args is a tuple.
+        arg = ""
+        for i in range(len(args)):
+            if i:
+                arg += ','
+            a = args[i]
+            if (':' in a) and not ("'" in a):
+                arg = "'%s'" % a
+            else:
+                arg += a
+
+        #warn("CALL: %s -> %s(%s)" % (value, func, arg))
+        type = stripClassTag(str(value.type))
+        if type.find(":") >= 0:
+            type = "'" + type + "'"
+        # 'class' is needed, see http://sourceware.org/bugzilla/show_bug.cgi?id=11912
+        exp = "((class %s*)%s)->%s(%s)" % (type, value.address, func, arg)
+        #warn("CALL: %s" % exp)
+        result = None
+        try:
+            result = parseAndEvaluate(exp)
+        except:
+            pass
+        #warn("  -> %s" % result)
+        return result
+
+    def call(self, value, func, *args):
+        return self.call2(value, func, args)
+
+    def childAt(self, value, index):
+        field = value.type.fields()[index]
+        if len(field.name):
+            return value[field.name]
+        # FIXME: Cheat. There seems to be no official way to access
+        # the real item, so we pass back the value. That at least
+        # enables later ...["name"] style accesses as gdb handles
+        # them transparently.
+        return value
+
+    def fieldAt(self, type, index):
+        return type.fields()[index]
+
+    def directBaseClass(self, typeobj, index = 0):
+        # FIXME: Check it's really a base.
+        return typeobj.fields()[index]
+
+    def checkPointer(self, p, align = 1):
+        if not self.isNull(p):
+            p.dereference()
+
+    def pointerValue(self, p):
+        return toInteger(p)
+
+    def isNull(self, p):
+        # The following can cause evaluation to abort with "UnicodeEncodeError"
+        # for invalid char *, as their "contents" is being examined
+        #s = str(p)
+        #return s == "0x0" or s.startswith("0x0 ")
+        #try:
+        #    # Can fail with: "RuntimeError: Cannot access memory at address 0x5"
+        #    return p.cast(lookupType("void").pointer()) == 0
+        #except:
+        #    return False
+        try:
+            # Can fail with: "RuntimeError: Cannot access memory at address 0x5"
+            return toInteger(p) == 0
+        except:
+            return False
+
     def templateArgument(self, typeobj, position):
         return templateArgument(typeobj, position)
 
@@ -1492,7 +1153,7 @@ class Dumper:
 
     def handleWatch(self, exp, iname):
         exp = str(exp)
-        escapedExp = base64.b64encode(exp);
+        escapedExp = b64encode(exp);
         #warn("HANDLING WATCH %s, INAME: '%s'" % (exp, iname))
         if exp.startswith("[") and exp.endswith("]"):
             #warn("EVAL: EXP: %s" % exp)
@@ -1510,7 +1171,7 @@ class Dumper:
                         for item in list:
                             self.handleWatch(item, "%s.%d" % (iname, itemNumber))
                             itemNumber += 1
-                except RuntimeError, error:
+                except RuntimeError as error:
                     warn("EVAL: ERROR CAUGHT %s" % error)
                     self.putValue("<syntax error>")
                     self.putNoType()
@@ -1555,7 +1216,7 @@ class Dumper:
         return self.lookupType('void*')
 
     def addressOf(self, value):
-        return long(value.address)
+        return toInteger(value.address)
 
     def createPointerValue(self, address, pointeeType):
         return gdb.Value(address).cast(pointeeType.pointer())
@@ -1572,24 +1233,36 @@ class Dumper:
     def createValue(self, address, referencedType):
         return gdb.Value(address).cast(referencedType.pointer()).dereference()
 
+    def readRawMemory(self, addr, size):
+        mem = gdb.selected_inferior().read_memory(addr, size)
+        if sys.version_info[0] >= 3:
+            mem.tobytes()
+        return mem
+
+    # FIXME: The commented out versions do not work with
+    # a Python 3 based GDB due to the bug addressed in
+    # https://sourceware.org/ml/gdb-patches/2013-09/msg00571.html
     def dereference(self, addr):
-        return long(gdb.Value(addr).cast(self.voidPtrType().pointer()).dereference())
+        #return long(gdb.Value(addr).cast(self.voidPtrType().pointer()).dereference())
+        return struct.unpack("P", self.readRawMemory(addr, self.ptrSize()))[0]
 
     def extractInt(self, addr):
-        return long(gdb.Value(addr).cast(self.intPtrType()).dereference())
+        #return long(gdb.Value(addr).cast(self.intPtrType()).dereference())
+        return struct.unpack("i", self.readRawMemory(addr, 4))[0]
 
     def extractByte(self, addr):
-        return long(gdb.Value(addr).cast(self.charPtrType()).dereference()) & 0xFF
+        #return long(gdb.Value(addr).cast(self.charPtrType()).dereference()) & 0xFF
+        return struct.unpack("b", self.readRawMemory(addr, 1))[0]
 
     # Do not use value.address here as this might not have one,
     # i.e. be the result of an inferior call
     def dereferenceValue(self, value):
-        return value.cast(self.voidPtrType())
+        return toInteger(value.cast(self.voidPtrType()))
 
     def isQObject(self, value):
         try:
         #if True:
-            vtable = self.dereference(long(value.address)) # + ptrSize
+            vtable = self.dereference(toInteger(value.address)) # + ptrSize
             metaObjectEntry = self.dereference(vtable) # It's the first entry.
             #warn("MO: 0x%x " % metaObjectEntry)
             s = gdb.execute("info symbol 0x%x" % metaObjectEntry, to_string=True)
@@ -1608,12 +1281,12 @@ class Dumper:
         if self.childEventAddress == None:
             try:
                 loc = gdb.execute("info address ::QObject::childEvent", to_string=True)
-                self.childEventAddress = long(loc[loc.rfind(' '):-2], 16)
+                self.childEventAddress = toInteger(loc[loc.rfind(' '):-2], 16)
             except:
                 self.childEventAddress = 0
 
         try:
-            vtable = self.dereference(long(value.address))
+            vtable = self.dereference(toInteger(value.address))
             return self.childEventAddress == self.dereference(vtable + 8 * self.ptrSize())
         except:
             return False
@@ -1626,8 +1299,8 @@ class Dumper:
 
     def childRange(self):
         if self.currentMaxNumChild is None:
-            return xrange(0, self.currentNumChild)
-        return xrange(min(self.currentMaxNumChild, self.currentNumChild))
+            return xrange(0, toInteger(self.currentNumChild))
+        return xrange(min(toInteger(self.currentMaxNumChild), toInteger(self.currentNumChild)))
 
     def qtVersion(self):
         global qqVersion
@@ -1672,9 +1345,9 @@ class Dumper:
     def putAddress(self, addr):
         if self.currentPrintsAddress:
             try:
-                # addr can be "None", long(None) fails.
-                #self.put('addr="0x%x",' % long(addr))
-                self.currentAddress = 'addr="0x%x",' % long(addr)
+                # addr can be "None", int(None) fails.
+                #self.put('addr="0x%x",' % int(addr))
+                self.currentAddress = 'addr="0x%x",' % toInteger(addr)
             except:
                 pass
 
@@ -1712,13 +1385,6 @@ class Dumper:
         else:
             self.put('editvalue="%s|%s",' % (cmd, value))
 
-    def computeLimit(self, size, limit):
-        if limit is None:
-            return size
-        if limit == 0:
-            return min(size, qqStringCutOff)
-        return min(size, limit)
-
     def putName(self, name):
         self.put('name="%s",' % name)
 
@@ -1747,7 +1413,7 @@ class Dumper:
     def isMovableType(self, type):
         if type.code == PointerCode:
             return True
-        if isSimpleType(type):
+        if self.isSimpleType(type):
             return True
         return self.stripNamespaceFromType(str(type)) in movableTypes
 
@@ -1778,16 +1444,55 @@ class Dumper:
             self.putName(name)
             self.putItem(value)
 
+    def isSimpleType(self, typeobj):
+        code = typeobj.code
+        return code == BoolCode \
+            or code == CharCode \
+            or code == IntCode \
+            or code == FloatCode \
+            or code == EnumCode \
+            or code == SimpleValueCode
+
+    def simpleEncoding(self, typeobj):
+        code = typeobj.code
+        if code == BoolCode or code == CharCode:
+            return Hex2EncodedInt1
+        if code == IntCode:
+            if str(typeobj).find("unsigned") >= 0:
+                if typeobj.sizeof == 1:
+                    return Hex2EncodedUInt1
+                if typeobj.sizeof == 2:
+                    return Hex2EncodedUInt2
+                if typeobj.sizeof == 4:
+                    return Hex2EncodedUInt4
+                if typeobj.sizeof == 8:
+                    return Hex2EncodedUInt8
+            else:
+                if typeobj.sizeof == 1:
+                    return Hex2EncodedInt1
+                if typeobj.sizeof == 2:
+                    return Hex2EncodedInt2
+                if typeobj.sizeof == 4:
+                    return Hex2EncodedInt4
+                if typeobj.sizeof == 8:
+                    return Hex2EncodedInt8
+        if code == FloatCode:
+            if typeobj.sizeof == 4:
+                return Hex2EncodedFloat4
+            if typeobj.sizeof == 8:
+                return Hex2EncodedFloat8
+        return None
+
     def tryPutArrayContents(self, typeobj, base, n):
-        if not isSimpleType(typeobj):
+        if not self.isSimpleType(typeobj):
             return False
         size = n * typeobj.sizeof;
         self.put('childtype="%s",' % typeobj)
-        self.put('addrbase="0x%x",' % long(base))
-        self.put('addrstep="0x%x",' % long(typeobj.sizeof))
-        self.put('arrayencoding="%s",' % simpleEncoding(typeobj))
+        self.put('addrbase="0x%x",' % toInteger(base))
+        self.put('addrstep="0x%x",' % toInteger(typeobj.sizeof))
+        self.put('arrayencoding="%s",' % self.simpleEncoding(typeobj))
         self.put('arraydata="')
-        self.put(self.readRawMemory(base, size))
+        self.put(self.readMemory(base, size))
         self.put('",')
         return True
 
@@ -1802,7 +1507,7 @@ class Dumper:
             self.putArrayData(type, base, n)
         if not hasPlot():
             return
-        if not isSimpleType(type):
+        if not self.isSimpleType(type):
             #self.putValue(self.currentValue + " (not plottable)")
             self.putValue(self.currentValue)
             self.putField("plottable", "0")
@@ -1847,9 +1552,33 @@ class Dumper:
                 for i in self.childRange():
                     self.putSubItem(i, (base + i).dereference())
 
+    def findFirstZero(self, p, maximum):
+        for i in xrange(maximum):
+            if p.dereference() == 0:
+                return i
+            p = p + 1
+        return maximum + 1
+
+    def encodeCArray(self, p, innerType, suffix):
+        t = lookupType(innerType)
+        p = p.cast(t.pointer())
+        limit = self.findFirstZero(p, qqStringCutOff)
+        s = self.readMemory(p, limit * t.sizeof)
+        if limit > qqStringCutOff:
+            s += suffix
+        return s
+
+    def encodeCharArray(self, p):
+        return self.encodeCArray(p, "unsigned char", "2e2e2e")
+
+    def encodeChar2Array(self, p):
+        return self.encodeCArray(p, "unsigned short", "2e002e002e00")
+
+    def encodeChar4Array(self, p):
+        return self.encodeCArray(p, "unsigned int", "2e0000002e0000002e000000")
 
     def putCallItem(self, name, value, func, *args):
-        result = call2(value, func, args)
+        result = self.call2(value, func, args)
         with SubItem(self, name):
             self.putItem(result)
 
@@ -1881,7 +1610,7 @@ class Dumper:
         if type.code == ReferenceCode:
             try:
                 # Try to recognize null references explicitly.
-                if long(value.address) == 0:
+                if toInteger(value.address) == 0:
                     self.putValue("<null reference>")
                     self.putType(typeName)
                     self.putNumChild(0)
@@ -1998,7 +1727,7 @@ class Dumper:
                 self.putNumChild(0)
                 return
 
-            if isNull(value):
+            if self.isNull(value):
                 #warn("NULL POINTER")
                 self.putType(typeName)
                 self.putValue("0x0")
@@ -2119,7 +1848,7 @@ class Dumper:
             #warn("ADDR PLAIN POINTER: %s" % value.address)
             self.putType(typeName)
             self.putField("aaa", "1")
-            #self.put('addr="0x%x",' % long(value.address))
+            #self.put('addr="0x%x",' % toInteger(value.address))
             #self.putAddress(value.address)
             self.putField("bbb", "1")
             #self.putPointerValue(value)
@@ -2154,7 +1883,7 @@ class Dumper:
         if type.code == StringCode:
             # FORTRAN strings
             size = type.sizeof
-            data = self.readRawMemory(value.address, size)
+            data = self.readMemory(value.address, size)
             self.putValue(data, Hex2EncodedLatin1, 1)
             self.putType(type)
 
@@ -2217,7 +1946,7 @@ class Dumper:
             self.putQObjectNameValue(value)  # Is this too expensive?
         self.putType(typeName)
         self.putEmptyValue()
-        self.putNumChild(fieldCount(type))
+        self.putNumChild(len(type.fields()))
 
         if self.currentIName in self.expandedINames:
             innerType = None
@@ -2231,11 +1960,15 @@ class Dumper:
             with Children(self):
                self.putFields(value)
 
-    def readRawMemory(self, base, size):
-        return readRawMemory(base, size)
+    def readMemory(self, base, size):
+        inferior = selectedInferior()
+        mem = inferior.read_memory(base, size)
+        if sys.version_info[0] >= 3:
+            return bytesToString(binascii.hexlify(mem.tobytes()))
+        return binascii.hexlify(mem)
 
     def putFields(self, value, dumpBase = True):
-            fields = extractFields(value)
+            fields = value.type.fields()
 
             #warn("TYPE: %s" % type)
             #warn("FIELDS: %s" % fields)
@@ -2249,7 +1982,7 @@ class Dumper:
                     type = stripTypedefs(value.type)
                     innerType = type.target()
                     p = value.cast(innerType.pointer())
-                    for i in xrange(type.sizeof / innerType.sizeof):
+                    for i in xrange(int(type.sizeof / innerType.sizeof)):
                         with SubItem(self, i):
                             self.putItem(p.dereference())
                         p = p + 1
@@ -2267,7 +2000,7 @@ class Dumper:
                             with Children(self):
                                 p = value[field.name]
                                 for i in xrange(n):
-                                    if long(p.dereference()) != 0:
+                                    if toInteger(p.dereference()) != 0:
                                         with SubItem(self, i):
                                             self.putItem(p.dereference())
                                             self.putType(" ")
@@ -2358,12 +2091,12 @@ def threadname(arg):
                     objectName = d_ptr["objectName"]
                 except: # Qt 5
                     p = d_ptr["extraData"]
-                    if not isNull(p):
+                    if not d.isNull(p):
                         objectName = p.dereference()["objectName"]
                 if not objectName is None:
                     data, size, alloc = d.stringData(objectName)
                     if size > 0:
-                         s = d.readRawMemory(data, 2 * size)
+                         s = d.readMemory(data, 2 * size)
 
                 thread = gdb.selected_thread()
                 inner = '{valueencoded="';
@@ -2416,8 +2149,5 @@ def qmlb(args):
     return bp
 
 registerCommand("qmlb", qmlb)
-
-currentDir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-execfile(os.path.join(currentDir, "qttypes.py"))
 
 bbsetup()
