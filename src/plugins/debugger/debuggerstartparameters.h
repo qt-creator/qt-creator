@@ -68,6 +68,7 @@ public:
         qmlServerAddress(QLatin1String("127.0.0.1")),
         qmlServerPort(Constants::QML_DEFAULT_DEBUG_SERVER_PORT),
         remoteSetupNeeded(false),
+        useContinueInsteadOfRun(false),
         startMode(NoStartMode),
         closeMode(KillAtClose),
         testReceiver(0),
@@ -122,6 +123,10 @@ public:
     QSsh::SshConnectionParameters connParams;
     bool remoteSetupNeeded;
     QMap<QString, QString> sourcePathMap;
+
+    // Used by baremetal plugin
+    bool useContinueInsteadOfRun; // if connected to a hw debugger run is not possible but continue is used
+    QByteArray commandsAfterConnect; // additional commands to post after connection to debug target
 
     QString dumperLibrary;
     QStringList solibSearchPath;

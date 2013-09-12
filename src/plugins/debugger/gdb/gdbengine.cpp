@@ -1753,7 +1753,6 @@ void GdbEngine::handleStop2(const GdbMi &data)
                     reasontr = msgStoppedBySignal(_(meaning), _(name));
             }
         }
-
         if (reason.isEmpty())
             showStatusMessage(msgStopped());
         else
@@ -5099,6 +5098,12 @@ void GdbEngine::handleInferiorPrepared()
     const DebuggerStartParameters &sp = startParameters();
 
     QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
+
+    if (!sp.commandsAfterConnect.isEmpty()) {
+        foreach (QByteArray command, sp.commandsAfterConnect.split('\n')) {
+            postCommand(command);
+        }
+    }
 
     if (debuggerCore()->boolSetting(IntelFlavor)) {
         //postCommand("set follow-exec-mode new");

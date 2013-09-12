@@ -47,7 +47,8 @@ SUBDIRS   = \
     valgrind \
     todo \
     qnx \
-    clearcase
+    clearcase \
+    baremetal
 
 isEmpty(QBS_INSTALL_DIR): QBS_INSTALL_DIR = $$(QBS_INSTALL_DIR)
 exists(../shared/qbs/qbs.pro)|!isEmpty(QBS_INSTALL_DIR): \

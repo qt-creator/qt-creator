@@ -85,7 +85,10 @@ void GdbPlainEngine::handleFileExecAndSymbols(const GdbResponse &response)
 
 void GdbPlainEngine::runEngine()
 {
-    postCommand("-exec-run", GdbEngine::RunRequest, CB(handleExecRun));
+    if (startParameters().useContinueInsteadOfRun)
+        postCommand("-exec-continue", GdbEngine::RunRequest, CB(handleExecuteContinue));
+    else
+        postCommand("-exec-run", GdbEngine::RunRequest, CB(handleExecRun));
 }
 
 void GdbPlainEngine::handleExecRun(const GdbResponse &response)
