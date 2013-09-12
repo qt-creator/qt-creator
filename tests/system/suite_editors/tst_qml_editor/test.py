@@ -176,15 +176,17 @@ def testHovering():
     lines=['color:\s*"black"', 'color:\s*"#3E606F"']
     additionalKeyPresses = ["<Left>"]
     expectedValues = ["black", "#3E606F"]
+    alternativeValues = [None, "#39616B"]
     expectedTypes = ["ColorTip", "ColorTip"]
-    verifyHoveringOnEditor(editor, lines, additionalKeyPresses, expectedTypes, expectedValues)
+    verifyHoveringOnEditor(editor, lines, additionalKeyPresses, expectedTypes, expectedValues, alternativeValues)
     doubleClickFile(navTree, "Core.ListMenu\\.qml")
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     lines=['Rectangle\s*\{.*color:\s*"#D1DBBD"', 'NumberAnimation\s*\{\s*.*Easing.OutQuint\s*\}']
     additionalKeyPresses = ["<Left>", "<Left>", "<Left>", "<Left>"]
     expectedTypes = ["ColorTip", "TextTip"]
     expectedValues = ["#D1DBBD", {"text":"number"}]
-    verifyHoveringOnEditor(editor, lines, additionalKeyPresses, expectedTypes, expectedValues)
+    alternativeValues = ["#D6DBBD", None]
+    verifyHoveringOnEditor(editor, lines, additionalKeyPresses, expectedTypes, expectedValues, alternativeValues)
 
 def doubleClickFile(navTree, file):
     global templateDir
