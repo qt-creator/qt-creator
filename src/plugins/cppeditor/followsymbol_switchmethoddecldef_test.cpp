@@ -862,6 +862,42 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_funLocalVarHidesOuterClass()
     test.run();
 }
 
+void CppEditorPlugin::test_FollowSymbolUnderCursor_classConstructor()
+{
+    const QByteArray source =
+            "class Foo {\n"
+            "    F@oo();"
+            "    ~Foo();"
+            "};\n\n"
+            "Foo::$Foo()\n"
+            "{\n"
+            "}\n\n"
+            "Foo::~Foo()\n"
+            "{\n"
+            "}\n";
+
+    TestCase test(TestCase::FollowSymbolUnderCursor, source);
+    test.run();
+}
+
+void CppEditorPlugin::test_FollowSymbolUnderCursor_classDestructor()
+{
+    const QByteArray source =
+            "class Foo {\n"
+            "    Foo();"
+            "    ~@Foo();"
+            "};\n\n"
+            "Foo::Foo()\n"
+            "{\n"
+            "}\n\n"
+            "Foo::~$Foo()\n"
+            "{\n"
+            "}\n";
+
+    TestCase test(TestCase::FollowSymbolUnderCursor, source);
+    test.run();
+}
+
 void CppEditorPlugin::test_FollowSymbolUnderCursor_using_QTCREATORBUG7903_globalNamespace()
 {
     const QByteArray source =
