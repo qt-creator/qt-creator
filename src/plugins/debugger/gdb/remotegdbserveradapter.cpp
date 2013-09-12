@@ -435,10 +435,8 @@ void GdbRemoteServerEngine::interruptInferior2()
     if (debuggerCore()->boolSetting(TargetAsync)) {
         postCommand("-exec-interrupt", GdbEngine::Immediate,
             CB(handleInterruptInferior));
-#ifdef Q_OS_WIN
-    } else if (m_isQnxGdb) {
+    } else if (m_isQnxGdb && Utils::HostOsInfo::isWindowsHost()) {
         m_gdbProc->winInterruptByCtrlC();
-#endif
     } else {
         bool ok = m_gdbProc->interrupt();
         if (!ok) {

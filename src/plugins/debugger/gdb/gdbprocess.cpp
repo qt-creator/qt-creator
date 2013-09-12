@@ -84,7 +84,6 @@ bool GdbProcess::interrupt()
     return interruptProcess(pid, GdbEngineType, &m_errorString);
 }
 
-#ifdef Q_OS_WIN
 void GdbProcess::setUseCtrlCStub(bool enable)
 {
     m_gdbProc.setUseCtrlCStub(enable);
@@ -94,7 +93,6 @@ void GdbProcess::winInterruptByCtrlC()
 {
     m_gdbProc.interrupt();
 }
-#endif
 
 QProcess::ProcessState GdbProcess::state() const
 {

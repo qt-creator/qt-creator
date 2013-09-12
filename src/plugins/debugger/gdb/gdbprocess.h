@@ -50,10 +50,8 @@ public:
     qint64 write(const QByteArray &data);
     void kill();
     bool interrupt();
-#ifdef Q_OS_WIN
     void setUseCtrlCStub(bool enable);
     void winInterruptByCtrlC();
-#endif
 
     QProcess::ProcessState state() const;
     QString errorString() const;
