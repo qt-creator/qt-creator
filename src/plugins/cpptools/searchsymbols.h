@@ -106,19 +106,15 @@ struct CPPTOOLS_EXPORT ModelItemInfo
         }
     }
 
-    QString typeNameRepresentation() const
+    static QString representDeclaration(const QString &name, const QString &type)
     {
-        if (type == ModelItemInfo::Declaration) {
-            if (!symbolType.isEmpty()) {
-                const QString padding = symbolType.endsWith(QLatin1Char('*'))
-                    ? QString()
-                    : QString(QLatin1Char(' '));
-                return symbolType + padding + symbolName;
-            }
-        } else if (type == ModelItemInfo::Method) {
-            return symbolName + symbolType;
-        }
-        return QString();
+        if (type.isEmpty())
+            return QString();
+
+        const QString padding = type.endsWith(QLatin1Char('*'))
+            ? QString()
+            : QString(QLatin1Char(' '));
+        return type + padding + name;
     }
 
     QString shortNativeFilePath() const

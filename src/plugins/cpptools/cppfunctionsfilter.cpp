@@ -64,4 +64,3 @@ Locator::FilterEntry CppFunctionsFilter::filterEntryFromModelItemInfo(const CppT
 
     return filterEntry;
 }
-

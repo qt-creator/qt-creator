@@ -1,8 +1,12 @@
 // Copyright header
 
+#define GENERATE_FUNC void myFunctionGenerated() {}
+
 //
 // Symbols in a global namespace
 //
+
+GENERATE_FUNC
 
 int myVariable;
 
@@ -14,9 +18,12 @@ class MyClass
 {
 public:
     MyClass() {}
-    int function1();
-    int function2(bool yesno, int number) {}
+    int functionDeclaredOnly();
+    int functionDefinedInClass(bool yesno, int number) {}
+    int functionDefinedOutSideClass(char c);
 };
+
+int MyClass::functionDefinedOutSideClass(char c) {}
 
 //
 // Symbols in a named namespace
@@ -34,11 +41,17 @@ class MyClass
 {
 public:
     MyClass() {}
-    int function1();
-    int function2(bool yesno, int number) {}
+    int functionDeclaredOnly();
+    int functionDefinedInClass(bool yesno, int number) {}
+    int functionDefinedOutSideClass(char c);
+    int functionDefinedOutSideClassAndNamespace(float x);
 };
 
+int MyClass::functionDefinedOutSideClass(char c) {}
+
 } // namespace MyNamespace
+
+int MyNamespace::MyClass::functionDefinedOutSideClassAndNamespace(float x) {}
 
 //
 // Symbols in an anonymous namespace
@@ -56,8 +69,14 @@ class MyClass
 {
 public:
     MyClass() {}
-    int function1();
-    int function2(bool yesno, int number) {}
+    int functionDeclaredOnly();
+    int functionDefinedInClass(bool yesno, int number) {}
+    int functionDefinedOutSideClass(char c);
 };
 
+int MyClass::functionDefinedOutSideClass(char c) {}
+
 } // anonymous namespace
+
+
+int main() {}

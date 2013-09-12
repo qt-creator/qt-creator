@@ -118,7 +118,6 @@ public:
             = QtConcurrent::run(&SymbolSearcher::runSearch, symbolSearcher);
         search.waitForFinished();
         ResultDataList results = ResultData::fromSearchResultList(search.results());
-//        ResultData::printFilterEntries(results);
         return results;
     }
 
@@ -198,8 +197,10 @@ void CppToolsPlugin::test_builtinsymbolsearcher_data()
             << ResultData(_("int V2"), _("MyEnum"))
             << ResultData(_("MyClass"), _(""))
             << ResultData(_("MyClass()"), _("MyClass"))
-            << ResultData(_("function1()"), _("MyClass"))
-            << ResultData(_("function2(bool, int)"), _("MyClass"))
+            << ResultData(_("functionDeclaredOnly()"), _("MyClass"))
+            << ResultData(_("functionDefinedInClass(bool, int)"), _("MyClass"))
+            << ResultData(_("functionDefinedOutSideClass(char)"), _("MyClass"))
+            << ResultData(_("functionDefinedOutSideClass(char)"), _("MyClass"))
             << ResultData(_("int myVariable"), _("MyNamespace"))
             << ResultData(_("myFunction(bool, int)"), _("MyNamespace"))
             << ResultData(_("MyEnum"), _("MyNamespace"))
@@ -207,8 +208,12 @@ void CppToolsPlugin::test_builtinsymbolsearcher_data()
             << ResultData(_("int V2"), _("MyNamespace::MyEnum"))
             << ResultData(_("MyClass"), _("MyNamespace"))
             << ResultData(_("MyClass()"), _("MyNamespace::MyClass"))
-            << ResultData(_("function1()"), _("MyNamespace::MyClass"))
-            << ResultData(_("function2(bool, int)"), _("MyNamespace::MyClass"))
+            << ResultData(_("functionDeclaredOnly()"), _("MyNamespace::MyClass"))
+            << ResultData(_("functionDefinedInClass(bool, int)"), _("MyNamespace::MyClass"))
+            << ResultData(_("functionDefinedOutSideClass(char)"), _("MyNamespace::MyClass"))
+            << ResultData(_("functionDefinedOutSideClassAndNamespace(float)"), _("MyNamespace::MyClass"))
+            << ResultData(_("functionDefinedOutSideClass(char)"), _("MyNamespace::MyClass"))
+            << ResultData(_("functionDefinedOutSideClassAndNamespace(float)"), _("MyNamespace::MyClass"))
             << ResultData(_("int myVariable"), _("<anonymous namespace>"))
             << ResultData(_("myFunction(bool, int)"), _("<anonymous namespace>"))
             << ResultData(_("MyEnum"), _("<anonymous namespace>"))
@@ -216,8 +221,12 @@ void CppToolsPlugin::test_builtinsymbolsearcher_data()
             << ResultData(_("int V2"), _("<anonymous namespace>::MyEnum"))
             << ResultData(_("MyClass"), _("<anonymous namespace>"))
             << ResultData(_("MyClass()"), _("<anonymous namespace>::MyClass"))
-            << ResultData(_("function1()"), _("<anonymous namespace>::MyClass"))
-            << ResultData(_("function2(bool, int)"), _("<anonymous namespace>::MyClass"))
+            << ResultData(_("functionDeclaredOnly()"), _("<anonymous namespace>::MyClass"))
+            << ResultData(_("functionDefinedInClass(bool, int)"), _("<anonymous namespace>::MyClass"))
+            << ResultData(_("functionDefinedOutSideClass(char)"), _("<anonymous namespace>::MyClass"))
+            << ResultData(_("functionDefinedOutSideClass(char)"), _("<anonymous namespace>::MyClass"))
+            << ResultData(_("main()"), _(""))
+
         );
 
     // Check Classes
@@ -246,11 +255,15 @@ void CppToolsPlugin::test_builtinsymbolsearcher_data()
         << searchParameters
         << (ResultDataList()
             << ResultData(_("myFunction(bool, int)"), _(""))
-            << ResultData(_("function2(bool, int)"), _("MyClass"))
+            << ResultData(_("functionDefinedInClass(bool, int)"), _("MyClass"))
+            << ResultData(_("functionDefinedOutSideClass(char)"), _("MyClass"))
             << ResultData(_("myFunction(bool, int)"), _("MyNamespace"))
-            << ResultData(_("function2(bool, int)"), _("MyNamespace::MyClass"))
+            << ResultData(_("functionDefinedInClass(bool, int)"), _("MyNamespace::MyClass"))
+            << ResultData(_("functionDefinedOutSideClass(char)"), _("MyNamespace::MyClass"))
+            << ResultData(_("functionDefinedOutSideClassAndNamespace(float)"), _("MyNamespace::MyClass"))
             << ResultData(_("myFunction(bool, int)"), _("<anonymous namespace>"))
-            << ResultData(_("function2(bool, int)"), _("<anonymous namespace>::MyClass"))
+            << ResultData(_("functionDefinedInClass(bool, int)"), _("<anonymous namespace>::MyClass"))
+            << ResultData(_("functionDefinedOutSideClass(char)"), _("<anonymous namespace>::MyClass"))
         );
 
     // Check Enums

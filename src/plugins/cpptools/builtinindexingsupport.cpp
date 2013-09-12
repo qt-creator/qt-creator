@@ -119,13 +119,19 @@ public:
                 foreach (const ModelItemInfo &info, modelInfos) {
                     int index = matcher.indexIn(info.symbolName);
                     if (index != -1) {
-                        QString text = info.typeNameRepresentation();
-                        if (text.isEmpty())
-                            text = info.symbolName;
+                        QString text = info.symbolName;
+                        QString scope = info.symbolScope;
+                        if (info.type == ModelItemInfo::Method) {
+                            QString name;
+                            info.unqualifiedNameAndScope(info.symbolName, &name, &scope);
+                            text = name + info.symbolType;
+                        } else if (info.type == ModelItemInfo::Declaration){
+                            text = ModelItemInfo::representDeclaration(info.symbolName,
+                                                                       info.symbolType);
+                        }
 
                         Find::SearchResultItem item;
-                        item.path = info.symbolScope.split(QLatin1String("::"),
-                                                           QString::SkipEmptyParts);
+                        item.path = scope.split(QLatin1String("::"), QString::SkipEmptyParts);
                         item.text = text;
                         item.textMarkPos = -1;
                         item.textMarkLength = 0;

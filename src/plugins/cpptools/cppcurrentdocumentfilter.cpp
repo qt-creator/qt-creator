@@ -86,9 +86,11 @@ QList<Locator::FilterEntry> CppCurrentDocumentFilter::matchesFor(QFutureInterfac
         if (future.isCanceled())
             break;
 
-        QString matchString = info.typeNameRepresentation();
-        if (matchString.isEmpty())
-            matchString = info.symbolName;
+        QString matchString = info.symbolName;
+        if (info.type == ModelItemInfo::Declaration)
+            matchString = ModelItemInfo::representDeclaration(info.symbolName, info.symbolType);
+        else if (info.type == ModelItemInfo::Method)
+            matchString += info.symbolType;
 
         if ((hasWildcard && regexp.exactMatch(matchString))
             || (!hasWildcard && matcher.indexIn(matchString) != -1))
