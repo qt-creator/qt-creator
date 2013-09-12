@@ -95,7 +95,7 @@ def main():
                                       "Internal::QmlProfilerEventsMainView").model()
                 if qtVersion.startswith("5."):
                     compareEventsTab(model, "events_qt50.tsv")
-                    numberOfMsRows = 4
+                    numberOfMsRows = 3
                 else:
                     if qtVersion.startswith("4.8"):
                         compareEventsTab(model, "events_qt48.tsv")
