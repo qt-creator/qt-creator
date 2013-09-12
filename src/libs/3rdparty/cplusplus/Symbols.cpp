@@ -722,7 +722,7 @@ bool Class::matchType0(const Type *otherType, TypeMatcher *matcher) const
 }
 
 unsigned Class::baseClassCount() const
-{ return _baseClasses.size(); }
+{ return unsigned(_baseClasses.size()); }
 
 BaseClass *Class::baseClassAt(unsigned index) const
 { return _baseClasses.at(index); }
@@ -885,7 +885,7 @@ void ObjCClass::setBaseClass(ObjCBaseClass *baseClass)
 { _baseClass = baseClass; }
 
 unsigned ObjCClass::protocolCount() const
-{ return _protocols.size(); }
+{ return unsigned(_protocols.size()); }
 
 ObjCBaseProtocol *ObjCClass::protocolAt(unsigned index) const
 { return _protocols.at(index); }
@@ -951,7 +951,7 @@ ObjCProtocol::~ObjCProtocol()
 {}
 
 unsigned ObjCProtocol::protocolCount() const
-{ return _protocols.size(); }
+{ return unsigned(_protocols.size()); }
 
 ObjCBaseProtocol *ObjCProtocol::protocolAt(unsigned index) const
 { return _protocols.at(index); }

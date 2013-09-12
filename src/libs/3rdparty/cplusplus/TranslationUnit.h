@@ -63,7 +63,7 @@ public:
 
     void setSource(const char *source, unsigned size);
 
-    unsigned tokenCount() const { return _tokens->size(); }
+    unsigned tokenCount() const { return unsigned(_tokens->size()); }
     const Token &tokenAt(unsigned index) const { return _tokens->at(index); }
     int tokenKind(unsigned index) const { return _tokens->at(index).f.kind; }
     const char *spell(unsigned index) const;

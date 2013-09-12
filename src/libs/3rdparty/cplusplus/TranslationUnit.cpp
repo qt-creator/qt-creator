@@ -117,7 +117,7 @@ const char *TranslationUnit::spell(unsigned index) const
 }
 
 unsigned TranslationUnit::commentCount() const
-{ return _comments->size(); }
+{ return unsigned(_comments->size()); }
 
 const Token &TranslationUnit::commentAt(unsigned index) const
 { return _comments->at(index); }
@@ -266,11 +266,11 @@ void TranslationUnit::tokenize()
             }
             goto _Lrecognize;
         } else if (tk.f.kind == T_LBRACE) {
-            braces.push(_tokens->size());
+            braces.push(unsigned(_tokens->size()));
         } else if (tk.f.kind == T_RBRACE && ! braces.empty()) {
             const unsigned open_brace_index = braces.top();
             braces.pop();
-            (*_tokens)[open_brace_index].close_brace = _tokens->size();
+            (*_tokens)[open_brace_index].close_brace = unsigned(_tokens->size());
         } else if (tk.isComment()) {
             _comments->push_back(tk);
             continue; // comments are not in the regular token stream
@@ -298,7 +298,7 @@ void TranslationUnit::tokenize()
 
     for (; ! braces.empty(); braces.pop()) {
         unsigned open_brace_index = braces.top();
-        (*_tokens)[open_brace_index].close_brace = _tokens->size();
+        (*_tokens)[open_brace_index].close_brace = unsigned(_tokens->size());
     }
 }
 

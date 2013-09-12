@@ -443,7 +443,7 @@ void CloneName::visit(const TemplateNameId *name)
         _name = _control->templateNameId(_clone->identifier(name->identifier()), name->isSpecialization());
     else
         _name = _control->templateNameId(_clone->identifier(name->identifier()), name->isSpecialization(),
-                                         &args[0], args.size());
+                                         &args[0], unsigned(args.size()));
 }
 
 void CloneName::visit(const DestructorNameId *name)
@@ -473,7 +473,7 @@ void CloneName::visit(const SelectorNameId *name)
     std::vector<const Name *> names(name->nameCount());
     for (unsigned i = 0; i < names.size(); ++i)
         names[i] = _clone->name(name->nameAt(i), _subst);
-    _name = _control->selectorNameId(&names[0], names.size(), name->hasArguments());
+    _name = _control->selectorNameId(&names[0], unsigned(names.size()), name->hasArguments());
 }
 
 

@@ -1146,7 +1146,7 @@ const StringLiteral *Bind::asStringLiteral(unsigned firstToken, unsigned lastTok
             buffer += ' ';
         buffer += tk.spell();
     }
-    return control()->stringLiteral(buffer.c_str(), buffer.size());
+    return control()->stringLiteral(buffer.c_str(), unsigned(buffer.size()));
 }
 
 // StatementAST
@@ -1168,7 +1168,7 @@ bool Bind::visit(QtMemberDeclarationAST *ast)
                 privateClass += nameId->identifier()->chars();
                 privateClass += "Private";
 
-                const Name *privName = control()->identifier(privateClass.c_str(), privateClass.size());
+                const Name *privName = control()->identifier(privateClass.c_str(), unsigned(privateClass.size()));
                 declTy.setType(control()->namedType(privName));
             }
         }
@@ -1262,7 +1262,7 @@ bool Bind::visit(ForeachStatementAST *ast)
             unsigned endOfExpression = ast->expression->lastToken();
             const StringLiteral *sl = asStringLiteral(startOfExpression, endOfExpression);
             const std::string buff = std::string("*") + sl->chars() + ".begin()";
-            initializer = control()->stringLiteral(buff.c_str(), buff.size());
+            initializer = control()->stringLiteral(buff.c_str(), unsigned(buff.size()));
         }
     }
 
@@ -1312,7 +1312,7 @@ bool Bind::visit(RangeBasedForStatementAST *ast)
             unsigned endOfExpression = ast->expression->lastToken();
             const StringLiteral *sl = asStringLiteral(startOfExpression, endOfExpression);
             const std::string buff = std::string("*") + sl->chars() + ".begin()";
-            initializer = control()->stringLiteral(buff.c_str(), buff.size());
+            initializer = control()->stringLiteral(buff.c_str(), unsigned(buff.size()));
         }
     }
 
@@ -2591,7 +2591,7 @@ bool Bind::visit(ObjCSelectorAST *ast) // ### review
     }
 
     if (! arguments.empty()) {
-        _name = control()->selectorNameId(&arguments[0], arguments.size(), hasArgs);
+        _name = control()->selectorNameId(&arguments[0], unsigned(arguments.size()), hasArgs);
         ast->name = _name;
     }
 
@@ -2676,7 +2676,7 @@ bool Bind::visit(TemplateIdAST *ast)
         _name = control()->templateNameId(id, isSpecialization);
     else
         _name = control()->templateNameId(id, isSpecialization, &templateArguments[0],
-                templateArguments.size());
+                unsigned(templateArguments.size()));
 
     ast->name = _name;
     return false;

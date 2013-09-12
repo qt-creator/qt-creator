@@ -584,7 +584,7 @@ const Identifier *Control::identifier(const char *chars, unsigned size)
 
 const Identifier *Control::identifier(const char *chars)
 {
-    unsigned length = std::strlen(chars);
+    const unsigned length = unsigned(std::strlen(chars));
     return identifier(chars, length);
 }
 
@@ -611,7 +611,7 @@ const StringLiteral *Control::stringLiteral(const char *chars, unsigned size)
 
 const StringLiteral *Control::stringLiteral(const char *chars)
 {
-    unsigned length = std::strlen(chars);
+    const unsigned length = unsigned(std::strlen(chars));
     return stringLiteral(chars, length);
 }
 
@@ -620,7 +620,7 @@ const NumericLiteral *Control::numericLiteral(const char *chars, unsigned size)
 
 const NumericLiteral *Control::numericLiteral(const char *chars)
 {
-    unsigned length = std::strlen(chars);
+    const unsigned length = unsigned(std::strlen(chars));
     return numericLiteral(chars, length);
 }
 

@@ -35,7 +35,7 @@ using namespace CPlusPlus;
 
 bool ByteArrayRef::startsWith(const char *s) const
 {
-    int l = std::strlen(s);
+    const int l = int(std::strlen(s));
     if (l > m_length)
         return false;
     return !qstrncmp(start(), s, l);

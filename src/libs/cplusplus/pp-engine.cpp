@@ -1064,7 +1064,7 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
             // This is not the most beautiful approach but it's quite reasonable. What we do here
             // is to create a fake identifier token which is only composed by whitespaces. It's
             // also not marked as expanded so it it can be treated as a regular token.
-            QByteArray content(idTk.f.length + computeDistance(idTk), ' ');
+            const QByteArray content(int(idTk.f.length + computeDistance(idTk)), ' ');
             PPToken fakeIdentifier = generateToken(T_IDENTIFIER,
                                                    content.constData(), content.length(),
                                                    idTk.lineno, false, false);
@@ -1131,7 +1131,7 @@ bool Preprocessor::handleFunctionLikeMacro(const Macro *macro,
     for (size_t i = 0; i < bodySize && expanded.size() < MAX_TOKEN_EXPANSION_COUNT;
             ++i) {
         int expandedSize = expanded.size();
-        PPToken bodyTk = body.at(i);
+        PPToken bodyTk = body.at(int(i));
 
         if (bodyTk.is(T_IDENTIFIER)) {
             const ByteArrayRef id = bodyTk.asByteArrayRef();
@@ -1152,7 +1152,7 @@ bool Preprocessor::handleFunctionLikeMacro(const Macro *macro,
 
                     const int actualsSize = actualsForThisParam.size();
 
-                    if (i > 0 && body[i - 1].is(T_POUND)) {
+                    if (i > 0 && body[int(i) - 1].is(T_POUND)) {
                         QByteArray enclosedString;
                         enclosedString.reserve(256);
 
@@ -1205,7 +1205,7 @@ bool Preprocessor::handleFunctionLikeMacro(const Macro *macro,
             expanded.push_back(bodyTk);
         }
 
-        if (i > 1 && body[i - 1].is(T_POUND_POUND)) {
+        if (i > 1 && body[int(i) - 1].is(T_POUND_POUND)) {
             if (expandedSize < 1 || expanded.size() == expandedSize) //### TODO: [cpp.concat] placemarkers
                 continue;
             const PPToken &leftTk = expanded[expandedSize - 1];
@@ -1414,7 +1414,7 @@ void Preprocessor::preprocess(const QString &fileName, const QByteArray &source,
             unsigned trackedColumn = 0;
             if (tk.expanded() && !tk.generated()) {
                 trackedLine = tk.lineno;
-                trackedColumn = computeDistance(tk, true);
+                trackedColumn = unsigned(computeDistance(tk, true));
             }
             m_state.m_expandedTokensInfo.append(qMakePair(trackedLine, trackedColumn));
         } else if (m_state.m_expansionStatus == JustFinishedExpansion) {
@@ -1985,7 +1985,7 @@ PPToken Preprocessor::generateToken(enum Kind kind,
         else if (kind == T_NUMERIC_LITERAL)
             tk.number = m_state.m_lexer->control()->numericLiteral(m_scratchBuffer.constData() + pos, length);
     }
-    tk.offset = pos;
+    tk.offset = unsigned(pos);
     tk.f.length = length;
     tk.f.generated = true;
     tk.f.expanded = true;

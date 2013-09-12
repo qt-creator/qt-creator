@@ -100,7 +100,7 @@ const Identifier *TemplateNameId::identifier() const
 { return _identifier; }
 
 unsigned TemplateNameId::templateArgumentCount() const
-{ return _templateArguments.size(); }
+{ return unsigned(_templateArguments.size()); }
 
 const FullySpecifiedType &TemplateNameId::templateArgumentAt(unsigned index) const
 { return _templateArguments[index]; }
@@ -217,7 +217,7 @@ const Identifier *SelectorNameId::identifier() const
 }
 
 unsigned SelectorNameId::nameCount() const
-{ return _names.size(); }
+{ return unsigned(_names.size()); }
 
 const Name *SelectorNameId::nameAt(unsigned index) const
 { return _names[index]; }
