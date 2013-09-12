@@ -227,6 +227,44 @@ Class *isMemberFunction(const LookupContext &context, Function *function)
     return 0;
 }
 
+Namespace *isNamespaceFunction(const LookupContext &context, Function *function)
+{
+    QTC_ASSERT(function, return 0);
+    if (isMemberFunction(context, function))
+        return 0;
+
+    Scope *enclosingScope = function->enclosingScope();
+    while (!(enclosingScope->isNamespace() || enclosingScope->isClass()))
+        enclosingScope = enclosingScope->enclosingScope();
+    QTC_ASSERT(enclosingScope != 0, return 0);
+
+    const Name *functionName = function->name();
+    if (!functionName)
+        return 0; // anonymous function names are not valid c++
+
+    // global namespace
+    if (!functionName->isQualifiedNameId()) {
+        foreach (Symbol *s, context.globalNamespace()->symbols()) {
+            if (Namespace *matchingNamespace = s->asNamespace())
+                return matchingNamespace;
+        }
+        return 0;
+    }
+
+    const QualifiedNameId *q = functionName->asQualifiedNameId();
+    if (!q->base())
+        return 0;
+
+    if (ClassOrNamespace *binding = context.lookupType(q->base(), enclosingScope)) {
+        foreach (Symbol *s, binding->symbols()) {
+            if (Namespace *matchingNamespace = s->asNamespace())
+                return matchingNamespace;
+        }
+    }
+
+    return 0;
+}
+
 // Given include is e.g. "afile.h" or <afile.h> (quotes/angle brackets included!).
 void insertNewIncludeDirective(const QString &include, CppRefactoringFilePtr file)
 {
@@ -3974,44 +4012,6 @@ private:
     const QString m_declarationText;
     const ChangeSet::Range m_toRange;
 };
-
-Namespace *isNamespaceFunction(const LookupContext &context, Function *function)
-{
-    QTC_ASSERT(function, return 0);
-    if (isMemberFunction(context, function))
-        return 0;
-
-    Scope *enclosingScope = function->enclosingScope();
-    while (!(enclosingScope->isNamespace() || enclosingScope->isClass()))
-        enclosingScope = enclosingScope->enclosingScope();
-    QTC_ASSERT(enclosingScope != 0, return 0);
-
-    const Name *functionName = function->name();
-    if (!functionName)
-        return 0; // anonymous function names are not valid c++
-
-    // global namespace
-    if (!functionName->isQualifiedNameId()) {
-        foreach (Symbol *s, context.globalNamespace()->symbols()) {
-            if (Namespace *matchingNamespace = s->asNamespace())
-                return matchingNamespace;
-        }
-        return 0;
-    }
-
-    const QualifiedNameId *q = functionName->asQualifiedNameId();
-    if (!q->base())
-        return 0;
-
-    if (ClassOrNamespace *binding = context.lookupType(q->base(), enclosingScope)) {
-        foreach (Symbol *s, binding->symbols()) {
-            if (Namespace *matchingNamespace = s->asNamespace())
-                return matchingNamespace;
-        }
-    }
-
-    return 0;
-}
 
 } // anonymous namespace
 
