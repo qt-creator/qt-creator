@@ -81,10 +81,10 @@ void tst_AnsiEscapeCodeHandler::testCase1()
     ResultList result = handler.parseText(text, format);
     handler.endFormatScope();
 
-    QVERIFY(result.size() == expected.size());
+    QCOMPARE(result.size(), expected.size());
     for (int i = 0; i < result.size(); ++i) {
-        QVERIFY(result[i].first == expected[i].first);
-        QVERIFY(result[i].second == expected[i].second);
+        QCOMPARE(result[i].first, expected[i].first);
+        QCOMPARE(result[i].second, expected[i].second);
     }
 }
 
