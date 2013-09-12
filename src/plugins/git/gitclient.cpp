@@ -2779,7 +2779,8 @@ QString GitClient::extendedShowDescription(const QString &workingDirectory, cons
     // If there are more than 20 branches, list first 10 followed by a hint
     if (branchCount > 20) {
         const int leave = 10;
-        moreBranches = tr(" and %1 more").arg(branchCount - leave);
+        //: Displayed after the untranslated message "Branches: branch1, branch2 'and %n more'" in git show.
+        moreBranches = tr(" and %n more", 0, branchCount - leave);
         branches.erase(branches.begin() + leave, branches.end());
     }
     if (!branches.isEmpty()) {
