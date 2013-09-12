@@ -29,53 +29,72 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_QNXUTILS_H
-#define QNX_INTERNAL_QNXUTILS_H
+#ifndef QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIZARD_H
+#define QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIZARD_H
 
-#include "qnxconstants.h"
+#include <QProcess>
 
-#include <utils/environment.h>
-#include <utils/qtcassert.h>
-#include <utils/fileutils.h>
-
-#include <QTextStream>
-#include <QString>
+#include <QWizard>
 
 namespace Qnx {
 namespace Internal {
 
-class QnxAbstractQtVersion;
+class BlackBerryInstallWizardOptionPage;
+class BlackBerryInstallWizardNdkPage;
+class BlackBerryInstallWizardTargetPage;
+class BlackBerryInstallWizardProcessPage;
+class BlackBerryInstallWizardFinalPage;
 
-class NdkInstallInformation
-{
+class BlackBerryInstallerDataHandler {
 public:
-    QString path;
-    QString name;
-    QString host;
+    enum Mode {
+        InstallMode,
+        UninstallMode,
+        ManuallMode
+    };
+
+    QString ndkPath;
     QString target;
     QString version;
+    int exitCode;
+    QProcess::ExitStatus exitStatus;
+    Mode mode;
 };
 
-class QnxUtils
+class BlackBerryInstallWizard : public QWizard
 {
+    Q_OBJECT
 public:
-    static QString addQuotes(const QString &string);
-    static Qnx::QnxArchitecture cpudirToArch(const QString &cpuDir);
-    static QStringList searchPaths(QnxAbstractQtVersion *qtVersion);
-    static QMultiMap<QString, QString> parseEnvironmentFile(const QString &fileName);
-    static bool isValidNdkPath(const QString & ndkPath);
-    static QString envFilePath(const QString & ndkPath, const QString& targetVersion = QString());
-    static void prependQnxMapToEnvironment(const QMultiMap<QString, QString> &qnxMap, Utils::Environment &env);
-    static Utils::FileName executableWithExtension(const Utils::FileName &fileName);
-    static QString dataDirPath();
-    static QString qConfigPath();
-    static QString defaultTargetVersion(const QString& ndkPath);
-    static QList<NdkInstallInformation> installedNdks();
-    static QString sdkInstallerPath(const QString& ndkPath);
-    static QString qdeInstallProcess(const QString& ndkPath, const QString &option, const QString &version = QString());
+    enum PageId {
+        OptionPage,
+        NdkPageId,
+        TargetPageId,
+        ProcessPageId,
+        FinalPageId
+    };
+
+    explicit BlackBerryInstallWizard(BlackBerryInstallerDataHandler::Mode mode = BlackBerryInstallerDataHandler::InstallMode,
+                                     const QString& version = QString(),
+                                     QWidget *parent = 0);
+
+signals:
+    void processFinished();
+
+private slots:
+    void handleProcessCancelled();
+
+private:
+
+    BlackBerryInstallWizardOptionPage *m_optionPage;
+    BlackBerryInstallWizardNdkPage *m_ndkPage;
+    BlackBerryInstallWizardTargetPage *m_targetPage;
+    BlackBerryInstallWizardProcessPage *m_processPage;
+    BlackBerryInstallWizardFinalPage *m_finalPage;
+
+    BlackBerryInstallerDataHandler m_data;
 };
 
 } // namespace Internal
 } // namespace Qnx
 
-#endif // QNX_INTERNAL_QNXUTILS_H
+#endif // QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIZARD_H

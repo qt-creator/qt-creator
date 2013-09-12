@@ -93,6 +93,8 @@ SOURCES += qnxplugin.cpp \
     blackberryconfigurationmanager.cpp \
     blackberrydevicelistdetector.cpp \
     blackberrylogprocessrunner.cpp \
+    blackberryinstallwizardpages.cpp \
+    blackberryinstallwizard.cpp \
     qnxdeviceprocesssignaloperation.cpp \
     qnxdeviceprocesslist.cpp
 
@@ -187,8 +189,11 @@ HEADERS += qnxplugin.h\
     blackberryconfigurationmanager.h \
     blackberrydevicelistdetector.h \
     blackberrylogprocessrunner.h \
+    blackberryinstallwizardpages.h \
+    blackberryinstallwizard.h \
     qnxdeviceprocesssignaloperation.h \
     qnxdeviceprocesslist.h
+
 
 FORMS += \
     blackberrydeviceconfigurationwizardsetuppage.ui \
@@ -215,7 +220,10 @@ FORMS += \
     blackberrysetupwizarddevicepage.ui \
     blackberrysetupwizardfinishpage.ui \
     blackberrydeviceconfigurationwizardconfigpage.ui \
-    blackberrydeviceconfigurationwizardquerypage.ui
+    blackberrydeviceconfigurationwizardquerypage.ui \
+    blackberryinstallwizardtargetpage.ui \
+    blackberryinstallwizardndkpage.ui \
+    blackberryinstallwizardprocesspage.ui
 
 include(../../private_headers.pri)
 

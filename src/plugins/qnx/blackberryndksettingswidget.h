@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
+** Copyright (C) 2013 BlackBerry Limited. All rights reserved
 **
-** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -31,6 +31,8 @@
 
 #ifndef BLACKBERRYNDKSETTINGSWIDGET_H
 #define BLACKBERRYNDKSETTINGSWIDGET_H
+
+#include "blackberryinstallwizard.h"
 
 #include <QWidget>
 
@@ -70,15 +72,21 @@ public slots:
     void removeNdkTarget();
     void activateNdkTarget();
     void deactivateNdkTarget();
+    void uninstallNdkTarget();
+    void handleInstallationFinished();
+    void handleUninstallationFinished();
     void updateUi(QTreeWidgetItem* item, BlackBerryConfiguration* config);
 
 private:
-    void initNdkList();
+    void launchBlackBerryInstallerWizard(BlackBerryInstallerDataHandler::Mode mode,
+                                         const QString& tagetVersion = QString());
 
     Ui_BlackBerryNDKSettingsWidget *m_ui;
     BlackBerryConfigurationManager *m_bbConfigManager;
+
     QTreeWidgetItem *m_autoDetectedNdks;
     QTreeWidgetItem *m_manualNdks;
+
     QList<BlackBerryConfiguration *> m_activatedTargets;
     QList<BlackBerryConfiguration *> m_deactivatedTargets;
 };

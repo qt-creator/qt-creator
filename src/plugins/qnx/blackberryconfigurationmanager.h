@@ -65,6 +65,8 @@ public:
 
     QMultiMap<QString, QString> defaultQnxEnv();
 
+    void loadAutoDetectedConfigurations();
+
 public slots:
     void loadSettings();
     void saveSettings();
@@ -78,7 +80,6 @@ private:
     QList<BlackBerryConfiguration*> m_configs;
 
     void loadManualConfigurations();
-    void loadAutoDetectedConfigurations();
     void saveManualConfigurations();
     void saveActiveConfigurationNdkEnvPath();
     void clearInvalidConfigurations();

@@ -60,13 +60,28 @@ BlackBerryNDKSettingsWidget::BlackBerryNDKSettingsWidget(QWidget *parent) :
     m_bbConfigManager = &BlackBerryConfigurationManager::instance();
     m_ui->setupUi(this);
 
-    m_ui->removeNdkButton->setEnabled(false);
     m_ui->activateNdkTargetButton->setEnabled(false);
     m_ui->deactivateNdkTargetButton->setEnabled(false);
 
     m_activatedTargets << m_bbConfigManager->activeConfigurations();
 
-    initNdkList();
+    m_ui->ndksTreeWidget->header()->setResizeMode(QHeaderView::Stretch);
+    m_ui->ndksTreeWidget->header()->setStretchLastSection(false);
+    m_ui->ndksTreeWidget->setHeaderItem(new QTreeWidgetItem(QStringList() << tr("NDK") << tr("NDK Environment File")));
+    m_ui->ndksTreeWidget->setTextElideMode(Qt::ElideNone);
+    m_ui->ndksTreeWidget->setColumnCount(2);
+    m_autoDetectedNdks = new QTreeWidgetItem(m_ui->ndksTreeWidget);
+    m_autoDetectedNdks->setText(0, tr("Auto-Detected"));
+    m_autoDetectedNdks->setFirstColumnSpanned(true);
+    m_autoDetectedNdks->setFlags(Qt::ItemIsEnabled);
+    m_manualNdks = new QTreeWidgetItem(m_ui->ndksTreeWidget);
+    m_manualNdks->setText(0, tr("Manual"));
+    m_manualNdks->setFirstColumnSpanned(true);
+    m_manualNdks->setFlags(Qt::ItemIsEnabled);
+
+    m_ui->ndksTreeWidget->expandAll();
+
+    updateNdkList();
 
     connect(m_ui->wizardButton, SIGNAL(clicked()), this, SLOT(launchBlackBerrySetupWizard()));
     connect(m_ui->addNdkButton, SIGNAL(clicked()), this, SLOT(addNdkTarget()));
@@ -146,13 +161,16 @@ void BlackBerryNDKSettingsWidget::updateInfoTable(QTreeWidgetItem* currentItem)
 
 void BlackBerryNDKSettingsWidget::updateNdkList()
 {
+    qDeleteAll(m_autoDetectedNdks->takeChildren());
+    qDeleteAll(m_manualNdks->takeChildren());
+
     foreach (BlackBerryConfiguration *config, m_bbConfigManager->configurations()) {
         QTreeWidgetItem *parent = config->isAutoDetected() ? m_autoDetectedNdks : m_manualNdks;
         QTreeWidgetItem *item = new QTreeWidgetItem(parent);
         item->setText(0, config->displayName());
         item->setText(1, config->ndkEnvFile().toString());
         QFont font;
-        font.setBold(config->isActive());
+        font.setBold(config->isActive() || m_activatedTargets.contains(config));
         item->setFont(0, font);
         item->setFont(1, font);
     }
@@ -165,25 +183,7 @@ void BlackBerryNDKSettingsWidget::updateNdkList()
 
 void BlackBerryNDKSettingsWidget::addNdkTarget()
 {
-    QString selectedPath = QFileDialog::getOpenFileName(0, tr("Select the NDK Environment file"),
-                                                        QString(), tr("BlackBerry Environment File (*.sh *.bat)"));
-    if (selectedPath.isEmpty() || !QFileInfo(selectedPath).exists())
-        return;
-
-    BlackBerryConfiguration *config = m_bbConfigManager->configurationFromEnvFile(Utils::FileName::fromString(selectedPath));
-
-    if (!config) {
-        config = new BlackBerryConfiguration(Utils::FileName::fromString(selectedPath), false);
-        if (!m_bbConfigManager->addConfiguration(config)) {
-            delete config;
-            return;
-        }
-
-        QTreeWidgetItem *item = new QTreeWidgetItem(m_manualNdks);
-        item->setText(0, selectedPath.split(QDir::separator()).last());
-        item->setText(1, selectedPath);
-        updateInfoTable(item);
-    }
+    launchBlackBerryInstallerWizard(BlackBerryInstallerDataHandler::InstallMode);
 }
 
 void BlackBerryNDKSettingsWidget::removeNdkTarget()
@@ -193,6 +193,16 @@ void BlackBerryNDKSettingsWidget::removeNdkTarget()
 
     QString ndk = m_ui->ndksTreeWidget->currentItem()->text(0);
     QString envFilePath = m_ui->ndksTreeWidget->currentItem()->text(1);
+
+    BlackBerryConfiguration *config = m_bbConfigManager->configurationFromEnvFile(Utils::FileName::fromString(envFilePath));
+    if (!config)
+        return;
+
+    if (config->isAutoDetected()) {
+        uninstallNdkTarget();
+        return;
+    }
+
     QMessageBox::StandardButton button =
             QMessageBox::question(Core::ICore::mainWindow(),
                                   tr("Clean BlackBerry 10 Configuration"),
@@ -200,11 +210,8 @@ void BlackBerryNDKSettingsWidget::removeNdkTarget()
                                   QMessageBox::Yes | QMessageBox::No);
 
     if (button == QMessageBox::Yes) {
-        BlackBerryConfiguration *config = m_bbConfigManager->configurationFromEnvFile(Utils::FileName::fromString(envFilePath));
-        if (config) {
-            m_bbConfigManager->removeConfiguration(config);
-            m_manualNdks->removeChild(m_ui->ndksTreeWidget->currentItem());
-        }
+        m_bbConfigManager->removeConfiguration(config);
+        m_manualNdks->removeChild(m_ui->ndksTreeWidget->currentItem());
     }
 }
 
@@ -255,28 +262,60 @@ void BlackBerryNDKSettingsWidget::updateUi(QTreeWidgetItem *item, BlackBerryConf
     m_ui->deactivateNdkTargetButton->setEnabled((m_activatedTargets.contains(config))
                                                 && m_activatedTargets.size() > 1
                                                 && config->isAutoDetected());
-    m_ui->removeNdkButton->setEnabled(!config->isAutoDetected());
+    m_ui->removeNdkButton->setEnabled(true);
 }
 
-void BlackBerryNDKSettingsWidget::initNdkList()
+void BlackBerryNDKSettingsWidget::uninstallNdkTarget()
 {
-    m_ui->ndksTreeWidget->header()->setResizeMode(QHeaderView::Stretch);
-    m_ui->ndksTreeWidget->header()->setStretchLastSection(false);
-    m_ui->ndksTreeWidget->setHeaderItem(new QTreeWidgetItem(QStringList() << tr("NDK") << tr("NDK Environment File")));
-    m_ui->ndksTreeWidget->setTextElideMode(Qt::ElideNone);
-    m_ui->ndksTreeWidget->setColumnCount(2);
-    m_autoDetectedNdks = new QTreeWidgetItem(m_ui->ndksTreeWidget);
-    m_autoDetectedNdks->setText(0, tr("Auto-Detected"));
-    m_autoDetectedNdks->setFirstColumnSpanned(true);
-    m_autoDetectedNdks->setFlags(Qt::ItemIsEnabled);
-    m_manualNdks = new QTreeWidgetItem(m_ui->ndksTreeWidget);
-    m_manualNdks->setText(0, tr("Manual"));
-    m_manualNdks->setFirstColumnSpanned(true);
-    m_manualNdks->setFlags(Qt::ItemIsEnabled);
+    const QMessageBox::StandardButton answer = QMessageBox::question(this, tr("Confirmation"),
+                                                                     tr("Are you sure you want to uninstall %1?").
+                                                                     arg(m_ui->baseNameLabel->text()),
+                                                                     QMessageBox::Yes | QMessageBox::No);
 
-    m_ui->ndksTreeWidget->expandAll();
+    if (answer == QMessageBox::Yes)
+        launchBlackBerryInstallerWizard(BlackBerryInstallerDataHandler::UninstallMode, m_ui->versionLabel->text());
+}
+
+void BlackBerryNDKSettingsWidget::handleInstallationFinished()
+{
+    m_bbConfigManager->loadAutoDetectedConfigurations();
+    updateNdkList();
+}
+
+void BlackBerryNDKSettingsWidget::handleUninstallationFinished()
+{
+    if (!m_ui->ndksTreeWidget->currentItem())
+        return;
+
+    QString targetName = m_ui->ndksTreeWidget->currentItem()->text(0);
+    QString envFilePath = m_ui->ndksTreeWidget->currentItem()->text(1);
+    // Check if the target is corrrecly uninstalled
+    foreach (const NdkInstallInformation &ndk, QnxUtils::installedNdks()) {
+        if (ndk.name == targetName)
+            return;
+    }
+
+    BlackBerryConfiguration *config = m_bbConfigManager->configurationFromEnvFile(Utils::FileName::fromString(envFilePath));
+    if (m_activatedTargets.contains(config))
+        m_activatedTargets.removeAt(m_activatedTargets.indexOf(config));
+    else if (m_deactivatedTargets.contains(config))
+        m_deactivatedTargets.removeAt(m_deactivatedTargets.indexOf(config));
+
+    m_bbConfigManager->removeConfiguration(config);
 
     updateNdkList();
+}
+
+void BlackBerryNDKSettingsWidget::launchBlackBerryInstallerWizard(BlackBerryInstallerDataHandler::Mode mode,
+                                                                  const QString& targetVersion)
+{
+    BlackBerryInstallWizard wizard(mode, targetVersion, this);
+    if (mode == BlackBerryInstallerDataHandler::InstallMode)
+        connect(&wizard, SIGNAL(processFinished()), this, SLOT(handleInstallationFinished()));
+    else
+        connect(&wizard, SIGNAL(processFinished()), this, SLOT(handleUninstallationFinished()));
+
+    wizard.exec();
 }
 
 } // namespace Internal

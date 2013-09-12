@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
+** Copyright (C) 2013 BlackBerry Limited. All rights reserved
 **
-** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -310,4 +310,29 @@ QList<NdkInstallInformation> QnxUtils::installedNdks()
     }
 
     return ndkList;
+}
+
+QString QnxUtils::sdkInstallerPath(const QString &ndkPath)
+{
+    QString sdkinstallPath;
+    if (Utils::HostOsInfo::isWindowsHost())
+        sdkinstallPath = ndkPath + QLatin1String("/qde.exe");
+    else
+        sdkinstallPath = ndkPath + QLatin1String("/qde");
+
+    if (QFileInfo(sdkinstallPath).exists())
+        return sdkinstallPath;
+
+    return QString();
+}
+
+// The resulting process when launching sdkinstall
+QString QnxUtils::qdeInstallProcess(const QString &ndkPath, const QString &option, const QString &version)
+{
+    QString installerPath = sdkInstallerPath(ndkPath);
+    if (ndkPath.isEmpty())
+        return QString();
+
+    return QString::fromLatin1("%1 -nosplash -application com.qnx.tools.ide.sdk.manager.core.SDKInstallerApplication "
+                               "%2  %3 -vmargs -Dosgi.console=:none").arg(installerPath, option, version);
 }
