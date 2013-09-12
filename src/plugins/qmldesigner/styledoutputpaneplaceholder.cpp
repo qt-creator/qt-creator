@@ -33,9 +33,12 @@
 
 #include <QChildEvent>
 #include <QTabWidget>
-#include <QDebug>
 
-StyledOutputpanePlaceHolder::StyledOutputpanePlaceHolder(Core::IMode *mode, QSplitter *parent) : Core::OutputPanePlaceHolder(mode, parent)
+namespace QmlDesigner {
+namespace Internal {
+
+StyledOutputpanePlaceHolder::StyledOutputpanePlaceHolder(Core::IMode *mode, QSplitter *parent)
+    : Core::OutputPanePlaceHolder(mode, parent)
 {
     QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/outputpane-style.css");
     sheet += Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css");
@@ -65,3 +68,6 @@ void StyledOutputpanePlaceHolder::childEvent(QChildEvent *event)
         }
     }
 }
+
+} // namespace Internal
+} // namespace QmlDesigner

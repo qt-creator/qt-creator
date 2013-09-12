@@ -32,7 +32,8 @@
 
 #include <coreplugin/outputpane.h>
 
-QT_FORWARD_DECLARE_CLASS(QChildEvent)
+namespace QmlDesigner {
+namespace Internal {
 
 class StyledOutputpanePlaceHolder : public Core::OutputPanePlaceHolder
 {
@@ -41,9 +42,12 @@ public:
 
 protected:
     void childEvent(QChildEvent *event);
+
 private:
     QString m_customStylesheet;
-
 };
+
+} // namespace Internal
+} // namespace QmlDesigner
 
 #endif // STYLEDOUTPUTPANEPLACEHOLDER_H
