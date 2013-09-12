@@ -30,7 +30,6 @@
 #include "coreplugin.h"
 #include "designmode.h"
 #include "editmode.h"
-#include "fileiconprovider.h"
 #include "helpmanager.h"
 #include "mainwindow.h"
 #include "mimedatabase.h"
@@ -66,9 +65,6 @@ CorePlugin::~CorePlugin()
             removeObject(m_designMode);
         delete m_designMode;
     }
-
-    // delete FileIconProvider singleton
-    delete FileIconProvider::instance();
 
     delete m_mainWindow;
 }

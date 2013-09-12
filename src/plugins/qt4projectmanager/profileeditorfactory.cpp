@@ -52,13 +52,9 @@ ProFileEditorFactory::ProFileEditorFactory(Qt4Manager *manager, TextEditor::Text
     addMimeType(Qt4ProjectManager::Constants::PROINCLUDEFILE_MIMETYPE);
     addMimeType(Qt4ProjectManager::Constants::PROFEATUREFILE_MIMETYPE);
 
-    Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
-    iconProvider->registerIconOverlayForSuffix(QIcon(QLatin1String(QtSupport::Constants::ICON_QT_PROJECT)),
-                                        QLatin1String("pro"));
-    iconProvider->registerIconOverlayForSuffix(QIcon(QLatin1String(QtSupport::Constants::ICON_QT_PROJECT)),
-                                        QLatin1String("pri"));
-    iconProvider->registerIconOverlayForSuffix(QIcon(QLatin1String(QtSupport::Constants::ICON_QT_PROJECT)),
-                                        QLatin1String("prf"));
+    Core::FileIconProvider::registerIconOverlayForSuffix(QtSupport::Constants::ICON_QT_PROJECT, "pro");
+    Core::FileIconProvider::registerIconOverlayForSuffix(QtSupport::Constants::ICON_QT_PROJECT, "pri");
+    Core::FileIconProvider::registerIconOverlayForSuffix(QtSupport::Constants::ICON_QT_PROJECT, "prf");
 }
 
 Core::IEditor *ProFileEditorFactory::createEditor(QWidget *parent)

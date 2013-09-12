@@ -54,9 +54,7 @@ FormEditorFactory::FormEditorFactory()
     setDisplayName(qApp->translate("Designer", C_DESIGNER_XML_DISPLAY_NAME));
     addMimeType(FORM_MIMETYPE);
 
-    Core::FileIconProvider *iconProvider = Core::FileIconProvider::instance();
-    iconProvider->registerIconOverlayForSuffix(QIcon(QLatin1String(":/formeditor/images/qt_ui.png")),
-                                               QLatin1String("ui"));
+    Core::FileIconProvider::registerIconOverlayForSuffix(":/formeditor/images/qt_ui.png", "ui");
 }
 
 Core::IEditor *FormEditorFactory::createEditor(QWidget *parent)

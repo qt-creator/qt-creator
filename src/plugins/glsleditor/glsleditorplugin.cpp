@@ -172,17 +172,11 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
 
     errorMessage->clear();
 
-    FileIconProvider *iconProvider = FileIconProvider::instance();
-    iconProvider->registerIconOverlayForMimeType(QIcon(QLatin1String(":/glsleditor/images/glslfile.png")),
-                                                 MimeDatabase::findByType(QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE)));
-    iconProvider->registerIconOverlayForMimeType(QIcon(QLatin1String(":/glsleditor/images/glslfile.png")),
-                                                 MimeDatabase::findByType(QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE_VERT)));
-    iconProvider->registerIconOverlayForMimeType(QIcon(QLatin1String(":/glsleditor/images/glslfile.png")),
-                                                 MimeDatabase::findByType(QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE_FRAG)));
-    iconProvider->registerIconOverlayForMimeType(QIcon(QLatin1String(":/glsleditor/images/glslfile.png")),
-                                                 MimeDatabase::findByType(QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE_VERT_ES)));
-    iconProvider->registerIconOverlayForMimeType(QIcon(QLatin1String(":/glsleditor/images/glslfile.png")),
-                                                 MimeDatabase::findByType(QLatin1String(GLSLEditor::Constants::GLSL_MIMETYPE_FRAG_ES)));
+    FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png", Constants::GLSL_MIMETYPE);
+    FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png", Constants::GLSL_MIMETYPE_VERT);
+    FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png", Constants::GLSL_MIMETYPE_FRAG);
+    FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png", Constants::GLSL_MIMETYPE_VERT_ES);
+    FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png", Constants::GLSL_MIMETYPE_FRAG_ES);
 
     QObject *core = ICore::instance();
     BaseFileWizardParameters fragWizardParameters(IWizard::FileWizard);

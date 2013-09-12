@@ -124,7 +124,7 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent)
       m_toggleSync(new QToolButton(this))
 {
     m_fileSystemModel->setResolveSymlinks(false);
-    m_fileSystemModel->setIconProvider(Core::FileIconProvider::instance());
+    m_fileSystemModel->setIconProvider(Core::FileIconProvider::iconProvider());
     QDir::Filters filters = QDir::AllDirs | QDir::Files | QDir::Drives
                             | QDir::Readable| QDir::Writable
                             | QDir::Executable | QDir::Hidden;

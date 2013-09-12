@@ -173,7 +173,7 @@ QVariant LocatorModel::data(const QModelIndex &index, int role) const
         FilterEntry &entry = mEntries[index.row()];
         if (!entry.fileIconResolved && !entry.fileName.isEmpty() && entry.displayIcon.isNull()) {
             entry.fileIconResolved = true;
-            entry.displayIcon = Core::FileIconProvider::instance()->icon(QFileInfo(entry.fileName));
+            entry.displayIcon = FileIconProvider::icon(entry.fileName);
         }
         return entry.displayIcon;
     } else if (role == Qt::ForegroundRole && index.column() == 1) {

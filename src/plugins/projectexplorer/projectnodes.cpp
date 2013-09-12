@@ -247,7 +247,7 @@ QIcon FolderNode::icon() const
 {
     // Instantiating the Icon provider is expensive.
     if (m_icon.isNull())
-        m_icon = Core::FileIconProvider::instance()->icon(QFileIconProvider::Folder);
+        m_icon = Core::FileIconProvider::icon(QFileIconProvider::Folder);
     return m_icon;
 }
 

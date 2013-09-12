@@ -257,7 +257,7 @@ QVariant SelectableFilesModel::data(const QModelIndex &index, int role) const
         return t->checked;
     if (role == Qt::DecorationRole) {
         if (t->icon.isNull())
-            t->icon = Core::FileIconProvider::instance()->icon(QFileInfo(t->fullPath));
+            t->icon = Core::FileIconProvider::icon(t->fullPath);
         return t->icon;
     }
     return QVariant();

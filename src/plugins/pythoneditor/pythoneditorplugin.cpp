@@ -222,9 +222,7 @@ bool PythonEditorPlugin::initialize(const QStringList &arguments, QString *error
     m_factory = new EditorFactory(this);
     addObject(m_factory);
 
-    ////////////////////////////////////////////////////////////////////////////
     // Initialize editor actions handler
-    ////////////////////////////////////////////////////////////////////////////
     m_actionHandler.reset(new TextEditor::TextEditorActionHandler(
                               C_PYTHONEDITOR_ID,
                               TextEditor::TextEditorActionHandler::Format
@@ -232,19 +230,12 @@ bool PythonEditorPlugin::initialize(const QStringList &arguments, QString *error
                               | TextEditor::TextEditorActionHandler::UnCollapseAll));
     m_actionHandler->initializeActions();
 
-    ////////////////////////////////////////////////////////////////////////////
     // Add MIME overlay icons (these icons displayed at Project dock panel)
-    ////////////////////////////////////////////////////////////////////////////
     const QIcon icon = QIcon::fromTheme(QLatin1String(C_PY_MIME_ICON));
-    if (!icon.isNull()) {
-        Core::FileIconProvider *iconProv = Core::FileIconProvider::instance();
-        iconProv->registerIconOverlayForMimeType(
-                    icon, Core::MimeDatabase::findByType(QLatin1String(C_PY_MIMETYPE)));
-    }
+    if (!icon.isNull())
+        Core::FileIconProvider::registerIconOverlayForMimeType(icon, C_PY_MIMETYPE);
 
-    ////////////////////////////////////////////////////////////////////////////
     // Add Python files and classes creation dialogs
-    ////////////////////////////////////////////////////////////////////////////
     addAutoReleasedObject(new FileWizard(Core::ICore::instance()));
     addAutoReleasedObject(new ClassWizard(Core::ICore::instance()));
     addAutoReleasedObject(new Internal::PythonHighlighterFactory);

@@ -370,7 +370,7 @@ void ReadOnlyFilesDialog::initDialog(const QStringList &fileNames)
         // Setup a default entry with filename folder and make writable radio button.
         QTreeWidgetItem *item = new QTreeWidgetItem(ui->treeWidget);
         item->setText(FileName, visibleName);
-        item->setIcon(FileName, FileIconProvider::instance()->icon(QFileInfo(fileName)));
+        item->setIcon(FileName, FileIconProvider::icon(fileName));
         item->setText(Folder, Utils::FileUtils::shortNativePath(Utils::FileName(QFileInfo(directory))));
         QButtonGroup *radioButtonGroup = new QButtonGroup;
 

@@ -42,7 +42,6 @@
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
-using Core::FileIconProvider;
 
 namespace {
 
@@ -289,7 +288,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
             if (folderNode)
                 result = folderNode->icon();
             else
-                result = FileIconProvider::instance()->icon(QFileInfo(node->path()));
+                result = Core::FileIconProvider::icon(node->path());
             break;
         }
         case Qt::FontRole: {

@@ -73,7 +73,7 @@ SaveItemsDialog::SaveItemsDialog(QWidget *parent,
         QTreeWidgetItem *item = new QTreeWidgetItem(m_ui.treeWidget, QStringList()
                                                     << visibleName << QDir::toNativeSeparators(directory));
         if (!fileName.isEmpty())
-            item->setIcon(0, FileIconProvider::instance()->icon(QFileInfo(fileName)));
+            item->setIcon(0, FileIconProvider::icon(fileName));
         item->setData(0, Qt::UserRole, qVariantFromValue(document));
     }
 

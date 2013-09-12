@@ -78,13 +78,9 @@ CppEditorFactory::CppEditorFactory(CppEditorPlugin *owner) :
     addMimeType(CppEditor::Constants::CPP_HEADER_MIMETYPE);
 
     if (!Utils::HostOsInfo::isMacHost() && !Utils::HostOsInfo::isWindowsHost()) {
-        FileIconProvider *iconProvider = FileIconProvider::instance();
-        iconProvider->registerIconOverlayForMimeType(QIcon(QLatin1String(":/cppeditor/images/qt_cpp.png")),
-                                                     MimeDatabase::findByType(QLatin1String(CppEditor::Constants::CPP_SOURCE_MIMETYPE)));
-        iconProvider->registerIconOverlayForMimeType(QIcon(QLatin1String(":/cppeditor/images/qt_c.png")),
-                                                     MimeDatabase::findByType(QLatin1String(CppEditor::Constants::C_SOURCE_MIMETYPE)));
-        iconProvider->registerIconOverlayForMimeType(QIcon(QLatin1String(":/cppeditor/images/qt_h.png")),
-                                                     MimeDatabase::findByType(QLatin1String(CppEditor::Constants::CPP_HEADER_MIMETYPE)));
+        FileIconProvider::registerIconOverlayForMimeType(":/cppeditor/images/qt_cpp.png", CppEditor::Constants::CPP_SOURCE_MIMETYPE);
+        FileIconProvider::registerIconOverlayForMimeType(":/cppeditor/images/qt_c.png", CppEditor::Constants::C_SOURCE_MIMETYPE);
+        FileIconProvider::registerIconOverlayForMimeType(":/cppeditor/images/qt_h.png", CppEditor::Constants::CPP_HEADER_MIMETYPE);
     }
 }
 

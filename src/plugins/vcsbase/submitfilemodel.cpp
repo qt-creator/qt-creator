@@ -57,7 +57,7 @@ static QList<QStandardItem *> createFileRow(const QString &fileName, const QStri
     statusItem->setData(v);
     QStandardItem *fileItem = new QStandardItem(fileName);
     fileItem->setFlags(Qt::ItemIsSelectable|Qt::ItemIsEnabled);
-    fileItem->setIcon(Core::FileIconProvider::instance()->icon(QFileInfo(fileName)));
+    fileItem->setIcon(Core::FileIconProvider::icon(fileName));
     QList<QStandardItem *> row;
     row << statusItem << fileItem;
     return row;

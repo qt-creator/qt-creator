@@ -35,40 +35,26 @@
 #include <QStyle>
 #include <QFileIconProvider>
 
-QT_BEGIN_NAMESPACE
-class QFileInfo;
-class QIcon;
-class QPixmap;
-class QString;
-QT_END_NAMESPACE
-
 namespace Core {
 
 class MimeType;
-struct FileIconProviderPrivate;
 
-class CORE_EXPORT FileIconProvider : public QFileIconProvider
-{
-    FileIconProvider();
+namespace FileIconProvider {
 
-public:
-    virtual ~FileIconProvider();
+// Access to the single instance
+CORE_EXPORT QFileIconProvider *iconProvider();
 
-    // Implement QFileIconProvider
-    virtual QIcon icon(const QFileInfo &info) const;
-    using QFileIconProvider::icon;
+// Access to individual items
+CORE_EXPORT QIcon icon(const QFileInfo &info);
+CORE_EXPORT QIcon icon(QFileIconProvider::IconType type);
 
-    // Register additional overlay icons
-    static QPixmap overlayIcon(QStyle::StandardPixmap baseIcon, const QIcon &overlayIcon, const QSize &size);
-    void registerIconOverlayForSuffix(const QIcon &icon, const QString &suffix);
-    void registerIconOverlayForMimeType(const QIcon &icon, const MimeType &mimeType);
+// Register additional overlay icons
+CORE_EXPORT QPixmap overlayIcon(QStyle::StandardPixmap baseIcon, const QIcon &overlayIcon, const QSize &size);
+CORE_EXPORT void registerIconOverlayForSuffix(const char *path, const char *suffix);
+CORE_EXPORT void registerIconOverlayForMimeType(const char *path, const char *mimeType);
+CORE_EXPORT void registerIconOverlayForMimeType(const QIcon &icon, const char *mimeType);
 
-    static FileIconProvider *instance();
-
-private:
-    FileIconProviderPrivate *d;
-};
-
+} // namespace FileIconProvider
 } // namespace Core
 
 #endif // FILEICONPROVIDER_H

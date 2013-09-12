@@ -71,9 +71,7 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
 
     Internal::QmlApplicationWizard::createInstances(this);
 
-    FileIconProvider *iconProvider = FileIconProvider::instance();
-    iconProvider->registerIconOverlayForSuffix(QIcon(QLatin1String(":/qmlproject/images/qmlproject.png")),
-                                               QLatin1String("qmlproject"));
+    FileIconProvider::registerIconOverlayForSuffix(":/qmlproject/images/qmlproject.png", "qmlproject");
     return true;
 }
 

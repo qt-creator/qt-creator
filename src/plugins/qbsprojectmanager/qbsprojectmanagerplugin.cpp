@@ -86,17 +86,15 @@ QbsProjectManagerPlugin::QbsProjectManagerPlugin() :
 
 bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
+    Q_UNUSED(arguments);
     Q_UNUSED(errorMessage);
+
     m_manager = new QbsManager(this);
     m_projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
     const Core::Context projectContext(::QbsProjectManager::Constants::PROJECT_ID);
     const Core::Context globalcontext(Core::Constants::C_GLOBAL);
 
-    Q_UNUSED(arguments);
-
-    Core::FileIconProvider::instance()
-            ->registerIconOverlayForSuffix(QIcon(QLatin1String(QtSupport::Constants::ICON_QT_PROJECT)),
-                                           QLatin1String("qbs"));
+    Core::FileIconProvider::registerIconOverlayForSuffix(QtSupport::Constants::ICON_QT_PROJECT, "qbs");
 
     //create and register objects
     addAutoReleasedObject(m_manager);
