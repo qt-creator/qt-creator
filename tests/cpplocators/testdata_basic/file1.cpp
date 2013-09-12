@@ -18,8 +18,8 @@ class MyClass
 {
 public:
     MyClass() {}
-    int function1();
-    int function2(bool yesno, int number) {}
+    int functionDeclaredOnly();
+    int functionDefinedInClass(bool yesno, int number) {}
     int functionDefinedOutSideClass(char c);
 };
 
@@ -41,8 +41,8 @@ class MyClass
 {
 public:
     MyClass() {}
-    int function1();
-    int function2(bool yesno, int number) {}
+    int functionDeclaredOnly();
+    int functionDefinedInClass(bool yesno, int number) {}
     int functionDefinedOutSideClass(char c);
     int functionDefinedOutSideClassAndNamespace(float x);
 };
@@ -69,8 +69,8 @@ class MyClass
 {
 public:
     MyClass() {}
-    int function1();
-    int function2(bool yesno, int number) {}
+    int functionDeclaredOnly();
+    int functionDefinedInClass(bool yesno, int number) {}
     int functionDefinedOutSideClass(char c);
 };
 
