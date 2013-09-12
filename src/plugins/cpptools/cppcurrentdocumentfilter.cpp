@@ -94,8 +94,12 @@ QList<Locator::FilterEntry> CppCurrentDocumentFilter::matchesFor(QFutureInterfac
             || (!hasWildcard && matcher.indexIn(matchString) != -1))
         {
             QVariant id = qVariantFromValue(info);
-            Locator::FilterEntry filterEntry(this, matchString, id, info.icon);
-            filterEntry.extraInfo = info.symbolScope;
+            QString name = matchString;
+            QString extraInfo = info.symbolScope;
+            if (info.type == ModelItemInfo::Method)
+                info.unqualifiedNameAndScope(matchString, &name, &extraInfo);
+            Locator::FilterEntry filterEntry(this, name, id, info.icon);
+            filterEntry.extraInfo = extraInfo;
 
             if (matchString.startsWith(entry, caseSensitivityForPrefix))
                 betterEntries.append(filterEntry);

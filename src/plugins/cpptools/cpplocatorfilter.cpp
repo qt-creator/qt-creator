@@ -50,7 +50,7 @@ CppLocatorFilter::~CppLocatorFilter()
 Locator::FilterEntry CppLocatorFilter::filterEntryFromModelItemInfo(const CppTools::ModelItemInfo &info)
 {
     const QVariant id = qVariantFromValue(info);
-    Locator::FilterEntry filterEntry(this, info.symbolName, id, info.icon);
+    Locator::FilterEntry filterEntry(this, info.scopedSymbolName(), id, info.icon);
     filterEntry.extraInfo = info.type == ModelItemInfo::Class || info.type == ModelItemInfo::Enum
         ? info.shortNativeFilePath()
         : info.symbolType;

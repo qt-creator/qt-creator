@@ -20,7 +20,10 @@ public:
     MyClass() {}
     int function1();
     int function2(bool yesno, int number) {}
+    int functionDefinedOutSideClass(char c);
 };
+
+int MyClass::functionDefinedOutSideClass(char c) {}
 
 //
 // Symbols in a named namespace
@@ -40,9 +43,15 @@ public:
     MyClass() {}
     int function1();
     int function2(bool yesno, int number) {}
+    int functionDefinedOutSideClass(char c);
+    int functionDefinedOutSideClassAndNamespace(float x);
 };
 
+int MyClass::functionDefinedOutSideClass(char c) {}
+
 } // namespace MyNamespace
+
+int MyNamespace::MyClass::functionDefinedOutSideClassAndNamespace(float x) {}
 
 //
 // Symbols in an anonymous namespace
@@ -62,6 +71,12 @@ public:
     MyClass() {}
     int function1();
     int function2(bool yesno, int number) {}
+    int functionDefinedOutSideClass(char c);
 };
 
+int MyClass::functionDefinedOutSideClass(char c) {}
+
 } // anonymous namespace
+
+
+int main() {}

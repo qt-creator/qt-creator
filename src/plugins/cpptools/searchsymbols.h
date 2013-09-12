@@ -94,6 +94,18 @@ struct CPPTOOLS_EXPORT ModelItemInfo
                 : symbolScope +  QLatin1String("::") + symbolName;
     }
 
+    void unqualifiedNameAndScope(const QString &defaultName, QString *name, QString *scope) const
+    {
+        *name = defaultName;
+        *scope = symbolScope;
+        const QString qualifiedName = scopedSymbolName();
+        const int colonColonPosition = qualifiedName.lastIndexOf(QLatin1String("::"));
+        if (colonColonPosition != -1) {
+            *name = qualifiedName.mid(colonColonPosition + 2);
+            *scope = qualifiedName.left(colonColonPosition);
+        }
+    }
+
     QString typeNameRepresentation() const
     {
         if (type == ModelItemInfo::Declaration) {
@@ -112,7 +124,7 @@ struct CPPTOOLS_EXPORT ModelItemInfo
     QString shortNativeFilePath() const
     { return Utils::FileUtils::shortNativePath(Utils::FileName::fromString(fileName)); }
 
-    QString symbolName;
+    QString symbolName; // as found in the code, therefore might be qualified
     QString symbolType;
     QString symbolScope;
     QString fileName;

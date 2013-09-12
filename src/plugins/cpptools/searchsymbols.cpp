@@ -95,21 +95,9 @@ bool SearchSymbols::visit(Function *symbol)
 {
     if (!(symbolsToSearchFor & SymbolSearcher::Functions))
         return false;
-
-    QString extraScope;
-    if (const Name *name = symbol->name()) {
-        if (const QualifiedNameId *q = name->asQualifiedNameId()) {
-            if (q->base())
-                extraScope = overview.prettyName(q->base());
-        }
-    }
-    QString fullScope = _scope;
-    if (!_scope.isEmpty() && !extraScope.isEmpty())
-        fullScope += QLatin1String("::");
-    fullScope += extraScope;
     QString name = symbolName(symbol);
     QString type = overview.prettyType(symbol->type());
-    appendItem(name, type, fullScope, ModelItemInfo::Method, symbol);
+    appendItem(name, type, _scope, ModelItemInfo::Method, symbol);
     return false;
 }
 

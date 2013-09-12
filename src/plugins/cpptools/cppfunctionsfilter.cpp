@@ -52,10 +52,15 @@ QList<QList<CppTools::ModelItemInfo> > CppFunctionsFilter::itemsToMatchUserInput
 Locator::FilterEntry CppFunctionsFilter::filterEntryFromModelItemInfo(const CppTools::ModelItemInfo &info)
 {
     const QVariant id = qVariantFromValue(info);
-    Locator::FilterEntry filterEntry(this, info.symbolName + info.symbolType, id, info.icon);
-    filterEntry.extraInfo = info.symbolScope.isEmpty()
-        ? info.shortNativeFilePath()
-        : info.symbolScope;
+
+    QString name = info.symbolName;
+    QString extraInfo = info.symbolScope;
+    info.unqualifiedNameAndScope(name, &name, &extraInfo);
+    if (extraInfo.isEmpty())
+        extraInfo = info.shortNativeFilePath();
+
+    Locator::FilterEntry filterEntry(this, name + info.symbolType, id, info.icon);
+    filterEntry.extraInfo = extraInfo;
 
     return filterEntry;
 }
