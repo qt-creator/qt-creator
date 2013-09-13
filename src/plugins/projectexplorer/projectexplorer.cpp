@@ -2407,7 +2407,7 @@ void ProjectExplorerPlugin::updateDeployActions()
     Project *project = SessionManager::startupProject();
 
     bool enableDeployActions = project
-            && BuildManager::isBuilding(project)
+            && !BuildManager::isBuilding(project)
             && hasDeploySettings(project);
     bool enableDeployActionsContextMenu = d->m_currentProject
                               && !BuildManager::isBuilding(d->m_currentProject)
