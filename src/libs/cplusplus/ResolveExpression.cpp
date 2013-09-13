@@ -386,9 +386,25 @@ bool ResolveExpression::visit(NestedExpressionAST *ast)
     return false;
 }
 
-bool ResolveExpression::visit(StringLiteralAST *)
+bool ResolveExpression::visit(StringLiteralAST *ast)
 {
-    FullySpecifiedType charTy = control()->integerType(IntegerType::Char);
+    const Token &tk = tokenAt(ast->literal_token);
+    int intId;
+    switch (tk.kind()) {
+    case T_WIDE_STRING_LITERAL:
+        intId = IntegerType::WideChar;
+        break;
+    case T_UTF16_STRING_LITERAL:
+        intId = IntegerType::Char16;
+        break;
+    case T_UTF32_STRING_LITERAL:
+        intId = IntegerType::Char32;
+        break;
+    default:
+        intId = IntegerType::Char;
+        break;
+    }
+    FullySpecifiedType charTy = control()->integerType(intId);
     charTy.setConst(true);
     FullySpecifiedType ty(control()->pointerType(charTy));
     addResult(ty, _scope);
