@@ -15,7 +15,6 @@ CppApplication {
         buildDirectory + '/' + project.ide_library_path + "/..", // OSX
         buildDirectory + '/' + project.ide_plugin_path + "/QtProject"
     ]
-    cpp.defines: base.concat(["QT_USE_FAST_OPERATOR_PLUS"])
 
     // The following would be conceptually right, but does not work currently as some autotests
     // (e.g. extensionsystem) do not work when installed, because they want hardcoded
