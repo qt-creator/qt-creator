@@ -47,6 +47,7 @@ class AndroidGdbServerKitInformationWidget : public ProjectExplorer::KitConfigWi
 public:
     AndroidGdbServerKitInformationWidget(ProjectExplorer::Kit *kit,
                                          const ProjectExplorer::KitInformation *ki);
+    ~AndroidGdbServerKitInformationWidget();
 
     QString displayName() const;
     QString toolTip() const;

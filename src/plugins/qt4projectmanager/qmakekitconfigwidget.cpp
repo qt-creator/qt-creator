@@ -48,6 +48,11 @@ QmakeKitConfigWidget::QmakeKitConfigWidget(ProjectExplorer::Kit *k, const Projec
     connect(m_lineEdit, SIGNAL(textEdited(QString)), this, SLOT(mkspecWasChanged(QString)));
 }
 
+QmakeKitConfigWidget::~QmakeKitConfigWidget()
+{
+    delete m_lineEdit;
+}
+
 QWidget *QmakeKitConfigWidget::mainWidget() const
 {
     return m_lineEdit;

@@ -46,6 +46,7 @@ class QtKitConfigWidget : public ProjectExplorer::KitConfigWidget
 
 public:
     QtKitConfigWidget(ProjectExplorer::Kit *k, const ProjectExplorer::KitInformation *ki);
+    ~QtKitConfigWidget();
 
     QString displayName() const;
 

@@ -68,6 +68,12 @@ QtKitConfigWidget::QtKitConfigWidget(ProjectExplorer::Kit *k, const ProjectExplo
     connect(m_manageButton, SIGNAL(clicked()), this, SLOT(manageQtVersions()));
 }
 
+QtKitConfigWidget::~QtKitConfigWidget()
+{
+    delete m_combo;
+    delete m_manageButton;
+}
+
 QString QtKitConfigWidget::displayName() const
 {
     return tr("Qt version:");

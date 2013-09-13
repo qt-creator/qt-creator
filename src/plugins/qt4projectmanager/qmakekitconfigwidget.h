@@ -45,6 +45,7 @@ class QmakeKitConfigWidget : public ProjectExplorer::KitConfigWidget
 
 public:
     QmakeKitConfigWidget(ProjectExplorer::Kit *k, const ProjectExplorer::KitInformation *ki);
+    ~QmakeKitConfigWidget();
 
     QWidget *mainWidget() const;
     QString displayName() const;

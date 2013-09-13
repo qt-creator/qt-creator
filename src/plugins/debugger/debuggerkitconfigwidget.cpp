@@ -1024,6 +1024,12 @@ DebuggerKitConfigWidget::DebuggerKitConfigWidget(Kit *workingCopy, const KitInfo
             this, SLOT(onDebuggerRemoved(QVariant)));
 }
 
+DebuggerKitConfigWidget::~DebuggerKitConfigWidget()
+{
+    delete m_comboBox;
+    delete m_manageButton;
+}
+
 QString DebuggerKitConfigWidget::toolTip() const
 {
     return tr("The debugger to use for this kit.");

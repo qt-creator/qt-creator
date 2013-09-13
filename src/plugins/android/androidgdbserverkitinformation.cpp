@@ -134,6 +134,12 @@ AndroidGdbServerKitInformationWidget::AndroidGdbServerKitInformationWidget(Kit *
     refresh();
 }
 
+AndroidGdbServerKitInformationWidget::~AndroidGdbServerKitInformationWidget()
+{
+    delete m_button;
+    delete m_label;
+}
+
 QString AndroidGdbServerKitInformationWidget::displayName() const
 {
     return tr("Android GDB server");
