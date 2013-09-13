@@ -651,14 +651,14 @@ def lookupType(typestring):
         typesToReport[typestring] = type
         return type
 
-    try:
-        type = gdb.parse_and_eval("{%s}&main" % typestring).type
-        if not type is None:
-            typeCache[typestring] = type
-            typesToReport[typestring] = type
-            return type
-    except:
-        pass
+    #try:
+    #    type = gdb.parse_and_eval("{%s}&main" % typestring).type
+    #    if not type is None:
+    #        typeCache[typestring] = type
+    #        typesToReport[typestring] = type
+    #        return type
+    #except:
+    #    pass
 
     # See http://sourceware.org/bugzilla/show_bug.cgi?id=13269
     # gcc produces "{anonymous}", gdb "(anonymous namespace)"
