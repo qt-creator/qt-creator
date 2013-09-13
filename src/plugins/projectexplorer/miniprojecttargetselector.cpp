@@ -28,6 +28,9 @@
 ****************************************************************************/
 
 #include "miniprojecttargetselector.h"
+#include "kit.h"
+#include "kitconfigwidget.h"
+#include "kitmanager.h"
 #include "target.h"
 
 #include <utils/styledbar.h>
@@ -520,6 +523,81 @@ QListWidgetItem *GenericListWidget::itemForProjectConfiguration(ProjectConfigura
     return 0;
 }
 
+/////////
+// KitAreaWidget
+/////////
+
+KitAreaWidget::KitAreaWidget(QWidget *parent) : QWidget(parent),
+    m_layout(new QGridLayout(this)), m_kit(0)
+{
+    m_layout->setMargin(3);
+    setKit(0);
+}
+
+void KitAreaWidget::setKit(Kit *k)
+{
+    foreach (KitConfigWidget *w, m_widgets)
+        w->deleteLater();
+    m_widgets.clear();
+    foreach (QLabel *l, m_labels)
+        l->deleteLater();
+    m_labels.clear();
+
+    if (m_kit) {
+        disconnect(KitManager::instance(), SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
+                   this, SLOT(updateKit(ProjectExplorer::Kit*)));
+    }
+
+    int row = 0;
+    foreach (KitInformation *ki, KitManager::kitInformation()) {
+        if (k && k->isMutable(ki->id())) {
+            KitConfigWidget *widget = ki->createConfigWidget(k);
+            m_widgets << widget;
+            QLabel *label = new QLabel(widget->displayName());
+            m_labels << label;
+
+            m_layout->addWidget(label, row, 0);
+            m_layout->addWidget(widget->mainWidget(), row, 1);
+            ++row;
+        }
+    }
+    m_kit = k;
+
+    if (m_kit) {
+        connect(KitManager::instance(), SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
+                this, SLOT(updateKit(ProjectExplorer::Kit*)));
+    }
+
+    setHidden(m_widgets.isEmpty());
+}
+
+void KitAreaWidget::updateKit(Kit *k)
+{
+    if (!m_kit || m_kit != k)
+        return;
+
+    // Check whether our widgets changed
+    bool mustRegenerate = false;
+    QList<Core::Id> knownIdList;
+    foreach (KitConfigWidget *w, m_widgets)
+        knownIdList << w->kitInformationId();
+
+    foreach (KitInformation *ki, KitManager::kitInformation()) {
+        Core::Id currentId = ki->id();
+        if (m_kit->isMutable(currentId) && !knownIdList.removeOne(currentId)) {
+            mustRegenerate = true;
+            break;
+        }
+    }
+
+    if (mustRegenerate || !knownIdList.isEmpty())
+        setKit(m_kit);
+}
+
+/////////
+// MiniProjectTargetSelector
+/////////
+
 QWidget *MiniProjectTargetSelector::createTitleLabel(const QString &text)
 {
     Utils::StyledBar *bar = new Utils::StyledBar(this);
@@ -558,6 +636,8 @@ MiniProjectTargetSelector::MiniProjectTargetSelector(QAction *targetSelectorActi
 
     targetSelectorAction->setIcon(style()->standardIcon(QStyle::SP_ComputerIcon));
     targetSelectorAction->setProperty("titledAction", true);
+
+    m_kitAreaWidget = new KitAreaWidget(this);
 
     m_summaryLabel = new QLabel(this);
     m_summaryLabel->setMargin(3);
@@ -747,8 +827,15 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
     static QWidget *actionBar = Core::ICore::mainWindow()->findChild<QWidget*>(QLatin1String("actionbar"));
     Q_ASSERT(actionBar);
 
+    m_kitAreaWidget->move(0, 0);
+
+    int oldSummaryLabelY = m_summaryLabel->y();
+
+    int kitAreaHeight = m_kitAreaWidget->isVisible() ? m_kitAreaWidget->sizeHint().height() : 0;
+
     // 1. Calculate the summary label height
-    int summaryLabelY = 1;
+    int summaryLabelY = 1 + kitAreaHeight;
+
     int summaryLabelHeight = 0;
     int oldSummaryLabelHeight = m_summaryLabel->height();
     bool onlySummary = false;
@@ -785,7 +872,7 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
     if (actionBar->isVisible())
         alignedWithActionHeight = actionBar->height() - statusBar->height();
     int bottomMargin = 9;
-    int totalHeight = 0;
+    int heightWithoutKitArea = 0;
 
     if (!onlySummary) {
         // list widget heigth
@@ -795,22 +882,24 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
 
         int titleWidgetsHeight = m_titleWidgets.first()->height();
         if (keepSize) {
-            totalHeight = height();
+            heightWithoutKitArea = height() - oldSummaryLabelY + 1;
         } else {
             // Clamp the size of the listwidgets to be
             // at least as high as the the sidebar button
             // and at most twice as high
-            totalHeight = summaryLabelHeight + qBound(alignedWithActionHeight,
-                                                      maxItemCount * 30 + bottomMargin + titleWidgetsHeight,
-                                                      alignedWithActionHeight * 2);
+            heightWithoutKitArea = summaryLabelHeight
+                    + qBound(alignedWithActionHeight,
+                             maxItemCount * 30 + bottomMargin + titleWidgetsHeight,
+                             alignedWithActionHeight * 2);
         }
 
         int titleY = summaryLabelY + summaryLabelHeight;
         int listY = titleY + titleWidgetsHeight;
-        int listHeight = totalHeight - bottomMargin - listY + 1;
+        int listHeight = heightWithoutKitArea + kitAreaHeight - bottomMargin - listY + 1;
 
         // list widget widths
         int minWidth = qMax(m_summaryLabel->sizeHint().width(), 250);
+        minWidth = qMax(minWidth, m_kitAreaWidget->sizeHint().width());
         if (keepSize) {
             // Do not make the widget smaller then it was before
             int oldTotalListWidgetWidth = m_projectListWidget->isVisibleTo(this) ?
@@ -837,19 +926,21 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
         }
 
         m_summaryLabel->resize(x - 1, summaryLabelHeight);
-        setFixedSize(x, totalHeight);
+        m_kitAreaWidget->resize(x - 1, kitAreaHeight);
+        setFixedSize(x, heightWithoutKitArea + kitAreaHeight);
     } else {
         if (keepSize)
-            totalHeight = height();
+            heightWithoutKitArea = height() - oldSummaryLabelY + 1;
         else
-            totalHeight = qMax(summaryLabelHeight + bottomMargin, alignedWithActionHeight);
-        m_summaryLabel->resize(m_summaryLabel->sizeHint().width(), totalHeight - bottomMargin);
-        setFixedSize(m_summaryLabel->width() + 1, totalHeight); //1 extra pixel for the border
+            heightWithoutKitArea = qMax(summaryLabelHeight + bottomMargin, alignedWithActionHeight);
+        m_summaryLabel->resize(m_summaryLabel->sizeHint().width(), heightWithoutKitArea - bottomMargin);
+        m_kitAreaWidget->resize(m_kitAreaWidget->sizeHint());
+        setFixedSize(m_summaryLabel->width() + 1, heightWithoutKitArea + kitAreaHeight); //1 extra pixel for the border
     }
 
     if (isVisibleTo(parentWidget())) {
         QPoint moveTo = statusBar->mapToGlobal(QPoint(0,0));
-        moveTo -= QPoint(0, totalHeight);
+        moveTo -= QPoint(0, height());
         move(moveTo);
     }
 }
@@ -1176,6 +1267,8 @@ void MiniProjectTargetSelector::activeTargetChanged(ProjectExplorer::Target *tar
     }
 
     m_target = target;
+
+    m_kitAreaWidget->setKit(m_target ? m_target->kit() : 0);
 
     m_listWidgets[TARGET]->setActiveProjectConfiguration(m_target);
 

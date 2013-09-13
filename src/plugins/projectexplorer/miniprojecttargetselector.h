@@ -35,12 +35,14 @@
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
+class QGridLayout;
 class QLabel;
 class QStackedWidget;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 class Kit;
+class KitConfigWidget;
 class Project;
 class Target;
 class BuildConfiguration;
@@ -85,6 +87,25 @@ private:
     QListWidgetItem *itemForProject(Project *project);
     QString fullName(ProjectExplorer::Project *project);
     bool m_ignoreIndexChange;
+};
+
+class KitAreaWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    explicit KitAreaWidget(QWidget *parent = 0);
+
+public slots:
+    void setKit(ProjectExplorer::Kit *k);
+
+private slots:
+    void updateKit(ProjectExplorer::Kit *k);
+
+private:
+    QGridLayout *m_layout;
+    Kit *m_kit;
+    QList<KitConfigWidget *> m_widgets;
+    QList<QLabel *> m_labels;
 };
 
 class GenericListWidget : public ListWidget
@@ -176,6 +197,7 @@ private:
 
     enum TYPES { PROJECT = 0, TARGET = 1, BUILD = 2, DEPLOY = 3, RUN = 4, LAST = 5 };
     ProjectListWidget *m_projectListWidget;
+    KitAreaWidget *m_kitAreaWidget;
     QVector<GenericListWidget *> m_listWidgets;
     QVector<QWidget *> m_titleWidgets;
     QLabel *m_summaryLabel;
