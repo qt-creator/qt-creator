@@ -30,13 +30,13 @@
 #ifndef ITEMLIBRARYIMAGEPROVIDER_H
 #define ITEMLIBRARYIMAGEPROVIDER_H
 
-#include <QDeclarativeImageProvider>
+#include <QQuickImageProvider>
 
 namespace QmlDesigner {
 
 namespace Internal {
 
-class ItemLibraryImageProvider : public QDeclarativeImageProvider
+class ItemLibraryImageProvider : public QQuickImageProvider
 {
 public:
     ItemLibraryImageProvider();

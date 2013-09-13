@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-import QtQuick 1.0
+import QtQuick 2.1
 
 // scrollbar for the items view
 

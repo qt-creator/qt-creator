@@ -33,7 +33,7 @@
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
-class QDeclarativeView;
+class QQuickView;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -65,7 +65,7 @@ public:
     void showAddNewStatesButton(bool showAddNewStatesButton);
 
 private:
-    QWeakPointer<QDeclarativeView> m_declarativeView;
+    QWeakPointer<QQuickView> m_quickView;
     QWeakPointer<StatesEditorView> m_statesEditorView;
     Internal::StatesEditorImageProvider *m_imageProvider;
 };

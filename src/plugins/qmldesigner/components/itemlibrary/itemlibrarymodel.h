@@ -33,7 +33,7 @@
 #include <QMap>
 #include <QIcon>
 #include <QAbstractListModel>
-#include <QtDeclarative>
+#include <QtQuick>
 
 QT_FORWARD_DECLARE_CLASS(QMimeData)
 

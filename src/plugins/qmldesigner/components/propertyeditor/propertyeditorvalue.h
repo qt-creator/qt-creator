@@ -33,8 +33,8 @@
 #include <qmldesignercorelib_global.h>
 
 #include <QObject>
-#include <QDeclarativePropertyMap>
-#include <qdeclarative.h>
+#include <QQmlPropertyMap>
+#include <QtQml>
 #include <modelnode.h>
 
 class PropertyEditorValue;
@@ -43,7 +43,7 @@ class PropertyEditorNodeWrapper : public QObject {
     Q_OBJECT
 
     Q_PROPERTY(bool exists READ exists NOTIFY existsChanged)
-    Q_PROPERTY(QDeclarativePropertyMap* properties READ properties NOTIFY propertiesChanged)
+    Q_PROPERTY(QQmlPropertyMap* properties READ properties NOTIFY propertiesChanged)
     Q_PROPERTY(QString type READ type NOTIFY typeChanged)
 
 public:
@@ -51,7 +51,7 @@ public:
     PropertyEditorNodeWrapper(PropertyEditorValue* parent);
     bool exists();
     QString type();
-    QDeclarativePropertyMap* properties();
+    QQmlPropertyMap* properties();
     QmlDesigner::ModelNode parentModelNode() const;
     QmlDesigner::PropertyName propertyName() const;
 
@@ -70,7 +70,7 @@ private:
     void setup();
 
     QmlDesigner::ModelNode m_modelNode;
-    QDeclarativePropertyMap m_valuesPropertyMap;
+    QQmlPropertyMap m_valuesPropertyMap;
     PropertyEditorValue* m_editorValue;
 };
 
@@ -152,7 +152,7 @@ private: //variables
 
 QML_DECLARE_TYPE(PropertyEditorValue)
 QML_DECLARE_TYPE(PropertyEditorNodeWrapper)
-QML_DECLARE_TYPE(QDeclarativePropertyMap)
+QML_DECLARE_TYPE(QQmlPropertyMap)
 
 
 #endif // PROPERTYEDITORVALUE_H

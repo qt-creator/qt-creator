@@ -3,7 +3,7 @@
         <file>qml/ItemsView.qml</file>
         <file>qml/ItemsViewStyle.qml</file>
         <file>qml/SectionView.qml</file>
-        <file>qml/ItemView.qml</file>
+        <file>qml/SingleItemView.qml</file>
         <file>qml/Scrollbar.qml</file>
         <file>qml/Selector.qml</file>
 

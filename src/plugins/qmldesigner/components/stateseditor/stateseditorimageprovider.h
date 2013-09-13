@@ -32,7 +32,7 @@
 
 #include"abstractview.h"
 
-#include <QDeclarativeImageProvider>
+#include <QQuickImageProvider>
 #include <QWeakPointer>
 
 namespace QmlDesigner {
@@ -40,7 +40,7 @@ namespace Internal {
 
 class StatesEditorView;
 
-class StatesEditorImageProvider : public QDeclarativeImageProvider
+class StatesEditorImageProvider : public QQuickImageProvider
 {
 public:
     StatesEditorImageProvider();

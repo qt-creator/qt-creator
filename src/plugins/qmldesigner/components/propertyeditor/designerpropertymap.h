@@ -30,13 +30,13 @@
 #ifndef DESIGNERPROPERTYMAP_H
 #define DESIGNERPROPERTYMAP_H
 
-#include <QDeclarativePropertyMap>
-#include <qdeclarative.h>
+#include <QQmlPropertyMap>
+#include <QtQml>
 
 namespace QmlDesigner {
 
 template <class DefaultType>
-class DesignerPropertyMap : public QDeclarativePropertyMap
+class DesignerPropertyMap : public QQmlPropertyMap
 {
 
 public:
@@ -50,7 +50,7 @@ private:
 };
 
 template <class DefaultType>
-DesignerPropertyMap<DefaultType>::DesignerPropertyMap(QObject *parent) : QDeclarativePropertyMap(parent), m_defaultValue(this)
+DesignerPropertyMap<DefaultType>::DesignerPropertyMap(QObject *parent) : QQmlPropertyMap(parent), m_defaultValue(this)
 {
 }
 
@@ -58,7 +58,7 @@ template <class DefaultType>
 QVariant DesignerPropertyMap<DefaultType>::value(const QString &key) const
 {
     if (contains(key))
-        return QDeclarativePropertyMap::value(key);
+        return QQmlPropertyMap::value(key);
     return QVariant(&m_defaultValue);
 }
 

@@ -1,3 +1,5 @@
+QT *= qml quick
+
 VPATH += $$PWD
 
 SOURCES += stateseditorwidget.cpp \

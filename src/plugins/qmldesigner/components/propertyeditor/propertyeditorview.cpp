@@ -85,7 +85,7 @@ PropertyEditorView::PropertyEditorView(QWidget *parent) :
 
     m_stackedWidget->insertWidget(0, new QWidget(m_stackedWidget));
 
-    QuickPropertyEditorView::registerQmlTypes();
+    Quick2PropertyEditorView::registerQmlTypes();
     setQmlDir(PropertyEditorQmlBackend::propertyEditorResourcesPath());
     m_stackedWidget->setWindowTitle(tr("Properties"));
 }

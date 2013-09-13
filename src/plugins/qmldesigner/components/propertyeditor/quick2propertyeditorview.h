@@ -27,69 +27,58 @@
 **
 ****************************************************************************/
 
-#ifndef BEHAVIORDIALOG_H
-#define BEHAVIORDIALOG_H
+#ifndef QUICK2PROERTYEDITORVIEW_H
+#define QUICK2PROERTYEDITORVIEW_H
 
-#include <modelnode.h>
-#include <propertyeditorvalue.h>
+#include <QWidget>
+#include <QUrl>
+#include <QQuickView>
+#include <QQmlEngine>
+#include <QQmlContext>
 
-#include <QPushButton>
-#include <QDialog>
-#include <QScopedPointer>
-
-#include "ui_behaviordialog.h"
+QT_BEGIN_NAMESPACE
+class QQmlError;
+class QQmlComponent;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class BehaviorDialog;
-
-class BehaviorWidget : public QPushButton
-{
-    Q_PROPERTY(PropertyEditorNodeWrapper* complexNode READ complexNode WRITE setComplexNode)
-
-    Q_OBJECT
-
-public:
-    explicit BehaviorWidget(QWidget *parent = 0);
-
-    ModelNode modelNode() const {return m_modelNode; }
-    PropertyName propertyName() const {return m_propertyName; }
-
-    PropertyEditorNodeWrapper* complexNode() const;
-    void setComplexNode(PropertyEditorNodeWrapper* complexNode);
-
-public slots:
-    void buttonPressed(bool);
-
-private:
-    ModelNode m_modelNode;
-    PropertyName m_propertyName;
-    PropertyEditorNodeWrapper* m_complexNode;
-    QScopedPointer<BehaviorDialog> m_BehaviorDialog;
-};
-
-class BehaviorDialog : public QDialog
+class Quick2PropertyEditorView : public QWidget
 {
     Q_OBJECT
+
+    Q_PROPERTY(QUrl source READ source WRITE setSource DESIGNABLE true)
 public:
-    explicit BehaviorDialog(QWidget *parent = 0);
-    void setup(const ModelNode &node, const PropertyName propertyName);
+    explicit Quick2PropertyEditorView(QWidget *parent = 0);
 
-public slots:
-    virtual void accept();
-    virtual void reject();
+    QUrl source() const;
+    void setSource(const QUrl&);
 
-    static void registerDeclarativeType();
+    QQmlEngine* engine();
+    QQmlContext* rootContext();
+
+    enum Status { Null, Ready, Loading, Error };
+    Status status() const;
+
+    static void registerQmlTypes();
+
+signals:
+    void statusChanged(Quick2PropertyEditorView::Status);
+
+protected:
+    void execute();
+
+private Q_SLOTS:
+    void continueExecute();
 
 private:
-    ModelNode m_modelNode;
-    PropertyName m_propertyName;
-    QScopedPointer<Internal::Ui::BehaviorDialog> m_ui;
+     QWidget *m_containerWidget;
+     QUrl m_source;
+     QQuickView m_view;
+     QWeakPointer<QQmlComponent> m_component;
+
 };
 
+} //QmlDesigner
 
-}
-
-QML_DECLARE_TYPE(QmlDesigner::BehaviorWidget)
-
-#endif// BEHAVIORDIALOG_H
+#endif // QUICK2PROERTYEDITORVIEW_H

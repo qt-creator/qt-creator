@@ -49,20 +49,16 @@
 #include <QMenu>
 #include <QApplication>
 
-#include <QDeclarativeItem>
-
+#include <QQuickItem>
 
 namespace QmlDesigner {
-
-
-
 
 ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     QFrame(parent),
     m_iconProvider(m_resIconSize),
     m_itemIconSize(24, 24),
     m_resIconSize(24, 24),
-    m_itemsView(new QDeclarativeView(this)),
+    m_itemsView(new QQuickView()),
     m_resourcesView(new Internal::ItemLibraryTreeView(this)),
     m_filterFlag(QtBasic)
 {
@@ -71,15 +67,11 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     setWindowTitle(tr("Library", "Title of library view"));
 
     /* create Items view and its model */
-    m_itemsView->setAttribute(Qt::WA_OpaquePaintEvent);
-    m_itemsView->setAttribute(Qt::WA_NoSystemBackground);
-    m_itemsView->setAcceptDrops(false);
-    m_itemsView->setFocusPolicy(Qt::ClickFocus);
-    m_itemsView->setResizeMode(QDeclarativeView::SizeRootObjectToView);
+    m_itemsView->setResizeMode(QQuickView::SizeRootObjectToView);
     m_itemLibraryModel = new Internal::ItemLibraryModel(this);
     m_itemLibraryModel->setItemIconSize(m_itemIconSize);
 
-    QDeclarativeContext *rootContext = m_itemsView->rootContext();
+    QQmlContext *rootContext = m_itemsView->rootContext();
     rootContext->setContextProperty(QLatin1String("itemLibraryModel"), m_itemLibraryModel.data());
     rootContext->setContextProperty(QLatin1String("itemLibraryIconWidth"), m_itemIconSize.width());
     rootContext->setContextProperty(QLatin1String("itemLibraryIconHeight"), m_itemIconSize.height());
@@ -92,7 +84,7 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     // loading the qml has to come after all needed context properties are set
     m_itemsView->setSource(QUrl("qrc:/ItemLibrary/qml/ItemsView.qml"));
 
-    QDeclarativeItem *rootItem = qobject_cast<QDeclarativeItem*>(m_itemsView->rootObject());
+    QQuickItem *rootItem = qobject_cast<QQuickItem*>(m_itemsView->rootObject());
     connect(rootItem, SIGNAL(itemSelected(int)), this, SLOT(showItemInfo(int)));
     connect(rootItem, SIGNAL(itemDragged(int)), this, SLOT(startDragAndDrop(int)));
     connect(this, SIGNAL(scrollItemsView(QVariant)), rootItem, SLOT(scrollView(QVariant)));
@@ -133,8 +125,9 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
     lineEditLayout->addItem(new QSpacerItem(5, 5, QSizePolicy::Fixed, QSizePolicy::Fixed), 1, 2);
     connect(m_filterLineEdit.data(), SIGNAL(filterChanged(QString)), this, SLOT(setSearchFilter(QString)));
 
+    QWidget *container = createWindowContainer(m_itemsView.data());
     m_stackedWidget = new QStackedWidget(this);
-    m_stackedWidget->addWidget(m_itemsView.data());
+    m_stackedWidget->addWidget(container);
     m_stackedWidget->addWidget(m_resourcesView.data());
 
     QWidget *spacer = new QWidget(this);
@@ -375,7 +368,7 @@ void ItemLibraryWidget::startDragAndDrop(int itemLibId)
     drag->setPreview(QPixmap::fromImage(image));
     drag->setMimeData(mimeData);
 
-    QDeclarativeItem *rootItem = qobject_cast<QDeclarativeItem*>(m_itemsView->rootObject());
+    QQuickItem *rootItem = qobject_cast<QQuickItem*>(m_itemsView->rootObject());
     connect(rootItem, SIGNAL(stopDragAndDrop()), drag, SLOT(stopDrag()));
 
     drag->exec();
@@ -384,16 +377,6 @@ void ItemLibraryWidget::startDragAndDrop(int itemLibId)
 void ItemLibraryWidget::showItemInfo(int /*itemLibId*/)
 {
 //    qDebug() << "showing item info about id" << itemLibId;
-}
-
-void ItemLibraryWidget::wheelEvent(QWheelEvent *event)
-{
-    if (m_stackedWidget->currentIndex() == 0 &&
-        m_itemsView->rect().contains(event->pos())) {
-        emit scrollItemsView(event->delta());
-        event->accept();
-    } else
-        QFrame::wheelEvent(event);
 }
 
 void ItemLibraryWidget::removeImport(const QString &name)

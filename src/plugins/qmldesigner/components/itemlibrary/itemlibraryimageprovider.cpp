@@ -33,7 +33,7 @@ namespace QmlDesigner {
 namespace Internal {
 
 ItemLibraryImageProvider::ItemLibraryImageProvider() :
-        QDeclarativeImageProvider(QDeclarativeImageProvider::Pixmap)
+        QQuickImageProvider(QQuickImageProvider::Pixmap)
 {
 }
 

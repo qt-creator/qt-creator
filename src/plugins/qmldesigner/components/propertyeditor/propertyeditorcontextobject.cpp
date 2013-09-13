@@ -42,7 +42,6 @@ PropertyEditorContextObject::PropertyEditorContextObject(QObject *parent) :
 
 }
 
-
 int PropertyEditorContextObject::majorVersion() const
 {
     return m_majorVersion;

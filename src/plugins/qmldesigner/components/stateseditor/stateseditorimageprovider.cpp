@@ -36,7 +36,7 @@ namespace QmlDesigner {
 namespace Internal {
 
 StatesEditorImageProvider::StatesEditorImageProvider()
-    : QDeclarativeImageProvider(QDeclarativeImageProvider::Image)
+    : QQuickImageProvider(QQuickImageProvider::Image)
 {
 }
 

@@ -38,10 +38,10 @@
 
 #include <QBoxLayout>
 
-#include <QDeclarativeView>
-#include <QDeclarativeContext>
-#include <QDeclarativeEngine>
-#include <QDeclarativeItem>
+#include <QQuickView>
+#include <QQmlContext>
+#include <QQmlEngine>
+#include <QQuickItem>
 
 enum {
     debug = false
@@ -51,15 +51,15 @@ namespace QmlDesigner {
 
 int StatesEditorWidget::currentStateInternalId() const
 {
-    Q_ASSERT(m_declarativeView->rootObject());
-    Q_ASSERT(m_declarativeView->rootObject()->property("currentStateInternalId").isValid());
+    Q_ASSERT(m_quickView->rootObject());
+    Q_ASSERT(m_quickView->rootObject()->property("currentStateInternalId").isValid());
 
-    return m_declarativeView->rootObject()->property("currentStateInternalId").toInt();
+    return m_quickView->rootObject()->property("currentStateInternalId").toInt();
 }
 
 void StatesEditorWidget::setCurrentStateInternalId(int internalId)
 {
-    m_declarativeView->rootObject()->setProperty("currentStateInternalId", internalId);
+    m_quickView->rootObject()->setProperty("currentStateInternalId", internalId);
 }
 
 void StatesEditorWidget::setNodeInstanceView(NodeInstanceView *nodeInstanceView)
@@ -69,54 +69,56 @@ void StatesEditorWidget::setNodeInstanceView(NodeInstanceView *nodeInstanceView)
 
 void StatesEditorWidget::showAddNewStatesButton(bool showAddNewStatesButton)
 {
-    m_declarativeView->rootContext()->setContextProperty("canAddNewStates", showAddNewStatesButton);
+    m_quickView->rootContext()->setContextProperty("canAddNewStates", showAddNewStatesButton);
 }
 
 StatesEditorWidget::StatesEditorWidget(StatesEditorView *statesEditorView, StatesEditorModel *statesEditorModel):
         QWidget(),
-    m_declarativeView(new QDeclarativeView(this)),
+    m_quickView(new QQuickView()),
     m_statesEditorView(statesEditorView),
     m_imageProvider(0)
 {
     m_imageProvider = new Internal::StatesEditorImageProvider;
     m_imageProvider->setNodeInstanceView(statesEditorView->nodeInstanceView());
-    m_declarativeView->engine()->addImageProvider(
+    m_quickView->engine()->addImageProvider(
             QLatin1String("qmldesigner_stateseditor"), m_imageProvider);
 
-    m_declarativeView->setAcceptDrops(false);
+    //m_quickView->setAcceptDrops(false);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     setMinimumHeight(160);
     layout->setMargin(0);
     layout->setSpacing(0);
-    layout->addWidget(m_declarativeView.data());
+    QWidget *container = createWindowContainer(m_quickView.data());
+    layout->addWidget(container);
 
-    m_declarativeView->setResizeMode(QDeclarativeView::SizeRootObjectToView);
+    m_quickView->setResizeMode(QQuickView::SizeRootObjectToView);
 
-    m_declarativeView->rootContext()->setContextProperty(QLatin1String("statesEditorModel"), statesEditorModel);
+    m_quickView->rootContext()->setContextProperty(QLatin1String("statesEditorModel"), statesEditorModel);
     QColor highlightColor = palette().highlight().color();
     if (0.5*highlightColor.saturationF()+0.75-highlightColor.valueF() < 0)
         highlightColor.setHsvF(highlightColor.hsvHueF(),0.1 + highlightColor.saturationF()*2.0, highlightColor.valueF());
-    m_declarativeView->rootContext()->setContextProperty(QLatin1String("highlightColor"), highlightColor);
+    m_quickView->rootContext()->setContextProperty(QLatin1String("highlightColor"), highlightColor);
 
-    m_declarativeView->rootContext()->setContextProperty("canAddNewStates", true);
+    m_quickView->rootContext()->setContextProperty("canAddNewStates", true);
 
     // Work around ASSERT in the internal QGraphicsScene that happens when
     // the scene is created + items set dirty in one event loop run (BAUHAUS-459)
     //QApplication::processEvents();
 
-    m_declarativeView->setSource(QUrl("qrc:/stateseditor/stateslist.qml"));
+    m_quickView->setSource(QUrl("qrc:/stateseditor/stateslist.qml"));
 
-    if (!m_declarativeView->rootObject())
+    if (!m_quickView->rootObject())
         throw InvalidQmlSourceException(__LINE__, __FUNCTION__, __FILE__);
 
-    m_declarativeView->setFocusPolicy(Qt::ClickFocus);
-    QEvent event(QEvent::WindowActivate);
-    QApplication::sendEvent(m_declarativeView->scene(), &event);
 
-    connect(m_declarativeView->rootObject(), SIGNAL(currentStateInternalIdChanged()), statesEditorView, SLOT(synchonizeCurrentStateFromWidget()));
-    connect(m_declarativeView->rootObject(), SIGNAL(createNewState()), statesEditorView, SLOT(createNewState()));
-    connect(m_declarativeView->rootObject(), SIGNAL(deleteState(int)), statesEditorView, SLOT(removeState(int)));
+    QEvent event(QEvent::WindowActivate);
+    QApplication::sendEvent(m_quickView.data(), &event);
+
+
+    connect(m_quickView->rootObject(), SIGNAL(currentStateInternalIdChanged()), statesEditorView, SLOT(synchonizeCurrentStateFromWidget()));
+    connect(m_quickView->rootObject(), SIGNAL(createNewState()), statesEditorView, SLOT(createNewState()));
+    connect(m_quickView->rootObject(), SIGNAL(deleteState(int)), statesEditorView, SLOT(removeState(int)));
 
     setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred));
 

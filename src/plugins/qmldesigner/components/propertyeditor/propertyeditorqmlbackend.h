@@ -34,7 +34,7 @@
 #include "designerpropertymap.h"
 #include "propertyeditorvalue.h"
 #include "propertyeditorcontextobject.h"
-#include "quickpropertyeditorview.h"
+#include "quick2propertyeditorview.h"
 
 #include <nodemetainfo.h>
 
@@ -54,7 +54,7 @@ public:
     void initialSetup(const TypeName &typeName, const QUrl &qmlSpecificsFile, PropertyEditorView *propertyEditor);
     void setValue(const QmlObjectNode &fxObjectNode, const PropertyName &name, const QVariant &value);
 
-    QDeclarativeContext *context();
+    QQmlContext *context();
     PropertyEditorContextObject* contextObject();
     QWidget *widget();
     void setSource(const QUrl& url);
@@ -86,7 +86,7 @@ private:
     static QString fixTypeNameForPanes(const QString &typeName);
 
 private:
-    QuickPropertyEditorView *m_view;
+    Quick2PropertyEditorView *m_view;
     Internal::QmlAnchorBindingProxy m_backendAnchorBinding;
     DesignerPropertyMap<PropertyEditorValue> m_backendValuesPropertyMap;
     QScopedPointer<PropertyEditorTransaction> m_propertyEditorTransaction;

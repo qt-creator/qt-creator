@@ -32,7 +32,7 @@
 
 #include <QObject>
 #include <QUrl>
-#include <QDeclarativePropertyMap>
+#include <QQmlPropertyMap>
 #include <QColor>
 
 namespace QmlDesigner {
@@ -53,7 +53,7 @@ class PropertyEditorContextObject : public QObject
     Q_PROPERTY(int majorVersion READ majorVersion WRITE setMajorVersion NOTIFY majorVersionChanged)
     Q_PROPERTY(int minorVersion READ minorVersion WRITE setMinorVersion NOTIFY minorVersionChanged)
 
-    Q_PROPERTY(QDeclarativePropertyMap* backendValues READ backendValues WRITE setBackendValues NOTIFY backendValuesChanged)
+    Q_PROPERTY(QQmlPropertyMap* backendValues READ backendValues WRITE setBackendValues NOTIFY backendValuesChanged)
 
 public:
     PropertyEditorContextObject(QObject *parent = 0);
@@ -66,7 +66,7 @@ public:
     bool isBaseState() const { return m_isBaseState; }
     bool selectionChanged() const { return m_selectionChanged; }
 
-    QDeclarativePropertyMap* backendValues() const { return m_backendValues; }
+    QQmlPropertyMap* backendValues() const { return m_backendValues; }
 
     Q_INVOKABLE QString convertColorToString(const QColor &color) { return color.name(); }
 
@@ -141,7 +141,7 @@ public slots:
          emit selectionChangedChanged();
      }
 
-     void setBackendValues(QDeclarativePropertyMap* newBackendValues)
+     void setBackendValues(QQmlPropertyMap* newBackendValues)
      {
          if (newBackendValues ==  m_backendValues)
              return;
@@ -165,7 +165,7 @@ private:
     bool m_isBaseState;
     bool m_selectionChanged;
 
-    QDeclarativePropertyMap* m_backendValues;
+    QQmlPropertyMap* m_backendValues;
 
     int m_majorVersion;
     int m_minorVersion;

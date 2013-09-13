@@ -27,8 +27,7 @@
 **
 ****************************************************************************/
 
-import QtQuick 1.0
-
+import QtQuick 2.1
 // view displaying an item library grid item
 
 Item {

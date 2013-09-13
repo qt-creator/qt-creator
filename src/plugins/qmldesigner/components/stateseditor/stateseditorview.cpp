@@ -398,6 +398,9 @@ void StatesEditorView::currentStateChanged(const ModelNode &node)
 
 void StatesEditorView::instancesPreviewImageChanged(const QVector<ModelNode> &nodeList)
 {
+    if (!model())
+        return;
+
     int minimumIndex = 10000;
     int maximumIndex = -1;
     foreach (const ModelNode &node, nodeList) {

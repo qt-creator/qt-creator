@@ -38,7 +38,7 @@
 #include <QFrame>
 #include <QToolButton>
 #include <QFileIconProvider>
-#include <QDeclarativeView>
+#include <QQuickView>
 
 QT_BEGIN_NAMESPACE
 class QFileSystemModel;
@@ -105,7 +105,6 @@ public slots:
     void onMeegoChecked(bool b);
 
 protected:
-    void wheelEvent(QWheelEvent *event);
     void removeImport(const QString &name);
     void addImport(const QString &name, const QString &version);
     void emitImportChecked();
@@ -131,8 +130,9 @@ private:
     QWeakPointer<QFileSystemModel> m_resourcesFileSystemModel;
 
     QWeakPointer<QStackedWidget> m_stackedWidget;
+
     QWeakPointer<Utils::FilterLineEdit> m_filterLineEdit;
-    QScopedPointer<QDeclarativeView> m_itemsView;
+    QScopedPointer<QQuickView> m_itemsView;
     QScopedPointer<Internal::ItemLibraryTreeView> m_resourcesView;
 
     QWeakPointer<Model> m_model;

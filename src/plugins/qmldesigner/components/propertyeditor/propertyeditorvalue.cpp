@@ -266,7 +266,7 @@ void PropertyEditorValue::registerDeclarativeTypes()
 {
     qmlRegisterType<PropertyEditorValue>("Bauhaus",1,0,"PropertyEditorValue");
     qmlRegisterType<PropertyEditorNodeWrapper>("Bauhaus",1,0,"PropertyEditorNodeWrapper");
-    qmlRegisterType<QDeclarativePropertyMap>("Bauhaus",1,0,"QDeclarativePropertyMap");
+    qmlRegisterType<QQmlPropertyMap>("Bauhaus",1,0,"QQmlPropertyMap");
 }
 
 PropertyEditorNodeWrapper::PropertyEditorNodeWrapper(PropertyEditorValue* parent) : QObject(parent), m_valuesPropertyMap(this)
@@ -306,7 +306,7 @@ QmlDesigner::PropertyName PropertyEditorNodeWrapper::propertyName() const
     return m_editorValue->name();
 }
 
-QDeclarativePropertyMap* PropertyEditorNodeWrapper::properties()
+QQmlPropertyMap *PropertyEditorNodeWrapper::properties()
 {
     return &m_valuesPropertyMap;
 }

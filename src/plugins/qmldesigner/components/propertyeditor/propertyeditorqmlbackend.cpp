@@ -52,7 +52,8 @@ enum {
     debug = false
 };
 
-const char resourcePropertyEditorPath[] = ":/propertyeditor";
+const char propertyEditorPath[] = "/propertyEditorQmlSources";
+const char resourcePropertyEditorPath[] = ":/propertyEditorQmlSources";
 
 static QmlJS::SimpleReaderNode::Ptr s_templateConfiguration = QmlJS::SimpleReaderNode::Ptr();
 
@@ -118,7 +119,7 @@ static inline QString sharedDirPath()
 namespace QmlDesigner {
 
 PropertyEditorQmlBackend::PropertyEditorQmlBackend(PropertyEditorView *propertyEditor) :
-        m_view(new QuickPropertyEditorView), m_propertyEditorTransaction(new PropertyEditorTransaction(propertyEditor)), m_dummyPropertyEditorValue(new PropertyEditorValue()),
+        m_view(new Quick2PropertyEditorView), m_propertyEditorTransaction(new PropertyEditorTransaction(propertyEditor)), m_dummyPropertyEditorValue(new PropertyEditorValue()),
         m_contextObject(new PropertyEditorContextObject())
 {
     Q_ASSERT(QFileInfo(":/images/button_normal.png").exists());
@@ -203,7 +204,7 @@ void PropertyEditorQmlBackend::setValue(const QmlObjectNode & qmlObjectNode, con
 }
 
 
-QDeclarativeContext *PropertyEditorQmlBackend::context() {
+QQmlContext *PropertyEditorQmlBackend::context() {
     return m_view->rootContext();
 }
 
@@ -338,7 +339,7 @@ void PropertyEditorQmlBackend::initialSetup(const TypeName &typeName, const QUrl
 }
 
 QString PropertyEditorQmlBackend::propertyEditorResourcesPath() {
-    return sharedDirPath() + QLatin1String("/propertyeditor");
+    return sharedDirPath() + QLatin1String(propertyEditorPath);
 }
 
 QString PropertyEditorQmlBackend::templateGeneration(NodeMetaInfo type,

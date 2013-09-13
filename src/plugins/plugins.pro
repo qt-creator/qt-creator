@@ -67,20 +67,13 @@ contains(QT_CONFIG, declarative)|!isEmpty(QT.declarative.name) {
         qmlprojectmanager \
         qmlprofiler
 
-    greaterThan(QT_MAJOR_VERSION, 4) {
+    greaterThan(QT_MAJOR_VERSION, 4):greaterThan(QT_MINOR_VERSION, 0) {
         SUBDIRS += \
             qmldesigner \
             welcome
     } else {
-        include(../private_headers.pri)
-        exists($${QT_PRIVATE_HEADERS}/QtDeclarative/private/qdeclarativecontext_p.h) {
-            SUBDIRS += \
-                qmldesigner
-        } else {
-            warning("QmlDesigner plugin has been disabled.")
-            warning("The plugin depends on private headers from QtDeclarative module.")
-            warning("To enable it, pass 'QT_PRIVATE_HEADERS=$QTDIR/include' to qmake, where $QTDIR is the source directory of qt.")
-        }
+        warning("QmlDesigner plugin has been disabled.")
+        warning("The plugin needs at least Qt 5.1.")
     }
 } else {
     warning("QmlProjectManager, QmlProfiler and QmlDesigner plugins have been disabled: The plugins require QtDeclarative")
