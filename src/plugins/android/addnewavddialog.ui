@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>AddNewAVDDialog</class>
- <widget class="QDialog" name="AddNewAVDDialog">
+ <class>Android::Internal::AddNewAVDDialog</class>
+ <widget class="QDialog" name="Android::Internal::AddNewAVDDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -113,7 +113,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>AddNewAVDDialog</receiver>
+   <receiver>Android::Internal::AddNewAVDDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -129,7 +129,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>AddNewAVDDialog</receiver>
+   <receiver>Android::Internal::AddNewAVDDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

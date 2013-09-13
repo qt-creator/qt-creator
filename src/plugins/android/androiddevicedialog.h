@@ -39,14 +39,11 @@ QT_BEGIN_NAMESPACE
 class QModelIndex;
 QT_END_NAMESPACE
 
-namespace Ui {
-class AndroidDeviceDialog;
-}
-
 namespace Android {
 namespace Internal {
 
 class AndroidDeviceModel;
+namespace Ui { class AndroidDeviceDialog; }
 
 class AndroidDeviceDialog : public QDialog
 {
