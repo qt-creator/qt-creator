@@ -79,6 +79,7 @@ public:
 
     BarDescriptorEditorAssetsWidget *assetsWidget() const;
 
+    void setFilePath(const QString &filePath);
     QString xmlSource() const;
     void setXmlSource(const QString &xmlSource);
 

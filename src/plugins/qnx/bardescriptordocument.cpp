@@ -95,6 +95,7 @@ bool BarDescriptorDocument::open(QString *errorString, const QString &fileName) 
         return false;
 
     setFilePath(fileName);
+    m_editorWidget->setFilePath(fileName);
 
     bool result = loadContent(contents);
 

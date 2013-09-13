@@ -204,6 +204,13 @@ BarDescriptorEditorAssetsWidget *BarDescriptorEditorWidget::assetsWidget() const
     return m_assetsWidget;
 }
 
+void BarDescriptorEditorWidget::setFilePath(const QString &filePath)
+{
+    Core::IDocument *doc = m_xmlSourceWidget->editorDocument();
+    if (doc)
+        doc->setFilePath(filePath);
+}
+
 QString BarDescriptorEditorWidget::xmlSource() const
 {
     return m_xmlSourceWidget->toPlainText();
