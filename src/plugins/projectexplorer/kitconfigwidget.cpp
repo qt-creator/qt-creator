@@ -38,4 +38,9 @@ KitConfigWidget::KitConfigWidget(Kit *kit, const KitInformation *ki) : m_kit(kit
     m_kitInformation(ki), m_isSticky(kit->isSticky(ki->id()))
 { }
 
+Core::Id KitConfigWidget::kitInformationId() const
+{
+    return m_kitInformation->id();
+}
+
 } // namespace ProjectExplorer

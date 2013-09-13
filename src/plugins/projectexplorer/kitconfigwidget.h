@@ -32,6 +32,8 @@
 
 #include "projectexplorer_export.h"
 
+#include <coreplugin/id.h>
+
 #include <QWidget>
 
 namespace ProjectExplorer {
@@ -49,6 +51,8 @@ class PROJECTEXPLORER_EXPORT KitConfigWidget : public QObject
 
 public:
     KitConfigWidget(Kit *kit, const KitInformation *ki);
+
+    Core::Id kitInformationId() const;
 
     virtual QString displayName() const = 0;
     virtual QString toolTip() const { return QString(); }
