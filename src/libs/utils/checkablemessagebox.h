@@ -62,6 +62,15 @@ public:
                  QDialogButtonBox::StandardButtons buttons = QDialogButtonBox::Yes|QDialogButtonBox::No,
                  QDialogButtonBox::StandardButton defaultButton = QDialogButtonBox::No);
 
+    static QDialogButtonBox::StandardButton
+        information(QWidget *parent,
+                 const QString &title,
+                 const QString &text,
+                 const QString &checkBoxText,
+                 bool *checkBoxSetting,
+                 QDialogButtonBox::StandardButtons buttons = QDialogButtonBox::Ok,
+                 QDialogButtonBox::StandardButton defaultButton = QDialogButtonBox::NoButton);
+
     QString text() const;
     void setText(const QString &);
 

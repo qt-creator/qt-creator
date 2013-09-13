@@ -256,6 +256,28 @@ CheckableMessageBox::question(QWidget *parent,
     return mb.clickedStandardButton();
 }
 
+QDialogButtonBox::StandardButton
+CheckableMessageBox::information(QWidget *parent,
+                              const QString &title,
+                              const QString &text,
+                              const QString &checkBoxText,
+                              bool *checkBoxSetting,
+                              QDialogButtonBox::StandardButtons buttons,
+                              QDialogButtonBox::StandardButton defaultButton)
+{
+    CheckableMessageBox mb(parent);
+    mb.setWindowTitle(title);
+    mb.setIconPixmap(QMessageBox::standardIcon(QMessageBox::Information));
+    mb.setText(text);
+    mb.setCheckBoxText(checkBoxText);
+    mb.setChecked(*checkBoxSetting);
+    mb.setStandardButtons(buttons);
+    mb.setDefaultButton(defaultButton);
+    mb.exec();
+    *checkBoxSetting = mb.isChecked();
+    return mb.clickedStandardButton();
+}
+
 QMessageBox::StandardButton CheckableMessageBox::dialogButtonBoxToMessageBoxButton(QDialogButtonBox::StandardButton db)
 {
     return static_cast<QMessageBox::StandardButton>(int(db));

@@ -54,11 +54,11 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 
+#include <utils/checkablemessagebox.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <coreplugin/icore.h>
 
-#include <QErrorMessage>
 #include <QTcpServer>
 
 using namespace Debugger::Internal;
@@ -209,9 +209,14 @@ void DebuggerRunControl::start()
 
                 debuggerCore()->showMessage(warningMessage, LogWarning);
 
-                QErrorMessage *msgBox = new QErrorMessage(debuggerCore()->mainWindow());
-                msgBox->setAttribute(Qt::WA_DeleteOnClose);
-                msgBox->showMessage(warningMessage);
+                static bool checked = true;
+                if (!checked)
+                    break;
+                CheckableMessageBox::information(debuggerCore()->mainWindow(),
+                                                 tr("Debugger"),
+                                                 warningMessage,
+                                                 tr("&Show this message again."),
+                                                 &checked, QDialogButtonBox::Ok);
                 break;
             }
         }
