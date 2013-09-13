@@ -31,9 +31,9 @@
 
 #include "kitinformation.h"
 #include "kitmanager.h"
+#include "projectexplorerconstants.h"
 
 #include <coreplugin/icore.h>
-#include <projectexplorerconstants.h>
 
 #include <QComboBox>
 #include <QHBoxLayout>
