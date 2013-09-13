@@ -30,7 +30,6 @@ Autotest {
     }
     Group {
         name: "Drop-in sources for the plugin"
-        prefix: "texteditor/"
         files: [
             "basetextdocumentlayout.h",
             "syntaxhighlighter.h", "syntaxhighlighter.cpp",
@@ -41,7 +40,6 @@ Autotest {
     cpp.defines: base.concat(["TEXTEDITOR_LIBRARY"]) // For Windows
     cpp.includePaths: base.concat([
         path,
-        project.genericHighlighterDir,
         project.genericHighlighterDir + "/../..",
-        path])
+    ])
 }

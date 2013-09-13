@@ -33,7 +33,7 @@
 #include "texteditorsettings.h"
 #include "basetextdocument.h"
 #include "normalindenter.h"
-#include "generichighlighter/highlighterutils.h"
+#include "highlighterutils.h"
 #include <texteditor/generichighlighter/context.h>
 #include <texteditor/generichighlighter/highlightdefinition.h>
 #include <texteditor/generichighlighter/highlighter.h>

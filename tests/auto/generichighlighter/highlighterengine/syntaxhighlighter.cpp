@@ -27,44 +27,31 @@
 **
 ****************************************************************************/
 
-#include "highlighterutils.h"
-#include "highlighter.h"
-#include "highlightdefinition.h"
-#include "manager.h"
-#include <coreplugin/icore.h>
+#include "syntaxhighlighter.h"
+#include "formats.h"
+
+#include <texteditor/generichighlighter/highlighter.h>
 
 using namespace TextEditor;
 using namespace Internal;
 
-QString TextEditor::findDefinitionId(const Core::MimeType &mimeType,
-                         bool considerParents)
+QTextCharFormat SyntaxHighlighter::formatForCategory(int categoryIndex) const
 {
-    QString definitionId = Manager::instance()->definitionIdByAnyMimeType(mimeType.aliases());
-    if (definitionId.isEmpty() && considerParents) {
-        definitionId = Manager::instance()->definitionIdByAnyMimeType(mimeType.subClassesOf());
-        if (definitionId.isEmpty()) {
-            foreach (const QString &parent, mimeType.subClassesOf()) {
-                const Core::MimeType &parentMimeType = Core::MimeDatabase::findByType(parent);
-                definitionId = findDefinitionId(parentMimeType, considerParents);
-            }
-        }
+    switch (categoryIndex) {
+    case Highlighter::Keyword:      return Formats::instance().keywordFormat();
+    case Highlighter::DataType:     return Formats::instance().dataTypeFormat();
+    case Highlighter::Decimal:      return Formats::instance().decimalFormat();
+    case Highlighter::BaseN:        return Formats::instance().baseNFormat();
+    case Highlighter::Float:        return Formats::instance().floatFormat();
+    case Highlighter::Char:         return Formats::instance().charFormat();
+    case Highlighter::String:       return Formats::instance().stringFormat();
+    case Highlighter::Comment:      return Formats::instance().commentFormat();
+    case Highlighter::Alert:        return Formats::instance().alertFormat();
+    case Highlighter::Error:        return Formats::instance().errorFormat();
+    case Highlighter::Function:     return Formats::instance().functionFormat();
+    case Highlighter::RegionMarker: return Formats::instance().regionMarketFormat();
+    case Highlighter::Others:       return Formats::instance().othersFormat();
+    default:                                  return QTextCharFormat();
     }
-    return definitionId;
 }
 
-void TextEditor::setMimeTypeForHighlighter(Highlighter *highlighter, const Core::MimeType &mimeType)
-{
-    const QString type = mimeType.type();
-    QString definitionId = Manager::instance()->definitionIdByMimeType(type);
-    if (definitionId.isEmpty())
-        definitionId = findDefinitionId(mimeType, true);
-
-    if (!definitionId.isEmpty()) {
-        const QSharedPointer<HighlightDefinition> &definition =
-            Manager::instance()->definition(definitionId);
-        if (!definition.isNull() && definition->isValid()) {
-            highlighter->setDefaultContext(definition->initialContext());
-        }
-    }
-
-}

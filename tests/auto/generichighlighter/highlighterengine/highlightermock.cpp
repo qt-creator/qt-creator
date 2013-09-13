@@ -27,10 +27,11 @@
 **
 ****************************************************************************/
 
-#include "highlightermock.h"
-#include "context.h"
-#include "highlightdefinition.h"
 #include "formats.h"
+#include "highlightermock.h"
+
+#include <texteditor/generichighlighter/context.h>
+#include <texteditor/generichighlighter/highlightdefinition.h>
 
 #include <QDebug>
 #include <QtTest>

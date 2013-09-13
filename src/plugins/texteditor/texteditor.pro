@@ -38,6 +38,7 @@ SOURCES += texteditorplugin.cpp \
     indenter.cpp \
     quickfix.cpp \
     syntaxhighlighter.cpp \
+    highlighterutils.cpp \
     generichighlighter/itemdata.cpp \
     generichighlighter/specificrules.cpp \
     generichighlighter/rule.cpp \
@@ -54,7 +55,6 @@ SOURCES += texteditorplugin.cpp \
     generichighlighter/highlightersettings.cpp \
     generichighlighter/managedefinitionsdialog.cpp \
     generichighlighter/definitiondownloader.cpp \
-    generichighlighter/highlighterutils.cpp \
     refactoringchanges.cpp \
     refactoroverlay.cpp \
     outlinefactory.cpp \
@@ -146,6 +146,7 @@ HEADERS += texteditorplugin.h \
     quickfix.h \
     ihighlighterfactory.h \
     syntaxhighlighter.h \
+    highlighterutils.h \
     generichighlighter/reuse.h \
     generichighlighter/itemdata.h \
     generichighlighter/specificrules.h \
@@ -166,7 +167,6 @@ HEADERS += texteditorplugin.h \
     generichighlighter/managedefinitionsdialog.h \
     generichighlighter/highlightdefinitionmetadata.h \
     generichighlighter/definitiondownloader.h \
-    generichighlighter/highlighterutils.h \
     refactoringchanges.h \
     refactoroverlay.h \
     outlinefactory.h \

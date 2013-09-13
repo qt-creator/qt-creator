@@ -27,13 +27,14 @@
 **
 ****************************************************************************/
 
-#include "highlightdefinition.h"
-#include "keywordlist.h"
-#include "itemdata.h"
-#include "context.h"
-#include "specificrules.h"
-#include "highlightermock.h"
 #include "formats.h"
+#include "highlightermock.h"
+
+#include <texteditor/generichighlighter/context.h>
+#include <texteditor/generichighlighter/highlightdefinition.h>
+#include <texteditor/generichighlighter/itemdata.h>
+#include <texteditor/generichighlighter/keywordlist.h>
+#include <texteditor/generichighlighter/specificrules.h>
 
 #include <QSharedPointer>
 #include <QScopedPointer>

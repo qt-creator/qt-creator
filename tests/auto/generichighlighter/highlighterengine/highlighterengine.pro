@@ -7,7 +7,7 @@ SOURCES += \
     tst_highlighterengine.cpp \
     highlightermock.cpp \
     formats.cpp \
-    texteditor/syntaxhighlighter.cpp \
+    syntaxhighlighter.cpp \
     $$GENERICHIGHLIGHTERDIR/highlighter.cpp \
     $$GENERICHIGHLIGHTERDIR/context.cpp \
     $$GENERICHIGHLIGHTERDIR/dynamicrule.cpp \
@@ -21,9 +21,9 @@ SOURCES += \
 HEADERS += \
     highlightermock.h \
     formats.h \
-    texteditor/basetextdocumentlayout.h \
-    texteditor/syntaxhighlighter.h \
-    texteditor/tabsettings.h \
+    basetextdocumentlayout.h \
+    syntaxhighlighter.h \
+    tabsettings.h \
     $$GENERICHIGHLIGHTERDIR/highlighter.h \
     $$GENERICHIGHLIGHTERDIR/context.h \
     $$GENERICHIGHLIGHTERDIR/dynamicrule.h \
@@ -34,4 +34,4 @@ HEADERS += \
     $$GENERICHIGHLIGHTERDIR/keywordlist.h \
     $$GENERICHIGHLIGHTERDIR/itemdata.h
 
-INCLUDEPATH += $$PWD $$GENERICHIGHLIGHTERDIR
+INCLUDEPATH += $$PWD

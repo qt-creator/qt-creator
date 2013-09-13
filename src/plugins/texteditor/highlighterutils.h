@@ -27,30 +27,29 @@
 **
 ****************************************************************************/
 
-#include "syntaxhighlighter.h"
-#include "highlighter.h"
-#include "formats.h"
+#ifndef HIGHLIGHTERUTILS_H
+#define HIGHLIGHTERUTILS_H
 
-using namespace TextEditor;
-using namespace Internal;
+#include <QString>
+#include "texteditor_global.h"
 
-QTextCharFormat SyntaxHighlighter::formatForCategory(int categoryIndex) const
-{
-    switch (categoryIndex) {
-    case Highlighter::Keyword:      return Formats::instance().keywordFormat();
-    case Highlighter::DataType:     return Formats::instance().dataTypeFormat();
-    case Highlighter::Decimal:      return Formats::instance().decimalFormat();
-    case Highlighter::BaseN:        return Formats::instance().baseNFormat();
-    case Highlighter::Float:        return Formats::instance().floatFormat();
-    case Highlighter::Char:         return Formats::instance().charFormat();
-    case Highlighter::String:       return Formats::instance().stringFormat();
-    case Highlighter::Comment:      return Formats::instance().commentFormat();
-    case Highlighter::Alert:        return Formats::instance().alertFormat();
-    case Highlighter::Error:        return Formats::instance().errorFormat();
-    case Highlighter::Function:     return Formats::instance().functionFormat();
-    case Highlighter::RegionMarker: return Formats::instance().regionMarketFormat();
-    case Highlighter::Others:       return Formats::instance().othersFormat();
-    default:                                  return QTextCharFormat();
-    }
+/* These methods were originally a part of TextEditor::Highlighter,
+ * but due to a very hackish test of that generic highlighter,
+ * there methods must be outside. */
+
+namespace Core {
+class MimeType;
 }
 
+namespace TextEditor {
+
+class Highlighter;
+class SyntaxHighlighter;
+
+void setMimeTypeForHighlighter(Highlighter *highlighter, const Core::MimeType &mimeType);
+QString findDefinitionId(const Core::MimeType &mimeType, bool considerParents);
+TEXTEDITOR_EXPORT SyntaxHighlighter *createGenericSyntaxHighlighter(const Core::MimeType &mimeType);
+
+} // namespace TextEditor
+
+#endif // HIGHLIGHTERUTILS_H

@@ -30,7 +30,7 @@
 #ifndef HIGHLIGHTERMOCK_H
 #define HIGHLIGHTERMOCK_H
 
-#include "highlighter.h"
+#include <texteditor/generichighlighter/highlighter.h>
 
 #include <QList>
 

@@ -30,11 +30,11 @@
 #ifndef HIGHLIGHTER_H
 #define HIGHLIGHTER_H
 
-#include <texteditor/basetextdocumentlayout.h>
-#include <texteditor/syntaxhighlighter.h>
-#include <texteditor/texteditor_global.h>
-
 #include "context.h"
+
+// Yes, this is correct. These are found somewhere else when building the autotest.
+#include <basetextdocumentlayout.h>
+#include <syntaxhighlighter.h>
 
 #include <QString>
 #include <QVector>
@@ -55,7 +55,12 @@ class ProgressData;
 
 } // namespace Internal
 
-class TEXTEDITOR_EXPORT Highlighter : public TextEditor::SyntaxHighlighter
+/*
+  Warning: Due to a very ugly hack with generichighlighter test
+  you can't export this class, so that it would be used from
+  other plugins. That's why highlighterutils.h was introduced.
+*/
+class Highlighter : public TextEditor::SyntaxHighlighter
 {
     Q_OBJECT
 
@@ -128,14 +133,6 @@ private:
     void applyRegionBasedFolding() const;
     void applyIndentationBasedFolding(const QString &text) const;
     int neighbouringNonEmptyBlockIndent(QTextBlock block, const bool previous) const;
-
-    // Mapping from Kate format strings to format ids.
-    struct KateFormatMap
-    {
-        KateFormatMap();
-        QHash<QString, TextFormatId> m_ids;
-    };
-    static const KateFormatMap m_kateFormats;
 
     struct BlockData : TextBlockUserData
     {

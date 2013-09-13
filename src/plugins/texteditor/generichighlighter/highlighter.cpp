@@ -35,7 +35,7 @@
 #include "highlighterexception.h"
 #include "progressdata.h"
 #include "reuse.h"
-#include <texteditor/tabsettings.h>
+#include "tabsettings.h"
 
 #include <QLatin1String>
 #include <QLatin1Char>
@@ -49,8 +49,6 @@ namespace {
     static const QLatin1Char kBackSlash('\\');
     static const QLatin1Char kHash('#');
 }
-
-const Highlighter::KateFormatMap Highlighter::m_kateFormats;
 
 Highlighter::Highlighter(QTextDocument *parent) :
     TextEditor::SyntaxHighlighter(parent),
@@ -92,7 +90,14 @@ Highlighter::BlockData::BlockData() : m_foldingIndentDelta(0), m_originalObserva
 Highlighter::BlockData::~BlockData()
 {}
 
-Highlighter::KateFormatMap::KateFormatMap()
+// Mapping from Kate format strings to format ids.
+struct KateFormatMap
+{
+    KateFormatMap();
+    QHash<QString, Highlighter::TextFormatId> m_ids;
+};
+
+KateFormatMap::KateFormatMap()
 {
     m_ids.insert(QLatin1String("dsNormal"), Highlighter::Normal);
     m_ids.insert(QLatin1String("dsKeyword"), Highlighter::Keyword);
@@ -109,6 +114,8 @@ Highlighter::KateFormatMap::KateFormatMap()
     m_ids.insert(QLatin1String("dsRegionMarker"), Highlighter::RegionMarker);
     m_ids.insert(QLatin1String("dsOthers"), Highlighter::Others);
 }
+
+Q_GLOBAL_STATIC(KateFormatMap, kateFormatMap)
 
 void Highlighter::setDefaultContext(const QSharedPointer<Context> &defaultContext)
 {
@@ -404,7 +411,7 @@ void Highlighter::applyFormat(int offset,
         return;
     }
 
-    TextFormatId formatId = m_kateFormats.m_ids.value(itemData->style(), Normal);
+    TextFormatId formatId = kateFormatMap()->m_ids.value(itemData->style(), Normal);
     if (formatId != Normal) {
         QTextCharFormat format = formatForCategory(formatId);
         if (itemData->isCustomized()) {

@@ -10,6 +10,8 @@ QtcPlugin {
     Depends { name: "Find" }
     Depends { name: "Locator" }
 
+    cpp.includePaths: base.concat([path]) // Needed for the highlighterengine autotest.
+
     files: [
         "autocompleter.cpp",
         "autocompleter.h",
@@ -78,6 +80,8 @@ QtcPlugin {
         "fontsettingspage.ui",
         "helpitem.cpp",
         "helpitem.h",
+        "highlighterutils.cpp",
+        "highlighterutils.h",
         "icodestylepreferences.cpp",
         "icodestylepreferences.h",
         "icodestylepreferencesfactory.cpp",
@@ -216,8 +220,6 @@ QtcPlugin {
             "highlightersettingspage.cpp",
             "highlightersettingspage.h",
             "highlightersettingspage.ui",
-            "highlighterutils.cpp",
-            "highlighterutils.h",
             "includerulesinstruction.cpp",
             "includerulesinstruction.h",
             "itemdata.cpp",

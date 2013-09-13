@@ -45,8 +45,7 @@
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/displaysettings.h>
-#include <texteditor/generichighlighter/highlighter.h>
-#include <texteditor/generichighlighter/highlighterutils.h>
+#include <texteditor/highlighterutils.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
@@ -278,9 +277,7 @@ void MultiHighlighter::setDocuments(const QList<QPair<DiffEditorWidget::DiffFile
                 highlighter->setDocument(document);
         }
         if (!highlighter) {
-            TextEditor::Highlighter *h = new TextEditor::Highlighter();
-            highlighter = h;
-            setMimeTypeForHighlighter(h, mimeType);
+            highlighter = createGenericSyntaxHighlighter(mimeType);
             highlighter->setDocument(document);
         }
         m_documents.append(document);
