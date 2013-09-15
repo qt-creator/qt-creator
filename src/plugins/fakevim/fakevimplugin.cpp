@@ -122,7 +122,6 @@ class MiniBuffer : public QStackedWidget
 public:
     MiniBuffer() : m_label(new QLabel(this)), m_edit(new QLineEdit(this)), m_eventFilter(0)
     {
-        m_edit->installEventFilter(this);
         connect(m_edit, SIGNAL(textEdited(QString)), SLOT(changed()));
         connect(m_edit, SIGNAL(cursorPositionChanged(int,int)), SLOT(changed()));
         connect(m_edit, SIGNAL(selectionChanged()), SLOT(changed()));
@@ -204,18 +203,6 @@ private slots:
         if (anchorPos == cursorPos)
             anchorPos = cursorPos + m_edit->selectedText().length();
         emit edited(m_edit->text(), cursorPos, anchorPos);
-    }
-
-    bool eventFilter(QObject *ob, QEvent *ev)
-    {
-        // cancel editing on escape
-        if (m_eventFilter != 0 && ob == m_edit && ev->type() == QEvent::ShortcutOverride
-            && static_cast<QKeyEvent*>(ev)->key() == Qt::Key_Escape) {
-            emit edited(QString(), -1, -1);
-            ev->accept();
-            return true;
-        }
-        return false;
     }
 
 private:

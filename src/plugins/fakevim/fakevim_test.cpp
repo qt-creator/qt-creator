@@ -1472,6 +1472,32 @@ void FakeVimPlugin::test_vim_search()
     KEYS("N", "abc" N X "def" N "ghi");
     KEYS("N", X "abc" N "def" N "ghi");
     KEYS("2n2N", X "abc" N "def" N "ghi");
+
+    // delete to match
+    data.setText("abc" N "def" N "abc" N "ghi abc jkl" N "xyz");
+    KEYS("2l" "d/ghi<CR>", "ab" X "ghi abc jkl" N "xyz");
+
+    data.setText("abc" N "def" N "abc" N "ghi abc jkl" N "xyz");
+    KEYS("l" "d2/abc<CR>", "a" X "abc jkl" N "xyz");
+
+    data.setText("abc" N "def" N "abc" N "ghi abc jkl" N "xyz");
+    KEYS("d/abc<CR>", X "abc" N "ghi abc jkl" N "xyz");
+    KEYS(".", "abc jkl" N "xyz");
+
+    data.setText("abc" N "def" N "abc" N "ghi abc jkl" N "xyz");
+    KEYS("/abc<CR>" "l" "dn", "abc" N "def" N "a" X "abc jkl" N "xyz");
+
+    data.setText("abc" N "def" N "abc" N "ghi abc jkl" N "xyz");
+    KEYS("2/abc<CR>" "h" "dN", "abc" N "def" N X " abc jkl" N "xyz");
+    KEYS("c/xxx<CR><ESC>" "h" "dN", "abc" N "def" N X " abc jkl" N "xyz");
+
+    data.setText("abc" N "def" N "abc" N "ghi abc jkl" N "xyz");
+    KEYS("l" "v2/abc<CR>" "x", "abc jkl" N "xyz");
+
+    // don't leave visual mode after search failed or is cancelled
+    data.setText("abc" N "def" N "abc" N "ghi abc jkl" N "xyz");
+    KEYS("vj" "/abc<ESC>" "x", X "ef" N "abc" N "ghi abc jkl" N "xyz");
+    KEYS("vj" "/xxx<CR>" "x", X "bc" N "ghi abc jkl" N "xyz");
 }
 
 void FakeVimPlugin::test_vim_indent()
