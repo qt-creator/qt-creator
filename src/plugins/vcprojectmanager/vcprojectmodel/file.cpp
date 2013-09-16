@@ -152,6 +152,21 @@ void File::removeFileConfiguration(Configuration::Ptr fileConfig)
         m_fileConfigurations.removeAll(fileConfig);
 }
 
+Configuration::Ptr File::fileConfiguration(const QString &name) const
+{
+    foreach (const Configuration::Ptr configPtr, m_fileConfigurations) {
+        if (configPtr->name() == name)
+            return configPtr;
+    }
+
+    return Configuration::Ptr();
+}
+
+QList<Configuration::Ptr> File::fileConfigurations() const
+{
+    return m_fileConfigurations;
+}
+
 QString File::attributeValue(const QString &attributeName) const
 {
     return m_anyAttribute.value(attributeName);

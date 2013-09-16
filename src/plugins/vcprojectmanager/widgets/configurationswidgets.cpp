@@ -39,6 +39,8 @@
 #include "../vcprojectmodel/tools/toolattributes/tooldescription.h"
 #include "../vcprojectmodel/tools/toolattributes/tooldescriptiondatamanager.h"
 #include "configurationwidgets.h"
+#include "../vcprojectmodel/files.h"
+#include "../vcprojectmodel/file.h"
 
 namespace VcProjectManager {
 namespace Internal {
@@ -91,6 +93,13 @@ void ConfigurationsBaseWidget::saveData()
     // add new configurations
     foreach (const Configuration::Ptr &newConfig, m_newConfigurations)
         m_configs->appendConfiguration(newConfig);
+
+    QHashIterator<QSharedPointer<File>, Configuration::Ptr> fileConfigIt(m_newFilesConfigurations);
+
+    while (fileConfigIt.hasNext()) {
+        fileConfigIt.next();
+        fileConfigIt.key()->addFileConfiguration(fileConfigIt.value());
+    }
 
     // save data for every configuration
     QList<ConfigurationBaseWidget *> configWidgets = m_configsWidget->configWidgets();
@@ -147,6 +156,8 @@ void ConfigurationsBaseWidget::onAddNewConfig(QString newConfigName, QString cop
                         m_newConfigurations.append(newConfig);
                         addConfiguration(newConfig.data());
                     }
+
+                    addConfigurationToFiles(copyFrom, newConfigName + QLatin1Char('|') + platform->name());
                 }
             }
         }
@@ -281,6 +292,73 @@ Configuration::Ptr ConfigurationsBaseWidget::configInNewConfigurations(const QSt
     }
 
     return Configuration::Ptr();
+}
+
+void ConfigurationsBaseWidget::addConfigurationToFiles(const QString &copyFromConfig, const QString &targetConfigName)
+{
+    Files::Ptr docFiles = m_vcProjDoc->files();
+    if (docFiles) {
+        QList<Filter::Ptr> filters = docFiles->filters();
+
+        foreach (Filter::Ptr filter, filters)
+            addConfigurationToFilesInFilter(filter, copyFromConfig, targetConfigName);
+
+        QList<File::Ptr> files = docFiles->files();
+
+        foreach (File::Ptr file, files)
+            addConfigurationToFile(file, copyFromConfig, targetConfigName);
+
+        Files2005::Ptr docFiles2005 = docFiles.dynamicCast<Files2005>();
+
+        if (docFiles2005) {
+            QList<Folder::Ptr> folders = docFiles2005->folders();
+
+            foreach (Folder::Ptr folder, folders)
+                addConfigurationToFilesInFolder(folder, copyFromConfig, targetConfigName);
+        }
+    }
+}
+
+void ConfigurationsBaseWidget::addConfigurationToFilesInFilter(QSharedPointer<Filter> filterPtr, const QString &copyFromConfig, const QString &targetConfigName)
+{
+    QList<Filter::Ptr> filters = filterPtr->filters();
+
+    foreach (Filter::Ptr filter, filters)
+        addConfigurationToFilesInFilter(filter, copyFromConfig, targetConfigName);
+
+    QList<File::Ptr> files = filterPtr->files();
+
+    foreach (File::Ptr file, files)
+        addConfigurationToFile(file, copyFromConfig, targetConfigName);
+}
+
+void ConfigurationsBaseWidget::addConfigurationToFilesInFolder(QSharedPointer<Folder> folderPtr, const QString &copyFromConfig, const QString &targetConfigName)
+{
+    QList<Filter::Ptr> filters = folderPtr->filters();
+
+    foreach (Filter::Ptr filter, filters)
+        addConfigurationToFilesInFilter(filter, copyFromConfig, targetConfigName);
+
+    QList<Folder::Ptr> folders = folderPtr->folders();
+
+    foreach (Folder::Ptr folder, folders)
+        addConfigurationToFilesInFolder(folder, copyFromConfig, targetConfigName);
+
+    QList<File::Ptr> files = folderPtr->files();
+
+    foreach (File::Ptr file, files)
+        addConfigurationToFile(file, copyFromConfig, targetConfigName);
+}
+
+void ConfigurationsBaseWidget::addConfigurationToFile(QSharedPointer<File> filePtr, const QString &copyFromConfig, const QString &targetConfigName)
+{
+    Configuration::Ptr configPtr = filePtr->fileConfiguration(copyFromConfig);
+
+    if (configPtr) {
+        Configuration::Ptr newConfig = configPtr->clone();
+        newConfig->setName(targetConfigName);
+        m_newFilesConfigurations[filePtr] = newConfig;
+    }
 }
 
 Configurations2003Widget::Configurations2003Widget(Configurations *configs, VcProjectDocument *vcProjDoc)

@@ -43,6 +43,9 @@ class Configurations;
 class Configuration;
 class VcProjectDocument;
 class ConfigurationsWidget;
+class Filter;
+class Folder;
+class File;
 
 class ConfigurationsBaseWidget : public VcNodeWidget
 {
@@ -67,6 +70,10 @@ protected:
     void removeConfiguration(Configuration *config);
     Configuration::Ptr createConfiguration(const QString &configNameWithPlatform) const;
     Configuration::Ptr configInNewConfigurations(const QString &configNameWithPlatform) const;
+    void addConfigurationToFiles(const QString &copyFromConfig, const QString &targetConfigName);
+    void addConfigurationToFilesInFilter(QSharedPointer<Filter> filterPtr, const QString &copyFromConfig, const QString &targetConfigName);
+    void addConfigurationToFilesInFolder(QSharedPointer<Folder> folderPtr, const QString &copyFromConfig, const QString &targetConfigName);
+    void addConfigurationToFile(QSharedPointer<File> filePtr, const QString &copyFromConfig, const QString &targetConfigName);
 
     Configurations *m_configs;
     VcProjectDocument *m_vcProjDoc;
@@ -75,6 +82,8 @@ protected:
     QList<QSharedPointer<Configuration> > m_newConfigurations;
     QList<QString> m_removedConfigurations;
     QMap<Configuration::Ptr, QString> m_renamedConfigurations; // <oldName, newName>
+
+    QHash<QSharedPointer<File>, Configuration::Ptr> m_newFilesConfigurations;
 };
 
 class Configurations2003Widget : public ConfigurationsBaseWidget

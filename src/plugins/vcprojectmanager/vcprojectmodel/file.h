@@ -59,6 +59,8 @@ public:
     void removeFile(File::Ptr file);
     void addFileConfiguration(Configuration::Ptr fileConfig);
     void removeFileConfiguration(Configuration::Ptr fileConfig);
+    Configuration::Ptr fileConfiguration(const QString &name) const;
+    QList<Configuration::Ptr> fileConfigurations() const;
 
     QString attributeValue(const QString &attributeName) const;
     void setAttribute(const QString &attributeName, const QString &attributeValue);
