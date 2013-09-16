@@ -1,0 +1,156 @@
+/****************************************************************************
+**
+** Copyright (C) 2013 Digia Plc and/or its subsidiary(-ies).
+** Contact: http://www.qt-project.org/legal
+**
+** This file is part of Qt Creator.
+**
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and Digia.  For licensing terms and
+** conditions see http://qt.digia.com/licensing.  For further information
+** use the contact form at http://qt.digia.com/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU Lesser General Public License version 2.1 requirements
+** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** In addition, as a special exception, Digia gives you certain additional
+** rights.  These rights are described in the Digia Qt LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+****************************************************************************/
+
+
+import QtQuick 2.1
+import QtQuick.Layouts 1.0
+import QtQuick.Controls 1.0 as Controls
+
+
+Column {
+
+    width: parent.width - 8
+
+    property alias color: colorButton.color
+
+    id: colorEditor
+
+    onColorChanged: {
+        textField.text = gradientLine.colorToString(color);
+        gradientLine.currentColor = color
+    }
+
+    GradientLine {
+        visible: buttonRow.checkedIndex === 1
+        id: gradientLine
+
+        width: parent.width
+
+        onCurrentColorChanged: {
+            colorEditor.color = gradientLine.currentColor
+        }
+    }
+
+    SectionLayout {
+        width: parent.width
+
+        rows: 5
+
+        Item {
+            height: 0
+            width: 2
+        }
+
+        Item {
+            height: 0
+            width: 2
+        }
+
+        Label {
+            id: label
+            text: "Color"
+        }
+
+        SecondColumnLayout {
+
+            Controls.TextField {
+                id: textField
+                inputMask: "\\#hhHHHHHH"
+
+                onAccepted: {
+                    colorEditor.color = text
+                }
+                Layout.preferredWidth: 80
+            }
+            ColorCheckButton {
+                id: checkButton
+                color: colorButton.color
+            }
+
+            ButtonRow {
+
+                id: buttonRow
+                exclusive: true
+
+                ButtonRowButton {
+                    iconSource: "images/icon_color_solid.png"
+
+                }
+                ButtonRowButton {
+                    iconSource: "images/icon_color_gradient.png"
+
+                }
+                ButtonRowButton {
+                    iconSource: "images/icon_color_none.png"
+
+                }
+
+                onToggled: {
+                    print("index " + index)
+                    print("state " + checked)
+
+                    if (index === 0) {
+                        colorEditor.color = "#ffffff"
+                    }
+
+                    if (index === 2) {
+                        colorEditor.color = "#00000000"
+                    }
+                }
+
+            }
+
+            ExpandingSpacer {
+            }
+        }
+
+        ColorButton {
+            enabled: buttonRow.checkedIndex !== 2
+            opacity: checkButton.checked ? 1 : 0
+            id: colorButton
+            width: 116
+            height: checkButton.checked ? 116 : 0
+
+            Layout.preferredWidth: 116
+            Layout.preferredHeight: checkButton.checked ? 116 : 0
+
+            sliderMargins: Math.max(0, label.width - colorButton.width) + 4
+
+        }
+
+        SecondColumnLayout {
+        }
+
+        Item {
+            height: 4
+            width :4
+        }
+
+    }
+}
