@@ -31,6 +31,7 @@ SUBDIRS   = \
     resourceeditor \
     genericprojectmanager \
     qmljseditor \
+    qmlprojectmanager \
     glsleditor \
     pythoneditor \
     mercurial \
@@ -62,23 +63,16 @@ isEmpty(IDE_PACKAGE_MODE) {
         updateinfo
 }
 
-contains(QT_CONFIG, declarative)|!isEmpty(QT.declarative.name) {
+minQtVersion(5, 1, 0) {
     SUBDIRS += \
-        qmlprojectmanager
-
-    greaterThan(QT_MAJOR_VERSION, 4):greaterThan(QT_MINOR_VERSION, 0) {
-        SUBDIRS += \
-            qmldesigner \
-            qmlprofiler \
-            welcome
-    } else {
-        warning("QmlDesigner plugin has been disabled.")
-        warning("QmlProfiler plugin has been disabled.")
-        warning("Welcome plugin has been disabled.")
-        warning("These plugins need at least Qt 5.1.")
-    }
+        qmldesigner \
+        qmlprofiler \
+        welcome
 } else {
-    warning("QmlProjectManager, QmlProfiler and QmlDesigner plugins have been disabled: The plugins require QtDeclarative")
+     warning("QmlDesigner plugin has been disabled.")
+     warning("QmlProfiler plugin has been disabled.")
+     warning("Welcome plugin has been disabled.")
+     warning("These plugins need at least Qt 5.1.")
 }
 
 for(p, SUBDIRS) {
