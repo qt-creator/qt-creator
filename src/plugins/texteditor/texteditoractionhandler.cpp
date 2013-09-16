@@ -245,6 +245,7 @@ void TextEditorActionHandler::createActions()
             SLOT(setVisualizeWhitespace(bool)), false, tr("&Visualize Whitespace"),
             QKeySequence(Core::UseMacShortcuts ? tr("Meta+E, Meta+V") : tr("Ctrl+E, Ctrl+V")),
             G_EDIT_FORMAT, advancedEditMenu);
+    m_visualizeWhitespaceAction->setCheckable(true);
     m_cleanWhitespaceAction = registerAction(CLEAN_WHITESPACE,
             SLOT(setTextWrapping(bool)), true, tr("Clean Whitespace"),
             QKeySequence(),
