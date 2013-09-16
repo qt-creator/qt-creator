@@ -29,8 +29,8 @@
 
 #include "timelinerenderer.h"
 
-#include <qdeclarativecontext.h>
-#include <qdeclarativeproperty.h>
+#include <QQmlContext>
+#include <QQmlProperty>
 #include <QTimer>
 #include <QPixmap>
 #include <QPainter>
@@ -43,13 +43,12 @@ using namespace QmlProfiler::Internal;
 
 const int DefaultRowHeight = 30;
 
-TimelineRenderer::TimelineRenderer(QDeclarativeItem *parent) :
-    QDeclarativeItem(parent), m_startTime(0), m_endTime(0), m_spacing(0),
+TimelineRenderer::TimelineRenderer(QQuickPaintedItem *parent) :
+    QQuickPaintedItem(parent), m_startTime(0), m_endTime(0), m_spacing(0),
     m_lastStartTime(0), m_lastEndTime(0)
   , m_profilerModelProxy(0)
 {
     clearData();
-    setFlag(QGraphicsItem::ItemHasNoContents, false);
     setAcceptedMouseButtons(Qt::LeftButton);
     setAcceptHoverEvents(true);
 }
@@ -77,7 +76,7 @@ void TimelineRenderer::componentComplete()
         if (p.hasNotifySignal())
             QMetaObject::connect(this, p.notifySignalIndex(), this, requestPaintMethod, 0, 0);
     }
-    QDeclarativeItem::componentComplete();
+    QQuickItem::componentComplete();
 }
 
 void TimelineRenderer::requestPaint()
@@ -85,7 +84,7 @@ void TimelineRenderer::requestPaint()
     update();
 }
 
-void TimelineRenderer::paint(QPainter *p, const QStyleOptionGraphicsItem *, QWidget *)
+void TimelineRenderer::paint(QPainter *p)
 {
     qint64 windowDuration = m_endTime - m_startTime;
     if (windowDuration <= 0)
@@ -260,7 +259,7 @@ int TimelineRenderer::modelFromPosition(int y)
     return 0;
 }
 
-void TimelineRenderer::mousePressEvent(QGraphicsSceneMouseEvent *event)
+void TimelineRenderer::mousePressEvent(QMouseEvent *event)
 {
     // special case: if there is a drag area below me, don't accept the
     // events unless I'm actually clicking inside an item
@@ -271,19 +270,19 @@ void TimelineRenderer::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 }
 
-void TimelineRenderer::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+void TimelineRenderer::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_UNUSED(event);
     manageClicked();
 }
 
-void TimelineRenderer::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+void TimelineRenderer::mouseMoveEvent(QMouseEvent *event)
 {
     event->setAccepted(false);
 }
 
 
-void TimelineRenderer::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
+void TimelineRenderer::hoverMoveEvent(QHoverEvent *event)
 {
     Q_UNUSED(event);
     manageHovered(event->pos().x(), event->pos().y());

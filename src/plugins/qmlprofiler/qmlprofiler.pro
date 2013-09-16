@@ -1,6 +1,6 @@
 DEFINES += QMLPROFILER_LIBRARY
 
-QT += network script declarative
+QT += network qml quick
 
 include(../../qtcreatorplugin.pri)
 include(canvas/canvas.pri)

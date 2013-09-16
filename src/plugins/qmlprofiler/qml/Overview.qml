@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-import QtQuick 1.0
+import QtQuick 2.0
 import Monitor 1.0
 import "Overview.js" as Plotter
 
@@ -108,7 +108,7 @@ Canvas2D {
         onPressed: {
             jumpTo(mouse.x);
         }
-        onMousePositionChanged: {
+        onPositionChanged: {
             jumpTo(mouse.x);
         }
     }

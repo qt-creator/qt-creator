@@ -39,6 +39,7 @@
 #include <qgraphicseffect.h>
 
 #include <QImage>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 
@@ -737,8 +738,8 @@ void Context2D::strokeRect(qreal x, qreal y, qreal w, qreal h)
     scheduleChange();
 }
 
-void Context2D::mouseArea(qreal x, qreal y, qreal w, qreal h, const QScriptValue &callback,
-                          const QScriptValue &data)
+void Context2D::mouseArea(qreal x, qreal y, qreal w, qreal h, const QJSValue &callback,
+                          const QJSValue &data)
 {
     MouseArea a = { callback, data, QRectF(x, y, w, h), m_state.matrix };
     m_mouseAreas << a;
@@ -1104,8 +1105,13 @@ void Context2D::setPainterTranslate(const QPoint &translate)
 
 void Context2D::scheduleChange()
 {
+    QMetaObject::invokeMethod(this, "onScheduleChange", Qt::QueuedConnection, Q_ARG(int, 0));
+}
+
+void Context2D::onScheduleChange(int interval)
+{
     if (m_changeTimerId == -1 && !m_inPaint)
-        m_changeTimerId = startTimer(0);
+        m_changeTimerId = startTimer(interval);
 }
 
 void Context2D::timerEvent(QTimerEvent *e)

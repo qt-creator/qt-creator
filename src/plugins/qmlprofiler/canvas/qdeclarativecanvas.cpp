@@ -35,16 +35,14 @@
 
 QT_BEGIN_NAMESPACE
 
-Canvas::Canvas(QDeclarativeItem *parent)
-    : QDeclarativeItem(parent),
+Canvas::Canvas(QQuickPaintedItem *parent)
+    : QQuickPaintedItem(parent),
     m_context(new Context2D(this)),
     m_canvasWidth(0),
     m_canvasHeight(0),
     m_fillMode(Canvas::Stretch),
     m_color(Qt::white)
 {
-    setFlag(QGraphicsItem::ItemHasNoContents, false);
-    setCacheMode(QGraphicsItem::DeviceCoordinateCache);
 }
 
 
@@ -57,10 +55,10 @@ void Canvas::componentComplete()
 
     connect(m_context, SIGNAL(changed()), this, SLOT(requestPaint()));
     emit init();
-    QDeclarativeItem::componentComplete();
+    QQuickItem::componentComplete();
 }
 
-void Canvas::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
+void Canvas::paint(QPainter *painter)
 {
     m_context->setInPaint(true);
     emit paint();
@@ -160,7 +158,7 @@ void Canvas::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometr
         && newGeometry.width() > 0 && newGeometry.height() > 0) {
         m_context->setSize(width(), height());
     }
-    QDeclarativeItem::geometryChanged(newGeometry, oldGeometry);
+    QQuickItem::geometryChanged(newGeometry, oldGeometry);
 }
 
 void Canvas::setCanvasWidth(int newWidth)
@@ -219,24 +217,24 @@ CanvasImage *Canvas::toImage() const
     return new CanvasImage(m_context->pixmap());
 }
 
-void Canvas::setTimeout(const QScriptValue &handler, long timeout)
+void Canvas::setTimeout(const QJSValue &handler, long timeout)
 {
-    if (handler.isFunction())
+    if (handler.isCallable())
         CanvasTimer::createTimer(this, handler, timeout, true);
 }
 
-void Canvas::setInterval(const QScriptValue &handler, long interval)
+void Canvas::setInterval(const QJSValue &handler, long interval)
 {
-    if (handler.isFunction())
+    if (handler.isCallable())
         CanvasTimer::createTimer(this, handler, interval, false);
 }
 
-void Canvas::clearTimeout(const QScriptValue &handler)
+void Canvas::clearTimeout(const QJSValue &handler)
 {
     CanvasTimer::removeTimer(handler);
 }
 
-void Canvas::clearInterval(const QScriptValue &handler)
+void Canvas::clearInterval(const QJSValue &handler)
 {
     CanvasTimer::removeTimer(handler);
 }

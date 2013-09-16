@@ -64,16 +64,18 @@ isEmpty(IDE_PACKAGE_MODE) {
 
 contains(QT_CONFIG, declarative)|!isEmpty(QT.declarative.name) {
     SUBDIRS += \
-        qmlprojectmanager \
-        qmlprofiler
+        qmlprojectmanager
 
     greaterThan(QT_MAJOR_VERSION, 4):greaterThan(QT_MINOR_VERSION, 0) {
         SUBDIRS += \
             qmldesigner \
+            qmlprofiler \
             welcome
     } else {
         warning("QmlDesigner plugin has been disabled.")
-        warning("The plugin needs at least Qt 5.1.")
+        warning("QmlProfiler plugin has been disabled.")
+        warning("Welcome plugin has been disabled.")
+        warning("These plugins need at least Qt 5.1.")
     }
 } else {
     warning("QmlProjectManager, QmlProfiler and QmlDesigner plugins have been disabled: The plugins require QtDeclarative")

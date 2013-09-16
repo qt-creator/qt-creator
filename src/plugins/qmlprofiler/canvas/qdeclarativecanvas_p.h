@@ -30,15 +30,14 @@
 #ifndef QDECLARATIVECANVAS_P_H
 #define QDECLARATIVECANVAS_P_H
 
-#include <qdeclarativeitem.h>
+#include <QQuickPaintedItem>
 
 #include "qdeclarativecontext2d_p.h"
 #include "qdeclarativecanvastimer_p.h"
 
 QT_BEGIN_NAMESPACE
 
-QT_MODULE(Declarative)
-class Canvas : public QDeclarativeItem
+class Canvas : public QQuickPaintedItem
 {
     Q_OBJECT
 
@@ -49,11 +48,11 @@ class Canvas : public QDeclarativeItem
     Q_PROPERTY(FillMode fillMode READ fillMode WRITE setFillMode NOTIFY fillModeChanged)
 
 public:
-    Canvas(QDeclarativeItem *parent = 0);
+    Canvas(QQuickPaintedItem *parent = 0);
     enum FillMode { Stretch, PreserveAspectFit, PreserveAspectCrop, Tile, TileVertically, TileHorizontally };
 
 
-    void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
+    void paint(QPainter *);
     void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry);
     void setCanvasWidth(int newWidth);
     int canvasWidth() {return m_canvasWidth;}
@@ -78,10 +77,10 @@ public Q_SLOTS:
     bool save(const QString& filename) const;
 
     // Timers
-    void setInterval(const QScriptValue &handler, long timeout);
-    void setTimeout(const QScriptValue &handler, long timeout);
-    void clearInterval(const QScriptValue &handler);
-    void clearTimeout(const QScriptValue &handler);
+    void setInterval(const QJSValue &handler, long timeout);
+    void setTimeout(const QJSValue &handler, long timeout);
+    void clearInterval(const QJSValue &handler);
+    void clearTimeout(const QJSValue &handler);
 
 Q_SIGNALS:
     void fillModeChanged();

@@ -27,7 +27,7 @@
 **
 ****************************************************************************/
 
-import QtQuick 1.0
+import QtQuick 2.0
 import Monitor 1.0
 
 Rectangle {
@@ -502,7 +502,7 @@ Rectangle {
             onPressed:  {
                 selectionRange.pressedOnCreation();
             }
-            onMousePositionChanged: {
+            onPositionChanged: {
                 selectionRange.movedOnCreation();
             }
         }

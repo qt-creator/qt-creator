@@ -30,32 +30,30 @@
 #ifndef QDECLARATIVECANVASTIMER_P_H
 #define QDECLARATIVECANVASTIMER_P_H
 
-#include <qscriptvalue.h>
+#include <QJSValue>
 #include <qtimer.h>
 #include <qlist.h>
 
 QT_BEGIN_NAMESPACE
-
-QT_MODULE(Declarative)
 
 class CanvasTimer : public QTimer
 {
     Q_OBJECT
 
 public:
-    CanvasTimer(QObject *parent, const QScriptValue &data);
+    CanvasTimer(QObject *parent, const QJSValue &data);
 
 public Q_SLOTS:
     void handleTimeout();
-    bool equals(const QScriptValue &value){return m_value.equals(value);}
+    bool equals(const QJSValue &value){return m_value.equals(value);}
 
 public:
-    static void createTimer(QObject *parent, const QScriptValue &val, long timeout, bool singleshot);
+    static void createTimer(QObject *parent, const QJSValue &val, long timeout, bool singleshot);
     static void removeTimer(CanvasTimer *timer);
-    static void removeTimer(const QScriptValue &);
+    static void removeTimer(const QJSValue &);
 
 private:
-    QScriptValue m_value;
+    QJSValue m_value;
 
 };
 

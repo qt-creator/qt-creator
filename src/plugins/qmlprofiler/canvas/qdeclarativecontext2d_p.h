@@ -38,11 +38,10 @@
 #include <qmetatype.h>
 #include <qcoreevent.h>
 #include <qvariant.h>
-#include <qscriptvalue.h>
+
+#include <QJSValue>
 
 QT_BEGIN_NAMESPACE
-
-QT_MODULE(Declarative)
 
 QColor colorFromString(const QString &name);
 
@@ -174,8 +173,8 @@ public:
     void setShadowColor(const QString &str);
 
     struct MouseArea {
-        QScriptValue callback;
-        QScriptValue data;
+        QJSValue callback;
+        QJSValue data;
         QRectF rect;
         QMatrix matrix;
     };
@@ -209,7 +208,7 @@ public slots:
     void strokeRect(qreal x, qreal y, qreal w, qreal h);
 
     // mouse
-    void mouseArea(qreal x, qreal y, qreal w, qreal h, const QScriptValue &, const QScriptValue & = QScriptValue());
+    void mouseArea(qreal x, qreal y, qreal w, qreal h, const QJSValue &, const QJSValue & = QJSValue());
 
     // path API
     void beginPath();
@@ -238,6 +237,9 @@ public slots:
     ImageData getImageData(qreal sx, qreal sy, qreal sw, qreal sh);
     void putImageData(ImageData image, qreal dx, qreal dy);
     void endPainting();
+
+private slots:
+    void onScheduleChange(int interval);
 
 signals:
     void changed();

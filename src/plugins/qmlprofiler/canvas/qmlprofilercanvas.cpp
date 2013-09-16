@@ -41,9 +41,7 @@ QmlProfilerCanvas::QmlProfilerCanvas()
     : m_context2d(new Context2D(this))
     , m_dirty(true)
 {
-    setFlag(QGraphicsItem::ItemHasNoContents, false);
     setAcceptedMouseButtons(Qt::LeftButton);
-    setCacheMode(QGraphicsItem::DeviceCoordinateCache);
 }
 
 void QmlProfilerCanvas::requestPaint()
@@ -57,7 +55,7 @@ void QmlProfilerCanvas::requestRedraw()
     update();
 }
 
-void QmlProfilerCanvas::paint(QPainter *p, const QStyleOptionGraphicsItem *, QWidget *)
+void QmlProfilerCanvas::paint(QPainter *p)
 {
     if (m_context2d->size().width() != width() || m_context2d->size().height() != height()) {
         m_dirty = true;
@@ -84,7 +82,7 @@ void QmlProfilerCanvas::componentComplete()
         if (p.hasNotifySignal())
             QMetaObject::connect(this, p.notifySignalIndex(), this, requestPaintMethod, 0, 0);
     }
-    QDeclarativeItem::componentComplete();
+    QQuickItem::componentComplete();
 }
 
 }

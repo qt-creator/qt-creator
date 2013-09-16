@@ -29,28 +29,28 @@
 
 #include "qdeclarativecanvastimer_p.h"
 
-#include <qscriptengine.h>
-#include <qscriptvalue.h>
+#include <QJSEngine>
+#include <QJSValue>
 #include <qtimer.h>
 
 QT_BEGIN_NAMESPACE
 
 Q_GLOBAL_STATIC(QList<CanvasTimer*> , activeTimers);
 
-CanvasTimer::CanvasTimer(QObject *parent, const QScriptValue &data)
+CanvasTimer::CanvasTimer(QObject *parent, const QJSValue &data)
     : QTimer(parent), m_value(data)
 {
 }
 
 void CanvasTimer::handleTimeout()
 {
-    Q_ASSERT(m_value.isFunction());
+    Q_ASSERT(m_value.isCallable());
     m_value.call();
     if (isSingleShot())
         removeTimer(this);
 }
 
-void CanvasTimer::createTimer(QObject *parent, const QScriptValue &val, long timeout, bool singleshot)
+void CanvasTimer::createTimer(QObject *parent, const QJSValue &val, long timeout, bool singleshot)
 {
 
     CanvasTimer *timer = new CanvasTimer(parent, val);
@@ -67,9 +67,9 @@ void CanvasTimer::removeTimer(CanvasTimer *timer)
     timer->deleteLater();
 }
 
-void CanvasTimer::removeTimer(const QScriptValue &val)
+void CanvasTimer::removeTimer(const QJSValue &val)
 {
-    if (!val.isFunction())
+    if (!val.isCallable())
         return;
 
     for (int i = 0 ; i < activeTimers()->count() ; ++i) {

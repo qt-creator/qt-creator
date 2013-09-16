@@ -30,7 +30,8 @@
 #ifndef QMLPROFILERTRACEVIEW_H
 #define QMLPROFILERTRACEVIEW_H
 
-#include <QDeclarativeView>
+#include <QQuickView>
+#include <QWidget>
 
 namespace Analyzer {
 class IAnalyzerTool;
@@ -74,12 +75,12 @@ private:
     qint64 m_endTime;
 };
 
-class ScrollableDeclarativeView : public QDeclarativeView
+class ScrollableQuickView : public QQuickView
 {
     Q_OBJECT
 public:
-    explicit ScrollableDeclarativeView(QWidget *parent = 0);
-    ~ScrollableDeclarativeView();
+    explicit ScrollableQuickView(QQuickView *parent = 0);
+    ~ScrollableQuickView();
 protected:
     void scrollContentsBy(int dx, int dy);
 };

@@ -30,15 +30,15 @@
 #ifndef TIMELINERENDERER_H
 #define TIMELINERENDERER_H
 
-#include <QDeclarativeItem>
-#include <QScriptValue>
+#include <QQuickPaintedItem>
+#include <QJSValue>
 #include "qmlprofilertimelinemodelproxy.h"
 #include "timelinemodelaggregator.h"
 
 namespace QmlProfiler {
 namespace Internal {
 
-class TimelineRenderer : public QDeclarativeItem
+class TimelineRenderer : public QQuickPaintedItem
 {
     Q_OBJECT
     Q_PROPERTY(qint64 startTime READ startTime WRITE setStartTime NOTIFY startTimeChanged)
@@ -51,7 +51,7 @@ class TimelineRenderer : public QDeclarativeItem
     Q_PROPERTY(int endDragArea READ endDragArea WRITE setEndDragArea NOTIFY endDragAreaChanged)
 
 public:
-    explicit TimelineRenderer(QDeclarativeItem *parent = 0);
+    explicit TimelineRenderer(QQuickPaintedItem *parent = 0);
 
     qint64 startTime() const
     {
@@ -176,12 +176,12 @@ public slots:
     }
 
 protected:
-    virtual void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
+    virtual void paint(QPainter *);
     virtual void componentComplete();
-    virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
-    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-    virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-    virtual void hoverMoveEvent(QGraphicsSceneHoverEvent *event);
+    virtual void mousePressEvent(QMouseEvent *event);
+    virtual void mouseReleaseEvent(QMouseEvent *event);
+    virtual void mouseMoveEvent(QMouseEvent *event);
+    virtual void hoverMoveEvent(QHoverEvent *event);
 
 private:
     void drawItemsToPainter(QPainter *p, int modelIndex, int fromIndex, int toIndex);

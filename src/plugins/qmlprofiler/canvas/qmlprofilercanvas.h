@@ -30,7 +30,7 @@
 #ifndef QMLPROFILERCANVAS_H
 #define QMLPROFILERCANVAS_H
 
-#include <QDeclarativeItem>
+#include <QQuickPaintedItem>
 
 QT_BEGIN_NAMESPACE
 class Context2D;
@@ -39,7 +39,7 @@ QT_END_NAMESPACE
 namespace QmlProfiler {
 namespace Internal {
 
-class QmlProfilerCanvas : public QDeclarativeItem
+class QmlProfilerCanvas : public QQuickPaintedItem
 {
     Q_OBJECT
 
@@ -67,7 +67,7 @@ public slots:
     void requestRedraw();
 
 protected:
-    virtual void paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *);
+    virtual void paint(QPainter *);
     virtual void componentComplete();
 
 private:
