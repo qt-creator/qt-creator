@@ -336,13 +336,16 @@ void NavigatorView::rightButtonClicked()
             if (index >= 0) { //for the first node the semantics are not clear enough. Wrapping would be irritating.
                 ModelNode newParent = node.parentProperty().toNodeListProperty().at(index);
 
-                if (QmlItemNode::isValidQmlItemNode(node)) {
+                if (QmlItemNode::isValidQmlItemNode(node)
+                        && QmlItemNode::isValidQmlItemNode(newParent)
+                        && !newParent.metaInfo().defaultPropertyIsComponent()) {
                     QPointF scenePos = QmlItemNode(node).instanceScenePosition();
                     newParent.nodeAbstractProperty(newParent.metaInfo().defaultPropertyName()).reparentHere(node);
                     if (!scenePos.isNull())
                         setScenePos(node, scenePos);
                 } else {
-                    newParent.nodeAbstractProperty(newParent.metaInfo().defaultPropertyName()).reparentHere(node);
+                    if (newParent.metaInfo().isValid() && !newParent.metaInfo().defaultPropertyIsComponent())
+                        newParent.nodeAbstractProperty(newParent.metaInfo().defaultPropertyName()).reparentHere(node);
                 }
             }
         }
