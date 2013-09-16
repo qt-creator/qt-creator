@@ -1088,6 +1088,82 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_QObject_connect()
     test.run();
 }
 
+void CppEditorPlugin::test_FollowSymbolUnderCursor_classOperator_onOperatorToken_data()
+{
+    QTest::addColumn<bool>("toDeclaration");
+    QTest::newRow("forward") << false;
+    QTest::newRow("backward") << true;
+}
+
+void CppEditorPlugin::test_FollowSymbolUnderCursor_classOperator_onOperatorToken()
+{
+    QFETCH(bool, toDeclaration);
+
+    QByteArray source =
+            "class Foo {\n"
+            "    void @operator[](size_t idx);\n"
+            "};\n\n"
+            "void Foo::$operator[](size_t idx)\n"
+            "{\n"
+            "}\n";
+    if (toDeclaration)
+        source.replace('@', '#').replace('$', '@').replace('#', '$');
+    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
+    test.run();
+}
+
+void CppEditorPlugin::test_FollowSymbolUnderCursor_classOperator_data()
+{
+    test_FollowSymbolUnderCursor_classOperator_onOperatorToken_data();
+}
+
+void CppEditorPlugin::test_FollowSymbolUnderCursor_classOperator()
+{
+    QFETCH(bool, toDeclaration);
+
+    QByteArray source =
+            "class Foo {\n"
+            "    void $2operator@1[](size_t idx);\n"
+            "};\n\n"
+            "void Foo::$1operator@2[](size_t idx)\n"
+            "{\n"
+            "}\n";
+    if (toDeclaration)
+        source.replace("@1", QByteArray()).replace("$1", QByteArray())
+                .replace("@2", "@").replace("$2", "$");
+    else
+        source.replace("@2", QByteArray()).replace("$2", QByteArray())
+                .replace("@1", "@").replace("$1", "$");
+    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
+    test.run();
+}
+
+void CppEditorPlugin::test_FollowSymbolUnderCursor_classOperator_inOp_data()
+{
+    test_FollowSymbolUnderCursor_classOperator_onOperatorToken_data();
+}
+
+void CppEditorPlugin::test_FollowSymbolUnderCursor_classOperator_inOp()
+{
+    QFETCH(bool, toDeclaration);
+
+    QByteArray source =
+            "class Foo {\n"
+            "    void $2operator[@1](size_t idx);\n"
+            "};\n\n"
+            "void Foo::$1operator[@2](size_t idx)\n"
+            "{\n"
+            "}\n";
+    if (toDeclaration)
+        source.replace("@1", QByteArray()).replace("$1", QByteArray())
+                .replace("@2", "@").replace("$2", "$");
+    else
+        source.replace("@2", QByteArray()).replace("$2", QByteArray())
+                .replace("@1", "@").replace("$1", "$");
+    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
+    test.run();
+}
+
 void CppEditorPlugin::test_FollowSymbolUnderCursor_using_QTCREATORBUG7903_globalNamespace()
 {
     const QByteArray source =

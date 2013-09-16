@@ -360,6 +360,36 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
         }
     }
 
+    // Check if we're on an operator declaration or definition.
+    if (!recognizedQtMethod) {
+        bool cursorRegionReached = false;
+        for (int i = 0; i < tokens.size(); ++i) {
+            const Token &tk = tokens.at(i);
+
+            // In this case we want to look at one token before the current position to recognize
+            // an operator if the cursor is inside the actual operator: operator[$]
+            if (unsigned(positionInBlock) >= tk.begin() && unsigned(positionInBlock) <= tk.end()) {
+                cursorRegionReached = true;
+                if (tk.is(T_OPERATOR)) {
+                    link = attemptFuncDeclDef(cursor, m_widget, theSnapshot,
+                                              documentFromSemanticInfo, symbolFinder);
+                    if (link.hasValidLinkText())
+                        return link;
+                } else if (tk.isOperator() && i > 0 && tokens.at(i - 1).is(T_OPERATOR)) {
+                    QTextCursor c = cursor;
+                    c.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor,
+                                   positionInBlock - tokens.at(i - 1).begin());
+                    link = attemptFuncDeclDef(c, m_widget, theSnapshot, documentFromSemanticInfo,
+                                              symbolFinder);
+                    if (link.hasValidLinkText())
+                        return link;
+                }
+            } else if (cursorRegionReached) {
+                break;
+            }
+        }
+    }
+
     // Now we prefer the doc from the snapshot with macros expanded.
     Document::Ptr doc = snapshot.document(m_widget->editorDocument()->filePath());
     if (!doc) {

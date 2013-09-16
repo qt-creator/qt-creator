@@ -244,6 +244,24 @@ Class *SymbolFinder::findMatchingClassDeclaration(Symbol *declaration, const Sna
     return 0;
 }
 
+static void findDeclarationOfSymbol(Symbol *s,
+                                    Function *functionType,
+                                    QList<Declaration *> *typeMatch,
+                                    QList<Declaration *> *argumentCountMatch,
+                                    QList<Declaration *> *nameMatch)
+{
+    if (Declaration *decl = s->asDeclaration()) {
+        if (Function *declFunTy = decl->type()->asFunctionType()) {
+            if (functionType->isEqualTo(declFunTy))
+                typeMatch->prepend(decl);
+            else if (functionType->argumentCount() == declFunTy->argumentCount())
+                argumentCountMatch->prepend(decl);
+            else
+                nameMatch->append(decl);
+        }
+    }
+}
+
 void SymbolFinder::findMatchingDeclaration(const LookupContext &context,
                                            Function *functionType,
                                            QList<Declaration *> *typeMatch,
@@ -280,26 +298,33 @@ void SymbolFinder::findMatchingDeclaration(const LookupContext &context,
     }
 
     const Identifier *funcId = functionName->identifier();
-    if (!funcId) // E.g. operator, which we might be able to handle in the future...
-        return;
+    OperatorNameId::Kind operatorNameId = OperatorNameId::InvalidOp;
+
+    if (!funcId) {
+        if (!qName)
+            return;
+        const OperatorNameId * const onid = qName->name()->asOperatorNameId();
+        if (!onid)
+            return;
+        operatorNameId = onid->kind();
+    }
 
     foreach (Symbol *s, binding->symbols()) {
         Scope *scope = s->asScope();
         if (!scope)
             continue;
 
-        for (Symbol *s = scope->find(funcId); s; s = s->next()) {
-            if (!s->name() || !funcId->isEqualTo(s->identifier()) || !s->type()->isFunctionType())
-                continue;
-            if (Declaration *decl = s->asDeclaration()) {
-                if (Function *declFunTy = decl->type()->asFunctionType()) {
-                    if (functionType->isEqualTo(declFunTy))
-                        typeMatch->prepend(decl);
-                    else if (functionType->argumentCount() == declFunTy->argumentCount())
-                        argumentCountMatch->prepend(decl);
-                    else
-                        nameMatch->append(decl);
-                }
+        if (funcId) {
+            for (Symbol *s = scope->find(funcId); s; s = s->next()) {
+                if (!s->name() || !funcId->isEqualTo(s->identifier()) || !s->type()->isFunctionType())
+                    continue;
+                findDeclarationOfSymbol(s, functionType, typeMatch, argumentCountMatch, nameMatch);
+            }
+        } else {
+            for (Symbol *s = scope->find(operatorNameId); s; s = s->next()) {
+                if (!s->name() || !s->type()->isFunctionType())
+                    continue;
+                findDeclarationOfSymbol(s, functionType, typeMatch, argumentCountMatch, nameMatch);
             }
         }
     }

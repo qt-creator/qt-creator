@@ -125,6 +125,12 @@ private slots:
     void test_FollowSymbolUnderCursor_classDestructor();
     void test_FollowSymbolUnderCursor_QObject_connect_data();
     void test_FollowSymbolUnderCursor_QObject_connect();
+    void test_FollowSymbolUnderCursor_classOperator_onOperatorToken_data();
+    void test_FollowSymbolUnderCursor_classOperator_onOperatorToken();
+    void test_FollowSymbolUnderCursor_classOperator_data();
+    void test_FollowSymbolUnderCursor_classOperator();
+    void test_FollowSymbolUnderCursor_classOperator_inOp_data();
+    void test_FollowSymbolUnderCursor_classOperator_inOp();
     void test_FollowSymbolUnderCursor_using_QTCREATORBUG7903_globalNamespace();
     void test_FollowSymbolUnderCursor_using_QTCREATORBUG7903_namespace();
     void test_FollowSymbolUnderCursor_using_QTCREATORBUG7903_insideFunction();
