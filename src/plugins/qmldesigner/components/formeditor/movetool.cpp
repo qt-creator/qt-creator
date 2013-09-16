@@ -337,7 +337,8 @@ FormEditorItem* MoveTool::containerFormEditorItem(const QList<QGraphicsItem*> &i
         FormEditorItem *formEditorItem = FormEditorItem::fromQGraphicsItem(item);
         if (formEditorItem
            && !selectedItemList.contains(formEditorItem)
-           && isNotAncestorOfItemInList(formEditorItem, selectedItemList))
+           && isNotAncestorOfItemInList(formEditorItem, selectedItemList)
+           && formEditorItem->isContainer())
                 return formEditorItem;
 
     }
