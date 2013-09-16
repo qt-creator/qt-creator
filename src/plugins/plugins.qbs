@@ -2,6 +2,7 @@ import qbs
 
 Project {
     name: "Plugins"
+    property bool buildWelcomePlugin: Qt.core.versionMajor >= 5
 
     references: [
         "analyzerbase/analyzerbase.qbs",
@@ -57,11 +58,6 @@ Project {
         "updateinfo/updateinfo.qbs",
         "valgrind/valgrind.qbs",
         "vcsbase/vcsbase.qbs",
+        "welcome/welcome.qbs"
     ]
-
-    Group {
-        condition: qtcore.versionMajor >= 5
-        references: [ "welcome/welcome.qbs" ]
-    }
-
 }

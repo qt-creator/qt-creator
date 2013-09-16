@@ -135,15 +135,15 @@ QtcPlugin {
             "toolchainoptionspage.cpp", "toolchainoptionspage.h",
             "vcsannotatetaskhandler.cpp", "vcsannotatetaskhandler.h",
         ]
+    }
 
-        Group {
-            condition: qtcore.versionMajor >= 5
-            references: [
-                "projectwelcomepage.cpp",
-                "projectwelcomepage.h"
-            ]
-        }
-
+    Group {
+        name: "Project Welcome Page"
+        condition: project.buildWelcomePlugin
+        files: [
+            "projectwelcomepage.cpp",
+            "projectwelcomepage.h"
+        ]
     }
 
     Group {

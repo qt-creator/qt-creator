@@ -111,7 +111,8 @@ QtcPlugin {
     ]
 
     Group {
-        condition: qtcore.versionMajor >= 5
+        name: "Getting Started Welcome Page"
+        condition: project.buildWelcomePlugin
         files: [
             "gettingstartedwelcomepage.cpp",
             "gettingstartedwelcomepage.h"
