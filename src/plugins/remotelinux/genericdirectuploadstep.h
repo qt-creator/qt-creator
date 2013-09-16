@@ -53,6 +53,9 @@ public:
     void setIncrementalDeployment(bool incremental);
     bool incrementalDeployment() const;
 
+    void setIgnoreMissingFiles(bool ignoreMissingFiles);
+    bool ignoreMissingFiles() const;
+
     static Core::Id stepId();
     static QString displayName();
 

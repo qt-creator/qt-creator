@@ -52,9 +52,10 @@ class GenericDirectUploadServicePrivate
 {
 public:
     GenericDirectUploadServicePrivate()
-        : incremental(false), stopRequested(false), state(Inactive) {}
+        : incremental(false), ignoreMissingFiles(false), stopRequested(false), state(Inactive) {}
 
     bool incremental;
+    bool ignoreMissingFiles;
     bool stopRequested;
     State state;
     QList<DeployableFile> filesToUpload;
@@ -87,6 +88,11 @@ void GenericDirectUploadService::setDeployableFiles(const QList<DeployableFile> 
 void GenericDirectUploadService::setIncrementalDeployment(bool incremental)
 {
     d->incremental = incremental;
+}
+
+void GenericDirectUploadService::setIgnoreMissingFiles(bool ignoreMissingFiles)
+{
+    d->ignoreMissingFiles = ignoreMissingFiles;
 }
 
 bool GenericDirectUploadService::isDeploymentNecessary() const
@@ -269,10 +275,17 @@ void GenericDirectUploadService::handleMkdirFinished(int exitStatus)
             const SftpJobId job = d->uploader->uploadFile(df.localFilePath().toString(),
                     remoteFilePath, SftpOverwriteExisting);
             if (job == SftpInvalidJob) {
-                emit errorMessage(tr("Failed to upload file '%1': "
-                    "Could not open for reading.").arg(nativePath));
-                setFinished();
-                handleDeploymentDone();
+                const QString message = tr("Failed to upload file '%1': "
+                                           "Could not open for reading.").arg(nativePath);
+                if (d->ignoreMissingFiles) {
+                    emit warningMessage(message);
+                    d->filesToUpload.removeFirst();
+                    uploadNextFile();
+                } else {
+                    emit errorMessage(message);
+                    setFinished();
+                    handleDeploymentDone();
+                }
             }
         }
     }

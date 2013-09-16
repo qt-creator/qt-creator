@@ -60,6 +60,7 @@ protected:
     void setPackagingFinished(bool success);
 
     void raiseError(const QString &errorMessage);
+    void raiseWarning(const QString &warningMessage);
     QString cachedPackageDirectory() const;
     QString packageDirectory() const;
 

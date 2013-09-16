@@ -37,12 +37,16 @@
 #include <QFile>
 #include <QFileInfo>
 
+#include <QCheckBox>
+#include <QVBoxLayout>
+
 #include <cstring>
 
 using namespace ProjectExplorer;
 
 namespace RemoteLinux {
 namespace {
+const char IgnoreMissingFilesKey[] = "RemoteLinux.TarPackageCreationStep.IgnoreMissingFiles";
 
 class CreateTarStepWidget : public SimpleBuildStepConfigWidget
 {
@@ -50,6 +54,14 @@ class CreateTarStepWidget : public SimpleBuildStepConfigWidget
 public:
     CreateTarStepWidget(TarPackageCreationStep *step) : SimpleBuildStepConfigWidget(step)
     {
+        m_ignoreMissingFilesCheckBox.setText(tr("Ignore missing files"));
+        QVBoxLayout *mainLayout = new QVBoxLayout(this);
+        mainLayout->setMargin(0);
+        mainLayout->addWidget(&m_ignoreMissingFilesCheckBox);
+        m_ignoreMissingFilesCheckBox.setChecked(step->ignoreMissingFiles());
+        connect(&m_ignoreMissingFilesCheckBox, SIGNAL(toggled(bool)),
+            SLOT(handleIgnoreMissingFilesChanged(bool)));
+
         connect(step, SIGNAL(packageFilePathChanged()), SIGNAL(updateSummary()));
     }
 
@@ -63,6 +75,16 @@ public:
         return QLatin1String("<b>") + tr("Create tarball:") + QLatin1String("</b> ")
             + step->packageFilePath();
     }
+
+    bool showWidget() const { return true; }
+
+private:
+    Q_SLOT void handleIgnoreMissingFilesChanged(bool ignoreMissingFiles) {
+        TarPackageCreationStep *step = qobject_cast<TarPackageCreationStep *>(this->step());
+        step->setIgnoreMissingFiles(ignoreMissingFiles);
+    }
+
+    QCheckBox m_ignoreMissingFilesCheckBox;
 };
 
 
@@ -104,6 +126,7 @@ TarPackageCreationStep::TarPackageCreationStep(BuildStepList *bsl, TarPackageCre
 void TarPackageCreationStep::ctor()
 {
     setDefaultDisplayName(displayName());
+    m_ignoreMissingFiles = false;
 }
 
 bool TarPackageCreationStep::init()
@@ -126,6 +149,16 @@ void TarPackageCreationStep::run(QFutureInterface<bool> &fi)
     else
         emit addOutput(tr("Packaging failed."), ErrorMessageOutput);
     fi.reportResult(success);
+}
+
+void TarPackageCreationStep::setIgnoreMissingFiles(bool ignoreMissingFiles)
+{
+    m_ignoreMissingFiles = ignoreMissingFiles;
+}
+
+bool TarPackageCreationStep::ignoreMissingFiles() const
+{
+    return m_ignoreMissingFiles;
 }
 
 bool TarPackageCreationStep::doPackage(QFutureInterface<bool> &fi)
@@ -188,8 +221,15 @@ bool TarPackageCreationStep::appendFile(QFile &tarFile, const QFileInfo &fileInf
     const QString nativePath = QDir::toNativeSeparators(fileInfo.filePath());
     QFile file(fileInfo.filePath());
     if (!file.open(QIODevice::ReadOnly)) {
-        raiseError(tr("Error reading file '%1': %2.").arg(nativePath, file.errorString()));
-        return false;
+        const QString message = tr("Error reading file '%1': %2.")
+                                .arg(nativePath, file.errorString());
+        if (m_ignoreMissingFiles) {
+            raiseWarning(message);
+            return true;
+        } else {
+            raiseError(message);
+            return false;
+        }
     }
 
     const int chunkSize = 1024*1024;
@@ -294,6 +334,21 @@ QString TarPackageCreationStep::packageFileName() const
 BuildStepConfigWidget *TarPackageCreationStep::createConfigWidget()
 {
     return new CreateTarStepWidget(this);
+}
+
+bool TarPackageCreationStep::fromMap(const QVariantMap &map)
+{
+    if (!AbstractPackagingStep::fromMap(map))
+        return false;
+    setIgnoreMissingFiles(map.value(QLatin1String(IgnoreMissingFilesKey), false).toBool());
+    return true;
+}
+
+QVariantMap TarPackageCreationStep::toMap() const
+{
+    QVariantMap map = AbstractPackagingStep::toMap();
+    map.insert(QLatin1String(IgnoreMissingFilesKey), ignoreMissingFiles());
+    return map;
 }
 
 Core::Id TarPackageCreationStep::stepId()

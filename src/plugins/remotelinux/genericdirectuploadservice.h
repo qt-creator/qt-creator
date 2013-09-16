@@ -52,6 +52,7 @@ public:
 
     void setDeployableFiles(const QList<ProjectExplorer::DeployableFile> &deployableFiles);
     void setIncrementalDeployment(bool incremental);
+    void setIgnoreMissingFiles(bool ignoreMissingFiles);
 
   protected:
     bool isDeploymentNecessary() const;
