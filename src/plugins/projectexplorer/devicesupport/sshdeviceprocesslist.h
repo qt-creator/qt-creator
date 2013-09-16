@@ -43,7 +43,7 @@ public:
 private slots:
     void handleConnectionError();
     void handleListProcessFinished(int exitStatus);
-    void handleKillProcessFinished(int exitStatus);
+    void handleKillProcessFinished(const QString &errorString);
 
 private:
     virtual QString listProcessesCommandLine() const = 0;

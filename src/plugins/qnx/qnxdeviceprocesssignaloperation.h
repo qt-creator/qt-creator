@@ -29,28 +29,41 @@
 **
 ****************************************************************************/
 
-#include "blackberrydeviceprocesssupport.h"
+#ifndef QNXDEVICEPROCESSSIGNALOPERATION_H
+#define QNXDEVICEPROCESSSIGNALOPERATION_H
 
-using namespace Qnx;
-using namespace Qnx::Internal;
+#include <remotelinux/remotelinuxsignaloperation.h>
 
-static QString signalProcessByNameCommandLine(const QString &filePath, int signal)
+namespace Qnx {
+namespace Internal {
+
+class QnxDeviceProcessSignalOperation : public RemoteLinux::RemoteLinuxSignalOperation
 {
-    QString executable = filePath;
+    Q_OBJECT
+protected:
+    explicit QnxDeviceProcessSignalOperation(const QSsh::SshConnectionParameters sshParameters);
 
-    return QString::fromLatin1("for PID in $(pidin -F \"%a %A\" | grep \"%1\" | awk '/%1/ {print $1}'); "
-        "do "
-            "kill -%2 $PID; "
-        "done").arg(executable.replace(QLatin1String("/"), QLatin1String("\\/"))).arg(signal);
-}
+private:
+    QString killProcessByNameCommandLine(const QString &filePath) const;
+    QString interruptProcessByNameCommandLine(const QString &filePath) const;
 
-QString BlackBerryDeviceProcessSupport::killProcessByNameCommandLine(const QString &filePath) const
+    friend class QnxDeviceConfiguration;
+};
+
+class BlackBerryDeviceProcessSignalOperation : public RemoteLinux::RemoteLinuxSignalOperation
 {
-    return QString::fromLatin1("%1; %2").arg(signalProcessByNameCommandLine(filePath, 15),
-                                             signalProcessByNameCommandLine(filePath, 9));
-}
+    Q_OBJECT
+protected:
+    explicit BlackBerryDeviceProcessSignalOperation(const QSsh::SshConnectionParameters sshParameters);
 
-QString BlackBerryDeviceProcessSupport::interruptProcessByNameCommandLine(const QString &filePath) const
-{
-    return signalProcessByNameCommandLine(filePath, 2);
-}
+private:
+    QString killProcessByNameCommandLine(const QString &filePath) const;
+    QString interruptProcessByNameCommandLine(const QString &filePath) const;
+
+    friend class BlackBerryDeviceConfiguration;
+};
+
+} // namespace Internal
+} // namespace Qnx
+
+#endif // QNXDEVICEPROCESSSIGNALOPERATION_H

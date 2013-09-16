@@ -26,47 +26,41 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-
-#ifndef DESKTOPDEVICE_H
-#define DESKTOPDEVICE_H
-
-#include "../projectexplorer_export.h"
+#ifndef WINDOWSPROCESSSIGNALOPERATION_H
+#define WINDOWSPROCESSSIGNALOPERATION_H
 
 #include "idevice.h"
-#include "idevicefactory.h"
+
+#include <projectexplorer/projectexplorer_export.h>
 
 namespace ProjectExplorer {
-class ProjectExplorerPlugin;
 
-namespace Internal { class DesktopDeviceFactory; }
-
-class PROJECTEXPLORER_EXPORT DesktopDevice : public IDevice
+class PROJECTEXPLORER_EXPORT DesktopProcessSignalOperation : public DeviceProcessSignalOperation
 {
+    Q_OBJECT
 public:
-    IDevice::DeviceInfo deviceInformation() const;
+    enum SpecialInterrupt { NoSpecialInterrupt, Win32Interrupt, Win64Interrupt };
 
-    QString displayType() const;
-    IDeviceWidget *createWidget();
-    QList<Core::Id> actionIds() const;
-    QString displayNameForActionId(Core::Id actionId) const;
-    void executeAction(Core::Id actionId, QWidget *parent = 0);
-    bool canAutoDetectPorts() const;
-    bool canCreateProcessModel() const;
-    DeviceProcessList *createProcessListModel(QObject *parent) const;
-    bool canCreateProcess() const { return true; }
-    DeviceProcess *createProcess(QObject *parent) const;
-    DeviceProcessSignalOperation::Ptr signalOperation() const;
+    ~DesktopProcessSignalOperation() {}
+    void killProcess(int pid);
+    void killProcess(const QString &filePath);
+    void interruptProcess(int pid);
+    void interruptProcess(const QString &filePath);
+    void interruptProcess(int pid, SpecialInterrupt specialInterrupt);
+    void interruptProcess(const QString &filePath, SpecialInterrupt specialInterrupt);
 
-    IDevice::Ptr clone() const;
+private:
+    void killProcessSilently(int pid);
+    void interruptProcessSilently(int pid, SpecialInterrupt = NoSpecialInterrupt);
+
+    void appendMsgCannotKill(int pid, const QString &why);
+    void appendMsgCannotInterrupt(int pid, const QString &why);
 
 protected:
-    DesktopDevice();
-    DesktopDevice(const DesktopDevice &other);
+    explicit DesktopProcessSignalOperation() {}
 
-    friend class ProjectExplorerPlugin;
-    friend class Internal::DesktopDeviceFactory;
+    friend class DesktopDevice;
 };
 
 } // namespace ProjectExplorer
-
-#endif // DESKTOPDEVICE_H
+#endif // WINDOWSPROCESSSIGNALOPERATION_H

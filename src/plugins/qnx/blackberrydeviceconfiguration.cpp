@@ -32,11 +32,12 @@
 #include "blackberrydeviceconfiguration.h"
 
 #include "qnxconstants.h"
+#include "qnxdeviceprocesssignaloperation.h"
 #include "blackberrydeviceconfigurationwidget.h"
 #include "blackberrydeviceconnectionmanager.h"
-#include "blackberrydeviceprocesssupport.h"
 
 #include <projectexplorer/kitinformation.h>
+#include <ssh/sshconnection.h>
 
 using namespace Qnx;
 using namespace Qnx::Internal;
@@ -111,11 +112,6 @@ BlackBerryDeviceConfiguration::ConstPtr BlackBerryDeviceConfiguration::device(co
     return dev.dynamicCast<const BlackBerryDeviceConfiguration>();
 }
 
-DeviceProcessSupport::Ptr BlackBerryDeviceConfiguration::processSupport() const
-{
-    return ProjectExplorer::DeviceProcessSupport::Ptr(new BlackBerryDeviceProcessSupport);
-}
-
 QString BlackBerryDeviceConfiguration::displayType() const
 {
     return tr("BlackBerry");
@@ -164,4 +160,10 @@ QVariantMap BlackBerryDeviceConfiguration::toMap() const
     QVariantMap map = RemoteLinux::LinuxDevice::toMap();
     map.insert(QLatin1String(Constants::QNX_DEBUG_TOKEN_KEY), m_debugToken);
     return map;
+}
+
+DeviceProcessSignalOperation::Ptr BlackBerryDeviceConfiguration::signalOperation() const
+{
+    return DeviceProcessSignalOperation::Ptr(
+                new BlackBerryDeviceProcessSignalOperation(sshParameters()));
 }

@@ -57,11 +57,11 @@ private:
 
 private slots:
     void handleUpdate();
-    void reportDelayedKillStatus();
+    void reportDelayedKillStatus(const QString &errorMessage);
 
 private:
     const qint64 m_myPid;
-    QString m_error;
+
 };
 
 } // namespace Internal

@@ -131,6 +131,7 @@ HEADERS += projectexplorer.h \
     devicesupport/sshdeviceprocess.h \
     devicesupport/sshdeviceprocesslist.h \
     devicesupport/desktopdeviceconfigurationwidget.h \
+    devicesupport/desktopprocesssignaloperation.h \
     deploymentdata.h \
     buildtargetinfo.h \
     customtoolchain.h \
@@ -254,6 +255,7 @@ SOURCES += projectexplorer.cpp \
     devicesupport/sshdeviceprocess.cpp \
     devicesupport/sshdeviceprocesslist.cpp \
     devicesupport/desktopdeviceconfigurationwidget.cpp \
+    devicesupport/desktopprocesssignaloperation.cpp \
     deployablefile.cpp \
     customtoolchain.cpp \
     projectmacroexpander.cpp \

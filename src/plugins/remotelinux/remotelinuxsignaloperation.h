@@ -27,46 +27,52 @@
 **
 ****************************************************************************/
 
-#ifndef DESKTOPDEVICE_H
-#define DESKTOPDEVICE_H
+#ifndef REMOTELINUXSIGNALOPERATION_H
+#define REMOTELINUXSIGNALOPERATION_H
 
-#include "../projectexplorer_export.h"
+#include "remotelinux_export.h"
 
-#include "idevice.h"
-#include "idevicefactory.h"
+#include <projectexplorer/devicesupport/idevice.h>
+#include <ssh/sshconnection.h>
 
-namespace ProjectExplorer {
-class ProjectExplorerPlugin;
+namespace QSsh {
+class SshConnectionParameters;
+class SshRemoteProcessRunner;
+}
 
-namespace Internal { class DesktopDeviceFactory; }
+namespace RemoteLinux {
 
-class PROJECTEXPLORER_EXPORT DesktopDevice : public IDevice
+class REMOTELINUX_EXPORT RemoteLinuxSignalOperation
+        : public ProjectExplorer::DeviceProcessSignalOperation
 {
+    Q_OBJECT
 public:
-    IDevice::DeviceInfo deviceInformation() const;
+    virtual ~RemoteLinuxSignalOperation();
 
-    QString displayType() const;
-    IDeviceWidget *createWidget();
-    QList<Core::Id> actionIds() const;
-    QString displayNameForActionId(Core::Id actionId) const;
-    void executeAction(Core::Id actionId, QWidget *parent = 0);
-    bool canAutoDetectPorts() const;
-    bool canCreateProcessModel() const;
-    DeviceProcessList *createProcessListModel(QObject *parent) const;
-    bool canCreateProcess() const { return true; }
-    DeviceProcess *createProcess(QObject *parent) const;
-    DeviceProcessSignalOperation::Ptr signalOperation() const;
-
-    IDevice::Ptr clone() const;
+    void killProcess(int pid);
+    void killProcess(const QString &filePath);
+    void interruptProcess(int pid);
+    void interruptProcess(const QString &filePath);
 
 protected:
-    DesktopDevice();
-    DesktopDevice(const DesktopDevice &other);
+    RemoteLinuxSignalOperation(const QSsh::SshConnectionParameters sshParameters);
 
-    friend class ProjectExplorerPlugin;
-    friend class Internal::DesktopDeviceFactory;
+private slots:
+    void runnerProcessFinished();
+    void runnerConnectionError();
+
+private:
+    virtual QString killProcessByNameCommandLine(const QString &filePath) const;
+    virtual QString interruptProcessByNameCommandLine(const QString &filePath) const;
+    void run(const QString command);
+    void finish();
+
+    const QSsh::SshConnectionParameters m_sshParameters;
+    QSsh::SshRemoteProcessRunner *m_runner;
+
+    friend class LinuxDevice;
 };
 
-} // namespace ProjectExplorer
+}
 
-#endif // DESKTOPDEVICE_H
+#endif // REMOTELINUXSIGNALOPERATION_H

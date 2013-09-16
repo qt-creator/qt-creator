@@ -435,6 +435,10 @@ private:
     QString displayNameForActionId(Core::Id) const { return QString(); }
     void executeAction(Core::Id, QWidget *) { }
     Ptr clone() const { return Ptr(new TestDevice(*this)); }
+    DeviceProcessSignalOperation::Ptr signalOperation() const
+    {
+        return DeviceProcessSignalOperation::Ptr();
+    }
 };
 
 void ProjectExplorerPlugin::testDeviceManager()

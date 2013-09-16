@@ -186,6 +186,7 @@ QtcPlugin {
             "localprocesslist.cpp", "localprocesslist.h",
             "sshdeviceprocess.cpp", "sshdeviceprocess.h",
             "sshdeviceprocesslist.cpp", "sshdeviceprocesslist.h",
+            "desktopprocesssignaloperation.cpp", "desktopprocesssignaloperation.h",
             "desktopdeviceconfigurationwidget.cpp", "desktopdeviceconfigurationwidget.h", "desktopdeviceconfigurationwidget.ui"
         ]
     }

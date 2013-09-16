@@ -295,13 +295,11 @@ void SshDeviceProcess::SshDeviceProcessPrivate::doSignal(QSsh::SshRemoteProcess:
         if (serverSupportsSignals) {
             process->sendSignal(signal);
         } else {
-            const DeviceProcessSupport::Ptr processSupport = q->device()->processSupport();
-            QString signalCommandLine = signal == QSsh::SshRemoteProcess::IntSignal
-                    ? processSupport->interruptProcessByNameCommandLine(executable)
-                    : processSupport->killProcessByNameCommandLine(executable);
-            const QSsh::SshRemoteProcess::Ptr signalProcess
-                    = connection->createRemoteProcess(signalCommandLine.toUtf8());
-            signalProcess->start();
+            DeviceProcessSignalOperation::Ptr signalOperation = q->device()->signalOperation();
+            if (signal == QSsh::SshRemoteProcess::IntSignal)
+                signalOperation->interruptProcess(executable);
+            else
+                signalOperation->killProcess(executable);
         }
         break;
     }

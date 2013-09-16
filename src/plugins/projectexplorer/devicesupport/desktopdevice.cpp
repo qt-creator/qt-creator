@@ -32,6 +32,7 @@
 #include "deviceprocesslist.h"
 #include "localprocesslist.h"
 #include "desktopdeviceconfigurationwidget.h"
+#include "desktopprocesssignaloperation.h"
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <ssh/sshconnection.h>
@@ -112,6 +113,11 @@ DeviceProcessList *DesktopDevice::createProcessListModel(QObject *parent) const
 DeviceProcess *DesktopDevice::createProcess(QObject *parent) const
 {
     return new Internal::DesktopDeviceProcess(sharedFromThis(), parent);
+}
+
+DeviceProcessSignalOperation::Ptr DesktopDevice::signalOperation() const
+{
+    return DeviceProcessSignalOperation::Ptr(new DesktopProcessSignalOperation());
 }
 
 IDevice::Ptr DesktopDevice::clone() const

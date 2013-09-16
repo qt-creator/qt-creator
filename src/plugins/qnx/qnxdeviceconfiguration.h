@@ -50,9 +50,9 @@ public:
                       Origin origin = ManuallyAdded, Core::Id id = Core::Id());
     ProjectExplorer::IDevice::Ptr clone() const;
 
-    ProjectExplorer::DeviceProcessSupport::Ptr processSupport() const;
     ProjectExplorer::PortsGatheringMethod::Ptr portsGatheringMethod() const;
     ProjectExplorer::DeviceProcessList *createProcessListModel(QObject *parent) const;
+    ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const;
 
     ProjectExplorer::DeviceTester *createDeviceTester() const;
 
@@ -63,6 +63,10 @@ protected:
     QnxDeviceConfiguration(const QString &name, Core::Id type, MachineType machineType,
                            Origin origin, Core::Id id);
     QnxDeviceConfiguration(const QnxDeviceConfiguration &other);
+
+    QString interruptProcessByNameCommandLine(const QString &filePath) const;
+    QString killProcessByNameCommandLine(const QString &filePath) const;
+
 };
 
 } // namespace Internal

@@ -163,11 +163,10 @@ void BlackBerryLogProcessRunner::killProcessRunner(QSsh::SshRemoteProcessRunner 
 {
     QTC_ASSERT(!command.isEmpty(), return);
 
-    QString killCommand = m_device->processSupport()->killProcessByNameCommandLine(command);
-
-    QSsh::SshRemoteProcessRunner *slayProcess = new QSsh::SshRemoteProcessRunner(this);
-    connect(slayProcess, SIGNAL(processClosed(int)), this, SIGNAL(finished()));
-    slayProcess->run(killCommand.toLatin1(), m_sshParams);
+    ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation =
+            m_device->signalOperation();
+    connect(signalOperation.data(), SIGNAL(finished(QString)), SIGNAL(finished()));
+    signalOperation->killProcess(command);
 
     processRunner->cancel();
 

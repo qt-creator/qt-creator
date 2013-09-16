@@ -28,6 +28,8 @@
 ****************************************************************************/
 #include "sshdeviceprocesslist.h"
 
+#include "idevice.h"
+
 #include <ssh/sshremoteprocessrunner.h>
 #include <utils/qtcassert.h>
 
@@ -39,6 +41,7 @@ class SshDeviceProcessList::SshDeviceProcessListPrivate
 {
 public:
     SshRemoteProcessRunner process;
+    DeviceProcessSignalOperation::Ptr signalOperation;
 };
 
 SshDeviceProcessList::SshDeviceProcessList(const IDevice::ConstPtr &device, QObject *parent) :
@@ -53,7 +56,6 @@ SshDeviceProcessList::~SshDeviceProcessList()
 
 void SshDeviceProcessList::doUpdate()
 {
-    QTC_ASSERT(device()->processSupport(), return);
     connect(&d->process, SIGNAL(connectionError()), SLOT(handleConnectionError()));
     connect(&d->process, SIGNAL(processClosed(int)), SLOT(handleListProcessFinished(int)));
     d->process.run(listProcessesCommandLine().toUtf8(), device()->sshParameters());
@@ -61,11 +63,11 @@ void SshDeviceProcessList::doUpdate()
 
 void SshDeviceProcessList::doKillProcess(const DeviceProcessItem &process)
 {
-    QTC_ASSERT(device()->processSupport(), return);
-    connect(&d->process, SIGNAL(connectionError()), SLOT(handleConnectionError()));
-    connect(&d->process, SIGNAL(processClosed(int)), SLOT(handleKillProcessFinished(int)));
-    d->process.run(device()->processSupport()->killProcessByPidCommandLine(process.pid).toUtf8(),
-                   device()->sshParameters());
+    d->signalOperation = device()->signalOperation();
+    QTC_ASSERT(d->signalOperation, return);
+    connect(d->signalOperation.data(), SIGNAL(finished(QString)),
+            SLOT(handleKillProcessFinished(QString)));
+    d->signalOperation->killProcess(process.pid);
 }
 
 void SshDeviceProcessList::handleConnectionError()
@@ -102,29 +104,13 @@ void SshDeviceProcessList::handleListProcessFinished(int exitStatus)
     }
 }
 
-void SshDeviceProcessList::handleKillProcessFinished(int exitStatus)
+void SshDeviceProcessList::handleKillProcessFinished(const QString &errorString)
 {
+    if (errorString.isEmpty())
+        reportProcessKilled();
+    else
+        reportError(tr("Error: Kill process failed: %1").arg(errorString));
     setFinished();
-    switch (exitStatus) {
-    case SshRemoteProcess::FailedToStart:
-        handleProcessError(tr("Error: Kill process failed to start: %1")
-                .arg(d->process.processErrorString()));
-        break;
-    case SshRemoteProcess::CrashExit:
-        handleProcessError(tr("Error: Kill process crashed: %1")
-                .arg(d->process.processErrorString()));
-        break;
-    case SshRemoteProcess::NormalExit: {
-        const int exitCode = d->process.processExitCode();
-        if (exitCode == 0)
-            reportProcessKilled();
-        else
-            handleProcessError(tr("Kill process failed with exit code %1.").arg(exitCode));
-        break;
-    }
-    default:
-        Q_ASSERT_X(false, Q_FUNC_INFO, "Invalid exit status");
-    }
 }
 
 void SshDeviceProcessList::handleProcessError(const QString &errorMessage)
@@ -139,6 +125,10 @@ void SshDeviceProcessList::handleProcessError(const QString &errorMessage)
 void SshDeviceProcessList::setFinished()
 {
     d->process.disconnect(this);
+    if (d->signalOperation) {
+        d->signalOperation->disconnect(this);
+        d->signalOperation.clear();
+    }
 }
 
 } // namespace ProjectExplorer

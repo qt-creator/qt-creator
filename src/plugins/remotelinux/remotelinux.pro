@@ -48,7 +48,8 @@ HEADERS += \
     remotelinuxdeploymentdatamodel.h \
     remotelinuxanalyzesupport.h \
     abstractremotelinuxrunsupport.h \
-    linuxdeviceprocess.h
+    linuxdeviceprocess.h \
+    remotelinuxsignaloperation.h
 
 SOURCES += \
     embeddedlinuxqtversion.cpp \
@@ -94,7 +95,8 @@ SOURCES += \
     remotelinuxdeploymentdatamodel.cpp \
     remotelinuxanalyzesupport.cpp \
     abstractremotelinuxrunsupport.cpp \
-    linuxdeviceprocess.cpp
+    linuxdeviceprocess.cpp \
+    remotelinuxsignaloperation.cpp
 
 FORMS += \
     genericlinuxdeviceconfigurationwizardsetuppage.ui \

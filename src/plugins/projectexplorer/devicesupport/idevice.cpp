@@ -196,7 +196,6 @@ public:
 } // namespace Internal
 
 PortsGatheringMethod::~PortsGatheringMethod() { }
-DeviceProcessSupport::~DeviceProcessSupport() { }
 DeviceTester::DeviceTester(QObject *parent) : QObject(parent) { }
 
 IDevice::IDevice() : d(new Internal::IDevicePrivate)
@@ -253,11 +252,6 @@ bool IDevice::isAutoDetected() const
 Core::Id IDevice::id() const
 {
     return d->id;
-}
-
-DeviceProcessSupport::Ptr IDevice::processSupport() const
-{
-    return DeviceProcessSupport::Ptr();
 }
 
 PortsGatheringMethod::Ptr IDevice::portsGatheringMethod() const

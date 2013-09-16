@@ -65,10 +65,9 @@ public:
     void executeAction(Core::Id actionId, QWidget *parent);
     ProjectExplorer::IDevice::Ptr clone() const;
     bool hasDeviceTester() const;
+    ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const;
 
     static ConstPtr device(const ProjectExplorer::Kit *k);
-
-    ProjectExplorer::DeviceProcessSupport::Ptr processSupport() const;
 
 protected:
     BlackBerryDeviceConfiguration();

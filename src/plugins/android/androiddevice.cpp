@@ -89,6 +89,11 @@ bool AndroidDevice::canAutoDetectPorts() const
     return true;
 }
 
+DeviceProcessSignalOperation::Ptr AndroidDevice::signalOperation() const
+{
+    return DeviceProcessSignalOperation::Ptr();
+}
+
 IDevice::Ptr AndroidDevice::clone() const
 {
     return IDevice::Ptr(new AndroidDevice(*this));

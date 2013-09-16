@@ -31,38 +31,16 @@
 
 #include "qnxdeviceconfiguration.h"
 #include "qnxdevicetester.h"
+#include "qnxdeviceprocesssignaloperation.h"
 
 #include <projectexplorer/devicesupport/sshdeviceprocesslist.h>
+#include <ssh/sshconnection.h>
 
 #include <QRegExp>
 #include <QStringList>
 
 using namespace Qnx;
 using namespace Qnx::Internal;
-
-class QnxDeviceProcessSupport : public RemoteLinux::LinuxDeviceProcessSupport
-{
-    static QString signalProcessByNameCommandLine(const QString &filePath, int sig)
-    {
-        QString executable = filePath;
-        return QString::fromLatin1("for PID in $(ps -f -o pid,comm | grep %1 | awk '/%1/ {print $1}'); "
-            "do "
-                "kill -%2 $PID; "
-            "done").arg(executable.replace(QLatin1String("/"), QLatin1String("\\/"))).arg(sig);
-    }
-
-    QString killProcessByNameCommandLine(const QString &filePath) const
-    {
-        return QString::fromLatin1("%1; %2").arg(signalProcessByNameCommandLine(filePath, 15),
-                                             signalProcessByNameCommandLine(filePath, 9));
-    }
-
-    QString interruptProcessByNameCommandLine(const QString &filePath) const
-    {
-        return signalProcessByNameCommandLine(filePath, 2);
-    }
-};
-
 
 class QnxPortsGatheringMethod : public ProjectExplorer::PortsGatheringMethod
 {
@@ -183,11 +161,6 @@ ProjectExplorer::IDevice::Ptr QnxDeviceConfiguration::clone() const
     return Ptr(new QnxDeviceConfiguration(*this));
 }
 
-ProjectExplorer::DeviceProcessSupport::Ptr QnxDeviceConfiguration::processSupport() const
-{
-    return ProjectExplorer::DeviceProcessSupport::Ptr(new QnxDeviceProcessSupport);
-}
-
 ProjectExplorer::PortsGatheringMethod::Ptr QnxDeviceConfiguration::portsGatheringMethod() const
 {
     return ProjectExplorer::PortsGatheringMethod::Ptr(new QnxPortsGatheringMethod);
@@ -201,4 +174,10 @@ ProjectExplorer::DeviceProcessList *QnxDeviceConfiguration::createProcessListMod
 ProjectExplorer::DeviceTester *QnxDeviceConfiguration::createDeviceTester() const
 {
     return new QnxDeviceTester;
+}
+
+ProjectExplorer::DeviceProcessSignalOperation::Ptr QnxDeviceConfiguration::signalOperation() const
+{
+    return ProjectExplorer::DeviceProcessSignalOperation::Ptr(
+                new QnxDeviceProcessSignalOperation(sshParameters()));
 }

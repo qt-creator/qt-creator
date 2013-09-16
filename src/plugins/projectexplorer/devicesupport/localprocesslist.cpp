@@ -51,9 +51,6 @@
 #include <utils/winutils.h>
 #include <tlhelp32.h>
 #include <psapi.h>
-#ifndef PROCESS_SUSPEND_RESUME
-#define PROCESS_SUSPEND_RESUME 0x0800
-#endif
 #endif
 
 namespace ProjectExplorer {
@@ -125,27 +122,7 @@ QList<DeviceProcessItem> LocalProcessList::getLocalProcesses()
     return processes;
 }
 
-void LocalProcessList::doKillProcess(const DeviceProcessItem &process)
-{
-    const DWORD rights = PROCESS_QUERY_INFORMATION|PROCESS_SET_INFORMATION
-            |PROCESS_VM_OPERATION|PROCESS_VM_WRITE|PROCESS_VM_READ
-            |PROCESS_DUP_HANDLE|PROCESS_TERMINATE|PROCESS_CREATE_THREAD|PROCESS_SUSPEND_RESUME;
-    m_error.clear();
-    if (const HANDLE handle = OpenProcess(rights, FALSE, process.pid)) {
-        if (!TerminateProcess(handle, UINT(-1))) {
-          m_error = tr("Cannot terminate process %1: %2").
-                    arg(process.pid).arg(Utils::winErrorMessage(GetLastError()));
-        }
-        CloseHandle(handle);
-    } else {
-        m_error = tr("Cannot open process %1: %2").
-                  arg(process.pid).arg(Utils::winErrorMessage(GetLastError()));
-    }
-    QTimer::singleShot(0, this, SLOT(reportDelayedKillStatus()));
-}
-
 #endif //Q_OS_WIN
-
 
 #ifdef Q_OS_UNIX
 LocalProcessList::LocalProcessList(const IDevice::ConstPtr &device, QObject *parent)
@@ -258,16 +235,15 @@ QList<DeviceProcessItem> LocalProcessList::getLocalProcesses()
     return procDir.exists() ? getLocalProcessesUsingProc(procDir) : getLocalProcessesUsingPs();
 }
 
+#endif // QT_OS_UNIX
+
 void LocalProcessList::doKillProcess(const DeviceProcessItem &process)
 {
-    if (kill(process.pid, SIGKILL) == -1)
-        m_error = QString::fromLocal8Bit(strerror(errno));
-    else
-        m_error.clear();
-    QTimer::singleShot(0, this, SLOT(reportDelayedKillStatus()));
+    DeviceProcessSignalOperation::Ptr signalOperation = device()->signalOperation();
+    connect(signalOperation.data(), SIGNAL(finished(QString)),
+            SLOT(reportDelayedKillStatus(QString)));
+    signalOperation->killProcess(process.pid);
 }
-
-#endif // QT_OS_UNIX
 
 Qt::ItemFlags LocalProcessList::flags(const QModelIndex &index) const
 {
@@ -287,12 +263,12 @@ void LocalProcessList::doUpdate()
     QTimer::singleShot(0, this, SLOT(handleUpdate()));
 }
 
-void LocalProcessList::reportDelayedKillStatus()
+void LocalProcessList::reportDelayedKillStatus(const QString &errorMessage)
 {
-    if (m_error.isEmpty())
+    if (errorMessage.isEmpty())
         reportProcessKilled();
     else
-        reportError(m_error);
+        reportError(errorMessage);
 }
 
 } // namespace Internal

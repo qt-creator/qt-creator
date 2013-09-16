@@ -28,13 +28,11 @@
 ****************************************************************************/
 
 #include "desktopdeviceprocess.h"
+#include "idevice.h"
 
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
-
-#ifdef Q_OS_UNIX
-#include <signal.h>
-#endif
+#include <utils/qtcprocess.h>
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -59,11 +57,7 @@ void DesktopDeviceProcess::start(const QString &executable, const QStringList &a
 
 void DesktopDeviceProcess::interrupt()
 {
-#ifdef Q_OS_UNIX
-    ::kill(m_process->pid(), SIGINT);
-#elif defined(Q_OS_WIN)
-    // tbd
-#endif
+    device()->signalOperation()->interruptProcess(Utils::qPidToPid(m_process->pid()));
 }
 
 void DesktopDeviceProcess::terminate()

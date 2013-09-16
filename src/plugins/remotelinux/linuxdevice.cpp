@@ -34,10 +34,14 @@
 #include "linuxdevicetester.h"
 #include "publickeydeploymentdialog.h"
 #include "remotelinux_constants.h"
+#include "remotelinuxsignaloperation.h"
 
 #include <coreplugin/id.h>
 #include <projectexplorer/devicesupport/sshdeviceprocesslist.h>
+#include <ssh/sshremoteprocessrunner.h>
 #include <utils/qtcassert.h>
+
+#include <QTimer>
 
 using namespace ProjectExplorer;
 
@@ -116,35 +120,6 @@ private:
         return processes;
     }
 };
-
-
-QString LinuxDeviceProcessSupport::killProcessByPidCommandLine(int pid) const
-{
-    return QLatin1String("kill -9 ") + QString::number(pid);
-}
-
-
-static QString signalProcessByNameCommandLine(const QString &filePath, int signal)
-{
-    return QString::fromLatin1("cd /proc; for pid in `ls -d [0123456789]*`; "
-            "do "
-                "if [ \"`readlink /proc/$pid/exe`\" = \"%1\" ]; then "
-                "    kill %2 $pid;"
-                "fi; "
-            "done").arg(filePath).arg(signal);
-}
-
-QString LinuxDeviceProcessSupport::killProcessByNameCommandLine(const QString &filePath) const
-{
-    return QString::fromLatin1("%1; %2").arg(signalProcessByNameCommandLine(filePath, 15),
-                                             signalProcessByNameCommandLine(filePath, 9));
-}
-
-QString LinuxDeviceProcessSupport::interruptProcessByNameCommandLine(const QString &filePath) const
-{
-    return signalProcessByNameCommandLine(filePath, 2);
-}
-
 
 class LinuxPortsGatheringMethod : public ProjectExplorer::PortsGatheringMethod
 {
@@ -252,11 +227,6 @@ ProjectExplorer::IDevice::Ptr LinuxDevice::clone() const
     return Ptr(new LinuxDevice(*this));
 }
 
-DeviceProcessSupport::Ptr LinuxDevice::processSupport() const
-{
-    return DeviceProcessSupport::Ptr(new LinuxDeviceProcessSupport);
-}
-
 DeviceProcess *LinuxDevice::createProcess(QObject *parent) const
 {
     return new LinuxDeviceProcess(sharedFromThis(), parent);
@@ -280,6 +250,11 @@ DeviceProcessList *LinuxDevice::createProcessListModel(QObject *parent) const
 DeviceTester *LinuxDevice::createDeviceTester() const
 {
     return new GenericLinuxDeviceTester;
+}
+
+DeviceProcessSignalOperation::Ptr LinuxDevice::signalOperation() const
+{
+    return DeviceProcessSignalOperation::Ptr(new RemoteLinuxSignalOperation(sshParameters()));
 }
 
 } // namespace RemoteLinux
