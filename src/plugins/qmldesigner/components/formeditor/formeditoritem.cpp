@@ -31,6 +31,7 @@
 #include "formeditorscene.h"
 
 #include <modelnode.h>
+#include <nodemetainfo.h>
 
 
 #include <QDebug>
@@ -361,6 +362,11 @@ QList<FormEditorItem*> FormEditorItem::childFormEditorItems() const
 
 bool FormEditorItem::isContainer() const
 {
+    NodeMetaInfo nodeMetaInfo = qmlItemNode().modelNode().metaInfo();
+
+    if (nodeMetaInfo.isValid())
+        return !nodeMetaInfo.defaultPropertyIsComponent();
+
     return true;
 }
 
