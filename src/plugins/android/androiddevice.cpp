@@ -78,7 +78,7 @@ QString AndroidDevice::displayNameForActionId(Core::Id actionId) const
     return QString();
 }
 
-void AndroidDevice::executeAction(Core::Id actionId, QWidget *parent) const
+void AndroidDevice::executeAction(Core::Id actionId, QWidget *parent)
 {
     Q_UNUSED(actionId)
     Q_UNUSED(parent)

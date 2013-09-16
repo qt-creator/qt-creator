@@ -49,7 +49,7 @@ public:
     IDeviceWidget *createWidget();
     QList<Core::Id> actionIds() const;
     QString displayNameForActionId(Core::Id actionId) const;
-    void executeAction(Core::Id actionId, QWidget *parent = 0) const;
+    void executeAction(Core::Id actionId, QWidget *parent = 0);
     bool canAutoDetectPorts() const;
     bool canCreateProcessModel() const;
     DeviceProcessList *createProcessListModel(QObject *parent) const;

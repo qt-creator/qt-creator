@@ -336,10 +336,13 @@ void DeviceSettingsWidget::clearDetails()
 
 void DeviceSettingsWidget::handleAdditionalActionRequest(int actionId)
 {
-    const IDevice::ConstPtr device = m_deviceManager->find(currentDevice()->id());
+    const IDevice::Ptr device = m_deviceManager->mutableDevice(currentDevice()->id());
     QTC_ASSERT(device, return);
     updateDeviceFromUi();
     device->executeAction(Core::Id::fromUniqueIdentifier(actionId), this);
+
+    // Widget must be set up from scratch, because the action could have changed random attributes.
+    currentDeviceChanged(currentIndex());
 }
 
 void DeviceSettingsWidget::handleProcessListRequested()

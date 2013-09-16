@@ -217,7 +217,7 @@ QString LinuxDevice::displayNameForActionId(Core::Id actionId) const
     return QString(); // Can't happen.
 }
 
-void LinuxDevice::executeAction(Core::Id actionId, QWidget *parent) const
+void LinuxDevice::executeAction(Core::Id actionId, QWidget *parent)
 {
     QTC_ASSERT(actionIds().contains(actionId), return);
 

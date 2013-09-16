@@ -143,7 +143,7 @@ QString BlackBerryDeviceConfiguration::displayNameForActionId(Core::Id actionId)
     return QString();
 }
 
-void BlackBerryDeviceConfiguration::executeAction(Core::Id actionId, QWidget *parent) const
+void BlackBerryDeviceConfiguration::executeAction(Core::Id actionId, QWidget *parent)
 {
     Q_UNUSED(parent);
 

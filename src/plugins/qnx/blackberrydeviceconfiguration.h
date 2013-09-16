@@ -62,7 +62,7 @@ public:
     ProjectExplorer::IDeviceWidget *createWidget();
     QList<Core::Id> actionIds() const;
     QString displayNameForActionId(Core::Id actionId) const;
-    void executeAction(Core::Id actionId, QWidget *parent) const;
+    void executeAction(Core::Id actionId, QWidget *parent);
     ProjectExplorer::IDevice::Ptr clone() const;
     bool hasDeviceTester() const;
 
