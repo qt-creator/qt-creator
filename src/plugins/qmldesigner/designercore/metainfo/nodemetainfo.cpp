@@ -1221,6 +1221,14 @@ NodeMetaInfo NodeMetaInfo::directSuperClass() const
     return NodeMetaInfo();
 }
 
+bool NodeMetaInfo::defaultPropertyIsComponent() const
+{
+    if (hasDefaultProperty())
+        return propertyTypeName(defaultPropertyName()) == "Component";
+
+    return false;
+}
+
 TypeName NodeMetaInfo::typeName() const
 {
     return m_privateData->qualfiedTypeName();
