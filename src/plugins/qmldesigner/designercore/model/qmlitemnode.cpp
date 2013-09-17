@@ -389,16 +389,27 @@ bool QmlItemNode::instanceHasRotationTransform() const
     return nodeInstance().transform().type() > QTransform::TxScale;
 }
 
+bool itemIsMovable(const ModelNode &modelNode)
+{
+    if (modelNode.metaInfo().isSubclassOf("QtQuick.Controls.Tab", -1, -1))
+        return false;
+
+    return true;
+}
+
+
 bool QmlItemNode::modelIsMovable() const
 {
     return !modelNode().hasBindingProperty("x")
-            && !modelNode().hasBindingProperty("y");
+            && !modelNode().hasBindingProperty("y")
+            && itemIsMovable(modelNode());
 }
 
 bool QmlItemNode::modelIsResizable() const
 {
     return !modelNode().hasBindingProperty("width")
-            && !modelNode().hasBindingProperty("height");
+            && !modelNode().hasBindingProperty("height")
+            && itemIsMovable(modelNode());
 }
 
 QRectF  QmlItemNode::instanceBoundingRect() const
