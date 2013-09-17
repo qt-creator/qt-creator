@@ -87,15 +87,12 @@ public:
     virtual ~AndroidDeployStep();
 
     QString deviceSerialNumber();
-    int deviceAPILevel();
 
     AndroidDeployAction deployAction();
 
     bool fromMap(const QVariantMap &map);
     QVariantMap toMap() const;
 
-    void cleanLibsOnDevice();
-    void installQASIPackage(const QString &packagePath);
     bool bundleQtOptionAvailable();
 
 public slots:
@@ -110,7 +107,6 @@ private slots:
     bool deployPackage();
     void handleBuildOutput();
     void handleBuildError();
-    void processFinished();
     void kitUpdated(ProjectExplorer::Kit *kit);
 
 private:
@@ -134,6 +130,7 @@ private:
     void fetchRemoteModificationTimes(QList<DeployItem> *deployList);
     void stripFiles(const QList<DeployItem> &deployList, ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolchainVersion);
     void deployFiles(QProcess *process, const QList<DeployItem> &deployList);
+    bool checkForQt51Files();
 
 private:
     QString m_deviceSerialNumber;

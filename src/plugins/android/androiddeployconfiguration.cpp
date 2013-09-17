@@ -32,6 +32,7 @@
 #include "androiddeploystep.h"
 #include "androidpackageinstallationstep.h"
 #include "androidpackagecreationstep.h"
+#include "androiddeployqtstep.h"
 #include "androidmanager.h"
 
 #include <projectexplorer/buildsteplist.h>
@@ -76,9 +77,15 @@ DeployConfiguration *AndroidDeployConfigurationFactory::create(Target *parent, c
     AndroidDeployConfiguration *dc = new AndroidDeployConfiguration(parent, id);
     if (!dc)
         return 0;
-    dc->stepList()->insertStep(0, new AndroidPackageInstallationStep(dc->stepList()));
-    dc->stepList()->insertStep(1, new AndroidPackageCreationStep(dc->stepList()));
-    dc->stepList()->insertStep(2, new AndroidDeployStep(dc->stepList()));
+
+    if (id == ANDROID_DEPLOYCONFIGURATION_ID) {
+        dc->stepList()->insertStep(0, new AndroidPackageInstallationStep(AndroidPackageInstallationStep::ProjectDirectory, dc->stepList()));
+        dc->stepList()->insertStep(1, new AndroidPackageCreationStep(dc->stepList()));
+        dc->stepList()->insertStep(2, new AndroidDeployStep(dc->stepList()));
+    } else {
+        dc->stepList()->insertStep(0, new AndroidPackageInstallationStep(AndroidPackageInstallationStep::BuildDirectory, dc->stepList()));
+        dc->stepList()->insertStep(1, new AndroidDeployQtStep(dc->stepList()));
+    }
     return dc;
 }
 
@@ -104,7 +111,7 @@ bool AndroidDeployConfigurationFactory::canClone(Target *parent, DeployConfigura
 {
     if (!AndroidManager::supportsAndroid(parent))
         return false;
-    return source->id() == ANDROID_DEPLOYCONFIGURATION_ID;
+    return canCreate(parent, source->id());
 }
 
 DeployConfiguration *AndroidDeployConfigurationFactory::clone(Target *parent, DeployConfiguration *source)
@@ -128,16 +135,20 @@ QList<Core::Id> AndroidDeployConfigurationFactory::availableCreationIds(Target *
     if (!tc || tc->targetAbi().osFlavor() != Abi::AndroidLinuxFlavor)
         return ids;
 
-    if (QtSupport::QtKitInformation::qtVersion(parent->kit())->type() != QLatin1String(Constants::ANDROIDQT))
+    QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(parent->kit());
+    if (qt->type() != QLatin1String(Constants::ANDROIDQT))
         return ids;
-
-    ids << Core::Id(ANDROID_DEPLOYCONFIGURATION_ID);
+    if (qt->qtVersion() < QtSupport::QtVersionNumber(5, 2, 0))
+        ids << Core::Id(ANDROID_DEPLOYCONFIGURATION_ID);
+    else
+        ids << Core::Id(ANDROID_DEPLOYCONFIGURATION2_ID);
     return ids;
 }
 
 QString AndroidDeployConfigurationFactory::displayNameForId(const Core::Id id) const
 {
-    if (id.name().startsWith(ANDROID_DC_PREFIX))
+    if (id.name().startsWith(ANDROID_DC_PREFIX)
+            || id.name().startsWith(ANDROID_DC2_PREFIX))
         return tr("Deploy on Android");
     return QString();
 }

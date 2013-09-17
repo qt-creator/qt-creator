@@ -124,6 +124,7 @@ public:
     AndroidDeviceInfo showDeviceDialog(ProjectExplorer::Project *project, int apiLevel, const QString &abi);
     void setDefaultDevice(ProjectExplorer::Project *project, const QString &abi, const QString &serialNumber); // serial number or avd name
     QString defaultDevice(ProjectExplorer::Project *project, const QString &abi) const; // serial number or avd name
+    QString highestAvailableAndroidPlatform() const;
 public slots:
     void clearDefaultDevices(ProjectExplorer::Project *project);
 

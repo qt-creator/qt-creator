@@ -32,6 +32,7 @@
 #include "androidconstants.h"
 #include "androidconfigurations.h"
 #include "androiddeploystepfactory.h"
+#include "androiddeployqtstep.h"
 #include "androiddevice.h"
 #include "androiddevicefactory.h"
 #include "androidmanager.h"
@@ -74,6 +75,7 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
     addAutoReleasedObject(new Internal::AndroidPackageInstallationFactory);
     addAutoReleasedObject(new Internal::AndroidPackageCreationFactory);
     addAutoReleasedObject(new Internal::AndroidDeployStepFactory);
+    addAutoReleasedObject(new Internal::AndroidDeployQtStepFactory);
     addAutoReleasedObject(new Internal::AndroidSettingsPage);
     addAutoReleasedObject(new Internal::AndroidQtVersionFactory);
     addAutoReleasedObject(new Internal::AndroidToolChainFactory);

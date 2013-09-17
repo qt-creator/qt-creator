@@ -31,6 +31,7 @@
 #include "ui_androiddeploystepwidget.h"
 
 #include "androiddeploystep.h"
+#include "androidmanager.h"
 #include "androidrunconfiguration.h"
 
 #include <coreplugin/icore.h>
@@ -116,14 +117,15 @@ void AndroidDeployStepWidget::setQASIPackagePath()
     QString packagePath =
         QFileDialog::getOpenFileName(this, tr("Qt Android Smart Installer"),
                                      QDir::homePath(), tr("Android package (*.apk)"));
-    if (!packagePath.isEmpty())
-        m_step->installQASIPackage(packagePath);
+    if (!packagePath.isEmpty()) {
+        AndroidManager::installQASIPackage(m_step->target(), packagePath);
+    }
 }
 
 
 void AndroidDeployStepWidget::cleanLibsOnDevice()
 {
-    m_step->cleanLibsOnDevice();
+    AndroidManager::cleanLibsOnDevice(m_step->target());
 }
 
 void AndroidDeployStepWidget::resetDefaultDevices()

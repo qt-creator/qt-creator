@@ -42,7 +42,10 @@ HEADERS += \
     androidmanifesteditor.h \
     androidmanifesteditorwidget.h \
     androidmanifestdocument.h \
-    androiddevicedialog.h
+    androiddevicedialog.h \
+    androiddeployqtstep.h \
+    certificatesmodel.h \
+    androiddeployqtwidget.h
 
 SOURCES += \
     androidconfigurations.cpp \
@@ -79,7 +82,10 @@ SOURCES += \
     androidmanifesteditor.cpp \
     androidmanifesteditorwidget.cpp \
     androidmanifestdocument.cpp \
-    androiddevicedialog.cpp
+    androiddevicedialog.cpp \
+    androiddeployqtstep.cpp \
+    certificatesmodel.cpp \
+    androiddeployqtwidget.cpp
 
 FORMS += \
     androidsettingswidget.ui \
@@ -87,7 +93,8 @@ FORMS += \
     androiddeploystepwidget.ui \
     addnewavddialog.ui \
     androidcreatekeystorecertificate.ui \
-    androiddevicedialog.ui
+    androiddevicedialog.ui \
+    androiddeployqtwidget.ui
 
 exists(../../shared/qbs/qbs.pro) {
     HEADERS += \

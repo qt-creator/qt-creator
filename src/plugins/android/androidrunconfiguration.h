@@ -52,8 +52,6 @@ public:
     QWidget *createConfigurationWidget();
     Utils::OutputFormatter *createOutputFormatter() const;
 
-    AndroidDeployStep *deployStep() const;
-
     void setArguments(const QString &args);
     AndroidConfig config() const;
     QString proFilePath() const;

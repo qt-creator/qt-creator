@@ -40,9 +40,12 @@
 using namespace Android::Internal;
 
 const Core::Id AndroidPackageInstallationStep::Id = Core::Id("Qt4ProjectManager.AndroidPackageInstallationStep");
+namespace {
+const char ANDROIDDIRECTORY[] = "Android.AndroidPackageInstallationStep.AndroidDirectory";
+}
 
-AndroidPackageInstallationStep::AndroidPackageInstallationStep(ProjectExplorer::BuildStepList *bsl)
-    : MakeStep(bsl, Id)
+AndroidPackageInstallationStep::AndroidPackageInstallationStep(AndroidDirectory mode,ProjectExplorer::BuildStepList *bsl)
+    : MakeStep(bsl, Id), m_androidDirectory(mode)
 {
     const QString name = tr("Copy application data");
     setDefaultDisplayName(name);
@@ -58,11 +61,30 @@ bool AndroidPackageInstallationStep::init()
     ProjectExplorer::BuildConfiguration *bc = buildConfiguration();
     if (!bc)
         bc = target()->activeBuildConfiguration();
-    QString dirPath = AndroidManager::dirPath(target()).toString();
+    QString dirPath;
+    if (m_androidDirectory == ProjectDirectory)
+        dirPath = AndroidManager::dirPath(target()).toString();
+    else
+        dirPath = bc->buildDirectory().appendPath((QLatin1String("android"))).toString();
     if (Utils::HostOsInfo::isWindowsHost())
         if (bc->environment().searchInPath(QLatin1String("sh.exe")).isEmpty())
             dirPath = QDir::toNativeSeparators(dirPath);
     setUserArguments(QString::fromLatin1("INSTALL_ROOT=\"%1\" install").arg(dirPath));
 
     return MakeStep::init();
+}
+
+bool AndroidPackageInstallationStep::fromMap(const QVariantMap &map)
+{
+    if (!MakeStep::fromMap(map))
+        return false;
+    m_androidDirectory = AndroidDirectory(map.value(QLatin1String(ANDROIDDIRECTORY)).toInt());
+    return true;
+}
+
+QVariantMap AndroidPackageInstallationStep::toMap() const
+{
+    QVariantMap map = MakeStep::toMap();
+    map.insert(QLatin1String(ANDROIDDIRECTORY), m_androidDirectory);
+    return map;
 }

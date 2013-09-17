@@ -193,44 +193,6 @@ QVariantMap AndroidDeployStep::toMap() const
     return map;
 }
 
-void AndroidDeployStep::cleanLibsOnDevice()
-{
-    const QString targetArch = AndroidManager::targetArch(target());
-    int deviceAPILevel = AndroidManager::minimumSDK(target());
-
-    AndroidDeviceInfo info = AndroidConfigurations::instance().showDeviceDialog(project(), m_deviceAPILevel, m_targetArch);
-    if (info.serialNumber.isEmpty()) // aborted
-        return;
-
-    deviceAPILevel = info.sdk;
-    QString deviceSerialNumber = info.serialNumber;
-
-    if (info.type == AndroidDeviceInfo::Emulator) {
-        deviceSerialNumber = AndroidConfigurations::instance().startAVD(deviceSerialNumber, deviceAPILevel, targetArch);
-        if (deviceSerialNumber.isEmpty())
-            MessageManager::write(tr("Starting android virtual device failed."));
-    }
-
-    QProcess *process = new QProcess(this);
-    QStringList arguments = AndroidDeviceInfo::adbSelector(deviceSerialNumber);
-    arguments << QLatin1String("shell") << QLatin1String("rm") << QLatin1String("-r") << QLatin1String("/data/local/tmp/qt");
-    connect(process, SIGNAL(finished(int)), this, SLOT(processFinished()));
-    const QString adb = AndroidConfigurations::instance().adbToolPath().toString();
-    MessageManager::write(adb + QLatin1Char(' ') + arguments.join(QLatin1String(" ")));
-    process->start(adb, arguments);
-    if (!process->waitForStarted(500))
-        delete process;
-}
-
-void AndroidDeployStep::processFinished()
-{
-    QProcess *process = qobject_cast<QProcess *>(sender());
-    QTC_ASSERT(process, return);
-    MessageManager::write(QString::fromLocal8Bit(process->readAll()));
-    MessageManager::write(tr("adb finished with exit code %1.").arg(process->exitCode()));
-    process->deleteLater();
-}
-
 void AndroidDeployStep::kitUpdated(Kit *kit)
 {
     if (kit != target()->kit())
@@ -247,35 +209,6 @@ void AndroidDeployStep::kitUpdated(Kit *kit)
 
         emit deployOptionsChanged();
     }
-}
-
-void AndroidDeployStep::installQASIPackage(const QString &packagePath)
-{
-    const QString targetArch = AndroidManager::targetArch(target());
-    int deviceAPILevel = AndroidManager::minimumSDK(target());
-
-    AndroidDeviceInfo info = AndroidConfigurations::instance().showDeviceDialog(project(), m_deviceAPILevel, m_targetArch);
-    if (info.serialNumber.isEmpty()) // aborted
-        return;
-
-    deviceAPILevel = info.sdk;
-    QString deviceSerialNumber = info.serialNumber;
-    if (info.type == AndroidDeviceInfo::Emulator) {
-        deviceSerialNumber = AndroidConfigurations::instance().startAVD(deviceSerialNumber, deviceAPILevel, targetArch);
-        if (deviceSerialNumber.isEmpty())
-            MessageManager::write(tr("Starting android virtual device failed."));
-    }
-
-    QProcess *process = new QProcess(this);
-    QStringList arguments = AndroidDeviceInfo::adbSelector(deviceSerialNumber);
-    arguments << QLatin1String("install") << QLatin1String("-r ") << packagePath;
-
-    connect(process, SIGNAL(finished(int)), this, SLOT(processFinished()));
-    const QString adb = AndroidConfigurations::instance().adbToolPath().toString();
-    MessageManager::write(adb + QLatin1Char(' ') + arguments.join(QLatin1String(" ")));
-    process->start(adb, arguments);
-    if (!process->waitForFinished(500))
-        delete process;
 }
 
 bool AndroidDeployStep::bundleQtOptionAvailable()
@@ -336,11 +269,6 @@ void AndroidDeployStep::handleBuildError()
 QString AndroidDeployStep::deviceSerialNumber()
 {
     return m_deviceSerialNumber;
-}
-
-int AndroidDeployStep::deviceAPILevel()
-{
-    return m_deviceAPILevel;
 }
 
 unsigned int AndroidDeployStep::remoteModificationTime(const QString &fullDestination, QHash<QString, unsigned int> *cache)

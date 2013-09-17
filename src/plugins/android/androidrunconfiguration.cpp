@@ -84,16 +84,6 @@ AndroidConfig AndroidRunConfiguration::config() const
     return AndroidConfigurations::instance().config();
 }
 
-AndroidDeployStep *AndroidRunConfiguration::deployStep() const
-{
-    AndroidDeployStep * const step
-        = AndroidGlobal::buildStep<AndroidDeployStep>(target()->activeDeployConfiguration());
-    Q_ASSERT_X(step, Q_FUNC_INFO,
-        "Impossible: Android build configuration without deploy step.");
-    return step;
-}
-
-
 const QString AndroidRunConfiguration::remoteChannel() const
 {
     return QLatin1String(":5039");

@@ -715,6 +715,13 @@ QStringList AndroidConfigurations::getAbis(const QString &device) const
     return result;
 }
 
+QString AndroidConfigurations::highestAvailableAndroidPlatform() const
+{
+    if (m_availablePlatforms.isEmpty())
+        return QString();
+    return QLatin1String("android-") + QString::number(m_availablePlatforms.first());
+}
+
 QString AndroidConfigurations::bestMatch(const QString &targetAPI) const
 {
     int target = targetAPI.mid(targetAPI.lastIndexOf(QLatin1Char('-')) + 1).toInt();

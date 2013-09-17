@@ -50,13 +50,8 @@ AndroidPackageInstallationFactory::AndroidPackageInstallationFactory(QObject *pa
 
 QList<Core::Id> AndroidPackageInstallationFactory::availableCreationIds(BuildStepList *parent) const
 {
-    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
-        return QList<Core::Id>();
-    if (!AndroidManager::supportsAndroid(parent->target()))
-        return QList<Core::Id>();
-    if (parent->contains(AndroidPackageInstallationStep::Id))
-        return QList<Core::Id>();
-    return QList<Core::Id>() << AndroidPackageInstallationStep::Id;
+    Q_UNUSED(parent);
+    return QList<Core::Id>();
 }
 
 QString AndroidPackageInstallationFactory::displayNameForId(const Core::Id id) const
@@ -68,25 +63,33 @@ QString AndroidPackageInstallationFactory::displayNameForId(const Core::Id id) c
 
 bool AndroidPackageInstallationFactory::canCreate(BuildStepList *parent, const Core::Id id) const
 {
-    return availableCreationIds(parent).contains(id);
+    Q_UNUSED(parent);
+    Q_UNUSED(id);
+    return false;
 }
 
 BuildStep *AndroidPackageInstallationFactory::create(BuildStepList *parent, const Core::Id id)
 {
-    Q_ASSERT(canCreate(parent, id));
+    Q_UNUSED(parent);
     Q_UNUSED(id);
-    return new AndroidPackageInstallationStep(parent);
+    return 0;
 }
 
 bool AndroidPackageInstallationFactory::canRestore(BuildStepList *parent, const QVariantMap &map) const
 {
-    return canCreate(parent, idFromMap(map));
+    if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
+        return false;
+    if (!AndroidManager::supportsAndroid(parent->target()))
+        return false;
+    if (parent->contains(AndroidPackageInstallationStep::Id))
+        return false;
+    return ProjectExplorer::idFromMap(map) == AndroidPackageInstallationStep::Id;
 }
 
 BuildStep *AndroidPackageInstallationFactory::restore(BuildStepList *parent, const QVariantMap &map)
 {
     Q_ASSERT(canRestore(parent, map));
-    AndroidPackageInstallationStep * const step = new AndroidPackageInstallationStep(parent);
+    AndroidPackageInstallationStep * const step = new AndroidPackageInstallationStep(AndroidPackageInstallationStep::ProjectDirectory, parent);
     if (!step->fromMap(map)) {
         delete step;
         return 0;

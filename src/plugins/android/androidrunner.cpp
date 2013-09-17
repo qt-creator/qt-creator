@@ -30,6 +30,7 @@
 #include "androidrunner.h"
 
 #include "androiddeploystep.h"
+#include "androiddeployqtstep.h"
 #include "androidconfigurations.h"
 #include "androidglobal.h"
 #include "androidrunconfiguration.h"
@@ -73,17 +74,17 @@ AndroidRunner::AndroidRunner(QObject *parent,
         m_qmlPort = server.serverPort();
     }
     ProjectExplorer::Target *target = runConfig->target();
-    AndroidDeployStep *ds = runConfig->deployStep();
-    m_useLocalQtLibs = ds->deployAction() == AndroidDeployStep::DeployLocal
-            || ds->deployAction() == AndroidDeployStep::BundleLibraries;
+    m_useLocalQtLibs = AndroidManager::useLocalLibs(target);
     if (m_useLocalQtLibs) {
-        m_localLibs = AndroidManager::loadLocalLibs(target, ds->deviceAPILevel());
-        m_localJars = AndroidManager::loadLocalJars(target, ds->deviceAPILevel());
-        m_localJarsInitClasses = AndroidManager::loadLocalJarsInitClasses(target, ds->deviceAPILevel());
+        int deviceApiLevel = AndroidManager::minimumSDK(target);
+        m_localLibs = AndroidManager::loadLocalLibs(target, deviceApiLevel);
+        m_localJars = AndroidManager::loadLocalJars(target, deviceApiLevel);
+        m_localJarsInitClasses = AndroidManager::loadLocalJarsInitClasses(target, deviceApiLevel);
     }
     m_intentName = AndroidManager::intentName(target);
     m_packageName = m_intentName.left(m_intentName.indexOf(QLatin1Char('/')));
-    m_deviceSerialNumber = ds->deviceSerialNumber();
+
+    m_deviceSerialNumber = AndroidManager::deviceSerialNumber(target);
     m_processPID = -1;
     m_adb = AndroidConfigurations::instance().adbToolPath().toString();
     m_selector = AndroidDeviceInfo::adbSelector(m_deviceSerialNumber);

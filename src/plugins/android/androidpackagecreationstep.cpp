@@ -36,6 +36,7 @@
 #include "androidmanager.h"
 #include "androidgdbserverkitinformation.h"
 #include "androidtoolchain.h"
+#include "certificatesmodel.h"
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -72,47 +73,6 @@ namespace {
 }
 
 using namespace Qt4ProjectManager;
-
-class CertificatesModel: public QAbstractListModel
-{
-public:
-    CertificatesModel(const QString &rowCertificates, QObject *parent)
-        : QAbstractListModel(parent)
-    {
-        int from = rowCertificates.indexOf(AliasString);
-        QPair<QString, QString> item;
-        while (from > -1) {
-            from += 11;// strlen(AliasString);
-            const int eol = rowCertificates.indexOf(QLatin1Char('\n'), from);
-            item.first = rowCertificates.mid(from, eol - from).trimmed();
-            const int eoc = rowCertificates.indexOf(CertificateSeparator, eol);
-            item.second = rowCertificates.mid(eol + 1, eoc - eol - 2).trimmed();
-            from = rowCertificates.indexOf(AliasString, eoc);
-            m_certs.push_back(item);
-        }
-    }
-
-protected:
-    int rowCount(const QModelIndex &parent = QModelIndex()) const
-    {
-        if (parent.isValid())
-            return 0;
-        return m_certs.size();
-    }
-
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const
-    {
-        if (!index.isValid() || (role != Qt::DisplayRole && role != Qt::ToolTipRole))
-            return QVariant();
-        if (role == Qt::DisplayRole)
-            return m_certs[index.row()].first;
-        return m_certs[index.row()].second;
-    }
-
-private:
-    QVector<QPair<QString, QString> > m_certs;
-};
-
 
 AndroidPackageCreationStep::AndroidPackageCreationStep(BuildStepList *bsl)
     : BuildStep(bsl, CreatePackageId)

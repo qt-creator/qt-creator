@@ -72,6 +72,8 @@ public:
 
     static bool updateDeploymentSettings(ProjectExplorer::Target *target);
     static bool bundleQt(ProjectExplorer::Target *target);
+    static bool useLocalLibs(ProjectExplorer::Target *target);
+    static QString deviceSerialNumber(ProjectExplorer::Target *target);
 
     static QString buildTargetSDK(ProjectExplorer::Target *target);
     static bool setBuildTargetSDK(ProjectExplorer::Target *target, const QString &sdk);
@@ -128,6 +130,12 @@ public:
     static QString libGnuStl(const QString &arch, const QString &ndkToolChainVersion);
     static QString libraryPrefix();
 
+    static void cleanLibsOnDevice(ProjectExplorer::Target *target);
+    static void installQASIPackage(ProjectExplorer::Target *target, const QString &packagePath);
+
+    static bool checkKeystorePassword(const QString &keystorePath, const QString &keystorePasswd);
+    static bool checkCertificatePassword(const QString &keystorePath, const QString &keystorePasswd, const QString &alias, const QString &certificatePasswd);
+    static bool checkForQt51Files(const QString &projectDirectory);
 private:
     static void raiseError(const QString &reason);
     static bool openXmlFile(QDomDocument &doc, const Utils::FileName &fileName);
