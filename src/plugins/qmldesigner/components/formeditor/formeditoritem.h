@@ -111,6 +111,7 @@ protected:
     AbstractFormEditorTool* tool() const;
     void paintBoundingRect(QPainter *painter) const;
     void paintPlaceHolderForInvisbleItem(QPainter *painter) const;
+    void paintComponentContentVisualisation(QPainter *painter, const QRectF &clippinRectangle) const;
 
 private: // functions
     FormEditorItem(const QmlItemNode &qmlItemNode, FormEditorScene* scene);

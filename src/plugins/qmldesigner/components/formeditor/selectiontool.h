@@ -38,6 +38,7 @@
 #include "resizeindicator.h"
 #include "anchorindicator.h"
 #include "bindingindicator.h"
+#include "contentnoteditableindicator.h"
 
 #include <QTime>
 
@@ -96,6 +97,7 @@ private:
     ResizeIndicator m_resizeIndicator;
     AnchorIndicator m_anchorIndicator;
     BindingIndicator m_bindingIndicator;
+    ContentNotEditableIndicator m_contentNotEditableIndicator;
     QTime m_mousePressTimer;
     bool m_selectOnlyContentItems;
     QCursor m_cursor;

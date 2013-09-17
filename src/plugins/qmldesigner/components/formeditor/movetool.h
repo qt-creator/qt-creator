@@ -36,7 +36,7 @@
 #include "resizeindicator.h"
 #include "anchorindicator.h"
 #include "bindingindicator.h"
-
+#include "contentnoteditableindicator.h"
 
 namespace QmlDesigner {
 
@@ -97,6 +97,7 @@ private:
     ResizeIndicator m_resizeIndicator;
     AnchorIndicator m_anchorIndicator;
     BindingIndicator m_bindingIndicator;
+    ContentNotEditableIndicator m_contentNotEditableIndicator;
     QList<FormEditorItem*> m_movingItems;
 };
 

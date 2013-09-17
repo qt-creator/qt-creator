@@ -33,14 +33,12 @@
 #include <modelnode.h>
 #include <nodemetainfo.h>
 
-
 #include <QDebug>
 #include <QPainter>
 #include <QStyleOptionGraphicsItem>
 #include <QTimeLine>
 
 #include <cmath>
-
 
 namespace QmlDesigner {
 
@@ -269,6 +267,11 @@ void FormEditorItem::paintPlaceHolderForInvisbleItem(QPainter *painter) const
     }
 }
 
+void FormEditorItem::paintComponentContentVisualisation(QPainter *painter, const QRectF &clippinRectangle) const
+{
+    painter->setBrush(QColor(0, 0, 0, 150));
+    painter->fillRect(clippinRectangle, Qt::BDiagPattern);
+}
 
 void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
@@ -292,6 +295,9 @@ void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, 
 
     if (!qmlItemNode().isRootModelNode())
         paintBoundingRect(painter);
+
+//    if (qmlItemNode().modelNode().metaInfo().isSubclassOf("QtQuick.Loader", -1, -1))
+//        paintComponentContentVisualisation(painter, boundingRect());
 
     painter->restore();
 }

@@ -33,6 +33,7 @@
 
 #include "resizehandleitem.h"
 
+#include <nodemetainfo.h>
 
 #include <QGraphicsSceneMouseEvent>
 #include <QDebug>
@@ -50,6 +51,7 @@ SelectionTool::SelectionTool(FormEditorView *editorView)
     m_resizeIndicator(editorView->scene()->manipulatorLayerItem()),
     m_anchorIndicator(editorView->scene()->manipulatorLayerItem()),
     m_bindingIndicator(editorView->scene()->manipulatorLayerItem()),
+    m_contentNotEditableIndicator(editorView->scene()->manipulatorLayerItem()),
     m_selectOnlyContentItems(false)
 {
     m_selectionIndicator.setCursor(Qt::ArrowCursor);
@@ -146,6 +148,8 @@ void SelectionTool::hoverMoveEvent(const QList<QGraphicsItem*> &itemList,
     FormEditorItem *topSelectableItem = topMovableFormEditorItem(itemList, m_selectOnlyContentItems);
 
     scene()->highlightBoundingRect(topSelectableItem);
+
+    m_contentNotEditableIndicator.setItems(toFormEditorItemList(itemList));
 }
 
 void SelectionTool::mouseReleaseEvent(const QList<QGraphicsItem*> &itemList,
