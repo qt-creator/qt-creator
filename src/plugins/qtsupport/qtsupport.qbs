@@ -1,11 +1,13 @@
 import qbs.base 1.0
 
+import "../../../qbs/defaults.js" as Defaults
 import "../QtcPlugin.qbs" as QtcPlugin
 
 QtcPlugin {
     name: "QtSupport"
 
-    Depends { name: "Qt"; submodules: ["widgets", "quick"] }
+    Depends { name: "Qt"; submodules: ["core", "widgets"]; }
+    Depends { name: "Qt.quick"; condition: Defaults.versionIsAtLeast(Qt.core.version, "5.1"); }
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
@@ -112,7 +114,7 @@ QtcPlugin {
 
     Group {
         name: "Getting Started Welcome Page"
-        condition: project.buildWelcomePlugin
+        condition: Defaults.versionIsAtLeast(Qt.core.version, "5.1")
         files: [
             "gettingstartedwelcomepage.cpp",
             "gettingstartedwelcomepage.h"

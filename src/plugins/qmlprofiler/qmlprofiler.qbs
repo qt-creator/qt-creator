@@ -4,8 +4,10 @@ import "../QtcPlugin.qbs" as QtcPlugin
 
 QtcPlugin {
     name: "QmlProfiler"
+    minimumQtVersion: "5.1"
 
-    Depends { name: "Qt"; submodules: ["widgets", "network", "qml", "quick"] }
+    Depends { name: "Qt"; submodules: ["widgets", "network"] }
+    Depends { name: "Qt.quick"; condition: product.condition; }
     Depends { name: "Core" }
     Depends { name: "AnalyzerBase" }
     Depends { name: "QmlProjectManager" }

@@ -8,6 +8,10 @@ Product {
     property var pluginspecreplacements
     property var pluginRecommends: []
 
+    Depends { name: "Qt.core" }
+    property string minimumQtVersion: "4.8"
+    condition: Defaults.versionIsAtLeast(Qt.core.version, minimumQtVersion)
+
     targetName: Defaults.qtLibraryName(qbs, name)
     destinationDirectory: project.ide_plugin_path + '/' + provider
 

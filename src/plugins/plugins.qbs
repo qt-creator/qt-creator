@@ -2,7 +2,6 @@ import qbs
 
 Project {
     name: "Plugins"
-    property bool buildWelcomePlugin: Qt.core.versionMajor >= 5
 
     references: [
         "analyzerbase/analyzerbase.qbs",
