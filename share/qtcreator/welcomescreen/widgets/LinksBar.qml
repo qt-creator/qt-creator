@@ -47,7 +47,7 @@ Item {
             GradientStop { position: 0; color: "#f7f7f7" }
             GradientStop { position: 1; color: "#e4e4e4" }
         }
-        Text {
+        NativeText {
             id: text
             horizontalAlignment: Qt.AlignHCenter; verticalAlignment: Qt.AlignVCenter
             anchors.fill: parent

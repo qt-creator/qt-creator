@@ -37,7 +37,7 @@ Item {
     property int textOffset: captionText.x + captionText.width
     property alias caption: captionText.text
 
-    Text {
+    NativeText {
         id: captionText
         y: 9
         color: "#515153"

@@ -97,7 +97,7 @@ Rectangle {
             asynchronous: true
         }
 
-        Text {
+        NativeText {
             id: length
 
             visible: delegate.isVideo
@@ -123,7 +123,7 @@ Rectangle {
         anchors.left: parent.left
     }
 
-    Text {
+    NativeText {
         id: captionItem
         x: 16
         y: 170
@@ -139,7 +139,7 @@ Rectangle {
         font: fonts.standardCaption
     }
 
-    Text {
+    NativeText {
         id: descriptionItem
         height: 43
         color: "#7e7e7e"
@@ -169,7 +169,7 @@ Rectangle {
         anchors.rightMargin: 10
     }
 
-    Text {
+    NativeText {
         id: tags
         x: 16
         y: 198

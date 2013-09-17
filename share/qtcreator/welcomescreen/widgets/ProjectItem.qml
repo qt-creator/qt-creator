@@ -58,7 +58,7 @@ Item {
         onClicked: projectWelcomePage.requestProject(filePath)
     }
 
-    Text {
+    NativeText {
         id: pathText
         y: 18
         color: "#6b6b6b"

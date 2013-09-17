@@ -117,11 +117,11 @@ Item {
                 Repeater {
                     model: projectsPath
                     delegate: Column {
-                        Text {
+                        NativeText {
                             text: projectsName[index]
                             font: fonts.boldDescription
                         }
-                        Text {
+                        NativeText {
                             x: 4
                             function multiLinePath(path) {
                                 if (path.length < 42)

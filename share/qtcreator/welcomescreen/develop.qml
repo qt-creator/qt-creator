@@ -102,7 +102,7 @@ Rectangle {
             visible: !recentProjects.scrollBarVisible
         }
 
-        Text {
+        NativeText {
             id: sessionsTitle
 
             x: pageCaption.x + pageCaption.textOffset
@@ -115,7 +115,7 @@ Rectangle {
             font.bold: true
         }
 
-        Text {
+        NativeText {
             id: recentProjectsTitle
             x: 406
 

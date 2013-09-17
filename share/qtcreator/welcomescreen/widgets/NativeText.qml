@@ -29,19 +29,6 @@
 
 import QtQuick 2.1
 
-Image {
-    id: logo
-    source: "images/qtcreator.png"
-    NativeText {
-        y: 21
-        color: "#424242"
-        text: "Qt Creator"
-        font.bold: true
-        anchors.left: parent.left
-        anchors.leftMargin: 52
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 6
-        font.pixelSize: 16
-        font.family: "Helvetica"
-    }
+Text {
+    renderType: Text.NativeRendering
 }

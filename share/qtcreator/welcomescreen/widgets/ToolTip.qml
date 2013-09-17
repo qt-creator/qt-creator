@@ -98,7 +98,7 @@ Item {
         }
     }
 
-    Text {
+    NativeText {
         x: toolTip.margin
         y: toolTip.margin
         id: text

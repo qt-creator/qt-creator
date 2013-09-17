@@ -55,14 +55,13 @@ Rectangle {
         font.family: "Helvetica"
     }
 
-    Text {
+    NativeText {
         id: placeHolderText
         visible: !lineEdit.text.length
         text: qsTr("Search...")
         anchors.fill: lineEdit
         font: lineEdit.font
         verticalAlignment: Text.AlignVCenter
-        renderType: Text.NativeRendering
         color: "gray"
     }
 }

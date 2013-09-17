@@ -23,7 +23,7 @@ Item {
         smooth: true
         visible: false
 
-        Text {
+        NativeText {
             color: "#f7f7f7"
             font.bold: true
             text: gettingStartedItem.number
@@ -34,7 +34,7 @@ Item {
         }
     }
 
-    Text {
+    NativeText {
         id: titleText
         y: 188
         color: colors.strongForegroundColor
@@ -46,7 +46,7 @@ Item {
         font: fonts.standardCaption
     }
 
-    Text {
+    NativeText {
         id: descriptionText
         y: 246
         height: 62
