@@ -36,9 +36,7 @@
 
 namespace QmlDesigner {
 
-namespace Internal {
 class DesignerActionManagerView;
-}
 
 class QMLDESIGNERCORE_EXPORT DesignerActionManager {
 public:
@@ -58,7 +56,7 @@ protected:
 private:
     static DesignerActionManager *m_instance;
     QList<QSharedPointer<AbstractDesignerAction> > m_designerActions;
-    Internal::DesignerActionManagerView *m_view;
+    DesignerActionManagerView *m_view;
 };
 
 } //QmlDesigner
