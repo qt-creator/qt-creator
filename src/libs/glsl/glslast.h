@@ -765,7 +765,7 @@ public:
     };
 
     StructTypeAST(List<Field *> *_fields)
-        : TypeAST(Kind_AnonymousStructType), fields(finish(_fields)) {}
+        : TypeAST(Kind_AnonymousStructType), name(0), fields(finish(_fields)) {}
     StructTypeAST(const QString *_name, List<Field *> *_fields)
         : TypeAST(Kind_StructType), name(_name), fields(finish(_fields)) {}
 
