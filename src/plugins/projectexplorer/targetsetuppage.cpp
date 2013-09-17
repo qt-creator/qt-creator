@@ -136,13 +136,14 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
     m_preferredMatcher(0),
     m_importer(0),
     m_baseLayout(0),
-    m_importSearch(false),
     m_firstWidget(0),
     m_ui(new TargetSetupPageUi),
     m_importWidget(new Internal::ImportWidget(this)),
     m_spacer(new QSpacerItem(0,0, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding)),
     m_forceOptionHint(false)
 {
+    m_importWidget->setVisible(false);
+
     setObjectName(QLatin1String("TargetSetupPage"));
     setWindowTitle(tr("Select Kits for Your Project"));
     m_ui->setupUi(this);
@@ -160,7 +161,6 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
     m_ui->centralWidget->layout()->setMargin(0);
 
     setUseScrollArea(true);
-    setImportSearch(false);
 
     setTitle(tr("Kit Selection"));
 
@@ -249,12 +249,6 @@ bool TargetSetupPage::isComplete() const
     return false;
 }
 
-void TargetSetupPage::setImportSearch(bool b)
-{
-    m_importSearch = b;
-    m_importWidget->setVisible(b);
-}
-
 void TargetSetupPage::setupWidgets()
 {
     QList<Kit *> kitList;
@@ -312,6 +306,8 @@ void TargetSetupPage::setProjectImporter(ProjectImporter *importer)
         delete m_importer;
     m_importer = importer;
 
+    m_importWidget->setVisible(m_importer);
+
     reset();
     setupWidgets();
 }
@@ -330,7 +326,7 @@ void TargetSetupPage::showOptionsHint(bool show)
 
 void TargetSetupPage::setupImports()
 {
-    if (!m_importer || !m_importSearch || m_projectPath.isEmpty())
+    if (!m_importer || m_projectPath.isEmpty())
         return;
 
     QStringList toImport = m_importer->importCandidates(Utils::FileName::fromString(m_projectPath));

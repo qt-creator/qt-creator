@@ -70,7 +70,6 @@ public:
     // Call these before initializePage!
     void setRequiredKitMatcher(KitMatcher *matcher);
     void setPreferredKitMatcher(KitMatcher *matcher);
-    void setImportSearch(bool b);
 
     /// Sets whether the targetsetupage uses a scrollarea
     /// to host the widgets from the factories
@@ -113,7 +112,6 @@ private:
     KitMatcher *m_preferredMatcher;
     ProjectImporter *m_importer;
     QLayout *m_baseLayout;
-    bool m_importSearch;
     QString m_projectPath;
     QString m_defaultShadowBuildLocation;
     QMap<Core::Id, Internal::TargetSetupWidget *> m_widgets;
