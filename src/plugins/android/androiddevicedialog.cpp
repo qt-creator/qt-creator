@@ -339,12 +339,10 @@ void AndroidDeviceModel::setDevices(const QVector<AndroidDeviceInfo> &devices)
         if (device.unauthorized) {
             error = tr("Unauthorized. Please check the confirmation dialog on your device..").arg(device.serialNumber);
         } else if (!device.cpuAbi.contains(m_abi)) {
-            error = tr("ABI is incompatible, device supports ABIs: %2.")
-                    .arg(AndroidConfigurations::instance().getProductModel(device.serialNumber))
+            error = tr("ABI is incompatible, device supports ABIs: %1.")
                     .arg(device.cpuAbi.join(QLatin1String(" ")));
         } else if (device.sdk < m_apiLevel) {
-            error = tr("API Level of device is: %2.")
-                    .arg(AndroidConfigurations::instance().getProductModel(device.serialNumber))
+            error = tr("API Level of device is: %1.")
                     .arg(device.sdk);
         } else {
             new AndroidDeviceModelNode(compatibleDevices, device);
