@@ -1,5 +1,4 @@
 import qbs
-import qbs.File
 import qbs.FileInfo
 import "./copytransformer.qbs" as CopyTransformer
 import "../../../qbs/functions.js" as QtcFunctions

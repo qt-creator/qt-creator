@@ -1,9 +1,5 @@
 import qbs
 
-// TODO: Remove when import bug is fixed
-import qbs.File
-import qbs.FileInfo
-
 import "../../autotest.qbs" as Autotest
 import "../copytransformer.qbs" as CopyTransformer
 

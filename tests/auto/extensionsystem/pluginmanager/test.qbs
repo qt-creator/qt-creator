@@ -1,6 +1,4 @@
 import qbs
-import qbs.File
-import qbs.FileInfo
 import "../../autotest.qbs" as Autotest
 import "../copytransformer.qbs" as CopyTransformer
 
