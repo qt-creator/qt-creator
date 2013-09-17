@@ -77,6 +77,7 @@ public:
     QmlJSQuickFixAssistProvider();
     virtual ~QmlJSQuickFixAssistProvider();
 
+    virtual bool isAsynchronous() const;
     virtual bool supportsEditor(const Core::Id &editorId) const;
     virtual TextEditor::IAssistProcessor *createProcessor() const;
 

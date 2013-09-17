@@ -46,6 +46,7 @@ class TEXTEDITOR_EXPORT IAssistProvider : public QObject
 public:
     IAssistProvider() {}
 
+    virtual bool isAsynchronous() const = 0;
     virtual bool supportsEditor(const Core::Id &editorId) const = 0;
     virtual IAssistProcessor *createProcessor() const = 0;
 };

@@ -112,6 +112,11 @@ public:
 } // namespace Internal
 } // namespace TextEditor
 
+bool ClipboardAssistProvider::isAsynchronous() const
+{
+    return false;
+}
+
 bool ClipboardAssistProvider::supportsEditor(const Core::Id &/*editorId*/) const
 {
     return true;

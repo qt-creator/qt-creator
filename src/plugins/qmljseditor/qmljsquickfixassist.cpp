@@ -96,6 +96,11 @@ QmlJSQuickFixAssistProvider::QmlJSQuickFixAssistProvider()
 QmlJSQuickFixAssistProvider::~QmlJSQuickFixAssistProvider()
 {}
 
+bool QmlJSQuickFixAssistProvider::isAsynchronous() const
+{
+    return false;
+}
+
 bool QmlJSQuickFixAssistProvider::supportsEditor(const Core::Id &editorId) const
 {
     return editorId == Constants::C_QMLJSEDITOR_ID;

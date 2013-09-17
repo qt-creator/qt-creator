@@ -123,7 +123,7 @@ private:
     CompletionAssistProvider *m_completionProvider;
     QList<QuickFixAssistProvider *> m_quickFixProviders;
     Internal::ProcessorRunner *m_requestRunner;
-    CompletionAssistProvider *m_requestProvider;
+    IAssistProvider *m_requestProvider;
     AssistKind m_assistKind;
     IAssistProposalWidget *m_proposalWidget;
     QScopedPointer<IAssistProposal> m_proposal;
@@ -258,22 +258,18 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
     if (!assistInterface)
         return;
 
-    if (kind == Completion) {
-        CompletionAssistProvider *completionProvider =
-                static_cast<CompletionAssistProvider *>(provider);
-        if (completionProvider->isAsynchronous()) {
-            m_requestProvider = completionProvider;
-            m_requestRunner = new ProcessorRunner;
-            connect(m_requestRunner, SIGNAL(finished()), this, SLOT(proposalComputed()));
-            connect(m_requestRunner, SIGNAL(finished()), this, SLOT(finalizeRequest()));
-            connect(m_requestRunner, SIGNAL(finished()), this, SIGNAL(finished()));
-            assistInterface->prepareForAsyncUse();
-            m_requestRunner->setReason(reason);
-            m_requestRunner->setProcessor(processor);
-            m_requestRunner->setAssistInterface(assistInterface);
-            m_requestRunner->start();
-            return;
-        }
+    if (provider->isAsynchronous()) {
+        m_requestProvider = provider;
+        m_requestRunner = new ProcessorRunner;
+        connect(m_requestRunner, SIGNAL(finished()), this, SLOT(proposalComputed()));
+        connect(m_requestRunner, SIGNAL(finished()), this, SLOT(finalizeRequest()));
+        connect(m_requestRunner, SIGNAL(finished()), this, SIGNAL(finished()));
+        assistInterface->prepareForAsyncUse();
+        m_requestRunner->setReason(reason);
+        m_requestRunner->setProcessor(processor);
+        m_requestRunner->setAssistInterface(assistInterface);
+        m_requestRunner->start();
+        return;
     }
 
     if (IAssistProposal *newProposal = processor->perform(assistInterface))
@@ -502,12 +498,16 @@ bool CodeAssistantPrivate::eventFilter(QObject *o, QEvent *e)
         } else if (type == QEvent::KeyPress) {
             QKeyEvent *keyEvent = static_cast<QKeyEvent *>(e);
             const QString &keyText = keyEvent->text();
+
+            CompletionAssistProvider *completionProvider = 0;
             if ((keyText.isEmpty()
                  && keyEvent->key() != Qt::LeftArrow
                  && keyEvent->key() != Qt::RightArrow
                  && keyEvent->key() != Qt::Key_Shift)
-                    || (!keyText.isEmpty() &&
-                        !m_requestProvider->isContinuationChar(keyText.at(0)))) {
+                || (!keyText.isEmpty()
+                    && (((completionProvider = dynamic_cast<CompletionAssistProvider *>(m_requestProvider))
+                            ? !completionProvider->isContinuationChar(keyText.at(0))
+                            : false)))) {
                 destroyContext();
             } else if (!keyText.isEmpty() && !m_receivedContentWhileWaiting) {
                 m_receivedContentWhileWaiting = true;

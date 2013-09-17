@@ -38,6 +38,7 @@ namespace Internal {
 class ClipboardAssistProvider: public IAssistProvider
 {
 public:
+    bool isAsynchronous() const;
     virtual bool supportsEditor(const Core::Id &editorId) const;
     virtual IAssistProcessor *createProcessor() const;
 };

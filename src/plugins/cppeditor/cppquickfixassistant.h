@@ -86,6 +86,7 @@ private:
 class CppQuickFixAssistProvider : public TextEditor::QuickFixAssistProvider
 {
 public:
+    virtual bool isAsynchronous() const;
     virtual bool supportsEditor(const Core::Id &editorId) const;
     virtual TextEditor::IAssistProcessor *createProcessor() const;
 

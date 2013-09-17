@@ -46,6 +46,11 @@ using namespace CPlusPlus;
 // -------------------------
 // CppQuickFixAssistProvider
 // -------------------------
+bool CppQuickFixAssistProvider::isAsynchronous() const
+{
+    return false;
+}
+
 bool CppQuickFixAssistProvider::supportsEditor(const Core::Id &editorId) const
 {
     return editorId == CppEditor::Constants::CPPEDITOR_ID;
