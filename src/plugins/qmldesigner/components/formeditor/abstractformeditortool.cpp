@@ -77,6 +77,19 @@ QList<FormEditorItem*> AbstractFormEditorTool::items() const
     return m_itemList;
 }
 
+QList<FormEditorItem *> AbstractFormEditorTool::toFormEditorItemList(const QList<QGraphicsItem *> &itemList)
+{
+    QList<FormEditorItem *> formEditorItemList;
+
+    foreach (QGraphicsItem *graphicsItem, itemList) {
+        FormEditorItem *formEditorItem = qgraphicsitem_cast<FormEditorItem*>(graphicsItem);
+        if (formEditorItem)
+            formEditorItemList.append(formEditorItem);
+    }
+
+    return formEditorItemList;
+}
+
 bool AbstractFormEditorTool::topItemIsMovable(const QList<QGraphicsItem*> & itemList)
 {
     QGraphicsItem *firstSelectableItem = topMovableGraphicsItem(itemList);

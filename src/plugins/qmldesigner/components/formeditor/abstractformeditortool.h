@@ -89,6 +89,7 @@ public:
     void setItems(const QList<FormEditorItem*> &itemList);
     QList<FormEditorItem*> items() const;
 
+    static QList<FormEditorItem*> toFormEditorItemList(const QList<QGraphicsItem*> &itemList);
     static QGraphicsItem* topMovableGraphicsItem(const QList<QGraphicsItem*> &itemList);
     static FormEditorItem* topMovableFormEditorItem(const QList<QGraphicsItem*> &itemList, bool selectOnlyContentItems);
     bool topItemIsMovable(const QList<QGraphicsItem*> &itemList);
