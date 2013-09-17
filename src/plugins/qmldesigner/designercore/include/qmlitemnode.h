@@ -102,7 +102,8 @@ public:
     int instancePenWidth() const;
     bool instanceIsRenderPixmapNull() const;
 
-    void paintInstance(QPainter *painter);
+    QPixmap instanceRenderPixmap() const;
+    QPixmap instanceBlurredRenderPixmap() const;
 
     TypeName simplifiedTypeName() const;
 

@@ -73,7 +73,9 @@ public:
     QPointF position() const;
     QSizeF size() const;
     int penWidth() const;
-    void paint(QPainter *painter);
+
+    QPixmap renderPixmap() const;
+    QPixmap blurredRenderPixmap() const;
 
     QVariant property(const PropertyName &name) const;
     bool hasBindingForProperty(const PropertyName &name) const;
@@ -84,7 +86,6 @@ public:
     qint32 parentId() const;
     qint32 instanceId() const;
 
-    QPixmap renderPixmap() const;
 
 protected:
     void setProperty(const PropertyName &name, const QVariant &value);

@@ -34,6 +34,10 @@
 
 #include <QDebug>
 
+QT_BEGIN_NAMESPACE
+void qt_blurImage(QPainter *painter, QImage &blurImage, qreal radius, bool quality, bool alphaOnly, int transposed = 0);
+QT_END_NAMESPACE
+
 namespace QmlDesigner {
 
 class ProxyNodeInstanceData
@@ -75,6 +79,8 @@ public:
     QHash<PropertyName, TypeName> instanceTypes;
 
     QPixmap renderPixmap;
+    QPixmap blurredRenderPixmap;
+
     QHash<PropertyName, QPair<PropertyName, qint32> > anchors;
 };
 
@@ -256,12 +262,6 @@ int NodeInstance::penWidth() const
         return 1;
 }
 
-void NodeInstance::paint(QPainter *painter)
-{
-    if (isValid() && !d->renderPixmap.isNull())
-        painter->drawPixmap(boundingRect().topLeft(), d->renderPixmap);
-}
-
 QVariant NodeInstance::property(const PropertyName &name) const
 {
     if (isValid())
@@ -320,10 +320,24 @@ QPixmap NodeInstance::renderPixmap() const
     return d->renderPixmap;
 }
 
+QPixmap NodeInstance::blurredRenderPixmap() const
+{
+    if (d->blurredRenderPixmap.isNull()) {
+        d->blurredRenderPixmap = QPixmap(d->renderPixmap.size());
+        QPainter blurPainter(&d->blurredRenderPixmap);
+        QImage renderImage = d->renderPixmap.toImage();
+        qt_blurImage(&blurPainter, renderImage, 8.0, false, false);
+    }
+
+    return d->blurredRenderPixmap;
+}
+
 void NodeInstance::setRenderPixmap(const QImage &image)
 {
-    if (!image.isNull())
+    if (!image.isNull()) {
         d->renderPixmap = QPixmap::fromImage(image);
+        d->blurredRenderPixmap = QPixmap();
+    }
 }
 
 void NodeInstance::setParentId(qint32 instanceId)

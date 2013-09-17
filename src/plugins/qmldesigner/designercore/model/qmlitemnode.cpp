@@ -482,10 +482,14 @@ bool QmlItemNode::instanceIsRenderPixmapNull() const
     return nodeInstance().renderPixmap().isNull();
 }
 
-void QmlItemNode::paintInstance(QPainter *painter)
+QPixmap QmlItemNode::instanceRenderPixmap() const
 {
-    if (nodeInstance().isValid())
-        nodeInstance().paint(painter);
+    return nodeInstance().renderPixmap();
+}
+
+QPixmap QmlItemNode::instanceBlurredRenderPixmap() const
+{
+    return nodeInstance().blurredRenderPixmap();
 }
 
 QList<QmlModelState> QmlModelStateGroup::allStates() const

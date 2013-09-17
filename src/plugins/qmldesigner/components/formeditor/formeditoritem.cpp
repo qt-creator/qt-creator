@@ -55,6 +55,7 @@ FormEditorItem::FormEditorItem(const QmlItemNode &qmlItemNode, FormEditorScene* 
     m_qmlItemNode(qmlItemNode),
     m_borderWidth(1.0),
     m_highlightBoundingRect(false),
+    m_blurContent(false),
     m_isContentVisible(true),
     m_isFormEditorVisible(true)
 {
@@ -114,6 +115,14 @@ void FormEditorItem::setHighlightBoundingRect(bool highlight)
 {
     if (m_highlightBoundingRect != highlight) {
         m_highlightBoundingRect = highlight;
+        update();
+    }
+}
+
+void FormEditorItem::blurContent(bool blurContent)
+{
+    if (m_blurContent != blurContent) {
+        m_blurContent = blurContent;
         update();
     }
 }
@@ -275,7 +284,10 @@ void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, 
         if (scene()->showBoundingRects() && m_boundingRect.width() > 15 && m_boundingRect.height() > 15)
             paintPlaceHolderForInvisbleItem(painter);
     } else {
-        qmlItemNode().paintInstance(painter);
+        if (m_blurContent)
+            painter->drawPixmap(boundingRect().topLeft(), qmlItemNode().instanceBlurredRenderPixmap());
+        else
+            painter->drawPixmap(boundingRect().topLeft(), qmlItemNode().instanceRenderPixmap());
     }
 
     if (!qmlItemNode().isRootModelNode())

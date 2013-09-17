@@ -99,6 +99,7 @@ public:
     FormEditorView *formEditorView() const;
 
     void setHighlightBoundingRect(bool highlight);
+    void blurContent(bool blurContent);
 
     void setContentVisible(bool visible);
     bool isContentVisible() const;
@@ -124,6 +125,7 @@ private: // variables
     QRectF m_paintedBoundingRect;
     double m_borderWidth;
     bool m_highlightBoundingRect;
+    bool m_blurContent;
     bool m_isContentVisible;
     bool m_isFormEditorVisible;
 };
