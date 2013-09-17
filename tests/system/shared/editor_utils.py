@@ -344,7 +344,7 @@ def addBranchWildcardToRoot(rootNode):
 
 def openDocument(treeElement):
     try:
-        selectFromCombo(":Qt Creator_Core::Internal::NavComboBox", "Open Documents")
+        selectFromCombo(":Qt Creator_Core::Internal::NavComboBox", "Projects")
         navigator = waitForObject(":Qt Creator_Utils::NavigationTreeView")
         try:
             item = waitForObjectItem(navigator, treeElement, 3000)
