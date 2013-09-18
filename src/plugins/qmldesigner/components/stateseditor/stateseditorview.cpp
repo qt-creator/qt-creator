@@ -52,7 +52,6 @@ namespace QmlDesigner {
 StatesEditorView::StatesEditorView(QObject *parent) :
         AbstractView(parent),
         m_statesEditorModel(new StatesEditorModel(this)),
-        m_statesEditorWidget(new StatesEditorWidget(this, m_statesEditorModel.data())),
         m_lastIndex(-1)
 {
     Q_ASSERT(m_statesEditorModel);
@@ -61,6 +60,9 @@ StatesEditorView::StatesEditorView(QObject *parent) :
 
 WidgetInfo StatesEditorView::widgetInfo()
 {
+    if (!m_statesEditorWidget)
+        m_statesEditorWidget = new StatesEditorWidget(this, m_statesEditorModel.data());
+
     return createWidgetInfo(m_statesEditorWidget.data(), 0, "StatesEditor", WidgetInfo::TopPane, 0, tr("States Editor"));
 }
 
