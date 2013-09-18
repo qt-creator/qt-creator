@@ -41,6 +41,8 @@ public:
     virtual ~QuickFixAssistProcessor();
 
     virtual const IAssistProvider *provider() const = 0;
+
+    virtual TextEditor::IAssistProposal *immediateProposal(const IAssistInterface *interface);
     virtual IAssistProposal *perform(const IAssistInterface *interface);
 };
 

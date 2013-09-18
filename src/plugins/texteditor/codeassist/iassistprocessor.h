@@ -46,6 +46,7 @@ public:
     IAssistProcessor();
     virtual ~IAssistProcessor();
 
+    virtual IAssistProposal *immediateProposal(const IAssistInterface *interface) = 0;
     virtual IAssistProposal *perform(const IAssistInterface *interface) = 0;
 };
 

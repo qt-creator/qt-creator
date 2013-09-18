@@ -88,6 +88,7 @@ public:
     KeywordsCompletionAssistProcessor(Keywords keywords);
     virtual ~KeywordsCompletionAssistProcessor();
 
+    virtual TextEditor::IAssistProposal *immediateProposal(const TextEditor::IAssistInterface *);
     virtual TextEditor::IAssistProposal *perform(const TextEditor::IAssistInterface *interface);
     virtual QChar startOfCommentChar() const;
 

@@ -808,6 +808,8 @@ public:
         : m_provider(static_cast<const FakeVimCompletionAssistProvider *>(provider))
     {}
 
+    IAssistProposal *immediateProposal(const IAssistInterface *) { return 0; }
+
     IAssistProposal *perform(const IAssistInterface *interface)
     {
         const QString &needle = m_provider->needle();

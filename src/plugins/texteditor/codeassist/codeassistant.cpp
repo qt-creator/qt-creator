@@ -259,6 +259,9 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
         return;
 
     if (provider->isAsynchronous()) {
+        if (IAssistProposal *newProposal = processor->immediateProposal(assistInterface))
+            displayProposal(newProposal, reason);
+
         m_requestProvider = provider;
         m_requestRunner = new ProcessorRunner;
         connect(m_requestRunner, SIGNAL(finished()), this, SLOT(proposalComputed()));
@@ -305,7 +308,7 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
     QScopedPointer<IAssistProposal> proposalCandidate(newProposal);
 
     if (isDisplayingProposal()) {
-        if (!m_proposal->isFragile() || proposalCandidate->isFragile())
+        if (!m_proposal->isFragile())
             return;
         destroyContext();
     }

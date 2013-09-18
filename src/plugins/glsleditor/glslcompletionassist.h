@@ -71,6 +71,7 @@ public:
     GLSLCompletionAssistProcessor();
     virtual ~GLSLCompletionAssistProcessor();
 
+    virtual TextEditor::IAssistProposal *immediateProposal(const TextEditor::IAssistInterface *);
     virtual TextEditor::IAssistProposal *perform(const TextEditor::IAssistInterface *interface);
 
 private:
