@@ -1,4 +1,5 @@
 import qbs.base 1.0
+import qbs.FileInfo
 
 import "../QtcPlugin.qbs" as QtcPlugin
 
@@ -45,7 +46,9 @@ QtcPlugin {
     cpp.defines: base.concat([
         'QML_BUILD_STATIC_LIB',
         'QBS_INSTALL_DIR="'
-                + (project.useExternalQbs ? project.qbs_install_dir.split("\\").join("/") : '')
+                + (project.useExternalQbs
+                       ? FileInfo.fromWindowsSeparators(project.qbs_install_dir)
+                       : '')
                 + '"'
     ])
     cpp.includePaths: base.concat(externalQbsIncludes)
