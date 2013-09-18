@@ -43,7 +43,7 @@
 #include <coreplugin/id.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/mimedatabase.h>
-#include <cpptools/cppmodelmanager.h>
+#include <cpptools/cppmodelmanagerinterface.h>
 #include <projectexplorer/buildenvironmentwidget.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
