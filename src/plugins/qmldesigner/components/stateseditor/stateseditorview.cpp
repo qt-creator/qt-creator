@@ -58,6 +58,11 @@ StatesEditorView::StatesEditorView(QObject *parent) :
     // base state
 }
 
+StatesEditorView::~StatesEditorView()
+{
+    delete m_statesEditorWidget.data();
+}
+
 WidgetInfo StatesEditorView::widgetInfo()
 {
     if (!m_statesEditorWidget)

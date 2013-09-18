@@ -45,6 +45,7 @@ class StatesEditorView : public AbstractView {
 
 public:
     explicit StatesEditorView(QObject *parent = 0);
+    ~StatesEditorView();
 
     void renameState(int nodeId,const QString &newName);
     bool validStateName(const QString &name) const;
