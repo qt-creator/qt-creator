@@ -209,6 +209,7 @@ Rectangle {
                     width:parent.width
                     elide:Qt.ElideMiddle
                     horizontalAlignment:Qt.AlignHCenter
+                    renderType: Text.NativeRendering
                 }
                 Rectangle {
                     id: textFrame
@@ -260,10 +261,12 @@ Rectangle {
                         text:stateNameInput.text
                         visible:false
                         id:textMetric
+                        renderType: Text.NativeRendering
                     }
                     Text {
                         visible:false
                         id:cursorMetric
+                        renderType: Text.NativeRendering
                     }
 
 
@@ -279,6 +282,7 @@ Rectangle {
                             text:stateName
                             width:Math.max(textMetric.width+4, parent.width)
                             onCursorPositionChanged: updateScroll();
+                            renderType: Text.NativeRendering
                             function updateScroll() {
                                 cursorMetric.text=text.substring(0,cursorPosition);
                                 var cM = cursorPosition>0?cursorMetric.width:0;

@@ -145,6 +145,7 @@ Column {
             color: style.sectionTitleTextColor
             elide: Text.ElideMiddle
             font.bold: true
+            renderType: Text.NativeRendering
         }
         MouseArea {
             id: mouseArea

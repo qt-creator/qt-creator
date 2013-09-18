@@ -114,6 +114,7 @@ Item {
         horizontalAlignment: "AlignHCenter"
         text: itemName  // to be set by model
         color: style.itemNameTextColor
+        renderType: Text.NativeRendering
     }
 
     MouseArea {
