@@ -133,8 +133,7 @@ def __kitFunc__(it, foundQt, foundCompNames):
     test.compare(it, "Desktop (default)", "Verifying whether default Desktop kit has been created.")
     if foundQt:
         test.compare(qtVersionStr, foundQt, "Verifying if Qt versions match.")
-    compilerCombo = waitForObject("{occurrence='3' type='QComboBox' unnamed='1' visible='1' "
-                                  "window=':Qt Creator_Core::Internal::MainWindow'}")
+    compilerCombo = waitForObject(":Compiler:_QComboBox")
     test.verify(str(compilerCombo.currentText) in foundCompNames,
                 "Verifying if one of the found compilers had been set.")
     if currentSelectedTreeItem:
