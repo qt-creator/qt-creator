@@ -35,7 +35,9 @@
 
 #include "resizecontroller.h"
 
+QT_BEGIN_NAMESPACE
 class QGraphicsRectItem;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
