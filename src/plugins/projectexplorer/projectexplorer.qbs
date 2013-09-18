@@ -1,13 +1,13 @@
 import qbs.base 1.0
 
-import "../../../qbs/defaults.js" as Defaults
+import "../../../qbs/functions.js" as QtcFunctions
 import "../QtcPlugin.qbs" as QtcPlugin
 
 QtcPlugin {
     name: "ProjectExplorer"
 
     Depends { name: "Qt"; submodules: ["core", "widgets", "xml", "network", "script"] }
-    Depends { name: "Qt.quick"; condition: Defaults.versionIsAtLeast(Qt.core.version, "5.1"); }
+    Depends { name: "Qt.quick"; condition: QtcFunctions.versionIsAtLeast(Qt.core.version, "5.1"); }
     Depends { name: "Core" }
     Depends { name: "Locator" }
     Depends { name: "Find" }
@@ -142,7 +142,7 @@ QtcPlugin {
 
     Group {
         name: "Project Welcome Page"
-        condition: Defaults.versionIsAtLeast(Qt.core.version, "5.1")
+        condition: QtcFunctions.versionIsAtLeast(Qt.core.version, "5.1")
         files: [
             "projectwelcomepage.cpp",
             "projectwelcomepage.h"

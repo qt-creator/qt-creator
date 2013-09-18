@@ -1,6 +1,6 @@
 import qbs.base 1.0
 import qbs.FileInfo
-import "../../qbs/defaults.js" as Defaults
+import "../../qbs/functions.js" as QtcFunctions
 
 Product {
     type: ["dynamiclibrary", "pluginSpec"]
@@ -10,9 +10,9 @@ Product {
 
     Depends { name: "Qt.core" }
     property string minimumQtVersion: "4.8"
-    condition: Defaults.versionIsAtLeast(Qt.core.version, minimumQtVersion)
+    condition: QtcFunctions.versionIsAtLeast(Qt.core.version, minimumQtVersion)
 
-    targetName: Defaults.qtLibraryName(qbs, name)
+    targetName: QtcFunctions.qtLibraryName(qbs, name)
     destinationDirectory: project.ide_plugin_path + '/' + provider
 
     Depends { name: "ExtensionSystem" }

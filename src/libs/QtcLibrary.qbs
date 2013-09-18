@@ -1,5 +1,5 @@
 import qbs.base 1.0
-import "../../qbs/defaults.js" as Defaults
+import "../../qbs/functions.js" as QtcFunctions
 
 DynamicLibrary {
     Depends { name: "cpp" }
@@ -8,7 +8,7 @@ DynamicLibrary {
         name: "Qt.test"
     }
 
-    targetName: Defaults.qtLibraryName(qbs, name)
+    targetName: QtcFunctions.qtLibraryName(qbs, name)
     destinationDirectory: project.ide_library_path
 
     cpp.defines: project.generalDefines
