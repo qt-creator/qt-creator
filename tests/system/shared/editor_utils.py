@@ -253,7 +253,7 @@ def getEditorForFileSuffix(curFile):
     elif suffix in proEditorSuffixes:
         editor = waitForObject(":Qt Creator_ProFileEditorWidget")
     elif suffix in glslEditorSuffixes:
-        editor = waitForObject("{type='GLSLEditor::GLSLTextEditorWidget' unnamed='1' "
+        editor = waitForObject("{type='GLSLEditor::Internal::GLSLTextEditorWidget' unnamed='1' "
                                "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}")
     elif suffix in pytEditorSuffixes:
         editor = waitForObject(":Qt Creator_PythonEditor::EditorWidget")
