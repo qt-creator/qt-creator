@@ -48,26 +48,9 @@ static inline bool contains(const QmlItemNode &node, const QPointF &position)
     return node.isValid() && node.instanceSceneTransform().mapRect(node.instanceBoundingRect()).contains(position);
 }
 
-namespace Internal {
-
-
-} //Internal
-
-DesignerActionManager *DesignerActionManager::m_instance = 0;
-
-void DesignerActionManager::addDesignerAction(AbstractDesignerAction *newAction)
-{
-    instance()->addDesignerActionInternal(newAction);
-}
-
-QList<AbstractDesignerAction* > DesignerActionManager::designerActions()
-{
-    return instance()->factoriesInternal();
-}
-
 AbstractView *DesignerActionManager::view()
 {
-    return instance()->m_view;
+    return m_designerActionManagerView;
 }
 
 class VisiblityModelNodeAction : public ModelNodeAction
@@ -437,23 +420,13 @@ void DesignerActionManager::createDefaultDesignerActions()
                (goIntoComponentDisplayName, rootCategory, priorityGoIntoComponent, &goIntoComponent, &selectionIsComponent));
 }
 
-DesignerActionManager *DesignerActionManager::instance()
-{
-    if (!m_instance) {
-        m_instance = new DesignerActionManager;
-        createDefaultDesignerActions();
-    }
-
-    return m_instance;
-}
-
-void DesignerActionManager::addDesignerActionInternal(AbstractDesignerAction *newAction)
+void DesignerActionManager::addDesignerAction(AbstractDesignerAction *newAction)
 {
     m_designerActions.append(QSharedPointer<AbstractDesignerAction>(newAction));
-    m_view->setDesignerActionList(designerActions());
+    m_designerActionManagerView->setDesignerActionList(designerActions());
 }
 
-QList<AbstractDesignerAction* > DesignerActionManager::factoriesInternal() const
+QList<AbstractDesignerAction* > DesignerActionManager::designerActions() const
 {
     QList<AbstractDesignerAction* > list;
     foreach (const QSharedPointer<AbstractDesignerAction> &pointer, m_designerActions) {
@@ -463,14 +436,13 @@ QList<AbstractDesignerAction* > DesignerActionManager::factoriesInternal() const
     return list;
 }
 
-DesignerActionManager::DesignerActionManager()
-    : m_view(new DesignerActionManagerView)
+DesignerActionManager::DesignerActionManager(DesignerActionManagerView *designerActionManagerView)
+    : m_designerActionManagerView(designerActionManagerView)
 {
 }
 
 DesignerActionManager::~DesignerActionManager()
 {
-    delete m_view;
 }
 
 } //QmlDesigner

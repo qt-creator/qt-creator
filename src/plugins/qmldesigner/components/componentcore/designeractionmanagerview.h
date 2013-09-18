@@ -32,6 +32,8 @@
 
 #include <abstractview.h>
 
+#include "designeractionmanager.h"
+
 namespace QmlDesigner {
 
 class AbstractDesignerAction;
@@ -79,10 +81,14 @@ public:
     void setDesignerActionList(const QList<AbstractDesignerAction* > &designerActionList);
     void signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> &/*propertyList*/, PropertyChangeFlags /*propertyChange*/);
 
+    DesignerActionManager &designerActionManager();
+    const DesignerActionManager &designerActionManager() const;
+
 protected:
     void setupContext();
 
 private:
+    DesignerActionManager m_designerActionManager;
     QList<AbstractDesignerAction* > m_designerActionList;
     bool m_isInRewriterTransaction;
     bool m_setupContextDirty;

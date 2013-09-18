@@ -30,6 +30,7 @@
 #include "modelnodecontextmenu.h"
 #include "modelnodecontextmenu_helper.h"
 #include "designeractionmanager.h"
+#include <qmldesignerplugin.h>
 
 #include <modelnode.h>
 
@@ -98,7 +99,7 @@ void ModelNodeContextMenu::execute(const QPoint &position, bool selectionMenuBoo
 
 
      QSet<AbstractDesignerAction* > factories =
-             QSet<AbstractDesignerAction* >::fromList(DesignerActionManager::designerActions());
+             QSet<AbstractDesignerAction* >::fromList(QmlDesignerPlugin::instance()->designerActionManager().designerActions());
 
      populateMenu(factories, QString(""), mainMenu, m_selectionContext);
 

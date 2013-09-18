@@ -40,23 +40,18 @@ class DesignerActionManagerView;
 
 class QMLDESIGNERCORE_EXPORT DesignerActionManager {
 public:
-    static void addDesignerAction(AbstractDesignerAction *newAction);
-    static QList<AbstractDesignerAction* > designerActions();
-
-    static void createDefaultDesignerActions();
-    static AbstractView *view();
-
-protected:
-    static DesignerActionManager *instance();
-    void addDesignerActionInternal(AbstractDesignerAction *newAction);
-    QList<AbstractDesignerAction* > factoriesInternal() const;
-    DesignerActionManager();
+    DesignerActionManager(DesignerActionManagerView *designerActionManagerView);
     ~DesignerActionManager();
 
+    void addDesignerAction(AbstractDesignerAction *newAction);
+    QList<AbstractDesignerAction* > designerActions() const;
+
+    void createDefaultDesignerActions();
+    AbstractView *view();
+
 private:
-    static DesignerActionManager *m_instance;
     QList<QSharedPointer<AbstractDesignerAction> > m_designerActions;
-    DesignerActionManagerView *m_view;
+    DesignerActionManagerView *m_designerActionManagerView;
 };
 
 } //QmlDesigner

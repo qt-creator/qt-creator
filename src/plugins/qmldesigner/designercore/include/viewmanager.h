@@ -42,6 +42,7 @@
 #include <componentview.h>
 #include <debugview.h>
 #include <importmanagerview.h>
+#include <designeractionmanagerview.h>
 #include <QWidgetAction>
 
 namespace QmlDesigner {
@@ -89,6 +90,9 @@ public:
 
     QWidgetAction *componentViewAction();
 
+    DesignerActionManager &designerActionManager();
+    const DesignerActionManager &designerActionManager() const;
+
 private: // functions
     Q_DISABLE_COPY(ViewManager)
 
@@ -115,6 +119,7 @@ private: // variables
     PropertyEditorView m_propertyEditorView;
     StatesEditorView m_statesEditorView;
     NodeInstanceView m_nodeInstanceView;
+    DesignerActionManagerView m_designerActionManagerView;
 
     QList<QWeakPointer<AbstractView> > m_additionalViews;
 };

@@ -39,6 +39,7 @@
 #include "documentmanager.h"
 #include "viewmanager.h"
 #include "shortcutmanager.h"
+#include <designeractionmanager.h>
 
 #include <QStringList>
 
@@ -81,6 +82,9 @@ public:
 
     ViewManager &viewManager();
     const ViewManager &viewManager() const;
+
+    DesignerActionManager &designerActionManager();
+    const DesignerActionManager &designerActionManager() const;
 
     DesignerSettings settings();
     void setSettings(const DesignerSettings &s);

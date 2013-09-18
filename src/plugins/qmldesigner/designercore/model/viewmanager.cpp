@@ -1,7 +1,6 @@
 #include "viewmanager.h"
 
 #include "componentaction.h"
-#include "designeractionmanager.h"
 #include "designmodewidget.h"
 #include "crumblebar.h"
 
@@ -98,7 +97,7 @@ void ViewManager::detachViewsExceptRewriterAndComponetView()
 {
     switchStateEditorViewToBaseState();
     detachAdditionalViews();
-    currentModel()->detachView(DesignerActionManager::view());
+    currentModel()->detachView(&m_designerActionManagerView);
     currentModel()->detachView(&m_formEditorView);
     currentModel()->detachView(&m_navigatorView);
     currentModel()->detachView(&m_itemLibraryView);
@@ -152,7 +151,7 @@ void ViewManager::attachViewsExceptRewriterAndComponetView()
     attachItemLibraryView();
     currentModel()->attachView(&m_statesEditorView);
     currentModel()->attachView(&m_propertyEditorView);
-    currentModel()->attachView(DesignerActionManager::view());
+    currentModel()->attachView(&m_designerActionManagerView);
     attachAdditionalViews();
     switchStateEditorViewToSavedState();
 }
@@ -234,6 +233,16 @@ NodeInstanceView *ViewManager::nodeInstanceView()
 QWidgetAction *ViewManager::componentViewAction()
 {
     return m_componentView.action();
+}
+
+DesignerActionManager &ViewManager::designerActionManager()
+{
+    return m_designerActionManagerView.designerActionManager();
+}
+
+const DesignerActionManager &ViewManager::designerActionManager() const
+{
+    return m_designerActionManagerView.designerActionManager();
 }
 
 Model *ViewManager::currentModel() const

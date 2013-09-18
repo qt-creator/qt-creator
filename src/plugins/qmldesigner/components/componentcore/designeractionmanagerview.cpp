@@ -36,9 +36,12 @@ namespace QmlDesigner {
 
 DesignerActionManagerView::DesignerActionManagerView()
     : AbstractView(0),
+      m_designerActionManager(this),
       m_isInRewriterTransaction(false),
       m_setupContextDirty(false)
-{}
+{
+    m_designerActionManager.createDefaultDesignerActions();
+}
 
 void DesignerActionManagerView::modelAttached(Model *model)
 {
@@ -165,6 +168,16 @@ void DesignerActionManagerView::setDesignerActionList(const QList<AbstractDesign
 void DesignerActionManagerView::signalHandlerPropertiesChanged(const QVector<SignalHandlerProperty> &, AbstractView::PropertyChangeFlags)
 {
     setupContext();
+}
+
+DesignerActionManager &DesignerActionManagerView::designerActionManager()
+{
+    return m_designerActionManager;
+}
+
+const DesignerActionManager &DesignerActionManagerView::designerActionManager() const
+{
+    return m_designerActionManager;
 }
 
 void DesignerActionManagerView::setupContext()

@@ -419,6 +419,16 @@ const ViewManager &QmlDesignerPlugin::viewManager() const
     return m_viewManager;
 }
 
+DesignerActionManager &QmlDesignerPlugin::designerActionManager()
+{
+    return m_viewManager.designerActionManager();
+}
+
+const DesignerActionManager &QmlDesignerPlugin::designerActionManager() const
+{
+    return m_viewManager.designerActionManager();
+}
+
 void QmlDesignerPlugin::switchTextDesign()
 {
     if (Core::ModeManager::currentMode()->id() == Core::Constants::MODE_EDIT) {
