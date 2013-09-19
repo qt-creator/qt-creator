@@ -27,35 +27,39 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_TABVIEWDESIGNERACTION_H
-#define QMLDESIGNER_TABVIEWDESIGNERACTION_H
+#include "addtabtotabviewdialog.h"
+#include "ui_addtabtotabviewdialog.h"
 
-#include "defaultdesigneraction.h"
+#include <QtDebug>
 
-namespace QmlDesigner {
-
-class TabViewDesignerAction : public QObject, public DefaultDesignerAction
+AddTabToTabViewDialog::AddTabToTabViewDialog(QWidget *parent) :
+    QDialog(parent),
+    ui(new Ui::AddTabToTabViewDialog)
 {
-    Q_OBJECT
-public:
-    TabViewDesignerAction();
+    ui->setupUi(this);
+    ui->addTabLineEdit->setForceFirstCapitalLetter(true);
+}
 
-    QByteArray category() const;
-    QByteArray menuId() const;
-    int priority() const;
-    Type type() const;
+AddTabToTabViewDialog::~AddTabToTabViewDialog()
+{
+    delete ui;
+}
 
-protected:
-    bool isVisible(const SelectionContext &selectionContext) const;
-    bool isEnabled(const SelectionContext &selectionContext) const;
 
-    bool createFile(const QString &filePath);
-    void addNewFileToVersionControl(const QString &directoryPath, const QString &newFileName);
+QString AddTabToTabViewDialog::create(const QString &tabName, QWidget *parent)
+{
+    AddTabToTabViewDialog addTabToTabViewDialog(parent);
 
-private slots:
-    void addNewTab();
-};
+    Utils::FileNameValidatingLineEdit *fileNameValidatingLineEdit = addTabToTabViewDialog.ui->addTabLineEdit;
 
-} // namespace QmlDesigner
+    fileNameValidatingLineEdit->setText(tabName);
 
-#endif // QMLDESIGNER_TABVIEWDESIGNERACTION_H
+    int result = addTabToTabViewDialog.exec();
+
+    qDebug() << "validate: " << fileNameValidatingLineEdit->errorMessage();
+
+    if (result == QDialog::Accepted && fileNameValidatingLineEdit->isValid())
+        return fileNameValidatingLineEdit->text();
+    else
+        return QString();
+}

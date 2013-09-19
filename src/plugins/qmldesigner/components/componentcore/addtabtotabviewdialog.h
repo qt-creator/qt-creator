@@ -27,35 +27,27 @@
 **
 ****************************************************************************/
 
-#ifndef QMLDESIGNER_TABVIEWDESIGNERACTION_H
-#define QMLDESIGNER_TABVIEWDESIGNERACTION_H
+#ifndef ADDTABTOTABVIEWDIALOG_H
+#define ADDTABTOTABVIEWDIALOG_H
 
-#include "defaultdesigneraction.h"
+#include <QDialog>
 
-namespace QmlDesigner {
+namespace Ui {
+class AddTabToTabViewDialog;
+}
 
-class TabViewDesignerAction : public QObject, public DefaultDesignerAction
+class AddTabToTabViewDialog : public QDialog
 {
     Q_OBJECT
+
 public:
-    TabViewDesignerAction();
+    explicit AddTabToTabViewDialog(QWidget *parent = 0);
+    ~AddTabToTabViewDialog();
 
-    QByteArray category() const;
-    QByteArray menuId() const;
-    int priority() const;
-    Type type() const;
+    static QString create(const QString &tabName, QWidget *parent);
 
-protected:
-    bool isVisible(const SelectionContext &selectionContext) const;
-    bool isEnabled(const SelectionContext &selectionContext) const;
-
-    bool createFile(const QString &filePath);
-    void addNewFileToVersionControl(const QString &directoryPath, const QString &newFileName);
-
-private slots:
-    void addNewTab();
+private:
+    Ui::AddTabToTabViewDialog *ui;
 };
 
-} // namespace QmlDesigner
-
-#endif // QMLDESIGNER_TABVIEWDESIGNERACTION_H
+#endif // ADDTABTOTABVIEWDIALOG_H
