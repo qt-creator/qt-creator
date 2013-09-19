@@ -25,3 +25,4 @@ ButtonRowButton 2.0 ButtonRowButton.qml
 BoolButtonRowButton 2.0 BoolButtonRowButton.qml
 FontStyleButtons 2.0 FontStyleButtons.qml
 AnchorButtons 2.0 AnchorButtons.qml
+AligmentHorizontalButtons 2.0 AligmentHorizontalButtons.qml
