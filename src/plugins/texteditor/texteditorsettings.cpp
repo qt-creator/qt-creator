@@ -479,9 +479,9 @@ void TextEditorSettings::unregisterCodeStylePool(Core::Id languageId)
     d->m_languageToCodeStylePool.remove(languageId);
 }
 
-void TextEditorSettings::registerMimeTypeForLanguageId(const QString &mimeType, Core::Id languageId)
+void TextEditorSettings::registerMimeTypeForLanguageId(const char *mimeType, Core::Id languageId)
 {
-    d->m_mimeTypeToLanguage.insert(mimeType, languageId);
+    d->m_mimeTypeToLanguage.insert(QString::fromLatin1(mimeType), languageId);
 }
 
 Core::Id TextEditorSettings::languageId(const QString &mimeType)

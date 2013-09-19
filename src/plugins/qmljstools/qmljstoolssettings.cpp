@@ -134,24 +134,12 @@ QmlJSToolsSettings::QmlJSToolsSettings(QObject *parent)
     }
 
     // mimetypes to be handled
-    TextEditorSettings::registerMimeTypeForLanguageId(
-                QLatin1String(Constants::QML_MIMETYPE),
-                Constants::QML_JS_SETTINGS_ID);
-    TextEditorSettings::registerMimeTypeForLanguageId(
-                QLatin1String(Constants::QBS_MIMETYPE),
-                Constants::QML_JS_SETTINGS_ID);
-    TextEditorSettings::registerMimeTypeForLanguageId(
-                QLatin1String(Constants::QMLPROJECT_MIMETYPE),
-                Constants::QML_JS_SETTINGS_ID);
-    TextEditorSettings::registerMimeTypeForLanguageId(
-                QLatin1String(Constants::QMLTYPES_MIMETYPE),
-                Constants::QML_JS_SETTINGS_ID);
-    TextEditorSettings::registerMimeTypeForLanguageId(
-                QLatin1String(Constants::JS_MIMETYPE),
-                Constants::QML_JS_SETTINGS_ID);
-    TextEditorSettings::registerMimeTypeForLanguageId(
-                QLatin1String(Constants::JSON_MIMETYPE),
-                Constants::QML_JS_SETTINGS_ID);
+    TextEditorSettings::registerMimeTypeForLanguageId(Constants::QML_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
+    TextEditorSettings::registerMimeTypeForLanguageId(Constants::QBS_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
+    TextEditorSettings::registerMimeTypeForLanguageId(Constants::QMLPROJECT_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
+    TextEditorSettings::registerMimeTypeForLanguageId(Constants::QMLTYPES_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
+    TextEditorSettings::registerMimeTypeForLanguageId(Constants::JS_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
+    TextEditorSettings::registerMimeTypeForLanguageId(Constants::JSON_MIMETYPE, Constants::QML_JS_SETTINGS_ID);
 }
 
 QmlJSToolsSettings::~QmlJSToolsSettings()

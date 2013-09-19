@@ -221,18 +221,10 @@ CppToolsSettings::CppToolsSettings(QObject *parent)
 
 
     // mimetypes to be handled
-    TextEditorSettings::registerMimeTypeForLanguageId(
-                QLatin1String(Constants::C_SOURCE_MIMETYPE),
-                Constants::CPP_SETTINGS_ID);
-    TextEditorSettings::registerMimeTypeForLanguageId(
-                QLatin1String(Constants::C_HEADER_MIMETYPE),
-                Constants::CPP_SETTINGS_ID);
-    TextEditorSettings::registerMimeTypeForLanguageId(
-                QLatin1String(Constants::CPP_SOURCE_MIMETYPE),
-                Constants::CPP_SETTINGS_ID);
-    TextEditorSettings::registerMimeTypeForLanguageId(
-                QLatin1String(Constants::CPP_HEADER_MIMETYPE),
-                Constants::CPP_SETTINGS_ID);
+    TextEditorSettings::registerMimeTypeForLanguageId(Constants::C_SOURCE_MIMETYPE, Constants::CPP_SETTINGS_ID);
+    TextEditorSettings::registerMimeTypeForLanguageId(Constants::C_HEADER_MIMETYPE, Constants::CPP_SETTINGS_ID);
+    TextEditorSettings::registerMimeTypeForLanguageId(Constants::CPP_SOURCE_MIMETYPE, Constants::CPP_SETTINGS_ID);
+    TextEditorSettings::registerMimeTypeForLanguageId(Constants::CPP_HEADER_MIMETYPE, Constants::CPP_SETTINGS_ID);
 }
 
 CppToolsSettings::~CppToolsSettings()

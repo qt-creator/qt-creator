@@ -101,7 +101,7 @@ public:
     static void registerCodeStyle(Core::Id languageId, ICodeStylePreferences *prefs);
     static void unregisterCodeStyle(Core::Id languageId);
 
-    static void registerMimeTypeForLanguageId(const QString &mimeType, Core::Id languageId);
+    static void registerMimeTypeForLanguageId(const char *mimeType, Core::Id languageId);
     static Core::Id languageId(const QString &mimeType);
 
 signals:
