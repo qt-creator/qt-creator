@@ -2817,7 +2817,7 @@ def qdump__Debugger__Internal__WatchItem(d, value):
     d.putByteArrayValue(value["iname"])
     d.putPlainChildren(value)
 
-def qdump__Debugger__DebuggerEngine__BreakpointModelId(d, value):
+def qdump__Debugger__Internal__BreakpointModelId(d, value):
     d.putValue("%s.%s" % (value["m_majorPart"], value["m_minorPart"]))
     d.putPlainChildren(value)
 
