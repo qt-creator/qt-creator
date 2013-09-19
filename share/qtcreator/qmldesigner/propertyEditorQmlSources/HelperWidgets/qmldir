@@ -27,3 +27,4 @@ FontStyleButtons 2.0 FontStyleButtons.qml
 AnchorButtons 2.0 AnchorButtons.qml
 AligmentHorizontalButtons 2.0 AligmentHorizontalButtons.qml
 AligmentVerticalButtons 2.0 AligmentVerticalButtons.qml
+StandardTextSection 2.0 StandardTextSection.qml
