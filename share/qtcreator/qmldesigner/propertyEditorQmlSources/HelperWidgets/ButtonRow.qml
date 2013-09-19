@@ -41,6 +41,10 @@ Row {
 
     property int checkedIndex: -1
 
+    onCheckedIndexChanged: {
+        __checkButton(checkedIndex)
+    }
+
     signal toggled (int index, bool checked)
 
     Component.onCompleted: {
