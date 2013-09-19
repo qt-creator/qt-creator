@@ -46,8 +46,6 @@ Controls.SpinBox {
     QtObject {
         property int valueFromBackend: spinBox.backendValue.value;
         onValueFromBackendChanged: {
-            print("blah");
-
             spinBox.value = valueFromBackend;
         }
     }

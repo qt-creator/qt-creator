@@ -112,9 +112,6 @@ Column {
                 }
 
                 onToggled: {
-                    print("index " + index)
-                    print("state " + checked)
-
                     if (index === 0) {
                         colorEditor.color = "#ffffff"
                     }

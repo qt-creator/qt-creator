@@ -46,10 +46,6 @@ Controls.TextField {
     QtObject {
         property string valueFromBackend: lineEdit.backendValue.valueToString;
         onValueFromBackendChanged: {
-            print("blah LinEdit");
-            print(lineEdit.backendValue.value)
-            print(valueFromBackend)
-
             lineEdit.text = valueFromBackend;
         }
     }

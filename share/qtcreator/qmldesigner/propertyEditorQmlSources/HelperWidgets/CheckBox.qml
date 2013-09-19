@@ -52,8 +52,6 @@ Controls.CheckBox {
     QtObject {
         property int valueFromBackend: checkBox.backendValue.value;
         onValueFromBackendChanged: {
-            print("blah");
-
             checkBox.checked = valueFromBackend;
         }
     }
