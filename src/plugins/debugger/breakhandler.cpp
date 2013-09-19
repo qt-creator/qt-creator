@@ -986,6 +986,8 @@ void BreakHandler::notifyBreakpointReleased(BreakpointModelId id)
             || it->data.type == WatchpointAtExpression
             || it->data.type == BreakpointByAddress)
         it->data.enabled = false;
+    else
+        it->data.address = 0;
     layoutChanged();
 }
 
@@ -1073,7 +1075,7 @@ void BreakHandler::handleAlienBreakpoint(const BreakpointResponse &response, Deb
         else
             setResponse(id, response);
     } else {
-        BreakpointModelId id(++currentId);
+        id = BreakpointModelId(++currentId);
         const int row = m_storage.size();
 
         beginInsertRows(QModelIndex(), row, row);

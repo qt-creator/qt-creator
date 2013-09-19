@@ -2524,6 +2524,18 @@ void GdbEngine::updateResponse(BreakpointResponse &response, const GdbMi &bkpt)
                     response.type = WatchpointAtExpression;
                     response.expression = QString::fromLocal8Bit(what);
                 }
+            } else if (child.data() == "breakpoint") {
+                QByteArray catchType = bkpt["catch-type"].data();
+                if (catchType == "throw")
+                    response.type = BreakpointAtThrow;
+                else if (catchType == "catch")
+                    response.type = BreakpointAtCatch;
+                else if (catchType == "fork")
+                    response.type = BreakpointAtFork;
+                else if (catchType == "exec")
+                    response.type = BreakpointAtExec;
+                else if (catchType == "syscall")
+                    response.type = BreakpointAtSysCall;
             }
         } else if (child.hasName("original-location")) {
             originalLocation = child.data();
