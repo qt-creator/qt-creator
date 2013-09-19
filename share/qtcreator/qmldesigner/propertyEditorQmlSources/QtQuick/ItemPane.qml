@@ -51,7 +51,7 @@ ScrollView {
                 }
 
                 Label {
-                    text: "item"
+                    text: backendValues.className.value
                     width: lineEdit.width
                 }
 
@@ -145,7 +145,7 @@ ScrollView {
             frameVisible: false
 
             Tab {
-                title: "Item"
+                title: backendValues.className.value
 
                 component: Column {
                     anchors.left: parent.left
