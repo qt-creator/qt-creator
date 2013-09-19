@@ -31,6 +31,7 @@
 
 #include <selectioncontext.h>
 #include <abstractdesigneraction.h>
+#include "tabviewdesigneraction.h"
 
 namespace QmlDesigner {
 
@@ -41,6 +42,8 @@ DesignerActionManagerView::DesignerActionManagerView()
       m_setupContextDirty(false)
 {
     m_designerActionManager.createDefaultDesignerActions();
+
+    m_designerActionManager.addDesignerAction(new TabViewDesignerAction);
 }
 
 void DesignerActionManagerView::modelAttached(Model *model)
@@ -192,5 +195,6 @@ void DesignerActionManagerView::setupContext()
     }
     m_setupContextDirty = false;
 }
+
 
 } // namespace QmlDesigner

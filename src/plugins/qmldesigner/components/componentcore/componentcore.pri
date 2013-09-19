@@ -2,6 +2,7 @@ VPATH += $$PWD
 
 SOURCES += modelnodecontextmenu.cpp
 SOURCES += designeractionmanagerview.cpp
+SOURCES += tabviewdesigneraction.cpp
 SOURCES += defaultdesigneraction.cpp
 SOURCES += modelnodecontextmenu_helper.cpp
 SOURCES += selectioncontext.cpp
@@ -11,6 +12,7 @@ SOURCES += crumblebar.cpp
 
 HEADERS += modelnodecontextmenu.h
 HEADERS += designeractionmanagerview.h
+HEADERS += tabviewdesigneraction.h
 HEADERS += defaultdesigneraction.h
 HEADERS += modelnodecontextmenu_helper.h
 HEADERS += selectioncontext.h
