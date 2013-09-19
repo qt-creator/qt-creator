@@ -79,7 +79,7 @@ enum ExpandFunc {
     E_INVALID = 0, E_MEMBER, E_FIRST, E_LAST, E_SIZE, E_CAT, E_FROMFILE, E_EVAL, E_LIST,
     E_SPRINTF, E_FORMAT_NUMBER, E_JOIN, E_SPLIT, E_BASENAME, E_DIRNAME, E_SECTION,
     E_FIND, E_SYSTEM, E_UNIQUE, E_REVERSE, E_QUOTE, E_ESCAPE_EXPAND,
-    E_UPPER, E_LOWER, E_FILES, E_PROMPT, E_RE_ESCAPE, E_VAL_ESCAPE,
+    E_UPPER, E_LOWER, E_TITLE, E_FILES, E_PROMPT, E_RE_ESCAPE, E_VAL_ESCAPE,
     E_REPLACE, E_SORT_DEPENDS, E_RESOLVE_DEPENDS, E_ENUMERATE_VARS,
     E_SHADOWED, E_ABSOLUTE_PATH, E_RELATIVE_PATH, E_CLEAN_PATH,
     E_SYSTEM_PATH, E_SHELL_PATH, E_SYSTEM_QUOTE, E_SHELL_QUOTE
@@ -122,6 +122,7 @@ void QMakeEvaluator::initFunctionStatics()
         { "escape_expand", E_ESCAPE_EXPAND },
         { "upper", E_UPPER },
         { "lower", E_LOWER },
+        { "title", E_TITLE },
         { "re_escape", E_RE_ESCAPE },
         { "val_escape", E_VAL_ESCAPE },
         { "files", E_FILES },
@@ -791,9 +792,16 @@ ProStringList QMakeEvaluator::evaluateBuiltinExpand(
         break;
     case E_UPPER:
     case E_LOWER:
+    case E_TITLE:
         for (int i = 0; i < args.count(); ++i) {
             QString rstr = args.at(i).toQString(m_tmp1);
-            rstr = (func_t == E_UPPER) ? rstr.toUpper() : rstr.toLower();
+            if (func_t == E_UPPER) {
+                rstr = rstr.toUpper();
+            } else {
+                rstr = rstr.toLower();
+                if (func_t == E_TITLE && rstr.length() > 0)
+                    rstr[0] = rstr.at(0).toTitleCase();
+            }
             ret << (rstr.isSharedWith(m_tmp1) ? args.at(i) : ProString(rstr).setSource(args.at(i)));
         }
         break;
