@@ -4410,8 +4410,7 @@ public:
         m_factory->classFunctionModel->clear();
         Overview printer = CppCodeStyleSettings::currentProjectCodeStyleOverview();
         printer.showFunctionSignatures = true;
-        const TextEditor::FontSettings &fs =
-                TextEditor::TextEditorSettings::instance()->fontSettings();
+        const TextEditor::FontSettings &fs = TextEditor::TextEditorSettings::fontSettings();
         const Format formatReimpFunc = fs.formatFor(C_DISABLED_CODE);
         foreach (const Class *clazz, baseClasses) {
             QStandardItem *itemBase = new QStandardItem(printer.prettyName(clazz->name()));

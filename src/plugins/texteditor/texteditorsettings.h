@@ -57,10 +57,6 @@ class ICodeStylePreferences;
 class ICodeStylePreferencesFactory;
 class CodeStylePool;
 
-namespace Internal {
-class TextEditorSettingsPrivate;
-}
-
 /**
  * This class provides a central place for basic text editor settings. These
  * settings include font settings, tab settings, storage settings, behavior
@@ -76,37 +72,37 @@ public:
 
     static TextEditorSettings *instance();
 
-    void initializeEditor(BaseTextEditorWidget *editor);
+    static void initializeEditor(BaseTextEditorWidget *editor);
 
-    const FontSettings &fontSettings() const;
-    const TypingSettings &typingSettings() const;
-    const StorageSettings &storageSettings() const;
-    const BehaviorSettings &behaviorSettings() const;
-    const DisplaySettings &displaySettings() const;
-    const CompletionSettings &completionSettings() const;
-    const HighlighterSettings &highlighterSettings() const;
-    const ExtraEncodingSettings &extraEncodingSettings() const;
+    static const FontSettings &fontSettings();
+    static const TypingSettings &typingSettings();
+    static const StorageSettings &storageSettings();
+    static const BehaviorSettings &behaviorSettings();
+    static const DisplaySettings &displaySettings();
+    static const CompletionSettings &completionSettings();
+    static const HighlighterSettings &highlighterSettings();
+    static const ExtraEncodingSettings &extraEncodingSettings();
 
-    void setCompletionSettings(const TextEditor::CompletionSettings &);
+    static void setCompletionSettings(const TextEditor::CompletionSettings &);
 
-    ICodeStylePreferencesFactory *codeStyleFactory(Core::Id languageId) const;
-    QMap<Core::Id, ICodeStylePreferencesFactory *> codeStyleFactories() const;
-    void registerCodeStyleFactory(ICodeStylePreferencesFactory *codeStyleFactory);
-    void unregisterCodeStyleFactory(Core::Id languageId);
+    static ICodeStylePreferencesFactory *codeStyleFactory(Core::Id languageId);
+    static QMap<Core::Id, ICodeStylePreferencesFactory *> codeStyleFactories();
+    static void registerCodeStyleFactory(ICodeStylePreferencesFactory *codeStyleFactory);
+    static void unregisterCodeStyleFactory(Core::Id languageId);
 
-    CodeStylePool *codeStylePool() const;
-    CodeStylePool *codeStylePool(Core::Id languageId) const;
-    void registerCodeStylePool(Core::Id languageId, CodeStylePool *pool);
-    void unregisterCodeStylePool(Core::Id languageId);
+    static CodeStylePool *codeStylePool();
+    static CodeStylePool *codeStylePool(Core::Id languageId);
+    static void registerCodeStylePool(Core::Id languageId, CodeStylePool *pool);
+    static void unregisterCodeStylePool(Core::Id languageId);
 
-    ICodeStylePreferences *codeStyle() const;
-    ICodeStylePreferences *codeStyle(Core::Id languageId) const;
-    QMap<Core::Id, ICodeStylePreferences *> codeStyles() const;
-    void registerCodeStyle(Core::Id languageId, ICodeStylePreferences *prefs);
-    void unregisterCodeStyle(Core::Id languageId);
+    static ICodeStylePreferences *codeStyle();
+    static ICodeStylePreferences *codeStyle(Core::Id languageId);
+    static QMap<Core::Id, ICodeStylePreferences *> codeStyles();
+    static void registerCodeStyle(Core::Id languageId, ICodeStylePreferences *prefs);
+    static void unregisterCodeStyle(Core::Id languageId);
 
-    void registerMimeTypeForLanguageId(const QString &mimeType, Core::Id languageId);
-    Core::Id languageId(const QString &mimeType) const;
+    static void registerMimeTypeForLanguageId(const QString &mimeType, Core::Id languageId);
+    static Core::Id languageId(const QString &mimeType);
 
 signals:
     void fontSettingsChanged(const TextEditor::FontSettings &);
@@ -117,12 +113,9 @@ signals:
     void completionSettingsChanged(const TextEditor::CompletionSettings &);
     void extraEncodingSettingsChanged(const TextEditor::ExtraEncodingSettings &);
 
-private:
-    Internal::TextEditorSettingsPrivate *m_d;
-    Q_PRIVATE_SLOT(m_d, void fontZoomRequested(int pointSize))
-    Q_PRIVATE_SLOT(m_d, void zoomResetRequested())
-
-    static TextEditorSettings *m_instance;
+private slots:
+    void fontZoomRequested(int zoom);
+    void zoomResetRequested();
 };
 
 } // namespace TextEditor

@@ -75,7 +75,7 @@ CodeStyleSettingsWidget::CodeStyleSettingsWidget(Project *project) : QWidget(), 
     const EditorConfiguration *config = m_project->editorConfiguration();
 
     QMap<Core::Id, ICodeStylePreferencesFactory *> factories
-            = TextEditor::TextEditorSettings::instance()->codeStyleFactories();
+            = TextEditor::TextEditorSettings::codeStyleFactories();
     QMapIterator<Core::Id, ICodeStylePreferencesFactory *> it(factories);
     while (it.hasNext()) {
         it.next();

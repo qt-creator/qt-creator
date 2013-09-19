@@ -722,30 +722,31 @@ DiffEditorWidget::DiffEditorWidget(QWidget *parent)
       m_syncScrollBars(true),
       m_foldingBlocker(false)
 {
-    TextEditor::TextEditorSettings *settings = TextEditorSettings::instance();
-
     m_leftEditor = new DiffViewEditorWidget(this);
     m_leftEditor->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_leftEditor->setReadOnly(true);
-    connect(settings, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
+    connect(TextEditorSettings::instance(),
+            SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
             m_leftEditor, SLOT(setDisplaySettings(TextEditor::DisplaySettings)));
-    m_leftEditor->setDisplaySettings(settings->displaySettings());
-    m_leftEditor->setCodeStyle(settings->codeStyle());
+    m_leftEditor->setDisplaySettings(TextEditorSettings::displaySettings());
+    m_leftEditor->setCodeStyle(TextEditorSettings::codeStyle());
     connect(m_leftEditor, SIGNAL(jumpToOriginalFileRequested(int,int,int)),
             this, SLOT(slotLeftJumpToOriginalFileRequested(int,int,int)));
 
     m_rightEditor = new DiffViewEditorWidget(this);
     m_rightEditor->setReadOnly(true);
-    connect(settings, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
+    connect(TextEditorSettings::instance(),
+            SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
             m_rightEditor, SLOT(setDisplaySettings(TextEditor::DisplaySettings)));
-    m_rightEditor->setDisplaySettings(settings->displaySettings());
-    m_rightEditor->setCodeStyle(settings->codeStyle());
+    m_rightEditor->setDisplaySettings(TextEditorSettings::displaySettings());
+    m_rightEditor->setCodeStyle(TextEditorSettings::codeStyle());
     connect(m_rightEditor, SIGNAL(jumpToOriginalFileRequested(int,int,int)),
             this, SLOT(slotRightJumpToOriginalFileRequested(int,int,int)));
 
-    connect(settings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
+    connect(TextEditorSettings::instance(),
+            SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
             this, SLOT(setFontSettings(TextEditor::FontSettings)));
-    setFontSettings(settings->fontSettings());
+    setFontSettings(TextEditorSettings::fontSettings());
 
     connect(m_leftEditor->verticalScrollBar(), SIGNAL(valueChanged(int)),
             this, SLOT(leftVSliderChanged()));

@@ -60,6 +60,6 @@ ProFileEditorFactory::ProFileEditorFactory(Qt4Manager *manager, TextEditor::Text
 Core::IEditor *ProFileEditorFactory::createEditor(QWidget *parent)
 {
     ProFileEditorWidget *editor = new ProFileEditorWidget(parent, this, m_actionHandler);
-    TextEditor::TextEditorSettings::instance()->initializeEditor(editor);
+    TextEditor::TextEditorSettings::initializeEditor(editor);
     return editor->editor();
 }

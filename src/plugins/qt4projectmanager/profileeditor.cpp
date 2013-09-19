@@ -64,7 +64,7 @@ Core::IEditor *ProFileEditor::duplicate(QWidget *parent)
     ProFileEditorWidget *ret = new ProFileEditorWidget(parent, qobject_cast<ProFileEditorWidget*>(editorWidget())->factory(),
                                            qobject_cast<ProFileEditorWidget*>(editorWidget())->actionHandler());
     ret->duplicateFrom(editorWidget());
-    TextEditor::TextEditorSettings::instance()->initializeEditor(ret);
+    TextEditor::TextEditorSettings::initializeEditor(ret);
     return ret->editor();
 }
 

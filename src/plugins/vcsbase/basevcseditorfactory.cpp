@@ -86,10 +86,9 @@ Core::IEditor *BaseVcsEditorFactory::createEditor(QWidget *parent)
     d->m_editorHandler->setupActions(vcsEditor);
 
     // Wire font settings and set initial values
-    TextEditor::TextEditorSettings *settings = TextEditor::TextEditorSettings::instance();
-    connect(settings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
+    connect(TextEditor::TextEditorSettings::instance(), SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
             vcsEditor, SLOT(setFontSettings(TextEditor::FontSettings)));
-    vcsEditor->setFontSettings(settings->fontSettings());
+    vcsEditor->setFontSettings(TextEditor::TextEditorSettings::fontSettings());
     return vcsEditor->editor();
 }
 

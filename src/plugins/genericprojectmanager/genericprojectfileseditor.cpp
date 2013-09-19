@@ -64,7 +64,7 @@ ProjectFilesFactory::ProjectFilesFactory(Manager *manager, TextEditorActionHandl
 Core::IEditor *ProjectFilesFactory::createEditor(QWidget *parent)
 {
     ProjectFilesEditorWidget *ed = new ProjectFilesEditorWidget(parent, this, m_actionHandler);
-    TextEditorSettings::instance()->initializeEditor(ed);
+    TextEditorSettings::initializeEditor(ed);
     return ed->editor();
 }
 
@@ -96,7 +96,7 @@ Core::IEditor *ProjectFilesEditor::duplicate(QWidget *parent)
     ProjectFilesEditorWidget *editor = new ProjectFilesEditorWidget(parent,
                                                         parentEditor->factory(),
                                                         parentEditor->actionHandler());
-    TextEditorSettings::instance()->initializeEditor(editor);
+    TextEditorSettings::initializeEditor(editor);
     return editor->editor();
 }
 

@@ -250,7 +250,7 @@ void PythonEditorPlugin::extensionsInitialized()
 void PythonEditorPlugin::initializeEditor(EditorWidget *widget)
 {
     instance()->m_actionHandler->setupActions(widget);
-    TextEditor::TextEditorSettings::instance()->initializeEditor(widget);
+    TextEditor::TextEditorSettings::initializeEditor(widget);
 }
 
 QSet<QString> PythonEditorPlugin::keywords()

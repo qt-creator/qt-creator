@@ -49,8 +49,7 @@ namespace Internal {
 // Retrieve the comment char format from the text editor.
 static QTextCharFormat commentFormat()
 {
-    const TextEditor::FontSettings settings = TextEditor::TextEditorSettings::instance()->fontSettings();
-    return settings.toTextCharFormat(TextEditor::C_COMMENT);
+    return TextEditor::TextEditorSettings::fontSettings().toTextCharFormat(TextEditor::C_COMMENT);
 }
 
 // Highlighter for Bazaar submit messages. Make the first line bold, indicates

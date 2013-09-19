@@ -82,7 +82,7 @@ public:
 private slots:
     void fontSettingsChanged()
     {
-        setFont(TextEditor::TextEditorSettings::instance()->fontSettings().font());
+        setFont(TextEditor::TextEditorSettings::fontSettings().font());
     }
 
 protected:

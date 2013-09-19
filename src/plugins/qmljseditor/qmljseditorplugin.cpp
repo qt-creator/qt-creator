@@ -266,7 +266,7 @@ void QmlJSEditorPlugin::initializeEditor(QmlJSTextEditorWidget *editor)
     m_actionHandler->setupActions(editor);
 
     editor->setLanguageSettingsId(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
-    TextEditor::TextEditorSettings::instance()->initializeEditor(editor);
+    TextEditor::TextEditorSettings::initializeEditor(editor);
 }
 
 Utils::JsonSchemaManager *QmlJSEditorPlugin::jsonManager() const

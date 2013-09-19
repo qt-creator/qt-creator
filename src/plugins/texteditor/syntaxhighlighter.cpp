@@ -801,7 +801,7 @@ void SyntaxHighlighter::setTextFormatCategories(const QVector<TextEditor::TextSt
 {
     Q_D(SyntaxHighlighter);
     d->formatCategories = categories;
-    d->updateFormatsForCategories(TextEditorSettings::instance()->fontSettings());
+    d->updateFormatsForCategories(TextEditorSettings::fontSettings());
 }
 
 QTextCharFormat SyntaxHighlighter::formatForCategory(int category) const

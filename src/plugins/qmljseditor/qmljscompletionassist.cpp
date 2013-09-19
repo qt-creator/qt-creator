@@ -364,9 +364,8 @@ void QmlJSAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor 
     QString content = text();
     int cursorOffset = 0;
 
-    const CompletionSettings &completionSettings =
-            TextEditorSettings::instance()->completionSettings();
-    const bool autoInsertBrackets = completionSettings.m_autoInsertBrackets;
+    const bool autoInsertBrackets =
+        TextEditorSettings::completionSettings().m_autoInsertBrackets;
 
     if (autoInsertBrackets && data().canConvert<CompleteFunctionCall>()) {
         CompleteFunctionCall function = data().value<CompleteFunctionCall>();

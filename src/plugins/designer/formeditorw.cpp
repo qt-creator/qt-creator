@@ -701,7 +701,7 @@ EditorData FormEditorW::createEditor(QWidget *parent)
 #endif
     data.widgetHost = new SharedTools::WidgetHost( /* parent */ 0, form);
     DesignerXmlEditorWidget *xmlEditor = new DesignerXmlEditorWidget(form, parent);
-    TextEditor::TextEditorSettings::instance()->initializeEditor(xmlEditor);
+    TextEditor::TextEditorSettings::initializeEditor(xmlEditor);
     data.formWindowEditor = xmlEditor->designerEditor();
     connect(data.widgetHost, SIGNAL(formWindowSizeChanged(int,int)),
             xmlEditor, SIGNAL(changed()));

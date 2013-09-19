@@ -151,7 +151,7 @@ CodeAssistantPrivate::CodeAssistantPrivate(CodeAssistant *assistant)
     , m_requestProvider(0)
     , m_proposalWidget(0)
     , m_receivedContentWhileWaiting(false)
-    , m_settings(TextEditorSettings::instance()->completionSettings())
+    , m_settings(TextEditorSettings::completionSettings())
     , m_abortedBasePosition(-1)
 {
     m_automaticProposalTimer.setSingleShot(true);

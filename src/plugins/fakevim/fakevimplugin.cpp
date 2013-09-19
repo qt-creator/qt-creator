@@ -359,8 +359,8 @@ QWidget *FakeVimOptionPage::createPage(QWidget *parent)
 
 void FakeVimOptionPage::copyTextEditorSettings()
 {
-    TabSettings ts = TextEditorSettings::instance()->codeStyle()->tabSettings();
-    TypingSettings tps = TextEditorSettings::instance()->typingSettings();
+    TabSettings ts = TextEditorSettings::codeStyle()->tabSettings();
+    TypingSettings tps = TextEditorSettings::typingSettings();
     m_ui.checkBoxExpandTab->setChecked(ts.m_tabPolicy != TabSettings::TabsOnlyTabPolicy);
     m_ui.spinBoxTabStop->setValue(ts.m_tabSize);
     m_ui.spinBoxShiftWidth->setValue(ts.m_indentSize);

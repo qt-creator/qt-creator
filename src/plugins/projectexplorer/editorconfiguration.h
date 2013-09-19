@@ -98,10 +98,6 @@ private slots:
 
 private:
     void switchSettings(TextEditor::BaseTextEditorWidget *baseTextEditor) const;
-    template <class NewSenderT, class OldSenderT>
-    void switchSettings_helper(const NewSenderT *newSender,
-                               const OldSenderT *oldSender,
-                               TextEditor::BaseTextEditorWidget *baseTextEditor) const;
 
     EditorConfigurationPrivate *d;
 };

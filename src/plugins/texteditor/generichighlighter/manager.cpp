@@ -185,7 +185,7 @@ const int ManagerProcessor::kMaxProgress = 200;
 ManagerProcessor::ManagerProcessor()
     : m_knownSuffixes(QSet<QString>::fromList(MimeDatabase::suffixes()))
 {
-    const HighlighterSettings &settings = TextEditorSettings::instance()->highlighterSettings();
+    const HighlighterSettings &settings = TextEditorSettings::highlighterSettings();
     m_definitionsPaths.append(settings.definitionFilesPath());
     if (settings.useFallbackLocation())
         m_definitionsPaths.append(settings.fallbackDefinitionFilesPath());

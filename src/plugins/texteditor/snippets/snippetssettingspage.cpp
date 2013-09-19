@@ -334,7 +334,7 @@ void SnippetsSettingsPagePrivate::configureUi(QWidget *w)
     foreach (ISnippetProvider *provider, providers) {
         m_ui.groupCombo->addItem(provider->displayName(), provider->groupId());
         SnippetEditorWidget *snippetEditor = new SnippetEditorWidget(w);
-        snippetEditor->setFontSettings(TextEditorSettings::instance()->fontSettings());
+        snippetEditor->setFontSettings(TextEditorSettings::fontSettings());
         provider->decorateEditor(snippetEditor);
         m_ui.snippetsEditorStack->insertWidget(m_ui.groupCombo->count() - 1, snippetEditor);
         connect(snippetEditor, SIGNAL(snippetContentChanged()), this, SLOT(setSnippetContent()));

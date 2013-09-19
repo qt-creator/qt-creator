@@ -109,9 +109,9 @@ BinEditorWidget::BinEditorWidget(QWidget *parent)
     setFrameStyle(QFrame::Plain);
 
     // Font settings
-    TextEditor::TextEditorSettings *settings = TextEditor::TextEditorSettings::instance();
-    setFontSettings(settings->fontSettings());
-    connect(settings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
+    setFontSettings(TextEditor::TextEditorSettings::fontSettings());
+    connect(TextEditor::TextEditorSettings::instance(),
+            SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
             this, SLOT(setFontSettings(TextEditor::FontSettings)));
 
 }

@@ -275,9 +275,8 @@ CppCodeStylePreferencesWidget::CppCodeStylePreferencesWidget(QWidget *parent)
     for (int i = 0; i < m_previews.size(); ++i)
         m_previews[i]->setPlainText(QLatin1String(defaultCodeStyleSnippets[i]));
 
-    TextEditor::TextEditorSettings *textEditorSettings = TextEditorSettings::instance();
-    decorateEditors(textEditorSettings->fontSettings());
-    connect(textEditorSettings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
+    decorateEditors(TextEditorSettings::fontSettings());
+    connect(TextEditorSettings::instance(), SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
        this, SLOT(decorateEditors(TextEditor::FontSettings)));
 
     setVisualizeWhitespace(true);
@@ -575,8 +574,7 @@ QWidget *CppCodeStyleSettingsPage::createPage(QWidget *parent)
     m_pageCppCodeStylePreferences->setCurrentDelegate(originalCodeStylePreferences->currentDelegate());
     // we set id so that it won't be possible to set delegate to the original prefs
     m_pageCppCodeStylePreferences->setId(originalCodeStylePreferences->id());
-    TextEditorSettings *settings = TextEditorSettings::instance();
-    m_widget = new CodeStyleEditor(settings->codeStyleFactory(CppTools::Constants::CPP_SETTINGS_ID),
+    m_widget = new CodeStyleEditor(TextEditorSettings::codeStyleFactory(CppTools::Constants::CPP_SETTINGS_ID),
                                    m_pageCppCodeStylePreferences, parent);
 
     return m_widget;

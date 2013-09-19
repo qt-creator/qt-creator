@@ -124,7 +124,7 @@ void CppEditorPlugin::initializeEditor(CPPEditorWidget *editor)
     m_actionHandler->setupActions(editor);
 
     editor->setLanguageSettingsId(CppTools::Constants::CPP_SETTINGS_ID);
-    TextEditor::TextEditorSettings::instance()->initializeEditor(editor);
+    TextEditor::TextEditorSettings::initializeEditor(editor);
 
     // method combo box sorting
     connect(this, SIGNAL(outlineSortingChanged(bool)),

@@ -258,7 +258,7 @@ void TextEditorPlugin::initializeEditor(PlainTextEditorWidget *editor)
     // common actions
     m_editorFactory->actionHandler()->setupActions(editor);
 
-    TextEditorSettings::instance()->initializeEditor(editor);
+    TextEditorSettings::initializeEditor(editor);
 }
 
 void TextEditorPlugin::invokeCompletion()

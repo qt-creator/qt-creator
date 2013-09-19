@@ -210,8 +210,7 @@ void CppAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor *e
     } else {
         toInsert = text();
 
-        const CompletionSettings &completionSettings =
-                TextEditorSettings::instance()->completionSettings();
+        const CompletionSettings &completionSettings = TextEditorSettings::completionSettings();
         const bool autoInsertBrackets = completionSettings.m_autoInsertBrackets;
 
         if (autoInsertBrackets && symbol && symbol->type()) {

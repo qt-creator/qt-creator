@@ -4560,7 +4560,7 @@ void BaseTextEditorWidget::onCodeStylePreferencesDestroyed()
 {
     if (sender() != d->m_codeStylePreferences)
         return;
-    ICodeStylePreferences *prefs = TextEditorSettings::instance()->codeStyle(languageSettingsId());
+    ICodeStylePreferences *prefs = TextEditorSettings::codeStyle(languageSettingsId());
     if (prefs == d->m_codeStylePreferences)
         prefs = 0;
     // avoid failing disconnects, m_codeStylePreferences has already been reduced to QObject

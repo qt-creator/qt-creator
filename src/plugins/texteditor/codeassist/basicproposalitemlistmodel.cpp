@@ -225,7 +225,7 @@ void BasicProposalItemListModel::filter(const QString &prefix)
      * It also implements the fully and first-letter-only case sensitivity.
      */
     const TextEditor::CaseSensitivity caseSensitivity =
-        TextEditorSettings::instance()->completionSettings().m_caseSensitivity;
+        TextEditorSettings::completionSettings().m_caseSensitivity;
 
     QString keyRegExp;
     keyRegExp += QLatin1Char('^');

@@ -74,37 +74,21 @@ public:
     QMap<QString, Core::Id> m_mimeTypeToLanguage;
 
     CompletionSettings m_completionSettings;
-
-    void fontZoomRequested(int pointSize);
-    void zoomResetRequested();
 };
-
-void TextEditorSettingsPrivate::fontZoomRequested(int zoom)
-{
-    FontSettings &fs = const_cast<FontSettings&>(m_fontSettingsPage->fontSettings());
-    fs.setFontZoom(qMax(10, fs.fontZoom() + zoom));
-    m_fontSettingsPage->saveSettings();
-}
-
-void TextEditorSettingsPrivate::zoomResetRequested()
-{
-    FontSettings &fs = const_cast<FontSettings&>(m_fontSettingsPage->fontSettings());
-    fs.setFontZoom(100);
-    m_fontSettingsPage->saveSettings();
-}
 
 } // namespace Internal
 } // namespace TextEditor
 
 
-TextEditorSettings *TextEditorSettings::m_instance = 0;
+static TextEditorSettingsPrivate *d = 0;
+static TextEditorSettings *m_instance = 0;
 
 TextEditorSettings::TextEditorSettings(QObject *parent)
     : QObject(parent)
-    , m_d(new Internal::TextEditorSettingsPrivate)
 {
     QTC_ASSERT(!m_instance, return);
     m_instance = this;
+    d = new Internal::TextEditorSettingsPrivate;
 
     // Note: default background colors are coming from FormatDescription::background()
 
@@ -279,58 +263,58 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
                                             "in differences (in side-by-side diff editor)."),
                                          Format(QColor(), QColor(175, 255, 175))));
 
-    m_d->m_fontSettingsPage = new FontSettingsPage(formatDescr,
+    d->m_fontSettingsPage = new FontSettingsPage(formatDescr,
                                                    Constants::TEXT_EDITOR_FONT_SETTINGS,
                                                    this);
-    ExtensionSystem::PluginManager::addObject(m_d->m_fontSettingsPage);
+    ExtensionSystem::PluginManager::addObject(d->m_fontSettingsPage);
 
     // Add the GUI used to configure the tab, storage and interaction settings
     TextEditor::BehaviorSettingsPageParameters behaviorSettingsPageParameters;
     behaviorSettingsPageParameters.id = Constants::TEXT_EDITOR_BEHAVIOR_SETTINGS;
     behaviorSettingsPageParameters.displayName = tr("Behavior");
     behaviorSettingsPageParameters.settingsPrefix = QLatin1String("text");
-    m_d->m_behaviorSettingsPage = new BehaviorSettingsPage(behaviorSettingsPageParameters, this);
-    ExtensionSystem::PluginManager::addObject(m_d->m_behaviorSettingsPage);
+    d->m_behaviorSettingsPage = new BehaviorSettingsPage(behaviorSettingsPageParameters, this);
+    ExtensionSystem::PluginManager::addObject(d->m_behaviorSettingsPage);
 
     TextEditor::DisplaySettingsPageParameters displaySettingsPageParameters;
     displaySettingsPageParameters.id = Constants::TEXT_EDITOR_DISPLAY_SETTINGS;
     displaySettingsPageParameters.displayName = tr("Display");
     displaySettingsPageParameters.settingsPrefix = QLatin1String("text");
-    m_d->m_displaySettingsPage = new DisplaySettingsPage(displaySettingsPageParameters, this);
-    ExtensionSystem::PluginManager::addObject(m_d->m_displaySettingsPage);
+    d->m_displaySettingsPage = new DisplaySettingsPage(displaySettingsPageParameters, this);
+    ExtensionSystem::PluginManager::addObject(d->m_displaySettingsPage);
 
-    m_d->m_highlighterSettingsPage =
+    d->m_highlighterSettingsPage =
         new HighlighterSettingsPage(Constants::TEXT_EDITOR_HIGHLIGHTER_SETTINGS, this);
-    ExtensionSystem::PluginManager::addObject(m_d->m_highlighterSettingsPage);
+    ExtensionSystem::PluginManager::addObject(d->m_highlighterSettingsPage);
 
-    m_d->m_snippetsSettingsPage =
+    d->m_snippetsSettingsPage =
         new SnippetsSettingsPage(Constants::TEXT_EDITOR_SNIPPETS_SETTINGS, this);
-    ExtensionSystem::PluginManager::addObject(m_d->m_snippetsSettingsPage);
+    ExtensionSystem::PluginManager::addObject(d->m_snippetsSettingsPage);
 
-    connect(m_d->m_fontSettingsPage, SIGNAL(changed(TextEditor::FontSettings)),
+    connect(d->m_fontSettingsPage, SIGNAL(changed(TextEditor::FontSettings)),
             this, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)));
-    connect(m_d->m_behaviorSettingsPage, SIGNAL(typingSettingsChanged(TextEditor::TypingSettings)),
+    connect(d->m_behaviorSettingsPage, SIGNAL(typingSettingsChanged(TextEditor::TypingSettings)),
             this, SIGNAL(typingSettingsChanged(TextEditor::TypingSettings)));
-    connect(m_d->m_behaviorSettingsPage, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)),
+    connect(d->m_behaviorSettingsPage, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)),
             this, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)));
-    connect(m_d->m_behaviorSettingsPage, SIGNAL(behaviorSettingsChanged(TextEditor::BehaviorSettings)),
+    connect(d->m_behaviorSettingsPage, SIGNAL(behaviorSettingsChanged(TextEditor::BehaviorSettings)),
             this, SIGNAL(behaviorSettingsChanged(TextEditor::BehaviorSettings)));
-    connect(m_d->m_displaySettingsPage, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
+    connect(d->m_displaySettingsPage, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
             this, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)));
 
     // TODO: Move these settings to TextEditor category
-    m_d->m_completionSettings.fromSettings(QLatin1String("CppTools/"), Core::ICore::settings());
+    d->m_completionSettings.fromSettings(QLatin1String("CppTools/"), Core::ICore::settings());
 }
 
 TextEditorSettings::~TextEditorSettings()
 {
-    ExtensionSystem::PluginManager::removeObject(m_d->m_fontSettingsPage);
-    ExtensionSystem::PluginManager::removeObject(m_d->m_behaviorSettingsPage);
-    ExtensionSystem::PluginManager::removeObject(m_d->m_displaySettingsPage);
-    ExtensionSystem::PluginManager::removeObject(m_d->m_highlighterSettingsPage);
-    ExtensionSystem::PluginManager::removeObject(m_d->m_snippetsSettingsPage);
+    ExtensionSystem::PluginManager::removeObject(d->m_fontSettingsPage);
+    ExtensionSystem::PluginManager::removeObject(d->m_behaviorSettingsPage);
+    ExtensionSystem::PluginManager::removeObject(d->m_displaySettingsPage);
+    ExtensionSystem::PluginManager::removeObject(d->m_highlighterSettingsPage);
+    ExtensionSystem::PluginManager::removeObject(d->m_snippetsSettingsPage);
 
-    delete m_d;
+    delete d;
 
     m_instance = 0;
 }
@@ -347,25 +331,25 @@ TextEditorSettings *TextEditorSettings::instance()
 void TextEditorSettings::initializeEditor(BaseTextEditorWidget *editor)
 {
     // Connect to settings change signals
-    connect(this, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
+    connect(m_instance, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
             editor, SLOT(setFontSettingsIfVisible(TextEditor::FontSettings)));
-    connect(this, SIGNAL(typingSettingsChanged(TextEditor::TypingSettings)),
+    connect(m_instance, SIGNAL(typingSettingsChanged(TextEditor::TypingSettings)),
             editor, SLOT(setTypingSettings(TextEditor::TypingSettings)));
-    connect(this, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)),
+    connect(m_instance, SIGNAL(storageSettingsChanged(TextEditor::StorageSettings)),
             editor, SLOT(setStorageSettings(TextEditor::StorageSettings)));
-    connect(this, SIGNAL(behaviorSettingsChanged(TextEditor::BehaviorSettings)),
+    connect(m_instance, SIGNAL(behaviorSettingsChanged(TextEditor::BehaviorSettings)),
             editor, SLOT(setBehaviorSettings(TextEditor::BehaviorSettings)));
-    connect(this, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
+    connect(m_instance, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
             editor, SLOT(setDisplaySettings(TextEditor::DisplaySettings)));
-    connect(this, SIGNAL(completionSettingsChanged(TextEditor::CompletionSettings)),
+    connect(m_instance, SIGNAL(completionSettingsChanged(TextEditor::CompletionSettings)),
             editor, SLOT(setCompletionSettings(TextEditor::CompletionSettings)));
-    connect(this, SIGNAL(extraEncodingSettingsChanged(TextEditor::ExtraEncodingSettings)),
+    connect(m_instance, SIGNAL(extraEncodingSettingsChanged(TextEditor::ExtraEncodingSettings)),
             editor, SLOT(setExtraEncodingSettings(TextEditor::ExtraEncodingSettings)));
 
     connect(editor, SIGNAL(requestFontZoom(int)),
-            this, SLOT(fontZoomRequested(int)));
+            m_instance, SLOT(fontZoomRequested(int)));
     connect(editor, SIGNAL(requestZoomReset()),
-            this, SLOT(zoomResetRequested()));
+            m_instance, SLOT(zoomResetRequested()));
 
     // Apply current settings (tab settings depend on font settings)
     editor->setFontSettings(fontSettings());
@@ -379,130 +363,142 @@ void TextEditorSettings::initializeEditor(BaseTextEditorWidget *editor)
     editor->setCodeStyle(codeStyle(editor->languageSettingsId()));
 }
 
-const FontSettings &TextEditorSettings::fontSettings() const
+const FontSettings &TextEditorSettings::fontSettings()
 {
-    return m_d->m_fontSettingsPage->fontSettings();
+    return d->m_fontSettingsPage->fontSettings();
 }
 
-const TypingSettings &TextEditorSettings::typingSettings() const
+const TypingSettings &TextEditorSettings::typingSettings()
 {
-    return m_d->m_behaviorSettingsPage->typingSettings();
+    return d->m_behaviorSettingsPage->typingSettings();
 }
 
-const StorageSettings &TextEditorSettings::storageSettings() const
+const StorageSettings &TextEditorSettings::storageSettings()
 {
-    return m_d->m_behaviorSettingsPage->storageSettings();
+    return d->m_behaviorSettingsPage->storageSettings();
 }
 
-const BehaviorSettings &TextEditorSettings::behaviorSettings() const
+const BehaviorSettings &TextEditorSettings::behaviorSettings()
 {
-    return m_d->m_behaviorSettingsPage->behaviorSettings();
+    return d->m_behaviorSettingsPage->behaviorSettings();
 }
 
-const DisplaySettings &TextEditorSettings::displaySettings() const
+const DisplaySettings &TextEditorSettings::displaySettings()
 {
-    return m_d->m_displaySettingsPage->displaySettings();
+    return d->m_displaySettingsPage->displaySettings();
 }
 
-const CompletionSettings &TextEditorSettings::completionSettings() const
+const CompletionSettings &TextEditorSettings::completionSettings()
 {
-    return m_d->m_completionSettings;
+    return d->m_completionSettings;
 }
 
-const HighlighterSettings &TextEditorSettings::highlighterSettings() const
+const HighlighterSettings &TextEditorSettings::highlighterSettings()
 {
-    return m_d->m_highlighterSettingsPage->highlighterSettings();
+    return d->m_highlighterSettingsPage->highlighterSettings();
 }
 
-const ExtraEncodingSettings &TextEditorSettings::extraEncodingSettings() const
+const ExtraEncodingSettings &TextEditorSettings::extraEncodingSettings()
 {
-    return m_d->m_behaviorSettingsPage->extraEncodingSettings();
+    return d->m_behaviorSettingsPage->extraEncodingSettings();
 }
 
 void TextEditorSettings::setCompletionSettings(const TextEditor::CompletionSettings &settings)
 {
-    if (m_d->m_completionSettings == settings)
+    if (d->m_completionSettings == settings)
         return;
 
-    m_d->m_completionSettings = settings;
-    m_d->m_completionSettings.toSettings(QLatin1String("CppTools/"), Core::ICore::settings());
+    d->m_completionSettings = settings;
+    d->m_completionSettings.toSettings(QLatin1String("CppTools/"), Core::ICore::settings());
 
-    emit completionSettingsChanged(m_d->m_completionSettings);
+    emit m_instance->completionSettingsChanged(d->m_completionSettings);
 }
 
 void TextEditorSettings::registerCodeStyleFactory(ICodeStylePreferencesFactory *factory)
 {
-    m_d->m_languageToFactory.insert(factory->languageId(), factory);
+    d->m_languageToFactory.insert(factory->languageId(), factory);
 }
 
 void TextEditorSettings::unregisterCodeStyleFactory(Core::Id languageId)
 {
-    m_d->m_languageToFactory.remove(languageId);
+    d->m_languageToFactory.remove(languageId);
 }
 
-QMap<Core::Id, ICodeStylePreferencesFactory *> TextEditorSettings::codeStyleFactories() const
+QMap<Core::Id, ICodeStylePreferencesFactory *> TextEditorSettings::codeStyleFactories()
 {
-    return m_d->m_languageToFactory;
+    return d->m_languageToFactory;
 }
 
-ICodeStylePreferencesFactory *TextEditorSettings::codeStyleFactory(Core::Id languageId) const
+ICodeStylePreferencesFactory *TextEditorSettings::codeStyleFactory(Core::Id languageId)
 {
-    return m_d->m_languageToFactory.value(languageId);
+    return d->m_languageToFactory.value(languageId);
 }
 
-ICodeStylePreferences *TextEditorSettings::codeStyle() const
+ICodeStylePreferences *TextEditorSettings::codeStyle()
 {
-    return m_d->m_behaviorSettingsPage->codeStyle();
+    return d->m_behaviorSettingsPage->codeStyle();
 }
 
-ICodeStylePreferences *TextEditorSettings::codeStyle(Core::Id languageId) const
+ICodeStylePreferences *TextEditorSettings::codeStyle(Core::Id languageId)
 {
-    return m_d->m_languageToCodeStyle.value(languageId, codeStyle());
+    return d->m_languageToCodeStyle.value(languageId, codeStyle());
 }
 
-QMap<Core::Id, ICodeStylePreferences *> TextEditorSettings::codeStyles() const
+QMap<Core::Id, ICodeStylePreferences *> TextEditorSettings::codeStyles()
 {
-    return m_d->m_languageToCodeStyle;
+    return d->m_languageToCodeStyle;
 }
 
 void TextEditorSettings::registerCodeStyle(Core::Id languageId, ICodeStylePreferences *prefs)
 {
-    m_d->m_languageToCodeStyle.insert(languageId, prefs);
+    d->m_languageToCodeStyle.insert(languageId, prefs);
 }
 
 void TextEditorSettings::unregisterCodeStyle(Core::Id languageId)
 {
-    m_d->m_languageToCodeStyle.remove(languageId);
+    d->m_languageToCodeStyle.remove(languageId);
 }
 
-CodeStylePool *TextEditorSettings::codeStylePool() const
+CodeStylePool *TextEditorSettings::codeStylePool()
 {
-    return m_d->m_behaviorSettingsPage->codeStylePool();
+    return d->m_behaviorSettingsPage->codeStylePool();
 }
 
-CodeStylePool *TextEditorSettings::codeStylePool(Core::Id languageId) const
+CodeStylePool *TextEditorSettings::codeStylePool(Core::Id languageId)
 {
-    return m_d->m_languageToCodeStylePool.value(languageId);
+    return d->m_languageToCodeStylePool.value(languageId);
 }
 
 void TextEditorSettings::registerCodeStylePool(Core::Id languageId, CodeStylePool *pool)
 {
-    m_d->m_languageToCodeStylePool.insert(languageId, pool);
+    d->m_languageToCodeStylePool.insert(languageId, pool);
 }
 
 void TextEditorSettings::unregisterCodeStylePool(Core::Id languageId)
 {
-    m_d->m_languageToCodeStylePool.remove(languageId);
+    d->m_languageToCodeStylePool.remove(languageId);
 }
 
 void TextEditorSettings::registerMimeTypeForLanguageId(const QString &mimeType, Core::Id languageId)
 {
-    m_d->m_mimeTypeToLanguage.insert(mimeType, languageId);
+    d->m_mimeTypeToLanguage.insert(mimeType, languageId);
 }
 
-Core::Id TextEditorSettings::languageId(const QString &mimeType) const
+Core::Id TextEditorSettings::languageId(const QString &mimeType)
 {
-    return m_d->m_mimeTypeToLanguage.value(mimeType);
+    return d->m_mimeTypeToLanguage.value(mimeType);
 }
 
-#include "moc_texteditorsettings.cpp"
+void TextEditorSettings::fontZoomRequested(int zoom)
+{
+    FontSettings &fs = const_cast<FontSettings&>(d->m_fontSettingsPage->fontSettings());
+    fs.setFontZoom(qMax(10, fs.fontZoom() + zoom));
+    d->m_fontSettingsPage->saveSettings();
+}
+
+void TextEditorSettings::zoomResetRequested()
+{
+    FontSettings &fs = const_cast<FontSettings&>(d->m_fontSettingsPage->fontSettings());
+    fs.setFontZoom(100);
+    d->m_fontSettingsPage->saveSettings();
+}

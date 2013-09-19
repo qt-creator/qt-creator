@@ -102,7 +102,7 @@ bool KeywordsAssistProposalItem::prematurelyApplies(const QChar &c) const
 void KeywordsAssistProposalItem::applyContextualContent(TextEditor::BaseTextEditor *editor,
                                                         int basePosition) const
 {
-    const CompletionSettings &settings = TextEditorSettings::instance()->completionSettings();
+    const CompletionSettings &settings = TextEditorSettings::completionSettings();
 
     int replaceLength = editor->position() - basePosition;
     QString toInsert = text();

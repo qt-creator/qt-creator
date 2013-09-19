@@ -301,7 +301,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
             this, SLOT(appendMessage(ProjectExplorer::RunControl*,QString,Utils::OutputFormat)));
 
     Utils::OutputFormatter *formatter = rc->outputFormatter();
-    formatter->setFont(TextEditor::TextEditorSettings::instance()->fontSettings().font());
+    formatter->setFont(TextEditor::TextEditorSettings::fontSettings().font());
 
     // First look if we can reuse a tab
     const int size = m_runControlTabs.size();

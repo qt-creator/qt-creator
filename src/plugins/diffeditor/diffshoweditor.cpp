@@ -118,14 +118,13 @@ DiffShowEditor::DiffShowEditor(DiffEditorWidget *editorWidget)
     splitter->addWidget(editorWidget);
     setWidget(splitter);
 
-    TextEditorSettings *settings = TextEditorSettings::instance();
-    connect(settings, SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
+    connect(TextEditorSettings::instance(), SIGNAL(displaySettingsChanged(TextEditor::DisplaySettings)),
             m_diffShowWidget, SLOT(setDisplaySettings(TextEditor::DisplaySettings)));
-    connect(settings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
+    connect(TextEditorSettings::instance(), SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
             m_diffShowWidget, SLOT(setFontSettings(TextEditor::FontSettings)));
-    m_diffShowWidget->setDisplaySettings(settings->displaySettings());
-    m_diffShowWidget->setCodeStyle(settings->codeStyle());
-    m_diffShowWidget->setFontSettings(settings->fontSettings());
+    m_diffShowWidget->setDisplaySettings(TextEditorSettings::displaySettings());
+    m_diffShowWidget->setCodeStyle(TextEditorSettings::codeStyle());
+    m_diffShowWidget->setFontSettings(TextEditorSettings::fontSettings());
 }
 
 DiffShowEditor::~DiffShowEditor()

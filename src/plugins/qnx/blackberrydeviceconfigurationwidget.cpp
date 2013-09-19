@@ -61,7 +61,7 @@ BlackBerryDeviceConfigurationWidget::BlackBerryDeviceConfigurationWidget(const I
 {
     ui->setupUi(this);
 
-    ui->connectionLog->setFont(TextEditor::TextEditorSettings::instance()->fontSettings().font());
+    ui->connectionLog->setFont(TextEditor::TextEditorSettings::fontSettings().font());
 
     connect(ui->hostLineEdit, SIGNAL(editingFinished()), this, SLOT(hostNameEditingFinished()));
     connect(ui->pwdLineEdit, SIGNAL(editingFinished()), this, SLOT(passwordEditingFinished()));

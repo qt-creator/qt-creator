@@ -54,8 +54,7 @@ CodeStyleEditor::CodeStyleEditor(ICodeStylePreferencesFactory *factory,
     CodeStyleSelectorWidget *selector = new CodeStyleSelectorWidget(factory, this);
     selector->setCodeStyle(codeStyle);
     m_preview = new SnippetEditorWidget(this);
-    TextEditor::TextEditorSettings *settings = TextEditorSettings::instance();
-    m_preview->setFontSettings(settings->fontSettings());
+    m_preview->setFontSettings(TextEditorSettings::fontSettings());
     DisplaySettings displaySettings = m_preview->displaySettings();
     displaySettings.m_visualizeWhitespace = true;
     m_preview->setDisplaySettings(displaySettings);

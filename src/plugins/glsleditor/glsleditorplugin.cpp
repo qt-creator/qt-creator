@@ -239,7 +239,7 @@ void GLSLEditorPlugin::initializeEditor(GLSLTextEditorWidget *editor)
 {
     QTC_CHECK(m_instance);
     dd->m_actionHandler->setupActions(editor);
-    TextEditorSettings::instance()->initializeEditor(editor);
+    TextEditorSettings::initializeEditor(editor);
 }
 
 static QByteArray glslFile(const QString &fileName)

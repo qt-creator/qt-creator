@@ -538,7 +538,7 @@ static TextEditor::ICodeStylePreferences *codeStylePreferences(ProjectExplorer::
     if (project)
         return project->editorConfiguration()->codeStyle(languageId);
 
-    return TextEditor::TextEditorSettings::instance()->codeStyle(languageId);
+    return TextEditor::TextEditorSettings::codeStyle(languageId);
 }
 
 void ProjectFileWizardExtension::applyCodeStyle(Core::GeneratedFile *file) const
@@ -547,7 +547,7 @@ void ProjectFileWizardExtension::applyCodeStyle(Core::GeneratedFile *file) const
         return; // nothing to do
 
     Core::MimeType mt = Core::MimeDatabase::findByFile(QFileInfo(file->path()));
-    Core::Id languageId = TextEditor::TextEditorSettings::instance()->languageId(mt.type());
+    Core::Id languageId = TextEditor::TextEditorSettings::languageId(mt.type());
 
     if (!languageId.isValid())
         return; // don't modify files like *.ui *.pro
@@ -560,7 +560,7 @@ void ProjectFileWizardExtension::applyCodeStyle(Core::GeneratedFile *file) const
     Project *baseProject = SessionManager::projectForNode(project);
 
     TextEditor::ICodeStylePreferencesFactory *factory
-            = TextEditor::TextEditorSettings::instance()->codeStyleFactory(languageId);
+            = TextEditor::TextEditorSettings::codeStyleFactory(languageId);
 
     TextEditor::Indenter *indenter = 0;
     if (factory)
@@ -575,7 +575,7 @@ void ProjectFileWizardExtension::applyCodeStyle(Core::GeneratedFile *file) const
     cursor.select(QTextCursor::Document);
     indenter->indent(&doc, cursor, QChar::Null, codeStylePrefs->currentTabSettings());
     delete indenter;
-    if (TextEditor::TextEditorSettings::instance()->storageSettings().m_cleanWhitespace) {
+    if (TextEditor::TextEditorSettings::storageSettings().m_cleanWhitespace) {
         QTextBlock block = doc.firstBlock();
         while (block.isValid()) {
             codeStylePrefs->currentTabSettings().removeTrailingWhitespace(cursor, block);

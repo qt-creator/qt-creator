@@ -70,9 +70,8 @@ QmlJSCodeStylePreferencesWidget::QmlJSCodeStylePreferencesWidget(QWidget *parent
         }
     }
 
-    TextEditor::TextEditorSettings *textEditorSettings = TextEditorSettings::instance();
-    decorateEditor(textEditorSettings->fontSettings());
-    connect(textEditorSettings, SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
+    decorateEditor(TextEditorSettings::fontSettings());
+    connect(TextEditorSettings::instance(), SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
        this, SLOT(decorateEditor(TextEditor::FontSettings)));
 
     setVisualizeWhitespace(true);
@@ -142,7 +141,7 @@ void QmlJSCodeStylePreferencesWidget::updatePreview()
 
     const TextEditor::TabSettings &ts = m_preferences
             ? m_preferences->currentTabSettings()
-            : TextEditorSettings::instance()->codeStyle()->tabSettings();
+            : TextEditorSettings::codeStyle()->tabSettings();
     m_ui->previewTextEdit->setTabSettings(ts);
     CreatorCodeFormatter formatter(ts);
     formatter.invalidateCache(doc);
@@ -181,8 +180,7 @@ QWidget *QmlJSCodeStyleSettingsPage::createPage(QWidget *parent)
     m_pageTabPreferences->setTabSettings(originalTabPreferences->tabSettings());
     m_pageTabPreferences->setCurrentDelegate(originalTabPreferences->currentDelegate());
     m_pageTabPreferences->setId(originalTabPreferences->id());
-    TextEditorSettings *settings = TextEditorSettings::instance();
-    m_widget = new CodeStyleEditor(settings->codeStyleFactory(QmlJSTools::Constants::QML_JS_SETTINGS_ID),
+    m_widget = new CodeStyleEditor(TextEditorSettings::codeStyleFactory(QmlJSTools::Constants::QML_JS_SETTINGS_ID),
                                    m_pageTabPreferences, parent);
 
     return m_widget;

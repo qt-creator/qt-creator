@@ -73,6 +73,6 @@ CMakeEditorFactory::CMakeEditorFactory(CMakeManager *manager)
 Core::IEditor *CMakeEditorFactory::createEditor(QWidget *parent)
 {
     CMakeEditorWidget *rc = new CMakeEditorWidget(parent, this, m_actionHandler);
-    TextEditor::TextEditorSettings::instance()->initializeEditor(rc);
+    TextEditor::TextEditorSettings::initializeEditor(rc);
     return rc->editor();
 }

@@ -70,7 +70,7 @@ Core::IEditor *CMakeEditor::duplicate(QWidget *parent)
     CMakeEditorWidget *w = qobject_cast<CMakeEditorWidget*>(widget());
     CMakeEditorWidget *ret = new CMakeEditorWidget(parent, w->factory(), w->actionHandler());
     ret->duplicateFrom(w);
-    TextEditor::TextEditorSettings::instance()->initializeEditor(ret);
+    TextEditor::TextEditorSettings::initializeEditor(ret);
     return ret->editor();
 }
 

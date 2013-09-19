@@ -703,7 +703,7 @@ void VcsBaseEditorWidget::init()
         setCodeFoldingSupported(true);
         baseTextDocument()->setSyntaxHighlighter(dh);
     }
-    TextEditor::TextEditorSettings::instance()->initializeEditor(this);
+    TextEditor::TextEditorSettings::initializeEditor(this);
     // override revisions display (green or red bar on the left, marking changes):
     setRevisionsVisible(false);
 }

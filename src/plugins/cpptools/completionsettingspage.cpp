@@ -63,7 +63,7 @@ QWidget *CompletionSettingsPage::createPage(QWidget *parent)
     m_page->setupUi(w);
 
     const TextEditor::CompletionSettings &settings =
-            TextEditor::TextEditorSettings::instance()->completionSettings();
+            TextEditor::TextEditorSettings::completionSettings();
 
     int caseSensitivityIndex = 0;
     switch (settings.m_caseSensitivity) {
@@ -131,7 +131,7 @@ void CompletionSettingsPage::apply()
     settings.m_partiallyComplete = m_page->partiallyComplete->isChecked();
     settings.m_spaceAfterFunctionName = m_page->spaceAfterFunctionName->isChecked();
 
-    TextEditor::TextEditorSettings::instance()->setCompletionSettings(settings);
+    TextEditor::TextEditorSettings::setCompletionSettings(settings);
 
     if (!requireCommentsSettingsUpdate())
         return;

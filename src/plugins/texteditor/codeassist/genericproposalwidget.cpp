@@ -82,8 +82,7 @@ bool isPerfectMatch(const QString &prefix, const IGenericProposalModel *model)
     for (int i = 0; i < model->size(); ++i) {
         const QString &current = cleanText(model->text(i));
         if (!current.isEmpty()) {
-            TextEditor::CaseSensitivity cs =
-                TextEditor::TextEditorSettings::instance()->completionSettings().m_caseSensitivity;
+            CaseSensitivity cs = TextEditorSettings::completionSettings().m_caseSensitivity;
             if (cs == TextEditor::CaseSensitive) {
                 if (prefix == current)
                     return true;
@@ -468,7 +467,7 @@ bool GenericProposalWidget::updateAndCheck(const QString &prefix)
             d->m_explicitlySelected = false;
     }
 
-    if (TextEditorSettings::instance()->completionSettings().m_partiallyComplete
+    if (TextEditorSettings::completionSettings().m_partiallyComplete
             && d->m_kind == Completion
             && d->m_justInvoked
             && d->m_isSynchronized) {
