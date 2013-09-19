@@ -59,35 +59,13 @@ Column {
 
     }
 
-    Section {
-        anchors.left: parent.left
-        anchors.right: parent.right
-        caption: "Text"
+   StandardTextSection {
+       useLineEdit: true
+       showIsWrapping: true
+       showVerticalAlignment: true
+   }
 
-        GridLayout {
-            columns: 2
-            rows: 3
-            Label {
-                text: "Text"
-            }
-            LineEdit {
-                backendValue: backendValues.text
-            }
-            Label {
-                text: "Font Style"
-            }
-            FontStyleButtons {
-
-            }
-
-            Label {
-                text: "Wrap mode"
-            }
-            ComboBox {
-                Layout.fillWidth: true
-                backendValue: backendValues.wrapMode
-                model: ["NoWrap", "WordWrap", "WrapAnywhere", "WrapAtWordBoundaryOrAnywhere"]
-            }
-        }
-    }
+   FontSection {
+       showStyle: true
+   }
 }
