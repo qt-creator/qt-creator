@@ -1,10 +1,9 @@
 TEMPLATE = app
 TARGET = uninit2
 
-CONFIG += debug
+CONFIG += debug console
+CONFIG -= qt
 QMAKE_CXXFLAGS = -O0
-
-QT -= core gui
 
 macx:CONFIG -= app_bundle
 

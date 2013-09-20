@@ -1,9 +1,8 @@
 TEMPLATE = app
 TARGET = invalidjump
 
-CONFIG += debug
-
-QT -= core gui
+CONFIG += debug console
+CONFIG -= qt
 
 macx:CONFIG -= app_bundle
 

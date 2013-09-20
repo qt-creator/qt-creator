@@ -1,10 +1,9 @@
 TEMPLATE = app
 TARGET = overlap
 
-CONFIG += debug
+CONFIG += debug console
+CONFIG -= qt
 QMAKE_CXXFLAGS = -O0 -fno-builtin
-
-QT -= core gui
 
 macx:CONFIG -= app_bundle
 
