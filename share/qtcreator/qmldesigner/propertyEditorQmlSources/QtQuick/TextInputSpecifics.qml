@@ -38,24 +38,26 @@ Column {
     Section {
         anchors.left: parent.left
         anchors.right: parent.right
-        caption: "Color"
-        GridLayout {
-            columns: 2
-            rows: 2
-            Label {
-                text: "Text Color"
-            }
-            LineEdit {
-                backendValue: backendValues.color
-            }
-            Label {
-                text: "Style Color"
-            }
-            LineEdit {
-                backendValue: backendValues.styleColor
-            }
+        caption: qsTr("Text Color")
+
+        ColorEditor {
+            caption: qsTr(" Text Color")
+            backendendValue: backendValues.color
+            supportGradient: true
         }
 
+    }
+
+    Section {
+        anchors.left: parent.left
+        anchors.right: parent.right
+        caption: qsTr("Selection Color")
+
+        ColorEditor {
+            caption: qsTr("Selection Color")
+            backendendValue:  backendValues.selectionColor
+            supportGradient: false
+        }
     }
 
    StandardTextSection {
@@ -64,6 +66,6 @@ Column {
    }
 
    FontSection {
-       showStyle: true
+       showStyle: false
    }
 }
