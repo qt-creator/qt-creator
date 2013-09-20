@@ -92,6 +92,7 @@ QtcPlugin {
             "watchutils.cpp", "watchutils.h",
             "watchwindow.cpp", "watchwindow.h",
             "simplifytype.cpp", "simplifytype.h",
+            "unstartedappwatcherdialog.cpp", "unstartedappwatcherdialog.h"
         ]
     }
 

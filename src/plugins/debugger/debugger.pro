@@ -73,7 +73,8 @@ HEADERS += \
     memoryview.h \
     localsandexpressionswindow.h \
     imageviewer.h \
-    simplifytype.h
+    simplifytype.h \
+    unstartedappwatcherdialog.h
 
 SOURCES += \
     basewindow.cpp \
@@ -129,7 +130,8 @@ SOURCES += \
     memoryview.cpp \
     localsandexpressionswindow.cpp \
     imageviewer.cpp \
-    simplifytype.cpp
+    simplifytype.cpp \
+    unstartedappwatcherdialog.cpp
 
 FORMS += \
     localsandexpressionsoptionspage.ui
