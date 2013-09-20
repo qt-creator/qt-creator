@@ -39,11 +39,35 @@ Column {
 
     property alias color: colorButton.color
 
+    property bool supportGradient: false
+
+    property alias caption: label.text
+
+    property variant backendendValue
+
+    property variant value: backendendValue.value
+
+    onValueChanged: {
+        color = value
+    }
+
+    Timer {
+        id: colorEditorTimer
+        repeat: false
+        interval: 100
+        onTriggered: {
+            if (backendendValue !== undefined)
+                backendendValue.value = colorEditor.color
+        }
+    }
+
     id: colorEditor
 
     onColorChanged: {
         textField.text = gradientLine.colorToString(color);
         gradientLine.currentColor = color
+        //Delay setting the color to keep ui responsive
+        colorEditorTimer.restart()
     }
 
     GradientLine {
@@ -103,6 +127,7 @@ Column {
 
                 }
                 ButtonRowButton {
+                    visible: supportGradient
                     iconSource: "images/icon_color_gradient.png"
 
                 }
