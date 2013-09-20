@@ -37,30 +37,15 @@
 #include <vcsbase/vcsconfigurationpage.h>
 #include <utils/qtcassert.h>
 
-#include <QIcon>
-
 namespace Cvs {
 namespace Internal {
 
-CheckoutWizard::CheckoutWizard(QObject *parent) :
-        VcsBase::BaseCheckoutWizard(parent)
+CheckoutWizard::CheckoutWizard()
 {
     setId(QLatin1String(VcsBase::Constants::VCS_ID_CVS));
-}
-
-QIcon CheckoutWizard::icon() const
-{
-    return QIcon(QLatin1String(":/cvs/images/cvs.png"));
-}
-
-QString CheckoutWizard::description() const
-{
-    return tr("Checks out a CVS repository and tries to load the contained project.");
-}
-
-QString CheckoutWizard::displayName() const
-{
-    return tr("CVS Checkout");
+    setIcon(QIcon(QLatin1String(":/cvs/images/cvs.png")));
+    setDescription(tr("Checks out a CVS repository and tries to load the contained project."));
+    setDisplayName(tr("CVS Checkout"));
 }
 
 QList<QWizardPage*> CheckoutWizard::createParameterPages(const QString &path)

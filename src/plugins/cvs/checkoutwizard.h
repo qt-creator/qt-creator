@@ -38,15 +38,11 @@ namespace Internal {
 class CheckoutWizard : public VcsBase::BaseCheckoutWizard
 {
     Q_OBJECT
+
 public:
-    explicit CheckoutWizard(QObject *parent = 0);
+    CheckoutWizard();
 
-    // IWizard
-    QIcon icon() const;
-    QString description() const;
-    QString displayName() const;
-
-protected:
+private:
     // BaseCheckoutWizard
     QList<QWizardPage*> createParameterPages(const QString &path);
     VcsBase::Command *createCommand(const QList<QWizardPage*> &parameterPage,

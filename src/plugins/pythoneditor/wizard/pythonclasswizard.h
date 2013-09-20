@@ -46,9 +46,9 @@ class ClassWizard : public Core::BaseFileWizard
     Q_OBJECT
 
 public:
-    explicit ClassWizard(QObject *parent = 0);
+    ClassWizard();
 
-protected:
+private:
     QWizard *createWizardDialog(QWidget *parent,
                                 const Core::WizardDialogParameters &params) const;
 

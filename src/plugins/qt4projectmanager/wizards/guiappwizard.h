@@ -42,22 +42,13 @@ class GuiAppWizard : public QtWizard
     Q_OBJECT
 
 public:
-    GuiAppWizard();
-    virtual Core::FeatureSet requiredFeatures() const;
+    GuiAppWizard(bool isMobile = false);
 
-protected:
-    GuiAppWizard(const QString &id,
-                 const QString &category,
-                 const QString &displayCategory,
-                 const QString &name,
-                 const QString &description,
-                 const QIcon &icon,
-                 bool createMobile);
-    virtual QWizard *createWizardDialog(QWidget *parent,
+private:
+    QWizard *createWizardDialog(QWidget *parent,
                                         const Core::WizardDialogParameters &wizardDialogParameters) const;
 
-    virtual Core::GeneratedFiles generateFiles(const QWizard *w,
-                                               QString *errorMessage) const;
+    Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
 
 private:
     static bool parametrizeTemplate(const QString &templatePath, const QString &templateName,

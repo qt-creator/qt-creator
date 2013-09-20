@@ -41,7 +41,6 @@
 #include <utils/qtcassert.h>
 
 #include <QUrl>
-#include <QIcon>
 
 namespace Gitorious {
 namespace Internal {
@@ -70,25 +69,12 @@ void GitoriousCloneWizardPage::initializePage()
 }
 
 // -------- GitoriousCloneWizard
-GitoriousCloneWizard::GitoriousCloneWizard(QObject *parent) :
-        VcsBase::BaseCheckoutWizard(parent)
+GitoriousCloneWizard::GitoriousCloneWizard()
 {
     setId(QLatin1String(VcsBase::Constants::VCS_ID_GIT));
-}
-
-QIcon GitoriousCloneWizard::icon() const
-{
-    return QIcon(QLatin1String(":/git/images/gitorious.png"));
-}
-
-QString GitoriousCloneWizard::description() const
-{
-    return tr("Clones a Gitorious repository and tries to load the contained project.");
-}
-
-QString GitoriousCloneWizard::displayName() const
-{
-    return tr("Gitorious Repository Clone");
+    setIcon(QIcon(QLatin1String(":/git/images/gitorious.png")));
+    setDescription(tr("Clones a Gitorious repository and tries to load the contained project."));
+    setDisplayName(tr("Gitorious Repository Clone"));
 }
 
 QList<QWizardPage*> GitoriousCloneWizard::createParameterPages(const QString &path)

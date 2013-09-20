@@ -65,29 +65,36 @@ QmlApp *QmlApplicationWizardDialog::qmlApp() const
     return m_qmlApp;
 }
 
-QmlApplicationWizard::QmlApplicationWizard(const BaseFileWizardParameters &parameters,
-                                                   const TemplateInfo &templateInfo, QObject *parent)
-    : BaseFileWizard(parameters, parent),
-      m_qmlApp(new QmlApp(this))
+QmlApplicationWizard::QmlApplicationWizard(const TemplateInfo &templateInfo)
+    : m_qmlApp(new QmlApp(this))
 {
+    setWizardKind(ProjectWizard);
+    setCategory(QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY));
+    setId(QLatin1String("QA.QMLB Application"));
+    setIcon(QIcon(QLatin1String(Qt4ProjectManager::Constants::ICON_QTQUICK_APP)));
+    setDisplayCategory(
+         QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY_DISPLAY));
+    setDisplayName(tr("Qt Quick Application"));
+    setDescription(tr("Creates a Qt Quick application project."));
+
     m_qmlApp->setTemplateInfo(templateInfo);
 }
 
 void QmlApplicationWizard::createInstances(ExtensionSystem::IPlugin *plugin)
 {
     foreach (const TemplateInfo &templateInfo, QmlApp::templateInfos()) {
-        BaseFileWizardParameters parameters;
-        parameters.setDisplayName(templateInfo.displayName);
-        parameters.setDescription(templateInfo.description);
+        QmlApplicationWizard *wizard = new QmlApplicationWizard(templateInfo);
+        wizard->setDisplayName(templateInfo.displayName);
+        wizard->setDescription(templateInfo.description);
         const QString imagePath = templateInfo.templatePath + QLatin1String("/template.png");
         if (QFileInfo(imagePath).exists())
-            parameters.setDescriptionImage(imagePath);
-        parameters.setCategory(
+            wizard->setDescriptionImage(imagePath);
+        wizard->setCategory(
                     QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY));
-        parameters.setDisplayCategory(
+        wizard->setDisplayCategory(
                     QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY_DISPLAY));
-        parameters.setKind(IWizard::ProjectWizard);
-        parameters.setId(templateInfo.wizardId);
+        wizard->setWizardKind(IWizard::ProjectWizard);
+        wizard->setId(templateInfo.wizardId);
 
         QStringList stringList =
                 templateInfo.featuresRequired.split(QLatin1Char(','), QString::SkipEmptyParts);
@@ -97,24 +104,10 @@ void QmlApplicationWizard::createInstances(ExtensionSystem::IPlugin *plugin)
             features |= feature;
         }
 
-        parameters.setRequiredFeatures(features);
-        parameters.setIcon(QIcon(QLatin1String(Qt4ProjectManager::Constants::ICON_QTQUICK_APP)));
-        QmlApplicationWizard *wizard = new QmlApplicationWizard(parameters, templateInfo);
+        wizard->setRequiredFeatures(features);
+        wizard->setIcon(QIcon(QLatin1String(Qt4ProjectManager::Constants::ICON_QTQUICK_APP)));
         plugin->addAutoReleasedObject(wizard);
     }
-}
-
-BaseFileWizardParameters QmlApplicationWizard::parameters()
-{
-    BaseFileWizardParameters params(ProjectWizard);
-    params.setCategory(QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY));
-    params.setId(QLatin1String("QA.QMLB Application"));
-    params.setIcon(QIcon(QLatin1String(Qt4ProjectManager::Constants::ICON_QTQUICK_APP)));
-    params.setDisplayCategory(
-                QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY_DISPLAY));
-    params.setDisplayName(tr("Qt Quick Application"));
-    params.setDescription(tr("Creates a Qt Quick application project."));
-    return params;
 }
 
 QWizard *QmlApplicationWizard::createWizardDialog(QWidget *parent,

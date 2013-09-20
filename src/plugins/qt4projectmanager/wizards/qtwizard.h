@@ -58,15 +58,9 @@ class QtWizard : public Core::BaseFileWizard
     Q_OBJECT
 
 protected:
-    QtWizard(const QString &id,
-             const QString &category,
-             const QString &displayCategory,
-             const QString &name,
-             const QString &description,
-             const QIcon &icon);
+    QtWizard();
 
 public:
-
     static QString templateDir();
 
     static QString sourceSuffix();
@@ -88,17 +82,18 @@ private:
 };
 
 // A custom wizard with an additional Qt 4 target page
-class CustomQt4ProjectWizard : public ProjectExplorer::CustomProjectWizard {
+class CustomQt4ProjectWizard : public ProjectExplorer::CustomProjectWizard
+{
     Q_OBJECT
-public:
-    explicit CustomQt4ProjectWizard(const Core::BaseFileWizardParameters& baseFileParameters,
-                                    QObject *parent = 0);
 
-    virtual QWizard *createWizardDialog(QWidget *parent,
-                                        const Core::WizardDialogParameters &wizardDialogParameters) const;
+public:
+    CustomQt4ProjectWizard();
+
     static void registerSelf();
 
-protected:
+private:
+    QWizard *createWizardDialog(QWidget *parent,
+                                        const Core::WizardDialogParameters &wizardDialogParameters) const;
     virtual bool postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l, QString *errorMessage);
 
 private:

@@ -53,21 +53,9 @@ class VCSBASE_EXPORT BaseCheckoutWizard : public Core::IWizard
 
 public:
     explicit BaseCheckoutWizard(QObject *parent = 0);
-    virtual ~BaseCheckoutWizard();
+    ~BaseCheckoutWizard();
 
-    virtual WizardKind kind() const;
-
-    virtual QString category() const;
-    virtual QString displayCategory() const;
-    virtual QString id() const;
-
-    virtual QString descriptionImage() const;
-
-    virtual void runWizard(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &extraValues);
-
-    virtual Core::FeatureSet requiredFeatures() const;
-
-    virtual WizardFlags flags() const;
+    void runWizard(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &extraValues);
 
     static QString openProject(const QString &path, QString *errorMessage);
 
@@ -76,9 +64,6 @@ protected:
     virtual QList<QWizardPage *> createParameterPages(const QString &path) = 0;
     virtual Command *createCommand(const QList<QWizardPage *> &parameterPages,
                                    QString *checkoutPath) = 0;
-
-public slots:
-    void setId(const QString &id);
 
 private slots:
     void slotProgressPageShown();

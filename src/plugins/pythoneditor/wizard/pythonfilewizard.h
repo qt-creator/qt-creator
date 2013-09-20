@@ -39,16 +39,14 @@ class FileWizard : public Core::BaseFileWizard
     Q_OBJECT
 
 public:
-    explicit FileWizard(QObject *parent = 0);
-    virtual ~FileWizard();
+    FileWizard();
+    ~FileWizard();
 
 protected:
-    virtual QWizard *createWizardDialog(
-            QWidget *parent,
+    QWizard *createWizardDialog(QWidget *parent,
             const Core::WizardDialogParameters &params) const;
 
-    virtual Core::GeneratedFiles generateFiles(
-            const QWizard *dialog,
+    Core::GeneratedFiles generateFiles( const QWizard *dialog,
             QString *errorMessage) const;
 };
 

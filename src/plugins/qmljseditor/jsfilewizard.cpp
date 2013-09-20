@@ -88,15 +88,8 @@ public:
 
 using namespace QmlJSEditor;
 
-JsFileWizard::JsFileWizard(const BaseFileWizardParameters &parameters,
-                           QObject *parent):
-    Core::BaseFileWizard(parameters, parent)
+JsFileWizard::JsFileWizard()
 {
-}
-
-Core::FeatureSet JsFileWizard::requiredFeatures() const
-{
-    return Core::FeatureSet();
 }
 
 Core::GeneratedFiles JsFileWizard::generateFiles(const QWizard *w,

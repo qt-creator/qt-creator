@@ -38,8 +38,8 @@ namespace Internal {
 class QtQuickAppWizard : public AbstractMobileAppWizard
 {
     Q_OBJECT
-public:
 
+public:
     enum Kind {
         QtQuick1_1 = 0,
         QtQuick2_0 = 1,
@@ -49,16 +49,14 @@ public:
     };
 
     QtQuickAppWizard();
-    explicit QtQuickAppWizard(const Core::BaseFileWizardParameters &params, QObject *parent = 0);
-    virtual ~QtQuickAppWizard();
+    ~QtQuickAppWizard();
+
     static void createInstances(ExtensionSystem::IPlugin *plugin);
 
 protected:
     QString fileToOpenPostGeneration() const;
 
 private:
-    static Core::BaseFileWizardParameters baseParameters();
-
     virtual AbstractMobileApp *app() const;
     virtual AbstractMobileAppWizardDialog *wizardDialog() const;
     virtual AbstractMobileAppWizardDialog *createWizardDialogInternal(QWidget *parent,

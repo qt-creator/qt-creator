@@ -73,14 +73,13 @@ bool ResourceEditorPlugin::initialize(const QStringList &arguments, QString *err
     m_editor = new ResourceEditorFactory(this);
     addObject(m_editor);
 
-    Core::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
-    wizardParameters.setDescription(tr("Creates a Qt Resource file (.qrc) that you can add to a Qt Widget Project."));
-    wizardParameters.setDisplayName(tr("Qt Resource file"));
-    wizardParameters.setId(QLatin1String("F.Resource"));
-    wizardParameters.setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
-    wizardParameters.setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::WIZARD_TR_CATEGORY_QT));
+    m_wizard = new ResourceWizard(this);
+    m_wizard->setDescription(tr("Creates a Qt Resource file (.qrc) that you can add to a Qt Widget Project."));
+    m_wizard->setDisplayName(tr("Qt Resource file"));
+    m_wizard->setId(QLatin1String("F.Resource"));
+    m_wizard->setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
+    m_wizard->setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::WIZARD_TR_CATEGORY_QT));
 
-    m_wizard = new ResourceWizard(wizardParameters, this);
     addObject(m_wizard);
 
     errorMessage->clear();

@@ -40,12 +40,9 @@ namespace Internal {
 class CloneWizard : public VcsBase::BaseCheckoutWizard
 {
     Q_OBJECT
-public:
-    CloneWizard(QObject *parent = 0);
 
-    QIcon icon() const;
-    QString description() const;
-    QString displayName() const;
+public:
+    CloneWizard();
 
 protected:
     QList<QWizardPage *> createParameterPages(const QString &path);

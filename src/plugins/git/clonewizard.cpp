@@ -37,31 +37,16 @@
 #include <vcsbase/vcsconfigurationpage.h>
 #include <utils/qtcassert.h>
 
-#include <QIcon>
-
 namespace Git {
 namespace Internal {
 
-CloneWizard::CloneWizard(QObject *parent) :
-        VcsBase::BaseCheckoutWizard(parent)
+CloneWizard::CloneWizard()
 {
     setId(QLatin1String(VcsBase::Constants::VCS_ID_GIT));
     setCustomLabels(tr("Cloning"), tr("Cloning started..."));
-}
-
-QIcon CloneWizard::icon() const
-{
-    return QIcon(QLatin1String(":/git/images/git.png"));
-}
-
-QString CloneWizard::description() const
-{
-    return tr("Clones a Git repository and tries to load the contained project.");
-}
-
-QString CloneWizard::displayName() const
-{
-    return tr("Git Repository Clone");
+    setIcon(QIcon(QLatin1String(":/git/images/git.png")));
+    setDescription(tr("Clones a Git repository and tries to load the contained project."));
+    setDisplayName(tr("Git Repository Clone"));
 }
 
 QList<QWizardPage*> CloneWizard::createParameterPages(const QString &path)

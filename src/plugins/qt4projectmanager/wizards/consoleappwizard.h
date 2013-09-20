@@ -45,13 +45,11 @@ public:
     ConsoleAppWizard();
 
 protected:
-    virtual QWizard *createWizardDialog(QWidget *parent,
+    QWizard *createWizardDialog(QWidget *parent,
                                         const Core::WizardDialogParameters &wizardDialogParameters) const;
 
-    virtual Core::GeneratedFiles generateFiles(const QWizard *w,
+    Core::GeneratedFiles generateFiles(const QWizard *w,
                                                QString *errorMessage) const;
-
-    virtual Core::FeatureSet requiredFeatures() const;
 };
 
 } // namespace Internal

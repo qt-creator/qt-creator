@@ -41,15 +41,12 @@ class Html5AppWizard : public AbstractMobileAppWizard
 
 public:
     Html5AppWizard();
-    virtual ~Html5AppWizard();
-    virtual Core::FeatureSet requiredFeatures() const;
+    ~Html5AppWizard();
 
 protected:
     QString fileToOpenPostGeneration() const;
 
 private:
-    static Core::BaseFileWizardParameters parameters();
-
     virtual AbstractMobileApp *app() const;
     virtual AbstractMobileAppWizardDialog *wizardDialog() const;
     virtual AbstractMobileAppWizardDialog *createWizardDialogInternal(QWidget *parent,

@@ -178,48 +178,58 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png", Constants::GLSL_MIMETYPE_VERT_ES);
     FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png", Constants::GLSL_MIMETYPE_FRAG_ES);
 
-    QObject *core = ICore::instance();
-    BaseFileWizardParameters fragWizardParameters(IWizard::FileWizard);
-    fragWizardParameters.setCategory(QLatin1String(Constants::WIZARD_CATEGORY_GLSL));
-    fragWizardParameters.setDisplayCategory(QCoreApplication::translate("GLSLEditor", Constants::WIZARD_TR_CATEGORY_GLSL));
-    fragWizardParameters.setDescription
+    IWizard *wizard = new GLSLFileWizard(GLSLFileWizard::FragmentShaderES);
+    wizard->setWizardKind(IWizard::FileWizard);
+    wizard->setCategory(QLatin1String(Constants::WIZARD_CATEGORY_GLSL));
+    wizard->setDisplayCategory(QCoreApplication::translate("GLSLEditor", Constants::WIZARD_TR_CATEGORY_GLSL));
+    wizard->setDescription
         (tr("Creates a fragment shader in the OpenGL/ES 2.0 Shading "
             "Language (GLSL/ES). Fragment shaders generate the final "
             "pixel colors for triangles, points and lines rendered "
             "with OpenGL."));
-    fragWizardParameters.setDisplayName(tr("Fragment Shader (OpenGL/ES 2.0)"));
-    fragWizardParameters.setId(QLatin1String("F.GLSL"));
-    addAutoReleasedObject(new GLSLFileWizard(fragWizardParameters, GLSLFileWizard::FragmentShaderES, core));
+    wizard->setDisplayName(tr("Fragment Shader (OpenGL/ES 2.0)"));
+    wizard->setId(QLatin1String("F.GLSL"));
+    addAutoReleasedObject(wizard);
 
-    BaseFileWizardParameters vertWizardParameters(IWizard::FileWizard);
-    vertWizardParameters.setCategory(QLatin1String(Constants::WIZARD_CATEGORY_GLSL));
-    vertWizardParameters.setDisplayCategory(QCoreApplication::translate("GLSLEditor", Constants::WIZARD_TR_CATEGORY_GLSL));
-    vertWizardParameters.setDescription
+    wizard = new GLSLFileWizard(GLSLFileWizard::VertexShaderES);
+    wizard->setWizardKind(IWizard::FileWizard);
+    wizard->setCategory(QLatin1String(Constants::WIZARD_CATEGORY_GLSL));
+    wizard->setDisplayCategory(QCoreApplication::translate("GLSLEditor", Constants::WIZARD_TR_CATEGORY_GLSL));
+    wizard->setDescription
         (tr("Creates a vertex shader in the OpenGL/ES 2.0 Shading "
             "Language (GLSL/ES). Vertex shaders transform the "
             "positions, normals and texture co-ordinates of "
             "triangles, points and lines rendered with OpenGL."));
-    vertWizardParameters.setDisplayName(tr("Vertex Shader (OpenGL/ES 2.0)"));
-    vertWizardParameters.setId(QLatin1String("G.GLSL"));
-    addAutoReleasedObject(new GLSLFileWizard(vertWizardParameters, GLSLFileWizard::VertexShaderES, core));
+    wizard->setDisplayName(tr("Vertex Shader (OpenGL/ES 2.0)"));
+    wizard->setId(QLatin1String("G.GLSL"));
+    addAutoReleasedObject(wizard);
 
-    fragWizardParameters.setDescription
+    wizard = new GLSLFileWizard(GLSLFileWizard::FragmentShaderDesktop);
+    wizard->setWizardKind(IWizard::FileWizard);
+    wizard->setCategory(QLatin1String(Constants::WIZARD_CATEGORY_GLSL));
+    wizard->setDisplayCategory(QCoreApplication::translate("GLSLEditor", Constants::WIZARD_TR_CATEGORY_GLSL));
+    wizard->setDescription
         (tr("Creates a fragment shader in the Desktop OpenGL Shading "
             "Language (GLSL). Fragment shaders generate the final "
             "pixel colors for triangles, points and lines rendered "
             "with OpenGL."));
-    fragWizardParameters.setDisplayName(tr("Fragment Shader (Desktop OpenGL)"));
-    fragWizardParameters.setId(QLatin1String("J.GLSL"));
-    addAutoReleasedObject(new GLSLFileWizard(fragWizardParameters, GLSLFileWizard::FragmentShaderDesktop, core));
+    wizard->setDisplayName(tr("Fragment Shader (Desktop OpenGL)"));
+    wizard->setId(QLatin1String("J.GLSL"));
+    addAutoReleasedObject(wizard);
 
-    vertWizardParameters.setDescription
+    wizard = new GLSLFileWizard(GLSLFileWizard::VertexShaderDesktop);
+    wizard->setWizardKind(IWizard::FileWizard);
+    wizard->setCategory(QLatin1String(Constants::WIZARD_CATEGORY_GLSL));
+    wizard->setDisplayCategory(QCoreApplication::translate("GLSLEditor", Constants::WIZARD_TR_CATEGORY_GLSL));
+    wizard->setDescription
         (tr("Creates a vertex shader in the Desktop OpenGL Shading "
             "Language (GLSL). Vertex shaders transform the "
             "positions, normals and texture co-ordinates of "
             "triangles, points and lines rendered with OpenGL."));
-    vertWizardParameters.setDisplayName(tr("Vertex Shader (Desktop OpenGL)"));
-    vertWizardParameters.setId(QLatin1String("K.GLSL"));
-    addAutoReleasedObject(new GLSLFileWizard(vertWizardParameters, GLSLFileWizard::VertexShaderDesktop, core));
+    wizard->setDisplayName(tr("Vertex Shader (Desktop OpenGL)"));
+    wizard->setId(QLatin1String("K.GLSL"));
+    addAutoReleasedObject(wizard);
+
     addAutoReleasedObject(new GLSLHighlighterFactory);
 
     return true;

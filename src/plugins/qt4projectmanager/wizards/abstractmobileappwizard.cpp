@@ -226,8 +226,8 @@ QList<Core::Id> AbstractMobileAppWizardDialog::selectedKits() const
 
 
 
-AbstractMobileAppWizard::AbstractMobileAppWizard(const Core::BaseFileWizardParameters &params,
-    QObject *parent) : Core::BaseFileWizard(params, parent)
+AbstractMobileAppWizard::AbstractMobileAppWizard(QObject *parent)
+    : Core::BaseFileWizard(parent)
 { }
 
 QWizard *AbstractMobileAppWizard::createWizardDialog(QWidget *parent,

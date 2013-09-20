@@ -42,14 +42,12 @@ class SubdirsProjectWizard : public QtWizard
 public:
     SubdirsProjectWizard();
 
-protected:
-    virtual QWizard *createWizardDialog(QWidget *parent,
+private:
+    QWizard *createWizardDialog(QWidget *parent,
                                         const Core::WizardDialogParameters &wizardDialogParameters) const;
 
-    virtual Core::GeneratedFiles generateFiles(const QWizard *w,
-                                               QString *errorMessage) const;
-    virtual bool postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l, QString *errorMessage);
-    virtual Core::FeatureSet requiredFeatures() const;
+    Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
+    bool postGenerateFiles(const QWizard *, const Core::GeneratedFiles &l, QString *errorMessage);
 };
 
 } // namespace Internal

@@ -52,8 +52,8 @@
 
 #include <qmldesigner/qmldesignerconstants.h>
 
-#include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/id.h>
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -79,6 +79,7 @@
 
 using namespace QmlJSEditor::Constants;
 using namespace ProjectExplorer;
+using namespace Core;
 
 enum {
     QUICKFIX_INTERVAL = 20
@@ -137,30 +138,32 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     m_editor = new QmlJSEditorFactory(this);
     addObject(m_editor);
 
-    QObject *core = Core::ICore::instance();
-    Core::BaseFileWizardParameters qml1WizardParameters(Core::IWizard::FileWizard);
-    qml1WizardParameters.setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
-    qml1WizardParameters.setDisplayCategory(QCoreApplication::translate("QmlJsEditor", Core::Constants::WIZARD_TR_CATEGORY_QT));
-    qml1WizardParameters.setDescription(tr("Creates a QML file with boilerplate code, starting with \"import QtQuick 1.1\"."));
-    qml1WizardParameters.setDisplayName(tr("QML File (Qt Quick 1)"));
-    qml1WizardParameters.setId(QLatin1String(Constants::WIZARD_QML1FILE));
-    addAutoReleasedObject(new QmlFileWizard(qml1WizardParameters, core));
+    IWizard *wizard = new QmlFileWizard;
+    wizard->setWizardKind(Core::IWizard::FileWizard);
+    wizard->setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
+    wizard->setDisplayCategory(QCoreApplication::translate("QmlJsEditor", Core::Constants::WIZARD_TR_CATEGORY_QT));
+    wizard->setDescription(tr("Creates a QML file with boilerplate code, starting with \"import QtQuick 1.1\"."));
+    wizard->setDisplayName(tr("QML File (Qt Quick 1)"));
+    wizard->setId(QLatin1String(Constants::WIZARD_QML1FILE));
+    addAutoReleasedObject(wizard);
 
-    Core::BaseFileWizardParameters qml2WizardParameters(Core::IWizard::FileWizard);
-    qml2WizardParameters.setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
-    qml2WizardParameters.setDisplayCategory(QCoreApplication::translate("QmlJsEditor", Core::Constants::WIZARD_TR_CATEGORY_QT));
-    qml2WizardParameters.setDescription(tr("Creates a QML file with boilerplate code, starting with \"import QtQuick 2.0\"."));
-    qml2WizardParameters.setDisplayName(tr("QML File (Qt Quick 2)"));
-    qml2WizardParameters.setId(QLatin1String(Constants::WIZARD_QML2FILE));
-    addAutoReleasedObject(new QmlFileWizard(qml2WizardParameters, core));
+    wizard = new QmlFileWizard;
+    wizard->setWizardKind(Core::IWizard::FileWizard);
+    wizard->setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
+    wizard->setDisplayCategory(QCoreApplication::translate("QmlJsEditor", Core::Constants::WIZARD_TR_CATEGORY_QT));
+    wizard->setDescription(tr("Creates a QML file with boilerplate code, starting with \"import QtQuick 2.0\"."));
+    wizard->setDisplayName(tr("QML File (Qt Quick 2)"));
+    wizard->setId(QLatin1String(Constants::WIZARD_QML2FILE));
+    addAutoReleasedObject(wizard);
 
-    Core::BaseFileWizardParameters jsWizardParameters(Core::IWizard::FileWizard);
-    jsWizardParameters.setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
-    jsWizardParameters.setDisplayCategory(QCoreApplication::translate("QmlJsEditor", Core::Constants::WIZARD_TR_CATEGORY_QT));
-    jsWizardParameters.setDescription(tr("Creates a JavaScript file."));
-    jsWizardParameters.setDisplayName(tr("JS File"));
-    jsWizardParameters.setId(QLatin1String("Z.Js"));
-    addAutoReleasedObject(new JsFileWizard(jsWizardParameters, core));
+    wizard = new JsFileWizard;
+    wizard->setWizardKind(Core::IWizard::FileWizard);
+    wizard->setCategory(QLatin1String(Core::Constants::WIZARD_CATEGORY_QT));
+    wizard->setDisplayCategory(QCoreApplication::translate("QmlJsEditor", Core::Constants::WIZARD_TR_CATEGORY_QT));
+    wizard->setDescription(tr("Creates a JavaScript file."));
+    wizard->setDisplayName(tr("JS File"));
+    wizard->setId(QLatin1String("Z.Js"));
+    addAutoReleasedObject(wizard);
 
     m_actionHandler = new TextEditor::TextEditorActionHandler(Constants::C_QMLJSEDITOR_ID,
           TextEditor::TextEditorActionHandler::Format

@@ -60,25 +60,21 @@ private:
 class QmlApplicationWizard : public Core::BaseFileWizard
 {
     Q_OBJECT
-    Q_DISABLE_COPY(QmlApplicationWizard)
+
 public:
-    QmlApplicationWizard(const Core::BaseFileWizardParameters &parameters,
-                             const TemplateInfo &templateInfo, QObject *parent = 0);
+    explicit QmlApplicationWizard(const TemplateInfo &templateInfo);
 
     static void createInstances(ExtensionSystem::IPlugin *plugin);
 
-
-private: // functions
+private:
     QWizard *createWizardDialog(QWidget *parent,
                                 const Core::WizardDialogParameters &wizardDialogParameters) const;
     Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
     void writeUserFile(const QString &fileName) const;
     bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage);
 
-    static Core::BaseFileWizardParameters parameters();
-
-private: //variables
-    mutable QString m_id;
+private:
+//    mutable QString m_id;
     QmlApp *m_qmlApp;
 };
 

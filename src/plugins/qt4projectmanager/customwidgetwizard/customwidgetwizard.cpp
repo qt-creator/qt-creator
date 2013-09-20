@@ -37,24 +37,21 @@
 
 #include <qtsupport/qtsupportconstants.h>
 
-#include <QIcon>
+#include <QCoreApplication>
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-CustomWidgetWizard::CustomWidgetWizard() :
-    QtWizard(QLatin1String("P.Qt4CustomWidget"),
-             QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY),
-             QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY_DISPLAY),
-             tr("Qt Custom Designer Widget"),
-             tr("Creates a Qt Custom Designer Widget or a Custom Widget Collection."),
-             QIcon(QLatin1String(":/wizards/images/gui.png")))
+CustomWidgetWizard::CustomWidgetWizard()
 {
-}
-
-Core::FeatureSet CustomWidgetWizard::requiredFeatures() const
-{
-    return Core::Feature(QtSupport::Constants::FEATURE_QWIDGETS);
+    setId(QLatin1String("P.Qt4CustomWidget"));
+    setCategory(QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY));
+    setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
+             ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY_DISPLAY));
+    setDisplayName(tr("Qt Custom Designer Widget"));
+    setDescription(tr("Creates a Qt Custom Designer Widget or a Custom Widget Collection."));
+    setIcon(QIcon(QLatin1String(":/wizards/images/gui.png")));
+    setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QWIDGETS));
 }
 
 QWizard *CustomWidgetWizard::createWizardDialog(QWidget *parent,

@@ -106,9 +106,9 @@ public:
     CustomWizardParameters();
     void clear();
     ParseResult parse(QIODevice &device, const QString &configFileFullPath,
-                      Core::BaseFileWizardParameters *bp, QString *errorMessage);
+                      Core::IWizard::Data *bp, QString *errorMessage);
     ParseResult parse(const QString &configFileFullPath,
-                      Core::BaseFileWizardParameters *bp, QString *errorMessage);
+                      Core::IWizard::Data *bp, QString *errorMessage);
     QString toString() const;
 
     QString directory;

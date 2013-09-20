@@ -34,25 +34,22 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <qtsupport/qtsupportconstants.h>
 
-#include <QIcon>
+#include <QCoreApplication>
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
 EmptyProjectWizard::EmptyProjectWizard()
-  : QtWizard(QLatin1String("U.Qt4Empty"),
-             QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY),
-             QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY_DISPLAY),
-             tr("Empty Qt Project"),
-             tr("Creates a qmake-based project without any files. This allows you to create "
-                "an application without any default classes."),
-             QIcon(QLatin1String(":/wizards/images/gui.png")))
 {
-}
-
-Core::FeatureSet EmptyProjectWizard::requiredFeatures() const
-{
-    return Core::Feature(QtSupport::Constants::FEATURE_QT);
+    setId(QLatin1String("U.Qt4Empty"));
+    setCategory(QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY));
+    setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
+             ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY_DISPLAY));
+    setDisplayName(tr("Empty Qt Project"));
+    setDescription(tr("Creates a qmake-based project without any files. This allows you to create "
+                "an application without any default classes."));
+    setIcon(QIcon(QLatin1String(":/wizards/images/gui.png")));
+    setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QT));
 }
 
 QWizard *EmptyProjectWizard::createWizardDialog(QWidget *parent,

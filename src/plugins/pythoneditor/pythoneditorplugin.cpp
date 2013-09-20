@@ -236,8 +236,8 @@ bool PythonEditorPlugin::initialize(const QStringList &arguments, QString *error
         Core::FileIconProvider::registerIconOverlayForMimeType(icon, C_PY_MIMETYPE);
 
     // Add Python files and classes creation dialogs
-    addAutoReleasedObject(new FileWizard(Core::ICore::instance()));
-    addAutoReleasedObject(new ClassWizard(Core::ICore::instance()));
+    addAutoReleasedObject(new FileWizard);
+    addAutoReleasedObject(new ClassWizard);
     addAutoReleasedObject(new Internal::PythonHighlighterFactory);
 
     return true;

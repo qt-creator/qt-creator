@@ -42,19 +42,12 @@ class CloneWizard : public VcsBase::BaseCheckoutWizard
     Q_OBJECT
 
 public:
-    CloneWizard(QObject *parent = 0);
+    CloneWizard();
 
-    QIcon icon() const;
-    QString description() const;
-    QString displayName() const;
-
-protected:
+private:
     QList<QWizardPage *> createParameterPages(const QString &path);
     VcsBase::Command *createCommand(const QList<QWizardPage *> &parameterPages,
                                     QString *checkoutPath);
-
-private:
-    const QIcon m_icon;
 };
 
 } // namespace Internal

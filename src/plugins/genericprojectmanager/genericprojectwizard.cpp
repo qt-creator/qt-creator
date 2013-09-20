@@ -108,33 +108,23 @@ QString GenericProjectWizardDialog::projectName() const
 //////////////////////////////////////////////////////////////////////////////
 
 GenericProjectWizard::GenericProjectWizard()
-    : Core::BaseFileWizard(parameters())
-{ }
-
-Core::FeatureSet GenericProjectWizard::requiredFeatures() const
 {
-    return Core::FeatureSet();
-}
-
-Core::BaseFileWizardParameters GenericProjectWizard::parameters()
-{
-    Core::BaseFileWizardParameters parameters(ProjectWizard);
+    setWizardKind(ProjectWizard);
     // TODO do something about the ugliness of standard icons in sizes different than 16, 32, 64, 128
     {
         QPixmap icon(22, 22);
         icon.fill(Qt::transparent);
         QPainter p(&icon);
         p.drawPixmap(3, 3, 16, 16, qApp->style()->standardIcon(QStyle::SP_DirIcon).pixmap(16));
-        parameters.setIcon(icon);
+        setIcon(icon);
     }
-    parameters.setDisplayName(tr("Import Existing Project"));
-    parameters.setId(QLatin1String("Z.Makefile"));
-    parameters.setDescription(tr("Imports existing projects that do not use qmake, CMake or Autotools. "
-                                 "This allows you to use Qt Creator as a code editor."));
-    parameters.setCategory(QLatin1String(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY));
-    parameters.setDisplayCategory(QLatin1String(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY_DISPLAY));
-    parameters.setFlags(Core::IWizard::PlatformIndependent);
-    return parameters;
+    setDisplayName(tr("Import Existing Project"));
+    setId(QLatin1String("Z.Makefile"));
+    setDescription(tr("Imports existing projects that do not use qmake, CMake or Autotools. "
+                      "This allows you to use Qt Creator as a code editor."));
+    setCategory(QLatin1String(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY));
+    setDisplayCategory(QLatin1String(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY_DISPLAY));
+    setFlags(Core::IWizard::PlatformIndependent);
 }
 
 QWizard *GenericProjectWizard::createWizardDialog(QWidget *parent,

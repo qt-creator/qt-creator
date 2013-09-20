@@ -88,10 +88,8 @@ int CustomWizardPrivate::verbose = 0;
     of type "class" or "file". Serves as base class for project wizards.
 */
 
-CustomWizard::CustomWizard(const Core::BaseFileWizardParameters& baseFileParameters,
-                           QObject *parent) :
-    Core::BaseFileWizard(baseFileParameters, parent),
-    d(new CustomWizardPrivate)
+CustomWizard::CustomWizard()
+    : d(new CustomWizardPrivate)
 {
 }
 
@@ -249,11 +247,6 @@ Core::GeneratedFiles CustomWizard::generateFiles(const QWizard *dialog, QString 
     return generateWizardFiles(errorMessage);
 }
 
-Core::FeatureSet CustomWizard::requiredFeatures() const
-{
-    return baseFileWizardParameters().requiredFeatures();
-}
-
 bool CustomWizard::writeFiles(const Core::GeneratedFiles &files, QString *errorMessage)
 {
     if (!Core::BaseFileWizard::writeFiles(files, errorMessage))
@@ -346,30 +339,31 @@ void CustomWizard::registerFactory(const QString &name, const ICustomWizardFacto
     customWizardFactoryMap()->insert(name, f);
 }
 
-CustomWizard *CustomWizard::createWizard(const CustomWizardParametersPtr &p, const Core::BaseFileWizardParameters &b)
+CustomWizard *CustomWizard::createWizard(const CustomProjectWizard::CustomWizardParametersPtr &p, const Core::IWizard::Data &b)
 {
     CustomWizard * rc = 0;
     if (p->klass.isEmpty()) {
         // Use defaults for empty class names
-        switch (b.kind()) {
+        switch (b.kind) {
             case Core::IWizard::ProjectWizard:
-                rc = new CustomProjectWizard(b);
+                rc = new CustomProjectWizard;
                 break;
             case Core::IWizard::FileWizard:
             case Core::IWizard::ClassWizard:
-                rc = new CustomWizard(b);
+                rc = new CustomWizard;
                 break;
             }
     } else {
         // Look up class name in map
         const CustomWizardFactoryMap::const_iterator it = customWizardFactoryMap()->constFind(p->klass);
         if (it != customWizardFactoryMap()->constEnd())
-            rc = it.value()->create(b);
+            rc = it.value()->create();
     }
     if (!rc) {
         qWarning("Unable to create custom wizard for class %s.", qPrintable(p->klass));
         return 0;
     }
+    rc->setData(b);
     rc->setParameters(p);
     return rc;
 }
@@ -457,20 +451,20 @@ QList<CustomWizard*> CustomWizard::createWizards()
             verboseLog += QString::fromLatin1("CustomWizard: Scanning %1\n").arg(dirFi.absoluteFilePath());
         if (dir.exists(configFile)) {
             CustomWizardParametersPtr parameters(new Internal::CustomWizardParameters);
-            Core::BaseFileWizardParameters baseFileParameters;
-            switch (parameters->parse(dir.absoluteFilePath(configFile), &baseFileParameters, &errorMessage)) {
+            IWizard::Data data;
+            switch (parameters->parse(dir.absoluteFilePath(configFile), &data, &errorMessage)) {
             case Internal::CustomWizardParameters::ParseOk:
                 parameters->directory = dir.absolutePath();
                 if (CustomWizardPrivate::verbose)
                     QTextStream(&verboseLog)
-                            << "\n### Adding: " << baseFileParameters.id() << " / " << baseFileParameters.displayName() << '\n'
-                            << baseFileParameters.category() << " / " <<baseFileParameters.displayCategory() << '\n'
-                            << "  (" <<   baseFileParameters.description() << ")\n"
+                            << "\n### Adding: " << data.id << " / " << data.displayName << '\n'
+                            << data.category << " / " << data.displayCategory << '\n'
+                            << "  (" <<   data.description << ")\n"
                             << parameters->toString();
-                if (CustomWizard *w = createWizard(parameters, baseFileParameters))
+                if (CustomWizard *w = createWizard(parameters, data))
                     rc.push_back(w);
                 else
-                    qWarning("Custom wizard factory function failed for %s", qPrintable(baseFileParameters.id()));
+                    qWarning("Custom wizard factory function failed for %s", qPrintable(data.id));
                 break;
             case Internal::CustomWizardParameters::ParseDisabled:
                 if (CustomWizardPrivate::verbose)
@@ -512,9 +506,7 @@ QList<CustomWizard*> CustomWizard::createWizards()
     for QLineEdit-type fields' default text.
 */
 
-CustomProjectWizard::CustomProjectWizard(const Core::BaseFileWizardParameters& baseFileParameters,
-                                         QObject *parent) :
-    CustomWizard(baseFileParameters, parent)
+CustomProjectWizard::CustomProjectWizard()
 {
 }
 

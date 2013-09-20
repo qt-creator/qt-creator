@@ -35,7 +35,7 @@
 #include <cpptools/abstracteditorsupport.h>
 #include <qtsupport/qtsupportconstants.h>
 
-#include <QIcon>
+#include <QCoreApplication>
 #include <QFileInfo>
 #include <QTextStream>
 
@@ -53,14 +53,16 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 ConsoleAppWizard::ConsoleAppWizard()
-  : QtWizard(QLatin1String("E.Qt4Core"),
-             QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY),
-             QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY_DISPLAY),
-             tr("Qt Console Application"),
-             tr("Creates a project containing a single main.cpp file with a stub implementation.\n\n"
-                "Preselects a desktop Qt for building the application if available."),
-             QIcon(QLatin1String(":/wizards/images/console.png")))
 {
+    setId(QLatin1String("E.Qt4Core"));
+    setCategory(QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY));
+    setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
+             ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY_DISPLAY));
+    setDisplayName(tr("Qt Console Application"));
+    setDescription(tr("Creates a project containing a single main.cpp file with a stub implementation.\n\n"
+                "Preselects a desktop Qt for building the application if available."));
+    setIcon(QIcon(QLatin1String(":/wizards/images/console.png")));
+    setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QT_CONSOLE));
 }
 
 QWizard *ConsoleAppWizard::createWizardDialog(QWidget *parent,
@@ -100,11 +102,6 @@ Core::GeneratedFiles
     }
     profile.setContents(contents);
     return Core::GeneratedFiles() <<  source << profile;
-}
-
-Core::FeatureSet ConsoleAppWizard::requiredFeatures() const
-{
-    return Core::Feature(QtSupport::Constants::FEATURE_QT_CONSOLE);
 }
 
 } // namespace Internal

@@ -96,25 +96,20 @@ class CppClassWizard : public Core::BaseFileWizard
     Q_OBJECT
 
 public:
-    explicit CppClassWizard(const Core::BaseFileWizardParameters &parameters,
-                            QObject *parent = 0);
+    CppClassWizard();
 
-    virtual Core::FeatureSet requiredFeatures() const;
-
-protected:
-    virtual QWizard *createWizardDialog(QWidget *parent,
+private:
+    QWizard *createWizardDialog(QWidget *parent,
                                         const Core::WizardDialogParameters &wizardDialogParameters) const;
 
 
-    virtual Core::GeneratedFiles generateFiles(const QWizard *w,
+    Core::GeneratedFiles generateFiles(const QWizard *w,
                                                QString *errorMessage) const;
     QString sourceSuffix() const;
     QString headerSuffix() const;
 
-private:
     static bool generateHeaderAndSource(const CppClassWizardParameters &params,
                                         QString *header, QString *source);
-
 };
 
 } // namespace Internal

@@ -64,9 +64,6 @@ class GenericProjectWizard : public Core::BaseFileWizard
 
 public:
     GenericProjectWizard();
-    Core::FeatureSet requiredFeatures() const;
-
-    static Core::BaseFileWizardParameters parameters();
 
 protected:
     QWizard *createWizardDialog(QWidget *parent,

@@ -39,21 +39,15 @@ class JsFileWizard: public Core::BaseFileWizard
     Q_OBJECT
 
 public:
-    typedef Core::BaseFileWizardParameters BaseFileWizardParameters;
+    JsFileWizard();
 
-    explicit JsFileWizard(const BaseFileWizardParameters &parameters,
-                          QObject *parent = 0);
-
-    virtual Core::FeatureSet requiredFeatures() const;
-
-protected:
+private:
     QString fileContents(const QString &baseName, bool statelessLibrary) const;
 
-    virtual QWizard *createWizardDialog(QWidget *parent,
+    QWizard *createWizardDialog(QWidget *parent,
                                         const Core::WizardDialogParameters &wizardDialogParameters) const;
 
-    virtual Core::GeneratedFiles generateFiles(const QWizard *w,
-                                               QString *errorMessage) const;
+    Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
 };
 
 } // namespace QmlJSEditor

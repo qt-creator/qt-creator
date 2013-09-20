@@ -36,9 +36,6 @@
 namespace Qt4ProjectManager {
 namespace Internal {
 
-struct LibraryParameters;
-class ModulesPage;
-
 class LibraryWizard : public QtWizard
 {
     Q_OBJECT
@@ -47,12 +44,10 @@ public:
     LibraryWizard();
 
 protected:
-    virtual QWizard *createWizardDialog(QWidget *parent,
+    QWizard *createWizardDialog(QWidget *parent,
                                         const Core::WizardDialogParameters &wizardDialogParameters) const;
 
-    virtual Core::GeneratedFiles generateFiles(const QWizard *w,
-                                               QString *errorMessage) const;
-    virtual Core::FeatureSet requiredFeatures() const;
+    Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
 };
 
 } // namespace Internal

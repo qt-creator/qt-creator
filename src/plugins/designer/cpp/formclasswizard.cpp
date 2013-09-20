@@ -40,9 +40,9 @@
 namespace Designer {
 namespace Internal {
 
-FormClassWizard::FormClassWizard(const BaseFileWizardParameters &parameters,  QObject *parent)
-  : Core::BaseFileWizard(parameters, parent)
+FormClassWizard::FormClassWizard()
 {
+    setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QWIDGETS));
 }
 
 QString FormClassWizard::headerSuffix() const
@@ -58,11 +58,6 @@ QString FormClassWizard::sourceSuffix() const
 QString FormClassWizard::formSuffix() const
 {
     return preferredSuffix(QLatin1String(Constants::FORM_MIMETYPE));
-}
-
-Core::FeatureSet FormClassWizard::requiredFeatures() const
-{
-    return Core::Feature(QtSupport::Constants::FEATURE_QWIDGETS);
 }
 
 QWizard *FormClassWizard::createWizardDialog(QWidget *parent,

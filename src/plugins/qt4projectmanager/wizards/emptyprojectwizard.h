@@ -41,14 +41,12 @@ class EmptyProjectWizard : public QtWizard
 
 public:
     EmptyProjectWizard();
-    virtual Core::FeatureSet requiredFeatures() const;
 
-protected:
-    virtual QWizard *createWizardDialog(QWidget *parent,
+private:
+    QWizard *createWizardDialog(QWidget *parent,
                                         const Core::WizardDialogParameters &wizardDialogParameters) const;
 
-    virtual Core::GeneratedFiles generateFiles(const QWizard *w,
-                                               QString *errorMessage) const;
+    Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
 };
 
 } // namespace Internal

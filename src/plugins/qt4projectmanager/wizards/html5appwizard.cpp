@@ -79,9 +79,20 @@ class Html5AppWizardPrivate
 };
 
 Html5AppWizard::Html5AppWizard()
-    : AbstractMobileAppWizard(parameters())
-    , d(new Html5AppWizardPrivate)
+    : d(new Html5AppWizardPrivate)
 {
+    setWizardKind(ProjectWizard);
+    setIcon(QIcon(QLatin1String(Constants::ICON_HTML5_APP)));
+    setDisplayName(tr("HTML5 Application"));
+    setId(QLatin1String("QA.HTML5A Application"));
+    setDescription(tr("Creates an HTML5 application project that can contain "
+                      "both HTML5 and C++ code and includes a WebKit view.\n\n"
+                      "You can build the application and deploy it on desktop and "
+                      "mobile target platforms."));
+    setCategory(QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY));
+    setDisplayCategory(QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY_DISPLAY));
+    setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QT_WEBKIT));
+
     d->app = new Html5App;
     d->wizardDialog = 0;
 }
@@ -90,26 +101,6 @@ Html5AppWizard::~Html5AppWizard()
 {
     delete d->app;
     delete d;
-}
-
-Core::FeatureSet Html5AppWizard::requiredFeatures() const
-{
-    return Core::Feature(QtSupport::Constants::FEATURE_QT_WEBKIT);
-}
-
-Core::BaseFileWizardParameters Html5AppWizard::parameters()
-{
-    Core::BaseFileWizardParameters parameters(ProjectWizard);
-    parameters.setIcon(QIcon(QLatin1String(Constants::ICON_HTML5_APP)));
-    parameters.setDisplayName(tr("HTML5 Application"));
-    parameters.setId(QLatin1String("QA.HTML5A Application"));
-    parameters.setDescription(tr("Creates an HTML5 application project that can contain "
-                                 "both HTML5 and C++ code and includes a WebKit view.\n\n"
-                                 "You can build the application and deploy it on desktop and "
-                                 "mobile target platforms."));
-    parameters.setCategory(QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY));
-    parameters.setDisplayCategory(QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY_DISPLAY));
-    return parameters;
 }
 
 AbstractMobileAppWizardDialog *Html5AppWizard::createWizardDialogInternal(QWidget *parent,

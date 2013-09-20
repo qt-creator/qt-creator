@@ -42,25 +42,12 @@
 namespace Subversion {
 namespace Internal {
 
-CheckoutWizard::CheckoutWizard(QObject *parent) :
-        VcsBase::BaseCheckoutWizard(parent)
+CheckoutWizard::CheckoutWizard()
 {
     setId(QLatin1String(VcsBase::Constants::VCS_ID_SUBVERSION));
-}
-
-QIcon CheckoutWizard::icon() const
-{
-    return QIcon(QLatin1String(":/subversion/images/subversion.png"));
-}
-
-QString CheckoutWizard::description() const
-{
-    return tr("Checks out a Subversion repository and tries to load the contained project.");
-}
-
-QString CheckoutWizard::displayName() const
-{
-    return tr("Subversion Checkout");
+    setIcon(QIcon(QLatin1String(":/subversion/images/subversion.png")));
+    setDescription(tr("Checks out a Subversion repository and tries to load the contained project."));
+    setDisplayName(tr("Subversion Checkout"));
 }
 
 QList<QWizardPage*> CheckoutWizard::createParameterPages(const QString &path)

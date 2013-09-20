@@ -102,25 +102,18 @@ class ScratchFileWizard : public Core::IWizard
     Q_OBJECT
 
 public:
-    virtual WizardKind kind() const { return FileWizard; }
-    virtual QIcon icon() const { return QIcon(); }
-    virtual QString description() const
-        { return TextEditorPlugin::tr("Creates a scratch buffer using a temporary file."); }
-    virtual QString displayName() const
-        { return TextEditorPlugin::tr("Scratch Buffer"); }
-    virtual QString id() const
-        { return QLatin1String("Z.ScratchFile"); }
-    virtual QString category() const
-        { return QLatin1String(wizardCategoryC); }
-    virtual QString displayCategory() const
-        {  return wizardDisplayCategory(); }
-    virtual QString descriptionImage() const
-        { return QString(); }
-    virtual Core::FeatureSet requiredFeatures() const
-        { return Core::FeatureSet(); }
-    virtual WizardFlags flags() const
-        { return Core::IWizard::PlatformIndependent; }
-    virtual void runWizard(const QString &, QWidget *, const QString &, const QVariantMap &)
+    ScratchFileWizard()
+    {
+        setWizardKind(FileWizard);
+        setDescription(TextEditorPlugin::tr("Creates a scratch buffer using a temporary file."));
+        setDisplayName(TextEditorPlugin::tr("Scratch Buffer"));
+        setId(QLatin1String("Z.ScratchFile"));
+        setCategory(QLatin1String(wizardCategoryC));
+        setDisplayCategory(wizardDisplayCategory());
+        setFlags(Core::IWizard::PlatformIndependent);
+    }
+
+    void runWizard(const QString &, QWidget *, const QString &, const QVariantMap &)
         { createFile(); }
 
 public Q_SLOTS:
@@ -148,16 +141,16 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     if (!Core::MimeDatabase::addMimeTypes(QLatin1String(":/texteditor/TextEditor.mimetypes.xml"), errorMessage))
         return false;
 
-    Core::BaseFileWizardParameters wizardParameters(Core::IWizard::FileWizard);
-    wizardParameters.setDescription(tr("Creates a text file. The default file extension is <tt>.txt</tt>. "
-                                       "You can specify a different extension as part of the filename."));
-    wizardParameters.setDisplayName(tr("Text File"));
-    wizardParameters.setCategory(QLatin1String(wizardCategoryC));
-    wizardParameters.setDisplayCategory(wizardDisplayCategory());
-    wizardParameters.setFlags(Core::IWizard::PlatformIndependent);
     TextFileWizard *wizard = new TextFileWizard(QLatin1String(Constants::C_TEXTEDITOR_MIMETYPE_TEXT),
-                                                QLatin1String("text$"),
-                                                wizardParameters);
+                                                QLatin1String("text$"));
+    wizard->setWizardKind(Core::IWizard::FileWizard);
+    wizard->setDescription(tr("Creates a text file. The default file extension is <tt>.txt</tt>. "
+                                       "You can specify a different extension as part of the filename."));
+    wizard->setDisplayName(tr("Text File"));
+    wizard->setCategory(QLatin1String(wizardCategoryC));
+    wizard->setDisplayCategory(wizardDisplayCategory());
+    wizard->setFlags(Core::IWizard::PlatformIndependent);
+
     // Add text file wizard
     addAutoReleasedObject(wizard);
     ScratchFileWizard *scratchFile = new ScratchFileWizard;

@@ -267,36 +267,12 @@ static inline bool assignLanguageElementText(QXmlStreamReader &reader,
     return false;
 }
 
-// Copy&paste from above to call a setter of BaseFileParameters.
-// Implementation of a sophisticated mem_fun pattern is left
-// as an exercise to the reader.
-static inline bool assignLanguageElementText(QXmlStreamReader &reader,
-                                             const QString &desiredLanguage,
-                                             BaseFileWizardParameters *bp,
-                                             void (BaseFileWizardParameters::*setter)(const QString &))
-{
-    const QStringRef elementLanguage = reader.attributes().value(QLatin1String(langAttributeC));
-    if (elementLanguage.isEmpty()) {
-        // Try to find a translation for our built-in Wizards
-        const QString translated = QCoreApplication::translate("ProjectExplorer::CustomWizard", reader.readElementText().toLatin1().constData());
-        (bp->*setter)(translated);
-        return true;
-    }
-    if (elementLanguage == desiredLanguage) {
-        (bp->*setter)(reader.readElementText());
-        return true;
-    }
-    // Language mismatch: forward to end element.
-    skipOverElementText(reader);
-    return false;
-}
-
 // Read level sub-elements of "wizard"
 static bool parseCustomProjectElement(QXmlStreamReader &reader,
                                       const QString &configFileFullPath,
                                       const QString &language,
                                       CustomWizardParameters *p,
-                                      BaseFileWizardParameters *bp)
+                                      IWizard::Data *bp)
 {
     const QStringRef elementName = reader.name();
     if (elementName == QLatin1String(iconElementC)) {
@@ -306,23 +282,20 @@ static bool parseCustomProjectElement(QXmlStreamReader &reader,
             qWarning("Invalid icon path '%s' encountered in custom project template %s.",
                      qPrintable(path), qPrintable(configFileFullPath));
         } else {
-                bp->setIcon(icon);
+                bp->icon = icon;
         }
         return true;
     }
     if (elementName == QLatin1String(descriptionElementC)) {
-        assignLanguageElementText(reader, language, bp,
-                                  &BaseFileWizardParameters::setDescription);
+        assignLanguageElementText(reader, language, &bp->description);
         return true;
     }
     if (elementName == QLatin1String(displayNameElementC)) {
-        assignLanguageElementText(reader, language, bp,
-                                  &BaseFileWizardParameters::setDisplayName);
+        assignLanguageElementText(reader, language, &bp->displayName);
         return true;
     }
     if (elementName == QLatin1String(displayCategoryElementC)) {
-        assignLanguageElementText(reader, language, bp,
-                                  &BaseFileWizardParameters::setDisplayCategory);
+        assignLanguageElementText(reader, language, &bp->displayCategory);
         return true;
     }
     if (elementName == QLatin1String(fieldPageTitleElementC)) {
@@ -579,7 +552,7 @@ GeneratorScriptArgument::GeneratorScriptArgument(const QString &v) :
 CustomWizardParameters::ParseResult
      CustomWizardParameters::parse(QIODevice &device,
                                    const QString &configFileFullPath,
-                                   BaseFileWizardParameters *bp,
+                                   IWizard::Data *bp,
                                    QString *errorMessage)
 {
     int comboEntryCount = 0;
@@ -587,8 +560,8 @@ CustomWizardParameters::ParseResult
     QXmlStreamReader::TokenType token = QXmlStreamReader::EndDocument;
     ParseState state = ParseBeginning;
     clear();
-    bp->clear();
-    bp->setKind(IWizard::ProjectWizard);
+    *bp = IWizard::Data();
+    bp->kind = IWizard::ProjectWizard;
     const QString language = languageSetting();
     CustomWizardField field;
     do {
@@ -613,11 +586,11 @@ CustomWizardParameters::ParseResult
                 case ParseWithinWizard:
                     if (!booleanAttributeValue(reader, wizardEnabledAttributeC, true))
                         return ParseDisabled;
-                    bp->setId(attributeValue(reader, idAttributeC));
-                    bp->setCategory(attributeValue(reader, categoryAttributeC));
-                    bp->setKind(kindAttribute(reader));
-                    bp->setRequiredFeatures(requiredFeatures(reader));
-                    bp->setFlags(wizardFlags(reader));
+                    bp->id = attributeValue(reader, idAttributeC);
+                    bp->category = attributeValue(reader, categoryAttributeC);
+                    bp->kind = kindAttribute(reader);
+                    bp->requiredFeatures = requiredFeatures(reader);
+                    bp->flags = wizardFlags(reader);
                     klass = attributeValue(reader, klassAttributeC);
                     firstPageId = integerAttributeValue(reader, firstPageAttributeC, -1);
                     break;
@@ -731,7 +704,7 @@ CustomWizardParameters::ParseResult
 
 CustomWizardParameters::ParseResult
      CustomWizardParameters::parse(const QString &configFileFullPath,
-                                   BaseFileWizardParameters *bp,
+                                   IWizard::Data *bp,
                                    QString *errorMessage)
 {
     QFile configFile(configFileFullPath);

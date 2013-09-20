@@ -36,24 +36,26 @@
 
 #include <utils/qtcassert.h>
 
+#include <QCoreApplication>
 #include <QTextStream>
 #include <QFileInfo>
-
-#include <QIcon>
 
 namespace Qt4ProjectManager {
 namespace Internal {
 
-TestWizard::TestWizard() :
-    QtWizard(QLatin1String("L.Qt4Test"),
-             QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY),
-             QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY_DISPLAY),
-             tr("Qt Unit Test"),
-             tr("Creates a QTestLib-based unit test for a feature or a class. "
-                "Unit tests allow you to verify that the code is fit for use "
-                "and that there are no regressions."),
-             QIcon(QLatin1String(":/wizards/images/console.png")))
+TestWizard::TestWizard()
 {
+    setId(QLatin1String("L.Qt4Test"));
+    setCategory(QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY));
+    setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
+             ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY_DISPLAY));
+    setDisplayName(tr("Qt Unit Test"));
+    setDescription(tr("Creates a QTestLib-based unit test for a feature or a class. "
+                "Unit tests allow you to verify that the code is fit for use "
+                "and that there are no regressions."));
+    setIcon(QIcon(QLatin1String(":/wizards/images/console.png")));
+    setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QT_CONSOLE) |
+            Core::Feature(QtSupport::Constants::FEATURE_QT));
 }
 
 QWizard *TestWizard::createWizardDialog(QWidget *parent,
@@ -179,12 +181,6 @@ Core::GeneratedFiles TestWizard::generateFiles(const QWizard *w, QString *errorM
     profile.setContents(contents);
 
     return Core::GeneratedFiles() <<  source << profile;
-}
-
-Core::FeatureSet TestWizard::requiredFeatures() const
-{
-    return Core::Feature(QtSupport::Constants::FEATURE_QT_CONSOLE) |
-            Core::Feature(QtSupport::Constants::FEATURE_QT);
 }
 
 } // namespace Internal

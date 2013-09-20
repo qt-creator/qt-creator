@@ -28,15 +28,11 @@
 ****************************************************************************/
 
 #include "textfilewizard.h"
-#include <QDebug>
 
-using namespace TextEditor;
+namespace TextEditor {
 
 TextFileWizard::TextFileWizard(const QString &mimeType,
-                               const QString &suggestedFileName,
-                               const BaseFileWizardParameters &parameters,
-                               QObject *parent) :
-    Core::StandardFileWizard(parameters, parent),
+                               const QString &suggestedFileName) :
     m_mimeType(mimeType),
     m_suggestedFileName(suggestedFileName)
 {
@@ -52,3 +48,5 @@ Core::GeneratedFiles
     file.setAttributes(Core::GeneratedFile::OpenEditorAttribute);
     return Core::GeneratedFiles() << file;
 }
+
+} // namespace TextEditor

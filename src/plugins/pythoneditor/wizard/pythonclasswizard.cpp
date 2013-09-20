@@ -45,22 +45,14 @@ using namespace ProjectExplorer;
 namespace PythonEditor {
 namespace Internal {
 
-static Core::BaseFileWizardParameters getDefaultParams()
+ClassWizard::ClassWizard()
 {
-    Core::BaseFileWizardParameters p(Core::IWizard::FileWizard);
-
-    p.setId(QLatin1String(Constants::C_PY_CLASS_WIZARD_ID));
-    p.setCategory(QLatin1String(Constants::C_PY_WIZARD_CATEGORY));
-    p.setDisplayCategory(QLatin1String(Constants::C_PY_DISPLAY_CATEGORY));
-    p.setDisplayName(ClassWizard::tr(Constants::EN_PY_CLASS_DISPLAY_NAME));
-    p.setDescription(ClassWizard::tr(Constants::EN_PY_CLASS_DESCRIPTION));
-
-    return p;
-}
-
-ClassWizard::ClassWizard(QObject *parent) :
-    Core::BaseFileWizard(getDefaultParams(), parent)
-{
+    setWizardKind(Core::IWizard::FileWizard);
+    setId(QLatin1String(Constants::C_PY_CLASS_WIZARD_ID));
+    setCategory(QLatin1String(Constants::C_PY_WIZARD_CATEGORY));
+    setDisplayCategory(QLatin1String(Constants::C_PY_DISPLAY_CATEGORY));
+    setDisplayName(ClassWizard::tr(Constants::EN_PY_CLASS_DISPLAY_NAME));
+    setDescription(ClassWizard::tr(Constants::EN_PY_CLASS_DESCRIPTION));
 }
 
 QWizard *ClassWizard::createWizardDialog(

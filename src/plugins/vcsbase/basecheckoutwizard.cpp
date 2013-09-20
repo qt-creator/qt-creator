@@ -71,7 +71,6 @@ public:
     Internal::CheckoutWizardDialog *dialog;
     QList<QWizardPage *> parameterPages;
     QString checkoutPath;
-    QString id;
     QString progressTitle;
     QString startedStatus;
 };
@@ -89,41 +88,16 @@ BaseCheckoutWizard::BaseCheckoutWizard(QObject *parent) :
     Core::IWizard(parent),
     d(new Internal::BaseCheckoutWizardPrivate)
 {
+    setWizardKind(IWizard::ProjectWizard);
+    setCategory(QLatin1String(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY));
+    setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
+        ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY_DISPLAY));
+    setFlags(Core::IWizard::PlatformIndependent);
 }
 
 BaseCheckoutWizard::~BaseCheckoutWizard()
 {
     delete d;
-}
-
-Core::IWizard::WizardKind BaseCheckoutWizard::kind() const
-{
-    return Core::IWizard::ProjectWizard;
-}
-
-QString BaseCheckoutWizard::category() const
-{
-    return QLatin1String(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY);
-}
-
-QString BaseCheckoutWizard::displayCategory() const
-{
-    return QCoreApplication::translate("ProjectExplorer", ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY_DISPLAY);
-}
-
-QString BaseCheckoutWizard::id() const
-{
-    return d->id;
-}
-
-QString BaseCheckoutWizard::descriptionImage() const
-{
-    return QString();
-}
-
-void BaseCheckoutWizard::setId(const QString &id)
-{
-    d->id = id;
 }
 
 void BaseCheckoutWizard::runWizard(const QString &path, QWidget *parent, const QString & /*platform*/, const QVariantMap &extraValues)
@@ -152,16 +126,6 @@ void BaseCheckoutWizard::runWizard(const QString &path, QWidget *parent, const Q
         msgBox.setDetailedText(errorMessage);
         msgBox.exec();
     }
-}
-
-Core::FeatureSet BaseCheckoutWizard::requiredFeatures() const
-{
-    return Core::FeatureSet();
-}
-
-Core::IWizard::WizardFlags BaseCheckoutWizard::flags() const
-{
-    return Core::IWizard::PlatformIndependent;
 }
 
 static inline QString msgNoProjectFiles(const QDir &dir, const QStringList &patterns)

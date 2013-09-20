@@ -40,27 +40,13 @@
 using namespace Mercurial::Internal;
 using namespace VcsBase;
 
-CloneWizard::CloneWizard(QObject *parent)
-    : BaseCheckoutWizard(parent),
-    m_icon(QIcon(QLatin1String(":/mercurial/images/hg.png")))
+CloneWizard::CloneWizard()
 {
     setId(QLatin1String(Constants::VCS_ID_MERCURIAL));
     setCustomLabels(tr("Cloning"), tr("Cloning started..."));
-}
-
-QIcon CloneWizard::icon() const
-{
-    return m_icon;
-}
-
-QString CloneWizard::description() const
-{
-    return tr("Clones a Mercurial repository and tries to load the contained project.");
-}
-
-QString CloneWizard::displayName() const
-{
-    return tr("Mercurial Clone");
+    setIcon(QIcon(QLatin1String(":/mercurial/images/hg.png")));
+    setDescription(tr("Clones a Mercurial repository and tries to load the contained project."));
+    setDisplayName(tr("Mercurial Clone"));
 }
 
 QList<QWizardPage *> CloneWizard::createParameterPages(const QString &path)

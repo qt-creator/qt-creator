@@ -140,15 +140,8 @@ CppClassWizardParameters  CppClassWizardDialog::parameters() const
 
 // ========= CppClassWizard =========
 
-CppClassWizard::CppClassWizard(const Core::BaseFileWizardParameters &parameters,
-                               QObject *parent)
-  : Core::BaseFileWizard(parameters, parent)
+CppClassWizard::CppClassWizard()
 {
-}
-
-Core::FeatureSet CppClassWizard::requiredFeatures() const
-{
-    return Core::FeatureSet();
 }
 
 QString CppClassWizard::sourceSuffix() const

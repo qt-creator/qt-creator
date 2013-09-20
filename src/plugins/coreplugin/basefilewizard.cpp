@@ -63,189 +63,6 @@ static int indexOfFile(const GeneratedFiles &f, const QString &path)
     return -1;
 }
 
-// ------------ BaseFileWizardParameterData
-class BaseFileWizardParameterData : public QSharedData
-{
-public:
-    explicit BaseFileWizardParameterData(IWizard::WizardKind kind = IWizard::FileWizard);
-    void clear();
-
-    IWizard::WizardKind kind;
-    QIcon icon;
-    QString description;
-    QString displayName;
-    QString id;
-    QString category;
-    QString displayCategory;
-    FeatureSet requiredFeatures;
-    IWizard::WizardFlags flags;
-    QString descriptionImage;
-};
-
-BaseFileWizardParameterData::BaseFileWizardParameterData(IWizard::WizardKind k) :
-    kind(k)
-{
-}
-
-void BaseFileWizardParameterData::clear()
-{
-    kind = IWizard::FileWizard;
-    icon = QIcon();
-    description.clear();
-    displayName.clear();
-    id.clear();
-    category.clear();
-    displayCategory.clear();
-}
-
-/*!
-    \class Core::BaseFileWizardParameters
-    \brief The BaseFileWizardParameters class is a parameter class for
-    passing parameters to instances of the class Wizard containing name, icon,
-    and so on.
-
-    \sa Core::GeneratedFile, Core::BaseFileWizard, Core::StandardFileWizard
-    \sa Core::Internal::WizardEventLoop
-*/
-
-BaseFileWizardParameters::BaseFileWizardParameters(IWizard::WizardKind kind) :
-   m_d(new BaseFileWizardParameterData(kind))
-{
-}
-
-BaseFileWizardParameters::BaseFileWizardParameters(const BaseFileWizardParameters &rhs) :
-    m_d(rhs.m_d)
-{
-}
-
-BaseFileWizardParameters &BaseFileWizardParameters::operator=(const BaseFileWizardParameters &rhs)
-{
-    if (this != &rhs)
-        m_d.operator=(rhs.m_d);
-    return *this;
-}
-
-BaseFileWizardParameters::~BaseFileWizardParameters()
-{
-}
-
-void BaseFileWizardParameters::clear()
-{
-    m_d->clear();
-}
-
-CORE_EXPORT QDebug operator<<(QDebug d, const BaseFileWizardParameters &p)
-{
-    d.nospace() << "Kind: " << p.kind() << " Id: " << p.id()
-                << " Category: " << p.category()
-                << " DisplayName: " << p.displayName()
-                << " Description: " << p.description()
-                << " DisplayCategory: " << p.displayCategory()
-                << " Required Features: " << p.requiredFeatures().toStringList();
-    return d;
-}
-
-IWizard::WizardKind BaseFileWizardParameters::kind() const
-{
-    return m_d->kind;
-}
-
-void BaseFileWizardParameters::setKind(IWizard::WizardKind k)
-{
-    m_d->kind = k;
-}
-
-QIcon BaseFileWizardParameters::icon() const
-{
-    return m_d->icon;
-}
-
-void BaseFileWizardParameters::setIcon(const QIcon &icon)
-{
-    m_d->icon = icon;
-}
-
-QString BaseFileWizardParameters::description() const
-{
-    return m_d->description;
-}
-
-void BaseFileWizardParameters::setDescription(const QString &v)
-{
-    m_d->description = v;
-}
-
-QString BaseFileWizardParameters::displayName() const
-{
-    return m_d->displayName;
-}
-
-void BaseFileWizardParameters::setDisplayName(const QString &v)
-{
-    m_d->displayName = v;
-}
-
-QString BaseFileWizardParameters::id() const
-{
-    return m_d->id;
-}
-
-void BaseFileWizardParameters::setId(const QString &v)
-{
-    m_d->id = v;
-}
-
-QString BaseFileWizardParameters::category() const
-{
-    return m_d->category;
-}
-
-void BaseFileWizardParameters::setCategory(const QString &v)
-{
-    m_d->category = v;
-}
-
-QString BaseFileWizardParameters::displayCategory() const
-{
-    return m_d->displayCategory;
-}
-
-FeatureSet BaseFileWizardParameters::requiredFeatures() const
-{
-    return m_d->requiredFeatures;
-}
-
-void BaseFileWizardParameters::setRequiredFeatures(FeatureSet features)
-{
-
-    m_d->requiredFeatures = features;
-}
-
-void BaseFileWizardParameters::setDisplayCategory(const QString &v)
-{
-    m_d->displayCategory = v;
-}
-
-IWizard::WizardFlags BaseFileWizardParameters::flags() const
-{
-    return m_d->flags;
-}
-
-void BaseFileWizardParameters::setFlags(IWizard::WizardFlags flags)
-{
-    m_d->flags = flags;
-}
-
-QString BaseFileWizardParameters::descriptionImage() const
-{
-  return m_d->descriptionImage;
-}
-
-void BaseFileWizardParameters::setDescriptionImage(const QString &path)
-{
-    m_d->descriptionImage = path;
-}
-
 /*!
     \class Core::Internal::WizardEventLoop
     \brief Special event loop that runs a QWizard and terminates if the page changes.
@@ -359,72 +176,15 @@ void WizardEventLoop::rejected()
     \sa Core::Internal::WizardEventLoop
 */
 
-struct BaseFileWizardPrivate
-{
-    explicit BaseFileWizardPrivate(const Core::BaseFileWizardParameters &parameters)
-      : m_parameters(parameters), m_wizardDialog(0)
-    {}
 
-    const Core::BaseFileWizardParameters m_parameters;
-    QWizard *m_wizardDialog;
-};
-
-// ---------------- Wizard
-BaseFileWizard::BaseFileWizard(const BaseFileWizardParameters &parameters,
-                       QObject *parent) :
-    IWizard(parent),
-    d(new BaseFileWizardPrivate(parameters))
+BaseFileWizard::BaseFileWizard(QObject *parent) :
+    IWizard(parent)
 {
 }
 
-BaseFileWizardParameters BaseFileWizard::baseFileWizardParameters() const
-{
-    return d->m_parameters;
-}
 
 BaseFileWizard::~BaseFileWizard()
 {
-    delete d;
-}
-
-IWizard::WizardKind  BaseFileWizard::kind() const
-{
-    return d->m_parameters.kind();
-}
-
-QIcon BaseFileWizard::icon() const
-{
-    return d->m_parameters.icon();
-}
-
-QString BaseFileWizard::description() const
-{
-    return d->m_parameters.description();
-}
-
-QString BaseFileWizard::displayName() const
-{
-    return d->m_parameters.displayName();
-}
-
-QString BaseFileWizard::id() const
-{
-    return d->m_parameters.id();
-}
-
-QString BaseFileWizard::category() const
-{
-    return d->m_parameters.category();
-}
-
-QString BaseFileWizard::displayCategory() const
-{
-    return d->m_parameters.displayCategory();
-}
-
-QString BaseFileWizard::descriptionImage() const
-{
-       return d->m_parameters.descriptionImage();
 }
 
 void BaseFileWizard::runWizard(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &extraValues)
@@ -546,17 +306,6 @@ void BaseFileWizard::runWizard(const QString &path, QWidget *parent, const QStri
     if (!postGenerateFiles(wizard.data(), files, &errorMessage))
         if (!errorMessage.isEmpty())
             QMessageBox::critical(0, tr("File Generation Failure"), errorMessage);
-}
-
-
-FeatureSet BaseFileWizard::requiredFeatures() const
-{
-    return d->m_parameters.requiredFeatures();
-}
-
-IWizard::WizardFlags BaseFileWizard::flags() const
-{
-    return d->m_parameters.flags();
 }
 
 /*!
@@ -799,9 +548,8 @@ QString BaseFileWizard::preferredSuffix(const QString &mimeType)
     \brief Newly introduced virtual that creates the files under the path.
 */
 
-StandardFileWizard::StandardFileWizard(const BaseFileWizardParameters &parameters,
-                                       QObject *parent) :
-    BaseFileWizard(parameters, parent)
+StandardFileWizard::StandardFileWizard(QObject *parent) :
+    BaseFileWizard(parent)
 {
 }
 

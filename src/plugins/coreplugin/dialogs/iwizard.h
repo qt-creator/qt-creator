@@ -31,17 +31,14 @@
 #define IWIZARD_H
 
 #include <coreplugin/core_global.h>
+#include <coreplugin/id.h>
+#include <coreplugin/featureprovider.h>
 
+#include <QIcon>
 #include <QObject>
 #include <QVariantMap>
 
-QT_BEGIN_NAMESPACE
-class QIcon;
-QT_END_NAMESPACE
-
 namespace Core {
-
-class FeatureSet;
 
 class CORE_EXPORT IWizard
     : public QObject
@@ -60,22 +57,49 @@ public:
     };
     Q_DECLARE_FLAGS(WizardFlags, WizardFlag)
 
+    class CORE_EXPORT Data
+    {
+    public:
+        Data() : kind(IWizard::FileWizard) {}
+
+        IWizard::WizardKind kind;
+        QIcon icon;
+        QString description;
+        QString displayName;
+        QString id;
+        QString category;
+        QString displayCategory;
+        FeatureSet requiredFeatures;
+        IWizard::WizardFlags flags;
+        QString descriptionImage;
+    };
+
     IWizard(QObject *parent = 0) : QObject(parent) {}
-    virtual ~IWizard() {}
+    ~IWizard() {}
 
-    virtual WizardKind kind() const = 0;
-    virtual QIcon icon() const = 0;
-    virtual QString description() const = 0;
-    virtual QString displayName() const = 0;
-    virtual QString id() const = 0;
+    QString id() const { return m_data.id; }
+    WizardKind kind() const { return m_data.kind; }
+    QIcon icon() const { return m_data.icon; }
+    QString description() const { return m_data.description; }
+    QString displayName() const { return m_data.displayName; }
+    QString category() const { return m_data.category; }
+    QString displayCategory() const { return m_data.displayCategory; }
+    QString descriptionImage() const { return m_data.descriptionImage; }
+    FeatureSet requiredFeatures() const { return m_data.requiredFeatures; }
+    WizardFlags flags() const { return m_data.flags; }
 
-    virtual QString category() const = 0;
-    virtual QString displayCategory() const = 0;
-
-    virtual QString descriptionImage() const = 0;
-
-    virtual FeatureSet requiredFeatures() const = 0;
-    virtual WizardFlags flags() const = 0;
+    void setData(const Data &data) { m_data = data; }
+    void setId(const QString &id) { m_data.id = id; }
+    void setWizardKind(WizardKind kind) { m_data.kind = kind; }
+    void setIcon(const QIcon &icon) { m_data.icon = icon; }
+    void setDescription(const QString &description) { m_data.description = description; }
+    void setDisplayName(const QString &displayName) { m_data.displayName = displayName; }
+    void setCategory(const QString &category) { m_data.category = category; }
+    void setDisplayCategory(const QString &displayCategory) { m_data.displayCategory = displayCategory; }
+    void setDescriptionImage(const QString &descriptionImage) { m_data.descriptionImage = descriptionImage; }
+    void setRequiredFeatures(const FeatureSet &featureSet) { m_data.requiredFeatures = featureSet; }
+    void addRequiredFeature(const Feature &feature) { m_data.requiredFeatures |= feature; }
+    void setFlags(WizardFlags flags) { m_data.flags = flags; }
 
     virtual void runWizard(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &variables) = 0;
 
@@ -88,6 +112,9 @@ public:
     static QList<IWizard*> wizardsOfKind(WizardKind kind);
     static QStringList allAvailablePlatforms();
     static QString displayNameForPlatform(const QString &string);
+
+private:
+    Data m_data;
 };
 
 } // namespace Core

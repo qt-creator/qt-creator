@@ -52,21 +52,10 @@ public:
 
 using namespace GLSLEditor;
 
-GLSLFileWizard::GLSLFileWizard(const BaseFileWizardParameters &parameters,
-                               ShaderType shaderType, QObject *parent):
-    Core::BaseFileWizard(parameters, parent),
-    m_shaderType(shaderType)
+GLSLFileWizard::GLSLFileWizard(ShaderType shaderType)
+    : m_shaderType(shaderType)
 {
-}
-
-Core::FeatureSet GLSLFileWizard::requiredFeatures() const
-{
-    return Core::FeatureSet();
-}
-
-Core::IWizard::WizardFlags GLSLFileWizard::flags() const
-{
-    return Core::IWizard::PlatformIndependent;
+    setFlags(Core::IWizard::PlatformIndependent);
 }
 
 Core::GeneratedFiles GLSLFileWizard::generateFiles(const QWizard *w,

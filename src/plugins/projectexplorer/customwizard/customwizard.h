@@ -57,30 +57,29 @@ namespace Internal {
 }
 
 // Documentation inside.
-class ICustomWizardFactory {
+class ICustomWizardFactory
+{
 public:
-    virtual CustomWizard *create(const Core::BaseFileWizardParameters& baseFileParameters,
-                                 QObject *parent = 0) const = 0;
+    virtual CustomWizard *create(QObject *parent = 0) const = 0;
     virtual ~ICustomWizardFactory() {}
 };
 
 // Convenience template to create wizard factory classes.
-template <class Wizard> class CustomWizardFactory : public ICustomWizardFactory {
-    virtual CustomWizard *create(const Core::BaseFileWizardParameters& baseFileParameters,
-                                 QObject *parent = 0) const
-    { return new Wizard(baseFileParameters, parent); }
+template <class Wizard> class CustomWizardFactory : public ICustomWizardFactory
+{
+    CustomWizard *create(QObject * = 0) const { return new Wizard; }
 };
 
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT CustomWizard : public Core::BaseFileWizard
 {
     Q_OBJECT
+
 public:
     typedef QMap<QString, QString> FieldReplacementMap;
     typedef QSharedPointer<ICustomWizardFactory> ICustomWizardFactoryPtr;
 
-    explicit CustomWizard(const Core::BaseFileWizardParameters& baseFileParameters,
-                          QObject *parent = 0);
+    CustomWizard();
     virtual ~CustomWizard();
 
     // Can be reimplemented to create custom wizards. initWizardDialog() needs to be
@@ -89,9 +88,6 @@ public:
                                         const Core::WizardDialogParameters &wizardDialogParameters) const;
 
     virtual Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
-
-    virtual Core::FeatureSet requiredFeatures() const;
-
 
     // Register a factory for a derived custom widget
     static void registerFactory(const QString &name, const ICustomWizardFactoryPtr &f);
@@ -121,11 +117,12 @@ protected:
     CustomWizardParametersPtr parameters() const;
     CustomWizardContextPtr context() const;
 
+    static CustomWizard *createWizard(const CustomWizardParametersPtr &p, const Core::IWizard::Data &b);
+
 private:
     void setParameters(const CustomWizardParametersPtr &p);
 
-    static CustomWizard *createWizard(const CustomWizardParametersPtr &p,
-                                      const Core::BaseFileWizardParameters &b);
+    static CustomWizard *createWizard(const CustomWizardParametersPtr &p);
     CustomWizardPrivate *d;
 };
 
@@ -133,16 +130,17 @@ private:
 class PROJECTEXPLORER_EXPORT CustomProjectWizard : public CustomWizard
 {
     Q_OBJECT
+
 public:
-    explicit CustomProjectWizard(const Core::BaseFileWizardParameters& baseFileParameters,
-                                 QObject *parent = 0);
-
-    virtual QWizard *createWizardDialog(QWidget *parent,
-                                        const Core::WizardDialogParameters &wizardDialogParameters) const;
-
-    virtual Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
+    CustomProjectWizard();
 
     static bool postGenerateOpen(const Core::GeneratedFiles &l, QString *errorMessage = 0);
+
+protected:
+    QWizard *createWizardDialog(QWidget *parent,
+                                        const Core::WizardDialogParameters &wizardDialogParameters) const;
+
+    Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
 
 signals:
     void projectLocationChanged(const QString &path);

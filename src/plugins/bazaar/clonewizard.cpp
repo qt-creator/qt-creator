@@ -43,27 +43,13 @@
 
 using namespace Bazaar::Internal;
 
-CloneWizard::CloneWizard(QObject *parent)
-    : VcsBase::BaseCheckoutWizard(parent),
-      m_icon(QIcon(QLatin1String(":/bazaar/images/bazaar.png")))
+CloneWizard::CloneWizard()
 {
     setId(QLatin1String(VcsBase::Constants::VCS_ID_BAZAAR));
     setCustomLabels(tr("Cloning"), tr("Cloning started..."));
-}
-
-QIcon CloneWizard::icon() const
-{
-    return m_icon;
-}
-
-QString CloneWizard::description() const
-{
-    return tr("Clones a Bazaar branch and tries to load the contained project.");
-}
-
-QString CloneWizard::displayName() const
-{
-    return tr("Bazaar Clone (Or Branch)");
+    setIcon(QIcon(QLatin1String(":/bazaar/images/bazaar.png")));
+    setDescription(tr("Clones a Bazaar branch and tries to load the contained project."));
+    setDisplayName(tr("Bazaar Clone (Or Branch)"));
 }
 
 QList<QWizardPage *> CloneWizard::createParameterPages(const QString &path)

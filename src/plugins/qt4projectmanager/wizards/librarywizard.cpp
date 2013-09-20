@@ -37,24 +37,25 @@
 
 #include <QFileInfo>
 #include <QTextStream>
-#include <QIcon>
+#include <QCoreApplication>
 
 static const char sharedHeaderPostfixC[] = "_global";
 
 namespace Qt4ProjectManager {
-
 namespace Internal {
 
 LibraryWizard::LibraryWizard()
-  : QtWizard(QLatin1String("H.Qt4Library"),
-             QLatin1String(ProjectExplorer::Constants::LIBRARIES_WIZARD_CATEGORY),
-             QLatin1String(ProjectExplorer::Constants::LIBRARIES_WIZARD_CATEGORY_DISPLAY),
-             tr("C++ Library"),
-             tr("Creates a C++ library based on qmake. This can be used to create:<ul>"
-                "<li>a shared C++ library for use with <tt>QPluginLoader</tt> and runtime (Plugins)</li>"
-                "<li>a shared or static C++ library for use with another project at linktime</li></ul>"),
-             QIcon(QLatin1String(":/wizards/images/lib.png")))
 {
+    setId(QLatin1String("H.Qt4Library"));
+    setCategory(QLatin1String(ProjectExplorer::Constants::LIBRARIES_WIZARD_CATEGORY));
+    setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
+        ProjectExplorer::Constants::LIBRARIES_WIZARD_CATEGORY_DISPLAY));
+    setDisplayName(tr("C++ Library"));
+    setDescription(tr("Creates a C++ library based on qmake. This can be used to create:<ul>"
+                "<li>a shared C++ library for use with <tt>QPluginLoader</tt> and runtime (Plugins)</li>"
+                "<li>a shared or static C++ library for use with another project at linktime</li></ul>"));
+    setIcon(QIcon(QLatin1String(":/wizards/images/lib.png")));
+    setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QT));
 }
 
 QWizard *LibraryWizard::createWizardDialog(QWidget *parent, const Core::WizardDialogParameters &wizardDialogParameters) const
@@ -150,11 +151,6 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
         rc.push_back(jsonFile);
     }
     return rc;
-}
-
-Core::FeatureSet LibraryWizard::requiredFeatures() const
-{
-    return Core::Feature(QtSupport::Constants::FEATURE_QT);
 }
 
 } // namespace Internal

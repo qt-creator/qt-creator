@@ -41,15 +41,12 @@ class CustomWidgetWizard : public QtWizard
 
 public:
     CustomWidgetWizard();
-    virtual Core::FeatureSet requiredFeatures() const;
 
 protected:
-    virtual QWizard *createWizardDialog(QWidget *parent,
+    QWizard *createWizardDialog(QWidget *parent,
                                         const Core::WizardDialogParameters &wizardDialogParameters) const;
 
-    virtual Core::GeneratedFiles generateFiles(const QWizard *w,
-                                               QString *errorMessage) const;
-
+    Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
 };
 
 } // namespace Internal

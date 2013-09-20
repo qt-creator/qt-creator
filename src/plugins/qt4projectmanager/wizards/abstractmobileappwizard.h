@@ -101,8 +101,7 @@ class QT4PROJECTMANAGER_EXPORT AbstractMobileAppWizard : public Core::BaseFileWi
 {
     Q_OBJECT
 protected:
-    explicit AbstractMobileAppWizard(const Core::BaseFileWizardParameters &params,
-        QObject *parent = 0);
+    explicit AbstractMobileAppWizard(QObject *parent = 0);
 
 private slots:
     void useProjectPath(const QString &projectName, const QString &projectPath);

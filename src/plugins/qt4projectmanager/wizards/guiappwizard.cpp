@@ -40,12 +40,11 @@
 
 #include <utils/fileutils.h>
 
+#include <QCoreApplication>
 #include <QDir>
 #include <QTextStream>
 #include <QFileInfo>
 #include <QSharedPointer>
-
-#include <QIcon>
 
 static const char mainSourceFileC[] = "main";
 static const char mainSourceShowC[] = "    w.show();\n";
@@ -73,34 +72,19 @@ static inline QStringList baseClasses()
 namespace Qt4ProjectManager {
 namespace Internal {
 
-GuiAppWizard::GuiAppWizard()
-    : QtWizard(QLatin1String("C.Qt4Gui"),
-               QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY),
-               QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY_DISPLAY),
-               tr("Qt Gui Application"),
-               tr("Creates a Qt application for the desktop. "
+GuiAppWizard::GuiAppWizard(bool isMobile)
+{
+    setId(QLatin1String("C.Qt4Gui"));
+    setCategory(QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY));
+    setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
+               ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY_DISPLAY));
+    setDisplayName(tr("Qt Gui Application"));
+    setDescription(tr("Creates a Qt application for the desktop. "
                   "Includes a Qt Designer-based main window.\n\n"
-                  "Preselects a desktop Qt for building the application if available."),
-               QIcon(QLatin1String(":/wizards/images/gui.png"))),
-      m_createMobileProject(false)
-{
-}
-
-Core::FeatureSet GuiAppWizard::requiredFeatures() const
-{
-    return Core::Feature(QtSupport::Constants::FEATURE_QWIDGETS);
-}
-
-GuiAppWizard::GuiAppWizard(const QString &id,
-                           const QString &category,
-                           const QString &displayCategory,
-                           const QString &name,
-                           const QString &description,
-                           const QIcon &icon,
-                           bool createMobile)
-    : QtWizard(id, category, displayCategory, name, description, icon),
-      m_createMobileProject(createMobile)
-{
+                  "Preselects a desktop Qt for building the application if available."));
+    setIcon(QIcon(QLatin1String(":/wizards/images/gui.png")));
+    setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QWIDGETS));
+    m_createMobileProject = isMobile;
 }
 
 QWizard *GuiAppWizard::createWizardDialog(QWidget *parent,

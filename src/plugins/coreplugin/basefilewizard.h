@@ -48,63 +48,9 @@ class QWizardPage;
 class QDebug;
 QT_END_NAMESPACE
 
-namespace Utils {
-    class Wizard;
-}
+namespace Utils { class Wizard; }
 
 namespace Core {
-
-class IEditor;
-class IFileWizardExtension;
-
-class BaseFileWizardParameterData;
-struct BaseFileWizardPrivate;
-
-class CORE_EXPORT BaseFileWizardParameters
-{
-public:
-    explicit BaseFileWizardParameters(IWizard::WizardKind kind = IWizard::FileWizard);
-    BaseFileWizardParameters(const BaseFileWizardParameters &);
-    BaseFileWizardParameters &operator=(const BaseFileWizardParameters&);
-   ~BaseFileWizardParameters();
-
-    void clear();
-
-    IWizard::WizardKind kind() const;
-    void setKind(IWizard::WizardKind k);
-
-    QIcon icon() const;
-    void setIcon(const QIcon &icon);
-
-    QString description() const;
-    void setDescription(const QString &description);
-
-    QString displayName() const;
-    void setDisplayName(const QString &name);
-
-    QString id() const;
-    void setId(const QString &id);
-
-    QString category() const;
-    void setCategory(const QString &category);
-
-    QString displayCategory() const;
-    void setDisplayCategory(const QString &trCategory);
-
-    Core::FeatureSet requiredFeatures() const;
-    void setRequiredFeatures(Core::FeatureSet features);
-
-    Core::IWizard::WizardFlags flags() const;
-    void setFlags(Core::IWizard::WizardFlags flags);
-
-    QString descriptionImage() const;
-    void setDescriptionImage(const QString &path);
-
-private:
-    QSharedDataPointer<BaseFileWizardParameterData> m_d;
-};
-
-CORE_EXPORT QDebug operator<<(QDebug d, const BaseFileWizardParameters &);
 
 class CORE_EXPORT WizardDialogParameters
 {
@@ -163,20 +109,7 @@ public:
     virtual ~BaseFileWizard();
 
     // IWizard
-    virtual WizardKind kind() const;
-    virtual QIcon icon() const;
-    virtual QString description() const;
-    virtual QString displayName() const;
-    virtual QString id() const;
-
-    virtual QString category() const;
-    virtual QString displayCategory() const;
-
-    virtual QString descriptionImage() const;
-
     virtual void runWizard(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &extraValues);
-    virtual Core::FeatureSet requiredFeatures() const;
-    virtual WizardFlags flags() const;
 
     static QString buildFileName(const QString &path, const QString &baseName, const QString &extension);
     static void setupWizard(QWizard *);
@@ -185,9 +118,7 @@ public:
 protected:
     typedef QList<QWizardPage *> WizardPageList;
 
-    explicit BaseFileWizard(const BaseFileWizardParameters &parameters, QObject *parent = 0);
-
-    BaseFileWizardParameters baseFileWizardParameters() const;
+    explicit BaseFileWizard(QObject *parent = 0);
 
     virtual QWizard *createWizardDialog(QWidget *parent,
                                         const WizardDialogParameters &wizardDialogParameters) const = 0;
@@ -205,9 +136,6 @@ protected:
     OverwriteResult promptOverwrite(GeneratedFiles *files,
                                     QString *errorMessage) const;
     static bool postGenerateOpenEditors(const GeneratedFiles &l, QString *errorMessage = 0);
-
-private:
-    BaseFileWizardPrivate *d;
 };
 
 class CORE_EXPORT StandardFileWizard : public BaseFileWizard
@@ -215,24 +143,12 @@ class CORE_EXPORT StandardFileWizard : public BaseFileWizard
     Q_OBJECT
 
 protected:
-    explicit StandardFileWizard(const BaseFileWizardParameters &parameters, QObject *parent = 0);
+    explicit StandardFileWizard(QObject *parent = 0);
     virtual QWizard *createWizardDialog(QWidget *parent, const WizardDialogParameters &wizardDialogParameters) const;
     virtual GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const;
     virtual GeneratedFiles generateFilesFromPath(const QString &path, const QString &name,
                                                  QString *errorMessage) const = 0;
 };
-
-template <class WizardClass>
-QList<WizardClass*> createMultipleBaseFileWizardInstances(const QList<BaseFileWizardParameters> &parametersList, ExtensionSystem::IPlugin *plugin)
-{
-    QList<WizardClass*> list;
-    foreach (const BaseFileWizardParameters &parameters, parametersList) {
-        WizardClass *wc = new WizardClass(parameters, 0);
-        plugin->addAutoReleasedObject(wc);
-        list << wc;
-    }
-    return list;
-}
 
 } // namespace Core
 

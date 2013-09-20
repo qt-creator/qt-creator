@@ -34,8 +34,8 @@
 using namespace ResourceEditor;
 using namespace ResourceEditor::Internal;
 
-ResourceWizard::ResourceWizard(const BaseFileWizardParameters &parameters, QObject *parent)
-  : Core::StandardFileWizard(parameters, parent)
+ResourceWizard::ResourceWizard(QObject *parent)
+  : Core::StandardFileWizard(parent)
 {
 }
 

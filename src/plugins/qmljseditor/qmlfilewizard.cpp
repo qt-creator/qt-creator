@@ -37,9 +37,7 @@
 
 using namespace QmlJSEditor;
 
-QmlFileWizard::QmlFileWizard(const BaseFileWizardParameters &parameters,
-                             QObject *parent):
-    Core::StandardFileWizard(parameters, parent)
+QmlFileWizard::QmlFileWizard()
 {
 }
 
@@ -62,7 +60,7 @@ QString QmlFileWizard::fileContents(const QString &) const
     QString contents;
     QTextStream str(&contents);
 
-    if (baseFileWizardParameters().id() == QLatin1String(Constants::WIZARD_QML1FILE))
+    if (id() == QLatin1String(Constants::WIZARD_QML1FILE))
         str << QLatin1String("import QtQuick 1.1\n");
     else
         str << QLatin1String("import QtQuick 2.0\n");

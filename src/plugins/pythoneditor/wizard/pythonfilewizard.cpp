@@ -42,31 +42,17 @@
 namespace PythonEditor {
 
 /**
- * @brief GetDefaultParams
- * @return Default parameters for menu item "Files&Classes->Python->Python file"
- */
-static const Core::BaseFileWizardParameters GetDefaultParams()
-{
-    Core::BaseFileWizardParameters p(Core::IWizard::FileWizard);
-
-    p.setId(QLatin1String(Constants::C_PY_SOURCE_WIZARD_ID));
-    p.setCategory(QLatin1String(Constants::C_PY_WIZARD_CATEGORY));
-    p.setDisplayCategory(QLatin1String(Constants::C_PY_DISPLAY_CATEGORY));
-    p.setDisplayName(
-                FileWizard::tr(Constants::EN_PY_SOURCE_DISPLAY_NAME));
-    p.setDescription(
-                FileWizard::tr(Constants::EN_PY_SOURCE_DESCRIPTION));
-
-    return p;
-}
-
-/**
  * @brief Initialize wizard and add new option to "New..." dialog.
  * @param parent
  */
-FileWizard::FileWizard(QObject *parent)
-    :Core::BaseFileWizard(GetDefaultParams(), parent)
+FileWizard::FileWizard()
 {
+    setWizardKind(Core::IWizard::FileWizard);
+    setId(QLatin1String(Constants::C_PY_SOURCE_WIZARD_ID));
+    setCategory(QLatin1String(Constants::C_PY_WIZARD_CATEGORY));
+    setDisplayCategory(QLatin1String(Constants::C_PY_DISPLAY_CATEGORY));
+    setDisplayName(FileWizard::tr(Constants::EN_PY_SOURCE_DISPLAY_NAME));
+    setDescription(FileWizard::tr(Constants::EN_PY_SOURCE_DESCRIPTION));
 }
 
 FileWizard::~FileWizard()

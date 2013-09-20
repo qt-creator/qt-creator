@@ -37,28 +37,22 @@
 namespace Designer {
 namespace Internal {
 
-class FormClassWizardParameters;
-
 class FormClassWizard : public Core::BaseFileWizard
 {
     Q_OBJECT
 
 public:
-    typedef Core::BaseFileWizardParameters BaseFileWizardParameters;
-
-    FormClassWizard(const BaseFileWizardParameters &parameters, QObject *parent);
+    FormClassWizard();
 
     QString headerSuffix() const;
     QString sourceSuffix() const;
     QString formSuffix() const;
 
-    virtual Core::FeatureSet requiredFeatures() const;
-
-protected:
-    virtual QWizard *createWizardDialog(QWidget *parent,
+private:
+    QWizard *createWizardDialog(QWidget *parent,
                                         const Core::WizardDialogParameters &wizardDialogParameters) const;
 
-    virtual Core::GeneratedFiles generateFiles(const QWizard *w,
+    Core::GeneratedFiles generateFiles(const QWizard *w,
                                                QString *errorMessage) const;
 };
 
