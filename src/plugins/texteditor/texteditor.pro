@@ -1,6 +1,7 @@
 DEFINES += TEXTEDITOR_LIBRARY
 QT += xml network
 CONFIG += exceptions
+CONFIG += include_source_dir # For the highlighter autotest.
 greaterThan(QT_MAJOR_VERSION, 4): QT += printsupport
 include(../../qtcreatorplugin.pri)
 SOURCES += texteditorplugin.cpp \
