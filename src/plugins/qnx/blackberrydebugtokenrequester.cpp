@@ -34,7 +34,9 @@
 namespace {
 static const char PROCESS_NAME[] = "blackberry-debugtokenrequest";
 static const char ERR_WRONG_CSK_PASS[] = "The signature on the code signing request didn't verify.";
+static const char ERR_WRONG_CSK_PASS_10_2[] = "The specified CSK password is not valid.";
 static const char ERR_WRONG_KEYSTORE_PASS[] = "Failed to decrypt keystore, invalid password";
+static const char ERR_WRONG_KEYSTORE_PASS_10_2[] = "Failed to decrypt keystore, invalid store password or store password not supplied.";
 static const char ERR_NETWORK_UNREACHABLE[] = "Network is unreachable";
 static const char ERR_NOT_YET_REGISTGERED[] = "Not yet registered to request debug tokens";
 }
@@ -46,8 +48,9 @@ BlackBerryDebugTokenRequester::BlackBerryDebugTokenRequester(QObject *parent) :
     BlackBerryNdkProcess(QLatin1String(PROCESS_NAME), parent)
 {
     addErrorStringMapping(QLatin1String(ERR_WRONG_CSK_PASS), WrongCskPassword);
+    addErrorStringMapping(QLatin1String(ERR_WRONG_CSK_PASS_10_2), WrongCskPassword);
     addErrorStringMapping(QLatin1String(ERR_WRONG_KEYSTORE_PASS), WrongKeystorePassword);
-    addErrorStringMapping(QLatin1String(ERR_WRONG_KEYSTORE_PASS), WrongKeystorePassword);
+    addErrorStringMapping(QLatin1String(ERR_WRONG_KEYSTORE_PASS_10_2), WrongKeystorePassword);
     addErrorStringMapping(QLatin1String(ERR_NETWORK_UNREACHABLE), NetworkUnreachable);
     addErrorStringMapping(QLatin1String(ERR_NOT_YET_REGISTGERED), NotYetRegistered);
 }
