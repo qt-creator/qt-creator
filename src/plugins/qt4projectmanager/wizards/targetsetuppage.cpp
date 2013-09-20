@@ -619,7 +619,7 @@ void TargetSetupPage::updateVisibility()
 
 void TargetSetupPage::openOptions()
 {
-    Core::ICore::instance()->showOptionsDialog(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
+    Core::ICore::showOptionsDialog(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
                                                ProjectExplorer::Constants::KITS_SETTINGS_PAGE_ID,
                                                this);
 }

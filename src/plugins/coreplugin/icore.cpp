@@ -287,23 +287,18 @@
 
 #include <utils/hostosinfo.h>
 
-#include <QDir>
 #include <QCoreApplication>
 #include <QDebug>
-
+#include <QDir>
 #include <QStatusBar>
+
+using namespace Core::Internal;
 
 namespace Core {
 
 // The Core Singleton
 static ICore *m_instance = 0;
-
-namespace Internal {
 static MainWindow *m_mainwindow;
-} // namespace Internal
-
-using namespace Core::Internal;
-
 
 ICore *ICore::instance()
 {

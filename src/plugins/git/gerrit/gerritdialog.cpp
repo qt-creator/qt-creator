@@ -233,7 +233,7 @@ void GerritDialog::updateCompletions(const QString &query)
     queries.removeAll(query);
     queries.prepend(query);
     m_queryModel->setStringList(queries);
-    m_parameters->saveQueries(Core::ICore::instance()->settings());
+    m_parameters->saveQueries(Core::ICore::settings());
 }
 
 GerritDialog::~GerritDialog()

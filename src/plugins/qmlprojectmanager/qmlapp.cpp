@@ -52,7 +52,7 @@ static QStringList binaryFiles()
 
 QString QmlApp::templateRootDirectory()
 {
-    return Core::ICore::instance()->resourcePath() + QLatin1String("/templates/qml/");
+    return Core::ICore::resourcePath() + QLatin1String("/templates/qml/");
 }
 
 TemplateInfo::TemplateInfo()

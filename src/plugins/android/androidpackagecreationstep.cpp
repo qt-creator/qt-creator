@@ -908,7 +908,7 @@ void AndroidPackageCreationStep::certificatePassword()
 
 void AndroidPackageCreationStep::showInGraphicalShell()
 {
-    Core::FileUtils::showInGraphicalShell(Core::ICore::instance()->mainWindow(), m_apkPathSigned.toString());
+    Core::FileUtils::showInGraphicalShell(Core::ICore::mainWindow(), m_apkPathSigned.toString());
 }
 
 void AndroidPackageCreationStep::raiseError(const QString &shortMsg,

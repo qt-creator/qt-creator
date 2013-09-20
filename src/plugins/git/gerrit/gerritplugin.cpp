@@ -273,7 +273,7 @@ GerritPlugin::~GerritPlugin()
 
 bool GerritPlugin::initialize(ActionContainer *ac)
 {
-    m_parameters->fromSettings(ICore::instance()->settings());
+    m_parameters->fromSettings(ICore::settings());
 
     QAction *openViewAction = new QAction(tr("Gerrit..."), this);
 
@@ -364,7 +364,7 @@ void GerritPlugin::openView()
             QMessageBox::warning(0, tr("Error"),
                     tr("Invalid Gerrit configuration. Host, user and ssh binary are mandatory."));
             const Id group = VcsBase::Constants::VCS_SETTINGS_CATEGORY;
-            if (!ICore::instance()->showOptionsDialog(group, "Gerrit"))
+            if (!ICore::showOptionsDialog(group, "Gerrit"))
                 return;
         }
         GerritDialog *gd = new GerritDialog(m_parameters, ICore::mainWindow());

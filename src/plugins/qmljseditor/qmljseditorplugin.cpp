@@ -100,8 +100,8 @@ QmlJSEditorPlugin::QmlJSEditorPlugin() :
     m_reformatFileAction(0),
     m_currentEditor(0),
     m_jsonManager(new Utils::JsonSchemaManager(
-            QStringList() << Core::ICore::instance()->userResourcePath() + QLatin1String("/json/")
-                          << Core::ICore::instance()->resourcePath() + QLatin1String("/json/")))
+            QStringList() << Core::ICore::userResourcePath() + QLatin1String("/json/")
+                          << Core::ICore::resourcePath() + QLatin1String("/json/")))
 {
     m_instance = this;
 }
