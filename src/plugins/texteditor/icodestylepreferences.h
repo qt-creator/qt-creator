@@ -57,8 +57,8 @@ public:
     explicit ICodeStylePreferences(QObject *parentObject = 0);
     virtual ~ICodeStylePreferences();
 
-    QString id() const;
-    void setId(const QString &name);
+    QByteArray id() const;
+    void setId(const QByteArray &name);
 
     QString displayName() const;
     void setDisplayName(const QString &name);
@@ -83,8 +83,8 @@ public:
     ICodeStylePreferences *currentDelegate() const; // null or one of delegates from the pool
     void setCurrentDelegate(ICodeStylePreferences *delegate);
 
-    QString currentDelegateId() const;
-    void setCurrentDelegate(const QString &id);
+    QByteArray currentDelegateId() const;
+    void setCurrentDelegate(const QByteArray &id);
 
     void toSettings(const QString &category, QSettings *s) const;
     void fromSettings(const QString &category, const QSettings *s);

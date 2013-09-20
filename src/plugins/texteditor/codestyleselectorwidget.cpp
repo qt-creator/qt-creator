@@ -354,7 +354,7 @@ void CodeStyleSelectorWidget::slotExportClicked()
 {
     ICodeStylePreferences *currentPreferences = m_codeStyle->currentPreferences();
     const QString fileName = QFileDialog::getSaveFileName(this, tr("Export Code Style"),
-                             currentPreferences->id() + QLatin1String(".xml"),
+                             QString::fromUtf8(currentPreferences->id() + ".xml"),
                              tr("Code styles (*.xml);;All files (*)"));
     if (!fileName.isEmpty()) {
         CodeStylePool *codeStylePool = m_codeStyle->delegatingPool();

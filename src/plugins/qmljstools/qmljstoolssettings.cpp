@@ -67,14 +67,14 @@ QmlJSToolsSettings::QmlJSToolsSettings(QObject *parent)
     m_globalCodeStyle = new SimpleCodeStylePreferences(this);
     m_globalCodeStyle->setDelegatingPool(pool);
     m_globalCodeStyle->setDisplayName(tr("Global", "Settings"));
-    m_globalCodeStyle->setId(QLatin1String(idKey));
+    m_globalCodeStyle->setId(idKey);
     pool->addCodeStyle(m_globalCodeStyle);
     TextEditorSettings::registerCodeStyle(QmlJSTools::Constants::QML_JS_SETTINGS_ID, m_globalCodeStyle);
 
     // built-in settings
     // Qt style
     SimpleCodeStylePreferences *qtCodeStyle = new SimpleCodeStylePreferences();
-    qtCodeStyle->setId(QLatin1String("qt"));
+    qtCodeStyle->setId("qt");
     qtCodeStyle->setDisplayName(tr("Qt"));
     qtCodeStyle->setReadOnly(true);
     TabSettings qtTabSettings;
@@ -122,8 +122,7 @@ QmlJSToolsSettings::QmlJSToolsSettings(QObject *parent)
 
             // create custom code style out of old settings
             ICodeStylePreferences *oldCreator = pool->createCodeStyle(
-                     QLatin1String("legacy"), legacyTabSettings,
-                     QVariant(), tr("Old Creator"));
+                     "legacy", legacyTabSettings, QVariant(), tr("Old Creator"));
 
             // change the current delegate and save
             m_globalCodeStyle->setCurrentDelegate(oldCreator);

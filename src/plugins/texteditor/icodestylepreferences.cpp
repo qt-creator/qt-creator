@@ -53,7 +53,7 @@ public:
     CodeStylePool *m_pool;
     ICodeStylePreferences *m_currentDelegate;
     TabSettings m_tabSettings;
-    QString m_id;
+    QByteArray m_id;
     QString m_displayName;
     bool m_readOnly;
 };
@@ -72,12 +72,12 @@ ICodeStylePreferences::~ICodeStylePreferences()
     delete d;
 }
 
-QString ICodeStylePreferences::id() const
+QByteArray ICodeStylePreferences::id() const
 {
     return d->m_id;
 }
 
-void ICodeStylePreferences::setId(const QString &name)
+void ICodeStylePreferences::setId(const QByteArray &name)
 {
     d->m_id = name;
 }
@@ -203,14 +203,14 @@ void ICodeStylePreferences::setCurrentDelegate(ICodeStylePreferences *delegate)
     emit currentValueChanged(currentValue());
 }
 
-QString ICodeStylePreferences::currentDelegateId() const
+QByteArray ICodeStylePreferences::currentDelegateId() const
 {
     if (currentDelegate())
         return currentDelegate()->id();
     return id(); // or 0?
 }
 
-void ICodeStylePreferences::setCurrentDelegate(const QString &id)
+void ICodeStylePreferences::setCurrentDelegate(const QByteArray &id)
 {
     if (d->m_pool)
         setCurrentDelegate(d->m_pool->codeStyle(id));
@@ -237,7 +237,7 @@ void ICodeStylePreferences::toMap(const QString &prefix, QVariantMap *map) const
 void ICodeStylePreferences::fromMap(const QString &prefix, const QVariantMap &map)
 {
     d->m_tabSettings.fromMap(prefix, map);
-    const QString delegateId = map.value(prefix + QLatin1String(currentPreferencesKey)).toString();
+    const QByteArray delegateId = map.value(prefix + QLatin1String(currentPreferencesKey)).toByteArray();
     if (delegatingPool()) {
         ICodeStylePreferences *delegate = delegatingPool()->codeStyle(delegateId);
         if (!delegateId.isEmpty() && delegate)

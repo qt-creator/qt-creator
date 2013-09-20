@@ -101,7 +101,7 @@ CppToolsSettings::CppToolsSettings(QObject *parent)
     d->m_globalCodeStyle = new CppCodeStylePreferences(this);
     d->m_globalCodeStyle->setDelegatingPool(pool);
     d->m_globalCodeStyle->setDisplayName(tr("Global", "Settings"));
-    d->m_globalCodeStyle->setId(QLatin1String(idKey));
+    d->m_globalCodeStyle->setId(idKey);
     pool->addCodeStyle(d->m_globalCodeStyle);
     TextEditorSettings::registerCodeStyle(CppTools::Constants::CPP_SETTINGS_ID, d->m_globalCodeStyle);
 
@@ -133,7 +133,7 @@ CppToolsSettings::CppToolsSettings(QObject *parent)
     // built-in settings
     // Qt style
     CppCodeStylePreferences *qtCodeStyle = new CppCodeStylePreferences();
-    qtCodeStyle->setId(QLatin1String("qt"));
+    qtCodeStyle->setId("qt");
     qtCodeStyle->setDisplayName(tr("Qt"));
     qtCodeStyle->setReadOnly(true);
     TabSettings qtTabSettings;
@@ -146,7 +146,7 @@ CppToolsSettings::CppToolsSettings(QObject *parent)
 
     // GNU style
     CppCodeStylePreferences *gnuCodeStyle = new CppCodeStylePreferences();
-    gnuCodeStyle->setId(QLatin1String("gnu"));
+    gnuCodeStyle->setId("gnu");
     gnuCodeStyle->setDisplayName(tr("GNU"));
     gnuCodeStyle->setReadOnly(true);
     TabSettings gnuTabSettings;
@@ -208,8 +208,7 @@ CppToolsSettings::CppToolsSettings(QObject *parent)
             QVariant v;
             v.setValue(legacyCodeStyleSettings);
             TextEditor::ICodeStylePreferences *oldCreator = pool->createCodeStyle(
-                     QLatin1String("legacy"), legacyTabSettings,
-                     v, tr("Old Creator"));
+                     "legacy", legacyTabSettings, v, tr("Old Creator"));
 
             // change the current delegate and save
             d->m_globalCodeStyle->setCurrentDelegate(oldCreator);

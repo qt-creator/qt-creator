@@ -55,13 +55,13 @@ public:
     {}
     ~CodeStylePoolPrivate();
 
-    QString generateUniqueId(const QString &id) const;
+    QByteArray generateUniqueId(const QByteArray &id) const;
 
     ICodeStylePreferencesFactory *m_factory;
     QList<ICodeStylePreferences *> m_pool;
     QList<ICodeStylePreferences *> m_builtInPool;
     QList<ICodeStylePreferences *> m_customPool;
-    QMap<QString, ICodeStylePreferences *> m_idToCodeStyle;
+    QMap<QByteArray, ICodeStylePreferences *> m_idToCodeStyle;
     QString m_settingsPath;
 };
 
@@ -70,23 +70,23 @@ CodeStylePoolPrivate::~CodeStylePoolPrivate()
     delete m_factory;
 }
 
-QString CodeStylePoolPrivate::generateUniqueId(const QString &id) const
+QByteArray CodeStylePoolPrivate::generateUniqueId(const QByteArray &id) const
 {
     if (!id.isEmpty() && !m_idToCodeStyle.contains(id))
         return id;
 
     int idx = id.size();
     while (idx > 0) {
-        if (!id.at(idx - 1).isDigit())
+        if (!isdigit(id.at(idx - 1)))
             break;
         idx--;
     }
 
-    const QString baseName = id.left(idx);
-    QString newName = baseName.isEmpty() ? QLatin1String("codestyle") : baseName;
+    const QByteArray baseName = id.left(idx);
+    QByteArray newName = baseName.isEmpty() ? "codestyle" : baseName;
     int i = 2;
     while (m_idToCodeStyle.contains(newName))
-        newName = baseName + QString::number(i++);
+        newName = baseName + QByteArray::number(i++);
 
     return newName;
 }
@@ -119,10 +119,10 @@ QString CodeStylePool::settingsDir() const
     return customCodeStylesPath().append(suffix);
 }
 
-Utils::FileName CodeStylePool::settingsPath(const QString &id) const
+Utils::FileName CodeStylePool::settingsPath(const QByteArray &id) const
 {
     Utils::FileName path = Utils::FileName::fromString(settingsDir());
-    path.appendPath(id + QLatin1String(".xml"));
+    path.appendPath(QString::fromUtf8(id + ".xml"));
     return path;
 }
 
@@ -147,7 +147,7 @@ ICodeStylePreferences *CodeStylePool::cloneCodeStyle(ICodeStylePreferences *orig
                         originalCodeStyle->value(), originalCodeStyle->displayName());
 }
 
-ICodeStylePreferences *CodeStylePool::createCodeStyle(const QString &id, const TabSettings &tabSettings,
+ICodeStylePreferences *CodeStylePool::createCodeStyle(const QByteArray &id, const TabSettings &tabSettings,
                   const QVariant &codeStyleData, const QString &displayName)
 {
     if (!d->m_factory)
@@ -168,7 +168,7 @@ ICodeStylePreferences *CodeStylePool::createCodeStyle(const QString &id, const T
 
 void CodeStylePool::addCodeStyle(ICodeStylePreferences *codeStyle)
 {
-    const QString newId = d->generateUniqueId(codeStyle->id());
+    const QByteArray newId = d->generateUniqueId(codeStyle->id());
     codeStyle->setId(newId);
 
     d->m_pool.append(codeStyle);
@@ -206,7 +206,7 @@ void CodeStylePool::removeCodeStyle(ICodeStylePreferences *codeStyle)
     delete codeStyle;
 }
 
-ICodeStylePreferences *CodeStylePool::codeStyle(const QString &id) const
+ICodeStylePreferences *CodeStylePool::codeStyle(const QByteArray &id) const
 {
     return d->m_idToCodeStyle.value(id);
 }
@@ -218,7 +218,7 @@ void CodeStylePool::loadCustomCodeStyles()
     for (int i = 0; i < codeStyleFiles.count(); i++) {
         const QString codeStyleFile = codeStyleFiles.at(i);
         // filter out styles which id is the same as one of built-in styles
-        if (!d->m_idToCodeStyle.contains(QFileInfo(codeStyleFile).completeBaseName()))
+        if (!d->m_idToCodeStyle.contains(QFileInfo(codeStyleFile).completeBaseName().toUtf8()))
             loadCodeStyle(Utils::FileName::fromString(dir.absoluteFilePath(codeStyleFile)));
     }
 }
@@ -238,7 +238,7 @@ ICodeStylePreferences *CodeStylePool::loadCodeStyle(const Utils::FileName &fileN
     reader.load(fileName);
     QVariantMap m = reader.restoreValues();
     if (m.contains(QLatin1String(codeStyleDataKey))) {
-        const QString id = fileName.toFileInfo().completeBaseName();
+        const QByteArray id = fileName.toFileInfo().completeBaseName().toUtf8();
         const QString displayName = reader.restoreValue(QLatin1String(displayNameKey)).toString();
         const QVariantMap map = reader.restoreValue(QLatin1String(codeStyleDataKey)).toMap();
         if (d->m_factory) {

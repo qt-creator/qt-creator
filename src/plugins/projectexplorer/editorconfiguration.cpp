@@ -53,7 +53,6 @@ static const QLatin1String kUseGlobal("EditorConfiguration.UseGlobal");
 static const QLatin1String kCodec("EditorConfiguration.Codec");
 static const QLatin1String kCodeStylePrefix("EditorConfiguration.CodeStyle.");
 static const QLatin1String kCodeStyleCount("EditorConfiguration.CodeStyle.Count");
-static const QLatin1String kId("Project");
 
 using namespace TextEditor;
 
@@ -93,7 +92,7 @@ EditorConfiguration::EditorConfiguration() : d(new EditorConfigurationPrivate)
         ICodeStylePreferencesFactory *factory = TextEditorSettings::codeStyleFactory(languageId);
         ICodeStylePreferences *preferences = factory->createCodeStyle();
         preferences->setDelegatingPool(TextEditorSettings::codeStylePool(languageId));
-        preferences->setId(languageId.toString() + QLatin1String("Project"));
+        preferences->setId(languageId.name() + "Project");
         preferences->setDisplayName(tr("Project %1", "Settings, %1 is a language (C++ or QML)").arg(factory->displayName()));
         preferences->setCurrentDelegate(originalPreferences);
         d->m_languageCodeStylePreferences.insert(languageId, preferences);
@@ -102,7 +101,7 @@ EditorConfiguration::EditorConfiguration() : d(new EditorConfigurationPrivate)
     d->m_defaultCodeStyle = new SimpleCodeStylePreferences(this);
     d->m_defaultCodeStyle->setDelegatingPool(TextEditorSettings::codeStylePool());
     d->m_defaultCodeStyle->setDisplayName(tr("Project", "Settings"));
-    d->m_defaultCodeStyle->setId(kId);
+    d->m_defaultCodeStyle->setId("Project");
     d->m_defaultCodeStyle->setCurrentDelegate(d->m_useGlobal ? TextEditorSettings::codeStyle() : 0);
 }
 

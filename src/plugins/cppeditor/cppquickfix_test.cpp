@@ -149,7 +149,7 @@ private:
     QList<TestDocumentPtr> testFiles;
 
     CppCodeStylePreferences *cppCodeStylePreferences;
-    QString cppCodeStylePreferencesOriginalDelegateId;
+    QByteArray cppCodeStylePreferencesOriginalDelegateId;
 
     QStringList includePathsToRestore;
     bool restoreIncludePaths;
@@ -249,7 +249,7 @@ void TestCase::init(const QStringList &includePaths)
     cppCodeStylePreferences = CppToolsSettings::instance()->cppCodeStyle();
     QVERIFY(cppCodeStylePreferences);
     cppCodeStylePreferencesOriginalDelegateId = cppCodeStylePreferences->currentDelegateId();
-    cppCodeStylePreferences->setCurrentDelegate(QLatin1String("qt"));
+    cppCodeStylePreferences->setCurrentDelegate("qt");
 }
 
 TestCase::~TestCase()

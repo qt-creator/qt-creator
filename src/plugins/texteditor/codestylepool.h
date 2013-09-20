@@ -58,14 +58,14 @@ public:
     QList<ICodeStylePreferences *> customCodeStyles() const;
 
     ICodeStylePreferences *cloneCodeStyle(ICodeStylePreferences *originalCodeStyle);
-    ICodeStylePreferences *createCodeStyle(const QString &id, const TabSettings &tabSettings,
+    ICodeStylePreferences *createCodeStyle(const QByteArray &id, const TabSettings &tabSettings,
                       const QVariant &codeStyleData, const QString &displayName);
     // ownership is passed to the pool
     void addCodeStyle(ICodeStylePreferences *codeStyle);
     // is removed and deleted
     void removeCodeStyle(ICodeStylePreferences *codeStyle);
 
-    ICodeStylePreferences *codeStyle(const QString &id) const;
+    ICodeStylePreferences *codeStyle(const QByteArray &id) const;
 
     void loadCustomCodeStyles();
 
@@ -81,7 +81,7 @@ private slots:
 
 private:
     QString settingsDir() const;
-    Utils::FileName settingsPath(const QString &id) const;
+    Utils::FileName settingsPath(const QByteArray &id) const;
     ICodeStylePreferences *loadCodeStyle(const Utils::FileName &fileName);
     void saveCodeStyle(ICodeStylePreferences *codeStyle) const;
 
