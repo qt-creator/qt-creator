@@ -52,6 +52,11 @@ BareMetalDevice::IDevice::Ptr BareMetalDevice::clone() const
     return Ptr(new BareMetalDevice(*this));
 }
 
+DeviceProcessSignalOperation::Ptr BareMetalDevice::signalOperation() const
+{
+    return ProjectExplorer::DeviceProcessSignalOperation::Ptr();
+}
+
 QString BareMetalDevice::displayType() const
 {
     return tr("Bare Metal");

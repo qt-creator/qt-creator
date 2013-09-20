@@ -54,6 +54,8 @@ public:
     void executeAction(Core::Id actionId, QWidget *parent);
     ProjectExplorer::IDevice::Ptr clone() const;
 
+    ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const;
+
 protected:
     BareMetalDevice() {}
     BareMetalDevice(const QString &name, Core::Id type,
