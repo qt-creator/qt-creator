@@ -72,7 +72,9 @@ QtcLibrary {
         } else {
             result.push("BOTAN_DLL=")
             if (qbs.toolchain.contains("msvc"))
-                result.push("BOTAN_BUILD_COMPILER_IS_MSVC", "BOTAN_TARGET_OS_HAS_GMTIME_S")
+                result.push("BOTAN_BUILD_COMPILER_IS_MSVC",
+                            "BOTAN_TARGET_OS_HAS_GMTIME_S",
+                            "_SCL_SECURE_NO_WARNINGS")
             if (qbs.toolchain.contains("gcc") || qbs.toolchain.contains("mingw"))
                 result.push("BOTAN_BUILD_COMPILER_IS_GCC")
             if (qbs.targetOS.contains("linux"))

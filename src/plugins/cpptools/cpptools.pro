@@ -1,6 +1,7 @@
 include(../../qtcreatorplugin.pri)
 
 DEFINES += CPPTOOLS_LIBRARY
+win32-msvc*:DEFINES += _SCL_SECURE_NO_WARNINGS
 HEADERS += completionsettingspage.h \
     cppclassesfilter.h \
     cppcurrentdocumentfilter.h \

@@ -15,6 +15,12 @@ QtcPlugin {
     Depends { name: "CPlusPlus" }
     Depends { name: "LanguageUtils" }
 
+    cpp.defines: base
+    Properties {
+        condition: qbs.toolchain.contains("msvc")
+        cpp.defines: base.concat("_SCL_SECURE_NO_WARNINGS")
+    }
+
     files: [
         "abstracteditorsupport.cpp",
         "abstracteditorsupport.h",
