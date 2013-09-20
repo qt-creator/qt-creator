@@ -431,7 +431,6 @@ bool GenericProject::fromMap(const QVariantMap &map)
     foreach (Target *t, targetList) {
         if (!t->activeBuildConfiguration()) {
             removeTarget(t);
-            delete t;
             continue;
         }
         if (!t->activeRunConfiguration())
