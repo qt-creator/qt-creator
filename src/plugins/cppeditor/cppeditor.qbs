@@ -30,12 +30,14 @@ QtcPlugin {
         "cppelementevaluator.h",
         "cppfilewizard.cpp",
         "cppfilewizard.h",
+        "cppfollowsymbolundercursor.cpp",
+        "cppfollowsymbolundercursor.h",
         "cppfunctiondecldeflink.cpp",
         "cppfunctiondecldeflink.h",
         "cpphighlighter.cpp",
-        "cpphighlighter.h",
         "cpphighlighterfactory.cpp",
         "cpphighlighterfactory.h",
+        "cpphighlighter.h",
         "cpphoverhandler.cpp",
         "cpphoverhandler.h",
         "cppoutline.cpp",
@@ -61,7 +63,7 @@ QtcPlugin {
             "cppquickfix_test_utils.cpp",
             "cppquickfix_test_utils.h",
             "fileandtokenactions_test.cpp",
-            "followsymbol_switchmethoddecldef_test.cpp"
+            "followsymbol_switchmethoddecldef_test.cpp",
         ]
 
         cpp.defines: outer.concat(['SRCDIR="' + FileInfo.path(filePath) + '"'])

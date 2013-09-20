@@ -120,6 +120,7 @@ public:
     bool openLink(const Link &link, bool inNextSplit) { return openCppEditorAt(link, inNextSplit); }
 
     static Link linkToSymbol(CPlusPlus::Symbol *symbol);
+    static QString identifierUnderCursor(QTextCursor *macroCursor);
 
     static QVector<TextEditor::TextStyle> highlighterFormatCategories();
 
@@ -188,8 +189,6 @@ private Q_SLOTS:
 private:
     void markSymbols(const QTextCursor &tc, const CppTools::SemanticInfo &info);
     bool sortedOutline() const;
-    CPlusPlus::Symbol *findDefinition(CPlusPlus::Symbol *symbol,
-                                      const CPlusPlus::Snapshot &snapshot) const;
 
     TextEditor::ITextEditor *openCppEditorAt(const QString &fileName, int line,
                                              int column = 0);
@@ -205,14 +204,7 @@ private:
 
     Q_SLOT void abortDeclDefLink();
 
-    Link attemptFuncDeclDef(const QTextCursor &cursor,
-                            const CPlusPlus::Document::Ptr &doc,
-                            CPlusPlus::Snapshot snapshot) const;
     Link findLinkAt(const QTextCursor &, bool resolveTarget = true);
-    Link findMacroLink(const QByteArray &name) const;
-    Link findMacroLink(const QByteArray &name, CPlusPlus::Document::Ptr doc,
-                       const CPlusPlus::Snapshot &snapshot, QSet<QString> *processed) const;
-    QString identifierUnderCursor(QTextCursor *macroCursor) const;
     bool openCppEditorAt(const Link &, bool inNextSplit = false);
 
     QModelIndex indexForPosition(int line, int column,

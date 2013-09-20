@@ -9,16 +9,17 @@ HEADERS += cppeditorplugin.h \
     cppeditor.h \
     cppelementevaluator.h \
     cppfilewizard.h \
+    cppfollowsymbolundercursor.h
     cppfunctiondecldeflink.h \
-    cpphighlighter.h \
     cpphighlighterfactory.h \
+    cpphighlighter.h \
     cpphoverhandler.h \
     cppoutline.h \
     cppquickfixassistant.h \
     cppquickfixes.h \
     cppquickfix.h \
     cppsnippetprovider.h \
-    cpptypehierarchy.h
+    cpptypehierarchy.h \
 
 SOURCES += cppeditorplugin.cpp \
     cppautocompleter.cpp \
@@ -26,6 +27,7 @@ SOURCES += cppeditorplugin.cpp \
     cppeditor.cpp \
     cppelementevaluator.cpp \
     cppfilewizard.cpp \
+    cppfollowsymbolundercursor.cpp
     cppfunctiondecldeflink.cpp \
     cpphighlighter.cpp \
     cpphighlighterfactory.cpp \
@@ -35,7 +37,7 @@ SOURCES += cppeditorplugin.cpp \
     cppquickfix.cpp \
     cppquickfixes.cpp \
     cppsnippetprovider.cpp \
-    cpptypehierarchy.cpp
+    cpptypehierarchy.cpp \
 
 RESOURCES += cppeditor.qrc
 
