@@ -7,6 +7,7 @@ Project {
         "analyzerbase/analyzerbase.qbs",
         "android/android.qbs",
         "autotoolsprojectmanager/autotoolsprojectmanager.qbs",
+        "baremetal/baremetal.qbs",
         "bazaar/bazaar.qbs",
         "bineditor/bineditor.qbs",
         "bookmarks/bookmarks.qbs",
