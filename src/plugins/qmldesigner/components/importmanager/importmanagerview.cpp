@@ -232,7 +232,7 @@ void ImportManagerView::auxiliaryDataChanged(const ModelNode &/*node*/, const Pr
 
 }
 
-void ImportManagerView::customNotification(const AbstractView */*view*/, const QString &/*identifier*/, const QList<ModelNode> &/*nodeList*/, const QList<QVariant> &/*data*/)
+void ImportManagerView::customNotification(const AbstractView * /*view*/, const QString &/*identifier*/, const QList<ModelNode> &/*nodeList*/, const QList<QVariant> &/*data*/)
 {
 
 }
