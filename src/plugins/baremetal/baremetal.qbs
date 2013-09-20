@@ -14,9 +14,6 @@ QtcPlugin {
 
     files: [
         "baremetalconstants.h",
-        "baremetaldeployconfiguration.cpp", "baremetaldeployconfiguration.h",
-        "baremetaldeployconfigurationfactory.cpp", "baremetaldeployconfigurationfactory.h",
-        "baremetaldeploystepfactory.cpp", "baremetaldeploystepfactory.h",
         "baremetaldevice.cpp", "baremetaldevice.h",
         "baremetaldeviceconfigurationfactory.cpp", "baremetaldeviceconfigurationfactory.h",
         "baremetaldeviceconfigurationwidget.cpp", "baremetaldeviceconfigurationwidget.h",

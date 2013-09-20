@@ -45,8 +45,7 @@ class BareMetalRunConfigurationWidgetPrivate
 public:
     BareMetalRunConfigurationWidgetPrivate(BareMetalRunConfiguration *runConfig)
         : runConfiguration(runConfig)
-    {
-    }
+    { }
 
     BareMetalRunConfiguration * const runConfiguration;
     QWidget topWidget;

@@ -29,7 +29,6 @@
 
 #include "baremetalrunconfiguration.h"
 
-//#include "baremetalenvironmentaspect.h"
 #include "baremetalrunconfigurationwidget.h"
 
 #include <debugger/debuggerrunconfigurationaspect.h>
@@ -100,8 +99,6 @@ BareMetalRunConfiguration::~BareMetalRunConfiguration()
 void BareMetalRunConfiguration::init()
 {
     setDefaultDisplayName(defaultDisplayName());
-
-    //FIXME needed? addExtraAspect(new BareMetalEnvironmentAspect(this));
 
     connect(target(), SIGNAL(deploymentDataChanged()), SLOT(handleBuildSystemDataUpdated()));
     connect(target(), SIGNAL(applicationTargetsChanged()), SLOT(handleBuildSystemDataUpdated()));

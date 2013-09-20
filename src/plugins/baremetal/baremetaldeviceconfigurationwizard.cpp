@@ -46,12 +46,12 @@ class BareMetalDeviceConfigrationWizardPrivate
 {
 public:
     BareMetalDeviceConfigrationWizardPrivate(QWidget *parent):
-        setupPage(parent)
-    {
-    }
+        m_setupPage(parent)
+    { }
 
-    BareMetalDeviceConfigurationWizardSetupPage setupPage;
+    BareMetalDeviceConfigurationWizardSetupPage m_setupPage;
 };
+
 } //namespace Internal
 
 BareMetalDeviceConfigurationWizard::BareMetalDeviceConfigurationWizard(QWidget *parent) :
@@ -59,8 +59,8 @@ BareMetalDeviceConfigurationWizard::BareMetalDeviceConfigurationWizard(QWidget *
    d(new Internal::BareMetalDeviceConfigrationWizardPrivate(this))
 {
     setWindowTitle(tr("New Bare Metal Device Configuration Setup"));
-    setPage(Internal::SetupPageId, &d->setupPage);
-    d->setupPage.setCommitPage(true);
+    setPage(Internal::SetupPageId, &d->m_setupPage);
+    d->m_setupPage.setCommitPage(true);
 }
 
 BareMetalDeviceConfigurationWizard::~BareMetalDeviceConfigurationWizard()
@@ -72,13 +72,14 @@ IDevice::Ptr BareMetalDeviceConfigurationWizard::device() const
 {
     //sshParams is not really used as ssh parameters but as debugger parameters
     QSsh::SshConnectionParameters sshParams;
-    sshParams.host = d->setupPage.gdbHostname();
-    sshParams.port = d->setupPage.gdbPort();
-    sshParams.userName = d->setupPage.gdbInitCommands();
-    IDevice::Ptr device = Internal::BareMetalDevice::create(d->setupPage.configurationName(),
+    sshParams.host = d->m_setupPage.gdbHostname();
+    sshParams.port = d->m_setupPage.gdbPort();
+    Internal::BareMetalDevice::Ptr device = Internal::BareMetalDevice::create(d->m_setupPage.configurationName(),
                                                   Core::Id(Constants::BareMetalOsType),
                                                   IDevice::Hardware);
     device->setSshParameters(sshParams);
+    device->setGdbInitCommands(d->m_setupPage.gdbInitCommands());
     return device;
 }
+
 } //namespace BareMetal

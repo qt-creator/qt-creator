@@ -36,7 +36,6 @@ namespace Utils { class PortList; }
 
 namespace BareMetal {
 class BareMetalRunConfigurationWidget;
-class BareMetalDeployConfiguration;
 namespace Internal {
 class BareMetalRunConfigurationPrivate;
 class BareMetalRunConfigurationFactory;

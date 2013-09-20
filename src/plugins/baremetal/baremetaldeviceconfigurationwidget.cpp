@@ -30,13 +30,15 @@
 #include "baremetaldeviceconfigurationwidget.h"
 
 #include "ui_baremetaldeviceconfigurationwidget.h"
+#include "baremetaldevice.h"
 
 #include <ssh/sshconnection.h>
+#include <utils/qtcassert.h>
 #include <QLabel>
 
 using namespace QSsh;
-
 namespace BareMetal {
+using namespace Internal;
 
 BareMetalDeviceConfigurationWidget::BareMetalDeviceConfigurationWidget(
         const ProjectExplorer::IDevice::Ptr &deviceConfig, QWidget *parent) :
@@ -55,9 +57,6 @@ BareMetalDeviceConfigurationWidget::~BareMetalDeviceConfigurationWidget()
     delete m_ui;
 }
 
-/* using sshParams fields is ugly but otherwise i would have needed to write my own fromMap
- * toMap functions */
-
 void BareMetalDeviceConfigurationWidget::hostnameChanged()
 {
     SshConnectionParameters sshParams = device()->sshParameters();
@@ -74,9 +73,9 @@ void BareMetalDeviceConfigurationWidget::portChanged()
 
 void BareMetalDeviceConfigurationWidget::gdbInitCommandsChanged()
 {
-    SshConnectionParameters sshParams = device()->sshParameters();
-    sshParams.userName = m_ui->gdbCommandsTextEdit->toPlainText();
-    device()->setSshParameters(sshParams);
+    QSharedPointer<BareMetalDevice> p = qSharedPointerCast<BareMetalDevice>(device());
+    QTC_ASSERT(!p.isNull(), return);
+    p->setGdbInitCommands(m_ui->gdbCommandsTextEdit->toPlainText());
 }
 
 void BareMetalDeviceConfigurationWidget::updateDeviceFromUi() {
@@ -87,11 +86,12 @@ void BareMetalDeviceConfigurationWidget::updateDeviceFromUi() {
 
 void BareMetalDeviceConfigurationWidget::initGui()
 {
-    //FIXME reusing SshConnectionParameters is kind of ugly?
     SshConnectionParameters sshParams = device()->sshParameters();
     m_ui->gdbHostLineEdit->setText(sshParams.host);
     m_ui->gdbPortSpinBox->setValue(sshParams.port);
-    m_ui->gdbCommandsTextEdit->setPlainText(sshParams.userName);
+    QSharedPointer<BareMetalDevice> p = qSharedPointerCast<BareMetalDevice>(device());
+    QTC_ASSERT(!p.isNull(), return);
+    m_ui->gdbCommandsTextEdit->setPlainText(p->getGdbInitCommands());
 }
 
 } //namespace BareMetal

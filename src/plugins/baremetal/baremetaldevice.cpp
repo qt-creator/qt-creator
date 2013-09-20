@@ -31,11 +31,14 @@
 #include "baremetaldeviceconfigurationwidget.h"
 #include <coreplugin/id.h>
 #include <utils/qtcassert.h>
+#include <QCoreApplication>
 
 using namespace ProjectExplorer;
 
 namespace BareMetal {
 namespace Internal {
+
+const char GdbCommandsKey[] = "GdbCommands";
 
 BareMetalDevice::Ptr BareMetalDevice::create()
 {
@@ -45,6 +48,24 @@ BareMetalDevice::Ptr BareMetalDevice::create()
 BareMetalDevice::Ptr BareMetalDevice::create(const QString &name, Core::Id type, MachineType machineType, Origin origin, Core::Id id)
 {
     return Ptr(new BareMetalDevice(name, type, machineType, origin, id));
+}
+
+BareMetalDevice::Ptr BareMetalDevice::create(const BareMetalDevice &other)
+{
+    return Ptr(new BareMetalDevice(other));
+}
+
+void BareMetalDevice::fromMap(const QVariantMap &map)
+{
+    IDevice::fromMap(map);
+    setGdbInitCommands(map.value(QLatin1String(GdbCommandsKey)).toString());
+}
+
+QVariantMap BareMetalDevice::toMap() const
+{
+    QVariantMap map = IDevice::toMap();
+    map.insert(QLatin1String(GdbCommandsKey), getGdbInitCommands());
+    return map;
 }
 
 BareMetalDevice::IDevice::Ptr BareMetalDevice::clone() const
@@ -59,7 +80,7 @@ DeviceProcessSignalOperation::Ptr BareMetalDevice::signalOperation() const
 
 QString BareMetalDevice::displayType() const
 {
-    return tr("Bare Metal");
+    return QCoreApplication::translate("BareMetal::Internal::BareMetalDevice", "Bare Metal");
 }
 
 ProjectExplorer::IDeviceWidget *BareMetalDevice::createWidget()
@@ -69,13 +90,12 @@ ProjectExplorer::IDeviceWidget *BareMetalDevice::createWidget()
 
 QList<Core::Id> BareMetalDevice::actionIds() const
 {
-    return QList<Core::Id>(); //FIXME complete?
+    return QList<Core::Id>(); // no actions
 }
 
 QString BareMetalDevice::displayNameForActionId(Core::Id actionId) const
 {
     QTC_ASSERT(actionIds().contains(actionId), return QString());
-    //FIXME return action names here if any
     return QString();
 }
 
@@ -94,6 +114,7 @@ BareMetalDevice::BareMetalDevice(const QString &name, Core::Id type, MachineType
 BareMetalDevice::BareMetalDevice(const BareMetalDevice &other)
     : IDevice(other)
 {
+    setGdbInitCommands(other.getGdbInitCommands());
 }
 
 } //namespace Internal

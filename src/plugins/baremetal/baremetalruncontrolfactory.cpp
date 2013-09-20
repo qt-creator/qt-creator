@@ -30,6 +30,7 @@
 #include "baremetalruncontrolfactory.h"
 #include "baremetalgdbcommandsdeploystep.h"
 #include "baremetalrunconfiguration.h"
+#include "baremetaldevice.h"
 
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerrunner.h>
@@ -79,7 +80,7 @@ DebuggerStartParameters BareMetalRunControlFactory::startParameters(const BareMe
     DebuggerStartParameters params;
     Target *target = runConfig->target();
     Kit *k = target->kit();
-    const IDevice::ConstPtr device = DeviceKitInformation::device(k);
+    const BareMetalDevice::ConstPtr device = qSharedPointerCast<const BareMetalDevice>(DeviceKitInformation::device(k));
     QTC_ASSERT(device, return params);
     params.sysRoot = SysRootKitInformation::sysRoot(k).toString();
     params.debuggerCommand = DebuggerKitInformation::debuggerCommand(k).toString();
@@ -99,7 +100,7 @@ DebuggerStartParameters BareMetalRunControlFactory::startParameters(const BareMe
     }
     params.remoteChannel = device->sshParameters().host + QLatin1String(":") + QString::number(device->sshParameters().port);
     params.remoteSetupNeeded = false; // qml stuff, not needed
-    params.commandsAfterConnect = device->sshParameters().userName.toLatin1();
+    params.commandsAfterConnect = device->getGdbInitCommands().toLatin1();
     BuildConfiguration *bc = target->activeBuildConfiguration();
     BuildStepList *bsl = bc->stepList(BareMetalGdbCommandsDeployStep::stepId());
     if (bsl) {
@@ -108,7 +109,7 @@ DebuggerStartParameters BareMetalRunControlFactory::startParameters(const BareMe
             if (ds) {
                 if (!params.commandsAfterConnect.endsWith("\n"))
                     params.commandsAfterConnect.append("\n");
-                params.commandsAfterConnect.append(ds->gdbCommands().toLatin1());
+                params.commandsAfterConnect.append(ds->gdbCommands().toLocal8Bit());
             }
         }
     }
