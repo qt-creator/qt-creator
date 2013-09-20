@@ -351,6 +351,18 @@ void CppPreprocessor::stopSkippingBlocks(unsigned offset)
         m_currentDoc->stopSkippingBlocks(offset);
 }
 
+// This is a temporary fix to handle non-ascii characters. This can be removed when the lexer can
+// handle multi-byte characters.
+static QByteArray convertToLatin1(const QByteArray &contents)
+{
+    const char *p = contents.constData();
+    while (char ch = *p++)
+        if (ch & 0x80)
+            return QString::fromUtf8(contents).toLatin1();
+
+    return contents;
+}
+
 void CppPreprocessor::sourceNeeded(unsigned line, const QString &fileName, IncludeType type)
 {
     if (fileName.isEmpty())
@@ -368,6 +380,7 @@ void CppPreprocessor::sourceNeeded(unsigned line, const QString &fileName, Inclu
     unsigned editorRevision = 0;
     QByteArray contents;
     getFileContents(absoluteFileName, &contents, &editorRevision);
+    contents = convertToLatin1(contents);
     if (m_currentDoc) {
         if (contents.isEmpty() && !QFileInfo(absoluteFileName).isAbsolute()) {
             QString msg = QCoreApplication::translate(

@@ -41,6 +41,18 @@ FastPreprocessor::FastPreprocessor(const Snapshot &snapshot)
     , _preproc(this, &_env)
 { }
 
+// This is a temporary fix to handle non-ascii characters. This can be removed when the lexer can
+// handle multi-byte characters.
+static QByteArray convertToLatin1(const QByteArray &contents)
+{
+    const char *p = contents.constData();
+    while (char ch = *p++)
+        if (ch & 0x80)
+            return QString::fromUtf8(contents).toLatin1();
+
+    return contents;
+}
+
 QByteArray FastPreprocessor::run(Document::Ptr newDoc, const QByteArray &source)
 {
     std::swap(newDoc, _currentDoc);
@@ -56,7 +68,9 @@ QByteArray FastPreprocessor::run(Document::Ptr newDoc, const QByteArray &source)
             mergeEnvironment(i.resolvedFileName());
     }
 
-    const QByteArray preprocessed = _preproc.run(fileName, source);
+    QByteArray src = convertToLatin1(source);
+
+    const QByteArray preprocessed = _preproc.run(fileName, src);
 //    qDebug("FastPreprocessor::run for %s produced [[%s]]", fileName.toUtf8().constData(), preprocessed.constData());
     std::swap(newDoc, _currentDoc);
     return preprocessed;
