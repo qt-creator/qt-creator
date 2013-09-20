@@ -58,6 +58,7 @@ SpinBox {
         minimumValue: spinBox.minimumValue
 
         value: spinBox.value
+        visible: false
 
         onValueChanged: {
             spinBox.value = value

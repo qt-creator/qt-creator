@@ -74,7 +74,7 @@ Controls.SpinBox {
         anchors.right: parent.right
         anchors.top: parent.bottom
         height: 10;
-        visible: spinBox.hasSlider
+        visible: false
 
         maximumValue: spinBox.maximumValue
         minimumValue: spinBox.minimumValue
