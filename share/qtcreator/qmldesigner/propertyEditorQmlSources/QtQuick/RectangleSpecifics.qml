@@ -39,29 +39,29 @@ Column {
     Section {
         anchors.left: parent.left
         anchors.right: parent.right
-        caption: "Color"
+        caption: qsTr("Color")
 
         ColorEditor {
-            id: colorEditor
-            color: backendValues.color.value
-            onColorChanged: {
-                //backendValues.color.value = color
-                //Delay setting the color to keep ui responsive
-                colorEditorTimer.restart()
-            }
-
-            Timer {
-                id: colorEditorTimer
-                repeat: false
-                interval: 100
-                onTriggered: {
-                    backendValues.color.value = colorEditor.color
-                }
-            }
-
+            caption: qsTr("Color")
+            backendendValue: backendValues.color
+            supportGradient: true
         }
 
+
     }
+
+    Section {
+        anchors.left: parent.left
+        anchors.right: parent.right
+        caption: qsTr("Border Color")
+
+        ColorEditor {
+            caption: qsTr("Border Color")
+            backendendValue: backendValues.border_color
+            supportGradient: false
+        }
+    }
+
 
     Section {
         anchors.left: parent.left
