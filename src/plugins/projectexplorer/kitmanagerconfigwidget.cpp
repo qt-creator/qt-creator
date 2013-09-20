@@ -179,7 +179,7 @@ void KitManagerConfigWidget::addConfigWidget(ProjectExplorer::KitConfigWidget *w
 
     QAction *action = new QAction(tr("Mark as Mutable"), 0);
     action->setCheckable(true);
-    action->setData(QVariant::fromValue(widget));
+    action->setData(QVariant::fromValue(qobject_cast<QObject *>(widget)));
     action->setChecked(widget->isMutable());
     action->setEnabled(!widget->isSticky());
     widget->mainWidget()->addAction(action);
