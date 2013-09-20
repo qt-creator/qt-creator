@@ -29,8 +29,8 @@
 
 #include "baremetaldeploystepfactory.h"
 
-#include <baremetaldeployconfiguration.h>
-#include <baremetalgdbcommandsdeploystep.h>
+#include "baremetaldeployconfiguration.h"
+#include "baremetalgdbcommandsdeploystep.h"
 
 #include <utils/qtcassert.h>
 
