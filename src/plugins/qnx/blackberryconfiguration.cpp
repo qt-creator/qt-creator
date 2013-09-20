@@ -276,6 +276,7 @@ Kit *BlackBerryConfiguration::createKit(QnxArchitecture arch, BaseQtVersion *qtV
 
     kit->setAutoDetected(m_isAutoDetected);
     kit->setIconPath(FileName::fromString(QLatin1String(Constants::QNX_BB_CATEGORY_ICON)));
+    kit->setMutable(DeviceKitInformation::id(), true);
     setSticky(kit);
     DeviceTypeKitInformation::setDeviceTypeId(kit, Constants::QNX_BB_OS_TYPE);
     SysRootKitInformation::setSysRoot(kit, m_sysRoot);
