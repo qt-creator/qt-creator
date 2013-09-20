@@ -744,7 +744,9 @@ bool AndroidPackageCreationStep::createPackage()
 
             QByteArray keyPass = m_certificatePasswdForRun.toUtf8();
             build.clear();
-            build << QLatin1String("-verbose") << QLatin1String("-keystore") << m_keystorePathForRun.toUserOutput()
+            build << QLatin1String("-verbose") << QLatin1String("-digestalg") << QLatin1String("SHA1")
+                  << QLatin1String("-sigalg") << QLatin1String("MD5withRSA")
+                  << QLatin1String("-keystore") << m_keystorePathForRun.toUserOutput()
                   << QLatin1String("-storepass") << m_keystorePasswd
                   << m_apkPathUnsigned.toUserOutput()
                   << m_certificateAlias;
