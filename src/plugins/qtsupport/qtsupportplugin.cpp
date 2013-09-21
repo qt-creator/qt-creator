@@ -45,7 +45,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0))
 #include "gettingstartedwelcomepage.h"
 #endif
 
@@ -77,7 +77,7 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
 
     addAutoReleasedObject(new QtOptionsPage);
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 1, 0))
     ExamplesWelcomePage *welcomePage;
     welcomePage = new ExamplesWelcomePage;
     addAutoReleasedObject(welcomePage);
