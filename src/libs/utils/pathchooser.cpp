@@ -357,11 +357,21 @@ void PathChooser::slotBrowse()
     emit beforeBrowsing();
 
     QString predefined = path();
-    if ((predefined.isEmpty() || !QFileInfo(predefined).isDir())
+    QFileInfo fi(predefined);
+
+    if (!predefined.isEmpty() && !fi.isDir()) {
+        predefined = fi.path();
+        fi.setFile(predefined);
+    }
+
+    if ((predefined.isEmpty() || !fi.isDir())
             && !d->m_initialBrowsePathOverride.isNull()) {
         predefined = d->m_initialBrowsePathOverride;
-        if (!QFileInfo(predefined).isDir())
+        fi.setFile(predefined);
+        if (!fi.isDir()) {
             predefined.clear();
+            fi.setFile(QString());
+        }
     }
 
     // Prompt for a file/dir
@@ -392,7 +402,6 @@ void PathChooser::slotBrowse()
         QFileDialog dialog(this);
         dialog.setFileMode(QFileDialog::AnyFile);
         dialog.setWindowTitle(makeDialogTitle(tr("Choose File")));
-        QFileInfo fi(predefined);
         if (fi.exists())
             dialog.setDirectory(fi.absolutePath());
         // FIXME: fix QFileDialog so that it filters properly: lib*.a
