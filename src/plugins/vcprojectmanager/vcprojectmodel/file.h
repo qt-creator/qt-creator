@@ -32,6 +32,7 @@
 
 #include "ivcprojectnodemodel.h"
 #include "configuration.h"
+#include "../interfaces/ifile.h"
 
 #include <projectexplorer/projectnodes.h>
 
@@ -40,7 +41,7 @@ namespace Internal {
 
 class VcProjectDocument;
 
-class File : public IVcProjectXMLNode
+class File : public IFile
 {
     friend class FileFactory;
 
@@ -55,12 +56,10 @@ public:
     VcNodeWidget* createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
+    ConfigurationContainer *configurationContainer() const;
+
     void addFile(File::Ptr file);
     void removeFile(File::Ptr file);
-    void addFileConfiguration(IConfiguration *fileConfig);
-    void removeFileConfiguration(IConfiguration *fileConfig);
-    IConfiguration *fileConfiguration(const QString &name) const;
-    QList<IConfiguration*> fileConfigurations() const;
 
     QString attributeValue(const QString &attributeName) const;
     void setAttribute(const QString &attributeName, const QString &attributeValue);
@@ -79,9 +78,9 @@ private:
 
     QString m_relativePath; // required
     QList<QSharedPointer<File> > m_files;
-    QList<IConfiguration*> m_fileConfigurations;
     QHash<QString, QString> m_anyAttribute;
     VcProjectDocument *m_parentProjectDoc;
+    ConfigurationContainer *m_configurationContainer;
 };
 
 } // namespace Internal

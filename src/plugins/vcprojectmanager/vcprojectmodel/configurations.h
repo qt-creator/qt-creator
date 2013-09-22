@@ -55,6 +55,8 @@ public:
     VcNodeWidget* createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
+    ConfigurationContainer* configurationContainer() const;
+
     // IConfigurations interface
     void addConfiguration(IConfiguration *config);
     IConfiguration *configuration(const QString &fullName) const;
@@ -68,7 +70,7 @@ private:
     void processConfiguration(const QDomNode &configurationNode);
 
     VcProjectDocument *m_vcProjDoc;
-    QList<IConfiguration *> m_configs;
+    ConfigurationContainer* m_configurationContainer;
 };
 
 } // namespace Internal

@@ -27,25 +27,30 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_INTERNAL_ICONFIGURATIONHANDLER_H
-#define VCPROJECTMANAGER_INTERNAL_ICONFIGURATIONHANDLER_H
+#ifndef VCPROJECTMANAGER_INTERNAL_IFILE_H
+#define VCPROJECTMANAGER_INTERNAL_IFILE_H
 
 #include <QString>
+
+#include "../vcprojectmodel/ivcprojectnodemodel.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
+class IConfiguration;
 class ConfigurationContainer;
 
-class IConfigurations
+class IFile : public IVcProjectXMLNode
 {
 public:
-    virtual ~IConfigurations() {}
+    virtual ~IFile() {}
 
+    virtual QString relativePath() const = 0;
+    virtual void setRelativePath(const QString &path) = 0;
     virtual ConfigurationContainer* configurationContainer() const = 0;
 };
 
 } // namespace Internal
 } // namespace VcProjectManager
 
-#endif // VCPROJECTMANAGER_INTERNAL_ICONFIGURATIONHANDLER_H
+#endif // VCPROJECTMANAGER_INTERNAL_IFILE_H

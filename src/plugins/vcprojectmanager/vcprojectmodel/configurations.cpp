@@ -33,6 +33,7 @@
 #include "vcprojectdocument.h"
 #include "../widgets/configurationswidgets.h"
 #include "../interfaces/iconfiguration.h"
+#include "configurationcontainer.h"
 
 namespace VcProjectManager {
 namespace Internal {
@@ -42,24 +43,21 @@ class ConfigurationsBaseWidget;
 Configurations::Configurations(VcProjectDocument *vcProjDoc)
     : m_vcProjDoc(vcProjDoc)
 {
+    m_configurationContainer = new ConfigurationContainer;
 }
 
 Configurations::Configurations(const Configurations &configs)
 {
+    m_configurationContainer = new ConfigurationContainer;
+    *m_configurationContainer = *(configs.m_configurationContainer);
     m_vcProjDoc = configs.m_vcProjDoc;
-
-    foreach (const IConfiguration *config, configs.m_configs)
-        m_configs.append(config->clone());
 }
 
 Configurations &Configurations::operator =(const Configurations &configs)
 {
     if (this != &configs) {
         m_vcProjDoc = configs.m_vcProjDoc;
-        m_configs.clear();
-
-        foreach (const IConfiguration *config, configs.m_configs)
-            m_configs.append(config->clone());
+        *m_configurationContainer = *(configs.m_configurationContainer);
     }
 
     return *this;
@@ -67,7 +65,7 @@ Configurations &Configurations::operator =(const Configurations &configs)
 
 Configurations::~Configurations()
 {
-    qDeleteAll(m_configs);
+    delete m_configurationContainer;
 }
 
 void Configurations::processNode(const QDomNode &node)
@@ -91,62 +89,43 @@ VcNodeWidget *Configurations::createSettingsWidget()
 QDomNode Configurations::toXMLDomNode(QDomDocument &domXMLDocument) const
 {
     QDomElement configsNode = domXMLDocument.createElement(QLatin1String("Configurations"));
-
-    foreach (const IConfiguration *config, m_configs)
-        configsNode.appendChild(config->toXMLDomNode(domXMLDocument));
-
+    m_configurationContainer->appendToXMLNode(configsNode, domXMLDocument);
     return configsNode;
+}
+
+ConfigurationContainer *Configurations::configurationContainer() const
+{
+    return m_configurationContainer;
 }
 
 void Configurations::addConfiguration(IConfiguration *config)
 {
-    if (m_configs.contains(config))
-        return;
-
-    // if there is already a configuration with the same name
-    foreach (const IConfiguration *conf, m_configs) {
-        if (config->fullName() == conf->fullName())
-            return;
-    }
-    m_configs.append(config);
+    m_configurationContainer->addConfiguration(config);
 }
 
 IConfiguration *Configurations::configuration(const QString &fullName) const
 {
-    foreach (IConfiguration *config, m_configs) {
-        if (config->fullName() == fullName)
-            return config;
-    }
-    return 0;
+    return m_configurationContainer->configuration(fullName);
 }
 
 IConfiguration *Configurations::configuration(int index) const
 {
-    if (0 <= index && index < m_configs.size())
-        return m_configs[index];
-    return 0;
+    return m_configurationContainer->configuration(index);
 }
 
 int Configurations::configurationCount() const
 {
-    return m_configs.size();
+    return m_configurationContainer->configurationCount();
 }
 
 void Configurations::removeConfiguration(const QString &fullName)
 {
-    // if there is already a configuration with the same name
-    foreach (IConfiguration *conf, m_configs) {
-        if (conf->fullName() == fullName) {
-            m_configs.removeOne(conf);
-            delete conf;
-            return;
-        }
-    }
+    m_configurationContainer->removeConfiguration(fullName);
 }
 
 bool Configurations::isEmpty() const
 {
-    return m_configs.isEmpty();
+    return m_configurationContainer->configurationCount() == 0;
 }
 
 void Configurations::processConfiguration(const QDomNode &configurationNode)
@@ -162,7 +141,7 @@ void Configurations::processConfiguration(const QDomNode &configurationNode)
 
     if (config) {
         config->processNode(configurationNode);
-        m_configs.append(config);
+        addConfiguration(config);
     }
 
     // process next sibling

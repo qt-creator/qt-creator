@@ -79,7 +79,7 @@ protected:
     QList<QString> m_removedConfigurations;
     QMap<IConfiguration*, QString> m_renamedConfigurations; // <oldName, newName>
 
-    QHash<QSharedPointer<File>, IConfiguration*> m_newFilesConfigurations;
+    QHash<QSharedPointer<File>, QList<IConfiguration*> > m_newFilesConfigurations;
 };
 
 class Configurations2003Widget : public ConfigurationsBaseWidget

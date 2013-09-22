@@ -31,6 +31,7 @@
 
 #include "configurationsfactory.h"
 #include "vcprojectdocument.h"
+#include "configurationcontainer.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <coreplugin/mimedatabase.h>
@@ -42,18 +43,18 @@ namespace Internal {
 File::File(VcProjectDocument *parentProjectDoc)
     : m_parentProjectDoc(parentProjectDoc)
 {
+    m_configurationContainer = new ConfigurationContainer;
 }
 
 File::File(const File &file)
 {
     m_parentProjectDoc = file.m_parentProjectDoc;
     m_relativePath = file.m_relativePath;
+    m_configurationContainer = new ConfigurationContainer;
+    *m_configurationContainer = *(file.m_configurationContainer);
 
     foreach (const File::Ptr &f, file.m_files)
         m_files.append(File::Ptr(new File(*f)));
-
-    foreach (const IConfiguration *fileConfig, m_fileConfigurations)
-        m_fileConfigurations.append(fileConfig->clone());
 }
 
 File &File::operator =(const File &file)
@@ -61,15 +62,12 @@ File &File::operator =(const File &file)
     if (this != &file) {
         m_parentProjectDoc = file.m_parentProjectDoc;
         m_relativePath = file.m_relativePath;
+        *m_configurationContainer = *(file.m_configurationContainer);
 
         m_files.clear();
-        m_fileConfigurations.clear();
 
         foreach (const File::Ptr &f, file.m_files)
             m_files.append(File::Ptr(new File(*f)));
-
-        foreach (const IConfiguration *fileConfig, m_fileConfigurations)
-            m_fileConfigurations.append(fileConfig->clone());
     }
     return *this;
 }
@@ -77,7 +75,7 @@ File &File::operator =(const File &file)
 File::~File()
 {
     m_files.clear();
-    qDeleteAll(m_fileConfigurations);
+    delete m_configurationContainer;
 }
 
 void File::processNode(const QDomNode &node)
@@ -120,10 +118,14 @@ QDomNode File::toXMLDomNode(QDomDocument &domXMLDocument) const
     foreach (const File::Ptr &file, m_files)
         fileNode.appendChild(file->toXMLDomNode(domXMLDocument));
 
-    foreach (const IConfiguration *fileConfig, m_fileConfigurations)
-        fileNode.appendChild(fileConfig->toXMLDomNode(domXMLDocument));
+    m_configurationContainer->appendToXMLNode(fileNode, domXMLDocument);
 
     return fileNode;
+}
+
+ConfigurationContainer *File::configurationContainer() const
+{
+    return m_configurationContainer;
 }
 
 void File::addFile(File::Ptr file)
@@ -137,44 +139,6 @@ void File::removeFile(File::Ptr file)
 {
     if (m_files.contains(file))
         m_files.removeAll(file);
-}
-
-void File::addFileConfiguration(IConfiguration *fileConfig)
-{
-    if (!fileConfig)
-        return;
-
-    foreach (const IConfiguration *configPtr, m_fileConfigurations) {
-        if (configPtr->fullName() == fileConfig->fullName())
-            return;
-    }
-    m_fileConfigurations.append(fileConfig);
-}
-
-void File::removeFileConfiguration(IConfiguration *fileConfig)
-{
-    foreach (IConfiguration *configPtr, m_fileConfigurations) {
-        if (configPtr->fullName() == fileConfig->fullName()) {
-            m_fileConfigurations.removeOne(configPtr);
-            delete configPtr;
-            return;
-        }
-    }
-}
-
-IConfiguration* File::fileConfiguration(const QString &name) const
-{
-    foreach (IConfiguration *configPtr, m_fileConfigurations) {
-        if (configPtr->fullName() == name)
-            return configPtr;
-    }
-
-    return 0;
-}
-
-QList<IConfiguration *> File::fileConfigurations() const
-{
-    return m_fileConfigurations;
 }
 
 QString File::attributeValue(const QString &attributeName) const
@@ -253,7 +217,7 @@ void File::processFileConfiguration(const QDomNode &fileConfigNode)
 
     if (fileConfig) {
         fileConfig->processNode(fileConfigNode);
-        m_fileConfigurations.append(fileConfig);
+        m_configurationContainer->addConfiguration(fileConfig);
     }
 
     // process next sibling

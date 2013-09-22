@@ -27,25 +27,36 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_INTERNAL_ICONFIGURATIONHANDLER_H
-#define VCPROJECTMANAGER_INTERNAL_ICONFIGURATIONHANDLER_H
+#ifndef ICONFIGURATIONCONTAINER_H
+#define ICONFIGURATIONCONTAINER_H
 
-#include <QString>
+#include <QList>
+#include <QDomElement>
 
 namespace VcProjectManager {
 namespace Internal {
 
-class ConfigurationContainer;
+class IConfiguration;
 
-class IConfigurations
+class ConfigurationContainer
 {
 public:
-    virtual ~IConfigurations() {}
+    ConfigurationContainer();
+    ConfigurationContainer(const ConfigurationContainer &configCont);
+    ConfigurationContainer& operator=(const ConfigurationContainer &configCont);
+    ~ConfigurationContainer();
 
-    virtual ConfigurationContainer* configurationContainer() const = 0;
+    void addConfiguration(IConfiguration *config);
+    IConfiguration* configuration(const QString &fullName) const;
+    IConfiguration* configuration(int index) const;
+    int configurationCount() const;
+    void removeConfiguration(const QString &fullName);
+    void appendToXMLNode(QDomElement &domElement, QDomDocument &domXMLDocument);
+
+private:
+    QList<IConfiguration *> m_configs;
 };
 
-} // namespace Internal
-} // namespace VcProjectManager
-
-#endif // VCPROJECTMANAGER_INTERNAL_ICONFIGURATIONHANDLER_H
+} // Internal
+} // VcProjectManager
+#endif // ICONFIGURATIONCONTAINER_H

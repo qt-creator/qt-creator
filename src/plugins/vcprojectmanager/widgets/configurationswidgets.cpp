@@ -43,6 +43,7 @@
 #include "../vcprojectmodel/file.h"
 #include "../interfaces/iattributecontainer.h"
 #include "../interfaces/itools.h"
+#include "../vcprojectmodel/configurationcontainer.h"
 
 namespace VcProjectManager {
 namespace Internal {
@@ -97,11 +98,13 @@ void ConfigurationsBaseWidget::saveData()
     foreach (IConfiguration *newConfig, m_newConfigurations)
         m_configs->addConfiguration(newConfig);
 
-    QHashIterator<QSharedPointer<File>, IConfiguration*> fileConfigIt(m_newFilesConfigurations);
+    QHashIterator<QSharedPointer<File>, QList<IConfiguration*> > fileConfigIt(m_newFilesConfigurations);
 
     while (fileConfigIt.hasNext()) {
         fileConfigIt.next();
-        fileConfigIt.key()->addFileConfiguration(fileConfigIt.value());
+
+        foreach (IConfiguration *newFileConfig, fileConfigIt.value())
+            fileConfigIt.key()->configurationContainer()->addConfiguration(newFileConfig);
     }
 
     // save data for every configuration
@@ -350,12 +353,12 @@ void ConfigurationsBaseWidget::addConfigurationToFilesInFolder(QSharedPointer<Fo
 
 void ConfigurationsBaseWidget::addConfigurationToFile(QSharedPointer<File> filePtr, const QString &copyFromConfig, const QString &targetConfigName)
 {
-    IConfiguration *configPtr = filePtr->fileConfiguration(copyFromConfig);
+    IConfiguration *configPtr = filePtr->configurationContainer()->configuration(copyFromConfig);
 
     if (configPtr) {
         IConfiguration *newConfig = configPtr->clone();
         newConfig->setFullName(targetConfigName);
-        m_newFilesConfigurations[filePtr] = newConfig;
+        m_newFilesConfigurations[filePtr].append(newConfig);
     }
 }
 

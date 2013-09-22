@@ -43,7 +43,8 @@ HEADERS += \
     vcprojectmodel/tools/toolattributes/attributedescriptiondataitem.h \
     vcprojectmodel/generalattributecontainer.h \
     vcprojectmodel/configurationtools.h \
-    vcprojectmodel/tools/toolattributes/toolsectioncontainer.h
+    vcprojectmodel/tools/toolattributes/toolsectioncontainer.h \
+    vcprojectmodel/configurationcontainer.h
 
 SOURCES += \
     vcprojectmodel/vcprojectdocument.cpp \
@@ -84,9 +85,10 @@ SOURCES += \
     vcprojectmodel/tools/toolsection.cpp \
     vcprojectmodel/tools/toolattributes/toolattributeoption.cpp \
     vcprojectmodel/tools/toolattributes/attributedescriptiondataitem.cpp \
-    vcprojectmodel/tools/toolattributes/toolsectioncontainer.cpp \
     vcprojectmodel/generalattributecontainer.cpp \
-    vcprojectmodel/configurationtools.cpp
+    vcprojectmodel/configurationtools.cpp \
+    vcprojectmodel/tools/toolattributes/toolsectioncontainer.cpp \
+    vcprojectmodel/configurationcontainer.cpp
 
 OTHER_FILES += \
     vcprojectmodel/tools/xml_definitions/VCXMLDataGeneratorTool.xml \

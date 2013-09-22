@@ -9,4 +9,6 @@ HEADERS += \
     interfaces/itoolsectiondescription.h \
     interfaces/itoolattribute.h \
     interfaces/iattributedescriptiondataitem.h \
-    interfaces/iconfigurations.h
+    interfaces/iconfigurations.h \
+    interfaces/ifile.h \
+    interfaces/ifile.h
