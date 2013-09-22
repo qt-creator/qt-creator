@@ -274,14 +274,18 @@ void StateListener::slotStateChanged()
     if (!state.currentFile.isEmpty()) {
         if (currentFileInfo.isNull())
             currentFileInfo.reset(new QFileInfo(state.currentFile));
-        state.currentFileDirectory =
-                currentFileInfo->isDir() ? currentFileInfo->absoluteFilePath() :
-                                           currentFileInfo->absolutePath();
-        state.currentFileName = currentFileInfo->fileName();
-        fileControl = Core::VcsManager::findVersionControlForDirectory(state.currentFileDirectory,
-                                                                 &state.currentFileTopLevel);
-        if (!fileControl)
-            state.clearFile();
+        if (currentFileInfo->isDir()) {
+            state.currentFile.clear();
+            state.currentFileDirectory = currentFileInfo->absoluteFilePath();
+        } else {
+            state.currentFileDirectory = currentFileInfo->absolutePath();
+            state.currentFileName = currentFileInfo->fileName();
+            fileControl = Core::VcsManager::findVersionControlForDirectory(
+                        state.currentFileDirectory,
+                        &state.currentFileTopLevel);
+            if (!fileControl)
+                state.clearFile();
+        }
     }
     // Check for project, find the control
     Core::IVersionControl *projectControl = 0;
