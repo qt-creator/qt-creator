@@ -42,6 +42,7 @@
 #include <QProcess>
 #include <QProcessEnvironment>
 #include <QFuture>
+#include <QFutureWatcher>
 #include <QtConcurrentRun>
 #include <QFileInfo>
 #include <QCoreApplication>
@@ -101,6 +102,8 @@ public:
     ProgressParser *m_progressParser;
     VcsBase::VcsBaseOutputWindow *m_outputWindow;
     bool m_progressiveOutput;
+    bool m_hadOutput;
+    QFutureWatcher<void> m_watcher;
 
     QList<Job> m_jobs;
 
@@ -121,6 +124,7 @@ CommandPrivate::CommandPrivate(const QString &binary,
     m_progressParser(0),
     m_outputWindow(VcsBase::VcsBaseOutputWindow::instance()),
     m_progressiveOutput(false),
+    m_hadOutput(false),
     m_lastExecSuccess(false),
     m_lastExecExitCode(-1)
 {
@@ -210,6 +214,8 @@ void Command::execute()
 
     // For some reason QtConcurrent::run() only works on this
     QFuture<void> task = QtConcurrent::run(&Command::run, this);
+    d->m_watcher.setFuture(task);
+    connect(&d->m_watcher, SIGNAL(canceled()), this, SLOT(cancel()));
     QString binary = QFileInfo(d->m_binaryPath).baseName();
     if (!binary.isEmpty())
         binary = binary.replace(0, 1, binary[0].toUpper()); // Upper the first letter
@@ -219,9 +225,9 @@ void Command::execute()
         Core::Id::fromString(binary + QLatin1String(".action")));
 }
 
-void Command::terminate()
+void Command::cancel()
 {
-    emit doTerminate();
+    emit terminate();
 }
 
 bool Command::lastExecutionSuccess() const
@@ -247,6 +253,8 @@ void Command::run(QFutureInterface<void> &future)
 
     if (d->m_progressParser)
         d->m_progressParser->setFuture(&future);
+    else
+        future.setProgressRange(0, 1);
     const int count = d->m_jobs.size();
     d->m_lastExecExitCode = -1;
     d->m_lastExecSuccess = true;
@@ -265,17 +273,23 @@ void Command::run(QFutureInterface<void> &future)
             break;
     }
 
-    if (!future.isCanceled()) {
-        if (!d->m_progressiveOutput) {
+    const QString canceledMessage = tr("Canceled");
+    if (d->m_progressiveOutput) {
+        if (!d->m_hadOutput && future.isCanceled())
+            emit output(canceledMessage);
+    } else {
+        if (stdOut.isEmpty() && future.isCanceled())
+            emit output(canceledMessage);
+        else
             emit output(stdOut);
-            if (!stdErr.isEmpty())
-                emit errorText(stdErr);
-        }
-
-        emit finished(d->m_lastExecSuccess, d->m_lastExecExitCode, cookie());
-        if (d->m_lastExecSuccess)
-            emit success(cookie());
+        if (!stdErr.isEmpty())
+            emit errorText(stdErr);
     }
+
+    emit finished(d->m_lastExecSuccess, d->m_lastExecExitCode, cookie());
+    if (d->m_lastExecSuccess)
+        emit success(cookie());
+    future.setProgressValue(future.progressMaximum());
 
     if (d->m_progressParser)
         d->m_progressParser->setFuture(0);
@@ -362,7 +376,7 @@ Utils::SynchronousProcessResponse Command::runVcs(const QStringList &arguments, 
     } else {
         Utils::SynchronousProcess process;
         process.setExitCodeInterpreter(interpreter);
-        connect(this, SIGNAL(doTerminate()), &process, SLOT(terminate()));
+        connect(this, SIGNAL(terminate()), &process, SLOT(terminate()));
         if (!d->m_workingDirectory.isEmpty())
             process.setWorkingDirectory(d->m_workingDirectory);
 
@@ -535,8 +549,10 @@ void Command::bufferedOutput(const QString &text)
         d->m_progressParser->parseProgress(text);
     if (d->m_flags & VcsBasePlugin::ShowStdOutInLogWindow)
         d->m_outputWindow->append(text);
-    if (d->m_progressiveOutput)
+    if (d->m_progressiveOutput) {
         emit output(text);
+        d->m_hadOutput = true;
+    }
 }
 
 void Command::bufferedError(const QString &text)

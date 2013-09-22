@@ -132,7 +132,7 @@ void CheckoutProgressWizardPage::slotError(const QString &text)
 void CheckoutProgressWizardPage::terminate()
 {
     if (m_command)
-        m_command->terminate();
+        m_command->cancel();
 }
 
 bool CheckoutProgressWizardPage::isComplete() const

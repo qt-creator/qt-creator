@@ -80,7 +80,6 @@ public:
     void addJob(const QStringList &arguments, Utils::ExitCodeInterpreter *interpreter = 0);
     void addJob(const QStringList &arguments, int timeout, Utils::ExitCodeInterpreter *interpreter = 0);
     void execute();
-    void terminate();
     bool lastExecutionSuccess() const;
     int lastExecutionExitCode() const;
 
@@ -114,16 +113,21 @@ private:
     Utils::SynchronousProcessResponse runSynchronous(const QStringList &arguments, int timeoutMS,
                                                      Utils::ExitCodeInterpreter *interpreter = 0);
 
-private slots:
-    void bufferedOutput(const QString &text);
-    void bufferedError(const QString &text);
+public slots:
+    void cancel();
 
 signals:
     void output(const QString &);
     void errorText(const QString &);
     void finished(bool ok, int exitCode, const QVariant &cookie);
     void success(const QVariant &cookie);
-    void doTerminate();
+
+private slots:
+    void bufferedOutput(const QString &text);
+    void bufferedError(const QString &text);
+
+signals:
+    void terminate(); // Internal
 
 private:
     class Internal::CommandPrivate *const d;
