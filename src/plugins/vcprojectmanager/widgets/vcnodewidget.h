@@ -40,7 +40,6 @@ class VcNodeWidget : public QWidget
     Q_OBJECT
 public:
     explicit VcNodeWidget(QWidget *parent = 0);
-    ~VcNodeWidget();
     virtual void saveData() = 0;
 };
 

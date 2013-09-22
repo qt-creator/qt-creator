@@ -29,7 +29,6 @@ HEADERS += \
     vcprojectmodel/vcdocumentmodel.h \
     vcprojectmodel/ivcprojectnodemodel.h \
     vcprojectmodel/vcdocprojectnodes.h \
-    vcprojectmodel/tools/toolattributes/itoolattribute.h \
     vcprojectmodel/tools/toolattributes/booltoolattribute.h \
     vcprojectmodel/tools/toolattributes/stringtoolattribute.h \
     vcprojectmodel/tools/toolattributes/stringlisttoolattribute.h \
@@ -41,7 +40,10 @@ HEADERS += \
     vcprojectmodel/tools/toolsectiondescription.h \
     vcprojectmodel/tools/toolsection.h \
     vcprojectmodel/tools/toolattributes/toolattributeoption.h \
-    vcprojectmodel/tools/toolattributes/attributedescriptiondataitem.h
+    vcprojectmodel/tools/toolattributes/attributedescriptiondataitem.h \
+    vcprojectmodel/generalattributecontainer.h \
+    vcprojectmodel/configurationtools.h \
+    vcprojectmodel/tools/toolattributes/toolsectioncontainer.h
 
 SOURCES += \
     vcprojectmodel/vcprojectdocument.cpp \
@@ -81,7 +83,10 @@ SOURCES += \
     vcprojectmodel/tools/toolsectiondescription.cpp \
     vcprojectmodel/tools/toolsection.cpp \
     vcprojectmodel/tools/toolattributes/toolattributeoption.cpp \
-    vcprojectmodel/tools/toolattributes/attributedescriptiondataitem.cpp
+    vcprojectmodel/tools/toolattributes/attributedescriptiondataitem.cpp \
+    vcprojectmodel/tools/toolattributes/toolsectioncontainer.cpp \
+    vcprojectmodel/generalattributecontainer.cpp \
+    vcprojectmodel/configurationtools.cpp
 
 OTHER_FILES += \
     vcprojectmodel/tools/xml_definitions/VCXMLDataGeneratorTool.xml \

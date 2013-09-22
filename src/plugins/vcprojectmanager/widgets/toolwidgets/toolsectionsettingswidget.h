@@ -33,6 +33,8 @@
 #include <QList>
 #include <QWidget>
 
+#include "../vcnodewidget.h"
+
 namespace VcProjectManager {
 namespace Internal {
 
@@ -41,7 +43,7 @@ class BasicConfigurationWidget;
 class IToolAttribute;
 class IToolAttributeSettingsWidget;
 
-class ToolSectionSettingsWidget : public QWidget
+class ToolSectionSettingsWidget : public VcNodeWidget
 {
 public:
     ToolSectionSettingsWidget(ToolSection *toolSection, QWidget *parent = 0);

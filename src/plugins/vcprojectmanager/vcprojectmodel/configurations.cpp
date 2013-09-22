@@ -32,6 +32,7 @@
 #include "configurationsfactory.h"
 #include "vcprojectdocument.h"
 #include "../widgets/configurationswidgets.h"
+#include "../interfaces/iconfiguration.h"
 
 namespace VcProjectManager {
 namespace Internal {
@@ -47,18 +48,18 @@ Configurations::Configurations(const Configurations &configs)
 {
     m_vcProjDoc = configs.m_vcProjDoc;
 
-    foreach (const Configuration::Ptr &config, configs.m_configurations)
-        m_configurations.append(config->clone());
+    foreach (const IConfiguration *config, configs.m_configs)
+        m_configs.append(config->clone());
 }
 
 Configurations &Configurations::operator =(const Configurations &configs)
 {
     if (this != &configs) {
         m_vcProjDoc = configs.m_vcProjDoc;
-        m_configurations.clear();
+        m_configs.clear();
 
-        foreach (const Configuration::Ptr &config, configs.m_configurations)
-            m_configurations.append(config->clone());
+        foreach (const IConfiguration *config, configs.m_configs)
+            m_configs.append(config->clone());
     }
 
     return *this;
@@ -66,6 +67,7 @@ Configurations &Configurations::operator =(const Configurations &configs)
 
 Configurations::~Configurations()
 {
+    qDeleteAll(m_configs);
 }
 
 void Configurations::processNode(const QDomNode &node)
@@ -90,78 +92,78 @@ QDomNode Configurations::toXMLDomNode(QDomDocument &domXMLDocument) const
 {
     QDomElement configsNode = domXMLDocument.createElement(QLatin1String("Configurations"));
 
-    foreach (const Configuration::Ptr &config, m_configurations)
+    foreach (const IConfiguration *config, m_configs)
         configsNode.appendChild(config->toXMLDomNode(domXMLDocument));
 
     return configsNode;
 }
 
-bool Configurations::isEmpty() const
+void Configurations::addConfiguration(IConfiguration *config)
 {
-    return m_configurations.isEmpty();
-}
-
-bool Configurations::appendConfiguration(Configuration::Ptr config)
-{
-    if (m_configurations.contains(config))
-        return false;
+    if (m_configs.contains(config))
+        return;
 
     // if there is already a configuration with the same name
-    foreach (const Configuration::Ptr &conf, m_configurations) {
-        if (config->name() == conf->name())
-            return false;
+    foreach (const IConfiguration *conf, m_configs) {
+        if (config->fullName() == conf->fullName())
+            return;
     }
-    m_configurations.append(config);
-    return true;
+    m_configs.append(config);
 }
 
-void Configurations::removeConfiguration(Configuration::Ptr config)
+IConfiguration *Configurations::configuration(const QString &fullName) const
 {
-    m_configurations.removeAll(config);
-}
-
-Configuration::Ptr Configurations::configuration(const QString &configName)
-{
-    foreach (const Configuration::Ptr &config, m_configurations) {
-        if (config->name() == configName)
+    foreach (IConfiguration *config, m_configs) {
+        if (config->fullName() == fullName)
             return config;
     }
-    return Configuration::Ptr();
+    return 0;
 }
 
-Configuration::Ptr Configurations::cloneConfiguration(const QString &newConfigName, const QString &configToClone)
+IConfiguration *Configurations::configuration(int index) const
 {
-    // don't add new configuration if some Configuration already has a name equal to newConfigName
-    if (configuration(newConfigName))
-        return Configuration::Ptr();
+    if (0 <= index && index < m_configs.size())
+        return m_configs[index];
+    return 0;
+}
 
-    foreach (const Configuration::Ptr &config, m_configurations) {
-        if (config->name() == configToClone) {
-            Configuration::Ptr clonedConfig = config->clone();
-            clonedConfig->setName(newConfigName);
-            m_configurations.append(clonedConfig);
-            return clonedConfig;
+int Configurations::configurationCount() const
+{
+    return m_configs.size();
+}
+
+void Configurations::removeConfiguration(const QString &fullName)
+{
+    // if there is already a configuration with the same name
+    foreach (IConfiguration *conf, m_configs) {
+        if (conf->fullName() == fullName) {
+            m_configs.removeOne(conf);
+            delete conf;
+            return;
         }
     }
-
-    return Configuration::Ptr();
 }
 
-Configuration::Ptr Configurations::cloneConfiguration(const QString &newConfigName, Configuration::Ptr config)
+bool Configurations::isEmpty() const
 {
-    return cloneConfiguration(newConfigName, config->name());
-}
-
-QList<Configuration::Ptr> Configurations::configurations() const
-{
-    return m_configurations;
+    return m_configs.isEmpty();
 }
 
 void Configurations::processConfiguration(const QDomNode &configurationNode)
 {
-    Configuration::Ptr configuration = ConfigurationsFactory::createConfiguration(m_vcProjDoc->documentVersion(), QLatin1String("Configuration"));
-    configuration->processNode(configurationNode);
-    m_configurations.append(configuration);
+    IConfiguration *config = 0;
+
+    if (m_vcProjDoc->documentVersion() == VcDocConstants::DV_MSVC_2003)
+        config = new Configuration2003(QLatin1String("Configuration"));
+    else if (m_vcProjDoc->documentVersion() == VcDocConstants::DV_MSVC_2005)
+        config = new Configuration2005(QLatin1String("Configuration"));
+    else if (m_vcProjDoc->documentVersion() == VcDocConstants::DV_MSVC_2008)
+        config = new Configuration2008(QLatin1String("Configuration"));
+
+    if (config) {
+        config->processNode(configurationNode);
+        m_configs.append(config);
+    }
 
     // process next sibling
     QDomNode nextSibling = configurationNode.nextSibling();

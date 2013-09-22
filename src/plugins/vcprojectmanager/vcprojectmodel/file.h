@@ -57,10 +57,10 @@ public:
 
     void addFile(File::Ptr file);
     void removeFile(File::Ptr file);
-    void addFileConfiguration(Configuration::Ptr fileConfig);
-    void removeFileConfiguration(Configuration::Ptr fileConfig);
-    Configuration::Ptr fileConfiguration(const QString &name) const;
-    QList<Configuration::Ptr> fileConfigurations() const;
+    void addFileConfiguration(IConfiguration *fileConfig);
+    void removeFileConfiguration(IConfiguration *fileConfig);
+    IConfiguration *fileConfiguration(const QString &name) const;
+    QList<IConfiguration*> fileConfigurations() const;
 
     QString attributeValue(const QString &attributeName) const;
     void setAttribute(const QString &attributeName, const QString &attributeValue);
@@ -79,7 +79,7 @@ private:
 
     QString m_relativePath; // required
     QList<QSharedPointer<File> > m_files;
-    QList<Configuration::Ptr> m_fileConfigurations;
+    QList<IConfiguration*> m_fileConfigurations;
     QHash<QString, QString> m_anyAttribute;
     VcProjectDocument *m_parentProjectDoc;
 };

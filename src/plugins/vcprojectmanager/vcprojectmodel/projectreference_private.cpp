@@ -38,7 +38,7 @@ namespace Internal {
 
 ProjectReference_Private::~ProjectReference_Private()
 {
-    m_referenceConfigurations.clear();
+    qDeleteAll(m_referenceConfigurations);
 }
 
 void ProjectReference_Private::processNode(const QDomNode &node)
@@ -63,7 +63,7 @@ QDomNode ProjectReference_Private::toXMLDomNode(QDomDocument &domXMLDocument) co
     projRefNode.setAttribute(QLatin1String("Name"), m_name);
     projRefNode.setAttribute(QLatin1String("ReferencedProjectIdentifier"), m_referencedProjectIdentifier);
 
-    foreach (const Configuration::Ptr &refConfig, m_referenceConfigurations)
+    foreach (const IConfiguration *refConfig, m_referenceConfigurations)
         projRefNode.appendChild(refConfig->toXMLDomNode(domXMLDocument));
 
     return projRefNode;
@@ -89,46 +89,47 @@ void ProjectReference_Private::setReferencedProjectIdentifier(const QString &ref
     m_referencedProjectIdentifier = referencedProjectIdentifier;
 }
 
-void ProjectReference_Private::addReferenceConfiguration(Configuration::Ptr refConfig)
+void ProjectReference_Private::addReferenceConfiguration(IConfiguration *refConfig)
 {
     if (m_referenceConfigurations.contains(refConfig))
         return;
 
     // Don't add configuration with the same name
-    foreach (const Configuration::Ptr &refConf, m_referenceConfigurations) {
-        if (refConfig->name() == refConf->name())
+    foreach (const IConfiguration *refConf, m_referenceConfigurations) {
+        if (refConfig->fullName() == refConf->fullName())
             return;
     }
     m_referenceConfigurations.append(refConfig);
 }
 
-void ProjectReference_Private::removeReferenceConfiguration(Configuration::Ptr refConfig)
+void ProjectReference_Private::removeReferenceConfiguration(IConfiguration *refConfig)
 {
     m_referenceConfigurations.removeAll(refConfig);
 }
 
 void ProjectReference_Private::removeReferenceConfiguration(const QString &refConfigName)
 {
-    foreach (const Configuration::Ptr &refConfig, m_referenceConfigurations) {
-        if (refConfig->name() == refConfigName) {
-            removeReferenceConfiguration(refConfig);
+    foreach (IConfiguration *refConfig, m_referenceConfigurations) {
+        if (refConfig->fullName() == refConfigName) {
+            m_referenceConfigurations.removeOne(refConfig);
+            delete refConfig;
             return;
         }
     }
 }
 
-QList<Configuration::Ptr> ProjectReference_Private::referenceConfigurations() const
+QList<IConfiguration*> ProjectReference_Private::referenceConfigurations() const
 {
     return m_referenceConfigurations;
 }
 
-Configuration::Ptr ProjectReference_Private::referenceConfiguration(const QString &refConfigName) const
+IConfiguration* ProjectReference_Private::referenceConfiguration(const QString &refConfigName) const
 {
-    foreach (const Configuration::Ptr &refConfig, m_referenceConfigurations) {
-        if (refConfig->name() == refConfigName)
+    foreach (IConfiguration *refConfig, m_referenceConfigurations) {
+        if (refConfig->fullName() == refConfigName)
             return refConfig;
     }
-    return Configuration::Ptr();
+    return 0;
 }
 
 ProjectReference_Private::ProjectReference_Private()
@@ -140,7 +141,7 @@ ProjectReference_Private::ProjectReference_Private(const ProjectReference_Privat
     m_referencedProjectIdentifier = projRef_p.m_referencedProjectIdentifier;
     m_name = projRef_p.m_name;
 
-    foreach (const Configuration::Ptr &refConfig, projRef_p.m_referenceConfigurations)
+    foreach (const IConfiguration *refConfig, projRef_p.m_referenceConfigurations)
         m_referenceConfigurations.append(refConfig->clone());
 }
 
@@ -151,7 +152,7 @@ ProjectReference_Private &ProjectReference_Private::operator =(const ProjectRefe
         m_name = projRef_p.m_name;
 
         m_referenceConfigurations.clear();
-        foreach (const Configuration::Ptr &refConfig, projRef_p.m_referenceConfigurations)
+        foreach (const IConfiguration *refConfig, projRef_p.m_referenceConfigurations)
             m_referenceConfigurations.append(refConfig->clone());
     }
     return *this;
@@ -159,7 +160,7 @@ ProjectReference_Private &ProjectReference_Private::operator =(const ProjectRefe
 
 void ProjectReference_Private::processReferenceConfig(const QDomNode &referenceConfig)
 {
-    Configuration::Ptr referenceConfiguration = createReferenceConfiguration();
+    IConfiguration *referenceConfiguration = createReferenceConfiguration();
     referenceConfiguration->processNode(referenceConfig);
     m_referenceConfigurations.append(referenceConfiguration);
 
@@ -213,9 +214,9 @@ ProjectReference2003_Private &ProjectReference2003_Private::operator =(const Pro
     return *this;
 }
 
-Configuration::Ptr ProjectReference2003_Private::createReferenceConfiguration() const
+IConfiguration *ProjectReference2003_Private::createReferenceConfiguration() const
 {
-    return ConfigurationsFactory::createConfiguration(VcDocConstants::DV_MSVC_2003, QLatin1String("ReferenceConfiguration"));
+    return new Configuration2003(QLatin1String("ReferenceConfiguration"));
 }
 
 
@@ -312,9 +313,9 @@ void ProjectReference2005_Private::processNodeAttributes(const QDomElement &elem
     }
 }
 
-Configuration::Ptr ProjectReference2005_Private::createReferenceConfiguration() const
+IConfiguration *ProjectReference2005_Private::createReferenceConfiguration() const
 {
-    return ConfigurationsFactory::createConfiguration(VcDocConstants::DV_MSVC_2005, QLatin1String("ReferenceConfiguration"));
+    return new Configuration2005(QLatin1String("ReferenceConfiguration"));
 }
 
 
@@ -433,9 +434,9 @@ void ProjectReference2008_Private::processNodeAttributes(const QDomElement &elem
     }
 }
 
-Configuration::Ptr ProjectReference2008_Private::createReferenceConfiguration() const
+IConfiguration *ProjectReference2008_Private::createReferenceConfiguration() const
 {
-    return ConfigurationsFactory::createConfiguration(VcDocConstants::DV_MSVC_2008, QLatin1String("ReferenceConfiguration"));
+    return new Configuration2008(QLatin1String("ReferenceConfiguration"));
 }
 
 } // namespace Internal

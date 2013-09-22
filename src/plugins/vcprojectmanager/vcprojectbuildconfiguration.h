@@ -51,7 +51,7 @@ public:
     ProjectExplorer::IOutputParser *createOutputParser() const;
     BuildType buildType() const;
 
-    void setConfiguration(Configuration::Ptr config);
+    void setConfiguration(IConfiguration *config);
     QString configurationNameOnly() const;
     QString platformNameOnly() const;
 
@@ -66,7 +66,7 @@ protected:
 
 private:
     QString m_buildDirectory;
-    Configuration::Ptr m_configuration;
+    IConfiguration *m_configuration;
 };
 
 class VcProjectBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory

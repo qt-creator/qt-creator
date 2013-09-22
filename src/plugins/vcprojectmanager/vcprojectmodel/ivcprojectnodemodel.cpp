@@ -32,10 +32,6 @@
 namespace VcProjectManager {
 namespace Internal {
 
-IVcProjectXMLNode::IVcProjectXMLNode()
-{
-}
-
 IVcProjectXMLNode::~IVcProjectXMLNode()
 {
 }

@@ -30,7 +30,7 @@
 #include "integertoolattributesettingsitem.h"
 #include "../../vcprojectmodel/tools/toolattributes/integertoolattribute.h"
 #include "../../vcprojectmodel/tools/toolattributes/toolattributeoption.h"
-#include "../../vcprojectmodel/tools/toolattributes/iattributedescriptiondataitem.h"
+#include "interfaces/iattributedescriptiondataitem.h"
 
 #include <QComboBox>
 #include <QVBoxLayout>

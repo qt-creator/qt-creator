@@ -36,42 +36,47 @@
 #include "tools/toolattributes/tooldescriptiondatamanager.h"
 #include "tools/toolattributes/tooldescription.h"
 #include "tools/configurationtool.h"
+#include "generalattributecontainer.h"
+#include "configurationtools.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
 using namespace ToolConstants;
 
+Configuration::Configuration(const QString &nodeName)
+    : m_nodeName(nodeName)
+{
+    m_attributeContainer = new GeneralAttributeContainer;
+    m_tools = new ConfigurationTools;
+}
+
 Configuration::Configuration(const Configuration &config)
 {
-    m_name = config.m_name;
-    m_anyAttribute = config.m_anyAttribute;
+    m_fullName = config.m_fullName;
     m_nodeName = config.m_nodeName;
-    qDeleteAll(m_configurationTools);
-    m_configurationTools.clear();
+    m_attributeContainer = new GeneralAttributeContainer;
+    *m_attributeContainer = *config.m_attributeContainer;
 
-    foreach (const ConfigurationTool *confTool, config.m_configurationTools)
-        m_configurationTools.append(new ConfigurationTool(*confTool));
+    m_tools = new ConfigurationTools;
+    *m_tools = *config.m_tools;
 }
 
 Configuration &Configuration::operator =(const Configuration &config)
 {
     if (this != &config) {
-        m_name = config.m_name;
-        m_anyAttribute = config.m_anyAttribute;
+        m_fullName = config.m_fullName;
         m_nodeName = config.m_nodeName;
-        qDeleteAll(m_configurationTools);
-        m_configurationTools.clear();
-
-        foreach (const ConfigurationTool *confTool, m_configurationTools)
-            m_configurationTools.append(new ConfigurationTool(*confTool));
+        *m_attributeContainer = *config.m_attributeContainer;
+        *m_tools = *config.m_tools;
     }
     return *this;
 }
 
 Configuration::~Configuration()
 {
-    qDeleteAll(m_configurationTools);
+    delete m_attributeContainer;
+    delete m_tools;
 }
 
 void Configuration::processNode(const QDomNode &node)
@@ -100,130 +105,68 @@ void Configuration::processNodeAttributes(const QDomElement &element)
             QDomAttr domElement = domNode.toAttr();
 
             if (domElement.name() == QLatin1String("Name")) {
-                m_name = domElement.value();
+                m_fullName = domElement.value();
             }
 
             else
-                m_anyAttribute.insert(domElement.name(), domElement.value());
+                m_attributeContainer->setAttribute(domElement.name(), domElement.value());
         }
     }
-}
-
-QString Configuration::nodeWidgetName() const
-{
-    return m_name;
 }
 
 QDomNode Configuration::toXMLDomNode(QDomDocument &domXMLDocument) const
 {
     QDomElement configurationNode = domXMLDocument.createElement(m_nodeName);
-
-    configurationNode.setAttribute(QLatin1String("Name"), m_name);
-
-    QHashIterator<QString, QString> it(m_anyAttribute);
-
-    while (it.hasNext()) {
-        it.next();
-        configurationNode.setAttribute(it.key(), it.value());
-    }
-
-    foreach (const ConfigurationTool *confTool, m_configurationTools)
-        configurationNode.appendChild(confTool->toXMLDomNode(domXMLDocument));
-
+    configurationNode.setAttribute(QLatin1String("Name"), m_fullName);
+    m_attributeContainer->appendToXMLNode(configurationNode);
+    m_tools->appendToXMLNode(configurationNode, domXMLDocument);
     return configurationNode;
+}
+
+IAttributeContainer *Configuration::attributeContainer() const
+{
+    return m_attributeContainer;
+}
+
+QString Configuration::fullName() const
+{
+    return m_fullName;
 }
 
 QString Configuration::name() const
 {
-    return m_name;
+    return m_configurationName;
+}
+
+QString Configuration::platform() const
+{
+    return m_platformName;
+}
+
+void Configuration::setFullName(const QString &fullName)
+{
+    m_fullName = fullName;
+    emit nameChanged();
 }
 
 void Configuration::setName(const QString &name)
 {
-    m_name = name;
-    emit nameChanged();
+    m_configurationName = name;
 }
 
-QString Configuration::attributeValue(const QString &attributeName) const
+void Configuration::setPlatform(const QString &platform)
 {
-    return m_anyAttribute.value(attributeName);
+    m_platformName = platform;
 }
 
-void Configuration::setAttribute(const QString &attributeName, const QString &attributeValue)
+ITools *Configuration::tools() const
 {
-    m_anyAttribute.insert(attributeName, attributeValue);
-}
-
-void Configuration::clearAttribute(const QString &attributeName)
-{
-    if (m_anyAttribute.contains(attributeName))
-        m_anyAttribute.insert(attributeName, QString());
-}
-
-void Configuration::removeAttribute(const QString &attributeName)
-{
-    if (m_anyAttribute.contains(attributeName))
-        m_anyAttribute.remove(attributeName);
-}
-
-void Configuration::addConfigurationTool(ConfigurationTool *tool)
-{
-    if (!tool || m_configurationTools.contains(tool))
-        return;
-
-    foreach (ConfigurationTool *confTool, m_configurationTools) {
-        if (confTool->toolDescription()->toolKey() == tool->toolDescription()->toolKey())
-            return;
-    }
-
-    m_configurationTools.append(tool);
-}
-
-void Configuration::removeConfigurationTool(const QString &toolKey)
-{
-    QList<ConfigurationTool *>::iterator it = m_configurationTools.begin();
-
-    while (it != m_configurationTools.end()) {
-        ConfigurationTool *confTool = *it;
-        if (confTool && confTool->toolDescription()->toolKey() == toolKey) {
-            m_configurationTools.erase(it);
-            delete confTool;
-            return;
-        }
-        ++it;
-    }
-}
-
-int Configuration::configurationToolCount() const
-{
-    return m_configurationTools.size();
-}
-
-ConfigurationTool *Configuration::configurationTool(int index) const
-{
-    if (0 <= index && index < m_configurationTools.size())
-        return m_configurationTools[index];
-    return 0;
-}
-
-ConfigurationTool *Configuration::configurationTool(const QString &toolKey) const
-{
-    foreach (ConfigurationTool *confTool, m_configurationTools) {
-        if (confTool && confTool->toolDescription() && confTool->toolDescription()->toolKey() == toolKey)
-            return confTool;
-    }
-
-    return 0;
-}
-
-Configuration::Configuration(const QString &nodeName)
-    : m_nodeName(nodeName)
-{
+    return m_tools;
 }
 
 void Configuration::processToolNode(const QDomNode &toolNode)
 {
-    ConfigurationTool *toolConf = 0;
+    ITool *toolConf = 0;
     QDomNamedNodeMap namedNodeMap = toolNode.toElement().attributes();
 
     for (int i = 0; i < namedNodeMap.size(); ++i) {
@@ -242,7 +185,7 @@ void Configuration::processToolNode(const QDomNode &toolNode)
 
     if (toolConf) {
         toolConf->processNode(toolNode);
-        m_configurationTools.append(toolConf);
+        m_tools->addTool(toolConf);
 
         // process next sibling
         QDomNode nextSibling = toolNode.nextSibling();
@@ -251,6 +194,11 @@ void Configuration::processToolNode(const QDomNode &toolNode)
     }
 }
 
+
+Configuration2003::Configuration2003(const QString &nodeName)
+    : Configuration(nodeName)
+{
+}
 
 Configuration2003::Configuration2003(const Configuration2003 &config)
     : Configuration(config)
@@ -266,16 +214,16 @@ VcNodeWidget *Configuration2003::createSettingsWidget()
     return new Configuration2003Widget(this);
 }
 
-Configuration::Ptr Configuration2003::clone() const
+IConfiguration *Configuration2003::clone() const
 {
-    return Configuration::Ptr(new Configuration2003(*this));
+    return new Configuration2003(*this);
 }
 
-Configuration2003::Configuration2003(const QString &nodeName)
-    : Configuration(nodeName)
+
+Configuration2005::Configuration2005(const QString &nodeName)
+    : Configuration2003(nodeName)
 {
 }
-
 
 Configuration2005::~Configuration2005()
 {
@@ -305,7 +253,7 @@ Configuration2005 &Configuration2005::operator=(const Configuration2005 &config)
 void Configuration2005::processToolNode(const QDomNode &toolNode)
 {
     if (toolNode.nodeName() == QLatin1String("Tool")) {
-        ConfigurationTool *toolConf = 0;
+        ITool *toolConf = 0;
         QDomNamedNodeMap namedNodeMap = toolNode.toElement().attributes();
 
         for (int i = 0; i < namedNodeMap.size(); ++i) {
@@ -327,7 +275,7 @@ void Configuration2005::processToolNode(const QDomNode &toolNode)
 
         if (toolConf) {
             toolConf->processNode(toolNode);
-            m_configurationTools.append(toolConf);
+            m_tools->addTool(toolConf);
         }
     } else {
         DeploymentTool::Ptr deplTool(new DeploymentTool);
@@ -344,16 +292,10 @@ void Configuration2005::processToolNode(const QDomNode &toolNode)
 QDomNode Configuration2005::toXMLDomNode(QDomDocument &domXMLDocument) const
 {
     QDomElement configurationNode = domXMLDocument.createElement(m_nodeName);
-    configurationNode.setAttribute(QLatin1String("Name"), m_name);
-    QHashIterator<QString, QString> it(m_anyAttribute);
+    configurationNode.setAttribute(QLatin1String("Name"), m_fullName);
 
-    while (it.hasNext()) {
-        it.next();
-        configurationNode.setAttribute(it.key(), it.value());
-    }
-
-    foreach (const ConfigurationTool *tool, m_configurationTools)
-        configurationNode.appendChild(tool->toXMLDomNode(domXMLDocument));
+    m_attributeContainer->appendToXMLNode(configurationNode);
+    m_tools->appendToXMLNode(configurationNode, domXMLDocument);
 
     foreach (const DeploymentTool::Ptr &tool, m_deploymentTools)
         configurationNode.appendChild(tool->toXMLDomNode(domXMLDocument));
@@ -367,9 +309,9 @@ VcNodeWidget *Configuration2005::createSettingsWidget()
     return new Configuration2005Widget(this);
 }
 
-Configuration::Ptr Configuration2005::clone() const
+IConfiguration *Configuration2005::clone() const
 {
-    return Configuration::Ptr(new Configuration2005(*this));
+    return new Configuration2005(*this);
 }
 
 void Configuration2005::addDeploymentTool(DeploymentTool::Ptr tool)
@@ -400,11 +342,11 @@ QList<DeploymentTool::Ptr> Configuration2005::deploymentTools(const QString &att
     return deploymentTools;
 }
 
-Configuration2005::Configuration2005(const QString &nodeName)
-    : Configuration2003(nodeName)
+
+Configuration2008::Configuration2008(const QString &nodeName)
+    : Configuration2005(nodeName)
 {
 }
-
 
 Configuration2008::Configuration2008(const Configuration2008 &config)
     : Configuration2005(config)
@@ -432,7 +374,7 @@ Configuration2008::~Configuration2008()
 void Configuration2008::processToolNode(const QDomNode &toolNode)
 {
     if (toolNode.nodeName() == QLatin1String("Tool")) {
-        ConfigurationTool *toolConf = 0;
+        ITool *toolConf = 0;
         QDomNamedNodeMap namedNodeMap = toolNode.toElement().attributes();
 
         for (int i = 0; i < namedNodeMap.size(); ++i) {
@@ -457,7 +399,7 @@ void Configuration2008::processToolNode(const QDomNode &toolNode)
 
         if (toolConf) {
             toolConf->processNode(toolNode);
-            m_configurationTools.append(toolConf);
+            m_tools->addTool(toolConf);
         }
     }
 
@@ -483,17 +425,11 @@ QDomNode Configuration2008::toXMLDomNode(QDomDocument &domXMLDocument) const
 {
     QDomElement configurationNode = domXMLDocument.createElement(m_nodeName);
 
-    configurationNode.setAttribute(QLatin1String("Name"), m_name);
+    configurationNode.setAttribute(QLatin1String("Name"), m_fullName);
 
-    QHashIterator<QString, QString> it(m_anyAttribute);
+    m_attributeContainer->appendToXMLNode(configurationNode);
 
-    while (it.hasNext()) {
-        it.next();
-        configurationNode.setAttribute(it.key(), it.value());
-    }
-
-    foreach (const ConfigurationTool *tool, m_configurationTools)
-        configurationNode.appendChild(tool->toXMLDomNode(domXMLDocument));
+    m_tools->appendToXMLNode(configurationNode, domXMLDocument);
 
     foreach (const DeploymentTool::Ptr &tool, m_deploymentTools)
         configurationNode.appendChild(tool->toXMLDomNode(domXMLDocument));
@@ -509,9 +445,9 @@ VcNodeWidget *Configuration2008::createSettingsWidget()
     return new Configuration2008Widget(this);
 }
 
-Configuration::Ptr Configuration2008::clone() const
+IConfiguration *Configuration2008::clone() const
 {
-    return Configuration::Ptr(new Configuration2008(*this));
+    return new Configuration2008(*this);
 }
 
 void Configuration2008::addDebuggerTool(DebuggerTool::Ptr tool)
@@ -540,11 +476,6 @@ QList<DebuggerTool::Ptr> Configuration2008::debuggerTools(const QString &attribu
             debuggerTools.append(tool);
     }
     return debuggerTools;
-}
-
-Configuration2008::Configuration2008(const QString &nodeName)
-    : Configuration2005(nodeName)
-{
 }
 
 } // namespace Internal

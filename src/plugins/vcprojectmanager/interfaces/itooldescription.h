@@ -27,48 +27,36 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#include "toolsettingswidget.h"
+#ifndef VCPROJECTMANAGER_ITOOLDESCRIPTION_H
+#define VCPROJECTMANAGER_ITOOLDESCRIPTION_H
 
-#include "../../vcprojectmodel/tools/configurationtool.h"
-#include "../../vcprojectmodel/tools/toolsectiondescription.h"
-#include "../../interfaces/itoolsection.h"
-#include "../../interfaces/isectioncontainer.h"
-#include "toolsectionsettingswidget.h"
-
-#include <QTableWidget>
-#include <QVBoxLayout>
+#include <QString>
 
 namespace VcProjectManager {
 namespace Internal {
 
-ToolSettingsWidget::ToolSettingsWidget(ConfigurationTool *tool, QWidget *parent)
-    : VcNodeWidget(parent),
-      m_tool(tool)
+class ITool;
+class IToolSectionDescription;
+
+class IToolDescription
 {
-    QTabWidget *mainTabWidget = new QTabWidget(this);
-    QVBoxLayout *layout = new QVBoxLayout;
-    layout->setMargin(0);
-    layout->addWidget(mainTabWidget);
-    setLayout(layout);
+public:
+    virtual ~IToolDescription() {}
+    virtual int sectionDescriptionCount() const = 0;
+    virtual IToolSectionDescription *sectionDescription(int index) const = 0;
+    virtual void addSectionDescription(IToolSectionDescription *sectionDescription) = 0;
+    virtual void removeSectionDescription(IToolSectionDescription *sectionDescription) = 0;
 
-    if (m_tool) {
-        for (int i = 0; i < m_tool->sectionContainer()->sectionCount(); ++i) {
-            IToolSection *toolSection = m_tool->sectionContainer()->section(i);
+    virtual QString toolKey() const = 0;
+    virtual void setToolKey(const QString &toolKey) = 0;
 
-            if (toolSection) {
-                VcNodeWidget *toolSectionWidget = toolSection->createSettingsWidget();
-                mainTabWidget->addTab(toolSectionWidget, toolSection->sectionDescription()->name());
-                m_sections.append(toolSectionWidget);
-            }
-        }
-    }
-}
+    virtual QString toolDisplayName() const = 0;
+    virtual void setToolDisplayName(const QString &toolDisplayName) = 0;
 
-void ToolSettingsWidget::saveData()
-{
-    foreach (VcNodeWidget *toolSectionWidget, m_sections)
-        toolSectionWidget->saveData();
-}
+    virtual ITool* createTool() const = 0;
+};
 
-} // namespace Internal
-} // namespace VcProjectManager
+} // Internal
+} // VcProjectManager
+
+#endif // VCPROJECTMANAGER_ITOOLDESCRIPTION_H

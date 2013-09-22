@@ -27,48 +27,35 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#include "toolsettingswidget.h"
+#ifndef VCPROJECTMANAGER_INTERNAL_ITOOLSECTIONDESCRIPTION_H
+#define VCPROJECTMANAGER_INTERNAL_ITOOLSECTIONDESCRIPTION_H
 
-#include "../../vcprojectmodel/tools/configurationtool.h"
-#include "../../vcprojectmodel/tools/toolsectiondescription.h"
-#include "../../interfaces/itoolsection.h"
-#include "../../interfaces/isectioncontainer.h"
-#include "toolsectionsettingswidget.h"
-
-#include <QTableWidget>
-#include <QVBoxLayout>
+#include <QString>
 
 namespace VcProjectManager {
 namespace Internal {
 
-ToolSettingsWidget::ToolSettingsWidget(ConfigurationTool *tool, QWidget *parent)
-    : VcNodeWidget(parent),
-      m_tool(tool)
+class IToolSection;
+class IAttributeDescriptionDataItem;
+
+class IToolSectionDescription
 {
-    QTabWidget *mainTabWidget = new QTabWidget(this);
-    QVBoxLayout *layout = new QVBoxLayout;
-    layout->setMargin(0);
-    layout->addWidget(mainTabWidget);
-    setLayout(layout);
+public:
+    virtual ~IToolSectionDescription() {}
+    virtual IToolSection* createToolSection() const = 0;
 
-    if (m_tool) {
-        for (int i = 0; i < m_tool->sectionContainer()->sectionCount(); ++i) {
-            IToolSection *toolSection = m_tool->sectionContainer()->section(i);
+    virtual QString name() const = 0;
+    virtual void setName(const QString &name) = 0;
 
-            if (toolSection) {
-                VcNodeWidget *toolSectionWidget = toolSection->createSettingsWidget();
-                mainTabWidget->addTab(toolSectionWidget, toolSection->sectionDescription()->name());
-                m_sections.append(toolSectionWidget);
-            }
-        }
-    }
-}
+    virtual IAttributeDescriptionDataItem* attributeDescription(const QString &attributeKey) const = 0;
+    virtual IAttributeDescriptionDataItem* attributeDescription(int index) const = 0;
+    virtual int attributeDescriptionCount() const = 0;
+    virtual void addAttributeDescription(IAttributeDescriptionDataItem* attributeDesc) = 0;
+    virtual void removeAttributeDescription(IAttributeDescriptionDataItem* attributeDesc) = 0;
+    virtual void removeAttributeDescription(const QString &attributeKey) = 0;
+};
 
-void ToolSettingsWidget::saveData()
-{
-    foreach (VcNodeWidget *toolSectionWidget, m_sections)
-        toolSectionWidget->saveData();
-}
+} // Internal
+} // VcProjectManager
 
-} // namespace Internal
-} // namespace VcProjectManager
+#endif // VCPROJECTMANAGER_INTERNAL_ITOOLSECTIONDESCRIPTION_H

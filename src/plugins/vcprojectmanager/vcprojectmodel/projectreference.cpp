@@ -72,12 +72,12 @@ void ProjectReference::setReferencedProjectIdentifier(const QString &referencedP
     m_private->setReferencedProjectIdentifier(referencedProjectIdentifier);
 }
 
-void ProjectReference::addReferenceConfiguration(Configuration::Ptr refConfig)
+void ProjectReference::addReferenceConfiguration(IConfiguration *refConfig)
 {
     m_private->addReferenceConfiguration(refConfig);
 }
 
-void ProjectReference::removeReferenceConfiguration(Configuration::Ptr refConfig)
+void ProjectReference::removeReferenceConfiguration(IConfiguration *refConfig)
 {
     m_private->removeReferenceConfiguration(refConfig);
 }
@@ -87,12 +87,12 @@ void ProjectReference::removeReferenceConfiguration(const QString &refConfigName
     m_private->removeReferenceConfiguration(refConfigName);
 }
 
-QList<Configuration::Ptr> ProjectReference::referenceConfigurations() const
+QList<IConfiguration*> ProjectReference::referenceConfigurations() const
 {
     return m_private->referenceConfigurations();
 }
 
-Configuration::Ptr ProjectReference::referenceConfiguration(const QString &refConfigName) const
+IConfiguration* ProjectReference::referenceConfiguration(const QString &refConfigName) const
 {
     return m_private->referenceConfiguration(refConfigName);
 }

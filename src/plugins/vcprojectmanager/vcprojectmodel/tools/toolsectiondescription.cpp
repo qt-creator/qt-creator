@@ -28,7 +28,7 @@
 **
 ****************************************************************************/
 #include "toolsectiondescription.h"
-#include "toolattributes/iattributedescriptiondataitem.h"
+#include "../../interfaces/iattributedescriptiondataitem.h"
 #include "toolsection.h"
 
 namespace VcProjectManager {
@@ -38,7 +38,7 @@ ToolSectionDescription::ToolSectionDescription()
 {
 }
 
-ToolSection *ToolSectionDescription::createToolSection()
+IToolSection *ToolSectionDescription::createToolSection() const
 {
     return new ToolSection(this);
 }

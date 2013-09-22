@@ -40,7 +40,6 @@ class VcNodeWidget;
 class IVcProjectXMLNode
 {
 public:
-    IVcProjectXMLNode();
     virtual ~IVcProjectXMLNode();
 
     /*!

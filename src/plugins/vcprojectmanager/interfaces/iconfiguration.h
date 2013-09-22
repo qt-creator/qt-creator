@@ -27,48 +27,49 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#include "toolsettingswidget.h"
+#ifndef VCPROJECTMANAGER_INTERNAL_ICONFIGURATION_H
+#define VCPROJECTMANAGER_INTERNAL_ICONFIGURATION_H
 
-#include "../../vcprojectmodel/tools/configurationtool.h"
-#include "../../vcprojectmodel/tools/toolsectiondescription.h"
-#include "../../interfaces/itoolsection.h"
-#include "../../interfaces/isectioncontainer.h"
-#include "toolsectionsettingswidget.h"
-
-#include <QTableWidget>
-#include <QVBoxLayout>
+#include <QString>
+#include <QObject>
+#include "../vcprojectmodel/ivcprojectnodemodel.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
-ToolSettingsWidget::ToolSettingsWidget(ConfigurationTool *tool, QWidget *parent)
-    : VcNodeWidget(parent),
-      m_tool(tool)
+class ITools;
+class IAttributeContainer;
+
+class IConfiguration : public QObject, public IVcProjectXMLNode
 {
-    QTabWidget *mainTabWidget = new QTabWidget(this);
-    QVBoxLayout *layout = new QVBoxLayout;
-    layout->setMargin(0);
-    layout->addWidget(mainTabWidget);
-    setLayout(layout);
+    Q_OBJECT
 
-    if (m_tool) {
-        for (int i = 0; i < m_tool->sectionContainer()->sectionCount(); ++i) {
-            IToolSection *toolSection = m_tool->sectionContainer()->section(i);
+public:
+    IConfiguration(QObject *parent = 0)
+        : QObject(parent) {}
 
-            if (toolSection) {
-                VcNodeWidget *toolSectionWidget = toolSection->createSettingsWidget();
-                mainTabWidget->addTab(toolSectionWidget, toolSection->sectionDescription()->name());
-                m_sections.append(toolSectionWidget);
-            }
-        }
-    }
-}
+    virtual ~IConfiguration() {}
 
-void ToolSettingsWidget::saveData()
-{
-    foreach (VcNodeWidget *toolSectionWidget, m_sections)
-        toolSectionWidget->saveData();
-}
+    virtual IAttributeContainer* attributeContainer() const = 0;
+    virtual QString fullName() const = 0;
+    virtual QString name() const = 0;
+    virtual QString platform() const = 0;
+    virtual void setFullName(const QString &fullName) = 0;
+    virtual void setName(const QString &name) = 0;
+    virtual void setPlatform(const QString &platform) = 0;
+    virtual ITools* tools() const = 0;
+
+    /*!
+     * Implement in order to support creating a clone of a IConfiguration instance.
+     * \return A pointer to newly created IConfiguration instance.
+     */
+    virtual IConfiguration* clone() const = 0;
+
+signals:
+    void nameChanged();
+};
 
 } // namespace Internal
 } // namespace VcProjectManager
+
+#endif // VCPROJECTMANAGER_INTERNAL_ICONFIGURATION_H

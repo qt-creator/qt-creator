@@ -34,13 +34,14 @@
 
 #include "configuration.h"
 #include "vcprojectdocument_constants.h"
+#include "../interfaces/iconfigurations.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
 class VcProjectDocument;
 
-class Configurations : public IVcProjectXMLNode
+class Configurations : public IVcProjectXMLNode, public IConfigurations
 {
 public:
     typedef QSharedPointer<Configurations>  Ptr;
@@ -54,20 +55,20 @@ public:
     VcNodeWidget* createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
-    bool isEmpty() const;
+    // IConfigurations interface
+    void addConfiguration(IConfiguration *config);
+    IConfiguration *configuration(const QString &fullName) const;
+    IConfiguration *configuration(int index) const;
+    int configurationCount() const;
+    void removeConfiguration(const QString &fullName);
 
-    bool appendConfiguration(Configuration::Ptr config);
-    void removeConfiguration(Configuration::Ptr config);
-    Configuration::Ptr configuration(const QString &configName);
-    Configuration::Ptr cloneConfiguration(const QString &newConfigName, const QString &configToClone);
-    Configuration::Ptr cloneConfiguration(const QString &newConfigName, Configuration::Ptr config);
-    QList<Configuration::Ptr> configurations() const;
+    bool isEmpty() const;
 
 private:
     void processConfiguration(const QDomNode &configurationNode);
 
-    QList<Configuration::Ptr> m_configurations;
     VcProjectDocument *m_vcProjDoc;
+    QList<IConfiguration *> m_configs;
 };
 
 } // namespace Internal

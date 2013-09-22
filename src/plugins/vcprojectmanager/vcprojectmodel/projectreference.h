@@ -60,11 +60,11 @@ public:
     void setName(const QString &name);
     QString referencedProjectIdentifier() const;
     void setReferencedProjectIdentifier(const QString &referencedProjectIdentifier);
-    void addReferenceConfiguration(Configuration::Ptr refConfig);
-    void removeReferenceConfiguration(Configuration::Ptr refConfig);
+    void addReferenceConfiguration(IConfiguration *refConfig);
+    void removeReferenceConfiguration(IConfiguration *refConfig);
     void removeReferenceConfiguration(const QString &refConfigName);
-    QList<Configuration::Ptr> referenceConfigurations() const;
-    Configuration::Ptr referenceConfiguration(const QString &refConfigName) const;
+    QList<IConfiguration *> referenceConfigurations() const;
+    IConfiguration *referenceConfiguration(const QString &refConfigName) const;
 
 protected:
     ProjectReference();

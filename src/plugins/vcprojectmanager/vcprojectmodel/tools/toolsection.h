@@ -31,6 +31,7 @@
 #define VCPROJECTMANAGER_INTERNAL_TOOLSECTION_H
 
 #include <QList>
+#include "../../interfaces/itoolsection.h"
 
 class QWidget;
 
@@ -41,10 +42,10 @@ class ToolSectionDescription;
 class IToolAttribute;
 class ToolSectionSettingsWidget;
 
-class ToolSection
+class ToolSection : public IToolSection
 {
 public:
-    ToolSection(ToolSectionDescription *toolSectionDesc);
+    ToolSection(const ToolSectionDescription *toolSectionDesc);
     ToolSection(const ToolSection &toolSec);
     ~ToolSection();
 
@@ -54,12 +55,14 @@ public:
     void addToolAttribute(IToolAttribute* toolAttribute);
     void removeToolAttribute(IToolAttribute* toolAttribute);
 
-    ToolSectionDescription *sectionDescription() const;
+    const IToolSectionDescription *sectionDescription() const;
 
-    ToolSectionSettingsWidget* createSettingsWidget();
+    VcNodeWidget* createSettingsWidget();
+
+    IToolSection* clone() const;
 
 private:
-    ToolSectionDescription * m_toolDesc;
+    const ToolSectionDescription * m_toolDesc;
     QList<IToolAttribute *> m_toolAttributes;
 };
 

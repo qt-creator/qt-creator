@@ -30,8 +30,8 @@
 #include "toolsectionsettingswidget.h"
 #include "itoolattributesettingswidget.h"
 #include "../../vcprojectmodel/tools/toolsection.h"
-#include "../../vcprojectmodel/tools/toolattributes/itoolattribute.h"
-#include "../../vcprojectmodel/tools/toolattributes/iattributedescriptiondataitem.h"
+#include "../../interfaces/itoolattribute.h"
+#include "../../interfaces/iattributedescriptiondataitem.h"
 #include "../basicconfigurationwidget.h"
 
 #include <QVBoxLayout>
@@ -40,7 +40,7 @@ namespace VcProjectManager {
 namespace Internal {
 
 ToolSectionSettingsWidget::ToolSectionSettingsWidget(ToolSection *toolSection, QWidget *parent)
-    : QWidget(parent)
+    : VcNodeWidget(parent)
 {
     BasicConfigurationWidget *basicWidget = new BasicConfigurationWidget(this);
 

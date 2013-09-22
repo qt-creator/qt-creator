@@ -41,6 +41,8 @@
 #include "configurationwidgets.h"
 #include "../vcprojectmodel/files.h"
 #include "../vcprojectmodel/file.h"
+#include "../interfaces/iattributecontainer.h"
+#include "../interfaces/itools.h"
 
 namespace VcProjectManager {
 namespace Internal {
@@ -52,10 +54,11 @@ ConfigurationsBaseWidget::ConfigurationsBaseWidget(Configurations *configs, VcPr
     m_configsWidget = new ConfigurationsWidget;
 
     if (m_configs) {
-        QList<Configuration::Ptr> configs = m_configs->configurations();
-
-        foreach (const Configuration::Ptr &config, configs)
-            addConfiguration(config.data());
+        for (int i = 0; i < m_configs->configurationCount(); ++i) {
+            IConfiguration *config = m_configs->configuration(i);
+            if (config)
+                addConfiguration(config);
+        }
     }
 
     QVBoxLayout *layout = new QVBoxLayout;
@@ -76,25 +79,25 @@ void ConfigurationsBaseWidget::saveData()
 {
     // remove deleted configurations
     foreach (const QString &removeConfigName, m_removedConfigurations) {
-        Configuration::Ptr foundConfig = m_configs->configuration(removeConfigName);
+        IConfiguration *foundConfig = m_configs->configuration(removeConfigName);
         if (foundConfig)
-            m_configs->removeConfiguration(foundConfig);
+            m_configs->removeConfiguration(foundConfig->fullName());
     }
 
     // rename configurations that were renamed
-    QMapIterator<Configuration::Ptr, QString> it(m_renamedConfigurations);
+    QMapIterator<IConfiguration*, QString> it(m_renamedConfigurations);
 
     while (it.hasNext()) {
         it.next();
-        Configuration::Ptr config = it.key();
-        config->setName(it.value());
+        IConfiguration *config = it.key();
+        config->setFullName(it.value());
     }
 
     // add new configurations
-    foreach (const Configuration::Ptr &newConfig, m_newConfigurations)
-        m_configs->appendConfiguration(newConfig);
+    foreach (IConfiguration *newConfig, m_newConfigurations)
+        m_configs->addConfiguration(newConfig);
 
-    QHashIterator<QSharedPointer<File>, Configuration::Ptr> fileConfigIt(m_newFilesConfigurations);
+    QHashIterator<QSharedPointer<File>, IConfiguration*> fileConfigIt(m_newFilesConfigurations);
 
     while (fileConfigIt.hasNext()) {
         fileConfigIt.next();
@@ -109,21 +112,6 @@ void ConfigurationsBaseWidget::saveData()
     }
 }
 
-QList<Configuration::Ptr> ConfigurationsBaseWidget::newConfigurations() const
-{
-    return m_newConfigurations;
-}
-
-QList<QString> ConfigurationsBaseWidget::removedConfigurations() const
-{
-    return m_removedConfigurations;
-}
-
-QMap<Configuration::Ptr, QString> ConfigurationsBaseWidget::renamedConfigurations() const
-{
-    return m_renamedConfigurations;
-}
-
 void ConfigurationsBaseWidget::onAddNewConfig(QString newConfigName, QString copyFrom)
 {
     Platforms::Ptr platforms = m_vcProjDoc->platforms();
@@ -132,29 +120,29 @@ void ConfigurationsBaseWidget::onAddNewConfig(QString newConfigName, QString cop
         if (copyFrom.isEmpty()) {
             QList<Platform::Ptr> platformList = platforms->platforms();
             foreach (const Platform::Ptr &platform, platformList) {
-                Configuration::Ptr newConfig = createConfiguration(newConfigName + QLatin1Char('|') + platform->name());
+                IConfiguration *newConfig = createConfiguration(newConfigName + QLatin1Char('|') + platform->name());
 
                 if (newConfig) {
-                    newConfig->setAttribute(QLatin1String("OutputDirectory"), QLatin1String("$(SolutionDir)$(ConfigurationName)"));
-                    newConfig->setAttribute(QLatin1String("IntermediateDirectory"), QLatin1String("$(ConfigurationName)"));
-                    newConfig->setAttribute(QLatin1String("ConfigurationType"), QLatin1String("1"));
+                    newConfig->attributeContainer()->setAttribute(QLatin1String("OutputDirectory"), QLatin1String("$(SolutionDir)$(ConfigurationName)"));
+                    newConfig->attributeContainer()->setAttribute(QLatin1String("IntermediateDirectory"), QLatin1String("$(ConfigurationName)"));
+                    newConfig->attributeContainer()->setAttribute(QLatin1String("ConfigurationType"), QLatin1String("1"));
                     m_newConfigurations.append(newConfig);
-                    addConfiguration(newConfig.data());
+                    addConfiguration(newConfig);
                 }
             }
         } else {
-            Configuration::Ptr config = m_configs->configuration(copyFrom);
+            IConfiguration *config = m_configs->configuration(copyFrom);
 
             if (config) {
                 QList<Platform::Ptr> platformList = platforms->platforms();
 
                 foreach (const Platform::Ptr &platform, platformList) {
-                    Configuration::Ptr newConfig = config->clone();
+                    IConfiguration* newConfig = config->clone();
 
                     if (newConfig) {
-                        newConfig->setName(newConfigName + QLatin1Char('|') + platform->name());
+                        newConfig->setFullName(newConfigName + QLatin1Char('|') + platform->name());
                         m_newConfigurations.append(newConfig);
-                        addConfiguration(newConfig.data());
+                        addConfiguration(newConfig);
                     }
 
                     addConfigurationToFiles(copyFrom, newConfigName + QLatin1Char('|') + platform->name());
@@ -180,21 +168,21 @@ void ConfigurationsBaseWidget::onRenameConfig(QString newConfigName, QString old
     foreach (const Platform::Ptr &platform, platformList) {
         QString targetConfigName = splits[0] + QLatin1Char('|') + platform->name();
         QString newName = newConfigName + QLatin1Char('|') + platform->name();
-        Configuration::Ptr configInNew = configInNewConfigurations(targetConfigName);
+        IConfiguration *configInNew = configInNewConfigurations(targetConfigName);
 
         // if we are renaming newly added config
         if (configInNew) {
-            configInNew->setName(newName);
+            configInNew->setFullName(newName);
         } else {
             // we are renaming a config that is already in the model
             bool targetAlreadyExists = false;
-            QMapIterator<Configuration::Ptr, QString> it(m_renamedConfigurations);
+            QMapIterator<IConfiguration*, QString> it(m_renamedConfigurations);
 
             while (it.hasNext()) {
                 it.next();
 
                 if (it.value() == targetConfigName) {
-                    Configuration::Ptr key = m_renamedConfigurations.key(targetConfigName);
+                    IConfiguration* key = m_renamedConfigurations.key(targetConfigName);
 
                     if (key) {
                         m_renamedConfigurations.insert(key, newName);
@@ -205,7 +193,7 @@ void ConfigurationsBaseWidget::onRenameConfig(QString newConfigName, QString old
             }
 
             if (!targetAlreadyExists) {
-                Configuration::Ptr config = m_configs->configuration(targetConfigName);
+                IConfiguration *config = m_configs->configuration(targetConfigName);
                 if (config)
                     m_renamedConfigurations.insert(config, newName);
             }
@@ -230,17 +218,17 @@ void ConfigurationsBaseWidget::onRemoveConfig(QString configNameWithPlatform)
     QList<Platform::Ptr> platformList = platforms->platforms();
     foreach (const Platform::Ptr &platform, platformList) {
         QString targetConfigName = splits[0] + QLatin1Char('|') + platform->name();
-        Configuration::Ptr config = m_configs->configuration(targetConfigName);
+        IConfiguration *config = m_configs->configuration(targetConfigName);
 
         // if config exists in the document model, add it to remove list
         if (config) {
-            removeConfiguration(config.data());
-            m_removedConfigurations.append(config->name());
+            removeConfiguration(config);
+            m_removedConfigurations.append(config->fullName());
         } else {
             // else remove it from the list of newly added configurations
-            foreach (const Configuration::Ptr &configPtr, m_newConfigurations) {
-                if (configPtr && configPtr->name() == targetConfigName) {
-                    removeConfiguration(configPtr.data());
+            foreach (IConfiguration *configPtr, m_newConfigurations) {
+                if (configPtr && configPtr->fullName() == targetConfigName) {
+                    removeConfiguration(configPtr);
                     m_newConfigurations.removeAll(configPtr);
                     break;
                 }
@@ -249,34 +237,44 @@ void ConfigurationsBaseWidget::onRemoveConfig(QString configNameWithPlatform)
     }
 }
 
-void ConfigurationsBaseWidget::addConfiguration(Configuration *config)
+void ConfigurationsBaseWidget::addConfiguration(IConfiguration *config)
 {
     if (config)
-        m_configsWidget->addConfiguration(config->nodeWidgetName(), config->createSettingsWidget());
+        m_configsWidget->addConfiguration(config->fullName(), config->createSettingsWidget());
 }
 
-void ConfigurationsBaseWidget::removeConfiguration(Configuration *config)
+void ConfigurationsBaseWidget::removeConfiguration(IConfiguration *config)
 {
     if (config)
-        m_configsWidget->removeConfiguration(config->name());
+        m_configsWidget->removeConfiguration(config->fullName());
 }
 
-Configuration::Ptr ConfigurationsBaseWidget::createConfiguration(const QString &configNameWithPlatform) const
+IConfiguration *ConfigurationsBaseWidget::createConfiguration(const QString &configNameWithPlatform) const
 {
-    Configuration::Ptr config = ConfigurationsFactory::createConfiguration(m_vcProjDoc->documentVersion(), QLatin1String("Configuration"));
-    config->setName(configNameWithPlatform);
+    IConfiguration *config = 0;
 
-    ToolDescriptionDataManager *tDDM = ToolDescriptionDataManager::instance();
+    if (m_vcProjDoc->documentVersion() == VcDocConstants::DV_MSVC_2003)
+        config = new Configuration2003(QLatin1String("Configuration"));
+    else if (m_vcProjDoc->documentVersion() == VcDocConstants::DV_MSVC_2005)
+        config = new Configuration2005(QLatin1String("Configuration"));
+    else if (m_vcProjDoc->documentVersion() == VcDocConstants::DV_MSVC_2008)
+        config = new Configuration2008(QLatin1String("Configuration"));
 
-    if (tDDM) {
-        for (int i = 0; i < tDDM->toolDescriptionCount(); ++i) {
-            ToolDescription *toolDesc = tDDM->toolDescription(i);
+    if (config) {
+        config->setFullName(configNameWithPlatform);
 
-            if (toolDesc) {
-                ConfigurationTool *configTool = toolDesc->createTool();
+        ToolDescriptionDataManager *tDDM = ToolDescriptionDataManager::instance();
 
-                if (configTool)
-                    config->addConfigurationTool(configTool);
+        if (tDDM) {
+            for (int i = 0; i < tDDM->toolDescriptionCount(); ++i) {
+                ToolDescription *toolDesc = tDDM->toolDescription(i);
+
+                if (toolDesc) {
+                    ITool *configTool = toolDesc->createTool();
+
+                    if (configTool)
+                        config->tools()->addTool(configTool);
+                }
             }
         }
     }
@@ -284,14 +282,14 @@ Configuration::Ptr ConfigurationsBaseWidget::createConfiguration(const QString &
     return config;
 }
 
-Configuration::Ptr ConfigurationsBaseWidget::configInNewConfigurations(const QString &configNameWithPlatform) const
+IConfiguration *ConfigurationsBaseWidget::configInNewConfigurations(const QString &configNameWithPlatform) const
 {
-    foreach (const Configuration::Ptr &config, m_newConfigurations) {
-        if (config && config->name() == configNameWithPlatform)
+    foreach (IConfiguration *config, m_newConfigurations) {
+        if (config && config->fullName() == configNameWithPlatform)
             return config;
     }
 
-    return Configuration::Ptr();
+    return 0;
 }
 
 void ConfigurationsBaseWidget::addConfigurationToFiles(const QString &copyFromConfig, const QString &targetConfigName)
@@ -352,11 +350,11 @@ void ConfigurationsBaseWidget::addConfigurationToFilesInFolder(QSharedPointer<Fo
 
 void ConfigurationsBaseWidget::addConfigurationToFile(QSharedPointer<File> filePtr, const QString &copyFromConfig, const QString &targetConfigName)
 {
-    Configuration::Ptr configPtr = filePtr->fileConfiguration(copyFromConfig);
+    IConfiguration *configPtr = filePtr->fileConfiguration(copyFromConfig);
 
     if (configPtr) {
-        Configuration::Ptr newConfig = configPtr->clone();
-        newConfig->setName(targetConfigName);
+        IConfiguration *newConfig = configPtr->clone();
+        newConfig->setFullName(targetConfigName);
         m_newFilesConfigurations[filePtr] = newConfig;
     }
 }

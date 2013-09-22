@@ -28,8 +28,8 @@
 **
 ****************************************************************************/
 #include "tooldescription.h"
-#include "itoolattribute.h"
-#include "iattributedescriptiondataitem.h"
+#include "../../../interfaces/itoolattribute.h"
+#include "../../../interfaces/iattributedescriptiondataitem.h"
 #include "../configurationtool.h"
 #include "../toolsectiondescription.h"
 
@@ -44,7 +44,7 @@ ToolDescription::~ToolDescription()
 {
 }
 
-ToolSectionDescription *ToolDescription::sectionDescription(int index) const
+IToolSectionDescription *ToolDescription::sectionDescription(int index) const
 {
     if (0 <= index && index < m_sectionDescriptions.size())
         return m_sectionDescriptions[index];
@@ -57,7 +57,7 @@ int ToolDescription::sectionDescriptionCount() const
     return m_sectionDescriptions.size();
 }
 
-void ToolDescription::removeSectionDescription(ToolSectionDescription *sectionDescription)
+void ToolDescription::removeSectionDescription(IToolSectionDescription *sectionDescription)
 {
     if (!sectionDescription)
         return;
@@ -68,7 +68,7 @@ void ToolDescription::removeSectionDescription(ToolSectionDescription *sectionDe
         return;
     }
 
-    foreach (ToolSectionDescription* toolSectionDesc, m_sectionDescriptions) {
+    foreach (IToolSectionDescription* toolSectionDesc, m_sectionDescriptions) {
         if (toolSectionDesc->name() == sectionDescription->name()) {
             m_sectionDescriptions.removeOne(sectionDescription);
             delete sectionDescription;
@@ -77,9 +77,9 @@ void ToolDescription::removeSectionDescription(ToolSectionDescription *sectionDe
     }
 }
 
-void ToolDescription::addSectionDescription(ToolSectionDescription *sectionDescription)
+void ToolDescription::addSectionDescription(IToolSectionDescription *sectionDescription)
 {
-    foreach (ToolSectionDescription* toolSectionDesc, m_sectionDescriptions) {
+    foreach (IToolSectionDescription* toolSectionDesc, m_sectionDescriptions) {
         if (toolSectionDesc->name() == sectionDescription->name())
             return;
     }
@@ -107,7 +107,7 @@ void ToolDescription::setToolDisplayName(const QString &toolName)
     m_displayName = toolName;
 }
 
-ConfigurationTool *ToolDescription::createTool()
+ITool *ToolDescription::createTool() const
 {
     return new ConfigurationTool(this);
 }

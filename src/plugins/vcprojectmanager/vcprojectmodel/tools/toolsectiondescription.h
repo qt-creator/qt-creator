@@ -33,18 +33,20 @@
 #include <QString>
 #include <QList>
 
+#include "../../interfaces/itoolsectiondescription.h"
+
 namespace VcProjectManager {
 namespace Internal {
 
 class IAttributeDescriptionDataItem;
 class ToolSection;
 
-class ToolSectionDescription
+class ToolSectionDescription : public IToolSectionDescription
 {
 public:
     ToolSectionDescription();
 
-    ToolSection* createToolSection();
+    IToolSection* createToolSection() const;
 
     QString name() const;
     void setName(const QString &name);

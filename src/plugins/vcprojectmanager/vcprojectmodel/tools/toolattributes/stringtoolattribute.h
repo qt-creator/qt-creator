@@ -30,7 +30,7 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_STRINGTOOLATTRIBUTE_H
 #define VCPROJECTMANAGER_INTERNAL_STRINGTOOLATTRIBUTE_H
 
-#include "itoolattribute.h"
+#include "../../../interfaces/itoolattribute.h"
 
 namespace VcProjectManager {
 namespace Internal {

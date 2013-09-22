@@ -32,7 +32,7 @@
 
 #include <QHash>
 
-#include "iattributedescriptiondataitem.h"
+#include "../../../interfaces/iattributedescriptiondataitem.h"
 
 namespace VcProjectManager {
 namespace Internal {

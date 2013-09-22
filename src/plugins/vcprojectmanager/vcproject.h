@@ -53,6 +53,7 @@ class VcManager;
 class VcFolderNode;
 class Configuration;
 class VcProjectBuildConfiguration;
+class IConfiguration;
 
 class VcProject : public ProjectExplorer::Project
 {
@@ -90,7 +91,7 @@ private:
     void addCxxModelFiles(const ProjectExplorer::FolderNode *node, QStringList &sourceFiles);
     void updateCodeModels();
     void importBuildConfigurations();
-    void addBuildConfiguration(ProjectExplorer::Target *target, QSharedPointer<Configuration> config);
+    void addBuildConfiguration(ProjectExplorer::Target *target, IConfiguration *config);
     VcProjectBuildConfiguration* findBuildConfiguration(ProjectExplorer::Target *target, const QString &buildConfigurationName) const;
 
     VcManager *m_projectManager;

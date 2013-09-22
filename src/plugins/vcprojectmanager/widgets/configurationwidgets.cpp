@@ -37,6 +37,7 @@
 #include "../vcprojectmodel/tools/tool_constants.h"
 #include "../vcprojectmodel/tools/configurationtool.h"
 #include "../vcprojectmodel/tools/toolattributes/tooldescription.h"
+#include "../interfaces/itools.h"
 
 namespace VcProjectManager {
 namespace Internal {
@@ -65,8 +66,8 @@ ConfigurationBaseWidget::ConfigurationBaseWidget(Configuration *config)
     mainWidgetSplitter->setStretchFactor(1, 5);
     // add tool items
 
-    for (int i = 0; i < m_config->configurationToolCount(); ++i) {
-        ConfigurationTool *configTool = m_config->configurationTool(i);
+    for (int i = 0; i < m_config->tools()->toolCount(); ++i) {
+        ITool *configTool = m_config->tools()->tool(i);
 
         if (configTool) {
             VcNodeWidget *toolWidget = configTool->createSettingsWidget();

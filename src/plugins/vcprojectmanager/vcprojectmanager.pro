@@ -1,5 +1,3 @@
-include(../../qtcreatorplugin.pri)
-
 QT += xml xmlpatterns
 
 HEADERS = vcprojectmanagerplugin.h \
@@ -33,8 +31,10 @@ SOURCES = vcprojectmanagerplugin.cpp \
 OTHER_FILES += \
     VcProject.mimetypes.xml
 
-include($$PWD/vcprojectmodel/vcprojectmodel.pri)
-include($$PWD/widgets/widgets.pri)
-
 RESOURCES += \
     vcproject.qrc
+
+include($$PWD/vcprojectmodel/vcprojectmodel.pri)
+include($$PWD/widgets/widgets.pri)
+include(../../qtcreatorplugin.pri)
+include(interfaces/interfaces.pri)

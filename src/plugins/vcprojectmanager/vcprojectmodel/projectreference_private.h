@@ -57,11 +57,11 @@ public:
     void setName(const QString &name);
     QString referencedProjectIdentifier() const;
     void setReferencedProjectIdentifier(const QString &referencedProjectIdentifier);
-    void addReferenceConfiguration(Configuration::Ptr refConfig);
-    void removeReferenceConfiguration(Configuration::Ptr refConfig);
+    void addReferenceConfiguration(IConfiguration *refConfig);
+    void removeReferenceConfiguration(IConfiguration *refConfig);
     void removeReferenceConfiguration(const QString &refConfigName);
-    QList<Configuration::Ptr> referenceConfigurations() const;
-    Configuration::Ptr referenceConfiguration(const QString &refConfigName) const;
+    QList<IConfiguration *> referenceConfigurations() const;
+    IConfiguration *referenceConfiguration(const QString &refConfigName) const;
 
 protected:
     ProjectReference_Private();
@@ -72,11 +72,11 @@ protected:
 
     /*!
      * Reimplement this to create a new reference configuration.
-     * \return A shared pointer to a newly created reference configuration.
+     * \return A pointer to a newly created reference configuration.
      */
-    virtual Configuration::Ptr createReferenceConfiguration() const = 0;
+    virtual IConfiguration* createReferenceConfiguration() const = 0;
 
-    QList<Configuration::Ptr> m_referenceConfigurations;
+    QList<IConfiguration *> m_referenceConfigurations;
     QString m_referencedProjectIdentifier; // required
     QString m_name; // optional
 };
@@ -93,7 +93,7 @@ protected:
     ProjectReference2003_Private();
     ProjectReference2003_Private(const ProjectReference2003_Private &projRef_p);
     ProjectReference2003_Private& operator=(const ProjectReference2003_Private &projRef_p);
-    Configuration::Ptr createReferenceConfiguration() const;
+    IConfiguration* createReferenceConfiguration() const;
 };
 
 class ProjectReference2005_Private : public ProjectReference2003_Private
@@ -118,7 +118,7 @@ protected:
     ProjectReference2005_Private(const ProjectReference2005_Private &projRef_p);
     ProjectReference2005_Private& operator=(const ProjectReference2005_Private &projRef_p);
     void processNodeAttributes(const QDomElement &element);
-    Configuration::Ptr createReferenceConfiguration() const;
+    IConfiguration* createReferenceConfiguration() const;
 
     QString m_copyLocal; // optional
     bool m_useInBuild; // optional
@@ -149,7 +149,7 @@ protected:
     ProjectReference2008_Private(const ProjectReference2008_Private &projRef_p);
     ProjectReference2008_Private& operator=(const ProjectReference2008_Private &projRef_p);
     void processNodeAttributes(const QDomElement &element);
-    Configuration::Ptr createReferenceConfiguration() const;
+    IConfiguration* createReferenceConfiguration() const;
 
     QString m_relativePathToProject; // optional
     bool m_useDependenciesInBuild; //optional   default: true

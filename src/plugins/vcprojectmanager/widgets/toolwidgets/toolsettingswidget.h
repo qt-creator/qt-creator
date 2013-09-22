@@ -47,7 +47,7 @@ public:
 
 private:
     ConfigurationTool *m_tool;
-    QList<ToolSectionSettingsWidget *> m_sections;
+    QList<VcNodeWidget *> m_sections;
 };
 
 } // namespace Internal

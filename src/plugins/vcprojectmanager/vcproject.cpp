@@ -43,7 +43,9 @@
 #include "vcprojectmodel/tools/configurationtool.h"
 #include "vcprojectmodel/tools/toolsection.h"
 #include "vcprojectmodel/tools/toolattributes/stringlisttoolattribute.h"
-#include "vcprojectmodel/tools/toolattributes/iattributedescriptiondataitem.h"
+#include "interfaces/iattributedescriptiondataitem.h"
+#include "interfaces/isectioncontainer.h"
+#include "interfaces/itools.h"
 
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
@@ -216,7 +218,7 @@ void VcProject::onSettingsDialogAccepted()
                 foreach (ProjectExplorer::BuildConfiguration *bc, buildConfigurationList) {
                     VcProjectBuildConfiguration *vcBc = qobject_cast<VcProjectBuildConfiguration *>(bc);
                     if (vcBc) {
-                        Configuration::Ptr lookFor = configs->configuration(vcBc->displayName());
+                        IConfiguration *lookFor = configs->configuration(vcBc->displayName());
                         if (!lookFor)
                             target->removeBuildConfiguration(vcBc);
                     }
@@ -227,11 +229,11 @@ void VcProject::onSettingsDialogAccepted()
         // add all new build configurations
         foreach (ProjectExplorer::Target *target, targetList) {
             if (target) {
-                QList<Configuration::Ptr > configListModel = configs->configurations();
 
-                foreach (Configuration::Ptr configPtr, configListModel) {
-                    if (configPtr && !findBuildConfiguration(target, configPtr->name()))
-                        addBuildConfiguration(target, configPtr);
+                for (int i = 0; i < configs->configurationCount(); ++i) {
+                    IConfiguration *config = configs->configuration(i);
+                    if (config && !findBuildConfiguration(target, config->fullName()))
+                        addBuildConfiguration(target, config);
                 }
             }
         }
@@ -254,10 +256,12 @@ bool VcProject::fromMap(const QVariantMap &map)
 
 bool VcProject::setupTarget(ProjectExplorer::Target *t)
 {
-    QList<Configuration::Ptr > configsModel = m_projectFile->documentModel()->vcProjectDocument()->configurations()->configurations();
+    for (int i = 0; i < m_projectFile->documentModel()->vcProjectDocument()->configurations()->configurationCount(); ++i){
+        IConfiguration *config = m_projectFile->documentModel()->vcProjectDocument()->configurations()->configuration(i);
+        if (config)
+            addBuildConfiguration(t, config);
+    }
 
-    foreach (const Configuration::Ptr &configModel, configsModel)
-        addBuildConfiguration(t, configModel);
     return true;
 }
 
@@ -303,13 +307,13 @@ void VcProject::updateCodeModels()
         QTC_ASSERT(vbc, return);
 
         QString configName = vbc->displayName();
-        Configuration::Ptr configModel = m_projectFile->documentModel()->vcProjectDocument()->configurations()->configuration(configName);
+        IConfiguration *configModel = m_projectFile->documentModel()->vcProjectDocument()->configurations()->configuration(configName);
 
         if (configModel) {
-            ConfigurationTool *configTool = configModel->configurationTool(QLatin1String(ToolConstants::strVCCLCompilerTool));
+            ITool *configTool = configModel->tools()->tool(QLatin1String(ToolConstants::strVCCLCompilerTool));
             if (configTool) {
-                for (int i = 0; i < configTool->sectionCount(); ++i) {
-                    ToolSection *toolSection = configTool->section(i);
+                for (int i = 0; i < configTool->sectionContainer()->sectionCount(); ++i) {
+                    IToolSection *toolSection = configTool->sectionContainer()->section(i);
 
                     if (toolSection) {
                         IToolAttribute *toolAttr = toolSection->toolAttribute(QLatin1String("PreprocessorDefinitions"));
@@ -368,19 +372,19 @@ void VcProject::importBuildConfigurations()
         addTarget(createTarget(kit));
 }
 
-void VcProject::addBuildConfiguration(Target *target, QSharedPointer<Configuration> config)
+void VcProject::addBuildConfiguration(Target *target, IConfiguration *config)
 {
     if (target && config) {
         VcProjectBuildConfigurationFactory *factory
                 = ExtensionSystem::PluginManager::instance()->getObject<VcProjectBuildConfigurationFactory>();
-        VcProjectBuildConfiguration *bc = factory->create(target, Constants::VC_PROJECT_BC_ID, config->name());
+        VcProjectBuildConfiguration *bc = factory->create(target, Constants::VC_PROJECT_BC_ID, config->fullName());
         if (!bc)
             return;
 
         bc->setConfiguration(config);
         ProjectExplorer::BuildStepList *buildSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
         VcMakeStep *makeStep = new VcMakeStep(buildSteps);
-        QString argument(QLatin1String("/p:configuration=\"") + config->name() + QLatin1String("\""));
+        QString argument(QLatin1String("/p:configuration=\"") + config->fullName() + QLatin1String("\""));
         makeStep->addBuildArgument(m_projectFile->filePath());
         makeStep->addBuildArgument(argument);
         buildSteps->insertStep(0, makeStep);
@@ -388,7 +392,7 @@ void VcProject::addBuildConfiguration(Target *target, QSharedPointer<Configurati
         //clean step
         ProjectExplorer::BuildStepList *cleanSteps = bc->stepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
         makeStep = new VcMakeStep(cleanSteps);
-        argument = QLatin1String("/p:configuration=\"") + config->name() + QLatin1String("\" /t:Clean");
+        argument = QLatin1String("/p:configuration=\"") + config->fullName() + QLatin1String("\" /t:Clean");
         makeStep->addBuildArgument(m_projectFile->filePath());
         makeStep->addBuildArgument(argument);
         cleanSteps->insertStep(0, makeStep);

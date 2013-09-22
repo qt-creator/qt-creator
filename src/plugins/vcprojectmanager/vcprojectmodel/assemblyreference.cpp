@@ -38,6 +38,7 @@ namespace Internal {
 
 AssemblyReference::~AssemblyReference()
 {
+    qDeleteAll(m_referenceConfigurations);
 }
 
 void AssemblyReference::processNode(const QDomNode &node)
@@ -82,7 +83,7 @@ QDomNode AssemblyReference::toXMLDomNode(QDomDocument &domXMLDocument) const
 
     assemblyRefNode.setAttribute(QLatin1String("RelativePath"), m_relativePath);
 
-    foreach (const Configuration::Ptr &refConfig, m_referenceConfigurations)
+    foreach (const IConfiguration *refConfig, m_referenceConfigurations)
         assemblyRefNode.appendChild(refConfig->toXMLDomNode(domXMLDocument));
 
     return assemblyRefNode;
@@ -98,46 +99,42 @@ void AssemblyReference::setRelativePath(const QString &relativePath)
     m_relativePath = relativePath;
 }
 
-void AssemblyReference::addReferenceConfiguration(Configuration::Ptr refConfig)
+void AssemblyReference::addReferenceConfiguration(IConfiguration *refConfig)
 {
     if (m_referenceConfigurations.contains(refConfig))
         return;
 
-    foreach (const Configuration::Ptr &refConf, m_referenceConfigurations) {
-        if (refConfig->name() == refConf->name())
+    foreach (const IConfiguration *refConf, m_referenceConfigurations) {
+        if (refConfig->fullName() == refConf->fullName())
             return;
     }
 
     m_referenceConfigurations.append(refConfig);
 }
 
-void AssemblyReference::removeReferenceConfiguration(Configuration::Ptr refConfig)
+void AssemblyReference::removeReferenceConfiguration(IConfiguration *refConfig)
 {
     m_referenceConfigurations.removeAll(refConfig);
 }
 
 void AssemblyReference::removeReferenceConfiguration(const QString &refConfName)
 {
-    foreach (const Configuration::Ptr &refConfig, m_referenceConfigurations) {
-        if (refConfig->name() == refConfName) {
-            removeReferenceConfiguration(refConfig);
+    foreach (IConfiguration *refConfig, m_referenceConfigurations) {
+        if (refConfig->fullName() == refConfName) {
+            m_referenceConfigurations.removeOne(refConfig);
+            delete refConfig;
             return;
         }
     }
 }
 
-QList<Configuration::Ptr> AssemblyReference::referenceConfigurations() const
+IConfiguration* AssemblyReference::referenceConfiguration(const QString &refConfigName) const
 {
-    return m_referenceConfigurations;
-}
-
-Configuration::Ptr AssemblyReference::referenceConfiguration(const QString &refConfigName) const
-{
-    foreach (const Configuration::Ptr &refConfig, m_referenceConfigurations) {
-        if (refConfig->name() == refConfigName)
+    foreach (IConfiguration *refConfig, m_referenceConfigurations) {
+        if (refConfig->fullName() == refConfigName)
             return refConfig;
     }
-    return Configuration::Ptr();
+    return 0;
 }
 
 AssemblyReference::AssemblyReference()
@@ -148,7 +145,7 @@ AssemblyReference::AssemblyReference(const AssemblyReference &asmRef)
 {
     m_relativePath = asmRef.m_relativePath;
 
-    foreach (const Configuration::Ptr &refConfig, asmRef.m_referenceConfigurations)
+    foreach (const IConfiguration *refConfig, asmRef.m_referenceConfigurations)
         m_referenceConfigurations.append(refConfig->clone());
 }
 
@@ -157,7 +154,7 @@ AssemblyReference &AssemblyReference::operator =(const AssemblyReference &asmRef
     if (this != &asmRef) {
         m_relativePath = asmRef.m_relativePath;
 
-        foreach (const Configuration::Ptr &refConfig, asmRef.m_referenceConfigurations)
+        foreach (const IConfiguration *refConfig, asmRef.m_referenceConfigurations)
             m_referenceConfigurations.append(refConfig->clone());
     }
 
@@ -166,7 +163,7 @@ AssemblyReference &AssemblyReference::operator =(const AssemblyReference &asmRef
 
 void AssemblyReference::processReferenceConfig(const QDomNode &referenceConfig)
 {
-    Configuration::Ptr referenceConfiguration = createReferenceConfiguration();
+    IConfiguration *referenceConfiguration = createReferenceConfiguration();
     referenceConfiguration->processNode(referenceConfig);
     m_referenceConfigurations.append(referenceConfiguration);
 
@@ -201,9 +198,9 @@ AssemblyReference2003::AssemblyReference2003()
 {
 }
 
-Configuration::Ptr AssemblyReference2003::createReferenceConfiguration() const
+IConfiguration* AssemblyReference2003::createReferenceConfiguration() const
 {
-    return ConfigurationsFactory::createConfiguration(VcDocConstants::DV_MSVC_2003, QLatin1String("ReferenceConfiguration"));
+    return new Configuration2003(QLatin1String("ReferenceConfiguration"));
 }
 
 
@@ -281,9 +278,9 @@ AssemblyReference2005::AssemblyReference2005()
 {
 }
 
-Configuration::Ptr AssemblyReference2005::createReferenceConfiguration() const
+IConfiguration* AssemblyReference2005::createReferenceConfiguration() const
 {
-    return ConfigurationsFactory::createConfiguration(VcDocConstants::DV_MSVC_2005, QLatin1String("ReferenceConfiguration"));
+    return new Configuration2005(QLatin1String("ReferenceConfiguration"));
 }
 
 void AssemblyReference2005::processNodeAttributes(const QDomElement &element)
@@ -421,9 +418,9 @@ AssemblyReference2008::AssemblyReference2008()
 {
 }
 
-Configuration::Ptr AssemblyReference2008::createReferenceConfiguration() const
+IConfiguration* AssemblyReference2008::createReferenceConfiguration() const
 {
-    return ConfigurationsFactory::createConfiguration(VcDocConstants::DV_MSVC_2008, QLatin1String("ReferenceConfiguration"));
+    return new Configuration2008(QLatin1String("ReferenceConfiguration"));
 }
 
 void AssemblyReference2008::processNodeAttributes(const QDomElement &element)

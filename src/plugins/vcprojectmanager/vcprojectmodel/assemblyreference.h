@@ -58,11 +58,10 @@ public:
 
     QString relativePath() const;
     void setRelativePath(const QString &relativePath);
-    void addReferenceConfiguration(Configuration::Ptr refConfig);
-    void removeReferenceConfiguration(Configuration::Ptr refConfig);
+    void addReferenceConfiguration(IConfiguration *refConfig);
+    void removeReferenceConfiguration(IConfiguration *refConfig);
     void removeReferenceConfiguration(const QString &refConfName);
-    QList<Configuration::Ptr> referenceConfigurations() const;
-    Configuration::Ptr referenceConfiguration(const QString &refConfigName) const;
+    IConfiguration *referenceConfiguration(const QString &refConfigName) const;
 
 protected:
     AssemblyReference();
@@ -75,9 +74,9 @@ protected:
      * Reimplement this to create a new reference configuration.
      * \return A shared pointer to a newly created reference configuration.
      */
-    virtual Configuration::Ptr createReferenceConfiguration() const = 0;
+    virtual IConfiguration* createReferenceConfiguration() const = 0;
 
-    QList<Configuration::Ptr> m_referenceConfigurations;
+    QList<IConfiguration*> m_referenceConfigurations;
     QString m_relativePath; // required
 };
 
@@ -94,7 +93,7 @@ public:
 
 protected:
     AssemblyReference2003();
-    Configuration::Ptr createReferenceConfiguration() const;
+    IConfiguration *createReferenceConfiguration() const;
 };
 
 class AssemblyReference2005 : public AssemblyReference2003
@@ -118,7 +117,7 @@ public:
 
 protected:
     AssemblyReference2005();
-    Configuration::Ptr createReferenceConfiguration() const;
+    IConfiguration *createReferenceConfiguration() const;
     void processNodeAttributes(const QDomElement &element);
 
     QString m_assemblyName; // optional
@@ -151,7 +150,7 @@ public:
 
 protected:
     AssemblyReference2008();
-    Configuration::Ptr createReferenceConfiguration() const;
+    IConfiguration *createReferenceConfiguration() const;
     void processNodeAttributes(const QDomElement &element);
 
     bool m_copyLocalDependencies; //optional    default: true

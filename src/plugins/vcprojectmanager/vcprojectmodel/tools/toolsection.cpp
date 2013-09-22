@@ -28,15 +28,15 @@
 **
 ****************************************************************************/
 #include "toolsection.h"
-#include "toolattributes/itoolattribute.h"
-#include "toolattributes/iattributedescriptiondataitem.h"
+#include "../../interfaces/itoolattribute.h"
+#include "../../interfaces/iattributedescriptiondataitem.h"
 #include "../../widgets/toolwidgets/toolsectionsettingswidget.h"
 #include "toolsectiondescription.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
-ToolSection::ToolSection(ToolSectionDescription *toolSectionDesc)
+ToolSection::ToolSection(const ToolSectionDescription *toolSectionDesc)
     : m_toolDesc(toolSectionDesc)
 {
     for (int i = 0; i < toolSectionDesc->attributeDescriptionCount(); ++i) {
@@ -110,14 +110,19 @@ void ToolSection::removeToolAttribute(IToolAttribute *toolAttribute)
     }
 }
 
-ToolSectionDescription *ToolSection::sectionDescription() const
+const IToolSectionDescription *ToolSection::sectionDescription() const
 {
     return m_toolDesc;
 }
 
-ToolSectionSettingsWidget *ToolSection::createSettingsWidget()
+VcNodeWidget *ToolSection::createSettingsWidget()
 {
     return new ToolSectionSettingsWidget(this);
+}
+
+IToolSection *ToolSection::clone() const
+{
+    return new ToolSection(*this);
 }
 
 } // namespace Internal

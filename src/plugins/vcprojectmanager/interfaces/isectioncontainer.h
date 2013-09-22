@@ -27,48 +27,31 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#include "toolsettingswidget.h"
+#ifndef VCPROJECTMANAGER_INTERNAL_ISECTIONCONTAINER_H
+#define VCPROJECTMANAGER_INTERNAL_ISECTIONCONTAINER_H
 
-#include "../../vcprojectmodel/tools/configurationtool.h"
-#include "../../vcprojectmodel/tools/toolsectiondescription.h"
-#include "../../interfaces/itoolsection.h"
-#include "../../interfaces/isectioncontainer.h"
-#include "toolsectionsettingswidget.h"
-
-#include <QTableWidget>
-#include <QVBoxLayout>
+#include <QString>
+#include <QDomElement>
 
 namespace VcProjectManager {
 namespace Internal {
 
-ToolSettingsWidget::ToolSettingsWidget(ConfigurationTool *tool, QWidget *parent)
-    : VcNodeWidget(parent),
-      m_tool(tool)
+class IToolSection;
+
+class ISectionContainer
 {
-    QTabWidget *mainTabWidget = new QTabWidget(this);
-    QVBoxLayout *layout = new QVBoxLayout;
-    layout->setMargin(0);
-    layout->addWidget(mainTabWidget);
-    setLayout(layout);
+public:
+    virtual ~ISectionContainer() {}
+    virtual ISectionContainer& operator=(ISectionContainer &toolSec) = 0;
+    virtual IToolSection* section(int index) const = 0;
+    virtual IToolSection* section(const QString &sectionName) const = 0;
+    virtual int sectionCount() const = 0;
+    virtual void appendSection(IToolSection *section) = 0;
+    virtual void removeSection(const QString &sectionName) = 0;
+    virtual void appendToXMLNode(QDomElement &elementNode) = 0;
+};
 
-    if (m_tool) {
-        for (int i = 0; i < m_tool->sectionContainer()->sectionCount(); ++i) {
-            IToolSection *toolSection = m_tool->sectionContainer()->section(i);
+} // Internal
+} // VcProjectManager
 
-            if (toolSection) {
-                VcNodeWidget *toolSectionWidget = toolSection->createSettingsWidget();
-                mainTabWidget->addTab(toolSectionWidget, toolSection->sectionDescription()->name());
-                m_sections.append(toolSectionWidget);
-            }
-        }
-    }
-}
-
-void ToolSettingsWidget::saveData()
-{
-    foreach (VcNodeWidget *toolSectionWidget, m_sections)
-        toolSectionWidget->saveData();
-}
-
-} // namespace Internal
-} // namespace VcProjectManager
+#endif // VCPROJECTMANAGER_INTERNAL_ISECTIONCONTAINER_H

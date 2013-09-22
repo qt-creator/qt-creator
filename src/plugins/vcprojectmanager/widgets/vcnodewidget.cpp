@@ -37,9 +37,5 @@ VcNodeWidget::VcNodeWidget(QWidget *parent) :
 {
 }
 
-VcNodeWidget::~VcNodeWidget()
-{
-}
-
 } // namespace Internal
 } // namespace VcProjectManager

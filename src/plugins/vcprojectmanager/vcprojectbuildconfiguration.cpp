@@ -82,15 +82,15 @@ ProjectExplorer::BuildConfiguration::BuildType VcProjectBuildConfiguration::buil
     return Debug;
 }
 
-void VcProjectBuildConfiguration::setConfiguration(Configuration::Ptr config)
+void VcProjectBuildConfiguration::setConfiguration(IConfiguration *config)
 {
     m_configuration = config;
-    connect(m_configuration.data(), SIGNAL(nameChanged()), this, SLOT(reloadConfigurationName()));
+    connect(m_configuration, SIGNAL(nameChanged()), this, SLOT(reloadConfigurationName()));
 }
 
 QString VcProjectBuildConfiguration::configurationNameOnly() const
 {
-    QStringList splits = m_configuration->name().split(QLatin1Char('|'));
+    QStringList splits = m_configuration->fullName().split(QLatin1Char('|'));
 
     if (splits.isEmpty())
         return QString();
@@ -100,7 +100,7 @@ QString VcProjectBuildConfiguration::configurationNameOnly() const
 
 QString VcProjectBuildConfiguration::platformNameOnly() const
 {
-    QStringList splits = m_configuration->name().split(QLatin1Char('|'));
+    QStringList splits = m_configuration->fullName().split(QLatin1Char('|'));
 
     if (splits.isEmpty() || splits.size() <= 1 || splits.size() > 2)
         return QString();
@@ -115,8 +115,8 @@ QVariantMap VcProjectBuildConfiguration::toMap() const
 
 void VcProjectBuildConfiguration::reloadConfigurationName()
 {
-    setDisplayName(m_configuration->name());
-    setDefaultDisplayName(m_configuration->name());
+    setDisplayName(m_configuration->fullName());
+    setDefaultDisplayName(m_configuration->fullName());
 }
 
 VcProjectBuildConfiguration::VcProjectBuildConfiguration(ProjectExplorer::Target *parent, VcProjectBuildConfiguration *source)

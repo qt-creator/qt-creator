@@ -31,6 +31,7 @@
 #define VCPROJECTMANAGER_INTERNAL_TOOLDESCRIPTION_H
 
 #include <QString>
+#include "../../../interfaces/itooldescription.h"
 
 namespace VcProjectManager {
 namespace Internal {
@@ -39,16 +40,16 @@ class IAttributeDescriptionDataItem;
 class ConfigurationTool;
 class ToolSectionDescription;
 
-class ToolDescription
+class ToolDescription : public IToolDescription
 {
 public:
     ToolDescription();
     ~ToolDescription();
 
     int sectionDescriptionCount() const;
-    ToolSectionDescription *sectionDescription(int index) const;
-    void addSectionDescription(ToolSectionDescription *sectionDescription);
-    void removeSectionDescription(ToolSectionDescription *sectionDescription);
+    IToolSectionDescription *sectionDescription(int index) const;
+    void addSectionDescription(IToolSectionDescription *sectionDescription);
+    void removeSectionDescription(IToolSectionDescription *sectionDescription);
 
     QString toolKey() const;
     void setToolKey(const QString &toolKey);
@@ -56,13 +57,13 @@ public:
     QString toolDisplayName() const;
     void setToolDisplayName(const QString &toolDisplayName);
 
-    ConfigurationTool* createTool();
+    ITool* createTool() const;
 
 private:
     QString m_displayName;
     QString m_toolKey;
     QList<IAttributeDescriptionDataItem *> m_attributes;
-    QList<ToolSectionDescription *> m_sectionDescriptions;
+    QList<IToolSectionDescription *> m_sectionDescriptions;
 };
 
 } // namespace Internal

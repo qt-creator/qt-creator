@@ -34,82 +34,63 @@
 
 #include "deploymenttool.h"
 #include "debuggertool.h"
+#include "../interfaces/iconfiguration.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
 class ConfigurationTool;
+class GeneralAttributeContainer;
 
-class Configuration : public QObject, public IVcProjectXMLNode
+class Configuration : public IConfiguration
 {
-    Q_OBJECT
-
-    friend class ConfigurationsFactory;
-
 public:
     typedef QSharedPointer<Configuration>   Ptr;
 
+    Configuration(const QString &nodeName);
     Configuration(const Configuration &config);
     Configuration& operator=(const Configuration &config);
     ~Configuration();
     void processNode(const QDomNode &node);
-    virtual QString nodeWidgetName() const;
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
-    /*!
-     * Implement in order to support creating a clone of a Configuration instance.
-     * \return A shared pointer to newly created Configuration instance.
-     */
-    virtual Configuration::Ptr clone() const = 0;
-
+    // IConfiguration interface
+    IAttributeContainer *attributeContainer() const;
+    QString fullName() const;
     QString name() const;
+    QString platform() const;
+    void setFullName(const QString &fullName);
     void setName(const QString &name);
-
-    QString attributeValue(const QString &attributeName) const;
-    void setAttribute(const QString &attributeName, const QString &attributeValue);
-    void clearAttribute(const QString &attributeName);
-    void removeAttribute(const QString &attributeName);
-
-    void addConfigurationTool(ConfigurationTool *tool);
-    void removeConfigurationTool(const QString &toolKey);
-    int configurationToolCount() const;
-    ConfigurationTool* configurationTool(int index) const;
-    ConfigurationTool* configurationTool(const QString &toolKey) const;
-
-signals:
-    void nameChanged();
+    void setPlatform(const QString &platform);
+    ITools *tools() const;
 
 protected:
-    Configuration(const QString &nodeName);
     virtual void processToolNode(const QDomNode &toolNode);
     void processNodeAttributes(const QDomElement &element);
 
-    QString m_name;
+    QString m_fullName;
+    QString m_platformName;
+    QString m_configurationName;
     QString m_nodeName;
-    QHash<QString, QString> m_anyAttribute;
-    QList<ConfigurationTool *> m_configurationTools;
+    GeneralAttributeContainer *m_attributeContainer;
+    ITools *m_tools;
 };
 
 class Configuration2003 : public Configuration
 {
-    friend class ConfigurationsFactory;
-
 public:
+    Configuration2003(const QString &nodeName);
     Configuration2003(const Configuration2003 &config);
     ~Configuration2003();
 
     VcNodeWidget *createSettingsWidget();
-    Configuration::Ptr clone() const;
-
-protected:
-    Configuration2003(const QString &nodeName);
+    IConfiguration *clone() const;
 };
 
 class Configuration2005 : public Configuration2003
 {
-    friend class ConfigurationsFactory;
-
 public:
+    Configuration2005(const QString &nodeName);
     Configuration2005(const Configuration2005 &config);
     Configuration2005& operator=(const Configuration2005 &config);
     ~Configuration2005();
@@ -117,24 +98,20 @@ public:
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
     VcNodeWidget* createSettingsWidget();
-    Configuration::Ptr clone() const;
+    IConfiguration* clone() const;
 
     void addDeploymentTool(DeploymentTool::Ptr tool);
     void removeDeploymentTool(DeploymentTool::Ptr tool);
     QList<DeploymentTool::Ptr> deploymentTools() const;
     QList<DeploymentTool::Ptr> deploymentTools(const QString &attributeName, const QString &attributeValue) const;
 
-protected:
-    Configuration2005(const QString &nodeName);
-
     QList<DeploymentTool::Ptr> m_deploymentTools;
 };
 
 class Configuration2008 : public Configuration2005
 {
-    friend class ConfigurationsFactory;
-
 public:
+    Configuration2008(const QString &nodeName);
     Configuration2008(const Configuration2008 &config);
     Configuration2008& operator=(const Configuration2008 &config);
     ~Configuration2008();
@@ -142,15 +119,12 @@ public:
     void processToolNode(const QDomNode &toolNode);
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
     VcNodeWidget* createSettingsWidget();
-    Configuration::Ptr clone() const;
+    IConfiguration* clone() const;
 
     void addDebuggerTool(DebuggerTool::Ptr tool);
     void removeDebuggerTool(DebuggerTool::Ptr tool);
     QList<DebuggerTool::Ptr> debuggerTools() const;
     QList<DebuggerTool::Ptr> debuggerTools(const QString &attributeName, const QString &attributeValue) const;
-
-private:
-    Configuration2008(const QString &nodeName);
 
     QList<DebuggerTool::Ptr> m_debuggerTools;
 };

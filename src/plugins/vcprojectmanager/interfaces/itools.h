@@ -27,48 +27,31 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#include "toolsettingswidget.h"
+#ifndef VCPROJECTMANAGER_INTERNAL_ITOOLHANDLER_H
+#define VCPROJECTMANAGER_INTERNAL_ITOOLHANDLER_H
 
-#include "../../vcprojectmodel/tools/configurationtool.h"
-#include "../../vcprojectmodel/tools/toolsectiondescription.h"
-#include "../../interfaces/itoolsection.h"
-#include "../../interfaces/isectioncontainer.h"
-#include "toolsectionsettingswidget.h"
-
-#include <QTableWidget>
-#include <QVBoxLayout>
+#include <QString>
+#include <QDomElement>
 
 namespace VcProjectManager {
 namespace Internal {
 
-ToolSettingsWidget::ToolSettingsWidget(ConfigurationTool *tool, QWidget *parent)
-    : VcNodeWidget(parent),
-      m_tool(tool)
+class ITool;
+
+class ITools
 {
-    QTabWidget *mainTabWidget = new QTabWidget(this);
-    QVBoxLayout *layout = new QVBoxLayout;
-    layout->setMargin(0);
-    layout->addWidget(mainTabWidget);
-    setLayout(layout);
-
-    if (m_tool) {
-        for (int i = 0; i < m_tool->sectionContainer()->sectionCount(); ++i) {
-            IToolSection *toolSection = m_tool->sectionContainer()->section(i);
-
-            if (toolSection) {
-                VcNodeWidget *toolSectionWidget = toolSection->createSettingsWidget();
-                mainTabWidget->addTab(toolSectionWidget, toolSection->sectionDescription()->name());
-                m_sections.append(toolSectionWidget);
-            }
-        }
-    }
-}
-
-void ToolSettingsWidget::saveData()
-{
-    foreach (VcNodeWidget *toolSectionWidget, m_sections)
-        toolSectionWidget->saveData();
-}
+public:
+    virtual ~ITools() {}
+    virtual ITools& operator= (const ITools &tools) = 0;
+    virtual void addTool(ITool *tool) = 0;
+    virtual void removeTool(ITool *tool) = 0;
+    virtual ITool* tool(const QString &toolKey) const = 0;
+    virtual ITool* tool(int index) const = 0;
+    virtual int toolCount() const = 0;
+    virtual void appendToXMLNode(QDomElement &domElement, QDomDocument &domDocument) const = 0;
+};
 
 } // namespace Internal
 } // namespace VcProjectManager
+
+#endif // VCPROJECTMANAGER_INTERNAL_ITOOLHANDLER_H

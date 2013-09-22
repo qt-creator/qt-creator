@@ -28,38 +28,37 @@
 **
 ****************************************************************************/
 #include "configurationtool.h"
-#include "toolattributes/itoolattribute.h"
-#include "toolattributes/iattributedescriptiondataitem.h"
+#include "../../interfaces/itoolattribute.h"
+#include "../../interfaces/iattributedescriptiondataitem.h"
 #include "toolattributes/tooldescriptiondatamanager.h"
 #include "toolattributes/tooldescription.h"
 #include "toolsectiondescription.h"
 #include "toolsection.h"
+#include "toolattributes/toolsectioncontainer.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
-ConfigurationTool::ConfigurationTool(ToolDescription *toolDesc)
+ConfigurationTool::ConfigurationTool(const IToolDescription *toolDesc)
     : m_toolDesc(toolDesc)
 {
+    m_sectionContainer = new ToolSectionContainer;
     for (int i = 0; i < toolDesc->sectionDescriptionCount(); ++i) {
         if (toolDesc->sectionDescription(i))
-            m_toolSections.append(toolDesc->sectionDescription(i)->createToolSection());
+            m_sectionContainer->appendSection(toolDesc->sectionDescription(i)->createToolSection());
     }
 }
 
 ConfigurationTool::ConfigurationTool(const ConfigurationTool &tool)
 {
-    qDeleteAll(m_toolSections);
-    m_toolSections.clear();
-
     m_toolDesc = tool.m_toolDesc;
-    foreach (ToolSection *toolSec, tool.m_toolSections)
-        m_toolSections.append(new ToolSection(*toolSec));
+    m_sectionContainer = new ToolSectionContainer;
+    *m_sectionContainer = *(tool.m_sectionContainer);
 }
 
 ConfigurationTool::~ConfigurationTool()
 {
-    qDeleteAll(m_toolSections);
+    delete m_sectionContainer;
 }
 
 void ConfigurationTool::processNode(const QDomNode &node)
@@ -75,63 +74,13 @@ QDomNode ConfigurationTool::toXMLDomNode(QDomDocument &domXMLDocument) const
 {
     QDomElement toolNode = domXMLDocument.createElement(QLatin1String("Tool"));
     toolNode.setAttribute(QLatin1String("Name"), m_toolDesc->toolKey());
-
-    foreach (ToolSection *toolSection, m_toolSections) {
-        if (toolSection) {
-            for (int i = 0; i < toolSection->toolAttributeCount(); ++i) {
-                IToolAttribute *toolAttr = toolSection->toolAttribute(i);
-
-                if (toolAttr && toolAttr->isUsed())
-                    toolNode.setAttribute(toolAttr->descriptionDataItem()->key(), toolAttr->value());
-            }
-        }
-    }
-
+    m_sectionContainer->appendToXMLNode(toolNode);
     return toolNode;
 }
 
-ToolDescription *ConfigurationTool::toolDescription() const
+const IToolDescription *ConfigurationTool::toolDescription() const
 {
     return m_toolDesc;
-}
-
-ToolSection *ConfigurationTool::section(int index) const
-{
-    if (0 <= index && index < m_toolSections.size())
-        return m_toolSections[index];
-    return 0;
-}
-
-int ConfigurationTool::sectionCount() const
-{
-    return m_toolSections.size();
-}
-
-void ConfigurationTool::appendSection(ToolSection *section)
-{
-    if (!section)
-        return;
-
-    foreach (ToolSection *sec, m_toolSections) {
-        if (sec && sec->sectionDescription()->name() == section->sectionDescription()->name())
-            return;
-    }
-    m_toolSections.append(section);
-}
-
-void ConfigurationTool::removeSection(const QString &sectionName)
-{
-    QList<ToolSection *>::iterator it = m_toolSections.begin();
-
-    while (it != m_toolSections.end()) {
-        ToolSection *sec = *it;
-        if (sec && sec->sectionDescription()->name() == sectionName) {
-            m_toolSections.erase(it);
-            delete sec;
-            return;
-        }
-        ++it;
-    }
 }
 
 VcNodeWidget *ConfigurationTool::createSettingsWidget()
@@ -139,7 +88,12 @@ VcNodeWidget *ConfigurationTool::createSettingsWidget()
     return new ToolSettingsWidget(this);
 }
 
-ConfigurationTool *ConfigurationTool::clone()
+ISectionContainer *ConfigurationTool::sectionContainer() const
+{
+    return m_sectionContainer;
+}
+
+ITool *ConfigurationTool::clone() const
 {
     return new ConfigurationTool(*this);
 }
@@ -155,11 +109,14 @@ void ConfigurationTool::processNodeAttributes(const QDomElement &domElement)
             QDomAttr domElement = domNode.toAttr();
 
             if (domElement.name() != QLatin1String("Name")) {
-                foreach (ToolSection *toolSection, m_toolSections) {
-                    IToolAttribute *toolAttr = toolSection->toolAttribute(domElement.name());
+                for (int i = 0; i < m_sectionContainer->sectionCount(); ++i) {
+                    IToolSection *toolSection = m_sectionContainer->section(i);
+                    if (toolSection) {
+                        IToolAttribute *toolAttr = toolSection->toolAttribute(domElement.name());
 
-                    if (toolAttr)
-                        toolAttr->setValue(domElement.value());
+                        if (toolAttr)
+                            toolAttr->setValue(domElement.value());
+                    }
                 }
             }
         }

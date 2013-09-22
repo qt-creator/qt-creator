@@ -52,7 +52,7 @@ File::File(const File &file)
     foreach (const File::Ptr &f, file.m_files)
         m_files.append(File::Ptr(new File(*f)));
 
-    foreach (const Configuration::Ptr &fileConfig, m_fileConfigurations)
+    foreach (const IConfiguration *fileConfig, m_fileConfigurations)
         m_fileConfigurations.append(fileConfig->clone());
 }
 
@@ -68,7 +68,7 @@ File &File::operator =(const File &file)
         foreach (const File::Ptr &f, file.m_files)
             m_files.append(File::Ptr(new File(*f)));
 
-        foreach (const Configuration::Ptr &fileConfig, m_fileConfigurations)
+        foreach (const IConfiguration *fileConfig, m_fileConfigurations)
             m_fileConfigurations.append(fileConfig->clone());
     }
     return *this;
@@ -77,7 +77,7 @@ File &File::operator =(const File &file)
 File::~File()
 {
     m_files.clear();
-    m_fileConfigurations.clear();
+    qDeleteAll(m_fileConfigurations);
 }
 
 void File::processNode(const QDomNode &node)
@@ -120,7 +120,7 @@ QDomNode File::toXMLDomNode(QDomDocument &domXMLDocument) const
     foreach (const File::Ptr &file, m_files)
         fileNode.appendChild(file->toXMLDomNode(domXMLDocument));
 
-    foreach (const Configuration::Ptr &fileConfig, m_fileConfigurations)
+    foreach (const IConfiguration *fileConfig, m_fileConfigurations)
         fileNode.appendChild(fileConfig->toXMLDomNode(domXMLDocument));
 
     return fileNode;
@@ -139,30 +139,40 @@ void File::removeFile(File::Ptr file)
         m_files.removeAll(file);
 }
 
-void File::addFileConfiguration(Configuration::Ptr fileConfig)
+void File::addFileConfiguration(IConfiguration *fileConfig)
 {
-    if (m_fileConfigurations.contains(fileConfig))
+    if (!fileConfig)
         return;
+
+    foreach (const IConfiguration *configPtr, m_fileConfigurations) {
+        if (configPtr->fullName() == fileConfig->fullName())
+            return;
+    }
     m_fileConfigurations.append(fileConfig);
 }
 
-void File::removeFileConfiguration(Configuration::Ptr fileConfig)
+void File::removeFileConfiguration(IConfiguration *fileConfig)
 {
-    if (m_fileConfigurations.contains(fileConfig))
-        m_fileConfigurations.removeAll(fileConfig);
+    foreach (IConfiguration *configPtr, m_fileConfigurations) {
+        if (configPtr->fullName() == fileConfig->fullName()) {
+            m_fileConfigurations.removeOne(configPtr);
+            delete configPtr;
+            return;
+        }
+    }
 }
 
-Configuration::Ptr File::fileConfiguration(const QString &name) const
+IConfiguration* File::fileConfiguration(const QString &name) const
 {
-    foreach (const Configuration::Ptr configPtr, m_fileConfigurations) {
-        if (configPtr->name() == name)
+    foreach (IConfiguration *configPtr, m_fileConfigurations) {
+        if (configPtr->fullName() == name)
             return configPtr;
     }
 
-    return Configuration::Ptr();
+    return 0;
 }
 
-QList<Configuration::Ptr> File::fileConfigurations() const
+QList<IConfiguration *> File::fileConfigurations() const
 {
     return m_fileConfigurations;
 }
@@ -233,9 +243,18 @@ QString File::canonicalPath() const
 
 void File::processFileConfiguration(const QDomNode &fileConfigNode)
 {
-    Configuration::Ptr fileConfig = ConfigurationsFactory::createConfiguration(m_parentProjectDoc->documentVersion(), QLatin1String("FileConfiguration"));
-    fileConfig->processNode(fileConfigNode);
-    m_fileConfigurations.append(fileConfig);
+    IConfiguration *fileConfig = 0;
+    if (m_parentProjectDoc->documentVersion() == VcDocConstants::DV_MSVC_2003)
+        fileConfig = new Configuration2003(QLatin1String("FileConfiguration"));
+    else if (m_parentProjectDoc->documentVersion() == VcDocConstants::DV_MSVC_2005)
+        fileConfig = new Configuration2005(QLatin1String("FileConfiguration"));
+    else if (m_parentProjectDoc->documentVersion() == VcDocConstants::DV_MSVC_2008)
+        fileConfig = new Configuration2008(QLatin1String("FileConfiguration"));
+
+    if (fileConfig) {
+        fileConfig->processNode(fileConfigNode);
+        m_fileConfigurations.append(fileConfig);
+    }
 
     // process next sibling
     QDomNode nextSibling = fileConfigNode.nextSibling();

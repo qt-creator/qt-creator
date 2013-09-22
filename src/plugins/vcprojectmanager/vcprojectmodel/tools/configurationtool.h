@@ -32,6 +32,7 @@
 
 #include "../ivcprojectnodemodel.h"
 #include "../../widgets/toolwidgets/toolsettingswidget.h"
+#include "../../interfaces/itool.h"
 
 #include <QList>
 #include <QString>
@@ -43,10 +44,10 @@ class IToolAttribute;
 class ToolDescription;
 class ToolSection;
 
-class ConfigurationTool : public IVcProjectXMLNode
+class ConfigurationTool : public ITool
 {
 public:
-    ConfigurationTool(ToolDescription* toolDesc);
+    ConfigurationTool(const IToolDescription* toolDesc);
     ConfigurationTool(const ConfigurationTool &tool);
     virtual ~ConfigurationTool();
 
@@ -54,22 +55,17 @@ public:
     void processNode(const QDomNode &node);
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
-    ToolDescription* toolDescription() const;
-
-    ToolSection* section(int index) const;
-    int sectionCount() const;
-    void appendSection(ToolSection *section);
-    void removeSection(const QString &sectionName);
-
+    const IToolDescription *toolDescription() const;
     VcNodeWidget* createSettingsWidget();
 
-    ConfigurationTool *clone();
+    ISectionContainer *sectionContainer() const;
+    ITool *clone() const;
 
 private:
     void processNodeAttributes(const QDomElement &domElement);
 
-    QList<ToolSection *> m_toolSections;
-    ToolDescription *m_toolDesc;
+    const IToolDescription *m_toolDesc;
+    ISectionContainer *m_sectionContainer;
 };
 
 } // namespace Internal

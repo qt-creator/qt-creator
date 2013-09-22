@@ -55,11 +55,10 @@ public:
      */
     virtual ActiveXReference::Ptr clone() const = 0;
 
-    void addReferenceConfiguration(Configuration::Ptr refConfig);
-    void removeReferenceConfiguration(Configuration::Ptr refConfig);
+    void addReferenceConfiguration(IConfiguration *refConfig);
+    void removeReferenceConfiguration(IConfiguration *refConfig);
     void removeReferenceConfiguration(const QString &refConfigName);
-    QList<Configuration::Ptr> referenceConfigurations() const;
-    Configuration::Ptr referenceConfiguration(const QString &refConfigName) const;
+    IConfiguration *referenceConfiguration(const QString &refConfigName) const;
 
     QString controlGUID() const;
     void setControlGUID(const QString &ctrlGUID);
@@ -79,12 +78,12 @@ protected:
      * Reimplement this to create a new reference configuration.
      * \return A shared pointer to a newly created reference configuration.
      */
-    virtual Configuration::Ptr createReferenceConfiguration() const = 0;
+    virtual IConfiguration* createReferenceConfiguration() const = 0;
 
     QString m_controlGUID;  // required
     QString m_controlVersion;   // required
     QString m_wrapperTool;  // required
-    QList<Configuration::Ptr> m_referenceConfigurations;
+    QList<IConfiguration *> m_referenceConfigurations;
 };
 
 class ActiveXReference2003 : public ActiveXReference
@@ -101,7 +100,7 @@ public:
 protected:
     ActiveXReference2003();
     void init();
-    Configuration::Ptr createReferenceConfiguration() const;
+    IConfiguration *createReferenceConfiguration() const;
 };
 
 class ActiveXReference2005 : public ActiveXReference2003
@@ -125,7 +124,7 @@ public:
 
 protected:
     ActiveXReference2005();
-    Configuration::Ptr createReferenceConfiguration() const;
+    IConfiguration *createReferenceConfiguration() const;
     void processNodeAttributes(const QDomElement &element);
 
     QString m_localeID;         // opt
@@ -154,7 +153,7 @@ public:
 
 protected:
     ActiveXReference2008();
-    Configuration::Ptr createReferenceConfiguration() const;
+    IConfiguration* createReferenceConfiguration() const;
     void processNodeAttributes(const QDomElement &element);
 
     bool m_copyLocalDependencies; //optional    default: true

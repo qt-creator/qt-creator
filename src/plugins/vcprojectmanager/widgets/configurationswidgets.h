@@ -56,20 +56,16 @@ public:
     ~ConfigurationsBaseWidget();
     void saveData();
 
-    QList<Configuration::Ptr> newConfigurations() const;
-    QList<QString> removedConfigurations() const;
-    QMap<Configuration::Ptr, QString> renamedConfigurations() const;
-
 private slots:
     void onAddNewConfig(QString newConfigName, QString copyFrom);
     void onRenameConfig(QString newConfigName, QString oldConfigNameWithPlatform);
     void onRemoveConfig(QString configNameWithPlatform);
 
 protected:
-    void addConfiguration(Configuration *config);
-    void removeConfiguration(Configuration *config);
-    Configuration::Ptr createConfiguration(const QString &configNameWithPlatform) const;
-    Configuration::Ptr configInNewConfigurations(const QString &configNameWithPlatform) const;
+    void addConfiguration(IConfiguration *config);
+    void removeConfiguration(IConfiguration *config);
+    IConfiguration* createConfiguration(const QString &configNameWithPlatform) const;
+    IConfiguration* configInNewConfigurations(const QString &configNameWithPlatform) const;
     void addConfigurationToFiles(const QString &copyFromConfig, const QString &targetConfigName);
     void addConfigurationToFilesInFilter(QSharedPointer<Filter> filterPtr, const QString &copyFromConfig, const QString &targetConfigName);
     void addConfigurationToFilesInFolder(QSharedPointer<Folder> folderPtr, const QString &copyFromConfig, const QString &targetConfigName);
@@ -79,11 +75,11 @@ protected:
     VcProjectDocument *m_vcProjDoc;
     ConfigurationsWidget *m_configsWidget;
 
-    QList<QSharedPointer<Configuration> > m_newConfigurations;
+    QList<IConfiguration *> m_newConfigurations;
     QList<QString> m_removedConfigurations;
-    QMap<Configuration::Ptr, QString> m_renamedConfigurations; // <oldName, newName>
+    QMap<IConfiguration*, QString> m_renamedConfigurations; // <oldName, newName>
 
-    QHash<QSharedPointer<File>, Configuration::Ptr> m_newFilesConfigurations;
+    QHash<QSharedPointer<File>, IConfiguration*> m_newFilesConfigurations;
 };
 
 class Configurations2003Widget : public ConfigurationsBaseWidget
