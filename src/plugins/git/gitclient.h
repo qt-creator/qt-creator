@@ -182,6 +182,8 @@ public:
     // Checkout branch
     bool synchronousCheckout(const QString &workingDirectory, const QString &ref,
                              QString *errorMessage = 0);
+
+    QStringList setupCheckoutArguments(const QString &workingDirectory, const QString &ref);
     void updateSubmodulesIfNeeded(const QString &workingDirectory, bool prompt);
 
     // Do a stash and return identier.
