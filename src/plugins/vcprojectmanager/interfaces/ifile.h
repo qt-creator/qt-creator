@@ -39,6 +39,7 @@ namespace Internal {
 
 class IConfiguration;
 class ConfigurationContainer;
+class IAttributeContainer;
 
 class IFile : public IVcProjectXMLNode
 {
@@ -48,6 +49,7 @@ public:
     virtual QString relativePath() const = 0;
     virtual void setRelativePath(const QString &path) = 0;
     virtual ConfigurationContainer* configurationContainer() const = 0;
+    virtual IAttributeContainer* attributeContainer() const = 0;
 };
 
 } // namespace Internal

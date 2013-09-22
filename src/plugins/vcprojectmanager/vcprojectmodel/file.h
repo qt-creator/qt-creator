@@ -30,7 +30,6 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_FILE_H
 #define VCPROJECTMANAGER_INTERNAL_FILE_H
 
-#include "ivcprojectnodemodel.h"
 #include "configuration.h"
 #include "../interfaces/ifile.h"
 
@@ -57,14 +56,10 @@ public:
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
     ConfigurationContainer *configurationContainer() const;
+    IAttributeContainer *attributeContainer() const;
 
     void addFile(File::Ptr file);
     void removeFile(File::Ptr file);
-
-    QString attributeValue(const QString &attributeName) const;
-    void setAttribute(const QString &attributeName, const QString &attributeValue);
-    void clearAttribute(const QString &attributeName);
-    void removeAttribute(const QString &attributeName);
 
     QString relativePath() const;
     void setRelativePath(const QString &relativePath);
@@ -78,9 +73,9 @@ private:
 
     QString m_relativePath; // required
     QList<QSharedPointer<File> > m_files;
-    QHash<QString, QString> m_anyAttribute;
     VcProjectDocument *m_parentProjectDoc;
     ConfigurationContainer *m_configurationContainer;
+    GeneralAttributeContainer *m_attributeContainer;
 };
 
 } // namespace Internal

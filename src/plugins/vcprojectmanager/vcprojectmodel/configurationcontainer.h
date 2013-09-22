@@ -27,8 +27,8 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef ICONFIGURATIONCONTAINER_H
-#define ICONFIGURATIONCONTAINER_H
+#ifndef VCPROJECTMANAGER_INTERNAL_CONFIGURATIONCONTAINER_H
+#define VCPROJECTMANAGER_INTERNAL_CONFIGURATIONCONTAINER_H
 
 #include <QList>
 #include <QDomElement>
@@ -59,4 +59,4 @@ private:
 
 } // Internal
 } // VcProjectManager
-#endif // ICONFIGURATIONCONTAINER_H
+#endif // VCPROJECTMANAGER_INTERNAL_CONFIGURATIONCONTAINER_H

@@ -32,6 +32,7 @@
 #include "configurationsfactory.h"
 #include "vcprojectdocument.h"
 #include "configurationcontainer.h"
+#include "generalattributecontainer.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <coreplugin/mimedatabase.h>
@@ -44,14 +45,18 @@ File::File(VcProjectDocument *parentProjectDoc)
     : m_parentProjectDoc(parentProjectDoc)
 {
     m_configurationContainer = new ConfigurationContainer;
+    m_attributeContainer = new GeneralAttributeContainer;
 }
 
 File::File(const File &file)
 {
+    m_attributeContainer = new GeneralAttributeContainer;
+    m_configurationContainer = new ConfigurationContainer;
+
     m_parentProjectDoc = file.m_parentProjectDoc;
     m_relativePath = file.m_relativePath;
-    m_configurationContainer = new ConfigurationContainer;
     *m_configurationContainer = *(file.m_configurationContainer);
+    *m_attributeContainer = *(file.m_attributeContainer);
 
     foreach (const File::Ptr &f, file.m_files)
         m_files.append(File::Ptr(new File(*f)));
@@ -63,6 +68,7 @@ File &File::operator =(const File &file)
         m_parentProjectDoc = file.m_parentProjectDoc;
         m_relativePath = file.m_relativePath;
         *m_configurationContainer = *(file.m_configurationContainer);
+        *m_attributeContainer = *(file.m_attributeContainer);
 
         m_files.clear();
 
@@ -76,6 +82,7 @@ File::~File()
 {
     m_files.clear();
     delete m_configurationContainer;
+    delete m_attributeContainer;
 }
 
 void File::processNode(const QDomNode &node)
@@ -108,24 +115,22 @@ QDomNode File::toXMLDomNode(QDomDocument &domXMLDocument) const
 
     fileNode.setAttribute(QLatin1String("RelativePath"), m_relativePath);
 
-    QHashIterator<QString, QString> it(m_anyAttribute);
-
-    while (it.hasNext()) {
-        it.next();
-        fileNode.setAttribute(it.key(), it.value());
-    }
-
     foreach (const File::Ptr &file, m_files)
         fileNode.appendChild(file->toXMLDomNode(domXMLDocument));
 
     m_configurationContainer->appendToXMLNode(fileNode, domXMLDocument);
-
+    m_attributeContainer->appendToXMLNode(fileNode);
     return fileNode;
 }
 
 ConfigurationContainer *File::configurationContainer() const
 {
     return m_configurationContainer;
+}
+
+IAttributeContainer *File::attributeContainer() const
+{
+    return m_attributeContainer;
 }
 
 void File::addFile(File::Ptr file)
@@ -139,28 +144,6 @@ void File::removeFile(File::Ptr file)
 {
     if (m_files.contains(file))
         m_files.removeAll(file);
-}
-
-QString File::attributeValue(const QString &attributeName) const
-{
-    return m_anyAttribute.value(attributeName);
-}
-
-void File::setAttribute(const QString &attributeName, const QString &attributeValue)
-{
-    m_anyAttribute.insert(attributeName, attributeValue);
-}
-
-void File::clearAttribute(const QString &attributeName)
-{
-    // no need to clear the attribute's value if attribute isn't present
-    if (m_anyAttribute.contains(attributeName))
-        m_anyAttribute.insert(attributeName, QString());
-}
-
-void File::removeAttribute(const QString &attributeName)
-{
-    m_anyAttribute.remove(attributeName);
 }
 
 QString File::relativePath() const
@@ -260,7 +243,7 @@ void File::processNodeAttributes(const QDomElement &element)
                 m_relativePath = domElement.value();
 
             else
-                m_anyAttribute.insert(domElement.name(), domElement.value());
+                m_attributeContainer->setAttribute(domElement.name(), domElement.value());
         }
     }
 }
