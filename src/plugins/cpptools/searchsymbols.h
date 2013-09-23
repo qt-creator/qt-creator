@@ -94,7 +94,7 @@ struct CPPTOOLS_EXPORT ModelItemInfo
                 : symbolScope +  QLatin1String("::") + symbolName;
     }
 
-    void unqualifiedNameAndScope(const QString &defaultName, QString *name, QString *scope) const
+    bool unqualifiedNameAndScope(const QString &defaultName, QString *name, QString *scope) const
     {
         *name = defaultName;
         *scope = symbolScope;
@@ -103,7 +103,9 @@ struct CPPTOOLS_EXPORT ModelItemInfo
         if (colonColonPosition != -1) {
             *name = qualifiedName.mid(colonColonPosition + 2);
             *scope = qualifiedName.left(colonColonPosition);
+            return true;
         }
+        return false;
     }
 
     static QString representDeclaration(const QString &name, const QString &type)
