@@ -5804,6 +5804,7 @@ void BaseTextEditorWidget::cut()
         return;
     }
     QPlainTextEdit::cut();
+    collectToCircularClipboard();
 }
 
 void BaseTextEditorWidget::selectAll()
@@ -5818,14 +5819,18 @@ void BaseTextEditorWidget::copy()
         return;
 
     QPlainTextEdit::copy();
+    collectToCircularClipboard();
+}
 
+void BaseTextEditorWidget::collectToCircularClipboard()
+{
     const QMimeData *mimeData = QApplication::clipboard()->mimeData();
-    if (mimeData) {
-        CircularClipboard *circularClipBoard = CircularClipboard::instance();
-        circularClipBoard->collect(duplicateMimeData(mimeData));
-        // We want the latest copied content to be the first one to appear on circular paste.
-        circularClipBoard->toLastCollect();
-    }
+    if (!mimeData)
+        return;
+    CircularClipboard *circularClipBoard = CircularClipboard::instance();
+    circularClipBoard->collect(duplicateMimeData(mimeData));
+    // We want the latest copied content to be the first one to appear on circular paste.
+    circularClipBoard->toLastCollect();
 }
 
 void BaseTextEditorWidget::paste()

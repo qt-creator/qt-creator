@@ -355,6 +355,7 @@ protected:
 private:
     void maybeSelectLine();
     void updateCannotDecodeInfo();
+    void collectToCircularClipboard();
 
 public:
     void duplicateFrom(BaseTextEditorWidget *editor);
