@@ -38,6 +38,7 @@
 #include <coreplugin/mimedatabase.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/session.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
 
@@ -47,6 +48,9 @@
 
 using namespace ProjectExplorer;
 using namespace TaskList::Internal;
+
+static const char SESSION_FILE_KEY[] = "TaskList.File";
+static const char SESSION_CONTEXT_KEY[] = "TaskList.Context";
 
 namespace TaskList {
 
@@ -171,28 +175,49 @@ bool TaskListPlugin::initialize(const QStringList &arguments, QString *errorMess
     m_fileFactory = new TaskFileFactory(this);
     addAutoReleasedObject(m_fileFactory);
     addAutoReleasedObject(new StopMonitoringHandler);
+
+    connect(SessionManager::instance(), SIGNAL(sessionLoaded(QString)),
+            this, SLOT(loadDataFromSession()));
+
     return true;
 }
 
 bool TaskListPlugin::loadFile(QString *errorString, Project *context, const QString &fileName)
 {
     clearTasks();
-    return parseTaskFile(errorString, context, fileName);
-}
 
-bool TaskListPlugin::monitorFile(Project *context, const QString &fileName)
-{
-    return m_fileFactory->open(context, fileName);
+    bool result = parseTaskFile(errorString, context, fileName);
+    if (result) {
+        SessionManager::setValue(QLatin1String(SESSION_CONTEXT_KEY),
+                                 context ? context->projectFilePath() : QString());
+        SessionManager::setValue(QLatin1String(SESSION_FILE_KEY), fileName);
+    } else {
+        stopMonitoring();
+    }
+
+    return result;
 }
 
 void TaskListPlugin::stopMonitoring()
 {
+    SessionManager::setValue(QLatin1String(SESSION_CONTEXT_KEY), QString());
+    SessionManager::setValue(QLatin1String(SESSION_FILE_KEY), QString());
+
     m_fileFactory->closeAllFiles();
 }
 
 void TaskListPlugin::clearTasks()
 {
     TaskHub::clearTasks(Constants::TASKLISTTASK_ID);
+}
+
+void TaskListPlugin::loadDataFromSession()
+{
+    const QString fileName = SessionManager::value(QLatin1String(SESSION_FILE_KEY)).toString();
+    if (fileName.isEmpty())
+        return;
+    Project *project = SessionManager::projectForFile(SessionManager::value(QLatin1String(SESSION_CONTEXT_KEY)).toString());
+    m_fileFactory->open(project, fileName);
 }
 
 } // namespace TaskList
