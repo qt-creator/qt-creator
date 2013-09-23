@@ -38,14 +38,7 @@ def main():
         workingDir = tempDir()
         projectName = createNewQtQuickUI(workingDir, quickVersion)
         test.log("Running project Qt Quick %d UI" % quickVersion)
-        # TODO replace this quickfix with a proper identification of kits
-        # changes to createNewQtQuickUI(...) after fixing QTCREATORBUG-8704 will probably handle this
-        kitCount = 1
-        if quickVersion == 1:
-            kitCount = 3
-            if platform.system() in ('Windows', 'Microsoft'):
-                kitCount = 4
-        qmlViewer = modifyRunSettingsForHookIntoQtQuickUI(kitCount, workingDir, projectName, 11223)
+        qmlViewer = modifyRunSettingsForHookIntoQtQuickUI(1, workingDir, projectName, 11223)
         if qmlViewer!=None:
             qmlViewerPath = os.path.dirname(qmlViewer)
             qmlViewer = os.path.basename(qmlViewer)
