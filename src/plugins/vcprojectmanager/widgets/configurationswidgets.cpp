@@ -98,7 +98,7 @@ void ConfigurationsBaseWidget::saveData()
     foreach (IConfiguration *newConfig, m_newConfigurations)
         m_configs->addConfiguration(newConfig);
 
-    QHashIterator<QSharedPointer<File>, QList<IConfiguration*> > fileConfigIt(m_newFilesConfigurations);
+    QHashIterator<IFile*, QList<IConfiguration*> > fileConfigIt(m_newFilesConfigurations);
 
     while (fileConfigIt.hasNext()) {
         fileConfigIt.next();
@@ -299,59 +299,34 @@ void ConfigurationsBaseWidget::addConfigurationToFiles(const QString &copyFromCo
 {
     Files::Ptr docFiles = m_vcProjDoc->files();
     if (docFiles) {
-        QList<Filter::Ptr> filters = docFiles->filters();
+        QList<IFileContainer *> filters = docFiles->fileContainers();
 
-        foreach (Filter::Ptr filter, filters)
+        foreach (IFileContainer *filter, filters)
             addConfigurationToFilesInFilter(filter, copyFromConfig, targetConfigName);
 
-        QList<File::Ptr> files = docFiles->files();
+        QList<IFile *> files = docFiles->files();
 
-        foreach (File::Ptr file, files)
+        foreach (IFile *file, files)
             addConfigurationToFile(file, copyFromConfig, targetConfigName);
-
-        Files2005::Ptr docFiles2005 = docFiles.dynamicCast<Files2005>();
-
-        if (docFiles2005) {
-            QList<Folder::Ptr> folders = docFiles2005->folders();
-
-            foreach (Folder::Ptr folder, folders)
-                addConfigurationToFilesInFolder(folder, copyFromConfig, targetConfigName);
-        }
     }
 }
 
-void ConfigurationsBaseWidget::addConfigurationToFilesInFilter(QSharedPointer<Filter> filterPtr, const QString &copyFromConfig, const QString &targetConfigName)
+void ConfigurationsBaseWidget::addConfigurationToFilesInFilter(IFileContainer *filterPtr, const QString &copyFromConfig, const QString &targetConfigName)
 {
-    QList<Filter::Ptr> filters = filterPtr->filters();
+    for (int i = 0; i < filterPtr->childCount(); ++i) {
+        IFileContainer *fileContainer = filterPtr->fileContainer(i);
+        if (fileContainer)
+            addConfigurationToFilesInFilter(fileContainer, copyFromConfig, targetConfigName);
+    }
 
-    foreach (Filter::Ptr filter, filters)
-        addConfigurationToFilesInFilter(filter, copyFromConfig, targetConfigName);
-
-    QList<File::Ptr> files = filterPtr->files();
-
-    foreach (File::Ptr file, files)
-        addConfigurationToFile(file, copyFromConfig, targetConfigName);
+    for (int i = 0; i < filterPtr->fileCount(); ++i) {
+        IFile *file = filterPtr->file(i);
+        if (file)
+            addConfigurationToFile(file, copyFromConfig, targetConfigName);
+    }
 }
 
-void ConfigurationsBaseWidget::addConfigurationToFilesInFolder(QSharedPointer<Folder> folderPtr, const QString &copyFromConfig, const QString &targetConfigName)
-{
-    QList<Filter::Ptr> filters = folderPtr->filters();
-
-    foreach (Filter::Ptr filter, filters)
-        addConfigurationToFilesInFilter(filter, copyFromConfig, targetConfigName);
-
-    QList<Folder::Ptr> folders = folderPtr->folders();
-
-    foreach (Folder::Ptr folder, folders)
-        addConfigurationToFilesInFolder(folder, copyFromConfig, targetConfigName);
-
-    QList<File::Ptr> files = folderPtr->files();
-
-    foreach (File::Ptr file, files)
-        addConfigurationToFile(file, copyFromConfig, targetConfigName);
-}
-
-void ConfigurationsBaseWidget::addConfigurationToFile(QSharedPointer<File> filePtr, const QString &copyFromConfig, const QString &targetConfigName)
+void ConfigurationsBaseWidget::addConfigurationToFile(IFile *filePtr, const QString &copyFromConfig, const QString &targetConfigName)
 {
     IConfiguration *configPtr = filePtr->configurationContainer()->configuration(copyFromConfig);
 

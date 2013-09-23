@@ -27,36 +27,44 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_INTERNAL_IFILE_H
-#define VCPROJECTMANAGER_INTERNAL_IFILE_H
-
-#include <QString>
-#include <projectexplorer/projectnodes.h>
+#ifndef VCPROJECTMANAGER_INTERNAL_IFILECONTAINER_H
+#define VCPROJECTMANAGER_INTERNAL_IFILECONTAINER_H
 
 #include "../vcprojectmodel/ivcprojectnodemodel.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
-class IConfiguration;
-class ConfigurationContainer;
+class IFile;
 class IAttributeContainer;
 
-class IFile : public IVcProjectXMLNode
+class IFileContainer : public IVcProjectXMLNode
 {
 public:
-    virtual ~IFile() {}
+    virtual ~IFileContainer() {}
 
-    virtual QString relativePath() const = 0;
-    virtual void setRelativePath(const QString &path) = 0;
-    virtual QString canonicalPath() const  = 0;
-    virtual ConfigurationContainer* configurationContainer() const = 0;
-    virtual IAttributeContainer* attributeContainer() const = 0;
-    virtual IFile* clone() const = 0;
-    virtual ProjectExplorer::FileType fileType() const = 0;
+    virtual QString containerType() const = 0;
+
+    virtual void addFile(IFile *file) = 0;
+    virtual IFile* file(int index) const = 0;
+    virtual int fileCount() const = 0;
+    virtual void removeFile(IFile *file) = 0;
+
+    virtual void addFileContainer(IFileContainer *fileContainer) = 0;
+    virtual int childCount() const = 0;
+    virtual IFileContainer* fileContainer(int index) const = 0;
+    virtual void removeFileContainer(IFileContainer *fileContainer) = 0;
+    virtual IAttributeContainer *attributeContainer() const = 0;
+
+    virtual QString name() const = 0;
+    virtual void setName(const QString &name) = 0;
+
+    virtual void allFiles(QStringList &sl) const = 0;
+    virtual bool fileExists(const QString &relativeFilePath) const = 0;
+    virtual IFileContainer* clone() const = 0;
 };
 
 } // namespace Internal
 } // namespace VcProjectManager
 
-#endif // VCPROJECTMANAGER_INTERNAL_IFILE_H
+#endif // VCPROJECTMANAGER_INTERNAL_IFILECONTAINER_H

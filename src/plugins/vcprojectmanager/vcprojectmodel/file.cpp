@@ -156,6 +156,11 @@ void File::setRelativePath(const QString &relativePath)
     m_relativePath = relativePath;
 }
 
+IFile *File::clone() const
+{
+    return new File(*this);
+}
+
 ProjectExplorer::FileType File::fileType() const
 {
     const Core::MimeDatabase *mdb = Core::ICore::mimeDatabase();

@@ -43,9 +43,8 @@ class Configurations;
 class Configuration;
 class VcProjectDocument;
 class ConfigurationsWidget;
-class Filter;
-class Folder;
-class File;
+class IFile;
+class IFileContainer;
 
 class ConfigurationsBaseWidget : public VcNodeWidget
 {
@@ -67,9 +66,8 @@ protected:
     IConfiguration* createConfiguration(const QString &configNameWithPlatform) const;
     IConfiguration* configInNewConfigurations(const QString &configNameWithPlatform) const;
     void addConfigurationToFiles(const QString &copyFromConfig, const QString &targetConfigName);
-    void addConfigurationToFilesInFilter(QSharedPointer<Filter> filterPtr, const QString &copyFromConfig, const QString &targetConfigName);
-    void addConfigurationToFilesInFolder(QSharedPointer<Folder> folderPtr, const QString &copyFromConfig, const QString &targetConfigName);
-    void addConfigurationToFile(QSharedPointer<File> filePtr, const QString &copyFromConfig, const QString &targetConfigName);
+    void addConfigurationToFilesInFilter(IFileContainer *filterPtr, const QString &copyFromConfig, const QString &targetConfigName);
+    void addConfigurationToFile(IFile *filePtr, const QString &copyFromConfig, const QString &targetConfigName);
 
     Configurations *m_configs;
     VcProjectDocument *m_vcProjDoc;
@@ -79,7 +77,7 @@ protected:
     QList<QString> m_removedConfigurations;
     QMap<IConfiguration*, QString> m_renamedConfigurations; // <oldName, newName>
 
-    QHash<QSharedPointer<File>, QList<IConfiguration*> > m_newFilesConfigurations;
+    QHash<IFile*, QList<IConfiguration*> > m_newFilesConfigurations;
 };
 
 class Configurations2003Widget : public ConfigurationsBaseWidget

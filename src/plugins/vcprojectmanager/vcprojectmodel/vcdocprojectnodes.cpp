@@ -41,7 +41,7 @@
 namespace VcProjectManager {
 namespace Internal {
 
-VcFileNode::VcFileNode(File *fileModel, VcDocProjectNode *vcDocProject)
+VcFileNode::VcFileNode(IFile *fileModel, VcDocProjectNode *vcDocProject)
     : ProjectExplorer::FileNode(fileModel->canonicalPath(), fileModel->fileType(), false),
       m_vcFileModel(fileModel)
 {
@@ -91,7 +91,7 @@ VcFileNode *VcContainerNode::findFileNode(const QString &filePath)
 }
 
 
-VcFilterNode::VcFilterNode(Filter *filterModel, VcDocProjectNode *vcDocProjNode)
+VcFilterNode::VcFilterNode(VcProjectManager::Internal::IFileContainer *filterModel, VcDocProjectNode *vcDocProjNode)
     : VcContainerNode(filterModel->name()),
       m_vcFilterModel(filterModel)
 {
@@ -134,8 +134,7 @@ bool VcFilterNode::appendFileNode(VcFileNode *fileNode)
         }
     }
 
-    File::Ptr filePtr = File::Ptr(fileNode->m_vcFileModel);
-    m_vcFilterModel->addFile(filePtr);
+    m_vcFilterModel->addFile(fileNode->m_vcFileModel);
     QList<ProjectExplorer::FileNode *> vcFileNodes;
     vcFileNodes << fileNode;
     m_parentVcDocProjNode->addFileNodes(vcFileNodes, this);
@@ -144,7 +143,7 @@ bool VcFilterNode::appendFileNode(VcFileNode *fileNode)
 
 void VcFilterNode::addFilterNode(const QString &name)
 {
-    Filter *filter = new Filter(m_parentVcDocProjNode->m_vcProjectModel);
+    Filter *filter = new Filter(QLatin1String("Filter"), m_parentVcDocProjNode->m_vcProjectModel);
     filter->setName(name);
     VcFilterNode *filterNode = new VcFilterNode(filter, m_parentVcDocProjNode);
 
@@ -154,12 +153,12 @@ void VcFilterNode::addFilterNode(const QString &name)
     }
 }
 
-bool VcFilterNode::appendFilterNode(VcFilterNode *folderNode)
+bool VcFilterNode::appendFilterNode(VcFilterNode *filterNode)
 {
-    if (!m_vcFilterModel || !folderNode || !folderNode->m_vcFilterModel)
+    if (!m_vcFilterModel || !filterNode || !filterNode->m_vcFilterModel)
         return false;
 
-    if (m_subFolderNodes.contains(folderNode))
+    if (m_subFolderNodes.contains(filterNode))
         return false;
     else {
         foreach (ProjectExplorer::FolderNode *fNode, m_subFolderNodes) {
@@ -167,15 +166,14 @@ bool VcFilterNode::appendFilterNode(VcFilterNode *folderNode)
 
             if (vcFilterNode &&
                     vcFilterNode->m_vcFilterModel &&
-                    vcFilterNode->m_vcFilterModel->name() == folderNode->m_vcFilterModel->name())
+                    vcFilterNode->m_vcFilterModel->name() == filterNode->m_vcFilterModel->name())
                 return false;
         }
     }
 
-    Filter::Ptr filterPtr = Filter::Ptr(folderNode->m_vcFilterModel);
-    m_vcFilterModel->addFilter(filterPtr);
+    m_vcFilterModel->addFileContainer(filterNode->m_vcFilterModel);
     QList<ProjectExplorer::FolderNode *> vcFolderNodes;
-    vcFolderNodes << folderNode;
+    vcFolderNodes << filterNode;
     m_parentVcDocProjNode->addFolderNodes(vcFolderNodes, this);
     m_parentVcDocProjNode->m_vcProjectModel->saveToFile(m_parentVcDocProjNode->m_vcProjectModel->filePath());
     return true;
@@ -186,13 +184,13 @@ void VcFilterNode::removeFilterNode(VcFilterNode *filterNode)
     if (!filterNode || !filterNode->m_vcFilterModel)
         return;
 
-    QString filterName = filterNode->m_vcFilterModel->name();
+    IFileContainer *filter = filterNode->m_vcFilterModel;
 
     QList<ProjectExplorer::FolderNode *> folderNodesToRemove;
     folderNodesToRemove << filterNode;
     m_parentVcDocProjNode->removeFolderNodes(folderNodesToRemove, this);
 
-    m_vcFilterModel->removeFilter(filterName);
+    m_vcFilterModel->removeFileContainer(filter);
     m_parentVcDocProjNode->m_vcProjectModel->saveToFile(m_parentVcDocProjNode->m_vcProjectModel->filePath());
 }
 
@@ -201,38 +199,42 @@ void VcFilterNode::removeFileNode(VcFileNode *fileNode)
     if (!fileNode || !fileNode->m_vcFileModel)
         return;
 
-    QString relativePath = fileNode->m_vcFileModel->relativePath();
+    IFile *file = fileNode->m_vcFileModel;
 
     QList<ProjectExplorer::FileNode *> fileNodesToRemove;
     fileNodesToRemove << fileNode;
     m_parentVcDocProjNode->removeFileNodes(fileNodesToRemove, this);
 
-    File::Ptr filePtr = m_vcFilterModel->file(relativePath);
-
-    m_vcFilterModel->removeFile(filePtr);
+    m_vcFilterModel->removeFile(file);
     m_parentVcDocProjNode->m_vcProjectModel->saveToFile(m_parentVcDocProjNode->m_vcProjectModel->filePath());
 }
 
 void VcFilterNode::readChildren()
 {
-    QList<Filter::Ptr> filters = m_vcFilterModel->filters();
-    QList<File::Ptr> files = m_vcFilterModel->files();
-
     QList<ProjectExplorer::FolderNode *> vcFolderNodes;
-    foreach (const Filter::Ptr &filter, filters)
-        vcFolderNodes.append(new VcFilterNode(filter.data(), m_parentVcDocProjNode));
+
+    for (int i = 0; i < m_vcFilterModel->childCount(); ++i) {
+        IFileContainer *fileCont = m_vcFilterModel->fileContainer(i);
+        if (fileCont)
+            vcFolderNodes.append(new VcFilterNode(fileCont, m_parentVcDocProjNode));
+    }
 
     m_parentVcDocProjNode->addFolderNodes(vcFolderNodes, this);
 
     QList<ProjectExplorer::FileNode *> vcFileNodes;
-    foreach (const File::Ptr &file, files)
-        vcFileNodes.append(new VcFileNode(file.data(), m_parentVcDocProjNode));
+
+    for (int i = 0; i < m_vcFilterModel->fileCount(); ++i) {
+        IFile *file = m_vcFilterModel->file(i);
+
+        if (file)
+            vcFileNodes.append(new VcFileNode(file, m_parentVcDocProjNode));
+    }
 
     m_parentVcDocProjNode->addFileNodes(vcFileNodes, this);
 }
 
 
-VcFolderNode::VcFolderNode(Folder *folderModel, VcDocProjectNode *vcDocProjNode)
+VcFolderNode::VcFolderNode(VcProjectManager::Internal::IFileContainer *folderModel, VcDocProjectNode *vcDocProjNode)
     : VcContainerNode(folderModel->name()),
       m_vcFolderModel(folderModel)
 {
@@ -275,8 +277,7 @@ bool VcFolderNode::appendFileNode(VcFileNode *fileNode)
         }
     }
 
-    File::Ptr filePtr = File::Ptr(fileNode->m_vcFileModel);
-    m_vcFolderModel->addFile(filePtr);
+    m_vcFolderModel->addFile(fileNode->m_vcFileModel);
     QList<ProjectExplorer::FileNode *> vcFileNodes;
     vcFileNodes << fileNode;
     m_parentVcDocProjNode->addFileNodes(vcFileNodes, this);
@@ -285,7 +286,7 @@ bool VcFolderNode::appendFileNode(VcFileNode *fileNode)
 
 void VcFolderNode::addFilterNode(const QString &name)
 {
-    Filter *filter = new Filter(m_parentVcDocProjNode->m_vcProjectModel);
+    Filter *filter = new Filter(QLatin1String("Filter"), m_parentVcDocProjNode->m_vcProjectModel);
     filter->setName(name);
     VcFilterNode *filterNode = new VcFilterNode(filter, m_parentVcDocProjNode);
 
@@ -313,8 +314,7 @@ bool VcFolderNode::appendFilterNode(VcFilterNode *filterNode)
         }
     }
 
-    Filter::Ptr filterPtr = Filter::Ptr(filterNode->m_vcFilterModel);
-    m_vcFolderModel->addFilter(filterPtr);
+    m_vcFolderModel->addFileContainer(filterNode->m_vcFilterModel);
     QList<ProjectExplorer::FolderNode *> vcFolderNodes;
     vcFolderNodes << filterNode;
     m_parentVcDocProjNode->addFolderNodes(vcFolderNodes, this);
@@ -327,15 +327,13 @@ void VcFolderNode::removeFileNode(VcFileNode *fileNode)
     if (!fileNode || !fileNode->m_vcFileModel)
         return;
 
-    QString relativePath = fileNode->m_vcFileModel->relativePath();
+    IFile *file = fileNode->m_vcFileModel;
 
     QList<ProjectExplorer::FileNode *> fileNodesToRemove;
     fileNodesToRemove << fileNode;
     m_parentVcDocProjNode->removeFileNodes(fileNodesToRemove, this);
 
-    File::Ptr filePtr = m_vcFolderModel->file(relativePath);
-
-    m_vcFolderModel->removeFile(filePtr);
+    m_vcFolderModel->removeFile(file);
     m_parentVcDocProjNode->m_vcProjectModel->saveToFile(m_parentVcDocProjNode->m_vcProjectModel->filePath());
 }
 
@@ -344,19 +342,19 @@ void VcFolderNode::removeFilterNode(VcFilterNode *filterNode)
     if (!filterNode || !filterNode->m_vcFilterModel)
         return;
 
-    QString filterName = filterNode->m_vcFilterModel->name();
+    IFileContainer *filter = filterNode->m_vcFilterModel;
 
     QList<ProjectExplorer::FolderNode *> folderNodesToRemove;
     folderNodesToRemove << filterNode;
     m_parentVcDocProjNode->removeFolderNodes(folderNodesToRemove, this);
 
-    m_vcFolderModel->removeFilter(filterName);
+    m_vcFolderModel->removeFileContainer(filter);
     m_parentVcDocProjNode->m_vcProjectModel->saveToFile(m_parentVcDocProjNode->m_vcProjectModel->filePath());
 }
 
 void VcFolderNode::addFolderNode(const QString &name)
 {
-    Folder *folder = new Folder(m_parentVcDocProjNode->m_vcProjectModel);
+    Folder *folder = new Folder(QLatin1String("Folder"), m_parentVcDocProjNode->m_vcProjectModel);
     folder->setName(name);
     VcFolderNode *folderNode = new VcFolderNode(folder, m_parentVcDocProjNode);
 
@@ -384,8 +382,7 @@ bool VcFolderNode::appendFolderNode(VcFolderNode *folderNode)
         }
     }
 
-    Folder::Ptr folderPtr = Folder::Ptr(folderNode->m_vcFolderModel);
-    m_vcFolderModel->addFolder(folderPtr);
+    m_vcFolderModel->addFileContainer(folderNode->m_vcFolderModel);
     QList<ProjectExplorer::FolderNode *> vcFolderNodes;
     vcFolderNodes << folderNode;
     m_parentVcDocProjNode->addFolderNodes(vcFolderNodes, this);
@@ -398,37 +395,37 @@ void VcFolderNode::removeFolderNode(VcFolderNode *folderNode)
     if (!folderNode || !folderNode->m_vcFolderModel)
         return;
 
-    QString folderName = folderNode->m_vcFolderModel->name();
+    IFileContainer *folder = folderNode->m_vcFolderModel;
 
     QList<ProjectExplorer::FolderNode *> folderNodesToRemove;
     folderNodesToRemove << folderNode;
     m_parentVcDocProjNode->removeFolderNodes(folderNodesToRemove, this);
 
-    m_vcFolderModel->removeFolder(folderName);
+    m_vcFolderModel->removeFileContainer(folder);
     m_parentVcDocProjNode->m_vcProjectModel->saveToFile(m_parentVcDocProjNode->m_vcProjectModel->filePath());
 }
 
 void VcFolderNode::readChildren()
 {
-    QList<Filter::Ptr> filters = m_vcFolderModel->filters();
-    QList<Folder::Ptr> folders = m_vcFolderModel->folders();
-    QList<File::Ptr> files = m_vcFolderModel->files();
-
     QList<ProjectExplorer::FolderNode *> vcFolderNodes;
-    foreach (const Filter::Ptr &filter, filters)
-        vcFolderNodes.append(new VcFilterNode(filter.data(), m_parentVcDocProjNode));
 
-    m_parentVcDocProjNode->addFolderNodes(vcFolderNodes, this);
-
-    vcFolderNodes.clear();
-    foreach (const Folder::Ptr &folder, folders)
-        vcFolderNodes.append(new VcFolderNode(folder.data(), m_parentVcDocProjNode));
+    for (int i = 0; i < m_vcFolderModel->childCount(); ++i) {
+        IFileContainer *fileCont = m_vcFolderModel->fileContainer(i);
+        if (fileCont && fileCont->containerType() == QLatin1String("Filter"))
+            vcFolderNodes.append(new VcFilterNode(fileCont, m_parentVcDocProjNode));
+        else if (fileCont && fileCont->containerType() == QLatin1String("Folder"))
+            vcFolderNodes.append(new VcFolderNode(fileCont, m_parentVcDocProjNode));
+    }
 
     m_parentVcDocProjNode->addFolderNodes(vcFolderNodes, this);
 
     QList<ProjectExplorer::FileNode *> vcFileNodes;
-    foreach (const File::Ptr &file, files)
-        vcFileNodes.append(new VcFileNode(file.data(), m_parentVcDocProjNode));
+
+    for (int i = 0; i < m_vcFolderModel->fileCount(); ++i) {
+        IFile *file = m_vcFolderModel->file(i);
+        if (file)
+            vcFileNodes.append(new VcFileNode(file, m_parentVcDocProjNode));
+    }
 
     m_parentVcDocProjNode->addFileNodes(vcFileNodes, this);
 }
@@ -440,42 +437,42 @@ VcDocProjectNode::VcDocProjectNode(VcProjectDocument *vcProjectModel)
 {
     if (m_vcProjectModel->documentVersion() == VcDocConstants::DV_MSVC_2005) {
         QSharedPointer<Files2005> files2005 = m_vcProjectModel->files().staticCast<Files2005>();
-        QList<Filter::Ptr> filters = files2005->filters();
+        QList<IFileContainer *> filters = files2005->fileContainers();
 
         QList<ProjectExplorer::FolderNode *> vcFolderNodes;
-        foreach (const Filter::Ptr &filter, filters)
-            vcFolderNodes.append(new VcFilterNode(filter.data(), this));
+        foreach (IFileContainer *filter, filters)
+            vcFolderNodes.append(new VcFilterNode(filter, this));
 
         addFolderNodes(vcFolderNodes, this);
 
-        QList<Folder::Ptr> folders = files2005->folders();
+        QList<IFileContainer *> folders = files2005->folders();
         vcFolderNodes.clear();
-        foreach (const Folder::Ptr &folder, folders)
-            vcFolderNodes.append(new VcFolderNode(folder.data(), this));
+        foreach (IFileContainer *folder, folders)
+            vcFolderNodes.append(new VcFolderNode(folder, this));
 
         addFolderNodes(vcFolderNodes, this);
 
-        QList<File::Ptr> files = files2005->files();
+        QList<IFile *> files = files2005->files();
         QList<ProjectExplorer::FileNode *> vcFileNodes;
-        foreach (const File::Ptr &file, files)
-            vcFileNodes.append(new VcFileNode(file.data(), this));
+        foreach (IFile *file, files)
+            vcFileNodes.append(new VcFileNode(file, this));
 
         addFileNodes(vcFileNodes, this);
     }
 
     else {
-        QList<Filter::Ptr> filters = m_vcProjectModel->files()->filters();
+        QList<IFileContainer *> filters = m_vcProjectModel->files()->fileContainers();
 
         QList<ProjectExplorer::FolderNode *> vcFolderNodes;
-        foreach (const Filter::Ptr &filter, filters)
-            vcFolderNodes.append(new VcFilterNode(filter.data(), this));
+        foreach (IFileContainer *filter, filters)
+            vcFolderNodes.append(new VcFilterNode(filter, this));
 
         addFolderNodes(vcFolderNodes, this);
 
-        QList<File::Ptr> files = m_vcProjectModel->files()->files();
+        QList<IFile *> files = m_vcProjectModel->files()->files();
         QList<ProjectExplorer::FileNode *> vcFileNodes;
-        foreach (const File::Ptr &file, files)
-            vcFileNodes.append(new VcFileNode(file.data(), this));
+        foreach (IFile *file, files)
+            vcFileNodes.append(new VcFileNode(file, this));
 
         addFileNodes(vcFileNodes, this);
     }
@@ -672,7 +669,7 @@ void VcDocProjectNode::addFileNode(const QString &filePath)
 
 void VcDocProjectNode::addFolderNode(const QString &name)
 {
-    Folder *folder = new Folder(m_vcProjectModel);
+    Folder *folder = new Folder(QLatin1String("Folder"), m_vcProjectModel);
     folder->setName(name);
     VcFolderNode *folderNode = new VcFolderNode(folder, this);
 
@@ -684,7 +681,7 @@ void VcDocProjectNode::addFolderNode(const QString &name)
 
 void VcDocProjectNode::addFilterNode(const QString &name)
 {
-    Filter *filter = new Filter(m_vcProjectModel);
+    Filter *filter = new Filter(QLatin1String("Filter"), m_vcProjectModel);
     filter->setName(name);
     VcFilterNode *folderNode = new VcFilterNode(filter, this);
 
@@ -716,8 +713,7 @@ bool VcDocProjectNode::appendFolderNode(VcFolderNode *folderNode)
         }
     }
 
-    Folder::Ptr folderPtr = Folder::Ptr(folderNode->m_vcFolderModel);
-    m_vcProjectModel->files().staticCast<Files2005>()->addFolder(folderPtr);
+    m_vcProjectModel->files().staticCast<Files2005>()->addFolder(folderNode->m_vcFolderModel);
     QList<ProjectExplorer::FolderNode *> vcFolderNodes;
     vcFolderNodes << folderNode;
     addFolderNodes(vcFolderNodes, this);
@@ -741,8 +737,7 @@ bool VcDocProjectNode::appendFilterNode(VcFilterNode *filterNode)
         }
     }
 
-    Filter::Ptr filterPtr = Filter::Ptr(filterNode->m_vcFilterModel);
-    m_vcProjectModel->files()->addFilter(filterPtr);
+    m_vcProjectModel->files()->addFilter(filterNode->m_vcFilterModel);
     QList<ProjectExplorer::FolderNode *> vcFolderNodes;
     vcFolderNodes << filterNode;
     addFolderNodes(vcFolderNodes, this);
@@ -766,8 +761,7 @@ bool VcDocProjectNode::appendFileNode(VcFileNode *fileNode)
         }
     }
 
-    File::Ptr filePtr = File::Ptr(fileNode->m_vcFileModel);
-    m_vcProjectModel->files()->addFile(filePtr);
+    m_vcProjectModel->files()->addFile(fileNode->m_vcFileModel);
     QList<ProjectExplorer::FileNode *> vcFileNodes;
     vcFileNodes << fileNode;
     addFileNodes(vcFileNodes, this);
@@ -818,7 +812,7 @@ void VcDocProjectNode::removeFileNode(VcFileNode *fileNode)
     fileNodesToRemove << fileNode;
     removeFileNodes(fileNodesToRemove, this);
 
-    File::Ptr filePtr = m_vcProjectModel->files()->file(relativePath);
+    IFile *filePtr = m_vcProjectModel->files()->file(relativePath);
 
     m_vcProjectModel->files()->removeFile(filePtr);
     m_vcProjectModel->saveToFile(m_vcProjectModel->filePath());

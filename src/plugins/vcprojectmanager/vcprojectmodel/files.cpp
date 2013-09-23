@@ -63,10 +63,10 @@ QDomNode Files::toXMLDomNode(QDomDocument &domXMLDocument) const
 {
     QDomElement fileNode = domXMLDocument.createElement(QLatin1String("Files"));
 
-    foreach (const File::Ptr &file, m_files)
+    foreach (IFile *file, m_files)
         fileNode.appendChild(file->toXMLDomNode(domXMLDocument));
 
-    foreach (const Filter::Ptr &filter, m_filters)
+    foreach (IFileContainer *filter, m_filters)
         fileNode.appendChild(filter->toXMLDomNode(domXMLDocument));
 
     return fileNode;
@@ -77,12 +77,12 @@ bool Files::isEmpty() const
     return m_files.isEmpty() && m_filters.isEmpty();
 }
 
-void Files::addFilter(Filter::Ptr newFilter)
+void Files::addFilter(IFileContainer *newFilter)
 {
     if (m_filters.contains(newFilter))
         return;
 
-    foreach (const Filter::Ptr &filter, m_filters) {
+    foreach (IFileContainer *filter, m_filters) {
         if (filter->name() == newFilter->name())
             return;
     }
@@ -90,14 +90,14 @@ void Files::addFilter(Filter::Ptr newFilter)
     m_filters.append(newFilter);
 }
 
-void Files::removeFilter(Filter::Ptr filter)
+void Files::removeFilter(IFileContainer *filter)
 {
     m_filters.removeAll(filter);
 }
 
 void Files::removeFilter(const QString &filterName)
 {
-    foreach (const Filter::Ptr &filter, m_filters) {
+    foreach (IFileContainer *filter, m_filters) {
         if (filter->name() == filterName) {
             removeFilter(filter);
             return;
@@ -105,26 +105,17 @@ void Files::removeFilter(const QString &filterName)
     }
 }
 
-QList<Filter::Ptr> Files::filters() const
+QList<IFileContainer *> Files::fileContainers() const
 {
     return m_filters;
 }
 
-Filter::Ptr Files::filter(const QString &filterName) const
-{
-    foreach (const Filter::Ptr &filter, m_filters) {
-        if (filter->name() == filterName)
-            return filter;
-    }
-    return Filter::Ptr();
-}
-
-void Files::addFile(File::Ptr newFile)
+void Files::addFile(IFile *newFile)
 {
     if (m_files.contains(newFile))
         return;
 
-    foreach (const File::Ptr &file, m_files) {
+    foreach (IFile *file, m_files) {
         if (file->relativePath() == newFile->relativePath())
             return;
     }
@@ -132,33 +123,33 @@ void Files::addFile(File::Ptr newFile)
     m_files.append(newFile);
 }
 
-void Files::removeFile(File::Ptr file)
+void Files::removeFile(IFile *file)
 {
     m_files.removeAll(file);
 }
 
-QList<File::Ptr> Files::files() const
+QList<IFile *> Files::files() const
 {
     return m_files;
 }
 
-File::Ptr Files::file(const QString &relativePath) const
+IFile* Files::file(const QString &relativePath) const
 {
-    foreach (const File::Ptr &file, m_files) {
+    foreach (IFile *file, m_files) {
         if (file->relativePath() == relativePath)
             return file;
     }
-    return File::Ptr();
+    return 0;
 }
 
 bool Files::fileExists(const QString &relativeFilePath) const
 {
-    foreach (const File::Ptr &filePtr, m_files) {
+    foreach (IFile *filePtr, m_files) {
         if (filePtr->relativePath() == relativeFilePath)
             return true;
     }
 
-    foreach (const Filter::Ptr &filterPtr, m_filters) {
+    foreach (IFileContainer *filterPtr, m_filters) {
         if (filterPtr->fileExists(relativeFilePath))
             return true;
     }
@@ -168,10 +159,10 @@ bool Files::fileExists(const QString &relativeFilePath) const
 
 void Files::allProjectFiles(QStringList &sl) const
 {
-    foreach (const Filter::Ptr &filter, m_filters)
+    foreach (IFileContainer *filter, m_filters)
         filter->allFiles(sl);
 
-    foreach (const File::Ptr &file, m_files)
+    foreach (IFile *file, m_files)
         sl.append(file->canonicalPath());
 }
 
@@ -185,11 +176,11 @@ Files::Files(const Files &files)
     m_files.clear();
     m_filters.clear();
 
-    foreach (const File::Ptr &file, files.m_files)
-        m_files.append(File::Ptr(new File(*file)));
+    foreach (IFile *file, files.m_files)
+        m_files.append(file->clone());
 
-    foreach (const Filter::Ptr &filter, files.m_filters)
-        m_filters.append(Filter::Ptr(new Filter(*filter)));
+    foreach (IFileContainer *filter, files.m_filters)
+        m_filters.append(filter->clone());
 }
 
 Files &Files::operator=(const Files &files)
@@ -198,18 +189,18 @@ Files &Files::operator=(const Files &files)
         m_files.clear();
         m_filters.clear();
 
-        foreach (const File::Ptr &file, files.m_files)
-            m_files.append(File::Ptr(new File(*file)));
+        foreach (IFile *file, files.m_files)
+            m_files.append(file->clone());
 
-        foreach (const Filter::Ptr &filter, files.m_filters)
-            m_filters.append(Filter::Ptr(new Filter(*filter)));
+        foreach (IFileContainer *filter, files.m_filters)
+            m_filters.append(filter->clone());
     }
     return *this;
 }
 
 void Files::processFile(const QDomNode &fileNode)
 {
-    File::Ptr file(new File(m_parentProject));
+    IFile *file = new File(m_parentProject);
     file->processNode(fileNode);
     m_files.append(file);
 
@@ -225,7 +216,7 @@ void Files::processFile(const QDomNode &fileNode)
 
 void Files::processFilter(const QDomNode &filterNode)
 {
-    Filter::Ptr filter(new Filter(m_parentProject));
+    IFileContainer *filter = new Filter(QLatin1String("Filter"), m_parentProject);
     filter->processNode(filterNode);
     m_filters.append(filter);
 
@@ -277,8 +268,8 @@ Files2005::Files2005(const Files2005 &files)
 {
     m_folders.clear();
 
-    foreach (const Folder::Ptr &folder, files.m_folders)
-        m_folders.append(Folder::Ptr(new Folder(*folder)));
+    foreach (IFileContainer *folder, files.m_folders)
+        m_folders.append(folder->clone());
 }
 
 Files2005 &Files2005::operator=(const Files2005 &files)
@@ -287,8 +278,8 @@ Files2005 &Files2005::operator=(const Files2005 &files)
         Files::operator =(files);
         m_folders.clear();
 
-        foreach (const Folder::Ptr &folder, files.m_folders)
-            m_folders.append(Folder::Ptr(new Folder(*folder)));
+        foreach (IFileContainer *folder, files.m_folders)
+            m_folders.append(folder->clone());
     }
     return *this;
 }
@@ -320,13 +311,13 @@ QDomNode Files2005::toXMLDomNode(QDomDocument &domXMLDocument) const
 {
     QDomElement fileNode = domXMLDocument.createElement(QLatin1String("Files"));
 
-    foreach (const File::Ptr &file, m_files)
+    foreach (IFile *file, m_files)
         fileNode.appendChild(file->toXMLDomNode(domXMLDocument));
 
-    foreach (const Filter::Ptr &filter, m_filters)
+    foreach (IFileContainer *filter, m_filters)
         fileNode.appendChild(filter->toXMLDomNode(domXMLDocument));
 
-    foreach (const Folder::Ptr &folder, m_folders)
+    foreach (IFileContainer *folder, m_folders)
         fileNode.appendChild(folder->toXMLDomNode(domXMLDocument));
 
     return fileNode;
@@ -344,17 +335,17 @@ Files *Files2005::clone() const
 
 bool Files2005::fileExists(const QString &relativeFilePath) const
 {
-    foreach (const File::Ptr &filePtr, m_files) {
+    foreach (IFile *filePtr, m_files) {
         if (filePtr->relativePath() == relativeFilePath)
             return true;
     }
 
-    foreach (const Filter::Ptr &filterPtr, m_filters) {
+    foreach (IFileContainer *filterPtr, m_filters) {
         if (filterPtr->fileExists(relativeFilePath))
             return true;
     }
 
-    foreach (const Folder::Ptr &folderPtr, m_folders) {
+    foreach (IFileContainer *folderPtr, m_folders) {
         if (folderPtr->fileExists(relativeFilePath))
             return true;
     }
@@ -362,12 +353,12 @@ bool Files2005::fileExists(const QString &relativeFilePath) const
     return false;
 }
 
-void Files2005::addFolder(Folder::Ptr newFolder)
+void Files2005::addFolder(IFileContainer *newFolder)
 {
     if (m_folders.contains(newFolder))
         return;
 
-    foreach (const Folder::Ptr &folder, m_folders) {
+    foreach (IFileContainer *folder, m_folders) {
         if (folder->name() == newFolder->name())
             return;
     }
@@ -375,50 +366,46 @@ void Files2005::addFolder(Folder::Ptr newFolder)
     m_folders.append(newFolder);
 }
 
-void Files2005::removeFolder(Folder::Ptr folder)
-{
-    m_folders.removeAll(folder);
-}
-
 void Files2005::removeFolder(const QString &folderName)
 {
-    foreach (const Folder::Ptr &folder, m_folders) {
+    foreach (IFileContainer *folder, m_folders) {
         if (folder->name() == folderName) {
-            removeFolder(folder);
+            m_folders.removeOne(folder);
+            delete folder;
             return;
         }
     }
 }
 
-QList<Folder::Ptr> Files2005::folders() const
+QList<IFileContainer *> Files2005::folders() const
 {
     return m_folders;
 }
 
-Folder::Ptr Files2005::folder(const QString &folderName) const
+IFileContainer *Files2005::folder(const QString &folderName) const
 {
-    foreach (const Folder::Ptr &folder, m_folders) {
+    foreach (IFileContainer *folder, m_folders) {
         if (folder->name() == folderName)
             return folder;
     }
-    return Folder::Ptr();
+    return 0;
 }
 
 void Files2005::allProjectFiles(QStringList &sl) const
 {
-    foreach (const Filter::Ptr &filter, m_filters)
+    foreach (IFileContainer *filter, m_filters)
         filter->allFiles(sl);
 
-    foreach (const Folder::Ptr &filter, m_folders)
+    foreach (IFileContainer *filter, m_folders)
         filter->allFiles(sl);
 
-    foreach (const File::Ptr &file, m_files)
+    foreach (IFile *file, m_files)
         sl.append(file->canonicalPath());
 }
 
 void Files2005::processFile(const QDomNode &fileNode)
 {
-    File::Ptr file(new File(m_parentProject));
+    IFile *file = new File(m_parentProject);
     file->processNode(fileNode);
     m_files.append(file);
 
@@ -436,7 +423,7 @@ void Files2005::processFile(const QDomNode &fileNode)
 
 void Files2005::processFilter(const QDomNode &filterNode)
 {
-    Filter::Ptr filter(new Filter(m_parentProject));
+    IFileContainer *filter = new Filter(QLatin1String("Filter"), m_parentProject);
     filter->processNode(filterNode);
     m_filters.append(filter);
 
@@ -454,7 +441,7 @@ void Files2005::processFilter(const QDomNode &filterNode)
 
 void Files2005::processFolder(const QDomNode &folderNode)
 {
-    Folder::Ptr folder(new Folder(m_parentProject));
+    IFileContainer *folder = new Folder(QLatin1String("Folder"), m_parentProject);
     folder->processNode(folderNode);
     m_folders.append(folder);
 

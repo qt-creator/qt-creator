@@ -32,21 +32,22 @@
 
 #include "ivcprojectnodemodel.h"
 #include "file.h"
+#include "../interfaces/ifilecontainer.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
 class Filter;
 
-class Filter : public IVcProjectXMLNode
+class Filter : public IFileContainer
 {
 public:
-    typedef QSharedPointer<Filter> Ptr;
-
-    Filter(VcProjectDocument *parentProjectDoc);
+    Filter(const QString &containerType, VcProjectDocument *parentProjectDoc);
     Filter(const Filter &filter);
     Filter& operator=(const Filter &filter);
     ~Filter();
+
+    QString containerType() const;
 
     void processNode(const QDomNode &node);
     VcNodeWidget* createSettingsWidget();
@@ -55,24 +56,22 @@ public:
     QString name() const;
     void setName(const QString &name);
 
-    void addFilter(Filter::Ptr filter);
-    void removeFilter(Filter::Ptr filter);
-    void removeFilter(const QString &filterName);
-    QList<Filter::Ptr> filters() const;
-
-    void addFile(File::Ptr file);
-    void removeFile(File::Ptr file);
+    void addFile(IFile *file);
+    void removeFile(IFile *file);
     void removeFile(const QString &relativeFilePath);
-    File::Ptr file(const QString &relativePath) const;
-    QList<File::Ptr> files() const;
-    bool fileExists(const QString &relativeFilePath);
+    IFile *file(const QString &relativePath) const;
+    QList<IFile *> files() const;
+    IFile *file(int index) const;
+    int fileCount() const;
+    void addFileContainer(IFileContainer *fileContainer);
+    int childCount() const;
+    IFileContainer *fileContainer(int index) const;
+    void removeFileContainer(IFileContainer *fileContainer);
+    IAttributeContainer *attributeContainer() const;
 
-    QString attributeValue(const QString &attributeName) const;
-    void setAttribute(const QString &attributeName, const QString &attributeValue);
-    void clearAttribute(const QString &attributeName);
-    void removeAttribute(const QString &attributeName);
-
+    bool fileExists(const QString &relativeFilePath) const;
     void allFiles(QStringList &sl) const;
+    IFileContainer* clone() const;
 
 private:
     void processFile(const QDomNode &fileNode);
@@ -80,10 +79,11 @@ private:
     void processNodeAttributes(const QDomElement &element);
 
     QString m_name;
-    QHash<QString, QString> m_anyAttribute;
-    QList<QSharedPointer<Filter> > m_filters;
-    QList<File::Ptr> m_files;
+    QList<IFileContainer *> m_fileContainers;
+    QList<IFile *> m_files;
     VcProjectDocument *m_parentProjectDoc;
+    IAttributeContainer *m_attributeContainer;
+    QString m_containerType;
 };
 
 } // namespace Internal

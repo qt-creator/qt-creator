@@ -57,16 +57,15 @@ public:
      */
     virtual Files* clone() const = 0;
 
-    void addFilter(Filter::Ptr newFilter);
-    void removeFilter(Filter::Ptr filter);
+    void addFilter(IFileContainer *newFilter);
+    void removeFilter(IFileContainer *filter);
     void removeFilter(const QString &filterName);
-    QList<Filter::Ptr> filters() const;
-    Filter::Ptr filter(const QString &filterName) const;
+    QList<IFileContainer *> fileContainers() const;
 
-    void addFile(File::Ptr file);
-    void removeFile(File::Ptr file);
-    QList<File::Ptr> files() const;
-    File::Ptr file(const QString &relativePath) const;
+    void addFile(IFile *file);
+    void removeFile(IFile *file);
+    QList<IFile *> files() const;
+    IFile *file(const QString &relativePath) const;
     virtual bool fileExists(const QString &relativeFilePath) const;
 
     virtual void allProjectFiles(QStringList &sl) const;
@@ -79,8 +78,8 @@ protected:
     virtual void processFile(const QDomNode &fileNode);
     virtual void processFilter(const QDomNode &filterNode);
 
-    QList<Filter::Ptr> m_filters;
-    QList<File::Ptr> m_files;
+    QList<IFileContainer *> m_filters;
+    QList<IFile *> m_files;
     VcProjectDocument *m_parentProject;
 };
 
@@ -114,11 +113,10 @@ public:
     Files* clone() const;
     bool fileExists(const QString &relativeFilePath) const;
 
-    void addFolder(Folder::Ptr newFolder);
-    void removeFolder(Folder::Ptr folder);
+    void addFolder(IFileContainer *newFolder);
     void removeFolder(const QString &folderName);
-    QList<Folder::Ptr> folders() const;
-    Folder::Ptr folder(const QString &folderName) const;
+    QList<IFileContainer *> folders() const;
+    IFileContainer* folder(const QString &folderName) const;
 
     void allProjectFiles(QStringList &sl) const;
 
@@ -127,7 +125,7 @@ protected:
     void processFilter(const QDomNode &filterNode);
     void processFolder(const QDomNode &folderNode);
 
-    QList<Folder::Ptr> m_folders;
+    QList<IFileContainer *> m_folders;
 };
 
 class Files2008 : public Files

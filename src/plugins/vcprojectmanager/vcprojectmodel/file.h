@@ -63,7 +63,7 @@ public:
 
     QString relativePath() const;
     void setRelativePath(const QString &relativePath);
-
+    IFile* clone() const;
     ProjectExplorer::FileType fileType() const;
     QString canonicalPath() const;
 private:

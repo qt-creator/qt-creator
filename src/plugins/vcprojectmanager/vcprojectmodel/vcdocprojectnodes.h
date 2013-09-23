@@ -36,9 +36,8 @@ namespace VcProjectManager {
 namespace Internal {
 
 class VcProjectDocument;
-class Folder;
-class Filter;
-class File;
+class IFileContainer;
+class IFile;
 class VcDocProjectNode;
 
 class VcFileNode : public ProjectExplorer::FileNode
@@ -50,14 +49,14 @@ class VcFileNode : public ProjectExplorer::FileNode
     friend class VcFilterNode;
 
 public:
-    VcFileNode(File *fileModel, VcDocProjectNode *vcDocProject);
+    VcFileNode(IFile *fileModel, VcDocProjectNode *vcDocProject);
     ~VcFileNode();
 
 protected:
     void readChildren(VcDocProjectNode *vcDocProj);
 
 private:
-    File *m_vcFileModel;
+    IFile *m_vcFileModel;
 };
 
 class VcFilterNode;
@@ -136,14 +135,14 @@ class VcFilterNode : public VcContainerNode
     friend class VcFolderNode;
 
 public:
-    VcFilterNode(Filter *filterModel, VcDocProjectNode *vcDocProjNode);
+    VcFilterNode(IFileContainer *filterModel, VcDocProjectNode *vcDocProjNode);
     ~VcFilterNode();
 
     void addFileNode(const QString &filePath);
     bool appendFileNode(VcFileNode *fileNode);
 
     void addFilterNode(const QString &name);
-    bool appendFilterNode(VcFilterNode *folderNode);
+    bool appendFilterNode(VcFilterNode *filterNode);
 
     void removeFilterNode(VcFilterNode *filterNode);
     void removeFileNode(VcFileNode *fileNode);
@@ -152,7 +151,7 @@ protected:
     void readChildren();
 
 private:
-    Filter *m_vcFilterModel;
+    IFileContainer *m_vcFilterModel;
 };
 
 // used only for VS 2005 projects
@@ -165,7 +164,7 @@ class VcFolderNode : public VcContainerNode
     friend class VcFilterNode;
 
 public:
-    VcFolderNode(Folder *folderModel, VcDocProjectNode *vcDocProjNode);
+    VcFolderNode(IFileContainer *folderModel, VcDocProjectNode *vcDocProjNode);
     ~VcFolderNode();
 
     void addFileNode(const QString &filePath);
@@ -186,7 +185,7 @@ protected:
     void readChildren();
 
 private:
-    Folder *m_vcFolderModel;
+    IFileContainer *m_vcFolderModel;
 };
 
 class VcDocProjectNode : public ProjectExplorer::ProjectNode
