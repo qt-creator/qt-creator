@@ -209,7 +209,7 @@ bool ObjectNodeInstance::isGraphical() const
 
 bool ObjectNodeInstance::isLayoutable() const
 {
-    return true;
+    return false;
 }
 
 bool ObjectNodeInstance::equalGraphicsItem(QGraphicsItem * /*item*/) const
