@@ -136,8 +136,6 @@ bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
 
 void Qt4BuildConfiguration::ctor()
 {
-    m_buildDirectory = target()->project()->projectDirectory(); // default to in-source build!
-
     connect(this, SIGNAL(environmentChanged()),
             this, SLOT(emitProFileEvaluateNeeded()));
     connect(target(), SIGNAL(kitChanged()),

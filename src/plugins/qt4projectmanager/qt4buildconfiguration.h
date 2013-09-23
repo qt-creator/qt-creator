@@ -155,7 +155,6 @@ private:
 
     bool m_shadowBuild;
     bool m_isEnabled;
-    QString m_buildDirectory;
     bool m_qtVersionSupportsShadowBuilds;
     QtSupport::BaseQtVersion::QmakeBuildConfigs m_qmakeBuildConfiguration;
     Qt4ProjectManager::Qt4ProFileNode *m_subNodeBuild;
