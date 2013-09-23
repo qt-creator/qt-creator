@@ -154,9 +154,11 @@
     declaration. This feature is supported for namespaces, classes, methods,
     variables, include statements, and macros.
 
-    To switch between the definition and declaration of a symbol, press
-    \key {Shift+F2} or right-click the symbol and select \gui {Switch Between
-    Method Declaration/Definition}.
+    To switch between the definition and declaration of a method, place the
+    cursor on either and press \key {Shift+F2} or right-click and select \gui
+    {Switch Between Method Declaration/Definition}. For example, this allows
+    you to navigate from anywhere within a method body directly to the method
+    declaration.
 
     Links are opened in the same split by default. To open links in the next
     split, prepend \key {Ctrl+E} to the shortcut. For example, press \key {Ctrl+E,F2}
