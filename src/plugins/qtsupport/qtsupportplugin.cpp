@@ -85,8 +85,8 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
 
     GettingStartedWelcomePage *gettingStartedWelcomePage = new GettingStartedWelcomePage;
     addAutoReleasedObject(gettingStartedWelcomePage);
-    addAutoReleasedObject(new CustomExecutableRunConfigurationFactory);
 #endif
+    addAutoReleasedObject(new CustomExecutableRunConfigurationFactory);
 
     ProjectExplorer::KitManager::registerKitInformation(new QtKitInformation);
 
