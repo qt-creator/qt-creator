@@ -101,6 +101,7 @@ public:
 
     GitDiffSwitcher(Core::IEditor *parentEditor, GitClient *gitClient, GitClient::DiffEditorType switchToType)
         : QObject(parentEditor),
+          m_editor(parentEditor),
           m_gitClient(gitClient),
           m_editorType(switchToType)
     {
@@ -135,6 +136,7 @@ public slots:
     void execute();
 
 private:
+    Core::IEditor *m_editor;
     GitClient *m_gitClient;
     QString m_workingDirectory;
     DiffType m_diffType;
@@ -173,6 +175,7 @@ void GitDiffSwitcher::execute()
     default:
         break;
     }
+    Core::EditorManager::closeEditor(m_editor, false);
 }
 
 class GitDiffHandler : public QObject
