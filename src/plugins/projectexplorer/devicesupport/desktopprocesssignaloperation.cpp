@@ -32,6 +32,7 @@
 
 #include <utils/winutils.h>
 
+#include <QCoreApplication>
 #include <QDir>
 
 #ifdef Q_OS_WIN
