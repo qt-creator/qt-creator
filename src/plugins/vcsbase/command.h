@@ -112,6 +112,7 @@ private:
     void run(QFutureInterface<void> &future);
     Utils::SynchronousProcessResponse runSynchronous(const QStringList &arguments, int timeoutMS,
                                                      Utils::ExitCodeInterpreter *interpreter = 0);
+    void emitRepositoryChanged();
 
 public slots:
     void cancel();
@@ -125,6 +126,7 @@ signals:
 private slots:
     void bufferedOutput(const QString &text);
     void bufferedError(const QString &text);
+    void coreAboutToClose();
 
 signals:
     void terminate(); // Internal

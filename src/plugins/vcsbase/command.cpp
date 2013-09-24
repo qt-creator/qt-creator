@@ -103,6 +103,7 @@ public:
     VcsBase::VcsBaseOutputWindow *m_outputWindow;
     bool m_progressiveOutput;
     bool m_hadOutput;
+    bool m_preventRepositoryChanged;
     QFutureWatcher<void> m_watcher;
 
     QList<Job> m_jobs;
@@ -125,6 +126,7 @@ CommandPrivate::CommandPrivate(const QString &binary,
     m_outputWindow(VcsBase::VcsBaseOutputWindow::instance()),
     m_progressiveOutput(false),
     m_hadOutput(false),
+    m_preventRepositoryChanged(false),
     m_lastExecSuccess(false),
     m_lastExecExitCode(-1)
 {
@@ -152,6 +154,8 @@ Command::Command(const QString &binary,
                  const QProcessEnvironment &environment) :
     d(new Internal::CommandPrivate(binary, workingDirectory, environment))
 {
+    connect(Core::ICore::instance(), SIGNAL(coreAboutToClose()),
+            this, SLOT(coreAboutToClose()));
 }
 
 Command::~Command()
@@ -423,11 +427,7 @@ Utils::SynchronousProcessResponse Command::runVcs(const QStringList &arguments, 
     } else if (!(d->m_flags & VcsBasePlugin::SuppressFailMessageInLogWindow)) {
         emit outputProxy.appendError(response.exitMessage(d->m_binaryPath, timeoutMS));
     }
-    if (d->m_flags & VcsBasePlugin::ExpectRepoChanges) {
-        // TODO tell the document manager that the directory now received all expected changes
-        // Core::DocumentManager::unexpectDirectoryChange(d->m_workingDirectory);
-        Core::VcsManager::emitRepositoryChanged(d->m_workingDirectory);
-    }
+    emitRepositoryChanged();
 
     return response;
 }
@@ -499,6 +499,15 @@ Utils::SynchronousProcessResponse Command::runSynchronous(const QStringList &arg
     return response;
 }
 
+void Command::emitRepositoryChanged()
+{
+    if (d->m_preventRepositoryChanged || !(d->m_flags & VcsBasePlugin::ExpectRepoChanges))
+        return;
+    // TODO tell the document manager that the directory now received all expected changes
+    // Core::DocumentManager::unexpectDirectoryChange(d->m_workingDirectory);
+    Core::VcsManager::emitRepositoryChanged(d->m_workingDirectory);
+}
+
 bool Command::runFullySynchronous(const QStringList &arguments, int timeoutMS,
                                   QByteArray *outputData, QByteArray *errorData)
 {
@@ -534,12 +543,7 @@ bool Command::runFullySynchronous(const QStringList &arguments, int timeoutMS,
         return false;
     }
 
-    if (d->m_flags & VcsBasePlugin::ExpectRepoChanges) {
-        // TODO tell the document manager that the directory now received all expected changes
-        // Core::DocumentManager::unexpectDirectoryChange(workingDirectory);
-        Core::VcsManager::emitRepositoryChanged(d->m_workingDirectory);
-    }
-
+    emitRepositoryChanged();
     return process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0;
 }
 
@@ -561,6 +565,12 @@ void Command::bufferedError(const QString &text)
         d->m_outputWindow->appendError(text);
     if (d->m_progressiveOutput)
         emit errorText(text);
+}
+
+void Command::coreAboutToClose()
+{
+    d->m_preventRepositoryChanged = true;
+    cancel();
 }
 
 const QVariant &Command::cookie() const
