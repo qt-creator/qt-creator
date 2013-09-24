@@ -130,7 +130,6 @@ QString SynchronousProcessResponse::exitMessage(const QString &binary, int timeo
         return SynchronousProcess::tr("The command '%1' finished successfully.").arg(QDir::toNativeSeparators(binary));
     case FinishedError:
         return SynchronousProcess::tr("The command '%1' terminated with exit code %2.").arg(QDir::toNativeSeparators(binary)).arg(exitCode);
-        break;
     case TerminatedAbnormally:
         return SynchronousProcess::tr("The command '%1' terminated abnormally.").arg(QDir::toNativeSeparators(binary));
     case StartFailed:
