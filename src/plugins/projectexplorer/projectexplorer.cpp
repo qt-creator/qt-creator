@@ -114,6 +114,7 @@
 #include <coreplugin/variablemanager.h>
 #include <coreplugin/fileutils.h>
 #include <coreplugin/removefiledialog.h>
+#include <texteditor/findinfiles.h>
 #include <utils/qtcassert.h>
 #include <utils/parameteraction.h>
 
@@ -2852,7 +2853,7 @@ void ProjectExplorerPlugin::openFile()
 void ProjectExplorerPlugin::searchOnFileSystem()
 {
     QTC_ASSERT(d->m_currentNode, return);
-    FolderNavigationWidget::findOnFileSystem(pathFor(d->m_currentNode));
+    TextEditor::FindInFiles::findOnFileSystem(pathFor(d->m_currentNode));
 }
 
 void ProjectExplorerPlugin::showInGraphicalShell()

@@ -61,7 +61,6 @@ public:
 
     bool autoSynchronization() const;
 
-    static void findOnFileSystem(const QString &pathIn);
     static QString msgFindOnFileSystem();
     bool hiddenFilesFilter() const;
 

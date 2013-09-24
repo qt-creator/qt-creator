@@ -29,8 +29,10 @@
 
 #include "findinfiles.h"
 
-#include <utils/filesearch.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <find/findplugin.h>
+#include <utils/filesearch.h>
+#include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QSettings>
@@ -44,10 +46,13 @@
 using namespace Find;
 using namespace TextEditor;
 
+static FindInFiles *m_instance = 0;
+
 FindInFiles::FindInFiles()
   : m_configWidget(0),
     m_directory(0)
 {
+    m_instance = this;
 }
 
 FindInFiles::~FindInFiles()
@@ -176,3 +181,11 @@ void FindInFiles::setDirectory(const QString &directory)
     syncComboWithSettings(m_directory, directory);
 }
 
+void FindInFiles::findOnFileSystem(const QString &path)
+{
+    QTC_ASSERT(m_instance, return);
+    const QFileInfo fi(path);
+    const QString folder = fi.isDir() ? fi.absoluteFilePath() : fi.absolutePath();
+    m_instance->setDirectory(folder);
+    Find::FindPlugin::instance()->openFindDialog(m_instance);
+}
