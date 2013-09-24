@@ -55,6 +55,7 @@ public:
 private Q_SLOTS:
     void testCase1();
     void testCase1_data();
+    void testLineOverlappingFormat();
 
 private:
     const QString red;
@@ -126,6 +127,33 @@ void tst_AnsiEscapeCodeHandler::testCase1_data()
                             << StringFormatPair("A line of ", defaultFormat)
                             << StringFormatPair("bold", boldFormat)
                             << StringFormatPair(" text", defaultFormat));
+}
+
+void tst_AnsiEscapeCodeHandler::testLineOverlappingFormat()
+{
+    // Test line-overlapping formats
+    const QString line1 = "A line of " + bold + "bold text";
+    const QString line2 = "A line of " + normal + "normal text";
+
+    QTextCharFormat defaultFormat;
+
+    AnsiEscapeCodeHandler handler;
+    ResultList result;
+    result.append(handler.parseText(line1, defaultFormat));
+    result.append(handler.parseText(line2, defaultFormat));
+
+    QTextCharFormat boldFormat;
+    boldFormat.setFontWeight(QFont::Bold);
+
+    QCOMPARE(result.size(), 4);
+    QCOMPARE(result[0].first, QLatin1String("A line of "));
+    QCOMPARE(result[0].second, defaultFormat);
+    QCOMPARE(result[1].first, QLatin1String("bold text"));
+    QCOMPARE(result[1].second, boldFormat);
+    QCOMPARE(result[2].first, QLatin1String("A line of "));
+    QCOMPARE(result[2].second, boldFormat);
+    QCOMPARE(result[3].first, QLatin1String("normal text"));
+    QCOMPARE(result[3].second, defaultFormat);
 }
 
 QTEST_APPLESS_MAIN(tst_AnsiEscapeCodeHandler)
