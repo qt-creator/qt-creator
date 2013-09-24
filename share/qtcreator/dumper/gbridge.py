@@ -1414,7 +1414,10 @@ class Dumper(DumperBase):
             return True
         if self.isSimpleType(type):
             return True
-        return self.stripNamespaceFromType(str(type)) in movableTypes
+        typeName = self.stripNamespaceFromType(str(type))
+        if typeName in movableTypes:
+            return True
+        return self.qtVersion() >= 0x050000 and typeName in movableTypes5
 
     def putIntItem(self, name, value):
         with SubItem(self, name):

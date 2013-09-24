@@ -265,6 +265,10 @@ movableTypes = set([
     "QXmlStreamNotationDeclaration", "QXmlStreamEntityDeclaration"
 ])
 
+movableTypes5 = set([
+    "QStringList"
+])
+
 
 
 class DumperBase:

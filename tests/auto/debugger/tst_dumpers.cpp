@@ -1618,6 +1618,19 @@ void tst_Dumpers::dumper_data()
                % Check("l.0", "[0]", "101", "unsigned int")
                % Check("l.2", "[2]", "102", "unsigned int");
 
+    QTest::newRow("QListStringList")
+            << Data("#include <QStringList>\n",
+                    "QStringList l;\n"
+                    "l.append(\"aaa\");\n"
+                    "QList<QStringList> ll;\n"
+                    "ll.append(l);\n"
+                    "ll.append(l);\n")
+               % CoreProfile()
+               % Check("ll", "<2 items>", "@QList<@QStringList>")
+               % Check("l", "<1 items>", "@QStringList")
+               % Check("ll.1", "[1]", "<1 items>", "@QStringList")
+               % Check("ll.1.0", "[0]", "\"aaa\"", "@QString");
+
     QTest::newRow("QListUShort")
             << Data("#include <QList>\n",
                     "QList<ushort> l0,l;\n"
