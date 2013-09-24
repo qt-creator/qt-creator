@@ -117,6 +117,15 @@ static bool hasQtQuick2(NodeInstanceView *nodeInstanceView)
     return false;
 }
 
+QString NodeInstanceServerProxy::creatorQmlPuppetPath()
+{
+    QString applicationPath =  QCoreApplication::applicationDirPath();
+    applicationPath = macOSBundlePath(applicationPath);
+    applicationPath += QLatin1Char('/') + qmlPuppetApplicationName();
+
+    return applicationPath;
+}
+
 NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceView, RunModus runModus, const QString &pathToQt)
     : NodeInstanceServerInterface(nodeInstanceView),
       m_localServer(new QLocalServer(this)),
@@ -148,9 +157,7 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
 #ifdef QT_NO_DEBUG // to prevent of choosing the wrong puppet in debug
        if (!QFileInfo(applicationPath).exists()) { //No qmlpuppet in Qt
            //We have to find out how to give not too intrusive feedback
-           applicationPath =  QCoreApplication::applicationDirPath();
-           applicationPath = macOSBundlePath(applicationPath);
-           applicationPath += QLatin1Char('/') + qmlPuppetApplicationName();
+           applicationPath = creatorQmlPuppetPath();
        }
 #endif
    }

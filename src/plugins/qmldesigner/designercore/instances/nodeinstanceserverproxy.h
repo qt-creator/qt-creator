@@ -78,7 +78,7 @@ protected:
     QString missingQmlPuppetErrorMessage(const QString &applicationPath) const;
     QString qmlPuppetApplicationName() const;
     QString macOSBundlePath(const QString &path) const;
-
+    QString creatorQmlPuppetPath();
 signals:
     void processCrashed();
 
