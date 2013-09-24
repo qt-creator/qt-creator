@@ -1115,6 +1115,8 @@ void GitClient::diff(const QString &workingDirectory,
                                         workingDirectory,
                                         argWidget);
             newEditor = vcsEditor->editor();
+            connect(vcsEditor, SIGNAL(diffChunkApplied(VcsBase::DiffChunk)),
+                    argWidget, SLOT(executeCommand()));
             connect(vcsEditor, SIGNAL(diffChunkReverted(VcsBase::DiffChunk)),
                     argWidget, SLOT(executeCommand()));
         }
@@ -1222,6 +1224,8 @@ void GitClient::diff(const QString &workingDirectory,
                                      sourceFile,
                                      argWidget);
             newEditor = vcsEditor->editor();
+            connect(vcsEditor, SIGNAL(diffChunkApplied(VcsBase::DiffChunk)),
+                    argWidget, SLOT(executeCommand()));
             connect(vcsEditor, SIGNAL(diffChunkReverted(VcsBase::DiffChunk)),
                     argWidget, SLOT(executeCommand()));
         }
@@ -2433,10 +2437,11 @@ bool GitClient::synchronousCleanList(const QString &workingDirectory, QStringLis
 }
 
 bool GitClient::synchronousApplyPatch(const QString &workingDirectory,
-                                      const QString &file, QString *errorMessage)
+                                      const QString &file, QString *errorMessage,
+                                      const QStringList &arguments)
 {
     QStringList args;
-    args << QLatin1String("apply") << QLatin1String("--whitespace=fix") << file;
+    args << QLatin1String("apply") << QLatin1String("--whitespace=fix") << arguments << file;
     QByteArray outputText;
     QByteArray errorText;
     const bool rc = fullySynchronousGit(workingDirectory, args, &outputText, &errorText);

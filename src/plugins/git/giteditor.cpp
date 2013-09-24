@@ -44,9 +44,12 @@
 #include <QFileInfo>
 #include <QRegExp>
 #include <QSet>
+#include <QTemporaryFile>
+#include <QDir>
 
 #include <QTextCursor>
 #include <QTextBlock>
+#include <QMessageBox>
 
 #define CHANGE_PATTERN "[a-f0-9]{7,40}"
 
@@ -223,6 +226,53 @@ void GitEditor::revertChange()
     GitPlugin::instance()->gitClient()->synchronousRevert(workingDirectory, m_currentChange);
 }
 
+void GitEditor::stageDiffChunk()
+{
+    const QAction *a = qobject_cast<QAction *>(sender());
+    QTC_ASSERT(a, return);
+    const VcsBase::DiffChunk chunk = qvariant_cast<VcsBase::DiffChunk>(a->data());
+    return applyDiffChunk(chunk, false);
+}
+
+void GitEditor::unstageDiffChunk()
+{
+    const QAction *a = qobject_cast<QAction *>(sender());
+    QTC_ASSERT(a, return);
+    const VcsBase::DiffChunk chunk = qvariant_cast<VcsBase::DiffChunk>(a->data());
+    return applyDiffChunk(chunk, true);
+}
+
+void GitEditor::applyDiffChunk(const VcsBase::DiffChunk& chunk, bool revert)
+{
+    VcsBase::VcsBaseOutputWindow *outwin = VcsBase::VcsBaseOutputWindow::instance();
+    QTemporaryFile patchFile;
+    if (!patchFile.open())
+        return;
+
+    const QString baseDir = diffBaseDirectory();
+    patchFile.write(chunk.header);
+    patchFile.write(chunk.chunk);
+    patchFile.close();
+
+    GitClient *client = GitPlugin::instance()->gitClient();
+    QStringList args = QStringList() << QLatin1String("--cached");
+    if (revert)
+        args << QLatin1String("--reverse");
+    QString errorMessage;
+    if (client->synchronousApplyPatch(baseDir, patchFile.fileName(), &errorMessage, args)) {
+        if (errorMessage.isEmpty())
+            outwin->append(tr("Chunk successfully staged"));
+        else
+            outwin->append(errorMessage);
+        if (revert)
+            emit diffChunkReverted(chunk);
+        else
+            emit diffChunkApplied(chunk);
+    } else {
+        outwin->appendError(errorMessage);
+    }
+}
+
 void GitEditor::init()
 {
     VcsBase::VcsBaseEditorWidget::init();
@@ -231,6 +281,19 @@ void GitEditor::init()
         new GitSubmitHighlighter(baseTextDocument().data());
     else if (editorId == Git::Constants::GIT_REBASE_EDITOR_ID)
         new GitRebaseHighlighter(baseTextDocument().data());
+}
+
+void GitEditor::addDiffActions(QMenu *menu, const VcsBase::DiffChunk &chunk)
+{
+    menu->addSeparator();
+
+    QAction *stageAction = menu->addAction(tr("Stage Chunk..."));
+    stageAction->setData(qVariantFromValue(chunk));
+    connect(stageAction, SIGNAL(triggered()), this, SLOT(stageDiffChunk()));
+
+    QAction *unstageAction = menu->addAction(tr("Unstage Chunk..."));
+    unstageAction->setData(qVariantFromValue(chunk));
+    connect(unstageAction, SIGNAL(triggered()), this, SLOT(unstageDiffChunk()));
 }
 
 bool GitEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)

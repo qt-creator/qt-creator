@@ -57,9 +57,13 @@ public slots:
 private slots:
     void cherryPickChange();
     void revertChange();
+    void stageDiffChunk();
+    void unstageDiffChunk();
+    void applyDiffChunk(const VcsBase::DiffChunk& chunk, bool revert);
 
 private:
     void init();
+    void addDiffActions(QMenu *menu, const VcsBase::DiffChunk &chunk);
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     QSet<QString> annotationChanges() const;
     QString changeUnderCursor(const QTextCursor &) const;

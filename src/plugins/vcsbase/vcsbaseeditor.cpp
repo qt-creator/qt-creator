@@ -950,6 +950,8 @@ void VcsBaseEditorWidget::contextMenuEvent(QContextMenuEvent *e)
         QAction *revertAction = menu->addAction(tr("Revert Chunk..."));
         revertAction->setData(qVariantFromValue(Internal::DiffChunkAction(chunk, true)));
         connect(revertAction, SIGNAL(triggered()), this, SLOT(slotApplyDiffChunk()));
+        // Custom diff actions
+        addDiffActions(menu, chunk);
         break;
     }
     default:
@@ -1145,7 +1147,8 @@ DiffChunk VcsBaseEditorWidget::diffChunk(QTextCursor cursor) const
     }
     if (!chunkStart || !block.isValid())
         return rc;
-    rc.fileName = findDiffFile(fileNameFromDiffSpecification(block));
+    QString header;
+    rc.fileName = findDiffFile(fileNameFromDiffSpecification(block, &header));
     if (rc.fileName.isEmpty())
         return rc;
     // Concatenate chunk and convert
@@ -1163,6 +1166,7 @@ DiffChunk VcsBaseEditorWidget::diffChunk(QTextCursor cursor) const
     }
     const QTextCodec *cd = baseTextDocument()->codec();
     rc.chunk = cd ? cd->fromUnicode(unicode) : unicode.toLocal8Bit();
+    rc.header = cd ? cd->fromUnicode(header) : header.toLocal8Bit();
     return rc;
 }
 
@@ -1388,6 +1392,10 @@ QString VcsBaseEditorWidget::findDiffFile(const QString &f) const
     return QString();
 }
 
+void VcsBaseEditorWidget::addDiffActions(QMenu *, const DiffChunk &)
+{
+}
+
 void VcsBaseEditorWidget::slotAnnotateRevision()
 {
     if (const QAction *a = qobject_cast<const QAction *>(sender()))
@@ -1430,18 +1438,25 @@ bool VcsBaseEditorWidget::applyDiffChunk(const DiffChunk &dc, bool revert) const
                                    d->m_diffBaseDirectory, 0, revert);
 }
 
-QString VcsBaseEditorWidget::fileNameFromDiffSpecification(const QTextBlock &inBlock) const
+QString VcsBaseEditorWidget::fileNameFromDiffSpecification(const QTextBlock &inBlock, QString *header) const
 {
     // Go back chunks
+    QString fileName;
     for (QTextBlock block = inBlock; block.isValid(); block = block.previous()) {
         const QString line = block.text();
         if (d->m_diffFilePattern.indexIn(line) != -1) {
             QString cap = d->m_diffFilePattern.cap(1);
-            if (!cap.isEmpty())
-                return findDiffFile(cap);
+            if (header)
+                header->prepend(line + QLatin1String("\n"));
+            if (fileName.isEmpty() && !cap.isEmpty())
+                fileName = cap;
+        } else if (!fileName.isEmpty()) {
+            return findDiffFile(fileName);
+        } else if (header) {
+            header->clear();
         }
     }
-    return QString();
+    return fileName.isEmpty() ? QString() : findDiffFile(fileName);
 }
 
 void VcsBaseEditorWidget::addChangeActions(QMenu *, const QString &)
