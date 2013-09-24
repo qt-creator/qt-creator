@@ -15,6 +15,8 @@ DynamicLibrary {
     cpp.linkerFlags: {
         if (qbs.buildVariant == "release" && (qbs.toolchain.contains("gcc") || qbs.toolchain.contains("mingw")))
             return ["-Wl,-s"]
+        else if (qbs.buildVariant == "debug" && qbs.toolchain.contains("msvc"))
+            return ["/INCREMENTAL:NO"] // Speed up startup time when debugging with cdb
     }
     cpp.installNamePrefix: "@rpath/PlugIns/"
     cpp.rpaths: qbs.targetOS.contains("osx")

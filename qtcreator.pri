@@ -183,6 +183,8 @@ unix {
 win32-msvc* { 
     #Don't warn about sprintf, fopen etc being 'unsafe'
     DEFINES += _CRT_SECURE_NO_WARNINGS
+    # Speed up startup time when debugging with cdb
+    QMAKE_LFLAGS_DEBUG += /INCREMENTAL:NO
 }
 
 qt:greaterThan(QT_MAJOR_VERSION, 4) {
