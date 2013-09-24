@@ -73,22 +73,10 @@ void DesktopProcessSignalOperation::interruptProcess(int pid)
 
 void DesktopProcessSignalOperation::interruptProcess(const QString &filePath)
 {
-    interruptProcess(filePath, NoSpecialInterrupt);
-}
-
-void DesktopProcessSignalOperation::interruptProcess(int pid, SpecialInterrupt specialInterrupt)
-{
-    m_errorMessage.clear();
-    interruptProcessSilently(pid, specialInterrupt);
-}
-
-void DesktopProcessSignalOperation::interruptProcess(const QString &filePath,
-                                                     SpecialInterrupt specialInterrupt)
-{
     m_errorMessage.clear();
     foreach (const DeviceProcessItem &process, Internal::LocalProcessList::getLocalProcesses()) {
         if (process.cmdLine == filePath)
-            interruptProcessSilently(process.pid, specialInterrupt);
+            interruptProcessSilently(process.pid);
     }
     emit finished(m_errorMessage);
 }
@@ -128,8 +116,7 @@ void DesktopProcessSignalOperation::killProcessSilently(int pid)
 #endif // Q_OS_WIN
 }
 
-void DesktopProcessSignalOperation::interruptProcessSilently(
-        int pid, SpecialInterrupt specialInterrupt)
+void DesktopProcessSignalOperation::interruptProcessSilently(int pid)
 {
 #ifdef Q_OS_WIN
     /*
@@ -174,17 +161,16 @@ GDB 32bit | Api             | Api             | N/A             | Win32         
         }
         bool creatorIs64Bit = Utils::winIs64BitBinary(qApp->applicationFilePath());
         if (!Utils::winIs64BitSystem() ||
-                specialInterrupt == NoSpecialInterrupt ||
-                specialInterrupt == Win64Interrupt && creatorIs64Bit ||
-                specialInterrupt == Win32Interrupt && !creatorIs64Bit) {
+                m_specialInterrupt == NoSpecialInterrupt ||
+                m_specialInterrupt == Win64Interrupt && creatorIs64Bit ||
+                m_specialInterrupt == Win32Interrupt && !creatorIs64Bit) {
             if (!DebugBreakProcess(inferior)) {
                 appendMsgCannotInterrupt(pid, tr("DebugBreakProcess failed: ")
                                          + Utils::winErrorMessage(GetLastError()));
             }
-        } else if (specialInterrupt == Win32Interrupt
-                   || specialInterrupt == Win64Interrupt) {
+        } else if (m_specialInterrupt == Win32Interrupt || m_specialInterrupt == Win64Interrupt) {
             QString executable = QCoreApplication::applicationDirPath();
-            executable += specialInterrupt == Win32Interrupt
+            executable += m_specialInterrupt == Win32Interrupt
                     ? QLatin1String("/win32interrupt.exe")
                     : QLatin1String("/win64interrupt.exe");
             if (!QFile::exists(executable)) {
@@ -211,7 +197,6 @@ GDB 32bit | Api             | Api             | N/A             | Win32         
     if (inferior != NULL)
         CloseHandle(inferior);
 #else
-    Q_UNUSED(specialInterrupt)
     if (pid <= 0)
         appendMsgCannotInterrupt(pid, tr("Invalid process id."));
     else if (kill(pid, SIGINT))

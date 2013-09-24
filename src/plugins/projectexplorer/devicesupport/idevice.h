@@ -59,6 +59,8 @@ class PROJECTEXPLORER_EXPORT DeviceProcessSignalOperation : public QObject
 {
     Q_OBJECT
 public:
+    enum SpecialInterrupt { NoSpecialInterrupt, Win32Interrupt, Win64Interrupt };
+
     ~DeviceProcessSignalOperation() {}
     typedef QSharedPointer<DeviceProcessSignalOperation> Ptr;
 
@@ -67,13 +69,16 @@ public:
     virtual void interruptProcess(int pid) = 0;
     virtual void interruptProcess(const QString &filePath) = 0;
 
+    void setSpecialInterrupt(SpecialInterrupt si);
+
 signals:
     // If the error message is empty the operation was successful
     void finished(const QString &errorMessage);
 
 protected:
-    explicit DeviceProcessSignalOperation() {}
+    explicit DeviceProcessSignalOperation();
     QString m_errorMessage;
+    SpecialInterrupt m_specialInterrupt;
 };
 
 class PROJECTEXPLORER_EXPORT PortsGatheringMethod

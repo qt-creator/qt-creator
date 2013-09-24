@@ -424,4 +424,9 @@ QString IDevice::defaultPublicKeyFilePath()
     return defaultPrivateKeyFilePath() + QLatin1String(".pub");
 }
 
+DeviceProcessSignalOperation::DeviceProcessSignalOperation()
+    : m_specialInterrupt(NoSpecialInterrupt)
+{
+}
+
 } // namespace ProjectExplorer

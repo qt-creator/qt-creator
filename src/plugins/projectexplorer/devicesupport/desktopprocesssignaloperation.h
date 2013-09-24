@@ -39,19 +39,15 @@ class PROJECTEXPLORER_EXPORT DesktopProcessSignalOperation : public DeviceProces
 {
     Q_OBJECT
 public:
-    enum SpecialInterrupt { NoSpecialInterrupt, Win32Interrupt, Win64Interrupt };
-
     ~DesktopProcessSignalOperation() {}
     void killProcess(int pid);
     void killProcess(const QString &filePath);
     void interruptProcess(int pid);
     void interruptProcess(const QString &filePath);
-    void interruptProcess(int pid, SpecialInterrupt specialInterrupt);
-    void interruptProcess(const QString &filePath, SpecialInterrupt specialInterrupt);
 
 private:
     void killProcessSilently(int pid);
-    void interruptProcessSilently(int pid, SpecialInterrupt = NoSpecialInterrupt);
+    void interruptProcessSilently(int pid);
 
     void appendMsgCannotKill(int pid, const QString &why);
     void appendMsgCannotInterrupt(int pid, const QString &why);
