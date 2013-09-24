@@ -46,7 +46,7 @@ public:
     TaskFileFactory(QObject *parent = 0);
 
     Core::IDocument *open(const QString &fileName);
-    Core::IDocument *open(ProjectExplorer::Project *context, const QString &fileName);
+    Core::IDocument *open(const QString &base, const QString &fileName);
 
     void closeAllFiles();
 

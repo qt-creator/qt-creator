@@ -38,8 +38,7 @@ using namespace TaskList::Internal;
 // TaskFile
 // --------------------------------------------------------------------------
 
-TaskFile::TaskFile(QObject *parent) : Core::IDocument(parent),
-    m_context(0)
+TaskFile::TaskFile(QObject *parent) : Core::IDocument(parent)
 { }
 
 TaskFile::~TaskFile()
@@ -101,16 +100,15 @@ bool TaskFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
 bool TaskFile::open(QString *errorString, const QString &fileName)
 {
     setFilePath(fileName);
-    return TaskList::TaskListPlugin::loadFile(errorString, m_context, fileName);
+    return TaskList::TaskListPlugin::loadFile(errorString, m_baseDir, fileName);
 }
 
-ProjectExplorer::Project *TaskFile::context() const
+QString TaskFile::baseDir() const
 {
-    return m_context;
+    return m_baseDir;
 }
 
-void TaskFile::setContext(ProjectExplorer::Project *context)
+void TaskFile::setBaseDir(const QString &base)
 {
-    m_context = context;
+    m_baseDir = base;
 }
-

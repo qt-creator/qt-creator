@@ -59,11 +59,11 @@ public:
 
     bool open(QString *errorString, const QString &fileName);
 
-    ProjectExplorer::Project *context() const;
-    void setContext(ProjectExplorer::Project *context);
+    QString baseDir() const;
+    void setBaseDir(const QString &base);
 
 private:
-    ProjectExplorer::Project *m_context;
+    QString m_baseDir;
 };
 
 } // namespace Internal

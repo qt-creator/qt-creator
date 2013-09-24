@@ -32,6 +32,7 @@
 #include "taskfile.h"
 
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/project.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/documentmanager.h>
 
@@ -53,14 +54,14 @@ TaskFileFactory::TaskFileFactory(QObject * parent) :
 
 Core::IDocument *TaskFileFactory::open(const QString &fileName)
 {
-    ProjectExplorer::Project *context = ProjectExplorer::ProjectExplorerPlugin::currentProject();
-    return open(context, fileName);
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectExplorerPlugin::currentProject();
+    return open(project ? project->projectDirectory() : QString(), fileName);
 }
 
-Core::IDocument *TaskFileFactory::open(ProjectExplorer::Project *context, const QString &fileName)
+Core::IDocument *TaskFileFactory::open(const QString &base, const QString &fileName)
 {
     TaskFile *file = new TaskFile(this);
-    file->setContext(context);
+    file->setBaseDir(base);
 
     QString errorString;
     if (!file->open(&errorString, fileName)) {

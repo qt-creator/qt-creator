@@ -45,7 +45,7 @@ public:
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized() {}
 
-    static bool loadFile(QString *errorString, ProjectExplorer::Project *context, const QString &fileName);
+    static bool loadFile(QString *errorString, const QString &context, const QString &fileName);
 
     static void stopMonitoring();
     static void clearTasks();

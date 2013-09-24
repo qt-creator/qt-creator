@@ -50,7 +50,7 @@ using namespace ProjectExplorer;
 using namespace TaskList::Internal;
 
 static const char SESSION_FILE_KEY[] = "TaskList.File";
-static const char SESSION_CONTEXT_KEY[] = "TaskList.Context";
+static const char SESSION_BASE_KEY[] = "TaskList.BaseDir";
 
 namespace TaskList {
 
@@ -102,7 +102,7 @@ static QString unescape(const QString &input)
     return result;
 }
 
-static bool parseTaskFile(QString *errorString, Project *context, const QString &name)
+static bool parseTaskFile(QString *errorString, const QString &base, const QString &name)
 {
     QFile tf(name);
     if (!tf.open(QIODevice::ReadOnly)) {
@@ -142,8 +142,8 @@ static bool parseTaskFile(QString *errorString, Project *context, const QString 
         if (!file.isEmpty()) {
             file = QDir::fromNativeSeparators(file);
             QFileInfo fi(file);
-            if (fi.isRelative() && context) {
-                QString fullPath = context->projectDirectory() + QLatin1Char('/') + file;
+            if (fi.isRelative() && !base.isEmpty()) {
+                QString fullPath = base + QLatin1Char('/') + file;
                 fi.setFile(fullPath);
                 file = fi.absoluteFilePath();
             }
@@ -182,14 +182,13 @@ bool TaskListPlugin::initialize(const QStringList &arguments, QString *errorMess
     return true;
 }
 
-bool TaskListPlugin::loadFile(QString *errorString, Project *context, const QString &fileName)
+bool TaskListPlugin::loadFile(QString *errorString, const QString &context, const QString &fileName)
 {
     clearTasks();
 
     bool result = parseTaskFile(errorString, context, fileName);
     if (result) {
-        SessionManager::setValue(QLatin1String(SESSION_CONTEXT_KEY),
-                                 context ? context->projectFilePath() : QString());
+        SessionManager::setValue(QLatin1String(SESSION_BASE_KEY), context);
         SessionManager::setValue(QLatin1String(SESSION_FILE_KEY), fileName);
     } else {
         stopMonitoring();
@@ -200,7 +199,7 @@ bool TaskListPlugin::loadFile(QString *errorString, Project *context, const QStr
 
 void TaskListPlugin::stopMonitoring()
 {
-    SessionManager::setValue(QLatin1String(SESSION_CONTEXT_KEY), QString());
+    SessionManager::setValue(QLatin1String(SESSION_BASE_KEY), QString());
     SessionManager::setValue(QLatin1String(SESSION_FILE_KEY), QString());
 
     m_fileFactory->closeAllFiles();
@@ -216,8 +215,7 @@ void TaskListPlugin::loadDataFromSession()
     const QString fileName = SessionManager::value(QLatin1String(SESSION_FILE_KEY)).toString();
     if (fileName.isEmpty())
         return;
-    Project *project = SessionManager::projectForFile(SessionManager::value(QLatin1String(SESSION_CONTEXT_KEY)).toString());
-    m_fileFactory->open(project, fileName);
+    m_fileFactory->open(SessionManager::value(QLatin1String(SESSION_BASE_KEY)).toString(), fileName);
 }
 
 } // namespace TaskList
