@@ -53,8 +53,8 @@ public:
     tst_AnsiEscapeCodeHandler();
 
 private Q_SLOTS:
-    void testCase1();
-    void testCase1_data();
+    void testSimpleFormat();
+    void testSimpleFormat_data();
     void testLineOverlappingFormat();
 
 private:
@@ -72,7 +72,7 @@ tst_AnsiEscapeCodeHandler::tst_AnsiEscapeCodeHandler() :
 {
 }
 
-void tst_AnsiEscapeCodeHandler::testCase1()
+void tst_AnsiEscapeCodeHandler::testSimpleFormat()
 {
     QFETCH(QString, text);
     QFETCH(QTextCharFormat, format);
@@ -89,7 +89,7 @@ void tst_AnsiEscapeCodeHandler::testCase1()
     }
 }
 
-void tst_AnsiEscapeCodeHandler::testCase1_data()
+void tst_AnsiEscapeCodeHandler::testSimpleFormat_data()
 {
     QTest::addColumn<QString>("text");
     QTest::addColumn<QTextCharFormat>("format");
