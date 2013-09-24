@@ -5,14 +5,10 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "Help"
 
-    Depends { id: qtcore; name: "Qt.core" }
+    Depends { name: "Qt"; submodules: ["core", "help", "network", "webkit"]; }
     Depends {
-        condition: qtcore.versionMajor == 4
-        name: "Qt"; submodules: ["widgets", "help", "webkit", "network"]
-    }
-    Depends {
-        condition: qtcore.versionMajor >= 5
-        name: "Qt"; submodules: ["widgets", "help", "network", "printsupport"]
+        condition: Qt.core.versionMajor >= 5;
+        name: "Qt"; submodules: ["printsupport", "webkitwidgets"];
     }
 
     Depends { name: "Core" }
@@ -20,13 +16,7 @@ QtcPlugin {
     Depends { name: "Locator" }
     Depends { name: "app_version_header" }
 
-    cpp.defines: {
-        var list = base;
-        if (qtcore.versionMajor >= 5)
-            list.push("QT_NO_WEBKIT");
-        list.push("QT_CLUCENE_SUPPORT");
-        return list;
-    }
+    cpp.defines: base.concat(["QT_CLUCENE_SUPPORT"])
 
     // We include headers from src/shared/help, and their sources include headers from here...
     cpp.includePaths: base.concat([sharedSources.prefix, path])
