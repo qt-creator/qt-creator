@@ -60,8 +60,6 @@ public:
     FolderNavigationWidget(QWidget *parent = 0);
 
     bool autoSynchronization() const;
-
-    static QString msgFindOnFileSystem();
     bool hiddenFilesFilter() const;
 
 public slots:

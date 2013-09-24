@@ -64,7 +64,7 @@ protected:
     QString label() const;
     QString toolTip() const;
 
-public:
+public slots:
     static void findOnFileSystem(const QString &path);
 
 private slots:

@@ -307,7 +307,7 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
     QAction *actionTerminal = menu.addAction(Core::FileUtils::msgTerminalAction());
     actionTerminal->setEnabled(hasCurrentItem);
 
-    QAction *actionFind = menu.addAction(msgFindOnFileSystem());
+    QAction *actionFind = menu.addAction(Core::FileUtils::msgFindInDirectory());
     actionFind->setEnabled(hasCurrentItem);
     // open with...
     if (!m_fileSystemModel->isDir(current)) {
@@ -347,11 +347,6 @@ void FolderNavigationWidget::contextMenuEvent(QContextMenuEvent *ev)
         return;
     }
     Core::DocumentManager::executeOpenWithMenuAction(action);
-}
-
-QString FolderNavigationWidget::msgFindOnFileSystem()
-{
-    return tr("Find in this directory...");
 }
 
 void FolderNavigationWidget::setHiddenFilesFilter(bool filter)

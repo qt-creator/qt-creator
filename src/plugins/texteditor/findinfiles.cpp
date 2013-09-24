@@ -53,6 +53,8 @@ FindInFiles::FindInFiles()
     m_directory(0)
 {
     m_instance = this;
+    connect(Core::EditorManager::instance(), SIGNAL(findOnFileSystemRequest(QString)),
+            this, SLOT(findOnFileSystem(QString)));
 }
 
 FindInFiles::~FindInFiles()

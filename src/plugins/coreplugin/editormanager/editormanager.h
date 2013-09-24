@@ -195,6 +195,7 @@ signals:
     void editorOpened(Core::IEditor *editor);
     void editorAboutToClose(Core::IEditor *editor);
     void editorsClosed(QList<Core::IEditor *> editors);
+    void findOnFileSystemRequest(const QString &path);
 
 public slots:
     static bool closeAllEditors(bool askAboutModifiedEditors = true);
@@ -229,6 +230,7 @@ private slots:
 
     static void showInGraphicalShell();
     static void openTerminal();
+    static void findInDirectory();
 
     static void rootDestroyed(QObject *root);
     static void setCurrentEditorFromContextChange();

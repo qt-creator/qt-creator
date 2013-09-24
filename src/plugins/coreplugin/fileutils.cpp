@@ -140,6 +140,11 @@ void FileUtils::openTerminal(const QString &path)
     QProcess::startDetached(terminalEmulator, args, pwd);
 }
 
+QString FileUtils::msgFindInDirectory()
+{
+    return QApplication::translate("Core::Internal", "Find in This Directory...");
+}
+
 QString FileUtils::msgGraphicalShellAction()
 {
     if (HostOsInfo::isWindowsHost())
