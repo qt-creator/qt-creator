@@ -83,10 +83,15 @@ def hasPlot():
     fileName = "/usr/bin/gnuplot"
     return os.path.isfile(fileName) and os.access(fileName, os.X_OK)
 
-def arrayForms():
-    if hasPlot():
-        return "Normal,Plot"
-    return "Normal"
+try:
+    import subprocess
+    def arrayForms():
+        if hasPlot():
+            return "Normal,Plot"
+        return "Normal"
+except:
+    def arrayForms():
+        return "Normal"
 
 
 def bytesToString(b):

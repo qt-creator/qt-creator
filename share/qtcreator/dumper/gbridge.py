@@ -12,7 +12,6 @@ except:
 import inspect
 import os
 import os.path
-import subprocess
 import sys
 import tempfile
 import traceback
@@ -1530,6 +1529,7 @@ class Dumper(DumperBase):
                     stdin=subprocess.PIPE)
             gnuplotPid[iname] = gnuplotPipe[iname].pid
         f = gnuplotPipe[iname].stdin;
+        # On Ubuntu install gnuplot-x11
         f.write("set term wxt noraise\n")
         f.write("set title 'Data fields'\n")
         f.write("set xlabel 'Index'\n")
