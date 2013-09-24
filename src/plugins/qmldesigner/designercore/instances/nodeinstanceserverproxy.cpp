@@ -140,7 +140,6 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
       m_runModus(runModus),
       m_synchronizeId(-1)
 {
-   Q_UNUSED(pathToQt);
    QString socketToken(QUuid::createUuid().toString());
 
    m_localServer->listen(socketToken);
