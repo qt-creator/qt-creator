@@ -178,6 +178,7 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
     m_group->insert(dc->action(AlwaysAdjustBreakpointsColumnWidths), 0);
     m_group->insert(dc->action(AlwaysAdjustModulesColumnWidths), 0);
     m_group->insert(dc->action(UseToolTipsInBreakpointsView), 0);
+    m_group->insert(dc->action(UseToolTipsInStackView), 0);
     m_group->insert(dc->action(UseAddressInBreakpointsView), 0);
     m_group->insert(dc->action(UseAddressInStackView), 0);
     m_group->insert(dc->action(AlwaysAdjustStackColumnWidths), 0);

@@ -122,7 +122,7 @@ QVariant StackHandler::data(const QModelIndex &index, int role) const
             ? m_positionIcon : m_emptyIcon;
     }
 
-    if (role == Qt::ToolTipRole)
+    if (role == Qt::ToolTipRole && debuggerCore()->boolSetting(UseToolTipsInStackView))
         return frame.toToolTip();
 
     return QVariant();

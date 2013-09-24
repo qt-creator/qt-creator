@@ -175,6 +175,8 @@ void StackTreeView::contextMenuEvent(QContextMenuEvent *ev)
         menu.addAction(debuggerCore()->action(UseAddressInStackView));
 
     menu.addSeparator();
+    menu.addAction(debuggerCore()->action(UseToolTipsInStackView));
+    menu.addSeparator();
 
     addBaseContextActions(&menu);
 
