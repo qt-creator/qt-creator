@@ -145,13 +145,16 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
    } else {
        applicationPath = macOSBundlePath(applicationPath);
        applicationPath += QLatin1Char('/') + qmlPuppetApplicationName();
+#ifdef QT_NO_DEBUG // to prevent of choosing the wrong puppet in debug
        if (!QFileInfo(applicationPath).exists()) { //No qmlpuppet in Qt
            //We have to find out how to give not too intrusive feedback
            applicationPath =  QCoreApplication::applicationDirPath();
            applicationPath = macOSBundlePath(applicationPath);
            applicationPath += QLatin1Char('/') + qmlPuppetApplicationName();
        }
+#endif
    }
+
 
    QByteArray envImportPath = qgetenv("QTCREATOR_QMLPUPPET_PATH");
    if (!envImportPath.isEmpty())
