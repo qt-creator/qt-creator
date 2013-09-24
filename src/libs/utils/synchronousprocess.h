@@ -71,6 +71,14 @@ struct QTCREATOR_UTILS_EXPORT SynchronousProcessResponse
 
 QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const SynchronousProcessResponse &);
 
+class QTCREATOR_UTILS_EXPORT ExitCodeInterpreter : public QObject
+{
+    Q_OBJECT
+public:
+    ExitCodeInterpreter(QObject *parent) : QObject(parent) {}
+    virtual SynchronousProcessResponse::Result interpretExitCode(int code) const;
+};
+
 class QTCREATOR_UTILS_EXPORT SynchronousProcess : public QObject
 {
     Q_OBJECT
@@ -114,6 +122,9 @@ public:
 
     unsigned flags() const;
     void setFlags(unsigned);
+
+    void setExitCodeInterpreter(ExitCodeInterpreter *interpreter);
+    ExitCodeInterpreter *exitCodeInterpreter() const;
 
     SynchronousProcessResponse run(const QString &binary, const QStringList &args);
 

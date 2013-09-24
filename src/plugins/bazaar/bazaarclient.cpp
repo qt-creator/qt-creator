@@ -31,6 +31,7 @@
 
 #include <vcsbase/vcsbaseplugin.h>
 #include <vcsbase/vcsbaseeditorparameterwidget.h>
+#include <utils/synchronousprocess.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -39,6 +40,22 @@
 
 namespace Bazaar {
 namespace Internal {
+
+class BazaarDiffExitCodeInterpreter : public Utils::ExitCodeInterpreter
+{
+    Q_OBJECT
+public:
+    BazaarDiffExitCodeInterpreter(QObject *parent) : Utils::ExitCodeInterpreter(parent) {}
+    Utils::SynchronousProcessResponse::Result interpretExitCode(int code) const;
+
+};
+
+Utils::SynchronousProcessResponse::Result BazaarDiffExitCodeInterpreter::interpretExitCode(int code) const
+{
+    if (code < 0 || code > 2)
+        return Utils::SynchronousProcessResponse::FinishedError;
+    return Utils::SynchronousProcessResponse::Finished;
+}
 
 BazaarClient::BazaarClient(BazaarSettings *settings) :
     VcsBase::VcsBaseClient(settings)
@@ -139,6 +156,16 @@ QString BazaarClient::vcsCommandString(VcsCommand cmd) const
         return QLatin1String("branch");
     default:
         return VcsBaseClient::vcsCommandString(cmd);
+    }
+}
+
+Utils::ExitCodeInterpreter *BazaarClient::exitCodeInterpreter(VcsCommand cmd, QObject *parent) const
+{
+    switch (cmd) {
+    case DiffCommand:
+        return new BazaarDiffExitCodeInterpreter(parent);
+    default:
+        return 0;
     }
 }
 

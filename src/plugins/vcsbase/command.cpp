@@ -78,10 +78,11 @@ class CommandPrivate
 {
 public:
     struct Job {
-        explicit Job(const QStringList &a, int t);
+        explicit Job(const QStringList &a, int t, Utils::ExitCodeInterpreter *interpreter = 0);
 
         QStringList arguments;
         int timeout;
+        Utils::ExitCodeInterpreter *exitCodeInterpreter;
     };
 
     CommandPrivate(const QString &binary,
@@ -130,9 +131,10 @@ CommandPrivate::~CommandPrivate()
     delete m_progressParser;
 }
 
-CommandPrivate::Job::Job(const QStringList &a, int t) :
+CommandPrivate::Job::Job(const QStringList &a, int t, Utils::ExitCodeInterpreter *interpreter) :
     arguments(a),
-    timeout(t)
+    timeout(t),
+    exitCodeInterpreter(interpreter)
 {
     // Finished cookie is emitted via queued slot, needs metatype
     static const int qvMetaId = qRegisterMetaType<QVariant>();
@@ -188,14 +190,14 @@ void Command::addFlags(unsigned f)
     d->m_flags |= f;
 }
 
-void Command::addJob(const QStringList &arguments)
+void Command::addJob(const QStringList &arguments, Utils::ExitCodeInterpreter *interpreter)
 {
-    addJob(arguments, defaultTimeout());
+    addJob(arguments, defaultTimeout(), interpreter);
 }
 
-void Command::addJob(const QStringList &arguments, int timeout)
+void Command::addJob(const QStringList &arguments, int timeout, Utils::ExitCodeInterpreter *interpreter)
 {
-    d->m_jobs.push_back(Internal::CommandPrivate::Job(arguments, timeout));
+    d->m_jobs.push_back(Internal::CommandPrivate::Job(arguments, timeout, interpreter));
 }
 
 void Command::execute()
@@ -249,10 +251,12 @@ void Command::run(QFutureInterface<void> &future)
     d->m_lastExecExitCode = -1;
     d->m_lastExecSuccess = true;
     for (int j = 0; j < count; j++) {
-        const int timeOutSeconds = d->m_jobs.at(j).timeout;
+        const Internal::CommandPrivate::Job &job = d->m_jobs.at(j);
+        const int timeOutSeconds = job.timeout;
         Utils::SynchronousProcessResponse resp = runVcs(
-                    d->m_jobs.at(j).arguments,
-                    timeOutSeconds >= 0 ? timeOutSeconds * 1000 : -1);
+                    job.arguments,
+                    timeOutSeconds >= 0 ? timeOutSeconds * 1000 : -1,
+                    job.exitCodeInterpreter);
         stdOut += resp.stdOut;
         stdErr += resp.stdErr;
         d->m_lastExecExitCode = resp.exitCode;
@@ -309,7 +313,8 @@ signals:
     void appendMessage(const QString &text);
 };
 
-Utils::SynchronousProcessResponse Command::runVcs(const QStringList &arguments, int timeoutMS)
+Utils::SynchronousProcessResponse Command::runVcs(const QStringList &arguments, int timeoutMS,
+                                                  Utils::ExitCodeInterpreter *interpreter)
 {
     Utils::SynchronousProcessResponse response;
     OutputProxy outputProxy;
@@ -353,9 +358,10 @@ Utils::SynchronousProcessResponse Command::runVcs(const QStringList &arguments, 
     //    if (d->m_flags & ExpectRepoChanges)
     //        Core::DocumentManager::expectDirectoryChange(d->m_workingDirectory);
     if (d->m_flags & VcsBasePlugin::FullySynchronously) {
-        response = runSynchronous(arguments, timeoutMS);
+        response = runSynchronous(arguments, timeoutMS, interpreter);
     } else {
         Utils::SynchronousProcess process;
+        process.setExitCodeInterpreter(interpreter);
         connect(this, SIGNAL(doTerminate()), &process, SLOT(terminate()));
         if (!d->m_workingDirectory.isEmpty())
             process.setWorkingDirectory(d->m_workingDirectory);
@@ -412,7 +418,8 @@ Utils::SynchronousProcessResponse Command::runVcs(const QStringList &arguments, 
     return response;
 }
 
-Utils::SynchronousProcessResponse Command::runSynchronous(const QStringList &arguments, int timeoutMS)
+Utils::SynchronousProcessResponse Command::runSynchronous(const QStringList &arguments, int timeoutMS,
+                                                          Utils::ExitCodeInterpreter *interpreter)
 {
     Utils::SynchronousProcessResponse response;
 
@@ -465,15 +472,15 @@ Utils::SynchronousProcessResponse Command::runSynchronous(const QStringList &arg
         }
     }
 
+    Utils::ExitCodeInterpreter defaultInterpreter(this);
+    Utils::ExitCodeInterpreter *currentInterpreter = interpreter ? interpreter : &defaultInterpreter;
     // Result
     if (timedOut) {
         response.result = Utils::SynchronousProcessResponse::Hang;
     } else if (process->exitStatus() != QProcess::NormalExit) {
         response.result = Utils::SynchronousProcessResponse::TerminatedAbnormally;
     } else {
-        response.result = process->exitCode() == 0 ?
-                          Utils::SynchronousProcessResponse::Finished :
-                          Utils::SynchronousProcessResponse::FinishedError;
+        response.result = currentInterpreter->interpretExitCode(process->exitCode());
     }
     return response;
 }

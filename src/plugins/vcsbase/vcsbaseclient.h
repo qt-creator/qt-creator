@@ -44,6 +44,7 @@ QT_END_NAMESPACE
 
 namespace Utils {
 struct SynchronousProcessResponse;
+class ExitCodeInterpreter;
 }
 
 namespace VcsBase {
@@ -150,6 +151,7 @@ protected:
     };
     virtual QString vcsCommandString(VcsCommand cmd) const;
     virtual Core::Id vcsEditorKind(VcsCommand cmd) const = 0;
+    virtual Utils::ExitCodeInterpreter *exitCodeInterpreter(VcsCommand cmd, QObject *parent) const;
 
     virtual QStringList revisionSpec(const QString &revision) const = 0;
     virtual VcsBaseEditorParameterWidget *createDiffEditor(const QString &workingDir,
@@ -183,7 +185,7 @@ protected:
     Command *createCommand(const QString &workingDirectory,
                            VcsBase::VcsBaseEditorWidget *editor = 0,
                            JobOutputBindMode mode = NoOutputBind);
-    void enqueueJob(Command *cmd, const QStringList &args);
+    void enqueueJob(Command *cmd, const QStringList &args, Utils::ExitCodeInterpreter *interpreter = 0);
 
     void resetCachedVcsInfo(const QString &workingDir);
 

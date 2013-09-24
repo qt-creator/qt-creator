@@ -61,6 +61,7 @@ public:
 protected:
     Core::Id vcsEditorKind(VcsCommand cmd) const;
     QString vcsCommandString(VcsCommand cmd) const;
+    Utils::ExitCodeInterpreter *exitCodeInterpreter(VcsCommand cmd, QObject *parent) const;
     QStringList revisionSpec(const QString &revision) const;
     VcsBase::VcsBaseEditorParameterWidget *createDiffEditor(const QString &workingDir,
                                                             const QStringList &files,

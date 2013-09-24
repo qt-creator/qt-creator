@@ -365,7 +365,8 @@ void VcsBaseClient::diff(const QString &workingDir, const QStringList &files,
     QStringList args;
     const QStringList paramArgs = paramWidget != 0 ? paramWidget->arguments() : QStringList();
     args << vcsCmdString << extraOptions << paramArgs << files;
-    enqueueJob(createCommand(workingDir, editor), args);
+    Command *command = createCommand(workingDir, editor);
+    enqueueJob(command, args, exitCodeInterpreter(DiffCommand, command));
 }
 
 void VcsBaseClient::log(const QString &workingDir, const QStringList &files,
@@ -459,6 +460,13 @@ QString VcsBaseClient::vcsCommandString(VcsCommand cmd) const
     case StatusCommand: return QLatin1String("status");
     }
     return QString();
+}
+
+Utils::ExitCodeInterpreter *VcsBaseClient::exitCodeInterpreter(VcsCommand cmd, QObject *parent) const
+{
+    Q_UNUSED(cmd)
+    Q_UNUSED(parent)
+    return 0;
 }
 
 void VcsBaseClient::import(const QString &repositoryRoot, const QStringList &files,
@@ -605,9 +613,9 @@ Command *VcsBaseClient::createCommand(const QString &workingDirectory,
     return cmd;
 }
 
-void VcsBaseClient::enqueueJob(Command *cmd, const QStringList &args)
+void VcsBaseClient::enqueueJob(Command *cmd, const QStringList &args, Utils::ExitCodeInterpreter *interpreter)
 {
-    cmd->addJob(args);
+    cmd->addJob(args, interpreter);
     cmd->execute();
 }
 
