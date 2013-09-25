@@ -185,7 +185,7 @@ public:
             QString lineText;
             if (node->incompatibleReason().isEmpty()) {
                 lineText = AndroidManager::androidNameForApiLevel(device.sdk) + QLatin1String("  ");
-                lineText += tr("ABI:") + device.cpuAbi.join(QLatin1String(" "));
+                lineText += AndroidDeviceDialog::tr("ABI:") + device.cpuAbi.join(QLatin1String(" "));
             } else {
                 lineText = node->incompatibleReason();
             }
@@ -332,24 +332,25 @@ void AndroidDeviceModel::setDevices(const QVector<AndroidDeviceInfo> &devices)
     delete m_root;
     m_root = new AndroidDeviceModelNode(0, QString());
 
-    AndroidDeviceModelNode *compatibleDevices = new AndroidDeviceModelNode(m_root, tr("Compatible devices"));
+    AndroidDeviceModelNode *compatibleDevices = new AndroidDeviceModelNode(m_root, AndroidDeviceDialog::tr("Compatible devices"));
     AndroidDeviceModelNode *incompatibleDevices = 0; // created on demand
     foreach (const AndroidDeviceInfo &device, devices) {
         QString error;
         if (device.unauthorized) {
-            error = tr("Unauthorized. Please check the confirmation dialog on your device..").arg(device.serialNumber);
+            error = AndroidDeviceDialog::tr("Unauthorized. Please check the confirmation dialog on your device %1.")
+                    .arg(device.serialNumber);
         } else if (!device.cpuAbi.contains(m_abi)) {
-            error = tr("ABI is incompatible, device supports ABIs: %1.")
+            error = AndroidDeviceDialog::tr("ABI is incompatible, device supports ABIs: %1.")
                     .arg(device.cpuAbi.join(QLatin1String(" ")));
         } else if (device.sdk < m_apiLevel) {
-            error = tr("API Level of device is: %1.")
+            error = AndroidDeviceDialog::tr("API Level of device is: %1.")
                     .arg(device.sdk);
         } else {
             new AndroidDeviceModelNode(compatibleDevices, device);
             continue;
         }
         if (!incompatibleDevices)
-            incompatibleDevices = new AndroidDeviceModelNode(m_root, tr("Incompatible devices"));
+            incompatibleDevices = new AndroidDeviceModelNode(m_root, AndroidDeviceDialog::tr("Incompatible devices"));
         new AndroidDeviceModelNode(incompatibleDevices, device, error);
     }
     endResetModel();
