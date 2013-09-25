@@ -194,9 +194,12 @@ void QtKitInformation::qtVersionsChanged(const QList<int> &addedIds,
 {
     Q_UNUSED(addedIds);
     Q_UNUSED(removedIds);
-    foreach (ProjectExplorer::Kit *k, ProjectExplorer::KitManager::kits())
-        if (changedIds.contains(qtVersionId(k)))
+    foreach (ProjectExplorer::Kit *k, ProjectExplorer::KitManager::kits()) {
+        if (changedIds.contains(qtVersionId(k))) {
+            k->validate(); // Qt version may have become (in)valid
             notifyAboutUpdate(k);
+        }
+    }
 }
 
 void QtKitInformation::kitsWereLoaded()
