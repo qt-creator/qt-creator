@@ -224,7 +224,6 @@ void BlackBerryConfigurationManager::saveActiveConfigurationNdkEnvPath()
     settings->beginGroup(SettingsGroup);
     settings->beginGroup(ActiveNDKsGroup);
 
-    settings->clear();
     foreach (BlackBerryConfiguration *config, activeConfigurations()) {
         settings->beginGroup(config->displayName());
         settings->setValue(NDKEnvFileKey, config->ndkEnvFile().toString());
