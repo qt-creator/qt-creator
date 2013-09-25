@@ -501,6 +501,8 @@ bool BaseQtVersion::equals(BaseQtVersion *other)
         return false;
     if (displayName() != other->displayName())
         return false;
+    if (isValid() != other->isValid())
+        return false;
 
     return true;
 }
