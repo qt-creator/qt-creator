@@ -1909,8 +1909,6 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
         if (!electricChar.isNull() && d->m_autoCompleter->contextAllowsElectricCharacters(cursor))
             indent(document(), cursor, electricChar);
         if (!autoText.isEmpty()) {
-            if (d->m_document->typingSettings().m_autoIndent)
-                reindent(document(), cursor);
             cursor.setPosition(autoText.length() == 1 ? cursor.position() : cursor.anchor());
         }
 
