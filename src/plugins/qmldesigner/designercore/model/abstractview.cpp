@@ -369,7 +369,7 @@ QString AbstractView::generateNewId(const QString prefixName) const
     return newId;
 }
 
-ModelNode AbstractView::modelNodeForInternalId(qint32 internalId)
+ModelNode AbstractView::modelNodeForInternalId(qint32 internalId) const
 {
      return ModelNode(model()->d->nodeForInternalId(internalId), model(), this);
 }

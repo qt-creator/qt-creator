@@ -161,7 +161,7 @@ public:
     bool hasId(const QString &id) const;
     QString generateNewId(const QString prefixName) const;
 
-    ModelNode modelNodeForInternalId(qint32 internalId);
+    ModelNode modelNodeForInternalId(qint32 internalId) const;
     bool hasModelNodeForInternalId(qint32 internalId) const;
 
     QList<ModelNode> allModelNodes() const;
