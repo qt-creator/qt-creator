@@ -31,6 +31,9 @@ source("../../shared/qtcreator.py")
 source("../../shared/suites_qtta.py")
 
 def main():
+    if isQt4Build:
+        test.log("Welcome mode is only available if Creator was built on Qt 5")
+        return
     # prepare example project
     sourceExample = os.path.join(sdkPath, "Examples", "4.7", "declarative", "animation", "basics",
                                  "property-animation")

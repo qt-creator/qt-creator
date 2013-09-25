@@ -31,6 +31,9 @@ source("../../shared/qtcreator.py")
 source("../../shared/suites_qtta.py")
 
 def main():
+    if isQt4Build:
+        test.log("Welcome mode is only available if Creator was built on Qt 5")
+        return
     # open Qt Creator
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():

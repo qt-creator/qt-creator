@@ -34,7 +34,7 @@ def switchViewTo(view):
     # make sure that no tooltip is shown, so move the mouse away and wait until all disappear
     mouseMove(waitForObject(':Qt Creator_Core::Internal::MainWindow'), -20, -20)
     waitFor("not QToolTip.isVisible()", 15000)
-    if view < ViewConstants.WELCOME or view > ViewConstants.LAST_AVAILABLE:
+    if view < ViewConstants.FIRST_AVAILABLE or view > ViewConstants.LAST_AVAILABLE:
         return
     tabBar = waitForObject("{type='Core::Internal::FancyTabBar' unnamed='1' visible='1' "
                            "window=':Qt Creator_Core::Internal::MainWindow'}")
@@ -168,7 +168,7 @@ def getQtInformationForBuildSettings(kitCount, alreadyOnProjectsBuildSettings=Fa
     qtLibPath = getQtInformationByQMakeCall(qtDir, QtInformation.QT_LIBPATH)
     qtBinPath = getQtInformationByQMakeCall(qtDir, QtInformation.QT_BINPATH)
     if afterSwitchTo:
-        if ViewConstants.WELCOME <= afterSwitchTo <= ViewConstants.LAST_AVAILABLE:
+        if ViewConstants.FIRST_AVAILABLE <= afterSwitchTo <= ViewConstants.LAST_AVAILABLE:
             switchViewTo(afterSwitchTo)
         else:
             test.warning("Don't know where you trying to switch to (%s)" % afterSwitchTo)

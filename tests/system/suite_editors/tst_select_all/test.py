@@ -70,8 +70,8 @@ def main():
             else:
                 pos = size
                 if key == "<Left>":
-                    if platform.system() == "Darwin":
-                        # native cursor behavior on Mac is different
+                    if not isQt4Build or platform.system() == "Darwin":
+                        # native cursor behavior on Mac is different in Qt4
                         pos = 0
                     else:
                         pos -= 1

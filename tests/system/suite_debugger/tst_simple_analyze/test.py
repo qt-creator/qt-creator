@@ -30,6 +30,9 @@
 source("../../shared/qtcreator.py")
 
 def main():
+    if isQt4Build:
+        test.log("QML Profiler is only available if Creator was built on Qt 5")
+        return
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return

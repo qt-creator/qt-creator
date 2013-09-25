@@ -29,6 +29,8 @@
 
 import operator
 
+isQt4Build = False
+
 # for easier re-usage (because Python hasn't an enum type)
 class Targets:
     DESKTOP_474_GCC = 1
@@ -96,13 +98,11 @@ class ProjectSettings:
 
 # this class defines some constants for the views of the creator's MainWindow
 class ViewConstants:
-    WELCOME = 0
-    EDIT = 1
-    DESIGN = 2
-    DEBUG = 3
-    PROJECTS = 4
-    ANALYZE = 5
-    HELP = 6
+    if isQt4Build:
+        EDIT, DESIGN, DEBUG, PROJECTS, ANALYZE, HELP = range(6)
+    else:
+        WELCOME, EDIT, DESIGN, DEBUG, PROJECTS, ANALYZE, HELP = range(7)
+    FIRST_AVAILABLE = 0
     # always adjust the following to the highest value of the available ViewConstants when adding new
     LAST_AVAILABLE = HELP
 
@@ -111,7 +111,7 @@ class ViewConstants:
     # if the provided argument does not match any of the ViewConstants it returns None
     @staticmethod
     def getToolTipForViewTab(viewTab):
-        if viewTab == ViewConstants.WELCOME:
+        if not isQt4Build and viewTab == ViewConstants.WELCOME:
             toolTip = ur'Switch to <b>Welcome</b> mode <span style="color: gray; font-size: small">(Ctrl\+|\u2303)%d</span>'
         elif viewTab == ViewConstants.EDIT:
             toolTip = ur'Switch to <b>Edit</b> mode <span style="color: gray; font-size: small">(Ctrl\+|\u2303)%d</span>'
