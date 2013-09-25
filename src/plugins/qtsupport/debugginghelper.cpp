@@ -61,7 +61,7 @@ QStringList DebuggingHelperLibrary::debuggingHelperLibraryDirectories(const QStr
 
 static QString sourcePath()
 {
-    return Core::ICore::resourcePath() + QLatin1String("/dumper/");
+    return Core::ICore::resourcePath() + QLatin1String("/debugger/");
 }
 
 static QStringList sourceFileNames()

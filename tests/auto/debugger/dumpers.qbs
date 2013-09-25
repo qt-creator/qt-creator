@@ -27,7 +27,7 @@ Autotest {
 
     cpp.defines: base.concat([
         'CDBEXT_PATH="' + buildDirectory + '\\\\lib"',
-        'DUMPERDIR="' + path + '/../../../share/qtcreator/dumper"',
+        'DUMPERDIR="' + path + '/../../../share/qtcreator/debugger"',
         'QT_NO_CAST_FROM_ASCII',
         'QT_DISABLE_DEPRECATED_BEFORE=0x040900'
     ])

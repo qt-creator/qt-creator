@@ -837,7 +837,7 @@ void tst_Dumpers::dumper()
 
         if (m_usePython) {
             cmds += "python sys.path.insert(1, '" + dumperDir + "')\n"
-                    "python from gbridge import *\n"
+                    "python from gdbbridge import *\n"
                     "run " + nograb + "\n"
                     "up\n"
                     "python print('@%sS@%s@' % ('N', qtNamespace()))\n"
@@ -879,7 +879,7 @@ void tst_Dumpers::dumper()
         cmds += "q\n";
     } else if (m_debuggerEngine == DumpTestLldbEngine) {
         exe = "python";
-        args << QLatin1String(dumperDir + "/lbridge.py")
+        args << QLatin1String(dumperDir + "/lldbbridge.py")
              << QString::fromUtf8(m_debuggerBinary)
              << t->buildPath + QLatin1String("/doit")
              << QString::fromUtf8(expanded);
@@ -4306,7 +4306,7 @@ void tst_Dumpers::dumper_data()
 
 
 
-//    // This tests qdump__KRBase in dumpers/qttypes.py which uses
+//    // This tests qdump__KRBase in share/qtcreator/debugger/qttypes.py which uses
 //    // a static typeflag to dispatch to subclasses");
 
 //    QTest::newRow("KR")

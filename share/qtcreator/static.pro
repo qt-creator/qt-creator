@@ -32,7 +32,7 @@ DATA_DIRS = \
     schemes \
     styles \
     rss \
-    dumper \
+    debugger \
     qmldesigner \
     qmlicons \
     qml \

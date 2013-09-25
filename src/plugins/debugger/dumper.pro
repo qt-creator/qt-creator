@@ -20,5 +20,5 @@ true {
     QT = core gui
 }
 
-SOURCES += ../../../share/qtcreator/dumper/dumper.cpp
+SOURCES += ../../../share/qtcreator/debugger/dumper.cpp
 

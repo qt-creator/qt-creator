@@ -202,8 +202,8 @@ int qtGhVersion = QT_VERSION;
 QT_BEGIN_NAMESPACE
 #endif
 
-const char *stdStringTypeC = "std::basic_string<char,std::char_traits<char>,std::allocator<char> >";
-const char *stdWideStringTypeUShortC = "std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> >";
+const char stdStringTypeC[] = "std::basic_string<char,std::char_traits<char>,std::allocator<char> >";
+const char stdWideStringTypeUShortC[] = "std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> >";
 
 #if defined(QT_BEGIN_NAMESPACE)
 QT_END_NAMESPACE

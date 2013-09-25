@@ -422,13 +422,13 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
             << QList<ProjectExplorer::Task>()
             << QString();
     QTest::newRow("note")
-            << QString::fromLatin1("/home/dev/creator/share/qtcreator/dumper/dumper.cpp:1079: note: initialized from here")
+            << QString::fromLatin1("/home/dev/creator/share/qtcreator/debugger/dumper.cpp:1079: note: initialized from here")
             << OutputParserTester::STDERR
             << QString() << QString()
             << ( QList<ProjectExplorer::Task>()
                  << Task(Task::Unknown,
                          QLatin1String("initialized from here"),
-                         Utils::FileName::fromUserInput(QLatin1String("/home/dev/creator/share/qtcreator/dumper/dumper.cpp")), 1079,
+                         Utils::FileName::fromUserInput(QLatin1String("/home/dev/creator/share/qtcreator/debugger/dumper.cpp")), 1079,
                          categoryCompile))
             << QString();
     QTest::newRow("static member function")

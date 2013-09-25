@@ -338,9 +338,9 @@ void ProjectExplorerPlugin::testGnuMakeParserParsing_data()
             << QStringList();
     QTest::newRow("pass-trough note")
             << QStringList()
-            << QString::fromLatin1("/home/dev/creator/share/qtcreator/dumper/dumper.cpp:1079: note: initialized from here")
+            << QString::fromLatin1("/home/dev/creator/share/qtcreator/debugger/dumper.cpp:1079: note: initialized from here")
             << OutputParserTester::STDERR
-            << QString() << QString::fromLatin1("/home/dev/creator/share/qtcreator/dumper/dumper.cpp:1079: note: initialized from here\n")
+            << QString() << QString::fromLatin1("/home/dev/creator/share/qtcreator/debugger/dumper.cpp:1079: note: initialized from here\n")
             << QList<ProjectExplorer::Task>()
             << QString()
             << QStringList();

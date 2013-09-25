@@ -1517,7 +1517,7 @@ def testit1():
 
 
 # Used in dumper auto test.
-# Usage: python lbridge.py /path/to/testbinary comma-separated-inames
+# Usage: python lldbbridge.py /path/to/testbinary comma-separated-inames
 def testit():
 
     db = Dumper()

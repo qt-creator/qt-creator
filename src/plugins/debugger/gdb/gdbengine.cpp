@@ -4987,10 +4987,10 @@ void GdbEngine::tryLoadPythonDumpers()
     m_pythonAttemptedToLoad = true;
 
     const QByteArray dumperSourcePath =
-        Core::ICore::resourcePath().toLocal8Bit() + "/dumper/";
+        Core::ICore::resourcePath().toLocal8Bit() + "/debugger/";
 
    postCommand("python sys.path.insert(1, '" + dumperSourcePath + "')", ConsoleCommand);
-   postCommand("python from gbridge import *", ConsoleCommand, CB(handlePythonSetup));
+   postCommand("python from gdbbridge import *", ConsoleCommand, CB(handlePythonSetup));
 }
 
 void GdbEngine::reloadDebuggingHelpers()
