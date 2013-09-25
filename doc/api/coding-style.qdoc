@@ -35,20 +35,20 @@
     following rules:
 
     \list
-        \o  The most important rule is: KISS (keep it short and simple). Always
+        \li The most important rule is: KISS (keep it short and simple). Always
             choose the simpler implementation option over the more complicated one.
             This makes maintenance a lot easier.
-        \o  Write good C++ code. That is, readable, well commented when necessary,
+        \li Write good C++ code. That is, readable, well commented when necessary,
             and object-oriented.
-        \o  Take advantage of Qt. Do not re-invent the wheel. Think about which parts
+        \li Take advantage of Qt. Do not re-invent the wheel. Think about which parts
             of your code are generic enough that they might be incorporated into
             Qt instead of Qt Creator.
-        \o  Adapt the code to the existing structures in Qt Creator.
+        \li Adapt the code to the existing structures in Qt Creator.
             If you have improvement ideas, discuss them with other developers
             before writing the code.
-        \o  Follow the guidelines in \l{Code Constructs}, \l{Formatting}, and
+        \li Follow the guidelines in \l{Code Constructs}, \l{Formatting}, and
             \l{Patterns and Practices}.
-        \o  Document interfaces. Right now we use qdoc, but changing to doxygen
+        \li Document interfaces. Right now we use qdoc, but changing to doxygen
             is being considered.
         \endlist
 
@@ -68,13 +68,13 @@
     releases:
 
     \list
-        \o  Qt Creator 2.0.0 is a \e {major release}, Qt Creator 2.1.0 is a \e {minor
+        \li Qt Creator 2.0.0 is a \e {major release}, Qt Creator 2.1.0 is a \e {minor
             release}, and Qt Creator 2.1.3 is a \e {patch release}.
-        \o  \e {Backward binary compatibility} means that code linked to an
+        \li \e {Backward binary compatibility} means that code linked to an
             earlier version of the library still works.
-        \o  \e {Forward binary compatibility} means that code linked to a
+        \li \e {Forward binary compatibility} means that code linked to a
             newer version of the library works with an older library.
-        \o  \e {Source code compatibility} means that code compiles without
+        \li \e {Source code compatibility} means that code compiles without
             modification.
         \endlist
 
@@ -86,11 +86,11 @@
     backward source code compatibility in patch releases, so:
 
     \list
-        \o  Do not add or remove any public API (e.g. global functions,x
+        \li Do not add or remove any public API (e.g. global functions,x
             public/protected/private methods).
-        \o  Do not reimplement methods (not even inlines,
+        \li Do not reimplement methods (not even inlines,
             nor protected or private methods).
-        \o  Check
+        \li Check
             \l {http://wiki.qt-project.org/index.php/Binary_Compatibility_Workarounds}{Binary Compatibility Workarounds}
             for ways to preserve binary compatibility.
     \endlist
@@ -107,7 +107,7 @@
     type checking in C++.
 
     \list
-        \o  Prefer preincrement to postincrement whenever possible.
+        \li Prefer preincrement to postincrement whenever possible.
             Preincrement is potentially faster than postincrement. Just
             think about the obvious implementations of pre/post-increment. This
             rule applies to decrement too:
@@ -122,7 +122,7 @@
             U--;
             \endcode
 
-        \o  Try to minimize evaluation of the same code over and over. This is
+        \li Try to minimize evaluation of the same code over and over. This is
             aimed especially at loops:
 
             \code
@@ -141,7 +141,7 @@
             \endcode
 
 
-        \o  You can use the Qt \c foreach loop in non-time-critical code with a Qt
+        \li You can use the Qt \c foreach loop in non-time-critical code with a Qt
             container. It is a nice way to keep line noise down and to give the
             loop variable a proper name:
 
@@ -180,19 +180,19 @@
     Capitalize the first word in an identifier as follows:
 
     \list
-        \o  Class names begin with a capital letter.
-        \o  Function names begin with a lower case letter.
-        \o  Variable names begin with a lower case letter.
-        \o  Enum names and values begin with a capital letter. Enum values
+        \li Class names begin with a capital letter.
+        \li Function names begin with a lower case letter.
+        \li Variable names begin with a lower case letter.
+        \li Enum names and values begin with a capital letter. Enum values
             contain some part of the name of the enum type.
     \endlist
 
     \section2 Whitespace
 
     \list
-        \o  Use four spaces for indentation, no tabs.
-        \o  Use blank lines to group statements together where suited.
-        \o  Always use only one blank line.
+        \li Use four spaces for indentation, no tabs.
+        \li Use blank lines to group statements together where suited.
+        \li Always use only one blank line.
     \endlist
 
     \section3 Pointers and References
@@ -405,10 +405,10 @@
     \section2 Line Breaks
 
     \list
-        \o  Keep lines shorter than 100 characters.
-        \o  Insert line breaks if necessary.
-        \o  Commas go at the end of a broken line.
-        \o  Operators start at the beginning of the new line.
+        \li Keep lines shorter than 100 characters.
+        \li Insert line breaks if necessary.
+        \li Commas go at the end of a broken line.
+        \li Operators start at the beginning of the new line.
             \code
             if (longExpression
                 || otherLongExpression
@@ -427,15 +427,15 @@
     \section2 Declarations
 
     \list
-        \o  Use this order for the access sections of your class: public,
+        \li Use this order for the access sections of your class: public,
             protected, private. The public section is interesting for every
             user of the class. The private section is only of interest for the
             implementors of the class (you).
 
-        \o  Avoid declaring global objects in the declaration file of the class.
+        \li Avoid declaring global objects in the declaration file of the class.
             If the same variable is used for all objects, use a static member.
 
-        \o  Use \c{class} instead of \c{struct}. Some compilers mangle that
+        \li Use \c{class} instead of \c{struct}. Some compilers mangle that
             difference into the symbol names and spit out warnings if a struct
             declaration is followed by a class definition. To avoid ongoing
             changes from one to the other we declare \c{class} the preferred way.
@@ -445,16 +445,16 @@
     \section3 Declaring Variables
 
     \list
-        \o  Avoid global variables of class type to rule out initialization order problems.
+        \li Avoid global variables of class type to rule out initialization order problems.
             Consider using \c Q_GLOBAL_STATIC if they cannot be avoided.
-        \o  Declare global string literals as
+        \li Declare global string literals as
             \code
             const char aString[] = "Hello";
             \endcode
-        \o  Avoid short names (such as, a, rbarr, nughdeget) whenever possible.
+        \li Avoid short names (such as, a, rbarr, nughdeget) whenever possible.
             Use single-character variable names only for counters and
             temporaries, where the purpose of the variable is obvious.
-        \o  Declare each variable on a separate line:
+        \li Declare each variable on a separate line:
             \code
             QString a = "Joe";
             QString b = "Foo";
@@ -475,7 +475,7 @@
             mistaken as function declaration, and it reduces the level of nested
             parantheses in more initializations.
 
-        \o  Avoid abbreviations:
+        \li Avoid abbreviations:
 
             \code
             int height;
@@ -489,17 +489,17 @@
             char *c, *d;
             \endcode
 
-        \o  Wait with declaring a variable until it is needed. This is especially
+        \li Wait with declaring a variable until it is needed. This is especially
             important when initialization is done at the same time.
     \endlist
 
     \section2 Namespaces
 
     \list
-        \o Put the left curly brace on the same line as the \namespace keyword.
-        \o Do not indent declarations or definitions inside.
-        \o Optional, but recommended if the namespaces spans more than a few lines:
-           Add a comment after the right curly brace repeating the namespace.
+        \li Put the left curly brace on the same line as the \namespace keyword.
+        \li Do not indent declarations or definitions inside.
+        \li Optional, but recommended if the namespaces spans more than a few lines:
+            Add a comment after the right curly brace repeating the namespace.
 
         \code
         namespace MyPlugin {
@@ -509,8 +509,8 @@
         }  // namespace MyPlugin
         \endcode
 
-        \o As an exception, if there is only a single class declaration inside
-           the namespace, all can go on a single line:
+        \li As an exception, if there is only a single class declaration inside
+            the namespace, all can go on a single line:
         \code
         namespace MyPlugin { class MyClass; }
         \endcode
@@ -526,11 +526,11 @@
 
     The namespacing policy within Qt Creator is as follows:
     \list
-        \o Classes/Symbols of a library or plugin that are exported for use of
-           other libraries or plugins are in a namespace specific to that
-           library/plugin, e.g. \c{MyPlugin}.
-        \o Classes/Symbols of a library or plugin that are not exported are in
-           an additional \c{Internal} namespace, e.g. \c{MyPlugin::Internal}.
+        \li Classes/Symbols of a library or plugin that are exported for use of
+            other libraries or plugins are in a namespace specific to that
+            library/plugin, e.g. \c{MyPlugin}.
+        \li Classes/Symbols of a library or plugin that are not exported are in
+            an additional \c{Internal} namespace, e.g. \c{MyPlugin::Internal}.
     \endlist
 
     \section2 Passing File Names
@@ -577,35 +577,35 @@
     \section2 C++ Features
 
     \list
-        \o  Do not use exceptions, unless you know what you do.
+        \li Do not use exceptions, unless you know what you do.
 
-        \o  Do not use RTTI (Run-Time Type Information; that is, the typeinfo
+        \li Do not use RTTI (Run-Time Type Information; that is, the typeinfo
             struct, the dynamic_cast or the typeid operators, including throwing
             exceptions), unless you know what you do.
 
-        \o  Do not use virtual inheritance, unless you know what you do.
+        \li Do not use virtual inheritance, unless you know what you do.
 
-        \o  Use templates wisely, not just because you can.
+        \li Use templates wisely, not just because you can.
 
             Hint: Use the compile autotest to see whether a C++ feature is supported
             by all compilers in the test farm.
 
-        \o  All code is ASCII only (7-bit characters only, run \c {man ascii} if unsure)
+        \li All code is ASCII only (7-bit characters only, run \c {man ascii} if unsure)
             \list
-                \o  Rationale: We have too many locales inhouse and an unhealthy
+                \li Rationale: We have too many locales inhouse and an unhealthy
                     mix of UTF-8 and Latin1 systems. Usually, characters > 127 can
                     be broken without you even knowing by clicking Save in your
                     favourite editor.
-                \o  For strings: Use \\nnn (where nnn is the octal representation
-                    of whatever locale you want your string in) or \xnn (where nn
+                \li For strings: Use \\nnn (where nnn is the octal representation
+                    of whatever locale you want your string in) or \\xnn (where nn
                     is hexadecimal).
                     For example: QString s = QString::fromUtf8("\\213\\005");
-              \o  For umlauts in documentation, or other non-ASCII characters,
+              \li For umlauts in documentation, or other non-ASCII characters,
                   either use the qdoc \c {\unicode} command or use the relevant macro.
                   For example: \c{\uuml} for \uuml.
            \endlist
 
-        \o  Use static keywords instead of anonymous namespaces whenever possible.
+        \li Use static keywords instead of anonymous namespaces whenever possible.
             A name localized to the compilation unit with static is
             guaranteed to have internal linkage. For names declared in anonymous
             namespaces, the C++ standard unfortunately mandates external linkage
@@ -640,10 +640,10 @@
     \section2 Using QObject
 
     \list
-        \o  Every QObject subclass must have a Q_OBJECT macro, even if it
+        \li Every QObject subclass must have a Q_OBJECT macro, even if it
             does not have signals or slots, if it is intended to be used
             with qobject_cast<>. See also \l{Casting}.
-        \o  Normalize the arguments for signals and slots
+        \li Normalize the arguments for signals and slots
             (see \l{http://qt-project.org/doc/qt-4.8/qmetaobject.html#normalizedSignature}{QMetaObject::normalizedSignature}
             inside connect statements
             to safely make signal and slot lookup a few cycles faster.
@@ -658,34 +658,34 @@
     \section2 Including Headers
 
     \list
-        \o  Use the following format to include Qt headers:
+        \li Use the following format to include Qt headers:
             \c{#include <QWhatEver>}. Do not include the module as it might have changed between
             Qt4 and Qt5.
-        \o  Arrange includes in an order that goes from specific to generic to
+        \li Arrange includes in an order that goes from specific to generic to
             ensure that the headers are self-contained. For example:
         \list
-            \o  \c{#include "myclass.h"}
-            \o  \c{#include "otherclassinplugin.h"}
-            \o  \c{#include <otherplugin/someclass.h>}
-            \o  \c{#include <QtClass>}
-            \o  \c{#include <stdthing>}
-            \o  \c{#include <system.h>}
+            \li \c{#include "myclass.h"}
+            \li \c{#include "otherclassinplugin.h"}
+            \li \c{#include <otherplugin/someclass.h>}
+            \li \c{#include <QtClass>}
+            \li \c{#include <stdthing>}
+            \li \c{#include <system.h>}
         \endlist
-        \o  Enclose headers from other plugins in square brackets (<>) rather than
+        \li Enclose headers from other plugins in square brackets (<>) rather than
             quotation marks ("") to make it easier to spot external dependencies in
             the sources.
-        \o  Add empty lines between long blocks of \e peer headers and try to
+        \li Add empty lines between long blocks of \e peer headers and try to
             arrange the headers in alphabetic order within a block.
     \endlist
 
     \section2 Casting
 
     \list
-        \o  Avoid C casts, prefer C++ casts (\c static_cast, \c const_cast,
+        \li Avoid C casts, prefer C++ casts (\c static_cast, \c const_cast,
             \c reinterpret_cast) Both \c reinterpret_cast and
             C-style casts are dangerous, but at least \c reinterpret_cast
             will not remove the const modifier.
-        \o  Do not use \c dynamic_cast, use \c {qobject_cast} for QObjects, or
+        \li Do not use \c dynamic_cast, use \c {qobject_cast} for QObjects, or
             refactor your design, for example by introducing a \c {type()}
             method (see QListWidgetItem), unless you know what you do.
     \endlist
@@ -693,7 +693,7 @@
     \section2 Compiler and Platform-specific Issues
 
     \list
-        \o  Be extremely careful when using the question mark operator.
+        \li Be extremely careful when using the question mark operator.
             If the returned types are not identical, some compilers generate
             code that crashes at runtime (you will not even get a compiler warning):
             \code
@@ -702,7 +702,7 @@
             return condition ? s : "nothing";
             \endcode
 
-        \o  Be extremely careful about alignment.
+        \li Be extremely careful about alignment.
 
             Whenever a pointer is cast such that the required alignment of
             the target is increased, the resulting code might crash at runtime
@@ -721,7 +721,7 @@
             };
             \endcode
 
-        \o  Anything that has a constructor or needs to run code to be
+        \li Anything that has a constructor or needs to run code to be
             initialized cannot be used as global object in library code,
             since it is undefined when that constructor or code will be run
             (on first usage, on library load, before \c {main()} or not at all).
@@ -784,7 +784,7 @@
             will be run the first time the function is entered. The code is not
             reentrant, though.
 
-        \o  A \c char is signed or unsigned dependent on the architecture. Use signed
+        \li A \c char is signed or unsigned dependent on the architecture. Use signed
             \c char or \c uchar if you explicitly want a signed or unsigned char.
             The following code will break on PowerPC, for example:
 
@@ -796,11 +796,11 @@
             }
             \endcode
 
-        \o  Avoid 64-bit enum values. The AAPCS (Procedure Call Standard
+        \li Avoid 64-bit enum values. The AAPCS (Procedure Call Standard
             for the ARM Architecture) embedded ABI hard codes
             all enum values to a 32-bit integer.
 
-        \o  Do not mix const and non-const iterators. This will silently crash
+        \li Do not mix const and non-const iterators. This will silently crash
             on broken compilers.
             \code
             for (Container::const_iterator it = c.constBegin(); it != c.constEnd(); ++it)
@@ -814,12 +814,12 @@
     \section2 Esthetics
 
     \list
-        \o Prefer enums to define const over static const int or defines.
-           Enumeration values will be replaced by the compiler at compile time,
-           resulting in faster code. Defines are not namespace safe.
-        \o Prefer verbose argument names in headers.
-           Qt Creator will show the argument names in their completion box.
-           It will look better in the documentation.
+        \li Prefer enums to define const over static const int or defines.
+            Enumeration values will be replaced by the compiler at compile time,
+            resulting in faster code. Defines are not namespace safe.
+        \li Prefer verbose argument names in headers.
+            Qt Creator will show the argument names in their completion box.
+            It will look better in the documentation.
     \endlist
 
     \section2 Inheriting from Template or Tool Classes
@@ -828,8 +828,8 @@
     pitfalls:
 
     \list
-        \o  The destructors are not virtual, which can lead to memory leaks.
-        \o  The symbols are not exported (and mostly inline), which can lead to
+        \li The destructors are not virtual, which can lead to memory leaks.
+        \li The symbols are not exported (and mostly inline), which can lead to
             symbol clashes.
     \endlist
 
@@ -845,16 +845,16 @@
 
     \list
 
-        \o  No C style casts (\c{-Wold-style-cast}). Use \c static_cast, \c const_cast
+        \li No C style casts (\c{-Wold-style-cast}). Use \c static_cast, \c const_cast
             or \c reinterpret_cast, for basic types, use the constructor form:
             \c {int(a)} instead of \c {(int)a}. For more information, see \l{Casting}.
 
-        \o  No float comparisons (\c{-Wfloat-equal}). Use \c qFuzzyCompare to compare
+        \li No float comparisons (\c{-Wfloat-equal}). Use \c qFuzzyCompare to compare
             values with a delta. Use \c qIsNull to check whether a float is
             binary 0, instead of comparing it to 0.0, or, preferred, move
             such code into an implementation file.
 
-       \o  Do not hide virtual methods in subclasses (\{-Woverloaded-virtual}).
+       \li Do not hide virtual methods in subclasses (\{-Woverloaded-virtual}).
            If the baseclass A has a virtual \c {int val()} and subclass B an
            overload with the same name, \c {int val(int x)}, the A \c val function
            is hidden. Use the \c using keyword to make it visible again, and
@@ -870,14 +870,14 @@
                };
            \endcode
 
-        \o  Do not shadow variables (\c{-Wshadow}).
+        \li Do not shadow variables (\c{-Wshadow}).
 
-        \o  Avoid things like \c {this->x = x;} if possible.
+        \li Avoid things like \c {this->x = x;} if possible.
 
-        \o  Do not give variables the same name as functions declared in
+        \li Do not give variables the same name as functions declared in
             your class.
 
-        \o  To improve code readability, always check whether a preprocessor
+        \li To improve code readability, always check whether a preprocessor
             variable is defined before probing its value (\c{-Wundef}).
 
             \code
@@ -892,8 +892,8 @@
               #if Foo - 0 == 0
            \endcode
 
-        \o When checking for a preprocessor define using the \c{defined}
-           operator, always include the variable name in parentheses.
+        \li When checking for a preprocessor define using the \c{defined}
+            operator, always include the variable name in parentheses.
 
             \code
               #if defined(Foo)

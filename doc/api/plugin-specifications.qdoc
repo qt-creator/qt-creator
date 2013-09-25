@@ -35,50 +35,50 @@
     and \c disabledByDefault.
     \table
         \header
-            \o Tag
-            \o Meaning
+            \li Tag
+            \li Meaning
         \row
-            \o plugin
-            \o Root element in a plugin's XML file.
+            \li plugin
+            \li Root element in a plugin's XML file.
     \endtable
     \table
         \header
-            \o Attribute
-            \o Meaning
+            \li Attribute
+            \li Meaning
         \row
-            \o name
-            \o This is used as an identifier for the plugin and can e.g.
-               be referenced in other plugin's dependencies. It is
-               also used to construct the name of the plugin library
-               as \c{lib[name].[dll|.so|.dylib]}. (Depending on platform.
-               If you use the same string as the \c TARGET in your plugin's
-               .pro-file, you are fine.)
+            \li name
+            \li This is used as an identifier for the plugin and can e.g.
+                be referenced in other plugin's dependencies. It is
+                also used to construct the name of the plugin library
+                as \c{lib[name].[dll|.so|.dylib]}. (Depending on platform.
+                If you use the same string as the \c TARGET in your plugin's
+                .pro-file, you are fine.)
         \row
-            \o version
-            \o Version string in the form \c{x.y.z_n}, used for identifying
-               the plugin. Also see \l{A Note on Plugin Versions}.
+            \li version
+            \li Version string in the form \c{x.y.z_n}, used for identifying
+                the plugin. Also see \l{A Note on Plugin Versions}.
         \row
-            \o compatVersion
-            \o Optional. If not given, it is implicitly
-               set to the same value as \c version. The compatibility version
-               states which version of this plugin the current version is
-               binary backward compatible with and is used to resolve dependencies
-               on this plugin. I.e. a \c version of \c{2.1.1} and a
-               \c compatVersion of \c{2.0.0} means that this version \c{2.1.1} of the plugin
-               is binary backward compatible with all versions of the plugin down to \c{2.0.0}
-               (inclusive).
+            \li compatVersion
+            \li Optional. If not given, it is implicitly
+                set to the same value as \c version. The compatibility version
+                states which version of this plugin the current version is
+                binary backward compatible with and is used to resolve dependencies
+                on this plugin. I.e. a \c version of \c{2.1.1} and a
+                \c compatVersion of \c{2.0.0} means that this version \c{2.1.1} of the plugin
+                is binary backward compatible with all versions of the plugin down to \c{2.0.0}
+                (inclusive).
         \row
-            \o experimental
-            \o Optional. Can be \c true or \c false, defaults to \c false.
-               Experimental plugins are not loaded by default but must be explicitly
-               enabled by the user. This attribute should be enabled for new plugins which have the
-               potential to negatively affect the user experience.
+            \li experimental
+            \li Optional. Can be \c true or \c false, defaults to \c false.
+                Experimental plugins are not loaded by default but must be explicitly
+                enabled by the user. This attribute should be enabled for new plugins which have the
+                potential to negatively affect the user experience.
         \row
-            \o disabledByDefault
-            \o Optional. Can be \c true or \c false, defaults to \c false.
-               If set, the respective plugin is not loaded by default but must be explicitly
-               enabled by the user. This should be done for plugins which are not expected
-               to be used by so many people as to justify the additional resource consumption.
+            \li disabledByDefault
+            \li Optional. Can be \c true or \c false, defaults to \c false.
+                If set, the respective plugin is not loaded by default but must be explicitly
+                enabled by the user. This should be done for plugins which are not expected
+                to be used by so many people as to justify the additional resource consumption.
     \endtable
 
     \section2 Plugin-describing Tags
@@ -88,38 +88,38 @@
     are optional.
     \table
         \header
-            \o Tag
-            \o Meaning
+            \li Tag
+            \li Meaning
         \row
-            \o category
-            \o Defaults to \c Utilities. Is used to put related plugins
-               under the same tree node in the plugin overview \gui{About Plugins...}.
+            \li category
+            \li Defaults to \c Utilities. Is used to put related plugins
+                under the same tree node in the plugin overview \gui{About Plugins...}.
         \row
-            \o vendor
-            \o String that describes the plugin creator/vendor,
-               like \c{MyCompany}.
+            \li vendor
+            \li String that describes the plugin creator/vendor,
+                like \c{MyCompany}.
         \row
-            \o copyright
-            \o A short copyright notice, like \c{(C) 2007-2008 MyCompany}.
+            \li copyright
+            \li A short copyright notice, like \c{(C) 2007-2008 MyCompany}.
         \row
-            \o platform
-            \o A regular expression that matches the names of the platforms the plugin works on.
-               Omitting the tag implies that the plugin is loaded on all platforms.
+            \li platform
+            \li A regular expression that matches the names of the platforms the plugin works on.
+                Omitting the tag implies that the plugin is loaded on all platforms.
         \row
-            \o license
-            \o Possibly multi-line license information about the plugin.
-               Should still be kept relatively short, since the UI is not
-           designed for long texts.
+            \li license
+            \li Possibly multi-line license information about the plugin.
+                Should still be kept relatively short, since the UI is not
+                designed for long texts.
         \row
-            \o description
-            \o Possibly multi-line description of what the plugin is supposed
-               to provide.
-               Should still be kept relatively short, since the UI is not
-           designed for long texts.
+            \li description
+            \li Possibly multi-line description of what the plugin is supposed
+                to provide.
+                Should still be kept relatively short, since the UI is not
+                designed for long texts.
         \row
-            \o url
-            \o Link to further information about the plugin, like
-               \c{http://www.mycompany-online.com/products/greatplugin}.
+            \li url
+            \li Link to further information about the plugin, like
+                \c{http://www.mycompany-online.com/products/greatplugin}.
     \endtable
 
     \section2 Dependencies
@@ -141,8 +141,8 @@
     (as defined in the attributes of the plugin's \c plugin tag) matches
     the dependency if
     \list
-        \o its \c name matches \c dependencyName, and
-        \o \c {compatVersion <= dependencyVersion <= version}.
+        \li its \c name matches \c dependencyName, and
+        \li \c {compatVersion <= dependencyVersion <= version}.
     \endlist
     For example a dependency
     \code
@@ -157,28 +157,28 @@
 
     \table
         \header
-            \o Tag
-            \o Meaning
+            \li Tag
+            \li Meaning
         \row
-            \o dependency
-            \o Describes a dependency on another plugin.
+            \li dependency
+            \li Describes a dependency on another plugin.
     \endtable
     \table
         \header
-            \o Attribute
-            \o Meaning
+            \li Attribute
+            \li Meaning
         \row
-            \o name
-            \o The name of the plugin, on which this plugin relies.
+            \li name
+            \li The name of the plugin, on which this plugin relies.
         \row
-            \o version
-            \o The version to which the plugin must be compatible to
-               fill the dependency, in the form \c{x.y.z_n}.
-               Can be empty if the version does not matter.
+            \li version
+            \li The version to which the plugin must be compatible to
+                fill the dependency, in the form \c{x.y.z_n}.
+                Can be empty if the version does not matter.
         \row
-            \o type
-        \o Optional. Value \c required or \c optional. Defines if the dependency is
-           a hard requirement or optional. Defaults to \c{required}.
+            \li type
+            \li Optional. Value \c required or \c optional. Defines if the dependency is
+                a hard requirement or optional. Defaults to \c{required}.
     \endtable
 
     \section3 Optional Dependencies
@@ -187,10 +187,10 @@
     \c {type="optional"} attribute to the \c dependency tag:
 
     \list
-        \o If the dependency can be resolved, the plugin and
-           its dependency are loaded and initialized as for \c required dependencies.
-        \o If the dependency cannot be resolved, the plugin is loaded and initialized
-           as if the dependency was not declared at all.
+        \li If the dependency can be resolved, the plugin and
+            its dependency are loaded and initialized as for \c required dependencies.
+        \li If the dependency cannot be resolved, the plugin is loaded and initialized
+            as if the dependency was not declared at all.
     \endlist
 
     The plugin is not informed about the existence of optional dependencies in any way. Since the
@@ -221,26 +221,26 @@
 
     \table
         \header
-            \o Tag
-            \o Meaning
+            \li Tag
+            \li Meaning
         \row
-            \o argument
-            \o Describes a command line argument that the plugin wants to handle.
+            \li argument
+            \li Describes a command line argument that the plugin wants to handle.
     \endtable
     \table
         \header
-            \o Attribute
-            \o Meaning
+            \li Attribute
+            \li Meaning
         \row
-            \o name
-            \o The command line argument itself, including the \c - prefix, e.g.
-               \c{-my-parameter}.
+            \li name
+            \li The command line argument itself, including the \c - prefix, e.g.
+                \c{-my-parameter}.
         \row
-            \o parameter
-            \o Optional. If this is given, the command line argument expects an
-               additional parameter, e.g. \c{-my-parameter somevalue}. The
-               value of this attribute is used as a very short description of the
-               parameter for the user.
+            \li parameter
+            \li Optional. If this is given, the command line argument expects an
+                additional parameter, e.g. \c{-my-parameter somevalue}. The
+                value of this attribute is used as a very short description of the
+                parameter for the user.
     \endtable
 
     \section2 Example \c Test.pluginspec

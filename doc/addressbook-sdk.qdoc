@@ -35,10 +35,10 @@
     Qt, such as:
 
     \list
-        \o  Widgets and layout managers
-        \o  Container classes
-        \o  Signals and slots
-        \o  Input and output devices
+        \li  Widgets and layout managers
+        \li  Container classes
+        \li  Signals and slots
+        \li  Input and output devices
     \endlist
 
     All these technologies will be introduced via the Qt Creator Integrated
@@ -53,13 +53,13 @@
     Tutorial chapters:
 
     \list 1
-        \o \l{examples/addressbook-sdk/part1}{Designing the User Interface}
-        \o \l{examples/addressbook-sdk/part2}{Adding Addresses}
-        \o \l{examples/addressbook-sdk/part3}{Navigating between Entries}
-        \o \l{examples/addressbook-sdk/part4}{Editing and Removing Addresses}
-        \o \l{examples/addressbook-sdk/part5}{Adding a Find Function}
-        \o \l{examples/addressbook-sdk/part6}{Loading and Saving}
-        \o \l{examples/addressbook-sdk/part7}{Additional Features}
+        \li \l{examples/addressbook-sdk/part1}{Designing the User Interface}
+        \li \l{examples/addressbook-sdk/part2}{Adding Addresses}
+        \li \l{examples/addressbook-sdk/part3}{Navigating between Entries}
+        \li \l{examples/addressbook-sdk/part4}{Editing and Removing Addresses}
+        \li \l{examples/addressbook-sdk/part5}{Adding a Find Function}
+        \li \l{examples/addressbook-sdk/part6}{Loading and Saving}
+        \li \l{examples/addressbook-sdk/part7}{Additional Features}
     \endlist
 
     Although this little application does not look much like a fully-fledged
@@ -93,7 +93,7 @@
     Begin by launching Qt Creator and use it to generate a new project. To
     do this, select \gui{File} > \gui{New File or Project...} >
     \gui{Qt Application Project} > \gui{Qt Gui Application} and
-    click \gui OK. Set your project name to \bold part1 with the QtCore and
+    click \gui OK. Set your project name to \b part1 with the QtCore and
     QtGui modules checked. Ensure that you select QWidget as your base class
     and name it \c AddressBook.
 
@@ -101,15 +101,15 @@
     \gui{Project}:
 
     \list
-        \o  \c{main.cpp} - the file containing a \c main() function, with an
-            instance of \c AddressBook,
-        \o  \c{addressbook.cpp} - the implementation file for the
-            \c AddressBook class,
-        \o  \c{addressbook.h} - the definition file for the \c AddressBook
-            class,
-        \o  \c{addressbook.ui} - the user interface file created with \QD,
-            and
-        \o  \c{part1.pro} - the project file.
+        \li  \c{main.cpp} - the file containing a \c main() function, with an
+             instance of \c AddressBook,
+        \li  \c{addressbook.cpp} - the implementation file for the
+             \c AddressBook class,
+        \li  \c{addressbook.h} - the definition file for the \c AddressBook
+             class,
+        \li  \c{addressbook.ui} - the user interface file created with \QD,
+             and
+        \li  \c{part1.pro} - the project file.
     \endlist
 
     Now that you have all the files you need, click \gui Finish so you can
@@ -132,16 +132,16 @@
     QLineEdit and a QTextEdit for the input fields. To create this follow the
     steps mentioned below:
     \list
-       \o  Drag those widgets from the \gui{Widget Box} to your form.
-       \o  In the \gui{Property Editor}, set their \gui{objectName} property to
-           \c nameLabel and \c addressLabel for the \l{QLabel}s, \c nameLine
-           for the QLineEdit and finally, \c addressText for the QTextEdit.
-       \o  Position the widgets properly, according to the screenshot above.
-       \o  Use a QGridLayout to position our labels and input fields in a
-           structured manner. QGridLayout divides the available space into
-           a grid and places widgets in the cells you specify with row and
-           column numbers.
-       \o  Place the caption of the \c addressLabel on the top, change the
+       \li  Drag those widgets from the \gui{Widget Box} to your form.
+       \li  In the \gui{Property Editor}, set their \gui{objectName} property to
+            \c nameLabel and \c addressLabel for the \l{QLabel}s, \c nameLine
+            for the QLineEdit and finally, \c addressText for the QTextEdit.
+       \li  Position the widgets properly, according to the screenshot above.
+       \li  Use a QGridLayout to position our labels and input fields in a
+            structured manner. QGridLayout divides the available space into
+            a grid and places widgets in the cells you specify with row and
+            column numbers.
+       \li  Place the caption of the \c addressLabel on the top, change the
            vertical alignment property to \c AlignTop.
     \endlist
 
@@ -227,15 +227,15 @@
     the behavior of a widget has the following advantages:
 
     \list
-        \o  You can write implementations of virtual or pure virtual functions
-            to obtain exactly what you need, falling back on the base class's
-            implementation when necessary.
-        \o  It allows you to encapsulate parts of the user interface within a
-            class, so that the other parts of the application do not need to
-            know about the individual widgets in the user interface.
-        \o  The subclass can be used to create multiple custom widgets in the
-            same application or library, and the code for the subclass can be
-            reused in other projects.
+        \li  You can write implementations of virtual or pure virtual functions
+             to obtain exactly what you need, falling back on the base class's
+             implementation when necessary.
+        \li  It allows you to encapsulate parts of the user interface within a
+             class, so that the other parts of the application do not need to
+             know about the individual widgets in the user interface.
+        \li   The subclass can be used to create multiple custom widgets in the
+             same application or library, and the code for the subclass can be
+             reused in other projects.
     \endlist
 
     Since Qt does not provided a specific address book widget, you subclass a
@@ -272,29 +272,29 @@
     complete the process of adding a contact. Break the existing layouts by
     following the steps below:
     \list
-        \o Select, \gui{Break Layout} from the context menu. You might have to
-           do a \gui{Select All} with \key{Ctrl+A} first..
-        \o Add three push buttons and double-click on each of them to set
-           their text to "Add", "Submit", and "Cancel".
-        \o Set the \c objectName of the buttons to \c addButton,
-           \c submitButton and \c cancelButton respectively.
-        \o A \gui{Vertical Spacer} is required to ensure that the push buttons
-           will be laid out neatly; drag one from the \gui{Widget Box}.
-        \o Lay out these three push buttons and the spacer vertically, by
-           selecting all three of them using \key{Ctrl + click} and selecting
-           \gui{Lay out Vertically} from the context menu. Alternatively you
-           can  use the \key{Ctrl+L} shortcut key.
+        \li Select, \gui{Break Layout} from the context menu. You might have to
+            do a \gui{Select All} with \key{Ctrl+A} first..
+        \li Add three push buttons and double-click on each of them to set
+            their text to "Add", "Submit", and "Cancel".
+        \li Set the \c objectName of the buttons to \c addButton,
+            \c submitButton and \c cancelButton respectively.
+        \li A \gui{Vertical Spacer} is required to ensure that the push buttons
+            will be laid out neatly; drag one from the \gui{Widget Box}.
+        \li Lay out these three push buttons and the spacer vertically, by
+            selecting all three of them using \key{Ctrl + click} and selecting
+            \gui{Lay out Vertically} from the context menu. Alternatively you
+            can  use the \key{Ctrl+L} shortcut key.
 
-           \note Use the spacer as you do not want the buttons to be evenly
-           spaced, but arranged closer to the top of the widget.
-        \o The figure below shows the difference between using the spacer and
-           not using it.
-           \image addressbook-tutorial-part2-stretch-effects.png
-        \o Select all the objects on the form using, \key{Ctrl+A} and lay them
-           out in a grid.
-        \o Lastly, set the top level widget's layout by right-clicking anywhere
-           on the widget and selecting \gui{Lay out Horizontally} or
-           \gui{Lay out Vertically}.
+            \note Use the spacer as you do not want the buttons to be evenly
+            spaced, but arranged closer to the top of the widget.
+        \li The figure below shows the difference between using the spacer and
+            not using it.
+            \image addressbook-tutorial-part2-stretch-effects.png
+        \li Select all the objects on the form using, \key{Ctrl+A} and lay them
+            out in a grid.
+        \li Lastly, set the top level widget's layout by right-clicking anywhere
+            on the widget and selecting \gui{Lay out Horizontally} or
+            \gui{Lay out Vertically}.
     \endlist
 
     The final design of the form is shown in the screenshot below:
@@ -376,27 +376,27 @@
     This function can be divided into three parts:
 
     \list 1
-        \o  Extract the contact's detail from \c nameLine and \c addressText
-            and store them in QString objects. Also validate to ensure that
-            you did not click \gui Submit with empty input fields;
-            otherwise, a QMessageBox is displayed to remind you for a name
-            and address.
+        \li  Extract the contact's detail from \c nameLine and \c addressText
+             and store them in QString objects. Also validate to ensure that
+             you did not click \gui Submit with empty input fields;
+             otherwise, a QMessageBox is displayed to remind you for a name
+             and address.
 
-            \snippet examples/addressbook-sdk/part2/addressbook.cpp submitContact part1
+             \snippet examples/addressbook-sdk/part2/addressbook.cpp submitContact part1
 
-        \o  Then proceed to check if the contact already exists. If it does
-            not exist, add the contact to \c contacts and display a
-            QMessageBox to inform you about this, preventing you from
-            adding duplicate contacts. Our \c contacts object is based on
-            key-value pairs or name and address, hence, you want to ensure that
-            \e key is unique.
+        \li  Then proceed to check if the contact already exists. If it does
+             not exist, add the contact to \c contacts and display a
+             QMessageBox to inform you about this, preventing you from
+             adding duplicate contacts. Our \c contacts object is based on
+             key-value pairs or name and address, hence, you want to ensure that
+             \e key is unique.
 
-            \snippet examples/addressbook-sdk/part2/addressbook.cpp submitContact part2
+             \snippet examples/addressbook-sdk/part2/addressbook.cpp submitContact part2
 
-        \o  Once you have handled both cases mentioned above, restore the
-            push buttons to their normal state with the following code:
+        \li  Once you have handled both cases mentioned above, restore the
+             push buttons to their normal state with the following code:
 
-            \snippet examples/addressbook-sdk/part2/addressbook.cpp submitContact part3
+             \snippet examples/addressbook-sdk/part2/addressbook.cpp submitContact part3
     \endlist
 
     The screenshot below shows the QMessageBox object used to display
@@ -457,17 +457,17 @@
     need to traverse the existing contacts. To do so follow the steps
     mentioned below:
     \list
-        \o Add two push buttons at the bottom of your application and name
-           them: \gui Next and \gui Previous.
-        \o The buttons' \c objectName should be \c nextButton and
-           \c previousButton, respectively.
-        \o Break your top level layout by right-clicking on \c AddressBook in
-           the \gui{Object Inspector} and then select \gui{Lay out|Break Layout}.
-        \o Place the \gui Next and \gui Previous buttons in a horizontal
-           layout.
-        \o Drag and drop the buttons together with their layout into the
-           existing grid layout.
-        \o Set a top level layout for the widget again.
+        \li Add two push buttons at the bottom of your application and name
+            them: \gui Next and \gui Previous.
+        \li The buttons' \c objectName should be \c nextButton and
+            \c previousButton, respectively.
+        \li Break your top level layout by right-clicking on \c AddressBook in
+            the \gui{Object Inspector} and then select \gui{Lay out|Break Layout}.
+        \li Place the \gui Next and \gui Previous buttons in a horizontal
+            layout.
+        \li Drag and drop the buttons together with their layout into the
+            existing grid layout.
+        \li Set a top level layout for the widget again.
     \endlist
 
     The screenshot below illustrates what you will see as the button layout
@@ -523,11 +523,11 @@
     for \c contacts and then:
 
     \list
-        \o If the iterator is not at the end of \c contacts, increment it by
+        \li If the iterator is not at the end of \c contacts, increment it by
            one.
-        \o If the iterator is at the end of \c contacts, move it to the
-           beginning of \c contacts. This gives an illusion that our QMap
-           is working like a circularly-linked list.
+        \li If the iterator is at the end of \c contacts, move it to the
+            beginning of \c contacts. This gives an illusion that our QMap
+            is working like a circularly-linked list.
     \endlist
 
     \snippet examples/addressbook-sdk/part3/addressbook.cpp next
@@ -539,11 +539,11 @@
     \c contacts and then:
 
     \list
-        \o  If the iterator is at the end of \c contacts, clear the display
-            and return.
-        \o  If the iterator is at the beginning of \c contacts, move it to
-            the end.
-        \o  Then decrement the iterator by one.
+        \li  If the iterator is at the end of \c contacts, clear the display
+             and return.
+        \li  If the iterator is at the beginning of \c contacts, move it to
+             the end.
+        \li  Then decrement the iterator by one.
     \endlist
 
     \snippet examples/addressbook-sdk/part3/addressbook.cpp previous
@@ -578,9 +578,9 @@
 
     In this chapter, define the \c Mode enum with three different values:
     \list
-        \o \c{NavigationMode}
-        \o \c{AddingMode}
-        \o \c{EditingMode}
+        \li \c{NavigationMode}
+        \li \c{AddingMode}
+        \li \c{EditingMode}
     \endlist
 
     \section1 Placing Widgets on The Form

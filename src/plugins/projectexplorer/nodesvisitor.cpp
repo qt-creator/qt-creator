@@ -35,7 +35,7 @@ using namespace ProjectExplorer;
 /*!
   \class NodesVisitor
 
-  \short Base class for visitors that can be used to traverse a node hierarchy.
+  \brief Base class for visitors that can be used to traverse a node hierarchy.
 
   The class follows the visitor pattern as described in Gamma et al. Pass
   an instance of NodesVisitor to FolderNode::accept(): The visit methods
@@ -45,7 +45,7 @@ using namespace ProjectExplorer;
 */
 
 /*!
-  \method NodesVisitor::visitSessionNode(SessionNode *)
+  \fn NodesVisitor::visitSessionNode(SessionNode *)
 
   Called for the root session node.
 
@@ -53,7 +53,7 @@ using namespace ProjectExplorer;
   */
 
 /*!
-  \method NodesVisitor::visitProjectNode(SessionNode *)
+  \fn NodesVisitor::visitProjectNode(SessionNode *)
 
   Called for a project node.
 
@@ -61,7 +61,7 @@ using namespace ProjectExplorer;
   */
 
 /*!
-  \method NodesVisitor::visitFolderNode(SessionNode *)
+  \fn NodesVisitor::visitFolderNode(SessionNode *)
 
   Called for a folder node that is _not_ a SessionNode or a ProjectNode.
 

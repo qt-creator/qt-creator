@@ -57,7 +57,7 @@
     writes them.
 
     The stdOutBuffered(), stdErrBuffered() signals are emitted with complete
-    lines based on the '\n' marker if they are enabled using
+    lines based on the '\\n' marker if they are enabled using
     stdOutBufferedSignalsEnabled()/setStdErrBufferedSignalsEnabled().
     They would typically be used for log windows.
 

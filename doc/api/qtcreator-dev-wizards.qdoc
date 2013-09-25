@@ -31,40 +31,40 @@
 
     Implementing wizards requires:
     \list
-    \o Deciding on a base class:
+    \li Deciding on a base class:
        \list
-       \o Core::IWizard is a very generic interface that does
-          not make any assumption about what the wizard does and
-          what its UI looks like.
+       \li Core::IWizard is a very generic interface that does
+           not make any assumption about what the wizard does and
+           what its UI looks like.
 
-       \o Core::BaseFileWizard should be used for wizards that
-          generate files using a UI based on Utils::Wizard.
+       \li Core::BaseFileWizard should be used for wizards that
+           generate files using a UI based on Utils::Wizard.
        \endlist
 
-    \o Providing a set of parameters that determine how the wizard shows up
-       in the list of wizards in the  \gui{New File or Project} dialog.
+    \li Providing a set of parameters that determine how the wizard shows up
+        in the list of wizards in the  \gui{New File or Project} dialog.
 
-       When deriving from Core::IWizard, virtual functions returning the
-       values have to be implemented.
+        When deriving from Core::IWizard, virtual functions returning the
+        values have to be implemented.
 
-       When deriving from Core::BaseFileWizard, a parameter class
-       Core::BaseFileWizardParameters needs to be passed to the constructor,
-       on which the parameters can be set. This allows for easy creation
-       of several wizard instances with slightly different parameters.
+        When deriving from Core::BaseFileWizard, a parameter class
+        Core::BaseFileWizardParameters needs to be passed to the constructor,
+        on which the parameters can be set. This allows for easy creation
+        of several wizard instances with slightly different parameters.
 
-    \o Implementing the wizard UI
+    \li Implementing the wizard UI
 
-       Typically, this will be a class derived from Utils::Wizard.
-       Utils::Wizard extends QWizard with the functionality to show a progress
-       bar on the left.
+        Typically, this will be a class derived from Utils::Wizard.
+        Utils::Wizard extends QWizard with the functionality to show a progress
+        bar on the left.
 
-    \o Implementing the wizard functionality
+    \li Implementing the wizard functionality
 
-       When deriving from Core::BaseFileWizard, a list of Core::GeneratedFile
-       needs to be populated with the files and their contents.
-       \note The files are not actually written to the disk. This will be
-       done by Core::BaseFileWizard after performing overwrite checks and prompting
-       the user accordingly.
+        When deriving from Core::BaseFileWizard, a list of Core::GeneratedFile
+        needs to be populated with the files and their contents.
+        \note The files are not actually written to the disk. This will be
+        done by Core::BaseFileWizard after performing overwrite checks and prompting
+        the user accordingly.
 
     \endlist
 
@@ -72,44 +72,44 @@
 
     \table
     \header
-    \o Class
-    \o Description
+    \li Class
+    \li Description
 
     \row
-    \o Core::IWizard
-    \o Qt Creator wizard interface, implementations of which are registered with
-       ExtensionSystem::PluginManager.
+    \li Core::IWizard
+    \li Qt Creator wizard interface, implementations of which are registered with
+        ExtensionSystem::PluginManager.
 
     \row
-    \o Core::BaseFileWizard
-    \o Inherits Core::IWizard and provides a base class for generating files with a UI
-       based on QWizard.
+    \li Core::BaseFileWizard
+    \li Inherits Core::IWizard and provides a base class for generating files with a UI
+        based on QWizard.
 
     \row
-    \o Core::BaseFileWizardParameters
-    \o Contains parameters for Core::BaseFileWizard.
+    \li Core::BaseFileWizardParameters
+    \li Contains parameters for Core::BaseFileWizard.
 
     \row
-    \o Core::GeneratedFile
-    \o A file as produced by Core::BaseFileWizard, containing name, contents and some
-    attributes.
+    \li Core::GeneratedFile
+    \li A file as produced by Core::BaseFileWizard, containing name, contents and some
+        attributes.
 
     \row
-    \o Utils::FileWizardPage
-    \o Introductory wizard page asking for file name and path.
+    \li Utils::FileWizardPage
+    \li Introductory wizard page asking for file name and path.
 
     \row
-    \o Utils::FileWizardDialog
-    \o A wizard dialog presenting a Utils::FileWizardPage, which can be extended
-       by custom pages.
+    \li Utils::FileWizardDialog
+    \li A wizard dialog presenting a Utils::FileWizardPage, which can be extended
+        by custom pages.
 
     \row
-    \o Utils::ProjectIntroPage
-    \o Introductory wizard page asking for project name and path.
+    \li Utils::ProjectIntroPage
+    \li Introductory wizard page asking for project name and path.
 
     \row
-    \o ProjectExplorer::BaseProjectWizardDialog
-    \o Base class for project wizard dialogs, presenting
+    \li ProjectExplorer::BaseProjectWizardDialog
+    \li Base class for project wizard dialogs, presenting
         a Utils::ProjectIntroPage.
 
     \endtable
@@ -123,45 +123,45 @@
 
     \table
     \header
-    \o Type
-    \o Parameter Name
-    \o Description
+    \li Type
+    \li Parameter Name
+    \li Description
 
     \row
-    \o Core::IWizard::WizardKind
-    \o kind
-    \o Enumeration value that indicates the type of the wizard (project, class, file).
+    \li Core::IWizard::WizardKind
+    \li kind
+    \li Enumeration value that indicates the type of the wizard (project, class, file).
 
     \row
-    \o QIcon
-    \o icon
-    \o Icon to show.
+    \li QIcon
+    \li icon
+    \li Icon to show.
 
     \row
-    \o QString
-    \o description
-    \o Descriptive text.
+    \li QString
+    \li description
+    \li Descriptive text.
 
     \row
-    \o QString
-    \o displayName
-    \o Name to be shown in the list.
+    \li QString
+    \li displayName
+    \li Name to be shown in the list.
 
     \row
-    \o QString
-    \o id
-    \o Unique identifier for the wizard. It also determines the order within a category.
+    \li QString
+    \li id
+    \li Unique identifier for the wizard. It also determines the order within a category.
 
     \row
-    \o QString
-    \o category
-    \o Identifier of the category under which the wizard is to be listed. It also
-       determines the order of the categories.
+    \li QString
+    \li category
+    \li Identifier of the category under which the wizard is to be listed. It also
+        determines the order of the categories.
     \
     \row
-    \o QString
-    \o displayCategory
-    \o Description of the category.
+    \li QString
+    \li displayCategory
+    \li Description of the category.
     \endtable
 
     \section1 Example

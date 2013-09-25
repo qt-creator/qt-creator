@@ -27,69 +27,69 @@
     When you start \QC, the plugin manager does the following:
 
     \list 1
-        \o Looks in its search paths for
-           all .pluginspec files, and reads them. This is the first point where
-           loading a plugin can fail in the worst case of a malformed plugin spec.
+        \li Looks in its search paths for
+            all .pluginspec files, and reads them. This is the first point where
+            loading a plugin can fail in the worst case of a malformed plugin spec.
 
-        \o Creates an instance of the \l{ExtensionSystem::PluginSpec} class for
-           each plugin. This class is a container for
-           all the information from the plugin specification, and additionally
-           tracks the state of the plugin.
-           You can get the \l{ExtensionSystem::PluginSpec} instances via the
-           plugin manager's \l{ExtensionSystem::PluginManager::plugins()}{plugins()}
-           method, or, after a plugin is loaded, through the plugin's
-           \l{ExtensionSystem::IPlugin::pluginSpec()}{pluginSpec()} method.
+        \li Creates an instance of the \l{ExtensionSystem::PluginSpec} class for
+            each plugin. This class is a container for
+            all the information from the plugin specification, and additionally
+            tracks the state of the plugin.
+            You can get the \l{ExtensionSystem::PluginSpec} instances via the
+            plugin manager's \l{ExtensionSystem::PluginManager::plugins()}{plugins()}
+            method, or, after a plugin is loaded, through the plugin's
+            \l{ExtensionSystem::IPlugin::pluginSpec()}{pluginSpec()} method.
 
-        \o Sets the plugins to \c Read state.
+        \li Sets the plugins to \c Read state.
 
-        \o Verifies that the dependencies of each plugin
-           exist and are compatible. For more information about plugin dependencies,
-           see \l{Plugin Specifications}.
+        \li Verifies that the dependencies of each plugin
+            exist and are compatible. For more information about plugin dependencies,
+            see \l{Plugin Specifications}.
 
-        \o Sets the plugins to \c Resolved state.
+        \li Sets the plugins to \c Resolved state.
 
-        \o Sorts all plugins into a list that we call the \e{load queue}, where the
-           dependencies of a plugin are positioned after the plugin
-           (but not necessarily \e directly after the plugin).
-           It will make sure that we load
-           and initialize the plugins in proper order.
+        \li Sorts all plugins into a list that we call the \e{load queue}, where the
+            dependencies of a plugin are positioned after the plugin
+            (but not necessarily \e directly after the plugin).
+            It will make sure that we load
+            and initialize the plugins in proper order.
 
-        \o Loads the plugins' libraries, and creates their IPlugin instances
-           in the order of the load queue. At this point the
-           plugin constructors are called. Plugins that other plugins depend on
-           are created first.
+        \li Loads the plugins' libraries, and creates their IPlugin instances
+            in the order of the load queue. At this point the
+            plugin constructors are called. Plugins that other plugins depend on
+            are created first.
 
-        \o Sets the plugins to \c Loaded state.
+        \li Sets the plugins to \c Loaded state.
 
-        \o Calls the \l{ExtensionSystem::IPlugin::initialize()}{initialize()} methods of
-           all plugins in the order of the load queue. In the \c initialize method,
-           a plugin should make sure that all exported interfaces are set up and available
-           to other plugins. A plugin can assume that plugins they depend on have set up
-           their exported interfaces. For example, the \c Core plugin sets up the
-           \l{Core::ActionManager}, \l{Core::EditorManager} and all other publicly available
-           interfaces, so other plugins can request and use them.
+        \li Calls the \l{ExtensionSystem::IPlugin::initialize()}{initialize()} methods of
+            all plugins in the order of the load queue. In the \c initialize method,
+            a plugin should make sure that all exported interfaces are set up and available
+            to other plugins. A plugin can assume that plugins they depend on have set up
+            their exported interfaces. For example, the \c Core plugin sets up the
+            \l{Core::ActionManager}, \l{Core::EditorManager} and all other publicly available
+            interfaces, so other plugins can request and use them.
 
-           The \l{ExtensionSystem::IPlugin::initialize()}{initialize()} method of a plugin
-           is a good place for
-           \list
-               \o registering objects in the plugin manager's object pool
-                  (see \l{The Plugin Manager, the Object Pool, and Registered Objects})
-               \o loading settings
-               \o adding new menus, and new actions to menus
-               \o connecting to other plugin's signals.
+            The \l{ExtensionSystem::IPlugin::initialize()}{initialize()} method of a plugin
+            is a good place for
+            \list
+               \li registering objects in the plugin manager's object pool
+                   (see \l{The Plugin Manager, the Object Pool, and Registered Objects})
+               \li loading settings
+               \li adding new menus, and new actions to menus
+               \li connecting to other plugin's signals.
            \endlist
 
-        \o Sets the plugins to \c Initialized state.
+        \li Sets the plugins to \c Initialized state.
 
-        \o Calls the \l{ExtensionSystem::IPlugin::extensionsInitialized()}{extensionsInitialized()}
-           methods of all plugins in \e reverse order of the load queue. After
-           the \c extensionsInitialized method, a plugin should be fully initialized, set up
-           and running. A plugin can assume that plugins that depend on it are fully set up,
-           and can finish the initialization of parts that can be extended by other plugins.
-           For example, the \c Core plugin assumes that all plugins have registered
-           their actions, and finishes initialization of the action manager.
+        \li Calls the \l{ExtensionSystem::IPlugin::extensionsInitialized()}{extensionsInitialized()}
+            methods of all plugins in \e reverse order of the load queue. After
+            the \c extensionsInitialized method, a plugin should be fully initialized, set up
+            and running. A plugin can assume that plugins that depend on it are fully set up,
+            and can finish the initialization of parts that can be extended by other plugins.
+            For example, the \c Core plugin assumes that all plugins have registered
+            their actions, and finishes initialization of the action manager.
 
-        \o Sets the plugins to \c Running state.
+        \li Sets the plugins to \c Running state.
     \endlist
 
     At the end of startup, the \c Core plugin's \l{Core::ICore} sends two signals.
@@ -111,19 +111,19 @@
     plugin manager starts its shutdown sequence:
 
     \list 1
-        \o Calls the \l{ExtensionSystem::IPlugin::aboutToShutdown()}{aboutToShutdown()} methods of
-           all plugins in the order of the load queue. Plugins should perform measures
-           for speeding up the actual shutdown here, like disconnecting signals that
-           would otherwise needlessly be called.
-           If a plugin needs to delay the real shutdown for a while, for example if
-           it needs to wait for external processes to finish for a clean shutdown,
-           the plugin can return \l{ExtensionSystem::IPlugin::AsynchronousShutdown} from this
-           method. This will make the plugin manager wait with the next step, and keep the main
-           event loop running, until all plugins requesting AsynchronousShutdown have sent
-           the asynchronousShutdownFinished() signal.
+        \li Calls the \l{ExtensionSystem::IPlugin::aboutToShutdown()}{aboutToShutdown()} methods of
+            all plugins in the order of the load queue. Plugins should perform measures
+            for speeding up the actual shutdown here, like disconnecting signals that
+            would otherwise needlessly be called.
+            If a plugin needs to delay the real shutdown for a while, for example if
+            it needs to wait for external processes to finish for a clean shutdown,
+            the plugin can return \l{ExtensionSystem::IPlugin::AsynchronousShutdown} from this
+            method. This will make the plugin manager wait with the next step, and keep the main
+            event loop running, until all plugins requesting AsynchronousShutdown have sent
+            the asynchronousShutdownFinished() signal.
 
-        \o Destroys all plugins by deleting their \l{ExtensionSystem::IPlugin}
-           instances in \e reverse order of the load queue. At this point the plugin destructors
-           are called. Plugins should clean up after themselves by freeing memory and other resources.
+        \li Destroys all plugins by deleting their \l{ExtensionSystem::IPlugin}
+            instances in \e reverse order of the load queue. At this point the plugin destructors
+            are called. Plugins should clean up after themselves by freeing memory and other resources.
     \endlist
 */

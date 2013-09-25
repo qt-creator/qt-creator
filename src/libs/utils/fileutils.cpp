@@ -160,7 +160,7 @@ bool FileUtils::copyRecursively(const FileName &srcFilePath, const FileName &tgt
 /*!
   If \a filePath is a directory, the function will recursively check all files and return
   true if one of them is newer than \a timeStamp. If \a filePath is a single file, true will
-  be returned if the file is newer than \timeStamp.
+  be returned if the file is newer than \a timeStamp.
 
   \return Whether at least one file in \a filePath has a newer date than \a timeStamp.
 */

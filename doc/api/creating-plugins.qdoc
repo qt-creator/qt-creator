@@ -44,22 +44,22 @@
 
     \section1 Basics
     \list
-    \o \l{Getting and Building Qt Creator}
-    \o \l{Creating Your First Plugin}
-    \o \l{Plugin Specifications}
-    \o \l{Plugin Life Cycle}
+    \li \l{Getting and Building Qt Creator}
+    \li \l{Creating Your First Plugin}
+    \li \l{Plugin Specifications}
+    \li \l{Plugin Life Cycle}
     \endlist
 
     \section1 Design Principles
     \list
-    \o \l{The Plugin Manager, the Object Pool, and Registered Objects}
-    \o \l{Aggregations}
-    \o \l{Extending and Providing Interfaces}
+    \li \l{The Plugin Manager, the Object Pool, and Registered Objects}
+    \li \l{Aggregations}
+    \li \l{Extending and Providing Interfaces}
     \endlist
 
     \section1 Creating 3rd-Party Plugins
     \list
-    \o \l{A Note on Binary Compatibility}
-    \o \l{Creating User-Installable Plugins}
+    \li \l{A Note on Binary Compatibility}
+    \li \l{Creating User-Installable Plugins}
     \endlist
 */

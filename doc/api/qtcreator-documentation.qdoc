@@ -36,14 +36,13 @@
 
     \list
 
-        \o  Overview topic, which describes the purpose of your plugin from the
-            viewpoint of \QC users
+        \li  Overview topic, which describes the purpose of your plugin from the
+             viewpoint of \QC users
 
-        \o  Procedure topics, which describe how to use your plugin as part of
-            \QC
+        \li  Procedure topics, which describe how to use your plugin as part of \QC
 
-        \o  Reference topics, which contain information that developers
-            occasionally need to look up (optional)
+        \li  Reference topics, which contain information that developers
+             occasionally need to look up (optional)
 
     \endlist
 
@@ -52,10 +51,10 @@
 
     \list
 
-        \o  Overview topic, which describes the architecture and use cases for
-            your plugin from the viewpoint of \QC developers
+        \li  Overview topic, which describes the architecture and use cases for
+             your plugin from the viewpoint of \QC developers
 
-        \o  API documentation, which is generated from code comments
+        \li  API documentation, which is generated from code comments
 
     \endlist
 
@@ -123,9 +122,9 @@
 
     \list
 
-        \o  nmake fixnavi (on Windows)
+        \li  nmake fixnavi (on Windows)
 
-        \o  make fixnavi (on Linux)
+        \li  make fixnavi (on Linux)
 
     \endlist
 
@@ -229,15 +228,15 @@
 
     \list
 
-        \o  Color reduction: Optimal 256 colors palette
+        \li  Color reduction: Optimal 256 colors palette
 
-        \o  Reduce colors to: 256
+        \li  Reduce colors to: 256
 
-        \o  Best compression (slow)
+        \li  Best compression (slow)
 
-        \o  Color quantization algorithm: NeuQuant neural-net (slow)
+        \li  Color quantization algorithm: NeuQuant neural-net (slow)
 
-        \o  External optimizers: OptiPNG o3
+        \li  External optimizers: OptiPNG o3
 
     \endlist
 
@@ -276,8 +275,8 @@
 
     \list
 
-        \o  nmake docs (on Windows)
-        \o  make docs (on Linux and Mac OS)
+        \li  nmake docs (on Windows)
+        \li  make docs (on Linux and Mac OS)
 
     \endlist
 
@@ -296,24 +295,24 @@
 
     \list
 
-        \o  html_docs - build \QC Manual in help format, but do not generate a
-            help file
+        \li  html_docs - build \QC Manual in help format, but do not generate a
+             help file
 
-        \o  dev_html_docs - build Extending \QC Manual in help format, but do
-            not generate a help file
+        \li  dev_html_docs - build Extending \QC Manual in help format, but do
+             not generate a help file
 
-        \o  qch_docs - build \QC Manual in help format and generate a help file
-            (.qch)
+        \li  qch_docs - build \QC Manual in help format and generate a help file
+             (.qch)
 
-        \o  dev_qch_docs - build Extending \QC Manual in help format and
-            generate a help file (.qch)
+        \li  dev_qch_docs - build Extending \QC Manual in help format and
+             generate a help file (.qch)
 
-        \o  docs_online - build \QC Manual and Extending \QC Manual in online
-            format
+        \li  docs_online - build \QC Manual and Extending \QC Manual in online
+             format
 
-        \o  html_docs_online - build \QC Manual in online format
+        \li  html_docs_online - build \QC Manual in online format
 
-        \o  dev_html_docs_online - build Extending \QC Manual in online format
+        \li  dev_html_docs_online - build Extending \QC Manual in online format
 
     \endlist
 

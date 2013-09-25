@@ -49,20 +49,20 @@
 
     \table
     \header
-        \o Tag
-        \o Meaning
+        \li Tag
+        \li Meaning
     \row
-        \o externaltool
-        \o Root element in the XML file that specifies an external tool.
+        \li externaltool
+        \li Root element in the XML file that specifies an external tool.
     \endtable
     \table
     \header
-        \o Attribute
-        \o Meaning
+        \li Attribute
+        \li Meaning
     \row
-        \o id
-        \o A string that identifies the external tool.
-           Two tools cannot have the same id. Required.
+        \li id
+        \li A string that identifies the external tool.
+            Two tools cannot have the same id. Required.
     \endtable
 
     \section2 Description Tags
@@ -74,30 +74,30 @@
 
     \table
     \header
-        \o Tag
-        \o Meaning
+        \li Tag
+        \li Meaning
     \row
-        \o description
-        \o Short, one-line description of what the tool is for. Required.
+        \li description
+        \li Short, one-line description of what the tool is for. Required.
     \row
-        \o displayname
-        \o Name to show in the menu item for the tool. Required.
+        \li displayname
+        \li Name to show in the menu item for the tool. Required.
     \row
-        \o category
-        \o Name of the category to show the tool in.
-           This is the name of the sub menu of the \c { Tools > External }
-           menu where the tool is placed. For example, specify the value
-           \c "Text" to display the tool in the \c { Tools > External > Text }
-           menu. Required.
+        \li category
+        \li Name of the category to show the tool in.
+            This is the name of the sub menu of the \c { Tools > External }
+            menu where the tool is placed. For example, specify the value
+            \c "Text" to display the tool in the \c { Tools > External > Text }
+            menu. Required.
     \endtable
     \table
     \header
-        \o Attribute
-        \o Meaning
+        \li Attribute
+        \li Meaning
     \row
-        \o xml:lang
-        \o Language code (such as, \c "en" or \c "de") of the language that is used for
-           the description, display name, or category. Optional.
+        \li xml:lang
+        \li Language code (such as, \c "en" or \c "de") of the language that is used for
+            the description, display name, or category. Optional.
     \endtable
 
     \section2 Executable Specification Tag
@@ -107,32 +107,32 @@
 
     \table
     \header
-        \o Tag
-        \o Meaning
+        \li Tag
+        \li Meaning
     \row
-        \o executable
-        \o Encloses subtags that specify what to run and which parameters to use. Required.
+        \li executable
+        \li Encloses subtags that specify what to run and which parameters to use. Required.
     \endtable
     \table
     \header
-        \o Attribute
-        \o Meaning
+        \li Attribute
+        \li Meaning
     \row
-        \o output
-        \o Specifies how to handle the tool's standard output stream.
+        \li output
+        \li Specifies how to handle the tool's standard output stream.
            Defaults to \c ShowInPane. Optional.
     \row
-        \o error
-        \o Specifies how to handle the tool's standard error stream.
-           Defaults to \c ShowInPane. Optional.
+        \li error
+        \li Specifies how to handle the tool's standard error stream.
+            Defaults to \c ShowInPane. Optional.
     \row
-        \o modifiesdocument
-        \o Specifies whether Qt Creator should expect changes to the current
-           document. If this flag is set, Qt Creator prompts users to save
-           changes to the current document before running the tool,
-           and silently reloads the current document after the tool has finished.
-           Possible values are: \c "yes" or \c "no" (defaults to \c "no").
-           Optional.
+        \li modifiesdocument
+        \li Specifies whether Qt Creator should expect changes to the current
+            document. If this flag is set, Qt Creator prompts users to save
+            changes to the current document before running the tool,
+            and silently reloads the current document after the tool has finished.
+            Possible values are: \c "yes" or \c "no" (defaults to \c "no").
+            Optional.
     \endtable
 
     The \c executable tag allows the following subtags. You must specify at least
@@ -140,28 +140,28 @@
 
     \table
     \header
-        \o Subtag
-        \o Meaning
+        \li Subtag
+        \li Meaning
     \row
-        \o path
-        \o File path to the executable to run, including filename. If you
-           specify the executable name without a path, Qt creator checks the
-           system PATH environment variable for a path to the executable. You
-           can specify the path multiple times. Qt Creator tries to resolve the
-           references in the given order and runs the first executable that it
-           finds. Required.
+        \li path
+        \li File path to the executable to run, including filename. If you
+            specify the executable name without a path, Qt creator checks the
+            system PATH environment variable for a path to the executable. You
+            can specify the path multiple times. Qt Creator tries to resolve the
+            references in the given order and runs the first executable that it
+            finds. Required.
     \row
-        \o arguments
-        \o Command line arguments for the executable. Specify the string in the
-           same format (with respect to quoting and argument splitting, for
-           example) as you would specify it on the command line of the platform
-           the tool runs on. Optional.
+        \li arguments
+        \li Command line arguments for the executable. Specify the string in the
+            same format (with respect to quoting and argument splitting, for
+            example) as you would specify it on the command line of the platform
+            the tool runs on. Optional.
     \row
-        \o workingdirectory
-        \o The working directory for the executable. Optional.
+        \li workingdirectory
+        \li The working directory for the executable. Optional.
     \row
-        \o input
-        \o A potentially multiline string that is passed to the tool via standard input stream.
+        \li input
+        \li A potentially multiline string that is passed to the tool via standard input stream.
     \endtable
 
     \section1 Example

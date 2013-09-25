@@ -180,7 +180,7 @@ class AbstractTextCursorHandler : public QObject
 public:
     AbstractTextCursorHandler(VcsBaseEditorWidget *editorWidget = 0);
 
-    /*! \brief Try to find some matching contents under \p cursor
+    /*! \brief Try to find some matching contents under \a cursor
      *
      *  It's the first function to be called because it changes the internal state of the handler.
      *  Other functions (highlightCurrentContents(), handleCurrentContents(), ...) use the result
@@ -199,7 +199,7 @@ public:
     //! Contents matched with the last call to findContentsUnderCursor()
     virtual QString currentContents() const = 0;
 
-    /*! \brief Fill \p menu with contextual actions applying to the contents matched
+    /*! \brief Fill \a menu with contextual actions applying to the contents matched
      *         with findContentsUnderCursor()
      */
     virtual void fillContextMenu(QMenu *menu, EditorContentType type) const = 0;
