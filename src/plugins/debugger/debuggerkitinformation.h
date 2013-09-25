@@ -38,6 +38,53 @@
 
 namespace Debugger {
 
+namespace Internal { class DebuggerItemManager; }
+
+class DEBUGGER_EXPORT DebuggerItem
+{
+public:
+    DebuggerItem();
+
+    bool canClone() const { return true; }
+    bool isValid() const;
+    QString engineTypeName() const;
+
+    QVariantMap toMap() const;
+    void fromMap(const QVariantMap &data);
+    void reinitializeFromFile();
+
+    QVariant id() const { return m_id; }
+
+    QString displayName() const { return m_displayName; }
+    void setDisplayName(const QString &displayName);
+
+    DebuggerEngineType engineType() const { return m_engineType; }
+    void setEngineType(const DebuggerEngineType &engineType);
+
+    Utils::FileName command() const { return m_command; }
+    void setCommand(const Utils::FileName &command);
+
+    bool isAutoDetected() const { return m_isAutoDetected; }
+    void setAutoDetected(bool isAutoDetected);
+
+    QList<ProjectExplorer::Abi> abis() const { return m_abis; }
+    void setAbis(const QList<ProjectExplorer::Abi> &abis);
+    void setAbi(const ProjectExplorer::Abi &abi);
+
+    QStringList abiNames() const;
+
+private:
+    friend class Debugger::Internal::DebuggerItemManager;
+    void setId(const QVariant &id);
+
+    QVariant m_id;
+    QString m_displayName;
+    DebuggerEngineType m_engineType;
+    Utils::FileName m_command;
+    bool m_isAutoDetected;
+    QList<ProjectExplorer::Abi> m_abis;
+};
+
 class DEBUGGER_EXPORT DebuggerKitInformation : public ProjectExplorer::KitInformation
 {
     Q_OBJECT
@@ -59,8 +106,8 @@ public:
 
     ItemList toUserOutput(const ProjectExplorer::Kit *k) const;
 
-    static void setDebugger(ProjectExplorer::Kit *k,
-        DebuggerEngineType type, const Utils::FileName &command);
+    static void setDebugger(ProjectExplorer::Kit *k, const DebuggerItem &item);
+    static void setDebugger(ProjectExplorer::Kit *k, const Utils::FileName &command);
 
     static Core::Id id();
     static Utils::FileName debuggerCommand(const ProjectExplorer::Kit *k);

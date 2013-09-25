@@ -26,3 +26,161 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+
+#include "debuggerkitinformation.h"
+#include "debuggerkitconfigwidget.h"
+
+#include <projectexplorer/abi.h>
+#include <utils/fileutils.h>
+
+#include <QProcess>
+
+using namespace Debugger::Internal;
+using namespace ProjectExplorer;
+using namespace Utils;
+
+static const char DEBUGGER_INFORMATION_COMMAND[] = "Binary";
+static const char DEBUGGER_INFORMATION_DISPLAYNAME[] = "DisplayName";
+static const char DEBUGGER_INFORMATION_ID[] = "Id";
+static const char DEBUGGER_INFORMATION_ENGINETYPE[] = "EngineType";
+static const char DEBUGGER_INFORMATION_AUTODETECTED[] = "AutoDetected";
+static const char DEBUGGER_INFORMATION_ABIS[] = "Abis";
+
+namespace Debugger {
+
+// --------------------------------------------------------------------------
+// DebuggerItem
+// --------------------------------------------------------------------------
+
+DebuggerItem::DebuggerItem()
+{
+    m_engineType = NoEngineType;
+    m_isAutoDetected = false;
+}
+
+void DebuggerItem::reinitializeFromFile()
+{
+    QProcess proc;
+    proc.start(m_command.toString(), QStringList() << QLatin1String("--version"));
+    proc.waitForStarted();
+    proc.waitForFinished();
+    QByteArray ba = proc.readAll();
+    if (ba.contains("gdb")) {
+        m_engineType = GdbEngineType;
+//        const char needle[] = "This GDB was configured as \"";
+//        int pos1 = ba.indexOf(needle);
+//        if (pos1 != -1) {
+//            pos1 += sizeof(needle);
+//            int pos2 = ba.indexOf('"', pos1 + 1);
+//            QByteArray target = ba.mid(pos1, pos2 - pos1);
+//            abis.append(Abi::abiFromTargetTriplet(target)); // FIXME: Doesn't exist yet.
+//        }
+        m_abis = Abi::abisOfBinary(m_command); // FIXME: Wrong.
+        return;
+    }
+    if (ba.contains("lldb")) {
+        m_engineType = LldbEngineType;
+        m_abis = Abi::abisOfBinary(m_command);
+        return;
+    }
+    if (ba.startsWith("Python")) {
+        m_engineType = PdbEngineType;
+        return;
+    }
+    m_engineType = NoEngineType;
+}
+
+QString DebuggerItem::engineTypeName() const
+{
+    switch (m_engineType) {
+    case Debugger::NoEngineType:
+        return DebuggerOptionsPage::tr("Not recognized");
+    case Debugger::GdbEngineType:
+        return QLatin1String("GDB");
+    case Debugger::CdbEngineType:
+        return QLatin1String("CDB");
+    case Debugger::LldbEngineType:
+        return QLatin1String("LLDB");
+    default:
+        return QString();
+    }
+}
+
+QStringList DebuggerItem::abiNames() const
+{
+    QStringList list;
+    foreach (const Abi &abi, m_abis)
+        list.append(abi.toString());
+    return list;
+}
+
+QVariantMap DebuggerItem::toMap() const
+{
+    QVariantMap data;
+    data.insert(QLatin1String(DEBUGGER_INFORMATION_DISPLAYNAME), m_displayName);
+    data.insert(QLatin1String(DEBUGGER_INFORMATION_ID), m_id);
+    data.insert(QLatin1String(DEBUGGER_INFORMATION_COMMAND), m_command.toUserOutput());
+    data.insert(QLatin1String(DEBUGGER_INFORMATION_ENGINETYPE), int(m_engineType));
+    data.insert(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTED), m_isAutoDetected);
+    data.insert(QLatin1String(DEBUGGER_INFORMATION_ABIS), abiNames());
+    return data;
+}
+
+void DebuggerItem::fromMap(const QVariantMap &data)
+{
+    m_command = FileName::fromUserInput(data.value(QLatin1String(DEBUGGER_INFORMATION_COMMAND)).toString());
+    m_id = data.value(QLatin1String(DEBUGGER_INFORMATION_ID)).toString();
+    m_displayName = data.value(QLatin1String(DEBUGGER_INFORMATION_DISPLAYNAME)).toString();
+    m_isAutoDetected = data.value(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTED)).toBool();
+    m_engineType = DebuggerEngineType(data.value(QLatin1String(DEBUGGER_INFORMATION_ENGINETYPE)).toInt());
+
+    m_abis.clear();
+    foreach (const QString &a, data.value(QLatin1String(DEBUGGER_INFORMATION_ABIS)).toStringList()) {
+        Abi abi(a);
+        if (abi.isValid())
+            m_abis.append(abi);
+    }
+}
+
+void DebuggerItem::setId(const QVariant &id)
+{
+    m_id = id;
+}
+
+void DebuggerItem::setDisplayName(const QString &displayName)
+{
+    m_displayName = displayName;
+}
+
+void DebuggerItem::setEngineType(const DebuggerEngineType &engineType)
+{
+    m_engineType = engineType;
+}
+
+void DebuggerItem::setCommand(const Utils::FileName &command)
+{
+    m_command = command;
+}
+
+void DebuggerItem::setAutoDetected(bool isAutoDetected)
+{
+    m_isAutoDetected = isAutoDetected;
+}
+
+void DebuggerItem::setAbis(const QList<ProjectExplorer::Abi> &abis)
+{
+    m_abis = abis;
+}
+
+void DebuggerItem::setAbi(const Abi &abi)
+{
+    m_abis.clear();
+    m_abis.append(abi);
+}
+
+bool Debugger::DebuggerItem::isValid() const
+{
+    return m_engineType != NoEngineType;
+}
+
+} // namespace Debugger;
