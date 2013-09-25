@@ -594,7 +594,8 @@ public:
 
     void executeCommand()
     {
-        m_client->diff(m_workingDirectory, m_unstagedFileNames, m_stagedFileNames);
+        m_client->diff(m_workingDirectory, m_unstagedFileNames, m_stagedFileNames,
+                       GitClient::SimpleTextDiffEditor);
     }
 
 private:
@@ -614,7 +615,7 @@ public:
 
     void executeCommand()
     {
-        m_client->diff(m_workingDirectory, m_fileName);
+        m_client->diff(m_workingDirectory, m_fileName, GitClient::SimpleTextDiffEditor);
     }
 
 private:
@@ -633,7 +634,8 @@ public:
 
     void executeCommand()
     {
-        m_client->diffBranch(m_workingDirectory, baseArguments(), m_branchName);
+        m_client->diffBranch(m_workingDirectory, baseArguments(), m_branchName,
+                             GitClient::SimpleTextDiffEditor);
     }
 
 private:
@@ -668,7 +670,8 @@ public:
 
     void executeCommand()
     {
-        m_client->show(m_workingDirectory, m_id, baseArguments());
+        m_client->show(m_workingDirectory, m_id, baseArguments(), QString(),
+                       GitClient::SimpleTextDiffEditor);
     }
 
 private:
