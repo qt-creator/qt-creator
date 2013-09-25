@@ -60,7 +60,7 @@ ModelNode ComponentView::modelNode(int index) const
 {
     if (m_standardItemModel->hasIndex(index, 0)) {
         QStandardItem *item = m_standardItemModel->item(index, 0);
-        return item->data(ModelNodeRole).value<ModelNode>();
+        return modelNodeForInternalId(qint32(item->data(ModelNodeRole).toInt()));
     }
 
     return ModelNode();
@@ -74,7 +74,7 @@ void ComponentView::setComponentNode(const ModelNode &node)
 void ComponentView::removeSingleNodeFromList(const ModelNode &node)
 {
     for (int row = 0; row < m_standardItemModel->rowCount(); row++) {
-        if (m_standardItemModel->item(row)->data(ModelNodeRole).value<ModelNode>() == node)
+        if (m_standardItemModel->item(row)->data(ModelNodeRole).toInt() == node.internalId())
             m_standardItemModel->removeRow(row);
     }
 }
@@ -83,7 +83,7 @@ void ComponentView::removeSingleNodeFromList(const ModelNode &node)
 int ComponentView::indexForNode(const ModelNode &node)
 {
     for (int row = 0; row < m_standardItemModel->rowCount(); row++) {
-        if (m_standardItemModel->item(row)->data(ModelNodeRole).value<ModelNode>() == node)
+        if (m_standardItemModel->item(row)->data(ModelNodeRole).toInt() == node.internalId())
             return row;
     }
     return -1;
@@ -133,7 +133,7 @@ void ComponentView::searchForComponentAndAddToList(const ModelNode &node)
         if (node.nodeSourceType() == ModelNode::NodeWithComponentSource) {
             if (!node.id().isEmpty()) {
                 QStandardItem *item = new QStandardItem(node.id());
-                item->setData(QVariant::fromValue(node), ModelNodeRole);
+                item->setData(QVariant::fromValue(node.internalId()), ModelNodeRole);
                 item->setEditable(false);
                 removeSingleNodeFromList(node); //remove node if already present
                 m_standardItemModel->appendRow(item);
@@ -149,7 +149,7 @@ void ComponentView::searchForComponentAndAddToList(const ModelNode &node)
                 }
                 description += node.parentProperty().name();
                 QStandardItem *item = new QStandardItem(description);
-                item->setData(QVariant::fromValue(node), ModelNodeRole);
+                item->setData(QVariant::fromValue(node.internalId()), ModelNodeRole);
                 item->setEditable(false);
                 removeSingleNodeFromList(node); //remove node if already present
                 m_standardItemModel->appendRow(item);
