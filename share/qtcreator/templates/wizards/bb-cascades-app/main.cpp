@@ -7,7 +7,7 @@ Q_DECL_EXPORT int main(int argc, char **argv)
 {
     bb::cascades::Application app(argc, argv);
 
-    new %ProjectName%(&app);
+    new %ProjectName:s%(&app);
 
     return bb::cascades::Application::exec();
 }

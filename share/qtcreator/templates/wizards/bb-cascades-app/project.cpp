@@ -4,7 +4,7 @@
 #include <bb/cascades/QmlDocument>
 #include <bb/cascades/AbstractPane>
 
-%ProjectName%::%ProjectName%(bb::cascades::Application *app)
+%ProjectName:s%::%ProjectName:s%(bb::cascades::Application *app)
     : QObject(app)
 {
     bb::cascades::QmlDocument *qml = bb::cascades::QmlDocument::create("asset:///main.qml").parent(this);
