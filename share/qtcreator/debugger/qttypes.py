@@ -49,22 +49,20 @@ def qdump__QByteArray(d, value):
         d.putArrayData(d.charType(), data, size)
 
 
-# Fails on Windows.
-try:
-    import curses.ascii
-    def printableChar(ucs):
-        if curses.ascii.isprint(ucs):
-            return ucs
-        return '?'
-except:
-    def printableChar(ucs):
-        if ucs >= 32 and ucs <= 126:
-            return ucs
-        return '?'
+def str2Utf8hex2(s):
+    # Returns UTF-8 hex-data of string suitable for QByteArray::fromHex()
+    ret = []
+    for c in s.encode('utf-8'):
+        ret.append('%02x' % ord(c))
+    return ''.join(ret)
 
 def qdump__QChar(d, value):
     ucs = int(value["ucs"])
-    d.putValue("'%c' (%d)" % (printableChar(ucs), ucs))
+    if ucs < 32:
+        ch = '?'
+    else:
+        ch = unichr(ucs)
+    d.putValue(str2Utf8hex2(u"'%s' (%d)" % (ch, ucs)), Hex2EncodedUtf8WithoutQuotes)
     d.putNumChild(0)
 
 

@@ -456,7 +456,7 @@ def cleanAddress(addr):
 
 # Some "Enums"
 
-# Encodings. Keep that synchronized with DebuggerEncoding in watchutils.h
+# Encodings. Keep that synchronized with DebuggerEncoding in debuggerprotocol.h
 Unencoded8Bit, \
 Base64Encoded8BitWithQuotes, \
 Base64Encoded16BitWithQuotes, \
@@ -484,8 +484,9 @@ Hex2EncodedUInt4, \
 Hex2EncodedUInt8, \
 Hex2EncodedFloat4, \
 Hex2EncodedFloat8, \
-IPv6AddressAndHexScopeId \
-    = range(28)
+IPv6AddressAndHexScopeId, \
+Hex2EncodedUtf8WithoutQuotes \
+    = range(29)
 
 # Display modes. Keep that synchronized with DebuggerDisplay in watchutils.h
 StopDisplay, \

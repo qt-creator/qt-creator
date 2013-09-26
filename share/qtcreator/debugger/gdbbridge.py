@@ -397,22 +397,6 @@ def importPlainDumpers(args):
 registerCommand("importPlainDumpers", importPlainDumpers)
 
 
-
-
-# Fails on Windows.
-try:
-    import curses.ascii
-    def printableChar(ucs):
-        if curses.ascii.isprint(ucs):
-            return ucs
-        return '?'
-except:
-    def printableChar(ucs):
-        if ucs >= 32 and ucs <= 126:
-            return ucs
-        return '?'
-
-
 #gdb.Value.child = impl_Value_child
 
 # Fails on SimulatorQt.

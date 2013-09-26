@@ -624,6 +624,10 @@ QString decodeData(const QByteArray &ba, int encoding)
                                                   scopeId.length() / 2));
             return ip6.toString();
         }
+        case Hex2EncodedUtf8WithoutQuotes: { // 28, %02x encoded 8 bit UTF-8 data without quotes
+            const QByteArray decodedBa = QByteArray::fromHex(ba);
+            return QString::fromUtf8(decodedBa);
+        }
     }
     qDebug() << "ENCODING ERROR: " << encoding;
     return QCoreApplication::translate("Debugger", "<Encoding error>");
