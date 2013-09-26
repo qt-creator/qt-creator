@@ -207,8 +207,13 @@ BarDescriptorEditorAssetsWidget *BarDescriptorEditorWidget::assetsWidget() const
 void BarDescriptorEditorWidget::setFilePath(const QString &filePath)
 {
     Core::IDocument *doc = m_xmlSourceWidget->editorDocument();
-    if (doc)
+    if (doc) {
         doc->setFilePath(filePath);
+        // setFilePath() call leads to a textChanged() signal emitted
+        // and therefore having this editor-widget to become dirty
+        // therefore we have to explicitly unset the dirty flag
+        setDirty(false);
+    }
 }
 
 QString BarDescriptorEditorWidget::xmlSource() const
