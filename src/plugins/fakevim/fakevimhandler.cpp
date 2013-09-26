@@ -943,7 +943,7 @@ public:
 
     bool isControl() const
     {
-        return m_modifiers & HostOsInfo::controlModifier();
+        return m_modifiers == HostOsInfo::controlModifier();
     }
 
     bool isControl(int c) const
