@@ -862,7 +862,10 @@ class Input
 {
 public:
     // Remove some extra "information" on Mac.
-    static int cleanModifier(int m)  { return m & ~Qt::KeypadModifier; }
+    static Qt::KeyboardModifiers cleanModifier(Qt::KeyboardModifiers m)
+    {
+        return m & ~Qt::KeypadModifier;
+    }
 
     Input()
         : m_key(0), m_xkey(0), m_modifiers(0) {}
@@ -876,7 +879,7 @@ public:
             m_key = x.toUpper().unicode();
     }
 
-    Input(int k, int m, const QString &t = QString())
+    Input(int k, Qt::KeyboardModifiers m, const QString &t = QString())
         : m_key(k), m_modifiers(cleanModifier(m)), m_text(t)
     {
         if (m_text.size() == 1) {
@@ -893,7 +896,7 @@ public:
         }
 
         // Set text only if input is ascii key without control modifier.
-        if (m_text.isEmpty() && k >= 0 && k <= 0x7f && (m & (HostOsInfo::controlModifier())) == 0) {
+        if (m_text.isEmpty() && k >= 0 && k <= 0x7f && (m & HostOsInfo::controlModifier()) == 0) {
             QChar c = QChar::fromLatin1(k);
             m_text = QString((m & ShiftModifier) != 0 ? c.toUpper() : c.toLower());
         }
@@ -986,7 +989,7 @@ public:
 
     int key() const { return m_key; }
 
-    int modifiers() const { return m_modifiers; }
+    Qt::KeyboardModifiers modifiers() const { return m_modifiers; }
 
     // Return raw character for macro recording or dot command.
     QChar raw() const
@@ -1037,12 +1040,12 @@ public:
 private:
     int m_key;
     int m_xkey;
-    int m_modifiers;
+    Qt::KeyboardModifiers m_modifiers;
     QString m_text;
 };
 
 // mapping to <Nop> (do nothing)
-static const Input Nop(-1, -1, QString());
+static const Input Nop(-1, Qt::KeyboardModifiers(-1), QString());
 
 QDebug operator<<(QDebug ts, const Input &input) { return input.dump(ts); }
 
@@ -1080,7 +1083,7 @@ static Input parseVimKeyName(const QString &keyName)
     if (len == 1 && keys.at(0).toUpper() == _("NOP"))
         return Nop;
 
-    int mods = NoModifier;
+    Qt::KeyboardModifiers mods = NoModifier;
     for (int i = 0; i < len - 1; ++i) {
         const QString &key = keys[i].toUpper();
         if (key == _("S"))
@@ -2191,7 +2194,7 @@ void FakeVimHandler::Private::leaveFakeVim(bool needUpdate)
 bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
 {
     const int key = ev->key();
-    const int mods = ev->modifiers();
+    const Qt::KeyboardModifiers mods = ev->modifiers();
     KEY_DEBUG("SHORTCUT OVERRIDE" << key << "  PASSING: " << g.passing);
 
     if (key == Key_Escape) {
@@ -2208,7 +2211,7 @@ bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
     }
 
     // We are interested in overriding most Ctrl key combinations.
-    if (mods == int(HostOsInfo::controlModifier())
+    if (mods == HostOsInfo::controlModifier()
             && !config(ConfigPassControlKey).toBool()
             && ((key >= Key_A && key <= Key_Z && key != Key_K)
                 || key == Key_BracketLeft || key == Key_BracketRight)) {
@@ -2231,7 +2234,7 @@ bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
 EventResult FakeVimHandler::Private::handleEvent(QKeyEvent *ev)
 {
     const int key = ev->key();
-    const int mods = ev->modifiers();
+    const Qt::KeyboardModifiers mods = ev->modifiers();
 
     if (key == Key_Shift || key == Key_Alt || key == Key_Control
             || key == Key_Alt || key == Key_AltGr || key == Key_Meta)
@@ -6968,8 +6971,7 @@ bool FakeVimHandler::Private::handleInsertInEditor(const Input &input)
 
     joinPreviousEditBlock();
 
-    QKeyEvent event(QEvent::KeyPress, input.key(),
-                    static_cast<Qt::KeyboardModifiers>(input.modifiers()), input.text());
+    QKeyEvent event(QEvent::KeyPress, input.key(), input.modifiers(), input.text());
     setAnchor();
     if (!passEventToEditor(event))
         return !m_textedit && !m_plaintextedit; // Mark event as handled if it has destroyed editor.
