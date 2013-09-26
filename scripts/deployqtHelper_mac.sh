@@ -23,6 +23,14 @@ if [ -d "$5" ]; then
     cp -R "$5"/ "$imports2Dir"/
 fi
 
+qmlpuppetapp="$1/Contents/MacOS/qmlpuppet.app"
+if [ -d "$qmlpuppetapp" ]; then
+    qmlpuppetArgument="-executable=$qmlpuppetapp/Contents/MacOS/qmlpuppet"
+    qmlpuppetResources="$1/Contents/MacOS/qmlpuppet.app/Contents/Resources"
+    test -d "$qmlpuppetResources" || mkdir -p "$qmlpuppetResources"
+    cp "$(dirname "${BASH_SOURCE[0]}")/../dist/installer/mac/qmlpuppet_qt.conf" "$qmlpuppetResources/qt.conf" || exit 1
+fi
+
 qml2puppetapp="$1/Contents/MacOS/qml2puppet.app"
 if [ -d "$qml2puppetapp" ]; then
     qml2puppetArgument="-executable=$qml2puppetapp/Contents/MacOS/qml2puppet"
@@ -32,13 +40,11 @@ if [ -d "$qml2puppetapp" ]; then
 fi
 
 macdeployqt "$1" \
-        "-executable=$1/Contents/MacOS/qmlpuppet.app/Contents/MacOS/qmlpuppet" \
         "-executable=$1/Contents/Resources/qtpromaker" \
-        "-executable=$1/Contents/Resources/sdktool" "$qml2puppetArgument" || exit 1
+        "-executable=$1/Contents/Resources/sdktool" "$qmlpuppetArgument" "$qml2puppetArgument" || exit 1
 
-qmlpuppetResources="$1/Contents/MacOS/qmlpuppet.app/Contents/Resources"
-test -d "$qmlpuppetResources" || mkdir -p "$qmlpuppetResources"
-cp "$(dirname "${BASH_SOURCE[0]}")/../dist/installer/mac/qmlpuppet_qt.conf" "$qmlpuppetResources/qt.conf" || exit 1
+# copy qt creator qt.conf
+cp -f "$(dirname "${BASH_SOURCE[0]}")/../dist/installer/mac/qt.conf" "$1/Contents/Resources/qt.conf" || exit 1
 
 # copy Qt translations
 cp "$2"/*.qm "$1/Contents/Resources/translations/" || exit 1
