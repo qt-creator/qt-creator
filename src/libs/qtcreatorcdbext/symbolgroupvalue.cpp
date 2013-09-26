@@ -980,10 +980,10 @@ static inline void getDateFromJulianDay(unsigned julianDay, int *year, int *mont
         *day = d;
 }
 
-const char *stdStringTypeC = "std::basic_string<char,std::char_traits<char>,std::allocator<char> >";
-const char *stdWStringTypeC = "std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> >";
+const char stdStringTypeC[] = "std::basic_string<char,std::char_traits<char>,std::allocator<char> >";
+const char stdWStringTypeC[] = "std::basic_string<unsigned short,std::char_traits<unsigned short>,std::allocator<unsigned short> >";
 // Compiler option:  -Zc:wchar_t-:
-const char *stdWStringWCharTypeC = "std::basic_string<wchar_t,std::char_traits<wchar_t>,std::allocator<wchar_t> >";
+const char stdWStringWCharTypeC[] = "std::basic_string<wchar_t,std::char_traits<wchar_t>,std::allocator<wchar_t> >";
 
 static KnownType knownPODTypeHelper(const std::string &type, std::string::size_type endPos)
 {

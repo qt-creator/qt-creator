@@ -32,7 +32,7 @@
 #include "stringutils.h"
 #include "gdbmihelpers.h"
 
-static const char eventContextC[] = "event";
+const char eventContextC[] = "event";
 
 const static int winExceptionCppException = 0xe06d7363;
 

@@ -34,7 +34,7 @@
 using namespace ExtensionSystem;
 using namespace ExtensionSystem::Internal;
 
-static const char END_OF_OPTIONS[] = "--";
+const char END_OF_OPTIONS[] = "--";
 const char *OptionsParser::NO_LOAD_OPTION = "-noload";
 const char *OptionsParser::LOAD_OPTION = "-load";
 const char *OptionsParser::TEST_OPTION = "-test";

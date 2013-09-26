@@ -62,9 +62,9 @@ using namespace ExtensionSystem;
 
 enum { OptionIndent = 4, DescriptionIndent = 34 };
 
-static const char appNameC[] = "Qt Creator";
-static const char corePluginNameC[] = "Core";
-static const char fixedOptionsC[] =
+const char appNameC[] = "Qt Creator";
+const char corePluginNameC[] = "Core";
+const char fixedOptionsC[] =
 " [OPTION]... [FILE]...\n"
 "Options:\n"
 "    -help                         Display this help\n"
@@ -75,17 +75,17 @@ static const char fixedOptionsC[] =
 "    -block                        Block until editor is closed\n"
 "    -pluginpath <path>            Add a custom search path for plugins\n";
 
-static const char HELP_OPTION1[] = "-h";
-static const char HELP_OPTION2[] = "-help";
-static const char HELP_OPTION3[] = "/h";
-static const char HELP_OPTION4[] = "--help";
-static const char VERSION_OPTION[] = "-version";
-static const char CLIENT_OPTION[] = "-client";
-static const char SETTINGS_OPTION[] = "-settingspath";
-static const char TEST_OPTION[] = "-test";
-static const char PID_OPTION[] = "-pid";
-static const char BLOCK_OPTION[] = "-block";
-static const char PLUGINPATH_OPTION[] = "-pluginpath";
+const char HELP_OPTION1[] = "-h";
+const char HELP_OPTION2[] = "-help";
+const char HELP_OPTION3[] = "/h";
+const char HELP_OPTION4[] = "--help";
+const char VERSION_OPTION[] = "-version";
+const char CLIENT_OPTION[] = "-client";
+const char SETTINGS_OPTION[] = "-settingspath";
+const char TEST_OPTION[] = "-test";
+const char PID_OPTION[] = "-pid";
+const char BLOCK_OPTION[] = "-block";
+const char PLUGINPATH_OPTION[] = "-pluginpath";
 
 typedef QList<PluginSpec *> PluginSpecSet;
 

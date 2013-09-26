@@ -44,7 +44,7 @@ using namespace Qt4ProjectManager;
 using namespace Qt4ProjectManager::Internal;
 
 
-const char *qt_file_dialog_filter_reg_exp =
+const char qt_file_dialog_filter_reg_exp[] =
 "^(.*)\\(([a-zA-Z0-9_.*? +;#\\-\\[\\]@\\{\\}/!<>\\$%&=^~:\\|]*)\\)$";
 
 // taken from qfiledialog.cpp

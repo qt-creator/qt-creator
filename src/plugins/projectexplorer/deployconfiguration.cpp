@@ -39,12 +39,8 @@
 
 using namespace ProjectExplorer;
 
-namespace {
-
-const char * const BUILD_STEP_LIST_COUNT("ProjectExplorer.BuildConfiguration.BuildStepListCount");
-const char * const BUILD_STEP_LIST_PREFIX("ProjectExplorer.BuildConfiguration.BuildStepList.");
-
-} // namespace
+const char BUILD_STEP_LIST_COUNT[] = "ProjectExplorer.BuildConfiguration.BuildStepListCount";
+const char BUILD_STEP_LIST_PREFIX[] = "ProjectExplorer.BuildConfiguration.BuildStepList.";
 
 DeployConfiguration::DeployConfiguration(Target *target, const Core::Id id) :
     ProjectConfiguration(target, id),

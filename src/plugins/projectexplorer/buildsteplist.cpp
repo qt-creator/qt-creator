@@ -60,8 +60,8 @@ IBuildStepFactory *findRestoreFactory(BuildStepList *parent, const QVariantMap &
     return 0;
 }
 
-const char * const STEPS_COUNT_KEY("ProjectExplorer.BuildStepList.StepsCount");
-const char * const STEPS_PREFIX("ProjectExplorer.BuildStepList.Step.");
+const char STEPS_COUNT_KEY[] = "ProjectExplorer.BuildStepList.StepsCount";
+const char STEPS_PREFIX[] = "ProjectExplorer.BuildStepList.Step.";
 
 } // namespace
 

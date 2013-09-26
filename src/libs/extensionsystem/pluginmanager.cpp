@@ -52,9 +52,9 @@
 #include <QTest>
 #endif
 
-static const char C_IGNORED_PLUGINS[] = "Plugins/Ignored";
-static const char C_FORCEENABLED_PLUGINS[] = "Plugins/ForceEnabled";
-static const int DELAYED_INITIALIZE_INTERVAL = 20; // ms
+const char C_IGNORED_PLUGINS[] = "Plugins/Ignored";
+const char C_FORCEENABLED_PLUGINS[] = "Plugins/ForceEnabled";
+const int DELAYED_INITIALIZE_INTERVAL = 20; // ms
 
 typedef QList<ExtensionSystem::PluginSpec *> PluginSpecSet;
 

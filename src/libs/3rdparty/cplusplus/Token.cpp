@@ -23,7 +23,7 @@
 
 using namespace CPlusPlus;
 
-static const char *token_names[] = {
+const char *token_names[] = {
     (""), ("<error>"),
 
     ("<C++ comment>"), ("<C++ doxy comment>"),

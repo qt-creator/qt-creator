@@ -38,10 +38,8 @@ using namespace CMakeProjectManager;
 using namespace Internal;
 using namespace ProjectExplorer;
 
-namespace {
-const char * const COMMON_ERROR_PATTERN = "^CMake Error at (.*):([0-9]*) \\((.*)\\):";
-const char * const NEXT_SUBERROR_PATTERN = "^CMake Error in (.*):";
-}
+const char COMMON_ERROR_PATTERN[] = "^CMake Error at (.*):([0-9]*) \\((.*)\\):";
+const char NEXT_SUBERROR_PATTERN[] = "^CMake Error in (.*):";
 
 CMakeParser::CMakeParser() :
     m_skippedFirstEmptyLine(false)
