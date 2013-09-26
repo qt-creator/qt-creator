@@ -460,6 +460,17 @@ public:
 };
 
 /*!
+  Converts the selected variable to a pointer if it is a stack variable or reference, or vice versa.
+
+  Activates on variable declarations.
+ */
+class ConvertFromAndToPointer : public CppQuickFixFactory
+{
+public:
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result);
+};
+
+/*!
   Adds getter and setter functions for a member variable
  */
 class GenerateGetterSetter : public CppQuickFixFactory

@@ -1308,6 +1308,136 @@ void CppEditorPlugin::test_quickfix_data()
             << _("const char *escaped = \"@\\xe3\\x81\";\n")
             << _("const char *escaped = \"\\xe3\\x81\";\n");
 
+    QTest::newRow("ConvertFromPointer")
+        << CppQuickFixFactoryPtr(new ConvertFromAndToPointer)
+        << _("void foo() {\n"
+             "    QString *@str;\n"
+             "    if (!str->isEmpty())\n"
+             "        str->clear();\n"
+             "    f1(*str);\n"
+             "    f2(str);\n"
+             "}\n")
+        << _("void foo() {\n"
+             "    QString str;\n"
+             "    if (!str.isEmpty())\n"
+             "        str.clear();\n"
+             "    f1(str);\n"
+             "    f2(&str);\n"
+             "}\n");
+
+    QTest::newRow("ConvertToPointer")
+        << CppQuickFixFactoryPtr(new ConvertFromAndToPointer)
+        << _("void foo() {\n"
+             "    QString @str;\n"
+             "    if (!str.isEmpty())\n"
+             "        str.clear();\n"
+             "    f1(str);\n"
+             "    f2(&str);\n"
+             "}\n")
+        << _("void foo() {\n"
+             "    QString *str;\n"
+             "    if (!str->isEmpty())\n"
+             "        str->clear();\n"
+             "    f1(*str);\n"
+             "    f2(str);\n"
+             "}\n");
+
+    QTest::newRow("ConvertReferenceToPointer")
+        << CppQuickFixFactoryPtr(new ConvertFromAndToPointer)
+        << _("void foo() {\n"
+             "    QString narf;"
+             "    QString &@str = narf;\n"
+             "    if (!str.isEmpty())\n"
+             "        str.clear();\n"
+             "    f1(str);\n"
+             "    f2(&str);\n"
+             "}\n")
+        << _("void foo() {\n"
+             "    QString narf;"
+             "    QString *str = &narf;\n"
+             "    if (!str->isEmpty())\n"
+             "        str->clear();\n"
+             "    f1(*str);\n"
+             "    f2(str);\n"
+             "}\n");
+
+    QTest::newRow("ConvertFromPointer_withInitializer")
+        << CppQuickFixFactoryPtr(new ConvertFromAndToPointer)
+        << _("void foo() {\n"
+             "    QString *@str = new QString(QLatin1String(\"schnurz\"));\n"
+             "    if (!str->isEmpty())\n"
+             "        str->clear();\n"
+             "}\n")
+        << _("void foo() {\n"
+             "    QString str = QLatin1String(\"schnurz\");\n"
+             "    if (!str.isEmpty())\n"
+             "        str.clear();\n"
+             "}\n");
+
+    QTest::newRow("ConvertFromPointer_withBareInitializer")
+        << CppQuickFixFactoryPtr(new ConvertFromAndToPointer)
+        << _("void foo() {\n"
+             "    QString *@str = new QString;\n"
+             "    if (!str->isEmpty())\n"
+             "        str->clear();\n"
+             "}\n")
+        << _("void foo() {\n"
+             "    QString str;\n"
+             "    if (!str.isEmpty())\n"
+             "        str.clear();\n"
+             "}\n");
+
+    QTest::newRow("ConvertToPointer_withInitializer")
+        << CppQuickFixFactoryPtr(new ConvertFromAndToPointer)
+        << _("void foo() {\n"
+             "    QString @str = QLatin1String(\"narf\");\n"
+             "    if (!str.isEmpty())\n"
+             "        str.clear();\n"
+             "}\n")
+        << _("void foo() {\n"
+             "    QString *str = new QString(QLatin1String(\"narf\"));\n"
+             "    if (!str->isEmpty())\n"
+             "        str->clear();\n"
+             "}\n");
+
+    QTest::newRow("ConvertToPointer_withParenInitializer")
+        << CppQuickFixFactoryPtr(new ConvertFromAndToPointer)
+        << _("void foo() {\n"
+             "    QString @str(QLatin1String(\"narf\"));\n"
+             "    if (!str.isEmpty())\n"
+             "        str.clear();\n"
+             "}\n")
+        << _("void foo() {\n"
+             "    QString *str = new QString(QLatin1String(\"narf\"));\n"
+             "    if (!str->isEmpty())\n"
+             "        str->clear();\n"
+             "}\n");
+
+    QTest::newRow("ConvertToPointer_noTriggerRValueRefs")
+        << CppQuickFixFactoryPtr(new ConvertFromAndToPointer)
+        << _("void foo(Narf &&@narf) {}\n")
+        << _("void foo(Narf &&@narf) {}\n");
+
+    QTest::newRow("ConvertToPointer_redeclaredVariable_block")
+        << CppQuickFixFactoryPtr(new ConvertFromAndToPointer)
+        << _("void foo() {\n"
+             "    QString @str;\n"
+             "    str.clear();\n"
+             "    {\n"
+             "        QString str;\n"
+             "        str.clear();\n"
+             "    }\n"
+             "    f1(str);\n"
+             "}\n")
+        << _("void foo() {\n"
+             "    QString *str;\n"
+             "    str->clear();\n"
+             "    {\n"
+             "        QString str;\n"
+             "        str.clear();\n"
+             "    }\n"
+             "    f1(*str);\n"
+             "}\n");
 }
 
 void CppEditorPlugin::test_quickfix()

@@ -2072,6 +2072,37 @@
             String Literals are handled as UTF-8.
             \li String literal
 
+        \row
+            \li Convert to Stack Variable
+            \li Converts the selected pointer to a stack variable. For example, rewrites:
+    \code
+    QByteArray *foo = new QByteArray("foo");
+    foo->append("bar");
+    \endcode
+    as
+    \code
+    QByteArray foo = "foo";
+    foo.append("bar");
+    \endcode
+    This operation is limited to work only within function scope.
+    Also, the coding style for pointers and references is not respected yet.
+            \li Pointer Variable
+
+        \row
+            \li Convert to Pointer
+            \li Converts the selected stack variable to a pointer. For example, rewrites:
+    \code
+    QByteArray foo = "foo";
+    foo.append("bar");
+    \endcode
+    as
+    \code
+    QByteArray *foo = new QByteArray("foo");
+    foo->append("bar");
+    \endcode
+    This operation is limited to work only within function scope.
+    Also, the coding style for pointers and references is not respected yet.
+            \li Stack Variable
     \endtable
 
    \section2 Refactoring QML Code

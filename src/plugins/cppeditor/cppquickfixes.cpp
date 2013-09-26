@@ -62,6 +62,7 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QSharedPointer>
+#include <QStack>
 #include <QTextCursor>
 #include <QTextCodec>
 
@@ -105,6 +106,7 @@ void CppEditor::Internal::registerQuickFixes(ExtensionSystem::IPlugin *plugIn)
     plugIn->addAutoReleasedObject(new InsertQtPropertyMembers);
 
     plugIn->addAutoReleasedObject(new ApplyDeclDefLinkChanges);
+    plugIn->addAutoReleasedObject(new ConvertFromAndToPointer);
     plugIn->addAutoReleasedObject(new ExtractFunction);
     plugIn->addAutoReleasedObject(new ExtractLiteralAsParameter);
     plugIn->addAutoReleasedObject(new GenerateGetterSetter);
@@ -3899,6 +3901,294 @@ void ExtractLiteralAsParameter::match(const CppQuickFixInterface &interface,
     const int priority = path.size() - 1;
     QuickFixOperation::Ptr op(
                 new ExtractLiteralAsParameterOp(interface, priority, literal, function));
+    result.append(op);
+}
+
+namespace {
+
+class ConvertFromAndToPointerOp : public CppQuickFixOperation
+{
+public:
+    enum Mode { FromPointer, FromVariable, FromReference };
+
+    ConvertFromAndToPointerOp(const CppQuickFixInterface &interface, int priority, Mode mode,
+                              const SimpleDeclarationAST *simpleDeclaration,
+                              const DeclaratorAST *declaratorAST,
+                              const SimpleNameAST *identifierAST,
+                              Symbol *symbol)
+        : CppQuickFixOperation(interface, priority)
+        , m_mode(mode)
+        , m_simpleDeclaration(simpleDeclaration)
+        , m_declaratorAST(declaratorAST)
+        , m_identifierAST(identifierAST)
+        , m_symbol(symbol)
+        , m_refactoring(snapshot())
+        , m_file(m_refactoring.file(fileName()))
+        , m_document(interface->semanticInfo().doc)
+    {
+        setDescription(
+                mode == FromPointer
+                ? TextEditor::QuickFixFactory::tr("Convert to Stack Variable")
+                : TextEditor::QuickFixFactory::tr("Convert to Pointer"));
+    }
+
+    void perform() Q_DECL_OVERRIDE
+    {
+        ChangeSet changes;
+
+        switch (m_mode) {
+        case FromPointer:
+            removePointerOperator(changes);
+            convertToStackVariable(changes);
+            break;
+        case FromReference:
+            removeReferenceOperator(changes);
+            // fallthrough intended
+        case FromVariable:
+            convertToPointer(changes);
+            break;
+        }
+
+        m_file->setChangeSet(changes);
+        m_file->apply();
+    }
+
+private:
+    void removePointerOperator(ChangeSet &changes) const
+    {
+        PointerAST *ptrAST = m_declaratorAST->ptr_operator_list->value->asPointer();
+        QTC_ASSERT(ptrAST, return);
+        const int pos = m_file->startOf(ptrAST->star_token);
+        changes.remove(pos, pos + 1);
+    }
+
+    void removeReferenceOperator(ChangeSet &changes) const
+    {
+        ReferenceAST *refAST = m_declaratorAST->ptr_operator_list->value->asReference();
+        QTC_ASSERT(refAST, return);
+        const int pos = m_file->startOf(refAST->reference_token);
+        changes.remove(pos, pos + 1);
+    }
+
+    void removeNewExpression(ChangeSet &changes, NewExpressionAST *newExprAST) const
+    {
+        if (newExprAST->new_initializer) {
+            // remove 'new' keyword and type before initializer
+            changes.remove(m_file->startOf(newExprAST->new_token),
+                           m_file->startOf(newExprAST->new_initializer));
+
+            // remove parenthesis around initializer
+            if (ExpressionListParenAST *exprlist
+                    = newExprAST->new_initializer->asExpressionListParen()) {
+                int pos = m_file->startOf(exprlist->lparen_token);
+                changes.remove(pos, pos + 1);
+                pos = m_file->startOf(exprlist->rparen_token);
+                changes.remove(pos, pos + 1);
+            }
+        } else {
+            // remove the whole new expression
+            changes.remove(m_file->endOf(m_identifierAST->firstToken()),
+                           m_file->startOf(newExprAST->lastToken()));
+        }
+    }
+
+    void convertToStackVariable(ChangeSet &changes) const
+    {
+        // Handle the initializer.
+        if (m_declaratorAST->initializer) {
+            if (NewExpressionAST *newExpression = m_declaratorAST->initializer->asNewExpression())
+                removeNewExpression(changes, newExpression);
+        }
+
+        // Fix all occurrences of the identifier in this function.
+        ASTPath astPath(m_document);
+        const SemanticInfo semanticInfo = assistInterface()->semanticInfo();
+        foreach (const SemanticInfo::Use &use, semanticInfo.localUses.value(m_symbol)) {
+            const QList<AST *> path = astPath(use.line, use.column);
+            AST *idAST = path.last();
+            bool starFound = false;
+            int ampersandPos = 0;
+            bool memberAccess = false;
+            for (int i = path.count() - 2; i >= 0; --i) {
+                if (MemberAccessAST *memberAccessAST = path.at(i)->asMemberAccess()) {
+                    if (m_file->tokenAt(memberAccessAST->access_token).kind() != T_ARROW)
+                        continue;
+                    int pos = m_file->startOf(memberAccessAST->access_token);
+                    changes.replace(pos, pos + 2, QLatin1String("."));
+                    memberAccess = true;
+                    break;
+                } else if (UnaryExpressionAST *unaryExprAST = path.at(i)->asUnaryExpression()) {
+                    const Token tk = m_file->tokenAt(unaryExprAST->unary_op_token);
+                    if (tk.kind() == T_STAR) {
+                        if (!starFound) {
+                            int pos = m_file->startOf(unaryExprAST->unary_op_token);
+                            changes.remove(pos, pos + 1);
+                        }
+                        starFound = true;
+                    } else if (tk.kind() == T_AMPER) {
+                        ampersandPos = m_file->startOf(unaryExprAST->unary_op_token);
+                    }
+                } else if (PointerAST *ptrAST = path.at(i)->asPointer()) {
+                    if (!starFound) {
+                        const int pos = m_file->startOf(ptrAST->star_token);
+                        changes.remove(pos, pos);
+                    }
+                    starFound = true;
+                } else if (path.at(i)->asFunctionDefinition()) {
+                    break;
+                }
+            }
+            if (!starFound && !memberAccess) {
+                if (ampersandPos) {
+                    changes.insert(ampersandPos, QLatin1String("&("));
+                    changes.insert(m_file->endOf(idAST->firstToken()), QLatin1String(")"));
+                } else {
+                    changes.insert(m_file->startOf(idAST), QLatin1String("&"));
+                }
+            }
+        }
+    }
+
+    QString typeNameOfDeclaration() const
+    {
+        if (!m_simpleDeclaration
+                || !m_simpleDeclaration->decl_specifier_list
+                || !m_simpleDeclaration->decl_specifier_list->value) {
+            return QString();
+        }
+        NamedTypeSpecifierAST *namedType
+                = m_simpleDeclaration->decl_specifier_list->value->asNamedTypeSpecifier();
+        if (!namedType)
+            return QString();
+
+        Overview overview;
+        return overview.prettyName(namedType->name->name);
+    }
+
+    void insertNewExpression(ChangeSet &changes, CallAST *callAST) const
+    {
+        const QString typeName = typeNameOfDeclaration();
+        if (typeName.isEmpty())
+            return;
+        changes.insert(m_file->startOf(callAST),
+                       QLatin1String("new ") + typeName + QLatin1Char('('));
+        changes.insert(m_file->startOf(callAST->lastToken()), QLatin1String(")"));
+    }
+
+    void insertNewExpression(ChangeSet &changes, ExpressionListParenAST *exprListAST) const
+    {
+        const QString typeName = typeNameOfDeclaration();
+        if (typeName.isEmpty())
+            return;
+        changes.insert(m_file->startOf(exprListAST),
+                       QLatin1String(" = new ") + typeName);
+    }
+
+    void convertToPointer(ChangeSet &changes) const
+    {
+        // Handle initializer.
+        if (m_declaratorAST->initializer) {
+            if (IdExpressionAST *idExprAST = m_declaratorAST->initializer->asIdExpression()) {
+                changes.insert(m_file->startOf(idExprAST), QLatin1String("&"));
+            } else if (CallAST *callAST = m_declaratorAST->initializer->asCall()) {
+                insertNewExpression(changes, callAST);
+            } else if (ExpressionListParenAST *exprListAST
+                     = m_declaratorAST->initializer->asExpressionListParen()) {
+                insertNewExpression(changes, exprListAST);
+            }
+        }
+
+        // Fix all occurrences of the identifier in this function.
+        ASTPath astPath(m_document);
+        const SemanticInfo semanticInfo = assistInterface()->semanticInfo();
+        foreach (const SemanticInfo::Use &use, semanticInfo.localUses.value(m_symbol)) {
+            const QList<AST *> path = astPath(use.line, use.column);
+            AST *idAST = path.last();
+            bool insertStar = true;
+            for (int i = path.count() - 2; i >= 0; --i) {
+                if (MemberAccessAST *memberAccessAST = path.at(i)->asMemberAccess()) {
+                    const int pos = m_file->startOf(memberAccessAST->access_token);
+                    changes.replace(pos, pos + 1, QLatin1String("->"));
+                    insertStar = false;
+                    break;
+                } else if (UnaryExpressionAST *unaryExprAST = path.at(i)->asUnaryExpression()) {
+                    if (m_file->tokenAt(unaryExprAST->unary_op_token).kind() == T_AMPER) {
+                        const int pos = m_file->startOf(unaryExprAST->unary_op_token);
+                        changes.remove(pos, pos + 1);
+                        insertStar = false;
+                        break;
+                    }
+                } else if (path.at(i)->asFunctionDefinition()) {
+                    break;
+                }
+            }
+            if (insertStar)
+                changes.insert(m_file->startOf(idAST), QLatin1String("*"));
+        }
+    }
+
+    const Mode m_mode;
+    const SimpleDeclarationAST * const m_simpleDeclaration;
+    const DeclaratorAST * const m_declaratorAST;
+    const SimpleNameAST * const m_identifierAST;
+    Symbol * const m_symbol;
+    const CppRefactoringChanges m_refactoring;
+    const CppRefactoringFilePtr m_file;
+    const Document::Ptr m_document;
+};
+
+} // anonymous namespace
+
+void ConvertFromAndToPointer::match(const CppQuickFixInterface &interface,
+                                    QuickFixOperations &result)
+{
+    const QList<AST *> &path = interface->path();
+    if (path.count() < 2)
+        return;
+    SimpleNameAST *identifier = path.last()->asSimpleName();
+    if (!identifier)
+        return;
+    SimpleDeclarationAST *simpleDeclaration = 0;
+    DeclaratorAST *declarator = 0;
+    ConvertFromAndToPointerOp::Mode mode = ConvertFromAndToPointerOp::FromVariable;
+    for (int i = path.count() - 2; i >= 0; --i) {
+        AST *ast = path.at(i);
+        if (!declarator && (declarator = ast->asDeclarator()))
+            continue;
+        else if (!simpleDeclaration && (simpleDeclaration = ast->asSimpleDeclaration()))
+            continue;
+    }
+    if (!simpleDeclaration || !declarator)
+        return;
+
+    Symbol *symbol = 0;
+    for (List<Symbol *> *lst = simpleDeclaration->symbols; lst; lst = lst->next) {
+        if (lst->value->name() == identifier->name) {
+            symbol = lst->value;
+            break;
+        }
+    }
+    if (!symbol)
+        return;
+
+    if (declarator->ptr_operator_list) {
+        for (PtrOperatorListAST *ops = declarator->ptr_operator_list; ops; ops = ops->next) {
+            if (ops != declarator->ptr_operator_list) {
+                // Bail out on more complex pointer types (e.g. pointer of pointer,
+                // or reference of pointer).
+                return;
+            }
+            if (ops->value->asPointer())
+                mode = ConvertFromAndToPointerOp::FromPointer;
+            else if (ops->value->asReference())
+                mode = ConvertFromAndToPointerOp::FromReference;
+        }
+    }
+
+    const int priority = path.size() - 1;
+    QuickFixOperation::Ptr op(
+            new ConvertFromAndToPointerOp(interface, priority, mode, simpleDeclaration, declarator,
+                                          identifier, symbol));
     result.append(op);
 }
 
