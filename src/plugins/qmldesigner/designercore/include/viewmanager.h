@@ -70,6 +70,7 @@ public:
 
     void setItemLibraryViewResourcePath(const QString &resourcePath);
     void setComponentNode(const ModelNode &componentNode);
+    void setComponentViewToMaster();
     void setNodeInstanceViewQtPath(const QString & qtPath);
 
     void resetPropertyEditorView();

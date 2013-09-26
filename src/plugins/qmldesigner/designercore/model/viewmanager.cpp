@@ -132,11 +132,14 @@ void ViewManager::attachComponentView()
 {
     documentModel()->attachView(&m_componentView);
     QObject::connect(m_componentView.action(), SIGNAL(currentComponentChanged(ModelNode)), currentDesignDocument(), SLOT(changeToSubComponent(ModelNode)));
+    QObject::connect(m_componentView.action(), SIGNAL(changedToMaster()), currentDesignDocument(), SLOT(changeToMaster()));
 }
 
 void ViewManager::detachComponentView()
 {
     QObject::disconnect(m_componentView.action(), SIGNAL(currentComponentChanged(ModelNode)), currentDesignDocument(), SLOT(changeToSubComponent(ModelNode)));
+    QObject::disconnect(m_componentView.action(), SIGNAL(changedToMaster()), currentDesignDocument(), SLOT(changeToMaster()));
+
     documentModel()->detachView(&m_componentView);
 }
 
@@ -164,6 +167,11 @@ void ViewManager::setItemLibraryViewResourcePath(const QString &resourcePath)
 void ViewManager::setComponentNode(const ModelNode &componentNode)
 {
     m_componentView.setComponentNode(componentNode);
+}
+
+void ViewManager::setComponentViewToMaster()
+{
+    m_componentView.setComponentToMaster();
 }
 
 void ViewManager::setNodeInstanceViewQtPath(const QString &qtPath)

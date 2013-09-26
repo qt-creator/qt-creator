@@ -71,6 +71,11 @@ void ComponentView::setComponentNode(const ModelNode &node)
     m_componentAction->setCurrentIndex(indexForNode(node));
 }
 
+void ComponentView::setComponentToMaster()
+{
+    m_componentAction->setCurrentIndex(indexOfMaster());
+}
+
 void ComponentView::removeSingleNodeFromList(const ModelNode &node)
 {
     for (int row = 0; row < m_standardItemModel->rowCount(); row++) {
@@ -87,6 +92,24 @@ int ComponentView::indexForNode(const ModelNode &node)
             return row;
     }
     return -1;
+}
+
+int ComponentView::indexOfMaster()
+{
+    for (int row = 0; row < m_standardItemModel->rowCount(); row++) {
+        if (m_standardItemModel->item(row)->data(ModelNodeRole).toInt() == 0)
+            return row;
+    }
+
+    return -1;
+}
+
+void ComponentView::addMasterDocument()
+{
+    QStandardItem *item = new QStandardItem("master");
+    item->setData(QVariant::fromValue(0), ModelNodeRole);
+    item->setEditable(false);
+    m_standardItemModel->appendRow(item);
 }
 
 void ComponentView::modelAttached(Model *model)
@@ -129,8 +152,15 @@ void ComponentView::searchForComponentAndAddToList(const ModelNode &node)
     nodeList.append(node.allSubModelNodes());
 
 
+    bool masterNotAdded = true;
+
     foreach (const ModelNode &node, nodeList) {
         if (node.nodeSourceType() == ModelNode::NodeWithComponentSource) {
+            if (masterNotAdded) {
+                masterNotAdded = true;
+                addMasterDocument();
+            }
+
             if (!node.id().isEmpty()) {
                 QStandardItem *item = new QStandardItem(node.id());
                 item->setData(QVariant::fromValue(node.internalId()), ModelNodeRole);

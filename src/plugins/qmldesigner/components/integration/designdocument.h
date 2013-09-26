@@ -118,6 +118,7 @@ public slots:
     void redo();
     void updateActiveQtVersion();
     void changeToSubComponent(const ModelNode &componentNode);
+    void changeToMaster();
 
 private slots:
     void updateFileName(const QString &oldFileName, const QString &newFileName);

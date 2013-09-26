@@ -264,6 +264,7 @@ void DesignDocument::changeToDocumentModel()
     viewManager().detachRewriterView();
     viewManager().detachViewsExceptRewriterAndComponetView();
 
+
     m_inFileComponentModel.reset();
 
     viewManager().attachRewriterView();
@@ -297,6 +298,19 @@ void DesignDocument::changeToSubComponent(const ModelNode &componentNode)
         attachRewriterToModel();
 
     QmlDesignerPlugin::instance()->viewManager().pushInFileComponentOnCrumbleBar(componentNode);
+    QmlDesignerPlugin::instance()->viewManager().setComponentNode(componentNode);
+}
+
+void DesignDocument::changeToMaster()
+{
+    if (QmlDesignerPlugin::instance()->currentDesignDocument() != this)
+        return;
+
+    if (m_inFileComponentModel)
+        changeToDocumentModel();
+
+    QmlDesignerPlugin::instance()->viewManager().pushFileOnCrumbleBar(fileName());
+    QmlDesignerPlugin::instance()->viewManager().setComponentNode(rootModelNode());
 }
 
 void DesignDocument::attachRewriterToModel()

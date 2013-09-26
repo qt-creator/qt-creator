@@ -147,15 +147,18 @@ void CrumbleBar::onCrumblePathElementClicked(const QVariant &data)
             && clickedCrumbleBarInfo.fileName == currentDesignDocument()->fileName()) {
         nextFileIsCalledInternally();
         currentDesignDocument()->changeToDocumentModel();
+        QmlDesignerPlugin::instance()->viewManager().setComponentViewToMaster();
     } else {
         crumblePath()->popElement();
         nextFileIsCalledInternally();
         Core::EditorManager::openEditor(clickedCrumbleBarInfo.fileName, Core::Id(),
                                         Core::EditorManager::DoNotMakeVisible);
         if (!clickedCrumbleBarInfo.componentId.isEmpty()) {
-            currentDesignDocument()->changeToSubComponent(
-                        currentDesignDocument()->rewriterView()->modelNodeForId(clickedCrumbleBarInfo.componentId));
-            //pushInFileComponent(clickedCrumbleBarInfo.componentId);
+            ModelNode componentNode = currentDesignDocument()->rewriterView()->modelNodeForId(clickedCrumbleBarInfo.componentId);
+            currentDesignDocument()->changeToSubComponent(componentNode);
+            QmlDesignerPlugin::instance()->viewManager().setComponentNode(componentNode);
+        } else {
+            QmlDesignerPlugin::instance()->viewManager().setComponentViewToMaster();
         }
     }
     updateVisibility();

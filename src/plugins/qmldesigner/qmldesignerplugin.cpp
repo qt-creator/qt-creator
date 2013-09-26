@@ -233,6 +233,7 @@ void QmlDesignerPlugin::changeEditor()
     if (m_documentManager.hasCurrentDesignDocument()) {
         activateAutoSynchronization();
         m_viewManager.pushFileOnCrumbleBar(m_documentManager.currentDesignDocument()->fileName());
+        m_viewManager.setComponentViewToMaster();
     }
 
     m_shortCutManager.updateUndoActions(currentDesignDocument());

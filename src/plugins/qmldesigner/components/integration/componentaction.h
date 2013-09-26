@@ -56,6 +56,7 @@ protected:
 
 signals:
     void currentComponentChanged(const ModelNode &node);
+    void changedToMaster();
     void currentIndexChanged(int index);
 
 public slots:

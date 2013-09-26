@@ -68,9 +68,12 @@ void ComponentAction::emitCurrentComponentChanged(int index)
     if (dontEmitCurrentComponentChanged)
         return;
 
-    ModelNode componentNode = m_componentView->modelNode(index);
+    ModelNode componentModelNode = m_componentView->modelNode(index);
 
-    emit currentComponentChanged(componentNode);
+    if (componentModelNode.isRootNode())
+        emit changedToMaster();
+    else
+        emit currentComponentChanged(componentModelNode);
 }
 
 } // namespace QmlDesigner
