@@ -100,7 +100,8 @@ SOURCES += mainwindow.cpp \
     textdocument.cpp \
     documentmanager.cpp \
     removefiledialog.cpp \
-    iversioncontrol.cpp
+    iversioncontrol.cpp \
+    icorelistener.cpp
 
 HEADERS += mainwindow.h \
     editmode.h \

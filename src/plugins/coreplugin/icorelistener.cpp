@@ -27,26 +27,32 @@
 **
 ****************************************************************************/
 
-#ifndef ICORELISTENER_H
-#define ICORELISTENER_H
+#include "icorelistener.h"
 
-#include "core_global.h"
-#include <QObject>
+/*!
+    \class Core::ICoreListener
 
-namespace Core {
-class IEditor;
+    \brief The ICoreListener class provides a hook for plugins to veto on
+    certain events emitted from the core plugin.
 
-class CORE_EXPORT ICoreListener : public QObject
-{
-    Q_OBJECT
-public:
-    ICoreListener(QObject *parent = 0) : QObject(parent) {}
-    virtual ~ICoreListener() {}
+    Implement this interface to prevent certain events from occurring. For
+    example, to prevent the closing of the whole application
+    or to prevent the closing of an editor window under certain conditions.
 
-    virtual bool editorAboutToClose(IEditor * /*editor*/) { return true; }
-    virtual bool coreAboutToClose() { return true; }
-};
+    For example, if the application window requests a close,
+    \c ICoreListener::coreAboutToClose() is called (in arbitrary order) on all
+    registered objects implementing this interface. If one if these calls
+    returns \c false, the process is aborted and the event is ignored.  If all
+    calls return \c true, the corresponding signal is emitted and the event is
+    accepted or performed.
 
-} // namespace Core
-
-#endif // ICORELISTENER_H
+    Guidelines for implementing the class:
+    \list
+        \li Return \c false from the implemented method if you want to prevent
+            the event.
+        \li Add your implementing object to the plugin managers objects:
+            \c{ExtensionSystem::PluginManager::instance()->addObject(yourImplementingObject)}
+        \li Do not forget to remove the object again at deconstruction
+            (for example, in the destructor of your plugin).
+    \endlist
+*/

@@ -76,6 +76,7 @@ QtcPlugin {
         "icontext.h",
         "icore.cpp",
         "icore.h",
+        "icorelistener.cpp",
         "icorelistener.h",
         "id.cpp",
         "id.h",
