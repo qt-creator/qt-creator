@@ -143,6 +143,15 @@ void MsvcParser::stdError(const QString &line)
 {
     if (processCompileLine(line))
         return;
+    // Jom outputs errors to stderr
+    if (line.startsWith(QLatin1String("Error:"))) {
+        m_lastTask = Task(Task::Error,
+                          line.mid(6).trimmed(), /* description */
+                          Utils::FileName(), /* fileName */
+                          -1, /* linenumber */
+                          Constants::TASK_CATEGORY_COMPILE);
+        return;
+    }
     IOutputParser::stdError(line);
 }
 
@@ -307,13 +316,24 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
                         Utils::FileName::fromUserInput(QLatin1String("debug\\Experimentation.exe")), -1,
                         Constants::TASK_CATEGORY_COMPILE))
             << QString();
-    QTest::newRow("Linker error 3")
+
+    QTest::newRow("nmake error")
             << QString::fromLatin1("Error: dependent '..\\..\\..\\..\\creator-2.5\\src\\plugins\\coreplugin\\ifile.h' does not exist.")
             << OutputParserTester::STDOUT
             << QString() << QString()
             << (QList<Task>()
                 << Task(Task::Error,
                         QLatin1String("dependent '..\\..\\..\\..\\creator-2.5\\src\\plugins\\coreplugin\\ifile.h' does not exist."),
+                        Utils::FileName(), -1,
+                        Constants::TASK_CATEGORY_COMPILE))
+            << QString();
+    QTest::newRow("jom error")
+            << QString::fromLatin1("Error: dependent 'main.cpp' does not exist.")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<Task>()
+                << Task(Task::Error,
+                        QLatin1String("dependent 'main.cpp' does not exist."),
                         Utils::FileName(), -1,
                         Constants::TASK_CATEGORY_COMPILE))
             << QString();
