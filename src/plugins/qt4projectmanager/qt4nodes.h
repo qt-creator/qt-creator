@@ -106,7 +106,8 @@ enum Qt4Variable {
     StaticLibExtensionVar,
     ShLibExtensionVar,
     AndroidArchVar,
-    AndroidDeploySettingsFile
+    AndroidDeploySettingsFile,
+    AndroidPackageSourceDir
 };
 
 // Import base classes into namespace
@@ -159,6 +160,8 @@ public:
     bool deleteFiles(const QStringList &filePaths);
     bool renameFile(const QString &filePath, const QString &newFilePath);
 
+    bool setProVariable(const QString &var, const QString &value);
+
     bool folderChanged(const QString &changedFolder, const QSet<Utils::FileName> &newFiles);
 
     bool deploysFolder(const QString &folder) const;
@@ -193,6 +196,8 @@ private slots:
     void scheduleUpdate();
 
 private:
+    static bool ensureWriteableProFile(const QString &file);
+    static QPair<ProFile *, QStringList> readProFile(const QString &file);
     void save(const QStringList &lines);
     bool priFileWritable(const QString &path);
     bool saveModifiedEditors();

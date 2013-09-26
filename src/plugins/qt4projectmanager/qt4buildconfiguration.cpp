@@ -296,7 +296,7 @@ QStringList Qt4BuildConfiguration::configCommandLineArguments() const
     QStringList result;
     BaseQtVersion *version = QtKitInformation::qtVersion(target()->kit());
     BaseQtVersion::QmakeBuildConfigs defaultBuildConfiguration =
-            version ? version->defaultBuildConfig() : (BaseQtVersion::DebugBuild | BaseQtVersion::BuildAll);
+            version ? version->defaultBuildConfig() : BaseQtVersion::QmakeBuildConfigs(BaseQtVersion::DebugBuild | BaseQtVersion::BuildAll);
     BaseQtVersion::QmakeBuildConfigs userBuildConfiguration = m_qmakeBuildConfiguration;
     if ((defaultBuildConfiguration & BaseQtVersion::BuildAll) && !(userBuildConfiguration & BaseQtVersion::BuildAll))
         result << QLatin1String("CONFIG-=debug_and_release");

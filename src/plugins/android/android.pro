@@ -45,7 +45,8 @@ HEADERS += \
     androiddevicedialog.h \
     androiddeployqtstep.h \
     certificatesmodel.h \
-    androiddeployqtwidget.h
+    androiddeployqtwidget.h \
+    createandroidmanifestwizard.h
 
 SOURCES += \
     androidconfigurations.cpp \
@@ -85,7 +86,8 @@ SOURCES += \
     androiddevicedialog.cpp \
     androiddeployqtstep.cpp \
     certificatesmodel.cpp \
-    androiddeployqtwidget.cpp
+    androiddeployqtwidget.cpp \
+    createandroidmanifestwizard.cpp
 
 FORMS += \
     androidsettingswidget.ui \

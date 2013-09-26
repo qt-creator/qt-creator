@@ -139,6 +139,7 @@ public:
     static QString buildNameFor(const ProjectExplorer::Kit *k);
 
     void emitBuildDirectoryInitialized();
+    static void proFileParseError(const QString &errorMessage);
 
     ProjectExplorer::ProjectImporter *createProjectImporter() const;
 
@@ -149,7 +150,6 @@ signals:
 
 public slots:
     void scheduleAsyncUpdate();
-    void proFileParseError(const QString &errorMessage);
     void update();
 
 protected:

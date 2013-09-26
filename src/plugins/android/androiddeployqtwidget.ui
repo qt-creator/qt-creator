@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>682</width>
-    <height>415</height>
+    <height>467</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -177,6 +177,19 @@ The APK will not be usable on any other device.</string>
         </property>
        </widget>
       </item>
+      <item>
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
      </layout>
     </widget>
    </item>
@@ -186,21 +199,21 @@ The APK will not be usable on any other device.</string>
       <string>Advanced Actions</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="3" column="0">
+      <item row="4" column="0">
        <widget class="QPushButton" name="cleanLibsPushButton">
         <property name="text">
          <string>Clean Temporary Libraries Directory on Device</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="0">
+      <item row="5" column="0">
        <widget class="QPushButton" name="installMinistroButton">
         <property name="text">
          <string>Install Ministro from APK</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
+      <item row="3" column="0">
        <widget class="QPushButton" name="resetDefaultDevices">
         <property name="text">
          <string>Reset Default Devices</string>
@@ -218,6 +231,13 @@ The APK will not be usable on any other device.</string>
        <widget class="QCheckBox" name="verboseOutputCheckBox">
         <property name="text">
          <string>Verbose Output</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QPushButton" name="createAndroidManifestButton">
+        <property name="text">
+         <string>Create AndroidManifest.xml</string>
         </property>
        </widget>
       </item>

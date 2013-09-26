@@ -70,6 +70,7 @@ private slots:
     void signPackageCheckBoxToggled(bool checked);
     void updateInputFileUi();
     void inputFileComboBoxIndexChanged();
+    void createManifestButton();
 private:
     virtual QString summaryText() const;
     virtual QString displayName() const;

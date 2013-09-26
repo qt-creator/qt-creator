@@ -34,6 +34,7 @@
 #include "androidcreatekeystorecertificate.h"
 #include "androiddeployqtstep.h"
 #include "androidmanager.h"
+#include "createandroidmanifestwizard.h"
 
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
@@ -129,11 +130,20 @@ AndroidDeployQtWidget::AndroidDeployQtWidget(AndroidDeployQtStep *step)
     updateInputFileUi();
     connect(m_step, SIGNAL(inputFileChanged()),
             this, SLOT(updateInputFileUi()));
+
+    connect(m_ui->createAndroidManifestButton, SIGNAL(clicked()),
+            this, SLOT(createManifestButton()));
 }
 
 AndroidDeployQtWidget::~AndroidDeployQtWidget()
 {
     delete m_ui;
+}
+
+void AndroidDeployQtWidget::createManifestButton()
+{
+    CreateAndroidManifestWizard wizard(m_step->target());
+    wizard.exec();
 }
 
 void AndroidDeployQtWidget::updateInputFileUi()

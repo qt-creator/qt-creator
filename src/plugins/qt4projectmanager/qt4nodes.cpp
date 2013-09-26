@@ -1107,6 +1107,50 @@ QStringList Qt4PriFileNode::formResources(const QString &formFile) const
     return resourceFiles;
 }
 
+bool Qt4PriFileNode::ensureWriteableProFile(const QString &file)
+{
+    // Ensure that the file is not read only
+    QFileInfo fi(file);
+    if (!fi.isWritable()) {
+        // Try via vcs manager
+        Core::IVersionControl *versionControl = Core::VcsManager::findVersionControlForDirectory(fi.absolutePath());
+        if (!versionControl || versionControl->vcsOpen(file)) {
+            bool makeWritable = QFile::setPermissions(file, fi.permissions() | QFile::WriteUser);
+            if (!makeWritable) {
+                QMessageBox::warning(Core::ICore::mainWindow(),
+                                     tr("Failed!"),
+                                     tr("Could not write project file %1.").arg(file));
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+QPair<ProFile *, QStringList> Qt4PriFileNode::readProFile(const QString &file)
+{
+    QStringList lines;
+    ProFile *includeFile = 0;
+    {
+        QString contents;
+        {
+            Utils::FileReader reader;
+            if (!reader.fetch(file, QIODevice::Text)) {
+                Qt4Project::proFileParseError(reader.errorString());
+                return qMakePair(includeFile, lines);
+            }
+            contents = QString::fromLocal8Bit(reader.data());
+            lines = contents.split(QLatin1Char('\n'));
+        }
+
+        QMakeVfs vfs;
+        QtSupport::ProMessageHandler handler;
+        QMakeParser parser(0, &vfs, &handler);
+        includeFile = parser.parsedProBlock(contents, file, 1);
+    }
+    return qMakePair(includeFile, lines);
+}
+
 void Qt4PriFileNode::changeFiles(const QString &mimeType,
                                  const QStringList &filePaths,
                                  QStringList *notChanged,
@@ -1121,41 +1165,14 @@ void Qt4PriFileNode::changeFiles(const QString &mimeType,
     if (!saveModifiedEditors())
         return;
 
-    // Ensure that the file is not read only
-    QFileInfo fi(m_projectFilePath);
-    if (!fi.isWritable()) {
-        // Try via vcs manager
-        Core::IVersionControl *versionControl = Core::VcsManager::findVersionControlForDirectory(fi.absolutePath());
-        if (!versionControl || versionControl->vcsOpen(m_projectFilePath)) {
-            bool makeWritable = QFile::setPermissions(m_projectFilePath, fi.permissions() | QFile::WriteUser);
-            if (!makeWritable) {
-                QMessageBox::warning(Core::ICore::mainWindow(),
-                                     tr("Failed!"),
-                                     tr("Could not write project file %1.").arg(m_projectFilePath));
-                return;
-            }
-        }
-    }
+    if (!ensureWriteableProFile(m_projectFilePath))
+        return;
+    QPair<ProFile *, QStringList> pair = readProFile(m_projectFilePath);
+    ProFile *includeFile = pair.first;
+    QStringList lines = pair.second;
 
-    QStringList lines;
-    ProFile *includeFile;
-    {
-        QString contents;
-        {
-            Utils::FileReader reader;
-            if (!reader.fetch(m_projectFilePath, QIODevice::Text)) {
-                m_project->proFileParseError(reader.errorString());
-                return;
-            }
-            contents = QString::fromLocal8Bit(reader.data());
-            lines = contents.split(QLatin1Char('\n'));
-        }
-
-        QMakeVfs vfs;
-        QtSupport::ProMessageHandler handler;
-        QMakeParser parser(0, &vfs, &handler);
-        includeFile = parser.parsedProBlock(contents, m_projectFilePath, 1);
-    }
+    if (!includeFile)
+        return;
 
     QDir priFileDir = QDir(m_qt4ProFileNode->m_projectDir);
 
@@ -1168,10 +1185,38 @@ void Qt4PriFileNode::changeFiles(const QString &mimeType,
     }
 
     // save file
-    Core::DocumentManager::expectFileChange(m_projectFilePath);
     save(lines);
-    Core::DocumentManager::unexpectFileChange(m_projectFilePath);
+    includeFile->deref();
+}
 
+bool Qt4PriFileNode::setProVariable(const QString &var, const QString &value)
+{
+    if (!ensureWriteableProFile(m_projectFilePath))
+        return false;
+
+    QPair<ProFile *, QStringList> pair = readProFile(m_projectFilePath);
+    ProFile *includeFile = pair.first;
+    QStringList lines = pair.second;
+
+    ProWriter::putVarValues(includeFile, &lines, QStringList(value), var,
+                            ProWriter::ReplaceValues | ProWriter::OneLine | ProWriter::AssignOperator);
+
+    if (!includeFile)
+        return false;
+    save(lines);
+    includeFile->deref();
+    return true;
+}
+
+void Qt4PriFileNode::save(const QStringList &lines)
+{
+    Core::DocumentManager::expectFileChange(m_projectFilePath);
+    Utils::FileSaver saver(m_projectFilePath, QIODevice::Text);
+    saver.write(lines.join(QLatin1String("\n")).toLocal8Bit());
+    saver.finalize(Core::ICore::mainWindow());
+
+    m_project->qt4ProjectManager()->notifyChanged(m_projectFilePath);
+    Core::DocumentManager::unexpectFileChange(m_projectFilePath);
     // This is a hack.
     // We are saving twice in a very short timeframe, once the editor and once the ProFile.
     // So the modification time might not change between those two saves.
@@ -1187,17 +1232,6 @@ void Qt4PriFileNode::changeFiles(const QString &mimeType,
     if (!errorStrings.isEmpty())
         QMessageBox::warning(Core::ICore::mainWindow(), tr("File Error"),
                              errorStrings.join(QLatin1String("\n")));
-
-    includeFile->deref();
-}
-
-void Qt4PriFileNode::save(const QStringList &lines)
-{
-    Utils::FileSaver saver(m_projectFilePath, QIODevice::Text);
-    saver.write(lines.join(QLatin1String("\n")).toLocal8Bit());
-    saver.finalize(Core::ICore::mainWindow());
-
-    m_project->qt4ProjectManager()->notifyChanged(m_projectFilePath);
 }
 
 QStringList Qt4PriFileNode::varNames(ProjectExplorer::FileType type)
@@ -1674,7 +1708,7 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
         setParseInProgressRecursive(false);
 
         if (evalResult == EvalFail) {
-            m_project->proFileParseError(tr("Error while parsing file %1. Giving up.").arg(m_projectFilePath));
+            Qt4Project::proFileParseError(tr("Error while parsing file %1. Giving up.").arg(m_projectFilePath));
             if (m_projectType == InvalidProject)
                 return;
 
@@ -1964,6 +1998,7 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
         newVarValues[ShLibExtensionVar] = m_readerExact->values(QLatin1String("QMAKE_EXTENSION_SHLIB"));
         newVarValues[AndroidArchVar] = m_readerExact->values(QLatin1String("ANDROID_TARGET_ARCH"));
         newVarValues[AndroidDeploySettingsFile] = m_readerExact->values(QLatin1String("ANDROID_DEPLOYMENT_SETTINGS_FILE"));
+        newVarValues[AndroidPackageSourceDir] = m_readerExact->values(QLatin1String("ANDROID_PACKAGE_SOURCE_DIR"));
 
         m_isDeployable = false;
         if (m_projectType == ApplicationTemplate) {
@@ -2112,8 +2147,8 @@ QStringList Qt4ProFileNode::subDirsPaths(QtSupport::ProFileReader *reader, QStri
             }
         } else {
             if (!silent)
-                m_project->proFileParseError(tr("Could not find .pro file for sub dir '%1' in '%2'")
-                                             .arg(subDirVar).arg(realDir));
+                Qt4Project::proFileParseError(tr("Could not find .pro file for sub dir '%1' in '%2'")
+                                              .arg(subDirVar).arg(realDir));
         }
     }
 
