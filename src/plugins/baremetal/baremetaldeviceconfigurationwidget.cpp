@@ -44,9 +44,9 @@ BareMetalDeviceConfigurationWidget::BareMetalDeviceConfigurationWidget(
    m_ui(new Ui::BareMetalDeviceConfigurationWidget)
 {
     m_ui->setupUi(this);
-    connect(m_ui->gdbHostLineEdit,SIGNAL(editingFinished()),SLOT(hostnameChanged()));
-    connect(m_ui->gdbPortSpinBox,SIGNAL(valueChanged(int)),SLOT(portChanged()));
-    connect(m_ui->gdbCommandsTextEdit,SIGNAL(textChanged()),SLOT(gdbInitCommandsChanged()));
+    connect(m_ui->gdbHostLineEdit, SIGNAL(editingFinished()), SLOT(hostnameChanged()));
+    connect(m_ui->gdbPortSpinBox, SIGNAL(valueChanged(int)), SLOT(portChanged()));
+    connect(m_ui->gdbCommandsTextEdit, SIGNAL(textChanged()), SLOT(gdbInitCommandsChanged()));
     initGui();
 }
 
