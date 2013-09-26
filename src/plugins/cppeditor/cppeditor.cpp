@@ -689,11 +689,6 @@ void CPPEditorWidget::selectAll()
     BaseTextEditorWidget::selectAll();
 }
 
-CppModelManagerInterface *CPPEditorWidget::modelManager() const
-{
-    return m_modelManager;
-}
-
 void CPPEditorWidget::setMimeType(const QString &mt)
 {
     BaseTextEditorWidget::setMimeType(mt);
@@ -1213,7 +1208,7 @@ void CPPEditorWidget::switchDeclarationDefinition(bool inNextSplit)
     CPPEditorWidget::Link symbolLink;
     if (functionDeclarationSymbol) {
         symbolLink = linkToSymbol(symbolFinder()
-            ->findMatchingDefinition(functionDeclarationSymbol, modelManager()->snapshot()));
+            ->findMatchingDefinition(functionDeclarationSymbol, m_modelManager->snapshot()));
     } else if (functionDefinitionSymbol) {
         const Snapshot snapshot = m_modelManager->snapshot();
         LookupContext context(m_lastSemanticInfo.doc, snapshot);

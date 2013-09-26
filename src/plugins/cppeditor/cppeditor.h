@@ -111,8 +111,6 @@ public:
     virtual void cut(); // reimplemented from BaseTextEditorWidget
     virtual void selectAll(); // reimplemented from BaseTextEditorWidget
 
-    CppTools::CppModelManagerInterface *modelManager() const;
-
     virtual void setMimeType(const QString &mt);
 
     void setObjCEnabled(bool onoff);
