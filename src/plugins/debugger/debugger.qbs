@@ -263,7 +263,6 @@ QtcPlugin {
     }
 
     Export {
-        Depends { name: "cpp" }
         Depends { name: "QtcSsh" }
     }
 }

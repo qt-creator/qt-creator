@@ -6,7 +6,7 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "QtSupport"
 
-    Depends { name: "Qt"; submodules: ["core", "widgets"]; }
+    Depends { name: "Qt"; submodules: ["widgets"]; }
     Depends { name: "Qt.quick"; condition: QtcFunctions.versionIsAtLeast(Qt.core.version, "5.1"); }
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
@@ -123,7 +123,6 @@ QtcPlugin {
 
 
     Export {
-        Depends { name: "cpp" }
         cpp.includePaths: "../../shared"
         cpp.defines: [
             "QMAKE_AS_LIBRARY",

@@ -6,7 +6,7 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "ProjectExplorer"
 
-    Depends { name: "Qt"; submodules: ["core", "widgets", "xml", "network", "script"] }
+    Depends { name: "Qt"; submodules: ["widgets", "xml", "network", "script"] }
     Depends { name: "Qt.quick"; condition: QtcFunctions.versionIsAtLeast(Qt.core.version, "5.1"); }
     Depends { name: "Core" }
     Depends { name: "Locator" }
