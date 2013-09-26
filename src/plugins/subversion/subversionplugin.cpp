@@ -572,7 +572,8 @@ void SubversionPlugin::svnDiff(const Subversion::Internal::SubversionDiffParamet
 
     QStringList args(QLatin1String("diff"));
     Version v = svnVersion();
-    if (v.majorVersion >= 1 && v.minorVersion >= 7) // --internal-diff is new in v1.7.0
+    if (v.majorVersion > 1
+            || (v.majorVersion == 1 && v.minorVersion >= 7)) // --internal-diff is new in v1.7.0
         args.append(QLatin1String("--internal-diff"));
     args.append(p.arguments);
     args << p.files;
