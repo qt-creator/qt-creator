@@ -1415,7 +1415,7 @@ CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor, boo
 
     const Snapshot &snapshot = m_modelManager->snapshot();
 
-    // Try to macth decl/def. For this we need the semantic doc with the AST.
+    // Try to match decl/def. For this we need the semantic doc with the AST.
     if (m_lastSemanticInfo.doc
             && m_lastSemanticInfo.doc->translationUnit()
             && m_lastSemanticInfo.doc->translationUnit()->ast()) {
