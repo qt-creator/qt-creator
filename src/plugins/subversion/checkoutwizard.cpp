@@ -30,6 +30,7 @@
 #include "checkoutwizard.h"
 #include "checkoutwizardpage.h"
 #include "subversionplugin.h"
+#include "subversionclient.h"
 
 #include <coreplugin/iversioncontrol.h>
 #include <vcsbase/command.h>
@@ -78,7 +79,7 @@ VcsBase::Command *CheckoutWizard::createCommand(const QList<QWizardPage*> &param
     if (settings.hasAuthentication()) {
         const QString user = settings.stringValue(SubversionSettings::userKey);
         const QString pwd = settings.stringValue(SubversionSettings::passwordKey);
-        args = SubversionPlugin::addAuthenticationOptions(args, user, pwd);
+        args = SubversionClient::addAuthenticationOptions(args, user, pwd);
     }
     VcsBase::Command *command = new VcsBase::Command(binary, workingDirectory,
                                                      QProcessEnvironment::systemEnvironment());

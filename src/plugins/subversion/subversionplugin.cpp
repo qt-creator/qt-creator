@@ -33,6 +33,7 @@
 #include "subversioneditor.h"
 
 #include "subversionsubmiteditor.h"
+#include "subversionclient.h"
 #include "subversionconstants.h"
 #include "subversioncontrol.h"
 #include "checkoutwizard.h"
@@ -209,6 +210,7 @@ SubversionPlugin::SubversionPlugin() :
 
 SubversionPlugin::~SubversionPlugin()
 {
+    delete m_client;
     cleanCommitMessageFile();
 }
 
@@ -251,6 +253,7 @@ bool SubversionPlugin::initialize(const QStringList & /*arguments */, QString *e
         return false;
 
     m_settings.readSettings(Core::ICore::settings());
+    m_client = new SubversionClient(&m_settings);
 
     addAutoReleasedObject(new SettingsPage);
 
@@ -497,117 +500,13 @@ bool SubversionPlugin::submitEditorAboutToClose()
 
 void SubversionPlugin::diffCommitFiles(const QStringList &files)
 {
-    svnDiff(m_commitRepository, files);
-}
-
-// Collect all parameters required for a diff to be able to associate them
-// with a diff editor and re-run the diff with parameters.
-struct SubversionDiffParameters
-{
-    QString workingDir;
-    QStringList arguments;
-    QStringList files;
-    QString diffName;
-};
-
-// Parameter widget controlling whitespace diff mode, associated with a parameter
-class SubversionDiffParameterWidget : public VcsBase::VcsBaseEditorParameterWidget
-{
-    Q_OBJECT
-public:
-    explicit SubversionDiffParameterWidget(const SubversionDiffParameters &p, QWidget *parent = 0);
-
-signals:
-    void reRunDiff(const Subversion::Internal::SubversionDiffParameters &);
-
-private slots:
-    void triggerReRun();
-
-private:
-    const SubversionDiffParameters m_parameters;
-};
-
-SubversionDiffParameterWidget::SubversionDiffParameterWidget(const SubversionDiffParameters &p, QWidget *parent) :
-    VcsBase::VcsBaseEditorParameterWidget(parent), m_parameters(p)
-{
-    setBaseArguments(p.arguments);
-    addToggleButton(QLatin1String("w"), tr("Ignore Whitespace"));
-    connect(this, SIGNAL(argumentsChanged()), this, SLOT(triggerReRun()));
-}
-
-void SubversionDiffParameterWidget::triggerReRun()
-{
-    SubversionDiffParameters effectiveParameters = m_parameters;
-    // Subversion wants" -x -<ext-args>", default being -u
-    const QStringList a = arguments();
-    if (!a.isEmpty())
-        effectiveParameters.arguments << QLatin1String("-x") << (QLatin1String("-u") + a.join(QString()));
-    emit reRunDiff(effectiveParameters);
+    m_client->diff(m_commitRepository, files);
 }
 
 static inline void setWorkingDirectory(Core::IEditor *editor, const QString &wd)
 {
     if (VcsBase::VcsBaseEditorWidget *ve = qobject_cast<VcsBase::VcsBaseEditorWidget*>(editor->widget()))
         ve->setWorkingDirectory(wd);
-}
-
-void SubversionPlugin::svnDiff(const QString &workingDir, const QStringList &files, QString diffname)
-{
-    SubversionDiffParameters p;
-    p.workingDir = workingDir;
-    p.files = files;
-    p.diffName = diffname;
-    svnDiff(p);
-}
-
-void SubversionPlugin::svnDiff(const Subversion::Internal::SubversionDiffParameters &p)
-{
-    if (Subversion::Constants::debug)
-        qDebug() << Q_FUNC_INFO << p.files << p.diffName;
-    const QString source = VcsBase::VcsBaseEditorWidget::getSource(p.workingDir, p.files);
-    QTextCodec *codec = source.isEmpty() ? static_cast<QTextCodec *>(0) : VcsBase::VcsBaseEditorWidget::getCodec(source);
-
-    const QString diffName = p.files.count() == 1 && p.diffName.isEmpty() ?
-                             QFileInfo(p.files.front()).fileName() : p.diffName;
-
-    QStringList args(QLatin1String("diff"));
-    Version v = svnVersion();
-    if (v.majorVersion > 1
-            || (v.majorVersion == 1 && v.minorVersion >= 7)) // --internal-diff is new in v1.7.0
-        args.append(QLatin1String("--internal-diff"));
-    args.append(p.arguments);
-    args << p.files;
-
-    const SubversionResponse response =
-            runSvn(p.workingDir, args, m_settings.timeOutMs(), 0, codec);
-    if (response.error)
-        return;
-
-    // diff of a single file? re-use an existing view if possible to support
-    // the common usage pattern of continuously changing and diffing a file
-    const QString tag = VcsBase::VcsBaseEditorWidget::editorTag(VcsBase::DiffOutput, p.workingDir, p.files);
-    // Show in the same editor if diff has been executed before
-    if (Core::IEditor *existingEditor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
-        existingEditor->document()->setContents(response.stdOut.toUtf8());
-        Core::EditorManager::activateEditor(existingEditor);
-        setWorkingDirectory(existingEditor, p.workingDir);
-        return;
-    }
-    const QString title = QString::fromLatin1("svn diff %1").arg(diffName);
-    Core::IEditor *editor = showOutputInEditor(title, response.stdOut, VcsBase::DiffOutput, source, codec);
-    setWorkingDirectory(editor, p.workingDir);
-    VcsBase::VcsBaseEditorWidget::tagEditor(editor, tag);
-    SubversionEditor *diffEditorWidget = qobject_cast<SubversionEditor *>(editor->widget());
-    QTC_ASSERT(diffEditorWidget, return);
-
-    // Wire up the parameter widget to trigger a re-run on
-    // parameter change and 'revert' from inside the diff editor.
-    SubversionDiffParameterWidget *pw = new SubversionDiffParameterWidget(p);
-    connect(pw, SIGNAL(reRunDiff(Subversion::Internal::SubversionDiffParameters)),
-            this, SLOT(svnDiff(Subversion::Internal::SubversionDiffParameters)));
-    connect(diffEditorWidget, SIGNAL(diffChunkReverted(VcsBase::DiffChunk)),
-            pw, SLOT(triggerReRun()));
-    diffEditorWidget->setConfigurationWidget(pw);
 }
 
 SubversionSubmitEditor *SubversionPlugin::openSubversionSubmitEditor(const QString &fileName)
@@ -724,15 +623,16 @@ void SubversionPlugin::diffProject()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
-    svnDiff(state.currentProjectTopLevel(), QStringList(state.relativeCurrentProject()),
-            state.currentProjectName());
+    const QString relativeProject = state.relativeCurrentProject();
+    m_client->diff(state.currentProjectTopLevel(),
+                      relativeProject.isEmpty() ? QStringList() : QStringList(relativeProject));
 }
 
 void SubversionPlugin::diffCurrentFile()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    svnDiff(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
+    m_client->diff(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
 }
 
 void SubversionPlugin::startCommitCurrentFile()
@@ -842,7 +742,7 @@ void SubversionPlugin::diffRepository()
 {
     const VcsBase::VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
-    svnDiff(state.topLevel(), QStringList());
+    m_client->diff(state.topLevel(), QStringList());
 }
 
 void SubversionPlugin::statusRepository()
@@ -1092,53 +992,6 @@ SubversionResponse
                   arguments, timeOut, flags, outputCodec);
 }
 
-// Add authorization options to the command line arguments.
-// SVN pre 1.5 does not accept "--userName" for "add", which is most likely
-// an oversight. As no password is needed for the option, generally omit it.
-QStringList SubversionPlugin::addAuthenticationOptions(const QStringList &args,
-                                                      const QString &userName, const QString &password)
-{
-    if (userName.isEmpty())
-        return args;
-    if (!args.empty() && args.front() == QLatin1String("add"))
-        return args;
-    QStringList rc;
-    rc.push_back(QLatin1String("--username"));
-    rc.push_back(userName);
-    if (!password.isEmpty()) {
-        rc.push_back(QLatin1String("--password"));
-        rc.push_back(password);
-    }
-    rc.append(args);
-    return rc;
-}
-
-SubversionPlugin::Version SubversionPlugin::svnVersion()
-{
-    if (m_svnVersionBinary != m_settings.binaryPath()) {
-        QStringList args;
-        args << QLatin1String("--version") << QLatin1String("-q");
-        const Utils::SynchronousProcessResponse response =
-                VcsBase::VcsBasePlugin::runVcs(QDir().absolutePath(), m_settings.binaryPath(),
-                                               args, m_settings.timeOutMs());
-        if (response.result == Utils::SynchronousProcessResponse::Finished &&
-                response.exitCode == 0) {
-            m_svnVersionBinary = m_settings.binaryPath();
-            m_svnVersion = response.stdOut.trimmed();
-        } else {
-            m_svnVersionBinary.clear();
-            m_svnVersion.clear();
-        }
-    }
-
-    SubversionPlugin::Version v;
-    if (::sscanf(m_svnVersion.toLatin1().constData(), "%d.%d.%d",
-           &v.majorVersion, &v.minorVersion, &v.patchVersion) != 3)
-        v.majorVersion = v.minorVersion = v.patchVersion = -1;
-
-    return v;
-}
-
 SubversionResponse SubversionPlugin::runSvn(const QString &workingDir,
                           const QString &userName, const QString &password,
                           const QStringList &arguments, int timeOut,
@@ -1152,7 +1005,7 @@ SubversionResponse SubversionPlugin::runSvn(const QString &workingDir,
         return response;
     }
 
-    const QStringList completeArguments = SubversionPlugin::addAuthenticationOptions(arguments, userName, password);
+    const QStringList completeArguments = SubversionClient::addAuthenticationOptions(arguments, userName, password);
     const Utils::SynchronousProcessResponse sp_resp =
             VcsBase::VcsBasePlugin::runVcs(workingDir, executable, completeArguments, timeOut,
                                            flags, outputCodec);
@@ -1446,4 +1299,3 @@ void SubversionPlugin::testLogResolving()
 
 Q_EXPORT_PLUGIN(Subversion::Internal::SubversionPlugin)
 
-#include "subversionplugin.moc"

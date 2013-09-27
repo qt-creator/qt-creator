@@ -62,7 +62,7 @@ namespace Internal {
 
 class SubversionSubmitEditor;
 class SubversionControl;
-struct SubversionDiffParameters;
+class SubversionClient;
 
 struct SubversionResponse
 {
@@ -84,8 +84,6 @@ public:
 
     bool initialize(const QStringList &arguments, QString *errorMessage);
 
-    void svnDiff(const QString  &workingDir, const QStringList &files, QString diffname = QString());
-
     SubversionSubmitEditor *openSubversionSubmitEditor(const QString &fileName);
 
     SubversionSettings settings() const;
@@ -102,24 +100,9 @@ public:
 
     static SubversionPlugin *instance();
 
-    // Add authorization options to the command line arguments.
-    static QStringList addAuthenticationOptions(const QStringList &args,
-                                                const QString &userName = QString(),
-                                                const QString &password = QString());
-
-    class Version {
-    public:
-        int majorVersion;
-        int minorVersion;
-        int patchVersion;
-    };
-
-    Version svnVersion();
-
 public slots:
     void vcsAnnotate(const QString &workingDir, const QString &file,
                      const QString &revision = QString(), int lineNumber = -1);
-    void svnDiff(const Subversion::Internal::SubversionDiffParameters &p);
 
 private slots:
     void addCurrentFile();
@@ -183,6 +166,7 @@ private:
     const QStringList m_svnDirectories;
 
     SubversionSettings m_settings;
+    SubversionClient *m_client;
     QString m_commitMessageFileName;
     QString m_commitRepository;
 
@@ -213,9 +197,6 @@ private:
     QAction *m_submitRedoAction;
     QAction *m_menuAction;
     bool    m_submitActionTriggered;
-
-    QString m_svnVersionBinary;
-    QString m_svnVersion;
 
     static SubversionPlugin *m_subversionPluginInstance;
 };

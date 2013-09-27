@@ -367,7 +367,9 @@ void VcsBaseClient::diff(const QString &workingDir, const QStringList &files,
     QStringList args;
     const QStringList paramArgs = paramWidget != 0 ? paramWidget->arguments() : QStringList();
     args << vcsCmdString << extraOptions << paramArgs << files;
+    QTextCodec *codec = source.isEmpty() ? static_cast<QTextCodec *>(0) : VcsBase::VcsBaseEditorWidget::getCodec(source);
     Command *command = createCommand(workingDir, editor);
+    command->setCodec(codec);
     enqueueJob(command, args, exitCodeInterpreter(DiffCommand, command));
 }
 

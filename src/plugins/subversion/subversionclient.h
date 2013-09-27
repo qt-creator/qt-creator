@@ -27,33 +27,56 @@
 **
 ****************************************************************************/
 
-#ifndef SUBVERSIONSETTINGS_H
-#define SUBVERSIONSETTINGS_H
+#ifndef SUBVERSIONCLIENT_H
+#define SUBVERSIONCLIENT_H
 
-#include <vcsbase/vcsbaseclientsettings.h>
+#include "subversionsettings.h"
+#include <vcsbase/vcsbaseclient.h>
 
 namespace Subversion {
 namespace Internal {
 
-class SubversionSettings : public VcsBase::VcsBaseClientSettings
+class SubversionSettings;
+
+class SubversionClient : public VcsBase::VcsBaseClient
 {
+    Q_OBJECT
+
 public:
-    static const QLatin1String useAuthenticationKey;
-    static const QLatin1String userKey;
-    static const QLatin1String passwordKey;
-    static const QLatin1String spaceIgnorantAnnotationKey;
-    static const QLatin1String diffIgnoreWhiteSpaceKey;
+    SubversionClient(SubversionSettings *settings);
 
-    SubversionSettings();
-    bool hasAuthentication() const;
+    SubversionSettings *settings() const;
+    void diff(const QString &workingDir, const QStringList &files,
+              const QStringList &extraOptions = QStringList());
+    QString findTopLevelForFile(const QFileInfo &file) const;
+    QStringList revisionSpec(const QString &revision) const;
+    StatusItem parseStatusLine(const QString &line) const;
 
-    int timeOutMs() const;
+    class Version {
+    public:
+        int majorVersion;
+        int minorVersion;
+        int patchVersion;
+    };
+
+    Version svnVersion();
+
+    // Add authorization options to the command line arguments.
+    static QStringList addAuthenticationOptions(const QStringList &args,
+                                                const QString &userName = QString(),
+                                                const QString &password = QString());
 
 protected:
-    void readLegacySettings(const QSettings *settings);
+    Core::Id vcsEditorKind(VcsCommand cmd) const;
+    VcsBase::VcsBaseEditorParameterWidget *createDiffEditor(const QString &workingDir,
+                                                            const QStringList &files,
+                                                            const QStringList &extraOptions);
+private:
+    QString m_svnVersionBinary;
+    QString m_svnVersion;
 };
 
 } // namespace Internal
 } // namespace Subversion
 
-#endif // SUBVERSIONSETTINGS_H
+#endif // SUBVERSIONCLIENT_H
