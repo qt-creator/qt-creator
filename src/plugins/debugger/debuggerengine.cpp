@@ -1045,7 +1045,7 @@ void DebuggerEnginePrivate::doFinishDebugger()
 
 void DebuggerEnginePrivate::setRemoteSetupState(RemoteSetupState state)
 {
-    bool allowedTransition = true;
+    bool allowedTransition = false;
     if (m_remoteSetupState == RemoteSetupNone) {
         if (state == RemoteSetupRequested)
             allowedTransition = true;
