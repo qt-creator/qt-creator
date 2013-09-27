@@ -167,7 +167,7 @@ void AndroidDeployQtWidget::inputFileComboBoxIndexChanged()
 {
     if (m_ignoreChange)
         return;
-    QString text = m_ui->inputFileComboBox->currentData().toString();
+    QString text = m_ui->inputFileComboBox->itemData(m_ui->inputFileComboBox->currentIndex()).toString();
     m_step->setInputFile(text);
 }
 

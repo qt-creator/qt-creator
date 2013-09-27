@@ -30,6 +30,8 @@
 
 #include "certificatesmodel.h"
 
+#include <QComboBox>
+
 using namespace Android;
 using namespace Android::Internal;
 

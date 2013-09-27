@@ -32,6 +32,8 @@
 #define CERTIFICATESMODEL_H
 
 #include <QAbstractListModel>
+#include <QVector>
+#include <QPair>
 
 namespace Android {
 namespace Internal {
