@@ -898,6 +898,100 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_classDestructor()
     test.run();
 }
 
+void CppEditorPlugin::test_FollowSymbolUnderCursor_QObject_connect_data()
+{
+#define TAG(str) secondQObjectParam ? str : str ", no 2nd QObject"
+    QTest::addColumn<char>("start");
+    QTest::addColumn<char>("target");
+    QTest::addColumn<bool>("secondQObjectParam");
+    for (int i = 0; i < 2; ++i) {
+        bool secondQObjectParam = (i == 0);
+        QTest::newRow(TAG("SIGNAL: before keyword"))
+                << '1' << '1' << secondQObjectParam;
+        QTest::newRow(TAG("SIGNAL: in keyword"))
+                << '2' << '1' << secondQObjectParam;
+        QTest::newRow(TAG("SIGNAL: before parenthesis"))
+                << '3' << '1' << secondQObjectParam;
+        QTest::newRow(TAG("SIGNAL: before identifier"))
+                << '4' << '1' << secondQObjectParam;
+        QTest::newRow(TAG("SIGNAL: in identifier"))
+                << '5' << '1' << secondQObjectParam;
+        QTest::newRow(TAG("SIGNAL: before identifier parenthesis"))
+                << '6' << '1' << secondQObjectParam;
+        QTest::newRow(TAG("SLOT: before keyword"))
+                << '7' << '2' << secondQObjectParam;
+        QTest::newRow(TAG("SLOT: in keyword"))
+                << '8' << '2' << secondQObjectParam;
+        QTest::newRow(TAG("SLOT: before parenthesis"))
+                << '9' << '2' << secondQObjectParam;
+        QTest::newRow(TAG("SLOT: before identifier"))
+                << 'A' << '2' << secondQObjectParam;
+        QTest::newRow(TAG("SLOT: in identifier"))
+                << 'B' << '2' << secondQObjectParam;
+        QTest::newRow(TAG("SLOT: before identifier parenthesis"))
+                << 'C' << '2' << secondQObjectParam;
+    }
+#undef TAG
+}
+
+static void selectMarker(QByteArray *source, char marker, char number)
+{
+    int idx = 0;
+    forever {
+        idx = source->indexOf(marker, idx);
+        if (idx == -1)
+            break;
+        if (source->at(idx + 1) == number) {
+            ++idx;
+            source->remove(idx, 1);
+        } else {
+            source->remove(idx, 2);
+        }
+    }
+}
+
+void CppEditorPlugin::test_FollowSymbolUnderCursor_QObject_connect()
+{
+    QFETCH(char, start);
+    QFETCH(char, target);
+    QFETCH(bool, secondQObjectParam);
+    QByteArray source =
+            "class Foo : public QObject\n"
+            "{\n"
+            "signals:\n"
+            "    void $1endOfWorld();\n"
+            "public slots:\n"
+            "    void $2onWorldEnded()\n"
+            "    {\n"
+            "    }\n"
+            "};\n"
+            "\n"
+            "void bla()\n"
+            "{\n"
+            "   Foo foo;\n"
+            "   connect(&foo, @1SI@2GNAL@3(@4end@5OfWorld@6()),\n"
+            "           &foo, @7SL@8OT@9(@Aon@BWorldEnded@C()));\n"
+            "}\n";
+
+    selectMarker(&source, '@', start);
+    selectMarker(&source, '$', target);
+
+    if (!secondQObjectParam)
+        source.replace(" &foo, ", QByteArray());
+
+    if (start == '4' || start == 'A') {
+        qWarning("SIGNAL/SLOT before identifier triggers QTCREATORBUG-10264. Skipping.");
+        return;
+    }
+    if (start >= '7' && !secondQObjectParam) {
+        qWarning("SLOT jump triggers QTCREATORBUG-10265. Skipping.");
+        return;
+    }
+
+    TestCase test(TestCase::FollowSymbolUnderCursor, source);
+    test.run();
+}
+
 void CppEditorPlugin::test_FollowSymbolUnderCursor_using_QTCREATORBUG7903_globalNamespace()
 {
     const QByteArray source =
