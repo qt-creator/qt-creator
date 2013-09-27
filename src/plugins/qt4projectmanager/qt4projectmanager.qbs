@@ -24,7 +24,6 @@ QtcPlugin {
         name: "General"
         files: [
             "addlibrarywizard.cpp", "addlibrarywizard.h",
-            "buildconfigurationinfo.h",
             "externaleditors.cpp", "externaleditors.h",
             "findqt4profiles.cpp", "findqt4profiles.h",
             "librarydetailscontroller.cpp", "librarydetailscontroller.h",
@@ -41,6 +40,7 @@ QtcPlugin {
             "qmakekitconfigwidget.cpp", "qmakekitconfigwidget.h",
             "qmakekitinformation.cpp", "qmakekitinformation.h",
             "qmakeparser.cpp", "qmakeparser.h",
+            "qmakeprojectimporter.cpp", "qmakeprojectimporter.h",
             "qmakerunconfigurationfactory.cpp", "qmakerunconfigurationfactory.h",
             "qmakestep.cpp", "qmakestep.h", "qmakestep.ui",
             "qt4buildconfiguration.cpp", "qt4buildconfiguration.h",
@@ -52,7 +52,6 @@ QtcPlugin {
             "qt4projectmanager_global.h",
             "qt4projectmanagerconstants.h",
             "qt4projectmanagerplugin.cpp", "qt4projectmanagerplugin.h",
-            "qt4targetsetupwidget.cpp", "qt4targetsetupwidget.h",
             "qtmodulesinfo.cpp", "qtmodulesinfo.h",
             "winceqtversion.cpp", "winceqtversion.h",
             "winceqtversionfactory.cpp", "winceqtversionfactory.h"
