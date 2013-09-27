@@ -35,6 +35,7 @@
 #include "qnxdeviceprocesssignaloperation.h"
 #include "blackberrydeviceconfigurationwidget.h"
 #include "blackberrydeviceconnectionmanager.h"
+#include "qnxdeviceprocesslist.h"
 
 #include <projectexplorer/kitinformation.h>
 #include <ssh/sshconnection.h>
@@ -160,6 +161,11 @@ QVariantMap BlackBerryDeviceConfiguration::toMap() const
     QVariantMap map = RemoteLinux::LinuxDevice::toMap();
     map.insert(QLatin1String(Constants::QNX_DEBUG_TOKEN_KEY), m_debugToken);
     return map;
+}
+
+DeviceProcessList *BlackBerryDeviceConfiguration::createProcessListModel(QObject *parent) const
+{
+    return new QnxDeviceProcessList(sharedFromThis(), parent);
 }
 
 DeviceProcessSignalOperation::Ptr BlackBerryDeviceConfiguration::signalOperation() const

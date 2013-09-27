@@ -96,7 +96,8 @@ SOURCES += qnxplugin.cpp \
     blackberryconfigurationmanager.cpp \
     blackberrydevicelistdetector.cpp \
     blackberrylogprocessrunner.cpp \
-    qnxdeviceprocesssignaloperation.cpp
+    qnxdeviceprocesssignaloperation.cpp \
+    qnxdeviceprocesslist.cpp
 
 HEADERS += qnxplugin.h\
     qnxconstants.h \
@@ -192,7 +193,8 @@ HEADERS += qnxplugin.h\
     blackberryconfigurationmanager.h \
     blackberrydevicelistdetector.h \
     blackberrylogprocessrunner.h \
-    qnxdeviceprocesssignaloperation.h
+    qnxdeviceprocesssignaloperation.h \
+    qnxdeviceprocesslist.h
 
 FORMS += \
     blackberrydeviceconfigurationwizardsetuppage.ui \

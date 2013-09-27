@@ -64,6 +64,7 @@ public:
     QString displayNameForActionId(Core::Id actionId) const;
     void executeAction(Core::Id actionId, QWidget *parent);
     ProjectExplorer::IDevice::Ptr clone() const;
+    ProjectExplorer::DeviceProcessList *createProcessListModel(QObject *parent) const;
     bool hasDeviceTester() const;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const;
 

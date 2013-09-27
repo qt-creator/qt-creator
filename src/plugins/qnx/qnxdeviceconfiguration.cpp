@@ -31,9 +31,9 @@
 
 #include "qnxdeviceconfiguration.h"
 #include "qnxdevicetester.h"
+#include "qnxdeviceprocesslist.h"
 #include "qnxdeviceprocesssignaloperation.h"
 
-#include <projectexplorer/devicesupport/sshdeviceprocesslist.h>
 #include <ssh/sshconnection.h>
 
 #include <QRegExp>
@@ -77,51 +77,6 @@ class QnxPortsGatheringMethod : public ProjectExplorer::PortsGatheringMethod
             }
         }
         return ports;
-    }
-};
-
-class QnxDeviceProcessList : public ProjectExplorer::SshDeviceProcessList
-{
-public:
-    QnxDeviceProcessList(const ProjectExplorer::IDevice::ConstPtr &device, QObject *parent)
-        : SshDeviceProcessList(device, parent)
-    {
-    }
-
-private:
-    QString listProcessesCommandLine() const
-    {
-        return QLatin1String("pidin -F \"%a %A '/%n'\"");
-    }
-
-    QList<ProjectExplorer::DeviceProcessItem> buildProcessList(const QString &listProcessesReply) const
-    {
-        QList<ProjectExplorer::DeviceProcessItem> processes;
-        QStringList lines = listProcessesReply.split(QLatin1Char('\n'));
-        if (lines.isEmpty())
-            return processes;
-
-        lines.pop_front(); // drop headers
-        QRegExp re(QLatin1String("\\s*(\\d+)\\s+(.*)'(.*)'"));
-
-        foreach (const QString& line, lines) {
-            if (re.exactMatch(line)) {
-                const QStringList captures = re.capturedTexts();
-                if (captures.size() == 4) {
-                    const int pid = captures[1].toInt();
-                    const QString args = captures[2];
-                    const QString exe = captures[3];
-                    ProjectExplorer::DeviceProcessItem deviceProcess;
-                    deviceProcess.pid = pid;
-                    deviceProcess.exe = exe.trimmed();
-                    deviceProcess.cmdLine = args.trimmed();
-                    processes.append(deviceProcess);
-                }
-            }
-        }
-
-        qSort(processes);
-        return processes;
     }
 };
 
