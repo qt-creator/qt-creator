@@ -4623,8 +4623,6 @@ void BaseTextEditorWidget::setCodeStyle(ICodeStylePreferences *preferences)
                 this, SLOT(setTabSettings(TextEditor::TabSettings)));
         disconnect(d->m_codeStylePreferences, SIGNAL(currentValueChanged(QVariant)),
                 this, SLOT(slotCodeStyleSettingsChanged(QVariant)));
-        disconnect(d->m_codeStylePreferences, SIGNAL(destroyed()),
-                   this, SLOT(onCodeStylePreferencesDestroyed()));
     }
     d->m_codeStylePreferences = preferences;
     if (d->m_codeStylePreferences) {
@@ -4632,23 +4630,9 @@ void BaseTextEditorWidget::setCodeStyle(ICodeStylePreferences *preferences)
                 this, SLOT(setTabSettings(TextEditor::TabSettings)));
         connect(d->m_codeStylePreferences, SIGNAL(currentValueChanged(QVariant)),
                 this, SLOT(slotCodeStyleSettingsChanged(QVariant)));
-        connect(d->m_codeStylePreferences, SIGNAL(destroyed()),
-                this, SLOT(onCodeStylePreferencesDestroyed()));
         setTabSettings(d->m_codeStylePreferences->currentTabSettings());
         slotCodeStyleSettingsChanged(d->m_codeStylePreferences->currentValue());
     }
-}
-
-void BaseTextEditorWidget::onCodeStylePreferencesDestroyed()
-{
-    if (sender() != d->m_codeStylePreferences)
-        return;
-    ICodeStylePreferences *prefs = TextEditorSettings::instance()->codeStyle(languageSettingsId());
-    if (prefs == d->m_codeStylePreferences)
-        prefs = 0;
-    // avoid failing disconnects, m_codeStylePreferences has already been reduced to QObject
-    d->m_codeStylePreferences = 0;
-    setCodeStyle(prefs);
 }
 
 void BaseTextEditorWidget::slotCodeStyleSettingsChanged(const QVariant &)

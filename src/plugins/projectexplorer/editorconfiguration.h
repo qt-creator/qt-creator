@@ -50,6 +50,7 @@ class ExtraEncodingSettings;
 
 namespace ProjectExplorer {
 
+class Project;
 struct EditorConfigurationPrivate;
 
 class PROJECTEXPLORER_EXPORT EditorConfiguration : public QObject
@@ -77,6 +78,7 @@ public:
     QMap<Core::Id, TextEditor::ICodeStylePreferences *> codeStyles() const;
 
     void configureEditor(TextEditor::ITextEditor *textEditor) const;
+    void deconfigureEditor(TextEditor::ITextEditor *textEditor) const;
 
     QVariantMap toMap() const;
     void fromMap(const QVariantMap &map);
@@ -96,6 +98,7 @@ private slots:
 
     void setTextCodec(QTextCodec *textCodec);
 
+    void slotAboutToRemoveProject(ProjectExplorer::Project *project);
 private:
     void switchSettings(TextEditor::BaseTextEditorWidget *baseTextEditor) const;
     template <class NewSenderT, class OldSenderT>
