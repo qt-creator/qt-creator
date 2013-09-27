@@ -9,8 +9,8 @@ Product {
         qbs.installDir: project.ide_data_path
         prefix: "qtcreator/"
         files: [
+            "debugger",
             "designer",
-            "dumper",
             "generic-highlighter",
             "glsl",
             "qml",
