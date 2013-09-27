@@ -1,5 +1,6 @@
 import qbs.base 1.0
 import "../QtcPlugin.qbs" as QtcPlugin
+import "../../../qbs/defaults.js" as Defaults
 
 QtcPlugin {
     name: "Core"
@@ -255,6 +256,15 @@ QtcPlugin {
         condition: qbs.targetOS.contains("unix") && !qbs.targetOS.contains("osx")
         files: [
             "progressmanager/progressmanager_x11.cpp",
+        ]
+    }
+
+    Group {
+        name: "Tests"
+        condition: Defaults.testsEnabled(qbs)
+        files: [
+            "plugintestutils.cpp",
+            "plugintestutils.h"
         ]
     }
 

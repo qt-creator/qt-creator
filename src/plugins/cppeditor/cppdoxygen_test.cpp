@@ -30,6 +30,7 @@
 #include "cppeditor.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/plugintestutils.h>
 #include <cplusplus/CppDocument.h>
 #include <cppeditor/cppeditor.h>
 #include <cppeditor/cppeditorplugin.h>
@@ -115,8 +116,7 @@ TestCase::TestCase(const QByteArray &input)
 
 TestCase::~TestCase()
 {
-    EditorManager::instance()->closeEditors(QList<Core::IEditor *>() << editor, false);
-    QCoreApplication::processEvents(); // process any pending events
+    Core::Tests::closeAndDeleteEditor(editor);
 
     // Remove the test file from the code-model
     CppTools::CppModelManagerInterface *mmi = CppTools::CppModelManagerInterface::instance();
