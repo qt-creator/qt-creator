@@ -5,7 +5,7 @@ import "../QtcPlugin.qbs" as QtcPlugin
 QtcPlugin {
     name: "Help"
 
-    Depends { name: "Qt"; submodules: ["core", "help", "network", "webkit"]; }
+    Depends { name: "Qt"; submodules: ["help", "network", "webkit"]; }
     Depends {
         condition: Qt.core.versionMajor >= 5;
         name: "Qt"; submodules: ["printsupport", "webkitwidgets"];
