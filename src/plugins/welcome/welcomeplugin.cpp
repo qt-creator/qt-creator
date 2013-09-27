@@ -147,6 +147,7 @@ WelcomeMode::WelcomeMode() :
     setContext(Core::Context(Core::Constants::C_WELCOME_MODE));
 
     m_welcomePage = new QQuickView;
+    m_welcomePage->setObjectName(QLatin1String("WelcomePage"));
     m_welcomePage->setResizeMode(QQuickView::SizeRootObjectToView);
 
 //  filter to forward dragEnter events
@@ -154,11 +155,13 @@ WelcomeMode::WelcomeMode() :
 //    m_welcomePage->viewport()->installEventFilter(this);
 
     m_modeWidget = new QWidget;
+    m_modeWidget->setObjectName(QLatin1String("WelcomePageModeWidget"));
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setMargin(0);
     layout->setSpacing(0);
 
     Utils::StyledBar* styledBar = new Utils::StyledBar(m_modeWidget);
+    styledBar->setObjectName(QLatin1String("WelcomePageStyledBar"));
     layout->addWidget(styledBar);
 
     // QScrollArea *scrollArea = new QScrollArea(m_modeWidget);
