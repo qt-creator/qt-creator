@@ -50,7 +50,6 @@ namespace Internal { class Qt4ProjectConfigWidget; }
 class QT4PROJECTMANAGER_EXPORT Qt4BuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
     Q_OBJECT
-    friend class Qt4BuildConfigurationFactory;
 
 public:
     explicit Qt4BuildConfiguration(ProjectExplorer::Target *target);
