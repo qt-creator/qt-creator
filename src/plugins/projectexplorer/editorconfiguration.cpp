@@ -33,6 +33,7 @@
 #include "project.h"
 
 #include <coreplugin/id.h>
+#include <coreplugin/icore.h>
 #include <texteditor/basetexteditor.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/simplecodestylepreferences.h>
@@ -88,21 +89,31 @@ EditorConfiguration::EditorConfiguration() : d(new EditorConfigurationPrivate)
     while (itCodeStyle.hasNext()) {
         itCodeStyle.next();
         Core::Id languageId = itCodeStyle.key();
+        // global prefs for language
         ICodeStylePreferences *originalPreferences = itCodeStyle.value();
         ICodeStylePreferencesFactory *factory = TextEditorSettings::codeStyleFactory(languageId);
+        // clone of global prefs for language - it will became project prefs for language
         ICodeStylePreferences *preferences = factory->createCodeStyle();
+        // project prefs can point to the global language pool, which contains also the global language prefs
         preferences->setDelegatingPool(TextEditorSettings::codeStylePool(languageId));
         preferences->setId(languageId.name() + "Project");
         preferences->setDisplayName(tr("Project %1", "Settings, %1 is a language (C++ or QML)").arg(factory->displayName()));
+        // project prefs by default point to global prefs (which in turn can delegate to anything else or not)
         preferences->setCurrentDelegate(originalPreferences);
         d->m_languageCodeStylePreferences.insert(languageId, preferences);
     }
 
+    // clone of global prefs (not language specific), for project scope
     d->m_defaultCodeStyle = new SimpleCodeStylePreferences(this);
     d->m_defaultCodeStyle->setDelegatingPool(TextEditorSettings::codeStylePool());
     d->m_defaultCodeStyle->setDisplayName(tr("Project", "Settings"));
     d->m_defaultCodeStyle->setId("Project");
-    d->m_defaultCodeStyle->setCurrentDelegate(d->m_useGlobal ? TextEditorSettings::codeStyle() : 0);
+    // if setCurrentDelegate is 0 values are read from *this prefs
+    d->m_defaultCodeStyle->setCurrentDelegate(d->m_useGlobal
+                    ? TextEditorSettings::codeStyle() : 0);
+
+    connect(SessionManager::instance(), SIGNAL(aboutToRemoveProject(ProjectExplorer::Project*)),
+            this, SLOT(slotAboutToRemoveProject(ProjectExplorer::Project*)));
 }
 
 EditorConfiguration::~EditorConfiguration()
@@ -237,6 +248,15 @@ void EditorConfiguration::configureEditor(ITextEditor *textEditor) const
     }
 }
 
+void EditorConfiguration::deconfigureEditor(ITextEditor *textEditor) const
+{
+    BaseTextEditorWidget *baseTextEditor = qobject_cast<BaseTextEditorWidget *>(textEditor->widget());
+    if (baseTextEditor)
+        baseTextEditor->setCodeStyle(TextEditorSettings::codeStyle(baseTextEditor->languageSettingsId()));
+
+    // TODO: what about text codec and switching settings?
+}
+
 void EditorConfiguration::setUseGlobalSettings(bool use)
 {
     d->m_useGlobal = use;
@@ -321,7 +341,27 @@ void EditorConfiguration::setTextCodec(QTextCodec *textCodec)
     d->m_textCodec = textCodec;
 }
 
-TabSettings actualTabSettings(const QString &fileName, const BaseTextEditorWidget *baseTextEditor)
+void EditorConfiguration::slotAboutToRemoveProject(ProjectExplorer::Project *project)
+{
+    if (project->editorConfiguration() != this)
+        return;
+
+    Core::DocumentModel *model = Core::EditorManager::documentModel();
+    QList<Core::IEditor *> editors = model->editorsForDocuments(model->openedDocuments());
+    foreach (Core::IEditor *editor, editors) {
+        if (TextEditor::ITextEditor *textEditor = qobject_cast<TextEditor::ITextEditor*>(editor)) {
+            Core::IDocument *document = editor->document();
+            if (document) {
+                Project *editorProject = SessionManager::projectForFile(document->filePath());
+                if (project == editorProject)
+                    deconfigureEditor(textEditor);
+            }
+        }
+    }
+}
+
+TabSettings actualTabSettings(const QString &fileName,
+                              const BaseTextEditorWidget *baseTextEditor)
 {
     if (baseTextEditor)
         return baseTextEditor->tabSettings();
