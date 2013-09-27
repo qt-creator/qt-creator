@@ -33,9 +33,7 @@ import QtQuick.Layouts 1.0
 
 GridLayout {
     columns: 2
-    columnSpacing: 6
+    columnSpacing: 12
     rowSpacing: 4
-
-    width: parent.width - 8
-
+    width: parent.width - 16
 }

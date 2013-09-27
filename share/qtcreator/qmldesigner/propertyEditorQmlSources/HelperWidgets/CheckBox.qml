@@ -28,12 +28,16 @@
 ****************************************************************************/
 
 import QtQuick 2.1
-import QtQuick.Controls 1.0 as Controls
+import QtQuick.Controls 1.1 as Controls
+import QtQuick.Controls.Styles 1.1
 
 Controls.CheckBox {
 
     id: checkBox
 
+    property color borderColor: "#222"
+    property color highlightColor: "orange"
+    property color textColor: "#eee"
 
     onTextChanged: {
         if (text.charAt(0) !== " ")
@@ -43,8 +47,7 @@ Controls.CheckBox {
     property variant backendValue
 
     ExtendedFunctionButton {
-        x: 14
-        y: 2
+        x: 22
         backendValue: checkBox.backendValue
         visible: spinBox.enabled
     }
@@ -68,6 +71,17 @@ Controls.CheckBox {
             transaction.end();
         }
     }
+    style: CheckBoxStyle {
+        spacing: 8
+        label: Controls.Label { text: control.text ; color: checkBox.textColor }
+        indicator:  Item {
+            implicitWidth: 16
+            implicitHeight: 16
+            Image { source: "qrc:qmldesigner/images/checkbox_" +
+                            (control.checked ? "checked": "unchecked") +
+                            (control.pressed ? "_pressed": "") + ".png" }
+        }
+    }                                          //control.pressed ? "qrc:qmldesigner/images/checkbox_unchecked_pressed.png" :
 
 
 }

@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 import QtQuick 2.1
-import QtQuick.Controls 1.0 as Controls
+import QtQuick.Controls 1.1 as Controls
 import QtQuick.Layouts 1.0
 
 Item {
@@ -38,27 +38,56 @@ Item {
 
     anchors.left: parent.left
     anchors.right: parent.right
+    clip: true
 
     Rectangle {
         id: header
-        height: 16
+        height: 18
 
         anchors.left: parent.left
         anchors.right: parent.right
+
         Controls.Label {
-            x: 4
             id: label
             anchors.verticalCenter: parent.verticalCenter
-            font.bold: true
+            color: "white"
+            x: 22
         }
-        color: "blue"
+
+        Image {
+            source: "images/down-arrow.png"
+            rotation: section.state === "Collapsed" ? -90 : 0
+            anchors.left: parent.left
+            anchors.leftMargin: 4
+            anchors.verticalCenter: parent.verticalCenter
+            Behavior on rotation {NumberAnimation{duration: 80}}
+        }
+
+        gradient: Gradient {
+            GradientStop {color: '#555' ; position: 0}
+            GradientStop {color: '#444' ; position: 1}
+        }
+
+        Rectangle {
+            color: "#666"
+            width: parent.width
+            height: 1
+        }
+
+        Rectangle {
+            color: "#333"
+            anchors.bottom: parent.bottom
+            width: parent.width
+            height: 1
+        }
+
         MouseArea {
             anchors.fill: parent
             onClicked: {
                 if (section.state === "")
                     section.state = "Collapsed";
                 else
-                section.state = "";
+                    section.state = "";
             }
         }
     }
@@ -67,29 +96,23 @@ Item {
 
     readonly property alias contentItem: row
 
-    //implicitWidth: row.width - 4
-    implicitHeight: row.height + header.height
-
-    //Layout.minimumWidth: implicitWidth
-    Layout.minimumHeight: implicitHeight
+    implicitHeight: Math.round(row.height + header.height + 8)
 
     Row {
         width: parent.width
-        x: 4
-        y: header.height
+        x: 8
+        y: header.height + 4
         id: row
-
     }
+
+    Behavior on height { NumberAnimation{easing.type: Easing.OutCubic ; duration: 60} }
+
     states: [
         State {
             name: "Collapsed"
             PropertyChanges {
-                target: row
-                opacity: 0
-            }
-            PropertyChanges {
                 target: section
-                implicitHeight: header.height
+                height: header.height
             }
         }
     ]

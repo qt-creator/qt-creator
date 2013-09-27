@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 import QtQuick 2.1
-import QtQuick.Controls 1.0 as Controls
+import QtQuick.Controls 1.1 as Controls
 
 Controls.ComboBox {
     id: comboBox

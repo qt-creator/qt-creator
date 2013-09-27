@@ -28,17 +28,21 @@
 ****************************************************************************/
 
 import QtQuick 2.1
-import QtQuick.Controls 1.0 as Controls
+import QtQuick.Controls 1.1 as Controls
+import QtQuick.Controls.Styles 1.1
 
 Controls.SpinBox {
     id: spinBox
+    property color borderColor: "#222"
+    property color highlightColor: "orange"
+    property color textColor: "#eee"
 
     property variant backendValue;
     prefix: "    "
 
     ExtendedFunctionButton {
         x: 2
-        y: 3
+        y: 4
         backendValue: spinBox.backendValue
         visible: spinBox.enabled
     }
@@ -73,7 +77,7 @@ Controls.SpinBox {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.bottom
-        height: 10;
+        height: 10
         visible: false
 
         maximumValue: spinBox.maximumValue
@@ -83,6 +87,60 @@ Controls.SpinBox {
 
         onValueChanged: {
             spinBox.value = value
+        }
+    }
+
+    style: SpinBoxStyle {
+
+        selectionColor: spinBox.textColor
+        selectedTextColor: "black"
+        textColor: spinBox.textColor
+        padding.top: 3
+        padding.bottom: 1
+
+        incrementControl: Item {
+            implicitWidth: 14
+            implicitHeight: parent.height/2
+            opacity: styleData.upEnabled ? styleData.upPressed ? 0.5 : 1 : 0.5
+            Image {
+                source: "images/up-arrow.png"
+                anchors.centerIn: parent
+                anchors.verticalCenterOffset: 2
+                anchors.horizontalCenterOffset: -4
+            }
+        }
+
+        decrementControl: Item {
+            implicitWidth: 14
+            implicitHeight: parent.height/2
+            opacity: styleData.downEnabled ? styleData.downPressed ? 0.5 : 1 : 0.5
+            Image {
+                source: "images/down-arrow.png"
+                anchors.centerIn: parent
+                anchors.verticalCenterOffset: -1
+                anchors.horizontalCenterOffset: -4
+            }
+        }
+
+        background: Rectangle {
+            implicitWidth: Math.max(60, styleData.contentWidth)
+            implicitHeight: 23
+            border.color: borderColor
+            radius: 3
+            gradient: Gradient {
+                GradientStop {color: "#2c2c2c" ; position: 0}
+                GradientStop {color: "#343434" ; position: 0.15}
+                GradientStop {color: "#373737" ; position: 1}
+            }
+            Rectangle {
+                border.color: highlightColor
+                anchors.fill: parent
+                anchors.margins: -1
+                color: "transparent"
+                radius: 4
+                opacity: 0.3
+                visible: control.activeFocus
+            }
         }
     }
 }

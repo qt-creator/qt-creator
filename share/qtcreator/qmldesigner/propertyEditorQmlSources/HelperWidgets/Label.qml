@@ -28,19 +28,16 @@
 ****************************************************************************/
 
 import QtQuick 2.1
-import QtQuick.Controls 1.0 as Controls
+import QtQuick.Controls 1.1 as Controls
 import QtQuick.Layouts 1.0
 
 Controls.Label {
     id: label
-    font.bold: true
+
     width:  parent.width < 300 ? 80 : Math.min(140, parent.width - 220)
+    color: "#eee"
     elide: Text.ElideRight
-    Rectangle {
-        color: "red"
-        anchors.fill: parent
-        z: -1
-    }
+
     Layout.preferredWidth: width
     Layout.minimumWidth: width
     Layout.maximumWidth: width

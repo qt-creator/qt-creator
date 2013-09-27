@@ -29,12 +29,16 @@
 
 
 import QtQuick 2.1
-import QtQuick.Controls 1.0 as Controls
+import QtQuick.Controls 1.1 as Controls
+import QtQuick.Controls.Styles 1.0
 
 Controls.TextField {
 
     id: lineEdit
     property variant backendValue
+    property color borderColor: "#222"
+    property color highlightColor: "orange"
+    property color textColor: "#eee"
 
 //    ExtendedFunctionButton {
 //        x: 2
@@ -64,5 +68,31 @@ Controls.TextField {
         }
     }
 
-
+    style: TextFieldStyle {
+        selectionColor: lineEdit.textColor
+        selectedTextColor: "black"
+        textColor: lineEdit.textColor
+        padding.top: 3
+        padding.bottom: 1
+        background: Rectangle {
+            implicitWidth: 100
+            implicitHeight: 23
+            border.color: borderColor
+            radius: 3
+            gradient: Gradient {
+                GradientStop {color: "#2c2c2c" ; position: 0}
+                GradientStop {color: "#343434" ; position: 0.15}
+                GradientStop {color: "#373737" ; position: 1.0}
+            }
+            Rectangle {
+                border.color: highlightColor
+                anchors.fill: parent
+                anchors.margins: -1
+                color: "transparent"
+                radius: 4
+                opacity: 0.3
+                visible: control.activeFocus
+            }
+        }
+    }
 }

@@ -31,159 +31,164 @@ import QtQuick 2.0
 import HelperWidgets 2.0
 import QtQuick.Layouts 1.0
 
-ScrollView {
+Rectangle {
     id: itemPane
     width: 320
     height: 400
+    color: "#404040"
 
-    Column {
-        width: itemPane.width
-        Section {
-            caption: "Type"
+    ScrollView {
+        anchors.fill: parent
 
-            anchors.left: parent.left
-            anchors.right: parent.right
+        Column {
+            width: itemPane.width
+            Section {
+                caption: "Type"
 
-            SectionLayout {
-                Label {
-                    text: "Type"
+                anchors.left: parent.left
+                anchors.right: parent.right
 
-                }
-
-                Label {
-                    text: backendValues.className.value
-                    width: lineEdit.width
-                }
-
-                Label {
-                    text: "id"
-
-                }
-
-                SecondColumnLayout {
-                    LineEdit {
-                        id: lineEdit
-                        enabled: isBaseState
-                        backendValue: backendValues.id
-                        placeholderText: "id"
-                        text: backendValues.id.value
-                        Layout.fillWidth: true
-                        Layout.maximumWidth: 320
-                    }
-
-                    ExpandingSpacer {
-                    }
-
-                    Item {
-                        width: 16
-                        height: 16
-                    }
-                }
-            }
-        }
-
-        GeometrySection {
-        }
-
-        Section {
-            anchors.left: parent.left
-            anchors.right: parent.right
-
-            caption: "Visibilty"
-
-            SectionLayout {
-                rows: 2
-                Label {
-                    text: "Visibilty"
-                }
-
-                SecondColumnLayout {
-
-                    CheckBox {
-                        text: "Is Visible"
-                        backendValue: backendValues.visible
-                    }
-
-                    Item {
-                        width: 10
-                        height: 10
+                SectionLayout {
+                    Label {
+                        text: "Type"
 
                     }
 
-                    CheckBox {
-                        text: "Clip"
-                        backendValue: backendValues.clip
+                    Label {
+                        text: backendValues.className.value
+                        width: lineEdit.width
                     }
-                    Item {
-                        Layout.fillWidth: true
+
+                    Label {
+                        text: "id"
+
                     }
-                }
 
-                Label {
-                    text: "Opacity"
-                }
+                    SecondColumnLayout {
+                        LineEdit {
+                            id: lineEdit
+                            enabled: isBaseState
+                            backendValue: backendValues.id
+                            placeholderText: "id"
+                            text: backendValues.id.value
+                            Layout.fillWidth: true
+                            Layout.maximumWidth: 320
+                        }
 
-                SecondColumnLayout {
-                    SpinBox {
-                        backendValue: backendValues.opacity
-                        decimals: 2
+                        ExpandingSpacer {
+                        }
 
-                        minimumValue: 0
-                        maximumValue: 1
-                        hasSlider: true
-                    }
-                    Item {
-                        Layout.fillWidth: true
+                        Item {
+                            width: 16
+                            height: 16
+                        }
                     }
                 }
             }
-        }
 
-        TabView {
-             anchors.left: parent.left
-            anchors.right: parent.right
-            frameVisible: false
+            GeometrySection {
+            }
 
-            Tab {
-                title: backendValues.className.value
+            Section {
+                anchors.left: parent.left
+                anchors.right: parent.right
 
-                component: Column {
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    //                    Loader {
-                    //                        id: specificsTwo;
-                    //                        baseUrl: globalBaseUrl;
-                    //                        qmlData: specificQmlData;
-                    //                    }
+                caption: "Visibilty"
 
-                    Loader {
+                SectionLayout {
+                    rows: 2
+                    Label {
+                        text: "Visibilty"
+                    }
+
+                    SecondColumnLayout {
+
+                        CheckBox {
+                            text: "Is Visible"
+                            backendValue: backendValues.visible
+                        }
+
+                        Item {
+                            width: 10
+                            height: 10
+
+                        }
+
+                        CheckBox {
+                            text: "Clip"
+                            backendValue: backendValues.clip
+                        }
+                        Item {
+                            Layout.fillWidth: true
+                        }
+                    }
+
+                    Label {
+                        text: "Opacity"
+                    }
+
+                    SecondColumnLayout {
+                        SpinBox {
+                            backendValue: backendValues.opacity
+                            decimals: 2
+
+                            minimumValue: 0
+                            maximumValue: 1
+                            hasSlider: true
+                        }
+                        Item {
+                            Layout.fillWidth: true
+                        }
+                    }
+                }
+            }
+
+            TabView {
+                anchors.left: parent.left
+                anchors.right: parent.right
+                frameVisible: false
+
+                Tab {
+                    title: backendValues.className.value
+
+                    component: Column {
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        //                    Loader {
+                        //                        id: specificsTwo;
+                        //                        baseUrl: globalBaseUrl;
+                        //                        qmlData: specificQmlData;
+                        //                    }
+
+                        Loader {
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+
+                            id: specificsOne;
+                            source: specificsUrl;
+                        }
+                    }
+                }
+
+                Tab {
+                    title: "Layout"
+                    component: Column {
                         anchors.left: parent.left
                         anchors.right: parent.right
 
-                        id: specificsOne;
-                        source: specificsUrl;
+                        LayoutSection {
+                        }
                     }
                 }
-            }
 
-            Tab {
-                title: "Layout"
-                component: Column {
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-
-                    LayoutSection {
-                    }
-                }
-            }
-
-            Tab {
-                anchors.fill: parent
-                title: "Advanced"
-                component: Column {
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    AdvancedSection {
+                Tab {
+                    anchors.fill: parent
+                    title: "Advanced"
+                    component: Column {
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        AdvancedSection {
+                        }
                     }
                 }
             }

@@ -78,7 +78,6 @@ Section {
             SpinBox {
                 backendValue: backendValues.z
                 hasSlider: true
-                decimals: 2
                 minimumValue: -100
                 maximumValue: 100
                 Layout.preferredWidth: 80

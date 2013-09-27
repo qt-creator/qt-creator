@@ -29,7 +29,46 @@
 
 import QtQuick 2.1
 import QtQuick.Controls 1.0 as Controls
+import QtQuick.Controls.Styles 1.1
 
 Controls.TabView {
+    id: root
 
+    property color textColor: "#eee"
+    frameVisible: false
+    style: TabViewStyle {
+        frameOverlap: 0
+        frame: Item { }
+        tab: Rectangle {
+            color: styleData.selected ? "#eee" : "#444"
+            implicitWidth: root.width/root.count + 2
+            implicitHeight: 21
+            Text {
+                id: text
+                anchors.centerIn: parent
+                text: styleData.title
+                renderType: Text.NativeRendering
+                color: styleData.selected ? "#000" : "#fff"
+            }
+            Rectangle {
+                anchors.fill: parent
+                opacity: 0.10
+                gradient: Gradient {
+                    GradientStop {color: '#fff' ; position: 0}
+                    GradientStop {color: '#000' ; position: 1}
+                }
+            }
+            Rectangle {
+                color: "#666"
+                width: parent.width
+                height: 1
+            }
+            Rectangle {
+                color: "#333"
+                width: parent.width
+                height: 1
+                anchors.bottom: parent.bottom
+            }
+        }
+    }
 }

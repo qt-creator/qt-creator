@@ -52,14 +52,12 @@ Section {
 
         Label {
             text: "Position"
-            Layout.alignment: Qt.AlignVCenter
         }
 
         SecondColumnLayout {
             Label {
                 text: "X"
                 width: 12
-                Layout.alignment: Qt.AlignVCenter
             }
 
             SpinBox {
@@ -80,22 +78,18 @@ Section {
                 minimumValue: -0xffff
                 decimals: 0
             }
-            ExpandingSpacer {
-            }
+            ExpandingSpacer{}
         }
         Label {
             text: "Size"
-            Layout.alignment: Qt.AlignVCenter
         }
 
         SecondColumnLayout {
             Layout.fillWidth: true
 
-
             Label {
                 text: "W"
                 width: 12
-                Layout.alignment: Qt.AlignVCenter
             }
 
             SpinBox {
@@ -108,7 +102,6 @@ Section {
             Label {
                 text: "H"
                 width: 12
-                Layout.alignment: Qt.AlignVCenter
             }
 
             SpinBox {
@@ -117,10 +110,7 @@ Section {
                 minimumValue: -0xffff
                 decimals: 0
             }
-
-            ExpandingSpacer {
-
-            }
+            ExpandingSpacer{}
         }
     }
 }

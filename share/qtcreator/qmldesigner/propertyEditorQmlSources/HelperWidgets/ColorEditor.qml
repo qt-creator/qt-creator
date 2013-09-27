@@ -103,7 +103,7 @@ Column {
 
         SecondColumnLayout {
 
-            Controls.TextField {
+            LineEdit {
                 id: textField
                 inputMask: "\\#hhHHHHHH"
 

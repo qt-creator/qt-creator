@@ -34,5 +34,4 @@ import QtQuick.Layouts 1.0
 RowLayout {
     Layout.fillWidth: true
     spacing: 4
-    Layout.alignment: Qt.AlignVCenter
 }
