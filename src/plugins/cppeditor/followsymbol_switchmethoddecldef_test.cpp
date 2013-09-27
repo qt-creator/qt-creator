@@ -1075,10 +1075,6 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_QObject_connect()
     if (!secondQObjectParam)
         source.replace(" &foo, ", QByteArray());
 
-    if (start == '4' || start == 'A') {
-        qWarning("SIGNAL/SLOT before identifier triggers QTCREATORBUG-10264. Skipping.");
-        return;
-    }
     if (start >= '7' && !secondQObjectParam) {
         qWarning("SLOT jump triggers QTCREATORBUG-10265. Skipping.");
         return;

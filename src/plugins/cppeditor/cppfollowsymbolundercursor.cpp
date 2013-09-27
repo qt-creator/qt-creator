@@ -270,6 +270,23 @@ FollowSymbolUnderCursor::~FollowSymbolUnderCursor()
     delete m_virtualFunctionAssistProvider;
 }
 
+static int skipMatchingParentheses(const QList<Token> &tokens, int idx, int initialDepth)
+{
+    int j = idx;
+    int depth = initialDepth;
+
+    for (; j < tokens.size(); ++j) {
+        if (tokens.at(j).is(T_LPAREN)) {
+            ++depth;
+        } else if (tokens.at(j).is(T_RPAREN)) {
+            if (!--depth)
+                break;
+        }
+    }
+
+    return j;
+}
+
 BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &cursor,
     bool resolveTarget, const Snapshot &theSnapshot, const Document::Ptr &documentFromSemanticInfo,
     SymbolFinder *symbolFinder, bool inNextSplit)
@@ -321,8 +338,8 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
     for (int i = 0; i < tokens.size(); ++i) {
         const Token &tk = tokens.at(i);
 
-        if (((unsigned) positionInBlock) >= tk.begin()
-                && ((unsigned) positionInBlock) <= tk.end()) {
+        if (((unsigned) positionInBlock) >= tk.begin() && ((unsigned) positionInBlock) < tk.end()) {
+            int closingParenthesisPos = tokens.size();
             if (i >= 2 && tokens.at(i).is(T_IDENTIFIER) && tokens.at(i - 1).is(T_LPAREN)
                 && (tokens.at(i - 2).is(T_SIGNAL) || tokens.at(i - 2).is(T_SLOT))) {
 
@@ -332,29 +349,25 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
                 // token[i + n] == T_RPAREN
 
                 if (i + 1 < tokens.size() && tokens.at(i + 1).is(T_LPAREN)) {
-                    // skip matched parenthesis
-                    int j = i - 1;
-                    int depth = 0;
-
-                    for (; j < tokens.size(); ++j) {
-                        if (tokens.at(j).is(T_LPAREN)) {
-                            ++depth;
-                        } else if (tokens.at(j).is(T_RPAREN)) {
-                            if (!--depth)
-                                break;
-                        }
-                    }
-
-                    if (j < tokens.size()) {
-                        QTextBlock block = cursor.block();
-
-                        beginOfToken = block.position() + tokens.at(i).begin();
-                        endOfToken = block.position() + tokens.at(i).end();
-
-                        tc.setPosition(block.position() + tokens.at(j).end());
-                        recognizedQtMethod = true;
-                    }
+                    closingParenthesisPos = skipMatchingParentheses(tokens, i - 1, 0);
                 }
+            } else if ((i > 3 && tk.is(T_LPAREN) && tokens.at(i - 1).is(T_IDENTIFIER)
+                        && tokens.at(i - 2).is(T_LPAREN)
+                    && (tokens.at(i - 3).is(T_SIGNAL) || tokens.at(i - 3).is(T_SLOT)))) {
+
+                // skip until the closing parentheses of the SIGNAL/SLOT macro
+                closingParenthesisPos = skipMatchingParentheses(tokens, i, 1);
+                --i; // point to the token before the opening parenthesis
+            }
+
+            if (closingParenthesisPos < tokens.size()) {
+                QTextBlock block = cursor.block();
+
+                beginOfToken = block.position() + tokens.at(i).begin();
+                endOfToken = block.position() + tokens.at(i).end();
+
+                tc.setPosition(block.position() + tokens.at(closingParenthesisPos).end());
+                recognizedQtMethod = true;
             }
             break;
         }
