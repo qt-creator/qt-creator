@@ -170,9 +170,8 @@ WelcomeMode::WelcomeMode() :
     // scrollArea->setWidget(m_welcomePage);
     // scrollArea->setWidgetResizable(true);
 
-    m_welcomePage->setMinimumWidth(880);
-    m_welcomePage->setMinimumHeight(548);
     QWidget *container = QWidget::createWindowContainer(m_welcomePage, m_modeWidget);
+    container->setMinimumSize(QSize(880, 548));
     layout->addWidget(container);
     m_modeWidget->setLayout(layout);
 
