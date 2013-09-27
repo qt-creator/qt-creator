@@ -36,16 +36,6 @@
 #include <QMetaType>
 
 namespace BINEditor {
-/*!
-    \class BINEditor::Markup
-    \brief Markup range of the binary editor.
-
-    Used for displaying class layouts by the debugger.
-
-    \note Must not have linkage - used for soft dependencies.
-
-    \sa Debugger::Internal::MemoryAgent
-*/
 
 class Markup
 {

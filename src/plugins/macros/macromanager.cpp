@@ -74,8 +74,8 @@ using namespace Macros::Internal;
     \class Macro::MacroManager
     \brief The MacroManager class implements a manager for macros.
 
-    The MacroManager manage all macros, it loads them on startup, keep track of the
-    current macro and create new macros.
+    The MacroManager manages all macros, loads them on startup, keeps track of the
+    current macro, and creates new macros.
 
     There are two important methods in this class that can be used outside the Macros plugin:
     \list
@@ -89,7 +89,7 @@ using namespace Macros::Internal;
 /*!
     \fn void registerAction(QAction *action, const QString &id)
 
-    Append this action to the list of actions registered in a macro. The id is
+    Appends \a action to the list of actions registered in a macro. \a id is
     the action id passed to the ActionManager.
 */
 

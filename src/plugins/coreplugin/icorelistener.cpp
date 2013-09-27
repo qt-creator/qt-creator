@@ -27,35 +27,32 @@
 **
 ****************************************************************************/
 
-#include "invalidmodelnodeexception.h"
+#include "icorelistener.h"
 
 /*!
-\class QmlDesigner::InvalidModelNodeException
-\ingroup CoreExceptions
-\brief The InvalidModelNodeException class provides an exception for an invalid
-model node.
+    \class Core::ICoreListener
 
-\see ModelNode
-*/
-namespace QmlDesigner {
-/*!
-    Constructs an exception. \a line uses the __LINE__ macro,
-    \a function uses the __FUNCTION__ or the Q_FUNC_INFO macro, and \a file uses
-    the __FILE__ macro.
-*/
-InvalidModelNodeException::InvalidModelNodeException(int line,
-                                                     const QString &function,
-                                                     const QString &file)
- : Exception(line, function, file)
-{
-}
+    \brief The ICoreListener class provides a hook for plugins to veto on
+    certain events emitted from the core plugin.
 
-/*!
-    Returns the type of this exception as a string.
-*/
-QString InvalidModelNodeException::type() const
-{
-    return "InvalidModelNodeException";
-}
+    Implement this interface to prevent certain events from occurring. For
+    example, to prevent the closing of the whole application
+    or to prevent the closing of an editor window under certain conditions.
 
-}
+    For example, if the application window requests a close,
+    \c ICoreListener::coreAboutToClose() is called (in arbitrary order) on all
+    registered objects implementing this interface. If one if these calls
+    returns \c false, the process is aborted and the event is ignored.  If all
+    calls return \c true, the corresponding signal is emitted and the event is
+    accepted or performed.
+
+    Guidelines for implementing the class:
+    \list
+        \li Return \c false from the implemented method if you want to prevent
+            the event.
+        \li Add your implementing object to the plugin managers objects:
+            \c{ExtensionSystem::PluginManager::instance()->addObject(yourImplementingObject)}
+        \li Do not forget to remove the object again at deconstruction
+            (for example, in the destructor of your plugin).
+    \endlist
+*/

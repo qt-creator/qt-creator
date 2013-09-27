@@ -52,9 +52,7 @@ InvalidModelStateException::InvalidModelStateException(int line,
 }
 
 /*!
-\brief Returns the type of this exception
-
-\returns the type as a string
+    Returns the type of the exception as a string.
 */
 QString InvalidModelStateException::type() const
 {

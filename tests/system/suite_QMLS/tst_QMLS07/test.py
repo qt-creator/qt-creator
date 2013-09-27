@@ -40,7 +40,11 @@ def main():
     invokeMenuItem("File", "Save All")
     # invoke Refactoring - Add a message suppression comment.
     numLinesExpected = len(str(editorArea.plainText).splitlines()) + 1
-    invokeContextMenuItem(editorArea, "Refactoring", "Add a Comment to Suppress This Message")
+    try:
+        invokeContextMenuItem(editorArea, "Refactoring", "Add a Comment to Suppress This Message")
+    except:
+        # If menu item is disabled it needs to reopen the menu for updating
+        invokeContextMenuItem(editorArea, "Refactoring", "Add a Comment to Suppress This Message")
     # wait until refactoring ended
     waitFor("len(str(editorArea.plainText).splitlines()) >= numLinesExpected", 5000)
     # verify if refactoring was properly applied

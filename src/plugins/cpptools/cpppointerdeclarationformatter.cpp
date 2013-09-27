@@ -51,7 +51,7 @@
 using namespace CppTools;
 
 /*!
-   \brief Skip not type relevant specifiers and return the index of the
+   Skips specifiers that are not type relevant and returns the index of the
           first specifier token which is not followed by __attribute__
           ((T___ATTRIBUTE__)).
 
@@ -60,17 +60,20 @@ using namespace CppTools;
 
    Consider these cases:
 
-        static char *s = 0;
-        typedef char *s cp;
-        __attribute__((visibility("default"))) char *f();
+    \list
+        \li \c {static char *s = 0;}
+        \li \c {typedef char *s cp;}
+        \li \c {__attribute__((visibility("default"))) char *f();}
+    \endlist
 
-   For all cases we want to skip all the not type relevant specifer
+   For all these cases we want to skip all the specifiers that are not type
+   relevant
    (since these are not part of the type and thus are not rewritten).
 
-   \param list The specifier list to iterate
-   \param translationUnit The TranslationUnit
-   \param endToken Do not check further than this token
-   \param found Output parameter, must not be 0.
+   \a list is the specifier list to iterate and \a translationUnit is the
+   translation unit.
+   \a endToken is the last token to check.
+   \a found is an output parameter that must not be 0.
  */
 static unsigned firstTypeSpecifierWithoutFollowingAttribute(
     SpecifierListAST *list, TranslationUnit *translationUnit, unsigned endToken, bool *found)
@@ -363,11 +366,8 @@ void PointerDeclarationFormatter::processIfWhileForStatement(ExpressionAST *expr
 }
 
 /*!
-   \brief Do some further checks and rewrite the symbol's type and
-          name into the given range
-
-   \param symbol the symbol to be rewritten
-   \param range the substitution range in the file
+    Performs some further checks and rewrites the type and name of \a symbol
+    into the substitution range in the file specified by \a tokenRange.
  */
 void PointerDeclarationFormatter::checkAndRewrite(DeclaratorAST *declarator,
                                                   Symbol *symbol,

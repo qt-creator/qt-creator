@@ -61,7 +61,7 @@ using namespace QmlJS::AST;
     \sa Snapshot
 
     A LibraryInfo is created when the ModelManagerInterface finds
-    a Qml library and parses the qmldir file. The instance holds information about
+    a QML library and parses the qmldir file. The instance holds information about
     which Components the library provides and which plugins to load.
 
     The ModelManager will try to extract detailed information about the types

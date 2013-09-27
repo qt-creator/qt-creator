@@ -298,13 +298,13 @@ DeviceProcessItem DeviceProcessesDialogPrivate::selectedProcess() const
 
      \brief The DeviceProcessesDialog class shows a list of processes.
 
-     The dialog can be used as a
+     The dialog can be used as a:
      \list
-     \li Non-modal dialog showing a list of processes: Call addCloseButton()
-        to add a 'Close' button.
-     \li Modal dialog with an 'Accept' button to select a process: Call
-        addAcceptButton() passing the label text. This will create a
-        'Cancel' button as well.
+     \li Non-modal dialog showing a list of processes. Call addCloseButton()
+         to add a \gui Close button.
+     \li Modal dialog with an \gui Accept button to select a process. Call
+         addAcceptButton() passing the label text. This will create a
+         \gui Cancel button as well.
      \endlist
 */
 

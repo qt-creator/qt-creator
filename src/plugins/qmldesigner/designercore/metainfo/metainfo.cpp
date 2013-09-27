@@ -125,7 +125,7 @@ properties.
 */
 
 /*!
-  \brief Constructs a copy of the given meta info.
+  Constructs a copy of \a metaInfo.
   */
 MetaInfo::MetaInfo(const MetaInfo &metaInfo) :
         m_p(metaInfo.m_p)
@@ -133,12 +133,12 @@ MetaInfo::MetaInfo(const MetaInfo &metaInfo) :
 }
 
 /*!
-  \brief Creates a meta information object with just the qml types registered statically.
-  You almost always want to use Model::metaInfo() instead!
+  Creates a meta information object with just the QML types registered statically.
+  You almost always want to use Model::metaInfo() instead.
 
   You almost certainly want to access the meta information for the model.
 
-  \see Model::metaInfo()
+  \sa Model::metaInfo()
   */
 MetaInfo::MetaInfo() :
         m_p(new MetaInfoPrivate(this))
@@ -150,7 +150,8 @@ MetaInfo::~MetaInfo()
 }
 
 /*!
-  \brief Assigns other to this meta information and returns a reference to this meta information.
+  Assigns \a other to this meta information and returns a reference to this
+  meta information.
   */
 MetaInfo& MetaInfo::operator=(const MetaInfo &other)
 {
@@ -164,11 +165,11 @@ ItemLibraryInfo *MetaInfo::itemLibraryInfo() const
 }
 
 /*!
-  \brief Access to the global meta information object.
+  Accesses the global meta information object.
   You almost always want to use Model::metaInfo() instead.
 
-  Internally all meta information objects share this "global" object
-  where static qml type information is stored.
+  Internally, all meta information objects share this \e global object
+  where static QML type information is stored.
   */
 MetaInfo MetaInfo::global()
 {
@@ -180,7 +181,7 @@ MetaInfo MetaInfo::global()
 }
 
 /*!
-  \brief Clears the global meta information object.
+  Clears the global meta information object.
 
   This method should be called once on application shutdown to free static data structures.
   */

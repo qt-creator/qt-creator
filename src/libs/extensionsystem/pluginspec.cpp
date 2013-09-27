@@ -66,8 +66,9 @@
     \brief The PluginDependency class contains the name and required compatible
     version number of a plugin's dependency.
 
-    This reflects the data of a dependency tag in the plugin's xml description file.
-    The name and version are used to resolve the dependency, i.e. a plugin with the given name and
+    This reflects the data of a dependency tag in the plugin's XML description
+    file. The name and version are used to resolve the dependency. That is,
+    a plugin with the given name and
     plugin \c {compatibility version <= dependency version <= plugin version} is searched for.
 
     See also ExtensionSystem::IPlugin for more information about plugin dependencies and
@@ -115,14 +116,15 @@
 
 /*!
     \enum ExtensionSystem::PluginSpec::State
+    The State enum indicates the states the plugin goes through while
+    it is being loaded.
 
-    The plugin goes through several steps while being loaded.
     The state gives a hint on what went wrong in case of an error.
 
     \value  Invalid
-            Starting point: Even the xml description file was not read.
+            Starting point: Even the XML description file was not read.
     \value  Read
-            The xml description file has been successfully read, and its
+            The XML description file has been successfully read, and its
             information is available via the PluginSpec.
     \value  Resolved
             The dependencies given in the description file have been
@@ -236,7 +238,8 @@ QString PluginSpec::description() const
 }
 
 /*!
-    The plugin url where you can find more information about the plugin. This is valid after the PluginSpec::Read state is reached.
+    The plugin URL where you can find more information about the plugin.
+    This is valid after the PluginSpec::Read state is reached.
 */
 QString PluginSpec::url() const
 {
@@ -263,7 +266,7 @@ QRegExp PluginSpec::platformSpecification() const
 }
 
 /*!
-    Returns if the plugin has its experimental flag set.
+    Returns whether the plugin has its experimental flag set.
 */
 bool PluginSpec::isExperimental() const
 {
@@ -271,7 +274,7 @@ bool PluginSpec::isExperimental() const
 }
 
 /*!
-    Returns if the plugin is disabled by default.
+    Returns whether the plugin is disabled by default.
     This might be because the plugin is experimental, or because
     the plugin manager's settings define it as disabled by default.
 */
@@ -281,10 +284,12 @@ bool PluginSpec::isDisabledByDefault() const
 }
 
 /*!
-    Returns if the plugin should be loaded at startup. True by default
+    Returns whether the plugin should be loaded at startup. True by default.
+
     The user can change it from the Plugin settings.
-    Note: That this function returns true even if a plugin is disabled because
-    of a not loaded dependencies, or a error in loading.
+
+    \note This function returns true even if a plugin is disabled because its
+    dependencies were not loaded, or an error occurred during loading it.
 */
 bool PluginSpec::isEnabledInSettings() const
 {
@@ -292,7 +297,7 @@ bool PluginSpec::isEnabledInSettings() const
 }
 
 /*!
-    Returns if the plugin is loaded at startup.
+    Returns whether the plugin is loaded at startup.
     \see PluginSpec::isEnabled
 */
 bool PluginSpec::isEffectivelyEnabled() const
@@ -314,7 +319,7 @@ bool PluginSpec::isDisabledIndirectly() const
 }
 
 /*!
-    Returns if the plugin is enabled via the -load option on the command line.
+    Returns whether the plugin is enabled via the -load option on the command line.
 */
 bool PluginSpec::isForceEnabled() const
 {
@@ -322,7 +327,7 @@ bool PluginSpec::isForceEnabled() const
 }
 
 /*!
-    Returns if the plugin is disabled via the -noload option on the command line.
+    Returns whether the plugin is disabled via the -noload option on the command line.
 */
 bool PluginSpec::isForceDisabled() const
 {
@@ -347,7 +352,7 @@ PluginSpec::PluginArgumentDescriptions PluginSpec::argumentDescriptions() const
 }
 
 /*!
-    The absolute path to the directory containing the plugin xml description file
+    The absolute path to the directory containing the plugin XML description file
     this PluginSpec corresponds to.
 */
 QString PluginSpec::location() const
@@ -356,7 +361,7 @@ QString PluginSpec::location() const
 }
 
 /*!
-    The absolute path to the plugin xml description file (including the file name)
+    The absolute path to the plugin XML description file (including the file name)
     this PluginSpec corresponds to.
 */
 QString PluginSpec::filePath() const
@@ -365,7 +370,7 @@ QString PluginSpec::filePath() const
 }
 
 /*!
-    Command line arguments specific to that plugin. Set at startup
+    Command line arguments specific to the plugin. Set at startup.
 */
 
 QStringList PluginSpec::arguments() const
@@ -374,7 +379,7 @@ QStringList PluginSpec::arguments() const
 }
 
 /*!
-    Set the command line arguments specific to that plugin to \a arguments.
+    Sets the command line arguments specific to the plugin to \a arguments.
 */
 
 void PluginSpec::setArguments(const QStringList &arguments)
@@ -383,7 +388,7 @@ void PluginSpec::setArguments(const QStringList &arguments)
 }
 
 /*!
-    Adds \a argument to the command line arguments specific to that plugin.
+    Adds \a argument to the command line arguments specific to the plugin.
 */
 
 void PluginSpec::addArgument(const QString &argument)
@@ -418,7 +423,7 @@ QString PluginSpec::errorString() const
 }
 
 /*!
-    Returns if this plugin can be used to fill in a dependency of the given
+    Returns whether this plugin can be used to fill in a dependency of the given
     \a pluginName and \a version.
 
         \sa PluginSpec::dependencies()

@@ -35,7 +35,7 @@
 
     \brief The CoreListener class catches the closing of a submit editor.
 
-    Catch the closing of a submit editor to trigger the submit.
+    Catches the closing of a submit editor to trigger the submit.
     One instance of this class exists, connected to the instances
     of VcsBasePlugin, which dispatch if the editor kind matches theirs
     (which is why the approach of passing the bool result was chosen).

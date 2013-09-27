@@ -67,19 +67,23 @@
 /*!
     \enum VcsBase::EditorContentType
 
-    \brief Contents of a VcsBaseEditor and its interaction.
+    This enum describes the contents of a VcsBaseEditor and its interaction.
 
     \value RegularCommandOutput  No special handling.
-    \value LogOutput  Log of a file under revision control. Provide  'click on change'
-           description and 'Annotate' if is the log of a single file.
-    \value AnnotateOutput  Color contents per change number and provide 'click on change' description.
-           Context menu offers "Annotate previous version". Expected format:
+    \value LogOutput  Log of a file under revision control. Provide a
+           description of the change that users can click to view detailed
+           information about the change and \e Annotate for the log of a
+           single file.
+    \value AnnotateOutput  Color contents per change number and provide a
+           clickable change description.
+           Context menu offers annotate previous version functionality.
+           Expected format:
            \code
            <change description>: file line
            \endcode
-    \value DiffOutput  Diff output. Might includes describe output, which consists of a
-           header and diffs. Interaction is 'double click in  hunk' which
-           opens the file. Context menu offers 'Revert chunk'.
+    \value DiffOutput  Diff output. Might include describe output, which consists of a
+           header and diffs. Double-clicking the chunk opens the file. The context
+           menu offers the functionality to revert the chunk.
 
     \sa VcsBase::VcsBaseEditorWidget
 */
@@ -180,13 +184,14 @@ class AbstractTextCursorHandler : public QObject
 public:
     AbstractTextCursorHandler(VcsBaseEditorWidget *editorWidget = 0);
 
-    /*! \brief Try to find some matching contents under \a cursor
+    /*! Tries to find some matching contents under \a cursor.
      *
-     *  It's the first function to be called because it changes the internal state of the handler.
-     *  Other functions (highlightCurrentContents(), handleCurrentContents(), ...) use the result
-     *  of the matching
+     *  It is the first function to be called because it changes the internal
+     *  state of the handler. Other functions (such as
+     *  highlightCurrentContents() and handleCurrentContents()) use the result
+     *  of the matching.
      *
-     *  \return true If contents could be found
+     *  Returns \c true if contents could be found.
      */
     virtual bool findContentsUnderCursor(const QTextCursor &cursor);
 
@@ -199,8 +204,8 @@ public:
     //! Contents matched with the last call to findContentsUnderCursor()
     virtual QString currentContents() const = 0;
 
-    /*! \brief Fill \a menu with contextual actions applying to the contents matched
-     *         with findContentsUnderCursor()
+    /*! Fills \a menu with contextual actions applying to the contents matched
+     *  with findContentsUnderCursor().
      */
     virtual void fillContextMenu(QMenu *menu, EditorContentType type) const = 0;
 
@@ -373,7 +378,7 @@ QAction *ChangeTextCursorHandler::createCopyRevisionAction(const QString &change
  *  http://qt-project.org/.
  *
  *  The URL pattern can be redefined in sub-classes with setUrlPattern(), by default the pattern
- *  works for hyper-text URL
+ *  works for hyper-text URLs.
  */
 class UrlTextCursorHandler : public AbstractTextCursorHandler
 {

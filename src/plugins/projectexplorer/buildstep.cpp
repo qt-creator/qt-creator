@@ -60,15 +60,15 @@
 /*!
     \fn bool ProjectExplorer::BuildStep::init()
 
-    This function is run in the gui thread,
-    use it to retrieve any information that you need in run()
+    This function is run in the GUI thread. Use it to retrieve any information
+    that you need in the run() function.
 */
 
 /*!
     \fn void ProjectExplorer::BuildStep::run(QFutureInterface<bool> &fi)
 
-    Reimplement this. This function is called when the target is build.
-    By default this function is NOT run in the gui thread. It runs in its
+    Reimplement this function. It is called when the target is built.
+    By default, this function is NOT run in the GUI thread, but runs in its
     own thread. If you need an event loop, you need to create one.
     This function should block until the task is done
 
@@ -77,48 +77,36 @@
     fi.reportResult(true);
     \endcode
 
-    By returning true from \sa runInGuiThread() this function is called in the
-    gui thread. Then the function should not block and instead the
+    By returning \c true from runInGuiThread(), this function is called in
+    the GUI thread. Then the function should not block and instead the
     finished() signal should be emitted.
+
+    \sa runInGuiThread()
 */
 
 /*!
     \fn BuildStepConfigWidget *ProjectExplorer::BuildStep::createConfigWidget()
 
-    Returns the Widget shown in the target settings dialog for this buildStep;
-    ownership is transferred to the caller.
-*/
-
-/*!
-    \fn bool ProjectExplorer::BuildStep::immutable() const
-
-    If this function returns true, the user can't delete this BuildStep for this target
-    and the user is prevented from changing the order immutable steps are run
-    the default implementation returns false.
+    Returns the Widget shown in the target settings dialog for this build step.
+    Ownership is transferred to the caller.
 */
 
 /*!
     \fn  void ProjectExplorer::BuildStep::addTask(const ProjectExplorer::Task &task)
-    \brief Add a task.
+    Adds \a task.
 */
 
 /*!
     \fn  void ProjectExplorer::BuildStep::addOutput(const QString &string, ProjectExplorer::BuildStep::OutputFormat format,
               ProjectExplorer::BuildStep::OutputNewlineSetting newlineSetting = DoAppendNewline) const
 
-    The string is added to the generated output, usually in the output window.
+    The \a string is added to the generated output, usually in the output pane.
     It should be in plain text, with the format in the parameter.
 */
 
 /*!
-    \fn void ProjectExplorer::BuildStep::cancel()
-
-    This function needs to be reimplemented only for BuildSteps that return false from \sa runInGuiThread.
-*/
-
-/*!
     \fn  void ProjectExplorer::BuildStep::finished()
-    \brief This signal needs to be emitted if the BuildStep runs in the gui thread.
+    This signal needs to be emitted if the build step runs in the GUI thread.
 */
 
 static const char buildStepEnabledKey[] = "ProjectExplorer.BuildStep.Enabled";
@@ -180,6 +168,12 @@ Project *BuildStep::project() const
     return target()->project();
 }
 
+/*!
+    If this function returns \c true, the user cannot delete this build step for
+    this target and the user is prevented from changing the order in which
+    immutable steps are run. The default implementation returns \c false.
+*/
+
 bool BuildStep::immutable() const
 {
     return false;
@@ -190,6 +184,12 @@ bool BuildStep::runInGuiThread() const
     return false;
 }
 
+/*!
+    This function needs to be reimplemented only for build steps that return
+    \c false from runInGuiThread().
+
+    \sa runInGuiThread()
+*/
 void BuildStep::cancel()
 {
     // Do nothing

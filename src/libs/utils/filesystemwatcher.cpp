@@ -163,7 +163,7 @@ bool FileSystemWatcherPrivate::checkLimit() const
 }
 
 /*!
-    \brief Add to watcher 0.
+    Adds directories to watcher 0.
 */
 
 FileSystemWatcher::FileSystemWatcher(QObject *parent) :
@@ -173,7 +173,7 @@ FileSystemWatcher::FileSystemWatcher(QObject *parent) :
 }
 
 /*!
-    \brief Add to a watcher with specified id.
+    Adds directories to a watcher with the specified \a id.
 */
 
 FileSystemWatcher::FileSystemWatcher(int id, QObject *parent) :

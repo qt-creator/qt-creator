@@ -559,7 +559,7 @@ QDebug operator<<(QDebug d, const DebuggerToolTipContext &c)
     (defaultModel) and displays that.
 
     It is associated with file name and position with functionality to
-    acquire and release the engine: When the debugger stops at a file, all
+    acquire and release the engine. When the debugger stops at a file, all
     matching tooltips acquire the engine, that is, display the engine data.
     When continuing or switching away from the frame, the tooltips release the
     engine, that is, store the data internally and keep displaying them
@@ -1078,11 +1078,11 @@ QString DebuggerToolTipWidget::clipboardContents() const
     listens on editor scroll and main window move
     events and takes care of repositioning the tooltips.
 
-    Listens to editor change and mode change. In debug mode, if there tooltips
-    for the current editor (by file name), position and show them.
+    Listens to editor change and mode change. In debug mode, if there are tooltips
+    for the current editor (by file name), positions and shows them.
 
     In addition, listens on state change and stack frame completed signals
-    of the engine. If a stack frame is completed, have all matching tooltips
+    of the engine. If a stack frame is completed, has all matching tooltips
     (by file name and function) acquire the engine, others release.
 */
 

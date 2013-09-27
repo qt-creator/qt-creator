@@ -204,10 +204,10 @@ ITextMarkable *BaseTextDocument::documentMarker() const
 }
 
 /*!
- * \brief Saves the document to the specified file.
- * \param errorString output parameter, contains error reason.
- * \param autoSave signalise that this function was called by the automatic save routine.
- * If autosave is true, the cursor will be restored and some signals suppressed
+ * Saves the document to the file specified by \a fileName. If errors occur,
+ * \a errorString contains their cause.
+ * \a autoSave returns whether this function was called by the automatic save routine.
+ * If \a autoSave is true, the cursor will be restored and some signals suppressed
  * and we do not clean up the text file (cleanWhitespace(), ensureFinalNewLine()).
  */
 bool BaseTextDocument::save(QString *errorString, const QString &saveFileName, bool autoSave)

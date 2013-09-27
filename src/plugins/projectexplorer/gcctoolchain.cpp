@@ -611,7 +611,7 @@ void GccToolChain::setPlatformCodeGenFlags(const QStringList &flags)
 }
 
 /*!
-    \brief code gen flags that have to be passed to the compiler
+    Code gen flags that have to be passed to the compiler.
  */
 QStringList GccToolChain::platformCodeGenFlags() const
 {
@@ -627,9 +627,9 @@ void GccToolChain::setPlatformLinkerFlags(const QStringList &flags)
 }
 
 /*!
-    \brief flags that have to be passed to the linker
+    Flags that have to be passed to the linker.
 
-    for example -arch armv7...
+    For example: \c{-arch armv7}
  */
 QStringList GccToolChain::platformLinkerFlags() const
 {

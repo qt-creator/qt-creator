@@ -133,12 +133,13 @@
 
 /*!
     \namespace ProjectExplorer
-    ProjectExplorer plugin namespace
+    The ProjectExplorer namespace contains the classes to explore projects.
 */
 
 /*!
     \namespace ProjectExplorer::Internal
-    Internal namespace of the ProjectExplorer plugin
+    The ProjectExplorer::Internal namespace is the internal namespace of the
+    ProjectExplorer plugin.
     \internal
 */
 

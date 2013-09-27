@@ -129,6 +129,7 @@ def checkNavigator(expectedRows, message):
     test.compare(expectedRows, len(__iterateChildren__(navigatorModel, QModelIndex())), message)
 
 def checkOpenDocuments(expectedRows, message):
+    selectFromCombo(":Qt Creator_Core::Internal::NavComboBox", "Open Documents")
     openDocsWidget = waitForObject(":OpenDocuments_Widget")
     test.compare(openDocsWidget.model().rowCount(), expectedRows, message)
 

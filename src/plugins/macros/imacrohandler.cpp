@@ -38,35 +38,36 @@ using namespace Macros::Internal;
     \brief The IEventHandler class is a base class for all macro event handlers.
 
     An event handler is used to handle a specific type of macro events.
-    They are used to create and replay macro events, use MacroManager::registerEventHandler
+    They are used to create and replay macro events. Use
+    MacroManager::registerEventHandler
     to add a new event handler.
 */
 
 /*!
     \fn void IEventHandler::startRecording(Macro* macro)
 
-    This method is called when starting to record a macro, it can be used
-    to initialize some data.
+    Initializes some data when starting to record a macro.
 */
 
 /*!
     \fn void IEventHandler::endRecordingMacro(Macro* macro)
 
-    This method is called after recording a macro, to cleanup everything.
+    Cleans up after recording a macro.
 */
 
 /*!
     \fn bool IEventHandler::canExecuteEvent(const MacroEvent &macroEvent)
 
-    When replaying a macro, the manager iterate through all macro events
-    in the macro and call this method to know which handler to use.
-    If the method returns true, executeEvent is called.
+    When replaying a macro, the manager iterates through all macro events
+    specified in \a macroEvent
+    in the macro and calls this method to determine which handler to use.
+    If the method returns \c true, \c executeEvent is called.
 */
 
 /*!
     \fn bool IEventHandler::executeEvent(const MacroEvent &macroEvent)
 
-    This method execute a specific macro event, using the values stored in
+    Executes the specified \a macroEvent, using the values stored in
     the macro event.
 */
 

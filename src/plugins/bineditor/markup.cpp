@@ -27,35 +27,15 @@
 **
 ****************************************************************************/
 
-#include "invalidmodelnodeexception.h"
+#include "markup.h"
 
 /*!
-\class QmlDesigner::InvalidModelNodeException
-\ingroup CoreExceptions
-\brief The InvalidModelNodeException class provides an exception for an invalid
-model node.
+    \class BINEditor::Markup
+    \brief The Markup class defines the range of the binary editor.
 
-\see ModelNode
-*/
-namespace QmlDesigner {
-/*!
-    Constructs an exception. \a line uses the __LINE__ macro,
-    \a function uses the __FUNCTION__ or the Q_FUNC_INFO macro, and \a file uses
-    the __FILE__ macro.
-*/
-InvalidModelNodeException::InvalidModelNodeException(int line,
-                                                     const QString &function,
-                                                     const QString &file)
- : Exception(line, function, file)
-{
-}
+    Used for displaying class layouts by the debugger.
 
-/*!
-    Returns the type of this exception as a string.
-*/
-QString InvalidModelNodeException::type() const
-{
-    return "InvalidModelNodeException";
-}
+    \note Must not have linkage - used for soft dependencies.
 
-}
+    \sa Debugger::Internal::MemoryAgent
+*/

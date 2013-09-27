@@ -47,7 +47,11 @@ def main():
     invokeMenuItem("File", "Save All")
     # activate menu and apply 'Refactoring - Split initializer'
     numLinesExpected = len(str(editorArea.plainText).splitlines()) + 4
-    invokeContextMenuItem(editorArea, "Refactoring", "Split Initializer")
+    try:
+        invokeContextMenuItem(editorArea, "Refactoring", "Split Initializer")
+    except:
+        # If menu item is disabled it needs to reopen the menu for updating
+        invokeContextMenuItem(editorArea, "Refactoring", "Split Initializer")
     # wait until refactoring ended
     waitFor("len(str(editorArea.plainText).splitlines()) == numLinesExpected", 5000)
     # verify if refactoring was properly applied - each part on separate line

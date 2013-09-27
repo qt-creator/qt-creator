@@ -82,11 +82,11 @@ enum {
     \brief The NodeInstanceView class is the central class to create and manage
     instances of the ModelNode class.
 
-This view is used to instance the ModelNodes. Many AbstractViews hold a
-NodeInstanceView to get values from tghe NodeInstances back.
-For this purpose this view can be rendered offscreen.
+    This view is used to instantiate the model nodes. Many abstract views hold a
+    node instance view to get values from the node instances.
+    For this purpose, this view can be rendered offscreen.
 
-\see NodeInstance ModelNode
+    \sa NodeInstance, ModelNode
 */
 
 namespace QmlDesigner {
@@ -97,8 +97,7 @@ namespace QmlDesigner {
 
   The class will be rendered offscreen if not set otherwise.
 
-
-\see ~NodeInstanceView setRenderOffScreen
+    \sa ~NodeInstanceView, setRenderOffScreen()
 */
 NodeInstanceView::NodeInstanceView(QObject *parent, NodeInstanceServerInterface::RunModus runModus)
         : AbstractView(parent),
@@ -109,8 +108,8 @@ NodeInstanceView::NodeInstanceView(QObject *parent, NodeInstanceServerInterface:
 }
 
 
-/*! \brief Destructor
-
+/*!
+    Destructs a node instance view object.
 */
 NodeInstanceView::~NodeInstanceView()
 {
@@ -118,15 +117,7 @@ NodeInstanceView::~NodeInstanceView()
     delete nodeInstanceServer();
 }
 
-/*!   \name Overloaded Notifiers
- *  This methodes notify the view that something has happen in the model
- */
 //\{
-/*! \brief Notifing the view that it was attached to a model.
-
-  For every ModelNode in the model a NodeInstance will be created.
-\param model Model to which the view is attached
-*/
 
 bool isSkippedRootNode(const ModelNode &node)
 {
@@ -148,6 +139,11 @@ bool isSkippedNode(const ModelNode &node)
 
     return false;
 }
+
+/*!
+    Notifies the view that it was attached to \a model. For every model node in
+    the model, a NodeInstance will be created.
+*/
 
 void NodeInstanceView::modelAttached(Model *model)
 {
@@ -223,8 +219,7 @@ void NodeInstanceView::nodeCreated(const ModelNode &createdNode)
     nodeInstanceServer()->completeComponent(createComponentCompleteCommand(QList<NodeInstance>() << instance));
 }
 
-/*! \brief Notifing the view that a node was created.
-\param removedNode
+/*! Notifies the view that \a removedNode will be removed.
 */
 void NodeInstanceView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
@@ -358,31 +353,27 @@ void NodeInstanceView::signalHandlerPropertiesChanged(const QVector<SignalHandle
 {
 }
 
-/*! \brief Notifing the view that a AbstractProperty value was changed to a ModelNode.
+/*!
+    Notifies the view that abstract property values specified by \a propertyList
+    were changed for a model node.
 
-  The property will be set for the NodeInstance.
+    The property will be set for the node instance.
 
-\param state ModelNode to which the Property belongs
-\param property AbstractProperty which was changed
-\param newValue New Value of the property
-\param oldValue Old Value of the property
-\see AbstractProperty NodeInstance ModelNode
+    \sa AbstractProperty, NodeInstance, ModelNode
 */
 
 void NodeInstanceView::variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags /*propertyChange*/)
 {
     nodeInstanceServer()->changePropertyValues(createChangeValueCommand(propertyList));
 }
-/*! \brief Notifing the view that a ModelNode has a new Parent.
+/*!
+  Notifies the view that the property parent of the model node \a node has
+  changed from \a oldPropertyParent to \a newPropertyParent.
 
-  Note that also the ModelNode::childNodes() list was changed. The
-  NodeInstance tree will be changed to reflect the ModelNode tree change.
+  \note Also the \c {ModelNode::childNodes()} list was changed. The
+  Node instance tree will be changed to reflect the model node tree change.
 
-\param node ModelNode which parent was changed.
-\param oldParent Old parent of the node.
-\param newParent New parent of the node.
-
-\see NodeInstance ModelNode
+    \sa NodeInstance, ModelNode
 */
 
 void NodeInstanceView::nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags /*propertyChange*/)
@@ -431,14 +422,13 @@ void NodeInstanceView::nodeOrderChanged(const NodeListProperty & listProperty,
     nodeInstanceServer()->reparentInstances(ReparentInstancesCommand(containerList));
 }
 
-/*! \brief Notifing the view that the selection has been changed.
+/*!
+    Notifies the view that the list of selected model nodes has changed to
+    \a selectedNodeList from \a lastSelectedNodeList.
 
   Do nothing.
 
-\param selectedNodeList List of ModelNode which has been selected
-\param lastSelectedNodeList List of ModelNode which was selected
-
-\see ModelNode NodeInstance
+    \sa ModelNode, NodeInstance
 */
 void NodeInstanceView::selectedNodesChanged(const QList<ModelNode> &/*selectedNodeList*/,
                                               const QList<ModelNode> &/*lastSelectedNodeList*/)
@@ -558,9 +548,10 @@ void NodeInstanceView::removeAllInstanceNodeRelationships()
     m_nodeInstanceHash.clear();
 }
 
-/*! \brief Returns a List of all NodeInstances
+/*!
+    Returns a list of all node instances.
 
-\see NodeInstance
+    \sa NodeInstance
 */
 
 QList<NodeInstance> NodeInstanceView::instances() const
@@ -568,13 +559,13 @@ QList<NodeInstance> NodeInstanceView::instances() const
     return m_nodeInstanceHash.values();
 }
 
-/*! \brief Returns the NodeInstance for this ModelNode
+/*!
+    Returns the node instance for \a node, which must be valid.
 
-  Returns a invalid NodeInstance if no NodeInstance for this ModelNode exists.
+    Returns an invalid node instance if no node instance for this model node
+    exists.
 
-\param node ModelNode must be valid.
-\returns  NodeStance for ModelNode.
-\see NodeInstance
+    \sa NodeInstance
 */
 NodeInstance NodeInstanceView::instanceForModelNode(const ModelNode &node) const
 {
@@ -606,20 +597,20 @@ bool NodeInstanceView::hasInstanceForId(qint32 id)
 }
 
 
-/*! \brief Returns the root NodeInstance of this view.
+/*!
+    Returns the root node instance of this view.
 
-
-\returns  Root NodeIntance for this view.
-\see NodeInstance
+    \sa NodeInstance
 */
 NodeInstance NodeInstanceView::rootNodeInstance() const
 {
     return m_rootNodeInstance;
 }
 
-/*! \brief Returns the view NodeInstance of this view.
+/*!
+    Returns the \a instance of this view.
 
-  This can be the root NodeInstance if it is specified in the qml file.
+  This can be the root node instance if it is specified in the QML file.
 \code
     QGraphicsView {
          QGraphicsScene {
@@ -628,19 +619,18 @@ NodeInstance NodeInstanceView::rootNodeInstance() const
     }
 \endcode
 
-    If there is node view in the qml file:
+    If there is node view in the QML file:
  \code
 
     Item {}
 
 \endcode
-    Than there will be a new NodeInstance for this QGraphicsView
-    generated which is not the root instance of this NodeInstanceView.
+    Then a new node instance for this QGraphicsView is
+    generated which is not the root instance of this node instance view.
 
-    This is the way to get this QGraphicsView NodeInstance.
+    This is the way to get this QGraphicsView node instance.
 
-\returns  Root NodeIntance for this view.
-\see NodeInstance
+    \sa NodeInstance
 */
 
 

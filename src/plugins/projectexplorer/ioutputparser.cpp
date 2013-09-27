@@ -42,81 +42,86 @@
 /*!
     \fn void ProjectExplorer::IOutputParser::appendOutputParser(IOutputParser *parser)
 
-    \brief Append a subparser to this parser, of which IOutputParser will take ownership.
+    Appends a subparser to this parser, of which IOutputParser will take
+    ownership.
 */
 
 /*!
     \fn IOutputParser *ProjectExplorer::IOutputParser::takeOutputParserChain()
 
-    \brief Remove the appended outputparser chain from this parser, transferring
+    Removes the appended outputparser chain from this parser, transferring
            ownership of the parser chain to the caller.
 */
 
 /*!
     \fn IOutputParser *ProjectExplorer::IOutputParser::childParser() const
 
-    \brief Return the head of this parsers output parser children, IOutputParser keeps ownership.
+    Returns the head of this parser's output parser children. IOutputParser
+    keeps ownership.
 */
 
 /*!
    \fn void ProjectExplorer::IOutputParser::stdOutput(const QString &line)
 
-   \brief Called once for each line if standard output to parse.
+   Called once for each line if standard output to parse.
 */
 
 /*!
    \fn void ProjectExplorer::IOutputParser::stdError(const QString &line)
 
-   \brief Called once for each line if standard error to parse.
+   Called once for each line if standard error to parse.
 */
 
 /*!
    \fn bool ProjectExplorer::IOutputParser::hasFatalErrors() const
 
-   \brief This is mainly a symbian specific quirk.
+   This is mainly a Symbian specific quirk.
 */
 
 /*!
    \fn void ProjectExplorer::IOutputParser::addOutput(const QString &string, ProjectExplorer::BuildStep::OutputFormat format)
 
-   \brief Should be emitted whenever some additional information should be added to the output.
+   Should be emitted whenever some additional information should be added to the
+   output.
 
-   Note: This is additional information. There is no need to add each line!
+   \note This is additional information. There is no need to add each line.
 */
 
 /*!
    \fn void ProjectExplorer::IOutputParser::addTask(const ProjectExplorer::Task &task)
 
-   \brief Should be emitted for each task seen in the output.
+   Should be emitted for each task seen in the output.
 */
 
 /*!
    \fn void ProjectExplorer::IOutputParser::outputAdded(const QString &string, ProjectExplorer::BuildStep::OutputFormat format)
 
-   \brief Subparsers have their addOutput signal connected to this slot.
+   Subparsers have their addOutput signal connected to this slot.
 */
 
 /*!
    \fn void ProjectExplorer::IOutputParser::outputAdded(const QString &string, ProjectExplorer::BuildStep::OutputFormat format)
 
-   \brief This method can be overwritten to change the string.
+   This method can be overwritten to change the string.
 */
 
 /*!
    \fn void ProjectExplorer::IOutputParser::taskAdded(const ProjectExplorer::Task &task)
 
-   \brief Subparsers have their addTask signal connected to this slot.
+   Subparsers have their addTask signal connected to this slot.
    This method can be overwritten to change the task.
 */
 
 /*!
    \fn void ProjectExplorer::IOutputParser::doFlush()
 
-   \brief This method is called whenever a parser is supposed to flush his state.
-   Parsers may have state (e.g. because they need to aggregate several lines into one task). This
+   Instructs a parser to flush its state.
+   Parsers may have state (for example, because they need to aggregate several
+   lines into one task). This
    method is called when this state needs to be flushed out to be visible.
 
-   doFlush() is called by flush(). flush() is called on childparsers whenever a new task is added.
+   doFlush() is called by flush(). flush() is called on child parsers
+   whenever a new task is added.
    It is also called once when all input has been parsed.
 */
 

@@ -113,8 +113,8 @@ namespace Internal {
     \brief The FileMatchContext class is the context passed on to the MIME
     types when looking for a file match.
 
-    It exists to enable reading the file contents "on demand"
-    (as opposed to each mime type trying to open and read while checking).
+    This class exists to enable reading the file contents \e {on demand},
+    as opposed to each mime type trying to open and read while checking.
 
     \sa Core::MimeType, Core::MimeDatabase, Core::IMagicMatcher, Core::MagicRuleMatcher, Core::MagicRule, Core::MagicStringRule, Core::MagicByteRule, Core::GlobPattern
     \sa Core::Internal::BinaryMatcher, Core::Internal::HeuristicTextMagicMatcher
@@ -196,8 +196,8 @@ public:
     \brief The HeuristicTextMagicMatcher class implements a heuristic text file
     matcher for MIME types.
 
-    If the data do not contain any character below tab (9), detect as text.
-    Additionally, check on UTF16 byte order markers.
+    If the data does not contain any character below tab (9), it is detected as
+    text. Additionally, UTF16 byte order markers are checked.
 
     \sa Core::MimeType, Core::MimeDatabase, Core::IMagicMatcher, Core::MagicRuleMatcher, Core::MagicRule, Core::MagicStringRule, Core::MagicByteRule, Core::GlobPattern
     \sa Core::Internal::FileMatchContext, Core::Internal::BinaryMatcher
@@ -244,8 +244,8 @@ bool HeuristicTextMagicMatcher::matches(const QByteArray &data) const
     and offset specification.
 
     Stores the offset and provides conversion helpers.
-    Base class for implementations for "string" and "byte".
-    (Others like little16, big16, etc. can be created whenever there is a need.)
+    Base class for implementations for \c string and \c byte.
+    Others, such as \c little16 and \c big16, can be created when needed.
 
     \sa Core::MimeType, Core::MimeDatabase, Core::IMagicMatcher, Core::MagicRuleMatcher, Core::MagicStringRule, Core::MagicByteRule, Core::GlobPattern
     \sa Core::Internal::FileMatchContext, Core::Internal::BinaryMatcher, Core::Internal::HeuristicTextMagicMatcher
@@ -419,7 +419,7 @@ bool MagicByteRule::matches(const QByteArray &data) const
     \brief The MagicRuleMatcher class implements a Magic matcher that checks the
     number of rules based on the boolean operator OR.
 
-    It is used for rules parsed from XML files.
+    This class is used for rules parsed from XML files.
 
     \sa Core::MimeType, Core::MimeDatabase, Core::IMagicMatcher, Core::MagicRule, Core::MagicStringRule, Core::MagicByteRule, Core::GlobPattern
     \sa Core::Internal::FileMatchContext, Core::Internal::BinaryMatcher, Core::Internal::HeuristicTextMagicMatcher
@@ -528,17 +528,17 @@ bool MimeGlobPattern::matches(const QString &fileName) const
 
     \brief The MimeType class contains MIME type data used in \QC.
 
-    Contains most information from standard mime type XML database files.
+    Contains most information from standard MIME type XML database files.
 
-    Currently, magic of types "string", "bytes" is supported. In addition,
-    C++ classes, derived from Core::IMagicMatcher can be added to check
+    Currently, magic of types \c string anc \c bytes is supported. In addition,
+    C++ classes, derived from \c Core::IMagicMatcher can be added to check
     on contents.
 
-    In addition, the class provides a list of suffixes and a concept of the
-    'preferred suffix' (derived from glob patterns). This is used for example
-    to be able to configure the suffix used for C++-files in Qt Creator.
+    The class provides a list of suffixes and a concept of a
+    \e {preferred suffix} (derived from glob patterns). This is used for example
+    to be able to configure the suffix used for C++ files in \QC.
 
-    Mime XML looks like:
+    MIME type XML files look like follows:
     \code
     <?xml version="1.0" encoding="UTF-8"?>
     <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
@@ -929,7 +929,8 @@ namespace Internal {
     \brief The BaseMimeTypeParser class provides a generic parser for a
     sequence of <mime-type>.
 
-    Calls abstract handler function process for MimeType it finds.
+    This class calls the abstract handler function process for the MIME types
+    it finds.
 
     \sa Core::MimeDatabase, Core::IMagicMatcher, Core::MagicRuleMatcher, Core::MagicRule, Core::MagicStringRule, Core::MagicByteRule, Core::GlobPattern
     \sa Core::Internal::FileMatchContext, Core::Internal::BinaryMatcher, Core::Internal::HeuristicTextMagicMatcher
@@ -1197,37 +1198,38 @@ MimeMapEntry::MimeMapEntry(const MimeType &t, int aLevel) :
 
     The class is protected by a QMutex and can therefore be accessed by threads.
 
-    A good testcase is to run it over \c '/usr/share/mime/<*>/<*>.xml' on Linux.
+    A good testcase is to run it over \c {/usr/share/mime/<*>/<*>.xml} on Linux.
 
-    When adding a "text/plain" to it, the mimetype will receive a magic matcher
+    When adding a \c{text/plain} to it, the MIME type will receive a magic matcher
     that checks for text files that do not match the globs by heuristics.
 
     \section1 Design Considerations
 
     Storage requirements:
     \list
-    \li Must be robust in case of incomplete hierarchies, dangling entries
-    \li Plugins will not load and register their mime types in order of inheritance.
-    \li Multiple inheritance (several subClassesOf) can occur
-    \li Provide quick lookup by name
+    \li Must be robust in case of incomplete hierarchies and dangling entries.
+    \li Plugins will not load and register their MIME types in order of
+        inheritance.
+    \li Multiple inheritance (several subClassesOf) can occur.
+    \li Provide quick lookup by name.
     \li Provide quick lookup by file type.
     \endlist
 
-    This basically rules out some pointer-based tree, so the structure chosen is:
+    This basically rules out a pointer-based tree, so the structure chosen is:
     \list
-    \li An alias map QString->QString for mapping aliases to types
-    \li A Map QString->MimeMapEntry for the types (MimeMapEntry being a pair of
+    \li An alias map \c {QString->QString} for mapping aliases to types.
+    \li A map \c {QString->MimeMapEntry} for the types (MimeMapEntry being a pair of
        MimeType and (hierarchy) level.
-    \li A map  QString->QString representing parent->child relations (enabling
-       recursing over children)
+    \li A map  \c {QString->QString} representing parent to child relations (enabling
+       recursing over children).
     \li Using strings avoids dangling pointers.
     \endlist
 
-    The hierarchy level is used for mapping by file types. When findByFile()
-    is first called after addMimeType() it recurses over the hierarchy and sets
+    The hierarchy level is used for mapping by file types. When \c findByFile()
+    is first called after \c addMimeType(), it recurses over the hierarchy and sets
     the hierarchy level of the entries accordingly (0 toplevel, 1 first
     order...). It then does several passes over the type map, checking the
-    globs for maxLevel, maxLevel-1....until it finds a match (idea being to
+    globs for maxLevel, maxLevel-1....until it finds a match (the idea being
     to check the most specific types first). Starting a recursion from the
     leaves is not suitable since it will hit parent nodes several times.
 

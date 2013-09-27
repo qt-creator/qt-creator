@@ -624,14 +624,13 @@ void ExternalToolRunner::started()
 
 void ExternalToolRunner::finished(int exitCode, QProcess::ExitStatus status)
 {
-    if (status == QProcess::NormalExit && exitCode == 0) {
-        if (m_tool->outputHandling() == ExternalTool::ReplaceSelection
-                || m_tool->errorHandling() == ExternalTool::ReplaceSelection) {
-            ExternalToolManager::emitReplaceSelectionRequested(m_processOutput);
-        }
-        if (m_tool->modifiesCurrentDocument())
-            DocumentManager::unexpectFileChange(m_expectedFileName);
+    if (status == QProcess::NormalExit && exitCode == 0
+            &&  (m_tool->outputHandling() == ExternalTool::ReplaceSelection
+                 || m_tool->errorHandling() == ExternalTool::ReplaceSelection)) {
+        ExternalToolManager::emitReplaceSelectionRequested(m_processOutput);
     }
+    if (m_tool->modifiesCurrentDocument())
+        DocumentManager::unexpectFileChange(m_expectedFileName);
     MessageManager::write(
                 tr("'%1' finished").arg(m_resolvedExecutable), MessageManager::Silent);
     deleteLater();

@@ -65,9 +65,10 @@ static int indexOfFile(const GeneratedFiles &f, const QString &path)
 
 /*!
     \class Core::Internal::WizardEventLoop
-    \brief Special event loop that runs a QWizard and terminates if the page changes.
+    \brief The WizardEventLoop class implements a special event
+    loop that runs a QWizard and terminates if the page changes.
 
-    Use by Core::BaseFileWizard to intercept the change from the standard wizard pages
+    Used by Core::BaseFileWizard to intercept the change from the standard wizard pages
     to the extension pages (as the latter require the list of Core::GeneratedFile generated).
 
     Synopsis:
@@ -162,13 +163,12 @@ void WizardEventLoop::rejected()
     \brief The BaseFileWizard class implements a generic wizard for
     creating files.
 
-    The abstract methods:
+    The following abstract methods must be implemented:
     \list
-    \li createWizardDialog(): Called to create the QWizard dialog to be shown
-    \li generateFiles(): Generate file content
+    \li createWizardDialog(): Called to create the QWizard dialog to be shown.
+    \li generateFiles(): Generates file content.
     \endlist
 
-    must be implemented.
     The behaviour can be further customized by overwriting the virtual method \c postGenerateFiles(),
     which is called after generating the files.
 
@@ -311,19 +311,22 @@ void BaseFileWizard::runWizard(const QString &path, QWidget *parent, const QStri
 /*!
     \fn virtual QWizard *Core::BaseFileWizard::createWizardDialog(QWidget *parent,
                                                                   const WizardDialogParameters &wizardDialogParameters) const
-    \brief Implement to create the wizard dialog on the parent, adding the extension pages.
+
+    Creates the wizard dialog on the \a parent with the
+    \a wizardDialogParameters.
 */
 
 /*!
     \fn virtual Core::GeneratedFiles Core::BaseFileWizard::generateFiles(const QWizard *w,
                                                                          QString *errorMessage) const = 0
-     \brief Overwrite to query the parameters from the dialog and generate the files.
+    Overwrite to query the parameters from the dialog and generate the files.
 
-     Note: This does not generate physical files, but merely the list of Core::GeneratedFile.
+    \note This does not generate physical files, but merely the list of
+    Core::GeneratedFile.
 */
 
 /*!
-    \brief Physically write files.
+    Physically writes files.
 
     Re-implement (calling the base implementation) to create files with CustomGeneratorAttribute set.
 */
@@ -340,7 +343,7 @@ bool BaseFileWizard::writeFiles(const GeneratedFiles &files, QString *errorMessa
 }
 
 /*!
-    \brief Sets some standard options on a QWizard
+    Sets some standard options on a QWizard.
 */
 
 void BaseFileWizard::setupWizard(QWizard *w)
@@ -362,8 +365,8 @@ void BaseFileWizard::setupWizard(QWizard *w)
 }
 
 /*!
-    \brief Read "shortTitle" dynamic property of the pageId and apply it as the title
-    of corresponding progress item
+    Reads the \c shortTitle dynamic property of \a pageId and applies it as
+    the title of corresponding progress item.
 */
 
 void BaseFileWizard::applyExtensionPageShortTitle(Utils::Wizard *wizard, int pageId)
@@ -382,7 +385,7 @@ void BaseFileWizard::applyExtensionPageShortTitle(Utils::Wizard *wizard, int pag
 }
 
 /*!
-    \brief Overwrite to perform steps to be done after files are actually created.
+    Overwrite to perform steps to be done after files are actually created.
 
     The default implementation opens editors with the newly generated files.
 */
@@ -393,7 +396,7 @@ bool BaseFileWizard::postGenerateFiles(const QWizard *, const GeneratedFiles &l,
 }
 
 /*!
-    \brief Utility to open the editors for the files whose attribute is set accordingly.
+    Opens the editors for the files whose attribute is set accordingly.
 */
 
 bool BaseFileWizard::postGenerateOpenEditors(const GeneratedFiles &l, QString *errorMessage)
@@ -411,8 +414,8 @@ bool BaseFileWizard::postGenerateOpenEditors(const GeneratedFiles &l, QString *e
 }
 
 /*!
-    \brief Utility that performs an overwrite check on a set of files. It checks if
-    the file exists, can be overwritten at all and prompts the user with a summary.
+    Performs an overwrite check on a set of \a files. Checks if the file exists and
+    can be overwritten at all, and then prompts the user with a summary.
 */
 
 BaseFileWizard::OverwriteResult BaseFileWizard::promptOverwrite(GeneratedFiles *files,
@@ -493,7 +496,8 @@ BaseFileWizard::OverwriteResult BaseFileWizard::promptOverwrite(GeneratedFiles *
 }
 
 /*!
-    \brief Build a file name, adding the extension unless baseName already has one.
+    Constructs a file name, adding the \a extension unless \a baseName already has
+    one.
 */
 
 QString BaseFileWizard::buildFileName(const QString &path,
@@ -517,7 +521,7 @@ QString BaseFileWizard::buildFileName(const QString &path,
 }
 
 /*!
-    \brief Utility that returns the preferred suffix for a mime type
+    Returns the preferred suffix for \a mimeType.
 */
 
 QString BaseFileWizard::preferredSuffix(const QString &mimeType)
@@ -545,7 +549,7 @@ QString BaseFileWizard::preferredSuffix(const QString &mimeType)
     \fn Core::GeneratedFiles Core::StandardFileWizard::generateFilesFromPath(const QString &path,
                                                                              const QString &name,
                                                                              QString *errorMessage) const = 0
-    \brief Newly introduced virtual that creates the files under the path.
+    Creates the files with the \a name under the \a path.
 */
 
 StandardFileWizard::StandardFileWizard(QObject *parent) :
@@ -554,7 +558,7 @@ StandardFileWizard::StandardFileWizard(QObject *parent) :
 }
 
 /*!
-    \brief Implemented to create a Utils::FileWizardDialog.
+    Creates a Utils::FileWizardDialog.
 */
 
 QWizard *StandardFileWizard::createWizardDialog(QWidget *parent,
@@ -572,7 +576,7 @@ QWizard *StandardFileWizard::createWizardDialog(QWidget *parent,
 }
 
 /*!
-    \brief Implemented to retrieve path and name and call generateFilesFromPath()
+    Retrieves \a path and \a fileName and calls \c generateFilesFromPath().
 */
 
 GeneratedFiles StandardFileWizard::generateFiles(const QWizard *w,

@@ -2127,7 +2127,7 @@ void FakeVimHandler::Private::focus()
 
 void FakeVimHandler::Private::enterFakeVim()
 {
-    QTC_ASSERT(!g.inFakeVim, qDebug() << "enterFakeVim() shouldn't be called recursively!");
+    QTC_ASSERT(!g.inFakeVim, qDebug() << "enterFakeVim() shouldn't be called recursively!"; return);
 
     m_cursor = EDITOR(textCursor());
     g.inFakeVim = true;
@@ -2151,7 +2151,7 @@ void FakeVimHandler::Private::enterFakeVim()
 
 void FakeVimHandler::Private::leaveFakeVim(bool needUpdate)
 {
-    QTC_ASSERT(g.inFakeVim, qDebug() << "enterFakeVim() not called before leaveFakeVim()!");
+    QTC_ASSERT(g.inFakeVim, qDebug() << "enterFakeVim() not called before leaveFakeVim()!"; return);
 
     // The command might have destroyed the editor.
     if (m_textedit || m_plaintextedit) {

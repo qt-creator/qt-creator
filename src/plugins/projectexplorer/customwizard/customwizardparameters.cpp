@@ -878,9 +878,7 @@ bool replaceFieldHelper(ValueStringTransformation transform,
 }
 
 /*!
-    \brief Performs field replacements.
-
-    Replace field values delimited by '%' with special modifiers:
+    Replaces field values delimited by '%' with special modifiers:
     \list
     \li %Field% -> simple replacement
     \li %Field:l% -> replace with everything changed to lower case
@@ -939,12 +937,13 @@ QString TemporaryFileTransform::operator()(const QString &value) const
 
 /*!
     \class ProjectExplorer::Internal::CustomWizardContext
-    \brief Context used for one custom wizard run.
+    \brief The CustomWizardContext class provides the context for one custom
+    wizard run.
 
     Shared between CustomWizard and the CustomWizardPage as it is used
     for the QLineEdit-type fields'
     default texts as well. Contains basic replacement fields
-    like  \c '%CppSourceSuffix%', \c '%CppHeaderSuffix%' (settings-dependent)
+    like \c '%CppSourceSuffix%', \c '%CppHeaderSuffix%' (settings-dependent).
     reset() should be called before each wizard run to refresh them.
     CustomProjectWizard additionally inserts \c '%ProjectName%' from
     the intro page to have it available for default texts.
@@ -953,11 +952,13 @@ QString TemporaryFileTransform::operator()(const QString &value) const
 */
 
 /*!
-    \brief Special replaceFields() overload used for the arguments of a generator
+    This function is a special replaceFields() overload used for the arguments
+    of a generator
     script.
 
-    Write the expanded field values out to temporary files and
-    inserts file names instead of the expanded fields in string 's'.
+    Writes the expanded field values out to temporary files specified by
+    \a files and inserts file names instead of the expanded fields in the
+    string \a s.
 */
 
 bool CustomWizardContext::replaceFields(const FieldReplacementMap &fm, QString *s,

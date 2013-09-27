@@ -42,13 +42,13 @@
     Looks similar to FileWizardPage, but provides additional
     functionality:
     \list
-    \li Description label at the top for displaying introductory text
-    \li It does on the fly validation (connected to changed()) and displays
-       warnings/errors in a status label at the bottom (the page is complete
+    \li Contains a description label at the top for displaying introductory text.
+    \li Does on the fly validation (connected to changed()) and displays
+       warnings and errors in a status label at the bottom (the page is complete
        when fully validated, validatePage() is thus not implemented).
     \endlist
 
-    Note: Careful when changing projectintropage.ui. It must have main
+    \note Careful when changing projectintropage.ui. It must have main
     geometry cleared and QLayout::SetMinimumSize constraint on the main
     layout, otherwise, QWizard will squeeze it due to its strange expanding
     hacks.

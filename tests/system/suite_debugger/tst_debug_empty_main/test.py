@@ -91,6 +91,8 @@ def __handleAppOutputWaitForDebuggerFinish__():
                 "Verifying whether debugging has finished.")
 
 def performDebugging(workingDir, projectName, checkedTargets):
+    # for checking if it's a plain C application (as project names are set to match project type)
+    sampleC = re.compile("SampleC\d{3}")
     for kit, config in iterateBuildConfigs(len(checkedTargets), "Debug"):
         test.log("Selecting '%s' as build config" % config)
         selectBuildConfig(len(checkedTargets), kit, config)
@@ -111,7 +113,10 @@ def performDebugging(workingDir, projectName, checkedTargets):
         invokeMenuItem("Debug", "Toggle Breakpoint")
         clickButton(waitForObject(":*Qt Creator.Start Debugging_Core::Internal::FancyToolButton"))
         handleDebuggerWarnings(config, isMsvc)
-        clickButton(waitForObject(":*Qt Creator.Continue_Core::Internal::FancyToolButton"))
+        # on Mac the breakpoint won't get hit if it's a C++ based application and the breakpoint is
+        # set to an empty code line inside an empty main
+        if platform.system() != "Darwin" or sampleC.match(projectName):
+            clickButton(waitForObject(":*Qt Creator.Continue_Core::Internal::FancyToolButton"))
         __handleAppOutputWaitForDebuggerFinish__()
         removeOldBreakpoints()
         deleteAppFromWinFW(workingDir, projectName, False)

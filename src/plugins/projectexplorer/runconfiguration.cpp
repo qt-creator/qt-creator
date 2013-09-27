@@ -56,8 +56,8 @@ using namespace ProjectExplorer;
     \class ProjectExplorer::ProcessHandle
     \brief The ProcessHandle class is a helper class to describe a process.
 
-    Encapsulates parameters of a running process, local (PID) or remote (to be done,
-    address, port, etc).
+    Encapsulates parameters of a running process, local (PID) or remote (to be
+    done, address, port, and so on).
 */
 
 ProcessHandle::ProcessHandle(quint64 pid) :
@@ -129,7 +129,8 @@ IRunConfigurationAspect::~IRunConfigurationAspect()
 }
 
 /*!
-    \brief Returns the widget used to configure this run configuration. Ownership is transferred to the caller
+    Returns the widget used to configure this run configuration. Ownership is
+    transferred to the caller.
 */
 
 RunConfigWidget *IRunConfigurationAspect::createConfigurationWidget()
@@ -254,7 +255,7 @@ void RunConfiguration::ctor()
 }
 
 /*!
-    \brief Used to find out whether a runconfiguration is enabled
+    Checks whether a run configuration is enabled.
 */
 
 bool RunConfiguration::isEnabled() const
@@ -331,13 +332,14 @@ bool RunConfiguration::fromMap(const QVariantMap &map)
     \brief The IRunConfigurationAspect class provides an additional
     configuration aspect.
 
-    Aspects are a mechanism to add RunControl-specific options to a RunConfiguration without
-    subclassing the RunConfiguration for every addition, preventing a combinatorical explosion
-    of subclasses or the need to add all options to the base class.
+    Aspects are a mechanism to add RunControl-specific options to a run
+    configuration without subclassing the run configuration for every addition.
+    This prevents a combinatorial explosion of subclasses and eliminates
+    the need to add all options to the base class.
 */
 
 /*!
-    \brief Return extra aspects.
+    Returns extra aspects.
 
     \sa ProjectExplorer::IRunConfigurationAspect
 */
@@ -369,23 +371,28 @@ Utils::OutputFormatter *RunConfiguration::createOutputFormatter() const
     settings.
 
     The run configuration factory is used for restoring run configurations from
-    settings. And used to create new runconfigurations in the "Run Settings" Dialog.
-    For the first case, bool canRestore(Target *parent, const QString &id) and
-    RunConfiguration* create(Target *parent, const QString &id) are used.
-    For the second type, the functions QStringList availableCreationIds(Target *parent) and
-    QString displayNameForType(const QString&) are used to generate a list of creatable
-    RunConfigurations, and create(..) is used to create it.
+    settings and for creating new run configurations in the \gui {Run Settings}
+    dialog.
+    To restore run configurations, use the
+    \c {bool canRestore(Target *parent, const QString &id)}
+    and \c {RunConfiguration* create(Target *parent, const QString &id)}
+    functions.
+
+    To generate a list of creatable run configurations, use the
+    \c {QStringList availableCreationIds(Target *parent)} and
+    \c {QString displayNameForType(const QString&)} functions. To create a
+    run configuration, use \c create().
 */
 
 /*!
     \fn QStringList ProjectExplorer::IRunConfigurationFactory::availableCreationIds(Target *parent) const
 
-    \brief Used to show the list of possible additons to a target, returns a list of types.
+    Shows the list of possible additions to a target. Returns a list of types.
 */
 
 /*!
     \fn QString ProjectExplorer::IRunConfigurationFactory::displayNameForId(const Core::Id id) const
-    \brief Used to translate the types to names to display to the user.
+    Translates the types to names to display to the user.
 */
 
 IRunConfigurationFactory::IRunConfigurationFactory(QObject *parent) :
@@ -462,20 +469,13 @@ QList<IRunConfigurationFactory *> IRunConfigurationFactory::find(Target *parent)
 */
 
 /*!
-    \fn IRunConfigurationAspect *ProjectExplorer::IRunControlFactory::createRunConfigurationAspect(RunConfiguration *rc)
-    \brief Return an IRunConfigurationAspect to carry options for RunControls this factory can create.
-
-    If no extra options are required it is allowed to return null like the default implementation does.
-    This is intended to be called from the RunConfiguration constructor, so passing a RunConfiguration
-    pointer makes no sense because that object is under construction at the time.
-*/
-
-/*!
     \fn RunConfigWidget *ProjectExplorer::IRunConfigurationAspect::createConfigurationWidget()
 
-    \brief Return a widget used to configure this runner. Ownership is transferred to the caller.
+    Returns a widget used to configure this runner. Ownership is transferred to
+    the caller.
 
-    Return 0 if @p runConfiguration is not suitable for RunControls from this factory, or no user-accessible
+    Returns 0 if @p \a runConfiguration is not suitable for RunControls from this
+    factory, or no user-accessible
     configuration is required.
 */
 
@@ -487,6 +487,16 @@ IRunControlFactory::IRunControlFactory(QObject *parent)
 IRunControlFactory::~IRunControlFactory()
 {
 }
+
+/*!
+    Returns an IRunConfigurationAspect to carry options for RunControls this
+    factory can create.
+
+    If no extra options are required, it is allowed to return null like the
+    default implementation does. This function is intended to be called from the
+    RunConfiguration constructor, so passing a RunConfiguration pointer makes
+    no sense because that object is under construction at the time.
+*/
 
 IRunConfigurationAspect *IRunControlFactory::createRunConfigurationAspect(RunConfiguration *rc)
 {
@@ -500,17 +510,11 @@ IRunConfigurationAspect *IRunControlFactory::createRunConfigurationAspect(RunCon
 */
 
 /*!
-    \fn bool ProjectExplorer::RunControl::promptToStop(bool *optionalPrompt = 0) const
-
-    \brief Prompt to stop. If 'optionalPrompt' is passed, a "Do not ask again"-
-    checkbox will show and the result will be returned in '*optionalPrompt'.
-*/
-
-/*!
     \fn QIcon ProjectExplorer::RunControl::icon() const
-    \brief Eeturns the icon to be shown in the Outputwindow.
+    Returns the icon to be shown in the Outputwindow.
 
-    TODO the icon differs currently only per "mode", so this is more flexible then it needs to be.
+    TODO the icon differs currently only per "mode", so this is more flexible
+    than it needs to be.
 */
 
 RunControl::RunControl(RunConfiguration *runConfiguration, RunMode mode)
@@ -570,6 +574,11 @@ void RunControl::setApplicationProcessHandle(const ProcessHandle &handle)
     }
 }
 
+/*!
+    Prompts to stop. If \a optionalPrompt is passed, a \gui {Do not ask again}
+    checkbox is displayed and the result is returned in \a *optionalPrompt.
+*/
+
 bool RunControl::promptToStop(bool *optionalPrompt) const
 {
     QTC_ASSERT(isRunning(), return true);
@@ -585,7 +594,8 @@ bool RunControl::promptToStop(bool *optionalPrompt) const
 }
 
 /*!
-    \brief Utility to prompt to terminate application with checkable box.
+    Prompts to terminate the application with the \gui {Do not ask again}
+    checkbox.
 */
 
 bool RunControl::showPromptToStopDialog(const QString &title,

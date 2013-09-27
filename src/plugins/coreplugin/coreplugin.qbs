@@ -48,7 +48,7 @@ QtcPlugin {
             "helpmanager.cpp", "helpmanager.h",
             "icontext.cpp", "icontext.h",
             "icore.cpp", "icore.h",
-            "icorelistener.h",
+            "icorelistener.cpp", "icorelistener.h",
             "id.cpp", "id.h",
             "idocument.cpp", "idocument.h",
             "idocumentfactory.h",

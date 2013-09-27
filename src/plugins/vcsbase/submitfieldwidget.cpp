@@ -57,10 +57,10 @@ static void inline setComboBlocked(QComboBox *cb, int index)
     fields like "reviewed-by:",
     "signed-off-by:".
 
-    It displays them in a vertical row of combo/line edit fields
+    The widget displays the fields in a vertical row of combo boxes or line edit fields
     that is modeled after the target address controls of mail clients.
-    When choosing a different field in the combo, a new row is opened if text
-    has been entered for the current field. Optionally, a "Browse..." button and
+    When choosing a different field in the combo box, a new row is opened if text
+    has been entered for the current field. Optionally, a \gui Browse button and
     completer can be added.
 */
 

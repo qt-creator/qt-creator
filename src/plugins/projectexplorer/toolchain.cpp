@@ -154,9 +154,9 @@ bool ToolChain::operator == (const ToolChain &tc) const
 }
 
 /*!
-    \brief Used by the toolchainmanager to save user-generated tool chains.
+    Used by the tool chain manager to save user-generated tool chains.
 
-    Make sure to call this method when deriving!
+    Make sure to call this method when deriving.
 */
 
 QVariantMap ToolChain::toMap() const
@@ -183,9 +183,9 @@ void ToolChain::setDetection(ToolChain::Detection de)
 }
 
 /*!
-    \brief Used by the toolchainmanager to load user-generated tool chains.
+    Used by the tool chain manager to load user-generated tool chains.
 
-    Make sure to call this method when deriving!
+    Make sure to call this method when deriving.
 */
 
 bool ToolChain::fromMap(const QVariantMap &data)
@@ -200,7 +200,7 @@ bool ToolChain::fromMap(const QVariantMap &data)
 }
 
 /*!
-    \brief Used by the toolchainkitinformation to validate the kit.
+    Used by the tool chain kit information to validate the kit.
 */
 
 QList<Task> ToolChain::validateKit(const Kit *) const
@@ -210,22 +210,25 @@ QList<Task> ToolChain::validateKit(const Kit *) const
 
 /*!
     \class ProjectExplorer::ToolChainFactory
-    \brief Creates toolchains from settings or autodetects them.
+    \brief The ToolChainFactory class creates tool chains from settings or
+    autodetects them.
 */
 
 /*!
     \fn QString ProjectExplorer::ToolChainFactory::displayName() const = 0
-    \brief Name used to display the name of the tool chain that will be created.
+    Contains the name used to display the name of the tool chain that will be
+    created.
 */
 
 /*!
     \fn QStringList ProjectExplorer::ToolChain::clangParserFlags(const QStringList &cxxflags) const = 0
-    \brief Converts toolchain-specific flags to list flags that tunes libclang parser
+    Converts tool chain specific flags to list flags that tune the libclang
+    parser.
 */
 
 /*!
     \fn bool ProjectExplorer::ToolChainFactory::canRestore(const QVariantMap &data)
-    \brief Used by the ToolChainManager to restore user-generated tool chains.
+    Used by the tool chain manager to restore user-generated tool chains.
 */
 
 QList<ToolChain *> ToolChainFactory::autoDetect()

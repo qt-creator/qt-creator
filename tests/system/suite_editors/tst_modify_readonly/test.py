@@ -132,6 +132,7 @@ def testSaveChangesAndMakeWritable(modifiedFiles, readOnlyFiles):
                                   "visible='1' window=%s}" % saveDlgStr))
 
 def checkOpenDocumentsContains(itemName):
+    selectFromCombo(":Qt Creator_Core::Internal::NavComboBox", "Open Documents")
     openDocsTreeViewModel = waitForObject(":OpenDocuments_Widget").model()
     result = None
     found = False

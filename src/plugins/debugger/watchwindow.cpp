@@ -237,7 +237,7 @@ static int memberVariableRecursion(const QAbstractItemModel *model,
 typedef QList<MemoryMarkup> MemoryMarkupList;
 
 /*!
-    \brief Creates markup for a variable in the memory view.
+    Creates markup for a variable in the memory view.
 
     Marks the visible children with alternating colors in the parent, that is, for
     \code

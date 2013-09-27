@@ -260,9 +260,9 @@ bool PreprocessContext::process(const QString &in, QString *out, QString *errorM
 }
 
 /*!
-    \brief Custom wizard preprocessor based on JavaScript expressions.
+    Implements a custom wizard preprocessor based on JavaScript expressions.
 
-    Preprocess a string using simple syntax:
+    Preprocesses a string using a simple syntax:
     \code
 Text
 @if <JavaScript-expression>
@@ -274,7 +274,7 @@ Blup
 
     The JavaScript-expressions must evaluate to integers or boolean, like
     \c '2 == 1 + 1', \c '"a" == "a"'. The variables of the custom wizard will be
-    expanded before, so , \c "%VAR%" should be used for strings and \c %VAR% for integers.
+    expanded before, so \c "%VAR%" should be used for strings and \c %VAR% for integers.
 
     \sa ProjectExplorer::CustomWizard
 */

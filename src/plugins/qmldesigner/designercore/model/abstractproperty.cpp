@@ -120,10 +120,9 @@ AbstractView *AbstractProperty::view() const
 }
 
  /*!
- \brief AbstractProperty is a value holder for a property
- \return the value of the property
+ Holds a value for a property. Returns the value of the property.
 
- The QVariant is null if the property doesn't exists.
+ The QVariant is null if the property does not exist.
 */
 PropertyName AbstractProperty::name() const
 {
@@ -135,13 +134,13 @@ PropertyName AbstractProperty::name() const
 }
 
  /*!
- \brief Checks if the property is valid.
+ Checks if the property is valid.
 
- A prooperty is valid if the belonging ModelNode
+ A property is valid if the belonging model node
  is valid. This function is not overloaded for
  subclasses.
 
- \return the property is valid for true return value
+ Returns whether the property is valid for the \c true return value.
 */
 bool AbstractProperty::isValid() const
 {
@@ -206,8 +205,7 @@ bool AbstractProperty::isValid() const
 //}
 
  /*!
- \brief returns the ModelNode to which the property belongs
- \return node to which the property belongs
+    Returns the model node to which the property belongs.
 */
 ModelNode AbstractProperty::parentModelNode() const
 {
@@ -215,15 +213,14 @@ ModelNode AbstractProperty::parentModelNode() const
 }
 
 /*!
-\brief returns the QmlObjectNode to which the property belongs
-\return node to which the property belongs
+    Returns the QmlObjectNode to which the property belongs.
 */
 QmlObjectNode AbstractProperty::parentQmlObjectNode() const
 {
     return QmlObjectNode(parentModelNode());
 }
 /*!
-  \brief returns whether the property is the default property for the model node.
+    Returns whether the property is the default property for the model node.
 */
 bool AbstractProperty::isDefaultProperty() const
 {
@@ -404,7 +401,8 @@ TypeName AbstractProperty::dynamicTypeName() const
 }
 
 /*!
-  \brief Returns if the the two property handles reference the same property in the same node
+    Returns whether \a property1 and \a property2 reference the same property in
+    the same node.
 */
 bool operator ==(const AbstractProperty &property1, const AbstractProperty &property2)
 {
@@ -414,7 +412,8 @@ bool operator ==(const AbstractProperty &property1, const AbstractProperty &prop
 }
 
 /*!
-  \brief Returns if the the two property handles do not reference the same property in the same node
+    Returns whether \a property1 and \a property2 do not reference the same
+    property in the same node.
   */
 bool operator !=(const AbstractProperty &property1, const AbstractProperty &property2)
 {

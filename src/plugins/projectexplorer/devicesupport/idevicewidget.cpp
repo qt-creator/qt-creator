@@ -26,36 +26,26 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-
-#include "invalidmodelnodeexception.h"
-
-/*!
-\class QmlDesigner::InvalidModelNodeException
-\ingroup CoreExceptions
-\brief The InvalidModelNodeException class provides an exception for an invalid
-model node.
-
-\see ModelNode
-*/
-namespace QmlDesigner {
-/*!
-    Constructs an exception. \a line uses the __LINE__ macro,
-    \a function uses the __FUNCTION__ or the Q_FUNC_INFO macro, and \a file uses
-    the __FILE__ macro.
-*/
-InvalidModelNodeException::InvalidModelNodeException(int line,
-                                                     const QString &function,
-                                                     const QString &file)
- : Exception(line, function, file)
-{
-}
+#include <idevicewidget.h>
 
 /*!
-    Returns the type of this exception as a string.
-*/
-QString InvalidModelNodeException::type() const
-{
-    return "InvalidModelNodeException";
-}
+    \class ProjectExplorer::IDeviceWidget
+    \brief The IDeviceWidget class provides an interface for the widget
+    configuring an IDevice.
 
-}
+    A class implementing this interface will display a widget on the
+    \gui Devices options page. It enables the user to configure a particular
+    device.
+*/
+
+/*!
+    \fn virtual void updateDeviceFromUi()
+
+    Ensures that all changes in the UI are propagated to the device object.
+
+    If the device is always updated right when the change happens, the
+    implementation of this function can be empty. However, you cannot generally
+    rely on the QLineEdit::editingFinished() signal being emitted on time if
+    some button in the dialog is clicked (such as \gui Apply). So if you have
+    any handlers for line edit changes, they should probably be called here.
+*/

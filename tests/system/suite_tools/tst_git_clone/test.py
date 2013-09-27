@@ -41,12 +41,12 @@ def verifyCloneLog(targetDir, canceled):
                 "Searching for git parameters in clone log")
     test.verify(("Stopping..." in str(cloneLog.plainText)) ^ (not canceled),
                 "Searching for 'Stopping...' in clone log")
-    test.verify(("'" + cloneDir + "'..." in str(cloneLog.plainText)),
-                "Searching for clone directory in clone log")
     if canceled:
         result = "The process terminated in an abnormal way."
         summary = "Failed."
     else:
+        test.verify(("'" + cloneDir + "'..." in str(cloneLog.plainText)),
+                    "Searching for clone directory in clone log")
         result = "The process terminated with exit code 0."
         summary = "Succeeded."
     test.verify((result in str(cloneLog.plainText)),

@@ -72,18 +72,18 @@ using namespace ProjectExplorer;
 /*!
     \fn void ProjectExplorer::AbstractProcessStep::setEnabled(bool b)
 
-    \brief Enables or disables a BuildStep.
+    Enables or disables a BuildStep.
 
     Disabled BuildSteps immediately return true from their run method.
-    Should be called from init()
+    Should be called from init().
 */
 
 /*!
     \fn ProcessParameters *ProjectExplorer::AbstractProcessStep::processParameters()
 
-    \brief Obtain a reference to the parameters for the actual process to run.
+    Obtains a reference to the parameters for the actual process to run.
 
-     Should be used in init()
+     Should be used in init().
 */
 
 AbstractProcessStep::AbstractProcessStep(BuildStepList *bsl, const Core::Id id) :
@@ -110,7 +110,7 @@ AbstractProcessStep::~AbstractProcessStep()
 }
 
 /*!
-     \brief Delete all existing output parsers and start a new chain with the
+     Deletes all existing output parsers and starts a new chain with the
      given parser.
 
      Derived classes need to call this function.
@@ -131,7 +131,7 @@ void AbstractProcessStep::setOutputParser(ProjectExplorer::IOutputParser *parser
 }
 
 /*!
-    \brief Append the given output parser to the existing chain of parsers.
+    Appends the given output parser to the existing chain of parsers.
 */
 
 void AbstractProcessStep::appendOutputParser(ProjectExplorer::IOutputParser *parser)
@@ -155,7 +155,7 @@ bool AbstractProcessStep::ignoreReturnValue()
 }
 
 /*!
-    \brief If ignoreReturnValue is set to true, then the abstractprocess step will
+    If \a ignoreReturnValue is set to true, then the abstractprocess step will
     return success even if the return value indicates otherwise.
 
     Should be called from init.
@@ -167,8 +167,8 @@ void AbstractProcessStep::setIgnoreReturnValue(bool b)
 }
 
 /*!
-    \brief Reimplemented from BuildStep::init(). You need to call this from
-    YourBuildStep::init()
+    Reimplemented from BuildStep::init(). You need to call this from
+    YourBuildStep::init().
 */
 
 bool AbstractProcessStep::init()
@@ -177,7 +177,8 @@ bool AbstractProcessStep::init()
 }
 
 /*!
-    \brief Reimplemented from BuildStep::init(). You need to call this from YourBuildStep::run()
+    Reimplemented from BuildStep::init(). You need to call this from
+    YourBuildStep::run().
 */
 
 void AbstractProcessStep::run(QFutureInterface<bool> &fi)
@@ -241,9 +242,10 @@ void AbstractProcessStep::cleanUp()
 }
 
 /*!
-    \brief Called after the process is started.
+    Called after the process is started.
 
-    The default implementation adds a process started message to the output message
+    The default implementation adds a process-started message to the output
+    message.
 */
 
 void AbstractProcessStep::processStarted()
@@ -255,9 +257,9 @@ void AbstractProcessStep::processStarted()
 }
 
 /*!
-    \brief Called after the process Finished.
+    Called after the process is finished.
 
-    The default implementation adds a line to the output window
+    The default implementation adds a line to the output window.
 */
 
 void AbstractProcessStep::processFinished(int exitCode, QProcess::ExitStatus status)
@@ -279,9 +281,9 @@ void AbstractProcessStep::processFinished(int exitCode, QProcess::ExitStatus sta
 }
 
 /*!
-    \brief Called if the process could not be started.
+    Called if the process could not be started.
 
-    By default adds a message to the output window.
+    By default, adds a message to the output window.
 */
 
 void AbstractProcessStep::processStartupFailed()
@@ -293,7 +295,7 @@ void AbstractProcessStep::processStartupFailed()
 }
 
 /*!
-    \brief Called to test whether a prcess succeeded or not.
+    Called to test whether a process succeeded or not.
 */
 
 bool AbstractProcessStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
@@ -314,7 +316,7 @@ void AbstractProcessStep::processReadyReadStdOutput()
 }
 
 /*!
-    \brief Called for each line of output on stdOut().
+    Called for each line of output on stdOut().
 
     The default implementation adds the line to the application output window.
 */
@@ -336,9 +338,9 @@ void AbstractProcessStep::processReadyReadStdError()
 }
 
 /*!
-    \brief Called for each line of output on StdErrror().
+    Called for each line of output on StdErrror().
 
-    The default implementation adds the line to the application output window
+    The default implementation adds the line to the application output window.
 */
 
 void AbstractProcessStep::stdError(const QString &line)

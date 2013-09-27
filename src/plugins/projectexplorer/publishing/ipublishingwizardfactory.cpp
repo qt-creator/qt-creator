@@ -26,36 +26,53 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+#include <ipublishingwizardfactory.h>
 
-#include "invalidmodelnodeexception.h"
-
-/*!
-\class QmlDesigner::InvalidModelNodeException
-\ingroup CoreExceptions
-\brief The InvalidModelNodeException class provides an exception for an invalid
-model node.
-
-\see ModelNode
-*/
-namespace QmlDesigner {
-/*!
-    Constructs an exception. \a line uses the __LINE__ macro,
-    \a function uses the __FUNCTION__ or the Q_FUNC_INFO macro, and \a file uses
-    the __FILE__ macro.
-*/
-InvalidModelNodeException::InvalidModelNodeException(int line,
-                                                     const QString &function,
-                                                     const QString &file)
- : Exception(line, function, file)
-{
-}
 
 /*!
-    Returns the type of this exception as a string.
-*/
-QString InvalidModelNodeException::type() const
-{
-    return "InvalidModelNodeException";
-}
+    \class ProjectExplorer::IPublishingWizardFactory
 
-}
+    \brief The IPublishingWizardFactory class provides an interface for creating
+    wizards to publish a project.
+
+    A class implementing this interface is used to create an associated wizard
+    that allows users to publish their project to a remote facility, such as an
+    app store.
+
+    Such a wizard would typically transform the project content into a format
+    expected by that facility (\e packaging) and also upload it, if possible.
+
+    The factory objects have to be added to the global object pool via
+    \c ExtensionSystem::PluginManager::addObject().
+
+    \sa ExtensionSystem::PluginManager::addObject()
+*/
+
+/*!
+    \fn virtual QString displayName() const = 0
+
+    Describes on one line the type of wizard that this factory can create.
+*/
+
+ /*!
+   \fn virtual QString description() const = 0
+
+    Explains the exact purpose of the wizard created by this factory.
+*/
+
+/*!
+    \fn virtual bool canCreateWizard(const Project *project) const = 0
+
+    Returns true if the type of wizard that this factory can create is available
+    for the specified \a project.
+*/
+
+/*!
+    \fn virtual QWizard *createWizard(const Project *project) const = 0
+
+    Creates a wizard that can publish \a project. Behavior is undefined if
+    canCreateWizard() returns \c false for the project. Returns the newly
+    created publishing wizard
+
+    \sa canCreateWizard()
+*/

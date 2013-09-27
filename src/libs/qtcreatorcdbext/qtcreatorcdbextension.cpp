@@ -42,12 +42,10 @@
 
 /*!
     \group qtcreatorcdbext
-    \title Qt Creator CDB extension
+    \title Qt Creator CDB Extensions
 
-    \brief  QtCreatorCDB ext is an extension loaded into CDB.exe (see cdbengine.cpp).
-
-
-    It provides
+    Qt Creator CDB extensions are loaded into CDB.exe (see cdbengine.cpp).
+    They provide the following features:
 
     \list
     \li Notification about the state of the debugging session:

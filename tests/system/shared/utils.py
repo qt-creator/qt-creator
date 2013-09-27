@@ -445,7 +445,8 @@ def checkDebuggingLibrary(kitIDs):
         buildLogWindow = ("window={name='QtSupport__Internal__ShowBuildLog' type='QDialog' "
                           "visible='1' windowTitle?='Debugging Helper Build Log*'}")
         treeWidget = waitForObject(":QtSupport__Internal__QtVersionManager.qtdirList_QTreeWidget")
-        if str(treeWidget.currentItem().text(0)) in kitStrings.values():
+        qtVersion = str(treeWidget.currentItem().text(0))
+        if qtVersion in kitStrings.values():
             detailsButton = waitForObject("{%s type='Utils::DetailsButton' text='Details' "
                                           "visible='1' unnamed='1' occurrence='2'}" % container)
             ensureChecked(detailsButton)
@@ -457,14 +458,16 @@ def checkDebuggingLibrary(kitIDs):
                 buildLog = waitForObject("{type='QPlainTextEdit' name='log' visible='1' %s}" % buildLogWindow)
                 if str(buildLog.plainText).endswith('Build succeeded.'):
                     built += 1
+                    test.log("Successfully built GDB helper for Qt version %s" % qtVersion)
                 else:
                     failed += 1
-                    test.fail("Building GDB Helper failed",
+                    test.fail("Building GDB Helper for Qt version %s failed" % qtVersion,
                               buildLog.plainText)
                 clickButton(waitForObject("{type='QPushButton' text='Close' unnamed='1' "
                                           "visible='1' %s}" % buildLogWindow))
             else:
                 built += 1
+                test.log("GDB helper for Qt version %s is %s" % (qtVersion, str(gdbHelperStat.text)))
             ensureChecked(detailsButton, False)
         return (built, failed)
     # end of internal function for iterateQtVersions
@@ -472,6 +475,7 @@ def checkDebuggingLibrary(kitIDs):
     qtVersionsOfKits = zip(kits, qtv)
     wantedKits = Targets.getTargetsAsStrings(kitIDs)
     kitsQtV = dict([i for i in qtVersionsOfKits if i[0] in wantedKits])
+    test.log("Checking debug libraries for the following kit:Qt combinations: %s" % kitsQtV)
     tv, builtAndFailedList = iterateQtVersions(False, True, __checkDebugLibsInternalFunc__, kitsQtV)
     built = failed = 0
     for current in builtAndFailedList:
@@ -486,7 +490,8 @@ def checkDebuggingLibrary(kitIDs):
     if built == len(kitIDs):
         test.log("Function executed for all given kits.")
     else:
-        test.fatal("Something's wrong - function has skipped some kits.")
+        test.fatal("Something's wrong - function has skipped some kits.",
+                   "Expected %s kits but %s are built." % (len(kitIDs), built))
     return failed == 0
 
 # function that opens Options Dialog and parses the configured Qt versions

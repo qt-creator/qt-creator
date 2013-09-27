@@ -41,11 +41,10 @@
 #include <QPropertyAnimation>
 #include <QStyle>
 
-/*! Opens a menu at the specified widget position.
- * This functions computes the position where to show the menu, and opens it with
+/*!
+ * Opens \a menu at the specified \a widget position.
+ * This function computes the position where to show the menu, and opens it with
  * QMenu::exec().
- * \param menu The menu to open
- * \param widget The widget next to which to open the menu
  */
 static void execMenuAtWidget(QMenu *menu, QWidget *widget)
 {

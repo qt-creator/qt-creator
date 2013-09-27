@@ -50,7 +50,7 @@
     consisting of a QLineEdit and
     a "Browse" button.
 
-    Has some validation logic for embedding into QWizardPage.
+    This class has some validation logic for embedding into QWizardPage.
 */
 
 const char * const Utils::PathChooser::browseButtonLabel =

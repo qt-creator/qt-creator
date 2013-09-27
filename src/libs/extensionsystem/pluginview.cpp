@@ -45,9 +45,9 @@
     \brief The PluginView class implements a widget that shows a list of all
     plugins and their state.
 
-    This can be embedded e.g. in a dialog in the application that
+    This class can be embedded for example in a dialog in the application that
     uses the plugin manager.
-    The class also provides notifications for interactions with the list.
+    The class also provides notifications for interaction with the list.
 
     \sa ExtensionSystem::PluginDetailsView
     \sa ExtensionSystem::PluginErrorView
@@ -62,7 +62,7 @@
 /*!
     \fn void PluginView::pluginActivated(ExtensionSystem::PluginSpec *spec)
     The plugin list entry corresponding to \a spec has been activated,
-    e.g. by a double-click.
+    for example by a double-click.
 */
 
 using namespace ExtensionSystem;

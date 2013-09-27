@@ -44,7 +44,7 @@ namespace QmlDesigner {
 \brief The AbstractView class provides an abstract interface that views and
 editors can implement to be notified about model changes.
 
-\see QmlDesigner::WidgetQueryView, QmlDesigner::NodeInstanceView
+\sa QmlDesigner::WidgetQueryView(), QmlDesigner::NodeInstanceView()
 */
 
 AbstractView::~AbstractView()
@@ -54,8 +54,10 @@ AbstractView::~AbstractView()
 }
 
 /*!
-\brief sets the view of the model. this is handled automatically by AbstractView::modelAttached.
-\param model new Model
+    Sets the view of a new \a model. This is handled automatically by
+    AbstractView::modelAttached().
+
+    \sa AbstractView::modelAttached()
 */
 void AbstractView::setModel(Model *model)
 {
@@ -86,9 +88,8 @@ ModelNode AbstractView::createModelNode(const TypeName &typeName,
 }
 
 
-/*! \brief returns the root model node
-\return constant root model node
-
+/*!
+    Returns the constant root model node.
 */
 
 const ModelNode AbstractView::rootModelNode() const
@@ -98,9 +99,8 @@ const ModelNode AbstractView::rootModelNode() const
 }
 
 
-/*! \brief returns the root model node
-\return root model node
-
+/*!
+    Returns the root model node.
 */
 
 ModelNode AbstractView::rootModelNode()
@@ -110,7 +110,7 @@ ModelNode AbstractView::rootModelNode()
 }
 
 /*!
-\brief sets the reference to model to a null pointer
+    Sets the reference to a model to a null pointer.
 
 */
 void AbstractView::removeModel()
@@ -138,13 +138,7 @@ WidgetInfo AbstractView::createWidgetInfo(QWidget *widget,
 }
 
 /*!
-\name Model related functions
-\{
-*/
-
-/*!
-\brief returns the model
-\return the model of the view
+    Returns the model of the view.
 */
 Model* AbstractView::model() const
 {
@@ -157,10 +151,9 @@ bool AbstractView::isAttached() const
 }
 
 /*!
-\brief is called if a view is being attached to a model
-\param model which is being attached
+Called if a view is being attached to \a model.
 The default implementation is setting the reference of the model to the view.
-\see Model::attachView
+\sa Model::attachView()
 */
 void AbstractView::modelAttached(Model *model)
 {
@@ -168,96 +161,73 @@ void AbstractView::modelAttached(Model *model)
 }
 
 /*!
-\brief is called before a view is being detached from a model
-\param model which is being detached
+Called before a view is detached from \a model.
 
-This is not called if Model::detachViewWithOutNotification is used! The default implementation
+This function is not called if Model::detachViewWithOutNotification is used.
+The default implementation
 is removing the reference to the model from the view.
 
-\see Model::detachView
+\sa Model::detachView()
 */
 void AbstractView::modelAboutToBeDetached(Model *)
 {
     removeModel();
 }
 
-//\}
-
-
 /*!
-\name Property related functions
-\{
- */
+    \enum QmlDesigner::AbstractView::PropertyChangeFlag
 
-/*!
-\fn void QmlDesigner::AbstractView::propertyAdded(const ModelNode &, const AbstractProperty &)
-\brief node notifies about that this property is added
-\param node node to which the property is added
-\param property added property
+    Notifies about changes in the abstract properties of a node:
+
+    \value  NoAdditionalChanges
+            No changes were made.
+
+    \value  PropertiesAdded
+            Some properties were added.
+
+    \value  EmptyPropertiesRemoved
+            Empty properties were removed.
 */
 
+// Node related functions
 
 /*!
-\fn void AbstractView::propertyValueChanged(const ModelNode &, const AbstractProperty& , const QVariant& , const QVariant& )
-\brief this notifies about that the value of this proeprty will be changes
-\param node node of the property
-\param property changed property
-\param newValue the variant of the new value
-\param oldValue the variant of the old value
-*/
-//\}
-
-/*!
-\name Node related functions
-\{
- */
-
-/*!
-\fn void AbstractView::nodeCreated(const ModelNode &)
-\brief this function is called if a new node was created
-\param createdNode created node
+\fn void AbstractView::nodeCreated(const ModelNode &createdNode)
+Called when the new node \a createdNode is created.
 */
 
-
 /*!
-\fn AbstractView::fileUrlChanged(const QUrl &oldBaseUrl, const QUrl &newBaseUrl)
-\brief Called when the file url (e.g. needed to to resolve relative paths against) has changed
-\param oldBaseUrl old search path
-\param newBaseUrl new search path
+Called when the file URL (that is needed to resolve relative paths against,
+for example) is changed form \a oldUrl to \a newUrl.
 */
 void AbstractView::fileUrlChanged(const QUrl &/*oldUrl*/, const QUrl &/*newUrl*/)
 {
 }
 
 /*!
-\fn void AbstractView::nodeAboutToBeRemoved(const ModelNode &)
-\brief this is called if a node will be removed
-\param removedNode to be removed node
+\fn void AbstractView::nodeAboutToBeRemoved(const ModelNode &removedNode)
+Called when the node specified by \a removedNode will be removed.
 */
 
 /*!
-\brief this is called after a propererty was removed
-\param propertyList removed property list
+Called when the properties specified by \a propertyList are removed.
 */
 void AbstractView::propertiesRemoved(const QList<AbstractProperty>& /*propertyList*/)
 {
 }
 
 /*!
-\fn void AbstractView::nodeReparented(const ModelNode &, const ModelNode &, const ModelNode &)
-\brief this is called if a node was reparented
-\param node the parent for this node will be changed
-\param oldParent old parent of the node
-\param newParent new parent of the node
+\fn void nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange)
+Called when the parent of \a node will be changed from \a oldPropertyParent to
+\a newPropertyParent.
 */
 
 /*!
-\fn void QmlDesigner::AbstractView::selectedNodesChanged(const QList< ModelNode > &, const QList< ModelNode > &)
-\brief this function is called if the selection was changed
-\param selectedNodeList the new selection list
-\param lastSelectedNodeList the old selection list
+\fn void QmlDesigner::AbstractView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
+                                                         const QList<ModelNode> &lastSelectedNodeList)
+Called when the selection is changed from \a lastSelectedNodeList to
+\a selectedNodeList.
 */
-//\}
 
 void AbstractView::auxiliaryDataChanged(const ModelNode &/*node*/, const PropertyName &/*name*/, const QVariant &/*data*/)
 {
@@ -292,8 +262,8 @@ QList<Internal::InternalNode::Pointer> toInternalNodeList(const QList<ModelNode>
 }
 
 /*!
-\brief set this list nodes to the actual selected nodes
-\param focusNodeList list the selected nodes
+    Sets the list of nodes to the actual selected nodes specified by
+    \a selectedNodeList.
 */
 void AbstractView::setSelectedModelNodes(const QList<ModelNode> &selectedNodeList)
 {
@@ -306,7 +276,7 @@ void AbstractView::setSelectedModelNode(const ModelNode &modelNode)
 }
 
 /*!
-\brief clears the selection
+    Clears the selection.
 */
 void AbstractView::clearSelectedModelNodes()
 {
@@ -324,8 +294,8 @@ bool AbstractView::hasSingleSelectedModelNode() const
 }
 
 /*!
-\brief set this list nodes to the actual selected nodes
-\return list the selected nodes
+    Sets the list of nodes to the actual selected nodes. Returns a list of the
+    selected nodes.
 */
 QList<ModelNode> AbstractView::selectedModelNodes() const
 {
@@ -349,8 +319,7 @@ ModelNode AbstractView::singleSelectedModelNode() const
 }
 
 /*!
-\brief adds a node to the selection list
-\param node to be added to the selection list
+    Adds \a node to the selection list.
 */
 void AbstractView::selectModelNode(const ModelNode &node)
 {
@@ -358,8 +327,7 @@ void AbstractView::selectModelNode(const ModelNode &node)
 }
 
 /*!
-\brief removes a node from the selection list
-\param node to be removed from the selection list
+    Removes \a node from the selection list.
 */
 void AbstractView::deselectModelNode(const ModelNode &node)
 {

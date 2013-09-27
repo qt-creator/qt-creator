@@ -67,8 +67,8 @@ namespace ProjectExplorer {
      \brief The SessionManager class manages sessions.
 
      TODO the interface of this class is not really great.
-     The implementation suffers that all the functions from the
-     public interface just wrap around functions which do the actual work
+     The implementation suffers from that all the functions from the
+     public interface just wrap around functions which do the actual work.
      This could be improved.
 */
 
@@ -648,7 +648,7 @@ void SessionManager::removeProjects(QList<Project *> remove)
 }
 
 /*!
-    \brief Let other plugins store persistent values within the session file.
+    Lets other plugins store persistent values within the session file.
 */
 
 void SessionManager::setValue(const QString &name, const QVariant &value)
@@ -691,7 +691,7 @@ FileName SessionManager::sessionNameToFileName(const QString &session)
 }
 
 /*!
-    \brief Just creates a new session (Does not actually create the file).
+    Creates \a session, but does not actually create the file.
 */
 
 bool SessionManager::createSession(const QString &session)
@@ -725,7 +725,7 @@ bool SessionManager::confirmSessionDelete(const QString &session)
 }
 
 /*!
-     \brief Deletes session name from session list and file from disk.
+     Deletes \a session name from session list and the file from disk.
 */
 bool SessionManager::deleteSession(const QString &session)
 {
@@ -830,7 +830,7 @@ void SessionManagerPrivate::restoreEditors(const PersistentSettingsReader &reade
 }
 
 /*!
-     \brief Loads a session, takes a session name (not filename).
+     Loads a session, takes a session name (not filename).
 */
 void SessionManagerPrivate::restoreProjects(const QStringList &fileList)
 {

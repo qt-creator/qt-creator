@@ -156,7 +156,7 @@ def verifyHoveringOnEditor(editor, lines, additionalKeyPresses, expectedTypes, e
             test.warning("Could not get %s for line containing pattern '%s'" % (expectedType,line))
         else:
             if expectedType == "ColorTip":
-                __handleColorTips__(tip, expectedVals)
+                __handleColorTips__(tip, expectedVals, altVal)
             elif expectedType == "TextTip":
                 __handleTextTips__(tip, expectedVals, altVal)
             elif expectedType == "WidgetTip":
@@ -203,20 +203,32 @@ def __handleTextTips__(textTip, expectedVals, alternativeVals):
 # param expectedColor a single string holding the color the ColorTip should have
 # Attention: because of being a non-standard Qt object it's not possible to
 # verify colors which are (semi-)transparent!
-def __handleColorTips__(colTip, expectedColor):
+def __handleColorTips__(colTip, expectedColor, alternativeColor):
+    def uint(value):
+        if value < 0:
+            return 0xffffffff + value + 1
+        return value
+
     cmp = QColor()
     cmp.setNamedColor(expectedColor)
-    if cmp.alpha() != 255:
+    if alternativeColor:
+        alt = QColor()
+        alt.setNamedColor(alternativeColor)
+    if cmp.alpha() != 255 or alternativeColor and alt.alpha() != 255:
         test.warning("Cannot handle transparent colors - cancelling this verification")
         return
     dPM = QPixmap.grabWidget(colTip, 1, 1, colTip.width-2, colTip.height-2)
     img = dPM.toImage()
     rgb = img.pixel(1, 1)
     rgb = QColor(rgb)
-    if rgb.rgba() == cmp.rgba():
+    if rgb.rgba() == cmp.rgba() or alternativeColor and rgb.rgba() == alt.rgba():
         test.passes("ColorTip verified")
     else:
-        test.fail("ColorTip does not match - expected color '%s' got '%s'" % (cmp.rgb(), rgb.rgb()))
+        altColorText = ""
+        if alternativeColor:
+            altColorText = " or '%X'" % uint(alt.rgb())
+        test.fail("ColorTip does not match - expected color '%X'%s got '%X'"
+                  % (uint(cmp.rgb()), altColorText, uint(rgb.rgb())))
 
 # function that checks whether all expected properties (including their values)
 # match the given properties
@@ -332,7 +344,7 @@ def addBranchWildcardToRoot(rootNode):
 
 def openDocument(treeElement):
     try:
-        selectFromCombo(":Qt Creator_Core::Internal::NavComboBox", "Open Documents")
+        selectFromCombo(":Qt Creator_Core::Internal::NavComboBox", "Projects")
         navigator = waitForObject(":Qt Creator_Utils::NavigationTreeView")
         try:
             item = waitForObjectItem(navigator, treeElement, 3000)

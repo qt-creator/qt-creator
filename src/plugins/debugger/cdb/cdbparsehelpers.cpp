@@ -425,7 +425,7 @@ QDebug operator<<(QDebug s, const WinException &e)
 /*!
     \fn DisassemblerLines Debugger::Internal::parseCdbDisassembler(const QList<QByteArray> &a)
 
-    \brief Parse CDB disassembler output into DisassemblerLines (with helpers)
+    Parses CDB disassembler output into DisassemblerLines (with helpers).
 
     Expected options (prepend source file line):
     \code

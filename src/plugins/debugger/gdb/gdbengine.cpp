@@ -2416,9 +2416,9 @@ void GdbEngine::handleExecuteReturn(const GdbResponse &response)
 }
 
 /*!
-    \brief Discard the results of all pending watch-updating commands.
+    Discards the results of all pending watch-updating commands.
 
-    This method is called at the beginning of all step/next/finish etc.
+    This method is called at the beginning of all step, next, finish, and so on,
     debugger functions.
     If non-watch-updating commands with call-backs are still in the pipe,
     it will complain.
