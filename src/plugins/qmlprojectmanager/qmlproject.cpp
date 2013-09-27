@@ -110,6 +110,7 @@ QmlProject::QmlProject(Internal::Manager *manager, const QString &fileName)
       m_defaultImport(UnknownImport),
       m_modelManager(QmlJS::ModelManagerInterface::instance())
 {
+    setId("QmlProjectManager.QmlProject");
     setProjectContext(Context(QmlProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Context(ProjectExplorer::Constants::LANG_QMLJS));
 
@@ -309,11 +310,6 @@ void QmlProject::refreshFiles(const QSet<QString> &/*added*/, const QSet<QString
 QString QmlProject::displayName() const
 {
     return m_projectName;
-}
-
-Id QmlProject::id() const
-{
-    return "QmlProjectManager.QmlProject";
 }
 
 IDocument *QmlProject::document() const

@@ -78,6 +78,7 @@ AutotoolsProject::AutotoolsProject(AutotoolsManager *manager, const QString &fil
     m_watchedFiles(),
     m_makefileParserThread(0)
 {
+    setId(Constants::AUTOTOOLS_PROJECT_ID);
     setProjectContext(Core::Context(Constants::PROJECT_CONTEXT));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
 
@@ -106,11 +107,6 @@ AutotoolsProject::~AutotoolsProject()
 QString AutotoolsProject::displayName() const
 {
     return m_projectName;
-}
-
-Core::Id AutotoolsProject::id() const
-{
-    return Core::Id(Constants::AUTOTOOLS_PROJECT_ID);
 }
 
 Core::IDocument *AutotoolsProject::document() const

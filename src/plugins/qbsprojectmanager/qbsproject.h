@@ -74,7 +74,6 @@ public:
     ~QbsProject();
 
     QString displayName() const;
-    Core::Id id() const;
     Core::IDocument *document() const;
     QbsManager *projectManager() const;
 

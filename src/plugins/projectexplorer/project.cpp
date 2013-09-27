@@ -85,6 +85,7 @@ public:
     ProjectPrivate();
     ~ProjectPrivate();
 
+    Core::Id m_id;
     QList<Target *> m_targets;
     Target *m_activeTarget;
     EditorConfiguration *m_editorConfiguration;
@@ -112,6 +113,12 @@ Project::~Project()
     qDeleteAll(d->m_targets);
     delete d->m_editorConfiguration;
     delete d;
+}
+
+Core::Id Project::id() const
+{
+    QTC_CHECK(d->m_id.isValid());
+    return d->m_id;
 }
 
 QString Project::projectFilePath() const
@@ -262,6 +269,11 @@ bool Project::setupTarget(Target *t)
     t->updateDefaultDeployConfigurations();
     t->updateDefaultRunConfigurations();
     return true;
+}
+
+void Project::setId(Core::Id id)
+{
+    d->m_id = id;
 }
 
 Target *Project::restoreTarget(const QVariantMap &data)

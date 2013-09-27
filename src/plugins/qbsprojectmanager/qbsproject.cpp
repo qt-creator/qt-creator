@@ -102,6 +102,7 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
 {
     m_parsingDelay.setInterval(1000); // delay parsing by 1s.
 
+    setId(Constants::PROJECT_ID);
     setProjectContext(Context(Constants::PROJECT_ID));
     setProjectLanguages(Context(ProjectExplorer::Constants::LANG_CXX));
 
@@ -130,11 +131,6 @@ QbsProject::~QbsProject()
 QString QbsProject::displayName() const
 {
     return m_projectName;
-}
-
-Id QbsProject::id() const
-{
-    return Constants::PROJECT_ID;
 }
 
 IDocument *QbsProject::document() const

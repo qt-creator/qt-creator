@@ -77,7 +77,6 @@ public:
     virtual ~Qt4Project();
 
     QString displayName() const;
-    Core::Id id() const;
     Core::IDocument *document() const;
     ProjectExplorer::IProjectManager *projectManager() const;
     Qt4Manager *qt4ProjectManager() const;

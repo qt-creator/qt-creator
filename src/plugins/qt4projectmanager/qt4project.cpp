@@ -343,6 +343,7 @@ Qt4Project::Qt4Project(Qt4Manager *manager, const QString& fileName) :
     m_centralizedFolderWatcher(0),
     m_activeTarget(0)
 {
+    setId(Constants::QT4PROJECT_ID);
     setProjectContext(Core::Context(Qt4ProjectManager::Constants::PROJECT_ID));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
 
@@ -886,11 +887,6 @@ bool Qt4Project::supportsKit(Kit *k, QString *errorMessage) const
 QString Qt4Project::displayName() const
 {
     return QFileInfo(projectFilePath()).completeBaseName();
-}
-
-Core::Id Qt4Project::id() const
-{
-    return Core::Id(Constants::QT4PROJECT_ID);
 }
 
 Core::IDocument *Qt4Project::document() const

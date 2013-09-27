@@ -69,6 +69,7 @@ GenericProject::GenericProject(Manager *manager, const QString &fileName)
     : m_manager(manager),
       m_fileName(fileName)
 {
+    setId(Constants::GENERICPROJECT_ID);
     setProjectContext(Context(GenericProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Context(ProjectExplorer::Constants::LANG_CXX));
 
@@ -373,11 +374,6 @@ QByteArray GenericProject::defines() const
 QString GenericProject::displayName() const
 {
     return m_projectName;
-}
-
-Id GenericProject::id() const
-{
-    return Id(Constants::GENERICPROJECT_ID);
 }
 
 IDocument *GenericProject::document() const

@@ -39,6 +39,7 @@ TestProject::TestProject(const QString &name, QObject *parent)
     : m_name (name)
 {
     setParent(parent);
+    setId(Core::Id::fromString(name));
 }
 
 TestProject::~TestProject()

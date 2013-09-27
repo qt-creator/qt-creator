@@ -60,7 +60,6 @@ public:
     QString configFileName() const;
 
     QString displayName() const;
-    Core::Id id() const;
     Core::IDocument *document() const;
     ProjectExplorer::IProjectManager *projectManager() const;
 

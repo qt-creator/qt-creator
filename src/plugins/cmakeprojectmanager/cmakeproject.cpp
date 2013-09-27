@@ -92,6 +92,7 @@ CMakeProject::CMakeProject(CMakeManager *manager, const QString &fileName)
       m_rootNode(new CMakeProjectNode(fileName)),
       m_watcher(new QFileSystemWatcher(this))
 {
+    setId(Constants::CMAKEPROJECT_ID);
     setProjectContext(Core::Context(CMakeProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
 
@@ -510,11 +511,6 @@ ProjectExplorer::FolderNode *CMakeProject::findOrCreateFolder(CMakeProjectNode *
 QString CMakeProject::displayName() const
 {
     return m_projectName;
-}
-
-Core::Id CMakeProject::id() const
-{
-    return Core::Id(Constants::CMAKEPROJECT_ID);
 }
 
 Core::IDocument *CMakeProject::document() const
