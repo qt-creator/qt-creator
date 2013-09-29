@@ -143,6 +143,7 @@ void VcsBaseClientPrivate::saveSettings()
 
 void VcsBaseClientPrivate::bindCommandToEditor(Command *cmd, VcsBaseEditorWidget *editor)
 {
+    editor->setCommand(cmd);
     QObject::connect(cmd, SIGNAL(finished(bool,int,QVariant)), m_cmdFinishedMapper, SLOT(map()));
     m_cmdFinishedMapper->setMapping(cmd, editor);
 }

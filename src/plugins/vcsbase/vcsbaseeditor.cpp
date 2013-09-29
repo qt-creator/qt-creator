@@ -32,6 +32,7 @@
 #include "baseannotationhighlighter.h"
 #include "vcsbaseplugin.h"
 #include "vcsbaseeditorparameterwidget.h"
+#include "command.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/vcsmanager.h>
@@ -575,6 +576,7 @@ public:
     VcsBaseEditorParameterWidget *m_configurationWidget;
     bool m_mouseDragging;
     QList<AbstractTextCursorHandler *> m_textCursorHandlers;
+    QPointer<Command> m_command;
 
 private:
     QComboBox *m_entriesComboBox;
@@ -1348,6 +1350,13 @@ bool VcsBaseEditorWidget::setConfigurationWidget(VcsBaseEditorParameterWidget *w
 VcsBaseEditorParameterWidget *VcsBaseEditorWidget::configurationWidget() const
 {
     return d->m_configurationWidget;
+}
+
+void VcsBaseEditorWidget::setCommand(Command *command)
+{
+    if (d->m_command)
+        d->m_command->abort();
+    d->m_command = command;
 }
 
 // Find the complete file from a diff relative specification.

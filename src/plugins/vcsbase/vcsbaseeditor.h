@@ -55,6 +55,7 @@ class VcsBaseEditorWidgetPrivate;
 class DiffHighlighter;
 class BaseAnnotationHighlighter;
 class VcsBaseEditorParameterWidget;
+class Command;
 
 // Documentation inside
 enum EditorContentType
@@ -188,6 +189,7 @@ public:
     bool setConfigurationWidget(VcsBaseEditorParameterWidget *w);
     VcsBaseEditorParameterWidget *configurationWidget() const;
 
+    void setCommand(Command *command);
     /* Tagging editors: Sometimes, an editor should be re-used, for example, when showing
      * a diff of the same file with different diff-options. In order to be able to find
      * the editor, they get a 'tag' containing type and parameters (dynamic property string). */

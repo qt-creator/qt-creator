@@ -2467,8 +2467,11 @@ VcsBase::Command *GitClient::createCommand(const QString &workingDirectory,
     VcsBase::Command *command = new VcsBase::Command(gitBinaryPath(), workingDirectory, processEnvironment());
     command->setCodec(getSourceCodec(currentDocumentPath()));
     command->setCookie(QVariant(editorLineNumber));
-    if (editor)
-        connect(command, SIGNAL(finished(bool,int,QVariant)), editor, SLOT(commandFinishedGotoLine(bool,int,QVariant)));
+    if (editor) {
+        editor->setCommand(command);
+        connect(command, SIGNAL(finished(bool,int,QVariant)),
+                editor, SLOT(commandFinishedGotoLine(bool,int,QVariant)));
+    }
     if (useOutputToWindow) {
         command->addFlags(VcsBasePlugin::ShowStdOutInLogWindow);
         command->addFlags(VcsBasePlugin::ShowSuccessMessage);
