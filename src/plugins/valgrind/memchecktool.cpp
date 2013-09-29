@@ -487,8 +487,11 @@ void MemcheckTool::suppressionActionTriggered()
 
 void MemcheckTool::loadExternalXmlLogFile()
 {
-    const QString filePath = QFileDialog::getOpenFileName(Core::ICore::mainWindow(),
-                                                          tr("Open Memcheck XML Log File"));
+    const QString filePath = QFileDialog::getOpenFileName(
+                Core::ICore::mainWindow(),
+                tr("Open Memcheck XML Log File"),
+                QString(),
+                tr("XML Files (*.xml);;All Files (*)"));
     if (filePath.isEmpty())
         return;
 
