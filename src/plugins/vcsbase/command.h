@@ -80,6 +80,7 @@ public:
     void addJob(const QStringList &arguments, Utils::ExitCodeInterpreter *interpreter = 0);
     void addJob(const QStringList &arguments, int timeout, Utils::ExitCodeInterpreter *interpreter = 0);
     void execute();
+    void abort();
     bool lastExecutionSuccess() const;
     int lastExecutionExitCode() const;
 

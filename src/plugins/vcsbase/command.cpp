@@ -104,6 +104,7 @@ public:
     bool m_progressiveOutput;
     bool m_hadOutput;
     bool m_preventRepositoryChanged;
+    bool m_aborted;
     QFutureWatcher<void> m_watcher;
 
     QList<Job> m_jobs;
@@ -127,6 +128,7 @@ CommandPrivate::CommandPrivate(const QString &binary,
     m_progressiveOutput(false),
     m_hadOutput(false),
     m_preventRepositoryChanged(false),
+    m_aborted(false),
     m_lastExecSuccess(false),
     m_lastExecExitCode(-1)
 {
@@ -229,6 +231,12 @@ void Command::execute()
         Core::Id::fromString(binary + QLatin1String(".action")));
 }
 
+void Command::abort()
+{
+    d->m_aborted = true;
+    d->m_watcher.future().cancel();
+}
+
 void Command::cancel()
 {
     emit terminate();
@@ -277,23 +285,18 @@ void Command::run(QFutureInterface<void> &future)
             break;
     }
 
-    const QString canceledMessage = tr("Canceled");
-    if (d->m_progressiveOutput) {
-        if (!d->m_hadOutput && future.isCanceled())
-            emit output(canceledMessage);
-    } else {
-        if (stdOut.isEmpty() && future.isCanceled())
-            emit output(canceledMessage);
-        else
+    if (!d->m_aborted) {
+        if (!d->m_progressiveOutput) {
             emit output(stdOut);
-        if (!stdErr.isEmpty())
-            emit errorText(stdErr);
-    }
+            if (!stdErr.isEmpty())
+                emit errorText(stdErr);
+        }
 
-    emit finished(d->m_lastExecSuccess, d->m_lastExecExitCode, cookie());
-    if (d->m_lastExecSuccess)
-        emit success(cookie());
-    future.setProgressValue(future.progressMaximum());
+        emit finished(d->m_lastExecSuccess, d->m_lastExecExitCode, cookie());
+        if (d->m_lastExecSuccess)
+            emit success(cookie());
+        future.setProgressValue(future.progressMaximum());
+    }
 
     if (d->m_progressParser)
         d->m_progressParser->setFuture(0);
@@ -420,12 +423,14 @@ Utils::SynchronousProcessResponse Command::runVcs(const QStringList &arguments, 
         response = process.run(d->m_binaryPath, arguments);
     }
 
-    // Success/Fail message in appropriate window?
-    if (response.result == Utils::SynchronousProcessResponse::Finished) {
-        if (d->m_flags & VcsBasePlugin::ShowSuccessMessage)
-            emit outputProxy.appendMessage(response.exitMessage(d->m_binaryPath, timeoutMS));
-    } else if (!(d->m_flags & VcsBasePlugin::SuppressFailMessageInLogWindow)) {
-        emit outputProxy.appendError(response.exitMessage(d->m_binaryPath, timeoutMS));
+    if (!d->m_aborted) {
+        // Success/Fail message in appropriate window?
+        if (response.result == Utils::SynchronousProcessResponse::Finished) {
+            if (d->m_flags & VcsBasePlugin::ShowSuccessMessage)
+                emit outputProxy.appendMessage(response.exitMessage(d->m_binaryPath, timeoutMS));
+        } else if (!(d->m_flags & VcsBasePlugin::SuppressFailMessageInLogWindow)) {
+            emit outputProxy.appendError(response.exitMessage(d->m_binaryPath, timeoutMS));
+        }
     }
     emitRepositoryChanged();
 
@@ -467,22 +472,24 @@ Utils::SynchronousProcessResponse Command::runSynchronous(const QStringList &arg
             !Utils::SynchronousProcess::readDataFromProcess(*process.data(), timeoutMS,
                                                             &stdOut, &stdErr, true);
 
-    OutputProxy outputProxy;
-    if (!stdErr.isEmpty()) {
-        response.stdErr = Utils::SynchronousProcess::normalizeNewlines(
-                    d->m_codec ? d->m_codec->toUnicode(stdErr) : QString::fromLocal8Bit(stdErr));
-        if (!(d->m_flags & VcsBasePlugin::SuppressStdErrInLogWindow))
-            emit outputProxy.append(response.stdErr);
-    }
+    if (!d->m_aborted) {
+        OutputProxy outputProxy;
+        if (!stdErr.isEmpty()) {
+            response.stdErr = Utils::SynchronousProcess::normalizeNewlines(
+                        d->m_codec ? d->m_codec->toUnicode(stdErr) : QString::fromLocal8Bit(stdErr));
+            if (!(d->m_flags & VcsBasePlugin::SuppressStdErrInLogWindow))
+                emit outputProxy.append(response.stdErr);
+        }
 
-    if (!stdOut.isEmpty()) {
-        response.stdOut = Utils::SynchronousProcess::normalizeNewlines(
-                    d->m_codec ? d->m_codec->toUnicode(stdOut) : QString::fromLocal8Bit(stdOut));
-        if (d->m_flags & VcsBasePlugin::ShowStdOutInLogWindow) {
-            if (d->m_flags & VcsBasePlugin::SilentOutput)
-                emit outputProxy.appendSilently(response.stdOut);
-            else
-                emit outputProxy.append(response.stdOut);
+        if (!stdOut.isEmpty()) {
+            response.stdOut = Utils::SynchronousProcess::normalizeNewlines(
+                        d->m_codec ? d->m_codec->toUnicode(stdOut) : QString::fromLocal8Bit(stdOut));
+            if (d->m_flags & VcsBasePlugin::ShowStdOutInLogWindow) {
+                if (d->m_flags & VcsBasePlugin::SilentOutput)
+                    emit outputProxy.appendSilently(response.stdOut);
+                else
+                    emit outputProxy.append(response.stdOut);
+            }
         }
     }
 
@@ -570,7 +577,7 @@ void Command::bufferedError(const QString &text)
 void Command::coreAboutToClose()
 {
     d->m_preventRepositoryChanged = true;
-    cancel();
+    abort();
 }
 
 const QVariant &Command::cookie() const
