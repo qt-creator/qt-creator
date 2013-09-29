@@ -109,7 +109,7 @@ void GitSubmitEditorWidget::initialize(CommitType commitType,
     setPanelData(data);
     setPanelInfo(info);
 
-    if (enablePush && commitType != FixupCommit) {
+    if (enablePush) {
         QMenu *menu = new QMenu(this);
         menu->addAction(tr("&Commit only"), this, SLOT(commitOnlySlot()));
         menu->addAction(tr("Commit and &Push"), this, SLOT(commitAndPushSlot()));

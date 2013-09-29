@@ -31,6 +31,7 @@
 #define GITCLIENT_H
 
 #include "gitsettings.h"
+#include "commitdata.h"
 
 #include <coreplugin/editormanager/ieditor.h>
 
@@ -110,7 +111,8 @@ public:
         enum StashResult { StashUnchanged, StashCanceled, StashFailed,
                            Stashed, NotStashed /* User did not want it */ };
 
-        bool init(const QString &workingDirectory, const QString &command, StashFlag flag = Default);
+        bool init(const QString &workingDirectory, const QString &command,
+                  StashFlag flag = Default, PushAction pushAction = NoPush);
         bool stashingFailed() const;
         void end();
         StashResult result() const { return m_stashResult; }
@@ -125,6 +127,7 @@ public:
         QString m_workingDir;
         GitClient *m_client;
         StashFlag m_flags;
+        PushAction m_pushAction;
     };
 
     static const char *stashNamePrefix;
@@ -322,7 +325,8 @@ public:
 
     QProcessEnvironment processEnvironment() const;
 
-    bool beginStashScope(const QString &workingDirectory, const QString &command, StashFlag flag = Default);
+    bool beginStashScope(const QString &workingDirectory, const QString &command,
+                         StashFlag flag = Default, PushAction pushAction = NoPush);
     StashInfo &stashInfo(const QString &workingDirectory);
     void endStashScope(const QString &workingDirectory);
     bool isValidRevision(const QString &revision) const;

@@ -99,6 +99,7 @@ public:
     void setSettings(const GitSettings &s);
 
     GitClient *gitClient() const;
+    Gerrit::Internal::GerritPlugin *gerritPlugin() const;
 
 public slots:
     void startCommit();

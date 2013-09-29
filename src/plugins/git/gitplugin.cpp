@@ -1132,8 +1132,10 @@ bool GitPlugin::submitEditorAboutToClose()
         return false;
     cleanCommitMessageFile();
     if (commitType == FixupCommit) {
-        if (!m_gitClient->beginStashScope(m_submitRepository, QLatin1String("Rebase-fixup"), NoPrompt))
+        if (!m_gitClient->beginStashScope(m_submitRepository, QLatin1String("Rebase-fixup"),
+                                          NoPrompt, editor->panelData().pushAction)) {
             return false;
+        }
         m_gitClient->interactiveRebase(m_submitRepository, amendSHA1, true);
     } else {
         m_gitClient->continueCommandIfNeeded(m_submitRepository);
@@ -1504,6 +1506,11 @@ void GitPlugin::setSettings(const GitSettings &s)
 GitClient *GitPlugin::gitClient() const
 {
     return m_gitClient;
+}
+
+Gerrit::Internal::GerritPlugin *GitPlugin::gerritPlugin() const
+{
+    return m_gerritPlugin;
 }
 
 #ifdef WITH_TESTS
