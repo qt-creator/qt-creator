@@ -99,19 +99,19 @@ public:
         DiffShow
     };
 
-    GitDiffSwitcher(Core::IEditor *parentEditor, GitClient *gitClient, GitClient::DiffEditorType switchToType)
+    GitDiffSwitcher(Core::IEditor *parentEditor, GitClient *gitClient)
         : QObject(parentEditor),
           m_editor(parentEditor),
-          m_gitClient(gitClient),
-          m_editorType(switchToType)
+          m_gitClient(gitClient)
     {
-        QIcon actionIcon = switchToType == GitClient::SideBySideDiffEditor
-                ? QIcon(QLatin1String(Core::Constants::ICON_SIDE_BY_SIDE_DIFF))
-                : QIcon(QLatin1String(Core::Constants::ICON_TEXT_DIFF));
+        m_usingDiffEditor = gitClient->settings()->boolValue(GitSettings::useDiffEditorKey);
+        QIcon actionIcon = m_usingDiffEditor
+                ? QIcon(QLatin1String(Core::Constants::ICON_TEXT_DIFF))
+                : QIcon(QLatin1String(Core::Constants::ICON_SIDE_BY_SIDE_DIFF));
 
-        const QString actionToolTip = switchToType == GitClient::SideBySideDiffEditor
-                ? tr("Switch to Side By Side Diff Editor")
-                : tr("Switch to Text Diff Editor");
+        const QString actionToolTip = m_usingDiffEditor
+                ? tr("Switch to Text Diff Editor")
+                : tr("Switch to Side By Side Diff Editor");
 
         QAction *switchAction = new QAction(actionIcon, actionToolTip, parentEditor);
         parentEditor->toolBar()->addAction(switchAction);
@@ -140,7 +140,7 @@ private:
     GitClient *m_gitClient;
     QString m_workingDirectory;
     DiffType m_diffType;
-    GitClient::DiffEditorType m_editorType;
+    bool m_usingDiffEditor;
     QString m_fileName;
     QStringList m_stagedFiles;
     QStringList m_unstagedFiles;
@@ -153,24 +153,25 @@ private:
 
 void GitDiffSwitcher::execute()
 {
+    m_gitClient->settings()->setValue(GitSettings::useDiffEditorKey, !m_usingDiffEditor);
     switch (m_diffType) {
     case DiffRepository:
-        m_gitClient->diff(m_workingDirectory, QStringList(), QStringList(), m_editorType);
+        m_gitClient->diff(m_workingDirectory, QStringList(), QStringList());
         break;
     case DiffFile:
-        m_gitClient->diff(m_workingDirectory, m_fileName, m_editorType);
+        m_gitClient->diff(m_workingDirectory, m_fileName);
         break;
     case DiffFileList:
-        m_gitClient->diff(m_workingDirectory, m_unstagedFiles, m_stagedFiles, m_editorType);
+        m_gitClient->diff(m_workingDirectory, m_unstagedFiles, m_stagedFiles);
         break;
     case DiffProjectList:
-        m_gitClient->diff(m_workingDirectory, m_projectFiles, QStringList(), m_editorType);
+        m_gitClient->diff(m_workingDirectory, m_projectFiles, QStringList());
         break;
     case DiffBranch:
-        m_gitClient->diffBranch(m_workingDirectory, m_baseArguments, m_branchName, m_editorType);
+        m_gitClient->diffBranch(m_workingDirectory, m_baseArguments, m_branchName);
         break;
     case DiffShow:
-        m_gitClient->show(m_fileName, m_id, m_baseArguments, m_displayName, m_editorType);
+        m_gitClient->show(m_fileName, m_id, m_baseArguments, m_displayName);
         break;
     default:
         break;
@@ -594,8 +595,7 @@ public:
 
     void executeCommand()
     {
-        m_client->diff(m_workingDirectory, m_unstagedFileNames, m_stagedFileNames,
-                       GitClient::SimpleTextDiffEditor);
+        m_client->diff(m_workingDirectory, m_unstagedFileNames, m_stagedFileNames);
     }
 
 private:
@@ -615,7 +615,7 @@ public:
 
     void executeCommand()
     {
-        m_client->diff(m_workingDirectory, m_fileName, GitClient::SimpleTextDiffEditor);
+        m_client->diff(m_workingDirectory, m_fileName);
     }
 
 private:
@@ -634,8 +634,7 @@ public:
 
     void executeCommand()
     {
-        m_client->diffBranch(m_workingDirectory, baseArguments(), m_branchName,
-                             GitClient::SimpleTextDiffEditor);
+        m_client->diffBranch(m_workingDirectory, baseArguments(), m_branchName);
     }
 
 private:
@@ -670,8 +669,7 @@ public:
 
     void executeCommand()
     {
-        m_client->show(m_workingDirectory, m_id, baseArguments(), QString(),
-                       GitClient::SimpleTextDiffEditor);
+        m_client->show(m_workingDirectory, m_id, baseArguments());
     }
 
 private:
@@ -1064,16 +1062,12 @@ VcsBase::VcsBaseEditorWidget *GitClient::createVcsEditor(
 
 void GitClient::diff(const QString &workingDirectory,
                      const QStringList &unstagedFileNames,
-                     const QStringList &stagedFileNames,
-                     DiffEditorType editorType)
+                     const QStringList &stagedFileNames)
 {
     const QString title = tr("Git Diff");
     const int timeout = settings()->intValue(GitSettings::timeoutKey);
-    const bool showSideBySideEditor = (editorType == DefaultDiffEditor
-                                       && settings()->boolValue(GitSettings::useDiffEditorKey))
-            || editorType == SideBySideDiffEditor;
     Core::IEditor *newEditor = 0;
-    if (showSideBySideEditor) {
+    if (settings()->boolValue(GitSettings::useDiffEditorKey)) {
         const char *propertyName = "sideBySideOriginalFileName";
         DiffEditor::DiffEditor *diffEditor = findExistingDiffEditor(propertyName, workingDirectory);
         if (!diffEditor) {
@@ -1168,8 +1162,7 @@ void GitClient::diff(const QString &workingDirectory,
         command->execute();
     }
     if (newEditor) {
-        GitDiffSwitcher *switcher = new GitDiffSwitcher(newEditor, this,
-                                    showSideBySideEditor ? SimpleTextDiffEditor : SideBySideDiffEditor);
+        GitDiffSwitcher *switcher = new GitDiffSwitcher(newEditor, this);
         switcher->setWorkingDirectory(workingDirectory);
         if (unstagedFileNames.empty() && stagedFileNames.empty()) {
             // local repository diff
@@ -1186,17 +1179,12 @@ void GitClient::diff(const QString &workingDirectory,
     }
 }
 
-void GitClient::diff(const QString &workingDirectory,
-                     const QString &fileName,
-                     DiffEditorType editorType)
+void GitClient::diff(const QString &workingDirectory, const QString &fileName)
 {
     const QString title = tr("Git Diff \"%1\"").arg(fileName);
-    const bool showSideBySideEditor = (editorType == DefaultDiffEditor
-                                       && settings()->boolValue(GitSettings::useDiffEditorKey))
-            || editorType == SideBySideDiffEditor;
     const QString sourceFile = VcsBase::VcsBaseEditorWidget::getSource(workingDirectory, fileName);
     Core::IEditor *newEditor = 0;
-    if (showSideBySideEditor) {
+    if (settings()->boolValue(GitSettings::useDiffEditorKey)) {
         const char *propertyName = "sideBySideOriginalFileName";
         DiffEditor::DiffEditor *diffEditor = findExistingDiffEditor(propertyName, sourceFile);
         if (!diffEditor) {
@@ -1244,8 +1232,7 @@ void GitClient::diff(const QString &workingDirectory,
         executeGit(workingDirectory, cmdArgs, vcsEditor);
     }
     if (newEditor) {
-        GitDiffSwitcher *switcher = new GitDiffSwitcher(newEditor, this,
-                                    showSideBySideEditor ? SimpleTextDiffEditor : SideBySideDiffEditor);
+        GitDiffSwitcher *switcher = new GitDiffSwitcher(newEditor, this);
         switcher->setWorkingDirectory(workingDirectory);
         switcher->setDiffType(GitDiffSwitcher::DiffFile);
         switcher->setFileName(fileName);
@@ -1254,15 +1241,11 @@ void GitClient::diff(const QString &workingDirectory,
 
 void GitClient::diffBranch(const QString &workingDirectory,
                            const QStringList &diffArgs,
-                           const QString &branchName,
-                           DiffEditorType editorType)
+                           const QString &branchName)
 {
     const QString title = tr("Git Diff Branch \"%1\"").arg(branchName);
-    const bool showSideBySideEditor = (editorType == DefaultDiffEditor
-                                       && settings()->boolValue(GitSettings::useDiffEditorKey))
-            || editorType == SideBySideDiffEditor;
     Core::IEditor *newEditor = 0;
-    if (showSideBySideEditor) {
+    if (settings()->boolValue(GitSettings::useDiffEditorKey)) {
         const char *propertyName = "sideBySideBranchName";
         DiffEditor::DiffEditor *diffEditor = findExistingDiffEditor(propertyName, branchName);
         if (!diffEditor) {
@@ -1308,8 +1291,7 @@ void GitClient::diffBranch(const QString &workingDirectory,
         executeGit(workingDirectory, cmdArgs, vcsEditor);
     }
     if (newEditor) {
-        GitDiffSwitcher *switcher = new GitDiffSwitcher(newEditor, this,
-                                    showSideBySideEditor ? SimpleTextDiffEditor : SideBySideDiffEditor);
+        GitDiffSwitcher *switcher = new GitDiffSwitcher(newEditor, this);
         switcher->setWorkingDirectory(workingDirectory);
         switcher->setDiffType(GitDiffSwitcher::DiffBranch);
         switcher->setBaseArguments(diffArgs);
@@ -1409,8 +1391,7 @@ static inline QString msgCannotShow(const QString &sha)
 }
 
 void GitClient::show(const QString &source, const QString &id,
-                     const QStringList &args, const QString &name,
-                     DiffEditorType editorType)
+                     const QStringList &args, const QString &name)
 {
     if (!canShow(id)) {
         outputWindow()->appendError(msgCannotShow(id));
@@ -1420,11 +1401,8 @@ void GitClient::show(const QString &source, const QString &id,
     const QString title = tr("Git Show \"%1\"").arg(name.isEmpty() ? id : name);
     const QFileInfo sourceFi(source);
     const QString workingDirectory = sourceFi.isDir() ? sourceFi.absoluteFilePath() : sourceFi.absolutePath();
-    const bool showSideBySideEditor = (editorType == DefaultDiffEditor
-                                       && settings()->boolValue(GitSettings::useDiffEditorKey))
-            || editorType == SideBySideDiffEditor;
     Core::IEditor *newEditor = 0;
-    if (showSideBySideEditor) {
+    if (settings()->boolValue(GitSettings::useDiffEditorKey)) {
         const char *propertyName = "sideBySideShow";
         DiffEditor::DiffEditor *diffEditor = findExistingDiffEditor(propertyName, id);
         if (!diffEditor) {
@@ -1470,8 +1448,7 @@ void GitClient::show(const QString &source, const QString &id,
         executeGit(workingDirectory, arguments, vcsEditor);
     }
     if (newEditor) {
-        GitDiffSwitcher *switcher = new GitDiffSwitcher(newEditor, this,
-                                    showSideBySideEditor ? SimpleTextDiffEditor : SideBySideDiffEditor);
+        GitDiffSwitcher *switcher = new GitDiffSwitcher(newEditor, this);
         switcher->setDiffType(GitDiffSwitcher::DiffShow);
         switcher->setFileName(source);
         switcher->setBaseArguments(args);
