@@ -53,7 +53,6 @@
 #include <QFormLayout>
 #include <QHeaderView>
 #include <QLineEdit>
-#include <QProcess>
 #include <QPushButton>
 #include <QStandardItem>
 #include <QStandardItemModel>
