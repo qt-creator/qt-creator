@@ -20,3 +20,9 @@ include(components/importmanager/importmanager.pri)
 include(qmldesignerplugin.pri)
 
 DEFINES -= QT_NO_CAST_FROM_ASCII
+
+BUILD_PUPPET_IN_CREATOR_BINPATH = $$(BUILD_PUPPET_IN_CREATOR_BINPATH)
+!isEmpty(BUILD_PUPPET_IN_CREATOR_BINPATH) {
+    DEFINES += SEARCH_PUPPET_IN_CREATOR_BINPATH
+    message("Search puppet in qtcreator bin path!")
+}
