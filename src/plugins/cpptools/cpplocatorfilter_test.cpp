@@ -36,6 +36,7 @@
 #include "cppmodelmanager.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/plugintestutils.h>
 #include <coreplugin/testdatadir.h>
 #include <extensionsystem/pluginmanager.h>
 #include <locator/locatorfiltertest.h>
@@ -125,8 +126,7 @@ private:
 
     virtual void doAfterLocatorRun()
     {
-        EditorManager::closeEditor(m_editor, /*askAboutModifiedEditors=*/ false);
-        QCoreApplication::processEvents();
+        Core::Tests::closeAndDeleteEditor(m_editor);
         QVERIFY(EditorManager::documentModel()->openedDocuments().isEmpty());
         m_modelManager->GC();
         QVERIFY(m_modelManager->snapshot().isEmpty());

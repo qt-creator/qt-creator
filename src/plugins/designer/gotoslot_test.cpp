@@ -34,6 +34,7 @@
 #else
 #include "formeditorw.h"
 
+#include <coreplugin/plugintestutils.h>
 #include <coreplugin/testdatadir.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <cpptools/cppmodelmanager.h>
@@ -134,7 +135,10 @@ public:
 private:
     void cleanup()
     {
-        EditorManager::closeAllEditors(/*askAboutModifiedEditors =*/ false);
+        DocumentModel *documentModel = EditorManager::documentModel();
+        const QList<IDocument *> documents = documentModel->openedDocuments();
+        const QList<IEditor *> editors = documentModel->editorsForDocuments(documents);
+        Core::Tests::closeAndDeleteEditors(editors);
         QVERIFY(EditorManager::documentModel()->openedDocuments().isEmpty());
 
         m_modelManager->GC();

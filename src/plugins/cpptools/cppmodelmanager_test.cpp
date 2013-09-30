@@ -33,6 +33,7 @@
 #include "modelmanagertesthelper.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/plugintestutils.h>
 #include <coreplugin/testdatadir.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
@@ -725,7 +726,7 @@ void CppToolsPlugin::test_modelmanager_gc_if_last_cppeditor_closed()
     QVERIFY(mm->snapshot().contains(file));
 
     // Close file/editor
-    Core::EditorManager::closeEditor(editor, /*askAboutModifiedEditors=*/ false);
+    Core::Tests::closeAndDeleteEditor(editor);
     helper.waitForFinishedGc();
 
     // Check: File is removed from the snapshpt
@@ -762,7 +763,7 @@ void CppToolsPlugin::test_modelmanager_dont_gc_opened_files()
     QVERIFY(mm->snapshot().contains(file));
 
     // Close editor
-    Core::EditorManager::closeEditors(QList<Core::IEditor*>() << editor);
+    Core::Tests::closeAndDeleteEditor(editor);
     helper.waitForFinishedGc();
     QVERIFY(mm->snapshot().isEmpty());
 }
