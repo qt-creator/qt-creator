@@ -4,12 +4,7 @@ TEMPLATE = app
 
 include(../../../../qtcreator.pri)
 
-
-CONFIG(debug) {
-    DESTDIR = $$[QT_INSTALL_BINS]
-} else {
-    DESTDIR = $$IDE_BIN_PATH
-}
+DESTDIR = $$IDE_BIN_PATH
 include(../../../rpath.pri)
 
 include(../../../../share/qtcreator/qml/qmlpuppet/qml2puppet/qml2puppet.pri)
