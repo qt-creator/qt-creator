@@ -102,6 +102,9 @@ public:
     typedef QSharedPointer<ProjectPart> Ptr;
 
 public:
+    QString displayName;
+    QString projectFile;
+    ProjectExplorer::Project *project;
     QList<ProjectFile> files;
     QByteArray defines;
     QStringList includePaths;

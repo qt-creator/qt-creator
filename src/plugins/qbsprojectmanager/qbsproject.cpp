@@ -579,6 +579,12 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData &prj)
                     QLatin1String(CONFIG_PRECOMPILEDHEADER)).toString();
 
             CppTools::ProjectPart::Ptr part(new CppTools::ProjectPart);
+            part->project = this;
+            part->displayName = grp.name();
+            part->projectFile = QString::fromLatin1("%1:%2:%3")
+                    .arg(grp.location().fileName())
+                    .arg(grp.location().line())
+                    .arg(grp.location().column());
             part->evaluateToolchain(ToolChainKitInformation::toolChain(k),
                                     cxxFlags,
                                     cFlags,

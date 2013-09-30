@@ -422,6 +422,9 @@ void AutotoolsProject::updateCppCodeModel()
     CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelManager->projectInfo(this);
     pinfo.clearProjectParts();
     CppTools::ProjectPart::Ptr part(new CppTools::ProjectPart);
+    part->project = this;
+    part->displayName = displayName();
+    part->projectFile = projectFilePath();
 
     if (activeTarget()) {
         ProjectExplorer::Kit *k = activeTarget()->kit();

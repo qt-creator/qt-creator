@@ -337,6 +337,9 @@ bool CMakeProject::parseCMakeLists()
         pinfo.clearProjectParts();
 
         CppTools::ProjectPart::Ptr part(new CppTools::ProjectPart);
+        part->project = this;
+        part->displayName = displayName();
+        part->projectFile = projectFilePath();
 
         part->evaluateToolchain(tc,
                                 cxxflags,

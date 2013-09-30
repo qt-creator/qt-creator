@@ -511,6 +511,9 @@ void Qt4Project::updateCppCodeModel()
     QStringList allFiles;
     foreach (Qt4ProFileNode *pro, proFiles) {
         ProjectPart::Ptr part(new ProjectPart);
+        part->project = this;
+        part->displayName = pro->displayName();
+        part->projectFile = pro->path();
 
         if (pro->variableValue(ConfigVar).contains(QLatin1String("qt")))
             part->qtVersion = qtVersionForPart;

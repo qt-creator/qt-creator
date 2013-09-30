@@ -250,6 +250,9 @@ void GenericProject::refresh(RefreshOptions options)
         CppTools::CppModelManagerInterface::ProjectInfo pinfo = modelManager->projectInfo(this);
         pinfo.clearProjectParts();
         CppTools::ProjectPart::Ptr part(new CppTools::ProjectPart);
+        part->project = this;
+        part->displayName = displayName();
+        part->projectFile = projectFilePath();
 
         Kit *k = activeTarget() ? activeTarget()->kit() : KitManager::defaultKit();
         if (ToolChain *tc = ToolChainKitInformation::toolChain(k)) {

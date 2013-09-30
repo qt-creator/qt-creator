@@ -100,12 +100,14 @@ using namespace ProjectExplorer;
 */
 
 ProjectPart::ProjectPart()
-    : cVersion(C89)
+    : project(0)
+    , cVersion(C89)
     , cxxVersion(CXX11)
     , cxxExtensions(NoExtensions)
     , qtVersion(UnknownQt)
     , cWarningFlags(ProjectExplorer::ToolChain::WarningsDefault)
     , cxxWarningFlags(ProjectExplorer::ToolChain::WarningsDefault)
+
 {
 }
 
