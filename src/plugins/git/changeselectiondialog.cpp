@@ -45,7 +45,7 @@
 namespace Git {
 namespace Internal {
 
-ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, QWidget *parent)
+ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, Core::Id id, QWidget *parent)
     : QDialog(parent)
     , m_process(0)
     , m_workingDirEdit(new QLineEdit(workingDirectory, this))
@@ -107,6 +107,15 @@ ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, QW
     connect(m_checkoutButton, SIGNAL(clicked()), this, SLOT(acceptCheckout()));
     connect(m_closeButton, SIGNAL(clicked()), this, SLOT(reject()));
 
+    QByteArray idName = id.name();
+    if (idName == "Git.Revert")
+        m_revertButton->setDefault(true);
+    else if (idName == "Git.CherryPick")
+        m_cherryPickButton->setDefault(true);
+    else if (idName == "Git.Checkout")
+        m_checkoutButton->setDefault(true);
+    else
+        m_showButton->setDefault(true);
     recalculateDetails();
 }
 

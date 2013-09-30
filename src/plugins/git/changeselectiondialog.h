@@ -30,6 +30,8 @@
 #ifndef CHANGESELECTIONDIALOG_H
 #define CHANGESELECTIONDIALOG_H
 
+#include <coreplugin/id.h>
+
 #include <QDialog>
 #include <QProcessEnvironment>
 
@@ -56,7 +58,7 @@ class ChangeSelectionDialog : public QDialog
 {
     Q_OBJECT
 public:
-    ChangeSelectionDialog(const QString &workingDirectory, QWidget *parent);
+    ChangeSelectionDialog(const QString &workingDirectory, Core::Id id, QWidget *parent);
     ~ChangeSelectionDialog();
 
     QString change() const;

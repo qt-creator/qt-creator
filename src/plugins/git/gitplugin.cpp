@@ -249,6 +249,7 @@ ActionCommandPair
 {
     const ActionCommandPair rc = createRepositoryAction(ac, text, id, context, addToLocator);
     connect(rc.first, SIGNAL(triggered()), this, pluginSlot);
+    rc.first->setData(id.uniqueIdentifier());
     return rc;
 }
 
@@ -852,7 +853,9 @@ void GitPlugin::startChangeRelatedAction()
     if (!state.hasTopLevel())
         return;
 
-    ChangeSelectionDialog dialog(state.topLevel(), Core::ICore::mainWindow());
+    QAction *action = qobject_cast<QAction *>(sender());
+    Core::Id id = action ? Core::Id::fromUniqueIdentifier(action->data().toInt()) : Core::Id();
+    ChangeSelectionDialog dialog(state.topLevel(), id, Core::ICore::mainWindow());
 
     int result = dialog.exec();
 
