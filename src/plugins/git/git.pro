@@ -50,7 +50,8 @@ SOURCES += gitplugin.cpp \
     branchcheckoutdialog.cpp \
     githighlighters.cpp
 
-FORMS += settingspage.ui \
+FORMS += changeselectiondialog.ui \
+    settingspage.ui \
     gitsubmitpanel.ui \
     branchdialog.ui \
     stashdialog.ui \

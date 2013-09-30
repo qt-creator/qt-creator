@@ -29,6 +29,7 @@ QtcPlugin {
         "branchmodel.h",
         "changeselectiondialog.cpp",
         "changeselectiondialog.h",
+        "changeselectiondialog.ui",
         "clonewizard.cpp",
         "clonewizard.h",
         "clonewizardpage.cpp",

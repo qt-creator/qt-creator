@@ -31,6 +31,7 @@
 #include "logchangedialog.h"
 #include "gitplugin.h"
 #include "gitclient.h"
+#include "ui_changeselectiondialog.h"
 
 #include <QProcess>
 #include <QFormLayout>
@@ -47,86 +48,48 @@ namespace Internal {
 
 ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, Core::Id id, QWidget *parent)
     : QDialog(parent)
+    , m_ui(new Ui::ChangeSelectionDialog)
     , m_process(0)
-    , m_workingDirEdit(new QLineEdit(workingDirectory, this))
-    , m_changeNumberEdit(new QLineEdit(this))
-    , m_selectDirButton(new QPushButton(tr("Browse &Directory..."), this))
-    , m_selectFromHistoryButton(new QPushButton(tr("Browse &History..."), this))
-    , m_showButton(new QPushButton(tr("&Show"), this))
-    , m_cherryPickButton(new QPushButton(tr("Cherry &Pick"), this))
-    , m_revertButton(new QPushButton(tr("&Revert"), this))
-    , m_checkoutButton(new QPushButton(tr("Check&out"), this))
-    , m_closeButton(new QPushButton(tr("&Close"), this))
-    , m_detailsText(new QPlainTextEdit(this))
     , m_command(NoCommand)
 {
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
-    bool ok;
-    m_gitBinaryPath = GitPlugin::instance()->gitClient()->gitBinaryPath(&ok);
-    if (!ok)
-        return;
-
-    QGridLayout* layout = new QGridLayout(this);
-    layout->addWidget(new QLabel(tr("Working directory:"), this), 0, 0 , 1, 1);
-    layout->addWidget(m_workingDirEdit, 0, 1, 1, 1);
-    layout->addWidget(m_selectDirButton, 0, 2, 1, 1);
-    layout->addWidget(new QLabel(tr("Change:"), this),1, 0, 1, 1);
-    layout->addWidget(m_changeNumberEdit, 1, 1, 1, 1);
-    layout->addWidget(m_selectFromHistoryButton, 1, 2, 1, 1);
-    layout->addWidget(m_detailsText, 2, 0, 1, 3);
-
-    QHBoxLayout* buttonsLine = new QHBoxLayout();
-    buttonsLine->addWidget(m_closeButton);
-    buttonsLine->addStretch();
-    buttonsLine->addWidget(m_checkoutButton);
-    buttonsLine->addWidget(m_revertButton);
-    buttonsLine->addWidget(m_cherryPickButton);
-    buttonsLine->addWidget(m_showButton);
-
-    layout->addLayout(buttonsLine, 3, 0 ,1 ,3);
-
-    m_changeNumberEdit->setFocus(Qt::ActiveWindowFocusReason);
-    m_changeNumberEdit->setText(QLatin1String("HEAD"));
-    m_changeNumberEdit->selectAll();
-
-    setWindowTitle(tr("Select a Git Commit"));
-    setMinimumSize(QSize(550, 350));
-
+    m_gitBinaryPath = GitPlugin::instance()->gitClient()->gitBinaryPath();
+    m_ui->setupUi(this);
+    m_ui->workingDirectoryEdit->setText(workingDirectory);
     m_gitEnvironment = GitPlugin::instance()->gitClient()->processEnvironment();
-    connect(m_changeNumberEdit, SIGNAL(textChanged(QString)),
-            this, SLOT(recalculateDetails()));
-    connect(m_workingDirEdit, SIGNAL(textChanged(QString)),
-            this, SLOT(recalculateDetails()));
-    connect(m_selectFromHistoryButton, SIGNAL(clicked()),
-            this, SLOT(selectCommitFromRecentHistory()));
-    connect(m_selectDirButton, SIGNAL(clicked()), this, SLOT(chooseWorkingDirectory()));
+    m_ui->changeNumberEdit->setFocus();
+    m_ui->changeNumberEdit->selectAll();
 
-    connect(m_showButton, SIGNAL(clicked()), this, SLOT(acceptShow()));
-    connect(m_cherryPickButton, SIGNAL(clicked()), this, SLOT(acceptCherryPick()));
-    connect(m_revertButton, SIGNAL(clicked()), this, SLOT(acceptRevert()));
-    connect(m_checkoutButton, SIGNAL(clicked()), this, SLOT(acceptCheckout()));
-    connect(m_closeButton, SIGNAL(clicked()), this, SLOT(reject()));
+    connect(m_ui->changeNumberEdit, SIGNAL(textChanged(QString)), this, SLOT(recalculateDetails()));
+    connect(m_ui->workingDirectoryEdit, SIGNAL(textChanged(QString)), this, SLOT(recalculateDetails()));
+    connect(m_ui->selectDirectoryButton, SIGNAL(clicked()), this, SLOT(chooseWorkingDirectory()));
+    connect(m_ui->selectFromHistoryButton, SIGNAL(clicked()), this, SLOT(selectCommitFromRecentHistory()));
+    connect(m_ui->showButton, SIGNAL(clicked()), this, SLOT(acceptShow()));
+    connect(m_ui->cherryPickButton, SIGNAL(clicked()), this, SLOT(acceptCherryPick()));
+    connect(m_ui->revertButton, SIGNAL(clicked()), this, SLOT(acceptRevert()));
+    connect(m_ui->checkoutButton, SIGNAL(clicked()), this, SLOT(acceptCheckout()));
 
     QByteArray idName = id.name();
     if (idName == "Git.Revert")
-        m_revertButton->setDefault(true);
+        m_ui->revertButton->setDefault(true);
     else if (idName == "Git.CherryPick")
-        m_cherryPickButton->setDefault(true);
+        m_ui->cherryPickButton->setDefault(true);
     else if (idName == "Git.Checkout")
-        m_checkoutButton->setDefault(true);
+        m_ui->checkoutButton->setDefault(true);
     else
-        m_showButton->setDefault(true);
+        m_ui->showButton->setDefault(true);
     recalculateDetails();
 }
 
 ChangeSelectionDialog::~ChangeSelectionDialog()
 {
+    delete m_ui;
     delete m_process;
 }
 
 QString ChangeSelectionDialog::change() const
 {
-    return m_changeNumberEdit->text();
+    return m_ui->changeNumberEdit->text();
 }
 
 void ChangeSelectionDialog::selectCommitFromRecentHistory()
@@ -150,27 +113,27 @@ void ChangeSelectionDialog::selectCommitFromRecentHistory()
     if (dialog.commitIndex() > 0)
         commit += QLatin1Char('~') + QString::number(dialog.commitIndex());
 
-    m_changeNumberEdit->setText(commit);
+    m_ui->changeNumberEdit->setText(commit);
 }
 
 void ChangeSelectionDialog::chooseWorkingDirectory()
 {
     QString folder = QFileDialog::getExistingDirectory(this, tr("Select Git Directory"),
-                                                       m_workingDirEdit->text());
+                                                       m_ui->workingDirectoryEdit->text());
 
     if (folder.isEmpty())
         return;
 
-    m_workingDirEdit->setText(folder);
+    m_ui->workingDirectoryEdit->setText(folder);
 }
 
 QString ChangeSelectionDialog::workingDirectory() const
 {
-    if (m_workingDirEdit->text().isEmpty() || !QDir(m_workingDirEdit->text()).exists())
+    const QString workingDir = m_ui->workingDirectoryEdit->text();
+    if (workingDir.isEmpty() || !QDir(workingDir).exists())
         return QString();
 
-    return GitPlugin::instance()->gitClient()->
-            findRepositoryForDirectory(m_workingDirEdit->text());
+    return GitPlugin::instance()->gitClient()->findRepositoryForDirectory(workingDir);
 }
 
 ChangeCommand ChangeSelectionDialog::command() const
@@ -205,25 +168,25 @@ void ChangeSelectionDialog::acceptShow()
 //! Set commit message in details
 void ChangeSelectionDialog::setDetails(int exitCode)
 {
-    QPalette palette = m_changeNumberEdit->palette();
+    QPalette palette = m_ui->changeNumberEdit->palette();
     if (exitCode == 0) {
-        m_detailsText->setPlainText(QString::fromUtf8(m_process->readAllStandardOutput()));
+        m_ui->detailsText->setPlainText(QString::fromUtf8(m_process->readAllStandardOutput()));
         palette.setColor(QPalette::Text, Qt::black);
-        m_changeNumberEdit->setPalette(palette);
+        m_ui->changeNumberEdit->setPalette(palette);
         enableButtons(true);
     } else {
-        m_detailsText->setPlainText(tr("Error: Unknown reference"));
+        m_ui->detailsText->setPlainText(tr("Error: Unknown reference"));
         palette.setColor(QPalette::Text, Qt::red);
-        m_changeNumberEdit->setPalette(palette);
+        m_ui->changeNumberEdit->setPalette(palette);
     }
 }
 
 void ChangeSelectionDialog::enableButtons(bool b)
 {
-    m_showButton->setEnabled(b);
-    m_cherryPickButton->setEnabled(b);
-    m_revertButton->setEnabled(b);
-    m_checkoutButton->setEnabled(b);
+    m_ui->showButton->setEnabled(b);
+    m_ui->cherryPickButton->setEnabled(b);
+    m_ui->revertButton->setEnabled(b);
+    m_ui->checkoutButton->setEnabled(b);
 }
 
 void ChangeSelectionDialog::recalculateDetails()
@@ -236,20 +199,20 @@ void ChangeSelectionDialog::recalculateDetails()
     }
     enableButtons(false);
 
-    QString workingDir = workingDirectory();
-    QPalette palette = m_workingDirEdit->palette();
+    const QString workingDir = workingDirectory();
+    QPalette palette = m_ui->workingDirectoryEdit->palette();
     if (workingDir.isEmpty()) {
-        m_detailsText->setPlainText(tr("Error: Bad working directory."));
+        m_ui->detailsText->setPlainText(tr("Error: Bad working directory."));
         palette.setColor(QPalette::Text, Qt::red);
-        m_workingDirEdit->setPalette(palette);
+        m_ui->workingDirectoryEdit->setPalette(palette);
         return;
     } else {
         palette.setColor(QPalette::Text, Qt::black);
-        m_workingDirEdit->setPalette(palette);
+        m_ui->workingDirectoryEdit->setPalette(palette);
     }
 
     QStringList args;
-    args << QLatin1String("log") << QLatin1String("-n1") << m_changeNumberEdit->text();
+    args << QLatin1String("log") << QLatin1String("-n1") << m_ui->changeNumberEdit->text();
 
     m_process = new QProcess(this);
     m_process->setWorkingDirectory(workingDir);
@@ -260,9 +223,9 @@ void ChangeSelectionDialog::recalculateDetails()
     m_process->start(m_gitBinaryPath, args);
     m_process->closeWriteChannel();
     if (!m_process->waitForStarted())
-        m_detailsText->setPlainText(tr("Error: Could not start Git."));
+        m_ui->detailsText->setPlainText(tr("Error: Could not start Git."));
     else
-        m_detailsText->setPlainText(tr("Fetching commit data..."));
+        m_ui->detailsText->setPlainText(tr("Fetching commit data..."));
 }
 
 } // Internal
