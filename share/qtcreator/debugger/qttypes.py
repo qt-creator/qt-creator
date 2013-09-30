@@ -604,6 +604,9 @@ def qdump__QIPv6Address(d, value):
     qdump__Q_IPV6ADDR(d, value)
 
 
+def qform__QList():
+    return "Assume Direct Storage,Assume Indirect Storage"
+
 def qdump__QList(d, value):
     dptr = d.childAt(value, 0)["d"]
     private = dptr.dereference()
@@ -621,14 +624,20 @@ def qdump__QList(d, value):
     d.putNumChild(size)
     if d.isExpanded():
         innerSize = innerType.sizeof
+        stepSize = dptr.type.sizeof
+        addr = d.addressOf(array) + begin * stepSize
         # The exact condition here is:
         #  QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic
         # but this data is available neither in the compiled binary nor
         # in the frontend.
         # So as first approximation only do the 'isLarge' check:
-        stepSize = dptr.type.sizeof
-        isInternal = innerSize <= stepSize and d.isMovableType(innerType)
-        addr = d.addressOf(array) + begin * stepSize
+        format = d.currentItemFormat()
+        if format == 1:
+            isInternal = True
+        elif format == 2:
+            isInternal = False
+        else:
+            isInternal = innerSize <= stepSize and d.isMovableType(innerType)
         if isInternal:
             if innerSize == stepSize:
                 p = d.createPointerValue(addr, innerType)
