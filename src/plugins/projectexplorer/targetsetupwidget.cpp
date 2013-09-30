@@ -216,6 +216,8 @@ void TargetSetupWidget::targetCheckBoxToggled(bool b)
                 break;
             }
         }
+    } else {
+        m_detailsWidget->setState(Utils::DetailsWidget::Collapsed);
     }
     emit selectedToggled();
 }
