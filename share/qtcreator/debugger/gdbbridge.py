@@ -1468,13 +1468,14 @@ class Dumper(DumperBase):
         return None
 
     def tryPutArrayContents(self, typeobj, base, n):
-        if not self.isSimpleType(typeobj):
+        enc = self.simpleEncoding(typeobj)
+        if not enc:
             return False
         size = n * typeobj.sizeof;
         self.put('childtype="%s",' % typeobj)
         self.put('addrbase="0x%x",' % toInteger(base))
         self.put('addrstep="0x%x",' % toInteger(typeobj.sizeof))
-        self.put('arrayencoding="%s",' % self.simpleEncoding(typeobj))
+        self.put('arrayencoding="%s",' % enc)
         self.put('arraydata="')
         self.put(self.readMemory(base, size))
         self.put('",')
