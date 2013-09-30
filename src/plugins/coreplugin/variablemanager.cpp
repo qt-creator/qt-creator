@@ -78,7 +78,7 @@ public:
     Examples of this are \c{CurrentDocument:FilePath} and \c{CurrentDocument:Selection}.
 
     When the variable manager is requested to replace variables in a string, it looks for
-    variable names enclosed in ${ and }, like ${CurrentDocument:FilePath}.
+    variable names enclosed in %{ and }, like %{CurrentDocument:FilePath}.
 
     \note The names of the variables are stored as QByteArray. They are typically
     7-bit-clean. In cases where this is not possible, UTF-8 encoding is
