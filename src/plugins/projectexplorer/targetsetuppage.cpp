@@ -175,6 +175,9 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
 
 void TargetSetupPage::initializePage()
 {
+    m_baseLayout->addWidget(m_importWidget);
+    m_baseLayout->addItem(m_spacer);
+
     reset();
 
     setupWidgets();
@@ -255,7 +258,6 @@ void TargetSetupPage::setupWidgets()
         addWidget(k);
 
     // Setup import widget:
-    m_baseLayout->addWidget(m_importWidget);
     Utils::FileName path = Utils::FileName::fromString(m_projectPath);
     path = path.parentDir(); // base dir
     path = path.parentDir(); // parent dir
