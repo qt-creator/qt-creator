@@ -938,7 +938,7 @@ public:
 
     bool is(int c) const
     {
-        return m_xkey == c && m_modifiers != int(HostOsInfo::controlModifier());
+        return m_xkey == c && m_modifiers != HostOsInfo::controlModifier();
     }
 
     bool isControl() const
