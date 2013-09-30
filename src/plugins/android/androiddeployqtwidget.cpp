@@ -35,6 +35,7 @@
 #include "androiddeployqtstep.h"
 #include "androidmanager.h"
 #include "createandroidmanifestwizard.h"
+#include "androidextralibrarylistmodel.h"
 
 #include <projectexplorer/target.h>
 #include <qt4projectmanager/qt4buildconfiguration.h>
@@ -133,11 +134,33 @@ AndroidDeployQtWidget::AndroidDeployQtWidget(AndroidDeployQtStep *step)
 
     connect(m_ui->createAndroidManifestButton, SIGNAL(clicked()),
             this, SLOT(createManifestButton()));
+
+    m_extraLibraryListModel = new AndroidExtraLibraryListModel(static_cast<Qt4ProjectManager::Qt4Project *>(m_step->project()),
+                                                               this);
+    m_ui->androidExtraLibsListView->setModel(m_extraLibraryListModel);
+
+    connect(m_ui->androidExtraLibsListView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            this, SLOT(checkEnableRemoveButton()));
+
+    connect(m_ui->addAndroidExtraLibButton, SIGNAL(clicked()), this, SLOT(addAndroidExtraLib()));
+    connect(m_ui->removeAndroidExtraLibButton, SIGNAL(clicked()), this, SLOT(removeAndroidExtraLib()));
+
+    connect(m_step->project(), SIGNAL(proFilesEvaluated()), this, SLOT(checkProjectTemplate()));
+    checkProjectTemplate();
 }
 
 AndroidDeployQtWidget::~AndroidDeployQtWidget()
 {
     delete m_ui;
+}
+
+void AndroidDeployQtWidget::checkProjectTemplate()
+{
+    Qt4ProjectManager::Qt4Project *project = static_cast<Qt4ProjectManager::Qt4Project *>(m_step->project());
+    if (project->rootQt4ProjectNode()->projectType() == Qt4ProjectManager::ApplicationTemplate)
+        m_ui->additionalLibrariesGroupBox->setEnabled(true);
+    else
+        m_ui->additionalLibrariesGroupBox->setEnabled(false);
 }
 
 void AndroidDeployQtWidget::createManifestButton()
@@ -321,4 +344,26 @@ void AndroidDeployQtWidget::updateSigningWarning()
         m_ui->signingDebugWarningIcon->setVisible(false);
         m_ui->signingDebugWarningLabel->setVisible(false);
     }
+}
+
+void AndroidDeployQtWidget::addAndroidExtraLib()
+{
+    QStringList fileNames = QFileDialog::getOpenFileNames(this,
+                                                          tr("Select additional libraries"),
+                                                          QDir::homePath(),
+                                                          tr("Libraries (*.so)"));
+
+    if (!fileNames.isEmpty())
+        m_extraLibraryListModel->addEntries(fileNames);
+}
+
+void AndroidDeployQtWidget::removeAndroidExtraLib()
+{
+    QModelIndexList removeList = m_ui->androidExtraLibsListView->selectionModel()->selectedIndexes();
+    m_extraLibraryListModel->removeEntries(removeList);
+}
+
+void AndroidDeployQtWidget::checkEnableRemoveButton()
+{
+    m_ui->removeAndroidExtraLibButton->setEnabled(m_ui->androidExtraLibsListView->selectionModel()->hasSelection());
 }

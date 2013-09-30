@@ -43,6 +43,7 @@ namespace Qt4ProjectManager { class Qt4BuildConfiguration; }
 namespace Android {
 namespace Internal {
 class AndroidDeployQtStep;
+class AndroidExtraLibraryListModel;
 class AndroidDeployQtWidget : public ProjectExplorer::BuildStepConfigWidget
 {
     Q_OBJECT
@@ -71,6 +72,11 @@ private slots:
     void updateInputFileUi();
     void inputFileComboBoxIndexChanged();
     void createManifestButton();
+    void addAndroidExtraLib();
+    void removeAndroidExtraLib();
+    void checkEnableRemoveButton();
+    void checkProjectTemplate();
+
 private:
     virtual QString summaryText() const;
     virtual QString displayName() const;
@@ -78,6 +84,7 @@ private:
 
     Ui::AndroidDeployQtWidget *m_ui;
     AndroidDeployQtStep *m_step;
+    AndroidExtraLibraryListModel *m_extraLibraryListModel;
     Qt4ProjectManager::Qt4BuildConfiguration *m_currentBuildConfiguration;
     bool m_ignoreChange;
 };

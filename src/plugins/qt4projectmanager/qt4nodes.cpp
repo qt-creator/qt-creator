@@ -1999,6 +1999,7 @@ void Qt4ProFileNode::applyEvaluate(EvalResult evalResult, bool async)
         newVarValues[AndroidArchVar] = m_readerExact->values(QLatin1String("ANDROID_TARGET_ARCH"));
         newVarValues[AndroidDeploySettingsFile] = m_readerExact->values(QLatin1String("ANDROID_DEPLOYMENT_SETTINGS_FILE"));
         newVarValues[AndroidPackageSourceDir] = m_readerExact->values(QLatin1String("ANDROID_PACKAGE_SOURCE_DIR"));
+        newVarValues[AndroidExtraLibs] = m_readerExact->values(QLatin1String("ANDROID_EXTRA_LIBS"));
 
         m_isDeployable = false;
         if (m_projectType == ApplicationTemplate) {

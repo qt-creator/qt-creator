@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>682</width>
-    <height>467</height>
+    <height>615</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -80,7 +80,7 @@
            <string/>
           </property>
           <property name="pixmap">
-           <pixmap resource="../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/compile_warning.png</pixmap>
+           <pixmap>:/projectexplorer/images/compile_warning.png</pixmap>
           </property>
          </widget>
         </item>
@@ -133,62 +133,6 @@
          </widget>
         </item>
        </layout>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="3" column="0">
-    <widget class="QGroupBox" name="qtDeployment">
-     <property name="title">
-      <string>Qt Deployment</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <widget class="QRadioButton" name="ministroOption">
-        <property name="toolTip">
-         <string>Use the external Ministro application to download and maintain Qt libraries.</string>
-        </property>
-        <property name="text">
-         <string>Use Ministro service to install Qt</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="temporaryQtOption">
-        <property name="toolTip">
-         <string>Push local Qt libraries to device. You must have Qt libraries compiled for that platform.
-The APK will not be usable on any other device.</string>
-        </property>
-        <property name="text">
-         <string>Deploy local Qt libraries to temporary directory</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="bundleQtOption">
-        <property name="toolTip">
-         <string>Creates a standalone APK.</string>
-        </property>
-        <property name="text">
-         <string>Bundle Qt libraries in APK</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="verticalSpacer">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
       </item>
      </layout>
     </widget>
@@ -287,7 +231,7 @@ The APK will not be usable on any other device.</string>
         <string/>
        </property>
        <property name="pixmap">
-        <pixmap resource="../projectexplorer/projectexplorer.qrc">:/projectexplorer/images/compile_warning.png</pixmap>
+        <pixmap>:/projectexplorer/images/compile_warning.png</pixmap>
        </property>
        <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -306,10 +250,133 @@ The APK will not be usable on any other device.</string>
      </item>
     </layout>
    </item>
+   <item row="3" column="0">
+    <widget class="QGroupBox" name="qtDeployment">
+     <property name="title">
+      <string>Qt Deployment</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QRadioButton" name="ministroOption">
+        <property name="toolTip">
+         <string>Use the external Ministro application to download and maintain Qt libraries.</string>
+        </property>
+        <property name="text">
+         <string>Use Ministro service to install Qt</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="temporaryQtOption">
+        <property name="toolTip">
+         <string>Push local Qt libraries to device. You must have Qt libraries compiled for that platform.
+The APK will not be usable on any other device.</string>
+        </property>
+        <property name="text">
+         <string>Deploy local Qt libraries to temporary directory</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="bundleQtOption">
+        <property name="toolTip">
+         <string>Creates a standalone APK.</string>
+        </property>
+        <property name="text">
+         <string>Bundle Qt libraries in APK</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="2">
+    <widget class="QGroupBox" name="additionalLibrariesGroupBox">
+     <property name="title">
+      <string>Additional libraries</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <layout class="QHBoxLayout" name="androidExtraLibsLayout">
+        <item>
+         <widget class="QListView" name="androidExtraLibsListView">
+          <property name="toolTip">
+           <string>List of extra libraries to include in Android package and load on start-up.</string>
+          </property>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::ExtendedSelection</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="androidExtraLibsButtonLayout">
+          <item>
+           <widget class="QToolButton" name="addAndroidExtraLibButton">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Select a library to include in package</string>
+            </property>
+            <property name="text">
+             <string>Add</string>
+            </property>
+            <property name="toolButtonStyle">
+             <enum>Qt::ToolButtonTextOnly</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="removeAndroidExtraLibButton">
+            <property name="toolTip">
+             <string>Remove currently selected library from list</string>
+            </property>
+            <property name="text">
+             <string>Remove</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
   </layout>
  </widget>
- <resources>
-  <include location="../projectexplorer/projectexplorer.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

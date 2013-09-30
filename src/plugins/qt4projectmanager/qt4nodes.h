@@ -107,7 +107,8 @@ enum Qt4Variable {
     ShLibExtensionVar,
     AndroidArchVar,
     AndroidDeploySettingsFile,
-    AndroidPackageSourceDir
+    AndroidPackageSourceDir,
+    AndroidExtraLibs
 };
 
 // Import base classes into namespace
