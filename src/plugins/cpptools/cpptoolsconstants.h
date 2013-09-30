@@ -52,6 +52,7 @@ const char CPPTOOLS_SETTINGSGROUP[] = "CppTools";
 const char LOWERCASE_CPPFILES_KEY[] = "LowerCaseFiles";
 enum { lowerCaseFilesDefault = 1 };
 const char CPPTOOLS_MODEL_MANAGER_SUPPORTERS_KEY[] = "ModelManagerSupporters";
+const char CPPTOOLS_MODEL_MANAGER_PCH_USAGE[] = "PCHUsage";
 
 const char CPP_CODE_STYLE_SETTINGS_ID[] = "A.Code Style";
 const char CPP_CODE_STYLE_SETTINGS_NAME[] = QT_TRANSLATE_NOOP("CppTools", "Code Style");

@@ -43,6 +43,8 @@ CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(QWidget *parent)
     , m_ui(new Ui::CppCodeModelSettingsPage)
 {
     m_ui->setupUi(this);
+
+    m_ui->theGroupBox->setVisible(false);
 }
 
 CppCodeModelSettingsWidget::~CppCodeModelSettingsWidget()
@@ -58,6 +60,8 @@ void CppCodeModelSettingsWidget::setSettings(const QSharedPointer<CppCodeModelSe
     applyToWidget(m_ui->cppChooser, QLatin1String(Constants::CPP_SOURCE_MIMETYPE));
     applyToWidget(m_ui->objcChooser, QLatin1String(Constants::OBJECTIVE_C_SOURCE_MIMETYPE));
     applyToWidget(m_ui->objcppChooser, QLatin1String(Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
+
+    m_ui->ignorePCHCheckBox->setChecked(s->pchUsage() == CppCodeModelSettings::PchUse_None);
 }
 
 void CppCodeModelSettingsWidget::applyToWidget(QComboBox *chooser, const QString &mimeType) const
@@ -85,6 +89,14 @@ void CppCodeModelSettingsWidget::applyToSettings() const
     changed |= applyToSettings(m_ui->objcppChooser,
                                QLatin1String(Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
 
+    if (m_ui->ignorePCHCheckBox->isChecked() !=
+            (m_settings->pchUsage() == CppCodeModelSettings::PchUse_None)) {
+        m_settings->setPCHUsage(
+                   m_ui->ignorePCHCheckBox->isChecked() ? CppCodeModelSettings::PchUse_None
+                                                        : CppCodeModelSettings::PchUse_BuildSystem);
+        changed = true;
+    }
+
     if (changed)
         m_settings->toSettings(Core::ICore::settings());
 }
@@ -97,7 +109,9 @@ QString CppCodeModelSettingsWidget::searchKeywords() const
        << ' ' << m_ui->cLabel->text()
        << ' ' << m_ui->cppLabel->text()
        << ' ' << m_ui->objcLabel->text()
-       << ' ' << m_ui->objcppLabel->text();
+       << ' ' << m_ui->objcppLabel->text()
+       << ' ' << m_ui->anotherGroupBox->title()
+       << ' ' << m_ui->ignorePCHCheckBox->text();
     foreach (const QString &mmsNames, m_settings->availableModelManagerSupportersByName().keys())
           ts << ' ' << mmsNames;
     rc.remove(QLatin1Char('&'));

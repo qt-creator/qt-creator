@@ -39,6 +39,7 @@ using namespace CppTools::Internal;
 SnapshotUpdater::SnapshotUpdater(const QString &fileInEditor)
     : m_mutex(QMutex::Recursive)
     , m_fileInEditor(fileInEditor)
+    , m_usePrecompiledHeaders(false)
 {
 }
 
@@ -56,6 +57,7 @@ void SnapshotUpdater::update(CppModelManager::WorkingCopy workingCopy)
     QByteArray configFile = modelManager->codeModelConfiguration();
     QStringList includePaths;
     QStringList frameworkPaths;
+    QStringList precompiledHeaders;
 
     updateProjectPart();
 
@@ -63,6 +65,8 @@ void SnapshotUpdater::update(CppModelManager::WorkingCopy workingCopy)
         configFile += m_projectPart->defines;
         includePaths = m_projectPart->includePaths;
         frameworkPaths = m_projectPart->frameworkPaths;
+        if (m_usePrecompiledHeaders)
+            precompiledHeaders = m_projectPart->precompiledHeaders;
     }
 
     if (configFile != m_configFile) {
@@ -78,6 +82,11 @@ void SnapshotUpdater::update(CppModelManager::WorkingCopy workingCopy)
 
     if (frameworkPaths != m_frameworkPaths) {
         m_frameworkPaths = frameworkPaths;
+        invalidateSnapshot = true;
+    }
+
+    if (precompiledHeaders != m_precompiledHeaders) {
+        m_precompiledHeaders = precompiledHeaders;
         invalidateSnapshot = true;
     }
 
@@ -130,6 +139,9 @@ void SnapshotUpdater::update(CppModelManager::WorkingCopy workingCopy)
         preproc.setIncludePaths(m_includePaths);
         preproc.setFrameworkPaths(m_frameworkPaths);
         preproc.run(configurationFileName);
+        if (m_usePrecompiledHeaders)
+            foreach (const QString &precompiledHeader, m_precompiledHeaders)
+                preproc.run(precompiledHeader);
         preproc.run(m_fileInEditor);
 
         m_snapshot = preproc.snapshot();
@@ -157,6 +169,13 @@ Document::Ptr SnapshotUpdater::document() const
     QMutexLocker locker(&m_mutex);
 
     return m_snapshot.document(m_fileInEditor);
+}
+
+void SnapshotUpdater::setUsePrecompiledHeaders(bool usePrecompiledHeaders)
+{
+    QMutexLocker locker(&m_mutex);
+
+    m_usePrecompiledHeaders = usePrecompiledHeaders;
 }
 
 void SnapshotUpdater::updateProjectPart()

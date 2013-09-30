@@ -64,6 +64,8 @@ public:
     QStringList frameworkPaths() const
     { return m_frameworkPaths; }
 
+    void setUsePrecompiledHeaders(bool usePrecompiledHeaders);
+
 private:
     void updateProjectPart();
     void addFileAndDependencies(QSet<QString> *toRemove, const QString &fileName) const;
@@ -75,8 +77,10 @@ private:
     QByteArray m_configFile;
     QStringList m_includePaths;
     QStringList m_frameworkPaths;
+    QStringList m_precompiledHeaders;
     CPlusPlus::Snapshot m_snapshot;
     CPlusPlus::DependencyTable m_deps;
+    bool m_usePrecompiledHeaders;
 };
 
 } // namespace CppTools

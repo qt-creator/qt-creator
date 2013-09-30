@@ -42,6 +42,8 @@ void CppCodeModelSettings::fromSettings(QSettings *s)
     setIdForMimeType(supporters, QLatin1String(Constants::CPP_SOURCE_MIMETYPE));
     setIdForMimeType(supporters, QLatin1String(Constants::OBJECTIVE_C_SOURCE_MIMETYPE));
     setIdForMimeType(supporters, QLatin1String(Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
+    QVariant v = s->value(QLatin1String(Constants::CPPTOOLS_MODEL_MANAGER_PCH_USAGE), PchUse_None);
+    setPCHUsage(static_cast<PCHUsage>(v.toInt()));
     s->endGroup();
 }
 
@@ -52,6 +54,7 @@ void CppCodeModelSettings::toSettings(QSettings *s)
     foreach (const QString &mimeType, m_modelManagerSupportByMimeType.keys())
         var[mimeType] = m_modelManagerSupportByMimeType[mimeType];
     s->setValue(QLatin1String(Constants::CPPTOOLS_MODEL_MANAGER_SUPPORTERS_KEY), QVariant(var));
+    s->setValue(QLatin1String(Constants::CPPTOOLS_MODEL_MANAGER_PCH_USAGE), pchUsage());
     s->endGroup();
 }
 

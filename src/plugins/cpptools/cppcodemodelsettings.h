@@ -43,11 +43,15 @@ namespace Internal {
 
 class CppCodeModelSettings
 {
-    QHash<QString, QString> m_modelManagerSupportByMimeType;
-    QHash<QString, QString> m_availableModelManagerSupportersByName;
-    QString m_defaultId;
+public:
+    enum PCHUsage {
+        PchUse_None = 1,
+        PchUse_BuildSystem = 2,
+    };
 
 public:
+    CppCodeModelSettings(): m_pchUsage(PchUse_None) {}
+
     void fromSettings(QSettings *s);
     void toSettings(QSettings *s);
 
@@ -65,8 +69,17 @@ public:
     void setDefaultId(const QString &defaultId)
     { m_defaultId = defaultId; }
 
+    PCHUsage pchUsage() const { return m_pchUsage; }
+    void setPCHUsage(PCHUsage pchUsage) { m_pchUsage = pchUsage; }
+
 private:
     void setIdForMimeType(const QVariant &var, const QString &mimeType);
+
+private:
+    QHash<QString, QString> m_modelManagerSupportByMimeType;
+    QHash<QString, QString> m_availableModelManagerSupportersByName;
+    QString m_defaultId;
+    PCHUsage m_pchUsage;
 };
 
 } // namespace Internal

@@ -27,8 +27,10 @@
 **
 ****************************************************************************/
 
+#include "cppcodemodelsettings.h"
 #include "cppcompletionassistprovider.h"
 #include "cpptoolseditorsupport.h"
+#include "cpptoolsplugin.h"
 #include "cppmodelmanager.h"
 #include "cpplocalsymbols.h"
 
@@ -251,6 +253,9 @@ QSharedPointer<SnapshotUpdater> CppEditorSupport::snapshotUpdater()
     if (!updater) {
         updater = QSharedPointer<SnapshotUpdater>(new SnapshotUpdater(fileName()));
         m_snapshotUpdater = updater;
+
+        QSharedPointer<CppCodeModelSettings> cms = CppToolsPlugin::instance()->codeModelSettings();
+        updater->setUsePrecompiledHeaders(cms->pchUsage() != CppCodeModelSettings::PchUse_None);
     }
     return updater;
 }

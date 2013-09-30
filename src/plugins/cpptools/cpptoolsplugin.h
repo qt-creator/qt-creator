@@ -212,6 +212,7 @@ private slots:
     void test_modelmanager_gc_if_last_cppeditor_closed();
     void test_modelmanager_dont_gc_opened_files();
     void test_modelmanager_defines_per_project();
+    void test_modelmanager_defines_per_project_pch();
 
     void test_cpplocatorfilters_CppLocatorFilter();
     void test_cpplocatorfilters_CppLocatorFilter_data();
