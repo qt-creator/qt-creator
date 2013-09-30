@@ -142,7 +142,8 @@ HEADERS += projectexplorer.h \
     customtoolchain.h \
     projectmacroexpander.h \
     customparser.h \
-    customparserconfigdialog.h
+    customparserconfigdialog.h \
+    ipotentialkit.h
 
 SOURCES += projectexplorer.cpp \
     abi.cpp \
@@ -270,7 +271,8 @@ SOURCES += projectexplorer.cpp \
     customtoolchain.cpp \
     projectmacroexpander.cpp \
     customparser.cpp \
-    customparserconfigdialog.cpp
+    customparserconfigdialog.cpp \
+    ipotentialkit.cpp
 
 FORMS += processstep.ui \
     editorsettingspropertiespage.ui \

@@ -123,6 +123,7 @@ private:
 
     Internal::ImportWidget *m_importWidget;
     QSpacerItem *m_spacer;
+    QList<QWidget *> m_potentialWidgets;
 
     bool m_forceOptionHint;
 };

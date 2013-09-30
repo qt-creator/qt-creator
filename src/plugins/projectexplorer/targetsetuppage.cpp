@@ -39,6 +39,8 @@
 #include "targetsetupwidget.h"
 
 #include <coreplugin/icore.h>
+#include <extensionsystem/pluginmanager.h>
+#include <projectexplorer/ipotentialkit.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
@@ -162,6 +164,12 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
 
     setTitle(tr("Kit Selection"));
 
+    QList<IPotentialKit *> potentialKits =
+            ExtensionSystem::PluginManager::instance()->getObjects<IPotentialKit>();
+    foreach (IPotentialKit *pk, potentialKits)
+        if (QWidget *w = pk->createWidget(this))
+            m_potentialWidgets.append(w);
+
     QObject *km = KitManager::instance();
     connect(km, SIGNAL(kitAdded(ProjectExplorer::Kit*)),
             this, SLOT(handleKitAddition(ProjectExplorer::Kit*)));
@@ -176,6 +184,8 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
 void TargetSetupPage::initializePage()
 {
     m_baseLayout->addWidget(m_importWidget);
+    foreach (QWidget *widget, m_potentialWidgets)
+        m_baseLayout->addWidget(widget);
     m_baseLayout->addItem(m_spacer);
 
     reset();
@@ -477,6 +487,8 @@ TargetSetupWidget *TargetSetupPage::addWidget(Kit *k)
         return 0;
 
     m_baseLayout->removeWidget(m_importWidget);
+    foreach (QWidget *widget, m_potentialWidgets)
+        m_baseLayout->removeWidget(widget);
     m_baseLayout->removeItem(m_spacer);
 
     widget->setKitSelected(m_preferredMatcher && m_preferredMatcher->matches(k));
@@ -484,6 +496,8 @@ TargetSetupWidget *TargetSetupPage::addWidget(Kit *k)
     m_baseLayout->addWidget(widget);
 
     m_baseLayout->addWidget(m_importWidget);
+    foreach (QWidget *widget, m_potentialWidgets)
+        m_baseLayout->addWidget(widget);
     m_baseLayout->addItem(m_spacer);
 
     connect(widget, SIGNAL(selectedToggled()),

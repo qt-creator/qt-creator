@@ -46,7 +46,8 @@ HEADERS += \
     androiddeployqtstep.h \
     certificatesmodel.h \
     androiddeployqtwidget.h \
-    createandroidmanifestwizard.h
+    createandroidmanifestwizard.h \
+    androidpotentialkit.h
 
 SOURCES += \
     androidconfigurations.cpp \
@@ -87,7 +88,8 @@ SOURCES += \
     androiddeployqtstep.cpp \
     certificatesmodel.cpp \
     androiddeployqtwidget.cpp \
-    createandroidmanifestwizard.cpp
+    createandroidmanifestwizard.cpp \
+    androidpotentialkit.cpp
 
 FORMS += \
     androidsettingswidget.ui \

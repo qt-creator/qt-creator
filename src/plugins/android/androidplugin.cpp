@@ -45,6 +45,7 @@
 #include "androiddeployconfiguration.h"
 #include "androidgdbserverkitinformation.h"
 #include "androidmanifesteditorfactory.h"
+#include "androidpotentialkit.h"
 #ifdef HAVE_QBS
 #  include "androidqbspropertyprovider.h"
 #endif
@@ -81,6 +82,7 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
     addAutoReleasedObject(new Internal::AndroidToolChainFactory);
     addAutoReleasedObject(new Internal::AndroidDeployConfigurationFactory);
     addAutoReleasedObject(new Internal::AndroidDeviceFactory);
+    addAutoReleasedObject(new Internal::AndroidPotentialKit);
     ProjectExplorer::KitManager::registerKitInformation(new Internal::AndroidGdbServerKitInformation);
 
     // AndroidManifest.xml editor
