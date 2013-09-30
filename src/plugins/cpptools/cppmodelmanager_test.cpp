@@ -970,3 +970,99 @@ void CppToolsPlugin::test_modelmanager_defines_per_project_pch()
         QCOMPARE(decl->name()->identifier()->chars(), "two");
     }
 }
+
+void CppToolsPlugin::test_modelmanager_defines_per_editor()
+{
+    ModelManagerTestHelper helper;
+
+    MyTestDataDir testDataDirectory(QLatin1String("testdata_defines"));
+    const QString main1File = testDataDirectory.file(QLatin1String("main1.cpp"));
+    const QString main2File = testDataDirectory.file(QLatin1String("main2.cpp"));
+    const QString header = testDataDirectory.file(QLatin1String("header.h"));
+
+    CppModelManager *mm = CppModelManager::instance();
+
+    Project *project = helper.createProject(
+                QLatin1String("test_modelmanager_defines_per_editor"));
+
+    ProjectPart::Ptr part1(new ProjectPart);
+    part1->files.append(ProjectFile(main1File, ProjectFile::CXXSource));
+    part1->files.append(ProjectFile(header, ProjectFile::CXXHeader));
+    part1->cxxVersion = ProjectPart::CXX11;
+    part1->qtVersion = ProjectPart::NoQt;
+    part1->includePaths = QStringList() << testDataDirectory.includeDir(false);
+
+    ProjectPart::Ptr part2(new ProjectPart);
+    part2->files.append(ProjectFile(main2File, ProjectFile::CXXSource));
+    part2->files.append(ProjectFile(header, ProjectFile::CXXHeader));
+    part2->cxxVersion = ProjectPart::CXX11;
+    part2->qtVersion = ProjectPart::NoQt;
+    part2->includePaths = QStringList() << testDataDirectory.includeDir(false);
+
+    ProjectInfo pi = mm->projectInfo(project);
+    pi.appendProjectPart(part1);
+    pi.appendProjectPart(part2);
+
+    mm->updateProjectInfo(pi);
+
+    helper.waitForRefreshedSourceFiles();
+
+    QCOMPARE(mm->snapshot().size(), 4);
+
+    // Open a file in the editor
+    QCOMPARE(Core::EditorManager::documentModel()->openedDocuments().size(), 0);
+
+    {
+        Core::IEditor *editor = Core::EditorManager::openEditor(main1File);
+        EditorCloser closer(editor);
+        QVERIFY(editor);
+        QCOMPARE(Core::EditorManager::documentModel()->openedDocuments().size(), 1);
+        QVERIFY(mm->isCppEditor(editor));
+
+        CppEditorSupport *sup = mm->cppEditorSupport(
+                    qobject_cast<TextEditor::BaseTextEditor *>(editor));
+        while (sup->lastSemanticInfoDocument().isNull())
+            QCoreApplication::processEvents();
+
+        sup->snapshotUpdater()->setEditorDefines(QByteArray("#define SUB1\n"));
+        sup->snapshotUpdater()->update(mm->workingCopy());
+
+        Document::Ptr doc = mm->snapshot().document(main1File);
+        QVERIFY(doc);
+        QVERIFY(doc->globalNamespace());
+        QCOMPARE(doc->globalSymbolCount(), 1U);
+        CPlusPlus::Symbol *s = doc->globalSymbolAt(0);
+        QVERIFY(s);
+        CPlusPlus::Declaration *decl = s->asDeclaration();
+        QVERIFY(decl);
+        QVERIFY(decl->type()->isIntegerType());
+        QCOMPARE(decl->name()->identifier()->chars(), "one");
+    }
+
+    {
+        Core::IEditor *editor = Core::EditorManager::openEditor(main2File);
+        EditorCloser closer(editor);
+        QVERIFY(editor);
+        QCOMPARE(Core::EditorManager::documentModel()->openedDocuments().size(), 1);
+        QVERIFY(mm->isCppEditor(editor));
+
+        CppEditorSupport *sup = mm->cppEditorSupport(
+                    qobject_cast<TextEditor::BaseTextEditor *>(editor));
+        while (sup->lastSemanticInfoDocument().isNull())
+            QCoreApplication::processEvents();
+
+        sup->snapshotUpdater()->setEditorDefines(QByteArray("#define SUB2\n"));
+        sup->snapshotUpdater()->update(mm->workingCopy());
+
+        Document::Ptr doc = mm->snapshot().document(main2File);
+        QVERIFY(doc);
+        QVERIFY(doc->globalNamespace());
+        QCOMPARE(doc->globalSymbolCount(), 1U);
+        CPlusPlus::Symbol *s = doc->globalSymbolAt(0);
+        QVERIFY(s);
+        CPlusPlus::Declaration *decl = s->asDeclaration();
+        QVERIFY(decl);
+        QVERIFY(decl->type()->isIntegerType());
+        QCOMPARE(decl->name()->identifier()->chars(), "two");
+    }
+}

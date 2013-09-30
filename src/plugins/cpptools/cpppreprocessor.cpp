@@ -223,10 +223,15 @@ QString CppPreprocessor::cleanPath(const QString &path)
     return result;
 }
 
+static inline bool isInjectedFile(const QString &fileName)
+{
+    return fileName.startsWith(QLatin1Char('<')) && fileName.endsWith(QLatin1Char('>'));
+}
+
 QString CppPreprocessor::resolveFile_helper(const QString &fileName, IncludeType type)
 {
     const QFileInfo fileInfo(fileName);
-    if (fileName == Preprocessor::configurationFileName || fileInfo.isAbsolute())
+    if (isInjectedFile(fileName) || fileInfo.isAbsolute())
         return fileName;
 
     if (type == IncludeLocal && m_currentDoc) {

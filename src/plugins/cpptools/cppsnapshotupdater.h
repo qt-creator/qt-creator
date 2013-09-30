@@ -65,6 +65,7 @@ public:
     { return m_frameworkPaths; }
 
     void setUsePrecompiledHeaders(bool usePrecompiledHeaders);
+    void setEditorDefines(const QByteArray &editorDefines);
 
 private:
     void updateProjectPart();
@@ -75,6 +76,8 @@ private:
     QString m_fileInEditor;
     ProjectPart::Ptr m_projectPart;
     QByteArray m_configFile;
+    bool m_editorDefinesChangedSinceLastUpdate;
+    QByteArray m_editorDefines;
     QStringList m_includePaths;
     QStringList m_frameworkPaths;
     QStringList m_precompiledHeaders;

@@ -39,6 +39,7 @@ using namespace CppTools::Internal;
 SnapshotUpdater::SnapshotUpdater(const QString &fileInEditor)
     : m_mutex(QMutex::Recursive)
     , m_fileInEditor(fileInEditor)
+    , m_editorDefinesChangedSinceLastUpdate(false)
     , m_usePrecompiledHeaders(false)
 {
 }
@@ -50,7 +51,7 @@ void SnapshotUpdater::update(CppModelManager::WorkingCopy workingCopy)
     if (m_fileInEditor.isEmpty())
         return;
 
-    bool invalidateSnapshot = false, invalidateConfig = false;
+    bool invalidateSnapshot = false, invalidateConfig = false, editorDefinesChanged = false;
 
     CppModelManager *modelManager
         = dynamic_cast<CppModelManager *>(CppModelManagerInterface::instance());
@@ -73,6 +74,12 @@ void SnapshotUpdater::update(CppModelManager::WorkingCopy workingCopy)
         m_configFile = configFile;
         invalidateSnapshot = true;
         invalidateConfig = true;
+    }
+
+    if (m_editorDefinesChangedSinceLastUpdate) {
+        invalidateSnapshot = true;
+        editorDefinesChanged = true;
+        m_editorDefinesChangedSinceLastUpdate = false;
     }
 
     if (includePaths != m_includePaths) {
@@ -131,6 +138,12 @@ void SnapshotUpdater::update(CppModelManager::WorkingCopy workingCopy)
             workingCopy.insert(configurationFileName, m_configFile);
         m_snapshot.remove(m_fileInEditor);
 
+        static const QString editorDefinesFileName = QLatin1String("<per-editor-defines>");
+        if (editorDefinesChanged) {
+            m_snapshot.remove(editorDefinesFileName);
+            workingCopy.insert(editorDefinesFileName, m_editorDefines);
+        }
+
         CppPreprocessor preproc(modelManager, m_snapshot);
         Snapshot globalSnapshot = modelManager->snapshot();
         globalSnapshot.remove(fileInEditor());
@@ -142,6 +155,8 @@ void SnapshotUpdater::update(CppModelManager::WorkingCopy workingCopy)
         if (m_usePrecompiledHeaders)
             foreach (const QString &precompiledHeader, m_precompiledHeaders)
                 preproc.run(precompiledHeader);
+        if (!m_editorDefines.isEmpty())
+            preproc.run(editorDefinesFileName);
         preproc.run(m_fileInEditor);
 
         m_snapshot = preproc.snapshot();
@@ -176,6 +191,16 @@ void SnapshotUpdater::setUsePrecompiledHeaders(bool usePrecompiledHeaders)
     QMutexLocker locker(&m_mutex);
 
     m_usePrecompiledHeaders = usePrecompiledHeaders;
+}
+
+void SnapshotUpdater::setEditorDefines(const QByteArray &editorDefines)
+{
+    QMutexLocker locker(&m_mutex);
+
+    if (editorDefines != m_editorDefines) {
+        m_editorDefines = editorDefines;
+        m_editorDefinesChangedSinceLastUpdate = true;
+    }
 }
 
 void SnapshotUpdater::updateProjectPart()
