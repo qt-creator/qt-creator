@@ -56,7 +56,6 @@ Project {
 
     references: [
         "src/src.qbs",
-        "lib/qtcreator/qtcomponents/qtcomponents.qbs",
         "share/share.qbs",
         "share/qtcreator/translations/translations.qbs",
         "tests/tests.qbs"

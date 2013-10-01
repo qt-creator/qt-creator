@@ -10,7 +10,7 @@ QtcLibrary {
     ])
     cpp.optimization: "fast"
 
-    Depends { name: "Qt"; submodules: ["widgets", "declarative", "script"] }
+    Depends { name: "Qt"; submodules: ["widgets"] }
     Depends { name: "QmlJS" }
     Depends { name: "Utils" }
 
@@ -19,7 +19,6 @@ QtcLibrary {
         files: [
             "colorbox.cpp", "colorbox.h",
             "colorbutton.cpp", "colorbutton.h",
-            "colorwidgets.cpp", "colorwidgets.h",
             "contextpanetext.ui",
             "contextpanetextwidget.cpp", "contextpanetextwidget.h",
             "contextpanewidget.cpp", "contextpanewidget.h",

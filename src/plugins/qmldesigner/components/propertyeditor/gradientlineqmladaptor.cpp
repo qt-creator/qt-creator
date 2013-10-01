@@ -29,8 +29,8 @@
 
 #include "gradientlineqmladaptor.h"
 
-#include <qdeclarative.h>
 #include <QMessageBox>
+#include <QtQml>
 
 #include <nodeproperty.h>
 #include <nodelistproperty.h>

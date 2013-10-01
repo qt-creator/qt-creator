@@ -21,8 +21,7 @@ for(l, SUBDIRS) {
 }
 
 SUBDIRS += \
-    utils/process_stub.pro \
-    qtcomponents/styleitem
+    utils/process_stub.pro
 
 QBS_DIRS = \
     ../shared/qbs/src/lib \

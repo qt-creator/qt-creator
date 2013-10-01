@@ -5,7 +5,5 @@ SOURCES += $$PWD/easinggraph.cpp \
 HEADERS += $$PWD/easinggraph.h \
     $$PWD/easingcontextpane.h
 
-QT += declarative
-
 RESOURCES += $$PWD/easingpane.qrc
 FORMS += $$PWD/easingcontextpane.ui

@@ -1,5 +1,3 @@
-QT += script declarative
-
 contains(CONFIG, dll) {
     DEFINES += BUILD_QMLEDITORWIDGETS_LIB
 } else {
@@ -17,7 +15,6 @@ HEADERS += \
     contextpanewidgetimage.h \
     contextpanewidget.h \
     contextpanetextwidget.h \
-    colorwidgets.h \
     colorbutton.h \
     colorbox.h \
     customcolordialog.h \
@@ -32,7 +29,6 @@ SOURCES += \
     contextpanewidgetimage.cpp \
     contextpanewidget.cpp \
     contextpanetextwidget.cpp \
-    colorwidgets.cpp \
     colorbox.cpp \
     customcolordialog.cpp \
     huecontrol.cpp \

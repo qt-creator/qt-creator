@@ -31,7 +31,7 @@
 #include <QList>
 #include <QPainter>
 #include <QMouseEvent>
-#include <qdeclarative.h>
+#include <QtQml>
 
 static QList<QPoint> positions;
 static QStringList originsStringList;

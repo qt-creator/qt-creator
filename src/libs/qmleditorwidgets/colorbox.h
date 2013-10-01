@@ -32,7 +32,6 @@
 
 #include "qmleditorwidgets_global.h"
 #include <QWidget>
-#include <qdeclarative.h>
 
 namespace QmlEditorWidgets {
 
@@ -91,7 +90,5 @@ private:
 };
 
 } //QmlEditorWidgets
-
-QML_DECLARE_TYPE(QmlEditorWidgets::ColorBox)
 
 #endif //COLORBOX_H

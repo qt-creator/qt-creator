@@ -32,8 +32,7 @@
 
 #include <QWeakPointer>
 #include <QWidget>
-#include <qdeclarative.h>
-
+#include <QtQml>
 
 QT_BEGIN_NAMESPACE
 class QLabel;

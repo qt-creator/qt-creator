@@ -32,7 +32,7 @@
 
 #include "qmleditorwidgets_global.h"
 #include <QToolButton>
-#include <qdeclarative.h>
+#include <QVariant>
 
 namespace QmlEditorWidgets {
 
@@ -72,7 +72,5 @@ private:
 };
 
 } //QmlEditorWidgets
-
-QML_DECLARE_TYPE(QmlEditorWidgets::ColorButton)
 
 #endif //COLORBUTTON_H

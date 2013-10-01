@@ -11,7 +11,7 @@ include(doc/doc.pri)
 TEMPLATE  = subdirs
 CONFIG   += ordered
 
-SUBDIRS = src share lib/qtcreator/qtcomponents
+SUBDIRS = src share
 unix:!macx:!isEmpty(copydata):SUBDIRS += bin
 !isEmpty(BUILD_TESTS):SUBDIRS += tests
 

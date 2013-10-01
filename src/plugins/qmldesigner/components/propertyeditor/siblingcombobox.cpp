@@ -28,7 +28,8 @@
 ****************************************************************************/
 
 #include "siblingcombobox.h"
-#include <QDeclarativeComponent>
+
+#include <QtQml>
 
 namespace QmlDesigner {
 
