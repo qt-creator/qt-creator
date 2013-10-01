@@ -274,7 +274,7 @@ QList<ProjectExplorer::BuildInfo *> QbsBuildConfigurationFactory::availableBuild
 
 int QbsBuildConfigurationFactory::priority(const ProjectExplorer::Kit *k, const QString &projectPath) const
 {
-    return (k && Core::ICore::findByFile(QFileInfo(projectPath))
+    return (k && Core::MimeDatabase::findByFile(QFileInfo(projectPath))
             .matchesType(QLatin1String(Constants::MIME_TYPE))) ? 0 : -1;
 }
 
