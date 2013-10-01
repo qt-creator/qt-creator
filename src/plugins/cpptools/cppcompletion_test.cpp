@@ -31,6 +31,7 @@
 #include "cppcompletionassist.h"
 #include "cppmodelmanager.h"
 
+#include <coreplugin/plugintestutils.h>
 #include <texteditor/plaintexteditor.h>
 #include <texteditor/codeassist/iassistproposal.h>
 #include <texteditor/convenience.h>
@@ -91,8 +92,7 @@ public:
 
     ~CompletionTestCase()
     {
-        EditorManager::closeEditors(QList<IEditor*>() << editor,
-                                                /*askAboutModifiedEditors=*/ false);
+        Core::Tests::closeAndDeleteEditor(editor);
         cmm->GC();
         QVERIFY(cmm->snapshot().isEmpty());
     }
