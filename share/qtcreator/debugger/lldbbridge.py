@@ -313,6 +313,10 @@ class Dumper(DumperBase):
         self.currentWatchers = {}
 
         self.executable_ = None
+        self.startMode_ = None
+        self.processArgs_ = None
+        self.attachPid_ = None
+
         self.charType_ = None
         self.intType_ = None
         self.sizetType_ = None
@@ -659,16 +663,18 @@ class Dumper(DumperBase):
         return type if type.IsValid() else None
 
     def setupInferior(self, args):
-        executable = args['executable']
-        self.executable_ = executable
         error = lldb.SBError()
-        self.target = self.debugger.CreateTarget(executable, None, None, True, error)
+
+        self.executable_ = args['executable']
+        self.startMode_ = args['startMode']
+        self.processArgs_ = args['processArgs']
+        self.attachPid_ = args['attachPid']
+
+        self.target = self.debugger.CreateTarget(self.executable_, None, None, True, error)
         self.importDumpers()
 
-        if self.target.IsValid():
-            self.report('state="inferiorsetupok",msg="%s",exe="%s"' % (error, executable))
-        else:
-            self.report('state="inferiorsetupfailed",msg="%s",exe="%s"' % (error, executable))
+        state = "inferiorsetupok" if self.target.IsValid() else "inferiorsetupfailed"
+        self.report('state="%s",msg="%s",exe="%s"' % (state, error, self.executable_))
 
     def runEngine(self, _):
         s = threading.Thread(target=self.loop, args=[])
@@ -678,8 +684,14 @@ class Dumper(DumperBase):
         error = lldb.SBError()
         listener = self.debugger.GetListener()
 
-        self.process = self.target.Launch(listener, None, None, None, None,
-            None, None, 0, False, error)
+        if self.attachPid_ > 0:
+            attachInfo = lldb.SBAttachInfo(self.attachPid_)
+            self.process = self.target.Attach(attachInfo, error)
+
+        else:
+            launchInfo = lldb.SBLaunchInfo(self.processArgs_.split(' '))
+            launchInfo.SetWorkingDirectory(os.getcwd())
+            self.process = self.target.Launch(launchInfo, error)
 
         self.report('pid="%s"' % self.process.GetProcessID())
         self.report('state="enginerunandinferiorrunok"')
@@ -1393,7 +1405,7 @@ class Dumper(DumperBase):
 
     def setWatchers(self, args):
         #self.currentWatchers = args['watchers']
-        warn("WATCHERS %s" % self.currentWatchers)
+        #warn("WATCHERS %s" % self.currentWatchers)
         self.reportData()
 
     def updateData(self, args):
