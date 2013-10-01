@@ -97,7 +97,7 @@ void AndroidExtraLibraryListModel::addEntries(const QStringList &list)
         m_entries += QDir(m_project->projectDirectory()).relativeFilePath(path);
 
     Qt4ProjectManager::Qt4ProFileNode *node = m_project->rootQt4ProjectNode();
-    node->setProVariable(QLatin1String("ANDROID_EXTRA_LIBS"), m_entries.join(QLatin1Char(' ')));
+    node->setProVariable(QLatin1String("ANDROID_EXTRA_LIBS"), m_entries.join(QLatin1String(" ")));
 
     endInsertRows();
 }
@@ -127,5 +127,5 @@ void AndroidExtraLibraryListModel::removeEntries(const QModelIndexList &list)
     }
 
     Qt4ProjectManager::Qt4ProFileNode *node = m_project->rootQt4ProjectNode();
-    node->setProVariable(QLatin1String("ANDROID_EXTRA_LIBS"), m_entries.join(QLatin1Char(' ')));
+    node->setProVariable(QLatin1String("ANDROID_EXTRA_LIBS"), m_entries.join(QLatin1String(" ")));
 }
