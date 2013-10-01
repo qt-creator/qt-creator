@@ -111,8 +111,13 @@ QString QtQuickApp::pathExtended(int fileType) const
 
 QString QtQuickApp::originsRoot() const
 {
-    const bool isQtQuick2 = m_componentSet == QtQuick20Components;
-    return templatesRoot() + QLatin1String(isQtQuick2 ? "qtquick2app/" : "qtquickapp/");
+    switch (m_componentSet) {
+    case QtQuickControls10: return templatesRoot() + QLatin1String("qtquick2controls/");
+    case QtQuick20Components: return templatesRoot() + QLatin1String("qtquick2app/");
+    default: break;
+    }
+
+    return templatesRoot() + QLatin1String("qtquickapp/");
 }
 
 QString QtQuickApp::mainWindowClassName() const
@@ -174,8 +179,12 @@ bool QtQuickApp::useExistingMainQml() const
 
 QString QtQuickApp::appViewerBaseName() const
 {
-    return QLatin1String(m_componentSet == QtQuick20Components ?
-                             "qtquick2applicationviewer" : "qmlapplicationviewer");
+    if (m_componentSet == QtQuick20Components) {
+        return QLatin1String("qtquick2applicationviewer");
+    } else if (m_componentSet == QtQuickControls10) {
+        return QLatin1String("qtquick2controlsapplicationviewer");
+    }
+    return QLatin1String("qmlapplicationviewer");
 }
 
 QString QtQuickApp::fileName(QtQuickApp::ExtendedFileType type) const
@@ -225,7 +234,7 @@ QByteArray QtQuickApp::generateFileExtended(int fileType,
 
 int QtQuickApp::stubVersionMinor() const
 {
-    return m_componentSet == QtQuick20Components ? 5 : 24;
+    return (m_componentSet == QtQuick20Components || m_componentSet == QtQuickControls10) ? 5 : 24;
 }
 
 QList<AbstractGeneratedFileInfo> QtQuickApp::updateableFiles(const QString &mainProFile) const
@@ -271,6 +280,8 @@ QString QtQuickApp::componentSetDir(ComponentSet componentSet) const
         return QLatin1String("meego10");
     case QtQuick20Components:
         return QLatin1String("qtquick20");
+    case QtQuickControls10:
+        return QLatin1String("qtquick21");
     case QtQuick10Components:
     default:
         return QLatin1String("qtquick10");

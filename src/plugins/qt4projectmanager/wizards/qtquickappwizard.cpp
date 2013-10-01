@@ -185,7 +185,21 @@ void QtQuickAppWizard::createInstances(ExtensionSystem::IPlugin *plugin)
                                                     "reside in the same directory as the main .qml file "
                                                     "are deployed. You can modify the contents of the "
                                                     "directory any time before deploying.\n\nRequires <b>Qt 5.0</b> or newer."));
+
     wizard->setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_2));
+    plugin->addAutoReleasedObject(wizard);
+
+    wizard = new QtQuickAppWizard;
+    wizard->setQtQuickKind(QtQuick_Controls_1_0);
+
+    wizard->setDisplayName(tr("Qt Quick 2 Application (Qt Quick Controls)"));
+    wizard->setDescription(basicDescription +  tr("Creates a deployable Qt Quick application using "
+                                                  "Qt Quick Controls. All files and directories that "
+                                                  "reside in the same directory as the main .qml file "
+                                                  "are deployed. You can modify the contents of the "
+                                                  "directory any time before deploying.\n\nRequires <b>Qt 5.1.0</b> or newer."));
+    wizard->setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_2)
+                                | Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_CONTROLS));
     plugin->addAutoReleasedObject(wizard);
 }
 
@@ -213,6 +227,10 @@ AbstractMobileAppWizardDialog *QtQuickAppWizard::createWizardDialogInternal(QWid
         break;
     case QtQuick2_0:
         d->app->setComponentSet(QtQuickApp::QtQuick20Components);
+        d->app->setMainQml(QtQuickApp::ModeGenerate);
+        break;
+    case QtQuick_Controls_1_0:
+        d->app->setComponentSet(QtQuickApp::QtQuickControls10);
         d->app->setMainQml(QtQuickApp::ModeGenerate);
         break;
     default:
