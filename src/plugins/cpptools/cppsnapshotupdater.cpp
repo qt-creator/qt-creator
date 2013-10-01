@@ -186,6 +186,20 @@ Document::Ptr SnapshotUpdater::document() const
     return m_snapshot.document(m_fileInEditor);
 }
 
+ProjectPart::Ptr SnapshotUpdater::currentProjectPart() const
+{
+    QMutexLocker locker(&m_mutex);
+
+    return m_projectPart;
+}
+
+void SnapshotUpdater::setProjectPart(ProjectPart::Ptr projectPart)
+{
+    QMutexLocker locker(&m_mutex);
+
+    m_manuallySetProjectPart = projectPart;
+}
+
 void SnapshotUpdater::setUsePrecompiledHeaders(bool usePrecompiledHeaders)
 {
     QMutexLocker locker(&m_mutex);
@@ -205,6 +219,11 @@ void SnapshotUpdater::setEditorDefines(const QByteArray &editorDefines)
 
 void SnapshotUpdater::updateProjectPart()
 {
+    if (m_manuallySetProjectPart) {
+        m_projectPart = m_manuallySetProjectPart;
+        return;
+    }
+
     CppModelManager *cmm = dynamic_cast<CppModelManager *>(CppModelManagerInterface::instance());
     QList<ProjectPart::Ptr> pParts = cmm->projectPart(m_fileInEditor);
     if (pParts.isEmpty()) {

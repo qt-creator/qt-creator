@@ -64,6 +64,9 @@ public:
     QStringList frameworkPaths() const
     { return m_frameworkPaths; }
 
+    ProjectPart::Ptr currentProjectPart() const;
+    void setProjectPart(ProjectPart::Ptr projectPart);
+
     void setUsePrecompiledHeaders(bool usePrecompiledHeaders);
     void setEditorDefines(const QByteArray &editorDefines);
 
@@ -74,7 +77,7 @@ private:
 private:
     mutable QMutex m_mutex;
     QString m_fileInEditor;
-    ProjectPart::Ptr m_projectPart;
+    ProjectPart::Ptr m_projectPart, m_manuallySetProjectPart;
     QByteArray m_configFile;
     bool m_editorDefinesChangedSinceLastUpdate;
     QByteArray m_editorDefines;
