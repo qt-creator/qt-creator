@@ -775,7 +775,7 @@ struct EditorCloser {
     ~EditorCloser()
     {
         if (editor)
-            Core::EditorManager::closeEditors(QList<Core::IEditor*>() << editor);
+            Core::Tests::closeAndDeleteEditor(editor);
     }
 };
 }
