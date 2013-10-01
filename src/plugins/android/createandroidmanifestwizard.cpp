@@ -86,7 +86,7 @@ ChooseProFilePage::ChooseProFilePage(CreateAndroidManifestWizard *wizard, const 
 void ChooseProFilePage::nodeSelected(int index)
 {
     Q_UNUSED(index)
-    m_wizard->setNode(static_cast<Qt4ProFileNode *>(m_comboBox->currentData().value<void *>()));
+    m_wizard->setNode(static_cast<Qt4ProFileNode *>(m_comboBox->itemData(m_comboBox->currentIndex()).value<void *>()));
 }
 
 
