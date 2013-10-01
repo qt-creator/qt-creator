@@ -32,11 +32,11 @@
 
 #include <cplusplus/CPlusPlusForwardDeclarations.h>
 
+#include <QString>
 #include <QVector>
 
 QT_BEGIN_NAMESPACE
 class QByteArray;
-class QString;
 QT_END_NAMESPACE
 
 namespace CPlusPlus {
@@ -99,6 +99,11 @@ public:
   virtual void stopSkippingBlocks(unsigned offset) = 0;
 
   virtual void sourceNeeded(unsigned line, const QString &fileName, IncludeType mode) = 0;
+
+  static inline bool isInjectedFile(const QString &fileName)
+  {
+      return fileName.startsWith(QLatin1Char('<')) && fileName.endsWith(QLatin1Char('>'));
+  }
 };
 
 } // namespace CPlusPlus

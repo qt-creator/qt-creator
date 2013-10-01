@@ -153,15 +153,21 @@ void SnapshotUpdater::update(CppModelManager::WorkingCopy workingCopy)
         preproc.setIncludePaths(m_includePaths);
         preproc.setFrameworkPaths(m_frameworkPaths);
         preproc.run(configurationFileName);
-        if (m_usePrecompiledHeaders)
+        if (m_usePrecompiledHeaders) {
             foreach (const QString &precompiledHeader, m_precompiledHeaders)
                 preproc.run(precompiledHeader);
+        }
         if (!m_editorDefines.isEmpty())
             preproc.run(editorDefinesFileName);
         preproc.run(m_fileInEditor);
 
         m_snapshot = preproc.snapshot();
-        m_snapshot = m_snapshot.simplified(document());
+        Snapshot newSnapshot = m_snapshot.simplified(document());
+        for (Snapshot::const_iterator i = m_snapshot.begin(), ei = m_snapshot.end(); i != ei; ++i) {
+            if (Client::isInjectedFile(i.key()))
+                newSnapshot.insert(i.value());
+        }
+        m_snapshot = newSnapshot;
         m_deps.build(m_snapshot);
 
         foreach (Document::Ptr doc, m_snapshot) {

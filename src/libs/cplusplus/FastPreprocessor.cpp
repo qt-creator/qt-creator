@@ -63,7 +63,11 @@ QByteArray FastPreprocessor::run(Document::Ptr newDoc, const QByteArray &source)
     if (Document::Ptr doc = _snapshot.document(fileName)) {
         _merged.insert(fileName);
 
-        mergeEnvironment(Preprocessor::configurationFileName);
+        for (Snapshot::const_iterator i = _snapshot.begin(), ei = _snapshot.end(); i != ei; ++i) {
+            if (isInjectedFile(i.key()))
+                mergeEnvironment(i.key());
+        }
+
         foreach (const Document::Include &i, doc->resolvedIncludes())
             mergeEnvironment(i.resolvedFileName());
     }
