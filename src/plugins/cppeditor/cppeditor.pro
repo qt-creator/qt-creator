@@ -63,7 +63,8 @@ equals(TEST, 1) {
         cppquickfix_test_utils.cpp \
         cppdoxygen_test.cpp \
         fileandtokenactions_test.cpp \
-        followsymbol_switchmethoddecldef_test.cpp
+        followsymbol_switchmethoddecldef_test.cpp \
+        cppincludehierarchy_test.cpp
 
     DEFINES += SRCDIR=\\\"$$PWD\\\"
 }
