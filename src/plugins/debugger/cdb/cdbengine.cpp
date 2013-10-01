@@ -587,6 +587,7 @@ void CdbEngine::consoleStubProcessStarted()
     QString errorMessage;
     if (!launchCDB(attachParameters, &errorMessage)) {
         showMessage(errorMessage, LogError);
+        showMessageBox(QMessageBox::Critical, tr("Failed To Start The Debugger"), errorMessage);
         STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineSetupFailed")
         notifyEngineSetupFailed();
     }
@@ -623,6 +624,7 @@ void CdbEngine::setupEngine()
         qDebug("<setupEngine ok=%d", ok);
     if (!ok) {
         showMessage(errorMessage, LogError);
+        showMessageBox(QMessageBox::Critical, tr("Failed To Start The Debugger"), errorMessage);
         STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineSetupFailed")
         notifyEngineSetupFailed();
     }
@@ -666,7 +668,9 @@ bool CdbEngine::launchCDB(const DebuggerStartParameters &sp, QString *errorMessa
         m_wow64State = noWow64Stack;
     const QFileInfo extensionFi(CdbEngine::extensionLibraryName(m_cdbIs64Bit));
     if (!extensionFi.isFile()) {
-        *errorMessage = QString::fromLatin1("Internal error: The extension %1 cannot be found.").
+        *errorMessage = QString::fromLatin1("Internal error: The extension %1 cannot be found.\n"
+                                            "If you build Qt Creator from sources, check out "
+                                            "https://qt.gitorious.org/qt-creator/binary-artifacts/").
                 arg(QDir::toNativeSeparators(extensionFi.absoluteFilePath()));
         return false;
     }
