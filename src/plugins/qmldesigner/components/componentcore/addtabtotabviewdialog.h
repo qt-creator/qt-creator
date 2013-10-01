@@ -32,9 +32,8 @@
 
 #include <QDialog>
 
-namespace Ui {
-class AddTabToTabViewDialog;
-}
+namespace QmlDesigner {
+namespace Ui { class AddTabToTabViewDialog; }
 
 class AddTabToTabViewDialog : public QDialog
 {
@@ -49,5 +48,7 @@ public:
 private:
     Ui::AddTabToTabViewDialog *ui;
 };
+
+} // namespace QmlDesigner
 
 #endif // ADDTABTOTABVIEWDIALOG_H

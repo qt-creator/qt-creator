@@ -32,6 +32,8 @@
 
 #include <QtDebug>
 
+namespace QmlDesigner {
+
 AddTabToTabViewDialog::AddTabToTabViewDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::AddTabToTabViewDialog)
@@ -63,3 +65,5 @@ QString AddTabToTabViewDialog::create(const QString &tabName, QWidget *parent)
     else
         return QString();
 }
+
+} // namespace QmlDesigner
