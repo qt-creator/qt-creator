@@ -87,6 +87,8 @@ QtcPlugin {
         "androidpackageinstallationstep.h",
         "androidplugin.cpp",
         "androidplugin.h",
+        "androidpotentialkit.cpp",
+        "androidpotentialkit.h",
         "androidqtversion.cpp",
         "androidqtversion.h",
         "androidqtversionfactory.cpp",
@@ -110,6 +112,8 @@ QtcPlugin {
         "androidtoolchain.h",
         "certificatesmodel.cpp",
         "certificatesmodel.h",
+        "createandroidmanifestwizard.cpp",
+        "createandroidmanifestwizard.h",
         "javaparser.cpp",
         "javaparser.h",
     ]
