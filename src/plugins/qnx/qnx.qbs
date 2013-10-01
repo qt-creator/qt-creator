@@ -115,8 +115,6 @@ QtcPlugin {
         "blackberrydeviceconnectionmanager.h",
         "blackberrydevicelistdetector.cpp",
         "blackberrydevicelistdetector.h",
-        "blackberrydeviceprocesssupport.h",
-        "blackberrydeviceprocesssupport.cpp",
         "blackberryinstallwizard.cpp",
         "blackberryinstallwizard.h",
         "blackberryinstallwizardndkpage.ui",
