@@ -34,7 +34,6 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/plugintestutils.h>
-#include <coreplugin/testdatadir.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <utils/hostosinfo.h>
@@ -61,7 +60,7 @@ Q_DECLARE_METATYPE(QList<ProjectFile>)
 
 namespace {
 
-class MyTestDataDir : public Core::Internal::Tests::TestDataDir
+class MyTestDataDir : public Core::Tests::TestDataDir
 {
 public:
     MyTestDataDir(const QString &dir)

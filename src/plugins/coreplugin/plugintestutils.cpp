@@ -34,6 +34,10 @@
 #include "editormanager/ieditor.h"
 
 #include <QCoreApplication>
+#include <QDir>
+#include <QFileInfo>
+#include <QString>
+#include <QTest>
 
 void Core::Tests::closeAndDeleteEditors(QList<IEditor *> editorsToClose)
 {
@@ -47,4 +51,36 @@ void Core::Tests::closeAndDeleteEditors(QList<IEditor *> editorsToClose)
 void Core::Tests::closeAndDeleteEditor(Core::IEditor *editor)
 {
     closeAndDeleteEditors(QList<IEditor *>() << editor);
+}
+
+static void maybeAppendSlash(QString *string)
+{
+    const QChar slash = QLatin1Char('/');
+    if (!string->endsWith(slash))
+        string->append(slash);
+}
+
+Core::Tests::TestDataDir::TestDataDir(const QString &directory)
+    : m_directory(directory)
+{
+    maybeAppendSlash(&m_directory);
+    QFileInfo fi(m_directory);
+    QVERIFY(fi.exists());
+    QVERIFY(fi.isDir());
+}
+
+QString Core::Tests::TestDataDir::file(const QString &fileName) const
+{
+    return directory() + fileName;
+}
+
+QString Core::Tests::TestDataDir::directory(const QString &subdir, bool clean) const
+{
+    QString path = m_directory;
+    if (!subdir.isEmpty())
+        path += QLatin1String("/") + subdir;
+    if (clean)
+        path = QDir::cleanPath(path);
+    maybeAppendSlash(&path);
+    return path;
 }

@@ -34,6 +34,7 @@
 #include "core_global.h"
 
 #include <QList>
+#include <QString>
 
 namespace Core {
 
@@ -41,8 +42,23 @@ class IEditor;
 
 namespace Tests {
 
+/// Closing and deleting editors
 void CORE_EXPORT closeAndDeleteEditor(Core::IEditor *editor);
 void CORE_EXPORT closeAndDeleteEditors(QList<Core::IEditor *> editorsToClose);
+
+/// Referencing test data
+class CORE_EXPORT TestDataDir
+{
+public:
+    TestDataDir(const QString &directory);
+    QString file(const QString &fileName) const;
+
+protected:
+    QString directory(const QString &subdir = QString(), bool clean = true) const;
+
+private:
+    QString m_directory;
+};
 
 } // namespace Tests
 } // namespace Core

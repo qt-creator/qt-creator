@@ -37,7 +37,6 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/plugintestutils.h>
-#include <coreplugin/testdatadir.h>
 #include <extensionsystem/pluginmanager.h>
 #include <locator/locatorfiltertest.h>
 #include <utils/fileutils.h>
@@ -47,7 +46,6 @@
 #include <QtTest>
 
 using namespace Core;
-using namespace Core::Internal::Tests;
 using namespace CppTools::Internal;
 using namespace ExtensionSystem;
 using namespace Locator;
@@ -59,7 +57,7 @@ Q_DECLARE_METATYPE(ILocatorFilter *)
 
 namespace {
 
-class MyTestDataDir : public Core::Internal::Tests::TestDataDir
+class MyTestDataDir : public Core::Tests::TestDataDir
 {
 public:
     MyTestDataDir(const QString &testDataDirectory)

@@ -183,8 +183,6 @@ QtcPlugin {
         files: [
             "plugintestutils.cpp",
             "plugintestutils.h",
-            "testdatadir.cpp",
-            "testdatadir.h"
         ]
     }
 

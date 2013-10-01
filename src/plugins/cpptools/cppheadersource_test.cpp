@@ -30,7 +30,7 @@
 #include "cpptoolsplugin.h"
 #include "cpptoolsreuse.h"
 
-#include <coreplugin/testdatadir.h>
+#include <coreplugin/plugintestutils.h>
 
 #include <QDir>
 #include <QtTest>
@@ -46,7 +46,7 @@ void CppToolsPlugin::test_headersource()
     QFETCH(QString, headerFileName);
 
     bool wasHeader;
-    Core::Internal::Tests::TestDataDir dataDir(
+    Core::Tests::TestDataDir dataDir(
                 _(SRCDIR "/../../../tests/cppheadersource/") + _(QTest::currentDataTag()));
 
     const QString sourcePath = dataDir.file(sourceFileName);
