@@ -47,11 +47,6 @@ QuickFixAssistProcessor::QuickFixAssistProcessor()
 QuickFixAssistProcessor::~QuickFixAssistProcessor()
 {}
 
-IAssistProposal *QuickFixAssistProcessor::immediateProposal(const IAssistInterface *)
-{
-    return 0;
-}
-
 IAssistProposal *QuickFixAssistProcessor::perform(const IAssistInterface *interface)
 {
     if (!interface)

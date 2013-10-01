@@ -214,11 +214,6 @@ GLSLCompletionAssistProcessor::GLSLCompletionAssistProcessor()
 GLSLCompletionAssistProcessor::~GLSLCompletionAssistProcessor()
 {}
 
-IAssistProposal *GLSLCompletionAssistProcessor::immediateProposal(const IAssistInterface *)
-{
-    return 0;
-}
-
 IAssistProposal *GLSLCompletionAssistProcessor::perform(const IAssistInterface *interface)
 {
     m_interface.reset(static_cast<const GLSLCompletionAssistInterface *>(interface));

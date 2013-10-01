@@ -86,8 +86,6 @@ private:
 class ClipboardAssistProcessor: public IAssistProcessor
 {
 public:
-    IAssistProposal *immediateProposal(const TextEditor::IAssistInterface *) { return 0; }
-
     IAssistProposal *perform(const IAssistInterface *interface)
     {
         if (!interface)

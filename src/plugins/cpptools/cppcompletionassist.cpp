@@ -639,11 +639,6 @@ CppCompletionAssistProcessor::CppCompletionAssistProcessor()
 CppCompletionAssistProcessor::~CppCompletionAssistProcessor()
 {}
 
-IAssistProposal *CppCompletionAssistProcessor::immediateProposal(const IAssistInterface *)
-{
-    return 0;
-}
-
 IAssistProposal * CppCompletionAssistProcessor::perform(const IAssistInterface *interface)
 {
     m_interface.reset(static_cast<const CppCompletionAssistInterface *>(interface));

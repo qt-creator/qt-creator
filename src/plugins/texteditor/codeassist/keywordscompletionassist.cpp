@@ -177,11 +177,6 @@ KeywordsCompletionAssistProcessor::KeywordsCompletionAssistProcessor(Keywords ke
 KeywordsCompletionAssistProcessor::~KeywordsCompletionAssistProcessor()
 {}
 
-IAssistProposal *KeywordsCompletionAssistProcessor::immediateProposal(const IAssistInterface *)
-{
-    return 0;
-}
-
 IAssistProposal *KeywordsCompletionAssistProcessor::perform(const IAssistInterface *interface)
 {
     m_interface.reset(interface);

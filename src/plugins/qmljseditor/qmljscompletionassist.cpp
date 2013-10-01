@@ -510,11 +510,6 @@ QmlJSCompletionAssistProcessor::QmlJSCompletionAssistProcessor()
 QmlJSCompletionAssistProcessor::~QmlJSCompletionAssistProcessor()
 {}
 
-IAssistProposal *QmlJSCompletionAssistProcessor::immediateProposal(const IAssistInterface *)
-{
-    return 0;
-}
-
 IAssistProposal *QmlJSCompletionAssistProcessor::createContentProposal() const
 {
     IGenericProposalModel *model = new QmlJSAssistProposalModel(m_completions);

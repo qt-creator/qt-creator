@@ -95,7 +95,6 @@ public:
     QmlJSCompletionAssistProcessor();
     virtual ~QmlJSCompletionAssistProcessor();
 
-    virtual TextEditor::IAssistProposal *immediateProposal(const TextEditor::IAssistInterface *);
     virtual TextEditor::IAssistProposal *perform(const TextEditor::IAssistInterface *interface);
 
 private:
