@@ -37,6 +37,7 @@
 #include <QQueue>
 #include <QStringList>
 #include <QTimer>
+#include <QTextCodec>
 
 namespace Locator {
 namespace Internal {
@@ -72,6 +73,8 @@ private:
     QStringList m_commandHistory;
     Utils::QtcProcess *m_process;
     QTimer m_runTimer;
+    QTextCodec::ConverterState m_stdoutState;
+    QTextCodec::ConverterState m_stderrState;
 };
 
 } // namespace Internal

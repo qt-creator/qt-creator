@@ -140,13 +140,16 @@ void ExecuteFilter::finished(int exitCode, QProcess::ExitStatus status)
 void ExecuteFilter::readStandardOutput()
 {
     QByteArray data = m_process->readAllStandardOutput();
-    MessageManager::write(QString::fromLocal8Bit(data));
+    MessageManager::write(QTextCodec::codecForLocale()->toUnicode(data.constData(), data.size(),
+                                                                  &m_stdoutState));
 }
 
 void ExecuteFilter::readStandardError()
 {
+    static QTextCodec::ConverterState state;
     QByteArray data = m_process->readAllStandardError();
-    MessageManager::write(QString::fromLocal8Bit(data));
+    MessageManager::write(QTextCodec::codecForLocale()->toUnicode(data.constData(), data.size(),
+                                                                  &m_stderrState));
 }
 
 void ExecuteFilter::runHeadCommand()
