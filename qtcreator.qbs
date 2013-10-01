@@ -13,6 +13,9 @@ Project {
     property path ide_source_tree: path
     property string ide_app_path: qbs.targetOS.contains("osx") ? "" : "bin"
     property string ide_app_target: qbs.targetOS.contains("osx") ? "Qt Creator" : "qtcreator"
+    property pathList additionalPlugins: []
+    property pathList additionalLibs: []
+    property pathList additionalTools: []
     property string ide_library_path: {
         if (qbs.targetOS.contains("osx"))
             return ide_app_target + ".app/Contents/PlugIns"

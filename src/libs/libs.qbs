@@ -17,5 +17,5 @@ Project {
         "utils/process_ctrlc_stub.qbs",
         "utils/utils.qbs",
         "zeroconf/zeroconf.qbs",
-    ]
+    ].concat(project.additionalLibs)
 }

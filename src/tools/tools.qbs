@@ -8,5 +8,5 @@ Project {
         "qtpromaker/qtpromaker.qbs",
         "sdktool/sdktool.qbs",
         "valgrindfake/valgrindfake.qbs"
-    ]
+    ].concat(project.additionalTools)
 }
