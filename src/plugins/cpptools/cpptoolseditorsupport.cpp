@@ -249,7 +249,7 @@ QSharedPointer<SnapshotUpdater> CppEditorSupport::snapshotUpdater()
 {
     QSharedPointer<SnapshotUpdater> updater = m_snapshotUpdater;
     if (!updater) {
-        updater.reset(new SnapshotUpdater(fileName()));
+        updater = QSharedPointer<SnapshotUpdater>(new SnapshotUpdater(fileName()));
         m_snapshotUpdater = updater;
     }
     return updater;
