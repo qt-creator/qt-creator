@@ -1245,7 +1245,7 @@ CPPEditorWidget::Link CPPEditorWidget::findLinkAt(const QTextCursor &cursor, boo
         return Link();
 
     FollowSymbolUnderCursor followSymbolUnderCursor(this, cursor, resolveTarget,
-        m_modelManager->snapshot(), m_lastSemanticInfo.doc, symbolFinder);
+        m_modelManager->snapshot(), m_lastSemanticInfo.doc, symbolFinder());
     return followSymbolUnderCursor.findLink();
 }
 
