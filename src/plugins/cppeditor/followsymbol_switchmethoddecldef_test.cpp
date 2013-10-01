@@ -79,10 +79,10 @@ public:
         VirtualFunctionAssistProvider::configure(startClass, function, snapshot, openInNextSplit);
 
         IAssistProcessor *processor = createProcessor();
-        IAssistInterface *interface = m_editorWidget->createAssistInterface(FollowSymbol,
+        IAssistInterface *assistInterface = m_editorWidget->createAssistInterface(FollowSymbol,
                                                                             ExplicitlyInvoked);
-        IAssistProposal *immediateProposal = processor->immediateProposal(interface);
-        IAssistProposal *finalProposal = processor->perform(interface);
+        IAssistProposal *immediateProposal = processor->immediateProposal(assistInterface);
+        IAssistProposal *finalProposal = processor->perform(assistInterface);
 
         m_immediateItems = itemList(immediateProposal->model());
         m_finalItems = itemList(finalProposal->model());
