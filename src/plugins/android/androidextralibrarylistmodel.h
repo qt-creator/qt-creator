@@ -32,6 +32,7 @@
 #define ANDROIDEXTRALIBRARYLISTMODEL_H
 
 #include <QAbstractItemModel>
+#include <QStringList>
 
 namespace Qt4ProjectManager { class Qt4Project; }
 
