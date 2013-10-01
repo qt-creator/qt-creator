@@ -972,6 +972,15 @@ QString GitClient::findGitDirForRepository(const QString &repositoryDir) const
     return res;
 }
 
+bool GitClient::managesFile(const QString &workingDirectory, const QString &fileName) const
+{
+    QByteArray output;
+    QStringList arguments;
+    arguments << QLatin1String("ls-files") << QLatin1String("--error-unmatch") << fileName;
+    return fullySynchronousGit(workingDirectory, arguments, &output, 0,
+                               VcsBasePlugin::SuppressCommandLogging);
+}
+
 VcsBase::VcsBaseEditorWidget *GitClient::findExistingVCSEditor(const char *registerDynamicProperty,
                                                                const QString &dynamicPropertyValue) const
 {

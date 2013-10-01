@@ -276,7 +276,7 @@ bool VcsBaseClient::synchronousPush(const QString &workingDir,
 
 bool VcsBaseClient::vcsFullySynchronousExec(const QString &workingDir,
                                             const QStringList &args,
-                                            QByteArray *output)
+                                            QByteArray *output) const
 {
     QProcess vcsProcess;
     if (!workingDir.isEmpty())

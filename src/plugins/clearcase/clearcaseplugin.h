@@ -166,6 +166,7 @@ public:
     void setStatus(const QString &file, FileStatus::Status status, bool update = true);
 
     bool ccCheckUcm(const QString &viewname, const QString &workingDir) const;
+    bool managesFile(const QString &workingDirectory, const QString &fileName) const;
 
 public slots:
     void vcsAnnotate(const QString &workingDir, const QString &file,

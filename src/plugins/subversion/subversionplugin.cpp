@@ -1083,7 +1083,7 @@ SubversionResponse
                                  const QStringList &arguments,
                                  int timeOut,
                                  unsigned flags,
-                                 QTextCodec *outputCodec)
+                                 QTextCodec *outputCodec) const
 {
     const bool hasAuth = m_settings.hasAuthentication();
     return runSvn(workingDir,
@@ -1142,7 +1142,7 @@ SubversionPlugin::Version SubversionPlugin::svnVersion()
 SubversionResponse SubversionPlugin::runSvn(const QString &workingDir,
                           const QString &userName, const QString &password,
                           const QStringList &arguments, int timeOut,
-                          unsigned flags, QTextCodec *outputCodec)
+                          unsigned flags, QTextCodec *outputCodec) const
 {
     const QString executable = m_settings.binaryPath();
     SubversionResponse response;
@@ -1352,6 +1352,15 @@ bool SubversionPlugin::managesDirectory(const QString &directory, QString *topLe
         }
     }
     return true;
+}
+
+bool SubversionPlugin::managesFile(const QString &workingDirectory, const QString &fileName) const
+{
+    QStringList args;
+    args << QLatin1String("status") << fileName;
+    SubversionResponse response =
+            runSvn(workingDirectory, args, m_settings.timeOutMs(), 0);
+    return response.stdOut.isEmpty() || response.stdOut.at(0) != QLatin1Char('?');
 }
 
 // Check whether SVN management subdirs exist.

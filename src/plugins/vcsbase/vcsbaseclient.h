@@ -166,7 +166,7 @@ protected:
     // Fully synchronous VCS execution (QProcess-based)
     bool vcsFullySynchronousExec(const QString &workingDir,
                                  const QStringList &args,
-                                 QByteArray *output);
+                                 QByteArray *output) const;
     // Synchronous VCS execution using Utils::SynchronousProcess, with
     // log windows updating (using VcsBasePlugin::runVcs with flags)
     Utils::SynchronousProcessResponse vcsSynchronousExec(const QString &workingDir,

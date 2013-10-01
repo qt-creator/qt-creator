@@ -134,6 +134,11 @@ bool ClearCaseControl::managesDirectory(const QString &directory, QString *topLe
     return m_plugin->managesDirectory(directory, topLevel);
 }
 
+bool ClearCaseControl::managesFile(const QString &workingDirectory, const QString &fileName) const
+{
+    return m_plugin->managesFile(workingDirectory, fileName);
+}
+
 bool ClearCaseControl::vcsAnnotate(const QString &file, int line)
 {
     const QFileInfo fi(file);

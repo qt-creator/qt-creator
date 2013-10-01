@@ -828,6 +828,14 @@ bool PerforcePlugin::managesDirectory(const QString &directory, QString *topLeve
     return rc;
 }
 
+bool PerforcePlugin::managesFile(const QString &workingDirectory, const QString &fileName) const
+{
+    QStringList args;
+    args << QLatin1String("fstat") << QLatin1String("-m1") << fileName;
+    const PerforceResponse result = runP4Cmd(workingDirectory, args, RunFullySynchronous);
+    return result.stdOut.contains(QLatin1String("depotFile"));
+}
+
 bool PerforcePlugin::managesDirectoryFstat(const QString &directory)
 {
     if (!m_settings.isValid())

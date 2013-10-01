@@ -412,11 +412,20 @@ void VcsManager::promptToAdd(const QString &directory, const QStringList &fileNa
     if (!vc || !vc->supportsOperation(Core::IVersionControl::AddOperation))
         return;
 
+    QStringList unmanagedFiles;
+    QDir dir(directory);
+    foreach (const QString &fileName, fileNames) {
+        if (!vc->managesFile(directory, dir.relativeFilePath(fileName)))
+            unmanagedFiles << fileName;
+    }
+    if (unmanagedFiles.isEmpty())
+        return;
+
     Internal::AddToVcsDialog dlg(Core::ICore::mainWindow(), VcsManager::msgAddToVcsTitle(),
-                                 fileNames, vc->displayName());
+                                 unmanagedFiles, vc->displayName());
     if (dlg.exec() == QDialog::Accepted) {
         QStringList notAddedToVc;
-        foreach (const QString &file, fileNames) {
+        foreach (const QString &file, unmanagedFiles) {
             if (!vc->vcsAdd(file))
                 notAddedToVc << file;
         }

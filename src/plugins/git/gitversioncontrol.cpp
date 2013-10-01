@@ -229,6 +229,11 @@ bool GitVersionControl::managesDirectory(const QString &directory, QString *topL
     return !topLevelFound.isEmpty();
 }
 
+bool GitVersionControl::managesFile(const QString &workingDirectory, const QString &fileName) const
+{
+    return m_client->managesFile(workingDirectory, fileName);
+}
+
 bool GitVersionControl::vcsAnnotate(const QString &file, int line)
 {
     const QFileInfo fi(file);

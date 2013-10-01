@@ -96,6 +96,7 @@ public:
     bool vcsDelete(const QString &workingDir, const QString &fileName);
     bool vcsMove(const QString &workingDir, const QString &from, const QString &to);
     bool managesDirectory(const QString &directory, QString *topLevel = 0) const;
+    bool managesFile(const QString &workingDirectory, const QString &fileName) const;
     bool vcsCheckout(const QString &directory, const QByteArray &url);
     QString vcsGetRepositoryURL(const QString &directory);
 
@@ -161,12 +162,12 @@ private:
     // Run using the settings' authentication options.
     SubversionResponse runSvn(const QString &workingDir,
                               const QStringList &arguments, int timeOut,
-                              unsigned flags, QTextCodec *outputCodec = 0);
+                              unsigned flags, QTextCodec *outputCodec = 0) const;
     // Run using custom authentication options.
     SubversionResponse runSvn(const QString &workingDir,
                               const QString &userName, const QString &password,
                               const QStringList &arguments, int timeOut,
-                              unsigned flags, QTextCodec *outputCodec = 0);
+                              unsigned flags, QTextCodec *outputCodec = 0) const;
 
     void filelog(const QString &workingDir,
                  const QString &file = QString(),

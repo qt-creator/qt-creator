@@ -184,6 +184,11 @@ bool PerforceVersionControl::managesDirectory(const QString &directory, QString 
     return rc;
 }
 
+bool PerforceVersionControl::managesFile(const QString &workingDirectory, const QString &fileName) const
+{
+    return m_plugin->managesFile(workingDirectory, fileName);
+}
+
 void PerforceVersionControl::emitRepositoryChanged(const QString &s)
 {
     emit repositoryChanged(s);

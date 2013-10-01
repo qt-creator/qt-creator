@@ -63,6 +63,7 @@ public:
     void incoming(const QString &repositoryRoot, const QString &repository = QString());
     void outgoing(const QString &repositoryRoot);
     QString vcsGetRepositoryURL(const QString &directory);
+    bool managesFile(const QString &workingDirectory, const QString &fileName) const;
 
     void annotate(const QString &workingDir, const QString &file,
                   const QString revision = QString(), int lineNumber = -1,

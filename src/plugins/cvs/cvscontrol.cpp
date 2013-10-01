@@ -163,6 +163,11 @@ bool CvsControl::managesDirectory(const QString &directory, QString *topLevel) c
     return m_plugin->managesDirectory(directory, topLevel);
 }
 
+bool CvsControl::managesFile(const QString &workingDirectory, const QString &fileName) const
+{
+    return m_plugin->managesFile(workingDirectory, fileName);
+}
+
 void CvsControl::emitRepositoryChanged(const QString &s)
 {
     emit repositoryChanged(s);

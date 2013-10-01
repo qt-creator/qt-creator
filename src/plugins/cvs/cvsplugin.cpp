@@ -1226,7 +1226,7 @@ CvsResponse CvsPlugin::runCvs(const QString &workingDirectory,
                               const QStringList &arguments,
                               int timeOut,
                               unsigned flags,
-                              QTextCodec *outputCodec)
+                              QTextCodec *outputCodec) const
 {
     const QString executable = m_settings.cvsBinaryPath;
     CvsResponse response;
@@ -1363,6 +1363,17 @@ bool CvsPlugin::managesDirectory(const QString &directory, QString *topLevel /* 
             nsp << *topLevel;
     }
     return manages;
+}
+
+bool CvsPlugin::managesFile(const QString &workingDirectory, const QString &fileName) const
+{
+    QStringList args;
+    args << QLatin1String("status") << fileName;
+    const CvsResponse response =
+            runCvs(workingDirectory, args, m_settings.timeOutMS(), SshPasswordPrompt);
+    if (response.result != CvsResponse::Ok)
+        return false;
+    return !response.stdOut.contains(QLatin1String("Status: Unknown"));
 }
 
 bool CvsPlugin::checkCVSDirectory(const QDir &directory) const

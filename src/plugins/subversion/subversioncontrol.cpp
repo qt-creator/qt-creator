@@ -146,6 +146,11 @@ bool SubversionControl::managesDirectory(const QString &directory, QString *topL
     return m_plugin->managesDirectory(directory, topLevel);
 }
 
+bool SubversionControl::managesFile(const QString &workingDirectory, const QString &fileName) const
+{
+    return m_plugin->managesFile(workingDirectory, fileName);
+}
+
 bool SubversionControl::vcsAnnotate(const QString &file, int line)
 {
     const QFileInfo fi(file);

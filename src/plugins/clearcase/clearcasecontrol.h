@@ -48,6 +48,7 @@ public:
     Core::Id id() const;
 
     bool managesDirectory(const QString &directory, QString *topLevel = 0) const;
+    bool managesFile(const QString &workingDirectory, const QString &fileName) const;
 
     bool isConfigured() const;
 

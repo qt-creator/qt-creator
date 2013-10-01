@@ -81,6 +81,14 @@ public:
     virtual bool managesDirectory(const QString &filename, QString *topLevel = 0) const = 0;
 
     /*!
+     * Returns whether \a fileName is managed by this version control.
+     *
+     * \a workingDirectory is assumed to be part of a valid repository (not necessarily its
+     * top level). \a fileName is expected to be relative to workingDirectory.
+     */
+    virtual bool managesFile(const QString &workingDirectory, const QString &fileName) const = 0;
+
+    /*!
      * Returns true is the VCS is configured to run.
      */
     virtual bool isConfigured() const = 0;

@@ -257,6 +257,15 @@ QString MercurialClient::vcsGetRepositoryURL(const QString &directory)
     return QString();
 }
 
+bool MercurialClient::managesFile(const QString &workingDirectory, const QString &fileName) const
+{
+    QStringList args;
+    args << QLatin1String("status") << QLatin1String("--unknown") << fileName;
+    QByteArray output;
+    vcsFullySynchronousExec(workingDirectory, args, &output);
+    return output.isEmpty();
+}
+
 void MercurialClient::incoming(const QString &repositoryRoot, const QString &repository)
 {
     QStringList args;

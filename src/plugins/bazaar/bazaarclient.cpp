@@ -128,6 +128,16 @@ QString BazaarClient::findTopLevelForFile(const QFileInfo &file) const
                                                                    repositoryCheckFile);
 }
 
+bool BazaarClient::managesFile(const QString &workingDirectory, const QString &fileName) const
+{
+    QStringList args(QLatin1String("status"));
+    args << fileName;
+    QByteArray stdOut;
+    if (!vcsFullySynchronousExec(workingDirectory, args, &stdOut))
+        return false;
+    return !stdOut.startsWith("unknown");
+}
+
 void BazaarClient::view(const QString &source, const QString &id, const QStringList &extraOptions)
 {
     QStringList args(QLatin1String("log"));

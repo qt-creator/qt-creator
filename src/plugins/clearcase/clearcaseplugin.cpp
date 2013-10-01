@@ -1850,6 +1850,13 @@ bool ClearCasePlugin::ccCheckUcm(const QString &viewname, const QString &working
     return QRegExp(QLatin1String("(^|\\n)ucm\\n")).indexIn(catcsData) != -1;
 }
 
+bool ClearCasePlugin::managesFile(const QString &workingDirectory, const QString &fileName) const
+{
+    QStringList args;
+    args << QLatin1String("ls") << fileName;
+    return runCleartoolSync(workingDirectory, args).contains(QLatin1String("@@"));
+}
+
 ViewData ClearCasePlugin::ccGetView(const QString &workingDir) const
 {
     static QHash<QString, ViewData> viewCache;
