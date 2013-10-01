@@ -110,9 +110,9 @@ void GitSubmitEditorWidget::initialize(CommitType commitType,
 
     if (data.hasRemotes && commitType != FixupCommit) {
         QMenu *menu = new QMenu(this);
-        menu->addAction(tr("Commit only"), this, SLOT(commitOnlySlot()));
-        menu->addAction(tr("Commit and Push"), this, SLOT(commitAndPushSlot()));
-        menu->addAction(tr("Commit and Push to Gerrit"), this, SLOT(commitAndPushToGerritSlot()));
+        menu->addAction(tr("&Commit only"), this, SLOT(commitOnlySlot()));
+        menu->addAction(tr("Commit and &Push"), this, SLOT(commitAndPushSlot()));
+        menu->addAction(tr("Commit and Push to &Gerrit"), this, SLOT(commitAndPushToGerritSlot()));
         addSubmitButtonMenu(menu);
     }
 }
@@ -172,11 +172,11 @@ QString GitSubmitEditorWidget::cleanupDescription(const QString &input) const
 QString GitSubmitEditorWidget::commitName() const
 {
     if (m_pushAction == NormalPush)
-        return tr("Commit and Push");
+        return tr("&Commit and Push");
     else if (m_pushAction == PushToGerrit)
-        return tr("Commit and Push to Gerrit");
+        return tr("&Commit and Push to Gerrit");
 
-    return tr("Commit");
+    return tr("&Commit");
 }
 
 void GitSubmitEditorWidget::authorInformationChanged()
