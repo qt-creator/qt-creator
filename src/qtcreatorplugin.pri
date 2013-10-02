@@ -1,4 +1,12 @@
-include($$replace(_PRO_FILE_PWD_, ([^/]+$), \\1/\\1_dependencies.pri))
+depfile = $$replace(_PRO_FILE_PWD_, ([^/]+$), \\1/\\1_dependencies.pri)
+exists($$depfile) {
+    include($$depfile)
+    isEmpty(QTC_PLUGIN_NAME): \
+        error("$$basename(depfile) does not define QTC_PLUGIN_NAME.")
+} else {
+    isEmpty(QTC_PLUGIN_NAME): \
+        error("QTC_PLUGIN_NAME is empty. Maybe you meant to create $$basename(depfile)?")
+}
 TARGET = $$QTC_PLUGIN_NAME
 
 plugin_deps = $$QTC_PLUGIN_DEPENDS
