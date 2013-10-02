@@ -3045,7 +3045,7 @@ bool GitClient::getCommitData(const QString &workingDirectory,
         break;
     }
 
-    commitData.panelData.hasRemotes = !synchronousRemotesList(repoDirectory).isEmpty();
+    commitData.enablePush = !synchronousRemotesList(repoDirectory).isEmpty();
     return true;
 }
 

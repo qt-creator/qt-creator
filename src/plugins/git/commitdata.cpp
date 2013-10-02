@@ -54,7 +54,6 @@ void GitSubmitEditorPanelData::clear()
     email.clear();
     bypassHooks = false;
     pushAction = NoPush;
-    hasRemotes = false;
 }
 
 QString GitSubmitEditorPanelData::authorString() const
@@ -79,7 +78,9 @@ QDebug operator<<(QDebug d, const GitSubmitEditorPanelData &data)
     return d;
 }
 
-CommitData::CommitData(CommitType type) : commitType(type)
+CommitData::CommitData(CommitType type)
+    : commitType(type)
+    , enablePush(false)
 {
 }
 
@@ -88,6 +89,7 @@ void CommitData::clear()
     panelInfo.clear();
     panelData.clear();
     amendSHA1.clear();
+    enablePush = false;
 
     files.clear();
 }

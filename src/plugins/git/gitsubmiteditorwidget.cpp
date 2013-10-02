@@ -87,7 +87,8 @@ void GitSubmitEditorWidget::setHasUnmerged(bool e)
 void GitSubmitEditorWidget::initialize(CommitType commitType,
                                        const QString &repository,
                                        const GitSubmitEditorPanelData &data,
-                                       const GitSubmitEditorPanelInfo &info)
+                                       const GitSubmitEditorPanelInfo &info,
+                                       bool enablePush)
 {
     if (m_isInitialized)
         return;
@@ -108,7 +109,7 @@ void GitSubmitEditorWidget::initialize(CommitType commitType,
     setPanelData(data);
     setPanelInfo(info);
 
-    if (data.hasRemotes && commitType != FixupCommit) {
+    if (enablePush && commitType != FixupCommit) {
         QMenu *menu = new QMenu(this);
         menu->addAction(tr("&Commit only"), this, SLOT(commitOnlySlot()));
         menu->addAction(tr("Commit and &Push"), this, SLOT(commitAndPushSlot()));

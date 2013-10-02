@@ -68,7 +68,6 @@ struct GitSubmitEditorPanelData
     QString email;
     bool bypassHooks;
     PushAction pushAction;
-    bool hasRemotes;
 };
 
 QDebug operator<<(QDebug d, const GitSubmitEditorPanelData &);
@@ -115,6 +114,7 @@ public:
     QString commitEncoding;
     GitSubmitEditorPanelInfo panelInfo;
     GitSubmitEditorPanelData panelData;
+    bool enablePush;
 
     QList<StateFilePair> files;
 
