@@ -53,7 +53,7 @@ void GitSubmitEditorPanelData::clear()
     author.clear();
     email.clear();
     bypassHooks = false;
-    pushAction = CommitOnly;
+    pushAction = NoPush;
     hasRemotes = false;
 }
 

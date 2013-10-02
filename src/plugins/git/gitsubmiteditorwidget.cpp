@@ -47,7 +47,7 @@ namespace Internal {
 // ------------------
 GitSubmitEditorWidget::GitSubmitEditorWidget(QWidget *parent) :
     VcsBase::SubmitEditorWidget(parent),
-    m_pushAction(CommitOnly),
+    m_pushAction(NoPush),
     m_gitSubmitPanel(new QWidget),
     m_logChangeWidget(0),
     m_hasUnmerged(false),
@@ -171,9 +171,9 @@ QString GitSubmitEditorWidget::cleanupDescription(const QString &input) const
 
 QString GitSubmitEditorWidget::commitName() const
 {
-    if (m_pushAction == CommitAndPush)
+    if (m_pushAction == NormalPush)
         return tr("Commit and Push");
-    else if (m_pushAction == CommitAndPushToGerrit)
+    else if (m_pushAction == PushToGerrit)
         return tr("Commit and Push to Gerrit");
 
     return tr("Commit");
@@ -194,19 +194,19 @@ void GitSubmitEditorWidget::authorInformationChanged()
 
 void GitSubmitEditorWidget::commitOnlySlot()
 {
-    m_pushAction = CommitOnly;
+    m_pushAction = NoPush;
     updateSubmitAction();
 }
 
 void GitSubmitEditorWidget::commitAndPushSlot()
 {
-    m_pushAction = CommitAndPush;
+    m_pushAction = NormalPush;
     updateSubmitAction();
 }
 
 void GitSubmitEditorWidget::commitAndPushToGerritSlot()
 {
-    m_pushAction = CommitAndPushToGerrit;
+    m_pushAction = PushToGerrit;
     updateSubmitAction();
 }
 

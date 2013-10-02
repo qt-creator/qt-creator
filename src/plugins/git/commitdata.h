@@ -53,9 +53,9 @@ struct GitSubmitEditorPanelInfo
 QDebug operator<<(QDebug d, const GitSubmitEditorPanelInfo &);
 
 enum PushAction {
-    CommitOnly,
-    CommitAndPush,
-    CommitAndPushToGerrit
+    NoPush,
+    NormalPush,
+    PushToGerrit
 };
 
 struct GitSubmitEditorPanelData

@@ -1123,9 +1123,9 @@ bool GitPlugin::submitEditorAboutToClose()
     }
 
     if (m_gitClient->checkCommandInProgress(m_submitRepository) == GitClient::NoCommand) {
-        if (editor->panelData().pushAction == CommitAndPush)
+        if (editor->panelData().pushAction == NormalPush)
             m_gitClient->push(m_submitRepository);
-        else if (editor->panelData().pushAction == CommitAndPushToGerrit)
+        else if (editor->panelData().pushAction == PushToGerrit)
             connect(editor, SIGNAL(destroyed()), this, SLOT(delayedPushToGerrit()));
     }
 
