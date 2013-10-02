@@ -102,27 +102,29 @@ void AndroidExtraLibraryListModel::addEntries(const QStringList &list)
     endInsertRows();
 }
 
-void AndroidExtraLibraryListModel::removeEntries(const QModelIndexList &list)
+bool greaterModelIndexByRow(const QModelIndex &a, const QModelIndex &b)
+{
+    return a.row() > b.row();
+}
+
+void AndroidExtraLibraryListModel::removeEntries(QModelIndexList list)
 {
     if (list.isEmpty() || m_project->rootQt4ProjectNode()->projectType() != Qt4ProjectManager::ApplicationTemplate)
         return;
 
-    QStringList oldList = m_entries;
+    std::sort(list.begin(), list.end(), greaterModelIndexByRow);
+
     int i = 0;
     while (i < list.size()) {
-        int firstRow = list.at(i++).row();
-        int lastRow = firstRow;
-        while (i < list.size() && list.at(i).row() - lastRow <= 1 && list.at(i).row() > firstRow)
-            lastRow = list.at(i++).row();
+        int lastRow = list.at(i++).row();
+        int firstRow = lastRow;
+        while (i < list.size() && firstRow - list.at(i).row()  <= 1)
+            firstRow = list.at(i++).row();
 
-        int first = m_entries.indexOf(oldList.at(firstRow));
+        beginRemoveRows(QModelIndex(), firstRow, lastRow);
         int count = lastRow - firstRow + 1;
-        Q_ASSERT(count > 0);
-        Q_ASSERT(oldList.at(lastRow) == m_entries.at(first + count - 1));
-
-        beginRemoveRows(QModelIndex(), first, first + count - 1);
         while (count-- > 0)
-            m_entries.removeAt(first);
+            m_entries.removeAt(firstRow);
         endRemoveRows();
     }
 
