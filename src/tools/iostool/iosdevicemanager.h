@@ -41,6 +41,7 @@
 
 namespace Ios {
 namespace Internal {
+class DevInfoSession;
 class IosDeviceManagerPrivate;
 } // namespace Internal
 
@@ -84,6 +85,7 @@ private slots:
     void checkPendingLookups();
 private:
     friend class Internal::IosDeviceManagerPrivate;
+    friend class Internal::DevInfoSession;
     IosDeviceManager(QObject *parent = 0);
     Internal::IosDeviceManagerPrivate *d;
 };
