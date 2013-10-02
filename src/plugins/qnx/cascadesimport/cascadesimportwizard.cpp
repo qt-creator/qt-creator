@@ -33,7 +33,7 @@
 #include "importlogconverter.h"
 #include "projectfileconverter.h"
 
-#include <qnxconstants.h>
+#include <qnx/qnxconstants.h>
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorerconstants.h>

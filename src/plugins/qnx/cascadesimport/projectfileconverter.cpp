@@ -29,7 +29,7 @@
 
 #include "projectfileconverter.h"
 
-#include <qnxconstants.h>
+#include <qnx/qnxconstants.h>
 
 #include <coreplugin/generatedfile.h>
 #include <utils/qtcassert.h>

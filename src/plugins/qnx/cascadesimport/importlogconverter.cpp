@@ -29,7 +29,7 @@
 
 #include "importlogconverter.h"
 
-#include <qnxconstants.h>
+#include <qnx/qnxconstants.h>
 
 #include <utils/qtcassert.h>
 #include <coreplugin/generatedfile.h>
