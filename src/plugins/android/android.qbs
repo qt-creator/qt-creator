@@ -8,10 +8,6 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "Qt4ProjectManager" }
-    Depends {
-        name: "QbsProjectManager"
-        condition: project.buildQbsProjectManager
-    }
     Depends { name: "Debugger" }
     Depends { name: "QmlDebug" }
     Depends { name: "QtSupport" }
@@ -22,8 +18,6 @@ QtcPlugin {
 
     property bool enable: false
     pluginspecreplacements: ({"ANDROID_EXPERIMENTAL_STR": (enable ? "false": "true")})
-
-    cpp.defines: base.concat(project.buildQbsProjectManager ? ['HAVE_QBS'] : [])
 
     files: [
         "addnewavddialog.ui",
@@ -119,13 +113,4 @@ QtcPlugin {
         "javaparser.cpp",
         "javaparser.h",
     ]
-
-    Group {
-        name: "Qbs Support"
-        condition: project.buildQbsProjectManager
-        files: [
-            "androidqbspropertyprovider.cpp",
-            "androidqbspropertyprovider.h",
-        ]
-    }
 }

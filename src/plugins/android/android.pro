@@ -102,13 +102,5 @@ FORMS += \
     androiddevicedialog.ui \
     androiddeployqtwidget.ui
 
-exists(../../shared/qbs/qbs.pro) {
-    HEADERS += \
-        androidqbspropertyprovider.h
-    SOURCES += \
-        androidqbspropertyprovider.cpp
-    DEFINES += HAVE_QBS
-}
-
 RESOURCES = android.qrc
 DEFINES += ANDROID_LIBRARY
