@@ -34,8 +34,10 @@
 
 #include <QCoreApplication>
 
+QT_BEGIN_NAMESPACE
 class QDomElement;
 class QDomDocument;
+QT_END_NAMESPACE
 
 namespace Qnx {
 namespace Internal {
