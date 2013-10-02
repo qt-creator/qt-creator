@@ -219,8 +219,7 @@ bool DetailsWidget::useCheckBox()
 void DetailsWidget::setUseCheckBox(bool b)
 {
     d->m_useCheckBox = b;
-    d->m_summaryLabel->setVisible(b);
-    d->m_summaryCheckBox->setVisible(!b);
+    d->updateControls();
 }
 
 void DetailsWidget::setChecked(bool b)
