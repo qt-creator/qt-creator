@@ -37,12 +37,9 @@
 #include <QVariantMap>
 #include <QPointer>
 
-namespace Ui {
-class CppPreProcessorAdditionWidget;
-}
-
 namespace CppEditor {
 namespace Internal {
+namespace Ui { class CppPreProcessorAdditionWidget; }
 
 class PreProcessorAdditionWidget : public QWidget
 {
