@@ -787,6 +787,9 @@ const Macro *CPPEditorWidget::findCanonicalMacro(const QTextCursor &cursor, Docu
 
 void CPPEditorWidget::findUsages()
 {
+    if (!m_modelManager)
+        return;
+
     SemanticInfo info = m_lastSemanticInfo;
     info.snapshot = CppModelManagerInterface::instance()->snapshot();
     info.snapshot.insert(info.doc);
@@ -804,6 +807,9 @@ void CPPEditorWidget::findUsages()
 
 void CPPEditorWidget::renameUsagesNow(const QString &replacement)
 {
+    if (!m_modelManager)
+        return;
+
     SemanticInfo info = m_lastSemanticInfo;
     info.snapshot = CppModelManagerInterface::instance()->snapshot();
     info.snapshot.insert(info.doc);
@@ -938,6 +944,9 @@ void CPPEditorWidget::markSymbols(const QTextCursor &tc, const SemanticInfo &inf
 
 void CPPEditorWidget::renameSymbolUnderCursor()
 {
+    if (!m_modelManager)
+        return;
+
     CppEditorSupport *edSup = m_modelManager->cppEditorSupport(editor());
     updateSemanticInfo(edSup->recalculateSemanticInfo(/* emitSignalWhenFinished = */ false));
     abortRename();
@@ -1031,6 +1040,9 @@ bool CPPEditorWidget::sortedOutline() const
 
 void CPPEditorWidget::updateOutlineNow()
 {
+    if (!m_modelManager)
+        return;
+
     const Snapshot snapshot = m_modelManager->snapshot();
     Document::Ptr document = snapshot.document(editorDocument()->filePath());
 
@@ -1123,7 +1135,7 @@ void CPPEditorWidget::updateUses()
         m_highlighter.cancel();
 
     // Block premature semantic info calculation when editor is created.
-    if (m_modelManager->cppEditorSupport(editor())->initialized())
+    if (m_modelManager && m_modelManager->cppEditorSupport(editor())->initialized())
         m_updateUsesTimer->start();
 }
 
@@ -1592,7 +1604,8 @@ bool CPPEditorWidget::openCppEditorAt(const Link &link, bool inNextSplit)
 
 void CPPEditorWidget::semanticRehighlight(bool force)
 {
-    m_modelManager->cppEditorSupport(editor())->recalculateSemanticInfoDetached(force);
+    if (m_modelManager)
+        m_modelManager->cppEditorSupport(editor())->recalculateSemanticInfoDetached(force);
 }
 
 void CPPEditorWidget::highlighterStarted(QFuture<TextEditor::HighlightingResult> *highlighter,

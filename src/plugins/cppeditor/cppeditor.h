@@ -216,7 +216,7 @@ private:
     bool handleDocumentationComment(QKeyEvent *e);
     bool isStartOfDoxygenComment(const QTextCursor &cursor) const;
 
-    CppTools::CppModelManagerInterface *m_modelManager;
+    QPointer<CppTools::CppModelManagerInterface> m_modelManager;
 
     QComboBox *m_outlineCombo;
     CPlusPlus::OverviewModel *m_outlineModel;
