@@ -67,7 +67,7 @@ QByteArray FileConverter::loadFileContent(const QString &filePath, QString &erro
     QString absFilePath = filePath;
     if (!filePath.startsWith(QLatin1String(":/"))) {
         const QString srcProjectPath = convertedProjectContext().srcProjectPath();
-        absFilePath = srcProjectPath % QLatin1Char('/') % filePath;
+        absFilePath = srcProjectPath + QLatin1Char('/') + filePath;
     }
     fr.fetch(absFilePath);
     if (!fr.errorString().isEmpty())
