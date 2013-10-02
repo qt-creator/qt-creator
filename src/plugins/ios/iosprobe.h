@@ -57,7 +57,6 @@ public:
     QStringList backendFlags;
     QSettingsPtr platformInfo;
     QSettingsPtr sdkSettings;
-    QSettingsPtr toolchainInfo;
 };
 
 class IosProbe
@@ -68,11 +67,10 @@ public:
     { }
 
 private:
-    static int compareVersions(const QString &v1, const QString &v2);
-    bool addDeveloperPath(const QString &path);
+    void addDeveloperPath(const QString &path);
     void detectDeveloperPaths();
     void setArch(Platform *platform, const QString &pathToGcc, const QStringList &extraFlags);
-    void setupDefaultToolchains(const QString &devPath, const QString &xCodeName);
+    void setupDefaultToolchains(const QString &devPath, const QString &xcodeName);
     void detectAll();
     QMap<QString, Platform> detectedPlatforms();
 private:
