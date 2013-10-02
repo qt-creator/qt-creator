@@ -26,7 +26,12 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+#include <qglobal.h>
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+#include <QApplication>
+#else
 #include <QGuiApplication>
+#endif
 #include <QTextStream>
 #include <QDebug>
 #include <QXmlStreamWriter>
@@ -81,7 +86,11 @@ IosTool::IosTool(QObject *parent):
     outFile(),
     out(&outFile)
 {
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+    outFile.open(stdout, QIODevice::WriteOnly, QFile::DontCloseHandle);
+#else
     outFile.open(stdout, QIODevice::WriteOnly, QFileDevice::DontCloseHandle);
+#endif
     out.setAutoFormatting(true);
     out.setCodec("UTF-8");
 }
@@ -376,7 +385,11 @@ void IosTool::errorMsg(const QString &msg)
 
 int main(int argc, char *argv[])
 {
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+    QApplication a(argc, argv);
+#else
     QGuiApplication a(argc, argv);
+#endif
     IosTool tool;
     tool.run(QCoreApplication::arguments());
     int res = a.exec();

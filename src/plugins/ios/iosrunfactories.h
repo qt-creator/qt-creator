@@ -31,7 +31,7 @@
 
 #include <projectexplorer/runconfiguration.h>
 #include <qt4projectmanager/qmakerunconfigurationfactory.h>
-#include <qcompilerdetection.h>
+#include <utils/qtcoverride.h>
 
 namespace ProjectExplorer {
 class RunControl;
@@ -50,25 +50,25 @@ class IosRunConfigurationFactory : public Qt4ProjectManager::QmakeRunConfigurati
 public:
     explicit IosRunConfigurationFactory(QObject *parent = 0);
 
-    Q_DECL_OVERRIDE QString displayNameForId(const Core::Id id) const;
-    Q_DECL_OVERRIDE QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
+    QString displayNameForId(const Core::Id id) const QTC_OVERRIDE;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const QTC_OVERRIDE;
 
-    Q_DECL_OVERRIDE bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
-    Q_DECL_OVERRIDE ProjectExplorer::RunConfiguration *create(ProjectExplorer::Target *parent,
-                                                              const Core::Id id);
+    bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const QTC_OVERRIDE;
+    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Target *parent,
+                                                              const Core::Id id) QTC_OVERRIDE;
 
-    Q_DECL_OVERRIDE bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
-    Q_DECL_OVERRIDE ProjectExplorer::RunConfiguration *restore(ProjectExplorer::Target *parent,
-                                                               const QVariantMap &map);
+    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const QTC_OVERRIDE;
+    ProjectExplorer::RunConfiguration *restore(ProjectExplorer::Target *parent,
+                                                               const QVariantMap &map) QTC_OVERRIDE;
 
-    Q_DECL_OVERRIDE bool canClone(ProjectExplorer::Target *parent,
-                                  ProjectExplorer::RunConfiguration *source) const;
-    Q_DECL_OVERRIDE ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent,
-                                                             ProjectExplorer::RunConfiguration *source);
+    bool canClone(ProjectExplorer::Target *parent,
+                                  ProjectExplorer::RunConfiguration *source) const QTC_OVERRIDE;
+    ProjectExplorer::RunConfiguration *clone(ProjectExplorer::Target *parent,
+                                                             ProjectExplorer::RunConfiguration *source) QTC_OVERRIDE;
 
-    Q_DECL_OVERRIDE bool canHandle(ProjectExplorer::Target *t) const;
-    Q_DECL_OVERRIDE QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Target *t,
-                                                                        ProjectExplorer::Node *n);
+    bool canHandle(ProjectExplorer::Target *t) const QTC_OVERRIDE;
+    QList<ProjectExplorer::RunConfiguration *> runConfigurationsForNode(ProjectExplorer::Target *t,
+                                                                        ProjectExplorer::Node *n) QTC_OVERRIDE;
 private:
     ProjectExplorer::RunConfiguration *doCreate(ProjectExplorer::Target *parent, const Core::Id id);
     ProjectExplorer::RunConfiguration *doRestore(ProjectExplorer::Target *parent,
