@@ -48,6 +48,7 @@ class CppIncludeHierarchyItem;
 
 class CppIncludeHierarchyModel : public QAbstractItemModel
 {
+    Q_OBJECT
 public:
     explicit CppIncludeHierarchyModel(QObject *parent);
     ~CppIncludeHierarchyModel();
