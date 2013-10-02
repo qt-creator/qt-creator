@@ -28,4 +28,20 @@ isEmpty(IDE_BUILD_TREE):IDE_BUILD_TREE=%QtCreatorBuild%
 
 PROVIDER = %VendorName%
 
+###### If the plugin can be depended upon by other plugins, this code needs to be outsourced to
+###### <dirname>_dependencies.pri, where <dirname> is the name of the directory containing the
+###### plugin's sources.
+
+QTC_PLUGIN_NAME = %PluginName%
+QTC_LIB_DEPENDS += \
+    # nothing here at this time
+
+QTC_PLUGIN_DEPENDS += \
+    coreplugin
+
+QTC_PLUGIN_RECOMMENDS += \
+    # optional plugin dependencies. nothing here at this time
+
+###### End _dependencies.pri contents ######
+
 include($$QTCREATOR_SOURCES/src/qtcreatorplugin.pri)
