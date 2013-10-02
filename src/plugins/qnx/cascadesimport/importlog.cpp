@@ -119,7 +119,7 @@ QString ImportLog::toString() const
 {
     QString ret;
     foreach (const ImportLogEntry &sle, *this)
-        ret += sle.toString() % QLatin1Char('\n');
+        ret += sle.toString() + QLatin1Char('\n');
     return ret;
 }
 

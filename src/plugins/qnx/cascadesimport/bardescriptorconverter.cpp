@@ -189,7 +189,7 @@ void BarDescriptorConverter::fixImageAsset(QDomDocument &doc, const QString &def
                 imageElement = imageElement.nextSiblingElement(imageString)) {
             target = imageElement.text();
             if (!target.isEmpty())
-                replaceAssetSourcePath(doc, target, QLatin1String(S_SRC_DIR) % target);
+                replaceAssetSourcePath(doc, target, QLatin1String(S_SRC_DIR) + target);
         }
     } else {
         log.logWarning(tr("Cannot find image asset definition: <%1>").arg(definitionElementName));
@@ -235,7 +235,7 @@ bool BarDescriptorConverter::convertFile(Core::GeneratedFile &file, QString &err
         setAsset(doc, applicationBinaryPath(), applicationBinaryName(),
                  QLatin1String("Qnx/Elf"), true);
         const QString assetsString = QLatin1String("assets");
-        replaceAssetSourcePath(doc, assetsString, QLatin1String(S_SRC_DIR) % assetsString);
+        replaceAssetSourcePath(doc, assetsString, QLatin1String(S_SRC_DIR) + assetsString);
         fixIconAsset(doc);
         fixSplashScreensAsset(doc);
 

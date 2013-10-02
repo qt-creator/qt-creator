@@ -73,7 +73,7 @@ static QMap<QString, QString> scanForDefinedVariables(const Core::GeneratedFile 
                 QString k = line.mid(0, ix2).trimmed().toUpper();
                 QString v = line.mid(ix1 + 1).trimmed();
                 if (ix1 != ix2)
-                    v = ret.value(k) % QLatin1Char(' ') % v;
+                    v = ret.value(k) + QLatin1Char(' ') + v;
                 ret[k] = v;
             }
         }
