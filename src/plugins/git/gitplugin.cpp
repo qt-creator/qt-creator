@@ -1111,25 +1111,22 @@ bool GitPlugin::submitEditorAboutToClose()
                                                 commitType, amendSHA1,
                                                 m_commitMessageFileName, model);
     }
-    if (closeEditor) {
-        cleanCommitMessageFile();
-        if (commitType == FixupCommit) {
-            if (!m_gitClient->beginStashScope(m_submitRepository, QLatin1String("Rebase-fixup"), NoPrompt))
-                return false;
-            m_gitClient->interactiveRebase(m_submitRepository, amendSHA1, true);
-        } else {
-            m_gitClient->continueCommandIfNeeded(m_submitRepository);
-        }
-    }
-
-    if (m_gitClient->checkCommandInProgress(m_submitRepository) == GitClient::NoCommand) {
+    if (!closeEditor)
+        return false;
+    cleanCommitMessageFile();
+    if (commitType == FixupCommit) {
+        if (!m_gitClient->beginStashScope(m_submitRepository, QLatin1String("Rebase-fixup"), NoPrompt))
+            return false;
+        m_gitClient->interactiveRebase(m_submitRepository, amendSHA1, true);
+    } else {
+        m_gitClient->continueCommandIfNeeded(m_submitRepository);
         if (editor->panelData().pushAction == NormalPush)
             m_gitClient->push(m_submitRepository);
         else if (editor->panelData().pushAction == PushToGerrit)
             connect(editor, SIGNAL(destroyed()), this, SLOT(delayedPushToGerrit()));
     }
 
-    return closeEditor;
+    return true;
 }
 
 void GitPlugin::fetch()
