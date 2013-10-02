@@ -37,6 +37,7 @@
 #include <QPainter>
 #include <QScrollArea>
 #include <QApplication>
+#include <QStyle>
 
 /*!
     \class Utils::DetailsWidget
@@ -73,6 +74,7 @@ public:
     QWidget *q;
     DetailsButton *m_detailsButton;
     QGridLayout *m_grid;
+    QLabel *m_summaryLabelIcon;
     QLabel *m_summaryLabel;
     QCheckBox *m_summaryCheckBox;
     QLabel *m_additionalSummaryLabel;
@@ -91,6 +93,7 @@ DetailsWidgetPrivate::DetailsWidgetPrivate(QWidget *parent) :
         q(parent),
         m_detailsButton(new DetailsButton),
         m_grid(new QGridLayout),
+        m_summaryLabelIcon(new QLabel(parent)),
         m_summaryLabel(new QLabel(parent)),
         m_summaryCheckBox(new QCheckBox(parent)),
         m_additionalSummaryLabel(new QLabel(parent)),
@@ -103,6 +106,11 @@ DetailsWidgetPrivate::DetailsWidgetPrivate(QWidget *parent) :
     QHBoxLayout *summaryLayout = new QHBoxLayout;
     summaryLayout->setContentsMargins(MARGIN, MARGIN, MARGIN, MARGIN);
     summaryLayout->setSpacing(0);
+
+    m_summaryLabelIcon->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    m_summaryLabelIcon->setContentsMargins(0, 0, 0, 0);
+    m_summaryLabelIcon->setFixedWidth(0);
+    summaryLayout->addWidget(m_summaryLabelIcon);
 
     m_summaryLabel->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
     m_summaryLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
@@ -164,6 +172,7 @@ void DetailsWidgetPrivate::updateControls()
         m_widget->setVisible(m_state == DetailsWidget::Expanded || m_state == DetailsWidget::NoSummary);
     m_detailsButton->setChecked(m_state == DetailsWidget::Expanded && m_widget);
     m_detailsButton->setVisible(m_state == DetailsWidget::Expanded || m_state == DetailsWidget::Collapsed);
+    m_summaryLabelIcon->setVisible(m_state != DetailsWidget::NoSummary && !m_useCheckBox);
     m_summaryLabel->setVisible(m_state != DetailsWidget::NoSummary && !m_useCheckBox);
     m_summaryCheckBox->setVisible(m_state != DetailsWidget::NoSummary && m_useCheckBox);
 
@@ -242,6 +251,9 @@ void DetailsWidget::setSummaryFontBold(bool b)
 
 void DetailsWidget::setIcon(const QIcon &icon)
 {
+    int iconSize = style()->pixelMetric(QStyle::PM_ButtonIconSize, 0, this);
+    d->m_summaryLabelIcon->setFixedWidth(icon.isNull() ? 0 : iconSize);
+    d->m_summaryLabelIcon->setPixmap(icon.pixmap(iconSize, iconSize));
     d->m_summaryCheckBox->setIcon(icon);
 }
 
@@ -251,7 +263,7 @@ void DetailsWidget::paintEvent(QPaintEvent *paintEvent)
 
     QPainter p(this);
 
-    QWidget *topLeftWidget = d->m_useCheckBox ? static_cast<QWidget *>(d->m_summaryCheckBox) : static_cast<QWidget *>(d->m_summaryLabel);
+    QWidget *topLeftWidget = d->m_useCheckBox ? static_cast<QWidget *>(d->m_summaryCheckBox) : static_cast<QWidget *>(d->m_summaryLabelIcon);
     QPoint topLeft(topLeftWidget->geometry().left() - MARGIN, contentsRect().top());
     const QRect paintArea(topLeft, contentsRect().bottomRight());
 

@@ -83,7 +83,6 @@ public:
 
     bool useCheckBox();
     void setUseCheckBox(bool b);
-    /// Sets an icon, only supported if useCheckBox is true
     void setIcon(const QIcon &icon);
 
     static QPixmap createBackground(const QSize &size, int topHeight, QWidget *widget);
