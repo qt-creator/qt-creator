@@ -30,6 +30,7 @@
 #include "iostoolhandler.h"
 #include "iosconfigurations.h"
 
+#include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
 
@@ -924,13 +925,13 @@ void IosSimulatorToolHandlerPrivate::addDeviceArguments(QStringList &args) const
 
 QString IosToolHandler::iosDeviceToolPath()
 {
-    QString res = QCoreApplication::applicationDirPath() + QLatin1String("/iosTool");
+    QString res = Core::ICore::libexecPath() + QLatin1String("/ios/iostool");
     return res;
 }
 
 QString IosToolHandler::iosSimulatorToolPath()
 {
-    QString res = QCoreApplication::applicationDirPath() + QLatin1String("/iossim");
+    QString res = Core::ICore::libexecPath() + QLatin1String("/ios/iossim");
     return res;
 }
 

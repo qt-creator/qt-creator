@@ -34,7 +34,8 @@ iPhoneSimulatorRemoteClientDirectLinking {
 
 TEMPLATE = app
 
-DESTDIR = $$IDE_BIN_PATH
+# put into a subdir, so we can deploy a separate qt.conf for it
+DESTDIR = $$IDE_LIBEXEC_PATH/ios
 include(../../../rpath.pri)
 
 OBJECTIVE_SOURCES += \
