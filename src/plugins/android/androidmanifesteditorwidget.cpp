@@ -137,6 +137,7 @@ void AndroidManifestEditorWidget::initializePage()
     // If the user clicks on the mainwidget it gets focus, even though that's not visible
     // This is to prevent the parent, the actual basetexteditorwidget from getting focus
     mainWidget->setFocusPolicy(Qt::WheelFocus);
+    mainWidget->installEventFilter(this);
 
     Core::IContext *myContext = new Core::IContext(this);
     myContext->setWidget(mainWidget);
@@ -459,6 +460,12 @@ bool AndroidManifestEditorWidget::eventFilter(QObject *obj, QEvent *event)
             QTimer::singleShot(0, this, SLOT(updateTargetComboBox()));
         }
     }
+
+    if (obj == m_overlayWidget)
+        if (event->type() == QEvent::KeyPress
+                || event->type() == QEvent::KeyRelease) {
+            return true;
+        }
 
     return TextEditor::PlainTextEditorWidget::eventFilter(obj, event);
 }
