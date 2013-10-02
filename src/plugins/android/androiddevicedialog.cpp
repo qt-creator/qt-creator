@@ -141,12 +141,7 @@ public:
             textColor = palette.text().color();
         painter->setPen(textColor);
 
-        if (!node->displayName().isEmpty()) {
-            QIcon icon(QLatin1String(":/core/images/darkarrowdown.png"));
-            int size = opt.rect.bottom() - opt.rect.top();
-            QPixmap pixmap = icon.pixmap(size, size);
-            painter->drawPixmap((size - pixmap.width()) / 2, opt.rect.top() + (size - pixmap.height()) / 2, pixmap);
-
+        if (!node->displayName().isEmpty()) { // Title
             // We have a top level node
             QFont font = opt.font;
             font.setPointSizeF(font.pointSizeF() * 1.2);
@@ -155,7 +150,7 @@ public:
             QFontMetrics fm(font);
             painter->setFont(font);
             int top = (opt.rect.bottom() + opt.rect.top() - fm.height()) / 2 + fm.ascent();
-            painter->drawText(size, top, node->displayName());
+            painter->drawText(6, top, node->displayName());
         } else {
             QIcon icon(device.type == AndroidDeviceInfo::Hardware ? QLatin1String(":/projectexplorer/images/MaemoDevice.png")
                                                                   : QLatin1String(":/projectexplorer/images/Simulator.png"));
@@ -384,6 +379,7 @@ AndroidDeviceDialog::AndroidDeviceDialog(int apiLevel, const QString &abi, QWidg
     m_ui->deviceView->setHeaderHidden(true);
     m_ui->deviceView->setRootIsDecorated(false);
     m_ui->deviceView->setUniformRowHeights(true);
+    m_ui->deviceView->setExpandsOnDoubleClick(false);
 
     m_ui->defaultDeviceCheckBox->setText(tr("Always use this device for architecture %1").arg(abi));
 
@@ -434,6 +430,8 @@ void AndroidDeviceDialog::refreshDeviceList()
     m_model->setDevices(devices);
 
     m_ui->deviceView->expand(m_model->index(0, 0));
+    if (m_model->rowCount() > 1) // we have a incompatible device node
+        m_ui->deviceView->expand(m_model->index(1, 0));
 
     // Smartly select a index
     QModelIndex newIndex;
