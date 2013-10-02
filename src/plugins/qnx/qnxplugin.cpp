@@ -52,6 +52,7 @@
 #include "blackberrycheckdevmodestepfactory.h"
 #include "blackberrydeviceconnectionmanager.h"
 #include "blackberryconfigurationmanager.h"
+#include "cascadesimport/cascadesimportwizard.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/mimedatabase.h>
@@ -89,6 +90,7 @@ bool QNXPlugin::initialize(const QStringList &arguments, QString *errorString)
     addAutoReleasedObject(new BlackBerryNDKSettingsPage);
     addAutoReleasedObject(new BlackBerryKeysPage);
     addAutoReleasedObject(new BlackBerryCheckDevModeStepFactory);
+    addAutoReleasedObject(new CascadesImportWizard);
     BlackBerryDeviceConnectionManager::instance()->initialize();
 
     // Handles QNX

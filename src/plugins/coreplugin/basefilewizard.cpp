@@ -187,15 +187,18 @@ BaseFileWizard::~BaseFileWizard()
 {
 }
 
+BaseFileWizard::ExtensionList BaseFileWizard::selectExtensions()
+{
+    return ExtensionSystem::PluginManager::getObjects<IFileWizardExtension>();
+}
+
 void BaseFileWizard::runWizard(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &extraValues)
 {
     QTC_ASSERT(!path.isEmpty(), return);
 
-    typedef  QList<IFileWizardExtension*> ExtensionList;
-
     QString errorMessage;
     // Compile extension pages, purge out unused ones
-    ExtensionList extensions = ExtensionSystem::PluginManager::getObjects<IFileWizardExtension>();
+    ExtensionList extensions = selectExtensions();
     WizardPageList  allExtensionPages;
     for (ExtensionList::iterator it = extensions.begin(); it !=  extensions.end(); ) {
         const WizardPageList extensionPages = (*it)->extensionPages(this);

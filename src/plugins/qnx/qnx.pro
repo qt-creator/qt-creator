@@ -226,6 +226,7 @@ FORMS += \
     blackberryinstallwizardprocesspage.ui
 
 include(../../private_headers.pri)
+include(./cascadesimport/cascadesimport.pri)
 
 greaterThan(QT_MAJOR_VERSION, 4) {
     QT += gui-private

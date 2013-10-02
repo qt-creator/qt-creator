@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/qnx/cascadesimport">
+        <file>resources/templates/project.pro</file>
+    </qresource>
+</RCC>

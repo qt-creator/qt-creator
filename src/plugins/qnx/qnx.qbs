@@ -239,4 +239,31 @@ QtcPlugin {
         "images/target-small.png",
         "images/target.png",
     ]
+
+    Group {
+        name: "CascadesImport"
+        prefix: "cascadesimport/"
+        files: [
+            "cascadesimport.qrc",
+
+            "srcprojectwizardpage.ui",
+
+            "cascadesimportwizard.cpp",
+            "srcprojectwizardpage.cpp",
+            "fileconverter.cpp",
+            "bardescriptorconverter.cpp",
+            "projectfileconverter.cpp",
+            "importlogconverter.cpp",
+            "importlog.cpp",
+
+            "cascadesimportwizard.h",
+            "srcprojectwizardpage.h",
+            "fileconverter.h",
+            "bardescriptorconverter.h",
+            "projectfileconverter.h",
+            "importlogconverter.h",
+            "importlog.h",
+        ]
+    }
+
 }

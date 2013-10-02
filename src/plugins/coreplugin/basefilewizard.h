@@ -52,6 +52,8 @@ namespace Utils { class Wizard; }
 
 namespace Core {
 
+class IFileWizardExtension;
+
 class CORE_EXPORT WizardDialogParameters
 {
 public:
@@ -117,8 +119,11 @@ public:
 
 protected:
     typedef QList<QWizardPage *> WizardPageList;
+    typedef QList<Core::IFileWizardExtension*> ExtensionList;
 
     explicit BaseFileWizard(QObject *parent = 0);
+
+    virtual ExtensionList selectExtensions();
 
     virtual QWizard *createWizardDialog(QWidget *parent,
                                         const WizardDialogParameters &wizardDialogParameters) const = 0;

@@ -108,6 +108,8 @@ const char QNX_KEY_ACTIVE[] = "active";
 
 const char QNX_BLACKBERRY_DEPLOY_CMD[] = "blackberry-deploy";
 
+const char QNX_BLACKBERRY_CASCADESIMPORTER_VERSION[] = "0.0.1";
+
 } // namespace Constants
 } // namespace Qnx
 
