@@ -12,7 +12,7 @@ QtcTool {
     files: [
         "main.mm",
         "nsprintf.m",
-        "nsstringexpandPath.m",
+        "nsstringexpandpath.m",
         "iphonesimulator.m",
         "iphonesimulator.h",
         "nsprintf.h",
