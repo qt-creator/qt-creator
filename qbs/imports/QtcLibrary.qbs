@@ -1,5 +1,5 @@
 import qbs.base 1.0
-import "../../qbs/functions.js" as QtcFunctions
+import QtcFunctions
 
 DynamicLibrary {
     Depends { name: "cpp" }
@@ -22,11 +22,12 @@ DynamicLibrary {
     cpp.rpaths: qbs.targetOS.contains("osx")
             ? ["@loader_path/..", "@executable_path/.."]
             : ["$ORIGIN", "$ORIGIN/.."]
-    cpp.includePaths: [path]
+    property string libIncludeBase: ".." // #include <lib/header.h>
+    cpp.includePaths: [libIncludeBase]
 
     Export {
         Depends { name: "cpp" }
-        cpp.includePaths: [path]
+        cpp.includePaths: [libIncludeBase]
     }
 
     Group {

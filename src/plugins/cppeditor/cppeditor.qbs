@@ -1,7 +1,7 @@
 import qbs.base 1.0
 import qbs.FileInfo
 
-import "../QtcPlugin.qbs" as QtcPlugin
+import QtcPlugin
 
 QtcPlugin {
     name: "CppEditor"

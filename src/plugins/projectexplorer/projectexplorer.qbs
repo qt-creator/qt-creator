@@ -1,7 +1,7 @@
 import qbs.base 1.0
 
-import "../../../qbs/functions.js" as QtcFunctions
-import "../QtcPlugin.qbs" as QtcPlugin
+import QtcFunctions
+import QtcPlugin
 
 QtcPlugin {
     name: "ProjectExplorer"

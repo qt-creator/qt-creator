@@ -1,6 +1,6 @@
 import qbs
 
-import "../QtcPlugin.qbs" as QtcPlugin
+import QtcPlugin
 
 QtcPlugin {
     name: "BareMetal"
