@@ -55,7 +55,7 @@ public:
         WithFocus      = IOutputPane::WithFocus,
         EnsureSizeHint = IOutputPane::EnsureSizeHint,
         Silent         = 256,
-        Flash          = 51
+        Flash          = 512
     };
 
     Q_DECLARE_FLAGS(PrintToOutputPaneFlags, PrintToOutputPaneFlag)
