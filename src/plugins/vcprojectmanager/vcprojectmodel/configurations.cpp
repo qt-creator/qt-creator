@@ -98,36 +98,6 @@ ConfigurationContainer *Configurations::configurationContainer() const
     return m_configurationContainer;
 }
 
-void Configurations::addConfiguration(IConfiguration *config)
-{
-    m_configurationContainer->addConfiguration(config);
-}
-
-IConfiguration *Configurations::configuration(const QString &fullName) const
-{
-    return m_configurationContainer->configuration(fullName);
-}
-
-IConfiguration *Configurations::configuration(int index) const
-{
-    return m_configurationContainer->configuration(index);
-}
-
-int Configurations::configurationCount() const
-{
-    return m_configurationContainer->configurationCount();
-}
-
-void Configurations::removeConfiguration(const QString &fullName)
-{
-    m_configurationContainer->removeConfiguration(fullName);
-}
-
-bool Configurations::isEmpty() const
-{
-    return m_configurationContainer->configurationCount() == 0;
-}
-
 void Configurations::processConfiguration(const QDomNode &configurationNode)
 {
     IConfiguration *config = 0;
@@ -141,7 +111,7 @@ void Configurations::processConfiguration(const QDomNode &configurationNode)
 
     if (config) {
         config->processNode(configurationNode);
-        addConfiguration(config);
+        m_configurationContainer->addConfiguration(config);
     }
 
     // process next sibling

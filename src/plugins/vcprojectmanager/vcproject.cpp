@@ -35,6 +35,7 @@
 #include "vcprojectkitinformation.h"
 #include "vcprojectmanagerconstants.h"
 #include "vcprojectbuildconfiguration.h"
+#include <vcprojectmodel/configurationcontainer.h>
 #include "vcprojectmodel/vcdocumentmodel.h"
 #include "vcprojectmodel/vcprojectdocument.h"
 #include "vcprojectmodel/configurations.h"
@@ -218,7 +219,7 @@ void VcProject::onSettingsDialogAccepted()
                 foreach (ProjectExplorer::BuildConfiguration *bc, buildConfigurationList) {
                     VcProjectBuildConfiguration *vcBc = qobject_cast<VcProjectBuildConfiguration *>(bc);
                     if (vcBc) {
-                        IConfiguration *lookFor = configs->configuration(vcBc->displayName());
+                        IConfiguration *lookFor = configs->configurationContainer()->configuration(vcBc->displayName());
                         if (!lookFor)
                             target->removeBuildConfiguration(vcBc);
                     }
@@ -230,8 +231,8 @@ void VcProject::onSettingsDialogAccepted()
         foreach (ProjectExplorer::Target *target, targetList) {
             if (target) {
 
-                for (int i = 0; i < configs->configurationCount(); ++i) {
-                    IConfiguration *config = configs->configuration(i);
+                for (int i = 0; i < configs->configurationContainer()->configurationCount(); ++i) {
+                    IConfiguration *config = configs->configurationContainer()->configuration(i);
                     if (config && !findBuildConfiguration(target, config->fullName()))
                         addBuildConfiguration(target, config);
                 }
@@ -256,8 +257,8 @@ bool VcProject::fromMap(const QVariantMap &map)
 
 bool VcProject::setupTarget(ProjectExplorer::Target *t)
 {
-    for (int i = 0; i < m_projectFile->documentModel()->vcProjectDocument()->configurations()->configurationCount(); ++i){
-        IConfiguration *config = m_projectFile->documentModel()->vcProjectDocument()->configurations()->configuration(i);
+    for (int i = 0; i < m_projectFile->documentModel()->vcProjectDocument()->configurations()->configurationContainer()->configurationCount(); ++i){
+        IConfiguration *config = m_projectFile->documentModel()->vcProjectDocument()->configurations()->configurationContainer()->configuration(i);
         if (config)
             addBuildConfiguration(t, config);
     }
@@ -307,7 +308,7 @@ void VcProject::updateCodeModels()
         QTC_ASSERT(vbc, return);
 
         QString configName = vbc->displayName();
-        IConfiguration *configModel = m_projectFile->documentModel()->vcProjectDocument()->configurations()->configuration(configName);
+        IConfiguration *configModel = m_projectFile->documentModel()->vcProjectDocument()->configurations()->configurationContainer()->configuration(configName);
 
         if (configModel) {
             ITool *configTool = configModel->tools()->tool(QLatin1String(ToolConstants::strVCCLCompilerTool));

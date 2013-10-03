@@ -41,7 +41,7 @@ namespace Internal {
 
 class VcProjectDocument;
 
-class Configurations : public IVcProjectXMLNode, public IConfigurations
+class Configurations : public IConfigurations
 {
 public:
     typedef QSharedPointer<Configurations>  Ptr;
@@ -56,15 +56,6 @@ public:
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
     ConfigurationContainer* configurationContainer() const;
-
-    // IConfigurations interface
-    void addConfiguration(IConfiguration *config);
-    IConfiguration *configuration(const QString &fullName) const;
-    IConfiguration *configuration(int index) const;
-    int configurationCount() const;
-    void removeConfiguration(const QString &fullName);
-
-    bool isEmpty() const;
 
 private:
     void processConfiguration(const QDomNode &configurationNode);

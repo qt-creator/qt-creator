@@ -41,6 +41,7 @@
 
 #include "../widgets/projectsettingswidget.h"
 #include "../widgets/configurationswidgets.h"
+#include "configurationcontainer.h"
 
 namespace VcProjectManager {
 namespace Internal {
@@ -324,7 +325,7 @@ QDomElement VcProjectDocument::toVcDocumentElement(QDomDocument &domXMLDocument)
     if (!m_platforms->isEmpty())
         vcDocNode.appendChild(m_platforms->toXMLDomNode(domXMLDocument));
 
-    if (!m_configurations->isEmpty())
+    if (m_configurations->configurationContainer()->configurationCount())
         vcDocNode.appendChild(m_configurations->toXMLDomNode(domXMLDocument));
 
     if (m_files->fileCount() || m_files->fileContainerCount())

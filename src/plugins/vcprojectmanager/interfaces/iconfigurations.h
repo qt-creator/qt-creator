@@ -32,12 +32,14 @@
 
 #include <QString>
 
+#include "../vcprojectmodel/ivcprojectnodemodel.h"
+
 namespace VcProjectManager {
 namespace Internal {
 
 class ConfigurationContainer;
 
-class IConfigurations
+class IConfigurations : public IVcProjectXMLNode
 {
 public:
     virtual ~IConfigurations() {}

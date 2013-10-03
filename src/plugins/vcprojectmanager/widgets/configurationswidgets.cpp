@@ -55,8 +55,8 @@ ConfigurationsBaseWidget::ConfigurationsBaseWidget(Configurations *configs, VcPr
     m_configsWidget = new ConfigurationsWidget;
 
     if (m_configs) {
-        for (int i = 0; i < m_configs->configurationCount(); ++i) {
-            IConfiguration *config = m_configs->configuration(i);
+        for (int i = 0; i < m_configs->configurationContainer()->configurationCount(); ++i) {
+            IConfiguration *config = m_configs->configurationContainer()->configuration(i);
             if (config)
                 addConfiguration(config);
         }
@@ -80,9 +80,9 @@ void ConfigurationsBaseWidget::saveData()
 {
     // remove deleted configurations
     foreach (const QString &removeConfigName, m_removedConfigurations) {
-        IConfiguration *foundConfig = m_configs->configuration(removeConfigName);
+        IConfiguration *foundConfig = m_configs->configurationContainer()->configuration(removeConfigName);
         if (foundConfig)
-            m_configs->removeConfiguration(foundConfig->fullName());
+            m_configs->configurationContainer()->removeConfiguration(foundConfig->fullName());
     }
 
     // rename configurations that were renamed
@@ -96,7 +96,7 @@ void ConfigurationsBaseWidget::saveData()
 
     // add new configurations
     foreach (IConfiguration *newConfig, m_newConfigurations)
-        m_configs->addConfiguration(newConfig);
+        m_configs->configurationContainer()->addConfiguration(newConfig);
 
     QHashIterator<IFile*, QList<IConfiguration*> > fileConfigIt(m_newFilesConfigurations);
 
@@ -134,7 +134,7 @@ void ConfigurationsBaseWidget::onAddNewConfig(QString newConfigName, QString cop
                 }
             }
         } else {
-            IConfiguration *config = m_configs->configuration(copyFrom);
+            IConfiguration *config = m_configs->configurationContainer()->configuration(copyFrom);
 
             if (config) {
                 QList<Platform::Ptr> platformList = platforms->platforms();
@@ -196,7 +196,7 @@ void ConfigurationsBaseWidget::onRenameConfig(QString newConfigName, QString old
             }
 
             if (!targetAlreadyExists) {
-                IConfiguration *config = m_configs->configuration(targetConfigName);
+                IConfiguration *config = m_configs->configurationContainer()->configuration(targetConfigName);
                 if (config)
                     m_renamedConfigurations.insert(config, newName);
             }
@@ -221,7 +221,7 @@ void ConfigurationsBaseWidget::onRemoveConfig(QString configNameWithPlatform)
     QList<Platform::Ptr> platformList = platforms->platforms();
     foreach (const Platform::Ptr &platform, platformList) {
         QString targetConfigName = splits[0] + QLatin1Char('|') + platform->name();
-        IConfiguration *config = m_configs->configuration(targetConfigName);
+        IConfiguration *config = m_configs->configurationContainer()->configuration(targetConfigName);
 
         // if config exists in the document model, add it to remove list
         if (config) {
