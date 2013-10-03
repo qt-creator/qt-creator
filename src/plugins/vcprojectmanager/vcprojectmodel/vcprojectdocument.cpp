@@ -90,7 +90,17 @@ QString VcProjectDocument::filePath() const
 
 void VcProjectDocument::allProjectFiles(QStringList &sl) const
 {
-    m_files->allProjectFiles(sl);
+    for (int i = 0; i < m_files->fileContainerCount(); ++i) {
+        IFileContainer *fileContainer = m_files->fileContainer(i);
+        if (fileContainer)
+           fileContainer->allFiles(sl);
+    }
+
+    for (int i = 0; i < m_files->fileCount(); ++i) {
+        IFile *file = m_files->file(i);
+        if (file)
+            sl.append(file->canonicalPath());
+    }
 }
 
 QString VcProjectDocument::fileRelativePath(const QString &filePath)
@@ -156,7 +166,7 @@ VcProjectDocument::VcProjectDocument(const VcProjectDocument &vcDoc)
 
     m_platforms = Platforms::Ptr(new Platforms(*(vcDoc.m_platforms)));
     m_configurations = Configurations::Ptr(new Configurations(*(vcDoc.m_configurations)));
-    m_files = Files::Ptr(vcDoc.m_files->clone());
+    m_files = Files::Ptr(new Files(*vcDoc.m_files));
     m_references = References::Ptr(new References(*(vcDoc.m_references)));
     m_globals = Globals::Ptr(new Globals(*(vcDoc.m_globals)));
 }
@@ -181,7 +191,7 @@ VcProjectDocument &VcProjectDocument::operator =(const VcProjectDocument &vcDoc)
 
         m_platforms = Platforms::Ptr(new Platforms(*(vcDoc.m_platforms)));
         m_configurations = Configurations::Ptr(new Configurations(*(vcDoc.m_configurations)));
-        m_files = Files::Ptr(vcDoc.m_files->clone());
+        m_files = Files::Ptr(new Files(*vcDoc.m_files));
         m_references = References::Ptr(new References(*(vcDoc.m_references)));
         m_globals = Globals::Ptr(new Globals(*(vcDoc.m_globals)));
     }
@@ -317,7 +327,7 @@ QDomElement VcProjectDocument::toVcDocumentElement(QDomDocument &domXMLDocument)
     if (!m_configurations->isEmpty())
         vcDocNode.appendChild(m_configurations->toXMLDomNode(domXMLDocument));
 
-    if (!m_files->isEmpty())
+    if (m_files->fileCount() || m_files->fileContainerCount())
         vcDocNode.appendChild(m_files->toXMLDomNode(domXMLDocument));
 
     if (!m_references->isEmpty())
@@ -368,7 +378,7 @@ VcProjectDocument2003::VcProjectDocument2003(const QString &filePath)
 void VcProjectDocument2003::init()
 {
     m_documentVersion = VcDocConstants::DV_MSVC_2003;
-    m_files = Files::Ptr(new Files2003(this));
+    m_files = Files::Ptr(new Files(this));
     m_configurations = Configurations::Ptr(new Configurations(this));
     m_references = References::Ptr(new References(m_documentVersion));
 }
@@ -474,7 +484,7 @@ VcProjectDocument2005::VcProjectDocument2005(const QString &filePath)
 void VcProjectDocument2005::init()
 {
     m_documentVersion = VcDocConstants::DV_MSVC_2005;
-    m_files = Files::Ptr(new Files2005(this));
+    m_files = Files::Ptr(new Files(this));
     m_configurations = Configurations::Ptr(new Configurations(this));
     m_references = References::Ptr(new References(m_documentVersion));
 }
@@ -601,7 +611,7 @@ VcProjectDocument2008::VcProjectDocument2008(const QString &filePath)
 void VcProjectDocument2008::init()
 {
     m_documentVersion = VcDocConstants::DV_MSVC_2008;
-    m_files = Files::Ptr(new Files2008(this));
+    m_files = Files::Ptr(new Files(this));
     m_configurations = Configurations::Ptr(new Configurations(this));
     m_references = References::Ptr(new References(m_documentVersion));
 }

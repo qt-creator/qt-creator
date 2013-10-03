@@ -54,7 +54,6 @@ public:
     void addFile(IFile *file);
     void removeFile(IFile *file);
     void removeFile(const QString &relativeFilePath);
-    QList<IFile *> files() const;
     IFile* file(const QString &relativeFilePath) const;
     IFile *file(int index) const;
     int fileCount() const;
@@ -82,7 +81,7 @@ private:
 
     QString m_name; // required
     VcProjectDocument *m_parentProjectDoc;
-    IAttributeContainer *m_attributeContainer;
+    GeneralAttributeContainer *m_attributeContainer;
 };
 
 } // namespace Internal

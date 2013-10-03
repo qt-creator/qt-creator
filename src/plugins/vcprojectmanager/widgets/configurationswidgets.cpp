@@ -299,15 +299,18 @@ void ConfigurationsBaseWidget::addConfigurationToFiles(const QString &copyFromCo
 {
     Files::Ptr docFiles = m_vcProjDoc->files();
     if (docFiles) {
-        QList<IFileContainer *> filters = docFiles->fileContainers();
 
-        foreach (IFileContainer *filter, filters)
-            addConfigurationToFilesInFilter(filter, copyFromConfig, targetConfigName);
+        for (int i = 0; i < docFiles->fileContainerCount(); ++i) {
+            IFileContainer *fileContainer = docFiles->fileContainer(i);
+            if (fileContainer)
+                addConfigurationToFilesInFilter(fileContainer, copyFromConfig, targetConfigName);
+        }
 
-        QList<IFile *> files = docFiles->files();
-
-        foreach (IFile *file, files)
-            addConfigurationToFile(file, copyFromConfig, targetConfigName);
+        for (int i = 0; i < docFiles->fileCount(); ++i) {
+            IFile *file = docFiles->file(i);
+            if (file)
+                addConfigurationToFile(file, copyFromConfig, targetConfigName);
+        }
     }
 }
 

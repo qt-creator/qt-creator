@@ -159,11 +159,6 @@ void Folder::removeFile(const QString &relativeFilePath)
     }
 }
 
-QList<IFile *> Folder::files() const
-{
-    return m_files;
-}
-
 IFile *Folder::file(const QString &relativeFilePath) const
 {
     foreach (IFile *file, m_files) {

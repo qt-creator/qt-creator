@@ -27,56 +27,36 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_INTERNAL_FILES_H
-#define VCPROJECTMANAGER_INTERNAL_FILES_H
+#ifndef VCPROJECTMANAGER_INTERNAL_IFILEHANDLER_H
+#define VCPROJECTMANAGER_INTERNAL_IFILEHANDLER_H
 
-#include "ivcprojectnodemodel.h"
-#include "../interfaces/ifiles.h"
-
-#include "file.h"
-#include "filter.h"
-#include "folder.h"
+#include "../vcprojectmodel/ivcprojectnodemodel.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
-class Files : public IFiles
+class IFile;
+class IFileContainer;
+
+class IFiles : public IVcProjectXMLNode
 {
 public:
-    typedef QSharedPointer<Files>   Ptr;
+    virtual ~IFiles() {}
+    virtual IFiles& operator=(const IFiles &files) = 0;
+    virtual void addFile(IFile *file) = 0;
+    virtual void removeFile(IFile *file) = 0;
+    virtual int fileCount() const = 0;
+    virtual IFile* file(int index) const = 0;
+    virtual IFile* file(const QString &relativePath) const = 0;
+    virtual bool fileExists(const QString &relativeFilePath) const = 0;
 
-    Files(VcProjectDocument *parentProject);
-    Files(const Files &files);
-    IFiles &operator =(const IFiles &files);
-
-    ~Files();
-    void processNode(const QDomNode &node);
-    VcNodeWidget* createSettingsWidget();
-    QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
-
-    void addFile(IFile *file);
-    int fileCount() const;
-    IFile *file(int index) const;
-    IFile *file(const QString &relativePath) const;
-    void removeFile(IFile *file);
-    bool fileExists(const QString &relativeFilePath) const;
-
-    void addFileContainer(IFileContainer *fileContainer);
-    int fileContainerCount() const;
-    IFileContainer *fileContainer(int index) const;
-    void removeFileContainer(IFileContainer *fileContainer);
-
-protected:
-    void processFile(const QDomNode &fileNode);
-    void processFilter(const QDomNode &filterNode);
-    void processFolder(const QDomNode &folderNode);
-
-    QList<IFileContainer *> m_fileContainers;
-    QList<IFile *> m_files;
-    VcProjectDocument *m_parentProject;
+    virtual void addFileContainer(IFileContainer *fileContainer) = 0;
+    virtual int fileContainerCount() const = 0;
+    virtual IFileContainer* fileContainer(int index) const = 0;
+    virtual void removeFileContainer(IFileContainer *fileContainer) = 0;
 };
 
 } // namespace Internal
 } // namespace VcProjectManager
 
-#endif // VCPROJECTMANAGER_INTERNAL_FILES_H
+#endif // VCPROJECTMANAGER_INTERNAL_IFILEHANDLER_H

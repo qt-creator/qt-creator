@@ -60,7 +60,6 @@ public:
     void removeFile(IFile *file);
     void removeFile(const QString &relativeFilePath);
     IFile *file(const QString &relativePath) const;
-    QList<IFile *> files() const;
     IFile *file(int index) const;
     int fileCount() const;
     void addFileContainer(IFileContainer *fileContainer);
@@ -82,7 +81,7 @@ private:
     QList<IFileContainer *> m_fileContainers;
     QList<IFile *> m_files;
     VcProjectDocument *m_parentProjectDoc;
-    IAttributeContainer *m_attributeContainer;
+    GeneralAttributeContainer *m_attributeContainer;
 };
 
 } // namespace Internal

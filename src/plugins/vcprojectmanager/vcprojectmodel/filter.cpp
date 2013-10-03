@@ -175,11 +175,6 @@ IFile* Filter::file(const QString &relativePath) const
     return 0;
 }
 
-QList<IFile *> Filter::files() const
-{
-    return m_files;
-}
-
 IFile *Filter::file(int index) const
 {
     if (0 <= index && index < m_files.size())
