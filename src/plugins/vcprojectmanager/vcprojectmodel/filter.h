@@ -42,7 +42,7 @@ class Filter;
 class Filter : public IFileContainer
 {
 public:
-    Filter(const QString &containerType, VcProjectDocument *parentProjectDoc);
+    Filter(VcProjectDocument *parentProjectDoc);
     Filter(const Filter &filter);
     Filter& operator=(const Filter &filter);
     ~Filter();
@@ -83,7 +83,6 @@ private:
     QList<IFile *> m_files;
     VcProjectDocument *m_parentProjectDoc;
     IAttributeContainer *m_attributeContainer;
-    QString m_containerType;
 };
 
 } // namespace Internal

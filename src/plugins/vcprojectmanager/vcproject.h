@@ -50,7 +50,6 @@ namespace Internal {
 class VcProjectFile;
 class VcDocProjectNode;
 class VcManager;
-class VcFolderNode;
 class Configuration;
 class VcProjectBuildConfiguration;
 class IConfiguration;

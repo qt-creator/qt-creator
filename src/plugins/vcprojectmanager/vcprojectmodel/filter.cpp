@@ -33,13 +33,13 @@
 
 #include "vcprojectdocument.h"
 #include "generalattributecontainer.h"
+#include "../vcprojectmanagerconstants.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
-Filter::Filter(const QString &containerType, VcProjectDocument *parentProjectDoc)
-    : m_parentProjectDoc(parentProjectDoc),
-      m_containerType(containerType)
+Filter::Filter(VcProjectDocument *parentProjectDoc)
+    : m_parentProjectDoc(parentProjectDoc)
 {
     m_attributeContainer = new GeneralAttributeContainer;
 }
@@ -48,7 +48,6 @@ Filter::Filter(const Filter &filter)
 {
     m_parentProjectDoc = filter.m_parentProjectDoc;
     m_name = filter.m_name;
-    m_containerType = filter.m_containerType;
     m_attributeContainer = new GeneralAttributeContainer;
     *(m_attributeContainer) = *(filter.m_attributeContainer);
 
@@ -64,7 +63,6 @@ Filter &Filter::operator =(const Filter &filter)
     if (this != &filter) {
         m_name = filter.m_name;
         m_parentProjectDoc = filter.m_parentProjectDoc;
-        m_containerType = filter.m_containerType;
         *(m_attributeContainer) = *(filter.m_attributeContainer);
 
         m_files.clear();
@@ -86,7 +84,7 @@ Filter::~Filter()
 
 QString Filter::containerType() const
 {
-    return m_containerType;
+    return QLatin1String(Constants::VC_PROJECT_FILE_CONTAINER_FILTER);
 }
 
 void Filter::processNode(const QDomNode &node)
@@ -271,7 +269,7 @@ void Filter::processFile(const QDomNode &fileNode)
 
 void Filter::processFilter(const QDomNode &filterNode)
 {
-    IFileContainer *filter = new Filter(QLatin1String("Filter"), m_parentProjectDoc);
+    IFileContainer *filter = new Filter(m_parentProjectDoc);
     filter->processNode(filterNode);
     addFileContainer(filter);
 

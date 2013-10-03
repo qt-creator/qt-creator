@@ -33,13 +33,13 @@
 
 #include "vcprojectdocument.h"
 #include "generalattributecontainer.h"
+#include "../vcprojectmanagerconstants.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
-Folder::Folder(const QString &containerType, VcProjectDocument *parentProjectDoc)
-    : m_parentProjectDoc(parentProjectDoc),
-      m_containerName(containerType)
+Folder::Folder(VcProjectDocument *parentProjectDoc)
+    : m_parentProjectDoc(parentProjectDoc)
 {
     m_attributeContainer = new GeneralAttributeContainer;
 }
@@ -50,7 +50,6 @@ Folder::Folder(const Folder &folder)
     m_name = folder.m_name;
     m_attributeContainer = new GeneralAttributeContainer;
     *m_attributeContainer = *(folder.m_attributeContainer);
-    m_containerName = folder.m_containerName;
 
     foreach (IFile *file, folder.m_files)
         m_files.append(file->clone());
@@ -64,7 +63,6 @@ Folder &Folder::operator =(const Folder &folder)
     if (this != &folder) {
         m_parentProjectDoc = folder.m_parentProjectDoc;
         m_name = folder.m_name;
-        m_containerName = folder.m_containerName;
         *m_attributeContainer = *(folder.m_attributeContainer);
 
         qDeleteAll(m_files);
@@ -88,7 +86,7 @@ Folder::~Folder()
 
 QString Folder::containerType() const
 {
-    return m_containerName;
+    return QLatin1String(Constants::VC_PROJECT_FILE_CONTAINER_FOLDER);
 }
 
 void Folder::processNode(const QDomNode &node)
@@ -119,7 +117,7 @@ VcNodeWidget *Folder::createSettingsWidget()
 
 QDomNode Folder::toXMLDomNode(QDomDocument &domXMLDocument) const
 {
-    QDomElement fileNode = domXMLDocument.createElement(m_containerName);
+    QDomElement fileNode = domXMLDocument.createElement(QLatin1String("Folder"));
 
     fileNode.setAttribute(QLatin1String("Name"), m_name);
 
@@ -276,7 +274,7 @@ void Folder::processFile(const QDomNode &fileNode)
 
 void Folder::processFilter(const QDomNode &filterNode)
 {
-    IFileContainer *filter = new Filter(QLatin1String("Filter"), m_parentProjectDoc);
+    IFileContainer *filter = new Filter(m_parentProjectDoc);
     filter->processNode(filterNode);
     m_fileContainers.append(filter);
 
@@ -294,7 +292,7 @@ void Folder::processFilter(const QDomNode &filterNode)
 
 void Folder::processFolder(const QDomNode &folderNode)
 {
-    IFileContainer *folder = new Folder(QLatin1String("Folder"), m_parentProjectDoc);
+    IFileContainer *folder = new Folder(m_parentProjectDoc);
     folder->processNode(folderNode);
     m_fileContainers.append(folder);
 

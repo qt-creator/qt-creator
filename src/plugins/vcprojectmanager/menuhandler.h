@@ -54,7 +54,6 @@ private:
 
 private slots:
     void onShowProjectSettings();
-    void onAddFile();
     void onAddFolder();
     void onAddFilter();
     void onRemoveFilter();

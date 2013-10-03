@@ -40,7 +40,7 @@ namespace Internal {
 class Folder : public IFileContainer
 {
 public:
-    Folder(const QString &containerType, VcProjectDocument *parentProjectDoc);
+    Folder(VcProjectDocument *parentProjectDoc);
     Folder(const Folder &folder);
     Folder& operator=(const Folder &folder);
     ~Folder();
@@ -83,7 +83,6 @@ private:
     QString m_name; // required
     VcProjectDocument *m_parentProjectDoc;
     IAttributeContainer *m_attributeContainer;
-    QString m_containerName;
 };
 
 } // namespace Internal

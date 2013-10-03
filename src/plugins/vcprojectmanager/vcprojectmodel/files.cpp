@@ -30,6 +30,7 @@
 #include "files.h"
 
 #include "vcprojectdocument.h"
+#include "../vcprojectmanagerconstants.h"
 
 namespace VcProjectManager {
 namespace Internal {
@@ -216,7 +217,7 @@ void Files::processFile(const QDomNode &fileNode)
 
 void Files::processFilter(const QDomNode &filterNode)
 {
-    IFileContainer *filter = new Filter(QLatin1String("Filter"), m_parentProject);
+    IFileContainer *filter = new Filter(m_parentProject);
     filter->processNode(filterNode);
     m_filters.append(filter);
 
@@ -423,7 +424,7 @@ void Files2005::processFile(const QDomNode &fileNode)
 
 void Files2005::processFilter(const QDomNode &filterNode)
 {
-    IFileContainer *filter = new Filter(QLatin1String("Filter"), m_parentProject);
+    IFileContainer *filter = new Filter(m_parentProject);
     filter->processNode(filterNode);
     m_filters.append(filter);
 
@@ -441,7 +442,7 @@ void Files2005::processFilter(const QDomNode &filterNode)
 
 void Files2005::processFolder(const QDomNode &folderNode)
 {
-    IFileContainer *folder = new Folder(QLatin1String("Folder"), m_parentProject);
+    IFileContainer *folder = new Folder(m_parentProject);
     folder->processNode(folderNode);
     m_folders.append(folder);
 

@@ -62,13 +62,14 @@ const char VC_PROJECT_TOOL_XML[] = "VcProject.ToolXML";
 const char VC_PROJECT_KIT_INFO_ID[] = "VcProject.KitInformation";
 
 const char VC_PROJECT_SHOW_PROPERTIES_ACTION[] = "VcProject.ShowPropertiesAction";
-const char VC_PROJECT_ADD_NEW_FILE_ACTION[] = "VcProject.AddNewFileAction";
-const char VC_PROJECT_ADD_EXISTING_FILES_ACTION[] = "VcProject.AddExistingFilesAction";
-const char VC_PROJECT_REMOVE_FILE_ACTION[] = "VcProject.RemoveFileAction";
 const char VC_PROJECT_ADD_FOLDER_ACTION[] = "VcProject.AddFolderAction";
 const char VC_PROJECT_ADD_FILTER_ACTION[] = "VcProject.AddFilterAction";
 const char VC_PROJECT_REMOVE_FOLDER_ACTION[] = "VcProject.RemoveFolderAction";
 const char VC_PROJECT_REMOVE_FILTER_ACTION[] = "VcProject.RemoveFilterAction";
+
+// File container constants
+const char VC_PROJECT_FILE_CONTAINER_FOLDER[] = "Folder";
+const char VC_PROJECT_FILE_CONTAINER_FILTER[] = "Filter";
 
 enum SchemaVersion
 {
