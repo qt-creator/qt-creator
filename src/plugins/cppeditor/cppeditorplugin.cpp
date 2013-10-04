@@ -102,7 +102,7 @@ CppEditorPlugin::CppEditorPlugin() :
     m_sortedOutline(false),
     m_renameSymbolUnderCursorAction(0),
     m_findUsagesAction(0),
-    m_updateCodeModelAction(0),
+    m_reparseExternallyChangedFiles(0),
     m_openTypeHierarchyAction(0),
     m_openIncludeHierarchyAction(0),
     m_quickFixProvider(0)
@@ -272,10 +272,10 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
 
     // Update context in global context
     cppToolsMenu->addSeparator(globalContext);
-    m_updateCodeModelAction = new QAction(tr("Update Code Model"), this);
-    cmd = ActionManager::registerAction(m_updateCodeModelAction, Constants::UPDATE_CODEMODEL, globalContext);
+    m_reparseExternallyChangedFiles = new QAction(tr("Reparse Externally Changed Files"), this);
+    cmd = ActionManager::registerAction(m_reparseExternallyChangedFiles, Constants::UPDATE_CODEMODEL, globalContext);
     CppTools::CppModelManagerInterface *cppModelManager = CppTools::CppModelManagerInterface::instance();
-    connect(m_updateCodeModelAction, SIGNAL(triggered()), cppModelManager, SLOT(updateModifiedSourceFiles()));
+    connect(m_reparseExternallyChangedFiles, SIGNAL(triggered()), cppModelManager, SLOT(updateModifiedSourceFiles()));
     cppToolsMenu->addAction(cmd);
 
     m_actionHandler = new TextEditor::TextEditorActionHandler(CppEditor::Constants::C_CPPEDITOR,
@@ -359,7 +359,7 @@ void CppEditorPlugin::onTaskStarted(Core::Id type)
     if (type == CppTools::Constants::TASK_INDEX) {
         m_renameSymbolUnderCursorAction->setEnabled(false);
         m_findUsagesAction->setEnabled(false);
-        m_updateCodeModelAction->setEnabled(false);
+        m_reparseExternallyChangedFiles->setEnabled(false);
         m_openTypeHierarchyAction->setEnabled(false);
         m_openIncludeHierarchyAction->setEnabled(false);
     }
@@ -370,7 +370,7 @@ void CppEditorPlugin::onAllTasksFinished(Core::Id type)
     if (type == CppTools::Constants::TASK_INDEX) {
         m_renameSymbolUnderCursorAction->setEnabled(true);
         m_findUsagesAction->setEnabled(true);
-        m_updateCodeModelAction->setEnabled(true);
+        m_reparseExternallyChangedFiles->setEnabled(true);
         m_openTypeHierarchyAction->setEnabled(true);
         m_openIncludeHierarchyAction->setEnabled(true);
     }

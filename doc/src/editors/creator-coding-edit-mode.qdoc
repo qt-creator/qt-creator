@@ -170,12 +170,10 @@
     If you change the default behavior, the shortcuts for opening link targets
     in the next split are used to open them in the current split.
 
-    \section1 Using Update Code Model
+    \section1 Reparsing Externally Changed Files
 
-    To refresh the internal information in \QC pertaining to your code,
-    select \gui{Tools} > \gui{C++} > \gui{Update Code Model}.
-
-    \note In \QC indexing updates the code automatically. Use
-    \gui{Update Code Model} only as an emergency command.
-
+    If source files are modified from outside \QC, the opened files will be
+    reparsed automatically. For all other files, you can use \gui{Tools} >
+    \gui{C++} > \gui{Reparse Externally Changed Files} to update the code
+    model.
 */

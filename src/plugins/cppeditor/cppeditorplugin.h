@@ -312,7 +312,7 @@ private:
     bool m_sortedOutline;
     QAction *m_renameSymbolUnderCursorAction;
     QAction *m_findUsagesAction;
-    QAction *m_updateCodeModelAction;
+    QAction *m_reparseExternallyChangedFiles;
     QAction *m_openTypeHierarchyAction;
     QAction *m_openIncludeHierarchyAction;
 
