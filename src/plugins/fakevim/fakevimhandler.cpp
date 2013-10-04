@@ -2100,9 +2100,6 @@ void FakeVimHandler::Private::init()
 
 void FakeVimHandler::Private::focus()
 {
-    if (g.inFakeVim)
-        return;
-
     enterFakeVim();
 
     stopIncrementalFind();
@@ -2134,6 +2131,8 @@ void FakeVimHandler::Private::enterFakeVim()
 
     m_cursor = EDITOR(textCursor());
     g.inFakeVim = true;
+
+    removeEventFilter();
 
     updateFirstVisibleLine();
     importSelection();
@@ -2186,6 +2185,8 @@ void FakeVimHandler::Private::leaveFakeVim(bool needUpdate)
                 scrollToLine(firstVisibleLine());
             updateScrollOffset();
         }
+
+        installEventFilter();
     }
 
     g.inFakeVim = false;
