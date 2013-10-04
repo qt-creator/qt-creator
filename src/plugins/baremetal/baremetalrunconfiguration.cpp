@@ -157,9 +157,9 @@ QString BareMetalRunConfiguration::defaultDisplayName()
 {
     if (!d->projectFilePath.isEmpty())
         //: %1 is the name of the project run via hardware debugger
-        return tr("%1 (via gdbserver/hardware debugger)").arg(QFileInfo(d->projectFilePath).completeBaseName());
+        return tr("%1 (via GDB server or hardware debugger)").arg(QFileInfo(d->projectFilePath).completeBaseName());
     //: Bare Metal run configuration default run name
-    return tr("Run on gdbserver/hardware debugger");
+    return tr("Run on GDB server or hardware debugger");
 }
 
 QString BareMetalRunConfiguration::localExecutableFilePath() const

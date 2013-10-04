@@ -32,7 +32,7 @@
       <locale language="English" country="UnitedStates"/>
      </property>
      <property name="text">
-      <string>GDB Host:</string>
+      <string>GDB host:</string>
      </property>
     </widget>
    </item>
@@ -45,7 +45,7 @@
       <locale language="English" country="UnitedStates"/>
      </property>
      <property name="text">
-      <string>GDB Port:</string>
+      <string>GDB port:</string>
      </property>
     </widget>
    </item>

@@ -98,7 +98,7 @@ QList<Core::Id> BareMetalRunConfigurationFactory::availableCreationIds(Target *p
 
 QString BareMetalRunConfigurationFactory::displayNameForId(const Core::Id id) const
 {
-    return tr("%1 (on gdbserver/Hardware Debugger)")
+    return tr("%1 (on GDB server or hardware debugger)")
         .arg(QFileInfo(pathFromId(id)).completeBaseName());
 }
 
