@@ -38,6 +38,8 @@ QString QtQuick2ApplicationViewerPrivate::adjustPath(const QString &path)
             QString::fromLatin1("%1/%2").arg(QCoreApplication::applicationDirPath(), path);
     if (QFileInfo(pathInInstallDir).exists())
         return pathInInstallDir;
+#elif defined(Q_OS_ANDROID_NO_SDK)
+    return QLatin1String("/data/user/qt/") + path;
 #endif
     return path;
 }
@@ -58,7 +60,7 @@ QtQuick2ApplicationViewer::~QtQuick2ApplicationViewer()
 void QtQuick2ApplicationViewer::setMainQmlFile(const QString &file)
 {
     d->mainQmlFile = QtQuick2ApplicationViewerPrivate::adjustPath(file);
-#ifdef Q_OS_ANDROID
+#if defined(Q_OS_ANDROID) && !defined(Q_OS_ANDROID_NO_SDK)
     setSource(QUrl(QLatin1String("assets:/")+d->mainQmlFile));
 #else
     setSource(QUrl::fromLocalFile(d->mainQmlFile));
