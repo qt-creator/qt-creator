@@ -171,7 +171,7 @@ inline LookupItem skipForwardDeclarations(const QList<LookupItem> &resolvedSymbo
 }
 
 CPPEditorWidget::Link attemptFuncDeclDef(const QTextCursor &cursor,
-    CPPEditorWidget *widget, CPlusPlus::Snapshot snapshot, const CPlusPlus::Document::Ptr &document,
+    CPPEditorWidget *, CPlusPlus::Snapshot snapshot, const CPlusPlus::Document::Ptr &document,
     SymbolFinder *symbolFinder)
 {
     snapshot.insert(document);
@@ -228,7 +228,7 @@ CPPEditorWidget::Link attemptFuncDeclDef(const QTextCursor &cursor,
     }
 
     if (target) {
-        result = widget->linkToSymbol(target);
+        result = CPPEditorWidget::linkToSymbol(target);
 
         unsigned startLine, startColumn, endLine, endColumn;
         document->translationUnit()->getTokenStartPosition(name->firstToken(), &startLine,

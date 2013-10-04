@@ -39,6 +39,7 @@
 #include <QDebug>
 #include <QCoreApplication>
 #include <QList>
+#include <QScopedArrayPointer>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -361,7 +362,7 @@ void IosToolHandlerPrivate::subprocessError(QProcess::ProcessError error)
     case StartedInferior:
     case XmlEndSeenNotProcessed:
     case XmlEndProcessed:
-        errorMsg(q->tr("Subprocess Error %1").arg(error));
+        errorMsg(IosToolHandler::tr("Subprocess Error %1").arg(error));
         toolExited(-1);
         break;
     case Stopped:
@@ -404,6 +405,17 @@ void IosToolHandlerPrivate::subprocessFinished(int exitCode, QProcess::ExitStatu
     }
 }
 
+#ifndef CMSG_SPACE
+size_t CMSG_SPACE(size_t len) {
+        msghdr msg;
+        cmsghdr cmsg;
+        msg.msg_control = &cmsg;
+        msg.msg_controllen =  ~socklen_t(0); /* To maximize the chance that CMSG_NXTHDR won't return NULL */
+        cmsg.cmsg_len = CMSG_LEN(len);
+        return reinterpret_cast<unsigned char *>(CMSG_NXTHDR(&msg, &cmsg)) - reinterpret_cast<unsigned char *>(&cmsg);
+}
+#endif
+
 int recv_fd(int socket)
 {
     int sent_fd;
@@ -421,10 +433,11 @@ int recv_fd(int socket)
     socket_message.msg_iovlen = 1;
 
     /* provide space for the ancillary data */
-    char ancillary_element_buffer[CMSG_SPACE(sizeof(int))];
-    memset(ancillary_element_buffer, 0, CMSG_SPACE(sizeof(int)));
-    socket_message.msg_control = ancillary_element_buffer;
-    socket_message.msg_controllen = CMSG_SPACE(sizeof(int));
+    size_t dimAncillaryEl = CMSG_SPACE(sizeof(int));
+    QScopedArrayPointer<char> ancillary_element_buffer(new char[dimAncillaryEl]);
+    memset(ancillary_element_buffer.data(), 0, dimAncillaryEl);
+    socket_message.msg_control = ancillary_element_buffer.data();
+    socket_message.msg_controllen = dimAncillaryEl;
 
     int flags = 0;
 #ifdef MSG_CMSG_CLOEXEC

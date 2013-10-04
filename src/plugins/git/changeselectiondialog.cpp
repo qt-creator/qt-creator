@@ -69,12 +69,11 @@ ChangeSelectionDialog::ChangeSelectionDialog(const QString &workingDirectory, Co
     connect(m_ui->revertButton, SIGNAL(clicked()), this, SLOT(acceptRevert()));
     connect(m_ui->checkoutButton, SIGNAL(clicked()), this, SLOT(acceptCheckout()));
 
-    QByteArray idName = id.name();
-    if (idName == "Git.Revert")
+    if (id == "Git.Revert")
         m_ui->revertButton->setDefault(true);
-    else if (idName == "Git.CherryPick")
+    else if (id == "Git.CherryPick")
         m_ui->cherryPickButton->setDefault(true);
-    else if (idName == "Git.Checkout")
+    else if (id == "Git.Checkout")
         m_ui->checkoutButton->setDefault(true);
     else
         m_ui->showButton->setDefault(true);

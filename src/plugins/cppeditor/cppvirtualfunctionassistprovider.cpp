@@ -58,7 +58,7 @@ public:
     VirtualFunctionProposalItem(const BaseTextEditorWidget::Link &link, bool openInSplit = true)
         : m_link(link), m_openInSplit(openInSplit) {}
 
-    void apply(BaseTextEditor */*editor*/, int /*basePosition*/) const
+    void apply(BaseTextEditor * /* editor */, int /* basePosition */) const
     {
         if (!m_link.hasValidTarget())
             return;

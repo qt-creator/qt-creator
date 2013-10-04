@@ -56,6 +56,7 @@ KitChooser::KitChooser(QWidget *parent) :
     layout->addWidget(m_manageButton);
 
     connect(m_chooser, SIGNAL(currentIndexChanged(int)), SLOT(onCurrentIndexChanged(int)));
+    connect(m_chooser, SIGNAL(activated(int)), SIGNAL(activated(int)));
     connect(m_manageButton, SIGNAL(clicked()), SLOT(onManageButtonClicked()));
     connect(KitManager::instance(), SIGNAL(kitsChanged()), SLOT(populate()));
 }

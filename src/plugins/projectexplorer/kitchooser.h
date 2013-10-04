@@ -60,6 +60,7 @@ public:
 
 signals:
     void currentIndexChanged(int);
+    void activated(int);
 
 public slots:
     void populate();
