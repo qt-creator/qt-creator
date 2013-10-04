@@ -4219,7 +4219,9 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         g.submode = CapitalZSubMode;
     } else if ((input.is('~') || input.is('u') || input.is('U'))) {
         g.movetype = MoveExclusive;
+        pushUndoState();
         if (isVisualMode()) {
+            setDotCommand(visualDotCommand() + QString::number(count()) + input.raw());
             if (isVisualLineMode())
                 g.rangemode = RangeLineMode;
             else if (isVisualBlockMode())
@@ -4233,7 +4235,6 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
                 g.submode = UpCaseSubMode;
             finishMovement();
         } else if (g.gflag || (input.is('~') && hasConfig(ConfigTildeOp))) {
-            pushUndoState();
             if (atEndOfLine())
                 moveLeft();
             setAnchor();

@@ -1902,6 +1902,19 @@ void FakeVimPlugin::test_vim_letter_case()
     KEYS("2gUU", "  " X "ABC" N "DEF");
     KEYS("u", "  " X "abc" N "def");
     KEYS("<c-r>", "  " X "ABC" N "DEF");
+
+    // undo, redo and dot command
+    data.setText("  abcde" N "  fgh" N "  ijk");
+    KEYS("3l" "<C-V>2l2j" "U", "  a" X "BCDe" N "  fGH" N "  iJK");
+    KEYS("u", "  a" X "bcde" N "  fgh" N "  ijk");
+    KEYS("<C-R>", "  a" X "BCDe" N "  fGH" N "  iJK");
+    KEYS("u", "  a" X "bcde" N "  fgh" N "  ijk");
+    KEYS("h.", "  " X "ABCde" N "  FGH" N "  IJK");
+    KEYS("u", "  " X "abcde" N "  fgh" N "  ijk");
+    KEYS("h.", " " X " ABcde" N "  FGh" N "  IJk");
+    KEYS("u", " " X " abcde" N "  fgh" N "  ijk");
+    KEYS("j.", "  abcde" N " " X " FGh" N "  IJk");
+    KEYS("u", "  abcde" N " " X " fgh" N "  ijk");
 }
 
 void FakeVimPlugin::test_vim_code_autoindent()
