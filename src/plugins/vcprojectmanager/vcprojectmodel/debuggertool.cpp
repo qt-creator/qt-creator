@@ -28,23 +28,26 @@
 **
 ****************************************************************************/
 #include "debuggertool.h"
+#include "generalattributecontainer.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
 DebuggerTool::DebuggerTool()
 {
+    m_attributeContainer = new GeneralAttributeContainer;
 }
 
 DebuggerTool::DebuggerTool(DebuggerTool &tool)
 {
-    m_anyAttribute = tool.m_anyAttribute;
+    m_attributeContainer = new GeneralAttributeContainer;
+    *m_attributeContainer = *tool.m_attributeContainer;
 }
 
 DebuggerTool &DebuggerTool::operator=(DebuggerTool &tool)
 {
     if (this != &tool)
-        m_anyAttribute = tool.m_anyAttribute;
+        *m_attributeContainer = *tool.m_attributeContainer;
     return *this;
 }
 
@@ -69,36 +72,13 @@ VcNodeWidget *DebuggerTool::createSettingsWidget()
 QDomNode DebuggerTool::toXMLDomNode(QDomDocument &domXMLDocument) const
 {
     QDomElement toolNode = domXMLDocument.createElement(QLatin1String("DebuggerTool"));
-
-    QHashIterator<QString, QString> it(m_anyAttribute);
-
-    while (it.hasNext()) {
-        it.next();
-        toolNode.setAttribute(it.key(), it.value());
-    }
-
+    m_attributeContainer->appendToXMLNode(toolNode);
     return toolNode;
 }
 
-QString DebuggerTool::attributeValue(const QString &attributeName) const
+IAttributeContainer *DebuggerTool::attributeContainer() const
 {
-    return m_anyAttribute.value(attributeName);
-}
-
-void DebuggerTool::setAttribute(const QString &attributeName, const QString &attributeValue)
-{
-    m_anyAttribute.insert(attributeName, attributeValue);
-}
-
-void DebuggerTool::clearAttribute(const QString &attributeName)
-{
-    if (m_anyAttribute.contains(attributeName))
-        m_anyAttribute.insert(attributeName, QString());
-}
-
-void DebuggerTool::removeAttribute(const QString &attributeName)
-{
-    m_anyAttribute.remove(attributeName);
+    return m_attributeContainer;
 }
 
 void DebuggerTool::processNodeAttributes(const QDomElement &element)
@@ -110,7 +90,7 @@ void DebuggerTool::processNodeAttributes(const QDomElement &element)
 
         if (domNode.nodeType() == QDomNode::AttributeNode) {
             QDomAttr domElement = domNode.toAttr();
-            m_anyAttribute.insert(domElement.name(), domElement.value());
+            m_attributeContainer->setAttribute(domElement.name(), domElement.value());
         }
     }
 }

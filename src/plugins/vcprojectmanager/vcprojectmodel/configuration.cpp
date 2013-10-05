@@ -472,7 +472,7 @@ QList<DebuggerTool::Ptr> Configuration2008::debuggerTools(const QString &attribu
     QList<DebuggerTool::Ptr> debuggerTools;
 
     foreach (const DebuggerTool::Ptr &tool, m_debuggerTools) {
-        if (tool->attributeValue(attributeName) == attributeValue)
+        if (tool->attributeContainer()->attributeValue(attributeName) == attributeValue)
             debuggerTools.append(tool);
     }
     return debuggerTools;

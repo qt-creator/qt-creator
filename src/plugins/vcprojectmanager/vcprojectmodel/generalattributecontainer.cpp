@@ -45,12 +45,9 @@ GeneralAttributeContainer &GeneralAttributeContainer::operator=(const GeneralAtt
 {
     if (this != &attrCont) {
         m_anyAttribute.clear();
-        for (int i = 0; i < attrCont.getAttributeCount(); ++i) {
-            QString attrName = attrCont.getAttributeName(i);
-            m_anyAttribute.insert(attrName, attrCont.attributeValue(attrName));
-        }
+        for (int i = 0; i < attrCont.getAttributeCount(); ++i)
+            m_anyAttribute.insert(attrCont.getAttributeName(i), attrCont.attributeValue(attrCont.getAttributeName(i)));
     }
-
     return *this;
 }
 

@@ -32,11 +32,13 @@
 
 #include "ivcprojectnodemodel.h"
 
-#include <QHash>
 #include <QSharedPointer>
 
 namespace VcProjectManager {
 namespace Internal {
+
+class IAttributeContainer;
+class GeneralAttributeContainer;
 
 class DebuggerTool : public IVcProjectXMLNode
 {
@@ -52,15 +54,12 @@ public:
     VcNodeWidget* createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
-    QString attributeValue(const QString &attributeName) const;
-    void setAttribute(const QString &attributeName, const QString &attributeValue);
-    void clearAttribute(const QString &attributeName);
-    void removeAttribute(const QString &attributeName);
+    IAttributeContainer *attributeContainer() const;
 
 private:
     void processNodeAttributes(const QDomElement &element);
 
-    QHash<QString, QString> m_anyAttribute;
+    GeneralAttributeContainer *m_attributeContainer;
 };
 
 } // namespace Internal
