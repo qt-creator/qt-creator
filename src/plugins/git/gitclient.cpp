@@ -3047,12 +3047,9 @@ bool GitClient::getCommitData(const QString &workingDirectory,
 
     commitData.enablePush = !synchronousRemotesList(repoDirectory).isEmpty();
     if (commitData.enablePush) {
-        switch (checkCommandInProgress(repoDirectory)) {
-        case GitClient::Rebase:
-        case GitClient::RebaseMerge:
+        CommandInProgress commandInProgress = checkCommandInProgress(repoDirectory);
+        if (commandInProgress == Rebase || commandInProgress == RebaseMerge)
             commitData.enablePush = false;
-            break;
-        }
     }
 
     return true;
