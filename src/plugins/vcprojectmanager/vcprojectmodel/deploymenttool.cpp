@@ -28,23 +28,26 @@
 **
 ****************************************************************************/
 #include "deploymenttool.h"
+#include "generalattributecontainer.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
 DeploymentTool::DeploymentTool()
 {
+    m_attributeContainer = new GeneralAttributeContainer;
 }
 
 DeploymentTool::DeploymentTool(const DeploymentTool &tool)
 {
-    m_anyAttribute = tool.m_anyAttribute;
+    m_attributeContainer = new GeneralAttributeContainer;
+    *m_attributeContainer = *tool.m_attributeContainer;
 }
 
 DeploymentTool &DeploymentTool::operator=(const DeploymentTool &tool)
 {
     if (this != &tool)
-        m_anyAttribute = tool.m_anyAttribute;
+        *m_attributeContainer = *tool.m_attributeContainer;
     return *this;
 }
 
@@ -65,36 +68,13 @@ VcNodeWidget *DeploymentTool::createSettingsWidget()
 QDomNode DeploymentTool::toXMLDomNode(QDomDocument &domXMLDocument) const
 {
     QDomElement toolNode = domXMLDocument.createElement(QLatin1String("DeploymentTool"));
-
-    QHashIterator<QString, QString> it(m_anyAttribute);
-
-    while (it.hasNext()) {
-        it.next();
-        toolNode.setAttribute(it.key(), it.value());
-    }
-
+    m_attributeContainer->appendToXMLNode(toolNode);
     return toolNode;
 }
 
-QString DeploymentTool::attributeValue(const QString &attributeName) const
+IAttributeContainer *DeploymentTool::attributeContainer() const
 {
-    return m_anyAttribute.value(attributeName);
-}
-
-void DeploymentTool::setAttribute(const QString &attributeName, const QString &attributeValue)
-{
-    m_anyAttribute.insert(attributeName, attributeValue);
-}
-
-void DeploymentTool::clearAttribute(const QString &attributeName)
-{
-    if (m_anyAttribute.contains(attributeName))
-        m_anyAttribute.insert(attributeName, QString());
-}
-
-void DeploymentTool::removeAttribute(const QString &attributeName)
-{
-    m_anyAttribute.remove(attributeName);
+    return m_attributeContainer;
 }
 
 void DeploymentTool::processNodeAttributes(const QDomElement &element)
@@ -106,7 +86,7 @@ void DeploymentTool::processNodeAttributes(const QDomElement &element)
 
         if (domNode.nodeType() == QDomNode::AttributeNode) {
             QDomAttr domElement = domNode.toAttr();
-            m_anyAttribute.insert(domElement.name(), domElement.value());
+            m_attributeContainer->setAttribute(domElement.name(), domElement.value());
         }
     }
 }

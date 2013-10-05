@@ -336,7 +336,7 @@ QList<DeploymentTool::Ptr> Configuration2005::deploymentTools(const QString &att
     QList<DeploymentTool::Ptr> deploymentTools;
 
     foreach (const DeploymentTool::Ptr &tool, m_deploymentTools) {
-        if (tool->attributeValue(attributeName) == attributeValue)
+        if (tool->attributeContainer()->attributeValue(attributeName) == attributeValue)
             deploymentTools.append(tool);
     }
     return deploymentTools;
