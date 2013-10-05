@@ -4387,7 +4387,7 @@ void MoveFuncDefToDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
             const CppRefactoringFilePtr declFile = refactoring.file(declFileName);
             ASTPath astPath(declFile->cppDocument());
             const QList<AST *> path = astPath(s->line(), s->column());
-            for (int idx = 0; idx < path.size(); ++idx) {
+            for (int idx = path.size() - 1; idx > 0; --idx) {
                 AST *node = path.at(idx);
                 if (SimpleDeclarationAST *simpleDecl = node->asSimpleDeclaration()) {
                     if (simpleDecl->symbols && !simpleDecl->symbols->next) {

@@ -238,6 +238,7 @@ private slots:
     void test_quickfix_MoveFuncDefToDecl_FreeFuncToCpp();
     void test_quickfix_MoveFuncDefToDecl_FreeFuncToCppNS();
     void test_quickfix_MoveFuncDefToDecl_CtorWithInitialization();
+    void test_quickfix_MoveFuncDefToDecl_structWithAssignedVariable();
 
     void test_quickfix_AssignToLocalVariable_freeFunction();
     void test_quickfix_AssignToLocalVariable_memberFunction();
