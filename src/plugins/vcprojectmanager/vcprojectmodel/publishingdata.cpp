@@ -28,17 +28,20 @@
 **
 ****************************************************************************/
 #include "publishingdata.h"
+#include "generalattributecontainer.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
 PublishingData::PublishingData()
 {
+    m_attributeContainer = new GeneralAttributeContainer;
 }
 
 PublishingData::PublishingData(const PublishingData &data)
 {
-    m_anyAttribute = data.m_anyAttribute;
+    m_attributeContainer = new GeneralAttributeContainer;
+    *m_attributeContainer = *data.m_attributeContainer;
 
     foreach (const PublishingItem::Ptr &item, data.m_publishingItems)
         m_publishingItems.append(PublishingItem::Ptr(new PublishingItem(*item)));
@@ -47,7 +50,7 @@ PublishingData::PublishingData(const PublishingData &data)
 PublishingData &PublishingData::operator =(const PublishingData &data)
 {
     if (this != &data) {
-        m_anyAttribute = data.m_anyAttribute;
+        *m_attributeContainer = *data.m_attributeContainer;
 
         m_publishingItems.clear();
         foreach (const PublishingItem::Ptr &item, data.m_publishingItems)
@@ -85,12 +88,7 @@ VcNodeWidget *PublishingData::createSettingsWidget()
 QDomNode PublishingData::toXMLDomNode(QDomDocument &domXMLDocument) const
 {
     QDomElement publishingDataNode = domXMLDocument.createElement(QLatin1String("PublishingData"));
-    QHashIterator<QString, QString> it(m_anyAttribute);
-
-    while (it.hasNext()) {
-        it.next();
-        publishingDataNode.setAttribute(it.key(), it.value());
-    }
+    m_attributeContainer->appendToXMLNode(publishingDataNode);
 
     foreach (const PublishingItem::Ptr &publish, m_publishingItems)
         publishingDataNode.appendChild(publish->toXMLDomNode(domXMLDocument));
@@ -100,7 +98,7 @@ QDomNode PublishingData::toXMLDomNode(QDomDocument &domXMLDocument) const
 
 bool PublishingData::isEmpty() const
 {
-    return m_publishingItems.isEmpty() && m_anyAttribute.isEmpty();
+    return m_publishingItems.isEmpty() && !m_attributeContainer->getAttributeCount();
 }
 
 void PublishingData::processPublishingItem(const QDomNode &publishingItemNode)
@@ -144,25 +142,9 @@ QList<PublishingItem::Ptr> PublishingData::publishingItems(const QString &attrib
     return items;
 }
 
-QString PublishingData::attributeValue(const QString &attributeName) const
+IAttributeContainer *PublishingData::attributeContainer() const
 {
-    return m_anyAttribute.value(attributeName);
-}
-
-void PublishingData::setAttribute(const QString &attributeName, const QString &attributeValue)
-{
-    m_anyAttribute.insert(attributeName, attributeValue);
-}
-
-void PublishingData::clearAttribute(const QString &attributeName)
-{
-    if (m_anyAttribute.contains(attributeName))
-        m_anyAttribute.insert(attributeName, QString());
-}
-
-void PublishingData::removeAttribute(const QString &attributeName)
-{
-    m_anyAttribute.remove(attributeName);
+    return m_attributeContainer;
 }
 
 void PublishingData::processNodeAttributes(const QDomElement &element)
@@ -174,7 +156,7 @@ void PublishingData::processNodeAttributes(const QDomElement &element)
 
         if (domNode.nodeType() == QDomNode::AttributeNode) {
             QDomAttr domElement = domNode.toAttr();
-            m_anyAttribute.insert(domElement.name(), domElement.value());
+            m_attributeContainer->setAttribute(domElement.name(), domElement.value());
         }
     }
 }

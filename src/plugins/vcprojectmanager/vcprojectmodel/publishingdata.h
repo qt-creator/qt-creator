@@ -37,6 +37,9 @@
 namespace VcProjectManager {
 namespace Internal {
 
+class IAttributeContainer;
+class GeneralAttributeContainer;
+
 class PublishingData : public IVcProjectXMLNode
 {
 public:
@@ -60,16 +63,13 @@ public:
     QList<PublishingItem::Ptr> publishingItems() const;
     QList<PublishingItem::Ptr> publishingItems(const QString &attributeName, const QString &attributeValue) const;
 
-    QString attributeValue(const QString &attributeName) const;
-    void setAttribute(const QString &attributeName, const QString &attributeValue);
-    void clearAttribute(const QString &attributeName);
-    void removeAttribute(const QString &attributeName);
+    IAttributeContainer* attributeContainer() const;
 
 private:
     void processNodeAttributes(const QDomElement &element);
 
     QList<PublishingItem::Ptr> m_publishingItems;
-    QHash<QString, QString> m_anyAttribute;
+    GeneralAttributeContainer *m_attributeContainer;
 };
 
 } // namespace Internal
