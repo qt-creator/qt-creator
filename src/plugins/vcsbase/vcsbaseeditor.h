@@ -90,7 +90,7 @@ public:
 class VCSBASE_EXPORT VcsBaseEditorWidget : public TextEditor::BaseTextEditorWidget
 {
     Q_PROPERTY(QString source READ source WRITE setSource)
-    Q_PROPERTY(QString diffBaseDirectory READ diffBaseDirectory WRITE setDiffBaseDirectory)
+    Q_PROPERTY(QString workingDirectory READ workingDirectory WRITE setWorkingDirectory)
     Q_PROPERTY(QTextCodec *codec READ codec WRITE setCodec)
     Q_PROPERTY(QString annotateRevisionTextFormat READ annotateRevisionTextFormat WRITE setAnnotateRevisionTextFormat)
     Q_PROPERTY(QString copyRevisionTextFormat READ copyRevisionTextFormat WRITE setCopyRevisionTextFormat)
@@ -144,8 +144,8 @@ public:
     void setCodec(QTextCodec *);
 
     // Base directory for diff views
-    QString diffBaseDirectory() const;
-    void setDiffBaseDirectory(const QString &d);
+    QString workingDirectory() const;
+    void setWorkingDirectory(const QString &wd);
 
     bool isModified() const;
 

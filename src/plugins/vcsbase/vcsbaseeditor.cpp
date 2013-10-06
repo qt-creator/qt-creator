@@ -563,7 +563,7 @@ public:
     const VcsBaseEditorParameters *m_parameters;
 
     QString m_source;
-    QString m_diffBaseDirectory;
+    QString m_workingDirectory;
 
     QRegExp m_diffFilePattern;
     QRegExp m_logEntryPattern;
@@ -779,14 +779,14 @@ void VcsBaseEditorWidget::setFileLogAnnotateEnabled(bool e)
     d->m_fileLogAnnotateEnabled = e;
 }
 
-QString VcsBaseEditorWidget::diffBaseDirectory() const
+QString VcsBaseEditorWidget::workingDirectory() const
 {
-    return d->m_diffBaseDirectory;
+    return d->m_workingDirectory;
 }
 
-void VcsBaseEditorWidget::setDiffBaseDirectory(const QString &bd)
+void VcsBaseEditorWidget::setWorkingDirectory(const QString &wd)
 {
-    d->m_diffBaseDirectory = bd;
+    d->m_workingDirectory = wd;
 }
 
 QTextCodec *VcsBaseEditorWidget::codec() const
@@ -1370,8 +1370,8 @@ QString VcsBaseEditorWidget::findDiffFile(const QString &f) const
 
     // 1) Try base dir
     const QChar slash = QLatin1Char('/');
-    if (!d->m_diffBaseDirectory.isEmpty()) {
-        const QFileInfo baseFileInfo(d->m_diffBaseDirectory + slash + f);
+    if (!d->m_workingDirectory.isEmpty()) {
+        const QFileInfo baseFileInfo(d->m_workingDirectory + slash + f);
         if (baseFileInfo.isFile())
             return baseFileInfo.absoluteFilePath();
     }
@@ -1451,8 +1451,8 @@ bool VcsBaseEditorWidget::canApplyDiffChunk(const DiffChunk &dc) const
 // (passing '-R' for revert), assuming we got absolute paths from the VCS plugins.
 bool VcsBaseEditorWidget::applyDiffChunk(const DiffChunk &dc, bool revert) const
 {
-    return VcsBasePlugin::runPatch(dc.asPatch(d->m_diffBaseDirectory),
-                                   d->m_diffBaseDirectory, 0, revert);
+    return VcsBasePlugin::runPatch(dc.asPatch(d->m_workingDirectory),
+                                   d->m_workingDirectory, 0, revert);
 }
 
 QString VcsBaseEditorWidget::fileNameFromDiffSpecification(const QTextBlock &inBlock, QString *header) const

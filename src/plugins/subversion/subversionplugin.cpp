@@ -545,10 +545,10 @@ void SubversionDiffParameterWidget::triggerReRun()
     emit reRunDiff(effectiveParameters);
 }
 
-static inline void setDiffBaseDirectory(Core::IEditor *editor, const QString &db)
+static inline void setWorkingDirectory(Core::IEditor *editor, const QString &wd)
 {
     if (VcsBase::VcsBaseEditorWidget *ve = qobject_cast<VcsBase::VcsBaseEditorWidget*>(editor->widget()))
-        ve->setDiffBaseDirectory(db);
+        ve->setWorkingDirectory(wd);
 }
 
 void SubversionPlugin::svnDiff(const QString &workingDir, const QStringList &files, QString diffname)
@@ -590,12 +590,12 @@ void SubversionPlugin::svnDiff(const Subversion::Internal::SubversionDiffParamet
     if (Core::IEditor *existingEditor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
         existingEditor->document()->setContents(response.stdOut.toUtf8());
         Core::EditorManager::activateEditor(existingEditor);
-        setDiffBaseDirectory(existingEditor, p.workingDir);
+        setWorkingDirectory(existingEditor, p.workingDir);
         return;
     }
     const QString title = QString::fromLatin1("svn diff %1").arg(diffName);
     Core::IEditor *editor = showOutputInEditor(title, response.stdOut, VcsBase::DiffOutput, source, codec);
-    setDiffBaseDirectory(editor, p.workingDir);
+    setWorkingDirectory(editor, p.workingDir);
     VcsBase::VcsBaseEditorWidget::tagEditor(editor, tag);
     SubversionEditor *diffEditorWidget = qobject_cast<SubversionEditor *>(editor->widget());
     QTC_ASSERT(diffEditorWidget, return);

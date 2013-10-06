@@ -1122,7 +1122,7 @@ void GitClient::diff(const QString &workingDirectory,
                     vcsEditor->configurationWidget());
         argWidget->setFileNames(unstagedFileNames, stagedFileNames);
         QStringList userDiffArgs = argWidget->arguments();
-        vcsEditor->setDiffBaseDirectory(workingDirectory);
+        vcsEditor->setWorkingDirectory(workingDirectory);
 
         // Create a batch of 2 commands to be run after each other in case
         // we have a mixture of staged/unstaged files as is the case
@@ -1220,7 +1220,7 @@ void GitClient::diff(const QString &workingDirectory, const QString &fileName)
             connect(vcsEditor, SIGNAL(diffChunkReverted(VcsBase::DiffChunk)),
                     argWidget, SLOT(executeCommand()));
         }
-        vcsEditor->setDiffBaseDirectory(workingDirectory);
+        vcsEditor->setWorkingDirectory(workingDirectory);
 
         QStringList cmdArgs;
         cmdArgs << QLatin1String("diff")
@@ -1280,7 +1280,7 @@ void GitClient::diffBranch(const QString &workingDirectory,
                                                                       branchName));
             newEditor = vcsEditor->editor();
         }
-        vcsEditor->setDiffBaseDirectory(workingDirectory);
+        vcsEditor->setWorkingDirectory(workingDirectory);
 
         QStringList cmdArgs;
         cmdArgs << QLatin1String("diff")
@@ -1331,7 +1331,7 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
                                                            enableAnnotationContextMenu,
                                                            args, fileName));
     editor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
-    editor->setDiffBaseDirectory(workingDirectory);
+    editor->setWorkingDirectory(workingDirectory);
 
     QStringList arguments;
     arguments << QLatin1String("log") << QLatin1String(noColorOption)
@@ -1444,7 +1444,7 @@ void GitClient::show(const QString &source, const QString &id,
                   << vcsEditor->configurationWidget()->arguments()
                   << id;
 
-        vcsEditor->setDiffBaseDirectory(workingDirectory);
+        vcsEditor->setWorkingDirectory(workingDirectory);
         executeGit(workingDirectory, arguments, vcsEditor);
     }
     if (newEditor) {

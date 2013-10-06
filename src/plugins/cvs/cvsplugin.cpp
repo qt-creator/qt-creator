@@ -503,7 +503,7 @@ void CvsPlugin::diffCommitFiles(const QStringList &files)
 static void setDiffBaseDirectory(IEditor *editor, const QString &db)
 {
     if (VcsBaseEditorWidget *ve = qobject_cast<VcsBaseEditorWidget*>(editor->widget()))
-        ve->setDiffBaseDirectory(db);
+        ve->setWorkingDirectory(db);
 }
 
 // Collect all parameters required for a diff to be able to associate them

@@ -249,7 +249,7 @@ void GitEditor::applyDiffChunk(const VcsBase::DiffChunk& chunk, bool revert)
     if (!patchFile.open())
         return;
 
-    const QString baseDir = diffBaseDirectory();
+    const QString baseDir = workingDirectory();
     patchFile.write(chunk.header);
     patchFile.write(chunk.chunk);
     patchFile.close();

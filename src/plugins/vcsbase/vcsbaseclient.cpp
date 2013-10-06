@@ -355,7 +355,7 @@ void VcsBaseClient::diff(const QString &workingDir, const QStringList &files,
     const QString source = VcsBase::VcsBaseEditorWidget::getSource(workingDir, files);
     VcsBase::VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source, true,
                                                            vcsCmdString.toLatin1().constData(), id);
-    editor->setDiffBaseDirectory(workingDir);
+    editor->setWorkingDirectory(workingDir);
 
     VcsBaseEditorParameterWidget *paramWidget = createDiffEditor(workingDir, files, extraOptions);
     if (paramWidget != 0) {
