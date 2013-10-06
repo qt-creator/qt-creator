@@ -135,7 +135,7 @@ QList<PublishingItem::Ptr> PublishingData::publishingItems(const QString &attrib
     QList<PublishingItem::Ptr> items;
 
     foreach (const PublishingItem::Ptr &item, m_publishingItems) {
-        if (item->attributeValue(attributeName) == attributeValue)
+        if (item->attributeContainer()->attributeValue(attributeName) == attributeValue)
             items.append(item);
     }
 

@@ -28,23 +28,26 @@
 **
 ****************************************************************************/
 #include "publishingitem.h"
+#include "generalattributecontainer.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
 PublishingItem::PublishingItem()
 {
+    m_attributeContainer = new GeneralAttributeContainer;
 }
 
 PublishingItem::PublishingItem(const PublishingItem &item)
 {
-    m_anyAttribute = item.m_anyAttribute;
+    m_attributeContainer = new GeneralAttributeContainer;
+    *m_attributeContainer = *item.m_attributeContainer;
 }
 
 PublishingItem &PublishingItem::operator =(const PublishingItem &item)
 {
     if (this != &item)
-        m_anyAttribute = item.m_anyAttribute;
+        *m_attributeContainer = *item.m_attributeContainer;
     return *this;
 }
 
@@ -69,36 +72,13 @@ VcNodeWidget *PublishingItem::createSettingsWidget()
 QDomNode PublishingItem::toXMLDomNode(QDomDocument &domXMLDocument) const
 {
     QDomElement publishingItemNode = domXMLDocument.createElement(QLatin1String("PublishingItem"));
-
-    QHashIterator<QString, QString> it(m_anyAttribute);
-
-    while (it.hasNext()) {
-        it.next();
-        publishingItemNode.setAttribute(it.key(), it.value());
-    }
-
+    m_attributeContainer->appendToXMLNode(publishingItemNode);
     return publishingItemNode;
 }
 
-QString PublishingItem::attributeValue(const QString &attributeName) const
+IAttributeContainer *PublishingItem::attributeContainer() const
 {
-    return m_anyAttribute.value(attributeName);
-}
-
-void PublishingItem::setAttribute(const QString &attributeName, const QString &attributeValue)
-{
-    m_anyAttribute.insert(attributeName, attributeValue);
-}
-
-void PublishingItem::clearAttribute(const QString &attributeName)
-{
-    if (m_anyAttribute.contains(attributeName))
-        m_anyAttribute.insert(attributeName, QString());
-}
-
-void PublishingItem::removeAttribute(const QString &attributeName)
-{
-    m_anyAttribute.remove(attributeName);
+    return m_attributeContainer;
 }
 
 void PublishingItem::processNodeAttributes(const QDomElement &element)
@@ -110,7 +90,7 @@ void PublishingItem::processNodeAttributes(const QDomElement &element)
 
         if (domNode.nodeType() == QDomNode::AttributeNode) {
             QDomAttr domElement = domNode.toAttr();
-            m_anyAttribute.insert(domElement.name(), domElement.value());
+            m_attributeContainer->setAttribute(domElement.name(), domElement.value());
         }
     }
 }
