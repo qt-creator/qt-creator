@@ -111,6 +111,7 @@ public:
                                 Document::Ptr document,
                                 Scope *scope);
 
+    // Returns UTF-8.
     QByteArray preprocess(const QByteArray &utf8code) const;
 
     /**
