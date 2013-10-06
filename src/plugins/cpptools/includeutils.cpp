@@ -42,6 +42,8 @@
 #include <QTextBlock>
 #include <QTextDocument>
 
+#include <algorithm>
+
 using namespace CPlusPlus;
 using namespace CppTools;
 using namespace CppTools::IncludeUtils;
