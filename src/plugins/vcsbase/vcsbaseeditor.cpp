@@ -684,6 +684,12 @@ bool VcsBaseEditorWidget::supportChangeLinks() const
     }
 }
 
+QString VcsBaseEditorWidget::fileNameForLine(int line) const
+{
+    Q_UNUSED(line);
+    return source();
+}
+
 void VcsBaseEditorWidget::init()
 {
     d->m_editor = editor();
@@ -1414,8 +1420,13 @@ void VcsBaseEditorWidget::addDiffActions(QMenu *, const DiffChunk &)
 void VcsBaseEditorWidget::slotAnnotateRevision()
 {
     if (const QAction *a = qobject_cast<const QAction *>(sender())) {
-        QFileInfo fi(source());
-        emit annotateRevisionRequested(fi.absolutePath(), fi.fileName(),
+        const int currentLine = editor()->currentLine();
+        const QString fileName = fileNameForLine(currentLine);
+        QString workingDirectory = d->m_workingDirectory;
+        if (workingDirectory.isEmpty())
+            workingDirectory = QFileInfo(fileName).absolutePath();
+        emit annotateRevisionRequested(workingDirectory,
+                                       QDir(workingDirectory).relativeFilePath(fileName),
                                        a->data().toString(), currentLine);
     }
 }
