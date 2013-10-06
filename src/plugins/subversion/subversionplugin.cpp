@@ -940,12 +940,12 @@ void SubversionPlugin::annotateCurrentFile()
     vcsAnnotate(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
-void SubversionPlugin::annotateVersion(const QString &file,
+void SubversionPlugin::annotateVersion(const QString &workingDirectory,
+                                       const QString &file,
                                        const QString &revision,
                                        int lineNr)
 {
-    const QFileInfo fi(file);
-    vcsAnnotate(fi.absolutePath(), fi.fileName(), revision, lineNr);
+    vcsAnnotate(workingDirectory, file, revision, lineNr);
 }
 
 void SubversionPlugin::vcsAnnotate(const QString &workingDir, const QString &file,
@@ -1177,8 +1177,8 @@ Core::IEditor *SubversionPlugin::showOutputInEditor(const QString &title, const 
                  <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
     Core::IEditor *editor = Core::EditorManager::openEditorWithContents(id, &s, output.toUtf8());
-    connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,int)),
-            this, SLOT(annotateVersion(QString,QString,int)));
+    connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
+            this, SLOT(annotateVersion(QString,QString,QString,int)));
     SubversionEditor *e = qobject_cast<SubversionEditor*>(editor->widget());
     if (!e)
         return 0;

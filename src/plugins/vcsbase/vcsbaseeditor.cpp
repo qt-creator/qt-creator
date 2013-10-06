@@ -158,7 +158,8 @@ public:
 
 signals:
     void describeRequested(const QString &source, const QString &change);
-    void annotateRevisionRequested(const QString &source, const QString &change, int line);
+    void annotateRevisionRequested(const QString &workingDirectory, const QString &file,
+                                   const QString &change, int line);
 
 private:
     Core::Id m_id;
@@ -818,8 +819,8 @@ TextEditor::BaseTextEditor *VcsBaseEditorWidget::createEditor()
     // Pass on signals.
     connect(this, SIGNAL(describeRequested(QString,QString)),
             editor, SIGNAL(describeRequested(QString,QString)));
-    connect(this, SIGNAL(annotateRevisionRequested(QString,QString,int)),
-            editor, SIGNAL(annotateRevisionRequested(QString,QString,int)));
+    connect(this, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
+            editor, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)));
     return editor;
 }
 
@@ -1412,9 +1413,11 @@ void VcsBaseEditorWidget::addDiffActions(QMenu *, const DiffChunk &)
 
 void VcsBaseEditorWidget::slotAnnotateRevision()
 {
-    if (const QAction *a = qobject_cast<const QAction *>(sender()))
-        emit annotateRevisionRequested(source(), a->data().toString(),
-                                       editor()->currentLine());
+    if (const QAction *a = qobject_cast<const QAction *>(sender())) {
+        QFileInfo fi(source());
+        emit annotateRevisionRequested(fi.absolutePath(), fi.fileName(),
+                                       a->data().toString(), currentLine);
+    }
 }
 
 QStringList VcsBaseEditorWidget::annotationPreviousVersions(const QString &) const

@@ -335,7 +335,8 @@ public slots:
     void saveSettings();
 
 private slots:
-    void slotBlameRevisionRequested(const QString &source, QString change, int lineNumber);
+    void slotBlameRevisionRequested(const QString &workingDirectory, const QString &file,
+                                    QString change, int lineNumber);
     void finishSubmoduleUpdate();
     void fetchFinished(const QVariant &cookie);
 

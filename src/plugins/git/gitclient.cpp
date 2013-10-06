@@ -1038,8 +1038,8 @@ VcsBase::VcsBaseEditorWidget *GitClient::createVcsEditor(
                                                                               m_msgWait.toUtf8());
     outputEditor->document()->setProperty(registerDynamicProperty, dynamicPropertyValue);
     rc = VcsBase::VcsBaseEditorWidget::getVcsBaseEditor(outputEditor);
-    connect(rc, SIGNAL(annotateRevisionRequested(QString,QString,int)),
-            this, SLOT(slotBlameRevisionRequested(QString,QString,int)));
+    connect(rc, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
+            this, SLOT(slotBlameRevisionRequested(QString,QString,QString,int)));
     QTC_ASSERT(rc, return 0);
     rc->setSource(source);
     if (codecType == CodecSource) {
@@ -1461,15 +1461,15 @@ void GitClient::saveSettings()
     settings()->writeSettings(Core::ICore::settings());
 }
 
-void GitClient::slotBlameRevisionRequested(const QString &source, QString change, int lineNumber)
+void GitClient::slotBlameRevisionRequested(const QString &workingDirectory, const QString &file,
+                                           QString change, int lineNumber)
 {
     // This might be invoked with a verbose revision description
     // "SHA1 author subject" from the annotation context menu. Strip the rest.
     const int blankPos = change.indexOf(QLatin1Char(' '));
     if (blankPos != -1)
         change.truncate(blankPos);
-    const QFileInfo fi(source);
-    blame(fi.absolutePath(), QStringList(), fi.fileName(), change, lineNumber);
+    blame(workingDirectory, QStringList(), file, change, lineNumber);
 }
 
 QTextCodec *GitClient::getSourceCodec(const QString &file) const

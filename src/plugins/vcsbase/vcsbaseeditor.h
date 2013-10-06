@@ -202,7 +202,8 @@ signals:
     // handled by the editor manager for convenience. They are emitted
     // for LogOutput/AnnotateOutput content types.
     void describeRequested(const QString &source, const QString &change);
-    void annotateRevisionRequested(const QString &source, const QString &change, int lineNumber);
+    void annotateRevisionRequested(const QString &workingDirectory, const QString &file,
+                                   const QString &change, int lineNumber);
     void diffChunkApplied(const VcsBase::DiffChunk &dc);
     void diffChunkReverted(const VcsBase::DiffChunk &dc);
 

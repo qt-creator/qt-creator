@@ -96,7 +96,8 @@ public:
     static CvsPlugin *instance();
 
 public slots:
-    void vcsAnnotate(const QString &file, const QString &revision /* = QString() */, int lineNumber);
+    void vcsAnnotate(const QString &workingDirectory, const QString &file,
+                     const QString &revision, int lineNumber);
 
 private slots:
     void addCurrentFile();

@@ -923,10 +923,10 @@ void CvsPlugin::annotateCurrentFile()
     annotate(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
-void CvsPlugin::vcsAnnotate(const QString &file, const QString &revision, int lineNumber)
+void CvsPlugin::vcsAnnotate(const QString &workingDirectory, const QString &file,
+                            const QString &revision, int lineNumber)
 {
-    const QFileInfo fi(file);
-    annotate(fi.absolutePath(), fi.fileName(), revision, lineNumber);
+    annotate(workingDirectory, file, revision, lineNumber);
 }
 
 bool CvsPlugin::edit(const QString &topLevel, const QStringList &files)
@@ -1274,8 +1274,8 @@ IEditor *CvsPlugin::showOutputInEditor(const QString& title, const QString &outp
                  <<  "source=" << source << "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
     IEditor *editor = EditorManager::openEditorWithContents(id, &s, output.toUtf8());
-    connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,int)),
-            this, SLOT(vcsAnnotate(QString,QString,int)));
+    connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
+            this, SLOT(vcsAnnotate(QString,QString,QString,int)));
     CvsEditor *e = qobject_cast<CvsEditor*>(editor->widget());
     if (!e)
         return 0;

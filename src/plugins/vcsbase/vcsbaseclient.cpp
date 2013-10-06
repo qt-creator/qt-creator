@@ -90,7 +90,8 @@ public:
     VcsBaseClientPrivate(VcsBaseClient *client, VcsBaseClientSettings *settings);
 
     void statusParser(const QString &text);
-    void annotateRevision(QString source, QString change, int lineNumber);
+    void annotateRevision(const QString &workingDirectory, const QString &file,
+                          QString change, int lineNumber);
     void saveSettings();
 
     void bindCommandToEditor(Command *cmd, VcsBaseEditorWidget *editor);
@@ -125,15 +126,15 @@ void VcsBaseClientPrivate::statusParser(const QString &text)
     emit m_client->parsedStatus(lineInfoList);
 }
 
-void VcsBaseClientPrivate::annotateRevision(QString source, QString change, int lineNumber)
+void VcsBaseClientPrivate::annotateRevision(const QString &workingDirectory,  const QString &file,
+                                            QString change, int lineNumber)
 {
     // This might be invoked with a verbose revision description
     // "SHA1 author subject" from the annotation context menu. Strip the rest.
     const int blankPos = change.indexOf(QLatin1Char(' '));
     if (blankPos != -1)
         change.truncate(blankPos);
-    const QFileInfo fi(source);
-    m_client->annotate(fi.absolutePath(), fi.fileName(), change, lineNumber);
+    m_client->annotate(workingDirectory, file, change, lineNumber);
 }
 
 void VcsBaseClientPrivate::saveSettings()
@@ -574,8 +575,8 @@ VcsBase::VcsBaseEditorWidget *VcsBaseClient::createVcsEditor(Core::Id kind, QStr
         outputEditor = Core::EditorManager::openEditorWithContents(kind, &title, progressMsg.toUtf8());
         outputEditor->document()->setProperty(registerDynamicProperty, dynamicPropertyValue);
         baseEditor = VcsBase::VcsBaseEditorWidget::getVcsBaseEditor(outputEditor);
-        connect(baseEditor, SIGNAL(annotateRevisionRequested(QString,QString,int)),
-                this, SLOT(annotateRevision(QString,QString,int)));
+        connect(baseEditor, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
+                this, SLOT(annotateRevision(QString,QString,QString,int)));
         QTC_ASSERT(baseEditor, return 0);
         baseEditor->setSource(source);
         if (setSourceCodec)

@@ -185,7 +185,7 @@ private slots:
     void startCheckInCurrentFile();
     void historyCurrentFile();
     void annotateCurrentFile();
-    void annotateVersion(const QString &file, const QString &revision, int lineNumber);
+    void annotateVersion(const QString &workingDirectory, const QString &file, const QString &revision, int lineNumber);
     void describe(const QString &source, const QString &changeNr);
     void viewStatus();
     void checkInSelected();

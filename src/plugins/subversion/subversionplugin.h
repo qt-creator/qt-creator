@@ -131,7 +131,7 @@ private slots:
     void revertAll();
     void filelogCurrentFile();
     void annotateCurrentFile();
-    void annotateVersion(const QString &file, const QString &revision, int lineNumber);
+    void annotateVersion(const QString &workingDirectory, const QString &file, const QString &revision, int lineNumber);
     void projectStatus();
     void describe(const QString &source, const QString &changeNr);
     void slotDescribe();
