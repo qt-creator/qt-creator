@@ -62,6 +62,9 @@
 #include <QTextCursor>
 #include <QMessageBox>
 
+using namespace TextEditor;
+using namespace Core;
+
 /*!
     \class ProjectExplorer::Internal::ProjectFileWizardExtension
 
@@ -177,13 +180,13 @@ struct ProjectWizardContext
     ProjectWizardContext();
     void clear();
 
-    QList<Core::IVersionControl*> versionControls;
-    QList<Core::IVersionControl*> activeVersionControls;
+    QList<IVersionControl*> versionControls;
+    QList<IVersionControl*> activeVersionControls;
     QList<ProjectEntry> projects;
     QPointer<ProjectWizardPage> page; // this is managed by the wizard!
     bool repositoryExists; // Is VCS 'add' sufficient, or should a repository be created?
     QString commonDirectory;
-    const Core::IWizard *wizard;
+    const IWizard *wizard;
 };
 
 ProjectWizardContext::ProjectWizardContext() :
@@ -265,16 +268,16 @@ static int findMatchingProject(const QList<ProjectEntry> &projects,
     return bestMatch;
 }
 
-static QString generatedProjectFilePath(const QList<Core::GeneratedFile> &files)
+static QString generatedProjectFilePath(const QList<GeneratedFile> &files)
 {
-    foreach (const Core::GeneratedFile &file, files)
-        if (file.attributes() & Core::GeneratedFile::OpenProjectAttribute)
+    foreach (const GeneratedFile &file, files)
+        if (file.attributes() & GeneratedFile::OpenProjectAttribute)
             return file.path();
     return QString();
 }
 
 void ProjectFileWizardExtension::firstExtensionPageShown(
-        const QList<Core::GeneratedFile> &files,
+        const QList<GeneratedFile> &files,
         const QVariantMap &extraValues)
 {
     initProjectChoices(generatedProjectFilePath(files));
@@ -284,7 +287,7 @@ void ProjectFileWizardExtension::firstExtensionPageShown(
     // Parametrize wizard page: find best project to add to, set up files display and
     // version control depending on path
     QStringList fileNames;
-    foreach (const Core::GeneratedFile &f, files)
+    foreach (const GeneratedFile &f, files)
         fileNames.push_back(f.path());
     m_context->commonDirectory = Utils::commonPath(fileNames);
     m_context->page->setFilesDisplay(m_context->commonDirectory, fileNames);
@@ -321,7 +324,7 @@ void ProjectFileWizardExtension::firstExtensionPageShown(
 
     // Store all version controls for later use:
     if (m_context->versionControls.isEmpty()) {
-        foreach (Core::IVersionControl *vc, ExtensionSystem::PluginManager::getObjects<Core::IVersionControl>()) {
+        foreach (IVersionControl *vc, ExtensionSystem::PluginManager::getObjects<IVersionControl>()) {
             m_context->versionControls.append(vc);
             connect(vc, SIGNAL(configurationChanged()), this, SLOT(initializeVersionControlChoices()));
         }
@@ -340,7 +343,7 @@ void ProjectFileWizardExtension::initializeVersionControlChoices()
     // 2) Directory is managed and VCS does not support "Add" -> None available
     // 3) Directory is not managed -> Offer all VCS that support "CreateRepository"
 
-    Core::IVersionControl *currentSelection = 0;
+    IVersionControl *currentSelection = 0;
     int currentIdx = m_context->page->versionControlIndex() - 1;
     if (currentIdx >= 0 && currentIdx <= m_context->activeVersionControls.size() - 1)
         currentSelection = m_context->activeVersionControls.at(currentIdx);
@@ -349,18 +352,18 @@ void ProjectFileWizardExtension::initializeVersionControlChoices()
 
     QStringList versionControlChoices = QStringList(tr("<None>"));
     if (!m_context->commonDirectory.isEmpty()) {
-        Core::IVersionControl *managingControl = Core::VcsManager::findVersionControlForDirectory(m_context->commonDirectory);
+        IVersionControl *managingControl = VcsManager::findVersionControlForDirectory(m_context->commonDirectory);
         if (managingControl) {
             // Under VCS
-            if (managingControl->supportsOperation(Core::IVersionControl::AddOperation)) {
+            if (managingControl->supportsOperation(IVersionControl::AddOperation)) {
                 versionControlChoices.append(managingControl->displayName());
                 m_context->activeVersionControls.push_back(managingControl);
                 m_context->repositoryExists = true;
             }
         } else {
             // Create
-            foreach (Core::IVersionControl *vc, m_context->versionControls)
-                if (vc->supportsOperation(Core::IVersionControl::CreateRepositoryOperation)) {
+            foreach (IVersionControl *vc, m_context->versionControls)
+                if (vc->supportsOperation(IVersionControl::CreateRepositoryOperation)) {
                     versionControlChoices.append(vc->displayName());
                     m_context->activeVersionControls.append(vc);
                 }
@@ -378,7 +381,7 @@ void ProjectFileWizardExtension::initializeVersionControlChoices()
     }
 }
 
-QList<QWizardPage *> ProjectFileWizardExtension::extensionPages(const Core::IWizard *wizard)
+QList<QWizardPage *> ProjectFileWizardExtension::extensionPages(const IWizard *wizard)
 {
     if (!m_context)
         m_context = new ProjectWizardContext;
@@ -410,7 +413,7 @@ static inline void getProjectChoicesAndToolTips(QStringList *projectChoicesParam
     ProjectEntryMap entryMap;
 
     ProjectNode::ProjectAction projectAction =
-           context->wizard->kind() == Core::IWizard::ProjectWizard
+           context->wizard->kind() == IWizard::ProjectWizard
             ? ProjectNode::AddSubProject : ProjectNode::AddNewFile;
     foreach (ProjectNode *n, AllProjectNodesVisitor::allProjects(projectAction)) {
         if (projectAction == ProjectNode::AddNewFile
@@ -448,7 +451,7 @@ void ProjectFileWizardExtension::initProjectChoices(const QString &generatedProj
 }
 
 bool ProjectFileWizardExtension::processFiles(
-        const QList<Core::GeneratedFile> &files,
+        const QList<GeneratedFile> &files,
         bool *removeOpenProjectAttribute, QString *errorMessage)
 {
     if (!processProject(files, removeOpenProjectAttribute, errorMessage))
@@ -461,7 +464,7 @@ bool ProjectFileWizardExtension::processFiles(
             errorMessage->clear();
         }
         message.append(tr("Open project anyway?"));
-        if (QMessageBox::question(Core::ICore::mainWindow(), tr("Version Control Failure"), message,
+        if (QMessageBox::question(ICore::mainWindow(), tr("Version Control Failure"), message,
                                   QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
             return false;
     }
@@ -470,7 +473,7 @@ bool ProjectFileWizardExtension::processFiles(
 
 // Add files to project && version control
 bool ProjectFileWizardExtension::processProject(
-        const QList<Core::GeneratedFile> &files,
+        const QList<GeneratedFile> &files,
         bool *removeOpenProjectAttribute, QString *errorMessage)
 {
     *removeOpenProjectAttribute = false;
@@ -482,7 +485,7 @@ bool ProjectFileWizardExtension::processProject(
     if (projectIndex < 0 || projectIndex >= m_context->projects.size())
         return true;
     ProjectNode *project = m_context->projects.at(projectIndex).node;
-    if (m_context->wizard->kind() == Core::IWizard::ProjectWizard) {
+    if (m_context->wizard->kind() == IWizard::ProjectWizard) {
         if (!project->addSubProjects(QStringList(generatedProject))) {
             *errorMessage = tr("Failed to add subproject '%1'\nto project '%2'.")
                             .arg(generatedProject).arg(project->path());
@@ -491,7 +494,7 @@ bool ProjectFileWizardExtension::processProject(
         *removeOpenProjectAttribute = true;
     } else {
         QStringList filePaths;
-        foreach (const Core::GeneratedFile &generatedFile, files)
+        foreach (const GeneratedFile &generatedFile, files)
             filePaths << generatedFile.path();
         if (!project->addFiles(filePaths)) {
             *errorMessage = tr("Failed to add one or more files to project\n'%1' (%2).").
@@ -502,25 +505,25 @@ bool ProjectFileWizardExtension::processProject(
     return true;
 }
 
-bool ProjectFileWizardExtension::processVersionControl(const QList<Core::GeneratedFile> &files, QString *errorMessage)
+bool ProjectFileWizardExtension::processVersionControl(const QList<GeneratedFile> &files, QString *errorMessage)
 {
     // Add files to  version control (Entry at 0 is 'None').
     const int vcsIndex = m_context->page->versionControlIndex() - 1;
     if (vcsIndex < 0 || vcsIndex >= m_context->activeVersionControls.size())
         return true;
     QTC_ASSERT(!m_context->commonDirectory.isEmpty(), return false);
-    Core::IVersionControl *versionControl = m_context->activeVersionControls.at(vcsIndex);
+    IVersionControl *versionControl = m_context->activeVersionControls.at(vcsIndex);
     // Create repository?
     if (!m_context->repositoryExists) {
-        QTC_ASSERT(versionControl->supportsOperation(Core::IVersionControl::CreateRepositoryOperation), return false);
+        QTC_ASSERT(versionControl->supportsOperation(IVersionControl::CreateRepositoryOperation), return false);
         if (!versionControl->vcsCreateRepository(m_context->commonDirectory)) {
             *errorMessage = tr("A version control system repository could not be created in '%1'.").arg(m_context->commonDirectory);
             return false;
         }
     }
     // Add files if supported.
-    if (versionControl->supportsOperation(Core::IVersionControl::AddOperation)) {
-        foreach (const Core::GeneratedFile &generatedFile, files) {
+    if (versionControl->supportsOperation(IVersionControl::AddOperation)) {
+        foreach (const GeneratedFile &generatedFile, files) {
             if (!versionControl->vcsAdd(generatedFile.path())) {
                 *errorMessage = tr("Failed to add '%1' to the version control system.").arg(generatedFile.path());
                 return false;
@@ -530,7 +533,7 @@ bool ProjectFileWizardExtension::processVersionControl(const QList<Core::Generat
     return true;
 }
 
-static TextEditor::ICodeStylePreferences *codeStylePreferences(ProjectExplorer::Project *project, Core::Id languageId)
+static ICodeStylePreferences *codeStylePreferences(Project *project, Id languageId)
 {
     if (!languageId.isValid())
         return 0;
@@ -538,16 +541,16 @@ static TextEditor::ICodeStylePreferences *codeStylePreferences(ProjectExplorer::
     if (project)
         return project->editorConfiguration()->codeStyle(languageId);
 
-    return TextEditor::TextEditorSettings::codeStyle(languageId);
+    return TextEditorSettings::codeStyle(languageId);
 }
 
-void ProjectFileWizardExtension::applyCodeStyle(Core::GeneratedFile *file) const
+void ProjectFileWizardExtension::applyCodeStyle(GeneratedFile *file) const
 {
     if (file->isBinary() || file->contents().isEmpty())
         return; // nothing to do
 
-    Core::MimeType mt = Core::MimeDatabase::findByFile(QFileInfo(file->path()));
-    Core::Id languageId = TextEditor::TextEditorSettings::languageId(mt.type());
+    MimeType mt = MimeDatabase::findByFile(QFileInfo(file->path()));
+    Id languageId = TextEditorSettings::languageId(mt.type());
 
     if (!languageId.isValid())
         return; // don't modify files like *.ui *.pro
@@ -559,23 +562,22 @@ void ProjectFileWizardExtension::applyCodeStyle(Core::GeneratedFile *file) const
 
     Project *baseProject = SessionManager::projectForNode(project);
 
-    TextEditor::ICodeStylePreferencesFactory *factory
-            = TextEditor::TextEditorSettings::codeStyleFactory(languageId);
+    ICodeStylePreferencesFactory *factory = TextEditorSettings::codeStyleFactory(languageId);
 
-    TextEditor::Indenter *indenter = 0;
+    Indenter *indenter = 0;
     if (factory)
         indenter = factory->createIndenter();
     if (!indenter)
-        indenter = new TextEditor::NormalIndenter();
+        indenter = new NormalIndenter();
 
-    TextEditor::ICodeStylePreferences *codeStylePrefs = codeStylePreferences(baseProject, languageId);
+    ICodeStylePreferences *codeStylePrefs = codeStylePreferences(baseProject, languageId);
     indenter->setCodeStylePreferences(codeStylePrefs);
     QTextDocument doc(file->contents());
     QTextCursor cursor(&doc);
     cursor.select(QTextCursor::Document);
     indenter->indent(&doc, cursor, QChar::Null, codeStylePrefs->currentTabSettings());
     delete indenter;
-    if (TextEditor::TextEditorSettings::storageSettings().m_cleanWhitespace) {
+    if (TextEditorSettings::storageSettings().m_cleanWhitespace) {
         QTextBlock block = doc.firstBlock();
         while (block.isValid()) {
             codeStylePrefs->currentTabSettings().removeTrailingWhitespace(cursor, block);
