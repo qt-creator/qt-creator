@@ -87,15 +87,6 @@ public:
         return previous;
     }
 
-    bool qtMocRunEnabled() const;
-    void setQtMocRunEnabled(bool onoff);
-
-    bool cxx0xEnabled() const;
-    void setCxxOxEnabled(bool onoff);
-
-    bool objCEnabled() const;
-    void setObjCEnabled(bool onoff);
-
     void warning(unsigned index, const char *fmt, ...);
     void error(unsigned index, const char *fmt, ...);
     void fatal(unsigned index, const char *fmt, ...);
@@ -151,6 +142,9 @@ public:
 
     bool maybeSplitGreaterGreaterToken(unsigned tokenIndex);
 
+    LanguageFeatures languageFeatures() const { return _languageFeatures; }
+    void setLanguageFeatures(LanguageFeatures features) { _languageFeatures = features; }
+
 private:
     struct PPLine {
         unsigned offset;
@@ -203,14 +197,12 @@ private:
         unsigned _parsed: 1;
         unsigned _blockErrors: 1;
         unsigned _skipFunctionBody: 1;
-        unsigned _qtMocRunEnabled: 1;
-        unsigned _cxx0xEnabled: 1;
-        unsigned _objCEnabled: 1;
     };
     union {
         unsigned _flags;
         Flags f;
     };
+    LanguageFeatures _languageFeatures;
 };
 
 } // namespace CPlusPlus

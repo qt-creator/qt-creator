@@ -327,8 +327,13 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
     int beginOfToken = 0;
     int endOfToken = 0;
 
+    LanguageFeatures features;
+    features.qtEnabled = true;
+    features.qtKeywordsEnabled = true;
+    features.qtMocRunEnabled = true;
+
     SimpleLexer tokenize;
-    tokenize.setQtMocRunEnabled(true);
+    tokenize.setLanguageFeatures(features);
     const QString blockText = cursor.block().text();
     const QList<Token> tokens = tokenize(blockText,
                                          BackwardsScanner::previousBlockState(cursor.block()));

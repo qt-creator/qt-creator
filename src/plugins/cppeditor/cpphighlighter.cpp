@@ -74,10 +74,12 @@ void CppHighlighter::highlightBlock(const QString &text)
 
     int braceDepth = initialBraceDepth;
 
+    // FIXME: Check defaults or get from document.
+    LanguageFeatures features;
+    features.cxx11Enabled = true;
+
     SimpleLexer tokenize;
-    tokenize.setQtMocRunEnabled(false);
-    tokenize.setObjCEnabled(false);
-    tokenize.setCxx0xEnabled(true);
+    tokenize.setLanguageFeatures(features);
 
     int initialState = state;
     const QList<Token> tokens = tokenize(text, initialState);

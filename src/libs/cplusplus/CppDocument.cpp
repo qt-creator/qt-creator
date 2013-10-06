@@ -284,10 +284,14 @@ Document::Document(const QString &fileName)
     const QByteArray localFileName = fileName.toUtf8();
     const StringLiteral *fileId = _control->stringLiteral(localFileName.constData(),
                                                                       localFileName.size());
+    LanguageFeatures features;
+    features.qtEnabled = true;
+    features.qtMocRunEnabled = true;
+    features.qtKeywordsEnabled = true;
+    features.cxx11Enabled = true;
+    features.objCEnabled = true;
     _translationUnit = new TranslationUnit(_control, fileId);
-    _translationUnit->setQtMocRunEnabled(true);
-    _translationUnit->setCxxOxEnabled(true);
-    _translationUnit->setObjCEnabled(true);
+    _translationUnit->setLanguageFeatures(features);
     (void) _control->switchTranslationUnit(_translationUnit);
 }
 

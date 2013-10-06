@@ -63,24 +63,6 @@ TranslationUnit::~TranslationUnit()
     delete _pool;
 }
 
-bool TranslationUnit::qtMocRunEnabled() const
-{ return f._qtMocRunEnabled; }
-
-void TranslationUnit::setQtMocRunEnabled(bool onoff)
-{ f._qtMocRunEnabled = onoff; }
-
-bool TranslationUnit::cxx0xEnabled() const
-{ return f._cxx0xEnabled; }
-
-void TranslationUnit::setCxxOxEnabled(bool onoff)
-{ f._cxx0xEnabled = onoff; }
-
-bool TranslationUnit::objCEnabled() const
-{ return f._objCEnabled; }
-
-void TranslationUnit::setObjCEnabled(bool onoff)
-{ f._objCEnabled = onoff; }
-
 Control *TranslationUnit::control() const
 { return _control; }
 
@@ -157,9 +139,7 @@ void TranslationUnit::tokenize()
     f._tokenized = true;
 
     Lexer lex(this);
-    lex.setQtMocRunEnabled(f._qtMocRunEnabled);
-    lex.setCxxOxEnabled(f._cxx0xEnabled);
-    lex.setObjCEnabled(f._objCEnabled);
+    lex.setLanguageFeatures(_languageFeatures);
     lex.setScanCommentTokens(true);
 
     std::stack<unsigned> braces;
@@ -319,10 +299,6 @@ bool TranslationUnit::parse(ParseMode mode)
     f._parsed = true;
 
     Parser parser(this);
-    parser.setQtMocRunEnabled(f._qtMocRunEnabled);
-    parser.setCxxOxEnabled(f._cxx0xEnabled);
-    parser.setObjCEnabled(f._objCEnabled);
-
     bool parsed = false;
 
     switch (mode) {

@@ -373,6 +373,22 @@ public:
     };
 };
 
+struct LanguageFeatures
+{
+    LanguageFeatures() : flags(0) {}
+
+    union {
+        unsigned int flags;
+        struct {
+            unsigned int qtEnabled : 1; // If Qt is used.
+            unsigned int qtMocRunEnabled : 1;
+            unsigned int qtKeywordsEnabled : 1; // If Qt is used but QT_NO_KEYWORDS defined
+            unsigned int cxx11Enabled : 1;
+            unsigned int objCEnabled : 1;
+        };
+    };
+};
+
 } // namespace CPlusPlus
 
 

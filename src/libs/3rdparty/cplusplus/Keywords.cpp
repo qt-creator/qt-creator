@@ -21,9 +21,10 @@
 #include "Lexer.h"
 #include "Token.h"
 
-using namespace CPlusPlus;
+namespace CPlusPlus {
 
-static inline int classify2(const char *s, bool, bool) {
+static inline int classify2(const char *s, LanguageFeatures)
+{
   if (s[0] == 'd') {
     if (s[1] == 'o') {
       return T_DO;
@@ -37,7 +38,8 @@ static inline int classify2(const char *s, bool, bool) {
   return T_IDENTIFIER;
 }
 
-static inline int classify3(const char *s, bool q, bool) {
+static inline int classify3(const char *s, LanguageFeatures features)
+{
   if (s[0] == 'a') {
     if (s[1] == 's') {
       if (s[2] == 'm') {
@@ -73,7 +75,7 @@ static inline int classify3(const char *s, bool q, bool) {
       }
     }
   }
-  else if (q && s[0] == 'Q') {
+  else if (features.qtMocRunEnabled && s[0] == 'Q') {
     if (s[1] == '_') {
       if (s[2] == 'D') {
         return T_Q_D;
@@ -86,7 +88,8 @@ static inline int classify3(const char *s, bool q, bool) {
   return T_IDENTIFIER;
 }
 
-static inline int classify4(const char *s, bool q, bool) {
+static inline int classify4(const char *s, LanguageFeatures features)
+{
   if (s[0] == 'a') {
     if (s[1] == 'u') {
       if (s[2] == 't') {
@@ -136,7 +139,7 @@ static inline int classify4(const char *s, bool q, bool) {
         }
       }
     }
-    else if (q && s[1] == 'm') {
+    else if (features.qtKeywordsEnabled && s[1] == 'm') {
       if (s[2] == 'i') {
         if (s[3] == 't') {
           return T_EMIT;
@@ -187,7 +190,7 @@ static inline int classify4(const char *s, bool q, bool) {
       }
     }
   }
-  else if (q && s[0] == 'S') {
+  else if (features.qtEnabled && s[0] == 'S') {
     if (s[1] == 'L') {
       if (s[2] == 'O') {
         if (s[3] == 'T') {
@@ -199,7 +202,8 @@ static inline int classify4(const char *s, bool q, bool) {
   return T_IDENTIFIER;
 }
 
-static inline int classify5(const char *s, bool q, bool) {
+static inline int classify5(const char *s, LanguageFeatures features)
+{
   if (s[0] == '_') {
     if (s[1] == '_') {
       if (s[2] == 'a') {
@@ -281,7 +285,7 @@ static inline int classify5(const char *s, bool q, bool) {
         }
       }
     }
-    else if (q) {
+    else if (features.qtKeywordsEnabled) {
       if (s[1] == 'l') {
         if (s[2] == 'o') {
           if (s[3] == 't') {
@@ -338,7 +342,8 @@ static inline int classify5(const char *s, bool q, bool) {
   return T_IDENTIFIER;
 }
 
-static inline int classify6(const char *s, bool q, bool) {
+static inline int classify6(const char *s, LanguageFeatures features)
+{
   if (s[0] == 'd') {
     if (s[1] == 'e') {
       if (s[2] == 'l') {
@@ -508,7 +513,7 @@ static inline int classify6(const char *s, bool q, bool) {
       }
     }
   }
-  else if (q && s[0] == 'S') {
+  else if (features.qtKeywordsEnabled && s[0] == 'S') {
     if (s[1] == 'I') {
       if (s[2] == 'G') {
         if (s[3] == 'N') {
@@ -521,7 +526,7 @@ static inline int classify6(const char *s, bool q, bool) {
       }
     }
   }
-  else if (q && s[0] == 'Q') {
+  else if (features.qtKeywordsEnabled && s[0] == 'Q') {
     if (s[1] == '_') {
       if (s[2] == 'S') {
         if (s[3] == 'L') {
@@ -546,7 +551,8 @@ static inline int classify6(const char *s, bool q, bool) {
   return T_IDENTIFIER;
 }
 
-static inline int classify7(const char *s, bool q, bool x) {
+static inline int classify7(const char *s, LanguageFeatures features)
+{
   if (s[0] == '_') {
     if (s[1] == '_') {
       if (s[2] == 'a') {
@@ -573,7 +579,7 @@ static inline int classify7(const char *s, bool q, bool x) {
       }
     }
   }
-  else if (x && s[0] == 'a') {
+  else if (features.cxx11Enabled && s[0] == 'a') {
     if (s[1] == 'l') {
       if (s[2] == 'i') {
         if (s[3] == 'g') {
@@ -623,7 +629,7 @@ static inline int classify7(const char *s, bool q, bool x) {
       }
     }
   }
-  else if (x && s[0] == 'n') {
+  else if (features.cxx11Enabled && s[0] == 'n') {
     if (s[1] == 'u') {
       if (s[2] == 'l') {
         if (s[3] == 'l') {
@@ -653,7 +659,7 @@ static inline int classify7(const char *s, bool q, bool x) {
       }
     }
   }
-  else if (q && s[0] == 'f') {
+  else if (features.qtKeywordsEnabled && s[0] == 'f') {
     if (s[1] == 'o') {
       if (s[2] == 'r') {
         if (s[3] == 'e') {
@@ -668,7 +674,7 @@ static inline int classify7(const char *s, bool q, bool x) {
       }
     }
   }
-  else if (q && s[0] == 's') {
+  else if (features.qtEnabled && s[0] == 's') {
     if (s[1] == 'i') {
       if (s[2] == 'g') {
         if (s[3] == 'n') {
@@ -728,7 +734,7 @@ static inline int classify7(const char *s, bool q, bool x) {
       }
     }
   }
-  else if (q && s[0] == 'Q') {
+  else if (features.qtEnabled && s[0] == 'Q') {
     if (s[1] == '_') {
       if (s[2] == 'S') {
         if (s[3] == 'L') {
@@ -768,7 +774,8 @@ static inline int classify7(const char *s, bool q, bool x) {
   return T_IDENTIFIER;
 }
 
-static inline int classify8(const char *s, bool q, bool x) {
+static inline int classify8(const char *s, LanguageFeatures features)
+{
   if (s[0] == '_') {
     if (s[1] == '_') {
       if (s[2] == 'i') {
@@ -814,7 +821,7 @@ static inline int classify8(const char *s, bool q, bool x) {
           }
         }
       }
-    } else if (x && s[1] == 'h') {
+    } else if (features.cxx11Enabled && s[1] == 'h') {
         if (s[2] == 'a') {
             if (s[3] == 'r') {
                 if (s[4] == '1') {
@@ -838,7 +845,7 @@ static inline int classify8(const char *s, bool q, bool x) {
         }
     }
   }
-  else if (x && s[0] == 'd') {
+  else if (features.cxx11Enabled && s[0] == 'd') {
     if (s[1] == 'e') {
       if (s[2] == 'c') {
         if (s[3] == 'l') {
@@ -872,7 +879,7 @@ static inline int classify8(const char *s, bool q, bool x) {
       }
     }
   }
-  else if (x && s[0] == 'n') {
+  else if (features.cxx11Enabled && s[0] == 'n') {
     if (s[1] == 'o') {
       if (s[2] == 'e') {
         if (s[3] == 'x') {
@@ -989,7 +996,7 @@ static inline int classify8(const char *s, bool q, bool x) {
       }
     }
   }
-  else if (q && s[0] == 'Q') {
+  else if (features.qtEnabled && s[0] == 'Q') {
     if (s[1] == '_') {
       if (s[2] == 'G') {
         if (s[3] == 'A') {
@@ -1035,7 +1042,8 @@ static inline int classify8(const char *s, bool q, bool x) {
   return T_IDENTIFIER;
 }
 
-static inline int classify9(const char *s, bool q, bool x) {
+static inline int classify9(const char *s, LanguageFeatures features)
+{
   if (s[0] == '_') {
     if (s[1] == '_') {
       if (s[2] == 'c') {
@@ -1055,7 +1063,7 @@ static inline int classify9(const char *s, bool q, bool x) {
       }
     }
   }
-  else if (x && s[0] == 'c') {
+  else if (features.cxx11Enabled && s[0] == 'c') {
     if (s[1] == 'o') {
       if (s[2] == 'n') {
         if (s[3] == 's') {
@@ -1112,7 +1120,7 @@ static inline int classify9(const char *s, bool q, bool x) {
       }
     }
   }
-  else if (q && s[0] == 'Q') {
+  else if (features.qtEnabled && s[0] == 'Q') {
     if (s[1] == '_') {
       if (s[2] == 'S') {
         if (s[3] == 'I') {
@@ -1148,7 +1156,8 @@ static inline int classify9(const char *s, bool q, bool x) {
   return T_IDENTIFIER;
 }
 
-static inline int classify10(const char *s, bool q, bool) {
+static inline int classify10(const char *s, LanguageFeatures features)
+{
   if (s[0] == '_') {
     if (s[1] == '_') {
       if (s[2] == 'i') {
@@ -1242,7 +1251,7 @@ static inline int classify10(const char *s, bool q, bool) {
       }
     }
   }
-  else if (q && s[0] == 'Q') {
+  else if (features.qtEnabled && s[0] == 'Q') {
     if (s[1] == '_') {
       if (s[2] == 'O') {
         if (s[3] == 'V') {
@@ -1283,7 +1292,8 @@ static inline int classify10(const char *s, bool q, bool) {
   return T_IDENTIFIER;
 }
 
-static inline int classify11(const char *s, bool q, bool) {
+static inline int classify11(const char *s, LanguageFeatures features)
+{
   if (s[0] == '_') {
     if (s[1] == '_') {
       if (s[2] == 'a') {
@@ -1330,7 +1340,7 @@ static inline int classify11(const char *s, bool q, bool) {
       }
     }
   }
-  else if (q && s[0] == 'Q') {
+  else if (features.qtEnabled && s[0] == 'Q') {
     if (s[1] == '_') {
       if (s[2] == 'I') {
         if (s[3] == 'N') {
@@ -1356,7 +1366,8 @@ static inline int classify11(const char *s, bool q, bool) {
   return T_IDENTIFIER;
 }
 
-static inline int classify12(const char *s, bool q, bool) {
+static inline int classify12(const char *s, LanguageFeatures features)
+{
   if (s[0] == '_') {
     if (s[1] == '_') {
       if (s[2] == 'v') {
@@ -1382,7 +1393,7 @@ static inline int classify12(const char *s, bool q, bool) {
       }
     }
   }
-  else if (q && s[0] == 'Q') {
+  else if (features.qtEnabled && s[0] == 'Q') {
     if (s[1] == '_') {
       if (s[2] == 'I') {
         if (s[3] == 'N') {
@@ -1435,7 +1446,8 @@ static inline int classify12(const char *s, bool q, bool) {
   return T_IDENTIFIER;
 }
 
-static inline int classify13(const char *s, bool, bool x) {
+static inline int classify13(const char *s, LanguageFeatures features)
+{
   if (s[0] == '_') {
     if (s[1] == '_') {
       if (s[2] == 'a') {
@@ -1462,7 +1474,7 @@ static inline int classify13(const char *s, bool, bool x) {
         }
       }
     }
-  } else if (x && s[0] == 's') {
+  } else if (features.cxx11Enabled && s[0] == 's') {
     if (s[1] == 't') {
       if (s[2] == 'a') {
         if (s[3] == 't') {
@@ -1492,7 +1504,8 @@ static inline int classify13(const char *s, bool, bool x) {
   return T_IDENTIFIER;
 }
 
-static inline int classify16(const char *s, bool, bool) {
+static inline int classify16(const char *s, LanguageFeatures)
+{
   if (s[0] == 'r') {
     if (s[1] == 'e') {
       if (s[2] == 'i') {
@@ -1529,8 +1542,9 @@ static inline int classify16(const char *s, bool, bool) {
   return T_IDENTIFIER;
 }
 
-static inline int classify14(const char *s, bool q, bool) {
-  if (q && s[0] == 'Q') {
+static inline int classify14(const char *s, LanguageFeatures features)
+{
+  if (features.qtEnabled && s[0] == 'Q') {
     if (s[1] == '_') {
       if (s[2] == 'P') {
         if (s[3] == 'R') {
@@ -1562,8 +1576,9 @@ static inline int classify14(const char *s, bool q, bool) {
   return T_IDENTIFIER;
 }
 
-static inline int classify18(const char *s, bool q, bool) {
-  if (q && s[0] == 'Q') {
+static inline int classify18(const char *s, LanguageFeatures features)
+{
+  if (features.qtEnabled && s[0] == 'Q') {
     if (s[1] == '_') {
       if (s[2] == 'P') {
         if (s[3] == 'R') {
@@ -1603,8 +1618,9 @@ static inline int classify18(const char *s, bool q, bool) {
   return T_IDENTIFIER;
 }
 
-static inline int classify19(const char *s, bool q, bool) {
-  if (q && s[0] == 'Q') {
+static inline int classify19(const char *s, LanguageFeatures features)
+{
+  if (features.qtEnabled && s[0] == 'Q') {
     if (s[1] == '_') {
       if (s[2] == 'D') {
         if (s[3] == 'E') {
@@ -1647,24 +1663,24 @@ static inline int classify19(const char *s, bool q, bool) {
 }
 
 
-int Lexer::classify(const char *s, int n, bool q, bool x) {
+int Lexer::classify(const char *s, int n, LanguageFeatures features) {
   switch (n) {
-    case 2: return classify2(s, q, x);
-    case 3: return classify3(s, q, x);
-    case 4: return classify4(s, q, x);
-    case 5: return classify5(s, q, x);
-    case 6: return classify6(s, q, x);
-    case 7: return classify7(s, q, x);
-    case 8: return classify8(s, q, x);
-    case 9: return classify9(s, q, x);
-    case 10: return classify10(s, q, x);
-    case 11: return classify11(s, q, x);
-    case 12: return classify12(s, q, x);
-    case 13: return classify13(s, q, x);
-    case 14: return classify14(s, q, x);
-    case 16: return classify16(s, q, x);
-    case 18: return classify18(s, q, x);
-    case 19: return classify19(s, q, x);
+    case 2: return classify2(s, features);
+    case 3: return classify3(s, features);
+    case 4: return classify4(s, features);
+    case 5: return classify5(s, features);
+    case 6: return classify6(s, features);
+    case 7: return classify7(s, features);
+    case 8: return classify8(s, features);
+    case 9: return classify9(s, features);
+    case 10: return classify10(s, features);
+    case 11: return classify11(s, features);
+    case 12: return classify12(s, features);
+    case 13: return classify13(s, features);
+    case 14: return classify14(s, features);
+    case 16: return classify16(s, features);
+    case 18: return classify18(s, features);
+    case 19: return classify19(s, features);
     default: return T_IDENTIFIER;
   } // switch
 }
@@ -1807,3 +1823,4 @@ int Lexer::classifyOperator(const char *s, int n) {
 }
 
 
+} // namespace CPlusPlus
