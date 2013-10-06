@@ -1363,6 +1363,7 @@ void GitClient::reflog(const QString &workingDirectory)
         editor = createVcsEditor(editorId, title, workingDirectory, CodecLogOutput,
                                  "reflogRepository", workingDirectory, 0);
     }
+    editor->setWorkingDirectory(workingDirectory);
 
     QStringList arguments;
     arguments << QLatin1String("reflog") << QLatin1String(noColorOption)
@@ -1502,6 +1503,7 @@ void GitClient::blame(const QString &workingDirectory,
         argWidget->setEditor(editor);
     }
 
+    editor->setWorkingDirectory(workingDirectory);
     QStringList arguments(QLatin1String("blame"));
     arguments << QLatin1String("--root");
     arguments.append(editor->configurationWidget()->arguments());
@@ -3434,6 +3436,7 @@ void GitClient::subversionLog(const QString &workingDirectory)
     VcsBase::VcsBaseEditorWidget *editor = findExistingVCSEditor("svnLog", sourceFile);
     if (!editor)
         editor = createVcsEditor(editorId, title, sourceFile, CodecNone, "svnLog", sourceFile, 0);
+    editor->setWorkingDirectory(workingDirectory);
     executeGit(workingDirectory, arguments, editor);
 }
 
