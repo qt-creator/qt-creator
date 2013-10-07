@@ -43,7 +43,7 @@ FunctionHintProposal::~FunctionHintProposal()
 
 bool FunctionHintProposal::isFragile() const
 {
-    return true;
+    return false;
 }
 
 int FunctionHintProposal::basePosition() const
