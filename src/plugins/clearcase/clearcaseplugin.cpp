@@ -700,6 +700,27 @@ ClearCaseSubmitEditor *ClearCasePlugin::openClearCaseSubmitEditor(const QString 
     return submitEditor;
 }
 
+QString fileStatusToText(FileStatus fileStatus)
+{
+    switch (fileStatus.status)
+    {
+    case FileStatus::CheckedIn:
+        return QLatin1String("CheckedIn");
+    case FileStatus::CheckedOut:
+        return QLatin1String("CheckedOut");
+    case FileStatus::Hijacked:
+        return QLatin1String("Hijacked");
+    case FileStatus::Missing:
+        return QLatin1String("Missing");
+    case FileStatus::NotManaged:
+        return QLatin1String("ViewPrivate");
+    case FileStatus::Unknown:
+        return QLatin1String("Unknown");
+    default:
+        return QLatin1String("default");
+    }
+}
+
 void ClearCasePlugin::updateStatusActions()
 {
     FileStatus fileStatus = FileStatus::Unknown;
@@ -709,7 +730,8 @@ void ClearCasePlugin::updateStatusActions()
         fileStatus = m_statusMap->value(absoluteFileName, FileStatus(FileStatus::Unknown));
 
         if (Constants::debug)
-            qDebug() << Q_FUNC_INFO << absoluteFileName << ", status = " << fileStatus.status;
+            qDebug() << Q_FUNC_INFO << absoluteFileName << ", status = "
+                     << fileStatusToText(fileStatus.status) << "(" << fileStatus.status << ")";
     }
 
     m_checkOutAction->setEnabled(hasFile && (fileStatus.status & (FileStatus::CheckedIn | FileStatus::Hijacked)));
