@@ -154,7 +154,7 @@ void BranchDialog::add()
         ++i;
     }
 
-    BranchAddDialog branchAddDialog(true, this);
+    BranchAddDialog branchAddDialog(localNames, true, this);
     branchAddDialog.setBranchName(suggestedName);
     branchAddDialog.setTrackedBranchName(isTag ? QString() : trackedBranch, !isLocal);
 
@@ -276,7 +276,7 @@ void BranchDialog::rename()
     if (!isTag)
         localNames = m_model->localBranchNames();
 
-    BranchAddDialog branchAddDialog(false, this);
+    BranchAddDialog branchAddDialog(localNames, false, this);
     if (isTag)
         branchAddDialog.setWindowTitle(tr("Rename Tag"));
     branchAddDialog.setBranchName(oldName);
@@ -287,12 +287,6 @@ void BranchDialog::rename()
     if (branchAddDialog.result() == QDialog::Accepted && m_model) {
         if (branchAddDialog.branchName() == oldName)
             return;
-        if (localNames.contains(branchAddDialog.branchName())) {
-            QMessageBox::critical(this, tr("Branch Exists"),
-                                  tr("Local branch \'%1\' already exists.")
-                                  .arg(branchAddDialog.branchName()));
-            return;
-        }
         if (isTag)
             m_model->renameTag(oldName, branchAddDialog.branchName());
         else
