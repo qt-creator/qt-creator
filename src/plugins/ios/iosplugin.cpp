@@ -87,10 +87,10 @@ void IosPlugin::kitsRestored()
 {
     disconnect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsLoaded()),
                this, SLOT(kitsRestored()));
-    Internal::IosConfigurations::instance().updateAutomaticKitList();
+    Internal::IosConfigurations::instance()->updateAutomaticKitList();
     connect(QtSupport::QtVersionManager::instance(),
             SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
-            &Internal::IosConfigurations::instance(),
+            Internal::IosConfigurations::instance(),
             SLOT(updateAutomaticKitList()));
 }
 

@@ -55,7 +55,6 @@ namespace Internal {
 IosSettingsWidget::IosSettingsWidget(QWidget *parent)
     : QWidget(parent),
       m_ui(new Ui_IosSettingsWidget),
-      m_iosConfig(IosConfigurations::instance().config()),
       m_saveSettingsRequested(false)
 {
     initGui();
@@ -63,15 +62,13 @@ IosSettingsWidget::IosSettingsWidget(QWidget *parent)
 
 IosSettingsWidget::~IosSettingsWidget()
 {
-    if (m_saveSettingsRequested)
-        IosConfigurations::instance().setConfig(m_iosConfig);
     delete m_ui;
 }
 
 QString IosSettingsWidget::searchKeywords() const
 {
     QString rc;
-    QTextStream(&rc) << m_ui->developerPathLabel->text();
+    QTextStream(&rc) << m_ui->deviceAskCheckBox->text();
     rc.remove(QLatin1Char('&'));
     return rc;
 }
@@ -79,55 +76,12 @@ QString IosSettingsWidget::searchKeywords() const
 void IosSettingsWidget::initGui()
 {
     m_ui->setupUi(this);
-    m_ui->developerPathLineEdit->setText(m_iosConfig.developerPath.toUserOutput());
-    m_ui->deviceAskCheckBox->setChecked(!m_iosConfig.ignoreAllDevices);
-    connect(m_ui->developerPathLineEdit, SIGNAL(editingFinished()),
-            SLOT(developerPathEditingFinished()));
-    connect(m_ui->developerPathPushButton, SIGNAL(clicked()),
-            SLOT(browseDeveloperPath()));
-    connect(m_ui->deviceAskCheckBox, SIGNAL(toggled(bool)),
-            SLOT(deviceAskToggled(bool)));
+    m_ui->deviceAskCheckBox->setChecked(!IosConfigurations::ignoreAllDevices());
 }
 
-void IosSettingsWidget::deviceAskToggled(bool checkboxValue)
+void IosSettingsWidget::saveSettings()
 {
-    m_iosConfig.ignoreAllDevices = !checkboxValue;
-    saveSettings(true);
-}
-
-void IosSettingsWidget::saveSettings(bool saveNow)
-{
-    // We must defer this step because of a stupid bug on MacOS. See QTCREATORBUG-1675.
-    if (saveNow) {
-        IosConfigurations::instance().setConfig(m_iosConfig);
-        m_saveSettingsRequested = false;
-    } else {
-        m_saveSettingsRequested = true;
-    }
-}
-
-void IosSettingsWidget::developerPathEditingFinished()
-{
-    Utils::FileName basePath = Utils::FileName::fromUserInput(m_ui->developerPathLineEdit->text());
-    // auto extend Contents/Developer if required
-    Utils::FileName devDir = basePath;
-    devDir.appendPath(QLatin1String("Contents/Developer"));
-    if (devDir.toFileInfo().isDir())
-        m_iosConfig.developerPath = devDir;
-    else
-        m_iosConfig.developerPath = basePath;
-    m_ui->developerPathLineEdit->setText(m_iosConfig.developerPath.toUserOutput());
-    saveSettings(true);
-}
-
-void IosSettingsWidget::browseDeveloperPath()
-{
-    Utils::FileName dir = Utils::FileName::fromString(
-                QFileDialog::getOpenFileName(this,
-                                             tr("Select Xcode application"),
-                                             QLatin1String("/Applications"), QLatin1String("*.app")));
-    m_ui->developerPathLineEdit->setText(dir.toUserOutput());
-    developerPathEditingFinished();
+    IosConfigurations::setIgnoreAllDevices(!m_ui->deviceAskCheckBox->isChecked());
 }
 
 } // namespace Internal

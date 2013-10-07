@@ -905,7 +905,7 @@ void IosSimulatorToolHandlerPrivate::requestRunApp(const QString &bundlePath,
     QStringList args;
 
     args << QLatin1String("launch") << bundlePath;
-    Utils::FileName devPath = IosConfigurations::instance().config().developerPath;
+    Utils::FileName devPath = IosConfigurations::developerPath();
     if (!devPath.isEmpty())
         args << QLatin1String("--developer-path") << devPath.toString();
     addDeviceArguments(args);

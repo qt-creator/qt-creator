@@ -52,7 +52,7 @@ QMap<QString, Platform> IosProbe::detectPlatforms(const QString &devPath)
 {
     IosProbe probe;
     probe.addDeveloperPath(devPath);
-    probe.detectAll();
+    probe.detectFirst();
     return probe.detectedPlatforms();
 }
 
@@ -331,14 +331,11 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xco
     }
 }
 
-void IosProbe::detectAll()
+void IosProbe::detectFirst()
 {
     detectDeveloperPaths();
-    QString xcodeName = QLatin1String("");
-    for (int iXcode = 0; iXcode < m_developerPaths.count(); ++iXcode) {
-        setupDefaultToolchains(m_developerPaths.value(iXcode), xcodeName);
-        xcodeName = QString::fromLatin1("-%1").arg(iXcode + 2);
-    }
+    if (!m_developerPaths.isEmpty())
+        setupDefaultToolchains(m_developerPaths.value(0),QLatin1String(""));
 }
 
 QMap<QString, Platform> IosProbe::detectedPlatforms()

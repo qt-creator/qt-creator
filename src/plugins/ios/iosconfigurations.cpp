@@ -77,43 +77,22 @@ namespace Internal {
 
 namespace {
     const QLatin1String SettingsGroup("IosConfigurations");
-    const QLatin1String developerPathKey("DeveloperPath");
     const QLatin1String ignoreAllDevicesKey("IgnoreAllDevices");
 
 }
 
-IosConfig::IosConfig(const QSettings &settings)
-{
-    developerPath = FileName::fromString(settings.value(developerPathKey).toString());
-    ignoreAllDevices = settings.value(ignoreAllDevicesKey, false).toBool();
-}
-
-IosConfig::IosConfig() : ignoreAllDevices(false)
-{ }
-
-void IosConfig::save(QSettings &settings) const
-{
-    settings.setValue(developerPathKey, developerPath.toString());
-    settings.setValue(ignoreAllDevicesKey, ignoreAllDevices);
-}
-
-void IosConfigurations::setConfig(const IosConfig &devConfigs)
-{
-    m_config = devConfigs;
-    save();
-    updateAutomaticKitList();
-    emit updated();
-}
-
-bool equalKits(Kit *a, Kit *b)
-{
-    return ToolChainKitInformation::toolChain(a) == ToolChainKitInformation::toolChain(b)
-            && QtSupport::QtKitInformation::qtVersion(a) == QtSupport::QtKitInformation::qtVersion(b);
-}
-
 void IosConfigurations::updateAutomaticKitList()
 {
-    QMap<QString, Platform> platforms = IosProbe::detectPlatforms(m_config.developerPath.toString());
+    QMap<QString, Platform> platforms = IosProbe::detectPlatforms();
+    {
+        QMapIterator<QString, Platform> iter(platforms);
+        while (iter.hasNext()) {
+            iter.next();
+            const Platform &p = iter.value();
+            setDeveloperPath(p.developerPath);
+            break;
+        }
+}
     QMap<QString, ProjectExplorer::GccToolChain *> platformToolchainMap;
     // check existing toolchains (and remove old ones)
     foreach (ProjectExplorer::ToolChain *tc, ProjectExplorer::ToolChainManager::toolChains()) {
@@ -281,7 +260,7 @@ void IosConfigurations::updateAutomaticKitList()
             ProjectExplorer::GccToolChain *pToolchain = platformToolchainMap.value(p.name, 0);
             if (!pToolchain)
                 continue;
-            Core::Id pDeviceType, pDeviceId;
+            Core::Id pDeviceType;
             if (debugProbe)
                 qDebug() << "guaranteeing kit for " << p.name ;
             if (p.name.startsWith(QLatin1String("iphoneos-"))) {
@@ -338,8 +317,8 @@ void IosConfigurations::updateAutomaticKitList()
                     displayName = baseDisplayName + QLatin1String("-") + QString::number(iVers);
                 }
                 newKit->setDisplayName(displayName);
-                //newKit->setIconPath(QLatin1String(Constants::IOS_SETTINGS_CATEGORY_ICON));
-                //DeviceKitInformation::setDevice(newKit, pDeviceType);
+                newKit->setIconPath(Utils::FileName::fromString(
+                                        QLatin1String(Constants::IOS_SETTINGS_CATEGORY_ICON)));
                 DeviceTypeKitInformation::setDeviceTypeId(newKit, pDeviceType);
                 ToolChainKitInformation::setToolChain(newKit, pToolchain);
                 QtSupport::QtKitInformation::setQtVersion(newKit, qt);
@@ -370,8 +349,9 @@ void IosConfigurations::updateAutomaticKitList()
     }
 }
 
-IosConfigurations &IosConfigurations::instance()
+IosConfigurations *IosConfigurations::instance()
 {
+    IosConfigurations *m_instance = 0;
     if (m_instance == 0) {
         m_instance = new IosConfigurations(0);
         m_instance->updateSimulators();
@@ -380,14 +360,33 @@ IosConfigurations &IosConfigurations::instance()
         m_instance->m_updateAvailableDevices.setSingleShot(true);
         m_instance->m_updateAvailableDevices.start(10000);
     }
-    return *m_instance;
+    return m_instance;
+}
+
+bool IosConfigurations::ignoreAllDevices()
+{
+    return instance()->m_ignoreAllDevices;
+}
+
+void IosConfigurations::setIgnoreAllDevices(bool ignoreDevices)
+{
+    if (ignoreDevices != instance()->m_ignoreAllDevices) {
+        instance()->m_ignoreAllDevices = ignoreDevices;
+        instance()->save();
+        emit instance()->updated();
+    }
+}
+
+FileName IosConfigurations::developerPath()
+{
+    return instance()->m_developerPath;
 }
 
 void IosConfigurations::save()
 {
     QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup(SettingsGroup);
-    m_config.save(*settings);
+    settings->setValue(ignoreAllDevicesKey, m_ignoreAllDevices);
     settings->endGroup();
 }
 
@@ -401,24 +400,15 @@ void IosConfigurations::load()
 {
     QSettings *settings = Core::ICore::instance()->settings();
     settings->beginGroup(SettingsGroup);
-    m_config = IosConfig(*settings);
+    m_ignoreAllDevices = settings->value(ignoreAllDevicesKey, false).toBool();
     settings->endGroup();
-}
-
-IosConfigurations *IosConfigurations::m_instance = 0;
-
-QStringList IosConfigurations::sdkTargets()
-{
-    QStringList res;
-    QTC_CHECK(false);
-    return res;
 }
 
 void IosConfigurations::updateSimulators() {
     // currently we have just one simulator
     DeviceManager *devManager = DeviceManager::instance();
     Core::Id devId(Constants::IOS_SIMULATOR_DEVICE_ID);
-    QMap<QString, Platform> platforms = IosProbe::detectPlatforms(m_config.developerPath.toString());
+    QMap<QString, Platform> platforms = IosProbe::detectPlatforms();
     QMapIterator<QString, Platform> iter(platforms);
     Utils::FileName simulatorPath;
     while (iter.hasNext()) {
@@ -443,6 +433,16 @@ void IosConfigurations::updateSimulators() {
         devManager->addDevice(IDevice::ConstPtr(newDev));
     } else if (!dev.isNull()) {
         devManager->removeDevice(devId);
+    }
+}
+
+void IosConfigurations::setDeveloperPath(const FileName &devPath)
+{
+    if (devPath != instance()->m_developerPath) {
+        instance()->m_developerPath = devPath;
+        instance()->save();
+        instance()->updateAutomaticKitList();
+        emit instance()->updated();
     }
 }
 
