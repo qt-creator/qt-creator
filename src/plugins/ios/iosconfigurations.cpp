@@ -68,7 +68,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-static const bool debugProbe = true;
+static const bool debugProbe = false;
 
 namespace Ios {
 namespace Internal {
