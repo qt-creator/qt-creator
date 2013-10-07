@@ -90,6 +90,11 @@ bool IosDeployStep::init()
 {
     QTC_CHECK(m_transferStatus == NoTransfer);
     m_device = ProjectExplorer::DeviceKitInformation::device(target()->kit());
+    if (m_device.isNull()) {
+        emit addOutput(tr("Error: no device available, deploy failed."),
+                       BuildStep::ErrorMessageOutput);
+        return false;
+    }
     return true;
 }
 
@@ -114,6 +119,8 @@ void IosDeployStep::run(QFutureInterface<bool> &fi)
             SLOT(handleDidTransferApp(Ios::IosToolHandler*,QString,QString,Ios::IosToolHandler::OpStatus)));
     connect(toolHandler, SIGNAL(finished(Ios::IosToolHandler*)),
             SLOT(handleFinished(Ios::IosToolHandler*)));
+    connect(toolHandler, SIGNAL(errorMsg(Ios::IosToolHandler*,QString)),
+            SLOT(handleErrorMsg(Ios::IosToolHandler*,QString)));
     toolHandler->requestTransferApp(appBundle(), deviceId());
 }
 
@@ -169,6 +176,12 @@ void IosDeployStep::handleFinished(IosToolHandler *handler)
     handler->deleteLater();
     // move it when result is reported? (would need care to avoid problems with concurrent runs)
     m_futureInterface.reportFinished();
+}
+
+void IosDeployStep::handleErrorMsg(IosToolHandler *handler, const QString &msg)
+{
+    Q_UNUSED(handler);
+    emit addOutput(msg, BuildStep::ErrorMessageOutput);
 }
 
 BuildStepConfigWidget *IosDeployStep::createConfigWidget()
