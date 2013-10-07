@@ -65,7 +65,7 @@ The object can be invalid - you can check this by calling isValid().
 The object is invalid if you ask for meta information for
 an non-existing qml property. Also the node meta info can become invalid
 if the enclosing type is deregistered from the meta type system (e.g.
-a sub component qml file is deleted). Trying to call any accessor methods on an invalid
+a sub component qml file is deleted). Trying to call any accessor functions on an invalid
 NodeMetaInfo object will result in an InvalidMetaInfoException being thrown.
 
 \see QmlDesigner::MetaInfo, QmlDesigner::PropertyMetaInfo, QmlDesigner::EnumeratorMetaInfo

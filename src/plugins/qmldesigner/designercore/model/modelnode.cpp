@@ -612,7 +612,7 @@ void ModelNode::destroy()
 //\}
 
 /*! \name Property Manipulation
- *  This methodes interact with properties.
+ *  This functions interact with properties.
  */
 
 

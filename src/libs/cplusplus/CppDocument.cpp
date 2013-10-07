@@ -474,7 +474,7 @@ void Document::setGlobalNamespace(Namespace *globalNamespace)
  * Extract the function name including scope at the given position.
  *
  * Note that a function (scope) starts at the name of that function, not at the return type. The
- * implication is that this method will return an empty string when the line/column is on the
+ * implication is that this function will return an empty string when the line/column is on the
  * return type.
  *
  * \param line the line number, starting with line 1

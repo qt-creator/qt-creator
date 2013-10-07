@@ -79,7 +79,7 @@ void CallgrindRunner::processFinished(int ret, QProcess::ExitStatus status)
     triggerParse();
     m_controller->setValgrindProcess(0);
 
-    ValgrindRunner::processFinished(ret, status); // call base class method
+    ValgrindRunner::processFinished(ret, status); // call base class function
 }
 
 bool CallgrindRunner::isPaused() const

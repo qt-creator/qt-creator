@@ -240,7 +240,7 @@
     The complete code of \c webpagewizard.cpp looks as follows:
     \snippet webpagewizard/webpagewizard.cpp 0
 
-    The registration of the wizard in the \c initialize() method
+    The registration of the wizard in the \c initialize() function
     of a plugin looks like:
     \snippet webpagewizard/webpagewizardplugin.cpp 0
 */

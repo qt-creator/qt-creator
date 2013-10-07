@@ -273,7 +273,7 @@ signals:
     void documentUpdated(CPlusPlus::Document::Ptr doc);
     void sourceFilesRefreshed(const QStringList &files);
 
-    /// \brief Emitted after updateProjectInfo method is called on the model-manager.
+    /// \brief Emitted after updateProjectInfo function is called on the model-manager.
     ///
     /// Other classes can use this to get notified when the \c ProjectExplorer has updated the parts.
     void projectPartsUpdated(ProjectExplorer::Project *project);

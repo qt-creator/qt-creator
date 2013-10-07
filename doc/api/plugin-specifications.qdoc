@@ -199,7 +199,7 @@
     \l{The Plugin Manager, the Object Pool, and Registered Objects}{global object pool}
     via ExtensionSystem::PluginManager::getObjectByName() or
     ExtensionSystem::PluginManager::getObjectByClassName(), and use QMetaObject functions to call
-    methods on it.
+    functions on it.
 
     \section2 Command Line Arguments
 
@@ -210,7 +210,7 @@
     line parsing and sanity checks based on that information.
     If the plugin manager finds matching command line arguments for a plugin,
     it passes them on to the plugin's
-    \l{ExtensionSystem::IPlugin::initialize()}{initialize()} method.
+    \l{ExtensionSystem::IPlugin::initialize()}{initialize()} function.
 
     All command line argument definitions are enclosed by a single \c argumentList
     tag. The individual command line arguments are defined by the \c argument tag,

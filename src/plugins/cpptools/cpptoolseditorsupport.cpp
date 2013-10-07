@@ -383,7 +383,7 @@ void CppEditorSupport::startHighlighting()
     }
 }
 
-/// \brief This slot puts the new diagnostics into the editorUpdates. This method has to be called
+/// \brief This slot puts the new diagnostics into the editorUpdates. This function has to be called
 ///        on the UI thread.
 void CppEditorSupport::onDiagnosticsChanged()
 {

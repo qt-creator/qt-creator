@@ -52,7 +52,7 @@ namespace Internal {
     \class NavigationWidgetPrivate
 
     The NavigationWidgetPrivate class provides internal data structures and
-    methods for NavigationWidget.
+    functions for NavigationWidget.
  */
 
 class NavigationWidgetPrivate
@@ -256,7 +256,7 @@ void NavigationWidget::onItemActivated(const QModelIndex &index)
 
 /*!
     Receives new data for the tree. \a result is a pointer to the Class View
-    model root item. The method does nothing if null is passed.
+    model root item. The function does nothing if null is passed.
 */
 
 void NavigationWidget::onDataUpdate(QSharedPointer<QStandardItem> result)

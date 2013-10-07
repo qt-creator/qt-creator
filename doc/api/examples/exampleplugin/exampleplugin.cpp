@@ -34,7 +34,7 @@ bool ExamplePlugin::initialize(const QStringList &arguments, QString *errorStrin
     // Load settings
     // Add actions to menus
     // Connect to other plugins' signals
-    // In the initialize method, a plugin can be sure that the plugins it
+    // In the initialize function, a plugin can be sure that the plugins it
     // depends on have initialized their members.
 
     Q_UNUSED(arguments)
@@ -62,7 +62,7 @@ bool ExamplePlugin::initialize(const QStringList &arguments, QString *errorStrin
 void ExamplePlugin::extensionsInitialized()
 {
     // Retrieve objects from the plugin manager's object pool
-    // In the extensionsInitialized method, a plugin can be sure that all
+    // In the extensionsInitialized function, a plugin can be sure that all
     // plugins that depend on it are completely initialized.
 }
 

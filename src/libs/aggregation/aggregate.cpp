@@ -56,7 +56,7 @@
     other components in the Aggregate to the outside.
     Specifically that means:
     \list
-    \li They can be "cast" to each other (using query and query_all methods).
+    \li They can be "cast" to each other (using query and query_all functions).
     \li Their life cycle is coupled, i.e. whenever one is deleted all of them are.
     \endlist
     Components can be of any QObject derived type.
@@ -69,7 +69,7 @@
         [...]
         MyInterface *object = new MyInterface; // this is single inheritance
     \endcode
-    The query method works like a qobject_cast with normal objects:
+    The query function works like a qobject_cast with normal objects:
     \code
         Q_ASSERT(query<MyInterface>(object) == object);
         Q_ASSERT(query<MyInterfaceEx>(object) == 0);
@@ -105,7 +105,7 @@
 /*!
     \fn T *Aggregate::component()
 
-    Template method that returns the component with the given type, if there is one.
+    Template function that returns the component with the given type, if there is one.
     If there are multiple components with that type a random one is returned.
 
     \sa Aggregate::components()
@@ -115,7 +115,7 @@
 /*!
     \fn QList<T *> Aggregate::components()
 
-    Template method that returns all components with the given type, if there are any.
+    Template function that returns all components with the given type, if there are any.
 
     \sa Aggregate::component()
     \sa Aggregate::add()

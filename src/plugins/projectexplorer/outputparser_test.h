@@ -54,7 +54,7 @@ public:
 
     OutputParserTester();
 
-    // test methods:
+    // test functions:
     void testParsing(const QString &lines, Channel inputChannel,
                      QList<Task> tasks,
                      const QString &childStdOutLines,

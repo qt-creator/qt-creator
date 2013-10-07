@@ -81,7 +81,7 @@ public:
     /*!
         Perform this quick-fix's operation.
 
-        Subclasses should implement this method to do the actual changes.
+        Subclasses should implement this function to do the actual changes.
      */
     virtual void perform() = 0;
 

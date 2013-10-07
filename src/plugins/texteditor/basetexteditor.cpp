@@ -6520,11 +6520,11 @@ int BaseTextEditorWidget::rowCount() const
 }
 
 /**
-  Helper method to transform a selected text. If nothing is selected at the moment
+  Helper function to transform a selected text. If nothing is selected at the moment
   the word under the cursor is used.
-  The type of the transformation is determined by the method pointer given.
+  The type of the transformation is determined by the function pointer given.
 
-  @param method     pointer to the QString method to use for the transformation
+  @param method     pointer to the QString function to use for the transformation
 
   @see uppercaseSelection, lowercaseSelection
 */

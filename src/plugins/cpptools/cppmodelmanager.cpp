@@ -380,7 +380,7 @@ QByteArray CppModelManager::internalDefinedMacros() const
     return macros;
 }
 
-/// This method will aquire the mutex!
+/// This function will aquire the mutex!
 void CppModelManager::dumpModelManagerConfiguration()
 {
     // Tons of debug output...

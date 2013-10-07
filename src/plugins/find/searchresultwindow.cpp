@@ -238,14 +238,14 @@ using namespace Find::Internal;
     of this class.
 
     Except for being an implementation of a output pane, the
-    SearchResultWindow has a few methods and one enum that allows other
+    SearchResultWindow has a few functions and one enum that allows other
     plugins to show their search results and hook into the user actions for
     selecting an entry and performing a global replace.
 
     Whenever you start a search, call startNewSearch(SearchMode) to initialize
     the \gui {Search Results} output pane. The parameter determines if the GUI for
     replacing should be shown.
-    The method returns a SearchResult object that is your
+    The function returns a SearchResult object that is your
     hook into the signals from user interaction for this search.
     When you produce search results, call addResults or addResult to add them
     to the \gui {Search Results} output pane.

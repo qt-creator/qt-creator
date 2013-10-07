@@ -48,7 +48,7 @@
 
     Guidelines for implementing the class:
     \list
-        \li Return \c false from the implemented method if you want to prevent
+        \li Return \c false from the implemented function if you want to prevent
             the event.
         \li Add your implementing object to the plugin managers objects:
             \c{ExtensionSystem::PluginManager::instance()->addObject(yourImplementingObject)}

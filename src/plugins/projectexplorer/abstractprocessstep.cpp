@@ -74,7 +74,7 @@ using namespace ProjectExplorer;
 
     Enables or disables a BuildStep.
 
-    Disabled BuildSteps immediately return true from their run method.
+    Disabled BuildSteps immediately return true from their run function.
     Should be called from init().
 */
 

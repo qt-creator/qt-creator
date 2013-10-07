@@ -1352,7 +1352,7 @@ void GitPlugin::stashSnapshot()
         m_stashDialog->refresh(state.topLevel(), true);
 }
 
-// Create a non-modal dialog with refresh method or raise if it exists
+// Create a non-modal dialog with refresh function or raise if it exists
 template <class NonModalDialog>
     inline void showNonModalDialog(const QString &topLevel,
                                    QPointer<NonModalDialog> &dialog)

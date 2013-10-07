@@ -38,7 +38,7 @@ QT_BEGIN_NAMESPACE
 class QScriptEngine;
 class QDeclarativeEngine;
 
-// Helper methods to access private API through a stable interface
+// Helper functions to access private API through a stable interface
 // This is used in the qmljsdebugger library of QtCreator.
 class QMLJSDEBUGGER_EXTERN QDeclarativeDebugHelper
 {

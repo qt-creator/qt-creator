@@ -106,9 +106,9 @@ PythonHighlighter::~PythonHighlighter()
 /**
  * @brief Highlighter::highlightBlock highlights single line of Python code
  * @param text is single line without EOLN symbol. Access to all block data
- * can be obtained through inherited currentBlock() method.
+ * can be obtained through inherited currentBlock() function.
  *
- * This method receives state (int number) from previously highlighted block,
+ * This function receives state (int number) from previously highlighted block,
  * scans block using received state and sets initial highlighting for current
  * block. At the end, it saves internal state in current block.
  */

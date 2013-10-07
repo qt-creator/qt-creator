@@ -201,7 +201,7 @@ protected:
     RunConfiguration(Target *parent, const Core::Id id);
     RunConfiguration(Target *parent, RunConfiguration *source);
 
-    /// convenience method to get current build configuration.
+    /// convenience function to get current build configuration.
     BuildConfiguration *activeBuildConfiguration() const;
 
 private:

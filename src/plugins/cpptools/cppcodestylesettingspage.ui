@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="categoryTab">
      <property name="currentIndex">
-      <number>5</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="generalTab">
       <attribute name="title">
@@ -101,7 +101,7 @@
           <item>
            <widget class="QCheckBox" name="indentFunctionBody">
             <property name="text">
-             <string>Statements within method body</string>
+             <string>Statements within function body</string>
             </property>
            </widget>
           </item>
@@ -192,7 +192,7 @@
           <item>
            <widget class="QCheckBox" name="indentFunctionBraces">
             <property name="text">
-             <string>Method declarations</string>
+             <string>Function declarations</string>
             </property>
            </widget>
           </item>

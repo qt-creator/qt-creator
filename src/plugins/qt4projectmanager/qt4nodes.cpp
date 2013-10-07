@@ -297,7 +297,7 @@ struct InternalNode
     //          * file2
     //       * path2
     //          * file1
-    // The method first creates a tree that looks like the directory structure, i.e.
+    // The function first creates a tree that looks like the directory structure, i.e.
     //    * /
     //       * absolute
     //          * path

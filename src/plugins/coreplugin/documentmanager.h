@@ -84,7 +84,7 @@ public:
     static void setCurrentFile(const QString &filePath);
     static QString currentFile();
 
-    // helper methods
+    // helper functions
     static QString fixFileName(const QString &fileName, FixMode fixmode);
 
     static bool saveDocument(IDocument *document, const QString &fileName = QString(), bool *isReadOnly = 0);

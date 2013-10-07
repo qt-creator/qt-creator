@@ -93,7 +93,7 @@ private slots:
     void openLinkInEditor(const QString &link);
 
 private:
-    // the constness of this method is a necessary lie because it is called from paint() const.
+    // the constness of this function is a necessary lie because it is called from paint() const.
     QWidget *createDetailsWidget(const QModelIndex &errorIndex, QWidget *parent) const;
 
     static const int s_itemMargin = 2;

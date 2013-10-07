@@ -151,13 +151,13 @@
 
     You can also select the symbol and press \key F2, or right-click the symbol
     and select \gui {Follow Symbol Under Cursor} to move to its definition or
-    declaration. This feature is supported for namespaces, classes, methods,
+    declaration. This feature is supported for namespaces, classes, functions,
     variables, include statements, and macros.
 
-    To switch between the definition and declaration of a method, place the
+    To switch between the definition and declaration of a function, place the
     cursor on either and press \key {Shift+F2} or right-click and select \gui
-    {Switch Between Method Declaration/Definition}. For example, this allows
-    you to navigate from anywhere within a method body directly to the method
+    {Switch Between Function Declaration/Definition}. For example, this allows
+    you to navigate from anywhere within a function body directly to the function
     declaration.
 
     Links are opened in the same split by default. To open links in the next

@@ -276,11 +276,11 @@
     All \QC plugins must be derived from \l{ExtensionSystem::IPlugin} and
     are QObjects.
 
-    \snippet exampleplugin/exampleplugin.h plugin methods
+    \snippet exampleplugin/exampleplugin.h plugin functions
 
-    The base class defines basic methods that are called during the life cycle
+    The base class defines basic functions that are called during the life cycle
     of a plugin, which are here implemented for your new plugin.
-    These methods and their roles are described in detail in
+    These functions and their roles are described in detail in
     \l{The Plugin Life Cycle}.
 
     \snippet exampleplugin/exampleplugin.h slot
@@ -296,8 +296,8 @@
     All the necessary header files from the plugin code itself,
     from the Core plugin, and from Qt are included in the beginning of the file.
     The setup of the menu and menu item
-    is done in the plugin's \c{initialize} method, which is the first thing called
-    after the plugin constructor. In that method, the plugin can be sure that the basic
+    is done in the plugin's \c{initialize} function, which is the first thing called
+    after the plugin constructor. In that function, the plugin can be sure that the basic
     setup of plugin's that it depends on has been done, for example the Core plugin's
     \c{ActionManager} instance has been created.
 

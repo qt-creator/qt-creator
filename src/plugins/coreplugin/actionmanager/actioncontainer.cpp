@@ -54,7 +54,7 @@ using namespace Core::Internal;
 
     You don't create instances of this class directly, but instead use the
     \l{ActionManager::createMenu()}
-    and \l{ActionManager::createMenuBar()} methods.
+    and \l{ActionManager::createMenuBar()} functions.
     Retrieve existing action containers for an ID with
     \l{ActionManager::actionContainer()}.
 

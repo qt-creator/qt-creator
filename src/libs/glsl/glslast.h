@@ -751,7 +751,7 @@ public:
             : AST(Kind_StructField), name(_name), type(0) {}
 
         // Takes the outer shell of an array type with the innermost
-        // element type set to null.  The fixInnerTypes() method will
+        // element type set to null.  The fixInnerTypes() function will
         // set the innermost element type to a meaningful value.
         Field(const QString *_name, TypeAST *_type)
             : AST(Kind_StructField), name(_name), type(_type) {}

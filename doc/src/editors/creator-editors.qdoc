@@ -43,7 +43,7 @@
 
         \li Class fields
 
-        \li Virtual methods
+        \li Virtual functions
 
     \endlist
 
@@ -1062,9 +1062,9 @@
 
         \li Interpret the \key Tab and \key Backspace key presses.
 
-        \li Indent the contents of classes, methods, blocks, and namespaces.
+        \li Indent the contents of classes, functions, blocks, and namespaces.
 
-        \li Indent braces in classes, namespaces, enums, methods, and blocks.
+        \li Indent braces in classes, namespaces, enums, functions, and blocks.
 
         \li Control switch statements and their contents.
 
@@ -1178,14 +1178,14 @@
     You can indent public, protected, and private statements and declarations
     related to them within classes.
 
-    You can also indent statements within methods and blocks and declarations
+    You can also indent statements within functions and blocks and declarations
     within namespaces.
 
     \image qtcreator-code-style-content.png "Content options"
 
     \section1 Specifying Settings for Braces
 
-    You can indent class, namespace, enum and method declarations and code
+    You can indent class, namespace, enum and function declarations and code
     blocks.
 
     \image qtcreator-code-style-braces.png "Braces options"
@@ -1422,7 +1422,7 @@
         \endlist
 
         \note You can also select \gui{Edit > Find/Replace > Advanced Find >
-        C++ Symbols} to search for classes, methods, enums, and declarations
+        C++ Symbols} to search for classes, functions, enums, and declarations
         either from files listed as part of the project or from all files that
         are used by the code, such as include files.
 
@@ -1523,7 +1523,7 @@
 
         \li Create variable declarations
 
-        \li Create method declarations and definitions
+        \li Create function declarations and definitions
 
    \endlist
 
@@ -1817,21 +1817,21 @@
     }
     \endcode
 
-            \li  Method name
+            \li  Function name
         \row
             \li  Add 'Function' Declaration
             \li  Inserts the member function declaration that matches the member function
             definition into the class declaration. The function can be public,
             protected, private, public slot, protected slot, or private slot.
-            \li  Method name
+            \li  Function name
         \row
             \li  Switch with Next/Previous Parameter
             \li  Moves a parameter down or up one position in a parameter list.
-            \li  Parameter in the declaration or definition of a function or method
+            \li  Parameter in the declaration or definition of a function
         \row
-            \li  Extract Method
-            \li  Moves the selected code to a new method and replaces the block of
-            code with a call to the new method. Enter a name for the method in
+            \li  Extract Function
+            \li  Moves the selected code to a new function and replaces the block of
+            code with a call to the new function. Enter a name for the function in
             the \gui {Extract Function Refactoring} dialog.
             \li  Block of code selected
         \row
@@ -1875,8 +1875,8 @@
             \li  Generate Missing Q_PROPERTY Members
             \li  Adds missing members to a Q_PROPERTY:
             \list
-                \li  \c read method
-                \li  \c write method, if there is a WRITE
+                \li  \c read function
+                \li  \c write function, if there is a WRITE
                 \li  \c {onChanged} signal, if there is a NOTIFY
                 \li  data member with the name \c {m_<propertyName>}
             \endlist
@@ -2187,7 +2187,7 @@
     \endlist
 
     Filters locating files also accept paths, such as \c {tools/*main.cpp}.
-    Filters locating class and method definitions also accept namespaces,
+    Filters locating class and function definitions also accept namespaces,
     such as \c {Utils::*View}.
 
     By default, the following filters are enabled and you do not need to use

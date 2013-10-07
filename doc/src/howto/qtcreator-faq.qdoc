@@ -281,17 +281,17 @@
 
     The locator can be used to open files, but opening files is also just a
     step on the way to accomplish a task. For example, consider the following
-    use case: \e {Fix AMethod in SomeClass which comes from
+    use case: \e {Fix AFunction in SomeClass which comes from
     someclass.cpp/someclass.h}.
 
     With a tabbed user interface, developers would search for someclass.cpp in
-    the tab bar, and then search for \c {::AMethod}, only to find out that the
-    method is not located in that file. They would then search for someclass.h
+    the tab bar, and then search for \c {::AFunction}, only to find out that the
+    function is not located in that file. They would then search for someclass.h
     in the tab bar, find our that the function is inline, fix the problem, and
     forget where they came from.
 
-    With \QC, developers can type \c {Ctrl+K m AMet} to find the method.
-    Typically, they only need to type 3 to 4 characters of the method name.
+    With \QC, developers can type \c {Ctrl+K m AFun} to find the function.
+    Typically, they only need to type 3 to 4 characters of the function name.
     They can then fix the problem and press \key Alt+Back to go back to where
     they were.
 

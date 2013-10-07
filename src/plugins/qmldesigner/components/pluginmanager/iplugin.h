@@ -36,7 +36,7 @@
 
 namespace QmlDesigner {
 
-// QmlDesigner "base" plugin with initialization method in which
+// QmlDesigner "base" plugin with initialization function in which
 // it can retriece the core via its static accessor and do magic.
 
 class IPlugin

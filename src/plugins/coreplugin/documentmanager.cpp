@@ -81,7 +81,7 @@
   as expected. On expected file changes all IDocument objects are notified to reload
   themselves.
 
-  The DocumentManager service also provides two convenience methods for saving
+  The DocumentManager service also provides two convenience functions for saving
   files: \c saveModifiedFiles() and \c saveModifiedFilesSilently(). Both take a list
   of FileInterfaces as an argument, and return the list of files which were
   _not_ saved.
@@ -517,7 +517,7 @@ void DocumentManager::expectFileChange(const QString &fileName)
     d->m_expectedFileNames.insert(fileName);
 }
 
-/* only called from unblock and unexpect file change methods */
+/* only called from unblock and unexpect file change functions */
 static void updateExpectedState(const QString &fileName)
 {
     if (fileName.isEmpty())

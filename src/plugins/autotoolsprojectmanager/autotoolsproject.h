@@ -120,7 +120,7 @@ private:
                            const QStringList &files);
 
     /**
-     * Helper method for buildFileNodeTree(): Inserts a new folder-node for
+     * Helper function for buildFileNodeTree(): Inserts a new folder-node for
      * the directory \p nodeDir and inserts it into \p nodes. If no parent
      * folder exists, it will be created recursively.
      */

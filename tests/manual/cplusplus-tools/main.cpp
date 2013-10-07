@@ -185,7 +185,7 @@ void testTypeHierarchy()
 
 /*
  Switch declaration/definition
-    - Use methods from Dummy.
+    - Use functions from Dummy.
  */
 
 /*

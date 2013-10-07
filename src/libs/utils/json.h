@@ -263,7 +263,7 @@ class JsonSchemaManager;
  * corresponding nested schema. Afterwards, it's expected that one would "leave" such nested
  * schema.
  *
- * All methods assume that the current "context" is a valid schema. Once an instance of this
+ * All functions assume that the current "context" is a valid schema. Once an instance of this
  * class is created the root schema is put on top of the stack.
  *
  */
@@ -350,7 +350,7 @@ private:
 
     QStringList properties(JsonObjectValue *v) const;
     JsonObjectValue *propertySchema(const QString &property, JsonObjectValue *v) const;
-    // TODO: Similar methods for other attributes which require looking into base schemas.
+    // TODO: Similar functions for other attributes which require looking into base schemas.
 
     static bool maybeSchemaName(const QString &s);
 

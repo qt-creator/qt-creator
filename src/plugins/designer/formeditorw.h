@@ -80,7 +80,7 @@ class SettingsPage;
 class DesignerContext;
 
 /** FormEditorW is a singleton that stores the Designer CoreInterface and
-  * performs centralized operations. The instance() method will return an
+  * performs centralized operations. The instance() function will return an
   * instance. However, it must be manually deleted when unloading the
   * plugin. Since fully initializing Designer at startup is expensive, the
   * class has an internal partial initialisation stage "RegisterPlugins"

@@ -87,7 +87,7 @@ public:
     QList<IEditor *> editorsForDocuments(const QList<IDocument *> &documents) const;
     QList<IEditor *> oneEditorForEachOpenedDocument() const;
 
-    // editor manager related methods, nobody else should call it
+    // editor manager related functions, nobody else should call it
     void addEditor(IEditor *editor, bool *isNewDocument);
     void addRestoredDocument(const QString &fileName, const QString &displayName, const Id &id);
     Entry *firstRestoredDocument() const;

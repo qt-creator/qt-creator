@@ -357,7 +357,7 @@
     \image addressbook-tutorial-part2-signals-and-slots.png
 
     Finally, set the window title to "Simple Address Book" using the
-    \l{QWidget::}{setWindowTitle()} function. The tr() method allows us
+    \l{QWidget::}{setWindowTitle()} function. The tr() function allows us
     to translate user interface strings.
 
     \snippet examples/addressbook-sdk/part2/addressbook.cpp window title
@@ -827,7 +827,7 @@
     when you enter a contact name to look up. Once you click the
     dialog's \c findButton, the dialog is hidden and the result code is set to
     either QDialog::Accepted or QDialog::Rejected by the FindDialog's
-    \c findClicked() method. This ensures that you only search for a contact
+    \c findClicked() function. This ensures that you only search for a contact
     if you have typed something in the FindDialog's line edit.
 
     Then proceed to extract the search string, which in this case is

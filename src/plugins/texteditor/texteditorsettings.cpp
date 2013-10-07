@@ -150,8 +150,8 @@ TextEditorSettings::TextEditorSettings(QObject *parent)
     formatDescr.append(FormatDescription(C_FUNCTION, tr("Function"), tr("Name of a function."),
                                          functionFormat));
     functionFormat.setItalic(true);
-    formatDescr.append(FormatDescription(C_VIRTUAL_METHOD, tr("Virtual Method"),
-                                         tr("Name of method declared as virtual."),
+    formatDescr.append(FormatDescription(C_VIRTUAL_METHOD, tr("Virtual Function"),
+                                         tr("Name of function declared as virtual."),
                                          functionFormat));
 
     formatDescr.append(FormatDescription(C_BINDING, tr("QML Binding"),

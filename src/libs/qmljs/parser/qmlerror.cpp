@@ -44,13 +44,13 @@ QT_BEGIN_NAMESPACE
 
     QmlError includes a textual description of the error, as well
     as location information (the file, line, and column). The toString()
-    method creates a single-line, human-readable string containing all of
+    function creates a single-line, human-readable string containing all of
     this information, for example:
     \code
     file:///home/user/test.qml:7:8: Invalid property assignment: double expected
     \endcode
 
-    You can use qDebug() or qWarning() to output errors to the console. This method
+    You can use qDebug() or qWarning() to output errors to the console. This function
     will attempt to open the file indicated by the error
     and include additional contextual information.
     \code

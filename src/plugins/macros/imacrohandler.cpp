@@ -60,8 +60,8 @@ using namespace Macros::Internal;
 
     When replaying a macro, the manager iterates through all macro events
     specified in \a macroEvent
-    in the macro and calls this method to determine which handler to use.
-    If the method returns \c true, \c executeEvent is called.
+    in the macro and calls this function to determine which handler to use.
+    If the function returns \c true, \c executeEvent is called.
 */
 
 /*!

@@ -111,7 +111,7 @@ void FormEditorView::modelAttached(Model *model)
 }
 
 
-//This method does the setup of the initial FormEditorItem tree in the scene
+//This function does the setup of the initial FormEditorItem tree in the scene
 void FormEditorView::setupFormEditorItemTree(const QmlItemNode &qmlItemNode)
 {
     m_scene->addFormEditorItem(qmlItemNode);

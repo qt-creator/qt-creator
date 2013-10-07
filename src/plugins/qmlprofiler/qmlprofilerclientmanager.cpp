@@ -256,7 +256,7 @@ bool QmlProfilerClientManager::isConnected() const
 void QmlProfilerClientManager::disconnectClient()
 {
     // this might be actually be called indirectly by QDDConnectionPrivate::readyRead(), therefore allow
-    // method to complete before deleting object
+    // function to complete before deleting object
     if (d->connection) {
         d->connection->deleteLater();
         d->connection = 0;

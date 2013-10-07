@@ -65,7 +65,7 @@ public:
 
     /**
      * Parses the makefile. Must be invoked at least once, otherwise
-     * the getter methods of MakefileParser will return empty values.
+     * the getter functions of MakefileParser will return empty values.
      * @return True, if the parsing was successful. If false is returned,
      *         the makefile could not be opened.
      */
@@ -116,15 +116,15 @@ public:
     QStringList cxxflags() const;
 
     /**
-     * Cancels the parsing. Calling this method only makes sense, if the
-     * parser runs in a different thread than the caller of this method.
-     * The method is thread-safe.
+     * Cancels the parsing. Calling this function only makes sense, if the
+     * parser runs in a different thread than the caller of this function.
+     * The function is thread-safe.
      */
     void cancel();
 
     /**
      * @return True, if the parser has been cancelled by MakefileParser::cancel().
-     *         The method is thread-safe.
+     *         The function is thread-safe.
      */
     bool isCanceled() const;
 
@@ -176,14 +176,14 @@ private:
     void parseSubDirs();
 
     /**
-     * Helper method for parseDefaultExtensions(). Returns recursively all sources
+     * Helper function for parseDefaultExtensions(). Returns recursively all sources
      * inside the directory \p directory that match with the extension \p extension.
      */
     QStringList directorySources(const QString &directory,
                                  const QStringList &extensions);
 
     /**
-     * Helper method for all parse-methods. Returns each value of a target as string in
+     * Helper function for all parse-functions. Returns each value of a target as string in
      * the stringlist. The current line m_line is used as starting point and increased
      * if the current line ends with a \.
      *
@@ -205,7 +205,7 @@ private:
     /**
      * Adds recursively all sources of the current folder to m_sources and removes
      * all duplicates. The Makefile.am is not parsed, only the folders and files are
-     * handled. This method should only be called, if the sources parsing in the Makefile.am
+     * handled. This function should only be called, if the sources parsing in the Makefile.am
      * failed because variables (e.g. $(test)) have been used.
      */
     void addAllSources();
@@ -218,7 +218,7 @@ private:
     void parseIncludePaths();
 
     /**
-     * Helper method for MakefileParser::directorySources(). Appends the name of the headerfile
+     * Helper function for MakefileParser::directorySources(). Appends the name of the headerfile
      * to \p list, if the header could be found in the directory specified by \p dir.
      * The headerfile base name is defined by \p fileName.
      */

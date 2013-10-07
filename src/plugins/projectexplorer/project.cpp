@@ -314,7 +314,7 @@ bool Project::restoreSettings()
     This map is then saved in the .user file of the project.
     Just put all your data into the map.
 
-    \note Do not forget to call your base class' toMap method.
+    \note Do not forget to call your base class' toMap function.
     \note Do not forget to call setActiveBuildConfiguration when
     creating new build configurations.
 */

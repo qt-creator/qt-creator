@@ -68,7 +68,7 @@ public:
 /*! Constructs the Hello World plugin. Normally plugins don't do anything in
     their constructor except for initializing their member variables. The
     actual work is done later, in the initialize() and extensionsInitialized()
-    methods.
+    functions.
 */
 HelloWorldPlugin::HelloWorldPlugin()
 {
@@ -131,7 +131,7 @@ bool HelloWorldPlugin::initialize(const QStringList &arguments, QString *errorMe
 /*! Notification that all extensions that this plugin depends on have been
     initialized. The dependencies are defined in the plugins .pluginspec file.
 
-    Normally this method is used for things that rely on other plugins to have
+    Normally this function is used for things that rely on other plugins to have
     added objects to the plugin manager, that implement interfaces that we're
     interested in. These objects can now be requested through the
     PluginManagerInterface.

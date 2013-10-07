@@ -319,7 +319,7 @@ void JsonSchema::enterNestedPropertySchema(const QString &property)
 /*!
  * An array schema is allowed to have its \e items specification in the form of
  * another schema
- * or in the form of an array of schemas [Sec. 5.5]. This methods checks whether this is case
+ * or in the form of an array of schemas [Sec. 5.5]. This functions checks whether this is case
  * in which the items are a schema.
  *
  * Returns whether or not the items from the array are a schema.
@@ -340,7 +340,7 @@ void JsonSchema::enterNestedItemSchema()
 
 /*!
  * An array schema is allowed to have its \e items specification in the form of another schema
- * or in the form of an array of schemas [Sec. 5.5]. This methods checks whether this is case
+ * or in the form of an array of schemas [Sec. 5.5]. This functions checks whether this is case
  * in which the items are an array of schemas.
  *
  * Returns whether or not the items from the array are a an array of schemas.
@@ -366,7 +366,7 @@ int JsonSchema::itemArraySchemaSize() const
  * interested on). This shall only happen if the item at the supplied array index is of type
  * object, which is then assumed to be a schema.
  *
- * The method also marks the context as being inside an array evaluation.
+ * The function also marks the context as being inside an array evaluation.
  *
  * Returns whether it was necessary to enter a schema for the supplied
  * array \a index, false if index is out of bounds.
@@ -383,7 +383,7 @@ bool JsonSchema::maybeEnterNestedArraySchema(int index)
 
 /*!
  * The type of a schema can be specified in the form of a union type, which is basically an
- * array of allowed types for the particular instance [Sec. 5.1]. This method checks whether
+ * array of allowed types for the particular instance [Sec. 5.1]. This function checks whether
  * the current schema is one of such.
  *
  * Returns whether or not the current schema specifies a union type.
@@ -405,7 +405,7 @@ int JsonSchema::unionSchemaSize() const
  * This shall only happen if the item at the supplied union \a index, which is then assumed to be
  * a schema.
  *
- * The method also marks the context as being inside an union evaluation.
+ * The function also marks the context as being inside an union evaluation.
  *
  * Returns whether or not it was necessary to enter a schema for the
  * supplied union index.

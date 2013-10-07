@@ -91,7 +91,7 @@ void Node::emitNodeSortKeyChanged()
 /*!
  * The path of the file representing this node.
  *
- * This method does not emit any signals. That has to be done by the calling
+ * This function does not emit any signals. That has to be done by the calling
  * class.
  */
 void Node::setPath(const QString &path)
@@ -613,7 +613,7 @@ void ProjectNode::removeFolderNodes(const QList<FolderNode*> &subFolders,
   Adds file nodes specified by \a files to the internal list in the location
   specified by \a folder and emits the corresponding signals.
 
-  This method should be called within an implementation of the public method
+  This function should be called within an implementation of the public function
   addFiles.
 */
 
@@ -658,7 +658,7 @@ void ProjectNode::addFileNodes(const QList<FileNode*> &files, FolderNode *folder
   Removes \a files from the internal list and emits the corresponding signals.
 
   All objects in the \a files list are deleted.
-  This method should be called within an implementation of the public method
+  This function should be called within an implementation of the public function
   removeFiles.
 */
 

@@ -57,10 +57,10 @@ public:
     void setDisplayName(const QString &name);
     void setDefaultDisplayName(const QString &name);
 
-    // Note: Make sure subclasses call the superclasses' fromMap() method!
+    // Note: Make sure subclasses call the superclasses' fromMap() function!
     virtual bool fromMap(const QVariantMap &map);
 
-    // Note: Make sure subclasses call the superclasses' toMap() method!
+    // Note: Make sure subclasses call the superclasses' toMap() function!
     virtual QVariantMap toMap() const;
 
 signals:
