@@ -44,15 +44,15 @@ public:
 
     // ITools interface
     ITools &operator =(const ITools &tools);
-    void addTool(ITool *tool);
-    void removeTool(ITool *tool);
-    ITool *tool(const QString &toolKey) const;
-    ITool *tool(int index) const;
+    void addTool(IConfigurationTool *tool);
+    void removeTool(IConfigurationTool *tool);
+    IConfigurationTool *tool(const QString &toolKey) const;
+    IConfigurationTool *tool(int index) const;
     int toolCount() const;
     void appendToXMLNode(QDomElement &domElement, QDomDocument &domDocument) const;
 
 private:
-    QList<ITool *> m_tools;
+    QList<IConfigurationTool *> m_tools;
 };
 
 } // namespace Internal

@@ -67,7 +67,7 @@ ConfigurationBaseWidget::ConfigurationBaseWidget(Configuration *config)
     // add tool items
 
     for (int i = 0; i < m_config->tools()->toolCount(); ++i) {
-        ITool *configTool = m_config->tools()->tool(i);
+        IConfigurationTool *configTool = m_config->tools()->tool(i);
 
         if (configTool) {
             VcNodeWidget *toolWidget = configTool->createSettingsWidget();

@@ -32,7 +32,7 @@
 
 #include "../ivcprojectnodemodel.h"
 #include "../../widgets/toolwidgets/toolsettingswidget.h"
-#include "../../interfaces/itool.h"
+#include "../../interfaces/iconfigurationtool.h"
 
 #include <QList>
 #include <QString>
@@ -44,7 +44,7 @@ class IToolAttribute;
 class ToolDescription;
 class ToolSection;
 
-class ConfigurationTool : public ITool
+class ConfigurationTool : public IConfigurationTool
 {
 public:
     ConfigurationTool(const IToolDescription* toolDesc);
@@ -59,7 +59,7 @@ public:
     VcNodeWidget* createSettingsWidget();
 
     ISectionContainer *sectionContainer() const;
-    ITool *clone() const;
+    IConfigurationTool *clone() const;
 
 private:
     void processNodeAttributes(const QDomElement &domElement);

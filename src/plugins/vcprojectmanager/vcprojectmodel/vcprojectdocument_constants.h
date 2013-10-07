@@ -42,6 +42,17 @@ enum DocumentVersion
     DV_MSVC_2008
 };
 
+const char ACTIVEX_REFERENCE [] = "VC_Doc_Model.ActiveXReference";
+const char ACTIVEX_REFERENCE_CONTROL_GUID [] = "ControlGUID";
+const char ACTIVEX_REFERENCE_CONTROL_VERSION [] = "ControlVersion";
+const char ACTIVEX_REFERENCE_WRAPPER_TOOL [] = "WrapperTool";
+const char ACTIVEX_REFERENCE_LOCAL_ID [] ="LocaleID";
+const char ACTIVEX_REFERENCE_COPY_LOCAL [] = "CopyLocal";
+const char ACTIVEX_REFERENCE_USE_IN_BUILD [] = "UseInBuild";
+const char ACTIVEX_REFERENCE_COPY_LOCAL_DEPENDENCIES [] = "CopyLocalDependencies";
+const char ACTIVEX_REFERENCE_COPY_LOCAL_SATELITE_ASSEMBLIES [] = "CopyLocalSatelliteAssemblies";
+const char ACTIVEX_REFERENCE_USE_DEPENDENCIES_IN_BUILD [] = "UseDependenciesInBuild";
+
 } // VcDocConstants
 } // namespace Internal
 } // namespace VcProjectManager

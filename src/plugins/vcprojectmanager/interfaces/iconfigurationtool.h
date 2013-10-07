@@ -39,14 +39,14 @@ namespace Internal {
 class ISectionContainer;
 class IToolDescription;
 
-class ITool : public IVcProjectXMLNode
+class IConfigurationTool : public IVcProjectXMLNode
 {
 public:
-    virtual ~ITool() {}
+    virtual ~IConfigurationTool() {}
 
     virtual ISectionContainer* sectionContainer() const = 0;
     virtual const IToolDescription* toolDescription() const = 0;
-    virtual ITool* clone() const = 0;
+    virtual IConfigurationTool* clone() const = 0;
 };
 
 } // namespace Internal

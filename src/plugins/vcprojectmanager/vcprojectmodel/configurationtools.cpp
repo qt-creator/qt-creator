@@ -28,7 +28,7 @@
 **
 ****************************************************************************/
 #include "configurationtools.h"
-#include "../interfaces/itool.h"
+#include "../interfaces/iconfigurationtool.h"
 #include "../interfaces/itooldescription.h"
 
 namespace VcProjectManager {
@@ -45,7 +45,7 @@ ITools &ConfigurationTools::operator =(const ITools &tools)
         m_tools.clear();
 
         for (int i = 0; i < tools.toolCount(); ++i) {
-            ITool *tool = tools.tool(i);
+            IConfigurationTool *tool = tools.tool(i);
 
             if (tool)
                 m_tools.append(tool->clone());
@@ -55,12 +55,12 @@ ITools &ConfigurationTools::operator =(const ITools &tools)
     return *this;
 }
 
-void ConfigurationTools::addTool(ITool *tool)
+void ConfigurationTools::addTool(IConfigurationTool *tool)
 {
     if (!tool || m_tools.contains(tool))
         return;
 
-    foreach (ITool *toolPtr, m_tools) {
+    foreach (IConfigurationTool *toolPtr, m_tools) {
         if (toolPtr->toolDescription()->toolKey() == tool->toolDescription()->toolKey())
             return;
     }
@@ -68,9 +68,9 @@ void ConfigurationTools::addTool(ITool *tool)
     m_tools.append(tool);
 }
 
-void ConfigurationTools::removeTool(ITool *tool)
+void ConfigurationTools::removeTool(IConfigurationTool *tool)
 {
-    foreach (ITool *toolPtr, m_tools) {
+    foreach (IConfigurationTool *toolPtr, m_tools) {
         if (toolPtr->toolDescription()->toolKey() == tool->toolDescription()->toolKey()) {
             m_tools.removeOne(toolPtr);
             delete toolPtr;
@@ -79,9 +79,9 @@ void ConfigurationTools::removeTool(ITool *tool)
     }
 }
 
-ITool *ConfigurationTools::tool(const QString &toolKey) const
+IConfigurationTool *ConfigurationTools::tool(const QString &toolKey) const
 {
-    foreach (ITool *toolPtr, m_tools) {
+    foreach (IConfigurationTool *toolPtr, m_tools) {
         if (toolPtr->toolDescription()->toolKey() == toolKey) {
             return toolPtr;
         }
@@ -90,7 +90,7 @@ ITool *ConfigurationTools::tool(const QString &toolKey) const
     return 0;
 }
 
-ITool *ConfigurationTools::tool(int index) const
+IConfigurationTool *ConfigurationTools::tool(int index) const
 {
     if (0 <= index && index < m_tools.size())
         return m_tools[index];
@@ -105,7 +105,7 @@ int ConfigurationTools::toolCount() const
 
 void ConfigurationTools::appendToXMLNode(QDomElement &domElement, QDomDocument &domDocument) const
 {
-    foreach (const ITool *confTool, m_tools)
+    foreach (const IConfigurationTool *confTool, m_tools)
         domElement.appendChild(confTool->toXMLDomNode(domDocument));
 }
 

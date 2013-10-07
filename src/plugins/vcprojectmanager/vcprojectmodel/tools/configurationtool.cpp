@@ -93,7 +93,7 @@ ISectionContainer *ConfigurationTool::sectionContainer() const
     return m_sectionContainer;
 }
 
-ITool *ConfigurationTool::clone() const
+IConfigurationTool *ConfigurationTool::clone() const
 {
     return new ConfigurationTool(*this);
 }

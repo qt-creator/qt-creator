@@ -273,7 +273,7 @@ IConfiguration *ConfigurationsBaseWidget::createConfiguration(const QString &con
                 ToolDescription *toolDesc = tDDM->toolDescription(i);
 
                 if (toolDesc) {
-                    ITool *configTool = toolDesc->createTool();
+                    IConfigurationTool *configTool = toolDesc->createTool();
 
                     if (configTool)
                         config->tools()->addTool(configTool);

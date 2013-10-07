@@ -166,7 +166,7 @@ ITools *Configuration::tools() const
 
 void Configuration::processToolNode(const QDomNode &toolNode)
 {
-    ITool *toolConf = 0;
+    IConfigurationTool *toolConf = 0;
     QDomNamedNodeMap namedNodeMap = toolNode.toElement().attributes();
 
     for (int i = 0; i < namedNodeMap.size(); ++i) {
@@ -253,7 +253,7 @@ Configuration2005 &Configuration2005::operator=(const Configuration2005 &config)
 void Configuration2005::processToolNode(const QDomNode &toolNode)
 {
     if (toolNode.nodeName() == QLatin1String("Tool")) {
-        ITool *toolConf = 0;
+        IConfigurationTool *toolConf = 0;
         QDomNamedNodeMap namedNodeMap = toolNode.toElement().attributes();
 
         for (int i = 0; i < namedNodeMap.size(); ++i) {
@@ -374,7 +374,7 @@ Configuration2008::~Configuration2008()
 void Configuration2008::processToolNode(const QDomNode &toolNode)
 {
     if (toolNode.nodeName() == QLatin1String("Tool")) {
-        ITool *toolConf = 0;
+        IConfigurationTool *toolConf = 0;
         QDomNamedNodeMap namedNodeMap = toolNode.toElement().attributes();
 
         for (int i = 0; i < namedNodeMap.size(); ++i) {

@@ -311,7 +311,7 @@ void VcProject::updateCodeModels()
         IConfiguration *configModel = m_projectFile->documentModel()->vcProjectDocument()->configurations()->configurationContainer()->configuration(configName);
 
         if (configModel) {
-            ITool *configTool = configModel->tools()->tool(QLatin1String(ToolConstants::strVCCLCompilerTool));
+            IConfigurationTool *configTool = configModel->tools()->tool(QLatin1String(ToolConstants::strVCCLCompilerTool));
             if (configTool) {
                 for (int i = 0; i < configTool->sectionContainer()->sectionCount(); ++i) {
                     IToolSection *toolSection = configTool->sectionContainer()->section(i);

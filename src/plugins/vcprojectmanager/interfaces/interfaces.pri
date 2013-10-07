@@ -1,6 +1,5 @@
 HEADERS += \
     interfaces/itools.h \
-    interfaces/itool.h \
     interfaces/iconfiguration.h \
     interfaces/iattributecontainer.h \
     interfaces/isectioncontainer.h \
@@ -12,4 +11,5 @@ HEADERS += \
     interfaces/iconfigurations.h \
     interfaces/ifile.h \
     interfaces/ifilecontainer.h \
-    interfaces/ifiles.h
+    interfaces/ifiles.h \
+    interfaces/iconfigurationtool.h

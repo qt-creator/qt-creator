@@ -57,7 +57,7 @@ public:
     QString toolDisplayName() const;
     void setToolDisplayName(const QString &toolDisplayName);
 
-    ITool* createTool() const;
+    IConfigurationTool* createTool() const;
 
 private:
     QString m_displayName;

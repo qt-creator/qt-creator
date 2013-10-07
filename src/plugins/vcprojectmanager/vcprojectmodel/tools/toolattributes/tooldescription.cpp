@@ -107,7 +107,7 @@ void ToolDescription::setToolDisplayName(const QString &toolName)
     m_displayName = toolName;
 }
 
-ITool *ToolDescription::createTool() const
+IConfigurationTool *ToolDescription::createTool() const
 {
     return new ConfigurationTool(this);
 }

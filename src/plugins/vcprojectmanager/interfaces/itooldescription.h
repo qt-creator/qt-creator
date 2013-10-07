@@ -35,7 +35,7 @@
 namespace VcProjectManager {
 namespace Internal {
 
-class ITool;
+class IConfigurationTool;
 class IToolSectionDescription;
 
 class IToolDescription
@@ -53,7 +53,7 @@ public:
     virtual QString toolDisplayName() const = 0;
     virtual void setToolDisplayName(const QString &toolDisplayName) = 0;
 
-    virtual ITool* createTool() const = 0;
+    virtual IConfigurationTool* createTool() const = 0;
 };
 
 } // Internal
