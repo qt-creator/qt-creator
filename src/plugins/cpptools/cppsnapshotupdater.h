@@ -54,15 +54,9 @@ public:
     void update(CppModelManagerInterface::WorkingCopy workingCopy);
 
     CPlusPlus::Document::Ptr document() const;
-
-    CPlusPlus::Snapshot snapshot() const
-    { return m_snapshot; }
-
-    QStringList includePaths() const
-    { return m_includePaths; }
-
-    QStringList frameworkPaths() const
-    { return m_frameworkPaths; }
+    CPlusPlus::Snapshot snapshot() const;
+    QStringList includePaths() const;
+    QStringList frameworkPaths() const;
 
     ProjectPart::Ptr currentProjectPart() const;
     void setProjectPart(ProjectPart::Ptr projectPart);
@@ -76,7 +70,7 @@ private:
 
 private:
     mutable QMutex m_mutex;
-    QString m_fileInEditor;
+    const QString m_fileInEditor;
     ProjectPart::Ptr m_projectPart, m_manuallySetProjectPart;
     QByteArray m_configFile;
     bool m_editorDefinesChangedSinceLastUpdate;

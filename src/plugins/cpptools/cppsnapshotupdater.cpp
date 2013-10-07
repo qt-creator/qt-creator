@@ -182,28 +182,42 @@ void SnapshotUpdater::update(CppModelManager::WorkingCopy workingCopy)
 Document::Ptr SnapshotUpdater::document() const
 {
     QMutexLocker locker(&m_mutex);
-
     return m_snapshot.document(m_fileInEditor);
+}
+
+Snapshot SnapshotUpdater::snapshot() const
+{
+    QMutexLocker locker(&m_mutex);
+    return m_snapshot;
+}
+
+QStringList SnapshotUpdater::includePaths() const
+{
+    QMutexLocker locker(&m_mutex);
+    return m_includePaths;
+}
+
+QStringList SnapshotUpdater::frameworkPaths() const
+{
+    QMutexLocker locker(&m_mutex);
+    return m_frameworkPaths;
 }
 
 ProjectPart::Ptr SnapshotUpdater::currentProjectPart() const
 {
     QMutexLocker locker(&m_mutex);
-
     return m_projectPart;
 }
 
 void SnapshotUpdater::setProjectPart(ProjectPart::Ptr projectPart)
 {
     QMutexLocker locker(&m_mutex);
-
     m_manuallySetProjectPart = projectPart;
 }
 
 void SnapshotUpdater::setUsePrecompiledHeaders(bool usePrecompiledHeaders)
 {
     QMutexLocker locker(&m_mutex);
-
     m_usePrecompiledHeaders = usePrecompiledHeaders;
 }
 
