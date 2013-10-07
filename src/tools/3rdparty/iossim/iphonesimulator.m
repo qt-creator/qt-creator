@@ -79,6 +79,7 @@ NSString *deviceIpadRetina = @"iPad (Retina)";
 
 
 - (int) showSDKs {
+  NSUInteger i;
   id tClass = objc_getClass("DTiPhoneSimulatorSystemRoot");
   if (tClass == nil) {
     nsprintf(@"<msg>DTiPhoneSimulatorSystemRoot class is nil.</msg>");
@@ -87,7 +88,7 @@ NSString *deviceIpadRetina = @"iPad (Retina)";
   NSArray *roots = [tClass knownRoots];
 
   nsprintf(@"<device_info>");
-  for (NSUInteger i = 0; i < [roots count]; ++i) {
+  for (i = 0; i < [roots count]; ++i) {
     DTiPhoneSimulatorSystemRoot *root = [roots objectAtIndex:i];
     nsprintf(@"<item><key>sdk%d_name</key><value>%@</value></item>", i, [root sdkDisplayName]);
     nsprintf(@"<item><key>sdk%d_version</key><value>%@</value></item>", i, [root sdkVersion]);

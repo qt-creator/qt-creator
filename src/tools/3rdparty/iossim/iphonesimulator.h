@@ -36,5 +36,6 @@
 - (void)stop;
 - (void)checkPid:(NSTimer *)timer;
 - (void)doExit:(int)errorCode;
+- (void)changeDeviceType:(NSString *)family retina:(BOOL)retina isTallDevice:(BOOL)isTallDevice;
 
 @end
