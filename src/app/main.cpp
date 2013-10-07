@@ -35,6 +35,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 #include <qtsingleapplication.h>
+#include <utils/hostosinfo.h>
 
 #include <QDebug>
 #include <QDir>
@@ -312,11 +313,11 @@ int main(int argc, char **argv)
 
 #if QT_VERSION >= 0x050100
     app.setAttribute(Qt::AA_UseHighDpiPixmaps);
-#  if defined(Q_OS_WIN) || defined(Q_OS_MAC)
-    // Prevent native windows from being created for the sibling widgets of the welcome screen.
-    // Causes flicker on Linux, though.
-    app.setAttribute(Qt::AA_DontCreateNativeWidgetSiblings);
-#  endif
+    if (Utils::HostOsInfo::isWindowsHost() || Utils::HostOsInfo::isMacHost()) {
+        // Prevent native windows from being created for the sibling widgets of the welcome screen.
+        // Causes flicker on Linux, though.
+        app.setAttribute(Qt::AA_DontCreateNativeWidgetSiblings);
+    }
 #endif
 
     // Manually determine -settingspath command line option

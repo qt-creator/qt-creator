@@ -42,12 +42,6 @@ enum IosQemuStatus {
     IosQemuUserReason
 };
 
-#ifdef Q_OS_WIN32
-#define IOS_BAT_SUFFIX ".bat"
-#else
-#define IOS_BAT_SUFFIX ""
-#endif
-
 } // namespace Internal
 
 namespace Constants {
