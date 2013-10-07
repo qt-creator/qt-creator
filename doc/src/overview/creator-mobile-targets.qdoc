@@ -52,6 +52,11 @@
             2.3.3, or later. You must install the Qt for Android SDK to develop
             for Android devices.
 
+        \li \l{Connecting Bare Metal Devices}
+
+            You can connect bare metal devices to the development PC and use \QC
+            to debug applications on them with GDB or a hardware debugger.
+
         \li \l{Connecting BlackBerry 10 Devices}
 
             \QC enables you to develop, deploy and debug your Qt applications
