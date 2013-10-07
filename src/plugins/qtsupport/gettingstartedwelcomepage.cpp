@@ -205,42 +205,6 @@ private:
     QMutex m_mutex;
 };
 
-GettingStartedWelcomePage::GettingStartedWelcomePage() : m_engine(0)
-{
-
-}
-
-QUrl GettingStartedWelcomePage::pageLocation() const
-{
-    QString resourcePath = Core::ICore::resourcePath();
-#ifdef Q_OS_WIN
-    // normalize paths so QML doesn't freak out if it's wrongly capitalized on Windows
-    resourcePath = Utils::normalizePathName(resourcePath);
-#endif
-
-    return QUrl::fromLocalFile(resourcePath + QLatin1String("/welcomescreen/gettingstarted.qml"));
-}
-
-QString GettingStartedWelcomePage::title() const
-{
-    return tr("Getting Started");
-}
-
-int GettingStartedWelcomePage::priority() const
-{
-    return 4;
-}
-
-void GettingStartedWelcomePage::facilitateQml(QQmlEngine *engine)
-{
-    m_engine = engine;
-}
-
-GettingStartedWelcomePage::Id GettingStartedWelcomePage::id() const
-{
-    return GettingStarted;
-}
-
 ExamplesWelcomePage::ExamplesWelcomePage()
     : m_engine(0),  m_showExamples(false)
 {

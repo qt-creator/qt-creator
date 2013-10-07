@@ -1,5 +1,4 @@
 CustomColors 1.0 CustomColors.qml
-GettingStartedItem 1.0 GettingStartedItem.qml
 ProjectItem 1.0 ProjectItem.qml
 CustomFonts 1.0 CustomFonts.qml
 LinkedText 1.0 LinkedText.qml
@@ -16,7 +15,6 @@ Sessions 1.0 Sessions.qml
 Feedback 1.0 Feedback.qml
 PageLoader 1.0 PageLoader.qml
 ToolTip 1.0 ToolTip.qml
-IconAndLink 1.0 IconAndLink.qml
 ComboBox 1.0 ComboBox.qml
 NativeText 1.0 NativeText.qml
 
