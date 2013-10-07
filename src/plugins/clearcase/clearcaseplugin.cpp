@@ -717,6 +717,9 @@ void ClearCasePlugin::updateStatusActions()
     m_undoHijackAction->setEnabled(!m_viewData.isDynamic && hasFile && (fileStatus.status & FileStatus::Hijacked));
     m_checkInCurrentAction->setEnabled(hasFile && (fileStatus.status & FileStatus::CheckedOut));
     m_addFileAction->setEnabled(hasFile && (fileStatus.status & FileStatus::NotManaged));
+    m_diffCurrentAction->setEnabled(hasFile && (fileStatus.status != FileStatus::NotManaged));
+    m_historyCurrentAction->setEnabled(hasFile && (fileStatus.status != FileStatus::NotManaged));
+    m_annotateCurrentAction->setEnabled(hasFile && (fileStatus.status != FileStatus::NotManaged));
 
     m_checkInActivityAction->setEnabled(m_viewData.isUcm);
     m_diffActivityAction->setEnabled(m_viewData.isUcm);
