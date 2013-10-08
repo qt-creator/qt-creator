@@ -63,7 +63,20 @@ static inline int classify5(const char *s) {
 }
 
 static inline int classify6(const char *s) {
-  if (s[0] == 'N') {
+  if (s[0] == 'M') {
+    if (s[1] == 'E') {
+      if (s[2] == 'M') {
+        if (s[3] == 'B') {
+          if (s[4] == 'E') {
+            if (s[5] == 'R') {
+              return Token_MEMBER;
+            }
+          }
+        }
+      }
+    }
+  }
+  else if (s[0] == 'N') {
     if (s[1] == 'O') {
       if (s[2] == 'T') {
         if (s[3] == 'I') {

@@ -556,18 +556,19 @@ public:
         NoFlags = 0,
         ReadFunction = 1 << 0,
         WriteFunction = 1 << 1,
-        ResetFunction = 1 << 2,
-        NotifyFunction = 1 << 3,
-        DesignableFlag = 1 << 4,
-        DesignableFunction = 1 << 5,
-        ScriptableFlag = 1 << 6,
-        ScriptableFunction = 1 << 7,
-        StoredFlag = 1 << 8,
-        StoredFunction = 1 << 9,
-        UserFlag = 1 << 10,
-        UserFunction = 1 << 11,
-        ConstantFlag = 1 << 12,
-        FinalFlag = 1 << 13
+        MemberVariable = 1 << 2,
+        ResetFunction = 1 << 3,
+        NotifyFunction = 1 << 4,
+        DesignableFlag = 1 << 5,
+        DesignableFunction = 1 << 6,
+        ScriptableFlag = 1 << 7,
+        ScriptableFunction = 1 << 8,
+        StoredFlag = 1 << 9,
+        StoredFunction = 1 << 10,
+        UserFlag = 1 << 11,
+        UserFunction = 1 << 12,
+        ConstantFlag = 1 << 13,
+        FinalFlag = 1 << 14
     };
 
 public:
