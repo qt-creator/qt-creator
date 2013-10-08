@@ -10,12 +10,14 @@ Windows XP SP2 or later
 (K)Ubuntu Linux 11.10 (32-bit and 64-bit) or later
 Mac OS 10.6 or later
 
-Building the sources requires Qt 4.8.0 or later.
+Building the sources requires Qt 5.2.0 or later.
+It is also possible to build with Qt 4.8.x, but in that case the Welcome mode,
+Qt Quick Designer and QML Profiler are disabled.
 
 Compiling Qt Creator
 ====================
 Prerequisites:
-   * Qt 4.8.0 or later
+   * Qt 5.2.0 or later (with restrictions also Qt 4.8.x)
    * On Windows:
      -  ActiveState Active Perl
      -  MinGW or Visual Studio

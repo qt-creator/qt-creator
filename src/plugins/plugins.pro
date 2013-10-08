@@ -68,7 +68,7 @@ isEmpty(IDE_PACKAGE_MODE) {
         updateinfo
 }
 
-minQtVersion(5, 1, 0) {
+minQtVersion(5, 2, 0) {
     SUBDIRS += \
         qmldesigner \
         qmlprofiler \
