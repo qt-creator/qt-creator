@@ -27,28 +27,27 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_ITOOLSECTION_H
-#define VCPROJECTMANAGER_ITOOLSECTION_H
+#ifndef ITOOLATTRIBUTECONTAINER_H
+#define ITOOLATTRIBUTECONTAINER_H
+
+#include <QString>
 
 namespace VcProjectManager {
 namespace Internal {
 
 class IToolAttribute;
-class IToolSectionDescription;
-class VcNodeWidget;
-class IToolAttributeContainer;
 
-class IToolSection
+class IToolAttributeContainer
 {
 public:
-    virtual ~IToolSection() {}
-    virtual IToolAttributeContainer *attributeContainer() const = 0;
-    virtual const IToolSectionDescription *sectionDescription() const = 0;
-    virtual VcNodeWidget* createSettingsWidget() = 0;
-    virtual IToolSection* clone() const = 0;
+    virtual ~IToolAttributeContainer() {}
+    virtual IToolAttribute* toolAttribute(int index) const = 0;
+    virtual IToolAttribute* toolAttribute(const QString &attributeKey) const = 0;
+    virtual int toolAttributeCount() const = 0;
+    virtual void addToolAttribute(IToolAttribute* toolAttribute) = 0;
+    virtual void removeToolAttribute(IToolAttribute* toolAttribute) = 0;
 };
 
 } // Internal
 } // VcProjectManager
-
-#endif // VCPROJECTMANAGER_ITOOLSECTION_H
+#endif // ITOOLATTRIBUTECONTAINER_H

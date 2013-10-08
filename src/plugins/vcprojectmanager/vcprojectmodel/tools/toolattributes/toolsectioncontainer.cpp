@@ -32,6 +32,7 @@
 #include "../../../interfaces/itoolsectiondescription.h"
 #include "../../../interfaces/itoolattribute.h"
 #include "../../../interfaces/iattributedescriptiondataitem.h"
+#include "../../../interfaces/itoolattributecontainer.h"
 
 namespace VcProjectManager {
 namespace Internal {
@@ -121,8 +122,8 @@ void ToolSectionContainer::appendToXMLNode(QDomElement &elementNode)
 {
     foreach (IToolSection *toolSection, m_toolSections) {
         if (toolSection) {
-            for (int i = 0; i < toolSection->toolAttributeCount(); ++i) {
-                IToolAttribute *toolAttr = toolSection->toolAttribute(i);
+            for (int i = 0; i < toolSection->attributeContainer()->toolAttributeCount(); ++i) {
+                IToolAttribute *toolAttr = toolSection->attributeContainer()->toolAttribute(i);
 
                 if (toolAttr && toolAttr->isUsed())
                     elementNode.setAttribute(toolAttr->descriptionDataItem()->key(), toolAttr->value());

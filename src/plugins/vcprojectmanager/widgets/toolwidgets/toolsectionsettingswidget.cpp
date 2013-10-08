@@ -32,6 +32,7 @@
 #include "../../vcprojectmodel/tools/toolsection.h"
 #include "../../interfaces/itoolattribute.h"
 #include "../../interfaces/iattributedescriptiondataitem.h"
+#include "../../interfaces/itoolattributecontainer.h"
 #include "../basicconfigurationwidget.h"
 
 #include <QVBoxLayout>
@@ -44,8 +45,8 @@ ToolSectionSettingsWidget::ToolSectionSettingsWidget(ToolSection *toolSection, Q
 {
     BasicConfigurationWidget *basicWidget = new BasicConfigurationWidget(this);
 
-    for (int i = 0; i < toolSection->toolAttributeCount(); ++i) {
-        IToolAttribute *toolAttr = toolSection->toolAttribute(i);
+    for (int i = 0; i < toolSection->attributeContainer()->toolAttributeCount(); ++i) {
+        IToolAttribute *toolAttr = toolSection->attributeContainer()->toolAttribute(i);
 
         if (toolAttr)
             appendAttributeToBasicWidget(toolAttr, basicWidget);

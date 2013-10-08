@@ -13,4 +13,5 @@ HEADERS += \
     interfaces/ifilecontainer.h \
     interfaces/ifiles.h \
     interfaces/ireference.h \
-    interfaces/iconfigurationtool.h
+    interfaces/iconfigurationtool.h \
+    interfaces/itoolattributecontainer.h

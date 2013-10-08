@@ -30,6 +30,7 @@
 #include "configurationtool.h"
 #include "../../interfaces/itoolattribute.h"
 #include "../../interfaces/iattributedescriptiondataitem.h"
+#include "../../interfaces/itoolattributecontainer.h"
 #include "toolattributes/tooldescriptiondatamanager.h"
 #include "toolattributes/tooldescription.h"
 #include "toolsectiondescription.h"
@@ -112,7 +113,7 @@ void ConfigurationTool::processNodeAttributes(const QDomElement &domElement)
                 for (int i = 0; i < m_sectionContainer->sectionCount(); ++i) {
                     IToolSection *toolSection = m_sectionContainer->section(i);
                     if (toolSection) {
-                        IToolAttribute *toolAttr = toolSection->toolAttribute(domElement.name());
+                        IToolAttribute *toolAttr = toolSection->attributeContainer()->toolAttribute(domElement.name());
 
                         if (toolAttr)
                             toolAttr->setValue(domElement.value());

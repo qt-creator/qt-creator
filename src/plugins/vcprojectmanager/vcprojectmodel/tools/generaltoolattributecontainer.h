@@ -27,28 +27,34 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_ITOOLSECTION_H
-#define VCPROJECTMANAGER_ITOOLSECTION_H
+#ifndef GENERALTOOLATTRIBUTECONTAINER_H
+#define GENERALTOOLATTRIBUTECONTAINER_H
+
+#include <QList>
+#include "../../interfaces/itoolattributecontainer.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
-class IToolAttribute;
-class IToolSectionDescription;
-class VcNodeWidget;
-class IToolAttributeContainer;
-
-class IToolSection
+class GeneralToolAttributeContainer : public IToolAttributeContainer
 {
 public:
-    virtual ~IToolSection() {}
-    virtual IToolAttributeContainer *attributeContainer() const = 0;
-    virtual const IToolSectionDescription *sectionDescription() const = 0;
-    virtual VcNodeWidget* createSettingsWidget() = 0;
-    virtual IToolSection* clone() const = 0;
+    GeneralToolAttributeContainer();
+    GeneralToolAttributeContainer(const GeneralToolAttributeContainer &container);
+    GeneralToolAttributeContainer& operator=(const GeneralToolAttributeContainer &container);
+    ~GeneralToolAttributeContainer();
+
+    // IToolAttributeContainer interface
+    IToolAttribute *toolAttribute(int index) const;
+    IToolAttribute *toolAttribute(const QString &attributeKey) const;
+    int toolAttributeCount() const;
+    void addToolAttribute(IToolAttribute *toolAttribute);
+    void removeToolAttribute(IToolAttribute *toolAttribute);
+
+private:
+    QList<IToolAttribute *> m_toolAttributes;
 };
 
 } // Internal
 } // VcProjectManager
-
-#endif // VCPROJECTMANAGER_ITOOLSECTION_H
+#endif // GENERALTOOLATTRIBUTECONTAINER_H

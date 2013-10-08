@@ -41,6 +41,7 @@ namespace Internal {
 class ToolSectionDescription;
 class IToolAttribute;
 class ToolSectionSettingsWidget;
+class GeneralToolAttributeContainer;
 
 class ToolSection : public IToolSection
 {
@@ -49,21 +50,14 @@ public:
     ToolSection(const ToolSection &toolSec);
     ~ToolSection();
 
-    IToolAttribute* toolAttribute(int index) const;
-    IToolAttribute* toolAttribute(const QString &attributeKey) const;
-    int toolAttributeCount() const;
-    void addToolAttribute(IToolAttribute* toolAttribute);
-    void removeToolAttribute(IToolAttribute* toolAttribute);
-
+    IToolAttributeContainer *attributeContainer() const;
     const IToolSectionDescription *sectionDescription() const;
-
     VcNodeWidget* createSettingsWidget();
-
     IToolSection* clone() const;
 
 private:
     const ToolSectionDescription * m_toolDesc;
-    QList<IToolAttribute *> m_toolAttributes;
+    GeneralToolAttributeContainer *m_attributeContainer;
 };
 
 } // namespace Internal

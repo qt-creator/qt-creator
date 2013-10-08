@@ -32,6 +32,7 @@
 #include "../../interfaces/iattributedescriptiondataitem.h"
 #include "../../widgets/toolwidgets/toolsectionsettingswidget.h"
 #include "toolsectiondescription.h"
+#include "generaltoolattributecontainer.h"
 
 namespace VcProjectManager {
 namespace Internal {
@@ -39,75 +40,32 @@ namespace Internal {
 ToolSection::ToolSection(const ToolSectionDescription *toolSectionDesc)
     : m_toolDesc(toolSectionDesc)
 {
+    m_attributeContainer = new GeneralToolAttributeContainer;
     for (int i = 0; i < toolSectionDesc->attributeDescriptionCount(); ++i) {
         if (toolSectionDesc->attributeDescription(i))
-            m_toolAttributes.append(toolSectionDesc->attributeDescription(i)->createAttribute());
+            m_attributeContainer->addToolAttribute(toolSectionDesc->attributeDescription(i)->createAttribute());
     }
 }
 
 ToolSection::ToolSection(const ToolSection &toolSec)
 {
-    qDeleteAll(m_toolAttributes);
-    m_toolAttributes.clear();
+    m_attributeContainer = new GeneralToolAttributeContainer;
+    *m_attributeContainer = *toolSec.m_attributeContainer;
 
     m_toolDesc = toolSec.m_toolDesc;
 
-    foreach (const IToolAttribute *toolAttribute, toolSec.m_toolAttributes) {
-        if (toolAttribute)
-            m_toolAttributes.append(toolAttribute->clone());
-    }
+    for (int i = 0; i < toolSec.attributeContainer()->toolAttributeCount(); ++i)
+        m_attributeContainer->addToolAttribute(toolSec.attributeContainer()->toolAttribute(i)->clone());
 }
 
 ToolSection::~ToolSection()
 {
-    qDeleteAll(m_toolAttributes);
+    delete m_attributeContainer;
 }
 
-IToolAttribute *ToolSection::toolAttribute(int index) const
+IToolAttributeContainer *ToolSection::attributeContainer() const
 {
-    if (0 <= index && index < m_toolAttributes.size())
-        return m_toolAttributes[index];
-    return 0;
-}
-
-IToolAttribute *ToolSection::toolAttribute(const QString &attributeKey) const
-{
-    foreach (IToolAttribute *toolAttr, m_toolAttributes) {
-        if (toolAttr->descriptionDataItem()->key() == attributeKey)
-            return toolAttr;
-    }
-
-    return 0;
-}
-
-int ToolSection::toolAttributeCount() const
-{
-    return m_toolAttributes.size();
-}
-
-void ToolSection::addToolAttribute(IToolAttribute *toolAttribute)
-{
-    if (!toolAttribute || m_toolAttributes.contains(toolAttribute))
-        return;
-
-    foreach (IToolAttribute *toolAttr, m_toolAttributes) {
-        if (toolAttr->descriptionDataItem()->key() == toolAttribute->descriptionDataItem()->key())
-            return;
-    }
-    m_toolAttributes.append(toolAttribute);
-}
-
-void ToolSection::removeToolAttribute(IToolAttribute *toolAttribute)
-{
-    if (!toolAttribute)
-        return;
-
-    foreach (IToolAttribute *toolAttr, m_toolAttributes) {
-        if (toolAttr->descriptionDataItem()->key() == toolAttribute->descriptionDataItem()->key()) {
-            m_toolAttributes.removeOne(toolAttr);
-            return;
-        }
-    }
+    return m_attributeContainer;
 }
 
 const IToolSectionDescription *ToolSection::sectionDescription() const

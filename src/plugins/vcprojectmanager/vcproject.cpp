@@ -47,6 +47,7 @@
 #include "interfaces/iattributedescriptiondataitem.h"
 #include "interfaces/isectioncontainer.h"
 #include "interfaces/itools.h"
+#include "interfaces/itoolattributecontainer.h"
 
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
@@ -317,7 +318,7 @@ void VcProject::updateCodeModels()
                     IToolSection *toolSection = configTool->sectionContainer()->section(i);
 
                     if (toolSection) {
-                        IToolAttribute *toolAttr = toolSection->toolAttribute(QLatin1String("PreprocessorDefinitions"));
+                        IToolAttribute *toolAttr = toolSection->attributeContainer()->toolAttribute(QLatin1String("PreprocessorDefinitions"));
 
                         if (toolAttr) {
                             StringListToolAttribute *stringToolAttr = static_cast<StringListToolAttribute *>(toolAttr);
