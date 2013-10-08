@@ -37,7 +37,6 @@
 namespace VcProjectManager {
 namespace Internal {
 
-class IAttributeContainer;
 class GeneralAttributeContainer;
 
 class DebuggerTool : public IDebuggerTool

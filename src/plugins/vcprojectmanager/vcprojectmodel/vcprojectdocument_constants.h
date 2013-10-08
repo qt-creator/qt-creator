@@ -53,6 +53,18 @@ const char ACTIVEX_REFERENCE_COPY_LOCAL_DEPENDENCIES [] = "CopyLocalDependencies
 const char ACTIVEX_REFERENCE_COPY_LOCAL_SATELITE_ASSEMBLIES [] = "CopyLocalSatelliteAssemblies";
 const char ACTIVEX_REFERENCE_USE_DEPENDENCIES_IN_BUILD [] = "UseDependenciesInBuild";
 
+// Assembly Reference
+const char ASSEMBLY_REFERENCE [] = "VC_Doc_Model.AssemblyReference";
+const char ASSEMBLY_REFERENCE_RELATIVE_PATH [] = "RelativePath";
+const char ASSEMBLY_REFERENCE_ASSEMBLY_NAME [] = "AssemblyName";
+const char ASSEMBLY_REFERENCE_COPY_LOCAL [] = "CopyLocal";
+const char ASSEMBLY_REFERENCE_USE_IN_BUILD [] = "UseInBuild";
+const char ASSEMBLY_REFERENCE_COPY_LOCAL_DEPENDENCIES [] = "CopyLocalDependencies";
+const char ASSEMBLY_REFERENCE_COPY_LOCAL_SATELITE_ASSEMBLIES [] = "CopyLocalSatelliteAssemblies";
+const char ASSEMBLY_REFERENCE_USE_DEPENDENCIES_IN_BUILD [] = "UseDependenciesInBuild";
+const char ASSEMBLY_REFERENCE_SUB_TYPE [] = "SubType";
+const char ASSEMBLY_REFERENCE_MIN_FRAMEWORK_VERSION [] = "MinFrameworkVersion";
+
 } // VcDocConstants
 } // namespace Internal
 } // namespace VcProjectManager

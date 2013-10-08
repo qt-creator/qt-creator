@@ -55,7 +55,6 @@ ActiveXReference& ActiveXReference::operator=(const ActiveXReference &ref)
         *m_attributeContainer = *ref.m_attributeContainer;
         *m_configurations = *ref.m_configurations;
     }
-
     return *this;
 }
 
@@ -146,101 +145,9 @@ void ActiveXReference::processReferenceConfig(const QDomNode &referenceConfig)
         processReferenceConfig(nextSibling);
 }
 
-ActiveXReference2003::ActiveXReference2003(const ActiveXReference2003 &ref)
-    : ActiveXReference(ref)
-{
-}
-
-ActiveXReference2003::~ActiveXReference2003()
-{
-}
-
-ActiveXReference::Ptr ActiveXReference2003::clone() const
-{
-    return ActiveXReference::Ptr(new ActiveXReference2003(*this));
-}
-
-ActiveXReference2003::ActiveXReference2003()
-{
-}
-
-IConfiguration* ActiveXReference2003::createReferenceConfiguration() const
+IConfiguration *ActiveXReference::createReferenceConfiguration() const
 {
     return new Configuration(QLatin1String("ReferenceConfiguration"));
-}
-
-
-ActiveXReference2005::ActiveXReference2005(const ActiveXReference2005 &ref)
-    : ActiveXReference2003(ref)
-{
-}
-
-ActiveXReference2005::~ActiveXReference2005()
-{
-}
-
-ActiveXReference::Ptr ActiveXReference2005::clone() const
-{
-    return ActiveXReference::Ptr(new ActiveXReference2005(*this));
-}
-
-ActiveXReference2005::ActiveXReference2005()
-{
-}
-
-IConfiguration* ActiveXReference2005::createReferenceConfiguration() const
-{
-    return new Configuration(QLatin1String("ReferenceConfiguration"));
-}
-
-
-ActiveXReference2008::ActiveXReference2008(const ActiveXReference2008 &ref)
-    : ActiveXReference2005(ref)
-{
-}
-
-ActiveXReference2008::~ActiveXReference2008()
-{
-}
-
-ActiveXReference::Ptr ActiveXReference2008::clone() const
-{
-    return ActiveXReference::Ptr(new ActiveXReference2005(*this));
-}
-
-ActiveXReference2008::ActiveXReference2008()
-{
-}
-
-IConfiguration* ActiveXReference2008::createReferenceConfiguration() const
-{
-    return new Configuration(QLatin1String("ReferenceConfiguration"));
-}
-
-
-ActiveXReferenceFactory &ActiveXReferenceFactory::instance()
-{
-    static ActiveXReferenceFactory am;
-    return am;
-}
-
-ActiveXReference::Ptr ActiveXReferenceFactory::create(VcDocConstants::DocumentVersion version)
-{
-    ActiveXReference::Ptr ref;
-
-    switch (version) {
-    case VcDocConstants::DV_MSVC_2003:
-        ref = ActiveXReference::Ptr(new ActiveXReference2003);
-        break;
-    case VcDocConstants::DV_MSVC_2005:
-        ref = ActiveXReference::Ptr(new ActiveXReference2005);
-        break;
-    case VcDocConstants::DV_MSVC_2008:
-        ref = ActiveXReference::Ptr(new ActiveXReference2008);
-        break;
-    }
-
-    return ref;
 }
 
 } // namespace Internal

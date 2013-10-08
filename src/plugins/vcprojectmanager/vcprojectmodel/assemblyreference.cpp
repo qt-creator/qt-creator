@@ -32,13 +32,53 @@
 #include <QVariant>
 
 #include "configurationsfactory.h"
+#include "configurationcontainer.h"
+#include "generalattributecontainer.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
+AssemblyReference::AssemblyReference()
+{
+    m_attributeContainer = new GeneralAttributeContainer;
+    m_configurations = new ConfigurationContainer;
+}
+
+AssemblyReference::AssemblyReference(const AssemblyReference &asmRef)
+{
+    m_attributeContainer = new GeneralAttributeContainer;
+    m_configurations = new ConfigurationContainer;
+
+    *m_attributeContainer = *asmRef.m_attributeContainer;
+    *m_configurations = *asmRef.m_configurations;
+
+    for (int i = 0; i < asmRef.m_configurations->configurationCount(); ++i) {
+        IConfiguration *config = asmRef.m_configurations->configuration(i);
+        if (config)
+            m_configurations->addConfiguration(config->clone());
+    }
+}
+
+AssemblyReference &AssemblyReference::operator =(const AssemblyReference &asmRef)
+{
+    if (this != &asmRef) {
+        *m_attributeContainer = *asmRef.m_attributeContainer;
+        *m_configurations = *asmRef.m_configurations;
+
+        for (int i = 0; i < asmRef.m_configurations->configurationCount(); ++i) {
+            IConfiguration *config = asmRef.m_configurations->configuration(i);
+            if (config)
+                m_configurations->addConfiguration(config->clone());
+        }
+    }
+
+    return *this;
+}
+
 AssemblyReference::~AssemblyReference()
 {
-    qDeleteAll(m_referenceConfigurations);
+    delete m_attributeContainer;
+    delete m_configurations;
 }
 
 void AssemblyReference::processNode(const QDomNode &node)
@@ -56,6 +96,34 @@ void AssemblyReference::processNode(const QDomNode &node)
     }
 }
 
+VcNodeWidget *AssemblyReference::createSettingsWidget()
+{
+    return 0;
+}
+
+QDomNode AssemblyReference::toXMLDomNode(QDomDocument &domXMLDocument) const
+{
+    QDomElement assemblyRefNode = domXMLDocument.createElement(QLatin1String("AssemblyReference"));
+    m_configurations->appendToXMLNode(assemblyRefNode, domXMLDocument);
+    m_attributeContainer->appendToXMLNode(assemblyRefNode);
+    return assemblyRefNode;
+}
+
+IAttributeContainer *AssemblyReference::attributeContainer() const
+{
+    return m_attributeContainer;
+}
+
+ConfigurationContainer *AssemblyReference::configurationContainer() const
+{
+    return m_configurations;
+}
+
+QString AssemblyReference::type() const
+{
+    return QLatin1String(VcDocConstants::ASSEMBLY_REFERENCE);
+}
+
 void AssemblyReference::processNodeAttributes(const QDomElement &element)
 {
     QDomNamedNodeMap namedNodeMap = element.attributes();
@@ -66,429 +134,30 @@ void AssemblyReference::processNodeAttributes(const QDomElement &element)
         if (domNode.nodeType() == QDomNode::AttributeNode) {
             QDomAttr domElement = domNode.toAttr();
 
-            if (domElement.name() == QLatin1String("RelativePath"))
-                m_relativePath = domElement.value();
+            if (domElement.name() == QLatin1String(VcDocConstants::ASSEMBLY_REFERENCE_ASSEMBLY_NAME) ||
+                    domElement.name() == QLatin1String(VcDocConstants::ASSEMBLY_REFERENCE_COPY_LOCAL) ||
+                    domElement.name() == QLatin1String(VcDocConstants::ASSEMBLY_REFERENCE_COPY_LOCAL_DEPENDENCIES) ||
+                    domElement.name() == QLatin1String(VcDocConstants::ASSEMBLY_REFERENCE_COPY_LOCAL_SATELITE_ASSEMBLIES) ||
+                    domElement.name() == QLatin1String(VcDocConstants::ASSEMBLY_REFERENCE_MIN_FRAMEWORK_VERSION) ||
+                    domElement.name() == QLatin1String(VcDocConstants::ASSEMBLY_REFERENCE_RELATIVE_PATH) ||
+                    domElement.name() == QLatin1String(VcDocConstants::ASSEMBLY_REFERENCE_SUB_TYPE) ||
+                    domElement.name() == QLatin1String(VcDocConstants::ASSEMBLY_REFERENCE_USE_DEPENDENCIES_IN_BUILD) ||
+                    domElement.name() == QLatin1String(VcDocConstants::ASSEMBLY_REFERENCE_USE_IN_BUILD))
+                m_attributeContainer->setAttribute(domElement.name(), domElement.value());
         }
     }
-}
-
-VcNodeWidget *AssemblyReference::createSettingsWidget()
-{
-    return 0;
-}
-
-QDomNode AssemblyReference::toXMLDomNode(QDomDocument &domXMLDocument) const
-{
-    QDomElement assemblyRefNode = domXMLDocument.createElement(QLatin1String("AssemblyReference"));
-
-    assemblyRefNode.setAttribute(QLatin1String("RelativePath"), m_relativePath);
-
-    foreach (const IConfiguration *refConfig, m_referenceConfigurations)
-        assemblyRefNode.appendChild(refConfig->toXMLDomNode(domXMLDocument));
-
-    return assemblyRefNode;
-}
-
-QString AssemblyReference::relativePath() const
-{
-    return m_relativePath;
-}
-
-void AssemblyReference::setRelativePath(const QString &relativePath)
-{
-    m_relativePath = relativePath;
-}
-
-void AssemblyReference::addReferenceConfiguration(IConfiguration *refConfig)
-{
-    if (m_referenceConfigurations.contains(refConfig))
-        return;
-
-    foreach (const IConfiguration *refConf, m_referenceConfigurations) {
-        if (refConfig->fullName() == refConf->fullName())
-            return;
-    }
-
-    m_referenceConfigurations.append(refConfig);
-}
-
-void AssemblyReference::removeReferenceConfiguration(IConfiguration *refConfig)
-{
-    m_referenceConfigurations.removeAll(refConfig);
-}
-
-void AssemblyReference::removeReferenceConfiguration(const QString &refConfName)
-{
-    foreach (IConfiguration *refConfig, m_referenceConfigurations) {
-        if (refConfig->fullName() == refConfName) {
-            m_referenceConfigurations.removeOne(refConfig);
-            delete refConfig;
-            return;
-        }
-    }
-}
-
-IConfiguration* AssemblyReference::referenceConfiguration(const QString &refConfigName) const
-{
-    foreach (IConfiguration *refConfig, m_referenceConfigurations) {
-        if (refConfig->fullName() == refConfigName)
-            return refConfig;
-    }
-    return 0;
-}
-
-AssemblyReference::AssemblyReference()
-{
-}
-
-AssemblyReference::AssemblyReference(const AssemblyReference &asmRef)
-{
-    m_relativePath = asmRef.m_relativePath;
-
-    foreach (const IConfiguration *refConfig, asmRef.m_referenceConfigurations)
-        m_referenceConfigurations.append(refConfig->clone());
-}
-
-AssemblyReference &AssemblyReference::operator =(const AssemblyReference &asmRef)
-{
-    if (this != &asmRef) {
-        m_relativePath = asmRef.m_relativePath;
-
-        foreach (const IConfiguration *refConfig, asmRef.m_referenceConfigurations)
-            m_referenceConfigurations.append(refConfig->clone());
-    }
-
-    return *this;
 }
 
 void AssemblyReference::processReferenceConfig(const QDomNode &referenceConfig)
 {
-    IConfiguration *referenceConfiguration = createReferenceConfiguration();
+    IConfiguration *referenceConfiguration = new Configuration(QLatin1String("ReferenceConfiguration"));
     referenceConfiguration->processNode(referenceConfig);
-    m_referenceConfigurations.append(referenceConfiguration);
+    m_configurations->addConfiguration(referenceConfiguration);
 
     // process next sibling
     QDomNode nextSibling = referenceConfig.nextSibling();
     if (!nextSibling.isNull())
         processReferenceConfig(nextSibling);
-}
-
-
-AssemblyReference2003::AssemblyReference2003(const AssemblyReference2003 &ref)
-    : AssemblyReference(ref)
-{
-}
-
-AssemblyReference2003 &AssemblyReference2003::operator =(const AssemblyReference2003 &ref)
-{
-    AssemblyReference::operator =(ref);
-    return *this;
-}
-
-AssemblyReference2003::~AssemblyReference2003()
-{
-}
-
-AssemblyReference::Ptr AssemblyReference2003::clone() const
-{
-    return AssemblyReference::Ptr(new AssemblyReference2003(*this));
-}
-
-AssemblyReference2003::AssemblyReference2003()
-{
-}
-
-IConfiguration* AssemblyReference2003::createReferenceConfiguration() const
-{
-    return new Configuration(QLatin1String("ReferenceConfiguration"));
-}
-
-
-AssemblyReference2005::AssemblyReference2005(const AssemblyReference2005 &ref)
-    : AssemblyReference2003(ref)
-{
-    m_assemblyName = ref.m_assemblyName;
-    m_copyLocal = ref.m_copyLocal;
-    m_useInBuild = ref.m_useInBuild;
-}
-
-AssemblyReference2005 &AssemblyReference2005::operator =(const AssemblyReference2005 &ref)
-{
-    if (this != &ref) {
-        AssemblyReference2003::operator =(ref);
-        m_assemblyName = ref.m_assemblyName;
-        m_copyLocal = ref.m_copyLocal;
-        m_useInBuild = ref.m_useInBuild;
-    }
-
-    return *this;
-}
-
-AssemblyReference2005::~AssemblyReference2005()
-{
-}
-
-QDomNode AssemblyReference2005::toXMLDomNode(QDomDocument &domXMLDocument) const
-{
-    QDomElement assemblyRefNode = AssemblyReference2003::toXMLDomNode(domXMLDocument).toElement();
-
-    assemblyRefNode.setAttribute(QLatin1String("AssemblyName"), m_assemblyName);
-    assemblyRefNode.setAttribute(QLatin1String("CopyLocal"), QVariant(m_copyLocal).toString());
-    assemblyRefNode.setAttribute(QLatin1String("UseInBuild"), QVariant(m_useInBuild).toString());
-
-    return assemblyRefNode;
-}
-
-AssemblyReference::Ptr AssemblyReference2005::clone() const
-{
-    return AssemblyReference::Ptr(new AssemblyReference2005(*this));
-}
-
-QString AssemblyReference2005::assemblyName() const
-{
-    return m_assemblyName;
-}
-
-void AssemblyReference2005::setAssemblyName(const QString &assemblyName)
-{
-    m_assemblyName = assemblyName;
-}
-
-bool AssemblyReference2005::copyLocal() const
-{
-    return m_copyLocal;
-}
-
-void AssemblyReference2005::setCopyLocal(bool copyLocal)
-{
-    m_copyLocal = copyLocal;
-}
-
-bool AssemblyReference2005::useInBuild() const
-{
-    return m_useInBuild;
-}
-
-void AssemblyReference2005::setUseInBuild(bool useInBuild)
-{
-    m_useInBuild = useInBuild;
-}
-
-AssemblyReference2005::AssemblyReference2005()
-{
-}
-
-IConfiguration* AssemblyReference2005::createReferenceConfiguration() const
-{
-    return new Configuration(QLatin1String("ReferenceConfiguration"));
-}
-
-void AssemblyReference2005::processNodeAttributes(const QDomElement &element)
-{
-    QDomNamedNodeMap namedNodeMap = element.attributes();
-
-    for (int i = 0; i < namedNodeMap.size(); ++i) {
-        QDomNode domNode = namedNodeMap.item(i);
-
-        if (domNode.nodeType() == QDomNode::AttributeNode) {
-            QDomAttr domElement = domNode.toAttr();
-
-            if (domElement.name() == QLatin1String("RelativePath"))
-                m_relativePath = domElement.value();
-
-
-            else if (domElement.name() == QLatin1String("AssemblyName"))
-                m_assemblyName = domElement.value();
-
-            else if (domElement.name() == QLatin1String("CopyLocal")) {
-                if (domElement.value() == QLatin1String("false"))
-                    m_copyLocal = false;
-                else
-                    m_copyLocal = true;
-            }
-
-            else if (domElement.name() == QLatin1String("UseInBuild")) {
-                if (domElement.value() == QLatin1String("false"))
-                    m_useInBuild = false;
-                else
-                    m_useInBuild = true;
-            }
-        }
-    }
-}
-
-
-AssemblyReference2008::AssemblyReference2008(const AssemblyReference2008 &ref)
-    : AssemblyReference2005(ref)
-{
-    m_copyLocalDependencies = ref.m_copyLocalDependencies;
-    m_copyLocalSatelliteAssemblies = ref.m_copyLocalSatelliteAssemblies;
-    m_useDependenciesInBuild = ref.m_useDependenciesInBuild;
-    m_subType = ref.m_subType;
-    m_minFrameworkVersion = ref.m_minFrameworkVersion;
-}
-
-AssemblyReference2008 &AssemblyReference2008::operator =(const AssemblyReference2008 &ref)
-{
-    if (this != &ref) {
-        AssemblyReference2005::operator =(ref);
-        m_copyLocalDependencies = ref.m_copyLocalDependencies;
-        m_copyLocalSatelliteAssemblies = ref.m_copyLocalSatelliteAssemblies;
-        m_useDependenciesInBuild = ref.m_useDependenciesInBuild;
-        m_subType = ref.m_subType;
-        m_minFrameworkVersion = ref.m_minFrameworkVersion;
-    }
-
-    return *this;
-}
-
-AssemblyReference2008::~AssemblyReference2008()
-{
-}
-
-QDomNode AssemblyReference2008::toXMLDomNode(QDomDocument &domXMLDocument) const
-{
-    QDomElement assemblyRefNode = AssemblyReference2005::toXMLDomNode(domXMLDocument).toElement();
-
-    assemblyRefNode.setAttribute(QLatin1String("CopyLocalDependencies"), QVariant(m_copyLocalDependencies).toString());
-    assemblyRefNode.setAttribute(QLatin1String("CopyLocalSatelliteAssemblies"), QVariant(m_copyLocalSatelliteAssemblies).toString());
-    assemblyRefNode.setAttribute(QLatin1String("UseDependenciesInBuild"), QVariant(m_useDependenciesInBuild).toString());
-    assemblyRefNode.setAttribute(QLatin1String("SubType"), m_subType);
-    assemblyRefNode.setAttribute(QLatin1String("MinFrameworkVersion"), m_minFrameworkVersion);
-
-    return assemblyRefNode;
-}
-
-AssemblyReference::Ptr AssemblyReference2008::clone() const
-{
-    return AssemblyReference::Ptr(new AssemblyReference2008(*this));
-}
-
-bool AssemblyReference2008::copyLocalDependencies() const
-{
-    return m_copyLocalDependencies;
-}
-
-void AssemblyReference2008::setCopyLocalDependencies(bool copyLocalDependencies)
-{
-    m_copyLocalDependencies = copyLocalDependencies;
-}
-
-bool AssemblyReference2008::copyLocalSatelliteAssemblies() const
-{
-    return m_copyLocalSatelliteAssemblies;
-}
-
-void AssemblyReference2008::setCopyLocalSatelliteAssemblies(bool copyLocalSatelliteAssemblies)
-{
-    m_copyLocalSatelliteAssemblies = copyLocalSatelliteAssemblies;
-}
-
-bool AssemblyReference2008::useDependenciesInBuild() const
-{
-    return m_useDependenciesInBuild;
-}
-
-void AssemblyReference2008::setUseDependenciesInBuild(bool useDependenciesInBuild)
-{
-    m_useDependenciesInBuild = useDependenciesInBuild;
-}
-
-QString AssemblyReference2008::subType() const
-{
-    return m_subType;
-}
-
-void AssemblyReference2008::setSubType(const QString &subType)
-{
-    m_subType = subType;
-}
-
-QString AssemblyReference2008::minFrameworkVersion() const
-{
-    return m_minFrameworkVersion;
-}
-
-void AssemblyReference2008::setMinFrameworkVersion(const QString &minFrameworkVersion)
-{
-    m_minFrameworkVersion = minFrameworkVersion;
-}
-
-AssemblyReference2008::AssemblyReference2008()
-{
-}
-
-IConfiguration* AssemblyReference2008::createReferenceConfiguration() const
-{
-    return new Configuration(QLatin1String("ReferenceConfiguration"));
-}
-
-void AssemblyReference2008::processNodeAttributes(const QDomElement &element)
-{
-    AssemblyReference2005::processNodeAttributes(element);
-
-    QDomNamedNodeMap namedNodeMap = element.attributes();
-
-    for (int i = 0; i < namedNodeMap.size(); ++i) {
-        QDomNode domNode = namedNodeMap.item(i);
-
-        if (domNode.nodeType() == QDomNode::AttributeNode) {
-            QDomAttr domElement = domNode.toAttr();
-
-            if (domElement.name() == QLatin1String("CopyLocalDependencies")) {
-                if (domElement.value() == QLatin1String("false"))
-                    m_copyLocalDependencies = false;
-                else
-                    m_copyLocalDependencies = true;
-            }
-
-            else if (domElement.name() == QLatin1String("CopyLocalSatelliteAssemblies")) {
-                if (domElement.value() == QLatin1String("false"))
-                    m_copyLocalSatelliteAssemblies = false;
-                else
-                    m_copyLocalSatelliteAssemblies = true;
-            }
-
-            else if (domElement.name() == QLatin1String("UseDependenciesInBuild")) {
-                if (domElement.value() == QLatin1String("false"))
-                    m_useDependenciesInBuild = false;
-                else
-                    m_useDependenciesInBuild = true;
-            }
-
-            else if (domElement.name() == QLatin1String("SubType"))
-                m_subType = domElement.value();
-
-            else if (domElement.name() == QLatin1String("MinFrameworkVersion"))
-                m_minFrameworkVersion = domElement.value();
-        }
-    }
-}
-
-
-AssemblyReferenceFactory &AssemblyReferenceFactory::instance()
-{
-    static AssemblyReferenceFactory as;
-    return as;
-}
-
-AssemblyReference::Ptr AssemblyReferenceFactory::create(VcDocConstants::DocumentVersion version)
-{
-    AssemblyReference::Ptr ref;
-
-    switch (version) {
-    case VcDocConstants::DV_MSVC_2003:
-        ref = AssemblyReference::Ptr(new AssemblyReference2003);
-        break;
-    case VcDocConstants::DV_MSVC_2005:
-        ref = AssemblyReference::Ptr(new AssemblyReference2005);
-        break;
-    case VcDocConstants::DV_MSVC_2008:
-        ref = AssemblyReference::Ptr(new AssemblyReference2008);
-        break;
-    }
-
-    return ref;
 }
 
 } // namespace Internal

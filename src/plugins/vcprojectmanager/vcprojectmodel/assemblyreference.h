@@ -30,7 +30,7 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_ASSEMBLYREFERENCE_H
 #define VCPROJECTMANAGER_INTERNAL_ASSEMBLYREFERENCE_H
 
-#include "ivcprojectnodemodel.h"
+#include "../interfaces/ireference.h"
 
 #include "configuration.h"
 #include "vcprojectdocument_constants.h"
@@ -38,133 +38,32 @@
 namespace VcProjectManager {
 namespace Internal {
 
-class AssemblyReference : public IVcProjectXMLNode
-{
-    friend class AssemblyReferenceFactory;
+class GeneralAttributeContainer;
 
+class AssemblyReference : public IReference
+{
 public:
     typedef QSharedPointer<AssemblyReference>   Ptr;
+
+    AssemblyReference();
+    AssemblyReference(const AssemblyReference &asmRef);
+    AssemblyReference& operator=(const AssemblyReference &asmRef);
 
     ~AssemblyReference();
     void processNode(const QDomNode &node);
     VcNodeWidget* createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
-    /*!
-     * Implement in order to support creating a clone of a assembly reference instance.
-     * \return A shared pointer to newly created assembly reference instance.
-     */
-    virtual AssemblyReference::Ptr clone() const = 0;
-
-    QString relativePath() const;
-    void setRelativePath(const QString &relativePath);
-    void addReferenceConfiguration(IConfiguration *refConfig);
-    void removeReferenceConfiguration(IConfiguration *refConfig);
-    void removeReferenceConfiguration(const QString &refConfName);
-    IConfiguration *referenceConfiguration(const QString &refConfigName) const;
+    IAttributeContainer *attributeContainer() const;
+    ConfigurationContainer *configurationContainer() const;
+    QString type() const;
 
 protected:
-    AssemblyReference();
-    AssemblyReference(const AssemblyReference &asmRef);
-    AssemblyReference& operator=(const AssemblyReference &asmRef);
     virtual void processNodeAttributes(const QDomElement &element);
     void processReferenceConfig(const QDomNode &referenceConfig);
 
-    /*!
-     * Reimplement this to create a new reference configuration.
-     * \return A shared pointer to a newly created reference configuration.
-     */
-    virtual IConfiguration* createReferenceConfiguration() const = 0;
-
-    QList<IConfiguration*> m_referenceConfigurations;
-    QString m_relativePath; // required
-};
-
-class AssemblyReference2003 : public AssemblyReference
-{
-    friend class AssemblyReferenceFactory;
-
-public:
-    AssemblyReference2003(const AssemblyReference2003 &ref);
-    AssemblyReference2003& operator=(const AssemblyReference2003 &ref);
-    ~AssemblyReference2003();
-
-    AssemblyReference::Ptr clone() const;
-
-protected:
-    AssemblyReference2003();
-    IConfiguration *createReferenceConfiguration() const;
-};
-
-class AssemblyReference2005 : public AssemblyReference2003
-{
-    friend class AssemblyReferenceFactory;
-
-public:
-    AssemblyReference2005(const AssemblyReference2005 &ref);
-    AssemblyReference2005& operator=(const AssemblyReference2005 &ref);
-    ~AssemblyReference2005();
-    QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
-
-    AssemblyReference::Ptr clone() const;
-
-    QString assemblyName() const;
-    void setAssemblyName(const QString &assemblyName);
-    bool copyLocal() const;
-    void setCopyLocal(bool copyLocal);
-    bool useInBuild() const;
-    void setUseInBuild(bool useInBuild);
-
-protected:
-    AssemblyReference2005();
-    IConfiguration *createReferenceConfiguration() const;
-    void processNodeAttributes(const QDomElement &element);
-
-    QString m_assemblyName; // optional
-    bool m_copyLocal;       // optional
-    bool m_useInBuild;      // optional default: true
-};
-
-class AssemblyReference2008 : public AssemblyReference2005
-{
-    friend class AssemblyReferenceFactory;
-
-public:
-    AssemblyReference2008(const AssemblyReference2008 &ref);
-    AssemblyReference2008& operator=(const AssemblyReference2008 &ref);
-    ~AssemblyReference2008();
-    QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
-
-    AssemblyReference::Ptr clone() const;
-
-    bool copyLocalDependencies() const;
-    void setCopyLocalDependencies(bool copyLocalDependencies);
-    bool copyLocalSatelliteAssemblies() const;
-    void setCopyLocalSatelliteAssemblies(bool copyLocalSatelliteAssemblies);
-    bool useDependenciesInBuild() const;
-    void setUseDependenciesInBuild(bool useDependenciesInBuild);
-    QString subType() const;
-    void setSubType(const QString &subType);
-    QString minFrameworkVersion() const;
-    void setMinFrameworkVersion(const QString &minFrameworkVersion);
-
-protected:
-    AssemblyReference2008();
-    IConfiguration *createReferenceConfiguration() const;
-    void processNodeAttributes(const QDomElement &element);
-
-    bool m_copyLocalDependencies; //optional    default: true
-    bool m_copyLocalSatelliteAssemblies; //optional     default: true
-    bool m_useDependenciesInBuild; //optional   default: true
-    QString m_subType; //optional
-    QString m_minFrameworkVersion;
-};
-
-class AssemblyReferenceFactory
-{
-public:
-    static AssemblyReferenceFactory& instance();
-    AssemblyReference::Ptr create(VcDocConstants::DocumentVersion version);
+    GeneralAttributeContainer *m_attributeContainer;
+    ConfigurationContainer *m_configurations;
 };
 
 } // namespace Internal

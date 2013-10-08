@@ -38,6 +38,8 @@
 namespace VcProjectManager {
 namespace Internal {
 
+class GeneralAttributeContainer;
+
 class ActiveXReference : public IReference
 {
     friend class ActiveXReferenceFactory;
@@ -59,78 +61,13 @@ public:
     ConfigurationContainer *configurationContainer() const;
     QString type() const;
 
-    /*!
-     * Implement in order to support creating a clone of a ActiveXReference instance.
-     * \return A shared pointer to a newly created clone.
-     */
-    virtual ActiveXReference::Ptr clone() const = 0;
-
-protected:
-
-    virtual void processNodeAttributes(const QDomElement &element);
-    virtual void processReferenceConfig(const QDomNode &referenceConfig);
-
-    /*!
-     * Reimplement this to create a new reference configuration.
-     * \return A shared pointer to a newly created reference configuration.
-     */
-    virtual IConfiguration* createReferenceConfiguration() const = 0;
+private:
+    void processNodeAttributes(const QDomElement &element);
+    void processReferenceConfig(const QDomNode &referenceConfig);
+    IConfiguration* createReferenceConfiguration() const;
 
     GeneralAttributeContainer *m_attributeContainer;
     ConfigurationContainer *m_configurations;
-};
-
-class ActiveXReference2003 : public ActiveXReference
-{
-    friend class ActiveXReferenceFactory;
-
-public:
-    ActiveXReference2003(const ActiveXReference2003 &ref);
-    ~ActiveXReference2003();
-
-    ActiveXReference::Ptr clone() const;
-
-protected:
-    ActiveXReference2003();
-    void init();
-    IConfiguration *createReferenceConfiguration() const;
-};
-
-class ActiveXReference2005 : public ActiveXReference2003
-{
-    friend class ActiveXReferenceFactory;
-
-public:
-    ActiveXReference2005(const ActiveXReference2005 &ref);
-    ~ActiveXReference2005();
-
-    ActiveXReference::Ptr clone() const;
-
-protected:
-    ActiveXReference2005();
-    IConfiguration *createReferenceConfiguration() const;
-};
-
-class ActiveXReference2008 : public ActiveXReference2005
-{
-    friend class ActiveXReferenceFactory;
-
-public:
-    ActiveXReference2008(const ActiveXReference2008 &ref);
-    ~ActiveXReference2008();
-
-    ActiveXReference::Ptr clone() const;
-
-protected:
-    ActiveXReference2008();
-    IConfiguration* createReferenceConfiguration() const;
-};
-
-class ActiveXReferenceFactory
-{
-public:
-    static ActiveXReferenceFactory& instance();
-    ActiveXReference::Ptr create(VcDocConstants::DocumentVersion version);
 };
 
 } // namespace Internal

@@ -42,6 +42,7 @@ namespace Internal {
 class ConfigurationTool;
 class GeneralAttributeContainer;
 class Tools;
+class GeneralAttributeContainer;
 
 class Configuration : public IConfiguration
 {

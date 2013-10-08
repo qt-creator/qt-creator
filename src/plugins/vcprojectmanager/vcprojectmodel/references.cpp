@@ -42,10 +42,10 @@ References::References(const References &references)
     m_docVersion = references.m_docVersion;
 
     foreach (const ActiveXReference::Ptr &ref, references.m_activeXReferences)
-        m_activeXReferences.append(ref->clone());
+        m_activeXReferences.append(ActiveXReference::Ptr(new ActiveXReference(*ref)));
 
     foreach (const AssemblyReference::Ptr &ref, references.m_assemblyReferences)
-        m_assemblyReferences.append(ref->clone());
+        m_assemblyReferences.append(AssemblyReference::Ptr(new AssemblyReference(*ref)));
 
     foreach (const ProjectReference::Ptr &ref, references.m_projectReferences)
         m_projectReferences.append(ref->clone());
@@ -60,10 +60,10 @@ References &References::operator =(const References &references)
         m_projectReferences.clear();
 
         foreach (const ActiveXReference::Ptr &ref, references.m_activeXReferences)
-            m_activeXReferences.append(ref->clone());
+            m_activeXReferences.append(ActiveXReference::Ptr(new ActiveXReference(*ref)));
 
         foreach (const AssemblyReference::Ptr &ref, references.m_assemblyReferences)
-            m_assemblyReferences.append(ref->clone());
+            m_assemblyReferences.append(AssemblyReference::Ptr(new AssemblyReference(*ref)));
 
         foreach (const ProjectReference::Ptr &ref, references.m_projectReferences)
             m_projectReferences.append(ref->clone());
@@ -162,13 +162,13 @@ void References::removeProjectReference(const QString &projRefName)
 void References::processReference(const QDomNode &referenceNode)
 {
     if (referenceNode.nodeName() == QLatin1String("AssemblyReference")) {
-        AssemblyReference::Ptr reference = AssemblyReferenceFactory::instance().create(m_docVersion);
+        AssemblyReference::Ptr reference(new AssemblyReference);
         m_assemblyReferences.append(reference);
         reference->processNode(referenceNode);
     }
 
     else if (referenceNode.nodeName() == QLatin1String("ActiveXReference")) {
-        ActiveXReference::Ptr reference = ActiveXReferenceFactory::instance().create(m_docVersion);
+        ActiveXReference::Ptr reference(new ActiveXReference);
         m_activeXReferences.append(reference);
         reference->processNode(referenceNode);
     }
