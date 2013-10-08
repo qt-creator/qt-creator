@@ -323,7 +323,7 @@ void LocatorWidget::updateFilterList()
             action->setData(qVariantFromValue(filter));
         } else {
             action = actionCopy.take(filterId);
-            action->setText(filterId.toString());
+            action->setText(filter->displayName());
             cmd = ActionManager::command(locatorId);
         }
         m_filterActionMap.insert(filterId, action);
