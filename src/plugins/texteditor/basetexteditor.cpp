@@ -6010,7 +6010,6 @@ void BaseTextEditorWidget::insertFromMimeData(const QMimeData *source)
         d->m_snippetOverlay->clear();
     }
 
-    const TabSettings &ts = d->m_document->tabSettings();
     const TypingSettings &tps = d->m_document->typingSettings();
     QTextCursor cursor = textCursor();
     if (!tps.m_autoIndent) {
@@ -6024,7 +6023,7 @@ void BaseTextEditorWidget::insertFromMimeData(const QMimeData *source)
     cursor.beginEditBlock();
     cursor.removeSelectedText();
 
-    bool insertAtBeginningOfLine = ts.cursorIsAtBeginningOfLine(cursor);
+    bool insertAtBeginningOfLine = TabSettings::cursorIsAtBeginningOfLine(cursor);
 
     if (insertAtBeginningOfLine
         && source->hasFormat(QLatin1String(kTextBlockMimeType))) {
