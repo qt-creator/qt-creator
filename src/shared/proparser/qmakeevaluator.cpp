@@ -1264,6 +1264,14 @@ void QMakeEvaluator::evaluateCommand(const QString &cmds, const QString &where)
     }
 }
 
+void QMakeEvaluator::applyExtraConfigs()
+{
+    if (m_extraConfigs.isEmpty())
+        return;
+
+    evaluateCommand(fL1S("CONFIG += ") + m_extraConfigs.join(QLatin1Char(' ')), fL1S("(extra configs)"));
+}
+
 QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConfigFeatures()
 {
     QSet<QString> processed;
@@ -1370,14 +1378,19 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
              it != m_extraVars.constEnd(); ++it)
             m_valuemapStack.first().insert(it.key(), it.value());
 
+        // In case default_pre needs to make decisions based on the current
+        // build pass configuration.
+        applyExtraConfigs();
+
         if ((vr = evaluateFeatureFile(QLatin1String("default_pre.prf"))) == ReturnError)
             goto failed;
 
-        evaluateCommand(m_option->precmds, fL1S("(command line)"));
+        if (!m_option->precmds.isEmpty()) {
+            evaluateCommand(m_option->precmds, fL1S("(command line)"));
 
-        // After user configs, to override them
-        if (!m_extraConfigs.isEmpty())
-            evaluateCommand(fL1S("CONFIG += ") + m_extraConfigs.join(QLatin1Char(' ')), fL1S("(extra configs)"));
+            // Again, after user configs, to override them
+            applyExtraConfigs();
+        }
     }
 
     debugMsg(1, "visiting file %s", qPrintable(pro->fileName()));
@@ -1391,8 +1404,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
         // Again, to ensure the project does not mess with us.
         // Specifically, do not allow a project to override debug/release within a
         // debug_and_release build pass - it's too late for that at this point anyway.
-        if (!m_extraConfigs.isEmpty())
-            evaluateCommand(fL1S("CONFIG += ") + m_extraConfigs.join(QLatin1Char(' ')), fL1S("(extra configs)"));
+        applyExtraConfigs();
 
         if ((vr = evaluateFeatureFile(QLatin1String("default_post.prf"))) == ReturnError)
             goto failed;
