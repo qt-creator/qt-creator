@@ -27,46 +27,33 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_INTERNAL_TOOLDESCRIPTION_H
-#define VCPROJECTMANAGER_INTERNAL_TOOLDESCRIPTION_H
+#ifndef VCPROJECTMANAGER_INTERNAL_DEBUGGERTOOLS_H
+#define VCPROJECTMANAGER_INTERNAL_DEBUGGERTOOLS_H
 
-#include <QString>
-#include "../../../interfaces/itooldescription.h"
+#include "../interfaces/idebuggertools.h"
+#include <QList>
 
 namespace VcProjectManager {
 namespace Internal {
 
-class IAttributeDescriptionDataItem;
-class ConfigurationTool;
-class ToolSectionDescription;
-
-class ToolDescription : public IToolDescription
+class DebuggerTools : public IDebuggerTools
 {
 public:
-    ToolDescription();
-    ~ToolDescription();
+    DebuggerTools();
 
-    int sectionDescriptionCount() const;
-    IToolSectionDescription *sectionDescription(int index) const;
-    void addSectionDescription(IToolSectionDescription *sectionDescription);
-    void removeSectionDescription(IToolSectionDescription *sectionDescription);
-
-    QString toolKey() const;
-    void setToolKey(const QString &toolKey);
-
-    QString toolDisplayName() const;
-    void setToolDisplayName(const QString &toolDisplayName);
-
-    IConfigurationBuildTool* createTool() const;
+    // IDebuggerTools interface
+public:
+    void addTool(IDebuggerTool *tool);
+    void removeTool(IDebuggerTool *tool);
+    IDebuggerTool *tool(int index) const;
+    int toolCount() const;
+    void appendToXMLNode(QDomElement &domElement, QDomDocument &domDocument) const;
 
 private:
-    QString m_displayName;
-    QString m_toolKey;
-    QList<IAttributeDescriptionDataItem *> m_attributes;
-    QList<IToolSectionDescription *> m_sectionDescriptions;
+    QList<IDebuggerTool *> m_debuggerTools;
 };
 
 } // namespace Internal
 } // namespace VcProjectManager
 
-#endif // VCPROJECTMANAGER_INTERNAL_TOOLDESCRIPTION_H
+#endif // VCPROJECTMANAGER_INTERNAL_DEBUGGERTOOLS_H

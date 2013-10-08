@@ -36,19 +36,17 @@
 namespace VcProjectManager {
 namespace Internal {
 
-class IConfigurationTool;
+class IConfigurationBuildTools;
+class IDeploymentTools;
+class IDebuggerTools;
 
 class ITools
 {
 public:
     virtual ~ITools() {}
-    virtual ITools& operator= (const ITools &tools) = 0;
-    virtual void addTool(IConfigurationTool *tool) = 0;
-    virtual void removeTool(IConfigurationTool *tool) = 0;
-    virtual IConfigurationTool* tool(const QString &toolKey) const = 0;
-    virtual IConfigurationTool* tool(int index) const = 0;
-    virtual int toolCount() const = 0;
-    virtual void appendToXMLNode(QDomElement &domElement, QDomDocument &domDocument) const = 0;
+    virtual IConfigurationBuildTools* configurationBuildTools() const = 0;
+    virtual IDeploymentTools* deploymentTools() const = 0;
+    virtual IDebuggerTools* debuggerTools() const = 0;
 };
 
 } // namespace Internal

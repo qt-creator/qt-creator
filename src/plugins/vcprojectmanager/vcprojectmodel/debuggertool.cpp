@@ -38,7 +38,7 @@ DebuggerTool::DebuggerTool()
     m_attributeContainer = new GeneralAttributeContainer;
 }
 
-DebuggerTool::DebuggerTool(DebuggerTool &tool)
+DebuggerTool::DebuggerTool(const DebuggerTool &tool)
 {
     m_attributeContainer = new GeneralAttributeContainer;
     *m_attributeContainer = *tool.m_attributeContainer;
@@ -79,6 +79,11 @@ QDomNode DebuggerTool::toXMLDomNode(QDomDocument &domXMLDocument) const
 IAttributeContainer *DebuggerTool::attributeContainer() const
 {
     return m_attributeContainer;
+}
+
+IDebuggerTool *DebuggerTool::clone() const
+{
+    return new DebuggerTool(*this);
 }
 
 void DebuggerTool::processNodeAttributes(const QDomElement &element)

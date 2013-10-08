@@ -37,6 +37,7 @@
 #include "../vcprojectmodel/tools/tool_constants.h"
 #include "../vcprojectmodel/tools/configurationtool.h"
 #include "../vcprojectmodel/tools/toolattributes/tooldescription.h"
+#include "../interfaces/iconfigurationbuildtools.h"
 #include "../interfaces/itools.h"
 
 namespace VcProjectManager {
@@ -66,8 +67,8 @@ ConfigurationBaseWidget::ConfigurationBaseWidget(Configuration *config)
     mainWidgetSplitter->setStretchFactor(1, 5);
     // add tool items
 
-    for (int i = 0; i < m_config->tools()->toolCount(); ++i) {
-        IConfigurationTool *configTool = m_config->tools()->tool(i);
+    for (int i = 0; i < m_config->tools()->configurationBuildTools()->toolCount(); ++i) {
+        IConfigurationBuildTool *configTool = m_config->tools()->configurationBuildTools()->tool(i);
 
         if (configTool) {
             VcNodeWidget *toolWidget = configTool->createSettingsWidget();
@@ -91,36 +92,6 @@ void ConfigurationBaseWidget::saveData()
 {
     foreach (VcNodeWidget *toolWidget, m_toolWidgets)
         toolWidget->saveData();
-}
-
-
-Configuration2003Widget::Configuration2003Widget(Configuration *config)
-    : ConfigurationBaseWidget(config)
-{
-}
-
-Configuration2003Widget::~Configuration2003Widget()
-{
-}
-
-
-Configuration2005Widget::Configuration2005Widget(Configuration *config)
-    : ConfigurationBaseWidget(config)
-{
-}
-
-Configuration2005Widget::~Configuration2005Widget()
-{
-}
-
-
-Configuration2008Widget::Configuration2008Widget(Configuration *config)
-    : ConfigurationBaseWidget(config)
-{
-}
-
-Configuration2008Widget::~Configuration2008Widget()
-{
 }
 
 } // namespace Internal

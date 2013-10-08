@@ -47,6 +47,7 @@
 #include "interfaces/iattributedescriptiondataitem.h"
 #include "interfaces/isectioncontainer.h"
 #include "interfaces/itools.h"
+#include "interfaces/iconfigurationbuildtools.h"
 #include "interfaces/itoolattributecontainer.h"
 
 #include <coreplugin/icontext.h>
@@ -312,7 +313,7 @@ void VcProject::updateCodeModels()
         IConfiguration *configModel = m_projectFile->documentModel()->vcProjectDocument()->configurations()->configurationContainer()->configuration(configName);
 
         if (configModel) {
-            IConfigurationTool *configTool = configModel->tools()->tool(QLatin1String(ToolConstants::strVCCLCompilerTool));
+            IConfigurationBuildTool *configTool = configModel->tools()->configurationBuildTools()->tool(QLatin1String(ToolConstants::strVCCLCompilerTool));
             if (configTool) {
                 for (int i = 0; i < configTool->sectionContainer()->sectionCount(); ++i) {
                     IToolSection *toolSection = configTool->sectionContainer()->section(i);

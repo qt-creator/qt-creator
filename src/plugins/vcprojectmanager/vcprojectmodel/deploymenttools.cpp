@@ -27,46 +27,68 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_INTERNAL_TOOLDESCRIPTION_H
-#define VCPROJECTMANAGER_INTERNAL_TOOLDESCRIPTION_H
+#include "deploymenttools.h"
+#include "../interfaces/ideploymenttool.h"
 
-#include <QString>
-#include "../../../interfaces/itooldescription.h"
+#include <utils/qtcassert.h>
 
 namespace VcProjectManager {
 namespace Internal {
 
-class IAttributeDescriptionDataItem;
-class ConfigurationTool;
-class ToolSectionDescription;
-
-class ToolDescription : public IToolDescription
+DeploymentTools::DeploymentTools()
 {
-public:
-    ToolDescription();
-    ~ToolDescription();
+}
 
-    int sectionDescriptionCount() const;
-    IToolSectionDescription *sectionDescription(int index) const;
-    void addSectionDescription(IToolSectionDescription *sectionDescription);
-    void removeSectionDescription(IToolSectionDescription *sectionDescription);
+DeploymentTools::DeploymentTools(const DeploymentTools &tools)
+{
+    foreach (IDeploymentTool *tool, tools.m_deploymentTools)
+        m_deploymentTools.append(tool->clone());
+}
 
-    QString toolKey() const;
-    void setToolKey(const QString &toolKey);
+DeploymentTools &DeploymentTools::operator=(const DeploymentTools &tools)
+{
+    if (this != &tools) {
+        qDeleteAll(m_deploymentTools);
+        m_deploymentTools.clear();
+        foreach (IDeploymentTool *tool, tools.m_deploymentTools)
+            m_deploymentTools.append(tool->clone());
+    }
+    return *this;
+}
 
-    QString toolDisplayName() const;
-    void setToolDisplayName(const QString &toolDisplayName);
+void DeploymentTools::addTool(IDeploymentTool *tool)
+{
+    if (!tool || m_deploymentTools.contains(tool))
+        return;
 
-    IConfigurationBuildTool* createTool() const;
+    m_deploymentTools.append(tool);
+}
 
-private:
-    QString m_displayName;
-    QString m_toolKey;
-    QList<IAttributeDescriptionDataItem *> m_attributes;
-    QList<IToolSectionDescription *> m_sectionDescriptions;
-};
+void DeploymentTools::removeTool(IDeploymentTool *tool)
+{
+    if (!tool || !m_deploymentTools.contains(tool))
+        return;
+
+    m_deploymentTools.removeOne(tool);
+    delete tool;
+}
+
+IDeploymentTool *DeploymentTools::tool(int index) const
+{
+    QTC_ASSERT(0 <= index && index < m_deploymentTools.size(), return 0);
+    return m_deploymentTools[index];
+}
+
+int DeploymentTools::toolCount() const
+{
+    return m_deploymentTools.size();
+}
+
+void DeploymentTools::appendToXMLNode(QDomElement &domElement, QDomDocument &domDocument) const
+{
+    foreach (const IDeploymentTool *tool, m_deploymentTools)
+        domElement.appendChild(tool->toXMLDomNode(domDocument));
+}
 
 } // namespace Internal
 } // namespace VcProjectManager
-
-#endif // VCPROJECTMANAGER_INTERNAL_TOOLDESCRIPTION_H

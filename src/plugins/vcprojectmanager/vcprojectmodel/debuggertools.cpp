@@ -27,46 +27,48 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_INTERNAL_TOOLDESCRIPTION_H
-#define VCPROJECTMANAGER_INTERNAL_TOOLDESCRIPTION_H
-
-#include <QString>
-#include "../../../interfaces/itooldescription.h"
+#include "debuggertools.h"
+#include "../interfaces/idebuggertool.h"
+#include <utils/qtcassert.h>
 
 namespace VcProjectManager {
 namespace Internal {
 
-class IAttributeDescriptionDataItem;
-class ConfigurationTool;
-class ToolSectionDescription;
-
-class ToolDescription : public IToolDescription
+DebuggerTools::DebuggerTools()
 {
-public:
-    ToolDescription();
-    ~ToolDescription();
+}
 
-    int sectionDescriptionCount() const;
-    IToolSectionDescription *sectionDescription(int index) const;
-    void addSectionDescription(IToolSectionDescription *sectionDescription);
-    void removeSectionDescription(IToolSectionDescription *sectionDescription);
+void DebuggerTools::addTool(IDebuggerTool *tool)
+{
+    if (!tool || m_debuggerTools.contains(tool))
+        return;
+    m_debuggerTools.append(tool);
+}
 
-    QString toolKey() const;
-    void setToolKey(const QString &toolKey);
+void DebuggerTools::removeTool(IDebuggerTool *tool)
+{
+    if (!tool || !m_debuggerTools.contains(tool))
+        return;
+    m_debuggerTools.removeOne(tool);
+    delete tool;
+}
 
-    QString toolDisplayName() const;
-    void setToolDisplayName(const QString &toolDisplayName);
+IDebuggerTool *DebuggerTools::tool(int index) const
+{
+    QTC_ASSERT(0 <= index && index < m_debuggerTools.size(), return 0);
+    return m_debuggerTools[index];
+}
 
-    IConfigurationBuildTool* createTool() const;
+int DebuggerTools::toolCount() const
+{
+    return m_debuggerTools.size();
+}
 
-private:
-    QString m_displayName;
-    QString m_toolKey;
-    QList<IAttributeDescriptionDataItem *> m_attributes;
-    QList<IToolSectionDescription *> m_sectionDescriptions;
-};
+void DebuggerTools::appendToXMLNode(QDomElement &domElement, QDomDocument &domDocument) const
+{
+    foreach (const IDebuggerTool* tool, m_debuggerTools)
+        domElement.appendChild(tool->toXMLDomNode(domDocument));
+}
 
 } // namespace Internal
 } // namespace VcProjectManager
-
-#endif // VCPROJECTMANAGER_INTERNAL_TOOLDESCRIPTION_H

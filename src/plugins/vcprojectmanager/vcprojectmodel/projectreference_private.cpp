@@ -216,7 +216,7 @@ ProjectReference2003_Private &ProjectReference2003_Private::operator =(const Pro
 
 IConfiguration *ProjectReference2003_Private::createReferenceConfiguration() const
 {
-    return new Configuration2003(QLatin1String("ReferenceConfiguration"));
+    return new Configuration(QLatin1String("ReferenceConfiguration"));
 }
 
 
@@ -315,7 +315,7 @@ void ProjectReference2005_Private::processNodeAttributes(const QDomElement &elem
 
 IConfiguration *ProjectReference2005_Private::createReferenceConfiguration() const
 {
-    return new Configuration2005(QLatin1String("ReferenceConfiguration"));
+    return new Configuration(QLatin1String("ReferenceConfiguration"));
 }
 
 
@@ -436,7 +436,7 @@ void ProjectReference2008_Private::processNodeAttributes(const QDomElement &elem
 
 IConfiguration *ProjectReference2008_Private::createReferenceConfiguration() const
 {
-    return new Configuration2008(QLatin1String("ReferenceConfiguration"));
+    return new Configuration(QLatin1String("ReferenceConfiguration"));
 }
 
 } // namespace Internal

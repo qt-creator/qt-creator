@@ -13,5 +13,10 @@ HEADERS += \
     interfaces/ifilecontainer.h \
     interfaces/ifiles.h \
     interfaces/ireference.h \
-    interfaces/iconfigurationtool.h \
-    interfaces/itoolattributecontainer.h
+    interfaces/itoolattributecontainer.h \
+    interfaces/iconfigurationbuildtools.h \
+    interfaces/ideploymenttools.h \
+    interfaces/ideploymenttool.h \
+    interfaces/iconfigurationbuildtool.h \
+    interfaces/idebuggertool.h \
+    interfaces/idebuggertools.h

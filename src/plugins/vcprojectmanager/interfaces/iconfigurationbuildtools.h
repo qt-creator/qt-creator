@@ -27,46 +27,28 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_INTERNAL_TOOLDESCRIPTION_H
-#define VCPROJECTMANAGER_INTERNAL_TOOLDESCRIPTION_H
+#ifndef VCPROJECTMANAGER_INTERNAL_ICONFIGURATIONBUILDTOOLS_H
+#define VCPROJECTMANAGER_INTERNAL_ICONFIGURATIONBUILDTOOLS_H
 
 #include <QString>
-#include "../../../interfaces/itooldescription.h"
+#include <QDomElement>
 
 namespace VcProjectManager {
 namespace Internal {
 
-class IAttributeDescriptionDataItem;
-class ConfigurationTool;
-class ToolSectionDescription;
+class IConfigurationBuildTool;
 
-class ToolDescription : public IToolDescription
+class IConfigurationBuildTools
 {
 public:
-    ToolDescription();
-    ~ToolDescription();
-
-    int sectionDescriptionCount() const;
-    IToolSectionDescription *sectionDescription(int index) const;
-    void addSectionDescription(IToolSectionDescription *sectionDescription);
-    void removeSectionDescription(IToolSectionDescription *sectionDescription);
-
-    QString toolKey() const;
-    void setToolKey(const QString &toolKey);
-
-    QString toolDisplayName() const;
-    void setToolDisplayName(const QString &toolDisplayName);
-
-    IConfigurationBuildTool* createTool() const;
-
-private:
-    QString m_displayName;
-    QString m_toolKey;
-    QList<IAttributeDescriptionDataItem *> m_attributes;
-    QList<IToolSectionDescription *> m_sectionDescriptions;
+    virtual ~IConfigurationBuildTools() {}
+    virtual void addTool(IConfigurationBuildTool *tool) = 0;
+    virtual void removeTool(IConfigurationBuildTool *tool) = 0;
+    virtual IConfigurationBuildTool* tool(const QString &toolKey) const = 0;
+    virtual IConfigurationBuildTool* tool(int index) const = 0;
+    virtual int toolCount() const = 0;
+    virtual void appendToXMLNode(QDomElement &domElement, QDomDocument &domDocument) const = 0;
 };
-
-} // namespace Internal
-} // namespace VcProjectManager
-
-#endif // VCPROJECTMANAGER_INTERNAL_TOOLDESCRIPTION_H
+} // Internal
+} // VcProjectManager
+#endif // VCPROJECTMANAGER_INTERNAL_ICONFIGURATIONBUILDTOOLS_H

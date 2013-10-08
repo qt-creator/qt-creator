@@ -77,6 +77,11 @@ IAttributeContainer *DeploymentTool::attributeContainer() const
     return m_attributeContainer;
 }
 
+IDeploymentTool *DeploymentTool::clone() const
+{
+    return new DeploymentTool(*this);
+}
+
 void DeploymentTool::processNodeAttributes(const QDomElement &element)
 {
     QDomNamedNodeMap namedNodeMap = element.attributes();

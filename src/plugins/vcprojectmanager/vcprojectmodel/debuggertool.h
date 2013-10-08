@@ -30,7 +30,7 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_DEBUGGERTOOL_H
 #define VCPROJECTMANAGER_INTERNAL_DEBUGGERTOOL_H
 
-#include "ivcprojectnodemodel.h"
+#include "../interfaces/idebuggertool.h"
 
 #include <QSharedPointer>
 
@@ -40,13 +40,13 @@ namespace Internal {
 class IAttributeContainer;
 class GeneralAttributeContainer;
 
-class DebuggerTool : public IVcProjectXMLNode
+class DebuggerTool : public IDebuggerTool
 {
 public:
     typedef QSharedPointer<DebuggerTool>    Ptr;
 
     DebuggerTool();
-    DebuggerTool(DebuggerTool &tool);
+    DebuggerTool(const DebuggerTool &tool);
     DebuggerTool& operator=(DebuggerTool &tool);
     ~DebuggerTool();
 
@@ -55,6 +55,7 @@ public:
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
     IAttributeContainer *attributeContainer() const;
+    IDebuggerTool* clone() const;
 
 private:
     void processNodeAttributes(const QDomElement &element);

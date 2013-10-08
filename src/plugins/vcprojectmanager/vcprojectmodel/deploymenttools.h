@@ -27,29 +27,33 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_INTERNAL_ITOOL_H
-#define VCPROJECTMANAGER_INTERNAL_ITOOL_H
+#ifndef VCPROJECTMANAGER_INTERNAL_DEPLOYMENTTOOLS_H
+#define VCPROJECTMANAGER_INTERNAL_DEPLOYMENTTOOLS_H
 
-#include <QString>
-#include "../vcprojectmodel/ivcprojectnodemodel.h"
+#include "../interfaces/ideploymenttools.h"
+#include <QList>
 
 namespace VcProjectManager {
 namespace Internal {
 
-class ISectionContainer;
-class IToolDescription;
-
-class IConfigurationTool : public IVcProjectXMLNode
+class DeploymentTools : public IDeploymentTools
 {
 public:
-    virtual ~IConfigurationTool() {}
+    DeploymentTools();
+    DeploymentTools(const DeploymentTools &tools);
+    DeploymentTools& operator=(const DeploymentTools &tools);
+    // IDeploymentTools interface
+    void addTool(IDeploymentTool *tool);
+    void removeTool(IDeploymentTool *tool);
+    IDeploymentTool *tool(int index) const;
+    int toolCount() const;
+    void appendToXMLNode(QDomElement &domElement, QDomDocument &domDocument) const;
 
-    virtual ISectionContainer* sectionContainer() const = 0;
-    virtual const IToolDescription* toolDescription() const = 0;
-    virtual IConfigurationTool* clone() const = 0;
+private:
+    QList<IDeploymentTool *> m_deploymentTools;
 };
 
 } // namespace Internal
 } // namespace VcProjectManager
 
-#endif // VCPROJECTMANAGER_INTERNAL_ITOOL_H
+#endif // VCPROJECTMANAGER_INTERNAL_DEPLOYMENTTOOLS_H

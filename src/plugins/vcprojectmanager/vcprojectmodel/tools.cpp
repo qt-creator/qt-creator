@@ -27,46 +27,63 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_INTERNAL_TOOLDESCRIPTION_H
-#define VCPROJECTMANAGER_INTERNAL_TOOLDESCRIPTION_H
-
-#include <QString>
-#include "../../../interfaces/itooldescription.h"
+#include "tools.h"
+#include "deploymenttools.h"
+#include "configurationbuildtools.h"
+#include "debuggertools.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
-class IAttributeDescriptionDataItem;
-class ConfigurationTool;
-class ToolSectionDescription;
-
-class ToolDescription : public IToolDescription
+Tools::Tools()
+    : m_configurationBuildTools(new ConfigurationBuildTools),
+      m_deploymentTools(new DeploymentTools),
+      m_debuggerTools(new DebuggerTools)
 {
-public:
-    ToolDescription();
-    ~ToolDescription();
+}
 
-    int sectionDescriptionCount() const;
-    IToolSectionDescription *sectionDescription(int index) const;
-    void addSectionDescription(IToolSectionDescription *sectionDescription);
-    void removeSectionDescription(IToolSectionDescription *sectionDescription);
+Tools::Tools(const Tools &tools)
+{
+    m_configurationBuildTools = new ConfigurationBuildTools;
+    m_deploymentTools = new DeploymentTools;
+    m_debuggerTools = new DebuggerTools;
+    *m_configurationBuildTools = *tools.m_configurationBuildTools;
+    *m_deploymentTools = *tools.m_deploymentTools;
+    *m_debuggerTools = *tools.m_debuggerTools;
+}
 
-    QString toolKey() const;
-    void setToolKey(const QString &toolKey);
+Tools &Tools::operator=(const Tools &tools)
+{
+    if (this != &tools) {
+        *m_configurationBuildTools = *tools.m_configurationBuildTools;
+        *m_deploymentTools = *tools.m_deploymentTools;
+        *m_debuggerTools = *tools.m_debuggerTools;
+    }
 
-    QString toolDisplayName() const;
-    void setToolDisplayName(const QString &toolDisplayName);
+    return *this;
+}
 
-    IConfigurationBuildTool* createTool() const;
+Tools::~Tools()
+{
+    delete m_configurationBuildTools;
+    delete m_debuggerTools;
+    delete m_deploymentTools;
+}
 
-private:
-    QString m_displayName;
-    QString m_toolKey;
-    QList<IAttributeDescriptionDataItem *> m_attributes;
-    QList<IToolSectionDescription *> m_sectionDescriptions;
-};
+IConfigurationBuildTools *Tools::configurationBuildTools() const
+{
+    return m_configurationBuildTools;
+}
+
+IDeploymentTools *Tools::deploymentTools() const
+{
+    return m_deploymentTools;
+}
+
+IDebuggerTools *Tools::debuggerTools() const
+{
+    return m_debuggerTools;
+}
 
 } // namespace Internal
 } // namespace VcProjectManager
-
-#endif // VCPROJECTMANAGER_INTERNAL_TOOLDESCRIPTION_H

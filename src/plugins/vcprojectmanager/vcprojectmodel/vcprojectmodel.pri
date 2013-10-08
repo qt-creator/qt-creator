@@ -42,10 +42,13 @@ HEADERS += \
     vcprojectmodel/tools/toolattributes/toolattributeoption.h \
     vcprojectmodel/tools/toolattributes/attributedescriptiondataitem.h \
     vcprojectmodel/generalattributecontainer.h \
-    vcprojectmodel/configurationtools.h \
     vcprojectmodel/tools/toolattributes/toolsectioncontainer.h \
     vcprojectmodel/configurationcontainer.h \
-    vcprojectmodel/tools/generaltoolattributecontainer.h
+    vcprojectmodel/tools/generaltoolattributecontainer.h \
+    vcprojectmodel/configurationbuildtools.h \
+    vcprojectmodel/deploymenttools.h \
+    vcprojectmodel/tools.h \
+    vcprojectmodel/debuggertools.h
 
 SOURCES += \
     vcprojectmodel/vcprojectdocument.cpp \
@@ -87,10 +90,13 @@ SOURCES += \
     vcprojectmodel/tools/toolattributes/toolattributeoption.cpp \
     vcprojectmodel/tools/toolattributes/attributedescriptiondataitem.cpp \
     vcprojectmodel/generalattributecontainer.cpp \
-    vcprojectmodel/configurationtools.cpp \
     vcprojectmodel/tools/toolattributes/toolsectioncontainer.cpp \
     vcprojectmodel/configurationcontainer.cpp \
-    vcprojectmodel/tools/generaltoolattributecontainer.cpp
+    vcprojectmodel/tools/generaltoolattributecontainer.cpp \
+    vcprojectmodel/configurationbuildtools.cpp \
+    vcprojectmodel/deploymenttools.cpp \
+    vcprojectmodel/tools.cpp \
+    vcprojectmodel/debuggertools.cpp
 
 OTHER_FILES += \
     vcprojectmodel/tools/xml_definitions/VCXMLDataGeneratorTool.xml \

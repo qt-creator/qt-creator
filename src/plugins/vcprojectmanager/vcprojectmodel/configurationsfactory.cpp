@@ -42,25 +42,6 @@ ConfigurationsFactory::~ConfigurationsFactory()
 {
 }
 
-Configuration::Ptr ConfigurationsFactory::createConfiguration(VcDocConstants::DocumentVersion version, const QString &nodeName)
-{
-    Configuration::Ptr config;
-
-    switch (version) {
-    case VcDocConstants::DV_MSVC_2003:
-        config = Configuration::Ptr(new Configuration2003(nodeName));
-        break;
-    case VcDocConstants::DV_MSVC_2005:
-        config = Configuration::Ptr(new Configuration2005(nodeName));
-        break;
-    case VcDocConstants::DV_MSVC_2008:
-        config = Configuration::Ptr(new Configuration2008(nodeName));
-        break;
-    }
-
-    return config;
-}
-
 ConfigurationsBaseWidget *ConfigurationsFactory::createSettingsWidget(VcProjectDocument *vcProjDoc, Configurations *config)
 {
     switch (vcProjDoc->documentVersion()) {

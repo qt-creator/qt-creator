@@ -27,46 +27,38 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_INTERNAL_TOOLDESCRIPTION_H
-#define VCPROJECTMANAGER_INTERNAL_TOOLDESCRIPTION_H
+#ifndef VCPROJECTMANAGER_INTERNAL_TOOLS_H
+#define VCPROJECTMANAGER_INTERNAL_TOOLS_H
 
-#include <QString>
-#include "../../../interfaces/itooldescription.h"
+#include "../interfaces/itools.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
-class IAttributeDescriptionDataItem;
-class ConfigurationTool;
-class ToolSectionDescription;
+class ConfigurationBuildTools;
+class DeploymentTools;
+class DebuggerTools;
 
-class ToolDescription : public IToolDescription
+class Tools : public ITools
 {
 public:
-    ToolDescription();
-    ~ToolDescription();
+    Tools();
+    Tools(const Tools &tools);
+    Tools& operator=(const Tools &tools);
+    ~Tools();
 
-    int sectionDescriptionCount() const;
-    IToolSectionDescription *sectionDescription(int index) const;
-    void addSectionDescription(IToolSectionDescription *sectionDescription);
-    void removeSectionDescription(IToolSectionDescription *sectionDescription);
-
-    QString toolKey() const;
-    void setToolKey(const QString &toolKey);
-
-    QString toolDisplayName() const;
-    void setToolDisplayName(const QString &toolDisplayName);
-
-    IConfigurationBuildTool* createTool() const;
+    // ITools interface
+    IConfigurationBuildTools *configurationBuildTools() const;
+    IDeploymentTools *deploymentTools() const;
+    IDebuggerTools *debuggerTools() const;
 
 private:
-    QString m_displayName;
-    QString m_toolKey;
-    QList<IAttributeDescriptionDataItem *> m_attributes;
-    QList<IToolSectionDescription *> m_sectionDescriptions;
+    ConfigurationBuildTools *m_configurationBuildTools;
+    DeploymentTools *m_deploymentTools;
+    DebuggerTools* m_debuggerTools;
 };
 
 } // namespace Internal
 } // namespace VcProjectManager
 
-#endif // VCPROJECTMANAGER_INTERNAL_TOOLDESCRIPTION_H
+#endif // VCPROJECTMANAGER_INTERNAL_TOOLS_H

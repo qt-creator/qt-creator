@@ -35,6 +35,7 @@
 #include "../vcprojectmodel/configurations.h"
 #include "../vcprojectmodel/vcprojectdocument.h"
 #include "../vcprojectmodel/configurationsfactory.h"
+#include "../vcprojectmodel/configurationcontainer.h"
 #include "../vcprojectmodel/configuration.h"
 #include "../vcprojectmodel/tools/toolattributes/tooldescription.h"
 #include "../vcprojectmodel/tools/toolattributes/tooldescriptiondatamanager.h"
@@ -42,8 +43,8 @@
 #include "../vcprojectmodel/files.h"
 #include "../vcprojectmodel/file.h"
 #include "../interfaces/iattributecontainer.h"
+#include "../interfaces/iconfigurationbuildtools.h"
 #include "../interfaces/itools.h"
-#include "../vcprojectmodel/configurationcontainer.h"
 
 namespace VcProjectManager {
 namespace Internal {
@@ -254,30 +255,20 @@ void ConfigurationsBaseWidget::removeConfiguration(IConfiguration *config)
 
 IConfiguration *ConfigurationsBaseWidget::createConfiguration(const QString &configNameWithPlatform) const
 {
-    IConfiguration *config = 0;
+    IConfiguration *config = new Configuration(QLatin1String("Configuration"));
+    config->setFullName(configNameWithPlatform);
 
-    if (m_vcProjDoc->documentVersion() == VcDocConstants::DV_MSVC_2003)
-        config = new Configuration2003(QLatin1String("Configuration"));
-    else if (m_vcProjDoc->documentVersion() == VcDocConstants::DV_MSVC_2005)
-        config = new Configuration2005(QLatin1String("Configuration"));
-    else if (m_vcProjDoc->documentVersion() == VcDocConstants::DV_MSVC_2008)
-        config = new Configuration2008(QLatin1String("Configuration"));
+    ToolDescriptionDataManager *tDDM = ToolDescriptionDataManager::instance();
 
-    if (config) {
-        config->setFullName(configNameWithPlatform);
+    if (tDDM) {
+        for (int i = 0; i < tDDM->toolDescriptionCount(); ++i) {
+            ToolDescription *toolDesc = tDDM->toolDescription(i);
 
-        ToolDescriptionDataManager *tDDM = ToolDescriptionDataManager::instance();
+            if (toolDesc) {
+                IConfigurationBuildTool *configTool = toolDesc->createTool();
 
-        if (tDDM) {
-            for (int i = 0; i < tDDM->toolDescriptionCount(); ++i) {
-                ToolDescription *toolDesc = tDDM->toolDescription(i);
-
-                if (toolDesc) {
-                    IConfigurationTool *configTool = toolDesc->createTool();
-
-                    if (configTool)
-                        config->tools()->addTool(configTool);
-                }
+                if (configTool)
+                    config->tools()->configurationBuildTools()->addTool(configTool);
             }
         }
     }

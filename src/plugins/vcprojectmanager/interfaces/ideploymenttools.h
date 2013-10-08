@@ -27,35 +27,29 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_INTERNAL_CONFIGURATIONTOOLS_H
-#define VCPROJECTMANAGER_INTERNAL_CONFIGURATIONTOOLS_H
+#ifndef VCPROJECTMANAGER_INTERNAL_IDEPLOYMENTTOOLS_H
+#define VCPROJECTMANAGER_INTERNAL_IDEPLOYMENTTOOLS_H
 
-#include "../interfaces/itools.h"
-
-#include <QList>
+class QDomElement;
+class QDomDocument;
 
 namespace VcProjectManager {
 namespace Internal {
 
-class ConfigurationTools : public ITools
+class IDeploymentTool;
+
+class IDeploymentTools
 {
 public:
-    ConfigurationTools();
-
-    // ITools interface
-    ITools &operator =(const ITools &tools);
-    void addTool(IConfigurationTool *tool);
-    void removeTool(IConfigurationTool *tool);
-    IConfigurationTool *tool(const QString &toolKey) const;
-    IConfigurationTool *tool(int index) const;
-    int toolCount() const;
-    void appendToXMLNode(QDomElement &domElement, QDomDocument &domDocument) const;
-
-private:
-    QList<IConfigurationTool *> m_tools;
+    virtual ~IDeploymentTools() {}
+    virtual void addTool(IDeploymentTool *tool) = 0;
+    virtual void removeTool(IDeploymentTool *tool) = 0;
+    virtual IDeploymentTool* tool(int index) const = 0;
+    virtual int toolCount() const = 0;
+    virtual void appendToXMLNode(QDomElement &domElement, QDomDocument &domDocument) const = 0;
 };
 
-} // namespace Internal
-} // namespace VcProjectManager
+} // Internal
+} // VcProjectManager
 
-#endif // VCPROJECTMANAGER_INTERNAL_CONFIGURATIONTOOLS_H
+#endif // VCPROJECTMANAGER_IDEPLOYMENTTOOLS_H

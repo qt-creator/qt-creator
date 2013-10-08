@@ -166,7 +166,7 @@ ActiveXReference2003::ActiveXReference2003()
 
 IConfiguration* ActiveXReference2003::createReferenceConfiguration() const
 {
-    return new Configuration2003(QLatin1String("ReferenceConfiguration"));
+    return new Configuration(QLatin1String("ReferenceConfiguration"));
 }
 
 
@@ -190,7 +190,7 @@ ActiveXReference2005::ActiveXReference2005()
 
 IConfiguration* ActiveXReference2005::createReferenceConfiguration() const
 {
-    return new Configuration2005(QLatin1String("ReferenceConfiguration"));
+    return new Configuration(QLatin1String("ReferenceConfiguration"));
 }
 
 
@@ -214,7 +214,7 @@ ActiveXReference2008::ActiveXReference2008()
 
 IConfiguration* ActiveXReference2008::createReferenceConfiguration() const
 {
-    return new Configuration2008(QLatin1String("ReferenceConfiguration"));
+    return new Configuration(QLatin1String("ReferenceConfiguration"));
 }
 
 

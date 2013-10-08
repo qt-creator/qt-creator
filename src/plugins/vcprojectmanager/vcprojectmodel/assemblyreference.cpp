@@ -200,7 +200,7 @@ AssemblyReference2003::AssemblyReference2003()
 
 IConfiguration* AssemblyReference2003::createReferenceConfiguration() const
 {
-    return new Configuration2003(QLatin1String("ReferenceConfiguration"));
+    return new Configuration(QLatin1String("ReferenceConfiguration"));
 }
 
 
@@ -280,7 +280,7 @@ AssemblyReference2005::AssemblyReference2005()
 
 IConfiguration* AssemblyReference2005::createReferenceConfiguration() const
 {
-    return new Configuration2005(QLatin1String("ReferenceConfiguration"));
+    return new Configuration(QLatin1String("ReferenceConfiguration"));
 }
 
 void AssemblyReference2005::processNodeAttributes(const QDomElement &element)
@@ -420,7 +420,7 @@ AssemblyReference2008::AssemblyReference2008()
 
 IConfiguration* AssemblyReference2008::createReferenceConfiguration() const
 {
-    return new Configuration2008(QLatin1String("ReferenceConfiguration"));
+    return new Configuration(QLatin1String("ReferenceConfiguration"));
 }
 
 void AssemblyReference2008::processNodeAttributes(const QDomElement &element)

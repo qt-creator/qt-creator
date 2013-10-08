@@ -27,26 +27,24 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#include "configurationtools.h"
-#include "../interfaces/iconfigurationtool.h"
+#include "configurationbuildtools.h"
+#include "../interfaces/iconfigurationbuildtool.h"
 #include "../interfaces/itooldescription.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
-ConfigurationTools::ConfigurationTools()
+ConfigurationBuildTools::ConfigurationBuildTools()
 {
 }
 
-ITools &ConfigurationTools::operator =(const ITools &tools)
+ConfigurationBuildTools &ConfigurationBuildTools::operator =(const ConfigurationBuildTools &tools)
 {
     if (this != &tools) {
         qDeleteAll(m_tools);
         m_tools.clear();
 
-        for (int i = 0; i < tools.toolCount(); ++i) {
-            IConfigurationTool *tool = tools.tool(i);
-
+        foreach (IConfigurationBuildTool *tool, tools.m_tools) {
             if (tool)
                 m_tools.append(tool->clone());
         }
@@ -55,12 +53,12 @@ ITools &ConfigurationTools::operator =(const ITools &tools)
     return *this;
 }
 
-void ConfigurationTools::addTool(IConfigurationTool *tool)
+void ConfigurationBuildTools::addTool(IConfigurationBuildTool *tool)
 {
     if (!tool || m_tools.contains(tool))
         return;
 
-    foreach (IConfigurationTool *toolPtr, m_tools) {
+    foreach (IConfigurationBuildTool *toolPtr, m_tools) {
         if (toolPtr->toolDescription()->toolKey() == tool->toolDescription()->toolKey())
             return;
     }
@@ -68,9 +66,9 @@ void ConfigurationTools::addTool(IConfigurationTool *tool)
     m_tools.append(tool);
 }
 
-void ConfigurationTools::removeTool(IConfigurationTool *tool)
+void ConfigurationBuildTools::removeTool(IConfigurationBuildTool *tool)
 {
-    foreach (IConfigurationTool *toolPtr, m_tools) {
+    foreach (IConfigurationBuildTool *toolPtr, m_tools) {
         if (toolPtr->toolDescription()->toolKey() == tool->toolDescription()->toolKey()) {
             m_tools.removeOne(toolPtr);
             delete toolPtr;
@@ -79,9 +77,9 @@ void ConfigurationTools::removeTool(IConfigurationTool *tool)
     }
 }
 
-IConfigurationTool *ConfigurationTools::tool(const QString &toolKey) const
+IConfigurationBuildTool *ConfigurationBuildTools::tool(const QString &toolKey) const
 {
-    foreach (IConfigurationTool *toolPtr, m_tools) {
+    foreach (IConfigurationBuildTool *toolPtr, m_tools) {
         if (toolPtr->toolDescription()->toolKey() == toolKey) {
             return toolPtr;
         }
@@ -90,7 +88,7 @@ IConfigurationTool *ConfigurationTools::tool(const QString &toolKey) const
     return 0;
 }
 
-IConfigurationTool *ConfigurationTools::tool(int index) const
+IConfigurationBuildTool *ConfigurationBuildTools::tool(int index) const
 {
     if (0 <= index && index < m_tools.size())
         return m_tools[index];
@@ -98,14 +96,14 @@ IConfigurationTool *ConfigurationTools::tool(int index) const
     return 0;
 }
 
-int ConfigurationTools::toolCount() const
+int ConfigurationBuildTools::toolCount() const
 {
     return m_tools.size();
 }
 
-void ConfigurationTools::appendToXMLNode(QDomElement &domElement, QDomDocument &domDocument) const
+void ConfigurationBuildTools::appendToXMLNode(QDomElement &domElement, QDomDocument &domDocument) const
 {
-    foreach (const IConfigurationTool *confTool, m_tools)
+    foreach (const IConfigurationBuildTool *confTool, m_tools)
         domElement.appendChild(confTool->toXMLDomNode(domDocument));
 }
 

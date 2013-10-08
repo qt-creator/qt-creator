@@ -27,46 +27,23 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_INTERNAL_TOOLDESCRIPTION_H
-#define VCPROJECTMANAGER_INTERNAL_TOOLDESCRIPTION_H
+#ifndef VCPROJECTMANAGER_INTERNAL_IDEPLOYMENTTOOL_H
+#define VCPROJECTMANAGER_INTERNAL_IDEPLOYMENTTOOL_H
 
-#include <QString>
-#include "../../../interfaces/itooldescription.h"
+#include "../vcprojectmodel/ivcprojectnodemodel.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
-class IAttributeDescriptionDataItem;
-class ConfigurationTool;
-class ToolSectionDescription;
+class IAttributeContainer;
 
-class ToolDescription : public IToolDescription
+class IDeploymentTool : public IVcProjectXMLNode
 {
 public:
-    ToolDescription();
-    ~ToolDescription();
-
-    int sectionDescriptionCount() const;
-    IToolSectionDescription *sectionDescription(int index) const;
-    void addSectionDescription(IToolSectionDescription *sectionDescription);
-    void removeSectionDescription(IToolSectionDescription *sectionDescription);
-
-    QString toolKey() const;
-    void setToolKey(const QString &toolKey);
-
-    QString toolDisplayName() const;
-    void setToolDisplayName(const QString &toolDisplayName);
-
-    IConfigurationBuildTool* createTool() const;
-
-private:
-    QString m_displayName;
-    QString m_toolKey;
-    QList<IAttributeDescriptionDataItem *> m_attributes;
-    QList<IToolSectionDescription *> m_sectionDescriptions;
+    virtual ~IDeploymentTool() {}
+    virtual IAttributeContainer *attributeContainer() const = 0;
+    virtual IDeploymentTool* clone() const = 0;
 };
-
-} // namespace Internal
-} // namespace VcProjectManager
-
-#endif // VCPROJECTMANAGER_INTERNAL_TOOLDESCRIPTION_H
+} // Internal
+} // VcProjectManager
+#endif // VCPROJECTMANAGER_INTERNAL_IDEPLOYMENTTOOL_H

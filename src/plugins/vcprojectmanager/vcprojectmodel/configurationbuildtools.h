@@ -27,46 +27,35 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_INTERNAL_TOOLDESCRIPTION_H
-#define VCPROJECTMANAGER_INTERNAL_TOOLDESCRIPTION_H
+#ifndef VCPROJECTMANAGER_INTERNAL_CONFIGURATIONBUILDTOOLS_H
+#define VCPROJECTMANAGER_INTERNAL_CONFIGURATIONBUILDTOOLS_H
 
-#include <QString>
-#include "../../../interfaces/itooldescription.h"
+#include "../interfaces/iconfigurationbuildtools.h"
+
+#include <QList>
 
 namespace VcProjectManager {
 namespace Internal {
 
-class IAttributeDescriptionDataItem;
-class ConfigurationTool;
-class ToolSectionDescription;
-
-class ToolDescription : public IToolDescription
+class ConfigurationBuildTools : public IConfigurationBuildTools
 {
 public:
-    ToolDescription();
-    ~ToolDescription();
+    ConfigurationBuildTools();
 
-    int sectionDescriptionCount() const;
-    IToolSectionDescription *sectionDescription(int index) const;
-    void addSectionDescription(IToolSectionDescription *sectionDescription);
-    void removeSectionDescription(IToolSectionDescription *sectionDescription);
-
-    QString toolKey() const;
-    void setToolKey(const QString &toolKey);
-
-    QString toolDisplayName() const;
-    void setToolDisplayName(const QString &toolDisplayName);
-
-    IConfigurationBuildTool* createTool() const;
+    // ITools interface
+    ConfigurationBuildTools &operator =(const ConfigurationBuildTools &tools);
+    void addTool(IConfigurationBuildTool *tool);
+    void removeTool(IConfigurationBuildTool *tool);
+    IConfigurationBuildTool *tool(const QString &toolKey) const;
+    IConfigurationBuildTool *tool(int index) const;
+    int toolCount() const;
+    void appendToXMLNode(QDomElement &domElement, QDomDocument &domDocument) const;
 
 private:
-    QString m_displayName;
-    QString m_toolKey;
-    QList<IAttributeDescriptionDataItem *> m_attributes;
-    QList<IToolSectionDescription *> m_sectionDescriptions;
+    QList<IConfigurationBuildTool *> m_tools;
 };
 
 } // namespace Internal
 } // namespace VcProjectManager
 
-#endif // VCPROJECTMANAGER_INTERNAL_TOOLDESCRIPTION_H
+#endif // VCPROJECTMANAGER_INTERNAL_CONFIGURATIONBUILDTOOLS_H

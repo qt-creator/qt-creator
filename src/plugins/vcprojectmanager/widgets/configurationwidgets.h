@@ -57,48 +57,6 @@ protected:
     QList<VcNodeWidget *> m_toolWidgets;
 };
 
-class Configuration2003Widget : public ConfigurationBaseWidget
-{
-public:
-    explicit Configuration2003Widget(Configuration *config);
-    ~Configuration2003Widget();
-
-private:
-    QListWidget *m_listWidget;
-    QStackedWidget *m_stackWidget;
-
-    Configuration* m_config;
-    QList<VcNodeWidget *> m_toolWidgets;
-};
-
-class Configuration2005Widget : public ConfigurationBaseWidget
-{
-public:
-    explicit Configuration2005Widget(Configuration* config);
-    ~Configuration2005Widget();
-
-private:
-    QListWidget *m_listWidget;
-    QStackedWidget *m_stackWidget;
-
-    Configuration* m_config;
-    QList<VcNodeWidget *> m_toolWidgets;
-};
-
-class Configuration2008Widget : public ConfigurationBaseWidget
-{
-public:
-    explicit Configuration2008Widget(Configuration* config);
-    ~Configuration2008Widget();
-
-private:
-    QListWidget *m_listWidget;
-    QStackedWidget *m_stackWidget;
-
-    Configuration* m_config;
-    QList<VcNodeWidget *> m_toolWidgets;
-};
-
 } // namespace Internal
 } // namespace VcProjectManager
 

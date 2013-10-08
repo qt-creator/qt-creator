@@ -47,7 +47,6 @@ public:
     ConfigurationsFactory();
     ~ConfigurationsFactory();
 
-    static Configuration::Ptr createConfiguration(VcDocConstants::DocumentVersion version, const QString &nodeName);
     static ConfigurationsBaseWidget *createSettingsWidget(VcProjectDocument *vcProjDoc, Configurations *config);
 };
 

@@ -100,19 +100,9 @@ ConfigurationContainer *Configurations::configurationContainer() const
 
 void Configurations::processConfiguration(const QDomNode &configurationNode)
 {
-    IConfiguration *config = 0;
-
-    if (m_vcProjDoc->documentVersion() == VcDocConstants::DV_MSVC_2003)
-        config = new Configuration2003(QLatin1String("Configuration"));
-    else if (m_vcProjDoc->documentVersion() == VcDocConstants::DV_MSVC_2005)
-        config = new Configuration2005(QLatin1String("Configuration"));
-    else if (m_vcProjDoc->documentVersion() == VcDocConstants::DV_MSVC_2008)
-        config = new Configuration2008(QLatin1String("Configuration"));
-
-    if (config) {
-        config->processNode(configurationNode);
-        m_configurationContainer->addConfiguration(config);
-    }
+    IConfiguration *config = new Configuration(QLatin1String("Configuration"));
+    config->processNode(configurationNode);
+    m_configurationContainer->addConfiguration(config);
 
     // process next sibling
     QDomNode nextSibling = configurationNode.nextSibling();

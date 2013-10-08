@@ -27,8 +27,8 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef ITOOLATTRIBUTECONTAINER_H
-#define ITOOLATTRIBUTECONTAINER_H
+#ifndef VCPROJECTMANAGER_ITOOLATTRIBUTECONTAINER_H
+#define VCPROJECTMANAGER_ITOOLATTRIBUTECONTAINER_H
 
 #include <QString>
 

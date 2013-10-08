@@ -30,7 +30,7 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_DEPLOYMENTTOOL_H
 #define VCPROJECTMANAGER_INTERNAL_DEPLOYMENTTOOL_H
 
-#include "ivcprojectnodemodel.h"
+#include "../interfaces/ideploymenttool.h"
 
 #include <QHash>
 #include <QSharedPointer>
@@ -41,7 +41,7 @@ namespace Internal {
 class IAttributeContainer;
 class GeneralAttributeContainer;
 
-class DeploymentTool : public IVcProjectXMLNode
+class DeploymentTool : public IDeploymentTool
 {
 public:
     typedef QSharedPointer<DeploymentTool>  Ptr;
@@ -56,6 +56,7 @@ public:
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
     IAttributeContainer *attributeContainer() const;
+    IDeploymentTool* clone() const;
 
 private:
     void processNodeAttributes(const QDomElement &element);

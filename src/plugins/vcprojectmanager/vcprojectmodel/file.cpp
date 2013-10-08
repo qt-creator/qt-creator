@@ -195,18 +195,9 @@ QString File::canonicalPath() const
 
 void File::processFileConfiguration(const QDomNode &fileConfigNode)
 {
-    IConfiguration *fileConfig = 0;
-    if (m_parentProjectDoc->documentVersion() == VcDocConstants::DV_MSVC_2003)
-        fileConfig = new Configuration2003(QLatin1String("FileConfiguration"));
-    else if (m_parentProjectDoc->documentVersion() == VcDocConstants::DV_MSVC_2005)
-        fileConfig = new Configuration2005(QLatin1String("FileConfiguration"));
-    else if (m_parentProjectDoc->documentVersion() == VcDocConstants::DV_MSVC_2008)
-        fileConfig = new Configuration2008(QLatin1String("FileConfiguration"));
-
-    if (fileConfig) {
-        fileConfig->processNode(fileConfigNode);
-        m_configurationContainer->addConfiguration(fileConfig);
-    }
+    IConfiguration *fileConfig = new Configuration(QLatin1String("FileConfiguration"));
+    fileConfig->processNode(fileConfigNode);
+    m_configurationContainer->addConfiguration(fileConfig);
 
     // process next sibling
     QDomNode nextSibling = fileConfigNode.nextSibling();
