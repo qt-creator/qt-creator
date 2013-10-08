@@ -232,7 +232,8 @@ IAssistProcessor *VirtualFunctionAssistProvider::createProcessor() const
 
 enum VirtualType { Virtual, PureVirtual };
 
-static bool isVirtualFunction_helper(Function *function, const Snapshot &snapshot,
+static bool isVirtualFunction_helper(const Function *function,
+                                     const Snapshot &snapshot,
                                      VirtualType virtualType)
 {
     if (!function)
@@ -270,12 +271,12 @@ static bool isVirtualFunction_helper(Function *function, const Snapshot &snapsho
     return false;
 }
 
-bool FunctionHelper::isVirtualFunction(Function *function, const Snapshot &snapshot)
+bool FunctionHelper::isVirtualFunction(const Function *function, const Snapshot &snapshot)
 {
     return isVirtualFunction_helper(function, snapshot, Virtual);
 }
 
-bool FunctionHelper::isPureVirtualFunction(Function *function, const Snapshot &snapshot)
+bool FunctionHelper::isPureVirtualFunction(const Function *function, const Snapshot &snapshot)
 {
     return isVirtualFunction_helper(function, snapshot, PureVirtual);
 }
