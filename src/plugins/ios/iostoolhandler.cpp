@@ -61,7 +61,7 @@ class MyProcess: public QProcess
     Q_OBJECT
 public:
     explicit MyProcess(QObject *parent = 0);
-    int processOutput();
+    int processOutputSocket();
     QSocketNotifier *notifier();
 protected:
     virtual void setupChildProcess();
@@ -136,6 +136,7 @@ public:
     };
 
     explicit IosToolHandlerPrivate(IosToolHandler::DeviceType devType, IosToolHandler *q);
+    virtual ~IosToolHandlerPrivate() {}
     virtual void requestTransferApp(const QString &bundlePath, const QString &deviceId,
                                     int timeout = 1000) = 0;
     virtual void requestRunApp(const QString &bundlePath, const QStringList &extraArgs,
@@ -221,7 +222,7 @@ MyProcess::MyProcess(QObject *parent) : QProcess(parent)
     m_notifier = new QSocketNotifier(m_sockets[0], QSocketNotifier::Read, this);
 }
 
-int MyProcess::processOutput()
+int MyProcess::processOutputSocket()
 {
     return m_sockets[0];
 }
@@ -251,8 +252,8 @@ IosToolHandlerPrivate::IosToolHandlerPrivate(IosToolHandler::DeviceType devType,
             q, SLOT(subprocessFinished(int,QProcess::ExitStatus)));
     QObject::connect(&process, SIGNAL(error(QProcess::ProcessError)),
             q, SLOT(subprocessError(QProcess::ProcessError)));
-    int accessFlags = fcntl(process.processOutput(), F_GETFL);
-    if (fcntl(process.processOutput(), F_SETFL, accessFlags | O_NONBLOCK) == -1)
+    int accessFlags = fcntl(process.processOutputSocket(), F_GETFL);
+    if (fcntl(process.processOutputSocket(), F_SETFL, accessFlags | O_NONBLOCK) == -1)
         qDebug() << "IosToolHandler fcntl F_SETFL failed to set non blocking mode"
                  << qt_error_string(errno);
 }
@@ -277,9 +278,11 @@ void IosToolHandlerPrivate::stop()
     if (debugToolHandler)
         qDebug() << "IosToolHandlerPrivate::stop";
     if (process.state() != QProcess::NotRunning) {
-        close(process.processOutput());
+        close(process.processOutputSocket());
         process.close();
         process.kill();
+        if (debugToolHandler)
+            qDebug() << "killing";
     }
     if (state != Stopped) {
         state = Stopped;
@@ -374,7 +377,7 @@ void IosToolHandlerPrivate::subprocessError(QProcess::ProcessError error)
 void IosToolHandlerPrivate::subprocessFinished(int exitCode, QProcess::ExitStatus exitStatus)
 {
     // process potentially pending data
-    subprocessHasData(process.processOutput());
+    subprocessHasData(process.processOutputSocket());
     switch (state) {
     case NonStarted:
         qDebug() << "subprocessFinished() when state was NonStarted";
@@ -942,6 +945,11 @@ IosToolHandler::IosToolHandler(DeviceType devType, QObject *parent) :
         d = new Internal::IosDeviceToolHandlerPrivate(devType, this);
     else
         d = new Internal::IosSimulatorToolHandlerPrivate(devType, this);
+}
+
+IosToolHandler::~IosToolHandler()
+{
+    delete d;
 }
 
 void IosToolHandler::stop()

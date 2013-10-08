@@ -38,6 +38,7 @@
 #include "iosmanager.h"
 #include "iosrunfactories.h"
 #include "iossettingspage.h"
+#include "iostoolhandler.h"
 #include "iosqtversionfactory.h"
 #include "iosbuildstep.h"
 #include "iosdeploystepfactory.h"
@@ -52,7 +53,9 @@
 namespace Ios {
 
 IosPlugin::IosPlugin()
-{ }
+{
+    qRegisterMetaType<Ios::IosToolHandler::Dict>("Ios::IosToolHandler::Dict");
+}
 
 bool IosPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
