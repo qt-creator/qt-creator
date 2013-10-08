@@ -504,6 +504,9 @@ void AndroidManifestEditorWidget::resizeEvent(QResizeEvent *event)
 bool AndroidManifestEditorWidget::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
     bool result = PlainTextEditorWidget::open(errorString, fileName, realFileName);
+
+    updateSdkVersions();
+
     if (!result)
         return result;
 
@@ -521,7 +524,6 @@ bool AndroidManifestEditorWidget::open(QString *errorString, const QString &file
     }
     // some error occured
     updateInfoBar(error, errorLine, errorColumn);
-    updateSdkVersions();
     setActivePage(Source);
 
     return true;
@@ -697,7 +699,8 @@ void AndroidManifestEditorWidget::updateInfoBar()
 void AndroidManifestEditorWidget::updateSdkVersions()
 {
     const QString docPath(static_cast<AndroidManifestDocument *>(editor()->document())->filePath());
-    QPair<int, int> apiLevels = AndroidManager::apiLevelRange(androidProject(docPath)->activeTarget());
+    Project *project = androidProject(docPath);
+    QPair<int, int> apiLevels = AndroidManager::apiLevelRange(project ? project->activeTarget() : 0);
     for (int i = apiLevels.first; i < apiLevels.second + 1; ++i)
         m_androidMinSdkVersion->addItem(tr("API %1: %2")
                                         .arg(i)
@@ -865,6 +868,16 @@ void setUsesSdk(QDomDocument &doc, QDomElement &manifest, int minimumSdk, int ta
     }
 }
 
+int extractVersion(const QString &string)
+{
+    if (!string.startsWith(QLatin1String("API")))
+        return 0;
+    int index = string.indexOf(QLatin1Char(':'));
+    if (index == -1)
+        return 0;
+    return string.midRef(4, index - 4).toInt();
+}
+
 void AndroidManifestEditorWidget::syncToEditor()
 {
     QDomDocument doc;
@@ -879,8 +892,8 @@ void AndroidManifestEditorWidget::syncToEditor()
     manifest.setAttribute(QLatin1String("android:versionCode"), m_versionCode->value());
     manifest.setAttribute(QLatin1String("android:versionName"), m_versionNameLinedit->text());
 
-    setUsesSdk(doc, manifest, m_androidMinSdkVersion->currentText().toInt(),
-               m_androidTargetSdkVersion->currentText().toInt());
+    setUsesSdk(doc, manifest, extractVersion(m_androidMinSdkVersion->currentText()),
+               extractVersion(m_androidTargetSdkVersion->currentText()));
 
     setAndroidAppLibName(doc, manifest.firstChildElement(QLatin1String("application"))
                                       .firstChildElement(QLatin1String("activity")),
