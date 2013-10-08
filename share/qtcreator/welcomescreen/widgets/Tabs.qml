@@ -29,9 +29,30 @@
 
 import QtQuick 2.1
 
-QtObject {
-    property color linkColor: "#328930"
-    //property color linkColor: "#70b332"
-    //property color strongForegroundColor: "#58595b"
-    property color strongForegroundColor: "#328930"
+Column {
+    id: customTab
+    property alias model: repeater.model
+    spacing: 16
+
+    signal itemChanged
+    property int currentIndex: 0
+
+    onCurrentIndexChanged: welcomeMode.activePlugin = currentIndex
+    Component.onCompleted: currentIndex = welcomeMode.activePlugin
+
+    Repeater {
+        id: repeater
+
+        Button {
+            text: title
+            checkable: true
+            property bool localChecked: customTab.currentIndex === index
+            onLocalCheckedChanged: checked = localChecked
+
+            onClicked: {
+                customTab.currentIndex = index
+            }
+        }
+    }
+
 }

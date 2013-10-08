@@ -39,52 +39,33 @@ Rectangle {
     property var fonts: CustomFonts {}
     property var colors: CustomColors { }
 
-    Rectangle {
-        id: canvas
-
-        width: Math.min(1024, parent.width)
+    SideBar {
+        id: sideBar
+        model: pagesModel
         anchors.top: parent.top
         anchors.bottom: parent.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
-
-        PageLoader {
-            anchors.fill: parent
-            anchors.topMargin: 76
-            model: pagesModel
-        }
-
-        CustomTab {
-            id: tab
-            x: 578
-            y: 96
-            anchors.right: parent.right
-            anchors.rightMargin: 36
-            model: pagesModel
-
-        }
-
-        Logo {
-            x: 25
-            y: 14
-        }
-
-        Rectangle {
-            visible: root.width > 1042
-            width: 2
-            color: "#cdcdcd"
-            anchors.left: parent.left
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
-        }
-
-        Rectangle {
-            visible: root.width > 1042
-            width: 2
-            color: "#cdcdcd"
-            anchors.right: parent.right
-            anchors.top: parent.top
-            anchors.bottom: parent.bottom
-        }
 
     }
+
+    Rectangle {
+        color: "#737373"
+        width: 1
+        height: parent.height
+
+        anchors.right: sideBar.right
+    }
+
+    QtObject {
+        id: tab
+        property int currentIndex: sideBar.currentIndex
+    }
+
+    PageLoader {
+        anchors.top: parent.top
+        model: pagesModel
+        anchors.bottom: parent.bottom
+        anchors.left: sideBar.right
+        anchors.right: parent.right
+    }
+
 }

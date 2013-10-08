@@ -34,18 +34,6 @@ Rectangle {
     height: 240
     width: 216
 
-    Rectangle {
-        id: highlight
-        radius: 6
-        visible: isHighlighted
-        color: colors.strongForegroundColor
-        anchors.fill: parent
-        anchors.topMargin: 2
-        anchors.leftMargin: 4
-        anchors.rightMargin: 4
-        anchors.bottomMargin: 73
-    }
-
     property alias caption: captionItem.text
     property alias imageSource: imageItem.source
     property alias videoSource: videoIcon.source

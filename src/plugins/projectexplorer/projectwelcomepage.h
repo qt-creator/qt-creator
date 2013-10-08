@@ -90,7 +90,7 @@ public:
     void facilitateQml(QQmlEngine *engine);
     QUrl pageLocation() const;
     QWidget *page() { return 0; }
-    QString title() const { return tr("Develop"); }
+    QString title() const { return tr("Projects"); }
     int priority() const { return 20; }
     Id id() const;
 

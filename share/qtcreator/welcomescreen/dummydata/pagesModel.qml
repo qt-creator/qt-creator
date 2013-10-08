@@ -31,11 +31,7 @@ import QtQuick 2.1
 
 ListModel {
     ListElement {
-        title: "Getting Started"
-        pageLocation: "../gettingstarted.qml"
-    }
-    ListElement {
-        title: "Develop"
+        title: "Projects"
         pageLocation: "../develop.qml"
     }
     ListElement {

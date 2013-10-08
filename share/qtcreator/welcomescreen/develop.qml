@@ -32,33 +32,17 @@ import widgets 1.0
 
 Rectangle {
     id: rectangle1
-    width: 900
+    width: parent.width
     height: 600
-
-    PageCaption {
-        id: pageCaption
-
-        x: 32
-        y: 8
-
-        anchors.rightMargin: 16
-        anchors.right: parent.right
-        anchors.leftMargin: 16
-        anchors.left: parent.left
-
-        caption: qsTr("Develop")
-    }
 
     Item {
         id: canvas
 
         x: 12
         y: 0
-        width: 1024
 
         anchors.bottomMargin: 0
-        anchors.bottom: parent.bottom
-        anchors.top: parent.top
+        anchors.fill: parent
         anchors.topMargin: 0
 
         Rectangle {
@@ -73,12 +57,12 @@ Rectangle {
         }
 
         RecentProjects {
-            x: 406
-            y: 144
-            width: 481
+            x: 428
+
             height: 432
             id: recentProjects
 
+            anchors.leftMargin: 12
             anchors.left: recentProjectsTitle.left
 
             anchors.top: recentProjectsTitle.bottom
@@ -86,7 +70,7 @@ Rectangle {
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 40
             anchors.right: parent.right
-            anchors.rightMargin: 80
+            anchors.rightMargin: 60
 
             model: projectList
         }
@@ -105,8 +89,8 @@ Rectangle {
         NativeText {
             id: sessionsTitle
 
-            x: pageCaption.x + pageCaption.textOffset
-            y: 105
+            x: 32
+            y: 128
 
             color: "#535353"
             text: qsTr("Sessions")
@@ -119,7 +103,7 @@ Rectangle {
             id: recentProjectsTitle
             x: 406
 
-            y: 105
+            y: 128
             color: "#535353"
             text: qsTr("Recent Projects")
             anchors.left: sessionsTitle.right
@@ -139,42 +123,33 @@ Rectangle {
 
             anchors.topMargin: 42
             anchors.top: sessions.bottom
+        }
 
-            LinkedText {
-                id: openProject
-                x: 51
-                y: 45
-                text: qsTr("Open Project")
-                onClicked: projectWelcomePage.openProject();
-            }
+        Button {
+            y: 51
+            text: qsTr("New Project")
+            anchors.left: sessionsTitle.left
+            onClicked: projectWelcomePage.newProject();
+            iconSource: "widgets/images/new.png"
 
-            LinkedText {
-                id: createProject
-                x: 51
-                y: 13
-                text: qsTr("Create Project")
-                onClicked: projectWelcomePage.newProject();
-            }
+        }
 
-            Image {
-                id: icon02
-                y: 32
-                source: "widgets/images/icons/openIcon.png"
-            }
-
-            Image {
-                id: icon01
-                source: "widgets/images/icons/createIcon.png"
-            }
+        Button {
+            y: 51
+            text: qsTr("Open Project")
+            anchors.left: recentProjectsTitle.left
+            onClicked: projectWelcomePage.openProject();
+            iconSource: "widgets/images/open.png"
         }
 
         Sessions {
             id: sessions
 
-            x: 87
+            x: 96
             y: 144
             width: 274
 
+            anchors.leftMargin: 12
             anchors.left: sessionsTitle.left
             anchors.right: recentProjectsTitle.left
             anchors.rightMargin: 40

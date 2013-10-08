@@ -17,4 +17,7 @@ PageLoader 1.0 PageLoader.qml
 ToolTip 1.0 ToolTip.qml
 ComboBox 1.0 ComboBox.qml
 NativeText 1.0 NativeText.qml
+Button 1.0 Button.qml
+Tabs 1.0 Tabs.qml
+SideBar 1.0 SideBar.qml
 
