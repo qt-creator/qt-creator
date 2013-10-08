@@ -175,10 +175,10 @@ void BlackBerryCreateCertificateDialog::certificateCreated(int status)
         errorMessage = tr("The blackberry-keytool process is already running");
         break;
     case BlackBerryCertificate::WrongPassword:
-        errorMessage = tr("The enteres password is invalid");
+        errorMessage = tr("The password entered is invalid");
         break;
     case BlackBerryCertificate::PasswordTooSmall:
-        errorMessage = tr("The enteres password is too small");
+        errorMessage = tr("The password entered is too small");
         break;
     case BlackBerryCertificate::InvalidOutputFormat:
         errorMessage = tr("Invalid output format");

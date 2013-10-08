@@ -203,7 +203,7 @@ void AndroidManifestEditorWidget::initializePage()
 
         m_androidTargetSdkVersion = new QComboBox(packageGroupBox);
         m_androidTargetSdkVersion->setToolTip(
-                    tr("Sets the targe SDK, set this to the highest tested version."
+                    tr("Sets the target SDK; set this to the highest tested version."
                        "This disables compatibility behavior of the system for your application."));
         m_androidTargetSdkVersion->addItem(tr("Not set"), 0);
 
