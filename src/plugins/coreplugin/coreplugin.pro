@@ -237,6 +237,6 @@ else:unix {
 OTHER_FILES += editormanager/BinFiles.mimetypes.xml
 
 equals(TEST, 1) {
-    SOURCES += plugintestutils.cpp
-    HEADERS += plugintestutils.h
+    SOURCES += testdatadir.cpp
+    HEADERS += testdatadir.h
 }

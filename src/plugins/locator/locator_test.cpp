@@ -33,7 +33,7 @@
 #include "basefilefilter.h"
 #include "locatorfiltertest.h"
 
-#include <coreplugin/plugintestutils.h>
+#include <coreplugin/testdatadir.h>
 #include <utils/fileutils.h>
 
 #include <QDir>
@@ -44,7 +44,7 @@ using namespace Locator::Internal::Tests;
 
 namespace {
 
-class MyTestDataDir : public Core::Tests::TestDataDir
+class MyTestDataDir : public Core::Internal::Tests::TestDataDir
 {
 public:
     MyTestDataDir(const QString &testDataDirectory)

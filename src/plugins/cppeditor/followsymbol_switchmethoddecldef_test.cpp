@@ -32,7 +32,6 @@
 #include "cppelementevaluator.h"
 #include "cppvirtualfunctionassistprovider.h"
 
-#include <coreplugin/plugintestutils.h>
 #include <texteditor/codeassist/iassistproposal.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/codeassist/basicproposalitemlistmodel.h>
@@ -325,7 +324,8 @@ TestCase::~TestCase()
         if (testFile->editor)
             editorsToClose << testFile->editor;
     }
-    Core::Tests::closeAndDeleteEditors(editorsToClose);
+    EditorManager::closeEditors(editorsToClose, false);
+    QCoreApplication::processEvents(); // process any pending events
 
     // Remove the test files from the code-model
     CppModelManagerInterface *mmi = CppTools::CppModelManagerInterface::instance();

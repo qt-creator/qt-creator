@@ -181,8 +181,8 @@ QtcPlugin {
         name: "Tests"
         condition: project.testsEnabled
         files: [
-            "plugintestutils.cpp",
-            "plugintestutils.h",
+            "testdatadir.cpp",
+            "testdatadir.h",
         ]
     }
 

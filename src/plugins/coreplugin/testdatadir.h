@@ -28,25 +28,17 @@
 ****************************************************************************/
 
 
-#ifndef PLUGINTESTUTILS_H
-#define PLUGINTESTUTILS_H
+#ifndef TESTDATADIR_H
+#define TESTDATADIR_H
 
 #include "core_global.h"
 
-#include <QList>
 #include <QString>
 
 namespace Core {
-
-class IEditor;
-
+namespace Internal {
 namespace Tests {
 
-/// Closing and deleting editors
-void CORE_EXPORT closeAndDeleteEditor(Core::IEditor *editor);
-void CORE_EXPORT closeAndDeleteEditors(QList<Core::IEditor *> editorsToClose);
-
-/// Referencing test data
 class CORE_EXPORT TestDataDir
 {
 public:
@@ -61,6 +53,7 @@ private:
 };
 
 } // namespace Tests
+} // namespace Internal
 } // namespace Core
 
-#endif // PLUGINTESTUTILS_H
+#endif // TESTDATADIR_H

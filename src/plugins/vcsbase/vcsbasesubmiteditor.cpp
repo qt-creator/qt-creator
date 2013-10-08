@@ -234,9 +234,11 @@ VcsBaseSubmitEditor::VcsBaseSubmitEditor(const VcsBaseSubmitEditorParameters *pa
     connect(VcsPlugin::instance(),
             SIGNAL(settingsChanged(VcsBase::Internal::CommonVcsSettings)),
             this, SLOT(slotUpdateEditorSettings(VcsBase::Internal::CommonVcsSettings)));
+    // Commit data refresh might lead to closing the editor, so use a queued connection
     connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
-            this, SLOT(slotRefreshCommitData()));
-    connect(Core::ICore::mainWindow(), SIGNAL(windowActivated()), this, SLOT(slotRefreshCommitData()));
+            this, SLOT(slotRefreshCommitData()), Qt::QueuedConnection);
+    connect(Core::ICore::mainWindow(), SIGNAL(windowActivated()),
+            this, SLOT(slotRefreshCommitData()), Qt::QueuedConnection);
 
     Aggregation::Aggregate *aggregate = new Aggregation::Aggregate;
     aggregate->add(new Find::BaseTextFind(descriptionEdit));
