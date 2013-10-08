@@ -34,7 +34,6 @@
 #include "cppquickfixassistant.h"
 #include "cppquickfixes.h"
 
-#include <coreplugin/plugintestutils.h>
 #include <cpptools/cppcodestylepreferences.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpppreprocessor.h>
@@ -238,7 +237,6 @@ void TestCase::init(const QStringList &includePaths)
 
         // Rehighlight
         testFile->editorWidget->semanticRehighlight(true);
-
         // Wait for the semantic info from the future
         while (testFile->editorWidget->semanticInfo().doc.isNull())
             QCoreApplication::processEvents();
@@ -264,7 +262,8 @@ TestCase::~TestCase()
         if (testFile->editor)
             editorsToClose << testFile->editor;
     }
-    Core::Tests::closeAndDeleteEditors(editorsToClose);
+    EditorManager::instance()->closeEditors(editorsToClose, false);
+    QCoreApplication::processEvents(); // process any pending events
 
     // Remove the test files from the code-model
     CppModelManagerInterface *mmi = CppModelManagerInterface::instance();

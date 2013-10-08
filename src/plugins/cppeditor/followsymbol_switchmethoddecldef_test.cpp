@@ -30,7 +30,6 @@
 #include "cppeditor.h"
 #include "cppeditorplugin.h"
 
-#include <coreplugin/plugintestutils.h>
 #include <utils/fileutils.h>
 
 #include <QDebug>
@@ -252,7 +251,8 @@ TestCase::~TestCase()
         if (testFile->editor)
             editorsToClose << testFile->editor;
     }
-    Core::Tests::closeAndDeleteEditors(editorsToClose);
+    EditorManager::instance()->closeEditors(editorsToClose, false);
+    QCoreApplication::processEvents(); // process any pending events
 
     // Remove the test files from the code-model
     CppModelManagerInterface *mmi = CppTools::CppModelManagerInterface::instance();
