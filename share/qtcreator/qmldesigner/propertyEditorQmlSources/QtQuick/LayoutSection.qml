@@ -75,6 +75,8 @@ Section {
 
                 Text {
                     text: qsTr("Target")
+                    color: "#eee"
+                    elide: Text.ElideRight
                 }
 
                 ComboBox {
@@ -84,6 +86,8 @@ Section {
 
                 Text {
                     text: "Margin"
+                    color: "#eee"
+                    elide: Text.ElideRight
                 }
 
                 RowLayout {
@@ -129,6 +133,8 @@ Section {
 
                 Text {
                     text: qsTr("Target")
+                    color: "#eee"
+                    elide: Text.ElideRight
                 }
 
                 ComboBox {
@@ -138,6 +144,8 @@ Section {
 
                 Text {
                     text: qsTr("Margin")
+                    color: "#eee"
+                    elide: Text.ElideRight
                 }
 
                 RowLayout {
@@ -183,6 +191,9 @@ Section {
 
                 Text {
                     text: qsTr("Target")
+                    color: "#eee"
+                    elide: Text.ElideRight
+
                 }
 
                 ComboBox {
@@ -192,6 +203,9 @@ Section {
 
                 Text {
                     text: qsTr("Margin")
+                    color: "#eee"
+                    elide: Text.ElideRight
+
                 }
 
                 RowLayout {
@@ -237,6 +251,9 @@ Section {
 
                 Text {
                     text: qsTr("Target")
+                    color: "#eee"
+                    elide: Text.ElideRight
+
                 }
 
                 ComboBox {
@@ -246,6 +263,9 @@ Section {
 
                 Text {
                     text: qsTr("Margin")
+                    color: "#eee"
+                    elide: Text.ElideRight
+
                 }
 
                 RowLayout {
