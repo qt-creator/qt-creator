@@ -269,6 +269,9 @@ void Lexer::scan_helper(Token *tok)
         if (_yychar == ':') {
             yyinp();
             tok->f.kind = T_COLON_COLON;
+        } else if (_yychar == '>') {
+            yyinp();
+            tok->f.kind = T_RBRACKET;
         } else {
             tok->f.kind = T_COLON;
         }
@@ -428,6 +431,12 @@ void Lexer::scan_helper(Token *tok)
         if (_yychar == '=') {
             yyinp();
             tok->f.kind = T_PERCENT_EQUAL;
+        } else if (_yychar == '>') {
+            yyinp();
+            tok->f.kind = T_RBRACE;
+        } else if (_yychar == ':') {
+            yyinp();
+            tok->f.kind = T_POUND;
         } else {
             tok->f.kind = T_PERCENT;
         }
@@ -515,6 +524,12 @@ void Lexer::scan_helper(Token *tok)
         } else if (_yychar == '=') {
             yyinp();
             tok->f.kind = T_LESS_EQUAL;
+        } else if (_yychar == ':') {
+            yyinp();
+            tok->f.kind = T_LBRACKET;
+        } else if (_yychar == '%') {
+            yyinp();
+            tok->f.kind = T_LBRACE;
         } else {
             tok->f.kind = T_LESS;
         }

@@ -83,8 +83,8 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
     addAutoReleasedObject(welcomePage);
     welcomePage->setShowExamples(true);
 
-    GettingStartedWelcomePage *gettingStartedWelcomePage = new GettingStartedWelcomePage;
-    addAutoReleasedObject(gettingStartedWelcomePage);
+    welcomePage = new ExamplesWelcomePage;
+    addAutoReleasedObject(welcomePage);
 #endif
     addAutoReleasedObject(new CustomExecutableRunConfigurationFactory);
 

@@ -44,13 +44,13 @@ Item {
             id: row1
             height: text.height + 8
 
-            spacing: 4
+            spacing: 7
 
-            Image {
-                anchors.verticalCenter: text.verticalCenter
-                source: "images/bullet.png"
+            Rectangle {
+                width: 16
+                height: 16
+                color: "#7e7e7e"
             }
-
             LinkedText {
                 id: text
 

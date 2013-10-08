@@ -111,7 +111,7 @@ void GitSubmitEditor::setCommitData(const CommitData &d)
     m_amendSHA1 = d.amendSHA1;
 
     GitSubmitEditorWidget *w = submitEditorWidget();
-    w->initialize(m_commitType, m_workingDirectory, d.panelData, d.panelInfo);
+    w->initialize(m_commitType, m_workingDirectory, d.panelData, d.panelInfo, d.enablePush);
     w->setHasUnmerged(false);
 
     setEmptyFileListEnabled(m_commitType == AmendCommit); // Allow for just correcting the message

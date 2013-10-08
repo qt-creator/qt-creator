@@ -26,7 +26,7 @@
 /*!
     \contentspage{index.html}{Qt Creator}
     \page index.html
-    \nextpage creator-getting-started.html
+    \nextpage creator-overview.html
 
     \title Qt Creator Manual
 
@@ -236,13 +236,14 @@
             \li \l{Deploying to Mobile Devices}
             \list
                 \li \l{Deploying Applications to Android Devices}
-                \li \l{Deploying BlackBerry 10 Devices}
+                \li \l{Deploying Applications to BlackBerry 10 Devices}
                 \li \l{Deploying Applications to Linux-Based Devices}
                 \li \l{Deploying Applications to QNX Devices}
             \endlist
             \li \l{Connecting Mobile Devices}
             \list
                 \li \l{Connecting Android Devices}
+                \li \l{Connecting Bare Metal Devices}
                 \li \l{Connecting BlackBerry 10 Devices}
                 \li \l{Connecting Embedded Linux Devices}
                 \li \l{Connecting iOS Devices}

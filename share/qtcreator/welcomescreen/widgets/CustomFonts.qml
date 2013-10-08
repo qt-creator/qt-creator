@@ -43,7 +43,7 @@ QtObject {
             id: smallPathText
 
             visible: false
-            font.pixelSize: 12
+            font.pixelSize: 13
             font.family: "Helvetica"
         },
 

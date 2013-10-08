@@ -566,11 +566,10 @@ Utils::ChangeSet FunctionDeclDefLink::changes(const Snapshot &snapshot, int targ
             newDeclText[i] = QLatin1Char('\n');
     }
     newDeclText.append(QLatin1String("{}"));
-    const QString newDeclTextPreprocessed =
-            QString::fromUtf8(typeOfExpression.preprocess(newDeclText.toUtf8()));
+    const QByteArray newDeclTextPreprocessed = typeOfExpression.preprocess(newDeclText.toUtf8());
 
     Document::Ptr newDeclDoc = Document::create(QLatin1String("<decl>"));
-    newDeclDoc->setUtf8Source(newDeclTextPreprocessed.toUtf8());
+    newDeclDoc->setUtf8Source(newDeclTextPreprocessed);
     newDeclDoc->parse(Document::ParseDeclaration);
     newDeclDoc->check();
 

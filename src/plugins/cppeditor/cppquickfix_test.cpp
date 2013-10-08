@@ -3047,6 +3047,33 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_CtorWithInitialization()
     data.run(&factory);
 }
 
+/// Check: Definition should not be placed behind the variable. QTCREATORBUG-10303
+void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_structWithAssignedVariable()
+{
+    QByteArray original =
+        "struct Foo\n"
+        "{\n"
+        "    void foo();\n"
+        "} bar;\n\n"
+        "void Foo::fo@o()\n"
+        "{\n"
+        "    return;\n"
+        "}";
+
+    QByteArray expected =
+        "struct Foo\n"
+        "{\n"
+        "    void foo()\n"
+        "    {\n"
+        "        return;\n"
+        "    }\n"
+        "} bar;\n\n\n";
+
+    MoveFuncDefToDecl factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
 /// Check: Add local variable for a free function.
 void CppEditorPlugin::test_quickfix_AssignToLocalVariable_freeFunction()
 {

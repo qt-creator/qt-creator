@@ -231,10 +231,6 @@ void WelcomeMode::initPlugins()
     QSettings *settings = Core::ICore::settings();
     setActivePlugin(settings->value(QLatin1String(currentPageSettingsKeyC)).toInt());
 
-    // TODO: re-enable reading from Settings when possible. See QTCREATORBUG-6803
-    if (activePlugin() > 1)
-        setActivePlugin(1);
-
     QQmlContext *ctx = m_welcomePage->rootContext();
     ctx->setContextProperty(QLatin1String("welcomeMode"), this);
 

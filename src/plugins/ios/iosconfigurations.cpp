@@ -103,14 +103,6 @@ void IosConfigurations::setConfig(const IosConfig &devConfigs)
     emit updated();
 }
 
-FileName IosConfigurations::iosToolPath() const
-{
-    FileName res = FileName::fromString(QCoreApplication::applicationDirPath()
-                                        + QLatin1String("/iosTool"));
-    return res;
-}
-
-
 bool equalKits(Kit *a, Kit *b)
 {
     return ToolChainKitInformation::toolChain(a) == ToolChainKitInformation::toolChain(b)

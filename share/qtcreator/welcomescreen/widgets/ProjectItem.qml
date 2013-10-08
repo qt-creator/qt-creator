@@ -31,7 +31,7 @@ import QtQuick 2.1
 
 Item {
     id: projectItem
-    width: 480
+    width: projectList.width
     height: 32
 
     Rectangle {
@@ -44,15 +44,17 @@ Item {
     property alias projectPath: pathText.text
 
     Image {
-        source: "images/bullet.png"
+        source: "images/project.png"
         anchors.verticalCenter: projectNameText.verticalCenter
+        width: 12
+        height: 12
     }
 
     LinkedText {
         id: projectNameText
         y: 2
         anchors.left: parent.left
-        anchors.leftMargin: 8
+        anchors.leftMargin: 7 + 12
         anchors.right: parent.right
         anchors.rightMargin: 4
         onClicked: projectWelcomePage.requestProject(filePath)
@@ -65,7 +67,7 @@ Item {
         anchors.right: parent.right
         anchors.rightMargin: 12
         anchors.left: parent.left
-        anchors.leftMargin: 8
+        anchors.leftMargin: 7 + 12
         font: fonts.smallPath
         elide: Text.ElideRight
         MouseArea {

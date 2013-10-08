@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "iosprobe.h"
+
 #include <QDebug>
 #include <QFileInfo>
 #include <QProcess>
@@ -55,7 +56,7 @@ QMap<QString, Platform> IosProbe::detectPlatforms(const QString &devPath)
     return probe.detectedPlatforms();
 }
 
-int IosProbe::compareVersions(const QString &v1, const QString &v2)
+static int compareVersions(const QString &v1, const QString &v2)
 {
     QStringList v1L = v1.split(QLatin1Char('.'));
     QStringList v2L = v2.split(QLatin1Char('.'));
@@ -65,7 +66,7 @@ int IosProbe::compareVersions(const QString &v1, const QString &v2)
         int n1 = v1L.value(i).toInt(&n1Ok);
         int n2 = v2L.value(i).toInt(&n2Ok);
         if (!(n1Ok && n2Ok)) {
-            qDebug() << QString::fromLatin1("Failed to compare version %1 and %2").arg(v1,v2);
+            qDebug() << QString::fromLatin1("Failed to compare version %1 and %2").arg(v1, v2);
             return 0;
         }
         if (n1 > n2)
@@ -81,19 +82,18 @@ int IosProbe::compareVersions(const QString &v1, const QString &v2)
     return 0;
 }
 
-bool IosProbe::addDeveloperPath(const QString &path)
+void IosProbe::addDeveloperPath(const QString &path)
 {
     if (path.isEmpty())
-        return false;
+        return;
     QFileInfo pInfo(path);
     if (!pInfo.exists() || !pInfo.isDir())
-        return false;
+        return;
     if (m_developerPaths.contains(path))
-        return false;
+        return;
     m_developerPaths.append(path);
     if (debugProbe)
         qDebug() << QString::fromLatin1("Added developer path %1").arg(path);
-    return true;
 }
 
 void IosProbe::detectDeveloperPaths()
@@ -142,10 +142,10 @@ void IosProbe::setArch(Platform *platform, const QString &pathToGcc, const QStri
     platform->architecture = architecture;
 }
 
-void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xCodeName)
+void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xcodeName)
 {
     if (debugProbe)
-        qDebug() << QString::fromLatin1("Setting up platform '%1'.").arg(xCodeName);
+        qDebug() << QString::fromLatin1("Setting up platform '%1'.").arg(xcodeName);
     QString indent = QLatin1String("  ");
 
     // detect clang (default toolchain)
@@ -153,12 +153,7 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xCo
                             + QLatin1String("/Toolchains/XcodeDefault.xctoolchain/usr/bin")
                             + QLatin1String("/clang++"));
     bool hasClang = clangFileInfo.exists();
-    QSettingsPtr toolchainInfo;
-    if (hasClang)
-        toolchainInfo = QSettingsPtr(new QSettings(
-                    devPath + QLatin1String("/Toolchains/XcodeDefault.xctoolchain/ToolchainInfo.plist")
-                    , QSettings::NativeFormat));
-    else
+    if (!hasClang)
         qDebug() << indent << QString::fromLatin1("Default toolchain %1 not found.")
                      .arg(clangFileInfo.canonicalFilePath());
     // Platforms
@@ -169,14 +164,13 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xCo
             if (debugProbe)
                 qDebug() << indent << QString::fromLatin1("Setting up %1").arg(fInfo.fileName());
             QSettingsPtr infoSettings(new QSettings(
-                                   fInfo.absoluteFilePath() + QLatin1String("/Info.plist")
-                                   , QSettings::NativeFormat));
+                                   fInfo.absoluteFilePath() + QLatin1String("/Info.plist"),
+                                   QSettings::NativeFormat));
             if (!infoSettings->contains(QLatin1String("Name"))) {
                 qDebug() << indent << QString::fromLatin1("Missing platform name in Info.plist of %1")
                              .arg(fInfo.absoluteFilePath());
                 continue;
             }
-            QString targetOS;
             QString name = infoSettings->value(QLatin1String("Name")).toString();
             if (name != QLatin1String("macosx") && name != QLatin1String("iphoneos")
                     && name != QLatin1String("iphonesimulator"))
@@ -197,11 +191,11 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xCo
                 defaultProp[i.key()] = i.value();
             }
 
-            QString clangFullName = name + QLatin1String("-clang") + xCodeName;
-            QString clang11FullName = name + QLatin1String("-clang11") + xCodeName;
+            QString clangFullName = name + QLatin1String("-clang") + xcodeName;
+            QString clang11FullName = name + QLatin1String("-clang11") + xcodeName;
             // detect gcc
             QFileInfo gccFileInfo(fInfo.absoluteFilePath() + QLatin1String("/Developer/usr/bin/g++"));
-            QString gccFullName = name + QLatin1String("-gcc") + xCodeName;
+            QString gccFullName = name + QLatin1String("-gcc") + xcodeName;
             if (!gccFileInfo.exists())
                 gccFileInfo = QFileInfo(devPath + QLatin1String("/usr/bin/g++"));
             bool hasGcc = gccFileInfo.exists();
@@ -228,12 +222,12 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xCo
                 setArch(&clangProfile, clangFileInfo.canonicalFilePath(), extraFlags);
                 if (debugProbe)
                     qDebug() << indent << QString::fromLatin1("* adding profile %1").arg(clangProfile.name);
-                this->m_platforms[clangProfile.name] = clangProfile;
+                m_platforms[clangProfile.name] = clangProfile;
                 clangProfile.platformKind |= Platform::Cxx11Support;
                 clangProfile.backendFlags.append(QLatin1String("-std=c++11"));
                 clangProfile.backendFlags.append(QLatin1String("-stdlib=libc++"));
                 clangProfile.name = clang11FullName;
-                this->m_platforms[clangProfile.name] = clangProfile;
+                m_platforms[clangProfile.name] = clangProfile;
             }
             if (hasGcc) {
                 Platform gccProfile;
@@ -246,7 +240,7 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xCo
                 setArch(&gccProfile, gccFileInfo.canonicalFilePath(), extraFlags);
                 if (debugProbe)
                     qDebug() << indent << QString::fromLatin1("* adding profile %1").arg(gccProfile.name);
-                this->m_platforms[gccProfile.name] = gccProfile;
+                m_platforms[gccProfile.name] = gccProfile;
             }
 
             // set SDKs/sysroot
@@ -263,8 +257,8 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xCo
                                                                          | QDir::NoDotAndDotDot)) {
                     indent = QLatin1String("    ");
                     QSettingsPtr sdkInfo(new QSettings(sdkDirInfo.absoluteFilePath()
-                                                       + QLatin1String("/SDKSettings.plist")
-                                                       , QSettings::NativeFormat));
+                                                       + QLatin1String("/SDKSettings.plist"),
+                                                       QSettings::NativeFormat));
                     QString versionStr = sdkInfo->value(QLatin1String("Version")).toString();
                     QVariant currentSdkName = sdkInfo->value(QLatin1String("CanonicalName"));
                     bool isBaseSdk = sdkInfo->value((QLatin1String("isBaseSDK"))).toString()
@@ -276,9 +270,9 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xCo
                         continue;
                     }
                     QString safeName = currentSdkName.toString().replace(QLatin1Char('-'), QLatin1Char('_'))
-                            .replace(QRegExp(QLatin1String("[^-a-zA-Z0-9]")),QLatin1String("-"));
+                            .replace(QRegExp(QLatin1String("[^-a-zA-Z0-9]")), QLatin1String("-"));
                     if (sdkName.isEmpty()) {
-                        if (compareVersions(maxVersion,versionStr) > 0) {
+                        if (compareVersions(maxVersion, versionStr) > 0) {
                             maxVersion = versionStr;
                             sdkPath = sdkDirInfo.canonicalFilePath();
                             sdkSettings = sdkInfo;
@@ -289,27 +283,27 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xCo
                     }
                     if (hasClang){
                         Platform pSdk;
-                        pSdk = this->m_platforms[clangFullName];
-                        pSdk.name = safeName + QLatin1String("-clang") + xCodeName;
+                        pSdk = m_platforms[clangFullName];
+                        pSdk.name = safeName + QLatin1String("-clang") + xcodeName;
                         pSdk.sdkPath = Utils::FileName(sdkDirInfo);
                         pSdk.sdkSettings = sdkInfo;
                         if (debugProbe)
                             qDebug() << indent << QString::fromLatin1("* adding profile %1").arg(pSdk.name);
-                        this->m_platforms[pSdk.name] = pSdk;
+                        m_platforms[pSdk.name] = pSdk;
                         pSdk.backendFlags.append(QLatin1String("-std=c++11"));
                         pSdk.backendFlags.append(QLatin1String("-stdlib=libc++"));
-                        pSdk.name = safeName + QLatin1String("-clang11") + xCodeName;
-                        this->m_platforms[pSdk.name] = pSdk;
+                        pSdk.name = safeName + QLatin1String("-clang11") + xcodeName;
+                        m_platforms[pSdk.name] = pSdk;
                     }
                     if (hasGcc) {
                         Platform pSdk;
-                        pSdk = this->m_platforms[gccFullName];
-                        pSdk.name = safeName + QLatin1String("-gcc") + xCodeName;
+                        pSdk = m_platforms[gccFullName];
+                        pSdk.name = safeName + QLatin1String("-gcc") + xcodeName;
                         pSdk.sdkPath = Utils::FileName(sdkDirInfo);
                         pSdk.sdkSettings = sdkInfo;
                         if (debugProbe)
                             qDebug() << indent << QString::fromLatin1("* adding profile %1").arg(pSdk.name);
-                        this->m_platforms[pSdk.name] = pSdk;
+                        m_platforms[pSdk.name] = pSdk;
                     }
                 }
                 if (!sdkPath.isEmpty())
@@ -317,20 +311,20 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xCo
                 else if (!sdkName.isEmpty())
                     qDebug() << indent << QString::fromLatin1("Failed to find sysroot %1").arg(sdkName);
             }
-            //this->m_platforms.remove(clangFullName);
+            //m_platforms.remove(clangFullName);
             if (hasClang && !sysRoot.isEmpty()) {
-                this->m_platforms[clangFullName].platformKind |= Platform::BasePlatform;
-                this->m_platforms[clangFullName].sdkPath = Utils::FileName::fromString(sysRoot);
-                this->m_platforms[clangFullName].sdkSettings = sdkSettings;
-                this->m_platforms[clang11FullName].platformKind |= Platform::BasePlatform;
-                this->m_platforms[clang11FullName].sdkPath = Utils::FileName::fromString(sysRoot);
-                this->m_platforms[clang11FullName].sdkSettings = sdkSettings;
+                m_platforms[clangFullName].platformKind |= Platform::BasePlatform;
+                m_platforms[clangFullName].sdkPath = Utils::FileName::fromString(sysRoot);
+                m_platforms[clangFullName].sdkSettings = sdkSettings;
+                m_platforms[clang11FullName].platformKind |= Platform::BasePlatform;
+                m_platforms[clang11FullName].sdkPath = Utils::FileName::fromString(sysRoot);
+                m_platforms[clang11FullName].sdkSettings = sdkSettings;
             }
-            //this->m_platforms.remove(gccFullName);
+            //m_platforms.remove(gccFullName);
             if (hasGcc && !sysRoot.isEmpty()) {
-                this->m_platforms[gccFullName].platformKind |= Platform::BasePlatform;
-                this->m_platforms[gccFullName].sdkPath = Utils::FileName::fromString(sysRoot);
-                this->m_platforms[gccFullName].sdkSettings = sdkSettings;
+                m_platforms[gccFullName].platformKind |= Platform::BasePlatform;
+                m_platforms[gccFullName].sdkPath = Utils::FileName::fromString(sysRoot);
+                m_platforms[gccFullName].sdkSettings = sdkSettings;
             }
         }
         indent = QLatin1String("  ");

@@ -41,10 +41,16 @@ fi
 
 macdeployqt "$1" \
         "-executable=$1/Contents/Resources/qtpromaker" \
-        "-executable=$1/Contents/Resources/sdktool" "$qmlpuppetArgument" "$qml2puppetArgument" || exit 1
+        "-executable=$1/Contents/Resources/sdktool" \
+        "-executable=$1/Contents/Resources/ios/iostool" \
+        "-executable=$1/Contents/Resources/ios/iossim" \
+        "$qmlpuppetArgument" "$qml2puppetArgument" || exit 1
 
 # copy qt creator qt.conf
 cp -f "$(dirname "${BASH_SOURCE[0]}")/../dist/installer/mac/qt.conf" "$1/Contents/Resources/qt.conf" || exit 1
+
+# copy ios tools' qt.conf
+cp -f "$(dirname "${BASH_SOURCE[0]}")/../dist/installer/mac/ios_qt.conf" "$1/Contents/Resources/ios/qt.conf" || exit 1
 
 # copy Qt translations
 cp "$2"/*.qm "$1/Contents/Resources/translations/" || exit 1

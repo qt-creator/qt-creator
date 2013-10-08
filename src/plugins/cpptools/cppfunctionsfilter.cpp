@@ -35,7 +35,7 @@ CppFunctionsFilter::CppFunctionsFilter(CppLocatorData *locatorData)
     : CppLocatorFilter(locatorData)
 {
     setId("Methods");
-    setDisplayName(tr("C++ Methods and Functions"));
+    setDisplayName(tr("C++ Functions"));
     setShortcutString(QString(QLatin1Char('m')));
     setIncludedByDefault(false);
 }

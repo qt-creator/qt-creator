@@ -392,6 +392,17 @@ QString ICore::documentationPath()
     return QDir::cleanPath(QCoreApplication::applicationDirPath() + docPath);
 }
 
+/*!
+    Returns the path to the command line tools that are shipped with \QC (corresponding
+    to the IDE_LIBEXEC_PATH qmake variable).
+ */
+QString ICore::libexecPath()
+{
+    const QString libexecPath = QLatin1String(Utils::HostOsInfo::isMacHost()
+                                            ? "/../Resources" : "");
+    return QDir::cleanPath(QCoreApplication::applicationDirPath() + libexecPath);
+}
+
 static QString compilerString()
 {
 #if defined(Q_CC_CLANG) // must be before GNU, because clang claims to be GNU too

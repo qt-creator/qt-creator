@@ -51,7 +51,7 @@ public:
     int columnCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
 
-    void removeEntries(const QModelIndexList &list);
+    void removeEntries(QModelIndexList list);
     void addEntries(const QStringList &list);
 
 private slots:

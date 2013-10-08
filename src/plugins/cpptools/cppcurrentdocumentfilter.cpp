@@ -40,7 +40,7 @@ CppCurrentDocumentFilter::CppCurrentDocumentFilter(CppModelManager *manager)
     : m_modelManager(manager)
 {
     setId("Methods in current Document");
-    setDisplayName(tr("C++ Methods in Current Document"));
+    setDisplayName(tr("C++ Symbols in Current Document"));
     setShortcutString(QString(QLatin1Char('.')));
     setIncludedByDefault(false);
 

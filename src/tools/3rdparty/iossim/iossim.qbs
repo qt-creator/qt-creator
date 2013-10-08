@@ -24,4 +24,6 @@ QtcTool {
                                   "-fobjc-link-runtime"])
     cpp.frameworks: base.concat(["Foundation", "CoreServices", "ApplicationServices", "IOKit"])
     cpp.frameworkPaths: base.concat("/System/Library/PrivateFrameworks")
+
+    toolInstallDir: project.ide_libexec_path + "/ios"
 }

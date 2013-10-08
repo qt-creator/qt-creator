@@ -35,25 +35,11 @@ Rectangle {
     width: 1024
     height: Math.min(3024, parent.height - y)
 
-    PageCaption {
-        id: pageCaption
-
-        x: 32
-        y: 8
-
-        anchors.rightMargin: 16
-        anchors.right: parent.right
-        anchors.leftMargin: 16
-        anchors.left: parent.left
-
-        caption: qsTr("Examples")
-    }
-
     CustomizedGridView {
         anchors.rightMargin: 38
         anchors.bottomMargin: 60
         anchors.leftMargin: 38
-        anchors.topMargin: 102
+        anchors.topMargin: 82
         anchors.fill: parent
 
         model: examplesModel
@@ -62,7 +48,7 @@ Rectangle {
     SearchBar {
         id: searchBar
 
-        y: 60
+        y: 52
 
         anchors.right: comboBox.left
         anchors.rightMargin: 20

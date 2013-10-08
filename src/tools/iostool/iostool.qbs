@@ -18,4 +18,6 @@ QtcTool {
     cpp.frameworks: base.concat(["CoreFoundation", "CoreServices", "IOKit", "Security",
                                  "SystemConfiguration"])
     cpp.libraries: base.concat(["ssl", "bz2"])
+
+    toolInstallDir: project.ide_libexec_path + "/ios"
 }

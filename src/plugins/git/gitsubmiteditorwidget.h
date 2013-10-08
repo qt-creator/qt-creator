@@ -72,7 +72,8 @@ public:
     void initialize(CommitType commitType,
                     const QString &repository,
                     const GitSubmitEditorPanelData &data,
-                    const GitSubmitEditorPanelInfo &info);
+                    const GitSubmitEditorPanelInfo &info,
+                    bool enablePush);
     void refreshLog(const QString &repository);
 
 protected:

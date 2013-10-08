@@ -56,10 +56,11 @@ else:win32: PLATFORM = "windows"
 else:linux-*: PLATFORM = "linux-$${ARCHITECTURE}"
 else: PLATFORM = "unknown"
 
-PATTERN = $${PLATFORM}$(INSTALL_EDITION)-$${QTCREATOR_VERSION}$(INSTALL_POSTFIX)
+BASENAME = $$(INSTALL_BASENAME)
+isEmpty(BASENAME): BASENAME = qt-creator-$${PLATFORM}$(INSTALL_EDITION)-$${QTCREATOR_VERSION}$(INSTALL_POSTFIX)
 
 macx:INSTALLER_NAME = "qt-creator-$${QTCREATOR_VERSION}"
-else:INSTALLER_NAME = "qt-creator-$${PATTERN}"
+else:INSTALLER_NAME = "$${BASENAME}"
 
 macx {
     APPBUNDLE = "$$OUT_PWD/bin/Qt Creator.app"
@@ -67,7 +68,7 @@ macx {
     BINDIST_INSTALLER_SOURCE = $$BINDIST_SOURCE
     deployqt.commands = $$PWD/scripts/deployqtHelper_mac.sh \"$${APPBUNDLE}\" \"$$[QT_INSTALL_TRANSLATIONS]\" \"$$[QT_INSTALL_PLUGINS]\" \"$$[QT_INSTALL_IMPORTS]\" \"$$[QT_INSTALL_QML]\"
     codesign.commands = codesign -s \"$(SIGNING_IDENTITY)\" $(SIGNING_FLAGS) \"$${APPBUNDLE}\"
-    dmg.commands = $$PWD/scripts/makedmg.sh $$OUT_PWD/bin qt-creator-$${PATTERN}.dmg
+    dmg.commands = $$PWD/scripts/makedmg.sh $$OUT_PWD/bin $${BASENAME}.dmg
     dmg.depends = deployqt
     QMAKE_EXTRA_TARGETS += codesign dmg
 } else {
@@ -84,13 +85,13 @@ macx {
 
 INSTALLER_ARCHIVE_FROM_ENV = $$(INSTALLER_ARCHIVE)
 isEmpty(INSTALLER_ARCHIVE_FROM_ENV) {
-    INSTALLER_ARCHIVE = $$OUT_PWD/qt-creator-$${PATTERN}-installer-archive.7z
+    INSTALLER_ARCHIVE = $$OUT_PWD/$${BASENAME}-installer-archive.7z
 } else {
     INSTALLER_ARCHIVE = $$OUT_PWD/$$(INSTALLER_ARCHIVE)
 }
 
 bindist.depends = deployqt
-bindist.commands = 7z a -mx9 $$OUT_PWD/qt-creator-$${PATTERN}.7z \"$$BINDIST_SOURCE\"
+bindist.commands = 7z a -mx9 $$OUT_PWD/$${BASENAME}.7z \"$$BINDIST_SOURCE\"
 bindist_installer.depends = deployqt
 bindist_installer.commands = 7z a -mx9 $${INSTALLER_ARCHIVE} \"$$BINDIST_INSTALLER_SOURCE\"
 installer.depends = bindist_installer
@@ -103,7 +104,7 @@ macx {
     copy_menu_nib_installer.commands = cp -R \"$$MENU_NIB\" \"$${INSTALLER_NAME}.app/Contents/Resources\"
 
     codesign_installer.commands = codesign -s \"$(SIGNING_IDENTITY)\" $(SIGNING_FLAGS) \"$${INSTALLER_NAME}.app\"
-    dmg_installer.commands = hdiutil create -srcfolder "$${INSTALLER_NAME}.app" -volname \"Qt Creator\" -format UDBZ "qt-creator-$${PATTERN}-installer.dmg" -ov -scrub -stretch 2g
+    dmg_installer.commands = hdiutil create -srcfolder "$${INSTALLER_NAME}.app" -volname \"Qt Creator\" -format UDBZ "$${BASENAME}-installer.dmg" -ov -scrub -stretch 2g
     QMAKE_EXTRA_TARGETS += codesign_installer dmg_installer copy_menu_nib_installer
 }
 

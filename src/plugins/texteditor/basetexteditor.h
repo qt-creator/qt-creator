@@ -377,7 +377,6 @@ private slots:
     bool inFindScope(const QTextCursor &cursor);
     bool inFindScope(int selectionStart, int selectionEnd);
     void inSnippetMode(bool *active);
-    void onCodeStylePreferencesDestroyed();
 
 private:
     Internal::BaseTextEditorWidgetPrivate *d;

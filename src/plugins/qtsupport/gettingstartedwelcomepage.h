@@ -43,24 +43,6 @@ namespace QtSupport {
 namespace Internal {
 
 class ExamplesListModel;
-class GettingStartedWelcomePageWidget;
-
-class GettingStartedWelcomePage : public Utils::IWelcomePage
-{
-    Q_OBJECT
-
-public:
-    GettingStartedWelcomePage();
-    QUrl pageLocation() const;
-    QString title() const;
-    int priority() const;
-    void facilitateQml(QQmlEngine *);
-    Id id() const;
-
-private:
-    QQmlEngine *m_engine;
-};
-
 
 class ExamplesWelcomePage : public Utils::IWelcomePage
 {

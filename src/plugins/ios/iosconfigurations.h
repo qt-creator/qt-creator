@@ -64,7 +64,6 @@ public:
     static IosConfigurations &instance();
     IosConfig config() const { return m_config; }
     void setConfig(const IosConfig &config);
-    Utils::FileName iosToolPath() const;
 
     QStringList sdkTargets();
     void updateSimulators();

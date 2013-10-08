@@ -87,8 +87,6 @@ public:
     void dump() const;
 
 private:
-    static unsigned hashCode(const QByteArray &s);
-    static unsigned hashCode(const ByteArrayRef &s);
     void rehash();
 
 public:

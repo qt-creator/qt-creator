@@ -3045,7 +3045,13 @@ bool GitClient::getCommitData(const QString &workingDirectory,
         break;
     }
 
-    commitData.panelData.hasRemotes = !synchronousRemotesList(repoDirectory).isEmpty();
+    commitData.enablePush = !synchronousRemotesList(repoDirectory).isEmpty();
+    if (commitData.enablePush) {
+        CommandInProgress commandInProgress = checkCommandInProgress(repoDirectory);
+        if (commandInProgress == Rebase || commandInProgress == RebaseMerge)
+            commitData.enablePush = false;
+    }
+
     return true;
 }
 

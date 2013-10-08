@@ -9,9 +9,11 @@ Application {
             return ["-Wl,-s"]
     }
 
+    property string toolInstallDir: project.ide_libexec_path
+
     Group {
         fileTagsFilter: product.type
         qbs.install: true
-        qbs.installDir: project.ide_libexec_path
+        qbs.installDir: toolInstallDir
     }
 }
