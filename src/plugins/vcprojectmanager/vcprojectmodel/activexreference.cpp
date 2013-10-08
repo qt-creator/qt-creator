@@ -49,11 +49,11 @@ ActiveXReference::ActiveXReference(const ActiveXReference &ref)
     *m_configurations = *ref.m_configurations;
 }
 
-IReference &ActiveXReference::operator =(const IReference &ref)
+ActiveXReference& ActiveXReference::operator=(const ActiveXReference &ref)
 {
     if (this != &ref) {
-        *m_attributeContainer = *ref.attributeContainer();
-        *m_configurations = *ref.configurations();
+        *m_attributeContainer = *ref.m_attributeContainer;
+        *m_configurations = *ref.m_configurations;
     }
 
     return *this;
@@ -124,7 +124,7 @@ IAttributeContainer *ActiveXReference::attributeContainer() const
     return m_attributeContainer;
 }
 
-ConfigurationContainer *ActiveXReference::configurations() const
+ConfigurationContainer *ActiveXReference::configurationContainer() const
 {
     return m_configurations;
 }

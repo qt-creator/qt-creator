@@ -33,6 +33,7 @@
 #include "ivcprojectnodemodel.h"
 #include "vcprojectdocument_constants.h"
 #include "configuration.h"
+#include "../interfaces/ireference.h"
 
 namespace VcProjectManager {
 namespace Internal {
@@ -46,7 +47,7 @@ public:
 
     ActiveXReference();
     ActiveXReference(const ActiveXReference &ref);
-    IReference &operator =(const IReference &ref);
+    ActiveXReference &operator=(const ActiveXReference &ref);
 
     virtual ~ActiveXReference();
     void processNode(const QDomNode &node);
@@ -55,7 +56,7 @@ public:
 
     // IReference interface
     IAttributeContainer *attributeContainer() const;
-    ConfigurationContainer *configurations() const;
+    ConfigurationContainer *configurationContainer() const;
     QString type() const;
 
     /*!
@@ -75,7 +76,7 @@ protected:
      */
     virtual IConfiguration* createReferenceConfiguration() const = 0;
 
-    IAttributeContainer *m_attributeContainer;
+    GeneralAttributeContainer *m_attributeContainer;
     ConfigurationContainer *m_configurations;
 };
 
