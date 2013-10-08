@@ -907,6 +907,24 @@ AndroidConfigurations::AndroidConfigurations(QObject *parent)
             this, SLOT(clearDefaultDevices(ProjectExplorer::Project*)));
 }
 
+Utils::FileName javaHomeForJavac(const QString &location)
+{
+    QFileInfo fileInfo(location);
+    int tries = 5;
+    while (tries > 0) {
+        QDir dir = fileInfo.dir();
+        dir.cdUp();
+        if (QFileInfo(dir.filePath(QLatin1String("lib/tools.jar"))).exists())
+            return Utils::FileName::fromString(dir.path());
+        if (fileInfo.isSymLink())
+            fileInfo.setFile(fileInfo.symLinkTarget());
+        else
+            break;
+        --tries;
+    }
+    return Utils::FileName();
+}
+
 void AndroidConfigurations::load()
 {
     bool saveSettings = false;
@@ -925,14 +943,18 @@ void AndroidConfigurations::load()
     }
 
     if (m_config.openJDKLocation.isEmpty()) {
-        Environment env = Environment::systemEnvironment();
-        QString location = env.searchInPath(QLatin1String("javac"));
-        QFileInfo fi(location);
-        if (fi.exists() && fi.isExecutable() && !fi.isDir()) {
-            QDir parentDirectory = fi.canonicalPath();
-            parentDirectory.cdUp(); // one up from bin
-            m_config.openJDKLocation = FileName::fromString(parentDirectory.absolutePath());
-            saveSettings = true;
+        if (HostOsInfo::isLinuxHost()) {
+            Environment env = Environment::systemEnvironment();
+            QString location = env.searchInPath(QLatin1String("javac"));
+            QFileInfo fi(location);
+            if (fi.exists() && fi.isExecutable() && !fi.isDir()) {
+                m_config.openJDKLocation = javaHomeForJavac(location);
+                saveSettings = true;
+            }
+        } else if (HostOsInfo::isMacHost()) {
+            QString javaHome = QLatin1String("/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Home");
+            if (QFileInfo(javaHome).exists())
+                m_config.openJDKLocation = Utils::FileName::fromString(javaHome);
         } else if (HostOsInfo::isWindowsHost()) {
             QSettings settings(QLatin1String("HKEY_LOCAL_MACHINE\\SOFTWARE\\Javasoft\\Java Development Kit"), QSettings::NativeFormat);
             QStringList allVersions = settings.childGroups();
