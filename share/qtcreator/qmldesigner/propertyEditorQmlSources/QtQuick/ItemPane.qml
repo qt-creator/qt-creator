@@ -43,14 +43,14 @@ Rectangle {
         Column {
             width: itemPane.width
             Section {
-                caption: "Type"
+                caption: qsTr("Type")
 
                 anchors.left: parent.left
                 anchors.right: parent.right
 
                 SectionLayout {
                     Label {
-                        text: "Type"
+                        text: qsTr("Type")
 
                     }
 
@@ -60,7 +60,7 @@ Rectangle {
                     }
 
                     Label {
-                        text: "id"
+                        text: qsTr("id")
 
                     }
 
@@ -69,7 +69,7 @@ Rectangle {
                             id: lineEdit
                             enabled: isBaseState
                             backendValue: backendValues.id
-                            placeholderText: "id"
+                            placeholderText: qsTr("id")
                             text: backendValues.id.value
                             Layout.fillWidth: true
                             Layout.maximumWidth: 320
@@ -93,18 +93,18 @@ Rectangle {
                 anchors.left: parent.left
                 anchors.right: parent.right
 
-                caption: "Visibilty"
+                caption: qsTr("Visibilty")
 
                 SectionLayout {
                     rows: 2
                     Label {
-                        text: "Visibilty"
+                        text: qsTr("Visibilty")
                     }
 
                     SecondColumnLayout {
 
                         CheckBox {
-                            text: "Is Visible"
+                            text: qsTr("Is Visible")
                             backendValue: backendValues.visible
                         }
 
@@ -115,7 +115,7 @@ Rectangle {
                         }
 
                         CheckBox {
-                            text: "Clip"
+                            text: qsTr("Clip")
                             backendValue: backendValues.clip
                         }
                         Item {
@@ -124,7 +124,7 @@ Rectangle {
                     }
 
                     Label {
-                        text: "Opacity"
+                        text: qsTr("Opacity")
                     }
 
                     SecondColumnLayout {
@@ -171,7 +171,7 @@ Rectangle {
                 }
 
                 Tab {
-                    title: "Layout"
+                    title: qsTr("Layout")
                     component: Column {
                         anchors.left: parent.left
                         anchors.right: parent.right
@@ -183,7 +183,7 @@ Rectangle {
 
                 Tab {
                     anchors.fill: parent
-                    title: "Advanced"
+                    title: qsTr("Advanced")
                     component: Column {
                         anchors.left: parent.left
                         anchors.right: parent.right

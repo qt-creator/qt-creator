@@ -34,13 +34,13 @@ import QtQuick.Layouts 1.0
 Section {
     anchors.left: parent.left
     anchors.right: parent.right
-    caption: "Advanced"
+    caption: qsTr("Advanced")
 
     SectionLayout {
         rows: 3
 
         Label {
-            text: "Scale"
+            text: qsTr("Scale")
         }
 
         SecondColumnLayout {
@@ -57,7 +57,7 @@ Section {
             }
         }
         Label {
-            text: "Rotation"
+            text: qsTr("Rotation")
         }
         SecondColumnLayout {
             SpinBox {

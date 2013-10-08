@@ -45,12 +45,12 @@ import QtQuick.Layouts 1.0
 Section {
     anchors.left: parent.left
     anchors.right: parent.right
-    caption: "Layout"
+    caption: qsTr("Layout")
 
     ColumnLayout {
         width: parent.width
         Label {
-            text: "Anchors"
+            text: qsTr("Anchors")
         }
 
         AnchorButtons {
@@ -74,7 +74,7 @@ Section {
 
 
                 Text {
-                    text: "Target"
+                    text: qsTr("Target")
                 }
 
                 ComboBox {
@@ -128,7 +128,7 @@ Section {
 
 
                 Text {
-                    text: "Target"
+                    text: qsTr("Target")
                 }
 
                 ComboBox {
@@ -137,7 +137,7 @@ Section {
 
 
                 Text {
-                    text: "Margin"
+                    text: qsTr("Margin")
                 }
 
                 RowLayout {
@@ -182,7 +182,7 @@ Section {
 
 
                 Text {
-                    text: "Target"
+                    text: qsTr("Target")
                 }
 
                 ComboBox {
@@ -191,7 +191,7 @@ Section {
 
 
                 Text {
-                    text: "Margin"
+                    text: qsTr("Margin")
                 }
 
                 RowLayout {
@@ -236,7 +236,7 @@ Section {
 
 
                 Text {
-                    text: "Target"
+                    text: qsTr("Target")
                 }
 
                 ComboBox {
@@ -245,7 +245,7 @@ Section {
 
 
                 Text {
-                    text: "Margin"
+                    text: qsTr("Margin")
                 }
 
                 RowLayout {

@@ -43,7 +43,7 @@ import HelperWidgets 2.0
 import QtQuick.Layouts 1.0
 
 Section {
-    caption: "Geometry"
+    caption: qsTr("Geometry")
 
     SectionLayout {
         columnSpacing: 6
@@ -51,7 +51,7 @@ Section {
         rows: 2
 
         Label {
-            text: "Position"
+            text: qsTr("Position")
         }
 
         SecondColumnLayout {
@@ -81,7 +81,7 @@ Section {
             ExpandingSpacer{}
         }
         Label {
-            text: "Size"
+            text: qsTr("Size")
         }
 
         SecondColumnLayout {
