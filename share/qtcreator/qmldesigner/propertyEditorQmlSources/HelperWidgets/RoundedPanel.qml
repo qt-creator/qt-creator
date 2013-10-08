@@ -39,66 +39,59 @@
 ****************************************************************************/
 
 import QtQuick 2.1
-import HelperWidgets 2.0
+import QtQuick.Controls 1.0 as Controls
+import QtQuick.Layouts 1.0
 
-ButtonRowButton {
-    id: boolButtonRowButton
+Rectangle {
 
-    property variant backendValue
-
-    property bool isHighlighted: false
-
-    property string standardIconSource
-    property string highlightedIconSource
-
-    leftPadding: 18
-
-    iconSource: isHighlighted ? highlightedIconSource : standardIconSource
-
-    QtObject {
-        id: innerObject
-        function evaluate() {
-            if (innerObject.baseStateFlag) {
-                if (boolButtonRowButton.backendValue !== null
-                        && innerObject.isInModel) {
-                    isHighlighted = true
-                } else {
-                    isHighlighted = false
-                }
-            } else {
-                if (boolButtonRowButton.backendValue !== null
-                        && innerObject.isInSubState) {
-                    isHighlighted = true
-                } else {
-                    isHighlighted = false
-                }
-            }
-        }
-
-        property bool baseStateFlag: isBaseState
-        onBaseStateFlagChanged: evaluate()
-
-        property bool isInModel: boolButtonRowButton.backendValue.isInModel
-        onIsInModelChanged: evaluate()
+    property bool roundLeft: false
+    property bool roundRight: false
 
 
-        property bool isInSubState: boolButtonRowButton.backendValue.isInSubState
-        onIsInSubStateChanged: evaluate()
-
-        property variant theValue: boolButtonRowButton.backendValue.value
-        onTheValueChanged: {
-            evaluate()
-            boolButtonRowButton.checked = innerObject.theValue
-        }
+    radius: roundLeft || roundRight ? 4 : 0
+    gradient: Gradient {
+        GradientStop {color: '#555' ; position: 0}
+        GradientStop {color: '#444' ; position: 1}
     }
 
-    onCheckedChanged: {
-        boolButtonRowButton.backendValue.value = checked
+    border.width: roundLeft || roundRight ? 1 : 0
+    border.color: roundLeft ? "#7f7f7f" : "#2e2e2e"
+
+    Rectangle {
+        gradient: parent.gradient
+        anchors.fill: parent
+        visible: roundLeft
+        anchors.leftMargin: 10
+        anchors.topMargin: 1
+        anchors.bottomMargin: 1
     }
 
-    ExtendedFunctionButton {
-        backendValue: boolButtonRowButton.backendValue
-        x: 0
-        y: 4
+    Rectangle {
+        gradient: parent.gradient
+        anchors.fill: parent
+        visible: roundRight
+        anchors.rightMargin: 10
+        anchors.topMargin: 1
+        anchors.bottomMargin: 1
+    }
+
+    Rectangle {
+        color: "#7f7f7f"
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: 1
+        anchors.leftMargin: roundLeft ? 3 : 0
+        anchors.rightMargin: roundRight ? 3 : 0
+    }
+
+    Rectangle {
+        color: "#2e2e2e"
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: 1
+        anchors.leftMargin: roundLeft ? 2 : 0
+        anchors.rightMargin: roundRight ? 2 : 0
     }
 }

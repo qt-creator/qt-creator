@@ -35,12 +35,14 @@ Item {
     id: buttonRowButton
     property bool checked: false
 
+    property bool roundLeftButton: true
+
     property alias iconSource: image.source
 
     signal clicked()
 
-    width: 20 + leftPadding
-    height: 20
+    width: 24 + leftPadding
+    height: 24
 
     property int leftPadding: 0
 
@@ -52,9 +54,33 @@ Item {
         return -1;
     }
 
-    Rectangle {
-        color: checked ? "black" : "gray"
+    function isFirst() {
+        return index() === 0;
+    }
+
+    function isLast() {
+        return index() === (parent.children.length - 1);
+    }
+
+    RoundedPanel {
+        roundLeft: isFirst() && roundLeftButton
+        roundRight: isLast()
+
         anchors.fill: parent
+        visible: checked
+
+        gradient: Gradient {
+            GradientStop {color: '#444' ; position: 0}
+            GradientStop {color: '#333' ; position: 1}
+        }
+    }
+
+    RoundedPanel {
+        roundLeft: isFirst()
+        roundRight: isLast()
+
+        anchors.fill: parent
+        visible: !checked
     }
 
     Image {
