@@ -69,6 +69,7 @@ signals:
     void connectionOutput(Core::Id deviceId, const QString &output);
     void deviceAboutToConnect(Core::Id deviceId);
     void deviceConnected();
+    void deviceDisconnected(Core::Id deviceId);
 
 public slots:
     void connectDevice(Core::Id deviceId);

@@ -32,6 +32,7 @@
 #include "blackberryapplicationrunner.h"
 
 #include "blackberrydeployconfiguration.h"
+#include "blackberrydeviceconnectionmanager.h"
 #include "blackberryrunconfiguration.h"
 #include "blackberrylogprocessrunner.h"
 #include "qnxconstants.h"
@@ -94,28 +95,17 @@ BlackBerryApplicationRunner::BlackBerryApplicationRunner(bool debugMode, BlackBe
 
 void BlackBerryApplicationRunner::start()
 {
-    QStringList args;
-    args << QLatin1String("-launchApp");
-    if (m_debugMode)
-        args << QLatin1String("-debugNative");
-    args << QLatin1String("-device") << m_sshParams.host;
-    if (!m_sshParams.password.isEmpty())
-        args << QLatin1String("-password") << m_sshParams.password;
-    args << QDir::toNativeSeparators(m_barPackage);
-
-    if (!m_launchProcess) {
-        m_launchProcess = new QProcess(this);
-        connect(m_launchProcess, SIGNAL(readyReadStandardError()), this, SLOT(readStandardError()));
-        connect(m_launchProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(readStandardOutput()));
-        connect(m_launchProcess, SIGNAL(finished(int,QProcess::ExitStatus)),
-                this, SLOT(startFinished(int,QProcess::ExitStatus)));
-
-        m_launchProcess->setEnvironment(m_environment.toStringList());
+    if (!BlackBerryDeviceConnectionManager::instance()->isConnected(m_device->id())) {
+        connect(BlackBerryDeviceConnectionManager::instance(), SIGNAL(deviceConnected()),
+                this, SLOT(launchApplication()));
+        connect(BlackBerryDeviceConnectionManager::instance(), SIGNAL(deviceDisconnected(Core::Id)),
+                this, SLOT(disconnectFromDeviceSignals(Core::Id)));
+        connect(BlackBerryDeviceConnectionManager::instance(), SIGNAL(connectionOutput(Core::Id,QString)),
+                this, SLOT(displayConnectionOutput(Core::Id,QString)));
+        BlackBerryDeviceConnectionManager::instance()->connectDevice(m_device->id());
+    } else {
+        launchApplication();
     }
-
-    m_launchProcess->start(m_deployCmd, args);
-    m_runningStateTimer->start();
-    m_running = true;
 }
 
 void BlackBerryApplicationRunner::startLogProcessRunner()
@@ -128,6 +118,17 @@ void BlackBerryApplicationRunner::startLogProcessRunner()
     }
 
     m_logProcessRunner->start();
+}
+
+void BlackBerryApplicationRunner::displayConnectionOutput(Core::Id deviceId, const QString &msg)
+{
+    if (deviceId != m_device->id())
+        return;
+
+    if (msg.contains(QLatin1String("Info:")))
+        emit output(msg, Utils::StdOutFormat);
+    else if (msg.contains(QLatin1String("Error:")))
+        emit output(msg, Utils::StdErrFormat);
 }
 
 void BlackBerryApplicationRunner::startFinished(int exitCode, QProcess::ExitStatus exitStatus)
@@ -214,6 +215,18 @@ void BlackBerryApplicationRunner::readStandardError()
     }
 }
 
+void BlackBerryApplicationRunner::disconnectFromDeviceSignals(Core::Id deviceId)
+{
+    if (m_device->id() == deviceId) {
+        disconnect(BlackBerryDeviceConnectionManager::instance(), SIGNAL(deviceConnected()),
+                   this, SLOT(launchApplication()));
+        disconnect(BlackBerryDeviceConnectionManager::instance(), SIGNAL(deviceDisconnected(Core::Id)),
+                   this, SLOT(disconnectFromDeviceSignals(Core::Id)));
+        disconnect(BlackBerryDeviceConnectionManager::instance(), SIGNAL(connectionOutput(Core::Id,QString)),
+                   this, SLOT(displayConnectionOutput(Core::Id,QString)));
+    }
+}
+
 void BlackBerryApplicationRunner::setPid(qint64 pid)
 {
     m_pid = pid;
@@ -222,6 +235,37 @@ void BlackBerryApplicationRunner::setPid(qint64 pid)
 void BlackBerryApplicationRunner::setApplicationId(const QString &applicationId)
 {
     m_appId = applicationId;
+}
+
+void BlackBerryApplicationRunner::launchApplication()
+{
+    // If original device connection fails before launching, this method maybe triggered
+    // if any other device is connected(?)
+    if (!BlackBerryDeviceConnectionManager::instance()->isConnected(m_device->id()))
+        return;
+
+    QStringList args;
+    args << QLatin1String("-launchApp");
+    if (m_debugMode)
+        args << QLatin1String("-debugNative");
+    args << QLatin1String("-device") << m_sshParams.host;
+    if (!m_sshParams.password.isEmpty())
+        args << QLatin1String("-password") << m_sshParams.password;
+    args << QDir::toNativeSeparators(m_barPackage);
+
+    if (!m_launchProcess) {
+        m_launchProcess = new QProcess(this);
+        connect(m_launchProcess, SIGNAL(readyReadStandardError()), this, SLOT(readStandardError()));
+        connect(m_launchProcess, SIGNAL(readyReadStandardOutput()), this, SLOT(readStandardOutput()));
+        connect(m_launchProcess, SIGNAL(finished(int,QProcess::ExitStatus)),
+                this, SLOT(startFinished(int,QProcess::ExitStatus)));
+
+        m_launchProcess->setEnvironment(m_environment.toStringList());
+    }
+
+    m_launchProcess->start(m_deployCmd, args);
+    m_runningStateTimer->start();
+    m_running = true;
 }
 
 void BlackBerryApplicationRunner::startRunningStateTimer()

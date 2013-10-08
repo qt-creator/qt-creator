@@ -51,8 +51,8 @@ BlackBerryDebugSupport::BlackBerryDebugSupport(BlackBerryRunConfiguration *runCo
             this, SLOT(handleDebuggerStateChanged(Debugger::DebuggerState)));
 
     connect(m_runner, SIGNAL(started()), this, SLOT(handleStarted()));
-    connect(m_runner, SIGNAL(started()), m_runner, SLOT(checkSlog2Info()));
     connect(m_runner, SIGNAL(startFailed(QString)), this, SLOT(handleStartFailed(QString)));
+    connect(m_runner, SIGNAL(started()), m_runner, SLOT(checkSlog2Info()));
     connect(m_runner, SIGNAL(output(QString,Utils::OutputFormat)),
             this, SLOT(handleApplicationOutput(QString,Utils::OutputFormat)));
 
