@@ -1195,6 +1195,8 @@ QString AndroidManager::libraryPrefix()
 void AndroidManager::cleanLibsOnDevice(ProjectExplorer::Target *target)
 {
     const QString targetArch = AndroidManager::targetArch(target);
+    if (targetArch.isEmpty())
+        return;
     int deviceAPILevel = AndroidManager::minimumSDK(target);
     AndroidDeviceInfo info = AndroidConfigurations::instance().showDeviceDialog(target->project(), deviceAPILevel, targetArch);
     if (info.serialNumber.isEmpty()) // aborted
@@ -1223,6 +1225,8 @@ void AndroidManager::cleanLibsOnDevice(ProjectExplorer::Target *target)
 void AndroidManager::installQASIPackage(ProjectExplorer::Target *target, const QString &packagePath)
 {
     const QString targetArch = AndroidManager::targetArch(target);
+    if (targetArch.isEmpty())
+        return;
     int deviceAPILevel = AndroidManager::minimumSDK(target);
     AndroidDeviceInfo info = AndroidConfigurations::instance().showDeviceDialog(target->project(), deviceAPILevel, targetArch);
     if (info.serialNumber.isEmpty()) // aborted

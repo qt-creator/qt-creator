@@ -167,6 +167,10 @@ bool AndroidDeployQtStep::init()
         emit addOutput(tr("Found old android folder in source directory. Qt 5.2 does not use that folder by default."), ErrorOutput);
 
     m_targetArch = AndroidManager::targetArch(target());
+    if (m_targetArch.isEmpty()) {
+        emit addOutput(tr("No Android arch set by the .pro file."), ErrorOutput);
+        return false;
+    }
     m_deviceAPILevel = AndroidManager::minimumSDK(target());
     AndroidDeviceInfo info = AndroidConfigurations::instance().showDeviceDialog(project(), m_deviceAPILevel, m_targetArch);
     if (info.serialNumber.isEmpty()) // aborted
