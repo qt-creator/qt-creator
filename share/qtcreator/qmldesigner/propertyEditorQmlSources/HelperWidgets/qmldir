@@ -29,3 +29,4 @@ AligmentHorizontalButtons 2.0 AligmentHorizontalButtons.qml
 AligmentVerticalButtons 2.0 AligmentVerticalButtons.qml
 StandardTextSection 2.0 StandardTextSection.qml
 FontSection 2.0 FontSection.qml
+FlickableSection 2.0 FlickableSection.qml
