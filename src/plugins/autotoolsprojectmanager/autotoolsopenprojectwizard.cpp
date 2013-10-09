@@ -57,12 +57,6 @@ AutotoolsOpenProjectWizard::AutotoolsOpenProjectWizard(AutotoolsManager *manager
     setPage(BuildPathPageId, new BuildPathPage(this));
 
     setStartId(BuildPathPageId);
-    init();
-}
-
-void AutotoolsOpenProjectWizard::init()
-{
-    setOption(QWizard::NoBackButtonOnStartPage);
     setWindowTitle(tr("Autotools Wizard"));
 }
 

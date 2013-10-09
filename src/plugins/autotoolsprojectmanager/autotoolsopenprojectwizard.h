@@ -63,7 +63,6 @@ public:
     AutotoolsManager *autotoolsManager() const;
 
 private:
-   void init();
    AutotoolsManager *m_manager;
    QString m_buildDirectory;
    QString m_sourceDirectory;

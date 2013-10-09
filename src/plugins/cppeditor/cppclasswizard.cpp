@@ -114,7 +114,6 @@ CppClassWizardDialog::CppClassWizardDialog(QWidget *parent) :
     Utils::Wizard(parent),
     m_classNamePage(new ClassNamePage(this))
 {
-    Core::BaseFileWizard::setupWizard(this);
     setWindowTitle(tr("C++ Class Wizard"));
     const int classNameId = addPage(m_classNamePage);
     wizardProgress()->item(classNameId)->setTitle(tr("Details"));

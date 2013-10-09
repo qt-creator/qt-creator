@@ -70,7 +70,6 @@ QWizard *FileWizard::createWizardDialog(QWidget *parent,
 {
     Utils::FileWizardDialog *pDialog = new Utils::FileWizardDialog(parent);
     pDialog->setWindowTitle(tr("New %1").arg(displayName()));
-    setupWizard(pDialog);
     pDialog->setPath(params.defaultPath());
     foreach (QWizardPage *p, params.extensionPages())
         applyExtensionPageShortTitle(pDialog, pDialog->addPage(p));

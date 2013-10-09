@@ -132,7 +132,6 @@ QWizard *GLSLFileWizard::createWizardDialog(QWidget *parent,
 {
     GLSLFileWizardDialog *wizardDialog = new GLSLFileWizardDialog(parent);
     wizardDialog->setWindowTitle(tr("New %1").arg(displayName()));
-    setupWizard(wizardDialog);
     wizardDialog->setPath(wizardDialogParameters.defaultPath());
     foreach (QWizardPage *p, wizardDialogParameters.extensionPages())
         BaseFileWizard::applyExtensionPageShortTitle(wizardDialog, wizardDialog->addPage(p));

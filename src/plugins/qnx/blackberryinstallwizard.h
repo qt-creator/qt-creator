@@ -32,9 +32,9 @@
 #ifndef QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIZARD_H
 #define QNX_INTERNAL_BLACKBERRYDEVICECONFIGURATIONWIZARD_H
 
-#include <QProcess>
+#include <utils/wizard.h>
 
-#include <QWizard>
+#include <QProcess>
 
 namespace Qnx {
 namespace Internal {
@@ -61,7 +61,7 @@ public:
     Mode mode;
 };
 
-class BlackBerryInstallWizard : public QWizard
+class BlackBerryInstallWizard : public Utils::Wizard
 {
     Q_OBJECT
 public:

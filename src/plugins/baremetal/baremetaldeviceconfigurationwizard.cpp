@@ -55,7 +55,7 @@ public:
 } //namespace Internal
 
 BareMetalDeviceConfigurationWizard::BareMetalDeviceConfigurationWizard(QWidget *parent) :
-   QWizard(parent),
+   Utils::Wizard(parent),
    d(new Internal::BareMetalDeviceConfigrationWizardPrivate(this))
 {
     setWindowTitle(tr("New Bare Metal Device Configuration Setup"));

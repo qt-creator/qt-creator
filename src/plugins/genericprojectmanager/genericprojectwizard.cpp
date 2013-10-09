@@ -131,7 +131,6 @@ QWizard *GenericProjectWizard::createWizardDialog(QWidget *parent,
                                                   const Core::WizardDialogParameters &wizardDialogParameters) const
 {
     GenericProjectWizardDialog *wizard = new GenericProjectWizardDialog(parent);
-    setupWizard(wizard);
 
     wizard->setPath(wizardDialogParameters.defaultPath());
 

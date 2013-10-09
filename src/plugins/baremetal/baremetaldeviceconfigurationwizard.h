@@ -31,15 +31,14 @@
 #define BAREMETALDEVICECONFIGURATIONWIZARD_H
 
 #include <projectexplorer/devicesupport/idevice.h>
-
-#include <QWizard>
+#include <utils/wizard.h>
 
 namespace BareMetal {
 namespace Internal {
    class BareMetalDeviceConfigrationWizardPrivate;
 } // namespace Internal
 
-class BareMetalDeviceConfigurationWizard : public QWizard
+class BareMetalDeviceConfigurationWizard : public Utils::Wizard
 {
     Q_OBJECT
 public:

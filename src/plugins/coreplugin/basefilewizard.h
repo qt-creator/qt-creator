@@ -114,7 +114,6 @@ public:
     virtual void runWizard(const QString &path, QWidget *parent, const QString &platform, const QVariantMap &extraValues);
 
     static QString buildFileName(const QString &path, const QString &baseName, const QString &extension);
-    static void setupWizard(QWizard *);
     static void applyExtensionPageShortTitle(Utils::Wizard *wizard, int pageId);
 
 protected:

@@ -42,7 +42,7 @@ using namespace Qnx::Internal;
 BlackBerryInstallWizard::BlackBerryInstallWizard(BlackBerryInstallerDataHandler::Mode mode,
                                                  const QString& version,
                                                  QWidget *parent)
-    : QWizard(parent)
+    : Utils::Wizard(parent)
     , m_ndkPage(0)
     , m_targetPage(0)
 {

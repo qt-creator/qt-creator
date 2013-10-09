@@ -131,8 +131,6 @@ ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
 CreateAndroidManifestWizard::CreateAndroidManifestWizard(ProjectExplorer::Target *target)
     : m_target(target), m_node(0)
 {
-    setOption(QWizard::NoBackButtonOnStartPage);
-    setOption(QWizard::NoCancelButton, false);
     setWindowTitle(tr("Create Android Manifest Wizard"));
 
     Qt4Project *project = static_cast<Qt4Project *>(target->project());

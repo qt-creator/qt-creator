@@ -32,9 +32,8 @@
 #ifndef QNX_INTERNAL_QNXDEVICECONFIGURATIONWIZARD_H
 #define QNX_INTERNAL_QNXDEVICECONFIGURATIONWIZARD_H
 
-#include <QWizard>
-
 #include <projectexplorer/devicesupport/idevice.h>
+#include <utils/wizard.h>
 
 namespace RemoteLinux {
 class GenericLinuxDeviceConfigurationWizardSetupPage;
@@ -44,7 +43,7 @@ class GenericLinuxDeviceConfigurationWizardFinalPage;
 namespace Qnx {
 namespace Internal {
 
-class QnxDeviceConfigurationWizard : public QWizard
+class QnxDeviceConfigurationWizard : public Utils::Wizard
 {
     Q_OBJECT
 public:

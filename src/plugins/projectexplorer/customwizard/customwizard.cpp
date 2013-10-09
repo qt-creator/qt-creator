@@ -145,7 +145,6 @@ void CustomWizard::initWizardDialog(Utils::Wizard *wizard, const QString &defaul
         customPage->setTitle(parameters()->fieldPageTitle);
     foreach (QWizardPage *ep, extensionPages)
         BaseFileWizard::applyExtensionPageShortTitle(wizard, wizard->addPage(ep));
-    Core::BaseFileWizard::setupWizard(wizard);
     if (CustomWizardPrivate::verbose)
         qDebug() << "initWizardDialog" << wizard << wizard->pageIds();
 }
