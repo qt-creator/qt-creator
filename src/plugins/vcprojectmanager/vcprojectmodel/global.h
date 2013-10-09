@@ -30,19 +30,14 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_GLOBAL_H
 #define VCPROJECTMANAGER_INTERNAL_GLOBAL_H
 
-#include "ivcprojectnodemodel.h"
-
-#include <QString>
-#include <QSharedPointer>
+#include "../interfaces/iglobal.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
-class Global : public IVcProjectXMLNode
+class Global : public IGlobal
 {
 public:
-    typedef QSharedPointer<Global>  Ptr;
-
     Global();
     Global(const Global &global);
     Global& operator=(const Global &global);
@@ -52,10 +47,12 @@ public:
     VcNodeWidget* createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
-    QString name() const;
-    void setName(const QString &name);
+    QString displayName() const;
+    void setDisplayName(const QString &name);
     QString value() const;
     void setValue(const QString &value);
+
+    IGlobal* clone() const;
 
 private:
     void processNodeAttributes(const QDomElement &element);

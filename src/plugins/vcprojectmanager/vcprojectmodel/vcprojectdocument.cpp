@@ -334,7 +334,7 @@ QDomElement VcProjectDocument::toVcDocumentElement(QDomDocument &domXMLDocument)
     if (!m_references->isEmpty())
         vcDocNode.appendChild(m_references->toXMLDomNode(domXMLDocument));
 
-    if (!m_globals->isEmpty())
+    if (m_globals->globalCount())
         vcDocNode.appendChild(m_globals->toXMLDomNode(domXMLDocument));
 
     return vcDocNode;

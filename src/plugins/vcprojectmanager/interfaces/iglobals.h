@@ -27,46 +27,26 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_INTERNAL_GLOBALS_H
-#define VCPROJECTMANAGER_INTERNAL_GLOBALS_H
+#ifndef VCPROJECTMANAGER_INTERNAL_IGLOBALHANDLER_H
+#define VCPROJECTMANAGER_INTERNAL_IGLOBALHANDLER_H
 
-#include "../interfaces/iglobals.h"
-
-#include <QList>
-#include <QHash>
-
-#include "global.h"
+#include "../vcprojectmodel/ivcprojectnodemodel.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
-class Global;
+class IGlobal;
 
-class Globals : public IGlobals
+class IGlobals : public IVcProjectXMLNode
 {
 public:
-    typedef QSharedPointer<Globals> Ptr;
-
-    Globals();
-    Globals(const Globals &globals);
-    Globals& operator=(const Globals &globals);
-    ~Globals();
-
-    void processNode(const QDomNode &node);
-    VcNodeWidget* createSettingsWidget();
-    QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
-
-    void addGlobal(IGlobal *global);
-    int globalCount() const;
-    IGlobal *global(int index) const;
-    void removeGlobal(IGlobal *global);
-
-private:
-    void processGlobal(const QDomNode &globalNode);
-    QList<IGlobal *> m_globals;
+    virtual void addGlobal(IGlobal *global) = 0;
+    virtual int globalCount() const = 0;
+    virtual IGlobal* global(int index) const = 0;
+    virtual void removeGlobal(IGlobal *global) = 0;
 };
 
 } // namespace Internal
 } // namespace VcProjectManager
 
-#endif // VCPROJECTMANAGER_INTERNAL_GLOBALS_H
+#endif // VCPROJECTMANAGER_INTERNAL_IGLOBALHANDLER_H

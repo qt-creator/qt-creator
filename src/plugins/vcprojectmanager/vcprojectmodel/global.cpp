@@ -80,12 +80,12 @@ QDomNode Global::toXMLDomNode(QDomDocument &domXMLDocument) const
     return globalNode;
 }
 
-QString Global::name() const
+QString Global::displayName() const
 {
     return m_name;
 }
 
-void Global::setName(const QString &name)
+void Global::setDisplayName(const QString &name)
 {
     m_name = name;
 }
@@ -98,6 +98,11 @@ QString Global::value() const
 void Global::setValue(const QString &value)
 {
     m_value = value;
+}
+
+IGlobal *Global::clone() const
+{
+    return new Global(*this);
 }
 
 void Global::processNodeAttributes(const QDomElement &element)

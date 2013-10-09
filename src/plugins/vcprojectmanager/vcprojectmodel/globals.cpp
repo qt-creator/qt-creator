@@ -29,6 +29,8 @@
 ****************************************************************************/
 #include "globals.h"
 
+#include <utils/qtcassert.h>
+
 namespace VcProjectManager {
 namespace Internal {
 
@@ -38,17 +40,18 @@ Globals::Globals()
 
 Globals::Globals(const Globals &globals)
 {
-    foreach (Global::Ptr global, globals.m_globals)
-        m_globals.append(Global::Ptr(new Global(*global)));
+    foreach (IGlobal *global, globals.m_globals)
+        m_globals.append(global->clone());
 }
 
 Globals &Globals::operator =(const Globals &globals)
 {
     if (this != &globals) {
+        qDeleteAll(m_globals);
         m_globals.clear();
 
-        foreach (Global::Ptr global, globals.m_globals)
-            m_globals.append(Global::Ptr(new Global(*global)));
+        foreach (IGlobal *global, globals.m_globals)
+            m_globals.append(global->clone());
     }
 
     return *this;
@@ -56,7 +59,7 @@ Globals &Globals::operator =(const Globals &globals)
 
 Globals::~Globals()
 {
-    m_globals.clear();
+    qDeleteAll(m_globals);
 }
 
 void Globals::processNode(const QDomNode &node)
@@ -81,20 +84,37 @@ QDomNode Globals::toXMLDomNode(QDomDocument &domXMLDocument) const
 {
     QDomElement globalsNode = domXMLDocument.createElement(QLatin1String("Globals"));
 
-    foreach (const Global::Ptr &global, m_globals)
+    foreach (const IGlobal *global, m_globals)
         globalsNode.appendChild(global->toXMLDomNode(domXMLDocument));
 
     return globalsNode;
 }
 
-bool Globals::isEmpty() const
+void Globals::addGlobal(IGlobal *global)
 {
-    return m_globals.isEmpty();
+    if (m_globals.contains(global))
+        m_globals.append(global);
+}
+
+int Globals::globalCount() const
+{
+    return m_globals.size();
+}
+
+IGlobal *Globals::global(int index) const
+{
+    QTC_ASSERT(0 <= index && index < m_globals.size(), return 0);
+    return m_globals[index];
+}
+
+void Globals::removeGlobal(IGlobal *global)
+{
+    m_globals.removeOne(global);
 }
 
 void Globals::processGlobal(const QDomNode &globalNode)
 {
-    Global::Ptr global(new Global);
+    Global* global = new Global;
     global->processNode(globalNode);
     m_globals.append(global);
 
@@ -102,41 +122,6 @@ void Globals::processGlobal(const QDomNode &globalNode)
     QDomNode nextSibling = globalNode.nextSibling();
     if (!nextSibling.isNull())
         processGlobal(nextSibling);
-}
-
-void Globals::addGlobal(Global::Ptr global)
-{
-    if (m_globals.contains(global))
-        m_globals.append(global);
-}
-
-void Globals::removeGlobal(Global::Ptr global)
-{
-    m_globals.removeAll(global);
-}
-
-void Globals::removeGlobal(const QString &globalName)
-{
-    foreach (const Global::Ptr &global, m_globals) {
-        if (global->name() == globalName) {
-            removeGlobal(global);
-            return;
-        }
-    }
-}
-
-QList<Global::Ptr> Globals::globals() const
-{
-    return m_globals;
-}
-
-Global::Ptr Globals::global(const QString &name)
-{
-    foreach (const Global::Ptr &global, m_globals) {
-        if (global->name() == name)
-            return global;
-    }
-    return Global::Ptr();
 }
 
 } // namespace Internal

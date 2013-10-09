@@ -19,4 +19,6 @@ HEADERS += \
     interfaces/ideploymenttool.h \
     interfaces/iconfigurationbuildtool.h \
     interfaces/idebuggertool.h \
-    interfaces/idebuggertools.h
+    interfaces/idebuggertools.h \
+    interfaces/iglobal.h \
+    interfaces/iglobals.h
