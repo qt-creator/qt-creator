@@ -2061,12 +2061,19 @@ bool BaseTextEditorWidget::event(QEvent *e)
 #else
     d->m_contentsChanged = false;
 #endif
-    if (e->type() == QEvent::ShortcutOverride
-            && static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape
-            && d->m_snippetOverlay->isVisible()) {
-        e->accept();
+    switch (e->type()) {
+    case QEvent::ShortcutOverride:
+        if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape && d->m_snippetOverlay->isVisible()) {
+            e->accept();
+            return true;
+        }
+        e->ignore(); // we are a really nice citizen
         return true;
+        break;
+    default:
+        break;
     }
+
     return QPlainTextEdit::event(e);
 }
 
