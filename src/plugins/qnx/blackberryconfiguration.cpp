@@ -54,6 +54,7 @@
 using namespace ProjectExplorer;
 using namespace QtSupport;
 using namespace Utils;
+using namespace Debugger;
 
 namespace Qnx {
 namespace Internal {
@@ -218,15 +219,17 @@ Kit *BlackBerryConfiguration::createKit(QnxAbstractQtVersion *version, ToolChain
     QtKitInformation::setQtVersion(kit, version);
     ToolChainKitInformation::setToolChain(kit, toolChain);
 
-    Debugger::DebuggerItem debugger;
+    DebuggerItem debugger;
     debugger.setCommand(isSimulator ? m_simulatorDebugger : m_deviceDebugger);
-    debugger.setEngineType(Debugger::GdbEngineType);
+    debugger.setEngineType(GdbEngineType);
     debugger.setAutoDetected(true);
     debugger.setAbi(toolChain->targetAbi());
     debugger.setDisplayName(tr("Debugger for Qt %1 for %2 %3 - %4").arg(
             version->qtVersionString(), version->platformDisplayName(),
             version->archString(), m_targetName));
-    Debugger::DebuggerKitInformation::setDebugger(kit, debugger);
+
+    DebuggerItemManager::registerDebugger(debugger);
+    DebuggerKitInformation::setDebugger(kit, debugger);
 
     if (isSimulator)
         Qt4ProjectManager::QmakeKitInformation::setMkspec(
@@ -247,7 +250,7 @@ Kit *BlackBerryConfiguration::createKit(QnxAbstractQtVersion *version, ToolChain
     kit->setSticky(ToolChainKitInformation::id(), true);
     kit->setSticky(DeviceTypeKitInformation::id(), true);
     kit->setSticky(SysRootKitInformation::id(), true);
-    kit->setSticky(Debugger::DebuggerKitInformation::id(), true);
+    kit->setSticky(DebuggerKitInformation::id(), true);
     kit->setSticky(Qt4ProjectManager::QmakeKitInformation::id(), true);
 
     return kit;
@@ -326,7 +329,10 @@ void BlackBerryConfiguration::deactivate()
         }
     }
 
-    // unable to deregistering debuggers because of missing API
+    foreach (const DebuggerItem &item, DebuggerItemManager::debuggers())
+        if (item.isAutoDetected() &&
+                (item.command() == m_simulatorDebugger || item.command() == m_deviceDebugger))
+                DebuggerItemManager::deregisterDebugger(item);
 
     foreach (ToolChain *toolChain, ToolChainManager::toolChains())
         if (toolChain->isAutoDetected()
@@ -335,6 +341,7 @@ void BlackBerryConfiguration::deactivate()
 
     foreach (BaseQtVersion *version, versions)
         QtVersionManager::removeVersion(version);
+
 }
 
 } // namespace Internal
