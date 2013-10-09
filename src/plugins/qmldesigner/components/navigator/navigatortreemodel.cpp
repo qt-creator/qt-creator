@@ -333,9 +333,9 @@ void NavigatorTreeModel::handleChangedItem(QStandardItem *item)
         } else {
 
              if (!node.isValidId(item->text()))
-                 QMessageBox::warning(0, tr("Invalid Id"),  tr("%1 is an invalid id").arg(item->text()));
+                 QMessageBox::warning(0, tr("Invalid Id"),  tr("%1 is an invalid id.").arg(item->text()));
              else
-                 QMessageBox::warning(0, tr("Invalid Id"),  tr("%1 already exists").arg(item->text()));
+                 QMessageBox::warning(0, tr("Invalid Id"),  tr("%1 already exists.").arg(item->text()));
              bool blockSingals = blockItemChangedSignal(true);
              item->setText(node.id());
              blockItemChangedSignal(blockSingals);

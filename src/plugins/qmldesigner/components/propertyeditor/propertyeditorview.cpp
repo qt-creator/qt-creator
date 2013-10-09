@@ -166,9 +166,9 @@ void PropertyEditorView::changeValue(const QString &name)
             value->setValue(m_selectedNode.id());
             m_locked = false;
             if (!m_selectedNode.isValidId(newId))
-                QMessageBox::warning(0, tr("Invalid Id"),  tr("%1 is an invalid id").arg(newId));
+                QMessageBox::warning(0, tr("Invalid Id"),  tr("%1 is an invalid id.").arg(newId));
             else
-                QMessageBox::warning(0, tr("Invalid Id"),  tr("%1 already exists").arg(newId));
+                QMessageBox::warning(0, tr("Invalid Id"),  tr("%1 already exists.").arg(newId));
         }
         return;
     }

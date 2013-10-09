@@ -1111,7 +1111,7 @@ void tst_TestCore::testModelCreateSubNode()
 
     try {
         childNode.setId("invalid id");
-        QFAIL("Setting an invalid id does not throw an excxeption");
+        QFAIL("Setting an invalid id does not throw an exception");
     } catch (Exception &exception) {
         QCOMPARE(exception.type(), QString("InvalidIdException"));
     }
