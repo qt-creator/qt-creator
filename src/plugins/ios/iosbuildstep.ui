@@ -39,7 +39,7 @@
       <enum>Qt::RightToLeft</enum>
      </property>
      <property name="text">
-      <string>Reset defaults</string>
+      <string>Reset Defaults</string>
      </property>
     </widget>
    </item>
