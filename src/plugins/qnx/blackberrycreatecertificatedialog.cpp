@@ -172,20 +172,20 @@ void BlackBerryCreateCertificateDialog::certificateCreated(int status)
         accept();
         return;
     case BlackBerryCertificate::Busy:
-        errorMessage = tr("The blackberry-keytool process is already running");
+        errorMessage = tr("The blackberry-keytool process is already running.");
         break;
     case BlackBerryCertificate::WrongPassword:
-        errorMessage = tr("The password entered is invalid");
+        errorMessage = tr("The password entered is invalid.");
         break;
     case BlackBerryCertificate::PasswordTooSmall:
-        errorMessage = tr("The password entered is too small");
+        errorMessage = tr("The password entered is too short.");
         break;
     case BlackBerryCertificate::InvalidOutputFormat:
-        errorMessage = tr("Invalid output format");
+        errorMessage = tr("Invalid output format.");
         break;
     case BlackBerryCertificate::Error:
     default:
-        errorMessage = tr("An unknown error occurred");
+        errorMessage = tr("An unknown error occurred.");
         break;
     }
 

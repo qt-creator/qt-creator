@@ -52,7 +52,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Debug Token is needed for BlackBerry applications deployment to a device.</string>
+         <string>Debug token is needed for deploying applications to BlackBerry devices.</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
@@ -120,7 +120,7 @@
       <item row="1" column="0">
        <widget class="QLabel" name="label_4">
         <property name="text">
-         <string>Host name/IP:</string>
+         <string>Host name or IP address:</string>
         </property>
        </widget>
       </item>

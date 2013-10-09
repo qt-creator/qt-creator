@@ -85,7 +85,7 @@ bool BlackBerrySigningUtils::hasDefaultCertificate()
 QString BlackBerrySigningUtils::cskPassword()
 {
     if (m_cskPassword.isEmpty())
-        m_cskPassword = promptPassword(tr("Please provide your bbidtoken.csk PIN"));
+        m_cskPassword = promptPassword(tr("Please provide your bbidtoken.csk PIN."));
 
     return m_cskPassword;
 }
@@ -93,7 +93,7 @@ QString BlackBerrySigningUtils::cskPassword()
 QString BlackBerrySigningUtils::certificatePassword()
 {
     if (m_certificatePassword.isEmpty())
-        m_certificatePassword = promptPassword(tr("Please enter your certificate password"));
+        m_certificatePassword = promptPassword(tr("Please enter your certificate password."));
 
     return m_certificatePassword;
 }
