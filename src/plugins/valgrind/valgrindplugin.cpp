@@ -111,7 +111,7 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
         "\"callgrind\" tool to record function calls when a program runs.");
 
     QString memcheckToolTip = tr("Valgrind Analyze Memory uses the "
-         "\"memcheck\" tool to find memory leaks");
+         "\"memcheck\" tool to find memory leaks.");
 
     if (!Utils::HostOsInfo::isWindowsHost()) {
         action = new ValgrindAction;
@@ -173,7 +173,7 @@ void ValgrindPlugin::extensionsInitialized()
         Context analyzerContext = Context(Analyzer::Constants::C_ANALYZEMODE);
         editorContextMenu->addSeparator(analyzerContext);
 
-        QAction *action = new QAction(tr("Profile Costs of this Function and its Callees"), this);
+        QAction *action = new QAction(tr("Profile Costs of This Function and Its Callees"), this);
         action->setIcon(QIcon(QLatin1String(Analyzer::Constants::ANALYZER_CONTROL_START_ICON)));
         connect(action, SIGNAL(triggered()), m_callgrindTool, SLOT(handleShowCostsOfFunction()));
         Command *cmd = ActionManager::registerAction(action, "Analyzer.Callgrind.ShowCostsOfFunction",

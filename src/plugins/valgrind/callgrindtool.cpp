@@ -668,7 +668,7 @@ QWidget *CallgrindToolPrivate::createWidgets()
     // load external XML log file
     action = new QAction(this);
     action->setIcon(QIcon(QLatin1String(Core::Constants::ICON_OPENFILE)));
-    action->setToolTip(tr("Load External XML Log File."));
+    action->setToolTip(tr("Load External XML Log File"));
     connect(action, SIGNAL(triggered(bool)), this, SLOT(loadExternalXmlLogFile()));
     layout->addWidget(createToolButton(action));
     m_loadExternalLogFile = action;

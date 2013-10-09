@@ -97,7 +97,7 @@ bool ValgrindRunControl::startEngine()
 #if VALGRIND_DEBUG_OUTPUT
     emit outputReceived(tr("Valgrind options: %1").arg(toolArguments().join(QLatin1Char(' '))), DebugFormat);
     emit outputReceived(tr("Working directory: %1").arg(sp.workingDirectory), DebugFormat);
-    emit outputReceived(tr("Commandline arguments: %1").arg(sp.debuggeeArgs), DebugFormat);
+    emit outputReceived(tr("Command line arguments: %1").arg(sp.debuggeeArgs), DebugFormat);
 #endif
 
     ValgrindRunner *run = runner();
@@ -173,7 +173,7 @@ void ValgrindRunControl::handleProgressFinished()
 
 void ValgrindRunControl::runnerFinished()
 {
-    appendMessage(tr("** Analyzing finished **\n"), NormalMessageFormat);
+    appendMessage(tr("Analyzing finished.\n"), NormalMessageFormat);
     emit finished();
 
     m_progress->reportFinished();
@@ -200,11 +200,11 @@ void ValgrindRunControl::receiveProcessError(const QString &message, QProcess::P
     if (error == QProcess::FailedToStart) {
         const QString valgrind = m_settings->valgrindExecutable();
         if (!valgrind.isEmpty())
-            appendMessage(tr("** Error: \"%1\" could not be started: %2 **\n").arg(valgrind).arg(message), ErrorMessageFormat);
+            appendMessage(tr("Error: \"%1\" could not be started: %2\n").arg(valgrind).arg(message), ErrorMessageFormat);
         else
-            appendMessage(tr("** Error: no valgrind executable set **\n"), ErrorMessageFormat);
+            appendMessage(tr("Error: no Valgrind executable set.\n"), ErrorMessageFormat);
     } else if (m_isStopping && error == QProcess::Crashed) { // process gets killed on stop
-        appendMessage(tr("** Process Terminated **\n"), ErrorMessageFormat);
+        appendMessage(tr("Process terminated.\n"), ErrorMessageFormat);
     } else {
         appendMessage(QString::fromLatin1("** %1 **\n").arg(message), ErrorMessageFormat);
     }
