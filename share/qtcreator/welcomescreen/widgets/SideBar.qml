@@ -137,12 +137,13 @@ ColumnLayout {
 
             Column {
                 x: 14
-                RowLayout {
+                spacing: 16
+                Row {
                     spacing: 7
-                    Rectangle {
+                    Image {
                         width: 16
-                        height: 16
-                        color: "#4e4e4e"
+                        height: 15
+                        source: "images/icons/onlineCommunity.png"
                     }
                     LinkedText {
                         text: qsTr("Online Community")
@@ -151,12 +152,12 @@ ColumnLayout {
                         onClicked: gettingStarted.openUrl("http://qt-project.org/forums")
                     }
                 }
-                RowLayout {
+                Row {
                     spacing: 7
-                    Rectangle {
-                        width: 16
-                        height: 16
-                        color: "#4e4e4e"
+                    Image {
+                        height: 15
+                        width: 15
+                        source: "images/icons/blogs.png"
                     }
                     LinkedText {
                         text: qsTr("Blogs")
@@ -165,12 +166,12 @@ ColumnLayout {
                         onClicked: gettingStarted.openUrl("http://planet.qt-project.org")
                     }
                 }
-                RowLayout {
+                Row {
                     spacing: 7
-                    Rectangle {
+                    Image {
                         width: 16
-                        height: 16
-                        color: "#4e4e4e"
+                        height: 15
+                        source: "images/icons/userGuide.png"
                     }
                     LinkedText {
                         text: qsTr("User Guide")

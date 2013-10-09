@@ -46,11 +46,13 @@ Item {
 
             spacing: 7
 
-            Rectangle {
+            Image {
+                source: "images/sessions.png"
+                anchors.verticalCenter: projectNameText.verticalCenter
                 width: 16
                 height: 16
-                color: "#7e7e7e"
             }
+
             LinkedText {
                 id: text
 
