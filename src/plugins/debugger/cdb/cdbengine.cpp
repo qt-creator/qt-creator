@@ -587,7 +587,7 @@ void CdbEngine::consoleStubProcessStarted()
     QString errorMessage;
     if (!launchCDB(attachParameters, &errorMessage)) {
         showMessage(errorMessage, LogError);
-        showMessageBox(QMessageBox::Critical, tr("Failed To Start The Debugger"), errorMessage);
+        showMessageBox(QMessageBox::Critical, tr("Failed to Start the Debugger"), errorMessage);
         STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineSetupFailed")
         notifyEngineSetupFailed();
     }
@@ -624,7 +624,7 @@ void CdbEngine::setupEngine()
         qDebug("<setupEngine ok=%d", ok);
     if (!ok) {
         showMessage(errorMessage, LogError);
-        showMessageBox(QMessageBox::Critical, tr("Failed To Start The Debugger"), errorMessage);
+        showMessageBox(QMessageBox::Critical, tr("Failed to Start the Debugger"), errorMessage);
         STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyEngineSetupFailed")
         notifyEngineSetupFailed();
     }
