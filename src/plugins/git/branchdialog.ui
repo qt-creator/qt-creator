@@ -156,7 +156,7 @@
         <item>
          <widget class="QPushButton" name="cherryPickButton">
           <property name="toolTip">
-           <string>Cherry Pick top commit from selected branch</string>
+           <string>Cherry pick top commit from selected branch.</string>
           </property>
           <property name="text">
            <string>Cherry Pick</string>
@@ -166,7 +166,7 @@
         <item>
          <widget class="QPushButton" name="trackButton">
           <property name="toolTip">
-           <string>Sets current branch to track the selected one</string>
+           <string>Sets current branch to track the selected one.</string>
           </property>
           <property name="text">
            <string>&amp;Track</string>
