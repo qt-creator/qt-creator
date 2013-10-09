@@ -31,65 +31,56 @@ import QtQuick 2.1
 import QtQuick.Controls 1.1 as Controls
 import QtQuick.Controls.Styles 1.1
 
-Controls.SpinBox {
-    id: spinBox
-    property color borderColor: "#222"
-    property color highlightColor: "orange"
-    property color textColor: "#eee"
+SpinBoxStyle {
 
-    property variant backendValue;
-    prefix: "    "
+    selectionColor: spinBox.textColor
+    selectedTextColor: "black"
+    textColor: spinBox.textColor
+    padding.top: 3
+    padding.bottom: 1
 
-    ExtendedFunctionButton {
-        x: 2
-        y: 4
-        backendValue: spinBox.backendValue
-        visible: spinBox.enabled
-    }
-
-    QtObject {
-        property int valueFromBackend: spinBox.backendValue.value;
-        onValueFromBackendChanged: {
-            spinBox.value = valueFromBackend;
+    incrementControl: Item {
+        implicitWidth: 14
+        implicitHeight: parent.height/2
+        opacity: styleData.upEnabled ? styleData.upPressed ? 0.5 : 1 : 0.5
+        Image {
+            source: "images/up-arrow.png"
+            anchors.centerIn: parent
+            anchors.verticalCenterOffset: 2
+            anchors.horizontalCenterOffset: -4
         }
     }
 
-    property bool hasSlider: false
-
-    height: hasSlider ? 32 : implicitHeight
-
-    onValueChanged: {
-        if (backendValue.value !== value)
-            backendValue.value = value;
-    }
-
-    onFocusChanged: {
-        if (focus) {
-            transaction.start();
-        } else {
-            transaction.end();
+    decrementControl: Item {
+        implicitWidth: 14
+        implicitHeight: parent.height/2
+        opacity: styleData.downEnabled ? styleData.downPressed ? 0.5 : 1 : 0.5
+        Image {
+            source: "images/down-arrow.png"
+            anchors.centerIn: parent
+            anchors.verticalCenterOffset: -1
+            anchors.horizontalCenterOffset: -4
         }
     }
 
-    Controls.Slider {
-        id: slider
-
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: parent.bottom
-        height: 10
-        visible: false
-
-        maximumValue: spinBox.maximumValue
-        minimumValue: spinBox.minimumValue
-
-        value: spinBox.value
-
-        onValueChanged: {
-            spinBox.value = value
+    background: Rectangle {
+        implicitWidth: Math.max(60, styleData.contentWidth)
+        implicitHeight: 23
+        border.color: borderColor
+        radius: 3
+        gradient: Gradient {
+            GradientStop {color: "#2c2c2c" ; position: 0}
+            GradientStop {color: "#343434" ; position: 0.15}
+            GradientStop {color: "#373737" ; position: 1}
         }
-    }
-
-    style: CustomSpinBoxStyle {
+        Rectangle {
+            border.color: highlightColor
+            anchors.fill: parent
+            anchors.margins: -1
+            color: "transparent"
+            radius: 4
+            opacity: 0.3
+            visible: control.activeFocus
+        }
     }
 }

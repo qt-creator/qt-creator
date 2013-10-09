@@ -34,6 +34,10 @@ SpinBox {
     id: spinBox
     width: 76
 
+    property color borderColor: "#222"
+    property color highlightColor: "orange"
+    property color textColor: "#eee"
+
     function showSlider() {
         timer.stop()
         timer2.start()
@@ -105,5 +109,9 @@ SpinBox {
             if (!slider.hovered)
                 slider.opacity = 0;
         }
+    }
+
+    style: CustomSpinBoxStyle {
+
     }
 }
