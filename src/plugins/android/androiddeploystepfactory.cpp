@@ -58,6 +58,9 @@ QList<Core::Id> AndroidDeployStepFactory::availableCreationIds(BuildStepList *pa
         return QList<Core::Id>();
     if (parent->contains(AndroidDeployStep::Id))
         return QList<Core::Id>();
+    QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(parent->target()->kit());
+    if (qtVersion && qtVersion->qtVersion() >= QtSupport::QtVersionNumber(5, 2, 0))
+        return QList<Core::Id>();
     return QList<Core::Id>() << AndroidDeployStep::Id;
 }
 
