@@ -38,7 +38,7 @@ Column {
     Section {
         anchors.left: parent.left
         anchors.right: parent.right
-        caption: qsTr("Image")
+        caption: qsTr("Border Image")
 
         SectionLayout {
             Label {
