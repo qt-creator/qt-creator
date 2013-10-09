@@ -167,7 +167,7 @@ void AndroidDeployQtStep::ctor()
 bool AndroidDeployQtStep::init()
 {
     if (AndroidManager::checkForQt51Files(project()->projectDirectory()))
-        emit addOutput(tr("Found old android folder in source directory. Qt 5.2 does not use that folder by default."), ErrorOutput);
+        emit addOutput(tr("Found old Android folder in source directory. Qt 5.2 does not use that folder by default."), ErrorOutput);
 
     m_targetArch = AndroidManager::targetArch(target());
     if (m_targetArch.isEmpty()) {
@@ -518,13 +518,13 @@ QAbstractItemModel *AndroidDeployQtStep::keystoreCertificates()
         keytoolProc.start(AndroidConfigurations::instance().keytoolPath().toString(), params);
         if (!keytoolProc.waitForStarted() || !keytoolProc.waitForFinished()) {
             QMessageBox::critical(0, tr("Error"),
-                                  tr("Failed to run keytool"));
+                                  tr("Failed to run keytool."));
             return 0;
         }
 
         if (keytoolProc.exitCode()) {
             QMessageBox::critical(0, tr("Error"),
-                                  tr("Invalid password"));
+                                  tr("Invalid password."));
             m_keystorePasswd.clear();
         }
         rawCerts = QString::fromLatin1(keytoolProc.readAllStandardOutput());

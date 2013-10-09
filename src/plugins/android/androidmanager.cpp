@@ -633,7 +633,7 @@ bool AndroidManager::createAndroidTemplatesIfNecessary(ProjectExplorer::Target *
     }
 
     if (forceUpdate)
-        QMessageBox::warning(0, tr("Warning"), tr("Android files have been updated automatically"));
+        QMessageBox::warning(0, tr("Warning"), tr("Android files have been updated automatically."));
 
     return true;
 }
@@ -936,7 +936,7 @@ bool AndroidManager::saveLibsXml(ProjectExplorer::Target *target, QDomDocument &
 
 void AndroidManager::raiseError(const QString &reason)
 {
-    QMessageBox::critical(0, tr("Error creating Android templates"), reason);
+    QMessageBox::critical(0, tr("Error creating Android templates."), reason);
 }
 
 QString AndroidManager::loadLocal(ProjectExplorer::Target *target, int apiLevel, ItemType item, const QString &attribute)
@@ -1046,7 +1046,7 @@ bool AndroidManager::openXmlFile(QDomDocument &doc, const Utils::FileName &fileN
         return false;
 
     if (!doc.setContent(f.readAll())) {
-        raiseError(tr("Can't parse '%1'").arg(fileName.toUserOutput()));
+        raiseError(tr("Cannot parse '%1'.").arg(fileName.toUserOutput()));
         return false;
     }
     return true;
@@ -1059,7 +1059,7 @@ bool AndroidManager::saveXmlFile(ProjectExplorer::Target *target, QDomDocument &
 
     QFile f(fileName.toString());
     if (!f.open(QIODevice::WriteOnly)) {
-        raiseError(tr("Can't open '%1'").arg(fileName.toUserOutput()));
+        raiseError(tr("Cannot open '%1'.").arg(fileName.toUserOutput()));
         return false;
     }
     return f.write(doc.toByteArray(4)) >= 0;
@@ -1208,7 +1208,7 @@ void AndroidManager::cleanLibsOnDevice(ProjectExplorer::Target *target)
     if (info.type == AndroidDeviceInfo::Emulator) {
         deviceSerialNumber = AndroidConfigurations::instance().startAVD(deviceSerialNumber, deviceAPILevel, targetArch);
         if (deviceSerialNumber.isEmpty())
-            Core::MessageManager::write(tr("Starting android virtual device failed."));
+            Core::MessageManager::write(tr("Starting Android virtual device failed."));
     }
 
     QProcess *process = new QProcess();
@@ -1237,7 +1237,7 @@ void AndroidManager::installQASIPackage(ProjectExplorer::Target *target, const Q
     if (info.type == AndroidDeviceInfo::Emulator) {
         deviceSerialNumber = AndroidConfigurations::instance().startAVD(deviceSerialNumber, deviceAPILevel, targetArch);
         if (deviceSerialNumber.isEmpty())
-            Core::MessageManager::write(tr("Starting android virtual device failed."));
+            Core::MessageManager::write(tr("Starting Android virtual device failed."));
     }
 
     QProcess *process = new QProcess();

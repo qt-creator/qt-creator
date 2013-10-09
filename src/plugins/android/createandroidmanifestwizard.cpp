@@ -69,7 +69,7 @@ ChooseProFilePage::ChooseProFilePage(CreateAndroidManifestWizard *wizard, const 
     QFormLayout *fl = new QFormLayout(this);
     QLabel *label = new QLabel(this);
     label->setWordWrap(true);
-    label->setText(tr("Select the .pro file for which you want to create a AndroidManifest.xml file"));
+    label->setText(tr("Select the .pro file for which you want to create an AndroidManifest.xml file."));
     fl->addRow(label);
 
     m_comboBox = new QComboBox(this);
@@ -108,13 +108,13 @@ ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
     fl->addRow(tr("Android package source directory:"), m_androidPackageSourceDir);
 
     if (androidPackageDir.isEmpty()) {
-        label->setText(tr("Select the android package source directory. "
-                          "The files in the android package source directory are copied to the builddirectory's "
-                          "android directory and overwrite the default files."));
+        label->setText(tr("Select the Android package source directory. "
+                          "The files in the Android package source directory are copied to the build directory's "
+                          "Android directory and the default files are overwritten."));
 
         m_androidPackageSourceDir->setPath(QFileInfo(m_wizard->node()->path()).absolutePath().append(QLatin1String("/android")));
     } else {
-        label->setText(tr("The android manifest file will be created in the ANDROID_PACKAGE_SOURCE_DIR set in the .pro file."));
+        label->setText(tr("The Android manifest file will be created in the ANDROID_PACKAGE_SOURCE_DIR set in the .pro file."));
         m_androidPackageSourceDir->setPath(androidPackageDir);
         m_androidPackageSourceDir->setReadOnly(true);
     }
