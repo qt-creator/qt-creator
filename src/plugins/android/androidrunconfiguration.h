@@ -35,6 +35,8 @@
 
 #include <projectexplorer/runconfiguration.h>
 
+namespace Qt4ProjectManager { class Qt4ProFileNode; }
+
 namespace Android {
 namespace Internal {
 
@@ -59,14 +61,22 @@ public:
     const QString remoteChannel() const;
     const QString dumperLib() const;
 
+    bool isEnabled() const;
+    QString disabledReason() const;
 protected:
     AndroidRunConfiguration(ProjectExplorer::Target *parent, AndroidRunConfiguration *source);
     QString defaultDisplayName();
 
+    bool fromMap(const QVariantMap &map);
+    QVariantMap toMap() const;
+private slots:
+    void proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress);
 private:
     void init();
 
     QString m_proFilePath;
+    bool m_parseSuccess;
+    bool m_parseInProgress;
 };
 
 } // namespace Internal

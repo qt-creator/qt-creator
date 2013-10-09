@@ -94,7 +94,7 @@ QList<Core::Id> AndroidRunConfigurationFactory::availableCreationIds(Target *par
     const Core::Id base = Core::Id(ANDROID_RC_ID_PREFIX);
     foreach (Qt4ProFileNode *node, nodes)
         if (node->projectType() == ApplicationTemplate || node->projectType() == LibraryTemplate)
-            ids << base.withSuffix(node->targetInformation().target);
+            ids << base.withSuffix(node->path());
     return ids;
 }
 
