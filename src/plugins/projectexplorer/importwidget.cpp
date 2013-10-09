@@ -48,7 +48,7 @@ ImportWidget::ImportWidget(QWidget *parent) :
     vboxLayout->setContentsMargins(0, 0, 0, 0);
     Utils::DetailsWidget *detailsWidget = new Utils::DetailsWidget(this);
     detailsWidget->setUseCheckBox(false);
-    detailsWidget->setSummaryText(tr("Import Build from..."));
+    detailsWidget->setSummaryText(tr("Import Build From..."));
     detailsWidget->setSummaryFontBold(true);
     // m_detailsWidget->setIcon(); // FIXME: Set icon!
     vboxLayout->addWidget(detailsWidget);
