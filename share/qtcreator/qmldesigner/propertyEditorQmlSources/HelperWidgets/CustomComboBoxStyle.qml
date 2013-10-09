@@ -31,31 +31,62 @@ import QtQuick 2.1
 import QtQuick.Controls 1.1 as Controls
 import QtQuick.Controls.Styles 1.1
 
-Controls.ComboBox {
-    id: comboBox
+ComboBoxStyle {
+    property color borderColor: "#222"
+    property color highlightColor: "orange"
+    property color textColor: "#eee"
 
-    property variant backendValue
+    background: Item {
+        implicitWidth: 100
+        implicitHeight: 25
 
-    QtObject {
-        property string valueFromBackend: lineEdit.backendValue.valueToString;
-        onValueFromBackendChanged: {
-            lineEdit.currentText = valueFromBackend;
+        RoundedPanel {
+            anchors.fill: parent
+            roundLeft: true
+            roundRight: true
+            visible: !control.pressed
+        }
+
+        RoundedPanel {
+            gradient: Gradient {
+                GradientStop {color: '#444' ; position: 0}
+                GradientStop {color: '#333' ; position: 1}
+            }
+            anchors.fill: parent
+            roundLeft: true
+            roundRight: true
+            visible: control.pressed
+        }
+
+        Rectangle {
+            border.color: highlightColor
+            anchors.fill: parent
+            anchors.margins: -1
+            color: "transparent"
+            radius: 4
+            opacity: 0.3
+            visible: control.activeFocus
+        }
+        Image {
+            id: imageItem
+            source: "images/down-arrow.png"
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.right: parent.right
+            anchors.rightMargin: 8
+            opacity: control.enabled ? 0.7 : 0.5
         }
     }
 
-    onCurrentTextChanged: {
-        if (backendValue.value !== currentText)
-            backendValue.value = currentText;
-    }
-
-    onFocusChanged: {
-        if (focus) {
-            transaction.start();
-        } else {
-            transaction.end();
+    label: Item {
+        implicitWidth: textitem.implicitWidth + 20
+        Text {
+            id: textitem
+            anchors.left: parent.left
+            anchors.leftMargin: 4
+            anchors.verticalCenter: parent.verticalCenter
+            text: control.currentText
+            renderType: Text.NativeRendering
+            color: textColor
         }
-    }
-
-    style: CustomComboBoxStyle {
     }
 }
