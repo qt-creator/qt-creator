@@ -58,21 +58,16 @@ const char FEATURE_QT_QUICK_2[] = "QtSupport.Wizards.FeatureQtQuick.2";
 const char FEATURE_QT_QUICK_CONTROLS[] = "QtSupport.Wizards.FeatureQtQuick.Controls";
 const char FEATURE_QT_WEBKIT[] = "QtSupport.Wizards.FeatureQtWebkit";
 const char FEATURE_QT_CONSOLE[] = "QtSupport.Wizards.FeatureQtConsole";
-const char FEATURE_QTQUICK_COMPONENTS_MEEGO[] = "QtSupport.Wizards.FeatureQtQuickComponentsMeego";
 const char FEATURE_MOBILE[] = "QtSupport.Wizards.FeatureMobile";
 const char FEATURE_DESKTOP[] = "QtSupport.Wizards.FeatureDesktop";
 
 // Platforms
-const char MEEGO_HARMATTAN_PLATFORM[] = "MeeGo/Harmattan";
-const char MAEMO_FREMANTLE_PLATFORM[] = "Maemo/Fremantle";
 const char DESKTOP_PLATFORM[] = "Desktop";
 const char EMBEDDED_LINUX_PLATFORM[] = "Embedded Linux";
 const char WINDOWS_CE_PLATFORM[] = "Windows CE";
 const char ANDROID_PLATFORM[] = "Android";
 const char IOS_PLATFORM[] = "Ios";
 
-const char MEEGO_HARMATTAN_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "MeeGo/Harmattan");
-const char MAEMO_FREMANTLE_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Maemo/Fremantle");
 const char DESKTOP_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Desktop");
 const char EMBEDDED_LINUX_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Embedded Linux");
 const char WINDOWS_CE_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Windows CE");

@@ -45,7 +45,6 @@ QtQuickApp::QtQuickApp()
     , m_mainQmlMode(ModeGenerate)
     , m_componentSet(QtQuick10Components)
 {
-    m_canSupportMeegoBooster = true;
 }
 
 void QtQuickApp::setComponentSet(ComponentSet componentSet)
@@ -147,8 +146,6 @@ void QtQuickApp::handleCurrentProFileTemplateLine(const QString &line,
         proFile << nextLine << endl;
     } else if (line.contains(QLatin1String("# HARMATTAN_BOOSTABLE"))) {
         QString nextLine = proFileTemplate.readLine(); // eats '# CONFIG += qdeclarative-boostable'
-        if (supportsMeegoBooster())
-            nextLine.remove(0, 2); // remove comment
         proFile << nextLine << endl;
     }
 }
@@ -159,8 +156,6 @@ Core::GeneratedFiles QtQuickApp::generateFiles(QString *errorMessage) const
     Core::GeneratedFiles files = AbstractMobileApp::generateFiles(errorMessage);
     if (!useExistingMainQml()) {
         files.append(file(generateFile(QtQuickAppGeneratedFileInfo::MainQmlFile, errorMessage), path(MainQml)));
-        if ((componentSet() == QtQuickApp::Meego10Components))
-            files.append(file(generateFile(QtQuickAppGeneratedFileInfo::MainPageQmlFile, errorMessage), path(MainPageQml)));
         files.last().setAttributes(Core::GeneratedFile::OpenEditorAttribute);
     }
 
@@ -276,8 +271,6 @@ QList<DeploymentFolder> QtQuickApp::deploymentFolders() const
 QString QtQuickApp::componentSetDir(ComponentSet componentSet) const
 {
     switch (componentSet) {
-    case Meego10Components:
-        return QLatin1String("meego10");
     case QtQuick20Components:
         return QLatin1String("qtquick20");
     case QtQuickControls10:

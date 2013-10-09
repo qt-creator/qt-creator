@@ -118,8 +118,6 @@ QtcPlugin {
             "librarywizarddialog.cpp", "librarywizarddialog.h",
             "mobileapp.cpp", "mobileapp.h",
             "mobileappwizardgenericoptionspage.ui",
-            "mobileappwizardharmattanoptionspage.ui",
-            "mobileappwizardmaemooptionspage.ui",
             "mobileappwizardpages.cpp", "mobileappwizardpages.h",
             "mobilelibraryparameters.cpp", "mobilelibraryparameters.h",
             "mobilelibrarywizardoptionpage.cpp", "mobilelibrarywizardoptionpage.h", "mobilelibrarywizardoptionpage.ui",

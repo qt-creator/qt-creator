@@ -97,17 +97,6 @@
             with \gui Desktop device type and the Qt Simulator Qt version for
             building and running your projects.
 
-        \li \l{Using Maemo or MeeGo Harmattan Emulator}
-
-            You cannot use \QS to test applications that use device
-            specific libraries, such as native device APIs. To test such
-            applications, use the device emulators or real devices. With the
-            emulators, you can test how your application reacts to hardware
-            controls, such as the power button, and to the touch screen.
-            Usually, it is faster to test on a real device connected to the
-            development PC than to use the emulators. The emulator is installed
-            as part of the Qt 4 SDK.
-
     \endlist
 
 */

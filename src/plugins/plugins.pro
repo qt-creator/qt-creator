@@ -43,7 +43,6 @@ SUBDIRS   = \
     macros \
     remotelinux \
     android \
-    madde \
     valgrind \
     todo \
     qnx \

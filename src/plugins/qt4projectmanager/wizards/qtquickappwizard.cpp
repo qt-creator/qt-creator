@@ -153,19 +153,6 @@ void QtQuickAppWizard::createInstances(ExtensionSystem::IPlugin *plugin)
 
 
     wizard = new QtQuickAppWizard;
-    wizard->setQtQuickKind(MeegoComponents);
-    wizard->setDisplayName(tr("Qt Quick 1 Application for MeeGo Harmattan"));
-    wizard->setDescription(basicDescription +  tr("The Qt Quick Components for MeeGo Harmattan are "
-                                                    "a set of ready-made components that are designed "
-                                                    "with specific native appearance for the MeeGo Harmattan "
-                                                    "platform.\n\nRequires <b>Qt 4.7.4</b> or newer, and the "
-                                                    "component set installed for your Qt version."));
-    wizard->setRequiredFeatures(basicFeatures | Core::Feature(QtSupport::Constants::FEATURE_QTQUICK_COMPONENTS_MEEGO)
-                                  | Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_1_1));
-    plugin->addAutoReleasedObject(wizard);
-
-
-    wizard = new QtQuickAppWizard;
     wizard->setQtQuickKind(ImportQml);
     wizard->setDisplayName(tr("Qt Quick 1 Application (from Existing QML File)"));
     wizard->setDescription(basicDescription +  tr("Creates a deployable Qt Quick application from "
@@ -211,10 +198,6 @@ AbstractMobileAppWizardDialog *QtQuickAppWizard::createWizardDialogInternal(QWid
     switch (qtQuickKind()) {
     case QtQuick1_1:
         d->app->setComponentSet(QtQuickApp::QtQuick10Components);
-        d->app->setMainQml(QtQuickApp::ModeGenerate);
-        break;
-    case MeegoComponents:
-        d->app->setComponentSet(QtQuickApp::Meego10Components);
         d->app->setMainQml(QtQuickApp::ModeGenerate);
         break;
     case ImportQml:

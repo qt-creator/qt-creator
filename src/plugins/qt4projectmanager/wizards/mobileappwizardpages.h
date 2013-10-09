@@ -52,45 +52,6 @@ private:
     class MobileAppWizardGenericOptionsPagePrivate *d;
 };
 
-class MobileAppWizardMaemoOptionsPage : public QWizardPage
-{
-    Q_OBJECT
-
-public:
-    explicit MobileAppWizardMaemoOptionsPage(QWidget *parent = 0);
-    virtual ~MobileAppWizardMaemoOptionsPage();
-
-    QString pngIcon() const;
-    void setPngIcon(const QString &icon);
-
-private slots:
-    void openPngIcon();
-
-private:
-    class MobileAppWizardMaemoOptionsPagePrivate *d;
-};
-
-class MobileAppWizardHarmattanOptionsPage : public QWizardPage
-{
-    Q_OBJECT
-
-public:
-    explicit MobileAppWizardHarmattanOptionsPage(QWidget *parent = 0);
-    virtual ~MobileAppWizardHarmattanOptionsPage();
-
-    QString pngIcon() const;
-    void setPngIcon(const QString &icon);
-
-    void setBoosterOptionEnabled(bool enable);
-    bool supportsBooster() const;
-
-private slots:
-    void openPngIcon();
-
-private:
-    class MobileAppWizardHarmattanOptionsPagePrivate *d;
-};
-
 } // namespace Internal
 } // namespace Qt4ProjectManager
 

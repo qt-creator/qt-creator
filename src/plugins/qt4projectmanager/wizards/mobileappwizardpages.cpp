@@ -29,8 +29,6 @@
 
 #include "mobileappwizardpages.h"
 #include "ui_mobileappwizardgenericoptionspage.h"
-#include "ui_mobileappwizardmaemooptionspage.h"
-#include "ui_mobileappwizardharmattanoptionspage.h"
 #include <utils/fileutils.h>
 
 #include <QTemporaryFile>
@@ -44,22 +42,6 @@ class MobileAppWizardGenericOptionsPagePrivate
 {
     Ui::MobileAppWizardGenericOptionsPage ui;
     friend class MobileAppWizardGenericOptionsPage;
-};
-
-class MobileAppWizardMaemoOptionsPagePrivate
-{
-    Ui::MobileAppWizardMaemoOptionsPage ui;
-    QSize iconSize;
-    QString pngIcon;
-    friend class MobileAppWizardMaemoOptionsPage;
-};
-
-class MobileAppWizardHarmattanOptionsPagePrivate
-{
-    Ui::MobileAppWizardHarmattanOptionsPage ui;
-    QSize iconSize;
-    QString pngIcon;
-    friend class MobileAppWizardHarmattanOptionsPage;
 };
 
 MobileAppWizardGenericOptionsPage::MobileAppWizardGenericOptionsPage(QWidget *parent)
@@ -96,27 +78,6 @@ AbstractMobileApp::ScreenOrientation MobileAppWizardGenericOptionsPage::orientat
     QComboBox *const comboBox = d->ui.orientationBehaviorComboBox;
     const int index = comboBox->currentIndex();
     return static_cast<AbstractMobileApp::ScreenOrientation>(comboBox->itemData(index).toInt());
-}
-
-
-MobileAppWizardMaemoOptionsPage::MobileAppWizardMaemoOptionsPage(QWidget *parent)
-    : QWizardPage(parent)
-    , d(new MobileAppWizardMaemoOptionsPagePrivate)
-{
-    d->ui.setupUi(this);
-    d->iconSize = QSize(64, 64);
-    d->ui.pngIconButton->setIconSize(d->iconSize);
-    connect(d->ui.pngIconButton, SIGNAL(clicked()), this, SLOT(openPngIcon()));
-}
-
-MobileAppWizardMaemoOptionsPage::~MobileAppWizardMaemoOptionsPage()
-{
-    delete d;
-}
-
-QString MobileAppWizardMaemoOptionsPage::pngIcon() const
-{
-    return d->pngIcon;
 }
 
 
@@ -165,86 +126,6 @@ private:
     QString m_iconPath;
     QPixmap m_pixmap;
 };
-
-
-void MobileAppWizardMaemoOptionsPage::setPngIcon(const QString &icon)
-{
-    QString actualIconPath;
-    PngIconScaler scaler(d->iconSize, icon);
-    if (scaler.hasRightSize()) {
-        actualIconPath = icon;
-    } else {
-        if (!scaler.scale(&actualIconPath))
-            return;
-    }
-
-    d->ui.pngIconButton->setIcon(scaler.pixmap());
-    d->pngIcon = actualIconPath;
-}
-
-void MobileAppWizardMaemoOptionsPage::openPngIcon()
-{
-    const QString iconPath = QFileDialog::getOpenFileName(this,
-        d->ui.appIconLabel->text(), d->pngIcon,
-        QLatin1String("*.png"));
-    if (!iconPath.isEmpty())
-        setPngIcon(iconPath);
-}
-
-MobileAppWizardHarmattanOptionsPage::MobileAppWizardHarmattanOptionsPage(QWidget *parent)
-    : QWizardPage(parent)
-    , d(new MobileAppWizardHarmattanOptionsPagePrivate)
-{
-    d->ui.setupUi(this);
-    d->iconSize = QSize(80, 80);
-    d->ui.pngIconButton->setIconSize(d->iconSize);
-    connect(d->ui.pngIconButton, SIGNAL(clicked()), this, SLOT(openPngIcon()));
-}
-
-MobileAppWizardHarmattanOptionsPage::~MobileAppWizardHarmattanOptionsPage()
-{
-    delete d;
-}
-
-QString MobileAppWizardHarmattanOptionsPage::pngIcon() const
-{
-    return d->pngIcon;
-}
-
-void MobileAppWizardHarmattanOptionsPage::setPngIcon(const QString &icon)
-{
-    QString actualIconPath;
-    PngIconScaler scaler(d->iconSize, icon);
-    if (scaler.hasRightSize()) {
-        actualIconPath = icon;
-    } else {
-        if (!scaler.scale(&actualIconPath))
-            return;
-    }
-
-    d->ui.pngIconButton->setIcon(scaler.pixmap());
-    d->pngIcon = actualIconPath;
-}
-
-void MobileAppWizardHarmattanOptionsPage::openPngIcon()
-{
-    const QString iconPath = QFileDialog::getOpenFileName(this,
-        d->ui.appIconLabel->text(), d->pngIcon,
-        QLatin1String("*.png"));
-    if (!iconPath.isEmpty())
-        setPngIcon(iconPath);
-}
-
-void MobileAppWizardHarmattanOptionsPage::setBoosterOptionEnabled(bool enable)
-{
-    d->ui.makeBoostableCheckBox->setEnabled(enable);
-    d->ui.makeBoostableCheckBox->setChecked(enable);
-}
-
-bool MobileAppWizardHarmattanOptionsPage::supportsBooster() const
-{
-    return d->ui.makeBoostableCheckBox->isChecked();
-}
 
 } // namespace Internal
 } // namespace Qt4ProjectManager

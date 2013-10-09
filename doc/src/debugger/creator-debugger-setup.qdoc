@@ -100,10 +100,6 @@
             \li Windows/MSVC
             \li Microsoft Visual C++ Compiler
             \li Debugging Tools for Windows/CDB
-        \row
-            \li Maemo, MeeGo
-            \li GCC
-            \li GDB
     \endtable
 
     \section2 Supported GDB Versions

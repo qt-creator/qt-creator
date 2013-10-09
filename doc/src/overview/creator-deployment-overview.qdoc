@@ -47,14 +47,11 @@
             When you deploy the application to a BlackBerry 10 device, \QC generates a
             BAR package in the build directory and deploys it to the connected
             device.
-        \li \l{Deploying Applications to Linux-Based Devices}
+        \li \l{Deploying Applications to Embedded Linux Devices}
 
-            When you deploy the application to a Linux-based device, such
-            as embedded Linux, MeeGo 1.2 Harmattan, or Maemo 5/Fremantle, \QC
+            When you deploy the application to a generic Linux-based device, \QC
             copies the application files to the connected device. You
             can test and debug the application on the device.
-            You can create Debian installation packages for MeeGo Harmattan and
-            Maemo 5/Fremantle devices.
         \li  \l{Deploying Applications to QNX Devices}
 
             When you deploy the application to a BlackBerry, \QC  generates a

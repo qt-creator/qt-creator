@@ -44,11 +44,7 @@ namespace Qt4ProjectManager {
 
 class AbstractMobileApp;
 
-namespace Internal {
-class MobileAppWizardGenericOptionsPage;
-class MobileAppWizardMaemoOptionsPage;
-class MobileAppWizardHarmattanOptionsPage;
-}
+namespace Internal { class MobileAppWizardGenericOptionsPage; }
 
 /// \internal
 class QT4PROJECTMANAGER_EXPORT AbstractMobileAppWizardDialog : public ProjectExplorer::BaseProjectWizardDialog
@@ -79,19 +75,13 @@ private:
     QList<Core::Id> selectedKits() const;
 
     Internal::MobileAppWizardGenericOptionsPage *m_genericOptionsPage;
-    Internal::MobileAppWizardMaemoOptionsPage *m_maemoOptionsPage;
-    Internal::MobileAppWizardHarmattanOptionsPage *m_harmattanOptionsPage;
     ProjectExplorer::TargetSetupPage *m_targetsPage;
 
     int m_genericOptionsPageId;
-    int m_maemoOptionsPageId;
-    int m_harmattanOptionsPageId;
     int m_targetsPageId;
     bool m_ignoreGeneralOptions; // If true, do not show generic mobile options page.
     Utils::WizardProgressItem *m_targetItem;
     Utils::WizardProgressItem *m_genericItem;
-    Utils::WizardProgressItem *m_maemoItem;
-    Utils::WizardProgressItem *m_harmattanItem;
     QList<Core::Id> m_kitIds;
 
     friend class AbstractMobileAppWizard;

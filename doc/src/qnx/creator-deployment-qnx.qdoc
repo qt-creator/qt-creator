@@ -63,7 +63,7 @@
     \section1 Deploying to QNX Neutrino Devices
 
     Deploying applications to a QNX Neutrino device is very similar to
-    \l{Deploying Applications to Linux-Based Devices}.
+    \l{Deploying Applications to Embedded Linux Devices}.
 
     \image qtcreator-qnx-deployment.png "Deploy to device"
 

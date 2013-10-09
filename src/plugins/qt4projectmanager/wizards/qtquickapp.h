@@ -74,7 +74,6 @@ public:
 
     enum ComponentSet {
         QtQuick10Components,
-        Meego10Components,
         QtQuick20Components,
         QtQuickControls10
     };

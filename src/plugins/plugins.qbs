@@ -36,7 +36,6 @@ Project {
         "ios/ios.qbs",
         "locator/locator.qbs",
         "macros/macros.qbs",
-        "madde/madde.qbs",
         "mercurial/mercurial.qbs",
         "perforce/perforce.qbs",
         "projectexplorer/projectexplorer.qbs",
