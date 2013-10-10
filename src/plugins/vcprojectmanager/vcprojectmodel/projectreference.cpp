@@ -111,6 +111,11 @@ QString ProjectReference::type() const
     return QLatin1String(VcDocConstants::PROJECT_REFERENCE);
 }
 
+IReference *ProjectReference::clone() const
+{
+    return new ProjectReference(*this);
+}
+
 void ProjectReference::processReferenceConfig(const QDomNode &referenceConfig)
 {
     IConfiguration *referenceConfiguration = new Configuration(QLatin1String("ReferenceConfiguration"));

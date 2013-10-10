@@ -43,8 +43,6 @@ class GeneralAttributeContainer;
 class AssemblyReference : public IReference
 {
 public:
-    typedef QSharedPointer<AssemblyReference>   Ptr;
-
     AssemblyReference();
     AssemblyReference(const AssemblyReference &asmRef);
     AssemblyReference& operator=(const AssemblyReference &asmRef);
@@ -57,6 +55,7 @@ public:
     IAttributeContainer *attributeContainer() const;
     ConfigurationContainer *configurationContainer() const;
     QString type() const;
+    IReference* clone() const;
 
 protected:
     virtual void processNodeAttributes(const QDomElement &element);

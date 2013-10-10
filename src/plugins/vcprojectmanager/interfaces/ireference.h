@@ -43,11 +43,12 @@ class ConfigurationContainer;
 class IReference : public IVcProjectXMLNode
 {
 public:
-    virtual ~IReference() {}
+    ~IReference() {}
 
     virtual IAttributeContainer* attributeContainer() const = 0;
     virtual ConfigurationContainer* configurationContainer() const = 0;
     virtual QString type() const = 0;
+    virtual IReference* clone() const = 0;
 };
 
 } // namespace Internal

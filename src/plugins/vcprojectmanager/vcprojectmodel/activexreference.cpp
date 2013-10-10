@@ -133,6 +133,11 @@ QString ActiveXReference::type() const
     return QLatin1String(VcDocConstants::ACTIVEX_REFERENCE);
 }
 
+IReference *ActiveXReference::clone() const
+{
+    return new ActiveXReference(*this);
+}
+
 void ActiveXReference::processReferenceConfig(const QDomNode &referenceConfig)
 {
     IConfiguration *referenceConfiguration = createReferenceConfiguration();

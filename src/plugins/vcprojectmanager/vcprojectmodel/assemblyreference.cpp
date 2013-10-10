@@ -124,6 +124,11 @@ QString AssemblyReference::type() const
     return QLatin1String(VcDocConstants::ASSEMBLY_REFERENCE);
 }
 
+IReference *AssemblyReference::clone() const
+{
+    return new AssemblyReference(*this);
+}
+
 void AssemblyReference::processNodeAttributes(const QDomElement &element)
 {
     QDomNamedNodeMap namedNodeMap = element.attributes();

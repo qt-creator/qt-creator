@@ -21,4 +21,5 @@ HEADERS += \
     interfaces/idebuggertool.h \
     interfaces/idebuggertools.h \
     interfaces/iglobal.h \
-    interfaces/iglobals.h
+    interfaces/iglobals.h \
+    interfaces/ireferences.h

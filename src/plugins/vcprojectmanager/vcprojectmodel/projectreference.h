@@ -56,6 +56,7 @@ public:
     IAttributeContainer *attributeContainer() const;
     ConfigurationContainer *configurationContainer() const;
     QString type() const;
+    IReference* clone() const;
 
 protected:
     void processReferenceConfig(const QDomNode &referenceConfig);

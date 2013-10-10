@@ -30,7 +30,7 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_REFERENCES_H
 #define VCPROJECTMANAGER_INTERNAL_REFERENCES_H
 
-#include "ivcprojectnodemodel.h"
+#include "../interfaces/ireferences.h"
 
 #include "activexreference.h"
 #include "assemblyreference.h"
@@ -39,12 +39,12 @@
 namespace VcProjectManager {
 namespace Internal {
 
-class References : public IVcProjectXMLNode
+class References : public IReferences
 {
 public:
     typedef QSharedPointer<References>  Ptr;
 
-    References(VcDocConstants::DocumentVersion version);
+    References();
     References(const References &references);
     References& operator=(const References &references);
     ~References();
@@ -53,23 +53,15 @@ public:
     VcNodeWidget* createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
-    bool isEmpty() const;
-
-    void addAssemblyReference(AssemblyReference::Ptr asmRef);
-    void removeAssemblyReference(AssemblyReference::Ptr asmRef);
-    void addActiveXReference(ActiveXReference::Ptr actXRef);
-    void removeActiveXReference(ActiveXReference::Ptr actXRef);
-    void addProjectReference(ProjectReference::Ptr projRefer);
-    void removeProjectReference(ProjectReference::Ptr projRef);
-    void removeProjectReference(const QString &projRefName);
+    void addReference(IReference *reference);
+    void removeReference(IReference *reference);
+    int referenceCount() const;
+    IReference *reference(int index) const;
 
 private:
     void processReference(const QDomNode &referenceNode);
 
-    QList<AssemblyReference::Ptr> m_assemblyReferences;
-    QList<ActiveXReference::Ptr> m_activeXReferences;
-    QList<ProjectReference::Ptr> m_projectReferences;
-    VcDocConstants::DocumentVersion m_docVersion;
+    QList<IReference *> m_references;
 };
 
 } // namespace Internal

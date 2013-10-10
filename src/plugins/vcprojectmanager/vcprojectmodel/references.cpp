@@ -30,50 +30,36 @@
 #include "references.h"
 #include "generalattributecontainer.h"
 
+#include <utils/qtcassert.h>
+
 namespace VcProjectManager {
 namespace Internal {
 
-References::References(VcDocConstants::DocumentVersion version)
-    : m_docVersion(version)
+References::References()
 {
 }
 
 References::References(const References &references)
 {
-    m_docVersion = references.m_docVersion;
-
-    foreach (const ActiveXReference::Ptr &ref, references.m_activeXReferences)
-        m_activeXReferences.append(ActiveXReference::Ptr(new ActiveXReference(*ref)));
-
-    foreach (const AssemblyReference::Ptr &ref, references.m_assemblyReferences)
-        m_assemblyReferences.append(AssemblyReference::Ptr(new AssemblyReference(*ref)));
-
-    foreach (const ProjectReference::Ptr &ref, references.m_projectReferences)
-        m_projectReferences.append(ProjectReference::Ptr(new ProjectReference(*ref)));
+    foreach (const IReference *ref, references.m_references)
+        m_references.append(ref->clone());
 }
 
 References &References::operator =(const References &references)
 {
     if (this != &references) {
-        m_docVersion = references.m_docVersion;
-        m_activeXReferences.clear();
-        m_assemblyReferences.clear();
-        m_projectReferences.clear();
+        qDeleteAll(m_references);
+        m_references.clear();
 
-        foreach (const ActiveXReference::Ptr &ref, references.m_activeXReferences)
-            m_activeXReferences.append(ActiveXReference::Ptr(new ActiveXReference(*ref)));
-
-        foreach (const AssemblyReference::Ptr &ref, references.m_assemblyReferences)
-            m_assemblyReferences.append(AssemblyReference::Ptr(new AssemblyReference(*ref)));
-
-        foreach (const ProjectReference::Ptr &ref, references.m_projectReferences)
-            m_projectReferences.append(ProjectReference::Ptr(new ProjectReference(*ref)));
+        foreach (const IReference *ref, references.m_references)
+            m_references.append(ref->clone());
     }
     return *this;
 }
 
 References::~References()
 {
+    qDeleteAll(m_references);
 }
 
 void References::processNode(const QDomNode &node)
@@ -97,87 +83,51 @@ QDomNode References::toXMLDomNode(QDomDocument &domXMLDocument) const
 {
     QDomElement fileNode = domXMLDocument.createElement(QLatin1String("References"));
 
-    foreach (const AssemblyReference::Ptr &asmRef, m_assemblyReferences)
+    foreach (const IReference *asmRef, m_references)
         fileNode.appendChild(asmRef->toXMLDomNode(domXMLDocument));
-
-    foreach (const ActiveXReference::Ptr &activeXRef, m_activeXReferences)
-        fileNode.appendChild(activeXRef->toXMLDomNode(domXMLDocument));
-
-    foreach (const ProjectReference::Ptr &projRef, m_projectReferences)
-        fileNode.appendChild(projRef->toXMLDomNode(domXMLDocument));
 
     return fileNode;
 }
 
-bool References::isEmpty() const
+void References::addReference(IReference *reference)
 {
-    return m_activeXReferences.isEmpty() && m_assemblyReferences.isEmpty() && m_projectReferences.isEmpty();
-}
-
-void References::addAssemblyReference(AssemblyReference::Ptr asmRef)
-{
-    if (m_assemblyReferences.contains(asmRef))
+    if (!reference || m_references.contains(reference))
         return;
-    m_assemblyReferences.append(asmRef);
+    m_references.append(reference);
 }
 
-void References::removeAssemblyReference(AssemblyReference::Ptr asmRef)
+void References::removeReference(IReference *reference)
 {
-    m_assemblyReferences.removeAll(asmRef);
+    m_references.removeOne(reference);
+    delete reference;
 }
 
-void References::addActiveXReference(ActiveXReference::Ptr actXRef)
+int References::referenceCount() const
 {
-    if (m_activeXReferences.contains(actXRef))
-        return;
-    m_activeXReferences.append(actXRef);
+    return m_references.size();
 }
 
-void References::removeActiveXReference(ActiveXReference::Ptr actXRef)
+IReference *References::reference(int index) const
 {
-    m_activeXReferences.removeAll(actXRef);
-}
-
-void References::addProjectReference(ProjectReference::Ptr projRefer)
-{
-    if (m_projectReferences.contains(projRefer))
-        return;
-    m_projectReferences.append(projRefer);
-}
-
-void References::removeProjectReference(ProjectReference::Ptr projRef)
-{
-    m_projectReferences.removeAll(projRef);
-}
-
-void References::removeProjectReference(const QString &projRefName)
-{
-    foreach (const ProjectReference::Ptr &projRef, m_projectReferences) {
-        if (projRef->attributeContainer()->attributeValue(QLatin1String(VcDocConstants::PROJECT_REFERENCE_NAME)) == projRefName) {
-            removeProjectReference(projRef);
-            return;
-        }
-    }
+    QTC_ASSERT(0 <= index && index < m_references.size(), return 0);
+    return m_references[index];
 }
 
 void References::processReference(const QDomNode &referenceNode)
 {
-    if (referenceNode.nodeName() == QLatin1String("AssemblyReference")) {
-        AssemblyReference::Ptr reference(new AssemblyReference);
-        m_assemblyReferences.append(reference);
-        reference->processNode(referenceNode);
-    }
+    IReference *reference = 0;
+    if (referenceNode.nodeName() == QLatin1String("AssemblyReference"))
+        reference = new AssemblyReference;
 
-    else if (referenceNode.nodeName() == QLatin1String("ActiveXReference")) {
-        ActiveXReference::Ptr reference(new ActiveXReference);
-        m_activeXReferences.append(reference);
-        reference->processNode(referenceNode);
-    }
+    else if (referenceNode.nodeName() == QLatin1String("ActiveXReference"))
+        reference = new ActiveXReference;
 
-    else if (referenceNode.nodeName() == QLatin1String("ProjectReference")) {
-        ProjectReference::Ptr reference(new ProjectReference);
-        m_projectReferences.append(reference);
+    else if (referenceNode.nodeName() == QLatin1String("ProjectReference"))
+        reference = new ProjectReference;
+
+    if (reference) {
         reference->processNode(referenceNode);
+        m_references.append(reference);
     }
 
     // process next sibling

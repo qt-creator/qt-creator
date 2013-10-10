@@ -331,7 +331,7 @@ QDomElement VcProjectDocument::toVcDocumentElement(QDomDocument &domXMLDocument)
     if (m_files->fileCount() || m_files->fileContainerCount())
         vcDocNode.appendChild(m_files->toXMLDomNode(domXMLDocument));
 
-    if (!m_references->isEmpty())
+    if (m_references->referenceCount())
         vcDocNode.appendChild(m_references->toXMLDomNode(domXMLDocument));
 
     if (m_globals->globalCount())
@@ -381,7 +381,7 @@ void VcProjectDocument2003::init()
     m_documentVersion = VcDocConstants::DV_MSVC_2003;
     m_files = Files::Ptr(new Files(this));
     m_configurations = Configurations::Ptr(new Configurations(this));
-    m_references = References::Ptr(new References(m_documentVersion));
+    m_references = References::Ptr(new References);
 }
 
 
@@ -487,7 +487,7 @@ void VcProjectDocument2005::init()
     m_documentVersion = VcDocConstants::DV_MSVC_2005;
     m_files = Files::Ptr(new Files(this));
     m_configurations = Configurations::Ptr(new Configurations(this));
-    m_references = References::Ptr(new References(m_documentVersion));
+    m_references = References::Ptr(new References);
 }
 
 void VcProjectDocument2005::processNode(const QDomNode &node)
@@ -614,7 +614,7 @@ void VcProjectDocument2008::init()
     m_documentVersion = VcDocConstants::DV_MSVC_2008;
     m_files = Files::Ptr(new Files(this));
     m_configurations = Configurations::Ptr(new Configurations(this));
-    m_references = References::Ptr(new References(m_documentVersion));
+    m_references = References::Ptr(new References);
 }
 
 void VcProjectDocument2008::processNode(const QDomNode &node)

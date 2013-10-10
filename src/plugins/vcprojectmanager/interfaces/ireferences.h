@@ -27,47 +27,28 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_INTERNAL_ACTIVEXREFERENCE_H
-#define VCPROJECTMANAGER_INTERNAL_ACTIVEXREFERENCE_H
+#ifndef VCPROJECTMANAGER_INTERNAL_IREFERENCEHANDLER_H
+#define VCPROJECTMANAGER_INTERNAL_IREFERENCEHANDLER_H
 
-#include "ivcprojectnodemodel.h"
-#include "vcprojectdocument_constants.h"
-#include "configuration.h"
-#include "../interfaces/ireference.h"
+#include "../vcprojectmodel/ivcprojectnodemodel.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
-class GeneralAttributeContainer;
+class IReference;
 
-class ActiveXReference : public IReference
+class IReferences : public IVcProjectXMLNode
 {
 public:
-    ActiveXReference();
-    ActiveXReference(const ActiveXReference &ref);
-    ActiveXReference &operator=(const ActiveXReference &ref);
+    virtual ~IReferences() {}
 
-    virtual ~ActiveXReference();
-    void processNode(const QDomNode &node);
-    VcNodeWidget* createSettingsWidget();
-    QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
-
-    // IReference interface
-    IAttributeContainer *attributeContainer() const;
-    ConfigurationContainer *configurationContainer() const;
-    QString type() const;
-    IReference* clone() const;
-
-private:
-    void processNodeAttributes(const QDomElement &element);
-    void processReferenceConfig(const QDomNode &referenceConfig);
-    IConfiguration* createReferenceConfiguration() const;
-
-    GeneralAttributeContainer *m_attributeContainer;
-    ConfigurationContainer *m_configurations;
+    virtual void addReference(IReference* reference) = 0;
+    virtual void removeReference(IReference* reference) = 0;
+    virtual int referenceCount() const = 0;
+    virtual IReference* reference(int index) const = 0;
 };
 
 } // namespace Internal
 } // namespace VcProjectManager
 
-#endif // VCPROJECTMANAGER_INTERNAL_ACTIVEXREFERENCE_H
+#endif // VCPROJECTMANAGER_INTERNAL_IREFERENCEHANDLER_H
