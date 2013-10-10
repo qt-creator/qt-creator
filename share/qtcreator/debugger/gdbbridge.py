@@ -23,6 +23,10 @@ def warn(message):
 
 from dumper import *
 from qttypes import *
+from stdtypes import *
+from misctypes import *
+from boosttypes import *
+
 
 #######################################################################
 #
