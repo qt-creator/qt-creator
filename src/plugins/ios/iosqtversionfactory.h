@@ -30,6 +30,7 @@
 #define IOSQTVERSIONFACTORY_H
 
 #include <qtsupport/qtversionfactory.h>
+#include <utils/qtcoverride.h>
 
 namespace Ios {
 namespace Internal {
@@ -39,13 +40,13 @@ class IosQtVersionFactory : public QtSupport::QtVersionFactory
 public:
     explicit IosQtVersionFactory(QObject *parent = 0);
 
-    bool canRestore(const QString &type);
-    QtSupport::BaseQtVersion *restore(const QString &type, const QVariantMap &data);
+    bool canRestore(const QString &type) QTC_OVERRIDE;
+    QtSupport::BaseQtVersion *restore(const QString &type, const QVariantMap &data) QTC_OVERRIDE;
 
-    int priority() const;
+    int priority() const QTC_OVERRIDE;
     QtSupport::BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator,
                                      bool isAutoDetected = false,
-                                     const QString &autoDetectionSource = QString());
+                                     const QString &autoDetectionSource = QString()) QTC_OVERRIDE;
 };
 
 } // namespace Internal

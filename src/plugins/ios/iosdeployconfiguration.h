@@ -30,6 +30,7 @@
 #define IOSDEPLOYCONFIGURATION_H
 
 #include <projectexplorer/deployconfiguration.h>
+#include <utils/qtcoverride.h>
 
 namespace Ios {
 namespace Internal {
@@ -58,22 +59,22 @@ class IosDeployConfigurationFactory : public ProjectExplorer::DeployConfiguratio
 public:
     explicit IosDeployConfigurationFactory(QObject *parent = 0);
 
-    bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
-    ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent, const Core::Id id);
-    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
+    bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const QTC_OVERRIDE;
+    ProjectExplorer::DeployConfiguration *create(ProjectExplorer::Target *parent, const Core::Id id) QTC_OVERRIDE;
+    bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const QTC_OVERRIDE;
     ProjectExplorer::DeployConfiguration *restore(ProjectExplorer::Target *parent,
-                                                  const QVariantMap &map);
+                                                  const QVariantMap &map) QTC_OVERRIDE;
     bool canClone(ProjectExplorer::Target *parent,
-                  ProjectExplorer::DeployConfiguration *source) const;
+                  ProjectExplorer::DeployConfiguration *source) const QTC_OVERRIDE;
     ProjectExplorer::DeployConfiguration *clone(ProjectExplorer::Target *parent,
-                                                ProjectExplorer::DeployConfiguration *source);
+                                                ProjectExplorer::DeployConfiguration *source) QTC_OVERRIDE;
 
-    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const QTC_OVERRIDE;
     // used to translate the ids to names to display to the user
-    QString displayNameForId(const Core::Id id) const;
+    QString displayNameForId(const Core::Id id) const QTC_OVERRIDE;
 
 private:
-    bool canHandle(ProjectExplorer::Target *parent) const;
+    bool canHandle(ProjectExplorer::Target *parent) const QTC_OVERRIDE;
 };
 
 } // namespace Internal

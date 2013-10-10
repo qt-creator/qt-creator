@@ -47,7 +47,6 @@
 #include <QFileSystemWatcher>
 #include <QList>
 #include <QProcess>
-#include <QMessageBox>
 #include <QApplication>
 #include <QDomDocument>
 
