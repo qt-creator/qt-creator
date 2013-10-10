@@ -1740,7 +1740,7 @@ class Dumper(DumperBase):
             if format == None and innerTypeName == "char":
                 # Use Latin1 as default for char *.
                 self.putType(typeName)
-                self.putValue(encodeCharArray(value), Hex2EncodedLatin1)
+                self.putValue(self.encodeCharArray(value), Hex2EncodedLatin1)
                 self.putNumChild(0)
                 return
 
@@ -1758,35 +1758,35 @@ class Dumper(DumperBase):
             if format == 1:
                 # Explicitly requested Latin1 formatting.
                 self.putType(typeName)
-                self.putValue(encodeCharArray(value), Hex2EncodedLatin1)
+                self.putValue(self.encodeCharArray(value), Hex2EncodedLatin1)
                 self.putNumChild(0)
                 return
 
             if format == 2:
                 # Explicitly requested UTF-8 formatting.
                 self.putType(typeName)
-                self.putValue(encodeCharArray(value), Hex2EncodedUtf8)
+                self.putValue(self.encodeCharArray(value), Hex2EncodedUtf8)
                 self.putNumChild(0)
                 return
 
             if format == 3:
                 # Explicitly requested local 8 bit formatting.
                 self.putType(typeName)
-                self.putValue(encodeCharArray(value), Hex2EncodedLocal8Bit)
+                self.putValue(self.encodeCharArray(value), Hex2EncodedLocal8Bit)
                 self.putNumChild(0)
                 return
 
             if format == 4:
                 # Explicitly requested UTF-16 formatting.
                 self.putType(typeName)
-                self.putValue(encodeChar2Array(value), Hex4EncodedLittleEndian)
+                self.putValue(self.encodeChar2Array(value), Hex4EncodedLittleEndian)
                 self.putNumChild(0)
                 return
 
             if format == 5:
                 # Explicitly requested UCS-4 formatting.
                 self.putType(typeName)
-                self.putValue(encodeChar4Array(value), Hex8EncodedLittleEndian)
+                self.putValue(self.encodeChar4Array(value), Hex8EncodedLittleEndian)
                 self.putNumChild(0)
                 return
 
