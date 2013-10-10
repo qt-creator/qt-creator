@@ -214,6 +214,7 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xco
             }
             if (hasClang) {
                 Platform clangProfile;
+                clangProfile.developerPath = Utils::FileName::fromString(devPath);
                 clangProfile.platformKind = 0;
                 clangProfile.name = clangFullName;
                 clangProfile.platformPath = Utils::FileName(fInfo);
@@ -231,6 +232,7 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xco
             }
             if (hasGcc) {
                 Platform gccProfile;
+                gccProfile.developerPath = Utils::FileName::fromString(devPath);
                 gccProfile.name = gccFullName;
                 gccProfile.platformKind = 0;
                 // use the arm-apple-darwin10-llvm-* variant and avoid the extraFlags if available???

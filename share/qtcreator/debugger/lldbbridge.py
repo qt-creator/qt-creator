@@ -677,7 +677,10 @@ class Dumper(DumperBase):
         self.startMode_ = args.get('startMode', 1)
         self.processArgs_ = args.get('processArgs', '')
         self.attachPid_ = args.get('attachPid', 0)
+        self.sysRoot_ = args.get('sysRoot', '')
 
+        if len(self.sysRoot_)>0:
+            self.debugger.SetCurrentPlatformSDKRoot(self.sysRoot_)
         self.target = self.debugger.CreateTarget(self.executable_, None, None, True, error)
         self.importDumpers()
 
@@ -695,7 +698,6 @@ class Dumper(DumperBase):
         if self.attachPid_ > 0:
             attachInfo = lldb.SBAttachInfo(self.attachPid_)
             self.process = self.target.Attach(attachInfo, error)
-
         else:
             launchInfo = lldb.SBLaunchInfo(self.processArgs_.split(' '))
             launchInfo.SetWorkingDirectory(os.getcwd())

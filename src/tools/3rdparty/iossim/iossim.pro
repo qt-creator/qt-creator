@@ -1,5 +1,8 @@
 CONFIG   += console
 
+QT       += core
+QT       += gui
+
 CONFIG -= app_bundle
 
 include(../../../../qtcreator.pri)

@@ -95,6 +95,7 @@ private:
     void executeNextI();
 
     void setupEngine();
+    void startLldb();
     void setupInferior();
     void runEngine();
     void shutdownInferior();
@@ -180,6 +181,9 @@ private:
     void updateBreakpointData(const GdbMi &bkpt, bool added);
     void handleUpdateStack(const QByteArray &response);
     void handleUpdateThreads(const QByteArray &response);
+
+    void notifyEngineRemoteSetupDone(int portOrPid, int qmlPort);
+    void notifyEngineRemoteSetupFailed(const QString &reason);
 
     void handleChildren(const WatchData &data0, const GdbMi &item,
         QList<WatchData> *list);
