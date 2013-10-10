@@ -798,7 +798,15 @@ void AndroidConfigurations::updateAutomaticKitList()
             ToolChainKitInformation::setToolChain(newKit, tc);
             QtSupport::QtKitInformation::setQtVersion(newKit, qt);
             DeviceKitInformation::setDevice(newKit, device);
-            Debugger::DebuggerKitInformation::setDebugger(newKit, tc->suggestedDebugger());
+
+            Debugger::DebuggerItem debugger;
+            debugger.setCommand(tc->suggestedDebugger());
+            debugger.setEngineType(Debugger::GdbEngineType);
+            debugger.setDisplayName(tr("Android Debugger for %1").arg(tc->displayName()));
+            debugger.setAutoDetected(true);
+            debugger.setAbi(tc->targetAbi());
+            Debugger::DebuggerKitInformation::setDebugger(newKit, debugger);
+
             AndroidGdbServerKitInformation::setGdbSever(newKit, tc->suggestedGdbServer());
             newKit->makeSticky();
             newKits << newKit;

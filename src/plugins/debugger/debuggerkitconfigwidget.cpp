@@ -254,14 +254,6 @@ void DebuggerKitInformation::setDebugger(Kit *k, const DebuggerItem &item)
     k->setValue(DebuggerKitInformation::id(), id);
 }
 
-void DebuggerKitInformation::setDebugger(Kit *k, const FileName &command)
-{
-    DebuggerItem item;
-    item.setEngineType(GdbEngineType);
-    item.setCommand(command);
-    setDebugger(k, item);
-}
-
 Core::Id DebuggerKitInformation::id()
 {
     return "Debugger.Information";

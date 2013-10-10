@@ -107,7 +107,6 @@ public:
     ItemList toUserOutput(const ProjectExplorer::Kit *k) const;
 
     static void setDebugger(ProjectExplorer::Kit *k, const DebuggerItem &item);
-    static void setDebugger(ProjectExplorer::Kit *k, const Utils::FileName &command);
 
     static Core::Id id();
     static Utils::FileName debuggerCommand(const ProjectExplorer::Kit *k);
