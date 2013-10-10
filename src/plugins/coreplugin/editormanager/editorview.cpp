@@ -133,16 +133,16 @@ SplitterOrView *EditorView::parentSplitterOrView() const
 EditorView *EditorView::findNextView()
 {
     SplitterOrView *current = parentSplitterOrView();
-    QTC_ASSERT(current, return this);
+    QTC_ASSERT(current, return 0);
     SplitterOrView *parent = current->findParentSplitter();
     while (parent) {
         QSplitter *splitter = parent->splitter();
-        QTC_ASSERT(splitter, return this);
-        QTC_ASSERT(splitter->count() == 2, return this);
+        QTC_ASSERT(splitter, return 0);
+        QTC_ASSERT(splitter->count() == 2, return 0);
         // is current the first child? then the next view is the first one in current's sibling
         if (splitter->widget(0) == current) {
             SplitterOrView *second = qobject_cast<SplitterOrView *>(splitter->widget(1));
-            QTC_ASSERT(second, return this);
+            QTC_ASSERT(second, return 0);
             return second->findFirstView();
         }
         // otherwise go up the hierarchy
@@ -634,6 +634,15 @@ void SplitterOrView::split(Qt::Orientation orientation)
 void SplitterOrView::unsplitAll()
 {
     QTC_ASSERT(m_splitter, return);
+    // avoid focus changes while unsplitting is in progress
+    bool hadFocus = false;
+    if (QWidget *w = focusWidget()) {
+        if (w->hasFocus()) {
+            w->clearFocus();
+            hadFocus = true;
+        }
+    }
+
     EditorView *currentView = EditorManager::currentEditorView();
     if (currentView) {
         currentView->parentSplitterOrView()->takeView();
@@ -648,6 +657,14 @@ void SplitterOrView::unsplitAll()
     m_layout->addWidget(m_view);
     delete m_splitter;
     m_splitter = 0;
+
+    // restore some focus
+    if (hadFocus) {
+        if (IEditor *editor = m_view->currentEditor())
+            editor->widget()->setFocus();
+        else
+            m_view->setFocus();
+    }
 }
 
 void SplitterOrView::unsplitAll_helper()
