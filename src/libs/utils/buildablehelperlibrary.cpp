@@ -44,6 +44,7 @@ bool BuildableHelperLibrary::isQtChooser(const QFileInfo &info)
 
 QString BuildableHelperLibrary::qtChooserToQmakePath(const QString &path)
 {
+    const char toolDir[] = "QTTOOLDIR=\"";
     QProcess proc;
     proc.start(path, QStringList(QLatin1String("-print-env")));
     if (!proc.waitForStarted(1000))
@@ -51,10 +52,10 @@ QString BuildableHelperLibrary::qtChooserToQmakePath(const QString &path)
     if (!proc.waitForFinished(1000))
         return QString();
     QByteArray output = proc.readAllStandardOutput();
-    int pos = output.indexOf("QTTOOLDIR=");
+    int pos = output.indexOf(toolDir);
     if (pos == -1)
         return QString();
-    pos += strlen("QTTOOLDIR=\"");
+    pos += int(sizeof(toolDir)) - 1;
     int end = output.indexOf('\"', pos);
     if (end == -1)
         return QString();
