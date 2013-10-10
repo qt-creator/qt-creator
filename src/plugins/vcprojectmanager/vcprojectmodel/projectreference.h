@@ -30,125 +30,39 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_PROJECTREFERENCE_H
 #define VCPROJECTMANAGER_INTERNAL_PROJECTREFERENCE_H
 
-#include "ivcprojectnodemodel.h"
+#include "../interfaces/ireference.h"
 
-#include "projectreference_private.h"
+#include <QSharedPointer>
 
 namespace VcProjectManager {
 namespace Internal {
 
-class ProjectReference : public IVcProjectXMLNode
-{
-    friend class ProjectReferenceFactory;
+class GeneralAttributeContainer;
 
+class ProjectReference : public IReference
+{
 public:
     typedef QSharedPointer<ProjectReference>    Ptr;
 
+    ProjectReference();
+    ProjectReference(const ProjectReference &projRef);
+    ProjectReference& operator=(const ProjectReference &projRef);
     ~ProjectReference();
 
     void processNode(const QDomNode &node);
     VcNodeWidget* createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
-    /*!
-     * Implement in order to support creating a clone of a ProjectReference instance.
-     * \return A shared pointer to newly created ProjectReference instance.
-     */
-    virtual ProjectReference::Ptr clone() const = 0;
-
-    QString name() const;
-    void setName(const QString &name);
-    QString referencedProjectIdentifier() const;
-    void setReferencedProjectIdentifier(const QString &referencedProjectIdentifier);
-    void addReferenceConfiguration(IConfiguration *refConfig);
-    void removeReferenceConfiguration(IConfiguration *refConfig);
-    void removeReferenceConfiguration(const QString &refConfigName);
-    QList<IConfiguration *> referenceConfigurations() const;
-    IConfiguration *referenceConfiguration(const QString &refConfigName) const;
+    IAttributeContainer *attributeContainer() const;
+    ConfigurationContainer *configurationContainer() const;
+    QString type() const;
 
 protected:
-    ProjectReference();
-    ProjectReference(const ProjectReference &projRef);
-    ProjectReference& operator=(const ProjectReference &projRef);
+    void processReferenceConfig(const QDomNode &referenceConfig);
+    void processNodeAttributes(const QDomElement &element);
 
-    /*!
-     * Called after instance of the ProjectReference is created in order to initialize \b m_private member variable to
-     * a proper version of a ProjectReference_Private implementation (2003, 2005 or 2008).
-     */
-    virtual void init() = 0;
-
-    ProjectReference_Private::Ptr m_private;
-};
-
-class ProjectReference2003 : public ProjectReference
-{
-    friend class ProjectReferenceFactory;
-
-public:
-    ProjectReference2003(const ProjectReference2003 &projRef);
-    ProjectReference2003& operator=(const ProjectReference2003 &projRef);
-    ~ProjectReference2003();
-
-    ProjectReference::Ptr clone() const;
-
-protected:
-    ProjectReference2003();
-    void init();
-};
-
-class ProjectReference2005 : public ProjectReference2003
-{
-    friend class ProjectReferenceFactory;
-
-public:
-    ProjectReference2005(const ProjectReference2005 &projRef);
-    ProjectReference2005& operator=(const ProjectReference2005 &projRef);
-    ~ProjectReference2005();
-
-    ProjectReference::Ptr clone() const;
-
-    QString copyLocal() const;
-    void setCopyLocal(const QString &copyLocal);
-    bool useInBuild() const;
-    void setUseInBuild(bool useInBuild);
-    QString relativePathFromSolution() const;
-    void setRelativePathFromSolution(const QString &relativePathFromSolution);
-
-protected:
-    ProjectReference2005();
-    void init();
-};
-
-class ProjectReference2008 : public ProjectReference2005
-{
-    friend class ProjectReferenceFactory;
-
-public:
-    ProjectReference2008(const ProjectReference2008 &projRef);
-    ProjectReference2008& operator=(const ProjectReference2008 &projRef);
-    ~ProjectReference2008();
-
-    ProjectReference::Ptr clone() const;
-
-    QString relativePathToProject() const;
-    void setRelativePathToProject(const QString &relativePathToProject);
-    bool useDependenciesInBuild() const;
-    void setUseDependenciesInBuild(bool useDependenciesInBuild);
-    bool copyLocalSatelliteAssemblies() const;
-    void setCopyLocalSatelliteAssemblies(bool copyLocalSatelliteAssemblies);
-    bool copyLocalDependencies() const;
-    void setCopyLocalDependencies(bool copyLocalDependencies);
-
-private:
-    ProjectReference2008();
-    void init();
-};
-
-class ProjectReferenceFactory
-{
-public:
-    static ProjectReferenceFactory& instance();
-    ProjectReference::Ptr create(VcDocConstants::DocumentVersion version);
+    ConfigurationContainer *m_configurations;
+    GeneralAttributeContainer *m_attributeContainer;
 };
 
 } // namespace Internal

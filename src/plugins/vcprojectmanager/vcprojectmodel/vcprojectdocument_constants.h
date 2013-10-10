@@ -42,7 +42,8 @@ enum DocumentVersion
     DV_MSVC_2008
 };
 
-const char ACTIVEX_REFERENCE [] = "VC_Doc_Model.ActiveXReference";
+// ActiveX Reference
+const char ACTIVEX_REFERENCE [] = "ActiveXReference";
 const char ACTIVEX_REFERENCE_CONTROL_GUID [] = "ControlGUID";
 const char ACTIVEX_REFERENCE_CONTROL_VERSION [] = "ControlVersion";
 const char ACTIVEX_REFERENCE_WRAPPER_TOOL [] = "WrapperTool";
@@ -54,7 +55,7 @@ const char ACTIVEX_REFERENCE_COPY_LOCAL_SATELITE_ASSEMBLIES [] = "CopyLocalSatel
 const char ACTIVEX_REFERENCE_USE_DEPENDENCIES_IN_BUILD [] = "UseDependenciesInBuild";
 
 // Assembly Reference
-const char ASSEMBLY_REFERENCE [] = "VC_Doc_Model.AssemblyReference";
+const char ASSEMBLY_REFERENCE [] = "AssemblyReference";
 const char ASSEMBLY_REFERENCE_RELATIVE_PATH [] = "RelativePath";
 const char ASSEMBLY_REFERENCE_ASSEMBLY_NAME [] = "AssemblyName";
 const char ASSEMBLY_REFERENCE_COPY_LOCAL [] = "CopyLocal";
@@ -64,6 +65,18 @@ const char ASSEMBLY_REFERENCE_COPY_LOCAL_SATELITE_ASSEMBLIES [] = "CopyLocalSate
 const char ASSEMBLY_REFERENCE_USE_DEPENDENCIES_IN_BUILD [] = "UseDependenciesInBuild";
 const char ASSEMBLY_REFERENCE_SUB_TYPE [] = "SubType";
 const char ASSEMBLY_REFERENCE_MIN_FRAMEWORK_VERSION [] = "MinFrameworkVersion";
+
+//Project Reference
+const char PROJECT_REFERENCE [] = "ProjectReference";
+const char PROJECT_REFERENCE_NAME [] = "Name";
+const char PROJECT_REFERENCE_REFERENCED_PROJECT_IDENTIFIER [] = "ReferencedProjectIdentifier";
+const char PROJECT_REFERENCE_COPY_LOCAL [] = "CopyLocal";
+const char PROJECT_REFERENCE_USE_IN_BUILD [] = "UseInBuild";
+const char PROJECT_REFERENCE_RELATIVE_PATH_FROM_SOLUTION [] = "RelativePathFromSolution";
+const char PROJECT_REFERENCE_RELATIVE_PATH_TO_PROJECT [] = "RelativePathToProject";
+const char PROJECT_REFERENCE_USE_DEPENDENCIES_IN_BUILD [] = "UseDependenciesInBuild";
+const char PROJECT_REFERENCE_COPY_LOCAL_SATELITE_ASSEMBLIES [] = "CopyLocalSatelliteAssemblies";
+const char PROJECT_REFERENCE_COPY_LOCAL_DEPENDENCIES [] = "CopyLocalDependencies";
 
 } // VcDocConstants
 } // namespace Internal

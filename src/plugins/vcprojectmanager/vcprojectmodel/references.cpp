@@ -28,6 +28,7 @@
 **
 ****************************************************************************/
 #include "references.h"
+#include "generalattributecontainer.h"
 
 namespace VcProjectManager {
 namespace Internal {
@@ -48,7 +49,7 @@ References::References(const References &references)
         m_assemblyReferences.append(AssemblyReference::Ptr(new AssemblyReference(*ref)));
 
     foreach (const ProjectReference::Ptr &ref, references.m_projectReferences)
-        m_projectReferences.append(ref->clone());
+        m_projectReferences.append(ProjectReference::Ptr(new ProjectReference(*ref)));
 }
 
 References &References::operator =(const References &references)
@@ -66,7 +67,7 @@ References &References::operator =(const References &references)
             m_assemblyReferences.append(AssemblyReference::Ptr(new AssemblyReference(*ref)));
 
         foreach (const ProjectReference::Ptr &ref, references.m_projectReferences)
-            m_projectReferences.append(ref->clone());
+            m_projectReferences.append(ProjectReference::Ptr(new ProjectReference(*ref)));
     }
     return *this;
 }
@@ -152,7 +153,7 @@ void References::removeProjectReference(ProjectReference::Ptr projRef)
 void References::removeProjectReference(const QString &projRefName)
 {
     foreach (const ProjectReference::Ptr &projRef, m_projectReferences) {
-        if (projRef->name() == projRefName) {
+        if (projRef->attributeContainer()->attributeValue(QLatin1String(VcDocConstants::PROJECT_REFERENCE_NAME)) == projRefName) {
             removeProjectReference(projRef);
             return;
         }
@@ -174,7 +175,7 @@ void References::processReference(const QDomNode &referenceNode)
     }
 
     else if (referenceNode.nodeName() == QLatin1String("ProjectReference")) {
-        ProjectReference::Ptr reference = ProjectReferenceFactory::instance().create(m_docVersion);
+        ProjectReference::Ptr reference(new ProjectReference);
         m_projectReferences.append(reference);
         reference->processNode(referenceNode);
     }

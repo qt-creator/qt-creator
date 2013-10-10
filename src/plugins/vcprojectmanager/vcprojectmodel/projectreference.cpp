@@ -28,294 +28,123 @@
 **
 ****************************************************************************/
 #include "projectreference.h"
+#include "configurationcontainer.h"
+#include "generalattributecontainer.h"
+#include "vcprojectdocument_constants.h"
+#include "configuration.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
+ProjectReference::ProjectReference()
+{
+    m_configurations = new ConfigurationContainer;
+    m_attributeContainer = new GeneralAttributeContainer;
+}
+
+ProjectReference::ProjectReference(const ProjectReference &projRef)
+{
+    m_configurations = new ConfigurationContainer;
+    m_attributeContainer = new GeneralAttributeContainer;
+
+    *m_attributeContainer = *projRef.m_attributeContainer;
+    *m_configurations = *projRef.m_configurations;
+}
+
+ProjectReference &ProjectReference::operator =(const ProjectReference &projRef)
+{
+    if (this != &projRef) {
+        *m_attributeContainer = *projRef.m_attributeContainer;
+        *m_configurations = *projRef.m_configurations;
+    }
+    return *this;
+}
+
 ProjectReference::~ProjectReference()
 {
+    delete m_attributeContainer;
+    delete m_configurations;
 }
 
 void ProjectReference::processNode(const QDomNode &node)
 {
-    m_private->processNode(node);
+    if (node.isNull())
+        return;
+
+    if (node.nodeType() == QDomNode::ElementNode)
+        processNodeAttributes(node.toElement());
+
+    if (node.hasChildNodes()) {
+        QDomNode firstChild = node.firstChild();
+        if (!firstChild.isNull())
+            processReferenceConfig(firstChild);
+    }
 }
 
 VcNodeWidget *ProjectReference::createSettingsWidget()
 {
-    // TODO(Radovan): Finish implementation
     return 0;
 }
 
 QDomNode ProjectReference::toXMLDomNode(QDomDocument &domXMLDocument) const
 {
-    return m_private->toXMLDomNode(domXMLDocument);
+    QDomElement projRefNode = domXMLDocument.createElement(QLatin1String("ProjectReference"));
+
+    m_attributeContainer->appendToXMLNode(projRefNode);
+    m_configurations->appendToXMLNode(projRefNode, domXMLDocument);
+
+    return projRefNode;
 }
 
-QString ProjectReference::name() const
+IAttributeContainer *ProjectReference::attributeContainer() const
 {
-    return m_private->name();
+    return m_attributeContainer;
 }
 
-void ProjectReference::setName(const QString &name)
+ConfigurationContainer *ProjectReference::configurationContainer() const
 {
-    m_private->setName(name);
+    return m_configurations;
 }
 
-QString ProjectReference::referencedProjectIdentifier() const
+QString ProjectReference::type() const
 {
-    return m_private->referencedProjectIdentifier();
+    return QLatin1String(VcDocConstants::PROJECT_REFERENCE);
 }
 
-void ProjectReference::setReferencedProjectIdentifier(const QString &referencedProjectIdentifier)
+void ProjectReference::processReferenceConfig(const QDomNode &referenceConfig)
 {
-    m_private->setReferencedProjectIdentifier(referencedProjectIdentifier);
+    IConfiguration *referenceConfiguration = new Configuration(QLatin1String("ReferenceConfiguration"));
+    referenceConfiguration->processNode(referenceConfig);
+    m_configurations->addConfiguration(referenceConfiguration);
+
+    // process next sibling
+    QDomNode nextSibling = referenceConfig.nextSibling();
+    if (!nextSibling.isNull())
+        processReferenceConfig(nextSibling);
 }
 
-void ProjectReference::addReferenceConfiguration(IConfiguration *refConfig)
+void ProjectReference::processNodeAttributes(const QDomElement &element)
 {
-    m_private->addReferenceConfiguration(refConfig);
-}
+    QDomNamedNodeMap namedNodeMap = element.attributes();
 
-void ProjectReference::removeReferenceConfiguration(IConfiguration *refConfig)
-{
-    m_private->removeReferenceConfiguration(refConfig);
-}
+    for (int i = 0; i < namedNodeMap.size(); ++i) {
+        QDomNode domNode = namedNodeMap.item(i);
 
-void ProjectReference::removeReferenceConfiguration(const QString &refConfigName)
-{
-    m_private->removeReferenceConfiguration(refConfigName);
-}
+        if (domNode.nodeType() == QDomNode::AttributeNode) {
+            QDomAttr domElement = domNode.toAttr();
 
-QList<IConfiguration*> ProjectReference::referenceConfigurations() const
-{
-    return m_private->referenceConfigurations();
-}
-
-IConfiguration* ProjectReference::referenceConfiguration(const QString &refConfigName) const
-{
-    return m_private->referenceConfiguration(refConfigName);
-}
-
-ProjectReference::ProjectReference()
-{
-}
-
-ProjectReference::ProjectReference(const ProjectReference &projRef)
-{
-    m_private = projRef.m_private->clone();
-}
-
-ProjectReference &ProjectReference::operator =(const ProjectReference &projRef)
-{
-    if (this != &projRef)
-        m_private = projRef.m_private->clone();
-    return *this;
-}
-
-
-ProjectReference2003::ProjectReference2003(const ProjectReference2003 &projRef)
-    : ProjectReference(projRef)
-{
-}
-
-ProjectReference2003 &ProjectReference2003::operator =(const ProjectReference2003 &projRef)
-{
-    ProjectReference::operator =(projRef);
-    return *this;
-}
-
-ProjectReference2003::~ProjectReference2003()
-{
-}
-
-ProjectReference::Ptr ProjectReference2003::clone() const
-{
-    return ProjectReference::Ptr(new ProjectReference2003(*this));
-}
-
-ProjectReference2003::ProjectReference2003()
-{
-}
-
-void ProjectReference2003::init()
-{
-    m_private = ProjectReference_Private::Ptr(new ProjectReference2003_Private);
-}
-
-
-ProjectReference2005::ProjectReference2005(const ProjectReference2005 &projRef)
-    : ProjectReference2003(projRef)
-{
-}
-
-ProjectReference2005 &ProjectReference2005::operator =(const ProjectReference2005 &projRef)
-{
-    ProjectReference2003::operator =(projRef);
-    return *this;
-}
-
-ProjectReference2005::~ProjectReference2005()
-{
-}
-
-ProjectReference::Ptr ProjectReference2005::clone() const
-{
-    return ProjectReference::Ptr(new ProjectReference2005(*this));
-}
-
-QString ProjectReference2005::copyLocal() const
-{
-    QSharedPointer<ProjectReference2005_Private> ref = m_private.staticCast<ProjectReference2005_Private>();
-    return ref->copyLocal();
-}
-
-void ProjectReference2005::setCopyLocal(const QString &copyLocal)
-{
-    QSharedPointer<ProjectReference2005_Private> ref = m_private.staticCast<ProjectReference2005_Private>();
-    ref->setCopyLocal(copyLocal);
-}
-
-bool ProjectReference2005::useInBuild() const
-{
-    QSharedPointer<ProjectReference2005_Private> ref = m_private.staticCast<ProjectReference2005_Private>();
-    return ref->useInBuild();
-}
-
-void ProjectReference2005::setUseInBuild(bool useInBuild)
-{
-    QSharedPointer<ProjectReference2005_Private> ref = m_private.staticCast<ProjectReference2005_Private>();
-    ref->setUseInBuild(useInBuild);
-}
-
-QString ProjectReference2005::relativePathFromSolution() const
-{
-    QSharedPointer<ProjectReference2005_Private> ref = m_private.staticCast<ProjectReference2005_Private>();
-    return ref->relativePathFromSolution();
-}
-
-void ProjectReference2005::setRelativePathFromSolution(const QString &relativePathFromSolution)
-{
-    QSharedPointer<ProjectReference2005_Private> ref = m_private.staticCast<ProjectReference2005_Private>();
-    ref->setRelativePathFromSolution(relativePathFromSolution);
-}
-
-ProjectReference2005::ProjectReference2005()
-{
-}
-
-void ProjectReference2005::init()
-{
-    m_private = ProjectReference_Private::Ptr(new ProjectReference2005_Private);
-}
-
-
-ProjectReference2008::ProjectReference2008(const ProjectReference2008 &projRef)
-    : ProjectReference2005(projRef)
-{
-}
-
-ProjectReference2008 &ProjectReference2008::operator =(const ProjectReference2008 &projRef)
-{
-    ProjectReference2005::operator =(projRef);
-    return *this;
-}
-
-ProjectReference2008::~ProjectReference2008()
-{
-}
-
-ProjectReference::Ptr ProjectReference2008::clone() const
-{
-    return ProjectReference::Ptr(new ProjectReference2008(*this));
-}
-
-QString ProjectReference2008::relativePathToProject() const
-{
-    QSharedPointer<ProjectReference2008_Private> ref = m_private.staticCast<ProjectReference2008_Private>();
-    return ref->relativePathToProject();
-}
-
-void ProjectReference2008::setRelativePathToProject(const QString &relativePathToProject)
-{
-    QSharedPointer<ProjectReference2008_Private> ref = m_private.staticCast<ProjectReference2008_Private>();
-    ref->setRelativePathToProject(relativePathToProject);
-}
-
-bool ProjectReference2008::useDependenciesInBuild() const
-{
-    QSharedPointer<ProjectReference2008_Private> ref = m_private.staticCast<ProjectReference2008_Private>();
-    return ref->useDependenciesInBuild();
-}
-
-void ProjectReference2008::setUseDependenciesInBuild(bool useDependenciesInBuild)
-{
-    QSharedPointer<ProjectReference2008_Private> ref = m_private.staticCast<ProjectReference2008_Private>();
-    ref->setUseDependenciesInBuild(useDependenciesInBuild);
-}
-
-bool ProjectReference2008::copyLocalSatelliteAssemblies() const
-{
-    QSharedPointer<ProjectReference2008_Private> ref = m_private.staticCast<ProjectReference2008_Private>();
-    return ref->copyLocalSatelliteAssemblies();
-}
-
-void ProjectReference2008::setCopyLocalSatelliteAssemblies(bool copyLocalSatelliteAssemblies)
-{
-    QSharedPointer<ProjectReference2008_Private> ref = m_private.staticCast<ProjectReference2008_Private>();
-    ref->setCopyLocalSatelliteAssemblies(copyLocalSatelliteAssemblies);
-}
-
-bool ProjectReference2008::copyLocalDependencies() const
-{
-    QSharedPointer<ProjectReference2008_Private> ref = m_private.staticCast<ProjectReference2008_Private>();
-    return ref->copyLocalDependencies();
-}
-
-void ProjectReference2008::setCopyLocalDependencies(bool copyLocalDependencies)
-{
-    QSharedPointer<ProjectReference2008_Private> ref = m_private.staticCast<ProjectReference2008_Private>();
-    ref->setCopyLocalDependencies(copyLocalDependencies);
-}
-
-ProjectReference2008::ProjectReference2008()
-{
-}
-
-void ProjectReference2008::init()
-{
-    m_private = ProjectReference_Private::Ptr(new ProjectReference2008_Private);
-}
-
-
-ProjectReferenceFactory &ProjectReferenceFactory::instance()
-{
-    static ProjectReferenceFactory pr;
-    return pr;
-}
-
-ProjectReference::Ptr ProjectReferenceFactory::create(VcDocConstants::DocumentVersion version)
-{
-    ProjectReference::Ptr ref;
-
-    switch (version) {
-    case VcDocConstants::DV_MSVC_2003:
-        ref = ProjectReference::Ptr(new ProjectReference2003);
-        break;
-    case VcDocConstants::DV_MSVC_2005:
-        ref = ProjectReference::Ptr(new ProjectReference2005);
-        break;
-    case VcDocConstants::DV_MSVC_2008:
-        ref = ProjectReference::Ptr(new ProjectReference2008);
-        break;
-    case VcDocConstants::DV_UNRECOGNIZED:
-        return ref;
+            if (domElement.name() == QLatin1String(VcDocConstants::PROJECT_REFERENCE_COPY_LOCAL) ||
+                    domElement.name() == QLatin1String(VcDocConstants::PROJECT_REFERENCE_COPY_LOCAL_DEPENDENCIES) ||
+                    domElement.name() == QLatin1String(VcDocConstants::PROJECT_REFERENCE_COPY_LOCAL_SATELITE_ASSEMBLIES) ||
+                    domElement.name() == QLatin1String(VcDocConstants::PROJECT_REFERENCE_NAME) ||
+                    domElement.name() == QLatin1String(VcDocConstants::PROJECT_REFERENCE_REFERENCED_PROJECT_IDENTIFIER) ||
+                    domElement.name() == QLatin1String(VcDocConstants::PROJECT_REFERENCE_RELATIVE_PATH_FROM_SOLUTION) ||
+                    domElement.name() == QLatin1String(VcDocConstants::PROJECT_REFERENCE_RELATIVE_PATH_TO_PROJECT) ||
+                    domElement.name() == QLatin1String(VcDocConstants::PROJECT_REFERENCE_USE_DEPENDENCIES_IN_BUILD) ||
+                    domElement.name() == QLatin1String(VcDocConstants::PROJECT_REFERENCE_USE_IN_BUILD))
+                m_attributeContainer->setAttribute(domElement.name(), domElement.value());
+        }
     }
-
-    if (ref)
-        ref->init();
-
-    return ref;
 }
 
 } // namespace Internal

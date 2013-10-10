@@ -6,7 +6,6 @@ HEADERS += \
     vcprojectmodel/references.h \
     vcprojectmodel/publishingitem.h \
     vcprojectmodel/publishingdata.h \
-    vcprojectmodel/projectreference_private.h \
     vcprojectmodel/projectreference.h \
     vcprojectmodel/platforms.h \
     vcprojectmodel/platform.h \
@@ -57,7 +56,6 @@ SOURCES += \
     vcprojectmodel/references.cpp \
     vcprojectmodel/publishingitem.cpp \
     vcprojectmodel/publishingdata.cpp \
-    vcprojectmodel/projectreference_private.cpp \
     vcprojectmodel/projectreference.cpp \
     vcprojectmodel/platforms.cpp \
     vcprojectmodel/platform.cpp \
