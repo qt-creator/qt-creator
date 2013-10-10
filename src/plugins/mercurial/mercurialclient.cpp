@@ -428,9 +428,9 @@ public:
                                  const MercurialDiffParameters &p, QWidget *parent = 0) :
         VcsBase::VcsBaseEditorParameterWidget(parent), m_client(client), m_params(p)
     {
-        mapSetting(addToggleButton(QLatin1String("-w"), tr("Ignore whitespace")),
+        mapSetting(addToggleButton(QLatin1String("-w"), tr("Ignore Whitespace")),
                    client->settings()->boolPointer(MercurialSettings::diffIgnoreWhiteSpaceKey));
-        mapSetting(addToggleButton(QLatin1String("-B"), tr("Ignore blank lines")),
+        mapSetting(addToggleButton(QLatin1String("-B"), tr("Ignore Blank Lines")),
                    client->settings()->boolPointer(MercurialSettings::diffIgnoreBlankLinesKey));
     }
 

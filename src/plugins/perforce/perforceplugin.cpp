@@ -1215,7 +1215,7 @@ PerforceDiffParameterWidget::PerforceDiffParameterWidget(const PerforceDiffParam
     VcsBase::VcsBaseEditorParameterWidget(parent), m_parameters(p)
 {
     setBaseArguments(p.diffArguments);
-    addToggleButton(QLatin1String("w"), tr("Ignore whitespace"));
+    addToggleButton(QLatin1String("w"), tr("Ignore Whitespace"));
     connect(this, SIGNAL(argumentsChanged()), this, SLOT(triggerReRun()));
 }
 
