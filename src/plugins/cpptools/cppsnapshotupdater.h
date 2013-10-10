@@ -52,6 +52,7 @@ public:
     { return m_fileInEditor; }
 
     void update(CppModelManagerInterface::WorkingCopy workingCopy);
+    void releaseSnapshot();
 
     CPlusPlus::Document::Ptr document() const;
     CPlusPlus::Snapshot snapshot() const;
@@ -81,6 +82,7 @@ private:
     CPlusPlus::Snapshot m_snapshot;
     CPlusPlus::DependencyTable m_deps;
     bool m_usePrecompiledHeaders;
+    bool m_forceSnapshotInvalidation;
 };
 
 } // namespace CppTools

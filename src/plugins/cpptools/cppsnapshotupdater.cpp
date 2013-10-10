@@ -41,6 +41,7 @@ SnapshotUpdater::SnapshotUpdater(const QString &fileInEditor)
     , m_fileInEditor(fileInEditor)
     , m_editorDefinesChangedSinceLastUpdate(false)
     , m_usePrecompiledHeaders(false)
+    , m_forceSnapshotInvalidation(false)
 {
 }
 
@@ -61,6 +62,11 @@ void SnapshotUpdater::update(CppModelManager::WorkingCopy workingCopy)
     QStringList precompiledHeaders;
 
     updateProjectPart();
+
+    if (m_forceSnapshotInvalidation) {
+        invalidateSnapshot = true;
+        m_forceSnapshotInvalidation = false;
+    }
 
     if (m_projectPart) {
         configFile += m_projectPart->defines;
@@ -184,6 +190,14 @@ void SnapshotUpdater::update(CppModelManager::WorkingCopy workingCopy)
         if (Document::Ptr doc = document())
             doc->setRevision(rev + 1);
     }
+}
+
+void SnapshotUpdater::releaseSnapshot()
+{
+    QMutexLocker locker(&m_mutex);
+    m_snapshot = Snapshot();
+    m_deps = DependencyTable();
+    m_forceSnapshotInvalidation = true;
 }
 
 Document::Ptr SnapshotUpdater::document() const

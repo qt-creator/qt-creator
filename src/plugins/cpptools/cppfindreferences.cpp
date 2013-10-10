@@ -247,8 +247,9 @@ public:
 
 CppFindReferences::CppFindReferences(CppModelManagerInterface *modelManager)
     : QObject(modelManager),
-      _modelManager(modelManager)
+      m_modelManager(modelManager)
 {
+    connect(modelManager, SIGNAL(globalSnapshotChanged()), this, SLOT(flushDependencyTable()));
 }
 
 CppFindReferences::~CppFindReferences()
@@ -365,7 +366,7 @@ void CppFindReferences::findAll_helper(Find::SearchResult *search, CPlusPlus::Sy
             this, SLOT(openEditor(Find::SearchResultItem)));
 
     Find::SearchResultWindow::instance()->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
-    const CppModelManagerInterface::WorkingCopy workingCopy = _modelManager->workingCopy();
+    const CppModelManagerInterface::WorkingCopy workingCopy = m_modelManager->workingCopy();
     QFuture<Usage> result;
     result = QtConcurrent::run(&find_helper, workingCopy, context, this, symbol);
     createWatcher(result, search);
@@ -382,7 +383,7 @@ void CppFindReferences::onReplaceButtonClicked(const QString &text,
 {
     const QStringList fileNames = TextEditor::BaseFileFind::replaceAll(text, items, preserveCase);
     if (!fileNames.isEmpty()) {
-        _modelManager->updateSourceFiles(fileNames);
+        m_modelManager->updateSourceFiles(fileNames);
         Find::SearchResultWindow::instance()->hide();
     }
 }
@@ -451,7 +452,7 @@ CPlusPlus::Symbol *CppFindReferences::findSymbol(const CppFindReferencesParamete
 
     Document::Ptr newSymbolDocument = snapshot.document(symbolFile);
     // document is not parsed and has no bindings yet, do it
-    QByteArray source = getSource(newSymbolDocument->fileName(), _modelManager->workingCopy());
+    QByteArray source = getSource(newSymbolDocument->fileName(), m_modelManager->workingCopy());
     Document::Ptr doc =
             snapshot.preprocessedDocument(source, newSymbolDocument->fileName());
     doc->check();
@@ -492,6 +493,7 @@ void CppFindReferences::searchFinished()
     if (search)
         search->finishSearch(watcher->isCanceled());
     m_watchers.remove(watcher);
+    watcher->deleteLater();
 }
 
 void CppFindReferences::cancel()
@@ -651,8 +653,8 @@ void CppFindReferences::findMacroUses(const Macro &macro, const QString &replace
     connect(search, SIGNAL(cancelled()), this, SLOT(cancel()));
     connect(search, SIGNAL(paused(bool)), this, SLOT(setPaused(bool)));
 
-    const Snapshot snapshot = _modelManager->snapshot();
-    const CppModelManagerInterface::WorkingCopy workingCopy = _modelManager->workingCopy();
+    const Snapshot snapshot = m_modelManager->snapshot();
+    const CppModelManagerInterface::WorkingCopy workingCopy = m_modelManager->workingCopy();
 
     // add the macro definition itself
     {
@@ -689,6 +691,13 @@ DependencyTable CppFindReferences::updateDependencyTable(CPlusPlus::Snapshot sna
     newDeps.build(snapshot);
     setDependencyTable(newDeps);
     return newDeps;
+}
+
+void CppFindReferences::flushDependencyTable()
+{
+    QMutexLocker locker(&m_depsLock);
+    Q_UNUSED(locker);
+    m_deps = DependencyTable();
 }
 
 DependencyTable CppFindReferences::dependencyTable() const

@@ -67,7 +67,7 @@ private slots:
 private:
     QTextCursor m_scannedSelection;
     QTextCursor m_nameSelection;
-    QFutureWatcher<QSharedPointer<FunctionDeclDefLink> > m_watcher;
+    QScopedPointer<QFutureWatcher<QSharedPointer<FunctionDeclDefLink> > > m_watcher;
 };
 
 class FunctionDeclDefLink
@@ -75,8 +75,6 @@ class FunctionDeclDefLink
     Q_DECLARE_TR_FUNCTIONS(CppEditor::Internal::FunctionDeclDefLink)
     Q_DISABLE_COPY(FunctionDeclDefLink)
 public:
-    ~FunctionDeclDefLink();
-
     class Marker {};
 
     bool isValid() const;

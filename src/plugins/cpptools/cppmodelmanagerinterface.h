@@ -279,6 +279,8 @@ signals:
     /// Other classes can use this to get notified when the \c ProjectExplorer has updated the parts.
     void projectPartsUpdated(ProjectExplorer::Project *project);
 
+    void globalSnapshotChanged();
+
 public slots:
     // Documented in source file.
     virtual QFuture<void> updateSourceFiles(const QStringList &sourceFiles,

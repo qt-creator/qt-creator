@@ -148,6 +148,9 @@ private slots:
     void updateEditor();
     void updateEditorNow();
 
+    void onCurrentEditorChanged();
+    void releaseResources();
+
 private:
     struct EditorUpdates {
         EditorUpdates()
@@ -160,7 +163,8 @@ private:
 
     enum {
         UpdateDocumentDefaultInterval = 150,
-        UpdateEditorInterval = 300
+        UpdateEditorInterval = 300,
+        EditorHiddenGCTimeout = 2 * 60 * 1000 // 2 minutes
     };
 
 private:
@@ -177,6 +181,9 @@ private:
     int m_updateDocumentInterval;
     unsigned m_revision;
     QFuture<void> m_documentParser;
+
+    QTimer *m_editorGCTimer;
+    bool m_editorVisible;
 
     // content caching
     mutable QMutex m_cachedContentsLock;

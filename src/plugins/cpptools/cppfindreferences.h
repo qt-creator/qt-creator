@@ -78,7 +78,10 @@ public:
 
     CPlusPlus::DependencyTable updateDependencyTable(CPlusPlus::Snapshot snapshot);
 
-private Q_SLOTS:
+public slots:
+    void flushDependencyTable();
+
+private slots:
     void displayResults(int first, int last);
     void searchFinished();
     void cancel();
@@ -101,7 +104,7 @@ private:
                     const CPlusPlus::Snapshot &snapshot, CPlusPlus::LookupContext *context);
 
 private:
-    QPointer<CppModelManagerInterface> _modelManager;
+    QPointer<CppModelManagerInterface> m_modelManager;
     QMap<QFutureWatcher<CPlusPlus::Usage> *, QPointer<Find::SearchResult> > m_watchers;
 
     mutable QMutex m_depsLock;

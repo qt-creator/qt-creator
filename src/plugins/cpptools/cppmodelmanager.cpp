@@ -234,6 +234,11 @@ CppModelManager::CppModelManager(QObject *parent)
     , m_indexingSupporter(0)
     , m_enableGC(true)
 {
+    connect(this, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
+            this, SIGNAL(globalSnapshotChanged()));
+    connect(this, SIGNAL(aboutToRemoveFiles(QStringList)),
+            this, SIGNAL(globalSnapshotChanged()));
+
     m_findReferences = new CppFindReferences(this);
     m_indexerEnabled = qgetenv("QTCREATOR_NO_CODE_INDEXER").isNull();
 
