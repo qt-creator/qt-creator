@@ -229,7 +229,6 @@ NamespaceCode = gdb.TYPE_CODE_NAMESPACE
 #Code = gdb.TYPE_CODE_DECFLOAT # Decimal floating point.
 #Code = gdb.TYPE_CODE_MODULE # Fortran
 #Code = gdb.TYPE_CODE_INTERNAL_FUNCTION
-SimpleValueCode = -1
 
 
 #######################################################################
@@ -1436,8 +1435,7 @@ class Dumper(DumperBase):
             or code == CharCode \
             or code == IntCode \
             or code == FloatCode \
-            or code == EnumCode \
-            or code == SimpleValueCode
+            or code == EnumCode
 
     def simpleEncoding(self, typeobj):
         code = typeobj.code
@@ -1631,7 +1629,7 @@ class Dumper(DumperBase):
                 self.putNumChild(0)
                 return
 
-        if type.code == IntCode or type.code == CharCode or type.code == SimpleValueCode:
+        if type.code == IntCode or type.code == CharCode:
             self.putType(typeName)
             if value.is_optimized_out:
                 self.putValue("<optimized out>")
