@@ -28,28 +28,33 @@
 **
 ****************************************************************************/
 #include "defaulttoolfile.h"
+#include "vcprojectdocument_constants.h"
+#include "generalattributecontainer.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
 DefaultToolFile::DefaultToolFile()
 {
+    m_attributeContainer = new GeneralAttributeContainer;
 }
 
 DefaultToolFile::DefaultToolFile(const DefaultToolFile &defToolFile)
 {
-    m_fileName = defToolFile.m_fileName;
+    m_attributeContainer = new GeneralAttributeContainer;
+    *m_attributeContainer = *defToolFile.m_attributeContainer;
 }
 
 DefaultToolFile &DefaultToolFile::operator =(const DefaultToolFile &defToolFile)
 {
     if (this != &defToolFile)
-        m_fileName = defToolFile.m_fileName;
+        *m_attributeContainer = *defToolFile.m_attributeContainer;
     return *this;
 }
 
 DefaultToolFile::~DefaultToolFile()
 {
+    delete m_attributeContainer;
 }
 
 void DefaultToolFile::processNode(const QDomNode &node)
@@ -69,18 +74,23 @@ VcNodeWidget *DefaultToolFile::createSettingsWidget()
 QDomNode DefaultToolFile::toXMLDomNode(QDomDocument &domXMLDocument) const
 {
     QDomElement toolNode = domXMLDocument.createElement(QLatin1String("DefaultToolFile"));
-    toolNode.setAttribute(QLatin1String("FileName"), m_fileName);
+    m_attributeContainer->appendToXMLNode(toolNode);
     return toolNode;
 }
 
-QString DefaultToolFile::fileName() const
+QString DefaultToolFile::type() const
 {
-    return m_fileName;
+    return QLatin1String(VcDocConstants::DEFAULT_TOOL_FILE);
 }
 
-void DefaultToolFile::setFileName(const QString &fileName)
+IToolFile *DefaultToolFile::clone() const
 {
-    m_fileName = fileName;
+    return new DefaultToolFile(*this);
+}
+
+IAttributeContainer *DefaultToolFile::attributeContainer() const
+{
+    return m_attributeContainer;
 }
 
 void DefaultToolFile::processNodeAttributes(const QDomElement &element)
@@ -93,8 +103,8 @@ void DefaultToolFile::processNodeAttributes(const QDomElement &element)
         if (domNode.nodeType() == QDomNode::AttributeNode) {
             QDomAttr domAttr = domNode.toAttr();
 
-            if (domAttr.name() == QLatin1String("FileName"))
-                m_fileName = domAttr.value();
+            if (domAttr.name() == QLatin1String(VcDocConstants::DEFAULT_TOOL_FILE_FILE_NAME))
+                m_attributeContainer->setAttribute(domAttr.name(), domAttr.value());
         }
     }
 }

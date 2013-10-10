@@ -152,7 +152,7 @@ void ToolFiles::addDefaultToolFile(DefaultToolFile::Ptr defToolFile)
         return;
 
     foreach (const DefaultToolFile::Ptr &toolF, m_defaultToolFiles) {
-        if (toolF->fileName() == defToolFile->fileName())
+        if (toolF->attributeContainer()->attributeValue(QLatin1String(VcDocConstants::DEFAULT_TOOL_FILE_FILE_NAME)) == defToolFile->attributeContainer()->attributeValue(QLatin1String(VcDocConstants::DEFAULT_TOOL_FILE_FILE_NAME)))
             return;
     }
     m_defaultToolFiles.append(defToolFile);
@@ -166,7 +166,7 @@ void ToolFiles::removeDefaultToolFile(DefaultToolFile::Ptr defToolFile)
 void ToolFiles::removeDefaultToolFile(const QString &fileName)
 {
     foreach (const DefaultToolFile::Ptr &toolF, m_defaultToolFiles) {
-        if (toolF->fileName() == fileName) {
+        if (toolF->attributeContainer()->attributeValue(QLatin1String(VcDocConstants::DEFAULT_TOOL_FILE_FILE_NAME)) == fileName) {
             removeDefaultToolFile(toolF);
             return;
         }
@@ -181,20 +181,20 @@ QList<DefaultToolFile::Ptr> ToolFiles::defaultToolFiles() const
 DefaultToolFile::Ptr ToolFiles::defaultToolFile(const QString &fileName)
 {
     foreach (DefaultToolFile::Ptr defToolFile, m_defaultToolFiles)
-        if (defToolFile->fileName() == fileName)
+        if (defToolFile->attributeContainer()->attributeValue(QLatin1String(VcDocConstants::DEFAULT_TOOL_FILE_FILE_NAME)) == fileName)
             return defToolFile;
     return DefaultToolFile::Ptr();
 }
 
 void ToolFiles::processToolFiles(const QDomNode &toolFileNode)
 {
-    if (toolFileNode.nodeName() == QLatin1String("ToolFile")) {
+    if (toolFileNode.nodeName() == QLatin1String(VcDocConstants::TOOL_FILE)) {
         ToolFile::Ptr toolFile(new ToolFile);
         m_toolFiles.append(toolFile);
         toolFile->processNode(toolFileNode);
     }
 
-    else if (toolFileNode.nodeName() == QLatin1String("DefaultToolFile")) {
+    else if (toolFileNode.nodeName() == QLatin1String(VcDocConstants::DEFAULT_TOOL_FILE)) {
         DefaultToolFile::Ptr defToolFile(new DefaultToolFile);
         m_defaultToolFiles.append(defToolFile);
         defToolFile->processNode(toolFileNode);

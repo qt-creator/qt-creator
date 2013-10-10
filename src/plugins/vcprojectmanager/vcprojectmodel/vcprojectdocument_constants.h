@@ -82,6 +82,7 @@ const char PROJECT_REFERENCE_COPY_LOCAL_DEPENDENCIES [] = "CopyLocalDependencies
 const char TOOL_FILE [] = "ToolFile";
 const char TOOL_FILE_RELATIVE_PATH [] = "RelativePath";
 const char DEFAULT_TOOL_FILE [] = "DefaultToolFile";
+const char DEFAULT_TOOL_FILE_FILE_NAME [] = "FileName";
 
 } // VcDocConstants
 } // namespace Internal

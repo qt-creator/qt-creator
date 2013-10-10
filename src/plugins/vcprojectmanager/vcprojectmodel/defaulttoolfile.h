@@ -30,7 +30,7 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_DEFAULTTOOLFILE_H
 #define VCPROJECTMANAGER_INTERNAL_DEFAULTTOOLFILE_H
 
-#include "ivcprojectnodemodel.h"
+#include "../interfaces/itoolfile.h"
 
 #include <QString>
 #include <QSharedPointer>
@@ -38,7 +38,9 @@
 namespace VcProjectManager {
 namespace Internal {
 
-class DefaultToolFile : public IVcProjectXMLNode
+class GeneralAttributeContainer;
+
+class DefaultToolFile : public IToolFile
 {
 public:
     typedef QSharedPointer<DefaultToolFile> Ptr;
@@ -52,13 +54,14 @@ public:
     VcNodeWidget* createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
-    QString fileName() const;
-    void setFileName(const QString &fileName);
+    QString type() const;
+    IToolFile *clone() const;
+    IAttributeContainer *attributeContainer() const;
 
 private:
     void processNodeAttributes(const QDomElement &element);
 
-    QString m_fileName; // required
+    GeneralAttributeContainer *m_attributeContainer;
 };
 
 } // namespace Internal
