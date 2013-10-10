@@ -190,10 +190,7 @@
                 \li \l {Creating Buttons}
                 \li \l {Creating Scalable Buttons and Borders}
                 \li \l {Creating Screens}
-                \li \l {Animating Screens}
-                \li \l {Adding User Interaction Methods}
                 \li \l {Exporting Designs from Graphics Software}
-                \li \l {Implementing Application Logic}
                 \li \l {Using QML Modules with Plugins}
             \endlist
             \li \l{Developing Widget Based Applications}

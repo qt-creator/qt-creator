@@ -28,15 +28,25 @@
 ****************************************************************************/
 
 import QtQuick 2.1
+import HelperWidgets 2.0
 
 Rectangle {
-    width: 100
-    height: 200
-    color: "#ff2323"
+    id: itemPane
+    width: 320
+    height: 400
+    color: "#404040"
 
-    Text {
-        id: test
-        text: "empty"
-        anchors.fill: parent
+    Section {
+        anchors.left: parent.left
+        anchors.right: parent.right
+
+        SectionLayout {
+
+            Label {
+                id: test
+                text: qsTr("None or multiple items selected.");
+                anchors.fill: parent
+            }
+        }
     }
 }

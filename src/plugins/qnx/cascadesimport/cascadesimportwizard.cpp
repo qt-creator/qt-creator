@@ -78,7 +78,7 @@ CascadesImportWizardDialog::CascadesImportWizardDialog(QWidget *parent)
     wizardProgress()->item(srcProjectPageId)->setTitle(tr("Momentics"));
 
     const int destProjectPageId = addPage(m_destProjectPage);
-    wizardProgress()->item(destProjectPageId)->setTitle(tr("QtCreator"));
+    wizardProgress()->item(destProjectPageId)->setTitle(tr("Qt Creator"));
 
     connect(m_srcProjectPage, SIGNAL(validPathChanged(QString)), this, SLOT(onSrcProjectPathChanged(QString)));
 }
@@ -120,7 +120,7 @@ CascadesImportWizard::CascadesImportWizard(QObject *parent)
     setId(QLatin1String("Q.QnxBlackBerryCascadesApp"));
     setRequiredFeatures(Core::FeatureSet(Constants::QNX_BB_FEATURE));
     setDescription(tr("Imports existing Cascades projects created within QNX Momentics IDE. "
-                      "This allows you to use the project in QtCreator."));
+                      "This allows you to use the project in Qt Creator."));
     setCategory(QLatin1String(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY));
     setDisplayCategory(QLatin1String(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY_DISPLAY));
 }
@@ -143,7 +143,6 @@ QWizard *CascadesImportWizard::createWizardDialog(QWidget *parent,
         const Core::WizardDialogParameters &wizardDialogParameters) const
 {
     CascadesImportWizardDialog *wizard = new CascadesImportWizardDialog(parent);
-    setupWizard(wizard);
 
     foreach (QWizardPage *p, wizardDialogParameters.extensionPages())
         BaseFileWizard::applyExtensionPageShortTitle(wizard, wizard->addPage(p));

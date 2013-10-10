@@ -438,7 +438,7 @@ bool Qt4RunConfiguration::fromMap(const QVariantMap &map)
     m_parseSuccess = static_cast<Qt4Project *>(target()->project())->validParse(m_proFilePath);
     m_parseInProgress = static_cast<Qt4Project *>(target()->project())->parseInProgress(m_proFilePath);
 
-    return RunConfiguration::fromMap(map);
+    return LocalApplicationRunConfiguration::fromMap(map);
 }
 
 QString Qt4RunConfiguration::executable() const

@@ -27,7 +27,7 @@
     \contentspage index.html
     \previouspage quick-scalable-image.html
     \page quick-screens.html
-    \nextpage quick-animations.html
+    \nextpage quick-export-to-qml.html
 
     \title Creating Screens
 
@@ -183,17 +183,7 @@
 
         \endlist
 
-*/
-
-
-/*!
-
-    \contentspage index.html
-    \previouspage quick-screens.html
-    \page quick-animations.html
-    \nextpage quick-user-interaction.html
-
-    \title Animating Screens
+    \section1 Animating Screens
 
     To make movement between states smooth, you can specify transitions. You can
     use different types of animated transitions. For example, you can animate
@@ -210,17 +200,7 @@
     see \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-transition.html}
     {Transition}.
 
-*/
-
-
-/*!
-
-    \contentspage index.html
-    \previouspage quick-animations.html
-    \page quick-user-interaction.html
-    \nextpage quick-export-to-qml.html
-
-    \title Adding User Interaction Methods
+    \section1 Adding User Interaction Methods
 
     You can add the following basic interaction methods to scenes:
 
@@ -241,5 +221,17 @@
             enables simple mouse handling.
 
     \endlist
+
+    \section1 Implementing Application Logic
+
+    A user interface is only a part of an application, and not really useful by itself.
+    You can use Qt or JavaScript to implement the application logic. For more information on
+    using JavaScript, see
+    \l{http://qt-project.org/doc/qt-5.0/qtqml/qtqml-javascript-topic.html}
+    {Integrating QML and JavaScript}.
+
+    For an example of how to use JavaScript to develop a game, see the
+    \l{http://qt-project.org/doc/qt-5.0/qtquick/qtquick2-qml-advtutorial.html}
+    {QML Advanced Tutorial}.
 
 */

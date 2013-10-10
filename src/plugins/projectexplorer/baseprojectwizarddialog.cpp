@@ -89,7 +89,6 @@ BaseProjectWizardDialog::BaseProjectWizardDialog(Utils::ProjectIntroPage *introP
 
 void BaseProjectWizardDialog::init()
 {
-    Core::BaseFileWizard::setupWizard(this);
     if (d->introPageId == -1) {
         d->introPageId = addPage(d->introPage);
     } else {

@@ -56,7 +56,7 @@ GenericLinuxDeviceConfigurationWizardSetupPage::GenericLinuxDeviceConfigurationW
     QWizardPage(parent), d(new Internal::GenericLinuxDeviceConfigurationWizardSetupPagePrivate)
 {
     d->ui.setupUi(this);
-    setTitle(tr("Connection Data"));
+    setTitle(tr("Connection"));
     setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
     d->ui.privateKeyPathChooser->setExpectedKind(PathChooser::File);
     d->ui.privateKeyPathChooser->setPromptDialogTitle(tr("Choose a Private Key File"));
@@ -153,7 +153,7 @@ void GenericLinuxDeviceConfigurationWizardSetupPage::handleAuthTypeChanged()
 GenericLinuxDeviceConfigurationWizardFinalPage::GenericLinuxDeviceConfigurationWizardFinalPage(QWidget *parent)
     : QWizardPage(parent), d(new Internal::GenericLinuxDeviceConfigurationWizardFinalPagePrivate)
 {
-    setTitle(tr("Setup Finished"));
+    setTitle(tr("Summary"));
     setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
     d->infoLabel.setWordWrap(true);
     QVBoxLayout * const layout = new QVBoxLayout(this);

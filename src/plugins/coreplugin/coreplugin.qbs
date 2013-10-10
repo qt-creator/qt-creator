@@ -1,5 +1,5 @@
 import qbs.base 1.0
-import "../QtcPlugin.qbs" as QtcPlugin
+import QtcPlugin
 
 QtcPlugin {
     name: "Core"
@@ -181,8 +181,8 @@ QtcPlugin {
         name: "Tests"
         condition: project.testsEnabled
         files: [
-            "plugintestutils.cpp",
-            "plugintestutils.h",
+            "testdatadir.cpp",
+            "testdatadir.h",
         ]
     }
 

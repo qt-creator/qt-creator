@@ -34,6 +34,8 @@ import QtQuick.Layouts 1.0
 Controls.Label {
     id: label
 
+    property string toolTip: ""
+
     width:  parent.width < 300 ? 80 : Math.min(140, parent.width - 220)
     color: "#eee"
     elide: Text.ElideRight

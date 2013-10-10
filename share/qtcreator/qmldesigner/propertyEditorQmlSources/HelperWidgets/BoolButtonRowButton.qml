@@ -99,6 +99,6 @@ ButtonRowButton {
     ExtendedFunctionButton {
         backendValue: boolButtonRowButton.backendValue
         x: 0
-        y: 2
+        y: 4
     }
 }

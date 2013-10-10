@@ -77,7 +77,7 @@ minQtVersion(5, 2, 0) {
      warning("QmlDesigner plugin has been disabled.")
      warning("QmlProfiler plugin has been disabled.")
      warning("Welcome plugin has been disabled.")
-     warning("These plugins need at least Qt 5.1.")
+     warning("These plugins need at least Qt 5.2.")
 }
 
 for(p, SUBDIRS) {

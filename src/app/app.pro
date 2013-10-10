@@ -10,7 +10,7 @@ SOURCES += main.cpp ../tools/qtcreatorcrashhandler/crashhandlersetup.cpp
 
 include(../rpath.pri)
 
-LIBS *= -l$$qtLibraryName(ExtensionSystem) -l$$qtLibraryName(Aggregation)
+LIBS *= -l$$qtLibraryName(ExtensionSystem) -l$$qtLibraryName(Aggregation) -l$$qtLibraryName(Utils)
 
 QT_BREAKPAD_ROOT_PATH = $$(QT_BREAKPAD_ROOT_PATH)
 !isEmpty(QT_BREAKPAD_ROOT_PATH) {

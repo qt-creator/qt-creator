@@ -51,14 +51,12 @@ CheckoutWizardDialog::CheckoutWizardDialog(const QList<QWizardPage *> &parameter
     m_progressPage(new CheckoutProgressWizardPage),
     m_progressPageId(-1)
 {
-    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     foreach (QWizardPage *wp, parameterPages)
         addPage(wp);
     m_progressPageId = parameterPages.size();
     setPage(m_progressPageId, m_progressPage);
     connect(this, SIGNAL(currentIdChanged(int)), this, SLOT(slotPageChanged(int)));
     connect(m_progressPage, SIGNAL(terminated(bool)), this, SLOT(slotTerminated(bool)));
-    Core::BaseFileWizard::setupWizard(this);
 }
 
 void CheckoutWizardDialog::setTitle(const QString &title)

@@ -2002,6 +2002,8 @@ bool Bind::visit(QtPropertyDeclarationAST *ast)
             flags |= QtPropertyDeclaration::ReadFunction;
         } else if (name == "WRITE") {
             flags |= QtPropertyDeclaration::WriteFunction;
+        } else if (name == "MEMBER") {
+            flags |= QtPropertyDeclaration::MemberVariable;
         } else if (name == "RESET") {
             flags |= QtPropertyDeclaration::ResetFunction;
         } else if (name == "NOTIFY") {

@@ -64,14 +64,15 @@ private:
 class FunctionHelper
 {
 public:
-    static bool isVirtualFunction(CPlusPlus::Function *function,
-        const CPlusPlus::Snapshot &snapshot);
+    static bool isVirtualFunction(const CPlusPlus::Function *function,
+                                  const CPlusPlus::Snapshot &snapshot);
 
-    static bool isPureVirtualFunction(CPlusPlus::Function *function,
-        const CPlusPlus::Snapshot &snapshot);
+    static bool isPureVirtualFunction(const CPlusPlus::Function *function,
+                                      const CPlusPlus::Snapshot &snapshot);
 
     static QList<CPlusPlus::Symbol *> overrides(CPlusPlus::Class *startClass,
-        CPlusPlus::Function *function, const CPlusPlus::Snapshot &snapshot);
+                                                CPlusPlus::Function *function,
+                                                const CPlusPlus::Snapshot &snapshot);
 };
 
 } // namespace Internal

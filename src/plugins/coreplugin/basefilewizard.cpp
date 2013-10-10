@@ -37,7 +37,6 @@
 #include <utils/filewizarddialog.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
-#include <utils/hostosinfo.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -346,28 +345,6 @@ bool BaseFileWizard::writeFiles(const GeneratedFiles &files, QString *errorMessa
 }
 
 /*!
-    Sets some standard options on a QWizard.
-*/
-
-void BaseFileWizard::setupWizard(QWizard *w)
-{
-    w->setOption(QWizard::NoCancelButton, false);
-    w->setOption(QWizard::NoDefaultButton, false);
-    w->setOption(QWizard::NoBackButtonOnStartPage, true);
-    w->setWindowFlags(w->windowFlags() & ~Qt::WindowContextHelpButtonHint);
-
-    if (Utils::HostOsInfo::isMacHost()) {
-        w->setButtonLayout(QList<QWizard::WizardButton>()
-                           << QWizard::CancelButton
-                           << QWizard::Stretch
-                           << QWizard::BackButton
-                           << QWizard::NextButton
-                           << QWizard::CommitButton
-                           << QWizard::FinishButton);
-    }
-}
-
-/*!
     Reads the \c shortTitle dynamic property of \a pageId and applies it as
     the title of corresponding progress item.
 */
@@ -571,7 +548,6 @@ QWizard *StandardFileWizard::createWizardDialog(QWidget *parent,
     if (wizardDialogParameters.flags().testFlag(WizardDialogParameters::ForceCapitalLetterForFileName))
         standardWizardDialog->setForceFirstCapitalLetterForFileName(true);
     standardWizardDialog->setWindowTitle(tr("New %1").arg(displayName()));
-    setupWizard(standardWizardDialog);
     standardWizardDialog->setPath(wizardDialogParameters.defaultPath());
     foreach (QWizardPage *p, wizardDialogParameters.extensionPages())
         BaseFileWizard::applyExtensionPageShortTitle(standardWizardDialog, standardWizardDialog->addPage(p));

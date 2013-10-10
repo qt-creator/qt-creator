@@ -156,21 +156,21 @@
         <item>
          <widget class="QPushButton" name="openCertificateButton">
           <property name="text">
-           <string>Open certificate</string>
+           <string>Open Certificate</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="clearCertificateButton">
           <property name="text">
-           <string>Clear certificate</string>
+           <string>Clear Certificate</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="createCertificateButton">
           <property name="text">
-           <string>Create certificate</string>
+           <string>Create Certificate</string>
           </property>
          </widget>
         </item>

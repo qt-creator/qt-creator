@@ -54,7 +54,6 @@ FormWizardDialog::FormWizardDialog(const WizardPageList &extensionPages,
 
 void FormWizardDialog::init(const WizardPageList &extensionPages)
 {
-    Core::BaseFileWizard::setupWizard(this);
     setWindowTitle(tr("Qt Designer Form"));
     setPage(FormPageId, m_formPage);
     wizardProgress()->item(FormPageId)->setTitle(tr("Form Template"));

@@ -33,7 +33,7 @@
 #include "modelmanagertesthelper.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/plugintestutils.h>
+#include <coreplugin/testdatadir.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <utils/hostosinfo.h>
@@ -62,7 +62,7 @@ namespace {
 
 inline QString _(const QByteArray &ba) { return QString::fromLatin1(ba, ba.size()); }
 
-class MyTestDataDir : public Core::Tests::TestDataDir
+class MyTestDataDir : public Core::Internal::Tests::TestDataDir
 {
 public:
     MyTestDataDir(const QString &dir)
@@ -723,7 +723,7 @@ void CppToolsPlugin::test_modelmanager_gc_if_last_cppeditor_closed()
     helper.waitForRefreshedSourceFiles();
 
     // Close file/editor
-    Core::Tests::closeAndDeleteEditor(editor);
+    Core::EditorManager::closeEditor(editor, /*askAboutModifiedEditors=*/ false);
     helper.waitForFinishedGc();
 
     // Check: File is removed from the snapshpt
@@ -760,7 +760,7 @@ void CppToolsPlugin::test_modelmanager_dont_gc_opened_files()
     QVERIFY(mm->snapshot().contains(file));
 
     // Close editor
-    Core::Tests::closeAndDeleteEditor(editor);
+    Core::EditorManager::closeEditor(editor);
     helper.waitForFinishedGc();
     QVERIFY(mm->snapshot().isEmpty());
 }
@@ -772,7 +772,7 @@ struct EditorCloser {
     ~EditorCloser()
     {
         if (editor)
-            Core::Tests::closeAndDeleteEditor(editor);
+            Core::EditorManager::closeEditor(editor);
     }
 };
 

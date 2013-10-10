@@ -32,11 +32,11 @@
 #ifndef BLACKBERRYSETUPWIZARD_H
 #define BLACKBERRYSETUPWIZARD_H
 
-#include <QWizard>
+#include <projectexplorer/devicesupport/idevice.h>
+#include <utils/wizard.h>
+
 #include <QList>
 #include <QByteArray>
-
-#include <projectexplorer/devicesupport/idevice.h>
 
 namespace QSsh {
 class SshKeyGenerator;
@@ -57,7 +57,7 @@ class BlackBerryDebugTokenRequester;
 class BlackBerryDebugTokenUploader;
 class BlackBerrySigningUtils;
 
-class BlackBerrySetupWizard : public QWizard
+class BlackBerrySetupWizard : public Utils::Wizard
 {
     Q_OBJECT
 public:

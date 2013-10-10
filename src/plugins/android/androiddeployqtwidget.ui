@@ -174,7 +174,7 @@
       <item row="1" column="0">
        <widget class="QCheckBox" name="verboseOutputCheckBox">
         <property name="text">
-         <string>Verbose Output</string>
+         <string>Verbose output</string>
         </property>
        </widget>
       </item>
@@ -210,7 +210,7 @@
       <item row="0" column="0">
        <widget class="QLabel" name="inputFileLabel">
         <property name="text">
-         <string>Android deploy Qt Input File:</string>
+         <string>Android deploy Qt input file:</string>
         </property>
        </widget>
       </item>
@@ -309,7 +309,7 @@ The APK will not be usable on any other device.</string>
    <item row="4" column="0" colspan="2">
     <widget class="QGroupBox" name="additionalLibrariesGroupBox">
      <property name="title">
-      <string>Additional libraries</string>
+      <string>Additional Libraries</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
@@ -317,7 +317,7 @@ The APK will not be usable on any other device.</string>
         <item>
          <widget class="QListView" name="androidExtraLibsListView">
           <property name="toolTip">
-           <string>List of extra libraries to include in Android package and load on start-up.</string>
+           <string>List of extra libraries to include in Android package and load on startup.</string>
           </property>
           <property name="selectionMode">
            <enum>QAbstractItemView::ExtendedSelection</enum>
@@ -335,7 +335,7 @@ The APK will not be usable on any other device.</string>
              </sizepolicy>
             </property>
             <property name="toolTip">
-             <string>Select a library to include in package</string>
+             <string>Select library to include in package.</string>
             </property>
             <property name="text">
              <string>Add</string>
@@ -348,7 +348,7 @@ The APK will not be usable on any other device.</string>
           <item>
            <widget class="QToolButton" name="removeAndroidExtraLibButton">
             <property name="toolTip">
-             <string>Remove currently selected library from list</string>
+             <string>Remove currently selected library from list.</string>
             </property>
             <property name="text">
              <string>Remove</string>

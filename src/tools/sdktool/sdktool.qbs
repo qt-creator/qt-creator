@@ -1,5 +1,5 @@
 import qbs.base 1.0
-import "../QtcTool.qbs" as QtcTool
+import QtcTool
 
 QtcTool {
     name: "sdktool"

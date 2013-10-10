@@ -127,9 +127,9 @@ void ExecuteFilter::finished(int exitCode, QProcess::ExitStatus status)
     const QString commandName = headCommand();
     QString message;
     if (status == QProcess::NormalExit && exitCode == 0)
-        message = tr("Command '%1' finished").arg(commandName);
+        message = tr("Command '%1' finished.").arg(commandName);
     else
-        message = tr("Command '%1' failed").arg(commandName);
+        message = tr("Command '%1' failed.").arg(commandName);
     MessageManager::write(message);
 
     m_taskQueue.dequeue();

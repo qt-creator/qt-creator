@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "wizard.h"
+#include "hostosinfo.h"
 
 #include <QMap>
 #include <QHash>
@@ -318,6 +319,20 @@ Wizard::Wizard(QWidget *parent, Qt::WindowFlags flags) :
     connect(this, SIGNAL(pageAdded(int)), this, SLOT(_q_pageAdded(int)));
     connect(this, SIGNAL(pageRemoved(int)), this, SLOT(_q_pageRemoved(int)));
     setSideWidget(new LinearProgressWidget(d_ptr->m_wizardProgress, this));
+    setOption(QWizard::NoCancelButton, false);
+    setOption(QWizard::NoDefaultButton, false);
+    setOption(QWizard::NoBackButtonOnStartPage, true);
+    setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
+
+    if (Utils::HostOsInfo::isMacHost()) {
+        setButtonLayout(QList<QWizard::WizardButton>()
+                        << QWizard::CancelButton
+                        << QWizard::Stretch
+                        << QWizard::BackButton
+                        << QWizard::NextButton
+                        << QWizard::CommitButton
+                        << QWizard::FinishButton);
+    }
 }
 
 Wizard::~Wizard()

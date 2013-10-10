@@ -37,10 +37,17 @@
 #include <projectexplorer/target.h>
 #include <qtsupport/qtoutputformatter.h>
 #include <qtsupport/qtkitinformation.h>
+#include <qt4projectmanager/qt4project.h>
+#include <qt4projectmanager/qt4nodes.h>
 
 #include <utils/qtcassert.h>
 
+namespace {
+const char PRO_FILE_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.ProFile";
+}
+
 using namespace ProjectExplorer;
+using Qt4ProjectManager::Qt4Project;
 
 namespace Android {
 namespace Internal {
@@ -49,12 +56,17 @@ AndroidRunConfiguration::AndroidRunConfiguration(Target *parent, Core::Id id, co
     : RunConfiguration(parent, id)
     , m_proFilePath(path)
 {
+    Qt4Project *project = static_cast<Qt4Project *>(parent->project());
+    m_parseSuccess = project->validParse(m_proFilePath);
+    m_parseInProgress = project->parseInProgress(m_proFilePath);
     init();
 }
 
 AndroidRunConfiguration::AndroidRunConfiguration(Target *parent, AndroidRunConfiguration *source)
     : RunConfiguration(parent, source)
     , m_proFilePath(source->m_proFilePath)
+    , m_parseSuccess(source->m_parseSuccess)
+    , m_parseInProgress(source->m_parseInProgress)
 {
     init();
 }
@@ -62,6 +74,55 @@ AndroidRunConfiguration::AndroidRunConfiguration(Target *parent, AndroidRunConfi
 void AndroidRunConfiguration::init()
 {
     setDefaultDisplayName(defaultDisplayName());
+    connect(target()->project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
+            this, SLOT(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
+}
+
+bool AndroidRunConfiguration::fromMap(const QVariantMap &map)
+{
+    const QDir projectDir = QDir(target()->project()->projectDirectory());
+    m_proFilePath = QDir::cleanPath(projectDir.filePath(map.value(QLatin1String(PRO_FILE_KEY)).toString()));
+    m_parseSuccess = static_cast<Qt4Project *>(target()->project())->validParse(m_proFilePath);
+    m_parseInProgress = static_cast<Qt4Project *>(target()->project())->parseInProgress(m_proFilePath);
+
+    return RunConfiguration::fromMap(map);
+}
+
+QVariantMap AndroidRunConfiguration::toMap() const
+{
+    const QDir projectDir = QDir(target()->project()->projectDirectory());
+    QVariantMap map(RunConfiguration::toMap());
+    map.insert(QLatin1String(PRO_FILE_KEY), projectDir.relativeFilePath(m_proFilePath));
+    return map;
+}
+
+bool AndroidRunConfiguration::isEnabled() const
+{
+    return m_parseSuccess && !m_parseInProgress;
+}
+
+QString AndroidRunConfiguration::disabledReason() const
+{
+    if (m_parseInProgress)
+        return tr("The .pro file '%1' is currently being parsed.")
+                .arg(QFileInfo(m_proFilePath).fileName());
+
+    if (!m_parseSuccess)
+        return static_cast<Qt4Project *>(target()->project())->disabledReasonForRunConfiguration(m_proFilePath);
+    return QString();
+}
+
+void AndroidRunConfiguration::proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress)
+{
+    if (m_proFilePath != pro->path())
+        return;
+
+    bool enabled = isEnabled();
+    QString reason = disabledReason();
+    m_parseSuccess = success;
+    m_parseInProgress = parseInProgress;
+    if (enabled != isEnabled() || reason != disabledReason())
+        emit enabledChanged();
 }
 
 QWidget *AndroidRunConfiguration::createConfigurationWidget()

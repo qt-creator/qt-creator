@@ -100,8 +100,8 @@ BlackBerryInstallWizardOptionPage::BlackBerryInstallWizardOptionPage(BlackBerryI
 
 void BlackBerryInstallWizardOptionPage::initializePage()
 {
-    m_installButton->setText(tr("Install a new target"));
-    m_addButton->setText(tr("Add an existing target"));
+    m_installButton->setText(tr("Install New Target"));
+    m_addButton->setText(tr("Add Existing Target"));
 
     if (m_data.mode == BlackBerryInstallerDataHandler::ManuallMode)
         m_addButton->setChecked(true);

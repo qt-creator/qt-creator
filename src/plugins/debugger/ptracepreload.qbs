@@ -1,5 +1,5 @@
 import qbs.base 1.0
-import "../../libs/QtcLibrary.qbs" as QtcLibrary
+import QtcLibrary
 
 QtcLibrary {
     name: "ptracepreload"

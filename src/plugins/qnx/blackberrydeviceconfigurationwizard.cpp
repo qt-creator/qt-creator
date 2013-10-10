@@ -41,7 +41,7 @@ using namespace Qnx;
 using namespace Qnx::Internal;
 
 BlackBerryDeviceConfigurationWizard::BlackBerryDeviceConfigurationWizard(QWidget *parent) :
-    QWizard(parent)
+    Utils::Wizard(parent)
 {
     setWindowTitle(tr("New BlackBerry Device Configuration Setup"));
 

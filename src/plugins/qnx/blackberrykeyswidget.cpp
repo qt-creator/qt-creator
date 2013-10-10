@@ -83,7 +83,7 @@ void BlackBerryKeysWidget::certificateLoaded(int status)
     case BlackBerryCertificate::Busy:
     case BlackBerryCertificate::InvalidOutputFormat:
     case BlackBerryCertificate::Error:
-        setCertificateError(tr("Error loading certificate!"));
+        setCertificateError(tr("Error loading certificate."));
         m_ui->openCertificateButton->setVisible(true);
         break;
     }

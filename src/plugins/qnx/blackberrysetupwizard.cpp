@@ -57,7 +57,7 @@ using namespace Qnx;
 using namespace Qnx::Internal;
 
 BlackBerrySetupWizard::BlackBerrySetupWizard(QWidget *parent) :
-    QWizard(parent),
+    Utils::Wizard(parent),
     m_ndkPage(0),
     m_keysPage(0),
     m_certificatePage(0),

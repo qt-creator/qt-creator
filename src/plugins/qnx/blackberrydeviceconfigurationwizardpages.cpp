@@ -75,7 +75,7 @@ BlackBerryDeviceConfigurationWizardSetupPage::BlackBerryDeviceConfigurationWizar
 
 {
     m_ui->setupUi(this);
-    setTitle(tr("Connection Details"));
+    setTitle(tr("Connection"));
 
     connect(m_ui->deviceListWidget, SIGNAL(itemSelectionChanged()), this, SLOT(onDeviceSelectionChanged()));
     connect(m_deviceListDetector, SIGNAL(deviceDetected(QString,QString,bool)),
@@ -225,7 +225,7 @@ BlackBerryDeviceConfigurationWizardQueryPage::BlackBerryDeviceConfigurationWizar
     , m_deviceInformation(new BlackBerryDeviceInformation(this))
 {
     m_ui->setupUi(this);
-    setTitle(tr("Query Device Information"));
+    setTitle(tr("Device Information"));
     m_ui->progressBar->setMaximum(Done);
 
     connect(m_deviceInformation,SIGNAL(finished(int)),this,SLOT(processQueryFinished(int)));
@@ -426,7 +426,7 @@ QString BlackBerryDeviceConfigurationWizardConfigPage::debugToken() const
 BlackBerryDeviceConfigurationWizardFinalPage::BlackBerryDeviceConfigurationWizardFinalPage(QWidget *parent)
     : QWizardPage(parent)
 {
-    setTitle(tr("Setup Finished"));
+    setTitle(tr("Summary"));
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     QLabel *label = new QLabel(tr("The new device configuration will be created now."), this);

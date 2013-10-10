@@ -28,30 +28,14 @@
 ****************************************************************************/
 
 
-#include "plugintestutils.h"
+#include "testdatadir.h"
 
-#include "editormanager/editormanager.h"
-#include "editormanager/ieditor.h"
-
-#include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
 #include <QString>
 #include <QTest>
 
-void Core::Tests::closeAndDeleteEditors(QList<IEditor *> editorsToClose)
-{
-    EditorManager::closeEditors(editorsToClose, /*askAboutModifiedEditors=*/ false);
-    // The editors are going to be deleted by the event loop (deleteLater()),
-    // but for tests we need them deleted now.
-    foreach (Core::IEditor *editor, editorsToClose)
-        QCoreApplication::sendPostedEvents(editor, QEvent::DeferredDelete);
-}
-
-void Core::Tests::closeAndDeleteEditor(Core::IEditor *editor)
-{
-    closeAndDeleteEditors(QList<IEditor *>() << editor);
-}
+using namespace Core::Internal::Tests;
 
 static void maybeAppendSlash(QString *string)
 {
@@ -60,7 +44,7 @@ static void maybeAppendSlash(QString *string)
         string->append(slash);
 }
 
-Core::Tests::TestDataDir::TestDataDir(const QString &directory)
+TestDataDir::TestDataDir(const QString &directory)
     : m_directory(directory)
 {
     maybeAppendSlash(&m_directory);
@@ -69,12 +53,12 @@ Core::Tests::TestDataDir::TestDataDir(const QString &directory)
     QVERIFY(fi.isDir());
 }
 
-QString Core::Tests::TestDataDir::file(const QString &fileName) const
+QString TestDataDir::file(const QString &fileName) const
 {
     return directory() + fileName;
 }
 
-QString Core::Tests::TestDataDir::directory(const QString &subdir, bool clean) const
+QString TestDataDir::directory(const QString &subdir, bool clean) const
 {
     QString path = m_directory;
     if (!subdir.isEmpty())

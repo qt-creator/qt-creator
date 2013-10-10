@@ -170,6 +170,8 @@ private slots:
 
 private:
     void delayedGC();
+    void recalculateFileToProjectParts();
+
     void replaceSnapshot(const CPlusPlus::Snapshot &newSnapshot);
     void removeFilesFromSnapshot(const QSet<QString> &removedFiles);
     void removeProjectInfoFilesAndIncludesFromSnapshot(const ProjectInfo &projectInfo);

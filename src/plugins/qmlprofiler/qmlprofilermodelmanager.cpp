@@ -72,7 +72,7 @@ void QmlProfilerDataState::setState(QmlProfilerDataState::State state)
             QTC_ASSERT(m_state == ProcessingData || m_state == Empty, return);
         break;
         default:
-            emit error(tr("Trying to set unknown state in events list"));
+            emit error(tr("Trying to set unknown state in events list."));
         break;
     }
 
@@ -271,7 +271,7 @@ void QmlProfilerModelManager::complete()
     if (state() == QmlProfilerDataState::Done) {
         // repeated Done states are ignored
     } else {
-        emit error(tr("Unexpected complete signal in data model"));
+        emit error(tr("Unexpected complete signal in data model."));
     }
 }
 

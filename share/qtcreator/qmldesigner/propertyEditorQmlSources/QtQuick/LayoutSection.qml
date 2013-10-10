@@ -45,12 +45,12 @@ import QtQuick.Layouts 1.0
 Section {
     anchors.left: parent.left
     anchors.right: parent.right
-    caption: "Layout"
+    caption: qsTr("Layout")
 
     ColumnLayout {
         width: parent.width
         Label {
-            text: "Anchors"
+            text: qsTr("Anchors")
         }
 
         AnchorButtons {
@@ -74,7 +74,9 @@ Section {
 
 
                 Text {
-                    text: "Target"
+                    text: qsTr("Target")
+                    color: "#eee"
+                    elide: Text.ElideRight
                 }
 
                 ComboBox {
@@ -84,6 +86,8 @@ Section {
 
                 Text {
                     text: "Margin"
+                    color: "#eee"
+                    elide: Text.ElideRight
                 }
 
                 RowLayout {
@@ -128,7 +132,9 @@ Section {
 
 
                 Text {
-                    text: "Target"
+                    text: qsTr("Target")
+                    color: "#eee"
+                    elide: Text.ElideRight
                 }
 
                 ComboBox {
@@ -137,7 +143,9 @@ Section {
 
 
                 Text {
-                    text: "Margin"
+                    text: qsTr("Margin")
+                    color: "#eee"
+                    elide: Text.ElideRight
                 }
 
                 RowLayout {
@@ -182,7 +190,10 @@ Section {
 
 
                 Text {
-                    text: "Target"
+                    text: qsTr("Target")
+                    color: "#eee"
+                    elide: Text.ElideRight
+
                 }
 
                 ComboBox {
@@ -191,7 +202,10 @@ Section {
 
 
                 Text {
-                    text: "Margin"
+                    text: qsTr("Margin")
+                    color: "#eee"
+                    elide: Text.ElideRight
+
                 }
 
                 RowLayout {
@@ -236,7 +250,10 @@ Section {
 
 
                 Text {
-                    text: "Target"
+                    text: qsTr("Target")
+                    color: "#eee"
+                    elide: Text.ElideRight
+
                 }
 
                 ComboBox {
@@ -245,7 +262,10 @@ Section {
 
 
                 Text {
-                    text: "Margin"
+                    text: qsTr("Margin")
+                    color: "#eee"
+                    elide: Text.ElideRight
+
                 }
 
                 RowLayout {

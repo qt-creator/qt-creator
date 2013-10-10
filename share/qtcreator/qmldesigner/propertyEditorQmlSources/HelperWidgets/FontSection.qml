@@ -119,6 +119,10 @@ Section {
                     }
 
                 }
+
+                style: CustomComboBoxStyle {
+                }
+
             }
 
         }

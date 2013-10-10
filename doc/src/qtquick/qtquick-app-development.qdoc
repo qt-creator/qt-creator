@@ -31,67 +31,40 @@
 
     \title Developing Qt Quick Applications
 
-    You can either create Qt Quick projects from scratch or import existing
-    projects to \QC.
-
-    You can use the code editor (\l{Working in Edit Mode}{Edit mode}) or the
-    visual editor (\l{Using Qt Quick Designer}{Design mode}) to develop Qt Quick
-    applications.
-
-    Typically, application development proceeds as follows:
-
-    \table
-        \row
-            \li \inlineimage creator_createproject.png
-            \li \inlineimage creator_createcomponents.png
-            \li \inlineimage creator_createscreen.png
-        \row
-            \li \l {Creating Qt Quick Projects}{Create or import projects.}
-            \li \l {Creating Components}{Create components.}
-            \li \l {Creating Screens}{Create screens.}
-        \row
-            \li \inlineimage creator_createanimation.png
-            \li \inlineimage creator_createuserinter.png
-            \li \inlineimage creator_createcode.png
-        \row
-            \li \l {Animating Screens}{Add animation to screens.}
-            \li \l {Adding User Interaction Methods}
-                {Add user interaction methods.}
-            \li \l {Implementing Application Logic}
-                {Implement the application logic.}
-    \endtable
-
-    \section1 Related Topics
-
     \list
+
+        \li \l {Creating Qt Quick Projects}
+
+            You can either create Qt Quick projects from scratch or import
+            existing projects to \QC.
         \li \l {Using Qt Quick Designer}
-        \li \l {Creating Buttons}
-        \li \l {Creating Scalable Buttons and Borders}
+
+            You can use the code editor (Edit mode) or the visual editor (Design
+            mode) to develop Qt Quick applications.
+
+        \li \l {Creating Components}
+
+            You can use predefined QML types to create components or use a set
+            of Qt Quick Controls for creating classic desktop-style user
+            interfaces using Qt Quick 2.1 (available since Qt 5.1).
+        \li \l {Creating Screens}
+
+            You can use predefined QML types, Qt Quick Controls, and your own
+            components to create screens. You can use states and transitions to
+            navigate between screens.
         \li \l {Exporting Designs from Graphics Software}
+
+            You can export designs from graphics software, such as Adobe
+            Photoshop and GIMP, to QML files. You can then edit QML files in
+            \QC.
         \li \l {Using QML Modules with Plugins}
+
+            QML modules may use plugins to expose components defined in C++ to
+            QML applications. \QC cannot load the plugins to determine the
+            details of the contained components, and therefore, the modules must
+            provide extra type information for code completion and the semantic
+            checks to work correctly.
 
     \endlist
 
 */
-
-
-/*!
-
-    \contentspage index.html
-    \previouspage quick-export-to-qml.html
-    \page quick-application-logic.html
-    \nextpage creator-qml-modules-with-plugins.html
-
-    \title Implementing Application Logic
-
-    A user interface is only a part of an application, and not really useful by itself.
-    You can use Qt or JavaScript to implement the application logic. For more information on
-    using JavaScript, see
-    \l{http://qt-project.org/doc/qt-5.0/qtqml/qtqml-javascript-topic.html}
-    {Integrating QML and JavaScript}.
-
-    For an example of how to use JavaScript to develop a game, see the
-    \l{http://qt-project.org/doc/qt-5.0/qtquick/qtquick2-qml-advtutorial.html}
-    {QML Advanced Tutorial}.
-
- */

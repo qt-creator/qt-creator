@@ -1,6 +1,6 @@
 import qbs.base 1.0
 
-import "../QtcPlugin.qbs" as QtcPlugin
+import QtcPlugin
 
 QtcPlugin {
     name: "HelloWorld"

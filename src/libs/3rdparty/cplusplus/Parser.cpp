@@ -2138,16 +2138,17 @@ bool Parser::parseAccessDeclaration(DeclarationAST *&node)
 
 /*
  Q_PROPERTY(type name
-        READ getFunction
-        [WRITE setFunction]
-        [RESET resetFunction]
-        [NOTIFY notifySignal]
-        [DESIGNABLE bool]
-        [SCRIPTABLE bool]
-        [STORED bool]
-        [USER bool]
-        [CONSTANT]
-        [FINAL])
+    (READ getFunction [WRITE setFunction]
+        | MEMBER memberName [(READ getFunction | WRITE setFunction)])
+    [RESET resetFunction]
+    [NOTIFY notifySignal]
+    [REVISION int]
+    [DESIGNABLE bool]
+    [SCRIPTABLE bool]
+    [STORED bool]
+    [USER bool]
+    [CONSTANT]
+    [FINAL])
 
     Note that "type" appears to be any valid type. So these are valid:
       Q_PROPERTY(const char *zoo READ zoo)
@@ -2155,7 +2156,8 @@ bool Parser::parseAccessDeclaration(DeclarationAST *&node)
 
     Furthermore, the only restriction on the order of the items in between the
     parenthesis is that the type is the first parameter and the name comes after
-    the type.
+    the type. Especially, there seems to be no restriction on the READ/WRITE/MEMBER
+    order.
 */
 bool Parser::parseQtPropertyDeclaration(DeclarationAST *&node)
 {
@@ -2201,6 +2203,7 @@ bool Parser::parseQtPropertyDeclaration(DeclarationAST *&node)
                 switch (peekAtQtContextKeyword()) {
                 case Token_READ:
                 case Token_WRITE:
+                case Token_MEMBER:
                 case Token_RESET:
                 case Token_NOTIFY:
                 case Token_REVISION:

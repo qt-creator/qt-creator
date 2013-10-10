@@ -44,10 +44,10 @@ import HelperWidgets 2.0
 Row {
     id: alignmentHorizontalButtons
 
-    Rectangle {
+    RoundedPanel {
         width: 14
         height: parent.height
-        color: "gray"
+        roundLeft: true
         ExtendedFunctionButton {
             anchors.verticalCenter: parent.verticalCenter
             backendValue: alignmentHorizontalButtons.backendValue
@@ -106,6 +106,7 @@ Row {
         exclusive: true
 
         ButtonRowButton {
+            roundLeftButton: false
             iconSource: blueHighlight ? "images/alignmentleft-h-icon.png" : "images/alignmentleft-icon.png"
             onClicked: {
                 if (checked)

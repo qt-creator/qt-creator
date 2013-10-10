@@ -1147,7 +1147,7 @@ bool EditorManager::closeEditors(const QList<IEditor*> &editorsToClose, bool ask
     emit m_instance->editorsClosed(acceptedEditors.toList());
 
     foreach (IEditor *editor, acceptedEditors)
-        editor->deleteLater();
+        delete editor;
 
     if (currentView && !currentViewHandled) {
         if (IEditor *editor = currentView->currentEditor())

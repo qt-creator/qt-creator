@@ -92,7 +92,7 @@ copy2build.input = PLUGINSPEC
 isEmpty(vcproj):copy2build.variable_out = PRE_TARGETDEPS
 copy2build.commands = $$QMAKE_COPY ${QMAKE_FILE_IN} ${QMAKE_FILE_OUT}
 copy2build.name = COPY ${QMAKE_FILE_IN}
-copy2build.CONFIG += no_link
+copy2build.CONFIG += no_link no_clean
 QMAKE_EXTRA_COMPILERS += copy2build
 
 greaterThan(QT_MAJOR_VERSION, 4) {

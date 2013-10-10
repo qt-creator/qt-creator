@@ -90,57 +90,6 @@ Controls.SpinBox {
         }
     }
 
-    style: SpinBoxStyle {
-
-        selectionColor: spinBox.textColor
-        selectedTextColor: "black"
-        textColor: spinBox.textColor
-        padding.top: 3
-        padding.bottom: 1
-
-        incrementControl: Item {
-            implicitWidth: 14
-            implicitHeight: parent.height/2
-            opacity: styleData.upEnabled ? styleData.upPressed ? 0.5 : 1 : 0.5
-            Image {
-                source: "images/up-arrow.png"
-                anchors.centerIn: parent
-                anchors.verticalCenterOffset: 2
-                anchors.horizontalCenterOffset: -4
-            }
-        }
-
-        decrementControl: Item {
-            implicitWidth: 14
-            implicitHeight: parent.height/2
-            opacity: styleData.downEnabled ? styleData.downPressed ? 0.5 : 1 : 0.5
-            Image {
-                source: "images/down-arrow.png"
-                anchors.centerIn: parent
-                anchors.verticalCenterOffset: -1
-                anchors.horizontalCenterOffset: -4
-            }
-        }
-
-        background: Rectangle {
-            implicitWidth: Math.max(60, styleData.contentWidth)
-            implicitHeight: 23
-            border.color: borderColor
-            radius: 3
-            gradient: Gradient {
-                GradientStop {color: "#2c2c2c" ; position: 0}
-                GradientStop {color: "#343434" ; position: 0.15}
-                GradientStop {color: "#373737" ; position: 1}
-            }
-            Rectangle {
-                border.color: highlightColor
-                anchors.fill: parent
-                anchors.margins: -1
-                color: "transparent"
-                radius: 4
-                opacity: 0.3
-                visible: control.activeFocus
-            }
-        }
+    style: CustomSpinBoxStyle {
     }
 }

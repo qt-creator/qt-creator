@@ -27,40 +27,16 @@
 **
 ****************************************************************************/
 
+import QtQuick 2.1
+import HelperWidgets 2.0
+import QtQuick.Layouts 1.0
 
-#ifndef PLUGINTESTUTILS_H
-#define PLUGINTESTUTILS_H
+Column {
+    anchors.left: parent.left
+    anchors.right: parent.right
 
-#include "core_global.h"
-
-#include <QList>
-#include <QString>
-
-namespace Core {
-
-class IEditor;
-
-namespace Tests {
-
-/// Closing and deleting editors
-void CORE_EXPORT closeAndDeleteEditor(Core::IEditor *editor);
-void CORE_EXPORT closeAndDeleteEditors(QList<Core::IEditor *> editorsToClose);
-
-/// Referencing test data
-class CORE_EXPORT TestDataDir
-{
-public:
-    TestDataDir(const QString &directory);
-    QString file(const QString &fileName) const;
-
-protected:
-    QString directory(const QString &subdir = QString(), bool clean = true) const;
-
-private:
-    QString m_directory;
-};
-
-} // namespace Tests
-} // namespace Core
-
-#endif // PLUGINTESTUTILS_H
+    FlickableSection {
+        anchors.left: parent.left
+        anchors.right: parent.right
+    }
+}

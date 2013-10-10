@@ -127,7 +127,6 @@ QWizard *JsFileWizard::createWizardDialog(QWidget *parent,
 {
     JsFileWizardDialog *wizardDialog = new JsFileWizardDialog(parent);
     wizardDialog->setWindowTitle(tr("New %1").arg(displayName()));
-    setupWizard(wizardDialog);
     wizardDialog->setPath(wizardDialogParameters.defaultPath());
     foreach (QWizardPage *p, wizardDialogParameters.extensionPages())
         BaseFileWizard::applyExtensionPageShortTitle(wizardDialog, wizardDialog->addPage(p));

@@ -1,7 +1,7 @@
 import qbs
 import qbs.FileInfo
 import "./copytransformer.qbs" as CopyTransformer
-import "../../../qbs/functions.js" as QtcFunctions
+import QtcFunctions
 
 DynamicLibrary {
     Depends { name: "Aggregation" }

@@ -163,7 +163,7 @@
          <item>
           <widget class="QPushButton" name="addNdkButton">
            <property name="text">
-            <string>Add </string>
+            <string>Add</string>
            </property>
           </widget>
          </item>

@@ -29,9 +29,11 @@
 
 import QtQuick 2.1
 import QtQuick.Controls 1.1 as Controls
+import QtQuick.Controls.Styles 1.1
 
 Controls.ComboBox {
     id: comboBox
+
     property variant backendValue
 
     QtObject {
@@ -46,7 +48,6 @@ Controls.ComboBox {
             backendValue.value = currentText;
     }
 
-
     onFocusChanged: {
         if (focus) {
             transaction.start();
@@ -55,5 +56,6 @@ Controls.ComboBox {
         }
     }
 
-
+    style: CustomComboBoxStyle {
+    }
 }

@@ -67,7 +67,9 @@ public:
 
     static QString iosDeviceToolPath();
     static QString iosSimulatorToolPath();
+
     explicit IosToolHandler(DeviceType = IosDeviceType, QObject *parent = 0);
+    ~IosToolHandler();
     void requestTransferApp(const QString &bundlePath, const QString &deviceId, int timeout = 1000);
     void requestRunApp(const QString &bundlePath, const QStringList &extraArgs, RunKind runType,
                             const QString &deviceId, int timeout = 1000);

@@ -310,7 +310,7 @@ bool BlackBerryConfiguration::activate()
         if (m_isAutoDetected)
             return false;
 
-        QString errorMessage = tr("The following errors occurred while activating Target: %1").arg(m_targetName);
+        QString errorMessage = tr("The following errors occurred while activating target: %1").arg(m_targetName);
         if (m_qmake4BinaryFile.isEmpty() && m_qmake5BinaryFile.isEmpty())
             errorMessage += QLatin1Char('\n') + tr("- No Qt version found.");
 

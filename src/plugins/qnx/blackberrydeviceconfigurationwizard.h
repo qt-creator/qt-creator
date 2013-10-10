@@ -34,14 +34,13 @@
 
 #include "blackberrydeviceconfigurationwizardpages.h"
 
-#include <QWizard>
-
 #include <projectexplorer/devicesupport/idevice.h>
+#include <utils/wizard.h>
 
 namespace Qnx {
 namespace Internal {
 
-class BlackBerryDeviceConfigurationWizard : public QWizard
+class BlackBerryDeviceConfigurationWizard : public Utils::Wizard
 {
     Q_OBJECT
 public:

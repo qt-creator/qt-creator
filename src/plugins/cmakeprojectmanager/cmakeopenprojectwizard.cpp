@@ -273,8 +273,6 @@ CMakeOpenProjectWizard::CMakeOpenProjectWizard(CMakeManager *cmakeManager, CMake
 
 void CMakeOpenProjectWizard::init()
 {
-    setOption(QWizard::NoBackButtonOnStartPage);
-    setOption(QWizard::NoCancelButton, false);
     setWindowTitle(tr("CMake Wizard"));
 }
 

@@ -44,7 +44,7 @@ using namespace Qnx;
 using namespace Qnx::Internal;
 
 QnxDeviceConfigurationWizard::QnxDeviceConfigurationWizard(QWidget *parent) :
-    QWizard(parent)
+    Utils::Wizard(parent)
 {
     setWindowTitle(tr("New QNX Device Configuration Setup"));
 

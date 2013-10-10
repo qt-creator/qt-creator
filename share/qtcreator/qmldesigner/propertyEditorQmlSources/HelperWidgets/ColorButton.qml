@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 import QtQuick 2.1
-import QtQuick.Controls 1.0
+import QtQuick.Controls 1.0 as Controls
 
 Item {
     id: colorButton
@@ -271,6 +271,9 @@ Item {
             Label {
                 text: "H:"
                 width: 16
+                color: "#eee"
+                elide: Text.ElideRight
+                anchors.verticalCenter: parent.verticalCenter
             }
             SliderSpinBox {
                 id: hueSlider2
@@ -289,9 +292,12 @@ Item {
         Row {
             z: 2
             spacing: 4
-            Label {
+            Controls.Label {
                 text: "S:"
                 width: 16
+                color: "#eee"
+                elide: Text.ElideRight
+                anchors.verticalCenter: parent.verticalCenter
             }
 
             SliderSpinBox {
@@ -311,9 +317,12 @@ Item {
         Row {
             z: 1
             spacing: 4
-            Label {
+            Controls.Label {
                 text: "L:"
                 width: 16
+                color: "#eee"
+                elide: Text.ElideRight
+                anchors.verticalCenter: parent.verticalCenter
             }
             SliderSpinBox {
                 id: lightnessSlider
@@ -332,9 +341,12 @@ Item {
         Row {
             z: 0
             spacing: 4
-            Label {
+            Controls.Label {
                 text: "A:"
                 width: 16
+                color: "#eee"
+                elide: Text.ElideRight
+                anchors.verticalCenter: parent.verticalCenter
             }
 
             SliderSpinBox {
@@ -348,7 +360,6 @@ Item {
                     if (colorButton.alpha !== value)
                         colorButton.alpha = value
                 }
-
             }
         }
 

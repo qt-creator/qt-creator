@@ -83,7 +83,7 @@ AndroidPotentialKitWidget::AndroidPotentialKitWidget(QWidget *parent)
     QGridLayout *layout = new QGridLayout(mainWidget);
     layout->setMargin(0);
     QLabel *label = new QLabel;
-    label->setText(tr("Creator needs additional settings to enable Android support."
+    label->setText(tr("Qt Creator needs additional settings to enable Android support."
                       "You can configure those settings in the Options dialog."));
     label->setWordWrap(true);
     layout->addWidget(label, 0, 0, 1, 2);

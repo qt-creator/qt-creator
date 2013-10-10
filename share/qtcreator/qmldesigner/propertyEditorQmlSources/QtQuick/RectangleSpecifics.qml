@@ -71,7 +71,7 @@ Column {
         SectionLayout {
             rows: 2
             Label {
-                text: "Border"
+                text: qsTr("Border")
             }
             SecondColumnLayout {
                 SpinBox {
@@ -84,7 +84,7 @@ Column {
                 }
             }
             Label {
-                text: "Radius"
+                text: qsTr("Radius")
             }
             SecondColumnLayout {
                 SpinBox {

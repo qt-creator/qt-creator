@@ -33,7 +33,7 @@
 #include "cppmodelmanager.h"
 #include "searchsymbols.h"
 
-#include <coreplugin/plugintestutils.h>
+#include <coreplugin/testdatadir.h>
 #include <utils/runextensions.h>
 
 #include <QtTest>
@@ -43,7 +43,7 @@ using namespace CppTools::Internal;
 
 namespace {
 
-class MyTestDataDir : public Core::Tests::TestDataDir
+class MyTestDataDir : public Core::Internal::Tests::TestDataDir
 {
 public:
     MyTestDataDir(const QString &testDataDirectory)

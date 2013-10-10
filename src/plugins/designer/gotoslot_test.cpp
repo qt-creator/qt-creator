@@ -34,7 +34,7 @@
 #else
 #include "formeditorw.h"
 
-#include <coreplugin/plugintestutils.h>
+#include <coreplugin/testdatadir.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <cpptools/cppmodelmanager.h>
 
@@ -47,6 +47,7 @@
 #include <QtTest>
 
 using namespace Core;
+using namespace Core::Internal::Tests;
 using namespace CppTools;
 using namespace CPlusPlus;
 using namespace Designer;
@@ -54,7 +55,7 @@ using namespace Designer::Internal;
 
 namespace {
 
-class MyTestDataDir : public Core::Tests::TestDataDir {
+class MyTestDataDir : public Core::Internal::Tests::TestDataDir {
 public:
     MyTestDataDir(const QString &dir)
         : TestDataDir(QLatin1String(SRCDIR "/../../../tests/designer/") + dir)
@@ -133,10 +134,7 @@ public:
 private:
     void cleanup()
     {
-        DocumentModel *documentModel = EditorManager::documentModel();
-        const QList<IDocument *> documents = documentModel->openedDocuments();
-        const QList<IEditor *> editors = documentModel->editorsForDocuments(documents);
-        Core::Tests::closeAndDeleteEditors(editors);
+        EditorManager::closeAllEditors(/*askAboutModifiedEditors =*/ false);
         QVERIFY(EditorManager::documentModel()->openedDocuments().isEmpty());
 
         m_modelManager->GC();

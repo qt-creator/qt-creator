@@ -152,6 +152,10 @@ private slots:
     void cpp_constructor_multiple_args();
     void cpp_constructor_function_try_catch();
 
+    // Q_PROPERTY
+    void cpp_qproperty();
+    void cpp_qproperty_data();
+
     // objc++
     void objc_simple_class();
     void objc_attributes_followed_by_at_keyword();
@@ -1233,6 +1237,39 @@ void tst_AST::cpp_constructor_function_try_catch()
     QVERIFY(funDecl != 0);
     QVERIFY(funDecl->parameter_declaration_clause != 0);
     QVERIFY(funDecl->parameter_declaration_clause->parameter_declaration_list != 0);
+}
+
+void tst_AST::cpp_qproperty()
+{
+    QFETCH(QByteArray, source);
+    QVERIFY(!source.isEmpty());
+
+    const QByteArray sourceWithinClass = "class C { " + source + " };";
+    QSharedPointer<TranslationUnit> unit(parseDeclaration(sourceWithinClass, false, true));
+    QVERIFY(unit->ast());
+
+    QCOMPARE(diag.errorCount, 0);
+}
+
+void tst_AST::cpp_qproperty_data()
+{
+    QTest::addColumn<QByteArray>("source");
+
+    QTest::newRow("read-final")
+        << QByteArray("Q_PROPERTY(bool focus READ hasFocus FINAL)");
+    QTest::newRow("read-write-final")
+        << QByteArray("Q_PROPERTY(bool focus READ hasFocus WRITE setFocus FINAL)");
+    QTest::newRow("member-final")
+        << QByteArray("Q_PROPERTY(bool focus MEMBER m_focus FINAL)");
+    QTest::newRow("member-read-final")
+        << QByteArray("Q_PROPERTY(bool focus MEMBER m_focus READ m_focus FINAL)");
+    QTest::newRow("member-read-write-final")
+        << QByteArray("Q_PROPERTY(bool focus MEMBER m_focus READ hasFocus WRITE setFocus FINAL)");
+
+    QTest::newRow("all")
+        << QByteArray("Q_PROPERTY(bool focus MEMBER m_focus READ hasFocus WRITE setFocus"
+                      " RESET resetFocus NOTIFY focusChanged REVISION 1 DESIGNABLE true"
+                      " SCRIPTABLE true STORED true USER true CONSTANT FINAL)");
 }
 
 void tst_AST::objc_simple_class()

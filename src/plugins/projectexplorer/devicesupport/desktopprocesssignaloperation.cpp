@@ -174,8 +174,8 @@ GDB 32bit | Api             | Api             | N/A             | Win32         
                     ? QLatin1String("/win32interrupt.exe")
                     : QLatin1String("/win64interrupt.exe");
             if (!QFile::exists(executable)) {
-                appendMsgCannotInterrupt(pid, tr( "%1 does not exist. If you have built QtCreator "
-                                                  "on your own ,checkout http://qt.gitorious.org/"
+                appendMsgCannotInterrupt(pid, tr( "%1 does not exist. If you built Qt Creator "
+                                                  "yourself, check out http://qt.gitorious.org/"
                                                   "qt-creator/binary-artifacts.").
                                          arg(QDir::toNativeSeparators(executable)));
             }

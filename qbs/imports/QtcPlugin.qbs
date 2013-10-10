@@ -1,6 +1,6 @@
 import qbs.base 1.0
 import qbs.FileInfo
-import "../../qbs/functions.js" as QtcFunctions
+import QtcFunctions
 
 Product {
     type: ["dynamiclibrary", "pluginSpec"]
@@ -33,7 +33,9 @@ Product {
         else if (qbs.buildVariant == "debug" && qbs.toolchain.contains("msvc"))
             return ["/INCREMENTAL:NO"] // Speed up startup time when debugging with cdb
     }
-    cpp.includePaths: [path]
+
+    property string pluginIncludeBase: ".." // #include <plugin/header.h>
+    cpp.includePaths: [pluginIncludeBase]
 
     Group {
         name: "PluginSpec"
@@ -55,6 +57,6 @@ Product {
     Export {
         Depends { name: "ExtensionSystem" }
         Depends { name: "cpp" }
-        cpp.includePaths: [path]
+        cpp.includePaths: [pluginIncludeBase]
     }
 }

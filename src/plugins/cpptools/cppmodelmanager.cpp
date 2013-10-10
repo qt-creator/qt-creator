@@ -681,6 +681,19 @@ private:
     const QSet<QString> m_newSourceFiles;
 };
 
+/// Make sure that m_projectMutex is locked when calling this.
+void CppModelManager::recalculateFileToProjectParts()
+{
+    m_fileToProjectParts.clear();
+    foreach (const ProjectInfo &projectInfo, m_projectToProjectsInfo) {
+        foreach (const ProjectPart::Ptr &projectPart, projectInfo.projectParts()) {
+            foreach (const ProjectFile &cxxFile, projectPart->files) {
+                m_fileToProjectParts[cxxFile.path].append(projectPart);
+            }
+        }
+    }
+}
+
 QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectInfo)
 {
     if (!newProjectInfo.isValid())
@@ -738,14 +751,7 @@ QFuture<void> CppModelManager::updateProjectInfo(const ProjectInfo &newProjectIn
         // Update Project/ProjectInfo and File/ProjectPart table
         m_dirty = true;
         m_projectToProjectsInfo.insert(project, newProjectInfo);
-        m_fileToProjectParts.clear();
-        foreach (const ProjectInfo &projectInfo, m_projectToProjectsInfo) {
-            foreach (const ProjectPart::Ptr &projectPart, projectInfo.projectParts()) {
-                foreach (const ProjectFile &cxxFile, projectPart->files) {
-                    m_fileToProjectParts[cxxFile.path].append(projectPart);
-                }
-            }
-        }
+        recalculateFileToProjectParts();
 
     } // Mutex scope
 
@@ -823,6 +829,7 @@ void CppModelManager::onAboutToRemoveProject(ProjectExplorer::Project *project)
         QMutexLocker locker(&m_projectMutex);
         m_dirty = true;
         m_projectToProjectsInfo.remove(project);
+        recalculateFileToProjectParts();
     } while (0);
 
     delayedGC();
@@ -841,6 +848,7 @@ void CppModelManager::onAboutToUnloadSession()
     do {
         QMutexLocker locker(&m_projectMutex);
         m_projectToProjectsInfo.clear();
+        recalculateFileToProjectParts();
         m_dirty = true;
     } while (0);
 }
