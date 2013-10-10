@@ -17,7 +17,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Select NDK Path</string>
+      <string>Select Native SDK path:</string>
      </property>
     </widget>
    </item>

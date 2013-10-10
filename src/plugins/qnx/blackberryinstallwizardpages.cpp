@@ -94,6 +94,7 @@ BlackBerryInstallWizardOptionPage::BlackBerryInstallWizardOptionPage(BlackBerryI
     , m_envFileChooser(new NdkPathChooser(NdkPathChooser::ManualMode))
     , m_data(data)
 {
+    setTitle(tr("Options"));
     connect(m_addButton, SIGNAL(toggled(bool)), this, SLOT(handleOptionChanged()));
     connect(m_envFileChooser, SIGNAL(pathChanged(QString)), this, SLOT(handlePathChanged(QString)));
 }
@@ -159,6 +160,7 @@ BlackBerryInstallWizardNdkPage::BlackBerryInstallWizardNdkPage(BlackBerryInstall
     , m_validNdkPath(false)
 {
     m_ui->setupUi(this);
+    setTitle(tr("Native SDK"));
     m_ui->verticalLayout->addWidget(m_ndkPathChooser);
     connect(m_ui->ndkPathListWidget, SIGNAL(itemSelectionChanged()), this, SLOT(setNdkPath()));
     connect(m_ndkPathChooser, SIGNAL(pathChanged(QString)), this, SLOT(setManualNdkPath()));
@@ -242,6 +244,7 @@ BlackBerryInstallWizardTargetPage::BlackBerryInstallWizardTargetPage(BlackBerryI
     , m_targetListProcess(new QProcess(this))
 {
     m_ui->setupUi(this);
+    setTitle(tr("Target"));
 
     connect(m_targetListProcess, SIGNAL(finished(int, QProcess::ExitStatus)),
             this, SLOT(targetsListProcessFinished()));
@@ -351,6 +354,11 @@ BlackBerryInstallWizardProcessPage::BlackBerryInstallWizardProcessPage(BlackBerr
     , m_targetProcess(new QProcess(this))
 {
     m_ui->setupUi(this);
+    if (m_data.mode == BlackBerryInstallerDataHandler::UninstallMode)
+        setTitle(tr("Uninstalling"));
+    else
+        setTitle(tr("Installing"));
+
     connect(m_targetProcess, SIGNAL(finished(int, QProcess::ExitStatus)),
             this, SLOT(handleProcessFinished(int, QProcess::ExitStatus)));
 }
@@ -451,6 +459,7 @@ BlackBerryInstallWizardFinalPage::BlackBerryInstallWizardFinalPage(BlackBerryIns
     : QWizardPage(parent)
     , m_data(data)
 {
+    setTitle(tr("Summary"));
 }
 
 void BlackBerryInstallWizardFinalPage::initializePage()
