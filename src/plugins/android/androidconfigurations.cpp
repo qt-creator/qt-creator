@@ -502,17 +502,37 @@ QString AndroidConfigurations::createAVD(const QString &target, const QString &n
     QProcess proc;
     proc.start(androidToolPath().toString(),
                QStringList() << QLatin1String("create") << QLatin1String("avd")
-               << QLatin1String("-a") << QLatin1String("-t") << target
+               << QLatin1String("-t") << target
                << QLatin1String("-n") << name
                << QLatin1String("-b") << abi
                << QLatin1String("-c") << QString::fromLatin1("%1M").arg(sdcardSize));
     if (!proc.waitForStarted())
         return QString();
-    proc.write(QByteArray("no\n"));
-    if (!proc.waitForFinished(-1)) {
-        proc.terminate();
-        return QString();
+
+    proc.write(QByteArray("yes\n")); // yes to "Do you wish to create a custom hardware profile"
+
+    QByteArray question;
+    while (true) {
+        proc.waitForReadyRead(500);
+        question += proc.readAllStandardOutput();
+        if (question.endsWith(QByteArray("]:"))) {
+            // truncate to last line
+            int index = question.lastIndexOf(QByteArray("\n"));
+            if (index != -1)
+                question = question.mid(index);
+            if (question.contains("hw.gpu.enabled"))
+                proc.write(QByteArray("yes\n"));
+            else
+                proc.write(QByteArray("\n"));
+            question.clear();
+        }
+
+        if (proc.state() != QProcess::Running)
+            break;
     }
+
+    proc.waitForFinished();
+
     if (proc.exitCode()) // error!
         return QString();
     return name;
