@@ -114,7 +114,7 @@ public:
         : BaseTextEditor(editorWidget)
     {
         connect(this, SIGNAL(tooltipRequested(TextEditor::ITextEditor*,QPoint,int)),
-                this, SLOT(slotTooltipRequested(TextEditor::ITextEditor*,QPoint, int)));
+                this, SLOT(slotTooltipRequested(TextEditor::ITextEditor*,QPoint,int)));
     }
 
     Core::Id id() const { return "DiffViewEditor"; }

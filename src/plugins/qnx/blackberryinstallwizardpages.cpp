@@ -246,7 +246,7 @@ BlackBerryInstallWizardTargetPage::BlackBerryInstallWizardTargetPage(BlackBerryI
     m_ui->setupUi(this);
     setTitle(tr("Target"));
 
-    connect(m_targetListProcess, SIGNAL(finished(int, QProcess::ExitStatus)),
+    connect(m_targetListProcess, SIGNAL(finished(int,QProcess::ExitStatus)),
             this, SLOT(targetsListProcessFinished()));
     connect(m_ui->targetsTreeWidget, SIGNAL(itemSelectionChanged()), this, SLOT(setTarget()));
 }
@@ -261,10 +261,10 @@ void BlackBerryInstallWizardTargetPage::initializePage()
 {
     // process may be running if going back and forth
     if (m_targetListProcess->state() == QProcess::Running) {
-        disconnect(m_targetListProcess, SIGNAL(finished(int, QProcess::ExitStatus)),
+        disconnect(m_targetListProcess, SIGNAL(finished(int,QProcess::ExitStatus)),
                    this, SLOT(targetsListProcessFinished()));
         Utils::SynchronousProcess::stopProcess(*m_targetListProcess);
-        connect(m_targetListProcess, SIGNAL(finished(int, QProcess::ExitStatus)),
+        connect(m_targetListProcess, SIGNAL(finished(int,QProcess::ExitStatus)),
                 this, SLOT(targetsListProcessFinished()));
     }
 
@@ -359,8 +359,8 @@ BlackBerryInstallWizardProcessPage::BlackBerryInstallWizardProcessPage(BlackBerr
     else
         setTitle(tr("Installing"));
 
-    connect(m_targetProcess, SIGNAL(finished(int, QProcess::ExitStatus)),
-            this, SLOT(handleProcessFinished(int, QProcess::ExitStatus)));
+    connect(m_targetProcess, SIGNAL(finished(int,QProcess::ExitStatus)),
+            this, SLOT(handleProcessFinished(int,QProcess::ExitStatus)));
 }
 
 BlackBerryInstallWizardProcessPage::~BlackBerryInstallWizardProcessPage()
@@ -391,11 +391,11 @@ void BlackBerryInstallWizardProcessPage::initializePage()
     }
     // m_targetProcess could be running
     if (m_targetProcess->state() == QProcess::Running) {
-        disconnect(m_targetProcess, SIGNAL(finished(int, QProcess::ExitStatus)),
-                   this, SLOT(handleProcessFinished(int, QProcess::ExitStatus)));
+        disconnect(m_targetProcess, SIGNAL(finished(int,QProcess::ExitStatus)),
+                   this, SLOT(handleProcessFinished(int,QProcess::ExitStatus)));
         Utils::SynchronousProcess::stopProcess(*m_targetProcess);
-        connect(m_targetProcess, SIGNAL(finished(int, QProcess::ExitStatus)),
-                this, SLOT(handleProcessFinished(int, QProcess::ExitStatus)));
+        connect(m_targetProcess, SIGNAL(finished(int,QProcess::ExitStatus)),
+                this, SLOT(handleProcessFinished(int,QProcess::ExitStatus)));
     }
 
     processTarget();

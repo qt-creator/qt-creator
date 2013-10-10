@@ -269,7 +269,7 @@ void IosDeviceManager::updateInfo(const QString &devId)
 {
     IosToolHandler *requester = new IosToolHandler(IosToolHandler::IosDeviceType, this);
     connect(requester, SIGNAL(deviceInfo(Ios::IosToolHandler*,QString,Ios::IosToolHandler::Dict)),
-            SLOT(deviceInfo(Ios::IosToolHandler *,QString,Ios::IosToolHandler::Dict)), Qt::QueuedConnection);
+            SLOT(deviceInfo(Ios::IosToolHandler*,QString,Ios::IosToolHandler::Dict)), Qt::QueuedConnection);
     connect(requester, SIGNAL(finished(Ios::IosToolHandler*)),
             SLOT(infoGathererFinished(Ios::IosToolHandler*)));
     requester->requestDeviceInfo(devId);
