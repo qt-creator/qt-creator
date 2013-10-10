@@ -30,12 +30,13 @@
 #ifndef ANDROIDPACKAGEINSTALLATIONSTEP_H
 #define ANDROIDPACKAGEINSTALLATIONSTEP_H
 
-#include <qt4projectmanager/makestep.h>
+#include <projectexplorer/buildstep.h>
+#include <projectexplorer/abstractprocessstep.h>
 
 namespace Android {
 namespace Internal {
 
-class AndroidPackageInstallationStep : public Qt4ProjectManager::MakeStep
+class AndroidPackageInstallationStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
     friend class AndroidPackageInstallationFactory;
@@ -48,11 +49,26 @@ public:
     bool fromMap(const QVariantMap &map);
     QVariantMap toMap() const;
 
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
+    bool immutable() const;
+
 private:
     AndroidPackageInstallationStep(ProjectExplorer::BuildStepList *bc,
         AndroidPackageInstallationStep *other);
     AndroidDirectory m_androidDirectory;
     static const Core::Id Id;
+};
+
+class AndroidPackageInstallationStepWidget : public ProjectExplorer::BuildStepConfigWidget
+{
+public:
+    AndroidPackageInstallationStepWidget(AndroidPackageInstallationStep *step);
+
+    QString summaryText() const;
+    QString displayName() const;
+    bool showWidget() const;
+private:
+    AndroidPackageInstallationStep *m_step;
 };
 
 } // namespace Internal

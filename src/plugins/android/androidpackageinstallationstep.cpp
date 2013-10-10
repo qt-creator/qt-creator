@@ -33,7 +33,11 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/toolchain.h>
+#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/gnumakeparser.h>
 #include <utils/hostosinfo.h>
+#include <qt4projectmanager/qmakeparser.h>
 
 #include <QDir>
 
@@ -45,7 +49,7 @@ const char ANDROIDDIRECTORY[] = "Android.AndroidPackageInstallationStep.AndroidD
 }
 
 AndroidPackageInstallationStep::AndroidPackageInstallationStep(AndroidDirectory mode,ProjectExplorer::BuildStepList *bsl)
-    : MakeStep(bsl, Id), m_androidDirectory(mode)
+    : AbstractProcessStep(bsl, Id), m_androidDirectory(mode)
 {
     const QString name = tr("Copy application data");
     setDefaultDisplayName(name);
@@ -53,7 +57,7 @@ AndroidPackageInstallationStep::AndroidPackageInstallationStep(AndroidDirectory 
 }
 
 AndroidPackageInstallationStep::AndroidPackageInstallationStep(ProjectExplorer::BuildStepList *bc, AndroidPackageInstallationStep *other)
-    : MakeStep(bc, other)
+    : AbstractProcessStep(bc, other)
 { }
 
 bool AndroidPackageInstallationStep::init()
@@ -69,14 +73,33 @@ bool AndroidPackageInstallationStep::init()
     if (Utils::HostOsInfo::isWindowsHost())
         if (bc->environment().searchInPath(QLatin1String("sh.exe")).isEmpty())
             dirPath = QDir::toNativeSeparators(dirPath);
-    setUserArguments(QString::fromLatin1("INSTALL_ROOT=\"%1\" install").arg(dirPath));
 
-    return MakeStep::init();
+    ProjectExplorer::ToolChain *tc
+            = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
+
+    ProjectExplorer::ProcessParameters *pp = processParameters();
+    pp->setMacroExpander(bc->macroExpander());
+    pp->setWorkingDirectory(bc->buildDirectory().toString());
+    pp->setCommand(tc->makeCommand(bc->environment()));
+    Utils::Environment env = bc->environment();
+    // Force output to english for the parsers. Do this here and not in the toolchain's
+    // addToEnvironment() to not screw up the users run environment.
+    env.set(QLatin1String("LC_ALL"), QLatin1String("C"));
+    pp->setEnvironment(env);
+    pp->setArguments(QString::fromLatin1("INSTALL_ROOT=\"%1\" install").arg(dirPath));
+    pp->resolveAll();
+    setOutputParser(new ProjectExplorer::GnuMakeParser());
+    ProjectExplorer::IOutputParser *parser = target()->kit()->createOutputParser();
+    if (parser)
+        appendOutputParser(parser);
+    outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());
+
+    return AbstractProcessStep::init();
 }
 
 bool AndroidPackageInstallationStep::fromMap(const QVariantMap &map)
 {
-    if (!MakeStep::fromMap(map))
+    if (!AbstractProcessStep::fromMap(map))
         return false;
     m_androidDirectory = AndroidDirectory(map.value(QLatin1String(ANDROIDDIRECTORY)).toInt());
     return true;
@@ -84,7 +107,43 @@ bool AndroidPackageInstallationStep::fromMap(const QVariantMap &map)
 
 QVariantMap AndroidPackageInstallationStep::toMap() const
 {
-    QVariantMap map = MakeStep::toMap();
+    QVariantMap map = AbstractProcessStep::toMap();
     map.insert(QLatin1String(ANDROIDDIRECTORY), m_androidDirectory);
     return map;
+}
+
+ProjectExplorer::BuildStepConfigWidget *AndroidPackageInstallationStep::createConfigWidget()
+{
+    return new AndroidPackageInstallationStepWidget(this);
+}
+
+
+bool AndroidPackageInstallationStep::immutable() const
+{
+    return true;
+}
+
+//
+// AndroidPackageInstallationStepWidget
+//
+
+AndroidPackageInstallationStepWidget::AndroidPackageInstallationStepWidget(AndroidPackageInstallationStep *step)
+    : m_step(step)
+{
+
+}
+
+QString AndroidPackageInstallationStepWidget::summaryText() const
+{
+    return tr("<b>Make install</b>");
+}
+
+QString AndroidPackageInstallationStepWidget::displayName() const
+{
+    return tr("Make install");
+}
+
+bool AndroidPackageInstallationStepWidget::showWidget() const
+{
+    return false;
 }
