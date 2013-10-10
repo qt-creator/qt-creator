@@ -430,7 +430,7 @@ void MemcheckErrorDelegate::copy()
 
 void MemcheckErrorDelegate::openLinkInEditor(const QString &link)
 {
-    const int pathStart = strlen("file://");
+    const int pathStart = int(sizeof("file://")) - 1;
     const int pathEnd = link.lastIndexOf(QLatin1Char(':'));
     const QString path = link.mid(pathStart, pathEnd - pathStart);
     const int line = link.mid(pathEnd + 1).toInt(0);
