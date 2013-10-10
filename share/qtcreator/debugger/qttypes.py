@@ -2531,6 +2531,14 @@ def qdump____gnu_cxx__hash_set(d, value):
                 p = p + 1
 
 
+def qdump__uint8_t(d, value):
+    d.putNumChild(0)
+    d.putValue(int(value))
+
+def qdump__int8_t(d, value):
+    d.putNumChild(0)
+    d.putValue(int(value))
+
 #######################################################################
 #
 # Boost dumper

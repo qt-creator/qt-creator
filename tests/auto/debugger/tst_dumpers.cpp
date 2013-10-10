@@ -4786,6 +4786,15 @@ void tst_Dumpers::dumper_data()
                % Check("v.x", "1", "int")
                % Check("n.x", "10", "int")
                % Check("n.y", "20", "int");
+
+
+    QTest::newRow("stdint")
+            << Data("#include <stdint.h>\n"
+                    "uint8_t u = 64;\n"
+                    "int8_t s = 65;\n")
+               % Check("u", "64", "uint8_t")
+               % Check("s", "65", "int8_t");
+
 }
 
 int main(int argc, char *argv[])
