@@ -99,8 +99,7 @@ AndroidManifestEditorWidget::AndroidManifestEditorWidget(QWidget *parent, TextEd
     : TextEditor::PlainTextEditorWidget(parent),
       m_dirty(false),
       m_stayClean(false),
-      m_setAppName(false),
-      m_ah(ah)
+      m_setAppName(false)
 {
     QSharedPointer<AndroidManifestDocument> doc(new AndroidManifestDocument(this));
     doc->setMimeType(QLatin1String(Constants::ANDROID_MANIFEST_MIME_TYPE));
