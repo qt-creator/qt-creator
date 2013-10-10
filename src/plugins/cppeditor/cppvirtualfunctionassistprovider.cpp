@@ -239,10 +239,11 @@ static bool isVirtualFunction_helper(const Function *function,
     if (!function)
         return false;
 
-    if ((virtualType == Virtual && function->isVirtual())
-            || (virtualType == PureVirtual && function->isPureVirtual())) {
+    if (virtualType == PureVirtual)
+        return function->isPureVirtual();
+
+    if (function->isVirtual())
         return true;
-    }
 
     const QString filePath = QString::fromUtf8(function->fileName(), function->fileNameLength());
     if (Document::Ptr document = snapshot.document(filePath)) {
@@ -252,10 +253,11 @@ static bool isVirtualFunction_helper(const Function *function,
             foreach (const LookupItem &item, results) {
                 if (Symbol *symbol = item.declaration()) {
                     if (Function *functionType = symbol->type()->asFunctionType()) {
-                        const bool foundSuitable = virtualType == Virtual
-                            ? functionType->isVirtual()
-                            : functionType->isPureVirtual();
-                        if (foundSuitable)
+                        if (functionType == function) // already tested
+                            continue;
+                        if (functionType->isFinal())
+                            return false;
+                        if (functionType->isVirtual())
                             return true;
                     }
                 }
@@ -321,3 +323,115 @@ QList<Symbol *> FunctionHelper::overrides(Class *startClass, Function *function,
 
     return result;
 }
+
+#ifdef WITH_TESTS
+#include "cppeditorplugin.h"
+
+#include <QList>
+#include <QTest>
+
+namespace CppEditor {
+namespace Internal {
+
+enum Virtuality
+{
+    NotVirtual,
+    Virtual,
+    PureVirtual
+};
+
+typedef QList<Virtuality> VirtualityList;
+
+void CppEditorPlugin::test_functionhelper_virtualFunctions()
+{
+    // Create and parse document
+    QFETCH(QByteArray, source);
+    QFETCH(VirtualityList, virtualityList);
+    Document::Ptr document = Document::create(QLatin1String("virtuals"));
+    document->setUtf8Source(source);
+    document->check(); // calls parse();
+    QCOMPARE(document->diagnosticMessages().size(), 0);
+    QVERIFY(document->translationUnit()->ast());
+
+    // Iterate through Function symbols
+    Snapshot snapshot;
+    snapshot.insert(document);
+    Control *control = document->translationUnit()->control();
+    Symbol **end = control->lastSymbol();
+    for (Symbol **it = control->firstSymbol(); it != end; ++it) {
+        const CPlusPlus::Symbol *symbol = *it;
+        if (const Function *function = symbol->asFunction()) {
+            QTC_ASSERT(!virtualityList.isEmpty(), return);
+            Virtuality virtuality = virtualityList.takeFirst();
+            if (FunctionHelper::isVirtualFunction(function, snapshot)) {
+                if (FunctionHelper::isPureVirtualFunction(function, snapshot))
+                    QCOMPARE(virtuality, PureVirtual);
+                else
+                    QCOMPARE(virtuality, Virtual);
+            } else {
+                QCOMPARE(virtuality, NotVirtual);
+            }
+        }
+    }
+    QVERIFY(virtualityList.isEmpty());
+}
+
+void CppEditorPlugin::test_functionhelper_virtualFunctions_data()
+{
+    typedef QByteArray _;
+    QTest::addColumn<QByteArray>("source");
+    QTest::addColumn<VirtualityList>("virtualityList");
+
+    QTest::newRow("none")
+            << _("struct None { void foo() {} };\n")
+            << (VirtualityList() << NotVirtual);
+
+    QTest::newRow("single-virtual")
+            << _("struct V { virtual void foo() {} };\n")
+            << (VirtualityList() << Virtual);
+
+    QTest::newRow("single-pure-virtual")
+            << _("struct PV { virtual void foo() = 0; };\n")
+            << (VirtualityList() << PureVirtual);
+
+    QTest::newRow("virtual-derived-with-specifier")
+            << _("struct Base { virtual void foo() {} };\n"
+                 "struct Derived : Base { virtual void foo() {} };\n")
+            << (VirtualityList() << Virtual << Virtual);
+
+    QTest::newRow("virtual-derived-implicit")
+            << _("struct Base { virtual void foo() {} };\n"
+                 "struct Derived : Base { void foo() {} };\n")
+            << (VirtualityList() << Virtual << Virtual);
+
+    QTest::newRow("not-virtual-then-virtual")
+            << _("struct Base { void foo() {} };\n"
+                 "struct Derived : Base { virtual void foo() {} };\n")
+            << (VirtualityList() << NotVirtual << Virtual);
+
+    QTest::newRow("virtual-final-not-virtual")
+            << _("struct Base { virtual void foo() {} };\n"
+                 "struct Derived : Base { void foo() final {} };\n"
+                 "struct Derived2 : Derived { void foo() {} };")
+            << (VirtualityList() << Virtual << Virtual << NotVirtual);
+
+    QTest::newRow("virtual-then-pure")
+            << _("struct Base { virtual void foo() {} };\n"
+                 "struct Derived : Base { virtual void foo() = 0; };\n"
+                 "struct Derived2 : Derived { void foo() {} };")
+            << (VirtualityList() << Virtual << PureVirtual << Virtual);
+
+    QTest::newRow("virtual-virtual-final-not-virtual")
+            << _("struct Base { virtual void foo() {} };\n"
+                 "struct Derived : Base { virtual void foo() final {} };\n"
+                 "struct Derived2 : Derived { void foo() {} };")
+            << (VirtualityList() << Virtual << Virtual << NotVirtual);
+}
+
+} // namespace Internal
+} // namespace CppEditor
+
+Q_DECLARE_METATYPE(CppEditor::Internal::Virtuality)
+Q_DECLARE_METATYPE(CppEditor::Internal::VirtualityList)
+
+#endif

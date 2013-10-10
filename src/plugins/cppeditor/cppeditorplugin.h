@@ -288,6 +288,9 @@ private slots:
     void test_quickfix_OptimizeForLoop_noTriggerNumeric1();
     void test_quickfix_OptimizeForLoop_noTriggerNumeric2();
 
+    void test_functionhelper_virtualFunctions();
+    void test_functionhelper_virtualFunctions_data();
+
     // The following tests depend on the projects that are loaded on startup
     // and will be skipped in case no projects are loaded.
     void test_openEachFile();
