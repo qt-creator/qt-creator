@@ -42,8 +42,6 @@ class GeneralAttributeContainer;
 class ProjectReference : public IReference
 {
 public:
-    typedef QSharedPointer<ProjectReference>    Ptr;
-
     ProjectReference();
     ProjectReference(const ProjectReference &projRef);
     ProjectReference& operator=(const ProjectReference &projRef);

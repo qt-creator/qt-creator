@@ -28,28 +28,33 @@
 **
 ****************************************************************************/
 #include "toolfile.h"
+#include "generalattributecontainer.h"
+#include "vcprojectdocument_constants.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
 ToolFile::ToolFile()
 {
+    m_attributeContainer = new GeneralAttributeContainer;
 }
 
 ToolFile::ToolFile(const ToolFile &file)
 {
-    m_relativePath = file.m_relativePath;
+    m_attributeContainer = new GeneralAttributeContainer;
+    *m_attributeContainer = *file.m_attributeContainer;
 }
 
 ToolFile &ToolFile::operator =(const ToolFile &file)
 {
     if (this != &file)
-        m_relativePath = file.m_relativePath;
+        *m_attributeContainer = *file.m_attributeContainer;
     return *this;
 }
 
 ToolFile::~ToolFile()
 {
+    delete m_attributeContainer;
 }
 
 void ToolFile::processNode(const QDomNode &node)
@@ -69,19 +74,24 @@ VcNodeWidget *ToolFile::createSettingsWidget()
 QDomNode ToolFile::toXMLDomNode(QDomDocument &domXMLDocument) const
 {
     QDomElement toolNode = domXMLDocument.createElement(QLatin1String("ToolFile"));
-    toolNode.setAttribute(QLatin1String("RelativePath"), m_relativePath);
+    m_attributeContainer->appendToXMLNode(toolNode);
 
     return toolNode;
 }
 
-QString ToolFile::relativePath() const
+QString ToolFile::type() const
 {
-    return m_relativePath;
+    return QLatin1String(VcDocConstants::TOOL_FILE);
 }
 
-void ToolFile::setRelativePath(const QString &relativePath)
+IToolFile *ToolFile::clone() const
 {
-    m_relativePath = relativePath;
+    return new ToolFile(*this);
+}
+
+IAttributeContainer *ToolFile::attributeContainer() const
+{
+    return m_attributeContainer;
 }
 
 void ToolFile::processNodeAttributes(const QDomElement &element)
@@ -95,7 +105,7 @@ void ToolFile::processNodeAttributes(const QDomElement &element)
             QDomAttr domElement = domNode.toAttr();
 
             if (domElement.name() == QLatin1String("RelativePath"))
-                m_relativePath = domElement.value();
+                m_attributeContainer->setAttribute(domElement.name(), domElement.value());
         }
     }
 }

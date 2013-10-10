@@ -28,6 +28,8 @@
 **
 ****************************************************************************/
 #include "toolfiles.h"
+#include "../interfaces/iattributecontainer.h"
+#include "vcprojectdocument_constants.h"
 
 namespace VcProjectManager {
 namespace Internal {
@@ -109,7 +111,7 @@ void ToolFiles::addToolFile(ToolFile::Ptr toolFile)
         return;
 
     foreach (const ToolFile::Ptr &toolF, m_toolFiles) {
-        if (toolF->relativePath() == toolFile->relativePath())
+        if (toolF->attributeContainer()->attributeValue(QLatin1String(VcDocConstants::TOOL_FILE_RELATIVE_PATH)) == toolFile->attributeContainer()->attributeValue(QLatin1String(VcDocConstants::TOOL_FILE_RELATIVE_PATH)))
             return;
     }
     m_toolFiles.append(toolFile);
@@ -123,7 +125,7 @@ void ToolFiles::removeToolFile(ToolFile::Ptr toolFile)
 void ToolFiles::removeToolFile(const QString &relativeToolFilePath)
 {
     foreach (const ToolFile::Ptr &toolF, m_toolFiles) {
-        if (toolF->relativePath() == relativeToolFilePath) {
+        if (toolF->attributeContainer()->attributeValue(QLatin1String(VcDocConstants::TOOL_FILE_RELATIVE_PATH)) == relativeToolFilePath) {
             removeToolFile(toolF);
             return;
         }
@@ -138,7 +140,7 @@ QList<ToolFile::Ptr> ToolFiles::toolFiles() const
 ToolFile::Ptr ToolFiles::toolFile(const QString &relativePath)
 {
     foreach (const ToolFile::Ptr &toolFile, m_toolFiles) {
-        if (toolFile->relativePath() == relativePath)
+        if (toolFile->attributeContainer()->attributeValue(QLatin1String(VcDocConstants::TOOL_FILE_RELATIVE_PATH)) == relativePath)
             return toolFile;
     }
     return ToolFile::Ptr();

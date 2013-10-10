@@ -27,44 +27,26 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_INTERNAL_TOOLFILE_H
-#define VCPROJECTMANAGER_INTERNAL_TOOLFILE_H
-
-#include "../interfaces/itoolfile.h"
+#ifndef VCPROJECTMANAGER_INTERNAL_ITOOLFILE_H
+#define VCPROJECTMANAGER_INTERNAL_ITOOLFILE_H
 
 #include <QString>
-#include <QSharedPointer>
+#include "../vcprojectmodel/ivcprojectnodemodel.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
-class GeneralAttributeContainer;
+class IAttributeContainer;
 
-class ToolFile : public IToolFile
+class IToolFile : public IVcProjectXMLNode
 {
 public:
-    typedef QSharedPointer<ToolFile>    Ptr;
-
-    ToolFile();
-    ToolFile(const ToolFile &file);
-    ToolFile& operator=(const ToolFile &file);
-    ~ToolFile();
-
-    void processNode(const QDomNode &node);
-    VcNodeWidget* createSettingsWidget();
-    QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
-
-    QString type() const;
-    IToolFile *clone() const;
-    IAttributeContainer *attributeContainer() const;
-
-private:
-    void processNodeAttributes(const QDomElement &element);
-
-    GeneralAttributeContainer *m_attributeContainer;
+    virtual ~IToolFile() {}
+    virtual QString type() const = 0;
+    virtual IToolFile* clone() const = 0;
+    virtual IAttributeContainer* attributeContainer() const = 0;
 };
 
-} // namespace Internal
-} // namespace VcProjectManager
-
-#endif // VCPROJECTMANAGER_INTERNAL_TOOLFILE_H
+} // Internal
+} // VcProjectManager
+#endif // VCPROJECTMANAGER_INTERNAL_ITOOLFILE_H

@@ -78,6 +78,11 @@ const char PROJECT_REFERENCE_USE_DEPENDENCIES_IN_BUILD [] = "UseDependenciesInBu
 const char PROJECT_REFERENCE_COPY_LOCAL_SATELITE_ASSEMBLIES [] = "CopyLocalSatelliteAssemblies";
 const char PROJECT_REFERENCE_COPY_LOCAL_DEPENDENCIES [] = "CopyLocalDependencies";
 
+// ToolFile
+const char TOOL_FILE [] = "ToolFile";
+const char TOOL_FILE_RELATIVE_PATH [] = "RelativePath";
+const char DEFAULT_TOOL_FILE [] = "DefaultToolFile";
+
 } // VcDocConstants
 } // namespace Internal
 } // namespace VcProjectManager
