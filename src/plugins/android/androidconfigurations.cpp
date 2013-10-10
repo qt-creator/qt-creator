@@ -787,10 +787,10 @@ void AndroidConfigurations::updateAutomaticKitList()
     // register new kits
     QList<Kit *> newKits;
     foreach (AndroidToolChain *tc, toolchains) {
+        if (tc->secondaryToolChain())
+            continue;
         QList<QtSupport::BaseQtVersion *> qtVersions = qtVersionsForArch.value(tc->targetAbi().architecture());
         foreach (QtSupport::BaseQtVersion *qt, qtVersions) {
-            if (tc->secondaryToolChain())
-                continue;
             Kit *newKit = new Kit;
             newKit->setAutoDetected(true);
             newKit->setIconPath(Utils::FileName::fromString(QLatin1String(Constants::ANDROID_SETTINGS_CATEGORY_ICON)));
