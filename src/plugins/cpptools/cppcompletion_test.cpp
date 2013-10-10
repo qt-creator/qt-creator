@@ -2740,6 +2740,55 @@ void CppToolsPlugin::test_completion_template_parameter_defined_inside_scope_of_
     QVERIFY(completions.contains(QLatin1String("bar")));
 }
 
+void CppToolsPlugin::test_completion_recursive_typedefs_in_templates1()
+{
+    const QByteArray source =
+            "template<typename From>\n"
+            "struct simplify_type {\n"
+            "    typedef From SimpleType;\n"
+            "};\n"
+            "\n"
+            "template<class To, class From>\n"
+            "struct cast_retty {\n"
+            "    typedef typename cast_retty_wrap<To, From,\n"
+            "                     typename simplify_type<From>::SimpleType>::ret_type ret_type;\n"
+            "};\n"
+            "\n"
+            "template<class To, class From, class SimpleFrom>\n"
+            "struct cast_retty_wrap {\n"
+            "    typedef typename cast_retty<To, SimpleFrom>::ret_type ret_type;\n"
+            "};\n"
+            "\n"
+            "void f()\n"
+            "{\n"
+            "    @;\n"
+            "}\n"
+            ;
+    CompletionTestCase test(source, "cast_retty<T1, T2>::ret_type.");
+
+    const QStringList completions = test.getCompletions();
+    QCOMPARE(completions.size(), 0);
+}
+
+void CppToolsPlugin::test_completion_recursive_typedefs_in_templates2()
+{
+    const QByteArray source =
+            "template<class T>\n"
+            "struct recursive {\n"
+            "  typedef typename recursive<To>::ret_type ret_type;\n"
+            "};\n"
+            "\n"
+            "void f()\n"
+            "{\n"
+            "    @;\n"
+            "}\n"
+            ;
+    CompletionTestCase test(source, "recursive<T1>::ret_type.foo");
+
+    const QStringList completions = test.getCompletions();
+    QCOMPARE(completions.size(), 0);
+}
+
 void CppToolsPlugin::test_completion_signals_hide_QPrivateSignal()
 {
     const QByteArray source =

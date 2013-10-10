@@ -184,6 +184,9 @@ private slots:
     void test_completion_local_type_and_member_5();
     void test_completion_local_type_and_member_6();
 
+    void test_completion_recursive_typedefs_in_templates1();
+    void test_completion_recursive_typedefs_in_templates2();
+
     void test_completion_signals_hide_QPrivateSignal();
 
     void test_format_pointerdeclaration_in_simpledeclarations();

@@ -887,6 +887,22 @@ public:
         QSet<Symbol *> visited;
         _binding = binding;
         while (NamedType *namedTy = getNamedType(*type)) {
+            const Name *name = namedTy->name();
+            Scope *templateScope = *scope;
+            if (const QualifiedNameId *q = name->asQualifiedNameId()) {
+                do {
+                    const TemplateNameId *templateNameId = 0;
+                    name = q->name();
+                    if (name && (templateNameId = name->asTemplateNameId()))
+                        resolve(templateNameId, templateScope, binding);
+
+                    name = q->base();
+                    if (name && (templateNameId = name->asTemplateNameId()))
+                        resolve(templateNameId, templateScope, binding);
+                } while ((name && (q = name->asQualifiedNameId())));
+            } else if (const TemplateNameId *templateNameId = name->asTemplateNameId()) {
+                resolve(templateNameId, templateScope, binding);
+            }
             QList<LookupItem> namedTypeItems = getNamedTypeItems(namedTy->name(), *scope, _binding);
 
 #ifdef DEBUG_LOOKUP
@@ -899,6 +915,16 @@ public:
     }
 
 private:
+    void resolve(const TemplateNameId *templateNameId, Scope *templateScope,
+                 ClassOrNamespace *binding)
+    {
+        for (unsigned i = 0; i < templateNameId->templateArgumentCount(); ++i) {
+            FullySpecifiedType &templateArgumentType
+                    = const_cast<FullySpecifiedType &>(templateNameId->templateArgumentAt(i));
+            resolve(&templateArgumentType, &templateScope, binding);
+        }
+    }
+
     NamedType *getNamedType(FullySpecifiedType& type) const
     {
         NamedType *namedTy = type->asNamedType();
