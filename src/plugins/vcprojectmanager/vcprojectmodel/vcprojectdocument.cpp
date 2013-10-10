@@ -520,7 +520,7 @@ QDomElement VcProjectDocument2005::toVcDocumentElement(QDomDocument &domXMLDocum
 {
     QDomElement vcDocNode = VcProjectDocument2003::toVcDocumentElement(domXMLDocument);
 
-    if (!m_toolFiles->isEmpty())
+    if (m_toolFiles->toolFileCount())
         vcDocNode.appendChild(m_toolFiles->toXMLDomNode(domXMLDocument));
 
     return vcDocNode;

@@ -31,6 +31,8 @@
 #include "../interfaces/iattributecontainer.h"
 #include "vcprojectdocument_constants.h"
 
+#include <utils/qtcassert.h>
+
 namespace VcProjectManager {
 namespace Internal {
 
@@ -40,24 +42,18 @@ ToolFiles::ToolFiles()
 
 ToolFiles::ToolFiles(const ToolFiles &toolFiles)
 {
-    foreach (const ToolFile::Ptr &toolFile, toolFiles.m_toolFiles)
-        m_toolFiles.append(ToolFile::Ptr(new ToolFile(*toolFile)));
-
-    foreach (const DefaultToolFile::Ptr &toolFile, toolFiles.m_defaultToolFiles)
-        m_defaultToolFiles.append(DefaultToolFile::Ptr(new DefaultToolFile(*toolFile)));
+    foreach (const IToolFile *toolFile, toolFiles.m_toolFiles)
+        m_toolFiles.append(toolFile->clone());
 }
 
 ToolFiles &ToolFiles::operator =(const ToolFiles &toolFiles)
 {
     if (this != &toolFiles) {
+        qDeleteAll(m_toolFiles);
         m_toolFiles.clear();
-        m_defaultToolFiles.clear();
 
-        foreach (const ToolFile::Ptr &toolFile, toolFiles.m_toolFiles)
-            m_toolFiles.append(ToolFile::Ptr(new ToolFile(*toolFile)));
-
-        foreach (const DefaultToolFile::Ptr &toolFile, toolFiles.m_defaultToolFiles)
-            m_defaultToolFiles.append(DefaultToolFile::Ptr(new DefaultToolFile(*toolFile)));
+        foreach (const IToolFile *toolFile, toolFiles.m_toolFiles)
+            m_toolFiles.append(toolFile->clone());
     }
 
     return *this;
@@ -65,8 +61,7 @@ ToolFiles &ToolFiles::operator =(const ToolFiles &toolFiles)
 
 ToolFiles::~ToolFiles()
 {
-    m_defaultToolFiles.clear();
-    m_toolFiles.clear();
+    qDeleteAll(m_toolFiles);
 }
 
 void ToolFiles::processNode(const QDomNode &node)
@@ -91,115 +86,49 @@ QDomNode ToolFiles::toXMLDomNode(QDomDocument &domXMLDocument) const
 {
     QDomElement toolFilesElement = domXMLDocument.createElement(QLatin1String("ToolFiles"));
 
-    foreach (const ToolFile::Ptr &file, m_toolFiles)
-        toolFilesElement.appendChild(file->toXMLDomNode(domXMLDocument));
-
-    foreach (const DefaultToolFile::Ptr &file, m_defaultToolFiles)
-        toolFilesElement.appendChild(file->toXMLDomNode(domXMLDocument));
+    foreach (const IToolFile *toolFile, m_toolFiles)
+        toolFilesElement.appendChild(toolFile->toXMLDomNode(domXMLDocument));
 
     return toolFilesElement;
 }
 
-bool ToolFiles::isEmpty() const
+void ToolFiles::addToolFile(IToolFile *toolFile)
 {
-    return m_defaultToolFiles.isEmpty() && m_toolFiles.isEmpty();
-}
-
-void ToolFiles::addToolFile(ToolFile::Ptr toolFile)
-{
-    if (m_toolFiles.contains(toolFile))
+    if (!toolFile || m_toolFiles.contains(toolFile))
         return;
-
-    foreach (const ToolFile::Ptr &toolF, m_toolFiles) {
-        if (toolF->attributeContainer()->attributeValue(QLatin1String(VcDocConstants::TOOL_FILE_RELATIVE_PATH)) == toolFile->attributeContainer()->attributeValue(QLatin1String(VcDocConstants::TOOL_FILE_RELATIVE_PATH)))
-            return;
-    }
     m_toolFiles.append(toolFile);
 }
 
-void ToolFiles::removeToolFile(ToolFile::Ptr toolFile)
+int ToolFiles::toolFileCount() const
 {
-    m_toolFiles.removeAll(toolFile);
+    return m_toolFiles.size();
 }
 
-void ToolFiles::removeToolFile(const QString &relativeToolFilePath)
+IToolFile *ToolFiles::toolFile(int index) const
 {
-    foreach (const ToolFile::Ptr &toolF, m_toolFiles) {
-        if (toolF->attributeContainer()->attributeValue(QLatin1String(VcDocConstants::TOOL_FILE_RELATIVE_PATH)) == relativeToolFilePath) {
-            removeToolFile(toolF);
-            return;
-        }
-    }
+    QTC_ASSERT(0 <= index && index < m_toolFiles.size(), return 0);
+    return m_toolFiles[index];
 }
 
-QList<ToolFile::Ptr> ToolFiles::toolFiles() const
+void ToolFiles::removeToolFile(IToolFile *toolFile)
 {
-    return m_toolFiles;
-}
-
-ToolFile::Ptr ToolFiles::toolFile(const QString &relativePath)
-{
-    foreach (const ToolFile::Ptr &toolFile, m_toolFiles) {
-        if (toolFile->attributeContainer()->attributeValue(QLatin1String(VcDocConstants::TOOL_FILE_RELATIVE_PATH)) == relativePath)
-            return toolFile;
-    }
-    return ToolFile::Ptr();
-}
-
-void ToolFiles::addDefaultToolFile(DefaultToolFile::Ptr defToolFile)
-{
-    if (m_defaultToolFiles.contains(defToolFile))
-        return;
-
-    foreach (const DefaultToolFile::Ptr &toolF, m_defaultToolFiles) {
-        if (toolF->attributeContainer()->attributeValue(QLatin1String(VcDocConstants::DEFAULT_TOOL_FILE_FILE_NAME)) == defToolFile->attributeContainer()->attributeValue(QLatin1String(VcDocConstants::DEFAULT_TOOL_FILE_FILE_NAME)))
-            return;
-    }
-    m_defaultToolFiles.append(defToolFile);
-}
-
-void ToolFiles::removeDefaultToolFile(DefaultToolFile::Ptr defToolFile)
-{
-    m_defaultToolFiles.removeAll(defToolFile);
-}
-
-void ToolFiles::removeDefaultToolFile(const QString &fileName)
-{
-    foreach (const DefaultToolFile::Ptr &toolF, m_defaultToolFiles) {
-        if (toolF->attributeContainer()->attributeValue(QLatin1String(VcDocConstants::DEFAULT_TOOL_FILE_FILE_NAME)) == fileName) {
-            removeDefaultToolFile(toolF);
-            return;
-        }
-    }
-}
-
-QList<DefaultToolFile::Ptr> ToolFiles::defaultToolFiles() const
-{
-    return m_defaultToolFiles;
-}
-
-DefaultToolFile::Ptr ToolFiles::defaultToolFile(const QString &fileName)
-{
-    foreach (DefaultToolFile::Ptr defToolFile, m_defaultToolFiles)
-        if (defToolFile->attributeContainer()->attributeValue(QLatin1String(VcDocConstants::DEFAULT_TOOL_FILE_FILE_NAME)) == fileName)
-            return defToolFile;
-    return DefaultToolFile::Ptr();
+    if (m_toolFiles.removeOne(toolFile))
+        delete toolFile;
 }
 
 void ToolFiles::processToolFiles(const QDomNode &toolFileNode)
 {
-    if (toolFileNode.nodeName() == QLatin1String(VcDocConstants::TOOL_FILE)) {
-        ToolFile::Ptr toolFile(new ToolFile);
-        m_toolFiles.append(toolFile);
+    IToolFile *toolFile = 0;
+    if (toolFileNode.nodeName() == QLatin1String(VcDocConstants::TOOL_FILE))
+        toolFile = new ToolFile;
+
+    else if (toolFileNode.nodeName() == QLatin1String(VcDocConstants::DEFAULT_TOOL_FILE))
+        toolFile = new DefaultToolFile;
+
+    if (toolFile) {
         toolFile->processNode(toolFileNode);
+        m_toolFiles.append(toolFile);
     }
-
-    else if (toolFileNode.nodeName() == QLatin1String(VcDocConstants::DEFAULT_TOOL_FILE)) {
-        DefaultToolFile::Ptr defToolFile(new DefaultToolFile);
-        m_defaultToolFiles.append(defToolFile);
-        defToolFile->processNode(toolFileNode);
-    }
-
     // process next sibling
     QDomNode nextSibling = toolFileNode.nextSibling();
     if (!nextSibling.isNull())

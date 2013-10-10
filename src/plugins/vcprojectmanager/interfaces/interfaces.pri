@@ -23,4 +23,5 @@ HEADERS += \
     interfaces/iglobal.h \
     interfaces/iglobals.h \
     interfaces/ireferences.h \
-    interfaces/itoolfile.h
+    interfaces/itoolfile.h \
+    interfaces/itoolfiles.h

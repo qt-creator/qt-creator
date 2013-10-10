@@ -32,9 +32,6 @@
 
 #include "../interfaces/itoolfile.h"
 
-#include <QString>
-#include <QSharedPointer>
-
 namespace VcProjectManager {
 namespace Internal {
 
@@ -43,8 +40,6 @@ class GeneralAttributeContainer;
 class DefaultToolFile : public IToolFile
 {
 public:
-    typedef QSharedPointer<DefaultToolFile> Ptr;
-
     DefaultToolFile();
     DefaultToolFile(const DefaultToolFile &defToolFile);
     DefaultToolFile& operator=(const DefaultToolFile &defToolFile);

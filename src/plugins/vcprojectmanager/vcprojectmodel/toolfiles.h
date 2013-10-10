@@ -30,7 +30,7 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_TOOLFILES_H
 #define VCPROJECTMANAGER_INTERNAL_TOOLFILES_H
 
-#include "ivcprojectnodemodel.h"
+#include "../interfaces/itoolfiles.h"
 
 #include "defaulttoolfile.h"
 #include "toolfile.h"
@@ -38,7 +38,7 @@
 namespace VcProjectManager {
 namespace Internal {
 
-class ToolFiles : public IVcProjectXMLNode
+class ToolFiles : public IToolFiles
 {
 public:
     typedef QSharedPointer<ToolFiles>   Ptr;
@@ -52,25 +52,15 @@ public:
     VcNodeWidget* createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
-    bool isEmpty() const;
-
-    void addToolFile(ToolFile::Ptr toolFile);
-    void removeToolFile(ToolFile::Ptr toolFile);
-    void removeToolFile(const QString &relativeToolFilePath);
-    QList<ToolFile::Ptr> toolFiles() const;
-    ToolFile::Ptr toolFile(const QString &relativePath);
-
-    void addDefaultToolFile(DefaultToolFile::Ptr defToolFile);
-    void removeDefaultToolFile(DefaultToolFile::Ptr defToolFile);
-    void removeDefaultToolFile(const QString &fileName);
-    QList<DefaultToolFile::Ptr> defaultToolFiles() const;
-    DefaultToolFile::Ptr defaultToolFile(const QString &fileName);
+    void addToolFile(IToolFile *toolFile);
+    int toolFileCount() const;
+    IToolFile *toolFile(int index) const;
+    void removeToolFile(IToolFile *toolFile);
 
 private:
     void processToolFiles(const QDomNode &toolFile);
 
-    QList<ToolFile::Ptr> m_toolFiles;
-    QList<DefaultToolFile::Ptr> m_defaultToolFiles;
+    QList<IToolFile *> m_toolFiles;
 };
 
 } // namespace Internal
