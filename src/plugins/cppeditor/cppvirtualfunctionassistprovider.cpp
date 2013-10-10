@@ -252,11 +252,6 @@ static bool isVirtualFunction_helper(const Function *function,
             foreach (const LookupItem &item, results) {
                 if (Symbol *symbol = item.declaration()) {
                     if (Function *functionType = symbol->type()->asFunctionType()) {
-                        if (!functionType) {
-                            if (Template *t = item.type()->asTemplateType())
-                                if ((symbol = t->declaration()))
-                                    functionType = symbol->type()->asFunctionType();
-                        }
                         const bool foundSuitable = virtualType == Virtual
                             ? functionType->isVirtual()
                             : functionType->isPureVirtual();
