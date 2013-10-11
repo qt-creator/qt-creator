@@ -46,8 +46,6 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
-#include <qmlprojectmanager/qmlprojectrunconfiguration.h>
-
 #include <utils/qtcassert.h>
 
 #include <QTcpServer>
@@ -66,8 +64,7 @@ QmlProfilerRunControlFactory::QmlProfilerRunControlFactory(QObject *parent) :
 bool QmlProfilerRunControlFactory::canRun(RunConfiguration *runConfiguration, RunMode mode) const
 {
     return mode == QmlProfilerRunMode
-            && (qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration)
-                || qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration));
+            && (qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration));
 }
 
 static AnalyzerStartParameters createQmlProfilerStartParameters(RunConfiguration *runConfiguration)
@@ -76,27 +73,16 @@ static AnalyzerStartParameters createQmlProfilerStartParameters(RunConfiguration
     EnvironmentAspect *environment = runConfiguration->extraAspect<EnvironmentAspect>();
 
     // FIXME: This is only used to communicate the connParams settings.
-    if (QmlProjectManager::QmlProjectRunConfiguration *rc1 =
-            qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration)) {
-        // This is a "plain" .qmlproject.
-        if (environment)
-            sp.environment = environment->environment();
-        sp.workingDirectory = rc1->workingDirectory();
-        sp.debuggee = rc1->executable();
-        sp.debuggeeArgs = rc1->commandLineArguments();
-        sp.displayName = rc1->displayName();
-    } else if (LocalApplicationRunConfiguration *rc2 =
-            qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration)) {
-        if (environment)
-            sp.environment = environment->environment();
-        sp.workingDirectory = rc2->workingDirectory();
-        sp.debuggee = rc2->executable();
-        sp.debuggeeArgs = rc2->commandLineArguments();
-        sp.displayName = rc2->displayName();
-    } else {
-        // What could that be?
-        QTC_ASSERT(false, return sp);
-    }
+    LocalApplicationRunConfiguration *rc =
+                qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
+    QTC_ASSERT(rc, return sp);
+    if (environment)
+        sp.environment = environment->environment();
+    sp.workingDirectory = rc->workingDirectory();
+    sp.debuggee = rc->executable();
+    sp.debuggeeArgs = rc->commandLineArguments();
+    sp.displayName = rc->displayName();
+
     const IDevice::ConstPtr device = DeviceKitInformation::device(runConfiguration->target()->kit());
     if (device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         QTcpServer server;

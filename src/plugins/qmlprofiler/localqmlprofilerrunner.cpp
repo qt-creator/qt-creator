@@ -33,7 +33,6 @@
 
 #include <analyzerbase/analyzerstartparameters.h>
 #include <projectexplorer/runconfiguration.h>
-#include <qmlprojectmanager/qmlprojectrunconfiguration.h>
 #include <projectexplorer/localapplicationrunconfiguration.h>
 #include <projectexplorer/environmentaspect.h>
 
@@ -47,28 +46,17 @@ LocalQmlProfilerRunner *LocalQmlProfilerRunner::createLocalRunner(
         QString *errorMessage,
         QmlProfilerRunControl *engine)
 {
-    QmlProjectManager::QmlProjectRunConfiguration *rc1 =
-                qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration);
-    LocalApplicationRunConfiguration *rc2 =
+    LocalApplicationRunConfiguration *larc =
                    qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration);
-    QTC_ASSERT(rc1 || rc2, return 0);
+    QTC_ASSERT(larc, return 0);
     ProjectExplorer::EnvironmentAspect *environment
             = runConfiguration->extraAspect<ProjectExplorer::EnvironmentAspect>();
     QTC_ASSERT(environment, return 0);
     Configuration conf;
-    if (rc1) {
-        // This is a "plain" .qmlproject.
-        conf.executable = rc1->executable();
-        conf.executableArguments = rc1->commandLineArguments();
-        conf.workingDirectory = rc1->workingDirectory();
-        conf.environment = environment->environment();
-    } else {
-        // FIXME: Check.
-        conf.executable = rc2->executable();
-        conf.executableArguments = rc2->commandLineArguments();
-        conf.workingDirectory = rc2->workingDirectory();
-        conf.environment = environment->environment();
-    }
+    conf.executable = larc->executable();
+    conf.executableArguments = larc->commandLineArguments();
+    conf.workingDirectory = larc->workingDirectory();
+    conf.environment = environment->environment();
 
     conf.port = sp.analyzerPort;
 

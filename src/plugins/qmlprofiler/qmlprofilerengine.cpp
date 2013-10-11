@@ -38,7 +38,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
-#include <qmlprojectmanager/qmlprojectrunconfiguration.h>
 #include <qmlprojectmanager/qmlprojectplugin.h>
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/localapplicationruncontrol.h>
@@ -111,8 +110,8 @@ bool QmlProfilerRunControl::startEngine()
 
     d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppStarting);
 
-    if (QmlProjectManager::QmlProjectRunConfiguration *rc =
-            qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration())) {
+    if (ProjectExplorer::LocalApplicationRunConfiguration *rc =
+            qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration *>(runConfiguration())) {
         if (rc->executable().isEmpty()) {
             QmlProjectManager::QmlProjectPlugin::showQmlObserverToolWarning();
             d->m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
