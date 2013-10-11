@@ -273,6 +273,7 @@ void ProjectWindow::aboutToShutdown()
 {
     showProperties(-1, -1); // that's a bit stupid, but otherwise stuff is still
                             // connected to the session
+    disconnect(KitManager::instance(), 0, this, 0);
     disconnect(SessionManager::instance(), 0, this, 0);
 }
 
