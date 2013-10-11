@@ -117,6 +117,7 @@ void QMakeEvaluator::initStatics()
     statics.strhost_build = QLatin1String("host_build");
     statics.strTEMPLATE = ProKey("TEMPLATE");
     statics.strQMAKE_PLATFORM = ProKey("QMAKE_PLATFORM");
+    statics.strQMAKESPEC = ProKey("QMAKESPEC");
 #ifdef PROEVALUATOR_FULL
     statics.strREQUIRES = ProKey("REQUIRES");
 #endif
@@ -932,6 +933,12 @@ void QMakeEvaluator::visitProVariable(
         setTemplate();
     else if (varName == statics.strQMAKE_PLATFORM)
         m_featureRoots = 0;
+    else if (varName == statics.strQMAKESPEC) {
+        if (!values(varName).isEmpty()) {
+            m_qmakespec = values(varName).first().toQString();
+            m_featureRoots = 0;
+        }
+    }
 #ifdef PROEVALUATOR_FULL
     else if (varName == statics.strREQUIRES)
         checkRequirements(values(varName));
@@ -1153,7 +1160,7 @@ bool QMakeEvaluator::loadSpecInternal()
         m_qmakespec = orig_spec.toQString();
 #  endif
 #endif
-    valuesRef(ProKey("QMAKESPEC")) << ProString(m_qmakespec);
+    valuesRef(ProKey("QMAKESPEC")) = ProString(m_qmakespec);
     m_qmakespecName = IoUtils::fileName(m_qmakespec).toString();
     // This also ensures that m_featureRoots is valid.
     if (evaluateFeatureFile(QLatin1String("spec_post.prf")) != ReturnTrue)
