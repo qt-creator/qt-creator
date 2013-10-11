@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2011,2012,2013 BlackBerry Limited. All rights reserved.
+** Copyright (C) 2013 BlackBerry Limited. All rights reserved.
 **
-** Contact: BlackBerry Limited (qt@blackberry.com)
+** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
