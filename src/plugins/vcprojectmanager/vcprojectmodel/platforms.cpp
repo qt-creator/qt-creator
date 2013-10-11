@@ -29,6 +29,8 @@
 ****************************************************************************/
 #include "platforms.h"
 
+#include <utils/qtcassert.h>
+
 namespace VcProjectManager {
 namespace Internal {
 
@@ -38,24 +40,25 @@ Platforms::Platforms()
 
 Platforms::Platforms(const Platforms &platforms)
 {
-    foreach (const Platform::Ptr &platform, platforms.m_platforms)
-        m_platforms.append(Platform::Ptr(new Platform(*platform)));
+    foreach (const IPlatform *platform, platforms.m_platforms)
+        m_platforms.append(platform->clone());
 }
 
 Platforms &Platforms::operator =(const Platforms &platforms)
 {
     if (this != &platforms) {
+        qDeleteAll(m_platforms);
         m_platforms.clear();
 
-        foreach (const Platform::Ptr &platform, platforms.m_platforms)
-            m_platforms.append(Platform::Ptr(new Platform(*platform)));
+        foreach (const IPlatform *platform, platforms.m_platforms)
+            m_platforms.append(platform->clone());
     }
     return *this;
 }
 
 Platforms::~Platforms()
 {
-    m_platforms.clear();
+    qDeleteAll(m_platforms);
 }
 
 void Platforms::processNode(const QDomNode &node)
@@ -79,20 +82,50 @@ QDomNode Platforms::toXMLDomNode(QDomDocument &domXMLDocument) const
 {
     QDomElement platformsNode = domXMLDocument.createElement(QLatin1String("Platforms"));
 
-    foreach (const Platform::Ptr &platform, m_platforms)
+    foreach (const IPlatform *platform, m_platforms)
         platformsNode.appendChild(platform->toXMLDomNode(domXMLDocument));
 
     return platformsNode;
 }
 
-bool Platforms::isEmpty() const
+void Platforms::addPlatform(IPlatform *platform)
 {
-    return m_platforms.isEmpty();
+    if (!platform || m_platforms.contains(platform))
+        return;
+    foreach (const IPlatform *plat, m_platforms) {
+        if (plat && platform && plat->displayName() == platform->displayName())
+            return;
+    }
+
+    m_platforms.append(platform);
+}
+
+int Platforms::platformCount() const
+{
+    return m_platforms.size();
+}
+
+IPlatform *Platforms::platform(int index) const
+{
+    QTC_ASSERT(0 <= index && index < m_platforms.size(), return 0);
+    return m_platforms[index];
+}
+
+void Platforms::removePlatform(IPlatform *platform)
+{
+    if (!platform || !m_platforms.contains(platform))
+        return;
+    foreach (const IPlatform *plat, m_platforms) {
+        if (plat && platform && plat->displayName() == platform->displayName()) {
+            m_platforms.removeOne(platform);
+            delete platform;
+        }
+    }
 }
 
 void Platforms::processPlatform(const QDomNode &node)
 {
-    Platform::Ptr platform(new Platform);
+    IPlatform *platform = new Platform;
     platform->processNode(node);
     m_platforms.append(platform);
 
@@ -100,38 +133,6 @@ void Platforms::processPlatform(const QDomNode &node)
     QDomNode nextSibling = node.nextSibling();
     if (!nextSibling.isNull())
         processPlatform(nextSibling);
-}
-
-void Platforms::addPlatform(Platform::Ptr platform)
-{
-    if (m_platforms.contains(platform))
-        return;
-
-    foreach (const Platform::Ptr &platf, m_platforms) {
-        if (platf->displayName() == platform->displayName())
-            return;
-    }
-    m_platforms.append(platform);
-}
-
-void Platforms::removePlatform(Platform::Ptr platform)
-{
-    m_platforms.removeAll(platform);
-}
-
-void Platforms::removePlatform(const QString &platformName)
-{
-    foreach (const Platform::Ptr &platform, m_platforms) {
-        if (platform->displayName() == platformName) {
-            removePlatform(platform);
-            return;
-        }
-    }
-}
-
-QList<Platform::Ptr> Platforms::platforms() const
-{
-    return m_platforms;
 }
 
 } // namespace Internal

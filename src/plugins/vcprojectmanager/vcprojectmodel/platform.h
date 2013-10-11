@@ -40,8 +40,6 @@ namespace Internal {
 class Platform : public IPlatform
 {
 public:
-    typedef QSharedPointer<Platform>    Ptr;
-
     Platform();
     Platform(const Platform &platform);
     Platform& operator=(const Platform &platform);
@@ -53,6 +51,7 @@ public:
 
     QString displayName() const;
     void setName(const QString &displayName);
+    IPlatform *clone() const;
 
 private:
     void processNodeAttributes(const QDomElement &element);

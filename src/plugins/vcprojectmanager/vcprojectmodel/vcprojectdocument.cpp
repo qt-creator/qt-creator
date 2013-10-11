@@ -322,7 +322,7 @@ QDomElement VcProjectDocument::toVcDocumentElement(QDomDocument &domXMLDocument)
         vcDocNode.setAttribute(itAttr.key(), itAttr.value());
     }
 
-    if (!m_platforms->isEmpty())
+    if (m_platforms->platformCount())
         vcDocNode.appendChild(m_platforms->toXMLDomNode(domXMLDocument));
 
     if (m_configurations->configurationContainer()->configurationCount())

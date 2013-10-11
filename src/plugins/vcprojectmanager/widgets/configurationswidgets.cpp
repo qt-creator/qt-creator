@@ -122,8 +122,8 @@ void ConfigurationsBaseWidget::onAddNewConfig(QString newConfigName, QString cop
 
     if (platforms && !newConfigName.isEmpty()) {
         if (copyFrom.isEmpty()) {
-            QList<Platform::Ptr> platformList = platforms->platforms();
-            foreach (const Platform::Ptr &platform, platformList) {
+            for (int i = 0; i < platforms->platformCount(); ++i) {
+                IPlatform *platform = platforms->platform(i);
                 IConfiguration *newConfig = createConfiguration(newConfigName + QLatin1Char('|') + platform->displayName());
 
                 if (newConfig) {
@@ -138,9 +138,8 @@ void ConfigurationsBaseWidget::onAddNewConfig(QString newConfigName, QString cop
             IConfiguration *config = m_configs->configurationContainer()->configuration(copyFrom);
 
             if (config) {
-                QList<Platform::Ptr> platformList = platforms->platforms();
-
-                foreach (const Platform::Ptr &platform, platformList) {
+                for (int i = 0; i < platforms->platformCount(); ++i) {
+                    IPlatform *platform = platforms->platform(i);
                     IConfiguration* newConfig = config->clone();
 
                     if (newConfig) {
@@ -168,8 +167,8 @@ void ConfigurationsBaseWidget::onRenameConfig(QString newConfigName, QString old
     if (splits.isEmpty())
         return;
 
-    QList<Platform::Ptr> platformList = platforms->platforms();
-    foreach (const Platform::Ptr &platform, platformList) {
+    for (int i = 0; i < platforms->platformCount(); ++i) {
+        IPlatform *platform = platforms->platform(i);
         QString targetConfigName = splits[0] + QLatin1Char('|') + platform->displayName();
         QString newName = newConfigName + QLatin1Char('|') + platform->displayName();
         IConfiguration *configInNew = configInNewConfigurations(targetConfigName);
@@ -219,8 +218,8 @@ void ConfigurationsBaseWidget::onRemoveConfig(QString configNameWithPlatform)
     if (splits.isEmpty())
         return;
 
-    QList<Platform::Ptr> platformList = platforms->platforms();
-    foreach (const Platform::Ptr &platform, platformList) {
+    for (int i = 0; i < platforms->platformCount(); ++i) {
+        IPlatform *platform = platforms->platform(i);
         QString targetConfigName = splits[0] + QLatin1Char('|') + platform->displayName();
         IConfiguration *config = m_configs->configurationContainer()->configuration(targetConfigName);
 

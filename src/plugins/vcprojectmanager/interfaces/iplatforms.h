@@ -27,46 +27,28 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_INTERNAL_PLATFORMS_H
-#define VCPROJECTMANAGER_INTERNAL_PLATFORMS_H
+#ifndef VCPROJECTMANAGER_INTERNAL_IPLATFORMHANDLER_H
+#define VCPROJECTMANAGER_INTERNAL_IPLATFORMHANDLER_H
 
-#include "../interfaces/iplatforms.h"
-
-#include <QList>
-
-#include "platform.h"
+#include "../vcprojectmodel/ivcprojectnodemodel.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
-class Platform;
+class IPlatform;
 
-class Platforms : public IPlatforms
+class IPlatforms : public IVcProjectXMLNode
 {
 public:
-    typedef QSharedPointer<Platforms>   Ptr;
+    virtual ~IPlatforms() {}
 
-    Platforms();
-    Platforms(const Platforms &platforms);
-    Platforms& operator=(const Platforms &platforms);
-    ~Platforms();
-
-    void processNode(const QDomNode &node);
-    VcNodeWidget* createSettingsWidget();
-    QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
-
-    void addPlatform(IPlatform *platform);
-    int platformCount() const;
-    IPlatform *platform(int index) const;
-    void removePlatform(IPlatform *platform);
-
-private:
-    void processPlatform(const QDomNode &node);
-    QList<IPlatform *> m_platforms;
-
+    virtual void addPlatform(IPlatform *platform) = 0;
+    virtual int platformCount() const = 0;
+    virtual IPlatform* platform(int index) const = 0;
+    virtual void removePlatform(IPlatform *platform) = 0;
 };
 
 } // namespace Internal
 } // namespace VcProjectManager
 
-#endif // VCPROJECTMANAGER_INTERNAL_PLATFORMS_H
+#endif // VCPROJECTMANAGER_INTERNAL_IPLATFORMHANDLER_H

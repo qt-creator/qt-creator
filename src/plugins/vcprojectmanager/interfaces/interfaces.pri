@@ -25,4 +25,5 @@ HEADERS += \
     interfaces/ireferences.h \
     interfaces/itoolfile.h \
     interfaces/itoolfiles.h \
-    interfaces/iplatform.h
+    interfaces/iplatform.h \
+    interfaces/iplatforms.h

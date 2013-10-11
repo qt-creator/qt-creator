@@ -83,6 +83,11 @@ void Platform::setName(const QString &name)
     m_name = name;
 }
 
+IPlatform *Platform::clone() const
+{
+    return new Platform(*this);
+}
+
 void Platform::processNodeAttributes(const QDomElement &element)
 {
     QDomNamedNodeMap namedNodeMap = element.attributes();
