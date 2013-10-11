@@ -44,8 +44,6 @@ class GeneralAttributeContainer;
 class PublishingItem : public IPublishingItem
 {
 public:
-    typedef QSharedPointer<PublishingItem>  Ptr;
-
     PublishingItem();
     PublishingItem(const PublishingItem &item);
     PublishingItem& operator=(const PublishingItem &item);
@@ -56,6 +54,7 @@ public:
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
     IAttributeContainer* attributeContainer() const;
+    IPublishingItem* clone() const;
 
 private:
     void processNodeAttributes(const QDomElement &element);

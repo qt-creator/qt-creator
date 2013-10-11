@@ -81,6 +81,11 @@ IAttributeContainer *PublishingItem::attributeContainer() const
     return m_attributeContainer;
 }
 
+IPublishingItem *PublishingItem::clone() const
+{
+    return new PublishingItem(*this);
+}
+
 void PublishingItem::processNodeAttributes(const QDomElement &element)
 {
     QDomNamedNodeMap namedNodeMap = element.attributes();

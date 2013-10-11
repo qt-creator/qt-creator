@@ -30,6 +30,8 @@
 #include "publishingdata.h"
 #include "generalattributecontainer.h"
 
+#include <utils/qtcassert.h>
+
 namespace VcProjectManager {
 namespace Internal {
 
@@ -43,8 +45,8 @@ PublishingData::PublishingData(const PublishingData &data)
     m_attributeContainer = new GeneralAttributeContainer;
     *m_attributeContainer = *data.m_attributeContainer;
 
-    foreach (const PublishingItem::Ptr &item, data.m_publishingItems)
-        m_publishingItems.append(PublishingItem::Ptr(new PublishingItem(*item)));
+    foreach (const IPublishingItem *item, data.m_publishingItems)
+        m_publishingItems.append(item->clone());
 }
 
 PublishingData &PublishingData::operator =(const PublishingData &data)
@@ -52,16 +54,18 @@ PublishingData &PublishingData::operator =(const PublishingData &data)
     if (this != &data) {
         *m_attributeContainer = *data.m_attributeContainer;
 
+        qDeleteAll(m_publishingItems);
         m_publishingItems.clear();
-        foreach (const PublishingItem::Ptr &item, data.m_publishingItems)
-            m_publishingItems.append(PublishingItem::Ptr(new PublishingItem(*item)));
+        foreach (const IPublishingItem *item, data.m_publishingItems)
+            m_publishingItems.append(item->clone());
     }
     return *this;
 }
 
 PublishingData::~PublishingData()
 {
-    m_publishingItems.clear();
+    qDeleteAll(m_publishingItems);
+    delete m_attributeContainer;
 }
 
 void PublishingData::processNode(const QDomNode &node)
@@ -90,20 +94,42 @@ QDomNode PublishingData::toXMLDomNode(QDomDocument &domXMLDocument) const
     QDomElement publishingDataNode = domXMLDocument.createElement(QLatin1String("PublishingData"));
     m_attributeContainer->appendToXMLNode(publishingDataNode);
 
-    foreach (const PublishingItem::Ptr &publish, m_publishingItems)
+    foreach (const IPublishingItem *publish, m_publishingItems)
         publishingDataNode.appendChild(publish->toXMLDomNode(domXMLDocument));
 
     return publishingDataNode;
 }
 
-bool PublishingData::isEmpty() const
+void PublishingData::addPublishingItem(IPublishingItem *item)
 {
-    return m_publishingItems.isEmpty() && !m_attributeContainer->getAttributeCount();
+    if (!item || m_publishingItems.contains(item))
+        return;
+
+    m_publishingItems.append(item);
+}
+
+void PublishingData::removePublishingItem(IPublishingItem *item)
+{
+    if (!item || !m_publishingItems.contains(item))
+        return;
+    m_publishingItems.removeOne(item);
+    delete item;
+}
+
+int PublishingData::publishingItemCount() const
+{
+    return m_publishingItems.size();
+}
+
+IPublishingItem *PublishingData::publishingItem(int index) const
+{
+    QTC_ASSERT(0 <= index && index < m_publishingItems.size(), return 0);
+    return m_publishingItems[index];
 }
 
 void PublishingData::processPublishingItem(const QDomNode &publishingItemNode)
 {
-    PublishingItem::Ptr publishingItem(new PublishingItem);
+    PublishingItem *publishingItem(new PublishingItem);
     m_publishingItems.append(publishingItem);
     publishingItem->processNode(publishingItemNode);
 
@@ -111,35 +137,6 @@ void PublishingData::processPublishingItem(const QDomNode &publishingItemNode)
     QDomNode nextSibling = publishingItemNode.nextSibling();
     if (!nextSibling.isNull())
         processPublishingItem(nextSibling);
-}
-
-void PublishingData::addPublishingItem(PublishingItem::Ptr item)
-{
-    if (m_publishingItems.contains(item))
-        return;
-    m_publishingItems.append(item);
-}
-
-void PublishingData::removePublishingItem(PublishingItem::Ptr item)
-{
-    m_publishingItems.removeAll(item);
-}
-
-QList<PublishingItem::Ptr> PublishingData::publishingItems() const
-{
-    return m_publishingItems;
-}
-
-QList<PublishingItem::Ptr> PublishingData::publishingItems(const QString &attributeName, const QString &attributeValue) const
-{
-    QList<PublishingItem::Ptr> items;
-
-    foreach (const PublishingItem::Ptr &item, m_publishingItems) {
-        if (item->attributeContainer()->attributeValue(attributeName) == attributeValue)
-            items.append(item);
-    }
-
-    return items;
 }
 
 IAttributeContainer *PublishingData::attributeContainer() const

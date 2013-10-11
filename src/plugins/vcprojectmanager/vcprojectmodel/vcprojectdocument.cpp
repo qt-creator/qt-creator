@@ -42,6 +42,7 @@
 #include "../widgets/projectsettingswidget.h"
 #include "../widgets/configurationswidgets.h"
 #include "configurationcontainer.h"
+#include "../interfaces/iattributecontainer.h"
 
 namespace VcProjectManager {
 namespace Internal {
@@ -747,7 +748,7 @@ QDomElement VcProjectDocument2008::toVcDocumentElement(QDomDocument &domXMLDocum
     if (!m_targetFrameworkVersion.isEmpty())
         vcDocNode.setAttribute(QLatin1String("TargetFrameworkVersion"), m_targetFrameworkVersion);
 
-    if (!m_publishingData->isEmpty())
+    if (m_publishingData->publishingItemCount() && m_publishingData->attributeContainer()->getAttributeCount())
         vcDocNode.appendChild(m_publishingData->toXMLDomNode(domXMLDocument));
 
     return vcDocNode;

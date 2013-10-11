@@ -27,48 +27,29 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_INTERNAL_PUBLISHINGDATA_H
-#define VCPROJECTMANAGER_INTERNAL_PUBLISHINGDATA_H
+#ifndef VCPROJECTMANAGER_INTERNAL_IPUBLISHINGDATA_H
+#define VCPROJECTMANAGER_INTERNAL_IPUBLISHINGDATA_H
 
-#include "../interfaces/ipublishingdata.h"
-
-#include "publishingitem.h"
+#include "../vcprojectmodel/ivcprojectnodemodel.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
+class IPublishingItem;
 class IAttributeContainer;
-class GeneralAttributeContainer;
 
-class PublishingData : public IPublishingData
+class IPublishingData : public IVcProjectXMLNode
 {
-public:
-    typedef QSharedPointer<PublishingData>  Ptr;
-
-    PublishingData();
-    PublishingData(const PublishingData &data);
-    PublishingData& operator=(const PublishingData &data);
-    ~PublishingData();
-
-    void processNode(const QDomNode &node);
-    VcNodeWidget* createSettingsWidget();
-    QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
-
-    void addPublishingItem(IPublishingItem *item);
-    void removePublishingItem(IPublishingItem *item);
-    int publishingItemCount() const;
-    IPublishingItem *publishingItem(int index) const;
-    IAttributeContainer* attributeContainer() const;
-
-private:
-    void processPublishingItem(const QDomNode &publishingItem);
-    void processNodeAttributes(const QDomElement &element);
-
-    QList<IPublishingItem *> m_publishingItems;
-    GeneralAttributeContainer *m_attributeContainer;
+public :
+    virtual ~IPublishingData() {}
+    virtual void addPublishingItem(IPublishingItem *item) = 0;
+    virtual void removePublishingItem(IPublishingItem *item) = 0;
+    virtual int publishingItemCount() const = 0;
+    virtual IPublishingItem* publishingItem(int index) const = 0;
+    virtual IAttributeContainer* attributeContainer() const = 0;
 };
 
-} // namespace Internal
-} // namespace VcProjectManager
+} // Internal
+} // VcProjectManager
 
-#endif // VCPROJECTMANAGER_INTERNAL_PUBLISHINGDATA_H
+#endif // VCPROJECTMANAGER_INTERNAL_IPUBLISHINGDATA_H
