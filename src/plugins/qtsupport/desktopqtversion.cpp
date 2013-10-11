@@ -27,73 +27,77 @@
 **
 ****************************************************************************/
 
-#include "simulatorqtversion.h"
+#include "desktopqtversion.h"
+#include "qtsupportconstants.h"
 
-#include <qtsupport/qtsupportconstants.h>
 #include <coreplugin/featureprovider.h>
 
 #include <QCoreApplication>
 
-using namespace Qt4ProjectManager;
-using namespace Qt4ProjectManager::Internal;
+using namespace QtSupport;
+using namespace QtSupport::Internal;
 
-SimulatorQtVersion::SimulatorQtVersion()
-    : QtSupport::BaseQtVersion()
+DesktopQtVersion::DesktopQtVersion()
+    : BaseQtVersion()
 {
 
 }
 
-SimulatorQtVersion::SimulatorQtVersion(const Utils::FileName &path, bool isAutodetected, const QString &autodetectionSource)
-    : QtSupport::BaseQtVersion(path, isAutodetected, autodetectionSource)
+DesktopQtVersion::DesktopQtVersion(const Utils::FileName &path, bool isAutodetected, const QString &autodetectionSource)
+    : BaseQtVersion(path, isAutodetected, autodetectionSource)
 {
     setDisplayName(defaultDisplayName(qtVersionString(), path, false));
 }
 
-SimulatorQtVersion::~SimulatorQtVersion()
+DesktopQtVersion::~DesktopQtVersion()
 {
 
 }
 
-SimulatorQtVersion *SimulatorQtVersion::clone() const
+DesktopQtVersion *DesktopQtVersion::clone() const
 {
-    return new SimulatorQtVersion(*this);
+    return new DesktopQtVersion(*this);
 }
 
-QString SimulatorQtVersion::type() const
+QString DesktopQtVersion::type() const
 {
-    return QLatin1String(QtSupport::Constants::SIMULATORQT);
+    return QLatin1String(Constants::DESKTOPQT);
 }
 
-QStringList SimulatorQtVersion::warningReason() const
+QStringList DesktopQtVersion::warningReason() const
 {
     QStringList ret = BaseQtVersion::warningReason();
-    if (qtVersion() >= QtSupport::QtVersionNumber(5, 0, 0) && qmlsceneCommand().isEmpty())
+    if (qtVersion() >= QtVersionNumber(5, 0, 0) && qmlsceneCommand().isEmpty())
         ret << QCoreApplication::translate("QtVersion", "No qmlscene installed.");
-    if (qtVersion() >= QtSupport::QtVersionNumber(4, 7, 0) && qmlviewerCommand().isEmpty())
+    if (qtVersion() >= QtVersionNumber(4, 7, 0) && qmlviewerCommand().isEmpty())
         ret << QCoreApplication::translate("QtVersion", "No qmlviewer installed.");
     return ret;
 }
 
-QList<ProjectExplorer::Abi> SimulatorQtVersion::detectQtAbis() const
+QList<ProjectExplorer::Abi> DesktopQtVersion::detectQtAbis() const
 {
-    ensureMkSpecParsed();
     return qtAbisFromLibrary(qtCorePath(versionInfo(), qtVersionString()));
 }
 
-QString SimulatorQtVersion::description() const
+QString DesktopQtVersion::description() const
 {
-    return QCoreApplication::translate("QtVersion", "Qt Simulator", "Qt Version is meant for Qt Simulator");
+    return QCoreApplication::translate("QtVersion", "Desktop", "Qt Version is meant for the desktop");
 }
 
-Core::FeatureSet SimulatorQtVersion::availableFeatures() const
+Core::FeatureSet DesktopQtVersion::availableFeatures() const
 {
-    Core::FeatureSet features = QtSupport::BaseQtVersion::availableFeatures();
-    features |= Core::FeatureSet(QtSupport::Constants::FEATURE_MOBILE);
-
+    Core::FeatureSet features = BaseQtVersion::availableFeatures();
+    features |= Core::FeatureSet(Constants::FEATURE_DESKTOP);
+    features |= Core::Feature(Constants::FEATURE_QMLPROJECT);
     return features;
 }
 
-bool SimulatorQtVersion::supportsPlatform(const QString &platformName) const
+QString DesktopQtVersion::platformName() const
 {
-    return platformName.isEmpty();
+    return QLatin1String(Constants::DESKTOP_PLATFORM);
+}
+
+QString DesktopQtVersion::platformDisplayName() const
+{
+    return QLatin1String(Constants::DESKTOP_PLATFORM_TR);
 }

@@ -28,23 +28,24 @@
 ****************************************************************************/
 
 #include "winceqtversion.h"
-#include <qtsupport/qtsupportconstants.h>
+#include "qtsupportconstants.h"
+
 #include <QCoreApplication>
 #include <QStringList>
 
-using namespace Qt4ProjectManager;
-using namespace Qt4ProjectManager::Internal;
+using namespace QtSupport;
+using namespace QtSupport::Internal;
 
 WinCeQtVersion::WinCeQtVersion()
-    : QtSupport::BaseQtVersion(),
+    : BaseQtVersion(),
       m_archType(ProjectExplorer::Abi::ArmArchitecture)
 {
 }
 
 WinCeQtVersion::WinCeQtVersion(const Utils::FileName &path, const QString &archType,
-        bool isAutodetected, const QString &autodetectionSource)
-  : QtSupport::BaseQtVersion(path, isAutodetected, autodetectionSource),
-    m_archType(ProjectExplorer::Abi::ArmArchitecture)
+                               bool isAutodetected, const QString &autodetectionSource)
+    : BaseQtVersion(path, isAutodetected, autodetectionSource),
+      m_archType(ProjectExplorer::Abi::ArmArchitecture)
 {
     if (0 == archType.compare(QLatin1String("x86"), Qt::CaseInsensitive))
         m_archType = ProjectExplorer::Abi::X86Architecture;
@@ -64,7 +65,7 @@ WinCeQtVersion *WinCeQtVersion::clone() const
 
 QString WinCeQtVersion::type() const
 {
-    return QLatin1String(QtSupport::Constants::WINCEQT);
+    return QLatin1String(Constants::WINCEQT);
 }
 
 QList<ProjectExplorer::Abi> WinCeQtVersion::detectQtAbis() const
@@ -80,7 +81,7 @@ QList<ProjectExplorer::Abi> WinCeQtVersion::detectQtAbis() const
 QString WinCeQtVersion::description() const
 {
     return QCoreApplication::translate("QtVersion",
-        "Qt for WinCE", "Qt Version is meant for WinCE");
+                                       "Qt for WinCE", "Qt Version is meant for WinCE");
 }
 
 void WinCeQtVersion::fromMap(const QVariantMap &map)
@@ -104,10 +105,10 @@ void WinCeQtVersion::fromMap(const QVariantMap &map)
 
 QString WinCeQtVersion::platformName() const
 {
-    return QLatin1String(QtSupport::Constants::WINDOWS_CE_PLATFORM);
+    return QLatin1String(Constants::WINDOWS_CE_PLATFORM);
 }
 
 QString WinCeQtVersion::platformDisplayName() const
 {
-    return QLatin1String(QtSupport::Constants::WINDOWS_CE_PLATFORM_TR);
+    return QLatin1String(Constants::WINDOWS_CE_PLATFORM_TR);
 }

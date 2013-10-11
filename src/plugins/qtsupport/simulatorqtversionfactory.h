@@ -27,37 +27,28 @@
 **
 ****************************************************************************/
 
-#ifndef DESKTOPQTVERSION_H
-#define DESKTOPQTVERSION_H
+#ifndef SIMULATORQTVERSIONFACTORY_H
+#define SIMULATORQTVERSIONFACTORY_H
 
-#include <qtsupport/baseqtversion.h>
+#include "qtversionfactory.h"
 
-namespace Qt4ProjectManager {
-
+namespace QtSupport {
 namespace Internal {
 
-class DesktopQtVersion : public QtSupport::BaseQtVersion
+class SimulatorQtVersionFactory : public QtVersionFactory
 {
 public:
-    DesktopQtVersion();
-    DesktopQtVersion(const Utils::FileName &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
-    ~DesktopQtVersion();
-    DesktopQtVersion *clone() const;
+    explicit SimulatorQtVersionFactory(QObject *parent = 0);
+    ~SimulatorQtVersionFactory();
 
-    QString type() const;
+    virtual bool canRestore(const QString &type);
+    virtual BaseQtVersion *restore(const QString &type, const QVariantMap &data);
 
-    QStringList warningReason() const;
-
-    QList<ProjectExplorer::Abi> detectQtAbis() const;
-
-    QString description() const;
-
-    Core::FeatureSet availableFeatures() const;
-    QString platformName() const;
-    QString platformDisplayName() const;
+    virtual int priority() const;
+    virtual BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected = false, const QString &autoDetectionSource = QString());
 };
 
-}
-}
+} // Internal
+} // QtSupport
 
-#endif // DESKTOPQTVERSION_H
+#endif // SIMULATORQTVERSIONFACTORY_H

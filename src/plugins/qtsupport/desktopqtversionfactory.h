@@ -27,39 +27,28 @@
 **
 ****************************************************************************/
 
-#ifndef WINCEQTVERSION_H
-#define WINCEQTVERSION_H
+#ifndef DESKTOPQTVERSIONFACTORY_H
+#define DESKTOPQTVERSIONFACTORY_H
 
-#include <qtsupport/baseqtversion.h>
+#include "qtversionfactory.h"
 
-namespace Qt4ProjectManager {
+namespace QtSupport {
 namespace Internal {
 
-class WinCeQtVersion : public QtSupport::BaseQtVersion
+class DesktopQtVersionFactory : public QtVersionFactory
 {
 public:
-    WinCeQtVersion();
-    WinCeQtVersion(const Utils::FileName &path, const QString &archType,
-        bool isAutodetected = false, const QString &autodetectionSource = QString());
-    ~WinCeQtVersion();
-    WinCeQtVersion *clone() const;
+    explicit DesktopQtVersionFactory(QObject *parent = 0);
+    ~DesktopQtVersionFactory();
 
-    QString type() const;
+    virtual bool canRestore(const QString &type);
+    virtual BaseQtVersion *restore(const QString &type, const QVariantMap &data);
 
-    QList<ProjectExplorer::Abi> detectQtAbis() const;
-
-    QString description() const;
-
-    void fromMap(const QVariantMap &data);
-
-    QString platformName() const;
-    QString platformDisplayName() const;
-
-private:
-    ProjectExplorer::Abi::Architecture m_archType;
+    virtual int priority() const;
+    virtual BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected = false, const QString &autoDetectionSource = QString());
 };
 
-} // namespace Internal
-} // namespace Qt4ProjectManager
+} // Internal
+} // QtSupport
 
-#endif // WINCEQTVERSION_H
+#endif // DESKTOPQTVERSIONFACTORY_H

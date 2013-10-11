@@ -26,30 +26,52 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
+#include "desktopqtversionfactory.h"
+#include "desktopqtversion.h"
+#include <qtsupport/qtsupportconstants.h>
 
-#ifndef DESKTOPQTVERSIONFACTORY_H
-#define DESKTOPQTVERSIONFACTORY_H
+#include <QFileInfo>
 
-#include <qtsupport/qtversionfactory.h>
+using namespace QtSupport;
+using namespace QtSupport::Internal;
 
-namespace Qt4ProjectManager{
-namespace Internal {
-
-class DesktopQtVersionFactory : public QtSupport::QtVersionFactory
+DesktopQtVersionFactory::DesktopQtVersionFactory(QObject *parent)
+    : QtVersionFactory(parent)
 {
-public:
-    explicit DesktopQtVersionFactory(QObject *parent = 0);
-    ~DesktopQtVersionFactory();
 
-    virtual bool canRestore(const QString &type);
-    virtual QtSupport::BaseQtVersion *restore(const QString &type, const QVariantMap &data);
+}
 
-    virtual int priority() const;
-    virtual QtSupport::BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected = false, const QString &autoDetectionSource = QString());
-};
+DesktopQtVersionFactory::~DesktopQtVersionFactory()
+{
 
-} // Internal
-} // Qt4ProjectManager
+}
 
+bool DesktopQtVersionFactory::canRestore(const QString &type)
+{
+    return type == QLatin1String(Constants::DESKTOPQT);
+}
 
-#endif // DESKTOPQTVERSIONFACTORY_H
+BaseQtVersion *DesktopQtVersionFactory::restore(const QString &type, const QVariantMap &data)
+{
+    if (!canRestore(type))
+        return 0;
+    DesktopQtVersion *v = new DesktopQtVersion;
+    v->fromMap(data);
+    return v;
+}
+
+int DesktopQtVersionFactory::priority() const
+{
+    // Lowest of all, we want to be the fallback
+    return 0;
+}
+
+BaseQtVersion *DesktopQtVersionFactory::create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected, const QString &autoDetectionSource)
+{
+    Q_UNUSED(evaluator);
+    // we are the fallback :) so we don't care what kind of qt it is
+    QFileInfo fi = qmakePath.toFileInfo();
+    if (fi.exists() && fi.isExecutable() && fi.isFile())
+        return new DesktopQtVersion(qmakePath, isAutoDetected, autoDetectionSource);
+    return 0;
+}

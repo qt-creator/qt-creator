@@ -113,6 +113,18 @@ QtcPlugin {
     ]
 
     Group {
+        name: "QtVersion"
+        files: [
+            "desktopqtversion.cpp", "desktopqtversion.h",
+            "desktopqtversionfactory.cpp", "desktopqtversionfactory.h",
+            "simulatorqtversion.cpp", "simulatorqtversion.h",
+            "simulatorqtversionfactory.cpp", "simulatorqtversionfactory.h",
+            "winceqtversion.cpp", "winceqtversion.h",
+            "winceqtversionfactory.cpp", "winceqtversionfactory.h",
+        ]
+    }
+
+    Group {
         name: "Getting Started Welcome Page"
         condition: QtcFunctions.versionIsAtLeast(Qt.core.version, "5.1")
         files: [

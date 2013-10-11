@@ -61,8 +61,7 @@ HEADERS += \
     librarydetailscontroller.h \
     findqt4profiles.h \
     qt4projectmanager_global.h \
-    winceqtversionfactory.h \
-    winceqtversion.h \
+    qt4runconfiguration.h \
     profilecompletionassist.h
 
 SOURCES += \
@@ -119,8 +118,7 @@ SOURCES += \
     addlibrarywizard.cpp \
     librarydetailscontroller.cpp \
     findqt4profiles.cpp \
-    winceqtversionfactory.cpp \
-    winceqtversion.cpp \
+    qt4runconfiguration.cpp \
     profilecompletionassist.cpp
 
 FORMS += makestep.ui \
@@ -136,5 +134,4 @@ FORMS += makestep.ui \
 RESOURCES += qt4projectmanager.qrc \
     wizards/wizards.qrc
 
-include(qt-desktop/qt-desktop.pri)
 include(customwidgetwizard/customwidgetwizard.pri)

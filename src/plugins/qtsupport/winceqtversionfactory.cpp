@@ -27,36 +27,57 @@
 **
 ****************************************************************************/
 
-#ifndef SIMULATORQTVERSION_H
-#define SIMULATORQTVERSION_H
+#include "winceqtversionfactory.h"
+#include "winceqtversion.h"
+#include "qtsupportconstants.h"
+#include "profilereader.h"
 
-#include <qtsupport/baseqtversion.h>
+#include <QFileInfo>
 
-namespace Qt4ProjectManager{
+using namespace QtSupport;
+using namespace QtSupport::Internal;
 
-namespace Internal {
-
-class SimulatorQtVersion : public QtSupport::BaseQtVersion
+WinCeQtVersionFactory::WinCeQtVersionFactory(QObject *parent)
+    : QtVersionFactory(parent)
 {
-public:
-    SimulatorQtVersion();
-    SimulatorQtVersion(const Utils::FileName &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
-    ~SimulatorQtVersion();
-    SimulatorQtVersion *clone() const;
-
-    QString type() const;
-
-    QStringList warningReason() const;
-
-    QList<ProjectExplorer::Abi> detectQtAbis() const;
-
-    QString description() const;
-
-    Core::FeatureSet availableFeatures() const;
-    bool supportsPlatform(const QString &platformName) const;
-};
 
 }
+
+WinCeQtVersionFactory::~WinCeQtVersionFactory()
+{
+
 }
 
-#endif // SIMULATORQTVERSION_H
+bool WinCeQtVersionFactory::canRestore(const QString &type)
+{
+    return type == QLatin1String(Constants::WINCEQT);
+}
+
+BaseQtVersion *WinCeQtVersionFactory::restore(const QString &type, const QVariantMap &data)
+{
+    if (!canRestore(type))
+        return 0;
+    WinCeQtVersion *v = new WinCeQtVersion;
+    v->fromMap(data);
+    return v;
+}
+
+int WinCeQtVersionFactory::priority() const
+{
+    return 50;
+}
+
+BaseQtVersion *WinCeQtVersionFactory::create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected, const QString &autoDetectionSource)
+{
+    QFileInfo fi = qmakePath.toFileInfo();
+    if (!fi.exists() || !fi.isExecutable() || !fi.isFile())
+        return 0;
+
+    QString ce_sdk = evaluator->values(QLatin1String("CE_SDK")).join(QLatin1String(" "));
+    QString ce_arch = evaluator->value(QLatin1String("CE_ARCH"));
+
+    if (!ce_sdk.isEmpty() && !ce_arch.isEmpty())
+        return new WinCeQtVersion(qmakePath, ce_arch, isAutoDetected, autoDetectionSource);
+
+    return 0;
+}

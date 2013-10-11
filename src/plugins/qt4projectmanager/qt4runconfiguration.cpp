@@ -29,9 +29,9 @@
 
 #include "qt4runconfiguration.h"
 
-#include "../qt4nodes.h"
-#include "../qt4project.h"
-#include "../qt4buildconfiguration.h"
+#include "qt4nodes.h"
+#include "qt4project.h"
+#include "qt4buildconfiguration.h"
 
 #include <coreplugin/coreconstants.h>
 #include <projectexplorer/localenvironmentaspect.h>

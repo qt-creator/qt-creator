@@ -51,8 +51,7 @@ QtcPlugin {
             "qt4projectmanagerconstants.h",
             "qt4projectmanagerplugin.cpp", "qt4projectmanagerplugin.h",
             "qtmodulesinfo.cpp", "qtmodulesinfo.h",
-            "winceqtversion.cpp", "winceqtversion.h",
-            "winceqtversionfactory.cpp", "winceqtversionfactory.h"
+            "qt4runconfiguration.cpp", "qt4runconfiguration.h",
         ]
     }
 
@@ -81,18 +80,6 @@ QtcPlugin {
             "run_qmake_small.png",
             "sources.png",
             "unknown.png",
-        ]
-    }
-
-    Group {
-        name: "Qt/Desktop"
-        prefix: "qt-desktop/"
-        files: [
-            "desktopqtversion.cpp", "desktopqtversion.h",
-            "desktopqtversionfactory.cpp", "desktopqtversionfactory.h",
-            "qt4runconfiguration.cpp", "qt4runconfiguration.h",
-            "simulatorqtversion.cpp", "simulatorqtversion.h",
-            "simulatorqtversionfactory.cpp", "simulatorqtversionfactory.h"
         ]
     }
 

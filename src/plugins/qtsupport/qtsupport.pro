@@ -30,7 +30,13 @@ HEADERS += \
     exampleslistmodel.h \
     screenshotcropper.h \
     qtconfigwidget.h \
-    qtfeatureprovider.h
+    qtfeatureprovider.h \
+    desktopqtversionfactory.h \
+    simulatorqtversionfactory.h \
+    desktopqtversion.h \
+    simulatorqtversion.h \
+    winceqtversionfactory.h \
+    winceqtversion.h
 
 SOURCES += \
     qtsupportplugin.cpp \
@@ -53,7 +59,13 @@ SOURCES += \
     qtparser.cpp \
     exampleslistmodel.cpp \
     screenshotcropper.cpp \
-    qtconfigwidget.cpp
+    qtconfigwidget.cpp \
+    desktopqtversionfactory.cpp \
+    simulatorqtversionfactory.cpp \
+    desktopqtversion.cpp \
+    simulatorqtversion.cpp \
+    winceqtversionfactory.cpp \
+    winceqtversion.cpp
 
 greaterThan(QT_MAJOR_VERSION, 4) {
     QT += quick

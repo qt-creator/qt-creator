@@ -27,56 +27,31 @@
 **
 ****************************************************************************/
 
-#include "simulatorqtversionfactory.h"
-#include "simulatorqtversion.h"
+#ifndef WINCEQTVERSIONFACTORY_H
+#define WINCEQTVERSIONFACTORY_H
 
-#include <qtsupport/qtsupportconstants.h>
-#include <qtsupport/profilereader.h>
+#include "qtversionfactory.h"
 
-#include <QFileInfo>
+namespace QtSupport {
+namespace Internal {
 
-using namespace Qt4ProjectManager;
-using namespace Qt4ProjectManager::Internal;
-
-SimulatorQtVersionFactory::SimulatorQtVersionFactory(QObject *parent)
-    : QtVersionFactory(parent)
+class WinCeQtVersionFactory : public QtVersionFactory
 {
+public:
+    explicit WinCeQtVersionFactory(QObject *parent = 0);
+    ~WinCeQtVersionFactory();
 
-}
+    virtual bool canRestore(const QString &type);
+    virtual BaseQtVersion *restore(const QString &type, const QVariantMap &data);
 
-SimulatorQtVersionFactory::~SimulatorQtVersionFactory()
-{
+    virtual int priority() const;
 
-}
+    virtual BaseQtVersion *create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator,
+                                  bool isAutoDetected = false, const QString &autoDetectionSource = QString());
 
-bool SimulatorQtVersionFactory::canRestore(const QString &type)
-{
-    return type == QLatin1String(QtSupport::Constants::SIMULATORQT);
-}
+};
 
-QtSupport::BaseQtVersion *SimulatorQtVersionFactory::restore(const QString &type, const QVariantMap &data)
-{
-    if (!canRestore(type))
-        return 0;
-    QtSupport::BaseQtVersion *v = new SimulatorQtVersion;
-    v->fromMap(data);
-    return v;
-}
+} // Internal
+} // QtSupport
 
-
-int SimulatorQtVersionFactory::priority() const
-{
-    return 50;
-}
-
-QtSupport::BaseQtVersion *SimulatorQtVersionFactory::create(const Utils::FileName &qmakePath, ProFileEvaluator *evaluator, bool isAutoDetected, const QString &autoDetectionSource)
-{
-    QFileInfo fi = qmakePath.toFileInfo();
-    if (!fi.exists() || !fi.isExecutable() || !fi.isFile())
-        return 0;
-    QStringList configValues = evaluator->values(QLatin1String("CONFIG"));
-    if (!configValues.contains(QLatin1String("simulator")))
-        return 0;
-
-    return new SimulatorQtVersion(qmakePath, isAutoDetected, autoDetectionSource);
-}
+#endif // WINCEQTVERSIONFACTORY_H

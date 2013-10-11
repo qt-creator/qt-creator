@@ -30,11 +30,14 @@
 #include "qtsupportplugin.h"
 
 #include "customexecutablerunconfiguration.h"
-#include "qtoptionspage.h"
-#include "qtkitinformation.h"
-#include "qtversionmanager.h"
+#include "desktopqtversionfactory.h"
 #include "qtfeatureprovider.h"
+#include "qtkitinformation.h"
+#include "qtoptionspage.h"
+#include "qtversionmanager.h"
+#include "simulatorqtversionfactory.h"
 #include "uicodemodelsupport.h"
+#include "winceqtversionfactory.h"
 
 #include "profilereader.h"
 
@@ -70,6 +73,9 @@ bool QtSupportPlugin::initialize(const QStringList &arguments, QString *errorMes
         return false;
 
     addAutoReleasedObject(new QtVersionManager);
+    addAutoReleasedObject(new DesktopQtVersionFactory);
+    addAutoReleasedObject(new SimulatorQtVersionFactory);
+    addAutoReleasedObject(new WinCeQtVersionFactory);
     addAutoReleasedObject(new UiCodeModelManager);
 
     QtFeatureProvider *featureMgr = new QtFeatureProvider;
