@@ -104,13 +104,7 @@ ColumnLayout {
             Text {
                 text: qsTr("New to Qt?")
                 font.pixelSize: 18
-                font.bold: true
-            }
-
-            Text {
-                text: qsTr("Get Started Now!")
-                font.pixelSize: 14
-                font.bold: true
+                font.bold: false
             }
 
             Text {
@@ -126,12 +120,12 @@ ColumnLayout {
             }
 
             Button {
-                text: qsTr("Get Started")
+                text: qsTr("Get Started Now")
                 onClicked: gettingStarted.openSplitHelp("qthelp://org.qt-project.qtcreator/doc/creator-getting-started.html")
             }
 
             Item {
-                height: 8
+                height: 18
                 width: parent.width
             }
 
