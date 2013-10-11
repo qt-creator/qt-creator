@@ -271,14 +271,18 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
 
     // Register Vcs(s) with the cache
     QString tmpDir = QFileInfo(directory).canonicalFilePath();
-    const QChar slash = QLatin1Char('/');
-    const StringVersionControlPairs::const_iterator cend = allThatCanManage.constEnd();
-    for (StringVersionControlPairs::const_iterator i = allThatCanManage.constBegin(); i != cend; ++i) {
-        d->cache(i->second, i->first, tmpDir);
-        tmpDir = i->first;
-        const int slashPos = tmpDir.lastIndexOf(slash);
-        if (slashPos >= 0)
-            tmpDir.truncate(slashPos);
+    // directory might refer to a historical directory which doesn't exist.
+    // In this case, don't cache it.
+    if (!tmpDir.isEmpty()) {
+        const QChar slash = QLatin1Char('/');
+        const StringVersionControlPairs::const_iterator cend = allThatCanManage.constEnd();
+        for (StringVersionControlPairs::const_iterator i = allThatCanManage.constBegin(); i != cend; ++i) {
+            d->cache(i->second, i->first, tmpDir);
+            tmpDir = i->first;
+            const int slashPos = tmpDir.lastIndexOf(slash);
+            if (slashPos >= 0)
+                tmpDir.truncate(slashPos);
+        }
     }
 
     // return result
