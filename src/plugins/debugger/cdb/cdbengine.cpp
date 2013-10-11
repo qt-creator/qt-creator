@@ -483,7 +483,7 @@ bool CdbEngine::setToolTipExpression(const QPoint &mousePos,
     tw->setContext(context);
     tw->setIname(localVariable->iname);
     tw->acquireEngine(this);
-    DebuggerToolTipManager::instance()->showToolTip(mousePos, editor, tw);
+    DebuggerToolTipManager::showToolTip(mousePos, tw);
     return true;
 }
 

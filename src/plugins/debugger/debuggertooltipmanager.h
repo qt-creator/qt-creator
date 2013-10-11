@@ -207,7 +207,7 @@ public:
                                                const QString &engineType = QString(),
                                                const QString &function= QString()) const;
 
-    void showToolTip(const QPoint &p, Core::IEditor *editor, DebuggerToolTipWidget *);
+    static void showToolTip(const QPoint &p, DebuggerToolTipWidget *);
 
     virtual bool eventFilter(QObject *, QEvent *);
 

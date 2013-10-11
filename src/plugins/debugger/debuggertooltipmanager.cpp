@@ -1107,15 +1107,13 @@ void DebuggerToolTipManager::registerEngine(DebuggerEngine *engine)
     connect(engine, SIGNAL(stackFrameCompleted()), this, SLOT(slotStackFrameCompleted()));
 }
 
-void DebuggerToolTipManager::showToolTip(const QPoint &p, IEditor *editor,
-                                         DebuggerToolTipWidget *toolTipWidget)
+void DebuggerToolTipManager::showToolTip(const QPoint &p, DebuggerToolTipWidget *toolTipWidget)
 {
-    QWidget *widget = editor->widget();
     if (debugToolTipPositioning)
         qDebug() << "DebuggerToolTipManager::showToolTip" << p << " Mouse at " << QCursor::pos();
     const Utils::WidgetContent widgetContent(toolTipWidget, true);
-    Utils::ToolTip::show(p, widgetContent, widget);
-    registerToolTip(toolTipWidget);
+    Utils::ToolTip::show(p, widgetContent, debuggerCore()->mainWindow());
+    m_instance->registerToolTip(toolTipWidget);
 }
 
 void DebuggerToolTipManager::registerToolTip(DebuggerToolTipWidget *toolTipWidget)

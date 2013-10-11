@@ -95,12 +95,11 @@ class GdbToolTipContext : public DebuggerToolTipContext
 {
 public:
     GdbToolTipContext(const DebuggerToolTipContext &c) :
-        DebuggerToolTipContext(c), editor(0) {}
+        DebuggerToolTipContext(c) {}
 
     QPoint mousePosition;
     QString expression;
     QByteArray iname;
-    Core::IEditor *editor;
 };
 
 enum { debugPending = 0 };
@@ -3984,8 +3983,7 @@ void GdbEngine::showToolTip()
     tw->setExpression(m_toolTipContext->expression);
     tw->setContext(*m_toolTipContext);
     tw->acquireEngine(this);
-    DebuggerToolTipManager::instance()->showToolTip(m_toolTipContext->mousePosition,
-                                                    m_toolTipContext->editor, tw);
+    DebuggerToolTipManager::showToolTip(m_toolTipContext->mousePosition, tw);
     // Prevent tooltip from re-occurring (classic GDB, QTCREATORBUG-4711).
     m_toolTipContext.reset();
 }
@@ -4037,7 +4035,6 @@ bool GdbEngine::setToolTipExpression(const QPoint &mousePos,
     m_toolTipContext->mousePosition = mousePos;
     m_toolTipContext->expression = exp;
     m_toolTipContext->iname = iname;
-    m_toolTipContext->editor = editor;
     // Local variable: Display synchronously.
     if (iname.startsWith("local")) {
         showToolTip();
