@@ -11,6 +11,10 @@ Application {
 
     property string toolInstallDir: project.ide_libexec_path
 
+    cpp.rpaths: qbs.targetOS.contains("osx")
+            ? ["@executable_path/../" + project.ide_library_path]
+            : ["$ORIGIN/../" + project.ide_library_path]
+
     Group {
         fileTagsFilter: product.type
         qbs.install: true
