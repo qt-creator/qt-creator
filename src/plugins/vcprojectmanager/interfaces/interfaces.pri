@@ -26,4 +26,5 @@ HEADERS += \
     interfaces/itoolfile.h \
     interfaces/itoolfiles.h \
     interfaces/iplatform.h \
-    interfaces/iplatforms.h
+    interfaces/iplatforms.h \
+    interfaces/ipublishingitem.h

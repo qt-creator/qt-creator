@@ -27,42 +27,23 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_INTERNAL_PUBLISHINGITEM_H
-#define VCPROJECTMANAGER_INTERNAL_PUBLISHINGITEM_H
+#ifndef VCPROJECTMANAGER_INTERNAL_IPUBLISHINGITEM_H
+#define VCPROJECTMANAGER_INTERNAL_IPUBLISHINGITEM_H
 
-#include "../interfaces/ipublishingitem.h"
-
-#include <QHash>
-#include <QSharedPointer>
+#include "../vcprojectmodel/ivcprojectnodemodel.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
 class IAttributeContainer;
-class GeneralAttributeContainer;
 
-class PublishingItem : public IPublishingItem
+class IPublishingItem : public IVcProjectXMLNode
 {
 public:
-    typedef QSharedPointer<PublishingItem>  Ptr;
-
-    PublishingItem();
-    PublishingItem(const PublishingItem &item);
-    PublishingItem& operator=(const PublishingItem &item);
-    ~PublishingItem();
-
-    void processNode(const QDomNode &node);
-    VcNodeWidget* createSettingsWidget();
-    QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
-
-    IAttributeContainer* attributeContainer() const;
-
-private:
-    void processNodeAttributes(const QDomElement &element);
-    GeneralAttributeContainer* m_attributeContainer;
+    virtual ~IPublishingItem() {}
+    virtual IAttributeContainer* attributeContainer() const = 0;
 };
+} // Internal
+} // VcProjectManager
 
-} // namespace Internal
-} // namespace VcProjectManager
-
-#endif // VCPROJECTMANAGER_INTERNAL_PUBLISHINGITEM_H
+#endif // VCPROJECTMANAGER_INTERNAL_IPUBLISHINGITEM_H
