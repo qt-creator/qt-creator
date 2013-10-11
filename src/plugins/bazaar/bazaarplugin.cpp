@@ -647,7 +647,7 @@ bool BazaarPlugin::submitEditorAboutToClose()
     Core::IDocument *editorDocument = commitEditor->document();
     QTC_ASSERT(editorDocument, return true);
 
-    bool dummyPrompt = m_bazaarSettings.boolValue(BazaarSettings::promptOnSubmitKey);
+    bool dummyPrompt = false;
     const VcsBase::VcsBaseSubmitEditor::PromptSubmitResult response =
             commitEditor->promptSubmit(tr("Close Commit Editor"), tr("Do you want to commit the changes?"),
                                        tr("Message check failed. Do you want to proceed?"),

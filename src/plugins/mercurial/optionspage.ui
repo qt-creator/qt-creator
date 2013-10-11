@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>617</width>
-    <height>327</height>
+    <height>268</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -82,26 +82,6 @@
       <string>Miscellaneous</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <widget class="QLabel" name="showLogEntriesLabel">
-        <property name="text">
-         <string>Log count:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QSpinBox" name="logEntriesCount">
-        <property name="toolTip">
-         <string>The number of recent commit logs to show, choose 0 to see all entries.</string>
-        </property>
-        <property name="maximum">
-         <number>100</number>
-        </property>
-        <property name="value">
-         <number>100</number>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="2">
        <widget class="QLabel" name="timeoutSecondsLabel">
         <property name="text">
@@ -132,13 +112,23 @@
         </property>
        </spacer>
       </item>
-      <item row="1" column="0" colspan="2">
-       <widget class="QCheckBox" name="promptOnSubmitCheckBox">
-        <property name="text">
-         <string>Prompt on submit</string>
+      <item row="0" column="1">
+       <widget class="QSpinBox" name="logEntriesCount">
+        <property name="toolTip">
+         <string>The number of recent commit logs to show, choose 0 to see all entries.</string>
         </property>
-        <property name="checked">
-         <bool>true</bool>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="value">
+         <number>100</number>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="showLogEntriesLabel">
+        <property name="text">
+         <string>Log count:</string>
         </property>
        </widget>
       </item>

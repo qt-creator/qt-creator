@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>649</width>
-    <height>337</height>
+    <height>268</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -131,16 +131,6 @@
          </size>
         </property>
        </spacer>
-      </item>
-      <item row="1" column="0" colspan="2">
-       <widget class="QCheckBox" name="promptOnSubmitCheckBox">
-        <property name="text">
-         <string>Prompt on submit</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
       </item>
      </layout>
     </widget>
