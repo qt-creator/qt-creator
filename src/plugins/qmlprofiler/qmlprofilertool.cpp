@@ -400,8 +400,6 @@ void QmlProfilerTool::clearDisplay()
 
 static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)
 {
-    Q_UNUSED(tool);
-
     Id kitId;
     quint16 port;
     Kit *kit = 0;
@@ -443,7 +441,6 @@ static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)
     sp.sysroot = SysRootKitInformation::sysRoot(kit).toString();
     sp.analyzerPort = port;
 
-    //AnalyzerRunControl *rc = new AnalyzerRunControl(tool, sp, 0);
     AnalyzerRunControl *rc = tool->createRunControl(sp, 0);
     QObject::connect(AnalyzerManager::stopAction(), SIGNAL(triggered()), rc, SLOT(stopIt()));
 
