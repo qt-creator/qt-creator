@@ -357,10 +357,10 @@ void VcsBaseClient::diff(const QString &workingDir, const QStringList &files,
                                                            vcsCmdString.toLatin1().constData(), id);
     editor->setWorkingDirectory(workingDir);
 
-    VcsBaseEditorParameterWidget *paramWidget = createDiffEditor(workingDir, files, extraOptions);
-    if (paramWidget != 0) {
-        connect(editor, SIGNAL(diffChunkReverted(VcsBase::DiffChunk)),
-                paramWidget, SLOT(executeCommand()));
+    VcsBaseEditorParameterWidget *paramWidget = editor->configurationWidget();
+    if (!paramWidget && (paramWidget = createDiffEditor(workingDir, files, extraOptions))) {
+        // editor has been just created, createVcsEditor() didn't set a configuration widget yet
+        connect(editor, SIGNAL(diffChunkReverted(VcsBase::DiffChunk)), paramWidget, SLOT(executeCommand()));
         editor->setConfigurationWidget(paramWidget);
     }
 
@@ -380,14 +380,15 @@ void VcsBaseClient::log(const QString &workingDir, const QStringList &files,
     const QString id = VcsBase::VcsBaseEditorWidget::getTitleId(workingDir, files);
     const QString title = vcsEditorTitle(vcsCmdString, id);
     const QString source = VcsBase::VcsBaseEditorWidget::getSource(workingDir, files);
-
     VcsBase::VcsBaseEditorWidget *editor = createVcsEditor(kind, title, source, true,
                                                            vcsCmdString.toLatin1().constData(), id);
     editor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
 
-    VcsBaseEditorParameterWidget *paramWidget = createLogEditor(workingDir, files, extraOptions);
-    if (paramWidget != 0)
+    VcsBaseEditorParameterWidget *paramWidget = editor->configurationWidget();
+    if (!paramWidget && (paramWidget = createLogEditor(workingDir, files, extraOptions))) {
+        // editor has been just created, createVcsEditor() didn't set a configuration widget yet
         editor->setConfigurationWidget(paramWidget);
+    }
 
     QStringList args;
     const QStringList paramArgs = paramWidget != 0 ? paramWidget->arguments() : QStringList();
