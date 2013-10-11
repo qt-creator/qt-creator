@@ -49,6 +49,7 @@ PreProcessorAdditionWidget::PreProcessorAdditionWidget(QWidget *parent)
     prov.decorateEditor(ui->additionalEdit);
     setAttribute(Qt::WA_QuitOnClose, false);
     setFocusPolicy(Qt::StrongFocus);
+    ui->additionalEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 }
 
 PreProcessorAdditionWidget::~PreProcessorAdditionWidget()
