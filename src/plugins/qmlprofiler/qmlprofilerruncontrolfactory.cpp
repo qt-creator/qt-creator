@@ -82,8 +82,8 @@ static AnalyzerStartParameters createQmlProfilerStartParameters(RunConfiguration
         if (environment)
             sp.environment = environment->environment();
         sp.workingDirectory = rc1->workingDirectory();
-        sp.debuggee = rc1->observerPath();
-        sp.debuggeeArgs = rc1->viewerArguments();
+        sp.debuggee = rc1->executable();
+        sp.debuggeeArgs = rc1->commandLineArguments();
         sp.displayName = rc1->displayName();
     } else if (LocalApplicationRunConfiguration *rc2 =
             qobject_cast<LocalApplicationRunConfiguration *>(runConfiguration)) {

@@ -32,7 +32,7 @@
 
 #include "qmlprojectmanager_global.h"
 
-#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/localapplicationrunconfiguration.h>
 
 #include <QPointer>
 
@@ -52,7 +52,7 @@ namespace Internal {
     class QmlProjectRunConfigurationWidget;
 }
 
-class QMLPROJECTMANAGER_EXPORT QmlProjectRunConfiguration : public ProjectExplorer::RunConfiguration
+class QMLPROJECTMANAGER_EXPORT QmlProjectRunConfiguration : public ProjectExplorer::LocalApplicationRunConfiguration
 {
     Q_OBJECT
     friend class Internal::QmlProjectRunConfigurationFactory;
@@ -62,9 +62,12 @@ class QMLPROJECTMANAGER_EXPORT QmlProjectRunConfiguration : public ProjectExplor
 public:
     QmlProjectRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
 
-    QString viewerPath() const;
-    QString observerPath() const;
-    QString viewerArguments() const;
+    QString executable() const;
+    RunMode runMode() const;
+    QString commandLineArguments() const;
+    QString dumperLibrary() const;
+    QStringList dumperLibraryLocations() const;
+
     QString workingDirectory() const;
     QtSupport::BaseQtVersion *qtVersion() const;
 

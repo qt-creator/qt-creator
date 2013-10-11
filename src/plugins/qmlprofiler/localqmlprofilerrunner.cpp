@@ -58,8 +58,8 @@ LocalQmlProfilerRunner *LocalQmlProfilerRunner::createLocalRunner(
     Configuration conf;
     if (rc1) {
         // This is a "plain" .qmlproject.
-        conf.executable = rc1->observerPath();
-        conf.executableArguments = rc1->viewerArguments();
+        conf.executable = rc1->executable();
+        conf.executableArguments = rc1->commandLineArguments();
         conf.workingDirectory = rc1->workingDirectory();
         conf.environment = environment->environment();
     } else {

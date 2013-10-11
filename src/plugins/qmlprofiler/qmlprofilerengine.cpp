@@ -113,7 +113,7 @@ bool QmlProfilerRunControl::startEngine()
 
     if (QmlProjectManager::QmlProjectRunConfiguration *rc =
             qobject_cast<QmlProjectManager::QmlProjectRunConfiguration *>(runConfiguration())) {
-        if (rc->observerPath().isEmpty()) {
+        if (rc->executable().isEmpty()) {
             QmlProjectManager::QmlProjectPlugin::showQmlObserverToolWarning();
             d->m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
             AnalyzerManager::stopTool();

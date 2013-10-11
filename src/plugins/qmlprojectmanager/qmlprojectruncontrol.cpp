@@ -62,11 +62,8 @@ QmlProjectRunControl::QmlProjectRunControl(QmlProjectRunConfiguration *runConfig
         m_applicationLauncher.setEnvironment(environment->environment());
     m_applicationLauncher.setWorkingDirectory(runConfiguration->workingDirectory());
 
-    if (mode == NormalRunMode)
-        m_executable = runConfiguration->viewerPath();
-    else
-        m_executable = runConfiguration->observerPath();
-    m_commandLineArguments = runConfiguration->viewerArguments();
+    m_executable = runConfiguration->executable();
+    m_commandLineArguments = runConfiguration->commandLineArguments();
     m_mainQmlFile = runConfiguration->mainScript();
 
     connect(&m_applicationLauncher, SIGNAL(appendMessage(QString,Utils::OutputFormat)),
@@ -154,11 +151,11 @@ bool QmlProjectRunControlFactory::canRun(RunConfiguration *runConfiguration,
     if (!config)
         return false;
     if (mode == NormalRunMode)
-        return !config->viewerPath().isEmpty();
+        return !config->executable().isEmpty();
     if (mode != DebugRunMode)
         return false;
 
-    if (!config->observerPath().isEmpty())
+    if (!config->executable().isEmpty())
         return true;
     if (!config->qtVersion())
         return false;
@@ -204,8 +201,8 @@ RunControl *QmlProjectRunControlFactory::createDebugRunControl(QmlProjectRunConf
     EnvironmentAspect *environment = runConfig->extraAspect<EnvironmentAspect>();
 
     params.startMode = Debugger::StartInternal;
-    params.executable = runConfig->observerPath();
-    params.processArgs = runConfig->viewerArguments();
+    params.executable = runConfig->executable();
+    params.processArgs = runConfig->commandLineArguments();
     params.workingDirectory = runConfig->workingDirectory();
     if (environment)
         params.environment = environment->environment();
