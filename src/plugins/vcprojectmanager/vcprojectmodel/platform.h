@@ -30,15 +30,14 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_PLATFORM_H
 #define VCPROJECTMANAGER_INTERNAL_PLATFORM_H
 
-#include "ivcprojectnodemodel.h"
+#include "../interfaces/iplatform.h"
 
-#include <QString>
 #include <QSharedPointer>
 
 namespace VcProjectManager {
 namespace Internal {
 
-class Platform : public IVcProjectXMLNode
+class Platform : public IPlatform
 {
 public:
     typedef QSharedPointer<Platform>    Ptr;
@@ -52,8 +51,8 @@ public:
     VcNodeWidget* createSettingsWidget();
     QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
-    QString name() const;
-    void setName(const QString &name);
+    QString displayName() const;
+    void setName(const QString &displayName);
 
 private:
     void processNodeAttributes(const QDomElement &element);

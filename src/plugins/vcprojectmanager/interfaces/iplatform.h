@@ -27,77 +27,26 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#include "platform.h"
+#ifndef VCPROJECTMANAGER_INTERNAL_IPLATFORM_H
+#define VCPROJECTMANAGER_INTERNAL_IPLATFORM_H
+
+#include "../vcprojectmodel/ivcprojectnodemodel.h"
+
+#include <QString>
 
 namespace VcProjectManager {
 namespace Internal {
 
-Platform::Platform()
+class IPlatform : public IVcProjectXMLNode
 {
-}
+public:
+    virtual ~IPlatform() {}
 
-Platform::Platform(const Platform &platform)
-{
-    m_name = platform.m_name;
-}
-
-Platform &Platform::operator =(const Platform &platform)
-{
-    if (this != &platform)
-        m_name = platform.m_name;
-    return *this;
-}
-
-Platform::~Platform()
-{
-}
-
-void Platform::processNode(const QDomNode &node)
-{
-    if (node.isNull())
-        return;
-
-    if (node.nodeType() == QDomNode::ElementNode)
-        processNodeAttributes(node.toElement());
-}
-
-VcNodeWidget *Platform::createSettingsWidget()
-{
-    return 0;
-}
-
-QDomNode Platform::toXMLDomNode(QDomDocument &domXMLDocument) const
-{
-    QDomElement platformNode = domXMLDocument.createElement(QLatin1String("Platform"));
-    platformNode.setAttribute(QLatin1String("Name"), m_name);
-    return platformNode;
-}
-
-QString Platform::displayName() const
-{
-    return m_name;
-}
-
-void Platform::setName(const QString &name)
-{
-    m_name = name;
-}
-
-void Platform::processNodeAttributes(const QDomElement &element)
-{
-    QDomNamedNodeMap namedNodeMap = element.attributes();
-
-    if (namedNodeMap.size() == 1) {
-        QDomNode domNode = namedNodeMap.item(0);
-
-        if (domNode.nodeType() == QDomNode::AttributeNode) {
-            QDomAttr domElement = domNode.toAttr();
-
-            if (domElement.name() == QLatin1String("Name"))
-                m_name = domElement.value();
-        }
-    }
-}
+    virtual QString displayName() const = 0;
+    virtual void setName(const QString &displayName) = 0;
+};
 
 } // namespace Internal
 } // namespace VcProjectManager
+
+#endif // VCPROJECTMANAGER_INTERNAL_IPLATFORM_H

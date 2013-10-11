@@ -124,7 +124,7 @@ void ConfigurationsBaseWidget::onAddNewConfig(QString newConfigName, QString cop
         if (copyFrom.isEmpty()) {
             QList<Platform::Ptr> platformList = platforms->platforms();
             foreach (const Platform::Ptr &platform, platformList) {
-                IConfiguration *newConfig = createConfiguration(newConfigName + QLatin1Char('|') + platform->name());
+                IConfiguration *newConfig = createConfiguration(newConfigName + QLatin1Char('|') + platform->displayName());
 
                 if (newConfig) {
                     newConfig->attributeContainer()->setAttribute(QLatin1String("OutputDirectory"), QLatin1String("$(SolutionDir)$(ConfigurationName)"));
@@ -144,12 +144,12 @@ void ConfigurationsBaseWidget::onAddNewConfig(QString newConfigName, QString cop
                     IConfiguration* newConfig = config->clone();
 
                     if (newConfig) {
-                        newConfig->setFullName(newConfigName + QLatin1Char('|') + platform->name());
+                        newConfig->setFullName(newConfigName + QLatin1Char('|') + platform->displayName());
                         m_newConfigurations.append(newConfig);
                         addConfiguration(newConfig);
                     }
 
-                    addConfigurationToFiles(copyFrom, newConfigName + QLatin1Char('|') + platform->name());
+                    addConfigurationToFiles(copyFrom, newConfigName + QLatin1Char('|') + platform->displayName());
                 }
             }
         }
@@ -170,8 +170,8 @@ void ConfigurationsBaseWidget::onRenameConfig(QString newConfigName, QString old
 
     QList<Platform::Ptr> platformList = platforms->platforms();
     foreach (const Platform::Ptr &platform, platformList) {
-        QString targetConfigName = splits[0] + QLatin1Char('|') + platform->name();
-        QString newName = newConfigName + QLatin1Char('|') + platform->name();
+        QString targetConfigName = splits[0] + QLatin1Char('|') + platform->displayName();
+        QString newName = newConfigName + QLatin1Char('|') + platform->displayName();
         IConfiguration *configInNew = configInNewConfigurations(targetConfigName);
 
         // if we are renaming newly added config
@@ -221,7 +221,7 @@ void ConfigurationsBaseWidget::onRemoveConfig(QString configNameWithPlatform)
 
     QList<Platform::Ptr> platformList = platforms->platforms();
     foreach (const Platform::Ptr &platform, platformList) {
-        QString targetConfigName = splits[0] + QLatin1Char('|') + platform->name();
+        QString targetConfigName = splits[0] + QLatin1Char('|') + platform->displayName();
         IConfiguration *config = m_configs->configurationContainer()->configuration(targetConfigName);
 
         // if config exists in the document model, add it to remove list

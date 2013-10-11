@@ -108,7 +108,7 @@ void Platforms::addPlatform(Platform::Ptr platform)
         return;
 
     foreach (const Platform::Ptr &platf, m_platforms) {
-        if (platf->name() == platform->name())
+        if (platf->displayName() == platform->displayName())
             return;
     }
     m_platforms.append(platform);
@@ -122,7 +122,7 @@ void Platforms::removePlatform(Platform::Ptr platform)
 void Platforms::removePlatform(const QString &platformName)
 {
     foreach (const Platform::Ptr &platform, m_platforms) {
-        if (platform->name() == platformName) {
+        if (platform->displayName() == platformName) {
             removePlatform(platform);
             return;
         }
