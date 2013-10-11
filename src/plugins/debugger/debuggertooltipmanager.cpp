@@ -937,6 +937,11 @@ void DebuggerToolTipTreeView::computeSize()
     setMinimumSize(m_size);
     setMaximumSize(m_size);
     setRootIsDecorated(rootDecorated);
+
+    // This pretty much feels like a hack.
+    // But it "solves" QTCREATORBUG-9852
+    QApplication::processEvents();
+    viewport()->update();
 }
 
 void DebuggerToolTipWidget::doAcquireEngine(DebuggerEngine *engine)
