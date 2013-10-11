@@ -863,7 +863,7 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
 
     QAction *actCloseEditorToolTips =
         new QAction(tr("Close Editor Tooltips"), &menu);
-    actCloseEditorToolTips->setEnabled(DebuggerToolTipManager::instance()->hasToolTips());
+    actCloseEditorToolTips->setEnabled(DebuggerToolTipManager::hasToolTips());
     menu.addAction(actCloseEditorToolTips);
 
     addBaseContextActions(&menu);
@@ -932,7 +932,7 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
     } else if (act == showUnprintableHexadecimal) {
         handler->setUnprintableBase(16);
     } else if (act == actCloseEditorToolTips) {
-        DebuggerToolTipManager::instance()->closeAllToolTips();
+        DebuggerToolTipManager::closeAllToolTips();
     } else if (handleBaseContextAction(act)) {
         ;
     } else {

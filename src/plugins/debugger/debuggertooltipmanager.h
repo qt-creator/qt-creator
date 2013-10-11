@@ -196,16 +196,15 @@ public:
     typedef QList<ExpressionInamePair> ExpressionInamePairs;
 
     explicit DebuggerToolTipManager(QObject *parent = 0);
-    virtual ~DebuggerToolTipManager();
+    ~DebuggerToolTipManager();
 
-    static DebuggerToolTipManager *instance() { return m_instance; }
-    void registerEngine(DebuggerEngine *engine);
-    bool hasToolTips() const { return !m_tooltips.isEmpty(); }
+    static void registerEngine(DebuggerEngine *engine);
+    static bool hasToolTips();
 
     // Collect all expressions of DebuggerTreeViewToolTipWidget
-    ExpressionInamePairs treeWidgetExpressions(const QString &fileName,
+    static ExpressionInamePairs treeWidgetExpressions(const QString &fileName,
                                                const QString &engineType = QString(),
-                                               const QString &function= QString()) const;
+                                               const QString &function= QString());
 
     static void showToolTip(const QPoint &p, DebuggerToolTipWidget *);
 
@@ -219,7 +218,7 @@ public slots:
     void sessionAboutToChange();
     void loadSessionData();
     void saveSessionData();
-    void closeAllToolTips();
+    static void closeAllToolTips();
     void hide();
 
 private slots:
@@ -229,22 +228,6 @@ private slots:
     void slotEditorOpened(Core::IEditor *);
     void slotTooltipOverrideRequested(TextEditor::ITextEditor *editor,
             const QPoint &point, int pos, bool *handled);
-
-private:
-    typedef QList<QPointer<DebuggerToolTipWidget> > DebuggerToolTipWidgetList;
-
-    void registerToolTip(DebuggerToolTipWidget *toolTipWidget);
-    void moveToolTipsBy(const QPoint &distance);
-    // Purge out closed (null) tooltips and return list for convenience
-    void purgeClosedToolTips();
-
-    static DebuggerToolTipManager *m_instance;
-
-    DebuggerToolTipWidgetList m_tooltips;
-
-    bool m_debugModeActive;
-    QPoint m_lastToolTipPoint;
-    Core::IEditor *m_lastToolTipEditor;
 };
 
 } // namespace Internal

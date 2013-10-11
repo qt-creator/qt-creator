@@ -67,8 +67,8 @@ void GdbEngine::updateLocalsPython(const UpdateParameters &params)
 
         // Re-create tooltip items that are not filters on existing local variables in
         // the tooltip model.
-        ExpressionInamePairs toolTips = DebuggerToolTipManager::instance()
-            ->treeWidgetExpressions(fileName, objectName(), function);
+        ExpressionInamePairs toolTips =
+            DebuggerToolTipManager::treeWidgetExpressions(fileName, objectName(), function);
 
         const QString currentExpression = tooltipExpression();
         if (!currentExpression.isEmpty()) {
