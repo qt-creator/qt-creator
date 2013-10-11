@@ -56,6 +56,7 @@ public:
     bool canCreateProcess() const { return true; }
     DeviceProcess *createProcess(QObject *parent) const;
     DeviceProcessSignalOperation::Ptr signalOperation() const;
+    QString qmlProfilerHost() const;
 
     IDevice::Ptr clone() const;
 

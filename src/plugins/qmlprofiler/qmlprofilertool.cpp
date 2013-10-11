@@ -57,8 +57,6 @@
 #include <projectexplorer/localapplicationrunconfiguration.h>
 #include <texteditor/itexteditor.h>
 
-#include <android/androidconstants.h>
-
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -431,12 +429,7 @@ static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)
     IDevice::ConstPtr device = DeviceKitInformation::device(kit);
     if (device) {
         sp.connParams = device->sshParameters();
-        if (device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE
-                || device->type() == Android::Constants::ANDROID_DEVICE_TYPE) {
-            sp.analyzerHost = QLatin1String("localhost");
-        } else {
-            sp.analyzerHost = sp.connParams.host;
-        }
+        sp.analyzerHost = device->qmlProfilerHost();
     }
     sp.sysroot = SysRootKitInformation::sysRoot(kit).toString();
     sp.analyzerPort = port;

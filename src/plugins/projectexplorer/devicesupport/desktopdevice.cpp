@@ -120,6 +120,11 @@ DeviceProcessSignalOperation::Ptr DesktopDevice::signalOperation() const
     return DeviceProcessSignalOperation::Ptr(new DesktopProcessSignalOperation());
 }
 
+QString DesktopDevice::qmlProfilerHost() const
+{
+    return QLatin1String("localhost");
+}
+
 IDevice::Ptr DesktopDevice::clone() const
 {
     return Ptr(new DesktopDevice(*this));

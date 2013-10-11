@@ -380,6 +380,11 @@ void IDevice::setSshParameters(const QSsh::SshConnectionParameters &sshParameter
     d->sshParameters = sshParameters;
 }
 
+QString IDevice::qmlProfilerHost() const
+{
+    return d->sshParameters.host;
+}
+
 void IDevice::setFreePorts(const Utils::PortList &freePorts)
 {
     d->freePorts = freePorts;

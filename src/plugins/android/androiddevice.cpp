@@ -99,5 +99,10 @@ IDevice::Ptr AndroidDevice::clone() const
     return IDevice::Ptr(new AndroidDevice(*this));
 }
 
+QString AndroidDevice::qmlProfilerHost() const
+{
+    return QLatin1String("localhost");
+}
+
 } // namespace Internal
 } // namespace Android
