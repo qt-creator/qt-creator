@@ -807,7 +807,7 @@ void AndroidConfigurations::updateAutomaticKitList()
     // register new kits
     QList<Kit *> newKits;
     foreach (AndroidToolChain *tc, toolchains) {
-        if (tc->secondaryToolChain())
+        if (tc->isSecondaryToolChain())
             continue;
         QList<QtSupport::BaseQtVersion *> qtVersions = qtVersionsForArch.value(tc->targetAbi().architecture());
         foreach (QtSupport::BaseQtVersion *qt, qtVersions) {

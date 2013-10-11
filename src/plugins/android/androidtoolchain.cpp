@@ -229,12 +229,12 @@ QString AndroidToolChain::makeCommand(const Utils::Environment &env) const
     return tmp.isEmpty() ? make : tmp;
 }
 
-QString AndroidToolChain::ndkToolChainVersion()
+QString AndroidToolChain::ndkToolChainVersion() const
 {
     return m_ndkToolChainVersion;
 }
 
-bool AndroidToolChain::secondaryToolChain() const
+bool AndroidToolChain::isSecondaryToolChain() const
 {
     return m_secondaryToolChain;
 }
