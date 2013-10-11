@@ -18,7 +18,6 @@ HEADERS += \
     vcprojectmodel/deploymenttool.h \
     vcprojectmodel/defaulttoolfile.h \
     vcprojectmodel/debuggertool.h \
-    vcprojectmodel/configurationsfactory.h \
     vcprojectmodel/configurations.h \
     vcprojectmodel/configuration.h \
     vcprojectmodel/assemblyreference.h \
@@ -68,7 +67,6 @@ SOURCES += \
     vcprojectmodel/deploymenttool.cpp \
     vcprojectmodel/defaulttoolfile.cpp \
     vcprojectmodel/debuggertool.cpp \
-    vcprojectmodel/configurationsfactory.cpp \
     vcprojectmodel/configurations.cpp \
     vcprojectmodel/configuration.cpp \
     vcprojectmodel/assemblyreference.cpp \

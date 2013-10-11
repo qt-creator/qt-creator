@@ -31,7 +31,6 @@
 
 #include <QVariant>
 
-#include "configurationsfactory.h"
 #include "configurationcontainer.h"
 #include "generalattributecontainer.h"
 

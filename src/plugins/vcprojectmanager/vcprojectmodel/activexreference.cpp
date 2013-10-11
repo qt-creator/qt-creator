@@ -30,7 +30,6 @@
 #include "activexreference.h"
 
 #include <QVariant>
-#include "configurationsfactory.h"
 #include "generalattributecontainer.h"
 #include "configurationcontainer.h"
 

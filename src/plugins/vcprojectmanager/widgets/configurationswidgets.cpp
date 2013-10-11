@@ -34,7 +34,6 @@
 #include "configurationswidget.h"
 #include "../vcprojectmodel/configurations.h"
 #include "../vcprojectmodel/vcprojectdocument.h"
-#include "../vcprojectmodel/configurationsfactory.h"
 #include "../vcprojectmodel/configurationcontainer.h"
 #include "../vcprojectmodel/configuration.h"
 #include "../vcprojectmodel/tools/toolattributes/tooldescription.h"
@@ -328,35 +327,6 @@ void ConfigurationsBaseWidget::addConfigurationToFile(IFile *filePtr, const QStr
         newConfig->setFullName(targetConfigName);
         m_newFilesConfigurations[filePtr].append(newConfig);
     }
-}
-
-Configurations2003Widget::Configurations2003Widget(Configurations *configs, VcProjectDocument *vcProjDoc)
-    : ConfigurationsBaseWidget(configs, vcProjDoc)
-{
-}
-
-Configurations2003Widget::~Configurations2003Widget()
-{
-}
-
-
-Configurations2005Widget::Configurations2005Widget(Configurations *configs, VcProjectDocument *vcProjDoc)
-    : ConfigurationsBaseWidget(configs, vcProjDoc)
-{
-}
-
-Configurations2005Widget::~Configurations2005Widget()
-{
-}
-
-
-Configurations2008Widget::Configurations2008Widget(Configurations *configs, VcProjectDocument *vcProjDoc)
-    : ConfigurationsBaseWidget(configs, vcProjDoc)
-{
-}
-
-Configurations2008Widget::~Configurations2008Widget()
-{
 }
 
 } // namespace Internal

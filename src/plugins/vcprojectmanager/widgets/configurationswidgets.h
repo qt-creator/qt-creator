@@ -80,27 +80,6 @@ protected:
     QHash<IFile*, QList<IConfiguration*> > m_newFilesConfigurations;
 };
 
-class Configurations2003Widget : public ConfigurationsBaseWidget
-{
-public:
-    explicit Configurations2003Widget(Configurations *configs, VcProjectDocument *vcProjDoc);
-    ~Configurations2003Widget();
-};
-
-class Configurations2005Widget : public ConfigurationsBaseWidget
-{
-public:
-    explicit Configurations2005Widget(Configurations *configs, VcProjectDocument *vcProjDoc);
-    ~Configurations2005Widget();
-};
-
-class Configurations2008Widget : public ConfigurationsBaseWidget
-{
-public:
-    explicit Configurations2008Widget(Configurations *configs, VcProjectDocument *vcProjDoc);
-    ~Configurations2008Widget();
-};
-
 } // namespace Internal
 } // namespace VcProjectManager
 

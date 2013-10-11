@@ -29,7 +29,6 @@
 ****************************************************************************/
 #include "file.h"
 
-#include "configurationsfactory.h"
 #include "vcprojectdocument.h"
 #include "configurationcontainer.h"
 #include "generalattributecontainer.h"

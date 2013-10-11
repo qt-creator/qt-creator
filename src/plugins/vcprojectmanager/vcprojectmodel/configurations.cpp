@@ -29,7 +29,6 @@
 ****************************************************************************/
 #include "configurations.h"
 
-#include "configurationsfactory.h"
 #include "vcprojectdocument.h"
 #include "../widgets/configurationswidgets.h"
 #include "../interfaces/iconfiguration.h"
@@ -82,7 +81,7 @@ void Configurations::processNode(const QDomNode &node)
 
 VcNodeWidget *Configurations::createSettingsWidget()
 {
-    ConfigurationsBaseWidget* widget = ConfigurationsFactory::createSettingsWidget(m_vcProjDoc, this);
+    ConfigurationsBaseWidget* widget = new ConfigurationsBaseWidget(this, m_vcProjDoc);
     return widget;
 }
 
