@@ -91,17 +91,6 @@ using namespace Utils;
 namespace Debugger {
 namespace Internal {
 
-class GdbToolTipContext : public DebuggerToolTipContext
-{
-public:
-    GdbToolTipContext(const DebuggerToolTipContext &c) :
-        DebuggerToolTipContext(c) {}
-
-    QPoint mousePosition;
-    QString expression;
-    QByteArray iname;
-};
-
 enum { debugPending = 0 };
 
 #define PENDING_DEBUG(s) do { if (debugPending) qDebug() << s; } while (0)
@@ -3979,8 +3968,6 @@ void GdbEngine::showToolTip()
     }
 
     DebuggerToolTipWidget *tw = new DebuggerToolTipWidget;
-    tw->setIname(m_toolTipContext->iname);
-    tw->setExpression(m_toolTipContext->expression);
     tw->setContext(*m_toolTipContext);
     tw->acquireEngine(this);
     DebuggerToolTipManager::showToolTip(m_toolTipContext->mousePosition, tw);
@@ -4031,7 +4018,7 @@ bool GdbEngine::setToolTipExpression(const QPoint &mousePos,
         return true;
     }
 
-    m_toolTipContext.reset(new GdbToolTipContext(context));
+    m_toolTipContext.reset(new DebuggerToolTipContext(context));
     m_toolTipContext->mousePosition = mousePos;
     m_toolTipContext->expression = exp;
     m_toolTipContext->iname = iname;
