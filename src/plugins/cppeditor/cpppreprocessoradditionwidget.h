@@ -84,9 +84,9 @@ private:
         QByteArray additionalDefines;
     };
 
-    PreProcessorAdditionWidget* widget;
-    QList<ProjectPartAddition> originalPartAdditions;
-    QList<ProjectPartAddition> partAdditions;
+    PreProcessorAdditionWidget* m_widget;
+    QList<ProjectPartAddition> m_originalPartAdditions;
+    QList<ProjectPartAddition> m_partAdditions;
 
 };
 
