@@ -31,6 +31,7 @@
 
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
 
 #include <QSettings>
 #include <QVariant>
@@ -228,6 +229,9 @@ VcsBaseClientSettings::~VcsBaseClientSettings()
 
 void VcsBaseClientSettings::writeSettings(QSettings *settings) const
 {
+    QTC_ASSERT(!settingsGroup().isEmpty(), return);
+
+    settings->remove(settingsGroup());
     settings->beginGroup(settingsGroup());
     foreach (const QString &key, keys())
         settings->setValue(key, value(key));
