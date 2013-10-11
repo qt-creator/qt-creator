@@ -39,15 +39,18 @@
 #include <QVariantMap>
 #include <QMessageBox>
 
+#ifdef Q_OS_MAC
 #include <IOKit/IOKitLib.h>
 #include <IOKit/usb/IOUSBLib.h>
 #include <CoreFoundation/CoreFoundation.h>
+#endif
+
 using namespace ProjectExplorer;
 
 static bool debugDeviceDetection = false;
 
-namespace {
-QString CFStringRef2QString(CFStringRef s)
+#ifdef Q_OS_MAC
+static QString CFStringRef2QString(CFStringRef s)
 {
     unsigned char buf[250];
     CFIndex len = CFStringGetLength(s);
@@ -67,8 +70,7 @@ QString CFStringRef2QString(CFStringRef s)
     delete[] bigBuf;
     return res;
 }
-
-}
+#endif
 
 namespace Ios {
 namespace Internal {
@@ -349,6 +351,7 @@ void IosDeviceManager::infoGathererFinished(IosToolHandler *gatherer)
     gatherer->deleteLater();
 }
 
+#ifdef Q_OS_MAC
 namespace {
 io_iterator_t gAddedIter;
 io_iterator_t gRemovedIter;
@@ -418,9 +421,11 @@ void deviceDisconnectedCallback(void *refCon, io_iterator_t iterator)
 } // extern C
 
 } // anonymous namespace
+#endif
 
 void IosDeviceManager::monitorAvailableDevices()
 {
+#ifdef Q_OS_MAC
     CFMutableDictionaryRef  matchingDictionary =
                                         IOServiceMatching("IOUSBDevice" );
     {
@@ -469,7 +474,7 @@ void IosDeviceManager::monitorAvailableDevices()
     // Iterate once to get already-present devices and arm the notification
     deviceConnectedCallback(NULL, gAddedIter);
     deviceDisconnectedCallback(NULL, gRemovedIter);
-
+#endif
 }
 
 

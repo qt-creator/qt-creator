@@ -5,7 +5,7 @@ include(../../qtcreatorplugin.pri)
 
 QT += xml network
 
-LIBS += -framework CoreFoundation -framework IOKit
+macx: LIBS += -framework CoreFoundation -framework IOKit
 
 HEADERS += \
     iosconstants.h \
