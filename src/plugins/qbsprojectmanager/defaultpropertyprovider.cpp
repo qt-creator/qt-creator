@@ -67,6 +67,8 @@ QVariantMap DefaultPropertyProvider::properties(const ProjectExplorer::Kit *k, c
         data.insert(QLatin1String(QTCORE_VERSION), qt->qtVersionString());
         if (qt->isFrameworkBuild())
             data.insert(QLatin1String(QTCORE_FRAMEWORKBUILD), true);
+        data.insert(QLatin1String(QTCORE_CONFIG), qt->configValues());
+        data.insert(QLatin1String(QTCORE_QTCONFIG), qt->qtConfigValues());
     }
 
     if (ProjectExplorer::SysRootKitInformation::hasSysRoot(k))
