@@ -97,7 +97,8 @@ void QnxAbstractQtVersion::addToEnvironment(const ProjectExplorer::Kit *k, Utils
 {
     QtSupport::BaseQtVersion::addToEnvironment(k, env);
     updateEnvironment();
-    QnxUtils::prependQnxMapToEnvironment(m_envMap, env);
+    env.modify(m_qnxEnv);
+
     env.prependOrSetLibrarySearchPath(versionInfo().value(QLatin1String("QT_INSTALL_LIBS")));
 }
 
@@ -107,7 +108,7 @@ Utils::Environment QnxAbstractQtVersion::qmakeRunEnvironment() const
         updateEnvironment();
 
     Utils::Environment env = Utils::Environment::systemEnvironment();
-    QnxUtils::prependQnxMapToEnvironment(m_envMap, env);
+    env.modify(m_qnxEnv);
 
     return env;
 }
@@ -129,7 +130,7 @@ void QnxAbstractQtVersion::setSdkPath(const QString &sdkPath)
 void QnxAbstractQtVersion::updateEnvironment() const
 {
     if (!m_environmentUpToDate) {
-        m_envMap = environment();
+        m_qnxEnv = environment();
         m_environmentUpToDate = true;
     }
 }
@@ -139,7 +140,12 @@ QString QnxAbstractQtVersion::qnxHost() const
     if (!m_environmentUpToDate)
         updateEnvironment();
 
-    return m_envMap.value(QLatin1String(Constants::QNX_HOST_KEY));
+    foreach (const Utils::EnvironmentItem &item, m_qnxEnv) {
+        if (item.name == QLatin1String(Constants::QNX_HOST_KEY))
+            return item.value;
+    }
+
+    return QString();
 }
 
 QString QnxAbstractQtVersion::qnxTarget() const
@@ -147,7 +153,12 @@ QString QnxAbstractQtVersion::qnxTarget() const
     if (!m_environmentUpToDate)
         updateEnvironment();
 
-    return m_envMap.value(QLatin1String(Constants::QNX_TARGET_KEY));
+    foreach (const Utils::EnvironmentItem &item, m_qnxEnv) {
+        if (item.name == QLatin1String(Constants::QNX_TARGET_KEY))
+            return item.value;
+    }
+
+    return QString();
 }
 
 QtSupport::QtConfigWidget *QnxAbstractQtVersion::createConfigurationWidget() const

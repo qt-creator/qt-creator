@@ -60,7 +60,7 @@ public:
     QString sdkDescription() const;
 
 private:
-    QMultiMap<QString, QString> environment() const;
+    QList<Utils::EnvironmentItem> environment() const;
 };
 
 } // namespace Internal

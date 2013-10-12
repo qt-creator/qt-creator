@@ -67,16 +67,25 @@ BlackBerryConfiguration::BlackBerryConfiguration(const FileName &ndkEnvFile, boo
     m_isAutoDetected = isAutoDetected;
     QString ndkPath = ndkEnvFile.parentDir().toString();
     m_displayName = displayName.isEmpty() ? ndkPath.split(QDir::separator()).last() : displayName;
-    m_qnxEnv = QnxUtils::parseEnvironmentFile(m_ndkEnvFile.toString());
+    m_qnxEnv = QnxUtils::qnxEnvironmentFromNdkFile(m_ndkEnvFile.toString());
 
-    QString ndkTarget = m_qnxEnv.value(QLatin1String("QNX_TARGET"));
+    QString ndkTarget;
+    QString qnxHost;
+    foreach (const Utils::EnvironmentItem &item, m_qnxEnv) {
+        if (item.name == QLatin1String("QNX_TARGET"))
+            ndkTarget = item.value;
+
+        else if (item.name == QLatin1String("QNX_HOST"))
+            qnxHost = item.value;
+
+    }
+
     QString sep = QString::fromLatin1("%1qnx6").arg(QDir::separator());
     m_targetName = ndkTarget.split(sep).first().split(QDir::separator()).last();
 
     if (QDir(ndkTarget).exists())
         m_sysRoot = FileName::fromString(ndkTarget);
 
-    QString qnxHost = m_qnxEnv.value(QLatin1String("QNX_HOST"));
     FileName qmake4Path = QnxUtils::executableWithExtension(FileName::fromString(qnxHost + QLatin1String("/usr/bin/qmake")));
     FileName qmake5Path = QnxUtils::executableWithExtension(FileName::fromString(qnxHost + QLatin1String("/usr/bin/qt5/qmake")));
     FileName gccPath = QnxUtils::executableWithExtension(FileName::fromString(qnxHost + QLatin1String("/usr/bin/qcc")));
@@ -165,7 +174,7 @@ FileName BlackBerryConfiguration::sysRoot() const
     return m_sysRoot;
 }
 
-QMultiMap<QString, QString> BlackBerryConfiguration::qnxEnv() const
+QList<Utils::EnvironmentItem> BlackBerryConfiguration::qnxEnv() const
 {
     return m_qnxEnv;
 }

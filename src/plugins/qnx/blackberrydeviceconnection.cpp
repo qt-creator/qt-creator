@@ -62,10 +62,8 @@ BlackBerryDeviceConnection::BlackBerryDeviceConnection() :
 void BlackBerryDeviceConnection::connectDevice(const ProjectExplorer::IDevice::ConstPtr &device)
 {
     Utils::Environment env = Utils::Environment::systemEnvironment();
-
-    QMultiMap<QString, QString> qnxEnv = BlackBerryConfigurationManager::instance().defaultQnxEnv();
-    if (!qnxEnv.isEmpty())
-        QnxUtils::prependQnxMapToEnvironment(qnxEnv, env);
+    foreach (const Utils::EnvironmentItem &item, BlackBerryConfigurationManager::instance().defaultQnxEnv())
+        env.appendOrSet(item.name, item.value);
 
     m_process->setEnvironment(env.toStringList());
 

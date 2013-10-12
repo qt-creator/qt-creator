@@ -64,7 +64,7 @@ public:
     QString sdkDescription() const;
 
 private:
-    QMultiMap<QString, QString> environment() const;
+    QList<Utils::EnvironmentItem> environment() const;
     void setDefaultSdkPath();
 
     QString m_ndkEnvFile;

@@ -32,6 +32,7 @@
 #include "blackberrycertificate.h"
 #include "blackberryconfiguration.h"
 #include "blackberryconfigurationmanager.h"
+#include "blackberryndkprocess.h"
 
 #include <utils/hostosinfo.h>
 
@@ -182,18 +183,7 @@ void BlackBerryCertificate::processError()
 
 QString BlackBerryCertificate::command() const
 {
-    QString command;
-    // TOOD: Give user choice to select NDK from where to get commands
-    QMultiMap<QString, QString> qnxEnv = BlackBerryConfigurationManager::instance().defaultQnxEnv();
-    if (!qnxEnv.isEmpty()) {
-        command = qnxEnv.value(QLatin1String("QNX_HOST"))
-                + QLatin1String("/usr/bin/blackberry-keytool");
-
-        if (Utils::HostOsInfo::isWindowsHost())
-            command += QLatin1String(".bat");
-    }
-
-    return command;
+    return BlackBerryNdkProcess::resolveNdkToolPath(QLatin1String("blackberry-keytool"));
 }
 
 } // namespace Internal

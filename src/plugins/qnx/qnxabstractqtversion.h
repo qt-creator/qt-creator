@@ -36,6 +36,8 @@
 
 #include <qtsupport/baseqtversion.h>
 
+#include <utils/environment.h>
+
 #include <QCoreApplication>
 
 namespace Qnx {
@@ -78,13 +80,13 @@ protected:
 
 private:
     void updateEnvironment() const;
-    virtual QMultiMap<QString, QString> environment() const = 0;
+    virtual QList<Utils::EnvironmentItem> environment() const = 0;
 
     QnxArchitecture m_arch;
     QString m_sdkPath;
 
     mutable bool m_environmentUpToDate;
-    mutable QMultiMap<QString, QString> m_envMap;
+    mutable QList<Utils::EnvironmentItem> m_qnxEnv;
 };
 
 } // namespace Internal

@@ -62,10 +62,9 @@ public:
     static QString addQuotes(const QString &string);
     static Qnx::QnxArchitecture cpudirToArch(const QString &cpuDir);
     static QStringList searchPaths(QnxAbstractQtVersion *qtVersion);
-    static QMultiMap<QString, QString> parseEnvironmentFile(const QString &fileName);
+    static QList<Utils::EnvironmentItem> qnxEnvironmentFromNdkFile(const QString &fileName);
     static bool isValidNdkPath(const QString & ndkPath);
     static QString envFilePath(const QString & ndkPath, const QString& targetVersion = QString());
-    static void prependQnxMapToEnvironment(const QMultiMap<QString, QString> &qnxMap, Utils::Environment &env);
     static Utils::FileName executableWithExtension(const Utils::FileName &fileName);
     static QString dataDirPath();
     static QString qConfigPath();
@@ -73,6 +72,7 @@ public:
     static QList<NdkInstallInformation> installedNdks();
     static QString sdkInstallerPath(const QString& ndkPath);
     static QString qdeInstallProcess(const QString& ndkPath, const QString &option, const QString &version = QString());
+    static QList<Utils::EnvironmentItem> qnxEnvironment(const QString &ndk);
 };
 
 } // namespace Internal

@@ -103,14 +103,15 @@ void BlackBerryQtVersion::fromMap(const QVariantMap &map)
     m_ndkEnvFile = map.value(NndkEnvFile).toString();
 }
 
-QMultiMap<QString, QString> BlackBerryQtVersion::environment() const
+QList<Utils::EnvironmentItem> BlackBerryQtVersion::environment() const
 {
     QTC_CHECK(!sdkPath().isEmpty());
     if (sdkPath().isEmpty())
-        return QMultiMap<QString, QString>();
+        return QList<Utils::EnvironmentItem>();
 
     QString envFile = m_ndkEnvFile.isEmpty() ? QnxUtils::envFilePath(sdkPath()) : m_ndkEnvFile;
-    QMultiMap<QString,QString> result = QnxUtils::parseEnvironmentFile(envFile);
+    QList<Utils::EnvironmentItem> env = QnxUtils::qnxEnvironmentFromNdkFile(envFile);
+
     // BB NDK Host is having qmake executable which is using qt.conf file to specify
     // base information. The qt.conf file is using 'CPUVARDIR' environment variable
     // to provide correct information for both x86 and armle-v7 architectures.
@@ -119,9 +120,11 @@ QMultiMap<QString, QString> BlackBerryQtVersion::environment() const
     // CPUVARDIR to match expected architecture() otherwise qmake environment is
     // always resolved to be for armle-v7 architecture only as it is specified
     // BB NDK environment file.
-    result.replace(QLatin1String("CPUVARDIR"),
-            architecture() == X86 ? QLatin1String("x86") : QLatin1String("armle-v7"));
-    return result;
+
+    env.append(Utils::EnvironmentItem(QLatin1String("CPUVARDIR"),
+            architecture() == X86 ? QLatin1String("x86") : QLatin1String("armle-v7")));
+
+    return env;
 }
 
 void BlackBerryQtVersion::setDefaultSdkPath()

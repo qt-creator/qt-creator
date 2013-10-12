@@ -72,7 +72,7 @@ public:
     Utils::FileName deviceDebuger() const;
     Utils::FileName simulatorDebuger() const;
     Utils::FileName sysRoot() const;
-    QMultiMap<QString, QString> qnxEnv() const;
+    QList<Utils::EnvironmentItem> qnxEnv() const;
 
 private:
     QString m_displayName;
@@ -85,7 +85,7 @@ private:
     Utils::FileName m_deviceDebugger;
     Utils::FileName m_simulatorDebugger;
     Utils::FileName m_sysRoot;
-    QMultiMap<QString, QString> m_qnxEnv;
+    QList<Utils::EnvironmentItem> m_qnxEnv;
 
     void createConfigurationPerQtVersion(
             const Utils::FileName &qmakePath, Qnx::QnxArchitecture arch);
