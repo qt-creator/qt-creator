@@ -508,6 +508,25 @@ static int formatToIntegerBase(int format)
     return 10;
 }
 
+static bool isIntegralValue(const QString &value)
+{
+    if (value.startsWith(QLatin1Char('-')))
+        return isIntegralValue(value.mid(1));
+
+    bool ok;
+    value.toULongLong(&ok, 10);
+    if (ok)
+        return true;
+    value.toULongLong(&ok, 16);
+    if (ok)
+        return true;
+    value.toULongLong(&ok, 8);
+    if (ok)
+        return true;
+
+    return false;
+}
+
 template <class IntType> QString reformatInteger(IntType value, int format)
 {
     switch (format) {
@@ -623,14 +642,7 @@ QString WatchModel::formattedValue(const WatchData &data) const
         return value;
     }
 
-    if (isIntType(data.type)) {
-        if (value.isEmpty())
-            return value;
-        // Do not reformat booleans (reported as 'true, false').
-        const QChar firstChar = value.at(0);
-        if (!firstChar.isDigit() && firstChar != QLatin1Char('-'))
-            return value;
-
+    if (isIntegralValue(value)) {
         // Append quoted, printable character also for decimal.
         const int format = itemFormat(data);
         if (data.type.endsWith("char")) {
@@ -1225,9 +1237,7 @@ QStringList WatchModel::typeFormatList(const WatchData &data) const
             << tr("Latin1 string")
             << tr("UTF8 string")
             << tr("Local 8bit string");
-    bool ok = false;
-    (void)data.value.toULongLong(&ok, 0);
-    if ((isIntType(data.type) && data.type != "bool") || ok)
+    if (isIntegralValue(data.value))
         return QStringList()
             << tr("Decimal")
             << tr("Hexadecimal")
