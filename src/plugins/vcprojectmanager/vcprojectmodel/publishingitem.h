@@ -32,9 +32,6 @@
 
 #include "../interfaces/ipublishingitem.h"
 
-#include <QHash>
-#include <QSharedPointer>
-
 namespace VcProjectManager {
 namespace Internal {
 

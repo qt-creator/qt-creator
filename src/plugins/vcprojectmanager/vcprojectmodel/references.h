@@ -42,8 +42,6 @@ namespace Internal {
 class References : public IReferences
 {
 public:
-    typedef QSharedPointer<References>  Ptr;
-
     References();
     References(const References &references);
     References& operator=(const References &references);

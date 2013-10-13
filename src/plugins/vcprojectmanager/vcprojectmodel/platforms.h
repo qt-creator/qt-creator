@@ -44,8 +44,6 @@ class Platform;
 class Platforms : public IPlatforms
 {
 public:
-    typedef QSharedPointer<Platforms>   Ptr;
-
     Platforms();
     Platforms(const Platforms &platforms);
     Platforms& operator=(const Platforms &platforms);

@@ -32,8 +32,6 @@
 
 #include "../interfaces/ireference.h"
 
-#include <QSharedPointer>
-
 namespace VcProjectManager {
 namespace Internal {
 

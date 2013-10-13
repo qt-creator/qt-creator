@@ -47,8 +47,6 @@ class GeneralAttributeContainer;
 class Configuration : public IConfiguration
 {
 public:
-    typedef QSharedPointer<Configuration>   Ptr;
-
     Configuration(const QString &nodeName);
     Configuration(const Configuration &config);
     Configuration& operator=(const Configuration &config);

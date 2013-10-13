@@ -43,8 +43,6 @@ class GeneralAttributeContainer;
 class PublishingData : public IPublishingData
 {
 public:
-    typedef QSharedPointer<PublishingData>  Ptr;
-
     PublishingData();
     PublishingData(const PublishingData &data);
     PublishingData& operator=(const PublishingData &data);

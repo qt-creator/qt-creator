@@ -32,8 +32,6 @@
 
 #include "../interfaces/iplatform.h"
 
-#include <QSharedPointer>
-
 namespace VcProjectManager {
 namespace Internal {
 

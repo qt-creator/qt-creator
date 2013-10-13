@@ -44,8 +44,6 @@ class VcProjectDocument;
 class Configurations : public IConfigurations
 {
 public:
-    typedef QSharedPointer<Configurations>  Ptr;
-
     Configurations(VcProjectDocument *vcProjDoc);
     Configurations(const Configurations &configs);
     Configurations& operator=(const Configurations &configs);

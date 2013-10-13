@@ -33,7 +33,6 @@
 #include "../interfaces/iglobals.h"
 
 #include <QList>
-#include <QHash>
 
 #include "global.h"
 
@@ -45,8 +44,6 @@ class Global;
 class Globals : public IGlobals
 {
 public:
-    typedef QSharedPointer<Globals> Ptr;
-
     Globals();
     Globals(const Globals &globals);
     Globals& operator=(const Globals &globals);

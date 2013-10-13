@@ -32,8 +32,6 @@
 
 #include "../interfaces/idebuggertool.h"
 
-#include <QSharedPointer>
-
 namespace VcProjectManager {
 namespace Internal {
 
@@ -42,8 +40,6 @@ class GeneralAttributeContainer;
 class DebuggerTool : public IDebuggerTool
 {
 public:
-    typedef QSharedPointer<DebuggerTool>    Ptr;
-
     DebuggerTool();
     DebuggerTool(const DebuggerTool &tool);
     DebuggerTool& operator=(DebuggerTool &tool);

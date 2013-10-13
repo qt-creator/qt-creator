@@ -43,8 +43,6 @@ namespace Internal {
 class Files : public IFiles
 {
 public:
-    typedef QSharedPointer<Files>   Ptr;
-
     Files(IVisualStudioProject *parentProject);
     Files(const Files &files);
     Files &operator =(const Files &files);

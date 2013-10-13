@@ -50,8 +50,6 @@ class ConfigurationsBaseWidget;
 
 class VcProjectDocument : public IVisualStudioProject
 {
-    friend class VcProjectDocumentFactory;
-
 public:
     VcProjectDocument(const QString &filePath, VcDocConstants::DocumentVersion docVersion);
     VcProjectDocument(const VcProjectDocument &vcDoc);

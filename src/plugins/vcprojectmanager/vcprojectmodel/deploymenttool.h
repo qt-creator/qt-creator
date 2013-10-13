@@ -32,9 +32,6 @@
 
 #include "../interfaces/ideploymenttool.h"
 
-#include <QHash>
-#include <QSharedPointer>
-
 namespace VcProjectManager {
 namespace Internal {
 
@@ -44,8 +41,6 @@ class GeneralAttributeContainer;
 class DeploymentTool : public IDeploymentTool
 {
 public:
-    typedef QSharedPointer<DeploymentTool>  Ptr;
-
     DeploymentTool();
     DeploymentTool(const DeploymentTool &tool);
     DeploymentTool& operator=(const DeploymentTool &tool);

@@ -41,8 +41,6 @@ namespace Internal {
 class ToolFiles : public IToolFiles
 {
 public:
-    typedef QSharedPointer<ToolFiles>   Ptr;
-
     ToolFiles();
     ToolFiles(const ToolFiles &toolFiles);
     ToolFiles& operator=(const ToolFiles &toolFiles);
