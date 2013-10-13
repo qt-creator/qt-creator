@@ -35,10 +35,12 @@
 namespace VcProjectManager {
 namespace Internal {
 
-class VcProjectDocument;
+class IVisualStudioProject;
 class IFileContainer;
 class IFile;
 class VcDocProjectNode;
+
+QString fileRelativePath(const QString &fullProjectPath, const QString &fullFilePath);
 
 class VcFileNode : public ProjectExplorer::FileNode
 {
@@ -102,7 +104,7 @@ class VcDocProjectNode : public ProjectExplorer::ProjectNode
     friend class VcFileContainerNode;
 
 public:
-    VcDocProjectNode(VcProjectDocument* vcProjectModel);
+    VcDocProjectNode(IVisualStudioProject* vcProjectModel);
     ~VcDocProjectNode();
 
     bool hasBuildTargets() const;
@@ -135,7 +137,7 @@ public:
 private:
     VcFileNode* findFileNode(const QString &filePath);
 
-    VcProjectDocument *m_vcProjectModel;
+    IVisualStudioProject *m_vcProjectModel;
 };
 
 } // namespace Internal

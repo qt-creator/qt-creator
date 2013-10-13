@@ -117,7 +117,7 @@ void ConfigurationsBaseWidget::saveData()
 
 void ConfigurationsBaseWidget::onAddNewConfig(QString newConfigName, QString copyFrom)
 {
-    Platforms::Ptr platforms = m_vcProjDoc->platforms();
+    IPlatforms *platforms = m_vcProjDoc->platforms();
 
     if (platforms && !newConfigName.isEmpty()) {
         if (copyFrom.isEmpty()) {
@@ -156,7 +156,7 @@ void ConfigurationsBaseWidget::onAddNewConfig(QString newConfigName, QString cop
 
 void ConfigurationsBaseWidget::onRenameConfig(QString newConfigName, QString oldConfigNameWithPlatform)
 {
-    Platforms::Ptr platforms = m_vcProjDoc->platforms();
+    IPlatforms *platforms = m_vcProjDoc->platforms();
 
     if (!platforms || newConfigName.isEmpty() || oldConfigNameWithPlatform.isEmpty())
         return;
@@ -207,7 +207,7 @@ void ConfigurationsBaseWidget::onRenameConfig(QString newConfigName, QString old
 
 void ConfigurationsBaseWidget::onRemoveConfig(QString configNameWithPlatform)
 {
-    Platforms::Ptr platforms = m_vcProjDoc->platforms();
+    IPlatforms *platforms = m_vcProjDoc->platforms();
 
     if (!platforms || configNameWithPlatform.isEmpty())
         return;
@@ -286,7 +286,7 @@ IConfiguration *ConfigurationsBaseWidget::configInNewConfigurations(const QStrin
 
 void ConfigurationsBaseWidget::addConfigurationToFiles(const QString &copyFromConfig, const QString &targetConfigName)
 {
-    Files::Ptr docFiles = m_vcProjDoc->files();
+    IFiles *docFiles = m_vcProjDoc->files();
     if (docFiles) {
 
         for (int i = 0; i < docFiles->fileContainerCount(); ++i) {

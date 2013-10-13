@@ -38,7 +38,7 @@
 namespace VcProjectManager {
 namespace Internal {
 
-Folder::Folder(VcProjectDocument *parentProjectDoc)
+Folder::Folder(IVisualStudioProject *parentProjectDoc)
     : m_parentProjectDoc(parentProjectDoc)
 {
     m_attributeContainer = new GeneralAttributeContainer;

@@ -50,9 +50,9 @@ VcDocumentModel::VcDocumentModel(const QString &filePath, VcDocConstants::Docume
     if (!document.setContent(&file))
         return;
 
-    m_vcProjectDocument = VcProjectDocumentFactory::create(filePath, version);
+    m_vcProjectDocument = new VcProjectDocument(filePath, version);
     if (m_vcProjectDocument)
-        m_vcProjectDocument->readFromXMLDomDocument(document);
+        m_vcProjectDocument->processNode(document);
 }
 
 VcDocumentModel::~VcDocumentModel()
@@ -60,7 +60,7 @@ VcDocumentModel::~VcDocumentModel()
     delete m_vcProjectDocument;
 }
 
-VcProjectDocument* VcDocumentModel::vcProjectDocument() const
+IVisualStudioProject* VcDocumentModel::vcProjectDocument() const
 {
     return m_vcProjectDocument;
 }

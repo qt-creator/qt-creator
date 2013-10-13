@@ -38,7 +38,7 @@
 namespace VcProjectManager {
 namespace Internal {
 
-Filter::Filter(VcProjectDocument *parentProjectDoc)
+Filter::Filter(IVisualStudioProject *parentProjectDoc)
     : m_parentProjectDoc(parentProjectDoc)
 {
     m_attributeContainer = new GeneralAttributeContainer;

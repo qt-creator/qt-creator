@@ -69,8 +69,6 @@ public:
     ProjectExplorer::ProjectNode *rootProjectNode() const;
     QStringList files(FilesMode fileMode) const;
     QString defaultBuildDirectory() const;
-    MsBuildInformation::MsBuildVersion minSupportedMsBuild() const;
-    MsBuildInformation::MsBuildVersion maxSupportedMsBuild() const;
     bool needsConfiguration() const;
     bool supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const;
 
@@ -92,7 +90,7 @@ private:
     void importBuildConfigurations();
     void addBuildConfiguration(ProjectExplorer::Target *target, IConfiguration *config);
     VcProjectBuildConfiguration* findBuildConfiguration(ProjectExplorer::Target *target, const QString &buildConfigurationName) const;
-
+    void allProjectFile(QStringList &allFiles) const;
     VcManager *m_projectManager;
     VcProjectFile *m_projectFile;
     VcDocProjectNode *m_rootNode;

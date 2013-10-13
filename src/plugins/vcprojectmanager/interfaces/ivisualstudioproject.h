@@ -27,56 +27,45 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_INTERNAL_FILES_H
-#define VCPROJECTMANAGER_INTERNAL_FILES_H
+#ifndef VCPROJECTMANAGER_INTERNAL_IVISUALSTUDIOPROJECT_H
+#define VCPROJECTMANAGER_INTERNAL_IVISUALSTUDIOPROJECT_H
 
-#include "ivcprojectnodemodel.h"
-#include "../interfaces/ifiles.h"
-
-#include "file.h"
-#include "filter.h"
-#include "folder.h"
+#include <QString>
+#include "../vcprojectmodel/ivcprojectnodemodel.h"
+#include "../vcprojectmodel/vcprojectdocument_constants.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
-class Files : public IFiles
+class IConfigurations;
+class IPlatforms;
+class IGlobals;
+class IReferences;
+class IFiles;
+class ISettingsWidget;
+class IToolFiles;
+class IPublishingData;
+class IAttributeContainer;
+
+class IVisualStudioProject : public IVcProjectXMLNode
 {
 public:
-    typedef QSharedPointer<Files>   Ptr;
+    virtual ~IVisualStudioProject() {}
 
-    Files(IVisualStudioProject *parentProject);
-    Files(const Files &files);
-    Files &operator =(const Files &files);
-
-    ~Files();
-    void processNode(const QDomNode &node);
-    VcNodeWidget* createSettingsWidget();
-    QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
-
-    void addFile(IFile *file);
-    int fileCount() const;
-    IFile *file(int index) const;
-    IFile *file(const QString &relativePath) const;
-    void removeFile(IFile *file);
-    bool fileExists(const QString &relativeFilePath) const;
-
-    void addFileContainer(IFileContainer *fileContainer);
-    int fileContainerCount() const;
-    IFileContainer *fileContainer(int index) const;
-    void removeFileContainer(IFileContainer *fileContainer);
-
-protected:
-    void processFile(const QDomNode &fileNode);
-    void processFilter(const QDomNode &filterNode);
-    void processFolder(const QDomNode &folderNode);
-
-    QList<IFileContainer *> m_fileContainers;
-    QList<IFile *> m_files;
-    IVisualStudioProject *m_parentProject;
+    virtual IAttributeContainer* attributeContainer() const = 0;
+    virtual IConfigurations* configurations() const = 0;
+    virtual IFiles* files() const = 0;
+    virtual IGlobals* globals() const = 0;
+    virtual IPlatforms* platforms() const = 0;
+    virtual IReferences* referencess() const = 0;
+    virtual IToolFiles* toolFiles() const = 0;
+    virtual IPublishingData* publishingData() const = 0;
+    virtual QString filePath() const = 0;
+    virtual bool saveToFile(const QString &filePath) const = 0;
+    virtual VcDocConstants::DocumentVersion documentVersion() const = 0;
 };
 
 } // namespace Internal
 } // namespace VcProjectManager
 
-#endif // VCPROJECTMANAGER_INTERNAL_FILES_H
+#endif // VCPROJECTMANAGER_INTERNAL_IVISUALSTUDIOPROJECT_H

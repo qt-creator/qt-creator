@@ -38,7 +38,7 @@
 namespace VcProjectManager {
 namespace Internal {
 
-class VcProjectDocument;
+class IVisualStudioProject;
 
 class File : public IFile
 {
@@ -47,7 +47,7 @@ class File : public IFile
 public:
     typedef QSharedPointer<File>  Ptr;
 
-    File(VcProjectDocument *parentProjectDoc);
+    File(IVisualStudioProject *parentProjectDoc);
     File(const File &file);
     File& operator=(const File &file);
     ~File();
@@ -73,7 +73,7 @@ private:
 
     QString m_relativePath; // required
     QList<QSharedPointer<File> > m_files;
-    VcProjectDocument *m_parentProjectDoc;
+    IVisualStudioProject *m_parentProjectDoc;
     ConfigurationContainer *m_configurationContainer;
     GeneralAttributeContainer *m_attributeContainer;
 };

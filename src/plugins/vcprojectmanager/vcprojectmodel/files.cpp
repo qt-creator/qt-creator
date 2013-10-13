@@ -35,36 +35,41 @@
 namespace VcProjectManager {
 namespace Internal {
 
-Files::Files(VcProjectDocument *parentProject)
+Files::Files(IVisualStudioProject *parentProject)
     : m_parentProject(parentProject)
 {
 }
 
 Files::Files(const Files &files)
 {
-    foreach (IFile *file, files.m_files)
-        m_files.append(file->clone());
+    m_parentProject = files.m_parentProject;
 
-    foreach (IFileContainer *filter, files.m_fileContainers)
-        m_fileContainers.append(filter->clone());
+    foreach (IFile *file, files.m_files) {
+        if (file)
+            m_files.append(file->clone());
+    }
+
+    foreach (IFileContainer *fileContainer, files.m_fileContainers) {
+        if (fileContainer)
+            m_fileContainers.append(fileContainer->clone());
+    }
 }
 
-IFiles &Files::operator =(const IFiles &files)
+Files &Files::operator =(const Files &files)
 {
     if (this != &files) {
         qDeleteAll(m_files);
         qDeleteAll(m_fileContainers);
         m_files.clear();
         m_fileContainers.clear();
+        m_parentProject = files.m_parentProject;
 
-        for (int i = 0; i < files.fileCount(); ++i) {
-            IFile *file = files.file(i);
+        foreach (IFile *file, files.m_files) {
             if (file)
                 m_files.append(file->clone());
         }
 
-        for (int i = 0; i < files.fileContainerCount(); ++i) {
-            IFileContainer *fileContainer = files.fileContainer(i);
+        foreach (IFileContainer *fileContainer, files.m_fileContainers) {
             if (fileContainer)
                 m_fileContainers.append(fileContainer->clone());
         }

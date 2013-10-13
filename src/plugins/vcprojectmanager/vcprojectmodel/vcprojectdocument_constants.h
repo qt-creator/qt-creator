@@ -84,6 +84,26 @@ const char TOOL_FILE_RELATIVE_PATH [] = "RelativePath";
 const char DEFAULT_TOOL_FILE [] = "DefaultToolFile";
 const char DEFAULT_TOOL_FILE_FILE_NAME [] = "FileName";
 
+// Vs Project Constants
+const char VS_PROJECT_PROJECT_TYPE [] = "ProjectType";
+const char VS_PROJECT_VERSION [] = "Version";
+const char VS_PROJECT_PROJECT_GUID [] = "ProjectGUID";
+const char VS_PROJECT_ROOT_NAMESPACE [] = "RootNamespace";
+const char VS_PROJECT_KEYWORD [] = "Keyword";
+const char VS_PROJECT_NAME [] = "Name";
+const char VS_PROJECT_ASSEMBLY_REFERENCE_SEARCH_PATH [] = "AssemblyReferenceSearchPaths";
+const char VS_PROJECT_MANIFEST_KEY_FILE [] = "ManifestKeyFile";
+const char VS_PROJECT_MANIFEST_CERTIFICATE_THUMBPRINT [] = "ManifestCertificateThumbprint";
+const char VS_PROJECT_MANIFEST_TIMESTAMP_URL [] = "ManifestTimestampURL";
+const char VS_PROJECT_SIGN_MANIFEST [] = "SignManifests";
+const char VS_PROJECT_SIGN_ASSEMBLY [] = "SignAssembly";
+const char VS_PROJECT_ASSEMBLY_ORIGINATOR_KEY_FILE [] = "AssemblyOriginatorKeyFile";
+const char VS_PROJECT_DELAY_SIGN [] = "DelaySign";
+const char VS_PROJECT_GENERATE_MANIFESTS [] = "GenerateManifests";
+const char VS_PROJECT_TARGET_ZONE [] = "TargetZone";
+const char VS_PROJECT_EXCLUDED_PERMISSIONS [] = "ExcludedPermissions";
+const char VS_PROJECT_TARGET_FRAMEWORK_VERSION [] = "TargetFrameworkVersion";
+
 } // VcDocConstants
 } // namespace Internal
 } // namespace VcProjectManager

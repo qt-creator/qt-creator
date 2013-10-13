@@ -40,7 +40,7 @@
 namespace VcProjectManager {
 namespace Internal {
 
-File::File(VcProjectDocument *parentProjectDoc)
+File::File(IVisualStudioProject *parentProjectDoc)
     : m_parentProjectDoc(parentProjectDoc)
 {
     m_configurationContainer = new ConfigurationContainer;

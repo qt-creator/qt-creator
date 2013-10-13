@@ -139,7 +139,7 @@ QStringList VcProject::files(Project::FilesMode fileMode) const
     // TODO: respect the mode
     QStringList sl;
     if (m_projectFile && m_projectFile->documentModel() && m_projectFile->documentModel()->vcProjectDocument())
-        m_projectFile->documentModel()->vcProjectDocument()->allProjectFiles(sl);
+        allProjectFile(sl);
 
     return sl;
 }
@@ -148,20 +148,6 @@ QString VcProject::defaultBuildDirectory() const
 {
     VcProjectFile* vcFile = static_cast<VcProjectFile *>(document());
     return vcFile->path()/* + QLatin1String("-build")*/;
-}
-
-MsBuildInformation::MsBuildVersion VcProject::minSupportedMsBuild() const
-{
-    if (m_projectFile && m_projectFile->documentModel() && m_projectFile->documentModel()->vcProjectDocument())
-        return m_projectFile->documentModel()->vcProjectDocument()->minSupportedMsBuildVersion();
-    return MsBuildInformation::MSBUILD_V_UNKNOWN;
-}
-
-MsBuildInformation::MsBuildVersion VcProject::maxSupportedMsBuild() const
-{
-    if (m_projectFile && m_projectFile->documentModel() && m_projectFile->documentModel()->vcProjectDocument())
-        return m_projectFile->documentModel()->vcProjectDocument()->maxSupportedMsBuildVersion();
-    return MsBuildInformation::MSBUILD_V_UNKNOWN;
 }
 
 bool VcProject::needsConfiguration() const
@@ -208,7 +194,7 @@ void VcProject::onSettingsDialogAccepted()
     VcProjectDocumentWidget *settingsWidget = qobject_cast<VcProjectDocumentWidget *>(QObject::sender());
     m_projectFile->documentModel()->saveToFile(m_projectFile->filePath());
     settingsWidget->deleteLater();
-    Configurations::Ptr configs = m_projectFile->documentModel()->vcProjectDocument()->configurations();
+    IConfigurations *configs = m_projectFile->documentModel()->vcProjectDocument()->configurations();
 
     if (configs) {
         QList<ProjectExplorer::Target *> targetList = targets();
@@ -417,6 +403,23 @@ VcProjectBuildConfiguration *VcProject::findBuildConfiguration(Target *target, c
     }
 
     return 0;
+}
+
+void VcProject::allProjectFile(QStringList &allFiles) const
+{
+    if (m_projectFile && m_projectFile->documentModel() && m_projectFile->documentModel()->vcProjectDocument()) {
+        for (int i = 0; i < m_projectFile->documentModel()->vcProjectDocument()->files()->fileContainerCount(); ++i) {
+            IFileContainer *fileContainer = m_projectFile->documentModel()->vcProjectDocument()->files()->fileContainer(i);
+            if (fileContainer)
+                fileContainer->allFiles(allFiles);
+        }
+
+        for (int i = 0; i < m_projectFile->documentModel()->vcProjectDocument()->files()->fileCount(); ++i) {
+            IFile *file = m_projectFile->documentModel()->vcProjectDocument()->files()->file(i);
+            if (file)
+                allFiles.append(file->canonicalPath());
+        }
+    }
 }
 
 VcProjectBuildSettingsWidget::VcProjectBuildSettingsWidget()

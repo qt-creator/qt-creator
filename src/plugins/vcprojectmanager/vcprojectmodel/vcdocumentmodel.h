@@ -40,7 +40,7 @@ class QDomDocument;
 namespace VcProjectManager {
 namespace Internal {
 
-class VcProjectDocument;
+class IVisualStudioProject;
 
 class VcDocumentModel
 {
@@ -48,11 +48,12 @@ public:
     explicit VcDocumentModel(const QString &filePath, VcDocConstants::DocumentVersion version);
     virtual ~VcDocumentModel();
 
-    VcProjectDocument* vcProjectDocument() const;
+    IVisualStudioProject* vcProjectDocument() const;
     bool saveToFile(const QString &filePath) const;
 
 private:
-    VcProjectDocument *m_vcProjectDocument;
+    IVisualStudioProject *m_vcProjectDocument;
+    QDomDocument *m_document;
 };
 
 } // namespace Internal

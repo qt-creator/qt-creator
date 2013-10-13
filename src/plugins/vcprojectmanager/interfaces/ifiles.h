@@ -42,7 +42,6 @@ class IFiles : public IVcProjectXMLNode
 {
 public:
     virtual ~IFiles() {}
-    virtual IFiles& operator=(const IFiles &files) = 0;
     virtual void addFile(IFile *file) = 0;
     virtual void removeFile(IFile *file) = 0;
     virtual int fileCount() const = 0;

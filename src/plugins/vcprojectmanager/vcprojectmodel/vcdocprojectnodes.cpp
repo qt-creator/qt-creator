@@ -38,6 +38,7 @@
 
 #include <QFileInfo>
 #include <projectexplorer/projectexplorer.h>
+#include <QDir>
 
 namespace VcProjectManager {
 namespace Internal {
@@ -236,7 +237,7 @@ VcFileNode *VcFileContainerNode::findFileNode(const QString &filePath)
     return 0;
 }
 
-VcDocProjectNode::VcDocProjectNode(VcProjectDocument *vcProjectModel)
+VcDocProjectNode::VcDocProjectNode(IVisualStudioProject *vcProjectModel)
     : ProjectExplorer::ProjectNode(vcProjectModel->filePath()),
       m_vcProjectModel(vcProjectModel)
 {
@@ -319,7 +320,7 @@ bool VcDocProjectNode::addFiles(const ProjectExplorer::FileType fileType, const 
 
         if (vcContainerNode) {
             foreach (const QString &filePath, filePaths) {
-                QString relativeFilePath = m_vcProjectModel->fileRelativePath(filePath);
+                QString relativeFilePath = fileRelativePath(m_vcProjectModel->filePath(), filePath);
 
                 // if file is already in the project don't add it
                 if (m_vcProjectModel->files()->fileExists(relativeFilePath))
@@ -338,7 +339,7 @@ bool VcDocProjectNode::addFiles(const ProjectExplorer::FileType fileType, const 
 
         if (projectNode) {
             foreach (const QString &filePath, filePaths) {
-                QString relativeFilePath = m_vcProjectModel->fileRelativePath(filePath);
+                QString relativeFilePath = fileRelativePath(m_vcProjectModel->filePath(), filePath);
 
                 // if file is already in the project don't add it
                 if (m_vcProjectModel->files()->fileExists(relativeFilePath))
@@ -368,7 +369,7 @@ bool VcDocProjectNode::removeFiles(const ProjectExplorer::FileType fileType, con
     QStringList filesNotRemoved;
 
     foreach (const QString &filePath, filePaths) {
-        QString relativeFilePath = m_vcProjectModel->fileRelativePath(filePath);
+        QString relativeFilePath = fileRelativePath(m_vcProjectModel->filePath(), filePath);
 
         if (m_vcProjectModel->files()->fileExists(relativeFilePath)) {
             VcFileNode *fileNode = static_cast<VcFileNode *>(findFileNode(filePath));
@@ -566,6 +567,16 @@ VcFileNode *VcDocProjectNode::findFileNode(const QString &filePath)
     }
 
     return 0;
+}
+
+QString fileRelativePath(const QString &fullProjectPath, const QString &fullFilePath)
+{
+    QString relativePath = QFileInfo(fullProjectPath).absoluteDir().relativeFilePath(fullFilePath).replace(QLatin1String("/"), QLatin1String("\\"));
+
+    if (!relativePath.startsWith(QLatin1String("..")))
+        relativePath.prepend(QLatin1String(".\\"));
+
+    return relativePath;
 }
 
 } // namespace Internal
