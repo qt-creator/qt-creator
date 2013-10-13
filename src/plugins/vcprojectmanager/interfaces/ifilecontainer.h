@@ -56,8 +56,8 @@ public:
     virtual void removeFileContainer(IFileContainer *fileContainer) = 0;
     virtual IAttributeContainer *attributeContainer() const = 0;
 
-    virtual QString name() const = 0;
-    virtual void setName(const QString &name) = 0;
+    virtual QString displayName() const = 0;
+    virtual void setDisplayName(const QString &displayName) = 0;
 
     virtual void allFiles(QStringList &sl) const = 0;
     virtual bool fileExists(const QString &relativeFilePath) const = 0;

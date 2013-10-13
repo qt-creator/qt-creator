@@ -11,8 +11,6 @@ HEADERS += \
     vcprojectmodel/platform.h \
     vcprojectmodel/globals.h \
     vcprojectmodel/global.h \
-    vcprojectmodel/folder.h \
-    vcprojectmodel/filter.h \
     vcprojectmodel/files.h \
     vcprojectmodel/file.h \
     vcprojectmodel/deploymenttool.h \
@@ -45,7 +43,8 @@ HEADERS += \
     vcprojectmodel/configurationbuildtools.h \
     vcprojectmodel/deploymenttools.h \
     vcprojectmodel/tools.h \
-    vcprojectmodel/debuggertools.h
+    vcprojectmodel/debuggertools.h \
+    vcprojectmodel/filecontainer.h
 
 SOURCES += \
     vcprojectmodel/vcprojectdocument.cpp \
@@ -59,8 +58,6 @@ SOURCES += \
     vcprojectmodel/platform.cpp \
     vcprojectmodel/globals.cpp \
     vcprojectmodel/global.cpp \
-    vcprojectmodel/folder.cpp \
-    vcprojectmodel/filter.cpp \
     vcprojectmodel/files.cpp \
     vcprojectmodel/file.cpp \
     vcprojectmodel/deploymenttool.cpp \
@@ -91,7 +88,8 @@ SOURCES += \
     vcprojectmodel/configurationbuildtools.cpp \
     vcprojectmodel/deploymenttools.cpp \
     vcprojectmodel/tools.cpp \
-    vcprojectmodel/debuggertools.cpp
+    vcprojectmodel/debuggertools.cpp \
+    vcprojectmodel/filecontainer.cpp
 
 OTHER_FILES += \
     vcprojectmodel/tools/xml_definitions/VCXMLDataGeneratorTool.xml \

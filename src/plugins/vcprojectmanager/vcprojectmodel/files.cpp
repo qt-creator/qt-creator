@@ -182,7 +182,7 @@ void Files::addFileContainer(IFileContainer *fileContainer)
     foreach (IFileContainer *fileCont, m_fileContainers) {
         if (fileCont &&
                 fileCont->containerType() == fileContainer->containerType() &&
-                fileCont->name() == fileContainer->name())
+                fileCont->displayName() == fileContainer->displayName())
             return;
     }
 
@@ -226,7 +226,7 @@ void Files::processFile(const QDomNode &fileNode)
 
 void Files::processFilter(const QDomNode &filterNode)
 {
-    IFileContainer *filter = new Filter(m_parentProject);
+    IFileContainer *filter = new FileContainer(QLatin1String("Filter"), m_parentProject);
     filter->processNode(filterNode);
     m_fileContainers.append(filter);
 
@@ -244,7 +244,7 @@ void Files::processFilter(const QDomNode &filterNode)
 
 void Files::processFolder(const QDomNode &folderNode)
 {
-    IFileContainer *folder = new Folder(m_parentProject);
+    IFileContainer *folder = new FileContainer(QLatin1String("Folder"), m_parentProject);
     folder->processNode(folderNode);
     m_fileContainers.append(folder);
 

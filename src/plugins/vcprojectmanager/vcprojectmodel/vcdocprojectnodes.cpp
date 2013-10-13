@@ -30,10 +30,9 @@
 #include "vcdocprojectnodes.h"
 
 #include "vcprojectdocument.h"
-#include "folder.h"
-#include "filter.h"
 #include "file.h"
 #include "files.h"
+#include "filecontainer.h"
 #include "../vcprojectmanagerconstants.h"
 
 #include <QFileInfo>
@@ -60,7 +59,7 @@ void VcFileNode::readChildren(VcDocProjectNode *vcDocProj)
 }
 
 VcFileContainerNode::VcFileContainerNode(IFileContainer *fileContainerModel, VcDocProjectNode *vcDocProjNode)
-    : ProjectExplorer::FolderNode(fileContainerModel->name()),
+    : ProjectExplorer::FolderNode(fileContainerModel->displayName()),
       m_vcFileContainerModel(fileContainerModel),
       m_parentVcDocProjNode(vcDocProjNode)
 {
@@ -124,12 +123,14 @@ void VcFileContainerNode::addFileContainerNode(const QString &name, VcContainerT
     IFileContainer *fileContainerModel = 0;
 
     if (type == VcContainerType_Filter)
-        fileContainerModel = new Filter(m_parentVcDocProjNode->m_vcProjectModel);
+        fileContainerModel = new FileContainer(QLatin1String(Constants::VC_PROJECT_FILE_CONTAINER_FILTER),
+                                               m_parentVcDocProjNode->m_vcProjectModel);
     else if (type == VcContainerType_Folder)
-        fileContainerModel = new Folder(m_parentVcDocProjNode->m_vcProjectModel);
+        fileContainerModel = new FileContainer(QLatin1String(Constants::VC_PROJECT_FILE_CONTAINER_FOLDER),
+                                               m_parentVcDocProjNode->m_vcProjectModel);
 
     if (fileContainerModel) {
-        fileContainerModel->setName(name);
+        fileContainerModel->setDisplayName(name);
         VcFileContainerNode *folderNode = new VcFileContainerNode(fileContainerModel, m_parentVcDocProjNode);
 
         if (!appendFileContainerNode(folderNode)) {
@@ -152,7 +153,7 @@ bool VcFileContainerNode::appendFileContainerNode(VcFileContainerNode *fileConta
 
             if (vcFileContainerNode &&
                     vcFileContainerNode->m_vcFileContainerModel &&
-                    vcFileContainerNode->m_vcFileContainerModel->name() == fileContainer->m_vcFileContainerModel->name())
+                    vcFileContainerNode->m_vcFileContainerModel->displayName() == fileContainer->m_vcFileContainerModel->displayName())
                 return false;
         }
     }
@@ -452,11 +453,13 @@ void VcDocProjectNode::addFileContainerNode(const QString &name, VcFileContainer
     IFileContainer *fileContainer = 0;
 
     if (type == VcFileContainerNode::VcContainerType_Filter)
-        fileContainer = new Filter(m_vcProjectModel);
+        fileContainer = new FileContainer(QLatin1String(Constants::VC_PROJECT_FILE_CONTAINER_FILTER),
+                                          m_vcProjectModel);
     else
-        fileContainer = new Folder(m_vcProjectModel);
+        fileContainer = new FileContainer(QLatin1String(Constants::VC_PROJECT_FILE_CONTAINER_FOLDER),
+                                   m_vcProjectModel);
 
-    fileContainer->setName(name);
+    fileContainer->setDisplayName(name);
     VcFileContainerNode *folderNode = new VcFileContainerNode(fileContainer, this);
 
     if (!appendFileContainerNode(folderNode)) {
@@ -479,7 +482,7 @@ bool VcDocProjectNode::appendFileContainerNode(VcFileContainerNode *fileContaine
             if (vcFileContainerNode &&
                     vcFileContainerNode->m_vcFileContainerModel &&
                     fileContainerNode->m_vcFileContainerModel &&
-                    vcFileContainerNode->m_vcFileContainerModel->name() == fileContainerNode->m_vcFileContainerModel->name())
+                    vcFileContainerNode->m_vcFileContainerModel->displayName() == fileContainerNode->m_vcFileContainerModel->displayName())
                 return false;
         }
     }

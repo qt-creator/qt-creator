@@ -34,8 +34,7 @@
 #include "../interfaces/ifiles.h"
 
 #include "file.h"
-#include "filter.h"
-#include "folder.h"
+#include "filecontainer.h"
 
 namespace VcProjectManager {
 namespace Internal {

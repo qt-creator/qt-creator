@@ -27,9 +27,10 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_INTERNAL_FOLDER_H
-#define VCPROJECTMANAGER_INTERNAL_FOLDER_H
+#ifndef VCPROJECTMANAGER_INTERNAL_FILECONTAINER_H
+#define VCPROJECTMANAGER_INTERNAL_FILECONTAINER_H
 
+#include "../interfaces/ivcprojectnodemodel.h"
 #include "file.h"
 #include "filter.h"
 #include "../interfaces/ifilecontainer.h"
@@ -37,38 +38,34 @@
 namespace VcProjectManager {
 namespace Internal {
 
-class Folder : public IFileContainer
+class FileContainer : public IFileContainer
 {
 public:
-    Folder(IVisualStudioProject *parentProjectDoc);
-    Folder(const Folder &folder);
-    Folder& operator=(const Folder &folder);
-    ~Folder();
+    FileContainer(const QString &containerType, IVisualStudioProject *parentProjectDoc);
+    FileContainer(const FileContainer &fileContainer);
+    FileContainer& operator=(const FileContainer &folder);
+    ~FileContainer();
 
     QString containerType() const;
 
-    void processNode(const QDomNode &node);
-    VcNodeWidget* createSettingsWidget();
-    QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
-
     void addFile(IFile *file);
-    void removeFile(IFile *file);
-    void removeFile(const QString &relativeFilePath);
-    IFile* file(const QString &relativeFilePath) const;
     IFile *file(int index) const;
     int fileCount() const;
+    void removeFile(IFile *file);
     void addFileContainer(IFileContainer *fileContainer);
     int childCount() const;
-    IFileContainer* fileContainer(int index) const;
+    IFileContainer *fileContainer(int index) const;
     void removeFileContainer(IFileContainer *fileContainer);
     IAttributeContainer *attributeContainer() const;
-    bool fileExists(const QString &relativeFilePath) const;
-
-    QString name() const;
-    void setName(const QString &name);
-
+    QString displayName() const;
+    void setDisplayName(const QString &displayName);
     void allFiles(QStringList &sl) const;
-    IFileContainer* clone() const;
+    bool fileExists(const QString &relativeFilePath) const;
+    IFileContainer *clone() const;
+
+    void processNode(const QDomNode &node);
+    VcNodeWidget *createSettingsWidget();
+    QDomNode toXMLDomNode(QDomDocument &domXMLDocument) const;
 
 private:
     void processFile(const QDomNode &fileNode);
@@ -82,9 +79,10 @@ private:
     QString m_name; // required
     IVisualStudioProject *m_parentProjectDoc;
     GeneralAttributeContainer *m_attributeContainer;
+    QString m_containerType;
 };
 
 } // namespace Internal
 } // namespace VcProjectManager
 
-#endif // VCPROJECTMANAGER_INTERNAL_FOLDER_H
+#endif // VCPROJECTMANAGER_INTERNAL_FILECONTAINER_H
