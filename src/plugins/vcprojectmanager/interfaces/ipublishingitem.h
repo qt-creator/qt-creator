@@ -30,7 +30,7 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_IPUBLISHINGITEM_H
 #define VCPROJECTMANAGER_INTERNAL_IPUBLISHINGITEM_H
 
-#include "../vcprojectmodel/ivcprojectnodemodel.h"
+#include "ivcprojectnodemodel.h"
 
 namespace VcProjectManager {
 namespace Internal {

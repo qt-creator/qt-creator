@@ -30,7 +30,7 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_FILES_H
 #define VCPROJECTMANAGER_INTERNAL_FILES_H
 
-#include "ivcprojectnodemodel.h"
+#include "../interfaces/ivcprojectnodemodel.h"
 #include "../interfaces/ifiles.h"
 
 #include "file.h"

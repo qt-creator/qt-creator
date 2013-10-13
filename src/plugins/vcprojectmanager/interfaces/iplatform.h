@@ -30,7 +30,7 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_IPLATFORM_H
 #define VCPROJECTMANAGER_INTERNAL_IPLATFORM_H
 
-#include "../vcprojectmodel/ivcprojectnodemodel.h"
+#include "ivcprojectnodemodel.h"
 
 #include <QString>
 

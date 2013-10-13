@@ -33,7 +33,7 @@
 #include <QString>
 #include <projectexplorer/projectnodes.h>
 
-#include "../vcprojectmodel/ivcprojectnodemodel.h"
+#include "ivcprojectnodemodel.h"
 
 namespace VcProjectManager {
 namespace Internal {

@@ -30,7 +30,7 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_IDEBUGGERTOOL_H
 #define VCPROJECTMANAGER_INTERNAL_IDEBUGGERTOOL_H
 
-#include "../vcprojectmodel/ivcprojectnodemodel.h"
+#include "ivcprojectnodemodel.h"
 
 namespace VcProjectManager {
 namespace Internal {

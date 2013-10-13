@@ -30,7 +30,7 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_IGLOBALHANDLER_H
 #define VCPROJECTMANAGER_INTERNAL_IGLOBALHANDLER_H
 
-#include "../vcprojectmodel/ivcprojectnodemodel.h"
+#include "ivcprojectnodemodel.h"
 
 namespace VcProjectManager {
 namespace Internal {

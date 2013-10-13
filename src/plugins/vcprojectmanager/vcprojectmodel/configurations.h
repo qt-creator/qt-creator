@@ -30,7 +30,7 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_CONFIGURATIONS_H
 #define VCPROJECTMANAGER_INTERNAL_CONFIGURATIONS_H
 
-#include "ivcprojectnodemodel.h"
+#include "../interfaces/ivcprojectnodemodel.h"
 
 #include "configuration.h"
 #include "vcprojectdocument_constants.h"

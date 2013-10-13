@@ -30,7 +30,7 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_FILTER_H
 #define VCPROJECTMANAGER_INTERNAL_FILTER_H
 
-#include "ivcprojectnodemodel.h"
+#include "../interfaces/ivcprojectnodemodel.h"
 #include "file.h"
 #include "../interfaces/ifilecontainer.h"
 

@@ -30,7 +30,7 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_IGLOBAL_H
 #define VCPROJECTMANAGER_INTERNAL_IGLOBAL_H
 
-#include "../vcprojectmodel/ivcprojectnodemodel.h"
+#include "ivcprojectnodemodel.h"
 #include <QString>
 
 namespace VcProjectManager {

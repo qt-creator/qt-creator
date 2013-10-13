@@ -30,7 +30,7 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_ACTIVEXREFERENCE_H
 #define VCPROJECTMANAGER_INTERNAL_ACTIVEXREFERENCE_H
 
-#include "ivcprojectnodemodel.h"
+#include "../interfaces/ivcprojectnodemodel.h"
 #include "vcprojectdocument_constants.h"
 #include "configuration.h"
 #include "../interfaces/ireference.h"

@@ -30,7 +30,7 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_ICONFIGURATIONTOOL_H
 #define VCPROJECTMANAGER_INTERNAL_ICONFIGURATIONTOOL_H
 
-#include "../ivcprojectnodemodel.h"
+#include "../../interfaces/ivcprojectnodemodel.h"
 #include "../../widgets/toolwidgets/toolsettingswidget.h"
 #include "../../interfaces/iconfigurationbuildtool.h"
 

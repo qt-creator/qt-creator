@@ -30,7 +30,7 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_CONFIGURATION_H
 #define VCPROJECTMANAGER_INTERNAL_CONFIGURATION_H
 
-#include "ivcprojectnodemodel.h"
+#include "../interfaces/ivcprojectnodemodel.h"
 
 #include "deploymenttool.h"
 #include "debuggertool.h"

@@ -31,7 +31,7 @@
 #define VCPROJECTMANAGER_INTERNAL_ICONFIGURATIONBUILDTOOL_H
 
 #include <QString>
-#include "../vcprojectmodel/ivcprojectnodemodel.h"
+#include "ivcprojectnodemodel.h"
 
 namespace VcProjectManager {
 namespace Internal {

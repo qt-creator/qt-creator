@@ -29,4 +29,5 @@ HEADERS += \
     interfaces/iplatforms.h \
     interfaces/ipublishingitem.h \
     interfaces/ipublishingdata.h \
-    interfaces/ivisualstudioproject.h
+    interfaces/ivisualstudioproject.h \
+    interfaces/ivcprojectnodemodel.h

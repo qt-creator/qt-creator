@@ -30,7 +30,7 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_ITOOLFILES_H
 #define VCPROJECTMANAGER_INTERNAL_ITOOLFILES_H
 
-#include "../vcprojectmodel/ivcprojectnodemodel.h"
+#include "ivcprojectnodemodel.h"
 
 namespace VcProjectManager {
 namespace Internal {

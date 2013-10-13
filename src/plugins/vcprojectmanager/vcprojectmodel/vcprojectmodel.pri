@@ -25,7 +25,6 @@ HEADERS += \
     vcprojectmodel/tools/tool_constants.h \
     vcprojectmodel/tools/candcpptool_constants.h \
     vcprojectmodel/vcdocumentmodel.h \
-    vcprojectmodel/ivcprojectnodemodel.h \
     vcprojectmodel/vcdocprojectnodes.h \
     vcprojectmodel/tools/toolattributes/booltoolattribute.h \
     vcprojectmodel/tools/toolattributes/stringtoolattribute.h \
