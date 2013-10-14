@@ -114,6 +114,8 @@ private:
 
     QBoxLayout *m_parentLayout;
     KitNode *m_defaultNode;
+
+    bool m_keepUnique;
 };
 
 } // namespace Internal
