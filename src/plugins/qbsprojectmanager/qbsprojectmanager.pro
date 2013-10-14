@@ -62,3 +62,6 @@ FORMS = \
     qbsbuildstepconfigwidget.ui \
     qbscleanstepconfigwidget.ui \
     qbsinstallstepconfigwidget.ui
+
+RESOURCES += \
+   qbsprojectmanager.qrc

@@ -30,6 +30,7 @@
 #include "qbsnodes.h"
 
 #include "qbsproject.h"
+#include "qbsprojectmanagerconstants.h"
 #include "qbsrunconfiguration.h"
 
 #include <coreplugin/fileiconprovider.h>
@@ -67,16 +68,15 @@ static QString displayNameFromPath(const QString &path, const QString &base)
     return name;
 }
 
-static QIcon generateIcon()
+static QIcon generateIcon(const QString &overlay)
 {
     const QSize desiredSize = QSize(16, 16);
-    const QIcon projectBaseIcon(QString::fromLatin1(QtSupport::Constants::ICON_QT_PROJECT));
-    const QPixmap projectPixmap = Core::FileIconProvider::overlayIcon(QStyle::SP_DirIcon,
-                                                                      projectBaseIcon,
-                                                                      desiredSize);
+    const QIcon overlayIcon(overlay);
+    const QPixmap pixmap
+            = Core::FileIconProvider::overlayIcon(QStyle::SP_DirIcon, overlayIcon, desiredSize);
 
     QIcon result;
-    result.addPixmap(projectPixmap);
+    result.addPixmap(pixmap);
 
     return result;
 }
@@ -84,9 +84,9 @@ static QIcon generateIcon()
 namespace QbsProjectManager {
 namespace Internal {
 
-QIcon QbsProjectNode::m_projectIcon = generateIcon();
-QIcon QbsProductNode::m_productIcon = QIcon(QString::fromLatin1(ProjectExplorer::Constants::ICON_REBUILD_SMALL));
-QIcon QbsGroupNode::m_groupIcon = QIcon(QString::fromLatin1(ProjectExplorer::Constants::ICON_BUILD_SMALL));
+QIcon QbsGroupNode::m_groupIcon;
+QIcon QbsProjectNode::m_projectIcon;
+QIcon QbsProductNode::m_productIcon;
 
 class FileTreeNode {
 public:
@@ -327,6 +327,9 @@ QbsGroupNode::QbsGroupNode(const qbs::GroupData *grp, const QString &productPath
     QbsBaseProjectNode(QString()),
     m_qbsGroupData(0)
 {
+    if (m_groupIcon.isNull())
+        m_groupIcon = QIcon(QString::fromLatin1(Constants::QBS_GROUP_ICON));
+
     setIcon(m_groupIcon);
 
     QbsFileNode *idx = new QbsFileNode(grp->location().fileName(),
@@ -465,6 +468,9 @@ void QbsGroupNode::setupFolder(ProjectExplorer::FolderNode *root,
 QbsProductNode::QbsProductNode(const qbs::ProductData &prd) :
     QbsBaseProjectNode(prd.location().fileName())
 {
+    if (m_productIcon.isNull())
+        m_productIcon = generateIcon(QString::fromLatin1(Constants::QBS_PRODUCT_OVERLAY_ICON));
+
     setIcon(m_productIcon);
 
     ProjectExplorer::FileNode *idx = new QbsFileNode(prd.location().fileName(),
@@ -650,6 +656,9 @@ const qbs::ProjectData QbsProjectNode::qbsProjectData() const
 
 void QbsProjectNode::ctor()
 {
+    if (m_projectIcon.isNull())
+        m_projectIcon = generateIcon(QString::fromLatin1(QtSupport::Constants::ICON_QT_PROJECT));
+
     setIcon(m_projectIcon);
     addFileNodes(QList<ProjectExplorer::FileNode *>()
                  << new ProjectExplorer::FileNode(path(), ProjectExplorer::ProjectFileType, false), this);

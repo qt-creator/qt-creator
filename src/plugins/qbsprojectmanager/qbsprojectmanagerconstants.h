@@ -63,6 +63,10 @@ static const char QBS_CONFIG_PROFILE_KEY[] = "qbs.profile";
 static const char QBS_CONFIG_DECLARATIVE_DEBUG_KEY[] = "Qt.declarative.qmlDebugging";
 static const char QBS_CONFIG_QUICK_DEBUG_KEY[] = "Qt.quick.qmlDebugging";
 
+// Icons:
+static const char QBS_GROUP_ICON[] = ":/qbsprojectmanager/images/groups.png";
+static const char QBS_PRODUCT_OVERLAY_ICON[] = ":/qbsprojectmanager/images/productgear.png";
+
 } // namespace Constants
 } // namespace QbsProjectManager
 
