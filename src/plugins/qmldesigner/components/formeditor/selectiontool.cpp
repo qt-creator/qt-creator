@@ -265,10 +265,12 @@ void SelectionTool::selectedItemsChanged(const QList<FormEditorItem*> &itemList)
 
 void SelectionTool::formEditorItemsChanged(const QList<FormEditorItem*> &itemList)
 {
-    m_selectionIndicator.updateItems(itemList);
-    m_resizeIndicator.updateItems(itemList);
-    m_anchorIndicator.updateItems(itemList);
-    m_bindingIndicator.updateItems(itemList);
+    const QList<FormEditorItem*> selectedItemList = filterSelectedModelNodes(itemList);
+
+    m_selectionIndicator.updateItems(selectedItemList);
+    m_resizeIndicator.updateItems(selectedItemList);
+    m_anchorIndicator.updateItems(selectedItemList);
+    m_bindingIndicator.updateItems(selectedItemList);
 }
 
 void SelectionTool::instancesCompleted(const QList<FormEditorItem*> &/*itemList*/)

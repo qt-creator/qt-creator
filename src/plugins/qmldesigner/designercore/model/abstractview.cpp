@@ -293,6 +293,11 @@ bool AbstractView::hasSingleSelectedModelNode() const
     return model()->d->selectedNodes().count() == 1;
 }
 
+bool AbstractView::isSelectedModelNode(const ModelNode &modelNode) const
+{
+    return model()->d->selectedNodes().contains(modelNode.internalNode());
+}
+
 /*!
     Sets the list of nodes to the actual selected nodes. Returns a list of the
     selected nodes.

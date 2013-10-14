@@ -190,6 +190,18 @@ FormEditorItem* AbstractFormEditorTool::topFormEditorItemWithRootItem(const QLis
     return 0;
 }
 
+QList<FormEditorItem *> AbstractFormEditorTool::filterSelectedModelNodes(const QList<FormEditorItem *> &itemList) const
+{
+    QList<FormEditorItem *> filteredItemList;
+
+    foreach (FormEditorItem *item, itemList) {
+        if (view()->isSelectedModelNode(item->qmlItemNode()))
+            filteredItemList.append(item);
+    }
+
+    return filteredItemList;
+}
+
 void AbstractFormEditorTool::dropEvent(QGraphicsSceneDragDropEvent * /* event */)
 {
 }

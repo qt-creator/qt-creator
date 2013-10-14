@@ -152,6 +152,7 @@ public:
     void clearSelectedModelNodes();
     bool hasSelectedModelNodes() const;
     bool hasSingleSelectedModelNode() const;
+    bool isSelectedModelNode(const ModelNode &modelNode) const;
 
     QList<ModelNode> selectedModelNodes() const;
     ModelNode firstSelectedModelNode() const;

@@ -99,6 +99,8 @@ public:
     static FormEditorItem* topFormEditorItem(const QList<QGraphicsItem*> &itemList);
     static FormEditorItem* topFormEditorItemWithRootItem(const QList<QGraphicsItem*> &itemList);
 
+    QList<FormEditorItem*> filterSelectedModelNodes(const QList<FormEditorItem*> &itemList) const;
+
 protected:
     virtual void selectedItemsChanged(const QList<FormEditorItem*> &itemList) = 0;
     virtual void showContextMenu(QGraphicsSceneMouseEvent *event);
