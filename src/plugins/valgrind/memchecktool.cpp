@@ -380,7 +380,7 @@ QWidget *MemcheckTool::createWidgets()
     // Load external XML log file
     action = new QAction(this);
     action->setIcon(QIcon(QLatin1String(Core::Constants::ICON_OPENFILE)));
-    action->setToolTip(tr("Load External XML Log File."));
+    action->setToolTip(tr("Load External XML Log File"));
     connect(action, SIGNAL(triggered(bool)), this, SLOT(loadExternalXmlLogFile()));
     button = new QToolButton;
     button->setDefaultAction(action);
@@ -532,7 +532,7 @@ void MemcheckTool::parserError(const Valgrind::XmlProtocol::Error &error)
 void MemcheckTool::internalParserError(const QString &errorString)
 {
     QMessageBox::critical(m_errorView, tr("Internal Error"),
-        tr("Error occurred parsing valgrind output: %1").arg(errorString));
+        tr("Error occurred parsing Valgrind output: %1").arg(errorString));
 }
 
 void MemcheckTool::clearErrorView()

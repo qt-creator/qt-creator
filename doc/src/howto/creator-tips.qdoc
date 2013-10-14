@@ -212,7 +212,7 @@
     \section1 Locating Files
 
     The \gui Locator provides one of the easiest ways in \QC to browse
-    through projects, files, classes, methods, documentation and file systems.
+    through projects, files, classes, functions, documentation and file systems.
     To quickly access files not directly mentioned in your project, you can
     create your own locator filters. That way you can locate files in a
     directory structure you have defined.

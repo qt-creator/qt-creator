@@ -123,7 +123,7 @@ Button {
                     text: control.text
                     color:  control.pressed || control.checked ? "lightGray" : "black"
                     font.pixelSize: 15
-                    font.bold: true
+                    font.bold: false
                     smooth: true
                 }
         }

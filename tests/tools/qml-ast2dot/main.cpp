@@ -147,7 +147,7 @@ protected:
         _stack.removeLast();
     }
 
-protected: // visiting methods:
+protected: // visiting functions:
     virtual bool visit(UiImport *ast) {
         terminal(ast->importToken);
 

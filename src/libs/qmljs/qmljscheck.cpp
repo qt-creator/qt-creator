@@ -1464,7 +1464,7 @@ bool Check::visit(TypeOfExpression *ast)
 
 /// When something is changed here, also change ReadingContext::lookupProperty in
 /// texttomodelmerger.cpp
-/// ### Maybe put this into the context as a helper method.
+/// ### Maybe put this into the context as a helper function.
 const Value *Check::checkScopeObjectMember(const UiQualifiedId *id)
 {
     if (!_importsOk)

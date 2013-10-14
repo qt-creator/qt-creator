@@ -391,14 +391,14 @@
         \row
             \li  Follow symbol under cursor
 
-               Works with namespaces, classes, methods, variables, include
+               Works with namespaces, classes, functions, variables, include
                statements and macros
             \li  F2
         \row
             \li  Rename symbol under cursor
             \li  Ctrl+Shift+R
         \row
-            \li  Switch between method declaration and definition
+            \li  Switch between function declaration and definition
             \li  Shift+F2
         \row
             \li  Open type hierarchy

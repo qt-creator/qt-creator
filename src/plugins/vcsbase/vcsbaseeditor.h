@@ -90,7 +90,7 @@ public:
 class VCSBASE_EXPORT VcsBaseEditorWidget : public TextEditor::BaseTextEditorWidget
 {
     Q_PROPERTY(QString source READ source WRITE setSource)
-    Q_PROPERTY(QString diffBaseDirectory READ diffBaseDirectory WRITE setDiffBaseDirectory)
+    Q_PROPERTY(QString workingDirectory READ workingDirectory WRITE setWorkingDirectory)
     Q_PROPERTY(QTextCodec *codec READ codec WRITE setCodec)
     Q_PROPERTY(QString annotateRevisionTextFormat READ annotateRevisionTextFormat WRITE setAnnotateRevisionTextFormat)
     Q_PROPERTY(QString copyRevisionTextFormat READ copyRevisionTextFormat WRITE setCopyRevisionTextFormat)
@@ -107,6 +107,7 @@ protected:
     // Pattern for log entry. hash/revision number must be in the first capture group
     void setLogEntryPattern(const QRegExp &pattern);
     virtual bool supportChangeLinks() const;
+    virtual QString fileNameForLine(int line) const;
 
 public:
     virtual void init();
@@ -144,8 +145,8 @@ public:
     void setCodec(QTextCodec *);
 
     // Base directory for diff views
-    QString diffBaseDirectory() const;
-    void setDiffBaseDirectory(const QString &d);
+    QString workingDirectory() const;
+    void setWorkingDirectory(const QString &wd);
 
     bool isModified() const;
 
@@ -202,7 +203,8 @@ signals:
     // handled by the editor manager for convenience. They are emitted
     // for LogOutput/AnnotateOutput content types.
     void describeRequested(const QString &source, const QString &change);
-    void annotateRevisionRequested(const QString &source, const QString &change, int lineNumber);
+    void annotateRevisionRequested(const QString &workingDirectory, const QString &file,
+                                   const QString &change, int lineNumber);
     void diffChunkApplied(const VcsBase::DiffChunk &dc);
     void diffChunkReverted(const VcsBase::DiffChunk &dc);
 

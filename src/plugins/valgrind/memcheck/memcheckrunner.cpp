@@ -130,7 +130,7 @@ bool MemcheckRunner::start()
             QVBoxLayout *layout = new QVBoxLayout;
             QLabel *description = new QLabel;
             description->setWordWrap(true);
-            description->setText(tr("More than one network interface was found on your machine. Please select which one you want to use for remote analysis."));
+            description->setText(tr("More than one network interface was found on your machine. Please select the one you want to use for remote analysis."));
             layout->addWidget(description);
             QListWidget *list = new QListWidget;
             foreach (const QHostAddress &address, possibleHostAddresses)
@@ -151,7 +151,7 @@ bool MemcheckRunner::start()
 
             dlg.setLayout(layout);
             if (dlg.exec() != QDialog::Accepted) {
-                emit processErrorReceived(tr("No Network Interface was chosen for remote analysis"), QProcess::FailedToStart);
+                emit processErrorReceived(tr("No network interface was chosen for remote analysis."), QProcess::FailedToStart);
                 return false;
             }
 

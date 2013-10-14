@@ -74,20 +74,20 @@
 
     The common pattern is roughly this:
 
-    Implement the actual search within a QtConcurrent based method, that is
-    a method that takes a \c{QFutureInterface<MySearchResult> &future}
+    Implement the actual search within a QtConcurrent based function, that is
+    a function that takes a \c{QFutureInterface<MySearchResult> &future}
     as the first parameter and the other information needed for the search
     as additional parameters. It should set useful progress information
     on the QFutureInterface, regularly check for \c{future.isPaused()}
     and \c{future.isCanceled()}, and report the search results
     (possibly in chunks) via \c{future.reportResult}.
 
-    In the find filter's find/replaceAll method, get the shared
+    In the find filter's find/replaceAll function, get the shared
     \gui{Search Results} window, initiate a new search and connect the
     signals for handling selection of results and the replace action
     (see the Find::SearchResultWindow class for details).
     Start your search implementation via the corresponding QtConcurrent
-    methods. Add the returned QFuture object to the Core::ProgressManager.
+    functions. Add the returned QFuture object to the Core::ProgressManager.
     Use a QFutureWatcher on the returned QFuture object to receive a signal
     when your search implementation reports search results, and add these
     to the shared \gui{Search Results} window.
@@ -138,13 +138,13 @@
     \fn bool IFindFilter::isReplaceSupported() const
     Returns whether the find filter supports search and replace.
 
-    The default value is false, override this method to return \c true, if
+    The default value is false, override this function to return \c true, if
     your find filter supports global search and replace.
 */
 
 /*!
     \fn void IFindFilter::findAll(const QString &txt, Find::FindFlags findFlags)
-    This method is called when the user selected this find scope and
+    This function is called when the user selected this find scope and
     initiated a search.
 
     You should start a thread which actually performs the search for \a txt
@@ -161,9 +161,9 @@
 
 /*!
     \fn void IFindFilter::replaceAll(const QString &txt, Find::FindFlags findFlags)
-    Override this method if you want to support search and replace.
+    Override this function if you want to support search and replace.
 
-    This method is called when the user selected this find scope and
+    This function is called when the user selected this find scope and
     initiated a search and replace.
     The default implementation does nothing.
 

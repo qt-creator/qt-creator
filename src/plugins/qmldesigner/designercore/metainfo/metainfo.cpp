@@ -183,7 +183,7 @@ MetaInfo MetaInfo::global()
 /*!
   Clears the global meta information object.
 
-  This method should be called once on application shutdown to free static data structures.
+  This function should be called once on application shutdown to free static data structures.
   */
 void MetaInfo::clearGlobal()
 {

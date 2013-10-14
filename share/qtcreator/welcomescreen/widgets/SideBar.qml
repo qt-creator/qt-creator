@@ -104,13 +104,7 @@ ColumnLayout {
             Text {
                 text: qsTr("New to Qt?")
                 font.pixelSize: 18
-                font.bold: true
-            }
-
-            Text {
-                text: qsTr("Get Started Now!")
-                font.pixelSize: 14
-                font.bold: true
+                font.bold: false
             }
 
             Text {
@@ -126,23 +120,24 @@ ColumnLayout {
             }
 
             Button {
-                text: qsTr("Get Started")
+                text: qsTr("Get Started Now")
                 onClicked: gettingStarted.openSplitHelp("qthelp://org.qt-project.qtcreator/doc/creator-getting-started.html")
             }
 
             Item {
-                height: 8
+                height: 18
                 width: parent.width
             }
 
             Column {
                 x: 14
-                RowLayout {
+                spacing: 16
+                Row {
                     spacing: 7
-                    Rectangle {
+                    Image {
                         width: 16
-                        height: 16
-                        color: "#4e4e4e"
+                        height: 15
+                        source: "images/icons/onlineCommunity.png"
                     }
                     LinkedText {
                         text: qsTr("Online Community")
@@ -151,12 +146,12 @@ ColumnLayout {
                         onClicked: gettingStarted.openUrl("http://qt-project.org/forums")
                     }
                 }
-                RowLayout {
+                Row {
                     spacing: 7
-                    Rectangle {
-                        width: 16
-                        height: 16
-                        color: "#4e4e4e"
+                    Image {
+                        height: 15
+                        width: 15
+                        source: "images/icons/blogs.png"
                     }
                     LinkedText {
                         text: qsTr("Blogs")
@@ -165,12 +160,12 @@ ColumnLayout {
                         onClicked: gettingStarted.openUrl("http://planet.qt-project.org")
                     }
                 }
-                RowLayout {
+                Row {
                     spacing: 7
-                    Rectangle {
+                    Image {
                         width: 16
-                        height: 16
-                        color: "#4e4e4e"
+                        height: 15
+                        source: "images/icons/userGuide.png"
                     }
                     LinkedText {
                         text: qsTr("User Guide")

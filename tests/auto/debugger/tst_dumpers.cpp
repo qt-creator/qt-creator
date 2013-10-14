@@ -4786,6 +4786,24 @@ void tst_Dumpers::dumper_data()
                % Check("v.x", "1", "int")
                % Check("n.x", "10", "int")
                % Check("n.y", "20", "int");
+
+
+    QTest::newRow("stdint")
+            << Data("#include <stdint.h>\n",
+                    "uint8_t u8 = 64;\n"
+                    "int8_t s8 = 65;\n"
+                    "uint16_t u16 = 66;\n"
+                    "int16_t s16 = 67;\n"
+                    "uint32_t u32 = 68;\n"
+                    "int32_t s32 = 69;\n"
+                    "unused(&u8, &s8, &u16, &s16, &u32, &s32);\n")
+               % Check("u8", "64", "uint8_t")
+               % Check("s8", "65", "int8_t")
+               % Check("u16", "66", "uint16_t")
+               % Check("s16", "67", "int16_t")
+               % Check("u32", "68", "uint32_t")
+               % Check("s32", "69", "int32_t");
+
 }
 
 int main(int argc, char *argv[])

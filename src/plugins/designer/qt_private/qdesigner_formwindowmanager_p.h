@@ -51,7 +51,7 @@ namespace qdesigner_internal {
 class PreviewManager;
 
 //
-// Convenience methods to manage form previews (ultimately forwarded to PreviewManager).
+// Convenience functions to manage form previews (ultimately forwarded to PreviewManager).
 //
 class QDESIGNER_SHARED_EXPORT QDesignerFormWindowManager
     : public QDesignerFormWindowManagerInterface

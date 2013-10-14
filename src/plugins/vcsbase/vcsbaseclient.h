@@ -166,7 +166,7 @@ protected:
     // Fully synchronous VCS execution (QProcess-based)
     bool vcsFullySynchronousExec(const QString &workingDir,
                                  const QStringList &args,
-                                 QByteArray *output);
+                                 QByteArray *output) const;
     // Synchronous VCS execution using Utils::SynchronousProcess, with
     // log windows updating (using VcsBasePlugin::runVcs with flags)
     Utils::SynchronousProcessResponse vcsSynchronousExec(const QString &workingDir,
@@ -194,7 +194,7 @@ private:
     VcsBaseClientPrivate *d;
 
     Q_PRIVATE_SLOT(d, void statusParser(QString))
-    Q_PRIVATE_SLOT(d, void annotateRevision(QString, QString, int))
+    Q_PRIVATE_SLOT(d, void annotateRevision(QString, QString, QString, int))
     Q_PRIVATE_SLOT(d, void saveSettings())
     Q_PRIVATE_SLOT(d, void commandFinishedGotoLine(QWidget *))
 };

@@ -192,6 +192,7 @@ void dummyStatement(...) {}
 #include <vector>
 
 #include <stdarg.h>
+#include <stdint.h>
 
 #include "../simple/deep/deep/simple_test_app.h"
 
@@ -4709,6 +4710,16 @@ namespace basic {
         dummyStatement(&u64, &s64, &u32, &s32, &u64s, &s64s, &u32s, &s32s);
     }
 
+    void testStdInt()
+    {
+        uint8_t u8 = 64;
+        int8_t s8 =  65;
+        BREAK_HERE;
+        // Check u8 64 uint8_t
+        // Check u8 65 int8_t
+
+        dummyStatement(&u8, &s8);
+    }
 
     void testArray1()
     {
@@ -5477,6 +5488,7 @@ namespace basic {
     {
         testInheritance();
         testInt();
+        testStdInt();
         testReference1();
         testReference2();
         testReference3("hello");

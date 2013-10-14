@@ -30,6 +30,7 @@
 #define IOSBUILDSTEP_H
 
 #include <projectexplorer/abstractprocessstep.h>
+#include <utils/qtcoverride.h>
 
 QT_BEGIN_NAMESPACE
 class QListWidgetItem;
@@ -53,11 +54,11 @@ public:
     IosBuildStep(ProjectExplorer::BuildStepList *parent);
     ~IosBuildStep();
 
-    bool init();
-    void run(QFutureInterface<bool> &fi);
+    bool init() QTC_OVERRIDE;
+    void run(QFutureInterface<bool> &fi) QTC_OVERRIDE;
 
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
-    bool immutable() const;
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget() QTC_OVERRIDE;
+    bool immutable() const QTC_OVERRIDE;
     void setBaseArguments(const QStringList &args);
     void setExtraArguments(const QStringList &extraArgs);
     QStringList baseArguments() const;
@@ -68,11 +69,11 @@ public:
     void setClean(bool clean);
     bool isClean() const;
 
-    QVariantMap toMap() const;
+    QVariantMap toMap() const QTC_OVERRIDE;
 protected:
     IosBuildStep(ProjectExplorer::BuildStepList *parent, IosBuildStep *bs);
     IosBuildStep(ProjectExplorer::BuildStepList *parent, const Core::Id id);
-    bool fromMap(const QVariantMap &map);
+    bool fromMap(const QVariantMap &map) QTC_OVERRIDE;
 
 private:
     void ctor();
@@ -114,18 +115,18 @@ class IosBuildStepFactory : public ProjectExplorer::IBuildStepFactory
 public:
     explicit IosBuildStepFactory(QObject *parent = 0);
 
-    bool canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const;
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, const Core::Id id);
+    bool canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const QTC_OVERRIDE;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, const Core::Id id) QTC_OVERRIDE;
     bool canClone(ProjectExplorer::BuildStepList *parent,
-                  ProjectExplorer::BuildStep *source) const;
+                  ProjectExplorer::BuildStep *source) const QTC_OVERRIDE;
     ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent,
-                                      ProjectExplorer::BuildStep *source);
-    bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const;
+                                      ProjectExplorer::BuildStep *source) QTC_OVERRIDE;
+    bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const QTC_OVERRIDE;
     ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent,
-                                        const QVariantMap &map);
+                                        const QVariantMap &map) QTC_OVERRIDE;
 
-    QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *bc) const;
-    QString displayNameForId(const Core::Id id) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *bc) const QTC_OVERRIDE;
+    QString displayNameForId(const Core::Id id) const QTC_OVERRIDE;
 };
 
 } // namespace Internal

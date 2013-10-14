@@ -40,7 +40,7 @@ OutputParserTester::OutputParserTester() :
     m_debug(false)
 { }
 
-// test methods:
+// test functions:
 void OutputParserTester::testParsing(const QString &lines,
                                      Channel inputChannel,
                                      QList<Task> tasks,

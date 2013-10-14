@@ -2603,7 +2603,8 @@ static inline bool dumpQSharedPointer(const SymbolGroupValue &v, std::wostream &
     if (strongRef < 0 || weakRef < 0)
         return false;
     str << L"References: " << strongRef << '/' << weakRef;
-    *specialInfoIn = valueV.node();
+    if (specialInfoIn)
+        *specialInfoIn = valueV.node();
     return true;
 }
 

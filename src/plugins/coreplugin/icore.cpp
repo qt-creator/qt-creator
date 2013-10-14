@@ -161,7 +161,7 @@
     Returns the absolute path in the users directory that is used for
     resources like project templates.
 
-    Use this method for finding the place for resources that the user may
+    Use this function for finding the place for resources that the user may
     write to, for example, to allow for custom palettes or templates.
 */
 
@@ -263,7 +263,7 @@
     Enables plugins to perform some pre-end-of-life actions.
 
     The application is guaranteed to shut down after this signal is emitted.
-    It is there as an addition to the usual plugin lifecycle methods, namely
+    It is there as an addition to the usual plugin lifecycle functions, namely
     \c IPlugin::aboutToShutdown(), just for convenience.
 */
 

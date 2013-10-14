@@ -55,7 +55,7 @@ public:
     ModelToTextMerger(RewriterView *reWriterView);
 
     /**
-     *  Note: his method might throw exceptions, as the model works this way. So to
+     *  Note: his function might throw exceptions, as the model works this way. So to
      *  handle rewriting failures, you will also need to catch any exception coming
      *  out.
      */

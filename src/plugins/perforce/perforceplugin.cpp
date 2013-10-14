@@ -692,10 +692,10 @@ void PerforcePlugin::annotate()
     }
 }
 
-void PerforcePlugin::vcsAnnotate(const QString &file, const QString &revision, int lineNumber)
+void PerforcePlugin::vcsAnnotate(const QString &workingDirectory, const QString &file,
+                                 const QString &revision, int lineNumber)
 {
-    const QFileInfo fi(file);
-    annotate(fi.absolutePath(), fi.fileName(), revision, lineNumber);
+    annotate(workingDirectory, file, revision, lineNumber);
 }
 
 void PerforcePlugin::annotate(const QString &workingDir,
@@ -826,6 +826,14 @@ bool PerforcePlugin::managesDirectory(const QString &directory, QString *topLeve
             topLevel->clear();
     }
     return rc;
+}
+
+bool PerforcePlugin::managesFile(const QString &workingDirectory, const QString &fileName) const
+{
+    QStringList args;
+    args << QLatin1String("fstat") << QLatin1String("-m1") << fileName;
+    const PerforceResponse result = runP4Cmd(workingDirectory, args, RunFullySynchronous);
+    return result.stdOut.contains(QLatin1String("depotFile"));
 }
 
 bool PerforcePlugin::managesDirectoryFstat(const QString &directory)
@@ -1166,8 +1174,8 @@ Core::IEditor *PerforcePlugin::showOutputInEditor(const QString &title, const QS
                  <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
     Core::IEditor *editor = Core::EditorManager::openEditorWithContents(id, &s, output.toUtf8());
-    connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,int)),
-            this, SLOT(vcsAnnotate(QString,QString,int)));
+    connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
+            this, SLOT(vcsAnnotate(QString,QString,QString,int)));
     PerforceEditor *e = qobject_cast<PerforceEditor*>(editor->widget());
     if (!e)
         return 0;

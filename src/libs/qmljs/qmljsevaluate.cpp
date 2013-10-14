@@ -46,10 +46,10 @@ using namespace QmlJS;
 
     Example: Pass in the AST for "1 + 2" and NumberValue will be returned.
 
-    In normal cases only the call operator (or the equivalent value() method)
+    In normal cases only the call operator (or the equivalent value() function)
     will be used.
 
-    The reference() method has the special behavior of not resolving \l{Reference}s
+    The reference() function has the special behavior of not resolving \l{Reference}s
     which can be useful when interested in the identity of a variable instead
     of its value.
 

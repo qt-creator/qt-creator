@@ -36,6 +36,7 @@
 
 #include <projectexplorer/abi.h>
 
+#include <QStringList>
 #include <QVariantMap>
 
 namespace Utils {
@@ -235,6 +236,9 @@ public:
     bool hasDebugBuild() const;
     bool hasReleaseBuild() const;
 
+    QStringList configValues() const;
+    QStringList qtConfigValues() const;
+
 protected:
     BaseQtVersion();
     BaseQtVersion(const Utils::FileName &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
@@ -278,6 +282,9 @@ private:
     mutable bool m_hasDocumentation;
     mutable bool m_qmakeIsExecutable;
     mutable bool m_hasQtAbis;
+
+    mutable QStringList m_configValues;
+    mutable QStringList m_qtConfigValues;
 
     QString m_displayName;
     QString m_autodetectionSource;

@@ -57,8 +57,6 @@
 #include <projectexplorer/localapplicationrunconfiguration.h>
 #include <texteditor/itexteditor.h>
 
-#include <android/androidconstants.h>
-
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -400,8 +398,6 @@ void QmlProfilerTool::clearDisplay()
 
 static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)
 {
-    Q_UNUSED(tool);
-
     Id kitId;
     quint16 port;
     Kit *kit = 0;
@@ -433,17 +429,11 @@ static void startRemoteTool(IAnalyzerTool *tool, StartMode mode)
     IDevice::ConstPtr device = DeviceKitInformation::device(kit);
     if (device) {
         sp.connParams = device->sshParameters();
-        if (device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE
-                || device->type() == Android::Constants::ANDROID_DEVICE_TYPE) {
-            sp.analyzerHost = QLatin1String("localhost");
-        } else {
-            sp.analyzerHost = sp.connParams.host;
-        }
+        sp.analyzerHost = device->qmlProfilerHost();
     }
     sp.sysroot = SysRootKitInformation::sysRoot(kit).toString();
     sp.analyzerPort = port;
 
-    //AnalyzerRunControl *rc = new AnalyzerRunControl(tool, sp, 0);
     AnalyzerRunControl *rc = tool->createRunControl(sp, 0);
     QObject::connect(AnalyzerManager::stopAction(), SIGNAL(triggered()), rc, SLOT(stopIt()));
 

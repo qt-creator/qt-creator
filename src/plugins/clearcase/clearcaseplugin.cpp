@@ -612,10 +612,10 @@ void ClearCasePlugin::diffCheckInFiles(const QStringList &files)
     ccDiffWithPred(m_checkInView, files);
 }
 
-static inline void setDiffBaseDirectory(IEditor *editor, const QString &db)
+static inline void setWorkingDirectory(IEditor *editor, const QString &wd)
 {
     if (VcsBase::VcsBaseEditorWidget *ve = qobject_cast<VcsBase::VcsBaseEditorWidget*>(editor->widget()))
-        ve->setDiffBaseDirectory(db);
+        ve->setWorkingDirectory(wd);
 }
 
 //! retrieve full location of predecessor of \a version
@@ -934,14 +934,14 @@ void ClearCasePlugin::ccDiffWithPred(const QString &workingDir, const QStringLis
         if (IEditor *existingEditor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
             existingEditor->document()->setContents(result.toUtf8());
             EditorManager::activateEditor(existingEditor);
-            setDiffBaseDirectory(existingEditor, workingDir);
+            setWorkingDirectory(existingEditor, workingDir);
             return;
         }
         diffname = QDir::toNativeSeparators(files.first());
     }
     const QString title = QString::fromLatin1("cc diff %1").arg(diffname);
     IEditor *editor = showOutputInEditor(title, result, VcsBase::DiffOutput, source, codec);
-    setDiffBaseDirectory(editor, workingDir);
+    setWorkingDirectory(editor, workingDir);
     VcsBase::VcsBaseEditorWidget::tagEditor(editor, tag);
     ClearCaseEditor *diffEditorWidget = qobject_cast<ClearCaseEditor *>(editor->widget());
     QTC_ASSERT(diffEditorWidget, return);
@@ -1037,7 +1037,7 @@ void ClearCasePlugin::diffActivity()
     m_diffPrefix.clear();
     const QString title = QString::fromLatin1("%1.patch").arg(activity);
     IEditor *editor = showOutputInEditor(title, result, VcsBase::DiffOutput, activity, 0);
-    setDiffBaseDirectory(editor, topLevel);
+    setWorkingDirectory(editor, topLevel);
 }
 
 void ClearCasePlugin::diffCurrentFile()
@@ -1253,12 +1253,12 @@ void ClearCasePlugin::annotateCurrentFile()
     vcsAnnotate(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
-void ClearCasePlugin::annotateVersion(const QString &file,
-                                       const QString &revision,
-                                       int lineNr)
+void ClearCasePlugin::annotateVersion(const QString &workingDirectory,
+                                      const QString &file,
+                                      const QString &revision,
+                                      int lineNr)
 {
-    const QFileInfo fi(file);
-    vcsAnnotate(fi.absolutePath(), fi.fileName(), revision, lineNr);
+    vcsAnnotate(workingDirectory, file, revision, lineNr);
 }
 
 void ClearCasePlugin::vcsAnnotate(const QString &workingDir, const QString &file,
@@ -1402,8 +1402,8 @@ IEditor *ClearCasePlugin::showOutputInEditor(const QString& title, const QString
                  <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
     IEditor *editor = EditorManager::openEditorWithContents(id, &s, output.toUtf8());
-    connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,int)),
-            this, SLOT(annotateVersion(QString,QString,int)));
+    connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
+            this, SLOT(annotateVersion(QString,QString,QString,int)));
     ClearCaseEditor *e = qobject_cast<ClearCaseEditor*>(editor->widget());
     if (!e)
         return 0;
@@ -1848,6 +1848,13 @@ bool ClearCasePlugin::ccCheckUcm(const QString &viewname, const QString &working
 
     // check output for the word "ucm"
     return QRegExp(QLatin1String("(^|\\n)ucm\\n")).indexIn(catcsData) != -1;
+}
+
+bool ClearCasePlugin::managesFile(const QString &workingDirectory, const QString &fileName) const
+{
+    QStringList args;
+    args << QLatin1String("ls") << fileName;
+    return runCleartoolSync(workingDirectory, args).contains(QLatin1String("@@"));
 }
 
 ViewData ClearCasePlugin::ccGetView(const QString &workingDir) const

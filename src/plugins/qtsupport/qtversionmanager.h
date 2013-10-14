@@ -77,7 +77,7 @@ public:
 
     // Note: DO NOT STORE THIS POINTER!
     //       The QtVersionManager will delete it at random times and you will
-    //       need to get a new pointer by calling this method again!
+    //       need to get a new pointer by calling this function again!
     static BaseQtVersion *version(int id);
 
     static BaseQtVersion *qtVersionForQMakeBinary(const Utils::FileName &qmakePath);

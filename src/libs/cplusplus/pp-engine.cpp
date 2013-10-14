@@ -687,7 +687,7 @@ QString Preprocessor::State::guardStateToString(int guardState)
  * occurs inside the #ifndef block, but not nested inside other
  * #if/#ifdef/#ifndef blocks.
  *
- * This method tracks the state, and is called from \c updateIncludeGuardState
+ * This function tracks the state, and is called from \c updateIncludeGuardState
  * which handles the most common no-op cases.
  *
  * @param hint indicates what kind of token is encountered in the input
@@ -857,7 +857,7 @@ _Lagain:
         // to the macro that generated this token. In either case, the macro
         // that generated the token still needs to be blocked (!), which is
         // recorded in the token buffer. Removing the blocked macro and the
-        // empty token buffer happens the next time that this method is called.
+        // empty token buffer happens the next time that this function is called.
     } else {
         // No token buffer, so have the lexer scan the next token.
         tk->setSource(m_state.m_source);

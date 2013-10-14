@@ -128,19 +128,19 @@
             information is available via the PluginSpec.
     \value  Resolved
             The dependencies given in the description file have been
-            successfully found, and are available via the dependencySpecs() method.
+            successfully found, and are available via the dependencySpecs() function.
     \value  Loaded
             The plugin's library is loaded and the plugin instance created
             (available through plugin()).
     \value  Initialized
-            The plugin instance's IPlugin::initialize() method has been called
+            The plugin instance's IPlugin::initialize() function has been called
             and returned a success value.
     \value  Running
             The plugin's dependencies are successfully initialized and
             extensionsInitialized has been called. The loading process is
             complete.
     \value Stopped
-            The plugin has been shut down, i.e. the plugin's IPlugin::aboutToShutdown() method has been called.
+            The plugin has been shut down, i.e. the plugin's IPlugin::aboutToShutdown() function has been called.
     \value Deleted
             The plugin instance has been deleted.
 */

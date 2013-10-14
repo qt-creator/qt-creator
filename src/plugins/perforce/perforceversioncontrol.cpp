@@ -147,7 +147,8 @@ bool PerforceVersionControl::vcsRemoveSnapshot(const QString &, const QString &)
 
 bool PerforceVersionControl::vcsAnnotate(const QString &file, int line)
 {
-    m_plugin->vcsAnnotate(file, QString(), line);
+    const QFileInfo fi(file);
+    m_plugin->vcsAnnotate(fi.absolutePath(), fi.fileName(), QString(), line);
     return true;
 }
 
@@ -181,6 +182,11 @@ bool PerforceVersionControl::managesDirectory(const QString &directory, QString 
             nsp << topLevel;
     }
     return rc;
+}
+
+bool PerforceVersionControl::managesFile(const QString &workingDirectory, const QString &fileName) const
+{
+    return m_plugin->managesFile(workingDirectory, fileName);
 }
 
 void PerforceVersionControl::emitRepositoryChanged(const QString &s)

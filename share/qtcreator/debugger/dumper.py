@@ -294,6 +294,10 @@ class DumperBase:
             size = self.extractInt(addr + 4)
             alloc = self.extractInt(addr + 8) & 0x7ffffff
             data = addr + self.dereference(addr + 8 + self.ptrSize())
+            if self.ptrSize() == 4:
+                data = data & 0xffffffff
+            else:
+                data = data & 0xffffffffffffffff
         else:
             # Data:
             # - QBasicAtomicInt ref;

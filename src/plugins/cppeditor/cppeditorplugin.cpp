@@ -128,7 +128,7 @@ void CppEditorPlugin::initializeEditor(CPPEditorWidget *editor)
     editor->setLanguageSettingsId(CppTools::Constants::CPP_SETTINGS_ID);
     TextEditor::TextEditorSettings::initializeEditor(editor);
 
-    // method combo box sorting
+    // function combo box sorting
     connect(this, SIGNAL(outlineSortingChanged(bool)),
             editor, SLOT(setSortedOutline(bool)));
 }
@@ -210,7 +210,7 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     contextMenu->addAction(cmd);
     cppToolsMenu->addAction(cmd);
 
-    QAction *switchDeclarationDefinition = new QAction(tr("Switch Between Method Declaration/Definition"), this);
+    QAction *switchDeclarationDefinition = new QAction(tr("Switch Between Function Declaration/Definition"), this);
     cmd = ActionManager::registerAction(switchDeclarationDefinition,
         Constants::SWITCH_DECLARATION_DEFINITION, context, true);
     cmd->setDefaultKeySequence(QKeySequence(tr("Shift+F2")));
@@ -223,7 +223,7 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     cppToolsMenu->addAction(cmd);
 
     QAction *openDeclarationDefinitionInNextSplit =
-            new QAction(tr("Open Method Declaration/Definition in Next Split"), this);
+            new QAction(tr("Open Function Declaration/Definition in Next Split"), this);
     cmd = ActionManager::registerAction(openDeclarationDefinitionInNextSplit,
         Constants::OPEN_DECLARATION_DEFINITION_IN_NEXT_SPLIT, context, true);
     cmd->setDefaultKeySequence(QKeySequence(Utils::HostOsInfo::isMacHost()

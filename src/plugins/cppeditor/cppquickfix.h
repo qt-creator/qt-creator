@@ -67,7 +67,7 @@ public:
         TextEditor::QuickFixOperations &result);
 
     /*!
-        Implement this method to match and create the appropriate
+        Implement this function to match and create the appropriate
         CppQuickFixOperation objects.
      */
     virtual void match(const CppQuickFixInterface &interface,

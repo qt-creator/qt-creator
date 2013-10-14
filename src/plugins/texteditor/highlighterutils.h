@@ -33,9 +33,9 @@
 #include <QString>
 #include "texteditor_global.h"
 
-/* These methods were originally a part of TextEditor::Highlighter,
+/* These functions were originally a part of TextEditor::Highlighter,
  * but due to a very hackish test of that generic highlighter,
- * there methods must be outside. */
+ * there functions must be outside. */
 
 namespace Core {
 class MimeType;

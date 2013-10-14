@@ -86,6 +86,7 @@ public:
     void extensionsInitialized();
 
     bool managesDirectory(const QString &directory, QString *topLevel = 0);
+    bool managesFile(const QString &workingDirectory, const QString &fileName) const;
     bool vcsOpen(const QString &workingDir, const QString &fileName);
     bool vcsAdd(const QString &workingDir, const QString &fileName);
     bool vcsDelete(const QString &workingDir, const QString &filename);
@@ -105,7 +106,8 @@ public:
 
 public slots:
     void describe(const QString &source, const QString &n);
-    void vcsAnnotate(const QString &file, const QString &revision /* = QString() */, int lineNumber);
+    void vcsAnnotate(const QString &workingDirectory, const QString &file,
+                     const QString &revision, int lineNumber);
     void p4Diff(const Perforce::Internal::PerforceDiffParameters &p);
 
 private slots:

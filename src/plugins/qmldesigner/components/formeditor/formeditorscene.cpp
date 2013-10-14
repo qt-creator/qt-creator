@@ -142,7 +142,7 @@ AbstractFormEditorTool* FormEditorScene::currentTool() const
     return m_editorView->currentTool();
 }
 
-//This method calculates the possible parent for reparent
+//This function calculates the possible parent for reparent
 FormEditorItem* FormEditorScene::calulateNewParent(FormEditorItem *formEditorItem)
 {
     if (formEditorItem->qmlItemNode().isValid()) {

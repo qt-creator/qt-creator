@@ -159,6 +159,8 @@ public:
     QSsh::SshConnectionParameters sshParameters() const;
     void setSshParameters(const QSsh::SshConnectionParameters &sshParameters);
 
+    virtual QString qmlProfilerHost() const;
+
     Utils::PortList freePorts() const;
     void setFreePorts(const Utils::PortList &freePorts);
 

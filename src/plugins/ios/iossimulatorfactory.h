@@ -30,6 +30,7 @@
 #define IOSSIMULATORFACTORY_H
 
 #include <projectexplorer/devicesupport/idevicefactory.h>
+#include <utils/qtcoverride.h>
 
 namespace Ios {
 namespace Internal {
@@ -40,13 +41,13 @@ class IosSimulatorFactory : public ProjectExplorer::IDeviceFactory
 public:
     IosSimulatorFactory();
 
-    QString displayNameForId(Core::Id type) const;
-    QList<Core::Id> availableCreationIds() const;
+    QString displayNameForId(Core::Id type) const QTC_OVERRIDE;
+    QList<Core::Id> availableCreationIds() const QTC_OVERRIDE;
 
-    bool canCreate() const;
-    ProjectExplorer::IDevice::Ptr create(Core::Id id) const;
-    bool canRestore(const QVariantMap &map) const;
-    ProjectExplorer::IDevice::Ptr restore(const QVariantMap &map) const;
+    bool canCreate() const QTC_OVERRIDE;
+    ProjectExplorer::IDevice::Ptr create(Core::Id id) const QTC_OVERRIDE;
+    bool canRestore(const QVariantMap &map) const QTC_OVERRIDE;
+    ProjectExplorer::IDevice::Ptr restore(const QVariantMap &map) const QTC_OVERRIDE;
 };
 
 } // namespace Internal

@@ -151,7 +151,7 @@ void LldbEngine::setupEngine()
         << (Core::ICore::resourcePath() + _("/debugger/lldbbridge.py")) << m_lldbCmd);
 
     if (!m_lldbProc.waitForStarted()) {
-        const QString msg = tr("Unable to start lldb '%1': %2")
+        const QString msg = tr("Unable to start LLDB '%1': %2")
             .arg(m_lldbCmd, m_lldbProc.errorString());
         notifyEngineSetupFailed();
         showMessage(_("ADAPTER START FAILED"));
@@ -774,7 +774,7 @@ void LldbEngine::handleLldbError(QProcess::ProcessError error)
     default:
         //setState(EngineShutdownRequested, true);
         m_lldbProc.kill();
-        showMessageBox(QMessageBox::Critical, tr("Lldb I/O Error"),
+        showMessageBox(QMessageBox::Critical, tr("LLDB I/O Error"),
                        errorMessage(error));
         break;
     }
@@ -784,12 +784,12 @@ QString LldbEngine::errorMessage(QProcess::ProcessError error) const
 {
     switch (error) {
         case QProcess::FailedToStart:
-            return tr("The Lldb process failed to start. Either the "
+            return tr("The LLDB process failed to start. Either the "
                 "invoked program '%1' is missing, or you may have insufficient "
                 "permissions to invoke the program.")
                 .arg(m_lldbCmd);
         case QProcess::Crashed:
-            return tr("The Lldb process crashed some time after starting "
+            return tr("The LLDB process crashed some time after starting "
                 "successfully.");
         case QProcess::Timedout:
             return tr("The last waitFor...() function timed out. "
@@ -797,7 +797,7 @@ QString LldbEngine::errorMessage(QProcess::ProcessError error) const
                 "waitFor...() again.");
         case QProcess::WriteError:
             return tr("An error occurred when attempting to write "
-                "to the Lldb process. For example, the process may not be running, "
+                "to the LLDB process. For example, the process may not be running, "
                 "or it may have closed its input channel.");
         case QProcess::ReadError:
             return tr("An error occurred when attempting to read from "

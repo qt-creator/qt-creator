@@ -64,6 +64,11 @@ bool MercurialControl::managesDirectory(const QString &directory, QString *topLe
     return !topLevelFound.isEmpty();
 }
 
+bool MercurialControl::managesFile(const QString &workingDirectory, const QString &fileName) const
+{
+    return mercurialClient->managesFile(workingDirectory, fileName);
+}
+
 bool MercurialControl::isConfigured() const
 {
     const QString binary = mercurialClient->settings()->binaryPath();

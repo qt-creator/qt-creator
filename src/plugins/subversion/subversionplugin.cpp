@@ -545,10 +545,10 @@ void SubversionDiffParameterWidget::triggerReRun()
     emit reRunDiff(effectiveParameters);
 }
 
-static inline void setDiffBaseDirectory(Core::IEditor *editor, const QString &db)
+static inline void setWorkingDirectory(Core::IEditor *editor, const QString &wd)
 {
     if (VcsBase::VcsBaseEditorWidget *ve = qobject_cast<VcsBase::VcsBaseEditorWidget*>(editor->widget()))
-        ve->setDiffBaseDirectory(db);
+        ve->setWorkingDirectory(wd);
 }
 
 void SubversionPlugin::svnDiff(const QString &workingDir, const QStringList &files, QString diffname)
@@ -590,12 +590,12 @@ void SubversionPlugin::svnDiff(const Subversion::Internal::SubversionDiffParamet
     if (Core::IEditor *existingEditor = VcsBase::VcsBaseEditorWidget::locateEditorByTag(tag)) {
         existingEditor->document()->setContents(response.stdOut.toUtf8());
         Core::EditorManager::activateEditor(existingEditor);
-        setDiffBaseDirectory(existingEditor, p.workingDir);
+        setWorkingDirectory(existingEditor, p.workingDir);
         return;
     }
     const QString title = QString::fromLatin1("svn diff %1").arg(diffName);
     Core::IEditor *editor = showOutputInEditor(title, response.stdOut, VcsBase::DiffOutput, source, codec);
-    setDiffBaseDirectory(editor, p.workingDir);
+    setWorkingDirectory(editor, p.workingDir);
     VcsBase::VcsBaseEditorWidget::tagEditor(editor, tag);
     SubversionEditor *diffEditorWidget = qobject_cast<SubversionEditor *>(editor->widget());
     QTC_ASSERT(diffEditorWidget, return);
@@ -940,12 +940,12 @@ void SubversionPlugin::annotateCurrentFile()
     vcsAnnotate(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
-void SubversionPlugin::annotateVersion(const QString &file,
+void SubversionPlugin::annotateVersion(const QString &workingDirectory,
+                                       const QString &file,
                                        const QString &revision,
                                        int lineNr)
 {
-    const QFileInfo fi(file);
-    vcsAnnotate(fi.absolutePath(), fi.fileName(), revision, lineNr);
+    vcsAnnotate(workingDirectory, file, revision, lineNr);
 }
 
 void SubversionPlugin::vcsAnnotate(const QString &workingDir, const QString &file,
@@ -1083,7 +1083,7 @@ SubversionResponse
                                  const QStringList &arguments,
                                  int timeOut,
                                  unsigned flags,
-                                 QTextCodec *outputCodec)
+                                 QTextCodec *outputCodec) const
 {
     const bool hasAuth = m_settings.hasAuthentication();
     return runSvn(workingDir,
@@ -1142,7 +1142,7 @@ SubversionPlugin::Version SubversionPlugin::svnVersion()
 SubversionResponse SubversionPlugin::runSvn(const QString &workingDir,
                           const QString &userName, const QString &password,
                           const QStringList &arguments, int timeOut,
-                          unsigned flags, QTextCodec *outputCodec)
+                          unsigned flags, QTextCodec *outputCodec) const
 {
     const QString executable = m_settings.binaryPath();
     SubversionResponse response;
@@ -1177,8 +1177,8 @@ Core::IEditor *SubversionPlugin::showOutputInEditor(const QString &title, const 
                  <<  "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
     Core::IEditor *editor = Core::EditorManager::openEditorWithContents(id, &s, output.toUtf8());
-    connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,int)),
-            this, SLOT(annotateVersion(QString,QString,int)));
+    connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
+            this, SLOT(annotateVersion(QString,QString,QString,int)));
     SubversionEditor *e = qobject_cast<SubversionEditor*>(editor->widget());
     if (!e)
         return 0;
@@ -1352,6 +1352,15 @@ bool SubversionPlugin::managesDirectory(const QString &directory, QString *topLe
         }
     }
     return true;
+}
+
+bool SubversionPlugin::managesFile(const QString &workingDirectory, const QString &fileName) const
+{
+    QStringList args;
+    args << QLatin1String("status") << fileName;
+    SubversionResponse response =
+            runSvn(workingDirectory, args, m_settings.timeOutMs(), 0);
+    return response.stdOut.isEmpty() || response.stdOut.at(0) != QLatin1Char('?');
 }
 
 // Check whether SVN management subdirs exist.

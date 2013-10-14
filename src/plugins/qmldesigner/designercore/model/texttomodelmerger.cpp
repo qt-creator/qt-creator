@@ -384,7 +384,7 @@ public:
 
     /// When something is changed here, also change Check::checkScopeObjectMember in
     /// qmljscheck.cpp
-    /// ### Maybe put this into the context as a helper method.
+    /// ### Maybe put this into the context as a helper function.
     bool lookupProperty(const QString &prefix, const UiQualifiedId *id, const Value **property = 0, const ObjectValue **parentObject = 0, QString *name = 0)
     {
         QList<const ObjectValue *> scopeObjects = m_scopeChain.qmlScopeObjects();

@@ -57,7 +57,7 @@ using namespace Utils;
         own overlay icon handling (Mac/Windows).
 
   Plugins can register custom overlay icons via registerIconOverlayForSuffix(), and
-  retrieve icons via the icon() method.
+  retrieve icons via the icon() function.
   */
 
 // Cache icons in a list of pairs suffix/icon which should be faster than

@@ -48,7 +48,7 @@ public:
 signals:
     void triggered(bool checked, const SelectionContext &selectionContext);
 
-public slots: //virtual method instead of slot
+public slots: //virtual function instead of slot
     virtual void actionTriggered(bool enable);
     void setSelectionContext(const SelectionContext &selectionContext);
 

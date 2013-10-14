@@ -38,7 +38,7 @@ using namespace ProjectExplorer;
   \brief Base class for visitors that can be used to traverse a node hierarchy.
 
   The class follows the visitor pattern as described in Gamma et al. Pass
-  an instance of NodesVisitor to FolderNode::accept(): The visit methods
+  an instance of NodesVisitor to FolderNode::accept(): The visit functions
   will be called for each node in the subtree, except for file nodes:
   Access these through FolderNode::fileNodes() in visitProjectNode()
   and visitoFolderNode().

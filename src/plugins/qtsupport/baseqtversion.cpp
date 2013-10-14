@@ -815,10 +815,11 @@ void BaseQtVersion::ensureMkSpecParsed() const
 
 void BaseQtVersion::parseMkSpec(ProFileEvaluator *evaluator) const
 {
-    QStringList configValues = evaluator->values(QLatin1String("CONFIG"));
+    m_configValues = evaluator->values(QLatin1String("CONFIG"));
+    m_qtConfigValues = evaluator->values(QLatin1String("QT_CONFIG"));
     m_defaultConfigIsDebugAndRelease = false;
     m_frameworkBuild = false;
-    foreach (const QString &value, configValues) {
+    foreach (const QString &value, m_configValues) {
         if (value == QLatin1String("debug"))
             m_defaultConfigIsDebug = true;
         else if (value == QLatin1String("release"))
@@ -1048,6 +1049,18 @@ QString BaseQtVersion::examplesPath() const
 {
     updateVersionInfo();
     return qmakeProperty("QT_INSTALL_EXAMPLES");
+}
+
+QStringList BaseQtVersion::configValues() const
+{
+    ensureMkSpecParsed();
+    return m_configValues;
+}
+
+QStringList BaseQtVersion::qtConfigValues() const
+{
+    ensureMkSpecParsed();
+    return m_qtConfigValues;
 }
 
 QList<HeaderPath> BaseQtVersion::systemHeaderPathes(const Kit *k) const

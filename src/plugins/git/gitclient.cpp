@@ -972,6 +972,15 @@ QString GitClient::findGitDirForRepository(const QString &repositoryDir) const
     return res;
 }
 
+bool GitClient::managesFile(const QString &workingDirectory, const QString &fileName) const
+{
+    QByteArray output;
+    QStringList arguments;
+    arguments << QLatin1String("ls-files") << QLatin1String("--error-unmatch") << fileName;
+    return fullySynchronousGit(workingDirectory, arguments, &output, 0,
+                               VcsBasePlugin::SuppressCommandLogging);
+}
+
 VcsBase::VcsBaseEditorWidget *GitClient::findExistingVCSEditor(const char *registerDynamicProperty,
                                                                const QString &dynamicPropertyValue) const
 {
@@ -1038,8 +1047,8 @@ VcsBase::VcsBaseEditorWidget *GitClient::createVcsEditor(
                                                                               m_msgWait.toUtf8());
     outputEditor->document()->setProperty(registerDynamicProperty, dynamicPropertyValue);
     rc = VcsBase::VcsBaseEditorWidget::getVcsBaseEditor(outputEditor);
-    connect(rc, SIGNAL(annotateRevisionRequested(QString,QString,int)),
-            this, SLOT(slotBlameRevisionRequested(QString,QString,int)));
+    connect(rc, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
+            this, SLOT(slotBlameRevisionRequested(QString,QString,QString,int)));
     QTC_ASSERT(rc, return 0);
     rc->setSource(source);
     if (codecType == CodecSource) {
@@ -1122,7 +1131,7 @@ void GitClient::diff(const QString &workingDirectory,
                     vcsEditor->configurationWidget());
         argWidget->setFileNames(unstagedFileNames, stagedFileNames);
         QStringList userDiffArgs = argWidget->arguments();
-        vcsEditor->setDiffBaseDirectory(workingDirectory);
+        vcsEditor->setWorkingDirectory(workingDirectory);
 
         // Create a batch of 2 commands to be run after each other in case
         // we have a mixture of staged/unstaged files as is the case
@@ -1220,7 +1229,7 @@ void GitClient::diff(const QString &workingDirectory, const QString &fileName)
             connect(vcsEditor, SIGNAL(diffChunkReverted(VcsBase::DiffChunk)),
                     argWidget, SLOT(executeCommand()));
         }
-        vcsEditor->setDiffBaseDirectory(workingDirectory);
+        vcsEditor->setWorkingDirectory(workingDirectory);
 
         QStringList cmdArgs;
         cmdArgs << QLatin1String("diff")
@@ -1280,7 +1289,7 @@ void GitClient::diffBranch(const QString &workingDirectory,
                                                                       branchName));
             newEditor = vcsEditor->editor();
         }
-        vcsEditor->setDiffBaseDirectory(workingDirectory);
+        vcsEditor->setWorkingDirectory(workingDirectory);
 
         QStringList cmdArgs;
         cmdArgs << QLatin1String("diff")
@@ -1331,7 +1340,7 @@ void GitClient::log(const QString &workingDirectory, const QString &fileName,
                                                            enableAnnotationContextMenu,
                                                            args, fileName));
     editor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
-    editor->setDiffBaseDirectory(workingDirectory);
+    editor->setWorkingDirectory(workingDirectory);
 
     QStringList arguments;
     arguments << QLatin1String("log") << QLatin1String(noColorOption)
@@ -1363,6 +1372,7 @@ void GitClient::reflog(const QString &workingDirectory)
         editor = createVcsEditor(editorId, title, workingDirectory, CodecLogOutput,
                                  "reflogRepository", workingDirectory, 0);
     }
+    editor->setWorkingDirectory(workingDirectory);
 
     QStringList arguments;
     arguments << QLatin1String("reflog") << QLatin1String(noColorOption)
@@ -1444,7 +1454,7 @@ void GitClient::show(const QString &source, const QString &id,
                   << vcsEditor->configurationWidget()->arguments()
                   << id;
 
-        vcsEditor->setDiffBaseDirectory(workingDirectory);
+        vcsEditor->setWorkingDirectory(workingDirectory);
         executeGit(workingDirectory, arguments, vcsEditor);
     }
     if (newEditor) {
@@ -1461,15 +1471,15 @@ void GitClient::saveSettings()
     settings()->writeSettings(Core::ICore::settings());
 }
 
-void GitClient::slotBlameRevisionRequested(const QString &source, QString change, int lineNumber)
+void GitClient::slotBlameRevisionRequested(const QString &workingDirectory, const QString &file,
+                                           QString change, int lineNumber)
 {
     // This might be invoked with a verbose revision description
     // "SHA1 author subject" from the annotation context menu. Strip the rest.
     const int blankPos = change.indexOf(QLatin1Char(' '));
     if (blankPos != -1)
         change.truncate(blankPos);
-    const QFileInfo fi(source);
-    blame(fi.absolutePath(), QStringList(), fi.fileName(), change, lineNumber);
+    blame(workingDirectory, QStringList(), file, change, lineNumber);
 }
 
 QTextCodec *GitClient::getSourceCodec(const QString &file) const
@@ -1502,6 +1512,7 @@ void GitClient::blame(const QString &workingDirectory,
         argWidget->setEditor(editor);
     }
 
+    editor->setWorkingDirectory(workingDirectory);
     QStringList arguments(QLatin1String("blame"));
     arguments << QLatin1String("--root");
     arguments.append(editor->configurationWidget()->arguments());
@@ -3434,6 +3445,7 @@ void GitClient::subversionLog(const QString &workingDirectory)
     VcsBase::VcsBaseEditorWidget *editor = findExistingVCSEditor("svnLog", sourceFile);
     if (!editor)
         editor = createVcsEditor(editorId, title, sourceFile, CodecNone, "svnLog", sourceFile, 0);
+    editor->setWorkingDirectory(workingDirectory);
     executeGit(workingDirectory, arguments, editor);
 }
 

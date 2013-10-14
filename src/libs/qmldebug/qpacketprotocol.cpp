@@ -301,7 +301,7 @@ void QPacketProtocol::clear()
 
 /*!
   Returns the next unread packet, or an invalid QPacket instance if no packets
-  are available.  This method does NOT block.
+  are available.  This function does NOT block.
   */
 QPacket QPacketProtocol::read()
 {

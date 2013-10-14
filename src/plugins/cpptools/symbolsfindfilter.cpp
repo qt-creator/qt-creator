@@ -246,7 +246,7 @@ QString SymbolsFindFilter::toolTip(Find::FindFlags findFlags) const
     if (m_symbolsToSearch & SymbolSearcher::Classes)
         types.append(tr("Classes"));
     if (m_symbolsToSearch & SymbolSearcher::Functions)
-        types.append(tr("Methods"));
+        types.append(tr("Functions"));
     if (m_symbolsToSearch & SymbolSearcher::Enums)
         types.append(tr("Enums"));
     if (m_symbolsToSearch & SymbolSearcher::Declarations)
@@ -274,7 +274,7 @@ SymbolsFindFilterConfigWidget::SymbolsFindFilterConfigWidget(SymbolsFindFilter *
     m_typeClasses = new QCheckBox(tr("Classes"));
     layout->addWidget(m_typeClasses, 0, 1);
 
-    m_typeMethods = new QCheckBox(tr("Methods"));
+    m_typeMethods = new QCheckBox(tr("Functions"));
     layout->addWidget(m_typeMethods, 0, 2);
 
     m_typeEnums = new QCheckBox(tr("Enums"));

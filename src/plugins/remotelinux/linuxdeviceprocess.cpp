@@ -56,7 +56,7 @@ QString LinuxDeviceProcess::fullCommandLine() const
 {
     QString fullCommandLine;
     foreach (const QString &filePath, rcFilesToSource())
-        fullCommandLine += QString::fromLatin1("test -f %1 && source %1;").arg(filePath);
+        fullCommandLine += QString::fromLatin1("test -f %1 && . %1;").arg(filePath);
     if (!m_workingDir.isEmpty()) {
         fullCommandLine.append(QLatin1String("cd ")).append(quote(m_workingDir))
                 .append(QLatin1String(" && "));

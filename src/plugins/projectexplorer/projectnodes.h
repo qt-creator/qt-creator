@@ -240,7 +240,7 @@ public:
     void removeFileNodes(const QList<FileNode*> &files, FolderNode *parentFolder);
 
     // to be called in implementation of
-    // the corresponding public methods
+    // the corresponding public functions
     void addProjectNodes(const QList<ProjectNode*> &subProjects);
     void removeProjectNodes(const QList<ProjectNode*> &subProjects);
 

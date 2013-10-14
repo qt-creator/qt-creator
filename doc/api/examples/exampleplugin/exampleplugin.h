@@ -20,11 +20,11 @@ public:
     ExamplePlugin();
     ~ExamplePlugin();
 
-//! [plugin methods]
+//! [plugin functions]
     bool initialize(const QStringList &arguments, QString *errorString);
     void extensionsInitialized();
     ShutdownFlag aboutToShutdown();
-//! [plugin methods]
+//! [plugin functions]
 
 //! [slot]
 private slots:

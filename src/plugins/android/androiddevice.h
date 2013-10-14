@@ -50,6 +50,7 @@ public:
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const;
 
     ProjectExplorer::IDevice::Ptr clone() const;
+    QString qmlProfilerHost() const;
 
 protected:
     friend class AndroidDeviceFactory;

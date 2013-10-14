@@ -148,7 +148,8 @@ bool CvsControl::vcsRemoveSnapshot(const QString &, const QString &)
 
 bool CvsControl::vcsAnnotate(const QString &file, int line)
 {
-    m_plugin->vcsAnnotate(file, QString(), line);
+    const QFileInfo fi(file);
+    m_plugin->vcsAnnotate(fi.absolutePath(), fi.fileName(), QString(), line);
     return true;
 }
 
@@ -160,6 +161,11 @@ QString CvsControl::vcsOpenText() const
 bool CvsControl::managesDirectory(const QString &directory, QString *topLevel) const
 {
     return m_plugin->managesDirectory(directory, topLevel);
+}
+
+bool CvsControl::managesFile(const QString &workingDirectory, const QString &fileName) const
+{
+    return m_plugin->managesFile(workingDirectory, fileName);
 }
 
 void CvsControl::emitRepositoryChanged(const QString &s)

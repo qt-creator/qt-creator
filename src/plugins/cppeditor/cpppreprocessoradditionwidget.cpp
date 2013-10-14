@@ -32,9 +32,9 @@
 
 #include "cppsnippetprovider.h"
 
-#include "utils/tooltip/tipcontents.h"
-#include "utils/tooltip/tooltip.h"
-#include "projectexplorer/project.h"
+#include <utils/tooltip/tipcontents.h>
+#include <utils/tooltip/tooltip.h>
+#include <projectexplorer/project.h>
 
 #include <QDebug>
 
@@ -49,6 +49,7 @@ PreProcessorAdditionWidget::PreProcessorAdditionWidget(QWidget *parent)
     prov.decorateEditor(ui->additionalEdit);
     setAttribute(Qt::WA_QuitOnClose, false);
     setFocusPolicy(Qt::StrongFocus);
+    ui->additionalEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 }
 
 PreProcessorAdditionWidget::~PreProcessorAdditionWidget()
@@ -66,31 +67,31 @@ PreProcessorAdditionPopUp *PreProcessorAdditionPopUp::instance()
 void PreProcessorAdditionPopUp::show(QWidget *parent,
                                      const QList<CppTools::ProjectPart::Ptr> &projectParts)
 {
-    widget = new PreProcessorAdditionWidget();
-    originalPartAdditions.clear();
+    m_widget = new PreProcessorAdditionWidget();
+    m_originalPartAdditions.clear();
     foreach (CppTools::ProjectPart::Ptr projectPart, projectParts) {
         ProjectPartAddition addition;
         addition.projectPart = projectPart;
-        widget->ui->projectComboBox->addItem(projectPart->displayName);
+        m_widget->ui->projectComboBox->addItem(projectPart->displayName);
         addition.additionalDefines = projectPart->project
                 ->additionalCppDefines().value(projectPart->projectFile).toByteArray();
-        originalPartAdditions << addition;
+        m_originalPartAdditions << addition;
     }
-    partAdditions = originalPartAdditions;
+    m_partAdditions = m_originalPartAdditions;
 
-    widget->ui->additionalEdit->setPlainText(QLatin1String(
-                partAdditions[widget->ui->projectComboBox->currentIndex()].additionalDefines));
+    m_widget->ui->additionalEdit->setPlainText(QLatin1String(
+                m_partAdditions[m_widget->ui->projectComboBox->currentIndex()].additionalDefines));
 
     QPoint pos = parent->mapToGlobal(parent->rect().topRight());
-    pos.setX(pos.x() - widget->width());
-    showInternal(pos, Utils::WidgetContent(widget, true), parent, QRect());
+    pos.setX(pos.x() - m_widget->width());
+    showInternal(pos, Utils::WidgetContent(m_widget, true), parent, QRect());
 
-    connect(widget->ui->additionalEdit, SIGNAL(textChanged()), SLOT(textChanged()));
-    connect(widget->ui->projectComboBox, SIGNAL(currentIndexChanged(int)),
+    connect(m_widget->ui->additionalEdit, SIGNAL(textChanged()), SLOT(textChanged()));
+    connect(m_widget->ui->projectComboBox, SIGNAL(currentIndexChanged(int)),
             SLOT(projectChanged(int)));
-    connect(widget, SIGNAL(finished()), SLOT(finish()));
-    connect(widget->ui->buttonBox, SIGNAL(accepted()), SLOT(apply()));
-    connect(widget->ui->buttonBox, SIGNAL(rejected()), SLOT(cancel()));
+    connect(m_widget, SIGNAL(finished()), SLOT(finish()));
+    connect(m_widget->ui->buttonBox, SIGNAL(accepted()), SLOT(apply()));
+    connect(m_widget->ui->buttonBox, SIGNAL(rejected()), SLOT(cancel()));
 }
 
 bool PreProcessorAdditionPopUp::eventFilter(QObject *o, QEvent *event)
@@ -99,7 +100,7 @@ bool PreProcessorAdditionPopUp::eventFilter(QObject *o, QEvent *event)
     switch (event->type()) {
     case QEvent::Leave:
         // This event would hide the ToolTip because the view isn't a child of the WidgetContent
-        if (widget->ui->projectComboBox->view() == qApp->focusWidget())
+        if (m_widget->ui->projectComboBox->view() == qApp->focusWidget())
             return false;
         break;
     case QEvent::KeyPress:
@@ -116,7 +117,7 @@ bool PreProcessorAdditionPopUp::eventFilter(QObject *o, QEvent *event)
     case QEvent::MouseButtonDblClick:
     case QEvent::Wheel:
         // This event would hide the ToolTip because the viewport isn't a child of the WidgetContent
-        if (o == widget->ui->projectComboBox->view()->viewport())
+        if (o == m_widget->ui->projectComboBox->view()->viewport())
             return false;
         break;
     default:
@@ -127,15 +128,15 @@ bool PreProcessorAdditionPopUp::eventFilter(QObject *o, QEvent *event)
 
 void PreProcessorAdditionPopUp::textChanged()
 {
-    partAdditions[widget->ui->projectComboBox->currentIndex()].additionalDefines
-            = widget->ui->additionalEdit->toPlainText().toLatin1();
+    m_partAdditions[m_widget->ui->projectComboBox->currentIndex()].additionalDefines
+            = m_widget->ui->additionalEdit->toPlainText().toLatin1();
 }
 
 
 void PreProcessorAdditionPopUp::finish()
 {
-    widget->disconnect(this);
-    foreach (ProjectPartAddition partAddition, originalPartAdditions) {
+    m_widget->disconnect(this);
+    foreach (ProjectPartAddition partAddition, m_originalPartAdditions) {
         QVariantMap settings = partAddition.projectPart->project->additionalCppDefines();
         if (!settings[partAddition.projectPart->projectFile].toString().isEmpty()
                 && !partAddition.additionalDefines.isEmpty()) {
@@ -143,26 +144,28 @@ void PreProcessorAdditionPopUp::finish()
             partAddition.projectPart->project->setAdditionalCppDefines(settings);
         }
     }
-    emit finished(originalPartAdditions[widget->ui->projectComboBox->currentIndex()].additionalDefines);
+    emit finished(m_originalPartAdditions.value(m_widget->ui->projectComboBox->currentIndex())
+                  .additionalDefines);
 }
 
 void PreProcessorAdditionPopUp::projectChanged(int index)
 {
-    widget->ui->additionalEdit->setPlainText(QLatin1String(partAdditions[index].additionalDefines));
+    m_widget->ui->additionalEdit->setPlainText(
+                QLatin1String(m_partAdditions[index].additionalDefines));
 }
 
 void PreProcessorAdditionPopUp::apply()
 {
-    originalPartAdditions = partAdditions;
+    m_originalPartAdditions = m_partAdditions;
     hideTipImmediately();
 }
 
 void PreProcessorAdditionPopUp::cancel()
 {
-    partAdditions = originalPartAdditions;
+    m_partAdditions = m_originalPartAdditions;
     hideTipImmediately();
 }
 
 PreProcessorAdditionPopUp::PreProcessorAdditionPopUp()
-    : widget(0)
+    : m_widget(0)
 {}

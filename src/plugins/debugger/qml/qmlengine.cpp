@@ -292,7 +292,7 @@ QmlEngine::QmlEngine(const DebuggerStartParameters &startParameters, DebuggerEng
 
 
     connect(&m_applicationLauncher,
-        SIGNAL(processExited(int, QProcess::ExitStatus)),
+        SIGNAL(processExited(int,QProcess::ExitStatus)),
         SLOT(disconnected()));
     connect(&m_applicationLauncher,
         SIGNAL(appendMessage(QString,Utils::OutputFormat)),

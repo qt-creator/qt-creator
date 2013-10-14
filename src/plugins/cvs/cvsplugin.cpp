@@ -503,7 +503,7 @@ void CvsPlugin::diffCommitFiles(const QStringList &files)
 static void setDiffBaseDirectory(IEditor *editor, const QString &db)
 {
     if (VcsBaseEditorWidget *ve = qobject_cast<VcsBaseEditorWidget*>(editor->widget()))
-        ve->setDiffBaseDirectory(db);
+        ve->setWorkingDirectory(db);
 }
 
 // Collect all parameters required for a diff to be able to associate them
@@ -923,10 +923,10 @@ void CvsPlugin::annotateCurrentFile()
     annotate(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
-void CvsPlugin::vcsAnnotate(const QString &file, const QString &revision, int lineNumber)
+void CvsPlugin::vcsAnnotate(const QString &workingDirectory, const QString &file,
+                            const QString &revision, int lineNumber)
 {
-    const QFileInfo fi(file);
-    annotate(fi.absolutePath(), fi.fileName(), revision, lineNumber);
+    annotate(workingDirectory, file, revision, lineNumber);
 }
 
 bool CvsPlugin::edit(const QString &topLevel, const QStringList &files)
@@ -1226,7 +1226,7 @@ CvsResponse CvsPlugin::runCvs(const QString &workingDirectory,
                               const QStringList &arguments,
                               int timeOut,
                               unsigned flags,
-                              QTextCodec *outputCodec)
+                              QTextCodec *outputCodec) const
 {
     const QString executable = m_settings.cvsBinaryPath;
     CvsResponse response;
@@ -1274,8 +1274,8 @@ IEditor *CvsPlugin::showOutputInEditor(const QString& title, const QString &outp
                  <<  "source=" << source << "Size= " << output.size() <<  " Type=" << editorType << debugCodec(codec);
     QString s = title;
     IEditor *editor = EditorManager::openEditorWithContents(id, &s, output.toUtf8());
-    connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,int)),
-            this, SLOT(vcsAnnotate(QString,QString,int)));
+    connect(editor, SIGNAL(annotateRevisionRequested(QString,QString,QString,int)),
+            this, SLOT(vcsAnnotate(QString,QString,QString,int)));
     CvsEditor *e = qobject_cast<CvsEditor*>(editor->widget());
     if (!e)
         return 0;
@@ -1363,6 +1363,17 @@ bool CvsPlugin::managesDirectory(const QString &directory, QString *topLevel /* 
             nsp << *topLevel;
     }
     return manages;
+}
+
+bool CvsPlugin::managesFile(const QString &workingDirectory, const QString &fileName) const
+{
+    QStringList args;
+    args << QLatin1String("status") << fileName;
+    const CvsResponse response =
+            runCvs(workingDirectory, args, m_settings.timeOutMS(), SshPasswordPrompt);
+    if (response.result != CvsResponse::Ok)
+        return false;
+    return !response.stdOut.contains(QLatin1String("Status: Unknown"));
 }
 
 bool CvsPlugin::checkCVSDirectory(const QDir &directory) const

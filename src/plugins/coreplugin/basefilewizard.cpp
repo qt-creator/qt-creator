@@ -162,13 +162,13 @@ void WizardEventLoop::rejected()
     \brief The BaseFileWizard class implements a generic wizard for
     creating files.
 
-    The following abstract methods must be implemented:
+    The following abstract functions must be implemented:
     \list
     \li createWizardDialog(): Called to create the QWizard dialog to be shown.
     \li generateFiles(): Generates file content.
     \endlist
 
-    The behaviour can be further customized by overwriting the virtual method \c postGenerateFiles(),
+    The behaviour can be further customized by overwriting the virtual function \c postGenerateFiles(),
     which is called after generating the files.
 
     \sa Core::GeneratedFile, Core::BaseFileWizardParameters, Core::StandardFileWizard

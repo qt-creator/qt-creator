@@ -50,7 +50,7 @@ namespace Qt4ProjectManager {
 namespace Internal {
 
 /* Convenience parametrizable base class for Qt editors/binaries
- * Provides convenience methods that
+ * Provides convenience functions that
  * try to retrieve the binary of the editor from the Qt version
  * of the project the file belongs to, falling back to path search
  * if none is found. On Mac, the "open" mechanism can be optionally be used. */
@@ -65,7 +65,7 @@ public:
     virtual QString displayName() const;
 
 protected:
-    // Method pointer for a QtVersion method return a string (command)
+    // Member function pointer for a QtVersion function return a string (command)
     typedef QString (QtSupport::BaseQtVersion::*QtVersionCommandAccessor)() const;
 
     // Data required to launch the editor

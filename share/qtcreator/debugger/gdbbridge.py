@@ -23,6 +23,10 @@ def warn(message):
 
 from dumper import *
 from qttypes import *
+from stdtypes import *
+from misctypes import *
+from boosttypes import *
+
 
 #######################################################################
 #
@@ -229,7 +233,6 @@ NamespaceCode = gdb.TYPE_CODE_NAMESPACE
 #Code = gdb.TYPE_CODE_DECFLOAT # Decimal floating point.
 #Code = gdb.TYPE_CODE_MODULE # Fortran
 #Code = gdb.TYPE_CODE_INTERNAL_FUNCTION
-SimpleValueCode = -1
 
 
 #######################################################################
@@ -1436,8 +1439,7 @@ class Dumper(DumperBase):
             or code == CharCode \
             or code == IntCode \
             or code == FloatCode \
-            or code == EnumCode \
-            or code == SimpleValueCode
+            or code == EnumCode
 
     def simpleEncoding(self, typeobj):
         code = typeobj.code
@@ -1470,13 +1472,14 @@ class Dumper(DumperBase):
         return None
 
     def tryPutArrayContents(self, typeobj, base, n):
-        if not self.isSimpleType(typeobj):
+        enc = self.simpleEncoding(typeobj)
+        if not enc:
             return False
         size = n * typeobj.sizeof;
         self.put('childtype="%s",' % typeobj)
         self.put('addrbase="0x%x",' % toInteger(base))
         self.put('addrstep="0x%x",' % toInteger(typeobj.sizeof))
-        self.put('arrayencoding="%s",' % self.simpleEncoding(typeobj))
+        self.put('arrayencoding="%s",' % enc)
         self.put('arraydata="')
         self.put(self.readMemory(base, size))
         self.put('",')
@@ -1631,7 +1634,7 @@ class Dumper(DumperBase):
                 self.putNumChild(0)
                 return
 
-        if type.code == IntCode or type.code == CharCode or type.code == SimpleValueCode:
+        if type.code == IntCode or type.code == CharCode:
             self.putType(typeName)
             if value.is_optimized_out:
                 self.putValue("<optimized out>")
@@ -1737,7 +1740,7 @@ class Dumper(DumperBase):
             if format == None and innerTypeName == "char":
                 # Use Latin1 as default for char *.
                 self.putType(typeName)
-                self.putValue(encodeCharArray(value), Hex2EncodedLatin1)
+                self.putValue(self.encodeCharArray(value), Hex2EncodedLatin1)
                 self.putNumChild(0)
                 return
 
@@ -1755,35 +1758,35 @@ class Dumper(DumperBase):
             if format == 1:
                 # Explicitly requested Latin1 formatting.
                 self.putType(typeName)
-                self.putValue(encodeCharArray(value), Hex2EncodedLatin1)
+                self.putValue(self.encodeCharArray(value), Hex2EncodedLatin1)
                 self.putNumChild(0)
                 return
 
             if format == 2:
                 # Explicitly requested UTF-8 formatting.
                 self.putType(typeName)
-                self.putValue(encodeCharArray(value), Hex2EncodedUtf8)
+                self.putValue(self.encodeCharArray(value), Hex2EncodedUtf8)
                 self.putNumChild(0)
                 return
 
             if format == 3:
                 # Explicitly requested local 8 bit formatting.
                 self.putType(typeName)
-                self.putValue(encodeCharArray(value), Hex2EncodedLocal8Bit)
+                self.putValue(self.encodeCharArray(value), Hex2EncodedLocal8Bit)
                 self.putNumChild(0)
                 return
 
             if format == 4:
                 # Explicitly requested UTF-16 formatting.
                 self.putType(typeName)
-                self.putValue(encodeChar2Array(value), Hex4EncodedLittleEndian)
+                self.putValue(self.encodeChar2Array(value), Hex4EncodedLittleEndian)
                 self.putNumChild(0)
                 return
 
             if format == 5:
                 # Explicitly requested UCS-4 formatting.
                 self.putType(typeName)
-                self.putValue(encodeChar4Array(value), Hex8EncodedLittleEndian)
+                self.putValue(self.encodeChar4Array(value), Hex8EncodedLittleEndian)
                 self.putNumChild(0)
                 return
 

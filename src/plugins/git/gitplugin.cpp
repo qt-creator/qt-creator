@@ -1075,15 +1075,15 @@ bool GitPlugin::submitEditorAboutToClose()
         return true;
     // Prompt user. Force a prompt unless submit was actually invoked (that
     // is, the editor was closed or shutdown).
-    bool *promptData = m_settings.boolPointer(GitSettings::promptOnSubmitKey);
     VcsBase::VcsBaseSubmitEditor::PromptSubmitResult answer;
     if (editor->forceClose()) {
         answer = VcsBase::VcsBaseSubmitEditor::SubmitDiscarded;
     } else {
+        bool promptData = false;
         answer = editor->promptSubmit(tr("Closing Git Editor"),
                      tr("Do you want to commit the change?"),
                      tr("Git will not accept this commit. Do you want to continue to edit it?"),
-                     promptData, !m_submitActionTriggered, false);
+                     &promptData, !m_submitActionTriggered, false);
     }
     m_submitActionTriggered = false;
     switch (answer) {
@@ -1352,7 +1352,7 @@ void GitPlugin::stashSnapshot()
         m_stashDialog->refresh(state.topLevel(), true);
 }
 
-// Create a non-modal dialog with refresh method or raise if it exists
+// Create a non-modal dialog with refresh function or raise if it exists
 template <class NonModalDialog>
     inline void showNonModalDialog(const QString &topLevel,
                                    QPointer<NonModalDialog> &dialog)

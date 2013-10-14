@@ -41,6 +41,9 @@ sys.path.insert(1, currentDir)
 
 from dumper import *
 from qttypes import *
+from stdtypes import *
+from misctypes import *
+from boosttypes import *
 
 
 

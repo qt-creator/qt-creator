@@ -41,7 +41,7 @@ BareMetalDeviceConfigurationWizardSetupPage::BareMetalDeviceConfigurationWizardS
     QWizardPage(parent), d(new Internal::BareMetalDeviceConfigurationWizardSetupPagePrivate)
 {
     d->ui.setupUi(this);
-    setTitle(tr("Gdbserver/hardware debugger setup"));
+    setTitle(tr("Set up GDB Server or Hardware Debugger"));
     setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
     connect(d->ui.hostNameLineEdit,SIGNAL(textChanged(QString)),SIGNAL(completeChanged()));
     connect(d->ui.nameLineEdit,SIGNAL(textChanged(QString)),SIGNAL(completeChanged()));

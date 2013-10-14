@@ -208,7 +208,7 @@ QString CMakeManager::findCbpFile(const QDir &directory)
 {
     // Find the cbp file
     //   the cbp file is named like the project() command in the CMakeList.txt file
-    //   so this method below could find the wrong cbp file, if the user changes the project()
+    //   so this function below could find the wrong cbp file, if the user changes the project()
     //   2name
     QDateTime t;
     QString file;

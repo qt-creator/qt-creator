@@ -376,7 +376,7 @@ LogWindow::LogWindow(QWidget *parent)
     QToolButton *repeatButton = new QToolButton(this);
     repeatButton->setIcon(QIcon(QLatin1String(":/debugger/images/debugger_stepover_small.png")));
     repeatButton->setIconSize(QSize(12, 12));
-    repeatButton->setToolTip(tr("Repeat last command for debug reasons"));
+    repeatButton->setToolTip(tr("Repeat last command for debug reasons."));
 
     QHBoxLayout *commandBox = new QHBoxLayout;
     commandBox->addWidget(repeatButton);

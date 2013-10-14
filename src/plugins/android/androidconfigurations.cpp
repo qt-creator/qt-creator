@@ -502,17 +502,37 @@ QString AndroidConfigurations::createAVD(const QString &target, const QString &n
     QProcess proc;
     proc.start(androidToolPath().toString(),
                QStringList() << QLatin1String("create") << QLatin1String("avd")
-               << QLatin1String("-a") << QLatin1String("-t") << target
+               << QLatin1String("-t") << target
                << QLatin1String("-n") << name
                << QLatin1String("-b") << abi
                << QLatin1String("-c") << QString::fromLatin1("%1M").arg(sdcardSize));
     if (!proc.waitForStarted())
         return QString();
-    proc.write(QByteArray("no\n"));
-    if (!proc.waitForFinished(-1)) {
-        proc.terminate();
-        return QString();
+
+    proc.write(QByteArray("yes\n")); // yes to "Do you wish to create a custom hardware profile"
+
+    QByteArray question;
+    while (true) {
+        proc.waitForReadyRead(500);
+        question += proc.readAllStandardOutput();
+        if (question.endsWith(QByteArray("]:"))) {
+            // truncate to last line
+            int index = question.lastIndexOf(QByteArray("\n"));
+            if (index != -1)
+                question = question.mid(index);
+            if (question.contains("hw.gpu.enabled"))
+                proc.write(QByteArray("yes\n"));
+            else
+                proc.write(QByteArray("\n"));
+            question.clear();
+        }
+
+        if (proc.state() != QProcess::Running)
+            break;
     }
+
+    proc.waitForFinished();
+
     if (proc.exitCode()) // error!
         return QString();
     return name;
@@ -787,10 +807,10 @@ void AndroidConfigurations::updateAutomaticKitList()
     // register new kits
     QList<Kit *> newKits;
     foreach (AndroidToolChain *tc, toolchains) {
+        if (tc->isSecondaryToolChain())
+            continue;
         QList<QtSupport::BaseQtVersion *> qtVersions = qtVersionsForArch.value(tc->targetAbi().architecture());
         foreach (QtSupport::BaseQtVersion *qt, qtVersions) {
-            if (tc->secondaryToolChain())
-                continue;
             Kit *newKit = new Kit;
             newKit->setAutoDetected(true);
             newKit->setIconPath(Utils::FileName::fromString(QLatin1String(Constants::ANDROID_SETTINGS_CATEGORY_ICON)));
@@ -798,7 +818,15 @@ void AndroidConfigurations::updateAutomaticKitList()
             ToolChainKitInformation::setToolChain(newKit, tc);
             QtSupport::QtKitInformation::setQtVersion(newKit, qt);
             DeviceKitInformation::setDevice(newKit, device);
-            Debugger::DebuggerKitInformation::setDebugger(newKit, tc->suggestedDebugger());
+
+            Debugger::DebuggerItem debugger;
+            debugger.setCommand(tc->suggestedDebugger());
+            debugger.setEngineType(Debugger::GdbEngineType);
+            debugger.setDisplayName(tr("Android Debugger for %1").arg(tc->displayName()));
+            debugger.setAutoDetected(true);
+            debugger.setAbi(tc->targetAbi());
+            Debugger::DebuggerKitInformation::setDebugger(newKit, debugger);
+
             AndroidGdbServerKitInformation::setGdbSever(newKit, tc->suggestedGdbServer());
             newKit->makeSticky();
             newKits << newKit;
@@ -879,6 +907,24 @@ AndroidConfigurations::AndroidConfigurations(QObject *parent)
             this, SLOT(clearDefaultDevices(ProjectExplorer::Project*)));
 }
 
+Utils::FileName javaHomeForJavac(const QString &location)
+{
+    QFileInfo fileInfo(location);
+    int tries = 5;
+    while (tries > 0) {
+        QDir dir = fileInfo.dir();
+        dir.cdUp();
+        if (QFileInfo(dir.filePath(QLatin1String("lib/tools.jar"))).exists())
+            return Utils::FileName::fromString(dir.path());
+        if (fileInfo.isSymLink())
+            fileInfo.setFile(fileInfo.symLinkTarget());
+        else
+            break;
+        --tries;
+    }
+    return Utils::FileName();
+}
+
 void AndroidConfigurations::load()
 {
     bool saveSettings = false;
@@ -897,14 +943,18 @@ void AndroidConfigurations::load()
     }
 
     if (m_config.openJDKLocation.isEmpty()) {
-        Environment env = Environment::systemEnvironment();
-        QString location = env.searchInPath(QLatin1String("javac"));
-        QFileInfo fi(location);
-        if (fi.exists() && fi.isExecutable() && !fi.isDir()) {
-            QDir parentDirectory = fi.canonicalPath();
-            parentDirectory.cdUp(); // one up from bin
-            m_config.openJDKLocation = FileName::fromString(parentDirectory.absolutePath());
-            saveSettings = true;
+        if (HostOsInfo::isLinuxHost()) {
+            Environment env = Environment::systemEnvironment();
+            QString location = env.searchInPath(QLatin1String("javac"));
+            QFileInfo fi(location);
+            if (fi.exists() && fi.isExecutable() && !fi.isDir()) {
+                m_config.openJDKLocation = javaHomeForJavac(location);
+                saveSettings = true;
+            }
+        } else if (HostOsInfo::isMacHost()) {
+            QString javaHome = QLatin1String("/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Home");
+            if (QFileInfo(javaHome).exists())
+                m_config.openJDKLocation = Utils::FileName::fromString(javaHome);
         } else if (HostOsInfo::isWindowsHost()) {
             QSettings settings(QLatin1String("HKEY_LOCAL_MACHINE\\SOFTWARE\\Javasoft\\Java Development Kit"), QSettings::NativeFormat);
             QStringList allVersions = settings.childGroups();

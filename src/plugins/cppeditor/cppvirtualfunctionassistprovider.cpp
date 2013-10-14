@@ -252,11 +252,6 @@ static bool isVirtualFunction_helper(const Function *function,
             foreach (const LookupItem &item, results) {
                 if (Symbol *symbol = item.declaration()) {
                     if (Function *functionType = symbol->type()->asFunctionType()) {
-                        if (!functionType) {
-                            if (Template *t = item.type()->asTemplateType())
-                                if ((symbol = t->declaration()))
-                                    functionType = symbol->type()->asFunctionType();
-                        }
                         const bool foundSuitable = virtualType == Virtual
                             ? functionType->isVirtual()
                             : functionType->isPureVirtual();
@@ -282,13 +277,14 @@ bool FunctionHelper::isPureVirtualFunction(const Function *function, const Snaps
 }
 
 QList<Symbol *> FunctionHelper::overrides(Class *startClass, Function *function,
-                                           const Snapshot &snapshot)
+                                          const Snapshot &snapshot)
 {
     QList<Symbol *> result;
-    QTC_ASSERT(function && startClass, return result);
+    QTC_ASSERT(startClass && function, return result);
 
     FullySpecifiedType referenceType = function->type();
     const Name *referenceName = function->name();
+    QTC_ASSERT(referenceName && referenceType.isValid(), return result);
 
     // Add itself
     result << function;
@@ -315,7 +311,9 @@ QList<Symbol *> FunctionHelper::overrides(Class *startClass, Function *function,
         for (int i = 0, total = c->memberCount(); i < total; ++i) {
             Symbol *candidate = c->memberAt(i);
             const Name *candidateName = candidate->name();
-            FullySpecifiedType candidateType = candidate->type();
+            const FullySpecifiedType candidateType = candidate->type();
+            if (!candidateName || !candidateType.isValid())
+                continue;
             if (candidateName->isEqualTo(referenceName) && candidateType.isEqualTo(referenceType))
                 result << candidate;
         }

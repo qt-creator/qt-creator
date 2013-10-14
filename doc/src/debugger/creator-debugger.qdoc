@@ -1011,7 +1011,7 @@
     easier to employ the Dumper Python class for that purpose. The Dumper
     Python class contains a complete framework to take care of the \c iname and
     \c addr fields, to handle children of simple types, references, pointers,
-    enums, known and unknown structs as well as some convenience methods to
+    enums, known and unknown structs as well as some convenience functions to
     handle common situations.
 
     The member functions of the \gui{Dumper} class are the following:
@@ -1021,7 +1021,7 @@
         \li \gui{__init__(self)} - Initializes the output to an empty string and
             empties the child stack. This should not be used in user code.
 
-        \li \gui{put(self, value)} - Low level method to directly append to the
+        \li \gui{put(self, value)} - Low level function to directly append to the
             output string. That is also the fastest way to append output.
 
         \li \gui{putField(self, name, value)} - Appends a name='value' field.

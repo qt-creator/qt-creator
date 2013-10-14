@@ -150,7 +150,7 @@ public:
     virtual ToolChain *clone() const = 0;
 
     // Used by the toolchainmanager to save user-generated tool chains.
-    // Make sure to call this method when deriving!
+    // Make sure to call this function when deriving!
     virtual QVariantMap toMap() const;
     virtual QList<Task> validateKit(const Kit *k) const;
 protected:
@@ -159,7 +159,7 @@ protected:
 
     void toolChainUpdated();
 
-    // Make sure to call this method when deriving!
+    // Make sure to call this function when deriving!
     virtual bool fromMap(const QVariantMap &data);
 
 private:

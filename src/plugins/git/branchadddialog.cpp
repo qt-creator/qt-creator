@@ -30,6 +30,8 @@
 #include "branchadddialog.h"
 #include "ui_branchadddialog.h"
 
+#include <utils/hostosinfo.h>
+
 #include <QPushButton>
 #include <QValidator>
 
@@ -46,7 +48,7 @@ namespace Internal {
 class BranchNameValidator : public QValidator
 {
 public:
-    BranchNameValidator(QObject *parent = 0) :
+    BranchNameValidator(const QStringList &localBranches, QObject *parent = 0) :
         QValidator(parent),
         m_invalidChars(QLatin1String(
                                    "\\s"          // no whitespace
@@ -59,8 +61,9 @@ public:
                                    "|@\\{"      // no "@{" sequence
                                    "|\\\\"      // no backslash
                                    "|//"    // no double slash
-                                   "|^/"  // no leading slash
-                                   ))
+                                   "|^[/-]"  // no leading slash or dash
+                                   )),
+        m_localBranches(localBranches)
     {
     }
 
@@ -87,22 +90,28 @@ public:
         if (input.endsWith(QLatin1Char('/'))) // no slash at the end (but allowed in the middle)
             return Intermediate;
 
+        if (m_localBranches.contains(input, Utils::HostOsInfo::isWindowsHost()
+                                     ? Qt::CaseInsensitive : Qt::CaseSensitive)) {
+            return Intermediate;
+        }
+
         // is a valid branch name
         return Acceptable;
     }
 
 private:
     const QRegExp m_invalidChars;
+    QStringList m_localBranches;
 };
 
 
-BranchAddDialog::BranchAddDialog(bool addBranch, QWidget *parent) :
+BranchAddDialog::BranchAddDialog(const QStringList &localBranches, bool addBranch, QWidget *parent) :
     QDialog(parent),
     m_ui(new Ui::BranchAddDialog)
 {
     m_ui->setupUi(this);
     setWindowTitle(addBranch ? tr("Add Branch") : tr("Rename Branch"));
-    m_ui->branchNameEdit->setValidator(new BranchNameValidator(this));
+    m_ui->branchNameEdit->setValidator(new BranchNameValidator(localBranches, this));
     connect(m_ui->branchNameEdit, SIGNAL(textChanged(QString)), this, SLOT(updateButtonStatus()));
 }
 

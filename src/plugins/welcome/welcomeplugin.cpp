@@ -353,7 +353,7 @@ bool WelcomePlugin::initialize(const QStringList & /* arguments */, QString * /*
 /*! Notification that all extensions that this plugin depends on have been
     initialized. The dependencies are defined in the plugins .qwp file.
 
-    Normally this method is used for things that rely on other plugins to have
+    Normally this function is used for things that rely on other plugins to have
     added objects to the plugin manager, that implement interfaces that we're
     interested in. These objects can now be requested through the
     PluginManagerInterface.

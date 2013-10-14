@@ -41,8 +41,7 @@
             \li \inlineimage creator_managingprojects.png
             \li \inlineimage creator_designinguserinterface.png
         \row
-            \li \list
-                \li \b {\l{Getting Started}}
+            \li \b {\l{Getting Started}}
                 \list
                     \li \l{IDE Overview}
                     \li \l{User Interface}
@@ -50,68 +49,54 @@
                     \li \l{Building and Running an Example}
                     \li \l{Tutorials}
                 \endlist
-            \endlist
-            \li \list
-                \li \b {\l{Managing Projects}}
+            \li \b {\l{Managing Projects}}
                 \list
                     \li \l{Creating Projects}
                     \li \l{Using Version Control Systems}
                     \li \l{Configuring Projects}
                     \li \l{Managing Sessions}
                 \endlist
-            \endlist
-            \li \list
             \li \b {\l{Designing User Interfaces}}
                 \list
                     \li \l{Developing Qt Quick Applications}
                     \li \l{Developing Widget Based Applications}
                     \li \l{Optimizing Applications for Mobile Devices}
                 \endlist
-            \endlist
         \row
             \li \inlineimage creator_coding.png
             \li \inlineimage creator_buildingrunning.png
             \li \inlineimage creator_testing.png
         \row
-            \li \list
             \li \b {\l{Coding}}
                 \list
                     \li \l{Writing Code}
                     \li \l{Finding}
                     \li \l{Refactoring}
                     \li \l{Configuring the Editor}
-                \endlist
             \endlist
-            \li \list
             \li \b {\l{Building and Running}}
                 \list
                     \li \l{Building for Multiple Platforms}
                     \li \l{Running on Multiple Platforms}
                     \li \l{Deploying to Mobile Devices}
                     \li \l{Connecting Mobile Devices}
-                \endlist
             \endlist
-            \li \list
             \li \b {\l{Debugging and Analyzing}}
                 \list
                     \li \l{Debugging}
                     \li \l{Analyzing Code}
                 \endlist
-            \endlist
         \row
             \li \inlineimage creator_publishing.png
             \li \inlineimage creator_advanceduse.png
             \li \inlineimage creator_gettinghelp.png
         \row
-            \li \list
             \li \b {\l{Publishing}}
                 \list
                     \li \l{Publishing Qt Content for MeeGo Harmattan Devices}
                     \li \l{Publishing Qt Content for Maemo Devices}
                     \li \l{Publishing Maemo Applications to Extras-devel}
                 \endlist
-            \endlist
-            \li \list
             \li \b {\l{Advanced Use}}
                 \list
                     \li \l{Supported Platforms}
@@ -120,8 +105,6 @@
                     \li \l{Keyboard Shortcuts}
                     \li \l{Using External Tools}
                 \endlist
-            \endlist
-            \li \list
             \li \b {\l{Getting Help}}
                 \list
                     \li \l{Using the Help Mode}
@@ -130,7 +113,6 @@
                     \li \l{Known Issues}
                     \li \l{Glossary}
                 \endlist
-            \endlist
         \row
             \li {3,1} \note To report bugs and suggestions to the Qt Bug
                 Tracker, select \gui {Help > Report Bug}.

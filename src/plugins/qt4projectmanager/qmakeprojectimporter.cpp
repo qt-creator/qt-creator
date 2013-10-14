@@ -151,7 +151,7 @@ QList<ProjectExplorer::BuildInfo *> QmakeProjectImporter::import(const Utils::Fi
 
             // create info:
             QmakeBuildInfo *info = new QmakeBuildInfo(factory);
-            if (makefileBuildConfig.first | QtSupport::BaseQtVersion::DebugBuild) {
+            if (makefileBuildConfig.first & QtSupport::BaseQtVersion::DebugBuild) {
                 info->type = ProjectExplorer::BuildConfiguration::Debug;
                 info->displayName = QCoreApplication::translate("Qt4ProjectManager::Internal::QmakeProjectImporter", "Debug");
             } else {

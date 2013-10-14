@@ -606,7 +606,7 @@ bool MercurialPlugin::submitEditorAboutToClose()
     Core::IDocument *editorFile = commitEditor->document();
     QTC_ASSERT(editorFile, return true);
 
-    bool dummyPrompt = mercurialSettings.boolValue(MercurialSettings::promptOnSubmitKey);
+    bool dummyPrompt = false;
     const VcsBaseSubmitEditor::PromptSubmitResult response =
             commitEditor->promptSubmit(tr("Close Commit Editor"), tr("Do you want to commit the changes?"),
                                        tr("Message check failed. Do you want to proceed?"),

@@ -156,7 +156,7 @@ bool ToolChain::operator == (const ToolChain &tc) const
 /*!
     Used by the tool chain manager to save user-generated tool chains.
 
-    Make sure to call this method when deriving.
+    Make sure to call this function when deriving.
 */
 
 QVariantMap ToolChain::toMap() const
@@ -185,7 +185,7 @@ void ToolChain::setDetection(ToolChain::Detection de)
 /*!
     Used by the tool chain manager to load user-generated tool chains.
 
-    Make sure to call this method when deriving.
+    Make sure to call this function when deriving.
 */
 
 bool ToolChain::fromMap(const QVariantMap &data)

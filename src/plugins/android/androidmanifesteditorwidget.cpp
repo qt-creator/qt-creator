@@ -99,8 +99,7 @@ AndroidManifestEditorWidget::AndroidManifestEditorWidget(QWidget *parent, TextEd
     : TextEditor::PlainTextEditorWidget(parent),
       m_dirty(false),
       m_stayClean(false),
-      m_setAppName(false),
-      m_ah(ah)
+      m_setAppName(false)
 {
     QSharedPointer<AndroidManifestDocument> doc(new AndroidManifestDocument(this));
     doc->setMimeType(QLatin1String(Constants::ANDROID_MANIFEST_MIME_TYPE));
@@ -875,7 +874,11 @@ int extractVersion(const QString &string)
     int index = string.indexOf(QLatin1Char(':'));
     if (index == -1)
         return 0;
+#if QT_VERSION < 0x050000
+    return string.mid(4, index - 4).toInt();
+#else
     return string.midRef(4, index - 4).toInt();
+#endif
 }
 
 void AndroidManifestEditorWidget::syncToEditor()

@@ -38,13 +38,13 @@
     and retrieved depending on different criteria.
 
     Most interaction of plugins with the plugin manager should be done through the
-    ExtensionSystem::IPlugin interface, but the following tables summarize some methods
+    ExtensionSystem::IPlugin interface, but the following tables summarize some functions
     and signals that can be useful for plugins.
     See the ExtensionSystem::PluginManager reference documentation for the complete list.
 
     \table
         \header
-            \li Method
+            \li Function
             \li Description
         \row
             \li instance()
@@ -97,9 +97,9 @@
 
     All objects of a specified type can be retrieved from the object pool
     via the \l{ExtensionSystem::PluginManager::getObjects()}{getObjects()} and
-    \l{ExtensionSystem::PluginManager::getObject()}{getObject()} methods.
-    They are aware of Aggregation::Aggregate, so these methods use the Aggregation::query() methods
-    instead of qobject_cast to determine the matching objects.
+    \l{ExtensionSystem::PluginManager::getObject()}{getObject()} functions.
+    They are aware of Aggregation::Aggregate, so these functions use the Aggregation::query()
+    functions instead of qobject_cast to determine the matching objects.
 
     It is also possible to retrieve an object with a specific object name with
     \l{ExtensionSystem::PluginManager::getObjectByName()}{getObjectByName()}

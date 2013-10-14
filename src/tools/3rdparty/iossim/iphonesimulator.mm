@@ -131,11 +131,11 @@ NSString *deviceIpadRetina = @"iPad (Retina)";
       if (shouldStartDebugger) {
         char*args[4] = { NULL, NULL, (char*)[[[mySession simulatedApplicationPID] description] UTF8String], NULL };
         if (useGDB) {
-          args[0] = "gdb";
-          args[1] = "program";
+          args[0] = strdup("gdb");
+          args[1] = strdup("program");
         } else {
-          args[0] = "lldb";
-          args[1] = "--attach-pid";
+          args[0] = strdup("lldb");
+          args[1] = strdup("--attach-pid");
         }
         // The parent process must live on to process the stdout/stderr fifos,
         // so start the debugger as a child process.

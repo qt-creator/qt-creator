@@ -200,7 +200,7 @@ protected:
     // Sets the current submit editor for this specific version control plugin.
     // The plugin automatically checks if the submit editor is closed and calls
     // submitEditorAboutToClose().
-    // The method raiseSubmitEditor can be used to check for a running submit editor and raise it.
+    // The function raiseSubmitEditor can be used to check for a running submit editor and raise it.
     void setSubmitEditor(VcsBaseSubmitEditor *submitEditor);
     // Current submit editor set through setSubmitEditor, if it wasn't closed inbetween
     VcsBaseSubmitEditor *submitEditor() const;

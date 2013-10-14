@@ -228,8 +228,8 @@ static Function *findDeclaration(const Class *cl, const QString &functionName)
 {
     const QString funName = QString::fromUtf8(QMetaObject::normalizedSignature(functionName.toUtf8()));
     const unsigned mCount = cl->memberCount();
-    // we are interested only in declarations (can be decl of method or of a field)
-    // we are only interested in declarations of methods
+    // we are interested only in declarations (can be decl of function or of a field)
+    // we are only interested in declarations of functions
     const Overview overview;
     for (unsigned j = 0; j < mCount; ++j) { // go through all members
         if (Declaration *decl = cl->memberAt(j)->asDeclaration())
@@ -254,7 +254,7 @@ static Function *findDeclaration(const Class *cl, const QString &functionName)
     return 0;
 }
 
-// TODO: remove me, this is taken from cppeditor.cpp. Find some common place for this method
+// TODO: remove me, this is taken from cppeditor.cpp. Find some common place for this function
 static Document::Ptr findDefinition(Function *functionDeclaration, int *line)
 {
     if (CppTools::CppModelManagerInterface *cppModelManager = CppTools::CppModelManagerInterface::instance()) {

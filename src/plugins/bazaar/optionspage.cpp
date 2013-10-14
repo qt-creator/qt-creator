@@ -54,7 +54,6 @@ BazaarSettings OptionsPageWidget::settings() const
     s.setValue(BazaarSettings::userEmailKey, m_ui.defaultEmailLineEdit->text().trimmed());
     s.setValue(BazaarSettings::logCountKey, m_ui.logEntriesCount->value());
     s.setValue(BazaarSettings::timeoutKey, m_ui.timeout->value());
-    s.setValue(BazaarSettings::promptOnSubmitKey, m_ui.promptOnSubmitCheckBox->isChecked());
     return s;
 }
 
@@ -65,7 +64,6 @@ void OptionsPageWidget::setSettings(const BazaarSettings &s)
     m_ui.defaultEmailLineEdit->setText(s.stringValue(BazaarSettings::userEmailKey));
     m_ui.logEntriesCount->setValue(s.intValue(BazaarSettings::logCountKey));
     m_ui.timeout->setValue(s.intValue(BazaarSettings::timeoutKey));
-    m_ui.promptOnSubmitCheckBox->setChecked(s.boolValue(BazaarSettings::promptOnSubmitKey));
 }
 
 QString OptionsPageWidget::searchKeywords() const
@@ -81,7 +79,6 @@ QString OptionsPageWidget::searchKeywords() const
             << sep << m_ui.miscGroupBox->title()
             << sep << m_ui.showLogEntriesLabel->text()
             << sep << m_ui.timeoutSecondsLabel->text()
-            << sep << m_ui.promptOnSubmitCheckBox->text()
                ;
     rc.remove(QLatin1Char('&'));
     return rc;

@@ -145,7 +145,7 @@ DebuggerRunControl::DebuggerRunControl(RunConfiguration *runConfiguration,
     d->m_engine = DebuggerRunControlFactory::createEngine(sp.masterEngineType, sp, &errorMessage);
 
     if (d->m_engine) {
-        DebuggerToolTipManager::instance()->registerEngine(d->m_engine);
+        DebuggerToolTipManager::registerEngine(d->m_engine);
     } else {
         debuggingFinished();
         Core::ICore::showWarningWithOptions(DebuggerRunControl::tr("Debugger"), errorMessage);

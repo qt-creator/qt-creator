@@ -40,7 +40,7 @@ using namespace QmlJS;
     a specific location.
     \sa Document Context ScopeBuilder
 
-    A ScopeChain is used to perform global lookup with the lookup() method and
+    A ScopeChain is used to perform global lookup with the lookup() function and
     to access information about the enclosing scopes.
 
     Once constructed for a Document in a Context it represents the root scope of

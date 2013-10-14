@@ -110,27 +110,6 @@ QString IosRunConfigurationFactory::displayNameForId(const Core::Id id) const
     return QFileInfo(pathFromId(id)).completeBaseName();
 }
 
-RunConfiguration *IosRunConfigurationFactory::create(Target *parent, const Core::Id id)
-{
-    if (!canCreate(parent, id))
-        return 0;
-    return new IosRunConfiguration(parent, id, pathFromId(id));
-}
-
-RunConfiguration *IosRunConfigurationFactory::restore(Target *parent,
-    const QVariantMap &map)
-{
-    if (!canRestore(parent, map))
-        return 0;
-    Core::Id id = ProjectExplorer::idFromMap(map);
-    IosRunConfiguration *rc = new IosRunConfiguration(parent, id, pathFromId(id));
-    if (rc->fromMap(map))
-        return rc;
-
-    delete rc;
-    return 0;
-}
-
 RunConfiguration *IosRunConfigurationFactory::clone(Target *parent, RunConfiguration *source)
 {
     if (!canClone(parent, source))
@@ -191,11 +170,6 @@ RunControl *IosRunControlFactory::create(RunConfiguration *runConfig,
         return new Ios::Internal::IosRunControl(rc);
     else
         return IosDebugSupport::createDebugRunControl(rc, errorMessage);
-}
-
-QString IosRunControlFactory::displayName() const
-{
-    return tr("Run on iOS device or simulator.");
 }
 
 } // namespace Internal

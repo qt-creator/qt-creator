@@ -45,6 +45,8 @@ const char QTCORE_NAMESPACE[] = "Qt.core.namespace";
 const char QTCORE_LIBINFIX[] = "Qt.core.libInfix";
 const char QTCORE_MKSPEC[] = "Qt.core.mkspecPath";
 const char QTCORE_FRAMEWORKBUILD[] = "Qt.core.frameworkBuild";
+const char QTCORE_CONFIG[] = "Qt.core.config";
+const char QTCORE_QTCONFIG[] = "Qt.core.qtConfig";
 
 
 // Toolchain related settings:

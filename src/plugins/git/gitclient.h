@@ -137,6 +137,7 @@ public:
 
     QString findRepositoryForDirectory(const QString &dir);
     QString findGitDirForRepository(const QString &repositoryDir) const;
+    bool managesFile(const QString &workingDirectory, const QString &fileName) const;
 
     void diff(const QString &workingDirectory, const QString &fileName);
     void diff(const QString &workingDirectory,
@@ -335,7 +336,8 @@ public slots:
     void saveSettings();
 
 private slots:
-    void slotBlameRevisionRequested(const QString &source, QString change, int lineNumber);
+    void slotBlameRevisionRequested(const QString &workingDirectory, const QString &file,
+                                    QString change, int lineNumber);
     void finishSubmoduleUpdate();
     void fetchFinished(const QVariant &cookie);
 

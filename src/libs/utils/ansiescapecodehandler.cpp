@@ -42,15 +42,15 @@ namespace Utils {
     Also, one instance of this class should not handle multiple streams (at least not
     at the same time).
 
-    Its main method is parseText(), which accepts text and default QTextCharFormat.
-    This method is designed to parse text and split colored text to smaller strings,
+    Its main function is parseText(), which accepts text and default QTextCharFormat.
+    This function is designed to parse text and split colored text to smaller strings,
     with their appropriate formatting information set inside QTextCharFormat.
 
     Usage:
     \list
     \li Create new instance of AnsiEscapeCodeHandler for a stream.
     \li To add new text, call parseText() with the text and a default QTextCharFormat.
-        The result of this method is a list of strings with formats set in appropriate
+        The result of this function is a list of strings with formats set in appropriate
         QTextCharFormat.
     \endlist
 */

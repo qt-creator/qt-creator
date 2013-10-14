@@ -64,7 +64,7 @@ namespace Internal {
  * For a single qrc a given path maps to a single file, but when one has multiple
  * (platform specific exclusive) qrc files, then multiple files match, so QStringList are used.
  *
- * Especially the collect* methods are thought as low level interface.
+ * Especially the collect* functions are thought as low level interface.
  */
 class QrcParserPrivate
 {

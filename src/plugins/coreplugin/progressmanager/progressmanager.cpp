@@ -72,7 +72,7 @@ using namespace Core::Internal;
     The progress indicator also allows the user to cancel the task.
 
     You get the single instance of this class via the
-    Core::ICore::progressManager() method.
+    Core::ICore::progressManager() function.
 
     \section1 Registering a task
     The ProgressManager API uses QtConcurrent as the basis for defining
@@ -110,7 +110,7 @@ using namespace Core::Internal;
     \endtable
 
     To register a task you create your \c QFuture<void> object, and call
-    addTask(). This method returns a
+    addTask(). This function returns a
     \l{Core::FutureProgress}{FutureProgress}
     object that you can use to further customize the progress bar's appearance.
     See the \l{Core::FutureProgress}{FutureProgress} documentation for
@@ -122,16 +122,16 @@ using namespace Core::Internal;
     \section2 Create a threaded task with QtConcurrent
     The first option is to directly use QtConcurrent to actually
     start a task concurrently in a different thread.
-    QtConcurrent has several different methods to run e.g.
-    a class method in a different thread. Qt Creator itself
+    QtConcurrent has several different functions to run e.g.
+    a class function in a different thread. Qt Creator itself
     adds a few more in \c{src/libs/qtconcurrent/runextensions.h}.
-    The QtConcurrent methods to run a concurrent task return a
+    The QtConcurrent functions to run a concurrent task return a
     \c QFuture object. This is what you want to give the
-    ProgressManager in the addTask() method.
+    ProgressManager in the addTask() function.
 
     Have a look at e.g Locator::ILocatorFilter. Locator filters implement
-    a method \c refresh which takes a \c QFutureInterface object
-    as a parameter. These methods look something like:
+    a function \c refresh which takes a \c QFutureInterface object
+    as a parameter. These functions look something like:
     \code
     void Filter::refresh(QFutureInterface<void> &future) {
         future.setProgressRange(0, MAX);
@@ -145,7 +145,7 @@ using namespace Core::Internal;
     }
     \endcode
 
-    The actual refresh, which calls all the filters' refresh methods
+    The actual refresh, which calls all the filters' refresh functions
     in a different thread, looks like this:
     \code
     QFuture<void> task = QtConcurrent::run(&ILocatorFilter::refresh, filters);
@@ -154,7 +154,7 @@ using namespace Core::Internal;
                                          Locator::Constants::TASK_INDEX);
     \endcode
     First, we tell QtConcurrent to start a thread which calls all the filters'
-    refresh method. After that we register the returned QFuture object
+    refresh function. After that we register the returned QFuture object
     with the ProgressManager.
 
     \section2 Manually create QtConcurrent objects for your thread
@@ -184,7 +184,7 @@ using namespace Core::Internal;
     We register the task with the ProgressManager, using the internal
     QFuture object that has been created for our QFutureInterface object.
     Next we report that the task has begun and start doing our actual
-    work, regularly reporting the progress via the methods
+    work, regularly reporting the progress via the functions
     in QFutureInterface. After the long taking operation has finished,
     we report so through the QFutureInterface object, and delete it
     afterwards.
@@ -192,7 +192,7 @@ using namespace Core::Internal;
     \section1 Customizing progress appearance
 
     You can set a custom widget to show below the progress bar itself,
-    using the FutureProgress object returned by the addTask() method.
+    using the FutureProgress object returned by the addTask() function.
     Also use this object to get notified when the user clicks on the
     progress indicator.
 */
@@ -231,8 +231,8 @@ using namespace Core::Internal;
     which can be used to further customize. The FutureProgress object's
     life is managed by the ProgressManager and is guaranteed to live only until
     the next event loop cycle, or until the next call of addTask.
-    If you want to use the returned FutureProgress later than directly after calling this method,
-    you will need to use protective methods (like wrapping the returned object in QPointer and
+    If you want to use the returned FutureProgress later than directly after calling this function,
+    you will need to use protective functions (like wrapping the returned object in QPointer and
     checking for 0 whenever you use it).
 */
 

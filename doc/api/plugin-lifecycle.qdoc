@@ -37,8 +37,8 @@
             tracks the state of the plugin.
             You can get the \l{ExtensionSystem::PluginSpec} instances via the
             plugin manager's \l{ExtensionSystem::PluginManager::plugins()}{plugins()}
-            method, or, after a plugin is loaded, through the plugin's
-            \l{ExtensionSystem::IPlugin::pluginSpec()}{pluginSpec()} method.
+            function, or, after a plugin is loaded, through the plugin's
+            \l{ExtensionSystem::IPlugin::pluginSpec()}{pluginSpec()} function.
 
         \li Sets the plugins to \c Read state.
 
@@ -61,15 +61,15 @@
 
         \li Sets the plugins to \c Loaded state.
 
-        \li Calls the \l{ExtensionSystem::IPlugin::initialize()}{initialize()} methods of
-            all plugins in the order of the load queue. In the \c initialize method,
+        \li Calls the \l{ExtensionSystem::IPlugin::initialize()}{initialize()} functions of
+            all plugins in the order of the load queue. In the \c initialize function,
             a plugin should make sure that all exported interfaces are set up and available
             to other plugins. A plugin can assume that plugins they depend on have set up
             their exported interfaces. For example, the \c Core plugin sets up the
             \l{Core::ActionManager}, \l{Core::EditorManager} and all other publicly available
             interfaces, so other plugins can request and use them.
 
-            The \l{ExtensionSystem::IPlugin::initialize()}{initialize()} method of a plugin
+            The \l{ExtensionSystem::IPlugin::initialize()}{initialize()} function of a plugin
             is a good place for
             \list
                \li registering objects in the plugin manager's object pool
@@ -82,8 +82,8 @@
         \li Sets the plugins to \c Initialized state.
 
         \li Calls the \l{ExtensionSystem::IPlugin::extensionsInitialized()}{extensionsInitialized()}
-            methods of all plugins in \e reverse order of the load queue. After
-            the \c extensionsInitialized method, a plugin should be fully initialized, set up
+            functions of all plugins in \e reverse order of the load queue. After
+            the \c extensionsInitialized function, a plugin should be fully initialized, set up
             and running. A plugin can assume that plugins that depend on it are fully set up,
             and can finish the initialization of parts that can be extended by other plugins.
             For example, the \c Core plugin assumes that all plugins have registered
@@ -97,10 +97,10 @@
     and afterwards \l{Core::ICore::coreOpened()}{coreOpened()}.
 
     After startup, when the event loop of \QC is running, the plugin manager calls
-    the \l{ExtensionSystem::IPlugin::delayedInitialize()}{delayedInitialize()} methods of all
+    the \l{ExtensionSystem::IPlugin::delayedInitialize()}{delayedInitialize()} functions of all
     plugins in \e reverse order of the load queue. The calls are done on the main thread, but
     separated by a delay of a few milliseconds to ensure responsiveness of \QC.
-    In the \c delayedInitialize method, a plugin can perform non-critical initialization
+    In the \c delayedInitialize function, a plugin can perform non-critical initialization
     that could unnecessarily delay showing the \QC UI if done during startup.
 
     After all delayed initializations are done the \l{ExtensionSystem::PluginManager}{PluginManager}
@@ -111,14 +111,14 @@
     plugin manager starts its shutdown sequence:
 
     \list 1
-        \li Calls the \l{ExtensionSystem::IPlugin::aboutToShutdown()}{aboutToShutdown()} methods of
+        \li Calls the \l{ExtensionSystem::IPlugin::aboutToShutdown()}{aboutToShutdown()} functions of
             all plugins in the order of the load queue. Plugins should perform measures
             for speeding up the actual shutdown here, like disconnecting signals that
             would otherwise needlessly be called.
             If a plugin needs to delay the real shutdown for a while, for example if
             it needs to wait for external processes to finish for a clean shutdown,
             the plugin can return \l{ExtensionSystem::IPlugin::AsynchronousShutdown} from this
-            method. This will make the plugin manager wait with the next step, and keep the main
+            function. This will make the plugin manager wait with the next step, and keep the main
             event loop running, until all plugins requesting AsynchronousShutdown have sent
             the asynchronousShutdownFinished() signal.
 

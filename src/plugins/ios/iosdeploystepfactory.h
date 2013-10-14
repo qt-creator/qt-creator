@@ -30,6 +30,7 @@
 #define IOSDEPLOYSTEPFACTORY_H
 
 #include <projectexplorer/buildstep.h>
+#include <utils/qtcoverride.h>
 
 namespace Ios {
 namespace Internal {
@@ -40,20 +41,20 @@ class IosDeployStepFactory : public ProjectExplorer::IBuildStepFactory
 public:
     explicit IosDeployStepFactory(QObject *parent = 0);
 
-    QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *parent) const;
-    QString displayNameForId(const Core::Id id) const;
+    QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *parent) const QTC_OVERRIDE;
+    QString displayNameForId(const Core::Id id) const QTC_OVERRIDE;
 
     bool canCreate(ProjectExplorer::BuildStepList *parent,
-                   const Core::Id id) const;
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, const Core::Id id);
+                   const Core::Id id) const QTC_OVERRIDE;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, const Core::Id id) QTC_OVERRIDE;
 
-    bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const;
-    ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map);
+    bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const QTC_OVERRIDE;
+    ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) QTC_OVERRIDE;
 
     bool canClone(ProjectExplorer::BuildStepList *parent,
-                  ProjectExplorer::BuildStep *product) const;
+                  ProjectExplorer::BuildStep *product) const QTC_OVERRIDE;
     ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent,
-                                      ProjectExplorer::BuildStep *product);
+                                      ProjectExplorer::BuildStep *product) QTC_OVERRIDE;
 };
 
 } // namespace Internal

@@ -416,7 +416,7 @@ void Highlighter::applyFormat(int offset,
         QTextCharFormat format = formatForCategory(formatId);
         if (itemData->isCustomized()) {
             // Please notice that the following are applied every time for item data which have
-            // customizations. The configureFormats method could be used to provide a "one time"
+            // customizations. The configureFormats function could be used to provide a "one time"
             // configuration, but it would probably require to traverse all item data from all
             // definitions available/loaded (either to set the values or for some "notifying"
             // strategy). This is because the highlighter does not really know on which

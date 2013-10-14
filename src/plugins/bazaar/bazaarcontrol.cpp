@@ -61,6 +61,11 @@ bool BazaarControl::managesDirectory(const QString &directory, QString *topLevel
     return !topLevelFound.isEmpty();
 }
 
+bool BazaarControl::managesFile(const QString &workingDirectory, const QString &fileName) const
+{
+    return m_bazaarClient->managesFile(workingDirectory, fileName);
+}
+
 bool BazaarControl::isConfigured() const
 {
     const QString binary = m_bazaarClient->settings()->binaryPath();

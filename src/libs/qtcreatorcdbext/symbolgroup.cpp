@@ -50,8 +50,8 @@ enum { debug = 0 };
   \brief The SymbolGroup class creates a symbol group storing a tree of
   expanded symbols rooted on a fake "locals" root element.
 
-  Provides a find() method based on inames ("locals.this.i1.data") and
-  dump() methods used for GDBMI-format dumping and debug helpers.
+  Provides a find() function based on inames ("locals.this.i1.data") and
+  dump() functions used for GDBMI-format dumping and debug helpers.
   Qt Creator's WatchModel is fed from this class. It basically represents the
   symbol group tree with some additional node types (Reference and Map Node
   types.

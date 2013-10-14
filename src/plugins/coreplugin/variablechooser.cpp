@@ -58,7 +58,7 @@ using namespace Core;
  *
  * The variable chooser monitors focus changes of all children of its parent widget.
  * When a text control gets focus, the variable chooser checks if it has variable support set,
- * either through the addVariableSupport() method or by manually setting the
+ * either through the addVariableSupport() function or by manually setting the
  * custom kVariableSupportProperty on the control. If the control supports variables,
  * a tool button which opens the variable chooser is shown in it while it has focus.
  *

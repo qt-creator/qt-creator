@@ -110,6 +110,11 @@ public:
 
     void setupQtVersions()
     {
+        if (!QtVersionManager::isLoaded()) {
+            connect(QtVersionManager::instance(), SIGNAL(qtVersionsLoaded()), this, SLOT(qtVersionManagerLoaded()));
+            return;
+        }
+
         beginResetModel();
         clear();
 
@@ -172,6 +177,11 @@ public slots:
         QModelIndex modelIndex = index(i,0);
         QVariant variant = data(modelIndex, Qt::UserRole + 2);
         return variant;
+    }
+    void qtVersionManagerLoaded()
+    {
+        disconnect(QtVersionManager::instance(), SIGNAL(qtVersionsLoaded()), this, SLOT(qtVersionManagerLoaded()));
+        setupQtVersions();
     }
 };
 
@@ -700,9 +710,11 @@ void ExamplesListModel::ensureInitialized() const
 
 void ExamplesListModel::filterForQtById(int id)
 {
-    m_uniqueQtId = id;
-    setUniqueQtVersionIdSetting(id);
-    updateExamples();
+    if (QtVersionManager::isLoaded()) {
+        m_uniqueQtId = id;
+        setUniqueQtVersionIdSetting(id);
+        updateExamples();
+    }
 }
 
 ExamplesListModelFilter::ExamplesListModelFilter(ExamplesListModel *sourceModel, QObject *parent) :
@@ -716,6 +728,7 @@ ExamplesListModelFilter::ExamplesListModelFilter(ExamplesListModel *sourceModel,
     connect(this, SIGNAL(showTutorialsOnlyChanged()), SLOT(updateFilter()));
     connect(sourceModel, SIGNAL(qtVersionsChanged()), SLOT(handleQtVersionsChanged()));
     setSourceModel(m_sourceModel);
+    m_qtVersionModel->setupQtVersions();
 }
 
 void ExamplesListModelFilter::updateFilter()

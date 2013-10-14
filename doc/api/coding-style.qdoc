@@ -86,10 +86,10 @@
     backward source code compatibility in patch releases, so:
 
     \list
-        \li Do not add or remove any public API (e.g. global functions,x
-            public/protected/private methods).
-        \li Do not reimplement methods (not even inlines,
-            nor protected or private methods).
+        \li Do not add or remove any public API (e.g. global functions,
+            public/protected/private member functions).
+        \li Do not reimplement functions (not even inlines,
+            nor protected or private functions).
         \li Check
             \l {http://wiki.qt-project.org/index.php/Binary_Compatibility_Workarounds}{Binary Compatibility Workarounds}
             for ways to preserve binary compatibility.
@@ -687,7 +687,7 @@
             will not remove the const modifier.
         \li Do not use \c dynamic_cast, use \c {qobject_cast} for QObjects, or
             refactor your design, for example by introducing a \c {type()}
-            method (see QListWidgetItem), unless you know what you do.
+            function (see QListWidgetItem), unless you know what you do.
     \endlist
 
     \section2 Compiler and Platform-specific Issues
@@ -854,7 +854,7 @@
             binary 0, instead of comparing it to 0.0, or, preferred, move
             such code into an implementation file.
 
-       \li Do not hide virtual methods in subclasses (\{-Woverloaded-virtual}).
+       \li Do not hide virtual functions in subclasses (\{-Woverloaded-virtual}).
            If the baseclass A has a virtual \c {int val()} and subclass B an
            overload with the same name, \c {int val(int x)}, the A \c val function
            is hidden. Use the \c using keyword to make it visible again, and

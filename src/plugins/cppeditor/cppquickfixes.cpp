@@ -1302,14 +1302,14 @@ void TranslateStringLiteral::match(const CppQuickFixInterface &interface,
     QSharedPointer<Control> control = interface->context().bindings()->control();
     const Name *trName = control->identifier("tr");
 
-    // Check whether we are in a method:
+    // Check whether we are in a function:
     const QString description = QApplication::translate("CppTools::QuickFix", "Mark as Translatable");
     for (int i = path.size() - 1; i >= 0; --i) {
         if (FunctionDefinitionAST *definition = path.at(i)->asFunctionDefinition()) {
             Function *function = definition->symbol;
             ClassOrNamespace *b = interface->context().lookupType(function);
             if (b) {
-                // Do we have a tr method?
+                // Do we have a tr function?
                 foreach (const LookupItem &r, b->find(trName)) {
                     Symbol *s = r.declaration();
                     if (s->type()->isFunctionType()) {
@@ -2180,7 +2180,7 @@ void ReformatPointerDeclaration::match(const CppQuickFixInterface &interface,
         PointerDeclarationFormatter::RespectCursor);
 
     if (cursor.hasSelection()) {
-        // This will no work always as expected since this method is only called if
+        // This will no work always as expected since this function is only called if
         // interface-path() is not empty. If the user selects the whole document via
         // ctrl-a and there is an empty line in the end, then the cursor is not on
         // any AST and therefore no quick fix will be triggered.

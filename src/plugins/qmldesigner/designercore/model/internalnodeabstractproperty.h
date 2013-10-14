@@ -55,7 +55,7 @@ public:
 
     virtual bool isValid() const;
 
-    using InternalProperty::remove; // keep the virtual remove(...) method around
+    using InternalProperty::remove; // keep the virtual remove(...) function around
 
 protected:
     InternalNodeAbstractProperty(const PropertyName &name, const InternalNodePointer &propertyOwner);

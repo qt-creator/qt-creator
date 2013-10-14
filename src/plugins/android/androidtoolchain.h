@@ -59,9 +59,9 @@ public:
     QList<Utils::FileName> suggestedMkspecList() const;
     QString makeCommand(const Utils::Environment &environment) const;
 
-    QString ndkToolChainVersion();
+    QString ndkToolChainVersion() const;
 
-    bool secondaryToolChain() const;
+    bool isSecondaryToolChain() const;
     void setSecondaryToolChain(bool b);
 
 protected:

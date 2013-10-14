@@ -54,12 +54,8 @@ public:
     QList<Core::Id> availableCreationIds(ProjectExplorer::Target *parent) const QTC_OVERRIDE;
 
     bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const QTC_OVERRIDE;
-    ProjectExplorer::RunConfiguration *create(ProjectExplorer::Target *parent,
-                                                              const Core::Id id) QTC_OVERRIDE;
 
     bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const QTC_OVERRIDE;
-    ProjectExplorer::RunConfiguration *restore(ProjectExplorer::Target *parent,
-                                                               const QVariantMap &map) QTC_OVERRIDE;
 
     bool canClone(ProjectExplorer::Target *parent,
                                   ProjectExplorer::RunConfiguration *source) const QTC_OVERRIDE;
@@ -82,13 +78,11 @@ class IosRunControlFactory : public ProjectExplorer::IRunControlFactory
 public:
     explicit IosRunControlFactory(QObject *parent = 0);
 
-    QString displayName() const;
-
     bool canRun(ProjectExplorer::RunConfiguration *runConfiguration,
-                ProjectExplorer::RunMode mode) const;
+                ProjectExplorer::RunMode mode) const QTC_OVERRIDE;
     ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
                        ProjectExplorer::RunMode mode,
-                       QString *errorMessage);
+                       QString *errorMessage) QTC_OVERRIDE;
 };
 
 } // namespace Internal

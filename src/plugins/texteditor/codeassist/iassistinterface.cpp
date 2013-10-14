@@ -90,7 +90,7 @@ IAssistInterface::~IAssistInterface()
 
     Detaches the interface. If it is necessary to take any special care in order to allow
     this interface to be run in a separate thread \a destination this needs to be done
-    in this method.
+    in this function.
 */
 
 /*!

@@ -43,7 +43,7 @@
 
 
 /*!
-    Tests for Follow Symbol Under Cursor and Switch Between Method Declaration/Definition
+    Tests for Follow Symbol Under Cursor and Switch Between Function Declaration/Definition
 
     Section numbers refer to
 
@@ -187,7 +187,7 @@ public:
 
 /**
  * Encapsulates the whole process of setting up several editors, positioning the cursor,
- * executing Follow Symbol Under Cursor or Switch Between Method Declaration/Definition
+ * executing Follow Symbol Under Cursor or Switch Between Function Declaration/Definition
  * and checking the result.
  */
 class TestCase

@@ -342,7 +342,15 @@ void IosConfigurations::updateAutomaticKitList()
                 ToolChainKitInformation::setToolChain(newKit, pToolchain);
                 QtSupport::QtKitInformation::setQtVersion(newKit, qt);
                 //DeviceKitInformation::setDevice(newKit, device);
-                Debugger::DebuggerKitInformation::setDebugger(newKit, pToolchain->suggestedDebugger());
+
+                Debugger::DebuggerItem debugger;
+                debugger.setCommand(pToolchain->suggestedDebugger());
+                debugger.setEngineType(Debugger::LldbEngineType);
+                debugger.setDisplayName(tr("IOS Debugger"));
+                debugger.setAutoDetected(true);
+                debugger.setAbi(pToolchain->targetAbi());
+                Debugger::DebuggerKitInformation::setDebugger(newKit, debugger);
+
                 SysRootKitInformation::setSysRoot(newKit, p.sdkPath);
                 //Qt4ProjectManager::QmakeKitInformation::setMkspec(newKit,
                 //    Utils::FileName::fromString(QLatin1String("macx-ios-clang")));

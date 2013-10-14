@@ -1023,7 +1023,7 @@ void CPPEditorWidget::jumpToOutlineElement(int index)
     // the view's currentIndex is updated, so we want to use that.
     // When the scroll wheel was used on the combo box,
     // the view's currentIndex is not updated,
-    // but the passed index to this method is correct.
+    // but the passed index to this function is correct.
     // So, if the view has a current index, we reset it, to be able
     // to distinguish wheel events later
     if (modelIndex.isValid())

@@ -75,7 +75,7 @@ private:
     AutotoolsProject *m_project;
     Core::IDocument *m_projectFile;
 
-    // TODO: AutotoolsProject calls the protected method addFileNodes() from AutotoolsProjectNode.
+    // TODO: AutotoolsProject calls the protected function addFileNodes() from AutotoolsProjectNode.
     // Instead of this friend declaration, a public interface might be preferable.
     friend class AutotoolsProject;
 };

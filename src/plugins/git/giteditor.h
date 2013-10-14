@@ -74,6 +74,7 @@ private:
     void addChangeActions(QMenu *menu, const QString &change);
     QString revisionSubject(const QTextBlock &inBlock) const;
     bool supportChangeLinks() const;
+    QString fileNameForLine(int line) const;
 
     mutable QRegExp m_changeNumberPattern;
     QString m_currentChange;

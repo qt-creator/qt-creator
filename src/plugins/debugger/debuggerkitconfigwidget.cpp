@@ -254,14 +254,6 @@ void DebuggerKitInformation::setDebugger(Kit *k, const DebuggerItem &item)
     k->setValue(DebuggerKitInformation::id(), id);
 }
 
-void DebuggerKitInformation::setDebugger(Kit *k, const FileName &command)
-{
-    DebuggerItem item;
-    item.setEngineType(GdbEngineType);
-    item.setCommand(command);
-    setDebugger(k, item);
-}
-
 Core::Id DebuggerKitInformation::id()
 {
     return "Debugger.Information";
@@ -447,8 +439,9 @@ void DebuggerItemManager::autoDetectDebuggers()
             DebuggerItem item;
             item.setCommand(command);
             item.reinitializeFromFile();
+            //: %1: Debugger engine type (GDB, LLDB, CDB...), %2: Path
             item.setDisplayName(tr("System %1 at %2")
-                .arg(item.engineTypeName()).arg(fi.absoluteFilePath()));
+                .arg(item.engineTypeName()).arg(QDir::toNativeSeparators(fi.absoluteFilePath())));
             item.setAutoDetected(true);
             doAddDebugger(item);
         }
@@ -1030,7 +1023,7 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget()
 //    formLayout->addRow(new QLabel(tr("Type:")), m_engineTypeComboBox);
     formLayout->addRow(m_cdbLabel);
     formLayout->addRow(new QLabel(tr("Path:")), m_binaryChooser);
-    formLayout->addRow(new QLabel(tr("Abis:")), m_abis);
+    formLayout->addRow(new QLabel(tr("ABIs:")), m_abis);
 
     connectDirty();
 }

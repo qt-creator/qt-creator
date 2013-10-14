@@ -91,7 +91,7 @@ void PluginErrorView::update(PluginSpec *spec)
         break;
     case PluginSpec::Initialized:
         text = tr("Initialized");
-        tooltip = tr("Plugin's initialization method succeeded");
+        tooltip = tr("Plugin's initialization function succeeded");
         break;
     case PluginSpec::Running:
         text = tr("Running");

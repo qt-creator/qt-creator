@@ -249,7 +249,7 @@ void GitEditor::applyDiffChunk(const VcsBase::DiffChunk& chunk, bool revert)
     if (!patchFile.open())
         return;
 
-    const QString baseDir = diffBaseDirectory();
+    const QString baseDir = workingDirectory();
     patchFile.write(chunk.header);
     patchFile.write(chunk.chunk);
     patchFile.close();
@@ -364,6 +364,20 @@ bool GitEditor::supportChangeLinks() const
     return VcsBaseEditorWidget::supportChangeLinks()
             || (editor()->id() == Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID)
             || (editor()->id() == Git::Constants::GIT_REBASE_EDITOR_ID);
+}
+
+QString GitEditor::fileNameForLine(int line) const
+{
+    // 7971b6e7 share/qtcreator/dumper/dumper.py   (hjk
+    QTextBlock block = document()->findBlockByLineNumber(line - 1);
+    QTC_ASSERT(block.isValid(), return source());
+    static QRegExp renameExp(QLatin1String("^" CHANGE_PATTERN "\\s+([^(]+)"));
+    if (renameExp.indexIn(block.text()) != -1) {
+        const QString fileName = renameExp.cap(1).trimmed();
+        if (!fileName.isEmpty())
+            return fileName;
+    }
+    return source();
 }
 
 } // namespace Internal

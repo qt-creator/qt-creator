@@ -118,7 +118,7 @@ protected:
     bool submitEditorAboutToClose();
 
 private:
-    // Methods
+    // Functions
     void createMenu();
     void createSubmitEditorActions();
     void createFileActions(const Core::Context &context);

@@ -271,14 +271,18 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
 
     // Register Vcs(s) with the cache
     QString tmpDir = QFileInfo(directory).canonicalFilePath();
-    const QChar slash = QLatin1Char('/');
-    const StringVersionControlPairs::const_iterator cend = allThatCanManage.constEnd();
-    for (StringVersionControlPairs::const_iterator i = allThatCanManage.constBegin(); i != cend; ++i) {
-        d->cache(i->second, i->first, tmpDir);
-        tmpDir = i->first;
-        const int slashPos = tmpDir.lastIndexOf(slash);
-        if (slashPos >= 0)
-            tmpDir.truncate(slashPos);
+    // directory might refer to a historical directory which doesn't exist.
+    // In this case, don't cache it.
+    if (!tmpDir.isEmpty()) {
+        const QChar slash = QLatin1Char('/');
+        const StringVersionControlPairs::const_iterator cend = allThatCanManage.constEnd();
+        for (StringVersionControlPairs::const_iterator i = allThatCanManage.constBegin(); i != cend; ++i) {
+            d->cache(i->second, i->first, tmpDir);
+            tmpDir = i->first;
+            const int slashPos = tmpDir.lastIndexOf(slash);
+            if (slashPos >= 0)
+                tmpDir.truncate(slashPos);
+        }
     }
 
     // return result
@@ -412,11 +416,20 @@ void VcsManager::promptToAdd(const QString &directory, const QStringList &fileNa
     if (!vc || !vc->supportsOperation(Core::IVersionControl::AddOperation))
         return;
 
+    QStringList unmanagedFiles;
+    QDir dir(directory);
+    foreach (const QString &fileName, fileNames) {
+        if (!vc->managesFile(directory, dir.relativeFilePath(fileName)))
+            unmanagedFiles << fileName;
+    }
+    if (unmanagedFiles.isEmpty())
+        return;
+
     Internal::AddToVcsDialog dlg(Core::ICore::mainWindow(), VcsManager::msgAddToVcsTitle(),
-                                 fileNames, vc->displayName());
+                                 unmanagedFiles, vc->displayName());
     if (dlg.exec() == QDialog::Accepted) {
         QStringList notAddedToVc;
-        foreach (const QString &file, fileNames) {
+        foreach (const QString &file, unmanagedFiles) {
             if (!vc->vcsAdd(file))
                 notAddedToVc << file;
         }

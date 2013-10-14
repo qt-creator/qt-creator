@@ -53,6 +53,7 @@ public:
     QString displayName() const;
     Core::Id id() const;
     bool managesDirectory(const QString &filename, QString *topLevel = 0) const;
+    bool managesFile(const QString &workingDirectory, const QString &fileName) const;
     bool isConfigured() const;
     bool supportsOperation(Operation operation) const;
     bool vcsOpen(const QString &fileName);

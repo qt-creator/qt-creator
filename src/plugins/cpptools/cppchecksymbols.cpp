@@ -517,10 +517,10 @@ bool CheckSymbols::visit(SimpleDeclarationAST *ast)
                         if ((_usages.back().kind != CppHighlightingSupport::VirtualMethodUse)) {
                             if (funTy->isOverride())
                                 warning(declrIdNameAST, QCoreApplication::translate(
-                                            "CPlusplus::CheckSymbols", "Only virtual methods can be marked 'override'"));
+                                            "CPlusplus::CheckSymbols", "Only virtual functions can be marked 'override'"));
                             else if (funTy->isFinal())
                                 warning(declrIdNameAST, QCoreApplication::translate(
-                                            "CPlusPlus::CheckSymbols", "Only virtual methods can be marked 'final'"));
+                                            "CPlusPlus::CheckSymbols", "Only virtual functions can be marked 'final'"));
                         }
                     }
                 }

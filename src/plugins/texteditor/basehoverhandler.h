@@ -52,9 +52,10 @@ class BaseTextEditorWidget;
 class TEXTEDITOR_EXPORT BaseHoverHandler : public QObject
 {
     Q_OBJECT
+
 public:
     BaseHoverHandler(QObject *parent = 0);
-    virtual ~BaseHoverHandler();
+    ~BaseHoverHandler();
 
 private slots:
     void editorOpened(Core::IEditor *editor);
@@ -73,8 +74,6 @@ protected:
 
     void setLastHelpItemIdentified(const HelpItem &help);
     const HelpItem &lastHelpItemIdentified() const;
-
-    static BaseTextEditorWidget *baseTextEditor(ITextEditor *editor);
 
 private:
     void clear();

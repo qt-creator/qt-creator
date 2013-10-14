@@ -166,7 +166,6 @@ private:
     QPushButton *m_removePermissionButton;
     QComboBox *m_permissionsComboBox;
 
-    TextEditor::TextEditorActionHandler *m_ah;
     QWidget *m_overlayWidget;
     QTimer m_timerParseCheck;
 };

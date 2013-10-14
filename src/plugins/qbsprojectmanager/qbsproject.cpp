@@ -152,21 +152,28 @@ ProjectNode *QbsProject::rootProjectNode() const
     return m_rootProjectNode;
 }
 
+static void collectFilesForProject(const qbs::ProjectData &project, QSet<QString> &result)
+{
+    result.insert(project.location().fileName());
+    foreach (const qbs::ProductData &prd, project.products()) {
+        foreach (const qbs::GroupData &grp, prd.groups()) {
+            foreach (const QString &file, grp.allFilePaths())
+                result.insert(file);
+            result.insert(grp.location().fileName());
+        }
+        result.insert(prd.location().fileName());
+    }
+    foreach (const qbs::ProjectData &subProject, project.subProjects())
+        collectFilesForProject(subProject, result);
+}
+
 QStringList QbsProject::files(Project::FilesMode fileMode) const
 {
     Q_UNUSED(fileMode);
+    if (!m_rootProjectNode || !m_rootProjectNode->qbsProjectData().isValid())
+        return QStringList();
     QSet<QString> result;
-    if (m_rootProjectNode && m_rootProjectNode->qbsProjectData().isValid()) {
-        foreach (const qbs::ProductData &prd, m_rootProjectNode->qbsProjectData().allProducts()) {
-            foreach (const qbs::GroupData &grp, prd.groups()) {
-                foreach (const QString &file, grp.allFilePaths())
-                    result.insert(file);
-                result.insert(grp.location().fileName());
-            }
-            result.insert(prd.location().fileName());
-        }
-        result.insert(m_rootProjectNode->qbsProjectData().location().fileName());
-    }
+    collectFilesForProject(m_rootProjectNode->qbsProjectData(), result);
     return result.toList();
 }
 

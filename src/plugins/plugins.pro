@@ -48,11 +48,8 @@ SUBDIRS   = \
     todo \
     qnx \
     clearcase \
-    baremetal
-
-macx {
-    SUBDIRS += ios
-}
+    baremetal \
+    ios
 
 isEmpty(QBS_INSTALL_DIR): QBS_INSTALL_DIR = $$(QBS_INSTALL_DIR)
 exists(../shared/qbs/qbs.pro)|!isEmpty(QBS_INSTALL_DIR): \

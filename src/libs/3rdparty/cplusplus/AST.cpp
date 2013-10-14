@@ -29,10 +29,10 @@
 
 
 /*
-   All firstToken/lastToken methods below which have a doxygen comment with
+   All firstToken/lastToken functions below which have a doxygen comment with
    \generated in it, will be re-generated when the tool "cplusplus-update-frontend" is run.
 
-   For methods which are hand-coded, or which should not be changed, make sure that
+   For functions which are hand-coded, or which should not be changed, make sure that
    the comment is gone.
  */
 

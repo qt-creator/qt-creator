@@ -112,7 +112,7 @@ void FileInProjectFinder::setSysroot(const QString &sysroot)
 /*!
   Returns the best match for the given file URL in the project directory.
 
-  The method first checks whether the file inside the project directory exists.
+  The function first checks whether the file inside the project directory exists.
   If not, the leading directory in the path is stripped, and the - now shorter - path is
   checked for existence, and so on. Second, it tries to locate the file in the sysroot
   folder specified. Third, we walk the list of project files, and search for a file name match

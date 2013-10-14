@@ -166,6 +166,7 @@ public:
     void setStatus(const QString &file, FileStatus::Status status, bool update = true);
 
     bool ccCheckUcm(const QString &viewname, const QString &workingDir) const;
+    bool managesFile(const QString &workingDirectory, const QString &fileName) const;
 
 public slots:
     void vcsAnnotate(const QString &workingDir, const QString &file,
@@ -185,7 +186,7 @@ private slots:
     void startCheckInCurrentFile();
     void historyCurrentFile();
     void annotateCurrentFile();
-    void annotateVersion(const QString &file, const QString &revision, int lineNumber);
+    void annotateVersion(const QString &workingDirectory, const QString &file, const QString &revision, int lineNumber);
     void describe(const QString &source, const QString &changeNr);
     void viewStatus();
     void checkInSelected();

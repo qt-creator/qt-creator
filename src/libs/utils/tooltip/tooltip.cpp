@@ -97,7 +97,7 @@ bool ToolTip::acceptShow(const TipContent &content,
     }
 #if !defined(QT_NO_EFFECTS) && !defined(Q_OS_MAC)
     // While the effect takes places it might be that although the widget is actually on
-    // screen the isVisible method doesn't return true.
+    // screen the isVisible function doesn't return true.
     else if (m_tip
              && (QApplication::isEffectEnabled(Qt::UI_FadeTooltip)
                  || QApplication::isEffectEnabled(Qt::UI_AnimateTooltip))) {

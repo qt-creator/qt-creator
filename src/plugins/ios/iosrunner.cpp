@@ -159,8 +159,8 @@ void IosRunner::handleErrorMsg(IosToolHandler *handler, const QString &msg)
 {
     if (msg.contains(QLatin1String("AMDeviceStartService returned -402653150"))) {
         QMessageBox mBox;
-        mBox.setText(tr("Running on iOS device failed"));
-        mBox.setInformativeText(tr("This might be due to not up-to date certificates in Xcode or the device, go to the organizer window of Xcode to ensure that all certificates are up to date and try again."));
+        mBox.setText(tr("Running on iOS device failed."));
+        mBox.setInformativeText(tr("The certificates in Xcode or the device might be outdated. Check the certificates in the organizer window of Xcode, and try again."));
         mBox.setStandardButtons(QMessageBox::Ok);
         mBox.setDefaultButton(QMessageBox::Ok);
         mBox.setIcon(QMessageBox::Information);

@@ -77,13 +77,13 @@ using namespace Macros::Internal;
     The MacroManager manages all macros, loads them on startup, keeps track of the
     current macro, and creates new macros.
 
-    There are two important methods in this class that can be used outside the Macros plugin:
+    There are two important functions in this class that can be used outside the Macros plugin:
     \list
     \li registerEventHandler: add a new event handler
     \li registerAction: add a macro event when this action is triggered
     \endlist
 
-    This class is a singleton and can be accessed using the instance method.
+    This class is a singleton and can be accessed using the instance function.
 */
 
 /*!

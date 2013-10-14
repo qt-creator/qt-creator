@@ -94,7 +94,7 @@ void AndroidDeployStep::ctor()
 
 
     connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
-            this, SLOT(kitUpdated(ProjectExplorer::Kit *)));
+            this, SLOT(kitUpdated(ProjectExplorer::Kit*)));
 }
 
 bool AndroidDeployStep::init()
