@@ -153,6 +153,10 @@ private slots:
     void test_doxygen_comments_cpp_styleA_indented_continuation();
     void test_doxygen_comments_cpp_styleA_corner_case();
 
+    void test_quickfix_CompleteSwitchCaseStatement_basic1();
+    void test_quickfix_CompleteSwitchCaseStatement_basic2();
+    void test_quickfix_CompleteSwitchCaseStatement_oneValueMissing();
+
     void test_quickfix_GenerateGetterSetter_basicGetterWithPrefix();
     void test_quickfix_GenerateGetterSetter_basicGetterWithPrefixAndNamespace();
     void test_quickfix_GenerateGetterSetter_basicGetterWithPrefixAndNamespaceToCpp();

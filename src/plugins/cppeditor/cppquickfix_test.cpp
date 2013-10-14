@@ -349,6 +349,118 @@ private:
 
 } // anonymous namespace
 
+/// Checks: All enum values are added as case statements for a blank switch.
+void CppEditorPlugin::test_quickfix_CompleteSwitchCaseStatement_basic1()
+{
+    const QByteArray original =
+        "enum EnumType { V1, V2 };\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    EnumType t;\n"
+        "    @switch (t) {\n"
+        "    }\n"
+        "}\n";
+        ;
+    const QByteArray expected =
+        "enum EnumType { V1, V2 };\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    EnumType t;\n"
+        "    switch (t) {\n"
+        "    case V1:\n"
+        "        break;\n"
+        "    case V2:\n"
+        "        break;\n"
+        "    }\n"
+        "}\n"
+        "\n"
+        ;
+
+    CompleteSwitchCaseStatement factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Checks: All enum values are added as case statements for a blank switch with a default case.
+void CppEditorPlugin::test_quickfix_CompleteSwitchCaseStatement_basic2()
+{
+    const QByteArray original =
+        "enum EnumType { V1, V2 };\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    EnumType t;\n"
+        "    @switch (t) {\n"
+        "    default:\n"
+        "        break;\n"
+        "    }\n"
+        "}\n";
+        ;
+    const QByteArray expected =
+        "enum EnumType { V1, V2 };\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    EnumType t;\n"
+        "    switch (t) {\n"
+        "    case V1:\n"
+        "        break;\n"
+        "    case V2:\n"
+        "        break;\n"
+        "    default:\n"
+        "        break;\n"
+        "    }\n"
+        "}\n"
+        "\n"
+        ;
+
+    CompleteSwitchCaseStatement factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Checks: The missing enum value is added.
+void CppEditorPlugin::test_quickfix_CompleteSwitchCaseStatement_oneValueMissing()
+{
+    const QByteArray original =
+        "enum EnumType { V1, V2 };\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    EnumType t;\n"
+        "    @switch (t) {\n"
+        "    case V2:\n"
+        "        break;\n"
+        "    default:\n"
+        "        break;\n"
+        "    }\n"
+        "}\n";
+        ;
+    const QByteArray expected =
+        "enum EnumType { V1, V2 };\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    EnumType t;\n"
+        "    switch (t) {\n"
+        "    case V1:\n"
+        "        break;\n"
+        "    case V2:\n"
+        "        break;\n"
+        "    default:\n"
+        "        break;\n"
+        "    }\n"
+        "}\n"
+        "\n"
+        ;
+
+    CompleteSwitchCaseStatement factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
 /// Checks:
 /// 1. If the name does not start with ("m_" or "_") and does not
 ///    end with "_", we are forced to prefix the getter with "get".
