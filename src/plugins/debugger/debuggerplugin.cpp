@@ -1495,8 +1495,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     TaskHub::addCategory(Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO,
                          tr("Debug Information"));
-    TaskHub::addCategory(Debugger::Constants::TASK_CATEGORY_DEBUGGER_TEST,
-                         tr("Debugger Test"));
     TaskHub::addCategory(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME,
                          tr("Debugger Runtime"));
 
