@@ -32,11 +32,9 @@
 #include <projectexplorer/abi.h>
 #include <utils/fileutils.h>
 
-#include <QMap>
 #include <QObject>
 #include <QString>
 #include <QStringList>
-#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -50,7 +48,8 @@ class IosConfigurations : public QObject
     Q_OBJECT
 
 public:
-    static IosConfigurations *instance();
+    static QObject *instance();
+    static void initialize();
     static bool ignoreAllDevices();
     static void setIgnoreAllDevices(bool ignoreDevices);
     static Utils::FileName developerPath();
@@ -59,7 +58,7 @@ signals:
     void updated();
 
 public slots:
-    void updateAutomaticKitList();
+    static void updateAutomaticKitList();
 
 private:
     IosConfigurations(QObject *parent);
@@ -68,7 +67,6 @@ private:
     void updateSimulators();
     static void setDeveloperPath(const Utils::FileName &devPath);
 
-    QTimer m_updateAvailableDevices;
     Utils::FileName m_developerPath;
     bool m_ignoreAllDevices;
 };
