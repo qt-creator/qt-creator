@@ -1773,6 +1773,8 @@ public:
     QPlainTextEdit *m_plaintextedit;
     bool m_wasReadOnly; // saves read-only state of document
 
+    bool m_inFakeVim; // true if currently processing a key press or a command
+
     FakeVimHandler *q;
     int m_oldExternalPosition; // copy from last event to check for external changes
     int m_oldExternalAnchor;
@@ -1956,8 +1958,7 @@ public:
     static struct GlobalData
     {
         GlobalData()
-            : inFakeVim(false)
-            , passing(false)
+            : passing(false)
             , mode(CommandMode)
             , submode(NoSubMode)
             , subsubmode(NoSubSubMode)
@@ -1983,7 +1984,6 @@ public:
         }
 
         // Current state.
-        bool inFakeVim; // true if currently processing a key press or a command
         bool passing; // let the core see the next event
         Mode mode;
         SubMode submode;
@@ -2127,13 +2127,13 @@ void FakeVimHandler::Private::focus()
 
 void FakeVimHandler::Private::enterFakeVim()
 {
-    QTC_ASSERT(!g.inFakeVim, qDebug() << "enterFakeVim() shouldn't be called recursively!"; return);
+    QTC_ASSERT(!m_inFakeVim, qDebug() << "enterFakeVim() shouldn't be called recursively!"; return);
 
     m_cursor = EDITOR(textCursor());
     if (m_cursor.isNull())
         m_cursor = QTextCursor(document());
 
-    g.inFakeVim = true;
+    m_inFakeVim = true;
 
     removeEventFilter();
 
@@ -2156,7 +2156,7 @@ void FakeVimHandler::Private::enterFakeVim()
 
 void FakeVimHandler::Private::leaveFakeVim(bool needUpdate)
 {
-    QTC_ASSERT(g.inFakeVim, qDebug() << "enterFakeVim() not called before leaveFakeVim()!"; return);
+    QTC_ASSERT(m_inFakeVim, qDebug() << "enterFakeVim() not called before leaveFakeVim()!"; return);
 
     // The command might have destroyed the editor.
     if (m_textedit || m_plaintextedit) {
@@ -2192,7 +2192,7 @@ void FakeVimHandler::Private::leaveFakeVim(bool needUpdate)
         installEventFilter();
     }
 
-    g.inFakeVim = false;
+    m_inFakeVim = false;
 }
 
 bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
@@ -2312,6 +2312,8 @@ void FakeVimHandler::Private::removeEventFilter()
 
 void FakeVimHandler::Private::setupWidget()
 {
+    enterFakeVim();
+
     resetCommandMode();
     if (m_textedit)
         m_textedit->setLineWrapMode(QTextEdit::NoWrap);
@@ -2321,8 +2323,7 @@ void FakeVimHandler::Private::setupWidget()
 
     updateEditor();
     importSelection();
-    if (!g.inFakeVim)
-        updateMiniBuffer();
+    updateMiniBuffer();
     updateCursorShape();
 
     recordJump();
@@ -2330,8 +2331,7 @@ void FakeVimHandler::Private::setupWidget()
     if (atEndOfLine() && !isVisualMode() && !isInsertMode())
         moveLeft();
 
-    m_oldExternalAnchor = anchor();
-    m_oldExternalPosition = position();
+    leaveFakeVim();
 }
 
 void FakeVimHandler::Private::exportSelection()
@@ -7000,8 +7000,6 @@ bool FakeVimHandler::Private::passEventToEditor(QEvent &event)
         emit q->requestSetBlockSelection(true);
     updateCursorShape();
 
-    installEventFilter();
-
     if (accepted)
         m_cursor = EDITOR(textCursor());
 
@@ -8224,7 +8222,7 @@ void FakeVimHandler::setTextCursorPosition(int position)
     d->m_fakeEnd = false;
     d->setTargetColumn();
 
-    if (!Private::g.inFakeVim)
+    if (!d->m_inFakeVim)
         d->commitCursor();
 }
 
