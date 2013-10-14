@@ -670,18 +670,6 @@ bool GitPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     connect(repositoryAction, SIGNAL(triggered()), this, SLOT(createRepository()));
     gitContainer->addAction(createRepositoryCommand);
 
-    if (0) {
-        const QList<QAction*> snapShotActions = createSnapShotTestActions();
-        const int count = snapShotActions.size();
-        for (int i = 0; i < count; i++) {
-            Core::Command *tCommand
-                    = Core::ActionManager::registerAction(snapShotActions.at(i),
-                                                    Core::Id("Git.Snapshot.").withSuffix(i),
-                                                    globalcontext);
-            gitContainer->addAction(tCommand);
-        }
-    }
-
     // Submit editor
     Core::Context submitContext(Constants::C_GITSUBMITEDITOR);
     m_submitCurrentAction = new QAction(VcsBase::VcsBaseSubmitEditor::submitIcon(), tr("Commit"), this);

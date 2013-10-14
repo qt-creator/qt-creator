@@ -63,11 +63,6 @@ public:
     bool vcsCheckout(const QString &directory, const QByteArray &url);
     QString vcsGetRepositoryURL(const QString &directory);
 
-    QString vcsCreateSnapshot(const QString &topLevel);
-    QStringList vcsSnapshots(const QString &topLevel);
-    bool vcsRestoreSnapshot(const QString &topLevel, const QString &name);
-    bool vcsRemoveSnapshot(const QString &topLevel, const QString &name);
-
     bool vcsAnnotate(const QString &file, int line);
 
     QString vcsOpenText() const;

@@ -185,23 +185,3 @@ bool ClearCaseControl::vcsCreateRepository(const QString &)
 {
     return false;
 }
-
-QString ClearCaseControl::vcsCreateSnapshot(const QString &)
-{
-    return QString();
-}
-
-QStringList ClearCaseControl::vcsSnapshots(const QString &)
-{
-    return QStringList();
-}
-
-bool ClearCaseControl::vcsRestoreSnapshot(const QString &, const QString &)
-{
-    return false;
-}
-
-bool ClearCaseControl::vcsRemoveSnapshot(const QString &, const QString &)
-{
-    return false;
-}

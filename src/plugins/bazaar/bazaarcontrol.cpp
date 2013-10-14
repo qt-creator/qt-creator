@@ -127,26 +127,6 @@ bool BazaarControl::vcsCreateRepository(const QString &directory)
     return m_bazaarClient->synchronousCreateRepository(directory);
 }
 
-QString BazaarControl::vcsCreateSnapshot(const QString &)
-{
-    return QString();
-}
-
-QStringList BazaarControl::vcsSnapshots(const QString &)
-{
-    return QStringList();
-}
-
-bool BazaarControl::vcsRestoreSnapshot(const QString &, const QString &)
-{
-    return false;
-}
-
-bool BazaarControl::vcsRemoveSnapshot(const QString &, const QString &)
-{
-    return false;
-}
-
 bool BazaarControl::vcsAnnotate(const QString &file, int line)
 {
     const QFileInfo fi(file);
