@@ -55,8 +55,6 @@ using namespace Qt4ProjectManager;
 namespace Ios {
 namespace Internal {
 
-static const char USE_LOCAL_QT_KEY[] = "Qt4ProjectManager.IosDeployStep.UseLocalQtLibs";
-
 const Core::Id IosDeployStep::Id("Qt4ProjectManager.IosDeployStep");
 
 IosDeployStep::IosDeployStep(ProjectExplorer::BuildStepList *parent)

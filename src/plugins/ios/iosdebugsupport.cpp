@@ -53,13 +53,6 @@ using namespace Qt4ProjectManager;
 namespace Ios {
 namespace Internal {
 
-static const char * const qMakeVariables[] = {
-         "QT_INSTALL_LIBS",
-         "QT_INSTALL_PLUGINS",
-         "QT_INSTALL_IMPORTS"
-};
-
-
 RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfig,
                                                    QString *errorMessage)
 {
@@ -102,6 +95,7 @@ IosDebugSupport::IosDebugSupport(IosRunConfiguration *runConfig,
 
 void IosDebugSupport::handleGdbServerFd(int gdbServerFd)
 {
+    Q_UNUSED(gdbServerFd);
     QTC_CHECK(false); // to do transfer fd to debugger
     //m_runControl->engine()->notifyEngineRemoteSetupDone(gdbServerPort, qmlPort);
 }
