@@ -247,8 +247,11 @@ QStringList Kit::candidateNameList(const QString &base) const
     result << base;
     foreach (KitInformation *ki, KitManager::kitInformation()) {
         const QString postfix = ki->displayNamePostfix(this);
-        if (!postfix.isEmpty())
-            result << candidateName(base, postfix);
+        if (!postfix.isEmpty()) {
+            QString tmp = candidateName(base, postfix);
+            if (!tmp.isEmpty())
+                result << candidateName(base, postfix);
+        }
     }
     return result;
 }
