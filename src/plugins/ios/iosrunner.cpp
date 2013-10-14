@@ -110,8 +110,8 @@ void IosRunner::start()
             SLOT(handleErrorMsg(Ios::IosToolHandler*,QString)));
     connect(m_toolHandler, SIGNAL(gotGdbserverSocket(Ios::IosToolHandler*,QString,QString,int)),
             SLOT(handleGotGdbserverSocket(Ios::IosToolHandler*,QString,QString,int)));
-    connect(m_toolHandler, SIGNAL(gotInferiorPid(Ios::IosToolHandler*,QString,QString,pid_t)),
-            SLOT(handleGotInferiorPid(Ios::IosToolHandler*,QString,QString,pid_t)));
+    connect(m_toolHandler, SIGNAL(gotInferiorPid(Ios::IosToolHandler*,QString,QString,Q_PID)),
+            SLOT(handleGotInferiorPid(Ios::IosToolHandler*,QString,QString,Q_PID)));
     connect(m_toolHandler, SIGNAL(toolExited(Ios::IosToolHandler*,int)),
             SLOT(handleToolExited(Ios::IosToolHandler*,int)));
     connect(m_toolHandler, SIGNAL(finished(Ios::IosToolHandler*)),
@@ -142,7 +142,7 @@ void IosRunner::handleGotGdbserverSocket(IosToolHandler *handler, const QString 
 }
 
 void IosRunner::handleGotInferiorPid(IosToolHandler *handler, const QString &bundlePath,
-                                     const QString &deviceId, pid_t pid)
+                                     const QString &deviceId, Q_PID pid)
 {
     Q_UNUSED(bundlePath); Q_UNUSED(deviceId);
     if (m_toolHandler == handler)

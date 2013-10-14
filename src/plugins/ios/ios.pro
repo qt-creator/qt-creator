@@ -69,3 +69,4 @@ DEFINES += IOS_LIBRARY
 
 RESOURCES += ios.qrc
 
+win32: LIBS += -lws2_32

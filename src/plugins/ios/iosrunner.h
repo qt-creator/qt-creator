@@ -65,7 +65,7 @@ public slots:
 signals:
     void didStartApp(Ios::IosToolHandler::OpStatus status);
     void gotGdbserverSocket(int gdbFd);
-    void gotInferiorPid(pid_t pid);
+    void gotInferiorPid(Q_PID pid);
     void appOutput(const QString &output);
     void errorMsg(const QString &msg);
     void finished(bool cleanExit);
@@ -75,7 +75,7 @@ private slots:
     void handleGotGdbserverSocket(Ios::IosToolHandler *handler, const QString &bundlePath,
                                   const QString &deviceId, int gdbFd);
     void handleGotInferiorPid(Ios::IosToolHandler *handler, const QString &bundlePath,
-                              const QString &deviceId, pid_t pid);
+                              const QString &deviceId, Q_PID pid);
     void handleAppOutput(Ios::IosToolHandler *handler, const QString &output);
     void handleErrorMsg(Ios::IosToolHandler *handler, const QString &msg);
     void handleToolExited(Ios::IosToolHandler *handler, int code);

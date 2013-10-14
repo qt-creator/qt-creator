@@ -63,7 +63,9 @@
 #include <QStringListModel>
 #include <QMessageBox>
 
+#if defined(Q_OS_UNIX)
 #include <unistd.h>
+#endif
 
 using namespace ProjectExplorer;
 using namespace Utils;
