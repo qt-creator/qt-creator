@@ -156,6 +156,8 @@ private slots:
     void test_quickfix_CompleteSwitchCaseStatement_basic1();
     void test_quickfix_CompleteSwitchCaseStatement_basic2();
     void test_quickfix_CompleteSwitchCaseStatement_oneValueMissing();
+    void test_quickfix_CompleteSwitchCaseStatement_QTCREATORBUG10366_1();
+    void test_quickfix_CompleteSwitchCaseStatement_QTCREATORBUG10366_2();
 
     void test_quickfix_GenerateGetterSetter_basicGetterWithPrefix();
     void test_quickfix_GenerateGetterSetter_basicGetterWithPrefixAndNamespace();

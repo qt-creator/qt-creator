@@ -864,6 +864,10 @@ ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
                         return this;
                 }
             }
+            foreach (Enum *e, unscopedEnums()) {
+                if (e->identifier() && e->identifier()->isEqualTo(name->identifier()))
+                    return this;
+            }
 
             if (ClassOrNamespace *e = nestedType(name, origin))
                 return e;

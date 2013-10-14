@@ -461,6 +461,74 @@ void CppEditorPlugin::test_quickfix_CompleteSwitchCaseStatement_oneValueMissing(
     data.run(&factory);
 }
 
+/// Checks: Find the correct enum type despite there being a declaration with the same name.
+void CppEditorPlugin::test_quickfix_CompleteSwitchCaseStatement_QTCREATORBUG10366_1()
+{
+    const QByteArray original =
+        "enum test { TEST_1, TEST_2 };\n"
+        "\n"
+        "void f() {\n"
+        "    enum test test;\n"
+        "    @switch (test) {\n"
+        "    }\n"
+        "}\n"
+        ;
+    const QByteArray expected =
+        "enum test { TEST_1, TEST_2 };\n"
+        "\n"
+        "void f() {\n"
+        "    enum test test;\n"
+        "    switch (test) {\n"
+        "    case TEST_1:\n"
+        "        break;\n"
+        "    case TEST_2:\n"
+        "        break;\n"
+        "    }\n"
+        "}\n"
+        "\n"
+        ;
+
+    CompleteSwitchCaseStatement factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Checks: Find the correct enum type despite there being a declaration with the same name.
+void CppEditorPlugin::test_quickfix_CompleteSwitchCaseStatement_QTCREATORBUG10366_2()
+{
+    const QByteArray original =
+        "enum test1 { Wrong11, Wrong12 };\n"
+        "enum test { Right1, Right2 };\n"
+        "enum test2 { Wrong21, Wrong22 };\n"
+        "\n"
+        "int main() {\n"
+        "    enum test test;\n"
+        "    @switch (test) {\n"
+        "    }\n"
+        "}\n"
+        ;
+    const QByteArray expected =
+        "enum test1 { Wrong11, Wrong12 };\n"
+        "enum test { Right1, Right2 };\n"
+        "enum test2 { Wrong21, Wrong22 };\n"
+        "\n"
+        "int main() {\n"
+        "    enum test test;\n"
+        "    switch (test) {\n"
+        "    case Right1:\n"
+        "        break;\n"
+        "    case Right2:\n"
+        "        break;\n"
+        "    }\n"
+        "}\n"
+        "\n"
+        ;
+
+    CompleteSwitchCaseStatement factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
 /// Checks:
 /// 1. If the name does not start with ("m_" or "_") and does not
 ///    end with "_", we are forced to prefix the getter with "get".

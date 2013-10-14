@@ -2295,9 +2295,16 @@ Enum *findEnum(const QList<LookupItem> &results, const LookupContext &ctxt)
         if (Enum *e = type->asEnumType())
             return e;
         if (const NamedType *namedType = type->asNamedType()) {
-            const QList<LookupItem> candidates =
-                    ctxt.lookup(namedType->name(), result.scope());
-            return findEnum(candidates, ctxt);
+            if (ClassOrNamespace *con = ctxt.lookupType(namedType->name(), result.scope())) {
+                const QList<Enum *> enums = con->unscopedEnums();
+                const Name *referenceName = namedType->name();
+                foreach (Enum *e, enums) {
+                    if (const Name *candidateName = e->name()) {
+                        if (candidateName->isEqualTo(referenceName))
+                            return e;
+                    }
+                }
+            }
         }
     }
 
