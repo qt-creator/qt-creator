@@ -224,7 +224,6 @@ private slots:
     void updateVariable(const QByteArray &variable);
     void updateRunWithoutDeployMenu();
 
-    void publishProject();
     void updateWelcomePage();
     void updateExternalFileWarning();
 
