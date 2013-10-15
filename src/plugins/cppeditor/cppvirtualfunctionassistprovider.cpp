@@ -339,8 +339,15 @@ enum Virtuality
     Virtual,
     PureVirtual
 };
-
 typedef QList<Virtuality> VirtualityList;
+} // Internal namespace
+} // CppEditor namespace
+
+Q_DECLARE_METATYPE(CppEditor::Internal::Virtuality)
+Q_DECLARE_METATYPE(CppEditor::Internal::VirtualityList)
+
+namespace CppEditor {
+namespace Internal {
 
 void CppEditorPlugin::test_functionhelper_virtualFunctions()
 {
@@ -430,8 +437,5 @@ void CppEditorPlugin::test_functionhelper_virtualFunctions_data()
 
 } // namespace Internal
 } // namespace CppEditor
-
-Q_DECLARE_METATYPE(CppEditor::Internal::Virtuality)
-Q_DECLARE_METATYPE(CppEditor::Internal::VirtualityList)
 
 #endif
