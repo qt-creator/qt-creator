@@ -61,6 +61,7 @@ private:
 
 class AndroidPackageInstallationStepWidget : public ProjectExplorer::BuildStepConfigWidget
 {
+    Q_OBJECT
 public:
     AndroidPackageInstallationStepWidget(AndroidPackageInstallationStep *step);
 
