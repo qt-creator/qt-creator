@@ -66,15 +66,12 @@ signals:
     void finished(bool success);
 
 private slots:
-    void handleConnected();
-    void handleConnectionFailure();
     void handleStopTimeout();
     void handleApplicationFinished();
     void handleRemoteStdout();
     void handleRemoteStderr();
 
 private:
-    void connectToServer();
     void runApplication();
     void setFinished();
 

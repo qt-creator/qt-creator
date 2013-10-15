@@ -43,13 +43,12 @@ using namespace QSsh;
 namespace ProjectExplorer {
 
 namespace {
-enum State { Inactive, Connecting, Run };
+enum State { Inactive, Run };
 } // anonymous namespace
 
 class DeviceApplicationRunner::DeviceApplicationRunnerPrivate
 {
 public:
-    SshConnection *connection;
     DeviceProcess *deviceProcess;
     IDevice::ConstPtr device;
     QTimer stopTimer;
@@ -66,7 +65,6 @@ public:
 DeviceApplicationRunner::DeviceApplicationRunner(QObject *parent) :
     QObject(parent), d(new DeviceApplicationRunnerPrivate)
 {
-    d->connection = 0;
     d->deviceProcess = 0;
     d->state = Inactive;
 
@@ -102,7 +100,13 @@ void DeviceApplicationRunner::start(const IDevice::ConstPtr &device,
     d->stopRequested = false;
     d->success = true;
 
-    connectToServer();
+    if (!d->device) {
+        emit reportError(tr("Cannot run: No device."));
+        setFinished();
+        return;
+    }
+
+    runApplication();
 }
 
 void DeviceApplicationRunner::stop()
@@ -113,39 +117,12 @@ void DeviceApplicationRunner::stop()
     d->success = false;
     emit reportProgress(tr("User requested stop. Shutting down..."));
     switch (d->state) {
-    case Connecting:
-        setFinished();
-        break;
     case Run:
         d->stopTimer.start(10000);
         d->deviceProcess->terminate();
         break;
     case Inactive:
         break;
-    }
-}
-
-void DeviceApplicationRunner::connectToServer()
-{
-    QTC_CHECK(!d->connection);
-
-    d->state = Connecting;
-
-    if (!d->device) {
-        emit reportError(tr("Cannot run: No device."));
-        setFinished();
-        return;
-    }
-
-    d->connection = QSsh::acquireConnection(d->device->sshParameters());
-    connect(d->connection, SIGNAL(error(QSsh::SshError)), SLOT(handleConnectionFailure()));
-    if (d->connection->state() == SshConnection::Connected) {
-        handleConnected();
-    } else {
-        emit reportProgress(tr("Connecting to device..."));
-        connect(d->connection, SIGNAL(connected()), SLOT(handleConnected()));
-        if (d->connection->state() == QSsh::SshConnection::Unconnected)
-            d->connection->connectToHost();
     }
 }
 
@@ -159,46 +136,9 @@ void DeviceApplicationRunner::setFinished()
         d->deviceProcess->deleteLater();
         d->deviceProcess = 0;
     }
-    if (d->connection) {
-        d->connection->disconnect(this);
-        QSsh::releaseConnection(d->connection);
-        d->connection = 0;
-    }
 
     d->state = Inactive;
     emit finished(d->success);
-}
-
-void DeviceApplicationRunner::handleConnected()
-{
-    QTC_ASSERT(d->state == Connecting, return);
-
-    if (d->stopRequested) {
-        setFinished();
-        return;
-    }
-
-    runApplication();
-}
-
-void DeviceApplicationRunner::handleConnectionFailure()
-{
-    QTC_ASSERT(d->state != Inactive, return);
-
-    emit reportError(tr("SSH connection failed: %1").arg(d->connection->errorString()));
-    d->success = false;
-    switch (d->state) {
-    case Inactive:
-        break; // Can't happen.
-    case Connecting:
-        setFinished();
-        break;
-    case Run:
-        d->stopTimer.stop();
-        d->deviceProcess->disconnect(this);
-        setFinished();
-        break;
-    }
 }
 
 void DeviceApplicationRunner::handleStopTimeout()
@@ -244,7 +184,7 @@ void DeviceApplicationRunner::handleRemoteStderr()
 
 void DeviceApplicationRunner::runApplication()
 {
-    QTC_ASSERT(d->state == Connecting, return);
+    QTC_ASSERT(d->state == Inactive, return);
 
     d->state = Run;
     d->deviceProcess = d->device->createProcess(this);
