@@ -112,26 +112,6 @@ enum DebuggerConfigurationErrors {
     DebuggerNeedsAbsolutePath = 0x8
 };
 
-static QVariant debuggerPathOrId(const Kit *k)
-{
-    QTC_ASSERT(k, return QString());
-    QVariant id = k->value(DebuggerKitInformation::id());
-    if (!id.isValid())
-        return id; // Invalid.
-
-    // With 3.0 we have:
-    // <value type="QString" key="Debugger.Information">{75ecf347-f221-44c3-b613-ea1d29929cd4}</value>
-    if (id.type() == QVariant::String)
-        return id;
-
-    // Before we had:
-    // <valuemap type="QVariantMap" key="Debugger.Information">
-    //    <value type="QString" key="Binary">/data/dev/debugger/gdb-git/gdb/gdb</value>
-    //    <value type="int" key="EngineType">1</value>
-    //  </valuemap>
-    return id.toMap().value(QLatin1String("Binary"));
-}
-
 static unsigned debuggerConfigurationErrors(const Kit *k)
 {
     QTC_ASSERT(k, return NoDebugger);
@@ -167,13 +147,54 @@ const DebuggerItem *DebuggerKitInformation::debugger(const Kit *kit)
 {
     if (!kit)
         return 0;
-    QVariant pathOrId = debuggerPathOrId(kit);
+
+    const QVariant id = kit->value(DebuggerKitInformation::id());
+
+    enum Detection { NotDetected, DetectedAutomatically, DetectedByFile, DetectedById };
+    Detection detection = NotDetected;
+
+    DebuggerEngineType autoEngine = NoEngineType;
+
+    FileName fileName;
+
+    // With 3.0 we have:
+    // <value type="QString" key="Debugger.Information">{75ecf347-f221-44c3-b613-ea1d29929cd4}</value>
+    // Before we had:
+    // <valuemap type="QVariantMap" key="Debugger.Information">
+    //    <value type="QString" key="Binary">/data/dev/debugger/gdb-git/gdb/gdb</value>
+    //    <value type="int" key="EngineType">1</value>
+    //  </valuemap>
+    // Or for force auto-detected CDB
+    // <valuemap type="QVariantMap" key="Debugger.Information">
+    //    <value type="QString" key="Binary">auto</value>
+    //    <value type="int" key="EngineType">4</value>
+    //  </valuemap>
+
+    if (id.type() == QVariant::String) {
+        detection = DetectedById;
+    } else {
+        QMap<QString, QVariant> map = id.toMap();
+        QString binary = map.value(QLatin1String("Binary")).toString();
+        if (binary == QLatin1String("auto")) {
+            detection = DetectedAutomatically;
+            autoEngine = DebuggerEngineType(map.value(QLatin1String("EngineType")).toInt());
+        } else {
+            detection  = DetectedByFile;
+            fileName = FileName::fromUserInput(binary);
+        }
+    }
+
+    QTC_CHECK(detection != NotDetected);
+
     foreach (const DebuggerItem &item, DebuggerItemManager::debuggers()) {
-        if (item.id() == pathOrId)
+        if (detection == DetectedById && item.id() == id)
             return &item;
-        if (item.command() == FileName::fromUserInput(pathOrId.toString()))
+        if (detection == DetectedByFile && item.command() == fileName)
+            return &item;
+        if (detection == DetectedAutomatically && item.engineType() == autoEngine)
             return &item;
     }
+
     return 0;
 }
 
@@ -457,6 +478,8 @@ void DebuggerItemManager::readLegacyDebuggers()
             continue;
         if (fn.startsWith(QLatin1Char('{')))
             continue;
+        if (fn == QLatin1String("auto"))
+            continue;
         FileName command = FileName::fromUserInput(fn);
         if (findByCommand(command))
             continue;
@@ -560,7 +583,6 @@ void DebuggerItemManager::registerDebugger(const DebuggerItem &item)
 {
     if (findByCommand(item.command()))
         return;
-
     addDebugger(item);
 }
 
