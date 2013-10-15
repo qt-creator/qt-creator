@@ -176,8 +176,10 @@ void ComponentView::searchForComponentAndAddToList(const ModelNode &node)
                         description = parentNode.simplifiedTypeName() + QLatin1Char(' ');
                     else
                         description = parentNode.id() + QLatin1Char(' ');
+
+                    description += node.parentProperty().name();
                 }
-                description += node.parentProperty().name();
+
                 QStandardItem *item = new QStandardItem(description);
                 item->setData(QVariant::fromValue(node.internalId()), ModelNodeRole);
                 item->setEditable(false);
