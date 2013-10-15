@@ -66,7 +66,7 @@ const char G_ANALYZER_OPTIONS[] = "Menu.Group.Analyzer.Options";
 
 // Manager controls.
 const char ANALYZER_CONTROL_START_ICON[] = ":/images/analyzer_start_small.png";
-const char ANALYZER_CONTROL_STOP_ICON[] = ":/debugger/images/debugger_stop_small.png";
+const char ANALYZER_CONTROL_STOP_ICON[] = ":/images/analyzer_stop_small.png";
 
 const char ANALYZERTASK_ID[] = "Analyzer.TaskId";
 
