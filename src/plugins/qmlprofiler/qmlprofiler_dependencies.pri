@@ -6,7 +6,6 @@ QTC_PLUGIN_DEPENDS += \
     analyzerbase \
     coreplugin \
     projectexplorer \
-    qmlprojectmanager \
     qmljstools \
     qtsupport \
     texteditor
