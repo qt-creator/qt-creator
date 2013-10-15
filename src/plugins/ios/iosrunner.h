@@ -71,6 +71,7 @@ signals:
     void finished(bool cleanExit);
 private slots:
     void warnAboutRunFail();
+    void warnAboutDeployFail();
     void handleDidStartApp(Ios::IosToolHandler *handler, const QString &bundlePath,
                            const QString &deviceId, Ios::IosToolHandler::OpStatus status);
     void handleGotGdbserverSocket(Ios::IosToolHandler *handler, const QString &bundlePath,
@@ -88,7 +89,6 @@ private:
     ProjectExplorer::IDevice::ConstPtr m_device;
     bool m_debuggingMode;
     bool m_cleanExit;
-    bool m_didWarn;
 };
 
 } // namespace Internal

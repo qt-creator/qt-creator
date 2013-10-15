@@ -50,7 +50,7 @@ IosRunner::IosRunner(QObject *parent, IosRunConfiguration *runConfig, bool debug
     : QObject(parent), m_toolHandler(0), m_bundleDir(runConfig->bundleDir().toString()),
       m_arguments(runConfig->commandLineArguments()),
       m_device(ProjectExplorer::DeviceKitInformation::device(runConfig->target()->kit())),
-      m_debuggingMode(debuggingMode), m_cleanExit(false), m_didWarn(false)
+      m_debuggingMode(debuggingMode), m_cleanExit(false)
 {
 }
 
@@ -157,12 +157,20 @@ void IosRunner::handleAppOutput(IosToolHandler *handler, const QString &output)
 
 void IosRunner::warnAboutRunFail()
 {
-    if (m_didWarn)
-        return;
-    m_didWarn = true;
     QMessageBox mBox;
     mBox.setText(tr("Running on iOS device failed."));
     mBox.setInformativeText(tr("The certificates in Xcode or the device might be outdated. Check the certificates in the organizer window of Xcode, and try again."));
+    mBox.setStandardButtons(QMessageBox::Ok);
+    mBox.setDefaultButton(QMessageBox::Ok);
+    mBox.setIcon(QMessageBox::Information);
+    mBox.exec();
+}
+
+void IosRunner::warnAboutDeployFail()
+{
+    QMessageBox mBox;
+    mBox.setText(tr("Deploying to iOS device failed."));
+    mBox.setInformativeText(tr("This might be due to an incorrect Info.plist or outdated certificates in Xcode or device (see organizer window of Xcode)."));
     mBox.setStandardButtons(QMessageBox::Ok);
     mBox.setDefaultButton(QMessageBox::Ok);
     mBox.setIcon(QMessageBox::Information);
@@ -174,6 +182,8 @@ void IosRunner::handleErrorMsg(IosToolHandler *handler, const QString &msg)
     Q_UNUSED(handler);
     if (msg.contains(QLatin1String("AMDeviceStartService returned -402653150")))
         QTimer::singleShot(0, this, SLOT(warnAboutRunFail()));
+    else if (msg.contains(QLatin1String("AMDeviceInstallApplication returned -402653103")))
+        QTimer::singleShot(0, this, SLOT(warnAboutDeployFail()));
     emit errorMsg(msg);
 }
 
