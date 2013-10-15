@@ -394,10 +394,10 @@ void IosToolHandlerPrivate::subprocessError(QProcess::ProcessError error)
         // pass
     case StartedInferior:
     case XmlEndSeenNotProcessed:
-    case XmlEndProcessed:
         errorMsg(IosToolHandler::tr("Subprocess Error %1").arg(error));
         toolExited(-1);
         break;
+    case XmlEndProcessed:
     case Stopped:
         qDebug() << "IosToolHandler, subprocessError() in an already stopped process";
     }
