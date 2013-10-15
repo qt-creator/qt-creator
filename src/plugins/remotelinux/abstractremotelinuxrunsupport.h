@@ -36,10 +36,7 @@
 
 #include <QObject>
 
-namespace ProjectExplorer {
-class DeviceApplicationHelperAction;
-class DeviceApplicationRunner;
-}
+namespace ProjectExplorer { class DeviceApplicationRunner; }
 
 namespace Utils { class Environment; }
 
@@ -64,9 +61,6 @@ public:
     AbstractRemoteLinuxRunSupport(RemoteLinuxRunConfiguration *runConfig,
                           QObject *parent = 0);
     ~AbstractRemoteLinuxRunSupport();
-
-    void setApplicationRunnerPreRunAction(ProjectExplorer::DeviceApplicationHelperAction *action);
-    void setApplicationRunnerPostRunAction(ProjectExplorer::DeviceApplicationHelperAction *action);
 
 protected:
     void setState(State state);
