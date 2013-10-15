@@ -199,6 +199,7 @@ GccToolChain *BlackBerryConfiguration::createGccToolChain(QnxAbstractQtVersion *
 {
     GccToolChain* toolChain = new GccToolChain(
             QLatin1String(ProjectExplorer::Constants::GCC_TOOLCHAIN_ID), ToolChain::AutoDetection);
+    //: QCC is the compiler for QNX.
     toolChain->setDisplayName(tr("QCC for Qt %1 for %2 %3 - %4").arg(
             version->qtVersionString(), version->platformDisplayName(),
             version->archString(), m_targetName));
