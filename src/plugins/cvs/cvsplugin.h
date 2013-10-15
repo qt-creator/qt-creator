@@ -56,6 +56,7 @@ namespace Internal {
 struct CvsDiffParameters;
 class CvsSubmitEditor;
 class CvsControl;
+class CvsClient;
 
 struct CvsResponse
 {
@@ -78,8 +79,6 @@ public:
     ~CvsPlugin();
 
     bool initialize(const QStringList &arguments, QString *errorMessage);
-
-    void cvsDiff(const QString &workingDir, const QStringList &files);
 
     CvsSubmitEditor *openCVSSubmitEditor(const QString &fileName);
 
@@ -124,7 +123,6 @@ private slots:
     void editCurrentFile();
     void uneditCurrentFile();
     void uneditCurrentRepository();
-    void cvsDiff(const Cvs::Internal::CvsDiffParameters &p);
 #ifdef WITH_TESTS
     void testDiffFileResolving_data();
     void testDiffFileResolving();
@@ -168,6 +166,8 @@ private:
     inline CvsControl *cvsVersionControl() const;
 
     CvsSettings m_settings;
+    CvsClient *m_client;
+
     QString m_commitMessageFileName;
     QString m_commitRepository;
 

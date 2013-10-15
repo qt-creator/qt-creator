@@ -54,24 +54,23 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
 CvsSettings SettingsPageWidget::settings() const
 {
     CvsSettings rc;
-    rc.cvsCommand = m_ui.commandPathChooser->rawPath();
-    rc.cvsBinaryPath = m_ui.commandPathChooser->path();
-    rc.cvsRoot = m_ui.rootLineEdit->text();
-    rc.cvsDiffOptions = m_ui.diffOptionsLineEdit->text();
-    rc.timeOutS = m_ui.timeOutSpinBox->value();
-    rc.promptToSubmit = m_ui.promptToSubmitCheckBox->isChecked();
-    rc.describeByCommitId = m_ui.describeByCommitIdCheckBox->isChecked();
+    rc.setValue(CvsSettings::binaryPathKey, m_ui.commandPathChooser->rawPath());
+    rc.setValue(CvsSettings::cvsRootKey, m_ui.rootLineEdit->text());
+    rc.setValue(CvsSettings::diffOptionsKey, m_ui.diffOptionsLineEdit->text());
+    rc.setValue(CvsSettings::timeoutKey, m_ui.timeOutSpinBox->value());
+    rc.setValue(CvsSettings::promptOnSubmitKey, m_ui.promptToSubmitCheckBox->isChecked());
+    rc.setValue(CvsSettings::describeByCommitIdKey, m_ui.describeByCommitIdCheckBox->isChecked());
     return rc;
 }
 
 void SettingsPageWidget::setSettings(const CvsSettings &s)
 {
-    m_ui.commandPathChooser->setPath(s.cvsCommand);
-    m_ui.rootLineEdit->setText(s.cvsRoot);
-    m_ui.diffOptionsLineEdit->setText(s.cvsDiffOptions);
-    m_ui.timeOutSpinBox->setValue(s.timeOutS);
-    m_ui.promptToSubmitCheckBox->setChecked(s.promptToSubmit);
-    m_ui.describeByCommitIdCheckBox->setChecked(s.describeByCommitId);
+    m_ui.commandPathChooser->setPath(s.binaryPath());
+    m_ui.rootLineEdit->setText(s.stringValue(CvsSettings::cvsRootKey));
+    m_ui.diffOptionsLineEdit->setText(s.stringValue(CvsSettings::diffOptionsKey));
+    m_ui.timeOutSpinBox->setValue(s.intValue(CvsSettings::timeoutKey));
+    m_ui.promptToSubmitCheckBox->setChecked(s.boolValue(CvsSettings::promptOnSubmitKey));
+    m_ui.describeByCommitIdCheckBox->setChecked(s.boolValue(CvsSettings::describeByCommitIdKey));
 }
 
 QString SettingsPageWidget::searchKeywords() const

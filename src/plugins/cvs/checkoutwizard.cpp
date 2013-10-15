@@ -68,7 +68,7 @@ VcsBase::Command *CheckoutWizard::createCommand(const QList<QWizardPage*> &param
     const CheckoutWizardPage *cwp = qobject_cast<const CheckoutWizardPage *>(parameterPages.front());
     QTC_ASSERT(cwp, return 0);
     const CvsSettings settings = CvsPlugin::instance()->settings();
-    const QString binary = settings.cvsBinaryPath;
+    const QString binary = settings.binaryPath();
     QStringList args;
     const QString repository = cwp->repository();
     args << QLatin1String("checkout") << repository;

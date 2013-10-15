@@ -20,6 +20,8 @@ QtcPlugin {
         "checkoutwizardpage.cpp",
         "checkoutwizardpage.h",
         "cvs.qrc",
+        "cvsclient.cpp",
+        "cvsclient.h",
         "cvsconstants.h",
         "cvscontrol.cpp",
         "cvscontrol.h",

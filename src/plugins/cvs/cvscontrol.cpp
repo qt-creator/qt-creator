@@ -55,7 +55,7 @@ Core::Id CvsControl::id() const
 
 bool CvsControl::isConfigured() const
 {
-    const QString binary = m_plugin->settings().cvsBinaryPath;
+    const QString binary = m_plugin->settings().binaryPath();
     if (binary.isEmpty())
         return false;
     QFileInfo fi(binary);

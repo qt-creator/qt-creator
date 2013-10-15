@@ -35,71 +35,34 @@
 #include <QSettings>
 #include <QTextStream>
 
-static const char groupC[] = "CVS";
-static const char commandKeyC[] = "Command";
-static const char rootC[] = "Root";
-static const char promptToSubmitKeyC[] = "PromptForSubmit";
-static const char diffOptionsKeyC[] = "DiffOptions";
-static const char describeByCommitIdKeyC[] = "DescribeByCommitId";
-static const char defaultDiffOptions[] = "-du";
-static const char timeOutKeyC[] = "TimeOut";
-
-enum { defaultTimeOutS = 30 };
-
-static QString defaultCommand()
-{
-    return QLatin1String("cvs" QTC_HOST_EXE_SUFFIX);
-}
-
 namespace Cvs {
 namespace Internal {
 
-CvsSettings::CvsSettings() :
-    cvsCommand(defaultCommand()),
-    cvsDiffOptions(QLatin1String(defaultDiffOptions)),
-    timeOutS(defaultTimeOutS),
-    promptToSubmit(true),
-    describeByCommitId(true)
+const QLatin1String CvsSettings::cvsRootKey("Root");
+const QLatin1String CvsSettings::diffOptionsKey("DiffOptions");
+const QLatin1String CvsSettings::describeByCommitIdKey("DescribeByCommitId");
+const QLatin1String CvsSettings::diffIgnoreWhiteSpaceKey("DiffIgnoreWhiteSpace");
+const QLatin1String CvsSettings::diffIgnoreBlankLinesKey("DiffIgnoreBlankLines");
+
+CvsSettings::CvsSettings()
 {
+    setSettingsGroup(QLatin1String("CVS"));
+    declareKey(binaryPathKey, QLatin1String("cvs" QTC_HOST_EXE_SUFFIX));
+    declareKey(cvsRootKey, QLatin1String(""));
+    declareKey(diffOptionsKey, QLatin1String("-du"));
+    declareKey(describeByCommitIdKey, true);
+    declareKey(diffIgnoreWhiteSpaceKey, false);
+    declareKey(diffIgnoreBlankLinesKey, false);
 }
 
-void CvsSettings::fromSettings(QSettings *settings)
+int CvsSettings::timeOutMs() const
 {
-    settings->beginGroup(QLatin1String(groupC));
-    cvsCommand = settings->value(QLatin1String(commandKeyC), defaultCommand()).toString();
-    cvsBinaryPath = Utils::Environment::systemEnvironment().searchInPath(cvsCommand);
-    promptToSubmit = settings->value(QLatin1String(promptToSubmitKeyC), true).toBool();
-    cvsRoot = settings->value(QLatin1String(rootC), QString()).toString();
-    cvsDiffOptions = settings->value(QLatin1String(diffOptionsKeyC), QLatin1String(defaultDiffOptions)).toString();
-    describeByCommitId = settings->value(QLatin1String(describeByCommitIdKeyC), true).toBool();
-    timeOutS = settings->value(QLatin1String(timeOutKeyC), defaultTimeOutS).toInt();
-    settings->endGroup();
-}
-
-void CvsSettings::toSettings(QSettings *settings) const
-{
-    settings->beginGroup(QLatin1String(groupC));
-    settings->setValue(QLatin1String(commandKeyC), cvsCommand);
-    settings->setValue(QLatin1String(promptToSubmitKeyC), promptToSubmit);
-    settings->setValue(QLatin1String(rootC), cvsRoot);
-    settings->setValue(QLatin1String(diffOptionsKeyC), cvsDiffOptions);
-    settings->setValue(QLatin1String(timeOutKeyC), timeOutS);
-    settings->setValue(QLatin1String(describeByCommitIdKeyC), describeByCommitId);
-    settings->endGroup();
-}
-
-bool CvsSettings::equals(const CvsSettings &s) const
-{
-    return promptToSubmit     == s.promptToSubmit
-        && describeByCommitId == s.describeByCommitId
-        && cvsCommand         == s.cvsCommand
-        && cvsRoot            == s.cvsRoot
-        && timeOutS           == s.timeOutS
-        && cvsDiffOptions     == s.cvsDiffOptions;
+    return 1000 * intValue(timeoutKey);
 }
 
 QStringList CvsSettings::addOptions(const QStringList &args) const
 {
+    const QString cvsRoot = stringValue(cvsRootKey);
     if (cvsRoot.isEmpty())
         return args;
 
@@ -108,6 +71,20 @@ QStringList CvsSettings::addOptions(const QStringList &args) const
     rc.push_back(cvsRoot);
     rc.append(args);
     return rc;
+}
+
+void CvsSettings::readLegacySettings(const QSettings *settings)
+{
+    const QString keyRoot = settingsGroup() + QLatin1Char('/');
+    const QString oldBinaryPathKey = keyRoot + QLatin1String("Command");
+    const QString oldPromptOnSubmitKey = keyRoot + QLatin1String("PromptForSubmit");
+    const QString oldTimeoutKey = keyRoot + QLatin1String("TimeOut");
+    if (settings->contains(oldBinaryPathKey))
+        this->setValue(binaryPathKey, settings->value(oldBinaryPathKey).toString());
+    if (settings->contains(oldPromptOnSubmitKey))
+        this->setValue(promptOnSubmitKey, settings->value(oldPromptOnSubmitKey).toBool());
+    if (settings->contains(oldTimeoutKey))
+        this->setValue(timeoutKey, settings->value(oldTimeoutKey).toInt());
 }
 
 } // namespace Internal

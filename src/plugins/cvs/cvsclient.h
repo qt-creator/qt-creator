@@ -27,34 +27,42 @@
 **
 ****************************************************************************/
 
-#ifndef CVSSETTINGS_H
-#define CVSSETTINGS_H
+#ifndef CVSCLIENT_H
+#define CVSCLIENT_H
 
-#include <vcsbase/vcsbaseclientsettings.h>
+#include "cvssettings.h"
+#include <vcsbase/vcsbaseclient.h>
 
 namespace Cvs {
 namespace Internal {
 
-class CvsSettings : public VcsBase::VcsBaseClientSettings
+class CvsSettings;
+
+class CvsClient : public VcsBase::VcsBaseClient
 {
+    Q_OBJECT
+
 public:
-    static const QLatin1String cvsRootKey;
-    static const QLatin1String diffOptionsKey;
-    static const QLatin1String describeByCommitIdKey;
-    static const QLatin1String diffIgnoreWhiteSpaceKey;
-    static const QLatin1String diffIgnoreBlankLinesKey;
+    CvsClient(CvsSettings *settings);
 
-    CvsSettings();
+    CvsSettings *settings() const;
+    void diff(const QString &workingDir, const QStringList &files,
+              const QStringList &extraOptions = QStringList());
+    QString findTopLevelForFile(const QFileInfo &file) const;
+    QStringList revisionSpec(const QString &revision) const;
+    StatusItem parseStatusLine(const QString &line) const;
 
-    int timeOutMs() const;
-
-    QStringList addOptions(const QStringList &args) const;
 
 protected:
-    void readLegacySettings(const QSettings *settings);
+    Utils::ExitCodeInterpreter *exitCodeInterpreter(VcsCommand cmd, QObject *parent) const;
+    Core::Id vcsEditorKind(VcsCommand cmd) const;
+    VcsBase::VcsBaseEditorParameterWidget *createDiffEditor(const QString &workingDir,
+                                                            const QStringList &files,
+                                                            const QStringList &extraOptions);
+private:
 };
 
 } // namespace Internal
 } // namespace Cvs
 
-#endif // CVSSETTINGS_H
+#endif // CVSCLIENT_H
