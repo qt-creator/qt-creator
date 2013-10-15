@@ -118,21 +118,17 @@ public:
     static QString uniqueDisplayName(const QString &base);
     static void setItemData(const QVariant &id, const QString& displayName, const Utils::FileName &fileName);
 
+    static void removeDebugger(const QVariant &id);
+    static void addDebugger(const DebuggerItem &item);
+
 public slots:
     void saveDebuggers();
-
-signals:
-    void debuggerAdded(const DebuggerItem &item);
-    void debuggerRemoved(const QVariant &id);
-    void debuggerUpdated(const QVariant &id);
 
 private:
     explicit DebuggerItemManager(QObject *parent = 0);
     static void autoDetectDebuggers();
     static void autoDetectCdbDebugger();
     static void readLegacyDebuggers();
-    static void addDebugger(const DebuggerItem &item);
-    static void removeDebugger(const QVariant &id);
 
     static Utils::PersistentSettingsWriter *m_writer;
     static QList<DebuggerItem> m_debuggers;

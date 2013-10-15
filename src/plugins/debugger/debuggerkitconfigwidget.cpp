@@ -576,10 +576,10 @@ void DebuggerItemManager::addDebugger(const DebuggerItem& item0)
     if (item.id().isNull())
         item.setId(QUuid::createUuid().toString());
     m_debuggers.append(item);
-    emit m_instance->debuggerAdded(item);
+    m_model->addDebugger(item);
 }
 
-void DebuggerItemManager::removeDebugger(const QVariant& id)
+void DebuggerItemManager::removeDebugger(const QVariant &id)
 {
     bool ok = false;
     for (int i = 0, n = m_debuggers.size(); i != n; ++i) {
@@ -591,7 +591,7 @@ void DebuggerItemManager::removeDebugger(const QVariant& id)
     }
 
     QTC_ASSERT(ok, return);
-    emit m_instance->debuggerRemoved(id);
+    m_model->removeDebugger(id);
 }
 
 QString DebuggerItemManager::uniqueDisplayName(const QString &base)
@@ -611,7 +611,7 @@ void DebuggerItemManager::setItemData(const QVariant &id, const QString &display
             item.setDisplayName(displayName);
             item.setCommand(fileName);
             item.reinitializeFromFile();
-            emit m_instance->debuggerUpdated(item.id());
+            emit m_model->updateDebugger(item.id());
             break;
         }
     }
@@ -734,13 +734,6 @@ DebuggerItemModel::DebuggerItemModel(QObject *parent)
     row = createRow(tr("Manual"));
     m_manualRoot = row.at(0);
     appendRow(row);
-
-    foreach (const DebuggerItem& item, DebuggerItemManager::debuggers())
-        addDebugger(item);
-
-    connect(DebuggerItemManager::instance(), SIGNAL(debuggerAdded(DebuggerItem)), this, SLOT(onDebuggerAdded(DebuggerItem)));
-    connect(DebuggerItemManager::instance(), SIGNAL(debuggerRemoved(QVariant)), this, SLOT(onDebuggerRemoved(QVariant)));
-    connect(DebuggerItemManager::instance(), SIGNAL(debuggerUpdated(QVariant)), this, SLOT(onDebuggerUpdated(QVariant)));
 }
 
 QVariant DebuggerItemModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -784,15 +777,11 @@ QModelIndex DebuggerItemModel::currentIndex() const
     return current ? current->index() : QModelIndex();
 }
 
-void DebuggerItemModel::addDebugger(const DebuggerItem &item)
+QModelIndex DebuggerItemModel::lastIndex() const
 {
-    DebuggerItemManager::addDebugger(item);
-}
-
-void DebuggerItemModel::removeCurrentDebugger()
-{
-    QTC_ASSERT(m_currentDebugger.isValid(), return);
-    DebuggerItemManager::removeDebugger(m_currentDebugger);
+    int n = m_manualRoot->rowCount();
+    QStandardItem *current = m_manualRoot->child(n - 1);
+    return current ? current->index() : QModelIndex();
 }
 
 void DebuggerItemModel::markCurrentDirty()
@@ -804,17 +793,7 @@ void DebuggerItemModel::markCurrentDirty()
     sitem->setFont(font);
 }
 
-void DebuggerItemModel::cloneDebugger()
-{
-    const DebuggerItem *item = DebuggerItemManager::findById(m_currentDebugger);
-    QTC_ASSERT(item, return);
-    DebuggerItem newItem = *item;
-    newItem.setDisplayName(DebuggerItemManager::uniqueDisplayName(tr("Clone of %1").arg(item->displayName())));
-    newItem.setAutoDetected(false);
-    DebuggerItemManager::addDebugger(newItem);
-}
-
-void DebuggerItemModel::onDebuggerAdded(const DebuggerItem &item0)
+void DebuggerItemModel::addDebugger(const DebuggerItem &item0)
 {
     DebuggerItem item = item0;
     if (item.id().isNull())
@@ -824,7 +803,7 @@ void DebuggerItemModel::onDebuggerAdded(const DebuggerItem &item0)
     emit debuggerAdded(item.id(), item.displayName());
 }
 
-void DebuggerItemModel::onDebuggerRemoved(const QVariant &id)
+void DebuggerItemModel::removeDebugger(const QVariant &id)
 {
     QStandardItem *sitem = findStandardItemById(id);
     QTC_ASSERT(sitem, return);
@@ -836,7 +815,7 @@ void DebuggerItemModel::onDebuggerRemoved(const QVariant &id)
     emit debuggerRemoved(id);
 }
 
-void DebuggerItemModel::onDebuggerUpdated(const QVariant &id)
+void DebuggerItemModel::updateDebugger(const QVariant &id)
 {
     QList<DebuggerItem> debuggers = DebuggerItemManager::debuggers();
     for (int i = 0, n = debuggers.size(); i != n; ++i) {
@@ -1202,8 +1181,16 @@ void DebuggerOptionsPage::apply()
 
 void DebuggerOptionsPage::cloneDebugger()
 {
-    m_model->cloneDebugger();
-    debuggerModelChanged();
+    const DebuggerItem *item = DebuggerItemManager::findById(m_model->currentDebugger());
+    QTC_ASSERT(item, return);
+    DebuggerItem newItem;
+    newItem.setCommand(item->command());
+    newItem.setEngineType(item->engineType());
+    newItem.setAbis(item->abis());
+    newItem.setDisplayName(DebuggerItemManager::uniqueDisplayName(tr("Clone of %1").arg(item->displayName())));
+    newItem.setAutoDetected(false);
+    DebuggerItemManager::addDebugger(newItem);
+    m_debuggerView->setCurrentIndex(m_model->lastIndex());
 }
 
 void DebuggerOptionsPage::addDebugger()
@@ -1212,14 +1199,15 @@ void DebuggerOptionsPage::addDebugger()
     item.setEngineType(NoEngineType);
     item.setDisplayName(DebuggerItemManager::uniqueDisplayName(tr("New Debugger")));
     item.setAutoDetected(false);
-    m_model->addDebugger(item);
-    debuggerModelChanged();
+    DebuggerItemManager::addDebugger(item);
+    m_debuggerView->setCurrentIndex(m_model->lastIndex());
 }
 
 void DebuggerOptionsPage::removeDebugger()
 {
-    m_model->removeCurrentDebugger();
-    debuggerModelChanged();
+    QVariant id = m_model->currentDebugger();
+    DebuggerItemManager::removeDebugger(id);
+    m_debuggerView->setCurrentIndex(m_model->lastIndex());
 }
 
 void DebuggerOptionsPage::finish()

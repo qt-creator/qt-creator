@@ -66,17 +66,15 @@ public:
     DebuggerItemModel(QObject *parent);
 
     QModelIndex currentIndex() const;
+    QModelIndex lastIndex() const;
     void setCurrentIndex(const QModelIndex &index);
+    QVariant currentDebugger() const { return m_currentDebugger; }
+    void addDebugger(const DebuggerItem &item);
+    void removeDebugger(const QVariant &id);
+    void updateDebugger(const QVariant &id);
 
 public slots:
-    void removeCurrentDebugger();
     void markCurrentDirty();
-    void cloneDebugger();
-
-private slots:
-    void onDebuggerAdded(const DebuggerItem &item);
-    void onDebuggerRemoved(const QVariant &id);
-    void onDebuggerUpdated(const QVariant &id);
 
 signals:
     void debuggerAdded(const QVariant &id, const QString &display);
@@ -89,8 +87,6 @@ private:
     friend class DebuggerItemConfigWidget;
     friend class DebuggerOptionsPage;
 
-    void addDebugger(const DebuggerItem &item);
-    void removeDebugger(const QVariant &id);
     QStandardItem *currentStandardItem() const;
     QStandardItem *findStandardItemById(const QVariant &id) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
