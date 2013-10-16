@@ -74,6 +74,8 @@ private slots:
     void handleProcessFinished(int exitStatus);
     void handleStdout();
     void handleStderr();
+    void handleKillOperationFinished(const QString &errorMessage);
+    void handleKillOperationTimeout();
 
 private:
     virtual QString fullCommandLine() const;
