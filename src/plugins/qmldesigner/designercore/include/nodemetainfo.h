@@ -104,6 +104,11 @@ public:
 
     static void clearCache();
 
+    //### TODO: These are hardcoded and ideally the code model should be able to provide them
+    static QStringList qtQuickEnums();
+    static QStringList qtQuickEnumsWithoutScope();
+    static QString qtQuickEnumScopeForEnumString(const QString &inputEnumString);
+
 private:
     QSharedPointer<Internal::NodeMetaInfoPrivate> m_privateData;
 };

@@ -549,6 +549,10 @@ public:
             value.convert(QVariant::Bool);
             return value;
         } else if (property->asNumberValue()) {
+            //Enums in alias properties pretend to be a number.
+            //In Qt Quick 1 this was still valid syntax.
+            if (NodeMetaInfo::qtQuickEnumsWithoutScope().contains(value.toString()))
+                return value.toString();
             value.convert(QVariant::Double);
             return value;
         } else if (property->asStringValue()) {
@@ -568,6 +572,11 @@ public:
                 && astValueList.first() == QLatin1String("Qt")
                 && globalQtEnums().contains(astValueList.last()))
             return QVariant(astValueList.last());
+
+        if (astValueList.count() == 2 //Check for global Qt Quick enums
+                && NodeMetaInfo::qtQuickEnums().contains(astValue)) {
+            return QVariant(astValueList.last());
+        }
 
         ExpressionStatement *eStmt = cast<ExpressionStatement *>(rhs);
         if (!eStmt || !eStmt->expression)
