@@ -137,7 +137,7 @@ void QtQuickAppWizard::createInstances(ExtensionSystem::IPlugin *plugin)
     wizard->setDisplayName(tr("Qt Quick 1 Application (Built-in Types)"));
     wizard->setDescription(basicDescription + tr("The built-in QML types in the QtQuick 1 namespace allow "
                                                    "you to write cross-platform applications with "
-                                                   "a custom look and feel.\n\nRequires <b>Qt 4.7.0</b> or newer."));
+                                                   "a custom look and feel.\n\nRequires <b>Qt 4.8.0</b> or newer."));
     wizard->setRequiredFeatures(basicFeatures);
     plugin->addAutoReleasedObject(wizard);
 
@@ -159,7 +159,7 @@ void QtQuickAppWizard::createInstances(ExtensionSystem::IPlugin *plugin)
                                                     "existing QML files. All files and directories that "
                                                     "reside in the same directory as the main .qml file "
                                                     "are deployed. You can modify the contents of the "
-                                                    "directory any time before deploying.\n\nRequires <b>Qt 4.7.0</b> or newer."));
+                                                    "directory any time before deploying.\n\nRequires <b>Qt 4.8.0</b> or newer."));
     wizard->setRequiredFeatures(basicFeatures);
     plugin->addAutoReleasedObject(wizard);
 
