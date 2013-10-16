@@ -69,11 +69,12 @@ class KitPrivate
 public:
     KitPrivate(Id id) :
         m_id(id),
+        m_nestedBlockingLevel(0),
         m_autodetected(false),
         m_sdkProvided(false),
         m_isValid(true),
         m_hasWarning(false),
-        m_nestedBlockingLevel(0),
+        m_hasValidityInfo(false),
         m_mustNotify(false),
         m_mustNotifyAboutDisplayName(false)
     {
@@ -83,15 +84,16 @@ public:
 
     QString m_displayName;
     Id m_id;
+    int m_nestedBlockingLevel;
     bool m_autodetected;
     bool m_sdkProvided;
     bool m_isValid;
     bool m_hasWarning;
-    QIcon m_icon;
-    Utils::FileName m_iconPath;
-    int m_nestedBlockingLevel;
+    bool m_hasValidityInfo;
     bool m_mustNotify;
     bool m_mustNotifyAboutDisplayName;
+    QIcon m_icon;
+    Utils::FileName m_iconPath;
 
     QHash<Core::Id, QVariant> m_data;
     QSet<Core::Id> m_sticky;
@@ -172,11 +174,20 @@ void Kit::copyFrom(const Kit *k)
 
 bool Kit::isValid() const
 {
-    return d->m_id.isValid() && d->m_isValid;
+    if (!d->m_id.isValid())
+        return false;
+
+    if (!d->m_hasValidityInfo)
+        validate();
+
+    return d->m_isValid;
 }
 
 bool Kit::hasWarning() const
 {
+    if (!d->m_hasValidityInfo)
+        validate();
+
     return d->m_hasWarning;
 }
 
@@ -197,6 +208,7 @@ QList<Task> Kit::validate() const
         result.append(tmp);
     }
     qSort(result);
+    d->m_hasValidityInfo = true;
     return result;
 }
 
@@ -530,7 +542,7 @@ void Kit::kitUpdated()
         d->m_mustNotify = true;
         return;
     }
-    validate();
+    d->m_hasValidityInfo = false;
     KitManager::notifyAboutUpdate(this);
 }
 
@@ -541,7 +553,7 @@ void Kit::kitDisplayNameChanged()
         d->m_mustNotify = false;
         return;
     }
-    validate();
+    d->m_hasValidityInfo = false;
     KitManager::notifyAboutDisplayNameChange(this);
 }
 
