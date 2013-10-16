@@ -7493,6 +7493,7 @@ void FakeVimHandler::Private::enterCommandMode(Mode returnToMode)
 void FakeVimHandler::Private::enterExMode(const QString &contents)
 {
     g.currentMessage.clear();
+    g.commandBuffer.clear();
     if (isVisualMode())
         g.commandBuffer.setContents(QString::fromLatin1("'<,'>") + contents, contents.size() + 5);
     else
