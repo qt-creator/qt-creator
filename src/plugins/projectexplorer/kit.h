@@ -124,7 +124,7 @@ private:
     QVariantMap toMap() const;
     bool fromMap(const QVariantMap &value);
 
-    Internal::KitPrivate *d;
+    Internal::KitPrivate *const d;
 
     friend class KitInformation;
     friend class KitManager;
