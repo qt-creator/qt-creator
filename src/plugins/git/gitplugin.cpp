@@ -810,7 +810,7 @@ void GitPlugin::resetRepository()
     QTC_ASSERT(state.hasTopLevel(), return);
     QString topLevel = state.topLevel();
 
-    LogChangeDialog dialog(true);
+    LogChangeDialog dialog(true, Core::ICore::mainWindow());
     dialog.setWindowTitle(tr("Undo Changes to %1").arg(QDir::toNativeSeparators(topLevel)));
     if (dialog.runDialog(topLevel))
         m_gitClient->reset(topLevel, dialog.resetFlag(), dialog.commit());
@@ -827,7 +827,7 @@ void GitPlugin::startRebase()
         return;
     if (!m_gitClient->beginStashScope(topLevel, QLatin1String("Rebase-i")))
         return;
-    LogChangeDialog dialog(false);
+    LogChangeDialog dialog(false, Core::ICore::mainWindow());
     dialog.setWindowTitle(tr("Interactive Rebase"));
     if (dialog.runDialog(topLevel, QString(), false))
         m_gitClient->interactiveRebase(topLevel, dialog.commit(), false);
