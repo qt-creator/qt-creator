@@ -166,13 +166,13 @@ const QStandardItem *LogChangeWidget::currentItem(int column) const
 
 LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent) :
     QDialog(parent)
-    , widget(new LogChangeWidget)
+    , m_widget(new LogChangeWidget)
     , m_dialogButtonBox(new QDialogButtonBox(this))
     , m_resetTypeComboBox(0)
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(new QLabel(isReset ? tr("Reset to:") : tr("Select change:"), this));
-    layout->addWidget(widget);
+    layout->addWidget(m_widget);
     QHBoxLayout *popUpLayout = new QHBoxLayout;
     if (isReset) {
         popUpLayout->addWidget(new QLabel(tr("Reset type:"), this));
@@ -195,7 +195,7 @@ LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent) :
     connect(m_dialogButtonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(m_dialogButtonBox, SIGNAL(rejected()), this, SLOT(reject()));
 
-    connect(widget, SIGNAL(doubleClicked(QModelIndex)), okButton, SLOT(animateClick()));
+    connect(m_widget, SIGNAL(doubleClicked(QModelIndex)), okButton, SLOT(animateClick()));
 
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     resize(600, 400);
@@ -203,7 +203,7 @@ LogChangeDialog::LogChangeDialog(bool isReset, QWidget *parent) :
 
 bool LogChangeDialog::runDialog(const QString &repository, const QString &commit, bool includeRemote)
 {
-    if (!widget->init(repository, commit, includeRemote))
+    if (!m_widget->init(repository, commit, includeRemote))
         return false;
 
     if (QDialog::exec() == QDialog::Accepted) {
@@ -219,12 +219,12 @@ bool LogChangeDialog::runDialog(const QString &repository, const QString &commit
 
 QString LogChangeDialog::commit() const
 {
-    return widget->commit();
+    return m_widget->commit();
 }
 
 int LogChangeDialog::commitIndex() const
 {
-    return widget->commitIndex();
+    return m_widget->commitIndex();
 }
 
 QString LogChangeDialog::resetFlag() const
