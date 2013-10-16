@@ -2316,10 +2316,6 @@ void FakeVimHandler::Private::setupWidget()
     enterFakeVim();
 
     resetCommandMode();
-    if (m_textedit)
-        m_textedit->setLineWrapMode(QTextEdit::NoWrap);
-    else if (m_plaintextedit)
-        m_plaintextedit->setLineWrapMode(QPlainTextEdit::NoWrap);
     m_wasReadOnly = EDITOR(isReadOnly());
 
     updateEditor();
@@ -6471,19 +6467,22 @@ int FakeVimHandler::Private::linesInDocument() const
 
 void FakeVimHandler::Private::scrollToLine(int line)
 {
-    const QTextCursor tc = EDITOR(textCursor());
-
     // Don't scroll if the line is already at the top.
     updateFirstVisibleLine();
     if (line == m_firstVisibleLine)
         return;
+
+    const QTextCursor tc = m_cursor;
 
     QTextCursor tc2 = tc;
     tc2.setPosition(document()->lastBlock().position());
     EDITOR(setTextCursor(tc2));
     EDITOR(ensureCursorVisible());
 
-    tc2.setPosition(document()->findBlockByLineNumber(line).position());
+    const QTextBlock block = document()->findBlockByLineNumber(line);
+    const QTextLine textLine = block.isValid()
+        ? block.layout()->lineAt(line - block.firstLineNumber()) : QTextLine();
+    tc2.setPosition(block.position() + (textLine.isValid() ? textLine.textStart() : 0));
     EDITOR(setTextCursor(tc2));
     EDITOR(ensureCursorVisible());
 
@@ -6497,7 +6496,7 @@ void FakeVimHandler::Private::scrollToLine(int line)
 void FakeVimHandler::Private::updateFirstVisibleLine()
 {
     const QTextCursor tc = EDITOR(cursorForPosition(QPoint(0,0)));
-    m_firstVisibleLine = tc.block().firstLineNumber();
+    m_firstVisibleLine = lineForPosition(tc.position()) - 1;
 }
 
 int FakeVimHandler::Private::firstVisibleLine() const
@@ -6507,9 +6506,9 @@ int FakeVimHandler::Private::firstVisibleLine() const
 
 int FakeVimHandler::Private::lastVisibleLine() const
 {
-    const QTextBlock block =
-            document()->findBlockByLineNumber(m_firstVisibleLine + linesOnScreen());
-    return block.isValid() ? block.firstLineNumber() : document()->lastBlock().firstLineNumber();
+    const int line = m_firstVisibleLine + linesOnScreen();
+    const QTextBlock block = document()->findBlockByLineNumber(line);
+    return block.isValid() ? line : document()->lastBlock().firstLineNumber();
 }
 
 int FakeVimHandler::Private::lineOnTop(int count) const
@@ -6538,7 +6537,7 @@ void FakeVimHandler::Private::updateScrollOffset()
     if (line < lineOnTop())
         scrollToLine(qMax(0, line - windowScrollOffset()));
     else if (line > lineOnBottom())
-        scrollToLine(line - linesOnScreen() + windowScrollOffset() + 1);
+        scrollToLine(firstVisibleLine() + line - lineOnBottom());
 }
 
 void FakeVimHandler::Private::alignViewportToCursor(AlignmentFlag align, int line,
@@ -7156,8 +7155,12 @@ int FakeVimHandler::Private::lastPositionInLine(int line, bool onlyVisibleLines)
 
 int FakeVimHandler::Private::lineForPosition(int pos) const
 {
-    QTextBlock block = document()->findBlock(pos);
-    return lineNumber(block);
+    const QTextBlock block = document()->findBlock(pos);
+    if (!block.isValid())
+        return 0;
+    const int positionInBlock = pos - block.position();
+    const int lineNumberInBlock = block.layout()->lineForTextPosition(positionInBlock).lineNumber();
+    return block.firstLineNumber() + lineNumberInBlock + 1;
 }
 
 void FakeVimHandler::Private::toggleVisualMode(VisualMode visualMode)
