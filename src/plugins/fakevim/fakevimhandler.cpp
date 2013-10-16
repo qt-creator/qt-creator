@@ -1664,11 +1664,7 @@ public:
     void moveToFirstNonBlankOnLine();
     void moveToFirstNonBlankOnLine(QTextCursor *tc);
     void moveToTargetColumn();
-    void setTargetColumn() {
-        m_targetColumn = logicalCursorColumn();
-        m_visualTargetColumn = m_targetColumn;
-        //qDebug() << "TARGET: " << m_targetColumn;
-    }
+    void setTargetColumn();
     void moveToMatchingParanthesis();
     void moveToBoundary(bool simple, bool forward = true);
     void moveToNextBoundary(bool end, int count, bool simple, bool forward);
@@ -1688,6 +1684,8 @@ public:
     void moveBehindEndOfLine();
     void moveUp(int n = 1) { moveDown(-n); }
     void moveDown(int n = 1);
+    void moveUpVisually(int n = 1) { moveDownVisually(-n); }
+    void moveDownVisually(int n = 1);
     void movePageDown(int count = 1);
     void movePageUp(int count = 1) { movePageDown(-count); }
     void dump(const char *msg) const {
@@ -1945,6 +1943,7 @@ public:
 
     int m_targetColumn; // -1 if past end of line
     int m_visualTargetColumn; // 'l' can move past eol in visual mode only
+    int m_targetColumnWrapped; // column in current part of wrapped line
 
     // auto-indent
     QString tabExpand(int len) const;
@@ -2131,6 +2130,7 @@ void FakeVimHandler::Private::init()
     m_lastVisualModeInverted = false;
     m_targetColumn = 0;
     m_visualTargetColumn = 0;
+    m_targetColumnWrapped = 0;
     m_ctrlVActive = false;
     m_oldInternalAnchor = -1;
     m_oldInternalPosition = -1;
@@ -2928,6 +2928,45 @@ void FakeVimHandler::Private::moveDown(int n)
     updateScrollOffset();
 }
 
+void FakeVimHandler::Private::moveDownVisually(int n)
+{
+    const QTextCursor::MoveOperation moveOperation = (n > 0) ? Down : Up;
+    int count = qAbs(n);
+    int oldPos = m_cursor.position();
+
+    while (count > 0) {
+        m_cursor.movePosition(moveOperation, KeepAnchor, 1);
+        if (oldPos == m_cursor.position())
+            break;
+        oldPos = m_cursor.position();
+        QTextBlock block = m_cursor.block();
+        if (block.isVisible())
+            --count;
+    }
+
+    QTextCursor tc = m_cursor;
+    tc.movePosition(StartOfLine);
+    const int minPos = tc.position();
+    tc.movePosition(EndOfLine);
+    int maxPos = tc.position();
+    // Moving to end of line sometimes ends up on following line.
+    tc.movePosition(StartOfLine);
+    if (minPos != tc.position())
+        --maxPos;
+
+    if (m_targetColumn == -1) {
+        setPosition(maxPos);
+    } else {
+        setPosition(qMin(maxPos, minPos + m_targetColumnWrapped));
+
+        const int targetColumn = m_targetColumnWrapped;
+        setTargetColumn();
+        m_targetColumnWrapped = targetColumn;
+    }
+
+    updateScrollOffset();
+}
+
 void FakeVimHandler::Private::movePageDown(int count)
 {
     const int scrollOffset = windowScrollOffset();
@@ -3702,13 +3741,25 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
         handleStartOfLine();
     } else if (input.is('j') || input.isKey(Key_Down)
             || input.isControl('j') || input.isControl('n')) {
-        g.movetype = MoveLineWise;
-        moveDown(count);
-        movement = _("j");
+        if (g.gflag) {
+            g.movetype = MoveExclusive;
+            moveDownVisually(count);
+            movement = _("gj");
+        } else {
+            g.movetype = MoveLineWise;
+            moveDown(count);
+            movement = _("j");
+        }
     } else if (input.is('k') || input.isKey(Key_Up) || input.isControl('p')) {
-        g.movetype = MoveLineWise;
-        moveUp(count);
-        movement = _("k");
+        if (g.gflag) {
+            g.movetype = MoveExclusive;
+            moveUpVisually(count);
+            movement = _("gk");
+        } else {
+            g.movetype = MoveLineWise;
+            moveUp(count);
+            movement = _("k");
+        }
     } else if (input.is('l') || input.isKey(Key_Right) || input.is(' ')) {
         g.movetype = MoveExclusive;
         bool pastEnd = count >= rightDist() - 1;
@@ -6190,6 +6241,16 @@ void FakeVimHandler::Private::moveToTargetColumn()
     const int physical = bl.position() + logicalToPhysicalColumn(m_targetColumn, bl.text());
     //qDebug() << "CORRECTING COLUMN FROM: " << logical << "TO" << m_targetColumn;
     setPosition(qMin(pos, physical));
+}
+
+void FakeVimHandler::Private::setTargetColumn()
+{
+    m_targetColumn = logicalCursorColumn();
+    m_visualTargetColumn = m_targetColumn;
+
+    QTextCursor tc = m_cursor;
+    tc.movePosition(StartOfLine);
+    m_targetColumnWrapped = m_cursor.position() - tc.position();
 }
 
 /* if simple is given:
