@@ -72,14 +72,6 @@ const char PROFILE_EVALUATE[] = "Qt4ProjectManager.ProFileEvaluate";
 // Project
 const char QT4PROJECT_ID[] = "Qt4ProjectManager.Qt4Project";
 
-// Target Features
-const char MOBILE_TARGETFEATURE_ID[] = "Qt4ProjectManager.TargetFeature.Mobile";
-const char DESKTOP_TARGETFEATURE_ID[] = "Qt4ProjectManager.TargetFeature.Desktop";
-const char SHADOWBUILD_TARGETFEATURE_ID[] = "Qt4ProjectManager.TargetFeature.ShadowBuild";
-
-// Tool chains:
-const char GCCE_TOOLCHAIN_ID[] = "Qt4ProjectManager.ToolChain.GCCE";
-
 // ICONS
 const char ICON_QTQUICK_APP[] = ":/wizards/images/qtquickapp.png";
 const char ICON_HTML5_APP[] = ":/wizards/images/html5app.png";
