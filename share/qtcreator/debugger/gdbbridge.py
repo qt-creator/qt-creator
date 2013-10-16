@@ -1123,7 +1123,7 @@ class Dumper(DumperBase):
         #return s == "0x0" or s.startswith("0x0 ")
         #try:
         #    # Can fail with: "RuntimeError: Cannot access memory at address 0x5"
-        #    return p.cast(lookupType("void").pointer()) == 0
+        #    return p.cast(self.lookupType("void").pointer()) == 0
         #except:
         #    return False
         try:
@@ -1365,7 +1365,7 @@ class Dumper(DumperBase):
             self.putEmptyValue(-1)
         else:
             self.putValue("0x%x" % value.cast(
-                lookupType("unsigned long")), None, -1)
+                self.lookupType("unsigned long")), None, -1)
 
     def putDisplay(self, format, value = None, cmd = None):
         self.put('editformat="%s",' % format)
@@ -1545,31 +1545,6 @@ class Dumper(DumperBase):
                     base, type.sizeof):
                 for i in self.childRange():
                     self.putSubItem(i, (base + i).dereference())
-
-    def findFirstZero(self, p, maximum):
-        for i in xrange(maximum):
-            if p.dereference() == 0:
-                return i
-            p = p + 1
-        return maximum + 1
-
-    def encodeCArray(self, p, innerType, suffix):
-        t = lookupType(innerType)
-        p = p.cast(t.pointer())
-        limit = self.findFirstZero(p, qqStringCutOff)
-        s = self.readMemory(p, limit * t.sizeof)
-        if limit > qqStringCutOff:
-            s += suffix
-        return s
-
-    def encodeCharArray(self, p):
-        return self.encodeCArray(p, "unsigned char", "2e2e2e")
-
-    def encodeChar2Array(self, p):
-        return self.encodeCArray(p, "unsigned short", "2e002e002e00")
-
-    def encodeChar4Array(self, p):
-        return self.encodeCArray(p, "unsigned int", "2e0000002e0000002e000000")
 
     def putCallItem(self, name, value, func, *args):
         result = self.call2(value, func, args)
@@ -1846,7 +1821,7 @@ class Dumper(DumperBase):
             #self.putAddress(value.address)
             self.putField("bbb", "1")
             #self.putPointerValue(value)
-            self.putValue("0x%x" % value.cast(lookupType("unsigned long")))
+            self.putValue("0x%x" % value.cast(self.lookupType("unsigned long")))
             self.putField("ccc", "1")
             self.putNumChild(1)
             if self.currentIName in self.expandedINames:
@@ -2079,7 +2054,7 @@ def threadname(arg):
                 or e.name() == "_ZN14QThreadPrivate5startEPv@4":
             try:
                 thrptr = e.read_var("thr").dereference()
-                obtype = lookupType(ns + "QObjectPrivate").pointer()
+                obtype = d.lookupType(ns + "QObjectPrivate").pointer()
                 d_ptr = thrptr["d_ptr"]["d"].cast(obtype).dereference()
                 try:
                     objectName = d_ptr["objectName"]

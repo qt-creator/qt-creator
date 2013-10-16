@@ -391,6 +391,31 @@ class DumperBase:
         self.check(count >= minimum)
         self.check(count < 1000000)
 
+    def findFirstZero(self, p, maximum):
+        for i in xrange(maximum):
+            if int(p.dereference()) == 0:
+                return i
+            p = p + 1
+        return maximum + 1
+
+    def encodeCArray(self, p, innerType, suffix):
+        t = self.lookupType(innerType)
+        p = p.cast(t.pointer())
+        limit = self.findFirstZero(p, qqStringCutOff)
+        s = self.readMemory(p, limit * t.sizeof)
+        if limit > qqStringCutOff:
+            s += suffix
+        return s
+
+    def encodeCharArray(self, p):
+        return self.encodeCArray(p, "unsigned char", "2e2e2e")
+
+    def encodeChar2Array(self, p):
+        return self.encodeCArray(p, "unsigned short", "2e002e002e00")
+
+    def encodeChar4Array(self, p):
+        return self.encodeCArray(p, "unsigned int", "2e0000002e0000002e000000")
+
     def putQObjectNameValue(self, value):
         try:
             intSize = self.intSize()
