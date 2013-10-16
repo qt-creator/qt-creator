@@ -306,10 +306,10 @@ class ReadingContext
 {
 public:
     ReadingContext(const Snapshot &snapshot, const Document::Ptr &doc,
-                   const QStringList importPaths)
+                   const ViewerContext &vContext)
         : m_snapshot(snapshot)
         , m_doc(doc)
-        , m_link(snapshot, importPaths,
+        , m_link(snapshot, vContext,
                  QmlJS::ModelManagerInterface::instance()->builtins(doc))
         , m_context(m_link(doc, &m_diagnosticLinkMessages))
         , m_scopeChain(doc, m_context)
@@ -751,7 +751,11 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
             return false;
         }
         snapshot.insert(doc);
-        ReadingContext ctxt(snapshot, doc, importPaths);
+        QmlJS::ViewerContext vContext;
+        vContext.language = QmlJS::Language::Qml;
+        vContext.paths = importPaths;
+        vContext.flags = QmlJS::ViewerContext::Complete;
+        ReadingContext ctxt(snapshot, doc, vContext);
         m_scopeChain = QSharedPointer<const ScopeChain>(
                     new ScopeChain(ctxt.scopeChain()));
         m_document = doc;

@@ -92,13 +92,13 @@ static QList<ProjectExplorer::Task> convertToTasks(const QList<StaticAnalysis::M
 void QmlTaskManager::collectMessages(
         QFutureInterface<FileErrorMessages> &future,
         Snapshot snapshot, QList<ModelManagerInterface::ProjectInfo> projectInfos,
-        QStringList importPaths, bool updateSemantic)
+        ViewerContext vContext, bool updateSemantic)
 {
     foreach (const ModelManagerInterface::ProjectInfo &info, projectInfos) {
         QHash<QString, QList<DiagnosticMessage> > linkMessages;
         ContextPtr context;
         if (updateSemantic) {
-            Link link(snapshot, importPaths, snapshot.libraryInfo(info.qtImportsPath));
+            Link link(snapshot, vContext, snapshot.libraryInfo(info.qtImportsPath));
             context = link(&linkMessages);
         }
 
@@ -161,7 +161,7 @@ void QmlTaskManager::updateMessagesNow(bool updateSemantic)
     QFuture<FileErrorMessages> future =
             QtConcurrent::run<FileErrorMessages>(
                 &collectMessages, modelManager->newestSnapshot(), modelManager->projectInfos(),
-                modelManager->importPaths(), updateSemantic);
+                modelManager->defaultVContext(), updateSemantic);
     m_messageCollector.setFuture(future);
 }
 

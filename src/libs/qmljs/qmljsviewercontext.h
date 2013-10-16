@@ -27,58 +27,37 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJSCONSTANTS_H
-#define QMLJSCONSTANTS_H
+#ifndef VIEWERCONTEXT_H
+#define VIEWERCONTEXT_H
+
+#include "qmljs_global.h"
+#include "qmljsconstants.h"
+
+#include <QStringList>
 
 namespace QmlJS {
 
-namespace ImportType {
-enum Enum {
-    Invalid,
-    Library,
-    Directory,
-    ImplicitDirectory,
-    File,
-    UnknownFile, // refers a file/directory that wasn't found (or to an url)
-    QrcDirectory,
-    QrcFile
-};
-}
-
-namespace ImportKind {
-enum Enum {
-    Invalid,
-    Library,
-    Path,
-    QrcPath,
-};
-}
-
-namespace Severity {
-enum Enum
+class QMLJS_EXPORT ViewerContext
 {
-    Hint,         // cosmetic or convention
-    MaybeWarning, // possibly a warning, insufficient information
-    Warning,      // could cause unintended behavior
-    MaybeError,   // possibly an error, insufficient information
-    Error         // definitely an error
-};
-}
+public:
+    enum Flags {
+        Complete,
+        AddAllPaths,
+        AddQtPath
+    };
 
-namespace Language {
-enum Enum
-{
-    Unknown = 0,
-    JavaScript = 1,
-    Json = 2,
-    Qml = 3,
-    QmlQtQuick1 = 4,
-    QmlQtQuick2 = 5,
-    QmlQbs = 6,
-    QmlProject = 7,
-    QmlTypeInfo = 8
+    ViewerContext();
+    ViewerContext(QStringList selectors, QStringList paths,
+                  Language::Enum language = Language::Qml,
+                  Flags flags = AddAllPaths);
+
+    bool languageIsCompatible(Language::Enum l) const;
+
+    QStringList selectors;
+    QStringList paths;
+    Language::Enum language;
+    Flags flags;
 };
-}
 
 } // namespace QmlJS
-#endif // QMLJSCONSTANTS_H
+#endif // VIEWERCONTEXT_H

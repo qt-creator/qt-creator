@@ -115,6 +115,14 @@ public:
 
     QmlJS::LibraryInfo builtins(const QmlJS::Document::Ptr &doc) const QTC_OVERRIDE;
 
+    QmlJS::ViewerContext completeVContext(
+            const QmlJS::ViewerContext &vCtx,
+            const QmlJS::Document::Ptr &doc = QmlJS::Document::Ptr(0)) const QTC_OVERRIDE;
+    QmlJS::ViewerContext defaultVContext(
+            bool autoComplete = true,
+            const QmlJS::Document::Ptr &doc = QmlJS::Document::Ptr(0)) const QTC_OVERRIDE;
+    void setDefaultVContext(const QmlJS::ViewerContext &vContext) QTC_OVERRIDE;
+
     void joinAllThreads() QTC_OVERRIDE;
 
 public slots:
@@ -158,6 +166,7 @@ private:
     QStringList m_defaultImportPaths;
     QmlJS::QmlLanguageBundles m_activeBundles;
     QmlJS::QmlLanguageBundles m_extendedBundles;
+    QmlJS::ViewerContext m_vContext;
 
     QTimer *m_updateCppQmlTypesTimer;
     QTimer *m_asyncResetTimer;

@@ -30,6 +30,7 @@
 #include "qmljsdocument.h"
 #include "qmljsbind.h"
 #include "qmljsconstants.h"
+#include "qmljsimportdependencies.h"
 #include <qmljs/parser/qmljslexer_p.h>
 #include <qmljs/parser/qmljsparser_p.h>
 
@@ -396,6 +397,14 @@ Snapshot::~Snapshot()
 {
 }
 
+Snapshot::Snapshot(const Snapshot &o)
+    : _documents(o._documents),
+      _documentsByPath(o._documentsByPath),
+      _libraries(o._libraries),
+      _dependencies(o._dependencies)
+{
+}
+
 void Snapshot::insert(const Document::Ptr &document, bool allowInvalid)
 {
     if (document && (allowInvalid || document->qmlProgram() || document->jsProgram())) {
@@ -425,6 +434,16 @@ void Snapshot::remove(const QString &fileName)
 
         _documents.remove(fileName);
     }
+}
+
+const QmlJS::ImportDependencies *Snapshot::importDependencies() const
+{
+    return &_dependencies;
+}
+
+QmlJS::ImportDependencies *Snapshot::importDependencies()
+{
+    return &_dependencies;
 }
 
 Document::MutablePtr Snapshot::documentFromSource(

@@ -1121,6 +1121,34 @@ LibraryInfo ModelManager::builtins(const Document::Ptr &doc) const
     return _validSnapshot.libraryInfo(info.qtImportsPath);
 }
 
+ViewerContext ModelManager::completeVContext(const ViewerContext &vCtx,
+                                             const Document::Ptr &doc) const
+{
+    Q_UNUSED(doc);
+    ViewerContext res = vCtx;
+    switch (res.flags) {
+    case ViewerContext::Complete:
+        break;
+    case ViewerContext::AddQtPath:
+    case ViewerContext::AddAllPaths:
+        res.paths << importPaths();
+    }
+    return res;
+}
+
+ViewerContext ModelManager::defaultVContext(bool autoComplete, const Document::Ptr &doc) const
+{
+    if (autoComplete)
+        return completeVContext(m_vContext, doc);
+    else
+        return m_vContext;
+}
+
+void ModelManager::setDefaultVContext(const ViewerContext &vContext)
+{
+    m_vContext = vContext;
+}
+
 void ModelManager::joinAllThreads()
 {
     foreach (QFuture<void> future, m_synchronizer.futures())

@@ -39,11 +39,13 @@
 #include "parser/qmljsengine_p.h"
 #include "qmljs_global.h"
 #include "qmljsconstants.h"
+#include "qmljsimportdependencies.h"
 
 namespace QmlJS {
 
 class Bind;
 class Snapshot;
+class ImportDependencies;
 
 class QMLJS_EXPORT Document
 {
@@ -204,9 +206,11 @@ class QMLJS_EXPORT Snapshot
     QHash<QString, Document::Ptr> _documents;
     QHash<QString, QList<Document::Ptr> > _documentsByPath;
     QHash<QString, LibraryInfo> _libraries;
+    ImportDependencies _dependencies;
 
 public:
     Snapshot();
+    Snapshot(const Snapshot &o);
     ~Snapshot();
 
     typedef _Base::iterator iterator;
@@ -218,6 +222,9 @@ public:
     void insert(const Document::Ptr &document, bool allowInvalid = false);
     void insertLibraryInfo(const QString &path, const LibraryInfo &info);
     void remove(const QString &fileName);
+
+    const ImportDependencies *importDependencies() const;
+    ImportDependencies *importDependencies();
 
     Document::Ptr document(const QString &fileName) const;
     QList<Document::Ptr> documentsInDirectory(const QString &path) const;

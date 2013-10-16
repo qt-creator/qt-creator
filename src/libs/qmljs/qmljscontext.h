@@ -32,6 +32,7 @@
 
 #include "qmljs_global.h"
 #include "qmljsvalueowner.h"
+#include "qmljsviewercontext.h"
 
 #include <QSharedPointer>
 
@@ -50,7 +51,8 @@ public:
     typedef QHash<const Document *, QSharedPointer<const Imports> > ImportsPerDocument;
 
     // Context takes ownership of valueOwner
-    static ContextPtr create(const Snapshot &snapshot, ValueOwner *valueOwner, const ImportsPerDocument &imports);
+    static ContextPtr create(const Snapshot &snapshot, ValueOwner *valueOwner,
+                             const ImportsPerDocument &imports, const ViewerContext &vContext);
     ~Context();
 
     ContextPtr ptr() const;
@@ -69,11 +71,13 @@ public:
 
 private:
     // Context takes ownership of valueOwner
-    Context(const Snapshot &snapshot, ValueOwner *valueOwner, const ImportsPerDocument &imports);
+    Context(const Snapshot &snapshot, ValueOwner *valueOwner, const ImportsPerDocument &imports,
+            const ViewerContext &vContext);
 
     Snapshot _snapshot;
     QSharedPointer<ValueOwner> _valueOwner;
     ImportsPerDocument _imports;
+    ViewerContext _vContext;
     QWeakPointer<const Context> _ptr;
 };
 

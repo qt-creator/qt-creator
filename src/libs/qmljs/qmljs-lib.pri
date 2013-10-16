@@ -39,7 +39,9 @@ HEADERS += \
     $$PWD/qmljssimplereader.h \
     $$PWD/persistenttrie.h \
     $$PWD/qmljsqrcparser.h \
-    $$PWD/qmljsconstants.h
+    $$PWD/qmljsconstants.h \
+    $$PWD/qmljsimportdependencies.h \
+    $$PWD/viewercontext.h
 
 SOURCES += \
     $$PWD/qmljsbind.cpp \
@@ -70,7 +72,10 @@ SOURCES += \
     $$PWD/consoleitem.cpp \
     $$PWD/qmljssimplereader.cpp \
     $$PWD/persistenttrie.cpp \
-    $$PWD/qmljsqrcparser.cpp
+    $$PWD/qmljsqrcparser.cpp \
+    $$PWD/qmljsimportdependencies.cpp \
+    $$PWD/qmljsviewercontext.cpp
+
 
 RESOURCES += \
     $$PWD/qmljs.qrc
