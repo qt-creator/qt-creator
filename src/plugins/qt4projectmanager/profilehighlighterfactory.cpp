@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 #include "profilehighlighterfactory.h"
-#include "qt4projectmanagerconstants.h"
+#include "qmakeprojectmanagerconstants.h"
 #include "profilehighlighter.h"
 
 using namespace QmakeProjectManager::Internal;

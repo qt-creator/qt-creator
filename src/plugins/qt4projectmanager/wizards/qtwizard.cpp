@@ -31,9 +31,9 @@
 
 #include "modulespage.h"
 
-#include <qt4projectmanager/qt4project.h>
-#include <qt4projectmanager/qt4projectmanager.h>
-#include <qt4projectmanager/qt4projectmanagerconstants.h>
+#include <qt4projectmanager/qmakeproject.h>
+#include <qt4projectmanager/qmakeprojectmanager.h>
+#include <qt4projectmanager/qmakeprojectmanagerconstants.h>
 
 #include <coreplugin/icore.h>
 

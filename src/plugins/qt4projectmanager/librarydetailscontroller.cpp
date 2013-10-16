@@ -29,9 +29,9 @@
 
 #include "librarydetailscontroller.h"
 #include "ui_librarydetailswidget.h"
-#include "findqt4profiles.h"
-#include "qt4nodes.h"
-#include "qt4buildconfiguration.h"
+#include "findqmakeprofiles.h"
+#include "qmakenodes.h"
+#include "qmakebuildconfiguration.h"
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>

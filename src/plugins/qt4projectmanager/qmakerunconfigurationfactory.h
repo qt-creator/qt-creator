@@ -30,7 +30,7 @@
 #ifndef QMAKERUNCONFIGURATIONFACTORY_H
 #define QMAKERUNCONFIGURATIONFACTORY_H
 
-#include "qt4projectmanager_global.h"
+#include "qmakeprojectmanager_global.h"
 
 #include <projectexplorer/runconfiguration.h>
 

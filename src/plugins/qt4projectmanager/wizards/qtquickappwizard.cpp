@@ -31,7 +31,7 @@
 
 #include "qtquickapp.h"
 #include "qtquickappwizardpages.h"
-#include "../qt4projectmanagerconstants.h"
+#include "../qmakeprojectmanagerconstants.h"
 
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/baseqtversion.h>

@@ -27,11 +27,11 @@
 **
 ****************************************************************************/
 
-#include "qt4runconfiguration.h"
+#include "qmakerunconfiguration.h"
 
-#include "qt4nodes.h"
-#include "qt4project.h"
-#include "qt4buildconfiguration.h"
+#include "qmakenodes.h"
+#include "qmakeproject.h"
+#include "qmakebuildconfiguration.h"
 
 #include <coreplugin/coreconstants.h>
 #include <projectexplorer/localenvironmentaspect.h>

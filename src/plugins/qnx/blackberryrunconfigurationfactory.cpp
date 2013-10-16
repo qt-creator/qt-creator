@@ -36,7 +36,7 @@
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
-#include <qt4projectmanager/qt4project.h>
+#include <qt4projectmanager/qmakeproject.h>
 
 using namespace Qnx;
 using namespace Qnx::Internal;

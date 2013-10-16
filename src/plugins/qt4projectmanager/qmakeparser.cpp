@@ -88,7 +88,7 @@ void QMakeParser::stdError(const QString &line)
 #ifdef WITH_TESTS
 #   include <QTest>
 
-#   include "qt4projectmanagerplugin.h"
+#   include "qmakeprojectmanagerplugin.h"
 
 #   include "projectexplorer/outputparser_test.h"
 

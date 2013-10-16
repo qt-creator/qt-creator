@@ -27,10 +27,10 @@
 **
 ****************************************************************************/
 
-#ifndef QT4BUILDCONFIGURATION_H
-#define QT4BUILDCONFIGURATION_H
+#ifndef QMAKEBUILDCONFIGURATION_H
+#define QMAKEBUILDCONFIGURATION_H
 
-#include "qt4projectmanager_global.h"
+#include "qmakeprojectmanager_global.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <qtsupport/baseqtversion.h>
@@ -187,4 +187,4 @@ private:
 
 } // namespace QmakeProjectManager
 
-#endif // QT4BUILDCONFIGURATION_H
+#endif // QMAKEBUILDCONFIGURATION_H

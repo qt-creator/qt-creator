@@ -27,10 +27,10 @@
 **
 ****************************************************************************/
 
-#ifndef QT4PROJECTMANAGER_H
-#define QT4PROJECTMANAGER_H
+#ifndef QMAKEPROJECTMANAGER_H
+#define QMAKEPROJECTMANAGER_H
 
-#include "qt4projectmanager_global.h"
+#include "qmakeprojectmanager_global.h"
 
 #include <projectexplorer/iprojectmanager.h>
 #include <projectexplorer/projectnodes.h>
@@ -111,4 +111,4 @@ private:
 
 } // namespace QmakeProjectManager
 
-#endif // QT4PROJECTMANAGER_H
+#endif // QMAKEPROJECTMANAGER_H

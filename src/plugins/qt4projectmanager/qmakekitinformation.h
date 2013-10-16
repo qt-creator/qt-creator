@@ -27,10 +27,10 @@
 **
 ****************************************************************************/
 
-#ifndef QT4PM_QMAKEKITINFORMATION_H
-#define QT4PM_QMAKEKITINFORMATION_H
+#ifndef QMAKEKITINFORMATION_H
+#define QMAKEKITINFORMATION_H
 
-#include "qt4projectmanager_global.h"
+#include "qmakeprojectmanager_global.h"
 
 #include <projectexplorer/kitmanager.h>
 
@@ -61,4 +61,4 @@ public:
 
 } // namespace QmakeProjectManager
 
-#endif // QT4PM_QMAKEKITINFORMATION_H
+#endif // QMAKEKITINFORMATION_H

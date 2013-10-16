@@ -27,11 +27,11 @@
 **
 ****************************************************************************/
 
-#include "qt4nodes.h"
-#include "qt4project.h"
-#include "qt4projectmanager.h"
-#include "qt4projectmanagerconstants.h"
-#include "qt4buildconfiguration.h"
+#include "qmakenodes.h"
+#include "qmakeproject.h"
+#include "qmakeprojectmanager.h"
+#include "qmakeprojectmanagerconstants.h"
+#include "qmakebuildconfiguration.h"
 #include "qmakerunconfigurationfactory.h"
 
 #include <projectexplorer/nodesvisitor.h>
@@ -82,10 +82,10 @@ struct FileTypeDataStorage {
 static const FileTypeDataStorage fileTypeDataStorage[] = {
     { ProjectExplorer::HeaderType,
       QT_TRANSLATE_NOOP("QmakeProjectManager::Qt4PriFileNode", "Headers"),
-      ":/qt4projectmanager/images/headers.png" },
+      ":/qmakeprojectmanager/images/headers.png" },
     { ProjectExplorer::SourceType,
       QT_TRANSLATE_NOOP("QmakeProjectManager::Qt4PriFileNode", "Sources"),
-      ":/qt4projectmanager/images/sources.png" },
+      ":/qmakeprojectmanager/images/sources.png" },
     { ProjectExplorer::FormType,
       QT_TRANSLATE_NOOP("QmakeProjectManager::Qt4PriFileNode", "Forms"),
       ":/qtsupport/images/forms.png" },
@@ -97,7 +97,7 @@ static const FileTypeDataStorage fileTypeDataStorage[] = {
       ":/qtsupport/images/qml.png" },
     { ProjectExplorer::UnknownFileType,
       QT_TRANSLATE_NOOP("QmakeProjectManager::Qt4PriFileNode", "Other files"),
-      ":/qt4projectmanager/images/unknown.png" }
+      ":/qmakeprojectmanager/images/unknown.png" }
 };
 
 bool sortNodesByPath(ProjectExplorer::Node *a, ProjectExplorer::Node *b)

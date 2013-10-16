@@ -35,8 +35,8 @@
 #include <projectexplorer/customwizard/customwizard.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <qt4projectmanager/qt4project.h>
-#include <qt4projectmanager/qt4projectmanagerconstants.h>
+#include <qt4projectmanager/qmakeproject.h>
+#include <qt4projectmanager/qmakeprojectmanagerconstants.h>
 #include <qtsupport/qtkitinformation.h>
 
 #include "qmlprojectmanager.h"

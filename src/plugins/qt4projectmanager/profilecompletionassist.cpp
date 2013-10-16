@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 #include "profilecompletionassist.h"
-#include "qt4projectmanagerconstants.h"
+#include "qmakeprojectmanagerconstants.h"
 
 #include <texteditor/codeassist/keywordscompletionassist.h>
 

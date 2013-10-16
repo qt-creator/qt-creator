@@ -27,19 +27,19 @@
 **
 ****************************************************************************/
 
-#include "qt4project.h"
+#include "qmakeproject.h"
 
-#include "qt4projectmanager.h"
+#include "qmakeprojectmanager.h"
 #include "qmakeprojectimporter.h"
 #include "qmakebuildinfo.h"
 #include "qmakestep.h"
-#include "qt4nodes.h"
-#include "qt4projectmanagerconstants.h"
-#include "qt4buildconfiguration.h"
-#include "findqt4profiles.h"
-#include "qt4projectmanager/wizards/abstractmobileapp.h"
-#include "qt4projectmanager/wizards/qtquickapp.h"
-#include "qt4projectmanager/wizards/html5app.h"
+#include "qmakenodes.h"
+#include "qmakeprojectmanagerconstants.h"
+#include "qmakebuildconfiguration.h"
+#include "findqmakeprofiles.h"
+#include "wizards/abstractmobileapp.h"
+#include "wizards/qtquickapp.h"
+#include "wizards/html5app.h"
 
 #include <coreplugin/icontext.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -1637,4 +1637,4 @@ KitMatcher *Qt4Project::createRequiredKitMatcher() const
 
 } // namespace QmakeProjectManager
 
-#include "qt4project.moc"
+#include "qmakeproject.moc"

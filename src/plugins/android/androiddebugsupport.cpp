@@ -43,9 +43,9 @@
 
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
-#include <qt4projectmanager/qt4buildconfiguration.h>
-#include <qt4projectmanager/qt4nodes.h>
-#include <qt4projectmanager/qt4project.h>
+#include <qt4projectmanager/qmakebuildconfiguration.h>
+#include <qt4projectmanager/qmakenodes.h>
+#include <qt4projectmanager/qmakeproject.h>
 #include <qtsupport/qtkitinformation.h>
 
 #include <QDir>

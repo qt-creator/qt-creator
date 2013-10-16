@@ -30,7 +30,7 @@
 #include "profileeditor.h"
 
 #include "profilehighlighter.h"
-#include "qt4projectmanagerconstants.h"
+#include "qmakeprojectmanagerconstants.h"
 #include "profileeditorfactory.h"
 #include "profilecompletionassist.h"
 

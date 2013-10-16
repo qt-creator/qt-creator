@@ -27,10 +27,10 @@
 **
 ****************************************************************************/
 
-#ifndef QT4NODES_H
-#define QT4NODES_H
+#ifndef QMAKENODES_H
+#define QMAKENODES_H
 
-#include "qt4projectmanager_global.h"
+#include "qmakeprojectmanager_global.h"
 
 #include <coreplugin/idocument.h>
 #include <projectexplorer/projectnodes.h>
@@ -464,4 +464,4 @@ private:
 
 } // namespace QmakeProjectManager
 
-#endif // QT4NODES_H
+#endif // QMAKENODES_H

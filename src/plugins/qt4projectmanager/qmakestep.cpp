@@ -31,11 +31,11 @@
 #include "ui_qmakestep.h"
 
 #include "qmakeparser.h"
-#include "qt4buildconfiguration.h"
-#include "qt4project.h"
-#include "qt4projectmanagerconstants.h"
+#include "qmakebuildconfiguration.h"
+#include "qmakeproject.h"
+#include "qmakeprojectmanagerconstants.h"
 #include "qmakekitinformation.h"
-#include "qt4nodes.h"
+#include "qmakenodes.h"
 
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>

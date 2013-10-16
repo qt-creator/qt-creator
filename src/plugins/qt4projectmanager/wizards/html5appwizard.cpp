@@ -31,7 +31,7 @@
 
 #include "html5app.h"
 #include "html5appwizardpages.h"
-#include <qt4projectmanager/qt4projectmanagerconstants.h>
+#include <qt4projectmanager/qmakeprojectmanagerconstants.h>
 
 #include <qtsupport/baseqtversion.h>
 #include <projectexplorer/projectexplorerconstants.h>

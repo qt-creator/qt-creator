@@ -28,8 +28,8 @@
 ****************************************************************************/
 
 #include "externaleditors.h"
-#include "qt4project.h"
-#include "qt4projectmanagerconstants.h"
+#include "qmakeproject.h"
+#include "qmakeprojectmanagerconstants.h"
 
 #include <utils/hostosinfo.h>
 #include <utils/synchronousprocess.h>

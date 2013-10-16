@@ -30,7 +30,7 @@
 #ifndef ABSTRACTMOBILEAPP_H
 #define ABSTRACTMOBILEAPP_H
 
-#include "../qt4projectmanager_global.h"
+#include "../qmakeprojectmanager_global.h"
 #include <QFileInfo>
 #include <QPair>
 

@@ -44,9 +44,9 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/target.h>
-#include <qt4projectmanager/qt4buildconfiguration.h>
-#include <qt4projectmanager/qt4project.h>
-#include <qt4projectmanager/qt4nodes.h>
+#include <qt4projectmanager/qmakebuildconfiguration.h>
+#include <qt4projectmanager/qmakeproject.h>
+#include <qt4projectmanager/qmakenodes.h>
 
 #include <qtsupport/qtkitinformation.h>
 

@@ -29,8 +29,8 @@
 
 #include "profileeditorfactory.h"
 
-#include "qt4projectmanager.h"
-#include "qt4projectmanagerconstants.h"
+#include "qmakeprojectmanager.h"
+#include "qmakeprojectmanagerconstants.h"
 #include "profileeditor.h"
 
 #include <qtsupport/qtsupportconstants.h>

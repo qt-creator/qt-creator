@@ -31,8 +31,8 @@
 
 #include "qmakebuildinfo.h"
 #include "qmakekitinformation.h"
-#include "qt4buildconfiguration.h"
-#include "qt4project.h"
+#include "qmakebuildconfiguration.h"
+#include "qmakeproject.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>

@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#include "findqt4profiles.h"
-#include "qt4nodes.h"
+#include "findqmakeprofiles.h"
+#include "qmakenodes.h"
 
 using namespace QmakeProjectManager;
 using namespace QmakeProjectManager::Internal;

@@ -27,15 +27,15 @@
 **
 ****************************************************************************/
 
-#include "qt4projectmanager.h"
+#include "qmakeprojectmanager.h"
 
-#include "qt4projectmanagerconstants.h"
-#include "qt4projectmanagerplugin.h"
-#include "qt4nodes.h"
-#include "qt4project.h"
+#include "qmakeprojectmanagerconstants.h"
+#include "qmakeprojectmanagerplugin.h"
+#include "qmakenodes.h"
+#include "qmakeproject.h"
 #include "profileeditor.h"
 #include "qmakestep.h"
-#include "qt4buildconfiguration.h"
+#include "qmakebuildconfiguration.h"
 #include "addlibrarywizard.h"
 #include "wizards/qtquickapp.h"
 #include "wizards/html5app.h"

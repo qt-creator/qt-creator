@@ -31,10 +31,10 @@
 #include "ui_makestep.h"
 
 #include "qmakeparser.h"
-#include "qt4project.h"
-#include "qt4nodes.h"
-#include "qt4buildconfiguration.h"
-#include "qt4projectmanagerconstants.h"
+#include "qmakeproject.h"
+#include "qmakenodes.h"
+#include "qmakebuildconfiguration.h"
+#include "qmakeprojectmanagerconstants.h"
 
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>

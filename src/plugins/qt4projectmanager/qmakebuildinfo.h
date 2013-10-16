@@ -30,7 +30,7 @@
 #ifndef QMAKEBUILDINFO_H
 #define QMAKEBUILDINFO_H
 
-#include "qt4buildconfiguration.h"
+#include "qmakebuildconfiguration.h"
 
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/kitmanager.h>

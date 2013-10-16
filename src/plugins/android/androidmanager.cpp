@@ -42,10 +42,10 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
-#include <qt4projectmanager/qt4nodes.h>
-#include <qt4projectmanager/qt4project.h>
-#include <qt4projectmanager/qt4projectmanagerconstants.h>
-#include <qt4projectmanager/qt4buildconfiguration.h>
+#include <qt4projectmanager/qmakenodes.h>
+#include <qt4projectmanager/qmakeproject.h>
+#include <qt4projectmanager/qmakeprojectmanagerconstants.h>
+#include <qt4projectmanager/qmakebuildconfiguration.h>
 #include <qtsupport/customexecutablerunconfiguration.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>

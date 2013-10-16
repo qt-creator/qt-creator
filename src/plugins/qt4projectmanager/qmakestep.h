@@ -30,7 +30,7 @@
 #ifndef QMAKESTEP_H
 #define QMAKESTEP_H
 
-#include "qt4projectmanager_global.h"
+#include "qmakeprojectmanager_global.h"
 #include <projectexplorer/abstractprocessstep.h>
 
 #include <QStringList>

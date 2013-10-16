@@ -27,14 +27,14 @@
 **
 ****************************************************************************/
 
-#include "qt4buildconfiguration.h"
+#include "qmakebuildconfiguration.h"
 
 #include "qmakebuildinfo.h"
 #include "qmakekitinformation.h"
-#include "qt4project.h"
-#include "qt4projectconfigwidget.h"
-#include "qt4projectmanagerconstants.h"
-#include "qt4nodes.h"
+#include "qmakeproject.h"
+#include "qmakeprojectconfigwidget.h"
+#include "qmakeprojectmanagerconstants.h"
+#include "qmakenodes.h"
 #include "qmakestep.h"
 #include "makestep.h"
 

@@ -27,14 +27,14 @@
 **
 ****************************************************************************/
 
-#include "qt4projectmanagerplugin.h"
+#include "qmakeprojectmanagerplugin.h"
 
-#include "qt4projectmanager.h"
-#include "qt4nodes.h"
+#include "qmakeprojectmanager.h"
+#include "qmakenodes.h"
 #include "qmakestep.h"
 #include "makestep.h"
-#include "qt4buildconfiguration.h"
-#include "qt4runconfiguration.h"
+#include "qmakebuildconfiguration.h"
+#include "qmakerunconfiguration.h"
 #include "wizards/consoleappwizard.h"
 #include "wizards/guiappwizard.h"
 #include "wizards/librarywizard.h"
@@ -46,8 +46,8 @@
 #include "customwidgetwizard/customwidgetwizard.h"
 #include "profileeditorfactory.h"
 #include "profilehoverhandler.h"
-#include "qt4projectmanagerconstants.h"
-#include "qt4project.h"
+#include "qmakeprojectmanagerconstants.h"
+#include "qmakeproject.h"
 #include "externaleditors.h"
 #include "profilecompletionassist.h"
 #include "qmakekitinformation.h"
@@ -102,7 +102,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     const Core::Context projectContext(QmakeProjectManager::Constants::PROJECT_ID);
     Core::Context projecTreeContext(ProjectExplorer::Constants::C_PROJECT_TREE);
 
-    if (!Core::MimeDatabase::addMimeTypes(QLatin1String(":qt4projectmanager/Qt4ProjectManager.mimetypes.xml"), errorMessage))
+    if (!Core::MimeDatabase::addMimeTypes(QLatin1String(":qmakeprojectmanager/Qt4ProjectManager.mimetypes.xml"), errorMessage))
         return false;
 
     m_projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();

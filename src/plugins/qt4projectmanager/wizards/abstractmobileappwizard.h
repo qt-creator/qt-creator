@@ -30,7 +30,7 @@
 #ifndef ABSTRACTMOBILEAPPWIZARD_H
 #define ABSTRACTMOBILEAPPWIZARD_H
 
-#include <qt4projectmanager/qt4projectmanager_global.h>
+#include <qt4projectmanager/qmakeprojectmanager_global.h>
 #include <projectexplorer/baseprojectwizarddialog.h>
 
 namespace ProjectExplorer { class TargetSetupPage; }

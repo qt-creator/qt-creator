@@ -29,8 +29,8 @@
 ****************************************************************************/
 
 #include "androidextralibrarylistmodel.h"
-#include <qt4projectmanager/qt4project.h>
-#include <qt4projectmanager/qt4nodes.h>
+#include <qt4projectmanager/qmakeproject.h>
+#include <qt4projectmanager/qmakenodes.h>
 
 using namespace Android;
 using namespace Internal;
