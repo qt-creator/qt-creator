@@ -147,6 +147,7 @@ bool AbstractMobileApp::readTemplate(int fileType, QByteArray *data, QString *er
 
 QByteArray AbstractMobileApp::generateDesktopFile(QString *errorMessage, int fileType) const
 {
+    Q_UNUSED(fileType)
     QByteArray desktopFileContent;
     if (!readTemplate(DesktopOrigin, &desktopFileContent, errorMessage))
         return QByteArray();
