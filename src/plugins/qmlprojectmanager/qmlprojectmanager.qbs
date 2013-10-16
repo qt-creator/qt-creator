@@ -34,8 +34,7 @@ QtcPlugin {
             "qmlprojectplugin.cpp", "qmlprojectplugin.h",
             "qmlprojectrunconfiguration.cpp", "qmlprojectrunconfiguration.h",
             "qmlprojectrunconfigurationfactory.cpp", "qmlprojectrunconfigurationfactory.h",
-            "qmlprojectrunconfigurationwidget.cpp", "qmlprojectrunconfigurationwidget.h",
-            "qmlprojectruncontrol.cpp", "qmlprojectruncontrol.h",
+            "qmlprojectrunconfigurationwidget.cpp", "qmlprojectrunconfigurationwidget.h"
         ]
     }
 
