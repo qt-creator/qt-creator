@@ -79,8 +79,6 @@ AbiWidget::AbiWidget(QWidget *parent) :
     layout->addWidget(d->m_abi);
     connect(d->m_abi, SIGNAL(currentIndexChanged(int)), this, SLOT(modeChanged()));
 
-    layout->addSpacing(10);
-
     d->m_architectureComboBox = new QComboBox(this);
     layout->addWidget(d->m_architectureComboBox);
     for (int i = 0; i <= static_cast<int>(Abi::UnknownArchitecture); ++i)
@@ -90,6 +88,7 @@ AbiWidget::AbiWidget(QWidget *parent) :
 
     QLabel *separator1 = new QLabel(this);
     separator1->setText(QLatin1String("-"));
+    separator1->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     layout->addWidget(separator1);
 
     d->m_osComboBox = new QComboBox(this);
@@ -101,6 +100,7 @@ AbiWidget::AbiWidget(QWidget *parent) :
 
     QLabel *separator2 = new QLabel(this);
     separator2->setText(QLatin1String("-"));
+    separator2->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     layout->addWidget(separator2);
 
     d->m_osFlavorComboBox = new QComboBox(this);
@@ -110,6 +110,7 @@ AbiWidget::AbiWidget(QWidget *parent) :
 
     QLabel *separator3 = new QLabel(this);
     separator3->setText(QLatin1String("-"));
+    separator3->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     layout->addWidget(separator3);
 
     d->m_binaryFormatComboBox = new QComboBox(this);
@@ -121,6 +122,7 @@ AbiWidget::AbiWidget(QWidget *parent) :
 
     QLabel *separator4 = new QLabel(this);
     separator4->setText(QLatin1String("-"));
+    separator4->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     layout->addWidget(separator4);
 
     d->m_wordWidthComboBox = new QComboBox(this);
