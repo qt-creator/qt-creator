@@ -221,7 +221,7 @@ void ModelToTextMerger::applyChanges()
     if (m_rewriteActions.isEmpty())
         return;
 
-    Document::MutablePtr tmpDocument(Document::create(QLatin1String("<ModelToTextMerger>"), Document::QmlLanguage));
+    Document::MutablePtr tmpDocument(Document::create(QLatin1String("<ModelToTextMerger>"), Language::Qml));
     tmpDocument->setSource(m_rewriterView->textModifier()->text());
     if (!tmpDocument->parseQml()) {
         qDebug() << "*** Possible problem: QML file wasn't parsed correctly.";

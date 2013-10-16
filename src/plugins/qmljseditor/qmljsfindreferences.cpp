@@ -812,7 +812,7 @@ static void find_helper(QFutureInterface<FindReferences::Usage> &future,
         if (oldDoc && oldDoc->editorRevision() == it.value().second)
             continue;
 
-        Document::Language language;
+        Language::Enum language;
         if (oldDoc)
             language = oldDoc->language();
         else

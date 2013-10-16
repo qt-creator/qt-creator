@@ -50,36 +50,23 @@ public:
     typedef QSharedPointer<const Document> Ptr;
     typedef QSharedPointer<Document> MutablePtr;
 
-    enum Language
-    {
-        UnknownLanguage = 0,
-        JavaScriptLanguage = 1,
-        JsonLanguage = 2,
-        QmlLanguage = 3,
-        QmlQtQuick1Language = 4,
-        QmlQtQuick2Language = 5,
-        QmlQbsLanguage = 6,
-        QmlProjectLanguage = 7,
-        QmlTypeInfoLanguage = 8
-    };
-
-    static bool isQmlLikeLanguage(Language languge);
-    static bool isFullySupportedLanguage(Language language);
-    static bool isQmlLikeOrJsLanguage(Language language);
+    static bool isQmlLikeLanguage(Language::Enum languge);
+    static bool isFullySupportedLanguage(Language::Enum language);
+    static bool isQmlLikeOrJsLanguage(Language::Enum language);
 protected:
-    Document(const QString &fileName, Language language);
+    Document(const QString &fileName, Language::Enum language);
 
 public:
     ~Document();
 
-    static MutablePtr create(const QString &fileName, Language language);
-    static Language guessLanguageFromSuffix(const QString &fileName);
+    static MutablePtr create(const QString &fileName, Language::Enum language);
+    static Language::Enum guessLanguageFromSuffix(const QString &fileName);
 
     Document::Ptr ptr() const;
 
     bool isQmlDocument() const;
-    Language language() const;
-    void setLanguage(Language l);
+    Language::Enum language() const;
+    void setLanguage(Language::Enum l);
 
     AST::UiProgram *qmlProgram() const;
     AST::Program *jsProgram() const;
@@ -124,7 +111,7 @@ private:
     QString _source;
     QWeakPointer<Document> _ptr;
     int _editorRevision;
-    Language _language;
+    Language::Enum _language;
     bool _parsedCorrectly;
 
     // for documentFromSource
@@ -237,7 +224,7 @@ public:
 
     Document::MutablePtr documentFromSource(const QString &code,
                                      const QString &fileName,
-                                     Document::Language language) const;
+                                     Language::Enum language) const;
 };
 
 } // namespace QmlJS

@@ -359,12 +359,12 @@ public:
 
             const Imports *imports = m_context->imports(m_doc.data());
             ImportInfo importInfo = imports->info(fullTypeName, m_context.data());
-            if (importInfo.isValid() && importInfo.type() == ImportInfo::LibraryImport) {
+            if (importInfo.isValid() && importInfo.type() == ImportType::Library) {
                 QString name = importInfo.name();
                 majorVersion = importInfo.version().majorVersion();
                 minorVersion = importInfo.version().minorVersion();
                 typeName.prepend(name + QLatin1Char('.'));
-            } else if (importInfo.isValid() && importInfo.type() == ImportInfo::DirectoryImport) {
+            } else if (importInfo.isValid() && importInfo.type() == ImportType::Directory) {
                 QString path = importInfo.path();
                 QDir dir(m_doc->path());
                 // should probably try to make it relatve to some import path, not to the document path
@@ -372,7 +372,7 @@ public:
                 QString name = relativeDir.replace(QLatin1Char('/'), QLatin1Char('.'));
                 if (!name.isEmpty())
                     typeName.prepend(name + QLatin1Char('.'));
-            } else if (importInfo.isValid() && importInfo.type() == ImportInfo::QrcDirectoryImport) {
+            } else if (importInfo.isValid() && importInfo.type() == ImportType::QrcDirectory) {
                 QString path = QrcParser::normalizedQrcDirectoryPath(importInfo.path());
                 path = path.mid(1, path.size() - ((path.size() > 1) ? 2 : 1));
                 const QString name = path.replace(QLatin1Char('/'), QLatin1Char('.'));
@@ -738,7 +738,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
     try {
         Snapshot snapshot = m_rewriterView->textModifier()->getSnapshot();
         const QString fileName = url.toLocalFile();
-        Document::MutablePtr doc = Document::create(fileName.isEmpty() ? QLatin1String("<internal>") : fileName, Document::QmlLanguage);
+        Document::MutablePtr doc = Document::create(fileName.isEmpty() ? QLatin1String("<internal>") : fileName, Language::Qml);
         doc->setSource(data);
         doc->parseQml();
 
@@ -766,13 +766,13 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         setupImports(doc, differenceHandler);
 
         if (m_rewriterView->model()->imports().isEmpty()) {
-            const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::DiagnosticMessage::Error, AST::SourceLocation(0, 0, 0, 0), QCoreApplication::translate("QmlDesigner::TextToModelMerger", "No import statements found"));
+            const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::Severity::Error, AST::SourceLocation(0, 0, 0, 0), QCoreApplication::translate("QmlDesigner::TextToModelMerger", "No import statements found"));
             errors.append(RewriterView::Error(diagnosticMessage, QUrl::fromLocalFile(doc->fileName())));
         }
 
         foreach (const QmlDesigner::Import &import, m_rewriterView->model()->imports()) {
             if (import.isLibraryImport() && import.url() == QLatin1String("QtQuick") && !supportedQtQuickVersion(import.version())) {
-                const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::DiagnosticMessage::Error, AST::SourceLocation(0, 0, 0, 0),
+                const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::Severity::Error, AST::SourceLocation(0, 0, 0, 0),
                                                                  QCoreApplication::translate("QmlDesigner::TextToModelMerger", "Unsupported QtQuick version"));
                 errors.append(RewriterView::Error(diagnosticMessage, QUrl::fromLocalFile(doc->fileName())));
             }
@@ -787,8 +787,8 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
 
             foreach (StaticAnalysis::Type type, StaticAnalysis::Message::allMessageTypes()) {
                 StaticAnalysis::PrototypeMessageData prototypeMessageData = StaticAnalysis::Message::prototypeForMessageType(type);
-                if (prototypeMessageData.severity == StaticAnalysis::MaybeWarning
-                        || prototypeMessageData.severity == StaticAnalysis::Warning) {
+                if (prototypeMessageData.severity == Severity::MaybeWarning
+                        || prototypeMessageData.severity == Severity::Warning) {
                     check.disableMessage(type);
                 }
             }
@@ -800,9 +800,9 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
             check.enableMessage(StaticAnalysis::WarnStatesOnlyInRootItemForVisualDesigner);
 
             foreach (const StaticAnalysis::Message &message, check()) {
-                if (message.severity == StaticAnalysis::Error)
+                if (message.severity == Severity::Error)
                     errors.append(RewriterView::Error(message.toDiagnosticMessage(), QUrl::fromLocalFile(doc->fileName())));
-                if (message.severity == StaticAnalysis::Warning)
+                if (message.severity == Severity::Warning)
                     warnings.append(RewriterView::Error(message.toDiagnosticMessage(), QUrl::fromLocalFile(doc->fileName())));
             }
 

@@ -545,7 +545,7 @@ NodeMetaInfoPrivate::NodeMetaInfoPrivate(Model *model, TypeName type, int maj, i
                     m_isFileComponent = true;
                     const Imports *imports = context()->imports(document());
                     ImportInfo importInfo = imports->info(lookupNameComponent().last(), context().data());
-                    if (importInfo.isValid() && importInfo.type() == ImportInfo::LibraryImport) {
+                    if (importInfo.isValid() && importInfo.type() == ImportType::Library) {
                         m_majorVersion = importInfo.version().majorVersion();
                         m_minorVersion = importInfo.version().minorVersion();
                     }
@@ -950,9 +950,9 @@ QString NodeMetaInfoPrivate::importDirectoryPath() const
         const Imports *imports = context()->imports(document());
         ImportInfo importInfo = imports->info(lookupNameComponent().last(), context().data());
 
-        if (importInfo.type() == ImportInfo::DirectoryImport) {
+        if (importInfo.type() == ImportType::Directory) {
             return importInfo.path();
-        } else if (importInfo.type() == ImportInfo::LibraryImport) {
+        } else if (importInfo.type() == ImportType::Library) {
             if (modelManager) {
                 foreach (const QString &importPath, modelManager->importPaths()) {
                     const QString targetPath = QDir(importPath).filePath(importInfo.path());

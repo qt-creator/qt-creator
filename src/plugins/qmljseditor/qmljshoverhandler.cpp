@@ -115,7 +115,7 @@ static inline QString getModuleName(const ScopeChain &scopeChain, const Document
         const QString moduleName = qmlValue->moduleName();
         const Imports *imports = scopeChain.context()->imports(qmlDocument.data());
         const ImportInfo importInfo = imports->info(qmlValue->className(), scopeChain.context().data());
-        if (importInfo.isValid() && importInfo.type() == ImportInfo::LibraryImport) {
+        if (importInfo.isValid() && importInfo.type() == ImportType::Library) {
             const int majorVersion = importInfo.version().majorVersion();
             const int minorVersion = importInfo.version().minorVersion();
             return moduleName + QString::number(majorVersion) + QLatin1Char('.')
@@ -127,20 +127,20 @@ static inline QString getModuleName(const ScopeChain &scopeChain, const Document
 
         const Imports *imports = scopeChain.context()->imports(qmlDocument.data());
         const ImportInfo importInfo = imports->info(typeName, scopeChain.context().data());
-        if (importInfo.isValid() && importInfo.type() == ImportInfo::LibraryImport) {
+        if (importInfo.isValid() && importInfo.type() == ImportType::Library) {
             const QString moduleName = importInfo.name();
             const int majorVersion = importInfo.version().majorVersion();
             const int minorVersion = importInfo.version().minorVersion();
             return moduleName + QString::number(majorVersion) + QLatin1Char('.')
                     + QString::number(minorVersion) ;
-        } else if (importInfo.isValid() && importInfo.type() == ImportInfo::DirectoryImport) {
+        } else if (importInfo.isValid() && importInfo.type() == ImportType::Directory) {
             const QString path = importInfo.path();
             const QDir dir(qmlDocument->path());
             // should probably try to make it relatve to some import path, not to the document path
             QString relativeDir = dir.relativeFilePath(path);
             const QString name = relativeDir.replace(QLatin1Char('/'), QLatin1Char('.'));
             return name;
-        } else if (importInfo.isValid() && importInfo.type() == ImportInfo::QrcDirectoryImport) {
+        } else if (importInfo.isValid() && importInfo.type() == ImportType::QrcDirectory) {
             QString path = QrcParser::normalizedQrcDirectoryPath(importInfo.path());
             path = path.mid(1, path.size() - ((path.size() > 1) ? 2 : 1));
             const QString name = path.replace(QLatin1Char('/'), QLatin1Char('.'));
@@ -350,7 +350,7 @@ void HoverHandler::handleImport(const ScopeChain &scopeChain, AST::UiImport *nod
 
     foreach (const Import &import, imports->all()) {
         if (import.info.ast() == node) {
-            if (import.info.type() == ImportInfo::LibraryImport
+            if (import.info.type() == ImportType::Library
                     && !import.libraryPath.isEmpty()) {
                 QString msg = tr("Library at %1").arg(import.libraryPath);
                 const LibraryInfo &libraryInfo = scopeChain.context()->snapshot().libraryInfo(import.libraryPath);

@@ -29,6 +29,7 @@
 
 #include "qmljsdocument.h"
 #include "qmljsbind.h"
+#include "qmljsconstants.h"
 #include <qmljs/parser/qmljslexer_p.h>
 #include <qmljs/parser/qmljsparser_p.h>
 
@@ -81,56 +82,56 @@ using namespace QmlJS::AST;
 */
 
 
-bool Document::isQmlLikeLanguage(Document::Language language)
+bool Document::isQmlLikeLanguage(Language::Enum language)
 {
     switch (language) {
-    case QmlLanguage:
-    case QmlQtQuick1Language:
-    case QmlQtQuick2Language:
-    case QmlQbsLanguage:
-    case QmlProjectLanguage:
-    case QmlTypeInfoLanguage:
+    case Language::Qml:
+    case Language::QmlQtQuick1:
+    case Language::QmlQtQuick2:
+    case Language::QmlQbs:
+    case Language::QmlProject:
+    case Language::QmlTypeInfo:
         return true;
     default:
         return false;
     }
 }
 
-bool Document::isFullySupportedLanguage(Document::Language language)
+bool Document::isFullySupportedLanguage(Language::Enum language)
 {
     switch (language) {
-    case JavaScriptLanguage:
-    case JsonLanguage:
-    case QmlLanguage:
-    case QmlQtQuick1Language:
-    case QmlQtQuick2Language:
+    case Language::JavaScript:
+    case Language::Json:
+    case Language::Qml:
+    case Language::QmlQtQuick1:
+    case Language::QmlQtQuick2:
         return true;
-    case UnknownLanguage:
-    case QmlQbsLanguage:
-    case QmlProjectLanguage:
-    case QmlTypeInfoLanguage:
+    case Language::Unknown:
+    case Language::QmlQbs:
+    case Language::QmlProject:
+    case Language::QmlTypeInfo:
         break;
     }
     return false;
 }
 
-bool Document::isQmlLikeOrJsLanguage(Document::Language language)
+bool Document::isQmlLikeOrJsLanguage(Language::Enum language)
 {
     switch (language) {
-    case QmlLanguage:
-    case QmlQtQuick1Language:
-    case QmlQtQuick2Language:
-    case QmlQbsLanguage:
-    case QmlProjectLanguage:
-    case QmlTypeInfoLanguage:
-    case JavaScriptLanguage:
+    case Language::Qml:
+    case Language::QmlQtQuick1:
+    case Language::QmlQtQuick2:
+    case Language::QmlQbs:
+    case Language::QmlProject:
+    case Language::QmlTypeInfo:
+    case Language::JavaScript:
         return true;
     default:
         return false;
     }
 }
 
-Document::Document(const QString &fileName, Language language)
+Document::Document(const QString &fileName, Language::Enum language)
     : _engine(0)
     , _ast(0)
     , _bind(0)
@@ -163,24 +164,24 @@ Document::~Document()
         delete _engine;
 }
 
-Document::MutablePtr Document::create(const QString &fileName, Language language)
+Document::MutablePtr Document::create(const QString &fileName, Language::Enum language)
 {
     Document::MutablePtr doc(new Document(fileName, language));
     doc->_ptr = doc;
     return doc;
 }
 
-Document::Language Document::guessLanguageFromSuffix(const QString &fileName)
+Language::Enum Document::guessLanguageFromSuffix(const QString &fileName)
 {
     if (fileName.endsWith(QLatin1String(".qml"), Qt::CaseInsensitive))
-        return QmlLanguage;
+        return Language::Qml;
     if (fileName.endsWith(QLatin1String(".qbs"), Qt::CaseInsensitive))
-        return QmlQbsLanguage;
+        return Language::QmlQbs;
     if (fileName.endsWith(QLatin1String(".js"), Qt::CaseInsensitive))
-        return JavaScriptLanguage;
+        return Language::JavaScript;
     if (fileName.endsWith(QLatin1String(".json"), Qt::CaseInsensitive))
-        return JsonLanguage;
-    return UnknownLanguage;
+        return Language::Json;
+    return Language::Unknown;
 }
 
 Document::Ptr Document::ptr() const
@@ -193,12 +194,12 @@ bool Document::isQmlDocument() const
     return isQmlLikeLanguage(_language);
 }
 
-Document::Language Document::language() const
+Language::Enum Document::language() const
 {
     return _language;
 }
 
-void Document::setLanguage(Document::Language l)
+void Document::setLanguage(Language::Enum l)
 {
     _language = l;
 }
@@ -428,7 +429,7 @@ void Snapshot::remove(const QString &fileName)
 
 Document::MutablePtr Snapshot::documentFromSource(
         const QString &code, const QString &fileName,
-        Document::Language language) const
+        Language::Enum language) const
 {
     Document::MutablePtr newDoc = Document::create(fileName, language);
 

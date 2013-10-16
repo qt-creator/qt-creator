@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "qmljsstaticanalysismessage.h"
+#include "qmljsconstants.h"
 
 #include <utils/qtcassert.h>
 
@@ -35,6 +36,7 @@
 
 using namespace QmlJS;
 using namespace QmlJS::StaticAnalysis;
+using namespace QmlJS::Severity;
 
 namespace {
 
@@ -43,7 +45,7 @@ class StaticAnalysisMessages
     Q_DECLARE_TR_FUNCTIONS(QmlJS::StaticAnalysisMessages)
 
 public:
-    void newMsg(Type type, Severity severity, const QString &message, int placeholders = 0)
+    void newMsg(Type type, Enum severity, const QString &message, int placeholders = 0)
     {
         PrototypeMessageData prototype;
         prototype.type = type;
@@ -152,7 +154,7 @@ StaticAnalysisMessages::StaticAnalysisMessages()
            tr("Unnecessary parentheses."));
     newMsg(MaybeWarnEqualityTypeCoercion, MaybeWarning,
            tr("== and != may perform type coercion, use === or !== to avoid it."));
-    newMsg(WarnConfusingExpressionStatement, Warning,
+    newMsg(WarnConfusingExpressionStatement, Error,
            tr("Expression statements should be assignments, calls or delete expressions only."));
     newMsg(HintDeclarationsShouldBeAtStartOfFunction, Hint,
            tr("Place var declarations at the start of a function."));
@@ -168,17 +170,17 @@ StaticAnalysisMessages::StaticAnalysisMessages()
            tr("Prototype cycle, the last non-repeated component is '%1'."), 1);
     newMsg(ErrInvalidPropertyType, Error,
            tr("Invalid property type '%1'."), 1);
-    newMsg(WarnEqualityTypeCoercion, Warning,
+    newMsg(WarnEqualityTypeCoercion, Error,
            tr("== and != perform type coercion, use === or !== to avoid it."));
-    newMsg(WarnExpectedNewWithUppercaseFunction, Warning,
+    newMsg(WarnExpectedNewWithUppercaseFunction, Error,
            tr("Calls of functions that start with an uppercase letter should use 'new'."));
-    newMsg(WarnNewWithLowercaseFunction, Warning,
+    newMsg(WarnNewWithLowercaseFunction, Error,
            tr("Use 'new' only with functions that start with an uppercase letter."));
-    newMsg(WarnNumberConstructor, Warning,
+    newMsg(WarnNumberConstructor, Error,
            msgInvalidConstructor("Function"));
     newMsg(HintBinaryOperatorSpacing, Hint,
            tr("Use spaces around binary operators."));
-    newMsg(WarnUnintentinalEmptyBlock, Warning,
+    newMsg(WarnUnintentinalEmptyBlock, Error,
            tr("Unintentional empty block, use ({}) for empty object literal."));
     newMsg(HintPreferNonVarPropertyType, Hint,
            tr("Use %1 instead of 'var' or 'variant' to improve performance."), 1);
@@ -206,16 +208,16 @@ StaticAnalysisMessages::StaticAnalysisMessages()
            tr("Maximum string value length is %1."), 1);
     newMsg(ErrInvalidArrayValueLength, Error,
            tr("%1 elements expected in array value."), 1);
-    newMsg(WarnImperativeCodeNotEditableInVisualDesigner, Warning,
+    newMsg(WarnImperativeCodeNotEditableInVisualDesigner, Error,
             tr("Imperative code is not supported in the Qt Quick Designer."));
-    newMsg(WarnUnsupportedTypeInVisualDesigner, Warning,
+    newMsg(WarnUnsupportedTypeInVisualDesigner, Error,
             tr("This type is not supported in the Qt Quick Designer."));
-    newMsg(WarnReferenceToParentItemNotSupportedByVisualDesigner, Warning,
+    newMsg(WarnReferenceToParentItemNotSupportedByVisualDesigner, Error,
             tr("Reference to parent item cannot be resolved correctly by the Qt Quick Designer."));
-    newMsg(WarnUndefinedValueForVisualDesigner, Warning,
+    newMsg(WarnUndefinedValueForVisualDesigner, Error,
             tr("This visual property binding cannot be evaluated in the local context "
                "and might not show up in Qt Quick Designer as expected."));
-    newMsg(WarnStatesOnlyInRootItemForVisualDesigner, Warning,
+    newMsg(WarnStatesOnlyInRootItemForVisualDesigner, Error,
             tr("Qt Quick Designer only supports states in the root item."));
 }
 
@@ -271,10 +273,10 @@ DiagnosticMessage Message::toDiagnosticMessage() const
     case Hint:
     case MaybeWarning:
     case Warning:
-        diagnostic.kind = DiagnosticMessage::Warning;
+        diagnostic.kind = Warning;
         break;
     default:
-        diagnostic.kind = DiagnosticMessage::Error;
+        diagnostic.kind = Error;
         break;
     }
     diagnostic.loc = location;

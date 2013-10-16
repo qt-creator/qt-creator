@@ -27,51 +27,50 @@
 **
 ****************************************************************************/
 
-#ifndef QMLJS_QMLJSUTILS_H
-#define QMLJS_QMLJSUTILS_H
-
-#include "qmljs_global.h"
-#include "parser/qmljsastfwd_p.h"
-#include "parser/qmljsengine_p.h"
-
-#include <QColor>
+#ifndef QMLJSCONSTANTS_H
+#define QMLJSCONSTANTS_H
 
 namespace QmlJS {
 
-QMLJS_EXPORT QColor toQColor(const QString &qmlColorString);
-QMLJS_EXPORT QString toString(AST::UiQualifiedId *qualifiedId,
-                              const QChar delimiter = QLatin1Char('.'));
-
-QMLJS_EXPORT AST::SourceLocation locationFromRange(const AST::SourceLocation &start,
-                                                   const AST::SourceLocation &end);
-
-QMLJS_EXPORT AST::SourceLocation fullLocationForQualifiedId(AST::UiQualifiedId *);
-
-QMLJS_EXPORT QString idOfObject(AST::Node *object, AST::UiScriptBinding **idBinding = 0);
-
-QMLJS_EXPORT AST::UiObjectInitializer *initializerOfObject(AST::Node *object);
-
-QMLJS_EXPORT AST::UiQualifiedId *qualifiedTypeNameId(AST::Node *node);
-
-QMLJS_EXPORT bool isValidBuiltinPropertyType(const QString &name);
-
-QMLJS_EXPORT DiagnosticMessage errorMessage(const AST::SourceLocation &loc,
-                                            const QString &message);
-
-template <class T>
-AST::SourceLocation locationFromRange(const T *node)
-{
-    return locationFromRange(node->firstSourceLocation(), node->lastSourceLocation());
+namespace ImportType {
+enum Enum {
+    Invalid,
+    ImplicitDirectory,
+    Library,
+    File,
+    Directory,
+    QrcFile,
+    QrcDirectory,
+    ImplicitQrcDirectory,
+    UnknownFile // refers a file/directory that wasn't found
+};
 }
 
-template <class T>
-DiagnosticMessage errorMessage(const T *node, const QString &message)
+namespace Severity {
+enum Enum
 {
-    return DiagnosticMessage(Severity::Error,
-                             locationFromRange(node),
-                             message);
+    Hint,         // cosmetic or convention
+    MaybeWarning, // possibly a warning, insufficient information
+    Warning,      // could cause unintended behavior
+    MaybeError,   // possibly an error, insufficient information
+    Error         // definitely an error
+};
+}
+
+namespace Language {
+enum Enum
+{
+    Unknown = 0,
+    JavaScript = 1,
+    Json = 2,
+    Qml = 3,
+    QmlQtQuick1 = 4,
+    QmlQtQuick2 = 5,
+    QmlQbs = 6,
+    QmlProject = 7,
+    QmlTypeInfo = 8
+};
 }
 
 } // namespace QmlJS
-
-#endif // QMLJS_QMLJSUTILS_H
+#endif // QMLJSCONSTANTS_H

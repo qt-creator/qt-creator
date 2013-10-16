@@ -58,7 +58,7 @@ class QrcParser;
 
 namespace QmlJSTools {
 
-QMLJSTOOLS_EXPORT QmlJS::Document::Language languageOfFile(const QString &fileName);
+QMLJSTOOLS_EXPORT QmlJS::Language::Enum languageOfFile(const QString &fileName);
 QMLJSTOOLS_EXPORT QStringList qmlAndJsGlobPatterns();
 
 namespace Internal {

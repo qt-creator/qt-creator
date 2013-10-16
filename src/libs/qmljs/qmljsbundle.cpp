@@ -288,14 +288,14 @@ bool QmlBundle::readFrom(QString path, QStringList *errors)
     return errs.isEmpty();
 }
 
-QmlBundle QmlLanguageBundles::bundleForLanguage(Document::Language l) const
+QmlBundle QmlLanguageBundles::bundleForLanguage(Language::Enum l) const
 {
     if (m_bundles.contains(l))
         return m_bundles.value(l);
     return QmlBundle();
 }
 
-void QmlLanguageBundles::mergeBundleForLanguage(Document::Language l, const QmlBundle &bundle)
+void QmlLanguageBundles::mergeBundleForLanguage(Language::Enum l, const QmlBundle &bundle)
 {
     if (bundle.isEmpty())
         return;
@@ -305,14 +305,14 @@ void QmlLanguageBundles::mergeBundleForLanguage(Document::Language l, const QmlB
         m_bundles.insert(l,bundle);
 }
 
-QList<Document::Language> QmlLanguageBundles::languages() const
+QList<Language::Enum> QmlLanguageBundles::languages() const
 {
     return m_bundles.keys();
 }
 
 void QmlLanguageBundles::mergeLanguageBundles(const QmlLanguageBundles &o)
 {
-    foreach (Document::Language l, o.languages())
+    foreach (Language::Enum l, o.languages())
         mergeBundleForLanguage(l, o.bundleForLanguage(l));
 }
 
