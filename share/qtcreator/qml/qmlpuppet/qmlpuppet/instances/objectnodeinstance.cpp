@@ -434,6 +434,111 @@ QVariant ObjectNodeInstance::fixResourcePaths(const QVariant &value)
     return value;
 }
 
+
+QStringList qtQuickEnums()
+{
+    static QStringList stringList = QStringList()
+
+/* Font*/
+
+    <<  QLatin1String("Font.Light")
+    <<  QLatin1String("Font.Normal")
+    <<  QLatin1String("Font.DemiBold")
+    <<  QLatin1String("Font.Bold")
+    <<  QLatin1String("Font.Black")
+
+/* Text*/
+
+    <<  QLatin1String("Text.AutoText")
+    <<  QLatin1String("Text.PlainText")
+    <<  QLatin1String("Text.RichText")
+    <<  QLatin1String("Text.StyledText")
+
+    << QLatin1String("Text.Normal")
+    << QLatin1String("Text.Outline")
+    << QLatin1String("Text.Raised")
+    << QLatin1String("Text.Sunken")
+
+    << QLatin1String("Text.AlignLeft")
+    << QLatin1String("Text.AlignRight")
+    << QLatin1String("Text.AlignHCenter")
+    << QLatin1String("Text.AlignJustify")
+
+    << QLatin1String("Text.AlignTop")
+    << QLatin1String("Text.AlignBottom")
+    << QLatin1String("Text.AlignVCenter")
+
+    << QLatin1String("Text.QtRendering")
+    << QLatin1String("Text.NativeRendering")
+
+    << QLatin1String("Text.NoWrap")
+    << QLatin1String("Text.WordWrap")
+    << QLatin1String("Text.WrapAnywhere")
+    << QLatin1String("Text.Wrap")
+
+/* Flickable */
+
+    << QLatin1String("Flickable.StopAtBounds")
+    << QLatin1String("Flickable.DragOverBounds")
+    << QLatin1String("Flickable.DragAndOvershootBounds")
+
+    << QLatin1String("Flickable.AutoFlickDirection")
+    << QLatin1String("Flickable.HorizontalFlick")
+    << QLatin1String("Flickable.VerticalFlick")
+    << QLatin1String("Flickable.HorizontalAndVerticalFlick")
+
+/* Grid */
+
+    << QLatin1String("Grid.LeftToRight")
+    << QLatin1String("Grid.TopToBottom")
+
+/* Flow */
+
+    << QLatin1String("Flow.LeftToRight")
+    << QLatin1String("Flow.TopToBottom")
+
+/* GridView */
+
+    << QLatin1String("GridView.NoSnap")
+    << QLatin1String("GridView.SnapToRow")
+    << QLatin1String("GridView.SnapOneRow");
+
+    return stringList;
+}
+
+static inline QStringList removeScope(QStringList enumList)
+{
+    QStringList stringList;
+
+    foreach (const QString &enumString, enumList) {
+        QStringList splittedString = enumString.split(QLatin1String("."));
+        Q_ASSERT(splittedString.count() == 2);
+        stringList.append(splittedString.last());
+    }
+
+    return stringList;
+}
+
+QStringList qtQuickEnumsWithoutScope()
+{
+    static QStringList stringList = removeScope(qtQuickEnums());
+    return stringList;
+}
+
+QString qtQuickEnumScopeForEnumString(const QString &inputEnumString)
+{
+    if (qtQuickEnumsWithoutScope().contains(inputEnumString)) {
+        foreach (const QString &enumString, qtQuickEnums()) {
+            QStringList splittedString = enumString.split(QLatin1String("."));
+            Q_ASSERT(splittedString.count() == 2);
+            if (splittedString.last() == inputEnumString)
+                return splittedString.first();
+        }
+    }
+
+    return QString();
+}
+
 void ObjectNodeInstance::setPropertyVariant(const PropertyName &name, const QVariant &value)
 {
     QDeclarativeProperty property(object(), name, context());
@@ -441,32 +546,45 @@ void ObjectNodeInstance::setPropertyVariant(const PropertyName &name, const QVar
     if (!property.isValid())
         return;
 
-    QVariant fixedValue = fixResourcePaths(value);
+    int idx = object()->metaObject()->indexOfProperty(name);
 
-    QVariant oldValue = property.read();
-    if (oldValue.type() == QVariant::Url) {
-        QUrl url = oldValue.toUrl();
-        QString path = url.toLocalFile();
-        if (QFileInfo(path).exists() && nodeInstanceServer() && !path.isEmpty())
-            nodeInstanceServer()->removeFilePropertyFromFileSystemWatcher(object(), name, path);
-    }
+    QMetaProperty metaProperty = object()->metaObject()->property(idx);
 
-    if (hasValidResetBinding(name)) {
-        QDeclarativePropertyPrivate::setBinding(property, 0, QDeclarativePropertyPrivate::BypassInterceptor | QDeclarativePropertyPrivate::DontRemoveBinding);
-        resetBinding(name)->setEnabled(false);
-    }
+    //Alias properties are never enum types. We use a binding instead.
+    if (metaProperty.isValid() && !metaProperty.isEnumType()
+            && (QLatin1String(metaProperty.typeName()) ==  QLatin1String("int"))
+            && qtQuickEnumsWithoutScope().contains(value.toString())
+            ) {
+        setPropertyBinding(name, qtQuickEnumScopeForEnumString(value.toString()) + QLatin1String(".") + value.toString());
+    } else {
 
-    bool isWritten = property.write(convertSpecialCharacter(fixedValue));
+        QVariant fixedValue = fixResourcePaths(value);
 
-    if (!isWritten)
-        qDebug() << "ObjectNodeInstance.setPropertyVariant: Cannot be written: " << object() << name << fixedValue;
+        QVariant oldValue = property.read();
+        if (oldValue.type() == QVariant::Url) {
+            QUrl url = oldValue.toUrl();
+            QString path = url.toLocalFile();
+            if (QFileInfo(path).exists() && nodeInstanceServer() && !path.isEmpty())
+                nodeInstanceServer()->removeFilePropertyFromFileSystemWatcher(object(), name, path);
+        }
 
-    QVariant newValue = property.read();
-    if (newValue.type() == QVariant::Url) {
-        QUrl url = newValue.toUrl();
-        QString path = url.toLocalFile();
-        if (QFileInfo(path).exists() && nodeInstanceServer() && !path.isEmpty())
-            nodeInstanceServer()->addFilePropertyToFileSystemWatcher(object(), name, path);
+        if (hasValidResetBinding(name)) {
+            QDeclarativePropertyPrivate::setBinding(property, 0, QDeclarativePropertyPrivate::BypassInterceptor | QDeclarativePropertyPrivate::DontRemoveBinding);
+            resetBinding(name)->setEnabled(false);
+        }
+
+        bool isWritten = property.write(convertSpecialCharacter(fixedValue));
+
+        if (!isWritten)
+            qDebug() << "ObjectNodeInstance.setPropertyVariant: Cannot be written: " << object() << name << fixedValue;
+
+        QVariant newValue = property.read();
+        if (newValue.type() == QVariant::Url) {
+            QUrl url = newValue.toUrl();
+            QString path = url.toLocalFile();
+            if (QFileInfo(path).exists() && nodeInstanceServer() && !path.isEmpty())
+                nodeInstanceServer()->addFilePropertyToFileSystemWatcher(object(), name, path);
+        }
     }
 }
 
