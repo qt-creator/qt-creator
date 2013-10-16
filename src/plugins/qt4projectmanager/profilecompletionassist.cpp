@@ -37,7 +37,6 @@ using namespace TextEditor;
 
 
 static const char *const variableKeywords[] = {
-    "BACKUP_REGISTRATION_FILE_MAEMO",
     "CCFLAG",
     "CONFIG",
     "DEFINES",
