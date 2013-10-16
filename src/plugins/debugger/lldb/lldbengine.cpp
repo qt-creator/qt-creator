@@ -150,7 +150,7 @@ void LldbEngine::setupEngine()
     args.append(_("-i"));
     args.append(Core::ICore::resourcePath() + _("/debugger/lldbbridge.py"));
     args.append(m_lldbCmd);
-    showMessage(_("STARTING LLDB ") + args.join(QLatin1Char(' ')));
+    showMessage(_("STARTING LLDB ") + args.join(QLatin1String(" ")));
     m_lldbProc.start(_("python"), args);
 
     if (!m_lldbProc.waitForStarted()) {
