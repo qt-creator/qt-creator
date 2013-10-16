@@ -212,7 +212,7 @@ void DebuggerRunControl::start()
                 static bool checked = true;
                 if (!checked)
                     break;
-                CheckableMessageBox::information(debuggerCore()->mainWindow(),
+                CheckableMessageBox::information(Core::ICore::mainWindow(),
                                                  tr("Debugger"),
                                                  warningMessage,
                                                  tr("&Show this message again."),

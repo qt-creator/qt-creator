@@ -1084,7 +1084,7 @@ public slots:
         QTC_ASSERT(act, return);
         const BreakpointModelId id = act->data().value<BreakpointModelId>();
         QTC_ASSERT(id > 0, return);
-        BreakTreeView::editBreakpoint(id, mainWindow());
+        BreakTreeView::editBreakpoint(id, ICore::mainWindow());
     }
 
     void slotRunToLine()
@@ -1575,13 +1575,13 @@ void DebuggerPluginPrivate::debugProjectBreakMain()
 void DebuggerPluginPrivate::startAndDebugApplication()
 {
     DebuggerStartParameters sp;
-    if (StartApplicationDialog::run(mainWindow(), &sp))
+    if (StartApplicationDialog::run(ICore::mainWindow(), &sp))
         DebuggerRunControlFactory::createAndScheduleRun(sp);
 }
 
 void DebuggerPluginPrivate::attachCore()
 {
-    AttachCoreDialog dlg(mainWindow());
+    AttachCoreDialog dlg(ICore::mainWindow());
 
     const QString lastExternalKit = configValue("LastExternalKit").toString();
     if (!lastExternalKit.isEmpty())
@@ -1623,7 +1623,7 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
     QTC_ASSERT(kit && fillParameters(&sp, kit), return);
     sp.startMode = AttachToRemoteServer;
     sp.closeMode = KillAtClose;
-    StartRemoteCdbDialog dlg(mainWindow());
+    StartRemoteCdbDialog dlg(ICore::mainWindow());
     QString previousConnection = configValue(connectionKey).toString();
     if (previousConnection.isEmpty())
         previousConnection = QLatin1String("localhost:1234");
@@ -1639,7 +1639,7 @@ void DebuggerPluginPrivate::attachToRemoteServer()
 {
     DebuggerStartParameters sp;
     sp.startMode = AttachToRemoteServer;
-    if (StartApplicationDialog::run(mainWindow(), &sp)) {
+    if (StartApplicationDialog::run(ICore::mainWindow(), &sp)) {
         sp.closeMode = KillAtClose;
         sp.serverStartScript.clear();
         DebuggerRunControlFactory::createAndScheduleRun(sp);
@@ -1661,7 +1661,7 @@ void DebuggerPluginPrivate::attachToProcess(bool startServerOnly)
     const DebuggerKitChooser::Mode mode = startServerOnly ?
         DebuggerKitChooser::RemoteDebugging : DebuggerKitChooser::LocalDebugging;
     DebuggerKitChooser *kitChooser = new DebuggerKitChooser(mode);
-    DeviceProcessesDialog *dlg = new DeviceProcessesDialog(kitChooser, mainWindow());
+    DeviceProcessesDialog *dlg = new DeviceProcessesDialog(kitChooser, ICore::mainWindow());
     dlg->addAcceptButton(ProjectExplorer::DeviceProcessesDialog::tr("&Attach to Process"));
     dlg->showAllDevices();
     if (dlg->exec() == QDialog::Rejected) {
@@ -1676,7 +1676,7 @@ void DebuggerPluginPrivate::attachToProcess(bool startServerOnly)
     QTC_ASSERT(device, return);
     DeviceProcessItem process = dlg->currentProcess();
     if (process.pid == 0) {
-        QMessageBox::warning(mainWindow(), tr("Warning"),
+        QMessageBox::warning(ICore::mainWindow(), tr("Warning"),
             tr("Cannot attach to process with PID 0"));
         return;
     }
@@ -1725,7 +1725,7 @@ void DebuggerPluginPrivate::attachExternalApplication(RunControl *rc)
 void DebuggerPluginPrivate::attachToQmlPort()
 {
     DebuggerStartParameters sp;
-    AttachToQmlPortDialog dlg(mainWindow());
+    AttachToQmlPortDialog dlg(ICore::mainWindow());
 
     const QVariant qmlServerPort = configValue("LastQmlServerPort");
     if (qmlServerPort.isValid())
@@ -1779,7 +1779,7 @@ void DebuggerPluginPrivate::attachToQmlPort()
 void DebuggerPluginPrivate::startRemoteEngine()
 {
     DebuggerStartParameters sp;
-    StartRemoteEngineDialog dlg(mainWindow());
+    StartRemoteEngineDialog dlg(ICore::mainWindow());
     if (dlg.exec() != QDialog::Accepted)
         return;
 
@@ -2400,7 +2400,7 @@ void DebuggerPluginPrivate::updateDebugWithoutDeployMenu()
 
 void DebuggerPluginPrivate::dumpLog()
 {
-    QString fileName = QFileDialog::getSaveFileName(mainWindow(),
+    QString fileName = QFileDialog::getSaveFileName(ICore::mainWindow(),
         tr("Save Debugger Log"), QDir::tempPath());
     if (fileName.isEmpty())
         return;
@@ -2412,7 +2412,7 @@ void DebuggerPluginPrivate::dumpLog()
         ts << m_logWindow->combinedContents();
         saver.setResult(&ts);
     }
-    saver.finalize(mainWindow());
+    saver.finalize(ICore::mainWindow());
 }
 
 /*! Activates the previous mode when the current mode is the debug mode. */
@@ -2666,7 +2666,7 @@ QMessageBox *showMessageBox(int icon, const QString &title,
 {
     QMessageBox *mb = new QMessageBox(QMessageBox::Icon(icon),
         title, text, QMessageBox::StandardButtons(buttons),
-        debuggerCore()->mainWindow());
+        ICore::mainWindow());
     mb->setAttribute(Qt::WA_DeleteOnClose);
     mb->show();
     return mb;

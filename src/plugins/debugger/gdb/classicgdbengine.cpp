@@ -1256,7 +1256,7 @@ void GdbEngine::handleStackListLocalsClassic(const GdbResponse &response)
 
 static void showQtDumperLibraryWarning(const QString &details)
 {
-    QMessageBox dialog(debuggerCore()->mainWindow());
+    QMessageBox dialog(Core::ICore::mainWindow());
     QPushButton *qtPref = dialog.addButton(DebuggerCore::tr("Open Qt Options"),
         QMessageBox::ActionRole);
     QPushButton *helperOff = dialog.addButton(DebuggerCore::tr("Turn off Helper Usage"),
