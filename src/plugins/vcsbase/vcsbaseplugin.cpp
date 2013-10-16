@@ -95,8 +95,8 @@ struct State
 
     bool equals(const State &rhs) const;
 
-    inline bool hasFile() const     { return !currentFile.isEmpty(); }
-    inline bool hasProject() const  { return !currentProjectPath.isEmpty(); }
+    inline bool hasFile() const     { return !currentFileTopLevel.isEmpty(); }
+    inline bool hasProject() const  { return !currentProjectTopLevel.isEmpty(); }
     inline bool isEmpty() const     { return !hasFile() && !hasProject(); }
 
     QString currentFile;
@@ -280,12 +280,12 @@ void StateListener::slotStateChanged()
         } else {
             state.currentFileDirectory = currentFileInfo->absolutePath();
             state.currentFileName = currentFileInfo->fileName();
-            fileControl = Core::VcsManager::findVersionControlForDirectory(
-                        state.currentFileDirectory,
-                        &state.currentFileTopLevel);
-            if (!fileControl)
-                state.clearFile();
         }
+        fileControl = Core::VcsManager::findVersionControlForDirectory(
+                    state.currentFileDirectory,
+                    &state.currentFileTopLevel);
+        if (!fileControl)
+            state.clearFile();
     }
     // Check for project, find the control
     Core::IVersionControl *projectControl = 0;
@@ -303,7 +303,9 @@ void StateListener::slotStateChanged()
         }
     }
     // Assemble state and emit signal.
-    Core::IVersionControl *vc = state.currentFile.isEmpty() ? projectControl : fileControl;
+    Core::IVersionControl *vc = fileControl;
+    if (!vc)
+        vc = projectControl;
     if (!vc) {
         state.clearPatchFile(); // Need a repository to patch
         Core::EditorManager::setWindowTitleVcsTopic(QString());
