@@ -212,13 +212,18 @@ bool FunctionHintProposalWidget::eventFilter(QObject *obj, QEvent *e)
             return false;
         }
         break;
-    case QEvent::KeyRelease:
-        if (static_cast<QKeyEvent*>(e)->key() == Qt::Key_Escape && d->m_escapePressed) {
-            abort();
-            emit explicitlyAborted();
-            return false;
+    case QEvent::KeyRelease: {
+            QKeyEvent *ke = static_cast<QKeyEvent*>(e);
+            if (ke->key() == Qt::Key_Escape && d->m_escapePressed) {
+                abort();
+                emit explicitlyAborted();
+                return false;
+            } else if (ke->key() == Qt::Key_Up || ke->key() == Qt::Key_Down) {
+                if (d->m_model->size() > 1)
+                    return false;
+            }
+            d->m_assistant->notifyChange();
         }
-        d->m_assistant->notifyChange();
         break;
     case QEvent::WindowDeactivate:
     case QEvent::FocusOut:
