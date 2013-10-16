@@ -143,7 +143,7 @@ public:
             const Use use = future.resultAt(i);
             // When adding tests, you may want to uncomment the
             // following line in order to print out all found uses.
-            qDebug() << QTest::toString(use);
+            // qDebug() << QTest::toString(use);
             actualUses.append(use);
         }
 
