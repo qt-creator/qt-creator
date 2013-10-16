@@ -44,7 +44,7 @@ from qttypes import *
 from stdtypes import *
 from misctypes import *
 from boosttypes import *
-
+from creatortypes import *
 
 
 proc = subprocess.Popen(args=[sys.argv[1], '-P'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -1487,13 +1487,6 @@ class Dumper(DumperBase):
         if self.debugger.GetListener().PeekAtNextEvent(event):
             self.debugger.GetListener().GetNextEvent(event)
             self.handleEvent(event)
-
-
-currentDir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-execfile(os.path.join(currentDir, "qttypes.py"))
-execfile(os.path.join(currentDir, "stdtypes.py"))
-execfile(os.path.join(currentDir, "misctypes.py"))
-execfile(os.path.join(currentDir, "creatortypes.py"))
 
 
 def doit():
