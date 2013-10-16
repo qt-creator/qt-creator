@@ -34,6 +34,20 @@
 			<key>LSHandlerRank</key>
 			<string>Default</string>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleTypeIconFile</key>
+			<string>profile.icns</string>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>qbs</string>
+			</array>
+			<key>CFBundleTypeName</key>
+			<string>Qbs Project File</string>
+			<key>LSHandlerRank</key>
+			<string>Default</string>
+		</dict>
                 <dict>
                         <key>CFBundleTypeRole</key>
                         <string>Editor</string>
@@ -83,6 +97,21 @@
 			</array>
 			<key>CFBundleTypeName</key>
 			<string>Qt UI File</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>qml</string>
+			</array>
+			<key>CFBundleTypeName</key>
+			<string>QML File</string>
+			<key>CFBundleTypeOSTypes</key>
+			<array>
+				<string>TEXT</string>
+				<string>utxt</string>
+			</array>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeExtensions</key>

@@ -125,6 +125,13 @@ registerWindowsFileTypeExtensions = function()
                             component.qtCreatorBinaryPath + ",6",
                             "ProgId=QtProject.QtCreator.pri");
     component.addOperation( "RegisterFileType",
+                            "qbs",
+                            component.qtCreatorBinaryPath + " -client '%1'",
+                            "Qbs Project file",
+                            "text/plain",
+                            component.qtCreatorBinaryPath + ",5",
+                            "ProgId=QtProject.QtCreator.qbs");
+    component.addOperation( "RegisterFileType",
                             "qs",
                             component.qtCreatorBinaryPath + " -client '%1'",
                             "Qt Script file",
@@ -136,7 +143,7 @@ registerWindowsFileTypeExtensions = function()
                             component.qtCreatorBinaryPath + " -client '%1'",
                             "Qt Quick Markup language file",
                             "text/plain",
-                            component.qtCreatorBinaryPath + ",0",
+                            component.qtCreatorBinaryPath + ",7",
                             "ProgId=QtProject.QtCreator.qml");
 }
 
@@ -180,7 +187,7 @@ Component.prototype.createOperations = function()
         component.addOperation( "InstallIcons", "@TargetDir@/share/icons" );
         component.addOperation( "CreateDesktopEntry",
                                 "QtProject-qtcreator.desktop",
-                                "Type=Application\nExec=" + component.qtCreatorBinaryPath + "\nPath=@TargetDir@\nName=Qt Creator\nGenericName=The IDE of choice for Qt development.\nGenericName[de]=Die IDE der Wahl zur Qt Entwicklung\nIcon=QtProject-qtcreator\nTerminal=false\nCategories=Development;IDE;Qt;\nMimeType=text/x-c++src;text/x-c++hdr;text/x-xsrc;application/x-designer;application/vnd.nokia.qt.qmakeprofile;application/vnd.nokia.xml.qt.resource;text/x-qml;"
+                                "Type=Application\nExec=" + component.qtCreatorBinaryPath + "\nPath=@TargetDir@\nName=Qt Creator\nGenericName=The IDE of choice for Qt development.\nGenericName[de]=Die IDE der Wahl zur Qt Entwicklung\nIcon=QtProject-qtcreator\nTerminal=false\nCategories=Development;IDE;Qt;\nMimeType=text/x-c++src;text/x-c++hdr;text/x-xsrc;application/x-designer;application/vnd.nokia.qt.qmakeprofile;application/vnd.nokia.xml.qt.resource;text/x-qml;text/x-qt.qml;text/x-qt.qbs;"
                                 );
     }
 }
