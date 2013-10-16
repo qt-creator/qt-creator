@@ -35,6 +35,7 @@
 #include <debugger/debuggerruncontrolfactory.h>
 #include <debugger/debuggerstartparameters.h>
 
+#include <coreplugin/icore.h>
 #include <projectexplorer/kitchooser.h>
 #include <projectexplorer/devicesupport/deviceprocesslist.h>
 #include <projectexplorer/devicesupport/deviceprocessesdialog.h>
@@ -189,7 +190,7 @@ void GdbServerStarter::attach(int port)
             localExecutable = candidate;
     }
     if (localExecutable.isEmpty()) {
-        QMessageBox::warning(DebuggerPlugin::mainWindow(), tr("Warning"),
+        QMessageBox::warning(ICore::mainWindow(), tr("Warning"),
             tr("Cannot find local executable for remote process \"%1\".")
                 .arg(d->process.exe));
         return;
@@ -197,7 +198,7 @@ void GdbServerStarter::attach(int port)
 
     QList<Abi> abis = Abi::abisOfBinary(Utils::FileName::fromString(localExecutable));
     if (abis.isEmpty()) {
-        QMessageBox::warning(DebuggerPlugin::mainWindow(), tr("Warning"),
+        QMessageBox::warning(ICore::mainWindow(), tr("Warning"),
             tr("Cannot find ABI for remote process \"%1\".")
                 .arg(d->process.exe));
         return;
