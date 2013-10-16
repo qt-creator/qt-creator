@@ -687,36 +687,6 @@ def value(expr):
 
 Value = gdb.Value
 
-def makeValue(type, init):
-    type = "::" + stripClassTag(str(type));
-    # Avoid malloc symbol clash with QVector.
-    gdb.execute("set $d = (%s*)calloc(sizeof(%s), 1)" % (type, type))
-    gdb.execute("set *$d = {%s}" % init)
-    value = parseAndEvaluate("$d").dereference()
-    #warn("  TYPE: %s" % value.type)
-    #warn("  ADDR: %s" % value.address)
-    #warn("  VALUE: %s" % value)
-    return value
-
-def makeStdString(init):
-    # Works only for small allocators, but they are usually empty.
-    gdb.execute("set $d=(std::string*)calloc(sizeof(std::string), 2)");
-    gdb.execute("call($d->basic_string(\"" + init +
-        "\",*(std::allocator<char>*)(1+$d)))")
-    value = parseAndEvaluate("$d").dereference()
-    #warn("  TYPE: %s" % value.type)
-    #warn("  ADDR: %s" % value.address)
-    #warn("  VALUE: %s" % value)
-    return value
-
-
-def makeExpression(value):
-    type = "::" + stripClassTag(str(value.type))
-    #warn("  TYPE: %s" % type)
-    #exp = "(*(%s*)(&%s))" % (type, value.address)
-    exp = "(*(%s*)(%s))" % (type, value.address)
-    #warn("  EXP: %s" % exp)
-    return exp
 
 qqNs = None
 
@@ -1091,6 +1061,36 @@ class Dumper(DumperBase):
 
     def call(self, value, func, *args):
         return self.call2(value, func, args)
+
+    def makeValue(self, type, init):
+        type = "::" + stripClassTag(str(type));
+        # Avoid malloc symbol clash with QVector.
+        gdb.execute("set $d = (%s*)calloc(sizeof(%s), 1)" % (type, type))
+        gdb.execute("set *$d = {%s}" % init)
+        value = parseAndEvaluate("$d").dereference()
+        #warn("  TYPE: %s" % value.type)
+        #warn("  ADDR: %s" % value.address)
+        #warn("  VALUE: %s" % value)
+        return value
+
+    def makeExpression(self, value):
+        type = "::" + stripClassTag(str(value.type))
+        #warn("  TYPE: %s" % type)
+        #exp = "(*(%s*)(&%s))" % (type, value.address)
+        exp = "(*(%s*)(%s))" % (type, value.address)
+        #warn("  EXP: %s" % exp)
+        return exp
+
+    def makeStdString(init):
+        # Works only for small allocators, but they are usually empty.
+        gdb.execute("set $d=(std::string*)calloc(sizeof(std::string), 2)");
+        gdb.execute("call($d->basic_string(\"" + init +
+            "\",*(std::allocator<char>*)(1+$d)))")
+        value = parseAndEvaluate("$d").dereference()
+        #warn("  TYPE: %s" % value.type)
+        #warn("  ADDR: %s" % value.address)
+        #warn("  VALUE: %s" % value)
+        return value
 
     def childAt(self, value, index):
         field = value.type.fields()[index]

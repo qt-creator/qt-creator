@@ -98,9 +98,9 @@ def qdump__QAbstractItemModel(d, value):
     #format == 2:
     # Create a default-constructed QModelIndex on the stack.
     try:
-        ri = makeValue(d.ns + "QModelIndex", "-1, -1, 0, 0")
-        this_ = makeExpression(value)
-        ri_ = makeExpression(ri)
+        ri = d.makeValue(d.ns + "QModelIndex", "-1, -1, 0, 0")
+        this_ = d.makeExpression(value)
+        ri_ = d.makeExpression(ri)
         rowCount = int(d.parseAndEvaluate("%s.rowCount(%s)" % (this_, ri_)))
         columnCount = int(d.parseAndEvaluate("%s.columnCount(%s)" % (this_, ri_)))
     except:
@@ -152,9 +152,9 @@ def qdump__QModelIndex(d, value):
     mm = m.dereference()
     mm = mm.cast(mm.type.unqualified())
     try:
-        mi = makeValue(d.ns + "QModelIndex", "%s,%s,%s,%s" % (r, c, p, m))
-        mm_ = makeExpression(mm)
-        mi_ = makeExpression(mi)
+        mi = d.makeValue(d.ns + "QModelIndex", "%s,%s,%s,%s" % (r, c, p, m))
+        mm_ = d.makeExpression(mm)
+        mi_ = d.makeExpression(mi)
         rowCount = int(d.parseAndEvaluate("%s.rowCount(%s)" % (mm_, mi_)))
         columnCount = int(d.parseAndEvaluate("%s.columnCount(%s)" % (mm_, mi_)))
     except:
@@ -166,7 +166,7 @@ def qdump__QModelIndex(d, value):
         # Access DisplayRole as value
         val = d.parseAndEvaluate("%s.data(%s, 0)" % (mm_, mi_))
         v = val["d"]["data"]["ptr"]
-        d.putStringValue(makeValue(d.ns + 'QString', v))
+        d.putStringValue(d.makeValue(d.ns + 'QString', v))
     except:
         d.putValue("(invalid)")
 
