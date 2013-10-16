@@ -4,11 +4,11 @@ Project {
     property bool withAutotests: qbs.buildVariant === "debug"
     property string ide_version_major: '2'
     property string ide_version_minor: '8'
-    property string ide_version_release: '81'
+    property string ide_version_release: '82'
     property string qtcreator_version: ide_version_major + '.' + ide_version_minor + '.' + ide_version_release
     property string ide_compat_version_major: '2'
     property string ide_compat_version_minor: '8'
-    property string ide_compat_version_release: '81'
+    property string ide_compat_version_release: '82'
     property string qtcreator_compat_version: ide_compat_version_major + '.' + ide_compat_version_minor + '.' + ide_compat_version_release
     property path ide_source_tree: path
     property string ide_app_path: qbs.targetOS.contains("osx") ? "" : "bin"
