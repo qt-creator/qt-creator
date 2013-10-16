@@ -67,15 +67,22 @@ void DebuggerItem::reinitializeFromFile()
     QByteArray ba = proc.readAll();
     if (ba.contains("gdb")) {
         m_engineType = GdbEngineType;
-//        const char needle[] = "This GDB was configured as \"";
-//        int pos1 = ba.indexOf(needle);
-//        if (pos1 != -1) {
-//            pos1 += sizeof(needle);
-//            int pos2 = ba.indexOf('"', pos1 + 1);
-//            QByteArray target = ba.mid(pos1, pos2 - pos1);
-//            abis.append(Abi::abiFromTargetTriplet(target)); // FIXME: Doesn't exist yet.
-//        }
-        m_abis = Abi::abisOfBinary(m_command); // FIXME: Wrong.
+        const char needle[] = "This GDB was configured as \"";
+        // E.g.  "--host=i686-pc-linux-gnu --target=arm-unknown-nto-qnx6.5.0".
+        // or "i686-linux-gnu"
+        int pos1 = ba.indexOf(needle);
+        if (pos1 != -1) {
+            pos1 += int(sizeof(needle));
+            int pos2 = ba.indexOf('"', pos1 + 1);
+            QByteArray target = ba.mid(pos1, pos2 - pos1);
+            int pos3 = target.indexOf("--target=");
+            if (pos3 >= 0)
+                target = target.mid(pos3 + 9);
+            m_abis.append(Abi::abiFromTargetTriplet(QString::fromLatin1(target)));
+        } else {
+            // Fallback.
+            m_abis = Abi::abisOfBinary(m_command); // FIXME: Wrong.
+        }
         return;
     }
     if (ba.contains("lldb") || ba.startsWith("LLDB")) {
