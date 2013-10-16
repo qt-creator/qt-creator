@@ -92,15 +92,6 @@ KitModel::KitModel(QBoxLayout *parentLayout, QObject *parent) :
     m_defaultNode(0),
     m_keepUnique(true)
 {
-    connect(KitManager::instance(), SIGNAL(kitAdded(ProjectExplorer::Kit*)),
-            this, SLOT(addKit(ProjectExplorer::Kit*)));
-    connect(KitManager::instance(), SIGNAL(kitRemoved(ProjectExplorer::Kit*)),
-            this, SLOT(removeKit(ProjectExplorer::Kit*)));
-    connect(KitManager::instance(), SIGNAL(unmanagedKitUpdated(ProjectExplorer::Kit*)),
-            this, SLOT(updateKit(ProjectExplorer::Kit*)));
-    connect(KitManager::instance(), SIGNAL(defaultkitChanged()),
-            this, SLOT(changeDefaultKit()));
-
     m_root = new KitNode(0);
     m_autoRoot = new KitNode(m_root);
     m_manualRoot = new KitNode(m_root);
@@ -109,6 +100,15 @@ KitModel::KitModel(QBoxLayout *parentLayout, QObject *parent) :
         addKit(k);
 
     changeDefaultKit();
+
+    connect(KitManager::instance(), SIGNAL(kitAdded(ProjectExplorer::Kit*)),
+            this, SLOT(addKit(ProjectExplorer::Kit*)));
+    connect(KitManager::instance(), SIGNAL(kitRemoved(ProjectExplorer::Kit*)),
+            this, SLOT(removeKit(ProjectExplorer::Kit*)));
+    connect(KitManager::instance(), SIGNAL(unmanagedKitUpdated(ProjectExplorer::Kit*)),
+            this, SLOT(updateKit(ProjectExplorer::Kit*)));
+    connect(KitManager::instance(), SIGNAL(defaultkitChanged()),
+            this, SLOT(changeDefaultKit()));
 }
 
 KitModel::~KitModel()
