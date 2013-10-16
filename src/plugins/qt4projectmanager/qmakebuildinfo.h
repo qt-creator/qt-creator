@@ -42,7 +42,7 @@ namespace QmakeProjectManager {
 class QmakeBuildInfo : public ProjectExplorer::BuildInfo
 {
 public:
-    QmakeBuildInfo(const Qt4BuildConfigurationFactory *f) : ProjectExplorer::BuildInfo(f) { }
+    QmakeBuildInfo(const QmakeBuildConfigurationFactory *f) : ProjectExplorer::BuildInfo(f) { }
 
     ProjectExplorer::BuildConfiguration::BuildType type;
     QString additionalArguments;

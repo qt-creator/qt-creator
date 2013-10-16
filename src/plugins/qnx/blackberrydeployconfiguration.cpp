@@ -82,7 +82,7 @@ void BlackBerryDeployConfiguration::ctor()
 
 void BlackBerryDeployConfiguration::setupBarDescriptor()
 {
-    QmakeProjectManager::Qt4BuildConfiguration *bc = qobject_cast<QmakeProjectManager::Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
+    QmakeProjectManager::QmakeBuildConfiguration *bc = qobject_cast<QmakeProjectManager::QmakeBuildConfiguration *>(target()->activeBuildConfiguration());
     if (!bc || !target()->kit())
         return;
 

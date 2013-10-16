@@ -325,8 +325,8 @@ void AndroidDeployQtWidget::activeBuildConfigurationChanged()
         disconnect(m_currentBuildConfiguration, SIGNAL(qmakeBuildConfigurationChanged()),
                    this, SLOT(updateSigningWarning()));
     updateSigningWarning();
-    QmakeProjectManager::Qt4BuildConfiguration *bc
-            = qobject_cast<QmakeProjectManager::Qt4BuildConfiguration *>(m_step->target()->activeBuildConfiguration());
+    QmakeProjectManager::QmakeBuildConfiguration *bc
+            = qobject_cast<QmakeProjectManager::QmakeBuildConfiguration *>(m_step->target()->activeBuildConfiguration());
     m_currentBuildConfiguration = bc;
     if (bc)
         connect(bc, SIGNAL(qmakeBuildConfigurationChanged()), this, SLOT(updateSigningWarning()));
@@ -335,7 +335,7 @@ void AndroidDeployQtWidget::activeBuildConfigurationChanged()
 
 void AndroidDeployQtWidget::updateSigningWarning()
 {
-    QmakeProjectManager::Qt4BuildConfiguration *bc = qobject_cast<QmakeProjectManager::Qt4BuildConfiguration *>(m_step->target()->activeBuildConfiguration());
+    QmakeProjectManager::QmakeBuildConfiguration *bc = qobject_cast<QmakeProjectManager::QmakeBuildConfiguration *>(m_step->target()->activeBuildConfiguration());
     bool debug = bc && (bc->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild);
     if (m_step->signPackage() && debug) {
         m_ui->signingDebugWarningIcon->setVisible(true);

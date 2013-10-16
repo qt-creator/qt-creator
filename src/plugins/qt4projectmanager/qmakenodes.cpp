@@ -2278,12 +2278,12 @@ QString Qt4ProFileNode::sourceDir() const
     return m_projectDir;
 }
 
-QString Qt4ProFileNode::buildDir(Qt4BuildConfiguration *bc) const
+QString Qt4ProFileNode::buildDir(QmakeBuildConfiguration *bc) const
 {
     const QDir srcDirRoot = m_project->rootQt4ProjectNode()->sourceDir();
     const QString relativeDir = srcDirRoot.relativeFilePath(m_projectDir);
     if (!bc && m_project->activeTarget())
-        bc = static_cast<Qt4BuildConfiguration *>(m_project->activeTarget()->activeBuildConfiguration());
+        bc = static_cast<QmakeBuildConfiguration *>(m_project->activeTarget()->activeBuildConfiguration());
     if (!bc)
         return QString();
     return QDir::cleanPath(QDir(bc->buildDirectory().toString()).absoluteFilePath(relativeDir));

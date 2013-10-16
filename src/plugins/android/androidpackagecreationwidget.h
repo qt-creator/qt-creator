@@ -41,7 +41,7 @@ class QFileSystemWatcher;
 namespace Ui { class AndroidPackageCreationWidget; }
 QT_END_NAMESPACE
 
-namespace QmakeProjectManager { class Qt4BuildConfiguration; }
+namespace QmakeProjectManager { class QmakeBuildConfiguration; }
 
 namespace Android {
 namespace Internal {
@@ -112,7 +112,7 @@ private:
     CheckModel *m_qtLibsModel;
     CheckModel *m_prebundledLibs;
     QFileSystemWatcher *m_fileSystemWatcher;
-    QmakeProjectManager::Qt4BuildConfiguration *m_currentBuildConfiguration;
+    QmakeProjectManager::QmakeBuildConfiguration *m_currentBuildConfiguration;
 };
 
 } // namespace Internal

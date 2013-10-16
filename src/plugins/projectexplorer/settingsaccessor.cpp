@@ -1076,7 +1076,7 @@ QVariantMap Version0Handler::convertBuildConfigurations(Project *project, const 
 
         if (id == QLatin1String("Qt4ProjectManager.Qt4BuildConfiguration") ||
             id.startsWith(QLatin1String("Qt4ProjectManager.Qt4BuildConfiguration."))) {
-            // Qt4BuildConfiguration:
+            // QmakeBuildConfiguration:
             if (i.key() == QLatin1String("QtVersionId")) {
                 result.insert(QLatin1String("Qt4ProjectManager.Qt4BuildConfiguration.QtVersionId"),
                               i.value().toInt());
@@ -1099,7 +1099,7 @@ QVariantMap Version0Handler::convertBuildConfigurations(Project *project, const 
                 result.insert(QLatin1String("Qt4ProjectManager.Qt4BuildConfiguration.BuildDirectory"),
                               i.value());
             } else {
-                qWarning() << "Unknown Qt4BuildConfiguration Key found:" << i.key() << i.value();
+                qWarning() << "Unknown QmakeBuildConfiguration Key found:" << i.key() << i.value();
             }
             continue;
         } else if (id == QLatin1String("CMakeProjectManager.CMakeBuildConfiguration")) {

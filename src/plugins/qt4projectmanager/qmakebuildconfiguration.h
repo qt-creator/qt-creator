@@ -42,18 +42,18 @@ namespace QmakeProjectManager {
 class QmakeBuildInfo;
 class QMakeStep;
 class MakeStep;
-class Qt4BuildConfigurationFactory;
+class QmakeBuildConfigurationFactory;
 class Qt4ProFileNode;
 
 namespace Internal { class Qt4ProjectConfigWidget; }
 
-class QT4PROJECTMANAGER_EXPORT Qt4BuildConfiguration : public ProjectExplorer::BuildConfiguration
+class QT4PROJECTMANAGER_EXPORT QmakeBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
     Q_OBJECT
 
 public:
-    explicit Qt4BuildConfiguration(ProjectExplorer::Target *target);
-    ~Qt4BuildConfiguration();
+    explicit QmakeBuildConfiguration(ProjectExplorer::Target *target);
+    ~QmakeBuildConfiguration();
 
     ProjectExplorer::NamedWidget *createConfigWidget();
     bool isShadowBuild() const;
@@ -119,8 +119,8 @@ private slots:
     void qtVersionsChanged(const QList<int> &, const QList<int> &, const QList<int> &changed);
 
 protected:
-    Qt4BuildConfiguration(ProjectExplorer::Target *target, Qt4BuildConfiguration *source);
-    Qt4BuildConfiguration(ProjectExplorer::Target *target, const Core::Id id);
+    QmakeBuildConfiguration(ProjectExplorer::Target *target, QmakeBuildConfiguration *source);
+    QmakeBuildConfiguration(ProjectExplorer::Target *target, const Core::Id id);
     virtual bool fromMap(const QVariantMap &map);
 
 private:
@@ -152,16 +152,16 @@ private:
     ProjectExplorer::FileNode *m_fileNodeBuild;
 
     friend class Internal::Qt4ProjectConfigWidget;
-    friend class Qt4BuildConfigurationFactory;
+    friend class QmakeBuildConfigurationFactory;
 };
 
-class QT4PROJECTMANAGER_EXPORT Qt4BuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
+class QT4PROJECTMANAGER_EXPORT QmakeBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
 {
     Q_OBJECT
 
 public:
-    explicit Qt4BuildConfigurationFactory(QObject *parent = 0);
-    ~Qt4BuildConfigurationFactory();
+    explicit QmakeBuildConfigurationFactory(QObject *parent = 0);
+    ~QmakeBuildConfigurationFactory();
 
     int priority(const ProjectExplorer::Target *parent) const;
     QList<ProjectExplorer::BuildInfo *> availableBuilds(const ProjectExplorer::Target *parent) const;

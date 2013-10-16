@@ -82,7 +82,7 @@ const char BUILD_CONFIGURATION_KEY[] = "Qt4ProjectManager.Qt4BuildConfiguration.
 
 enum { debug = 0 };
 
-Qt4BuildConfiguration::Qt4BuildConfiguration(Target *target) :
+QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target) :
     BuildConfiguration(target, Core::Id(QT4_BC_ID)),
     m_shadowBuild(true),
     m_isEnabled(false),
@@ -93,7 +93,7 @@ Qt4BuildConfiguration::Qt4BuildConfiguration(Target *target) :
     ctor();
 }
 
-Qt4BuildConfiguration::Qt4BuildConfiguration(Target *target, const Core::Id id) :
+QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, const Core::Id id) :
     BuildConfiguration(target, id),
     m_shadowBuild(true),
     m_isEnabled(false),
@@ -104,7 +104,7 @@ Qt4BuildConfiguration::Qt4BuildConfiguration(Target *target, const Core::Id id) 
     ctor();
 }
 
-Qt4BuildConfiguration::Qt4BuildConfiguration(Target *target, Qt4BuildConfiguration *source) :
+QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, QmakeBuildConfiguration *source) :
     BuildConfiguration(target, source),
     m_shadowBuild(source->m_shadowBuild),
     m_isEnabled(false),
@@ -116,11 +116,11 @@ Qt4BuildConfiguration::Qt4BuildConfiguration(Target *target, Qt4BuildConfigurati
     ctor();
 }
 
-Qt4BuildConfiguration::~Qt4BuildConfiguration()
+QmakeBuildConfiguration::~QmakeBuildConfiguration()
 {
 }
 
-QVariantMap Qt4BuildConfiguration::toMap() const
+QVariantMap QmakeBuildConfiguration::toMap() const
 {
     QVariantMap map(BuildConfiguration::toMap());
     map.insert(QLatin1String(USE_SHADOW_BUILD_KEY), m_shadowBuild);
@@ -128,7 +128,7 @@ QVariantMap Qt4BuildConfiguration::toMap() const
     return map;
 }
 
-bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
+bool QmakeBuildConfiguration::fromMap(const QVariantMap &map)
 {
     if (!BuildConfiguration::fromMap(map))
         return false;
@@ -147,7 +147,7 @@ bool Qt4BuildConfiguration::fromMap(const QVariantMap &map)
     return true;
 }
 
-void Qt4BuildConfiguration::ctor()
+void QmakeBuildConfiguration::ctor()
 {
     connect(this, SIGNAL(environmentChanged()),
             this, SLOT(emitProFileEvaluateNeeded()));
@@ -155,12 +155,12 @@ void Qt4BuildConfiguration::ctor()
             this, SLOT(kitChanged()));
 }
 
-void Qt4BuildConfiguration::kitChanged()
+void QmakeBuildConfiguration::kitChanged()
 {
     LastKitState newState = LastKitState(target()->kit());
     if (newState != m_lastKitState) {
         // This only checks if the ids have changed!
-        // For that reason the Qt4BuildConfiguration is also connected
+        // For that reason the QmakeBuildConfiguration is also connected
         // to the toolchain and qtversion managers
         emitProFileEvaluateNeeded();
         updateShadowBuild();
@@ -168,19 +168,19 @@ void Qt4BuildConfiguration::kitChanged()
     }
 }
 
-void Qt4BuildConfiguration::toolChainUpdated(ProjectExplorer::ToolChain *tc)
+void QmakeBuildConfiguration::toolChainUpdated(ProjectExplorer::ToolChain *tc)
 {
     if (ToolChainKitInformation::toolChain(target()->kit()) == tc)
         emitProFileEvaluateNeeded();
 }
 
-void Qt4BuildConfiguration::qtVersionsChanged(const QList<int> &,const QList<int> &, const QList<int> &changed)
+void QmakeBuildConfiguration::qtVersionsChanged(const QList<int> &,const QList<int> &, const QList<int> &changed)
 {
     if (changed.contains(QtKitInformation::qtVersionId(target()->kit())))
         emitProFileEvaluateNeeded();
 }
 
-void Qt4BuildConfiguration::updateShadowBuild()
+void QmakeBuildConfiguration::updateShadowBuild()
 {
     // We also emit buildDirectoryChanged if the the Qt version's supportShadowBuild changed
     bool currentShadowBuild = supportsShadowBuilds();
@@ -191,19 +191,19 @@ void Qt4BuildConfiguration::updateShadowBuild()
     }
 }
 
-NamedWidget *Qt4BuildConfiguration::createConfigWidget()
+NamedWidget *QmakeBuildConfiguration::createConfigWidget()
 {
     return new Qt4ProjectConfigWidget(this);
 }
 
-QString Qt4BuildConfiguration::defaultShadowBuildDirectory() const
+QString QmakeBuildConfiguration::defaultShadowBuildDirectory() const
 {
     // todo displayName isn't ideal
     return Qt4Project::shadowBuildDirectory(target()->project()->projectFilePath(),
                                             target()->kit(), displayName());
 }
 
-bool Qt4BuildConfiguration::supportsShadowBuilds()
+bool QmakeBuildConfiguration::supportsShadowBuilds()
 {
     BaseQtVersion *version = QtKitInformation::qtVersion(target()->kit());
     return !version || version->supportsShadowBuilds();
@@ -211,8 +211,8 @@ bool Qt4BuildConfiguration::supportsShadowBuilds()
 
 /// If only a sub tree should be build this function returns which sub node
 /// should be build
-/// \see Qt4BuildConfiguration::setSubNodeBuild
-Qt4ProFileNode *Qt4BuildConfiguration::subNodeBuild() const
+/// \see QMakeBuildConfiguration::setSubNodeBuild
+Qt4ProFileNode *QmakeBuildConfiguration::subNodeBuild() const
 {
     return m_subNodeBuild;
 }
@@ -223,17 +223,17 @@ Qt4ProFileNode *Qt4BuildConfiguration::subNodeBuild() const
 /// calling BuildManager::buildProject( BuildConfiguration * )
 /// and reset immediately afterwards
 /// That is m_subNodesBuild is set only temporarly
-void Qt4BuildConfiguration::setSubNodeBuild(Qt4ProFileNode *node)
+void QmakeBuildConfiguration::setSubNodeBuild(Qt4ProFileNode *node)
 {
     m_subNodeBuild = node;
 }
 
-FileNode *Qt4BuildConfiguration::fileNodeBuild() const
+FileNode *QmakeBuildConfiguration::fileNodeBuild() const
 {
     return m_fileNodeBuild;
 }
 
-void Qt4BuildConfiguration::setFileNodeBuild(FileNode *node)
+void QmakeBuildConfiguration::setFileNodeBuild(FileNode *node)
 {
     m_fileNodeBuild = node;
 }
@@ -242,12 +242,12 @@ void Qt4BuildConfiguration::setFileNodeBuild(FileNode *node)
 /// note, even if shadowBuild() returns true, it might be using the
 /// source directory as the shadow build directory, thus it
 /// still is a in-source build
-bool Qt4BuildConfiguration::isShadowBuild() const
+bool QmakeBuildConfiguration::isShadowBuild() const
 {
     return buildDirectory().toString() != target()->project()->projectDirectory();
 }
 
-void Qt4BuildConfiguration::setBuildDirectory(const FileName &directory)
+void QmakeBuildConfiguration::setBuildDirectory(const FileName &directory)
 {
     if (directory == buildDirectory())
         return;
@@ -258,17 +258,17 @@ void Qt4BuildConfiguration::setBuildDirectory(const FileName &directory)
     emitProFileEvaluateNeeded();
 }
 
-QString Qt4BuildConfiguration::makefile() const
+QString QmakeBuildConfiguration::makefile() const
 {
     return static_cast<Qt4Project *>(target()->project())->rootQt4ProjectNode()->makefile();
 }
 
-BaseQtVersion::QmakeBuildConfigs Qt4BuildConfiguration::qmakeBuildConfiguration() const
+BaseQtVersion::QmakeBuildConfigs QmakeBuildConfiguration::qmakeBuildConfiguration() const
 {
     return m_qmakeBuildConfiguration;
 }
 
-void Qt4BuildConfiguration::setQMakeBuildConfiguration(BaseQtVersion::QmakeBuildConfigs config)
+void QmakeBuildConfiguration::setQMakeBuildConfiguration(BaseQtVersion::QmakeBuildConfigs config)
 {
     if (m_qmakeBuildConfiguration == config)
         return;
@@ -278,7 +278,7 @@ void Qt4BuildConfiguration::setQMakeBuildConfiguration(BaseQtVersion::QmakeBuild
     emitProFileEvaluateNeeded();
 }
 
-void Qt4BuildConfiguration::emitProFileEvaluateNeeded()
+void QmakeBuildConfiguration::emitProFileEvaluateNeeded()
 {
     Target *t = target();
     Project *p = t->project();
@@ -286,12 +286,12 @@ void Qt4BuildConfiguration::emitProFileEvaluateNeeded()
         static_cast<Qt4Project *>(p)->scheduleAsyncUpdate();
 }
 
-void Qt4BuildConfiguration::emitQMakeBuildConfigurationChanged()
+void QmakeBuildConfiguration::emitQMakeBuildConfigurationChanged()
 {
     emit qmakeBuildConfigurationChanged();
 }
 
-QStringList Qt4BuildConfiguration::configCommandLineArguments() const
+QStringList QmakeBuildConfiguration::configCommandLineArguments() const
 {
     QStringList result;
     BaseQtVersion *version = QtKitInformation::qtVersion(target()->kit());
@@ -310,7 +310,7 @@ QStringList Qt4BuildConfiguration::configCommandLineArguments() const
     return result;
 }
 
-QMakeStep *Qt4BuildConfiguration::qmakeStep() const
+QMakeStep *QmakeBuildConfiguration::qmakeStep() const
 {
     QMakeStep *qs = 0;
     BuildStepList *bsl = stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD));
@@ -321,7 +321,7 @@ QMakeStep *Qt4BuildConfiguration::qmakeStep() const
     return 0;
 }
 
-MakeStep *Qt4BuildConfiguration::makeStep() const
+MakeStep *QmakeBuildConfiguration::makeStep() const
 {
     MakeStep *ms = 0;
     BuildStepList *bsl = stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD));
@@ -333,7 +333,7 @@ MakeStep *Qt4BuildConfiguration::makeStep() const
 }
 
 // Returns true if both are equal.
-Qt4BuildConfiguration::MakefileState Qt4BuildConfiguration::compareToImportFrom(const QString &makefile)
+QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportFrom(const QString &makefile)
 {
     QMakeStep *qs = qmakeStep();
     if (QFileInfo(makefile).exists() && qs) {
@@ -413,7 +413,7 @@ Qt4BuildConfiguration::MakefileState Qt4BuildConfiguration::compareToImportFrom(
     return MakefileMissing;
 }
 
-bool Qt4BuildConfiguration::removeQMLInspectorFromArguments(QString *args)
+bool QmakeBuildConfiguration::removeQMLInspectorFromArguments(QString *args)
 {
     bool removedArgument = false;
     for (QtcProcess::ArgIterator ait(args); ait.next(); ) {
@@ -428,7 +428,7 @@ bool Qt4BuildConfiguration::removeQMLInspectorFromArguments(QString *args)
     return removedArgument;
 }
 
-FileName Qt4BuildConfiguration::extractSpecFromArguments(QString *args,
+FileName QmakeBuildConfiguration::extractSpecFromArguments(QString *args,
                                                          const QString &directory, const BaseQtVersion *version,
                                                          QStringList *outArgs)
 {
@@ -497,19 +497,19 @@ FileName Qt4BuildConfiguration::extractSpecFromArguments(QString *args,
     return parsedSpec;
 }
 
-bool Qt4BuildConfiguration::isEnabled() const
+bool QmakeBuildConfiguration::isEnabled() const
 {
     return m_isEnabled;
 }
 
-QString Qt4BuildConfiguration::disabledReason() const
+QString QmakeBuildConfiguration::disabledReason() const
 {
     if (!m_isEnabled)
         return tr("Parsing the .pro file");
     return QString();
 }
 
-void Qt4BuildConfiguration::setEnabled(bool enabled)
+void QmakeBuildConfiguration::setEnabled(bool enabled)
 {
     if (m_isEnabled == enabled)
         return;
@@ -518,10 +518,10 @@ void Qt4BuildConfiguration::setEnabled(bool enabled)
 }
 
 /*!
-  \class Qt4BuildConfigurationFactory
+  \class QmakeBuildConfigurationFactory
 */
 
-Qt4BuildConfigurationFactory::Qt4BuildConfigurationFactory(QObject *parent) :
+QmakeBuildConfigurationFactory::QmakeBuildConfigurationFactory(QObject *parent) :
     IBuildConfigurationFactory(parent)
 {
     update();
@@ -531,23 +531,23 @@ Qt4BuildConfigurationFactory::Qt4BuildConfigurationFactory(QObject *parent) :
             this, SLOT(update()));
 }
 
-Qt4BuildConfigurationFactory::~Qt4BuildConfigurationFactory()
+QmakeBuildConfigurationFactory::~QmakeBuildConfigurationFactory()
 {
 }
 
-void Qt4BuildConfigurationFactory::update()
+void QmakeBuildConfigurationFactory::update()
 {
     emit availableCreationIdsChanged();
 }
 
-bool Qt4BuildConfigurationFactory::canHandle(const Target *t) const
+bool QmakeBuildConfigurationFactory::canHandle(const Target *t) const
 {
     if (!t->project()->supportsKit(t->kit()))
         return false;
     return qobject_cast<Qt4Project *>(t->project());
 }
 
-QmakeBuildInfo *Qt4BuildConfigurationFactory::createBuildInfo(const Kit *k,
+QmakeBuildInfo *QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
                                                               const QString &projectPath,
                                                               BuildConfiguration::BuildType type) const
 {
@@ -569,12 +569,12 @@ QmakeBuildInfo *Qt4BuildConfigurationFactory::createBuildInfo(const Kit *k,
     return info;
 }
 
-int Qt4BuildConfigurationFactory::priority(const Target *parent) const
+int QmakeBuildConfigurationFactory::priority(const Target *parent) const
 {
     return canHandle(parent) ? 0 : -1;
 }
 
-QList<BuildInfo *> Qt4BuildConfigurationFactory::availableBuilds(const Target *parent) const
+QList<BuildInfo *> QmakeBuildConfigurationFactory::availableBuilds(const Target *parent) const
 {
     QList<ProjectExplorer::BuildInfo *> result;
     QmakeBuildInfo *info = createBuildInfo(parent->kit(), parent->project()->projectFilePath(),
@@ -586,13 +586,13 @@ QList<BuildInfo *> Qt4BuildConfigurationFactory::availableBuilds(const Target *p
     return result;
 }
 
-int Qt4BuildConfigurationFactory::priority(const Kit *k, const QString &projectPath) const
+int QmakeBuildConfigurationFactory::priority(const Kit *k, const QString &projectPath) const
 {
     return (k && Core::MimeDatabase::findByFile(QFileInfo(projectPath))
             .matchesType(QLatin1String(Constants::PROFILE_MIMETYPE))) ? 0 : -1;
 }
 
-QList<BuildInfo *> Qt4BuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const
+QList<BuildInfo *> QmakeBuildConfigurationFactory::availableSetups(const Kit *k, const QString &projectPath) const
 {
     QList<ProjectExplorer::BuildInfo *> result;
     result << createBuildInfo(k, projectPath, ProjectExplorer::BuildConfiguration::Debug);
@@ -601,7 +601,7 @@ QList<BuildInfo *> Qt4BuildConfigurationFactory::availableSetups(const Kit *k, c
     return result;
 }
 
-BuildConfiguration *Qt4BuildConfigurationFactory::create(Target *parent, const BuildInfo *info) const
+BuildConfiguration *QmakeBuildConfigurationFactory::create(Target *parent, const BuildInfo *info) const
 {
     QTC_ASSERT(info->factory() == this, return 0);
     QTC_ASSERT(info->kitId == parent->kit()->id(), return 0);
@@ -618,7 +618,7 @@ BuildConfiguration *Qt4BuildConfigurationFactory::create(Target *parent, const B
     else
         config |= QtSupport::BaseQtVersion::DebugBuild;
 
-    Qt4BuildConfiguration *bc = new Qt4BuildConfiguration(parent);
+    QmakeBuildConfiguration *bc = new QmakeBuildConfiguration(parent);
     bc->setDefaultDisplayName(info->displayName);
     bc->setDisplayName(info->displayName);
 
@@ -641,7 +641,7 @@ BuildConfiguration *Qt4BuildConfigurationFactory::create(Target *parent, const B
     QString additionalArguments = qmakeInfo->additionalArguments;
 
     bool enableQmlDebugger
-            = Qt4BuildConfiguration::removeQMLInspectorFromArguments(&additionalArguments);
+            = QmakeBuildConfiguration::removeQMLInspectorFromArguments(&additionalArguments);
     if (!additionalArguments.isEmpty())
         qmakeStep->setUserArguments(additionalArguments);
     qmakeStep->setLinkQmlDebuggingLibrary(enableQmlDebugger);
@@ -659,38 +659,38 @@ BuildConfiguration *Qt4BuildConfigurationFactory::create(Target *parent, const B
     return bc;
 }
 
-bool Qt4BuildConfigurationFactory::canClone(const Target *parent, BuildConfiguration *source) const
+bool QmakeBuildConfigurationFactory::canClone(const Target *parent, BuildConfiguration *source) const
 {
-    return canHandle(parent) && qobject_cast<Qt4BuildConfiguration *>(source);
+    return canHandle(parent) && qobject_cast<QmakeBuildConfiguration *>(source);
 }
 
-BuildConfiguration *Qt4BuildConfigurationFactory::clone(Target *parent, BuildConfiguration *source)
+BuildConfiguration *QmakeBuildConfigurationFactory::clone(Target *parent, BuildConfiguration *source)
 {
     if (!canClone(parent, source))
         return 0;
-    Qt4BuildConfiguration *oldbc(static_cast<Qt4BuildConfiguration *>(source));
-    return new Qt4BuildConfiguration(parent, oldbc);
+    QmakeBuildConfiguration *oldbc(static_cast<QmakeBuildConfiguration *>(source));
+    return new QmakeBuildConfiguration(parent, oldbc);
 }
 
-bool Qt4BuildConfigurationFactory::canRestore(const Target *parent, const QVariantMap &map) const
+bool QmakeBuildConfigurationFactory::canRestore(const Target *parent, const QVariantMap &map) const
 {
     if (!canHandle(parent))
         return false;
     return ProjectExplorer::idFromMap(map) == QT4_BC_ID;
 }
 
-BuildConfiguration *Qt4BuildConfigurationFactory::restore(Target *parent, const QVariantMap &map)
+BuildConfiguration *QmakeBuildConfigurationFactory::restore(Target *parent, const QVariantMap &map)
 {
     if (!canRestore(parent, map))
         return 0;
-    Qt4BuildConfiguration *bc = new Qt4BuildConfiguration(parent);
+    QmakeBuildConfiguration *bc = new QmakeBuildConfiguration(parent);
     if (bc->fromMap(map))
         return bc;
     delete bc;
     return 0;
 }
 
-BuildConfiguration::BuildType Qt4BuildConfiguration::buildType() const
+BuildConfiguration::BuildType QmakeBuildConfiguration::buildType() const
 {
     if (qmakeBuildConfiguration() & BaseQtVersion::DebugBuild)
         return Debug;
@@ -698,12 +698,12 @@ BuildConfiguration::BuildType Qt4BuildConfiguration::buildType() const
         return Release;
 }
 
-Qt4BuildConfiguration::LastKitState::LastKitState()
+QmakeBuildConfiguration::LastKitState::LastKitState()
 {
 
 }
 
-Qt4BuildConfiguration::LastKitState::LastKitState(Kit *k)
+QmakeBuildConfiguration::LastKitState::LastKitState(Kit *k)
     : m_qtVersion(QtKitInformation::qtVersionId(k)),
       m_sysroot(SysRootKitInformation::sysRoot(k).toString()),
       m_mkspec(QmakeKitInformation::mkspec(k).toString())
@@ -712,7 +712,7 @@ Qt4BuildConfiguration::LastKitState::LastKitState(Kit *k)
     m_toolchain = tc ? tc->id() : QString();
 }
 
-bool Qt4BuildConfiguration::LastKitState::operator ==(const LastKitState &other) const
+bool QmakeBuildConfiguration::LastKitState::operator ==(const LastKitState &other) const
 {
     return m_qtVersion == other.m_qtVersion
             && m_toolchain == other.m_toolchain
@@ -720,7 +720,7 @@ bool Qt4BuildConfiguration::LastKitState::operator ==(const LastKitState &other)
             && m_mkspec == other.m_mkspec;
 }
 
-bool Qt4BuildConfiguration::LastKitState::operator !=(const LastKitState &other) const
+bool QmakeBuildConfiguration::LastKitState::operator !=(const LastKitState &other) const
 {
     return !operator ==(other);
 }

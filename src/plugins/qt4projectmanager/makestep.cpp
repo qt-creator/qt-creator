@@ -97,9 +97,9 @@ MakeStep::~MakeStep()
 {
 }
 
-Qt4BuildConfiguration *MakeStep::qt4BuildConfiguration() const
+QmakeBuildConfiguration *MakeStep::qmakeBuildConfiguration() const
 {
-    return static_cast<Qt4BuildConfiguration *>(buildConfiguration());
+    return static_cast<QmakeBuildConfiguration *>(buildConfiguration());
 }
 
 void MakeStep::setClean(bool clean)
@@ -153,9 +153,9 @@ bool MakeStep::fromMap(const QVariantMap &map)
 
 bool MakeStep::init()
 {
-    Qt4BuildConfiguration *bc = qt4BuildConfiguration();
+    QmakeBuildConfiguration *bc = qmakeBuildConfiguration();
     if (!bc)
-        bc = qobject_cast<Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
+        bc = qobject_cast<QmakeBuildConfiguration *>(target()->activeBuildConfiguration());
 
     m_tasks.clear();
     ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
@@ -197,7 +197,7 @@ bool MakeStep::init()
         // for file builds, since the rules for that are
         // only in those files.
         if (subNode->isDebugAndRelease() && bc->fileNodeBuild()) {
-            if (bc->buildType() == Qt4BuildConfiguration::Debug)
+            if (bc->buildType() == QmakeBuildConfiguration::Debug)
                 makefile += QLatin1String(".Debug");
             else
                 makefile += QLatin1String(".Release");
@@ -223,7 +223,7 @@ bool MakeStep::init()
         if (objectsDir.isEmpty()) {
             objectsDir = subNode->buildDir(bc);
             if (subNode->isDebugAndRelease()) {
-                if (bc->buildType() == Qt4BuildConfiguration::Debug)
+                if (bc->buildType() == QmakeBuildConfiguration::Debug)
                     objectsDir += QLatin1String("/debug");
                 else
                     objectsDir += QLatin1String("/release");
@@ -395,9 +395,9 @@ void MakeStepConfigWidget::updateDetails()
 {
     ToolChain *tc
             = ToolChainKitInformation::toolChain(m_makeStep->target()->kit());
-    Qt4BuildConfiguration *bc = m_makeStep->qt4BuildConfiguration();
+    QmakeBuildConfiguration *bc = m_makeStep->qmakeBuildConfiguration();
     if (!bc)
-        bc = qobject_cast<Qt4BuildConfiguration *>(m_makeStep->target()->activeBuildConfiguration());
+        bc = qobject_cast<QmakeBuildConfiguration *>(m_makeStep->target()->activeBuildConfiguration());
 
     if (tc && bc)
         m_ui->makeLabel->setText(tr("Override %1:").arg(QDir::toNativeSeparators(tc->makeCommand(bc->environment()))));

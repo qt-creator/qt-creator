@@ -43,7 +43,7 @@ using namespace QmakeProjectManager;
 using namespace QmakeProjectManager::Internal;
 using namespace ProjectExplorer;
 
-Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4BuildConfiguration *bc)
+Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(QmakeBuildConfiguration *bc)
     : NamedWidget(),
       m_buildConfiguration(bc),
       m_ignoreChange(false)
@@ -219,16 +219,16 @@ void Qt4ProjectConfigWidget::updateProblemLabel()
             makefile.append(m_buildConfiguration->makefile());
 
         switch (m_buildConfiguration->compareToImportFrom(makefile)) {
-        case Qt4BuildConfiguration::MakefileMatches:
+        case QmakeBuildConfiguration::MakefileMatches:
             allGood = true;
             break;
-        case Qt4BuildConfiguration::MakefileMissing:
+        case QmakeBuildConfiguration::MakefileMissing:
             allGood = true;
             break;
-        case Qt4BuildConfiguration::MakefileIncompatible:
+        case QmakeBuildConfiguration::MakefileIncompatible:
             incompatibleBuild = true;
             break;
-        case Qt4BuildConfiguration::MakefileForWrongProject:
+        case QmakeBuildConfiguration::MakefileForWrongProject:
             targetMismatch = true;
             break;
         }

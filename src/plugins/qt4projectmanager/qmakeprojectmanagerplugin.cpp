@@ -137,7 +137,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     addAutoReleasedObject(new QMakeStepFactory);
     addAutoReleasedObject(new MakeStepFactory);
 
-    addAutoReleasedObject(new Qt4BuildConfigurationFactory);
+    addAutoReleasedObject(new QmakeBuildConfigurationFactory);
     addAutoReleasedObject(new Qt4RunConfigurationFactory);
 
     if (Utils::HostOsInfo::isMacHost())
@@ -362,8 +362,8 @@ void Qt4ProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node, 
     m_buildSubProjectContextMenu->setParameter(subProjectName);
     m_buildFileAction->setParameter(buildFilePossible ? QFileInfo(fileNode->path()).fileName() : QString());
 
-    Qt4BuildConfiguration *buildConfiguration = (qt4Project && qt4Project->activeTarget()) ?
-                static_cast<Qt4BuildConfiguration *>(qt4Project->activeTarget()->activeBuildConfiguration()) : 0;
+    QmakeBuildConfiguration *buildConfiguration = (qt4Project && qt4Project->activeTarget()) ?
+                static_cast<QmakeBuildConfiguration *>(qt4Project->activeTarget()->activeBuildConfiguration()) : 0;
     bool isProjectNode = qt4Project && proFileNode && buildConfiguration;
     bool isBuilding = BuildManager::isBuilding(project);
     bool enabled = subProjectActionsVisible && !isBuilding;

@@ -117,7 +117,7 @@ bool AndroidDeployStep::init()
     if (!version)
         return false;
 
-    const Qt4BuildConfiguration *bc = static_cast<Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
+    const QmakeBuildConfiguration *bc = static_cast<QmakeBuildConfiguration *>(target()->activeBuildConfiguration());
     if (!bc)
         return false;
 

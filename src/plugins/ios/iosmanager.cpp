@@ -66,8 +66,8 @@ bool IosManager::supportsIos(ProjectExplorer::Target *target)
 
 QString IosManager::resDirForTarget(Target *target)
 {
-    Qt4BuildConfiguration *bc =
-            qobject_cast<Qt4BuildConfiguration *>(target->activeBuildConfiguration());
+    QmakeBuildConfiguration *bc =
+            qobject_cast<QmakeBuildConfiguration *>(target->activeBuildConfiguration());
     return bc->buildDirectory().toString();
 }
 

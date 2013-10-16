@@ -167,8 +167,8 @@ Utils::FileName IosRunConfiguration::bundleDir() const
         qDebug() << "unexpected device type in bundleDirForTarget: " << devType.toString();
         return res;
     }
-    Qt4BuildConfiguration *bc =
-            qobject_cast<Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
+    QmakeBuildConfiguration *bc =
+            qobject_cast<QmakeBuildConfiguration *>(target()->activeBuildConfiguration());
     if (bc) {
         res = bc->buildDirectory();
         switch (bc->buildType()) {

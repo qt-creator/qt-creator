@@ -182,7 +182,7 @@ void AndroidPackageCreationWidget::initGui()
 
     // Make the buildconfiguration emit a evironmentChanged() signal
     // TODO find a better way
-    Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(m_step->target()->activeBuildConfiguration());
+    QmakeBuildConfiguration *bc = qobject_cast<QmakeBuildConfiguration *>(m_step->target()->activeBuildConfiguration());
     if (!bc)
         return;
     bool use = bc->useSystemEnvironment();
@@ -196,7 +196,7 @@ void AndroidPackageCreationWidget::initGui()
 
 void AndroidPackageCreationWidget::updateSigningWarning()
 {
-    Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(m_step->target()->activeBuildConfiguration());
+    QmakeBuildConfiguration *bc = qobject_cast<QmakeBuildConfiguration *>(m_step->target()->activeBuildConfiguration());
     bool debug = bc && (bc->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild);
     if (m_step->signPackage() && debug) {
         m_ui->signingDebugWarningIcon->setVisible(true);
@@ -213,7 +213,7 @@ void AndroidPackageCreationWidget::activeBuildConfigurationChanged()
         disconnect(m_currentBuildConfiguration, SIGNAL(qmakeBuildConfigurationChanged()),
                    this, SLOT(updateSigningWarning()));
     updateSigningWarning();
-    Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(m_step->target()->activeBuildConfiguration());
+    QmakeBuildConfiguration *bc = qobject_cast<QmakeBuildConfiguration *>(m_step->target()->activeBuildConfiguration());
     m_currentBuildConfiguration = bc;
     if (bc)
         connect(bc, SIGNAL(qmakeBuildConfigurationChanged()), this, SLOT(updateSigningWarning()));
@@ -243,7 +243,7 @@ void AndroidPackageCreationWidget::updateAndroidProjectInfo()
 void AndroidPackageCreationWidget::setTargetSDK(const QString &sdk)
 {
     AndroidManager::setBuildTargetSDK(m_step->target(), sdk);
-    Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(m_step->target()->activeBuildConfiguration());
+    QmakeBuildConfiguration *bc = qobject_cast<QmakeBuildConfiguration *>(m_step->target()->activeBuildConfiguration());
     if (!bc)
         return;
     QMakeStep *qs = bc->qmakeStep();

@@ -42,7 +42,7 @@ class Task;
 
 namespace QmakeProjectManager {
 
-class Qt4BuildConfiguration;
+class QmakeBuildConfiguration;
 class MakeStepConfigWidget;
 
 namespace Internal {
@@ -81,7 +81,7 @@ public:
     explicit MakeStep(ProjectExplorer::BuildStepList *bsl);
     virtual ~MakeStep();
 
-    Qt4BuildConfiguration *qt4BuildConfiguration() const;
+    QmakeBuildConfiguration *qmakeBuildConfiguration() const;
 
     virtual bool init();
     virtual void run(QFutureInterface<bool> &);

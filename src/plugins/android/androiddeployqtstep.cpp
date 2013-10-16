@@ -188,8 +188,8 @@ bool AndroidDeployQtStep::init()
         m_serialNumber = info.serialNumber;
     }
 
-    QmakeProjectManager::Qt4BuildConfiguration *bc
-            = static_cast<QmakeProjectManager::Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
+    QmakeProjectManager::QmakeBuildConfiguration *bc
+            = static_cast<QmakeProjectManager::QmakeBuildConfiguration *>(target()->activeBuildConfiguration());
 
     if (m_signPackage) {
         // check keystore and certificate passwords

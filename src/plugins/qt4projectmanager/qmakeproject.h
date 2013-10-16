@@ -51,7 +51,7 @@ namespace QtSupport { class ProFileReader; }
 namespace QmakeProjectManager {
 class MakeStep;
 class QMakeStep;
-class Qt4BuildConfiguration;
+class QmakeBuildConfiguration;
 class Qt4Manager;
 class Qt4PriFileNode;
 class Qt4ProFileNode;
@@ -101,7 +101,7 @@ public:
     void notifyChanged(const QString &name);
 
     /// \internal
-    QtSupport::ProFileReader *createProFileReader(const Qt4ProFileNode *qt4ProFileNode, Qt4BuildConfiguration *bc = 0);
+    QtSupport::ProFileReader *createProFileReader(const Qt4ProFileNode *qt4ProFileNode, QmakeBuildConfiguration *bc = 0);
     /// \internal
     ProFileGlobals *qmakeGlobals();
     /// \internal

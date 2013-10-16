@@ -76,11 +76,11 @@ enum { debug = 0 };
 
 namespace {
 
-Qt4BuildConfiguration *enableActiveQt4BuildConfiguration(ProjectExplorer::Target *t, bool enabled)
+QmakeBuildConfiguration *enableActiveQmakeBuildConfiguration(ProjectExplorer::Target *t, bool enabled)
 {
     if (!t)
         return 0;
-    Qt4BuildConfiguration *bc = static_cast<Qt4BuildConfiguration *>(t->activeBuildConfiguration());
+    QmakeBuildConfiguration *bc = static_cast<QmakeBuildConfiguration *>(t->activeBuildConfiguration());
     if (!bc)
         return 0;
     bc->setEnabled(enabled);
@@ -648,7 +648,7 @@ void Qt4Project::update()
     if (debug)
         qDebug()<<"State is now Base";
     m_asyncUpdateState = Base;
-    enableActiveQt4BuildConfiguration(activeTarget(), true);
+    enableActiveQmakeBuildConfiguration(activeTarget(), true);
     updateBuildSystemData();
     updateRunConfigurations();
     emit proFilesEvaluated();
@@ -678,7 +678,7 @@ void Qt4Project::scheduleAsyncUpdate(Qt4ProFileNode *node)
         return;
     }
 
-    enableActiveQt4BuildConfiguration(activeTarget(), false);
+    enableActiveQmakeBuildConfiguration(activeTarget(), false);
 
     if (m_asyncUpdateState == AsyncFullUpdatePending) {
         // Just postpone
@@ -751,7 +751,7 @@ void Qt4Project::scheduleAsyncUpdate()
             qDebug()<<"  update in progress, canceling and setting state to full update pending";
         m_cancelEvaluate = true;
         m_asyncUpdateState = AsyncFullUpdatePending;
-        enableActiveQt4BuildConfiguration(activeTarget(), false);
+        enableActiveQmakeBuildConfiguration(activeTarget(), false);
         m_rootProjectNode->setParseInProgressRecursive(true);
         return;
     }
@@ -759,7 +759,7 @@ void Qt4Project::scheduleAsyncUpdate()
     if (debug)
         qDebug()<<"  starting timer for full update, setting state to full update pending";
     m_partialEvaluate.clear();
-    enableActiveQt4BuildConfiguration(activeTarget(), false);
+    enableActiveQmakeBuildConfiguration(activeTarget(), false);
     m_rootProjectNode->setParseInProgressRecursive(true);
     m_asyncUpdateState = AsyncFullUpdatePending;
     m_asyncUpdateTimer.start();
@@ -807,7 +807,7 @@ void Qt4Project::decrementPendingEvaluateFutures()
         } else  if (m_asyncUpdateState != ShuttingDown){
             // After being done, we need to call:
             m_asyncUpdateState = Base;
-            enableActiveQt4BuildConfiguration(activeTarget(), true);
+            enableActiveQmakeBuildConfiguration(activeTarget(), true);
             updateFileList();
             updateCodeModels();
             updateBuildSystemData();
@@ -946,7 +946,7 @@ void Qt4Project::proFileParseError(const QString &errorMessage)
     Core::MessageManager::write(errorMessage);
 }
 
-QtSupport::ProFileReader *Qt4Project::createProFileReader(const Qt4ProFileNode *qt4ProFileNode, Qt4BuildConfiguration *bc)
+QtSupport::ProFileReader *Qt4Project::createProFileReader(const Qt4ProFileNode *qt4ProFileNode, QmakeBuildConfiguration *bc)
 {
     if (!m_qmakeGlobals) {
         m_qmakeGlobals = new ProFileGlobals;
@@ -956,7 +956,7 @@ QtSupport::ProFileReader *Qt4Project::createProFileReader(const Qt4ProFileNode *
         Utils::Environment env = Utils::Environment::systemEnvironment();
         QStringList qmakeArgs;
         if (!bc)
-            bc = activeTarget() ? static_cast<Qt4BuildConfiguration *>(activeTarget()->activeBuildConfiguration()) : 0;
+            bc = activeTarget() ? static_cast<QmakeBuildConfiguration *>(activeTarget()->activeBuildConfiguration()) : 0;
 
         if (bc) {
             k = bc->target()->kit();

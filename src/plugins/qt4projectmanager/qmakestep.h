@@ -44,7 +44,7 @@ class Project;
 }
 
 namespace QmakeProjectManager {
-class Qt4BuildConfiguration;
+class QmakeBuildConfiguration;
 class Qt4Project;
 
 namespace Internal {
@@ -86,7 +86,7 @@ public:
     explicit QMakeStep(ProjectExplorer::BuildStepList *parent);
     virtual ~QMakeStep();
 
-    Qt4BuildConfiguration *qt4BuildConfiguration() const;
+    QmakeBuildConfiguration *qmakeBuildConfiguration() const;
     virtual bool init();
     virtual void run(QFutureInterface<bool> &);
     virtual ProjectExplorer::BuildStepConfigWidget *createConfigWidget();

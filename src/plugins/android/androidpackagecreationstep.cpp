@@ -98,7 +98,7 @@ void AndroidPackageCreationStep::ctor()
 
 bool AndroidPackageCreationStep::init()
 {
-    const Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
+    const QmakeBuildConfiguration *bc = qobject_cast<QmakeBuildConfiguration *>(target()->activeBuildConfiguration());
     if (!bc) {
         raiseError(tr("Cannot create Android package: current build configuration is not Qt 4."));
         return false;

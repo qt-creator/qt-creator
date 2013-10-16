@@ -64,7 +64,7 @@ class Project;
 }
 
 namespace QmakeProjectManager {
-class Qt4BuildConfiguration;
+class QmakeBuildConfiguration;
 class Qt4ProFileNode;
 class Qt4Project;
 
@@ -378,7 +378,7 @@ public:
     }
 
     QString sourceDir() const;
-    QString buildDir(Qt4BuildConfiguration *bc = 0) const;
+    QString buildDir(QmakeBuildConfiguration *bc = 0) const;
 
     QString uiDirectory() const;
     static QString uiHeaderFile(const QString &uiDir, const QString &formFile);

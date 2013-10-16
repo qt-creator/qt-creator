@@ -112,7 +112,7 @@ QList<ProjectExplorer::BuildInfo *> QmakeProjectImporter::import(const Utils::Fi
 
         QString additionalArguments = makefileBuildConfig.second;
         Utils::FileName parsedSpec =
-                Qt4BuildConfiguration::extractSpecFromArguments(&additionalArguments, importPath.toString(), version);
+                QmakeBuildConfiguration::extractSpecFromArguments(&additionalArguments, importPath.toString(), version);
         Utils::FileName versionSpec = version->mkspec();
         if (parsedSpec.isEmpty() || parsedSpec == Utils::FileName::fromString(QLatin1String("default")))
             parsedSpec = versionSpec;
@@ -142,8 +142,8 @@ QList<ProjectExplorer::BuildInfo *> QmakeProjectImporter::import(const Utils::Fi
         foreach (ProjectExplorer::Kit *k, kitList) {
             addProject(k);
 
-            Qt4BuildConfigurationFactory *factory
-                    = qobject_cast<Qt4BuildConfigurationFactory *>(
+            QmakeBuildConfigurationFactory *factory
+                    = qobject_cast<QmakeBuildConfigurationFactory *>(
                         ProjectExplorer::IBuildConfigurationFactory::find(k, projectFilePath()));
 
             if (!factory)

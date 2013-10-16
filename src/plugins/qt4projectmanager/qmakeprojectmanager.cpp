@@ -205,7 +205,7 @@ void Qt4Manager::runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *no
         !qt4pro->activeTarget()->activeBuildConfiguration())
         return;
 
-    Qt4BuildConfiguration *bc = static_cast<Qt4BuildConfiguration *>(qt4pro->activeTarget()->activeBuildConfiguration());
+    QmakeBuildConfiguration *bc = static_cast<QmakeBuildConfiguration *>(qt4pro->activeTarget()->activeBuildConfiguration());
     QMakeStep *qs = bc->qmakeStep();
     if (!qs)
         return;
@@ -272,7 +272,7 @@ void Qt4Manager::handleSubDirContextMenu(Qt4Manager::Action action, bool isFileB
 
     if (!contextNode || !contextFile)
         isFileBuild = false;
-    Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(qt4pro->activeTarget()->activeBuildConfiguration());
+    QmakeBuildConfiguration *bc = qobject_cast<QmakeBuildConfiguration *>(qt4pro->activeTarget()->activeBuildConfiguration());
     if (!bc)
         return;
 

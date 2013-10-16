@@ -41,7 +41,7 @@ namespace Utils {
 }
 
 namespace QmakeProjectManager {
-class Qt4BuildConfiguration;
+class QmakeBuildConfiguration;
 class Qt4ProFileNode;
 
 namespace Internal {
@@ -53,7 +53,7 @@ class Qt4ProjectConfigWidget : public ProjectExplorer::NamedWidget
 {
     Q_OBJECT
 public:
-    Qt4ProjectConfigWidget(Qt4BuildConfiguration *bc);
+    Qt4ProjectConfigWidget(QmakeBuildConfiguration *bc);
     ~Qt4ProjectConfigWidget();
 
 private slots:
@@ -73,7 +73,7 @@ private:
 
     Ui::Qt4ProjectConfigWidget *m_ui;
     QAbstractButton *m_browseButton;
-    Qt4BuildConfiguration *m_buildConfiguration;
+    QmakeBuildConfiguration *m_buildConfiguration;
     Utils::DetailsWidget *m_detailsContainer;
     QString m_defaultShadowBuildDir;
     bool m_ignoreChange;

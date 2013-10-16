@@ -103,9 +103,9 @@ QMakeStep::~QMakeStep()
 {
 }
 
-Qt4BuildConfiguration *QMakeStep::qt4BuildConfiguration() const
+QmakeBuildConfiguration *QMakeStep::qmakeBuildConfiguration() const
 {
-    return static_cast<Qt4BuildConfiguration *>(buildConfiguration());
+    return static_cast<QmakeBuildConfiguration *>(buildConfiguration());
 }
 
 ///
@@ -117,7 +117,7 @@ Qt4BuildConfiguration *QMakeStep::qt4BuildConfiguration() const
 /// user arguments
 QString QMakeStep::allArguments(bool shorted)
 {
-    Qt4BuildConfiguration *bc = qt4BuildConfiguration();
+    QmakeBuildConfiguration *bc = qmakeBuildConfiguration();
     QStringList arguments;
     if (bc->subNodeBuild())
         arguments << QDir::toNativeSeparators(bc->subNodeBuild()->path());
@@ -231,7 +231,7 @@ QStringList QMakeStep::deducedArgumentsAfter()
 
 bool QMakeStep::init()
 {
-    Qt4BuildConfiguration *qt4bc = qt4BuildConfiguration();
+    QmakeBuildConfiguration *qt4bc = qmakeBuildConfiguration();
     const QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target()->kit());
 
     if (!qtVersion)
@@ -262,7 +262,7 @@ bool QMakeStep::init()
     }
 
     // Check whether we need to run qmake
-    bool makefileOutDated = (qt4bc->compareToImportFrom(makefile) != Qt4BuildConfiguration::MakefileMatches);
+    bool makefileOutDated = (qt4bc->compareToImportFrom(makefile) != QmakeBuildConfiguration::MakefileMatches);
     if (m_forced || makefileOutDated)
         m_needToRunQMake = true;
     m_forced = false;
@@ -353,7 +353,7 @@ bool QMakeStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
     bool result = AbstractProcessStep::processSucceeded(exitCode, status);
     if (!result)
         m_needToRunQMake = true;
-    Qt4Project *project = static_cast<Qt4Project *>(qt4BuildConfiguration()->target()->project());
+    Qt4Project *project = static_cast<Qt4Project *>(qmakeBuildConfiguration()->target()->project());
     project->emitBuildDirectoryInitialized();
     return result;
 }
@@ -366,8 +366,8 @@ void QMakeStep::setUserArguments(const QString &arguments)
 
     emit userArgumentsChanged();
 
-    qt4BuildConfiguration()->emitQMakeBuildConfigurationChanged();
-    qt4BuildConfiguration()->emitProFileEvaluateNeeded();
+    qmakeBuildConfiguration()->emitQMakeBuildConfigurationChanged();
+    qmakeBuildConfiguration()->emitProFileEvaluateNeeded();
 }
 
 bool QMakeStep::linkQmlDebuggingLibrary() const
@@ -376,7 +376,7 @@ bool QMakeStep::linkQmlDebuggingLibrary() const
         return true;
     if (m_linkQmlDebuggingLibrary == DoNotLink)
         return false;
-    return (qt4BuildConfiguration()->buildType() & BuildConfiguration::Debug);
+    return (qmakeBuildConfiguration()->buildType() & BuildConfiguration::Debug);
 }
 
 void QMakeStep::setLinkQmlDebuggingLibrary(bool enable)
@@ -388,8 +388,8 @@ void QMakeStep::setLinkQmlDebuggingLibrary(bool enable)
 
     emit linkQmlDebuggingLibraryChanged();
 
-    qt4BuildConfiguration()->emitQMakeBuildConfigurationChanged();
-    qt4BuildConfiguration()->emitProFileEvaluateNeeded();
+    qmakeBuildConfiguration()->emitQMakeBuildConfigurationChanged();
+    qmakeBuildConfiguration()->emitProFileEvaluateNeeded();
 }
 
 QStringList QMakeStep::parserArguments()
@@ -476,7 +476,7 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
             this, SLOT(userArgumentsChanged()));
     connect(step, SIGNAL(linkQmlDebuggingLibraryChanged()),
             this, SLOT(linkQmlDebuggingLibraryChanged()));
-    connect(step->qt4BuildConfiguration(), SIGNAL(qmakeBuildConfigurationChanged()),
+    connect(step->qmakeBuildConfiguration(), SIGNAL(qmakeBuildConfigurationChanged()),
             this, SLOT(qmakeBuildConfigChanged()));
     connect(step->target(), SIGNAL(kitChanged()), this, SLOT(qtVersionChanged()));
     connect(QtSupport::QtVersionManager::instance(), SIGNAL(dumpUpdatedFor(Utils::FileName)),
@@ -512,7 +512,7 @@ void QMakeStepConfigWidget::qtVersionChanged()
 
 void QMakeStepConfigWidget::qmakeBuildConfigChanged()
 {
-    Qt4BuildConfiguration *bc = m_step->qt4BuildConfiguration();
+    QmakeBuildConfiguration *bc = m_step->qmakeBuildConfiguration();
     bool debug = bc->qmakeBuildConfiguration() & QtSupport::BaseQtVersion::DebugBuild;
     m_ignoreChange = true;
     m_ui->buildConfigurationComboBox->setCurrentIndex(debug? 0 : 1);
@@ -555,7 +555,7 @@ void QMakeStepConfigWidget::buildConfigurationSelected()
 {
     if (m_ignoreChange)
         return;
-    Qt4BuildConfiguration *bc = m_step->qt4BuildConfiguration();
+    QmakeBuildConfiguration *bc = m_step->qmakeBuildConfiguration();
     QtSupport::BaseQtVersion::QmakeBuildConfigs buildConfiguration = bc->qmakeBuildConfiguration();
     if (m_ui->buildConfigurationComboBox->currentIndex() == 0) { // debug
         buildConfiguration = buildConfiguration | QtSupport::BaseQtVersion::DebugBuild;
@@ -639,7 +639,7 @@ void QMakeStepConfigWidget::updateEffectiveQMakeCall()
 void QMakeStepConfigWidget::recompileMessageBoxFinished(int button)
 {
     if (button == QMessageBox::Yes) {
-        Qt4BuildConfiguration *bc = m_step->qt4BuildConfiguration();
+        QmakeBuildConfiguration *bc = m_step->qmakeBuildConfiguration();
         if (!bc)
             return;
 
@@ -677,7 +677,7 @@ bool QMakeStepFactory::canCreate(BuildStepList *parent, const Core::Id id) const
 {
     if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_BUILD)
         return false;
-    if (!qobject_cast<Qt4BuildConfiguration *>(parent->parent()))
+    if (!qobject_cast<QmakeBuildConfiguration *>(parent->parent()))
         return false;
     return id == QMAKE_BS_ID;
 }
@@ -720,7 +720,7 @@ ProjectExplorer::BuildStep *QMakeStepFactory::restore(BuildStepList *parent, con
 QList<Core::Id> QMakeStepFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
 {
     if (parent->id() == ProjectExplorer::Constants::BUILDSTEPS_BUILD)
-        if (Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(parent->parent()))
+        if (QmakeBuildConfiguration *bc = qobject_cast<QmakeBuildConfiguration *>(parent->parent()))
             if (!bc->qmakeStep())
                 return QList<Core::Id>() << Core::Id(QMAKE_BS_ID);
     return QList<Core::Id>();
