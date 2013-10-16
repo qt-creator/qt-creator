@@ -26,6 +26,7 @@ from qttypes import *
 from stdtypes import *
 from misctypes import *
 from boosttypes import *
+from creatortypes import *
 
 
 #######################################################################
@@ -939,7 +940,7 @@ class Dumper(DumperBase):
                 item = LocalItem()
                 item.name = resultVarName
                 item.iname = "return." + resultVarName
-                item.value = parseAndEvaluate(resultVarName)
+                item.value = self.parseAndEvaluate(resultVarName)
                 locals.append(item)
             except:
                 # Don't bother. It's only supplementary information anyway.
@@ -1058,6 +1059,9 @@ class Dumper(DumperBase):
         self.currentAddress = item.savedCurrentAddress
         return True
 
+    def parseAndEvaluate(self, exp):
+        return gdb.parse_and_eval(exp)
+
     def call2(self, value, func, args):
         # args is a tuple.
         arg = ""
@@ -1079,7 +1083,7 @@ class Dumper(DumperBase):
         #warn("CALL: %s" % exp)
         result = None
         try:
-            result = parseAndEvaluate(exp)
+            result = self.parseAndEvaluate(exp)
         except:
             pass
         #warn("  -> %s" % result)
@@ -1174,7 +1178,7 @@ class Dumper(DumperBase):
                 self.putNumChild(0)
             else:
                 try:
-                    value = parseAndEvaluate(exp)
+                    value = self.parseAndEvaluate(exp)
                     self.putItem(value)
                 except RuntimeError:
                     self.currentType = " "
@@ -1681,7 +1685,7 @@ class Dumper(DumperBase):
             #self.putAddress(value.address)
             # Workaround for http://sourceware.org/bugzilla/show_bug.cgi?id=13380
             if type.code == ArrayCode:
-                value = parseAndEvaluate("{%s}%s" % (type, value.address))
+                value = self.parseAndEvaluate("{%s}%s" % (type, value.address))
             else:
                 try:
                     value = value.cast(type)

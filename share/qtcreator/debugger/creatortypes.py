@@ -31,8 +31,8 @@ from dumper import *
 
 def qdump__Core__Id(d, value):
     try:
-        name = parseAndEvaluate("Core::nameForId(%d)" % value["m_id"])
-        d.putValue(encodeCharArray(name), Hex2EncodedLatin1)
+        name = d.parseAndEvaluate("Core::nameForId(%d)" % value["m_id"])
+        d.putValue(d.encodeCharArray(name), Hex2EncodedLatin1)
         d.putPlainChildren(value)
     except:
         d.putValue(value["m_id"])
@@ -57,12 +57,12 @@ def qdump__Debugger__Internal__BreakpointModelId(d, value):
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__ByteArrayRef(d, value):
-    d.putValue(encodeCharArray(value["m_start"], 100, value["m_length"]),
+    d.putValue(d.encodeCharArray(value["m_start"], 100, value["m_length"]),
         Hex2EncodedLatin1)
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__Identifier(d, value):
-    d.putValue(encodeCharArray(value["_chars"]), Hex2EncodedLatin1)
+    d.putValue(d.encodeCharArray(value["_chars"]), Hex2EncodedLatin1)
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__IntegerType(d, value):
@@ -71,20 +71,20 @@ def qdump__CPlusPlus__IntegerType(d, value):
 
 def qdump__CPlusPlus__NamedType(d, value):
     literal = downcast(value["_name"])
-    d.putValue(encodeCharArray(literal["_chars"]), Hex2EncodedLatin1)
+    d.putValue(d.encodeCharArray(literal["_chars"]), Hex2EncodedLatin1)
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__TemplateNameId(d, value):
-    s = encodeCharArray(value["_identifier"]["_chars"])
+    s = d.encodeCharArray(value["_identifier"]["_chars"])
     d.putValue(s + "3c2e2e2e3e", Hex2EncodedLatin1)
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__Literal(d, value):
-    d.putValue(encodeCharArray(value["_chars"]), Hex2EncodedLatin1)
+    d.putValue(d.encodeCharArray(value["_chars"]), Hex2EncodedLatin1)
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__StringLiteral(d, value):
-    d.putValue(encodeCharArray(value["_chars"]), Hex2EncodedLatin1)
+    d.putValue(d.encodeCharArray(value["_chars"]), Hex2EncodedLatin1)
     d.putPlainChildren(value)
 
 def qdump__CPlusPlus__Internal__Value(d, value):

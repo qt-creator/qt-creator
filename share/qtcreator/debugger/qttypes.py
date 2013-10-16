@@ -101,8 +101,8 @@ def qdump__QAbstractItemModel(d, value):
         ri = makeValue(d.ns + "QModelIndex", "-1, -1, 0, 0")
         this_ = makeExpression(value)
         ri_ = makeExpression(ri)
-        rowCount = int(parseAndEvaluate("%s.rowCount(%s)" % (this_, ri_)))
-        columnCount = int(parseAndEvaluate("%s.columnCount(%s)" % (this_, ri_)))
+        rowCount = int(d.parseAndEvaluate("%s.rowCount(%s)" % (this_, ri_)))
+        columnCount = int(d.parseAndEvaluate("%s.columnCount(%s)" % (this_, ri_)))
     except:
         d.putPlainChildren(value)
         return
@@ -115,7 +115,7 @@ def qdump__QAbstractItemModel(d, value):
                 for column in xrange(columnCount):
                     with SubItem(d, i):
                         d.putName("[%s, %s]" % (row, column))
-                        mi = parseAndEvaluate("%s.index(%d,%d,%s)"
+                        mi = d.parseAndEvaluate("%s.index(%d,%d,%s)"
                             % (this_, row, column, ri_))
                         #warn("MI: %s " % mi)
                         #name = "[%d,%d]" % (row, column)
@@ -155,8 +155,8 @@ def qdump__QModelIndex(d, value):
         mi = makeValue(d.ns + "QModelIndex", "%s,%s,%s,%s" % (r, c, p, m))
         mm_ = makeExpression(mm)
         mi_ = makeExpression(mi)
-        rowCount = int(parseAndEvaluate("%s.rowCount(%s)" % (mm_, mi_)))
-        columnCount = int(parseAndEvaluate("%s.columnCount(%s)" % (mm_, mi_)))
+        rowCount = int(d.parseAndEvaluate("%s.rowCount(%s)" % (mm_, mi_)))
+        columnCount = int(d.parseAndEvaluate("%s.columnCount(%s)" % (mm_, mi_)))
     except:
         d.putEmptyValue()
         d.putPlainChildren(value)
@@ -164,7 +164,7 @@ def qdump__QModelIndex(d, value):
 
     try:
         # Access DisplayRole as value
-        val = parseAndEvaluate("%s.data(%s, 0)" % (mm_, mi_))
+        val = d.parseAndEvaluate("%s.data(%s, 0)" % (mm_, mi_))
         v = val["d"]["data"]["ptr"]
         d.putStringValue(makeValue(d.ns + 'QString', v))
     except:
@@ -178,7 +178,7 @@ def qdump__QModelIndex(d, value):
                 for column in xrange(columnCount):
                     with UnnamedSubItem(d, i):
                         d.putName("[%s, %s]" % (row, column))
-                        mi2 = parseAndEvaluate("%s.index(%d,%d,%s)"
+                        mi2 = d.parseAndEvaluate("%s.index(%d,%d,%s)"
                             % (mm_, row, column, mi_))
                         d.putItem(mi2)
                         i = i + 1
@@ -1109,7 +1109,7 @@ def qdump__QObject(d, value):
                                         % value1["type"])
                                 gdb.execute("set $d.d.is_null = %s"
                                         % value1["is_null"])
-                                prop = parseAndEvaluate("$d").dereference()
+                                prop = d.parseAndEvaluate("$d").dereference()
                             val, inner, innert, handled = \
                                 qdumpHelper__QVariant(d, prop)
 

@@ -1491,6 +1491,9 @@ class Dumper(DumperBase):
 
 currentDir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 execfile(os.path.join(currentDir, "qttypes.py"))
+execfile(os.path.join(currentDir, "stdtypes.py"))
+execfile(os.path.join(currentDir, "misctypes.py"))
+execfile(os.path.join(currentDir, "creatortypes.py"))
 
 
 def doit():
