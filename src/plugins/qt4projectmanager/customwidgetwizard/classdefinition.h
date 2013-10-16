@@ -36,7 +36,7 @@
 
 #include <QTabWidget>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 class ClassDefinition : public QTabWidget

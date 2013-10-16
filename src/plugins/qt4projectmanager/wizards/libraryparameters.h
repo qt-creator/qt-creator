@@ -34,7 +34,7 @@
 
 #include <QString>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 // Additional parameters required besides QtProjectParameters for creating
@@ -64,6 +64,6 @@ struct LibraryParameters {
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // LIBRARYPARAMETERS_H

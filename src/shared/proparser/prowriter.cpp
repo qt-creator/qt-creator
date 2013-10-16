@@ -33,7 +33,7 @@
 #include <QDir>
 #include <QPair>
 
-using namespace Qt4ProjectManager::Internal;
+using namespace QmakeProjectManager::Internal;
 
 static uint getBlockLen(const ushort *&tokPtr)
 {

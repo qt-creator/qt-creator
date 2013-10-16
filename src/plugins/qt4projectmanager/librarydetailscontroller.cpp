@@ -46,8 +46,8 @@
 #include <QTextStream>
 
 using namespace ProjectExplorer;
-using namespace Qt4ProjectManager;
-using namespace Qt4ProjectManager::Internal;
+using namespace QmakeProjectManager;
+using namespace QmakeProjectManager::Internal;
 
 LibraryDetailsController::LibraryDetailsController(
         Ui::LibraryDetailsWidget *libraryDetails,

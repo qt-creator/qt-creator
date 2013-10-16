@@ -32,7 +32,7 @@
 
 #include <QWizardPage>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 class QtQuickComponentSetOptionsPage : public QWizardPage
@@ -51,6 +51,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // QTQUICKAPPWIZARDPAGES_H

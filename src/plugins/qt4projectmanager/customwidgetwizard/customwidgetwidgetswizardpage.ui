@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Qt4ProjectManager::Internal::CustomWidgetWidgetsWizardPage</class>
- <widget class="QWizardPage" name="Qt4ProjectManager::Internal::CustomWidgetWidgetsWizardPage">
+ <class>QmakeProjectManager::Internal::CustomWidgetWidgetsWizardPage</class>
+ <widget class="QWizardPage" name="QmakeProjectManager::Internal::CustomWidgetWidgetsWizardPage">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -28,7 +28,7 @@
     </widget>
    </item>
    <item row="3" column="0">
-    <widget class="Qt4ProjectManager::Internal::ClassList" name="classList">
+    <widget class="QmakeProjectManager::Internal::ClassList" name="classList">
      <property name="minimumSize">
       <size>
        <width>0</width>
@@ -92,7 +92,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>Qt4ProjectManager::Internal::ClassList</class>
+   <class>QmakeProjectManager::Internal::ClassList</class>
    <extends>QListWidget</extends>
    <header location="global">qt4projectmanager/customwidgetwizard/classlist.h</header>
   </customwidget>

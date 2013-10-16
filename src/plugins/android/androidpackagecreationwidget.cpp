@@ -56,7 +56,7 @@ namespace Android {
 namespace Internal {
 
 using namespace ProjectExplorer;
-using namespace Qt4ProjectManager;
+using namespace QmakeProjectManager;
 
 ///////////////////////////// CheckModel /////////////////////////////
 

@@ -37,7 +37,7 @@ namespace ProjectExplorer {
 class Target;
 }
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 class Qt4ProFileNode;
 class Qt4Project;
 }
@@ -102,10 +102,10 @@ private:
         ColumnCount // Always have last
     };
 
-    Qt4ProjectManager::Qt4Project *project() const;
+    QmakeProjectManager::Qt4Project *project() const;
 
     void initModel();
-    BarPackageDeployInformation deployInformationFromNode(Qt4ProjectManager::Qt4ProFileNode *node) const;
+    BarPackageDeployInformation deployInformationFromNode(QmakeProjectManager::Qt4ProFileNode *node) const;
 
     ProjectExplorer::Target *m_target;
 

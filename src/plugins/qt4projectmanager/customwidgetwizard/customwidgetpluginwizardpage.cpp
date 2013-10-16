@@ -31,7 +31,7 @@
 #include "customwidgetwidgetswizardpage.h"
 #include "ui_customwidgetpluginwizardpage.h"
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 CustomWidgetPluginWizardPage::CustomWidgetPluginWizardPage(QWidget *parent) :
@@ -139,4 +139,4 @@ bool CustomWidgetPluginWizardPage::isComplete() const
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

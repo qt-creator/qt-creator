@@ -38,7 +38,7 @@ namespace ProjectExplorer {
 class Target;
 }
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 class Qt4BuildConfiguration;
 class Qt4Project;
 }
@@ -69,7 +69,7 @@ public:
     QVariantMap toMap() const;
 
     BlackBerryDeployConfiguration *deployConfiguration() const;
-    Qt4ProjectManager::Qt4BuildConfiguration *activeQt4BuildConfiguration() const;
+    QmakeProjectManager::Qt4BuildConfiguration *activeQt4BuildConfiguration() const;
 
     QString key() const;
 

@@ -30,7 +30,7 @@
 #include "emptyprojectwizarddialog.h"
 #include <projectexplorer/projectexplorerconstants.h>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 EmptyProjectWizardDialog::EmptyProjectWizardDialog(const QString &templateName,
@@ -60,4 +60,4 @@ QtProjectParameters EmptyProjectWizardDialog::parameters() const
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

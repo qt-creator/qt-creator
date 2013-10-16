@@ -32,7 +32,7 @@
 
 #include "qtwizard.h"
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 struct QtProjectParameters;
@@ -77,6 +77,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // GUIAPPWIZARDDIALOG_H

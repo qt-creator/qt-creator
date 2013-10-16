@@ -36,7 +36,7 @@
 
 namespace ProjectExplorer { class Node; }
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 
 class QT4PROJECTMANAGER_EXPORT QmakeRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
 {
@@ -52,6 +52,6 @@ public:
     static QmakeRunConfigurationFactory *find(ProjectExplorer::Target *t);
 };
 
-} // Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // QMAKERUNCONFIGURATIONFACTORY_H

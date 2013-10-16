@@ -38,7 +38,7 @@ QT_BEGIN_NAMESPACE
 class QCheckBox;
 QT_END_NAMESPACE
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 class ModulesPage : public QWizardPage
@@ -63,6 +63,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // MODULESPAGE_H

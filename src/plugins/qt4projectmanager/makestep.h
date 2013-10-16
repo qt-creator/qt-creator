@@ -40,7 +40,7 @@ class IBuildStepFactory;
 class Task;
 }
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 
 class Qt4BuildConfiguration;
 class MakeStepConfigWidget;

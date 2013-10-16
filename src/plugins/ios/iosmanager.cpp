@@ -50,7 +50,7 @@
 #include <QApplication>
 #include <QDomDocument>
 
-using namespace Qt4ProjectManager;
+using namespace QmakeProjectManager;
 using namespace ProjectExplorer;
 
 namespace Ios {
@@ -58,7 +58,7 @@ namespace Internal {
 
 bool IosManager::supportsIos(ProjectExplorer::Target *target)
 {
-    if (!qobject_cast<Qt4ProjectManager::Qt4Project *>(target->project()))
+    if (!qobject_cast<QmakeProjectManager::Qt4Project *>(target->project()))
         return false;
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
     return version && version->type() == QLatin1String(Ios::Constants::IOSQT);
@@ -72,4 +72,4 @@ QString IosManager::resDirForTarget(Target *target)
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace Ios

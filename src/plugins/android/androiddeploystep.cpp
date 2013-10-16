@@ -56,7 +56,7 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
-using namespace Qt4ProjectManager;
+using namespace QmakeProjectManager;
 
 namespace Android {
 namespace Internal {
@@ -143,7 +143,7 @@ bool AndroidDeployStep::init()
     }
     m_ndkToolChainVersion = static_cast<AndroidToolChain *>(tc)->ndkToolChainVersion();
 
-    QString arch = static_cast<Qt4Project *>(project())->rootQt4ProjectNode()->singleVariableValue(Qt4ProjectManager::AndroidArchVar);
+    QString arch = static_cast<Qt4Project *>(project())->rootQt4ProjectNode()->singleVariableValue(QmakeProjectManager::AndroidArchVar);
     if (!arch.isEmpty())
         m_libgnustl = AndroidManager::libGnuStl(arch, m_ndkToolChainVersion);
     return true;
@@ -498,4 +498,4 @@ void AndroidDeployStep::writeOutput(const QString &text, OutputFormat format)
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace Android

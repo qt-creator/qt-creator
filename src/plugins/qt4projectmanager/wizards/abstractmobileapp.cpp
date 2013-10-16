@@ -40,7 +40,7 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 
 AbstractGeneratedFileInfo::AbstractGeneratedFileInfo()
     : fileType(ExtendedFile)
@@ -421,4 +421,4 @@ void AbstractMobileApp::insertParameter(QString &line, const QString &parameter)
         QLatin1Char('(') + parameter + QLatin1Char(')'));
 }
 
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

@@ -188,8 +188,8 @@ bool AndroidDeployQtStep::init()
         m_serialNumber = info.serialNumber;
     }
 
-    Qt4ProjectManager::Qt4BuildConfiguration *bc
-            = static_cast<Qt4ProjectManager::Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
+    QmakeProjectManager::Qt4BuildConfiguration *bc
+            = static_cast<QmakeProjectManager::Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
 
     if (m_signPackage) {
         // check keystore and certificate passwords
@@ -344,12 +344,12 @@ void AndroidDeployQtStep::runCommand(const QString &program, const QStringList &
 
 void AndroidDeployQtStep::updateInputFile()
 {
-    Qt4ProjectManager::Qt4Project *pro = static_cast<Qt4ProjectManager::Qt4Project *>(project());
-    QList<Qt4ProjectManager::Qt4ProFileNode *> nodes = pro->applicationProFiles();
+    QmakeProjectManager::Qt4Project *pro = static_cast<QmakeProjectManager::Qt4Project *>(project());
+    QList<QmakeProjectManager::Qt4ProFileNode *> nodes = pro->applicationProFiles();
 
     QStringList inputFiles;
-    foreach (Qt4ProjectManager::Qt4ProFileNode *node, nodes)
-        inputFiles << node->singleVariableValue(Qt4ProjectManager::AndroidDeploySettingsFile);
+    foreach (QmakeProjectManager::Qt4ProFileNode *node, nodes)
+        inputFiles << node->singleVariableValue(QmakeProjectManager::AndroidDeploySettingsFile);
 
     if (!inputFiles.contains(m_inputFile))
         m_inputFile.clear();

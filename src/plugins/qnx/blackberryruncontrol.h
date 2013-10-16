@@ -36,7 +36,7 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 class Qt4BuildConfiguration;
 }
 

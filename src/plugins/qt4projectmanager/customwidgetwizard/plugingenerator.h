@@ -43,7 +43,7 @@ namespace Core {
     class GeneratedFile;
 }
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 struct PluginOptions;

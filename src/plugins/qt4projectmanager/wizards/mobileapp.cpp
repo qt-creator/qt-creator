@@ -31,7 +31,7 @@
 
 #include <QTextStream>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 const QString mainWindowBaseName(QLatin1String("mainwindow"));
@@ -147,4 +147,4 @@ QList<DeploymentFolder> MobileApp::deploymentFolders() const
 const int MobileApp::StubVersion = 2;
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

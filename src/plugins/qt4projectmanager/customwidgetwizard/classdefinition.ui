@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Qt4ProjectManager::Internal::ClassDefinition</class>
- <widget class="QTabWidget" name="Qt4ProjectManager::Internal::ClassDefinition">
+ <class>QmakeProjectManager::Internal::ClassDefinition</class>
+ <widget class="QTabWidget" name="QmakeProjectManager::Internal::ClassDefinition">
   <property name="enabled">
    <bool>true</bool>
   </property>

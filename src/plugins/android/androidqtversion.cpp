@@ -50,7 +50,7 @@
 
 using namespace Android::Internal;
 using namespace ProjectExplorer;
-using namespace Qt4ProjectManager;
+using namespace QmakeProjectManager;
 
 AndroidQtVersion::AndroidQtVersion()
     : QtSupport::BaseQtVersion()
@@ -109,7 +109,7 @@ void AndroidQtVersion::addToEnvironment(const ProjectExplorer::Kit *k, Utils::En
     env.set(QLatin1String("ANDROID_NDK_HOST"), AndroidConfigurations::instance().config().toolchainHost);
     env.set(QLatin1String("ANDROID_NDK_ROOT"), AndroidConfigurations::instance().config().ndkLocation.toUserOutput());
 
-    Qt4Project *qt4pro = qobject_cast<Qt4ProjectManager::Qt4Project *>(ProjectExplorerPlugin::instance()->currentProject());
+    Qt4Project *qt4pro = qobject_cast<QmakeProjectManager::Qt4Project *>(ProjectExplorerPlugin::instance()->currentProject());
     if (!qt4pro || !qt4pro->activeTarget()
             || QtSupport::QtKitInformation::qtVersion(k)->type() != QLatin1String(Constants::ANDROIDQT))
         return;

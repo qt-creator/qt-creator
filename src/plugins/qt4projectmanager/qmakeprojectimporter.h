@@ -34,7 +34,7 @@
 
 namespace QtSupport { class BaseQtVersion; }
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 
 class Qt4Project;
 
@@ -59,6 +59,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // QMAKEPROJECTIMPORTER_H

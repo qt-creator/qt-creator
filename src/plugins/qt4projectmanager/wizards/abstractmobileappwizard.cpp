@@ -44,7 +44,7 @@
 
 using namespace ProjectExplorer;
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 
 AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent,
                                                              const QtSupport::QtVersionNumber &minimumQtVersionNumber,
@@ -244,4 +244,4 @@ void AbstractMobileAppWizard::useProjectPath(const QString &projectName,
     projectPathChanged(app()->path(AbstractMobileApp::AppPro));
 }
 
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

@@ -31,14 +31,14 @@
 #include "qt4projectmanagerconstants.h"
 #include "profilehighlighter.h"
 
-using namespace Qt4ProjectManager::Internal;
+using namespace QmakeProjectManager::Internal;
 
 ProFileHighlighterFactory::ProFileHighlighterFactory()
 {
-    setId(Qt4ProjectManager::Constants::PROFILE_EDITOR_ID);
-    addMimeType(Qt4ProjectManager::Constants::PROFILE_MIMETYPE);
-    addMimeType(Qt4ProjectManager::Constants::PROINCLUDEFILE_MIMETYPE);
-    addMimeType(Qt4ProjectManager::Constants::PROFEATUREFILE_MIMETYPE);
+    setId(QmakeProjectManager::Constants::PROFILE_EDITOR_ID);
+    addMimeType(QmakeProjectManager::Constants::PROFILE_MIMETYPE);
+    addMimeType(QmakeProjectManager::Constants::PROINCLUDEFILE_MIMETYPE);
+    addMimeType(QmakeProjectManager::Constants::PROFEATUREFILE_MIMETYPE);
 }
 
 TextEditor::SyntaxHighlighter *ProFileHighlighterFactory::createHighlighter() const

@@ -37,7 +37,7 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 
 class QmakeBuildInfo : public ProjectExplorer::BuildInfo
 {
@@ -58,6 +58,6 @@ public:
     }
 };
 
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // QMAKEBUILDINFO_H

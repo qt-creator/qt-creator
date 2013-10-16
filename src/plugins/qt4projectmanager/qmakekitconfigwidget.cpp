@@ -35,7 +35,7 @@
 
 #include <QLineEdit>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 QmakeKitConfigWidget::QmakeKitConfigWidget(ProjectExplorer::Kit *k, const ProjectExplorer::KitInformation *ki) :
@@ -88,4 +88,4 @@ void QmakeKitConfigWidget::mkspecWasChanged(const QString &text)
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

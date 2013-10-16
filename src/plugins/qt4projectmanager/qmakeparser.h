@@ -34,7 +34,7 @@
 
 #include <QRegExp>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 class QMakeParser : public ProjectExplorer::IOutputParser
@@ -50,6 +50,6 @@ private:
 };
 
 } // namesapce Internal
-} // namespace ProjectExplorer
+} // namespace QmakeProjectManager
 
 #endif // QMAKEPARSER_H

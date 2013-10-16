@@ -33,7 +33,7 @@
 #include <QWizardPage>
 #include "html5app.h"
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 class Html5AppWizardOptionsPage : public QWizardPage
@@ -58,6 +58,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // HTML5APPWIZARDPAGES_H

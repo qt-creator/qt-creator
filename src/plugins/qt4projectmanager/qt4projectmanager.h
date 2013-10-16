@@ -44,7 +44,7 @@ class Node;
 class ToolChain;
 }
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 
 namespace Internal {
 class Qt4Builder;
@@ -109,6 +109,6 @@ private:
     ProjectExplorer::FileNode *m_contextFile;
 };
 
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // QT4PROJECTMANAGER_H

@@ -30,8 +30,8 @@
 #include "findqt4profiles.h"
 #include "qt4nodes.h"
 
-using namespace Qt4ProjectManager;
-using namespace Qt4ProjectManager::Internal;
+using namespace QmakeProjectManager;
+using namespace QmakeProjectManager::Internal;
 
 QList<Qt4ProFileNode *> FindQt4ProFiles::operator()(ProjectExplorer::ProjectNode *root)
 {

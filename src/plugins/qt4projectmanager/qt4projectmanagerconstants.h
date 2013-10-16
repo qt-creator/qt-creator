@@ -32,7 +32,7 @@
 
 #include <QtGlobal>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Constants {
 
 // Contexts
@@ -82,7 +82,7 @@ const char QMAKEVAR_QUICK1_DEBUG[] = "CONFIG+=declarative_debug";
 const char QMAKEVAR_QUICK2_DEBUG[] = "CONFIG+=qml_debug";
 
 } // namespace Constants
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // QT4PROJECTMANAGERCONSTANTS_H
 

@@ -34,7 +34,7 @@
 
 QT_FORWARD_DECLARE_CLASS(QModelIndex)
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 class ClassModel;
 
@@ -71,5 +71,5 @@ private:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 #endif

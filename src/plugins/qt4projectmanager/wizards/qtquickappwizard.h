@@ -32,7 +32,7 @@
 
 #include "abstractmobileappwizard.h"
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 class QtQuickAppWizard : public AbstractMobileAppWizard
@@ -71,6 +71,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // QTQUICKAPPWIZARD_H

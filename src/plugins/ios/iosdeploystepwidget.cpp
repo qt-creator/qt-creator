@@ -67,4 +67,4 @@ QString IosDeployStepWidget::summaryText() const
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace Ios

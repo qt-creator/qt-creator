@@ -32,7 +32,7 @@
 
 #include "addlibrarywizard.h"
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 class Qt4ProFileNode;
 namespace Internal {
 
@@ -200,6 +200,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // LIBRARYDETAILSCONTROLLER_H

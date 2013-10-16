@@ -53,7 +53,7 @@
 
 using namespace Debugger;
 using namespace ProjectExplorer;
-using namespace Qt4ProjectManager;
+using namespace QmakeProjectManager;
 
 namespace Android {
 namespace Internal {

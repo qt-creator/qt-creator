@@ -55,7 +55,7 @@
 
 #include <QInputDialog>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 
 // --------------------------------------------------------------------
 // Helpers:
@@ -725,4 +725,4 @@ bool Qt4BuildConfiguration::LastKitState::operator !=(const LastKitState &other)
     return !operator ==(other);
 }
 
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

@@ -134,4 +134,4 @@ void AndroidDeployStepWidget::resetDefaultDevices()
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace Android

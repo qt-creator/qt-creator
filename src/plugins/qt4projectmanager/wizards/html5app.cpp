@@ -38,7 +38,7 @@
 #include <coreplugin/icore.h>
 #endif // CREATORLESSTEST
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 const QString appViewerBaseName(QLatin1String("html5applicationviewer"));
@@ -192,7 +192,7 @@ QByteArray Html5App::appViewerCppFileCode(QString *errorMessage) const
         QFile touchNavigavigationFile(touchNavigavigationDir + QLatin1String(touchNavigavigationFiles[i]));
         if (!touchNavigavigationFile.open(QIODevice::ReadOnly)) {
             if (errorMessage)
-                *errorMessage = QCoreApplication::translate("Qt4ProjectManager::AbstractMobileApp",
+                *errorMessage = QCoreApplication::translate("QmakeProjectManager::AbstractMobileApp",
                     "Could not open template file '%1'.").arg(QLatin1String(touchNavigavigationFiles[i]));
             return QByteArray();
         }
@@ -213,7 +213,7 @@ QByteArray Html5App::appViewerCppFileCode(QString *errorMessage) const
     QFile appViewerCppFile(path(AppViewerCppOrigin));
     if (!appViewerCppFile.open(QIODevice::ReadOnly)) {
         if (errorMessage)
-            *errorMessage = QCoreApplication::translate("Qt4ProjectManager::AbstractMobileApp",
+            *errorMessage = QCoreApplication::translate("QmakeProjectManager::AbstractMobileApp",
                 "Could not open template file '%1'.").arg(path(AppViewerCppOrigin));
         return QByteArray();
     }
@@ -314,4 +314,4 @@ QList<DeploymentFolder> Html5App::deploymentFolders() const
 const int Html5App::StubVersion = 12;
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

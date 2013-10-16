@@ -35,7 +35,7 @@
 
 enum PageIds { StartPageId = 0 };
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 const char *TestWizardParameters::filePrefix = "tst_";
@@ -95,4 +95,4 @@ QtProjectParameters TestWizardDialog::projectParameters() const
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

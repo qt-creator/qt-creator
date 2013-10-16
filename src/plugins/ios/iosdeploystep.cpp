@@ -50,7 +50,7 @@
 #define ASSERT_STATE(state) ASSERT_STATE_GENERIC(State, state, m_state)
 
 using namespace ProjectExplorer;
-using namespace Qt4ProjectManager;
+using namespace QmakeProjectManager;
 
 namespace Ios {
 namespace Internal {
@@ -239,4 +239,4 @@ IosSimulator::ConstPtr IosDeployStep::iossimulator() const
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace Ios

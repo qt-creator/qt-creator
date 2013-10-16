@@ -35,7 +35,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 class MobileAppWizardGenericOptionsPagePrivate
@@ -128,6 +128,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #include "mobileappwizardpages.moc"

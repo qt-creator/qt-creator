@@ -32,7 +32,7 @@
 
 #include <QWizardPage>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 class MobileLibraryWizardOptionPage : public QWizardPage
@@ -52,6 +52,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // MOBILELIBRARYWIZARDOPTIONPAGE_H

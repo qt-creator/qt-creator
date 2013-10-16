@@ -32,7 +32,7 @@
 
 #include <texteditor/codeassist/keywordscompletionassist.h>
 
-using namespace Qt4ProjectManager::Internal;
+using namespace QmakeProjectManager::Internal;
 using namespace TextEditor;
 
 
@@ -280,7 +280,7 @@ ProFileCompletionAssistProvider::~ProFileCompletionAssistProvider()
 
 bool ProFileCompletionAssistProvider::supportsEditor(const Core::Id &editorId) const
 {
-    return editorId == Qt4ProjectManager::Constants::PROFILE_EDITOR_ID;
+    return editorId == QmakeProjectManager::Constants::PROFILE_EDITOR_ID;
 }
 
 IAssistProcessor *ProFileCompletionAssistProvider::createProcessor() const

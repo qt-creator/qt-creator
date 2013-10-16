@@ -49,7 +49,7 @@ static const char mainCppC[] =
 
 static const char mainSourceFileC[] = "main";
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 ConsoleAppWizard::ConsoleAppWizard()
@@ -105,4 +105,4 @@ Core::GeneratedFiles
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

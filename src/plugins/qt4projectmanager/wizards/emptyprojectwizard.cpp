@@ -36,7 +36,7 @@
 
 #include <QCoreApplication>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 EmptyProjectWizard::EmptyProjectWizard()
@@ -75,4 +75,4 @@ Core::GeneratedFiles
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

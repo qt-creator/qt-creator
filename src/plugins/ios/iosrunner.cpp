@@ -209,4 +209,4 @@ QString IosRunner::displayName() const
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace Ios

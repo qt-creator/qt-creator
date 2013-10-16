@@ -64,12 +64,12 @@ bool QmlDebuggingLibrary::canBuild(const BaseQtVersion *qtVersion, QString *reas
 {
     if (qtVersion->qtVersion() < QtVersionNumber(4, 7, 1)) {
         if (reason)
-            *reason = QCoreApplication::translate("Qt4ProjectManager::QmlDebuggingLibrary", "Only available for Qt 4.7.1 or newer.");
+            *reason = QCoreApplication::translate("QmakeProjectManager::QmlDebuggingLibrary", "Only available for Qt 4.7.1 or newer.");
         return false;
     }
     if (qtVersion->qtVersion() >= QtVersionNumber(4, 8, 0)) {
         if (reason)
-            *reason = QCoreApplication::translate("Qt4ProjectManager::QmlDebuggingLibrary", "Not needed.");
+            *reason = QCoreApplication::translate("QmakeProjectManager::QmlDebuggingLibrary", "Not needed.");
         return false;
     }
     return true;
@@ -77,7 +77,7 @@ bool QmlDebuggingLibrary::canBuild(const BaseQtVersion *qtVersion, QString *reas
 
 bool  QmlDebuggingLibrary::build(BuildHelperArguments arguments, QString *log, QString *errorMessage)
 {
-    arguments.helperName = QCoreApplication::translate("Qt4ProjectManager::QmlDebuggingLibrary", "QML Debugging");
+    arguments.helperName = QCoreApplication::translate("QmakeProjectManager::QmlDebuggingLibrary", "QML Debugging");
     arguments.proFilename = QLatin1String("qmljsdebugger.pro");
     return buildHelper(arguments, log, errorMessage);
 }
@@ -85,7 +85,7 @@ bool  QmlDebuggingLibrary::build(BuildHelperArguments arguments, QString *log, Q
 static inline bool mkpath(const QString &targetDirectory, QString *errorMessage)
 {
     if (!QDir().mkpath(targetDirectory)) {
-        *errorMessage = QCoreApplication::translate("Qt4ProjectManager::QmlDebuggingLibrary", "The target directory %1 could not be created.").arg(targetDirectory);
+        *errorMessage = QCoreApplication::translate("QmakeProjectManager::QmlDebuggingLibrary", "The target directory %1 could not be created.").arg(targetDirectory);
         return false;
     }
     return true;
@@ -109,7 +109,7 @@ QString QmlDebuggingLibrary::copy(const QString &qtInstallData, QString *errorMe
             return directory;
         }
     }
-    *errorMessage = QCoreApplication::translate("Qt4ProjectManager::QmlDebuggingLibrary",
+    *errorMessage = QCoreApplication::translate("QmakeProjectManager::QmlDebuggingLibrary",
                                                 "QML Debugging library could not be built in any of the directories:\n- %1\n\nReason: %2")
                     .arg(directories.join(QLatin1String("\n- ")), *errorMessage);
     return QString();

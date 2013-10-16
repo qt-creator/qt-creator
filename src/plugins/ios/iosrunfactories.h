@@ -43,7 +43,7 @@ class Node;
 namespace Ios {
 namespace Internal {
 
-class IosRunConfigurationFactory : public Qt4ProjectManager::QmakeRunConfigurationFactory
+class IosRunConfigurationFactory : public QmakeProjectManager::QmakeRunConfigurationFactory
 {
     Q_OBJECT
 

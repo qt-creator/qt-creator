@@ -39,8 +39,8 @@
 
 #include <utils/detailswidget.h>
 
-using namespace Qt4ProjectManager;
-using namespace Qt4ProjectManager::Internal;
+using namespace QmakeProjectManager;
+using namespace QmakeProjectManager::Internal;
 using namespace ProjectExplorer;
 
 Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4BuildConfiguration *bc)

@@ -39,7 +39,7 @@
 #include <QDebug>
 #include <QRegExp>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 // ClassModel: Validates the class name in setData() and
@@ -169,4 +169,4 @@ void ClassList::slotCurrentRowChanged(const QModelIndex &current, const QModelIn
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

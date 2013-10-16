@@ -45,7 +45,7 @@
 #include <QSharedPointer>
 #include <QTextBlock>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 //
@@ -221,4 +221,4 @@ QString ProFileDocument::suggestedFileName() const
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

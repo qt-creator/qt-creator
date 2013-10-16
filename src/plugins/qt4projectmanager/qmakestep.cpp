@@ -53,8 +53,8 @@
 #include <QDir>
 #include <QMessageBox>
 
-using namespace Qt4ProjectManager;
-using namespace Qt4ProjectManager::Internal;
+using namespace QmakeProjectManager;
+using namespace QmakeProjectManager::Internal;
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -421,7 +421,7 @@ FileName QMakeStep::mkspec()
         }
     }
 
-    return Qt4ProjectManager::QmakeKitInformation::effectiveMkspec(target()->kit());
+    return QmakeProjectManager::QmakeKitInformation::effectiveMkspec(target()->kit());
 }
 
 QVariantMap QMakeStep::toMap() const

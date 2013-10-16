@@ -75,8 +75,8 @@
 
 #include <QtPlugin>
 
-using namespace Qt4ProjectManager::Internal;
-using namespace Qt4ProjectManager;
+using namespace QmakeProjectManager::Internal;
+using namespace QmakeProjectManager;
 using namespace ProjectExplorer;
 
 Qt4ProjectManagerPlugin::Qt4ProjectManagerPlugin()
@@ -99,7 +99,7 @@ Qt4ProjectManagerPlugin::~Qt4ProjectManagerPlugin()
 bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
-    const Core::Context projectContext(Qt4ProjectManager::Constants::PROJECT_ID);
+    const Core::Context projectContext(QmakeProjectManager::Constants::PROJECT_ID);
     Core::Context projecTreeContext(ProjectExplorer::Constants::C_PROJECT_TREE);
 
     if (!Core::MimeDatabase::addMimeTypes(QLatin1String(":qt4projectmanager/Qt4ProjectManager.mimetypes.xml"), errorMessage))
@@ -255,9 +255,9 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     connect(m_projectExplorer, SIGNAL(currentNodeChanged(ProjectExplorer::Node*,ProjectExplorer::Project*)),
             this, SLOT(updateContextActions(ProjectExplorer::Node*,ProjectExplorer::Project*)));
 
-    Core::ActionContainer *contextMenu = Core::ActionManager::createMenu(Qt4ProjectManager::Constants::M_CONTEXT);
+    Core::ActionContainer *contextMenu = Core::ActionManager::createMenu(QmakeProjectManager::Constants::M_CONTEXT);
 
-    Core::Context proFileEditorContext = Core::Context(Qt4ProjectManager::Constants::C_PROFILEEDITOR);
+    Core::Context proFileEditorContext = Core::Context(QmakeProjectManager::Constants::C_PROFILEEDITOR);
 
     command = Core::ActionManager::command(TextEditor::Constants::JUMP_TO_FILE_UNDER_CURSOR);
     contextMenu->addAction(command);

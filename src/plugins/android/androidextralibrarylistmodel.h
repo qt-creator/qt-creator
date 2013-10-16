@@ -34,7 +34,7 @@
 #include <QAbstractItemModel>
 #include <QStringList>
 
-namespace Qt4ProjectManager { class Qt4Project; }
+namespace QmakeProjectManager { class Qt4Project; }
 
 namespace Android {
 namespace Internal {
@@ -42,7 +42,7 @@ class AndroidExtraLibraryListModel : public QAbstractItemModel
 {
     Q_OBJECT
 public:
-    explicit AndroidExtraLibraryListModel(Qt4ProjectManager::Qt4Project *project,
+    explicit AndroidExtraLibraryListModel(QmakeProjectManager::Qt4Project *project,
                                           QObject *parent = 0);
 
     QModelIndex index(int row, int column, const QModelIndex &parent) const;
@@ -58,7 +58,7 @@ private slots:
     void reset();
 
 private:
-    Qt4ProjectManager::Qt4Project *m_project;
+    QmakeProjectManager::Qt4Project *m_project;
     QStringList m_entries;
 };
 

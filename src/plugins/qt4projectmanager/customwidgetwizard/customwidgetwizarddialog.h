@@ -34,7 +34,7 @@
 
 #include <QSharedPointer>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 class CustomWidgetWidgetsWizardPage;
@@ -68,6 +68,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // CUSTOMWIDGETWIZARDDIALOG_H

@@ -41,7 +41,7 @@
 
 #include <QIcon>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 class Html5AppWizardDialog : public AbstractMobileAppWizardDialog
@@ -147,6 +147,6 @@ AbstractMobileAppWizardDialog *Html5AppWizard::wizardDialog() const
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #include "html5appwizard.moc"

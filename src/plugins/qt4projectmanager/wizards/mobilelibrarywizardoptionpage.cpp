@@ -31,7 +31,7 @@
 #include "ui_mobilelibrarywizardoptionpage.h"
 #include "qtprojectparameters.h"
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 class MobileLibraryWizardOptionPagePrivate
@@ -78,4 +78,4 @@ void MobileLibraryWizardOptionPage::setLibraryType(int type)
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

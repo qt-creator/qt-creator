@@ -48,7 +48,7 @@ QT_END_NAMESPACE
 namespace ProjectExplorer { class DeploymentData; }
 namespace QtSupport { class ProFileReader; }
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 class MakeStep;
 class QMakeStep;
 class Qt4BuildConfiguration;
@@ -108,7 +108,7 @@ public:
     void destroyProFileReader(QtSupport::ProFileReader *reader);
 
     /// \internal
-    void scheduleAsyncUpdate(Qt4ProjectManager::Qt4ProFileNode *node);
+    void scheduleAsyncUpdate(QmakeProjectManager::Qt4ProFileNode *node);
     /// \internal
     void incrementPendingEvaluateFutures();
     /// \internal
@@ -145,7 +145,7 @@ public:
 
     ProjectExplorer::KitMatcher *createRequiredKitMatcher() const;
 signals:
-    void proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *node, bool, bool);
+    void proFileUpdated(QmakeProjectManager::Qt4ProFileNode *node, bool, bool);
     void buildDirectoryInitialized();
     void proFilesEvaluated();
 
@@ -222,7 +222,7 @@ private:
     friend class Qt4Manager; // to schedule a async update if the unconfigured settings change
 };
 
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 
 #endif // QT4PROJECT_H

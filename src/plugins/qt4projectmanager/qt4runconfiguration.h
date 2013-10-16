@@ -51,7 +51,7 @@ class PathChooser;
 class DetailsWidget;
 }
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 
 class Qt4Project;
 class Qt4ProFileNode;
@@ -108,7 +108,7 @@ signals:
 
 private slots:
     void kitChanged();
-    void proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress);
+    void proFileUpdated(QmakeProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress);
 
 protected:
     Qt4RunConfiguration(ProjectExplorer::Target *parent, Qt4RunConfiguration *source);
@@ -211,6 +211,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // QT4RUNCONFIGURATION_H

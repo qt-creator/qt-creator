@@ -50,8 +50,8 @@
 #include <QVariant>
 
 using namespace ProjectExplorer;
-using namespace Qt4ProjectManager;
-using namespace Qt4ProjectManager::Internal;
+using namespace QmakeProjectManager;
+using namespace QmakeProjectManager::Internal;
 
 // -------------------- QtWizard
 QtWizard::QtWizard()

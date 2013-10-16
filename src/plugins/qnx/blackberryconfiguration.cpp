@@ -232,7 +232,7 @@ Kit *BlackBerryConfiguration::createKit(QnxAbstractQtVersion *version, ToolChain
     DebuggerKitInformation::setDebugger(kit, debugger);
 
     if (isSimulator)
-        Qt4ProjectManager::QmakeKitInformation::setMkspec(
+        QmakeProjectManager::QmakeKitInformation::setMkspec(
                  kit, FileName::fromString(QLatin1String("blackberry-x86-qcc")));
 
     DeviceTypeKitInformation::setDeviceTypeId(kit, Constants::QNX_BB_OS_TYPE);
@@ -251,7 +251,7 @@ Kit *BlackBerryConfiguration::createKit(QnxAbstractQtVersion *version, ToolChain
     kit->setSticky(DeviceTypeKitInformation::id(), true);
     kit->setSticky(SysRootKitInformation::id(), true);
     kit->setSticky(DebuggerKitInformation::id(), true);
-    kit->setSticky(Qt4ProjectManager::QmakeKitInformation::id(), true);
+    kit->setSticky(QmakeProjectManager::QmakeKitInformation::id(), true);
 
     return kit;
 }

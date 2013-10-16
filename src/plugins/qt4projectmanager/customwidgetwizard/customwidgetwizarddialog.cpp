@@ -53,7 +53,7 @@ public:
 
 } // namespace
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 enum { IntroPageId = 0};
@@ -109,4 +109,4 @@ QSharedPointer<PluginOptions> CustomWidgetWizardDialog::pluginOptions() const
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

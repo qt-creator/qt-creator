@@ -109,4 +109,4 @@ QIcon IosRunControl::icon() const
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace Ios

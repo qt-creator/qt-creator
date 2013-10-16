@@ -40,7 +40,7 @@ class QtVersionNumber;
 class QtVersionManager;
 } // QtSupport
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 
 class AbstractMobileApp;
 
@@ -117,6 +117,6 @@ private:
         QString *errorMessage) const = 0;
 };
 
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // ABSTRACTMOBILEAPPWIZARD_H

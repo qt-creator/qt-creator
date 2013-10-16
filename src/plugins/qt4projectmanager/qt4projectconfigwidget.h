@@ -40,7 +40,7 @@ namespace Utils {
     class DetailsWidget;
 }
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 class Qt4BuildConfiguration;
 class Qt4ProFileNode;
 
@@ -80,6 +80,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // QT4PROJECTCONFIGWIDGET_H

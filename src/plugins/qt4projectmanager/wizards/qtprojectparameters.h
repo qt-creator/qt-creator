@@ -36,7 +36,7 @@ QT_BEGIN_NAMESPACE
 class QTextStream;
 QT_END_NAMESPACE
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 // Create a macro name by taking a file name, upper casing it and
@@ -74,6 +74,6 @@ struct QtProjectParameters {
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // QTPROJECTPARAMETERS_H

@@ -104,6 +104,6 @@ public:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace CMakeProjectManager
 
 #endif // CMAKEEDITOR_H

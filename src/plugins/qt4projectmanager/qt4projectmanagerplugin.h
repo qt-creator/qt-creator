@@ -46,7 +46,7 @@ class Target;
 }
 namespace Utils { class ParameterAction; }
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 
 class Qt4Manager;
 class QtVersionManager;
@@ -104,6 +104,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // QT4PROJECTMANAGERPLUGIN_H

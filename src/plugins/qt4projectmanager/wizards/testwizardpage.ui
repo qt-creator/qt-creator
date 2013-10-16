@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Qt4ProjectManager::Internal::TestWizardPage</class>
- <widget class="QWizardPage" name="Qt4ProjectManager::Internal::TestWizardPage">
+ <class>QmakeProjectManager::Internal::TestWizardPage</class>
+ <widget class="QWizardPage" name="QmakeProjectManager::Internal::TestWizardPage">
   <property name="windowTitle">
    <string>WizardPage</string>
   </property>

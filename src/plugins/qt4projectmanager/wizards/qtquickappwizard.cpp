@@ -41,7 +41,7 @@
 #include <QIcon>
 #include <QDebug>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 class QtQuickAppWizardDialog : public AbstractMobileAppWizardDialog
@@ -108,7 +108,7 @@ QtQuickAppWizard::QtQuickAppWizard()
     : d(new QtQuickAppWizardPrivate)
 {
     setWizardKind(ProjectWizard);
-    setIcon(QIcon(QLatin1String(Qt4ProjectManager::Constants::ICON_QTQUICK_APP)));
+    setIcon(QIcon(QLatin1String(QmakeProjectManager::Constants::ICON_QTQUICK_APP)));
     setId(QLatin1String("D.QMLA Application"));
     setCategory(QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY));
     setDisplayCategory(QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY_DISPLAY));
@@ -270,6 +270,6 @@ AbstractMobileAppWizardDialog *QtQuickAppWizard::wizardDialog() const
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #include "qtquickappwizard.moc"

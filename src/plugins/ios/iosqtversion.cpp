@@ -47,7 +47,7 @@
 
 using namespace Ios::Internal;
 using namespace ProjectExplorer;
-using namespace Qt4ProjectManager;
+using namespace QmakeProjectManager;
 
 IosQtVersion::IosQtVersion()
     : QtSupport::BaseQtVersion()

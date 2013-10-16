@@ -40,7 +40,7 @@
 
 #include <math.h>
 
-using namespace Qt4ProjectManager::Internal;
+using namespace QmakeProjectManager::Internal;
 
 ModulesPage::ModulesPage(QWidget *parent)
     : QWizardPage(parent)

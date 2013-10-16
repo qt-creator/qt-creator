@@ -69,7 +69,7 @@ static inline QStringList baseClasses()
     return rc;
 }
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 GuiAppWizard::GuiAppWizard(bool isMobile)
@@ -269,4 +269,4 @@ bool GuiAppWizard::parametrizeTemplate(const QString &templatePath, const QStrin
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

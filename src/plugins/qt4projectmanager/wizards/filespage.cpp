@@ -34,7 +34,7 @@
 #include <QLabel>
 #include <QLayout>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 FilesPage::FilesPage(QWidget *parent) :
@@ -196,4 +196,4 @@ void FilesPage::setClassTypeComboVisible(bool v)
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

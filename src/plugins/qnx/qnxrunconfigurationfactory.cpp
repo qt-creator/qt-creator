@@ -58,7 +58,7 @@ QList<Core::Id> QnxRunConfigurationFactory::availableCreationIds(ProjectExplorer
     if (!canHandle(parent))
         return ids;
 
-    Qt4ProjectManager::Qt4Project *qt4Project = qobject_cast<Qt4ProjectManager::Qt4Project *>(parent->project());
+    QmakeProjectManager::Qt4Project *qt4Project = qobject_cast<QmakeProjectManager::Qt4Project *>(parent->project());
     if (!qt4Project)
         return ids;
 
@@ -85,7 +85,7 @@ bool QnxRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent, cons
     if (!canHandle(parent) || !id.name().startsWith(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX))
         return false;
 
-    Qt4ProjectManager::Qt4Project *qt4Project = qobject_cast<Qt4ProjectManager::Qt4Project *>(parent->project());
+    QmakeProjectManager::Qt4Project *qt4Project = qobject_cast<QmakeProjectManager::Qt4Project *>(parent->project());
     if (!qt4Project)
         return false;
 

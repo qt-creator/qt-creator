@@ -55,8 +55,8 @@
 #include <QFileInfo>
 #include <QDir>
 
-using namespace Qt4ProjectManager::Internal;
-using namespace Qt4ProjectManager;
+using namespace QmakeProjectManager::Internal;
+using namespace QmakeProjectManager;
 using ProjectExplorer::LocalApplicationRunConfiguration;
 using Utils::PersistentSettingsReader;
 using Utils::PersistentSettingsWriter;
@@ -127,7 +127,7 @@ QString Qt4RunConfiguration::disabledReason() const
     return QString();
 }
 
-void Qt4RunConfiguration::proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress)
+void Qt4RunConfiguration::proFileUpdated(QmakeProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress)
 {
     ProjectExplorer::LocalEnvironmentAspect *aspect
             = extraAspect<ProjectExplorer::LocalEnvironmentAspect>();
@@ -162,8 +162,8 @@ void Qt4RunConfiguration::ctor()
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
     m_forcedGuiMode = (version && version->type() == QLatin1String(QtSupport::Constants::SIMULATORQT));
 
-    connect(target()->project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
-            this, SLOT(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
+    connect(target()->project(), SIGNAL(proFileUpdated(QmakeProjectManager::Qt4ProFileNode*,bool,bool)),
+            this, SLOT(proFileUpdated(QmakeProjectManager::Qt4ProFileNode*,bool,bool)));
     connect(target(), SIGNAL(kitChanged()),
             this, SLOT(kitChanged()));
 }

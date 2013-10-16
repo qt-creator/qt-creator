@@ -35,7 +35,7 @@
 using namespace Android;
 using namespace Internal;
 
-AndroidExtraLibraryListModel::AndroidExtraLibraryListModel(Qt4ProjectManager::Qt4Project *project,
+AndroidExtraLibraryListModel::AndroidExtraLibraryListModel(QmakeProjectManager::Qt4Project *project,
                                                            QObject *parent)
     : QAbstractItemModel(parent)
     , m_project(project)
@@ -77,18 +77,18 @@ QVariant AndroidExtraLibraryListModel::data(const QModelIndex &index, int role) 
 
 void AndroidExtraLibraryListModel::reset()
 {
-    if (m_project->rootQt4ProjectNode()->projectType() != Qt4ProjectManager::ApplicationTemplate)
+    if (m_project->rootQt4ProjectNode()->projectType() != QmakeProjectManager::ApplicationTemplate)
         return;
 
     beginResetModel();
-    Qt4ProjectManager::Qt4ProFileNode *node = m_project->rootQt4ProjectNode();
-    m_entries = node->variableValue(Qt4ProjectManager::AndroidExtraLibs);
+    QmakeProjectManager::Qt4ProFileNode *node = m_project->rootQt4ProjectNode();
+    m_entries = node->variableValue(QmakeProjectManager::AndroidExtraLibs);
     endResetModel();
 }
 
 void AndroidExtraLibraryListModel::addEntries(const QStringList &list)
 {
-    if (m_project->rootQt4ProjectNode()->projectType() != Qt4ProjectManager::ApplicationTemplate)
+    if (m_project->rootQt4ProjectNode()->projectType() != QmakeProjectManager::ApplicationTemplate)
         return;
 
     beginInsertRows(QModelIndex(), m_entries.size(), m_entries.size() + list.size());
@@ -96,7 +96,7 @@ void AndroidExtraLibraryListModel::addEntries(const QStringList &list)
     foreach (QString path, list)
         m_entries += QDir(m_project->projectDirectory()).relativeFilePath(path);
 
-    Qt4ProjectManager::Qt4ProFileNode *node = m_project->rootQt4ProjectNode();
+    QmakeProjectManager::Qt4ProFileNode *node = m_project->rootQt4ProjectNode();
     node->setProVariable(QLatin1String("ANDROID_EXTRA_LIBS"), m_entries.join(QLatin1String(" ")));
 
     endInsertRows();
@@ -109,7 +109,7 @@ bool greaterModelIndexByRow(const QModelIndex &a, const QModelIndex &b)
 
 void AndroidExtraLibraryListModel::removeEntries(QModelIndexList list)
 {
-    if (list.isEmpty() || m_project->rootQt4ProjectNode()->projectType() != Qt4ProjectManager::ApplicationTemplate)
+    if (list.isEmpty() || m_project->rootQt4ProjectNode()->projectType() != QmakeProjectManager::ApplicationTemplate)
         return;
 
     std::sort(list.begin(), list.end(), greaterModelIndexByRow);
@@ -128,6 +128,6 @@ void AndroidExtraLibraryListModel::removeEntries(QModelIndexList list)
         endRemoveRows();
     }
 
-    Qt4ProjectManager::Qt4ProFileNode *node = m_project->rootQt4ProjectNode();
+    QmakeProjectManager::Qt4ProFileNode *node = m_project->rootQt4ProjectNode();
     node->setProVariable(QLatin1String("ANDROID_EXTRA_LIBS"), m_entries.join(QLatin1String(" ")));
 }

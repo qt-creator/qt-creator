@@ -37,7 +37,7 @@
 #include <coreplugin/icore.h>
 #endif // CREATORLESSTEST
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 QtQuickApp::QtQuickApp()
@@ -282,4 +282,4 @@ QString QtQuickApp::componentSetDir(ComponentSet componentSet) const
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

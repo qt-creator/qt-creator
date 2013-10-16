@@ -57,7 +57,7 @@ QList<Core::Id> BlackBerryRunConfigurationFactory::availableCreationIds(ProjectE
     if (!canHandle(parent))
         return ids;
 
-    Qt4ProjectManager::Qt4Project *qt4Project = qobject_cast<Qt4ProjectManager::Qt4Project *>(parent->project());
+    QmakeProjectManager::Qt4Project *qt4Project = qobject_cast<QmakeProjectManager::Qt4Project *>(parent->project());
     if (!qt4Project)
         return ids;
 
@@ -85,7 +85,7 @@ bool BlackBerryRunConfigurationFactory::canCreate(ProjectExplorer::Target *paren
     if (!canHandle(parent))
         return false;
 
-    Qt4ProjectManager::Qt4Project *qt4Project = qobject_cast<Qt4ProjectManager::Qt4Project *>(parent->project());
+    QmakeProjectManager::Qt4Project *qt4Project = qobject_cast<QmakeProjectManager::Qt4Project *>(parent->project());
     if (!qt4Project)
         return false;
 
@@ -140,7 +140,7 @@ bool BlackBerryRunConfigurationFactory::canHandle(ProjectExplorer::Target *t) co
 {
     if (!t->project()->supportsKit(t->kit()))
         return false;
-    if (!qobject_cast<Qt4ProjectManager::Qt4Project *>(t->project()))
+    if (!qobject_cast<QmakeProjectManager::Qt4Project *>(t->project()))
         return false;
 
     Core::Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(t->kit());

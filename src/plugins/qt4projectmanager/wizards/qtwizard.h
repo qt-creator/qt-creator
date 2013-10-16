@@ -39,7 +39,7 @@ class Kit;
 class TargetSetupPage;
 } // namespace ProjectExplorer
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 
 class Qt4Project;
 
@@ -151,6 +151,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // QTWIZARD_H

@@ -403,4 +403,4 @@ QString AndroidRunner::displayName() const
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace Android

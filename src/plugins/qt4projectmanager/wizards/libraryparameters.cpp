@@ -54,7 +54,7 @@ static const char *globalHeaderContentsC =
 "\n"
 "#endif // " GUARD_VARIABLE "\n";
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 void LibraryParameters::generateCode(QtProjectParameters:: Type t,
@@ -167,4 +167,4 @@ QString  LibraryParameters::generateSharedHeader(const QString &globalHeaderFile
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

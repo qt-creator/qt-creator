@@ -82,7 +82,7 @@ void BlackBerryDeployConfiguration::ctor()
 
 void BlackBerryDeployConfiguration::setupBarDescriptor()
 {
-    Qt4ProjectManager::Qt4BuildConfiguration *bc = qobject_cast<Qt4ProjectManager::Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
+    QmakeProjectManager::Qt4BuildConfiguration *bc = qobject_cast<QmakeProjectManager::Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
     if (!bc || !target()->kit())
         return;
 
@@ -90,8 +90,8 @@ void BlackBerryDeployConfiguration::setupBarDescriptor()
     QString projectName = target()->project()->displayName();
 
     QString targetName;
-    Qt4ProjectManager::Qt4Project *project =  static_cast<Qt4ProjectManager::Qt4Project *>(target()->project());
-    foreach (Qt4ProjectManager::Qt4ProFileNode *node, project->applicationProFiles()) {
+    QmakeProjectManager::Qt4Project *project =  static_cast<QmakeProjectManager::Qt4Project *>(target()->project());
+    foreach (QmakeProjectManager::Qt4ProFileNode *node, project->applicationProFiles()) {
         QString target = node->targetInformation().target;
         if (!target.isEmpty()) {
             targetName = target;

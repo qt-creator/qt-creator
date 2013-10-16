@@ -34,7 +34,7 @@
 #include <QStringList>
 #include <QProcess>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 class ConsoleProcess;
@@ -80,6 +80,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // APPLICATIONLAUNCHER_H

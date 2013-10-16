@@ -40,7 +40,7 @@
 #include <QTextStream>
 #include <QFileInfo>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 TestWizard::TestWizard()
@@ -184,4 +184,4 @@ Core::GeneratedFiles TestWizard::generateFiles(const QWizard *w, QString *errorM
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

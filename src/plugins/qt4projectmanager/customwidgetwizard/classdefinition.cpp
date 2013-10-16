@@ -31,7 +31,7 @@
 
 #include <QFileInfo>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 ClassDefinition::ClassDefinition(QWidget *parent) :

@@ -43,7 +43,7 @@ class Node;
 namespace Android {
 namespace Internal {
 
-class AndroidRunConfigurationFactory : public Qt4ProjectManager::QmakeRunConfigurationFactory
+class AndroidRunConfigurationFactory : public QmakeProjectManager::QmakeRunConfigurationFactory
 {
     Q_OBJECT
 
