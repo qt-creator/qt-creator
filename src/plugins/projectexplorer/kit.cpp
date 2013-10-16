@@ -80,6 +80,9 @@ public:
     {
         if (!id.isValid())
             m_id = Id::fromString(QUuid::createUuid().toString());
+
+        m_displayName = QCoreApplication::translate("ProjectExplorer::Kit", "Unnamed");
+        m_iconPath = Utils::FileName::fromString(QLatin1String(":///DESKTOP///"));
     }
 
     QString m_displayName;
@@ -112,9 +115,38 @@ Kit::Kit(Core::Id id) :
     foreach (KitInformation *sti, KitManager::kitInformation())
         d->m_data.insert(sti->id(), sti->defaultValue(this));
 
-    d->m_displayName = QCoreApplication::translate("ProjectExplorer::Kit", "Unnamed");
-    d->m_iconPath = Utils::FileName::fromString(QLatin1String(":///DESKTOP///"));
     d->m_icon = icon(d->m_iconPath);
+}
+
+Kit::Kit(const QVariantMap &data) :
+    d(new Internal::KitPrivate(Core::Id()))
+{
+    d->m_id = Id::fromSetting(data.value(QLatin1String(ID_KEY)));
+
+    d->m_autodetected = data.value(QLatin1String(AUTODETECTED_KEY)).toBool();
+
+    // if we don't have that setting assume that autodetected implies sdk
+    QVariant value = data.value(QLatin1String(SDK_PROVIDED_KEY));
+    if (value.isValid())
+        d->m_sdkProvided = value.toBool();
+    else
+        d->m_sdkProvided = d->m_autodetected;
+
+    d->m_displayName = data.value(QLatin1String(DISPLAYNAME_KEY),
+                                  d->m_displayName).toString();
+    d->m_iconPath = Utils::FileName::fromString(data.value(QLatin1String(ICON_KEY),
+                                                           d->m_iconPath.toString()).toString());
+    d->m_icon = icon(d->m_iconPath);
+
+    QVariantMap extra = data.value(QLatin1String(DATA_KEY)).toMap();
+    d->m_data.clear(); // remove default values
+    const QVariantMap::ConstIterator cend = extra.constEnd();
+    for (QVariantMap::ConstIterator it = extra.constBegin(); it != cend; ++it)
+        d->m_data.insert(Id::fromString(it.key()), it.value());
+
+    QStringList mutableInfoList = data.value(QLatin1String(MUTABLE_INFO_KEY)).toStringList();
+    foreach (const QString &mutableInfo, mutableInfoList)
+        d->m_mutable.insert(Core::Id::fromString(mutableInfo));
 }
 
 Kit::~Kit()
@@ -457,39 +489,6 @@ QString Kit::toHtml() const
     }
     str << "</table></body></html>";
     return rc;
-}
-
-bool Kit::fromMap(const QVariantMap &data)
-{
-    KitGuard g(this);
-    Id id = Id::fromSetting(data.value(QLatin1String(ID_KEY)));
-    if (!id.isValid())
-        return false;
-    d->m_id = id;
-    d->m_autodetected = data.value(QLatin1String(AUTODETECTED_KEY)).toBool();
-    // if we don't have that setting assume that autodetected implies sdk
-    QVariant value = data.value(QLatin1String(SDK_PROVIDED_KEY));
-    if (value.isValid())
-        d->m_sdkProvided = value.toBool();
-    else
-        d->m_sdkProvided = d->m_autodetected;
-
-    d->m_displayName = data.value(QLatin1String(DISPLAYNAME_KEY)).toString();
-    d->m_iconPath = Utils::FileName::fromString(data.value(QLatin1String(ICON_KEY)).toString());
-    d->m_icon = icon(d->m_iconPath);
-
-    QVariantMap extra = data.value(QLatin1String(DATA_KEY)).toMap();
-    d->m_data.clear(); // remove default values
-    const QVariantMap::ConstIterator cend = extra.constEnd();
-    for (QVariantMap::ConstIterator it = extra.constBegin(); it != cend; ++it)
-        d->m_data.insert(Id::fromString(it.key()), it.value());
-
-    QStringList mutableInfoList = data.value(QLatin1String(MUTABLE_INFO_KEY)).toStringList();
-    foreach (const QString &mutableInfo, mutableInfoList) {
-        d->m_mutable.insert(Core::Id::fromString(mutableInfo));
-    }
-
-    return true;
 }
 
 void Kit::setAutoDetected(bool detected)
