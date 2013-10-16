@@ -33,6 +33,8 @@
 
 #include <vcsbase/vcsbaseoutputwindow.h>
 
+#include <utils/qtcassert.h>
+
 #include <QTreeView>
 #include <QLabel>
 #include <QPushButton>
@@ -41,6 +43,7 @@
 #include <QItemSelectionModel>
 #include <QVBoxLayout>
 #include <QComboBox>
+#include <QPainter>
 
 namespace Git {
 namespace Internal {
@@ -55,6 +58,7 @@ enum Columns
 LogChangeWidget::LogChangeWidget(QWidget *parent)
     : QTreeView(parent)
     , m_model(new QStandardItemModel(0, ColumnCount, this))
+    , m_hasCustomDelegate(false)
 {
     QStringList headers;
     headers << tr("Sha1")<< tr("Subject");
@@ -104,12 +108,37 @@ QString LogChangeWidget::earliestCommit() const
     return QString();
 }
 
+void LogChangeWidget::setItemDelegate(QAbstractItemDelegate *delegate)
+{
+    QTreeView::setItemDelegate(delegate);
+    m_hasCustomDelegate = true;
+}
+
 void LogChangeWidget::emitDoubleClicked(const QModelIndex &index)
 {
     if (index.isValid()) {
         QString commit = index.sibling(index.row(), Sha1Column).data().toString();
         if (!commit.isEmpty())
             emit doubleClicked(commit);
+    }
+}
+
+void LogChangeWidget::selectionChanged(const QItemSelection &selected,
+                                       const QItemSelection &deselected)
+{
+    QTreeView::selectionChanged(selected, deselected);
+    if (!m_hasCustomDelegate)
+        return;
+    const QModelIndexList previousIndexes = deselected.indexes();
+    QTC_ASSERT(!previousIndexes.isEmpty(), return);
+    const QModelIndex current = currentIndex();
+    int row = current.row();
+    int previousRow = previousIndexes.first().row();
+    if (row < previousRow)
+        qSwap(row, previousRow);
+    for (int r = previousRow; r <= row; ++r) {
+        update(current.sibling(r, 0));
+        update(current.sibling(r, 1));
     }
 }
 
@@ -232,6 +261,41 @@ QString LogChangeDialog::resetFlag() const
     if (!m_resetTypeComboBox)
         return QString();
     return m_resetTypeComboBox->itemData(m_resetTypeComboBox->currentIndex()).toString();
+}
+
+LogChangeWidget *LogChangeDialog::widget() const
+{
+    return m_widget;
+}
+
+LogItemDelegate::LogItemDelegate(LogChangeWidget *widget) : m_widget(widget)
+{
+    m_widget->setItemDelegate(this);
+}
+
+int LogItemDelegate::currentRow() const
+{
+    return m_widget->commitIndex();
+}
+
+IconItemDelegate::IconItemDelegate(LogChangeWidget *widget, const QString &icon)
+    : LogItemDelegate(widget)
+    , m_icon(icon)
+{
+}
+
+void IconItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
+                             const QModelIndex &index) const
+{
+    QStyleOptionViewItem o = option;
+    if (index.column() == 0 && hasIcon(index.row())) {
+        const QSize size = option.decorationSize;
+        painter->save();
+        painter->drawPixmap(o.rect.x(), o.rect.y(), m_icon.pixmap(size.width(), size.height()));
+        painter->restore();
+        o.rect.translate(size.width(), 0);
+    }
+    QStyledItemDelegate::paint(painter, o, index);
 }
 
 } // namespace Internal

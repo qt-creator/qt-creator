@@ -60,6 +60,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/vcsmanager.h>
+#include <coreplugin/coreconstants.h>
 
 #include <utils/qtcassert.h>
 #include <utils/parameteraction.h>
@@ -802,6 +803,34 @@ void GitPlugin::undoUnstagedFileChanges()
     undoFileChanges(false);
 }
 
+class ResetItemDelegate : public LogItemDelegate
+{
+public:
+    ResetItemDelegate(LogChangeWidget *widget) : LogItemDelegate(widget) {}
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+    {
+        QStyleOptionViewItem o = option;
+        if (index.row() < currentRow())
+            o.font.setStrikeOut(true);
+        QStyledItemDelegate::paint(painter, o, index);
+    }
+};
+
+class RebaseItemDelegate : public IconItemDelegate
+{
+public:
+    RebaseItemDelegate(LogChangeWidget *widget)
+        : IconItemDelegate(widget, QLatin1String(Core::Constants::ICON_UNDO))
+    {
+    }
+
+protected:
+    bool hasIcon(int row) const
+    {
+        return row <= currentRow();
+    }
+};
+
 void GitPlugin::resetRepository()
 {
     if (!ensureAllDocumentsSaved())
@@ -811,6 +840,7 @@ void GitPlugin::resetRepository()
     QString topLevel = state.topLevel();
 
     LogChangeDialog dialog(true);
+    ResetItemDelegate delegate(dialog.widget());
     dialog.setWindowTitle(tr("Undo Changes to %1").arg(QDir::toNativeSeparators(topLevel)));
     if (dialog.runDialog(topLevel))
         m_gitClient->reset(topLevel, dialog.resetFlag(), dialog.commit());
@@ -828,6 +858,7 @@ void GitPlugin::startRebase()
     if (!m_gitClient->beginStashScope(topLevel, QLatin1String("Rebase-i")))
         return;
     LogChangeDialog dialog(false);
+    RebaseItemDelegate delegate(dialog.widget());
     dialog.setWindowTitle(tr("Interactive Rebase"));
     if (dialog.runDialog(topLevel, QString(), false))
         m_gitClient->interactiveRebase(topLevel, dialog.commit(), false);

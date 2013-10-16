@@ -33,11 +33,30 @@
 #include "../gitplugin.h"
 #include "../gitclient.h"
 
+#include <coreplugin/coreconstants.h>
+
 #include <QDateTime>
 #include <QDir>
 
 namespace Gerrit {
 namespace Internal {
+
+class PushItemDelegate : public Git::Internal::IconItemDelegate
+{
+public:
+    PushItemDelegate(Git::Internal::LogChangeWidget *widget)
+        : IconItemDelegate(widget, QLatin1String(Core::Constants::ICON_PLUS))
+    {
+    }
+
+protected:
+    bool hasIcon(int row) const
+    {
+        return row >= currentRow();
+    }
+};
+
+
 
 GerritPushDialog::GerritPushDialog(const QString &workingDir, const QString &reviewerList, QWidget *parent) :
     QDialog(parent),
@@ -54,6 +73,8 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, const QString &rev
     if (!m_ui->commitView->init(workingDir, QString(), false))
         return;
 
+    PushItemDelegate *delegate = new PushItemDelegate(m_ui->commitView);
+    delegate->setParent(this);
     QString earliestCommit = m_ui->commitView->earliestCommit();
     if (earliestCommit.isEmpty())
         return;

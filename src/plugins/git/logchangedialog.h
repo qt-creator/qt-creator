@@ -31,6 +31,8 @@
 #define LOGCHANGEDDIALOG_H
 
 #include <QDialog>
+#include <QIcon>
+#include <QStyledItemDelegate>
 #include <QTreeView>
 
 QT_BEGIN_NAMESPACE
@@ -57,6 +59,7 @@ public:
     QString commit() const;
     int commitIndex() const;
     QString earliestCommit() const;
+    void setItemDelegate(QAbstractItemDelegate *delegate);
 
 signals:
     void doubleClicked(const QString &commit);
@@ -65,10 +68,12 @@ private slots:
     void emitDoubleClicked(const QModelIndex &index);
 
 private:
+    void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
     bool populateLog(const QString &repository, const QString &commit, bool includeRemote);
     const QStandardItem *currentItem(int column = 0) const;
 
     QStandardItemModel *m_model;
+    bool m_hasCustomDelegate;
 };
 
 class LogChangeDialog : public QDialog
@@ -83,11 +88,39 @@ public:
     QString commit() const;
     int commitIndex() const;
     QString resetFlag() const;
+    LogChangeWidget *widget() const;
 
 private:
     LogChangeWidget *m_widget;
     QDialogButtonBox *m_dialogButtonBox;
     QComboBox *m_resetTypeComboBox;
+};
+
+class LogItemDelegate : public QStyledItemDelegate
+{
+protected:
+    LogItemDelegate(LogChangeWidget *widget);
+
+    int currentRow() const;
+    virtual void paint(QPainter *painter, const QStyleOptionViewItem &option,
+                       const QModelIndex &index) const = 0;
+
+private:
+    LogChangeWidget *m_widget;
+};
+
+class IconItemDelegate : public LogItemDelegate
+{
+public:
+    IconItemDelegate(LogChangeWidget *widget, const QString &icon);
+
+    virtual bool hasIcon(int row) const = 0;
+
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+               const QModelIndex &index) const;
+
+private:
+    QIcon m_icon;
 };
 
 } // namespace Internal
