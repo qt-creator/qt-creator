@@ -129,26 +129,6 @@ bool MercurialControl::vcsCreateRepository(const QString &directory)
     return mercurialClient->synchronousCreateRepository(directory);
 }
 
-QString MercurialControl::vcsCreateSnapshot(const QString &)
-{
-    return QString();
-}
-
-QStringList MercurialControl::vcsSnapshots(const QString &)
-{
-    return QStringList();
-}
-
-bool MercurialControl::vcsRestoreSnapshot(const QString &, const QString &)
-{
-    return false;
-}
-
-bool MercurialControl::vcsRemoveSnapshot(const QString &, const QString &)
-{
-    return false;
-}
-
 bool MercurialControl::vcsAnnotate(const QString &file, int line)
 {
     const QFileInfo fi(file);

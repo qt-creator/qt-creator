@@ -51,19 +51,15 @@ public:
     IosSettingsWidget(QWidget *parent);
     ~IosSettingsWidget();
 
-    void saveSettings(bool saveNow = false);
+    void saveSettings();
     QString searchKeywords() const;
 
 private slots:
-    void deviceAskToggled(bool checkboxValue);
-    void developerPathEditingFinished();
-    void browseDeveloperPath();
 
 private:
     void initGui();
 
     Ui_IosSettingsWidget *m_ui;
-    IosConfig m_iosConfig;
     bool m_saveSettingsRequested;
 };
 

@@ -272,7 +272,7 @@ signals:
     void stackFrameCompleted();
     /*
      * For "external" clients of a debugger run control that needs to do
-     * further setup before the debugger is started (e.g. Maemo).
+     * further setup before the debugger is started (e.g. RemoteLinux).
      * Afterwards, notifyEngineRemoteSetupDone() or notifyEngineRemoteSetupFailed()
      * must be called to continue or abort debugging, respectively.
      * This signal is only emitted if the start parameters indicate that

@@ -313,7 +313,7 @@ void IosDeviceManager::deviceInfo(IosToolHandler *, const QString &uid,
         QString devStatus = info.value(devStatusKey);
         if (devStatus == QLatin1String("*off*")) {
             devManager->setDeviceState(newDev->id(), IDevice::DeviceConnected);
-            if (!newDev->m_ignoreDevice && !IosConfigurations::instance().config().ignoreAllDevices) {
+            if (!newDev->m_ignoreDevice && !IosConfigurations::ignoreAllDevices()) {
                 QMessageBox mBox;
                 mBox.setText(tr("An iOS device in user mode has been detected."));
                 mBox.setInformativeText(tr("Do you want to see how to set it up for development?"));
@@ -328,12 +328,8 @@ void IosDeviceManager::deviceInfo(IosToolHandler *, const QString &uid,
                     newDev->m_ignoreDevice = true;
                     break;
                 case QMessageBox::NoAll:
-                {
-                    IosConfig conf = IosConfigurations::instance().config();
-                    conf.ignoreAllDevices = true;
-                    IosConfigurations::instance().setConfig(conf);
+                    IosConfigurations::setIgnoreAllDevices(true);
                     break;
-                }
                 default:
                 break;
                 }

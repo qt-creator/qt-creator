@@ -110,11 +110,6 @@ public:
 
     void setupQtVersions()
     {
-        if (!QtVersionManager::isLoaded()) {
-            connect(QtVersionManager::instance(), SIGNAL(qtVersionsLoaded()), this, SLOT(qtVersionManagerLoaded()));
-            return;
-        }
-
         beginResetModel();
         clear();
 
@@ -156,13 +151,13 @@ public:
         endResetModel();
     }
 
-int indexForUniqueId(int uniqueId) {
-    for (int i=0; i < rowCount(); i++) {
-        if (uniqueId == getId(i).toInt())
-            return i;
+    int indexForUniqueId(int uniqueId) {
+        for (int i=0; i < rowCount(); i++) {
+            if (uniqueId == getId(i).toInt())
+                return i;
+        }
+        return 0;
     }
-    return 0;
-}
 
 public slots:
     QVariant get(int i)
@@ -178,18 +173,10 @@ public slots:
         QVariant variant = data(modelIndex, Qt::UserRole + 2);
         return variant;
     }
-    void qtVersionManagerLoaded()
-    {
-        disconnect(QtVersionManager::instance(), SIGNAL(qtVersionsLoaded()), this, SLOT(qtVersionManagerLoaded()));
-        setupQtVersions();
-    }
 };
 
 ExamplesListModel::ExamplesListModel(QObject *parent) :
     QAbstractListModel(parent),
-    m_updateOnQtVersionsChanged(false),
-    m_initialized(false),
-    m_helpInitialized(false),
     m_uniqueQtId(noQtVersionsId)
 {
     QHash<int, QByteArray> roleNames;
@@ -210,13 +197,6 @@ ExamplesListModel::ExamplesListModel(QObject *parent) :
     roleNames[Platforms] = "platforms";
     roleNames[IsHighlighted] = "isHighlighted";
     setRoleNames(roleNames);
-
-    connect(Core::HelpManager::instance(), SIGNAL(setupFinished()),
-            SLOT(helpInitialized()));
-    connect(QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
-            this, SLOT(handleQtVersionsChanged()));
-    connect(ProjectExplorer::KitManager::instance(), SIGNAL(defaultkitChanged()),
-            SLOT(handleQtVersionsChanged()));
 }
 
 static QString fixStringForTags(const QString &string)
@@ -430,14 +410,6 @@ void ExamplesListModel::parseTutorials(QXmlStreamReader *reader, const QString &
     }
 }
 
-void ExamplesListModel::handleQtVersionsChanged()
-{
-    if (m_updateOnQtVersionsChanged) {
-        emit qtVersionsChanged();
-        updateExamples();
-    }
-}
-
 void ExamplesListModel::updateExamples()
 {
     QString examplesInstallPath;
@@ -541,7 +513,6 @@ QStringList ExamplesListModel::exampleSources(QString *examplesInstallPath, QStr
         return sources;
 
     // try to find a suitable Qt version
-    m_updateOnQtVersionsChanged = true; // this must be updated when the Qt versions change
     // fallbacks are passed back if no example manifest is found
     // and we fallback to Qt Creator's shipped manifest (e.g. only old Qt Versions found)
     QString potentialExamplesFallback;
@@ -623,7 +594,6 @@ QStringList ExamplesListModel::exampleSources(QString *examplesInstallPath, QStr
 
 int ExamplesListModel::rowCount(const QModelIndex &) const
 {
-    ensureInitialized();
     return m_exampleItems.size();
 }
 
@@ -636,7 +606,6 @@ QString prefixForItem(const ExampleItem &item)
 
 QVariant ExamplesListModel::data(const QModelIndex &index, int role) const
 {
-    ensureInitialized();
     if (!index.isValid() || index.row()+1 > m_exampleItems.count()) {
         qDebug() << Q_FUNC_INFO << "invalid index requested";
         return QVariant();
@@ -685,36 +654,16 @@ QVariant ExamplesListModel::data(const QModelIndex &index, int role) const
     }
 }
 
+// TODO global tag list is unused, remove
 QStringList ExamplesListModel::tags() const
 {
-    ensureInitialized();
     return m_tags;
 }
 
-void ExamplesListModel::helpInitialized()
+void ExamplesListModel::setUniqueQtId(int id)
 {
-    m_helpInitialized = true;
-    if (m_initialized) // if we are already initialized we need to update nevertheless
-        updateExamples();
-}
-
-void ExamplesListModel::ensureInitialized() const
-{
-    if (m_initialized || !m_helpInitialized)
-        return;
-    ExamplesListModel *that = const_cast<ExamplesListModel *>(this);
-    that->m_initialized = true;
-    that->updateExamples();
-    emit that->qtVersionsChanged();
-}
-
-void ExamplesListModel::filterForQtById(int id)
-{
-    if (QtVersionManager::isLoaded()) {
-        m_uniqueQtId = id;
-        setUniqueQtVersionIdSetting(id);
-        updateExamples();
-    }
+    m_uniqueQtId = id;
+    updateExamples();
 }
 
 ExamplesListModelFilter::ExamplesListModelFilter(ExamplesListModel *sourceModel, QObject *parent) :
@@ -723,12 +672,21 @@ ExamplesListModelFilter::ExamplesListModelFilter(ExamplesListModel *sourceModel,
     m_sourceModel(sourceModel),
     m_timerId(0),
     m_qtVersionModel(new QtVersionsModel(this)),
-    m_blockIndexUpdate(false)
+    m_blockIndexUpdate(false),
+    m_qtVersionManagerInitialized(false),
+    m_helpManagerInitialized(false),
+    m_initalized(false),
+    m_exampleDataRequested(false)
 {
+    // initialization hooks
+    connect(QtVersionManager::instance(), SIGNAL(qtVersionsLoaded()),
+            this, SLOT(qtVersionManagerLoaded()));
+    connect(Core::HelpManager::instance(), SIGNAL(setupFinished()),
+            this, SLOT(helpManagerInitialized()));
+
     connect(this, SIGNAL(showTutorialsOnlyChanged()), SLOT(updateFilter()));
-    connect(sourceModel, SIGNAL(qtVersionsChanged()), SLOT(handleQtVersionsChanged()));
+
     setSourceModel(m_sourceModel);
-    m_qtVersionModel->setupQtVersions();
 }
 
 void ExamplesListModelFilter::updateFilter()
@@ -796,19 +754,28 @@ bool ExamplesListModelFilter::filterAcceptsRow(int sourceRow, const QModelIndex 
 
 int ExamplesListModelFilter::rowCount(const QModelIndex &parent) const
 {
-    m_sourceModel->ensureInitialized();
+    exampleDataRequested();
     return QSortFilterProxyModel::rowCount(parent);
 }
 
 QVariant ExamplesListModelFilter::data(const QModelIndex &index, int role) const
 {
-    m_sourceModel->ensureInitialized();
+    exampleDataRequested();
     return QSortFilterProxyModel::data(index, role);
 }
 
 QAbstractItemModel* ExamplesListModelFilter::qtVersionModel()
 {
     return m_qtVersionModel;
+}
+
+void ExamplesListModelFilter::filterForQtById(int id)
+{
+    if (m_blockIndexUpdate || !m_initalized)
+        return;
+
+    setUniqueQtVersionIdSetting(id);
+    m_sourceModel->setUniqueQtId(id);
 }
 
 void ExamplesListModelFilter::setShowTutorialsOnly(bool showTutorialsOnly)
@@ -821,8 +788,42 @@ void ExamplesListModelFilter::handleQtVersionsChanged()
 {
     m_blockIndexUpdate = true;
     m_qtVersionModel->setupQtVersions();
+    m_sourceModel->updateExamples();
     emit qtVersionIndexChanged();
     m_blockIndexUpdate = false;
+}
+
+void ExamplesListModelFilter::qtVersionManagerLoaded()
+{
+    m_qtVersionManagerInitialized = true;
+    tryToInitialize();
+}
+
+void ExamplesListModelFilter::helpManagerInitialized()
+{
+    m_helpManagerInitialized = true;
+    tryToInitialize();
+}
+
+void ExamplesListModelFilter::exampleDataRequested() const
+{
+    ExamplesListModelFilter *that = const_cast<ExamplesListModelFilter *>(this);
+    that->m_exampleDataRequested = true;
+    that->tryToInitialize();
+}
+
+void ExamplesListModelFilter::tryToInitialize()
+{
+    if (!m_initalized
+            && m_qtVersionManagerInitialized && m_helpManagerInitialized && m_exampleDataRequested) {
+        m_initalized = true;
+        connect(QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
+                this, SLOT(handleQtVersionsChanged()));
+        connect(ProjectExplorer::KitManager::instance(), SIGNAL(defaultkitChanged()),
+                this, SLOT(handleQtVersionsChanged()));
+        handleQtVersionsChanged();
+        m_sourceModel->updateExamples();
+    }
 }
 
 void ExamplesListModelFilter::delayedUpdateFilter()

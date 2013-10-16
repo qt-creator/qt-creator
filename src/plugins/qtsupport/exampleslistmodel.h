@@ -85,21 +85,15 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
 
     QStringList tags() const;
-    void ensureInitialized() const;
 
     void beginReset() { beginResetModel(); }
     void endReset() { endResetModel(); }
 
-    void filterForQtById(int id);
+    void setUniqueQtId(int id);
+    void updateExamples();
 
 signals:
     void tagsUpdated();
-    void qtVersionsChanged();
-
-public slots:
-    void handleQtVersionsChanged();
-    void updateExamples();
-    void helpInitialized();
 
 private:
     void parseExamples(QXmlStreamReader *reader, const QString &projectsOffset,
@@ -113,9 +107,6 @@ private:
 
     QList<ExampleItem> m_exampleItems;
     QStringList m_tags;
-    bool m_updateOnQtVersionsChanged;
-    bool m_initialized;
-    bool m_helpInitialized;
     int m_uniqueQtId;
 };
 
@@ -143,13 +134,7 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     QAbstractItemModel* qtVersionModel();
 
-    Q_INVOKABLE void filterForQtById(int id)
-    {
-        if (m_blockIndexUpdate)
-            return;
-
-        m_sourceModel->filterForQtById(id);
-    }
+    Q_INVOKABLE void filterForQtById(int id);
 
 public slots:
     void setFilterTags(const QStringList &arg)
@@ -180,7 +165,13 @@ signals:
     void searchStrings(const QStringList &arg);
     void qtVersionIndexChanged();
 
+private slots:
+    void qtVersionManagerLoaded();
+    void helpManagerInitialized();
+
 private:
+    void exampleDataRequested() const;
+    void tryToInitialize();
     void timerEvent(QTimerEvent *event);
     void delayedUpdateFilter();
     int qtVersionIndex() const;
@@ -192,6 +183,10 @@ private:
     int m_timerId;
     QtVersionsModel* m_qtVersionModel;
     bool m_blockIndexUpdate;
+    bool m_qtVersionManagerInitialized;
+    bool m_helpManagerInitialized;
+    bool m_initalized;
+    bool m_exampleDataRequested;
 };
 
 } // namespace Internal

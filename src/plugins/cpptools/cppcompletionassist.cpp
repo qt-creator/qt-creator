@@ -616,7 +616,6 @@ bool isQPrivateSignal(const Symbol *symbol)
 // ----------------------------
 CppCompletionAssistProcessor::CppCompletionAssistProcessor()
     : m_startPosition(-1)
-    , m_objcEnabled(true)
     , m_snippetCollector(QLatin1String(CppEditor::Constants::CPP_SNIPPETS_GROUP_ID),
                          QIcon(QLatin1String(":/texteditor/images/snippet.png")))
     , preprocessorCompletions(QStringList()
@@ -634,7 +633,13 @@ CppCompletionAssistProcessor::CppCompletionAssistProcessor()
           << QLatin1String("endif"))
     , m_model(new CppAssistProposalModel)
     , m_hintProposal(0)
-{}
+{
+    // FIXME: C++11?
+    m_languageFeatures.objCEnabled = true;
+    m_languageFeatures.qtEnabled = true;
+    m_languageFeatures.qtKeywordsEnabled = true;
+    m_languageFeatures.qtMocRunEnabled = true;
+}
 
 CppCompletionAssistProcessor::~CppCompletionAssistProcessor()
 {}
@@ -683,10 +688,16 @@ bool CppCompletionAssistProcessor::accepts() const
                     QTextCursor tc(m_interface->textDocument());
                     tc.setPosition(pos);
 
+                    LanguageFeatures features;
+                    features.qtEnabled = true;
+                    features.qtMocRunEnabled = true;
+                    features.qtKeywordsEnabled = true;
+                    features.objCEnabled = true;
+
                     SimpleLexer tokenize;
-                    tokenize.setQtMocRunEnabled(true);
-                    tokenize.setObjCEnabled(true);
+                    tokenize.setLanguageFeatures(features);
                     tokenize.setSkipComments(false);
+
                     const QList<Token> &tokens = tokenize(tc.block().text(), BackwardsScanner::previousBlockState(tc.block()));
                     const int tokenIdx = SimpleLexer::tokenBefore(tokens, qMax(0, tc.positionInBlock() - 1));
                     const Token tk = (tokenIdx == -1) ? Token() : tokens.at(tokenIdx);
@@ -703,7 +714,7 @@ bool CppCompletionAssistProcessor::accepts() const
                                 line.midRef(idToken.begin(), idToken.end() - idToken.begin());
                         if (identifier == QLatin1String("include")
                                 || identifier == QLatin1String("include_next")
-                                || (m_objcEnabled && identifier == QLatin1String("import"))) {
+                                || (m_languageFeatures.objCEnabled && identifier == QLatin1String("import"))) {
                             return true;
                         }
                     }
@@ -787,8 +798,7 @@ int CppCompletionAssistProcessor::startOfOperator(int pos,
         }
 
         SimpleLexer tokenize;
-        tokenize.setQtMocRunEnabled(true);
-        tokenize.setObjCEnabled(true);
+        tokenize.setLanguageFeatures(m_languageFeatures);
         tokenize.setSkipComments(false);
         const QList<Token> &tokens = tokenize(tc.block().text(), BackwardsScanner::previousBlockState(tc.block()));
         const int tokenIdx = SimpleLexer::tokenBefore(tokens, qMax(0, tc.positionInBlock() - 1)); // get the token at the left of the cursor
@@ -879,7 +889,7 @@ int CppCompletionAssistProcessor::findStartOfName(int pos) const
 
 int CppCompletionAssistProcessor::startCompletionHelper()
 {
-    if (m_objcEnabled) {
+    if (m_languageFeatures.objCEnabled) {
         if (tryObjCCompletion())
             return m_startPosition;
     }
@@ -1193,7 +1203,7 @@ void CppCompletionAssistProcessor::completePreprocessor()
 
 bool CppCompletionAssistProcessor::objcKeywordsWanted() const
 {
-    if (!m_objcEnabled)
+    if (!m_languageFeatures.objCEnabled)
         return false;
 
     const QString fileName = m_interface->fileName();

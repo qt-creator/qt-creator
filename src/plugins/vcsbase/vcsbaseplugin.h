@@ -55,7 +55,7 @@ namespace VcsBase {
 namespace Internal { struct State; }
 
 class VcsBaseSubmitEditor;
-struct VcsBasePluginPrivate;
+class VcsBasePluginPrivate;
 class VcsBasePluginStateData;
 class VcsBasePlugin;
 
@@ -136,9 +136,6 @@ public:
 
     const VcsBasePluginState &currentState() const;
     Core::IVersionControl *versionControl() const;
-
-    // For internal tests: Create actions driving IVersionControl's snapshot interface.
-    QList<QAction*> createSnapShotTestActions();
 
     // Convenience that searches for the repository specifically for version control
     // systems that do not have directories like "CVS" in each managed subdirectory
@@ -222,10 +219,6 @@ protected:
 private slots:
     void slotSubmitEditorAboutToClose(VcsBaseSubmitEditor *submitEditor, bool *result);
     void slotStateChanged(const VcsBase::Internal::State &s, Core::IVersionControl *vc);
-    void slotTestSnapshot();
-    void slotTestListSnapshots();
-    void slotTestRestoreSnapshot();
-    void slotTestRemoveSnapshot();
 
 private:
     VcsBasePluginPrivate *d;

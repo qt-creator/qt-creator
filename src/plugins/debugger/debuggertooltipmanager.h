@@ -75,7 +75,14 @@ public:
     int line;
     int column;
     QString function; //!< Optional function. This must be set by the engine as it is language-specific.
+
+    QPoint mousePosition;
+    QString expression;
+    QByteArray iname;
 };
+
+typedef QList<DebuggerToolTipContext> DebuggerToolTipContexts;
+
 
 QDebug operator<<(QDebug, const DebuggerToolTipContext &);
 
@@ -108,16 +115,7 @@ public:
     QDate creationDate() const { return m_creationDate; }
     void setCreationDate(const QDate &d) { m_creationDate = d; }
 
-    QPoint offset() const { return m_offset; }
-    void setOffset(const QPoint &o) { m_offset = o; }
-
     static DebuggerToolTipWidget *loadSessionData(QXmlStreamReader &r);
-
-    QByteArray iname() const { return m_iname; }
-    void setIname(const QByteArray &e) { m_iname = e; }
-
-    QString expression() const { return m_expression; }
-    void setExpression(const QString &e) { m_expression = e; }
 
     static QString treeModelClipboardContents(const QAbstractItemModel *m);
 
@@ -160,8 +158,6 @@ private:
     static void restoreTreeModel(QXmlStreamReader &r, QStandardItemModel *m);
 
     int m_debuggerModel;
-    QString m_expression;
-    QByteArray m_iname;
 
     DebuggerToolTipTreeView *m_treeView;
     QStandardItemModel *m_defaultModel;
@@ -192,9 +188,6 @@ class DebuggerToolTipManager : public QObject
     Q_OBJECT
 
 public:
-    typedef QPair<QString, QByteArray> ExpressionInamePair;
-    typedef QList<ExpressionInamePair> ExpressionInamePairs;
-
     explicit DebuggerToolTipManager(QObject *parent = 0);
     ~DebuggerToolTipManager();
 
@@ -202,7 +195,7 @@ public:
     static bool hasToolTips();
 
     // Collect all expressions of DebuggerTreeViewToolTipWidget
-    static ExpressionInamePairs treeWidgetExpressions(const QString &fileName,
+    static DebuggerToolTipContexts treeWidgetExpressions(const QString &fileName,
                                                const QString &engineType = QString(),
                                                const QString &function= QString());
 

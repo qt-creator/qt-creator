@@ -1495,8 +1495,6 @@ bool DebuggerPluginPrivate::initialize(const QStringList &arguments,
 
     TaskHub::addCategory(Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO,
                          tr("Debug Information"));
-    TaskHub::addCategory(Debugger::Constants::TASK_CATEGORY_DEBUGGER_TEST,
-                         tr("Debugger Test"));
     TaskHub::addCategory(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME,
                          tr("Debugger Runtime"));
 
@@ -3403,6 +3401,7 @@ bool DebuggerPlugin::initialize(const QStringList &arguments, QString *errorMess
     mstart->addSeparator(globalcontext, Constants::G_GENERAL);
     mstart->addSeparator(globalcontext, Constants::G_SPECIAL);
 
+    addAutoReleasedObject(new DebuggerItemManager);
     DebuggerItemManager::restoreDebuggers();
 
     KitManager::registerKitInformation(new DebuggerKitInformation);

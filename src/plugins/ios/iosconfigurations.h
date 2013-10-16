@@ -32,11 +32,9 @@
 #include <projectexplorer/abi.h>
 #include <utils/fileutils.h>
 
-#include <QMap>
 #include <QObject>
 #include <QString>
 #include <QStringList>
-#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -45,42 +43,32 @@ QT_END_NAMESPACE
 namespace Ios {
 namespace Internal {
 
-class IosConfig
-{
-public:
-    IosConfig();
-    IosConfig(const QSettings &settings);
-    void save(QSettings &settings) const;
-
-    Utils::FileName developerPath;
-    bool ignoreAllDevices;
-};
-
 class IosConfigurations : public QObject
 {
     Q_OBJECT
 
 public:
-    static IosConfigurations &instance();
-    IosConfig config() const { return m_config; }
-    void setConfig(const IosConfig &config);
+    static QObject *instance();
+    static void initialize();
+    static bool ignoreAllDevices();
+    static void setIgnoreAllDevices(bool ignoreDevices);
+    static Utils::FileName developerPath();
 
-    QStringList sdkTargets();
-    void updateSimulators();
 signals:
     void updated();
 
 public slots:
-    void updateAutomaticKitList();
+    static void updateAutomaticKitList();
 
 private:
     IosConfigurations(QObject *parent);
     void load();
     void save();
+    void updateSimulators();
+    static void setDeveloperPath(const Utils::FileName &devPath);
 
-    static IosConfigurations *m_instance;
-    IosConfig m_config;
-    QTimer m_updateAvailableDevices;
+    Utils::FileName m_developerPath;
+    bool m_ignoreAllDevices;
 };
 
 } // namespace Internal

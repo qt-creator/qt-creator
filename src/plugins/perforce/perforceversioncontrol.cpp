@@ -125,26 +125,6 @@ bool PerforceVersionControl::vcsCreateRepository(const QString &)
     return false;
 }
 
-QString PerforceVersionControl::vcsCreateSnapshot(const QString &)
-{
-    return QString();
-}
-
-QStringList PerforceVersionControl::vcsSnapshots(const QString &)
-{
-    return QStringList();
-}
-
-bool PerforceVersionControl::vcsRestoreSnapshot(const QString &, const QString &)
-{
-    return false;
-}
-
-bool PerforceVersionControl::vcsRemoveSnapshot(const QString &, const QString &)
-{
-    return false;
-}
-
 bool PerforceVersionControl::vcsAnnotate(const QString &file, int line)
 {
     const QFileInfo fi(file);

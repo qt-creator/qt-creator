@@ -30,6 +30,7 @@
 #include "qt4buildconfiguration.h"
 
 #include "qmakebuildinfo.h"
+#include "qmakekitinformation.h"
 #include "qt4project.h"
 #include "qt4projectconfigwidget.h"
 #include "qt4projectmanagerconstants.h"
@@ -49,7 +50,6 @@
 #include <projectexplorer/toolchainmanager.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtversionmanager.h>
-#include <qt4projectmanager/qmakekitinformation.h>
 #include <utils/qtcassert.h>
 #include <QDebug>
 

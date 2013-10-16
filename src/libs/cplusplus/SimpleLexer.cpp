@@ -40,45 +40,11 @@ using namespace CPlusPlus;
 SimpleLexer::SimpleLexer()
     : _lastState(0),
       _skipComments(false),
-      _qtMocRunEnabled(true),
-      _objCEnabled(false),
-      _endedJoined(false),
-      _cxx0xEnabled(false)
-{
-}
+      _endedJoined(false)
+{}
 
 SimpleLexer::~SimpleLexer()
 { }
-
-bool SimpleLexer::qtMocRunEnabled() const
-{
-    return _qtMocRunEnabled;
-}
-
-void SimpleLexer::setQtMocRunEnabled(bool enabled)
-{
-    _qtMocRunEnabled = enabled;
-}
-
-bool SimpleLexer::objCEnabled() const
-{
-    return _objCEnabled;
-}
-
-void SimpleLexer::setObjCEnabled(bool onoff)
-{
-    _objCEnabled = onoff;
-}
-
-bool SimpleLexer::cxx0xEnabled() const
-{
-    return _cxx0xEnabled;
-}
-
-void SimpleLexer::setCxx0xEnabled(bool enabled)
-{
-    _cxx0xEnabled = enabled;
-}
 
 bool SimpleLexer::skipComments() const
 {
@@ -104,11 +70,8 @@ QList<Token> SimpleLexer::operator()(const QString &text, int state)
     const char *lastChar = firstChar + bytes.size();
 
     Lexer lex(firstChar, lastChar);
-    lex.setQtMocRunEnabled(_qtMocRunEnabled);
-    lex.setObjCEnabled(_objCEnabled);
+    lex.setLanguageFeatures(_languageFeatures);
     lex.setStartWithNewline(true);
-    lex.setObjCEnabled(_objCEnabled);
-    lex.setCxxOxEnabled(_cxx0xEnabled);
 
     if (! _skipComments)
         lex.setScanCommentTokens(true);
@@ -137,7 +100,7 @@ QList<Token> SimpleLexer::operator()(const QString &text, int state)
         else if (inPreproc && tokens.size() == 1 && tk.is(T_IDENTIFIER) &&
                  spell == QLatin1String("include_next"))
             lex.setScanAngleStringLiteralTokens(true);
-        else if (_objCEnabled
+        else if (_languageFeatures.objCEnabled
                  && inPreproc && tokens.size() == 1 && tk.is(T_IDENTIFIER) &&
                  spell == QLatin1String("import"))
             lex.setScanAngleStringLiteralTokens(true);
@@ -165,8 +128,13 @@ Token SimpleLexer::tokenAt(const QString &text,
                            int state,
                            bool qtMocRunEnabled)
 {
+    // FIXME: Check default values.
+    LanguageFeatures features;
+    features.qtMocRunEnabled = qtMocRunEnabled;
+    features.qtEnabled = qtMocRunEnabled;
+    features.qtKeywordsEnabled = qtMocRunEnabled;
     SimpleLexer tokenize;
-    tokenize.setQtMocRunEnabled(qtMocRunEnabled);
+    tokenize.setLanguageFeatures(features);
     const QList<Token> tokens = tokenize(text, state);
     const int tokenIdx = tokenAt(tokens, offset);
     return (tokenIdx == -1) ? Token() : tokens.at(tokenIdx);

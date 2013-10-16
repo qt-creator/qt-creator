@@ -74,8 +74,10 @@ QVariant AvdModel::data(const QModelIndex &index, int role) const
             return m_list[index.row()].serialNumber;
         case 1:
             return QString::fromLatin1("API %1").arg(m_list[index.row()].sdk);
-        case 2:
-            return m_list[index.row()].cpuAbi.first();
+        case 2: {
+            QStringList cpuAbis = m_list[index.row()].cpuAbi;
+            return cpuAbis.isEmpty() ? QVariant() : QVariant(cpuAbis.first());
+        }
     }
     return QVariant();
 }

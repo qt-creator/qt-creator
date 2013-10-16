@@ -85,7 +85,7 @@ public:
     QString resetFlag() const;
 
 private:
-    LogChangeWidget *widget;
+    LogChangeWidget *m_widget;
     QDialogButtonBox *m_dialogButtonBox;
     QComboBox *m_resetTypeComboBox;
 };

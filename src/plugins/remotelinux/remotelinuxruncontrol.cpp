@@ -129,16 +129,6 @@ QIcon RemoteLinuxRunControl::icon() const
     return QIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL));
 }
 
-void RemoteLinuxRunControl::setApplicationRunnerPreRunAction(DeviceApplicationHelperAction *action)
-{
-    d->runner.setPreRunAction(action);
-}
-
-void RemoteLinuxRunControl::setApplicationRunnerPostRunAction(DeviceApplicationHelperAction *action)
-{
-    d->runner.setPostRunAction(action);
-}
-
 void RemoteLinuxRunControl::setFinished()
 {
     d->runner.disconnect(this);

@@ -81,8 +81,6 @@
 #include "devicesupport/desktopdevicefactory.h"
 #include "devicesupport/devicemanager.h"
 #include "devicesupport/devicesettingspage.h"
-#include "publishing/ipublishingwizardfactory.h"
-#include "publishing/publishingwizardselectiondialog.h"
 
 #ifdef Q_OS_WIN
 #    include "windebuginterface.h"
@@ -97,6 +95,7 @@
 #endif
 
 #include <extensionsystem/pluginspec.h>
+#include <extensionsystem/pluginmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/id.h>
@@ -190,7 +189,6 @@ struct ProjectExplorerPluginPrivate {
     Utils::ParameterAction *m_deployAction;
     QAction *m_deployActionContextMenu;
     QAction *m_deploySessionAction;
-    Utils::ParameterAction *m_publishAction;
     Utils::ParameterAction *m_cleanAction;
     QAction *m_cleanActionContextMenu;
     QAction *m_cleanSessionAction;
@@ -737,14 +735,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd = ActionManager::registerAction(d->m_runWithoutDeployAction, Constants::RUNWITHOUTDEPLOY, globalcontext);
     mbuild->addAction(cmd, Constants::G_BUILD_RUN);
 
-    // Publish action
-    d->m_publishAction = new Utils::ParameterAction(tr("Publish Project..."), tr("Publish Project \"%1\"..."),
-                                                    Utils::ParameterAction::AlwaysEnabled, this);
-    cmd = ActionManager::registerAction(d->m_publishAction, Constants::PUBLISH, globalcontext);
-    cmd->setAttribute(Command::CA_UpdateText);
-    cmd->setDescription(d->m_publishAction->text());
-    mbuild->addAction(cmd, Constants::G_BUILD_RUN);
-
     // build action (context menu)
     d->m_buildActionContextMenu = new QAction(tr("Build"), this);
     cmd = ActionManager::registerAction(d->m_buildActionContextMenu, Constants::BUILDCM, projecTreeContext);
@@ -960,7 +950,6 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(d->m_deployAction, SIGNAL(triggered()), this, SLOT(deployProject()));
     connect(d->m_deployActionContextMenu, SIGNAL(triggered()), this, SLOT(deployProjectContextMenu()));
     connect(d->m_deploySessionAction, SIGNAL(triggered()), this, SLOT(deploySession()));
-    connect(d->m_publishAction, SIGNAL(triggered()), this, SLOT(publishProject()));
     connect(d->m_cleanProjectOnlyAction, SIGNAL(triggered()), this, SLOT(cleanProjectOnly()));
     connect(d->m_cleanAction, SIGNAL(triggered()), this, SLOT(cleanProject()));
     connect(d->m_cleanActionContextMenu, SIGNAL(triggered()), this, SLOT(cleanProjectContextMenu()));
@@ -1248,19 +1237,6 @@ void ProjectExplorerPlugin::setStartupProject(Project *project)
         return;
     SessionManager::setStartupProject(project);
     updateActions();
-}
-
-void ProjectExplorerPlugin::publishProject()
-{
-    const Project * const project = SessionManager::startupProject();
-    QTC_ASSERT(project, return);
-    PublishingWizardSelectionDialog selectionDialog(project);
-    if (selectionDialog.exec() == QDialog::Accepted) {
-        QWizard * const publishingWizard
-            = selectionDialog.createSelectedWizard();
-        publishingWizard->exec();
-        delete publishingWizard;
-    }
 }
 
 void ProjectExplorerPlugin::savePersistentSettings()
@@ -1860,7 +1836,6 @@ void ProjectExplorerPlugin::updateActions()
     d->m_buildAction->setParameter(projectName);
     d->m_rebuildAction->setParameter(projectName);
     d->m_cleanAction->setParameter(projectName);
-    d->m_publishAction->setParameter(projectName);
 
     d->m_buildAction->setEnabled(buildActionState.first);
     d->m_rebuildAction->setEnabled(buildActionState.first);
@@ -1913,19 +1888,6 @@ void ProjectExplorerPlugin::updateActions()
     d->m_cleanSessionAction->setToolTip(buildSessionState.second);
 
     d->m_cancelBuildAction->setEnabled(BuildManager::isBuilding());
-
-    bool canPublish = false;
-    if (project) {
-        const QList<IPublishingWizardFactory *> &factories
-                = ExtensionSystem::PluginManager::getObjects<IPublishingWizardFactory>();
-        foreach (const IPublishingWizardFactory *const factory, factories) {
-            if (factory->canCreateWizard(project)) {
-                canPublish = true;
-                break;
-            }
-        }
-    }
-    d->m_publishAction->setEnabled(canPublish);
 
     const bool hasProjects = SessionManager::hasProjects();
     d->m_projectSelectorAction->setEnabled(hasProjects);

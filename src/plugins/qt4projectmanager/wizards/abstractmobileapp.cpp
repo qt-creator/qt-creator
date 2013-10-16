@@ -60,9 +60,7 @@ const int AbstractMobileApp::StubVersion = 9;
 
 AbstractMobileApp::AbstractMobileApp()
     : QObject()
-    , m_canSupportMeegoBooster(false)
     , m_orientation(ScreenOrientationAuto)
-    , m_supportsMeegoBooster(false)
 {
 }
 
@@ -124,8 +122,6 @@ QString AbstractMobileApp::path(int fileType) const
         case AppPro:                return outputPathBase() + m_projectName + QLatin1String(".pro");
         case AppProOrigin:          return originsRootApp + QLatin1String("app.pro");
         case AppProPath:            return outputPathBase();
-        case DesktopFremantle:      return outputPathBase() + m_projectName + QLatin1String(".desktop");
-        case DesktopHarmattan:      return outputPathBase() + m_projectName + QLatin1String("_harmattan.desktop");
         case DesktopOrigin:         return originsRootShared + QLatin1String("app.desktop");
         case DeploymentPri:         return outputPathBase() + DeploymentPriFileName;
         case DeploymentPriOrigin:   return originsRootShared + DeploymentPriFileName;
@@ -154,17 +150,6 @@ QByteArray AbstractMobileApp::generateDesktopFile(QString *errorMessage, int fil
     QByteArray desktopFileContent;
     if (!readTemplate(DesktopOrigin, &desktopFileContent, errorMessage))
         return QByteArray();
-    if (fileType == AbstractGeneratedFileInfo::DesktopFremantleFile) {
-        desktopFileContent.replace("Icon=thisApp",
-            "Icon=" + projectName().toUtf8() + "64");
-    } else if (fileType == AbstractGeneratedFileInfo::DesktopHarmattanFile) {
-        desktopFileContent.replace("Icon=thisApp",
-            "Icon=/usr/share/icons/hicolor/80x80/apps/" + projectName().toUtf8() + "80.png");
-        if (m_supportsMeegoBooster)
-            desktopFileContent.replace("Exec=", "Exec=/usr/bin/invoker --type=d -s ");
-        else
-            desktopFileContent.replace("Exec=", "Exec=/usr/bin/single-instance ");
-    }
     return desktopFileContent.replace("thisApp", projectName().toUtf8());
 }
 
@@ -353,8 +338,6 @@ Core::GeneratedFiles AbstractMobileApp::generateFiles(QString *errorMessage) con
     files << file(generateFile(AbstractGeneratedFileInfo::MainCppFile, errorMessage), path(MainCpp));
     files << file(generateFile(AbstractGeneratedFileInfo::PngIcon64File, errorMessage), path(PngIcon64));
     files << file(generateFile(AbstractGeneratedFileInfo::PngIcon80File, errorMessage), path(PngIcon80));
-    files << file(generateFile(AbstractGeneratedFileInfo::DesktopFremantleFile, errorMessage), path(DesktopFremantle));
-    files << file(generateFile(AbstractGeneratedFileInfo::DesktopHarmattanFile, errorMessage), path(DesktopHarmattan));
     return files;
 }
 #endif // CREATORLESSTEST
@@ -362,22 +345,6 @@ Core::GeneratedFiles AbstractMobileApp::generateFiles(QString *errorMessage) con
 QString AbstractMobileApp::error() const
 {
     return m_error;
-}
-
-bool AbstractMobileApp::canSupportMeegoBooster() const
-{
-    return m_canSupportMeegoBooster;
-}
-
-bool AbstractMobileApp::supportsMeegoBooster() const
-{
-    return m_supportsMeegoBooster;
-}
-
-void AbstractMobileApp::setSupportsMeegoBooster(bool supportMeegoBooster)
-{
-    QTC_ASSERT(canSupportMeegoBooster(), return);
-    m_supportsMeegoBooster = supportMeegoBooster;
 }
 
 QByteArray AbstractMobileApp::readBlob(const QString &filePath,
@@ -408,10 +375,6 @@ QByteArray AbstractMobileApp::generateFile(int fileType,
             break;
         case AbstractGeneratedFileInfo::PngIcon80File:
             data = readBlob(path(PngIconOrigin80), errorMessage);
-            break;
-        case AbstractGeneratedFileInfo::DesktopFremantleFile:
-        case AbstractGeneratedFileInfo::DesktopHarmattanFile:
-            data = generateDesktopFile(errorMessage, fileType);
             break;
         case AbstractGeneratedFileInfo::DeploymentPriFile:
             data = readBlob(path(DeploymentPriOrigin), errorMessage);

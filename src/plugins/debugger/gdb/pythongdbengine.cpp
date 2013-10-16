@@ -62,34 +62,35 @@ void GdbEngine::updateLocalsPython(const UpdateParameters &params)
     const QString fileName = stackHandler()->currentFrame().file;
     const QString function = stackHandler()->currentFrame().function;
     if (!fileName.isEmpty()) {
-        typedef DebuggerToolTipManager::ExpressionInamePair ExpressionInamePair;
-        typedef DebuggerToolTipManager::ExpressionInamePairs ExpressionInamePairs;
-
         // Re-create tooltip items that are not filters on existing local variables in
         // the tooltip model.
-        ExpressionInamePairs toolTips =
+        DebuggerToolTipContexts toolTips =
             DebuggerToolTipManager::treeWidgetExpressions(fileName, objectName(), function);
 
         const QString currentExpression = tooltipExpression();
         if (!currentExpression.isEmpty()) {
             int currentIndex = -1;
             for (int i = 0; i < toolTips.size(); ++i) {
-                if (toolTips.at(i).first == currentExpression) {
+                if (toolTips.at(i).expression == currentExpression) {
                     currentIndex = i;
                     break;
                 }
             }
-            if (currentIndex < 0)
-                toolTips.push_back(ExpressionInamePair(currentExpression, tooltipIName(currentExpression)));
+            if (currentIndex < 0) {
+                DebuggerToolTipContext context;
+                context.expression = currentExpression;
+                context.iname = tooltipIName(currentExpression);
+                toolTips.push_back(context);
+            }
         }
 
-        foreach (const ExpressionInamePair &p, toolTips) {
-            if (p.second.startsWith("tooltip")) {
+        foreach (const DebuggerToolTipContext &p, toolTips) {
+            if (p.iname.startsWith("tooltip")) {
                 if (!watchers.isEmpty())
                     watchers += "##";
-                watchers += p.first.toLatin1();
+                watchers += p.expression.toLatin1();
                 watchers += '#';
-                watchers += p.second;
+                watchers += p.iname;
             }
         }
     }

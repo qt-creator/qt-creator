@@ -45,15 +45,6 @@ public:
     Control *control() const { return _control; }
     TranslationUnit *translationUnit() const;
 
-    bool qtMocRunEnabled() const;
-    void setQtMocRunEnabled(bool onoff);
-
-    bool cxx0xEnabled() const;
-    void setCxxOxEnabled(bool onoff);
-
-    bool objCEnabled() const;
-    void setObjCEnabled(bool onoff);
-
     void scan(Token *tok);
 
     inline void operator()(Token *tok)
@@ -82,10 +73,13 @@ public:
     bool isIncremental() const;
     void setIncremental(bool isIncremental);
 
+    LanguageFeatures languageFeatures() const { return _languageFeatures; }
+    void setLanguageFeatures(LanguageFeatures features) { _languageFeatures = features; }
+
 private:
     void scan_helper(Token *tok);
     void setSource(const char *firstChar, const char *lastChar);
-    static int classify(const char *string, int length, bool q, bool cxx0x);
+    static int classify(const char *string, int length, LanguageFeatures features);
     static int classifyObjCAtKeyword(const char *s, int n);
     static int classifyOperator(const char *string, int length);
 
@@ -111,9 +105,6 @@ private:
         unsigned _scanCommentTokens: 1;
         unsigned _scanKeywords: 1;
         unsigned _scanAngleStringLiteralTokens: 1;
-        unsigned _qtMocRunEnabled: 1;
-        unsigned _cxx0xEnabled: 1;
-        unsigned _objCEnabled: 1;
     };
 
     TranslationUnit *_translationUnit;
@@ -129,6 +120,8 @@ private:
         Flags f;
     };
     unsigned _currentLine;
+    LanguageFeatures _languageFeatures;
+
 };
 
 } // namespace CPlusPlus

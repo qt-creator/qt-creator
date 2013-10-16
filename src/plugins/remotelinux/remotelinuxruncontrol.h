@@ -34,8 +34,6 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-namespace ProjectExplorer { class DeviceApplicationHelperAction; }
-
 namespace RemoteLinux {
 
 class REMOTELINUX_EXPORT RemoteLinuxRunControl : public ProjectExplorer::RunControl
@@ -49,9 +47,6 @@ public:
     virtual StopResult stop();
     virtual bool isRunning() const;
     virtual QIcon icon() const;
-
-    void setApplicationRunnerPreRunAction(ProjectExplorer::DeviceApplicationHelperAction *action);
-    void setApplicationRunnerPostRunAction(ProjectExplorer::DeviceApplicationHelperAction *action);
 
 private slots:
     void handleErrorMessage(const QString &error);

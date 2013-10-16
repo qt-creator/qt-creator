@@ -162,9 +162,13 @@ void LldbEngine::setupEngine()
 
 void LldbEngine::setupInferior()
 {
-    QString executable = QFileInfo(startParameters().executable).absoluteFilePath();
-    runCommand(Command("setupInferior").arg("executable", executable));
-
+    const DebuggerStartParameters &sp = startParameters();
+    Command cmd("setupInferior");
+    cmd.arg("executable", QFileInfo(sp.executable).absoluteFilePath());
+    cmd.arg("startMode", sp.startMode);
+    cmd.arg("processArgs", sp.processArgs);
+    cmd.arg("attachPid", sp.attachPID);
+    runCommand(cmd);
     requestUpdateWatchers();
 }
 

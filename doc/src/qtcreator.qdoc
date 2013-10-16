@@ -91,12 +91,6 @@
             \li \inlineimage creator_advanceduse.png
             \li \inlineimage creator_gettinghelp.png
         \row
-            \li \b {\l{Publishing}}
-                \list
-                    \li \l{Publishing Qt Content for MeeGo Harmattan Devices}
-                    \li \l{Publishing Qt Content for Maemo Devices}
-                    \li \l{Publishing Maemo Applications to Extras-devel}
-                \endlist
             \li \b {\l{Advanced Use}}
                 \list
                     \li \l{Supported Platforms}
@@ -216,7 +210,7 @@
             \list
                 \li \l{Deploying Applications to Android Devices}
                 \li \l{Deploying Applications to BlackBerry 10 Devices}
-                \li \l{Deploying Applications to Linux-Based Devices}
+                \li \l{Deploying Applications to Embedded Linux Devices}
                 \li \l{Deploying Applications to QNX Devices}
             \endlist
             \li \l{Connecting Mobile Devices}
@@ -226,12 +220,9 @@
                 \li \l{Connecting BlackBerry 10 Devices}
                 \li \l{Connecting Embedded Linux Devices}
                 \li \l{Connecting iOS Devices}
-                \li \l{Connecting Maemo Devices}
-                \li \l{Connecting MeeGo Harmattan Devices}
                 \li \l{Connecting QNX Devices}
             \endlist
             \li \l{Customizing the Build Process}
-            \li \l{Using Maemo or MeeGo Harmattan Emulator}
         \endlist
         \li \l{Debugging and Analyzing}
         \list
@@ -259,11 +250,6 @@
 
         \endlist
         \li \l{Publishing}
-        \list
-            \li \l{Publishing Qt Content for Maemo Devices}
-            \li \l{Publishing Qt Content for MeeGo Harmattan Devices}
-            \li \l{Publishing Maemo Applications to Extras-devel}
-        \endlist
         \li \l{Advanced Use}
         \list
             \li \l{Supported Platforms}

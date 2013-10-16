@@ -72,7 +72,7 @@ public:
     void startFailed();
     void debuggingFinished();
     ProjectExplorer::RunConfiguration *runConfiguration() const;
-    DebuggerEngine *engine(); // FIXME: Remove. Only used by Maemo support.
+    DebuggerEngine *engine();
 
     void showMessage(const QString &msg, int channel);
 

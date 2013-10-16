@@ -45,16 +45,19 @@ class tst_AST: public QObject
     Control control;
 
 public:
-
     TranslationUnit *parse(const QByteArray &source,
                            TranslationUnit::ParseMode mode,
                            bool blockErrors = false,
                            bool qtMocRun = false)
     {
         const StringLiteral *fileId = control.stringLiteral("<stdin>");
+        LanguageFeatures features;
+        features.objCEnabled = true;
+        features.qtEnabled = qtMocRun;
+        features.qtKeywordsEnabled = qtMocRun;
+        features.qtMocRunEnabled = qtMocRun;
         TranslationUnit *unit = new TranslationUnit(&control, fileId);
-        unit->setObjCEnabled(true);
-        unit->setQtMocRunEnabled(qtMocRun);
+        unit->setLanguageFeatures(features);
         unit->setSource(source.constData(), source.length());
         unit->blockErrors(blockErrors);
         unit->parse(mode);

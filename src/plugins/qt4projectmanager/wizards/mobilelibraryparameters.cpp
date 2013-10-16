@@ -41,19 +41,15 @@ MobileLibraryParameters::MobileLibraryParameters() :
 
 void MobileLibraryParameters::writeProFile(QTextStream &str) const
 {
-    if (type&Maemo)
-        writeMaemoProFile(str);
+    if (type&Linux)
+        writeLinuxProFile(str);
 }
 
-void MobileLibraryParameters::writeMaemoProFile(QTextStream &str) const
+void MobileLibraryParameters::writeLinuxProFile(QTextStream &str) const
 {
     str << "\n"
            "unix:!symbian {\n"
-           "    maemo5 {\n"
-           "        target.path = /opt/usr/lib\n"
-           "    } else {\n"
-           "        target.path = /usr/lib\n"
-           "    }\n"
+           "    target.path = /usr/lib\n"
            "    INSTALLS += target\n"
            "}\n";
 }

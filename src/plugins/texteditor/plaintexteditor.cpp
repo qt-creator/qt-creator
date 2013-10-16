@@ -70,7 +70,8 @@ PlainTextEditorWidget::PlainTextEditorWidget(QWidget *parent)
 
     m_commentDefinition.clearCommentStyles();
 
-    connect(editorDocument(), SIGNAL(changed()), this, SLOT(configure()));
+    // If configure() is called immediately the whole document is considered modified
+    connect(editorDocument(), SIGNAL(changed()), this, SLOT(configure()), Qt::QueuedConnection);
     connect(Manager::instance(), SIGNAL(mimeTypesRegistered()), this, SLOT(configure()));
 }
 

@@ -50,7 +50,7 @@ IosRunner::IosRunner(QObject *parent, IosRunConfiguration *runConfig, bool debug
     : QObject(parent), m_toolHandler(0), m_bundleDir(runConfig->bundleDir().toString()),
       m_arguments(runConfig->commandLineArguments()),
       m_device(ProjectExplorer::DeviceKitInformation::device(runConfig->target()->kit())),
-      m_debuggingMode(debuggingMode), m_cleanExit(false)
+      m_debuggingMode(debuggingMode), m_cleanExit(false), m_didWarn(false)
 {
 }
 
@@ -110,8 +110,8 @@ void IosRunner::start()
             SLOT(handleErrorMsg(Ios::IosToolHandler*,QString)));
     connect(m_toolHandler, SIGNAL(gotGdbserverSocket(Ios::IosToolHandler*,QString,QString,int)),
             SLOT(handleGotGdbserverSocket(Ios::IosToolHandler*,QString,QString,int)));
-    connect(m_toolHandler, SIGNAL(gotInferiorPid(Ios::IosToolHandler*,QString,QString,pid_t)),
-            SLOT(handleGotInferiorPid(Ios::IosToolHandler*,QString,QString,pid_t)));
+    connect(m_toolHandler, SIGNAL(gotInferiorPid(Ios::IosToolHandler*,QString,QString,Q_PID)),
+            SLOT(handleGotInferiorPid(Ios::IosToolHandler*,QString,QString,Q_PID)));
     connect(m_toolHandler, SIGNAL(toolExited(Ios::IosToolHandler*,int)),
             SLOT(handleToolExited(Ios::IosToolHandler*,int)));
     connect(m_toolHandler, SIGNAL(finished(Ios::IosToolHandler*)),
@@ -142,7 +142,7 @@ void IosRunner::handleGotGdbserverSocket(IosToolHandler *handler, const QString 
 }
 
 void IosRunner::handleGotInferiorPid(IosToolHandler *handler, const QString &bundlePath,
-                                     const QString &deviceId, pid_t pid)
+                                     const QString &deviceId, Q_PID pid)
 {
     Q_UNUSED(bundlePath); Q_UNUSED(deviceId);
     if (m_toolHandler == handler)
@@ -155,18 +155,25 @@ void IosRunner::handleAppOutput(IosToolHandler *handler, const QString &output)
     emit appOutput(output);
 }
 
+void IosRunner::warnAboutRunFail()
+{
+    if (m_didWarn)
+        return;
+    m_didWarn = true;
+    QMessageBox mBox;
+    mBox.setText(tr("Running on iOS device failed."));
+    mBox.setInformativeText(tr("The certificates in Xcode or the device might be outdated. Check the certificates in the organizer window of Xcode, and try again."));
+    mBox.setStandardButtons(QMessageBox::Ok);
+    mBox.setDefaultButton(QMessageBox::Ok);
+    mBox.setIcon(QMessageBox::Information);
+    mBox.exec();
+}
+
 void IosRunner::handleErrorMsg(IosToolHandler *handler, const QString &msg)
 {
-    if (msg.contains(QLatin1String("AMDeviceStartService returned -402653150"))) {
-        QMessageBox mBox;
-        mBox.setText(tr("Running on iOS device failed."));
-        mBox.setInformativeText(tr("The certificates in Xcode or the device might be outdated. Check the certificates in the organizer window of Xcode, and try again."));
-        mBox.setStandardButtons(QMessageBox::Ok);
-        mBox.setDefaultButton(QMessageBox::Ok);
-        mBox.setIcon(QMessageBox::Information);
-        mBox.exec();
-    }
     Q_UNUSED(handler);
+    if (msg.contains(QLatin1String("AMDeviceStartService returned -402653150")))
+        QTimer::singleShot(0, this, SLOT(warnAboutRunFail()));
     emit errorMsg(msg);
 }
 

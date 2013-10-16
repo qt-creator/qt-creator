@@ -82,16 +82,6 @@ AbstractRemoteLinuxRunSupport::~AbstractRemoteLinuxRunSupport()
     delete d;
 }
 
-void AbstractRemoteLinuxRunSupport::setApplicationRunnerPreRunAction(DeviceApplicationHelperAction *action)
-{
-    d->appRunner.setPreRunAction(action);
-}
-
-void AbstractRemoteLinuxRunSupport::setApplicationRunnerPostRunAction(DeviceApplicationHelperAction *action)
-{
-    d->appRunner.setPostRunAction(action);
-}
-
 void AbstractRemoteLinuxRunSupport::setState(AbstractRemoteLinuxRunSupport::State state)
 {
     d->state = state;

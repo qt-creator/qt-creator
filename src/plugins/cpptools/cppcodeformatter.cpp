@@ -1055,9 +1055,14 @@ int CodeFormatter::tokenizeBlock(const QTextBlock &block, bool *endedJoined)
         startState = 0;
     QTC_ASSERT(startState != -1, return 0);
 
+    LanguageFeatures features;
+    features.qtEnabled = true;
+    features.qtMocRunEnabled = true;
+    features.qtKeywordsEnabled = true;
+    features.objCEnabled = true;
+
     SimpleLexer tokenize;
-    tokenize.setQtMocRunEnabled(true);
-    tokenize.setObjCEnabled(true);
+    tokenize.setLanguageFeatures(features);
 
     m_currentLine = block.text();
     // to determine whether a line was joined, Tokenizer needs a

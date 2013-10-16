@@ -42,10 +42,14 @@
 #include <QList>
 #include <QScopedArrayPointer>
 
+#if defined(Q_OS_UNIX)
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
+#else
+#include <WinSock2.h>
+#endif
 #include <string.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -109,8 +113,9 @@ struct ParserState {
         case Item:
         case DeviceInfo:
         case Exit:
-            return false;
+            break;
         }
+        return false;
     }
 
     ParserState(Kind kind) :
@@ -155,7 +160,7 @@ public:
     void didStartApp(const QString &bundlePath, const QString &deviceId,
                      IosToolHandler::OpStatus status);
     void gotGdbserverSocket(const QString &bundlePath, const QString &deviceId, int gdbFd);
-    void gotInferiorPid(const QString &bundlePath, const QString &deviceId, pid_t pid);
+    void gotInferiorPid(const QString &bundlePath, const QString &deviceId, Q_PID pid);
     void deviceInfo(const QString &deviceId, const IosToolHandler::Dict &info);
     void appOutput(const QString &output);
     void errorMsg(const QString &msg);
@@ -213,6 +218,7 @@ private:
     void addDeviceArguments(QStringList &args) const;
 };
 
+#if defined(Q_OS_UNIX)
 MyProcess::MyProcess(QObject *parent) : QProcess(parent)
 {
     if (socketpair(PF_UNIX, SOCK_STREAM, 0, &m_sockets[0]) == -1) {
@@ -241,6 +247,25 @@ void MyProcess::setupChildProcess()
     }
     shutdown(1, SHUT_RD); // leave open for handshake when transferring fd?
 }
+#else
+MyProcess::MyProcess(QObject *parent) : QProcess(parent)
+{
+}
+
+int MyProcess::processOutputSocket()
+{
+    return 0;
+}
+
+QSocketNotifier *MyProcess::notifier()
+{
+    return m_notifier;
+}
+
+void MyProcess::setupChildProcess()
+{
+}
+#endif
 
 IosToolHandlerPrivate::IosToolHandlerPrivate(IosToolHandler::DeviceType devType,
                                              Ios::IosToolHandler *q) :
@@ -252,10 +277,12 @@ IosToolHandlerPrivate::IosToolHandlerPrivate(IosToolHandler::DeviceType devType,
             q, SLOT(subprocessFinished(int,QProcess::ExitStatus)));
     QObject::connect(&process, SIGNAL(error(QProcess::ProcessError)),
             q, SLOT(subprocessError(QProcess::ProcessError)));
+#if defined(Q_OS_UNIX)
     int accessFlags = fcntl(process.processOutputSocket(), F_GETFL);
     if (fcntl(process.processOutputSocket(), F_SETFL, accessFlags | O_NONBLOCK) == -1)
         qDebug() << "IosToolHandler fcntl F_SETFL failed to set non blocking mode"
                  << qt_error_string(errno);
+#endif
 }
 
 bool IosToolHandlerPrivate::isRunning()
@@ -278,7 +305,9 @@ void IosToolHandlerPrivate::stop()
     if (debugToolHandler)
         qDebug() << "IosToolHandlerPrivate::stop";
     if (process.state() != QProcess::NotRunning) {
+#if defined(Q_OS_UNIX)
         close(process.processOutputSocket());
+#endif
         process.close();
         process.kill();
         if (debugToolHandler)
@@ -316,7 +345,7 @@ void IosToolHandlerPrivate::gotGdbserverSocket(const QString &bundlePath, const 
 }
 
 void IosToolHandlerPrivate::gotInferiorPid(const QString &bundlePath, const QString &deviceId,
-                                           pid_t pid)
+                                           Q_PID pid)
 {
     emit q->gotInferiorPid(q, bundlePath, deviceId, pid);
 }
@@ -365,10 +394,10 @@ void IosToolHandlerPrivate::subprocessError(QProcess::ProcessError error)
         // pass
     case StartedInferior:
     case XmlEndSeenNotProcessed:
-    case XmlEndProcessed:
         errorMsg(IosToolHandler::tr("Subprocess Error %1").arg(error));
         toolExited(-1);
         break;
+    case XmlEndProcessed:
     case Stopped:
         qDebug() << "IosToolHandler, subprocessError() in an already stopped process";
     }
@@ -409,6 +438,7 @@ void IosToolHandlerPrivate::subprocessFinished(int exitCode, QProcess::ExitStatu
     }
 }
 
+#if defined(Q_OS_UNIX)
 #ifndef CMSG_SPACE
 size_t CMSG_SPACE(size_t len) {
         msghdr msg;
@@ -474,6 +504,13 @@ int recv_fd(int socket)
 
     return -1;
 }
+#else
+int recv_fd(int socket)
+{
+    Q_UNUSED(socket);
+    return -1;
+}
+#endif
 
 int IosToolHandlerPrivate::checkForXmlEnd()
 {
@@ -623,7 +660,7 @@ void IosToolHandlerPrivate::processXml()
             case ParserState::Exit:
                 break;
             case ParserState::InferiorPid:
-                gotInferiorPid(bundlePath, deviceId, pid_t(p.chars.toInt()));
+                gotInferiorPid(bundlePath, deviceId, Q_PID(p.chars.toInt()));
                 break;
             }
             break;
@@ -684,7 +721,7 @@ void IosToolHandlerPrivate::subprocessHasData(int socket)
                 iBegin = iEnd;
             }
             currentData.clear();
-            ssize_t reallyRead = recv(socket, buffer.data() + iBegin, lookaheadSize, 0);
+            qptrdiff reallyRead = recv(socket, buffer.data() + iBegin, lookaheadSize, 0);
             if (reallyRead == 0) { // eof
                 stop();
                 return;
@@ -739,8 +776,8 @@ void IosToolHandlerPrivate::subprocessHasData(int socket)
                     spacerStart -= iBegin;
                     currentData = buffer.mid(0, lastXmlSize); // remove this??
                 }
-                ssize_t toRead = lookaheadSize - (iEnd - spacerStart);
-                ssize_t reallyRead = recv(socket, buffer.data() + iBegin, toRead, 0);
+                qptrdiff toRead = lookaheadSize - (iEnd - spacerStart);
+                qptrdiff reallyRead = recv(socket, buffer.data() + iBegin, toRead, 0);
                 if (reallyRead == 0) { // eof
                     stop();
                     return;
@@ -868,7 +905,7 @@ void IosSimulatorToolHandlerPrivate::requestRunApp(const QString &bundlePath,
     QStringList args;
 
     args << QLatin1String("launch") << bundlePath;
-    Utils::FileName devPath = IosConfigurations::instance().config().developerPath;
+    Utils::FileName devPath = IosConfigurations::developerPath();
     if (!devPath.isEmpty())
         args << QLatin1String("--developer-path") << devPath.toString();
     addDeviceArguments(args);

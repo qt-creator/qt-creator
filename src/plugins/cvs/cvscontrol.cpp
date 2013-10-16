@@ -126,26 +126,6 @@ bool CvsControl::vcsCheckout(const QString &, const QByteArray &)
     return false;
 }
 
-QString CvsControl::vcsCreateSnapshot(const QString &)
-{
-    return QString();
-}
-
-QStringList CvsControl::vcsSnapshots(const QString &)
-{
-    return QStringList();
-}
-
-bool CvsControl::vcsRestoreSnapshot(const QString &, const QString &)
-{
-    return false;
-}
-
-bool CvsControl::vcsRemoveSnapshot(const QString &, const QString &)
-{
-    return false;
-}
-
 bool CvsControl::vcsAnnotate(const QString &file, int line)
 {
     const QFileInfo fi(file);

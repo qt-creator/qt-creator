@@ -51,8 +51,7 @@ QtcPlugin {
             "qt4projectmanagerconstants.h",
             "qt4projectmanagerplugin.cpp", "qt4projectmanagerplugin.h",
             "qtmodulesinfo.cpp", "qtmodulesinfo.h",
-            "winceqtversion.cpp", "winceqtversion.h",
-            "winceqtversionfactory.cpp", "winceqtversionfactory.h"
+            "qt4runconfiguration.cpp", "qt4runconfiguration.h",
         ]
     }
 
@@ -85,18 +84,6 @@ QtcPlugin {
     }
 
     Group {
-        name: "Qt/Desktop"
-        prefix: "qt-desktop/"
-        files: [
-            "desktopqtversion.cpp", "desktopqtversion.h",
-            "desktopqtversionfactory.cpp", "desktopqtversionfactory.h",
-            "qt4runconfiguration.cpp", "qt4runconfiguration.h",
-            "simulatorqtversion.cpp", "simulatorqtversion.h",
-            "simulatorqtversionfactory.cpp", "simulatorqtversionfactory.h"
-        ]
-    }
-
-    Group {
         name: "Wizards"
         prefix: "wizards/"
         files: [
@@ -118,8 +105,6 @@ QtcPlugin {
             "librarywizarddialog.cpp", "librarywizarddialog.h",
             "mobileapp.cpp", "mobileapp.h",
             "mobileappwizardgenericoptionspage.ui",
-            "mobileappwizardharmattanoptionspage.ui",
-            "mobileappwizardmaemooptionspage.ui",
             "mobileappwizardpages.cpp", "mobileappwizardpages.h",
             "mobilelibraryparameters.cpp", "mobilelibraryparameters.h",
             "mobilelibrarywizardoptionpage.cpp", "mobilelibrarywizardoptionpage.h", "mobilelibrarywizardoptionpage.ui",

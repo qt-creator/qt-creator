@@ -44,7 +44,6 @@
 #include "canvas/qdeclarativecontext2d_p.h"
 #include "canvas/qmlprofilercanvas.h"
 
-#include <qmlprojectmanager/qmlprojectrunconfiguration.h>
 #include <utils/fancymainwindow.h>
 #include <utils/fileinprojectfinder.h>
 #include <utils/qtcassert.h>
@@ -89,7 +88,6 @@ using namespace QmlProfiler::Internal;
 using namespace QmlProfiler::Constants;
 using namespace QmlDebug;
 using namespace ProjectExplorer;
-using namespace QmlProjectManager;
 
 class QmlProfilerTool::QmlProfilerToolPrivate
 {

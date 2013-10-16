@@ -152,7 +152,7 @@ private:
                           QSet<QString> *definedMacros);
 
     int m_startPosition;
-    bool m_objcEnabled;
+    CPlusPlus::LanguageFeatures m_languageFeatures;
     QScopedPointer<const CppCompletionAssistInterface> m_interface;
     QList<TextEditor::BasicProposalItem *> m_completions;
     TextEditor::SnippetAssistCollector m_snippetCollector;

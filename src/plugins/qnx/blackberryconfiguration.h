@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
+** Copyright (C) 2011,2012,2013 BlackBerry Limited. All rights reserved.
 **
-** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: BlackBerry Limited (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -37,16 +37,20 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 
-#include <qtsupport/baseqtversion.h>
-
 #include <projectexplorer/kit.h>
 #include <projectexplorer/gcctoolchain.h>
 
 #include <QObject>
 #include <QCoreApplication>
 
+namespace QtSupport {
+class BaseQtVersion;
+}
+
 namespace Qnx {
 namespace Internal {
+
+class QnxAbstractQtVersion;
 
 class BlackBerryConfiguration
 {
@@ -78,17 +82,19 @@ private:
     Utils::FileName m_qmake4BinaryFile;
     Utils::FileName m_qmake5BinaryFile;
     Utils::FileName m_gccCompiler;
-    Utils::FileName m_deviceDebuger;
-    Utils::FileName m_simulatorDebuger;
+    Utils::FileName m_deviceDebugger;
+    Utils::FileName m_simulatorDebugger;
     Utils::FileName m_sysRoot;
     QMultiMap<QString, QString> m_qnxEnv;
 
-    void setupConfigurationPerQtVersion(const Utils::FileName &qmakePath, ProjectExplorer::GccToolChain* tc);
-    QtSupport::BaseQtVersion* createQtVersion(const Utils::FileName &qmakePath);
-    ProjectExplorer::GccToolChain* createGccToolChain();
-    ProjectExplorer::Kit* createKit(QnxArchitecture arch, QtSupport::BaseQtVersion* qtVersion, ProjectExplorer::GccToolChain* tc);
-    void setSticky(ProjectExplorer::Kit* kit);
-
+    void createConfigurationPerQtVersion(
+            const Utils::FileName &qmakePath, Qnx::QnxArchitecture arch);
+    QnxAbstractQtVersion* createQtVersion(
+            const Utils::FileName &qmakePath, Qnx::QnxArchitecture arch);
+    ProjectExplorer::GccToolChain* createGccToolChain(QnxAbstractQtVersion *version);
+    ProjectExplorer::Kit* createKit(
+            QnxAbstractQtVersion* version, ProjectExplorer::ToolChain* toolChain);
+    QList<QtSupport::BaseQtVersion *> findRegisteredQtVersions() const;
 };
 
 } // namespace Internal

@@ -103,10 +103,12 @@ class tst_cxx11: public QObject
         Document::Ptr doc = Document::create(fileName);
         QFile file(testdata(fileName));
         if (file.open(QFile::ReadOnly)) {
+            LanguageFeatures features;
+            features.cxx11Enabled = true;
             Client client(errors);
             doc->control()->setDiagnosticClient(&client);
             doc->setUtf8Source(QTextStream(&file).readAll().toUtf8());
-            doc->translationUnit()->setCxxOxEnabled(true);
+            doc->translationUnit()->setLanguageFeatures(features);
             doc->check();
             doc->control()->setDiagnosticClient(0);
         } else {

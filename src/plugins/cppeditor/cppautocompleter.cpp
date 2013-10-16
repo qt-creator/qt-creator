@@ -101,10 +101,14 @@ QString CppAutoCompleter::insertParagraphSeparator(const QTextCursor &cursor) co
 
 bool CppAutoCompleter::isInCommentHelper(const QTextCursor &cursor, Token *retToken) const
 {
+    LanguageFeatures features;
+    features.qtEnabled = false;
+    features.qtKeywordsEnabled = false;
+    features.qtMocRunEnabled = false;
+    features.cxx11Enabled = true;
+
     SimpleLexer tokenize;
-    tokenize.setQtMocRunEnabled(false);
-    tokenize.setObjCEnabled(false);
-    tokenize.setCxx0xEnabled(true);
+    tokenize.setLanguageFeatures(features);
 
     const int prevState = BackwardsScanner::previousBlockState(cursor.block()) & 0xFF;
     const QList<Token> tokens = tokenize(cursor.block().text(), prevState);

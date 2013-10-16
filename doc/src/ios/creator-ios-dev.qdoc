@@ -21,7 +21,7 @@
     \contentspage index.html
     \previouspage creator-developing-generic-linux.html
     \page creator-developing-ios.html
-    \nextpage creator-developing-maemo.html
+    \nextpage creator-developing-qnx.html
 
     \title Connecting iOS Devices
 
@@ -66,14 +66,14 @@
     can change the simulated hardware and software version from within iOS
     Simulator.
 
-    By default, \QC uses the Xcode version set as current on the Mac computer.
+    \QC uses the Xcode version set as current on the Mac computer.
     To check the version, enter the following command:
 
     \c {xcode-select --print-path}
 
-    To change the version, select \gui Preferences > \gui iOS, and select
-    another Xcode version in the \gui {Xcode path} field. This setting overrides
-    the version set by entering the \c {xcode-select --version} command.
+    To change the version, enter the following command:
+
+    \c {xcode-select --version}
 
     \section1 Configuring Devices
 

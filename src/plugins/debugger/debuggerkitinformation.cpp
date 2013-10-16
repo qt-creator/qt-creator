@@ -78,7 +78,7 @@ void DebuggerItem::reinitializeFromFile()
         m_abis = Abi::abisOfBinary(m_command); // FIXME: Wrong.
         return;
     }
-    if (ba.contains("lldb")) {
+    if (ba.contains("lldb") || ba.startsWith("LLDB")) {
         m_engineType = LldbEngineType;
         m_abis = Abi::abisOfBinary(m_command);
         return;

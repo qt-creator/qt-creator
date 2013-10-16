@@ -86,7 +86,7 @@ signals:
     void gotGdbserverSocket(Ios::IosToolHandler *handler, const QString &bundlePath,
                             const QString &deviceId, int gdbFd);
     void gotInferiorPid(Ios::IosToolHandler *handler, const QString &bundlePath,
-                        const QString &deviceId, pid_t pid);
+                        const QString &deviceId, Q_PID pid);
     void deviceInfo(Ios::IosToolHandler *handler, const QString &deviceId,
                     const Ios::IosToolHandler::Dict &info);
     void appOutput(Ios::IosToolHandler *handler, const QString &output);

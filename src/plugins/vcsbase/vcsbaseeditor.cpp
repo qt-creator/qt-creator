@@ -724,6 +724,7 @@ void VcsBaseEditorWidget::init()
 
 VcsBaseEditorWidget::~VcsBaseEditorWidget()
 {
+    setCommand(0); // abort all running commands
     delete d;
 }
 

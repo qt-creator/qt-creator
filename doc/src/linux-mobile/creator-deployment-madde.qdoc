@@ -28,10 +28,10 @@
     \page creator-deployment-maemo.html
     \nextpage creator-deployment-qnx.html
 
-    \title Deploying Applications to Linux-Based Devices
+    \title Deploying Applications to Embedded Linux Devices
 
-    You can specify settings for deploying applications to Linux-based devices
-    (Embedded Linux, MeeGo Harmattan, and Maemo 5) in the project .pro file.
+    You can specify settings for deploying applications to generic Linux devices
+    in the project .pro file.
     You can view the settings in the
     \gui {Run Settings}.
 
@@ -89,56 +89,5 @@
     SFTP enabled in its SSH daemon. Some versions of Dropbear that come
     without SFTP support will crash when an SFTP upload is being attempted.
     This is not a bug in \QC.
-
-    \section1 Deploying on MeeGo Harmattan and Maemo 5
-
-    You can use desktop files to display icons on the home screen of the
-    device. To add desktop files to the project file, select \gui {Add Desktop
-    File}. To specify the icon file to display, select \gui {Add Launcher
-    Icon}. To remove desktop files and icons, delete the definitions from
-    the project file.
-
-    If you develop your own libraries, \QC needs to be able to find them when
-    you compile projects depending on them. When you install MADDE, an instance
-    of the device file system, called sysroot, is installed to the development
-    PC. Libraries are copied to sysroot during the \gui {Install Debian package
-    to sysroot} step.
-
-    \section1 Creating Debian Installation Packages
-
-    When you run the application on the \gui{Maemo5} or \gui Harmattan device,
-    \QC generates a Debian installation package in the build directory by
-    default. You can deliver the installation package to users for installation
-    on devices that are of the same type and run the same firmware as the
-    connected device.
-
-    \image qtcreator-maemo-deb-package.png "Create installation package"
-
-    The name of the installation package is displayed in the \gui {Package name}
-    field in the \gui {Create Package} step. You can change the version number
-    in the \gui {Package version} field.
-
-    You can specify information that users see on a delivery channel, such as
-    Nokia Store or Maemo.org. You can specify a short description of the
-    application, package name, and application icon.
-
-    The Debian control file contains an application icon in encoded form. To add
-    the application icon to the file, select it in the \gui {Icon to be
-    displayed in Package Manager} field. For more information about icon files
-    and adding them manually, see
-    \l{ http://wiki.maemo.org/Packaging#Displaying_an_icon_in_the_Application_Manager_next_to_your_package}
-    {Displaying an icon in the Application Manager next to your package}.
-
-    \note \QC automates this process for you.
-
-    \QC provides templates for a set of files that must be included in Debian
-    packages. When you start using a \l{glossary-buildandrun-kit}{kit} with
-    \gui Maemo5 or \gui Harmattan device type
-    for a project, \QC asks whether packaging files are to be added to the project and
-    to version control. If you plan to edit the packaging files, add them to
-    version control.
-
-    To edit the files, select a file in \gui {Adapt Debian file} and click
-    \gui Edit. The file opens in the text editor.
 
 */

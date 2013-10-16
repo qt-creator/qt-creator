@@ -45,7 +45,6 @@ namespace Utils {
 class QTCREATOR_UTILS_EXPORT FileIterator
 {
 public:
-    FileIterator();
     explicit FileIterator(const QStringList &fileList,
                           const QList<QTextCodec *> encodings);
     virtual ~FileIterator();
@@ -55,6 +54,9 @@ public:
     virtual QTextCodec *encoding() const;
     virtual int maxProgress() const;
     virtual int currentProgress() const;
+
+protected:
+    FileIterator();
 
 private:
     QStringList m_list;

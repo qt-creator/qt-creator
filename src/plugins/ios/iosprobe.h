@@ -62,7 +62,7 @@ public:
 class IosProbe
 {
 public:
-    static QMap<QString, Platform> detectPlatforms(const QString &devPath);
+    static QMap<QString, Platform> detectPlatforms(const QString &devPath = QString());
     IosProbe()
     { }
 
@@ -71,7 +71,7 @@ private:
     void detectDeveloperPaths();
     void setArch(Platform *platform, const QString &pathToGcc, const QStringList &extraFlags);
     void setupDefaultToolchains(const QString &devPath, const QString &xcodeName);
-    void detectAll();
+    void detectFirst();
     QMap<QString, Platform> detectedPlatforms();
 private:
     QMap<QString, Platform> m_platforms;

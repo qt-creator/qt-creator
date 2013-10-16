@@ -3,5 +3,4 @@ QTC_PLUGIN_DEPENDS += \
     coreplugin \
     projectexplorer \
     qmljstools \
-    debugger \
     qtsupport

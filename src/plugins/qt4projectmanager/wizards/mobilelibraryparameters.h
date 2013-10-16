@@ -42,13 +42,13 @@ namespace Internal {
 // Additional parameters required for creating mobile
 // libraries
 struct MobileLibraryParameters {
-    enum Type { TypeNone = 0, Maemo = 0x1 };
+    enum Type { TypeNone = 0, Linux = 0x1 };
 
     MobileLibraryParameters();
     void writeProFile(QTextStream &str) const;
 
 private:
-    void writeMaemoProFile(QTextStream &str) const;
+    void writeLinuxProFile(QTextStream &str) const;
 
 public:
     uint type;

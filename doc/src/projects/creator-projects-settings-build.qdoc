@@ -59,17 +59,6 @@
     you can deselect the \gui {Shadow build}
     checkbox.
 
-    Shadow building is not supported for the following device types on
-    Windows:
-
-    \list
-
-        \li Maemo5
-
-        \li MeeGo Harmattan
-
-    \endlist
-
     To make in-source builds the default option for all projects, select
     \gui Tools > \gui Options > \gui {Build & Run} > \gui General, and enter a
     period (.) in the \gui {Default build directory} field.

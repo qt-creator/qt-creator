@@ -105,8 +105,6 @@ HEADERS += projectexplorer.h \
     taskhub.h \
     localapplicationruncontrol.h \
     metatypedeclarations.h \
-    publishing/publishingwizardselectiondialog.h \
-    publishing/ipublishingwizardfactory.h \
     headerpath.h \
     gcctoolchainfactories.h \
     appoutputpane.h \
@@ -240,7 +238,6 @@ SOURCES += projectexplorer.cpp \
     taskhub.cpp \
     processparameters.cpp \
     localapplicationruncontrol.cpp \
-    publishing/publishingwizardselectiondialog.cpp \
     appoutputpane.cpp \
     codestylesettingspropertiespage.cpp \
     settingsaccessor.cpp \
@@ -281,7 +278,6 @@ FORMS += processstep.ui \
     projectexplorersettingspage.ui \
     targetsettingswidget.ui \
     doubletabwidget.ui \
-    publishing/publishingwizardselectiondialog.ui \
     codestylesettingspropertiespage.ui \
     devicesupport/devicefactoryselectiondialog.ui \
     devicesupport/devicesettingswidget.ui \

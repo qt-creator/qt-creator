@@ -67,16 +67,12 @@ public:
 
     TranslationUnit *parse(const QByteArray &source,
                            TranslationUnit::ParseMode mode,
-                           bool enableObjc,
-                           bool qtMocRun,
-                           bool enableCxx11)
+                           LanguageFeatures features)
     {
         const StringLiteral *fileId = control->stringLiteral("<stdin>");
         TranslationUnit *unit = new TranslationUnit(control.data(), fileId);
         unit->setSource(source.constData(), source.length());
-        unit->setObjCEnabled(enableObjc);
-        unit->setQtMocRunEnabled(qtMocRun);
-        unit->setCxxOxEnabled(enableCxx11);
+        unit->setLanguageFeatures(features);
         unit->parse(mode);
         return unit;
     }
@@ -141,8 +137,14 @@ public:
 
     QSharedPointer<Document> document(const QByteArray &source, bool enableObjc = false, bool qtMocRun = false, bool enableCxx11 = false)
     {
+        LanguageFeatures features;
+        features.objCEnabled = enableObjc;
+        features.qtEnabled = qtMocRun;
+        features.qtMocRunEnabled = qtMocRun;
+        features.qtKeywordsEnabled = qtMocRun;
+        features.cxx11Enabled = enableCxx11;
         diag.errorCount = 0; // reset the error count.
-        TranslationUnit *unit = parse(source, TranslationUnit::ParseTranlationUnit, enableObjc, qtMocRun, enableCxx11);
+        TranslationUnit *unit = parse(source, TranslationUnit::ParseTranlationUnit, features);
         QSharedPointer<Document> doc(new Document(unit));
         doc->check();
         doc->errorCount = diag.errorCount;

@@ -53,14 +53,10 @@ AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent,
     : ProjectExplorer::BaseProjectWizardDialog(parent, parameters)
     , m_targetsPage(0)
     , m_genericOptionsPageId(-1)
-    , m_maemoOptionsPageId(-1)
-    , m_harmattanOptionsPageId(-1)
     , m_targetsPageId(-1)
     , m_ignoreGeneralOptions(false)
     , m_targetItem(0)
     , m_genericItem(0)
-    , m_maemoItem(0)
-    , m_harmattanItem(0)
     , m_kitIds(parameters.extraValues().value(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS))
                .value<QList<Core::Id> >())
 {
@@ -82,8 +78,6 @@ AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent,
     }
 
     m_genericOptionsPage = new Internal::MobileAppWizardGenericOptionsPage;
-    m_maemoOptionsPage = new Internal::MobileAppWizardMaemoOptionsPage;
-    m_harmattanOptionsPage = new Internal::MobileAppWizardHarmattanOptionsPage;
 }
 
 void AbstractMobileAppWizardDialog::addMobilePages()
@@ -93,29 +87,12 @@ void AbstractMobileAppWizardDialog::addMobilePages()
         m_targetItem = wizardProgress()->item(m_targetsPageId);
     }
 
-    const bool shouldAddGenericPage = m_targetsPage
-            || isQtPlatformSelected(QLatin1String(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM));
-    const bool shouldAddMaemoPage = m_targetsPage
-            || isQtPlatformSelected(QLatin1String(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM));
-    const bool shouldAddHarmattanPage = m_targetsPage
-            || isQtPlatformSelected(QLatin1String(QtSupport::Constants::MEEGO_HARMATTAN_PLATFORM));
+    const bool shouldAddGenericPage = m_targetsPage;
 
     if (shouldAddGenericPage) {
         m_genericOptionsPageId = addPageWithTitle(m_genericOptionsPage,
                                                   tr("Mobile Options"));
         m_genericItem = wizardProgress()->item(m_genericOptionsPageId);
-    }
-
-    if (shouldAddMaemoPage) {
-        m_maemoOptionsPageId = addPageWithTitle(m_maemoOptionsPage,
-                                                QLatin1String("    ") + tr("Maemo5 And MeeGo Specific"));
-        m_maemoItem = wizardProgress()->item(m_maemoOptionsPageId);
-    }
-
-    if (shouldAddHarmattanPage) {
-        m_harmattanOptionsPageId = addPageWithTitle(m_harmattanOptionsPage,
-                                                    QLatin1String("    ") + tr("Harmattan Specific"));
-        m_harmattanItem = wizardProgress()->item(m_harmattanOptionsPageId);
     }
 
     if (m_targetItem)
@@ -137,26 +114,10 @@ int AbstractMobileAppWizardDialog::addPageWithTitle(QWizardPage *page, const QSt
 int AbstractMobileAppWizardDialog::nextId() const
 {
     if (m_targetsPage) {
-        if (currentPage() == m_targetsPage) {
-            if (isQtPlatformSelected(QLatin1String(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM)))
-                return m_genericOptionsPageId;
-            else if (isQtPlatformSelected(QLatin1String(QtSupport::Constants::MEEGO_HARMATTAN_PLATFORM)))
-                return m_harmattanOptionsPageId;
-            else
-                return idOfNextGenericPage();
-        } else if (currentPage() == m_genericOptionsPage) {
-            if (isQtPlatformSelected(QLatin1String(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM)))
-                return m_maemoOptionsPageId;
-            else if (isQtPlatformSelected(QLatin1String(QtSupport::Constants::MEEGO_HARMATTAN_PLATFORM)))
-                return m_harmattanOptionsPageId;
-            else
-                return idOfNextGenericPage();
-        } else if (currentPage() == m_maemoOptionsPage) {
-            if (isQtPlatformSelected(QLatin1String(QtSupport::Constants::MEEGO_HARMATTAN_PLATFORM)))
-                return m_harmattanOptionsPageId;
-            else
-                return idOfNextGenericPage();
-        }
+        if (currentPage() == m_targetsPage)
+            return idOfNextGenericPage();
+        if (currentPage() == m_genericOptionsPage)
+            return idOfNextGenericPage();
     }
     return BaseProjectWizardDialog::nextId();
 }
@@ -166,21 +127,10 @@ void AbstractMobileAppWizardDialog::initializePage(int id)
     if (m_targetItem) {
         if (id == startId()) {
             m_targetItem->setNextItems(QList<Utils::WizardProgressItem *>()
-                    << m_genericItem << m_maemoItem << m_harmattanItem << itemOfNextGenericPage());
-            m_genericItem->setNextItems(QList<Utils::WizardProgressItem *>()
-                    << m_maemoItem);
-            m_maemoItem->setNextItems(QList<Utils::WizardProgressItem *>()
-                    << m_harmattanItem << itemOfNextGenericPage());
-        } else if (id == m_genericOptionsPageId
-                   || id == m_maemoOptionsPageId) {
+                    << m_genericItem << itemOfNextGenericPage());
+        } else if (id == m_genericOptionsPageId) {
             QList<Utils::WizardProgressItem *> order;
-            order << m_genericItem;
-            if (isQtPlatformSelected(QLatin1String(QtSupport::Constants::MAEMO_FREMANTLE_PLATFORM)))
-                order << m_maemoItem;
-            if (isQtPlatformSelected(QLatin1String(QtSupport::Constants::MEEGO_HARMATTAN_PLATFORM)))
-                order << m_harmattanItem;
-            order << itemOfNextGenericPage();
-
+            order << m_genericItem << itemOfNextGenericPage();
             for (int i = 0; i < order.count() - 1; i++)
                 order.at(i)->setNextShownItem(order.at(i + 1));
         }
@@ -200,7 +150,7 @@ Utils::WizardProgressItem *AbstractMobileAppWizardDialog::targetsPageItem() cons
 
 int AbstractMobileAppWizardDialog::idOfNextGenericPage() const
 {
-    return pageIds().at(pageIds().indexOf(m_harmattanOptionsPageId) + 1);
+    return pageIds().at(pageIds().indexOf(m_genericOptionsPageId) + 1);
 }
 
 Utils::WizardProgressItem *AbstractMobileAppWizardDialog::itemOfNextGenericPage() const
@@ -239,9 +189,6 @@ QWizard *AbstractMobileAppWizard::createWizardDialog(QWidget *parent,
         = createWizardDialogInternal(parent, wizardDialogParameters);
     wdlg->setProjectName(ProjectExplorer::BaseProjectWizardDialog::uniqueProjectName(wizardDialogParameters.defaultPath()));
     wdlg->m_genericOptionsPage->setOrientation(app()->orientation());
-    wdlg->m_maemoOptionsPage->setPngIcon(app()->pngIcon64());
-    wdlg->m_harmattanOptionsPage->setPngIcon(app()->pngIcon80());
-    wdlg->m_harmattanOptionsPage->setBoosterOptionEnabled(app()->canSupportMeegoBooster());
     connect(wdlg, SIGNAL(projectParametersChanged(QString,QString)),
         SLOT(useProjectPath(QString,QString)));
     wdlg->addExtensionPages(wizardDialogParameters.extensionPages());
@@ -255,10 +202,6 @@ Core::GeneratedFiles AbstractMobileAppWizard::generateFiles(const QWizard *wizar
     const AbstractMobileAppWizardDialog *wdlg
         = qobject_cast<const AbstractMobileAppWizardDialog*>(wizard);
     app()->setOrientation(wdlg->m_genericOptionsPage->orientation());
-    app()->setPngIcon64(wdlg->m_maemoOptionsPage->pngIcon());
-    app()->setPngIcon80(wdlg->m_harmattanOptionsPage->pngIcon());
-    if (wdlg->isQtPlatformSelected(QLatin1String(QtSupport::Constants::MEEGO_HARMATTAN_PLATFORM)))
-        app()->setSupportsMeegoBooster(wdlg->m_harmattanOptionsPage->supportsBooster());
     prepareGenerateFiles(wizard, errorMessage);
     return app()->generateFiles(errorMessage);
 }

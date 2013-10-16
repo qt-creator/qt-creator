@@ -257,11 +257,9 @@ void BlackBerryNDKSettingsWidget::updateUi(QTreeWidgetItem *item, BlackBerryConf
     item->setFont(0, font);
     item->setFont(1, font);
 
-    m_ui->activateNdkTargetButton->setEnabled((!m_activatedTargets.contains(config))
-                                               && config->isAutoDetected());
-    m_ui->deactivateNdkTargetButton->setEnabled((m_activatedTargets.contains(config))
-                                                && m_activatedTargets.size() > 1
-                                                && config->isAutoDetected());
+    m_ui->activateNdkTargetButton->setEnabled(!m_activatedTargets.contains(config));
+    m_ui->deactivateNdkTargetButton->setEnabled(m_activatedTargets.contains(config)
+                                                && m_activatedTargets.size() > 1);
     m_ui->removeNdkButton->setEnabled(true);
 }
 

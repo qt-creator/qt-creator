@@ -51,8 +51,8 @@
 
             The Qt Quick 1 Application wizard imports Qt Quick 1.1, and
             therefore, you can use it without changes to develop for platforms
-            that run Qt 4.7.4 (such as MeeGo). To develop for platforms that run
-            Qt 4.7.3 (such as Maemo), you must change the import statement to
+            that run Qt 4.7.4. To develop for platforms that run
+            Qt 4.7.3, you must change the import statement to
             import Qt Quick 1.0.
 
             The Qt Quick 2 Application wizard imports Qt Quick 2.0. Use it to
@@ -116,10 +116,8 @@
     > \gui Choose, and follow the instructions of the wizard.
 
     \note The SDK for a particular target platform might install additional
-    templates for that platform. For example, the \gui {Qt Quick Application for
-    MeeGo Harmattan} template is installed as part of the MeeGo Harmattan tool
-    chain and the BlackBerry 10 and QNX templates are installed as part of the BlackBerry 10 NDK,
-    BlackBerry NDK, or QNX SDK.
+    templates for that platform. For example, the BlackBerry 10 and QNX templates are installed
+    as part of the BlackBerry 10 NDK, BlackBerry NDK, or QNX SDK.
 
     \QC creates the necessary boilerplate files. Some of the files are
     specific to a particular target platform.

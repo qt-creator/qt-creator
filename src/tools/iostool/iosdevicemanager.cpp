@@ -263,8 +263,8 @@ public:
     void stopService(ServiceSocket fd);
     void startDeviceLookup(int timeout);
     void addError(const QString &msg);
-    bool writeAll(ServiceSocket fd, const char *cmd, ssize_t len = -1);
-    bool sendGdbCommand(ServiceSocket fd, const char *cmd, ssize_t len = -1);
+    bool writeAll(ServiceSocket fd, const char *cmd, qptrdiff len = -1);
+    bool sendGdbCommand(ServiceSocket fd, const char *cmd, qptrdiff len = -1);
     QByteArray readGdbReply(ServiceSocket fd);
     bool expectGdbReply(ServiceSocket gdbFd, QByteArray expected);
     bool expectGdbOkReply(ServiceSocket gdbFd);
@@ -276,7 +276,7 @@ public:
     int progressBase;
     int unexpectedChars;
 private:
-    bool checkRead(ssize_t nRead, int &maxRetry);
+    bool checkRead(qptrdiff nRead, int &maxRetry);
     int handleChar(QByteArray &res, char c, int status);
 };
 
@@ -795,7 +795,7 @@ void CommandSession::addError(const QString &msg)
     IosDeviceManagerPrivate::instance()->addError(commandName() + msg);
 }
 
-bool CommandSession::writeAll(ServiceSocket fd, const char *cmd, ssize_t len)
+bool CommandSession::writeAll(ServiceSocket fd, const char *cmd, qptrdiff len)
 {
     if (len == -1)
         len = strlen(cmd);
@@ -804,10 +804,10 @@ bool CommandSession::writeAll(ServiceSocket fd, const char *cmd, ssize_t len)
         qDebug() << "writeAll(" << fd << "," << QString::fromLocal8Bit(cmdBA.constData(), cmdBA.size())
                  << " (" << cmdBA.toHex() << "))";
     }
-    ssize_t i = 0;
+    qptrdiff i = 0;
     int maxRetry = 10;
     while (i < len) {
-        ssize_t nWritten = write(fd, cmd, len - i);
+        qptrdiff nWritten = write(fd, cmd, len - i);
         if (nWritten < 1) {
             --maxRetry;
             if (nWritten == -1 && errno != 0 && errno != EINTR) {
@@ -832,7 +832,7 @@ bool CommandSession::writeAll(ServiceSocket fd, const char *cmd, ssize_t len)
     return true;
 }
 
-bool CommandSession::sendGdbCommand(ServiceSocket fd, const char *cmd, ssize_t len)
+bool CommandSession::sendGdbCommand(ServiceSocket fd, const char *cmd, qptrdiff len)
 {
     if (len == -1)
         len = strlen(cmd);
@@ -852,7 +852,7 @@ bool CommandSession::sendGdbCommand(ServiceSocket fd, const char *cmd, ssize_t l
     return !failure;
 }
 
-bool CommandSession::checkRead(ssize_t nRead, int &maxRetry)
+bool CommandSession::checkRead(qptrdiff nRead, int &maxRetry)
 {
     if (nRead < 1 || nRead > 4) {
         --maxRetry;
@@ -932,14 +932,14 @@ QByteArray CommandSession::readGdbReply(ServiceSocket fd)
     int status = 0;
     int toRead = 4;
     while (status < 4 && toRead > 0) {
-        ssize_t nRead = read(fd, buf, toRead);
+        qptrdiff nRead = read(fd, buf, toRead);
         if (!checkRead(nRead, maxRetry))
             return QByteArray();
         if (debugGdbServer) {
             buf[nRead] = 0;
             qDebug() << "gdbReply read " << buf;
         }
-        for (ssize_t i = 0; i< nRead; ++i)
+        for (qptrdiff i = 0; i< nRead; ++i)
             status = handleChar(res, buf[i], status);
         toRead = 4 - status;
     }

@@ -34,6 +34,7 @@
 #include "qmakestep.h"
 #include "makestep.h"
 #include "qt4buildconfiguration.h"
+#include "qt4runconfiguration.h"
 #include "wizards/consoleappwizard.h"
 #include "wizards/guiappwizard.h"
 #include "wizards/librarywizard.h"
@@ -49,10 +50,6 @@
 #include "qt4project.h"
 #include "externaleditors.h"
 #include "profilecompletionassist.h"
-#include "qt-desktop/qt4runconfiguration.h"
-#include "qt-desktop/desktopqtversionfactory.h"
-#include "qt-desktop/simulatorqtversionfactory.h"
-#include "winceqtversionfactory.h"
 #include "qmakekitinformation.h"
 #include "profilehighlighterfactory.h"
 
@@ -148,10 +145,6 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     else
         addAutoReleasedObject(new DesignerExternalEditor);
     addAutoReleasedObject(new LinguistExternalEditor);
-
-    addAutoReleasedObject(new DesktopQtVersionFactory);
-    addAutoReleasedObject(new SimulatorQtVersionFactory);
-    addAutoReleasedObject(new WinCeQtVersionFactory);
 
     addAutoReleasedObject(new ProFileCompletionAssistProvider);
     addAutoReleasedObject(new ProFileHoverHandler(this));

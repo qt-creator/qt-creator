@@ -117,11 +117,6 @@
                 custom look and feel and QML and C++ code to implement the
                 application logic
 
-            \li Qt Quick 1 Application for MeeGo Harmattan
-
-                Use Qt Quick Components for MeeGo Harmattan to design a user
-                interface with the platform look and feel
-
             \li Qt Quick Application (from Existing QML File)
 
                 Convert existing Qt Quick applications to projects that you

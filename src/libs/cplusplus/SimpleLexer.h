@@ -30,6 +30,7 @@
 #define CPLUSPLUS_SIMPLELEXER_H
 
 #include <cplusplus/CPlusPlusForwardDeclarations.h>
+#include <cplusplus/Token.h>
 
 #include <QString>
 #include <QList>
@@ -48,14 +49,8 @@ public:
     bool skipComments() const;
     void setSkipComments(bool skipComments);
 
-    bool qtMocRunEnabled() const;
-    void setQtMocRunEnabled(bool enabled);
-
-    bool objCEnabled() const;
-    void setObjCEnabled(bool onoff);
-
-    bool cxx0xEnabled() const;
-    void setCxx0xEnabled(bool enabled);
+    LanguageFeatures languageFeatures() const { return _languageFeatures; }
+    void setLanguageFeatures(LanguageFeatures features) { _languageFeatures = features; }
 
     bool endedJoined() const;
 
@@ -74,11 +69,9 @@ public:
 
 private:
     int _lastState;
+    LanguageFeatures _languageFeatures;
     bool _skipComments: 1;
-    bool _qtMocRunEnabled: 1;
-    bool _objCEnabled: 1;
     bool _endedJoined: 1;
-    bool _cxx0xEnabled: 1;
 };
 
 } // namespace CPlusPlus

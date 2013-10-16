@@ -464,7 +464,6 @@ DebuggerRunControl *DebuggerRunControlFactory::doCreate
     (const DebuggerStartParameters &sp0, RunConfiguration *rc, QString *errorMessage)
 {
     TaskHub::clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_DEBUGINFO);
-    TaskHub::clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_TEST);
     TaskHub::clearTasks(Debugger::Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
 
     DebuggerStartParameters sp = sp0;

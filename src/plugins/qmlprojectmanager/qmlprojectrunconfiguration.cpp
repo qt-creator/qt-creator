@@ -54,7 +54,7 @@ namespace QmlProjectManager {
 const char M_CURRENT_FILE[] = "CurrentFile";
 
 QmlProjectRunConfiguration::QmlProjectRunConfiguration(ProjectExplorer::Target *parent, Id id) :
-    ProjectExplorer::RunConfiguration(parent, id),
+    ProjectExplorer::LocalApplicationRunConfiguration(parent, id),
     m_scriptFile(QLatin1String(M_CURRENT_FILE)),
     m_isEnabled(false)
 {
@@ -63,7 +63,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(ProjectExplorer::Target *
 
 QmlProjectRunConfiguration::QmlProjectRunConfiguration(ProjectExplorer::Target *parent,
                                                        QmlProjectRunConfiguration *source) :
-    ProjectExplorer::RunConfiguration(parent, source),
+    ProjectExplorer::LocalApplicationRunConfiguration(parent, source),
     m_scriptFile(source->m_scriptFile),
     m_qmlViewerArgs(source->m_qmlViewerArgs),
     m_isEnabled(source->m_isEnabled)
@@ -100,7 +100,7 @@ void QmlProjectRunConfiguration::ctor()
     addExtraAspect(new QmlProjectEnvironmentAspect(this));
 }
 
-QString QmlProjectRunConfiguration::viewerPath() const
+QString QmlProjectRunConfiguration::executable() const
 {
     QtSupport::BaseQtVersion *version = qtVersion();
     if (!version)
@@ -108,25 +108,18 @@ QString QmlProjectRunConfiguration::viewerPath() const
 
     if (id() == Constants::QML_SCENE_RC_ID)
         return version->qmlsceneCommand();
-    else
+    if (!version->needsQmlDebuggingLibrary())
         return version->qmlviewerCommand();
+    return version->qmlObserverTool();
+
 }
 
-QString QmlProjectRunConfiguration::observerPath() const
+ProjectExplorer::LocalApplicationRunConfiguration::RunMode QmlProjectRunConfiguration::runMode() const
 {
-    QtSupport::BaseQtVersion *version = qtVersion();
-    if (!version) {
-        return QString();
-    } else {
-        if (id() == Constants::QML_SCENE_RC_ID)
-            return version->qmlsceneCommand();
-        if (!version->needsQmlDebuggingLibrary())
-            return version->qmlviewerCommand();
-        return version->qmlObserverTool();
-    }
+    return Gui;
 }
 
-QString QmlProjectRunConfiguration::viewerArguments() const
+QString QmlProjectRunConfiguration::commandLineArguments() const
 {
     // arguments in .user file
     QString args = m_qmlViewerArgs;
@@ -144,6 +137,16 @@ QString QmlProjectRunConfiguration::viewerArguments() const
         Utils::QtcProcess::addArg(&args, s);
     }
     return args;
+}
+
+QString QmlProjectRunConfiguration::dumperLibrary() const
+{
+    return QString();
+}
+
+QStringList QmlProjectRunConfiguration::dumperLibraryLocations() const
+{
+    return QStringList();
 }
 
 QString QmlProjectRunConfiguration::workingDirectory() const
@@ -303,8 +306,7 @@ void QmlProjectRunConfiguration::updateEnabled()
         qmlFileFound = !mainScript().isEmpty();
     }
 
-    bool newValue = (QFileInfo(viewerPath()).exists()
-                     || QFileInfo(observerPath()).exists()) && qmlFileFound;
+    bool newValue = QFileInfo(executable()).exists() && qmlFileFound;
 
 
     // Always emit change signal to force reevaluation of run/debug buttons

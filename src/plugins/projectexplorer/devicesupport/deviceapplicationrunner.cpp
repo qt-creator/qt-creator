@@ -43,15 +43,12 @@ using namespace QSsh;
 namespace ProjectExplorer {
 
 namespace {
-enum State { Inactive, Connecting, PreRun, Run, PostRun };
+enum State { Inactive, Run };
 } // anonymous namespace
 
 class DeviceApplicationRunner::DeviceApplicationRunnerPrivate
 {
 public:
-    SshConnection *connection;
-    DeviceApplicationHelperAction *preRunAction;
-    DeviceApplicationHelperAction *postRunAction;
     DeviceProcess *deviceProcess;
     IDevice::ConstPtr device;
     QTimer stopTimer;
@@ -65,21 +62,9 @@ public:
 };
 
 
-DeviceApplicationHelperAction::DeviceApplicationHelperAction(QObject *parent) : QObject(parent)
-{
-}
-
-DeviceApplicationHelperAction::~DeviceApplicationHelperAction()
-{
-}
-
-
 DeviceApplicationRunner::DeviceApplicationRunner(QObject *parent) :
     QObject(parent), d(new DeviceApplicationRunnerPrivate)
 {
-    d->preRunAction = 0;
-    d->postRunAction = 0;
-    d->connection = 0;
     d->deviceProcess = 0;
     d->state = Inactive;
 
@@ -115,7 +100,13 @@ void DeviceApplicationRunner::start(const IDevice::ConstPtr &device,
     d->stopRequested = false;
     d->success = true;
 
-    connectToServer();
+    if (!d->device) {
+        emit reportError(tr("Cannot run: No device."));
+        setFinished();
+        return;
+    }
+
+    runApplication();
 }
 
 void DeviceApplicationRunner::stop()
@@ -126,78 +117,13 @@ void DeviceApplicationRunner::stop()
     d->success = false;
     emit reportProgress(tr("User requested stop. Shutting down..."));
     switch (d->state) {
-    case Connecting:
-        setFinished();
-        break;
-    case PreRun:
-        d->preRunAction->stop();
-        break;
     case Run:
         d->stopTimer.start(10000);
         d->deviceProcess->terminate();
         break;
-    case PostRun:
-        d->postRunAction->stop();
-        break;
     case Inactive:
         break;
     }
-}
-
-void DeviceApplicationRunner::setPreRunAction(DeviceApplicationHelperAction *action)
-{
-    addAction(d->preRunAction, action);
-}
-
-void DeviceApplicationRunner::setPostRunAction(DeviceApplicationHelperAction *action)
-{
-    addAction(d->postRunAction, action);
-}
-
-void DeviceApplicationRunner::connectToServer()
-{
-    QTC_CHECK(!d->connection);
-
-    d->state = Connecting;
-
-    if (!d->device) {
-        emit reportError(tr("Cannot run: No device."));
-        setFinished();
-        return;
-    }
-
-    d->connection = QSsh::acquireConnection(d->device->sshParameters());
-    connect(d->connection, SIGNAL(error(QSsh::SshError)), SLOT(handleConnectionFailure()));
-    if (d->connection->state() == SshConnection::Connected) {
-        handleConnected();
-    } else {
-        emit reportProgress(tr("Connecting to device..."));
-        connect(d->connection, SIGNAL(connected()), SLOT(handleConnected()));
-        if (d->connection->state() == QSsh::SshConnection::Unconnected)
-            d->connection->connectToHost();
-    }
-}
-
-void DeviceApplicationRunner::executePreRunAction()
-{
-    QTC_ASSERT(d->state == Connecting, return);
-
-    d->state = PreRun;
-    if (d->preRunAction)
-        d->preRunAction->start();
-    else
-        runApplication();
-}
-
-void DeviceApplicationRunner::executePostRunAction()
-{
-    QTC_ASSERT(d->state == PreRun || d->state == Run, return);
-
-    d->state = PostRun;
-    if (d->postRunAction)
-        d->postRunAction->start();
-    else
-        setFinished();
 }
 
 void DeviceApplicationRunner::setFinished()
@@ -210,92 +136,9 @@ void DeviceApplicationRunner::setFinished()
         d->deviceProcess->deleteLater();
         d->deviceProcess = 0;
     }
-    if (d->connection) {
-        d->connection->disconnect(this);
-        QSsh::releaseConnection(d->connection);
-        d->connection = 0;
-    }
 
     d->state = Inactive;
     emit finished(d->success);
-}
-
-void DeviceApplicationRunner::handleConnected()
-{
-    QTC_ASSERT(d->state == Connecting, return);
-
-    if (d->stopRequested) {
-        setFinished();
-        return;
-    }
-
-    executePreRunAction();
-}
-
-void DeviceApplicationRunner::handleConnectionFailure()
-{
-    QTC_ASSERT(d->state != Inactive, return);
-
-    emit reportError(tr("SSH connection failed: %1").arg(d->connection->errorString()));
-    d->success = false;
-    switch (d->state) {
-    case Inactive:
-        break; // Can't happen.
-    case Connecting:
-        setFinished();
-        break;
-    case PreRun:
-        d->preRunAction->stop();
-        break;
-    case Run:
-        d->stopTimer.stop();
-        d->deviceProcess->disconnect(this);
-        executePostRunAction();
-        break;
-    case PostRun:
-        d->postRunAction->stop();
-        break;
-    }
-}
-
-void DeviceApplicationRunner::handleHelperActionFinished(bool success)
-{
-    switch (d->state) {
-    case Inactive:
-        break;
-    case PreRun:
-        if (success && d->success) {
-            runApplication();
-        } else if (success && !d->success) {
-            executePostRunAction();
-        } else {
-            d->success = false;
-            setFinished();
-        }
-        break;
-    case PostRun:
-        if (!success)
-            d->success = false;
-        setFinished();
-        break;
-    default:
-        QTC_CHECK(false);
-    }
-}
-
-void DeviceApplicationRunner::addAction(DeviceApplicationHelperAction *&target,
-        DeviceApplicationHelperAction *source)
-{
-    QTC_ASSERT(d->state == Inactive, return);
-
-    if (target)
-        disconnect(target, 0, this, 0);
-    target = source;
-    if (target) {
-        connect(target, SIGNAL(finished(bool)), SLOT(handleHelperActionFinished(bool)));
-        connect(target, SIGNAL(reportProgress(QString)), SIGNAL(reportProgress(QString)));
-        connect(target, SIGNAL(reportError(QString)), SIGNAL(reportError(QString)));
-    }
 }
 
 void DeviceApplicationRunner::handleStopTimeout()
@@ -324,7 +167,7 @@ void DeviceApplicationRunner::handleApplicationFinished()
             emit reportProgress(tr("Remote application finished with exit code 0."));
         }
     }
-    executePostRunAction();
+    setFinished();
 }
 
 void DeviceApplicationRunner::handleRemoteStdout()
@@ -341,7 +184,7 @@ void DeviceApplicationRunner::handleRemoteStderr()
 
 void DeviceApplicationRunner::runApplication()
 {
-    QTC_ASSERT(d->state == PreRun, return);
+    QTC_ASSERT(d->state == Inactive, return);
 
     d->state = Run;
     d->deviceProcess = d->device->createProcess(this);

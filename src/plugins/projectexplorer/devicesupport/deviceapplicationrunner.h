@@ -43,22 +43,6 @@ namespace Utils { class Environment; }
 
 namespace ProjectExplorer {
 
-class PROJECTEXPLORER_EXPORT DeviceApplicationHelperAction : public QObject
-{
-    Q_OBJECT
-public:
-    ~DeviceApplicationHelperAction();
-    virtual void start() = 0;
-    virtual void stop() = 0;
-signals:
-    void reportProgress(const QString &progressOutput);
-    void reportError(const QString &errorOutput);
-    void finished(bool success);
-
-protected:
-    DeviceApplicationHelperAction(QObject *parent = 0);
-};
-
 class PROJECTEXPLORER_EXPORT DeviceApplicationRunner : public QObject
 {
     Q_OBJECT
@@ -73,12 +57,6 @@ public:
                const QStringList &arguments);
     void stop();
 
-    // Use these if you need to do something before and after the application is run, respectively.
-    // Typically, the post-run action reverts the effects of the pre-run action.
-    // If you only have a pre-run action, you probably want a deploy step instead.
-    void setPreRunAction(DeviceApplicationHelperAction *action);
-    void setPostRunAction(DeviceApplicationHelperAction *action);
-
 signals:
     void remoteStdout(const QByteArray &output);
     void remoteStderr(const QByteArray &output);
@@ -88,19 +66,12 @@ signals:
     void finished(bool success);
 
 private slots:
-    void handleConnected();
-    void handleConnectionFailure();
-    void handleHelperActionFinished(bool success);
     void handleStopTimeout();
     void handleApplicationFinished();
     void handleRemoteStdout();
     void handleRemoteStderr();
 
 private:
-    void addAction(DeviceApplicationHelperAction *&target, DeviceApplicationHelperAction *source);
-    void connectToServer();
-    void executePreRunAction();
-    void executePostRunAction();
     void runApplication();
     void setFinished();
 

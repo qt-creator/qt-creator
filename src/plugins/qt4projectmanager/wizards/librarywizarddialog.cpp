@@ -370,7 +370,7 @@ MobileLibraryParameters LibraryWizardDialog::mobileLibraryParameters() const
     mlp.fileName = projectName();
 
     // Maemo stuff should always be added to pro file. Even if no mobile target is specified
-    mlp.type |= MobileLibraryParameters::Maemo;
+    mlp.type |= MobileLibraryParameters::Linux;
 
     return mlp;
 }

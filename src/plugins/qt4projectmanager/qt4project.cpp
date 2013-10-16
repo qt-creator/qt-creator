@@ -1626,6 +1626,11 @@ ProjectImporter *Qt4Project::createProjectImporter() const
     return new QmakeProjectImporter(projectFilePath());
 }
 
+KitMatcher *Qt4Project::createRequiredKitMatcher() const
+{
+    return new QtSupport::QtVersionKitMatcher;
+}
+
 } // namespace Qt4ProjectManager
 
 #include "qt4project.moc"

@@ -247,15 +247,6 @@ QtcPlugin {
     }
 
     Group {
-        name: "Publishing"
-        prefix: "publishing/"
-        files: [
-            "ipublishingwizardfactory.h",
-            "publishingwizardselectiondialog.cpp", "publishingwizardselectiondialog.h", "publishingwizardselectiondialog.ui",
-        ]
-    }
-
-    Group {
         name: "WindowsToolChains"
         condition: qbs.targetOS.contains("windows") || project.testsEnabled
         files: [

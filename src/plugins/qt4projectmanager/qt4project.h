@@ -142,6 +142,7 @@ public:
 
     ProjectExplorer::ProjectImporter *createProjectImporter() const;
 
+    ProjectExplorer::KitMatcher *createRequiredKitMatcher() const;
 signals:
     void proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *node, bool, bool);
     void buildDirectoryInitialized();

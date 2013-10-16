@@ -64,7 +64,7 @@ QWidget *IosSettingsPage::createPage(QWidget *parent)
 void IosSettingsPage::apply()
 {
     m_widget->saveSettings();
-    IosConfigurations::instance().updateAutomaticKitList();
+    IosConfigurations::updateAutomaticKitList();
 }
 
 void IosSettingsPage::finish()

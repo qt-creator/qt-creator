@@ -741,6 +741,7 @@ DebuggerToolTipWidget *DebuggerToolTipWidget::loadSessionDataI(QXmlStreamReader 
         offset.setX(attributes.value(offsetXAttribute).toString().toInt());
     if (attributes.hasAttribute(offsetYAttribute))
         offset.setY(attributes.value(offsetYAttribute).toString().toInt());
+    context.mousePosition = offset;
 
     const QStringRef className = attributes.value(QLatin1String(toolTipClassAttributeC));
     const QString engineType = attributes.value(QLatin1String(engineTypeAttributeC)).toString();
@@ -762,8 +763,6 @@ DebuggerToolTipWidget *DebuggerToolTipWidget::loadSessionDataI(QXmlStreamReader 
         rc->setEngineType(engineType);
         rc->doLoadSessionData(r);
         rc->setCreationDate(creationDate);
-        if (!offset.isNull())
-            rc->setOffset(offset);
         rc->pin();
     } else {
         qWarning("Unable to create debugger tool tip widget of class %s", qPrintable(className.toString()));
@@ -949,7 +948,7 @@ void DebuggerToolTipWidget::doAcquireEngine(DebuggerEngine *engine)
     // Create a filter model on the debugger's model and switch to it.
     QAbstractItemModel *model = engine->watchModel();
     TooltipFilterModel *filterModel =
-            new TooltipFilterModel(model, m_iname);
+            new TooltipFilterModel(model, m_context.iname);
     swapModel(filterModel);
 }
 
@@ -958,7 +957,7 @@ QAbstractItemModel *DebuggerToolTipWidget::swapModel(QAbstractItemModel *newMode
     QAbstractItemModel *oldModel = m_treeView->swapModel(newModel);
     // When looking at some 'this.m_foo.x', expand all items
     if (newModel) {
-        if (const int level = m_iname.count('.')) {
+        if (const int level = m_context.iname.count('.')) {
             QModelIndex index = newModel->index(0, 0);
             for (int i = 0; i < level && index.isValid(); i++, index = index.child(0, 0))
                 m_treeView->setExpanded(index, true);
@@ -1019,9 +1018,9 @@ void DebuggerToolTipWidget::doSaveSessionData(QXmlStreamWriter &w) const
 {
     w.writeStartElement(QLatin1String(treeElementC));
     QXmlStreamAttributes attributes;
-    if (!m_expression.isEmpty())
-        attributes.append(QLatin1String(treeExpressionAttributeC), m_expression);
-    attributes.append(QLatin1String(treeInameAttributeC), QLatin1String(m_iname));
+    if (!m_context.expression.isEmpty())
+        attributes.append(QLatin1String(treeExpressionAttributeC), m_context.expression);
+    attributes.append(QLatin1String(treeInameAttributeC), QLatin1String(m_context.iname));
     w.writeAttributes(attributes);
     if (QAbstractItemModel *model = m_treeView->model()) {
         XmlWriterTreeModelVisitor v(model, w);
@@ -1036,11 +1035,11 @@ void DebuggerToolTipWidget::doLoadSessionData(QXmlStreamReader &r)
         return;
     // Restore data to default model and show that.
     const QXmlStreamAttributes attributes = r.attributes();
-    m_iname = attributes.value(QLatin1String(treeInameAttributeC)).toString().toLatin1();
-    m_expression = attributes.value(QLatin1String(treeExpressionAttributeC)).toString();
+    m_context.iname = attributes.value(QLatin1String(treeInameAttributeC)).toString().toLatin1();
+    m_context.expression = attributes.value(QLatin1String(treeExpressionAttributeC)).toString();
     if (debugToolTips)
-        qDebug() << "DebuggerTreeViewToolTipWidget::doLoadSessionData() " << m_debuggerModel << m_iname;
-    setObjectName(QLatin1String("DebuggerTreeViewToolTipWidget: ") + QLatin1String(m_iname));
+        qDebug() << "DebuggerTreeViewToolTipWidget::doLoadSessionData() " << m_debuggerModel << m_context.iname;
+    setObjectName(QLatin1String("DebuggerTreeViewToolTipWidget: ") + QLatin1String(m_context.iname));
     restoreTreeModel(r, m_defaultModel);
     r.readNext(); // Skip </tree>
     m_treeView->swapModel(m_defaultModel);
@@ -1465,15 +1464,13 @@ void DebuggerToolTipManager::slotTooltipOverrideRequested(ITextEditor *editor,
 }
 
 
-DebuggerToolTipManager::ExpressionInamePairs
-    DebuggerToolTipManager::treeWidgetExpressions(const QString &fileName,
-                                                  const QString &engineType,
-                                                  const QString &function)
+DebuggerToolTipContexts DebuggerToolTipManager::treeWidgetExpressions
+    (const QString &fileName, const QString &engineType, const QString &function)
 {
-    ExpressionInamePairs rc;
+    DebuggerToolTipContexts rc;
     foreach (const QPointer<DebuggerToolTipWidget> &tw, d->m_tooltips) {
         if (!tw.isNull() && tw->matches(fileName, engineType, function))
-            rc.push_back(ExpressionInamePair(tw->expression(), tw->iname()));
+            rc.push_back(tw->context());
     }
     if (debugToolTips)
         qDebug() << "DebuggerToolTipManager::treeWidgetExpressions"

@@ -60,7 +60,7 @@ private:
 signals:
     /*
      * For "external" clients of a debugger run control that need to do
-     * further setup before the debugger is started (e.g. Maemo).
+     * further setup before the debugger is started (e.g. RemoteLinux).
      * Afterwards, handleSetupDone() or handleSetupFailed() must be called
      * to continue or abort debugging, respectively.
      * This signal is only emitted if the start parameters indicate that

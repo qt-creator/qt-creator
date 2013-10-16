@@ -50,7 +50,6 @@ class DebugInfoTask;
 class DebugInfoTaskHandler;
 class GdbResponse;
 class GdbMi;
-class GdbToolTipContext;
 
 class WatchData;
 class DisassemblerAgentCookie;
@@ -655,7 +654,7 @@ protected:
 
     static QByteArray tooltipIName(const QString &exp);
     QString tooltipExpression() const;
-    QScopedPointer<GdbToolTipContext> m_toolTipContext;
+    QScopedPointer<DebuggerToolTipContext> m_toolTipContext;
 
     // For short-circuiting stack and thread list evaluation.
     bool m_stackNeeded;

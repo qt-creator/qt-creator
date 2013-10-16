@@ -62,7 +62,7 @@ bool IosPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     Q_UNUSED(arguments);
     Q_UNUSED(errorMessage);
 
-    Internal::IosConfigurations::instance();
+    Internal::IosConfigurations::initialize();
 
     addAutoReleasedObject(new Internal::IosRunControlFactory);
     addAutoReleasedObject(new Internal::IosRunConfigurationFactory);
@@ -87,10 +87,10 @@ void IosPlugin::kitsRestored()
 {
     disconnect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsLoaded()),
                this, SLOT(kitsRestored()));
-    Internal::IosConfigurations::instance().updateAutomaticKitList();
+    Internal::IosConfigurations::updateAutomaticKitList();
     connect(QtSupport::QtVersionManager::instance(),
             SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
-            &Internal::IosConfigurations::instance(),
+            Internal::IosConfigurations::instance(),
             SLOT(updateAutomaticKitList()));
 }
 

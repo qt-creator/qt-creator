@@ -107,6 +107,7 @@ private slots:
     void handleDidTransferApp(Ios::IosToolHandler *handler, const QString &bundlePath, const QString &deviceId,
                         Ios::IosToolHandler::OpStatus status);
     void handleFinished(Ios::IosToolHandler *handler);
+    void handleErrorMsg(Ios::IosToolHandler *handler, const QString &msg);
 
 private:
     IosDeployStep(ProjectExplorer::BuildStepList *bc,

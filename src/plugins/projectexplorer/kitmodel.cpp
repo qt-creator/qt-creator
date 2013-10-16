@@ -89,7 +89,8 @@ public:
 KitModel::KitModel(QBoxLayout *parentLayout, QObject *parent) :
     QAbstractItemModel(parent),
     m_parentLayout(parentLayout),
-    m_defaultNode(0)
+    m_defaultNode(0),
+    m_keepUnique(true)
 {
     connect(KitManager::instance(), SIGNAL(kitAdded(ProjectExplorer::Kit*)),
             this, SLOT(addKit(ProjectExplorer::Kit*)));
@@ -286,6 +287,7 @@ void KitModel::apply()
 
     // Update kits:
     bool unique = KitManager::setKeepDisplayNameUnique(false);
+    m_keepUnique = false;
     nodes = m_autoRoot->childNodes; // These can be dirty due to being made default!
     nodes.append(m_manualRoot->childNodes);
     foreach (KitNode *n, nodes) {
@@ -296,6 +298,7 @@ void KitModel::apply()
             emit dataChanged(index(n, 0), index(n, columnCount(QModelIndex())));
         }
     }
+    m_keepUnique = unique;
     KitManager::setKeepDisplayNameUnique(unique);
 }
 
@@ -469,7 +472,8 @@ void KitModel::removeKit(Kit *k)
 
 void KitModel::updateKit(Kit *k)
 {
-    k->setDisplayName(findNameFor(k, k->displayName()));
+    if (m_keepUnique)
+        k->setDisplayName(findNameFor(k, k->displayName()));
 }
 
 void KitModel::changeDefaultKit()

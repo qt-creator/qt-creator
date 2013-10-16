@@ -161,27 +161,6 @@ public:
     virtual QString vcsTopic(const QString &directory);
 
     /*!
-     * Create a snapshot of the current state and return an identifier or
-     * an empty string in case of failure.
-     */
-    virtual QString vcsCreateSnapshot(const QString &topLevel) = 0;
-
-    /*!
-     * List snapshots.
-     */
-    virtual QStringList vcsSnapshots(const QString &topLevel) = 0;
-
-    /*!
-     * Restore a snapshot.
-     */
-    virtual bool vcsRestoreSnapshot(const QString &topLevel, const QString &name) = 0;
-
-    /*!
-     * Remove a snapshot.
-     */
-    virtual bool vcsRemoveSnapshot(const QString &topLevel, const QString &name) = 0;
-
-    /*!
      * Display annotation for a file and scroll to line
      */
     virtual bool vcsAnnotate(const QString &file, int line) = 0;

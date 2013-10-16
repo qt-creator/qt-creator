@@ -192,9 +192,11 @@ void ResizeTool::clear()
 
 void ResizeTool::formEditorItemsChanged(const QList<FormEditorItem*> &itemList)
 {
-    m_selectionIndicator.updateItems(itemList);
-    m_resizeIndicator.updateItems(itemList);
-    m_anchorIndicator.updateItems(itemList);
+    const QList<FormEditorItem*> selectedItemList = filterSelectedModelNodes(itemList);
+
+    m_selectionIndicator.updateItems(selectedItemList);
+    m_resizeIndicator.updateItems(selectedItemList);
+    m_anchorIndicator.updateItems(selectedItemList);
 }
 
 void ResizeTool::instancesCompleted(const QList<FormEditorItem*> &/*itemList*/)

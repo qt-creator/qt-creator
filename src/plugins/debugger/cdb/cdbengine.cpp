@@ -479,9 +479,9 @@ bool CdbEngine::setToolTipExpression(const QPoint &mousePos,
     const WatchData *localVariable = watchHandler()->findCppLocalVariable(exp);
     if (!localVariable)
         return false;
+    context.iname = localVariable->iname;
     DebuggerToolTipWidget *tw = new DebuggerToolTipWidget;
     tw->setContext(context);
-    tw->setIname(localVariable->iname);
     tw->acquireEngine(this);
     DebuggerToolTipManager::showToolTip(mousePos, tw);
     return true;

@@ -2130,6 +2130,9 @@ void FakeVimHandler::Private::enterFakeVim()
     QTC_ASSERT(!g.inFakeVim, qDebug() << "enterFakeVim() shouldn't be called recursively!"; return);
 
     m_cursor = EDITOR(textCursor());
+    if (m_cursor.isNull())
+        m_cursor = QTextCursor(document());
+
     g.inFakeVim = true;
 
     removeEventFilter();
