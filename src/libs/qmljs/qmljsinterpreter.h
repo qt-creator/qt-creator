@@ -40,6 +40,7 @@
 #include <QHash>
 #include <QSet>
 #include <QMutex>
+#include <QSharedPointer>
 
 namespace QmlJS {
 
@@ -906,6 +907,7 @@ private:
 class QMLJS_EXPORT Import {
 public:
     Import();
+    Import(const Import &other);
 
     // const!
     ObjectValue *object;
@@ -914,6 +916,7 @@ public:
     QString libraryPath;
     // whether the import succeeded
     bool valid;
+    mutable bool used;
 };
 
 class Imports;

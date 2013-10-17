@@ -2181,8 +2181,13 @@ UiImport *ImportInfo::ast() const
 }
 
 Import::Import()
-    : object(0)
+    : object(0), valid(false), used(false)
 {}
+
+Import::Import(const Import &other)
+    : object(other.object), info(other.info), libraryPath(other.libraryPath),
+      valid(other.valid), used(false)
+{ }
 
 TypeScope::TypeScope(const Imports *imports, ValueOwner *valueOwner)
     : ObjectValue(valueOwner)
@@ -2208,6 +2213,7 @@ const Value *TypeScope::lookupMember(const QString &name, const Context *context
             if (info.as() == name) {
                 if (foundInObject)
                     *foundInObject = this;
+                i.used = true;
                 return import;
             }
             continue;
@@ -2264,6 +2270,7 @@ const Value *JSImportScope::lookupMember(const QString &name, const Context *,
         if (info.as() == name) {
             if (foundInObject)
                 *foundInObject = this;
+            i.used = true;
             return import;
         }
     }
