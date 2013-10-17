@@ -37,7 +37,7 @@
 
 namespace ProjectExplorer {
 
-class ClangParser : public ProjectExplorer::GccParser
+class PROJECTEXPLORER_EXPORT ClangParser : public ProjectExplorer::GccParser
 {
     Q_OBJECT
 

@@ -27,33 +27,36 @@
 **
 ****************************************************************************/
 
-#ifndef OSPARSER_H
-#define OSPARSER_H
+#include <QObject>
 
-#include "ioutputparser.h"
+QT_BEGIN_NAMESPACE
+class QIODevice;
+class QTextStream;
+QT_END_NAMESPACE
 
-#include <projectexplorer/task.h>
+namespace ProjectExplorer { class Task; }
 
-#include <QRegExp>
-
-namespace ProjectExplorer {
-
-class PROJECTEXPLORER_EXPORT OsParser : public ProjectExplorer::IOutputParser
-{
-    Q_OBJECT
-
-public:
-    OsParser();
-
-    void stdError(const QString &line);
-    void stdOutput(const QString &line);
-
-    bool hasFatalErrors() const;
-
-private:
-    bool m_hasFatalError;
+enum CompilerType {
+    CompilerTypeGcc,
+    CompilerTypeClang,
+#ifdef HAS_MSVC_PARSER
+    CompilerTypeMsvc
+#endif
 };
 
-} // namespace ProjectExplorer
+class CompilerOutputProcessor : public QObject
+{
+    Q_OBJECT
+public:
+    CompilerOutputProcessor(CompilerType compilerType, QIODevice &source);
+     ~CompilerOutputProcessor();
 
-#endif // OSPARSER_H
+private slots:
+    void start();
+    void handleTask(const ProjectExplorer::Task &task);
+
+private:
+    const CompilerType m_compilerType;
+    QIODevice &m_source;
+    QTextStream * const m_ostream;
+};

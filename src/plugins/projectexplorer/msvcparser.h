@@ -38,7 +38,7 @@
 
 namespace ProjectExplorer {
 
-class MsvcParser :  public ProjectExplorer::IOutputParser
+class PROJECTEXPLORER_EXPORT MsvcParser :  public ProjectExplorer::IOutputParser
 {
     Q_OBJECT
 

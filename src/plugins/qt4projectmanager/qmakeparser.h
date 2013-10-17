@@ -30,14 +30,15 @@
 #ifndef QMAKEPARSER_H
 #define QMAKEPARSER_H
 
+#include "qmakeprojectmanager_global.h"
+
 #include <projectexplorer/ioutputparser.h>
 
 #include <QRegExp>
 
 namespace QmakeProjectManager {
-namespace Internal {
 
-class QMakeParser : public ProjectExplorer::IOutputParser
+class QT4PROJECTMANAGER_EXPORT QMakeParser : public ProjectExplorer::IOutputParser
 {
     Q_OBJECT
 
@@ -49,7 +50,6 @@ private:
     QRegExp m_error;
 };
 
-} // namesapce Internal
 } // namespace QmakeProjectManager
 
 #endif // QMAKEPARSER_H

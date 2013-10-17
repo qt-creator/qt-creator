@@ -33,7 +33,6 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 using namespace QmakeProjectManager;
-using namespace QmakeProjectManager::Internal;
 using ProjectExplorer::Task;
 
 QMakeParser::QMakeParser() : m_error(QLatin1String("^(.+):(\\d+):\\s(.+)$"))

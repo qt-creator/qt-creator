@@ -3,6 +3,7 @@ import qbs
 Project {
     name: "Tools"
     references: [
+        "buildoutputparser/buildoutputparser.qbs",
         "qtcdebugger/qtcdebugger.qbs",
         "qtcreatorcrashhandler/qtcreatorcrashhandler.qbs",
         "qtpromaker/qtpromaker.qbs",

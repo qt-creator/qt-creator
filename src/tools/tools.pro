@@ -5,7 +5,8 @@ SUBDIRS = qtpromaker \
      ../plugins/cpaster/frontend \
      sdktool \
      valgrindfake \
-     3rdparty
+     3rdparty \
+     buildoutputparser
 
 win32 {
     SUBDIRS += qtcdebugger

@@ -38,7 +38,7 @@
 
 namespace ProjectExplorer {
 
-class GccParser : public ProjectExplorer::IOutputParser
+class PROJECTEXPLORER_EXPORT GccParser : public ProjectExplorer::IOutputParser
 {
     Q_OBJECT
 
