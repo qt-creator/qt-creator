@@ -107,7 +107,7 @@ public:
     QString startAVD(const QString &name, int apiLevel, QString cpuAbi) const;
     bool startAVDAsync(const QString &avdName) const;
     QString waitForAvd(int apiLevel, const QString &cpuAbi) const;
-    QString bestMatch(const QString &targetAPI) const;
+    QString bestNdkPlatformMatch(const QString &targetAPI) const;
 
     QStringList makeExtraSearchDirectories() const;
 
@@ -145,12 +145,12 @@ private:
 
     int getSDKVersion(const QString &device) const;
     QStringList getAbis(const QString &device) const;
-    void updateAvailablePlatforms();
+    void updateAvailableNdkPlatforms();
 
 
     static AndroidConfigurations *m_instance;
     AndroidConfig m_config;
-    QVector<int> m_availablePlatforms;
+    QVector<int> m_availableNdkPlatforms;
     mutable QHash<QString, QString> m_serialNumberToDeviceName;
 
     QMap<ProjectExplorer::Project *, QMap<QString, QString> > m_defaultDeviceForAbi;
