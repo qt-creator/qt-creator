@@ -702,17 +702,14 @@ void CPPEditorWidget::selectAll()
 void CPPEditorWidget::setMimeType(const QString &mt)
 {
     const QString &filePath = editor()->document()->filePath();
-    // Check if this editor belongs to a project
-    QList<ProjectPart::Ptr> projectParts = m_modelManager->projectPart(filePath);
-    if (projectParts.isEmpty())
-        projectParts = m_modelManager->projectPartFromDependencies(filePath);
-    if (!projectParts.isEmpty()) {
-        QSharedPointer<SnapshotUpdater> updater
-                = m_modelManager->cppEditorSupport(editor())->snapshotUpdater();
-        const QString &projectFile = projectParts.first()->projectFile;
-        updater->setEditorDefines(ProjectExplorer::SessionManager::value(
-                                      projectFile + QLatin1Char(',') + filePath).toByteArray());
-    }
+    const QString &projectFile = ProjectExplorer::SessionManager::value(
+                QLatin1String(Constants::CPP_PREPROCESSOR_PROJECT_PREFIX) + filePath).toString();
+    const QByteArray &additionalDirectives = ProjectExplorer::SessionManager::value(
+                projectFile + QLatin1Char(',') + filePath).toByteArray();
+
+    QSharedPointer<SnapshotUpdater> updater
+            = m_modelManager->cppEditorSupport(editor())->snapshotUpdater();
+    updater->setEditorDefines(additionalDirectives);
 
     BaseTextEditorWidget::setMimeType(mt);
     setObjCEnabled(mt == QLatin1String(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE)

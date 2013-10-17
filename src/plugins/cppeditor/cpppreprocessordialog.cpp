@@ -31,6 +31,7 @@
 #include "ui_cpppreprocessordialog.h"
 
 #include "cppeditor.h"
+#include "cppeditorconstants.h"
 #include "cppsnippetprovider.h"
 
 #include <projectexplorer/session.h>
@@ -57,6 +58,10 @@ CppPreProcessorDialog::CppPreProcessorDialog(CPPEditorWidget *editorWidget,
 
     CppSnippetProvider().decorateEditor(m_ui->editWidget);
 
+    const QString &currentProjectFile = ProjectExplorer::SessionManager::value(
+                QLatin1String(Constants::CPP_PREPROCESSOR_PROJECT_PREFIX) + m_filePath).toString();
+    int currentIndex = 0;
+
     QList<CppTools::ProjectPart::Ptr> sortedProjectParts(projectParts);
     qStableSort(sortedProjectParts.begin(), sortedProjectParts.end(), projectPartLessThan);
 
@@ -66,12 +71,14 @@ CppPreProcessorDialog::CppPreProcessorDialog(CPPEditorWidget *editorWidget,
         addition.projectPart = projectPart;
         addition.additionalDirectives = ProjectExplorer::SessionManager::value(
                     projectPart->projectFile + QLatin1Char(',') +  m_filePath).toString();
+        if (projectPart->projectFile == currentProjectFile)
+            currentIndex = m_ui->projectComboBox->count() - 1;
         m_partAdditions << addition;
     }
     if (m_ui->projectComboBox->count() <= 1)
         m_ui->projectComboBox->setEnabled(false);
-    m_ui->editWidget->setPlainText(
-            m_partAdditions.value(m_ui->projectComboBox->currentIndex()).additionalDirectives);
+    m_ui->projectComboBox->setCurrentIndex(currentIndex);
+    m_ui->editWidget->setPlainText(m_partAdditions.value(currentIndex).additionalDirectives);
 
     connect(m_ui->projectComboBox, SIGNAL(currentIndexChanged(int)), SLOT(projectChanged(int)));
     connect(m_ui->editWidget, SIGNAL(textChanged()), SLOT(textChanged()));
@@ -86,6 +93,10 @@ int CppPreProcessorDialog::exec()
 {
     if (QDialog::exec() == Rejected)
         return Rejected;
+
+    ProjectExplorer::SessionManager::setValue(
+                QLatin1String(Constants::CPP_PREPROCESSOR_PROJECT_PREFIX) + m_filePath,
+                m_partAdditions[m_ui->projectComboBox->currentIndex()].projectPart->projectFile);
 
     foreach (ProjectPartAddition partAddition, m_partAdditions) {
         const QString &previousDirectives = ProjectExplorer::SessionManager::value(

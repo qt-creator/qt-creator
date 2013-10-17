@@ -63,6 +63,8 @@ const char WIZARD_TR_CATEGORY[] = QT_TRANSLATE_NOOP("CppEditor", "C++");
 
 const char CPP_SNIPPETS_GROUP_ID[] = "C++";
 
+const char CPP_PREPROCESSOR_PROJECT_PREFIX[] = "CppPreprocessorProject-";
+
 } // namespace Constants
 } // namespace CppEditor
 
