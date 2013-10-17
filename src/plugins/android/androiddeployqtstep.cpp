@@ -158,7 +158,7 @@ void AndroidDeployQtStep::ctor()
     m_verbose = false;
 
     // will be overwriten by settings if the user choose something different
-    m_buildTargetSdk = AndroidConfigurations::instance().highestAvailableAndroidPlatform();
+    m_buildTargetSdk = AndroidConfigurations::instance().highestAndroidSdk();
 
     connect(project(), SIGNAL(proFilesEvaluated()),
            this, SLOT(updateInputFile()));

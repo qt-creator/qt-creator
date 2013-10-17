@@ -620,7 +620,7 @@ bool AndroidManager::createAndroidTemplatesIfNecessary(ProjectExplorer::Target *
         return false;
     }
 
-    updateTarget(target, AndroidConfigurations::instance().sdkTargets(minApiLevel).at(0));
+    updateTarget(target, sdks.first());
     QStringList apps = availableTargetApplications(target);
     if (!apps.isEmpty())
         setTargetApplication(target, apps.at(0));
