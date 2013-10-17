@@ -682,7 +682,7 @@ static bool currentTextEditorPosition(ContextData *data)
     const IDocument *document = textEditor->document();
     QTC_ASSERT(document, return false);
     data->fileName = document->filePath();
-    if (textEditor->property("DisassemblerView").toBool()) {
+    if (document->property(Constants::OPENED_WITH_DISASSEMBLY).toBool()) {
         int lineNumber = textEditor->currentLine();
         QString line = textEditor->textDocument()->contents()
             .section(QLatin1Char('\n'), lineNumber - 1, lineNumber - 1);
@@ -1840,10 +1840,10 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
     bool contextUsable = true;
 
     BreakpointModelId id = BreakpointModelId();
-    const QString fileName = editor->document()->filePath();
-    if (editor->property("DisassemblerView").toBool()) {
-        args.fileName = fileName;
-        QString line = editor->textDocument()->contents()
+    ITextEditorDocument *document = editor->textDocument();
+    args.fileName = document->filePath();
+    if (document->property(Constants::OPENED_WITH_DISASSEMBLY).toBool()) {
+        QString line = document->contents()
             .section(QLatin1Char('\n'), lineNumber - 1, lineNumber - 1);
         BreakpointResponse needle;
         needle.type = BreakpointByAddress;
@@ -1853,7 +1853,6 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
         id = breakHandler()->findSimilarBreakpoint(needle);
         contextUsable = args.address != 0;
     } else {
-        args.fileName = editor->document()->filePath();
         id = breakHandler()
             ->findBreakpointByFileAndLine(args.fileName, lineNumber);
         if (!id)
@@ -1937,7 +1936,7 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
         if (currentEngine()->state() == InferiorStopOk
             && currentEngine()->hasCapability(DisassemblerCapability)) {
             StackFrame frame;
-            frame.function = cppFunctionAt(fileName, lineNumber);
+            frame.function = cppFunctionAt(args.fileName, lineNumber);
             frame.line = 42; // trick gdb into mixed mode.
             if (!frame.function.isEmpty()) {
                 const QString text = tr("Disassemble Function \"%1\"")
@@ -1956,7 +1955,7 @@ void DebuggerPluginPrivate::toggleBreakpoint()
     ITextEditor *textEditor = currentTextEditor();
     QTC_ASSERT(textEditor, return);
     const int lineNumber = textEditor->currentLine();
-    if (textEditor->property("DisassemblerView").toBool()) {
+    if (textEditor->property(Constants::OPENED_WITH_DISASSEMBLY).toBool()) {
         QString line = textEditor->textDocument()->contents()
             .section(QLatin1Char('\n'), lineNumber - 1, lineNumber - 1);
         quint64 address = DisassemblerLine::addressFromDisassemblyLine(line);
