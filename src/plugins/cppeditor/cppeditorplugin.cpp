@@ -210,6 +210,13 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     contextMenu->addAction(cmd);
     cppToolsMenu->addAction(cmd);
 
+    QAction *openPreprocessorDialog = new QAction(tr("Additional Preprocessor Directives"), this);
+    cmd = ActionManager::registerAction(openPreprocessorDialog,
+                                        Constants::OPEN_PREPROCESSOR_DIALOG, context);
+    cmd->setDefaultKeySequence(QKeySequence());
+    connect(openPreprocessorDialog, SIGNAL(triggered()), this, SLOT(showPreProcessorDialog()));
+    cppToolsMenu->addAction(cmd);
+
     QAction *switchDeclarationDefinition = new QAction(tr("Switch Between Function Declaration/Definition"), this);
     cmd = ActionManager::registerAction(switchDeclarationDefinition,
         Constants::SWITCH_DECLARATION_DEFINITION, context, true);
@@ -352,6 +359,13 @@ void CppEditorPlugin::findUsages()
     CPPEditorWidget *editor = qobject_cast<CPPEditorWidget*>(EditorManager::currentEditor()->widget());
     if (editor)
         editor->findUsages();
+}
+
+void CppEditorPlugin::showPreProcessorDialog()
+{
+    CPPEditorWidget *editor = qobject_cast<CPPEditorWidget*>(EditorManager::currentEditor()->widget());
+    if (editor)
+        editor->showPreProcessorWidget();
 }
 
 void CppEditorPlugin::onTaskStarted(Core::Id type)

@@ -81,6 +81,7 @@ public slots:
     void openTypeHierarchy();
     void openIncludeHierarchy();
     void findUsages();
+    void showPreProcessorDialog();
     void renameSymbolUnderCursor();
     void switchDeclarationDefinition();
 
