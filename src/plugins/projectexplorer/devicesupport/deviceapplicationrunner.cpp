@@ -50,10 +50,6 @@ class DeviceApplicationRunner::DeviceApplicationRunnerPrivate
 {
 public:
     DeviceProcess *deviceProcess;
-    IDevice::ConstPtr device;
-    QTimer stopTimer;
-    QString command;
-    QStringList arguments;
     Utils::Environment environment;
     QString workingDir;
     State state;
@@ -67,9 +63,6 @@ DeviceApplicationRunner::DeviceApplicationRunner(QObject *parent) :
 {
     d->deviceProcess = 0;
     d->state = Inactive;
-
-    d->stopTimer.setSingleShot(true);
-    connect(&d->stopTimer, SIGNAL(timeout()), SLOT(handleStopTimeout()));
 }
 
 DeviceApplicationRunner::~DeviceApplicationRunner()
@@ -91,22 +84,34 @@ void DeviceApplicationRunner::setWorkingDirectory(const QString &workingDirector
 void DeviceApplicationRunner::start(const IDevice::ConstPtr &device,
         const QString &command, const QStringList &arguments)
 {
-    QTC_ASSERT(device->canCreateProcess(), return);
     QTC_ASSERT(d->state == Inactive, return);
 
-    d->device = device;
-    d->command = command;
-    d->arguments = arguments;
-    d->stopRequested = false;
-    d->success = true;
-
-    if (!d->device) {
+    if (!device) {
         emit reportError(tr("Cannot run: No device."));
         setFinished();
         return;
     }
 
-    runApplication();
+    if (!device->canCreateProcess()) {
+        emit reportError(tr("Cannot run: Device is not able to create processes."));
+        setFinished();
+        return;
+    }
+
+    d->stopRequested = false;
+    d->success = true;
+
+    d->state = Run;
+    d->deviceProcess = device->createProcess(this);
+    connect(d->deviceProcess, SIGNAL(started()), SIGNAL(remoteProcessStarted()));
+    connect(d->deviceProcess, SIGNAL(readyReadStandardOutput()), SLOT(handleRemoteStdout()));
+    connect(d->deviceProcess, SIGNAL(readyReadStandardError()), SLOT(handleRemoteStderr()));
+    connect(d->deviceProcess, SIGNAL(error(QProcess::ProcessError)),
+            SLOT(handleApplicationError(QProcess::ProcessError)));
+    connect(d->deviceProcess, SIGNAL(finished()), SLOT(handleApplicationFinished()));
+    d->deviceProcess->setEnvironment(d->environment);
+    d->deviceProcess->setWorkingDirectory(d->workingDir);
+    d->deviceProcess->start(command, arguments);
 }
 
 void DeviceApplicationRunner::stop()
@@ -118,11 +123,19 @@ void DeviceApplicationRunner::stop()
     emit reportProgress(tr("User requested stop. Shutting down..."));
     switch (d->state) {
     case Run:
-        d->stopTimer.start(10000);
         d->deviceProcess->terminate();
         break;
     case Inactive:
         break;
+    }
+}
+
+void DeviceApplicationRunner::handleApplicationError(QProcess::ProcessError error)
+{
+    if (error == QProcess::FailedToStart) {
+        emit reportError(tr("Application failed to start: %1")
+                         .arg(d->deviceProcess->errorString()));
+        setFinished();
     }
 }
 
@@ -141,30 +154,20 @@ void DeviceApplicationRunner::setFinished()
     emit finished(d->success);
 }
 
-void DeviceApplicationRunner::handleStopTimeout()
-{
-    QTC_ASSERT(d->stopRequested && d->state == Run, return);
-
-    emit reportError(tr("Application did not finish in time, aborting."));
-    d->success = false;
-    setFinished();
-}
-
 void DeviceApplicationRunner::handleApplicationFinished()
 {
     QTC_ASSERT(d->state == Run, return);
 
-    d->stopTimer.stop();
     if (d->deviceProcess->exitStatus() == QProcess::CrashExit) {
-        emit reportError(tr("Remote application crashed: %1").arg(d->deviceProcess->errorString()));
+        emit reportError(d->deviceProcess->errorString());
         d->success = false;
     } else {
         const int exitCode = d->deviceProcess->exitCode();
         if (exitCode != 0) {
-            emit reportError(tr("Remote application finished with exit code %1.").arg(exitCode));
+            emit reportError(tr("Application finished with exit code %1.").arg(exitCode));
             d->success = false;
         } else {
-            emit reportProgress(tr("Remote application finished with exit code 0."));
+            emit reportProgress(tr("Application finished with exit code 0."));
         }
     }
     setFinished();
@@ -180,21 +183,6 @@ void DeviceApplicationRunner::handleRemoteStderr()
 {
     QTC_ASSERT(d->state == Run, return);
     emit remoteStderr(d->deviceProcess->readAllStandardError());
-}
-
-void DeviceApplicationRunner::runApplication()
-{
-    QTC_ASSERT(d->state == Inactive, return);
-
-    d->state = Run;
-    d->deviceProcess = d->device->createProcess(this);
-    connect(d->deviceProcess, SIGNAL(started()), SIGNAL(remoteProcessStarted()));
-    connect(d->deviceProcess, SIGNAL(readyReadStandardOutput()), SLOT(handleRemoteStdout()));
-    connect(d->deviceProcess, SIGNAL(readyReadStandardError()), SLOT(handleRemoteStderr()));
-    connect(d->deviceProcess, SIGNAL(finished()), SLOT(handleApplicationFinished()));
-    d->deviceProcess->setEnvironment(d->environment);
-    d->deviceProcess->setWorkingDirectory(d->workingDir);
-    d->deviceProcess->start(d->command, d->arguments);
 }
 
 } // namespace ProjectExplorer

@@ -34,6 +34,7 @@
 #include "../projectexplorer_export.h"
 
 #include <QObject>
+#include <QProcess>
 
 QT_BEGIN_NAMESPACE
 class QStringList;
@@ -66,13 +67,12 @@ signals:
     void finished(bool success);
 
 private slots:
-    void handleStopTimeout();
+    void handleApplicationError(QProcess::ProcessError error);
     void handleApplicationFinished();
     void handleRemoteStdout();
     void handleRemoteStderr();
 
 private:
-    void runApplication();
     void setFinished();
 
     class DeviceApplicationRunnerPrivate;
