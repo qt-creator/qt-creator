@@ -237,17 +237,17 @@ QString AndroidManager::buildTargetSDK(ProjectExplorer::Target *target)
         fallback = QLatin1String("android-9");
 
     if (!createAndroidTemplatesIfNecessary(target))
-        return AndroidConfigurations::instance().bestMatch(fallback);
+        return fallback;
 
     QFile file(defaultPropertiesPath(target).toString());
     if (!file.open(QIODevice::ReadOnly))
-        return AndroidConfigurations::instance().bestMatch(fallback);
+        return fallback;
     while (!file.atEnd()) {
         QByteArray line = file.readLine();
         if (line.startsWith("target="))
             return QString::fromLatin1(line.trimmed().mid(7));
     }
-    return AndroidConfigurations::instance().bestMatch(fallback);
+    return fallback;
 }
 
 bool AndroidManager::setBuildTargetSDK(ProjectExplorer::Target *target, const QString &sdk)
