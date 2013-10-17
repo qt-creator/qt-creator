@@ -95,12 +95,12 @@ except:
 
 
 def bytesToString(b):
-    if sys.version[0] == 2:
+    if sys.version_info[0] == 2:
         return b
     return b.decode("utf8")
 
 def stringToBytes(s):
-    if sys.version[0] == 2:
+    if sys.version_info[0] == 2:
         return s
     return s.encode("utf8")
 
