@@ -717,6 +717,9 @@ void CPPEditorWidget::setMimeType(const QString &mt)
             = m_modelManager->cppEditorSupport(editor())->snapshotUpdater();
     updater->setEditorDefines(additionalDirectives);
 
+    m_preprocessorButton->setProperty("highlightWidget", !additionalDirectives.trimmed().isEmpty());
+    m_preprocessorButton->update();
+
     BaseTextEditorWidget::setMimeType(mt);
     setObjCEnabled(mt == QLatin1String(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
                    || mt == QLatin1String(CppTools::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
@@ -1990,8 +1993,12 @@ void CPPEditorWidget::showPreProcessorWidget()
     if (preProcessorDialog.exec() == QDialog::Accepted) {
         QSharedPointer<SnapshotUpdater> updater
                 = m_modelManager->cppEditorSupport(editor())->snapshotUpdater();
-        updater->setEditorDefines(preProcessorDialog.additionalPreProcessorDirectives().toUtf8());
+        const QString &additionals = preProcessorDialog.additionalPreProcessorDirectives();
+        updater->setEditorDefines(additionals.toUtf8());
         updater->update(m_modelManager->workingCopy());
+
+        m_preprocessorButton->setProperty("highlightWidget", !additionals.trimmed().isEmpty());
+        m_preprocessorButton->update();
     }
 }
 

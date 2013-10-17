@@ -482,11 +482,12 @@ void ManhattanStyle::drawPrimitive(PrimitiveElement element, const QStyleOption 
                    // painter->drawLine(rect.bottomLeft()  + QPoint(1, 0), rect.bottomRight()  - QPoint(1, 0));
                     QColor highlight(255, 255, 255, 30);
                     painter->setPen(highlight);
-                }
-                else if (option->state & State_Enabled &&
-                         option->state & State_MouseOver) {
+                } else if (option->state & State_Enabled && option->state & State_MouseOver) {
                     QColor lighter(255, 255, 255, 37);
                     painter->fillRect(rect, lighter);
+                } else if (widget && widget->property("highlightWidget").toBool()) {
+                    QColor shade(0, 0, 0, 128);
+                    painter->fillRect(rect, shade);
                 }
                 if (option->state & State_HasFocus && (option->state & State_KeyboardFocusChange)) {
                     QColor highlight = option->palette.highlight().color();
@@ -872,6 +873,8 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
             QStyleOptionToolButton label = *toolbutton;
 
             label.palette = panelPalette(option->palette, lightColored(widget));
+            if (widget && widget->property("highlightWidget").toBool())
+                label.palette.setColor(QPalette::ButtonText, Qt::red);
             int fw = pixelMetric(PM_DefaultFrameWidth, option, widget);
             label.rect = button.adjusted(fw, fw, -fw, -fw);
 
