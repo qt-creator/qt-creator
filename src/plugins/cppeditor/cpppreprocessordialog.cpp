@@ -37,6 +37,12 @@
 
 using namespace CppEditor::Internal;
 
+static bool projectPartLessThan(const CppTools::ProjectPart::Ptr &projectPart1,
+                                const CppTools::ProjectPart::Ptr &projectPart2)
+{
+    return projectPart1->displayName < projectPart2->displayName;
+}
+
 CppPreProcessorDialog::CppPreProcessorDialog(CPPEditorWidget *editorWidget,
                                              const QList<CppTools::ProjectPart::Ptr> &projectParts)
     : QDialog(editorWidget)
@@ -50,7 +56,10 @@ CppPreProcessorDialog::CppPreProcessorDialog(CPPEditorWidget *editorWidget,
 
     CppSnippetProvider().decorateEditor(m_ui->editWidget);
 
-    foreach (CppTools::ProjectPart::Ptr projectPart, projectParts) {
+    QList<CppTools::ProjectPart::Ptr> sortedProjectParts(projectParts);
+    qStableSort(sortedProjectParts.begin(), sortedProjectParts.end(), projectPartLessThan);
+
+    foreach (CppTools::ProjectPart::Ptr projectPart, sortedProjectParts) {
         m_ui->projectComboBox->addItem(projectPart->displayName);
         ProjectPartAddition addition;
         addition.projectPart = projectPart;
