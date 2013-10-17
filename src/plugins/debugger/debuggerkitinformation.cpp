@@ -185,6 +185,42 @@ void DebuggerItem::setAbi(const Abi &abi)
     m_abis.append(abi);
 }
 
+static DebuggerItem::MatchLevel matchSingle(const Abi &debuggerAbi, const Abi &targetAbi)
+{
+    if (debuggerAbi.architecture() != targetAbi.architecture())
+        return DebuggerItem::DoesNotMatch;
+
+    if (debuggerAbi.os() != targetAbi.os())
+        return DebuggerItem::DoesNotMatch;
+
+    if (debuggerAbi.binaryFormat() != targetAbi.binaryFormat())
+        return DebuggerItem::DoesNotMatch;
+
+    if (debuggerAbi.wordWidth() != targetAbi.wordWidth())
+        return DebuggerItem::DoesNotMatch;
+
+    if (debuggerAbi.os() == Abi::WindowsOS) {
+        if (debuggerAbi.osFlavor() == Abi::WindowsMSysFlavor && targetAbi.osFlavor() != Abi::WindowsMSysFlavor)
+            return DebuggerItem::DoesNotMatch;
+        if (debuggerAbi.osFlavor() != Abi::WindowsMSysFlavor && targetAbi.osFlavor() == Abi::WindowsMSysFlavor)
+            return DebuggerItem::DoesNotMatch;
+        return DebuggerItem::MatchesSomewhat;
+    }
+
+    return DebuggerItem::MatchesPerfectly;
+}
+
+DebuggerItem::MatchLevel DebuggerItem::matchTarget(const Abi &targetAbi) const
+{
+    MatchLevel bestMatch = DoesNotMatch;
+    foreach (const Abi &debuggerAbi, m_abis) {
+        MatchLevel currentMatch = matchSingle(debuggerAbi, targetAbi);
+        if (currentMatch > bestMatch)
+            bestMatch = currentMatch;
+    }
+    return bestMatch;
+}
+
 bool Debugger::DebuggerItem::isValid() const
 {
     return m_engineType != NoEngineType;

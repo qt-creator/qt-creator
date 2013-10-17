@@ -77,6 +77,9 @@ public:
     void setAbis(const QList<ProjectExplorer::Abi> &abis);
     void setAbi(const ProjectExplorer::Abi &abi);
 
+    enum MatchLevel { DoesNotMatch, MatchesSomewhat, MatchesPerfectly };
+    MatchLevel matchTarget(const ProjectExplorer::Abi &targetAbi) const;
+
     QStringList abiNames() const;
 
 private:
@@ -113,7 +116,6 @@ public:
     static const DebuggerItem *findByCommand(const Utils::FileName &command);
     static const DebuggerItem *findById(const QVariant &id);
 
-    static QVariant defaultDebugger(ProjectExplorer::ToolChain *tc);
     static void restoreDebuggers();
     static QString uniqueDisplayName(const QString &base);
     static void setItemData(const QVariant &id, const QString& displayName, const Utils::FileName &fileName);
@@ -126,8 +128,8 @@ public slots:
 
 private:
     explicit DebuggerItemManager(QObject *parent = 0);
-    static void autoDetectDebuggers();
-    static void autoDetectCdbDebugger();
+    static void autoDetectGdbOrLldbDebuggers();
+    static void autoDetectCdbDebuggers();
     static void readLegacyDebuggers();
 
     static Utils::PersistentSettingsWriter *m_writer;
