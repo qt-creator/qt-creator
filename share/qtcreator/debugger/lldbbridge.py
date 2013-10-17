@@ -30,6 +30,7 @@
 import atexit
 import binascii
 import inspect
+import json
 import os
 import threading
 import select
@@ -1627,6 +1628,24 @@ class Dumper(DumperBase):
             self.debugger.GetListener().GetNextEvent(event)
             self.handleEvent(event)
 
+def convertHash(args):
+    if sys.version_info[0] == 3:
+        return args
+    cargs = {}
+    for arg in args:
+        rhs = args[arg]
+        if type(rhs) == type([]):
+            rhs = [convertHash(i) for i in rhs]
+        elif type(rhs) == type({}):
+            rhs = convertHash(rhs)
+        else:
+            try:
+                rhs = rhs.encode('utf8')
+            except:
+                pass
+        cargs[arg.encode('utf8')] = rhs
+    return cargs
+
 
 def doit():
 
@@ -1641,7 +1660,8 @@ def doit():
                 line = sys.stdin.readline()
                 #warn("READING LINE '%s'" % line)
                 if line.startswith("db "):
-                    db.execute(eval(line[3:]))
+                    line = line.replace("'", '"')[3:]
+                    db.execute(convertHash(json.loads(line)))
 
 
 def testit1():
