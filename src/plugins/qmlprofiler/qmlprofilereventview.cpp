@@ -524,7 +524,7 @@ void QmlProfilerEventsMainView::parseModelProxy()
             QString toolTipText;
             if (event.eventType == Binding) {
                 if (event.bindingType == (int)OptimizedBinding) {
-                    typeString = typeString + tr(" (Opt)");
+                    typeString = typeString + QLatin1Char(' ') +  tr("(Opt)");
                     toolTipText = tr("Binding is evaluated by the optimized engine.");
                 } else if (event.bindingType == (int)V8Binding) {
                     toolTipText = tr("Binding not optimized (e.g. has side effects or assignments,\n"

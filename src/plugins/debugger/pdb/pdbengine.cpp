@@ -596,7 +596,7 @@ QString PdbEngine::errorMessage(QProcess::ProcessError error) const
             return tr("An error occurred when attempting to read from "
                 "the Pdb process. For example, the process may not be running.");
         default:
-            return tr("An unknown error in the Pdb process occurred. ");
+            return tr("An unknown error in the Pdb process occurred.") + QLatin1Char(' ');
     }
 }
 

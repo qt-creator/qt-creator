@@ -147,7 +147,7 @@ void CustomParserConfigDialog::changed()
 
     int pos = rx.indexIn(ui->errorMessage->text());
     if (rx.isEmpty() || !rx.isValid() || pos < 0) {
-        QString error = QLatin1String("<font color=\"red\">") + tr("Not applicable: ");
+        QString error = QLatin1String("<font color=\"red\">") + tr("Not applicable:") + QLatin1Char(' ');
         if (rx.isEmpty())
             error += tr("Pattern is empty.");
         else if (!rx.isValid())

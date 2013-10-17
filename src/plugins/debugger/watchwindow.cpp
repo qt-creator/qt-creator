@@ -649,7 +649,7 @@ void WatchTreeView::contextMenuEvent(QContextMenuEvent *ev)
         QString msg = (individualFormat == -1 && typeFormat != -1)
             ? tr("Use Format for Type (Currently %1)")
                 .arg(alternativeFormats.at(typeFormat))
-            : tr("Use Display Format Based on Type ");
+            : tr("Use Display Format Based on Type") + QLatin1Char(' ');
         clearIndividualFormatAction = formatMenu.addAction(spacer + msg);
         clearIndividualFormatAction->setCheckable(true);
         clearIndividualFormatAction->setChecked(individualFormat == -1);

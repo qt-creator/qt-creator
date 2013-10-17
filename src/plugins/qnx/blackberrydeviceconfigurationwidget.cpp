@@ -165,7 +165,7 @@ void BlackBerryDeviceConfigurationWidget::uploadFinished(int status)
 {
     progressDialog->hide();
 
-    QString errorString = tr("Failed to upload debug token: ");
+    QString errorString = tr("Failed to upload debug token:") + QLatin1Char(' ');
 
     switch (status) {
     case BlackBerryDebugTokenUploader::Success:

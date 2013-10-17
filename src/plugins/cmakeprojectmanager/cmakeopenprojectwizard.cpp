@@ -455,7 +455,7 @@ ShadowBuildPage::ShadowBuildPage(CMakeOpenProjectWizard *cmakeWizard, bool chang
     QLabel *label = new QLabel(this);
     label->setWordWrap(true);
     if (change)
-        label->setText(tr("Please enter the directory in which you want to build your project. "));
+        label->setText(tr("Please enter the directory in which you want to build your project.") + QLatin1Char(' '));
     else
         label->setText(tr("Please enter the directory in which you want to build your project. "
                           "Qt Creator recommends to not use the source directory for building. "
@@ -507,13 +507,14 @@ void ChooseCMakePage::updateErrorText()
     } else {
         QString text = tr("Specify the path to the CMake executable. No CMake executable was found in the path.");
         if (!cmakeExecutable.isEmpty()) {
+            text += QLatin1Char(' ');
             QFileInfo fi(cmakeExecutable);
             if (!fi.exists())
-                text += tr(" The CMake executable (%1) does not exist.").arg(cmakeExecutable);
+                text += tr("The CMake executable (%1) does not exist.").arg(cmakeExecutable);
             else if (!fi.isExecutable())
-                text += tr(" The path %1 is not an executable.").arg(cmakeExecutable);
+                text += tr("The path %1 is not an executable.").arg(cmakeExecutable);
             else
-                text += tr(" The path %1 is not a valid CMake executable.").arg(cmakeExecutable);
+                text += tr("The path %1 is not a valid CMake executable.").arg(cmakeExecutable);
         }
         m_cmakeLabel->setText(text);
     }

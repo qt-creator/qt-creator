@@ -382,7 +382,7 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
                 || server.listen(QHostAddress::LocalHostIPv6);
         if (!canListen) {
             if (errorMessage)
-                *errorMessage = DebuggerPlugin::tr("Not enough free ports for QML debugging. ");
+                *errorMessage = DebuggerPlugin::tr("Not enough free ports for QML debugging.") + QLatin1Char(' ');
             return sp;
         }
         sp.qmlServerAddress = server.serverAddress().toString();

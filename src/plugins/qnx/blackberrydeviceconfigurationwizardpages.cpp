@@ -290,7 +290,8 @@ void BlackBerryDeviceConfigurationWizardQueryPage::sshKeysGenerationFailed(const
     if (m_state != GeneratingSshKey)
         return;
 
-    QString message = tr("Failed generating SSH key needed for securing connection to a device. Error: ");
+    QString message = tr("Failed generating SSH key needed for securing connection to a device. Error:");
+    message += QLatin1Char(' ');
     message.append(error);
     setState(Done, message);
 }
@@ -310,7 +311,8 @@ void BlackBerryDeviceConfigurationWizardQueryPage::processSshKeys(const QByteArr
     if (! BlackBerryDeviceConnectionManager::instance()->hasValidSSHKeys()) {
         QString error;
         if (!BlackBerryDeviceConnectionManager::instance()->setSSHKeys(privateKey, publicKey, &error)) {
-            QString message = tr("Failed saving SSH key needed for securing connection to a device. Error: ");
+            QString message = tr("Failed saving SSH key needed for securing connection to a device. Error:");
+            message += QLatin1Char(' ');
             message.append(error);
             setState(Done, message);
             return;

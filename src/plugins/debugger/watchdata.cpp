@@ -392,7 +392,8 @@ QString WatchData::toToolTip() const
     }
     if (val.size() > 1000) {
         val.truncate(1000);
-        val += tr(" ... <cut off>");
+        val += QLatin1Char(' ');
+        val += tr("... <cut off>");
     }
     formatToolTipRow(str, tr("Value"), val);
     if (address)

@@ -5396,7 +5396,7 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
         if (!error.isEmpty())
             showMessage(MessageError, error);
     } else {
-        showMessage(MessageError, FakeVimHandler::tr("Unknown option: ") + cmd.args);
+        showMessage(MessageError, FakeVimHandler::tr("Unknown option:") + QLatin1Char(' ') + cmd.args);
     }
     updateMiniBuffer();
     updateEditor();

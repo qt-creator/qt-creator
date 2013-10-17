@@ -296,7 +296,7 @@ QString GdbEngine::errorMessage(QProcess::ProcessError error)
             return tr("An error occurred when attempting to read from "
                 "the gdb process. For example, the process may not be running.");
         default:
-            return tr("An unknown error in the gdb process occurred. ");
+            return tr("An unknown error in the gdb process occurred.");
     }
 }
 
@@ -338,7 +338,7 @@ static inline QString msgWinException(const QByteArray &data, unsigned *exCodeIn
     const quint64 address = data.mid(addressPos).trimmed().toULongLong(0, 0);
     QString rc;
     QTextStream str(&rc);
-    str << GdbEngine::tr("An exception was triggered: ");
+    str << GdbEngine::tr("An exception was triggered:") << ' ';
     formatWindowsException(exCode, address, 0, 0, 0, str);
     str << '.';
     return rc;
@@ -5215,7 +5215,7 @@ void GdbEngine::handleBreakOnQFatal(const GdbResponse &response)
 
 void GdbEngine::notifyInferiorSetupFailed(const QString &msg)
 {
-    showStatusMessage(tr("Failed to start application: ") + msg);
+    showStatusMessage(tr("Failed to start application:") + QLatin1Char(' ') + msg);
     if (state() == EngineSetupFailed) {
         showMessage(_("INFERIOR START FAILED, BUT ADAPTER DIED ALREADY"));
         return; // Adapter crashed meanwhile, so this notification is meaningless.

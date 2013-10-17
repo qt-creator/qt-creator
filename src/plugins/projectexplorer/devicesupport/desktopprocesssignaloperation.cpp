@@ -85,14 +85,16 @@ void DesktopProcessSignalOperation::appendMsgCannotKill(int pid, const QString &
 {
     if (!m_errorMessage.isEmpty())
         m_errorMessage += QChar::fromLatin1('\n');
-    m_errorMessage += tr("Cannot kill process with pid %1: %3 ").arg(pid).arg(why);
+    m_errorMessage += tr("Cannot kill process with pid %1: %3").arg(pid).arg(why);
+    m_errorMessage += QLatin1Char(' ');
 }
 
 void DesktopProcessSignalOperation::appendMsgCannotInterrupt(int pid, const QString &why)
 {
     if (!m_errorMessage.isEmpty())
         m_errorMessage += QChar::fromLatin1('\n');
-    m_errorMessage += tr("Cannot interrupt process with pid %1: %3 ").arg(pid).arg(why);
+    m_errorMessage += tr("Cannot interrupt process with pid %1: %3").arg(pid).arg(why);
+    m_errorMessage += QLatin1Char(' ');
 }
 
 void DesktopProcessSignalOperation::killProcessSilently(int pid)
@@ -165,8 +167,8 @@ GDB 32bit | Api             | Api             | N/A             | Win32         
                 m_specialInterrupt == Win64Interrupt && creatorIs64Bit ||
                 m_specialInterrupt == Win32Interrupt && !creatorIs64Bit) {
             if (!DebugBreakProcess(inferior)) {
-                appendMsgCannotInterrupt(pid, tr("DebugBreakProcess failed: ")
-                                         + Utils::winErrorMessage(GetLastError()));
+                appendMsgCannotInterrupt(pid, tr("DebugBreakProcess failed:")
+                                          + QLatin1Char(' ') + Utils::winErrorMessage(GetLastError()));
             }
         } else if (m_specialInterrupt == Win32Interrupt || m_specialInterrupt == Win64Interrupt) {
             QString executable = QCoreApplication::applicationDirPath();
@@ -189,7 +191,7 @@ GDB 32bit | Api             | Api             | N/A             | Win32         
                 break;
             default:
                 appendMsgCannotInterrupt(pid, QDir::toNativeSeparators(executable)
-                                         + tr(" could not break the process."));
+                                         + QLatin1Char(' ') + tr("could not break the process."));
                 break;
             }
         }

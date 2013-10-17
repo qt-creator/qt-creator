@@ -102,7 +102,7 @@ QList<Core::Id> RemoteLinuxRunConfigurationFactory::availableCreationIds(Target 
 QString RemoteLinuxRunConfigurationFactory::displayNameForId(const Core::Id id) const
 {
     return QFileInfo(pathFromId(id)).completeBaseName()
-        + tr(" (on Remote Generic Linux Host)");
+        + QLatin1Char(' ') + tr("(on Remote Generic Linux Host)");
 }
 
 RunConfiguration *RemoteLinuxRunConfigurationFactory::doCreate(Target *parent, const Core::Id id)

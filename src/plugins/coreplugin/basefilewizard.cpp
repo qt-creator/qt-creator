@@ -407,9 +407,9 @@ BaseFileWizard::OverwriteResult BaseFileWizard::promptOverwrite(GeneratedFiles *
     QStringList existingFiles;
     bool oddStuffFound = false;
 
-    static const QString readOnlyMsg = tr(" [read only]");
-    static const QString directoryMsg = tr(" [folder]");
-    static const QString symLinkMsg = tr(" [symbolic link]");
+    static const QString readOnlyMsg = tr("[read only]");
+    static const QString directoryMsg = tr("[folder]");
+    static const QString symLinkMsg = tr("[symbolic link]");
 
     foreach (const GeneratedFile &file, *files) {
         const QFileInfo fi(file.path());
@@ -432,17 +432,17 @@ BaseFileWizard::OverwriteResult BaseFileWizard::promptOverwrite(GeneratedFiles *
             do {
                 if (fi.isDir()) {
                     oddStuffFound = true;
-                    fileNamesMsgPart += directoryMsg;
+                    fileNamesMsgPart += QLatin1Char(' ') + directoryMsg;
                     break;
                 }
                 if (fi.isSymLink()) {
                     oddStuffFound = true;
-                    fileNamesMsgPart += symLinkMsg;
+                    fileNamesMsgPart += QLatin1Char(' ') + symLinkMsg;
                     break;
             }
                 if (!fi.isWritable()) {
                     oddStuffFound = true;
-                    fileNamesMsgPart += readOnlyMsg;
+                    fileNamesMsgPart += QLatin1Char(' ') + readOnlyMsg;
                 }
             } while (false);
         }
