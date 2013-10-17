@@ -1663,6 +1663,8 @@ public:
 
     void moveToFirstNonBlankOnLine();
     void moveToFirstNonBlankOnLine(QTextCursor *tc);
+    void moveToFirstNonBlankOnLineVisually();
+    void moveToNonBlankOnLine(QTextCursor *tc);
     void moveToTargetColumn();
     void setTargetColumn();
     void moveToMatchingParanthesis();
@@ -1680,7 +1682,10 @@ public:
 
     // Convenience wrappers to reduce line noise.
     void moveToStartOfLine();
+    void moveToStartOfLineVisually();
     void moveToEndOfLine();
+    void moveToEndOfLineVisually();
+    void moveToEndOfLineVisually(QTextCursor *tc);
     void moveBehindEndOfLine();
     void moveUp(int n = 1) { moveDown(-n); }
     void moveDown(int n = 1);
@@ -2947,18 +2952,13 @@ void FakeVimHandler::Private::moveDownVisually(int n)
     QTextCursor tc = m_cursor;
     tc.movePosition(StartOfLine);
     const int minPos = tc.position();
-    tc.movePosition(EndOfLine);
-    int maxPos = tc.position();
-    // Moving to end of line sometimes ends up on following line.
-    tc.movePosition(StartOfLine);
-    if (minPos != tc.position())
-        --maxPos;
+    moveToEndOfLineVisually(&tc);
+    const int maxPos = tc.position();
 
     if (m_targetColumn == -1) {
         setPosition(maxPos);
     } else {
         setPosition(qMin(maxPos, minPos + m_targetColumnWrapped));
-
         const int targetColumn = m_targetColumnWrapped;
         setTargetColumn();
         m_targetColumnWrapped = targetColumn;
@@ -3021,6 +3021,26 @@ void FakeVimHandler::Private::moveToEndOfLine()
     bool onlyVisibleLines = isVisualMode() || g.submode != NoSubMode;
     const int id = onlyVisibleLines ? lineNumber(block()) : block().blockNumber() + 1;
     setPosition(lastPositionInLine(id, onlyVisibleLines));
+    setTargetColumn();
+}
+
+void FakeVimHandler::Private::moveToEndOfLineVisually()
+{
+    moveToEndOfLineVisually(&m_cursor);
+    setTargetColumn();
+}
+
+void FakeVimHandler::Private::moveToEndOfLineVisually(QTextCursor *tc)
+{
+    // Moving to end of line ends up on following line if the line is wrapped.
+    tc->movePosition(StartOfLine);
+    const int minPos = tc->position();
+    tc->movePosition(EndOfLine);
+    int maxPos = tc->position();
+    tc->movePosition(StartOfLine);
+    if (minPos != tc->position())
+        --maxPos;
+    tc->setPosition(maxPos);
 }
 
 void FakeVimHandler::Private::moveBehindEndOfLine()
@@ -3033,12 +3053,14 @@ void FakeVimHandler::Private::moveBehindEndOfLine()
 
 void FakeVimHandler::Private::moveToStartOfLine()
 {
-#if 0
-    // does not work for "hidden" documents like in the autotests
-    tc.movePosition(StartOfLine, MoveAnchor);
-#else
     setPosition(block().position());
-#endif
+    setTargetColumn();
+}
+
+void FakeVimHandler::Private::moveToStartOfLineVisually()
+{
+    m_cursor.movePosition(StartOfLine, KeepAnchor);
+    setTargetColumn();
 }
 
 void FakeVimHandler::Private::fixSelection()
@@ -3553,15 +3575,19 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
         return true;
     } else if (input.is('0')) {
         g.movetype = MoveExclusive;
-        moveToStartOfLine();
-        setTargetColumn();
+        if (g.gflag)
+            moveToStartOfLineVisually();
+        else
+            moveToStartOfLine();
         count = 1;
     } else if (input.is('a') || input.is('i')) {
         g.subsubmode = TextObjectSubSubMode;
         g.subsubdata = input;
     } else if (input.is('^') || input.is('_')) {
-        moveToFirstNonBlankOnLine();
-        setTargetColumn();
+        if (g.gflag)
+            moveToFirstNonBlankOnLineVisually();
+        else
+            moveToFirstNonBlankOnLine();
         g.movetype = MoveExclusive;
     } else if (0 && input.is(',')) {
         // FIXME: fakevim uses ',' by itself, so it is incompatible
@@ -3643,9 +3669,15 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
         setTargetColumn();
         movement = _("<HOME>");
     } else if (input.is('$') || input.isKey(Key_End)) {
-        if (count > 1)
-            moveDown(count - 1);
-        moveToEndOfLine();
+        if (g.gflag) {
+            if (count > 1)
+                moveDownVisually(count - 1);
+            moveToEndOfLineVisually();
+        } else {
+            if (count > 1)
+                moveDown(count - 1);
+            moveToEndOfLine();
+        }
         g.movetype = atEmptyLine() ? MoveExclusive : MoveInclusive;
         setTargetColumn();
         if (g.submode == NoSubMode)
@@ -6128,19 +6160,31 @@ void FakeVimHandler::Private::highlightMatches(const QString &needle)
 void FakeVimHandler::Private::moveToFirstNonBlankOnLine()
 {
     moveToFirstNonBlankOnLine(&m_cursor);
+    setTargetColumn();
 }
 
 void FakeVimHandler::Private::moveToFirstNonBlankOnLine(QTextCursor *tc)
 {
+    tc->setPosition(tc->block().position(), KeepAnchor);
+    moveToNonBlankOnLine(tc);
+}
+
+void FakeVimHandler::Private::moveToFirstNonBlankOnLineVisually()
+{
+    moveToStartOfLineVisually();
+    moveToNonBlankOnLine(&m_cursor);
+    setTargetColumn();
+}
+
+void FakeVimHandler::Private::moveToNonBlankOnLine(QTextCursor *tc)
+{
     QTextDocument *doc = tc->document();
-    int firstPos = tc->block().position();
-    for (int i = firstPos, n = firstPos + block().length(); i < n; ++i) {
-        if (!doc->characterAt(i).isSpace() || i == n - 1) {
-            tc->setPosition(i, KeepAnchor);
-            return;
-        }
-    }
-    tc->setPosition(block().position(), KeepAnchor);
+    const QTextBlock block = tc->block();
+    const int maxPos = block.position() + block.length() - 1;
+    int i = tc->position();
+    while (doc->characterAt(i).isSpace() && i < maxPos)
+        ++i;
+    tc->setPosition(i, KeepAnchor);
 }
 
 void FakeVimHandler::Private::indentSelectedText(QChar typedChar)
