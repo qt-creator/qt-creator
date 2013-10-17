@@ -186,6 +186,43 @@ void DebuggerKitInformation::setup(Kit *k)
     k->setValue(DebuggerKitInformation::id(), bestId);
 }
 
+
+// This handles the upgrade path from 2.8 to 3.0
+void DebuggerKitInformation::fix(Kit *k)
+{
+    // This can be Id, binary path, but not "auto" anymore.
+    const QVariant rawId = k->value(DebuggerKitInformation::id());
+
+    if (rawId.type() == QVariant::String) {
+        if (!DebuggerItemManager::findById(rawId)) {
+            qWarning("Unknown debugger id %s in kit %s",
+                     qPrintable(rawId.toString()), qPrintable(k->displayName()));
+            k->setValue(DebuggerKitInformation::id(), QVariant());
+        }
+        return; // All fine (now).
+    }
+
+    QMap<QString, QVariant> map = rawId.toMap();
+    QString binary = map.value(QLatin1String("Binary")).toString();
+    if (binary == QLatin1String("auto")) {
+        // This should not happen as "auto" is handled by setup() already.
+        QTC_CHECK(false);
+        k->setValue(DebuggerKitInformation::id(), QVariant());
+        return;
+    }
+
+    FileName fileName = FileName::fromUserInput(binary);
+    const DebuggerItem *item = DebuggerItemManager::findByCommand(fileName);
+    if (!item) {
+        qWarning("Debugger command %s invalid in kit %s",
+                 qPrintable(binary), qPrintable(k->displayName()));
+        k->setValue(DebuggerKitInformation::id(), QVariant());
+        return;
+    }
+
+    k->setValue(DebuggerKitInformation::id(), item->id());
+}
+
 // Check the configuration errors and return a flag mask. Provide a quick check and
 // a verbose one with a list of errors.
 

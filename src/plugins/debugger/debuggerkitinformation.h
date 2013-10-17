@@ -153,6 +153,7 @@ public:
         { return DebuggerKitInformation::validateDebugger(k); }
 
     void setup(ProjectExplorer::Kit *k);
+    void fix(ProjectExplorer::Kit *k);
 
     static const DebuggerItem *debugger(const ProjectExplorer::Kit *kit);
 
