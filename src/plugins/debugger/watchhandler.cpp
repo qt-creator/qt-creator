@@ -645,7 +645,7 @@ QString WatchModel::formattedValue(const WatchData &data) const
     if (isIntegralValue(value)) {
         // Append quoted, printable character also for decimal.
         const int format = itemFormat(data);
-        if (data.type.endsWith("char")) {
+        if (data.type.endsWith("char") || data.type.endsWith("QChar")) {
             bool ok;
             const int code = value.toInt(&ok);
             return ok ? reformatCharacter(code, format) : value;

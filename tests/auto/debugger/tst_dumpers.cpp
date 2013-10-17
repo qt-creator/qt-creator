@@ -1163,6 +1163,14 @@ void tst_Dumpers::dumper_data()
                % Check("ba1", "\"Hell\"", "@QByteArray")
                % Check("ba2", "\"ello\"", "@QByteArray");
 
+    QTest::newRow("QChar")
+            << Data("#include <QString>\n",
+                    "QString s = QLatin1String(\"x\");\n"
+                    "QChar c = s.at(0);\n"
+                    "unused(&c);\n")
+               % CoreProfile()
+               % Check("c", "120", "@QChar");
+
     QTest::newRow("QDate0")
             << Data("#include <QDate>\n",
                     "QDate date;\n"
@@ -1653,8 +1661,8 @@ void tst_Dumpers::dumper_data()
                % CoreProfile()
                % Check("l0", "<0 items>", "@QList<@QChar>")
                % Check("l", "<3 items>", "@QList<@QChar>")
-               % Check("l.0", "[0]", "'a' (97)", "@QChar")
-               % Check("l.2", "[2]", "'c' (99)", "@QChar");
+               % Check("l.0", "[0]", "97", "@QChar")
+               % Check("l.2", "[2]", "99", "@QChar");
 
     QTest::newRow("QListQULongLong")
             << Data("#include <QList>\n",
@@ -3370,7 +3378,7 @@ void tst_Dumpers::dumper_data()
                % Check("var4", "4", "@QVariant (qlonglong)")
                % Check("var5", "5", "@QVariant (qulonglong)")
                % Check("var6", "6.0", "@QVariant (double)")
-               % Check("var7", "'?' (7)", "@QVariant (QChar)")
+               % Check("var7", "7", "@QVariant (QChar)")
                % Check("var10", "\"Hello 10\"", "@QVariant (QString)")
                % Check("var11", "<2 items>", "@QVariant (QStringList)")
                % Check("var11.1", "[1]", "\"World\"", "@QString")

@@ -70,20 +70,8 @@ def qdump__QByteArray(d, value):
         d.putArrayData(d.charType(), data, size)
 
 
-def str2Utf8hex2(s):
-    # Returns UTF-8 hex-data of string suitable for QByteArray::fromHex()
-    ret = []
-    for c in s.encode('utf-8'):
-        ret.append('%02x' % ord(c))
-    return ''.join(ret)
-
 def qdump__QChar(d, value):
-    ucs = int(value["ucs"])
-    if ucs < 32:
-        ch = '?'
-    else:
-        ch = unichr(ucs)
-    d.putValue(str2Utf8hex2(u"'%s' (%d)" % (ch, ucs)), Hex2EncodedUtf8WithoutQuotes)
+    d.putValue(int(value["ucs"]))
     d.putNumChild(0)
 
 
