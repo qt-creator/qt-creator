@@ -1810,7 +1810,8 @@ void DebuggerEngine::checkForReleaseBuild(const DebuggerStartParameters &sp)
     }
     showMessageBox(QMessageBox::Information, tr("Warning"),
                    tr("This does not seem to be a \"Debug\" build.\n"
-                      "Setting breakpoints by file name and line number may fail.\n").append(detailedWarning));
+                      "Setting breakpoints by file name and line number may fail.")
+                   + QLatin1Char('\n') + detailedWarning);
 }
 
 } // namespace Debugger

@@ -141,7 +141,7 @@ void LinuxDeviceDebugSupport::handleRemoteSetupRequested()
 {
     QTC_ASSERT(state() == Inactive, return);
 
-    showMessage(tr("Checking available ports...\n"), LogStatus);
+    showMessage(tr("Checking available ports...") + QLatin1Char('\n'), LogStatus);
     AbstractRemoteLinuxRunSupport::handleRemoteSetupRequested();
 }
 

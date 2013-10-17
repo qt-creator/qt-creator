@@ -100,7 +100,7 @@ Valgrind::ValgrindRunner * CallgrindRunControl::runner()
 
 bool CallgrindRunControl::startEngine()
 {
-    appendMessage(tr("Profiling %1\n").arg(executable()), Utils::NormalMessageFormat);
+    appendMessage(tr("Profiling %1").arg(executable()) + QLatin1Char('\n'), Utils::NormalMessageFormat);
     return ValgrindRunControl::startEngine();
 }
 

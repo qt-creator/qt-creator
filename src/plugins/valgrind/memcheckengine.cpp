@@ -80,7 +80,7 @@ bool MemcheckRunControl::startEngine()
     // Clear about-to-be-outdated tasks.
     TaskHub::clearTasks(Analyzer::Constants::ANALYZERTASK_ID);
 
-    appendMessage(tr("Analyzing memory of %1\n").arg(executable()),
+    appendMessage(tr("Analyzing memory of %1").arg(executable()) + QLatin1Char('\n'),
                         Utils::NormalMessageFormat);
     return ValgrindRunControl::startEngine();
 }

@@ -1893,7 +1893,7 @@ void GdbEngine::pythonDumpersFailed()
 void GdbEngine::showExecutionError(const QString &message)
 {
     showMessageBox(QMessageBox::Critical, tr("Execution Error"),
-       tr("Cannot continue debugged process:\n") + message);
+       tr("Cannot continue debugged process:") + QLatin1Char('\n') + message);
 }
 
 void GdbEngine::handleExecuteContinue(const GdbResponse &response)
@@ -2296,7 +2296,7 @@ void GdbEngine::handleExecuteNext(const GdbResponse &response)
         notifyInferiorRunFailed();
     } else {
         showMessageBox(QMessageBox::Critical, tr("Execution Error"),
-           tr("Cannot continue debugged process:\n") + QString::fromLocal8Bit(msg));
+           tr("Cannot continue debugged process:") + QLatin1Char('\n') + QString::fromLocal8Bit(msg));
         notifyInferiorIll();
     }
 }
@@ -3848,7 +3848,7 @@ void GdbEngine::handleMakeSnapshot(const GdbResponse &response)
     } else {
         QByteArray msg = response.data["msg"].data();
         showMessageBox(QMessageBox::Critical, tr("Snapshot Creation Error"),
-            tr("Cannot create snapshot:\n") + QString::fromLocal8Bit(msg));
+            tr("Cannot create snapshot:") + QLatin1Char('\n') + QString::fromLocal8Bit(msg));
     }
 }
 

@@ -173,7 +173,7 @@ void ValgrindRunControl::handleProgressFinished()
 
 void ValgrindRunControl::runnerFinished()
 {
-    appendMessage(tr("Analyzing finished.\n"), NormalMessageFormat);
+    appendMessage(tr("Analyzing finished.") + QLatin1Char('\n'), NormalMessageFormat);
     emit finished();
 
     m_progress->reportFinished();
@@ -200,11 +200,11 @@ void ValgrindRunControl::receiveProcessError(const QString &message, QProcess::P
     if (error == QProcess::FailedToStart) {
         const QString valgrind = m_settings->valgrindExecutable();
         if (!valgrind.isEmpty())
-            appendMessage(tr("Error: \"%1\" could not be started: %2\n").arg(valgrind).arg(message), ErrorMessageFormat);
+            appendMessage(tr("Error: \"%1\" could not be started: %2").arg(valgrind, message) + QLatin1Char('\n'), ErrorMessageFormat);
         else
-            appendMessage(tr("Error: no Valgrind executable set.\n"), ErrorMessageFormat);
+            appendMessage(tr("Error: no Valgrind executable set.") + QLatin1Char('\n'), ErrorMessageFormat);
     } else if (m_isStopping && error == QProcess::Crashed) { // process gets killed on stop
-        appendMessage(tr("Process terminated.\n"), ErrorMessageFormat);
+        appendMessage(tr("Process terminated.") + QLatin1Char('\n'), ErrorMessageFormat);
     } else {
         appendMessage(QString::fromLatin1("** %1 **\n").arg(message), ErrorMessageFormat);
     }

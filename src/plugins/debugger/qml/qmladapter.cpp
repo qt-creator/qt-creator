@@ -141,7 +141,7 @@ void QmlAdapter::connectionStateChanged()
     switch (m_conn->state()) {
     case QAbstractSocket::UnconnectedState:
     {
-        showConnectionStatusMessage(tr("Disconnected.\n\n"));
+        showConnectionStatusMessage(tr("Disconnected.") + QLatin1String("\n\n"));
         emit disconnected();
 
         break;
@@ -154,7 +154,7 @@ void QmlAdapter::connectionStateChanged()
         break;
     case QAbstractSocket::ConnectedState:
     {
-        showConnectionStatusMessage(tr("Connected.\n"));
+        showConnectionStatusMessage(tr("Connected.") + QLatin1Char('\n'));
 
         m_connectionTimer.stop();
 

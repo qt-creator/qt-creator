@@ -285,7 +285,7 @@ void ApplicationLauncher::bringToForeground()
 
 QString ApplicationLauncher::msgWinCannotRetrieveDebuggingOutput()
 {
-    return tr("Cannot retrieve debugging output.\n");
+    return tr("Cannot retrieve debugging output.") + QLatin1Char('\n');
 }
 
 } // namespace ProjectExplorer

@@ -211,8 +211,9 @@ void GdbCoreEngine::handleTargetCore(const GdbResponse &response)
         postCommand("p 5", CB(handleRoundTrip));
         return;
     }
-    QString msg = tr("Attach to core \"%1\" failed:\n")
+    QString msg = tr("Attach to core \"%1\" failed:")
         .arg(startParameters().coreFile)
+        + QLatin1Char('\n')
         + QString::fromLocal8Bit(response.data["msg"].data());
     notifyInferiorSetupFailed(msg);
 }

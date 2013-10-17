@@ -132,10 +132,11 @@ public:
         innerIds.remove(id);
 
         QString comment = tr("// TODO: Move position bindings from the component to the Loader.\n"
-                             "//       Check all uses of 'parent' inside the root element of the component.\n");
+                             "//       Check all uses of 'parent' inside the root element of the component.")
+                          + QLatin1Char('\n');
         if (idBinding) {
-            comment += tr("//       Rename all outer uses of the id '%1' to '%2.item'.\n").arg(
-                        id, loaderId);
+            comment += tr("//       Rename all outer uses of the id '%1' to '%2.item'.").arg(
+                        id, loaderId) + QLatin1Char('\n');
         }
 
         // handle inner ids

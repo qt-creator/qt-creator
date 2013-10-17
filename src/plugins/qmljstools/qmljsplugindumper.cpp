@@ -233,8 +233,8 @@ static QString noTypeinfoError(const QString &libraryPath)
 static QString qmldumpErrorMessage(const QString &libraryPath, const QString &error)
 {
     return noTypeinfoError(libraryPath) + QLatin1String("\n\n") +
-            PluginDumper::tr("Automatic type dump of QML module failed.\nErrors:\n%1\n").
-            arg(error);
+            PluginDumper::tr("Automatic type dump of QML module failed.\nErrors:\n%1").
+            arg(error) + QLatin1Char('\n');
 }
 
 static QString qmldumpFailedMessage(const QString &libraryPath, const QString &error)

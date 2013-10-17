@@ -403,13 +403,15 @@ Target *TargetSettingsPanelWidget::cloneTarget(Target *sourceTarget, Kit *k)
 
         QString error;
         if (!buildconfigurationError.isEmpty())
-            error += tr("Build configurations:\n")
+            error += tr("Build configurations:")
+                    + QLatin1Char('\n')
                     + buildconfigurationError.join(QLatin1String("\n"));
 
         if (!deployconfigurationError.isEmpty()) {
             if (!error.isEmpty())
                 error.append(QLatin1Char('\n'));
-            error += tr("Deploy configurations:\n")
+            error += tr("Deploy configurations:")
+                    + QLatin1Char('\n')
                     + deployconfigurationError.join(QLatin1String("\n"));
         }
 

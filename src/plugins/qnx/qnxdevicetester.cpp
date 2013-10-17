@@ -117,13 +117,13 @@ void QnxDeviceTester::handleProcessFinished(int exitStatus)
     const QString command = m_commandsToTest[m_currentCommandIndex];
     if (exitStatus == QSsh::SshRemoteProcess::NormalExit) {
         if (m_processRunner->processExitCode() == 0) {
-            emit progressMessage(tr("%1 found.\n").arg(command));
+            emit progressMessage(tr("%1 found.").arg(command) + QLatin1Char('\n'));
         } else {
-            emit errorMessage(tr("%1 not found.\n").arg(command));
+            emit errorMessage(tr("%1 not found.").arg(command) + QLatin1Char('\n'));
             m_result = TestFailure;
         }
     } else {
-        emit errorMessage(tr("An error occurred checking for %1.\n").arg(command));
+        emit errorMessage(tr("An error occurred checking for %1.").arg(command)  + QLatin1Char('\n'));
         m_result = TestFailure;
     }
     testNextCommand();
@@ -134,7 +134,7 @@ void QnxDeviceTester::handleConnectionError()
     QTC_ASSERT(m_state == CommandsTest, return);
 
     m_result = TestFailure;
-    emit errorMessage(tr("SSH connection error: %1\n").arg(m_processRunner->lastConnectionErrorString()));
+    emit errorMessage(tr("SSH connection error: %1").arg(m_processRunner->lastConnectionErrorString()) + QLatin1Char('\n'));
     setFinished();
 }
 

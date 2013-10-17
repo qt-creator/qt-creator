@@ -65,7 +65,7 @@ void QnxAnalyzeSupport::handleAdapterSetupRequested()
 {
     QTC_ASSERT(state() == Inactive, return);
 
-    showMessage(tr("Preparing remote side...\n"), Utils::NormalMessageFormat);
+    showMessage(tr("Preparing remote side...") + QLatin1Char('\n'), Utils::NormalMessageFormat);
     QnxAbstractRunSupport::handleAdapterSetupRequested();
 }
 

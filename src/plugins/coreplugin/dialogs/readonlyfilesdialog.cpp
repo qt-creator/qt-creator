@@ -195,29 +195,33 @@ void ReadOnlyFilesDialog::promptFailWarning(const QStringList &files, ReadOnlyRe
             if (IVersionControl *vc = d->versionControls[file]) {
                 const QString openText = vc->vcsOpenText().remove(QLatin1Char('&'));
                 title = tr("Failed to %1 File").arg(openText);
-                message = tr("%1 file %2 from version control system %3 failed.\n")
+                message = tr("%1 file %2 from version control system %3 failed.")
                         .arg(openText)
                         .arg(QDir::toNativeSeparators(file))
                         .arg(vc->displayName());
+                message += QLatin1Char('\n');
                 message += d->failWarning;
             } else {
                 title = tr("No Version Control System Found");
                 message = tr("Cannot open file %1 from version control system.\n"
-                             "No version control system found.\n")
+                             "No version control system found.")
                         .arg(QDir::toNativeSeparators(file));
+                message += QLatin1Char('\n');
                 message += d->failWarning;
             }
             break;
         }
         case RO_MakeWritable:
             title = tr("Cannot Set Permissions");
-            message = tr("Cannot set permissions for %1 to writable.\n")
+            message = tr("Cannot set permissions for %1 to writable.")
                     .arg(QDir::toNativeSeparators(file));
+            message += QLatin1Char('\n');
             message += d->failWarning;
             break;
         case RO_SaveAs:
             title = tr("Cannot Save File");
-            message = tr("Cannot save file %1\n").arg(QDir::toNativeSeparators(file));
+            message = tr("Cannot save file %1").arg(QDir::toNativeSeparators(file));
+            message += QLatin1Char('\n');
             message += d->failWarning;
             break;
         default:
@@ -240,6 +244,7 @@ void ReadOnlyFilesDialog::promptFailWarning(const QStringList &files, ReadOnlyRe
  * Executes the ReadOnlyFilesDialog dialog.
  * Returns ReadOnlyResult to provide information about the operation that was
  * used to make the files writable.
+ *
  * \internal
  *
  * Also displays an error dialog when some operations cannot be executed and the

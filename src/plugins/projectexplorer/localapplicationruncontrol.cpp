@@ -98,15 +98,15 @@ void LocalApplicationRunControl::start()
 {
     emit started();
     if (m_executable.isEmpty()) {
-        appendMessage(tr("No executable specified.\n"), Utils::ErrorMessageFormat);
+        appendMessage(tr("No executable specified.") + QLatin1Char('\n'), Utils::ErrorMessageFormat);
         emit finished();
     }  else if (!QFileInfo(m_executable).exists()){
-        appendMessage(tr("Executable %1 does not exist.\n").arg(m_executable),
+        appendMessage(tr("Executable %1 does not exist.").arg(m_executable) + QLatin1Char('\n'),
                       Utils::ErrorMessageFormat);
         emit finished();
     } else {
         m_running = true;
-        QString msg = tr("Starting %1...\n").arg(QDir::toNativeSeparators(m_executable));
+        QString msg = tr("Starting %1...").arg(QDir::toNativeSeparators(m_executable)) + QLatin1Char('\n');
         appendMessage(msg, Utils::NormalMessageFormat);
         m_applicationLauncher.start(m_runMode, m_executable, m_commandLineArguments);
         setApplicationProcessHandle(ProcessHandle(m_applicationLauncher.applicationPID()));
@@ -147,13 +147,13 @@ void LocalApplicationRunControl::processExited(int exitCode, QProcess::ExitStatu
     setApplicationProcessHandle(ProcessHandle());
     QString msg;
     if (status == QProcess::CrashExit) {
-        msg = tr("%1 crashed\n")
+        msg = tr("%1 crashed")
                 .arg(QDir::toNativeSeparators(m_executable));
     } else {
-        msg = tr("%1 exited with code %2\n")
+        msg = tr("%1 exited with code %2")
                 .arg(QDir::toNativeSeparators(m_executable)).arg(exitCode);
     }
-    appendMessage(msg, Utils::NormalMessageFormat);
+    appendMessage(msg + QLatin1Char('\n'), Utils::NormalMessageFormat);
     emit finished();
 }
 

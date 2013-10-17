@@ -126,9 +126,8 @@ public:
                 if (logger) {
                     QByteArray logBA = oldLog.readAll();
                     logger->appendError(ErrorMessage::NoteLevel,
-                                        ZConfLib::tr("%1: log of previous daemon run is: '%2'.\n")
-                                        .arg(name())
-                                        .arg(QString::fromLatin1(logBA.constData(), logBA.size())));
+                                        ZConfLib::tr("%1: log of previous daemon run is: '%2'.")
+                                        .arg(name(), QString::fromLatin1(logBA.constData(), logBA.size())) + QLatin1Char('\n'));
                     qDebug()<<logBA.size()<<oldLog.error()<<oldLog.errorString();
                 }
                 oldLog.close();

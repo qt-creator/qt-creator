@@ -1985,8 +1985,8 @@ int ProjectExplorerPlugin::queue(QList<Project *> projects, QList<Id> stepIds)
 
     foreach (Project *pro, projects)
         if (pro && pro->needsConfiguration())
-            preambleMessage.append(tr("The project %1 is not configured, skipping it.\n")
-                                   .arg(pro->displayName()));
+            preambleMessage.append(tr("The project %1 is not configured, skipping it.")
+                                   .arg(pro->displayName()) + QLatin1Char('\n'));
     foreach (Id id, stepIds) {
         foreach (Project *pro, projects) {
             if (!pro || !pro->activeTarget())
@@ -2204,9 +2204,10 @@ QPair<bool, QString> ProjectExplorerPlugin::buildSettingsEnabledForSession()
                     && project->activeTarget()->activeBuildConfiguration()
                     && !project->activeTarget()->activeBuildConfiguration()->isEnabled()) {
                 result.first = false;
-                result.second += tr("Building '%1' is disabled: %2\n")
+                result.second += tr("Building '%1' is disabled: %2")
                         .arg(project->displayName(),
                              project->activeTarget()->activeBuildConfiguration()->disabledReason());
+                result.second += QLatin1Char('\n');
             }
         }
     }
@@ -2788,7 +2789,8 @@ void ProjectExplorerPlugin::addExistingFiles(ProjectNode *projectNode, const QSt
     projectNode->addFiles(fileNames, &notAdded);
 
     if (!notAdded.isEmpty()) {
-        QString message = tr("Could not add following files to project %1:\n").arg(projectNode->displayName());
+        QString message = tr("Could not add following files to project %1:").arg(projectNode->displayName());
+        message += QLatin1Char('\n');
         QString files = notAdded.join(QString(QLatin1Char('\n')));
         QMessageBox::warning(ICore::mainWindow(), tr("Adding Files to Project Failed"),
                              message + files);
