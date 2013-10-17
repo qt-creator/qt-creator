@@ -4032,7 +4032,7 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
         setDotCommand(_("%1J"), count());
     } else if (input.isControl('l')) {
         // screen redraw. should not be needed
-    } else if (input.is('m')) {
+    } else if (!g.gflag && input.is('m')) {
         g.subsubmode = MarkSubSubMode;
     } else if (isVisualMode() && (input.is('o') || input.is('O'))) {
         int pos = position();
