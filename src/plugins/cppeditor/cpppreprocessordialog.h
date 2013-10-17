@@ -27,70 +27,47 @@
 **
 ****************************************************************************/
 
-#ifndef CPPPREPROCESSORADDITIONWIDGET_H
-#define CPPPREPROCESSORADDITIONWIDGET_H
+#ifndef CPPPREPROCESSORDIALOG_H
+#define CPPPREPROCESSORDIALOG_H
 
 #include <cpptools/cppmodelmanagerinterface.h>
-#include <utils/tooltip/tooltip.h>
 
-#include <QWidget>
-#include <QVariantMap>
-#include <QPointer>
+#include <QDialog>
 
 namespace CppEditor {
 namespace Internal {
-namespace Ui { class CppPreProcessorAdditionWidget; }
+namespace Ui { class CppPreProcessorDialog; }
 
-class PreProcessorAdditionWidget : public QWidget
+class CPPEditorWidget;
+
+class CppPreProcessorDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit PreProcessorAdditionWidget(QWidget *parent = 0);
-    ~PreProcessorAdditionWidget();
-    Ui::CppPreProcessorAdditionWidget *ui;
+    explicit CppPreProcessorDialog(CPPEditorWidget *editorWidget,
+                                   const QList<CppTools::ProjectPart::Ptr> &projectParts);
+    ~CppPreProcessorDialog();
 
-signals:
-    void finished();
-};
-
-class PreProcessorAdditionPopUp : public Utils::ToolTip
-{
-    Q_OBJECT
-
-public:
-    ~PreProcessorAdditionPopUp(){}
-    static PreProcessorAdditionPopUp *instance();
-
-    void show(QWidget *parent, const QList<CppTools::ProjectPart::Ptr> &projectPartAdditions);
-    bool eventFilter(QObject *o, QEvent *event);
-
-signals:
-    void finished(const QByteArray &additionalDefines);
+    int exec();
+    QString additionalPreProcessorDirectives() const;
 
 private slots:
-    void textChanged();
-    void finish();
     void projectChanged(int index);
-    void apply();
-    void cancel();
-
-protected:
-    explicit PreProcessorAdditionPopUp();
+    void textChanged();
 
 private:
     struct ProjectPartAddition {
         CppTools::ProjectPart::Ptr projectPart;
-        QByteArray additionalDefines;
+        QString additionalDirectives;
     };
 
-    PreProcessorAdditionWidget* m_widget;
-    QList<ProjectPartAddition> m_originalPartAdditions;
+    Ui::CppPreProcessorDialog *m_ui;
     QList<ProjectPartAddition> m_partAdditions;
-
+    QString m_filePath;
 };
 
-} // namespace CPPEditor
 } // namespace Internal
+} // namespace CPPEditor
 
-#endif // CPPPREPROCESSORADDITIONWIDGET_H
+#endif // CPPPREPROCESSORDIALOG_H

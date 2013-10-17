@@ -71,7 +71,6 @@ const char TARGET_KEY_PREFIX[] = "ProjectExplorer.Project.Target.";
 const char TARGET_COUNT_KEY[] = "ProjectExplorer.Project.TargetCount";
 const char EDITOR_SETTINGS_KEY[] = "ProjectExplorer.Project.EditorSettings";
 const char PLUGIN_SETTINGS_KEY[] = "ProjectExplorer.Project.PluginSettings";
-const char CPP_SETTINGS_KEY[] = "ProjectExplorer.Project.CppSettings";
 } // namespace
 
 namespace ProjectExplorer {
@@ -91,7 +90,6 @@ public:
     Core::Context m_projectContext;
     Core::Context m_projectLanguages;
     QVariantMap m_pluginSettings;
-    QVariantMap m_additionalCppDefines;
     SettingsAccessor *m_accessor;
 };
 
@@ -331,7 +329,6 @@ QVariantMap Project::toMap() const
 
     map.insert(QLatin1String(EDITOR_SETTINGS_KEY), d->m_editorConfiguration->toMap());
     map.insert(QLatin1String(PLUGIN_SETTINGS_KEY), d->m_pluginSettings);
-    map.insert(QLatin1String(CPP_SETTINGS_KEY), d->m_additionalCppDefines);
 
     return map;
 }
@@ -359,8 +356,6 @@ bool Project::fromMap(const QVariantMap &map)
 
     if (map.contains(QLatin1String(PLUGIN_SETTINGS_KEY)))
         d->m_pluginSettings = map.value(QLatin1String(PLUGIN_SETTINGS_KEY)).toMap();
-    if (map.contains(QLatin1String(CPP_SETTINGS_KEY)))
-        d->m_additionalCppDefines = map.value(QLatin1String(CPP_SETTINGS_KEY)).toMap();
 
     bool ok;
     int maxI(map.value(QLatin1String(TARGET_COUNT_KEY), 0).toInt(&ok));
@@ -463,16 +458,6 @@ void Project::setNamedSettings(const QString &name, const QVariant &value)
         d->m_pluginSettings.remove(name);
     else
         d->m_pluginSettings.insert(name, value);
-}
-
-QVariantMap Project::additionalCppDefines() const
-{
-    return d->m_additionalCppDefines;
-}
-
-void Project::setAdditionalCppDefines(const QVariantMap value) const
-{
-    d->m_additionalCppDefines = value;
 }
 
 bool Project::needsConfiguration() const

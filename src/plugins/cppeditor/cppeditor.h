@@ -188,7 +188,6 @@ private Q_SLOTS:
     void onCommentsSettingsChanged(const CppTools::CommentsSettings &settings);
 
     void showPreProcessorWidget();
-    void preProcessorWidgetFinished(const QByteArray &additionalDefines);
 
 private:
     void markSymbols(const QTextCursor &tc, const CppTools::SemanticInfo &info);

@@ -25,7 +25,7 @@ HEADERS += cppeditorplugin.h \
     cppincludehierarchyitem.h \
     cppincludehierarchytreeview.h \
     cppvirtualfunctionassistprovider.h \
-    cpppreprocessoradditionwidget.h
+    cpppreprocessordialog.h
 
 SOURCES += cppeditorplugin.cpp \
     cppautocompleter.cpp \
@@ -49,7 +49,7 @@ SOURCES += cppeditorplugin.cpp \
     cppincludehierarchyitem.cpp \
     cppincludehierarchytreeview.cpp \
     cppvirtualfunctionassistprovider.cpp \
-    cpppreprocessoradditionwidget.cpp
+    cpppreprocessordialog.cpp
 
 RESOURCES += cppeditor.qrc
 
@@ -67,4 +67,4 @@ equals(TEST, 1) {
 }
 
 FORMS += \
-    cpppreprocessoradditionwidget.ui
+    cpppreprocessordialog.ui
