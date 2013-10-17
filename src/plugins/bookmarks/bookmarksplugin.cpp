@@ -183,6 +183,10 @@ void BookmarksPlugin::editorAboutToClose(Core::IEditor *editor)
 void BookmarksPlugin::requestContextMenu(TextEditor::ITextEditor *editor,
     int lineNumber, QMenu *menu)
 {
+    // Don't set bookmarks in disassembler views.
+    if (editor->document()->property("DisassemblerView").toBool())
+        return;
+
     m_bookmarkMarginActionLineNumber = lineNumber;
     m_bookmarkMarginActionFileName = editor->document()->filePath();
 
