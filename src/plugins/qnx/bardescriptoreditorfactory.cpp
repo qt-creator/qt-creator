@@ -36,20 +36,42 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <texteditor/texteditoractionhandler.h>
 
 using namespace Qnx;
 using namespace Qnx::Internal;
 
+class BarDescriptorActionHandler : public TextEditor::TextEditorActionHandler
+{
+public:
+    BarDescriptorActionHandler()
+        : TextEditor::TextEditorActionHandler(Constants::QNX_BAR_DESCRIPTOR_EDITOR_CONTEXT)
+    {
+    }
+protected:
+    TextEditor::BaseTextEditorWidget *resolveTextEditorWidget(Core::IEditor *editor) const
+    {
+        BarDescriptorEditorWidget *w = qobject_cast<BarDescriptorEditorWidget *>(editor->widget());
+        return w ? w->sourceWidget() : 0;
+    }
+};
+
 BarDescriptorEditorFactory::BarDescriptorEditorFactory(QObject *parent)
     : Core::IEditorFactory(parent)
+    , m_actionHandler(new BarDescriptorActionHandler)
 {
     setId(Constants::QNX_BAR_DESCRIPTOR_EDITOR_ID);
     setDisplayName(tr("Bar descriptor editor"));
     addMimeType(Constants::QNX_BAR_DESCRIPTOR_MIME_TYPE);
 }
 
+BarDescriptorEditorFactory::~BarDescriptorEditorFactory()
+{
+    delete m_actionHandler;
+}
+
 Core::IEditor *BarDescriptorEditorFactory::createEditor(QWidget *parent)
 {
-    BarDescriptorEditorWidget *editorWidget = new BarDescriptorEditorWidget(parent);
+    BarDescriptorEditorWidget *editorWidget = new BarDescriptorEditorWidget(parent, m_actionHandler);
     return editorWidget->editor();
 }

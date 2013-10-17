@@ -34,6 +34,10 @@
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 
+namespace TextEditor {
+class TextEditorActionHandler;
+}
+
 namespace Qnx {
 namespace Internal {
 
@@ -43,8 +47,12 @@ class BarDescriptorEditorFactory : public Core::IEditorFactory
 
 public:
     explicit BarDescriptorEditorFactory(QObject *parent = 0);
+    ~BarDescriptorEditorFactory();
 
     Core::IEditor *createEditor(QWidget *parent);
+
+private:
+    TextEditor::TextEditorActionHandler *m_actionHandler;
 };
 
 } // namespace Internal

@@ -560,6 +560,11 @@ FUNCTION(gotoNextWordCamelCase)
 FUNCTION(gotoNextWordCamelCaseWithSelection)
 
 
+BaseTextEditorWidget *TextEditorActionHandler::resolveTextEditorWidget(Core::IEditor *editor) const
+{
+    return qobject_cast<BaseTextEditorWidget *>(editor->widget());
+}
+
 void TextEditorActionHandler::updateCurrentEditor(Core::IEditor *editor)
 {
     m_currentEditor = 0;
@@ -567,7 +572,7 @@ void TextEditorActionHandler::updateCurrentEditor(Core::IEditor *editor)
     if (!editor)
         return;
 
-    BaseTextEditorWidget *baseEditor = qobject_cast<BaseTextEditorWidget *>(editor->widget());
+    BaseTextEditorWidget *baseEditor = resolveTextEditorWidget(editor);
 
     if (baseEditor && baseEditor->actionHack() == this) {
         m_currentEditor = baseEditor;

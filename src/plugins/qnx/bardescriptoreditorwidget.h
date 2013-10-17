@@ -46,6 +46,8 @@ class PanelsWidget;
 
 namespace TextEditor {
 class PlainTextEditorWidget;
+class TextEditorActionHandler;
+class BaseTextEditorWidget;
 }
 
 namespace Qnx {
@@ -65,7 +67,7 @@ class BarDescriptorEditorWidget : public QStackedWidget
     Q_OBJECT
 
 public:
-    explicit BarDescriptorEditorWidget(QWidget *parent = 0);
+    explicit BarDescriptorEditorWidget(QWidget *parent, TextEditor::TextEditorActionHandler *handler);
 
     Core::IEditor *editor() const;
 
@@ -78,6 +80,8 @@ public:
     BarDescriptorEditorEnvironmentWidget *environmentWidget() const;
 
     BarDescriptorEditorAssetsWidget *assetsWidget() const;
+
+    TextEditor::BaseTextEditorWidget *sourceWidget() const;
 
     void setFilePath(const QString &filePath);
     QString xmlSource() const;
@@ -103,6 +107,7 @@ private:
 
     mutable Core::IEditor *m_editor;
 
+    TextEditor::TextEditorActionHandler *m_handler;
     bool m_dirty;
 
     // New UI

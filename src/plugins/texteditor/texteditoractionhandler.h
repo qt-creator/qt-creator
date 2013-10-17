@@ -79,6 +79,7 @@ public slots:
     void updateCopyAction();
 
 protected:
+    virtual BaseTextEditorWidget *resolveTextEditorWidget(Core::IEditor *editor) const;
     const QPointer<BaseTextEditorWidget> &currentEditor() const;
 
     QAction *registerAction(const Core::Id &id,

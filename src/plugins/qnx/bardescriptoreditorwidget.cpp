@@ -41,18 +41,29 @@
 #include "bardescriptoreditorpackageinformationwidget.h"
 #include "bardescriptoreditorpermissionswidget.h"
 
+#include <coreplugin/icore.h>
 #include <projectexplorer/iprojectproperties.h>
 #include <projectexplorer/projectwindow.h>
 #include <texteditor/plaintexteditor.h>
+#include <texteditor/texteditoractionhandler.h>
+#include <texteditor/texteditorsettings.h>
+#include <texteditor/texteditorconstants.h>
 
 using namespace Qnx;
 using namespace Qnx::Internal;
 
-BarDescriptorEditorWidget::BarDescriptorEditorWidget(QWidget *parent)
+BarDescriptorEditorWidget::BarDescriptorEditorWidget(
+        QWidget *parent, TextEditor::TextEditorActionHandler *handler)
     : QStackedWidget(parent)
     , m_editor(0)
+    , m_handler(handler)
     , m_dirty(false)
 {
+    Core::IContext *myContext = new Core::IContext(this);
+    myContext->setWidget(this);
+    myContext->setContext(Core::Context(Constants::QNX_BAR_DESCRIPTOR_EDITOR_CONTEXT, TextEditor::Constants::C_TEXTEDITOR));
+    Core::ICore::addContextObject(myContext);
+
     initGeneralPage();
     initApplicationPage();
     initAssetsPage();
@@ -149,6 +160,8 @@ void BarDescriptorEditorWidget::initSourcePage()
     m_xmlSourceWidget = new TextEditor::PlainTextEditorWidget(this);
     addWidget(m_xmlSourceWidget);
 
+    TextEditor::TextEditorSettings::initializeEditor(m_xmlSourceWidget);
+    m_handler->setupActions(m_xmlSourceWidget);
     m_xmlSourceWidget->configure(QLatin1String(Constants::QNX_BAR_DESCRIPTOR_MIME_TYPE));
     connect(m_xmlSourceWidget, SIGNAL(textChanged()), this, SLOT(setDirty()));
 }
@@ -202,6 +215,11 @@ BarDescriptorEditorEnvironmentWidget *BarDescriptorEditorWidget::environmentWidg
 BarDescriptorEditorAssetsWidget *BarDescriptorEditorWidget::assetsWidget() const
 {
     return m_assetsWidget;
+}
+
+TextEditor::BaseTextEditorWidget *BarDescriptorEditorWidget::sourceWidget() const
+{
+    return m_xmlSourceWidget;
 }
 
 void BarDescriptorEditorWidget::setFilePath(const QString &filePath)

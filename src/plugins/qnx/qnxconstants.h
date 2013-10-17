@@ -99,6 +99,7 @@ const char QNX_BB_SIGNING_ID[] = "ZZ.BlackBerry Signing Infrastructure Configura
 
 const char QNX_BAR_DESCRIPTOR_MIME_TYPE[] = "application/vnd.rim.qnx.bar_descriptor";
 const char QNX_BAR_DESCRIPTOR_EDITOR_ID[] = "Qnx.BarDescriptorEditor";
+const char QNX_BAR_DESCRIPTOR_EDITOR_CONTEXT[] = "Qnx.BarDescriptorEditor";
 
 const char QNX_TASK_CATEGORY_BARDESCRIPTOR[] = "Task.Category.BarDescriptor";
 
