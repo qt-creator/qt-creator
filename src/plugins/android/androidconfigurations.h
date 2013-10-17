@@ -106,6 +106,7 @@ public:
     QVector<AndroidDeviceInfo> androidVirtualDevices() const;
     QString startAVD(const QString &name, int apiLevel, QString cpuAbi) const;
     bool startAVDAsync(const QString &avdName) const;
+    bool findAvd(int apiLevel, const QString &cpuAbi) const;
     QString waitForAvd(int apiLevel, const QString &cpuAbi) const;
     QString bestNdkPlatformMatch(const QString &targetAPI) const;
 

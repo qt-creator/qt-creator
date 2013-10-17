@@ -621,7 +621,7 @@ QVector<AndroidDeviceInfo> AndroidConfigurations::androidVirtualDevices() const
 
 QString AndroidConfigurations::startAVD(const QString &name, int apiLevel, QString cpuAbi) const
 {
-    if (startAVDAsync(name))
+    if (findAvd(apiLevel, cpuAbi) || startAVDAsync(name))
         return waitForAvd(apiLevel, cpuAbi);
     return QString();
 }
@@ -641,6 +641,21 @@ bool AndroidConfigurations::startAVDAsync(const QString &avdName) const
         return false;
     }
     return true;
+}
+
+bool AndroidConfigurations::findAvd(int apiLevel, const QString &cpuAbi) const
+{
+    QVector<AndroidDeviceInfo> devices = connectedDevices();
+    foreach (AndroidDeviceInfo device, devices) {
+        if (!device.serialNumber.startsWith(QLatin1String("emulator")))
+            continue;
+        if (!device.cpuAbi.contains(cpuAbi))
+            continue;
+        if (device.sdk != apiLevel)
+            continue;
+        return true;
+    }
+    return false;
 }
 
 QString AndroidConfigurations::waitForAvd(int apiLevel, const QString &cpuAbi) const
