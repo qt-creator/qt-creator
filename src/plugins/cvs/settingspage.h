@@ -45,7 +45,7 @@ QT_END_NAMESPACE
 namespace Cvs {
 namespace Internal {
 
-struct CvsSettings;
+class CvsSettings;
 
 class SettingsPageWidget : public QWidget
 {
