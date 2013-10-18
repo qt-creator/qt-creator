@@ -345,16 +345,11 @@ QString DebuggerKitInformation::displayString(const Kit *k)
     return binary.isEmpty() ? tr("%1 <None>").arg(name) : tr("%1 using \"%2\"").arg(name, binary);
 }
 
-void DebuggerKitInformation::setDebugger(Kit *k, const DebuggerItem &item)
+void DebuggerKitInformation::setDebugger(Kit *k, const QVariant &id)
 {
     // Only register reasonably complete debuggers.
-    QTC_ASSERT(!item.id().isValid(), return);
-    QTC_ASSERT(!item.command().isEmpty(), return);
-    QTC_ASSERT(!item.displayName().isEmpty(), return);
-    QTC_ASSERT(item.engineType() != NoEngineType, return);
-    // Only set registered/existing debuggers
-    QTC_ASSERT(DebuggerItemManager::findByCommand(item.command()), return);
-    k->setValue(DebuggerKitInformation::id(), item.id());
+    QTC_ASSERT(DebuggerItemManager::findById(id), return);
+    k->setValue(DebuggerKitInformation::id(), id);
 }
 
 Core::Id DebuggerKitInformation::id()
@@ -651,11 +646,12 @@ void DebuggerItemManager::saveDebuggers()
     // Do not save default debuggers as they are set by the SDK.
 }
 
-void DebuggerItemManager::registerDebugger(const DebuggerItem &item)
+QVariant DebuggerItemManager::registerDebugger(const DebuggerItem &item)
 {
     if (findByCommand(item.command()))
-        return;
-    addDebugger(item);
+        return item.id();
+
+    return addDebugger(item);
 }
 
 void DebuggerItemManager::deregisterDebugger(const DebuggerItem &item)
@@ -664,13 +660,17 @@ void DebuggerItemManager::deregisterDebugger(const DebuggerItem &item)
         removeDebugger(item.id());
 }
 
-void DebuggerItemManager::addDebugger(const DebuggerItem& item0)
+QVariant DebuggerItemManager::addDebugger(const DebuggerItem& item0)
 {
     DebuggerItem item = item0;
+    QTC_ASSERT(!item.command().isEmpty(), return QVariant());
+    QTC_ASSERT(!item.displayName().isEmpty(), return QVariant());
+    QTC_ASSERT(item.engineType() != NoEngineType, return QVariant());
     if (item.id().isNull())
         item.setId(QUuid::createUuid().toString());
     m_debuggers.append(item);
     m_model->addDebugger(item);
+    return item.id();
 }
 
 void DebuggerItemManager::removeDebugger(const QVariant &id)

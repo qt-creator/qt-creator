@@ -867,7 +867,8 @@ void AndroidConfigurations::updateAutomaticKitList()
             debugger.setDisplayName(tr("Android Debugger for %1").arg(tc->displayName()));
             debugger.setAutoDetected(true);
             debugger.setAbi(tc->targetAbi());
-            Debugger::DebuggerKitInformation::setDebugger(newKit, debugger);
+            QVariant id = Debugger::DebuggerItemManager::registerDebugger(debugger);
+            Debugger::DebuggerKitInformation::setDebugger(newKit, id);
 
             AndroidGdbServerKitInformation::setGdbSever(newKit, tc->suggestedGdbServer());
             newKit->makeSticky();

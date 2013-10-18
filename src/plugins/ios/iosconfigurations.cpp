@@ -316,7 +316,8 @@ void IosConfigurations::updateAutomaticKitList()
                 debugger.setDisplayName(tr("IOS Debugger"));
                 debugger.setAutoDetected(true);
                 debugger.setAbi(pToolchain->targetAbi());
-                Debugger::DebuggerKitInformation::setDebugger(newKit, debugger);
+                QVariant id = Debugger::DebuggerItemManager::registerDebugger(debugger);
+                Debugger::DebuggerKitInformation::setDebugger(newKit, id);
 
                 SysRootKitInformation::setSysRoot(newKit, p.sdkPath);
                 // QmakeProjectManager::QmakeKitInformation::setMkspec(newKit,
