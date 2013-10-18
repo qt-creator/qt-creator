@@ -656,24 +656,26 @@ void Target::updateDefaultRunConfigurations()
     }
 
     // Do actual changes:
-    foreach (RunConfiguration *rc, toRemove) {
-        removeRunConfiguration(rc);
-        existingConfigured.removeOne(rc); // make sure to also remove them from existingConfigured!
-    }
-
-    if (removeExistingUnconfigured) {
-        foreach (RunConfiguration *rc, existingUnconfigured)
-            removeRunConfiguration(rc);
-        existingUnconfigured.clear();
-    }
-
     foreach (RunConfiguration *rc, newConfigured)
         addRunConfiguration(rc);
     foreach (RunConfiguration *rc, newUnconfigured)
         addRunConfiguration(rc);
 
-    // Make sure a configured RC is active:
-    if (activeRunConfiguration() && !activeRunConfiguration()->isConfigured()) {
+    // Generate complete list of RCs to remove later:
+    QList<RunConfiguration *> removalList;
+    foreach (RunConfiguration *rc, toRemove) {
+        removalList << rc;
+        existingConfigured.removeOne(rc); // make sure to also remove them from existingConfigured!
+    }
+
+    if (removeExistingUnconfigured) {
+        removalList.append(existingUnconfigured);
+        existingUnconfigured.clear();
+    }
+
+    // Make sure a configured RC will be active after we delete the RCs:
+    RunConfiguration *active = activeRunConfiguration();
+    if (removalList.contains(active)) {
         if (!existingConfigured.isEmpty()) {
             setActiveRunConfiguration(existingConfigured.at(0));
         } else if (!newConfigured.isEmpty()) {
@@ -687,8 +689,20 @@ void Target::updateDefaultRunConfigurations()
                 }
             }
             setActiveRunConfiguration(selected);
+        } else if (!newUnconfigured.isEmpty()){
+            setActiveRunConfiguration(newUnconfigured.at(0));
+        } else {
+            if (!removalList.isEmpty())
+                setActiveRunConfiguration(removalList.last());
+            // Nothing will be left after removal: We set this to the last of in the removal list
+            // since that gives us the minimum number of signals (one signal for the change here and
+            // one more when the last RC is removed and the active RC becomes 0).
         }
     }
+
+    // Remove the RCs that are no longer needed:
+    foreach (RunConfiguration *rc, removalList)
+        removeRunConfiguration(rc);
 }
 
 QVariant Target::namedSettings(const QString &name) const
