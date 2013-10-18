@@ -1669,17 +1669,30 @@ def qdump__QUrl(d, value):
         # - QString query;
         # - QString fragment;
         schemeAddr = d.dereferenceValue(value) + 2 * d.intSize()
-        scheme = d.dereference(schemeAddr)
-        host = d.dereference(schemeAddr + 3 * d.ptrSize())
-        path = d.dereference(schemeAddr + 4 * d.ptrSize())
+        scheme = d.encodeStringHelper(d.dereference(schemeAddr))
+        userName = d.encodeStringHelper(d.dereference(schemeAddr + 1 * d.ptrSize()))
+        password = d.encodeStringHelper(d.dereference(schemeAddr + 2 * d.ptrSize()))
+        host = d.encodeStringHelper(d.dereference(schemeAddr + 3 * d.ptrSize()))
+        path = d.encodeStringHelper(d.dereference(schemeAddr + 4 * d.ptrSize()))
+        query = d.encodeStringHelper(d.dereference(schemeAddr + 5 * d.ptrSize()))
+        fragment = d.encodeStringHelper(d.dereference(schemeAddr + 6 * d.ptrSize()))
 
-        str = d.encodeString(scheme)
+        str = scheme
         str += "3a002f002f00"
-        str += d.encodeString(host)
-        str += d.encodeString(path)
+        str += host
+        str += path
         d.putValue(str, Hex4EncodedLittleEndian)
-        d.putPlainChildren(value)
-
+        d.putNumChild(8)
+        if d.isExpanded():
+            with Children(d):
+                d.putIntItem("port", d.extractInt(d.dereferenceValue(value) + d.intSize()))
+                d.putGenericItem("scheme", "QString", scheme, Hex4EncodedLittleEndian)
+                d.putGenericItem("userName", "QString", userName, Hex4EncodedLittleEndian)
+                d.putGenericItem("password", "QString", password, Hex4EncodedLittleEndian)
+                d.putGenericItem("host", "QString", host, Hex4EncodedLittleEndian)
+                d.putGenericItem("path", "QString", path, Hex4EncodedLittleEndian)
+                d.putGenericItem("query", "QString", query, Hex4EncodedLittleEndian)
+                d.putGenericItem("fragment", "QString", fragment, Hex4EncodedLittleEndian)
 
 def qdumpHelper_QVariant_0(d, data):
     # QVariant::Invalid

@@ -577,6 +577,12 @@ class Dumper(DumperBase):
             self.putType("bool")
             self.putNumChild(0)
 
+    def putGenericItem(self, name, type, value, encoding = None):
+        with SubItem(self, name):
+            self.putValue(value, encoding)
+            self.putType(type)
+            self.putNumChild(0)
+
     def putNumChild(self, numchild):
         #warn("NUM CHILD: '%s' '%s'" % (numchild, self.currentChildNumChild))
         #if numchild != self.currentChildNumChild:

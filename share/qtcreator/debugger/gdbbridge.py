@@ -1422,6 +1422,12 @@ class Dumper(DumperBase):
             self.putType("bool")
             self.putNumChild(0)
 
+    def putGenericItem(self, name, type, value, encoding = None):
+        with SubItem(self, name):
+            self.putValue(value, encoding)
+            self.putType(type)
+            self.putNumChild(0)
+
     def currentItemFormat(self):
         format = self.formats.get(self.currentIName)
         if format is None:
