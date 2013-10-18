@@ -379,8 +379,6 @@ bool ClearCasePlugin::initialize(const QStringList & /*arguments */, QString *er
 
     m_settings.fromSettings(ICore::settings());
 
-    QTC_CHECK(QFileInfo(m_settings.ccBinaryPath).isExecutable());
-
     // update view name when changing active project
     if (ProjectExplorerPlugin *pe = ProjectExplorerPlugin::instance())
         connect(pe, SIGNAL(currentProjectChanged(ProjectExplorer::Project*)),
