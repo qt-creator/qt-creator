@@ -335,7 +335,7 @@ void BlackBerryInstallWizardTargetPage::updateAvailableTargetsList()
     m_ui->targetsTreeWidget->clear();
     m_ui->targetsTreeWidget->setHeaderHidden(true);
     QTreeWidgetItem *item =  new QTreeWidgetItem(m_ui->targetsTreeWidget);
-    item->setText(0, tr("Querying available targets. Please wait.."));
+    item->setText(0, tr("Querying available targets. Please wait..."));
     QFont font;
     font.setItalic(true);
     item->setFont(0, font);
