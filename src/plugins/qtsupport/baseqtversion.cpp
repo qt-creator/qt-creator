@@ -930,9 +930,9 @@ void BaseQtVersion::updateVersionInfo() const
     }
     m_qmakeIsExecutable = true;
 
-    const QString qtInstallData = qmakeProperty("QT_INSTALL_DATA");
-    const QString qtInstallBins = qmakeProperty("QT_INSTALL_BINS");
-    const QString qtHeaderData = qmakeProperty("QT_INSTALL_HEADERS");
+    const QString qtInstallData = qmakeProperty(m_versionInfo, "QT_INSTALL_DATA");
+    const QString qtInstallBins = qmakeProperty(m_versionInfo, "QT_INSTALL_BINS");
+    const QString qtHeaderData = qmakeProperty(m_versionInfo, "QT_INSTALL_HEADERS");
     if (!qtInstallData.isNull()) {
         if (!qtInstallData.isEmpty()) {
             m_hasDebuggingHelper = !DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData).isEmpty();
@@ -947,7 +947,7 @@ void BaseQtVersion::updateVersionInfo() const
     }
 
     // Now check for a qt that is configured with a prefix but not installed
-    QString installDir = qmakeProperty("QT_HOST_BINS");
+    QString installDir = qmakeProperty(m_versionInfo, "QT_HOST_BINS");
     if (!installDir.isNull()) {
         QFileInfo fi(installDir);
         if (!fi.exists())
@@ -962,25 +962,25 @@ void BaseQtVersion::updateVersionInfo() const
                 m_installed = false;
         }
     }
-    const QString qtInstallDocs = qmakeProperty("QT_INSTALL_DOCS");
+    const QString qtInstallDocs = qmakeProperty(m_versionInfo, "QT_INSTALL_DOCS");
     if (!qtInstallDocs.isNull()) {
         const QFileInfo fi(qtInstallDocs);
         if (fi.exists())
             m_hasDocumentation = true;
     }
-    const QString qtInstallExamples = qmakeProperty("QT_INSTALL_EXAMPLES");
+    const QString qtInstallExamples = qmakeProperty(m_versionInfo, "QT_INSTALL_EXAMPLES");
     if (!qtInstallExamples.isNull()) {
         const QFileInfo fi(qtInstallExamples);
         if (fi.exists())
             m_hasExamples = true;
     }
-    const QString qtInstallDemos = qmakeProperty("QT_INSTALL_DEMOS");
+    const QString qtInstallDemos = qmakeProperty(m_versionInfo, "QT_INSTALL_DEMOS");
     if (!qtInstallDemos.isNull()) {
         const QFileInfo fi(qtInstallDemos);
         if (fi.exists())
             m_hasDemos = true;
     }
-    m_qtVersionString = qmakeProperty("QT_VERSION");
+    m_qtVersionString = qmakeProperty(m_versionInfo, "QT_VERSION");
 
     m_versionInfoUpToDate = true;
 }
@@ -1003,6 +1003,7 @@ QString BaseQtVersion::qmakeProperty(const QHash<QString,QString> &versionInfo, 
 
 QString BaseQtVersion::qmakeProperty(const QByteArray &name) const
 {
+    updateVersionInfo();
     return qmakeProperty(m_versionInfo, name);
 }
 
