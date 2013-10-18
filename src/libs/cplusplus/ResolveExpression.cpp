@@ -886,23 +886,12 @@ public:
     {
         QSet<Symbol *> visited;
         _binding = binding;
-        while (NamedType *namedTy = getNamedType(*type)) {
-            const Name *name = namedTy->name();
-            Scope *templateScope = *scope;
-            if (const QualifiedNameId *q = name->asQualifiedNameId()) {
-                do {
-                    const TemplateNameId *templateNameId = 0;
-                    name = q->name();
-                    if (name && (templateNameId = name->asTemplateNameId()))
-                        resolve(templateNameId, templateScope, binding);
-
-                    name = q->base();
-                    if (name && (templateNameId = name->asTemplateNameId()))
-                        resolve(templateNameId, templateScope, binding);
-                } while ((name && (q = name->asQualifiedNameId())));
-            } else if (const TemplateNameId *templateNameId = name->asTemplateNameId()) {
-                resolve(templateNameId, templateScope, binding);
-            }
+        // Use a hard limit when trying to resolve typedefs. Typedefs in templates can refer to
+        // each other, each time enhancing the template argument and thus making it impossible to
+        // use an "alreadyResolved" container. FIXME: We might overcome this by resolving the
+        // template parameters.
+        unsigned maxDepth = 15;
+        for (NamedType *namedTy = 0; maxDepth && (namedTy = getNamedType(*type)); --maxDepth) {
             QList<LookupItem> namedTypeItems = getNamedTypeItems(namedTy->name(), *scope, _binding);
 
 #ifdef DEBUG_LOOKUP
@@ -915,16 +904,6 @@ public:
     }
 
 private:
-    void resolve(const TemplateNameId *templateNameId, Scope *templateScope,
-                 ClassOrNamespace *binding)
-    {
-        for (unsigned i = 0; i < templateNameId->templateArgumentCount(); ++i) {
-            FullySpecifiedType &templateArgumentType
-                    = const_cast<FullySpecifiedType &>(templateNameId->templateArgumentAt(i));
-            resolve(&templateArgumentType, &templateScope, binding);
-        }
-    }
-
     NamedType *getNamedType(FullySpecifiedType& type) const
     {
         NamedType *namedTy = type->asNamedType();
