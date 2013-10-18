@@ -193,6 +193,9 @@ void DebuggerKitInformation::fix(Kit *k)
     // This can be Id, binary path, but not "auto" anymore.
     const QVariant rawId = k->value(DebuggerKitInformation::id());
 
+    if (rawId.isNull()) // No debugger set, that is fine.
+        return;
+
     if (rawId.type() == QVariant::String) {
         if (!DebuggerItemManager::findById(rawId)) {
             qWarning("Unknown debugger id %s in kit %s",
