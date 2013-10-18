@@ -187,16 +187,19 @@ void DebuggerItem::setAbi(const Abi &abi)
 
 static DebuggerItem::MatchLevel matchSingle(const Abi &debuggerAbi, const Abi &targetAbi)
 {
-    if (debuggerAbi.architecture() != targetAbi.architecture())
+    if (debuggerAbi.architecture() != Abi::UnknownArchitecture
+            && debuggerAbi.architecture() != targetAbi.architecture())
         return DebuggerItem::DoesNotMatch;
 
-    if (debuggerAbi.os() != targetAbi.os())
+    if (debuggerAbi.os() != Abi::UnknownOS
+            && debuggerAbi.os() != targetAbi.os())
         return DebuggerItem::DoesNotMatch;
 
-    if (debuggerAbi.binaryFormat() != targetAbi.binaryFormat())
+    if (debuggerAbi.binaryFormat() != Abi::UnknownFormat
+            && debuggerAbi.binaryFormat() != targetAbi.binaryFormat())
         return DebuggerItem::DoesNotMatch;
 
-    if (debuggerAbi.wordWidth() != targetAbi.wordWidth())
+    if (debuggerAbi.wordWidth() != 0 && debuggerAbi.wordWidth() != targetAbi.wordWidth())
         return DebuggerItem::DoesNotMatch;
 
     if (debuggerAbi.os() == Abi::WindowsOS) {
