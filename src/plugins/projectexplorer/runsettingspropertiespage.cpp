@@ -237,14 +237,15 @@ RunSettingsWidget::RunSettingsWidget(Target *target)
 
     m_addRunMenu = new QMenu(m_addRunToolButton);
     m_addRunToolButton->setMenu(m_addRunMenu);
+    RunConfiguration *rc = m_target->activeRunConfiguration();
     m_runConfigurationCombo->setModel(m_runConfigurationsModel);
     m_runConfigurationCombo->setCurrentIndex(
-            m_runConfigurationsModel->indexFor(m_target->activeRunConfiguration()).row());
+            m_runConfigurationsModel->indexFor(rc).row());
 
     m_removeRunToolButton->setEnabled(m_target->runConfigurations().size() > 1);
-    m_renameRunButton->setEnabled(m_target->activeRunConfiguration());
+    m_renameRunButton->setEnabled(rc);
 
-    setConfigurationWidget(m_target->activeRunConfiguration());
+    setConfigurationWidget(rc);
 
     connect(m_addRunMenu, SIGNAL(aboutToShow()),
             this, SLOT(aboutToShowAddMenu()));
@@ -523,12 +524,16 @@ void RunSettingsWidget::updateDeployConfiguration(DeployConfiguration *dc)
 
 void RunSettingsWidget::setConfigurationWidget(RunConfiguration *rc)
 {
+    if (rc == m_runConfiguration)
+        return;
+
     delete m_runConfigurationWidget;
     m_runConfigurationWidget = 0;
     removeSubWidgets();
     if (!rc)
         return;
     m_runConfigurationWidget = rc->createConfigurationWidget();
+    m_runConfiguration = rc;
     if (m_runConfigurationWidget)
         m_runLayout->addWidget(m_runConfigurationWidget);
 
@@ -567,7 +572,7 @@ QString RunSettingsWidget::uniqueRCName(const QString &name)
 
 void RunSettingsWidget::addRunControlWidgets()
 {
-    foreach (IRunConfigurationAspect *aspect, m_target->activeRunConfiguration()->extraAspects()) {
+    foreach (IRunConfigurationAspect *aspect, m_runConfiguration->extraAspects()) {
         ProjectExplorer::RunConfigWidget *rcw = aspect->createConfigurationWidget();
         if (rcw)
             addSubWidget(rcw);
