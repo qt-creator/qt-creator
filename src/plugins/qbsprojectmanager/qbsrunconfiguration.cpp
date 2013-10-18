@@ -105,8 +105,8 @@ QbsRunConfiguration::QbsRunConfiguration(ProjectExplorer::Target *parent, QbsRun
     m_commandLineArguments(source->m_commandLineArguments),
     m_runMode(source->m_runMode),
     m_userWorkingDirectory(source->m_userWorkingDirectory),
-    m_currentInstallStep(source->m_currentInstallStep),
-    m_currentBuildStepList(source->m_currentBuildStepList)
+    m_currentInstallStep(0), // no need to copy this, we will get if from the DC anyway.
+    m_currentBuildStepList(0) // ditto
 {
     ctor();
 }
