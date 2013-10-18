@@ -872,7 +872,6 @@ FileName BaseQtVersion::mkspecPath() const
 
 bool BaseQtVersion::hasMkspec(const FileName &spec) const
 {
-    updateVersionInfo();
     QFileInfo fi;
     fi.setFile(QDir::fromNativeSeparators(qmakeProperty("QT_HOST_DATA"))
                + QLatin1String("/mkspecs/") + spec.toString());
@@ -1015,7 +1014,6 @@ bool BaseQtVersion::hasDocumentation() const
 
 QString BaseQtVersion::documentationPath() const
 {
-    updateVersionInfo();
     return qmakeProperty("QT_INSTALL_DOCS");
 }
 
@@ -1027,16 +1025,13 @@ bool BaseQtVersion::hasDemos() const
 
 QString BaseQtVersion::demosPath() const
 {
-    updateVersionInfo();
     return qmakeProperty("QT_INSTALL_DEMOS");
 }
 
 QString BaseQtVersion::frameworkInstallPath() const
 {
-    if (HostOsInfo::isMacHost()) {
-        updateVersionInfo();
-        return m_versionInfo.value(QLatin1String("QT_INSTALL_LIBS"));
-    }
+    if (HostOsInfo::isMacHost())
+        return qmakeProperty("QT_INSTALL_LIBS");
     return QString();
 }
 
@@ -1048,7 +1043,6 @@ bool BaseQtVersion::hasExamples() const
 
 QString BaseQtVersion::examplesPath() const
 {
-    updateVersionInfo();
     return qmakeProperty("QT_INSTALL_EXAMPLES");
 }
 
@@ -1104,14 +1098,12 @@ bool BaseQtVersion::hasQmlDump() const
 
 bool BaseQtVersion::hasQmlDumpWithRelocatableFlag() const
 {
-    updateVersionInfo();
     return ((qtVersion() > QtVersionNumber(4, 8, 4) && qtVersion() < QtVersionNumber(5, 0, 0))
             || qtVersion() >= QtVersionNumber(5, 1, 0));
 }
 
 bool BaseQtVersion::needsQmlDump() const
 {
-    updateVersionInfo();
     return qtVersion() < QtVersionNumber(4, 8, 0);
 }
 
@@ -1123,7 +1115,6 @@ bool BaseQtVersion::hasQmlDebuggingLibrary() const
 
 bool BaseQtVersion::needsQmlDebuggingLibrary() const
 {
-    updateVersionInfo();
     return qtVersion() < QtVersionNumber(4, 8, 0);
 }
 
