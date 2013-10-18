@@ -236,6 +236,8 @@ QtcPlugin {
         "qnxruncontrolfactory.h",
         "qnxutils.cpp",
         "qnxutils.h",
+        "slog2inforunner.cpp",
+        "slog2inforunner.h",
         "images/target-small.png",
         "images/target.png",
     ]

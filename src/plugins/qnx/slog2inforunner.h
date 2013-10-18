@@ -29,14 +29,15 @@
 **
 ****************************************************************************/
 
-#ifndef BLACKBERRYSLOGPROCESS_H
-#define BLACKBERRYSLOGPROCESS_H
-
-#include "blackberrydeviceconfiguration.h"
-
-#include <utils/outputformat.h>
+#ifndef QNX_INTERNAL_SLOG2INFORUNNER_H
+#define QNX_INTERNAL_SLOG2INFORUNNER_H
 
 #include <QObject>
+
+#include <remotelinux/linuxdevice.h>
+#include <utils/outputformat.h>
+
+#include <QDateTime>
 
 namespace ProjectExplorer {
 class SshDeviceProcess;
@@ -45,36 +46,48 @@ class SshDeviceProcess;
 namespace Qnx {
 namespace Internal {
 
-class Slog2InfoRunner;
-
-class BlackBerryLogProcessRunner : public QObject
+class Slog2InfoRunner : public QObject
 {
     Q_OBJECT
 public:
-    explicit BlackBerryLogProcessRunner(QObject *parent, const QString &appId, const BlackBerryDeviceConfiguration::ConstPtr &device);
+    explicit Slog2InfoRunner(const QString &applicationId, const RemoteLinux::LinuxDevice::ConstPtr &device, QObject *parent = 0);
+
     void start();
-
-signals:
-    void output(const QString &msg, Utils::OutputFormat format);
-    void finished();
-
-public slots:
     void stop();
 
+    bool commandFound() const;
+
+signals:
+    void commandMissing();
+    void started();
+    void finished();
+    void output(const QString &msg, Utils::OutputFormat format);
+
 private slots:
-    void launchTailProcess();
-    void readTailStandardOutput();
-    void readTailStandardError();
-    void handleTailProcessError();
+    void handleTestProcessCompleted();
+    void launchSlog2Info();
+
+    void readLogStandardOutput();
+    void readLogStandardError();
+    void handleLogError();
 
 private:
-    QString m_appId;
+    void readLaunchTime();
+    bool showQtMessage(const QString &pattern, const QString &line);
 
-    BlackBerryDeviceConfiguration::ConstPtr m_device;
-    ProjectExplorer::SshDeviceProcess *m_tailProcess;
-    Slog2InfoRunner *m_slog2InfoRunner;
+    QString m_applicationId;
+
+    bool m_found;
+
+    QDateTime m_launchDateTime;
+    bool m_currentLogs;
+
+    ProjectExplorer::SshDeviceProcess *m_launchDateTimeProcess;
+    ProjectExplorer::SshDeviceProcess *m_testProcess;
+    ProjectExplorer::SshDeviceProcess *m_logProcess;
 };
+
 } // namespace Internal
 } // namespace Qnx
 
-#endif // BLACKBERRYSLOGPROCESS_H
+#endif // QNX_INTERNAL_SLOG2INFORUNNER_H
