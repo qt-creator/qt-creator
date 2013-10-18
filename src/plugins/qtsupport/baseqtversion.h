@@ -123,8 +123,6 @@ public:
     // Returns the PREFIX, BINPREFIX, DOCPREFIX and similar information
     QHash<QString,QString> versionInfo() const;
     enum PropertyVariant { PropertyVariantGet, PropertyVariantSrc };
-    static QString qmakeProperty(const QHash<QString,QString> &versionInfo, const QByteArray &name,
-                                 PropertyVariant variant = PropertyVariantGet);
     QString qmakeProperty(const QByteArray &name) const;
     virtual void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const;
     virtual Utils::Environment qmakeRunEnvironment() const;
@@ -242,6 +240,9 @@ public:
 protected:
     BaseQtVersion();
     BaseQtVersion(const Utils::FileName &path, bool isAutodetected = false, const QString &autodetectionSource = QString());
+
+    static QString qmakeProperty(const QHash<QString,QString> &versionInfo, const QByteArray &name,
+                                 PropertyVariant variant = PropertyVariantGet);
 
     virtual QList<ProjectExplorer::Task> reportIssuesImpl(const QString &proFile, const QString &buildDir) const;
 
