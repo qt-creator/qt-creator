@@ -124,6 +124,7 @@ void BaseCheckoutWizard::runWizard(const QString &path, QWidget *parent, const Q
         QMessageBox msgBox(QMessageBox::Warning, tr("Cannot Open Project"),
                            tr("Failed to open project in '%1'.").arg(QDir::toNativeSeparators(checkoutPath)));
         msgBox.setDetailedText(errorMessage);
+        msgBox.addButton(QMessageBox::Ok);
         msgBox.exec();
     }
 }
