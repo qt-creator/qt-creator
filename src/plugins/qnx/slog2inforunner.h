@@ -52,10 +52,12 @@ class Slog2InfoRunner : public QObject
 public:
     explicit Slog2InfoRunner(const QString &applicationId, const RemoteLinux::LinuxDevice::ConstPtr &device, QObject *parent = 0);
 
-    void start();
     void stop();
 
     bool commandFound() const;
+
+public slots:
+    void start();
 
 signals:
     void commandMissing();

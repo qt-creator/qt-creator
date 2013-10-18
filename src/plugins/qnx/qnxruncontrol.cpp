@@ -30,16 +30,38 @@
 ****************************************************************************/
 
 #include "qnxruncontrol.h"
+#include "qnxdeviceconfiguration.h"
 #include "qnxrunconfiguration.h"
+#include "slog2inforunner.h"
 
+#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/runconfiguration.h>
-#include <remotelinux/remotelinuxrunconfiguration.h>
+#include <projectexplorer/target.h>
+
+#include <QFileInfo>
 
 using namespace Qnx;
 using namespace Qnx::Internal;
 using namespace RemoteLinux;
 
 QnxRunControl::QnxRunControl(ProjectExplorer::RunConfiguration *runConfig)
-        : RemoteLinuxRunControl(runConfig)
+    : RemoteLinuxRunControl(runConfig)
+    , m_slog2Info(0)
 {
+    ProjectExplorer::IDevice::ConstPtr dev = ProjectExplorer::DeviceKitInformation::device(runConfig->target()->kit());
+    QnxDeviceConfiguration::ConstPtr qnxDevice = dev.dynamicCast<const QnxDeviceConfiguration>();
+
+    QnxRunConfiguration *qnxRunConfig = qobject_cast<QnxRunConfiguration *>(runConfig);
+    QTC_CHECK(qnxRunConfig);
+
+    const QString applicationId = QFileInfo(qnxRunConfig->remoteExecutableFilePath()).fileName();
+    m_slog2Info = new Slog2InfoRunner(applicationId, qnxDevice, this);
+    connect(m_slog2Info, SIGNAL(output(QString,Utils::OutputFormat)), this, SLOT(appendMessage(QString,Utils::OutputFormat)));
+    connect(this, SIGNAL(started()), m_slog2Info, SLOT(start()));
+}
+
+ProjectExplorer::RunControl::StopResult QnxRunControl::stop()
+{
+    m_slog2Info->stop();
+    return RemoteLinuxRunControl::stop();
 }

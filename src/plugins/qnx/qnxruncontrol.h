@@ -37,11 +37,18 @@
 namespace Qnx {
 namespace Internal {
 
+class Slog2InfoRunner;
+
 class QnxRunControl : public RemoteLinux::RemoteLinuxRunControl
 {
     Q_OBJECT
 public:
     explicit QnxRunControl(ProjectExplorer::RunConfiguration *runConfig);
+
+    RemoteLinux::RemoteLinuxRunControl::StopResult stop();
+
+private:
+    Slog2InfoRunner *m_slog2Info;
 };
 
 } // namespace Internal
