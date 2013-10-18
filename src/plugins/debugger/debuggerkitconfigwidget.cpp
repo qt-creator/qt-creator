@@ -126,7 +126,10 @@ void DebuggerKitInformation::setup(Kit *k)
     //    <value type="int" key="EngineType">4</value>
     //  </valuemap>
 
-    if (rawId.type() == QVariant::String) {
+    if (rawId.isNull()) {
+        // Initial setup of a kit
+        detection = NotDetected;
+    } else if (rawId.type() == QVariant::String) {
         detection = DetectedById;
     } else {
         QMap<QString, QVariant> map = rawId.toMap();
@@ -139,8 +142,6 @@ void DebuggerKitInformation::setup(Kit *k)
             fileName = FileName::fromUserInput(binary);
         }
     }
-
-    QTC_CHECK(detection != NotDetected);
 
     const DebuggerItem *bestItem = 0;
     DebuggerItem::MatchLevel bestLevel = DebuggerItem::DoesNotMatch;
