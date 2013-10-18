@@ -54,8 +54,8 @@ namespace Internal {
 class CppFindReferencesParameters
 {
 public:
-    CPlusPlus::LookupContext context;
-    CPlusPlus::Symbol *symbol;
+    QList<QByteArray> symbolId;
+    QByteArray symbolFileName;
 };
 
 class CppFindReferences: public QObject
@@ -92,12 +92,13 @@ private:
                     const QString &replacement, bool replace);
     void findMacroUses(const CPlusPlus::Macro &macro, const QString &replacement,
                        bool replace);
-    void findAll_helper(Find::SearchResult *search);
+    void findAll_helper(Find::SearchResult *search, CPlusPlus::Symbol *symbol,
+                        const CPlusPlus::LookupContext &context);
     CPlusPlus::DependencyTable dependencyTable() const;
     void setDependencyTable(const CPlusPlus::DependencyTable &newTable);
     void createWatcher(const QFuture<CPlusPlus::Usage> &future, Find::SearchResult *search);
-    bool findSymbol(CppFindReferencesParameters *parameters,
-                    const CPlusPlus::Snapshot &snapshot);
+    CPlusPlus::Symbol *findSymbol(const CppFindReferencesParameters &parameters,
+                    const CPlusPlus::Snapshot &snapshot, CPlusPlus::LookupContext *context);
 
 private:
     QPointer<CppModelManagerInterface> _modelManager;
