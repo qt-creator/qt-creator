@@ -162,6 +162,9 @@ static QList<Abi> parseCoffHeader(const QByteArray &data)
         case 11:
             flavor = Abi::WindowsMsvc2012Flavor;
             break;
+        case 12:
+            flavor = Abi::WindowsMsvc2013Flavor;
+            break;
         default: // Keep unknown flavor
             if (minorLinker != 0)
                 flavor = Abi::WindowsMSysFlavor; // MSVC seems to avoid using minor numbers
@@ -402,6 +405,8 @@ Abi::Abi(const QString &abiString) :
             m_osFlavor = WindowsMsvc2010Flavor;
         else if (abiParts.at(2) == QLatin1String("msvc2012") && m_os == WindowsOS)
             m_osFlavor = WindowsMsvc2012Flavor;
+        else if (abiParts.at(2) == QLatin1String("msvc2013") && m_os == WindowsOS)
+            m_osFlavor = WindowsMsvc2013Flavor;
         else if (abiParts.at(2) == QLatin1String("msys") && m_os == WindowsOS)
             m_osFlavor = WindowsMSysFlavor;
         else if (abiParts.at(2) == QLatin1String("ce") && m_os == WindowsOS)
@@ -650,6 +655,8 @@ QString Abi::toString(const OSFlavor &of)
         return QLatin1String("msvc2010");
     case ProjectExplorer::Abi::WindowsMsvc2012Flavor:
         return QLatin1String("msvc2012");
+    case ProjectExplorer::Abi::WindowsMsvc2013Flavor:
+        return QLatin1String("msvc2013");
     case ProjectExplorer::Abi::WindowsMSysFlavor:
         return QLatin1String("msys");
     case ProjectExplorer::Abi::WindowsCEFlavor:
@@ -699,7 +706,8 @@ QList<Abi::OSFlavor> Abi::flavorsForOs(const Abi::OS &o)
         return result << GenericUnixFlavor << SolarisUnixFlavor << UnknownFlavor;
     case WindowsOS:
         return result << WindowsMsvc2005Flavor << WindowsMsvc2008Flavor << WindowsMsvc2010Flavor
-                      << WindowsMsvc2012Flavor << WindowsMSysFlavor << WindowsCEFlavor << UnknownFlavor;
+                      << WindowsMsvc2012Flavor << WindowsMsvc2013Flavor << WindowsMSysFlavor
+                      << WindowsCEFlavor << UnknownFlavor;
     case UnknownOS:
         return result << UnknownFlavor;
     default:
@@ -717,7 +725,9 @@ Abi Abi::hostAbi()
 
 #if defined (Q_OS_WIN)
     os = WindowsOS;
-#if _MSC_VER == 1700
+#if _MSC_VER == 1800
+    subos = WindowsMsvc2013Flavor;
+#elif _MSC_VER == 1700
     subos = WindowsMsvc2012Flavor;
 #elif _MSC_VER == 1600
     subos = WindowsMsvc2010Flavor;

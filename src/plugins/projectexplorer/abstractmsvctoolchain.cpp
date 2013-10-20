@@ -99,7 +99,8 @@ ToolChain::CompilerFlags AbstractMsvcToolChain::compilerFlags(const QStringList 
         flags &= ~MicrosoftExtensions;
 
     if (m_abi.osFlavor() == Abi::WindowsMsvc2010Flavor
-            || m_abi.osFlavor() == Abi::WindowsMsvc2012Flavor)
+            || m_abi.osFlavor() == Abi::WindowsMsvc2012Flavor
+            || m_abi.osFlavor() == Abi::WindowsMsvc2013Flavor)
         flags |= StandardCxx11;
 
     return flags;

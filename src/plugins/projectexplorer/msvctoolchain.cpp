@@ -103,7 +103,9 @@ static Abi findAbiOfMsvc(MsvcToolChain::Type type, MsvcToolChain::Platform platf
         else if (version == QLatin1String("v7.0A") || version == QLatin1String("v7.1"))
             msvcVersionString = QLatin1String("10.0");
     }
-    if (msvcVersionString.startsWith(QLatin1String("11.")))
+    if (msvcVersionString.startsWith(QLatin1String("12.")))
+        flavor = Abi::WindowsMsvc2013Flavor;
+    else if (msvcVersionString.startsWith(QLatin1String("11.")))
         flavor = Abi::WindowsMsvc2012Flavor;
     else if (msvcVersionString.startsWith(QLatin1String("10.")))
         flavor = Abi::WindowsMsvc2010Flavor;
@@ -356,6 +358,12 @@ QList<Utils::FileName> MsvcToolChain::suggestedMkspecList() const
         return QList<Utils::FileName>() << Utils::FileName::fromString(QLatin1String("win32-msvc2010"));
     case ProjectExplorer::Abi::WindowsMsvc2012Flavor:
         QList<Utils::FileName>()
+            << Utils::FileName::fromString(QLatin1String("win32-msvc2012"))
+            << Utils::FileName::fromString(QLatin1String("win32-msvc2010"));
+        break;
+    case ProjectExplorer::Abi::WindowsMsvc2013Flavor:
+        QList<Utils::FileName>()
+            << Utils::FileName::fromString(QLatin1String("win32-msvc2013"))
             << Utils::FileName::fromString(QLatin1String("win32-msvc2012"))
             << Utils::FileName::fromString(QLatin1String("win32-msvc2010"));
         break;

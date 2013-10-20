@@ -88,6 +88,7 @@ public:
         WindowsMsvc2008Flavor,
         WindowsMsvc2010Flavor,
         WindowsMsvc2012Flavor,
+        WindowsMsvc2013Flavor,
         WindowsMSysFlavor,
         WindowsCEFlavor,
 
