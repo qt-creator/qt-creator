@@ -40,7 +40,7 @@ namespace VcProjectManager {
 namespace Internal {
 
 class IAttributeDescriptionDataItem;
-class ToolDescription;
+class IToolDescription;
 class ToolSectionDescription;
 
 struct ToolInfo {
@@ -68,8 +68,8 @@ public:
     ~ToolDescriptionDataManager();
 
     int toolDescriptionCount() const;
-    ToolDescription* toolDescription(int index) const;
-    ToolDescription* toolDescription(const QString &toolKey) const;
+    IToolDescription* toolDescription(int index) const;
+    IToolDescription* toolDescription(const QString &toolKey) const;
 
     static ToolInfo readToolInfo(const QString &filePath, QString *errorMsg = 0, int *errorLine = 0, int *errorColumn = 0);
 
@@ -78,11 +78,11 @@ private:
     void readAttributeDataFromFile(const QString &filePath);
     void processXMLDoc(const QDomDocument &xmlDoc);
     void processDomNode(const QDomNode &node);
-    void processToolSectionNode(ToolDescription *toolDescription, const QDomNode &domNode);
+    void processToolSectionNode(IToolDescription *toolDescription, const QDomNode &domNode);
     void processToolAttributeDescriptions(ToolSectionDescription *toolSectDesc, const QDomNode &domNode);
-    ToolDescription* readToolDescription(const QDomNode &domNode);
+    IToolDescription* readToolDescription(const QDomNode &domNode);
 
-    QList<ToolDescription *> m_toolDescriptions;
+    QList<IToolDescription *> m_toolDescriptions;
     static ToolDescriptionDataManager *m_instance;
 };
 

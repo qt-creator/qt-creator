@@ -39,10 +39,16 @@
 #include <coreplugin/mainwindow.h>
 
 #include "../widgets/projectsettingswidget.h"
-#include "../widgets/configurationswidgets.h"
+#include "../widgets/configurationseditwidget.h"
 #include "configurationcontainer.h"
 #include "../interfaces/iattributecontainer.h"
 #include "generalattributecontainer.h"
+#include "tools/tool_constants.h"
+#include "tools/toolattributes/tooldescriptiondatamanager.h"
+#include "../interfaces/itooldescription.h"
+#include "../interfaces/iconfigurationbuildtool.h"
+#include "../interfaces/iconfigurationbuildtools.h"
+#include "../interfaces/itools.h"
 
 namespace VcProjectManager {
 namespace Internal {
@@ -198,6 +204,22 @@ void VcProjectDocument::parseProcessingInstruction(const QDomProcessingInstructi
     m_processingInstructionTarget = processingInstruction.target();
 }
 
+void VcProjectDocument::addToolToConfiguration(IConfiguration *config, const QString &toolKey) const
+{
+    if (!config || !config->tools() || !config->tools()->configurationBuildTools() || toolKey.isEmpty())
+        return;
+
+    ToolDescriptionDataManager *tDDM = ToolDescriptionDataManager::instance();
+    IToolDescription *toolDesc = tDDM->toolDescription(toolKey);
+
+    if (toolDesc) {
+        IConfigurationBuildTool *tool = toolDesc->createTool();
+
+        if (tool)
+            config->tools()->configurationBuildTools()->addTool(tool);
+    }
+}
+
 void VcProjectDocument::processDocumentAttributes(const QDomElement &vsNode)
 {
     QDomNamedNodeMap namedNodeMap = vsNode.attributes();
@@ -267,6 +289,27 @@ VcNodeWidget *VcProjectDocument::createSettingsWidget()
     return new VcProjectDocumentWidget(this);
 }
 
+IConfiguration *VcProjectDocument::createDefaultBuildConfiguration(const QString &fullConfigName) const
+{
+    IConfiguration *newConfig = new Configuration(QLatin1String("Configuration"));
+    newConfig->setFullName(fullConfigName);
+
+    addToolToConfiguration(newConfig, QLatin1String(ToolConstants::strVCCLCompilerTool));
+    addToolToConfiguration(newConfig, QLatin1String(ToolConstants::strVCLinkerTool));
+    addToolToConfiguration(newConfig, QLatin1String(ToolConstants::strVCManifestTool));
+    addToolToConfiguration(newConfig, QLatin1String(ToolConstants::strVCXDCMakeTool));
+    addToolToConfiguration(newConfig, QLatin1String(ToolConstants::strVCBscMakeTool));
+    addToolToConfiguration(newConfig, QLatin1String(ToolConstants::strVCPreBuildEventTool));
+    addToolToConfiguration(newConfig, QLatin1String(ToolConstants::strVCPreLinkEventTool));
+    addToolToConfiguration(newConfig, QLatin1String(ToolConstants::strVCPostBuildEventTool));
+
+    newConfig->attributeContainer()->setAttribute(QLatin1String("OutputDirectory"), QLatin1String("$(SolutionDir)$(ConfigurationName)"));
+    newConfig->attributeContainer()->setAttribute(QLatin1String("IntermediateDirectory"), QLatin1String("$(ConfigurationName)"));
+    newConfig->attributeContainer()->setAttribute(QLatin1String("ConfigurationType"), QLatin1String("1"));
+
+    return newConfig;
+}
+
 void VcProjectDocument::processDocumentNode(const QDomNode &node)
 {
     if (node.isNull())
@@ -300,10 +343,10 @@ void VcProjectDocument::processDocumentNode(const QDomNode &node)
 VcProjectDocumentWidget::VcProjectDocumentWidget(VcProjectDocument *vcDoc)
     : m_vcDoc(vcDoc)
 {
-    ProjectSettingsWidget *projectSettingsWidget = new ProjectSettingsWidget(m_vcDoc, this);
+    ProjectSettingsWidget *projectSettingsWidget = new ProjectSettingsWidget(this);
 
     // add Configurations
-    m_configurationsWidget = static_cast<ConfigurationsBaseWidget *>(m_vcDoc->configurations()->createSettingsWidget());
+    m_configurationsWidget = static_cast<ConfigurationsEditWidget *>(m_vcDoc->configurations()->createSettingsWidget());
     projectSettingsWidget->addWidget(tr("Configurations"), m_configurationsWidget);
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setMargin(0);

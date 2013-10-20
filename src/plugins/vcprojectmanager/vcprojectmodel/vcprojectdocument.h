@@ -46,7 +46,7 @@
 namespace VcProjectManager {
 namespace Internal {
 
-class ConfigurationsBaseWidget;
+class ConfigurationsEditWidget;
 
 class VcProjectDocument : public IVisualStudioProject
 {
@@ -70,6 +70,7 @@ public:
     IPublishingData *publishingData() const;
     IAttributeContainer* attributeContainer() const;
     VcNodeWidget *createSettingsWidget();
+    IConfiguration* createDefaultBuildConfiguration(const QString &fullConfigName) const;
 
 protected:
     void processDocumentNode(const QDomNode &node);
@@ -78,6 +79,7 @@ protected:
     QDomElement toVcDocumentElement(QDomDocument &domXMLDocument) const;
 
     void parseProcessingInstruction(const QDomProcessingInstruction &processingInstruction);
+    void addToolToConfiguration(IConfiguration *config, const QString &toolKey) const;
 
     QString m_filePath; // used to store path to a file
 
@@ -114,7 +116,7 @@ signals:
 
 protected:
     VcProjectDocument *m_vcDoc;
-    ConfigurationsBaseWidget *m_configurationsWidget;
+    ConfigurationsEditWidget *m_configurationsWidget;
 };
 
 } // namespace Internal

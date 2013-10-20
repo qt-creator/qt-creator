@@ -60,6 +60,7 @@ public:
 
     ISectionContainer *sectionContainer() const;
     IConfigurationBuildTool *clone() const;
+    bool allAttributesAreDefault() const;
 
 private:
     void processNodeAttributes(const QDomElement &domElement);

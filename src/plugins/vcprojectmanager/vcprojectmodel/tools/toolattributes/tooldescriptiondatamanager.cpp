@@ -109,16 +109,16 @@ int ToolDescriptionDataManager::toolDescriptionCount() const
     return m_toolDescriptions.size();
 }
 
-ToolDescription *ToolDescriptionDataManager::toolDescription(int index) const
+IToolDescription *ToolDescriptionDataManager::toolDescription(int index) const
 {
     if (0 <= index && index < m_toolDescriptions.size())
         return m_toolDescriptions[index];
     return 0;
 }
 
-ToolDescription *ToolDescriptionDataManager::toolDescription(const QString &toolKey) const
+IToolDescription *ToolDescriptionDataManager::toolDescription(const QString &toolKey) const
 {
-    foreach (ToolDescription *toolDesc, m_toolDescriptions) {
+    foreach (IToolDescription *toolDesc, m_toolDescriptions) {
         if (toolDesc->toolKey() == toolKey)
             return toolDesc;
     }
@@ -202,14 +202,14 @@ void ToolDescriptionDataManager::processXMLDoc(const QDomDocument &xmlDoc)
 
 void ToolDescriptionDataManager::processDomNode(const QDomNode &node)
 {
-    ToolDescription *toolDesc = readToolDescription(node);
+    IToolDescription *toolDesc = readToolDescription(node);
     m_toolDescriptions.append(toolDesc);
 
     if (node.hasChildNodes())
         processToolSectionNode(toolDesc, node.firstChild());
 }
 
-void ToolDescriptionDataManager::processToolSectionNode(ToolDescription *toolDescription, const QDomNode &domNode)
+void ToolDescriptionDataManager::processToolSectionNode(IToolDescription *toolDescription, const QDomNode &domNode)
 {
     if (domNode.nodeName() == QLatin1String("Section")) {
         ToolSectionDescription *toolSectionDesc = new ToolSectionDescription;
@@ -391,7 +391,7 @@ void ToolDescriptionDataManager::processToolAttributeDescriptions(ToolSectionDes
         processToolAttributeDescriptions(toolSectDesc, nextSibling);
 }
 
-ToolDescription *ToolDescriptionDataManager::readToolDescription(const QDomNode &domNode)
+IToolDescription *ToolDescriptionDataManager::readToolDescription(const QDomNode &domNode)
 {
     QDomNode tempNode = domNode;
 

@@ -76,6 +76,8 @@ void MenuHandler::initialize()
             Core::ActionManager::createMenu(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT);
     Core::ActionContainer *folderContextMenu =
             Core::ActionManager::createMenu(ProjectExplorer::Constants::M_FOLDERCONTEXT);
+    Core::ActionContainer *fileContextMenu =
+            Core::ActionManager::createMenu(ProjectExplorer::Constants::M_FILECONTEXT);
 
     // versions 2003 and 2005
     m_addFilter = new QAction(tr("Add Filter..."), this);
@@ -99,9 +101,16 @@ void MenuHandler::initialize()
     projectContextMenu->addAction(cmd, ProjectExplorer::Constants::G_PROJECT_FILES);
     subProjectContextMenu->addAction(cmd, ProjectExplorer::Constants::G_PROJECT_FILES);
 
+    m_fileProperties = new QAction(tr("Show Properties..."), this);
+    cmd = Core::ActionManager::registerAction(m_fileProperties, Constants::VC_FILE_SHOW_PROPERTIES_ACTION,
+                                              projectContext);
+    cmd->setAttribute(Core::Command::CA_Hide);
+    fileContextMenu->addAction(cmd, ProjectExplorer::Constants::G_FILE_OTHER);
+
     connect(m_projectProperties, SIGNAL(triggered()), this, SLOT(onShowProjectSettings()));
     connect(m_addFilter, SIGNAL(triggered()), this, SLOT(onAddFilter()));
     connect(m_removeFilter, SIGNAL(triggered()), this, SLOT(onRemoveFilter()));
+    connect(m_fileProperties, SIGNAL(triggered()), this, SLOT(onShowFileSettings()));
 }
 
 void MenuHandler::initialize2005()
@@ -114,6 +123,8 @@ void MenuHandler::initialize2005()
             Core::ActionManager::createMenu(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT);
     Core::ActionContainer *folderContextMenu =
             Core::ActionManager::createMenu(ProjectExplorer::Constants::M_FOLDERCONTEXT);
+    Core::ActionContainer *fileContextMenu =
+            Core::ActionManager::createMenu(ProjectExplorer::Constants::M_FILECONTEXT);
 
     // version 2005
     m_addFolder2005 = new QAction(tr("Add Folder..."), this);
@@ -151,19 +162,29 @@ void MenuHandler::initialize2005()
     projectContextMenu->addAction(cmd, ProjectExplorer::Constants::G_PROJECT_FILES);
     subProjectContextMenu->addAction(cmd, ProjectExplorer::Constants::G_PROJECT_FILES);
 
+    m_fileProperties2005 = new QAction(tr("Show Properties..."), this);
+    cmd = Core::ActionManager::registerAction(m_fileProperties2005, Constants::VC_FILE_SHOW_PROPERTIES_ACTION,
+                                              project2005Context);
+    cmd->setAttribute(Core::Command::CA_Hide);
+    fileContextMenu->addAction(cmd, ProjectExplorer::Constants::G_FILE_OTHER);
+
     connect(m_projectProperties2005, SIGNAL(triggered()), this, SLOT(onShowProjectSettings()));
     connect(m_addFilter2005, SIGNAL(triggered()), this, SLOT(onAddFilter()));
     connect(m_removeFilter2005, SIGNAL(triggered()), this, SLOT(onRemoveFilter()));
     connect(m_addFolder2005, SIGNAL(triggered()), this, SLOT(onAddFolder()));
     connect(m_removeFolder2005, SIGNAL(triggered()), this, SLOT(onRemoveFolder()));
+    connect(m_fileProperties2005, SIGNAL(triggered()), this, SLOT(onShowFileSettings()));
 }
 
 void MenuHandler::onShowProjectSettings()
 {
-    VcProject *project = dynamic_cast<VcProject *>(ProjectExplorer::ProjectExplorerPlugin::currentProject());
+    ProjectExplorer::ProjectExplorerPlugin *projExplPlugin = ProjectExplorer::ProjectExplorerPlugin::instance();
+    ProjectExplorer::Node *node = projExplPlugin->currentNode();
 
-    if (project)
-        project->showSettingsDialog();
+    if (node && node->nodeType() == ProjectExplorer::ProjectNodeType) {
+        VcDocProjectNode *projectNode = static_cast<VcDocProjectNode *>(node);
+        projectNode->showSettingsDialog();
+    }
 }
 
 void MenuHandler::onAddFolder()
@@ -251,6 +272,17 @@ void MenuHandler::onRemoveFolder()
             VcDocProjectNode *projectNode = static_cast<VcDocProjectNode *>(parentNode);
             projectNode->removeFileContainerNode(folderNode);
         }
+    }
+}
+
+void MenuHandler::onShowFileSettings()
+{
+    ProjectExplorer::ProjectExplorerPlugin *projExplPlugin = ProjectExplorer::ProjectExplorerPlugin::instance();
+    ProjectExplorer::Node *node = projExplPlugin->currentNode();
+
+    if (node && node->nodeType() == ProjectExplorer::FileNodeType) {
+        VcFileNode *fileNode = static_cast<VcFileNode *>(node);
+        fileNode->showSettingsWidget();
     }
 }
 

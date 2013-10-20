@@ -58,18 +58,21 @@ private slots:
     void onAddFilter();
     void onRemoveFilter();
     void onRemoveFolder();
+    void onShowFileSettings();
 
 private:
     static MenuHandler *m_instance;
     QAction *m_projectProperties;
     QAction *m_addFilter;
     QAction *m_removeFilter;
+    QAction *m_fileProperties;
 
     QAction *m_projectProperties2005;
     QAction *m_addFolder2005;
     QAction *m_addFilter2005;
     QAction *m_removeFolder2005;
     QAction *m_removeFilter2005;
+    QAction *m_fileProperties2005;
 };
 
 } // namespace Internal

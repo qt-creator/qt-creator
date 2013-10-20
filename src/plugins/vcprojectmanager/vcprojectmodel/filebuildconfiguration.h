@@ -27,41 +27,28 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_INTERNAL_TOOL_CONSTANTS_H
-#define VCPROJECTMANAGER_INTERNAL_TOOL_CONSTANTS_H
+#ifndef VCPROJECTMANAGER_INTERNAL_FILEBUILDCONFIGURATION_H
+#define VCPROJECTMANAGER_INTERNAL_FILEBUILDCONFIGURATION_H
+
+#include "configuration.h"
 
 namespace VcProjectManager {
 namespace Internal {
-namespace ToolConstants {
 
-#define STRING(s) static const char str##s[] = #s
+class FileBuildConfiguration : public Configuration
+{
+public:
+    FileBuildConfiguration();
+    FileBuildConfiguration(const FileBuildConfiguration &fileBuildConfig);
+    FileBuildConfiguration& operator =(const FileBuildConfiguration &fileBuildConfig);
 
-STRING(VCALinkTool);
-STRING(VCAppVerifierTool);
-STRING(VCBscMakeTool);
-STRING(VCCLCompilerTool);
-STRING(VCCustomBuildTool);
-STRING(VCFxCopTool);
-STRING(VCLinkerTool);
-STRING(VCManagedResourceCompilerTool);
-STRING(VCManifestTool);
-STRING(VCMIDLTool);
-STRING(VCPostBuildEventTool);
-STRING(VCPreBuildEventTool);
-STRING(VCPreLinkEventTool);
-STRING(VCResourceCompilerTool);
-STRING(VCXDCMakeTool);
-STRING(VCXMLDataGeneratorTool);
-STRING(VCWebServiceProxyGeneratorTool);
+    VcNodeWidget *createSettingsWidget();
 
-// sections
-const char CPP_PRECOMPILED_HEADERS[] = "Precompiled Headers";
+protected:
+    void processToolNode(const QDomNode &toolNode);
+};
 
-// attributes
-const char CPP_USE_PRECOMPILED_HEADER[] = "UsePrecompiledHeader";
-
-} // namespace ToolConstants
 } // namespace Internal
 } // namespace VcProjectManager
 
-#endif // VCPROJECTMANAGER_INTERNAL_TOOL_CONSTANTS_H
+#endif // VCPROJECTMANAGER_INTERNAL_FILEBUILDCONFIGURATION_H

@@ -46,6 +46,7 @@ class ISettingsWidget;
 class IToolFiles;
 class IPublishingData;
 class IAttributeContainer;
+class IConfiguration;
 
 class IVisualStudioProject : public IVcProjectXMLNode
 {
@@ -63,6 +64,8 @@ public:
     virtual QString filePath() const = 0;
     virtual bool saveToFile(const QString &filePath) const = 0;
     virtual VcDocConstants::DocumentVersion documentVersion() const = 0;
+
+    virtual IConfiguration* createDefaultBuildConfiguration(const QString &fullConfigName) const = 0;
 };
 
 } // namespace Internal

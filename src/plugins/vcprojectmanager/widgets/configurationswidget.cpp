@@ -32,7 +32,7 @@
 
 #include "newconfigitemdialog.h"
 #include "vcenternamedialog.h"
-#include "configurationwidgets.h"
+#include "configurationbasewidget.h"
 
 namespace VcProjectManager {
 namespace Internal {

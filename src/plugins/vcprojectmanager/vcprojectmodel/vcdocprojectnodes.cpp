@@ -34,6 +34,7 @@
 #include "files.h"
 #include "filecontainer.h"
 #include "../vcprojectmanagerconstants.h"
+#include "widgets/filesettingswidget.h"
 
 #include <QFileInfo>
 #include <projectexplorer/projectexplorer.h>
@@ -47,10 +48,20 @@ VcFileNode::VcFileNode(IFile *fileModel, VcDocProjectNode *vcDocProject)
       m_vcFileModel(fileModel)
 {
     Q_UNUSED(vcDocProject)
+    connect(this, SIGNAL(settingsDialogAccepted()), vcDocProject, SIGNAL(settingsDialogAccepted()));
 }
 
 VcFileNode::~VcFileNode()
 {
+}
+
+void VcFileNode::showSettingsWidget()
+{
+    FileSettingsWidget *settingsWidget = new FileSettingsWidget(m_vcFileModel);
+    if (settingsWidget) {
+        settingsWidget->show();
+        connect(settingsWidget, SIGNAL(accepted()), this, SIGNAL(settingsDialogAccepted()));
+    }
 }
 
 void VcFileNode::readChildren(VcDocProjectNode *vcDocProj)
@@ -457,7 +468,7 @@ void VcDocProjectNode::addFileContainerNode(const QString &name, VcFileContainer
                                           m_vcProjectModel);
     else
         fileContainer = new FileContainer(QLatin1String(Constants::VC_PROJECT_FILE_CONTAINER_FOLDER),
-                                   m_vcProjectModel);
+                                          m_vcProjectModel);
 
     fileContainer->setDisplayName(name);
     VcFileContainerNode *folderNode = new VcFileContainerNode(fileContainer, this);
@@ -552,6 +563,18 @@ void VcDocProjectNode::removeFileContainerNode(VcFileContainerNode *fileContaine
 
     m_vcProjectModel->files()->removeFileContainer(fileContainer);
     m_vcProjectModel->saveToFile(m_vcProjectModel->filePath());
+}
+
+void VcDocProjectNode::showSettingsDialog()
+{
+    if (m_vcProjectModel) {
+        VcProjectDocumentWidget *settingsWidget = static_cast<VcProjectDocumentWidget *>(m_vcProjectModel->createSettingsWidget());
+
+        if (settingsWidget) {
+            settingsWidget->show();
+            connect(settingsWidget, SIGNAL(accepted()), this, SIGNAL(settingsDialogAccepted()));
+        }
+    }
 }
 
 VcFileNode *VcDocProjectNode::findFileNode(const QString &filePath)

@@ -53,6 +53,7 @@ class VcManager;
 class Configuration;
 class VcProjectBuildConfiguration;
 class IConfiguration;
+class IFile;
 
 class VcProject : public ProjectExplorer::Project
 {
@@ -71,8 +72,6 @@ public:
     QString defaultBuildDirectory() const;
     bool needsConfiguration() const;
     bool supportsKit(ProjectExplorer::Kit *k, QString *errorMessage) const;
-
-    void showSettingsDialog();
 
 public slots:
     void reloadProjectNodes();

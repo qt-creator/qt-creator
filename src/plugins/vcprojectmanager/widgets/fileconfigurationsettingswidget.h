@@ -27,41 +27,45 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_INTERNAL_TOOL_CONSTANTS_H
-#define VCPROJECTMANAGER_INTERNAL_TOOL_CONSTANTS_H
+#ifndef VCPROJECTMANAGER_INTERNAL_FILECONFIGURATIONSETTINGSWIDGET_H
+#define VCPROJECTMANAGER_INTERNAL_FILECONFIGURATIONSETTINGSWIDGET_H
+
+#include <QWidget>
+#include "vcnodewidget.h"
 
 namespace VcProjectManager {
 namespace Internal {
-namespace ToolConstants {
 
-#define STRING(s) static const char str##s[] = #s
+namespace Ui {
+class FileConfigurationSettingsWidget;
+}
 
-STRING(VCALinkTool);
-STRING(VCAppVerifierTool);
-STRING(VCBscMakeTool);
-STRING(VCCLCompilerTool);
-STRING(VCCustomBuildTool);
-STRING(VCFxCopTool);
-STRING(VCLinkerTool);
-STRING(VCManagedResourceCompilerTool);
-STRING(VCManifestTool);
-STRING(VCMIDLTool);
-STRING(VCPostBuildEventTool);
-STRING(VCPreBuildEventTool);
-STRING(VCPreLinkEventTool);
-STRING(VCResourceCompilerTool);
-STRING(VCXDCMakeTool);
-STRING(VCXMLDataGeneratorTool);
-STRING(VCWebServiceProxyGeneratorTool);
+class IConfiguration;
+class IConfigurationBuildTool;
+class IVisualStudioProject;
 
-// sections
-const char CPP_PRECOMPILED_HEADERS[] = "Precompiled Headers";
+class FileConfigurationSettingsWidget : public VcNodeWidget
+{
+    Q_OBJECT
 
-// attributes
-const char CPP_USE_PRECOMPILED_HEADER[] = "UsePrecompiledHeader";
+public:
+    explicit FileConfigurationSettingsWidget(IConfiguration *fileBuildConfig, QWidget *parent = 0);
+    ~FileConfigurationSettingsWidget();
 
-} // namespace ToolConstants
+    void saveData();
+
+private slots:
+    void changeTool(int index);
+    int toolIndex(const QString &toolKey);
+
+private:
+    Ui::FileConfigurationSettingsWidget *ui;
+    IConfiguration *m_fileBuildConfig;
+    IConfigurationBuildTool *m_configBuildTool;
+    VcNodeWidget *m_toolSettingsWidget;
+};
+
+
 } // namespace Internal
 } // namespace VcProjectManager
-
-#endif // VCPROJECTMANAGER_INTERNAL_TOOL_CONSTANTS_H
+#endif // VCPROJECTMANAGER_INTERNAL_FILECONFIGURATIONSETTINGSWIDGET_H

@@ -39,10 +39,9 @@
 namespace VcProjectManager {
 namespace Internal {
 
-ProjectSettingsWidget::ProjectSettingsWidget(VcProjectDocument *vcProjDoc, QWidget *parent) :
+ProjectSettingsWidget::ProjectSettingsWidget(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::ProjectSettingsWidget),
-    m_vcProjDocModel(vcProjDoc)
+    ui(new Ui::ProjectSettingsWidget)
 {
     ui->setupUi(this);
     m_widgetList = new QListWidget;

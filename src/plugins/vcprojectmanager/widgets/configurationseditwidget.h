@@ -27,60 +27,58 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef CONFIGURATIONS2003WIDGET_H
-#define CONFIGURATIONS2003WIDGET_H
+#ifndef VCPROJECTMANAGER_INTERNAL_CONFIGURATIONSEDITWIDGET_H
+#define VCPROJECTMANAGER_INTERNAL_CONFIGURATIONSEDITWIDGET_H
 
 #include "vcnodewidget.h"
-#include "../vcprojectmodel/configuration.h"
-
-#include <QList>
 #include <QMap>
 
 namespace VcProjectManager {
 namespace Internal {
 
-class Configurations;
-class Configuration;
-class VcProjectDocument;
+class IVisualStudioProject;
 class ConfigurationsWidget;
+class IConfiguration;
+class ConfigurationContainer;
 class IFile;
 class IFileContainer;
 
-class ConfigurationsBaseWidget : public VcNodeWidget
+class ConfigurationsEditWidget : public VcNodeWidget
 {
     Q_OBJECT
 
 public:
-    explicit ConfigurationsBaseWidget(Configurations *configs, VcProjectDocument *vcProjDoc);
-    ~ConfigurationsBaseWidget();
+    ConfigurationsEditWidget(IVisualStudioProject *vsProj, ConfigurationContainer *configContainer);
+    ~ConfigurationsEditWidget();
     void saveData();
 
 private slots:
     void onAddNewConfig(QString newConfigName, QString copyFrom);
+    void onNewConfigAdded(IConfiguration *config);
     void onRenameConfig(QString newConfigName, QString oldConfigNameWithPlatform);
     void onRemoveConfig(QString configNameWithPlatform);
 
-protected:
-    void addConfiguration(IConfiguration *config);
-    void removeConfiguration(IConfiguration *config);
-    IConfiguration* createConfiguration(const QString &configNameWithPlatform) const;
-    IConfiguration* configInNewConfigurations(const QString &configNameWithPlatform) const;
-    void addConfigurationToFiles(const QString &copyFromConfig, const QString &targetConfigName);
-    void addConfigurationToFilesInFilter(IFileContainer *filterPtr, const QString &copyFromConfig, const QString &targetConfigName);
-    void addConfigurationToFile(IFile *filePtr, const QString &copyFromConfig, const QString &targetConfigName);
+    void addConfigWidget(IConfiguration *config);
 
-    Configurations *m_configs;
-    VcProjectDocument *m_vcProjDoc;
+private:
+    void readFileBuildConfigurations(ConfigurationContainer *configContainer);
+    void readFileBuildConfigurations(IFileContainer *container, ConfigurationContainer *configContainer);
+    void readFileBuildConfigurations(IFile *file, ConfigurationContainer *configContainer);
+    void addConfigToProjectBuild(const QString &newConfigName, const QString &copyFrom);
+    void addConfigToFiles(const QString &newConfigName, const QString &copyFrom);
+    void addConfigsAsInProjectBuildConfig(IFile *file, ConfigurationContainer *container);
+    void addDefaultToolToConfig(IConfiguration *config, const QString &toolKey);
+    bool hasNonDefaultConfigurationTool(IConfiguration *config);
+    bool containsNonDefaultConfiguration(ConfigurationContainer *configCont);
+    ConfigurationContainer* cloneFileConfigContainer(IFile *file);
+
+    IVisualStudioProject *m_vsProject;
     ConfigurationsWidget *m_configsWidget;
-
-    QList<IConfiguration *> m_newConfigurations;
-    QList<QString> m_removedConfigurations;
-    QMap<IConfiguration*, QString> m_renamedConfigurations; // <oldName, newName>
-
-    QHash<IFile*, QList<IConfiguration*> > m_newFilesConfigurations;
+    QMap<IFile*, ConfigurationContainer*> m_fileConfigurations;
+    ConfigurationContainer *m_buildConfigurations;
 };
 
-} // namespace Internal
-} // namespace VcProjectManager
+} // Internal
+} // VcProjectManager
 
-#endif // CONFIGURATIONS2003WIDGET_H
+#endif // VCPROJECTMANAGER_INTERNAL_CONFIGURATIONSEDITWIDGET_H

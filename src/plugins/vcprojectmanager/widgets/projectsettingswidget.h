@@ -50,7 +50,7 @@ class ProjectSettingsWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit ProjectSettingsWidget(VcProjectDocument *vcProjDoc, QWidget *parent = 0);
+    explicit ProjectSettingsWidget(QWidget *parent = 0);
     ~ProjectSettingsWidget();
 
     void addWidget(const QString &name, QWidget *widget);
@@ -65,7 +65,6 @@ private:
     QListWidget *m_widgetList;
     QStackedWidget *m_stackedWidgets;
     Ui::ProjectSettingsWidget *ui;
-    VcProjectDocument *m_vcProjDocModel;
 };
 
 } // namespace Internal

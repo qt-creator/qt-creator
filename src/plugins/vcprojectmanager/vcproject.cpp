@@ -97,6 +97,8 @@ VcProject::VcProject(VcManager *projectManager, const QString &projectFilePath, 
     else
         setProjectContext(Core::Context(Constants::VC_PROJECT_ID));
     m_rootNode = m_projectFile->createVcDocNode();
+
+    connect(m_rootNode, SIGNAL(settingsDialogAccepted()), this, SLOT(onSettingsDialogAccepted()));
 }
 
 VcProject::~VcProject()
@@ -166,18 +168,6 @@ bool VcProject::supportsKit(Kit *k, QString *errorMessage) const
     return true;
 }
 
-void VcProject::showSettingsDialog()
-{
-    if (m_projectFile->documentModel() && m_projectFile->documentModel()->vcProjectDocument()) {
-        VcProjectDocumentWidget *settingsWidget = static_cast<VcProjectDocumentWidget *>(m_projectFile->documentModel()->vcProjectDocument()->createSettingsWidget());
-
-        if (settingsWidget) {
-            settingsWidget->show();
-            connect(settingsWidget, SIGNAL(accepted()), this, SLOT(onSettingsDialogAccepted()));
-        }
-    }
-}
-
 void VcProject::reloadProjectNodes()
 {
     m_rootNode->deleteLater();
@@ -191,9 +181,7 @@ void VcProject::reloadProjectNodes()
 
 void VcProject::onSettingsDialogAccepted()
 {
-    VcProjectDocumentWidget *settingsWidget = qobject_cast<VcProjectDocumentWidget *>(QObject::sender());
     m_projectFile->documentModel()->saveToFile(m_projectFile->filePath());
-    settingsWidget->deleteLater();
     IConfigurations *configs = m_projectFile->documentModel()->vcProjectDocument()->configurations();
 
     if (configs) {
@@ -309,12 +297,8 @@ void VcProject::updateCodeModels()
 
                         if (toolAttr) {
                             StringListToolAttribute *stringToolAttr = static_cast<StringListToolAttribute *>(toolAttr);
-
-                            QString separator = stringToolAttr->descriptionDataItem()->optionalValue(QLatin1String("separator"));
-                            QStringList preprocDefs;
-
-                            if (!separator.isEmpty())
-                                 preprocDefs = stringToolAttr->value().split(separator);
+                            stringToolAttr->descriptionDataItem();
+                            QStringList preprocDefs = stringToolAttr->value().split(stringToolAttr->descriptionDataItem()->optionalValue(QLatin1String("separator")));
 
                             pPart->defines += preprocDefs.join(QLatin1String("\n")).toLatin1();
                         }

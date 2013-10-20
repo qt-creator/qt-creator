@@ -33,7 +33,8 @@
 namespace VcProjectManager {
 namespace Internal {
 
-ConfigurationContainer::ConfigurationContainer()
+ConfigurationContainer::ConfigurationContainer(QObject *parent)
+    : QObject(parent)
 {
 }
 
@@ -70,7 +71,9 @@ void ConfigurationContainer::addConfiguration(IConfiguration *config)
         if (config->fullName() == conf->fullName())
             return;
     }
+
     m_configs.append(config);
+    emit configurationAdded(config);
 }
 
 IConfiguration *ConfigurationContainer::configuration(const QString &fullName) const
@@ -100,6 +103,7 @@ void ConfigurationContainer::removeConfiguration(const QString &fullName)
     foreach (IConfiguration *conf, m_configs) {
         if (conf->fullName() == fullName) {
             m_configs.removeOne(conf);
+            emit configurationRemoved(fullName);
             delete conf;
             return;
         }

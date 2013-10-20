@@ -47,6 +47,7 @@ public:
     virtual ISectionContainer* sectionContainer() const = 0;
     virtual const IToolDescription* toolDescription() const = 0;
     virtual IConfigurationBuildTool* clone() const = 0;
+    virtual bool allAttributesAreDefault() const = 0;
 };
 
 } // namespace Internal

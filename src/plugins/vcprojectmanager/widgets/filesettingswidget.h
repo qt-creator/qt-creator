@@ -27,37 +27,37 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef CONFIGURATIONWIDGETS_H
-#define CONFIGURATIONWIDGETS_H
+#ifndef VCPROJECTMANAGER_INTERNAL_FILESETTINGSWIDGET_H
+#define VCPROJECTMANAGER_INTERNAL_FILESETTINGSWIDGET_H
 
-#include "../widgets/vcnodewidget.h"
-#include "../vcprojectmodel/configuration.h"
-
-class QListWidget;
-class QStackedWidget;
+#include "vcnodewidget.h"
 
 namespace VcProjectManager {
 namespace Internal {
 
-class Configuration;
+class IFile;
+class ConfigurationsEditWidget;
 
-class ConfigurationBaseWidget : public VcNodeWidget
+class FileSettingsWidget : public VcNodeWidget
 {
     Q_OBJECT
+
 public:
-    explicit ConfigurationBaseWidget(Configuration *config);
-    ~ConfigurationBaseWidget();
+    FileSettingsWidget(IFile *file, QWidget *parent = 0);
     void saveData();
 
-protected:
-    QListWidget *m_listWidget;
-    QStackedWidget *m_stackWidget;
+private slots:
+    void onOkButtonClicked();
+    void onCancelButtonClicked();
 
-    Configuration* m_config;
-    QList<VcNodeWidget *> m_toolWidgets;
+signals:
+    void accepted();
+
+private:
+    ConfigurationsEditWidget *m_configurationsWidget;
 };
 
 } // namespace Internal
 } // namespace VcProjectManager
 
-#endif // CONFIGURATIONWIDGETS_H
+#endif // VCPROJECTMANAGER_INTERNAL_FILESETTINGSWIDGET_H

@@ -66,6 +66,7 @@ const char VC_PROJECT_ADD_FOLDER_ACTION[] = "VcProject.AddFolderAction";
 const char VC_PROJECT_ADD_FILTER_ACTION[] = "VcProject.AddFilterAction";
 const char VC_PROJECT_REMOVE_FOLDER_ACTION[] = "VcProject.RemoveFolderAction";
 const char VC_PROJECT_REMOVE_FILTER_ACTION[] = "VcProject.RemoveFilterAction";
+const char VC_FILE_SHOW_PROPERTIES_ACTION[] = "VcProject.ShowFilePropertiesAction";
 
 // File container constants
 const char VC_PROJECT_FILE_CONTAINER_FOLDER[] = "Folder";

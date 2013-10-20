@@ -27,41 +27,37 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_INTERNAL_TOOL_CONSTANTS_H
-#define VCPROJECTMANAGER_INTERNAL_TOOL_CONSTANTS_H
+#ifndef CONFIGURATIONWIDGETS_H
+#define CONFIGURATIONWIDGETS_H
+
+#include "../widgets/vcnodewidget.h"
+#include "../vcprojectmodel/configuration.h"
+
+class QListWidget;
+class QStackedWidget;
 
 namespace VcProjectManager {
 namespace Internal {
-namespace ToolConstants {
 
-#define STRING(s) static const char str##s[] = #s
+class Configuration;
 
-STRING(VCALinkTool);
-STRING(VCAppVerifierTool);
-STRING(VCBscMakeTool);
-STRING(VCCLCompilerTool);
-STRING(VCCustomBuildTool);
-STRING(VCFxCopTool);
-STRING(VCLinkerTool);
-STRING(VCManagedResourceCompilerTool);
-STRING(VCManifestTool);
-STRING(VCMIDLTool);
-STRING(VCPostBuildEventTool);
-STRING(VCPreBuildEventTool);
-STRING(VCPreLinkEventTool);
-STRING(VCResourceCompilerTool);
-STRING(VCXDCMakeTool);
-STRING(VCXMLDataGeneratorTool);
-STRING(VCWebServiceProxyGeneratorTool);
+class ConfigurationBaseWidget : public VcNodeWidget
+{
+    Q_OBJECT
+public:
+    explicit ConfigurationBaseWidget(IConfiguration *config);
+    ~ConfigurationBaseWidget();
+    void saveData();
 
-// sections
-const char CPP_PRECOMPILED_HEADERS[] = "Precompiled Headers";
+protected:
+    QListWidget *m_listWidget;
+    QStackedWidget *m_stackWidget;
 
-// attributes
-const char CPP_USE_PRECOMPILED_HEADER[] = "UsePrecompiledHeader";
+    IConfiguration* m_config;
+    QList<VcNodeWidget *> m_toolWidgets;
+};
 
-} // namespace ToolConstants
 } // namespace Internal
 } // namespace VcProjectManager
 
-#endif // VCPROJECTMANAGER_INTERNAL_TOOL_CONSTANTS_H
+#endif // CONFIGURATIONWIDGETS_H

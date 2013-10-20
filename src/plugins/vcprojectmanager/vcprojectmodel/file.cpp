@@ -32,6 +32,14 @@
 #include "vcprojectdocument.h"
 #include "configurationcontainer.h"
 #include "generalattributecontainer.h"
+#include "../widgets/configurationseditwidget.h"
+#include "filebuildconfiguration.h"
+#include "tools/toolattributes/tooldescriptiondatamanager.h"
+#include "tools/tool_constants.h"
+#include "../interfaces/itooldescription.h"
+#include "../interfaces/itools.h"
+#include "../interfaces/iconfigurationbuildtool.h"
+#include "../interfaces/iconfigurationbuildtools.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <coreplugin/mimedatabase.h>
@@ -105,7 +113,7 @@ void File::processNode(const QDomNode &node)
 
 VcNodeWidget *File::createSettingsWidget()
 {
-    return 0;
+    return new ConfigurationsEditWidget(m_parentProjectDoc, m_configurationContainer);
 }
 
 QDomNode File::toXMLDomNode(QDomDocument &domXMLDocument) const
@@ -130,19 +138,6 @@ ConfigurationContainer *File::configurationContainer() const
 IAttributeContainer *File::attributeContainer() const
 {
     return m_attributeContainer;
-}
-
-void File::addFile(File::Ptr file)
-{
-    if (m_files.contains(file))
-        return;
-    m_files.append(file);
-}
-
-void File::removeFile(File::Ptr file)
-{
-    if (m_files.contains(file))
-        m_files.removeAll(file);
 }
 
 QString File::relativePath() const
@@ -192,9 +187,25 @@ QString File::canonicalPath() const
     return QString() + m_relativePath;
 }
 
+IConfiguration *File::createDefaultBuildConfiguration(const QString &fullConfigName) const
+{
+    IConfiguration *config = new FileBuildConfiguration;
+    config->setFullName(fullConfigName);
+
+    ToolDescriptionDataManager *tDDM = ToolDescriptionDataManager::instance();
+    IToolDescription *toolDesc = tDDM->toolDescription(QLatin1String(ToolConstants::strVCCLCompilerTool));
+
+    if (toolDesc) {
+        IConfigurationBuildTool *tool = toolDesc->createTool();
+        config->tools()->configurationBuildTools()->addTool(tool);
+    }
+
+    return config;
+}
+
 void File::processFileConfiguration(const QDomNode &fileConfigNode)
 {
-    IConfiguration *fileConfig = new Configuration(QLatin1String("FileConfiguration"));
+    IConfiguration *fileConfig = new FileBuildConfiguration();
     fileConfig->processNode(fileConfigNode);
     m_configurationContainer->addConfiguration(fileConfig);
 

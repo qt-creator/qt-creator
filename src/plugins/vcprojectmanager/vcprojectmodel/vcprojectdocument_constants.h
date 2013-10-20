@@ -104,6 +104,18 @@ const char VS_PROJECT_TARGET_ZONE [] = "TargetZone";
 const char VS_PROJECT_EXCLUDED_PERMISSIONS [] = "ExcludedPermissions";
 const char VS_PROJECT_TARGET_FRAMEWORK_VERSION [] = "TargetFrameworkVersion";
 
+// Configuration Attributes
+const char VS_PROJECT_CONFIG_EXCLUDED [] = "ExcludedFromBuild";
+
+// Tools
+const char TOOL_CPP_C_COMPILER [] = "VCCLCompilerTool";
+const char TOOL_CUSTOM [] = "VCCustomBuildTool";
+const char TOOL_MIDL [] = "VCMIDLTool";
+const char TOOL_RESOURCE_COMPILER [] = "VCResourceCompilerTool";
+const char TOOL_MANAGED_RESOURCE_COMPILER [] = "VCManagedResourceCompilerTool";
+const char TOOL_WEB_SERVICE_PROXY_GENERATOR [] = "VCWebServiceProxyGeneratorTool";
+const char TOOL_XML_DATA_PROXY_GENERATOR [] = "VCXMLDataGeneratorTool";
+
 } // VcDocConstants
 } // namespace Internal
 } // namespace VcProjectManager

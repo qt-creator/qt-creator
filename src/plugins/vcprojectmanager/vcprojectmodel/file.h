@@ -58,14 +58,14 @@ public:
     ConfigurationContainer *configurationContainer() const;
     IAttributeContainer *attributeContainer() const;
 
-    void addFile(File::Ptr file);
-    void removeFile(File::Ptr file);
-
     QString relativePath() const;
     void setRelativePath(const QString &relativePath);
     IFile* clone() const;
     ProjectExplorer::FileType fileType() const;
     QString canonicalPath() const;
+
+    IConfiguration* createDefaultBuildConfiguration(const QString &fullConfigName) const;
+
 private:
     void processFileConfiguration(const QDomNode &fileConfigNode);
     void processFile(const QDomNode &fileNode);

@@ -30,6 +30,7 @@
 #ifndef VCPROJECTMANAGER_INTERNAL_CONFIGURATIONCONTAINER_H
 #define VCPROJECTMANAGER_INTERNAL_CONFIGURATIONCONTAINER_H
 
+#include <QObject>
 #include <QList>
 #include <QDomElement>
 
@@ -38,10 +39,12 @@ namespace Internal {
 
 class IConfiguration;
 
-class ConfigurationContainer
+class ConfigurationContainer : public QObject
 {
+    Q_OBJECT
+
 public:
-    ConfigurationContainer();
+    ConfigurationContainer(QObject *parent = 0);
     ConfigurationContainer(const ConfigurationContainer &configCont);
     ConfigurationContainer& operator=(const ConfigurationContainer &configCont);
     ~ConfigurationContainer();
@@ -52,6 +55,10 @@ public:
     int configurationCount() const;
     void removeConfiguration(const QString &fullName);
     void appendToXMLNode(QDomElement &domElement, QDomDocument &domXMLDocument);
+
+signals:
+    void configurationAdded(IConfiguration *config);
+    void configurationRemoved(QString fullConfigName);
 
 private:
     QList<IConfiguration *> m_configs;

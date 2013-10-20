@@ -54,6 +54,7 @@ public:
     virtual IAttributeContainer* attributeContainer() const = 0;
     virtual IFile* clone() const = 0;
     virtual ProjectExplorer::FileType fileType() const = 0;
+    virtual IConfiguration* createDefaultBuildConfiguration(const QString &fullConfigName) const = 0;
 };
 
 } // namespace Internal

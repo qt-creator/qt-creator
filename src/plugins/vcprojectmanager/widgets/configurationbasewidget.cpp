@@ -27,7 +27,7 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#include "configurationwidgets.h"
+#include "configurationbasewidget.h"
 
 #include <QSplitter>
 #include <QListWidget>
@@ -43,7 +43,7 @@
 namespace VcProjectManager {
 namespace Internal {
 
-ConfigurationBaseWidget::ConfigurationBaseWidget(Configuration *config)
+ConfigurationBaseWidget::ConfigurationBaseWidget(IConfiguration *config)
     : m_config(config)
 {
     QSplitter *mainWidgetSplitter = new QSplitter(Qt::Horizontal, this);

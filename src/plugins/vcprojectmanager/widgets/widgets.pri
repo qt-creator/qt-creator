@@ -2,8 +2,6 @@ HEADERS += \
     widgets/vcnodewidget.h \
     widgets/projectsettingswidget.h \
     widgets/lineedit.h \
-    widgets/configurationwidgets.h \
-    widgets/configurationswidgets.h \
     widgets/configurationswidget.h \
     widgets/basicconfigurationwidget.h \
     widgets/schemaoptionswidget.h \
@@ -17,14 +15,16 @@ HEADERS += \
     widgets/toolwidgets/toolsectionsettingswidget.h \
     widgets/toolwidgets/toolsettingswidget.h \
     widgets/toolwidgets/itoolattributesettingswidget.h \
-    widgets/toolschemawidget.h
+    widgets/toolschemawidget.h \
+    widgets/configurationbasewidget.h \
+    widgets/fileconfigurationsettingswidget.h \
+    widgets/configurationseditwidget.h \
+    widgets/filesettingswidget.h
 
 SOURCES += \
     widgets/vcnodewidget.cpp \
     widgets/projectsettingswidget.cpp \
     widgets/lineedit.cpp \
-    widgets/configurationwidgets.cpp \
-    widgets/configurationswidgets.cpp \
     widgets/configurationswidget.cpp \
     widgets/basicconfigurationwidget.cpp \
     widgets/schemaoptionswidget.cpp \
@@ -38,7 +38,11 @@ SOURCES += \
     widgets/toolwidgets/toolsectionsettingswidget.cpp \
     widgets/toolwidgets/toolsettingswidget.cpp \
     widgets/toolwidgets/itoolattributesettingswidget.cpp \
-    widgets/toolschemawidget.cpp
+    widgets/toolschemawidget.cpp \
+    widgets/configurationbasewidget.cpp \
+    widgets/fileconfigurationsettingswidget.cpp \
+    widgets/configurationseditwidget.cpp \
+    widgets/filesettingswidget.cpp
 
 FORMS += \
     widgets/projectsettingswidget.ui \
@@ -46,5 +50,6 @@ FORMS += \
     widgets/schemaoptionswidget.ui \
     widgets/newconfigitemdialog.ui \
     widgets/vcenternamewidget.ui \
-    widgets/toolschemawidget.ui
+    widgets/toolschemawidget.ui \
+    widgets/fileconfigurationsettingswidget.ui
 

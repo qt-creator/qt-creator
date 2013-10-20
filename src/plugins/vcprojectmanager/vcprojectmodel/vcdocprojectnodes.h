@@ -52,9 +52,13 @@ class VcFileNode : public ProjectExplorer::FileNode
 public:
     VcFileNode(IFile *fileModel, VcDocProjectNode *vcDocProject);
     ~VcFileNode();
+    void showSettingsWidget();
 
 protected:
     void readChildren(VcDocProjectNode *vcDocProj);
+
+signals:
+    void settingsDialogAccepted();
 
 private:
     IFile *m_vcFileModel;
@@ -133,6 +137,10 @@ public:
     bool appendFileNode(VcFileNode *fileNode);
     void removeFileNode(VcFileNode *fileNode);
     void removeFileContainerNode(VcFileContainerNode *fileContainerNode);
+    void showSettingsDialog();
+
+signals:
+    void settingsDialogAccepted();
 
 private:
     VcFileNode* findFileNode(const QString &filePath);

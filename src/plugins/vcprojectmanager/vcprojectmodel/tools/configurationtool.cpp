@@ -99,6 +99,24 @@ IConfigurationBuildTool *ConfigurationTool::clone() const
     return new ConfigurationTool(*this);
 }
 
+bool ConfigurationTool::allAttributesAreDefault() const
+{
+    for (int i = 0; i < m_sectionContainer->sectionCount(); ++i) {
+        IToolSection *section = m_sectionContainer->section(i);
+
+        if (section && section->attributeContainer()) {
+            for (int j = 0; j < section->attributeContainer()->toolAttributeCount(); ++j) {
+                IToolAttribute *attr = section->attributeContainer()->toolAttribute(j);
+
+                if (attr && attr->value() != attr->descriptionDataItem()->defaultValue())
+                    return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 void ConfigurationTool::processNodeAttributes(const QDomElement &domElement)
 {
     QDomNamedNodeMap namedNodeMap = domElement.attributes();

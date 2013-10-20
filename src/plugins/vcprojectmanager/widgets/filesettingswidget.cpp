@@ -27,41 +27,51 @@
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ****************************************************************************/
-#ifndef VCPROJECTMANAGER_INTERNAL_TOOL_CONSTANTS_H
-#define VCPROJECTMANAGER_INTERNAL_TOOL_CONSTANTS_H
+#include "filesettingswidget.h"
+#include "projectsettingswidget.h"
+#include "../interfaces/ifile.h"
+#include "../widgets/configurationseditwidget.h"
+
+#include <QVBoxLayout>
 
 namespace VcProjectManager {
 namespace Internal {
-namespace ToolConstants {
 
-#define STRING(s) static const char str##s[] = #s
+FileSettingsWidget::FileSettingsWidget(IFile *file, QWidget *parent)
+    : VcNodeWidget(parent)
+{
+    ProjectSettingsWidget *projectSettingsWidget = new ProjectSettingsWidget(this);
 
-STRING(VCALinkTool);
-STRING(VCAppVerifierTool);
-STRING(VCBscMakeTool);
-STRING(VCCLCompilerTool);
-STRING(VCCustomBuildTool);
-STRING(VCFxCopTool);
-STRING(VCLinkerTool);
-STRING(VCManagedResourceCompilerTool);
-STRING(VCManifestTool);
-STRING(VCMIDLTool);
-STRING(VCPostBuildEventTool);
-STRING(VCPreBuildEventTool);
-STRING(VCPreLinkEventTool);
-STRING(VCResourceCompilerTool);
-STRING(VCXDCMakeTool);
-STRING(VCXMLDataGeneratorTool);
-STRING(VCWebServiceProxyGeneratorTool);
+    // add Configurations
+    m_configurationsWidget = static_cast<ConfigurationsEditWidget *>(file->createSettingsWidget());
+    projectSettingsWidget->addWidget(tr("Configurations"), m_configurationsWidget);
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->setMargin(0);
+    layout->addWidget(projectSettingsWidget);
+    setLayout(layout);
 
-// sections
-const char CPP_PRECOMPILED_HEADERS[] = "Precompiled Headers";
+    connect(projectSettingsWidget, SIGNAL(okButtonClicked()), this, SLOT(onOkButtonClicked()));
+    connect(projectSettingsWidget, SIGNAL(cancelButtonClicked()), this, SLOT(onCancelButtonClicked()));
+}
 
-// attributes
-const char CPP_USE_PRECOMPILED_HEADER[] = "UsePrecompiledHeader";
+void FileSettingsWidget::saveData()
+{
+    m_configurationsWidget->saveData();
+}
 
-} // namespace ToolConstants
+void FileSettingsWidget::onOkButtonClicked()
+{
+    saveData();
+    hide();
+    emit accepted();
+    deleteLater();
+}
+
+void FileSettingsWidget::onCancelButtonClicked()
+{
+    hide();
+    deleteLater();
+}
+
 } // namespace Internal
 } // namespace VcProjectManager
-
-#endif // VCPROJECTMANAGER_INTERNAL_TOOL_CONSTANTS_H

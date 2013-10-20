@@ -32,7 +32,7 @@
 #include "debuggertool.h"
 #include "deploymenttool.h"
 #include "tools/tool_constants.h"
-#include "../widgets/configurationwidgets.h"
+#include "../widgets/configurationbasewidget.h"
 #include "tools/toolattributes/tooldescriptiondatamanager.h"
 #include "tools/toolattributes/tooldescription.h"
 #include "tools/configurationtool.h"
@@ -193,7 +193,9 @@ void Configuration::processToolNode(const QDomNode &toolNode)
             if (domAttribute.name() == QLatin1String("Name")) {
                 ToolDescriptionDataManager *tDDM = ToolDescriptionDataManager::instance();
                 IToolDescription *toolDesc = tDDM->toolDescription(domAttribute.value());
-                toolConf = toolDesc->createTool();
+
+                if (toolDesc)
+                    toolConf = toolDesc->createTool();
                 break;
             }
         }

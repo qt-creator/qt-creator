@@ -30,7 +30,7 @@
 #include "configurations.h"
 
 #include "vcprojectdocument.h"
-#include "../widgets/configurationswidgets.h"
+#include "../widgets/configurationseditwidget.h"
 #include "../interfaces/iconfiguration.h"
 #include "configurationcontainer.h"
 
@@ -81,8 +81,7 @@ void Configurations::processNode(const QDomNode &node)
 
 VcNodeWidget *Configurations::createSettingsWidget()
 {
-    ConfigurationsBaseWidget* widget = new ConfigurationsBaseWidget(this, m_vcProjDoc);
-    return widget;
+    return new ConfigurationsEditWidget(m_vcProjDoc, m_configurationContainer);
 }
 
 QDomNode Configurations::toXMLDomNode(QDomDocument &domXMLDocument) const
