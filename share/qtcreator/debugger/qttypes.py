@@ -1827,7 +1827,7 @@ def qdumpHelper__QVariant(d, value):
             innert = d.ns + "QVariantHash"
 
     elif variantType <= 86:
-        inner = d.ns + qdumpHelper_QVariants_B[variantType - 64]
+        inner = d.ns + qdumpHelper_QVariants_C[variantType - 64]
         innert = inner
 
     if len(inner):
