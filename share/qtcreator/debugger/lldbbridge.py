@@ -692,6 +692,8 @@ class Dumper(DumperBase):
         else:
             launchInfo = lldb.SBLaunchInfo(self.processArgs_.split(' '))
             launchInfo.SetWorkingDirectory(os.getcwd())
+            environmentList = [key + "=" + value for key,value in os.environ.items()]
+            launchInfo.SetEnvironmentEntries(environmentList, False)
             self.process = self.target.Launch(launchInfo, error)
 
         self.report('pid="%s"' % self.process.GetProcessID())

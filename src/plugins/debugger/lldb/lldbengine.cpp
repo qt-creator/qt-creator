@@ -151,6 +151,8 @@ void LldbEngine::setupEngine()
     args.append(Core::ICore::resourcePath() + _("/debugger/lldbbridge.py"));
     args.append(m_lldbCmd);
     showMessage(_("STARTING LLDB ") + args.join(QLatin1String(" ")));
+    m_lldbProc.setEnvironment(startParameters().environment.toStringList());
+
     m_lldbProc.start(_("python"), args);
 
     if (!m_lldbProc.waitForStarted()) {
