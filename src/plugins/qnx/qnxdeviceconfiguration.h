@@ -58,6 +58,11 @@ public:
 
     QString displayType() const;
 
+    int qnxVersion() const;
+
+    void fromMap(const QVariantMap &map);
+    QVariantMap toMap() const;
+
 protected:
     QnxDeviceConfiguration();
     QnxDeviceConfiguration(const QString &name, Core::Id type, MachineType machineType,
@@ -67,6 +72,10 @@ protected:
     QString interruptProcessByNameCommandLine(const QString &filePath) const;
     QString killProcessByNameCommandLine(const QString &filePath) const;
 
+private:
+    void updateVersionNumber() const;
+
+    mutable int m_versionNumber;
 };
 
 } // namespace Internal

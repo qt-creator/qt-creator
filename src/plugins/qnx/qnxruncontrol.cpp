@@ -58,10 +58,17 @@ QnxRunControl::QnxRunControl(ProjectExplorer::RunConfiguration *runConfig)
     m_slog2Info = new Slog2InfoRunner(applicationId, qnxDevice, this);
     connect(m_slog2Info, SIGNAL(output(QString,Utils::OutputFormat)), this, SLOT(appendMessage(QString,Utils::OutputFormat)));
     connect(this, SIGNAL(started()), m_slog2Info, SLOT(start()));
+    if (qnxDevice->qnxVersion() > 0x060500)
+        connect(m_slog2Info, SIGNAL(commandMissing()), this, SLOT(printMissingWarning()));
 }
 
 ProjectExplorer::RunControl::StopResult QnxRunControl::stop()
 {
     m_slog2Info->stop();
     return RemoteLinuxRunControl::stop();
+}
+
+void QnxRunControl::printMissingWarning()
+{
+    appendMessage(tr("Warning: \"slog2info\" is not found on the device, debug output not available!"), Utils::ErrorMessageFormat);
 }

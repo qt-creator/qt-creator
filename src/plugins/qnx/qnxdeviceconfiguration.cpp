@@ -34,13 +34,21 @@
 #include "qnxdeviceprocesslist.h"
 #include "qnxdeviceprocesssignaloperation.h"
 
+#include <projectexplorer/devicesupport/sshdeviceprocess.h>
 #include <ssh/sshconnection.h>
+#include <utils/qtcassert.h>
 
+#include <QApplication>
 #include <QRegExp>
 #include <QStringList>
+#include <QThread>
 
 using namespace Qnx;
 using namespace Qnx::Internal;
+
+namespace {
+const char QnxVersionKey[] = "QnxVersion";
+}
 
 class QnxPortsGatheringMethod : public ProjectExplorer::PortsGatheringMethod
 {
@@ -82,19 +90,21 @@ class QnxPortsGatheringMethod : public ProjectExplorer::PortsGatheringMethod
 
 QnxDeviceConfiguration::QnxDeviceConfiguration()
     : RemoteLinux::LinuxDevice()
+    , m_versionNumber(0)
 {
 }
 
 QnxDeviceConfiguration::QnxDeviceConfiguration(const QString &name, Core::Id type, MachineType machineType, Origin origin, Core::Id id)
     : RemoteLinux::LinuxDevice(name, type, machineType, origin, id)
+    , m_versionNumber(0)
 {
 }
 
 QnxDeviceConfiguration::QnxDeviceConfiguration(const QnxDeviceConfiguration &other)
     : RemoteLinux::LinuxDevice(other)
+    , m_versionNumber(other.m_versionNumber)
 {
 }
-
 
 QnxDeviceConfiguration::Ptr QnxDeviceConfiguration::create()
 {
@@ -109,6 +119,58 @@ QnxDeviceConfiguration::Ptr QnxDeviceConfiguration::create(const QString &name, 
 QString QnxDeviceConfiguration::displayType() const
 {
     return tr("QNX");
+}
+
+int QnxDeviceConfiguration::qnxVersion() const
+{
+    if (m_versionNumber == 0)
+        updateVersionNumber();
+
+    return m_versionNumber;
+}
+
+void QnxDeviceConfiguration::updateVersionNumber() const
+{
+    QEventLoop eventLoop;
+    ProjectExplorer::SshDeviceProcess versionNumberProcess(sharedFromThis());
+    QObject::connect(&versionNumberProcess, SIGNAL(finished()), &eventLoop, SLOT(quit()));
+    QObject::connect(&versionNumberProcess, SIGNAL(error(QProcess::ProcessError)), &eventLoop, SLOT(quit()));
+
+    QStringList arguments;
+    arguments << QLatin1String("-r");
+    versionNumberProcess.start(QLatin1String("uname"), arguments);
+
+    bool isGuiThread = QThread::currentThread() == QCoreApplication::instance()->thread();
+    if (isGuiThread)
+        QApplication::setOverrideCursor(Qt::WaitCursor);
+
+    eventLoop.exec(QEventLoop::ExcludeUserInputEvents);
+
+    QByteArray output = versionNumberProcess.readAllStandardOutput();
+    QString versionMessage = QString::fromLatin1(output);
+    QRegExp versionNumberRegExp = QRegExp(QLatin1String("(\\d+)\\.(\\d+)\\.(\\d+)"));
+    if (versionNumberRegExp.indexIn(versionMessage) > -1 && versionNumberRegExp.captureCount() == 3) {
+        int major = versionNumberRegExp.cap(1).toInt();
+        int minor = versionNumberRegExp.cap(2).toInt();
+        int patch = versionNumberRegExp.cap(3).toInt();
+        m_versionNumber = (major << 16)|(minor<<8)|(patch);
+    }
+
+    if (isGuiThread)
+        QApplication::restoreOverrideCursor();
+}
+
+void QnxDeviceConfiguration::fromMap(const QVariantMap &map)
+{
+    m_versionNumber = map.value(QLatin1String(QnxVersionKey), 0).toInt();
+    RemoteLinux::LinuxDevice::fromMap(map);
+}
+
+QVariantMap QnxDeviceConfiguration::toMap() const
+{
+    QVariantMap map(RemoteLinux::LinuxDevice::toMap());
+    map.insert(QLatin1String(QnxVersionKey), m_versionNumber);
+    return map;
 }
 
 ProjectExplorer::IDevice::Ptr QnxDeviceConfiguration::clone() const

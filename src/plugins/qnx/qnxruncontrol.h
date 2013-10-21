@@ -47,6 +47,9 @@ public:
 
     RemoteLinux::RemoteLinuxRunControl::StopResult stop();
 
+private slots:
+    void printMissingWarning();
+
 private:
     Slog2InfoRunner *m_slog2Info;
 };

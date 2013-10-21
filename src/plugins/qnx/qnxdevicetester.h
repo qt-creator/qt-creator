@@ -68,6 +68,8 @@ private:
     void testNextCommand();
     void setFinished();
 
+    QStringList versionSpecificCommandsToTest(int versionNumber) const;
+
     RemoteLinux::GenericLinuxDeviceTester *m_genericTester;
     ProjectExplorer::IDevice::ConstPtr m_deviceConfiguration;
     ProjectExplorer::DeviceTester::TestResult m_result;

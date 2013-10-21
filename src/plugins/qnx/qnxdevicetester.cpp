@@ -30,6 +30,7 @@
 ****************************************************************************/
 
 #include "qnxdevicetester.h"
+#include "qnxdeviceconfiguration.h"
 
 #include <ssh/sshremoteprocessrunner.h>
 #include <utils/qtcassert.h>
@@ -44,6 +45,10 @@ QnxDeviceTester::QnxDeviceTester(QObject *parent)
     , m_currentCommandIndex(-1)
 {
     m_genericTester = new RemoteLinux::GenericLinuxDeviceTester(this);
+    connect(m_genericTester, SIGNAL(progressMessage(QString)), SIGNAL(progressMessage(QString)));
+    connect(m_genericTester, SIGNAL(errorMessage(QString)), SIGNAL(errorMessage(QString)));
+    connect(m_genericTester, SIGNAL(finished(ProjectExplorer::DeviceTester::TestResult)),
+        SLOT(handleGenericTestFinished(ProjectExplorer::DeviceTester::TestResult)));
 
     m_processRunner = new QSsh::SshRemoteProcessRunner(this);
     connect(m_processRunner, SIGNAL(connectionError()), SLOT(handleConnectionError()));
@@ -67,11 +72,6 @@ void QnxDeviceTester::testDevice(const ProjectExplorer::IDevice::ConstPtr &devic
     QTC_ASSERT(m_state == Inactive, return);
 
     m_deviceConfiguration = deviceConfiguration;
-
-    connect(m_genericTester, SIGNAL(progressMessage(QString)), SIGNAL(progressMessage(QString)));
-    connect(m_genericTester, SIGNAL(errorMessage(QString)), SIGNAL(errorMessage(QString)));
-    connect(m_genericTester, SIGNAL(finished(ProjectExplorer::DeviceTester::TestResult)),
-        SLOT(handleGenericTestFinished(ProjectExplorer::DeviceTester::TestResult)));
 
     m_state = GenericTest;
     m_genericTester->testDevice(deviceConfiguration);
@@ -107,6 +107,10 @@ void QnxDeviceTester::handleGenericTestFinished(TestResult result)
     }
 
     m_state = CommandsTest;
+
+    QnxDeviceConfiguration::ConstPtr qnxDevice = m_deviceConfiguration.dynamicCast<const QnxDeviceConfiguration>();
+    m_commandsToTest.append(versionSpecificCommandsToTest(qnxDevice->qnxVersion()));
+
     testNextCommand();
 }
 
@@ -160,4 +164,13 @@ void QnxDeviceTester::setFinished()
     if (m_processRunner)
         disconnect(m_processRunner, 0, this, 0);
     emit finished(m_result);
+}
+
+QStringList QnxDeviceTester::versionSpecificCommandsToTest(int versionNumber) const
+{
+    QStringList result;
+    if (versionNumber > 0x060500)
+        result << QLatin1String("slog2info");
+
+    return result;
 }
