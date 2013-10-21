@@ -1806,13 +1806,13 @@ def qdumpHelper__QVariant(d, value):
             innert = inner
         elif variantType == 8:  # QVariant::VariantMap
             inner = d.ns + "QMap<" + d.ns + "QString," + d.ns + "QVariant>"
-            innert = d.ns + "QVariantMap"
+            innert = "QVariantMap"
         elif variantType == 9:  # QVariant::VariantList
             inner = d.ns + "QList<" + d.ns + "QVariant>"
-            innert = d.ns + "QVariantList"
+            innert = "QVariantList"
         elif variantType == 28: # QVariant::VariantHash
             inner = d.ns + "QHash<" + d.ns + "QString," + d.ns + "QVariant>"
-            innert = d.ns + "QVariantHash"
+            innert = "QVariantHash"
 
     elif variantType <= 86:
         inner = d.ns + qdumpHelper_QVariants_C[variantType - 64]

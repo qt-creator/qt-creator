@@ -3570,6 +3570,43 @@ void tst_Dumpers::dumper_data()
          % Check("vm.5.key", Value5("\"f\""), "@QString")
          % Check("vm.5.value", Value5("\"2Some String\""), "@QVariant (QString)");
 
+    QTest::newRow("QVariantHash1")
+            << Data("#include <QVariant>\n",
+                    "QVariantHash h;\n"
+                    "h[\"one\"] = \"vone\";\n"
+                    "QVariant v = h;\n"
+                    "unused(&v);\n")
+               % CoreProfile()
+               % GdbOnly()
+               % Check("v", "<1 items>", "@QVariant (QVariantHash)")
+               % Check("v.0", "[0]", "", "@QHashNode<@QString, @QVariant>")
+               % Check("v.0.key", "\"one\"", "@QString")
+               % Check("v.0.value", "\"vone\"", "@QVariant (QString)");
+
+    QTest::newRow("QVariantMap1")
+            << Data("#include <QVariant>\n",
+                    "QVariantMap h;\n"
+                    "h[\"one\"] = \"vone\";\n"
+                    "QVariant v = h;\n"
+                    "unused(&v);\n")
+               % CoreProfile()
+               % GdbOnly()
+               % Check("v", "<1 items>", "@QVariant (QVariantMap)")
+               % Check("v.0", "[0]", "", "@QMapNode<@QString, @QVariant>")
+               % Check("v.0.key", "\"one\"", "@QString")
+               % Check("v.0.value", "\"vone\"", "@QVariant (QString)");
+
+    QTest::newRow("QVariantList1")
+            << Data("#include <QVariant>\n",
+                    "QVariantList h;\n"
+                    "h.append(\"one\");\n"
+                    "QVariant v = h;\n"
+                    "unused(&v);\n")
+               % CoreProfile()
+               % GdbOnly()
+               % Check("v", "<1 items>", "@QVariant (QVariantList)")
+               % Check("v.0", "[0]", "\"one\"", "@QVariant (QString)");
+
     QTest::newRow("QVectorIntBig")
             << Data("#include <QVector>\n",
                    "QVector<int> vec(10000);\n"
