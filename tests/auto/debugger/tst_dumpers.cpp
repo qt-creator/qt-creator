@@ -2579,7 +2579,8 @@ void tst_Dumpers::dumper_data()
                     "std::list<Foo *> list;\n"
                     "list.push_back(new Foo(1));\n"
                     "list.push_back(0);\n"
-                    "list.push_back(new Foo(2));\n")
+                    "list.push_back(new Foo(2));\n"
+                    "unused(&list);\n")
                % Check("list", "<3 items>", "std::list<Foo*>")
                % Check("list.0", "[0]", "", "Foo")
                % Check("list.0.a", "1", "int")
@@ -2591,7 +2592,8 @@ void tst_Dumpers::dumper_data()
             << Data("#include <list>\n",
                     "std::list<bool> list;\n"
                     "list.push_back(true);\n"
-                    "list.push_back(false);\n")
+                    "list.push_back(false);\n"
+                    "unused(&list);\n")
                % Check("list", "<2 items>", "std::list<bool>")
                % Check("list.0", "[0]", "true", "bool")
                % Check("list.1", "[1]", "false", "bool");
@@ -2602,7 +2604,8 @@ void tst_Dumpers::dumper_data()
                     "std::map<QString, Foo> map;\n"
                     "map[\"22.0\"] = Foo(22);\n"
                     "map[\"33.0\"] = Foo(33);\n"
-                    "map[\"44.0\"] = Foo(44);\n")
+                    "map[\"44.0\"] = Foo(44);\n"
+                    "unused(&map);\n")
                % Check("map", "<3 items>", "std::map<@QString, Foo>")
                % Check("map.0", "[0]", "", "std::pair<@QString const, Foo>")
                % Check("map.0.first", "\"22.0\"", "@QString")
@@ -2617,7 +2620,8 @@ void tst_Dumpers::dumper_data()
             << Data("#include <map>\n" + fooData,
                     "std::map<const char *, Foo> map;\n"
                     "map[\"22.0\"] = Foo(22);\n"
-                    "map[\"33.0\"] = Foo(33);\n")
+                    "map[\"33.0\"] = Foo(33);\n"
+                    "unused(&map);\n")
                % Check("map", "<2 items>", "std::map<char const*, Foo>")
                % Check("map.0", "[0]", "", "std::pair<char const* const, Foo>")
                % CheckType("map.0.first", "char *")
@@ -2635,7 +2639,8 @@ void tst_Dumpers::dumper_data()
             << Data("#include <map>\n",
                     "std::map<unsigned int, unsigned int> map;\n"
                     "map[11] = 1;\n"
-                    "map[22] = 2;\n")
+                    "map[22] = 2;\n"
+                    "unused(&map);\n")
                % Check("map", "<2 items>", "std::map<unsigned int, unsigned int>")
                % Check("map.11", "[11]", "1", "unsigned int")
                % Check("map.22", "[22]", "2", "unsigned int");
@@ -2645,7 +2650,8 @@ void tst_Dumpers::dumper_data()
                     "#include <QStringList>\n",
                     "std::map<uint, QStringList> map;\n"
                     "map[11] = QStringList() << \"11\";\n"
-                    "map[22] = QStringList() << \"22\";\n")
+                    "map[22] = QStringList() << \"22\";\n"
+                    "unused(&map);\n")
                % Check("map", "<2 items>", "std::map<unsigned int, @QStringList>")
                % Check("map.0", "[0]", "", "std::pair<unsigned int const, @QStringList>")
                % Check("map.0.first", "11", "unsigned int")
@@ -2662,7 +2668,8 @@ void tst_Dumpers::dumper_data()
                     "typedef std::map<uint, QStringList> T;\n"
                     "T map;\n"
                     "map[11] = QStringList() << \"11\";\n"
-                    "map[22] = QStringList() << \"22\";\n")
+                    "map[22] = QStringList() << \"22\";\n"
+                    "unused(&map);\n")
                % Check("map.1.second.0", "[0]", "\"22\"", "@QString");
 
     QTest::newRow("StdMapUIntFloat")
@@ -2689,7 +2696,8 @@ void tst_Dumpers::dumper_data()
                     "Map::iterator it3 = it2; ++it3;\n"
                     "Map::iterator it4 = it3; ++it4;\n"
                     "Map::iterator it5 = it4; ++it5;\n"
-                    "Map::iterator it6 = it5; ++it6;\n")
+                    "Map::iterator it6 = it5; ++it6;\n"
+                    "unused(&it6);\n")
                % Check("map", "<6 items>", "Map")
                % Check("map.11", "[11]", "11", "float")
                % Check("it1.first", "11", "int")
@@ -2702,7 +2710,8 @@ void tst_Dumpers::dumper_data()
                     "#include <QString>\n",
                     "std::map<QString, float> map;\n"
                     "map[\"11.0\"] = 11.0;\n"
-                    "map[\"22.0\"] = 22.0;\n")
+                    "map[\"22.0\"] = 22.0;\n"
+                    "unused(&map);\n")
                % Check("map", "<2 items>", "std::map<@QString, float>")
                % Check("map.0", "[0]", "", "std::pair<@QString const, float>")
                % Check("map.0.first", "\"11.0\"", "@QString")
@@ -2716,7 +2725,8 @@ void tst_Dumpers::dumper_data()
                     "#include <QString>\n",
                     "std::map<int, QString> map;\n"
                     "map[11] = \"11.0\";\n"
-                    "map[22] = \"22.0\";\n")
+                    "map[22] = \"22.0\";\n"
+                    "unused(&map);\n")
                % Check("map", "<2 items>", "std::map<int, @QString>")
                % Check("map.0", "[0]", "", "std::pair<int const, @QString>")
                % Check("map.0.first", "11", "int")
@@ -2734,7 +2744,8 @@ void tst_Dumpers::dumper_data()
                     "std::map<QString, QPointer<QObject> > map;\n"
                     "map[\"Hallo\"] = QPointer<QObject>(&ob);\n"
                     "map[\"Welt\"] = QPointer<QObject>(&ob);\n"
-                    "map[\".\"] = QPointer<QObject>(&ob);\n")
+                    "map[\".\"] = QPointer<QObject>(&ob);\n"
+                    "unused(&map);\n")
                % Check("map", "<3 items>", "std::map<@QString, @QPointer<@QObject>>")
                % Check("map.0", "[0]", "", "std::pair<@QString const, @QPointer<@QObject>>")
                % Check("map.0.first", "\".\"", "@QString")
@@ -2745,7 +2756,8 @@ void tst_Dumpers::dumper_data()
     QTest::newRow("StdUniquePtr")
             << Data("#include <memory>\n" + fooData,
                     "std::unique_ptr<int> pi(new int(32));\n"
-                    "std::unique_ptr<Foo> pf(new Foo);\n")
+                    "std::unique_ptr<Foo> pf(new Foo);\n"
+                    "unused(&pi, &pf);\n")
                % Cxx11Profile()
                % MacLibCppProfile()
                % Check("pi", Pointer("32"), "std::unique_ptr<int, std::default_delete<int> >")
@@ -2754,7 +2766,8 @@ void tst_Dumpers::dumper_data()
     QTest::newRow("StdSharedPtr")
             << Data("#include <memory>\n" + fooData,
                     "std::shared_ptr<int> pi(new int(32));\n"
-                    "std::shared_ptr<Foo> pf(new Foo);\n")
+                    "std::shared_ptr<Foo> pf(new Foo);\n"
+                    "unused(&pi, &pf);\n")
                % Cxx11Profile()
                % MacLibCppProfile()
                % Check("pi", Pointer("32"), "std::shared_ptr<int>")
@@ -2765,7 +2778,8 @@ void tst_Dumpers::dumper_data()
                     "std::set<int> set;\n"
                     "set.insert(11);\n"
                     "set.insert(22);\n"
-                    "set.insert(33);\n")
+                    "set.insert(33);\n"
+                    "unused(&set);\n")
                % Check("set", "<3 items>", "std::set<int>");
 
     QTest::newRow("StdSetIntIterator")
@@ -2783,7 +2797,8 @@ void tst_Dumpers::dumper_data()
                     "Set::iterator it3 = it2; ++it3;\n"
                     "Set::iterator it4 = it3; ++it4;\n"
                     "Set::iterator it5 = it4; ++it5;\n"
-                    "Set::iterator it6 = it5; ++it6;\n")
+                    "Set::iterator it6 = it5; ++it6;\n"
+                    "unused(&it6);\n")
                % Check("set", "<6 items>", "Set")
                % Check("it1.value", "11", "int")
                % Check("it6.value", "66", "int");
@@ -2792,7 +2807,8 @@ void tst_Dumpers::dumper_data()
             << Data("#include <set>\n"
                     "#include <QString>\n",
                     "std::set<QString> set;\n"
-                    "set.insert(\"22.0\");\n")
+                    "set.insert(\"22.0\");\n"
+                    "unused(&set);\n")
                % Check("set", "<1 items>", "std::set<@QString>")
                % Check("set.0", "[0]", "\"22.0\"", "@QString");
 
@@ -2802,8 +2818,10 @@ void tst_Dumpers::dumper_data()
                     "#include <QObject>\n",
                     "QObject ob;\n"
                     "std::set<QPointer<QObject> > hash;\n"
-                    "QPointer<QObject> ptr(&ob);\n")
-               % Check("hash", "<0 items>", "std::set<@QPointer<@QObject>, std::less<@QPointer<@QObject>>, std::allocator<@QPointer<@QObject>>>")
+                    "QPointer<QObject> ptr(&ob);\n"
+                    "unused(&ptr, &ob);\n")
+               % Check("hash", "<0 items>", "std::set<@QPointer<@QObject>, "
+                    "std::less<@QPointer<@QObject>>, std::allocator<@QPointer<@QObject>>>")
                % Check("ob", "", "@QObject")
                % Check("ptr", "", "@QPointer<@QObject>");
 
@@ -2812,7 +2830,8 @@ void tst_Dumpers::dumper_data()
                     "std::stack<int *> s0, s;\n"
                     "s.push(new int(1));\n"
                     "s.push(0);\n"
-                    "s.push(new int(2));\n")
+                    "s.push(new int(2));\n"
+                    "unused(&s, &s0);\n")
                % Check("s0", "<0 items>", "std::stack<int*>")
                % Check("s", "<3 items>", "std::stack<int*>")
                % Check("s.0", "[0]", "1", "int")
@@ -2823,7 +2842,8 @@ void tst_Dumpers::dumper_data()
             << Data("#include <stack>\n",
                     "std::stack<int> s0, s;\n"
                     "s.push(1);\n"
-                    "s.push(2);\n")
+                    "s.push(2);\n"
+                    "unused(&s, &s0);\n")
                % Check("s0", "<0 items>", "std::stack<int>")
                % Check("s", "<2 items>", "std::stack<int>")
                % Check("s.0", "[0]", "1", "int")
@@ -2833,7 +2853,8 @@ void tst_Dumpers::dumper_data()
             << Data("#include <stack>\n" + fooData,
                     "std::stack<Foo *> s, s0;\n"
                     "s.push(new Foo(1));\n"
-                    "s.push(new Foo(2));\n")
+                    "s.push(new Foo(2));\n"
+                    "unused(&s, &s0);\n")
                % CoreProfile()
                % Check("s", "<2 items>", "std::stack<Foo*>")
                % Check("s.0", "[0]", "", "Foo")
@@ -2845,7 +2866,8 @@ void tst_Dumpers::dumper_data()
             << Data("#include <stack>\n" + fooData,
                     "std::stack<Foo> s0, s;\n"
                     "s.push(1);\n"
-                    "s.push(2);\n")
+                    "s.push(2);\n"
+                    "unused(&s, &s0);\n")
                % CoreProfile()
                % Check("s0", "<0 items>", "std::stack<Foo>")
                % Check("s", "<2 items>", "std::stack<Foo>")
@@ -2885,7 +2907,8 @@ void tst_Dumpers::dumper_data()
                     "v.push_back(str);\n"
                     "v.push_back(str);\n"
                     "l.push_back(str);\n"
-                    "l.push_back(str);\n")
+                    "l.push_back(str);\n"
+                    "unused(&v, &l);\n")
                % CoreProfile()
                % Check("l0", "<0 items>", "@QList<std::string>")
                % Check("l", "<2 items>", "@QList<std::string>")
@@ -2898,7 +2921,8 @@ void tst_Dumpers::dumper_data()
                     "std::vector<double> v0, v;\n"
                     "v.push_back(1);\n"
                     "v.push_back(0);\n"
-                    "v.push_back(2);\n")
+                    "v.push_back(2);\n"
+                    "unused(&v, &v0);\n")
                % Check("v0", "<0 items>", "std::vector<double>")
                % Check("v", "<3 items>", "std::vector<double>")
                % Check("v.0", "[0]", "1", "double")
@@ -2910,7 +2934,8 @@ void tst_Dumpers::dumper_data()
                     "std::vector<int *> v0, v;\n"
                     "v.push_back(new int(1));\n"
                     "v.push_back(0);\n"
-                    "v.push_back(new int(2));\n")
+                    "v.push_back(new int(2));\n"
+                    "unused(&v);\n")
                % Check("v0", "<0 items>", "std::vector<int*>")
                % Check("v", "<3 items>", "std::vector<int*>")
                % Check("v.0", "[0]", "1", "int")
@@ -2923,7 +2948,8 @@ void tst_Dumpers::dumper_data()
                     "v.push_back(1);\n"
                     "v.push_back(2);\n"
                     "v.push_back(3);\n"
-                    "v.push_back(4);\n")
+                    "v.push_back(4);\n"
+                    "unused(&v);\n")
                % Check("v", "<4 items>", "std::vector<int>")
                % Check("v.0", "[0]", "1", "int")
                % Check("v.3", "[3]", "4", "int");
@@ -2933,7 +2959,8 @@ void tst_Dumpers::dumper_data()
                     "std::vector<Foo *> v;\n"
                     "v.push_back(new Foo(1));\n"
                     "v.push_back(0);\n"
-                    "v.push_back(new Foo(2));\n")
+                    "v.push_back(new Foo(2));\n"
+                    "unused(&v);\n")
                % CoreProfile()
                % Check("v", "<3 items>", "std::vector<Foo*>")
                % Check("v.0", "[0]", "", "Foo")
@@ -2948,7 +2975,8 @@ void tst_Dumpers::dumper_data()
                     "v.push_back(1);\n"
                     "v.push_back(2);\n"
                     "v.push_back(3);\n"
-                    "v.push_back(4);\n")
+                    "v.push_back(4);\n"
+                    "unused(&v);\n")
                % CoreProfile()
                % Check("v", "<4 items>", "std::vector<Foo>")
                % Check("v.0", "[0]", "", "Foo")
@@ -2962,7 +2990,8 @@ void tst_Dumpers::dumper_data()
                     "v.push_back(false);\n"
                     "v.push_back(false);\n"
                     "v.push_back(true);\n"
-                    "v.push_back(false);\n")
+                    "v.push_back(false);\n"
+                    "unused(&v);\n")
                % Check("v", "<5 items>", "std::vector<bool>")
                % Check("v.0", "[0]", "1", "bool")
                % Check("v.1", "[1]", "0", "bool")
@@ -2973,7 +3002,8 @@ void tst_Dumpers::dumper_data()
     QTest::newRow("StdVectorBool2")
             << Data("#include <vector>\n",
                     "std::vector<bool> v1(65, true);\n"
-                    "std::vector<bool> v2(65);\n")
+                    "std::vector<bool> v2(65);\n"
+                    "unused(&v1, &v2);\n")
                % Check("v1", "<65 items>", "std::vector<bool>")
                % Check("v1.0", "[0]", "1", "bool")
                % Check("v1.64", "[64]", "1", "bool")
@@ -2990,7 +3020,8 @@ void tst_Dumpers::dumper_data()
                     "vector.push_back(0);\n"
                     "list.push_back(45);\n"
                     "vector.push_back(new std::list<int>(list));\n"
-                    "vector.push_back(0);\n")
+                    "vector.push_back(0);\n"
+                    "unused(&vector);\n")
                % Check("list", "<1 items>", "std::list<int>")
                % Check("list.0", "[0]", "45", "int")
                % Check("vector", "<4 items>", "std::vector<std::list<int>*>")
@@ -3018,7 +3049,8 @@ void tst_Dumpers::dumper_data()
             << Data("#include <unordered_map>\n",
                     "std::unordered_map<unsigned int, unsigned int> map;\n"
                     "map[11] = 1;\n"
-                    "map[22] = 2;\n")
+                    "map[22] = 2;\n"
+                    "unused(&map);\n")
                % Check("map", "<2 items>", "std::unordered_map<unsigned int, unsigned int>")
                % Cxx11Profile()
                % Check("map.0", "[0] 22", "2", "unsigned int")
@@ -3029,7 +3061,8 @@ void tst_Dumpers::dumper_data()
                     "#include <string>\n",
                     "std::unordered_map<std::string, float> map;\n"
                     "map[\"11.0\"] = 11.0;\n"
-                    "map[\"22.0\"] = 22.0;\n")
+                    "map[\"22.0\"] = 22.0;\n"
+                    "unused(&map);\n")
                % Cxx11Profile()
                % Check("map", "<2 items>", "std::unordered_map<std::string, float>")
                //% Check("map.0", "[0]", "", "std::pair<std:string const, float>")
@@ -3044,7 +3077,8 @@ void tst_Dumpers::dumper_data()
                     "std::unordered_set<int> set;\n"
                     "set.insert(11);\n"
                     "set.insert(22);\n"
-                    "set.insert(33);\n")
+                    "set.insert(33);\n"
+                    "unused(&set);\n")
                % Cxx11Profile()
                % Check("set", "<3 items>", "std::unordered_set<int>")
                % Check("set.0", "[0]", "33", "int")
@@ -3079,7 +3113,8 @@ void tst_Dumpers::dumper_data()
             << Data("#include <QStack>\n",
                     "QStack<int> s;\n"
                     "s.append(1);\n"
-                    "s.append(2);\n")
+                    "s.append(2);\n"
+                    "unused(&s);\n")
                % Check("s", "<2 items>", "@QStack<int>")
                % Check("s.0", "[0]", "1", "int")
                % Check("s.1", "[1]", "2", "int");
@@ -3088,7 +3123,8 @@ void tst_Dumpers::dumper_data()
             << Data("#include <QStack>\n",
                     "QStack<int> s;\n"
                     "for (int i = 0; i != 10000; ++i)\n"
-                    "    s.append(i);\n")
+                    "    s.append(i);\n"
+                    "unused(&s);\n")
                % CoreProfile()
                % Check("s", "<10000 items>", "@QStack<int>")
                % Check("s.0", "[0]", "0", "int")
@@ -3099,7 +3135,8 @@ void tst_Dumpers::dumper_data()
                     "QStack<Foo *> s;\n"
                     "s.append(new Foo(1));\n"
                     "s.append(0);\n"
-                    "s.append(new Foo(2));\n")
+                    "s.append(new Foo(2));\n"
+                    "unused(&s);\n")
                % CoreProfile()
                % Check("s", "<3 items>", "@QStack<Foo*>")
                % Check("s.0", "[0]", "", "Foo")
@@ -3418,7 +3455,8 @@ void tst_Dumpers::dumper_data()
                     "QVariant var;\n"
                     "QHostAddress ha(\"127.0.0.1\");\n"
                     "var.setValue(ha);\n"
-                    "QHostAddress ha1 = var.value<QHostAddress>();\n")
+                    "QHostAddress ha1 = var.value<QHostAddress>();\n"
+                    "unused(&ha1);\n")
                % CoreProfile()
                % Profile("QT += network\n")
                % Check("ha", "\"127.0.0.1\"", "@QHostAddress")
@@ -3962,13 +4000,15 @@ void tst_Dumpers::dumper_data()
 //         % Check("t2", "0", "basic::myType2");
 
     QTest::newRow("Struct")
-            << Data(fooData, "Foo f(3);\n")
+            << Data(fooData, "Foo f(3);\n"
+                    "unused(&f);\n")
                % Check("f", "", "Foo")
                % Check("f.a", "3", "int")
                % Check("f.b", "2", "int");
 
     QTest::newRow("Union")
-            << Data("union U { int a; int b; };", "U u;")
+            << Data("union U { int a; int b; };", "U u;\n"
+                    "unused(&u);\n")
                % Check("u", "", "U")
                % CheckType("u.a", "int")
                % CheckType("u.b", "int");
@@ -4069,7 +4109,8 @@ void tst_Dumpers::dumper_data()
                     "for (int i = 0; i < 10000; ++i) {\n"
                     "    bigv[i] = time;\n"
                     "    time = time.addDays(1);\n"
-                    "}\n")
+                    "}\n"
+                    "unused(&bigv[10]);\n")
              % Check("N", "10000", "int")
              % CheckType("bigv", "@QDateTime [10000]")
              % CheckType("bigv.0", "[0]", "@QDateTime")
@@ -4079,7 +4120,8 @@ void tst_Dumpers::dumper_data()
             << Data("const int N = 10000;\n"
                     "int bigv[N];\n"
                     "for (int i = 0; i < 10000; ++i)\n"
-                    "    bigv[i] = i;\n")
+                    "    bigv[i] = i;\n"
+                    "unused(&bigv[10]);\n")
              % Check("N", "10000", "int")
              % CheckType("bigv", "int [10000]")
              % Check("bigv.0", "[0]", "0", "int")
@@ -4100,7 +4142,8 @@ void tst_Dumpers::dumper_data()
             << Data("int testFunctionPointerHelper(int x) { return x; }\n"
                     "typedef int (*func_t)(int);\n",
                     "func_t f = testFunctionPointerHelper;\n"
-                    "int a = f(43);\n")
+                    "int a = f(43);\n"
+                    "unused(&a);\n")
              % CheckType("f", "func_t");
 
 
@@ -4115,7 +4158,8 @@ void tst_Dumpers::dumper_data()
             << Data(dataClass  + "Class x;\n"
                     "typedef int (Class::*func_t)(int);\n",
                     "func_t f = &Class::testFunctionPointerHelper;\n"
-                    "int a = (x.*f)(43);\n")
+                    "int a = (x.*f)(43);\n"
+                    "unused(&a);\n")
              % CheckType("f", "func_t");
 
 
@@ -4123,7 +4167,8 @@ void tst_Dumpers::dumper_data()
             << Data(dataClass  + "Class x;\n"
                     "typedef int (Class::*member_t);\n",
                     "member_t m = &Class::a;\n"
-                    "int a = x.*m;\n")
+                    "int a = x.*m;\n"
+                    "unused(&a);\n")
              % CheckType("m", "member_t");
 
 //  QTest::newRow("PassByReferenceHelper")
@@ -4237,7 +4282,8 @@ void tst_Dumpers::dumper_data()
                     "#include <boost/optional.hpp>\n",
                     "boost::optional<QStringList> sl0, sl;\n"
                     "sl = (QStringList() << \"xxx\" << \"yyy\");\n"
-                    "sl.get().append(\"zzz\");\n")
+                    "sl.get().append(\"zzz\");\n"
+                    "unused(&sl);\n")
              % Check("sl", "<3 items>", "boost::optional<@QStringList>");
 
     QTest::newRow("BoostSharedPtr")
@@ -4246,7 +4292,8 @@ void tst_Dumpers::dumper_data()
                     "boost::shared_ptr<int> s;\n"
                     "boost::shared_ptr<int> i(new int(43));\n"
                     "boost::shared_ptr<int> j = i;\n"
-                    "boost::shared_ptr<QStringList> sl(new QStringList(QStringList() << \"HUH!\"));\n")
+                    "boost::shared_ptr<QStringList> sl(new QStringList(QStringList() << \"HUH!\"));\n"
+                    "unused(&s, &i, &j, &sl);\n")
              % Check("s", "(null)", "boost::shared_ptr<int>")
              % Check("i", "43", "boost::shared_ptr<int>")
              % Check("j", "43", "boost::shared_ptr<int>")
@@ -4267,7 +4314,8 @@ void tst_Dumpers::dumper_data()
                     "// Also end of the month (expected in boost)\n"
                     "date d4 = d += months(1);\n"
                     "// Not where we started (expected in boost)\n"
-                    "date d5 = d -= months(4);\n")
+                    "date d5 = d -= months(4);\n"
+                    "unused(&d1, &d2, &d3, &d4, &d5);\n")
              % Check("d0", "Tue Nov 29 2005", "boost::gregorian::date")
              % Check("d1", "Thu Dec 29 2005", "boost::gregorian::date")
              % Check("d2", "Sun Jan 29 2006", "boost::gregorian::date")
@@ -4283,7 +4331,8 @@ void tst_Dumpers::dumper_data()
                     "using namespace posix_time;\n"
                     "time_duration d1(1, 0, 0);\n"
                     "time_duration d2(0, 1, 0);\n"
-                    "time_duration d3(0, 0, 1);\n")
+                    "time_duration d3(0, 0, 1);\n"
+                    "unused(&d1, &d2, &d3);\n")
              % Check("d1", "01:00:00", "boost::posix_time::time_duration")
              % Check("d2", "00:01:00", "boost::posix_time::time_duration")
              % Check("d3", "00:00:01", "boost::posix_time::time_duration");
@@ -4295,7 +4344,8 @@ void tst_Dumpers::dumper_data()
                     "b.left.insert(B::left_value_type(1, 2));\n"
                     "B::left_const_iterator it = b.left.begin();\n"
                     "int l = it->first;\n"
-                    "int r = it->second;\n")
+                    "int r = it->second;\n"
+                    "unused(&l, &r);\n")
              % Check("b", "<1 items>", "B");
 
     QTest::newRow("BoostPosixTimePtime")
@@ -4307,7 +4357,8 @@ void tst_Dumpers::dumper_data()
                     "using namespace posix_time;\n",
                     "ptime p1(date(2002, 1, 10), time_duration(1, 0, 0));\n"
                     "ptime p2(date(2002, 1, 10), time_duration(0, 0, 0));\n"
-                    "ptime p3(date(1970, 1, 1), time_duration(0, 0, 0));\n")
+                    "ptime p3(date(1970, 1, 1), time_duration(0, 0, 0));\n"
+                    "unused(&p1, &p2, p3);\n")
              % Check("p1", "Thu Jan 10 01:00:00 2002", "boost::posix_time::ptime")
              % Check("p2", "Thu Jan 10 00:00:00 2002", "boost::posix_time::ptime")
              % Check("p3", "Thu Jan 1 00:00:00 1970", "boost::posix_time::ptime");
@@ -4700,7 +4751,8 @@ void tst_Dumpers::dumper_data()
                     "c.S1::a = 42;\n"
                     "c.S2::a = 43;\n"
                     "c.S1::v = 44;\n"
-                    "c.S2::v = 45;\n")
+                    "c.S2::v = 45;\n"
+                    "unused(&c.S2::v);\n")
                 % Check("c.c", "1", "int")
                 % Check("c.@1.@2.a", "42", "int")
                 % Check("c.@1.@4.v", "45", "int")
