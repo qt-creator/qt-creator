@@ -1,0 +1,203 @@
+Qt Creator version 3.0 contains bug fixes and new features.
+
+There is a total of about 1250 changes by 60 individual contributors.
+
+The most important changes are listed in this document. For a complete
+list of changes, see the Git log for the Qt Creator sources that
+you can check out from the public Git repository. For example:
+
+git clone git://gitorious.org/qt-creator/qt-creator.git
+git log --cherry-pick --pretty=oneline v2.8.1..origin/3.0
+
+General
+   * Added -pluginpath command line argument for adding plugin search paths
+   * Fixed "All templates" entry in "New" dialog (QTCREATORBUG-9792)
+
+Editing
+   * Added option to close all files when deleted files for open editors
+     are detected
+   * Fixed issues with splitting when editor is not splittable (QTCREATORBUG-6827)
+   * Added action for closing all editors except the visible ones (QTCREATORBUG-9893)
+
+Managing and Building Projects
+   * Fixed exit code that is shown for applications that are run in terminal
+     (QTCREATORBUG-9740)
+   * Added support for ANSI colors in compile and application output
+     (QTCREATORBUG-5956, QTCREATORBUG-9592)
+   * Added support for renaming auto-detected kits, Qt versions, compilers and debuggers
+     (QTCREATORBUG-9787)
+
+Compilers
+
+Devices
+
+QMake Projects
+   * Fixed issues when using qtchooser (QTCREATORBUG-9841)
+   * Fixed issues with autosave files triggering reparses (QTCREATORBUG-9957)
+   * Fixed that run configurations were created for targets that are not built (QTCREATORBUG-9549)
+
+CMake Projects
+   * Added parser for CMake build errors
+   * Fixed that build targets were not updated when CMakeLists.txt changes
+   * Added support for a CMakeDeployment.txt file that defines deployment rules
+
+Qbs Projects
+
+Generic Projects
+
+Debugging
+   * GDB
+      * Fixed various pretty printers
+   * CDB
+      * Fixed interrupting 32 bit processes from 64 bit Qt Creator builds
+   * LLDB
+      * Fixed various pretty printers
+   * QML
+
+Analyzer
+
+C++ Support
+   * Fixed finding usages of template classes and functions
+   * Fixed support for namespace aliases inside blocks and functions (QTCREATORBUG-166)
+   * Fixed support for class and enum definitions inside blocks and functions
+     (QTCREATORBUG-3620, QTCREATORBUG-6013, QTCREATORBUG-8020)
+   * Added code completion support for lambda calls (QTCREATORBUG-9523)
+   * Added graceful handling of Objective-C's @try, @catch and @throw statements
+     (QTCREATORBUG-9309)
+   * Fixed completion for templates with template parameters inside namespace
+     (QTCREATORBUG-8852)
+   * Fixed handling of wide and UTF-n string literals
+   * Added option to explicitly choose a project for a file, and add preprocessor directives
+     specific to it (QTCREATORBUG-9802, QTCREATORBUG-1249)
+   * Fixed crash when resolving typedefs with templates (QTCREATORBUG-10320)
+   * Fixed crash when completing switch/case statement (QTCREATORBUG-10366)
+   * Fixed issues with showing type hierarchy (QTCREATORBUG-9819)
+   * Added "Optimize For Loop" refactoring action
+   * Added "Extract Constant as Function Parameter" refactoring action
+   * Added include hierarchy view in navigation side bar
+   * Added list of potential destinations when doing "Follow Symbol" on
+     virtual function calls (QTCREATORBUG-9611)
+   * Fixed "Follow Symbol" for operators (QTCREATORBUG-7485)
+
+Python Support
+
+GLSL Support
+   * Fixed crash (QTCREATORBUG-10166)
+
+Diff Viewer
+   * Added button that switches between inline and side-by-side view
+   * Added syntax highlighting (QTCREATORBUG-9580)
+
+Version Control Systems
+   * Fixed crash when reverting changes while commit editor is open (QTCREATORBUG-10190)
+   * Added VCS topic to window title
+   * Git
+      * Added information about files with conflict when doing "git stash pop"
+      * Added action for opening "git gui"
+      * Added support for removing and renaming tags
+      * Added support for setting remote tracking branch (QTCREATORBUG-8863)
+      * Added disambiguation of branch names (QTCREATORBUG-9700)
+      * Fixed updating of log view from branches dialog (QTCREATORBUG-9783)
+   * ClearCase
+
+FakeVim
+
+Platform Specific
+
+Linux
+
+Qt Support
+
+QNX
+   * Added check for existence of debug token and show error message in that case (QTCREATORBUG-9103)
+
+Android
+   * Added error messages for incompatible devices to compile output (QTCREATORBUG-9690)
+   * Fixed browse button for OpenJDK location (QTCREATORBUG-9706)
+   * Fixed generated kit display name (QTCREATORBUG-9865)
+   * Fixed issues with Android virtual devices support
+   * Added support for minimum and target SDK settings
+   * Added target selector to manifest editor (QTCREATORBUG-9682)
+   * Improved the keystore and certificate dialog (QTCREATORBUG-10061)
+   * Made signing option independent of debug vs release builds (QTCREATORBUG-10060)
+   * Fixed signing with OpenJDK 7
+   * Added support for Qt 5.2 deployment mechanism
+   * Added editor for third-party libraries to deployment settings (QTCREATORBUG-9849)
+
+Remote Linux
+   * Fixed ssh authentication for servers that don't allow non-interactive
+     password authentication (QTCREATORBUG-9568)
+
+Bare Metal
+   * Added experimental support for devices with only a gdbserver/openocd
+
+Credits for these changes go to:
+
+Alexey Semenko
+André Hartmann
+André Pönitz
+Andrew Knight
+Aurindam Jana
+BogDan Vatra
+Carl Simonson
+Christiaan Janssen
+Christian Kamm
+Christian Kandeler
+Christian Stenger
+Christian Strømme
+Daniel Teske
+David Kaspar
+David McFarland
+David Schulz
+Eike Ziller
+El Mehdi Fekari
+Erik Verbruggen
+Eskil Abrahamsen Blomfeldt
+Fawzi Mohamed
+Francois Ferrand
+Frank Osterfeld
+Frantisek Vacek
+Friedemann Kleint
+Guido Seifert
+Guillaume Belz
+Gunnar Sletta
+hluk
+Jake Petroules
+Jaroslaw Kobus
+Jens Bache-Wiig
+Jerome Pasion
+Jörg Bornemann
+Kai Köhne
+Leena Miettinen
+Lincoln Ramsay
+Lorenz Haas
+Marco Bubke
+Martin Bohacek
+Michal Klocek
+Nicolas Arnaud-Cormos
+Nikita Baryshnikov
+Nikolai Kosjar
+Oleksii Serdiuk
+Orgad Shaneh
+Oswald Buddenhagen
+Paul Olav Tvete
+Petar Perisin
+Przemyslaw Gorszkowski
+Radovan Zivkovic
+Rafael Roquetto
+Rainer Keller
+Robert Löhning
+Sergio Ahumada
+Simon Hausmann
+Takumi Asaki
+Thiago Macieira
+Thomas Hartmann
+Thomas Zander
+Tim Jenssen
+Tim Sander
+Tobias Hunger
+Tobias Nätterlund
+Viktor Ostashevskyi (Віктор Осташевський)
+vlaomao
+Volker Vogelhuber
+Yuchen Deng
