@@ -48,6 +48,7 @@ RemoveBaseStateException::RemoveBaseStateException(int line,
                                              const QString &file)
   : Exception(line, function, file)
 {
+    createWarning();
 }
 
 /*!

@@ -50,7 +50,7 @@ InvalidArgumentException::InvalidArgumentException(int line,
                                                    const QString &argument)
  : Exception(line, function, file), m_argument(argument)
 {
-
+    createWarning();
 }
 
 QString InvalidArgumentException::description() const

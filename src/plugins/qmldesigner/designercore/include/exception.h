@@ -53,8 +53,11 @@ public:
     QString file() const;
     QString backTrace() const;
 
+    void createWarning() const;
+
     static void setShouldAssert(bool assert);
     static bool shouldAssert();
+    static bool warnAboutException();
 
 private:
     int m_line;
