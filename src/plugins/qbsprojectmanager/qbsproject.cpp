@@ -290,6 +290,9 @@ void QbsProject::handleQbsParsingDone(bool success)
     delete m_qbsUpdateFutureInterface;
     m_qbsUpdateFutureInterface = 0;
 
+    if (!project.isValid())
+        return;
+
     m_rootProjectNode->update(project);
 
     updateDocuments(project.isValid() ? project.buildSystemFiles() : QSet<QString>() << m_fileName);
