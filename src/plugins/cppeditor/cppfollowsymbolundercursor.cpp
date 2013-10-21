@@ -55,35 +55,57 @@ typedef BaseTextEditorWidget::Link Link;
 
 namespace {
 
-bool lookupVirtualFunctionOverrides(const QString &expression, Function *function, Scope *scope,
+bool lookupVirtualFunctionOverrides(TypeOfExpression &typeOfExpression,
+                                    const Document::Ptr &document,
+                                    const Function *function,
+                                    Scope *scope,
                                     const Snapshot &snapshot)
 {
-    if (expression.isEmpty() || !function || !scope || scope->isClass() || snapshot.isEmpty())
+    if (!document || !function || !scope || scope->isClass() || snapshot.isEmpty())
+        return false;
+
+    ExpressionAST *expressionAST = typeOfExpression.expressionAST();
+    if (!expressionAST)
+        return false;
+    CallAST *callAST = expressionAST->asCall();
+    if (!callAST)
+        return false;
+    ExpressionAST *baseExpressionAST = callAST->base_expression;
+    if (!baseExpressionAST)
         return false;
 
     bool result = false;
 
-    Document::Ptr expressionDocument = documentForExpression(expression.toUtf8());
-    if (ExpressionAST *expressionAST = extractExpressionAST(expressionDocument)) {
-        if (CallAST *callAST = expressionAST->asCall()) {
-            if (ExpressionAST *baseExpressionAST = callAST->base_expression) {
-                if (IdExpressionAST *idExpressionAST = baseExpressionAST->asIdExpression()) {
-                    NameAST *name = idExpressionAST->name;
-                    result = name && !name->asQualifiedName();
-                } else if (MemberAccessAST *memberAccessAST = baseExpressionAST->asMemberAccess()) {
-                    NameAST *name = memberAccessAST->member_name;
-                    const bool nameIsQualified = name && name->asQualifiedName();
+    if (IdExpressionAST *idExpressionAST = baseExpressionAST->asIdExpression()) {
+        NameAST *name = idExpressionAST->name;
+        const bool nameIsQualified = name && name->asQualifiedName();
+        result = !nameIsQualified && FunctionHelper::isVirtualFunction(function, snapshot);
+    } else if (MemberAccessAST *memberAccessAST = baseExpressionAST->asMemberAccess()) {
+        NameAST *name = memberAccessAST->member_name;
+        const bool nameIsQualified = name && name->asQualifiedName();
+        if (!nameIsQualified && FunctionHelper::isVirtualFunction(function, snapshot)) {
+            const Document::Ptr expressionDocument
+                = typeOfExpression.context().expressionDocument();
+            QTC_ASSERT(expressionDocument, return false);
+            TranslationUnit *unit = expressionDocument->translationUnit();
+            QTC_ASSERT(unit, return false);
+            const int accessTokenKind = unit->tokenKind(memberAccessAST->access_token);
 
-                    TranslationUnit *unit = expressionDocument->translationUnit();
-                    QTC_ASSERT(unit, return false);
-                    const int tokenKind = unit->tokenKind(memberAccessAST->access_token);
-                    result = tokenKind == T_ARROW && !nameIsQualified;
+            if (accessTokenKind == T_ARROW) {
+                result = true;
+            } else if (accessTokenKind == T_DOT) {
+                const QList<LookupItem> items = typeOfExpression.reference(
+                    memberAccessAST->base_expression, document, scope);
+                if (!items.isEmpty()) {
+                    const LookupItem item = items.first();
+                    if (Symbol *declaration = item.declaration())
+                        result = declaration->type()->isReferenceType();
                 }
             }
         }
     }
 
-    return result && FunctionHelper::isVirtualFunction(function, snapshot);
+    return result;
 }
 
 Link findMacroLink_helper(const QByteArray &name, Document::Ptr doc, const Snapshot &snapshot,
@@ -530,7 +552,7 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
 
             // Consider to show a pop-up displaying overrides for the function
             Function *function = symbol->type()->asFunctionType();
-            if (lookupVirtualFunctionOverrides(expression, function, scope, snapshot)) {
+            if (lookupVirtualFunctionOverrides(typeOfExpression, doc, function, scope, snapshot)) {
                 Class *klass = symbolFinder->findMatchingClassDeclaration(function, snapshot);
                 QTC_CHECK(klass);
 

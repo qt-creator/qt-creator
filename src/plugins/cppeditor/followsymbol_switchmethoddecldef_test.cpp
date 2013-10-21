@@ -1316,6 +1316,40 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_possibleO
     test.run();
 }
 
+/// Check: Trigger on a.virt() if a is of type &A.
+void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_onDotMemberAccessOfReferenceTypes()
+{
+    const QByteArray source =
+            "struct A { virtual void virt() = 0; };\n"
+            "void A::virt() {}\n"
+            "\n"
+            "void client(A &o) { o.$@virt(); }\n"
+            ;
+
+    const QStringList immediateResults = QStringList()
+            << QLatin1String("A::virt")
+            << QLatin1String("...searching overrides");
+    const QStringList finalResults = QStringList()
+            << QLatin1String("A::virt");
+
+    TestCase test(TestCase::FollowSymbolUnderCursorAction, source, immediateResults, finalResults);
+    test.run();
+}
+
+/// Check: Do not trigger on a.virt() if a is of type A.
+void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_notOnDotMemberAccessOfNonReferenceType()
+{
+    const QByteArray source =
+            "struct A { virtual void virt(); };\n"
+            "void A::$virt() {}\n"
+            "\n"
+            "void client(A o) { o.@virt(); }\n"
+            ;
+
+    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
+    test.run();
+}
+
 /// Check: Do not trigger on qualified function calls.
 void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_notOnQualified()
 {
