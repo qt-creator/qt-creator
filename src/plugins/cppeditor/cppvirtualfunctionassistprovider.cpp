@@ -40,6 +40,8 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 
+#include <cpptools/symbolfinder.h>
+
 #include <texteditor/codeassist/basicproposalitemlistmodel.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/genericproposalwidget.h>
@@ -124,7 +126,7 @@ public:
         hintItem->setOrder(-1000);
 
         QList<BasicProposalItem *> items;
-        items << itemFromSymbol(m_function, m_function);
+        items << itemFromSymbol(maybeDefinitionFor(m_function));
         items << hintItem;
         return new VirtualFunctionProposal(interface->position(),
                                            new BasicProposalItemListModel(items),
@@ -142,16 +144,28 @@ public:
 
         const QList<Symbol *> overrides = FunctionHelper::overrides(m_startClass, m_function,
                                                                     m_snapshot);
+        if (overrides.isEmpty())
+            return 0;
+
         QList<BasicProposalItem *> items;
         foreach (Symbol *symbol, overrides)
-            items << itemFromSymbol(symbol, m_function);
+            items << itemFromSymbol(maybeDefinitionFor(symbol));
+        items.first()->setOrder(1000); // Ensure top position for function of static type
 
         return new VirtualFunctionProposal(interface->position(),
                                            new BasicProposalItemListModel(items),
                                            m_openInNextSplit);
     }
 
-    BasicProposalItem *itemFromSymbol(Symbol *symbol, Symbol *firstSymbol) const
+private:
+    Symbol *maybeDefinitionFor(Symbol *symbol)
+    {
+        if (Function *definition = m_finder.findMatchingDefinition(symbol, m_snapshot))
+            return definition;
+        return symbol;
+    }
+
+    BasicProposalItem *itemFromSymbol(Symbol *symbol) const
     {
         const QString text = m_overview.prettyName(LookupContext::fullyQualifiedName(symbol));
         const CPPEditorWidget::Link link = CPPEditorWidget::linkToSymbol(symbol);
@@ -159,19 +173,17 @@ public:
         BasicProposalItem *item = new VirtualFunctionProposalItem(link, m_openInNextSplit);
         item->setText(text);
         item->setIcon(m_icons.iconForSymbol(symbol));
-        if (symbol == firstSymbol)
-            item->setOrder(1000); // Ensure top position for function of static type
 
         return item;
     }
 
-private:
     Class *m_startClass;
     Function *m_function;
     Snapshot m_snapshot;
     bool m_openInNextSplit;
     Overview m_overview;
     Icons m_icons;
+    CppTools::SymbolFinder m_finder;
 };
 
 VirtualFunctionAssistProvider::VirtualFunctionAssistProvider()

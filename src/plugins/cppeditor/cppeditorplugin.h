@@ -138,6 +138,8 @@ private slots:
     void test_FollowSymbolUnderCursor_virtualFunctionCall_allOverrides();
     void test_FollowSymbolUnderCursor_virtualFunctionCall_possibleOverrides1();
     void test_FollowSymbolUnderCursor_virtualFunctionCall_possibleOverrides2();
+    void test_FollowSymbolUnderCursor_virtualFunctionCall_fallbackToDeclaration();
+    void test_FollowSymbolUnderCursor_virtualFunctionCall_itemOrder();
     void test_FollowSymbolUnderCursor_virtualFunctionCall_onDotMemberAccessOfReferenceTypes();
     void test_FollowSymbolUnderCursor_virtualFunctionCall_notOnDotMemberAccessOfNonReferenceType();
     void test_FollowSymbolUnderCursor_virtualFunctionCall_notOnQualified();

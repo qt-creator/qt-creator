@@ -1274,14 +1274,14 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_allOverri
             ;
 
     const OverrideItemList immediateResults = OverrideItemList()
-            << OverrideItem(QLatin1String("A::virt"), 1)
+            << OverrideItem(QLatin1String("A::virt"), 2)
             << OverrideItem(QLatin1String("...searching overrides"));
     const OverrideItemList finalResults = OverrideItemList()
-            << OverrideItem(QLatin1String("A::virt"), 1)
-            << OverrideItem(QLatin1String("B::virt"), 4)
-            << OverrideItem(QLatin1String("C::virt"), 7)
-            << OverrideItem(QLatin1String("CD1::virt"), 10)
-            << OverrideItem(QLatin1String("CD2::virt"), 13);
+            << OverrideItem(QLatin1String("A::virt"), 2)
+            << OverrideItem(QLatin1String("B::virt"), 5)
+            << OverrideItem(QLatin1String("C::virt"), 8)
+            << OverrideItem(QLatin1String("CD1::virt"), 11)
+            << OverrideItem(QLatin1String("CD2::virt"), 14);
 
     TestCase test(TestCase::FollowSymbolUnderCursorAction, source, immediateResults, finalResults);
     test.run();
@@ -1311,13 +1311,13 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_possibleO
             ;
 
     const OverrideItemList immediateResults = OverrideItemList()
-            << OverrideItem(QLatin1String("B::virt"), 4)
+            << OverrideItem(QLatin1String("B::virt"), 5)
             << OverrideItem(QLatin1String("...searching overrides"));
     const OverrideItemList finalResults = OverrideItemList()
-            << OverrideItem(QLatin1String("B::virt"), 4)
-            << OverrideItem(QLatin1String("C::virt"), 7)
-            << OverrideItem(QLatin1String("CD1::virt"), 10)
-            << OverrideItem(QLatin1String("CD2::virt"), 13);
+            << OverrideItem(QLatin1String("B::virt"), 5)
+            << OverrideItem(QLatin1String("C::virt"), 8)
+            << OverrideItem(QLatin1String("CD1::virt"), 11)
+            << OverrideItem(QLatin1String("CD2::virt"), 14);
 
     TestCase test(TestCase::FollowSymbolUnderCursorAction, source, immediateResults, finalResults);
     test.run();
@@ -1340,11 +1340,59 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_possibleO
             ;
 
     const OverrideItemList immediateResults = OverrideItemList()
-            << OverrideItem(QLatin1String("B::virt"), 4)
+            << OverrideItem(QLatin1String("B::virt"), 5)
             << OverrideItem(QLatin1String("...searching overrides"));
     const OverrideItemList finalResults = OverrideItemList()
-            << OverrideItem(QLatin1String("B::virt"), 4)
-            << OverrideItem(QLatin1String("D::virt"), 9);
+            << OverrideItem(QLatin1String("B::virt"), 5)
+            << OverrideItem(QLatin1String("D::virt"), 10);
+
+    TestCase test(TestCase::FollowSymbolUnderCursorAction, source, immediateResults, finalResults);
+    test.run();
+}
+
+/// Check: If no definition is found, fallback to the declaration.
+void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_fallbackToDeclaration()
+{
+    const QByteArray source =
+            "struct A { virtual void virt(); };\n"
+            "\n"
+            "int f(A *o) { o->$@virt(); }\n"
+            ;
+
+    const OverrideItemList immediateResults = OverrideItemList()
+            << OverrideItem(QLatin1String("A::virt"), 1)
+            << OverrideItem(QLatin1String("...searching overrides"));
+    const OverrideItemList finalResults = OverrideItemList()
+            << OverrideItem(QLatin1String("A::virt"), 1);
+
+    TestCase test(TestCase::FollowSymbolUnderCursorAction, source, immediateResults, finalResults);
+    test.run();
+}
+
+/// Check: Ensure that the first entry in the final results is the same as the first in the
+///        immediate results.
+void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_itemOrder()
+{
+    const QByteArray source =
+            "struct C { virtual void virt() = 0; };\n"
+            "void C::virt() {}\n"
+            "\n"
+            "struct B : C { void virt(); };\n"
+            "void B::virt() {}\n"
+            "\n"
+            "struct A : B { void virt(); };\n"
+            "void A::virt() {}\n"
+            "\n"
+            "int f(C *o) { o->$@virt(); }\n"
+            ;
+
+    const OverrideItemList immediateResults = OverrideItemList()
+            << OverrideItem(QLatin1String("C::virt"), 2)
+            << OverrideItem(QLatin1String("...searching overrides"));
+    const OverrideItemList finalResults = OverrideItemList()
+            << OverrideItem(QLatin1String("C::virt"), 2)
+            << OverrideItem(QLatin1String("A::virt"), 8)
+            << OverrideItem(QLatin1String("B::virt"), 5);
 
     TestCase test(TestCase::FollowSymbolUnderCursorAction, source, immediateResults, finalResults);
     test.run();
@@ -1361,10 +1409,10 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_onDotMemb
             ;
 
     const OverrideItemList immediateResults = OverrideItemList()
-            << OverrideItem(QLatin1String("A::virt"), 1)
+            << OverrideItem(QLatin1String("A::virt"), 2)
             << OverrideItem(QLatin1String("...searching overrides"));
     const OverrideItemList finalResults = OverrideItemList()
-            << OverrideItem(QLatin1String("A::virt"), 1);
+            << OverrideItem(QLatin1String("A::virt"), 2);
 
     TestCase test(TestCase::FollowSymbolUnderCursorAction, source, immediateResults, finalResults);
     test.run();
