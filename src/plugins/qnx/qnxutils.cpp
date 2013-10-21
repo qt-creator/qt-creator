@@ -108,6 +108,11 @@ QList<Utils::EnvironmentItem> QnxUtils::qnxEnvironmentFromNdkFile(const QString 
         if (var == QLatin1String("BASE_DIR") ||  var == QLatin1String("BASE_DIR_REPLACED"))
             value = QFileInfo(fileName).dir().absolutePath();
 
+        // LATEST_LINUX_JRE is evaluated when sourcing the file script
+        // TODO: run the script and get environment instead of parsing it(?)
+        if (var == QLatin1String("LATEST_LINUX_JRE"))
+            continue;
+
         if (Utils::HostOsInfo::isWindowsHost()) {
             QRegExp systemVarRegExp(QLatin1String("IF NOT DEFINED ([\\w\\d]+)\\s+set ([\\w\\d]+)=([\\w\\d]+)"));
             if (line.contains(systemVarRegExp)) {
@@ -150,10 +155,21 @@ QList<Utils::EnvironmentItem> QnxUtils::qnxEnvironmentFromNdkFile(const QString 
             values = it.value().split(QLatin1Char(':'));
 
         QString key = it.key();
+        QStringList modifiedValues;
         foreach (const QString &value, values) {
             const QString ownKeyAsWindowsVar = QLatin1Char('%') + key + QLatin1Char('%');
             const QString ownKeyAsUnixVar = QLatin1Char('$') + key;
-            if (value != ownKeyAsUnixVar && value != ownKeyAsWindowsVar) { // to ignore e.g. PATH=$PATH
+            if (value == ownKeyAsUnixVar) { // e.g. $PATH ==> ${PATH}
+                QString val = key;
+                val.prepend(QLatin1String("${"));
+                val.append(QLatin1Char('}'));
+                modifiedValues.append(val);
+            } else if (value == ownKeyAsWindowsVar) {
+                modifiedValues.append(value);
+            } else {
+                if (value.contains(QLatin1String("LATEST_LINUX_JRE"))) // Skip evaluated LATEST_LINUX_JRE variable
+                    continue;
+
                 QString val = value;
                 if (val.contains(QLatin1Char('%')) || val.contains(QLatin1Char('$'))) {
                     QMapIterator<QString, QString> replaceIt(fileContent);
@@ -176,9 +192,17 @@ QList<Utils::EnvironmentItem> QnxUtils::qnxEnvironmentFromNdkFile(const QString 
                 if (key == QLatin1String("CPUVARDIR"))
                     continue;
 
-                items.append(Utils::EnvironmentItem(key, val));
+                modifiedValues.append(val);
             }
         }
+
+        QString modifieddValue;
+        if (Utils::HostOsInfo::isWindowsHost())
+            modifieddValue = modifiedValues.join(QLatin1Char(';'));
+        else if (Utils::HostOsInfo::isAnyUnixHost())
+            modifieddValue = modifiedValues.join(QLatin1Char(':'));
+
+        items.append(Utils::EnvironmentItem(key, modifieddValue));
     }
 
     return items;
@@ -334,7 +358,7 @@ QList<Utils::EnvironmentItem> QnxUtils::qnxEnvironment(const QString &sdkPath)
         environmentItems.append(Utils::EnvironmentItem(QLatin1String(Constants::QNX_TARGET_KEY), sdkPath + QLatin1String("/target/qnx6")));
         environmentItems.append(Utils::EnvironmentItem(QLatin1String(Constants::QNX_HOST_KEY), sdkPath + QLatin1String("/host/win32/x86")));
 
-        environmentItems.append(Utils::EnvironmentItem(QLatin1String("PATH"), sdkPath + QLatin1String("/host/win32/x86/usr/bin")));
+        environmentItems.append(Utils::EnvironmentItem(QLatin1String("PATH"), sdkPath + QLatin1String("/host/win32/x86/usr/bin;%PATH%")));
 
         // TODO:
         //environment.insert(QLatin1String("PATH"), QLatin1String("/etc/qnx/bin"));
@@ -343,10 +367,10 @@ QList<Utils::EnvironmentItem> QnxUtils::qnxEnvironment(const QString &sdkPath)
         environmentItems.append(Utils::EnvironmentItem(QLatin1String(Constants::QNX_TARGET_KEY), sdkPath + QLatin1String("/target/qnx6")));
         environmentItems.append(Utils::EnvironmentItem(QLatin1String(Constants::QNX_HOST_KEY), sdkPath + QLatin1String("/host/linux/x86")));
 
-        environmentItems.append(Utils::EnvironmentItem(QLatin1String("PATH"), sdkPath + QLatin1String("/host/linux/x86/usr/bin")));
-        environmentItems.append(Utils::EnvironmentItem(QLatin1String("PATH"), QLatin1String("/etc/qnx/bin")));
 
-        environmentItems.append(Utils::EnvironmentItem(QLatin1String("LD_LIBRARY_PATH"), sdkPath + QLatin1String("/host/linux/x86/usr/lib")));
+        environmentItems.append(Utils::EnvironmentItem(QLatin1String("PATH"), sdkPath + QLatin1String("/host/linux/x86/usr/bin:/etc/qnx/bin:${PATH}")));
+
+        environmentItems.append(Utils::EnvironmentItem(QLatin1String("LD_LIBRARY_PATH"), sdkPath + QLatin1String("/host/linux/x86/usr/lib:${LD_LIBRARY_PATH}")));
     }
 
     environmentItems.append(Utils::EnvironmentItem(QLatin1String("QNX_JAVAHOME"), sdkPath + QLatin1String("/_jvm")));
