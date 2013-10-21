@@ -454,16 +454,18 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
         const QByteArray name = CPPEditorWidget::identifierUnderCursor(&macroCursor).toLatin1();
         if (macro->name() == name)
             return link;    //already on definition!
-    } else {
-        const Document::MacroUse *use = doc->findMacroUseAt(endOfToken - 1);
-        if (use && use->macro().fileName() != CppModelManagerInterface::configurationFileName()) {
+    } else if (const Document::MacroUse *use = doc->findMacroUseAt(endOfToken - 1)) {
+        const QString fileName = use->macro().fileName();
+        if (fileName == CppModelManagerInterface::editorConfigurationFileName()) {
+            m_widget->showPreProcessorWidget();
+        } else if (fileName != CppModelManagerInterface::configurationFileName()) {
             const Macro &macro = use->macro();
             link.targetFileName = macro.fileName();
             link.targetLine = macro.line();
             link.linkTextStart = use->begin();
             link.linkTextEnd = use->end();
-            return link;
         }
+        return link;
     }
 
     // Find the last symbol up to the cursor position

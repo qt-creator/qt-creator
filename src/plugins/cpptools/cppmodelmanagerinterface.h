@@ -216,6 +216,7 @@ public:
 
 public:
     static const QString configurationFileName();
+    static const QString editorConfigurationFileName();
 
 public:
     CppModelManagerInterface(QObject *parent = 0);

@@ -138,7 +138,8 @@ void SnapshotUpdater::update(CppModelManager::WorkingCopy workingCopy)
             workingCopy.insert(configurationFileName, m_configFile);
         m_snapshot.remove(m_fileInEditor);
 
-        static const QString editorDefinesFileName = QLatin1String("<per-editor-defines>");
+        static const QString editorDefinesFileName
+            = CppModelManagerInterface::editorConfigurationFileName();
         if (editorDefinesChanged) {
             m_snapshot.remove(editorDefinesFileName);
             workingCopy.insert(editorDefinesFileName, m_editorDefines);
