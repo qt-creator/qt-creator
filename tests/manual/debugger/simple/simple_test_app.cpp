@@ -4168,6 +4168,7 @@ namespace qvariant {
         // FIXME: Known to break
         //QString type = var.typeName();
         var.setValue(my);
+        const char *name = QMetaType::typeName(var.userType());
         BREAK_HERE;
         // Expand my my.0 my.0.value my.1 my.1.value var var.data var.data.0 var.data.0.value var.data.1 var.data.1.value.
         // Check my <2 items> qvariant::MyType.
@@ -4193,7 +4194,7 @@ namespace qvariant {
         var.setValue(my);
         var.setValue(my);
         var.setValue(my);
-        dummyStatement(&var);
+        dummyStatement(&var, &name);
     }
 
     void testQVariant6()

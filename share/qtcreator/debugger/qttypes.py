@@ -1098,15 +1098,10 @@ def qdump__QObject(d, value):
                                 gdb.execute("set $d.d.is_null = %s"
                                         % value1["is_null"])
                                 prop = d.parseAndEvaluate("$d").dereference()
-                            val, inner, innert, handled = \
-                                qdumpHelper__QVariant(d, prop)
+                            val, innert, handled = qdumpHelper__QVariant(d, prop)
 
                             if handled:
                                 pass
-                            elif len(inner):
-                                # Build-in types.
-                                d.putType(inner)
-                                d.putItem(val)
                             else:
                                 # User types.
                            #    func = "typeToName(('%sQVariant::Type')%d)"
@@ -1737,8 +1732,8 @@ qdumpHelper_QVariants_A = [
 
 qdumpHelper_QVariants_B = [
     "QChar",       # 7
-    None,          # 8, QVariantMap
-    None,          # 9, QVariantList
+    "QVariantMap", # 8
+    "QVariantList",# 9
     "QString",     # 10
     "QStringList", # 11
     "QByteArray",  # 12
@@ -1757,7 +1752,7 @@ qdumpHelper_QVariants_B = [
     "QPoint",      # 25
     "QPointF",     # 26
     "QRegExp",     # 27
-    None,          # 28, QVariantHash
+    "QVariantHash",# 28
 ]
 
 qdumpHelper_QVariants_C = [
@@ -1791,80 +1786,50 @@ def qdumpHelper__QVariant(d, value):
     variantType = int(value["d"]["type"])
     #warn("VARIANT TYPE: %s : " % variantType)
 
+    # Well-known simple type.
     if variantType <= 6:
         qdumpHelper_QVariants_A[variantType](d, data)
         d.putNumChild(0)
-        return (None, None, None, True)
+        return (None, None, True)
 
-    inner = ""
-    innert = ""
-    val = None
+    # Unknown user type.
+    if variantType > 86:
+        return (None, "", False)
 
+    # Known Core or Gui type.
     if variantType <= 28:
-        inner = qdumpHelper_QVariants_B[variantType - 7]
-        if not inner is None:
-            innert = inner
-        elif variantType == 8:  # QVariant::VariantMap
-            inner = d.ns + "QMap<" + d.ns + "QString," + d.ns + "QVariant>"
-            innert = "QVariantMap"
-        elif variantType == 9:  # QVariant::VariantList
-            inner = d.ns + "QList<" + d.ns + "QVariant>"
-            innert = "QVariantList"
-        elif variantType == 28: # QVariant::VariantHash
-            inner = d.ns + "QHash<" + d.ns + "QString," + d.ns + "QVariant>"
-            innert = "QVariantHash"
+        innert = qdumpHelper_QVariants_B[variantType - 7]
+    else:
+        innert = qdumpHelper_QVariants_C[variantType - 64]
 
-    elif variantType <= 86:
-        inner = d.ns + qdumpHelper_QVariants_C[variantType - 64]
-        innert = inner
+    inner = d.ns + innert
 
-    if len(inner):
-        innerType = d.lookupType(inner)
-        sizePD = 8 # sizeof(QVariant::Private::Data)
-        if innerType.sizeof > sizePD:
-            sizePS = 2 * d.ptrSize() # sizeof(QVariant::PrivateShared)
-            val = (data.cast(d.charPtrType()) + sizePS) \
-                .cast(innerType.pointer()).dereference()
-        else:
-            val = data.cast(innerType)
+    innerType = d.lookupType(inner)
+    sizePD = 8 # sizeof(QVariant::Private::Data)
+    if innerType.sizeof > sizePD:
+        sizePS = 2 * d.ptrSize() # sizeof(QVariant::PrivateShared)
+        val = (data.cast(d.charPtrType()) + sizePS) \
+            .cast(innerType.pointer()).dereference()
+    else:
+        val = data.cast(innerType)
 
-    return (val, inner, innert, False)
+    d.putEmptyValue(-99)
+    d.putItem(val)
+    d.putBetterType("%sQVariant (%s)" % (d.ns, innert))
+
+    return (None, innert, True)
 
 
 def qdump__QVariant(d, value):
-    d_ptr = value["d"]
-    d_data = d_ptr["data"]
-
-    (val, inner, innert, handled) = qdumpHelper__QVariant(d, value)
+    (val, innert, handled) = qdumpHelper__QVariant(d, value)
 
     if handled:
-        return
-
-    if len(inner):
-        innerType = d.lookupType(inner)
-        if innerType.sizeof > d_data.type.sizeof:
-            # FIXME:
-            #if int(d_ptr["is_shared"]):
-            #    v = d_data["ptr"].cast(innerType.pointer().pointer().pointer()) \
-            #        .dereference().dereference().dereference()
-            #else:
-                v = d_data["ptr"].cast(innerType.pointer().pointer()) \
-                    .dereference().dereference()
-        else:
-            v = d_data.cast(innerType)
-        d.putEmptyValue(-99)
-        d.putItem(v)
-        d.putBetterType("%sQVariant (%s)" % (d.ns, innert))
         return innert
 
     # User types.
+    d_ptr = value["d"]
     typeCode = int(d_ptr["type"])
-    if d.isGdb:
-        type = str(d.call(value, "typeToName",
-            "('%sQVariant::Type')%d" % (d.ns, typeCode)))
-    if d.isLldb:
-        type = str(d.call(value, "typeToName",
-            "(%sQVariant::Type)%d" % (d.ns, typeCode)))
+    type = str(d.parseAndEvaluate("QMetaType::typeName(%d)" % typeCode))
     type = type[type.find('"') + 1 : type.rfind('"')]
     type = type.replace("Q", d.ns + "Q") # HACK!
     type = type.replace("uint", "unsigned int") # HACK!
