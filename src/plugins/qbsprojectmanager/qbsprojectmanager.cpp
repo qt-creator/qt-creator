@@ -60,10 +60,8 @@ QbsManager::QbsManager(Internal::QbsProjectManagerPlugin *plugin) :
     m_plugin(plugin),
     m_defaultPropertyProvider(new DefaultPropertyProvider)
 {
-    if (!m_settings)
-        m_settings = new qbs::Settings(QLatin1String("QtProject"), QLatin1String("qbs"));
-    if (!m_preferences)
-        m_preferences = new qbs::Preferences(m_settings);
+    m_settings = new qbs::Settings(QLatin1String("QtProject"), QLatin1String("qbs"));
+    m_preferences = new qbs::Preferences(m_settings);
 
     setObjectName(QLatin1String("QbsProjectManager"));
     connect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsChanged()), this, SLOT(pushKitsToQbs()));
@@ -89,6 +87,7 @@ QbsManager::~QbsManager()
 {
     delete m_defaultPropertyProvider;
     delete m_settings;
+    delete m_preferences;
 }
 
 QString QbsManager::mimeType() const
