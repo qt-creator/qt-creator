@@ -689,9 +689,9 @@ class Dumper(DumperBase):
         error = lldb.SBError()
 
         self.executable_ = args['executable']
-        self.startMode_ = args['startMode']
-        self.processArgs_ = args['processArgs']
-        self.attachPid_ = args['attachPid']
+        self.startMode_ = args.get('startMode', 1)
+        self.processArgs_ = args.get('processArgs', '')
+        self.attachPid_ = args.get('attachPid', 0)
 
         self.target = self.debugger.CreateTarget(self.executable_, None, None, True, error)
         self.importDumpers()
