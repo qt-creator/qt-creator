@@ -32,10 +32,11 @@ import binascii
 import inspect
 import json
 import os
-import threading
+import re
 import select
 import sys
 import subprocess
+import threading
 
 currentDir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 sys.path.insert(1, currentDir)
@@ -470,7 +471,22 @@ class Dumper(DumperBase):
         return typeobj.GetTypeClass() in (lldb.eTypeClassStruct, lldb.eTypeClassClass)
 
     def qtVersion(self):
-        return 0x050000
+        global qqVersion
+        if not qqVersion is None:
+            return qqVersion
+        qqVersion = 0x0
+        coreExpression = re.compile(r"(lib)?Qt5?Core")
+        for n in range(0, self.target.GetNumModules()):
+            module = self.target.GetModuleAtIndex(n)
+            if coreExpression.match(module.GetFileSpec().GetFilename()):
+                reverseVersion = module.GetVersion()
+                reverseVersion.reverse()
+                shift = 0
+                for v in reverseVersion:
+                    qqVersion += v << shift
+                    shift += 8
+                break
+        return qqVersion
 
     def is32bit(self):
         return False
