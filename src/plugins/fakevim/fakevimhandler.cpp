@@ -2056,22 +2056,23 @@ FakeVimHandler::Private::GlobalData FakeVimHandler::Private::g;
 
 FakeVimHandler::Private::Private(FakeVimHandler *parent, QWidget *widget)
 {
-    //static PythonHighlighterRules pythonRules;
     q = parent;
     m_textedit = qobject_cast<QTextEdit *>(widget);
     m_plaintextedit = qobject_cast<QPlainTextEdit *>(widget);
+
+    init();
+
     if (editor()) {
         connect(EDITOR(document()), SIGNAL(contentsChange(int,int,int)),
                 SLOT(onContentsChanged(int,int,int)));
         connect(EDITOR(document()), SIGNAL(undoCommandAdded()), SLOT(onUndoCommandAdded()));
         m_lastRevision = revision();
     }
-    //new Highlighter(document(), &pythonRules);
-    init();
 }
 
 void FakeVimHandler::Private::init()
 {
+    m_inFakeVim = false;
     m_findStartPosition = -1;
     m_visualBlockInsert = false;
     m_fakeEnd = false;
