@@ -72,7 +72,6 @@ def qdump__boost__shared_ptr(d, value):
     weakcount = int(countedbase["weak_count_"])
     usecount = int(countedbase["use_count_"])
     d.check(weakcount >= 0)
-    d.check(weakcount <= int(usecount))
     d.check(usecount <= 10*1000*1000)
 
     val = value["px"].dereference()
