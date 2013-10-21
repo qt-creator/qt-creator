@@ -893,6 +893,18 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary_data()
                               << QString::fromLatin1("ppc-macos-generic-mach_o-32bit")
                               << QString::fromLatin1("x86-macos-generic-mach_o-64bit"));
 
+    QTest::newRow("executable: win msvc2013 64bit")
+            << QString::fromLatin1("%1/executables/x86-windows-mvsc2013-pe-64bit.exe").arg(prefix)
+            << (QStringList() << QString::fromLatin1("x86-windows-msvc2013-pe-64bit"));
+    QTest::newRow("executable: win msvc2013 32bit")
+            << QString::fromLatin1("%1/executables/x86-windows-mvsc2013-pe-32bit.exe").arg(prefix)
+            << (QStringList() << QString::fromLatin1("x86-windows-msvc2013-pe-32bit"));
+    QTest::newRow("dynamic: win msvc2013 64bit")
+            << QString::fromLatin1("%1/dynamic/x86-windows-mvsc2013-pe-64bit.dll").arg(prefix)
+            << (QStringList() << QString::fromLatin1("x86-windows-msvc2013-pe-64bit"));
+    QTest::newRow("dynamic: win msvc2013 32bit")
+            << QString::fromLatin1("%1/dynamic/x86-windows-mvsc2013-pe-32bit.dll").arg(prefix)
+            << (QStringList() << QString::fromLatin1("x86-windows-msvc2013-pe-32bit"));
     QTest::newRow("dynamic QtCore: win msvc2010 64bit")
             << QString::fromLatin1("%1/dynamic/win-msvc2010-64bit.dll").arg(prefix)
             << (QStringList() << QString::fromLatin1("x86-windows-msvc2010-pe-64bit"));
