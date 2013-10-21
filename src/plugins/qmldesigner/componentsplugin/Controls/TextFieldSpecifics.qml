@@ -27,123 +27,118 @@
 **
 ****************************************************************************/
 
-import Bauhaus 1.0
-import HelperWidgets 1.0
+import QtQuick 2.1
+import HelperWidgets 2.0
+import QtQuick.Layouts 1.0
 
-QWidget {
-    layout: QVBoxLayout {
-        topMargin: 0
-        bottomMargin: 0
-        leftMargin: 0
-        rightMargin: 0
-        spacing: 0
-        GroupBox {
-            finished: finishedNotify;
-            caption: qsTr("Text Field")
-            layout: VerticalLayout {
+Column {
+    anchors.left: parent.left
+    anchors.right: parent.right
 
-                QWidget {
-                    layout: HorizontalLayout {
-                        Label {
-                            text:  qsTr("Text")
-                            toolTip:  qsTr("The text shown on the text field")
-                        }
-                        LineEdit {
-                            backendValue: backendValues.text
-                            baseStateFlag: isBaseState;
-                            translation: true
-                        }
-                    }
-                }
+    Section {
+        anchors.left: parent.left
+        anchors.right: parent.right
+        caption: qsTr("Text Field")
 
-                QWidget {
-                    layout: HorizontalLayout {
-                        Label {
-                            text:  qsTr("Placeholder text")
-                            toolTip: qsTr("The placeholder text")
-                        }
-                        LineEdit {
-                            backendValue: backendValues.placeholderText
-                            baseStateFlag: isBaseState;
-                            translation: true
-                        }
-                    }
-                }
+        SectionLayout {
 
-                QWidget {
-                    layout: HorizontalLayout {
-                        Label {
-                            text: qsTr("Read only")
-                            toolTip: qsTr("Determines whether the text field is read only.")
-                        }
-                        CheckBox {
-                            text: backendValues.readOnly.value
-                            backendValue: backendValues.readOnly
-                            baseStateFlag: isBaseState
-                            checkable: true
-                        }
-                    }
-                }
-
-                QWidget {
-                    layout: HorizontalLayout {
-                        Label {
-                            text: qsTr("Password mode")
-                            toolTip: qsTr("Determines whether the text field is in password mode.")
-                        }
-                        CheckBox {
-                            text: backendValues.passwordMode.value
-                            backendValue: backendValues.passwordMode
-                            baseStateFlag: isBaseState
-                            checkable: true
-                        }
-                    }
-                }
-
-                QWidget {
-                    layout: HorizontalLayout {
-
-                        Label {
-                            text: qsTr("Input mask")
-                            toolTip: qsTr("Restricts the valid text in the text field.")
-                        }
-
-                        LineEdit {
-                            backendValue: backendValues.inputMask
-                            baseStateFlag: isBaseState
-                        }
-                    }
-                }
-
-                QWidget {
-                    layout: HorizontalLayout {
-
-                        Label {
-                            text: qsTr("Echo mode")
-                            toolTip: qsTr("Specifies how the text is displayed in the text field.")
-                        }
-
-                        ComboBox {
-                            baseStateFlag: isBaseState
-                            items : { ["Normal", "Password", "PasswordEchoOnEdit", "NoEcho"] }
-                            currentText: backendValues.echoMode.value;
-                            onItemsChanged: {
-                                currentText =  backendValues.echoMode.value;
-                            }
-                            backendValue: backendValues.echoMode
-                        }
-                    }
-                }
-
+            Label {
+                text: qsTr("Text")
+                toolTip:  qsTr("The text shown on the button")
             }
+
+            SecondColumnLayout {
+                LineEdit {
+                    backendValue: backendValues.text
+                    implicitWidth: 180
+                }
+                ExpandingSpacer {
+
+                }
+            }
+
+            Label {
+                text:  qsTr("Placeholder text")
+                toolTip: qsTr("The placeholder text")
+            }
+
+            SecondColumnLayout {
+                LineEdit {
+                    backendValue: backendValues.placeholderText
+                    implicitWidth: 180
+                }
+                ExpandingSpacer {
+
+                }
+            }
+
+            Label {
+                text: qsTr("Read only")
+                toolTip: qsTr("Determines whether the text field is read only.")
+            }
+
+            SecondColumnLayout {
+                CheckBox {
+                    backendValue: backendValues.readOnly
+                    implicitWidth: 180
+                }
+                ExpandingSpacer {
+
+                }
+            }
+
+            Label {
+                text: qsTr("Password mode")
+                toolTip: qsTr("Determines whether the text field is in password mode.")
+            }
+
+            SecondColumnLayout {
+                CheckBox {
+                    backendValue: backendValues.passwordMode
+                    implicitWidth: 180
+                }
+                ExpandingSpacer {
+
+                }
+            }
+
+            Label {
+                text: qsTr("Input mask")
+                toolTip: qsTr("Restricts the valid text in the text field.")
+            }
+
+            SecondColumnLayout {
+                LineEdit {
+                    backendValue: backendValues.inputMask
+                    implicitWidth: 180
+                }
+                ExpandingSpacer {
+
+                }
+            }
+
+            Label {
+                text: qsTr("Echo mode")
+                toolTip: qsTr("Specifies how the text is displayed in the text field.")
+            }
+
+            SecondColumnLayout {
+                ComboBox {
+                    backendValue: backendValues.echoMode
+                    implicitWidth: 180
+                    model:  ["Normal", "Password", "PasswordEchoOnEdit", "NoEcho"]
+                }
+                ExpandingSpacer {
+
+                }
+            }
+
+
         }
 
-        FontGroupBox {
+    }
 
-        }
-
-        ScrollArea {
-
-        }
+    FontSection {
+        showStyle: false
     }
 }

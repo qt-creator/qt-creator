@@ -36,7 +36,7 @@
         <file>images/window.png</file>
         <file>images/window16.png</file>
     </qresource>
-    <qresource prefix="/propertyeditor/QtQuick">
+    <qresource prefix="/propertyEditorQmlSources/QtQuick">
         <file>Controls/ButtonSpecifics.qml</file>
         <file>Controls/TextFieldSpecifics.qml</file>
         <file>Controls/TextAreaSpecifics.qml</file>
