@@ -1436,7 +1436,9 @@ void tst_Dumpers::dumper_data()
     QTest::newRow("QHostAddress1")
             << Data("#include <QHostAddress>\n",
                     "QHostAddress ha1(129u * 256u * 256u * 256u + 130u);\n"
-                    "QHostAddress ha2(\"127.0.0.1\");\n")
+                    "QHostAddress ha2;\n"
+                    "ha2.setAddress(\"127.0.0.1\");\n"
+                    "unused(&ha1, &ha2);\n")
                % CoreProfile()
                % Profile("QT += network\n")
                % Check("ha1", "129.0.0.130", "@QHostAddress")
@@ -1461,7 +1463,8 @@ void tst_Dumpers::dumper_data()
                     "addr.c[13] = 0;\n"
                     "addr.c[14] = 0;\n"
                     "addr.c[15] = 0;\n"
-                    "QHostAddress ha1(addr);\n")
+                    "QHostAddress ha1(addr);\n"
+                    "unused(&ha1);\n")
                % CoreProfile()
                % Profile("QT += network\n")
                % Check("addr", "1:203:506:0:809:a0b:0:0", "@QIPv6Address");
