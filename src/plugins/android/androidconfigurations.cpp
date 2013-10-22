@@ -457,7 +457,12 @@ QVector<AndroidDeviceInfo> AndroidConfigurations::connectedDevices(QString *erro
         return devices;
     }
     QList<QByteArray> adbDevs = adbProc.readAll().trimmed().split('\n');
-    adbDevs.removeFirst();
+    if (adbDevs.empty())
+        return devices;
+
+    while (adbDevs.first().startsWith("* daemon"))
+        adbDevs.removeFirst(); // remove the daemon logs
+    adbDevs.removeFirst(); // remove "List of devices attached" header line
 
     // workaround for '????????????' serial numbers:
     // can use "adb -d" when only one usb device attached
@@ -578,7 +583,13 @@ QVector<AndroidDeviceInfo> AndroidConfigurations::androidVirtualDevices() const
         return devices;
     }
     QList<QByteArray> avds = proc.readAll().trimmed().split('\n');
-    avds.removeFirst();
+    if (avds.empty())
+        return devices;
+
+    while (avds.first().startsWith("* daemon"))
+        avds.removeFirst(); // remove the daemon logs
+    avds.removeFirst(); // remove "List of devices attached" header line
+
     AndroidDeviceInfo dev;
     for (int i = 0; i < avds.size(); i++) {
         QString line = QLatin1String(avds[i]);
