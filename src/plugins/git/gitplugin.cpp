@@ -894,24 +894,22 @@ void GitPlugin::startChangeRelatedAction()
 
     if (!ensureAllDocumentsSaved())
         return;
-    bool (GitClient::*commandFunction)(const QString&, const QString&);
+
     switch (dialog.command()) {
     case CherryPick:
-        commandFunction = &GitClient::synchronousCherryPick;
+        m_gitClient->synchronousCherryPick(workingDirectory, change);
         break;
     case Revert:
-        commandFunction = &GitClient::synchronousRevert;
+        m_gitClient->synchronousRevert(workingDirectory, change);
         break;
     case Checkout:
         if (!m_gitClient->beginStashScope(workingDirectory, QLatin1String("Checkout")))
             return;
-        commandFunction = &GitClient::synchronousCheckout;
+        m_gitClient->synchronousCheckout(workingDirectory, change);
         break;
     default:
         return;
     }
-
-    (m_gitClient->*commandFunction)(workingDirectory, change);
 }
 
 void GitPlugin::stageFile()
