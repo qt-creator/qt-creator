@@ -198,9 +198,9 @@ QList<Utils::EnvironmentItem> QnxUtils::qnxEnvironmentFromNdkFile(const QString 
 
         QString modifieddValue;
         if (Utils::HostOsInfo::isWindowsHost())
-            modifieddValue = modifiedValues.join(QLatin1Char(';'));
+            modifieddValue = modifiedValues.join(QLatin1String(";"));
         else if (Utils::HostOsInfo::isAnyUnixHost())
-            modifieddValue = modifiedValues.join(QLatin1Char(':'));
+            modifieddValue = modifiedValues.join(QLatin1String(":"));
 
         items.append(Utils::EnvironmentItem(key, modifieddValue));
     }
