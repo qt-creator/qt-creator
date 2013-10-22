@@ -86,16 +86,11 @@ void CMakeValidator::finished(int exitCode)
     }
     if (m_state == CMakeValidator::RunningBasic) {
         QByteArray response = m_process->readAll();
-        QRegExp versionRegexp(QLatin1String("^cmake version ([\\d\\.]*)"));
-        versionRegexp.indexIn(QString::fromLocal8Bit(response));
 
         m_hasCodeBlocksMsvcGenerator = response.contains("CodeBlocks - NMake Makefiles");
         m_hasCodeBlocksNinjaGenerator = response.contains("CodeBlocks - Ninja");
-        m_version = versionRegexp.cap(1);
-        if (versionRegexp.capturedTexts().size() > 3)
-            m_version += QLatin1Char('.') + versionRegexp.cap(3);
 
-        if (m_version.isEmpty()) {
+        if (response.isEmpty()) {
             m_state = CMakeValidator::Invalid;
         } else {
             m_state = CMakeValidator::RunningFunctionList;

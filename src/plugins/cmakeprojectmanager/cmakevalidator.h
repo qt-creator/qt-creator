@@ -74,7 +74,6 @@ private:
     QProcess *m_process;
     bool m_hasCodeBlocksMsvcGenerator;
     bool m_hasCodeBlocksNinjaGenerator;
-    QString m_version;
     QString m_executable;
 
     QMap<QString, QStringList> m_functionArgs;
