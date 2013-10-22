@@ -1226,12 +1226,15 @@ void tst_Dumpers::dumper_data()
                     "QDateTime date(QDate(1980, 1, 1), QTime(13, 15, 32), Qt::UTC);\n"
                     "unused(&date);\n")
                % CoreProfile()
-               % Check("date", "Tue Jan 1 13:15:32 1980", "@QDateTime")
+               % Check("date", Value4("Tue Jan 1 13:15:32 1980"), "@QDateTime")
+               % Check("date", Value5("Tue Jan 1 13:15:32 1980 GMT"), "@QDateTime")
                % Check("date.(ISO)", "\"1980-01-01T13:15:32Z\"", "@QString")
                % CheckType("date.(Locale)", "@QString")
                % CheckType("date.(SystemLocale)", "@QString")
-               % Check("date.toString", "\"Tue Jan 1 13:15:32 1980\"", "@QString")
-               % Check("date.toUTC", "Tue Jan 1 13:15:32 1980", "@QDateTime");
+               % Check("date.toString", Value4("\"Tue Jan 1 13:15:32 1980\""), "@QString")
+               % Check("date.toString", Value5("\"Tue Jan 1 13:15:32 1980 GMT\""), "@QString")
+               % Check("date.toUTC", Value4("Tue Jan 1 13:15:32 1980"), "@QDateTime")
+               % Check("date.toUTC", Value5("Tue Jan 1 13:15:32 1980 GMT"), "@QDateTime");
 
 #ifdef Q_OS_WIN
     QByteArray tempDir = "\"C:/Program Files\"";

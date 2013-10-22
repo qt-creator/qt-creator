@@ -1242,6 +1242,9 @@ class Dumper(DumperBase):
         #return long(gdb.Value(addr).cast(self.voidPtrType().pointer()).dereference())
         return struct.unpack("P", self.readRawMemory(addr, self.ptrSize()))[0]
 
+    def extractInt64(self, addr):
+        return struct.unpack("q", self.readRawMemory(addr, 8))[0]
+
     def extractInt(self, addr):
         #return long(gdb.Value(addr).cast(self.intPtrType()).dereference())
         return struct.unpack("i", self.readRawMemory(addr, 4))[0]

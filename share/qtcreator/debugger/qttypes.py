@@ -221,24 +221,37 @@ def qdump__QTime(d, value):
         d.putNumChild(0)
 
 
-# This relies on the Qt4/Qt5 internal structure layout:
-# {sharedref(4), date(8), time(4+x)}
 def qdump__QDateTime(d, value):
+    qtVersion = d.qtVersion()
+    isValid = False
+    # This relies on the Qt4/Qt5 internal structure layout:
+    # {sharedref(4), ...
     base = d.dereferenceValue(value)
-    # QDateTimePrivate:
-    # - QAtomicInt ref;    (padded on 64 bit)
-    # -     [QDate date;]
-    # -      -  uint jd in Qt 4,  qint64 in Qt 5; padded on 64 bit
-    # -     [QTime time;]
-    # -      -  uint mds;
-    # -  Spec spec;
-    dateSize = 4 if d.qtVersion() < 0x050000 and d.is32bit() else 8
     dateBase = base + d.ptrSize() # Only QAtomicInt, but will be padded.
-    timeBase = dateBase + dateSize
-    mds = d.extractInt(timeBase)
-    if mds >= 0:
-        jd = d.extractInt(dateBase)
-        d.putValue("%s/%s" % (jd, mds), JulianDateAndMillisecondsSinceMidnight)
+    if qtVersion >= 0x050200:
+        ms = d.extractInt64(dateBase)
+        offset = d.extractInt(dateBase + 12)
+        isValid = ms > 0
+        if isValid:
+            d.putValue("%s" % (ms - offset * 1000), MillisecondsSinceEpoch)
+    else:
+        # This relies on the Qt4/Qt5 internal structure layout:
+        # {sharedref(4), date(8), time(4+x)}
+        # QDateTimePrivate:
+        # - QAtomicInt ref;    (padded on 64 bit)
+        # -     [QDate date;]
+        # -      -  uint jd in Qt 4,  qint64 in Qt 5.0 and Qt 5.2; padded on 64 bit
+        # -     [QTime time;]
+        # -      -  uint mds;
+        # -  Spec spec;
+        dateSize = 4 if qtVersion < 0x050000 and d.is32bit() else 8
+        timeBase = dateBase + dateSize
+        mds = d.extractInt(timeBase)
+        isValid = mds > 0
+        if isValid:
+            jd = d.extractInt(dateBase)
+            d.putValue("%s/%s" % (jd, mds), JulianDateAndMillisecondsSinceMidnight)
+    if isValid:
         d.putNumChild(1)
         if d.isExpanded():
             # FIXME: This improperly uses complex return values.

@@ -628,6 +628,13 @@ QString decodeData(const QByteArray &ba, int encoding)
             const QByteArray decodedBa = QByteArray::fromHex(ba);
             return QString::fromUtf8(decodedBa);
         }
+        case MillisecondsSinceEpoch: {
+            const qint64 ms = ba.toLongLong();
+            QDateTime d;
+            d.setTimeSpec(Qt::UTC);
+            d.setMSecsSinceEpoch(ms);
+            return d.toString(Qt::TextDate);
+        }
     }
     qDebug() << "ENCODING ERROR: " << encoding;
     return QCoreApplication::translate("Debugger", "<Encoding error>");
