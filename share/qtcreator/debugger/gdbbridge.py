@@ -794,6 +794,11 @@ registerCommand("bb", bb)
 registerCommand("p1", p1)
 registerCommand("p2", p2)
 
+def extractQtVersion():
+    version = str(gdb.parse_and_eval("qVersion()"))
+    (major, minor, patch) = version[version.find('"')+1:version.rfind('"')].split('.')
+    return 0x10000 * int(major) + 0x100 * int(minor) + int(patch)
+
 
 #######################################################################
 #
@@ -826,6 +831,7 @@ class Dumper(DumperBase):
         self.useDynamicType = True
         self.expandedINames = {}
         self.childEventAddress = None
+        self.cachedQtVersion = None
 
         watchers = ""
         resultVarName = ""
@@ -1293,16 +1299,17 @@ class Dumper(DumperBase):
         return xrange(min(toInteger(self.currentMaxNumChild), toInteger(self.currentNumChild)))
 
     def qtVersion(self):
-        global qqVersion
-        if not qqVersion is None:
-            return qqVersion
-        try:
-            # This will fail on Qt 5
-            gdb.execute("ptype QString::shared_empty", to_string=True)
-            qqVersion = 0x040800
-        except:
-            qqVersion = 0x050000
-        return qqVersion
+        if self.cachedQtVersion is None:
+            try:
+                self.cachedQtVersion = extractQtVersion()
+            except:
+                try:
+                    # This will fail on Qt 5
+                    gdb.execute("ptype QString::shared_empty", to_string=True)
+                    self.cachedQtVersion = 0x040800
+                except:
+                    self.cachedQtVersion = 0x050000
+        return self.cachedQtVersion
 
     # Convenience function.
     def putItemCount(self, count, maximum = 1000000000):
