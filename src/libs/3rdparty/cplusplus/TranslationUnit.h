@@ -63,9 +63,11 @@ public:
 
     void setSource(const char *source, unsigned size);
 
-    unsigned tokenCount() const { return unsigned(_tokens->size()); }
-    const Token &tokenAt(unsigned index) const { return _tokens->at(index); }
-    int tokenKind(unsigned index) const { return _tokens->at(index).f.kind; }
+    unsigned tokenCount() const { return _tokens ? unsigned(_tokens->size()) : unsigned(0); }
+    const Token &tokenAt(unsigned index) const
+    { return _tokens && index < tokenCount() ? (*_tokens)[index] : nullToken; }
+
+    int tokenKind(unsigned index) const { return tokenAt(index).f.kind; }
     const char *spell(unsigned index) const;
 
     unsigned commentCount() const;
@@ -167,10 +169,13 @@ private:
         { return offset < other.offset; }
     };
 
+    void releaseTokensAndComments();
     unsigned findLineNumber(unsigned offset) const;
     unsigned findColumnNumber(unsigned offset, unsigned lineNumber) const;
     PPLine findPreprocessorLine(unsigned offset) const;
     void showErrorLine(unsigned index, unsigned column, FILE *out);
+
+    static const Token nullToken;
 
     Control *_control;
     const StringLiteral *_fileId;

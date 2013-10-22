@@ -180,6 +180,8 @@ private slots:
 
     // Qt "keywords"
     void q_enum_1();
+
+    void incomplete_ast();
 };
 
 void tst_AST::gcc_attributes_1()
@@ -1721,6 +1723,13 @@ void tst_AST::q_enum_1()
     SimpleNameAST *e = qtEnum->enumerator_list->value->asSimpleName();
     QVERIFY(e);
     QCOMPARE(unit->spell(e->identifier_token), "e");
+}
+
+void tst_AST::incomplete_ast()
+{
+    QSharedPointer<TranslationUnit> unit(parseStatement("class A { virtual void a() =\n"));
+    AST *ast = unit->ast();
+    QVERIFY(ast);
 }
 
 void tst_AST::initTestCase()
