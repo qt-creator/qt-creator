@@ -59,7 +59,7 @@ Section {
     property variant underlineStyle: backendValues.font_underline
     property variant strikeoutStyle: backendValues.font_strikeout
 
-    GridLayout {
+    SectionLayout {
         columns: 2
         rows: 3
         Label {
@@ -85,9 +85,9 @@ Section {
             onSelectionFlagChanged: {
                 print("selection changed");
                 isSetup = true;
-                sizeType.currentText = "points";
+                sizeType.currentIndex = 1
                 if (pixelSize.isInModel)
-                    sizeType.currentText = "pixels";
+                    sizeType.currentIndex = 0
                 isSetup = false;
             }
 
