@@ -196,10 +196,11 @@ static QByteArray parentIName(const QByteArray &iname)
 
 struct ValueBase
 {
-    ValueBase() : hasPtrSuffix(false), isFloatValue(false), version(0) {}
+    ValueBase() : hasPtrSuffix(false), isFloatValue(false), substituteNamespace(true), version(0) {}
 
     bool hasPtrSuffix;
     bool isFloatValue;
+    bool substituteNamespace;
     int version;
 };
 
@@ -232,7 +233,8 @@ struct Value : public ValueBase
         if (actualValue == QLatin1String(" "))
             actualValue.clear(); // FIXME: Remove later.
         QString expectedValue = value;
-        expectedValue.replace(QLatin1Char('@'), QString::fromLatin1(context.nameSpace));
+        if (substituteNamespace)
+            expectedValue.replace(QLatin1Char('@'), QString::fromLatin1(context.nameSpace));
 
         if (hasPtrSuffix)
             return actualValue.startsWith(expectedValue + QLatin1String(" @0x"))
@@ -275,6 +277,11 @@ struct Value4 : Value
 struct Value5 : Value
 {
     Value5(const QByteArray &value) : Value(value) { version = 5; }
+};
+
+struct UnsubstitutedValue : Value
+{
+    UnsubstitutedValue(const QByteArray &value) : Value(value) { substituteNamespace = false; }
 };
 
 struct Type
@@ -3171,10 +3178,18 @@ void tst_Dumpers::dumper_data()
 
     QTest::newRow("QUrl")
             << Data("#include <QUrl>",
-                    "QUrl url = QUrl::fromEncoded(\"http://qt-project.org/have_fun\");\n"
+                    "QUrl url = QUrl::fromEncoded(\"http://foo@qt-project.org:10/have_fun\");\n"
                     "unused(&url);\n")
                % CoreProfile()
-               % Check("url", "\"http://qt-project.org/have_fun\"", "@QUrl");
+               % Check("url", UnsubstitutedValue("\"http://foo@qt-project.org:10/have_fun\""), "@QUrl")
+               % Check("url.port", Value5("10"), "int")
+               % Check("url.scheme", Value5("\"http\""), "@QString")
+               % Check("url.userName", Value5("\"foo\""), "@QString")
+               % Check("url.password", Value5("\"\""), "@QString")
+               % Check("url.host", Value5("\"qt-project.org\""), "@QString")
+               % Check("url.path", Value5("\"/have_fun\""), "@QString")
+               //% Check("url.query", Value5("\"\""), "@QString")  That's a QByteArray in Qt 4
+               % Check("url.fragment", Value5("\"\""), "@QString");
 
     QTest::newRow("QStringQuotes")
             << Data("#include <QString>\n",

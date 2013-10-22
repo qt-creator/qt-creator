@@ -1676,23 +1676,31 @@ def qdump__QUrl(d, value):
         path = d.encodeStringHelper(d.dereference(schemeAddr + 4 * d.ptrSize()))
         query = d.encodeStringHelper(d.dereference(schemeAddr + 5 * d.ptrSize()))
         fragment = d.encodeStringHelper(d.dereference(schemeAddr + 6 * d.ptrSize()))
+        port = d.extractInt(d.dereferenceValue(value) + d.intSize())
 
-        str = scheme
-        str += "3a002f002f00"
-        str += host
-        str += path
-        d.putValue(str, Hex4EncodedLittleEndian)
+        url = scheme
+        url += "3a002f002f00"
+        if len(userName):
+            url += userName
+            url += "4000"
+        url += host
+        if port >= 0:
+            url += "3a00"
+            url += ''.join(["%02x00" % ord(c) for c in str(port)])
+        url += path
+        d.putValue(url, Hex4EncodedLittleEndian)
         d.putNumChild(8)
         if d.isExpanded():
+            stringType = d.lookupType(d.ns + "QString")
             with Children(d):
-                d.putIntItem("port", d.extractInt(d.dereferenceValue(value) + d.intSize()))
-                d.putGenericItem("scheme", "QString", scheme, Hex4EncodedLittleEndian)
-                d.putGenericItem("userName", "QString", userName, Hex4EncodedLittleEndian)
-                d.putGenericItem("password", "QString", password, Hex4EncodedLittleEndian)
-                d.putGenericItem("host", "QString", host, Hex4EncodedLittleEndian)
-                d.putGenericItem("path", "QString", path, Hex4EncodedLittleEndian)
-                d.putGenericItem("query", "QString", query, Hex4EncodedLittleEndian)
-                d.putGenericItem("fragment", "QString", fragment, Hex4EncodedLittleEndian)
+                d.putIntItem("port", port)
+                d.putGenericItem("scheme", stringType, scheme, Hex4EncodedLittleEndian)
+                d.putGenericItem("userName", stringType, userName, Hex4EncodedLittleEndian)
+                d.putGenericItem("password", stringType, password, Hex4EncodedLittleEndian)
+                d.putGenericItem("host", stringType, host, Hex4EncodedLittleEndian)
+                d.putGenericItem("path", stringType, path, Hex4EncodedLittleEndian)
+                d.putGenericItem("query", stringType, query, Hex4EncodedLittleEndian)
+                d.putGenericItem("fragment", stringType, fragment, Hex4EncodedLittleEndian)
 
 def qdumpHelper_QVariant_0(d, data):
     # QVariant::Invalid
