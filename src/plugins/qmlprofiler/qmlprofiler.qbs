@@ -10,7 +10,6 @@ QtcPlugin {
     Depends { name: "Qt.quick"; condition: product.condition; }
     Depends { name: "Core" }
     Depends { name: "AnalyzerBase" }
-    Depends { name: "QmlProjectManager" }
     Depends { name: "Qt4ProjectManager" }
     Depends { name: "RemoteLinux" }
     Depends { name: "ProjectExplorer" }

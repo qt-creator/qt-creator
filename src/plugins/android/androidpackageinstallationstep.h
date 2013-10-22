@@ -52,10 +52,12 @@ public:
     ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
     bool immutable() const;
 
+    void run(QFutureInterface<bool> &fi);
 private:
     AndroidPackageInstallationStep(ProjectExplorer::BuildStepList *bc,
         AndroidPackageInstallationStep *other);
     AndroidDirectory m_androidDirectory;
+    QString m_androidDirToClean;
     static const Core::Id Id;
 };
 

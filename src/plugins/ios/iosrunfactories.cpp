@@ -39,8 +39,8 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <debugger/debuggerconstants.h>
-#include <qt4projectmanager/qt4project.h>
-#include <qt4projectmanager/qt4nodes.h>
+#include <qt4projectmanager/qmakeproject.h>
+#include <qt4projectmanager/qmakenodes.h>
 #include <qtsupport/customexecutablerunconfiguration.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
@@ -48,7 +48,7 @@
 
 
 using namespace ProjectExplorer;
-using namespace Qt4ProjectManager;
+using namespace QmakeProjectManager;
 
 namespace Ios {
 namespace Internal {
@@ -173,4 +173,4 @@ RunControl *IosRunControlFactory::create(RunConfiguration *runConfig,
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace Ios

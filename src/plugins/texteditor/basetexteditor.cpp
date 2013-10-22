@@ -498,8 +498,6 @@ BaseTextEditor *BaseTextEditorWidget::editor() const
         d->m_codeAssistant->configure(d->m_editor);
         connect(this, SIGNAL(textChanged()),
                 d->m_editor, SIGNAL(contentsChanged()));
-        connect(this, SIGNAL(changed()),
-                d->m_editor->document(), SIGNAL(changed()));
         connect(qobject_cast<BaseTextDocument *>(d->m_editor->document()),SIGNAL(mimeTypeChanged()),
                 d->m_codeAssistant.data(), SLOT(reconfigure()));
     }
@@ -2476,6 +2474,7 @@ void BaseTextEditorWidgetPrivate::setupDocumentSignals(const QSharedPointer<Base
     if (!oldDocument.isNull()) {
         q->disconnect(oldDocument->document(), 0, q, 0);
         q->disconnect(oldDocument.data(), 0, q, 0);
+        q->disconnect(q, 0, oldDocument.data(), 0);
     }
 
     QTextDocument *doc = document->document();
@@ -2498,6 +2497,7 @@ void BaseTextEditorWidgetPrivate::setupDocumentSignals(const QSharedPointer<Base
     QObject::connect(documentLayout, SIGNAL(updateExtraArea()), q, SLOT(slotUpdateExtraArea()));
     QObject::connect(q, SIGNAL(requestBlockUpdate(QTextBlock)), documentLayout, SIGNAL(updateBlock(QTextBlock)));
     QObject::connect(doc, SIGNAL(modificationChanged(bool)), q, SIGNAL(changed()));
+    QObject::connect(q, SIGNAL(changed()), document.data(), SIGNAL(changed()));
     QObject::connect(doc, SIGNAL(contentsChange(int,int,int)), q,
         SLOT(editorContentsChange(int,int,int)), Qt::DirectConnection);
     QObject::connect(document.data(), SIGNAL(aboutToReload()), q, SLOT(documentAboutToBeReloaded()));

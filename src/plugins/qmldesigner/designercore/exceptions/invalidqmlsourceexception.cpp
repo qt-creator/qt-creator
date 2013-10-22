@@ -49,6 +49,7 @@ InvalidQmlSourceException::InvalidQmlSourceException(int line,
  :  Exception(line, function, file),
     m_qmlSource(qmlSource)
 {
+    createWarning();
 }
 
 /*!

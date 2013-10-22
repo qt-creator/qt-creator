@@ -31,10 +31,10 @@
 #include "ui_makestep.h"
 
 #include "qmakeparser.h"
-#include "qt4project.h"
-#include "qt4nodes.h"
-#include "qt4buildconfiguration.h"
-#include "qt4projectmanagerconstants.h"
+#include "qmakeproject.h"
+#include "qmakenodes.h"
+#include "qmakebuildconfiguration.h"
+#include "qmakeprojectmanagerconstants.h"
 
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
@@ -49,8 +49,8 @@
 
 using ExtensionSystem::PluginManager;
 using namespace ProjectExplorer;
-using namespace Qt4ProjectManager;
-using namespace Qt4ProjectManager::Internal;
+using namespace QmakeProjectManager;
+using namespace QmakeProjectManager::Internal;
 
 namespace {
 const char MAKESTEP_BS_ID[] = "Qt4ProjectManager.MakeStep";
@@ -188,7 +188,7 @@ bool MakeStep::init()
 
     QString args;
 
-    Qt4ProjectManager::Qt4ProFileNode *subNode = bc->subNodeBuild();
+    QmakeProjectManager::Qt4ProFileNode *subNode = bc->subNodeBuild();
     if (subNode) {
         QString makefile = subNode->makefile();
         if (makefile.isEmpty())

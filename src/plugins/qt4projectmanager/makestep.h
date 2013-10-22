@@ -30,7 +30,7 @@
 #ifndef MAKESTEP_H
 #define MAKESTEP_H
 
-#include "qt4projectmanager_global.h"
+#include "qmakeprojectmanager_global.h"
 
 #include <projectexplorer/abstractprocessstep.h>
 
@@ -40,7 +40,7 @@ class IBuildStepFactory;
 class Task;
 }
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 
 class Qt4BuildConfiguration;
 class MakeStepConfigWidget;

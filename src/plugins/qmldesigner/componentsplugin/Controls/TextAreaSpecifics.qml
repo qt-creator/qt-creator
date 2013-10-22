@@ -27,164 +27,177 @@
 **
 ****************************************************************************/
 
-import HelperWidgets 1.0
-import Bauhaus 1.0
+import QtQuick 2.1
+import HelperWidgets 2.0
+import QtQuick.Layouts 1.0
 
-QWidget {
-    layout: QVBoxLayout {
-        topMargin: 0
-        bottomMargin: 0
-        leftMargin: 0
-        rightMargin: 0
-        spacing: 0
-
-        GroupBox {
-            caption: "Text Area"
-
-            layout: VerticalLayout {
+Column {
+    anchors.left: parent.left
+    anchors.right: parent.right
 
 
-                QWidget {
-                    layout: HorizontalLayout {
-                        Label {
-                            text: qsTr("Text")
-                            toolTip: qsTr("The text of the text area")
-                        }
-                        LineEdit {
-                            backendValue: backendValues.text
-                            baseStateFlag: isBaseState
-                        }
-                    }
+    Section {
+        anchors.left: parent.left
+        anchors.right: parent.right
+        caption: qsTr("Color")
+
+
+        ColorEditor {
+            caption: qsTr("Color")
+            backendendValue: backendValues.color
+            supportGradient: false
+        }
+    }
+
+    Section {
+        anchors.left: parent.left
+        anchors.right: parent.right
+        caption: qsTr("Text Area")
+
+        SectionLayout {
+
+            Label {
+                text: qsTr("Text")
+                toolTip:  qsTr("The text shown on the button")
+            }
+
+            SecondColumnLayout {
+                LineEdit {
+                    backendValue: backendValues.text
+                    implicitWidth: 180
                 }
+                ExpandingSpacer {
 
-                QWidget {
-                    layout: HorizontalLayout {
-                        Label {
-                            text: qsTr("Read only")
-                            toolTip: qsTr("Determines whether the text area is read only.")
-                        }
-                        CheckBox {
-                            text: backendValues.readOnly.value
-                            backendValue: backendValues.readOnly
-                            baseStateFlag: isBaseState
-                            checkable: true
-                        }
-                    }
                 }
+            }
 
-                ColorGroupBox {
-                    caption: qsTr("Color")
-                    toolTip: qsTr("The color of the text")
-                    finished: finishedNotify
-                    backendColor: backendValues.color
+            Label {
+                text: qsTr("Read only")
+                toolTip: qsTr("Determines whether the text field is read only.")
+            }
+
+            SecondColumnLayout {
+                CheckBox {
+                    backendValue: backendValues.readOnly
+                    implicitWidth: 180
                 }
+                ExpandingSpacer {
 
+                }
+            }
 
-                IntEditor {
+            Label {
+                text: qsTr("Document margins")
+                toolTip: qsTr("The margins of the text area")
+            }
+
+            SectionLayout {
+                SpinBox {
                     backendValue: backendValues.documentMargins
-                    caption: qsTr("Document margins")
-                    toolTip: qsTr("The margins of the text area")
-                    baseStateFlag: isBaseState
-                    slider: false
-                }
-                QWidget {
-                    layout: HorizontalLayout {
-                        Label {
-                            text: qsTr("Frame")
-                            toolTip: qsTr("Determines whether the text area has a frame.")
-                        }
-                        CheckBox {
-                            text: backendValues.frame.value
-                            backendValue: backendValues.frame
-                            baseStateFlag: isBaseState
-                            checkable: true
-                        }
-                    }
+                    minimumValue: 0;
+                    maximumValue: 1000;
+                    decimals: 0
                 }
 
-                IntEditor {
+                ExpandingSpacer {
+
+                }
+            }
+
+
+            Label {
+                text: qsTr("Frame width")
+                toolTip: qsTr("The width of the frame")
+            }
+
+            SectionLayout {
+                SpinBox {
                     backendValue: backendValues.frameWidth
-                    caption: qsTr("Frame width")
-                    toolTip: qsTr("The width of the frame")
-                    baseStateFlag: isBaseState
-                    slider: false
+                    minimumValue: 0;
+                    maximumValue: 1000;
+                    decimals: 0
                 }
 
-                QWidget {
-                    layout: HorizontalLayout {
-                        Label {
-                            text: qsTr("Contents frame")
-                            toolTip: qsTr("Determines whether the frame around contents is shown.")
-                        }
-                        CheckBox {
-                            text: backendValues.frameAroundContents.value
-                            backendValue: backendValues.frameAroundContents
-                            baseStateFlag: isBaseState
-                            checkable: true
-                        }
-                    }
-                }
+                ExpandingSpacer {
 
+                }
             }
-        }
 
-        FontGroupBox {
-
-        }
-
-        GroupBox {
-            caption: qsTr("Focus Handling")
-
-            layout: VerticalLayout {
-
-                QWidget {
-                    layout: HorizontalLayout {
-                        Label {
-                            text: qsTr("Highlight on focus")
-                            toolTip: qsTr("Determines whether the text area is highlighted on focus.")
-                        }
-                        CheckBox {
-                            text: backendValues.highlightOnFocus.value
-                            backendValue: backendValues.highlightOnFocus
-                            baseStateFlag: isBaseState
-                            checkable: true
-                        }
-                    }
-                }
-
-                QWidget {
-                    layout: HorizontalLayout {
-                        Label {
-                            text: qsTr("Tab changes focus")
-                            toolTip: qsTr("Determines whether tab changes the focus of the text area.")
-                        }
-                        CheckBox {
-                            text: backendValues.tabChangesFocus.value
-                            backendValue: backendValues.tabChangesFocus
-                            baseStateFlag: isBaseState
-                            checkable: true
-                        }
-                    }
-                }
-                QWidget {
-                    layout: HorizontalLayout {
-                        Label {
-                            text: qsTr("Focus on press")
-                            toolTip: qsTr("Determines whether the text area gets focus if pressed.")
-                        }
-                        CheckBox {
-                            text: backendValues.activeFocusOnPress.value
-                            backendValue: backendValues.activeFocusOnPress
-                            baseStateFlag: isBaseState
-                            checkable: true
-                        }
-                    }
-                }
-
+            Label {
+                text: qsTr("Contents frame")
+                toolTip: qsTr("Determines whether the frame around contents is shown.")
             }
+
+            SecondColumnLayout {
+                CheckBox {
+                    backendValue: backendValues.frameAroundContents
+                    implicitWidth: 180
+                }
+                ExpandingSpacer {
+
+                }
+            }
+
         }
 
-        ScrollArea {
+    }
+
+    FontSection {
+        showStyle: false
+    }
+
+
+    Section {
+        anchors.left: parent.left
+        anchors.right: parent.right
+        caption: qsTr("Focus Handling")
+
+        SectionLayout {
+
+            Label {
+                text: qsTr("Highlight on focus")
+                toolTip: qsTr("Determines whether the text area is highlighted on focus.")
+            }
+
+            SecondColumnLayout {
+                CheckBox {
+                    backendValue: backendValues.highlightOnFocus
+                    implicitWidth: 180
+                }
+                ExpandingSpacer {
+
+                }
+            }
+
+            Label {
+                text: qsTr("Tab changes focus")
+                toolTip: qsTr("Determines whether tab changes the focus of the text area.")
+            }
+
+            SecondColumnLayout {
+                CheckBox {
+                    backendValue: backendValues.tabChangesFocus
+                    implicitWidth: 180
+                }
+                ExpandingSpacer {
+
+                }
+            }
+
+            Label {
+                text: qsTr("Focus on press")
+                toolTip: qsTr("Determines whether the text area gets focus if pressed.")
+            }
+
+            SecondColumnLayout {
+                CheckBox {
+                    backendValue: backendValues.activeFocusOnPress
+                    implicitWidth: 180
+                }
+                ExpandingSpacer {
+
+                }
+            }
 
         }
     }

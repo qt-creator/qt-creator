@@ -39,7 +39,7 @@ class FontSettings;
 class TextEditorActionHandler;
 }
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 class ProFileEditorFactory;
@@ -98,6 +98,6 @@ public:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // PROFILEEDITOR_H

@@ -36,7 +36,7 @@ QT_BEGIN_NAMESPACE
 class QTextStream;
 QT_END_NAMESPACE
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 // Additional parameters required for creating mobile
@@ -58,5 +58,5 @@ public:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 #endif // MOBILELIBRARYPARAMETERS_H

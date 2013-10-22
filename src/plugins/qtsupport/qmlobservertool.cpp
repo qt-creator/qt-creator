@@ -93,18 +93,18 @@ bool QmlObserverTool::canBuild(const BaseQtVersion *qtVersion, QString *reason)
     if (qtVersion->type() != QLatin1String(Constants::DESKTOPQT)
             && qtVersion->type() != QLatin1String(Constants::SIMULATORQT)) {
         if (reason)
-            *reason = QCoreApplication::translate("Qt4ProjectManager::QmlObserverTool", "Only available for Qt for Desktop or Qt for Qt Simulator.");
+            *reason = QCoreApplication::translate("QmakeProjectManager::QmlObserverTool", "Only available for Qt for Desktop or Qt for Qt Simulator.");
         return false;
     }
 
     if (qtVersion->qtVersion() < QtVersionNumber(4, 7, 1)) {
         if (reason)
-            *reason = QCoreApplication::translate("Qt4ProjectManager::QmlObserverTool", "Only available for Qt 4.7.1 or newer.");
+            *reason = QCoreApplication::translate("QmakeProjectManager::QmlObserverTool", "Only available for Qt 4.7.1 or newer.");
         return false;
     }
     if (qtVersion->qtVersion() >= QtVersionNumber(4, 8, 0)) {
         if (reason)
-            *reason = QCoreApplication::translate("Qt4ProjectManager::QmlObserverTool", "Not needed.");
+            *reason = QCoreApplication::translate("QmakeProjectManager::QmlObserverTool", "Not needed.");
         return false;
     }
     return true;
@@ -135,7 +135,7 @@ QStringList QmlObserverTool::locationsByInstallData(const QString &qtInstallData
 
 bool  QmlObserverTool::build(BuildHelperArguments arguments, QString *log, QString *errorMessage)
 {
-    arguments.helperName = QCoreApplication::translate("Qt4ProjectManager::QmlObserverTool", "QMLObserver");
+    arguments.helperName = QCoreApplication::translate("QmakeProjectManager::QmlObserverTool", "QMLObserver");
     arguments.proFilename = QLatin1String("qmlobserver.pro");
 
     return buildHelper(arguments, log, errorMessage);

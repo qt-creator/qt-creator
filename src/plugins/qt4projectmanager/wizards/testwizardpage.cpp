@@ -32,7 +32,7 @@
 #include "qtwizard.h"
 #include "ui_testwizardpage.h"
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 TestWizardPage::TestWizardPage(QWidget *parent) :
@@ -134,4 +134,4 @@ void TestWizardPage::slotUpdateValid()
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

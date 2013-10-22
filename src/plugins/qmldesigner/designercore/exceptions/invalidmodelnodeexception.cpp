@@ -48,6 +48,7 @@ InvalidModelNodeException::InvalidModelNodeException(int line,
                                                      const QString &file)
  : Exception(line, function, file)
 {
+    createWarning();
 }
 
 /*!

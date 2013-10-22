@@ -32,7 +32,7 @@
 #include <QString>
 #include <QCoreApplication>
 
-using namespace Qt4ProjectManager::Internal;
+using namespace QmakeProjectManager::Internal;
 
 struct item
 {

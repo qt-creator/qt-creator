@@ -32,8 +32,8 @@
 #include <projectexplorer/task.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
-using namespace Qt4ProjectManager;
-using namespace Qt4ProjectManager::Internal;
+using namespace QmakeProjectManager;
+using namespace QmakeProjectManager::Internal;
 using ProjectExplorer::Task;
 
 QMakeParser::QMakeParser() : m_error(QLatin1String("^(.+):(\\d+):\\s(.+)$"))
@@ -88,11 +88,11 @@ void QMakeParser::stdError(const QString &line)
 #ifdef WITH_TESTS
 #   include <QTest>
 
-#   include "qt4projectmanagerplugin.h"
+#   include "qmakeprojectmanagerplugin.h"
 
 #   include "projectexplorer/outputparser_test.h"
 
-using namespace Qt4ProjectManager::Internal;
+using namespace QmakeProjectManager::Internal;
 using namespace ProjectExplorer;
 
 void Qt4ProjectManagerPlugin::testQmakeOutputParsers_data()

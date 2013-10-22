@@ -27,10 +27,10 @@
 **
 ****************************************************************************/
 
-#ifndef QT4NODES_H
-#define QT4NODES_H
+#ifndef QMAKENODES_H
+#define QMAKENODES_H
 
-#include "qt4projectmanager_global.h"
+#include "qmakeprojectmanager_global.h"
 
 #include <coreplugin/idocument.h>
 #include <projectexplorer/projectnodes.h>
@@ -63,7 +63,7 @@ class RunConfiguration;
 class Project;
 }
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 class Qt4BuildConfiguration;
 class Qt4ProFileNode;
 class Qt4Project;
@@ -222,7 +222,7 @@ private:
     bool m_includedInExactParse;
 
     // managed by Qt4ProFileNode
-    friend class Qt4ProjectManager::Qt4ProFileNode;
+    friend class QmakeProjectManager::Qt4ProFileNode;
     friend class Internal::Qt4PriFile; // for scheduling updates on modified
     // internal temporary subtree representation
     friend struct Internal::InternalNode;
@@ -258,19 +258,19 @@ public:
     Qt4NodesWatcher(QObject *parent = 0);
 
 signals:
-    void projectTypeChanged(Qt4ProjectManager::Qt4ProFileNode *projectNode,
-                            const Qt4ProjectManager::Qt4ProjectType oldType,
-                            const Qt4ProjectManager::Qt4ProjectType newType);
+    void projectTypeChanged(QmakeProjectManager::Qt4ProFileNode *projectNode,
+                            const QmakeProjectManager::Qt4ProjectType oldType,
+                            const QmakeProjectManager::Qt4ProjectType newType);
 
     void variablesChanged(Qt4ProFileNode *projectNode,
                           const QHash<Qt4Variable, QStringList> &oldValues,
                           const QHash<Qt4Variable, QStringList> &newValues);
 
-    void proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *projectNode, bool success, bool parseInProgress);
+    void proFileUpdated(QmakeProjectManager::Qt4ProFileNode *projectNode, bool success, bool parseInProgress);
 
 private:
     // let them emit signals
-    friend class Qt4ProjectManager::Qt4ProFileNode;
+    friend class QmakeProjectManager::Qt4ProFileNode;
     friend class Qt4PriFileNode;
 };
 
@@ -462,6 +462,6 @@ private:
     QtSupport::ProFileReader *m_readerCumulative;
 };
 
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
-#endif // QT4NODES_H
+#endif // QMAKENODES_H

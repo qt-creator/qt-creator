@@ -84,6 +84,12 @@ bool Exception::shouldAssert()
     return s_shouldAssert;
 }
 
+bool Exception::warnAboutException()
+{
+    static bool warnException = !qgetenv("QTCREATOR_QTQUICKDESIGNER_WARN_EXCEPTION").isEmpty();
+    return warnException;
+}
+
 /*!
     Constructs an exception. \a line uses the __LINE__ macro, \a function uses
     the __FUNCTION__ or the Q_FUNC_INFO macro, and \a file uses
@@ -123,6 +129,12 @@ Exception::~Exception()
 QString Exception::backTrace() const
 {
     return m_backTrace;
+}
+
+void Exception::createWarning() const
+{
+    if (warnAboutException())
+        qDebug() << *this;
 }
 
 /*!

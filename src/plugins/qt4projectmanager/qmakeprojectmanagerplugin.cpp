@@ -27,14 +27,14 @@
 **
 ****************************************************************************/
 
-#include "qt4projectmanagerplugin.h"
+#include "qmakeprojectmanagerplugin.h"
 
-#include "qt4projectmanager.h"
-#include "qt4nodes.h"
+#include "qmakeprojectmanager.h"
+#include "qmakenodes.h"
 #include "qmakestep.h"
 #include "makestep.h"
-#include "qt4buildconfiguration.h"
-#include "qt4runconfiguration.h"
+#include "qmakebuildconfiguration.h"
+#include "qmakerunconfiguration.h"
 #include "wizards/consoleappwizard.h"
 #include "wizards/guiappwizard.h"
 #include "wizards/librarywizard.h"
@@ -46,8 +46,8 @@
 #include "customwidgetwizard/customwidgetwizard.h"
 #include "profileeditorfactory.h"
 #include "profilehoverhandler.h"
-#include "qt4projectmanagerconstants.h"
-#include "qt4project.h"
+#include "qmakeprojectmanagerconstants.h"
+#include "qmakeproject.h"
 #include "externaleditors.h"
 #include "profilecompletionassist.h"
 #include "qmakekitinformation.h"
@@ -75,8 +75,8 @@
 
 #include <QtPlugin>
 
-using namespace Qt4ProjectManager::Internal;
-using namespace Qt4ProjectManager;
+using namespace QmakeProjectManager::Internal;
+using namespace QmakeProjectManager;
 using namespace ProjectExplorer;
 
 Qt4ProjectManagerPlugin::Qt4ProjectManagerPlugin()
@@ -99,10 +99,10 @@ Qt4ProjectManagerPlugin::~Qt4ProjectManagerPlugin()
 bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
-    const Core::Context projectContext(Qt4ProjectManager::Constants::PROJECT_ID);
+    const Core::Context projectContext(QmakeProjectManager::Constants::PROJECT_ID);
     Core::Context projecTreeContext(ProjectExplorer::Constants::C_PROJECT_TREE);
 
-    if (!Core::MimeDatabase::addMimeTypes(QLatin1String(":qt4projectmanager/Qt4ProjectManager.mimetypes.xml"), errorMessage))
+    if (!Core::MimeDatabase::addMimeTypes(QLatin1String(":qmakeprojectmanager/Qt4ProjectManager.mimetypes.xml"), errorMessage))
         return false;
 
     m_projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
@@ -255,9 +255,9 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     connect(m_projectExplorer, SIGNAL(currentNodeChanged(ProjectExplorer::Node*,ProjectExplorer::Project*)),
             this, SLOT(updateContextActions(ProjectExplorer::Node*,ProjectExplorer::Project*)));
 
-    Core::ActionContainer *contextMenu = Core::ActionManager::createMenu(Qt4ProjectManager::Constants::M_CONTEXT);
+    Core::ActionContainer *contextMenu = Core::ActionManager::createMenu(QmakeProjectManager::Constants::M_CONTEXT);
 
-    Core::Context proFileEditorContext = Core::Context(Qt4ProjectManager::Constants::C_PROFILEEDITOR);
+    Core::Context proFileEditorContext = Core::Context(QmakeProjectManager::Constants::C_PROFILEEDITOR);
 
     command = Core::ActionManager::command(TextEditor::Constants::JUMP_TO_FILE_UNDER_CURSOR);
     contextMenu->addAction(command);

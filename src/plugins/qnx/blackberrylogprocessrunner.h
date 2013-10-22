@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
+** Copyright (C) 2013 BlackBerry Limited. All rights reserved.
 **
-** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -35,18 +35,17 @@
 #include "blackberrydeviceconfiguration.h"
 
 #include <utils/outputformat.h>
-#include <ssh/sshconnection.h>
-
-#include <QDateTime>
 
 #include <QObject>
 
-namespace QSsh {
-class SshRemoteProcessRunner;
+namespace ProjectExplorer {
+class SshDeviceProcess;
 }
 
 namespace Qnx {
 namespace Internal {
+
+class Slog2InfoRunner;
 
 class BlackBerryLogProcessRunner : public QObject
 {
@@ -63,39 +62,17 @@ public slots:
     void stop();
 
 private slots:
-    void handleSlog2infoFound();
-    void readLaunchTime();
-    void readApplicationLog();
-
-    void handleTailOutput();
-    void handleTailProcessConnectionError();
-
-    void handleSlog2infoOutput();
-    void handleSlog2infoProcessConnectionError();
-
-    void handleLogError();
+    void launchTailProcess();
+    void readTailStandardOutput();
+    void readTailStandardError();
+    void handleTailProcessError();
 
 private:
     QString m_appId;
-    QString m_tailCommand;
-    QString m_slog2infoCommand;
-
-    bool m_currentLogs;
-    bool m_slog2infoFound;
-
-    QDateTime m_launchDateTime;
 
     BlackBerryDeviceConfiguration::ConstPtr m_device;
-    QSsh::SshConnectionParameters m_sshParams;
-
-    QSsh::SshRemoteProcessRunner *m_tailProcess;
-    QSsh::SshRemoteProcessRunner *m_slog2infoProcess;
-
-    QSsh::SshRemoteProcessRunner *m_testSlog2Process;
-    QSsh::SshRemoteProcessRunner *m_launchDateTimeProcess;
-
-    bool showQtMessage(const QString& pattern, const QString& line);
-    void killProcessRunner(QSsh::SshRemoteProcessRunner *processRunner, const QString& command);
+    ProjectExplorer::SshDeviceProcess *m_tailProcess;
+    Slog2InfoRunner *m_slog2InfoRunner;
 };
 } // namespace Internal
 } // namespace Qnx

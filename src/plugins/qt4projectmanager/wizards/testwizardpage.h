@@ -32,7 +32,7 @@
 
 #include <QWizardPage>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 namespace Ui {
@@ -73,6 +73,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // TESTWIZARDPAGE_H

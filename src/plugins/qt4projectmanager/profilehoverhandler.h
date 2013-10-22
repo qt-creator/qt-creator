@@ -47,7 +47,7 @@ namespace TextEditor {
 class ITextEditor;
 }
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 class ProFileHoverHandler : public TextEditor::BaseHoverHandler
@@ -81,6 +81,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // PROFILEHOVERHANDLER_H

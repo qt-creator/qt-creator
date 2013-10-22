@@ -32,7 +32,7 @@
 
 #include "qtwizard.h"
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 class ModulesPage;
@@ -53,6 +53,6 @@ protected:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // CONSOLEAPPWIZARD_H

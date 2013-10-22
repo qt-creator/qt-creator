@@ -36,7 +36,7 @@
 #include <QDateTime>
 #include <QDebug>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 // ----------- QtProjectParameters
@@ -154,4 +154,4 @@ QString QtProjectParameters::libraryMacro(const QString &projectName)
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

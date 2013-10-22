@@ -37,8 +37,8 @@
 #include <projectexplorer/target.h>
 #include <qtsupport/qtoutputformatter.h>
 #include <qtsupport/qtkitinformation.h>
-#include <qt4projectmanager/qt4project.h>
-#include <qt4projectmanager/qt4nodes.h>
+#include <qt4projectmanager/qmakeproject.h>
+#include <qt4projectmanager/qmakenodes.h>
 
 #include <utils/qtcassert.h>
 
@@ -47,7 +47,7 @@ const char PRO_FILE_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.ProFile";
 }
 
 using namespace ProjectExplorer;
-using Qt4ProjectManager::Qt4Project;
+using QmakeProjectManager::Qt4Project;
 
 namespace Android {
 namespace Internal {
@@ -74,8 +74,8 @@ AndroidRunConfiguration::AndroidRunConfiguration(Target *parent, AndroidRunConfi
 void AndroidRunConfiguration::init()
 {
     setDefaultDisplayName(defaultDisplayName());
-    connect(target()->project(), SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
-            this, SLOT(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
+    connect(target()->project(), SIGNAL(proFileUpdated(QmakeProjectManager::Qt4ProFileNode*,bool,bool)),
+            this, SLOT(proFileUpdated(QmakeProjectManager::Qt4ProFileNode*,bool,bool)));
 }
 
 bool AndroidRunConfiguration::fromMap(const QVariantMap &map)
@@ -112,7 +112,7 @@ QString AndroidRunConfiguration::disabledReason() const
     return QString();
 }
 
-void AndroidRunConfiguration::proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress)
+void AndroidRunConfiguration::proFileUpdated(QmakeProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress)
 {
     if (m_proFilePath != pro->path())
         return;

@@ -39,9 +39,9 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
-#include <qt4projectmanager/qt4buildconfiguration.h>
-#include <qt4projectmanager/qt4project.h>
-#include <qt4projectmanager/qt4nodes.h>
+#include <qt4projectmanager/qmakebuildconfiguration.h>
+#include <qt4projectmanager/qmakeproject.h>
+#include <qt4projectmanager/qmakenodes.h>
 
 #include <qtsupport/qtkitinformation.h>
 
@@ -50,7 +50,7 @@
 #define ASSERT_STATE(state) ASSERT_STATE_GENERIC(State, state, m_state)
 
 using namespace ProjectExplorer;
-using namespace Qt4ProjectManager;
+using namespace QmakeProjectManager;
 
 namespace Ios {
 namespace Internal {
@@ -239,4 +239,4 @@ IosSimulator::ConstPtr IosDeployStep::iossimulator() const
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace Ios

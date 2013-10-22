@@ -94,6 +94,8 @@ bool AndroidPackageInstallationStep::init()
         appendOutputParser(parser);
     outputParser()->setWorkingDirectory(pp->effectiveWorkingDirectory());
 
+    m_androidDirToClean = m_androidDirectory == BuildDirectory ? dirPath : QString();
+
     return AbstractProcessStep::init();
 }
 
@@ -103,6 +105,22 @@ bool AndroidPackageInstallationStep::fromMap(const QVariantMap &map)
         return false;
     m_androidDirectory = AndroidDirectory(map.value(QLatin1String(ANDROIDDIRECTORY)).toInt());
     return true;
+}
+
+void AndroidPackageInstallationStep::run(QFutureInterface<bool> &fi)
+{
+    QString error;
+    Utils::FileName androidDir = Utils::FileName::fromString(m_androidDirToClean);
+    if (!m_androidDirToClean.isEmpty()&& androidDir.toFileInfo().exists()) {
+        emit addOutput(tr("Removing directory %1").arg(m_androidDirToClean), MessageOutput);
+        if (!Utils::FileUtils::removeRecursively(androidDir, &error)) {
+            emit addOutput(error, ErrorOutput);
+            fi.reportResult(false);
+            emit finished();
+            return;
+        }
+    }
+    AbstractProcessStep::run(fi);
 }
 
 QVariantMap AndroidPackageInstallationStep::toMap() const

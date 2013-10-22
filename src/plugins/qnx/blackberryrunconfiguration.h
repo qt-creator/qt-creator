@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
+** Copyright (C) 2012, 2013 BlackBerry Limited. All rights reserved.
 **
-** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -38,7 +38,7 @@ namespace ProjectExplorer {
 class Target;
 }
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 class Qt4BuildConfiguration;
 class Qt4Project;
 }
@@ -69,7 +69,7 @@ public:
     QVariantMap toMap() const;
 
     BlackBerryDeployConfiguration *deployConfiguration() const;
-    Qt4ProjectManager::Qt4BuildConfiguration *activeQt4BuildConfiguration() const;
+    QmakeProjectManager::Qt4BuildConfiguration *activeQt4BuildConfiguration() const;
 
     QString key() const;
 

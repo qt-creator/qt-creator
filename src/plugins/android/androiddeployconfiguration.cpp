@@ -39,7 +39,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
-#include <qt4projectmanager/qt4project.h>
+#include <qt4projectmanager/qmakeproject.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 
@@ -124,7 +124,7 @@ DeployConfiguration *AndroidDeployConfigurationFactory::clone(Target *parent, De
 QList<Core::Id> AndroidDeployConfigurationFactory::availableCreationIds(Target *parent) const
 {
     QList<Core::Id> ids;
-    if (!qobject_cast<Qt4ProjectManager::Qt4Project *>(parent->project()))
+    if (!qobject_cast<QmakeProjectManager::Qt4Project *>(parent->project()))
         return ids;
 
     if (!parent->project()->supportsKit(parent->kit()))

@@ -34,7 +34,7 @@
 
 #include <QWizardPage>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 class MobileAppWizardGenericOptionsPage : public QWizardPage
@@ -53,6 +53,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // MOBILEAPPWIZARDPAGES_H

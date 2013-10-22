@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
+** Copyright (C) 2013 BlackBerry Limited. All rights reserved.
 **
-** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -39,6 +39,8 @@
 #include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
 #include <utils/qtcassert.h>
+#include <texteditor/texteditorconstants.h>
+#include <texteditor/basetexteditor.h>
 
 #include <QAction>
 #include <QToolBar>
@@ -80,6 +82,9 @@ BarDescriptorEditor::BarDescriptorEditor(BarDescriptorEditorWidget *editorWidget
     m_actionGroup->addAction(sourceAction);
 
     generalAction->setChecked(true);
+
+    setContext(Core::Context(Constants::QNX_BAR_DESCRIPTOR_EDITOR_CONTEXT,
+            TextEditor::Constants::C_TEXTEDITOR));
 }
 
 bool BarDescriptorEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)

@@ -30,7 +30,7 @@
 #include "qtquickappwizardpages.h"
 #include "ui_qtquickcomponentsetoptionspage.h"
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 class QtQuickComponentSetOptionsPagePrivate
@@ -69,4 +69,4 @@ bool QtQuickComponentSetOptionsPage::isComplete() const
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

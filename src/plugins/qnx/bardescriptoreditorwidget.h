@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
+** Copyright (C) 2013 BlackBerry Limited. All rights reserved.
 **
-** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -46,6 +46,8 @@ class PanelsWidget;
 
 namespace TextEditor {
 class PlainTextEditorWidget;
+class TextEditorActionHandler;
+class BaseTextEditorWidget;
 }
 
 namespace Qnx {
@@ -65,7 +67,7 @@ class BarDescriptorEditorWidget : public QStackedWidget
     Q_OBJECT
 
 public:
-    explicit BarDescriptorEditorWidget(QWidget *parent = 0);
+    explicit BarDescriptorEditorWidget(QWidget *parent, TextEditor::TextEditorActionHandler *handler);
 
     Core::IEditor *editor() const;
 
@@ -78,6 +80,8 @@ public:
     BarDescriptorEditorEnvironmentWidget *environmentWidget() const;
 
     BarDescriptorEditorAssetsWidget *assetsWidget() const;
+
+    TextEditor::BaseTextEditorWidget *sourceWidget() const;
 
     void setFilePath(const QString &filePath);
     QString xmlSource() const;
@@ -103,6 +107,7 @@ private:
 
     mutable Core::IEditor *m_editor;
 
+    TextEditor::TextEditorActionHandler *m_handler;
     bool m_dirty;
 
     // New UI

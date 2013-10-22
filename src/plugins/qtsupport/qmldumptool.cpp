@@ -195,24 +195,24 @@ bool QmlDumpTool::canBuild(const BaseQtVersion *qtVersion, QString *reason)
     if (qtVersion->type() != QLatin1String(Constants::DESKTOPQT)
             && qtVersion->type() != QLatin1String(Constants::SIMULATORQT)) {
         if (reason)
-            *reason = QCoreApplication::translate("Qt4ProjectManager::QmlDumpTool", "Only available for Qt for Desktop and Qt for Qt Simulator.");
+            *reason = QCoreApplication::translate("QmakeProjectManager::QmlDumpTool", "Only available for Qt for Desktop and Qt for Qt Simulator.");
         return false;
     }
     if (qtVersion->qtVersion() < QtVersionNumber(4, 7, 1)) {
         if (reason)
-            *reason = QCoreApplication::translate("Qt4ProjectManager::QmlDumpTool", "Only available for Qt 4.7.1 or newer.");
+            *reason = QCoreApplication::translate("QmakeProjectManager::QmlDumpTool", "Only available for Qt 4.7.1 or newer.");
         return false;
     }
     if (qtVersion->qtVersion() >= QtVersionNumber(4, 8, 0)) {
         if (reason)
-            *reason = QCoreApplication::translate("Qt4ProjectManager::QmlDumpTool", "Not needed.");
+            *reason = QCoreApplication::translate("QmakeProjectManager::QmlDumpTool", "Not needed.");
         return false;
     }
 
 
     if (!hasPrivateHeaders(installHeaders)) {
         if (reason)
-            *reason = QCoreApplication::translate("Qt4ProjectManager::QmlDumpTool", "Private headers are missing for this Qt version.");
+            *reason = QCoreApplication::translate("QmakeProjectManager::QmlDumpTool", "Private headers are missing for this Qt version.");
         return false;
     }
     return true;
@@ -280,7 +280,7 @@ QStringList QmlDumpTool::locationsByInstallData(const QString &qtInstallData, bo
 
 bool QmlDumpTool::build(BuildHelperArguments arguments, QString *log, QString *errorMessage)
 {
-    arguments.helperName = QCoreApplication::translate("Qt4ProjectManager::QmlDumpTool", "qmldump");
+    arguments.helperName = QCoreApplication::translate("QmakeProjectManager::QmlDumpTool", "qmldump");
     arguments.proFilename = QLatin1String("qmldump.pro");
     return buildHelper(arguments, log, errorMessage);
 }
@@ -327,7 +327,7 @@ void QmlDumpTool::pathAndEnvironment(Project *project, BaseQtVersion *version,
             buildTask->updateProjectWhenDone(project, preferDebug);
             QFuture<void> task = QtConcurrent::run(&QmlDumpBuildTask::run, buildTask);
             const QString taskName = QmlDumpBuildTask::tr("Building helper");
-            Core::ProgressManager::addTask(task, taskName, "Qt4ProjectManager::BuildHelpers");
+            Core::ProgressManager::addTask(task, taskName, "QmakeProjectManager::BuildHelpers");
         }
         return;
     }

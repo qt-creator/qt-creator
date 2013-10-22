@@ -358,10 +358,11 @@ KitManager::KitList KitManager::restoreKits(const Utils::FileName &fileName)
 
         const QVariantMap stMap = data.value(key).toMap();
 
-        Kit *k = new Kit;
-        if (k->fromMap(stMap)) {
+        Kit *k = new Kit(stMap);
+        if (k->id().isValid()) {
             result.kits.append(k);
         } else {
+            // If the Id is broken, then do not trust the rest of the data either.
             delete k;
             qWarning("Warning: Unable to restore kits stored in %s at position %d.",
                      qPrintable(fileName.toUserOutput()), i);
@@ -493,6 +494,8 @@ void KitManager::notifyAboutUpdate(ProjectExplorer::Kit *k)
 bool KitManager::registerKit(ProjectExplorer::Kit *k)
 {
     QTC_ASSERT(isLoaded(), return false);
+    QTC_ASSERT(k->id().isValid(), return false);
+
     if (!k)
         return true;
     foreach (Kit *current, kits()) {

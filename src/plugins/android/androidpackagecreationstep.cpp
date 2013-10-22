@@ -42,9 +42,9 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
-#include <qt4projectmanager/qt4buildconfiguration.h>
-#include <qt4projectmanager/qt4project.h>
-#include <qt4projectmanager/qt4nodes.h>
+#include <qt4projectmanager/qmakebuildconfiguration.h>
+#include <qt4projectmanager/qmakeproject.h>
+#include <qt4projectmanager/qmakenodes.h>
 #include <qtsupport/qtkitinformation.h>
 
 #include <coreplugin/icore.h>
@@ -72,7 +72,7 @@ namespace {
     const QLatin1String CertificateSeparator("*******************************************");
 }
 
-using namespace Qt4ProjectManager;
+using namespace QmakeProjectManager;
 
 AndroidPackageCreationStep::AndroidPackageCreationStep(BuildStepList *bsl)
     : BuildStep(bsl, CreatePackageId)
@@ -109,7 +109,7 @@ bool AndroidPackageCreationStep::init()
     // Copying
     m_androidDir = AndroidManager::dirPath(target());
     Utils::FileName path = m_androidDir;
-    QString androidTargetArch = project->rootQt4ProjectNode()->singleVariableValue(Qt4ProjectManager::AndroidArchVar);
+    QString androidTargetArch = project->rootQt4ProjectNode()->singleVariableValue(QmakeProjectManager::AndroidArchVar);
     if (androidTargetArch.isEmpty()) {
         raiseError(tr("Cannot create Android package: No ANDROID_TARGET_ARCH set in make spec."));
         return false;
@@ -435,7 +435,7 @@ void AndroidPackageCreationStep::collectFiles(QList<DeployItem> *deployList,
         return;
 
     Qt4Project *project = static_cast<Qt4Project *>(target()->project());
-    QString androidTargetArch = project->rootQt4ProjectNode()->singleVariableValue(Qt4ProjectManager::AndroidArchVar);
+    QString androidTargetArch = project->rootQt4ProjectNode()->singleVariableValue(QmakeProjectManager::AndroidArchVar);
 
     QString androidAssetsPath = m_androidDir.toString() + QLatin1String("/assets/");
     QString androidJarPath = m_androidDir.toString() + QLatin1String("/libs/");
@@ -882,4 +882,4 @@ void AndroidPackageCreationStep::raiseError(const QString &shortMsg,
 const Core::Id AndroidPackageCreationStep::CreatePackageId("Qt4ProjectManager.AndroidPackageCreationStep");
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace Android

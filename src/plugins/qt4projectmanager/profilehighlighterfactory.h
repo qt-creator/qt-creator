@@ -32,7 +32,7 @@
 
 #include <texteditor/ihighlighterfactory.h>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 class ProFileHighlighterFactory : public TextEditor::IHighlighterFactory
@@ -46,6 +46,6 @@ public:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // PROFILEHIGHLIGHTERFACTORY_H

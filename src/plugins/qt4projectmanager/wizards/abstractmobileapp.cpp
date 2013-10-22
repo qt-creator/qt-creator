@@ -40,7 +40,7 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 
 AbstractGeneratedFileInfo::AbstractGeneratedFileInfo()
     : fileType(ExtendedFile)
@@ -147,6 +147,7 @@ bool AbstractMobileApp::readTemplate(int fileType, QByteArray *data, QString *er
 
 QByteArray AbstractMobileApp::generateDesktopFile(QString *errorMessage, int fileType) const
 {
+    Q_UNUSED(fileType)
     QByteArray desktopFileContent;
     if (!readTemplate(DesktopOrigin, &desktopFileContent, errorMessage))
         return QByteArray();
@@ -421,4 +422,4 @@ void AbstractMobileApp::insertParameter(QString &line, const QString &parameter)
         QLatin1Char('(') + parameter + QLatin1Char(')'));
 }
 
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

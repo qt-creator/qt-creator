@@ -32,7 +32,7 @@
 
 #include "../wizards/qtwizard.h"
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 class CustomWidgetWizard : public QtWizard
@@ -50,6 +50,6 @@ protected:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // CUSTOMWIDGETWIZARD_H

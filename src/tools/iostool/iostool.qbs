@@ -17,7 +17,7 @@ QtcTool {
     cpp.linkerFlags: base.concat(["-sectcreate", "__TEXT", "__info_plist", path + "/Info.plist"])
     cpp.frameworks: base.concat(["CoreFoundation", "CoreServices", "IOKit", "Security",
                                  "SystemConfiguration"])
-    cpp.libraries: base.concat(["ssl", "bz2"])
+    cpp.dynamicLibraries: base.concat(["ssl", "bz2"])
 
     toolInstallDir: project.ide_libexec_path + "/ios"
 }

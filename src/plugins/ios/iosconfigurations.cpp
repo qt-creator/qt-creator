@@ -319,7 +319,7 @@ void IosConfigurations::updateAutomaticKitList()
                 Debugger::DebuggerKitInformation::setDebugger(newKit, debugger);
 
                 SysRootKitInformation::setSysRoot(newKit, p.sdkPath);
-                //Qt4ProjectManager::QmakeKitInformation::setMkspec(newKit,
+                // QmakeProjectManager::QmakeKitInformation::setMkspec(newKit,
                 //    Utils::FileName::fromString(QLatin1String("macx-ios-clang")));
                 KitManager::registerKit(newKit);
                 existingKits << newKit;

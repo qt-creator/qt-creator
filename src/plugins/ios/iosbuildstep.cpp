@@ -43,11 +43,11 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/gcctoolchain.h>
-#include <qt4projectmanager/qt4buildconfiguration.h>
-#include <qt4projectmanager/qt4projectmanagerconstants.h>
-#include <qt4projectmanager/qt4projectmanager.h>
-#include <qt4projectmanager/qt4project.h>
-#include <qt4projectmanager/qt4nodes.h>
+#include <qt4projectmanager/qmakebuildconfiguration.h>
+#include <qt4projectmanager/qmakeprojectmanagerconstants.h>
+#include <qt4projectmanager/qmakeprojectmanager.h>
+#include <qt4projectmanager/qmakeproject.h>
+#include <qt4projectmanager/qmakenodes.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtparser.h>
 #include <coreplugin/variablemanager.h>
@@ -57,7 +57,7 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
-using namespace Qt4ProjectManager;
+using namespace QmakeProjectManager;
 
 namespace Ios {
 namespace Internal {

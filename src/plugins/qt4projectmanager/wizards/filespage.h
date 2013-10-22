@@ -40,7 +40,7 @@ namespace Utils {
 class NewClassWidget;
 } // namespace Utils
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 class FilesPage : public QWizardPage
@@ -88,6 +88,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // FILESPAGE_H

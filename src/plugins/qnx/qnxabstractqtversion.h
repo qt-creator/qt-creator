@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
+** Copyright (C) 2012, 2013 BlackBerry Limited. All rights reserved.
 **
-** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -35,6 +35,8 @@
 #include "qnxconstants.h"
 
 #include <qtsupport/baseqtversion.h>
+
+#include <utils/environment.h>
 
 #include <QCoreApplication>
 
@@ -78,13 +80,13 @@ protected:
 
 private:
     void updateEnvironment() const;
-    virtual QMultiMap<QString, QString> environment() const = 0;
+    virtual QList<Utils::EnvironmentItem> environment() const = 0;
 
     QnxArchitecture m_arch;
     QString m_sdkPath;
 
     mutable bool m_environmentUpToDate;
-    mutable QMultiMap<QString, QString> m_envMap;
+    mutable QList<Utils::EnvironmentItem> m_qnxEnv;
 };
 
 } // namespace Internal

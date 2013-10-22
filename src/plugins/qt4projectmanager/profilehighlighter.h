@@ -33,7 +33,7 @@
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/codeassist/keywordscompletionassist.h>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 class ProFileHighlighter : public TextEditor::SyntaxHighlighter
@@ -56,6 +56,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // PROFILEHIGHLIGHTER_H

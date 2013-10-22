@@ -28,8 +28,8 @@
 ****************************************************************************/
 
 #include "externaleditors.h"
-#include "qt4project.h"
-#include "qt4projectmanagerconstants.h"
+#include "qmakeproject.h"
+#include "qmakeprojectmanagerconstants.h"
 
 #include <utils/hostosinfo.h>
 #include <utils/synchronousprocess.h>
@@ -48,7 +48,7 @@
 
 enum { debug = 0 };
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 // Figure out the Qt4 project used by the file if any
@@ -180,7 +180,7 @@ bool ExternalQtEditor::startEditorProcess(const EditorLaunchData &data, QString 
 LinguistExternalEditor::LinguistExternalEditor(QObject *parent) :
        ExternalQtEditor(linguistIdC,
                         QLatin1String(linguistDisplayName),
-                        QLatin1String(Qt4ProjectManager::Constants::LINGUIST_MIMETYPE),
+                        QLatin1String(QmakeProjectManager::Constants::LINGUIST_MIMETYPE),
                         parent)
 {
 }
@@ -197,7 +197,7 @@ bool LinguistExternalEditor::startEditor(const QString &fileName, QString *error
 MacDesignerExternalEditor::MacDesignerExternalEditor(QObject *parent) :
        ExternalQtEditor(designerIdC,
                         QLatin1String(designerDisplayName),
-                        QLatin1String(Qt4ProjectManager::Constants::FORM_MIMETYPE),
+                        QLatin1String(QmakeProjectManager::Constants::FORM_MIMETYPE),
                         parent)
 {
 }
@@ -291,4 +291,4 @@ bool DesignerExternalEditor::startEditor(const QString &fileName, QString *error
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

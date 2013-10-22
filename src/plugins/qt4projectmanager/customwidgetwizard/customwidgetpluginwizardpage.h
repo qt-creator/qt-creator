@@ -35,7 +35,7 @@
 #include <QWizardPage>
 #include <QSharedPointer>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 struct PluginOptions;
@@ -80,6 +80,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // CUSTOMWIDGETPLUGINWIZARDPAGE_H

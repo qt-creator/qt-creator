@@ -140,9 +140,13 @@ int runWithNewPreprocessor(int argc, char *argv[])
 void parse(const char *fileName, const char *source, unsigned size)
 {
     Control control;
+
+    LanguageFeatures features;
+    features.cxx11Enabled = true;
+
     TranslationUnit unit(&control, control.stringLiteral(fileName));
     unit.setSource(source, size);
-    unit.setCxxOxEnabled(true);
+    unit.setLanguageFeatures(features);
     unit.parse();
 
 #if 1

@@ -72,7 +72,6 @@ def qdump__boost__shared_ptr(d, value):
     weakcount = int(countedbase["weak_count_"])
     usecount = int(countedbase["use_count_"])
     d.check(weakcount >= 0)
-    d.check(weakcount <= int(usecount))
     d.check(usecount <= 10*1000*1000)
 
     val = value["px"].dereference()
@@ -96,14 +95,14 @@ def qdump__boost__gregorian__date(d, value):
     d.putNumChild(0)
 
 
-def qdump__boost__posix_time__ptime(d, item):
-    ms = int(item["time_"]["time_count_"]["value_"]) / 1000
+def qdump__boost__posix_time__ptime(d, value):
+    ms = int(int(value["time_"]["time_count_"]["value_"]) / 1000)
     d.putValue("%s/%s" % divmod(ms, 86400000), JulianDateAndMillisecondsSinceMidnight)
     d.putNumChild(0)
 
 
-def qdump__boost__posix_time__time_duration(d, item):
-    d.putValue(int(item["ticks_"]["value_"]) / 1000, MillisecondsSinceMidnight)
+def qdump__boost__posix_time__time_duration(d, value):
+    d.putValue(int(int(value["ticks_"]["value_"]) / 1000), MillisecondsSinceMidnight)
     d.putNumChild(0)
 
 

@@ -66,6 +66,7 @@
 #include <QDebug>
 #include <QTimer>
 #include <QFileInfo>
+#include <QDir>
 
 #include <QMessageBox>
 
@@ -534,7 +535,7 @@ void DebuggerEngine::gotoLocation(const Location &loc)
     //    return;
 
 
-    const QString file = loc.fileName();
+    const QString file = QDir::cleanPath(loc.fileName());
     const int line = loc.lineNumber();
     bool newEditor = false;
     IEditor *editor = EditorManager::openEditor(file, Id(),

@@ -70,20 +70,8 @@ def qdump__QByteArray(d, value):
         d.putArrayData(d.charType(), data, size)
 
 
-def str2Utf8hex2(s):
-    # Returns UTF-8 hex-data of string suitable for QByteArray::fromHex()
-    ret = []
-    for c in s.encode('utf-8'):
-        ret.append('%02x' % ord(c))
-    return ''.join(ret)
-
 def qdump__QChar(d, value):
-    ucs = int(value["ucs"])
-    if ucs < 32:
-        ch = '?'
-    else:
-        ch = unichr(ucs)
-    d.putValue(str2Utf8hex2(u"'%s' (%d)" % (ch, ucs)), Hex2EncodedUtf8WithoutQuotes)
+    d.putValue(int(value["ucs"]))
     d.putNumChild(0)
 
 
@@ -98,11 +86,11 @@ def qdump__QAbstractItemModel(d, value):
     #format == 2:
     # Create a default-constructed QModelIndex on the stack.
     try:
-        ri = makeValue(d.ns + "QModelIndex", "-1, -1, 0, 0")
-        this_ = makeExpression(value)
-        ri_ = makeExpression(ri)
-        rowCount = int(parseAndEvaluate("%s.rowCount(%s)" % (this_, ri_)))
-        columnCount = int(parseAndEvaluate("%s.columnCount(%s)" % (this_, ri_)))
+        ri = d.makeValue(d.ns + "QModelIndex", "-1, -1, 0, 0")
+        this_ = d.makeExpression(value)
+        ri_ = d.makeExpression(ri)
+        rowCount = int(d.parseAndEvaluate("%s.rowCount(%s)" % (this_, ri_)))
+        columnCount = int(d.parseAndEvaluate("%s.columnCount(%s)" % (this_, ri_)))
     except:
         d.putPlainChildren(value)
         return
@@ -115,7 +103,7 @@ def qdump__QAbstractItemModel(d, value):
                 for column in xrange(columnCount):
                     with SubItem(d, i):
                         d.putName("[%s, %s]" % (row, column))
-                        mi = parseAndEvaluate("%s.index(%d,%d,%s)"
+                        mi = d.parseAndEvaluate("%s.index(%d,%d,%s)"
                             % (this_, row, column, ri_))
                         #warn("MI: %s " % mi)
                         #name = "[%d,%d]" % (row, column)
@@ -152,11 +140,11 @@ def qdump__QModelIndex(d, value):
     mm = m.dereference()
     mm = mm.cast(mm.type.unqualified())
     try:
-        mi = makeValue(d.ns + "QModelIndex", "%s,%s,%s,%s" % (r, c, p, m))
-        mm_ = makeExpression(mm)
-        mi_ = makeExpression(mi)
-        rowCount = int(parseAndEvaluate("%s.rowCount(%s)" % (mm_, mi_)))
-        columnCount = int(parseAndEvaluate("%s.columnCount(%s)" % (mm_, mi_)))
+        mi = d.makeValue(d.ns + "QModelIndex", "%s,%s,%s,%s" % (r, c, p, m))
+        mm_ = d.makeExpression(mm)
+        mi_ = d.makeExpression(mi)
+        rowCount = int(d.parseAndEvaluate("%s.rowCount(%s)" % (mm_, mi_)))
+        columnCount = int(d.parseAndEvaluate("%s.columnCount(%s)" % (mm_, mi_)))
     except:
         d.putEmptyValue()
         d.putPlainChildren(value)
@@ -164,9 +152,9 @@ def qdump__QModelIndex(d, value):
 
     try:
         # Access DisplayRole as value
-        val = parseAndEvaluate("%s.data(%s, 0)" % (mm_, mi_))
+        val = d.parseAndEvaluate("%s.data(%s, 0)" % (mm_, mi_))
         v = val["d"]["data"]["ptr"]
-        d.putStringValue(makeValue(d.ns + 'QString', v))
+        d.putStringValue(d.makeValue(d.ns + 'QString', v))
     except:
         d.putValue("(invalid)")
 
@@ -178,7 +166,7 @@ def qdump__QModelIndex(d, value):
                 for column in xrange(columnCount):
                     with UnnamedSubItem(d, i):
                         d.putName("[%s, %s]" % (row, column))
-                        mi2 = parseAndEvaluate("%s.index(%d,%d,%s)"
+                        mi2 = d.parseAndEvaluate("%s.index(%d,%d,%s)"
                             % (mm_, row, column, mi_))
                         d.putItem(mi2)
                         i = i + 1
@@ -1109,7 +1097,7 @@ def qdump__QObject(d, value):
                                         % value1["type"])
                                 gdb.execute("set $d.d.is_null = %s"
                                         % value1["is_null"])
-                                prop = parseAndEvaluate("$d").dereference()
+                                prop = d.parseAndEvaluate("$d").dereference()
                             val, inner, innert, handled = \
                                 qdumpHelper__QVariant(d, prop)
 
@@ -1818,16 +1806,16 @@ def qdumpHelper__QVariant(d, value):
             innert = inner
         elif variantType == 8:  # QVariant::VariantMap
             inner = d.ns + "QMap<" + d.ns + "QString," + d.ns + "QVariant>"
-            innert = d.ns + "QVariantMap"
+            innert = "QVariantMap"
         elif variantType == 9:  # QVariant::VariantList
             inner = d.ns + "QList<" + d.ns + "QVariant>"
-            innert = d.ns + "QVariantList"
+            innert = "QVariantList"
         elif variantType == 28: # QVariant::VariantHash
             inner = d.ns + "QHash<" + d.ns + "QString," + d.ns + "QVariant>"
-            innert = d.ns + "QVariantHash"
+            innert = "QVariantHash"
 
     elif variantType <= 86:
-        inner = d.ns + qdumpHelper_QVariants_B[variantType - 64]
+        inner = d.ns + qdumpHelper_QVariants_C[variantType - 64]
         innert = inner
 
     if len(inner):

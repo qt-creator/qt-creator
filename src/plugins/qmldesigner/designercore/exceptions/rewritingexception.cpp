@@ -38,6 +38,7 @@ RewritingException::RewritingException(int line,
                                        const QString &documentTextContent):
         Exception(line, function, file), m_description(description), m_documentTextContent(documentTextContent)
 {
+    createWarning();
 }
 
 QString RewritingException::type() const

@@ -80,7 +80,7 @@ class LogChangeDialog : public QDialog
 {
     Q_OBJECT
 public:
-    LogChangeDialog(bool isReset, QWidget *parent = 0);
+    LogChangeDialog(bool isReset, QWidget *parent);
 
     bool runDialog(const QString &repository, const QString &commit = QString(),
                    bool includeRemote = true);

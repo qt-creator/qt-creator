@@ -31,11 +31,11 @@
 #include "ui_qmakestep.h"
 
 #include "qmakeparser.h"
-#include "qt4buildconfiguration.h"
-#include "qt4project.h"
-#include "qt4projectmanagerconstants.h"
+#include "qmakebuildconfiguration.h"
+#include "qmakeproject.h"
+#include "qmakeprojectmanagerconstants.h"
 #include "qmakekitinformation.h"
-#include "qt4nodes.h"
+#include "qmakenodes.h"
 
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
@@ -53,8 +53,8 @@
 #include <QDir>
 #include <QMessageBox>
 
-using namespace Qt4ProjectManager;
-using namespace Qt4ProjectManager::Internal;
+using namespace QmakeProjectManager;
+using namespace QmakeProjectManager::Internal;
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -421,7 +421,7 @@ FileName QMakeStep::mkspec()
         }
     }
 
-    return Qt4ProjectManager::QmakeKitInformation::effectiveMkspec(target()->kit());
+    return QmakeProjectManager::QmakeKitInformation::effectiveMkspec(target()->kit());
 }
 
 QVariantMap QMakeStep::toMap() const

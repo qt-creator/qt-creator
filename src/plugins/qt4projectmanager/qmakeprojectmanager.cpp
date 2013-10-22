@@ -27,15 +27,15 @@
 **
 ****************************************************************************/
 
-#include "qt4projectmanager.h"
+#include "qmakeprojectmanager.h"
 
-#include "qt4projectmanagerconstants.h"
-#include "qt4projectmanagerplugin.h"
-#include "qt4nodes.h"
-#include "qt4project.h"
+#include "qmakeprojectmanagerconstants.h"
+#include "qmakeprojectmanagerplugin.h"
+#include "qmakenodes.h"
+#include "qmakeproject.h"
 #include "profileeditor.h"
 #include "qmakestep.h"
-#include "qt4buildconfiguration.h"
+#include "qmakebuildconfiguration.h"
 #include "addlibrarywizard.h"
 #include "wizards/qtquickapp.h"
 #include "wizards/html5app.h"
@@ -52,8 +52,8 @@
 #include <QMessageBox>
 
 using namespace ProjectExplorer;
-using namespace Qt4ProjectManager;
-using namespace Qt4ProjectManager::Internal;
+using namespace QmakeProjectManager;
+using namespace QmakeProjectManager::Internal;
 
 // Known file types of a Qt 4 project
 static const char *qt4FileTypes[] = {
@@ -93,7 +93,7 @@ void Qt4Manager::notifyChanged(const QString &name)
 
 QString Qt4Manager::mimeType() const
 {
-    return QLatin1String(Qt4ProjectManager::Constants::PROFILE_MIMETYPE);
+    return QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE);
 }
 
 ProjectExplorer::Project *Qt4Manager::openProject(const QString &fileName, QString *errorString)
@@ -164,7 +164,7 @@ void Qt4Manager::addLibrary(const QString &fileName, ProFileEditorWidget *editor
         editable = editor->editor();
     } else {
         editable = qobject_cast<TextEditor::BaseTextEditor *>
-                (Core::EditorManager::openEditor(fileName, Qt4ProjectManager::Constants::PROFILE_EDITOR_ID,
+                (Core::EditorManager::openEditor(fileName, QmakeProjectManager::Constants::PROFILE_EDITOR_ID,
                                                  Core::EditorManager::DoNotMakeVisible));
     }
     if (!editable)

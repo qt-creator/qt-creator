@@ -33,6 +33,7 @@
 #include "debuggeractions.h"
 #include "debuggercore.h"
 
+#include <coreplugin/mainwindow.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/savedaction.h>
@@ -865,7 +866,7 @@ void BreakTreeView::setBreakpointsEnabled(const BreakpointModelIds &ids, bool en
 
 void BreakTreeView::deleteAllBreakpoints()
 {
-    if (QMessageBox::warning(debuggerCore()->mainWindow(),
+    if (QMessageBox::warning(Core::ICore::mainWindow(),
            tr("Remove All Breakpoints"),
            tr("Are you sure you want to remove all breakpoints "
               "from all files in the current session?"),

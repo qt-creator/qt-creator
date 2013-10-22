@@ -144,6 +144,7 @@ public Q_SLOTS:
     void renameSymbolUnderCursor();
     void renameUsages();
     void findUsages();
+    void showPreProcessorWidget();
     void renameUsagesNow(const QString &replacement = QString());
     void semanticRehighlight(bool force = false);
     void highlighterStarted(QFuture<TextEditor::HighlightingResult> *highlighter,
@@ -186,9 +187,6 @@ private Q_SLOTS:
     void onRefactorMarkerClicked(const TextEditor::RefactorMarker &marker);
 
     void onCommentsSettingsChanged(const CppTools::CommentsSettings &settings);
-
-    void showPreProcessorWidget();
-    void preProcessorWidgetFinished(const QByteArray &additionalDefines);
 
 private:
     void markSymbols(const QTextCursor &tc, const CppTools::SemanticInfo &info);

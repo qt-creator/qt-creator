@@ -33,8 +33,8 @@
 #include "../qmakeprojectimporter.h"
 
 #include <extensionsystem/pluginmanager.h>
-#include <qt4projectmanager/qt4project.h>
-#include <qt4projectmanager/qt4projectmanager.h>
+#include <qt4projectmanager/qmakeproject.h>
+#include <qt4projectmanager/qmakeprojectmanager.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtkitinformation.h>
 #include <projectexplorer/projectexplorer.h>
@@ -44,7 +44,7 @@
 
 using namespace ProjectExplorer;
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 
 AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent,
                                                              const QtSupport::QtVersionNumber &minimumQtVersionNumber,
@@ -244,4 +244,4 @@ void AbstractMobileAppWizard::useProjectPath(const QString &projectName,
     projectPathChanged(app()->path(AbstractMobileApp::AppPro));
 }
 
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

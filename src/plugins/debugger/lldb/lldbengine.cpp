@@ -133,7 +133,6 @@ void LldbEngine::setupEngine()
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
 
     m_lldbCmd = startParameters().debuggerCommand;
-    showMessage(_("STARTING LLDB ") + m_lldbCmd);
 
     connect(&m_lldbProc, SIGNAL(error(QProcess::ProcessError)),
         SLOT(handleLldbError(QProcess::ProcessError)));
@@ -147,8 +146,14 @@ void LldbEngine::setupEngine()
     connect(this, SIGNAL(outputReady(QByteArray)),
         SLOT(handleResponse(QByteArray)), Qt::QueuedConnection);
 
-    m_lldbProc.start(_("python"), QStringList() << _("-i")
-        << (Core::ICore::resourcePath() + _("/debugger/lldbbridge.py")) << m_lldbCmd);
+    QStringList args;
+    args.append(_("-i"));
+    args.append(Core::ICore::resourcePath() + _("/debugger/lldbbridge.py"));
+    args.append(m_lldbCmd);
+    showMessage(_("STARTING LLDB ") + args.join(QLatin1String(" ")));
+    m_lldbProc.setEnvironment(startParameters().environment.toStringList());
+
+    m_lldbProc.start(_("python"), args);
 
     if (!m_lldbProc.waitForStarted()) {
         const QString msg = tr("Unable to start LLDB '%1': %2")

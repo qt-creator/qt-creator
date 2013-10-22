@@ -34,7 +34,7 @@
 #include "cppeditorplugin.h"
 #include "cppfollowsymbolundercursor.h"
 #include "cpphighlighter.h"
-#include "cpppreprocessoradditionwidget.h"
+#include "cpppreprocessordialog.h"
 #include "cppquickfixassistant.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -701,19 +701,15 @@ void CPPEditorWidget::selectAll()
 
 void CPPEditorWidget::setMimeType(const QString &mt)
 {
-    const QString &fileName = editor()->document()->filePath();
-    // Check if this editor belongs to a project
-    QList<ProjectPart::Ptr> projectParts = m_modelManager->projectPart(fileName);
-    if (projectParts.isEmpty())
-        projectParts = m_modelManager->projectPartFromDependencies(fileName);
-    if (!projectParts.isEmpty()) {
-        if (ProjectExplorer::Project *project = projectParts.first()->project) {
-            QByteArray additionalDefines = project->additionalCppDefines()
-                    .value(projectParts.first()->projectFile).toByteArray();
-            m_modelManager->cppEditorSupport(editor())->snapshotUpdater()->setEditorDefines(
-                        additionalDefines);
-        }
-    }
+    const QString &filePath = editor()->document()->filePath();
+    const QString &projectFile = ProjectExplorer::SessionManager::value(
+                QLatin1String(Constants::CPP_PREPROCESSOR_PROJECT_PREFIX) + filePath).toString();
+    const QByteArray &additionalDirectives = ProjectExplorer::SessionManager::value(
+                projectFile + QLatin1Char(',') + filePath).toByteArray();
+
+    QSharedPointer<SnapshotUpdater> updater
+            = m_modelManager->cppEditorSupport(editor())->snapshotUpdater();
+    updater->setEditorDefines(additionalDirectives);
 
     BaseTextEditorWidget::setMimeType(mt);
     setObjCEnabled(mt == QLatin1String(CppTools::Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
@@ -1968,28 +1964,21 @@ void CPPEditorWidget::onCommentsSettingsChanged(const CppTools::CommentsSettings
 void CPPEditorWidget::showPreProcessorWidget()
 {
     const QString &fileName = editor()->document()->filePath();
-    // Check if this editor belongs to a project
 
+    // Check if this editor belongs to a project
     QList<ProjectPart::Ptr> projectParts = m_modelManager->projectPart(fileName);
     if (projectParts.isEmpty())
         projectParts = m_modelManager->projectPartFromDependencies(fileName);
     if (projectParts.isEmpty())
         projectParts << m_modelManager->fallbackProjectPart();
 
-    PreProcessorAdditionPopUp::instance()->show(this, projectParts);
-
-    connect(PreProcessorAdditionPopUp::instance(),
-            SIGNAL(finished(QByteArray)),
-            SLOT(preProcessorWidgetFinished(QByteArray)));
-}
-
-void CPPEditorWidget::preProcessorWidgetFinished(const QByteArray &additionalDefines)
-{
-    PreProcessorAdditionPopUp::instance()->disconnect(this);
-    QSharedPointer<SnapshotUpdater> updater
-            = m_modelManager->cppEditorSupport(editor())->snapshotUpdater();
-    updater->setEditorDefines(additionalDefines);
-    updater->update(m_modelManager->workingCopy());
+    CppPreProcessorDialog preProcessorDialog(this, projectParts);
+    if (preProcessorDialog.exec() == QDialog::Accepted) {
+        QSharedPointer<SnapshotUpdater> updater
+                = m_modelManager->cppEditorSupport(editor())->snapshotUpdater();
+        updater->setEditorDefines(preProcessorDialog.additionalPreProcessorDirectives().toLatin1());
+        updater->update(m_modelManager->workingCopy());
+    }
 }
 
 #include <cppeditor.moc>

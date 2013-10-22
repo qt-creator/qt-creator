@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2011,2012,2013 BlackBerry Limited. All rights reserved.
+** Copyright (C) 2013 BlackBerry Limited. All rights reserved.
 **
-** Contact: BlackBerry Limited (qt@blackberry.com)
+** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -72,7 +72,7 @@ public:
     Utils::FileName deviceDebuger() const;
     Utils::FileName simulatorDebuger() const;
     Utils::FileName sysRoot() const;
-    QMultiMap<QString, QString> qnxEnv() const;
+    QList<Utils::EnvironmentItem> qnxEnv() const;
 
 private:
     QString m_displayName;
@@ -85,7 +85,7 @@ private:
     Utils::FileName m_deviceDebugger;
     Utils::FileName m_simulatorDebugger;
     Utils::FileName m_sysRoot;
-    QMultiMap<QString, QString> m_qnxEnv;
+    QList<Utils::EnvironmentItem> m_qnxEnv;
 
     void createConfigurationPerQtVersion(
             const Utils::FileName &qmakePath, Qnx::QnxArchitecture arch);

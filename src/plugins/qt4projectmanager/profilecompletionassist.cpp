@@ -28,16 +28,15 @@
 ****************************************************************************/
 
 #include "profilecompletionassist.h"
-#include "qt4projectmanagerconstants.h"
+#include "qmakeprojectmanagerconstants.h"
 
 #include <texteditor/codeassist/keywordscompletionassist.h>
 
-using namespace Qt4ProjectManager::Internal;
+using namespace QmakeProjectManager::Internal;
 using namespace TextEditor;
 
 
 static const char *const variableKeywords[] = {
-    "BACKUP_REGISTRATION_FILE_MAEMO",
     "CCFLAG",
     "CONFIG",
     "DEFINES",
@@ -280,7 +279,7 @@ ProFileCompletionAssistProvider::~ProFileCompletionAssistProvider()
 
 bool ProFileCompletionAssistProvider::supportsEditor(const Core::Id &editorId) const
 {
-    return editorId == Qt4ProjectManager::Constants::PROFILE_EDITOR_ID;
+    return editorId == QmakeProjectManager::Constants::PROFILE_EDITOR_ID;
 }
 
 IAssistProcessor *ProFileCompletionAssistProvider::createProcessor() const

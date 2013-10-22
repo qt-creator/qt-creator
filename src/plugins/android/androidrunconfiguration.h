@@ -35,7 +35,7 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-namespace Qt4ProjectManager { class Qt4ProFileNode; }
+namespace QmakeProjectManager { class Qt4ProFileNode; }
 
 namespace Android {
 namespace Internal {
@@ -70,7 +70,7 @@ protected:
     bool fromMap(const QVariantMap &map);
     QVariantMap toMap() const;
 private slots:
-    void proFileUpdated(Qt4ProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress);
+    void proFileUpdated(QmakeProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress);
 private:
     void init();
 

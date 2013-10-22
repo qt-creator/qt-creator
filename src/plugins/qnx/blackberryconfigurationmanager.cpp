@@ -281,16 +281,16 @@ BlackBerryConfiguration *BlackBerryConfigurationManager::configurationFromEnvFil
     return 0;
 }
 
-// Returns a valid qnxEnv map from a valid configuration;
+// Returns a valid qnxEnv from a valid configuration;
 // Needed by other classes to get blackberry process path (keys registration, debug token...)
-QMultiMap<QString, QString> BlackBerryConfigurationManager::defaultQnxEnv()
+QList<Utils::EnvironmentItem> BlackBerryConfigurationManager::defaultQnxEnv()
 {
     foreach (BlackBerryConfiguration *config, m_configs) {
-        if (config->isActive() && !config->qnxEnv().isEmpty())
+        if (config->isActive() && config->qnxEnv().size())
             return config->qnxEnv();
     }
 
-    return QMultiMap<QString, QString>();
+    return QList<Utils::EnvironmentItem>();
 }
 
 void BlackBerryConfigurationManager::loadSettings()

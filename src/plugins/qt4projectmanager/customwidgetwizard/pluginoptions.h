@@ -33,7 +33,7 @@
 #include <QString>
 #include <QList>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 struct PluginOptions {

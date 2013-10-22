@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2011,2012,2013 BlackBerry Limited. All rights reserved.
+** Copyright (C) 2013 BlackBerry Limited. All rights reserved.
 **
-** Contact: BlackBerry Limited (qt@blackberry.com)
+** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -67,16 +67,25 @@ BlackBerryConfiguration::BlackBerryConfiguration(const FileName &ndkEnvFile, boo
     m_isAutoDetected = isAutoDetected;
     QString ndkPath = ndkEnvFile.parentDir().toString();
     m_displayName = displayName.isEmpty() ? ndkPath.split(QDir::separator()).last() : displayName;
-    m_qnxEnv = QnxUtils::parseEnvironmentFile(m_ndkEnvFile.toString());
+    m_qnxEnv = QnxUtils::qnxEnvironmentFromNdkFile(m_ndkEnvFile.toString());
 
-    QString ndkTarget = m_qnxEnv.value(QLatin1String("QNX_TARGET"));
+    QString ndkTarget;
+    QString qnxHost;
+    foreach (const Utils::EnvironmentItem &item, m_qnxEnv) {
+        if (item.name == QLatin1String("QNX_TARGET"))
+            ndkTarget = item.value;
+
+        else if (item.name == QLatin1String("QNX_HOST"))
+            qnxHost = item.value;
+
+    }
+
     QString sep = QString::fromLatin1("%1qnx6").arg(QDir::separator());
     m_targetName = ndkTarget.split(sep).first().split(QDir::separator()).last();
 
     if (QDir(ndkTarget).exists())
         m_sysRoot = FileName::fromString(ndkTarget);
 
-    QString qnxHost = m_qnxEnv.value(QLatin1String("QNX_HOST"));
     FileName qmake4Path = QnxUtils::executableWithExtension(FileName::fromString(qnxHost + QLatin1String("/usr/bin/qmake")));
     FileName qmake5Path = QnxUtils::executableWithExtension(FileName::fromString(qnxHost + QLatin1String("/usr/bin/qt5/qmake")));
     FileName gccPath = QnxUtils::executableWithExtension(FileName::fromString(qnxHost + QLatin1String("/usr/bin/qcc")));
@@ -165,7 +174,7 @@ FileName BlackBerryConfiguration::sysRoot() const
     return m_sysRoot;
 }
 
-QMultiMap<QString, QString> BlackBerryConfiguration::qnxEnv() const
+QList<Utils::EnvironmentItem> BlackBerryConfiguration::qnxEnv() const
 {
     return m_qnxEnv;
 }
@@ -232,7 +241,7 @@ Kit *BlackBerryConfiguration::createKit(QnxAbstractQtVersion *version, ToolChain
     DebuggerKitInformation::setDebugger(kit, debugger);
 
     if (isSimulator)
-        Qt4ProjectManager::QmakeKitInformation::setMkspec(
+        QmakeProjectManager::QmakeKitInformation::setMkspec(
                  kit, FileName::fromString(QLatin1String("blackberry-x86-qcc")));
 
     DeviceTypeKitInformation::setDeviceTypeId(kit, Constants::QNX_BB_OS_TYPE);
@@ -251,7 +260,7 @@ Kit *BlackBerryConfiguration::createKit(QnxAbstractQtVersion *version, ToolChain
     kit->setSticky(DeviceTypeKitInformation::id(), true);
     kit->setSticky(SysRootKitInformation::id(), true);
     kit->setSticky(DebuggerKitInformation::id(), true);
-    kit->setSticky(Qt4ProjectManager::QmakeKitInformation::id(), true);
+    kit->setSticky(QmakeProjectManager::QmakeKitInformation::id(), true);
 
     return kit;
 }

@@ -27,21 +27,27 @@
 **
 ****************************************************************************/
 
-#include "findqt4profiles.h"
-#include "qt4nodes.h"
+#ifndef FINDQT4PROFILES_H
+#define FINDQT4PROFILES_H
 
-using namespace Qt4ProjectManager;
-using namespace Qt4ProjectManager::Internal;
+#include <projectexplorer/nodesvisitor.h>
 
-QList<Qt4ProFileNode *> FindQt4ProFiles::operator()(ProjectExplorer::ProjectNode *root)
-{
-    m_proFiles.clear();
-    root->accept(this);
-    return m_proFiles;
-}
+namespace QmakeProjectManager {
+class Qt4ProFileNode;
+namespace Internal {
 
-void FindQt4ProFiles::visitProjectNode(ProjectExplorer::ProjectNode *projectNode)
-{
-    if (Qt4ProFileNode *pro = qobject_cast<Qt4ProFileNode *>(projectNode))
-        m_proFiles.append(pro);
-}
+class FindQt4ProFiles: protected ProjectExplorer::NodesVisitor {
+
+public:
+    QList<Qt4ProFileNode *> operator()(ProjectExplorer::ProjectNode *root);
+protected:
+    virtual void visitProjectNode(ProjectExplorer::ProjectNode *projectNode);
+private:
+    QList<Qt4ProFileNode *> m_proFiles;
+};
+
+} // namespace Internal
+} // namespace QmakeProjectManager
+
+#endif // FINDQT4PROFILES_H
+

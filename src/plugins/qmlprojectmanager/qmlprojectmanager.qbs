@@ -13,7 +13,6 @@ QtcPlugin {
     Depends { name: "QmlJS" }
     Depends { name: "QmlJSTools" }
     Depends { name: "QmlDebug" }
-    Depends { name: "Debugger" }
     Depends { name: "QtSupport" }
     Depends { name: "app_version_header" }
 
@@ -34,8 +33,7 @@ QtcPlugin {
             "qmlprojectplugin.cpp", "qmlprojectplugin.h",
             "qmlprojectrunconfiguration.cpp", "qmlprojectrunconfiguration.h",
             "qmlprojectrunconfigurationfactory.cpp", "qmlprojectrunconfigurationfactory.h",
-            "qmlprojectrunconfigurationwidget.cpp", "qmlprojectrunconfigurationwidget.h",
-            "qmlprojectruncontrol.cpp", "qmlprojectruncontrol.h",
+            "qmlprojectrunconfigurationwidget.cpp", "qmlprojectrunconfigurationwidget.h"
         ]
     }
 

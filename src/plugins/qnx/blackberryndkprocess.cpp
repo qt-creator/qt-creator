@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
+** Copyright (C) 2013 BlackBerry Limited. All rights reserved.
 **
-** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -56,13 +56,17 @@ BlackBerryNdkProcess::BlackBerryNdkProcess(const QString &command, QObject *pare
 const QString BlackBerryNdkProcess::resolveNdkToolPath(const QString &tool)
 {
     QString toolPath;
-    QMultiMap<QString, QString> qnxEnv = BlackBerryConfigurationManager::instance().defaultQnxEnv();
-    if (!qnxEnv.isEmpty()) {
-        toolPath = qnxEnv.value(QLatin1String("QNX_HOST"))
-                + (QLatin1String("/usr/bin/")) + tool;
+    QList<Utils::EnvironmentItem> qnxEnv = BlackBerryConfigurationManager::instance().defaultQnxEnv();
+    foreach (const Utils::EnvironmentItem &item, qnxEnv) {
+        if (item.name == QLatin1String("QNX_HOST") && !item.value.isEmpty()) {
+            toolPath = item.value
+                    + (QLatin1String("/usr/bin/")) + tool;
 
-        if (Utils::HostOsInfo::isWindowsHost())
-            toolPath += QLatin1String(".bat");
+            if (Utils::HostOsInfo::isWindowsHost())
+                toolPath += QLatin1String(".bat");
+
+            break;
+        }
     }
 
     return toolPath;

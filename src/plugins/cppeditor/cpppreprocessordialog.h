@@ -27,27 +27,47 @@
 **
 ****************************************************************************/
 
-#ifndef FINDQT4PROFILES_H
-#define FINDQT4PROFILES_H
+#ifndef CPPPREPROCESSORDIALOG_H
+#define CPPPREPROCESSORDIALOG_H
 
-#include <projectexplorer/nodesvisitor.h>
+#include <cpptools/cppmodelmanagerinterface.h>
 
-namespace Qt4ProjectManager {
-class Qt4ProFileNode;
+#include <QDialog>
+
+namespace CppEditor {
 namespace Internal {
+namespace Ui { class CppPreProcessorDialog; }
 
-class FindQt4ProFiles: protected ProjectExplorer::NodesVisitor {
+class CPPEditorWidget;
+
+class CppPreProcessorDialog : public QDialog
+{
+    Q_OBJECT
 
 public:
-    QList<Qt4ProFileNode *> operator()(ProjectExplorer::ProjectNode *root);
-protected:
-    virtual void visitProjectNode(ProjectExplorer::ProjectNode *projectNode);
+    explicit CppPreProcessorDialog(CPPEditorWidget *editorWidget,
+                                   const QList<CppTools::ProjectPart::Ptr> &projectParts);
+    ~CppPreProcessorDialog();
+
+    int exec();
+    QString additionalPreProcessorDirectives() const;
+
+private slots:
+    void projectChanged(int index);
+    void textChanged();
+
 private:
-    QList<Qt4ProFileNode *> m_proFiles;
+    struct ProjectPartAddition {
+        CppTools::ProjectPart::Ptr projectPart;
+        QString additionalDirectives;
+    };
+
+    Ui::CppPreProcessorDialog *m_ui;
+    QList<ProjectPartAddition> m_partAdditions;
+    QString m_filePath;
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace CPPEditor
 
-#endif // FINDQT4PROFILES_H
-
+#endif // CPPPREPROCESSORDIALOG_H

@@ -30,7 +30,7 @@
 #include "html5appwizardpages.h"
 #include "ui_html5appwizardsourcespage.h"
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 class Html5AppWizardOptionsPagePrivate
@@ -103,4 +103,4 @@ void Html5AppWizardOptionsPage::setLineEditsEnabled()
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

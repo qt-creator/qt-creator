@@ -27,11 +27,11 @@
 **
 ****************************************************************************/
 
-#include "qt4nodes.h"
-#include "qt4project.h"
-#include "qt4projectmanager.h"
-#include "qt4projectmanagerconstants.h"
-#include "qt4buildconfiguration.h"
+#include "qmakenodes.h"
+#include "qmakeproject.h"
+#include "qmakeprojectmanager.h"
+#include "qmakeprojectmanagerconstants.h"
+#include "qmakebuildconfiguration.h"
 #include "qmakerunconfigurationfactory.h"
 
 #include <projectexplorer/nodesvisitor.h>
@@ -81,23 +81,23 @@ struct FileTypeDataStorage {
 
 static const FileTypeDataStorage fileTypeDataStorage[] = {
     { ProjectExplorer::HeaderType,
-      QT_TRANSLATE_NOOP("Qt4ProjectManager::Qt4PriFileNode", "Headers"),
-      ":/qt4projectmanager/images/headers.png" },
+      QT_TRANSLATE_NOOP("QmakeProjectManager::Qt4PriFileNode", "Headers"),
+      ":/qmakeprojectmanager/images/headers.png" },
     { ProjectExplorer::SourceType,
-      QT_TRANSLATE_NOOP("Qt4ProjectManager::Qt4PriFileNode", "Sources"),
-      ":/qt4projectmanager/images/sources.png" },
+      QT_TRANSLATE_NOOP("QmakeProjectManager::Qt4PriFileNode", "Sources"),
+      ":/qmakeprojectmanager/images/sources.png" },
     { ProjectExplorer::FormType,
-      QT_TRANSLATE_NOOP("Qt4ProjectManager::Qt4PriFileNode", "Forms"),
+      QT_TRANSLATE_NOOP("QmakeProjectManager::Qt4PriFileNode", "Forms"),
       ":/qtsupport/images/forms.png" },
     { ProjectExplorer::ResourceType,
-      QT_TRANSLATE_NOOP("Qt4ProjectManager::Qt4PriFileNode", "Resources"),
+      QT_TRANSLATE_NOOP("QmakeProjectManager::Qt4PriFileNode", "Resources"),
       ":/qtsupport/images/qt_qrc.png" },
     { ProjectExplorer::QMLType,
-      QT_TRANSLATE_NOOP("Qt4ProjectManager::Qt4PriFileNode", "QML"),
+      QT_TRANSLATE_NOOP("QmakeProjectManager::Qt4PriFileNode", "QML"),
       ":/qtsupport/images/qml.png" },
     { ProjectExplorer::UnknownFileType,
-      QT_TRANSLATE_NOOP("Qt4ProjectManager::Qt4PriFileNode", "Other files"),
-      ":/qt4projectmanager/images/unknown.png" }
+      QT_TRANSLATE_NOOP("QmakeProjectManager::Qt4PriFileNode", "Other files"),
+      ":/qmakeprojectmanager/images/unknown.png" }
 };
 
 bool sortNodesByPath(ProjectExplorer::Node *a, ProjectExplorer::Node *b)
@@ -143,7 +143,7 @@ Qt4NodeStaticData::Qt4NodeStaticData()
                                                     overlayIcon, desiredSize);
         QIcon folderIcon;
         folderIcon.addPixmap(folderPixmap);
-        const QString desc = Qt4ProjectManager::Qt4PriFileNode::tr(fileTypeDataStorage[i].typeName);
+        const QString desc = QmakeProjectManager::Qt4PriFileNode::tr(fileTypeDataStorage[i].typeName);
         fileTypeData.push_back(Qt4NodeStaticData::FileTypeData(fileTypeDataStorage[i].type,
                                                                desc, folderIcon));
     }
@@ -167,10 +167,10 @@ static void clearQt4NodeStaticData()
 
 enum { debug = 0 };
 
-using namespace Qt4ProjectManager;
-using namespace Qt4ProjectManager::Internal;
+using namespace QmakeProjectManager;
+using namespace QmakeProjectManager::Internal;
 
-Qt4PriFile::Qt4PriFile(Qt4ProjectManager::Qt4PriFileNode *qt4PriFile)
+Qt4PriFile::Qt4PriFile(QmakeProjectManager::Qt4PriFileNode *qt4PriFile)
     : IDocument(qt4PriFile), m_priFile(qt4PriFile)
 {
     setFilePath(m_priFile->path());
@@ -196,7 +196,7 @@ QString Qt4PriFile::suggestedFileName() const
 
 QString Qt4PriFile::mimeType() const
 {
-    return QLatin1String(Qt4ProjectManager::Constants::PROFILE_MIMETYPE);
+    return QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE);
 }
 
 bool Qt4PriFile::isModified() const
@@ -231,7 +231,7 @@ bool Qt4PriFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
   Implements abstract ProjectNode class
   */
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 
 Qt4PriFileNode::Qt4PriFileNode(Qt4Project *project, Qt4ProFileNode* qt4ProFileNode, const QString &filePath)
         : ProjectNode(filePath),
@@ -385,7 +385,7 @@ struct InternalNode
     }
 
     // Makes the projectNode's subtree below the given folder match this internal node's subtree
-    void updateSubFolders(Qt4ProjectManager::Qt4PriFileNode *projectNode, ProjectExplorer::FolderNode *folder)
+    void updateSubFolders(QmakeProjectManager::Qt4PriFileNode *projectNode, ProjectExplorer::FolderNode *folder)
     {
         updateFiles(projectNode, folder, type);
 
@@ -476,7 +476,7 @@ struct InternalNode
     }
 
     // Makes the folder's files match this internal node's file list
-    void updateFiles(Qt4ProjectManager::Qt4PriFileNode *projectNode, FolderNode *folder, FileType type)
+    void updateFiles(QmakeProjectManager::Qt4PriFileNode *projectNode, FolderNode *folder, FileType type)
     {
         QList<FileNode*> existingFileNodes;
         foreach (FileNode *fileNode, folder->fileNodes()) {
@@ -1394,7 +1394,7 @@ QSet<Utils::FileName> Qt4PriFileNode::filterFilesRecursiveEnumerata(ProjectExplo
     return result;
 }
 
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 static Qt4ProjectType proFileTemplateTypeToProjectType(ProFileEvaluator::TemplateType type)
 {

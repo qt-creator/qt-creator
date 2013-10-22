@@ -27,70 +27,59 @@
 **
 ****************************************************************************/
 
-#ifndef CPPPREPROCESSORADDITIONWIDGET_H
-#define CPPPREPROCESSORADDITIONWIDGET_H
+#ifndef QT4PROJECTCONFIGWIDGET_H
+#define QT4PROJECTCONFIGWIDGET_H
 
-#include <cpptools/cppmodelmanagerinterface.h>
-#include <utils/tooltip/tooltip.h>
+#include <projectexplorer/namedwidget.h>
 
-#include <QWidget>
-#include <QVariantMap>
-#include <QPointer>
+QT_BEGIN_NAMESPACE
+class QAbstractButton;
+QT_END_NAMESPACE
 
-namespace CppEditor {
+namespace Utils {
+    class DetailsWidget;
+}
+
+namespace QmakeProjectManager {
+class Qt4BuildConfiguration;
+class Qt4ProFileNode;
+
 namespace Internal {
-namespace Ui { class CppPreProcessorAdditionWidget; }
+namespace Ui {
+class Qt4ProjectConfigWidget;
+}
 
-class PreProcessorAdditionWidget : public QWidget
+class Qt4ProjectConfigWidget : public ProjectExplorer::NamedWidget
 {
     Q_OBJECT
-
 public:
-    explicit PreProcessorAdditionWidget(QWidget *parent = 0);
-    ~PreProcessorAdditionWidget();
-    Ui::CppPreProcessorAdditionWidget *ui;
-
-signals:
-    void finished();
-};
-
-class PreProcessorAdditionPopUp : public Utils::ToolTip
-{
-    Q_OBJECT
-
-public:
-    ~PreProcessorAdditionPopUp(){}
-    static PreProcessorAdditionPopUp *instance();
-
-    void show(QWidget *parent, const QList<CppTools::ProjectPart::Ptr> &projectPartAdditions);
-    bool eventFilter(QObject *o, QEvent *event);
-
-signals:
-    void finished(const QByteArray &additionalDefines);
+    Qt4ProjectConfigWidget(Qt4BuildConfiguration *bc);
+    ~Qt4ProjectConfigWidget();
 
 private slots:
-    void textChanged();
-    void finish();
-    void projectChanged(int index);
-    void apply();
-    void cancel();
+    // User changes in our widgets
+    void shadowBuildClicked(bool checked);
+    void onBeforeBeforeShadowBuildDirBrowsed();
+    void shadowBuildEdited();
 
-protected:
-    explicit PreProcessorAdditionPopUp();
+    // Changes triggered from creator
+    void buildDirectoryChanged();
+    void updateProblemLabel();
+    void environmentChanged();
 
 private:
-    struct ProjectPartAddition {
-        CppTools::ProjectPart::Ptr projectPart;
-        QByteArray additionalDefines;
-    };
+    void updateDetails();
+    void setProblemLabel(const QString &text);
 
-    PreProcessorAdditionWidget* m_widget;
-    QList<ProjectPartAddition> m_originalPartAdditions;
-    QList<ProjectPartAddition> m_partAdditions;
-
+    Ui::Qt4ProjectConfigWidget *m_ui;
+    QAbstractButton *m_browseButton;
+    Qt4BuildConfiguration *m_buildConfiguration;
+    Utils::DetailsWidget *m_detailsContainer;
+    QString m_defaultShadowBuildDir;
+    bool m_ignoreChange;
 };
 
-} // namespace CPPEditor
 } // namespace Internal
+} // namespace QmakeProjectManager
 
-#endif // CPPPREPROCESSORADDITIONWIDGET_H
+#endif // QT4PROJECTCONFIGWIDGET_H

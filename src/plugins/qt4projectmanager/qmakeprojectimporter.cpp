@@ -31,8 +31,8 @@
 
 #include "qmakebuildinfo.h"
 #include "qmakekitinformation.h"
-#include "qt4buildconfiguration.h"
-#include "qt4project.h"
+#include "qmakebuildconfiguration.h"
+#include "qmakeproject.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -52,7 +52,7 @@
 
 static const Core::Id QT_IS_TEMPORARY("Qmake.TempQt");
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 QmakeProjectImporter::QmakeProjectImporter(const QString &path) :
@@ -153,10 +153,10 @@ QList<ProjectExplorer::BuildInfo *> QmakeProjectImporter::import(const Utils::Fi
             QmakeBuildInfo *info = new QmakeBuildInfo(factory);
             if (makefileBuildConfig.first & QtSupport::BaseQtVersion::DebugBuild) {
                 info->type = ProjectExplorer::BuildConfiguration::Debug;
-                info->displayName = QCoreApplication::translate("Qt4ProjectManager::Internal::QmakeProjectImporter", "Debug");
+                info->displayName = QCoreApplication::translate("QmakeProjectManager::Internal::QmakeProjectImporter", "Debug");
             } else {
                 info->type = ProjectExplorer::BuildConfiguration::Release;
-                info->displayName = QCoreApplication::translate("Qt4ProjectManager::Internal::QmakeProjectImporter", "Release");
+                info->displayName = QCoreApplication::translate("QmakeProjectManager::Internal::QmakeProjectImporter", "Release");
             }
             info->kitId = k->id();
             info->buildDirectory = Utils::FileName::fromString(fi.absoluteFilePath());
@@ -169,8 +169,8 @@ QList<ProjectExplorer::BuildInfo *> QmakeProjectImporter::import(const Utils::Fi
 
     if (result.isEmpty() && !silent)
         QMessageBox::critical(Core::ICore::mainWindow(),
-                              QCoreApplication::translate("Qt4ProjectManager::Internal::QmakeProjectImporter", "No Build Found"),
-                              QCoreApplication::translate("Qt4ProjectManager::Internal::QmakeProjectImporter", "No build found in %1 matching project %2.")
+                              QCoreApplication::translate("QmakeProjectManager::Internal::QmakeProjectImporter", "No Build Found"),
+                              QCoreApplication::translate("QmakeProjectManager::Internal::QmakeProjectImporter", "No build found in %1 matching project %2.")
                 .arg(importPath.toUserOutput()).arg(projectFilePath()));
 
     return result;
@@ -251,4 +251,4 @@ ProjectExplorer::Kit *QmakeProjectImporter::createTemporaryKit(QtSupport::BaseQt
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

@@ -27,20 +27,20 @@
 **
 ****************************************************************************/
 
-#include "qt4projectconfigwidget.h"
+#include "qmakeprojectconfigwidget.h"
 
-#include "qt4project.h"
-#include "qt4buildconfiguration.h"
-#include "qt4nodes.h"
-#include "ui_qt4projectconfigwidget.h"
+#include "qmakeproject.h"
+#include "qmakebuildconfiguration.h"
+#include "qmakenodes.h"
+#include "ui_qmakeprojectconfigwidget.h"
 
 #include <projectexplorer/target.h>
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/detailswidget.h>
 
-using namespace Qt4ProjectManager;
-using namespace Qt4ProjectManager::Internal;
+using namespace QmakeProjectManager;
+using namespace QmakeProjectManager::Internal;
 using namespace ProjectExplorer;
 
 Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(Qt4BuildConfiguration *bc)

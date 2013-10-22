@@ -33,7 +33,7 @@
 #include <QString>
 #include <QFileInfo>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 /* Helper struct specifying how to generate file names

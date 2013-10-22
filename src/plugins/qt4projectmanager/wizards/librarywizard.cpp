@@ -41,7 +41,7 @@
 
 static const char sharedHeaderPostfixC[] = "_global";
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 LibraryWizard::LibraryWizard()
@@ -154,4 +154,4 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

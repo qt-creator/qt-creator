@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
+** Copyright (C) 2012, 2013 BlackBerry Limited. All rights reserved.
 **
-** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -36,7 +36,7 @@
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
-#include <qt4projectmanager/qt4project.h>
+#include <qt4projectmanager/qmakeproject.h>
 
 using namespace Qnx;
 using namespace Qnx::Internal;
@@ -57,7 +57,7 @@ QList<Core::Id> BlackBerryRunConfigurationFactory::availableCreationIds(ProjectE
     if (!canHandle(parent))
         return ids;
 
-    Qt4ProjectManager::Qt4Project *qt4Project = qobject_cast<Qt4ProjectManager::Qt4Project *>(parent->project());
+    QmakeProjectManager::Qt4Project *qt4Project = qobject_cast<QmakeProjectManager::Qt4Project *>(parent->project());
     if (!qt4Project)
         return ids;
 
@@ -85,7 +85,7 @@ bool BlackBerryRunConfigurationFactory::canCreate(ProjectExplorer::Target *paren
     if (!canHandle(parent))
         return false;
 
-    Qt4ProjectManager::Qt4Project *qt4Project = qobject_cast<Qt4ProjectManager::Qt4Project *>(parent->project());
+    QmakeProjectManager::Qt4Project *qt4Project = qobject_cast<QmakeProjectManager::Qt4Project *>(parent->project());
     if (!qt4Project)
         return false;
 
@@ -140,7 +140,7 @@ bool BlackBerryRunConfigurationFactory::canHandle(ProjectExplorer::Target *t) co
 {
     if (!t->project()->supportsKit(t->kit()))
         return false;
-    if (!qobject_cast<Qt4ProjectManager::Qt4Project *>(t->project()))
+    if (!qobject_cast<QmakeProjectManager::Qt4Project *>(t->project()))
         return false;
 
     Core::Id deviceType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(t->kit());

@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
+** Copyright (C) 2012, 2013 BlackBerry Limited. All rights reserved.
 **
-** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -41,7 +41,7 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
-#include <qt4projectmanager/qt4project.h>
+#include <qt4projectmanager/qmakeproject.h>
 #include <remotelinux/genericdirectuploadstep.h>
 
 using namespace Qnx;
@@ -60,7 +60,7 @@ QList<Core::Id> BlackBerryDeployConfigurationFactory::availableCreationIds(Proje
 {
     QList<Core::Id> result;
 
-    Qt4ProjectManager::Qt4Project *project = qobject_cast<Qt4ProjectManager::Qt4Project *>(parent->project());
+    QmakeProjectManager::Qt4Project *project = qobject_cast<QmakeProjectManager::Qt4Project *>(parent->project());
     if (!project)
         return result;
 

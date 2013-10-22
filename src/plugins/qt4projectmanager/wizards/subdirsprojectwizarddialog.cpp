@@ -30,7 +30,7 @@
 #include "subdirsprojectwizarddialog.h"
 #include <projectexplorer/projectexplorerconstants.h>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 SubdirsProjectWizardDialog::SubdirsProjectWizardDialog(const QString &templateName,
@@ -61,4 +61,4 @@ QtProjectParameters SubdirsProjectWizardDialog::parameters() const
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

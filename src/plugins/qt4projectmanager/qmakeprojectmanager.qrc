@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/qt4projectmanager">
+    <qresource prefix="/qmakeprojectmanager">
         <file>images/run_qmake.png</file>
         <file>images/run_qmake_small.png</file>
         <file>Qt4ProjectManager.mimetypes.xml</file>

@@ -44,7 +44,7 @@
 
 enum { debugLibWizard = 0 };
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 struct PluginBaseClasses {
@@ -376,4 +376,4 @@ MobileLibraryParameters LibraryWizardDialog::mobileLibraryParameters() const
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

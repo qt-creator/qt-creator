@@ -40,7 +40,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 
 QmakeKitInformation::QmakeKitInformation()
 {
@@ -141,4 +141,4 @@ FileName QmakeKitInformation::defaultMkspec(const Kit *k)
     return version->mkspecFor(ToolChainKitInformation::toolChain(k));
 }
 
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

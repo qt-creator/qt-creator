@@ -30,7 +30,7 @@
 #ifndef ABSTRACTMOBILEAPP_H
 #define ABSTRACTMOBILEAPP_H
 
-#include "../qt4projectmanager_global.h"
+#include "../qmakeprojectmanager_global.h"
 #include <QFileInfo>
 #include <QPair>
 
@@ -40,7 +40,7 @@
 
 QT_FORWARD_DECLARE_CLASS(QTextStream)
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 
 /// \internal
 struct
@@ -177,6 +177,6 @@ private:
     ScreenOrientation m_orientation;
 };
 
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // ABSTRACTMOBILEAPP_H

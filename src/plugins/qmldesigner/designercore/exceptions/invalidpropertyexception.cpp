@@ -48,6 +48,7 @@ InvalidPropertyException::InvalidPropertyException(int line,
                                                    const QString &argument)
  : Exception(line, function, file), m_argument(argument)
 {
+    createWarning();
 }
 
 /*!

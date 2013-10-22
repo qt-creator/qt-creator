@@ -67,15 +67,22 @@ void DebuggerItem::reinitializeFromFile()
     QByteArray ba = proc.readAll();
     if (ba.contains("gdb")) {
         m_engineType = GdbEngineType;
-//        const char needle[] = "This GDB was configured as \"";
-//        int pos1 = ba.indexOf(needle);
-//        if (pos1 != -1) {
-//            pos1 += sizeof(needle);
-//            int pos2 = ba.indexOf('"', pos1 + 1);
-//            QByteArray target = ba.mid(pos1, pos2 - pos1);
-//            abis.append(Abi::abiFromTargetTriplet(target)); // FIXME: Doesn't exist yet.
-//        }
-        m_abis = Abi::abisOfBinary(m_command); // FIXME: Wrong.
+        const char needle[] = "This GDB was configured as \"";
+        // E.g.  "--host=i686-pc-linux-gnu --target=arm-unknown-nto-qnx6.5.0".
+        // or "i686-linux-gnu"
+        int pos1 = ba.indexOf(needle);
+        if (pos1 != -1) {
+            pos1 += int(sizeof(needle));
+            int pos2 = ba.indexOf('"', pos1 + 1);
+            QByteArray target = ba.mid(pos1, pos2 - pos1);
+            int pos3 = target.indexOf("--target=");
+            if (pos3 >= 0)
+                target = target.mid(pos3 + 9);
+            m_abis.append(Abi::abiFromTargetTriplet(QString::fromLatin1(target)));
+        } else {
+            // Fallback.
+            m_abis = Abi::abisOfBinary(m_command); // FIXME: Wrong.
+        }
         return;
     }
     if (ba.contains("lldb") || ba.startsWith("LLDB")) {
@@ -176,6 +183,45 @@ void DebuggerItem::setAbi(const Abi &abi)
 {
     m_abis.clear();
     m_abis.append(abi);
+}
+
+static DebuggerItem::MatchLevel matchSingle(const Abi &debuggerAbi, const Abi &targetAbi)
+{
+    if (debuggerAbi.architecture() != Abi::UnknownArchitecture
+            && debuggerAbi.architecture() != targetAbi.architecture())
+        return DebuggerItem::DoesNotMatch;
+
+    if (debuggerAbi.os() != Abi::UnknownOS
+            && debuggerAbi.os() != targetAbi.os())
+        return DebuggerItem::DoesNotMatch;
+
+    if (debuggerAbi.binaryFormat() != Abi::UnknownFormat
+            && debuggerAbi.binaryFormat() != targetAbi.binaryFormat())
+        return DebuggerItem::DoesNotMatch;
+
+    if (debuggerAbi.wordWidth() != 0 && debuggerAbi.wordWidth() != targetAbi.wordWidth())
+        return DebuggerItem::DoesNotMatch;
+
+    if (debuggerAbi.os() == Abi::WindowsOS) {
+        if (debuggerAbi.osFlavor() == Abi::WindowsMSysFlavor && targetAbi.osFlavor() != Abi::WindowsMSysFlavor)
+            return DebuggerItem::DoesNotMatch;
+        if (debuggerAbi.osFlavor() != Abi::WindowsMSysFlavor && targetAbi.osFlavor() == Abi::WindowsMSysFlavor)
+            return DebuggerItem::DoesNotMatch;
+        return DebuggerItem::MatchesSomewhat;
+    }
+
+    return DebuggerItem::MatchesPerfectly;
+}
+
+DebuggerItem::MatchLevel DebuggerItem::matchTarget(const Abi &targetAbi) const
+{
+    MatchLevel bestMatch = DoesNotMatch;
+    foreach (const Abi &debuggerAbi, m_abis) {
+        MatchLevel currentMatch = matchSingle(debuggerAbi, targetAbi);
+        if (currentMatch > bestMatch)
+            bestMatch = currentMatch;
+    }
+    return bestMatch;
 }
 
 bool Debugger::DebuggerItem::isValid() const

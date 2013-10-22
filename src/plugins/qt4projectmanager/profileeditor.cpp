@@ -30,7 +30,7 @@
 #include "profileeditor.h"
 
 #include "profilehighlighter.h"
-#include "qt4projectmanagerconstants.h"
+#include "qmakeprojectmanagerconstants.h"
 #include "profileeditorfactory.h"
 #include "profilecompletionassist.h"
 
@@ -45,7 +45,7 @@
 #include <QSharedPointer>
 #include <QTextBlock>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 //
@@ -221,4 +221,4 @@ QString ProFileDocument::suggestedFileName() const
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

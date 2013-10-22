@@ -81,6 +81,7 @@ public slots:
     void openTypeHierarchy();
     void openIncludeHierarchy();
     void findUsages();
+    void showPreProcessorDialog();
     void renameSymbolUnderCursor();
     void switchDeclarationDefinition();
 
@@ -152,6 +153,12 @@ private slots:
     void test_doxygen_comments_cpp_styleA_continuation();
     void test_doxygen_comments_cpp_styleA_indented_continuation();
     void test_doxygen_comments_cpp_styleA_corner_case();
+
+    void test_quickfix_CompleteSwitchCaseStatement_basic1();
+    void test_quickfix_CompleteSwitchCaseStatement_basic2();
+    void test_quickfix_CompleteSwitchCaseStatement_oneValueMissing();
+    void test_quickfix_CompleteSwitchCaseStatement_QTCREATORBUG10366_1();
+    void test_quickfix_CompleteSwitchCaseStatement_QTCREATORBUG10366_2();
 
     void test_quickfix_GenerateGetterSetter_basicGetterWithPrefix();
     void test_quickfix_GenerateGetterSetter_basicGetterWithPrefixAndNamespace();

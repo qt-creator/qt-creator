@@ -153,6 +153,8 @@ private slots:
     void test_completion_recursive_using_declarations1();
     void test_completion_recursive_using_declarations2();
     void test_completion_recursive_using_typedef_declarations();
+    void test_completion_recursive_typedefs_in_templates1();
+    void test_completion_recursive_typedefs_in_templates2();
     void test_completion_prefix_first_QTCREATORBUG_8737();
     void test_completion_prefix_first_QTCREATORBUG_9236();
 

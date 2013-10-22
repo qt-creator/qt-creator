@@ -32,7 +32,7 @@
 
 #include "qtwizard.h"
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 class SubdirsProjectWizard : public QtWizard
@@ -51,6 +51,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // SUBDIRSPROJECTWIZARD_H

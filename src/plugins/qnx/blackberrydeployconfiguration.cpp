@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
+** Copyright (C) 2012, 2013 BlackBerry Limited. All rights reserved.
 **
-** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -38,9 +38,9 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/projectexplorer.h>
-#include <qt4projectmanager/qt4nodes.h>
-#include <qt4projectmanager/qt4project.h>
-#include <qt4projectmanager/qt4buildconfiguration.h>
+#include <qt4projectmanager/qmakenodes.h>
+#include <qt4projectmanager/qmakeproject.h>
+#include <qt4projectmanager/qmakebuildconfiguration.h>
 #include <qtsupport/qtkitinformation.h>
 #include <coreplugin/icore.h>
 #include <ssh/sshconnection.h>
@@ -82,7 +82,7 @@ void BlackBerryDeployConfiguration::ctor()
 
 void BlackBerryDeployConfiguration::setupBarDescriptor()
 {
-    Qt4ProjectManager::Qt4BuildConfiguration *bc = qobject_cast<Qt4ProjectManager::Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
+    QmakeProjectManager::Qt4BuildConfiguration *bc = qobject_cast<QmakeProjectManager::Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
     if (!bc || !target()->kit())
         return;
 
@@ -90,8 +90,8 @@ void BlackBerryDeployConfiguration::setupBarDescriptor()
     QString projectName = target()->project()->displayName();
 
     QString targetName;
-    Qt4ProjectManager::Qt4Project *project =  static_cast<Qt4ProjectManager::Qt4Project *>(target()->project());
-    foreach (Qt4ProjectManager::Qt4ProFileNode *node, project->applicationProFiles()) {
+    QmakeProjectManager::Qt4Project *project =  static_cast<QmakeProjectManager::Qt4Project *>(target()->project());
+    foreach (QmakeProjectManager::Qt4ProFileNode *node, project->applicationProFiles()) {
         QString target = node->targetInformation().target;
         if (!target.isEmpty()) {
             targetName = target;

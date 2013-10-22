@@ -63,7 +63,7 @@ public:
     QString defaultDebugTokenPath() const;
     void clearConfigurationSettings(BlackBerryConfiguration *config);
 
-    QMultiMap<QString, QString> defaultQnxEnv();
+    QList<Utils::EnvironmentItem> defaultQnxEnv();
 
     void loadAutoDetectedConfigurations();
 

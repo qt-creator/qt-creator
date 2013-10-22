@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
+** Copyright (C) 2013 BlackBerry Limited. All rights reserved.
 **
-** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -62,10 +62,8 @@ BlackBerryDeviceConnection::BlackBerryDeviceConnection() :
 void BlackBerryDeviceConnection::connectDevice(const ProjectExplorer::IDevice::ConstPtr &device)
 {
     Utils::Environment env = Utils::Environment::systemEnvironment();
-
-    QMultiMap<QString, QString> qnxEnv = BlackBerryConfigurationManager::instance().defaultQnxEnv();
-    if (!qnxEnv.isEmpty())
-        QnxUtils::prependQnxMapToEnvironment(qnxEnv, env);
+    foreach (const Utils::EnvironmentItem &item, BlackBerryConfigurationManager::instance().defaultQnxEnv())
+        env.appendOrSet(item.name, item.value);
 
     m_process->setEnvironment(env.toStringList());
 

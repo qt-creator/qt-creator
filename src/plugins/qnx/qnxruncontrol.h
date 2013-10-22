@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
+** Copyright (C) 2012, 2013 BlackBerry Limited. All rights reserved.
 **
-** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -37,11 +37,18 @@
 namespace Qnx {
 namespace Internal {
 
+class Slog2InfoRunner;
+
 class QnxRunControl : public RemoteLinux::RemoteLinuxRunControl
 {
     Q_OBJECT
 public:
     explicit QnxRunControl(ProjectExplorer::RunConfiguration *runConfig);
+
+    RemoteLinux::RemoteLinuxRunControl::StopResult stop();
+
+private:
+    Slog2InfoRunner *m_slog2Info;
 };
 
 } // namespace Internal

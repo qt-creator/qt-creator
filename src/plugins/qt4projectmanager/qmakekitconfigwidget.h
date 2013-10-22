@@ -36,7 +36,7 @@ QT_BEGIN_NAMESPACE
 class QLineEdit;
 QT_END_NAMESPACE
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 class QmakeKitConfigWidget : public ProjectExplorer::KitConfigWidget
@@ -65,6 +65,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Debugger
+} // namespace QmakeProjectManager
 
 #endif // QT4PM_QMAKEKITCONFIGWIDGET_H

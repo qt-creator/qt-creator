@@ -35,7 +35,7 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 GuiAppParameters::GuiAppParameters()
@@ -124,4 +124,4 @@ GuiAppParameters GuiAppWizardDialog::parameters() const
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

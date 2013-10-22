@@ -33,7 +33,7 @@
 #include "qtwizard.h"
 #include "libraryparameters.h"
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 class LibraryWizard : public QtWizard
@@ -51,6 +51,6 @@ protected:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // LIBRARYWIZARD_H

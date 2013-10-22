@@ -30,7 +30,7 @@
 #ifndef ABSTRACTMOBILEAPPWIZARD_H
 #define ABSTRACTMOBILEAPPWIZARD_H
 
-#include <qt4projectmanager/qt4projectmanager_global.h>
+#include <qt4projectmanager/qmakeprojectmanager_global.h>
 #include <projectexplorer/baseprojectwizarddialog.h>
 
 namespace ProjectExplorer { class TargetSetupPage; }
@@ -40,7 +40,7 @@ class QtVersionNumber;
 class QtVersionManager;
 } // QtSupport
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 
 class AbstractMobileApp;
 
@@ -117,6 +117,6 @@ private:
         QString *errorMessage) const = 0;
 };
 
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // ABSTRACTMOBILEAPPWIZARD_H

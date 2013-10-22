@@ -34,7 +34,7 @@
 
 #include <QTextDocument>
 
-using namespace Qt4ProjectManager::Internal;
+using namespace QmakeProjectManager::Internal;
 
 
 ProFileHighlighter::ProFileHighlighter(QTextDocument *document) :

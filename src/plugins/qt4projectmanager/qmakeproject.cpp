@@ -27,19 +27,19 @@
 **
 ****************************************************************************/
 
-#include "qt4project.h"
+#include "qmakeproject.h"
 
-#include "qt4projectmanager.h"
+#include "qmakeprojectmanager.h"
 #include "qmakeprojectimporter.h"
 #include "qmakebuildinfo.h"
 #include "qmakestep.h"
-#include "qt4nodes.h"
-#include "qt4projectmanagerconstants.h"
-#include "qt4buildconfiguration.h"
-#include "findqt4profiles.h"
-#include "qt4projectmanager/wizards/abstractmobileapp.h"
-#include "qt4projectmanager/wizards/qtquickapp.h"
-#include "qt4projectmanager/wizards/html5app.h"
+#include "qmakenodes.h"
+#include "qmakeprojectmanagerconstants.h"
+#include "qmakebuildconfiguration.h"
+#include "findqmakeprofiles.h"
+#include "wizards/abstractmobileapp.h"
+#include "wizards/qtquickapp.h"
+#include "wizards/html5app.h"
 
 #include <coreplugin/icontext.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -64,8 +64,8 @@
 #include <QFileSystemWatcher>
 #include <QMessageBox>
 
-using namespace Qt4ProjectManager;
-using namespace Qt4ProjectManager::Internal;
+using namespace QmakeProjectManager;
+using namespace QmakeProjectManager::Internal;
 using namespace ProjectExplorer;
 
 enum { debug = 0 };
@@ -111,7 +111,7 @@ void updateBoilerPlateCodeFiles(const AbstractMobileApp *app, const QString &pro
 
 } // namespace
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 class Qt4ProjectFile : public Core::IDocument
@@ -147,8 +147,8 @@ class CentralizedFolderWatcher : public QObject
 public:
     CentralizedFolderWatcher(Qt4Project *parent);
     ~CentralizedFolderWatcher();
-    void watchFolders(const QList<QString> &folders, Qt4ProjectManager::Qt4PriFileNode *node);
-    void unwatchFolders(const QList<QString> &folders, Qt4ProjectManager::Qt4PriFileNode *node);
+    void watchFolders(const QList<QString> &folders, QmakeProjectManager::Qt4PriFileNode *node);
+    void unwatchFolders(const QList<QString> &folders, QmakeProjectManager::Qt4PriFileNode *node);
 
 private slots:
     void folderChanged(const QString &folder);
@@ -159,7 +159,7 @@ private:
     Qt4Project *m_project;
     QSet<QString> recursiveDirs(const QString &folder);
     QFileSystemWatcher m_watcher;
-    QMultiMap<QString, Qt4ProjectManager::Qt4PriFileNode *> m_map;
+    QMultiMap<QString, QmakeProjectManager::Qt4PriFileNode *> m_map;
 
     QSet<QString> m_recursiveWatchedFolders;
     QTimer m_compressTimer;
@@ -269,7 +269,7 @@ void ProjectFilesVisitor::visitFolderNode(FolderNode *folderNode)
 namespace Internal {
 Qt4ProjectFile::Qt4ProjectFile(const QString &filePath, QObject *parent)
     : Core::IDocument(parent),
-      m_mimeType(QLatin1String(Qt4ProjectManager::Constants::PROFILE_MIMETYPE))
+      m_mimeType(QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE))
 {
     setFilePath(filePath);
 }
@@ -344,7 +344,7 @@ Qt4Project::Qt4Project(Qt4Manager *manager, const QString& fileName) :
     m_activeTarget(0)
 {
     setId(Constants::QT4PROJECT_ID);
-    setProjectContext(Core::Context(Qt4ProjectManager::Constants::PROJECT_ID));
+    setProjectContext(Core::Context(QmakeProjectManager::Constants::PROJECT_ID));
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::LANG_CXX));
 
     m_asyncUpdateTimer.setSingleShot(true);
@@ -408,8 +408,8 @@ bool Qt4Project::fromMap(const QVariantMap &map)
     updateCodeModels();
 
     // We have the profile nodes now, so we know the runconfigs!
-    connect(m_nodesWatcher, SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)),
-            this, SIGNAL(proFileUpdated(Qt4ProjectManager::Qt4ProFileNode*,bool,bool)));
+    connect(m_nodesWatcher, SIGNAL(proFileUpdated(QmakeProjectManager::Qt4ProFileNode*,bool,bool)),
+            this, SIGNAL(proFileUpdated(QmakeProjectManager::Qt4ProFileNode*,bool,bool)));
 
     // Now we emit update once :)
     m_rootProjectNode->emitProFileUpdatedRecursive();
@@ -1212,7 +1212,7 @@ QSet<QString> CentralizedFolderWatcher::recursiveDirs(const QString &folder)
     return result;
 }
 
-void CentralizedFolderWatcher::watchFolders(const QList<QString> &folders, Qt4ProjectManager::Qt4PriFileNode *node)
+void CentralizedFolderWatcher::watchFolders(const QList<QString> &folders, QmakeProjectManager::Qt4PriFileNode *node)
 {
     if (debugCFW)
         qDebug()<<"CFW::watchFolders()"<<folders<<"for node"<<node->path();
@@ -1237,7 +1237,7 @@ void CentralizedFolderWatcher::watchFolders(const QList<QString> &folders, Qt4Pr
     }
 }
 
-void CentralizedFolderWatcher::unwatchFolders(const QList<QString> &folders, Qt4ProjectManager::Qt4PriFileNode *node)
+void CentralizedFolderWatcher::unwatchFolders(const QList<QString> &folders, QmakeProjectManager::Qt4PriFileNode *node)
 {
     if (debugCFW)
         qDebug()<<"CFW::unwatchFolders()"<<folders<<"for node"<<node->path();
@@ -1261,7 +1261,7 @@ void CentralizedFolderWatcher::unwatchFolders(const QList<QString> &folders, Qt4
                 // So the rwf is a subdirectory of a folder we aren't watching
                 // but maybe someone else wants us to watch
                 bool needToWatch = false;
-                QMultiMap<QString, Qt4ProjectManager::Qt4PriFileNode *>::const_iterator it, end;
+                QMultiMap<QString, QmakeProjectManager::Qt4PriFileNode *>::const_iterator it, end;
                 end = m_map.constEnd();
                 for (it = m_map.constEnd(); it != end; ++it) {
                     if (rwf.startsWith(it.key())) {
@@ -1310,12 +1310,12 @@ void CentralizedFolderWatcher::delayedFolderChanged(const QString &folder)
     while (true) {
         if (!dir.endsWith(slash))
             dir.append(slash);
-        QList<Qt4ProjectManager::Qt4PriFileNode *> nodes = m_map.values(dir);
+        QList<QmakeProjectManager::Qt4PriFileNode *> nodes = m_map.values(dir);
         if (!nodes.isEmpty()) {
             // Collect all the files
             QSet<Utils::FileName> newFiles;
             newFiles += Qt4PriFileNode::recursiveEnumerate(folder);
-            foreach (Qt4ProjectManager::Qt4PriFileNode *node, nodes) {
+            foreach (QmakeProjectManager::Qt4PriFileNode *node, nodes) {
                 newOrRemovedFiles = newOrRemovedFiles
                         || node->folderChanged(folder, newFiles);
             }
@@ -1631,6 +1631,6 @@ KitMatcher *Qt4Project::createRequiredKitMatcher() const
     return new QtSupport::QtVersionKitMatcher;
 }
 
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
-#include "qt4project.moc"
+#include "qmakeproject.moc"

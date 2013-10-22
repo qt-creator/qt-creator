@@ -86,20 +86,145 @@ DebuggerKitInformation::DebuggerKitInformation()
 
 QVariant DebuggerKitInformation::defaultValue(Kit *k) const
 {
-// This is only called from Kit::Kit()
-//    if (isValidDebugger(k)) {
-//        DebuggerItem *item = DebuggerItemManager::debuggerFromKit(k);
-//        QTC_ASSERT(item, return QVariant());
-//        return item->id;
-//    }
-
     ToolChain *tc = ToolChainKitInformation::toolChain(k);
-    return DebuggerItemManager::defaultDebugger(tc);
+    QTC_ASSERT(tc, return QVariant());
+
+    const Abi toolChainAbi = tc->targetAbi();
+    foreach (const DebuggerItem &item, DebuggerItemManager::debuggers())
+        foreach (const Abi targetAbi, item.abis())
+            if (targetAbi.isCompatibleWith(toolChainAbi))
+                return item.id();
+
+    return QVariant();
 }
 
 void DebuggerKitInformation::setup(Kit *k)
 {
-    k->setValue(DebuggerKitInformation::id(), defaultValue(k));
+    // Get one of the available debugger matching the kit's toolchain.
+    const ToolChain *tc = ToolChainKitInformation::toolChain(k);
+    const Abi toolChainAbi = tc ? tc->targetAbi() : Abi::hostAbi();
+
+    // This can be anything (Id, binary path, "auto")
+    const QVariant rawId = k->value(DebuggerKitInformation::id());
+
+    enum {
+        NotDetected, DetectedAutomatically, DetectedByFile, DetectedById
+    } detection = NotDetected;
+    DebuggerEngineType autoEngine = NoEngineType;
+    FileName fileName;
+
+    // With 3.0 we have:
+    // <value type="QString" key="Debugger.Information">{75ecf347-f221-44c3-b613-ea1d29929cd4}</value>
+    // Before we had:
+    // <valuemap type="QVariantMap" key="Debugger.Information">
+    //    <value type="QString" key="Binary">/data/dev/debugger/gdb-git/gdb/gdb</value>
+    //    <value type="int" key="EngineType">1</value>
+    //  </valuemap>
+    // Or for force auto-detected CDB
+    // <valuemap type="QVariantMap" key="Debugger.Information">
+    //    <value type="QString" key="Binary">auto</value>
+    //    <value type="int" key="EngineType">4</value>
+    //  </valuemap>
+
+    if (rawId.isNull()) {
+        // Initial setup of a kit
+        detection = NotDetected;
+    } else if (rawId.type() == QVariant::String) {
+        detection = DetectedById;
+    } else {
+        QMap<QString, QVariant> map = rawId.toMap();
+        QString binary = map.value(QLatin1String("Binary")).toString();
+        if (binary == QLatin1String("auto")) {
+            detection = DetectedAutomatically;
+            autoEngine = DebuggerEngineType(map.value(QLatin1String("EngineType")).toInt());
+        } else {
+            detection  = DetectedByFile;
+            fileName = FileName::fromUserInput(binary);
+        }
+    }
+
+    const DebuggerItem *bestItem = 0;
+    DebuggerItem::MatchLevel bestLevel = DebuggerItem::DoesNotMatch;
+    foreach (const DebuggerItem &item, DebuggerItemManager::debuggers()) {
+        const DebuggerItem *goodItem = 0;
+        if (detection == DetectedById && item.id() == rawId)
+            goodItem = &item;
+        if (detection == DetectedByFile && item.command() == fileName)
+            goodItem = &item;
+        if (detection == DetectedAutomatically && item.engineType() == autoEngine)
+            goodItem = &item;
+
+        if (goodItem) {
+            DebuggerItem::MatchLevel level = goodItem->matchTarget(toolChainAbi);
+            if (level > bestLevel) {
+                bestLevel = level;
+                bestItem = goodItem;
+            }
+        }
+    }
+
+    // If we have an existing debugger with matching id _and_
+    // matching target ABI we are fine.
+    if (bestItem) {
+        k->setValue(DebuggerKitInformation::id(), bestItem->id());
+        return;
+    }
+
+    // We didn't find an existing debugger that matched by whatever
+    // data we found in the kit (i.e. no id, filename, "auto")
+    // (or what we found did not match ABI-wise)
+    // Let's try to pick one with matching ABI.
+    QVariant bestId;
+    bestLevel = DebuggerItem::DoesNotMatch;
+    foreach (const DebuggerItem &item, DebuggerItemManager::debuggers()) {
+        DebuggerItem::MatchLevel level = item.matchTarget(toolChainAbi);
+        if (level > bestLevel) {
+            bestLevel = level;
+            bestId = item.id();
+        }
+    }
+
+    k->setValue(DebuggerKitInformation::id(), bestId);
+}
+
+
+// This handles the upgrade path from 2.8 to 3.0
+void DebuggerKitInformation::fix(Kit *k)
+{
+    // This can be Id, binary path, but not "auto" anymore.
+    const QVariant rawId = k->value(DebuggerKitInformation::id());
+
+    if (rawId.isNull()) // No debugger set, that is fine.
+        return;
+
+    if (rawId.type() == QVariant::String) {
+        if (!DebuggerItemManager::findById(rawId)) {
+            qWarning("Unknown debugger id %s in kit %s",
+                     qPrintable(rawId.toString()), qPrintable(k->displayName()));
+            k->setValue(DebuggerKitInformation::id(), QVariant());
+        }
+        return; // All fine (now).
+    }
+
+    QMap<QString, QVariant> map = rawId.toMap();
+    QString binary = map.value(QLatin1String("Binary")).toString();
+    if (binary == QLatin1String("auto")) {
+        // This should not happen as "auto" is handled by setup() already.
+        QTC_CHECK(false);
+        k->setValue(DebuggerKitInformation::id(), QVariant());
+        return;
+    }
+
+    FileName fileName = FileName::fromUserInput(binary);
+    const DebuggerItem *item = DebuggerItemManager::findByCommand(fileName);
+    if (!item) {
+        qWarning("Debugger command %s invalid in kit %s",
+                 qPrintable(binary), qPrintable(k->displayName()));
+        k->setValue(DebuggerKitInformation::id(), QVariant());
+        return;
+    }
+
+    k->setValue(DebuggerKitInformation::id(), item->id());
 }
 
 // Check the configuration errors and return a flag mask. Provide a quick check and
@@ -111,26 +236,6 @@ enum DebuggerConfigurationErrors {
     DebuggerNotExecutable = 0x4,
     DebuggerNeedsAbsolutePath = 0x8
 };
-
-static QVariant debuggerPathOrId(const Kit *k)
-{
-    QTC_ASSERT(k, return QString());
-    QVariant id = k->value(DebuggerKitInformation::id());
-    if (!id.isValid())
-        return id; // Invalid.
-
-    // With 3.0 we have:
-    // <value type="QString" key="Debugger.Information">{75ecf347-f221-44c3-b613-ea1d29929cd4}</value>
-    if (id.type() == QVariant::String)
-        return id;
-
-    // Before we had:
-    // <valuemap type="QVariantMap" key="Debugger.Information">
-    //    <value type="QString" key="Binary">/data/dev/debugger/gdb-git/gdb/gdb</value>
-    //    <value type="int" key="EngineType">1</value>
-    //  </valuemap>
-    return id.toMap().value(QLatin1String("Binary"));
-}
 
 static unsigned debuggerConfigurationErrors(const Kit *k)
 {
@@ -165,16 +270,9 @@ static unsigned debuggerConfigurationErrors(const Kit *k)
 
 const DebuggerItem *DebuggerKitInformation::debugger(const Kit *kit)
 {
-    if (!kit)
-        return 0;
-    QVariant pathOrId = debuggerPathOrId(kit);
-    foreach (const DebuggerItem &item, DebuggerItemManager::debuggers()) {
-        if (item.id() == pathOrId)
-            return &item;
-        if (item.command() == FileName::fromUserInput(pathOrId.toString()))
-            return &item;
-    }
-    return 0;
+    QTC_ASSERT(kit, return 0);
+    const QVariant id = kit->value(DebuggerKitInformation::id());
+    return DebuggerItemManager::findById(id);
 }
 
 bool DebuggerKitInformation::isValidDebugger(const Kit *k)
@@ -276,32 +374,39 @@ static FileName userSettingsFileName()
     return FileName::fromString(settingsLocation.absolutePath() + QLatin1String(DEBUGGER_FILENAME));
 }
 
-static QList<DebuggerItem> readDebuggers(const FileName &fileName)
+static void readDebuggers(const FileName &fileName, bool isSystem)
 {
-    QList<DebuggerItem> result;
-
     PersistentSettingsReader reader;
     if (!reader.load(fileName))
-        return result;
+        return;
     QVariantMap data = reader.restoreValues();
 
     // Check version
     int version = data.value(QLatin1String(DEBUGGER_FILE_VERSION_KEY), 0).toInt();
     if (version < 1)
-        return result;
+        return;
 
     int count = data.value(QLatin1String(DEBUGGER_COUNT_KEY), 0).toInt();
     for (int i = 0; i < count; ++i) {
         const QString key = QString::fromLatin1(DEBUGGER_DATA_KEY) + QString::number(i);
         if (!data.contains(key))
-            break;
+            continue;
         const QVariantMap dbMap = data.value(key).toMap();
         DebuggerItem item;
         item.fromMap(dbMap);
-        result.append(item);
+        if (isSystem) {
+            item.setAutoDetected(true);
+            // SDK debuggers are always considered to be up-to-date, so no need to recheck them.
+        } else {
+            // User settings.
+            if (item.isAutoDetected() && !item.isValid()) {
+                qWarning() << QString::fromLatin1("DebuggerItem \"%1\" (%2) dropped since it is not valid")
+                              .arg(item.command().toString()).arg(item.id().toString());
+                continue;
+            }
+        }
+        DebuggerItemManager::registerDebugger(item);
     }
-
-    return result;
 }
 
 QList<DebuggerItem> DebuggerItemManager::m_debuggers;
@@ -340,7 +445,7 @@ DebuggerItemModel *DebuggerItemManager::model()
     return m_model;
 }
 
-void DebuggerItemManager::autoDetectCdbDebugger()
+void DebuggerItemManager::autoDetectCdbDebuggers()
 {
     QList<FileName> cdbs;
 
@@ -398,15 +503,33 @@ void DebuggerItemManager::autoDetectCdbDebugger()
     }
 }
 
-void DebuggerItemManager::autoDetectDebuggers()
+void DebuggerItemManager::autoDetectGdbOrLldbDebuggers()
 {
-    autoDetectCdbDebugger();
-
     QStringList filters;
     filters.append(QLatin1String("gdb-i686-pc-mingw32"));
     filters.append(QLatin1String("gdb"));
     filters.append(QLatin1String("lldb"));
     filters.append(QLatin1String("lldb-*"));
+
+//    DebuggerItem result;
+//    result.setAutoDetected(true);
+//    result.setDisplayName(tr("Auto-detected for Tool Chain %1").arg(tc->displayName()));
+    /*
+    // Check suggestions from the SDK.
+    Environment env = Environment::systemEnvironment();
+    if (tc) {
+        tc->addToEnvironment(env); // Find MinGW gdb in toolchain environment.
+        QString path = tc->suggestedDebugger().toString();
+        if (!path.isEmpty()) {
+            const QFileInfo fi(path);
+            if (!fi.isAbsolute())
+                path = env.searchInPath(path);
+            result.command = FileName::fromString(path);
+            result.engineType = engineTypeFromBinary(path);
+            return maybeAddDebugger(result, false);
+        }
+    }
+    */
 
     QFileInfoList suspects;
 
@@ -457,6 +580,8 @@ void DebuggerItemManager::readLegacyDebuggers()
             continue;
         if (fn.startsWith(QLatin1Char('{')))
             continue;
+        if (fn == QLatin1String("auto"))
+            continue;
         FileName command = FileName::fromUserInput(fn);
         if (findByCommand(command))
             continue;
@@ -489,46 +614,16 @@ const DebuggerItem *DebuggerItemManager::findById(const QVariant &id)
 
 void DebuggerItemManager::restoreDebuggers()
 {
-    QList<DebuggerItem> dbsToCheck;
-
     // Read debuggers from SDK
     QFileInfo systemSettingsFile(Core::ICore::settings(QSettings::SystemScope)->fileName());
-    QList<DebuggerItem> dbsToRegister =
-            readDebuggers(FileName::fromString(systemSettingsFile.absolutePath() + QLatin1String(DEBUGGER_FILENAME)));
-
-    // These are autodetected.
-    for (int i = 0, n = dbsToRegister.size(); i != n; ++i)
-        dbsToRegister[i].setAutoDetected(true);
-
-    // SDK debuggers are always considered to be up-to-date, so no need to recheck them.
+    readDebuggers(FileName::fromString(systemSettingsFile.absolutePath() + QLatin1String(DEBUGGER_FILENAME)), true);
 
     // Read all debuggers from user file.
-    foreach (const DebuggerItem &item, readDebuggers(userSettingsFileName())) {
-        if (item.isAutoDetected())
-            dbsToCheck.append(item);
-        else
-            dbsToRegister.append(item);
-    }
-
-    // Keep debuggers that were not rediscovered but are still executable and delete the rest
-    foreach (const DebuggerItem &item, dbsToCheck) {
-        if (!item.isValid()) {
-            qWarning() << QString::fromLatin1("DebuggerItem \"%1\" (%2) dropped since it is not valid")
-                          .arg(item.command().toString()).arg(item.id().toString());
-        } else {
-            dbsToRegister.append(item);
-        }
-    }
-
-    for (int i = 0, n = dbsToRegister.size(); i != n; ++i) {
-        DebuggerItem item = dbsToRegister.at(i);
-        if (findByCommand(item.command()))
-            continue;
-        addDebugger(item);
-    }
+    readDebuggers(userSettingsFileName(), false);
 
     // Auto detect current.
-    autoDetectDebuggers();
+    autoDetectCdbDebuggers();
+    autoDetectGdbOrLldbDebuggers();
 
     // Add debuggers from pre-3.x profiles.xml
     readLegacyDebuggers();
@@ -560,7 +655,6 @@ void DebuggerItemManager::registerDebugger(const DebuggerItem &item)
 {
     if (findByCommand(item.command()))
         return;
-
     addDebugger(item);
 }
 
@@ -615,72 +709,6 @@ void DebuggerItemManager::setItemData(const QVariant &id, const QString &display
             break;
         }
     }
-}
-
-QVariant DebuggerItemManager::defaultDebugger(ToolChain *tc)
-{
-    QTC_ASSERT(tc, return QVariant());
-
-    DebuggerItem result;
-    result.setAutoDetected(true);
-    result.setDisplayName(tr("Auto-detected for Tool Chain %1").arg(tc->displayName()));
-
-    Abi abi = Abi::hostAbi();
-    if (tc)
-        abi = tc->targetAbi();
-
-//        if (abis.first().wordWidth() == 32)
-//            result.first = cdb.toString();
-//        else if (abis.first().wordWidth() == 64)
-//            result.second = cdb.toString();
-//    // prefer 64bit debugger, even for 32bit binaries:
-//    if (!result.second.isEmpty())
-//        result.first = result.second;
-
-
-    foreach (const DebuggerItem &item, m_debuggers)
-        foreach (const Abi targetAbi, item.abis())
-            if (targetAbi.isCompatibleWith(abi))
-                return item.id();
-
-    return QVariant();
-
-    /*
-    // CDB for windows:
-    if (abi.os() == Abi::WindowsOS && abi.osFlavor() != Abi::WindowsMSysFlavor) {
-        QPair<QString, QString> cdbs = autoDetectCdbDebugger();
-        result.command = FileName::fromString(abi.wordWidth() == 32 ? cdbs.first : cdbs.second);
-        result.engineType = CdbEngineType;
-        return maybeAddDebugger(result, false);
-    }
-
-    // Check suggestions from the SDK.
-    Environment env = Environment::systemEnvironment();
-    if (tc) {
-        tc->addToEnvironment(env); // Find MinGW gdb in toolchain environment.
-        QString path = tc->suggestedDebugger().toString();
-        if (!path.isEmpty()) {
-            const QFileInfo fi(path);
-            if (!fi.isAbsolute())
-                path = env.searchInPath(path);
-            result.command = FileName::fromString(path);
-            result.engineType = engineTypeFromBinary(path);
-            return maybeAddDebugger(result, false);
-        }
-    }
-
-    // Default to GDB, system GDB
-    result.engineType = GdbEngineType;
-    QString gdb;
-    const QString systemGdb = QLatin1String("gdb");
-    // MinGW: Search for the python-enabled gdb first.
-    if (abi.os() == Abi::WindowsOS && abi.osFlavor() == Abi::WindowsMSysFlavor)
-        gdb = env.searchInPath(QLatin1String("gdb-i686-pc-mingw32"));
-    if (gdb.isEmpty())
-        gdb = env.searchInPath(systemGdb);
-    result.command = FileName::fromString(env.searchInPath(gdb.isEmpty() ? systemGdb : gdb));
-    return maybeAddDebugger(result, false);
-    */
 }
 
 namespace Internal {
@@ -924,7 +952,9 @@ void DebuggerKitConfigWidget::manageDebuggers()
 
 void DebuggerKitConfigWidget::currentDebuggerChanged(int)
 {
-    m_kit->setValue(DebuggerKitInformation::id(), m_comboBox->itemData(m_comboBox->currentIndex()));
+    int currentIndex = m_comboBox->currentIndex();
+    QVariant id = m_comboBox->itemData(currentIndex);
+    m_kit->setValue(DebuggerKitInformation::id(), id);
 }
 
 void DebuggerKitConfigWidget::onDebuggerAdded(const QVariant &id, const QString &displayName)

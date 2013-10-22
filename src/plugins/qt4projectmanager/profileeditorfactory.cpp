@@ -29,8 +29,8 @@
 
 #include "profileeditorfactory.h"
 
-#include "qt4projectmanager.h"
-#include "qt4projectmanagerconstants.h"
+#include "qmakeprojectmanager.h"
+#include "qmakeprojectmanagerconstants.h"
 #include "profileeditor.h"
 
 #include <qtsupport/qtsupportconstants.h>
@@ -39,18 +39,18 @@
 
 #include <QCoreApplication>
 
-using namespace Qt4ProjectManager;
-using namespace Qt4ProjectManager::Internal;
+using namespace QmakeProjectManager;
+using namespace QmakeProjectManager::Internal;
 
 ProFileEditorFactory::ProFileEditorFactory(Qt4Manager *manager, TextEditor::TextEditorActionHandler *handler) :
     m_manager(manager),
     m_actionHandler(handler)
 {
-    setId(Qt4ProjectManager::Constants::PROFILE_EDITOR_ID);
-    setDisplayName(qApp->translate("OpenWith::Editors", Qt4ProjectManager::Constants::PROFILE_EDITOR_DISPLAY_NAME));
-    addMimeType(Qt4ProjectManager::Constants::PROFILE_MIMETYPE);
-    addMimeType(Qt4ProjectManager::Constants::PROINCLUDEFILE_MIMETYPE);
-    addMimeType(Qt4ProjectManager::Constants::PROFEATUREFILE_MIMETYPE);
+    setId(QmakeProjectManager::Constants::PROFILE_EDITOR_ID);
+    setDisplayName(qApp->translate("OpenWith::Editors", QmakeProjectManager::Constants::PROFILE_EDITOR_DISPLAY_NAME));
+    addMimeType(QmakeProjectManager::Constants::PROFILE_MIMETYPE);
+    addMimeType(QmakeProjectManager::Constants::PROINCLUDEFILE_MIMETYPE);
+    addMimeType(QmakeProjectManager::Constants::PROFEATUREFILE_MIMETYPE);
 
     Core::FileIconProvider::registerIconOverlayForSuffix(QtSupport::Constants::ICON_QT_PROJECT, "pro");
     Core::FileIconProvider::registerIconOverlayForSuffix(QtSupport::Constants::ICON_QT_PROJECT, "pri");

@@ -32,7 +32,7 @@
 
 #include "qtwizard.h"
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 class TestWizardPage;
@@ -80,6 +80,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // TESTWIZARDDIALOG_H

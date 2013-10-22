@@ -46,7 +46,7 @@ namespace QtSupport {
 class BaseQtVersion;
 }
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 /* Convenience parametrizable base class for Qt editors/binaries
@@ -144,6 +144,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // EXTERNALEDITORS_H

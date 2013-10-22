@@ -45,9 +45,9 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
 #include <qtsupport/qtkitinformation.h>
-#include <qt4projectmanager/qt4buildconfiguration.h>
-#include <qt4projectmanager/qt4project.h>
-#include <qt4projectmanager/qt4nodes.h>
+#include <qt4projectmanager/qmakebuildconfiguration.h>
+#include <qt4projectmanager/qmakeproject.h>
+#include <qt4projectmanager/qmakenodes.h>
 #include <QInputDialog>
 #include <QMessageBox>
 
@@ -158,7 +158,7 @@ void AndroidDeployQtStep::ctor()
     m_verbose = false;
 
     // will be overwriten by settings if the user choose something different
-    m_buildTargetSdk = AndroidConfigurations::instance().highestAvailableAndroidPlatform();
+    m_buildTargetSdk = AndroidConfigurations::instance().highestAndroidSdk();
 
     connect(project(), SIGNAL(proFilesEvaluated()),
            this, SLOT(updateInputFile()));
@@ -167,7 +167,7 @@ void AndroidDeployQtStep::ctor()
 bool AndroidDeployQtStep::init()
 {
     if (AndroidManager::checkForQt51Files(project()->projectDirectory()))
-        emit addOutput(tr("Found old Android folder in source directory. Qt 5.2 does not use that folder by default."), ErrorOutput);
+        emit addOutput(tr("Found old folder \"android\" in source directory. Qt 5.2 does not use that folder by default."), ErrorOutput);
 
     m_targetArch = AndroidManager::targetArch(target());
     if (m_targetArch.isEmpty()) {
@@ -188,8 +188,8 @@ bool AndroidDeployQtStep::init()
         m_serialNumber = info.serialNumber;
     }
 
-    Qt4ProjectManager::Qt4BuildConfiguration *bc
-            = static_cast<Qt4ProjectManager::Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
+    QmakeProjectManager::Qt4BuildConfiguration *bc
+            = static_cast<QmakeProjectManager::Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
 
     if (m_signPackage) {
         // check keystore and certificate passwords
@@ -344,12 +344,12 @@ void AndroidDeployQtStep::runCommand(const QString &program, const QStringList &
 
 void AndroidDeployQtStep::updateInputFile()
 {
-    Qt4ProjectManager::Qt4Project *pro = static_cast<Qt4ProjectManager::Qt4Project *>(project());
-    QList<Qt4ProjectManager::Qt4ProFileNode *> nodes = pro->applicationProFiles();
+    QmakeProjectManager::Qt4Project *pro = static_cast<QmakeProjectManager::Qt4Project *>(project());
+    QList<QmakeProjectManager::Qt4ProFileNode *> nodes = pro->applicationProFiles();
 
     QStringList inputFiles;
-    foreach (Qt4ProjectManager::Qt4ProFileNode *node, nodes)
-        inputFiles << node->singleVariableValue(Qt4ProjectManager::AndroidDeploySettingsFile);
+    foreach (QmakeProjectManager::Qt4ProFileNode *node, nodes)
+        inputFiles << node->singleVariableValue(QmakeProjectManager::AndroidDeploySettingsFile);
 
     if (!inputFiles.contains(m_inputFile))
         m_inputFile.clear();

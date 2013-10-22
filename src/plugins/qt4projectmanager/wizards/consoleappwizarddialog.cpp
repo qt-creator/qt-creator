@@ -32,7 +32,7 @@
 
 #include <QDebug>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 ConsoleAppWizardDialog::ConsoleAppWizardDialog(const QString &templateName,
@@ -70,4 +70,4 @@ QtProjectParameters ConsoleAppWizardDialog::parameters() const
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

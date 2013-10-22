@@ -30,7 +30,7 @@
 #include "qtquickapp.h"
 #include <QtCore>
 
-using namespace Qt4ProjectManager::Internal;
+using namespace QmakeProjectManager::Internal;
 
 bool processXmlFile(const QString &xmlFile)
 {

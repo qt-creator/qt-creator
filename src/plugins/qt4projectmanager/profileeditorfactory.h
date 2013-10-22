@@ -34,7 +34,7 @@
 
 namespace TextEditor { class TextEditorActionHandler; }
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 
 class Qt4Manager;
 
@@ -57,6 +57,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // PROFILEEDITORFACTORY_H

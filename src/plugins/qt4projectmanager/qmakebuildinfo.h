@@ -30,14 +30,14 @@
 #ifndef QMAKEBUILDINFO_H
 #define QMAKEBUILDINFO_H
 
-#include "qt4buildconfiguration.h"
+#include "qmakebuildconfiguration.h"
 
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/kitmanager.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 
 class QmakeBuildInfo : public ProjectExplorer::BuildInfo
 {
@@ -58,6 +58,6 @@ public:
     }
 };
 
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // QMAKEBUILDINFO_H

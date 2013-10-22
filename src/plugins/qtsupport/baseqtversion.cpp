@@ -872,7 +872,6 @@ FileName BaseQtVersion::mkspecPath() const
 
 bool BaseQtVersion::hasMkspec(const FileName &spec) const
 {
-    updateVersionInfo();
     QFileInfo fi;
     fi.setFile(QDir::fromNativeSeparators(qmakeProperty("QT_HOST_DATA"))
                + QLatin1String("/mkspecs/") + spec.toString());
@@ -930,9 +929,9 @@ void BaseQtVersion::updateVersionInfo() const
     }
     m_qmakeIsExecutable = true;
 
-    const QString qtInstallData = qmakeProperty("QT_INSTALL_DATA");
-    const QString qtInstallBins = qmakeProperty("QT_INSTALL_BINS");
-    const QString qtHeaderData = qmakeProperty("QT_INSTALL_HEADERS");
+    const QString qtInstallData = qmakeProperty(m_versionInfo, "QT_INSTALL_DATA");
+    const QString qtInstallBins = qmakeProperty(m_versionInfo, "QT_INSTALL_BINS");
+    const QString qtHeaderData = qmakeProperty(m_versionInfo, "QT_INSTALL_HEADERS");
     if (!qtInstallData.isNull()) {
         if (!qtInstallData.isEmpty()) {
             m_hasDebuggingHelper = !DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData).isEmpty();
@@ -947,7 +946,7 @@ void BaseQtVersion::updateVersionInfo() const
     }
 
     // Now check for a qt that is configured with a prefix but not installed
-    QString installDir = qmakeProperty("QT_HOST_BINS");
+    QString installDir = qmakeProperty(m_versionInfo, "QT_HOST_BINS");
     if (!installDir.isNull()) {
         QFileInfo fi(installDir);
         if (!fi.exists())
@@ -962,25 +961,25 @@ void BaseQtVersion::updateVersionInfo() const
                 m_installed = false;
         }
     }
-    const QString qtInstallDocs = qmakeProperty("QT_INSTALL_DOCS");
+    const QString qtInstallDocs = qmakeProperty(m_versionInfo, "QT_INSTALL_DOCS");
     if (!qtInstallDocs.isNull()) {
         const QFileInfo fi(qtInstallDocs);
         if (fi.exists())
             m_hasDocumentation = true;
     }
-    const QString qtInstallExamples = qmakeProperty("QT_INSTALL_EXAMPLES");
+    const QString qtInstallExamples = qmakeProperty(m_versionInfo, "QT_INSTALL_EXAMPLES");
     if (!qtInstallExamples.isNull()) {
         const QFileInfo fi(qtInstallExamples);
         if (fi.exists())
             m_hasExamples = true;
     }
-    const QString qtInstallDemos = qmakeProperty("QT_INSTALL_DEMOS");
+    const QString qtInstallDemos = qmakeProperty(m_versionInfo, "QT_INSTALL_DEMOS");
     if (!qtInstallDemos.isNull()) {
         const QFileInfo fi(qtInstallDemos);
         if (fi.exists())
             m_hasDemos = true;
     }
-    m_qtVersionString = qmakeProperty("QT_VERSION");
+    m_qtVersionString = qmakeProperty(m_versionInfo, "QT_VERSION");
 
     m_versionInfoUpToDate = true;
 }
@@ -1003,6 +1002,7 @@ QString BaseQtVersion::qmakeProperty(const QHash<QString,QString> &versionInfo, 
 
 QString BaseQtVersion::qmakeProperty(const QByteArray &name) const
 {
+    updateVersionInfo();
     return qmakeProperty(m_versionInfo, name);
 }
 
@@ -1014,7 +1014,6 @@ bool BaseQtVersion::hasDocumentation() const
 
 QString BaseQtVersion::documentationPath() const
 {
-    updateVersionInfo();
     return qmakeProperty("QT_INSTALL_DOCS");
 }
 
@@ -1026,16 +1025,13 @@ bool BaseQtVersion::hasDemos() const
 
 QString BaseQtVersion::demosPath() const
 {
-    updateVersionInfo();
     return qmakeProperty("QT_INSTALL_DEMOS");
 }
 
 QString BaseQtVersion::frameworkInstallPath() const
 {
-    if (HostOsInfo::isMacHost()) {
-        updateVersionInfo();
-        return m_versionInfo.value(QLatin1String("QT_INSTALL_LIBS"));
-    }
+    if (HostOsInfo::isMacHost())
+        return qmakeProperty("QT_INSTALL_LIBS");
     return QString();
 }
 
@@ -1047,7 +1043,6 @@ bool BaseQtVersion::hasExamples() const
 
 QString BaseQtVersion::examplesPath() const
 {
-    updateVersionInfo();
     return qmakeProperty("QT_INSTALL_EXAMPLES");
 }
 
@@ -1103,14 +1098,12 @@ bool BaseQtVersion::hasQmlDump() const
 
 bool BaseQtVersion::hasQmlDumpWithRelocatableFlag() const
 {
-    updateVersionInfo();
     return ((qtVersion() > QtVersionNumber(4, 8, 4) && qtVersion() < QtVersionNumber(5, 0, 0))
             || qtVersion() >= QtVersionNumber(5, 1, 0));
 }
 
 bool BaseQtVersion::needsQmlDump() const
 {
-    updateVersionInfo();
     return qtVersion() < QtVersionNumber(4, 8, 0);
 }
 
@@ -1122,7 +1115,6 @@ bool BaseQtVersion::hasQmlDebuggingLibrary() const
 
 bool BaseQtVersion::needsQmlDebuggingLibrary() const
 {
-    updateVersionInfo();
     return qtVersion() < QtVersionNumber(4, 8, 0);
 }
 
@@ -1219,7 +1211,7 @@ QList<Task> BaseQtVersion::reportIssuesImpl(const QString &proFile, const QStrin
 
     if (!isValid()) {
         //: %1: Reason for being invalid
-        const QString msg = QCoreApplication::translate("Qt4ProjectManager::QtVersion", "The Qt version is invalid: %1").arg(invalidReason());
+        const QString msg = QCoreApplication::translate("QmakeProjectManager::QtVersion", "The Qt version is invalid: %1").arg(invalidReason());
         results.append(Task(Task::Error, msg, FileName(), -1,
                             ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
     }
@@ -1228,7 +1220,7 @@ QList<Task> BaseQtVersion::reportIssuesImpl(const QString &proFile, const QStrin
     if (!qmakeInfo.exists() ||
         !qmakeInfo.isExecutable()) {
         //: %1: Path to qmake executable
-        const QString msg = QCoreApplication::translate("Qt4ProjectManager::QtVersion",
+        const QString msg = QCoreApplication::translate("QmakeProjectManager::QtVersion",
                                                         "The qmake command \"%1\" was not found or is not executable.").arg(qmakeCommand().toUserOutput());
         results.append(Task(Task::Error, msg, FileName(), -1,
                             ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
@@ -1239,12 +1231,12 @@ QList<Task> BaseQtVersion::reportIssuesImpl(const QString &proFile, const QStrin
     if (!sourcePath.endsWith(slash))
         sourcePath.append(slash);
     if ((tmpBuildDir.startsWith(sourcePath)) && (tmpBuildDir != sourcePath)) {
-        const QString msg = QCoreApplication::translate("Qt4ProjectManager::QtVersion",
+        const QString msg = QCoreApplication::translate("QmakeProjectManager::QtVersion",
                                                         "Qmake does not support build directories below the source directory.");
         results.append(Task(Task::Warning, msg, FileName(), -1,
                              ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
     } else if (tmpBuildDir.count(slash) != sourcePath.count(slash) && qtVersion() < QtVersionNumber(4,8, 0)) {
-        const QString msg = QCoreApplication::translate("Qt4ProjectManager::QtVersion",
+        const QString msg = QCoreApplication::translate("QmakeProjectManager::QtVersion",
                                                         "The build directory needs to be at the same level as the source directory.");
 
         results.append(Task(Task::Warning, msg, FileName(), -1,

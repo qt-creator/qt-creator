@@ -35,8 +35,8 @@
 #include <projectexplorer/customwizard/customwizard.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <qt4projectmanager/qt4project.h>
-#include <qt4projectmanager/qt4projectmanagerconstants.h>
+#include <qt4projectmanager/qmakeproject.h>
+#include <qt4projectmanager/qmakeprojectmanagerconstants.h>
 #include <qtsupport/qtkitinformation.h>
 
 #include "qmlprojectmanager.h"
@@ -47,7 +47,7 @@
 using namespace Core;
 using namespace ExtensionSystem;
 using namespace ProjectExplorer;
-using namespace Qt4ProjectManager;
+using namespace QmakeProjectManager;
 
 namespace QmlProjectManager {
 namespace Internal {
@@ -71,7 +71,7 @@ QmlApplicationWizard::QmlApplicationWizard(const TemplateInfo &templateInfo)
     setWizardKind(ProjectWizard);
     setCategory(QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY));
     setId(QLatin1String("QA.QMLB Application"));
-    setIcon(QIcon(QLatin1String(Qt4ProjectManager::Constants::ICON_QTQUICK_APP)));
+    setIcon(QIcon(QLatin1String(QmakeProjectManager::Constants::ICON_QTQUICK_APP)));
     setDisplayCategory(
          QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY_DISPLAY));
     setDisplayName(tr("Qt Quick Application"));
@@ -105,7 +105,7 @@ void QmlApplicationWizard::createInstances(ExtensionSystem::IPlugin *plugin)
         }
 
         wizard->setRequiredFeatures(features);
-        wizard->setIcon(QIcon(QLatin1String(Qt4ProjectManager::Constants::ICON_QTQUICK_APP)));
+        wizard->setIcon(QIcon(QLatin1String(QmakeProjectManager::Constants::ICON_QTQUICK_APP)));
         plugin->addAutoReleasedObject(wizard);
     }
 }

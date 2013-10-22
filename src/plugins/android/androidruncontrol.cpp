@@ -111,4 +111,4 @@ QIcon AndroidRunControl::icon() const
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace Android

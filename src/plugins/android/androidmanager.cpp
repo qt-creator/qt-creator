@@ -42,10 +42,10 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
-#include <qt4projectmanager/qt4nodes.h>
-#include <qt4projectmanager/qt4project.h>
-#include <qt4projectmanager/qt4projectmanagerconstants.h>
-#include <qt4projectmanager/qt4buildconfiguration.h>
+#include <qt4projectmanager/qmakenodes.h>
+#include <qt4projectmanager/qmakeproject.h>
+#include <qt4projectmanager/qmakeprojectmanagerconstants.h>
+#include <qt4projectmanager/qmakebuildconfiguration.h>
 #include <qtsupport/customexecutablerunconfiguration.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
@@ -127,7 +127,7 @@ namespace Internal {
 
 bool AndroidManager::supportsAndroid(ProjectExplorer::Target *target)
 {
-    if (!qobject_cast<Qt4ProjectManager::Qt4Project *>(target->project()))
+    if (!qobject_cast<QmakeProjectManager::Qt4Project *>(target->project()))
         return false;
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
     return version && version->platformName() == QLatin1String(QtSupport::Constants::ANDROID_PLATFORM);
@@ -237,17 +237,17 @@ QString AndroidManager::buildTargetSDK(ProjectExplorer::Target *target)
         fallback = QLatin1String("android-9");
 
     if (!createAndroidTemplatesIfNecessary(target))
-        return AndroidConfigurations::instance().bestMatch(fallback);
+        return fallback;
 
     QFile file(defaultPropertiesPath(target).toString());
     if (!file.open(QIODevice::ReadOnly))
-        return AndroidConfigurations::instance().bestMatch(fallback);
+        return fallback;
     while (!file.atEnd()) {
         QByteArray line = file.readLine();
         if (line.startsWith("target="))
             return QString::fromLatin1(line.trimmed().mid(7));
     }
-    return AndroidConfigurations::instance().bestMatch(fallback);
+    return fallback;
 }
 
 bool AndroidManager::setBuildTargetSDK(ProjectExplorer::Target *target, const QString &sdk)
@@ -259,13 +259,13 @@ bool AndroidManager::setBuildTargetSDK(ProjectExplorer::Target *target, const QS
 
 QString AndroidManager::targetArch(ProjectExplorer::Target *target)
 {
-    Qt4ProjectManager::Qt4Project *pro = qobject_cast<Qt4ProjectManager::Qt4Project *>(target->project());
+    QmakeProjectManager::Qt4Project *pro = qobject_cast<QmakeProjectManager::Qt4Project *>(target->project());
     if (!pro)
         return QString();
-    Qt4ProjectManager::Qt4ProFileNode *node = pro->rootQt4ProjectNode();
+    QmakeProjectManager::Qt4ProFileNode *node = pro->rootQt4ProjectNode();
     if (!node)
         return QString();
-    return node->singleVariableValue(Qt4ProjectManager::AndroidArchVar);
+    return node->singleVariableValue(QmakeProjectManager::AndroidArchVar);
 }
 
 Utils::FileName AndroidManager::dirPath(ProjectExplorer::Target *target)
@@ -330,11 +330,11 @@ Utils::FileName AndroidManager::apkPath(ProjectExplorer::Target *target, BuildTy
 QStringList AndroidManager::availableTargetApplications(ProjectExplorer::Target *target)
 {
     QStringList apps;
-    Qt4ProjectManager::Qt4Project *qt4Project = qobject_cast<Qt4ProjectManager::Qt4Project *>(target->project());
+    QmakeProjectManager::Qt4Project *qt4Project = qobject_cast<QmakeProjectManager::Qt4Project *>(target->project());
     if (!qt4Project)
         return apps;
-    foreach (Qt4ProjectManager::Qt4ProFileNode *proFile, qt4Project->applicationProFiles()) {
-        if (proFile->projectType() == Qt4ProjectManager::ApplicationTemplate) {
+    foreach (QmakeProjectManager::Qt4ProFileNode *proFile, qt4Project->applicationProFiles()) {
+        if (proFile->projectType() == QmakeProjectManager::ApplicationTemplate) {
             if (proFile->targetInformation().target.startsWith(QLatin1String("lib"))
                     && proFile->targetInformation().target.endsWith(QLatin1String(".so")))
                 apps << proFile->targetInformation().target.mid(3, proFile->targetInformation().target.lastIndexOf(QLatin1Char('.')) - 3);
@@ -509,9 +509,9 @@ QString AndroidManager::targetApplicationPath(ProjectExplorer::Target *target)
     QString selectedApp = targetApplication(target);
     if (selectedApp.isEmpty())
         return QString();
-    Qt4ProjectManager::Qt4Project *qt4Project = qobject_cast<Qt4ProjectManager::Qt4Project *>(target->project());
-    foreach (Qt4ProjectManager::Qt4ProFileNode *proFile, qt4Project->applicationProFiles()) {
-        if (proFile->projectType() == Qt4ProjectManager::ApplicationTemplate) {
+    QmakeProjectManager::Qt4Project *qt4Project = qobject_cast<QmakeProjectManager::Qt4Project *>(target->project());
+    foreach (QmakeProjectManager::Qt4ProFileNode *proFile, qt4Project->applicationProFiles()) {
+        if (proFile->projectType() == QmakeProjectManager::ApplicationTemplate) {
             if (proFile->targetInformation().target.startsWith(QLatin1String("lib"))
                     && proFile->targetInformation().target.endsWith(QLatin1String(".so"))) {
                 if (proFile->targetInformation().target.mid(3, proFile->targetInformation().target.lastIndexOf(QLatin1Char('.')) - 3)
@@ -529,7 +529,7 @@ QString AndroidManager::targetApplicationPath(ProjectExplorer::Target *target)
 bool AndroidManager::createAndroidTemplatesIfNecessary(ProjectExplorer::Target *target)
 {
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
-    Qt4ProjectManager::Qt4Project *qt4Project = qobject_cast<Qt4ProjectManager::Qt4Project*>(target->project());
+    QmakeProjectManager::Qt4Project *qt4Project = qobject_cast<QmakeProjectManager::Qt4Project*>(target->project());
     if (!qt4Project || !qt4Project->rootProjectNode() || !version)
         return false;
 
@@ -620,7 +620,7 @@ bool AndroidManager::createAndroidTemplatesIfNecessary(ProjectExplorer::Target *
         return false;
     }
 
-    updateTarget(target, AndroidConfigurations::instance().sdkTargets(minApiLevel).at(0));
+    updateTarget(target, sdks.first());
     QStringList apps = availableTargetApplications(target);
     if (!apps.isEmpty())
         setTargetApplication(target, apps.at(0));
@@ -804,16 +804,16 @@ QVector<AndroidManager::Library> AndroidManager::availableQtLibsWithDependencies
     if (tc->type() != QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE))
         return QVector<AndroidManager::Library>();
 
-    Qt4ProjectManager::Qt4Project *project = static_cast<Qt4ProjectManager::Qt4Project *>(target->project());
-    QString arch = project->rootQt4ProjectNode()->singleVariableValue(Qt4ProjectManager::AndroidArchVar);
+    QmakeProjectManager::Qt4Project *project = static_cast<QmakeProjectManager::Qt4Project *>(target->project());
+    QString arch = project->rootQt4ProjectNode()->singleVariableValue(QmakeProjectManager::AndroidArchVar);
 
     AndroidToolChain *atc = static_cast<AndroidToolChain *>(tc);
     QString libgnustl = libGnuStl(arch, atc->ndkToolChainVersion());
 
     Utils::FileName readelfPath = AndroidConfigurations::instance().readelfPath(target->activeRunConfiguration()->abi().architecture(),
                                                                                 atc->ndkToolChainVersion());
-    const Qt4ProjectManager::Qt4Project *const qt4Project
-            = qobject_cast<const Qt4ProjectManager::Qt4Project *>(target->project());
+    const QmakeProjectManager::Qt4Project *const qt4Project
+            = qobject_cast<const QmakeProjectManager::Qt4Project *>(target->project());
     if (!qt4Project || !version)
         return QVector<AndroidManager::Library>();
     QString qtLibsPath = version->qmakeProperty("QT_INSTALL_LIBS");
@@ -904,12 +904,12 @@ bool AndroidManager::setBundledInLib(ProjectExplorer::Target *target, const QStr
 QStringList AndroidManager::availablePrebundledLibs(ProjectExplorer::Target *target)
 {
     QStringList libs;
-    Qt4ProjectManager::Qt4Project *qt4Project = qobject_cast<Qt4ProjectManager::Qt4Project *>(target->project());
+    QmakeProjectManager::Qt4Project *qt4Project = qobject_cast<QmakeProjectManager::Qt4Project *>(target->project());
     if (!qt4Project)
         return libs;
 
-    foreach (Qt4ProjectManager::Qt4ProFileNode *node, qt4Project->allProFiles())
-        if (node->projectType() == Qt4ProjectManager::LibraryTemplate)
+    foreach (QmakeProjectManager::Qt4ProFileNode *node, qt4Project->allProFiles())
+        if (node->projectType() == QmakeProjectManager::LibraryTemplate)
             libs << node->targetInformation().target;
     return libs;
 }
@@ -1317,4 +1317,4 @@ bool AndroidManager::checkForQt51Files(const QString &projectDirectory)
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace Android

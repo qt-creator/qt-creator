@@ -29,9 +29,9 @@
 
 #include "librarydetailscontroller.h"
 #include "ui_librarydetailswidget.h"
-#include "findqt4profiles.h"
-#include "qt4nodes.h"
-#include "qt4buildconfiguration.h"
+#include "findqmakeprofiles.h"
+#include "qmakenodes.h"
+#include "qmakebuildconfiguration.h"
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
@@ -46,8 +46,8 @@
 #include <QTextStream>
 
 using namespace ProjectExplorer;
-using namespace Qt4ProjectManager;
-using namespace Qt4ProjectManager::Internal;
+using namespace QmakeProjectManager;
+using namespace QmakeProjectManager::Internal;
 
 LibraryDetailsController::LibraryDetailsController(
         Ui::LibraryDetailsWidget *libraryDetails,

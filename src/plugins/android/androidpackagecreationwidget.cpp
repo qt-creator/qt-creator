@@ -41,7 +41,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <qt4projectmanager/qt4buildconfiguration.h>
+#include <qt4projectmanager/qmakebuildconfiguration.h>
 #include <qt4projectmanager/qmakestep.h>
 
 #include <QTimer>
@@ -56,7 +56,7 @@ namespace Android {
 namespace Internal {
 
 using namespace ProjectExplorer;
-using namespace Qt4ProjectManager;
+using namespace QmakeProjectManager;
 
 ///////////////////////////// CheckModel /////////////////////////////
 

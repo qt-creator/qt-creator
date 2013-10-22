@@ -34,7 +34,7 @@
 
 #include <QStringList>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 class ProFileCompletionAssistProvider : public TextEditor::CompletionAssistProvider
@@ -54,7 +54,7 @@ private:
     QStringList m_functions;
 };
 
-} // Internal
-} // Qt4ProjectManager
+} // namespace Internal
+} // namespace QmakeProjectManager
 
 #endif // PROFILECOMPLETIONASSIST_H

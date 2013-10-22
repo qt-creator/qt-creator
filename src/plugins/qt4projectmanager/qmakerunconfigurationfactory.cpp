@@ -31,7 +31,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 
 QmakeRunConfigurationFactory::QmakeRunConfigurationFactory(QObject *parent) :
     ProjectExplorer::IRunConfigurationFactory(parent)
@@ -51,4 +51,4 @@ QmakeRunConfigurationFactory *QmakeRunConfigurationFactory::find(ProjectExplorer
     return 0;
 }
 
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

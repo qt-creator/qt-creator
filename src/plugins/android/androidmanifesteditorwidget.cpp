@@ -44,7 +44,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/kitinformation.h>
 #include <texteditor/texteditoractionhandler.h>
-#include <qt4projectmanager/qt4project.h>
+#include <qt4projectmanager/qmakeproject.h>
 
 #include <QLineEdit>
 #include <QFileInfo>

@@ -27,14 +27,14 @@
 **
 ****************************************************************************/
 
-#ifndef QT4PM_QMAKEKITINFORMATION_H
-#define QT4PM_QMAKEKITINFORMATION_H
+#ifndef QMAKEKITINFORMATION_H
+#define QMAKEKITINFORMATION_H
 
-#include "qt4projectmanager_global.h"
+#include "qmakeprojectmanager_global.h"
 
 #include <projectexplorer/kitmanager.h>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 
 class QT4PROJECTMANAGER_EXPORT QmakeKitInformation : public ProjectExplorer::KitInformation
 {
@@ -59,6 +59,6 @@ public:
     static Utils::FileName defaultMkspec(const ProjectExplorer::Kit *k);
 };
 
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
-#endif // QT4PM_QMAKEKITINFORMATION_H
+#endif // QMAKEKITINFORMATION_H

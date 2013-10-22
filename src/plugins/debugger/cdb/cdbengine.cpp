@@ -207,7 +207,7 @@ static QMessageBox *
 nonModalMessageBox(QMessageBox::Icon icon, const QString &title, const QString &text)
 {
     QMessageBox *mb = new QMessageBox(icon, title, text, QMessageBox::Ok,
-                                      debuggerCore()->mainWindow());
+                                      Core::ICore::mainWindow());
     mb->setAttribute(Qt::WA_DeleteOnClose);
     mb->show();
     return mb;

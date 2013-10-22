@@ -56,6 +56,7 @@ InvalidIdException::InvalidIdException(int line,
     m_id(id),
     m_description(description)
 {
+    createWarning();
 }
 
 QString InvalidIdException::type() const

@@ -38,8 +38,8 @@
 #include <QTextBlock>
 #include <QUrl>
 
-using namespace Qt4ProjectManager;
-using namespace Qt4ProjectManager::Internal;
+using namespace QmakeProjectManager;
+using namespace QmakeProjectManager::Internal;
 using namespace Core;
 
 ProFileHoverHandler::ProFileHoverHandler(QObject *parent)

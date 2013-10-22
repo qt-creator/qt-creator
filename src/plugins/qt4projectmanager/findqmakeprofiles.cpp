@@ -27,59 +27,21 @@
 **
 ****************************************************************************/
 
-#ifndef QT4PROJECTCONFIGWIDGET_H
-#define QT4PROJECTCONFIGWIDGET_H
+#include "findqmakeprofiles.h"
+#include "qmakenodes.h"
 
-#include <projectexplorer/namedwidget.h>
+using namespace QmakeProjectManager;
+using namespace QmakeProjectManager::Internal;
 
-QT_BEGIN_NAMESPACE
-class QAbstractButton;
-QT_END_NAMESPACE
-
-namespace Utils {
-    class DetailsWidget;
-}
-
-namespace Qt4ProjectManager {
-class Qt4BuildConfiguration;
-class Qt4ProFileNode;
-
-namespace Internal {
-namespace Ui {
-class Qt4ProjectConfigWidget;
-}
-
-class Qt4ProjectConfigWidget : public ProjectExplorer::NamedWidget
+QList<Qt4ProFileNode *> FindQt4ProFiles::operator()(ProjectExplorer::ProjectNode *root)
 {
-    Q_OBJECT
-public:
-    Qt4ProjectConfigWidget(Qt4BuildConfiguration *bc);
-    ~Qt4ProjectConfigWidget();
+    m_proFiles.clear();
+    root->accept(this);
+    return m_proFiles;
+}
 
-private slots:
-    // User changes in our widgets
-    void shadowBuildClicked(bool checked);
-    void onBeforeBeforeShadowBuildDirBrowsed();
-    void shadowBuildEdited();
-
-    // Changes triggered from creator
-    void buildDirectoryChanged();
-    void updateProblemLabel();
-    void environmentChanged();
-
-private:
-    void updateDetails();
-    void setProblemLabel(const QString &text);
-
-    Ui::Qt4ProjectConfigWidget *m_ui;
-    QAbstractButton *m_browseButton;
-    Qt4BuildConfiguration *m_buildConfiguration;
-    Utils::DetailsWidget *m_detailsContainer;
-    QString m_defaultShadowBuildDir;
-    bool m_ignoreChange;
-};
-
-} // namespace Internal
-} // namespace Qt4ProjectManager
-
-#endif // QT4PROJECTCONFIGWIDGET_H
+void FindQt4ProFiles::visitProjectNode(ProjectExplorer::ProjectNode *projectNode)
+{
+    if (Qt4ProFileNode *pro = qobject_cast<Qt4ProFileNode *>(projectNode))
+        m_proFiles.append(pro);
+}

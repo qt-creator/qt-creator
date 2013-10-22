@@ -223,43 +223,57 @@ void AndroidConfigurations::setConfig(const AndroidConfig &devConfigs)
         detectToolchainHost();
 
     save();
-    updateAvailablePlatforms();
+    updateAvailableNdkPlatforms();
+    updateAvailableSdkPlatforms();
     updateAutomaticKitList();
     updateAndroidDevice();
     emit updated();
 }
 
-void AndroidConfigurations::updateAvailablePlatforms()
+void AndroidConfigurations::updateAvailableNdkPlatforms()
 {
-    m_availablePlatforms.clear();
+    m_availableNdkPlatforms.clear();
     FileName path = m_config.ndkLocation;
     QDirIterator it(path.appendPath(QLatin1String("platforms")).toString(), QStringList() << QLatin1String("android-*"), QDir::Dirs);
     while (it.hasNext()) {
         const QString &fileName = it.next();
-        m_availablePlatforms.push_back(fileName.mid(fileName.lastIndexOf(QLatin1Char('-')) + 1).toInt());
+        m_availableNdkPlatforms.push_back(fileName.mid(fileName.lastIndexOf(QLatin1Char('-')) + 1).toInt());
     }
-    qSort(m_availablePlatforms.begin(), m_availablePlatforms.end(), qGreater<int>());
+    qSort(m_availableNdkPlatforms.begin(), m_availableNdkPlatforms.end(), qGreater<int>());
 }
 
-QStringList AndroidConfigurations::sdkTargets(int minApiLevel) const
+void AndroidConfigurations::updateAvailableSdkPlatforms()
 {
-    QStringList targets;
+    m_availableSdkPlatforms.clear();
+
     QProcess proc;
     proc.start(androidToolPath().toString(), QStringList() << QLatin1String("list") << QLatin1String("target")); // list avaialbe AVDs
     if (!proc.waitForFinished(-1)) {
         proc.terminate();
-        return targets;
+        return;
     }
     while (proc.canReadLine()) {
         const QString line = QString::fromLocal8Bit(proc.readLine().trimmed());
         int index = line.indexOf(QLatin1String("\"android-"));
         if (index == -1)
             continue;
-        QString apiLevel = line.mid(index + 1, line.length() - index - 2);
-        if (apiLevel.mid(apiLevel.lastIndexOf(QLatin1Char('-')) + 1).toInt() >= minApiLevel)
-            targets.push_back(apiLevel);
+        QString androidTarget = line.mid(index + 1, line.length() - index - 2);
+        int apiLevel = androidTarget.mid(androidTarget.lastIndexOf(QLatin1Char('-')) + 1).toInt();
+        QVector<int>::iterator it = qLowerBound(m_availableSdkPlatforms.begin(), m_availableSdkPlatforms.end(), apiLevel, qGreater<int>());
+        m_availableSdkPlatforms.insert(it, apiLevel);
     }
-    return targets;
+}
+
+QStringList AndroidConfigurations::sdkTargets(int minApiLevel) const
+{
+    QStringList result;
+    for (int i = 0; i < m_availableSdkPlatforms.size(); ++i) {
+        if (m_availableSdkPlatforms.at(i) >= minApiLevel)
+            result << QLatin1String("android-") + QString::number(m_availableSdkPlatforms.at(i));
+        else
+            break;
+    }
+    return result;
 }
 
 FileName AndroidConfigurations::adbToolPath() const
@@ -470,6 +484,8 @@ QString AndroidConfigurations::createAVD(int minApiLevel, QString targetArch) co
     QDialog d;
     Ui::AddNewAVDDialog avdDialog;
     avdDialog.setupUi(&d);
+    // NOTE: adb list targets does actually include information on which abis are supported per apilevel
+    // we aren't using that information here
     avdDialog.targetComboBox->addItems(sdkTargets(minApiLevel));
 
     if (targetArch.isEmpty())
@@ -735,17 +751,17 @@ QStringList AndroidConfigurations::getAbis(const QString &device) const
     return result;
 }
 
-QString AndroidConfigurations::highestAvailableAndroidPlatform() const
+QString AndroidConfigurations::highestAndroidSdk() const
 {
-    if (m_availablePlatforms.isEmpty())
+    if (m_availableSdkPlatforms.isEmpty())
         return QString();
-    return QLatin1String("android-") + QString::number(m_availablePlatforms.first());
+    return QLatin1String("android-") + QString::number(m_availableSdkPlatforms.first());
 }
 
-QString AndroidConfigurations::bestMatch(const QString &targetAPI) const
+QString AndroidConfigurations::bestNdkPlatformMatch(const QString &targetAPI) const
 {
     int target = targetAPI.mid(targetAPI.lastIndexOf(QLatin1Char('-')) + 1).toInt();
-    foreach (int apiLevel, m_availablePlatforms) {
+    foreach (int apiLevel, m_availableNdkPlatforms) {
         if (apiLevel <= target)
             return QString::fromLatin1("android-%1").arg(apiLevel);
     }
@@ -901,7 +917,8 @@ AndroidConfigurations::AndroidConfigurations(QObject *parent)
     : QObject(parent)
 {
     load();
-    updateAvailablePlatforms();
+    updateAvailableNdkPlatforms();
+    updateAvailableSdkPlatforms();
 
     connect(ProjectExplorer::SessionManager::instance(), SIGNAL(projectRemoved(ProjectExplorer::Project*)),
             this, SLOT(clearDefaultDevices(ProjectExplorer::Project*)));

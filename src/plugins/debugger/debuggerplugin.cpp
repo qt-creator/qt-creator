@@ -682,7 +682,7 @@ static bool currentTextEditorPosition(ContextData *data)
     const IDocument *document = textEditor->document();
     QTC_ASSERT(document, return false);
     data->fileName = document->filePath();
-    if (textEditor->property("DisassemblerView").toBool()) {
+    if (document->property(Constants::OPENED_WITH_DISASSEMBLY).toBool()) {
         int lineNumber = textEditor->currentLine();
         QString line = textEditor->textDocument()->contents()
             .section(QLatin1Char('\n'), lineNumber - 1, lineNumber - 1);
@@ -1084,7 +1084,7 @@ public slots:
         QTC_ASSERT(act, return);
         const BreakpointModelId id = act->data().value<BreakpointModelId>();
         QTC_ASSERT(id > 0, return);
-        BreakTreeView::editBreakpoint(id, mainWindow());
+        BreakTreeView::editBreakpoint(id, ICore::mainWindow());
     }
 
     void slotRunToLine()
@@ -1575,13 +1575,13 @@ void DebuggerPluginPrivate::debugProjectBreakMain()
 void DebuggerPluginPrivate::startAndDebugApplication()
 {
     DebuggerStartParameters sp;
-    if (StartApplicationDialog::run(mainWindow(), &sp))
+    if (StartApplicationDialog::run(ICore::mainWindow(), &sp))
         DebuggerRunControlFactory::createAndScheduleRun(sp);
 }
 
 void DebuggerPluginPrivate::attachCore()
 {
-    AttachCoreDialog dlg(mainWindow());
+    AttachCoreDialog dlg(ICore::mainWindow());
 
     const QString lastExternalKit = configValue("LastExternalKit").toString();
     if (!lastExternalKit.isEmpty())
@@ -1623,7 +1623,7 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
     QTC_ASSERT(kit && fillParameters(&sp, kit), return);
     sp.startMode = AttachToRemoteServer;
     sp.closeMode = KillAtClose;
-    StartRemoteCdbDialog dlg(mainWindow());
+    StartRemoteCdbDialog dlg(ICore::mainWindow());
     QString previousConnection = configValue(connectionKey).toString();
     if (previousConnection.isEmpty())
         previousConnection = QLatin1String("localhost:1234");
@@ -1639,7 +1639,7 @@ void DebuggerPluginPrivate::attachToRemoteServer()
 {
     DebuggerStartParameters sp;
     sp.startMode = AttachToRemoteServer;
-    if (StartApplicationDialog::run(mainWindow(), &sp)) {
+    if (StartApplicationDialog::run(ICore::mainWindow(), &sp)) {
         sp.closeMode = KillAtClose;
         sp.serverStartScript.clear();
         DebuggerRunControlFactory::createAndScheduleRun(sp);
@@ -1661,7 +1661,7 @@ void DebuggerPluginPrivate::attachToProcess(bool startServerOnly)
     const DebuggerKitChooser::Mode mode = startServerOnly ?
         DebuggerKitChooser::RemoteDebugging : DebuggerKitChooser::LocalDebugging;
     DebuggerKitChooser *kitChooser = new DebuggerKitChooser(mode);
-    DeviceProcessesDialog *dlg = new DeviceProcessesDialog(kitChooser, mainWindow());
+    DeviceProcessesDialog *dlg = new DeviceProcessesDialog(kitChooser, ICore::mainWindow());
     dlg->addAcceptButton(ProjectExplorer::DeviceProcessesDialog::tr("&Attach to Process"));
     dlg->showAllDevices();
     if (dlg->exec() == QDialog::Rejected) {
@@ -1676,7 +1676,7 @@ void DebuggerPluginPrivate::attachToProcess(bool startServerOnly)
     QTC_ASSERT(device, return);
     DeviceProcessItem process = dlg->currentProcess();
     if (process.pid == 0) {
-        QMessageBox::warning(mainWindow(), tr("Warning"),
+        QMessageBox::warning(ICore::mainWindow(), tr("Warning"),
             tr("Cannot attach to process with PID 0"));
         return;
     }
@@ -1725,7 +1725,7 @@ void DebuggerPluginPrivate::attachExternalApplication(RunControl *rc)
 void DebuggerPluginPrivate::attachToQmlPort()
 {
     DebuggerStartParameters sp;
-    AttachToQmlPortDialog dlg(mainWindow());
+    AttachToQmlPortDialog dlg(ICore::mainWindow());
 
     const QVariant qmlServerPort = configValue("LastQmlServerPort");
     if (qmlServerPort.isValid())
@@ -1779,7 +1779,7 @@ void DebuggerPluginPrivate::attachToQmlPort()
 void DebuggerPluginPrivate::startRemoteEngine()
 {
     DebuggerStartParameters sp;
-    StartRemoteEngineDialog dlg(mainWindow());
+    StartRemoteEngineDialog dlg(ICore::mainWindow());
     if (dlg.exec() != QDialog::Accepted)
         return;
 
@@ -1840,10 +1840,10 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
     bool contextUsable = true;
 
     BreakpointModelId id = BreakpointModelId();
-    const QString fileName = editor->document()->filePath();
-    if (editor->property("DisassemblerView").toBool()) {
-        args.fileName = fileName;
-        QString line = editor->textDocument()->contents()
+    ITextEditorDocument *document = editor->textDocument();
+    args.fileName = document->filePath();
+    if (document->property(Constants::OPENED_WITH_DISASSEMBLY).toBool()) {
+        QString line = document->contents()
             .section(QLatin1Char('\n'), lineNumber - 1, lineNumber - 1);
         BreakpointResponse needle;
         needle.type = BreakpointByAddress;
@@ -1853,7 +1853,6 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
         id = breakHandler()->findSimilarBreakpoint(needle);
         contextUsable = args.address != 0;
     } else {
-        args.fileName = editor->document()->filePath();
         id = breakHandler()
             ->findBreakpointByFileAndLine(args.fileName, lineNumber);
         if (!id)
@@ -1937,7 +1936,7 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
         if (currentEngine()->state() == InferiorStopOk
             && currentEngine()->hasCapability(DisassemblerCapability)) {
             StackFrame frame;
-            frame.function = cppFunctionAt(fileName, lineNumber);
+            frame.function = cppFunctionAt(args.fileName, lineNumber);
             frame.line = 42; // trick gdb into mixed mode.
             if (!frame.function.isEmpty()) {
                 const QString text = tr("Disassemble Function \"%1\"")
@@ -1956,7 +1955,7 @@ void DebuggerPluginPrivate::toggleBreakpoint()
     ITextEditor *textEditor = currentTextEditor();
     QTC_ASSERT(textEditor, return);
     const int lineNumber = textEditor->currentLine();
-    if (textEditor->property("DisassemblerView").toBool()) {
+    if (textEditor->property(Constants::OPENED_WITH_DISASSEMBLY).toBool()) {
         QString line = textEditor->textDocument()->contents()
             .section(QLatin1Char('\n'), lineNumber - 1, lineNumber - 1);
         quint64 address = DisassemblerLine::addressFromDisassemblyLine(line);
@@ -2400,7 +2399,7 @@ void DebuggerPluginPrivate::updateDebugWithoutDeployMenu()
 
 void DebuggerPluginPrivate::dumpLog()
 {
-    QString fileName = QFileDialog::getSaveFileName(mainWindow(),
+    QString fileName = QFileDialog::getSaveFileName(ICore::mainWindow(),
         tr("Save Debugger Log"), QDir::tempPath());
     if (fileName.isEmpty())
         return;
@@ -2412,7 +2411,7 @@ void DebuggerPluginPrivate::dumpLog()
         ts << m_logWindow->combinedContents();
         saver.setResult(&ts);
     }
-    saver.finalize(mainWindow());
+    saver.finalize(ICore::mainWindow());
 }
 
 /*! Activates the previous mode when the current mode is the debug mode. */
@@ -2666,7 +2665,7 @@ QMessageBox *showMessageBox(int icon, const QString &title,
 {
     QMessageBox *mb = new QMessageBox(QMessageBox::Icon(icon),
         title, text, QMessageBox::StandardButtons(buttons),
-        debuggerCore()->mainWindow());
+        ICore::mainWindow());
     mb->setAttribute(Qt::WA_DeleteOnClose);
     mb->show();
     return mb;

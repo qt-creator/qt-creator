@@ -1,8 +1,8 @@
 /**************************************************************************
 **
-** Copyright (C) 2011 - 2013 Research In Motion
+** Copyright (C) 2012, 2013 BlackBerry Limited. All rights reserved.
 **
-** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
 ** This file is part of Qt Creator.
@@ -32,6 +32,8 @@
 #include "qnxqtversion.h"
 
 #include "qnxconstants.h"
+
+#include "qnxutils.h"
 
 #include <coreplugin/featureprovider.h>
 #include <utils/hostosinfo.h>
@@ -92,35 +94,7 @@ QString QnxQtVersion::sdkDescription() const
     return tr("QNX Software Development Platform:");
 }
 
-QMultiMap<QString, QString> QnxQtVersion::environment() const
+QList<Utils::EnvironmentItem> QnxQtVersion::environment() const
 {
-    // Mimic what the SDP installer puts into the system environment
-
-    QMultiMap<QString, QString> environment;
-
-    if (Utils::HostOsInfo::isWindowsHost()) {
-        // TODO:
-        //environment.insert(QLatin1String("QNX_CONFIGURATION"), QLatin1String("/etc/qnx"));
-        environment.insert(QLatin1String(Constants::QNX_TARGET_KEY), sdkPath() + QLatin1String("/target/qnx6"));
-        environment.insert(QLatin1String(Constants::QNX_HOST_KEY), sdkPath() + QLatin1String("/host/win32/x86"));
-
-        environment.insert(QLatin1String("PATH"), sdkPath() + QLatin1String("/host/win32/x86/usr/bin"));
-
-        // TODO:
-        //environment.insert(QLatin1String("PATH"), QLatin1String("/etc/qnx/bin"));
-    } else if (Utils::HostOsInfo::isAnyUnixHost()) {
-        environment.insert(QLatin1String("QNX_CONFIGURATION"), QLatin1String("/etc/qnx"));
-        environment.insert(QLatin1String(Constants::QNX_TARGET_KEY), sdkPath() + QLatin1String("/target/qnx6"));
-        environment.insert(QLatin1String(Constants::QNX_HOST_KEY), sdkPath() + QLatin1String("/host/linux/x86"));
-
-        environment.insert(QLatin1String("PATH"), sdkPath() + QLatin1String("/host/linux/x86/usr/bin"));
-        environment.insert(QLatin1String("PATH"), QLatin1String("/etc/qnx/bin"));
-
-        environment.insert(QLatin1String("LD_LIBRARY_PATH"), sdkPath() + QLatin1String("/host/linux/x86/usr/lib"));
-    }
-
-    environment.insert(QLatin1String("QNX_JAVAHOME"), sdkPath() + QLatin1String("/_jvm"));
-    environment.insert(QLatin1String("MAKEFLAGS"), QLatin1String("-I") + sdkPath() + QLatin1String("/target/qnx6/usr/include"));
-
-    return environment;
+    return QnxUtils::qnxEnvironment(sdkPath());
 }

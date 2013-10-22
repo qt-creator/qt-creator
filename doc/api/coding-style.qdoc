@@ -68,8 +68,8 @@
     releases:
 
     \list
-        \li Qt Creator 2.0.0 is a \e {major release}, Qt Creator 2.1.0 is a \e {minor
-            release}, and Qt Creator 2.1.3 is a \e {patch release}.
+        \li \QC 3.0.0 is a \e {major release}, \QC 3.1.0 is a \e {minor
+            release}, and \QC 3.1.3 is a \e {patch release}.
         \li \e {Backward binary compatibility} means that code linked to an
             earlier version of the library still works.
         \li \e {Forward binary compatibility} means that code linked to a
@@ -78,15 +78,33 @@
             modification.
         \endlist
 
-    We do not currently guarantee API nor ABI
-    (\l{http://en.wikipedia.org/wiki/Application_binary_interface}{application binary interface})
+    We do not currently guarantee binary nor source code
     compatibility between major releases and minor releases.
 
-    However, we try to preserve backward and forward binary compatibility and forward and
-    backward source code compatibility in patch releases, so:
-
+    However, we try to preserve backward binary compatibility and
+    backward source code compatibility for patch releases within the same minor release:
     \list
-        \li Do not add or remove any public API (e.g. global functions,
+        \li Soft API freeze: Starting shortly after the beta release of a minor release,
+            we start keeping backward source code compatibility within that minor release,
+            including its patch releases. This means that from that point, code that uses \QC API will
+            compile against the API of all coming versions of this minor release, including its
+            patch releases. There still might be occasional exceptions to this rule, which should
+            be properly communicated.
+        \li Hard API freeze: Starting with the release candidate of a minor release,
+            we keep backward source code compatibility within that minor release, including its
+            patch releases. We also start keeping backward binary compatibility, with the exception
+            that this will not be reflected in the plugins' compatVersion setting. So, \QC plugins
+            written against the release candidate will not actually load in the final release or
+            later versions, even though the binary compatibility of the libraries would
+            theoretically allow for it. See the section about plugin specs below.
+        \li Hard ABI freeze: Starting with the final release of a minor release,
+            we keep backward source code and binary compatibility for this release and all its
+            patch releases.
+    \endlist
+
+    For preserving backward compatibility:
+    \list
+        \li Do not add or remove any public API (for example global functions,
             public/protected/private member functions).
         \li Do not reimplement functions (not even inlines,
             nor protected or private functions).
@@ -95,10 +113,47 @@
             for ways to preserve binary compatibility.
     \endlist
 
-    \note This is not yet mandatory.
-
     For more information on binary compatibility, see
     \l{http://techbase.kde.org/Policies/Binary_Compatibility_Issues_With_C++}{Binary Compatibility Issues With C++}.
+
+    From the viewpoint of \l{Plugin Specifications} this means that
+    \list
+        \li \QC plugins in patch releases will have the minor release as \c {compatVersion}. For
+            example the plugins from version 3.1.2 will have \c {compatVersion="3.1.0"}.
+        \li Pre-releases of the minor release, including the release candidate,
+            will still have themselves as the \c {compatVersion}, meaning that plugins compiled
+            against the final release will not load in the pre-releases.
+        \li \QC plugin developers can decide if their plugin requires a certain patch release
+            (or later) of other \QC plugins, or if they work with all patch releases of this minor
+            version, by setting the corresponding \c {version} when declaring the dependency on
+            the other plugin. The default for \QC plugins provided by the Qt Project is to require
+            the latest patch release.
+    \endlist
+
+    For example, the \c {Find} plugin in \QC 3.1 beta (internal version number 3.0.82) will have
+    \code
+        <plugin name="Find" version="3.0.82" compatVersion="3.0.82">
+          <dependencyList>
+            <dependency name="Core" version="3.0.82"/>
+            ....
+    \endcode
+    The \c {Find} plugin in \QC 3.1.0 final will have
+    \code
+        <plugin name="Find" version="3.1.0" compatVersion="3.1.0">
+          <dependencyList>
+            <dependency name="Core" version="3.1.0"/>
+            ....
+    \endcode
+    The \c {Find} plugin in \QC 3.1.1 patch release will have version 3.1.1, will be
+    backward binary compatible with \c {Find} plugin version 3.1.0 (\c {compatVersion="3.1.0"}),
+    and will require a \c {Core} plugin that is binary backward compatible with \c {Core}
+    plugin version 3.1.1:
+    \code
+        <plugin name="Find" version="3.1.1" compatVersion="3.1.0">
+          <dependencyList>
+            <dependency name="Core" version="3.1.1"/>
+            ....
+    \endcode
 
     \section1 Code Constructs
 

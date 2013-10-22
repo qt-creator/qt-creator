@@ -40,7 +40,7 @@ QT_BEGIN_NAMESPACE
 class QStackedLayout;
 QT_END_NAMESPACE
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 class ClassDefinition;

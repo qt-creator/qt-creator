@@ -32,7 +32,7 @@
 
 #include "abstractmobileapp.h"
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 struct Html5AppGeneratedFileInfo : public AbstractGeneratedFileInfo
@@ -112,6 +112,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // HTML5APP_H

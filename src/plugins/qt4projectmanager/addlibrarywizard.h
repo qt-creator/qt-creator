@@ -39,7 +39,7 @@ class QCheckBox;
 class QLabel;
 QT_END_NAMESPACE
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 class LibraryDetailsWidget;
@@ -154,6 +154,6 @@ public:
 
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // ADDLIBRARYWIZARD_H

@@ -30,7 +30,7 @@
 #ifndef QMAKESTEP_H
 #define QMAKESTEP_H
 
-#include "qt4projectmanager_global.h"
+#include "qmakeprojectmanager_global.h"
 #include <projectexplorer/abstractprocessstep.h>
 
 #include <QStringList>
@@ -43,7 +43,7 @@ class IBuildStepFactory;
 class Project;
 }
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 class Qt4BuildConfiguration;
 class Qt4Project;
 
@@ -177,6 +177,6 @@ private:
     bool m_ignoreChange;
 };
 
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // QMAKESTEP_H

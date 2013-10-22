@@ -30,8 +30,8 @@
 #include "createandroidmanifestwizard.h"
 
 #include <projectexplorer/target.h>
-#include <qt4projectmanager/qt4project.h>
-#include <qt4projectmanager/qt4nodes.h>
+#include <qt4projectmanager/qmakeproject.h>
+#include <qt4projectmanager/qmakenodes.h>
 #include <proparser/prowriter.h>
 #include <QComboBox>
 #include <QFormLayout>
@@ -43,8 +43,8 @@
 
 using namespace Android;
 using namespace Android::Internal;
-using Qt4ProjectManager::Qt4Project;
-using Qt4ProjectManager::Qt4ProFileNode;
+using QmakeProjectManager::Qt4Project;
+using QmakeProjectManager::Qt4ProFileNode;
 
 //
 // NoApplicationProFilePage
@@ -96,7 +96,7 @@ void ChooseProFilePage::nodeSelected(int index)
 ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
     : m_wizard(wizard), m_androidPackageSourceDir(0)
 {
-    QString androidPackageDir = m_wizard->node()->singleVariableValue(Qt4ProjectManager::AndroidPackageSourceDir);
+    QString androidPackageDir = m_wizard->node()->singleVariableValue(QmakeProjectManager::AndroidPackageSourceDir);
 
     QFormLayout *fl = new QFormLayout(this);
     QLabel *label = new QLabel(this);
@@ -147,12 +147,12 @@ CreateAndroidManifestWizard::CreateAndroidManifestWizard(ProjectExplorer::Target
     }
 }
 
-Qt4ProjectManager::Qt4ProFileNode *CreateAndroidManifestWizard::node() const
+QmakeProjectManager::Qt4ProFileNode *CreateAndroidManifestWizard::node() const
 {
     return m_node;
 }
 
-void CreateAndroidManifestWizard::setNode(Qt4ProjectManager::Qt4ProFileNode *node)
+void CreateAndroidManifestWizard::setNode(QmakeProjectManager::Qt4ProFileNode *node)
 {
     m_node = node;
 }
@@ -205,7 +205,7 @@ void CreateAndroidManifestWizard::createAndroidManifestFile()
         return;
     }
 
-    if (m_node->singleVariableValue(Qt4ProjectManager::AndroidPackageSourceDir).isEmpty()) {
+    if (m_node->singleVariableValue(QmakeProjectManager::AndroidPackageSourceDir).isEmpty()) {
         // and now time for some magic
         QString dir = QFileInfo(fileName).absolutePath();
         QString value = QLatin1String("$$PWD/")

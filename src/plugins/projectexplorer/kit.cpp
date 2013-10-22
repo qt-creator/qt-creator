@@ -69,29 +69,34 @@ class KitPrivate
 public:
     KitPrivate(Id id) :
         m_id(id),
+        m_nestedBlockingLevel(0),
         m_autodetected(false),
         m_sdkProvided(false),
         m_isValid(true),
         m_hasWarning(false),
-        m_nestedBlockingLevel(0),
+        m_hasValidityInfo(false),
         m_mustNotify(false),
         m_mustNotifyAboutDisplayName(false)
     {
         if (!id.isValid())
             m_id = Id::fromString(QUuid::createUuid().toString());
+
+        m_displayName = QCoreApplication::translate("ProjectExplorer::Kit", "Unnamed");
+        m_iconPath = Utils::FileName::fromString(QLatin1String(":///DESKTOP///"));
     }
 
     QString m_displayName;
     Id m_id;
+    int m_nestedBlockingLevel;
     bool m_autodetected;
     bool m_sdkProvided;
     bool m_isValid;
     bool m_hasWarning;
-    QIcon m_icon;
-    Utils::FileName m_iconPath;
-    int m_nestedBlockingLevel;
+    bool m_hasValidityInfo;
     bool m_mustNotify;
     bool m_mustNotifyAboutDisplayName;
+    QIcon m_icon;
+    Utils::FileName m_iconPath;
 
     QHash<Core::Id, QVariant> m_data;
     QSet<Core::Id> m_sticky;
@@ -107,12 +112,41 @@ public:
 Kit::Kit(Core::Id id) :
     d(new Internal::KitPrivate(id))
 {
-    KitGuard g(this);
     foreach (KitInformation *sti, KitManager::kitInformation())
-        setValue(sti->id(), sti->defaultValue(this));
+        d->m_data.insert(sti->id(), sti->defaultValue(this));
 
-    setDisplayName(QCoreApplication::translate("ProjectExplorer::Kit", "Unnamed"));
-    setIconPath(Utils::FileName::fromString(QLatin1String(":///DESKTOP///")));
+    d->m_icon = icon(d->m_iconPath);
+}
+
+Kit::Kit(const QVariantMap &data) :
+    d(new Internal::KitPrivate(Core::Id()))
+{
+    d->m_id = Id::fromSetting(data.value(QLatin1String(ID_KEY)));
+
+    d->m_autodetected = data.value(QLatin1String(AUTODETECTED_KEY)).toBool();
+
+    // if we don't have that setting assume that autodetected implies sdk
+    QVariant value = data.value(QLatin1String(SDK_PROVIDED_KEY));
+    if (value.isValid())
+        d->m_sdkProvided = value.toBool();
+    else
+        d->m_sdkProvided = d->m_autodetected;
+
+    d->m_displayName = data.value(QLatin1String(DISPLAYNAME_KEY),
+                                  d->m_displayName).toString();
+    d->m_iconPath = Utils::FileName::fromString(data.value(QLatin1String(ICON_KEY),
+                                                           d->m_iconPath.toString()).toString());
+    d->m_icon = icon(d->m_iconPath);
+
+    QVariantMap extra = data.value(QLatin1String(DATA_KEY)).toMap();
+    d->m_data.clear(); // remove default values
+    const QVariantMap::ConstIterator cend = extra.constEnd();
+    for (QVariantMap::ConstIterator it = extra.constBegin(); it != cend; ++it)
+        d->m_data.insert(Id::fromString(it.key()), it.value());
+
+    QStringList mutableInfoList = data.value(QLatin1String(MUTABLE_INFO_KEY)).toStringList();
+    foreach (const QString &mutableInfo, mutableInfoList)
+        d->m_mutable.insert(Core::Id::fromString(mutableInfo));
 }
 
 Kit::~Kit()
@@ -172,11 +206,20 @@ void Kit::copyFrom(const Kit *k)
 
 bool Kit::isValid() const
 {
-    return d->m_id.isValid() && d->m_isValid;
+    if (!d->m_id.isValid())
+        return false;
+
+    if (!d->m_hasValidityInfo)
+        validate();
+
+    return d->m_isValid;
 }
 
 bool Kit::hasWarning() const
 {
+    if (!d->m_hasValidityInfo)
+        validate();
+
     return d->m_hasWarning;
 }
 
@@ -197,6 +240,7 @@ QList<Task> Kit::validate() const
         result.append(tmp);
     }
     qSort(result);
+    d->m_hasValidityInfo = true;
     return result;
 }
 
@@ -447,37 +491,6 @@ QString Kit::toHtml() const
     return rc;
 }
 
-bool Kit::fromMap(const QVariantMap &data)
-{
-    KitGuard g(this);
-    Id id = Id::fromSetting(data.value(QLatin1String(ID_KEY)));
-    if (!id.isValid())
-        return false;
-    d->m_id = id;
-    d->m_autodetected = data.value(QLatin1String(AUTODETECTED_KEY)).toBool();
-    // if we don't have that setting assume that autodetected implies sdk
-    QVariant value = data.value(QLatin1String(SDK_PROVIDED_KEY));
-    if (value.isValid())
-        d->m_sdkProvided = value.toBool();
-    else
-        d->m_sdkProvided = d->m_autodetected;
-    setDisplayName(data.value(QLatin1String(DISPLAYNAME_KEY)).toString());
-    setIconPath(Utils::FileName::fromString(data.value(QLatin1String(ICON_KEY)).toString()));
-
-    QVariantMap extra = data.value(QLatin1String(DATA_KEY)).toMap();
-    d->m_data.clear(); // remove default values
-    const QVariantMap::ConstIterator cend = extra.constEnd();
-    for (QVariantMap::ConstIterator it = extra.constBegin(); it != cend; ++it)
-        setValue(Id::fromString(it.key()), it.value());
-
-    QStringList mutableInfoList = data.value(QLatin1String(MUTABLE_INFO_KEY)).toStringList();
-    foreach (const QString &mutableInfo, mutableInfoList) {
-        d->m_mutable.insert(Core::Id::fromString(mutableInfo));
-    }
-
-    return true;
-}
-
 void Kit::setAutoDetected(bool detected)
 {
     d->m_autodetected = detected;
@@ -528,7 +541,7 @@ void Kit::kitUpdated()
         d->m_mustNotify = true;
         return;
     }
-    validate();
+    d->m_hasValidityInfo = false;
     KitManager::notifyAboutUpdate(this);
 }
 
@@ -539,7 +552,7 @@ void Kit::kitDisplayNameChanged()
         d->m_mustNotify = false;
         return;
     }
-    validate();
+    d->m_hasValidityInfo = false;
     KitManager::notifyAboutDisplayNameChange(this);
 }
 

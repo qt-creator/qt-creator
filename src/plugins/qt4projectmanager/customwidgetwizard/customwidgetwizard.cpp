@@ -39,7 +39,7 @@
 
 #include <QCoreApplication>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 CustomWidgetWizard::CustomWidgetWizard()
@@ -80,4 +80,4 @@ Core::GeneratedFiles CustomWidgetWizard::generateFiles(const QWizard *w,
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

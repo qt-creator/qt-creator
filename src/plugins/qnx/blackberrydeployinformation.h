@@ -2,9 +2,9 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (C) 2011 - 2013 Research In Motion
+** Copyright (C) 2012, 2013 BlackBerry Limited. All rights reserved.
 **
-** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
 **
@@ -37,7 +37,7 @@ namespace ProjectExplorer {
 class Target;
 }
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 class Qt4ProFileNode;
 class Qt4Project;
 }
@@ -102,10 +102,10 @@ private:
         ColumnCount // Always have last
     };
 
-    Qt4ProjectManager::Qt4Project *project() const;
+    QmakeProjectManager::Qt4Project *project() const;
 
     void initModel();
-    BarPackageDeployInformation deployInformationFromNode(Qt4ProjectManager::Qt4ProFileNode *node) const;
+    BarPackageDeployInformation deployInformationFromNode(QmakeProjectManager::Qt4ProFileNode *node) const;
 
     ProjectExplorer::Target *m_target;
 

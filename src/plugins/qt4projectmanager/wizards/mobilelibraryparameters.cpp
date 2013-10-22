@@ -31,7 +31,7 @@
 
 #include <QTextStream>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 MobileLibraryParameters::MobileLibraryParameters() :
@@ -55,4 +55,4 @@ void MobileLibraryParameters::writeLinuxProFile(QTextStream &str) const
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

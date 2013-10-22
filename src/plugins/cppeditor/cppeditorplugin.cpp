@@ -210,6 +210,13 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     contextMenu->addAction(cmd);
     cppToolsMenu->addAction(cmd);
 
+    QAction *openPreprocessorDialog = new QAction(tr("Additional Preprocessor Directives"), this);
+    cmd = ActionManager::registerAction(openPreprocessorDialog,
+                                        Constants::OPEN_PREPROCESSOR_DIALOG, context);
+    cmd->setDefaultKeySequence(QKeySequence());
+    connect(openPreprocessorDialog, SIGNAL(triggered()), this, SLOT(showPreProcessorDialog()));
+    cppToolsMenu->addAction(cmd);
+
     QAction *switchDeclarationDefinition = new QAction(tr("Switch Between Function Declaration/Definition"), this);
     cmd = ActionManager::registerAction(switchDeclarationDefinition,
         Constants::SWITCH_DECLARATION_DEFINITION, context, true);
@@ -326,32 +333,39 @@ ExtensionSystem::IPlugin::ShutdownFlag CppEditorPlugin::aboutToShutdown()
     return SynchronousShutdown;
 }
 
+static CPPEditorWidget *currentCppEditorWidget()
+{
+    return qobject_cast<CPPEditorWidget*>(EditorManager::currentEditor()->widget());
+}
+
 void CppEditorPlugin::switchDeclarationDefinition()
 {
-    CPPEditorWidget *editor = qobject_cast<CPPEditorWidget*>(EditorManager::currentEditor()->widget());
-    if (editor)
-        editor->switchDeclarationDefinition(/*inNextSplit*/ false);
+    if (CPPEditorWidget *editorWidget = currentCppEditorWidget())
+        editorWidget->switchDeclarationDefinition(/*inNextSplit*/ false);
 }
 
 void CppEditorPlugin::openDeclarationDefinitionInNextSplit()
 {
-    CPPEditorWidget *editor = qobject_cast<CPPEditorWidget*>(EditorManager::currentEditor()->widget());
-    if (editor)
-        editor->switchDeclarationDefinition(/*inNextSplit*/ true);
+    if (CPPEditorWidget *editorWidget = currentCppEditorWidget())
+        editorWidget->switchDeclarationDefinition(/*inNextSplit*/ true);
 }
 
 void CppEditorPlugin::renameSymbolUnderCursor()
 {
-    CPPEditorWidget *editor = qobject_cast<CPPEditorWidget*>(EditorManager::currentEditor()->widget());
-    if (editor)
-        editor->renameSymbolUnderCursor();
+    if (CPPEditorWidget *editorWidget = currentCppEditorWidget())
+        editorWidget->renameSymbolUnderCursor();
 }
 
 void CppEditorPlugin::findUsages()
 {
-    CPPEditorWidget *editor = qobject_cast<CPPEditorWidget*>(EditorManager::currentEditor()->widget());
-    if (editor)
-        editor->findUsages();
+    if (CPPEditorWidget *editorWidget = currentCppEditorWidget())
+        editorWidget->findUsages();
+}
+
+void CppEditorPlugin::showPreProcessorDialog()
+{
+    if (CPPEditorWidget *editorWidget = currentCppEditorWidget())
+        editorWidget->showPreProcessorWidget();
 }
 
 void CppEditorPlugin::onTaskStarted(Core::Id type)
@@ -381,14 +395,13 @@ void CppEditorPlugin::currentEditorChanged(IEditor *editor)
     if (!editor)
         return;
 
-    if (CPPEditorWidget *textEditor = qobject_cast<CPPEditorWidget *>(editor->widget()))
-        textEditor->semanticRehighlight(/*force = */ true);
+    if (CPPEditorWidget *editorWidget = currentCppEditorWidget())
+        editorWidget->semanticRehighlight(/*force = */ true);
 }
 
 void CppEditorPlugin::openTypeHierarchy()
 {
-    CPPEditorWidget *editor = qobject_cast<CPPEditorWidget*>(EditorManager::currentEditor()->widget());
-    if (editor) {
+    if (currentCppEditorWidget()) {
         NavigationWidget *navigation = NavigationWidget::instance();
         navigation->activateSubWidget(Constants::TYPE_HIERARCHY_ID);
         emit typeHierarchyRequested();
@@ -397,9 +410,7 @@ void CppEditorPlugin::openTypeHierarchy()
 
 void CppEditorPlugin::openIncludeHierarchy()
 {
-    CPPEditorWidget *editor
-            = qobject_cast<CPPEditorWidget*>(Core::EditorManager::currentEditor()->widget());
-    if (editor) {
+    if (currentCppEditorWidget()) {
         Core::NavigationWidget *navigation = Core::NavigationWidget::instance();
         navigation->activateSubWidget(Core::Id(Constants::INCLUDE_HIERARCHY_ID));
         emit includeHierarchyRequested();

@@ -2,9 +2,9 @@
 **
 ** This file is part of Qt Creator
 **
-** Copyright (C) 2011 - 2013 Research In Motion
+** Copyright (C) 2012, 2013 BlackBerry Limited. All rights reserved.
 **
-** Contact: Research In Motion (blackberry-qt@qnx.com)
+** Contact: BlackBerry (qt@blackberry.com)
 ** Contact: KDAB (info@kdab.com)
 **
 **
@@ -34,8 +34,8 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/target.h>
-#include <qt4projectmanager/qt4project.h>
-#include <qt4projectmanager/qt4nodes.h>
+#include <qt4projectmanager/qmakeproject.h>
+#include <qt4projectmanager/qmakenodes.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 
@@ -241,8 +241,8 @@ void BlackBerryDeployInformation::updateModel()
 
     beginResetModel();
     QList<BarPackageDeployInformation> keep;
-    QList<Qt4ProjectManager::Qt4ProFileNode *> appNodes = project()->applicationProFiles();
-    foreach (Qt4ProjectManager::Qt4ProFileNode *node, appNodes) {
+    QList<QmakeProjectManager::Qt4ProFileNode *> appNodes = project()->applicationProFiles();
+    foreach (QmakeProjectManager::Qt4ProFileNode *node, appNodes) {
         bool nodeFound = false;
         for (int i = 0; i < m_deployInformation.size(); ++i) {
             if (m_deployInformation[i].proFilePath == node->path()
@@ -264,9 +264,9 @@ void BlackBerryDeployInformation::updateModel()
     endResetModel();
 }
 
-Qt4ProjectManager::Qt4Project *BlackBerryDeployInformation::project() const
+QmakeProjectManager::Qt4Project *BlackBerryDeployInformation::project() const
 {
-    return static_cast<Qt4ProjectManager::Qt4Project *>(m_target->project());
+    return static_cast<QmakeProjectManager::Qt4Project *>(m_target->project());
 }
 
 void BlackBerryDeployInformation::initModel()
@@ -282,7 +282,7 @@ void BlackBerryDeployInformation::initModel()
         return;
     }
 
-    const Qt4ProjectManager::Qt4ProFileNode *const rootNode = project()->rootQt4ProjectNode();
+    const QmakeProjectManager::Qt4ProFileNode *const rootNode = project()->rootQt4ProjectNode();
     if (!rootNode || rootNode->parseInProgress()) // Can be null right after project creation by wizard.
         return;
 
@@ -291,17 +291,17 @@ void BlackBerryDeployInformation::initModel()
     beginResetModel();
     m_deployInformation.clear();
 
-    QList<Qt4ProjectManager::Qt4ProFileNode *> appNodes = project()->applicationProFiles();
-    foreach (Qt4ProjectManager::Qt4ProFileNode *node, appNodes)
+    QList<QmakeProjectManager::Qt4ProFileNode *> appNodes = project()->applicationProFiles();
+    foreach (QmakeProjectManager::Qt4ProFileNode *node, appNodes)
         m_deployInformation << deployInformationFromNode(node);
 
     endResetModel();
     connect(project(), SIGNAL(proFilesEvaluated()), this, SLOT(updateModel()));
 }
 
-BarPackageDeployInformation BlackBerryDeployInformation::deployInformationFromNode(Qt4ProjectManager::Qt4ProFileNode *node) const
+BarPackageDeployInformation BlackBerryDeployInformation::deployInformationFromNode(QmakeProjectManager::Qt4ProFileNode *node) const
 {
-    Qt4ProjectManager::TargetInformation ti = node->targetInformation();
+    QmakeProjectManager::TargetInformation ti = node->targetInformation();
 
     QFileInfo fi(node->path());
     const QString buildDir = m_target->activeBuildConfiguration()->buildDirectory().toString();

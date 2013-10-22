@@ -32,7 +32,7 @@
 
 #include "abstractmobileapp.h"
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 struct MobileAppGeneratedFileInfo : AbstractGeneratedFileInfo
@@ -81,6 +81,6 @@ private:
 };
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // MOBILEAPP_H

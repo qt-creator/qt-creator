@@ -38,6 +38,7 @@
 #include <utils/qtcassert.h>
 
 #include <QString>
+#include <QTimer>
 
 namespace ProjectExplorer {
 
@@ -54,6 +55,8 @@ public:
     QStringList arguments;
     QString errorMessage;
     QSsh::SshRemoteProcess::ExitStatus exitStatus;
+    DeviceProcessSignalOperation::Ptr killOperation;
+    QTimer killTimer;
     QByteArray stdOut;
     QByteArray stdErr;
     int exitCode;
@@ -70,6 +73,7 @@ SshDeviceProcess::SshDeviceProcess(const IDevice::ConstPtr &device, QObject *par
     d->connection = 0;
     d->state = SshDeviceProcessPrivate::Inactive;
     setSshServerSupportsSignals(false);
+    connect(&d->killTimer, SIGNAL(timeout()), SLOT(handleKillOperationTimeout()));
 }
 
 SshDeviceProcess::~SshDeviceProcess()
@@ -223,6 +227,7 @@ void SshDeviceProcess::handleDisconnected()
         emit error(QProcess::FailedToStart);
         break;
     case SshDeviceProcessPrivate::ProcessRunning:
+        d->exitStatus = QSsh::SshRemoteProcess::CrashExit;
         emit finished();
     default:
         break;
@@ -271,6 +276,26 @@ void SshDeviceProcess::handleStderr()
     emit readyReadStandardError();
 }
 
+void SshDeviceProcess::handleKillOperationFinished(const QString &errorMessage)
+{
+    QTC_ASSERT(d->state == SshDeviceProcessPrivate::ProcessRunning, return);
+    if (errorMessage.isEmpty()) // Process will finish as expected; nothing to do here.
+        return;
+
+    d->exitStatus = QSsh::SshRemoteProcess::CrashExit; // Not entirely true, but it will get the message across.
+    d->errorMessage = tr("Failed to kill remote process: %1").arg(errorMessage);
+    d->setState(SshDeviceProcessPrivate::Inactive);
+    emit finished();
+}
+
+void SshDeviceProcess::handleKillOperationTimeout()
+{
+    d->exitStatus = QSsh::SshRemoteProcess::CrashExit; // Not entirely true, but it will get the message across.
+    d->errorMessage = tr("Timeout waiting for remote process to finish.");
+    d->setState(SshDeviceProcessPrivate::Inactive);
+    emit finished();
+}
+
 QString SshDeviceProcess::fullCommandLine() const
 {
     QString cmdLine = executable();
@@ -296,10 +321,17 @@ void SshDeviceProcess::SshDeviceProcessPrivate::doSignal(QSsh::SshRemoteProcess:
             process->sendSignal(signal);
         } else {
             DeviceProcessSignalOperation::Ptr signalOperation = q->device()->signalOperation();
-            if (signal == QSsh::SshRemoteProcess::IntSignal)
+            if (signal == QSsh::SshRemoteProcess::IntSignal) {
                 signalOperation->interruptProcess(executable);
-            else
+            } else {
+                if (killOperation) // We are already in the process of killing the app.
+                    return;
+                killOperation = signalOperation;
+                connect(signalOperation.data(), SIGNAL(finished(QString)), q,
+                        SLOT(handleKillOperationFinished(QString)));
+                killTimer.start(5000);
                 signalOperation->killProcess(executable);
+            }
         }
         break;
     }
@@ -314,6 +346,11 @@ void SshDeviceProcess::SshDeviceProcessPrivate::setState(SshDeviceProcess::SshDe
     if (state != Inactive)
         return;
 
+    if (killOperation) {
+        killOperation->disconnect(q);
+        killOperation.clear();
+    }
+    killTimer.stop();
     if (process)
         process->disconnect(q);
     if (connection) {

@@ -37,7 +37,7 @@
 
 #include <QCoreApplication>
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 SubdirsProjectWizard::SubdirsProjectWizard()
@@ -100,4 +100,4 @@ bool SubdirsProjectWizard::postGenerateFiles(const QWizard *w, const Core::Gener
 }
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager

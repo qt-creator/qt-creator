@@ -886,7 +886,12 @@ public:
     {
         QSet<Symbol *> visited;
         _binding = binding;
-        while (NamedType *namedTy = getNamedType(*type)) {
+        // Use a hard limit when trying to resolve typedefs. Typedefs in templates can refer to
+        // each other, each time enhancing the template argument and thus making it impossible to
+        // use an "alreadyResolved" container. FIXME: We might overcome this by resolving the
+        // template parameters.
+        unsigned maxDepth = 15;
+        for (NamedType *namedTy = 0; maxDepth && (namedTy = getNamedType(*type)); --maxDepth) {
             QList<LookupItem> namedTypeItems = getNamedTypeItems(namedTy->name(), *scope, _binding);
 
 #ifdef DEBUG_LOOKUP

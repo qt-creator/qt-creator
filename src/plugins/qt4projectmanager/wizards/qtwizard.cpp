@@ -31,9 +31,9 @@
 
 #include "modulespage.h"
 
-#include <qt4projectmanager/qt4project.h>
-#include <qt4projectmanager/qt4projectmanager.h>
-#include <qt4projectmanager/qt4projectmanagerconstants.h>
+#include <qt4projectmanager/qmakeproject.h>
+#include <qt4projectmanager/qmakeprojectmanager.h>
+#include <qt4projectmanager/qmakeprojectmanagerconstants.h>
 
 #include <coreplugin/icore.h>
 
@@ -50,8 +50,8 @@
 #include <QVariant>
 
 using namespace ProjectExplorer;
-using namespace Qt4ProjectManager;
-using namespace Qt4ProjectManager::Internal;
+using namespace QmakeProjectManager;
+using namespace QmakeProjectManager::Internal;
 
 // -------------------- QtWizard
 QtWizard::QtWizard()

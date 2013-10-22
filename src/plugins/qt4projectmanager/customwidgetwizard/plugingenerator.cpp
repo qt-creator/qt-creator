@@ -45,7 +45,7 @@ static QString headerGuard(const QString &header)
     return header.toUpper().replace(QRegExp(QLatin1String("[^A-Z0-9]+")), QLatin1String("_"));
 }
 
-namespace Qt4ProjectManager {
+namespace QmakeProjectManager {
 namespace Internal {
 
 struct ProjectContents {

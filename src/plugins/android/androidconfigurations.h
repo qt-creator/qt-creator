@@ -107,7 +107,7 @@ public:
     QString startAVD(const QString &name, int apiLevel, QString cpuAbi) const;
     bool startAVDAsync(const QString &avdName) const;
     QString waitForAvd(int apiLevel, const QString &cpuAbi) const;
-    QString bestMatch(const QString &targetAPI) const;
+    QString bestNdkPlatformMatch(const QString &targetAPI) const;
 
     QStringList makeExtraSearchDirectories() const;
 
@@ -124,7 +124,7 @@ public:
     AndroidDeviceInfo showDeviceDialog(ProjectExplorer::Project *project, int apiLevel, const QString &abi);
     void setDefaultDevice(ProjectExplorer::Project *project, const QString &abi, const QString &serialNumber); // serial number or avd name
     QString defaultDevice(ProjectExplorer::Project *project, const QString &abi) const; // serial number or avd name
-    QString highestAvailableAndroidPlatform() const;
+    QString highestAndroidSdk() const;
 public slots:
     void clearDefaultDevices(ProjectExplorer::Project *project);
 
@@ -145,12 +145,15 @@ private:
 
     int getSDKVersion(const QString &device) const;
     QStringList getAbis(const QString &device) const;
-    void updateAvailablePlatforms();
+    void updateAvailableNdkPlatforms();
+    void updateAvailableSdkPlatforms();
 
 
     static AndroidConfigurations *m_instance;
     AndroidConfig m_config;
-    QVector<int> m_availablePlatforms;
+    QVector<int> m_availableNdkPlatforms;
+    QVector<int> m_availableSdkPlatforms;
+
     mutable QHash<QString, QString> m_serialNumberToDeviceName;
 
     QMap<ProjectExplorer::Project *, QMap<QString, QString> > m_defaultDeviceForAbi;

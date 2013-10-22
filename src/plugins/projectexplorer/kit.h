@@ -113,6 +113,7 @@ private:
     void setSdkProvided(bool sdkProvided);
 
     ~Kit();
+    Kit(const QVariantMap &data);
 
     // Unimplemented.
     Kit(const Kit &other);
@@ -122,9 +123,8 @@ private:
     void kitUpdated();
 
     QVariantMap toMap() const;
-    bool fromMap(const QVariantMap &value);
 
-    Internal::KitPrivate *d;
+    Internal::KitPrivate *const d;
 
     friend class KitInformation;
     friend class KitManager;

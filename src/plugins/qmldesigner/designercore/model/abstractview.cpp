@@ -369,6 +369,7 @@ QString AbstractView::generateNewId(const QString prefixName) const
     while (hasId(newId)) {
         counter += 1;
         newId = QString("%1%2").arg(firstCharToLower(prefixName)).arg(counter);
+        newId.remove(QRegExp(QLatin1String("[^a-zA-Z0-9_]")));
     }
 
     return newId;

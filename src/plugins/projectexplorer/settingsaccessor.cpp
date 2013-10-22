@@ -1514,15 +1514,15 @@ QVariantMap Version1Handler::update(Project *project, const QVariantMap &map)
                                                                  "CMake Default target display name"));
     else if (project->id() == "Qt4ProjectManager.Qt4Project")
         targets << TargetDescription(QString::fromLatin1("Qt4ProjectManager.Target.DesktopTarget"),
-                                     QCoreApplication::translate("Qt4ProjectManager::Internal::Qt4Target",
+                                     QCoreApplication::translate("QmakeProjectManager::Internal::Qt4Target",
                                                                  "Desktop",
                                                                  "Qt4 Desktop target display name"))
         << TargetDescription(QString::fromLatin1("Qt4ProjectManager.Target.MaemoEmulatorTarget"),
-                                     QCoreApplication::translate("Qt4ProjectManager::Internal::Qt4Target",
+                                     QCoreApplication::translate("QmakeProjectManager::Internal::Qt4Target",
                                                                  "Maemo Emulator",
                                                                  "Qt4 Maemo Emulator target display name"))
         << TargetDescription(QString::fromLatin1("Qt4ProjectManager.Target.MaemoDeviceTarget"),
-                                     QCoreApplication::translate("Qt4ProjectManager::Internal::Qt4Target",
+                                     QCoreApplication::translate("QmakeProjectManager::Internal::Qt4Target",
                                                                  "Maemo Device",
                                                                  "Qt4 Maemo Device target display name"));
     else if (project->id() == "QmlProjectManager.QmlProject")

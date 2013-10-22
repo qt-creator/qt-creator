@@ -10,10 +10,10 @@ HEADERS += \
     qmakekitconfigwidget.h \
     qmakeprojectimporter.h \
     qmakerunconfigurationfactory.h \
-    qt4projectmanagerplugin.h \
-    qt4projectmanager.h \
-    qt4project.h \
-    qt4nodes.h \
+    qmakeprojectmanagerplugin.h \
+    qmakeprojectmanager.h \
+    qmakeproject.h \
+    qmakenodes.h \
     profileeditor.h \
     profilehighlighter.h \
     profilehighlighterfactory.h \
@@ -49,19 +49,19 @@ HEADERS += \
     wizards/abstractmobileappwizard.h \
     wizards/subdirsprojectwizard.h \
     wizards/subdirsprojectwizarddialog.h \
-    qt4projectmanagerconstants.h \
+    qmakeprojectmanagerconstants.h \
     makestep.h \
     qmakestep.h \
     qtmodulesinfo.h \
-    qt4projectconfigwidget.h \
+    qmakeprojectconfigwidget.h \
     externaleditors.h \
-    qt4buildconfiguration.h \
+    qmakebuildconfiguration.h \
     qmakeparser.h \
     addlibrarywizard.h \
     librarydetailscontroller.h \
-    findqt4profiles.h \
-    qt4projectmanager_global.h \
-    qt4runconfiguration.h \
+    findqmakeprofiles.h \
+    qmakeprojectmanager_global.h \
+    qmakerunconfiguration.h \
     profilecompletionassist.h
 
 SOURCES += \
@@ -69,10 +69,10 @@ SOURCES += \
     qmakekitinformation.cpp \
     qmakeprojectimporter.cpp \
     qmakerunconfigurationfactory.cpp \
-    qt4projectmanagerplugin.cpp \
-    qt4projectmanager.cpp \
-    qt4project.cpp \
-    qt4nodes.cpp \
+    qmakeprojectmanagerplugin.cpp \
+    qmakeprojectmanager.cpp \
+    qmakeproject.cpp \
+    qmakenodes.cpp \
     profileeditor.cpp \
     profilehighlighter.cpp \
     profilehighlighterfactory.cpp \
@@ -111,19 +111,19 @@ SOURCES += \
     makestep.cpp \
     qmakestep.cpp \
     qtmodulesinfo.cpp \
-    qt4projectconfigwidget.cpp \
+    qmakeprojectconfigwidget.cpp \
     externaleditors.cpp \
-    qt4buildconfiguration.cpp \
+    qmakebuildconfiguration.cpp \
     qmakeparser.cpp \
     addlibrarywizard.cpp \
     librarydetailscontroller.cpp \
-    findqt4profiles.cpp \
-    qt4runconfiguration.cpp \
+    findqmakeprofiles.cpp \
+    qmakerunconfiguration.cpp \
     profilecompletionassist.cpp
 
 FORMS += makestep.ui \
     qmakestep.ui \
-    qt4projectconfigwidget.ui \
+    qmakeprojectconfigwidget.ui \
     librarydetailswidget.ui \
     wizards/testwizardpage.ui \
     wizards/html5appwizardsourcespage.ui \
@@ -131,7 +131,7 @@ FORMS += makestep.ui \
     wizards/mobileappwizardgenericoptionspage.ui \
     wizards/qtquickcomponentsetoptionspage.ui
 
-RESOURCES += qt4projectmanager.qrc \
+RESOURCES += qmakeprojectmanager.qrc \
     wizards/wizards.qrc
 
 include(customwidgetwizard/customwidgetwizard.pri)

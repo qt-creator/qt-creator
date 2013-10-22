@@ -286,6 +286,9 @@ void QbsProject::handleQbsParsingDone(bool success)
     delete m_qbsUpdateFutureInterface;
     m_qbsUpdateFutureInterface = 0;
 
+    if (!project.isValid())
+        return;
+
     m_rootProjectNode->update(project);
 
     updateDocuments(project.isValid() ? project.buildSystemFiles() : QSet<QString>() << m_fileName);
@@ -425,6 +428,10 @@ void QbsProject::parse(const QVariantMap &config, const Environment &env, const 
         if (canSkip)
             return;
     }
+
+    // Some people don't like it when files are created as a side effect of opening a project,
+    // so do not store the build graph if the build directory does not exist yet.
+    params.setDryRun(!QFileInfo(dir).exists());
 
     params.setBuildRoot(dir);
     params.setProjectFilePath(m_fileName);

@@ -33,7 +33,7 @@
 #include <QApplication>
 #include <QDebug>
 
-using namespace Qt4ProjectManager::Internal;
+using namespace QmakeProjectManager::Internal;
 
 int main(int argc, char *argv[])
 {

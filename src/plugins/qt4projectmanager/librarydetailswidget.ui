@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Qt4ProjectManager::Internal::LibraryDetailsWidget</class>
- <widget class="QWidget" name="Qt4ProjectManager::Internal::LibraryDetailsWidget">
+ <class>QmakeProjectManager::Internal::LibraryDetailsWidget</class>
+ <widget class="QWidget" name="QmakeProjectManager::Internal::LibraryDetailsWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -31,7 +31,7 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="Qt4ProjectManager::Internal::LibraryPathChooser" name="libraryPathChooser" native="true"/>
+      <widget class="QmakeProjectManager::Internal::LibraryPathChooser" name="libraryPathChooser" native="true"/>
      </item>
      <item row="3" column="0">
       <widget class="QLabel" name="includeLabel">
@@ -242,7 +242,7 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>Qt4ProjectManager::Internal::LibraryPathChooser</class>
+   <class>QmakeProjectManager::Internal::LibraryPathChooser</class>
    <extends>QWidget</extends>
    <header location="global">qt4projectmanager/addlibrarywizard.h</header>
    <container>1</container>

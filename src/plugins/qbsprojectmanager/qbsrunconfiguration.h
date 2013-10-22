@@ -131,8 +131,8 @@ private:
     bool m_userSetName;
     QString m_userWorkingDirectory;
 
-    QbsInstallStep *m_currentInstallStep;
-    ProjectExplorer::BuildStepList *m_currentBuildStepList;
+    QbsInstallStep *m_currentInstallStep; // We do not take ownership!
+    ProjectExplorer::BuildStepList *m_currentBuildStepList; // We do not take ownership!
 };
 
 class QbsRunConfigurationWidget : public QWidget

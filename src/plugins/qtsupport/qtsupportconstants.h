@@ -38,7 +38,6 @@ const char QTVERSION_SETTINGS_PAGE_ID[] = "H.Qt Versions";
 const char QTVERSION_SETTINGS_PAGE_NAME[] = QT_TRANSLATE_NOOP("Qt4ProjectManager", "Qt Versions");
 
 // QtVersions
-const char MAEMOQT[]     = "Qt4ProjectManager.QtVersion.Maemo";
 const char DESKTOPQT[]   = "Qt4ProjectManager.QtVersion.Desktop";
 const char SIMULATORQT[] = "Qt4ProjectManager.QtVersion.Simulator";
 const char WINCEQT[]     = "Qt4ProjectManager.QtVersion.WinCE";
