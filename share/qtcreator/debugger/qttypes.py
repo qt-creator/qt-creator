@@ -69,6 +69,14 @@ def qdump__QByteArray(d, value):
     if d.isExpanded():
         d.putArrayData(d.charType(), data, size)
 
+def qdump__QByteArrayData(d, value):
+    data, size, alloc = d.byteArrayDataHelper(d.addressOf(value))
+    d.putValue(d.readMemory(data, size), Hex2EncodedLatin1)
+    d.putNumChild(1)
+    if d.isExpanded():
+        with Children(d):
+            d.putIntItem("size", size)
+            d.putIntItem("alloc", alloc)
 
 def qdump__QChar(d, value):
     d.putValue(int(value["ucs"]))
