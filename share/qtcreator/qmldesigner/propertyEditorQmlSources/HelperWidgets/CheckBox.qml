@@ -49,7 +49,7 @@ Controls.CheckBox {
     ExtendedFunctionButton {
         x: 22
         backendValue: checkBox.backendValue
-        visible: spinBox.enabled
+        visible: checkBox.enabled
     }
 
     QtObject {
