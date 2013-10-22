@@ -55,7 +55,8 @@ LibraryDetailsController::LibraryDetailsController(
     QObject(parent),
     m_platforms(AddLibraryWizard::LinuxPlatform
                 | AddLibraryWizard::MacPlatform
-                | AddLibraryWizard::WindowsPlatform),
+                | AddLibraryWizard::WindowsMinGWPlatform
+                | AddLibraryWizard::WindowsMSVCPlatform),
     m_linkageType(AddLibraryWizard::NoLinkage),
     m_macLibraryType(AddLibraryWizard::NoLibraryType),
     m_proFile(proFile),
@@ -156,7 +157,8 @@ void LibraryDetailsController::updateGui()
     if (libraryDetailsWidget()->macCheckBox->isChecked())
         m_platforms |= AddLibraryWizard::MacPlatform;
     if (libraryDetailsWidget()->winCheckBox->isChecked())
-        m_platforms |= AddLibraryWizard::WindowsPlatform;
+        m_platforms |= AddLibraryWizard::WindowsMinGWPlatform
+                | AddLibraryWizard::WindowsMSVCPlatform;
 
     bool macLibraryTypeUpdated = false;
     if (!m_linkageRadiosVisible) {
@@ -409,6 +411,21 @@ static QString appendSeparator(const QString &aString)
     return aString + QLatin1Char('/');
 }
 
+static QString windowsScopes(AddLibraryWizard::Platforms scopes)
+{
+    QString scopesString;
+    QTextStream str(&scopesString);
+    AddLibraryWizard::Platforms windowsPlatforms = scopes
+            & (AddLibraryWizard::WindowsMinGWPlatform | AddLibraryWizard::WindowsMSVCPlatform);
+    if (windowsPlatforms == AddLibraryWizard::WindowsMinGWPlatform)
+        str << "win32-g++"; // mingw only
+    else if (windowsPlatforms == AddLibraryWizard::WindowsMSVCPlatform)
+        str << "win32:!win32-g++"; // msvc only
+    else if (windowsPlatforms)
+        str << "win32"; // both mingw and msvc
+    return scopesString;
+}
+
 static QString commonScopes(AddLibraryWizard::Platforms scopes,
                             AddLibraryWizard::Platforms excludedScopes)
 {
@@ -416,7 +433,8 @@ static QString commonScopes(AddLibraryWizard::Platforms scopes,
     QTextStream str(&scopesString);
     AddLibraryWizard::Platforms common = scopes | excludedScopes;
     bool unixLikeScopes = false;
-    if (scopes & ~QFlags<AddLibraryWizard::Platform>(AddLibraryWizard::WindowsPlatform)) {
+    if (scopes & ~QFlags<AddLibraryWizard::Platform>(AddLibraryWizard::WindowsMinGWPlatform
+                                                     | AddLibraryWizard::WindowsMSVCPlatform)) {
         unixLikeScopes = true;
         if (common & AddLibraryWizard::LinuxPlatform) {
             str << "unix";
@@ -427,10 +445,12 @@ static QString commonScopes(AddLibraryWizard::Platforms scopes,
                 str << "macx";
         }
     }
-    if (scopes & AddLibraryWizard::WindowsPlatform) {
+    AddLibraryWizard::Platforms windowsPlatforms = scopes
+            & (AddLibraryWizard::WindowsMinGWPlatform | AddLibraryWizard::WindowsMSVCPlatform);
+    if (windowsPlatforms) {
         if (unixLikeScopes)
             str << "|";
-        str << "win32";
+        str << windowsScopes(windowsPlatforms);
     }
     return scopesString;
 }
@@ -457,7 +477,8 @@ static QString generateLibsSnippet(AddLibraryWizard::Platforms platforms,
     if (macLibraryType == AddLibraryWizard::FrameworkType) // we will generate a separate -F -framework line
         commonPlatforms &= ~QFlags<AddLibraryWizard::Platform>(AddLibraryWizard::MacPlatform);
     if (useSubfolders || addSuffix) // we will generate a separate debug/release conditions
-        commonPlatforms &= ~QFlags<AddLibraryWizard::Platform>(AddLibraryWizard::WindowsPlatform);
+        commonPlatforms &= ~QFlags<AddLibraryWizard::Platform>(AddLibraryWizard::WindowsMinGWPlatform
+                                                               | AddLibraryWizard::WindowsMSVCPlatform);
 
     AddLibraryWizard::Platforms diffPlatforms = platforms ^ commonPlatforms;
     AddLibraryWizard::Platforms generatedPlatforms = 0;
@@ -465,19 +486,22 @@ static QString generateLibsSnippet(AddLibraryWizard::Platforms platforms,
     QString snippetMessage;
     QTextStream str(&snippetMessage);
 
-    if (diffPlatforms & AddLibraryWizard::WindowsPlatform) {
-        str << "win32:CONFIG(release, debug|release): LIBS += ";
+    AddLibraryWizard::Platforms windowsPlatforms = diffPlatforms
+            & (AddLibraryWizard::WindowsMinGWPlatform | AddLibraryWizard::WindowsMSVCPlatform);
+    if (windowsPlatforms) {
+        QString windowsString = windowsScopes(windowsPlatforms);
+        str << windowsString << ":CONFIG(release, debug|release): LIBS += ";
         if (useSubfolders)
             str << simpleLibraryPathSnippet << "release/ " << "-l" << libName << "\n";
         else if (addSuffix)
             str << appendSpaceIfNotEmpty(simpleLibraryPathSnippet) << "-l" << libName << "\n";
 
-        str << "else:win32:CONFIG(debug, debug|release): LIBS += ";
+        str << "else:" << windowsString << ":CONFIG(debug, debug|release): LIBS += ";
         if (useSubfolders)
             str << simpleLibraryPathSnippet << "debug/ " << "-l" << libName << "\n";
         else if (addSuffix)
             str << appendSpaceIfNotEmpty(simpleLibraryPathSnippet) << "-l" << libName << "d\n";
-        generatedPlatforms |= AddLibraryWizard::WindowsPlatform;
+        generatedPlatforms |= windowsPlatforms;
     }
     if (diffPlatforms & AddLibraryWizard::MacPlatform) {
         if (generatedPlatforms)
@@ -521,28 +545,55 @@ static QString generatePreTargetDepsSnippet(AddLibraryWizard::Platforms platform
     QTextStream str(&snippetMessage);
     str << "\n";
     AddLibraryWizard::Platforms generatedPlatforms = 0;
-    if (platforms & AddLibraryWizard::WindowsPlatform) {
-        if (useSubfolders || addSuffix) {
-            str << "win32:CONFIG(release, debug|release): "
-                << preTargetDepsSnippet;
-            if (useSubfolders)
-                str << "release/" << libName << ".lib\n";
-            else if (addSuffix)
-                str << libName << ".lib\n";
-
-            str << "else:win32:CONFIG(debug, debug|release): "
-                << preTargetDepsSnippet;
-            if (useSubfolders)
-                str << "debug/" << libName << ".lib\n";
-            else if (addSuffix)
-                str << libName << "d.lib\n";
-        } else {
-            str << "win32: " << preTargetDepsSnippet << libName << ".lib\n";
-        }
-        generatedPlatforms |= AddLibraryWizard::WindowsPlatform;
-    }
+    AddLibraryWizard::Platforms windowsPlatforms = platforms
+            & (AddLibraryWizard::WindowsMinGWPlatform | AddLibraryWizard::WindowsMSVCPlatform);
     AddLibraryWizard::Platforms commonPlatforms = platforms;
-    commonPlatforms &= ~QFlags<AddLibraryWizard::Platform>(AddLibraryWizard::WindowsPlatform);
+    if (useSubfolders || addSuffix) // we will generate a separate debug/release conditions, otherwise mingw is unix like
+        commonPlatforms &= ~QFlags<AddLibraryWizard::Platform>(AddLibraryWizard::WindowsMinGWPlatform);
+    commonPlatforms &= ~QFlags<AddLibraryWizard::Platform>(AddLibraryWizard::WindowsMSVCPlatform); // this case is different from all platforms
+    if (windowsPlatforms) {
+        if (useSubfolders || addSuffix) {
+            if (windowsPlatforms & AddLibraryWizard::WindowsMinGWPlatform) {
+                str << "win32-g++:CONFIG(release, debug|release): "
+                    << preTargetDepsSnippet;
+                if (useSubfolders)
+                    str << "release/" << "lib" << libName << ".a\n";
+                else if (addSuffix)
+                    str << "lib" << libName << ".a\n";
+
+                str << "else:win32-g++:CONFIG(debug, debug|release): "
+                    << preTargetDepsSnippet;
+                if (useSubfolders)
+                    str << "debug/" << "lib" << libName << ".a\n";
+                else if (addSuffix)
+                    str << "lib" << libName << "d.a\n";
+            }
+            if (windowsPlatforms & AddLibraryWizard::WindowsMSVCPlatform) {
+                if (windowsPlatforms & AddLibraryWizard::WindowsMinGWPlatform)
+                    str << "else:";
+                str << "win32:!win32-g++:CONFIG(release, debug|release): "
+                    << preTargetDepsSnippet;
+                if (useSubfolders)
+                    str << "release/" << libName << ".lib\n";
+                else if (addSuffix)
+                    str << libName << ".lib\n";
+
+                str << "else:win32:!win32-g++:CONFIG(debug, debug|release): "
+                    << preTargetDepsSnippet;
+                if (useSubfolders)
+                    str << "debug/" << libName << ".lib\n";
+                else if (addSuffix)
+                    str << libName << "d.lib\n";
+            }
+            generatedPlatforms |= windowsPlatforms;
+        } else {
+            if (windowsPlatforms & AddLibraryWizard::WindowsMSVCPlatform) {
+                str << "win32:!win32-g++ " << preTargetDepsSnippet << libName << ".lib\n";
+                generatedPlatforms |= AddLibraryWizard::WindowsMSVCPlatform; // mingw will be handled with common scopes
+            }
+            // mingw not generated yet, will be joined with unix like
+        }
+    }
     if (commonPlatforms) {
         if (generatedPlatforms)
             str << "else:";
@@ -562,7 +613,7 @@ NonInternalLibraryDetailsController::NonInternalLibraryDetailsController(
 
     if (creatorPlatform() == CreatorWindows) {
         libraryDetailsWidget()->libraryPathChooser->setPromptDialogFilter(
-                QLatin1String("Library file (*.lib)"));
+                QLatin1String("Library file (*.lib lib*.a)"));
         setLinkageRadiosVisible(true);
         setRemoveSuffixVisible(true);
     } else {
@@ -646,7 +697,7 @@ QString NonInternalLibraryDetailsController::suggestedIncludePath() const
 
 void NonInternalLibraryDetailsController::updateWindowsOptionsEnablement()
 {
-    bool ena = platforms() & AddLibraryWizard::WindowsPlatform;
+    bool ena = platforms() & (AddLibraryWizard::WindowsMinGWPlatform | AddLibraryWizard::WindowsMSVCPlatform);
     if (creatorPlatform() == CreatorWindows) {
         libraryDetailsWidget()->addSuffixCheckBox->setEnabled(ena);
         ena = true;
@@ -725,6 +776,8 @@ QString NonInternalLibraryDetailsController::snippet() const
         libName = fi.baseName();
         if (removeSuffix && !libName.isEmpty()) // remove last letter which needs to be "d"
             libName = libName.left(libName.size() - 1);
+        if (fi.completeSuffix() == QLatin1String("a")) // the mingw lib case
+            libName = libName.mid(3); // cut the "lib" prefix
     } else if (creatorPlatform() == CreatorMac) {
         if (macLibraryType() == AddLibraryWizard::FrameworkType)
             libName = fi.baseName();
@@ -742,10 +795,11 @@ QString NonInternalLibraryDetailsController::snippet() const
         // when we are on Win but we don't generate the code for Win
         // we still need to remove "debug" or "release" subfolder
         const bool useSubfoldersCondition = (creatorPlatform() == CreatorWindows)
-                                            ? true : platforms() & AddLibraryWizard::WindowsPlatform;
+                                            ? true : platforms() & (AddLibraryWizard::WindowsMinGWPlatform
+                                                                    | AddLibraryWizard::WindowsMSVCPlatform);
         if (useSubfoldersCondition)
             useSubfolders = libraryDetailsWidget()->useSubfoldersCheckBox->isChecked();
-        if (platforms() & AddLibraryWizard::WindowsPlatform)
+        if (platforms() & (AddLibraryWizard::WindowsMinGWPlatform | AddLibraryWizard::WindowsMSVCPlatform))
             addSuffix = libraryDetailsWidget()->addSuffixCheckBox->isChecked() || removeSuffix;
     }
     if (isIncludePathVisible()) { // generate also the path to lib
@@ -960,7 +1014,7 @@ void InternalLibraryDetailsController::updateWindowsOptionsEnablement()
     if (creatorPlatform() == CreatorWindows)
         libraryDetailsWidget()->addSuffixCheckBox->setEnabled(true);
     libraryDetailsWidget()->winGroupBox->setEnabled(platforms()
-                                & AddLibraryWizard::WindowsPlatform);
+                                & (AddLibraryWizard::WindowsMinGWPlatform | AddLibraryWizard::WindowsMSVCPlatform));
 }
 
 void InternalLibraryDetailsController::updateProFile()
