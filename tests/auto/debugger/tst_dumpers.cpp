@@ -3471,26 +3471,27 @@ void tst_Dumpers::dumper_data()
                     "#include <QVariant>\n"
                     "Q_DECLARE_METATYPE(QHostAddress)\n",
                     "QVariant var;\n"
-                    "QHostAddress ha(\"127.0.0.1\");\n"
+                    "QHostAddress ha;\n"
+                    "ha.setAddress(\"127.0.0.1\");\n"
                     "var.setValue(ha);\n"
                     "QHostAddress ha1 = var.value<QHostAddress>();\n"
                     "unused(&ha1);\n")
                % CoreProfile()
                % Profile("QT += network\n")
                % Check("ha", "\"127.0.0.1\"", "@QHostAddress")
-               % Check("ha.a", "0", "@quint32")
+               % Check("ha.a", "2130706433", "@quint32")
                % Check("ha.a6", "0:0:0:0:0:0:0:0", "@Q_IPV6ADDR")
                % Check("ha.ipString", "\"127.0.0.1\"", "@QString")
-               % Check("ha.isParsed", "false", "bool")
-               % Check("ha.protocol", "@QAbstractSocket::UnknownNetworkLayerProtocol (-1)",
+               % Check("ha.isParsed", "true", "bool")
+               % Check("ha.protocol", "@QAbstractSocket::IPv4Protocol (0)",
                        "@QAbstractSocket::NetworkLayerProtocol")
                % Check("ha.scopeId", "\"\"", "@QString")
                % Check("ha1", "\"127.0.0.1\"", "@QHostAddress")
-               % Check("ha1.a", "0", "@quint32")
+               % Check("ha1.a", "2130706433", "@quint32")
                % Check("ha1.a6", "0:0:0:0:0:0:0:0", "@Q_IPV6ADDR")
                % Check("ha1.ipString", "\"127.0.0.1\"", "@QString")
-               % Check("ha1.isParsed", "false", "bool")
-               % Check("ha1.protocol", "@QAbstractSocket::UnknownNetworkLayerProtocol (-1)",
+               % Check("ha1.isParsed", "true", "bool")
+               % Check("ha1.protocol", "@QAbstractSocket::IPv4Protocol (0)",
                        "@QAbstractSocket::NetworkLayerProtocol")
                % Check("ha1.scopeId", "\"\"", "@QString")
                % Check("var", "", "@QVariant (@QHostAddress)")
@@ -3504,14 +3505,16 @@ void tst_Dumpers::dumper_data()
                     "typedef QMap<uint, QStringList> MyType;\n"
                     "Q_DECLARE_METATYPE(QList<int>)\n"
                     "Q_DECLARE_METATYPE(QStringList)\n"
-                    "#define COMMA ,\n"
-                    "Q_DECLARE_METATYPE(QMap<uint COMMA QStringList>)\n",
+                    "Q_DECLARE_METATYPE(MyType)\n",
                     "MyType my;\n"
                     "my[1] = (QStringList() << \"Hello\");\n"
                     "my[3] = (QStringList() << \"World\");\n"
                     "QVariant var;\n"
                     "var.setValue(my);\n"
-                    "breakHere();\n")
+                    "int t = QMetaType::type(\"MyType\");\n"
+                    "const char *s = QMetaType::typeName(t);\n"
+                    "breakHere();\n"
+                    "unused(&var, &t, &s);\n")
                % CoreProfile()
                % Check("my", "<2 items>", "MyType")
                % Check("my.0", "[0]", "", "@QMapNode<unsigned int, @QStringList>")
@@ -3522,8 +3525,8 @@ void tst_Dumpers::dumper_data()
                % Check("my.1.key", "3", "unsigned int")
                % Check("my.1.value", "<1 items>", "@QStringList")
                % Check("my.1.value.0", "[0]", "\"World\"", "@QString")
-               % CheckType("var", "@QVariant (@QMap<unsigned int, @QStringList>)")
-               % Check("var.data", "<2 items>", "@QMap<unsigned int, @QStringList>")
+               % CheckType("var", "@QVariant (MyType)")
+               % Check("var.data", "<2 items>", "MyType")
                % Check("var.data.0", "[0]", "", "@QMapNode<unsigned int, @QStringList>")
                % Check("var.data.0.key", "1", "unsigned int")
                % Check("var.data.0.value", "<1 items>", "@QStringList")
