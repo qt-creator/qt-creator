@@ -40,6 +40,7 @@
 #include <qmljs/qmljsscopechain.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#include <languageutils/fakemetaobject.h>
 
 namespace QmlDesigner {
 
@@ -775,8 +776,20 @@ QString NodeMetaInfoPrivate::propertyEnumScope(const PropertyName &propertyName)
         return QString();
     const CppComponentValue *definedIn = 0;
     qmlObjectValue->getEnum(propertyType(propertyName), &definedIn);
-    if (definedIn)
+    if (definedIn) {
+        QString nonCppPackage;
+        foreach (const LanguageUtils::FakeMetaObject::Export &qmlExport, definedIn->metaObject()->exports()) {
+            if (qmlExport.package != QLatin1String("<cpp>"))
+                nonCppPackage = qmlExport.package;
+        }
+
+        const LanguageUtils::FakeMetaObject::Export qmlExport =
+                definedIn->metaObject()->exportInPackage(nonCppPackage);
+        if (qmlExport.isValid())
+            return qmlExport.type;
+
         return definedIn->className();
+    }
 
     return QString();
 }
