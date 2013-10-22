@@ -361,7 +361,6 @@ void QtVersionManager::updateFromInstaller(bool emitSignal)
     }
     if (emitSignal)
         emit qtVersionsChanged(added, removed, changed);
-    saveQtVersions();
 }
 
 void QtVersionManager::saveQtVersions()
