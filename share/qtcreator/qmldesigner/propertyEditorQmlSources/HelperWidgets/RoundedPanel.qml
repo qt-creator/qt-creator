@@ -58,21 +58,25 @@ Rectangle {
     border.color: roundLeft ? "#7f7f7f" : "#2e2e2e"
 
     Rectangle {
-        gradient: parent.gradient
         anchors.fill: parent
         visible: roundLeft
         anchors.leftMargin: 10
         anchors.topMargin: 1
         anchors.bottomMargin: 1
+        Component.onCompleted: {
+            gradient = parent.gradient
+        }
     }
 
     Rectangle {
-        gradient: parent.gradient
         anchors.fill: parent
         visible: roundRight
         anchors.rightMargin: 10
         anchors.topMargin: 1
         anchors.bottomMargin: 1
+        Component.onCompleted: {
+            gradient = parent.gradient
+        }
     }
 
     Rectangle {
