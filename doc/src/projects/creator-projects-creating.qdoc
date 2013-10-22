@@ -98,7 +98,7 @@
 
         \list
 
-            \li Qt GUI Application
+            \li Qt Widgets Application
 
                 Use \QD forms to design a Qt widget based user interface for the
                 desktop and C++ to implement the application logic

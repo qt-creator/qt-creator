@@ -57,7 +57,7 @@ GuiAppWizardDialog::GuiAppWizardDialog(const QString &templateName,
     setWindowTitle(templateName);
     setSelectedModules(QLatin1String("core gui"), true);
 
-    setIntroDescription(tr("This wizard generates a Qt GUI application "
+    setIntroDescription(tr("This wizard generates a Qt Widgets Application "
          "project. The application derives by default from QApplication "
          "and includes an empty widget."));
 

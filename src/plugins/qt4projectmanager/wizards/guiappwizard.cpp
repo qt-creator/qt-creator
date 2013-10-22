@@ -78,7 +78,7 @@ GuiAppWizard::GuiAppWizard(bool isMobile)
     setCategory(QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY));
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
                ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY_DISPLAY));
-    setDisplayName(tr("Qt Gui Application"));
+    setDisplayName(tr("Qt Widgets Application"));
     setDescription(tr("Creates a Qt application for the desktop. "
                   "Includes a Qt Designer-based main window.\n\n"
                   "Preselects a desktop Qt for building the application if available."));
