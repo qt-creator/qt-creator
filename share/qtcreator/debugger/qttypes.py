@@ -1840,7 +1840,9 @@ def qdumpHelper__QVariant(d, value):
 
     innerType = d.lookupType(inner)
     sizePD = 8 # sizeof(QVariant::Private::Data)
-    if innerType.sizeof > sizePD:
+    isSpecial = d.qtVersion() >= 0x050000 \
+            and (innert == "QVariantMap" or innert == "QVariantHash")
+    if innerType.sizeof > sizePD or isSpecial:
         sizePS = 2 * d.ptrSize() # sizeof(QVariant::PrivateShared)
         val = (data.cast(d.charPtrType()) + sizePS) \
             .cast(innerType.pointer()).dereference()
