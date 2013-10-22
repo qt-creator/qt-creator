@@ -254,6 +254,8 @@ void GenericProject::refresh(RefreshOptions options)
         part->displayName = displayName();
         part->projectFile = projectFilePath();
 
+        part->includePaths += allIncludePaths();
+
         Kit *k = activeTarget() ? activeTarget()->kit() : KitManager::defaultKit();
         if (ToolChain *tc = ToolChainKitInformation::toolChain(k)) {
             QStringList cxxflags; // FIXME: Can we do better?
@@ -262,7 +264,6 @@ void GenericProject::refresh(RefreshOptions options)
         }
 
         part->cxxVersion = CppTools::ProjectPart::CXX11; // assume C++11
-        part->includePaths += allIncludePaths();
         part->defines += m_defines;
 
         // ### add _defines.
