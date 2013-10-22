@@ -39,7 +39,7 @@ Controls.ComboBox {
     QtObject {
         property string valueFromBackend: lineEdit.backendValue.valueToString;
         onValueFromBackendChanged: {
-            lineEdit.currentText = valueFromBackend;
+            lineEdit.currentIndex = comboBox.find(valueFromBackend);
         }
     }
 
