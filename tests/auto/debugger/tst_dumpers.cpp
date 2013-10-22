@@ -4920,7 +4920,7 @@ void tst_Dumpers::dumper_data()
 
 int main(int argc, char *argv[])
 {
-    QApplication app(argc, argv);
+    QCoreApplication app(argc, argv);
     tst_Dumpers test;
     return QTest::qExec(&test, argc, argv);
 }

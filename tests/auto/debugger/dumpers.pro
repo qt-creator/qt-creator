@@ -1,6 +1,7 @@
 
 QTC_LIB_DEPENDS += cplusplus utils
 QT += network
+QT -= gui
 
 include(../qttest.pri)
 
