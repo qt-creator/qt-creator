@@ -41,6 +41,7 @@
 import QtQuick 2.0
 import HelperWidgets 2.0
 import QtQuick.Layouts 1.0
+import QtQuick.Controls 1.0 as Controls
 
 Section {
     anchors.left: parent.left
@@ -79,8 +80,11 @@ Section {
                     elide: Text.ElideRight
                 }
 
-                ComboBox {
-
+                TargetComboBox {
+                    targetName: anchorBackend.topTarget
+                    onCurrentTextChanged: {
+                        anchorBackend.topTarget = currentText
+                    }
                 }
 
 
@@ -137,8 +141,11 @@ Section {
                     elide: Text.ElideRight
                 }
 
-                ComboBox {
-
+                TargetComboBox {
+                    targetName: anchorBackend.bottomTarget
+                    onCurrentTextChanged: {
+                        anchorBackend.bottomTarget = currentText
+                    }
                 }
 
 
@@ -196,8 +203,11 @@ Section {
 
                 }
 
-                ComboBox {
-
+                TargetComboBox {
+                    targetName: anchorBackend.leftTarget
+                    onCurrentTextChanged: {
+                        anchorBackend.leftTarget = currentText
+                    }
                 }
 
 
@@ -256,8 +266,11 @@ Section {
 
                 }
 
-                ComboBox {
-
+                TargetComboBox {
+                    targetName: anchorBackend.rightTarget
+                    onCurrentTextChanged: {
+                        anchorBackend.rightTarget = currentText
+                    }
                 }
 
 

@@ -64,7 +64,7 @@ static inline void restoreProperty(ModelNode node, const PropertyName &propertyN
 namespace Internal {
 
 QmlAnchorBindingProxy::QmlAnchorBindingProxy(QObject *parent) :
-        QObject(parent), m_locked(false)
+    QObject(parent), m_locked(false), m_ignoreQml(false)
 {
 }
 
@@ -75,6 +75,8 @@ QmlAnchorBindingProxy::~QmlAnchorBindingProxy()
 void QmlAnchorBindingProxy::setup(const QmlItemNode &fxItemNode)
 {
     m_qmlItemNode = fxItemNode;
+
+    m_ignoreQml = true;
 
     if (m_qmlItemNode.modelNode().hasParentProperty()) {
         setDefaultAnchorTarget(m_qmlItemNode.modelNode().parentProperty().parentModelNode());
@@ -137,6 +139,10 @@ void QmlAnchorBindingProxy::setup(const QmlItemNode &fxItemNode)
         emit verticalTargetChanged();
         emit horizontalTargetChanged();
     }
+
+    emit invalidated();
+
+    m_ignoreQml = false;
 }
 
 void QmlAnchorBindingProxy::invalidate(const QmlItemNode &fxItemNode)
@@ -145,6 +151,8 @@ void QmlAnchorBindingProxy::invalidate(const QmlItemNode &fxItemNode)
         return;
 
     m_qmlItemNode = fxItemNode;
+
+    m_ignoreQml = true;
 
     m_verticalTarget = m_horizontalTarget = m_topTarget = m_bottomTarget = m_leftTarget = m_rightTarget = m_qmlItemNode.modelNode().parentProperty().parentModelNode();
 
@@ -201,6 +209,10 @@ void QmlAnchorBindingProxy::invalidate(const QmlItemNode &fxItemNode)
         emit verticalTargetChanged();
         emit horizontalTargetChanged();
     }
+
+    emit invalidated();
+
+    m_ignoreQml = false;
 }
 
 bool QmlAnchorBindingProxy::hasParent()
@@ -243,11 +255,18 @@ bool QmlAnchorBindingProxy::hasAnchors()
 }
 
 
-void QmlAnchorBindingProxy::setTopTarget(const QVariant &target)
+void QmlAnchorBindingProxy::setTopTarget(const QString &target)
 {
-    QmlItemNode newTarget(target.value<ModelNode>());
+
+    if (m_ignoreQml)
+        return;
+
+    QmlItemNode newTarget(targetIdToNode(target));
 
     if (newTarget == m_topTarget)
+        return;
+
+    if (!newTarget.isValid())
         return;
 
     RewriterTransaction transaction = m_qmlItemNode.modelNode().view()->beginRewriterTransaction();
@@ -259,11 +278,20 @@ void QmlAnchorBindingProxy::setTopTarget(const QVariant &target)
 }
 
 
-void QmlAnchorBindingProxy::setBottomTarget(const QVariant &target)
+void QmlAnchorBindingProxy::setBottomTarget(const QString &target)
 {
-    QmlItemNode newTarget(target.value<ModelNode>());
+    if (m_ignoreQml)
+        return;
+
+    if (m_ignoreQml)
+        return;
+
+    QmlItemNode newTarget(targetIdToNode(target));
 
     if (newTarget == m_bottomTarget)
+        return;
+
+    if (!newTarget.isValid())
         return;
 
     RewriterTransaction transaction = m_qmlItemNode.modelNode().view()->beginRewriterTransaction();
@@ -274,11 +302,17 @@ void QmlAnchorBindingProxy::setBottomTarget(const QVariant &target)
     emit bottomTargetChanged();
 }
 
-void QmlAnchorBindingProxy::setLeftTarget(const QVariant &target)
+void QmlAnchorBindingProxy::setLeftTarget(const QString &target)
 {
-    QmlItemNode newTarget(target.value<ModelNode>());
+    if (m_ignoreQml)
+        return;
+
+    QmlItemNode newTarget(targetIdToNode(target));
 
     if (newTarget == m_leftTarget)
+        return;
+
+    if (!newTarget.isValid())
         return;
 
     RewriterTransaction transaction = m_qmlItemNode.modelNode().view()->beginRewriterTransaction();
@@ -289,11 +323,17 @@ void QmlAnchorBindingProxy::setLeftTarget(const QVariant &target)
     emit leftTargetChanged();
 }
 
-void QmlAnchorBindingProxy::setRightTarget(const QVariant &target)
+void QmlAnchorBindingProxy::setRightTarget(const QString &target)
 {
-    QmlItemNode newTarget(target.value<ModelNode>());
+    if (m_ignoreQml)
+        return;
+
+    QmlItemNode newTarget(targetIdToNode(target));
 
     if (newTarget == m_rightTarget)
+        return;
+
+    if (!newTarget.isValid())
         return;
 
     RewriterTransaction transaction = m_qmlItemNode.modelNode().view()->beginRewriterTransaction();
@@ -304,11 +344,17 @@ void QmlAnchorBindingProxy::setRightTarget(const QVariant &target)
     emit rightTargetChanged();
 }
 
-void QmlAnchorBindingProxy::setVerticalTarget(const QVariant &target)
+void QmlAnchorBindingProxy::setVerticalTarget(const QString &target)
 {
-     QmlItemNode newTarget(target.value<ModelNode>());
+    if (m_ignoreQml)
+        return;
+
+    QmlItemNode newTarget(targetIdToNode(target));
 
     if (newTarget == m_verticalTarget)
+        return;
+
+    if (!newTarget.isValid())
         return;
 
     RewriterTransaction transaction = m_qmlItemNode.modelNode().view()->beginRewriterTransaction();
@@ -319,11 +365,17 @@ void QmlAnchorBindingProxy::setVerticalTarget(const QVariant &target)
     emit verticalTargetChanged();
 }
 
-void QmlAnchorBindingProxy::setHorizontalTarget(const QVariant &target)
+void QmlAnchorBindingProxy::setHorizontalTarget(const QString &target)
 {
-    QmlItemNode newTarget(target.value<ModelNode>());
+    if (m_ignoreQml)
+        return;
+
+    QmlItemNode newTarget(targetIdToNode(target));
 
     if (newTarget == m_horizontalTarget)
+        return;
+
+    if (!newTarget.isValid())
         return;
 
     RewriterTransaction transaction = m_qmlItemNode.modelNode().view()->beginRewriterTransaction();
@@ -332,6 +384,43 @@ void QmlAnchorBindingProxy::setHorizontalTarget(const QVariant &target)
     m_qmlItemNode.anchors().setAnchor(AnchorLine::HorizontalCenter, m_horizontalTarget, AnchorLine::HorizontalCenter);
 
     emit horizontalTargetChanged();
+}
+
+QStringList QmlAnchorBindingProxy::possibleTargetItems() const
+{
+    QStringList stringList;
+    if (!m_qmlItemNode.isValid())
+        return stringList;
+
+    QList<QmlItemNode> itemList;
+
+    if (m_qmlItemNode.instanceParent().modelNode().isValid())
+        itemList = toQmlItemNodeList(m_qmlItemNode.instanceParent().modelNode().allDirectSubModelNodes());
+    itemList.removeOne(m_qmlItemNode);
+    //We currently have no instanceChildren().
+    //So we double check here if the instanceParents are equal.
+    foreach (const QmlItemNode &node, itemList)
+        if (node.isValid() && (node.instanceParent().modelNode() != m_qmlItemNode.instanceParent().modelNode()))
+            itemList.removeAll(node);
+
+    foreach (const QmlItemNode &itemNode, itemList) {
+        if (itemNode.isValid() && !itemNode.id().isEmpty()) {
+            stringList.append(itemNode.id());
+        }
+    }
+
+    QmlItemNode parent(m_qmlItemNode.instanceParent().toQmlItemNode());
+
+    if (parent.isValid()) {
+        stringList.append(QLatin1String("parent"));
+    }
+
+    return stringList;
+}
+
+int QmlAnchorBindingProxy::indexOfPossibleTargetItem(const QString &targetName) const
+{
+    return possibleTargetItems().indexOf(targetName);
 }
 
 void QmlAnchorBindingProxy::resetLayout() {
@@ -512,6 +601,29 @@ void QmlAnchorBindingProxy::calcRightMargin()
     m_locked = false;
 }
 
+QmlItemNode QmlAnchorBindingProxy::targetIdToNode(const QString &id) const
+{
+    QmlItemNode itemNode;
+
+    if (m_qmlItemNode.isValid() && m_qmlItemNode.view()) {
+
+        itemNode = m_qmlItemNode.view()->modelNodeForId(id);
+
+        if (id == QLatin1String("parent"))
+            itemNode = m_qmlItemNode.instanceParent().modelNode();
+    }
+
+    return itemNode;
+}
+
+QString QmlAnchorBindingProxy::idForNode(const QmlItemNode &qmlItemNode) const
+{
+    if (m_qmlItemNode.instanceParent().modelNode() == qmlItemNode)
+        return QLatin1String("parent");
+
+    return qmlItemNode.id();
+}
+
 ModelNode QmlAnchorBindingProxy::modelNode() const
 {
     return m_qmlItemNode.modelNode();
@@ -631,6 +743,37 @@ void QmlAnchorBindingProxy::setHorizontalCentered(bool centered)
 bool QmlAnchorBindingProxy::verticalCentered()
 {
     return m_qmlItemNode.isValid() && m_qmlItemNode.anchors().instanceHasAnchor(AnchorLine::VerticalCenter);
+}
+
+QString QmlAnchorBindingProxy::topTarget() const
+{
+    qDebug() << "top node" << idForNode(m_topTarget);
+    return idForNode(m_topTarget);
+}
+
+QString QmlAnchorBindingProxy::bottomTarget() const
+{
+    return idForNode(m_bottomTarget);
+}
+
+QString QmlAnchorBindingProxy::leftTarget() const
+{
+    return idForNode(m_leftTarget);
+}
+
+QString QmlAnchorBindingProxy::rightTarget() const
+{
+    return idForNode(m_rightTarget);
+}
+
+QString QmlAnchorBindingProxy::verticalTarget() const
+{
+    return idForNode(m_verticalTarget);
+}
+
+QString QmlAnchorBindingProxy::horizontalTarget() const
+{
+    return idForNode(m_horizontalTarget);
 }
 
 bool QmlAnchorBindingProxy::horizontalCentered()
