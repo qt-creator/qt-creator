@@ -568,7 +568,11 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
                                            m_virtualFunctionAssistProvider);
                 }
 
-                return Link();
+                // Ensure a valid link text, so the symbol name will be underlined on Ctrl+Hover.
+                Link link;
+                link.linkTextStart = beginOfToken;
+                link.linkTextEnd = endOfToken;
+                return link;
             }
 
             if (resolveTarget) {
