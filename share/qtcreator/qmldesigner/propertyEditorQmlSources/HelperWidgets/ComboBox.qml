@@ -38,10 +38,6 @@ Controls.ComboBox {
 
     property color textColor: colorLogic.textColor
 
-    onBackendValueChanged: {
-        innerObject.evaluate();
-    }
-
     ColorLogic {
         id: colorLogic
         backendValue: comboBox.backendValue

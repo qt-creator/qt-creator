@@ -46,10 +46,6 @@ Controls.CheckBox {
 
     property variant backendValue
 
-    onBackendValueChanged: {
-        innerObject.evaluate();
-    }
-
     ExtendedFunctionButton {
         x: 22
         backendValue: checkBox.backendValue

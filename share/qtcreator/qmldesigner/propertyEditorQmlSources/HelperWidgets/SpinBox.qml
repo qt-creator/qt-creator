@@ -46,10 +46,6 @@ Controls.SpinBox {
         visible: spinBox.enabled
     }
 
-    onBackendValueChanged: {
-        innerObject.evaluate();
-    }
-
     ColorLogic {
         id: colorLogic
         backendValue: spinBox.backendValue
