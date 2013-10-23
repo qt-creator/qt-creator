@@ -3973,7 +3973,7 @@ void tst_Dumpers::dumper_data()
                % Check("foo.9", "[9]", "", "Foo");
 
 
-    QTest::newRow("Bitfields")
+    QTest::newRow("BitfieldsGdb")
             << Data("struct S\n"
                     "{\n"
                     "    S() : x(0), y(0), c(0), b(0), f(0), d(0), i(0) {}\n"
@@ -3986,6 +3986,7 @@ void tst_Dumpers::dumper_data()
                     "    int i;\n"
                     "} s;\n"
                     "unused(&s);\n")
+               % GdbOnly()
                % Check("s", "", "S")
                % Check("s.b", "false", "bool")
                % Check("s.c", "false", "bool")
@@ -3994,6 +3995,29 @@ void tst_Dumpers::dumper_data()
                % Check("s.i", "0", "int")
                % Check("s.x", "0", "unsigned int")
                % Check("s.y", "0", "unsigned int");
+
+    QTest::newRow("BitfieldsLldb")
+            << Data("struct S\n"
+                    "{\n"
+                    "    S() : x(0), y(0), c(0), b(0), f(0), d(0), i(0) {}\n"
+                    "    unsigned int x : 1;\n"
+                    "    unsigned int y : 1;\n"
+                    "    bool c : 1;\n"
+                    "    bool b;\n"
+                    "    float f;\n"
+                    "    double d;\n"
+                    "    int i;\n"
+                    "} s;\n"
+                    "unused(&s);\n")
+               % LldbOnly()
+               % Check("s", "", "S")
+               % Check("s.b", "false", "bool")
+               % Check("s.c", "false", "bool:1")
+               % Check("s.d", "0", "double")
+               % Check("s.f", "0", "float")
+               % Check("s.i", "0", "int")
+               % Check("s.x", "0", "unsigned int:1")
+               % Check("s.y", "0", "unsigned int:1");
 
 
     QTest::newRow("Function")
