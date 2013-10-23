@@ -574,10 +574,9 @@ class Dumper(DumperBase):
         return format
 
     def isMovableType(self, type):
-        if type.GetTypeClass() in (lldb.eTypeClassBuiltin,
-                lldb.eTypeClassPointer):
+        if type.GetTypeClass() in (lldb.eTypeClassBuiltin, lldb.eTypeClassPointer):
             return True
-        return self.stripNamespaceFromType(type.GetName()) in movableTypes
+        return self.isKnownMovableType(self.stripNamespaceFromType(type.GetName()))
 
     def putIntItem(self, name, value):
         with SubItem(self, name):

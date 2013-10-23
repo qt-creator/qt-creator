@@ -255,23 +255,6 @@ class UnnamedSubItem(SubItem):
         self.iname = "%s.%s" % (self.d.currentIName, component)
         self.name = None
 
-movableTypes = set([
-    "QBrush", "QBitArray", "QByteArray", "QCustomTypeInfo", "QChar", "QDate",
-    "QDateTime", "QFileInfo", "QFixed", "QFixedPoint", "QFixedSize",
-    "QHashDummyValue", "QIcon", "QImage", "QLine", "QLineF", "QLatin1Char",
-    "QLocale", "QMatrix", "QModelIndex", "QPoint", "QPointF", "QPen",
-    "QPersistentModelIndex", "QResourceRoot", "QRect", "QRectF", "QRegExp",
-    "QSize", "QSizeF", "QString", "QTime", "QTextBlock", "QUrl", "QVariant",
-    "QXmlStreamAttribute", "QXmlStreamNamespaceDeclaration",
-    "QXmlStreamNotationDeclaration", "QXmlStreamEntityDeclaration"
-])
-
-movableTypes5 = set([
-    "QStringList"
-])
-
-
-
 class DumperBase:
     def __init__(self):
         self.isCdb = False
@@ -472,6 +455,23 @@ class DumperBase:
 
         except:
             pass
+
+
+    def isKnownMovableType(self, type):
+        if type in (
+                "QBrush", "QBitArray", "QByteArray", "QCustomTypeInfo", "QChar", "QDate",
+                "QDateTime", "QFileInfo", "QFixed", "QFixedPoint", "QFixedSize",
+                "QHashDummyValue", "QIcon", "QImage", "QLine", "QLineF", "QLatin1Char",
+                "QLocale", "QMatrix", "QModelIndex", "QPoint", "QPointF", "QPen",
+                "QPersistentModelIndex", "QResourceRoot", "QRect", "QRectF", "QRegExp",
+                "QSize", "QSizeF", "QString", "QTime", "QTextBlock", "QUrl", "QVariant",
+                "QXmlStreamAttribute", "QXmlStreamNamespaceDeclaration",
+                "QXmlStreamNotationDeclaration", "QXmlStreamEntityDeclaration"
+                ):
+            return True
+
+        return type == "QStringList" and self.qtVersion() >= 0x050000
+
 
 def cleanAddress(addr):
     if addr is None:
