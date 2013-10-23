@@ -400,6 +400,8 @@ void SettingsDialog::createGui()
     mainGridLayout->setColumnStretch(1, 4);
     setLayout(mainGridLayout);
     setMinimumSize(1000, 550);
+    if (Utils::HostOsInfo::isMacHost())
+        setMinimumHeight(minimumHeight() * 1.1);
 }
 
 SettingsDialog::~SettingsDialog()
