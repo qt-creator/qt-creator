@@ -348,7 +348,7 @@ Section {
         RowLayout {
             anchors.left: parent.left
             anchors.right: parent.right
-            visible: anchorBackend.verticalAnchored;
+            visible: anchorBackend.verticalCentered;
 
             IconLabel {
                 source:  "../HelperWidgets/images/anchor-vertical.png"
