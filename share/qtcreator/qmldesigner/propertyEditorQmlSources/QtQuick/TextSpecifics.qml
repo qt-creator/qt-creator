@@ -35,6 +35,12 @@ Column {
     anchors.left: parent.left
     anchors.right: parent.right
 
+    StandardTextSection {
+        useLineEdit: true
+        showIsWrapping: true
+        showVerticalAlignment: true
+    }
+
     Section {
         anchors.left: parent.left
         anchors.right: parent.right
@@ -59,12 +65,6 @@ Column {
             supportGradient: false
         }
     }
-
-   StandardTextSection {
-       useLineEdit: true
-       showIsWrapping: true
-       showVerticalAlignment: true
-   }
 
    FontSection {
        showStyle: true
