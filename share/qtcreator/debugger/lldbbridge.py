@@ -690,13 +690,13 @@ class Dumper(DumperBase):
                self.putFields(value)
 
     def lookupType(self, name):
-        warn("LOOKUP TYPE NAME: %s" % name)
+        #warn("LOOKUP TYPE NAME: %s" % name)
         if name.endswith('*'):
             type = self.lookupType(name[:-1].strip())
             return type.GetPointerType() if type.IsValid() else None
         type = self.target.FindFirstType(name)
-        warn("LOOKUP RESULT: %s" % type.name)
-        warn("LOOKUP VALID: %s" % type.IsValid())
+        #warn("LOOKUP RESULT: %s" % type.name)
+        #warn("LOOKUP VALID: %s" % type.IsValid())
         return type if type.IsValid() else None
 
     def setupInferior(self, args):
