@@ -3895,12 +3895,12 @@ void tst_Dumpers::dumper_data()
                     "#include <QString>\n",
                     "quint64 u64 = ULLONG_MAX;\n"
                     "qint64 s64 = LLONG_MAX;\n"
-                    "quint32 u32 = ULONG_MAX;\n"
-                    "qint32 s32 = LONG_MAX;\n"
+                    "quint32 u32 = UINT_MAX;\n"
+                    "qint32 s32 = INT_MAX;\n"
                     "quint64 u64s = 0;\n"
                     "qint64 s64s = LLONG_MIN;\n"
                     "quint32 u32s = 0;\n"
-                    "qint32 s32s = LONG_MIN;\n"
+                    "qint32 s32s = INT_MIN;\n"
                     "QString dummy; // needed to get namespace\n"
                     "unused(&u64, &s64, &u32, &s32, &u64s, &s64s, &u32s, &s32s, &dummy);\n")
                % CoreProfile()
