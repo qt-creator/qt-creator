@@ -63,7 +63,7 @@ Item {
     }
 
     RoundedPanel {
-        roundLeft: isFirst() && roundLeftButton
+        roundLeft: isFirst() && buttonRowButton.roundLeftButton
         roundRight: isLast()
 
         anchors.fill: parent
