@@ -54,14 +54,16 @@ Rectangle {
 
                     }
 
-                    Label {
-                        text: backendValues.className.value
-                        width: lineEdit.width
+                    SecondColumnLayout {
+
+                        Label {
+                            text: backendValues.className.value
+                            width: lineEdit.width
+                        }
                     }
 
                     Label {
                         text: qsTr("id")
-
                     }
 
                     SecondColumnLayout {
