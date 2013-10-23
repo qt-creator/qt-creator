@@ -1072,12 +1072,16 @@ class Dumper(DumperBase):
                 self.putArrayData(innerType, value, 1000)
                 return
 
-            #if innerType.code == MethodCode or innerType.code == FunctionCode:
-            #    # A function pointer with format None.
-            #    self.putValue(str(value))
-            #    self.putType(typeName)
-            #    self.putNumChild(0)
-            #    return
+            if innerType.IsFunctionType():
+                # A function pointer.
+                val = str(value)
+                pos = val.find(" = ")
+                if pos > 0:
+                    val = val[pos + 3:]
+                self.putValue(val)
+                self.putType(innerType)
+                self.putNumChild(0)
+                return
 
             #warn("AUTODEREF: %s" % self.autoDerefPointers)
             #warn("INAME: %s" % self.currentIName)
