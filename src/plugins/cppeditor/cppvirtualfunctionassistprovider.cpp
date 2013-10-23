@@ -109,16 +109,14 @@ private:
 class VirtualFunctionsAssistProcessor : public IAssistProcessor
 {
 public:
-    VirtualFunctionsAssistProcessor(const VirtualFunctionAssistProvider *provider)
-        : m_startClass(provider->startClass())
-        , m_function(provider->function())
-        , m_snapshot(provider->snapshot())
-        , m_openInNextSplit(provider->openInNextSplit())
+    VirtualFunctionsAssistProcessor(const VirtualFunctionAssistProvider::Parameters &params)
+        : m_params(params)
     {}
 
-    IAssistProposal *immediateProposal(const TextEditor::IAssistInterface *interface)
+    IAssistProposal *immediateProposal(const TextEditor::IAssistInterface *assistInterface)
     {
-        QTC_ASSERT(m_function, return 0);
+        QTC_ASSERT(assistInterface, return 0);
+        QTC_ASSERT(m_params.function, return 0);
 
         BasicProposalItem *hintItem = new VirtualFunctionProposalItem(CPPEditorWidget::Link());
         hintItem->setText(QCoreApplication::translate("VirtualFunctionsAssistProcessor",
@@ -126,24 +124,22 @@ public:
         hintItem->setOrder(-1000);
 
         QList<BasicProposalItem *> items;
-        items << itemFromSymbol(maybeDefinitionFor(m_function));
+        items << itemFromSymbol(maybeDefinitionFor(m_params.function));
         items << hintItem;
-        return new VirtualFunctionProposal(interface->position(),
+        return new VirtualFunctionProposal(assistInterface->position(),
                                            new BasicProposalItemListModel(items),
-                                           m_openInNextSplit);
+                                           m_params.openInNextSplit);
     }
 
-    IAssistProposal *perform(const IAssistInterface *interface)
+    IAssistProposal *perform(const IAssistInterface *assistInterface)
     {
-        if (!interface)
-            return 0;
+        QTC_ASSERT(assistInterface, return 0);
+        QTC_ASSERT(m_params.startClass, return 0);
+        QTC_ASSERT(m_params.function, return 0);
+        QTC_ASSERT(!m_params.snapshot.isEmpty(), return 0);
 
-        QTC_ASSERT(m_startClass, return 0);
-        QTC_ASSERT(m_function, return 0);
-        QTC_ASSERT(!m_snapshot.isEmpty(), return 0);
-
-        const QList<Symbol *> overrides = FunctionHelper::overrides(m_startClass, m_function,
-                                                                    m_snapshot);
+        const QList<Symbol *> overrides
+            = FunctionHelper::overrides(m_params.startClass, m_params.function, m_params.snapshot);
         if (overrides.isEmpty())
             return 0;
 
@@ -152,15 +148,15 @@ public:
             items << itemFromSymbol(maybeDefinitionFor(symbol));
         items.first()->setOrder(1000); // Ensure top position for function of static type
 
-        return new VirtualFunctionProposal(interface->position(),
+        return new VirtualFunctionProposal(assistInterface->position(),
                                            new BasicProposalItemListModel(items),
-                                           m_openInNextSplit);
+                                           m_params.openInNextSplit);
     }
 
 private:
     Symbol *maybeDefinitionFor(Symbol *symbol)
     {
-        if (Function *definition = m_finder.findMatchingDefinition(symbol, m_snapshot))
+        if (Function *definition = m_finder.findMatchingDefinition(symbol, m_params.snapshot))
             return definition;
         return symbol;
     }
@@ -170,35 +166,26 @@ private:
         const QString text = m_overview.prettyName(LookupContext::fullyQualifiedName(symbol));
         const CPPEditorWidget::Link link = CPPEditorWidget::linkToSymbol(symbol);
 
-        BasicProposalItem *item = new VirtualFunctionProposalItem(link, m_openInNextSplit);
+        BasicProposalItem *item = new VirtualFunctionProposalItem(link, m_params.openInNextSplit);
         item->setText(text);
         item->setIcon(m_icons.iconForSymbol(symbol));
 
         return item;
     }
 
-    Class *m_startClass;
-    Function *m_function;
-    Snapshot m_snapshot;
-    bool m_openInNextSplit;
+    VirtualFunctionAssistProvider::Parameters m_params;
     Overview m_overview;
     Icons m_icons;
     CppTools::SymbolFinder m_finder;
 };
 
 VirtualFunctionAssistProvider::VirtualFunctionAssistProvider()
-    : m_function(0)
-    , m_openInNextSplit(false)
 {
 }
 
-bool VirtualFunctionAssistProvider::configure(Class *startClass, Function *function,
-                                              const Snapshot &snapshot, bool openInNextSplit)
+bool VirtualFunctionAssistProvider::configure(const Parameters &parameters)
 {
-    m_startClass = startClass;
-    m_function = function;
-    m_snapshot = snapshot;
-    m_openInNextSplit = openInNextSplit;
+    m_params = parameters;
     return true;
 }
 
@@ -214,7 +201,7 @@ bool VirtualFunctionAssistProvider::supportsEditor(const Core::Id &editorId) con
 
 IAssistProcessor *VirtualFunctionAssistProvider::createProcessor() const
 {
-    return new VirtualFunctionsAssistProcessor(this);
+    return new VirtualFunctionsAssistProcessor(m_params);
 }
 
 enum VirtualType { Virtual, PureVirtual };

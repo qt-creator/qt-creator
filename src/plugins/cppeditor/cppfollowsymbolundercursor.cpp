@@ -556,11 +556,17 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
                 Class *klass = symbolFinder->findMatchingClassDeclaration(function, snapshot);
                 QTC_CHECK(klass);
 
-                if (m_virtualFunctionAssistProvider->configure(klass, function, snapshot,
-                                                               inNextSplit)) {
+                VirtualFunctionAssistProvider::Parameters params;
+                params.startClass = klass;
+                params.function = function;
+                params.snapshot = snapshot;
+                params.openInNextSplit = inNextSplit;
+
+                if (m_virtualFunctionAssistProvider->configure(params)) {
                     m_widget->invokeAssist(TextEditor::FollowSymbol,
                                            m_virtualFunctionAssistProvider);
                 }
+
                 return Link();
             }
 

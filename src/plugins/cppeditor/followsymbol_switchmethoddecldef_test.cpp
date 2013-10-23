@@ -100,10 +100,9 @@ public:
     // Invoke the processor already here to calculate the proposals. Return false in order to
     // indicate that configure failed, so the actual code assist invocation leading to a pop-up
     // will not happen.
-    bool configure(CPlusPlus::Class *startClass, CPlusPlus::Function *function,
-                   const CPlusPlus::Snapshot &snapshot, bool openInNextSplit)
+    bool configure(const VirtualFunctionAssistProvider::Parameters &params)
     {
-        VirtualFunctionAssistProvider::configure(startClass, function, snapshot, openInNextSplit);
+        VirtualFunctionAssistProvider::configure(params);
 
         IAssistProcessor *processor = createProcessor();
         IAssistInterface *assistInterface

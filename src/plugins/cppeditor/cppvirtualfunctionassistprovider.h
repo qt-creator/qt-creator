@@ -35,6 +35,8 @@
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Symbols.h>
 
+#include <QTextCursor>
+
 namespace CppEditor {
 namespace Internal {
 
@@ -43,22 +45,24 @@ class VirtualFunctionAssistProvider : public TextEditor::IAssistProvider
 public:
     VirtualFunctionAssistProvider();
 
-    virtual bool configure(CPlusPlus::Class *startClass, CPlusPlus::Function *function,
-        const CPlusPlus::Snapshot &snapshot, bool openInNextSplit);
-    CPlusPlus::Class *startClass() const { return m_startClass; }
-    CPlusPlus::Function *function() const { return m_function; }
-    CPlusPlus::Snapshot snapshot() const { return m_snapshot; }
-    bool openInNextSplit() const { return m_openInNextSplit; }
+    struct Parameters {
+        Parameters() : startClass(0), function(0), openInNextSplit(false) {}
+
+        CPlusPlus::Class *startClass;
+        CPlusPlus::Function *function;
+        CPlusPlus::Snapshot snapshot;
+        bool openInNextSplit;
+    };
+
+    virtual bool configure(const Parameters &parameters);
+    Parameters params() const { return m_params; }
 
     bool isAsynchronous() const;
     bool supportsEditor(const Core::Id &editorId) const;
     TextEditor::IAssistProcessor *createProcessor() const;
 
 private:
-    CPlusPlus::Class *m_startClass;
-    CPlusPlus::Function *m_function;
-    CPlusPlus::Snapshot m_snapshot;
-    bool m_openInNextSplit;
+    Parameters m_params;
 };
 
 class FunctionHelper
