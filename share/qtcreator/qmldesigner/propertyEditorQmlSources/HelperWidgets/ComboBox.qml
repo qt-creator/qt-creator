@@ -30,20 +30,56 @@
 import QtQuick 2.1
 import QtQuick.Controls 1.1 as Controls
 import QtQuick.Controls.Styles 1.1
+import "Constants.js" as Constants
 
 Controls.ComboBox {
     id: comboBox
 
     property variant backendValue
 
+    property color textColor: Constants.colorsDefaultText
+
+    onBackendValueChanged: {
+        innerObject.evaluate();
+    }
+
     QtObject {
-        property string valueFromBackend: lineEdit.backendValue.valueToString;
+        id: innerObject
+
+        property bool baseStateFlag: isBaseState;
+        property string valueFromBackend: comboBox.backendValue.value;
         onValueFromBackendChanged: {
-            lineEdit.currentIndex = comboBox.find(valueFromBackend);
+            comboBox.currentIndex = comboBox.find( comboBox.backendValue.valueToString);
+            evaluate();
+        }
+
+        onBaseStateFlagChanged: {
+            evaluate();
+        }
+
+        function evaluate() {
+            if (backendValue === undefined)
+                return;
+
+            if (baseStateFlag) {
+                if (backendValue.isInModel)
+                    comboBox.textColor = Constants.colorsChangedBaseText
+                else
+                    comboBox.textColor = Constants.colorsDefaultText
+            } else {
+                if (backendValue.isInSubState)
+                    comboBox.textColor = Constants.colorsChangedStateText
+                else
+                    comboBox.textColor = Constants.colorsDefaultText
+            }
+
         }
     }
 
     onCurrentTextChanged: {
+        if (backendValue === undefined)
+            return;
+
         if (backendValue.value !== currentText)
             backendValue.value = currentText;
     }
@@ -57,5 +93,13 @@ Controls.ComboBox {
     }
 
     style: CustomComboBoxStyle {
+        textColor: comboBox.textColor
+    }
+
+    ExtendedFunctionButton {
+        x: 2
+        y: 4
+        backendValue: comboBox.backendValue
+        visible: comboBox.enabled
     }
 }

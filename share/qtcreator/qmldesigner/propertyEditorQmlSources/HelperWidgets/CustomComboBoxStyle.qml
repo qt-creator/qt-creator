@@ -82,7 +82,7 @@ ComboBoxStyle {
         Text {
             id: textitem
             anchors.left: parent.left
-            anchors.leftMargin: 4
+            anchors.leftMargin: 14
             anchors.verticalCenter: parent.verticalCenter
             text: control.currentText
             renderType: Text.NativeRendering
