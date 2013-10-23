@@ -38,7 +38,7 @@ def qdump____c_style_array__(d, value):
     format = d.currentItemFormat()
     isDefault = format == None and str(targetType.unqualified()) == "char"
     if isDefault or format == 0 or format == 1 or format == 2:
-        blob = d.readMemory(value.address, type.sizeof)
+        blob = d.readMemory(d.addressOf(value), type.sizeof)
 
     if isDefault:
         # Use Latin1 as default for char [].
@@ -56,7 +56,7 @@ def qdump____c_style_array__(d, value):
         d.putValue("@0x%x" % d.pointerValue(value.cast(targetType.pointer())))
 
     if d.currentIName in d.expandedINames:
-        p = value.address
+        p = d.addressOf(value)
         ts = targetType.sizeof
         if not d.tryPutArrayContents(targetType, p, int(type.sizeof / ts)):
             with Children(d, childType=targetType,
