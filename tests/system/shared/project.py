@@ -175,7 +175,7 @@ def __verifyFileCreation__(path, expectedFiles):
 # param projectName is the name for the new project
 # param checks turns tests in the function on if set to True
 def createProject_Qt_GUI(path, projectName, checks = True):
-    template = "Qt Gui Application"
+    template = "Qt Widgets Application"
     available = __createProjectOrFileSelectType__("  Applications", template)
     __createProjectSetNameAndPath__(path, projectName, checks)
     checkedTargets = __selectQtVersionDesktop__(checks, available)
