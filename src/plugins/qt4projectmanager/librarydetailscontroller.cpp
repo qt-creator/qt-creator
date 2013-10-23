@@ -84,14 +84,24 @@ LibraryDetailsController::LibraryDetailsController(
 
     if (!Utils::HostOsInfo::isLinuxHost()) {
         // project for which we are going to insert the snippet
-        const ProjectExplorer::Project *project =
-                ProjectExplorer::SessionManager::projectForFile(proFile);
-        // if its tool chain is maemo behave the same as we would be on linux
-        ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(project->activeTarget()->kit());
-        if (tc
-                && (tc->targetAbi().osFlavor() == ProjectExplorer::Abi::HarmattanLinuxFlavor
-                    || tc->targetAbi().osFlavor() == ProjectExplorer::Abi::MaemoLinuxFlavor))
-            m_creatorPlatform = CreatorLinux;
+        const Project *project = SessionManager::projectForFile(proFile);
+        if (project && project->activeTarget()) {
+            // if its tool chain is maemo behave the same as we would be on linux
+            ProjectExplorer::ToolChain *tc = ToolChainKitInformation::toolChain(project->activeTarget()->kit());
+            if (tc) {
+                switch (tc->targetAbi().os()) {
+                case Abi::WindowsOS:
+                    m_creatorPlatform = CreatorWindows;
+                    break;
+                case Abi::MacOS:
+                    m_creatorPlatform = CreatorMac;
+                    break;
+                default:
+                    m_creatorPlatform = CreatorLinux;
+                    break;
+                }
+            }
+        }
     }
 
     setPlatformsVisible(true);
