@@ -31,6 +31,7 @@
 import QtQuick 2.1
 import QtQuick.Controls 1.1 as Controls
 import QtQuick.Controls.Styles 1.0
+import "Constants.js" as Constants
 
 Controls.TextField {
 
@@ -40,17 +41,49 @@ Controls.TextField {
     property color highlightColor: "orange"
     property color textColor: "#eee"
 
-//    ExtendedFunctionButton {
-//        x: 2
-//        y: 2
-//        backendValue: checkBox.backendValue
-//        visible: spinBox.enabled
-//    }
+    ExtendedFunctionButton {
+        x: 2
+        y: 4
+        backendValue: lineEdit.backendValue
+        visible: lineEdit.enabled
+    }
+
+    onBackendValueChanged: {
+        innerObject.evaluate();
+    }
 
     QtObject {
-        property string valueFromBackend: lineEdit.backendValue.valueToString;
+        id: innerObject
+
+        property string valueFromBackend: lineEdit.backendValue.value;
+        property bool baseStateFlag: isBaseState;
+
         onValueFromBackendChanged: {
             lineEdit.text = valueFromBackend;
+            evaluate();
+        }
+
+        onBaseStateFlagChanged: {
+            evaluate();
+        }
+
+        function evaluate() {
+            print("evaluate")
+            if (lineEdit.backendValue === undefined)
+                return;
+
+            if (baseStateFlag) {
+                if (lineEdit.backendValue.isInModel)
+                    lineEdit.textColor = Constants.colorsChangedBaseText
+                else
+                    lineEdit.textColor = Constants.colorsDefaultText
+            } else {
+                if (lineEdit.backendValue.isInSubState)
+                    lineEdit.textColor = Constants.colorsChangedStateText
+                else
+                    lineEdit.textColor = Constants.colorsDefaultText
+            }
+
         }
     }
 
@@ -74,6 +107,7 @@ Controls.TextField {
         textColor: lineEdit.textColor
         padding.top: 3
         padding.bottom: 1
+        padding.left: 16
         background: Rectangle {
             implicitWidth: 100
             implicitHeight: 23
