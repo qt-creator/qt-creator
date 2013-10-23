@@ -975,6 +975,8 @@ void QMakeEvaluator::loadDefaults()
     vars[ProKey("_DATE_")] << ProString(QDateTime::currentDateTime().toString());
     if (!m_option->qmake_abslocation.isEmpty())
         vars[ProKey("QMAKE_QMAKE")] << ProString(m_option->qmake_abslocation);
+    if (!m_option->qmake_args.isEmpty())
+        vars[ProKey("QMAKE_ARGS")] = ProStringList(m_option->qmake_args);
 #if defined(Q_OS_WIN32)
     vars[ProKey("QMAKE_HOST.os")] << ProString("Windows");
 
