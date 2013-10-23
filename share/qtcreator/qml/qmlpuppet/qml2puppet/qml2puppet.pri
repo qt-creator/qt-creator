@@ -19,6 +19,7 @@ QT += core-private qml-private quick-private gui-private script-private
 }
 
 DEFINES += QWEAKPOINTER_ENABLE_ARROW
+DEFINES -= QT_CREATOR
 
 include (../instances/instances.pri)
 include (instances/instances.pri)
