@@ -35,6 +35,11 @@ Column {
     anchors.left: parent.left
     anchors.right: parent.right
 
+    StandardTextSection {
+        showIsWrapping: true
+        useLineEdit: true
+    }
+
     Section {
         anchors.left: parent.left
         anchors.right: parent.right
@@ -60,12 +65,25 @@ Column {
         }
     }
 
-   StandardTextSection {
-       showIsWrapping: true
-       useLineEdit: true
-   }
+    FontSection {
+        showStyle: false
+    }
 
-   FontSection {
-       showStyle: false
-   }
+    Section {
+        caption: qsTr("Text Input")
+        SectionLayout {
+            Label {
+                text: qsTr("Format")
+            }
+            ComboBox {
+                model:  ["PlainText", "RichText", "AutoText"]
+                backendValue: backendValues.textFormat
+                Layout.fillWidth: true
+            }
+        }
+    }
+
+    TextInputSection {
+
+    }
 }
