@@ -37,10 +37,12 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
 #include <projectexplorer/target.h>
-#include <utils/qtcprocess.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtoutputformatter.h>
 #include <qtsupport/qtsupportconstants.h>
+
+#include <utils/fileutils.h>
+#include <utils/qtcprocess.h>
 
 #ifdef Q_OS_WIN
 #include <utils/winutils.h>
@@ -159,13 +161,7 @@ QString QmlProjectRunConfiguration::workingDirectory() const
    is exactly like the capitalization on disk.*/
 QString QmlProjectRunConfiguration::canonicalCapsPath(const QString &fileName)
 {
-    QString canonicalPath = QFileInfo(fileName).canonicalFilePath();
-
-#if defined(Q_OS_WIN)
-    canonicalPath = Utils::normalizePathName(canonicalPath);
-#endif
-
-    return canonicalPath;
+    return Utils::FileUtils::normalizePathName(QFileInfo(fileName).canonicalFilePath());
 }
 
 

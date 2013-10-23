@@ -31,9 +31,7 @@
 #include "projectexplorerconstants.h"
 
 #include <utils/qtcassert.h>
-#ifdef Q_OS_WIN
-#include <utils/winutils.h>
-#endif
+#include <utils/fileutils.h>
 
 static const char FILE_POS_PATTERN[] = "(cl|LINK|.+) : ";
 static const char ERROR_PATTERN[] = "[A-Z]+\\d\\d\\d\\d ?:";
@@ -58,11 +56,7 @@ static QPair<Utils::FileName, int> parseFileName(const QString &input)
             }
         }
     }
-#ifdef Q_OS_WIN
-    const QString normalized = Utils::normalizePathName(fileName);
-#else
-    const QString normalized = fileName;
-#endif
+    const QString normalized = Utils::FileUtils::normalizePathName(fileName);
     return qMakePair(Utils::FileName::fromUserInput(normalized), linenumber);
 }
 

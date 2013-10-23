@@ -44,9 +44,7 @@
 
 #include <qmljs/qmljssimplereader.h>
 
-#ifdef Q_OS_WIN
-#include <utils/winutils.h>
-#endif
+#include <utils/fileutils.h>
 
 enum {
     debug = false
@@ -95,12 +93,8 @@ static QObject *variantToQObject(const QVariant &value)
 
 static QString applicationDirPath()
 {
-#ifdef Q_OS_WIN
     // normalize paths so QML doesn't freak out if it's wrongly capitalized on Windows
-    return Utils::normalizePathName(QCoreApplication::applicationDirPath());
-#else
-    return QCoreApplication::applicationDirPath();
-#endif
+    return Utils::FileUtils::normalizePathName(QCoreApplication::applicationDirPath());
 }
 
 #ifdef Q_OS_MAC

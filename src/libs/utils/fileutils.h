@@ -98,6 +98,7 @@ public:
     static QString shortNativePath(const FileName &path);
     static QString fileSystemFriendlyName(const QString &name);
     static bool makeWritable(const FileName &path);
+    static QString normalizePathName(const QString &name);
 };
 
 class QTCREATOR_UTILS_EXPORT FileReader

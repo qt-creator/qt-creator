@@ -241,11 +241,8 @@ QString ExamplesWelcomePage::title() const
 
 QUrl ExamplesWelcomePage::pageLocation() const
 {
-    QString resourcePath = Core::ICore::resourcePath();
-#ifdef Q_OS_WIN
     // normalize paths so QML doesn't freak out if it's wrongly capitalized on Windows
-    resourcePath = Utils::normalizePathName(resourcePath);
-#endif
+    const QString resourcePath = Utils::FileUtils::normalizePathName(Core::ICore::resourcePath());
     if (m_showExamples)
         return QUrl::fromLocalFile(resourcePath + QLatin1String("/welcomescreen/examples.qml"));
     else
