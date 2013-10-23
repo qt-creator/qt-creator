@@ -206,7 +206,7 @@ static DebuggerItem::MatchLevel matchSingle(const Abi &debuggerAbi, const Abi &t
             return DebuggerItem::DoesNotMatch;
     }
 
-    if (debuggerAbi.wordWidth() == 64 and targetAbi.wordWidth() == 32)
+    if (debuggerAbi.wordWidth() == 64 && targetAbi.wordWidth() == 32)
         return DebuggerItem::MatchesSomewhat;
     if (debuggerAbi.wordWidth() != 0 && debuggerAbi.wordWidth() != targetAbi.wordWidth())
         return DebuggerItem::DoesNotMatch;
