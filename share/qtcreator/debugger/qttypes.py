@@ -1465,19 +1465,34 @@ def qdump__QRegion(d, value):
         d.putValue("<empty>")
         d.putNumChild(0)
     else:
-        try:
-            # Fails without debug info.
-            n = int(p.dereference()["numRects"])
-            d.putItemCount(n)
-            d.putNumChild(n)
-            d.putPlainChildren(p.dereference())
-        except:
-            warn("NO DEBUG INFO")
-            d.putValue(p)
-            d.putPlainChildren(value)
+        # struct QRegionPrivate:
+        # int numRects;
+        # QVector<QRect> rects;
+        # QRect extents;
+        # QRect innerRect;
+        # int innerArea;
+        pp = d.dereferenceValue(p)
+        n = d.extractInt(pp)
+        d.putItemCount(n)
+        d.putNumChild(n)
+        if d.isExpanded():
+            with Children(d):
+                v = d.ptrSize()
+                rectType = d.lookupType(d.ns + "QRect")
+                d.putIntItem("numRects", n)
+                d.putSubItem("extents", d.createValue(pp + 2 * v, rectType))
+                d.putSubItem("innerRect", d.createValue(pp + 2 * v + rectType.sizeof, rectType))
+                # FIXME
+                try:
+                    # Can fail if QVector<QRect> debuginfo is missing.
+                    vectType = d.lookupType("%sQVector<%sQRect>" % (d.ns, d.ns))
+                    d.putSubItem("rects", d.createValue(pp + v, vectType))
+                except:
+                    with SubItem(d, "rects"):
+                        d.putItemCount(n)
+                        d.putType("%sQVector<%sQRect>" % (d.ns, d.ns))
+                        d.putNumChild(0)
 
-# qt_rgn might be 0
-# gdb.parse_and_eval("region")["d"].dereference()["qt_rgn"].dereference()
 
 def qdump__QScopedPointer(d, value):
     d.putBetterType(d.currentType)

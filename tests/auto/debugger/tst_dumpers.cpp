@@ -2244,9 +2244,7 @@ void tst_Dumpers::dumper_data()
                % Check("s", "(100.5, 200.5)", "@QSizeF");
 
     QTest::newRow("QRegion")
-            << Data("#include <QRegion>\n"
-                    "#include <QString> // Dummy for namespace\n",
-                    "QString dummy;\n"
+            << Data("#include <QRegion>\n",
                     "QRegion region, region0, region1, region2;\n"
                     "region0 = region;\n"
                     "region += QRect(100, 100, 200, 200);\n"
@@ -2262,7 +2260,7 @@ void tst_Dumpers::dumper_data()
                % Check("region1.innerArea", "40000", "int")
                % Check("region1.innerRect", "200x200+100+100", "@QRect")
                % Check("region1.numRects", "1", "int")
-               % Check("region1.rects", "<0 items>", "@QVector<@QRect>")
+               % Check("region1.rects", "<1 items>", "@QVector<@QRect>")
                % Check("region2", "<2 items>", "@QRegion")
                % Check("region2.extents", "600x700+100+100", "@QRect")
                % Check("region2.innerArea", "200000", "int")
