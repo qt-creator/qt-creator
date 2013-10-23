@@ -51,7 +51,7 @@ Section {
     property bool showVerticalAlignment: false
     property bool useLineEdit: true
 
-    GridLayout {
+    SectionLayout {
         columns: 2
         rows: 3
         Label {
@@ -60,6 +60,7 @@ Section {
         LineEdit {
             //visible: useLineEdit
             backendValue: backendValues.text
+            Layout.fillWidth: true
         }
 
         Label {
