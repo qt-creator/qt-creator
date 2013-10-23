@@ -354,6 +354,13 @@ struct Cxx11Profile : public Profile
     {}
 };
 
+struct BoostProfile : public Profile
+{
+    BoostProfile()
+      : Profile("macx:INCLUDEPATH += /usr/local/include")
+    {}
+};
+
 struct MacLibCppProfile : public Profile
 {
     MacLibCppProfile()
@@ -4333,6 +4340,7 @@ void tst_Dumpers::dumper_data()
                     "boost::optional<int> i0, i1;\n"
                     "i1 = 1;\n"
                     "unused(&i0, &i1);\n")
+             % BoostProfile()
              % Check("i0", "<uninitialized>", "boost::optional<int>")
              % Check("i1", "1", "boost::optional<int>");
 
@@ -4343,6 +4351,7 @@ void tst_Dumpers::dumper_data()
                     "sl = (QStringList() << \"xxx\" << \"yyy\");\n"
                     "sl.get().append(\"zzz\");\n"
                     "unused(&sl);\n")
+             % BoostProfile()
              % Check("sl", "<3 items>", "boost::optional<@QStringList>");
 
     QTest::newRow("BoostSharedPtr")
@@ -4353,6 +4362,7 @@ void tst_Dumpers::dumper_data()
                     "boost::shared_ptr<int> j = i;\n"
                     "boost::shared_ptr<QStringList> sl(new QStringList(QStringList() << \"HUH!\"));\n"
                     "unused(&s, &i, &j, &sl);\n")
+             % BoostProfile()
              % Check("s", "(null)", "boost::shared_ptr<int>")
              % Check("i", "43", "boost::shared_ptr<int>")
              % Check("j", "43", "boost::shared_ptr<int>")
@@ -4375,6 +4385,7 @@ void tst_Dumpers::dumper_data()
                     "// Not where we started (expected in boost)\n"
                     "date d5 = d -= months(4);\n"
                     "unused(&d1, &d2, &d3, &d4, &d5);\n")
+             % BoostProfile()
              % Check("d0", "Tue Nov 29 2005", "boost::gregorian::date")
              % Check("d1", "Thu Dec 29 2005", "boost::gregorian::date")
              % Check("d2", "Sun Jan 29 2006", "boost::gregorian::date")
@@ -4392,6 +4403,7 @@ void tst_Dumpers::dumper_data()
                     "time_duration d2(0, 1, 0);\n"
                     "time_duration d3(0, 0, 1);\n"
                     "unused(&d1, &d2, &d3);\n")
+             % BoostProfile()
              % Check("d1", "01:00:00", "boost::posix_time::time_duration")
              % Check("d2", "00:01:00", "boost::posix_time::time_duration")
              % Check("d3", "00:00:01", "boost::posix_time::time_duration");
@@ -4405,6 +4417,7 @@ void tst_Dumpers::dumper_data()
                     "int l = it->first;\n"
                     "int r = it->second;\n"
                     "unused(&l, &r);\n")
+             % BoostProfile()
              % Check("b", "<1 items>", "B");
 
     QTest::newRow("BoostPosixTimePtime")
@@ -4417,7 +4430,8 @@ void tst_Dumpers::dumper_data()
                     "ptime p1(date(2002, 1, 10), time_duration(1, 0, 0));\n"
                     "ptime p2(date(2002, 1, 10), time_duration(0, 0, 0));\n"
                     "ptime p3(date(1970, 1, 1), time_duration(0, 0, 0));\n"
-                    "unused(&p1, &p2, p3);\n")
+                    "unused(&p1, &p2, &p3);\n")
+             % BoostProfile()
              % Check("p1", "Thu Jan 10 01:00:00 2002", "boost::posix_time::ptime")
              % Check("p2", "Thu Jan 10 00:00:00 2002", "boost::posix_time::ptime")
              % Check("p3", "Thu Jan 1 00:00:00 1970", "boost::posix_time::ptime");
@@ -4855,6 +4869,7 @@ void tst_Dumpers::dumper_data()
                    "#endif\n"
                    "unused(&ptrConst, &ref, &refConst, &ptrToPtr, &sharedPtr);\n")
                % GdbVersion(70500)
+               % BoostProfile()
                % Check("d", "", "Derived")
                % Check("d.@1", "[Base]", "", "Base")
                % Check("d.b", "2", "int")
