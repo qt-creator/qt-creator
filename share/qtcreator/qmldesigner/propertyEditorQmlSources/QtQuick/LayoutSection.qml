@@ -328,7 +328,7 @@ Section {
                     SpinBox {
                         maximumValue: 0xffff
                         minimumValue: -0xffff
-                        backendValue: backendValues.anchors_horizontalMargin
+                        backendValue: backendValues.anchors_horizontalCenterOffset
                     }
 
                     ButtonRow {
@@ -385,7 +385,7 @@ Section {
                     SpinBox {
                         maximumValue: 0xffff
                         minimumValue: -0xffff
-                        backendValue: backendValues.anchors_verticalMargin
+                        backendValue: backendValues.anchors_verticalCenterOffset
                     }
 
                     ButtonRow {
