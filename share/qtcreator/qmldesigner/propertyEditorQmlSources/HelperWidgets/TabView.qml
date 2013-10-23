@@ -63,12 +63,6 @@ Controls.TabView {
                 width: parent.width
                 height: 1
             }
-            Rectangle {
-                color: "#333"
-                width: parent.width
-                height: 1
-                anchors.bottom: parent.bottom
-            }
         }
     }
 }
