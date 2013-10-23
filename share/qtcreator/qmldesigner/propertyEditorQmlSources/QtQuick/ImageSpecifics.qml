@@ -64,6 +64,7 @@ Column {
                     model: ["Stretch", "PreserveAspectFit", "PreserveAspectCrop", "Tile", "TileVertically", "TileHorizontally"]
                     backendValue: backendValues.fillMode
                     implicitWidth: 180
+                    Layout.fillWidth: true
                 }
 
                 ExpandingSpacer {

@@ -120,6 +120,8 @@ Section {
 
                 }
 
+                Layout.fillWidth: true
+
                 style: CustomComboBoxStyle {
                 }
 

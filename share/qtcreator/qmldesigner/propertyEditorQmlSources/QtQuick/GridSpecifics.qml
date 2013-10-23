@@ -83,10 +83,7 @@ Column {
                 ComboBox {
                     model: ["LeftToRight", "TopToBottom"]
                     backendValue: backendValues.flow
-                }
-
-                ExpandingSpacer {
-
+                    Layout.fillWidth: true
                 }
             }
 
@@ -98,11 +95,9 @@ Column {
                 ComboBox {
                     model: ["LeftToRight", "RightToLeft"]
                     backendValue: backendValues.layoutDirection
+                    Layout.fillWidth: true
                 }
 
-                ExpandingSpacer {
-
-                }
             }
 
             Label {

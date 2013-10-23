@@ -136,10 +136,7 @@ Column {
                     model: ["Stretch", "Repeat", "Round"]
                     backendValue: backendValues.horizontalTileMode
                     implicitWidth: 180
-                }
-
-                ExpandingSpacer {
-
+                    Layout.fillWidth: true
                 }
             }
 
@@ -152,11 +149,9 @@ Column {
                     model: ["Stretch", "Repeat", "Round"]
                     backendValue: backendValues.verticalTileMode
                     implicitWidth: 180
+                    Layout.fillWidth: true
                 }
 
-                ExpandingSpacer {
-
-                }
             }
 
 

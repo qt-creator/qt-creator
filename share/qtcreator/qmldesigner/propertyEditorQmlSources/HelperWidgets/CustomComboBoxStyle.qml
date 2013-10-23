@@ -37,7 +37,7 @@ ComboBoxStyle {
     property color textColor: "#eee"
 
     background: Item {
-        implicitWidth: 100
+        implicitWidth: 120
         implicitHeight: 25
 
         RoundedPanel {

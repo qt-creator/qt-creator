@@ -78,7 +78,9 @@ Section {
                 minimumValue: -0xffff
                 decimals: 0
             }
-            ExpandingSpacer{}
+            ExpandingSpacer {
+
+            }
         }
         Label {
             text: qsTr("Size")
@@ -110,7 +112,9 @@ Section {
                 minimumValue: -0xffff
                 decimals: 0
             }
-            ExpandingSpacer{}
+            ExpandingSpacer {
+
+            }
         }
     }
 }
