@@ -47,7 +47,7 @@ SpinBoxStyle {
             source: "images/up-arrow.png"
             anchors.centerIn: parent
             anchors.verticalCenterOffset: 2
-            anchors.horizontalCenterOffset: -4
+            anchors.horizontalCenterOffset: -2
         }
     }
 
@@ -59,7 +59,7 @@ SpinBoxStyle {
             source: "images/down-arrow.png"
             anchors.centerIn: parent
             anchors.verticalCenterOffset: -1
-            anchors.horizontalCenterOffset: -4
+            anchors.horizontalCenterOffset: -2
         }
     }
 
