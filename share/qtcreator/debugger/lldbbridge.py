@@ -413,6 +413,11 @@ class Dumper(DumperBase):
         #warn("  -> %s" % result)
         return result
 
+    def parseAndEvaluate(self, expr):
+        thread = self.currentThread()
+        frame = thread.GetFrameAtIndex(0)
+        return frame.EvaluateExpression(expr)
+
     def call(self, value, func, *args):
         return self.call2(value, func, args)
 
