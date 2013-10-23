@@ -129,7 +129,7 @@ PropertyEditorQmlBackend::PropertyEditorQmlBackend(PropertyEditorView *propertyE
     m_dummyPropertyEditorValue->setValue("#000000");
     context()->setContextProperty("dummyBackendValue", m_dummyPropertyEditorValue.data());
     m_contextObject->setBackendValues(&m_backendValuesPropertyMap);
-    context()->setContextObject(m_contextObject.data());
+    m_contextObject->insertInQmlContext(context());
 
     QObject::connect(&m_backendValuesPropertyMap, SIGNAL(valueChanged(QString,QVariant)), propertyEditor, SLOT(changeValue(QString)));
 }
@@ -352,9 +352,9 @@ QString PropertyEditorQmlBackend::templateGeneration(NodeMetaInfo type,
     QStringList imports = variantToStringList(templateConfiguration()->property(QLatin1String("imports")));
 
     QString qmlTemplate = imports.join(QLatin1String("\n")) + QLatin1Char('\n');
-    qmlTemplate += QLatin1String("GroupBox {\n");
+    qmlTemplate += QLatin1String("Section {\n");
     qmlTemplate += QString(QLatin1String("caption: \"%1\"\n")).arg(QString::fromUtf8(objectNode.modelNode().simplifiedTypeName()));
-    qmlTemplate += QLatin1String("layout: VerticalLayout {\n");
+    qmlTemplate += QLatin1String("SectionLayout {\n");
 
     QList<PropertyName> orderedList = type.propertyNames();
     qSort(orderedList);
@@ -390,8 +390,8 @@ QString PropertyEditorQmlBackend::templateGeneration(NodeMetaInfo type,
                 }
         }
     }
-    qmlTemplate += QLatin1String("}\n"); //VerticalLayout
-    qmlTemplate += QLatin1String("}\n"); //GroupBox
+    qmlTemplate += QLatin1String("}\n"); //Section
+    qmlTemplate += QLatin1String("}\n"); //SectionLayout
 
     if (emptyTemplate)
         return QString();

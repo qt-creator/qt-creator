@@ -157,11 +157,13 @@ Rectangle {
                     component: Column {
                         anchors.left: parent.left
                         anchors.right: parent.right
-                        //                    Loader {
-                        //                        id: specificsTwo;
-                        //                        baseUrl: globalBaseUrl;
-                        //                        qmlData: specificQmlData;
-                        //                    }
+                        Loader {
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+
+                            id: specificsTwo;
+                            sourceComponent: specificQmlComponent
+                        }
 
                         Loader {
                             anchors.left: parent.left

@@ -33,6 +33,7 @@
 #include <QObject>
 #include <QUrl>
 #include <QQmlPropertyMap>
+#include <QQmlComponent>
 #include <QColor>
 
 namespace QmlDesigner {
@@ -55,6 +56,8 @@ class PropertyEditorContextObject : public QObject
 
     Q_PROPERTY(QQmlPropertyMap* backendValues READ backendValues WRITE setBackendValues NOTIFY backendValuesChanged)
 
+    Q_PROPERTY(QQmlComponent* specificQmlComponent READ specificQmlComponent NOTIFY specificQmlComponentChanged)
+
 public:
     PropertyEditorContextObject(QObject *parent = 0);
 
@@ -75,6 +78,9 @@ public:
     int minorVersion() const;
     void setMinorVersion(int minorVersion);
 
+    void insertInQmlContext(QQmlContext *context);
+    QQmlComponent *specificQmlComponent();
+
 signals:
     void globalBaseUrlChanged();
     void specificsUrlChanged();
@@ -85,75 +91,24 @@ signals:
     void backendValuesChanged();
     void majorVersionChanged();
     void minorVersionChanged();
+    void specificQmlComponentChanged();
 
 public slots:
-     void setGlobalBaseUrl(const QUrl &newBaseUrl)
-     {
-         if (newBaseUrl == m_globalBaseUrl)
-             return;
+     void setGlobalBaseUrl(const QUrl &newBaseUrl);
 
-         m_globalBaseUrl = newBaseUrl;
-         emit globalBaseUrlChanged();
-     }
+     void setSpecificsUrl(const QUrl &newSpecificsUrl);
 
-     void setSpecificsUrl(const QUrl &newSpecificsUrl)
-     {
-         if (newSpecificsUrl == m_specificsUrl)
-             return;
+     void setSpecificQmlData(const QString &newSpecificQmlData);
 
-         m_specificsUrl = newSpecificsUrl;
-         emit specificsUrlChanged();
-     }
+     void setStateName(const QString &newStateName);
 
-     void setSpecificQmlData(const QString &newSpecificQmlData)
-     {
-         if (m_specificQmlData == newSpecificQmlData)
-             return;
+     void setIsBaseState(bool newIsBaseState);
 
-         m_specificQmlData = newSpecificQmlData;
-         emit specificQmlDataChanged();
-     }
+     void setSelectionChanged(bool newSelectionChanged);
 
-     void setStateName(const QString &newStateName)
-     {
-         if (newStateName == m_stateName)
-             return;
+     void setBackendValues(QQmlPropertyMap* newBackendValues);
 
-         m_stateName = newStateName;
-         emit stateNameChanged();
-     }
-
-     void setIsBaseState(bool newIsBaseState)
-     {
-         if (newIsBaseState ==  m_isBaseState)
-             return;
-
-         m_isBaseState = newIsBaseState;
-         emit isBaseStateChanged();
-     }
-
-     void setSelectionChanged(bool newSelectionChanged)
-     {
-         if (newSelectionChanged ==  m_selectionChanged)
-             return;
-
-         m_selectionChanged = newSelectionChanged;
-         emit selectionChangedChanged();
-     }
-
-     void setBackendValues(QQmlPropertyMap* newBackendValues)
-     {
-         if (newBackendValues ==  m_backendValues)
-             return;
-
-         m_backendValues = newBackendValues;
-         emit backendValuesChanged();
-     }
-
-    void triggerSelectionChanged()
-    {
-        setSelectionChanged(!m_selectionChanged);
-    }
+    void triggerSelectionChanged();
 
 private:
     QUrl m_globalBaseUrl;
@@ -169,6 +124,8 @@ private:
 
     int m_majorVersion;
     int m_minorVersion;
+    QQmlComponent *m_qmlComponent;
+    QQmlContext *m_qmlContext;
 };
 
 } //QmlDesigner {

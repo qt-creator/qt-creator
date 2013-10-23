@@ -1,0 +1,8 @@
+Item {
+}
+
+ColorEditor {
+    caption: "%1"
+    backendColor: backendValues.%2
+    supportGradient: false
+}
