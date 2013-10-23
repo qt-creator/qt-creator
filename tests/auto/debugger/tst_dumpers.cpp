@@ -3406,8 +3406,6 @@ void tst_Dumpers::dumper_data()
                     "value = QVariant(t, (void*)0);\n"
                     "*(QString*)value.data() = QString(\"Some string\");\n")
                % CoreProfile()
-               % LldbOnly()
-               % Check("t", "String", "@QVariant::Type")
                % Check("value", "\"Some string\"", "@QVariant (QString)");
 
     QTest::newRow("QVariant2")
