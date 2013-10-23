@@ -95,9 +95,12 @@ public:
         BasicProposalItemListModel *model = dynamic_cast<BasicProposalItemListModel *>(imodel);
         if (!model)
             return immediateItems;
+
+        // Mimic relevant GenericProposalWidget::showProposal() calls
+        model->removeDuplicates();
+        model->reset();
         if (model->isSortable(QString()))
             model->sort(QString());
-        model->removeDuplicates();
 
         for (int i = 0, size = model->size(); i < size; ++i) {
             const QString text = model->text(i);
@@ -1232,9 +1235,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_allOverri
             "struct CD2 : C { void virt(); };\n"
             "void CD2::virt() {}\n"
             "\n"
-            "int f(A *o)\n"
-            "{\n"
-            "    o->$@virt();\n"
+            "int f(A *o) { o->$@virt(); }\n"
             "}\n"
             ;
 
@@ -1271,9 +1272,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_possibleO
             "struct CD2 : C { void virt(); };\n"
             "void CD2::virt() {}\n"
             "\n"
-            "int f(B *o)\n"
-            "{\n"
-            "   o->$@virt();\n"
+            "int f(B *o) { o->$@virt(); }\n"
             "}\n"
             ;
 
@@ -1294,24 +1293,24 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_possibleO
 void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_possibleOverrides2()
 {
     const QByteArray source =
-            "struct A { virtual void f(); };\n"
-            "void A::f() {}\n"
+            "struct A { virtual void virt(); };\n"
+            "void A::virt() {}\n"
             "\n"
-            "struct B : public A { void f(); };\n"
-            "void B::f() {}\n"
+            "struct B : public A { void virt(); };\n"
+            "void B::virt() {}\n"
             "\n"
-            "struct C : public B { void g() { f$@(); } }; \n"
+            "struct C : public B { void g() { virt$@(); } }; \n"
             "\n"
-            "struct D : public C { void f(); };\n"
-            "void D::f() {}\n"
+            "struct D : public C { void virt(); };\n"
+            "void D::virt() {}\n"
             ;
 
     const QStringList immediateResults = QStringList()
-            << QLatin1String("B::f")
+            << QLatin1String("B::virt")
             << QLatin1String("...searching overrides");
     const QStringList finalResults = QStringList()
-            << QLatin1String("B::f")
-            << QLatin1String("D::f");
+            << QLatin1String("B::virt")
+            << QLatin1String("D::virt");
 
     TestCase test(TestCase::FollowSymbolUnderCursorAction, source, immediateResults, finalResults);
     test.run();
@@ -1321,12 +1320,12 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_possibleO
 void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_notOnQualified()
 {
     const QByteArray source =
-            "struct A { virtual void f(); };\n"
-            "void A::$f() {}\n"
+            "struct A { virtual void virt(); };\n"
+            "void A::$virt() {}\n"
             "\n"
             "struct B : public A {\n"
-            "    void f();\n"
-            "    void g() { A::@f(); }\n"
+            "    void virt();\n"
+            "    void g() { A::@virt(); }\n"
             "};\n"
             ;
 
@@ -1338,11 +1337,11 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_notOnQual
 void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_notOnDeclaration()
 {
     const QByteArray source =
-            "struct A { virtual void f(); };\n"
-            "void A::f() {}\n"
+            "struct A { virtual void virt(); };\n"
+            "void A::virt() {}\n"
             "\n"
-            "struct B : public A { void f@(); };\n"
-            "void B::$f() {}\n"
+            "struct B : public A { void virt@(); };\n"
+            "void B::$virt() {}\n"
             ;
 
     TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
@@ -1353,11 +1352,11 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_notOnDecl
 void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_notOnDefinition()
 {
     const QByteArray source =
-            "struct A { virtual void f(); };\n"
-            "void A::f() {}\n"
+            "struct A { virtual void virt(); };\n"
+            "void A::virt() {}\n"
             "\n"
-            "struct B : public A { void $f(); };\n"
-            "void B::@f() {}\n"
+            "struct B : public A { void $virt(); };\n"
+            "void B::@virt() {}\n"
             ;
 
     TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
@@ -1367,13 +1366,13 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_notOnDefi
 void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_notOnNonPointerNonReference()
 {
     const QByteArray source =
-            "struct A { virtual void f(); };\n"
-            "void A::f() {}\n"
+            "struct A { virtual void virt(); };\n"
+            "void A::virt() {}\n"
             "\n"
-            "struct B : public A { void f(); };\n"
-            "void B::$f() {}\n"
+            "struct B : public A { void virt(); };\n"
+            "void B::$virt() {}\n"
             "\n"
-            "void client(B b) { b.@f(); }\n"
+            "void client(B b) { b.@virt(); }\n"
             ;
 
     TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
