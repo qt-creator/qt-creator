@@ -46,11 +46,12 @@ public:
     VirtualFunctionAssistProvider();
 
     struct Parameters {
-        Parameters() : startClass(0), function(0), openInNextSplit(false) {}
+        Parameters() : startClass(0), function(0), cursorPosition(-1), openInNextSplit(false) {}
 
         CPlusPlus::Class *startClass;
         CPlusPlus::Function *function;
         CPlusPlus::Snapshot snapshot;
+        int cursorPosition;
         bool openInNextSplit;
     };
 

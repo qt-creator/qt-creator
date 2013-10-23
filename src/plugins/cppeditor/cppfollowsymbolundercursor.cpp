@@ -560,6 +560,7 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
                 params.startClass = klass;
                 params.function = function;
                 params.snapshot = snapshot;
+                params.cursorPosition = cursor.position();
                 params.openInNextSplit = inNextSplit;
 
                 if (m_virtualFunctionAssistProvider->configure(params)) {

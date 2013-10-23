@@ -113,9 +113,8 @@ public:
         : m_params(params)
     {}
 
-    IAssistProposal *immediateProposal(const TextEditor::IAssistInterface *assistInterface)
+    IAssistProposal *immediateProposal(const TextEditor::IAssistInterface *)
     {
-        QTC_ASSERT(assistInterface, return 0);
         QTC_ASSERT(m_params.function, return 0);
 
         BasicProposalItem *hintItem = new VirtualFunctionProposalItem(CPPEditorWidget::Link());
@@ -126,14 +125,13 @@ public:
         QList<BasicProposalItem *> items;
         items << itemFromSymbol(maybeDefinitionFor(m_params.function));
         items << hintItem;
-        return new VirtualFunctionProposal(assistInterface->position(),
+        return new VirtualFunctionProposal(m_params.cursorPosition,
                                            new BasicProposalItemListModel(items),
                                            m_params.openInNextSplit);
     }
 
-    IAssistProposal *perform(const IAssistInterface *assistInterface)
+    IAssistProposal *perform(const IAssistInterface *)
     {
-        QTC_ASSERT(assistInterface, return 0);
         QTC_ASSERT(m_params.startClass, return 0);
         QTC_ASSERT(m_params.function, return 0);
         QTC_ASSERT(!m_params.snapshot.isEmpty(), return 0);
@@ -148,7 +146,7 @@ public:
             items << itemFromSymbol(maybeDefinitionFor(symbol));
         items.first()->setOrder(1000); // Ensure top position for function of static type
 
-        return new VirtualFunctionProposal(assistInterface->position(),
+        return new VirtualFunctionProposal(m_params.cursorPosition,
                                            new BasicProposalItemListModel(items),
                                            m_params.openInNextSplit);
     }
