@@ -830,6 +830,18 @@ void AndroidConfigurations::updateAutomaticKitList()
         if (k->isSdkProvided())
             continue;
 
+        // Update code for 3.0 beta, which shipped with a bug for the debugger settings
+        ProjectExplorer::ToolChain *tc =ToolChainKitInformation::toolChain(k);
+        if (tc && Debugger::DebuggerKitInformation::debuggerCommand(k) != tc->suggestedDebugger()) {
+            Debugger::DebuggerItem debugger;
+            debugger.setCommand(tc->suggestedDebugger());
+            debugger.setEngineType(Debugger::GdbEngineType);
+            debugger.setDisplayName(tr("Android Debugger for %1").arg(tc->displayName()));
+            debugger.setAutoDetected(true);
+            debugger.setAbi(tc->targetAbi());
+            QVariant id = Debugger::DebuggerItemManager::registerDebugger(debugger);
+            Debugger::DebuggerKitInformation::setDebugger(k, id);
+        }
         existingKits << k;
     }
 
