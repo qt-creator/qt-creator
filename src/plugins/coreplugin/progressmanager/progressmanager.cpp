@@ -72,7 +72,7 @@ using namespace Core::Internal;
     The progress indicator also allows the user to cancel the task.
 
     You get the single instance of this class via the
-    Core::ICore::progressManager() function.
+    ProgressManager::instance() function.
 
     \section1 Registering a task
     The ProgressManager API uses QtConcurrent as the basis for defining
@@ -149,9 +149,8 @@ using namespace Core::Internal;
     in a different thread, looks like this:
     \code
     QFuture<void> task = QtConcurrent::run(&ILocatorFilter::refresh, filters);
-    Core::FutureProgress *progress = Core::ICore::instance()
-            ->progressManager()->addTask(task, tr("Indexing"),
-                                         Locator::Constants::TASK_INDEX);
+    Core::FutureProgress *progress = Core::ProgressManager::addTask(task, tr("Indexing"),
+                                                                    Locator::Constants::TASK_INDEX);
     \endcode
     First, we tell QtConcurrent to start a thread which calls all the filters'
     refresh function. After that we register the returned QFuture object
@@ -166,9 +165,7 @@ using namespace Core::Internal;
     // We are already running in a different thread here
     QFutureInterface<void> *progressObject = new QFutureInterface<void>;
     progressObject->setProgressRange(0, MAX);
-    Core::ICore::progressManager()->addTask(
-        progressObject->future(),
-        tr("DoIt"), MYTASKTYPE);
+    Core::ProgressManager::addTask(progressObject->future(), tr("DoIt"), MYTASKTYPE);
     progressObject->reportStarted();
     // Do something
     ...
