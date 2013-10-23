@@ -55,11 +55,11 @@ Rectangle {
     }
 
     border.width: roundLeft || roundRight ? 1 : 0
-    border.color: roundLeft ? "#7f7f7f" : "#2e2e2e"
+    border.color: "#2e2e2e"
 
     Rectangle {
         anchors.fill: parent
-        visible: roundLeft
+        visible: roundLeft && !roundRight
         anchors.leftMargin: 10
         anchors.topMargin: 1
         anchors.bottomMargin: 1
@@ -70,7 +70,7 @@ Rectangle {
 
     Rectangle {
         anchors.fill: parent
-        visible: roundRight
+        visible: roundRight && !roundLeft
         anchors.rightMargin: 10
         anchors.topMargin: 1
         anchors.bottomMargin: 1
@@ -80,7 +80,7 @@ Rectangle {
     }
 
     Rectangle {
-        color: "#7f7f7f"
+        color: "#2e2e2e"
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
@@ -98,4 +98,5 @@ Rectangle {
         anchors.leftMargin: roundLeft ? 2 : 0
         anchors.rightMargin: roundRight ? 2 : 0
     }
+
 }
