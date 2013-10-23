@@ -31,7 +31,6 @@
 import QtQuick 2.1
 import QtQuick.Controls 1.1 as Controls
 import QtQuick.Controls.Styles 1.0
-import "Constants.js" as Constants
 
 Controls.TextField {
 
@@ -39,7 +38,7 @@ Controls.TextField {
     property variant backendValue
     property color borderColor: "#222"
     property color highlightColor: "orange"
-    property color textColor: "#eee"
+    property color textColor: colorLogic.textColor
 
     ExtendedFunctionButton {
         x: 2
@@ -48,42 +47,11 @@ Controls.TextField {
         visible: lineEdit.enabled
     }
 
-    onBackendValueChanged: {
-        innerObject.evaluate();
-    }
-
-    QtObject {
-        id: innerObject
-
-        property string valueFromBackend: lineEdit.backendValue.value;
-        property bool baseStateFlag: isBaseState;
-
+    ColorLogic {
+        id: colorLogic
+        backendValue: lineEdit.backendValue
         onValueFromBackendChanged: {
             lineEdit.text = valueFromBackend;
-            evaluate();
-        }
-
-        onBaseStateFlagChanged: {
-            evaluate();
-        }
-
-        function evaluate() {
-            print("evaluate")
-            if (lineEdit.backendValue === undefined)
-                return;
-
-            if (baseStateFlag) {
-                if (lineEdit.backendValue.isInModel)
-                    lineEdit.textColor = Constants.colorsChangedBaseText
-                else
-                    lineEdit.textColor = Constants.colorsDefaultText
-            } else {
-                if (lineEdit.backendValue.isInSubState)
-                    lineEdit.textColor = Constants.colorsChangedStateText
-                else
-                    lineEdit.textColor = Constants.colorsDefaultText
-            }
-
         }
     }
 
@@ -108,6 +76,7 @@ Controls.TextField {
         padding.top: 3
         padding.bottom: 1
         padding.left: 16
+        placeholderTextColor: "gray"
         background: Rectangle {
             implicitWidth: 100
             implicitHeight: 23

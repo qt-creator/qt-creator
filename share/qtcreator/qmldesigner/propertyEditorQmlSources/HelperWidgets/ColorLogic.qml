@@ -29,51 +29,54 @@
 
 import QtQuick 2.1
 import QtQuick.Controls 1.1 as Controls
-import QtQuick.Controls.Styles 1.1
+import QtQuick.Controls.Styles 1.0
+import "Constants.js" as Constants
 
-Controls.ComboBox {
-    id: comboBox
+QtObject {
+    id: innerObject
 
     property variant backendValue
-
-    property color textColor: colorLogic.textColor
+    property color textColor: Constants.colorsDefaultText
+    property variant valueFromBackend: backendValue.value;
+    property bool baseStateFlag: isBaseState;
+    property bool isInModel: backendValue.isInModel;
+    property bool isInSubState: backendValue.isInSubState;
 
     onBackendValueChanged: {
-        innerObject.evaluate();
+        evaluate();
     }
 
-    ColorLogic {
-        id: colorLogic
-        backendValue: comboBox.backendValue
-        onValueFromBackendChanged: {
-            comboBox.currentIndex = comboBox.find( comboBox.backendValue.valueToString);
-        }
+    onValueFromBackendChanged: {
+        evaluate();
     }
 
-    onCurrentTextChanged: {
-        if (backendValue === undefined)
+    onBaseStateFlagChanged: {
+        evaluate();
+    }
+
+    onIsInModelChanged: {
+        evaluate();
+    }
+
+    onIsInSubStateChanged: {
+        evaluate();
+    }
+
+    function evaluate() {
+        if (innerObject.backendValue === undefined)
             return;
 
-        if (backendValue.value !== currentText)
-            backendValue.value = currentText;
-    }
-
-    onFocusChanged: {
-        if (focus) {
-            transaction.start();
+        if (baseStateFlag) {
+            if (innerObject.backendValue.isInModel)
+                innerObject.textColor = Constants.colorsChangedBaseText
+            else
+                innerObject.textColor = Constants.colorsDefaultText
         } else {
-            transaction.end();
+            if (innerObject.backendValue.isInSubState)
+                innerObject.textColor = Constants.colorsChangedStateText
+            else
+                innerObject.textColor = Constants.colorsDefaultText
         }
-    }
 
-    style: CustomComboBoxStyle {
-        textColor: comboBox.textColor
-    }
-
-    ExtendedFunctionButton {
-        x: 2
-        y: 4
-        backendValue: comboBox.backendValue
-        visible: comboBox.enabled
     }
 }

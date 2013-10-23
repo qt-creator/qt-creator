@@ -30,14 +30,12 @@
 import QtQuick 2.1
 import QtQuick.Controls 1.1 as Controls
 import QtQuick.Controls.Styles 1.1
-import "Constants.js" as Constants
 
 Controls.SpinBox {
     id: spinBox
     property color borderColor: "#222"
     property color highlightColor: "orange"
-    property color textColor: Constants.colorsDefaultText
-
+    property color textColor: colorLogic.textColor
     property variant backendValue;
     prefix: "    "
 
@@ -52,37 +50,11 @@ Controls.SpinBox {
         innerObject.evaluate();
     }
 
-    QtObject {
-        id: innerObject
-
-        property int valueFromBackend: spinBox.backendValue.value;
-        property bool baseStateFlag: isBaseState;
-
+    ColorLogic {
+        id: colorLogic
+        backendValue: spinBox.backendValue
         onValueFromBackendChanged: {
             spinBox.value = valueFromBackend;
-            evaluate();
-        }
-
-        onBaseStateFlagChanged: {
-            evaluate();
-        }
-
-        function evaluate() {
-            if (backendValue === undefined)
-                return;
-
-            if (baseStateFlag) {
-                if (backendValue.isInModel)
-                    textColor = Constants.colorsChangedBaseText
-                else
-                    textColor = Constants.colorsDefaultText
-            } else {
-                if (backendValue.isInSubState)
-                    textColor = Constants.colorsChangedStateText
-                else
-                    textColor = Constants.colorsDefaultText
-            }
-
         }
     }
 
