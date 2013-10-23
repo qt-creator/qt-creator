@@ -137,6 +137,7 @@ Rectangle {
                             minimumValue: 0
                             maximumValue: 1
                             hasSlider: true
+                            stepSize: 0.1
                         }
                         Item {
                             Layout.fillWidth: true
