@@ -553,14 +553,18 @@ def qdump__QHashNode(d, value):
 
 def qHashIteratorHelper(d, value):
     typeName = str(value.type)
-    hashType = d.lookupType(typeName[0:typeName.rfind("::")])
+    hashTypeName = typeName[0:typeName.rfind("::")]
+    hashType = d.lookupType(hashTypeName)
     keyType = d.templateArgument(hashType, 0)
     valueType = d.templateArgument(hashType, 1)
     d.putNumChild(1)
     d.putEmptyValue()
     if d.isExpanded():
         with Children(d):
-            innerTypeName = "%sQHashNode<%s,%s>" % (d.ns, keyType, valueType)
+            # We need something like QHash<int, float>::iterator
+            # -> QHashNode<int, float> with 'proper' spacing,
+            # as space changes confuse LLDB.
+            innerTypeName = hashTypeName.replace("QHash", "QHashNode", 1)
             node = value["i"].cast(d.lookupType(innerTypeName).pointer())
             d.putSubItem("key", node["key"])
             d.putSubItem("value", node["value"])
