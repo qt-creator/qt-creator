@@ -1243,7 +1243,6 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_allOverri
             << QLatin1String("...searching overrides");
     const QStringList finalResults = QStringList()
             << QLatin1String("A::virt")
-            << QLatin1String("A::virt") // TODO: Double entry
             << QLatin1String("B::virt")
             << QLatin1String("C::virt")
             << QLatin1String("CD1::virt")
@@ -1283,7 +1282,6 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_possibleO
             << QLatin1String("...searching overrides");
     const QStringList finalResults = QStringList()
             << QLatin1String("B::virt")
-            << QLatin1String("B::virt") // Double entry
             << QLatin1String("C::virt")
             << QLatin1String("CD1::virt")
             << QLatin1String("CD2::virt");
@@ -1312,7 +1310,6 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_possibleO
             << QLatin1String("B::f")
             << QLatin1String("...searching overrides");
     const QStringList finalResults = QStringList()
-            << QLatin1String("B::f")
             << QLatin1String("B::f")
             << QLatin1String("D::f");
 

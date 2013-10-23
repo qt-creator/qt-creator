@@ -263,9 +263,6 @@ QList<Symbol *> FunctionHelper::overrides(Class *startClass, Function *function,
     const Name *referenceName = function->name();
     QTC_ASSERT(referenceName && referenceType.isValid(), return result);
 
-    // Add itself
-    result << function;
-
     // Find overrides
     CppEditor::Internal::CppClass cppClass = CppClass(startClass);
     cppClass.lookupDerived(startClass, snapshot);
