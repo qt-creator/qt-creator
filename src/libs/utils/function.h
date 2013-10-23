@@ -39,9 +39,9 @@
 #  ifdef __GNUC__
 #    include <tr1/functional>
 #  endif
-namespace Utils { using std::tr1::function; }
+namespace Utils { using std::tr1::function; using std::tr1::ref; using std::tr1::cref; }
 #else
-namespace Utils { using std::function; }
+namespace Utils { using std::function; using std::ref; using std::cref; }
 #endif
 
 #endif // QTC_FUNCTION_H
