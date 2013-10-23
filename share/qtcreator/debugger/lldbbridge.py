@@ -321,6 +321,7 @@ class Dumper(DumperBase):
 
         self.charType_ = None
         self.intType_ = None
+        self.int64Type_ = None
         self.sizetType_ = None
         self.charPtrType_ = None
         self.voidPtrType_ = None
@@ -499,6 +500,11 @@ class Dumper(DumperBase):
              self.intType_ = self.target.FindFirstType('int')
         return self.intType_
 
+    def int64Type(self):
+        if self.int64Type_ is None:
+             self.int64Type_ = self.target.FindFirstType('long long int')
+        return self.int64Type_
+
     def charType(self):
         if self.charType_ is None:
              self.charType_ = self.target.FindFirstType('char')
@@ -533,6 +539,9 @@ class Dumper(DumperBase):
 
     def extractInt(self, address):
         return int(self.createValue(address, self.intType()))
+
+    def extractInt64(self, address):
+        return int(self.createValue(address, self.int64Type()))
 
     def extractByte(self, address):
         return int(self.createValue(address, self.charType())) & 0xFF
