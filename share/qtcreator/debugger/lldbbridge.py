@@ -962,6 +962,11 @@ class Dumper(DumperBase):
             qdump____c_style_array__(self, value)
             return
 
+        # Vectors like char __attribute__ ((vector_size (8)))
+        if typeClass == lldb.eTypeClassVector:
+            qdump____c_style_array__(self, value)
+            return
+
         # References
         if value.GetType().IsReferenceType():
             origType = value.GetTypeName();
