@@ -607,6 +607,9 @@ class Dumper(DumperBase):
             self.currentValuePriority = priority
             self.currentValueEncoding = None
 
+    def putSimpleValue(self, value, encoding = None, priority = 0):
+        self.putValue(value.GetValue(), encoding, priority)
+
     def putValue(self, value, encoding = None, priority = 0):
         # Higher priority values override lower ones.
         if priority >= self.currentValuePriority:

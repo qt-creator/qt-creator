@@ -1970,16 +1970,15 @@ def qdump__QWeakPointer(d, value):
     d.check(strongref <= weakref)
     d.check(weakref <= 10*1000*1000)
 
-    if d.isSimpleType(val.dereference().type):
-        d.putNumChild(3)
-        d.putItem(val.dereference())
+    innerType = d.templateArgument(value.type, 0)
+    if d.isSimpleType(innerType):
+        d.putSimpleValue(val.dereference())
     else:
         d.putEmptyValue()
 
     d.putNumChild(3)
     if d.isExpanded():
         with Children(d):
-            innerType = d.templateArgument(value.type, 0)
             d.putSubItem("data", val.dereference().cast(innerType))
             d.putIntItem("weakref", weakref)
             d.putIntItem("strongref", strongref)

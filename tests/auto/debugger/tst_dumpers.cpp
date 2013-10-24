@@ -2395,11 +2395,11 @@ void tst_Dumpers::dumper_data()
                     "QWeakPointer<int> ptr3 = ptr;\n"
                     "unused(&ptr, &ptr2, &ptr3);\n")
                % CoreProfile()
-               % Check("iptr", "", "@QSharedPointer<int>")
+               % Check("iptr", "43", "@QSharedPointer<int>")
                % Check("iptr.data", "43", "int")
                % Check("iptr.weakref", "4", "int")
                % Check("iptr.strongref", "1", "int")
-               % Check("ptr3", "43", "int")
+               % Check("ptr3", "43", "@QWeakPointer<int>")
                % Check("ptr3.data", "43", "int");
 
     QTest::newRow("QSharedPointer4")
