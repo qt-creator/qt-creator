@@ -1702,7 +1702,11 @@ def doit():
         for reader in readable:
             if reader == sys.stdin:
                 line = sys.stdin.readline()
-                db.execute(convertHash(json.loads(line)))
+                try:
+                    db.execute(convertHash(json.loads(line)))
+                except:
+                    warn("EXCEPTION CAUGHT: %s" % sys.exc_info()[1])
+                    pass
 
 
 # Used in dumper auto test.
