@@ -158,6 +158,8 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent)
             this, SLOT(slotOpenItem(QModelIndex)));
     connect(m_filterHiddenFilesAction, SIGNAL(toggled(bool)), this, SLOT(setHiddenFilesFilter(bool)));
     connect(m_toggleSync, SIGNAL(clicked(bool)), this, SLOT(toggleAutoSynchronization()));
+    connect(m_filterModel, SIGNAL(layoutChanged()),
+            this, SLOT(ensureCurrentIndex()));
 }
 
 void FolderNavigationWidget::toggleAutoSynchronization()
@@ -225,10 +227,17 @@ bool FolderNavigationWidget::setCurrentDirectory(const QString &directory)
         setCurrentTitle(QString(), QString());
         return false;
     }
-    m_listView->setRootIndex(m_filterModel->mapFromSource(index));
+    QModelIndex oldRootIndex = m_listView->rootIndex();
+    QModelIndex newRootIndex = m_filterModel->mapFromSource(index);
+    m_listView->setRootIndex(newRootIndex);
     const QDir current(QDir::cleanPath(newDirectory));
     setCurrentTitle(current.dirName(),
                     QDir::toNativeSeparators(current.absolutePath()));
+    if (oldRootIndex.parent() == newRootIndex) { // cdUp, so select the old directory
+        m_listView->setCurrentIndex(oldRootIndex);
+        m_listView->scrollTo(oldRootIndex, QAbstractItemView::EnsureVisible);
+    }
+
     return !directory.isEmpty();
 }
 
@@ -363,6 +372,17 @@ void FolderNavigationWidget::setHiddenFilesFilter(bool filter)
 bool FolderNavigationWidget::hiddenFilesFilter() const
 {
     return m_filterHiddenFilesAction->isChecked();
+}
+
+void FolderNavigationWidget::ensureCurrentIndex()
+{
+    QModelIndex index = m_listView->currentIndex();
+    if (!index.isValid()
+            || index.parent() != m_listView->rootIndex()) {
+        index = m_listView->rootIndex().child(0, 0);
+        m_listView->setCurrentIndex(index);
+    }
+    m_listView->scrollTo(index);
 }
 
 // --------------------FolderNavigationWidgetFactory

@@ -70,6 +70,7 @@ private slots:
     void setCurrentFile(const QString &filePath);
     void slotOpenItem(const QModelIndex &viewIndex);
     void setHiddenFilesFilter(bool filter);
+    void ensureCurrentIndex();
 
 protected:
     virtual void contextMenuEvent(QContextMenuEvent *ev);
