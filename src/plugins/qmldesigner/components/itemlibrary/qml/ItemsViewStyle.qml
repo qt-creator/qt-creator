@@ -61,7 +61,7 @@ Item {
     property int textWidth: 95
     property int textHeight: 15
 
-    property int cellHorizontalMargin: 5
+    property int cellHorizontalMargin: 4
     property int cellVerticalSpacing: 7
     property int cellVerticalMargin: 10
 
