@@ -149,6 +149,7 @@ CodeAssistantPrivate::CodeAssistantPrivate(CodeAssistant *assistant)
     , m_completionProvider(0)
     , m_requestRunner(0)
     , m_requestProvider(0)
+    , m_assistKind(TextEditor::Completion)
     , m_proposalWidget(0)
     , m_receivedContentWhileWaiting(false)
     , m_settings(TextEditorSettings::completionSettings())
@@ -223,16 +224,20 @@ void CodeAssistantPrivate::process()
 
     stopAutomaticProposalTimer();
 
-    if (m_settings.m_completionTrigger != ManualCompletion) {
-        if (CompletionAssistProvider *provider = identifyActivationSequence()) {
-            if (isWaitingForProposal())
-                cancelCurrentRequest();
-            requestProposal(ActivationCharacter, Completion, provider);
-            return;
+    if (m_assistKind == TextEditor::Completion) {
+        if (m_settings.m_completionTrigger != ManualCompletion) {
+            if (CompletionAssistProvider *provider = identifyActivationSequence()) {
+                if (isWaitingForProposal())
+                    cancelCurrentRequest();
+                requestProposal(ActivationCharacter, Completion, provider);
+                return;
+            }
         }
-    }
 
-    startAutomaticProposalTimer();
+        startAutomaticProposalTimer();
+    } else {
+        m_assistKind = TextEditor::Completion;
+    }
 }
 
 void CodeAssistantPrivate::requestProposal(AssistReason reason,
