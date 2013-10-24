@@ -116,7 +116,7 @@ def qdump__std__deque(d, value):
             for i in d.childRange():
                 d.putSubItem(i, pcur.dereference())
                 pcur += 1
-                if pcur == plast:
+                if toInteger(pcur) == toInteger(plast):
                     newnode = pnode + 1
                     pnode = newnode
                     pfirst = newnode.dereference()
