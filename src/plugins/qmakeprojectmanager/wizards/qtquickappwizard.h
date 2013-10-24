@@ -40,18 +40,8 @@ class QtQuickAppWizard : public AbstractMobileAppWizard
     Q_OBJECT
 
 public:
-    enum Kind {
-        QtQuick1_1 = 0,
-        QtQuick2_0 = 1,
-        ImportQml = 3,
-        ImportQml2 = 4,
-        QtQuick_Controls_1_0 = 5
-    };
-
     QtQuickAppWizard();
     ~QtQuickAppWizard();
-
-    static void createInstances(ExtensionSystem::IPlugin *plugin);
 
 protected:
     QString fileToOpenPostGeneration() const;
@@ -64,8 +54,6 @@ private:
     virtual void projectPathChanged(const QString &path) const;
     virtual void prepareGenerateFiles(const QWizard *wizard,
         QString *errorMessage) const;
-    void setQtQuickKind(Kind kind);
-    Kind qtQuickKind() const;
 
     class QtQuickAppWizardPrivate *d;
 };

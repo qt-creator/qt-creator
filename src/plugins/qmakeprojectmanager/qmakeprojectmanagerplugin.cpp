@@ -126,7 +126,7 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     addAutoReleasedObject(new SubdirsProjectWizard);
     addAutoReleasedObject(new GuiAppWizard);
     addAutoReleasedObject(new ConsoleAppWizard);
-    QtQuickAppWizard::createInstances(this); //creates several instances with different options
+    addAutoReleasedObject(new QtQuickAppWizard);
     addAutoReleasedObject(new Html5AppWizard);
     addAutoReleasedObject(new LibraryWizard);
     addAutoReleasedObject(new TestWizard);
