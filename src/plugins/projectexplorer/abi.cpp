@@ -315,14 +315,15 @@ Abi::Abi(const Architecture &a, const OS &o,
             m_osFlavor = UnknownFlavor;
         break;
     case ProjectExplorer::Abi::BsdOS:
-        m_osFlavor = FreeBsdFlavor;
+        if (m_osFlavor < FreeBsdFlavor || m_osFlavor > OpenBsdFlavor)
+            m_osFlavor = UnknownFlavor;
         break;
     case ProjectExplorer::Abi::MacOS:
         if (m_osFlavor < GenericMacFlavor || m_osFlavor > GenericMacFlavor)
             m_osFlavor = UnknownFlavor;
         break;
     case ProjectExplorer::Abi::UnixOS:
-        if (m_osFlavor < GenericUnixFlavor || m_osFlavor > GenericUnixFlavor)
+        if (m_osFlavor < GenericUnixFlavor || m_osFlavor > SolarisUnixFlavor)
             m_osFlavor = UnknownFlavor;
         break;
     case ProjectExplorer::Abi::WindowsOS:
