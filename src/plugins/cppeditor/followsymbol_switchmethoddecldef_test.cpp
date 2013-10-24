@@ -77,6 +77,7 @@ inline bool operator==(const OverrideItem &lhs, const OverrideItem &rhs)
     return lhs.text == rhs.text && lhs.line == rhs.line;
 }
 
+QT_BEGIN_NAMESPACE
 namespace QTest {
 template<> char *toString(const OverrideItem &data)
 {
@@ -86,6 +87,7 @@ template<> char *toString(const OverrideItem &data)
     return qstrdup(ba.data());
 }
 }
+QT_END_NAMESPACE
 
 namespace {
 
