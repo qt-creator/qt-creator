@@ -322,8 +322,7 @@ def createNewNonQtProject(workingDir=None, projectName=None, target=Targets.DESK
 # parameter target can be an OR'd value of Targets
 # parameter availableTargets should be the result of __createProjectOrFileSelectType__()
 #           or use None as a fallback
-def __chooseTargets__(targets=Targets.DESKTOP_474_GCC, availableTargets=None,
-                      isMaddeDisabled=True):
+def __chooseTargets__(targets=Targets.DESKTOP_474_GCC, availableTargets=None):
     if availableTargets != None:
         available = availableTargets
     else:
@@ -333,10 +332,9 @@ def __chooseTargets__(targets=Targets.DESKTOP_474_GCC, availableTargets=None,
         if platform.system() in ('Windows', 'Microsoft'):
             available.remove(Targets.EMBEDDED_LINUX)
             available.append(Targets.DESKTOP_480_MSVC2010)
-    if isMaddeDisabled:
-        for target in filter(lambda x: x in available,
-                             (Targets.MAEMO5, Targets.HARMATTAN)):
-            available.remove(target)
+    for target in filter(lambda x: x in available,
+                         (Targets.MAEMO5, Targets.HARMATTAN)):
+        available.remove(target)
     checkedTargets = []
     for current in available:
         mustCheck = targets & current == current
