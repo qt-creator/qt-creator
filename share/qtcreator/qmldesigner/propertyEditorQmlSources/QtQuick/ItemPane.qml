@@ -35,7 +35,7 @@ Rectangle {
     id: itemPane
     width: 320
     height: 400
-    color: "#404040"
+    color: "#4f4f4f"
 
     ScrollView {
         anchors.fill: parent
