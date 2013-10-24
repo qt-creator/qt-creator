@@ -221,14 +221,13 @@ def qdump__std____cxx1998__map(d, value):
     qdump__std__map(d, value)
 
 def stdTreeIteratorHelper(d, value):
-    pnode = value["_M_node"]
-    node = pnode.dereference()
+    node = value["_M_node"].dereference()
     d.putNumChild(1)
     d.putEmptyValue()
     if d.isExpanded():
-        dataType = d.templateArgument(value.type, 0)
-        nodeType = d.lookupType("std::_Rb_tree_node<%s>" % dataType)
-        data = pnode.cast(nodeType.pointer()).dereference()["_M_value_field"]
+        nodeTypeName = str(value.type).replace("_Rb_tree_iterator", "_Rb_tree_node", 1)
+        nodeType = d.lookupType(nodeTypeName)
+        data = node.cast(nodeType)["_M_value_field"]
         with Children(d):
             try:
                 d.putSubItem("first", data["first"])
