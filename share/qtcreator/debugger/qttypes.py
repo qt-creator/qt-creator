@@ -235,8 +235,8 @@ def qdump__QDateTime(d, value):
     # This relies on the Qt4/Qt5 internal structure layout:
     # {sharedref(4), ...
     base = d.dereferenceValue(value)
-    dateBase = base + d.ptrSize() # Only QAtomicInt, but will be padded.
     if qtVersion >= 0x050200:
+        dateBase = base + d.ptrSize() # Only QAtomicInt, but will be padded.
         ms = d.extractInt64(dateBase)
         offset = d.extractInt(dateBase + 12)
         isValid = ms > 0
@@ -248,11 +248,14 @@ def qdump__QDateTime(d, value):
         # QDateTimePrivate:
         # - QAtomicInt ref;    (padded on 64 bit)
         # -     [QDate date;]
-        # -      -  uint jd in Qt 4,  qint64 in Qt 5.0 and Qt 5.2; padded on 64 bit
+        # -      -  uint jd in Qt 4,  qint64 in Qt 5.0 and Qt 5.1; padded on 64 bit
         # -     [QTime time;]
         # -      -  uint mds;
         # -  Spec spec;
-        dateSize = 4 if qtVersion < 0x050000 and d.is32bit() else 8
+        dateSize = 8 if qtVersion >= 0x050000 else 4 # Qt5: qint64, Qt4 uint
+        # 4 byte padding after 4 byte QAtomicInt if we are on 64 bit and QDate is 64 bit
+        refPlusPadding = 8 if qtVersion >= 0x050000 and not d.is32bit() else 4
+        dateBase = base + refPlusPadding
         timeBase = dateBase + dateSize
         mds = d.extractInt(timeBase)
         isValid = mds > 0
