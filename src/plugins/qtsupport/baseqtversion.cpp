@@ -1475,16 +1475,6 @@ bool BaseQtVersion::isQmlDebuggingSupported(QString *reason) const
     if (!needsQmlDebuggingLibrary() || hasQmlDebuggingLibrary())
         return true;
 
-    if (!qtAbis().isEmpty()) {
-        Abi abi = qtAbis().first();
-        if (abi.osFlavor() == Abi::MaemoLinuxFlavor) {
-            if (reason)
-                reason->clear();
-                // *reason = QCoreApplication::translate("BaseQtVersion", "Qml debugging on device not yet supported.");
-            return false;
-        }
-    }
-
     if (!isValid()) {
         if (reason)
             *reason = QCoreApplication::translate("BaseQtVersion", "Invalid Qt version.");

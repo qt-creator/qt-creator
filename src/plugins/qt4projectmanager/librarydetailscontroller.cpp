@@ -103,7 +103,6 @@ LibraryDetailsController::LibraryDetailsController(
             }
         }
     }
-
     setPlatformsVisible(true);
     setLinkageGroupVisible(true);
     setMacLibraryGroupVisible(true);

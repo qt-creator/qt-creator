@@ -73,8 +73,6 @@ public:
         // Linux
         GenericLinuxFlavor,
         AndroidLinuxFlavor,
-        HarmattanLinuxFlavor,
-        MaemoLinuxFlavor,
 
         // Mac
         GenericMacFlavor,
