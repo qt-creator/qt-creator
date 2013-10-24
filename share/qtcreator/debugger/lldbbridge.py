@@ -1699,32 +1699,7 @@ def doit():
         for reader in readable:
             if reader == sys.stdin:
                 line = sys.stdin.readline()
-                #warn("READING LINE '%s'" % line)
-                if line.startswith("db "):
-                    line = line.replace("'", '"')[3:]
-                    db.execute(convertHash(json.loads(line)))
-
-
-def testit1():
-
-    db = Dumper()
-
-    db.setupInferior({'cmd':'setupInferior','executable':sys.argv[2],'token':1})
-    db.handleBreakpoints({'cmd':'handleBreakpoints','bkpts':[{'operation':'add',
-        'modelid':'1','type':2,'ignorecount':0,'condition':'','function':'main',
-        'oneshot':0,'enabled':1,'file':'','line':0}]})
-    db.runEngine({'cmd':'runEngine','token':4})
-
-    while True:
-        readable, _, _ = select.select([sys.stdin], [], [])
-        for reader in readable:
-            if reader == sys.stdin:
-                line = sys.stdin.readline().strip()
-                #warn("READING LINE '%s'" % line)
-                if line.startswith("db "):
-                    db.execute(eval(line[3:]))
-                else:
-                    db.executeDebuggerCommand({'command':line})
+                db.execute(convertHash(json.loads(line)))
 
 
 # Used in dumper auto test.
