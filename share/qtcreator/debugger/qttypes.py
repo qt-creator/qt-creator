@@ -1482,6 +1482,7 @@ def qdump__QRegion(d, value):
                 d.putIntItem("numRects", n)
                 d.putSubItem("extents", d.createValue(pp + 2 * v, rectType))
                 d.putSubItem("innerRect", d.createValue(pp + 2 * v + rectType.sizeof, rectType))
+                d.putIntItem("innerArea", d.extractInt(pp + 2 * v + 2 * rectType.sizeof))
                 # FIXME
                 try:
                     # Can fail if QVector<QRect> debuginfo is missing.
