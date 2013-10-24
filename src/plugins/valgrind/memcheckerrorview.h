@@ -54,6 +54,8 @@ public:
     QString defaultSuppressionFile() const;
     ValgrindBaseSettings *settings() const { return m_settings; }
 
+    void updateGeometries();
+
 public slots:
     void settingsChanged(ValgrindBaseSettings *settings);
     void goNext();
