@@ -475,9 +475,17 @@ void OutputPaneManager::showPage(int idx, int flags)
         ph = OutputPanePlaceHolder::getCurrent();
     }
 
-    if (ph) {
+    bool onlyFlash = !ph
+            || (m_panes.at(currentIndex())->hasFocus()
+                && !(flags & IOutputPane::WithFocus)
+                && idx != currentIndex());
+
+    if (onlyFlash) {
+        m_buttons.value(idx)->flash();
+    } else {
         // make the page visible
         ph->setVisible(true);
+
         ensurePageVisible(idx);
         IOutputPane *out = m_panes.at(idx);
         out->visibilityChanged(true);
@@ -489,8 +497,6 @@ void OutputPaneManager::showPage(int idx, int flags)
         ph->setDefaultHeight(m_outputPaneHeight);
         if (flags & IOutputPane::EnsureSizeHint)
             ph->ensureSizeHintAsMinimum();
-    } else {
-        m_buttons.value(idx)->flash();
     }
 }
 
