@@ -115,7 +115,7 @@ void RemoteLinuxAnalyzeSupport::handleRemoteSetupRequested()
 {
     QTC_ASSERT(state() == Inactive, return);
 
-    showMessage(tr("Checking available ports...\n"), Utils::NormalMessageFormat);
+    showMessage(tr("Checking available ports...") + QLatin1Char('\n'), Utils::NormalMessageFormat);
     AbstractRemoteLinuxRunSupport::handleRemoteSetupRequested();
 }
 

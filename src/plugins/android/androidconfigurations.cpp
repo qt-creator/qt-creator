@@ -457,7 +457,12 @@ QVector<AndroidDeviceInfo> AndroidConfigurations::connectedDevices(QString *erro
         return devices;
     }
     QList<QByteArray> adbDevs = adbProc.readAll().trimmed().split('\n');
-    adbDevs.removeFirst();
+    if (adbDevs.empty())
+        return devices;
+
+    while (adbDevs.first().startsWith("* daemon"))
+        adbDevs.removeFirst(); // remove the daemon logs
+    adbDevs.removeFirst(); // remove "List of devices attached" header line
 
     // workaround for '????????????' serial numbers:
     // can use "adb -d" when only one usb device attached
@@ -578,7 +583,13 @@ QVector<AndroidDeviceInfo> AndroidConfigurations::androidVirtualDevices() const
         return devices;
     }
     QList<QByteArray> avds = proc.readAll().trimmed().split('\n');
-    avds.removeFirst();
+    if (avds.empty())
+        return devices;
+
+    while (avds.first().startsWith("* daemon"))
+        avds.removeFirst(); // remove the daemon logs
+    avds.removeFirst(); // remove "List of devices attached" header line
+
     AndroidDeviceInfo dev;
     for (int i = 0; i < avds.size(); i++) {
         QString line = QLatin1String(avds[i]);
@@ -610,7 +621,7 @@ QVector<AndroidDeviceInfo> AndroidConfigurations::androidVirtualDevices() const
 
 QString AndroidConfigurations::startAVD(const QString &name, int apiLevel, QString cpuAbi) const
 {
-    if (startAVDAsync(name))
+    if (findAvd(apiLevel, cpuAbi) || startAVDAsync(name))
         return waitForAvd(apiLevel, cpuAbi);
     return QString();
 }
@@ -630,6 +641,21 @@ bool AndroidConfigurations::startAVDAsync(const QString &avdName) const
         return false;
     }
     return true;
+}
+
+bool AndroidConfigurations::findAvd(int apiLevel, const QString &cpuAbi) const
+{
+    QVector<AndroidDeviceInfo> devices = connectedDevices();
+    foreach (AndroidDeviceInfo device, devices) {
+        if (!device.serialNumber.startsWith(QLatin1String("emulator")))
+            continue;
+        if (!device.cpuAbi.contains(cpuAbi))
+            continue;
+        if (device.sdk != apiLevel)
+            continue;
+        return true;
+    }
+    return false;
 }
 
 QString AndroidConfigurations::waitForAvd(int apiLevel, const QString &cpuAbi) const
@@ -804,6 +830,18 @@ void AndroidConfigurations::updateAutomaticKitList()
         if (k->isSdkProvided())
             continue;
 
+        // Update code for 3.0 beta, which shipped with a bug for the debugger settings
+        ProjectExplorer::ToolChain *tc =ToolChainKitInformation::toolChain(k);
+        if (tc && Debugger::DebuggerKitInformation::debuggerCommand(k) != tc->suggestedDebugger()) {
+            Debugger::DebuggerItem debugger;
+            debugger.setCommand(tc->suggestedDebugger());
+            debugger.setEngineType(Debugger::GdbEngineType);
+            debugger.setDisplayName(tr("Android Debugger for %1").arg(tc->displayName()));
+            debugger.setAutoDetected(true);
+            debugger.setAbi(tc->targetAbi());
+            QVariant id = Debugger::DebuggerItemManager::registerDebugger(debugger);
+            Debugger::DebuggerKitInformation::setDebugger(k, id);
+        }
         existingKits << k;
     }
 
@@ -841,7 +879,8 @@ void AndroidConfigurations::updateAutomaticKitList()
             debugger.setDisplayName(tr("Android Debugger for %1").arg(tc->displayName()));
             debugger.setAutoDetected(true);
             debugger.setAbi(tc->targetAbi());
-            Debugger::DebuggerKitInformation::setDebugger(newKit, debugger);
+            QVariant id = Debugger::DebuggerItemManager::registerDebugger(debugger);
+            Debugger::DebuggerKitInformation::setDebugger(newKit, id);
 
             AndroidGdbServerKitInformation::setGdbSever(newKit, tc->suggestedGdbServer());
             newKit->makeSticky();

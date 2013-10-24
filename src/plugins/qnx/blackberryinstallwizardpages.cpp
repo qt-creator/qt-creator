@@ -385,9 +385,9 @@ void BlackBerryInstallWizardProcessPage::initializePage()
             }
         }
 
-        m_ui->label->setText(tr("Uninstalling target:\n") + m_data.target);
+        m_ui->label->setText(tr("Uninstalling target:") + QLatin1Char('\n') + m_data.target);
     } else {
-        m_ui->label->setText(tr("Installing target:\n") + m_data.target);
+        m_ui->label->setText(tr("Installing target:") + QLatin1Char('\n') + m_data.target);
     }
     // m_targetProcess could be running
     if (m_targetProcess->state() == QProcess::Running) {

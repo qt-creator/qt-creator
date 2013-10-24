@@ -115,6 +115,8 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
     connect(&m_parsingDelay, SIGNAL(timeout()), this, SLOT(parseCurrentBuildConfiguration()));
 
     updateDocuments(QSet<QString>() << fileName);
+
+    // NOTE: QbsProjectNode does not use this as a parent!
     m_rootProjectNode = new QbsProjectNode(this); // needs documents to be initialized!
 }
 
@@ -126,6 +128,12 @@ QbsProject::~QbsProject()
         m_qbsSetupProjectJob->cancel();
         delete m_qbsSetupProjectJob;
     }
+
+    // Deleting the root node triggers a few things, make sure rootProjectNode
+    // returns 0 already
+    QbsProjectNode *root = m_rootProjectNode;
+    m_rootProjectNode = 0;
+    delete root;
 }
 
 QString QbsProject::displayName() const

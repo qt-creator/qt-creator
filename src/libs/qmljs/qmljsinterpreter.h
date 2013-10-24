@@ -32,6 +32,7 @@
 
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljs_global.h>
+#include <qmljs/qmljsconstants.h>
 
 #include <QFileInfoList>
 #include <QList>
@@ -39,6 +40,7 @@
 #include <QHash>
 #include <QSet>
 #include <QMutex>
+#include <QSharedPointer>
 
 namespace QmlJS {
 
@@ -866,17 +868,6 @@ public:
 class QMLJS_EXPORT ImportInfo
 {
 public:
-    enum Type {
-        InvalidImport,
-        ImplicitDirectoryImport,
-        LibraryImport,
-        FileImport,
-        DirectoryImport,
-        QrcFileImport,
-        QrcDirectoryImport,
-        UnknownFileImport // refers a file/directory that wasn't found
-    };
-
     ImportInfo();
 
     static ImportInfo moduleImport(QString uri, LanguageUtils::ComponentVersion version,
@@ -888,7 +879,7 @@ public:
     static ImportInfo implicitDirectoryImport(const QString &directory);
 
     bool isValid() const;
-    Type type() const;
+    ImportType::Enum type() const;
 
     // LibraryImport: uri with ',' separator
     // Other: non-absolute path
@@ -905,7 +896,7 @@ public:
     AST::UiImport *ast() const;
 
 private:
-    Type _type;
+    ImportType::Enum _type;
     LanguageUtils::ComponentVersion _version;
     QString _name;
     QString _path;
@@ -916,6 +907,7 @@ private:
 class QMLJS_EXPORT Import {
 public:
     Import();
+    Import(const Import &other);
 
     // const!
     ObjectValue *object;
@@ -924,6 +916,7 @@ public:
     QString libraryPath;
     // whether the import succeeded
     bool valid;
+    mutable bool used;
 };
 
 class Imports;

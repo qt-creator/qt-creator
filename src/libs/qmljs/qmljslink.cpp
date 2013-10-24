@@ -244,16 +244,16 @@ void LinkPrivate::populateImportedTypes(Imports *imports, Document::Ptr doc)
 
         if (!import.object) {
             switch (info.type()) {
-            case ImportInfo::FileImport:
-            case ImportInfo::DirectoryImport:
-            case ImportInfo::QrcFileImport:
-            case ImportInfo::QrcDirectoryImport:
+            case ImportType::File:
+            case ImportType::Directory:
+            case ImportType::QrcFile:
+            case ImportType::QrcDirectory:
                 import = importFileOrDirectory(doc, info);
                 break;
-            case ImportInfo::LibraryImport:
+            case ImportType::Library:
                 import = importNonFile(doc, info);
                 break;
-            case ImportInfo::UnknownFileImport:
+            case ImportType::UnknownFile:
                 imports->setImportFailed();
                 if (info.ast()) {
                     error(doc, info.ast()->fileNameToken,
@@ -290,8 +290,8 @@ Import LinkPrivate::importFileOrDirectory(Document::Ptr doc, const ImportInfo &i
 
     QString path = importInfo.path();
 
-    if (importInfo.type() == ImportInfo::DirectoryImport
-            || importInfo.type() == ImportInfo::ImplicitDirectoryImport) {
+    if (importInfo.type() == ImportType::Directory
+            || importInfo.type() == ImportType::ImplicitDirectory) {
         import.object = new ObjectValue(valueOwner);
 
         importLibrary(doc, path, &import);
@@ -303,11 +303,11 @@ Import LinkPrivate::importFileOrDirectory(Document::Ptr doc, const ImportInfo &i
                 import.object->setMember(targetName, importedDoc->bind()->rootObjectValue());
             }
         }
-    } else if (importInfo.type() == ImportInfo::FileImport) {
+    } else if (importInfo.type() == ImportType::File) {
         Document::Ptr importedDoc = snapshot.document(path);
         if (importedDoc)
             import.object = importedDoc->bind()->rootObjectValue();
-    } else if (importInfo.type() == ImportInfo::QrcFileImport) {
+    } else if (importInfo.type() == ImportType::QrcFile) {
         QLocale locale;
         QStringList filePaths = ModelManagerInterface::instance()
                 ->filesAtQrcPath(path, &locale, 0, ModelManagerInterface::ActiveQrcResources);
@@ -319,7 +319,7 @@ Import LinkPrivate::importFileOrDirectory(Document::Ptr doc, const ImportInfo &i
             if (importedDoc)
                 import.object = importedDoc->bind()->rootObjectValue();
         }
-    } else if (importInfo.type() == ImportInfo::QrcDirectoryImport){
+    } else if (importInfo.type() == ImportType::QrcDirectory){
         import.object = new ObjectValue(valueOwner);
 
         importLibrary(doc, path, &import);
@@ -454,7 +454,7 @@ bool LinkPrivate::importLibrary(Document::Ptr doc,
         if (libraryInfo.pluginTypeInfoStatus() == LibraryInfo::NoTypeInfo) {
             ModelManagerInterface *modelManager = ModelManagerInterface::instance();
             if (modelManager) {
-                if (importInfo.type() == ImportInfo::LibraryImport) {
+                if (importInfo.type() == ImportType::Library) {
                     if (version.isValid()) {
                         const QString uri = importInfo.name();
                         modelManager->loadPluginTypes(
@@ -510,12 +510,12 @@ bool LinkPrivate::importLibrary(Document::Ptr doc,
 
 void LinkPrivate::error(const Document::Ptr &doc, const AST::SourceLocation &loc, const QString &message)
 {
-    appendDiagnostic(doc, DiagnosticMessage(DiagnosticMessage::Error, loc, message));
+    appendDiagnostic(doc, DiagnosticMessage(Severity::Error, loc, message));
 }
 
 void LinkPrivate::warning(const Document::Ptr &doc, const AST::SourceLocation &loc, const QString &message)
 {
-    appendDiagnostic(doc, DiagnosticMessage(DiagnosticMessage::Warning, loc, message));
+    appendDiagnostic(doc, DiagnosticMessage(Severity::Warning, loc, message));
 }
 
 void LinkPrivate::appendDiagnostic(const Document::Ptr &doc, const DiagnosticMessage &message)

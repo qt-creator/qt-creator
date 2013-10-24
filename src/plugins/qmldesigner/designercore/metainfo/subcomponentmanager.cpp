@@ -91,7 +91,7 @@ static inline bool checkIfDerivedFromItem(const QString &fileName)
 
     QmlJS::Document::MutablePtr document =
             QmlJS::Document::create(fileName.isEmpty() ?
-                                        QLatin1String("<internal>") : fileName, QmlJS::Document::QmlLanguage);
+                                        QLatin1String("<internal>") : fileName, QmlJS::Language::Qml);
     document->setSource(source);
     document->parseQml();
 

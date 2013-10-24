@@ -321,6 +321,7 @@ class Dumper(DumperBase):
 
         self.charType_ = None
         self.intType_ = None
+        self.int64Type_ = None
         self.sizetType_ = None
         self.charPtrType_ = None
         self.voidPtrType_ = None
@@ -412,6 +413,11 @@ class Dumper(DumperBase):
         #warn("  -> %s" % result)
         return result
 
+    def parseAndEvaluate(self, expr):
+        thread = self.currentThread()
+        frame = thread.GetFrameAtIndex(0)
+        return frame.EvaluateExpression(expr)
+
     def call(self, value, func, *args):
         return self.call2(value, func, args)
 
@@ -499,6 +505,11 @@ class Dumper(DumperBase):
              self.intType_ = self.target.FindFirstType('int')
         return self.intType_
 
+    def int64Type(self):
+        if self.int64Type_ is None:
+             self.int64Type_ = self.target.FindFirstType('long long int')
+        return self.int64Type_
+
     def charType(self):
         if self.charType_ is None:
              self.charType_ = self.target.FindFirstType('char')
@@ -534,6 +545,9 @@ class Dumper(DumperBase):
     def extractInt(self, address):
         return int(self.createValue(address, self.intType()))
 
+    def extractInt64(self, address):
+        return int(self.createValue(address, self.int64Type()))
+
     def extractByte(self, address):
         return int(self.createValue(address, self.charType())) & 0xFF
 
@@ -560,10 +574,9 @@ class Dumper(DumperBase):
         return format
 
     def isMovableType(self, type):
-        if type.GetTypeClass() in (lldb.eTypeClassBuiltin,
-                lldb.eTypeClassPointer):
+        if type.GetTypeClass() in (lldb.eTypeClassBuiltin, lldb.eTypeClassPointer):
             return True
-        return self.stripNamespaceFromType(type.GetName()) in movableTypes
+        return self.isKnownMovableType(self.stripNamespaceFromType(type.GetName()))
 
     def putIntItem(self, name, value):
         with SubItem(self, name):
@@ -575,6 +588,12 @@ class Dumper(DumperBase):
         with SubItem(self, name):
             self.putValue(value)
             self.putType("bool")
+            self.putNumChild(0)
+
+    def putGenericItem(self, name, type, value, encoding = None):
+        with SubItem(self, name):
+            self.putValue(value, encoding)
+            self.putType(type)
             self.putNumChild(0)
 
     def putNumChild(self, numchild):
@@ -670,22 +689,22 @@ class Dumper(DumperBase):
                self.putFields(value)
 
     def lookupType(self, name):
-        warn("LOOKUP TYPE NAME: %s" % name)
+        #warn("LOOKUP TYPE NAME: %s" % name)
         if name.endswith('*'):
             type = self.lookupType(name[:-1].strip())
             return type.GetPointerType() if type.IsValid() else None
         type = self.target.FindFirstType(name)
-        warn("LOOKUP RESULT: %s" % type.name)
-        warn("LOOKUP VALID: %s" % type.IsValid())
+        #warn("LOOKUP RESULT: %s" % type.name)
+        #warn("LOOKUP VALID: %s" % type.IsValid())
         return type if type.IsValid() else None
 
     def setupInferior(self, args):
         error = lldb.SBError()
 
         self.executable_ = args['executable']
-        self.startMode_ = args['startMode']
-        self.processArgs_ = args['processArgs']
-        self.attachPid_ = args['attachPid']
+        self.startMode_ = args.get('startMode', 1)
+        self.processArgs_ = args.get('processArgs', '')
+        self.attachPid_ = args.get('attachPid', 0)
 
         self.target = self.debugger.CreateTarget(self.executable_, None, None, True, error)
         self.importDumpers()
@@ -1052,12 +1071,16 @@ class Dumper(DumperBase):
                 self.putArrayData(innerType, value, 1000)
                 return
 
-            #if innerType.code == MethodCode or innerType.code == FunctionCode:
-            #    # A function pointer with format None.
-            #    self.putValue(str(value))
-            #    self.putType(typeName)
-            #    self.putNumChild(0)
-            #    return
+            if innerType.IsFunctionType():
+                # A function pointer.
+                val = str(value)
+                pos = val.find(" = ")
+                if pos > 0:
+                    val = val[pos + 3:]
+                self.putValue(val)
+                self.putType(innerType)
+                self.putNumChild(0)
+                return
 
             #warn("AUTODEREF: %s" % self.autoDerefPointers)
             #warn("INAME: %s" % self.currentIName)

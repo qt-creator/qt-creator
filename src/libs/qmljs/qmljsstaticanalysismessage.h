@@ -31,6 +31,7 @@
 #define QMLJS_STATICANALYSIS_QMLJSSTATICANALYSISMESSAGE_H
 
 #include "qmljs_global.h"
+#include "qmljsconstants.h"
 #include "parser/qmljsengine_p.h"
 
 #include <QRegExp>
@@ -39,15 +40,6 @@
 
 namespace QmlJS {
 namespace StaticAnalysis {
-
-enum Severity
-{
-    Hint,         // cosmetic or convention
-    MaybeWarning, // possibly a warning, insufficient information
-    Warning,      // could cause unintended behavior
-    MaybeError,   // possibly an error, insufficient information
-    Error         // definitely an error
-};
 
 enum Type
 {
@@ -134,7 +126,7 @@ enum Type
 class QMLJS_EXPORT PrototypeMessageData {
 public:
     Type type;
-    Severity severity;
+    Severity::Enum severity;
     QString message;
     int placeholders;
 };
@@ -159,7 +151,7 @@ public:
     AST::SourceLocation location;
     QString message;
     Type type;
-    Severity severity;
+    Severity::Enum severity;
 
     static const PrototypeMessageData prototypeForMessageType(Type type);
 };

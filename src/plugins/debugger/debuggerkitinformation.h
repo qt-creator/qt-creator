@@ -110,7 +110,7 @@ public:
     static QList<DebuggerItem> debuggers();
     static Debugger::Internal::DebuggerItemModel *model();
 
-    static void registerDebugger(const DebuggerItem &item);
+    static QVariant registerDebugger(const DebuggerItem &item);
     static void deregisterDebugger(const DebuggerItem &item);
 
     static const DebuggerItem *findByCommand(const Utils::FileName &command);
@@ -121,7 +121,7 @@ public:
     static void setItemData(const QVariant &id, const QString& displayName, const Utils::FileName &fileName);
 
     static void removeDebugger(const QVariant &id);
-    static void addDebugger(const DebuggerItem &item);
+    static QVariant addDebugger(const DebuggerItem &item);
 
 public slots:
     void saveDebuggers();
@@ -164,7 +164,7 @@ public:
 
     ItemList toUserOutput(const ProjectExplorer::Kit *k) const;
 
-    static void setDebugger(ProjectExplorer::Kit *k, const DebuggerItem &item);
+    static void setDebugger(ProjectExplorer::Kit *k, const QVariant &id);
 
     static Core::Id id();
     static Utils::FileName debuggerCommand(const ProjectExplorer::Kit *k);

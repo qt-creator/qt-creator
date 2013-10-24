@@ -54,14 +54,16 @@ Rectangle {
 
                     }
 
-                    Label {
-                        text: backendValues.className.value
-                        width: lineEdit.width
+                    SecondColumnLayout {
+
+                        Label {
+                            text: backendValues.className.value
+                            width: lineEdit.width
+                        }
                     }
 
                     Label {
                         text: qsTr("id")
-
                     }
 
                     SecondColumnLayout {
@@ -135,6 +137,7 @@ Rectangle {
                             minimumValue: 0
                             maximumValue: 1
                             hasSlider: true
+                            stepSize: 0.1
                         }
                         Item {
                             Layout.fillWidth: true
@@ -154,11 +157,13 @@ Rectangle {
                     component: Column {
                         anchors.left: parent.left
                         anchors.right: parent.right
-                        //                    Loader {
-                        //                        id: specificsTwo;
-                        //                        baseUrl: globalBaseUrl;
-                        //                        qmlData: specificQmlData;
-                        //                    }
+                        Loader {
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+
+                            id: specificsTwo;
+                            sourceComponent: specificQmlComponent
+                        }
 
                         Loader {
                             anchors.left: parent.left

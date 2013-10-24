@@ -1,0 +1,7 @@
+Label {
+    text: "%1"
+    toolTip: "%1"
+}
+SpinBox {
+    backendValue: backendValues.%2
+}

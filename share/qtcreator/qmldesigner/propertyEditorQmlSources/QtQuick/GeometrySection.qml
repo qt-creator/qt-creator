@@ -46,7 +46,6 @@ Section {
     caption: qsTr("Geometry")
 
     SectionLayout {
-        columnSpacing: 6
         rowSpacing: 4
         rows: 2
 
@@ -55,6 +54,7 @@ Section {
         }
 
         SecondColumnLayout {
+
             Label {
                 text: "X"
                 width: 12
@@ -65,6 +65,11 @@ Section {
                 maximumValue: 0xffff
                 minimumValue: -0xffff
                 decimals: 0
+            }
+
+            Item {
+                width: 4
+                height: 4
             }
 
             Label {
@@ -78,7 +83,9 @@ Section {
                 minimumValue: -0xffff
                 decimals: 0
             }
-            ExpandingSpacer{}
+            ExpandingSpacer {
+
+            }
         }
         Label {
             text: qsTr("Size")
@@ -99,6 +106,11 @@ Section {
                 decimals: 0
             }
 
+            Item {
+                width: 4
+                height: 4
+            }
+
             Label {
                 text: "H"
                 width: 12
@@ -110,7 +122,9 @@ Section {
                 minimumValue: -0xffff
                 decimals: 0
             }
-            ExpandingSpacer{}
+            ExpandingSpacer {
+
+            }
         }
     }
 }

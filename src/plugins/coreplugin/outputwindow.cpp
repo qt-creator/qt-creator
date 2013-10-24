@@ -264,7 +264,7 @@ void OutputWindow::appendText(const QString &textIn, const QTextCharFormat &form
     if (m_maxLineCount > 0 && document()->blockCount() >= m_maxLineCount) {
         QTextCharFormat tmp;
         tmp.setFontWeight(QFont::Bold);
-        cursor.insertText(doNewlineEnforcement(tr("Additional output omitted\n")), tmp);
+        cursor.insertText(doNewlineEnforcement(tr("Additional output omitted") + QLatin1Char('\n')), tmp);
     }
 
     cursor.endEditBlock();

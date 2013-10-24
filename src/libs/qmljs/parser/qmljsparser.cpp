@@ -289,7 +289,7 @@ case 20: {
     if (node) {
         node->importToken = loc(1);
     } else {
-       diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, loc(1),
+       diagnostic_messages.append(DiagnosticMessage(Severity::Error, loc(1),
          QLatin1String("Expected a qualified name id or a string literal")));
 
         return false; // ### remove me
@@ -583,7 +583,7 @@ case 78: {
 case 79: {
   bool rx = lexer->scanRegExp(Lexer::NoPrefix);
   if (!rx) {
-    diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, location(lexer), lexer->errorMessage()));
+    diagnostic_messages.append(DiagnosticMessage(Severity::Error, location(lexer), lexer->errorMessage()));
     return false; // ### remove me
   }
 
@@ -599,7 +599,7 @@ case 79: {
 case 80: {
   bool rx = lexer->scanRegExp(Lexer::EqualPrefix);
   if (!rx) {
-    diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, location(lexer), lexer->errorMessage()));
+    diagnostic_messages.append(DiagnosticMessage(Severity::Error, location(lexer), lexer->errorMessage()));
     return false;
   }
 
@@ -680,7 +680,7 @@ case 88: {
 
 case 89: {
   if (AST::ArrayMemberExpression *mem = AST::cast<AST::ArrayMemberExpression *>(sym(1).Expression)) {
-    diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Warning, mem->lbracketToken,
+    diagnostic_messages.append(DiagnosticMessage(Severity::Warning, mem->lbracketToken,
       QLatin1String("Ignored annotation")));
 
     sym(1).Expression = mem->base;
@@ -691,7 +691,7 @@ case 89: {
   } else {
     sym(1).UiQualifiedId = 0;
 
-    diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, loc(1),
+    diagnostic_messages.append(DiagnosticMessage(Severity::Error, loc(1),
       QLatin1String("Expected a qualified name id")));
 
     return false; // ### recover
@@ -1747,7 +1747,7 @@ case 347: {
                 msg = qApp->translate("QmlParser", "Syntax error");
             else
                 msg = qApp->translate("QmlParser", "Unexpected token `%1'").arg(QLatin1String(spell[token]));
-            diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, token_buffer[0].loc, msg));
+            diagnostic_messages.append(DiagnosticMessage(Severity::Error, token_buffer[0].loc, msg));
 
             action = errorState;
             goto _Lcheck_token;
@@ -1775,7 +1775,7 @@ case 347: {
             int a = t_action(errorState, *tk);
             if (a > 0 && t_action(a, yytoken)) {
                 const QString msg = qApp->translate("QmlParser", "Expected token `%1'").arg(QLatin1String(spell[*tk]));
-                diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, token_buffer[0].loc, msg));
+                diagnostic_messages.append(DiagnosticMessage(Severity::Error, token_buffer[0].loc, msg));
 
                 yytoken = *tk;
                 yylval = 0;
@@ -1799,7 +1799,7 @@ case 347: {
             int a = t_action(errorState, tk);
             if (a > 0 && t_action(a, yytoken)) {
                 const QString msg = qApp->translate("QmlParser", "Expected token `%1'").arg(QLatin1String(spell[tk]));
-                diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, token_buffer[0].loc, msg));
+                diagnostic_messages.append(DiagnosticMessage(Severity::Error, token_buffer[0].loc, msg));
 
                 yytoken = tk;
                 yylval = 0;
@@ -1812,7 +1812,7 @@ case 347: {
         }
 
         const QString msg = qApp->translate("QmlParser", "Syntax error");
-        diagnostic_messages.append(DiagnosticMessage(DiagnosticMessage::Error, token_buffer[0].loc, msg));
+        diagnostic_messages.append(DiagnosticMessage(Severity::Error, token_buffer[0].loc, msg));
     }
 
     return false;

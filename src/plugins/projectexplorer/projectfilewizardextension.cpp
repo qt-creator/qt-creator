@@ -303,7 +303,8 @@ void ProjectFileWizardExtension::firstExtensionPageShown(
         // <Implicitly Add>
         m_context->page->setNoneLabel(tr("<Implicitly Add>"));
 
-        QString text = tr("The files are implicitly added to the projects:\n");
+        QString text = tr("The files are implicitly added to the projects:");
+        text += QLatin1Char('\n');
         foreach (const ProjectEntry &project, deployingProjects) {
             text += project.fileName;
             text += QLatin1Char('\n');

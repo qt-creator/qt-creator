@@ -67,7 +67,7 @@ AST::SourceLocation locationFromRange(const T *node)
 template <class T>
 DiagnosticMessage errorMessage(const T *node, const QString &message)
 {
-    return DiagnosticMessage(DiagnosticMessage::Error,
+    return DiagnosticMessage(Severity::Error,
                              locationFromRange(node),
                              message);
 }

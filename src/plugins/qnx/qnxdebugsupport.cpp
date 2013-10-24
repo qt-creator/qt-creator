@@ -73,7 +73,7 @@ void QnxDebugSupport::handleAdapterSetupRequested()
     QTC_ASSERT(state() == Inactive, return);
 
     if (m_engine)
-        m_engine->showMessage(tr("Preparing remote side...\n"), Debugger::AppStuff);
+        m_engine->showMessage(tr("Preparing remote side...") + QLatin1Char('\n'), Debugger::AppStuff);
     QnxAbstractRunSupport::handleAdapterSetupRequested();
 }
 

@@ -2665,17 +2665,17 @@ void GitClient::continueCommandIfNeeded(const QString &workingDirectory)
 {
     CommandInProgress command = checkCommandInProgress(workingDirectory);
     switch (command) {
-    case Merge:
-        continuePreviousGitCommand(workingDirectory, tr("Continue Merge"),
-                                   tr("Merge is in progress. What do you want to do?"),
-                                   tr("Continue"), QLatin1String("merge"));
-        break;
     case Rebase:
     case RebaseMerge:
         continuePreviousGitCommand(workingDirectory, tr("Continue Rebase"),
                                    tr("Rebase is in progress. What do you want to do?"),
                                    tr("Continue"), QLatin1String("rebase"),
                                    command != RebaseMerge);
+        break;
+    case Merge:
+        continuePreviousGitCommand(workingDirectory, tr("Continue Merge"),
+                tr("You need to commit changes to finish merge.\nCommit now?"),
+                tr("Commit"), QLatin1String("merge"));
         break;
     case Revert:
         continuePreviousGitCommand(workingDirectory, tr("Continue Revert"),
@@ -3032,9 +3032,9 @@ bool GitClient::getCommitData(const QString &workingDirectory,
 static inline QString msgCommitted(const QString &amendSHA1, int fileCount)
 {
     if (amendSHA1.isEmpty())
-        return GitClient::tr("Committed %n file(s).\n", 0, fileCount);
+        return GitClient::tr("Committed %n file(s).", 0, fileCount) + QLatin1Char('\n');
     if (fileCount)
-        return GitClient::tr("Amended \"%1\" (%n file(s)).\n", 0, fileCount).arg(amendSHA1);
+        return GitClient::tr("Amended \"%1\" (%n file(s)).", 0, fileCount).arg(amendSHA1) + QLatin1Char('\n');
     return GitClient::tr("Amended \"%1\".").arg(amendSHA1);
 }
 

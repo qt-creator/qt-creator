@@ -29,6 +29,8 @@
 
 #include "propertyeditorcontextobject.h"
 
+#include <QQmlContext>
+
 namespace QmlDesigner {
 
 PropertyEditorContextObject::PropertyEditorContextObject(QObject *parent) :
@@ -37,7 +39,9 @@ PropertyEditorContextObject::PropertyEditorContextObject(QObject *parent) :
     m_selectionChanged(false),
     m_backendValues(0),
     m_majorVersion(-1),
-    m_minorVersion(-1)
+    m_minorVersion(-1),
+    m_qmlComponent(0),
+    m_qmlContext(0)
 {
 
 }
@@ -71,6 +75,96 @@ void PropertyEditorContextObject::setMinorVersion(int minorVersion)
     m_minorVersion = minorVersion;
 
     emit minorVersionChanged();
+}
+
+void PropertyEditorContextObject::insertInQmlContext(QQmlContext *context)
+{
+    m_qmlContext = context;
+    m_qmlContext->setContextObject(this);
+}
+
+QQmlComponent *PropertyEditorContextObject::specificQmlComponent()
+{
+    if (m_qmlComponent)
+        return m_qmlComponent;
+
+    m_qmlComponent = new QQmlComponent(m_qmlContext->engine(), this);
+
+    m_qmlComponent->setData(m_specificQmlData.toAscii(), QUrl::fromLocalFile("specfics.qml"));
+
+    return m_qmlComponent;
+}
+
+void PropertyEditorContextObject::setGlobalBaseUrl(const QUrl &newBaseUrl)
+{
+    if (newBaseUrl == m_globalBaseUrl)
+        return;
+
+    m_globalBaseUrl = newBaseUrl;
+    emit globalBaseUrlChanged();
+}
+
+void PropertyEditorContextObject::setSpecificsUrl(const QUrl &newSpecificsUrl)
+{
+    if (newSpecificsUrl == m_specificsUrl)
+        return;
+
+    m_specificsUrl = newSpecificsUrl;
+    emit specificsUrlChanged();
+}
+
+void PropertyEditorContextObject::setSpecificQmlData(const QString &newSpecificQmlData)
+{
+    if (m_specificQmlData == newSpecificQmlData)
+        return;
+
+    m_specificQmlData = newSpecificQmlData;
+    emit specificQmlDataChanged();
+
+    delete m_qmlComponent;
+    m_qmlComponent = 0;
+    emit specificQmlComponentChanged();
+}
+
+void PropertyEditorContextObject::setStateName(const QString &newStateName)
+{
+    if (newStateName == m_stateName)
+        return;
+
+    m_stateName = newStateName;
+    emit stateNameChanged();
+}
+
+void PropertyEditorContextObject::setIsBaseState(bool newIsBaseState)
+{
+    if (newIsBaseState ==  m_isBaseState)
+        return;
+
+    m_isBaseState = newIsBaseState;
+    emit isBaseStateChanged();
+}
+
+void PropertyEditorContextObject::setSelectionChanged(bool newSelectionChanged)
+{
+    if (newSelectionChanged ==  m_selectionChanged)
+        return;
+
+    m_selectionChanged = newSelectionChanged;
+    emit selectionChangedChanged();
+}
+
+void PropertyEditorContextObject::setBackendValues(QQmlPropertyMap *newBackendValues)
+{
+    if (newBackendValues ==  m_backendValues)
+        return;
+
+    m_backendValues = newBackendValues;
+    emit backendValuesChanged();
+}
+
+void PropertyEditorContextObject::triggerSelectionChanged()
+{
+    setSelectionChanged(!m_selectionChanged);
 }
 
 } //QmlDesigner

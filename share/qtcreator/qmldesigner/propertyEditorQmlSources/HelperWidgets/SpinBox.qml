@@ -35,8 +35,7 @@ Controls.SpinBox {
     id: spinBox
     property color borderColor: "#222"
     property color highlightColor: "orange"
-    property color textColor: "#eee"
-
+    property color textColor: colorLogic.textColor
     property variant backendValue;
     prefix: "    "
 
@@ -47,8 +46,9 @@ Controls.SpinBox {
         visible: spinBox.enabled
     }
 
-    QtObject {
-        property int valueFromBackend: spinBox.backendValue.value;
+    ColorLogic {
+        id: colorLogic
+        backendValue: spinBox.backendValue
         onValueFromBackendChanged: {
             spinBox.value = valueFromBackend;
         }

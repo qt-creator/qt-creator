@@ -25,6 +25,7 @@ HEADERS += cppeditorplugin.h \
     cppincludehierarchyitem.h \
     cppincludehierarchytreeview.h \
     cppvirtualfunctionassistprovider.h \
+    cppvirtualfunctionproposalitem.h \
     cpppreprocessordialog.h
 
 SOURCES += cppeditorplugin.cpp \
@@ -49,6 +50,7 @@ SOURCES += cppeditorplugin.cpp \
     cppincludehierarchyitem.cpp \
     cppincludehierarchytreeview.cpp \
     cppvirtualfunctionassistprovider.cpp \
+    cppvirtualfunctionproposalitem.cpp \
     cpppreprocessordialog.cpp
 
 RESOURCES += cppeditor.qrc

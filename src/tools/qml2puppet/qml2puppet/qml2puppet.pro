@@ -8,9 +8,11 @@ BUILD_PUPPET_IN_CREATOR_BINPATH = $$(BUILD_PUPPET_IN_CREATOR_BINPATH)
 CONFIG(debug, debug|release):isEmpty(BUILD_PUPPET_IN_CREATOR_BINPATH) {
     QML_TARGET_PATH=$$[QT_INSTALL_BINS]/$$TARGET$$TARGET_EXT
     if(write_file($$QML_TARGET_PATH)) {
+        CONVERTED_PATH=$$system_quote($$system_path($$QML_TARGET_PATH))
         win32 {
-            CONVERTED_PATH=$$system_quote($$system_path($$QML_TARGET_PATH))
             system(del $$CONVERTED_PATH)
+        } else {
+            system(rm $$CONVERTED_PATH)
         }
         DESTDIR = $$[QT_INSTALL_BINS]
         message("Build Qml Puppet to the Qt binary directory!")

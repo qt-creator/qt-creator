@@ -416,7 +416,6 @@ void CppPreprocessor::sourceNeeded(unsigned line, const QString &fileName, Inclu
     if (m_dumpFileNameWhileParsing) {
         qDebug() << "Parsing file:" << absoluteFileName
                  << "contents:" << contents.size() << "bytes";
-        ;
     }
 
     Document::Ptr doc = m_snapshot.document(absoluteFileName);

@@ -32,6 +32,7 @@
 
 #include "cppeditorconstants.h"
 #include "cppelementevaluator.h"
+#include "cppvirtualfunctionproposalitem.h"
 
 #include <cplusplus/Icons.h>
 #include <cplusplus/Overview.h>
@@ -39,7 +40,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 
-#include <texteditor/codeassist/basicproposalitem.h>
 #include <texteditor/codeassist/basicproposalitemlistmodel.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/genericproposalwidget.h>
@@ -52,31 +52,6 @@
 using namespace CPlusPlus;
 using namespace CppEditor::Internal;
 using namespace TextEditor;
-
-class VirtualFunctionProposalItem: public BasicProposalItem {
-public:
-    VirtualFunctionProposalItem(const BaseTextEditorWidget::Link &link, bool openInSplit = true)
-        : m_link(link), m_openInSplit(openInSplit) {}
-
-    void apply(BaseTextEditor * /* editor */, int /* basePosition */) const
-    {
-        if (!m_link.hasValidTarget())
-            return;
-
-        Core::EditorManager::OpenEditorFlags flags;
-        if (m_openInSplit)
-            flags |= Core::EditorManager::OpenInOtherSplit;
-        Core::EditorManager::openEditorAt(m_link.targetFileName,
-                                          m_link.targetLine,
-                                          m_link.targetColumn,
-                                          CppEditor::Constants::CPPEDITOR_ID,
-                                          flags);
-    }
-
-private:
-    BaseTextEditorWidget::Link m_link;
-    bool m_openInSplit;
-};
 
 /// Activate current item with the same shortcut that is configured for Follow Symbol Under Cursor.
 /// This is limited to single-key shortcuts without modifiers.
@@ -166,7 +141,7 @@ public:
         QTC_ASSERT(!m_snapshot.isEmpty(), return 0);
 
         const QList<Symbol *> overrides = FunctionHelper::overrides(m_startClass, m_function,
-                                                                     m_snapshot);
+                                                                    m_snapshot);
         QList<BasicProposalItem *> items;
         foreach (Symbol *symbol, overrides)
             items << itemFromSymbol(symbol, m_function);

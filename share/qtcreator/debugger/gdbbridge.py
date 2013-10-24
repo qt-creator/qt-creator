@@ -794,6 +794,11 @@ registerCommand("bb", bb)
 registerCommand("p1", p1)
 registerCommand("p2", p2)
 
+def extractQtVersion():
+    version = str(gdb.parse_and_eval("qVersion()"))
+    (major, minor, patch) = version[version.find('"')+1:version.rfind('"')].split('.')
+    return 0x10000 * int(major) + 0x100 * int(minor) + int(patch)
+
 
 #######################################################################
 #
@@ -826,6 +831,7 @@ class Dumper(DumperBase):
         self.useDynamicType = True
         self.expandedINames = {}
         self.childEventAddress = None
+        self.cachedQtVersion = None
 
         watchers = ""
         resultVarName = ""
@@ -1236,6 +1242,9 @@ class Dumper(DumperBase):
         #return long(gdb.Value(addr).cast(self.voidPtrType().pointer()).dereference())
         return struct.unpack("P", self.readRawMemory(addr, self.ptrSize()))[0]
 
+    def extractInt64(self, addr):
+        return struct.unpack("q", self.readRawMemory(addr, 8))[0]
+
     def extractInt(self, addr):
         #return long(gdb.Value(addr).cast(self.intPtrType()).dereference())
         return struct.unpack("i", self.readRawMemory(addr, 4))[0]
@@ -1293,16 +1302,17 @@ class Dumper(DumperBase):
         return xrange(min(toInteger(self.currentMaxNumChild), toInteger(self.currentNumChild)))
 
     def qtVersion(self):
-        global qqVersion
-        if not qqVersion is None:
-            return qqVersion
-        try:
-            # This will fail on Qt 5
-            gdb.execute("ptype QString::shared_empty", to_string=True)
-            qqVersion = 0x040800
-        except:
-            qqVersion = 0x050000
-        return qqVersion
+        if self.cachedQtVersion is None:
+            try:
+                self.cachedQtVersion = extractQtVersion()
+            except:
+                try:
+                    # This will fail on Qt 5
+                    gdb.execute("ptype QString::shared_empty", to_string=True)
+                    self.cachedQtVersion = 0x040800
+                except:
+                    self.cachedQtVersion = 0x050000
+        return self.cachedQtVersion
 
     # Convenience function.
     def putItemCount(self, count, maximum = 1000000000):
@@ -1405,10 +1415,7 @@ class Dumper(DumperBase):
             return True
         if self.isSimpleType(type):
             return True
-        typeName = self.stripNamespaceFromType(str(type))
-        if typeName in movableTypes:
-            return True
-        return self.qtVersion() >= 0x050000 and typeName in movableTypes5
+        return self.isKnownMovableType(self.stripNamespaceFromType(str(type)))
 
     def putIntItem(self, name, value):
         with SubItem(self, name):
@@ -1420,6 +1427,12 @@ class Dumper(DumperBase):
         with SubItem(self, name):
             self.putValue(value)
             self.putType("bool")
+            self.putNumChild(0)
+
+    def putGenericItem(self, name, type, value, encoding = None):
+        with SubItem(self, name):
+            self.putValue(value, encoding)
+            self.putType(type)
             self.putNumChild(0)
 
     def currentItemFormat(self):

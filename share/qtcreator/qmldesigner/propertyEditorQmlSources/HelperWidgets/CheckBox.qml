@@ -37,7 +37,7 @@ Controls.CheckBox {
 
     property color borderColor: "#222"
     property color highlightColor: "orange"
-    property color textColor: "#eee"
+    property color textColor: colorLogic.textColor
 
     onTextChanged: {
         if (text.charAt(0) !== " ")
@@ -49,13 +49,15 @@ Controls.CheckBox {
     ExtendedFunctionButton {
         x: 22
         backendValue: checkBox.backendValue
-        visible: spinBox.enabled
+        visible: checkBox.enabled
     }
 
-    QtObject {
-        property int valueFromBackend: checkBox.backendValue.value;
+    ColorLogic {
+        id: colorLogic
+        backendValue: checkBox.backendValue
         onValueFromBackendChanged: {
-            checkBox.checked = valueFromBackend;
+            if (checkBox.checked !== valueFromBackend)
+                checkBox.checked = valueFromBackend;
         }
     }
 

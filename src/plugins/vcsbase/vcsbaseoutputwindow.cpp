@@ -429,9 +429,9 @@ QString VcsBaseOutputWindow::msgExecutionLogEntry(const QString &workingDir,
     const QString args = formatArguments(arguments);
     const QString nativeExecutable = QDir::toNativeSeparators(executable);
     if (workingDir.isEmpty())
-        return tr("Executing: %1 %2\n").arg(nativeExecutable, args);
-    return tr("Executing in %1: %2 %3\n").
-            arg(QDir::toNativeSeparators(workingDir), nativeExecutable, args);
+        return tr("Executing: %1 %2").arg(nativeExecutable, args) + QLatin1Char('\n');
+    return tr("Executing in %1: %2 %3").
+            arg(QDir::toNativeSeparators(workingDir), nativeExecutable, args) + QLatin1Char('\n');
 }
 
 void VcsBaseOutputWindow::appendCommand(const QString &text)

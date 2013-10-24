@@ -65,6 +65,8 @@ QtcPlugin {
         "cpptypehierarchy.h",
         "cppvirtualfunctionassistprovider.cpp",
         "cppvirtualfunctionassistprovider.h",
+        "cppvirtualfunctionproposalitem.cpp",
+        "cppvirtualfunctionproposalitem.h",
     ]
 
     Group {

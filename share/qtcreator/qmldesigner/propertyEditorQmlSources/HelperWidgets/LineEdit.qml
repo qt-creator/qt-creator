@@ -38,17 +38,18 @@ Controls.TextField {
     property variant backendValue
     property color borderColor: "#222"
     property color highlightColor: "orange"
-    property color textColor: "#eee"
+    property color textColor: colorLogic.textColor
 
-//    ExtendedFunctionButton {
-//        x: 2
-//        y: 2
-//        backendValue: checkBox.backendValue
-//        visible: spinBox.enabled
-//    }
+    ExtendedFunctionButton {
+        x: 2
+        y: 4
+        backendValue: lineEdit.backendValue
+        visible: lineEdit.enabled
+    }
 
-    QtObject {
-        property string valueFromBackend: lineEdit.backendValue.valueToString;
+    ColorLogic {
+        id: colorLogic
+        backendValue: lineEdit.backendValue
         onValueFromBackendChanged: {
             lineEdit.text = valueFromBackend;
         }
@@ -74,6 +75,8 @@ Controls.TextField {
         textColor: lineEdit.textColor
         padding.top: 3
         padding.bottom: 1
+        padding.left: 16
+        placeholderTextColor: "gray"
         background: Rectangle {
             implicitWidth: 100
             implicitHeight: 23

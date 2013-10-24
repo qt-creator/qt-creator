@@ -52,13 +52,13 @@ class QmlAnchorBindingProxy : public QObject
     Q_PROPERTY(bool rightAnchored READ rightAnchored WRITE setRightAnchor NOTIFY rightAnchorChanged)
     Q_PROPERTY(bool hasParent READ hasParent NOTIFY parentChanged)
 
-    Q_PROPERTY(QVariant topTarget READ topTarget WRITE setTopTarget NOTIFY topTargetChanged)
-    Q_PROPERTY(QVariant bottomTarget READ bottomTarget WRITE setBottomTarget NOTIFY bottomTargetChanged)
-    Q_PROPERTY(QVariant leftTarget READ leftTarget WRITE setLeftTarget NOTIFY leftTargetChanged)
-    Q_PROPERTY(QVariant rightTarget READ rightTarget WRITE setRightTarget NOTIFY rightTargetChanged)
+    Q_PROPERTY(QString topTarget READ topTarget WRITE setTopTarget NOTIFY topTargetChanged)
+    Q_PROPERTY(QString bottomTarget READ bottomTarget WRITE setBottomTarget NOTIFY bottomTargetChanged)
+    Q_PROPERTY(QString leftTarget READ leftTarget WRITE setLeftTarget NOTIFY leftTargetChanged)
+    Q_PROPERTY(QString rightTarget READ rightTarget WRITE setRightTarget NOTIFY rightTargetChanged)
 
-    Q_PROPERTY(QVariant verticalTarget READ verticalTarget WRITE setVerticalTarget NOTIFY verticalTargetChanged)
-    Q_PROPERTY(QVariant horizontalTarget READ horizontalTarget WRITE setHorizontalTarget NOTIFY horizontalTargetChanged)
+    Q_PROPERTY(QString verticalTarget READ verticalTarget WRITE setVerticalTarget NOTIFY verticalTargetChanged)
+    Q_PROPERTY(QString horizontalTarget READ horizontalTarget WRITE setHorizontalTarget NOTIFY horizontalTargetChanged)
 
     Q_PROPERTY(bool hasAnchors READ hasAnchors NOTIFY anchorsChanged)
     Q_PROPERTY(bool isFilled READ isFilled NOTIFY anchorsChanged)
@@ -66,6 +66,8 @@ class QmlAnchorBindingProxy : public QObject
     Q_PROPERTY(bool horizontalCentered READ horizontalCentered WRITE setHorizontalCentered NOTIFY centeredHChanged)
     Q_PROPERTY(bool verticalCentered READ verticalCentered WRITE setVerticalCentered NOTIFY centeredVChanged)
     Q_PROPERTY(QVariant itemNode READ itemNode NOTIFY itemNodeChanged)
+
+    Q_PROPERTY(QStringList possibleTargetItems READ possibleTargetItems NOTIFY itemNodeChanged)
 
 public:
     //only enable if node has parent
@@ -92,23 +94,26 @@ public:
 
     bool horizontalCentered();
     bool verticalCentered();
-    QVariant itemNode() const { return QVariant::fromValue(m_qmlItemNode.modelNode()); }
+    QVariant itemNode() const { return QVariant::fromValue(m_qmlItemNode.modelNode().id()); }
 
-    QVariant topTarget() const { return QVariant::fromValue(m_topTarget.modelNode()); }
-    QVariant bottomTarget() const { return QVariant::fromValue(m_bottomTarget.modelNode()); }
-    QVariant leftTarget() const { return QVariant::fromValue(m_leftTarget.modelNode()); }
-    QVariant rightTarget() const { return QVariant::fromValue(m_rightTarget.modelNode()); }
+    QString topTarget() const;
+    QString bottomTarget() const;
+    QString leftTarget() const;
+    QString rightTarget() const;
 
-    QVariant verticalTarget() const { return QVariant::fromValue(m_verticalTarget.modelNode()); }
-    QVariant horizontalTarget() const { return QVariant::fromValue(m_horizontalTarget.modelNode()); }
+    QString verticalTarget() const;
+    QString horizontalTarget() const;
 
 public:
-    void setTopTarget(const QVariant &target);
-    void setBottomTarget(const QVariant &target);
-    void setLeftTarget(const QVariant &target);
-    void setRightTarget(const QVariant &target);
-    void setVerticalTarget(const QVariant &target);
-    void setHorizontalTarget(const QVariant &target);
+    void setTopTarget(const QString &target);
+    void setBottomTarget(const QString &target);
+    void setLeftTarget(const QString &target);
+    void setRightTarget(const QString &target);
+    void setVerticalTarget(const QString &target);
+    void setHorizontalTarget(const QString &target);
+
+    QStringList possibleTargetItems() const;
+    Q_INVOKABLE int indexOfPossibleTargetItem(const QString &targetName) const;
 
 
 public slots:
@@ -142,12 +147,16 @@ signals:
     void verticalTargetChanged();
     void horizontalTargetChanged();
 
+    void invalidated();
+
 private:
     void setDefaultAnchorTarget(const ModelNode &modelNode);
     void calcTopMargin();
     void calcBottomMargin();
     void calcLeftMargin();
     void calcRightMargin();
+    QmlItemNode targetIdToNode(const QString &id) const;
+    QString idForNode(const QmlItemNode &qmlItemNode) const;
 
     ModelNode modelNode() const;
 
@@ -168,6 +177,7 @@ private:
     QmlItemNode m_horizontalTarget;
 
     bool m_locked;
+    bool m_ignoreQml;
 };
 
 } // namespace Internal

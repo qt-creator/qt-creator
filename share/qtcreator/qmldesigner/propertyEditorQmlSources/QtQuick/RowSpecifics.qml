@@ -49,10 +49,7 @@ Column {
                 ComboBox {
                     model: ["LeftToRight", "RightToLeft"]
                     backendValue: backendValues.layoutDirection
-                }
-
-                ExpandingSpacer {
-
+                    Layout.fillWidth: true
                 }
             }
 

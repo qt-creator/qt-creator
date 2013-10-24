@@ -78,7 +78,7 @@ void GdbPlainEngine::handleFileExecAndSymbols(const GdbResponse &response)
         QString msg = fromLocalEncoding(ba);
         // Extend the message a bit in unknown cases.
         if (!ba.endsWith("File format not recognized"))
-            msg = tr("Starting executable failed:\n") + msg;
+            msg = tr("Starting executable failed:") + QLatin1Char('\n') + msg;
         notifyInferiorSetupFailed(msg);
     }
 }

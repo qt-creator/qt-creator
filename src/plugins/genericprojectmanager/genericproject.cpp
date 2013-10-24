@@ -255,6 +255,8 @@ void GenericProject::refresh(RefreshOptions options)
         part->displayName = displayName();
         part->projectFile = projectFilePath();
 
+        part->includePaths += projectIncludePaths();
+
         Kit *k = activeTarget() ? activeTarget()->kit() : KitManager::defaultKit();
         if (ToolChain *tc = ToolChainKitInformation::toolChain(k)) {
             QStringList cxxflags; // FIXME: Can we do better?
@@ -263,7 +265,6 @@ void GenericProject::refresh(RefreshOptions options)
         }
 
         part->cxxVersion = CppTools::ProjectPart::CXX11; // assume C++11
-        part->includePaths += allIncludePaths();
         part->defines += m_defines;
 
         // ### add _defines.
@@ -337,15 +338,6 @@ QStringList GenericProject::processEntries(const QStringList &paths,
     return absolutePaths;
 }
 
-QStringList GenericProject::allIncludePaths() const
-{
-    QStringList paths;
-    paths += m_includePaths;
-    paths += m_projectIncludePaths;
-    paths.removeDuplicates();
-    return paths;
-}
-
 QStringList GenericProject::projectIncludePaths() const
 {
     return m_projectIncludePaths;
@@ -354,16 +346,6 @@ QStringList GenericProject::projectIncludePaths() const
 QStringList GenericProject::files() const
 {
     return m_files;
-}
-
-QStringList GenericProject::includePaths() const
-{
-    return m_includePaths;
-}
-
-void GenericProject::setIncludePaths(const QStringList &includePaths)
-{
-    m_includePaths = includePaths;
 }
 
 QByteArray GenericProject::defines() const
@@ -424,8 +406,6 @@ bool GenericProject::fromMap(const QVariantMap &map)
         if (!t->activeRunConfiguration())
             t->addRunConfiguration(new QtSupport::CustomExecutableRunConfiguration(t));
     }
-
-    setIncludePaths(allIncludePaths());
 
     refresh(Everything);
     return true;

@@ -66,8 +66,10 @@ Column {
     onColorChanged: {
         textField.text = gradientLine.colorToString(color);
         gradientLine.currentColor = color
-        //Delay setting the color to keep ui responsive
-        colorEditorTimer.restart()
+
+        if (buttonRow.checkedIndex !== 1)
+            //Delay setting the color to keep ui responsive
+            colorEditorTimer.restart()
     }
 
     GradientLine {
@@ -105,10 +107,14 @@ Column {
 
             LineEdit {
                 id: textField
-                inputMask: "\\#hhHHHHHH"
+                inputMask: "\\#HHHHHHhh"
+
+                backendValue: colorEditor.backendendValue
 
                 onAccepted: {
-                    colorEditor.color = text
+                    print("color")
+                    print(textField.text)
+                    colorEditor.color = textField.text
                 }
                 Layout.preferredWidth: 80
             }
@@ -124,26 +130,25 @@ Column {
 
                 ButtonRowButton {
                     iconSource: "images/icon_color_solid.png"
+                    onClicked: {
+                        colorEditor.backendendValue.resetValue();
+                    }
 
                 }
                 ButtonRowButton {
                     visible: supportGradient
                     iconSource: "images/icon_color_gradient.png"
+                    onClicked: {
+                        print("gradient")
+                    }
 
                 }
                 ButtonRowButton {
                     iconSource: "images/icon_color_none.png"
-
-                }
-
-                onToggled: {
-                    if (index === 0) {
-                        colorEditor.color = "#ffffff"
-                    }
-
-                    if (index === 2) {
+                    onClicked: {
                         colorEditor.color = "#00000000"
                     }
+
                 }
 
             }

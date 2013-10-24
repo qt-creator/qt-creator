@@ -44,6 +44,14 @@ GroupBox {
     property variant underlineStyle: backendValues.font_underline
     property variant strikeoutStyle: backendValues.font_strikeout
 
+    onPointSizeChanged: {
+        sizeWidget.setPointPixelSize();
+    }
+
+    onPixelSizeChanged: {
+        sizeWidget.setPointPixelSize();
+    }
+
     layout: VerticalLayout {
 
         QWidget {
@@ -61,17 +69,22 @@ GroupBox {
         QWidget {
             id: sizeWidget
             property bool selectionFlag: selectionChanged
-            
+
             property bool pixelSize: sizeType.currentText == "pixels"
             property bool isSetup;
-            
-            onSelectionFlagChanged: {
+
+            function setPointPixelSize() {
                 isSetup = true;
                 sizeType.currentText = "points";
-                if (pixelSize.isInModel)
+                if (fontGroupBox.pixelSize.isInModel)
                     sizeType.currentText = "pixels";
                 isSetup = false;
-            }            
+            }
+
+            onSelectionFlagChanged: {
+                setPointPixelSize();
+            }
+
             layout: HorizontalLayout {
                 Label {
                     text: qsTr("Size")

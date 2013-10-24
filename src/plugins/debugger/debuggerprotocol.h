@@ -204,7 +204,8 @@ enum DebuggerEncoding
     Hex2EncodedFloat4                      = 25,
     Hex2EncodedFloat8                      = 26,
     IPv6AddressAndHexScopeId               = 27,
-    Hex2EncodedUtf8WithoutQuotes           = 28
+    Hex2EncodedUtf8WithoutQuotes           = 28,
+    MillisecondsSinceEpoch                 = 29
 };
 
 // Keep in sync with dumper.py, symbolgroupvalue.cpp of CDB

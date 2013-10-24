@@ -237,8 +237,8 @@ Kit *BlackBerryConfiguration::createKit(QnxAbstractQtVersion *version, ToolChain
             version->qtVersionString(), version->platformDisplayName(),
             version->archString(), m_targetName));
 
-    DebuggerItemManager::registerDebugger(debugger);
-    DebuggerKitInformation::setDebugger(kit, debugger);
+    QVariant id = DebuggerItemManager::registerDebugger(debugger);
+    DebuggerKitInformation::setDebugger(kit, id);
 
     if (isSimulator)
         QmakeProjectManager::QmakeKitInformation::setMkspec(

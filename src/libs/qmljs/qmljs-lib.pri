@@ -38,7 +38,8 @@ HEADERS += \
     $$PWD/iscriptevaluator.h \
     $$PWD/qmljssimplereader.h \
     $$PWD/persistenttrie.h \
-    $$PWD/qmljsqrcparser.h
+    $$PWD/qmljsqrcparser.h \
+    $$PWD/qmljsconstants.h
 
 SOURCES += \
     $$PWD/qmljsbind.cpp \

@@ -30,6 +30,7 @@
 ****************************************************************************/
 
 #include "qnxdevicetester.h"
+#include "qnxdeviceconfiguration.h"
 
 #include <ssh/sshremoteprocessrunner.h>
 #include <utils/qtcassert.h>
@@ -44,6 +45,10 @@ QnxDeviceTester::QnxDeviceTester(QObject *parent)
     , m_currentCommandIndex(-1)
 {
     m_genericTester = new RemoteLinux::GenericLinuxDeviceTester(this);
+    connect(m_genericTester, SIGNAL(progressMessage(QString)), SIGNAL(progressMessage(QString)));
+    connect(m_genericTester, SIGNAL(errorMessage(QString)), SIGNAL(errorMessage(QString)));
+    connect(m_genericTester, SIGNAL(finished(ProjectExplorer::DeviceTester::TestResult)),
+        SLOT(handleGenericTestFinished(ProjectExplorer::DeviceTester::TestResult)));
 
     m_processRunner = new QSsh::SshRemoteProcessRunner(this);
     connect(m_processRunner, SIGNAL(connectionError()), SLOT(handleConnectionError()));
@@ -67,11 +72,6 @@ void QnxDeviceTester::testDevice(const ProjectExplorer::IDevice::ConstPtr &devic
     QTC_ASSERT(m_state == Inactive, return);
 
     m_deviceConfiguration = deviceConfiguration;
-
-    connect(m_genericTester, SIGNAL(progressMessage(QString)), SIGNAL(progressMessage(QString)));
-    connect(m_genericTester, SIGNAL(errorMessage(QString)), SIGNAL(errorMessage(QString)));
-    connect(m_genericTester, SIGNAL(finished(ProjectExplorer::DeviceTester::TestResult)),
-        SLOT(handleGenericTestFinished(ProjectExplorer::DeviceTester::TestResult)));
 
     m_state = GenericTest;
     m_genericTester->testDevice(deviceConfiguration);
@@ -107,6 +107,10 @@ void QnxDeviceTester::handleGenericTestFinished(TestResult result)
     }
 
     m_state = CommandsTest;
+
+    QnxDeviceConfiguration::ConstPtr qnxDevice = m_deviceConfiguration.dynamicCast<const QnxDeviceConfiguration>();
+    m_commandsToTest.append(versionSpecificCommandsToTest(qnxDevice->qnxVersion()));
+
     testNextCommand();
 }
 
@@ -117,13 +121,13 @@ void QnxDeviceTester::handleProcessFinished(int exitStatus)
     const QString command = m_commandsToTest[m_currentCommandIndex];
     if (exitStatus == QSsh::SshRemoteProcess::NormalExit) {
         if (m_processRunner->processExitCode() == 0) {
-            emit progressMessage(tr("%1 found.\n").arg(command));
+            emit progressMessage(tr("%1 found.").arg(command) + QLatin1Char('\n'));
         } else {
-            emit errorMessage(tr("%1 not found.\n").arg(command));
+            emit errorMessage(tr("%1 not found.").arg(command) + QLatin1Char('\n'));
             m_result = TestFailure;
         }
     } else {
-        emit errorMessage(tr("An error occurred checking for %1.\n").arg(command));
+        emit errorMessage(tr("An error occurred checking for %1.").arg(command)  + QLatin1Char('\n'));
         m_result = TestFailure;
     }
     testNextCommand();
@@ -134,7 +138,7 @@ void QnxDeviceTester::handleConnectionError()
     QTC_ASSERT(m_state == CommandsTest, return);
 
     m_result = TestFailure;
-    emit errorMessage(tr("SSH connection error: %1\n").arg(m_processRunner->lastConnectionErrorString()));
+    emit errorMessage(tr("SSH connection error: %1").arg(m_processRunner->lastConnectionErrorString()) + QLatin1Char('\n'));
     setFinished();
 }
 
@@ -160,4 +164,13 @@ void QnxDeviceTester::setFinished()
     if (m_processRunner)
         disconnect(m_processRunner, 0, this, 0);
     emit finished(m_result);
+}
+
+QStringList QnxDeviceTester::versionSpecificCommandsToTest(int versionNumber) const
+{
+    QStringList result;
+    if (versionNumber > 0x060500)
+        result << QLatin1String("slog2info");
+
+    return result;
 }

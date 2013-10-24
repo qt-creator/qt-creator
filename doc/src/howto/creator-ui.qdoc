@@ -298,6 +298,15 @@
         \li \gui Compile - Selected output from the compiler. Open the
             \gui {Compile Output} pane for more detailed information.
 
+       \li \gui{Debug Information} - Lists debug information packages that might
+            be missing.
+
+       \li \gui{Debugger Runtime} - Errors encountered when starting \QC. For
+            example, information about missing DLLs.
+
+       \li \gui Deployment - Errors encountered between building an application
+            successfully and starting it on a device.
+
         \li \gui {My Tasks} - Entries from a task list file (.tasks) generated
             by \l{Showing Task List Files in Issues Pane}
             {code scanning and analysis tools}.

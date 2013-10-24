@@ -252,7 +252,8 @@ void GdbRemoteServerEngine::handleFileExecAndSymbols(const GdbResponse &response
         callTargetRemote();
     } else {
         QByteArray reason = response.data["msg"].data();
-        QString msg = tr("Reading debug information failed:\n");
+        QString msg = tr("Reading debug information failed:");
+        msg += QLatin1Char('\n');
         msg += QString::fromLocal8Bit(reason);
         if (reason.endsWith("No such file or directory.")) {
             showMessage(_("INFERIOR STARTUP: BINARY NOT FOUND"));

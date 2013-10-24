@@ -64,11 +64,9 @@ Column {
                 ComboBox {
                     model: ["LeftToRight", "RightToLeft"]
                     backendValue: backendValues.layoutDirection
+                    Layout.fillWidth: true
                 }
 
-                ExpandingSpacer {
-
-                }
             }
 
             Label {

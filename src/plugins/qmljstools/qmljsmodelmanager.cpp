@@ -178,7 +178,7 @@ static void mergeSuffixes(QStringList &l1, const QStringList &l2)
         l1 = l2;
 }
 
-QmlJS::Document::Language QmlJSTools::languageOfFile(const QString &fileName)
+QmlJS::Language::Enum QmlJSTools::languageOfFile(const QString &fileName)
 {
     QStringList jsSuffixes(QLatin1String("js"));
     QStringList qmlSuffixes(QLatin1String("qml"));
@@ -202,14 +202,14 @@ QmlJS::Document::Language QmlJSTools::languageOfFile(const QString &fileName)
     const QFileInfo info(fileName);
     const QString fileSuffix = info.suffix();
     if (jsSuffixes.contains(fileSuffix))
-        return QmlJS::Document::JavaScriptLanguage;
+        return QmlJS::Language::JavaScript;
     if (qbsSuffixes.contains(fileSuffix))
-        return QmlJS::Document::QmlQbsLanguage;
+        return QmlJS::Language::QmlQbs;
     if (qmlSuffixes.contains(fileSuffix) || qmlProjectSuffixes.contains(fileSuffix))
-        return QmlJS::Document::QmlLanguage;
+        return QmlJS::Language::Qml;
     if (jsonSuffixes.contains(fileSuffix))
-        return QmlJS::Document::JsonLanguage;
-    return QmlJS::Document::UnknownLanguage;
+        return QmlJS::Language::Json;
+    return QmlJS::Language::Unknown;
 }
 
 QStringList QmlJSTools::qmlAndJsGlobPatterns()
@@ -666,23 +666,23 @@ static void findNewFileImports(const Document::Ptr &doc, const Snapshot &snapsho
     // scan files and directories that are explicitly imported
     foreach (const ImportInfo &import, doc->bind()->imports()) {
         const QString &importName = import.path();
-        if (import.type() == ImportInfo::FileImport) {
+        if (import.type() == ImportType::File) {
             if (! snapshot.document(importName))
                 *importedFiles += importName;
-        } else if (import.type() == ImportInfo::DirectoryImport) {
+        } else if (import.type() == ImportType::Directory) {
             if (snapshot.documentsInDirectory(importName).isEmpty()) {
                 if (! scannedPaths->contains(importName)) {
                     *importedFiles += qmlFilesInDirectory(importName);
                     scannedPaths->insert(importName);
                 }
             }
-        } else if (import.type() == ImportInfo::QrcFileImport) {
+        } else if (import.type() == ImportType::QrcFile) {
             QStringList importPaths = ModelManagerInterface::instance()->filesAtQrcPath(importName);
             foreach (const QString &importPath, importPaths) {
                 if (! snapshot.document(importPath))
                     *importedFiles += importPath;
             }
-        } else if (import.type() == ImportInfo::QrcDirectoryImport) {
+        } else if (import.type() == ImportType::QrcDirectory) {
             QMapIterator<QString,QStringList> dirContents(ModelManagerInterface::instance()->filesInQrcPath(importName));
             while (dirContents.hasNext()) {
                 dirContents.next();
@@ -792,13 +792,13 @@ static void findNewLibraryImports(const Document::Ptr &doc, const Snapshot &snap
     // scan dir and lib imports
     const QStringList importPaths = modelManager->importPaths();
     foreach (const ImportInfo &import, doc->bind()->imports()) {
-        if (import.type() == ImportInfo::DirectoryImport) {
+        if (import.type() == ImportType::Directory) {
             const QString targetPath = import.path();
             findNewQmlLibraryInPath(targetPath, snapshot, modelManager,
                                     importedFiles, scannedPaths, newLibraries);
         }
 
-        if (import.type() == ImportInfo::LibraryImport) {
+        if (import.type() == ImportType::Library) {
             if (!import.version().isValid())
                 continue;
             foreach (const QString &importPath, importPaths) {
@@ -829,8 +829,8 @@ void ModelManager::parse(QFutureInterface<void> &future,
 
         const QString fileName = files.at(i);
 
-        Document::Language language = languageOfFile(fileName);
-        if (language == Document::UnknownLanguage) {
+        Language::Enum language = languageOfFile(fileName);
+        if (language == Language::Unknown) {
             if (fileName.endsWith(QLatin1String(".qrc")))
                 modelManager->updateQrcFile(fileName);
             continue;
@@ -951,7 +951,7 @@ void ModelManager::updateImportPaths()
     while (it.hasNext()) {
         it.next();
         activeBundles.mergeLanguageBundles(it.value().activeBundle);
-        foreach (Document::Language l, it.value().activeBundle.languages()) {
+        foreach (Language::Enum l, it.value().activeBundle.languages()) {
             foreach (const QString &path, it.value().activeBundle.bundleForLanguage(l)
                  .searchPaths().stringList()) {
                 const QString canonicalPath = QFileInfo(path).canonicalFilePath();
@@ -964,7 +964,7 @@ void ModelManager::updateImportPaths()
     while (it.hasNext()) {
         it.next();
         extendedBundles.mergeLanguageBundles(it.value().extendedBundle);
-        foreach (Document::Language l, it.value().extendedBundle.languages()) {
+        foreach (Language::Enum l, it.value().extendedBundle.languages()) {
             foreach (const QString &path, it.value().extendedBundle.bundleForLanguage(l)
                      .searchPaths().stringList()) {
                 const QString canonicalPath = QFileInfo(path).canonicalFilePath();

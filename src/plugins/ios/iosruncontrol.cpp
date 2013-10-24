@@ -64,7 +64,7 @@ void IosRunControl::start()
         SLOT(handleRemoteOutput(QString)));
     connect(m_runner, SIGNAL(finished(bool)),
         SLOT(handleRemoteProcessFinished(bool)));
-    appendMessage(tr("Starting remote process.\n"), Utils::NormalMessageFormat);
+    appendMessage(tr("Starting remote process.") + QLatin1Char('\n'), Utils::NormalMessageFormat);
     m_runner->start();
 }
 

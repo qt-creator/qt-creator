@@ -1,0 +1,7 @@
+Label {
+    text: "%1"
+    toolTip: "%1"
+}
+LineEdit {
+    backendValue: backendValues.%2
+}

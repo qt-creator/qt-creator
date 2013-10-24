@@ -69,7 +69,7 @@ Item {
         }
 
         Rectangle {
-            color: "#666"
+            color:"#333"
             width: parent.width
             height: 1
         }

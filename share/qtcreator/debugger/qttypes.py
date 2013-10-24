@@ -69,6 +69,14 @@ def qdump__QByteArray(d, value):
     if d.isExpanded():
         d.putArrayData(d.charType(), data, size)
 
+def qdump__QByteArrayData(d, value):
+    data, size, alloc = d.byteArrayDataHelper(d.addressOf(value))
+    d.putValue(d.readMemory(data, size), Hex2EncodedLatin1)
+    d.putNumChild(1)
+    if d.isExpanded():
+        with Children(d):
+            d.putIntItem("size", size)
+            d.putIntItem("alloc", alloc)
 
 def qdump__QChar(d, value):
     d.putValue(int(value["ucs"]))
@@ -221,24 +229,37 @@ def qdump__QTime(d, value):
         d.putNumChild(0)
 
 
-# This relies on the Qt4/Qt5 internal structure layout:
-# {sharedref(4), date(8), time(4+x)}
 def qdump__QDateTime(d, value):
+    qtVersion = d.qtVersion()
+    isValid = False
+    # This relies on the Qt4/Qt5 internal structure layout:
+    # {sharedref(4), ...
     base = d.dereferenceValue(value)
-    # QDateTimePrivate:
-    # - QAtomicInt ref;    (padded on 64 bit)
-    # -     [QDate date;]
-    # -      -  uint jd in Qt 4,  qint64 in Qt 5; padded on 64 bit
-    # -     [QTime time;]
-    # -      -  uint mds;
-    # -  Spec spec;
-    dateSize = 4 if d.qtVersion() < 0x050000 and d.is32bit() else 8
     dateBase = base + d.ptrSize() # Only QAtomicInt, but will be padded.
-    timeBase = dateBase + dateSize
-    mds = d.extractInt(timeBase)
-    if mds >= 0:
-        jd = d.extractInt(dateBase)
-        d.putValue("%s/%s" % (jd, mds), JulianDateAndMillisecondsSinceMidnight)
+    if qtVersion >= 0x050200:
+        ms = d.extractInt64(dateBase)
+        offset = d.extractInt(dateBase + 12)
+        isValid = ms > 0
+        if isValid:
+            d.putValue("%s" % (ms - offset * 1000), MillisecondsSinceEpoch)
+    else:
+        # This relies on the Qt4/Qt5 internal structure layout:
+        # {sharedref(4), date(8), time(4+x)}
+        # QDateTimePrivate:
+        # - QAtomicInt ref;    (padded on 64 bit)
+        # -     [QDate date;]
+        # -      -  uint jd in Qt 4,  qint64 in Qt 5.0 and Qt 5.2; padded on 64 bit
+        # -     [QTime time;]
+        # -      -  uint mds;
+        # -  Spec spec;
+        dateSize = 4 if qtVersion < 0x050000 and d.is32bit() else 8
+        timeBase = dateBase + dateSize
+        mds = d.extractInt(timeBase)
+        isValid = mds > 0
+        if isValid:
+            jd = d.extractInt(dateBase)
+            d.putValue("%s/%s" % (jd, mds), JulianDateAndMillisecondsSinceMidnight)
+    if isValid:
         d.putNumChild(1)
         if d.isExpanded():
             # FIXME: This improperly uses complex return values.
@@ -532,14 +553,18 @@ def qdump__QHashNode(d, value):
 
 def qHashIteratorHelper(d, value):
     typeName = str(value.type)
-    hashType = d.lookupType(typeName[0:typeName.rfind("::")])
+    hashTypeName = typeName[0:typeName.rfind("::")]
+    hashType = d.lookupType(hashTypeName)
     keyType = d.templateArgument(hashType, 0)
     valueType = d.templateArgument(hashType, 1)
     d.putNumChild(1)
     d.putEmptyValue()
     if d.isExpanded():
         with Children(d):
-            innerTypeName = "%sQHashNode<%s,%s>" % (d.ns, keyType, valueType)
+            # We need something like QHash<int, float>::iterator
+            # -> QHashNode<int, float> with 'proper' spacing,
+            # as space changes confuse LLDB.
+            innerTypeName = hashTypeName.replace("QHash", "QHashNode", 1)
             node = value["i"].cast(d.lookupType(innerTypeName).pointer())
             d.putSubItem("key", node["key"])
             d.putSubItem("value", node["value"])
@@ -857,9 +882,11 @@ def qdumpHelper__Qt5_QMap(d, value, forceLong):
         keyType = d.templateArgument(value.type, 0)
         valueType = d.templateArgument(value.type, 1)
         isCompact = d.isMapCompact(keyType, valueType)
-        # Note: The space in the QMapNode lookup below is
-        # important for LLDB.
-        nodeType = d.lookupType(d.ns + "QMapNode<%s, %s>" % (keyType, valueType))
+        # Note: Keeping the spacing in the type lookup
+        # below is important for LLDB.
+        needle = str(d_ptr.type).replace("QMapData", "QMapNode", 1)
+        nodeType = d.lookupType(needle)
+
         if isCompact:
             innerType = valueType
         else:
@@ -1098,15 +1125,10 @@ def qdump__QObject(d, value):
                                 gdb.execute("set $d.d.is_null = %s"
                                         % value1["is_null"])
                                 prop = d.parseAndEvaluate("$d").dereference()
-                            val, inner, innert, handled = \
-                                qdumpHelper__QVariant(d, prop)
+                            val, innert, handled = qdumpHelper__QVariant(d, prop)
 
                             if handled:
                                 pass
-                            elif len(inner):
-                                # Build-in types.
-                                d.putType(inner)
-                                d.putItem(val)
                             else:
                                 # User types.
                            #    func = "typeToName(('%sQVariant::Type')%d)"
@@ -1443,19 +1465,34 @@ def qdump__QRegion(d, value):
         d.putValue("<empty>")
         d.putNumChild(0)
     else:
-        try:
-            # Fails without debug info.
-            n = int(p.dereference()["numRects"])
-            d.putItemCount(n)
-            d.putNumChild(n)
-            d.putPlainChildren(p.dereference())
-        except:
-            warn("NO DEBUG INFO")
-            d.putValue(p)
-            d.putPlainChildren(value)
+        # struct QRegionPrivate:
+        # int numRects;
+        # QVector<QRect> rects;
+        # QRect extents;
+        # QRect innerRect;
+        # int innerArea;
+        pp = d.dereferenceValue(p)
+        n = d.extractInt(pp)
+        d.putItemCount(n)
+        d.putNumChild(n)
+        if d.isExpanded():
+            with Children(d):
+                v = d.ptrSize()
+                rectType = d.lookupType(d.ns + "QRect")
+                d.putIntItem("numRects", n)
+                d.putSubItem("extents", d.createValue(pp + 2 * v, rectType))
+                d.putSubItem("innerRect", d.createValue(pp + 2 * v + rectType.sizeof, rectType))
+                # FIXME
+                try:
+                    # Can fail if QVector<QRect> debuginfo is missing.
+                    vectType = d.lookupType("%sQVector<%sQRect>" % (d.ns, d.ns))
+                    d.putSubItem("rects", d.createValue(pp + v, vectType))
+                except:
+                    with SubItem(d, "rects"):
+                        d.putItemCount(n)
+                        d.putType("%sQVector<%sQRect>" % (d.ns, d.ns))
+                        d.putNumChild(0)
 
-# qt_rgn might be 0
-# gdb.parse_and_eval("region")["d"].dereference()["qt_rgn"].dereference()
 
 def qdump__QScopedPointer(d, value):
     d.putBetterType(d.currentType)
@@ -1674,17 +1711,38 @@ def qdump__QUrl(d, value):
         # - QString query;
         # - QString fragment;
         schemeAddr = d.dereferenceValue(value) + 2 * d.intSize()
-        scheme = d.dereference(schemeAddr)
-        host = d.dereference(schemeAddr + 3 * d.ptrSize())
-        path = d.dereference(schemeAddr + 4 * d.ptrSize())
+        scheme = d.encodeStringHelper(d.dereference(schemeAddr))
+        userName = d.encodeStringHelper(d.dereference(schemeAddr + 1 * d.ptrSize()))
+        password = d.encodeStringHelper(d.dereference(schemeAddr + 2 * d.ptrSize()))
+        host = d.encodeStringHelper(d.dereference(schemeAddr + 3 * d.ptrSize()))
+        path = d.encodeStringHelper(d.dereference(schemeAddr + 4 * d.ptrSize()))
+        query = d.encodeStringHelper(d.dereference(schemeAddr + 5 * d.ptrSize()))
+        fragment = d.encodeStringHelper(d.dereference(schemeAddr + 6 * d.ptrSize()))
+        port = d.extractInt(d.dereferenceValue(value) + d.intSize())
 
-        str = d.encodeString(scheme)
-        str += "3a002f002f00"
-        str += d.encodeString(host)
-        str += d.encodeString(path)
-        d.putValue(str, Hex4EncodedLittleEndian)
-        d.putPlainChildren(value)
-
+        url = scheme
+        url += "3a002f002f00"
+        if len(userName):
+            url += userName
+            url += "4000"
+        url += host
+        if port >= 0:
+            url += "3a00"
+            url += ''.join(["%02x00" % ord(c) for c in str(port)])
+        url += path
+        d.putValue(url, Hex4EncodedLittleEndian)
+        d.putNumChild(8)
+        if d.isExpanded():
+            stringType = d.lookupType(d.ns + "QString")
+            with Children(d):
+                d.putIntItem("port", port)
+                d.putGenericItem("scheme", stringType, scheme, Hex4EncodedLittleEndian)
+                d.putGenericItem("userName", stringType, userName, Hex4EncodedLittleEndian)
+                d.putGenericItem("password", stringType, password, Hex4EncodedLittleEndian)
+                d.putGenericItem("host", stringType, host, Hex4EncodedLittleEndian)
+                d.putGenericItem("path", stringType, path, Hex4EncodedLittleEndian)
+                d.putGenericItem("query", stringType, query, Hex4EncodedLittleEndian)
+                d.putGenericItem("fragment", stringType, fragment, Hex4EncodedLittleEndian)
 
 def qdumpHelper_QVariant_0(d, data):
     # QVariant::Invalid
@@ -1737,8 +1795,8 @@ qdumpHelper_QVariants_A = [
 
 qdumpHelper_QVariants_B = [
     "QChar",       # 7
-    None,          # 8, QVariantMap
-    None,          # 9, QVariantList
+    "QVariantMap", # 8
+    "QVariantList",# 9
     "QString",     # 10
     "QStringList", # 11
     "QByteArray",  # 12
@@ -1757,7 +1815,7 @@ qdumpHelper_QVariants_B = [
     "QPoint",      # 25
     "QPointF",     # 26
     "QRegExp",     # 27
-    None,          # 28, QVariantHash
+    "QVariantHash",# 28
 ]
 
 qdumpHelper_QVariants_C = [
@@ -1791,80 +1849,53 @@ def qdumpHelper__QVariant(d, value):
     variantType = int(value["d"]["type"])
     #warn("VARIANT TYPE: %s : " % variantType)
 
+    # Well-known simple type.
     if variantType <= 6:
         qdumpHelper_QVariants_A[variantType](d, data)
         d.putNumChild(0)
-        return (None, None, None, True)
+        return (None, None, True)
 
-    inner = ""
-    innert = ""
-    val = None
+    # Unknown user type.
+    if variantType > 86:
+        return (None, "", False)
 
+    # Known Core or Gui type.
     if variantType <= 28:
-        inner = qdumpHelper_QVariants_B[variantType - 7]
-        if not inner is None:
-            innert = inner
-        elif variantType == 8:  # QVariant::VariantMap
-            inner = d.ns + "QMap<" + d.ns + "QString," + d.ns + "QVariant>"
-            innert = "QVariantMap"
-        elif variantType == 9:  # QVariant::VariantList
-            inner = d.ns + "QList<" + d.ns + "QVariant>"
-            innert = "QVariantList"
-        elif variantType == 28: # QVariant::VariantHash
-            inner = d.ns + "QHash<" + d.ns + "QString," + d.ns + "QVariant>"
-            innert = "QVariantHash"
+        innert = qdumpHelper_QVariants_B[variantType - 7]
+    else:
+        innert = qdumpHelper_QVariants_C[variantType - 64]
 
-    elif variantType <= 86:
-        inner = d.ns + qdumpHelper_QVariants_C[variantType - 64]
-        innert = inner
+    inner = d.ns + innert
 
-    if len(inner):
-        innerType = d.lookupType(inner)
-        sizePD = 8 # sizeof(QVariant::Private::Data)
-        if innerType.sizeof > sizePD:
-            sizePS = 2 * d.ptrSize() # sizeof(QVariant::PrivateShared)
-            val = (data.cast(d.charPtrType()) + sizePS) \
-                .cast(innerType.pointer()).dereference()
-        else:
-            val = data.cast(innerType)
+    innerType = d.lookupType(inner)
+    sizePD = 8 # sizeof(QVariant::Private::Data)
+    isSpecial = d.qtVersion() >= 0x050000 \
+            and (innert == "QVariantMap" or innert == "QVariantHash")
+    if innerType.sizeof > sizePD or isSpecial:
+        sizePS = 2 * d.ptrSize() # sizeof(QVariant::PrivateShared)
+        val = (data.cast(d.charPtrType()) + sizePS) \
+            .cast(innerType.pointer()).dereference()
+    else:
+        val = data.cast(innerType)
 
-    return (val, inner, innert, False)
+    d.putEmptyValue(-99)
+    d.putItem(val)
+    d.putBetterType("%sQVariant (%s)" % (d.ns, innert))
+
+    return (None, innert, True)
 
 
 def qdump__QVariant(d, value):
-    d_ptr = value["d"]
-    d_data = d_ptr["data"]
-
-    (val, inner, innert, handled) = qdumpHelper__QVariant(d, value)
+    (val, innert, handled) = qdumpHelper__QVariant(d, value)
 
     if handled:
-        return
-
-    if len(inner):
-        innerType = d.lookupType(inner)
-        if innerType.sizeof > d_data.type.sizeof:
-            # FIXME:
-            #if int(d_ptr["is_shared"]):
-            #    v = d_data["ptr"].cast(innerType.pointer().pointer().pointer()) \
-            #        .dereference().dereference().dereference()
-            #else:
-                v = d_data["ptr"].cast(innerType.pointer().pointer()) \
-                    .dereference().dereference()
-        else:
-            v = d_data.cast(innerType)
-        d.putEmptyValue(-99)
-        d.putItem(v)
-        d.putBetterType("%sQVariant (%s)" % (d.ns, innert))
         return innert
 
     # User types.
+    d_ptr = value["d"]
     typeCode = int(d_ptr["type"])
-    if d.isGdb:
-        type = str(d.call(value, "typeToName",
-            "('%sQVariant::Type')%d" % (d.ns, typeCode)))
-    if d.isLldb:
-        type = str(d.call(value, "typeToName",
-            "(%sQVariant::Type)%d" % (d.ns, typeCode)))
+    exp = "((const char *(*)(int))%sQMetaType::typeName)(%d)" % (d.ns, typeCode)
+    type = str(d.parseAndEvaluate(exp))
     type = type[type.find('"') + 1 : type.rfind('"')]
     type = type.replace("Q", d.ns + "Q") # HACK!
     type = type.replace("uint", "unsigned int") # HACK!

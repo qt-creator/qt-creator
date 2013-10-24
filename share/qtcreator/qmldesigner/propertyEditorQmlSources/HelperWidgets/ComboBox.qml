@@ -36,14 +36,20 @@ Controls.ComboBox {
 
     property variant backendValue
 
-    QtObject {
-        property string valueFromBackend: lineEdit.backendValue.valueToString;
+    property color textColor: colorLogic.textColor
+
+    ColorLogic {
+        id: colorLogic
+        backendValue: comboBox.backendValue
         onValueFromBackendChanged: {
-            lineEdit.currentText = valueFromBackend;
+            comboBox.currentIndex = comboBox.find( comboBox.backendValue.valueToString);
         }
     }
 
     onCurrentTextChanged: {
+        if (backendValue === undefined)
+            return;
+
         if (backendValue.value !== currentText)
             backendValue.value = currentText;
     }
@@ -57,5 +63,13 @@ Controls.ComboBox {
     }
 
     style: CustomComboBoxStyle {
+        textColor: comboBox.textColor
+    }
+
+    ExtendedFunctionButton {
+        x: 2
+        y: 4
+        backendValue: comboBox.backendValue
+        visible: comboBox.enabled
     }
 }

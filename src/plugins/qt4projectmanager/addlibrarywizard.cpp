@@ -275,6 +275,7 @@ SummaryPage::SummaryPage(AddLibraryWizard *parent)
     QVBoxLayout *layout = new QVBoxLayout(this);
     m_summaryLabel = new QLabel(this);
     m_snippetLabel = new QLabel(this);
+    m_snippetLabel->setWordWrap(true);
     layout->addWidget(m_summaryLabel);
     layout->addWidget(m_snippetLabel);
     m_summaryLabel->setTextFormat(Qt::RichText);

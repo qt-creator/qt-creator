@@ -109,10 +109,7 @@ Column {
                 ComboBox {
                     model: ["LeftToRight", "TopToBottom"]
                     backendValue: backendValues.flow
-                }
-
-                ExpandingSpacer {
-
+                    Layout.fillWidth: true
                 }
             }
 
@@ -139,10 +136,7 @@ Column {
                 ComboBox {
                     model: ["LeftToRight", "RightToLeft"]
                     backendValue: backendValues.layoutDirection
-                }
-
-                ExpandingSpacer {
-
+                    Layout.fillWidth: true
                 }
             }
 
@@ -155,10 +149,7 @@ Column {
                 ComboBox {
                     model: ["NoSnap", "SnapToRow", "SnapOneRow"]
                     backendValue: backendValues.snapMode
-                }
-
-                ExpandingSpacer {
-
+                    Layout.fillWidth: true
                 }
             }
 
@@ -181,10 +172,7 @@ Column {
                 ComboBox {
                     model: ["NoHighlightRange", "ApplyRange", "StrictlyEnforceRange"]
                     backendValue: backendValues.highlightRangeMode
-                }
-
-                ExpandingSpacer {
-
+                    Layout.fillWidth: true
                 }
             }
 

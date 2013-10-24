@@ -76,6 +76,9 @@ private:
 
 #ifdef WITH_TESTS
 private slots:
+    void testDebuggerMatching_data();
+    void testDebuggerMatching();
+
     void testBenchmark();
 //    void testStateMachine();
 #endif

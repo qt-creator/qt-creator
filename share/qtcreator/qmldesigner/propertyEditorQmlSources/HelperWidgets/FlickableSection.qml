@@ -90,10 +90,9 @@ Section {
             ComboBox {
                 backendValue: backendValues.flickableDirection
                 model: ["AutoFlickDirection", "HorizontalFlick", "VerticalFlick", "HorizontalAndVerticalFlick"]
+                Layout.fillWidth: true
             }
 
-            ExpandingSpacer {
-            }
         }
 
         Label {
@@ -105,10 +104,9 @@ Section {
             ComboBox {
                 backendValue: backendValues.boundsBehavior
                 model: ["StopAtBounds", "DragOverBounds", "DragAndOvershootBounds"]
+                Layout.fillWidth: true
             }
 
-            ExpandingSpacer {
-            }
         }
 
         Label {
@@ -120,9 +118,7 @@ Section {
             ComboBox {
                 backendValue: backendValues.boundsBehavior
                 model: ["StopAtBounds", "DragOverBounds", "DragAndOvershootBounds"]
-            }
-
-            ExpandingSpacer {
+                Layout.fillWidth: true
             }
         }
 

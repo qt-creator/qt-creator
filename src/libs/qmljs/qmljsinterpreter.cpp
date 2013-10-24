@@ -2074,7 +2074,7 @@ bool ASTSignal::getSourceLocation(QString *fileName, int *line, int *column) con
 
 
 ImportInfo::ImportInfo()
-    : _type(InvalidImport)
+    : _type(ImportType::Invalid)
     , _ast(0)
 {
 }
@@ -2089,7 +2089,7 @@ ImportInfo ImportInfo::moduleImport(QString uri, ComponentVersion version,
     }
 
     ImportInfo info;
-    info._type = LibraryImport;
+    info._type = ImportType::Library;
     info._name = uri;
     info._path = uri;
     info._path.replace(QLatin1Char('.'), QDir::separator());
@@ -2111,17 +2111,17 @@ ImportInfo ImportInfo::pathImport(const QString &docPath, const QString &path,
     info._path = importFileInfo.absoluteFilePath();
 
     if (importFileInfo.isFile()) {
-        info._type = FileImport;
+        info._type = ImportType::File;
     } else if (importFileInfo.isDir()) {
-        info._type = DirectoryImport;
+        info._type = ImportType::Directory;
     } else if (path.startsWith(QLatin1String("qrc:"))) {
         info._path = path;
         if (ModelManagerInterface::instance()->filesAtQrcPath(info.path()).isEmpty())
-            info._type = QrcDirectoryImport;
+            info._type = ImportType::QrcDirectory;
         else
-            info._type = QrcFileImport;
+            info._type = ImportType::QrcFile;
     } else {
-        info._type = UnknownFileImport;
+        info._type = ImportType::UnknownFile;
     }
     info._version = version;
     info._as = as;
@@ -2132,7 +2132,7 @@ ImportInfo ImportInfo::pathImport(const QString &docPath, const QString &path,
 ImportInfo ImportInfo::invalidImport(UiImport *ast)
 {
     ImportInfo info;
-    info._type = InvalidImport;
+    info._type = ImportType::Invalid;
     info._ast = ast;
     return info;
 }
@@ -2140,17 +2140,17 @@ ImportInfo ImportInfo::invalidImport(UiImport *ast)
 ImportInfo ImportInfo::implicitDirectoryImport(const QString &directory)
 {
     ImportInfo info;
-    info._type = ImplicitDirectoryImport;
+    info._type = ImportType::ImplicitDirectory;
     info._path = directory;
     return info;
 }
 
 bool ImportInfo::isValid() const
 {
-    return _type != InvalidImport;
+    return _type != ImportType::Invalid;
 }
 
-ImportInfo::Type ImportInfo::type() const
+ImportType::Enum ImportInfo::type() const
 {
     return _type;
 }
@@ -2181,8 +2181,13 @@ UiImport *ImportInfo::ast() const
 }
 
 Import::Import()
-    : object(0)
+    : object(0), valid(false), used(false)
 {}
+
+Import::Import(const Import &other)
+    : object(other.object), info(other.info), libraryPath(other.libraryPath),
+      valid(other.valid), used(false)
+{ }
 
 TypeScope::TypeScope(const Imports *imports, ValueOwner *valueOwner)
     : ObjectValue(valueOwner)
@@ -2201,13 +2206,14 @@ const Value *TypeScope::lookupMember(const QString &name, const Context *context
         const ImportInfo &info = i.info;
 
         // JS import has no types
-        if (info.type() == ImportInfo::FileImport || info.type() == ImportInfo::QrcFileImport)
+        if (info.type() == ImportType::File || info.type() == ImportType::QrcFile)
             continue;
 
         if (!info.as().isEmpty()) {
             if (info.as() == name) {
                 if (foundInObject)
                     *foundInObject = this;
+                i.used = true;
                 return import;
             }
             continue;
@@ -2231,7 +2237,7 @@ void TypeScope::processMembers(MemberProcessor *processor) const
         const ImportInfo &info = i.info;
 
         // JS import has no types
-        if (info.type() == ImportInfo::FileImport || info.type() == ImportInfo::QrcFileImport)
+        if (info.type() == ImportType::File || info.type() == ImportType::QrcFile)
             continue;
 
         if (!info.as().isEmpty())
@@ -2258,12 +2264,13 @@ const Value *JSImportScope::lookupMember(const QString &name, const Context *,
         const ImportInfo &info = i.info;
 
         // JS imports are always: import "somefile.js" as Foo
-        if (info.type() != ImportInfo::FileImport && info.type() != ImportInfo::QrcFileImport)
+        if (info.type() != ImportType::File && info.type() != ImportType::QrcFile)
             continue;
 
         if (info.as() == name) {
             if (foundInObject)
                 *foundInObject = this;
+            i.used = true;
             return import;
         }
     }
@@ -2281,7 +2288,7 @@ void JSImportScope::processMembers(MemberProcessor *processor) const
         const ObjectValue *import = i.object;
         const ImportInfo &info = i.info;
 
-        if (info.type() == ImportInfo::FileImport || info.type() == ImportInfo::QrcFileImport)
+        if (info.type() == ImportType::File || info.type() == ImportType::QrcFile)
             processor->processProperty(info.as(), import);
     }
 }
@@ -2338,7 +2345,7 @@ ImportInfo Imports::info(const QString &name, const Context *context) const
             continue;
         }
 
-        if (info.type() == ImportInfo::FileImport || info.type() == ImportInfo::QrcFileImport) {
+        if (info.type() == ImportType::File || info.type() == ImportType::QrcFile) {
             if (import->className() == firstId)
                 return info;
         } else {
@@ -2358,7 +2365,7 @@ QString Imports::nameForImportedObject(const ObjectValue *value, const Context *
         const ObjectValue *import = i.object;
         const ImportInfo &info = i.info;
 
-        if (info.type() == ImportInfo::FileImport || info.type() == ImportInfo::QrcFileImport) {
+        if (info.type() == ImportType::File || info.type() == ImportType::QrcFile) {
             if (import == value)
                 return import->className();
         } else {

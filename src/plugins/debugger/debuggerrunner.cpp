@@ -192,7 +192,7 @@ void DebuggerRunControl::start()
     // User canceled input dialog asking for executable when working on library project.
     if (d->m_engine->startParameters().startMode == StartInternal
         && d->m_engine->startParameters().executable.isEmpty()) {
-        appendMessage(tr("No executable specified.\n"), ErrorMessageFormat);
+        appendMessage(tr("No executable specified.") + QLatin1Char('\n'), ErrorMessageFormat);
         emit started();
         emit finished();
         return;
@@ -232,12 +232,12 @@ void DebuggerRunControl::start()
     d->m_engine->startDebugger(this);
 
     if (d->m_running)
-        appendMessage(tr("Debugging starts\n"), NormalMessageFormat);
+        appendMessage(tr("Debugging starts") + QLatin1Char('\n'), NormalMessageFormat);
 }
 
 void DebuggerRunControl::startFailed()
 {
-    appendMessage(tr("Debugging has failed\n"), NormalMessageFormat);
+    appendMessage(tr("Debugging has failed") + QLatin1Char('\n'), NormalMessageFormat);
     d->m_running = false;
     emit finished();
     d->m_engine->handleStartFailed();
@@ -245,7 +245,7 @@ void DebuggerRunControl::startFailed()
 
 void DebuggerRunControl::handleFinished()
 {
-    appendMessage(tr("Debugging has finished\n"), NormalMessageFormat);
+    appendMessage(tr("Debugging has finished") + QLatin1Char('\n'), NormalMessageFormat);
     if (d->m_engine)
         d->m_engine->handleFinished();
     debuggerCore()->runControlFinished(d->m_engine);

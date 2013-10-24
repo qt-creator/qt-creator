@@ -89,11 +89,9 @@ Column {
                 ComboBox {
                     model: ["Horizontal", "Vertical"]
                     backendValue: backendValues.orientation
+                    Layout.fillWidth: true
                 }
 
-                ExpandingSpacer {
-
-                }
             }
 
             Label {

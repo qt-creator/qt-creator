@@ -40,6 +40,8 @@
 
 using namespace CPlusPlus;
 
+const Token TranslationUnit::nullToken;
+
 TranslationUnit::TranslationUnit(Control *control, const StringLiteral *fileId)
     : _control(control),
       _fileId(fileId),
@@ -58,9 +60,7 @@ TranslationUnit::TranslationUnit(Control *control, const StringLiteral *fileId)
 TranslationUnit::~TranslationUnit()
 {
     (void) _control->switchTranslationUnit(_previousTranslationUnit);
-    delete _tokens;
-    delete _comments;
-    delete _pool;
+    release();
 }
 
 Control *TranslationUnit::control() const
@@ -95,7 +95,7 @@ const char *TranslationUnit::spell(unsigned index) const
     if (! index)
         return 0;
 
-    return _tokens->at(index).spell();
+    return tokenAt(index).spell();
 }
 
 unsigned TranslationUnit::commentCount() const
@@ -105,19 +105,19 @@ const Token &TranslationUnit::commentAt(unsigned index) const
 { return _comments->at(index); }
 
 const Identifier *TranslationUnit::identifier(unsigned index) const
-{ return _tokens->at(index).identifier; }
+{ return tokenAt(index).identifier; }
 
 const Literal *TranslationUnit::literal(unsigned index) const
-{ return _tokens->at(index).literal; }
+{ return tokenAt(index).literal; }
 
 const StringLiteral *TranslationUnit::stringLiteral(unsigned index) const
-{ return _tokens->at(index).string; }
+{ return tokenAt(index).string; }
 
 const NumericLiteral *TranslationUnit::numericLiteral(unsigned index) const
-{ return _tokens->at(index).number; }
+{ return tokenAt(index).number; }
 
 unsigned TranslationUnit::matchingBrace(unsigned index) const
-{ return _tokens->at(index).close_brace; }
+{ return tokenAt(index).close_brace; }
 
 MemoryPool *TranslationUnit::memoryPool() const
 { return _pool; }
@@ -143,7 +143,7 @@ void TranslationUnit::tokenize()
     lex.setScanCommentTokens(true);
 
     std::stack<unsigned> braces;
-    _tokens->push_back(Token()); // the first token needs to be invalid!
+    _tokens->push_back(nullToken); // the first token needs to be invalid!
 
     pushLineOffset(0);
     pushPreprocessorLine(0, 1, fileId());
@@ -250,7 +250,8 @@ void TranslationUnit::tokenize()
         } else if (tk.f.kind == T_RBRACE && ! braces.empty()) {
             const unsigned open_brace_index = braces.top();
             braces.pop();
-            (*_tokens)[open_brace_index].close_brace = unsigned(_tokens->size());
+            if (open_brace_index < tokenCount())
+                (*_tokens)[open_brace_index].close_brace = unsigned(_tokens->size());
         } else if (tk.isComment()) {
             _comments->push_back(tk);
             continue; // comments are not in the regular token stream
@@ -507,13 +508,15 @@ void TranslationUnit::fatal(unsigned index, const char *format, ...)
 
 unsigned TranslationUnit::findPreviousLineOffset(unsigned tokenIndex) const
 {
-    unsigned lineOffset = _lineOffsets[findLineNumber(_tokens->at(tokenIndex).offset)];
+    unsigned lineOffset = _lineOffsets[findLineNumber(tokenAt(tokenIndex).offset)];
     return lineOffset;
 }
 
 bool TranslationUnit::maybeSplitGreaterGreaterToken(unsigned tokenIndex)
 {
-    Token &tok = _tokens->at(tokenIndex);
+    if (tokenIndex >= tokenCount())
+        return false;
+    Token &tok = (*_tokens)[tokenIndex];
     if (tok.kind() != T_GREATER_GREATER)
         return false;
 
@@ -538,9 +541,17 @@ bool TranslationUnit::maybeSplitGreaterGreaterToken(unsigned tokenIndex)
     return true;
 }
 
+void TranslationUnit::releaseTokensAndComments()
+{
+    delete _tokens;
+    _tokens = 0;
+    delete _comments;
+    _comments = 0;
+}
+
 void TranslationUnit::showErrorLine(unsigned index, unsigned column, FILE *out)
 {
-    unsigned lineOffset = _lineOffsets[findLineNumber(_tokens->at(index).offset)];
+    unsigned lineOffset = _lineOffsets[findLineNumber(tokenAt(index).offset)];
     for (const char *cp = _firstSourceChar + lineOffset + 1; *cp && *cp != '\n'; ++cp) {
         fputc(*cp, out);
     }
@@ -567,10 +578,5 @@ void TranslationUnit::resetAST()
 void TranslationUnit::release()
 {
     resetAST();
-    delete _tokens;
-    _tokens = 0;
-    delete _comments;
-    _comments = 0;
+    releaseTokensAndComments();
 }
-
-

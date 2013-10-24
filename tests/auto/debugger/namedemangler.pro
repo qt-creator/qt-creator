@@ -1,4 +1,5 @@
 QTC_LIB_DEPENDS += utils
+QT -= gui
 
 include(../qttest.pri)
 

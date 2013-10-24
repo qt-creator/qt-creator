@@ -196,10 +196,11 @@ static QByteArray parentIName(const QByteArray &iname)
 
 struct ValueBase
 {
-    ValueBase() : hasPtrSuffix(false), isFloatValue(false), version(0) {}
+    ValueBase() : hasPtrSuffix(false), isFloatValue(false), substituteNamespace(true), version(0) {}
 
     bool hasPtrSuffix;
     bool isFloatValue;
+    bool substituteNamespace;
     int version;
 };
 
@@ -232,7 +233,8 @@ struct Value : public ValueBase
         if (actualValue == QLatin1String(" "))
             actualValue.clear(); // FIXME: Remove later.
         QString expectedValue = value;
-        expectedValue.replace(QLatin1Char('@'), QString::fromLatin1(context.nameSpace));
+        if (substituteNamespace)
+            expectedValue.replace(QLatin1Char('@'), QString::fromLatin1(context.nameSpace));
 
         if (hasPtrSuffix)
             return actualValue.startsWith(expectedValue + QLatin1String(" @0x"))
@@ -275,6 +277,11 @@ struct Value4 : Value
 struct Value5 : Value
 {
     Value5(const QByteArray &value) : Value(value) { version = 5; }
+};
+
+struct UnsubstitutedValue : Value
+{
+    UnsubstitutedValue(const QByteArray &value) : Value(value) { substituteNamespace = false; }
 };
 
 struct Type
@@ -344,6 +351,13 @@ struct Cxx11Profile : public Profile
     Cxx11Profile()
       : Profile("greaterThan(QT_MAJOR_VERSION,4): CONFIG += c++11\n"
                 "else: QMAKE_CXXFLAGS += -std=c++0x\n")
+    {}
+};
+
+struct BoostProfile : public Profile
+{
+    BoostProfile()
+      : Profile("macx:INCLUDEPATH += /usr/local/include")
     {}
 };
 
@@ -1219,12 +1233,15 @@ void tst_Dumpers::dumper_data()
                     "QDateTime date(QDate(1980, 1, 1), QTime(13, 15, 32), Qt::UTC);\n"
                     "unused(&date);\n")
                % CoreProfile()
-               % Check("date", "Tue Jan 1 13:15:32 1980", "@QDateTime")
+               % Check("date", Value4("Tue Jan 1 13:15:32 1980"), "@QDateTime")
+               % Check("date", Value5("Tue Jan 1 13:15:32 1980 GMT"), "@QDateTime")
                % Check("date.(ISO)", "\"1980-01-01T13:15:32Z\"", "@QString")
                % CheckType("date.(Locale)", "@QString")
                % CheckType("date.(SystemLocale)", "@QString")
-               % Check("date.toString", "\"Tue Jan 1 13:15:32 1980\"", "@QString")
-               % Check("date.toUTC", "Tue Jan 1 13:15:32 1980", "@QDateTime");
+               % Check("date.toString", Value4("\"Tue Jan 1 13:15:32 1980\""), "@QString")
+               % Check("date.toString", Value5("\"Tue Jan 1 13:15:32 1980 GMT\""), "@QString")
+               % Check("date.toUTC", Value4("Tue Jan 1 13:15:32 1980"), "@QDateTime")
+               % Check("date.toUTC", Value5("Tue Jan 1 13:15:32 1980 GMT"), "@QDateTime");
 
 #ifdef Q_OS_WIN
     QByteArray tempDir = "\"C:/Program Files\"";
@@ -1429,7 +1446,9 @@ void tst_Dumpers::dumper_data()
     QTest::newRow("QHostAddress1")
             << Data("#include <QHostAddress>\n",
                     "QHostAddress ha1(129u * 256u * 256u * 256u + 130u);\n"
-                    "QHostAddress ha2(\"127.0.0.1\");\n")
+                    "QHostAddress ha2;\n"
+                    "ha2.setAddress(\"127.0.0.1\");\n"
+                    "unused(&ha1, &ha2);\n")
                % CoreProfile()
                % Profile("QT += network\n")
                % Check("ha1", "129.0.0.130", "@QHostAddress")
@@ -1454,7 +1473,8 @@ void tst_Dumpers::dumper_data()
                     "addr.c[13] = 0;\n"
                     "addr.c[14] = 0;\n"
                     "addr.c[15] = 0;\n"
-                    "QHostAddress ha1(addr);\n")
+                    "QHostAddress ha1(addr);\n"
+                    "unused(&ha1);\n")
                % CoreProfile()
                % Profile("QT += network\n")
                % Check("addr", "1:203:506:0:809:a0b:0:0", "@QIPv6Address");
@@ -2224,9 +2244,7 @@ void tst_Dumpers::dumper_data()
                % Check("s", "(100.5, 200.5)", "@QSizeF");
 
     QTest::newRow("QRegion")
-            << Data("#include <QRegion>\n"
-                    "#include <QString> // Dummy for namespace\n",
-                    "QString dummy;\n"
+            << Data("#include <QRegion>\n",
                     "QRegion region, region0, region1, region2;\n"
                     "region0 = region;\n"
                     "region += QRect(100, 100, 200, 200);\n"
@@ -2242,7 +2260,7 @@ void tst_Dumpers::dumper_data()
                % Check("region1.innerArea", "40000", "int")
                % Check("region1.innerRect", "200x200+100+100", "@QRect")
                % Check("region1.numRects", "1", "int")
-               % Check("region1.rects", "<0 items>", "@QVector<@QRect>")
+               % Check("region1.rects", "<1 items>", "@QVector<@QRect>")
                % Check("region2", "<2 items>", "@QRegion")
                % Check("region2.extents", "600x700+100+100", "@QRect")
                % Check("region2.innerArea", "200000", "int")
@@ -3171,10 +3189,18 @@ void tst_Dumpers::dumper_data()
 
     QTest::newRow("QUrl")
             << Data("#include <QUrl>",
-                    "QUrl url = QUrl::fromEncoded(\"http://qt-project.org/have_fun\");\n"
+                    "QUrl url = QUrl::fromEncoded(\"http://foo@qt-project.org:10/have_fun\");\n"
                     "unused(&url);\n")
                % CoreProfile()
-               % Check("url", "\"http://qt-project.org/have_fun\"", "@QUrl");
+               % Check("url", UnsubstitutedValue("\"http://foo@qt-project.org:10/have_fun\""), "@QUrl")
+               % Check("url.port", Value5("10"), "int")
+               % Check("url.scheme", Value5("\"http\""), "@QString")
+               % Check("url.userName", Value5("\"foo\""), "@QString")
+               % Check("url.password", Value5("\"\""), "@QString")
+               % Check("url.host", Value5("\"qt-project.org\""), "@QString")
+               % Check("url.path", Value5("\"/have_fun\""), "@QString")
+               //% Check("url.query", Value5("\"\""), "@QString")  That's a QByteArray in Qt 4
+               % Check("url.fragment", Value5("\"\""), "@QString");
 
     QTest::newRow("QStringQuotes")
             << Data("#include <QString>\n",
@@ -3378,8 +3404,6 @@ void tst_Dumpers::dumper_data()
                     "value = QVariant(t, (void*)0);\n"
                     "*(QString*)value.data() = QString(\"Some string\");\n")
                % CoreProfile()
-               % LldbOnly()
-               % Check("t", "String", "@QVariant::Type")
                % Check("value", "\"Some string\"", "@QVariant (QString)");
 
     QTest::newRow("QVariant2")
@@ -3453,26 +3477,25 @@ void tst_Dumpers::dumper_data()
                     "#include <QVariant>\n"
                     "Q_DECLARE_METATYPE(QHostAddress)\n",
                     "QVariant var;\n"
-                    "QHostAddress ha(\"127.0.0.1\");\n"
+                    "QHostAddress ha;\n"
+                    "ha.setAddress(\"127.0.0.1\");\n"
                     "var.setValue(ha);\n"
                     "QHostAddress ha1 = var.value<QHostAddress>();\n"
                     "unused(&ha1);\n")
                % CoreProfile()
                % Profile("QT += network\n")
                % Check("ha", "\"127.0.0.1\"", "@QHostAddress")
-               % Check("ha.a", "0", "@quint32")
-               % Check("ha.a6", "0:0:0:0:0:0:0:0", "@Q_IPV6ADDR")
+               % Check("ha.a", "2130706433", "@quint32")
                % Check("ha.ipString", "\"127.0.0.1\"", "@QString")
-               % Check("ha.isParsed", "false", "bool")
-               % Check("ha.protocol", "@QAbstractSocket::UnknownNetworkLayerProtocol (-1)",
+               % Check("ha.isParsed", "true", "bool")
+               % Check("ha.protocol", "@QAbstractSocket::IPv4Protocol (0)",
                        "@QAbstractSocket::NetworkLayerProtocol")
                % Check("ha.scopeId", "\"\"", "@QString")
                % Check("ha1", "\"127.0.0.1\"", "@QHostAddress")
-               % Check("ha1.a", "0", "@quint32")
-               % Check("ha1.a6", "0:0:0:0:0:0:0:0", "@Q_IPV6ADDR")
+               % Check("ha1.a", "2130706433", "@quint32")
                % Check("ha1.ipString", "\"127.0.0.1\"", "@QString")
-               % Check("ha1.isParsed", "false", "bool")
-               % Check("ha1.protocol", "@QAbstractSocket::UnknownNetworkLayerProtocol (-1)",
+               % Check("ha1.isParsed", "true", "bool")
+               % Check("ha1.protocol", "@QAbstractSocket::IPv4Protocol (0)",
                        "@QAbstractSocket::NetworkLayerProtocol")
                % Check("ha1.scopeId", "\"\"", "@QString")
                % Check("var", "", "@QVariant (@QHostAddress)")
@@ -3486,14 +3509,16 @@ void tst_Dumpers::dumper_data()
                     "typedef QMap<uint, QStringList> MyType;\n"
                     "Q_DECLARE_METATYPE(QList<int>)\n"
                     "Q_DECLARE_METATYPE(QStringList)\n"
-                    "#define COMMA ,\n"
-                    "Q_DECLARE_METATYPE(QMap<uint COMMA QStringList>)\n",
+                    "Q_DECLARE_METATYPE(MyType)\n",
                     "MyType my;\n"
                     "my[1] = (QStringList() << \"Hello\");\n"
                     "my[3] = (QStringList() << \"World\");\n"
                     "QVariant var;\n"
                     "var.setValue(my);\n"
-                    "breakHere();\n")
+                    "int t = QMetaType::type(\"MyType\");\n"
+                    "const char *s = QMetaType::typeName(t);\n"
+                    "breakHere();\n"
+                    "unused(&var, &t, &s);\n")
                % CoreProfile()
                % Check("my", "<2 items>", "MyType")
                % Check("my.0", "[0]", "", "@QMapNode<unsigned int, @QStringList>")
@@ -3504,8 +3529,8 @@ void tst_Dumpers::dumper_data()
                % Check("my.1.key", "3", "unsigned int")
                % Check("my.1.value", "<1 items>", "@QStringList")
                % Check("my.1.value.0", "[0]", "\"World\"", "@QString")
-               % CheckType("var", "@QVariant (@QMap<unsigned int, @QStringList>)")
-               % Check("var.data", "<2 items>", "@QMap<unsigned int, @QStringList>")
+               % CheckType("var", "@QVariant (MyType)")
+               % Check("var.data", "<2 items>", "MyType")
                % Check("var.data.0", "[0]", "", "@QMapNode<unsigned int, @QStringList>")
                % Check("var.data.0.key", "1", "unsigned int")
                % Check("var.data.0.value", "<1 items>", "@QStringList")
@@ -3868,12 +3893,12 @@ void tst_Dumpers::dumper_data()
                     "#include <QString>\n",
                     "quint64 u64 = ULLONG_MAX;\n"
                     "qint64 s64 = LLONG_MAX;\n"
-                    "quint32 u32 = ULONG_MAX;\n"
-                    "qint32 s32 = LONG_MAX;\n"
+                    "quint32 u32 = UINT_MAX;\n"
+                    "qint32 s32 = INT_MAX;\n"
                     "quint64 u64s = 0;\n"
                     "qint64 s64s = LLONG_MIN;\n"
                     "quint32 u32s = 0;\n"
-                    "qint32 s32s = LONG_MIN;\n"
+                    "qint32 s32s = INT_MIN;\n"
                     "QString dummy; // needed to get namespace\n"
                     "unused(&u64, &s64, &u32, &s32, &u64s, &s64s, &u32s, &s32s, &dummy);\n")
                % CoreProfile()
@@ -3946,7 +3971,7 @@ void tst_Dumpers::dumper_data()
                % Check("foo.9", "[9]", "", "Foo");
 
 
-    QTest::newRow("Bitfields")
+    QTest::newRow("BitfieldsGdb")
             << Data("struct S\n"
                     "{\n"
                     "    S() : x(0), y(0), c(0), b(0), f(0), d(0), i(0) {}\n"
@@ -3959,6 +3984,7 @@ void tst_Dumpers::dumper_data()
                     "    int i;\n"
                     "} s;\n"
                     "unused(&s);\n")
+               % GdbOnly()
                % Check("s", "", "S")
                % Check("s.b", "false", "bool")
                % Check("s.c", "false", "bool")
@@ -3967,6 +3993,29 @@ void tst_Dumpers::dumper_data()
                % Check("s.i", "0", "int")
                % Check("s.x", "0", "unsigned int")
                % Check("s.y", "0", "unsigned int");
+
+    QTest::newRow("BitfieldsLldb")
+            << Data("struct S\n"
+                    "{\n"
+                    "    S() : x(0), y(0), c(0), b(0), f(0), d(0), i(0) {}\n"
+                    "    unsigned int x : 1;\n"
+                    "    unsigned int y : 1;\n"
+                    "    bool c : 1;\n"
+                    "    bool b;\n"
+                    "    float f;\n"
+                    "    double d;\n"
+                    "    int i;\n"
+                    "} s;\n"
+                    "unused(&s);\n")
+               % LldbOnly()
+               % Check("s", "", "S")
+               % Check("s.b", "false", "bool")
+               % Check("s.c", "false", "bool:1")
+               % Check("s.d", "0", "double")
+               % Check("s.f", "0", "float")
+               % Check("s.i", "0", "int")
+               % Check("s.x", "0", "unsigned int:1")
+               % Check("s.y", "0", "unsigned int:1");
 
 
     QTest::newRow("Function")
@@ -4311,6 +4360,7 @@ void tst_Dumpers::dumper_data()
                     "boost::optional<int> i0, i1;\n"
                     "i1 = 1;\n"
                     "unused(&i0, &i1);\n")
+             % BoostProfile()
              % Check("i0", "<uninitialized>", "boost::optional<int>")
              % Check("i1", "1", "boost::optional<int>");
 
@@ -4321,6 +4371,7 @@ void tst_Dumpers::dumper_data()
                     "sl = (QStringList() << \"xxx\" << \"yyy\");\n"
                     "sl.get().append(\"zzz\");\n"
                     "unused(&sl);\n")
+             % BoostProfile()
              % Check("sl", "<3 items>", "boost::optional<@QStringList>");
 
     QTest::newRow("BoostSharedPtr")
@@ -4331,6 +4382,7 @@ void tst_Dumpers::dumper_data()
                     "boost::shared_ptr<int> j = i;\n"
                     "boost::shared_ptr<QStringList> sl(new QStringList(QStringList() << \"HUH!\"));\n"
                     "unused(&s, &i, &j, &sl);\n")
+             % BoostProfile()
              % Check("s", "(null)", "boost::shared_ptr<int>")
              % Check("i", "43", "boost::shared_ptr<int>")
              % Check("j", "43", "boost::shared_ptr<int>")
@@ -4353,6 +4405,7 @@ void tst_Dumpers::dumper_data()
                     "// Not where we started (expected in boost)\n"
                     "date d5 = d -= months(4);\n"
                     "unused(&d1, &d2, &d3, &d4, &d5);\n")
+             % BoostProfile()
              % Check("d0", "Tue Nov 29 2005", "boost::gregorian::date")
              % Check("d1", "Thu Dec 29 2005", "boost::gregorian::date")
              % Check("d2", "Sun Jan 29 2006", "boost::gregorian::date")
@@ -4370,6 +4423,7 @@ void tst_Dumpers::dumper_data()
                     "time_duration d2(0, 1, 0);\n"
                     "time_duration d3(0, 0, 1);\n"
                     "unused(&d1, &d2, &d3);\n")
+             % BoostProfile()
              % Check("d1", "01:00:00", "boost::posix_time::time_duration")
              % Check("d2", "00:01:00", "boost::posix_time::time_duration")
              % Check("d3", "00:00:01", "boost::posix_time::time_duration");
@@ -4383,6 +4437,7 @@ void tst_Dumpers::dumper_data()
                     "int l = it->first;\n"
                     "int r = it->second;\n"
                     "unused(&l, &r);\n")
+             % BoostProfile()
              % Check("b", "<1 items>", "B");
 
     QTest::newRow("BoostPosixTimePtime")
@@ -4395,7 +4450,8 @@ void tst_Dumpers::dumper_data()
                     "ptime p1(date(2002, 1, 10), time_duration(1, 0, 0));\n"
                     "ptime p2(date(2002, 1, 10), time_duration(0, 0, 0));\n"
                     "ptime p3(date(1970, 1, 1), time_duration(0, 0, 0));\n"
-                    "unused(&p1, &p2, p3);\n")
+                    "unused(&p1, &p2, &p3);\n")
+             % BoostProfile()
              % Check("p1", "Thu Jan 10 01:00:00 2002", "boost::posix_time::ptime")
              % Check("p2", "Thu Jan 10 00:00:00 2002", "boost::posix_time::ptime")
              % Check("p3", "Thu Jan 1 00:00:00 1970", "boost::posix_time::ptime");
@@ -4833,6 +4889,7 @@ void tst_Dumpers::dumper_data()
                    "#endif\n"
                    "unused(&ptrConst, &ref, &refConst, &ptrToPtr, &sharedPtr);\n")
                % GdbVersion(70500)
+               % BoostProfile()
                % Check("d", "", "Derived")
                % Check("d.@1", "[Base]", "", "Base")
                % Check("d.b", "2", "int")
@@ -4905,7 +4962,7 @@ void tst_Dumpers::dumper_data()
 
 int main(int argc, char *argv[])
 {
-    QApplication app(argc, argv);
+    QCoreApplication app(argc, argv);
     tst_Dumpers test;
     return QTest::qExec(&test, argc, argv);
 }

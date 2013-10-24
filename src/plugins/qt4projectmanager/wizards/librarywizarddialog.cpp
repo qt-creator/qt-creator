@@ -349,7 +349,8 @@ LibraryParameters LibraryWizardDialog::libraryParameters() const
 {
     LibraryParameters rc;
     rc.className = m_filesPage->className();
-    rc.baseClassName = m_filesPage->baseClassName();
+    rc.baseClassName = type() == QtProjectParameters::Qt4Plugin ?
+                       m_filesPage->baseClassName() : QString();
     rc.sourceFileName = m_filesPage->sourceFileName();
     rc.headerFileName = m_filesPage->headerFileName();
     return rc;

@@ -413,11 +413,11 @@ protected:
                 length = end-begin;
             }
             QTextCharFormat format;
-            if (d.severity == StaticAnalysis::Warning || d.severity == StaticAnalysis::MaybeWarning)
+            if (d.severity == Severity::Warning || d.severity == Severity::MaybeWarning)
                 format.setUnderlineColor(Qt::darkYellow);
-            else if (d.severity == StaticAnalysis::Error || d.severity == StaticAnalysis::MaybeError)
+            else if (d.severity == Severity::Error || d.severity == Severity::MaybeError)
                 format.setUnderlineColor(Qt::red);
-            else if (d.severity == StaticAnalysis::Hint)
+            else if (d.severity == Severity::Hint)
                 format.setUnderlineColor(Qt::darkGreen);
 
             format.setUnderlineStyle(QTextCharFormat::WaveUnderline);

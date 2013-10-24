@@ -1079,11 +1079,13 @@ bool PluginManagerPrivate::loadQueue(PluginSpec *spec, QList<PluginSpec *> &queu
     // check for circular dependencies
     if (circularityCheckQueue.contains(spec)) {
         spec->d->hasError = true;
-        spec->d->errorString = PluginManager::tr("Circular dependency detected:\n");
+        spec->d->errorString = PluginManager::tr("Circular dependency detected:");
+        spec->d->errorString += QLatin1Char('\n');
         int index = circularityCheckQueue.indexOf(spec);
         for (int i = index; i < circularityCheckQueue.size(); ++i) {
-            spec->d->errorString.append(PluginManager::tr("%1(%2) depends on\n")
+            spec->d->errorString.append(PluginManager::tr("%1(%2) depends on")
                 .arg(circularityCheckQueue.at(i)->name()).arg(circularityCheckQueue.at(i)->version()));
+            spec->d->errorString += QLatin1Char('\n');
         }
         spec->d->errorString.append(PluginManager::tr("%1(%2)").arg(spec->name()).arg(spec->version()));
         return false;

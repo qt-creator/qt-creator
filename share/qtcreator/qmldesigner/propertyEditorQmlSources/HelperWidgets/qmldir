@@ -9,6 +9,7 @@ TabView 2.0 TabView.qml
 Tab 2.0 Tab.qml
 ScrollView 2.0 ScrollView.qml
 ComboBox 2.0 ComboBox.qml
+CustomComboBoxStyle 2.0 CustomComboBoxStyle.qml
 SectionLayout 2.0 SectionLayout.qml
 SecondColumnLayout 2.0 SecondColumnLayout.qml
 ExpandingSpacer 2.0 ExpandingSpacer.qml

@@ -194,7 +194,7 @@ UiQualifiedId *QmlJS::qualifiedTypeNameId(Node *node)
 
 DiagnosticMessage QmlJS::errorMessage(const AST::SourceLocation &loc, const QString &message)
 {
-    return DiagnosticMessage(DiagnosticMessage::Error, loc, message);
+    return DiagnosticMessage(Severity::Error, loc, message);
 }
 
 bool QmlJS::isValidBuiltinPropertyType(const QString &name)
