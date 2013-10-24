@@ -494,6 +494,16 @@ def qdump__std__unordered_set(d, value):
                 d.putSubItem(i, d.createValue(p + ptrSize, valueType))
                 p = d.dereference(p)
 
+def qform__std____1__unordered_map():
+    return mapForms()
+
+def qdump__std____1__unordered_map(d, value):
+    n = toInteger(value["__table_"]["__p2_"]["__first_"])
+    d.putItemCount(n)
+    if d.isExpanded():
+        with Children(d, 1):
+            d.putFields(value)
+
 def qdump__std____debug__unordered_set(d, value):
     qdump__std__unordered_set(d, value)
 
