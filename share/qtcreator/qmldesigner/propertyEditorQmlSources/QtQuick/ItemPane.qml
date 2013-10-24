@@ -41,6 +41,7 @@ Rectangle {
         anchors.fill: parent
 
         Column {
+            y: -1
             width: itemPane.width
             Section {
                 caption: qsTr("Type")
@@ -144,6 +145,11 @@ Rectangle {
                         }
                     }
                 }
+            }
+
+            Item {
+                height: 4
+                width: 4
             }
 
             TabView {
