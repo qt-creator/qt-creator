@@ -416,7 +416,14 @@ void QbsProject::parse(const QVariantMap &config, const Environment &env, const 
     QTC_ASSERT(!dir.isNull(), return);
 
     qbs::SetupProjectParameters params;
-    params.setBuildConfiguration(config);
+    QVariantMap baseConfig;
+    QVariantMap userConfig = config;
+    QString specialKey = QLatin1String(Constants::QBS_CONFIG_PROFILE_KEY);
+    baseConfig.insert(specialKey, userConfig.take(specialKey));
+    specialKey = QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY);
+    baseConfig.insert(specialKey, userConfig.take(specialKey));
+    params.setBuildConfiguration(baseConfig);
+    params.setOverriddenValues(userConfig);
     qbs::ErrorInfo err = params.expandBuildConfiguration(m_manager->settings());
     if (err.hasError()) {
         generateErrors(err);
