@@ -427,7 +427,7 @@ void QbsProject::parse(const QVariantMap &config, const Environment &env, const 
     const qbs::Project &currentProject = qbsProject();
     if (!m_forceParsing
             && currentProject.isValid()
-            && currentProject.projectConfiguration() == params.buildConfiguration()) {
+            && currentProject.projectConfiguration() == params.finalBuildConfigurationTree()) {
         QHash<QString, QString> usedEnv = currentProject.usedEnvironment();
         bool canSkip = true;
         for (QHash<QString, QString>::const_iterator i = usedEnv.constBegin();
