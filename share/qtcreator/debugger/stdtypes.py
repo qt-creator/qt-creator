@@ -226,6 +226,7 @@ def stdTreeIteratorHelper(d, value):
     d.putEmptyValue()
     if d.isExpanded():
         nodeTypeName = str(value.type).replace("_Rb_tree_iterator", "_Rb_tree_node", 1)
+        nodeTypeName = nodeTypeName.replace("_Rb_tree_const_iterator", "_Rb_tree_node", 1)
         nodeType = d.lookupType(nodeTypeName)
         data = node.cast(nodeType)["_M_value_field"]
         with Children(d):
