@@ -151,7 +151,7 @@ void TabViewDesignerAction::addNewTab()
         QString newFilePath = directoryPath +QLatin1String("/") + tabName + QLatin1String(".qml");
 
         if (QFileInfo(newFilePath).exists()) {
-            QMessageBox::warning(Core::ICore::mainWindow(), tr("Name Error"), tr("Component already exists."));
+            QMessageBox::warning(Core::ICore::mainWindow(), tr("Naming Error"), tr("Component already exists."));
         } else {
             bool fileCreated = createFile(newFilePath);
 

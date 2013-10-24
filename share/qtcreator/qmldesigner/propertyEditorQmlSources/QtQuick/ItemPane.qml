@@ -96,12 +96,12 @@ Rectangle {
                 anchors.left: parent.left
                 anchors.right: parent.right
 
-                caption: qsTr("Visibilty")
+                caption: qsTr("Visibility")
 
                 SectionLayout {
                     rows: 2
                     Label {
-                        text: qsTr("Visibilty")
+                        text: qsTr("Visibility")
                     }
 
                     SecondColumnLayout {
