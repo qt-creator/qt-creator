@@ -31,6 +31,7 @@
 #include "cppeditorplugin.h"
 #include "cppelementevaluator.h"
 #include "cppvirtualfunctionassistprovider.h"
+#include "cppvirtualfunctionproposalitem.h"
 
 #include <texteditor/codeassist/iassistproposal.h>
 #include <texteditor/codeassist/iassistprocessor.h>
@@ -59,6 +60,33 @@ using namespace CppTools;
 using namespace TextEditor;
 using namespace Core;
 
+class OverrideItem {
+public:
+    OverrideItem() : line(0) {}
+    OverrideItem(const QString &text, int line = 0) : text(text), line(line) {}
+    bool isValid() { return line != 0; }
+
+    QString text;
+    int line;
+};
+typedef QList<OverrideItem> OverrideItemList;
+Q_DECLARE_METATYPE(OverrideItem)
+
+inline bool operator==(const OverrideItem &lhs, const OverrideItem &rhs)
+{
+    return lhs.text == rhs.text && lhs.line == rhs.line;
+}
+
+namespace QTest {
+template<> char *toString(const OverrideItem &data)
+{
+    QByteArray ba = "OverrideItem(";
+    ba += data.text.toLatin1() + ", " + QByteArray::number(data.line);
+    ba += ")";
+    return qstrdup(ba.data());
+}
+}
+
 namespace {
 
 /// A fake virtual functions assist provider that runs processor->perform() already in configure()
@@ -78,8 +106,8 @@ public:
         VirtualFunctionAssistProvider::configure(startClass, function, snapshot, openInNextSplit);
 
         IAssistProcessor *processor = createProcessor();
-        IAssistInterface *assistInterface = m_editorWidget->createAssistInterface(FollowSymbol,
-                                                                            ExplicitlyInvoked);
+        IAssistInterface *assistInterface
+                = m_editorWidget->createAssistInterface(FollowSymbol, ExplicitlyInvoked);
         IAssistProposal *immediateProposal = processor->immediateProposal(assistInterface);
         IAssistProposal *finalProposal = processor->perform(assistInterface);
 
@@ -89,12 +117,12 @@ public:
         return false;
     }
 
-    static QStringList itemList(IAssistProposalModel *imodel)
+    static OverrideItemList itemList(IAssistProposalModel *imodel)
     {
-        QStringList immediateItems;
+        OverrideItemList result;
         BasicProposalItemListModel *model = dynamic_cast<BasicProposalItemListModel *>(imodel);
         if (!model)
-            return immediateItems;
+            return result;
 
         // Mimic relevant GenericProposalWidget::showProposal() calls
         model->removeDuplicates();
@@ -103,16 +131,22 @@ public:
             model->sort(QString());
 
         for (int i = 0, size = model->size(); i < size; ++i) {
+            VirtualFunctionProposalItem *item
+                = dynamic_cast<VirtualFunctionProposalItem *>(model->proposalItem(i));
+
             const QString text = model->text(i);
-            immediateItems.append(text);
+            const int line = item->link().targetLine;
+//            Uncomment for updating/generating reference data:
+//            qDebug("<< OverrideItem(QLatin1String(\"%s\"), %d)", qPrintable(text), line);
+            result << OverrideItem(text, line);
         }
 
-        return immediateItems;
+        return result;
     }
 
 public:
-    QStringList m_immediateItems;
-    QStringList m_finalItems;
+    OverrideItemList m_immediateItems;
+    OverrideItemList m_finalItems;
 
 private:
     CPPEditorWidget *m_editorWidget;
@@ -202,11 +236,11 @@ public:
     };
 
     TestCase(CppEditorAction action, const QByteArray &source,
-             const QStringList &expectedVirtualFunctionImmediateProposal = QStringList(),
-             const QStringList &expectedVirtualFunctionFinalProposal = QStringList());
+             const OverrideItemList &expectedVirtualFunctionImmediateProposal = OverrideItemList(),
+             const OverrideItemList &expectedVirtualFunctionFinalProposal = OverrideItemList());
     TestCase(CppEditorAction action, const QList<TestDocumentPtr> theTestFiles,
-             const QStringList &expectedVirtualSymbolsImmediateProposal = QStringList(),
-             const QStringList &expectedVirtualSymbolsFinalProposal = QStringList());
+             const OverrideItemList &expectedVirtualFunctionImmediateProposal = OverrideItemList(),
+             const OverrideItemList &expectedVirtualFunctionFinalProposal = OverrideItemList());
     ~TestCase();
 
     void run(bool expectedFail = false);
@@ -223,18 +257,18 @@ private:
 private:
     CppEditorAction m_action;
     QList<TestDocumentPtr> m_testFiles;
-    QStringList m_expectedVirtualSymbolsImmediateProposal; // for virtual functions
-    QStringList m_expectedVirtualSymbolsFinalProposals;    // for virtual functions
+    OverrideItemList m_expectedVirtualFunctionImmediateProposal;
+    OverrideItemList m_expectedVirtualFunctionFinalProposals;
 };
 
 /// Convenience function for creating a TestDocument.
 /// See TestDocument.
 TestCase::TestCase(CppEditorAction action, const QByteArray &source,
-                   const QStringList &expectedVirtualFunctionImmediateProposal,
-                   const QStringList &expectedVirtualFunctionFinalProposal)
+                   const OverrideItemList &expectedVirtualFunctionImmediateProposal,
+                   const OverrideItemList &expectedVirtualFunctionFinalProposal)
     : m_action(action)
-    , m_expectedVirtualSymbolsImmediateProposal(expectedVirtualFunctionImmediateProposal)
-    , m_expectedVirtualSymbolsFinalProposals(expectedVirtualFunctionFinalProposal)
+    , m_expectedVirtualFunctionImmediateProposal(expectedVirtualFunctionImmediateProposal)
+    , m_expectedVirtualFunctionFinalProposals(expectedVirtualFunctionFinalProposal)
 {
     m_testFiles << TestDocument::create(source, QLatin1String("file.cpp"));
     init();
@@ -245,12 +279,12 @@ TestCase::TestCase(CppEditorAction action, const QByteArray &source,
 /// Exactly one test document must be provided that contains '$', the target position marker.
 /// It can be the same document.
 TestCase::TestCase(CppEditorAction action, const QList<TestDocumentPtr> theTestFiles,
-                   const QStringList &expectedVirtualSymbolsImmediateProposal,
-                   const QStringList &expectedVirtualSymbolsFinalProposal)
+                   const OverrideItemList &expectedVirtualFunctionImmediateProposal,
+                   const OverrideItemList &expectedVirtualFunctionFinalProposal)
     : m_action(action)
     , m_testFiles(theTestFiles)
-    , m_expectedVirtualSymbolsImmediateProposal(expectedVirtualSymbolsImmediateProposal)
-    , m_expectedVirtualSymbolsFinalProposals(expectedVirtualSymbolsFinalProposal)
+    , m_expectedVirtualFunctionImmediateProposal(expectedVirtualFunctionImmediateProposal)
+    , m_expectedVirtualFunctionFinalProposals(expectedVirtualFunctionFinalProposal)
 {
     init();
 }
@@ -368,8 +402,8 @@ void TestCase::run(bool expectedFail)
 //    qDebug() << "Initial line:" << initialTestFile->editor->currentLine();
 //    qDebug() << "Initial column:" << initialTestFile->editor->currentColumn() - 1;
 
-    QStringList immediateVirtualSymbolResults;
-    QStringList finalVirtualSymbolResults;
+    OverrideItemList immediateVirtualSymbolResults;
+    OverrideItemList finalVirtualSymbolResults;
 
     // Trigger the action
     switch (m_action) {
@@ -419,8 +453,8 @@ void TestCase::run(bool expectedFail)
 
 //    qDebug() << immediateVirtualSymbolResults;
 //    qDebug() << finalVirtualSymbolResults;
-    QCOMPARE(immediateVirtualSymbolResults, m_expectedVirtualSymbolsImmediateProposal);
-    QCOMPARE(finalVirtualSymbolResults, m_expectedVirtualSymbolsFinalProposals);
+    QCOMPARE(immediateVirtualSymbolResults, m_expectedVirtualFunctionImmediateProposal);
+    QCOMPARE(finalVirtualSymbolResults, m_expectedVirtualFunctionFinalProposals);
 }
 
 } // anonymous namespace
@@ -1239,15 +1273,15 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_allOverri
             "}\n"
             ;
 
-    const QStringList immediateResults = QStringList()
-            << QLatin1String("A::virt")
-            << QLatin1String("...searching overrides");
-    const QStringList finalResults = QStringList()
-            << QLatin1String("A::virt")
-            << QLatin1String("B::virt")
-            << QLatin1String("C::virt")
-            << QLatin1String("CD1::virt")
-            << QLatin1String("CD2::virt");
+    const OverrideItemList immediateResults = OverrideItemList()
+            << OverrideItem(QLatin1String("A::virt"), 1)
+            << OverrideItem(QLatin1String("...searching overrides"));
+    const OverrideItemList finalResults = OverrideItemList()
+            << OverrideItem(QLatin1String("A::virt"), 1)
+            << OverrideItem(QLatin1String("B::virt"), 4)
+            << OverrideItem(QLatin1String("C::virt"), 7)
+            << OverrideItem(QLatin1String("CD1::virt"), 10)
+            << OverrideItem(QLatin1String("CD2::virt"), 13);
 
     TestCase test(TestCase::FollowSymbolUnderCursorAction, source, immediateResults, finalResults);
     test.run();
@@ -1276,14 +1310,14 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_possibleO
             "}\n"
             ;
 
-    const QStringList immediateResults = QStringList()
-            << QLatin1String("B::virt")
-            << QLatin1String("...searching overrides");
-    const QStringList finalResults = QStringList()
-            << QLatin1String("B::virt")
-            << QLatin1String("C::virt")
-            << QLatin1String("CD1::virt")
-            << QLatin1String("CD2::virt");
+    const OverrideItemList immediateResults = OverrideItemList()
+            << OverrideItem(QLatin1String("B::virt"), 4)
+            << OverrideItem(QLatin1String("...searching overrides"));
+    const OverrideItemList finalResults = OverrideItemList()
+            << OverrideItem(QLatin1String("B::virt"), 4)
+            << OverrideItem(QLatin1String("C::virt"), 7)
+            << OverrideItem(QLatin1String("CD1::virt"), 10)
+            << OverrideItem(QLatin1String("CD2::virt"), 13);
 
     TestCase test(TestCase::FollowSymbolUnderCursorAction, source, immediateResults, finalResults);
     test.run();
@@ -1305,12 +1339,12 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_possibleO
             "void D::virt() {}\n"
             ;
 
-    const QStringList immediateResults = QStringList()
-            << QLatin1String("B::virt")
-            << QLatin1String("...searching overrides");
-    const QStringList finalResults = QStringList()
-            << QLatin1String("B::virt")
-            << QLatin1String("D::virt");
+    const OverrideItemList immediateResults = OverrideItemList()
+            << OverrideItem(QLatin1String("B::virt"), 4)
+            << OverrideItem(QLatin1String("...searching overrides"));
+    const OverrideItemList finalResults = OverrideItemList()
+            << OverrideItem(QLatin1String("B::virt"), 4)
+            << OverrideItem(QLatin1String("D::virt"), 9);
 
     TestCase test(TestCase::FollowSymbolUnderCursorAction, source, immediateResults, finalResults);
     test.run();
@@ -1326,11 +1360,11 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_onDotMemb
             "void client(A &o) { o.$@virt(); }\n"
             ;
 
-    const QStringList immediateResults = QStringList()
-            << QLatin1String("A::virt")
-            << QLatin1String("...searching overrides");
-    const QStringList finalResults = QStringList()
-            << QLatin1String("A::virt");
+    const OverrideItemList immediateResults = OverrideItemList()
+            << OverrideItem(QLatin1String("A::virt"), 1)
+            << OverrideItem(QLatin1String("...searching overrides"));
+    const OverrideItemList finalResults = OverrideItemList()
+            << OverrideItem(QLatin1String("A::virt"), 1);
 
     TestCase test(TestCase::FollowSymbolUnderCursorAction, source, immediateResults, finalResults);
     test.run();
