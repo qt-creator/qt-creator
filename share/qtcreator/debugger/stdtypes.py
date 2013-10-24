@@ -79,9 +79,8 @@ def qdump__std____1__array(d, value):
 
 def qdump__std__complex(d, value):
     innerType = d.templateArgument(value.type, 0)
-    base = value.address.cast(innerType.pointer())
-    real = base.dereference()
-    imag = (base + 1).dereference()
+    real = value.cast(innerType)
+    imag = d.createValue(d.addressOf(value) + innerType.sizeof, innerType)
     d.putValue("(%f, %f)" % (real, imag));
     d.putNumChild(2)
     if d.isExpanded():

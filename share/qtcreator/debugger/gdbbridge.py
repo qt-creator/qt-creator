@@ -1215,7 +1215,14 @@ class Dumper(DumperBase):
         return toInteger(value.address)
 
     def createPointerValue(self, address, pointeeType):
-        return gdb.Value(address).cast(pointeeType.pointer())
+        # This might not always work:
+        # a Python 3 based GDB due to the bug addressed in
+        # https://sourceware.org/ml/gdb-patches/2013-09/msg00571.html
+        try:
+            return gdb.Value(address).cast(pointeeType.pointer())
+        except:
+            # Try _some_ fallback (good enough for the std::complex dumper)
+            return gdb.parse_and_eval("(%s*)%s" % (pointeeType, address))
 
     def intSize(self):
         return 4
@@ -1227,7 +1234,11 @@ class Dumper(DumperBase):
         return self.lookupType('void*').sizeof == 4
 
     def createValue(self, address, referencedType):
-        return gdb.Value(address).cast(referencedType.pointer()).dereference()
+        try:
+            return gdb.Value(address).cast(referencedType.pointer()).dereference()
+        except:
+            # Try _some_ fallback (good enough for the std::complex dumper)
+            return gdb.parse_and_eval("{%s}%s" % (referencedType, address))
 
     def readRawMemory(self, addr, size):
         mem = gdb.selected_inferior().read_memory(addr, size)

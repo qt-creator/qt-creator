@@ -2469,8 +2469,10 @@ void tst_Dumpers::dumper_data()
 
     QTest::newRow("StdComplex")
             << Data("#include <complex>\n",
-                    "std::complex<double> c(1, 2);\n")
-               % Check("c", "(1.000000, 2.000000)", "std::complex<double>");
+                    "std::complex<double> c(1, 2);\n"
+                    "unused(&c);\n")
+               % Check("c", "(1.000000, 2.000000)", "std::complex<double>")
+               % CheckType("c.real", "double");
 
     QTest::newRow("CComplexGdb")
             << Data("#include <complex.h>\n",
