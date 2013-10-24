@@ -40,26 +40,28 @@ Controls.TabView {
         frameOverlap: 0
         frame: Item { }
         tab: Rectangle {
-            color: styleData.selected ? "#eee" : "#444"
+            color: styleData.selected ? "#eee" : "#414141"
             implicitWidth: root.width/root.count + 2
-            implicitHeight: 21
+            implicitHeight: 28
             Text {
                 id: text
+                font.bold: true
                 anchors.centerIn: parent
+                anchors.verticalCenterOffset: -1
                 text: styleData.title
                 renderType: Text.NativeRendering
-                color: styleData.selected ? "#000" : "#fff"
+                color: styleData.selected ? "#333" : "#fff"
             }
+
             Rectangle {
-                anchors.fill: parent
-                opacity: 0.10
-                gradient: Gradient {
-                    GradientStop {color: '#fff' ; position: 0}
-                    GradientStop {color: '#000' ; position: 1}
-                }
+                color: "#eee"
+                width: parent.width
+                height: 4
+                anchors.bottom: parent.bottom
             }
+
             Rectangle {
-                color: "#666"
+                color: "#333"
                 width: parent.width
                 height: 1
             }
