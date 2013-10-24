@@ -39,11 +39,11 @@ Item {
     property variant flickable
 
     function scroll(delta) {
-        handle.y = Math.max(0, Math.min(scrollHeight, handle.y + delta))
+        handle.y = Math.max(2, Math.min(scrollHeight, handle.y + delta))
     }
 
     function reset() {
-        handle.y = 0
+        handle.y = 2
     }
 
     // internal
@@ -62,8 +62,7 @@ Item {
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 3
         anchors.horizontalCenter: parent.horizontalCenter
-        width: 6
-        radius: 3
+        width: 10
         color: style.scrollbarColor
         border.width: 1
         border.color: style.scrollbarBorderColor
@@ -77,7 +76,7 @@ Item {
                     flickable.contentY / (flickable.contentHeight - flickable.height),
         1)
             else
-                handle.y = 0
+                handle.y = 2
 
         handle.updateFlickable = true
     }
@@ -109,6 +108,7 @@ Item {
 
     Item {
         id: handle
+        y: 2
 
         anchors.left: parent.left
         anchors.right: parent.right
@@ -125,27 +125,20 @@ Item {
                     width: parent.height
                     height: parent.width
                     y: -height - 2
-                    x: -2
 
                     rotation: 90
                     transformOrigin: Item.BottomLeft
 
                     border.color: style.scrollbarBorderColor
                     border.width: 1
-                    radius: 3
-
-                    gradient: Gradient {
-                        GradientStop { position: 0.15; color: style.scrollbarGradientStartColor }
-                        GradientStop { position: 0.78; color: style.scrollbarGradientMiddleColor }
-                        GradientStop { position: 0.80; color: style.scrollbarGradientEndColor }
-                    }
+                    color: style.sectionTitleBackgroundColor
                 }
 
                 MouseArea {
                     anchors.fill: parent
                     drag.target: parent
                     drag.axis: "YAxis"
-                    drag.minimumY: 0
+                    drag.minimumY: 2
                     drag.maximumY: scrollHeight
                 }
             }

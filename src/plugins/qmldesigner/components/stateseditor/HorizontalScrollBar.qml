@@ -55,9 +55,8 @@ Item {
     Rectangle {
         id: groove
         width: parent.width - 4
-        height: 6
+        height: 10
         color: "#444444"
-        radius: 3
         border.width: 1
         border.color: "#333333"
         anchors.right: parent.right
@@ -95,13 +94,8 @@ Item {
             y:0
             border.color: "#333333"
             border.width: 1
-            radius: 3
 
-            gradient: Gradient {
-                GradientStop { position: 0.20; color: "#888888" }
-                GradientStop { position: 0.23; color: "#656565" }
-                GradientStop { position: 0.85; color: "#393939" }
-            }
+            color: "#656565"
 
             MouseArea {
                 property int dragging:0;
