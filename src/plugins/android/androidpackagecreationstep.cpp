@@ -613,7 +613,7 @@ bool AndroidPackageCreationStep::createPackage()
     emit addOutput(tr("Copy Qt app & libs to Android package ..."), MessageOutput);
 
     QStringList build;
-    build << QLatin1String("-silent");
+    // build << QLatin1String("-silent"); //TODO depends on ant 1.9.0, enabled, not *now*
     build << QLatin1String("clean");
     QFile::remove(m_gdbServerDestination.toString());
     if (m_signPackageForRun) {
