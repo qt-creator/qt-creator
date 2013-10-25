@@ -647,6 +647,9 @@ void DebuggerItemManager::saveDebuggers()
 
 QVariant DebuggerItemManager::registerDebugger(const DebuggerItem &item)
 {
+    QTC_ASSERT(!item.command().isEmpty(), return QVariant());
+    QTC_ASSERT(!item.displayName().isEmpty(), return QVariant());
+    QTC_ASSERT(item.engineType() != NoEngineType, return QVariant());
     if (findByCommand(item.command()))
         return item.id();
 
@@ -661,9 +664,6 @@ void DebuggerItemManager::deregisterDebugger(const DebuggerItem &item)
 
 QVariant DebuggerItemManager::addDebugger(const DebuggerItem &item)
 {
-    QTC_ASSERT(!item.command().isEmpty(), return QVariant());
-    QTC_ASSERT(!item.displayName().isEmpty(), return QVariant());
-    QTC_ASSERT(item.engineType() != NoEngineType, return QVariant());
     QTC_ASSERT(item.id().isValid(), return QVariant());
     m_debuggers.append(item);
     m_model->addDebugger(item);
