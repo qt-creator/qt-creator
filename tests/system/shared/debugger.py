@@ -49,11 +49,12 @@ def handleDebuggerWarnings(config, isMsvcBuild=False):
         except LookupError:
             pass # No warning. Fine.
     if "Release" in config and (isMsvcBuild or platform.system() == "Linux"):
-        message = waitForObject("{container=':Qt Creator.DebugModeWidget_QSplitter' name='qt_msgbox_label' type='QLabel' visible='1'}")
+        msgBox = "{type='QMessageBox' unnamed='1' visible='1' windowTitle='Warning'}"
+        message = waitForObject("{name='qt_msgbox_label' type='QLabel' visible='1' window=%s}" % msgBox)
         messageText = str(message.text)
         test.verify(messageText.startswith('This does not seem to be a "Debug" build.\nSetting breakpoints by file name and line number may fail.'),
                     "Got warning: %s" % messageText)
-        clickButton("{container=':Qt Creator.DebugModeWidget_QSplitter' text='OK' type='QPushButton' unnamed='1' visible='1'}")
+        clickButton("{text='OK' type='QPushButton' unnamed='1' visible='1' window=%s}" % msgBox)
 
 def takeDebuggerLog():
     invokeMenuItem("Window", "Views", "Debugger Log")
