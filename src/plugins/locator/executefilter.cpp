@@ -168,6 +168,11 @@ void ExecuteFilter::runHeadCommand()
         m_process->setCommand(fullPath, d.arguments);
         m_process->start();
         m_process->closeWriteChannel();
+        if (!m_process->waitForStarted(1000)) {
+             MessageManager::write(tr("Could not start process: %1").arg(m_process->errorString()));
+             m_taskQueue.dequeue();
+             runHeadCommand();
+        }
     }
 }
 
