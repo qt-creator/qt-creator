@@ -1576,7 +1576,6 @@ public:
     QTextBlock previousLine(const QTextBlock &block) const; // previous line (respects wrapped parts)
 
     int linesOnScreen() const;
-    int columnsOnScreen() const;
     int linesInDocument() const;
 
     // The following use all zero-based counting.
@@ -3673,9 +3672,12 @@ bool FakeVimHandler::Private::handleMovement(const Input &input)
         setCursorPosition(&m_cursor, pos);
         handleStartOfLine();
     } else if (g.gflag && input.is('m')) {
-        moveToStartOfLine();
-        moveRight(qMin(columnsOnScreen() / 2, rightDist()) - 1);
-        setTargetColumn();
+        const QPoint pos(EDITOR(viewport()->width()) / 2, EDITOR(cursorRect(m_cursor)).y());
+        QTextCursor tc = EDITOR(cursorForPosition(pos));
+        if (!tc.isNull()) {
+            m_cursor = tc;
+            setTargetColumn();
+        }
     } else if (input.is('M')) {
         m_cursor = EDITOR(cursorForPosition(QPoint(0, EDITOR(height()) / 2)));
         handleStartOfLine();
@@ -6369,25 +6371,16 @@ int FakeVimHandler::Private::cursorLineOnScreen() const
 {
     if (!editor())
         return 0;
-    QRect rect = EDITOR(cursorRect());
-    return rect.y() / rect.height();
+    const QRect rect = EDITOR(cursorRect(m_cursor));
+    return rect.height() > 0 ? rect.y() / rect.height() : 0;
 }
 
 int FakeVimHandler::Private::linesOnScreen() const
 {
     if (!editor())
         return 1;
-    QRect rect = EDITOR(cursorRect());
-    return EDITOR(viewport()->height()) / rect.height();
-}
-
-int FakeVimHandler::Private::columnsOnScreen() const
-{
-    if (!editor())
-        return 1;
-    QRect rect = EDITOR(cursorRect());
-    // qDebug() << "WID: " << EDITOR(width()) << "RECT: " << rect;
-    return EDITOR(viewport()->width()) / rect.width();
+    const int h = EDITOR(cursorRect(m_cursor)).height();
+    return h > 0 ? EDITOR(viewport()->height()) / h : 1;
 }
 
 int FakeVimHandler::Private::cursorLine() const
