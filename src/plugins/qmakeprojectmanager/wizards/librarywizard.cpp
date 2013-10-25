@@ -29,7 +29,6 @@
 
 #include "librarywizard.h"
 #include "librarywizarddialog.h"
-#include "mobilelibraryparameters.h"
 
 #include <cpptools/abstracteditorsupport.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -71,6 +70,14 @@ QWizard *LibraryWizard::createWizardDialog(QWidget *parent, const Core::WizardDi
     return dialog;
 }
 
+static void writeLinuxProFile(QTextStream &str)
+{
+    str << "\n"
+           "unix {\n"
+           "    target.path = /usr/lib\n"
+           "    INSTALLS += target\n"
+           "}\n";
+}
 
 Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
                                                  QString *errorMessage) const
@@ -80,7 +87,6 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
     const QtProjectParameters projectParams = dialog->parameters();
     const QString projectPath = projectParams.projectPath();
     const LibraryParameters params = dialog->libraryParameters();
-    const MobileLibraryParameters mobileParams = dialog->mobileLibraryParameters();
 
     const QString sharedLibExportMacro = QtProjectParameters::exportMacro(projectParams.fileName);
 
@@ -139,8 +145,7 @@ Core::GeneratedFiles LibraryWizard::generateFiles(const QWizard *w,
             proStr << "\\\n        " << globalHeaderFileName << '\n';
         if (!pluginJsonFileName.isEmpty())
             proStr << "\nOTHER_FILES += " << pluginJsonFileName << '\n';
-        if (mobileParams.type)
-            mobileParams.writeProFile(proStr);
+        writeLinuxProFile(proStr);
     }
     profile.setContents(profileContents);
     rc.push_back(profile);
