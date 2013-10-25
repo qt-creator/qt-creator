@@ -3433,8 +3433,6 @@ void tst_Dumpers::dumper_data()
                     "value = QVariant(t, (void*)0);\n"
                     "*(QString*)value.data() = QString(\"Some string\");\n")
                % CoreProfile()
-               % GdbOnly()
-               % Check("t", "@QVariant::String (10)", "@QVariant::Type")
                % Check("value", "\"Some string\"", "@QVariant (QString)");
 
     QTest::newRow("QVariant1")
@@ -3642,7 +3640,6 @@ void tst_Dumpers::dumper_data()
                     "QVariant v = h;\n"
                     "unused(&v);\n")
                % CoreProfile()
-               % GdbOnly()
                % Check("v", "<1 items>", "@QVariant (QVariantHash)")
                % Check("v.0", "[0]", "", "@QHashNode<@QString, @QVariant>")
                % Check("v.0.key", "\"one\"", "@QString")
@@ -3655,7 +3652,6 @@ void tst_Dumpers::dumper_data()
                     "QVariant v = h;\n"
                     "unused(&v);\n")
                % CoreProfile()
-               % GdbOnly()
                % Check("v", "<1 items>", "@QVariant (QVariantMap)")
                % Check("v.0", "[0]", "", "@QMapNode<@QString, @QVariant>")
                % Check("v.0.key", "\"one\"", "@QString")
@@ -3668,7 +3664,6 @@ void tst_Dumpers::dumper_data()
                     "QVariant v = h;\n"
                     "unused(&v);\n")
                % CoreProfile()
-               % GdbOnly()
                % Check("v", "<1 items>", "@QVariant (QVariantList)")
                % Check("v.0", "[0]", "\"one\"", "@QVariant (QString)");
 
