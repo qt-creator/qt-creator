@@ -4892,6 +4892,7 @@ void tst_Dumpers::dumper_data()
                    "int sharedPtr = 1;\n"
                    "#endif\n"
                    "unused(&ptrConst, &ref, &refConst, &ptrToPtr, &sharedPtr);\n")
+               % GdbOnly()
                % GdbVersion(70500)
                % BoostProfile()
                % Check("d", "", "Derived")
@@ -4924,19 +4925,31 @@ void tst_Dumpers::dumper_data()
     // on -var-list-children on an anonymous union. mac/MI was fixed in 2006");
     // The proposed fix has been reported to crash gdb steered from eclipse");
     // http://sourceware.org/ml/gdb-patches/2011-12/msg00420.html
-    QTest::newRow("gdb10586mi")
+    QTest::newRow("gdb10586miGdb")
             << Data("struct Test {\n"
                     "    struct { int a; float b; };\n"
                     "    struct { int c; float d; };\n"
                     "} v = {{1, 2}, {3, 4}};\n"
                     "unused(&v);\n")
+               % GdbOnly()
                % Check("v", "", "Test")
                % Check("v.a", "1", "int");
 
-    QTest::newRow("gdb10586eclipse")
+    QTest::newRow("gdb10586miLldb")
+            << Data("struct Test {\n"
+                    "    struct { int a; float b; };\n"
+                    "    struct { int c; float d; };\n"
+                    "} v = {{1, 2}, {3, 4}};\n"
+                    "unused(&v);\n")
+               % LldbOnly()
+               % Check("v", "", "Test")
+               % Check("v.#1.a", "1", "int");
+
+    QTest::newRow("gdb10586eclipseGdb")
             << Data("struct { int x; struct { int a; }; struct { int b; }; } v = {1, {2}, {3}};\n"
                     "struct S { int x, y; } n = {10, 20};\n"
                     "unused(&v, &n);\n")
+               % GdbOnly()
                % Check("v", "", "{...}")
                % Check("n", "", "S")
                % Check("v.a", "2", "int")
@@ -4945,6 +4958,18 @@ void tst_Dumpers::dumper_data()
                % Check("n.x", "10", "int")
                % Check("n.y", "20", "int");
 
+    QTest::newRow("gdb10586eclipseLldb")
+            << Data("struct { int x; struct { int a; }; struct { int b; }; } v = {1, {2}, {3}};\n"
+                    "struct S { int x, y; } n = {10, 20};\n"
+                    "unused(&v, &n);\n")
+               % LldbOnly()
+               % Check("v", "", "<anonymous class>")
+               % Check("n", "", "S")
+               % Check("v.#1.a", "2", "int")
+               % Check("v.#2.b", "3", "int")
+               % Check("v.x", "1", "int")
+               % Check("n.x", "10", "int")
+               % Check("n.y", "20", "int");
 
     QTest::newRow("stdint")
             << Data("#include <stdint.h>\n",
