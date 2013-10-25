@@ -387,8 +387,7 @@ static void readDebuggers(const FileName &fileName, bool isSystem)
         if (!data.contains(key))
             continue;
         const QVariantMap dbMap = data.value(key).toMap();
-        DebuggerItem item;
-        item.fromMap(dbMap);
+        DebuggerItem item(dbMap);
         if (isSystem) {
             item.setAutoDetected(true);
             // SDK debuggers are always considered to be up-to-date, so no need to recheck them.
@@ -660,14 +659,12 @@ void DebuggerItemManager::deregisterDebugger(const DebuggerItem &item)
         removeDebugger(item.id());
 }
 
-QVariant DebuggerItemManager::addDebugger(const DebuggerItem& item0)
+QVariant DebuggerItemManager::addDebugger(const DebuggerItem &item)
 {
-    DebuggerItem item = item0;
     QTC_ASSERT(!item.command().isEmpty(), return QVariant());
     QTC_ASSERT(!item.displayName().isEmpty(), return QVariant());
     QTC_ASSERT(item.engineType() != NoEngineType, return QVariant());
-    if (item.id().isNull())
-        item.setId(QUuid::createUuid().toString());
+    QTC_ASSERT(item.id().isValid(), return QVariant());
     m_debuggers.append(item);
     m_model->addDebugger(item);
     return item.id();
@@ -821,11 +818,9 @@ void DebuggerItemModel::markCurrentDirty()
     sitem->setFont(font);
 }
 
-void DebuggerItemModel::addDebugger(const DebuggerItem &item0)
+void DebuggerItemModel::addDebugger(const DebuggerItem &item)
 {
-    DebuggerItem item = item0;
-    if (item.id().isNull())
-        item.setId(QUuid::createUuid().toString());
+    QTC_ASSERT(item.id().isValid(), return);
     QList<QStandardItem *> row = describeItem(item);
     (item.isAutoDetected() ? m_autoRoot : m_manualRoot)->appendRow(row);
     emit debuggerAdded(item.id(), item.displayName());

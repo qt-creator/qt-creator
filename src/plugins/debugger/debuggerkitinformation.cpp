@@ -34,6 +34,7 @@
 #include <utils/fileutils.h>
 
 #include <QProcess>
+#include <QUuid>
 
 using namespace Debugger::Internal;
 using namespace ProjectExplorer;
@@ -54,8 +55,25 @@ namespace Debugger {
 
 DebuggerItem::DebuggerItem()
 {
+    m_id = QUuid::createUuid().toString();
     m_engineType = NoEngineType;
     m_isAutoDetected = false;
+}
+
+DebuggerItem::DebuggerItem(const QVariantMap &data)
+{
+    m_command = FileName::fromUserInput(data.value(QLatin1String(DEBUGGER_INFORMATION_COMMAND)).toString());
+    m_id = data.value(QLatin1String(DEBUGGER_INFORMATION_ID)).toString();
+    m_displayName = data.value(QLatin1String(DEBUGGER_INFORMATION_DISPLAYNAME)).toString();
+    m_isAutoDetected = data.value(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTED), false).toBool();
+    m_engineType = DebuggerEngineType(data.value(QLatin1String(DEBUGGER_INFORMATION_ENGINETYPE),
+                                                 static_cast<int>(NoEngineType)).toInt());
+
+    foreach (const QString &a, data.value(QLatin1String(DEBUGGER_INFORMATION_ABIS)).toStringList()) {
+        Abi abi(a);
+        if (abi.isValid())
+            m_abis.append(abi);
+    }
 }
 
 void DebuggerItem::reinitializeFromFile()
@@ -131,27 +149,6 @@ QVariantMap DebuggerItem::toMap() const
     data.insert(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTED), m_isAutoDetected);
     data.insert(QLatin1String(DEBUGGER_INFORMATION_ABIS), abiNames());
     return data;
-}
-
-void DebuggerItem::fromMap(const QVariantMap &data)
-{
-    m_command = FileName::fromUserInput(data.value(QLatin1String(DEBUGGER_INFORMATION_COMMAND)).toString());
-    m_id = data.value(QLatin1String(DEBUGGER_INFORMATION_ID)).toString();
-    m_displayName = data.value(QLatin1String(DEBUGGER_INFORMATION_DISPLAYNAME)).toString();
-    m_isAutoDetected = data.value(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTED)).toBool();
-    m_engineType = DebuggerEngineType(data.value(QLatin1String(DEBUGGER_INFORMATION_ENGINETYPE)).toInt());
-
-    m_abis.clear();
-    foreach (const QString &a, data.value(QLatin1String(DEBUGGER_INFORMATION_ABIS)).toStringList()) {
-        Abi abi(a);
-        if (abi.isValid())
-            m_abis.append(abi);
-    }
-}
-
-void DebuggerItem::setId(const QVariant &id)
-{
-    m_id = id;
 }
 
 void DebuggerItem::setDisplayName(const QString &displayName)

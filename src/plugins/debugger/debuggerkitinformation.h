@@ -50,13 +50,13 @@ class DEBUGGER_EXPORT DebuggerItem
 {
 public:
     DebuggerItem();
+    DebuggerItem(const QVariantMap &data);
 
     bool canClone() const { return true; }
     bool isValid() const;
     QString engineTypeName() const;
 
     QVariantMap toMap() const;
-    void fromMap(const QVariantMap &data);
     void reinitializeFromFile();
 
     QVariant id() const { return m_id; }
@@ -83,10 +83,6 @@ public:
     QStringList abiNames() const;
 
 private:
-    friend class Debugger::Internal::DebuggerItemModel;
-    friend class DebuggerItemManager;
-    void setId(const QVariant &id);
-
     QVariant m_id;
     QString m_displayName;
     DebuggerEngineType m_engineType;
