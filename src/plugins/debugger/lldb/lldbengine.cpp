@@ -836,15 +836,14 @@ void LldbEngine::readLldbStandardError()
 void LldbEngine::readLldbStandardOutput()
 {
     QByteArray out = m_lldbProc.readAllStandardOutput();
-    //showMessage(_("Lldb stdout: " + out));
-    showMessage(_(out), LogDebug);
+    showMessage(_("Lldb stdout: " + out));
     m_inbuffer.append(out);
     while (true) {
-        int pos = m_inbuffer.indexOf("@\n");
+        int pos = m_inbuffer.indexOf('\n');
         if (pos == -1)
             break;
         QByteArray response = m_inbuffer.left(pos).trimmed();
-        m_inbuffer = m_inbuffer.mid(pos + 2);
+        m_inbuffer = m_inbuffer.mid(pos + 1);
         emit outputReady(response);
     }
 }
