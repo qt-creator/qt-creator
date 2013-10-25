@@ -4336,19 +4336,14 @@ void tst_Dumpers::dumper_data()
                % Check("y2", "", "X")
                % Check("y3", "", "X");
 
-    QTest::newRow("RValueReferenceGdb")
+    QTest::newRow("RValueReference")
             << Data(rvalueData)
-               % GdbOnly()
-               % Check("x1", "", "X &")
-               % Check("x2", "", "X &")
-               % Check("x3", "", "X &");
-
-    QTest::newRow("RValueReferenceLldb")
-            << Data(rvalueData)
-               % LldbOnly()
-               % Check("x1", "", "X &&")
-               % Check("x2", "", "X &&")
-               % Check("x3", "", "X &&");
+               % Check("x1", "", "X &").setForGdbOnly()
+               % Check("x2", "", "X &").setForGdbOnly()
+               % Check("x3", "", "X &").setForGdbOnly()
+               % Check("x1", "", "X &&").setForLldbOnly()
+               % Check("x2", "", "X &&").setForLldbOnly()
+               % Check("x3", "", "X &&").setForLldbOnly();
 
     QTest::newRow("SSE")
             << Data("#include <xmmintrin.h>\n"
