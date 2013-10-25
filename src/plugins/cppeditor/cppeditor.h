@@ -260,7 +260,6 @@ private:
     CppTools::CommentsSettings m_commentsSettings;
 
     QScopedPointer<FollowSymbolUnderCursor> m_followSymbolUnderCursor;
-    QString m_preProcessorAdditions;
     QToolButton *m_preprocessorButton;
 };
 
