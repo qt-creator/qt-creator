@@ -88,8 +88,10 @@ void DebuggerItem::reinitializeFromFile()
 {
     QProcess proc;
     proc.start(m_command.toString(), QStringList() << QLatin1String("--version"));
-    proc.waitForStarted();
-    proc.waitForFinished();
+    if (!proc.waitForStarted() || !proc.waitForFinished()) {
+        m_engineType = NoEngineType;
+        return;
+    }
     QByteArray ba = proc.readAll();
     if (ba.contains("gdb")) {
         m_engineType = GdbEngineType;
@@ -119,6 +121,19 @@ void DebuggerItem::reinitializeFromFile()
     if (ba.startsWith("Python")) {
         m_engineType = PdbEngineType;
         return;
+    }
+    if (ba.isEmpty()) {
+        proc.start(m_command.toString(), QStringList() << QLatin1String("-version"));
+        if (!proc.waitForStarted() || !proc.waitForFinished()) {
+            m_engineType = NoEngineType;
+            return;
+        }
+        ba = proc.readAll();
+        if (ba.startsWith("cdb")) {
+            m_engineType = CdbEngineType;
+            m_abis = Abi::abisOfBinary(m_command);
+            return;
+        }
     }
     m_engineType = NoEngineType;
 }
