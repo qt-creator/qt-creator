@@ -318,6 +318,7 @@ void QbsInstallStepConfigWidget::updateState()
     if (m_step->removeFirst())
         command += QLatin1String("--remove-first ");
     command += QString::fromLatin1("--install-root \"%1\"").arg(m_step->absoluteInstallRoot());
+    m_ui->commandLineTextEdit->setPlainText(command);
 
     QString summary = tr("<b>Qbs:</b> %1").arg(command);
     if (m_summary != summary) {

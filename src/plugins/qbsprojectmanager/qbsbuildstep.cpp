@@ -415,6 +415,7 @@ void QbsBuildStepConfigWidget::updateState()
 
     if (m_step->isQmlDebuggingEnabled())
         command += QLatin1String(" Qt.declarative.qmlDebugging:true Qt.quick.qmlDebugging:true");
+    m_ui->commandLineTextEdit->setPlainText(command);
 
     QString summary = tr("<b>Qbs:</b> %1").arg(command);
     if (m_summary != summary) {
