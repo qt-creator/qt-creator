@@ -132,12 +132,16 @@ public:
 
     IAssistProposal *perform(const IAssistInterface *)
     {
-        QTC_ASSERT(m_params.startClass, return 0);
         QTC_ASSERT(m_params.function, return 0);
         QTC_ASSERT(!m_params.snapshot.isEmpty(), return 0);
 
+        Class *functionsClass = m_finder.findMatchingClassDeclaration(m_params.function,
+                                                                      m_params.snapshot);
+        if (!functionsClass)
+            return 0;
+
         const QList<Symbol *> overrides
-            = FunctionHelper::overrides(m_params.startClass, m_params.function, m_params.snapshot);
+            = FunctionHelper::overrides(m_params.function, functionsClass, m_params.snapshot);
         if (overrides.isEmpty())
             return 0;
 
@@ -250,19 +254,19 @@ bool FunctionHelper::isPureVirtualFunction(const Function *function, const Snaps
     return isVirtualFunction_helper(function, snapshot, PureVirtual);
 }
 
-QList<Symbol *> FunctionHelper::overrides(Class *startClass, Function *function,
+QList<Symbol *> FunctionHelper::overrides(Function *function, Class *functionsClass,
                                           const Snapshot &snapshot)
 {
     QList<Symbol *> result;
-    QTC_ASSERT(startClass && function, return result);
+    QTC_ASSERT(function && functionsClass, return result);
 
     FullySpecifiedType referenceType = function->type();
     const Name *referenceName = function->name();
     QTC_ASSERT(referenceName && referenceType.isValid(), return result);
 
     // Find overrides
-    CppEditor::Internal::CppClass cppClass = CppClass(startClass);
-    cppClass.lookupDerived(startClass, snapshot);
+    CppEditor::Internal::CppClass cppClass = CppClass(functionsClass);
+    cppClass.lookupDerived(functionsClass, snapshot);
 
     QList<CppClass> l;
     l << cppClass;

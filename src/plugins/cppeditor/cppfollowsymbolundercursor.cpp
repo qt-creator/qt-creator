@@ -55,22 +55,60 @@ typedef BaseTextEditorWidget::Link Link;
 
 namespace {
 
-bool lookupVirtualFunctionOverrides(TypeOfExpression &typeOfExpression,
-                                    const Document::Ptr &document,
-                                    const Function *function,
-                                    Scope *scope,
-                                    const Snapshot &snapshot)
-{
-    if (!document || !function || !scope || scope->isClass() || snapshot.isEmpty())
-        return false;
+class VirtualFunctionHelper {
+public:
+    VirtualFunctionHelper(const TypeOfExpression &typeOfExpression,
+                          Scope *scope,
+                          const Document::Ptr &document,
+                          const Snapshot &snapshot);
 
-    ExpressionAST *expressionAST = typeOfExpression.expressionAST();
-    if (!expressionAST)
+    bool canLookupVirtualFunctionOverrides(const Function *function) const;
+
+private:
+    VirtualFunctionHelper();
+    Q_DISABLE_COPY(VirtualFunctionHelper)
+
+    ExpressionAST *getBaseExpressionAST() const
+    {
+        if (!m_expressionAST)
+            return 0;
+        CallAST *callAST = m_expressionAST->asCall();
+        if (!callAST)
+            return 0;
+        if (ExpressionAST *baseExpressionAST = callAST->base_expression)
+            return baseExpressionAST;
+        return 0;
+    }
+
+private:
+    const QSharedPointer<TypeOfExpression> m_typeOfExpression;
+    ExpressionAST *m_expressionAST;
+    const Document::Ptr m_expressionDocument;
+    Scope *m_scope;
+    const Document::Ptr &m_document;
+    const Snapshot &m_snapshot;
+};
+
+VirtualFunctionHelper::VirtualFunctionHelper(const TypeOfExpression &typeOfExpression,
+                                             Scope *scope,
+                                             const Document::Ptr &document,
+                                             const Snapshot &snapshot)
+    : m_expressionAST(typeOfExpression.expressionAST())
+    , m_expressionDocument(typeOfExpression.context().expressionDocument())
+    , m_scope(scope)
+    , m_document(document)
+    , m_snapshot(snapshot)
+{
+}
+
+bool VirtualFunctionHelper::canLookupVirtualFunctionOverrides(const Function *function) const
+{
+    if (!m_expressionDocument || !m_document || !function || !m_scope || m_scope->isClass()
+            || m_snapshot.isEmpty()) {
         return false;
-    CallAST *callAST = expressionAST->asCall();
-    if (!callAST)
-        return false;
-    ExpressionAST *baseExpressionAST = callAST->base_expression;
+    }
+
+    ExpressionAST *baseExpressionAST = getBaseExpressionAST();
     if (!baseExpressionAST)
         return false;
 
@@ -79,23 +117,23 @@ bool lookupVirtualFunctionOverrides(TypeOfExpression &typeOfExpression,
     if (IdExpressionAST *idExpressionAST = baseExpressionAST->asIdExpression()) {
         NameAST *name = idExpressionAST->name;
         const bool nameIsQualified = name && name->asQualifiedName();
-        result = !nameIsQualified && FunctionHelper::isVirtualFunction(function, snapshot);
+        result = !nameIsQualified && FunctionHelper::isVirtualFunction(function, m_snapshot);
     } else if (MemberAccessAST *memberAccessAST = baseExpressionAST->asMemberAccess()) {
         NameAST *name = memberAccessAST->member_name;
         const bool nameIsQualified = name && name->asQualifiedName();
-        if (!nameIsQualified && FunctionHelper::isVirtualFunction(function, snapshot)) {
-            const Document::Ptr expressionDocument
-                = typeOfExpression.context().expressionDocument();
-            QTC_ASSERT(expressionDocument, return false);
-            TranslationUnit *unit = expressionDocument->translationUnit();
+        if (!nameIsQualified && FunctionHelper::isVirtualFunction(function, m_snapshot)) {
+            TranslationUnit *unit = m_expressionDocument->translationUnit();
             QTC_ASSERT(unit, return false);
             const int accessTokenKind = unit->tokenKind(memberAccessAST->access_token);
 
             if (accessTokenKind == T_ARROW) {
                 result = true;
             } else if (accessTokenKind == T_DOT) {
+                TypeOfExpression typeOfExpression;
+                typeOfExpression.init(m_document, m_snapshot);
+                typeOfExpression.setExpandTemplates(true);
                 const QList<LookupItem> items = typeOfExpression.reference(
-                    memberAccessAST->base_expression, document, scope);
+                            memberAccessAST->base_expression, m_document, m_scope);
                 if (!items.isEmpty()) {
                     const LookupItem item = items.first();
                     if (Symbol *declaration = item.declaration())
@@ -552,13 +590,10 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
 
             // Consider to show a pop-up displaying overrides for the function
             Function *function = symbol->type()->asFunctionType();
+            VirtualFunctionHelper helper(*typeOfExpression, scope, doc, snapshot);
 
-            if (lookupVirtualFunctionOverrides(*typeOfExpression, doc, function, scope, snapshot)) {
-                Class *klass = symbolFinder->findMatchingClassDeclaration(function, snapshot);
-                QTC_CHECK(klass);
-
+            if (helper.canLookupVirtualFunctionOverrides(function)) {
                 VirtualFunctionAssistProvider::Parameters params;
-                params.startClass = klass;
                 params.function = function;
                 params.typeOfExpression = typeOfExpression;
                 params.snapshot = snapshot;
