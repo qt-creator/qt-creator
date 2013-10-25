@@ -157,6 +157,9 @@ static QString toHex(const QString &str)
 }
 
 
+struct GdbOnly {};
+struct LldbOnly {};
+
 struct Context
 {
     Context() : qtVersion(0) {}
@@ -305,7 +308,22 @@ struct Type
     QByteArray type;
 };
 
-struct Check
+enum DebuggerEngine
+{
+    DumpTestGdbEngine,
+    DumpTestCdbEngine,
+    DumpTestLldbEngine
+};
+
+struct CheckBase
+{
+    CheckBase() : useLldb(true), useGdb(true) {}
+
+    mutable bool useLldb;
+    mutable bool useGdb;
+};
+
+struct Check : CheckBase
 {
     Check() {}
 
@@ -320,6 +338,30 @@ struct Check
           expectedValue(value), expectedType(type)
     {}
 
+    bool matchesEngine(DebuggerEngine engine) const
+    {
+        return (engine == DumpTestLldbEngine && useLldb)
+            || (engine == DumpTestGdbEngine && useGdb);
+    }
+
+    const Check &setForLldbOnly() const
+    {
+        clearUsed();
+        useLldb = true;
+        return *this;
+    }
+
+    const Check &setForGdbOnly() const
+    {
+        clearUsed();
+        useGdb = true;
+        return *this;
+    }
+
+    void clearUsed() const
+    {
+        useLldb = useGdb = false;
+    }
     QByteArray iname;
     Name expectedName;
     Value expectedValue;
@@ -380,9 +422,6 @@ struct MacLibCppProfile : public Profile
                 "}")
     {}
 };
-
-struct GdbOnly {};
-struct LldbOnly {};
 
 struct GdbVersion
 {
@@ -454,7 +493,7 @@ public:
 
     const Data &operator%(const Check &check) const
     {
-        checks.insert("local." + check.iname, check);
+        checks.append(check);
         return *this;
     }
 
@@ -532,7 +571,7 @@ public:
     mutable QByteArray profileExtra;
     mutable QByteArray includes;
     mutable QByteArray code;
-    mutable QMap<QByteArray, Check> checks; // IName -> Action
+    mutable QList<Check> checks;
 };
 
 struct TempStuff
@@ -547,13 +586,6 @@ struct TempStuff
     QByteArray input;
     QTemporaryDir buildTemp;
     QString buildPath;
-};
-
-enum DebuggerEngine
-{
-    DumpTestGdbEngine,
-    DumpTestCdbEngine,
-    DumpTestLldbEngine
 };
 
 Q_DECLARE_METATYPE(Data)
@@ -997,26 +1029,36 @@ void tst_Dumpers::dumper()
     bool ok = true;
     foreach (const WatchData &item, list) {
         seenINames.insert(item.iname);
-        if (data.checks.contains(item.iname)) {
-            Check check = data.checks.take(item.iname);
-            if (!check.expectedName.matches(item.name.toLatin1(), context)) {
-                qDebug() << "INAME        : " << item.iname;
-                qDebug() << "NAME ACTUAL  : " << item.name.toLatin1();
-                qDebug() << "NAME EXPECTED: " << check.expectedName.name;
-                ok = false;
-            }
-            if (!check.expectedValue.matches(item.value, context)) {
-                qDebug() << "INAME         : " << item.iname;
-                qDebug() << "VALUE ACTUAL  : " << item.value << toHex(item.value);
-                qDebug() << "VALUE EXPECTED: "
-                    << check.expectedValue.value << toHex(check.expectedValue.value);
-                ok = false;
-            }
-            if (!check.expectedType.matches(item.type, context)) {
-                qDebug() << "INAME        : " << item.iname;
-                qDebug() << "TYPE ACTUAL  : " << item.type;
-                qDebug() << "TYPE EXPECTED: " << check.expectedType.type;
-                ok = false;
+        //qDebug() << "NUM CHECKS" << data.checks.size();
+        for (int i = data.checks.size(); --i >= 0; ) {
+            Check check = data.checks.at(i);
+            //qDebug() << "CHECKS" << i << check.iname;
+            if ("local." + check.iname == item.iname) {
+                data.checks.removeAt(i);
+                if (check.matchesEngine(m_debuggerEngine)) {
+                    //qDebug() << "USING MATCHING TEST FOR " << item.iname;
+                    if (!check.expectedName.matches(item.name.toLatin1(), context)) {
+                        qDebug() << "INAME        : " << item.iname;
+                        qDebug() << "NAME ACTUAL  : " << item.name.toLatin1();
+                        qDebug() << "NAME EXPECTED: " << check.expectedName.name;
+                        ok = false;
+                    }
+                    if (!check.expectedValue.matches(item.value, context)) {
+                        qDebug() << "INAME         : " << item.iname;
+                        qDebug() << "VALUE ACTUAL  : " << item.value << toHex(item.value);
+                        qDebug() << "VALUE EXPECTED: "
+                            << check.expectedValue.value << toHex(check.expectedValue.value);
+                        ok = false;
+                    }
+                    if (!check.expectedType.matches(item.type, context)) {
+                        qDebug() << "INAME        : " << item.iname;
+                        qDebug() << "TYPE ACTUAL  : " << item.type;
+                        qDebug() << "TYPE EXPECTED: " << check.expectedType.type;
+                        ok = false;
+                    }
+                } else {
+                    qDebug() << "SKIPPING NON-MATCHING TEST FOR " << item.iname;
+                }
             }
         }
     }
@@ -2190,7 +2232,7 @@ void tst_Dumpers::dumper_data()
                     "QString dummy;\n"
                     "QPoint s0, s;\n"
                     "s = QPoint(100, 200);\n"
-                    "unused(&s0, &s);\n")
+                    "unused(&s0, &s, &dummy);\n")
                % CoreProfile()
                % Check("s0", "(0, 0)", "@QPoint")
                % Check("s", "(100, 200)", "@QPoint");
@@ -2200,7 +2242,8 @@ void tst_Dumpers::dumper_data()
                     "#include <QString> // Dummy for namespace\n",
                     "QString dummy;\n"
                     "QPointF s0, s;\n"
-                    "s = QPointF(100.5, 200.5);\n")
+                    "s = QPointF(100.5, 200.5);\n"
+                    "unused(&s0, &s, &dummy);\n")
                % CoreProfile()
                % Check("s0", "(0.0, 0.0)", "@QPointF")
                % Check("s", "(100.5, 200.5)", "@QPointF");
@@ -2210,8 +2253,9 @@ void tst_Dumpers::dumper_data()
                     "#include <QString> // Dummy for namespace\n",
                     "QString dummy;\n"
                     "QRect rect0, rect;\n"
-                    "rect = QRect(100, 100, 200, 200);\n")
-               % Check("rect", "0x0+0+0", "@QRect")
+                    "rect = QRect(100, 100, 200, 200);\n"
+                    "unused(&rect0, &rect, &dummy);\n")
+               % Check("rect0", "0x0+0+0", "@QRect")
                % Check("rect", "200x200+100+100", "@QRect");
 
     QTest::newRow("QRectF")
@@ -2219,8 +2263,9 @@ void tst_Dumpers::dumper_data()
                     "#include <QString> // Dummy for namespace\n",
                     "QString dummy;\n"
                     "QRectF rect0, rect;\n"
-                    "rect = QRectF(100.25, 100.25, 200.5, 200.5);\n")
-               % Check("rect", "0x0+0+0", "@QRectF")
+                    "rect = QRectF(100.25, 100.25, 200.5, 200.5);\n"
+                    "unused(&rect0, &rect, &dummy);\n")
+               % Check("rect0", "0.0x0.0+0.0+0.0", "@QRectF")
                % Check("rect", "200.5x200.5+100.25+100.25", "@QRectF");
 
     QTest::newRow("QSize")
@@ -2228,7 +2273,8 @@ void tst_Dumpers::dumper_data()
                     "#include <QString> // Dummy for namespace\n",
                     "QString dummy;\n"
                     "QSize s0, s;\n"
-                    "s = QSize(100, 200);\n")
+                    "s = QSize(100, 200);\n"
+                    "unused(&s0, &s, &dummy);\n")
                % CoreProfile()
                % Check("s0", "(-1, -1)", "@QSize")
                % Check("s", "(100, 200)", "@QSize");
@@ -2238,7 +2284,8 @@ void tst_Dumpers::dumper_data()
                     "#include <QString> // Dummy for namespace\n",
                     "QString dummy;\n"
                     "QSizeF s0, s;\n"
-                    "s = QSizeF(100.5, 200.5);\n")
+                    "s = QSizeF(100.5, 200.5);\n"
+                    "unused(&s0, &s, &dummy);\n")
                % CoreProfile()
                % Check("s0", "(-1.0, -1.0)", "@QSizeF")
                % Check("s", "(100.5, 200.5)", "@QSizeF");
@@ -2474,27 +2521,17 @@ void tst_Dumpers::dumper_data()
                % Check("c", "(1.000000, 2.000000)", "std::complex<double>")
                % CheckType("c.real", "double");
 
-    QTest::newRow("CComplexGdb")
+    QTest::newRow("CComplex")
             << Data("#include <complex.h>\n",
                     "// Doesn't work when compiled as C++.\n"
                     "double complex a = 0;\n"
                     "double _Complex b = 0;\n"
                     "unused(&a, &b);\n")
                % ForceC()
-               % GdbOnly()
-               % Check("a", "0 + 0 * I", "complex double")
-               % Check("b", "0 + 0 * I", "complex double");
-
-    QTest::newRow("CComplexLldb")
-            << Data("#include <complex.h>\n",
-                    "// Doesn't work when compiled as C++.\n"
-                    "double complex a = 0;\n"
-                    "double _Complex b = 0;\n"
-                    "unused(&a, &b);\n")
-               % ForceC()
-               % LldbOnly()
-               % Check("a", "0 + 0i", "_Complex double")
-               % Check("b", "0 + 0i", "_Complex double");
+               % Check("a", "0 + 0 * I", "complex double").setForGdbOnly()
+               % Check("b", "0 + 0 * I", "complex double").setForGdbOnly()
+               % Check("a", "0 + 0i", "_Complex double").setForLldbOnly()
+               % Check("b", "0 + 0i", "_Complex double").setForLldbOnly();
 
     QTest::newRow("StdDequeInt")
             << Data("#include <deque>\n",
@@ -3974,7 +4011,7 @@ void tst_Dumpers::dumper_data()
                % Check("foo.9", "[9]", "", "Foo");
 
 
-    QTest::newRow("BitfieldsGdb")
+    QTest::newRow("Bitfields")
             << Data("struct S\n"
                     "{\n"
                     "    S() : x(0), y(0), c(0), b(0), f(0), d(0), i(0) {}\n"
@@ -3987,38 +4024,17 @@ void tst_Dumpers::dumper_data()
                     "    int i;\n"
                     "} s;\n"
                     "unused(&s);\n")
-               % GdbOnly()
                % Check("s", "", "S")
                % Check("s.b", "false", "bool")
-               % Check("s.c", "false", "bool")
+               % Check("s.c", "false", "bool:1").setForLldbOnly()
+               % Check("s.c", "false", "bool").setForGdbOnly()
                % Check("s.d", "0", "double")
                % Check("s.f", "0", "float")
                % Check("s.i", "0", "int")
-               % Check("s.x", "0", "unsigned int")
-               % Check("s.y", "0", "unsigned int");
-
-    QTest::newRow("BitfieldsLldb")
-            << Data("struct S\n"
-                    "{\n"
-                    "    S() : x(0), y(0), c(0), b(0), f(0), d(0), i(0) {}\n"
-                    "    unsigned int x : 1;\n"
-                    "    unsigned int y : 1;\n"
-                    "    bool c : 1;\n"
-                    "    bool b;\n"
-                    "    float f;\n"
-                    "    double d;\n"
-                    "    int i;\n"
-                    "} s;\n"
-                    "unused(&s);\n")
-               % LldbOnly()
-               % Check("s", "", "S")
-               % Check("s.b", "false", "bool")
-               % Check("s.c", "false", "bool:1")
-               % Check("s.d", "0", "double")
-               % Check("s.f", "0", "float")
-               % Check("s.i", "0", "int")
-               % Check("s.x", "0", "unsigned int:1")
-               % Check("s.y", "0", "unsigned int:1");
+               % Check("s.x", "0", "unsigned int:1").setForLldbOnly()
+               % Check("s.x", "0", "unsigned int").setForGdbOnly()
+               % Check("s.y", "0", "unsigned int:1").setForLldbOnly()
+               % Check("s.y", "0", "unsigned int").setForGdbOnly();
 
 
     QTest::newRow("Function")
@@ -4036,14 +4052,9 @@ void tst_Dumpers::dumper_data()
                     "Function func(\"x\", \"sin(x)\", 0, 1);\n"
                     "func.max = 10;\n"
                     "func.f = \"cos(x)\";\n"
-                    "func.max = 4;\n"
-                    "func.max = 5;\n"
-                    "func.max = 6;\n"
                     "func.max = 7;\n")
                % CoreProfile()
                % Check("func", "", "Function")
-               % Check("func.f", "sin(x)", "@QByteArray")
-               % Check("func.max", "1", "double")
                % Check("func.min", "0", "double")
                % Check("func.var", "\"x\"", "@QByteArray")
                % Check("func", "", "Function")
