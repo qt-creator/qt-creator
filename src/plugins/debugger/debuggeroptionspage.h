@@ -27,52 +27,64 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_DEBUGGERKITINFORMATION_H
-#define DEBUGGER_DEBUGGERKITINFORMATION_H
+#ifndef DEBUGGER_DEBUGGEROPTIONSPAGE_H
+#define DEBUGGER_DEBUGGEROPTIONSPAGE_H
 
-#include "debugger_global.h"
-#include "debuggerconstants.h"
-#include "debuggeritem.h"
+#include <coreplugin/dialogs/ioptionspage.h>
 
-#include <projectexplorer/abi.h>
-#include <projectexplorer/kitinformation.h>
+QT_BEGIN_NAMESPACE
+class QPushButton;
+class QTreeView;
+class QWidget;
+QT_END_NAMESPACE
 
-#include <utils/persistentsettings.h>
+namespace Utils { class DetailsWidget; }
 
 namespace Debugger {
+namespace Internal {
 
-class DEBUGGER_EXPORT DebuggerKitInformation : public ProjectExplorer::KitInformation
+class DebuggerItemModel;
+class DebuggerItemConfigWidget;
+class DebuggerKitConfigWidget;
+
+// --------------------------------------------------------------------------
+// DebuggerOptionsPage
+// --------------------------------------------------------------------------
+
+class DebuggerOptionsPage : public Core::IOptionsPage
 {
     Q_OBJECT
 
 public:
-    DebuggerKitInformation();
+    DebuggerOptionsPage();
 
-    QVariant defaultValue(ProjectExplorer::Kit *k) const;
+    QWidget *createPage(QWidget *parent);
+    void apply();
+    void finish();
+    bool matches(const QString &) const;
 
-    QList<ProjectExplorer::Task> validate(const ProjectExplorer::Kit *k) const
-        { return DebuggerKitInformation::validateDebugger(k); }
+private slots:
+    void debuggerSelectionChanged();
+    void debuggerModelChanged();
+    void updateState();
+    void cloneDebugger();
+    void addDebugger();
+    void removeDebugger();
 
-    void setup(ProjectExplorer::Kit *k);
-    void fix(ProjectExplorer::Kit *k);
+private:
+    QWidget *m_configWidget;
+    QString m_searchKeywords;
 
-    static const DebuggerItem *debugger(const ProjectExplorer::Kit *kit);
-
-    static QList<ProjectExplorer::Task> validateDebugger(const ProjectExplorer::Kit *k);
-    static bool isValidDebugger(const ProjectExplorer::Kit *k);
-
-    ProjectExplorer::KitConfigWidget *createConfigWidget(ProjectExplorer::Kit *k) const;
-
-    ItemList toUserOutput(const ProjectExplorer::Kit *k) const;
-
-    static void setDebugger(ProjectExplorer::Kit *k, const QVariant &id);
-
-    static Core::Id id();
-    static Utils::FileName debuggerCommand(const ProjectExplorer::Kit *k);
-    static DebuggerEngineType engineType(const ProjectExplorer::Kit *k);
-    static QString displayString(const ProjectExplorer::Kit *k);
+    DebuggerItemModel *m_model;
+    DebuggerItemConfigWidget *m_itemConfigWidget;
+    QTreeView *m_debuggerView;
+    Utils::DetailsWidget *m_container;
+    QPushButton *m_addButton;
+    QPushButton *m_cloneButton;
+    QPushButton *m_delButton;
 };
 
+} // namespace Internal
 } // namespace Debugger
 
-#endif // DEBUGGER_DEBUGGERKITINFORMATION_H
+#endif // DEBUGGER_DEBUGGEROPTIONSPAGE_H

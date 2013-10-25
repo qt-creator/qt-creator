@@ -27,69 +27,70 @@
 **
 ****************************************************************************/
 
-#ifndef DEBUGGER_DEBUGGERKITCONFIGWIDGET_H
-#define DEBUGGER_DEBUGGERKITCONFIGWIDGET_H
+#ifndef DEBUGGER_DEBUGGERITEM_H
+#define DEBUGGER_DEBUGGERITEM_H
 
-#include "debuggerkitinformation.h"
+#include "debugger_global.h"
+#include "debuggerconstants.h"
 
-#include <coreplugin/dialogs/ioptionspage.h>
-#include <projectexplorer/kitconfigwidget.h>
 #include <projectexplorer/abi.h>
-#include <utils/detailswidget.h>
+
 #include <utils/fileutils.h>
-#include <utils/pathchooser.h>
 
-#include <QDialog>
-#include <QStandardItemModel>
-#include <QTreeView>
-
-QT_BEGIN_NAMESPACE
-class QComboBox;
-class QLabel;
-class QPushButton;
-QT_END_NAMESPACE
+#include <QList>
+#include <QVariant>
 
 namespace Debugger {
-namespace Internal {
 
 // -----------------------------------------------------------------------
-// DebuggerKitConfigWidget
+// DebuggerItem
 // -----------------------------------------------------------------------
 
-class DebuggerKitConfigWidget : public ProjectExplorer::KitConfigWidget
+class DEBUGGER_EXPORT DebuggerItem
 {
-    Q_OBJECT
-
 public:
-    DebuggerKitConfigWidget(ProjectExplorer::Kit *workingCopy,
-                            const ProjectExplorer::KitInformation *ki);
-    ~DebuggerKitConfigWidget();
+    DebuggerItem();
+    DebuggerItem(const QVariantMap &data);
 
-    QString displayName() const;
-    QString toolTip() const;
-    void makeReadOnly();
-    void refresh();
-    QWidget *buttonWidget() const;
-    QWidget *mainWidget() const;
+    bool canClone() const { return true; }
+    bool isValid() const;
+    QString engineTypeName() const;
 
-private slots:
-    void manageDebuggers();
-    void currentDebuggerChanged(int idx);
-    void onDebuggerAdded(const QVariant &id, const QString &displayName);
-    void onDebuggerUpdated(const QVariant &id, const QString &displayName);
-    void onDebuggerRemoved(const QVariant &id);
+    QVariantMap toMap() const;
+    void reinitializeFromFile();
+
+    QVariant id() const { return m_id; }
+
+    QString displayName() const { return m_displayName; }
+    void setDisplayName(const QString &displayName);
+
+    DebuggerEngineType engineType() const { return m_engineType; }
+    void setEngineType(const DebuggerEngineType &engineType);
+
+    Utils::FileName command() const { return m_command; }
+    void setCommand(const Utils::FileName &command);
+
+    bool isAutoDetected() const { return m_isAutoDetected; }
+    void setAutoDetected(bool isAutoDetected);
+
+    QList<ProjectExplorer::Abi> abis() const { return m_abis; }
+    void setAbis(const QList<ProjectExplorer::Abi> &abis);
+    void setAbi(const ProjectExplorer::Abi &abi);
+
+    enum MatchLevel { DoesNotMatch, MatchesSomewhat, MatchesPerfectly };
+    MatchLevel matchTarget(const ProjectExplorer::Abi &targetAbi) const;
+
+    QStringList abiNames() const;
 
 private:
-    int indexOf(const QVariant &id);
-    QVariant currentId() const;
-    void updateComboBox(const QVariant &id);
-
-    bool m_isReadOnly;
-    QComboBox *m_comboBox;
-    QPushButton *m_manageButton;
+    QVariant m_id;
+    QString m_displayName;
+    DebuggerEngineType m_engineType;
+    Utils::FileName m_command;
+    bool m_isAutoDetected;
+    QList<ProjectExplorer::Abi> m_abis;
 };
 
-} // namespace Internal
 } // namespace Debugger
 
-#endif // DEBUGGER_DEBUGGERKITCONFIGWIDGET_H
+#endif // DEBUGGER_DEBUGGERITEM_H

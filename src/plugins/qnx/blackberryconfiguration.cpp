@@ -45,6 +45,7 @@
 
 #include <qt4projectmanager/qmakekitinformation.h>
 
+#include <debugger/debuggeritemmanager.h>
 #include <debugger/debuggerkitinformation.h>
 
 #include <QFileInfo>

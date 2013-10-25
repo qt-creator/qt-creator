@@ -24,9 +24,13 @@ HEADERS += \
     debuggercore.h \
     debuggerconstants.h \
     debuggerinternalconstants.h \
+    debuggeritem.h \
+    debuggeritemmanager.h \
+    debuggeritemmodel.h \
     debuggerdialogs.h \
     debuggerengine.h \
     debuggermainwindow.h \
+    debuggeroptionspage.h \
     debuggerplugin.h \
     debuggerprotocol.h \
     debuggerrunconfigurationaspect.h \
@@ -80,12 +84,16 @@ SOURCES += \
     debuggeractions.cpp \
     debuggerdialogs.cpp \
     debuggerengine.cpp \
+    debuggeritem.cpp \
+    debuggeritemmanager.cpp \
+    debuggeritemmodel.cpp \
     debuggermainwindow.cpp \
     debuggerplugin.cpp \
     debuggerprotocol.cpp \
     debuggerrunconfigurationaspect.cpp \
     debuggerrunner.cpp \
     debuggerstreamops.cpp \
+    debuggeroptionspage.cpp \
     debuggerkitconfigwidget.cpp \
     debuggerkitinformation.cpp \
     disassembleragent.cpp \
