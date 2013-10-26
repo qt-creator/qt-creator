@@ -649,7 +649,6 @@ protected:
     // Convenience Functions
     //
     QString errorMessage(QProcess::ProcessError error);
-    GdbProcess *gdbProc() const;
     void showExecutionError(const QString &message);
 
     static QByteArray tooltipIName(const QString &exp);
