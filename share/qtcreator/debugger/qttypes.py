@@ -289,36 +289,49 @@ def qdump__QDir(d, value):
     privAddress = d.dereferenceValue(value)
     bit32 = d.is32bit()
     qt5 = d.qtVersion() >= 0x050000
-    # value.d_ptr.d.dirEntry.m_filePath - value.d_ptr.d
-    offset = (32 if bit32 else 56) if qt5 else 36
-    filePathAddress = privAddress + offset
-    #try:
-    #    # Up to Qt 4.7
-    #    d.putStringValue(data["path"])
-    #except:
-    #    # Qt 4.8 and later.
-    #    d.putStringValue(data["dirEntry"]["m_filePath"])
-    d.putStringValueByAddress(filePathAddress)
+    # QDirPrivate:
+    # QAtomicInt ref
+    # QStringList nameFilters;
+    # QDir::SortFlags sort;
+    # QDir::Filters filters;
+    # // qt3support:
+    # QChar filterSepChar;
+    # bool matchAllDirs;
+    # // end qt3support
+    # QScopedPointer<QAbstractFileEngine> fileEngine;
+    # bool fileListsInitialized;
+    # QStringList files;
+    # QFileInfoList fileInfos;
+    # QFileSystemEntry dirEntry;
+    # QFileSystemEntry absoluteDirEntry;
+    qt3SupportAddition = 0 if qt5 else d.ptrSize() # qt5 doesn't have qt3support
+    filesOffset = (24 if bit32 else 40) + qt3SupportAddition
+    fileInfosOffset = filesOffset + d.ptrSize()
+    dirEntryOffset = fileInfosOffset + d.ptrSize()
+    # QFileSystemEntry:
+    # QString m_filePath
+    # QByteArray m_nativeFilePath
+    # qint16 m_lastSeparator
+    # qint16 m_firstDotInFileName
+    # qint16 m_lastDotInFileName
+    # + 2 byte padding
+    fileSystemEntrySize = 2 * d.ptrSize() + 8
+    absoluteDirEntryOffset = dirEntryOffset + fileSystemEntrySize
+    d.putStringValueByAddress(privAddress + dirEntryOffset)
     if d.isExpanded():
         with Children(d):
             d.call(value, "count")  # Fill cache.
             #d.putCallItem("absolutePath", value, "absolutePath")
             #d.putCallItem("canonicalPath", value, "canonicalPath")
             with SubItem(d, "absolutePath"):
-                # value.d_ptr.d.absoluteDirEntry.m_filePath - value.d_ptr.d
-                offset = (48 if bit32 else 80) if qt5 else 36
                 typ = d.lookupType(d.ns + "QString")
-                d.putItem(d.createValue(privAddress + offset, typ))
+                d.putItem(d.createValue(privAddress + absoluteDirEntryOffset, typ))
             with SubItem(d, "entryInfoList"):
-                # value.d_ptr.d.fileInfos - value.d_ptr.d
-                offset = (28 if bit32 else 48) if qt5 else 32
                 typ = d.lookupType(d.ns + "QList<" + d.ns + "QFileInfo>")
-                d.putItem(d.createValue(privAddress + offset, typ))
+                d.putItem(d.createValue(privAddress + fileInfosOffset, typ))
             with SubItem(d, "entryList"):
-                # d.ptr.d.files - value.d_ptr.d
-                offset = (24 if bit32 else 40) if qt5 else 28
                 typ = d.lookupType(d.ns + "QStringList")
-                d.putItem(d.createValue(privAddress + offset, typ))
+                d.putItem(d.createValue(privAddress + filesOffset, typ))
 
 
 def qdump__QFile(d, value):
