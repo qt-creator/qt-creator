@@ -329,9 +329,10 @@ def qdump__QFile(d, value):
         fileNameAddress = d.addressOf(d_ptr.cast(ptype).dereference()["fileName"])
         d.putNumChild(1)
     except:
-        # 176 and 280 are best guesses for Qt 5
-        offset = 176 if d.is32bit() else 280
-        #qt5 = d.qtVersion() >= 0x050000
+        if d.qtVersion() >= 0x050000:
+            offset = 176 if d.is32bit() else 280
+        else:
+            offset = 140 if d.is32bit() else 232
         privAddress = d.dereference(d.addressOf(value) + d.ptrSize())
         fileNameAddress = privAddress + offset
         d.putNumChild(0)
