@@ -1230,9 +1230,6 @@ class Dumper(DumperBase):
     def ptrSize(self):
         return self.lookupType('void*').sizeof
 
-    def is32bit(self):
-        return self.lookupType('void*').sizeof == 4
-
     def createValue(self, address, referencedType):
         try:
             return gdb.Value(address).cast(referencedType.pointer()).dereference()

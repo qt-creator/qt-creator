@@ -494,9 +494,6 @@ class Dumper(DumperBase):
                 break
         return qqVersion
 
-    def is32bit(self):
-        return False
-
     def intSize(self):
         return 4
 
