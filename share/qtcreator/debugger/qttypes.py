@@ -1898,8 +1898,12 @@ def qdump__QVariant(d, value):
     # User types.
     d_ptr = value["d"]
     typeCode = int(d_ptr["type"])
-    exp = "((const char *(*)(int))%sQMetaType::typeName)(%d)" % (d.ns, typeCode)
-    type = str(d.parseAndEvaluate(exp))
+    try:
+        exp = "((const char *(*)(int))%sQMetaType::typeName)(%d)" % (d.ns, typeCode)
+        type = str(d.parseAndEvaluate(exp))
+    except:
+        exp = "%sQMetaType::typeName(%d)" % (d.ns, typeCode)
+        type = str(d.parseAndEvaluate(exp))
     type = type[type.find('"') + 1 : type.rfind('"')]
     type = type.replace("Q", d.ns + "Q") # HACK!
     type = type.replace("uint", "unsigned int") # HACK!
