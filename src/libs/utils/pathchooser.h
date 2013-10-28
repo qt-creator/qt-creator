@@ -128,6 +128,9 @@ public:
     // Install a tooltip on lineedits used for binaries showing the version.
     static void installLineEditVersionToolTip(QLineEdit *le, const QStringList &arguments);
 
+    // Enable a history completer with a history of entries.
+    void setHistoryCompleter(const QString &historyKey);
+
     bool isReadOnly() const;
     void setReadOnly(bool b);
 
