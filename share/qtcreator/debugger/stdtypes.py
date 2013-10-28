@@ -442,21 +442,36 @@ def qform__std____debug__unordered_map():
     return mapForms()
 
 def qdump__std__unordered_map(d, value):
+    keyType = d.templateArgument(value.type, 0)
+    valueType = d.templateArgument(value.type, 1)
+    allocatorType = d.templateArgument(value.type, 4)
+    pairType = d.templateArgument(allocatorType, 0)
+    ptrSize = d.ptrSize()
     try:
+    # gcc >= 4.7
         size = value["_M_element_count"]
         start = value["_M_before_begin"]["_M_nxt"]
+        offset = 0
     except:
-        size = value["_M_h"]["_M_element_count"]
-        start = value["_M_h"]["_M_bbegin"]["_M_node"]["_M_nxt"]
+            try:
+                # libc++ (Mac)
+                size = value["_M_h"]["_M_element_count"]
+                start = value["_M_h"]["_M_bbegin"]["_M_node"]["_M_nxt"]
+                offset = 0
+            except:
+                # gcc 4.6.2
+                size = value["_M_element_count"]
+                start = value["_M_buckets"].dereference()
+                # FIXME: Pointer-aligned?
+                offset = pairType.sizeof
+                d.putItemCount(size)
+                # We don't know where the data is
+                d.putNumChild(0)
+                return
     d.putItemCount(size)
     d.putNumChild(size)
     if d.isExpanded():
         p = d.pointerValue(start)
-        keyType = d.templateArgument(value.type, 0)
-        valueType = d.templateArgument(value.type, 1)
-        allocatorType = d.templateArgument(value.type, 4)
-        pairType = d.templateArgument(allocatorType, 0)
-        ptrSize = d.ptrSize()
         if d.isMapCompact(keyType, valueType):
             with Children(d, size, childType=valueType):
                 for i in d.childRange():
@@ -469,19 +484,29 @@ def qdump__std__unordered_map(d, value):
         else:
             with Children(d, size, childType=pairType):
                 for i in d.childRange():
-                    d.putSubItem(i, d.createValue(p + ptrSize, pairType))
-                    p = d.dereference(p)
+                    d.putSubItem(i, d.createValue(p + ptrSize - offset, pairType))
+                    p = d.dereference(p + offset)
 
 def qdump__std____debug__unordered_map(d, value):
     qdump__std__unordered_map(d, value)
 
 def qdump__std__unordered_set(d, value):
     try:
+        # gcc >= 4.7
         size = value["_M_element_count"]
         start = value["_M_before_begin"]["_M_nxt"]
+        offset = 0
     except:
-        size = value["_M_h"]["_M_element_count"]
-        start = value["_M_h"]["_M_bbegin"]["_M_node"]["_M_nxt"]
+            try:
+                # libc++ (Mac)
+                size = value["_M_h"]["_M_element_count"]
+                start = value["_M_h"]["_M_bbegin"]["_M_node"]["_M_nxt"]
+                offset = 0
+            except:
+                # gcc 4.6.2
+                size = value["_M_element_count"]
+                start = value["_M_buckets"].dereference()
+                offset = d.ptrSize()
     d.putItemCount(size)
     d.putNumChild(size)
     if d.isExpanded():
@@ -490,8 +515,8 @@ def qdump__std__unordered_set(d, value):
         with Children(d, size, childType=valueType):
             ptrSize = d.ptrSize()
             for i in d.childRange():
-                d.putSubItem(i, d.createValue(p + ptrSize, valueType))
-                p = d.dereference(p)
+                d.putSubItem(i, d.createValue(p + ptrSize - offset, valueType))
+                p = d.dereference(p + offset)
 
 def qform__std____1__unordered_map():
     return mapForms()
