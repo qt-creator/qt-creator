@@ -512,12 +512,12 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
         break;
     }
 
-    TypeOfExpression typeOfExpression;
-    typeOfExpression.init(doc, snapshot);
+    const QSharedPointer<TypeOfExpression> typeOfExpression(new TypeOfExpression);
+    typeOfExpression->init(doc, snapshot);
     // make possible to instantiate templates
-    typeOfExpression.setExpandTemplates(true);
+    typeOfExpression->setExpandTemplates(true);
     const QList<LookupItem> resolvedSymbols =
-            typeOfExpression.reference(expression.toUtf8(), scope, TypeOfExpression::Preprocess);
+            typeOfExpression->reference(expression.toUtf8(), scope, TypeOfExpression::Preprocess);
 
     if (!resolvedSymbols.isEmpty()) {
         LookupItem result = skipForwardDeclarations(resolvedSymbols);
@@ -552,13 +552,15 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
 
             // Consider to show a pop-up displaying overrides for the function
             Function *function = symbol->type()->asFunctionType();
-            if (lookupVirtualFunctionOverrides(typeOfExpression, doc, function, scope, snapshot)) {
+
+            if (lookupVirtualFunctionOverrides(*typeOfExpression, doc, function, scope, snapshot)) {
                 Class *klass = symbolFinder->findMatchingClassDeclaration(function, snapshot);
                 QTC_CHECK(klass);
 
                 VirtualFunctionAssistProvider::Parameters params;
                 params.startClass = klass;
                 params.function = function;
+                params.typeOfExpression = typeOfExpression;
                 params.snapshot = snapshot;
                 params.cursorPosition = cursor.position();
                 params.openInNextSplit = inNextSplit;
@@ -566,6 +568,7 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
                 if (m_virtualFunctionAssistProvider->configure(params)) {
                     m_widget->invokeAssist(TextEditor::FollowSymbol,
                                            m_virtualFunctionAssistProvider);
+                    m_virtualFunctionAssistProvider->clearParams();
                 }
 
                 // Ensure a valid link text, so the symbol name will be underlined on Ctrl+Hover.

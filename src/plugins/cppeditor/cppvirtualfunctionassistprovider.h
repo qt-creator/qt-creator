@@ -34,7 +34,9 @@
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Symbols.h>
+#include <cplusplus/TypeOfExpression.h>
 
+#include <QSharedPointer>
 #include <QTextCursor>
 
 namespace CppEditor {
@@ -50,6 +52,7 @@ public:
 
         CPlusPlus::Class *startClass;
         CPlusPlus::Function *function;
+        QSharedPointer<CPlusPlus::TypeOfExpression> typeOfExpression; // Keeps instantiated symbols.
         CPlusPlus::Snapshot snapshot;
         int cursorPosition;
         bool openInNextSplit;
@@ -57,6 +60,7 @@ public:
 
     virtual bool configure(const Parameters &parameters);
     Parameters params() const { return m_params; }
+    void clearParams() { m_params = Parameters(); }
 
     bool isAsynchronous() const;
     bool supportsEditor(const Core::Id &editorId) const;
