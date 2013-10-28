@@ -289,12 +289,25 @@ struct UnsubstitutedValue : Value
 
 struct Type
 {
-    Type() {}
-    Type(const char *str) : type(str) {}
-    Type(const QByteArray &ba) : type(ba) {}
+    Type() : version(0) {}
+    Type(const char *str) : type(str), version(0) {}
+    Type(const QByteArray &ba) : type(ba), version(0) {}
 
     bool matches(const QByteArray &actualType0, const Context &context) const
     {
+        if (context.qtVersion) {
+            if (version == 4) {
+                if (context.qtVersion < 0x40000 || context.qtVersion >= 0x50000) {
+                    //QWARN("Qt 4 specific case skipped");
+                    return true;
+                }
+            } else if (version == 5) {
+                if (context.qtVersion < 0x50000 || context.qtVersion >= 0x60000) {
+                    //QWARN("Qt 5 specific case skipped");
+                    return true;
+                }
+            }
+        }
         QByteArray actualType =
             CPlusPlus::simplifySTLType(QString::fromLatin1(actualType0)).toLatin1();
         actualType.replace(' ', "");
@@ -306,6 +319,17 @@ struct Type
         return actualType == expectedType;
     }
     QByteArray type;
+    int version;
+};
+
+struct Type4 : Type
+{
+    Type4(const QByteArray &ba) : Type(ba) { version = 4; }
+};
+
+struct Type5 : Type
+{
+    Type5(const QByteArray &ba) : Type(ba) { version = 5; }
 };
 
 enum DebuggerEngine
@@ -1420,7 +1444,8 @@ void tst_Dumpers::dumper_data()
                     "hash[22] = \"22.0\";\n")
                % CoreProfile()
                % Check("hash", "<1 items>", "@QHash<int, @QString>")
-               % Check("hash.0", "[0]", "", "@QHashNode<int, @QString>")
+               % Check("hash.0", "[0]", "", Type4("@QHashNode<@QString>"))
+               % Check("hash.0", "[0]", "", Type5("@QHashNode<int, @QString>"))
                % Check("hash.0.key", "22", "int")
                % Check("hash.0.value", "\"22.0\"", "@QString");
 
