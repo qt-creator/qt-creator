@@ -431,34 +431,6 @@ class Dumper(DumperBase):
     def directBaseClass(self, typeobj, index = 0):
         return typeobj.GetDirectBaseClassAtIndex(index)
 
-    def extractTemplateArgument(self, typename, index):
-        level = 0
-        skipSpace = False
-        inner = ''
-        for c in typename[typename.find('<') + 1 : -1]:
-            if c == '<':
-                inner += c
-                level += 1
-            elif c == '>':
-                level -= 1
-                inner += c
-            elif c == ',':
-                if level == 0:
-                    if index == 0:
-                        return inner.strip()
-                    index -= 1
-                    inner = ''
-                else:
-                    inner += c
-                    skipSpace = True
-            else:
-                if skipSpace and c == ' ':
-                    pass
-                else:
-                    inner += c
-                    skipSpace = False
-        return inner.strip()
-
     def templateArgument(self, typeobj, index):
         type = typeobj.GetTemplateArgumentType(index)
         if type.IsValid():

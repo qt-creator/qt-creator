@@ -596,35 +596,6 @@ def lookupType(typestring):
     typesToReport[typestring] = type
     return type
 
-def extractTemplateArgument(type, position):
-    level = 0
-    skipSpace = False
-    inner = ""
-    type = str(type)
-    for c in type[type.find('<') + 1 : -1]:
-        if c == '<':
-            inner += c
-            level += 1
-        elif c == '>':
-            level -= 1
-            inner += c
-        elif c == ',':
-            if level == 0:
-                if position == 0:
-                    return inner
-                position -= 1
-                inner = ""
-            else:
-                inner += c
-                skipSpace = True
-        else:
-            if skipSpace and c == ' ':
-                pass
-            else:
-                inner += c
-                skipSpace = False
-    return inner
-
 def templateArgument(type, position):
     try:
         # This fails on stock 7.2 with
@@ -632,7 +603,7 @@ def templateArgument(type, position):
         return type.template_argument(position)
     except:
         # That's something like "myns::QList<...>"
-        return lookupType(extractTemplateArgument(type.strip_typedefs(), position))
+        return lookupType(self.extractTemplateArgument(str(type.strip_typedefs()), position))
 
 
 # Workaround for gdb < 7.1
