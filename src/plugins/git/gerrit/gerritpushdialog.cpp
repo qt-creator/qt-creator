@@ -35,6 +35,7 @@
 
 #include <QDateTime>
 #include <QDir>
+#include <QRegExpValidator>
 
 namespace Gerrit {
 namespace Internal {
@@ -135,6 +136,9 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, const QString &rev
     connect(m_ui->branchComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setChangeRange()));
     setRemoteBranches();
     m_ui->reviewersLineEdit->setText(reviewerList);
+
+    m_ui->topicLineEdit->setValidator(new QRegExpValidator(QRegExp(QLatin1String("^\\S+$")), this));
+
     m_valid = true;
 }
 
