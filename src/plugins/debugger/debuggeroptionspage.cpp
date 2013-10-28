@@ -85,6 +85,7 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget(DebuggerItemModel *model) :
     m_binaryChooser = new PathChooser(this);
     m_binaryChooser->setExpectedKind(PathChooser::ExistingCommand);
     m_binaryChooser->setMinimumWidth(400);
+    m_binaryChooser->setHistoryCompleter(QLatin1String("DebuggerPaths"));
 
     m_cdbLabel = new QLabel(this);
     m_cdbLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
