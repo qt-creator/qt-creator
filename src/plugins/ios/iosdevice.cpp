@@ -33,6 +33,7 @@
 #include "iostoolhandler.h"
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitinformation.h>
+#include <coreplugin/helpmanager.h>
 
 #include <QCoreApplication>
 #include <QVariant>
@@ -318,11 +319,12 @@ void IosDeviceManager::deviceInfo(IosToolHandler *, const QString &uid,
                 mBox.setText(tr("An iOS device in user mode has been detected."));
                 mBox.setInformativeText(tr("Do you want to see how to set it up for development?"));
                 mBox.setStandardButtons(QMessageBox::NoAll | QMessageBox::No | QMessageBox::Yes);
-                mBox.setDefaultButton(QMessageBox::No);
+                mBox.setDefaultButton(QMessageBox::Yes);
                 int ret = mBox.exec();
                 switch (ret) {
                 case QMessageBox::Yes:
-                    // open doc
+                    Core::HelpManager::handleHelpRequest(
+                                QLatin1String("qthelp://org.qt-project.qtcreator/doc/creator-developing-ios.html"));
                     break;
                 case QMessageBox::No:
                     newDev->m_ignoreDevice = true;
