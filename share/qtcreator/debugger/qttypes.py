@@ -527,7 +527,10 @@ def qdump__QHash(d, value):
                 it = nodePtr.dereference().cast(innerType)
                 with SubItem(d, i):
                     if isCompact:
-                        d.putMapName(it["key"])
+                        # cannot reference "key" directly because it is inside
+                        # anonymous union for (u)int key in Qt4
+                        keyAddress = d.addressOf(it) + d.ptrSize() # addr + QHashNode*
+                        d.putMapName(d.createValue(keyAddress, keyType))
                         d.putItem(it["value"])
                         d.putType(valueType)
                     else:
