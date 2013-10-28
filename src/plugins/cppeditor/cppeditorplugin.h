@@ -141,6 +141,11 @@ private slots:
     void test_FollowSymbolUnderCursor_virtualFunctionCall_fallbackToDeclaration();
     void test_FollowSymbolUnderCursor_virtualFunctionCall_itemOrder();
     void test_FollowSymbolUnderCursor_virtualFunctionCall_instantiatedSymbols();
+    void test_FollowSymbolUnderCursor_virtualFunctionCall_QSharedPointer();
+    void test_FollowSymbolUnderCursor_virtualFunctionCall_multipeDocuments();
+    void test_FollowSymbolUnderCursor_virtualFunctionCall_noSiblings_references();
+    void test_FollowSymbolUnderCursor_virtualFunctionCall_noSiblings_pointers();
+    void test_FollowSymbolUnderCursor_virtualFunctionCall_noSiblings_noBaseExpression();
     void test_FollowSymbolUnderCursor_virtualFunctionCall_onDotMemberAccessOfReferenceTypes();
     void test_FollowSymbolUnderCursor_virtualFunctionCall_notOnDotMemberAccessOfNonReferenceType();
     void test_FollowSymbolUnderCursor_virtualFunctionCall_notOnQualified();
