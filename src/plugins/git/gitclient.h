@@ -236,6 +236,8 @@ public:
     bool synchronousHeadRefs(const QString &workingDirectory, QStringList *output,
                              QString *errorMessage = 0);
     QString synchronousTopic(const QString &workingDirectory);
+    bool synchronousRevParseCmd(const QString &workingDirectory, const QString &ref,
+                                QString *output, QString *errorMessage = 0) const;
     QString synchronousTopRevision(const QString &workingDirectory, QString *errorMessage = 0);
     void synchronousTagsForCommit(const QString &workingDirectory, const QString &revision,
                                   QString &precedes, QString &follows);

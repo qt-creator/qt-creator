@@ -981,11 +981,9 @@ QString GitClient::findGitDirForRepository(const QString &repositoryDir) const
     QString &res = repoDirCache[repositoryDir];
     if (!res.isEmpty())
         return res;
-    QByteArray outputText;
-    QStringList arguments;
-    arguments << QLatin1String("rev-parse") << QLatin1String("--git-dir");
-    fullySynchronousGit(repositoryDir, arguments, &outputText, 0, false);
-    res = QString::fromLocal8Bit(outputText.trimmed());
+
+    synchronousRevParseCmd(repositoryDir, QLatin1String("--git-dir"), &res);
+
     if (!QDir(res).isAbsolute())
         res.prepend(repositoryDir + QLatin1Char('/'));
     return res;
@@ -1953,25 +1951,28 @@ QString GitClient::synchronousTopic(const QString &workingDirectory)
     return data.topic = remoteBranch.isEmpty() ? tr("Detached HEAD") : remoteBranch;
 }
 
+bool GitClient::synchronousRevParseCmd(const QString &workingDirectory, const QString &ref,
+                                       QString *output, QString *errorMessage) const
+{
+    QStringList arguments(QLatin1String("rev-parse"));
+    arguments << ref;
+    QByteArray outputText;
+    QByteArray errorText;
+    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText,
+                                        VcsBasePlugin::SuppressCommandLogging);
+    *output = commandOutputFromLocal8Bit(outputText.trimmed());
+    if (!rc)
+        msgCannotRun(arguments, workingDirectory, errorText, errorMessage);
+
+    return rc;
+}
+
 // Retrieve head revision
 QString GitClient::synchronousTopRevision(const QString &workingDirectory, QString *errorMessageIn)
 {
-    QByteArray outputTextData;
-    QByteArray errorText;
-    QStringList arguments;
-    QString errorMessage;
-    // get revision
-    arguments << QLatin1String("rev-parse") << QLatin1String(HEAD);
-    if (!fullySynchronousGit(workingDirectory, arguments, &outputTextData, &errorText,
-                             VcsBasePlugin::SuppressCommandLogging)) {
-        errorMessage = tr("Cannot retrieve top revision of \"%1\": %2")
-                .arg(QDir::toNativeSeparators(workingDirectory), commandOutputFromLocal8Bit(errorText));
+    QString revision;
+    if (!synchronousRevParseCmd(workingDirectory, QLatin1String(HEAD), &revision, errorMessageIn))
         return QString();
-    }
-    QString revision = commandOutputFromLocal8Bit(outputTextData);
-    revision.remove(QLatin1Char('\n'));
-    if (revision.isEmpty() && !errorMessage.isEmpty())
-        msgCannotRun(errorMessage, errorMessageIn);
 
     return revision;
 }
