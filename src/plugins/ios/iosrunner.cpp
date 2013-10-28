@@ -43,6 +43,8 @@
 #include <QTime>
 #include <QMessageBox>
 
+#include <signal.h>
+
 namespace Ios {
 namespace Internal {
 
@@ -50,7 +52,7 @@ IosRunner::IosRunner(QObject *parent, IosRunConfiguration *runConfig, bool debug
     : QObject(parent), m_toolHandler(0), m_bundleDir(runConfig->bundleDir().toString()),
       m_arguments(runConfig->commandLineArguments()),
       m_device(ProjectExplorer::DeviceKitInformation::device(runConfig->target()->kit())),
-      m_debuggingMode(debuggingMode), m_cleanExit(false)
+      m_debuggingMode(debuggingMode), m_cleanExit(false), m_pid(0)
 {
 }
 
@@ -121,8 +123,13 @@ void IosRunner::start()
 
 void IosRunner::stop()
 {
-    if (m_toolHandler)
+    if (m_toolHandler) {
+#ifdef Q_OS_UNIX
+        if (m_pid > 0)
+            kill(m_pid, SIGKILL);
+#endif
         m_toolHandler->stop();
+    }
 }
 
 void IosRunner::handleDidStartApp(IosToolHandler *handler, const QString &bundlePath,
@@ -145,6 +152,7 @@ void IosRunner::handleGotInferiorPid(IosToolHandler *handler, const QString &bun
                                      const QString &deviceId, Q_PID pid)
 {
     Q_UNUSED(bundlePath); Q_UNUSED(deviceId);
+    m_pid = pid;
     if (m_toolHandler == handler)
         emit gotInferiorPid(pid);
 }

@@ -89,6 +89,7 @@ private:
     ProjectExplorer::IDevice::ConstPtr m_device;
     bool m_debuggingMode;
     bool m_cleanExit;
+    Q_PID m_pid;
 };
 
 } // namespace Internal
