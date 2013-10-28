@@ -64,10 +64,8 @@ class DebuggerItemConfigWidget : public QWidget
 
 public:
     explicit DebuggerItemConfigWidget(DebuggerItemModel *model);
-    void loadItem();
-    void saveItem();
-    void connectDirty();
-    void disconnectDirty();
+    void setItem(const DebuggerItem &item);
+    void apply();
 
 private:
     QLineEdit *m_displayNameLineEdit;
@@ -102,43 +100,19 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget(DebuggerItemModel *model) :
     formLayout->addRow(m_cdbLabel);
     formLayout->addRow(new QLabel(tr("Path:")), m_binaryChooser);
     formLayout->addRow(new QLabel(tr("ABIs:")), m_abis);
-
-    connectDirty();
 }
 
-void DebuggerItemConfigWidget::connectDirty()
+void DebuggerItemConfigWidget::setItem(const DebuggerItem &item)
 {
-    connect(m_displayNameLineEdit, SIGNAL(textChanged(QString)),
-            m_model, SLOT(markCurrentDirty()));
-    connect(m_binaryChooser, SIGNAL(changed(QString)),
-            m_model, SLOT(markCurrentDirty()));
-}
+    m_displayNameLineEdit->setEnabled(!item.isAutoDetected());
+    m_displayNameLineEdit->setText(item.displayName());
 
-void DebuggerItemConfigWidget::disconnectDirty()
-{
-    disconnect(m_displayNameLineEdit, SIGNAL(textChanged(QString)),
-               m_model, SLOT(markCurrentDirty()));
-    disconnect(m_binaryChooser, SIGNAL(changed(QString)),
-               m_model, SLOT(markCurrentDirty()));
-}
-
-void DebuggerItemConfigWidget::loadItem()
-{
-    const DebuggerItem *item = DebuggerItemManager::findById(m_model->currentDebugger());
-    if (!item)
-        return;
-
-    disconnectDirty();
-    m_displayNameLineEdit->setEnabled(!item->isAutoDetected());
-    m_displayNameLineEdit->setText(item->displayName());
-
-    m_binaryChooser->setEnabled(!item->isAutoDetected());
-    m_binaryChooser->setFileName(item->command());
-    connectDirty();
+    m_binaryChooser->setEnabled(!item.isAutoDetected());
+    m_binaryChooser->setFileName(item.command());
 
     QString text;
     QString versionCommand;
-    if (item->engineType() == CdbEngineType) {
+    if (item.engineType() == CdbEngineType) {
 #ifdef Q_OS_WIN
         const bool is64bit = winIs64BitSystem();
 #else
@@ -159,15 +133,18 @@ void DebuggerItemConfigWidget::loadItem()
     m_cdbLabel->setVisible(!text.isEmpty());
     m_binaryChooser->setCommandVersionArguments(QStringList(versionCommand));
 
-    m_abis->setText(item->abiNames().join(QLatin1String(", ")));
+    m_abis->setText(item.abiNames().join(QLatin1String(", ")));
 }
 
-void DebuggerItemConfigWidget::saveItem()
+void DebuggerItemConfigWidget::apply()
 {
-    const DebuggerItem *item = DebuggerItemManager::findById(m_model->currentDebugger());
-    QTC_ASSERT(item, return);
-    DebuggerItemManager::setItemData(item->id(), m_displayNameLineEdit->text(),
-                                                             m_binaryChooser->fileName());
+    DebuggerItem item = m_model->currentDebugger();
+    QTC_ASSERT(item.isValid(), return);
+
+    item.setDisplayName(m_displayNameLineEdit->text());
+    item.setCommand(m_binaryChooser->fileName());
+    item.reinitializeFromFile();
+    m_model->updateDebugger(item);
 }
 
 // --------------------------------------------------------------------------
@@ -253,21 +230,23 @@ QWidget *DebuggerOptionsPage::createPage(QWidget *parent)
 
 void DebuggerOptionsPage::apply()
 {
-    m_itemConfigWidget->saveItem();
-    debuggerModelChanged();
+    m_itemConfigWidget->apply();
+    m_model->apply();
 }
 
 void DebuggerOptionsPage::cloneDebugger()
 {
-    const DebuggerItem *item = DebuggerItemManager::findById(m_model->currentDebugger());
-    QTC_ASSERT(item, return);
+    DebuggerItem item = m_model->currentDebugger();
+    if (!item.isValid())
+        return;
+
     DebuggerItem newItem;
-    newItem.setCommand(item->command());
-    newItem.setEngineType(item->engineType());
-    newItem.setAbis(item->abis());
-    newItem.setDisplayName(DebuggerItemManager::uniqueDisplayName(tr("Clone of %1").arg(item->displayName())));
+    newItem.setCommand(item.command());
+    newItem.setEngineType(item.engineType());
+    newItem.setAbis(item.abis());
+    newItem.setDisplayName(DebuggerItemManager::uniqueDisplayName(tr("Clone of %1").arg(item.displayName())));
     newItem.setAutoDetected(false);
-    DebuggerItemManager::addDebugger(newItem);
+    m_model->addDebugger(newItem);
     m_debuggerView->setCurrentIndex(m_model->lastIndex());
 }
 
@@ -277,14 +256,14 @@ void DebuggerOptionsPage::addDebugger()
     item.setEngineType(NoEngineType);
     item.setDisplayName(DebuggerItemManager::uniqueDisplayName(tr("New Debugger")));
     item.setAutoDetected(false);
-    DebuggerItemManager::addDebugger(item);
+    m_model->addDebugger(item);
     m_debuggerView->setCurrentIndex(m_model->lastIndex());
 }
 
 void DebuggerOptionsPage::removeDebugger()
 {
-    QVariant id = m_model->currentDebugger();
-    DebuggerItemManager::removeDebugger(id);
+    QVariant id = m_model->currentDebuggerId();
+    m_model->removeDebugger(id);
     m_debuggerView->setCurrentIndex(m_model->lastIndex());
 }
 
@@ -314,8 +293,10 @@ void DebuggerOptionsPage::debuggerSelectionChanged()
     mi = mi.sibling(mi.row(), 0);
     m_model->setCurrentIndex(mi);
 
-    m_itemConfigWidget->loadItem();
-    m_container->setVisible(m_model->currentDebugger().isValid());
+    DebuggerItem item = m_model->currentDebugger();
+
+    m_itemConfigWidget->setItem(item);
+    m_container->setVisible(item.isValid());
     updateState();
 }
 
@@ -323,8 +304,13 @@ void DebuggerOptionsPage::debuggerModelChanged()
 {
     QTC_ASSERT(m_container, return);
 
-    m_itemConfigWidget->loadItem();
-    m_container->setVisible(m_model->currentDebugger().isValid());
+    QVariant id = m_model->currentDebuggerId();
+    const DebuggerItem *item = DebuggerItemManager::findById(id);
+    if (!item)
+        return;
+
+    m_itemConfigWidget->setItem(*item);
+    m_container->setVisible(m_model->currentDebuggerId().isValid());
     m_debuggerView->setCurrentIndex(m_model->currentIndex());
     updateState();
 }
@@ -337,11 +323,11 @@ void DebuggerOptionsPage::updateState()
     bool canCopy = false;
     bool canDelete = false;
 
-    if (const DebuggerItem *item = DebuggerItemManager::findById(m_model->currentDebugger())) {
-        canCopy = item->isValid() && item->canClone();
-        canDelete = !item->isAutoDetected();
-        canDelete = true; // Do we want to remove auto-detected items?
-    }
+    DebuggerItem item = m_model->currentDebugger();
+
+    canCopy = item.isValid() && item.canClone();
+    canDelete = !item.isAutoDetected();
+
     m_cloneButton->setEnabled(canCopy);
     m_delButton->setEnabled(canDelete);
 }

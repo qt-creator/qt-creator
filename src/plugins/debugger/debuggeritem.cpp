@@ -61,6 +61,13 @@ DebuggerItem::DebuggerItem()
     m_isAutoDetected = false;
 }
 
+DebuggerItem::DebuggerItem(const QVariant &id)
+{
+    m_id = id;
+    m_engineType = NoEngineType;
+    m_isAutoDetected = false;
+}
+
 DebuggerItem::DebuggerItem(const QVariantMap &data)
 {
     m_command = FileName::fromUserInput(data.value(QLatin1String(DEBUGGER_INFORMATION_COMMAND)).toString());
@@ -143,9 +150,9 @@ QStringList DebuggerItem::abiNames() const
 bool DebuggerItem::operator==(const DebuggerItem &other) const
 {
     return m_id == other.m_id
+            && m_displayName == other.m_displayName
             && m_isAutoDetected == other.m_isAutoDetected
-            && m_command == other.m_command
-            && m_abis == other.m_abis;
+            && m_command == other.m_command;
 }
 
 QVariantMap DebuggerItem::toMap() const
@@ -233,7 +240,7 @@ DebuggerItem::MatchLevel DebuggerItem::matchTarget(const Abi &targetAbi) const
 
 bool Debugger::DebuggerItem::isValid() const
 {
-    return m_engineType != NoEngineType;
+    return !m_id.isNull();
 }
 
 } // namespace Debugger;

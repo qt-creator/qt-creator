@@ -90,7 +90,7 @@ static void readDebuggers(const FileName &fileName, bool isSystem)
             // SDK debuggers are always considered to be up-to-date, so no need to recheck them.
         } else {
             // User settings.
-            if (item.isAutoDetected() && !item.isValid()) {
+            if (item.isAutoDetected() && (!item.isValid() || item.engineType() == NoEngineType)) {
                 qWarning() << QString::fromLatin1("DebuggerItem \"%1\" (%2) dropped since it is not valid")
                               .arg(item.command().toString()).arg(item.id().toString());
                 continue;
@@ -321,7 +321,7 @@ void DebuggerItemManager::saveDebuggers()
 
     int count = 0;
     foreach (const DebuggerItem &item, m_debuggers) {
-        if (item.isValid()) {
+        if (item.isValid() && item.engineType() != NoEngineType) {
             QVariantMap tmp = item.toMap();
             if (tmp.isEmpty())
                 continue;

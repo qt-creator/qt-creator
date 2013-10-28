@@ -52,13 +52,13 @@ public:
     QModelIndex currentIndex() const;
     QModelIndex lastIndex() const;
     void setCurrentIndex(const QModelIndex &index);
-    QVariant currentDebugger() const { return m_currentDebugger; }
+    QVariant currentDebuggerId() const { return m_currentDebugger; }
+    DebuggerItem currentDebugger() const;
     void addDebugger(const DebuggerItem &item);
     void removeDebugger(const QVariant &id);
-    void updateDebugger(const QVariant &id);
+    void updateDebugger(const DebuggerItem &item);
 
-public slots:
-    void markCurrentDirty();
+    void apply();
 
 private slots:
     void onDebuggerAdded(const QVariant &id);
@@ -70,11 +70,20 @@ private:
     QStandardItem *findStandardItemById(const QVariant &id) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
+    bool addDebuggerStandardItem(const DebuggerItem &item, bool changed);
+    bool removeDebuggerStandardItem(const QVariant &id);
+    bool updateDebuggerStandardItem(const DebuggerItem &item, bool changed);
+
+    DebuggerItem debuggerItem(QStandardItem *sitem) const;
+    QList<DebuggerItem> debuggerItems() const;
+
     QVariant m_currentDebugger;
 
     QStandardItem *m_autoRoot;
     QStandardItem *m_manualRoot;
     QStringList removed;
+
+    QList<QVariant> m_removedItems;
 };
 
 } // namespace Internal

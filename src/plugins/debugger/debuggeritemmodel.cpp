@@ -44,9 +44,12 @@ static QList<QStandardItem *> describeItem(const DebuggerItem &item)
     row.append(new QStandardItem(item.command().toUserOutput()));
     row.append(new QStandardItem(item.engineTypeName()));
     row.at(0)->setData(item.id());
+    row.at(0)->setData(item.abiNames(), Qt::UserRole + 2);
     row.at(0)->setEditable(false);
     row.at(1)->setEditable(false);
+    row.at(1)->setData(item.toMap());
     row.at(2)->setEditable(false);
+    row.at(2)->setData(static_cast<int>(item.engineType()));
     row.at(0)->setSelectable(true);
     row.at(1)->setSelectable(true);
     row.at(2)->setSelectable(true);
@@ -86,7 +89,7 @@ DebuggerItemModel::DebuggerItemModel(QObject *parent)
     appendRow(row);
 
     foreach (const DebuggerItem &item, DebuggerItemManager::debuggers())
-        addDebugger(item);
+        addDebuggerStandardItem(item, false);
 
     QObject *manager = DebuggerItemManager::instance();
     connect(manager, SIGNAL(debuggerAdded(QVariant)),
@@ -110,6 +113,87 @@ QVariant DebuggerItemModel::headerData(int section, Qt::Orientation orientation,
         }
     }
     return QVariant();
+}
+
+bool DebuggerItemModel::addDebuggerStandardItem(const DebuggerItem &item, bool changed)
+{
+    if (findStandardItemById(item.id()))
+        return false;
+
+    QList<QStandardItem *> row = describeItem(item);
+    foreach (QStandardItem *cell, row) {
+        QFont font = cell->font();
+        font.setBold(changed);
+        cell->setFont(font);
+    }
+    (item.isAutoDetected() ? m_autoRoot : m_manualRoot)->appendRow(row);
+    return true;
+}
+
+bool DebuggerItemModel::removeDebuggerStandardItem(const QVariant &id)
+{
+    QStandardItem *sitem = findStandardItemById(id);
+    QTC_ASSERT(sitem, return false);
+    QStandardItem *parent = sitem->parent();
+    QTC_ASSERT(parent, return false);
+    // This will trigger a change of m_currentDebugger via changing the
+    // view selection.
+    parent->removeRow(sitem->row());
+    return true;
+}
+
+bool DebuggerItemModel::updateDebuggerStandardItem(const DebuggerItem &item, bool changed)
+{
+    QStandardItem *sitem = findStandardItemById(item.id());
+    QTC_ASSERT(sitem, return false);
+    QStandardItem *parent = sitem->parent();
+    QTC_ASSERT(parent, return false);
+    int row = sitem->row();
+    QFont font = sitem->font();
+    font.setBold(changed);
+    parent->child(row, 0)->setData(item.displayName(), Qt::DisplayRole);
+    parent->child(row, 0)->setFont(font);
+    parent->child(row, 1)->setData(item.command().toUserOutput(), Qt::DisplayRole);
+    parent->child(row, 1)->setFont(font);
+    parent->child(row, 2)->setData(item.engineTypeName(), Qt::DisplayRole);
+    parent->child(row, 2)->setData(static_cast<int>(item.engineType()));
+    parent->child(row, 2)->setFont(font);
+    return true;
+}
+
+DebuggerItem DebuggerItemModel::debuggerItem(QStandardItem *sitem) const
+{
+    DebuggerItem item = DebuggerItem(QVariant());
+    if (sitem && sitem->parent()) {
+        item.setAutoDetected(sitem->parent() == m_autoRoot);
+
+        QStandardItem *i = sitem->parent()->child(sitem->row(), 0);
+        item.m_id = i->data();
+        item.setDisplayName(i->data(Qt::DisplayRole).toString());
+
+        QStringList abis = i->data(Qt::UserRole + 2).toStringList();
+        QList<ProjectExplorer::Abi> abiList;
+        foreach (const QString &abi, abis)
+            abiList << ProjectExplorer::Abi(abi);
+        item.setAbis(abiList);
+
+        i = sitem->parent()->child(sitem->row(), 1);
+        item.setCommand(Utils::FileName::fromUserInput(i->data(Qt::DisplayRole).toString()));
+
+        i = sitem->parent()->child(sitem->row(), 2);
+        item.setEngineType(static_cast<DebuggerEngineType>(i->data().toInt()));
+    }
+    return item;
+}
+
+QList<DebuggerItem> DebuggerItemModel::debuggerItems() const
+{
+    QList<DebuggerItem> result;
+    for (int i = 0, n = m_autoRoot->rowCount(); i != n; ++i)
+        result << debuggerItem(m_autoRoot->child(i));
+    for (int i = 0, n = m_manualRoot->rowCount(); i != n; ++i)
+        result << debuggerItem(m_manualRoot->child(i));
+    return result;
 }
 
 QStandardItem *DebuggerItemModel::currentStandardItem() const
@@ -145,70 +229,62 @@ QModelIndex DebuggerItemModel::lastIndex() const
     return current ? current->index() : QModelIndex();
 }
 
-void DebuggerItemModel::markCurrentDirty()
-{
-    QStandardItem *sitem = currentStandardItem();
-    QTC_ASSERT(sitem, return);
-    QFont font = sitem->font();
-    font.setBold(true);
-    sitem->setFont(font);
-}
-
 void DebuggerItemModel::onDebuggerAdded(const QVariant &id)
 {
     const DebuggerItem *item = DebuggerItemManager::findById(id);
     QTC_ASSERT(item, return);
-    addDebugger(*item);
+    if (!addDebuggerStandardItem(*item, false))
+        updateDebuggerStandardItem(*item, false); // already had it added, so just update it.
 }
 
 void DebuggerItemModel::onDebuggerUpdate(const QVariant &id)
 {
-    updateDebugger(id);
+    const DebuggerItem *item = DebuggerItemManager::findById(id);
+    QTC_ASSERT(item, return);
+    updateDebuggerStandardItem(*item, false);
 }
 
 void DebuggerItemModel::onDebuggerRemoval(const QVariant &id)
 {
-    removeDebugger(id);
+    removeDebuggerStandardItem(id);
 }
 
 void DebuggerItemModel::addDebugger(const DebuggerItem &item)
 {
-    QTC_ASSERT(item.id().isValid(), return);
-    QList<QStandardItem *> row = describeItem(item);
-    (item.isAutoDetected() ? m_autoRoot : m_manualRoot)->appendRow(row);
+    addDebuggerStandardItem(item, true);
 }
 
 void DebuggerItemModel::removeDebugger(const QVariant &id)
 {
-    QStandardItem *sitem = findStandardItemById(id);
-    QTC_ASSERT(sitem, return);
-    QStandardItem *parent = sitem->parent();
-    QTC_ASSERT(parent, return);
-    // This will trigger a change of m_currentDebugger via changing the
-    // view selection.
-    parent->removeRow(sitem->row());
+    if (!removeDebuggerStandardItem(id)) // Nothing there!
+        return;
+
+    if (DebuggerItemManager::findById(id))
+        m_removedItems.append(id);
 }
 
-void DebuggerItemModel::updateDebugger(const QVariant &id)
+void DebuggerItemModel::updateDebugger(const DebuggerItem &item)
 {
-    QList<DebuggerItem> debuggers = DebuggerItemManager::debuggers();
-    for (int i = 0, n = debuggers.size(); i != n; ++i) {
-        DebuggerItem &item = debuggers[i];
-        if (item.id() == id) {
-            QStandardItem *sitem = findStandardItemById(id);
-            QTC_ASSERT(sitem, return);
-            QStandardItem *parent = sitem->parent();
-            QTC_ASSERT(parent, return);
-            int row = sitem->row();
-            QFont font = sitem->font();
-            font.setBold(false);
-            parent->child(row, 0)->setData(item.displayName(), Qt::DisplayRole);
-            parent->child(row, 0)->setFont(font);
-            parent->child(row, 1)->setData(item.command().toUserOutput(), Qt::DisplayRole);
-            parent->child(row, 1)->setFont(font);
-            parent->child(row, 2)->setData(item.engineTypeName(), Qt::DisplayRole);
-            parent->child(row, 2)->setFont(font);
-            return;
+    updateDebuggerStandardItem(item, true);
+}
+
+void DebuggerItemModel::apply()
+{
+    foreach (const QVariant &id, m_removedItems) {
+        const DebuggerItem *item = DebuggerItemManager::findById(id);
+        QTC_CHECK(item);
+        DebuggerItemManager::deregisterDebugger(*item);
+    }
+
+    foreach (const DebuggerItem &item, debuggerItems()) {
+        const DebuggerItem *managed = DebuggerItemManager::findById(item.id());
+        if (managed) {
+            if (*managed == item)
+                continue;
+            else
+                DebuggerItemManager::setItemData(item.id(), item.displayName(), item.command());
+        } else {
+            DebuggerItemManager::registerDebugger(item);
         }
     }
 }
@@ -217,6 +293,11 @@ void DebuggerItemModel::setCurrentIndex(const QModelIndex &index)
 {
     QStandardItem *sit = itemFromIndex(index);
     m_currentDebugger = sit ? sit->data() : QVariant();
+}
+
+DebuggerItem DebuggerItemModel::currentDebugger() const
+{
+    return debuggerItem(currentStandardItem());
 }
 
 } // namespace Internal

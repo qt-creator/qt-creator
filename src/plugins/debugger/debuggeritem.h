@@ -42,6 +42,8 @@
 
 namespace Debugger {
 
+namespace Internal { class DebuggerItemModel; }
+
 // -----------------------------------------------------------------------
 // DebuggerItem
 // -----------------------------------------------------------------------
@@ -85,12 +87,16 @@ public:
     bool operator==(const DebuggerItem &other) const;
 
 private:
+    DebuggerItem(const QVariant &id);
+
     QVariant m_id;
     QString m_displayName;
     DebuggerEngineType m_engineType;
     Utils::FileName m_command;
     bool m_isAutoDetected;
     QList<ProjectExplorer::Abi> m_abis;
+
+    friend class Internal::DebuggerItemModel;
 };
 
 } // namespace Debugger
