@@ -30,14 +30,28 @@
 
 #include "outputgenerator.h"
 
-#include <utils/sleep.h>
-
 #include <QAbstractSocket>
 #include <QIODevice>
 #include <QTextStream>
 #include <QCoreApplication>
 #include <QStringList>
 #include <QDebug>
+
+
+// Yes, this is ugly. But please don't introduce a libUtils dependency
+// just to get rid of a single function.
+#ifdef Q_OS_WIN
+#include <windows.h>
+void doSleep(int msec) { ::Sleep(msec); }
+#else
+#include <time.h>
+#include <unistd.h>
+void doSleep(int msec)
+{
+    struct timespec ts = { msec / 1000, (msec % 1000) * 1000000 };
+    ::nanosleep(&ts, NULL);
+}
+#endif
 
 using namespace Valgrind::Fake;
 
@@ -104,7 +118,7 @@ void OutputGenerator::produceRuntimeError()
         m_output->flush();
     } else if (m_wait) {
         qDebug() << "waiting in fake valgrind for " << m_wait << " seconds..." << endl;
-        Utils::sleep(1000 * m_wait);
+        doSleep(1000 * m_wait);
     }
 }
 
