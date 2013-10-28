@@ -344,16 +344,28 @@ void DebuggerItemManager::saveDebuggers()
 
 QVariant DebuggerItemManager::registerDebugger(const DebuggerItem &item)
 {
-    if (findByCommand(item.command()))
-        return item.id();
+    if (const DebuggerItem *orig = findById(item.id())) {
+        QVariant id = orig->id();
+        if (*orig == item)
+            return id;
+        removeDebugger(id);
+        addDebugger(item);
+        emit m_instance->debuggerUpdated(id);
+        return id;
+    }
 
-    return addDebugger(item);
+    QVariant id = addDebugger(item);
+    emit m_instance->debuggerAdded(id);
+    return id;
 }
 
 void DebuggerItemManager::deregisterDebugger(const DebuggerItem &item)
 {
-    if (findByCommand(item.command()))
+    if (findById(item.id())) {
+        emit m_instance->aboutToRemoveDebugger(item.id());
         removeDebugger(item.id());
+        emit m_instance->removeDebugger(item.id());
+    }
 }
 
 QVariant DebuggerItemManager::addDebugger(const DebuggerItem &item)

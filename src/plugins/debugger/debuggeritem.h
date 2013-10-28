@@ -82,6 +82,8 @@ public:
 
     QStringList abiNames() const;
 
+    bool operator==(const DebuggerItem &other) const;
+
 private:
     QVariant m_id;
     QString m_displayName;

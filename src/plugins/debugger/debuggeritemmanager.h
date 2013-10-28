@@ -70,6 +70,12 @@ public:
     static void removeDebugger(const QVariant &id);
     static QVariant addDebugger(const DebuggerItem &item);
 
+signals:
+    void debuggerAdded(const QVariant &id);
+    void aboutToRemoveDebugger(const QVariant &id);
+    void debuggerRemoved(const QVariant &id);
+    void debuggerUpdated(const QVariant &id);
+
 public slots:
     void saveDebuggers();
 

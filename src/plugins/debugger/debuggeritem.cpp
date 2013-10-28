@@ -140,6 +140,14 @@ QStringList DebuggerItem::abiNames() const
     return list;
 }
 
+bool DebuggerItem::operator==(const DebuggerItem &other) const
+{
+    return m_id == other.m_id
+            && m_isAutoDetected == other.m_isAutoDetected
+            && m_command == other.m_command
+            && m_abis == other.m_abis;
+}
+
 QVariantMap DebuggerItem::toMap() const
 {
     QVariantMap data;
