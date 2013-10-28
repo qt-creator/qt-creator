@@ -244,7 +244,7 @@ void Qt4Manager::buildFileContextMenu()
 void Qt4Manager::buildFile()
 {
     if (Core::IDocument *currentDocument= Core::EditorManager::currentDocument()) {
-        QString file = currentDocument->filePath();
+        const QString file = currentDocument->filePath();
         FileNode *node  = qobject_cast<FileNode *>(SessionManager::nodeForFile(file));
         Project *project = SessionManager::projectForFile(file);
 
@@ -276,9 +276,14 @@ void Qt4Manager::handleSubDirContextMenu(Qt4Manager::Action action, bool isFileB
     if (!bc)
         return;
 
-    if (contextNode != 0 && (contextNode != qt4pro->rootProjectNode() || isFileBuild))
-        if (Qt4ProFileNode *profile = qobject_cast<Qt4ProFileNode *>(contextNode))
-            bc->setSubNodeBuild(profile);
+    if (contextNode) {
+        if (Qt4PriFileNode *prifile = qobject_cast<Qt4PriFileNode *>(contextNode)) {
+            if (Qt4ProFileNode *profile = prifile->proFileNode()) {
+                if (profile != qt4pro->rootProjectNode() || isFileBuild)
+                    bc->setSubNodeBuild(profile);
+            }
+        }
+    }
 
     if (isFileBuild)
         bc->setFileNodeBuild(contextFile);

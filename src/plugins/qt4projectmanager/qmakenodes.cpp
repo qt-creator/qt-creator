@@ -811,6 +811,11 @@ QList<Qt4PriFileNode *> Qt4PriFileNode::subProjectNodesExact() const
     return nodes;
 }
 
+Qt4ProFileNode *Qt4PriFileNode::proFileNode() const
+{
+    return m_qt4ProFileNode;
+}
+
 bool Qt4PriFileNode::includedInExactParse() const
 {
     return m_includedInExactParse;

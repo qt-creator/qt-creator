@@ -341,7 +341,11 @@ void Qt4ProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node, 
 
     Qt4ProFileNode *proFileNode = qobject_cast<Qt4ProFileNode *>(node);
     Qt4Project *qt4Project = qobject_cast<Qt4Project *>(project);
-    Qt4ProFileNode *subProjectNode = node ? qobject_cast<Qt4ProFileNode *>(node->projectNode()) : 0;
+    Qt4ProFileNode *subProjectNode = 0;
+    if (node) {
+        if (Qt4PriFileNode *subPriFileNode = qobject_cast<Qt4PriFileNode *>(node->projectNode()))
+            subProjectNode = subPriFileNode->proFileNode();
+    }
     ProjectExplorer::FileNode *fileNode = qobject_cast<ProjectExplorer::FileNode *>(node);
     bool buildFilePossible = subProjectNode && fileNode
             && (fileNode->fileType() == ProjectExplorer::SourceType);
@@ -413,7 +417,7 @@ void Qt4ProjectManagerPlugin::updateBuildFileAction()
         m_buildFileAction->setParameter(QFileInfo(file).fileName());
         visible = qobject_cast<Qt4Project *>(project)
                 && node
-                && qobject_cast<Qt4ProFileNode *>(node->projectNode());
+                && qobject_cast<Qt4PriFileNode *>(node->projectNode());
 
         enabled = !BuildManager::isBuilding(project);
     }

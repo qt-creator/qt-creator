@@ -169,6 +169,7 @@ public:
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsFor(Node *node);
 
     QList<Qt4PriFileNode*> subProjectNodesExact() const;
+    Qt4ProFileNode *proFileNode() const;
 
     // Set by parent
     bool includedInExactParse() const;
