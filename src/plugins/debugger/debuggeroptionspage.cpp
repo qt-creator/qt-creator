@@ -63,7 +63,7 @@ class DebuggerItemConfigWidget : public QWidget
     Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::DebuggerItemConfigWidget)
 
 public:
-    explicit DebuggerItemConfigWidget();
+    explicit DebuggerItemConfigWidget(DebuggerItemModel *model);
     void loadItem();
     void saveItem();
     void connectDirty();
@@ -74,10 +74,14 @@ private:
     QLabel *m_cdbLabel;
     PathChooser *m_binaryChooser;
     QLineEdit *m_abis;
+    DebuggerItemModel *m_model;
 };
 
-DebuggerItemConfigWidget::DebuggerItemConfigWidget()
+DebuggerItemConfigWidget::DebuggerItemConfigWidget(DebuggerItemModel *model) :
+    m_model(model)
 {
+    QTC_CHECK(model);
+
     m_displayNameLineEdit = new QLineEdit(this);
 
     m_binaryChooser = new PathChooser(this);
@@ -104,26 +108,23 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget()
 
 void DebuggerItemConfigWidget::connectDirty()
 {
-    DebuggerItemModel *model = DebuggerItemManager::model();
     connect(m_displayNameLineEdit, SIGNAL(textChanged(QString)),
-            model, SLOT(markCurrentDirty()));
+            m_model, SLOT(markCurrentDirty()));
     connect(m_binaryChooser, SIGNAL(changed(QString)),
-            model, SLOT(markCurrentDirty()));
+            m_model, SLOT(markCurrentDirty()));
 }
 
 void DebuggerItemConfigWidget::disconnectDirty()
 {
-    DebuggerItemModel *model = DebuggerItemManager::model();
     disconnect(m_displayNameLineEdit, SIGNAL(textChanged(QString)),
-            model, SLOT(markCurrentDirty()));
+               m_model, SLOT(markCurrentDirty()));
     disconnect(m_binaryChooser, SIGNAL(changed(QString)),
-            model, SLOT(markCurrentDirty()));
+               m_model, SLOT(markCurrentDirty()));
 }
 
 void DebuggerItemConfigWidget::loadItem()
 {
-    DebuggerItemModel *model = DebuggerItemManager::model();
-    const DebuggerItem *item = DebuggerItemManager::findById(model->currentDebugger());
+    const DebuggerItem *item = DebuggerItemManager::findById(m_model->currentDebugger());
     if (!item)
         return;
 
@@ -163,8 +164,7 @@ void DebuggerItemConfigWidget::loadItem()
 
 void DebuggerItemConfigWidget::saveItem()
 {
-    DebuggerItemModel *model = DebuggerItemManager::model();
-    const DebuggerItem *item = DebuggerItemManager::findById(model->currentDebugger());
+    const DebuggerItem *item = DebuggerItemManager::findById(m_model->currentDebugger());
     QTC_ASSERT(item, return);
     DebuggerItemManager::setItemData(item->id(), m_displayNameLineEdit->text(),
                                                              m_binaryChooser->fileName());
@@ -203,7 +203,7 @@ QWidget *DebuggerOptionsPage::createPage(QWidget *parent)
     m_container->setState(DetailsWidget::NoSummary);
     m_container->setVisible(false);
 
-    m_model = DebuggerItemManager::model();
+    m_model = new DebuggerItemModel(parent);
 
     m_debuggerView = new QTreeView(m_configWidget);
     m_debuggerView->setModel(m_model);
@@ -243,7 +243,7 @@ QWidget *DebuggerOptionsPage::createPage(QWidget *parent)
 
     m_searchKeywords = tr("Debuggers");
 
-    m_itemConfigWidget = new DebuggerItemConfigWidget;
+    m_itemConfigWidget = new DebuggerItemConfigWidget(m_model);
     m_container->setWidget(m_itemConfigWidget);
 
     updateState();

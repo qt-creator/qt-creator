@@ -31,6 +31,7 @@
 
 #include "debuggeritemmanager.h"
 #include "debuggeritemmodel.h"
+#include "debuggerkitinformation.h"
 
 #include <coreplugin/icore.h>
 
@@ -78,9 +79,6 @@ class DebuggerItemConfigWidget;
 DebuggerKitConfigWidget::DebuggerKitConfigWidget(Kit *workingCopy, const KitInformation *ki)
     : KitConfigWidget(workingCopy, ki)
 {
-    DebuggerItemModel *model = DebuggerItemManager::model();
-    QTC_CHECK(model);
-
     m_comboBox = new QComboBox;
     m_comboBox->setEnabled(true);
     m_comboBox->setToolTip(toolTip());
@@ -95,11 +93,12 @@ DebuggerKitConfigWidget::DebuggerKitConfigWidget(Kit *workingCopy, const KitInfo
     m_manageButton->setContentsMargins(0, 0, 0, 0);
     connect(m_manageButton, SIGNAL(clicked()), this, SLOT(manageDebuggers()));
 
-    connect(model, SIGNAL(debuggerAdded(QVariant,QString)),
-            this, SLOT(onDebuggerAdded(QVariant,QString)));
-    connect(model, SIGNAL(debuggerUpdated(QVariant,QString)),
-            this, SLOT(onDebuggerUpdated(QVariant,QString)));
-    connect(model, SIGNAL(debuggerRemoved(QVariant)),
+    QObject *manager = DebuggerItemManager::instance();
+    connect(manager, SIGNAL(debuggerAdded(QVariant)),
+            this, SLOT(onDebuggerAdded(QVariant)));
+    connect(manager, SIGNAL(debuggerUpdated(QVariant)),
+            this, SLOT(onDebuggerUpdated(QVariant)));
+    connect(manager, SIGNAL(debuggerRemoved(QVariant)),
             this, SLOT(onDebuggerRemoved(QVariant)));
 }
 
@@ -154,20 +153,22 @@ void DebuggerKitConfigWidget::currentDebuggerChanged(int)
     m_kit->setValue(DebuggerKitInformation::id(), id);
 }
 
-void DebuggerKitConfigWidget::onDebuggerAdded(const QVariant &id, const QString &displayName)
+void DebuggerKitConfigWidget::onDebuggerAdded(const QVariant &id)
 {
-    m_comboBox->setEnabled(true);
-    m_comboBox->addItem(displayName, id);
+    const DebuggerItem *item = DebuggerItemManager::findById(id);
+    QTC_ASSERT(item, return);
+    m_comboBox->addItem(item->displayName(), id);
     updateComboBox(id);
 }
 
-void DebuggerKitConfigWidget::onDebuggerUpdated(const QVariant &id, const QString &displayName)
+void DebuggerKitConfigWidget::onDebuggerUpdated(const QVariant &id)
 {
-    m_comboBox->setEnabled(true);
+    const DebuggerItem *item = DebuggerItemManager::findById(id);
+    QTC_ASSERT(item, return);
     const int pos = indexOf(id);
     if (pos < 0)
         return;
-    m_comboBox->setItemText(pos, displayName);
+    m_comboBox->setItemText(pos, item->displayName());
 }
 
 void DebuggerKitConfigWidget::onDebuggerRemoved(const QVariant &id)

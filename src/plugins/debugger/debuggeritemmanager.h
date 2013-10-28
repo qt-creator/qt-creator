@@ -55,17 +55,16 @@ public:
     ~DebuggerItemManager();
 
     static QList<DebuggerItem> debuggers();
-    static Debugger::Internal::DebuggerItemModel *model();
 
     static QVariant registerDebugger(const DebuggerItem &item);
     static void deregisterDebugger(const DebuggerItem &item);
+    static void setItemData(const QVariant &id, const QString& displayName, const Utils::FileName &fileName);
 
     static const DebuggerItem *findByCommand(const Utils::FileName &command);
     static const DebuggerItem *findById(const QVariant &id);
 
     static void restoreDebuggers();
     static QString uniqueDisplayName(const QString &base);
-    static void setItemData(const QVariant &id, const QString& displayName, const Utils::FileName &fileName);
 
     static void removeDebugger(const QVariant &id);
     static QVariant addDebugger(const DebuggerItem &item);
@@ -87,7 +86,6 @@ private:
 
     static Utils::PersistentSettingsWriter *m_writer;
     static QList<DebuggerItem> m_debuggers;
-    static Debugger::Internal::DebuggerItemModel *m_model;
 
     friend class Internal::DebuggerItemModel;
     friend class DebuggerPlugin; // Enable constrcutor for DebuggerPlugin

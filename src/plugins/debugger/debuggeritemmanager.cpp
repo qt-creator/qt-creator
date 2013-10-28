@@ -101,7 +101,6 @@ static void readDebuggers(const FileName &fileName, bool isSystem)
 }
 
 QList<DebuggerItem> DebuggerItemManager::m_debuggers;
-Internal::DebuggerItemModel* DebuggerItemManager::m_model = 0;
 PersistentSettingsWriter * DebuggerItemManager::m_writer = 0;
 
 DebuggerItemManager::DebuggerItemManager(QObject *parent)
@@ -109,7 +108,6 @@ DebuggerItemManager::DebuggerItemManager(QObject *parent)
 {
     m_instance = this;
     m_writer = new PersistentSettingsWriter(userSettingsFileName(), QLatin1String("QtCreatorDebugger"));
-    m_model = new Debugger::Internal::DebuggerItemModel(this);
     connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()),
             this, SLOT(saveDebuggers()));
 }
@@ -129,11 +127,6 @@ DebuggerItemManager::~DebuggerItemManager()
 QList<DebuggerItem> DebuggerItemManager::debuggers()
 {
     return m_debuggers;
-}
-
-Internal::DebuggerItemModel *DebuggerItemManager::model()
-{
-    return m_model;
 }
 
 void DebuggerItemManager::autoDetectCdbDebuggers()
@@ -344,39 +337,28 @@ void DebuggerItemManager::saveDebuggers()
 
 QVariant DebuggerItemManager::registerDebugger(const DebuggerItem &item)
 {
-    if (const DebuggerItem *orig = findById(item.id())) {
-        QVariant id = orig->id();
-        if (*orig == item)
-            return id;
-        removeDebugger(id);
-        addDebugger(item);
-        emit m_instance->debuggerUpdated(id);
-        return id;
-    }
+    QTC_ASSERT(!findById(item.id()), return item.id());
 
-    QVariant id = addDebugger(item);
-    emit m_instance->debuggerAdded(id);
-    return id;
+    return addDebugger(item);
 }
 
 void DebuggerItemManager::deregisterDebugger(const DebuggerItem &item)
 {
-    if (findById(item.id())) {
-        emit m_instance->aboutToRemoveDebugger(item.id());
+    QTC_ASSERT(!item.command().isEmpty(), return);
+    QTC_ASSERT(!item.displayName().isEmpty(), return);
+    QTC_ASSERT(item.engineType() != NoEngineType, return);
+
+    if (findById(item.id()))
         removeDebugger(item.id());
-        emit m_instance->removeDebugger(item.id());
-    }
 }
 
 QVariant DebuggerItemManager::addDebugger(const DebuggerItem &item)
 {
-    QTC_ASSERT(!item.command().isEmpty(), return QVariant());
-    QTC_ASSERT(!item.displayName().isEmpty(), return QVariant());
-    QTC_ASSERT(item.engineType() != NoEngineType, return QVariant());
     QTC_ASSERT(item.id().isValid(), return QVariant());
     m_debuggers.append(item);
-    m_model->addDebugger(item);
-    return item.id();
+    QVariant id = item.id();
+    emit m_instance->debuggerAdded(id);
+    return id;
 }
 
 void DebuggerItemManager::removeDebugger(const QVariant &id)
@@ -384,14 +366,15 @@ void DebuggerItemManager::removeDebugger(const QVariant &id)
     bool ok = false;
     for (int i = 0, n = m_debuggers.size(); i != n; ++i) {
         if (m_debuggers.at(i).id() == id) {
+            emit m_instance->aboutToRemoveDebugger(id);
             m_debuggers.removeAt(i);
+            emit m_instance->debuggerRemoved(id);
             ok = true;
             break;
         }
     }
 
     QTC_ASSERT(ok, return);
-    m_model->removeDebugger(id);
 }
 
 QString DebuggerItemManager::uniqueDisplayName(const QString &base)
@@ -411,7 +394,7 @@ void DebuggerItemManager::setItemData(const QVariant &id, const QString &display
             item.setDisplayName(displayName);
             item.setCommand(fileName);
             item.reinitializeFromFile();
-            emit m_model->updateDebugger(item.id());
+            emit m_instance->debuggerUpdated(id);
             break;
         }
     }

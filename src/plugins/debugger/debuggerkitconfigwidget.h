@@ -30,7 +30,7 @@
 #ifndef DEBUGGER_DEBUGGERKITCONFIGWIDGET_H
 #define DEBUGGER_DEBUGGERKITCONFIGWIDGET_H
 
-#include "debuggerkitinformation.h"
+#include "debuggeritemmodel.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <projectexplorer/kitconfigwidget.h>
@@ -75,8 +75,8 @@ public:
 private slots:
     void manageDebuggers();
     void currentDebuggerChanged(int idx);
-    void onDebuggerAdded(const QVariant &id, const QString &displayName);
-    void onDebuggerUpdated(const QVariant &id, const QString &displayName);
+    void onDebuggerAdded(const QVariant &id);
+    void onDebuggerUpdated(const QVariant &id);
     void onDebuggerRemoved(const QVariant &id);
 
 private:

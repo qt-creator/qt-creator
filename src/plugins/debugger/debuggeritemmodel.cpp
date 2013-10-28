@@ -84,6 +84,17 @@ DebuggerItemModel::DebuggerItemModel(QObject *parent)
     row = createRow(tr("Manual"));
     m_manualRoot = row.at(0);
     appendRow(row);
+
+    foreach (const DebuggerItem &item, DebuggerItemManager::debuggers())
+        addDebugger(item);
+
+    QObject *manager = DebuggerItemManager::instance();
+    connect(manager, SIGNAL(debuggerAdded(QVariant)),
+            this, SLOT(onDebuggerAdded(QVariant)));
+    connect(manager, SIGNAL(debuggerUpdated(QVariant)),
+            this, SLOT(onDebuggerUpdate(QVariant)));
+    connect(manager, SIGNAL(debuggerRemoved(QVariant)),
+            this, SLOT(onDebuggerRemoval(QVariant)));
 }
 
 QVariant DebuggerItemModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -143,12 +154,28 @@ void DebuggerItemModel::markCurrentDirty()
     sitem->setFont(font);
 }
 
+void DebuggerItemModel::onDebuggerAdded(const QVariant &id)
+{
+    const DebuggerItem *item = DebuggerItemManager::findById(id);
+    QTC_ASSERT(item, return);
+    addDebugger(*item);
+}
+
+void DebuggerItemModel::onDebuggerUpdate(const QVariant &id)
+{
+    updateDebugger(id);
+}
+
+void DebuggerItemModel::onDebuggerRemoval(const QVariant &id)
+{
+    removeDebugger(id);
+}
+
 void DebuggerItemModel::addDebugger(const DebuggerItem &item)
 {
     QTC_ASSERT(item.id().isValid(), return);
     QList<QStandardItem *> row = describeItem(item);
     (item.isAutoDetected() ? m_autoRoot : m_manualRoot)->appendRow(row);
-    emit debuggerAdded(item.id(), item.displayName());
 }
 
 void DebuggerItemModel::removeDebugger(const QVariant &id)
@@ -160,7 +187,6 @@ void DebuggerItemModel::removeDebugger(const QVariant &id)
     // This will trigger a change of m_currentDebugger via changing the
     // view selection.
     parent->removeRow(sitem->row());
-    emit debuggerRemoved(id);
 }
 
 void DebuggerItemModel::updateDebugger(const QVariant &id)
@@ -182,7 +208,6 @@ void DebuggerItemModel::updateDebugger(const QVariant &id)
             parent->child(row, 1)->setFont(font);
             parent->child(row, 2)->setData(item.engineTypeName(), Qt::DisplayRole);
             parent->child(row, 2)->setFont(font);
-            emit debuggerUpdated(id, item.displayName());
             return;
         }
     }
