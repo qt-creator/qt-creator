@@ -985,6 +985,29 @@ QObject *ObjectNodeInstance::createComponent(const QString &componentPath, QQmlC
     return object;
 }
 
+QObject *ObjectNodeInstance::createComponent(const QUrl &componentUrl, QQmlContext *context)
+{
+    ComponentCompleteDisabler disableComponentComplete;
+
+    Q_UNUSED(disableComponentComplete)
+
+    QQmlComponent component(context->engine(), componentUrl);
+    QObject *object = component.beginCreate(context);
+
+    tweakObjects(object);
+    component.completeCreate();
+
+    if (component.isError()) {
+        qDebug() << componentUrl;
+        foreach (const QQmlError &error, component.errors())
+            qDebug() << error;
+    }
+
+    QQmlEngine::setObjectOwnership(object, QQmlEngine::CppOwnership);
+
+    return object;
+}
+
 QObject *ObjectNodeInstance::createCustomParserObject(const QString &nodeSource, const QStringList &imports, QQmlContext *context)
 {
     ComponentCompleteDisabler disableComponentComplete;
@@ -1013,6 +1036,11 @@ QObject *ObjectNodeInstance::createCustomParserObject(const QString &nodeSource,
     return object;
 }
 
+static QQmlType *getQmlType(const QString &typeName, int majorNumber, int minorNumber)
+{
+     return  QQmlMetaType::qmlType(typeName.toUtf8(), majorNumber, minorNumber);
+}
+
 QObject *ObjectNodeInstance::createPrimitive(const QString &typeName, int majorNumber, int minorNumber, QQmlContext *context)
 {
     ComponentCompleteDisabler disableComponentComplete;
@@ -1020,13 +1048,16 @@ QObject *ObjectNodeInstance::createPrimitive(const QString &typeName, int majorN
     Q_UNUSED(disableComponentComplete)
 
     QObject *object = 0;
-    QQmlType *type = QQmlMetaType::qmlType(typeName.toUtf8(), majorNumber, minorNumber);
-    if (type)  {
+    QQmlType *type = getQmlType(typeName, majorNumber, minorNumber);
+
+    if (type && !type->isComposite())  {
         if (type->typeName() == "QQmlComponent") {
             object = new QQmlComponent(context->engine(), 0);
         } else  {
             object = type->create();
         }
+    } else if (type->isComposite()) {
+        object = createComponent(type->sourceUrl(), context);
     } else {
         qWarning() << "QuickDesigner: Cannot create an object of type"
                    << QString("%1 %2,%3").arg(typeName).arg(majorNumber).arg(minorNumber)

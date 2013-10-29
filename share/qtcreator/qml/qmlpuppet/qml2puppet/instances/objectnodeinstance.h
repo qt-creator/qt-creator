@@ -74,6 +74,7 @@ public:
     static QObject *createPrimitive(const QString &typeName, int majorNumber, int minorNumber, QQmlContext *context);
     static QObject *createCustomParserObject(const QString &nodeSource, const QStringList &imports, QQmlContext *context);
     static QObject *createComponent(const QString &componentPath, QQmlContext *context);
+    static QObject *createComponent(const QUrl &componentUrl, QQmlContext *context);
     static QObject *createComponentWrap(const QString &nodeSource, const QStringList &imports, QQmlContext *context);
 
     void setInstanceId(qint32 id);
