@@ -117,11 +117,11 @@ QVariant CppIncludeHierarchyModel::data(const QModelIndex &index, int role) cons
     if (role == Qt::DisplayRole) {
         if ((item == m_includesItem && m_includesItem->childCount() == 0)
                 || (item == m_includedByItem && m_includedByItem->childCount() == 0)) {
-            return QString(item->fileName() + tr(" (none)"));
+            return QString(item->fileName() + QLatin1Char(' ') + tr("(none)"));
         }
 
         if (item->isCyclic())
-            return QString(item->fileName() + tr(" (cyclic)"));
+            return QString(item->fileName() + QLatin1Char(' ') +  tr("(cyclic)"));
 
         return item->fileName();
     }

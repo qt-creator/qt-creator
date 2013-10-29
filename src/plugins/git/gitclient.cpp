@@ -2767,7 +2767,7 @@ void GitClient::continuePreviousGitCommand(const QString &workingDirectory,
             == GitClient::StatusChanged;
     }
     if (!hasChanges)
-        msgBoxText.prepend(tr("No changes found. "));
+        msgBoxText.prepend(tr("No changes found.") + QLatin1Char(' '));
     QMessageBox msgBox(QMessageBox::Question, msgBoxTitle, msgBoxText,
                        QMessageBox::NoButton, Core::ICore::mainWindow());
     if (hasChanges || isRebase)
@@ -2808,7 +2808,7 @@ QString GitClient::extendedShowDescription(const QString &workingDirectory, cons
     if (branchCount > 20) {
         const int leave = 10;
         //: Displayed after the untranslated message "Branches: branch1, branch2 'and %n more'" in git show.
-        moreBranches = tr(" and %n more", 0, branchCount - leave);
+        moreBranches = QLatin1Char(' ') + tr("and %n more", 0, branchCount - leave);
         branches.erase(branches.begin() + leave, branches.end());
     }
     if (!branches.isEmpty()) {

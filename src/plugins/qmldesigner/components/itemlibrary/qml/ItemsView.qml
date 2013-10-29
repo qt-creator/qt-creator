@@ -223,6 +223,7 @@ content position out of scope regarding the scrollbar. */
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 1
         anchors.right: parent.right
+        anchors.rightMargin: 2
         width: (itemsFlickable.contentHeight > itemsFlickable.height)? 11:0
 
         Scrollbar {

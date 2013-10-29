@@ -168,14 +168,14 @@ bool MemcheckRunner::start()
     }
 
     bool check = d->xmlServer.listen(hostAddr);
-    if (!check) emit processErrorReceived( tr("XmlServer on %1: ").arg(ip) + d->xmlServer.errorString(), QProcess::FailedToStart );
+    if (!check) emit processErrorReceived( tr("XmlServer on %1:").arg(ip) + QLatin1Char(' ') + d->xmlServer.errorString(), QProcess::FailedToStart );
     QTC_ASSERT(check, return false);
     d->xmlServer.setMaxPendingConnections(1);
     const quint16 xmlPortNumber = d->xmlServer.serverPort();
     connect(&d->xmlServer, SIGNAL(newConnection()), SLOT(xmlSocketConnected()));
 
     check = d->logServer.listen(hostAddr);
-    if (!check) emit processErrorReceived( tr("LogServer on %1: ").arg(ip) + d->logServer.errorString(), QProcess::FailedToStart );
+    if (!check) emit processErrorReceived( tr("LogServer on %1:").arg(ip) + QLatin1Char(' ') + d->logServer.errorString(), QProcess::FailedToStart );
     QTC_ASSERT(check, return false);
     d->logServer.setMaxPendingConnections(1);
     const quint16 logPortNumber = d->logServer.serverPort();

@@ -613,7 +613,7 @@ bool AndroidPackageCreationStep::createPackage()
     emit addOutput(tr("Copy Qt app & libs to Android package ..."), MessageOutput);
 
     QStringList build;
-    build << QLatin1String("-silent");
+    // build << QLatin1String("-silent"); //TODO depends on ant 1.9.0, enabled, not *now*
     build << QLatin1String("clean");
     QFile::remove(m_gdbServerDestination.toString());
     if (m_signPackageForRun) {
@@ -803,7 +803,7 @@ bool AndroidPackageCreationStep::runCommand(QProcess *buildProc
         QString mainMessage = tr("Packaging Error: Command '%1 %2' failed.")
                 .arg(program).arg(arguments.join(QLatin1String(" ")));
         if (buildProc->error() != QProcess::UnknownError)
-            mainMessage += tr(" Reason: %1").arg(buildProc->errorString());
+            mainMessage += QLatin1Char(' ') + tr("Reason: %1").arg(buildProc->errorString());
         else
             mainMessage += tr("Exit code: %1").arg(buildProc->exitCode());
         raiseError(mainMessage);

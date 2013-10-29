@@ -79,7 +79,7 @@ def main():
         replaceEditorContent(cloneDirEdit, cloneDir)
         clickButton(waitForObject(":Next_QPushButton"))
         test.compare(waitForObject(":Git Repository Clone.Result._QLabel").text,
-                     "Checkout started...")
+                     "Cloning started...")
         if button == "Cancel immediately":
             clickButton(":Git Repository Clone.Cancel_QPushButton")
             verifyCloneLog(targetDir, True)

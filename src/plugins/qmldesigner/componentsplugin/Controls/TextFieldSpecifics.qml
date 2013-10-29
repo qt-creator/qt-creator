@@ -44,7 +44,7 @@ Column {
 
             Label {
                 text: qsTr("Text")
-                toolTip:  qsTr("The text shown on the button")
+                toolTip:  qsTr("The text shown on the text field")
             }
 
             SecondColumnLayout {

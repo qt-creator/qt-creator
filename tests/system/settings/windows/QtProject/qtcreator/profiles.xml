@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProfiles>
-<!-- Written by QtCreator 2.8.1, 2013-07-12T17:36:49. -->
+<!-- Written by QtCreator 2.8.82, 2013-10-24T15:19:45. -->
 <qtcreator>
  <data>
   <variable>Profile.0</variable>
@@ -8,7 +8,7 @@
    <value type="bool" key="PE.Profile.AutoDetected">false</value>
    <valuemap type="QVariantMap" key="PE.Profile.Data">
     <value type="QString" key="Android.GdbServer.Information"></value>
-    <value type="QString" key="Debugger.Information">C:/QtSDK/pythongdb/python_2.7based/gdb-i686-pc-mingw32.exe</value>
+    <value type="QString" key="Debugger.Information">{44aee0bd-999d-4abe-82c6-5c7979e7cf01}</value>
     <value type="QString" key="PE.Profile.Device">Desktop Device</value>
     <value type="QByteArray" key="PE.Profile.DeviceType">Desktop</value>
     <value type="QString" key="PE.Profile.SysRoot"></value>
@@ -18,6 +18,7 @@
    </valuemap>
    <value type="QString" key="PE.Profile.Icon">:///DESKTOP///</value>
    <value type="QString" key="PE.Profile.Id">{897290fe-c35a-4e5e-b5e2-d8e448e2aed1}</value>
+   <valuelist type="QVariantList" key="PE.Profile.MutableInfo"/>
    <value type="QString" key="PE.Profile.Name">Desktop 474 GCC</value>
    <value type="bool" key="PE.Profile.SDK">false</value>
   </valuemap>
@@ -28,7 +29,7 @@
    <value type="bool" key="PE.Profile.AutoDetected">false</value>
    <valuemap type="QVariantMap" key="PE.Profile.Data">
     <value type="QString" key="Android.GdbServer.Information"></value>
-    <value type="QString" key="Debugger.Information">C:/QtSDK/pythongdb/python_2.7based/gdb-i686-pc-mingw32.exe</value>
+    <value type="QString" key="Debugger.Information">{44aee0bd-999d-4abe-82c6-5c7979e7cf01}</value>
     <value type="QString" key="PE.Profile.Device">Desktop Device</value>
     <value type="QByteArray" key="PE.Profile.DeviceType">Desktop</value>
     <value type="QString" key="PE.Profile.SysRoot"></value>
@@ -38,6 +39,7 @@
    </valuemap>
    <value type="QString" key="PE.Profile.Icon">:///DESKTOP///</value>
    <value type="QString" key="PE.Profile.Id">{0ce9f69f-0f60-4b04-8691-c328ee5bfe14}</value>
+   <valuelist type="QVariantList" key="PE.Profile.MutableInfo"/>
    <value type="QString" key="PE.Profile.Name">Qt Simulator</value>
    <value type="bool" key="PE.Profile.SDK">false</value>
   </valuemap>
@@ -48,7 +50,7 @@
    <value type="bool" key="PE.Profile.AutoDetected">false</value>
    <valuemap type="QVariantMap" key="PE.Profile.Data">
     <value type="QString" key="Android.GdbServer.Information"></value>
-    <value type="QString" key="Debugger.Information">C:/QtSDK/pythongdb/python_2.7based/gdb-arm-none-linux-gnueabi.exe</value>
+    <value type="QString" key="Debugger.Information">{5ad1d623-7300-41b4-ba32-99e11bfcb988}</value>
     <value type="QString" key="PE.Profile.Device">{0d112162-56a5-40cb-a911-e0545489da5c}</value>
     <value type="QByteArray" key="PE.Profile.DeviceType">Maemo5OsType</value>
     <value type="QString" key="PE.Profile.SysRoot"></value>
@@ -58,6 +60,7 @@
    </valuemap>
    <value type="QString" key="PE.Profile.Icon">:///DESKTOP///</value>
    <value type="QString" key="PE.Profile.Id">{618722a5-c008-4869-9404-07f755973496}</value>
+   <valuelist type="QVariantList" key="PE.Profile.MutableInfo"/>
    <value type="QString" key="PE.Profile.Name">Fremantle</value>
    <value type="bool" key="PE.Profile.SDK">false</value>
   </valuemap>
@@ -68,10 +71,7 @@
    <value type="bool" key="PE.Profile.AutoDetected">false</value>
    <valuemap type="QVariantMap" key="PE.Profile.Data">
     <value type="QString" key="Android.GdbServer.Information"></value>
-    <valuemap type="QVariantMap" key="Debugger.Information">
-     <value type="QString" key="Binary">C:\QtSDK\pythongdb\python_2.7based\gdb-arm-none-linux-gnueabi.exe</value>
-     <value type="int" key="EngineType">1</value>
-    </valuemap>
+    <value type="QString" key="Debugger.Information">{5ad1d623-7300-41b4-ba32-99e11bfcb988}</value>
     <value type="QString" key="PE.Profile.Device">{3260da4e-2949-43b8-b464-1f34d0a47c04}</value>
     <value type="QByteArray" key="PE.Profile.DeviceType">HarmattanOsType</value>
     <value type="QString" key="PE.Profile.SysRoot"></value>
@@ -81,6 +81,7 @@
    </valuemap>
    <value type="QString" key="PE.Profile.Icon">:///DESKTOP///</value>
    <value type="QString" key="PE.Profile.Id">{3800d54f-6c86-4cd1-88a9-7456bbef6dce}</value>
+   <valuelist type="QVariantList" key="PE.Profile.MutableInfo"/>
    <value type="QString" key="PE.Profile.Name">Harmattan</value>
    <value type="bool" key="PE.Profile.SDK">false</value>
   </valuemap>
@@ -91,10 +92,7 @@
    <value type="bool" key="PE.Profile.AutoDetected">false</value>
    <valuemap type="QVariantMap" key="PE.Profile.Data">
     <value type="QString" key="Android.GdbServer.Information"></value>
-    <valuemap type="QVariantMap" key="Debugger.Information">
-     <value type="QString" key="Binary">C:\Program Files\Debugging Tools for Windows (x64)\cdb.exe</value>
-     <value type="int" key="EngineType">4</value>
-    </valuemap>
+    <value type="QString" key="Debugger.Information">{811977c9-ea95-4616-bc28-c66d1935ff65}</value>
     <value type="QString" key="PE.Profile.Device">Desktop Device</value>
     <value type="QByteArray" key="PE.Profile.DeviceType">Desktop</value>
     <value type="QString" key="PE.Profile.SysRoot"></value>
@@ -104,6 +102,7 @@
    </valuemap>
    <value type="QString" key="PE.Profile.Icon">:///DESKTOP///</value>
    <value type="QString" key="PE.Profile.Id">{9b35bbe6-25a7-4cce-ba07-487c795f5265}</value>
+   <valuelist type="QVariantList" key="PE.Profile.MutableInfo"/>
    <value type="QString" key="PE.Profile.Name">Desktop 480 MSVC2010</value>
    <value type="bool" key="PE.Profile.SDK">false</value>
   </valuemap>
@@ -114,10 +113,7 @@
    <value type="bool" key="PE.Profile.AutoDetected">false</value>
    <valuemap type="QVariantMap" key="PE.Profile.Data">
     <value type="QString" key="Android.GdbServer.Information"></value>
-    <valuemap type="QVariantMap" key="Debugger.Information">
-     <value type="QString" key="Binary">C:\Program Files\Debugging Tools for Windows (x64)\cdb.exe</value>
-     <value type="int" key="EngineType">4</value>
-    </valuemap>
+    <value type="QString" key="Debugger.Information">{811977c9-ea95-4616-bc28-c66d1935ff65}</value>
     <value type="QString" key="PE.Profile.Device">Desktop Device</value>
     <value type="QByteArray" key="PE.Profile.DeviceType">Desktop</value>
     <value type="QString" key="PE.Profile.SysRoot"></value>
@@ -127,6 +123,7 @@
    </valuemap>
    <value type="QString" key="PE.Profile.Icon">:///DESKTOP///</value>
    <value type="QString" key="PE.Profile.Id">{175f6238-a585-4e62-b2d3-d15e90296bb6}</value>
+   <valuelist type="QVariantList" key="PE.Profile.MutableInfo"/>
    <value type="QString" key="PE.Profile.Name">Desktop 501 default</value>
    <value type="bool" key="PE.Profile.SDK">false</value>
   </valuemap>
@@ -137,7 +134,7 @@
    <value type="bool" key="PE.Profile.AutoDetected">false</value>
    <valuemap type="QVariantMap" key="PE.Profile.Data">
     <value type="QString" key="Android.GdbServer.Information"></value>
-    <value type="QString" key="Debugger.Information">C:/QtSDK/pythongdb/python_2.7based/gdb-i686-pc-mingw32.exe</value>
+    <value type="QString" key="Debugger.Information">{44aee0bd-999d-4abe-82c6-5c7979e7cf01}</value>
     <value type="QString" key="PE.Profile.Device">Desktop Device</value>
     <value type="QByteArray" key="PE.Profile.DeviceType">Desktop</value>
     <value type="QString" key="PE.Profile.SysRoot"></value>
@@ -147,6 +144,7 @@
    </valuemap>
    <value type="QString" key="PE.Profile.Icon">:///DESKTOP///</value>
    <value type="QString" key="PE.Profile.Id">{9dc9de67-fdc0-4ba6-877a-1463aacd3b3e}</value>
+   <valuelist type="QVariantList" key="PE.Profile.MutableInfo"/>
    <value type="QString" key="PE.Profile.Name">Desktop 480 GCC</value>
    <value type="bool" key="PE.Profile.SDK">false</value>
   </valuemap>

@@ -77,6 +77,13 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
         d->m_codecs.append(codec);
     }
 
+    // Qt5 doesn't list the system locale (QTBUG-34283), so add it manually
+    const QString system(QLatin1String("System"));
+    if (d->m_ui.encodingBox->findText(system) == -1) {
+        d->m_ui.encodingBox->insertItem(0, system);
+        d->m_codecs.prepend(QTextCodec::codecForLocale());
+    }
+
     connect(d->m_ui.autoIndent, SIGNAL(toggled(bool)),
             this, SLOT(slotTypingSettingsChanged()));
     connect(d->m_ui.smartBackspaceBehavior, SIGNAL(currentIndexChanged(int)),

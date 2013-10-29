@@ -110,8 +110,8 @@ void LldbEngine::runCommand(const Command &command)
     QTC_ASSERT(m_lldbProc.state() == QProcess::Running, notifyEngineIll());
     ++m_lastToken;
     QByteArray token = QByteArray::number(m_lastToken);
-    QByteArray cmd = "db {'cmd':'" + command.function + "',"
-        + command.args + "'token':" + token + "}\n";
+    QByteArray cmd = "{\"cmd\":\"" + command.function + "\","
+        + command.args + "\"token\":" + token + "}\n";
     showMessage(_(token + cmd), LogInput);
     m_lldbProc.write(cmd);
 }
@@ -156,7 +156,7 @@ void LldbEngine::setupEngine()
     m_lldbProc.start(_("python"), args);
 
     if (!m_lldbProc.waitForStarted()) {
-        const QString msg = tr("Unable to start LLDB '%1': %2")
+        const QString msg = tr("Unable to start LLDB \"%1\": %2")
             .arg(m_lldbCmd, m_lldbProc.errorString());
         notifyEngineSetupFailed();
         showMessage(_("ADAPTER START FAILED"));
@@ -645,7 +645,7 @@ bool LldbEngine::setToolTipExpression(const QPoint &mousePos,
     }
 
     if (!hasLetterOrNumber(exp)) {
-        QToolTip::showText(m_toolTipPos, tr("'%1' contains no identifier.").arg(exp));
+        QToolTip::showText(m_toolTipPos, tr("\"%1\" contains no identifier.").arg(exp));
         return true;
     }
 
@@ -665,7 +665,7 @@ bool LldbEngine::setToolTipExpression(const QPoint &mousePos,
 
     if (hasSideEffects(exp)) {
         QToolTip::showText(m_toolTipPos,
-            tr("Cowardly refusing to evaluate expression '%1' "
+            tr("Cowardly refusing to evaluate expression \"%1\" "
                "with potential side effects.").arg(exp));
         return true;
     }
@@ -794,7 +794,7 @@ QString LldbEngine::errorMessage(QProcess::ProcessError error) const
     switch (error) {
         case QProcess::FailedToStart:
             return tr("The LLDB process failed to start. Either the "
-                "invoked program '%1' is missing, or you may have insufficient "
+                "invoked program \"%1\" is missing, or you may have insufficient "
                 "permissions to invoke the program.")
                 .arg(m_lldbCmd);
         case QProcess::Crashed:
@@ -812,7 +812,7 @@ QString LldbEngine::errorMessage(QProcess::ProcessError error) const
             return tr("An error occurred when attempting to read from "
                 "the Lldb process. For example, the process may not be running.");
         default:
-            return tr("An unknown error in the Lldb process occurred. ");
+            return tr("An unknown error in the Lldb process occurred.") + QLatin1Char(' ');
     }
 }
 
@@ -836,15 +836,14 @@ void LldbEngine::readLldbStandardError()
 void LldbEngine::readLldbStandardOutput()
 {
     QByteArray out = m_lldbProc.readAllStandardOutput();
-    //showMessage(_("Lldb stdout: " + out));
-    showMessage(_(out), LogDebug);
+    showMessage(_("Lldb stdout: " + out));
     m_inbuffer.append(out);
     while (true) {
-        int pos = m_inbuffer.indexOf("@\n");
+        int pos = m_inbuffer.indexOf('\n');
         if (pos == -1)
             break;
         QByteArray response = m_inbuffer.left(pos).trimmed();
-        m_inbuffer = m_inbuffer.mid(pos + 2);
+        m_inbuffer = m_inbuffer.mid(pos + 1);
         emit outputReady(response);
     }
 }
@@ -856,12 +855,12 @@ void LldbEngine::requestUpdateWatchers()
     while (it.hasNext()) {
         it.next();
         QHash<QByteArray, QByteArray> hash;
-        hash["iname"] = "'watch." + QByteArray::number(it.value()) + '\'';
-        hash["exp"] = '\'' + it.key().toHex() + '\'';
+        hash["iname"] = "\"watch." + QByteArray::number(it.value()) + '"';
+        hash["exp"] = '"' + it.key().toHex() + '"';
         watcherData.append(Command::toData(hash));
     }
     Command cmd("setWatchers");
-    cmd.args.append("'watchers':" + Command::toData(watcherData) + ',');
+    cmd.args.append("\"watchers\":" + Command::toData(watcherData) + ',');
     runCommand(cmd);
 }
 
@@ -1117,9 +1116,9 @@ DebuggerEngine *createLldbEngine(const DebuggerStartParameters &startParameters)
 
 const LldbEngine::Command &LldbEngine::Command::argHelper(const char *name, const QByteArray &data) const
 {
-    args.append('\'');
+    args.append('"');
     args.append(name);
-    args.append("':");
+    args.append("\":");
     args.append(data);
     args.append(",");
     return *this;
@@ -1144,7 +1143,7 @@ QByteArray LldbEngine::Command::toData(const QHash<QByteArray, QByteArray> &valu
         it.next();
         if (!res.isEmpty())
             res.append(',');
-        res += '\'' + it.key() + "':" + it.value();
+        res += '"' + it.key() + "\":" + it.value();
     }
     return '{' + res + '}';
 }
@@ -1176,20 +1175,20 @@ const LldbEngine::Command &LldbEngine::Command::arg(const char *name, const QByt
 
 const LldbEngine::Command &LldbEngine::Command::arg(const char *name, const char *value) const
 {
-    args.append('\'');
+    args.append('"');
     args.append(name);
-    args.append("':'");
+    args.append("\":\"");
     args.append(value);
-    args.append("',");
+    args.append("\",");
     return *this;
 }
 
 const LldbEngine::Command &LldbEngine::Command::beginList(const char *name) const
 {
     if (name) {
-        args += '\'';
+        args += '"';
         args += name;
-        args += "':";
+        args += "\":";
     }
     args += '[';
     return *this;
@@ -1205,9 +1204,9 @@ void LldbEngine::Command::endList() const
 const LldbEngine::Command &LldbEngine::Command::beginGroup(const char *name) const
 {
     if (name) {
-        args += '\'';
+        args += '"';
         args += name;
-        args += "':";
+        args += "\":";
     }
     args += '{';
     return *this;

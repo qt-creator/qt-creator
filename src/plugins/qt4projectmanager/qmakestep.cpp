@@ -166,11 +166,6 @@ QStringList QMakeStep::deducedArguments()
     ProjectExplorer::Abi targetAbi;
     if (tc)
         targetAbi = tc->targetAbi();
-    if ((HostOsInfo::isWindowsHost() || HostOsInfo::isMacHost())
-            && (targetAbi.osFlavor() == ProjectExplorer::Abi::HarmattanLinuxFlavor
-                || targetAbi.osFlavor() == ProjectExplorer::Abi::MaemoLinuxFlavor)) {
-        arguments << QLatin1String("-unix");
-    }
 
     // explicitly add architecture to CONFIG
     if ((targetAbi.os() == ProjectExplorer::Abi::MacOS)

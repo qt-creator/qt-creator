@@ -33,6 +33,7 @@ import re
 
 def main():
     global tmpSettingsDir
+    global textChanged
     sourceExample = os.path.abspath(sdkPath + "/Examples/4.7/declarative/text/textselection")
     qmlFile = os.path.join("qml", "textselection.qml")
     if not neededFilePresent(os.path.join(sourceExample, qmlFile)):
@@ -44,19 +45,7 @@ def main():
     overrideInstallLazySignalHandler()
     installLazySignalHandler(":frame.templateDescription_QTextBrowser",
                              "textChanged()","__handleTextChanged__")
-    performTest(templateDir, qmlFile, True)
-    enableMaddePlugin()
-    invokeMenuItem("File", "Exit")
-    waitForCleanShutdown()
-    copySettingsToTmpDir(tmpSettingsDir, ['QtCreator.ini'])
-    overrideStartApplication()
-    startApplication("qtcreator" + SettingsPath)
-    performTest(templateDir, qmlFile, False)
-    invokeMenuItem("File", "Exit")
-
-def performTest(templateDir, qmlFile, isMaddeDisabled):
-    global textChanged
-    kits = getConfiguredKits(isMaddeDisabled)
+    kits = getConfiguredKits()
     test.log("Collecting potential project types...")
     availableProjectTypes = []
     invokeMenuItem("File", "New File or Project...")
@@ -69,7 +58,7 @@ def performTest(templateDir, qmlFile, isMaddeDisabled):
     maddeTargets = Targets.getTargetsAsStrings([Targets.MAEMO5, Targets.HARMATTAN])
     maddeInTargets = len(set(targets) & set(maddeTargets)) > 0
     test.verify(comboBox.enabled, "Verifying whether combobox is enabled.")
-    test.compare(maddeInTargets, not isMaddeDisabled, "Verifying if kits are configured.")
+    test.verify(not maddeInTargets, "Verify there are no leftovers of Madde")
     test.compare(comboBox.currentText, "Desktop Templates")
     selectFromCombo(comboBox, "All Templates")
     for category in [item.replace(".", "\\.") for item in dumpItems(catModel, projects)]:
@@ -133,17 +122,7 @@ def performTest(templateDir, qmlFile, isMaddeDisabled):
             test.fail("Found unexpected additional kit(s) %s on 'Kit Selection' page."
                       % str(availableCheckboxes))
         clickButton(waitForObject("{text='Cancel' type='QPushButton' unnamed='1' visible='1'}"))
-
-def enableMaddePlugin():
-    invokeMenuItem("Help", "About Plugins...")
-    pluginsTW = waitForObject(":Installed Plugins.categoryWidget_QTreeWidget")
-    devSupport = ("{container=':Installed Plugins.categoryWidget_QTreeWidget' "
-                  "column='0' text='Device Support' type='QModelIndex'}")
-    # children position + 1 because children will be counted beginning with 0
-    maddePos = dumpItems(pluginsTW.model(), waitForObject(devSupport)).index('Madde') + 1
-    mouseClick(waitForObject("{column='1' container=%s text='' type='QModelIndex' "
-                             "occurrence='%d'}" % (devSupport, maddePos)), 5, 5, 0, Qt.LeftButton)
-    clickButton(":Installed Plugins.Close_QPushButton")
+    invokeMenuItem("File", "Exit")
 
 def __handleTextChanged__(*args):
     global textChanged

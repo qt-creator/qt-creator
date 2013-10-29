@@ -235,8 +235,8 @@ def qdump__QDateTime(d, value):
     # This relies on the Qt4/Qt5 internal structure layout:
     # {sharedref(4), ...
     base = d.dereferenceValue(value)
-    dateBase = base + d.ptrSize() # Only QAtomicInt, but will be padded.
     if qtVersion >= 0x050200:
+        dateBase = base + d.ptrSize() # Only QAtomicInt, but will be padded.
         ms = d.extractInt64(dateBase)
         offset = d.extractInt(dateBase + 12)
         isValid = ms > 0
@@ -248,11 +248,14 @@ def qdump__QDateTime(d, value):
         # QDateTimePrivate:
         # - QAtomicInt ref;    (padded on 64 bit)
         # -     [QDate date;]
-        # -      -  uint jd in Qt 4,  qint64 in Qt 5.0 and Qt 5.2; padded on 64 bit
+        # -      -  uint jd in Qt 4,  qint64 in Qt 5.0 and Qt 5.1; padded on 64 bit
         # -     [QTime time;]
         # -      -  uint mds;
         # -  Spec spec;
-        dateSize = 4 if qtVersion < 0x050000 and d.is32bit() else 8
+        dateSize = 8 if qtVersion >= 0x050000 else 4 # Qt5: qint64, Qt4 uint
+        # 4 byte padding after 4 byte QAtomicInt if we are on 64 bit and QDate is 64 bit
+        refPlusPadding = 8 if qtVersion >= 0x050000 and not d.is32bit() else 4
+        dateBase = base + refPlusPadding
         timeBase = dateBase + dateSize
         mds = d.extractInt(timeBase)
         isValid = mds > 0
@@ -286,36 +289,49 @@ def qdump__QDir(d, value):
     privAddress = d.dereferenceValue(value)
     bit32 = d.is32bit()
     qt5 = d.qtVersion() >= 0x050000
-    # value.d_ptr.d.dirEntry.m_filePath - value.d_ptr.d
-    offset = (32 if bit32 else 56) if qt5 else 36
-    filePathAddress = privAddress + offset
-    #try:
-    #    # Up to Qt 4.7
-    #    d.putStringValue(data["path"])
-    #except:
-    #    # Qt 4.8 and later.
-    #    d.putStringValue(data["dirEntry"]["m_filePath"])
-    d.putStringValueByAddress(filePathAddress)
+    # QDirPrivate:
+    # QAtomicInt ref
+    # QStringList nameFilters;
+    # QDir::SortFlags sort;
+    # QDir::Filters filters;
+    # // qt3support:
+    # QChar filterSepChar;
+    # bool matchAllDirs;
+    # // end qt3support
+    # QScopedPointer<QAbstractFileEngine> fileEngine;
+    # bool fileListsInitialized;
+    # QStringList files;
+    # QFileInfoList fileInfos;
+    # QFileSystemEntry dirEntry;
+    # QFileSystemEntry absoluteDirEntry;
+    qt3SupportAddition = 0 if qt5 else d.ptrSize() # qt5 doesn't have qt3support
+    filesOffset = (24 if bit32 else 40) + qt3SupportAddition
+    fileInfosOffset = filesOffset + d.ptrSize()
+    dirEntryOffset = fileInfosOffset + d.ptrSize()
+    # QFileSystemEntry:
+    # QString m_filePath
+    # QByteArray m_nativeFilePath
+    # qint16 m_lastSeparator
+    # qint16 m_firstDotInFileName
+    # qint16 m_lastDotInFileName
+    # + 2 byte padding
+    fileSystemEntrySize = 2 * d.ptrSize() + 8
+    absoluteDirEntryOffset = dirEntryOffset + fileSystemEntrySize
+    d.putStringValueByAddress(privAddress + dirEntryOffset)
     if d.isExpanded():
         with Children(d):
             d.call(value, "count")  # Fill cache.
             #d.putCallItem("absolutePath", value, "absolutePath")
             #d.putCallItem("canonicalPath", value, "canonicalPath")
             with SubItem(d, "absolutePath"):
-                # value.d_ptr.d.absoluteDirEntry.m_filePath - value.d_ptr.d
-                offset = (48 if bit32 else 80) if qt5 else 36
                 typ = d.lookupType(d.ns + "QString")
-                d.putItem(d.createValue(privAddress + offset, typ))
+                d.putItem(d.createValue(privAddress + absoluteDirEntryOffset, typ))
             with SubItem(d, "entryInfoList"):
-                # value.d_ptr.d.fileInfos - value.d_ptr.d
-                offset = (28 if bit32 else 48) if qt5 else 32
                 typ = d.lookupType(d.ns + "QList<" + d.ns + "QFileInfo>")
-                d.putItem(d.createValue(privAddress + offset, typ))
+                d.putItem(d.createValue(privAddress + fileInfosOffset, typ))
             with SubItem(d, "entryList"):
-                # d.ptr.d.files - value.d_ptr.d
-                offset = (24 if bit32 else 40) if qt5 else 28
                 typ = d.lookupType(d.ns + "QStringList")
-                d.putItem(d.createValue(privAddress + offset, typ))
+                d.putItem(d.createValue(privAddress + filesOffset, typ))
 
 
 def qdump__QFile(d, value):
@@ -326,9 +342,10 @@ def qdump__QFile(d, value):
         fileNameAddress = d.addressOf(d_ptr.cast(ptype).dereference()["fileName"])
         d.putNumChild(1)
     except:
-        # 176 and 280 are best guesses for Qt 5
-        offset = 176 if d.is32bit() else 280
-        #qt5 = d.qtVersion() >= 0x050000
+        if d.qtVersion() >= 0x050000:
+            offset = 176 if d.is32bit() else 280
+        else:
+            offset = 140 if d.is32bit() else 232
         privAddress = d.dereference(d.addressOf(value) + d.ptrSize())
         fileNameAddress = privAddress + offset
         d.putNumChild(0)
@@ -524,7 +541,10 @@ def qdump__QHash(d, value):
                 it = nodePtr.dereference().cast(innerType)
                 with SubItem(d, i):
                     if isCompact:
-                        d.putMapName(it["key"])
+                        # cannot reference "key" directly because it is inside
+                        # anonymous union for (u)int key in Qt4
+                        keyAddress = d.addressOf(it) + d.ptrSize() # addr + QHashNode*
+                        d.putMapName(d.createValue(keyAddress, keyType))
                         d.putItem(it["value"])
                         d.putType(valueType)
                     else:
@@ -1482,6 +1502,7 @@ def qdump__QRegion(d, value):
                 d.putIntItem("numRects", n)
                 d.putSubItem("extents", d.createValue(pp + 2 * v, rectType))
                 d.putSubItem("innerRect", d.createValue(pp + 2 * v + rectType.sizeof, rectType))
+                d.putIntItem("innerArea", d.extractInt(pp + 2 * v + 2 * rectType.sizeof))
                 # FIXME
                 try:
                     # Can fail if QVector<QRect> debuginfo is missing.
@@ -1894,8 +1915,12 @@ def qdump__QVariant(d, value):
     # User types.
     d_ptr = value["d"]
     typeCode = int(d_ptr["type"])
-    exp = "((const char *(*)(int))%sQMetaType::typeName)(%d)" % (d.ns, typeCode)
-    type = str(d.parseAndEvaluate(exp))
+    try:
+        exp = "((const char *(*)(int))%sQMetaType::typeName)(%d)" % (d.ns, typeCode)
+        type = str(d.parseAndEvaluate(exp))
+    except:
+        exp = "%sQMetaType::typeName(%d)" % (d.ns, typeCode)
+        type = str(d.parseAndEvaluate(exp))
     type = type[type.find('"') + 1 : type.rfind('"')]
     type = type.replace("Q", d.ns + "Q") # HACK!
     type = type.replace("uint", "unsigned int") # HACK!
@@ -1969,16 +1994,15 @@ def qdump__QWeakPointer(d, value):
     d.check(strongref <= weakref)
     d.check(weakref <= 10*1000*1000)
 
-    if d.isSimpleType(val.dereference().type):
-        d.putNumChild(3)
-        d.putItem(val.dereference())
+    innerType = d.templateArgument(value.type, 0)
+    if d.isSimpleType(innerType):
+        d.putSimpleValue(val.dereference())
     else:
         d.putEmptyValue()
 
     d.putNumChild(3)
     if d.isExpanded():
         with Children(d):
-            innerType = d.templateArgument(value.type, 0)
             d.putSubItem("data", val.dereference().cast(innerType))
             d.putIntItem("weakref", weakref)
             d.putIntItem("strongref", strongref)

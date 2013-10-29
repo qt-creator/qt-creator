@@ -52,6 +52,9 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             color: "white"
             x: 22
+            style: Text.Sunken
+            styleColor: "#292929"
+            font.bold: true
         }
 
         Image {
@@ -103,9 +106,10 @@ Item {
         x: 8
         y: header.height + 4
         id: row
+        Behavior on opacity { NumberAnimation{easing.type: Easing.Linear ; duration: 80} }
     }
 
-    Behavior on height { NumberAnimation{easing.type: Easing.OutCubic ; duration: 60} }
+    Behavior on height { NumberAnimation{easing.type: Easing.OutCubic ; duration: 140} }
 
     states: [
         State {
@@ -113,6 +117,11 @@ Item {
             PropertyChanges {
                 target: section
                 height: header.height
+            }
+            PropertyChanges {
+                target: row
+                opacity: 0
+
             }
         }
     ]

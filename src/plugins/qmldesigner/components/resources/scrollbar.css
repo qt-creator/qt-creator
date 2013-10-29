@@ -1,26 +1,21 @@
   QScrollBar:vertical {
-      border-image: url(:/qmldesigner/images/scrollbar-borderimage-vertical.png);
-      border-left: 0;
-      border-right: 0;
-      border-top: 3;
-      border-bottom: 3;
+      background-color: #444444;
+      border: 1px solid #333333;
       margin-top: 3;
       margin-bottom: 3;
       width: 10;
   }
 
   QScrollBar::handle:vertical {
-      background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0,
-                                      stop: 0.20 #888888,
-                                      stop: 0.23 #656565,
-                                      stop: 0.85 #393939);
+      background-color: #656565;
       margin-top: -5;
       margin-bottom: -5;
       min-height: 18px;
       width: 8px;
       border: 1px solid #313131;
-      border-radius: 4px;
       border-width: 1;
+      margin-left: -1;
+      margin-right: -1;
   }
 
   QScrollBar::add-line:vertical {
@@ -49,28 +44,24 @@
   }
 
   QScrollBar:horizontal {
-      border-image: url(:/qmldesigner/images/scrollbar-borderimage-horizontal.png);
-        border-left: 3;
-        border-right: 3;
-        border-top: 0;
-        border-bottom: 0;
+        background-color: #444444;
+        border: 1px solid #333333;
         margin-left: 3;
         margin-right: 3;
         height: 10;
   }
 
   QScrollBar::handle:horizontal {
-      background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                       stop: 0.20 #888888,
-                                       stop: 0.23 #656565,
-                                       stop: 0.85 #393939);
+     background-color: #656565;
+
      margin-left: -5;
      margin-right: -5;
      min-width: 18px;
      height: 8px;
      border: 1px solid #313131;
-     border-radius: 4px;
      border-width: 1;
+     margin-top: -1;
+     margin-bottom: -1;
   }
 
   QScrollBar::add-line:horizontal {

@@ -51,11 +51,9 @@
 #include <coreplugin/vcsmanager.h>
 #include <cppeditor/cppeditorconstants.h>
 
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
-#ifdef Q_OS_WIN
-#include <utils/winutils.h>
-#endif
 
 #include <QtPlugin>
 #include <QFileInfo>
@@ -352,11 +350,7 @@ QString correspondingHeaderOrSource(const QString &fileName, bool *wasHeader)
     foreach (const QString &candidateDir, candidateDirs) {
         foreach (const QString &candidateFileName, candidateFileNames) {
             const QString candidateFilePath = candidateDir + QLatin1Char('/') + candidateFileName;
-#ifdef Q_OS_WIN
-            const QString normalized = Utils::normalizePathName(candidateFilePath);
-#else
-            const QString normalized = candidateFilePath;
-#endif
+            const QString normalized = Utils::FileUtils::normalizePathName(candidateFilePath);
             const QFileInfo candidateFi(normalized);
             if (candidateFi.isFile()) {
                 m_headerSourceMapping[fi.absoluteFilePath()] = candidateFi.absoluteFilePath();

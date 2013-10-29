@@ -40,6 +40,7 @@
 
 #include <projectexplorer/projectexplorer.h>
 
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/styledbar.h>
 #include <utils/iwelcomepage.h>
@@ -208,22 +209,14 @@ void WelcomeMode::facilitateQml(QQmlEngine * /*engine*/)
 
 static QString applicationDirPath()
 {
-#ifdef Q_OS_WIN
     // normalize paths so QML doesn't freak out if it's wrongly capitalized on Windows
-    return Utils::normalizePathName(QCoreApplication::applicationDirPath());
-#else
-    return QCoreApplication::applicationDirPath();
-#endif
+    return Utils::FileUtils::normalizePathName(QCoreApplication::applicationDirPath());
 }
 
 static QString resourcePath()
 {
-#ifdef Q_OS_WIN
     // normalize paths so QML doesn't freak out if it's wrongly capitalized on Windows
-    return Utils::normalizePathName(Core::ICore::resourcePath());
-#else
-    return Core::ICore::resourcePath();
-#endif
+    return Utils::FileUtils::normalizePathName(Core::ICore::resourcePath());
 }
 
 void WelcomeMode::initPlugins()

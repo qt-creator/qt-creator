@@ -58,7 +58,7 @@ Column {
 
             Label {
                 text: qsTr("Text")
-                toolTip:  qsTr("The text shown on the button")
+                toolTip:  qsTr("The text shown on the text area")
             }
 
             SecondColumnLayout {
@@ -73,7 +73,7 @@ Column {
 
             Label {
                 text: qsTr("Read only")
-                toolTip: qsTr("Determines whether the text field is read only.")
+                toolTip: qsTr("Determines whether the text area is read only.")
             }
 
             SecondColumnLayout {

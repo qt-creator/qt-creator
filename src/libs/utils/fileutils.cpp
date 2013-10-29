@@ -38,6 +38,10 @@
 #include <QDateTime>
 #include <QMessageBox>
 
+#ifdef Q_OS_WIN
+#include <qt_windows.h>
+#endif
+
 namespace Utils {
 
 /*! \class Utils::FileUtils
@@ -235,6 +239,60 @@ bool FileUtils::makeWritable(const FileName &path)
 {
     const QString fileName = path.toString();
     return QFile::setPermissions(fileName, QFile::permissions(fileName) | QFile::WriteUser);
+}
+
+#ifdef Q_OS_WIN
+static QString getShortPathName(const QString &name)
+{
+    if (name.isEmpty())
+        return name;
+
+    // Determine length, then convert.
+    const LPCTSTR nameC = reinterpret_cast<LPCTSTR>(name.utf16()); // MinGW
+    const DWORD length = GetShortPathNameW(nameC, NULL, 0);
+    if (length == 0)
+        return name;
+    QScopedArrayPointer<TCHAR> buffer(new TCHAR[length]);
+    GetShortPathNameW(nameC, buffer.data(), length);
+    const QString rc = QString::fromUtf16(reinterpret_cast<const ushort *>(buffer.data()), length - 1);
+    return rc;
+}
+
+static QString getLongPathName(const QString &name)
+{
+    if (name.isEmpty())
+        return name;
+
+    // Determine length, then convert.
+    const LPCTSTR nameC = reinterpret_cast<LPCTSTR>(name.utf16()); // MinGW
+    const DWORD length = GetLongPathNameW(nameC, NULL, 0);
+    if (length == 0)
+        return name;
+    QScopedArrayPointer<TCHAR> buffer(new TCHAR[length]);
+    GetLongPathNameW(nameC, buffer.data(), length);
+    const QString rc = QString::fromUtf16(reinterpret_cast<const ushort *>(buffer.data()), length - 1);
+    return rc;
+}
+#endif // Q_OS_WIN
+
+// makes sure that capitalization of directories is canonical on Windows.
+// This mimics the logic in QDeclarative_isFileCaseCorrect
+QString FileUtils::normalizePathName(const QString &name)
+{
+#ifdef Q_OS_WIN
+    QString canonicalName = getShortPathName(name);
+    if (canonicalName.isEmpty())
+        return name;
+    canonicalName = getLongPathName(canonicalName);
+    if (canonicalName.isEmpty())
+        return name;
+    // Upper case drive letter
+    if (canonicalName.size() > 2 && canonicalName.at(1) == QLatin1Char(':'))
+        canonicalName[0] = canonicalName.at(0).toUpper();
+    return canonicalName;
+#else // Filesystem is case-insensitive only on Windows
+    return name;
+#endif
 }
 
 QByteArray FileReader::fetchQrc(const QString &fileName)

@@ -311,18 +311,19 @@ Abi::Abi(const Architecture &a, const OS &o,
         m_osFlavor = UnknownFlavor;
         break;
     case ProjectExplorer::Abi::LinuxOS:
-        if (m_osFlavor < GenericLinuxFlavor || m_osFlavor > MaemoLinuxFlavor)
+        if (m_osFlavor < GenericLinuxFlavor || m_osFlavor > AndroidLinuxFlavor)
             m_osFlavor = UnknownFlavor;
         break;
     case ProjectExplorer::Abi::BsdOS:
-        m_osFlavor = FreeBsdFlavor;
+        if (m_osFlavor < FreeBsdFlavor || m_osFlavor > OpenBsdFlavor)
+            m_osFlavor = UnknownFlavor;
         break;
     case ProjectExplorer::Abi::MacOS:
         if (m_osFlavor < GenericMacFlavor || m_osFlavor > GenericMacFlavor)
             m_osFlavor = UnknownFlavor;
         break;
     case ProjectExplorer::Abi::UnixOS:
-        if (m_osFlavor < GenericUnixFlavor || m_osFlavor > GenericUnixFlavor)
+        if (m_osFlavor < GenericUnixFlavor || m_osFlavor > SolarisUnixFlavor)
             m_osFlavor = UnknownFlavor;
         break;
     case ProjectExplorer::Abi::WindowsOS:
@@ -387,10 +388,6 @@ Abi::Abi(const QString &abiString) :
             m_osFlavor = NetBsdFlavor;
         else if (abiParts.at(2) == QLatin1String("openbsd") && m_os == BsdOS)
             m_osFlavor = OpenBsdFlavor;
-        else if (abiParts.at(2) == QLatin1String("maemo") && m_os == LinuxOS)
-            m_osFlavor = MaemoLinuxFlavor;
-        else if (abiParts.at(2) == QLatin1String("harmattan") && m_os == LinuxOS)
-            m_osFlavor = HarmattanLinuxFlavor;
         else if (abiParts.at(2) == QLatin1String("generic") && m_os == MacOS)
             m_osFlavor = GenericMacFlavor;
         else if (abiParts.at(2) == QLatin1String("generic") && m_os == UnixOS)
@@ -637,10 +634,6 @@ QString Abi::toString(const OSFlavor &of)
         return QLatin1String("netbsd");
     case ProjectExplorer::Abi::OpenBsdFlavor:
         return QLatin1String("openbsd");
-    case ProjectExplorer::Abi::MaemoLinuxFlavor:
-        return QLatin1String("maemo");
-    case ProjectExplorer::Abi::HarmattanLinuxFlavor:
-        return QLatin1String("harmattan");
     case ProjectExplorer::Abi::GenericMacFlavor:
         return QLatin1String("generic");
     case ProjectExplorer::Abi::GenericUnixFlavor:
@@ -698,8 +691,7 @@ QList<Abi::OSFlavor> Abi::flavorsForOs(const Abi::OS &o)
     case BsdOS:
         return result << FreeBsdFlavor << OpenBsdFlavor << NetBsdFlavor << UnknownFlavor;
     case LinuxOS:
-        return result << GenericLinuxFlavor << HarmattanLinuxFlavor << MaemoLinuxFlavor
-                      << AndroidLinuxFlavor << UnknownFlavor;
+        return result << GenericLinuxFlavor << AndroidLinuxFlavor << UnknownFlavor;
     case MacOS:
         return result << GenericMacFlavor << UnknownFlavor;
     case UnixOS:

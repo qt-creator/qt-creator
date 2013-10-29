@@ -1167,7 +1167,7 @@ void QmlEngine::updateCurrentContext()
 
     QmlJS::ConsoleManagerInterface *consoleManager = qmlConsoleManager();
     if (consoleManager)
-        consoleManager->setContext(tr("Context: ").append(context));
+        consoleManager->setContext(tr("Context:") + QLatin1Char(' ') + context);
 }
 
 void QmlEngine::appendDebugOutput(QtMsgType type, const QString &message,

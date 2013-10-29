@@ -134,7 +134,7 @@ void CrashHandlerDialog::setApplicationInfo(const QString &signalName)
 
     QString revision;
 #ifdef IDE_REVISION
-     revision = tr(" from revision %1").arg(QString::fromLatin1(Core::Constants::IDE_REVISION_STR).left(10));
+     revision = QLatin1Char(' ') + tr("from revision %1").arg(QString::fromLatin1(Core::Constants::IDE_REVISION_STR).left(10));
 #endif
     const QString versionInformation = tr(
         "%1 %2%3, built on %4 at %5, based on Qt %6 (%7 bit)\n")

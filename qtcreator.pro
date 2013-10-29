@@ -74,7 +74,7 @@ macx {
 } else {
     BINDIST_SOURCE = "$(INSTALL_ROOT)$$QTC_PREFIX"
     BINDIST_INSTALLER_SOURCE = "$$BINDIST_SOURCE/*"
-    deployqt.commands = python -u $$PWD/scripts/deployqt.py -i \"$(INSTALL_ROOT)$$QTC_PREFIX\"
+    deployqt.commands = python -u $$PWD/scripts/deployqt.py -i \"$(INSTALL_ROOT)$$QTC_PREFIX\" \"$(QMAKE)\"
     deployqt.depends = install
     win32 {
         deployartifacts.depends = install

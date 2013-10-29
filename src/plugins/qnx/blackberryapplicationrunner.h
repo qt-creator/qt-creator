@@ -82,6 +82,7 @@ private slots:
     void readStandardOutput();
     void readStandardError();
 
+    void disconnectFromDeviceSignals(Core::Id deviceId);
     void startRunningStateTimer();
     void determineRunningState();
     void readRunningStateStandardOutput();
@@ -89,7 +90,10 @@ private slots:
     void setPid(qint64 pid);
     void setApplicationId(const QString &applicationId);
 
+    void launchApplication();
     void startLogProcessRunner();
+
+    void displayConnectionOutput(Core::Id deviceId, const QString &output);
 
 private:
     void reset();

@@ -29,6 +29,9 @@
 
 #include "qtquickapp.h"
 
+#include <utils/qtcassert.h>
+
+#include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QTextStream>
@@ -113,15 +116,25 @@ QString QtQuickApp::originsRoot() const
     switch (m_componentSet) {
     case QtQuickControls10: return templatesRoot() + QLatin1String("qtquick2controls/");
     case QtQuick20Components: return templatesRoot() + QLatin1String("qtquick2app/");
-    default: break;
+    case QtQuick10Components: return templatesRoot() + QLatin1String("qtquick1app/");
     }
 
-    return templatesRoot() + QLatin1String("qtquickapp/");
+    qWarning() << "QtQuickApp::originsRoot() - unhandled component set"
+               << m_componentSet;
+    return QString();
 }
 
 QString QtQuickApp::mainWindowClassName() const
 {
-    return QLatin1String("QmlApplicationViewer");
+    switch (m_componentSet) {
+    case QtQuickControls10: return QLatin1String("QtQuick2ControlsApplicationViewer");
+    case QtQuick20Components: return QLatin1String("QtQuick2ApplicationViewer");
+    case QtQuick10Components: return QLatin1String("QtQuick1ApplicationViewer");
+    }
+
+    qWarning() << "QtQuickApp::mainWindowClassName() - unhandled component set"
+               << m_componentSet;
+    return QString();
 }
 
 bool QtQuickApp::adaptCurrentMainCppTemplateLine(QString &line) const
@@ -174,12 +187,15 @@ bool QtQuickApp::useExistingMainQml() const
 
 QString QtQuickApp::appViewerBaseName() const
 {
-    if (m_componentSet == QtQuick20Components) {
-        return QLatin1String("qtquick2applicationviewer");
-    } else if (m_componentSet == QtQuickControls10) {
-        return QLatin1String("qtquick2controlsapplicationviewer");
+    switch (m_componentSet) {
+    case QtQuickControls10: return QLatin1String("qtquick2controlsapplicationviewer");
+    case QtQuick20Components: return QLatin1String("qtquick2applicationviewer");
+    case QtQuick10Components: return QLatin1String("qtquick1applicationviewer");
     }
-    return QLatin1String("qmlapplicationviewer");
+
+    qWarning() << "QtQuickApp::appViewerBaseName() - unhandled component set"
+               << m_componentSet;
+    return QString();
 }
 
 QString QtQuickApp::fileName(QtQuickApp::ExtendedFileType type) const

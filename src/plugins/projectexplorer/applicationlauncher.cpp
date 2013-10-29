@@ -35,10 +35,8 @@
 #include <coreplugin/icore.h>
 
 #include <utils/consoleprocess.h>
+#include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
-#ifdef Q_OS_WIN
-#include <utils/winutils.h>
-#endif
 
 #include <QTextCodec>
 
@@ -131,19 +129,10 @@ ApplicationLauncher::~ApplicationLauncher()
 
 void ApplicationLauncher::setWorkingDirectory(const QString &dir)
 {
-#ifdef Q_OS_WIN
     // Work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch' ...)
-    const QString fixedPath = Utils::normalizePathName(dir);
-#else
-#   define fixedPath dir
-#endif
-
+    const QString fixedPath = Utils::FileUtils::normalizePathName(dir);
     d->m_guiProcess.setWorkingDirectory(fixedPath);
     d->m_consoleProcess.setWorkingDirectory(fixedPath);
-
-#ifndef Q_OS_WIN
-#   undef fixedPath
-#endif
 }
 
 void ApplicationLauncher::setEnvironment(const Utils::Environment &env)

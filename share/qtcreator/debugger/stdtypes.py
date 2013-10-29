@@ -79,9 +79,8 @@ def qdump__std____1__array(d, value):
 
 def qdump__std__complex(d, value):
     innerType = d.templateArgument(value.type, 0)
-    base = value.address.cast(innerType.pointer())
-    real = base.dereference()
-    imag = (base + 1).dereference()
+    real = value.cast(innerType)
+    imag = d.createValue(d.addressOf(value) + innerType.sizeof, innerType)
     d.putValue("(%f, %f)" % (real, imag));
     d.putNumChild(2)
     if d.isExpanded():
@@ -116,7 +115,7 @@ def qdump__std__deque(d, value):
             for i in d.childRange():
                 d.putSubItem(i, pcur.dereference())
                 pcur += 1
-                if pcur == plast:
+                if toInteger(pcur) == toInteger(plast):
                     newnode = pnode + 1
                     pnode = newnode
                     pfirst = newnode.dereference()
@@ -221,14 +220,14 @@ def qdump__std____cxx1998__map(d, value):
     qdump__std__map(d, value)
 
 def stdTreeIteratorHelper(d, value):
-    pnode = value["_M_node"]
-    node = pnode.dereference()
+    node = value["_M_node"].dereference()
     d.putNumChild(1)
     d.putEmptyValue()
     if d.isExpanded():
-        dataType = d.templateArgument(value.type, 0)
-        nodeType = d.lookupType("std::_Rb_tree_node<%s>" % dataType)
-        data = pnode.cast(nodeType.pointer()).dereference()["_M_value_field"]
+        nodeTypeName = str(value.type).replace("_Rb_tree_iterator", "_Rb_tree_node", 1)
+        nodeTypeName = nodeTypeName.replace("_Rb_tree_const_iterator", "_Rb_tree_node", 1)
+        nodeType = d.lookupType(nodeTypeName)
+        data = node.cast(nodeType)["_M_value_field"]
         with Children(d):
             try:
                 d.putSubItem("first", data["first"])
@@ -443,21 +442,36 @@ def qform__std____debug__unordered_map():
     return mapForms()
 
 def qdump__std__unordered_map(d, value):
+    keyType = d.templateArgument(value.type, 0)
+    valueType = d.templateArgument(value.type, 1)
+    allocatorType = d.templateArgument(value.type, 4)
+    pairType = d.templateArgument(allocatorType, 0)
+    ptrSize = d.ptrSize()
     try:
+    # gcc >= 4.7
         size = value["_M_element_count"]
         start = value["_M_before_begin"]["_M_nxt"]
+        offset = 0
     except:
-        size = value["_M_h"]["_M_element_count"]
-        start = value["_M_h"]["_M_bbegin"]["_M_node"]["_M_nxt"]
+            try:
+                # libc++ (Mac)
+                size = value["_M_h"]["_M_element_count"]
+                start = value["_M_h"]["_M_bbegin"]["_M_node"]["_M_nxt"]
+                offset = 0
+            except:
+                # gcc 4.6.2
+                size = value["_M_element_count"]
+                start = value["_M_buckets"].dereference()
+                # FIXME: Pointer-aligned?
+                offset = pairType.sizeof
+                d.putItemCount(size)
+                # We don't know where the data is
+                d.putNumChild(0)
+                return
     d.putItemCount(size)
     d.putNumChild(size)
     if d.isExpanded():
         p = d.pointerValue(start)
-        keyType = d.templateArgument(value.type, 0)
-        valueType = d.templateArgument(value.type, 1)
-        allocatorType = d.templateArgument(value.type, 4)
-        pairType = d.templateArgument(allocatorType, 0)
-        ptrSize = d.ptrSize()
         if d.isMapCompact(keyType, valueType):
             with Children(d, size, childType=valueType):
                 for i in d.childRange():
@@ -470,19 +484,29 @@ def qdump__std__unordered_map(d, value):
         else:
             with Children(d, size, childType=pairType):
                 for i in d.childRange():
-                    d.putSubItem(i, d.createValue(p + ptrSize, pairType))
-                    p = d.dereference(p)
+                    d.putSubItem(i, d.createValue(p + ptrSize - offset, pairType))
+                    p = d.dereference(p + offset)
 
 def qdump__std____debug__unordered_map(d, value):
     qdump__std__unordered_map(d, value)
 
 def qdump__std__unordered_set(d, value):
     try:
+        # gcc >= 4.7
         size = value["_M_element_count"]
         start = value["_M_before_begin"]["_M_nxt"]
+        offset = 0
     except:
-        size = value["_M_h"]["_M_element_count"]
-        start = value["_M_h"]["_M_bbegin"]["_M_node"]["_M_nxt"]
+            try:
+                # libc++ (Mac)
+                size = value["_M_h"]["_M_element_count"]
+                start = value["_M_h"]["_M_bbegin"]["_M_node"]["_M_nxt"]
+                offset = 0
+            except:
+                # gcc 4.6.2
+                size = value["_M_element_count"]
+                start = value["_M_buckets"].dereference()
+                offset = d.ptrSize()
     d.putItemCount(size)
     d.putNumChild(size)
     if d.isExpanded():
@@ -491,8 +515,18 @@ def qdump__std__unordered_set(d, value):
         with Children(d, size, childType=valueType):
             ptrSize = d.ptrSize()
             for i in d.childRange():
-                d.putSubItem(i, d.createValue(p + ptrSize, valueType))
-                p = d.dereference(p)
+                d.putSubItem(i, d.createValue(p + ptrSize - offset, valueType))
+                p = d.dereference(p + offset)
+
+def qform__std____1__unordered_map():
+    return mapForms()
+
+def qdump__std____1__unordered_map(d, value):
+    n = toInteger(value["__table_"]["__p2_"]["__first_"])
+    d.putItemCount(n)
+    if d.isExpanded():
+        with Children(d, 1):
+            d.putFields(value)
 
 def qdump__std____debug__unordered_set(d, value):
     qdump__std__unordered_set(d, value)

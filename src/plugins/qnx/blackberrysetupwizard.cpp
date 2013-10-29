@@ -176,7 +176,7 @@ void BlackBerrySetupWizard::certificateCreated(int status)
 
 void BlackBerrySetupWizard::debugTokenArrived(int status)
 {
-    QString errorString = tr("Failed to request debug token: ");
+    QString errorString = tr("Failed to request debug token:") + QLatin1Char(' ');
 
     switch (status) {
     case BlackBerryDebugTokenRequester::Success:
@@ -222,7 +222,7 @@ void BlackBerrySetupWizard::debugTokenArrived(int status)
 
 void BlackBerrySetupWizard::uploaderFinished(int status)
 {
-    QString errorString = tr("Failed to upload debug token: ");
+    QString errorString = tr("Failed to upload debug token:") + QLatin1Char(' ');
 
     switch (status) {
     case BlackBerryDebugTokenUploader::Success:

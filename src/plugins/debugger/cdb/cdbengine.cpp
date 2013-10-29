@@ -2879,11 +2879,7 @@ CdbEngine::NormalizedSourceFileName CdbEngine::sourceMapNormalizeFileNameFromDeb
     const QString fileName = cdbSourcePathMapping(QDir::toNativeSeparators(f), m_sourcePathMappings,
                                                   DebuggerToSource);
     // Up/lower case normalization according to Windows.
-#ifdef Q_OS_WIN
-    QString normalized = Utils::normalizePathName(fileName);
-#else
-    QString normalized = fileName;
-#endif
+    const QString normalized = Utils::FileUtils::normalizePathName(fileName);
     if (debugSourceMapping)
         qDebug(" sourceMapNormalizeFileNameFromDebugger %s->%s", qPrintable(fileName), qPrintable(normalized));
     // Check if it really exists, that is normalize worked and QFileInfo confirms it.

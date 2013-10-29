@@ -73,6 +73,7 @@ def main():
         test.log("Testing build configuration: " + config)
 
         test.log("Running application")
+        progressBarWait(15000)
         setRunInTerminal(len(checkedTargets), kit, False)
         runControlFinished = False
         clickButton(waitForObject(":*Qt Creator.Run_Core::Internal::FancyToolButton"))

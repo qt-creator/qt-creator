@@ -239,7 +239,7 @@ bool AndroidDeployStep::runCommand(QProcess *buildProc,
         QString mainMessage = tr("Packaging Error: Command '%1 %2' failed.")
                 .arg(program).arg(arguments.join(QLatin1String(" ")));
         if (buildProc->error() != QProcess::UnknownError)
-            mainMessage += tr(" Reason: %1").arg(buildProc->errorString());
+            mainMessage += QLatin1Char(' ') + tr("Reason: %1").arg(buildProc->errorString());
         else
             mainMessage += tr("Exit code: %1").arg(buildProc->exitCode());
         writeOutput(mainMessage, BuildStep::ErrorMessageOutput);

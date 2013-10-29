@@ -29,8 +29,6 @@
 
 #include "projectwelcomepage.h"
 
-#include <utils/stringutils.h>
-
 #include <QQmlContext>
 #include <QQmlEngine>
 #include <QFileInfo>
@@ -42,9 +40,8 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/sessiondialog.h>
 
-#ifdef Q_OS_WIN
-#include <utils/winutils.h>
-#endif
+#include <utils/fileutils.h>
+#include <utils/stringutils.h>
 
 namespace ProjectExplorer {
 namespace Internal {
@@ -225,12 +222,9 @@ void ProjectWelcomePage::facilitateQml(QQmlEngine *engine)
 
 QUrl ProjectWelcomePage::pageLocation() const
 {
-    QString resourcePath = Core::ICore::resourcePath();
-#ifdef Q_OS_WIN
     // normalize paths so QML doesn't freak out if it's wrongly capitalized on Windows
-    resourcePath = Utils::normalizePathName(resourcePath);
-#endif
-     return QUrl::fromLocalFile(resourcePath + QLatin1String("/welcomescreen/develop.qml"));
+    const QString resourcePath = Utils::FileUtils::normalizePathName(Core::ICore::resourcePath());
+    return QUrl::fromLocalFile(resourcePath + QLatin1String("/welcomescreen/develop.qml"));
 }
 
 ProjectWelcomePage::Id ProjectWelcomePage::id() const

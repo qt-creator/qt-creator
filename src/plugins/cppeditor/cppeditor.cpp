@@ -518,6 +518,7 @@ CPPEditorWidget::CPPEditorWidget(QWidget *parent)
     , m_objcEnabled(false)
     , m_commentsSettings(CppTools::CppToolsSettings::instance()->commentsSettings())
     , m_followSymbolUnderCursor(new FollowSymbolUnderCursor(this))
+    , m_preprocessorButton(0)
 {
     qRegisterMetaType<SemanticInfo>("CppTools::SemanticInfo");
 
@@ -647,10 +648,13 @@ void CPPEditorWidget::createToolBar(CPPEditor *editor)
     connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(updateUses()));
     connect(this, SIGNAL(textChanged()), this, SLOT(updateUses()));
 
-    QToolButton *hashButton = new QToolButton(this);
-    hashButton->setText(QLatin1String("#"));
-    connect(hashButton, SIGNAL(clicked()), this, SLOT(showPreProcessorWidget()));
-    editor->insertExtraToolBarWidget(TextEditor::BaseTextEditor::Left, hashButton);
+    m_preprocessorButton = new QToolButton(this);
+    m_preprocessorButton->setText(QLatin1String("#"));
+    Core::Command *cmd = Core::ActionManager::command(Constants::OPEN_PREPROCESSOR_DIALOG);
+    connect(cmd, SIGNAL(keySequenceChanged()), this, SLOT(updatePreprocessorButtonTooltip()));
+    updatePreprocessorButtonTooltip();
+    connect(m_preprocessorButton, SIGNAL(clicked()), this, SLOT(showPreProcessorWidget()));
+    editor->insertExtraToolBarWidget(TextEditor::BaseTextEditor::Left, m_preprocessorButton);
     editor->insertExtraToolBarWidget(TextEditor::BaseTextEditor::Left, m_outlineCombo);
 }
 
@@ -1010,6 +1014,14 @@ void CPPEditorWidget::onContentsChanged(int position, int charsRemoved, int char
 
     if (charsRemoved > 0)
         updateUses();
+}
+
+void CPPEditorWidget::updatePreprocessorButtonTooltip()
+{
+    QTC_ASSERT(m_preprocessorButton, return);
+    Core::Command *cmd = Core::ActionManager::command(Constants::OPEN_PREPROCESSOR_DIALOG);
+    QTC_ASSERT(cmd, return);
+    m_preprocessorButton->setToolTip(cmd->action()->toolTip());
 }
 
 void CPPEditorWidget::jumpToOutlineElement(int index)

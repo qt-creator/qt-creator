@@ -854,10 +854,13 @@ static void setFocusToEditorViewAndUnmaximizePanes(EditorView *view)
 void EditorManager::doEscapeKeyFocusMoveMagic()
 {
     // use cases to cover:
-    // 1. if app focus is in mode or external window without editor view (e.g. Projects, ext. Help)
-    //      activate & raise the current editor view (can be external)
-    //      if that is in edit mode
-    //        activate edit mode and unmaximize output pane
+    // 1. if app focus is in mode or external window without editor view (e.g. Design, Projects, ext. Help)
+    //      if there are extra views (e.g. output)
+    //        hide them
+    //      otherwise
+    //        activate & raise the current editor view (can be external)
+    //        if that is in edit mode
+    //          activate edit mode and unmaximize output pane
     // 2. if app focus is in external window with editor view
     //      hide find if necessary
     // 2. if app focus is in mode with editor view
@@ -874,13 +877,40 @@ void EditorManager::doEscapeKeyFocusMoveMagic()
     //        otherwise (i.e. mode is edit mode)
     //          hide extra views (find, help, output)
 
+    QWidget *activeWindow = qApp->activeWindow();
+    if (!activeWindow)
+        return;
+    QWidget *focus = qApp->focusWidget();
     EditorView *editorView = currentEditorView();
-    bool editorViewActive = (qApp->focusWidget() == editorView->focusWidget());
+    bool editorViewActive = (focus && focus == editorView->focusWidget());
     bool editorViewVisible = editorView->isVisible();
+
+    if (!( editorViewVisible && !editorViewActive && editorView->window() == activeWindow )) {
+        bool stuffHidden = false;
+        QWidget *findPane = FindToolBarPlaceHolder::getCurrent();
+        if (findPane && findPane->isVisible() && findPane->window() == activeWindow) {
+            findPane->hide();
+            stuffHidden = true;
+        }
+        QWidget *outputPane = OutputPanePlaceHolder::getCurrent();
+        if (outputPane && outputPane->isVisible() && outputPane->window() == activeWindow) {
+            OutputPaneManager::instance()->slotHide();
+            stuffHidden = true;
+        }
+        QWidget *rightPane = RightPanePlaceHolder::current();
+        if (rightPane && rightPane->isVisible() && rightPane->window() == activeWindow) {
+            RightPaneWidget::instance()->setShown(false);
+            stuffHidden = true;
+        }
+        if (stuffHidden)
+            return;
+    }
+
     if (!editorViewActive && editorViewVisible) {
         setFocusToEditorViewAndUnmaximizePanes(editorView);
         return;
     }
+
     if (!editorViewActive && !editorViewVisible) {
         // assumption is that editorView is in main window then
         ModeManager::activateMode(Id(Constants::MODE_EDIT));
@@ -888,30 +918,13 @@ void EditorManager::doEscapeKeyFocusMoveMagic()
         setFocusToEditorViewAndUnmaximizePanes(editorView);
         return;
     }
-    if (editorViewActive) {
-        QTC_CHECK(editorViewVisible);
-        bool stuffHidden = false;
-        QWidget *findPane = FindToolBarPlaceHolder::getCurrent();
-        if (findPane && findPane->isVisibleTo(editorView)) {
-            findPane->hide();
-            stuffHidden = true;
-        }
-        QWidget *outputPane = OutputPanePlaceHolder::getCurrent();
-        if (outputPane && outputPane->isVisibleTo(editorView)) {
-            OutputPaneManager::instance()->slotHide();
-            stuffHidden = true;
-        }
-        QWidget *rightPane = RightPanePlaceHolder::current();
-        if (rightPane && rightPane->isVisibleTo(editorView)) {
-            RightPaneWidget::instance()->setShown(false);
-            stuffHidden = true;
-        }
-        if (!stuffHidden && editorView->window() == ICore::mainWindow()) {
-            // we are in a editor view and there's nothing to hide, switch to edit
-            ModeManager::activateMode(Id(Constants::MODE_EDIT));
-            // next call works only because editor views in main window are shared between modes
-            setFocusToEditorViewAndUnmaximizePanes(editorView);
-        }
+
+    if (editorView->window() == ICore::mainWindow()) {
+        // we are in a editor view and there's nothing to hide, switch to edit
+        ModeManager::activateMode(Id(Constants::MODE_EDIT));
+        QTC_CHECK(editorView->isVisible());
+        // next call works only because editor views in main window are shared between modes
+        setFocusToEditorViewAndUnmaximizePanes(editorView);
     }
 }
 

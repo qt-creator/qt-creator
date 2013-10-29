@@ -147,8 +147,8 @@ void DebugView::nodeIdChanged(const ModelNode &node, const QString &newId, const
         QString string;
         message.setString(&string);
         message << node;
-        message << tr("New Id: ") << newId << lineBreak;
-        message << tr("Old Id: ") << oldId << lineBreak;
+        message << tr("New Id:") << ' ' << newId << lineBreak;
+        message << tr("Old Id:") << ' ' << oldId << lineBreak;
         log(tr("Node id changed:"), string);
     }
 }

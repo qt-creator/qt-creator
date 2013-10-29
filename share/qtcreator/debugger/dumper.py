@@ -261,6 +261,9 @@ class DumperBase:
         self.isGdb = False
         self.isLldb = False
 
+    def is32bit(self):
+        return self.ptrSize() == 4
+
     def computeLimit(self, size, limit):
         if limit is None:
             return size

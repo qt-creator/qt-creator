@@ -277,7 +277,7 @@ QString GdbEngine::errorMessage(QProcess::ProcessError error)
             return tr("The gdb process failed to start. Either the "
                 "invoked program \"%1\" is missing, or you may have insufficient "
                 "permissions to invoke the program.\n%2")
-                .arg(m_gdb, gdbProc()->errorString());
+                .arg(m_gdb, m_gdbProc->errorString());
         case QProcess::Crashed:
             if (targetState() == DebuggerFinished)
                 return tr("The gdb process crashed some time after starting "
@@ -296,13 +296,8 @@ QString GdbEngine::errorMessage(QProcess::ProcessError error)
             return tr("An error occurred when attempting to read from "
                 "the gdb process. For example, the process may not be running.");
         default:
-            return tr("An unknown error in the gdb process occurred. ");
+            return tr("An unknown error in the gdb process occurred.");
     }
-}
-
-GdbProcess *GdbEngine::gdbProc() const
-{
-    return m_gdbProc;
 }
 
 #if 0
@@ -338,7 +333,7 @@ static inline QString msgWinException(const QByteArray &data, unsigned *exCodeIn
     const quint64 address = data.mid(addressPos).trimmed().toULongLong(0, 0);
     QString rc;
     QTextStream str(&rc);
-    str << GdbEngine::tr("An exception was triggered: ");
+    str << GdbEngine::tr("An exception was triggered:") << ' ';
     formatWindowsException(exCode, address, 0, 0, 0, str);
     str << '.';
     return rc;
@@ -794,7 +789,7 @@ void GdbEngine::handleResponse(const QByteArray &buff)
 
 void GdbEngine::readGdbStandardError()
 {
-    QByteArray err = gdbProc()->readAllStandardError();
+    QByteArray err = m_gdbProc->readAllStandardError();
     showMessage(_("UNEXPECTED GDB STDERR: " + err));
     if (err == "Undefined command: \"bb\".  Try \"help\".\n")
         return;
@@ -810,7 +805,7 @@ void GdbEngine::readGdbStandardOutput()
     int newstart = 0;
     int scan = m_inbuffer.size();
 
-    QByteArray out = gdbProc()->readAllStandardOutput();
+    QByteArray out = m_gdbProc->readAllStandardOutput();
     m_inbuffer.append(out);
 
     // This can trigger when a dialog starts a nested event loop.
@@ -974,7 +969,7 @@ void GdbEngine::flushCommand(const GdbCommand &cmd0)
         return;
     }
 
-    QTC_ASSERT(gdbProc()->state() == QProcess::Running, return);
+    QTC_ASSERT(m_gdbProc->state() == QProcess::Running, return);
 
     const int token = ++currentToken();
 
@@ -1055,7 +1050,7 @@ void GdbEngine::commandTimeout()
         if (mb->exec() == QMessageBox::Ok) {
             showMessage(_("KILLING DEBUGGER AS REQUESTED BY USER"));
             // This is an undefined state, so we just pull the emergency brake.
-            gdbProc()->kill();
+            m_gdbProc->kill();
         } else {
             showMessage(_("CONTINUE DEBUGGER AS REQUESTED BY USER"));
         }
@@ -2044,9 +2039,9 @@ void GdbEngine::notifyAdapterShutdownOk()
 {
     QTC_ASSERT(state() == EngineShutdownRequested, qDebug() << state());
     showMessage(_("INITIATE GDBENGINE SHUTDOWN IN STATE %1, PROC: %2")
-        .arg(lastGoodState()).arg(gdbProc()->state()));
+        .arg(lastGoodState()).arg(m_gdbProc->state()));
     m_commandsDoneCallback = 0;
-    switch (gdbProc()->state()) {
+    switch (m_gdbProc->state()) {
     case QProcess::Running:
         postCommand("-gdb-exit", GdbEngine::ExitRequest, CB(handleGdbExit));
         break;
@@ -2056,7 +2051,7 @@ void GdbEngine::notifyAdapterShutdownOk()
         break;
     case QProcess::Starting:
         showMessage(_("GDB NOT REALLY RUNNING; KILLING IT"));
-        gdbProc()->kill();
+        m_gdbProc->kill();
         notifyEngineShutdownFailed();
         break;
     }
@@ -2073,7 +2068,7 @@ void GdbEngine::handleGdbExit(const GdbResponse &response)
             QString::fromLocal8Bit(response.data["msg"].data()));
         qDebug() << (_("GDB WON'T EXIT (%1); KILLING IT").arg(msg));
         showMessage(_("GDB WON'T EXIT (%1); KILLING IT").arg(msg));
-        gdbProc()->kill();
+        m_gdbProc->kill();
     }
 }
 
@@ -4758,7 +4753,7 @@ void GdbEngine::startGdb(const QStringList &args)
     foreach (int test, m_testCases)
         showMessage(_("ENABLING TEST CASE: " + QByteArray::number(test)));
 
-    gdbProc()->disconnect(); // From any previous runs
+    m_gdbProc->disconnect(); // From any previous runs
 
     const DebuggerStartParameters &sp = startParameters();
     m_gdb = gdbBinary(sp);
@@ -4783,19 +4778,19 @@ void GdbEngine::startGdb(const QStringList &args)
     }
     gdbArgs += args;
 
-    connect(gdbProc(), SIGNAL(error(QProcess::ProcessError)),
+    connect(m_gdbProc, SIGNAL(error(QProcess::ProcessError)),
         SLOT(handleGdbError(QProcess::ProcessError)));
-    connect(gdbProc(), SIGNAL(finished(int,QProcess::ExitStatus)),
+    connect(m_gdbProc, SIGNAL(finished(int,QProcess::ExitStatus)),
         SLOT(handleGdbFinished(int,QProcess::ExitStatus)));
-    connect(gdbProc(), SIGNAL(readyReadStandardOutput()),
+    connect(m_gdbProc, SIGNAL(readyReadStandardOutput()),
         SLOT(readGdbStandardOutput()));
-    connect(gdbProc(), SIGNAL(readyReadStandardError()),
+    connect(m_gdbProc, SIGNAL(readyReadStandardError()),
         SLOT(readGdbStandardError()));
 
     showMessage(_("STARTING ") + m_gdb + _(" ") + gdbArgs.join(_(" ")));
-    gdbProc()->start(m_gdb, gdbArgs);
+    m_gdbProc->start(m_gdb, gdbArgs);
 
-    if (!gdbProc()->waitForStarted()) {
+    if (!m_gdbProc->waitForStarted()) {
         handleGdbStartFailed();
         const QString msg = errorMessage(QProcess::FailedToStart);
         handleAdapterStartFailed(msg);
@@ -5009,7 +5004,7 @@ void GdbEngine::handleGdbError(QProcess::ProcessError error)
     case QProcess::WriteError:
     case QProcess::Timedout:
     default:
-        //gdbProc()->kill();
+        //m_gdbProc->kill();
         //notifyEngineIll();
         showMessageBox(QMessageBox::Critical, tr("GDB I/O Error"), msg);
         break;
@@ -5050,8 +5045,8 @@ void GdbEngine::abortDebugger()
     if (targetState() == DebuggerFinished) {
         // We already tried. Try harder.
         showMessage(_("ABORTING DEBUGGER. SECOND TIME."));
-        QTC_ASSERT(gdbProc(), return);
-        gdbProc()->kill();
+        QTC_ASSERT(m_gdbProc, return);
+        m_gdbProc->kill();
     } else {
         // Be friendly the first time. This will change targetState().
         showMessage(_("ABORTING DEBUGGER. FIRST TIME."));
@@ -5215,7 +5210,7 @@ void GdbEngine::handleBreakOnQFatal(const GdbResponse &response)
 
 void GdbEngine::notifyInferiorSetupFailed(const QString &msg)
 {
-    showStatusMessage(tr("Failed to start application: ") + msg);
+    showStatusMessage(tr("Failed to start application:") + QLatin1Char(' ') + msg);
     if (state() == EngineSetupFailed) {
         showMessage(_("INFERIOR START FAILED, BUT ADAPTER DIED ALREADY"));
         return; // Adapter crashed meanwhile, so this notification is meaningless.
@@ -5240,7 +5235,7 @@ void GdbEngine::handleAdapterCrashed(const QString &msg)
         notifyEngineIll();
 
     // No point in being friendly here ...
-    gdbProc()->kill();
+    m_gdbProc->kill();
 
     if (!msg.isEmpty())
         showMessageBox(QMessageBox::Critical, tr("Adapter crashed"), msg);
@@ -5385,7 +5380,7 @@ bool GdbEngine::attemptQuickStart() const
 
 void GdbEngine::write(const QByteArray &data)
 {
-    gdbProc()->write(data);
+    m_gdbProc->write(data);
 }
 
 bool GdbEngine::prepareCommand()

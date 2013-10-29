@@ -175,7 +175,7 @@ def __verifyFileCreation__(path, expectedFiles):
 # param projectName is the name for the new project
 # param checks turns tests in the function on if set to True
 def createProject_Qt_GUI(path, projectName, checks = True):
-    template = "Qt Gui Application"
+    template = "Qt Widgets Application"
     available = __createProjectOrFileSelectType__("  Applications", template)
     __createProjectSetNameAndPath__(path, projectName, checks)
     checkedTargets = __selectQtVersionDesktop__(checks, available)
@@ -322,8 +322,7 @@ def createNewNonQtProject(workingDir=None, projectName=None, target=Targets.DESK
 # parameter target can be an OR'd value of Targets
 # parameter availableTargets should be the result of __createProjectOrFileSelectType__()
 #           or use None as a fallback
-def __chooseTargets__(targets=Targets.DESKTOP_474_GCC, availableTargets=None,
-                      isMaddeDisabled=True):
+def __chooseTargets__(targets=Targets.DESKTOP_474_GCC, availableTargets=None):
     if availableTargets != None:
         available = availableTargets
     else:
@@ -333,10 +332,9 @@ def __chooseTargets__(targets=Targets.DESKTOP_474_GCC, availableTargets=None,
         if platform.system() in ('Windows', 'Microsoft'):
             available.remove(Targets.EMBEDDED_LINUX)
             available.append(Targets.DESKTOP_480_MSVC2010)
-    if isMaddeDisabled:
-        for target in filter(lambda x: x in available,
-                             (Targets.MAEMO5, Targets.HARMATTAN)):
-            available.remove(target)
+    for target in filter(lambda x: x in available,
+                         (Targets.MAEMO5, Targets.HARMATTAN)):
+        available.remove(target)
     checkedTargets = []
     for current in available:
         mustCheck = targets & current == current

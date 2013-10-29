@@ -34,9 +34,10 @@ Rectangle {
     id: itemPane
     width: 320
     height: 400
-    color: "#404040"
+    color: "#4f4f4f"
 
     Section {
+        y: -1
         anchors.left: parent.left
         anchors.right: parent.right
 

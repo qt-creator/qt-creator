@@ -101,7 +101,7 @@ GerritDialog::GerritDialog(const QSharedPointer<GerritParameters> &p,
     , m_filterLineEdit(new Utils::FilterLineEdit)
     , m_repositoryChooser(new Utils::PathChooser)
     , m_buttonBox(new QDialogButtonBox(QDialogButtonBox::Close))
-    , m_repositoryChooserLabel(new QLabel(tr("Apply in: "), this))
+    , m_repositoryChooserLabel(new QLabel(tr("Apply in:") + QLatin1Char(' '), this))
     , m_fetchRunning(false)
 {
     setWindowTitle(tr("Gerrit %1@%2").arg(p->user, p->host));

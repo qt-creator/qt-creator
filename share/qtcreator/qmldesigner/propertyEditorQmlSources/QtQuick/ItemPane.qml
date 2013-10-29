@@ -35,12 +35,13 @@ Rectangle {
     id: itemPane
     width: 320
     height: 400
-    color: "#404040"
+    color: "#4f4f4f"
 
     ScrollView {
         anchors.fill: parent
 
         Column {
+            y: -1
             width: itemPane.width
             Section {
                 caption: qsTr("Type")
@@ -95,12 +96,12 @@ Rectangle {
                 anchors.left: parent.left
                 anchors.right: parent.right
 
-                caption: qsTr("Visibilty")
+                caption: qsTr("Visibility")
 
                 SectionLayout {
                     rows: 2
                     Label {
-                        text: qsTr("Visibilty")
+                        text: qsTr("Visibility")
                     }
 
                     SecondColumnLayout {
@@ -144,6 +145,11 @@ Rectangle {
                         }
                     }
                 }
+            }
+
+            Item {
+                height: 4
+                width: 4
             }
 
             TabView {

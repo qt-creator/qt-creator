@@ -120,7 +120,8 @@ void RemoteLinuxSignalOperation::runnerProcessFinished()
     if (m_runner->processExitStatus() != QSsh::SshRemoteProcess::NormalExit) {
         m_errorMessage = m_runner->processErrorString();
     } else if (m_runner->processExitCode() != 0) {
-        m_errorMessage = tr("Exit code is %1. stderr: ").arg(m_runner->processExitCode())
+        m_errorMessage = tr("Exit code is %1. stderr:").arg(m_runner->processExitCode())
+                + QLatin1Char(' ')
                 + QString::fromLatin1(m_runner->readAllStandardError());
     }
     finish();

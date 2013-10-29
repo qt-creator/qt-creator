@@ -43,7 +43,6 @@
 
 #ifdef Q_OS_WIN
 #  include "shared/peutils.h"
-#  include <utils/winutils.h>
 #endif
 
 #include <projectexplorer/localapplicationrunconfiguration.h> // For LocalApplication*
@@ -55,6 +54,7 @@
 #include <projectexplorer/taskhub.h>
 
 #include <utils/checkablemessagebox.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <coreplugin/icore.h>
@@ -344,12 +344,9 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
     if (!fillParameters(&sp, kit, errorMessage))
         return sp;
     sp.environment = environment->environment();
-    sp.workingDirectory = rc->workingDirectory();
 
-#if defined(Q_OS_WIN)
-    // Work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch' ...)
-    sp.workingDirectory = normalizePathName(sp.workingDirectory);
-#endif
+    // Normalize to work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch'...)
+    sp.workingDirectory = FileUtils::normalizePathName(rc->workingDirectory());
 
     sp.executable = rc->executable();
     if (sp.executable.isEmpty())
@@ -385,7 +382,7 @@ static DebuggerStartParameters localStartParameters(RunConfiguration *runConfigu
                 || server.listen(QHostAddress::LocalHostIPv6);
         if (!canListen) {
             if (errorMessage)
-                *errorMessage = DebuggerPlugin::tr("Not enough free ports for QML debugging. ");
+                *errorMessage = DebuggerPlugin::tr("Not enough free ports for QML debugging.") + QLatin1Char(' ');
             return sp;
         }
         sp.qmlServerAddress = server.serverAddress().toString();

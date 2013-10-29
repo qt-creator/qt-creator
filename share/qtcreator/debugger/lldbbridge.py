@@ -53,17 +53,17 @@ proc = subprocess.Popen(args=[sys.argv[1], '-P'], stdout=subprocess.PIPE, stderr
 (path, error) = proc.communicate()
 
 if error.startswith('lldb: invalid option -- P'):
-    sys.stdout.write('msg=\'Could not run "%s -P". Trying to find lldb.so from Xcode.\'@\n' % sys.argv[1])
+    sys.stdout.write('msg=\'Could not run "%s -P". Trying to find lldb.so from Xcode.\'\n' % sys.argv[1])
     proc = subprocess.Popen(args=['xcode-select', '--print-path'],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (path, error) = proc.communicate()
     if len(error):
         path = '/Applications/Xcode.app/Contents/SharedFrameworks/LLDB.framework/Versions/A/Resources/Python/'
-        sys.stdout.write('msg=\'Could not run "xcode-select --print-path"@\n')
-        sys.stdout.write('msg=\'Using hardcoded fallback at %s\'@\n' % path)
+        sys.stdout.write('msg=\'Could not run "xcode-select --print-path"\n')
+        sys.stdout.write('msg=\'Using hardcoded fallback at %s\'\n' % path)
     else:
         path = path.strip() + '/../SharedFrameworks/LLDB.framework/Versions/A/Resources/Python/'
-        sys.stdout.write('msg=\'Using fallback at %s\'@\n' % path)
+        sys.stdout.write('msg=\'Using fallback at %s\'\n' % path)
 
 #sys.path.append(path)
 sys.path.insert(1, path.strip())
@@ -142,7 +142,7 @@ stateNames = ["invalid", "unloaded", "connected", "attaching", "launching", "sto
 def loggingCallback(args):
     s = args.strip()
     s = s.replace('"', "'")
-    sys.stdout.write('log="%s"@\n' % s)
+    sys.stdout.write('log="%s"\n' % s)
 
 def check(exp):
     if not exp:
@@ -494,9 +494,6 @@ class Dumper(DumperBase):
                 break
         return qqVersion
 
-    def is32bit(self):
-        return False
-
     def intSize(self):
         return 4
 
@@ -606,6 +603,9 @@ class Dumper(DumperBase):
             self.currentValue = ""
             self.currentValuePriority = priority
             self.currentValueEncoding = None
+
+    def putSimpleValue(self, value, encoding = None, priority = 0):
+        self.putValue(value.GetValue(), encoding, priority)
 
     def putValue(self, value, encoding = None, priority = 0):
         # Higher priority values override lower ones.
@@ -959,6 +959,11 @@ class Dumper(DumperBase):
             qdump____c_style_array__(self, value)
             return
 
+        # Vectors like char __attribute__ ((vector_size (8)))
+        if typeClass == lldb.eTypeClassVector:
+            qdump____c_style_array__(self, value)
+            return
+
         # References
         if value.GetType().IsReferenceType():
             origType = value.GetTypeName();
@@ -1215,13 +1220,22 @@ class Dumper(DumperBase):
         self.currentIName = 'local'
         self.put('data=[')
         self.anonNumber = 0
-        for value in frame.GetVariables(True, True, False, False):
+        shadowed = {}
+        values = [v for v in frame.GetVariables(True, True, False, False) if v.IsValid()]
+        values.reverse() # To get shadowed vars numbered backwards.
+        for value in values:
             if self.dummyValue is None:
                 self.dummyValue = value
-            with SubItem(self, value):
-                if value.IsValid():
-                    self.put('iname="%s",' % self.currentIName)
-                    self.putItem(value)
+            name = value.name
+            if value.name in shadowed:
+                level = shadowed[name]
+                shadowed[name] = level + 1
+                name += "@%s" % level
+            else:
+                shadowed[name] = 1
+            with SubItem(self, name):
+                self.put('iname="%s",' % self.currentIName)
+                self.putItem(value)
 
         # 'watchers':[{'id':'watch.0','exp':'23'},...]
         if not self.dummyValue is None:
@@ -1275,8 +1289,7 @@ class Dumper(DumperBase):
             self.report(result)
 
     def report(self, stuff):
-        sys.stdout.write(stuff)
-        sys.stdout.write("@\n")
+        sys.stdout.write(stuff + "\n")
 
     def interruptInferior(self, _ = None):
         if self.process is None:
@@ -1699,32 +1712,11 @@ def doit():
         for reader in readable:
             if reader == sys.stdin:
                 line = sys.stdin.readline()
-                #warn("READING LINE '%s'" % line)
-                if line.startswith("db "):
-                    line = line.replace("'", '"')[3:]
+                try:
                     db.execute(convertHash(json.loads(line)))
-
-
-def testit1():
-
-    db = Dumper()
-
-    db.setupInferior({'cmd':'setupInferior','executable':sys.argv[2],'token':1})
-    db.handleBreakpoints({'cmd':'handleBreakpoints','bkpts':[{'operation':'add',
-        'modelid':'1','type':2,'ignorecount':0,'condition':'','function':'main',
-        'oneshot':0,'enabled':1,'file':'','line':0}]})
-    db.runEngine({'cmd':'runEngine','token':4})
-
-    while True:
-        readable, _, _ = select.select([sys.stdin], [], [])
-        for reader in readable:
-            if reader == sys.stdin:
-                line = sys.stdin.readline().strip()
-                #warn("READING LINE '%s'" % line)
-                if line.startswith("db "):
-                    db.execute(eval(line[3:]))
-                else:
-                    db.executeDebuggerCommand({'command':line})
+                except:
+                    warn("EXCEPTION CAUGHT: %s" % sys.exc_info()[1])
+                    pass
 
 
 # Used in dumper auto test.

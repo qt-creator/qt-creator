@@ -248,7 +248,7 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     d->localExecutablePathChooser = new PathChooser(this);
     d->localExecutablePathChooser->setExpectedKind(PathChooser::File);
     d->localExecutablePathChooser->setPromptDialogTitle(tr("Select Executable"));
-    d->localExecutablePathChooser->lineEdit()->setHistoryCompleter(QLatin1String("LocalExecutable"));
+    d->localExecutablePathChooser->setHistoryCompleter(QLatin1String("LocalExecutable"));
 
     d->arguments = new FancyLineEdit(this);
     d->arguments->setHistoryCompleter(QLatin1String("CommandlineArguments"));
@@ -256,7 +256,7 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     d->workingDirectory = new PathChooser(this);
     d->workingDirectory->setExpectedKind(PathChooser::ExistingDirectory);
     d->workingDirectory->setPromptDialogTitle(tr("Select Working Directory"));
-    d->workingDirectory->lineEdit()->setHistoryCompleter(QLatin1String("WorkingDirectory"));
+    d->workingDirectory->setHistoryCompleter(QLatin1String("WorkingDirectory"));
 
     d->runInTerminalCheckBox = new QCheckBox(this);
 
@@ -633,7 +633,7 @@ AddressDialog::AddressDialog(QWidget *parent) :
     setWindowTitle(tr("Select Start Address"));
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
     QHBoxLayout *hLayout = new QHBoxLayout;
-    hLayout->addWidget(new QLabel(tr("Enter an address: ")));
+    hLayout->addWidget(new QLabel(tr("Enter an address:") + QLatin1Char(' ')));
     hLayout->addWidget(m_lineEdit);
     QVBoxLayout *vLayout = new QVBoxLayout;
     vLayout->addLayout(hLayout);

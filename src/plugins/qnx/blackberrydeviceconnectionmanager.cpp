@@ -278,9 +278,11 @@ void BlackBerryDeviceConnectionManager::handleDeviceDisconnected()
     QTC_ASSERT(connection, return);
 
     QList<Core::Id> disconnectedDevices = m_connections.values(connection);
-    foreach (Core::Id id, disconnectedDevices)
+    foreach (Core::Id id, disconnectedDevices) {
         ProjectExplorer::DeviceManager::instance()->setDeviceState(id,
                                                     ProjectExplorer::IDevice::DeviceDisconnected);
+        emit deviceDisconnected(id);
+    }
 }
 
 void BlackBerryDeviceConnectionManager::handleDeviceAboutToConnect()

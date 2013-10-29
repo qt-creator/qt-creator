@@ -418,7 +418,7 @@ Target *TargetSettingsPanelWidget::cloneTarget(Target *sourceTarget, Kit *k)
         if (!runconfigurationError.isEmpty()) {
             if (!error.isEmpty())
                 error.append(QLatin1Char('\n'));
-            error += tr("Run configurations ")
+            error += tr("Run configurations") + QLatin1Char(' ')
                     + runconfigurationError.join(QLatin1String("\n"));
         }
 

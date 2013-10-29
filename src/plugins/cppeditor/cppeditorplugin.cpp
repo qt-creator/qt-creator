@@ -210,7 +210,7 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     contextMenu->addAction(cmd);
     cppToolsMenu->addAction(cmd);
 
-    QAction *openPreprocessorDialog = new QAction(tr("Additional Preprocessor Directives"), this);
+    QAction *openPreprocessorDialog = new QAction(tr("Additional Preprocessor Directives..."), this);
     cmd = ActionManager::registerAction(openPreprocessorDialog,
                                         Constants::OPEN_PREPROCESSOR_DIALOG, context);
     cmd->setDefaultKeySequence(QKeySequence());

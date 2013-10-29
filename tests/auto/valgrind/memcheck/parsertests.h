@@ -103,10 +103,8 @@ public:
                 this, SLOT(internalError(QString)));
         connect(parser, SIGNAL(status(Valgrind::XmlProtocol::Status)),
                 this, SLOT(status(Valgrind::XmlProtocol::Status)));
-        connect(runner, SIGNAL(standardErrorReceived(QByteArray)),
-                this, SLOT(standardErrorReceived(QByteArray)));
-        connect(runner, SIGNAL(standardOutputReceived(QByteArray)),
-                this, SLOT(standardOutputReceived(QByteArray)));
+        connect(runner, SIGNAL(processOutputReceived(QByteArray,Utils::OutputFormat)),
+                this, SLOT(handleProcessOutput(QByteArray,Utils::OutputFormat)));
         connect(runner, SIGNAL(logMessageReceived(QByteArray)),
                 this, SLOT(logMessageReceived(QByteArray)));
         connect(runner, SIGNAL(processErrorReceived(QString, QProcess::ProcessError)),
@@ -123,14 +121,9 @@ public slots:
     {
         qDebug() << "internal error received:" << error;
     }
-    void standardErrorReceived(const QByteArray &err)
+    void handleProcessOutput(const QByteArray &out, Utils::OutputFormat format)
     {
-        Q_UNUSED(err);
-        // qDebug() << "STDERR received:" << err; // this can be a lot of text
-    }
-    void standardOutputReceived(const QByteArray &out)
-    {
-        qDebug() << "STDOUT received:" << out;
+        qDebug() << "Output received:" << format << out;
     }
     void status(const Valgrind::XmlProtocol::Status &status)
     {

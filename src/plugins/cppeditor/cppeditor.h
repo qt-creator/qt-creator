@@ -50,6 +50,7 @@
 QT_BEGIN_NAMESPACE
 class QComboBox;
 class QSortFilterProxyModel;
+class QToolButton;
 QT_END_NAMESPACE
 
 namespace CPlusPlus {
@@ -175,6 +176,7 @@ private Q_SLOTS:
     void onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefLink> link);
     void onDocumentUpdated();
     void onContentsChanged(int position, int charsRemoved, int charsAdded);
+    void updatePreprocessorButtonTooltip();
 
     void updateSemanticInfo(const CppTools::SemanticInfo &semanticInfo);
     void highlightSymbolUsages(int from, int to);
@@ -258,7 +260,7 @@ private:
     CppTools::CommentsSettings m_commentsSettings;
 
     QScopedPointer<FollowSymbolUnderCursor> m_followSymbolUnderCursor;
-    QString m_preProcessorAdditions;
+    QToolButton *m_preprocessorButton;
 };
 
 } // namespace Internal

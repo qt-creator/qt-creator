@@ -1015,6 +1015,10 @@ QObject *ObjectNodeInstance::createCustomParserObject(const QString &nodeSource,
 
 QObject *ObjectNodeInstance::createPrimitive(const QString &typeName, int majorNumber, int minorNumber, QQmlContext *context)
 {
+    ComponentCompleteDisabler disableComponentComplete;
+
+    Q_UNUSED(disableComponentComplete)
+
     QObject *object = 0;
     QQmlType *type = QQmlMetaType::qmlType(typeName.toUtf8(), majorNumber, minorNumber);
     if (type)  {

@@ -654,6 +654,11 @@ void PathChooser::installLineEditVersionToolTip(QLineEdit *le, const QStringList
     ef->setArguments(arguments);
 }
 
+void PathChooser::setHistoryCompleter(const QString &historyKey)
+{
+    d->m_lineEdit->setHistoryCompleter(historyKey);
+}
+
 QStringList PathChooser::commandVersionArguments() const
 {
     return d->m_binaryVersionToolTipEventFilter ?

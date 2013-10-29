@@ -191,7 +191,7 @@ void BlackBerryDebugTokenRequestDialog::expandPath()
 
 void BlackBerryDebugTokenRequestDialog::debugTokenArrived(int status)
 {
-    QString errorString = tr("Failed to request debug token: ");
+    QString errorString = tr("Failed to request debug token:") + QLatin1Char(' ');
 
     switch (status) {
     case BlackBerryDebugTokenRequester::Success:

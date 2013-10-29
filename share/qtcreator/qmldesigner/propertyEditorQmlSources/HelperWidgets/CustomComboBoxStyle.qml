@@ -67,12 +67,24 @@ ComboBoxStyle {
             opacity: 0.3
             visible: control.activeFocus
         }
+
+        Rectangle {
+            color: "#333"
+            width: 1
+            anchors.right: imageItem.left
+            anchors.topMargin: 4
+            anchors.bottomMargin: 4
+            anchors.rightMargin: 6
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+        }
+
         Image {
             id: imageItem
             source: "images/down-arrow.png"
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: parent.right
-            anchors.rightMargin: 8
+            anchors.rightMargin: 10
             opacity: control.enabled ? 0.7 : 0.5
         }
     }

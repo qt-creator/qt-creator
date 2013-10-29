@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 import QtQuick 2.1
+import QtQuick.Controls 1.0 as Controls
 
 // view displaying one item library section including its grid
 
@@ -114,12 +115,27 @@ Column {
         width: parent.width
         height: style.sectionTitleHeight
 
-        color: style.sectionTitleBackgroundColor
+        gradient: Gradient {
+            GradientStop {color: '#555' ; position: 0}
+            GradientStop {color: '#444' ; position: 1}
+        }
+
+        Rectangle {
+            color:"#333"
+            width: parent.width
+            height: 1
+        }
+
+        Rectangle {
+            color: "#333"
+            anchors.bottom: parent.bottom
+            width: parent.width
+            height: 1
+        }
 
         Item {
             id: arrow
 
-            Rectangle { y: 0; x: 0; height: 1; width: 11; color: style.sectionArrowColor }
             Rectangle { y: 1; x: 1; height: 1; width: 9;  color: style.sectionArrowColor }
             Rectangle { y: 2; x: 2; height: 1; width: 7;  color: style.sectionArrowColor }
             Rectangle { y: 3; x: 3; height: 1; width: 5;  color: style.sectionArrowColor }
@@ -127,25 +143,26 @@ Column {
             Rectangle { y: 5; x: 5; height: 1; width: 1;  color: style.sectionArrowColor }
 
             anchors.left: parent.left
-            anchors.leftMargin: 10
+            anchors.leftMargin: 4
             anchors.verticalCenter: parent.verticalCenter
             width: 11
             height: 6
 
             transformOrigin: Item.Center
         }
-        Text {
+        Controls.Label {
             id: text
 
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: arrow.right
-            anchors.leftMargin: 12
+            anchors.leftMargin: 4
 
             text: sectionName  // to be set by model
             color: style.sectionTitleTextColor
             elide: Text.ElideMiddle
             font.bold: true
-            renderType: Text.NativeRendering
+            style: Text.Sunken
+            styleColor: "#292929"
         }
         MouseArea {
             id: mouseArea
@@ -160,6 +177,9 @@ Column {
 
     Item {
         id: gridFrame
+
+        Behavior on opacity { NumberAnimation{easing.type: Easing.Linear ; duration: 80} }
+        Behavior on height { NumberAnimation{easing.type: Easing.OutCubic ; duration: 140} }
 
         function toggleExpanded() {
             state = ((state == "")? "shrunk":"")

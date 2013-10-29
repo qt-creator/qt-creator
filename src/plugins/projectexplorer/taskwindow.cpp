@@ -48,6 +48,7 @@
 #include <QStyledItemDelegate>
 #include <QMenu>
 #include <QToolButton>
+#include <QScrollBar>
 
 namespace {
 const int ELLIPSIS_GRADIENT_WIDTH = 16;
@@ -73,6 +74,8 @@ public:
 class TaskDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
+
+    friend class TaskView; // for using Positions::minimumSize()
 
 public:
     TaskDelegate(QObject * parent = 0);
@@ -126,11 +129,11 @@ private:
         int right() const { return m_totalWidth - ITEM_MARGIN; }
         int bottom() const { return m_bottom; }
         int firstLineHeight() const { return m_fontHeight + 1; }
-        int minimumHeight() const { return taskIconHeight() + 2 * ITEM_MARGIN; }
+        static int minimumHeight() { return taskIconHeight() + 2 * ITEM_MARGIN; }
 
         int taskIconLeft() const { return left(); }
-        int taskIconWidth() const { return TASK_ICON_SIZE; }
-        int taskIconHeight() const { return TASK_ICON_SIZE; }
+        static int taskIconWidth() { return TASK_ICON_SIZE; }
+        static int taskIconHeight() { return TASK_ICON_SIZE; }
         int taskIconRight() const { return taskIconLeft() + taskIconWidth(); }
         QRect taskIcon() const { return QRect(taskIconLeft(), top(), taskIconWidth(), taskIconHeight()); }
 
@@ -169,6 +172,13 @@ TaskView::TaskView(QWidget *parent)
 {
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+
+    QFontMetrics fm(font());
+    int vStepSize = fm.height() + 3;
+    if (vStepSize < TaskDelegate::Positions::minimumHeight())
+        vStepSize = TaskDelegate::Positions::minimumHeight();
+
+    verticalScrollBar()->setSingleStep(vStepSize);
 }
 
 TaskView::~TaskView()

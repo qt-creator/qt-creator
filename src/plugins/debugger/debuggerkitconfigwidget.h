@@ -30,7 +30,7 @@
 #ifndef DEBUGGER_DEBUGGERKITCONFIGWIDGET_H
 #define DEBUGGER_DEBUGGERKITCONFIGWIDGET_H
 
-#include "debuggerkitinformation.h"
+#include "debuggeritemmodel.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <projectexplorer/kitconfigwidget.h>
@@ -51,52 +51,6 @@ QT_END_NAMESPACE
 
 namespace Debugger {
 namespace Internal {
-
-class DebuggerItemConfigWidget;
-class DebuggerKitConfigWidget;
-
-// -----------------------------------------------------------------------
-// DebuggerItemModel
-//------------------------------------------------------------------------
-class DebuggerItemModel : public QStandardItemModel
-{
-    Q_OBJECT
-
-public:
-    DebuggerItemModel(QObject *parent);
-
-    QModelIndex currentIndex() const;
-    QModelIndex lastIndex() const;
-    void setCurrentIndex(const QModelIndex &index);
-    QVariant currentDebugger() const { return m_currentDebugger; }
-    void addDebugger(const DebuggerItem &item);
-    void removeDebugger(const QVariant &id);
-    void updateDebugger(const QVariant &id);
-
-public slots:
-    void markCurrentDirty();
-
-signals:
-    void debuggerAdded(const QVariant &id, const QString &display);
-    void debuggerUpdated(const QVariant &id, const QString &display);
-    void debuggerRemoved(const QVariant &id);
-
-private:
-    friend class Debugger::DebuggerKitInformation;
-    friend class DebuggerKitConfigWidget;
-    friend class DebuggerItemConfigWidget;
-    friend class DebuggerOptionsPage;
-
-    QStandardItem *currentStandardItem() const;
-    QStandardItem *findStandardItemById(const QVariant &id) const;
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-
-    QVariant m_currentDebugger;
-
-    QStandardItem *m_autoRoot;
-    QStandardItem *m_manualRoot;
-    QStringList removed;
-};
 
 // -----------------------------------------------------------------------
 // DebuggerKitConfigWidget
@@ -121,8 +75,8 @@ public:
 private slots:
     void manageDebuggers();
     void currentDebuggerChanged(int idx);
-    void onDebuggerAdded(const QVariant &id, const QString &displayName);
-    void onDebuggerUpdated(const QVariant &id, const QString &displayName);
+    void onDebuggerAdded(const QVariant &id);
+    void onDebuggerUpdated(const QVariant &id);
     void onDebuggerRemoved(const QVariant &id);
 
 private:
@@ -135,44 +89,7 @@ private:
     QPushButton *m_manageButton;
 };
 
-// --------------------------------------------------------------------------
-// DebuggerOptionsPage
-// --------------------------------------------------------------------------
-
-class DebuggerOptionsPage : public Core::IOptionsPage
-{
-    Q_OBJECT
-
-public:
-    DebuggerOptionsPage();
-
-    QWidget *createPage(QWidget *parent);
-    void apply();
-    void finish();
-    bool matches(const QString &) const;
-
-private slots:
-    void debuggerSelectionChanged();
-    void debuggerModelChanged();
-    void updateState();
-    void cloneDebugger();
-    void addDebugger();
-    void removeDebugger();
-
-private:
-    QWidget *m_configWidget;
-    QString m_searchKeywords;
-
-    DebuggerItemModel *m_model;
-    DebuggerItemConfigWidget *m_itemConfigWidget;
-    QTreeView *m_debuggerView;
-    Utils::DetailsWidget *m_container;
-    QPushButton *m_addButton;
-    QPushButton *m_cloneButton;
-    QPushButton *m_delButton;
-};
-
 } // namespace Internal
 } // namespace Debugger
 
-#endif // DEBUGGER_DEBUGGERKITINFORMATION_H
+#endif // DEBUGGER_DEBUGGERKITCONFIGWIDGET_H

@@ -51,7 +51,7 @@ leave room for the Qt 4 target page.
         <file source="project.pro" target="%ProjectName:l%.pro" openproject="true"/>
     </files>
     <!-- Create a 2nd wizard page with parameters -->
-    <fieldpagetitle>Custom QML Extension  Plugin Parameters</fieldpagetitle>
+    <fieldpagetitle>Custom QML Extension Plugin Parameters</fieldpagetitle>
     <fields>
         <field mandatory="true" name="ObjectName">
             <fieldcontrol class="QLineEdit" validator='^[A-Za-z0-9_]+$'  defaulttext="MyItem"/>

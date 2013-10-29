@@ -28,312 +28,305 @@
 ****************************************************************************/
 
 #include "debuggerkitinformation.h"
+
+#include "debuggeritemmanager.h"
 #include "debuggerkitconfigwidget.h"
 
-#include <projectexplorer/abi.h>
+#include "projectexplorer/toolchain.h"
+#include "projectexplorer/projectexplorerconstants.h"
+
 #include <utils/fileutils.h>
+#include <utils/qtcassert.h>
 
-#include <QProcess>
+#include <QFileInfo>
 
-using namespace Debugger::Internal;
 using namespace ProjectExplorer;
 using namespace Utils;
-
-static const char DEBUGGER_INFORMATION_COMMAND[] = "Binary";
-static const char DEBUGGER_INFORMATION_DISPLAYNAME[] = "DisplayName";
-static const char DEBUGGER_INFORMATION_ID[] = "Id";
-static const char DEBUGGER_INFORMATION_ENGINETYPE[] = "EngineType";
-static const char DEBUGGER_INFORMATION_AUTODETECTED[] = "AutoDetected";
-static const char DEBUGGER_INFORMATION_ABIS[] = "Abis";
 
 namespace Debugger {
 
 // --------------------------------------------------------------------------
-// DebuggerItem
+// DebuggerKitInformation
 // --------------------------------------------------------------------------
 
-DebuggerItem::DebuggerItem()
+DebuggerKitInformation::DebuggerKitInformation()
 {
-    m_engineType = NoEngineType;
-    m_isAutoDetected = false;
+    setObjectName(QLatin1String("DebuggerKitInformation"));
+    setId(DebuggerKitInformation::id());
+    setPriority(28000);
 }
 
-void DebuggerItem::reinitializeFromFile()
+QVariant DebuggerKitInformation::defaultValue(Kit *k) const
 {
-    QProcess proc;
-    proc.start(m_command.toString(), QStringList() << QLatin1String("--version"));
-    proc.waitForStarted();
-    proc.waitForFinished();
-    QByteArray ba = proc.readAll();
-    if (ba.contains("gdb")) {
-        m_engineType = GdbEngineType;
-        const char needle[] = "This GDB was configured as \"";
-        // E.g.  "--host=i686-pc-linux-gnu --target=arm-unknown-nto-qnx6.5.0".
-        // or "i686-linux-gnu"
-        int pos1 = ba.indexOf(needle);
-        if (pos1 != -1) {
-            pos1 += int(sizeof(needle));
-            int pos2 = ba.indexOf('"', pos1 + 1);
-            QByteArray target = ba.mid(pos1, pos2 - pos1);
-            int pos3 = target.indexOf("--target=");
-            if (pos3 >= 0)
-                target = target.mid(pos3 + 9);
-            m_abis.append(Abi::abiFromTargetTriplet(QString::fromLatin1(target)));
+    ToolChain *tc = ToolChainKitInformation::toolChain(k);
+    QTC_ASSERT(tc, return QVariant());
+
+    const Abi toolChainAbi = tc->targetAbi();
+    foreach (const DebuggerItem &item, DebuggerItemManager::debuggers())
+        foreach (const Abi targetAbi, item.abis())
+            if (targetAbi.isCompatibleWith(toolChainAbi))
+                return item.id();
+
+    return QVariant();
+}
+
+void DebuggerKitInformation::setup(Kit *k)
+{
+    // Get one of the available debugger matching the kit's toolchain.
+    const ToolChain *tc = ToolChainKitInformation::toolChain(k);
+    const Abi toolChainAbi = tc ? tc->targetAbi() : Abi::hostAbi();
+
+    // This can be anything (Id, binary path, "auto")
+    const QVariant rawId = k->value(DebuggerKitInformation::id());
+
+    enum {
+        NotDetected, DetectedAutomatically, DetectedByFile, DetectedById
+    } detection = NotDetected;
+    DebuggerEngineType autoEngine = NoEngineType;
+    FileName fileName;
+
+    // With 3.0 we have:
+    // <value type="QString" key="Debugger.Information">{75ecf347-f221-44c3-b613-ea1d29929cd4}</value>
+    // Before we had:
+    // <valuemap type="QVariantMap" key="Debugger.Information">
+    //    <value type="QString" key="Binary">/data/dev/debugger/gdb-git/gdb/gdb</value>
+    //    <value type="int" key="EngineType">1</value>
+    //  </valuemap>
+    // Or for force auto-detected CDB
+    // <valuemap type="QVariantMap" key="Debugger.Information">
+    //    <value type="QString" key="Binary">auto</value>
+    //    <value type="int" key="EngineType">4</value>
+    //  </valuemap>
+
+    if (rawId.isNull()) {
+        // Initial setup of a kit
+        detection = NotDetected;
+    } else if (rawId.type() == QVariant::String) {
+        detection = DetectedById;
+    } else {
+        QMap<QString, QVariant> map = rawId.toMap();
+        QString binary = map.value(QLatin1String("Binary")).toString();
+        if (binary == QLatin1String("auto")) {
+            detection = DetectedAutomatically;
+            autoEngine = DebuggerEngineType(map.value(QLatin1String("EngineType")).toInt());
         } else {
-            // Fallback.
-            m_abis = Abi::abisOfBinary(m_command); // FIXME: Wrong.
+            detection  = DetectedByFile;
+            fileName = FileName::fromUserInput(binary);
         }
+    }
+
+    const DebuggerItem *bestItem = 0;
+    DebuggerItem::MatchLevel bestLevel = DebuggerItem::DoesNotMatch;
+    foreach (const DebuggerItem &item, DebuggerItemManager::debuggers()) {
+        const DebuggerItem *goodItem = 0;
+        if (detection == DetectedById && item.id() == rawId)
+            goodItem = &item;
+        if (detection == DetectedByFile && item.command() == fileName)
+            goodItem = &item;
+        if (detection == DetectedAutomatically && item.engineType() == autoEngine)
+            goodItem = &item;
+
+        if (goodItem) {
+            DebuggerItem::MatchLevel level = goodItem->matchTarget(toolChainAbi);
+            if (level > bestLevel) {
+                bestLevel = level;
+                bestItem = goodItem;
+            }
+        }
+    }
+
+    // If we have an existing debugger with matching id _and_
+    // matching target ABI we are fine.
+    if (bestItem) {
+        k->setValue(DebuggerKitInformation::id(), bestItem->id());
         return;
     }
-    if (ba.contains("lldb") || ba.startsWith("LLDB")) {
-        m_engineType = LldbEngineType;
-        m_abis = Abi::abisOfBinary(m_command);
+
+    // We didn't find an existing debugger that matched by whatever
+    // data we found in the kit (i.e. no id, filename, "auto")
+    // (or what we found did not match ABI-wise)
+    // Let's try to pick one with matching ABI.
+    QVariant bestId;
+    bestLevel = DebuggerItem::DoesNotMatch;
+    foreach (const DebuggerItem &item, DebuggerItemManager::debuggers()) {
+        DebuggerItem::MatchLevel level = item.matchTarget(toolChainAbi);
+        if (level > bestLevel) {
+            bestLevel = level;
+            bestId = item.id();
+        }
+    }
+
+    k->setValue(DebuggerKitInformation::id(), bestId);
+}
+
+
+// This handles the upgrade path from 2.8 to 3.0
+void DebuggerKitInformation::fix(Kit *k)
+{
+    // This can be Id, binary path, but not "auto" anymore.
+    const QVariant rawId = k->value(DebuggerKitInformation::id());
+
+    if (rawId.isNull()) // No debugger set, that is fine.
+        return;
+
+    if (rawId.type() == QVariant::String) {
+        if (!DebuggerItemManager::findById(rawId)) {
+            qWarning("Unknown debugger id %s in kit %s",
+                     qPrintable(rawId.toString()), qPrintable(k->displayName()));
+            k->setValue(DebuggerKitInformation::id(), QVariant());
+        }
+        return; // All fine (now).
+    }
+
+    QMap<QString, QVariant> map = rawId.toMap();
+    QString binary = map.value(QLatin1String("Binary")).toString();
+    if (binary == QLatin1String("auto")) {
+        // This should not happen as "auto" is handled by setup() already.
+        QTC_CHECK(false);
+        k->setValue(DebuggerKitInformation::id(), QVariant());
         return;
     }
-    if (ba.startsWith("Python")) {
-        m_engineType = PdbEngineType;
+
+    FileName fileName = FileName::fromUserInput(binary);
+    const DebuggerItem *item = DebuggerItemManager::findByCommand(fileName);
+    if (!item) {
+        qWarning("Debugger command %s invalid in kit %s",
+                 qPrintable(binary), qPrintable(k->displayName()));
+        k->setValue(DebuggerKitInformation::id(), QVariant());
         return;
     }
-    m_engineType = NoEngineType;
+
+    k->setValue(DebuggerKitInformation::id(), item->id());
 }
 
-QString DebuggerItem::engineTypeName() const
+// Check the configuration errors and return a flag mask. Provide a quick check and
+// a verbose one with a list of errors.
+
+enum DebuggerConfigurationErrors {
+    NoDebugger = 0x1,
+    DebuggerNotFound = 0x2,
+    DebuggerNotExecutable = 0x4,
+    DebuggerNeedsAbsolutePath = 0x8
+};
+
+static unsigned debuggerConfigurationErrors(const Kit *k)
 {
-    switch (m_engineType) {
-    case Debugger::NoEngineType:
-        return DebuggerOptionsPage::tr("Not recognized");
-    case Debugger::GdbEngineType:
-        return QLatin1String("GDB");
-    case Debugger::CdbEngineType:
-        return QLatin1String("CDB");
-    case Debugger::LldbEngineType:
-        return QLatin1String("LLDB");
-    default:
-        return QString();
+    QTC_ASSERT(k, return NoDebugger);
+
+    const DebuggerItem *item = DebuggerKitInformation::debugger(k);
+    if (!item)
+        return NoDebugger;
+
+    if (item->command().isEmpty())
+        return NoDebugger;
+
+    unsigned result = 0;
+    const QFileInfo fi = item->command().toFileInfo();
+    if (!fi.exists() || fi.isDir())
+        result |= DebuggerNotFound;
+    else if (!fi.isExecutable())
+        result |= DebuggerNotExecutable;
+
+    if (!fi.exists() || fi.isDir()) {
+        if (item->engineType() == NoEngineType)
+            return NoDebugger;
+
+        // We need an absolute path to be able to locate Python on Windows.
+        if (item->engineType() == GdbEngineType)
+            if (const ToolChain *tc = ToolChainKitInformation::toolChain(k))
+                if (tc->targetAbi().os() == Abi::WindowsOS && !fi.isAbsolute())
+                    result |= DebuggerNeedsAbsolutePath;
     }
+    return result;
 }
 
-QStringList DebuggerItem::abiNames() const
+const DebuggerItem *DebuggerKitInformation::debugger(const Kit *kit)
 {
-    QStringList list;
-    foreach (const Abi &abi, m_abis)
-        list.append(abi.toString());
-    return list;
+    QTC_ASSERT(kit, return 0);
+    const QVariant id = kit->value(DebuggerKitInformation::id());
+    return DebuggerItemManager::findById(id);
 }
 
-QVariantMap DebuggerItem::toMap() const
+bool DebuggerKitInformation::isValidDebugger(const Kit *k)
 {
-    QVariantMap data;
-    data.insert(QLatin1String(DEBUGGER_INFORMATION_DISPLAYNAME), m_displayName);
-    data.insert(QLatin1String(DEBUGGER_INFORMATION_ID), m_id);
-    data.insert(QLatin1String(DEBUGGER_INFORMATION_COMMAND), m_command.toUserOutput());
-    data.insert(QLatin1String(DEBUGGER_INFORMATION_ENGINETYPE), int(m_engineType));
-    data.insert(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTED), m_isAutoDetected);
-    data.insert(QLatin1String(DEBUGGER_INFORMATION_ABIS), abiNames());
-    return data;
+    return debuggerConfigurationErrors(k) == 0;
 }
 
-void DebuggerItem::fromMap(const QVariantMap &data)
+QList<Task> DebuggerKitInformation::validateDebugger(const Kit *k)
 {
-    m_command = FileName::fromUserInput(data.value(QLatin1String(DEBUGGER_INFORMATION_COMMAND)).toString());
-    m_id = data.value(QLatin1String(DEBUGGER_INFORMATION_ID)).toString();
-    m_displayName = data.value(QLatin1String(DEBUGGER_INFORMATION_DISPLAYNAME)).toString();
-    m_isAutoDetected = data.value(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTED)).toBool();
-    m_engineType = DebuggerEngineType(data.value(QLatin1String(DEBUGGER_INFORMATION_ENGINETYPE)).toInt());
+    QList<Task> result;
 
-    m_abis.clear();
-    foreach (const QString &a, data.value(QLatin1String(DEBUGGER_INFORMATION_ABIS)).toStringList()) {
-        Abi abi(a);
-        if (abi.isValid())
-            m_abis.append(abi);
+    const unsigned errors = debuggerConfigurationErrors(k);
+    if (!errors)
+        return result;
+
+    QString path;
+    if (const DebuggerItem *item = debugger(k))
+        path = item->command().toUserOutput();
+
+    const Core::Id id = ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM;
+    if (errors & NoDebugger)
+        result << Task(Task::Warning, tr("No debugger set up."), FileName(), -1, id);
+
+    if (errors & DebuggerNotFound)
+        result << Task(Task::Error, tr("Debugger '%1' not found.").arg(path),
+                       FileName(), -1, id);
+    if (errors & DebuggerNotExecutable)
+        result << Task(Task::Error, tr("Debugger '%1' not executable.").arg(path), FileName(), -1, id);
+
+    if (errors & DebuggerNeedsAbsolutePath) {
+        const QString message =
+                tr("The debugger location must be given as an "
+                   "absolute path (%1).").arg(path);
+        result << Task(Task::Error, message, FileName(), -1, id);
     }
+    return result;
 }
 
-void DebuggerItem::setId(const QVariant &id)
+KitConfigWidget *DebuggerKitInformation::createConfigWidget(Kit *k) const
 {
-    m_id = id;
+    return new Internal::DebuggerKitConfigWidget(k, this);
 }
 
-void DebuggerItem::setDisplayName(const QString &displayName)
+KitInformation::ItemList DebuggerKitInformation::toUserOutput(const Kit *k) const
 {
-    m_displayName = displayName;
+    return ItemList() << qMakePair(tr("Debugger"), displayString(k));
 }
 
-void DebuggerItem::setEngineType(const DebuggerEngineType &engineType)
+FileName DebuggerKitInformation::debuggerCommand(const ProjectExplorer::Kit *k)
 {
-    m_engineType = engineType;
+    const DebuggerItem *item = debugger(k);
+    QTC_ASSERT(item, return FileName());
+    return item->command();
 }
 
-void DebuggerItem::setCommand(const Utils::FileName &command)
+DebuggerEngineType DebuggerKitInformation::engineType(const ProjectExplorer::Kit *k)
 {
-    m_command = command;
+    const DebuggerItem *item = debugger(k);
+    QTC_ASSERT(item, return NoEngineType);
+    return item->engineType();
 }
 
-void DebuggerItem::setAutoDetected(bool isAutoDetected)
+QString DebuggerKitInformation::displayString(const Kit *k)
 {
-    m_isAutoDetected = isAutoDetected;
+    const DebuggerItem *item = debugger(k);
+    if (!item)
+        return tr("No Debugger");
+    QString binary = item->command().toUserOutput();
+    QString name = tr("%1 Engine").arg(item->engineTypeName());
+    return binary.isEmpty() ? tr("%1 <None>").arg(name) : tr("%1 using \"%2\"").arg(name, binary);
 }
 
-void DebuggerItem::setAbis(const QList<ProjectExplorer::Abi> &abis)
+void DebuggerKitInformation::setDebugger(Kit *k, const QVariant &id)
 {
-    m_abis = abis;
+    // Only register reasonably complete debuggers.
+    QTC_ASSERT(DebuggerItemManager::findById(id), return);
+    k->setValue(DebuggerKitInformation::id(), id);
 }
 
-void DebuggerItem::setAbi(const Abi &abi)
+Core::Id DebuggerKitInformation::id()
 {
-    m_abis.clear();
-    m_abis.append(abi);
+    return "Debugger.Information";
 }
 
-static DebuggerItem::MatchLevel matchSingle(const Abi &debuggerAbi, const Abi &targetAbi)
-{
-    if (debuggerAbi.architecture() != Abi::UnknownArchitecture
-            && debuggerAbi.architecture() != targetAbi.architecture())
-        return DebuggerItem::DoesNotMatch;
-
-    if (debuggerAbi.os() != Abi::UnknownOS
-            && debuggerAbi.os() != targetAbi.os())
-        return DebuggerItem::DoesNotMatch;
-
-    if (debuggerAbi.binaryFormat() != Abi::UnknownFormat
-            && debuggerAbi.binaryFormat() != targetAbi.binaryFormat())
-        return DebuggerItem::DoesNotMatch;
-
-    if (debuggerAbi.os() == Abi::WindowsOS) {
-        if (debuggerAbi.osFlavor() == Abi::WindowsMSysFlavor && targetAbi.osFlavor() != Abi::WindowsMSysFlavor)
-            return DebuggerItem::DoesNotMatch;
-        if (debuggerAbi.osFlavor() != Abi::WindowsMSysFlavor && targetAbi.osFlavor() == Abi::WindowsMSysFlavor)
-            return DebuggerItem::DoesNotMatch;
-    }
-
-    if (debuggerAbi.wordWidth() == 64 && targetAbi.wordWidth() == 32)
-        return DebuggerItem::MatchesSomewhat;
-    if (debuggerAbi.wordWidth() != 0 && debuggerAbi.wordWidth() != targetAbi.wordWidth())
-        return DebuggerItem::DoesNotMatch;
-
-    return DebuggerItem::MatchesPerfectly;
-}
-
-DebuggerItem::MatchLevel DebuggerItem::matchTarget(const Abi &targetAbi) const
-{
-    MatchLevel bestMatch = DoesNotMatch;
-    foreach (const Abi &debuggerAbi, m_abis) {
-        MatchLevel currentMatch = matchSingle(debuggerAbi, targetAbi);
-        if (currentMatch > bestMatch)
-            bestMatch = currentMatch;
-    }
-    return bestMatch;
-}
-
-bool Debugger::DebuggerItem::isValid() const
-{
-    return m_engineType != NoEngineType;
-}
-
-} // namespace Debugger;
-
-#ifdef WITH_TESTS
-
-#    include <QTest>
-#    include "debuggerplugin.h"
-
-void Debugger::DebuggerPlugin::testDebuggerMatching_data()
-{
-    QTest::addColumn<QStringList>("debugger");
-    QTest::addColumn<QString>("target");
-    QTest::addColumn<int>("result");
-
-    QTest::newRow("Invalid data")
-            << QStringList()
-            << QString()
-            << int(DebuggerItem::DoesNotMatch);
-    QTest::newRow("Invalid debugger")
-            << QStringList()
-            << QString::fromLatin1("x86-linux-generic-elf-32bit")
-            << int(DebuggerItem::DoesNotMatch);
-    QTest::newRow("Invalid target")
-            << (QStringList() << QLatin1String("x86-linux-generic-elf-32bit"))
-            << QString()
-            << int(DebuggerItem::DoesNotMatch);
-
-    QTest::newRow("Fuzzy match 1")
-            << (QStringList() << QLatin1String("unknown-unknown-unknown-unknown-0bit"))
-            << QString::fromLatin1("x86-linux-generic-elf-32bit")
-            << int(DebuggerItem::MatchesPerfectly); // Is this the expected behavior?
-    QTest::newRow("Fuzzy match 2")
-            << (QStringList() << QLatin1String("unknown-unknown-unknown-unknown-0bit"))
-            << QString::fromLatin1("arm-windows-msys-pe-64bit")
-            << int(DebuggerItem::MatchesPerfectly); // Is this the expected behavior?
-
-    QTest::newRow("Architecture mismatch")
-            << (QStringList() << QLatin1String("x86-linux-generic-elf-32bit"))
-            << QString::fromLatin1("arm-linux-generic-elf-32bit")
-            << int(DebuggerItem::DoesNotMatch);
-    QTest::newRow("OS mismatch")
-            << (QStringList() << QLatin1String("x86-linux-generic-elf-32bit"))
-            << QString::fromLatin1("x86-macosx-generic-elf-32bit")
-            << int(DebuggerItem::DoesNotMatch);
-    QTest::newRow("Format mismatch")
-            << (QStringList() << QLatin1String("x86-linux-generic-elf-32bit"))
-            << QString::fromLatin1("x86-linux-generic-pe-32bit")
-            << int(DebuggerItem::DoesNotMatch);
-
-    QTest::newRow("Linux perfect match")
-            << (QStringList() << QLatin1String("x86-linux-generic-elf-32bit"))
-            << QString::fromLatin1("x86-linux-generic-elf-32bit")
-            << int(DebuggerItem::MatchesPerfectly);
-    QTest::newRow("Linux match")
-            << (QStringList() << QLatin1String("x86-linux-generic-elf-64bit"))
-            << QString::fromLatin1("x86-linux-generic-elf-32bit")
-            << int(DebuggerItem::MatchesSomewhat);
-
-    QTest::newRow("Windows perfect match 1")
-            << (QStringList() << QLatin1String("x86-windows-msvc2013-pe-64bit"))
-            << QString::fromLatin1("x86-windows-msvc2013-pe-64bit")
-            << int(DebuggerItem::MatchesPerfectly);
-    QTest::newRow("Windows perfect match 2")
-            << (QStringList() << QLatin1String("x86-windows-msvc2013-pe-64bit"))
-            << QString::fromLatin1("x86-windows-msvc2012-pe-64bit")
-            << int(DebuggerItem::MatchesPerfectly);
-    QTest::newRow("Windows match 1")
-            << (QStringList() << QLatin1String("x86-windows-msvc2013-pe-64bit"))
-            << QString::fromLatin1("x86-windows-msvc2013-pe-32bit")
-            << int(DebuggerItem::MatchesSomewhat);
-    QTest::newRow("Windows match 2")
-            << (QStringList() << QLatin1String("x86-windows-msvc2013-pe-64bit"))
-            << QString::fromLatin1("x86-windows-msvc2012-pe-32bit")
-            << int(DebuggerItem::MatchesSomewhat);
-    QTest::newRow("Windows mismatch on word size")
-            << (QStringList() << QLatin1String("x86-windows-msvc2013-pe-32bit"))
-            << QString::fromLatin1("x86-windows-msvc2013-pe-64bit")
-            << int(DebuggerItem::DoesNotMatch);
-    QTest::newRow("Windows mismatch on osflavor 1")
-            << (QStringList() << QLatin1String("x86-windows-msvc2013-pe-32bit"))
-            << QString::fromLatin1("x86-windows-msys-pe-64bit")
-            << int(DebuggerItem::DoesNotMatch);
-    QTest::newRow("Windows mismatch on osflavor 2")
-            << (QStringList() << QLatin1String("x86-windows-msys-pe-32bit"))
-            << QString::fromLatin1("x86-windows-msvc2010-pe-64bit")
-            << int(DebuggerItem::DoesNotMatch);
-}
-
-void Debugger::DebuggerPlugin::testDebuggerMatching()
-{
-    QFETCH(QStringList, debugger);
-    QFETCH(QString, target);
-    QFETCH(int, result);
-
-    DebuggerItem::MatchLevel expectedLevel = static_cast<DebuggerItem::MatchLevel>(result);
-
-    QList<Abi> debuggerAbis;
-    foreach (const QString &abi, debugger)
-        debuggerAbis << Abi(abi);
-
-    DebuggerItem item;
-    item.setAbis(debuggerAbis);
-
-    DebuggerItem::MatchLevel level = item.matchTarget(Abi(target));
-
-    QCOMPARE(expectedLevel, level);
-}
-#endif
+} // namespace Debugger

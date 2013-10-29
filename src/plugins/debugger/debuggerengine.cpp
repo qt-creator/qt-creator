@@ -1676,9 +1676,9 @@ QString DebuggerEngine::msgInterrupted()
 void DebuggerEngine::showStoppedBySignalMessageBox(QString meaning, QString name)
 {
     if (name.isEmpty())
-        name = tr(" <Unknown> ", "name");
+        name = QLatin1Char(' ') + tr("<Unknown>", "name") + QLatin1Char(' ');
     if (meaning.isEmpty())
-        meaning = tr(" <Unknown> ", "meaning");
+        meaning = QLatin1Char(' ') + tr("<Unknown>", "meaning") + QLatin1Char(' ');
     const QString msg = tr("<p>The inferior stopped because it received a "
                            "signal from the Operating System.<p>"
                            "<table><tr><td>Signal name : </td><td>%1</td></tr>"
