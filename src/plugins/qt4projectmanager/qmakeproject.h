@@ -52,7 +52,7 @@ namespace QmakeProjectManager {
 class MakeStep;
 class QMakeStep;
 class QmakeBuildConfiguration;
-class Qt4Manager;
+class QmakeManager;
 class QmakePriFileNode;
 class QmakeProFileNode;
 class Qt4RunStep;
@@ -63,7 +63,7 @@ class CentralizedFolderWatcher;
 class FileItem;
 class GCCPreprocessor;
 class QmakeProjectFiles;
-class Qt4ProjectConfigWidget;
+class QmakeProjectConfigWidget;
 class QmakeProjectFile;
 class QmakeNodesWatcher;
 }
@@ -73,14 +73,14 @@ class  QT4PROJECTMANAGER_EXPORT QmakeProject : public ProjectExplorer::Project
     Q_OBJECT
 
 public:
-    QmakeProject(Qt4Manager *manager, const QString &proFile);
+    QmakeProject(QmakeManager *manager, const QString &proFile);
     virtual ~QmakeProject();
 
     QString displayName() const;
     Core::Id id() const;
     Core::IDocument *document() const;
     ProjectExplorer::IProjectManager *projectManager() const;
-    Qt4Manager *qt4ProjectManager() const;
+    QmakeManager *qt4ProjectManager() const;
 
     bool supportsKit(ProjectExplorer::Kit *k, QString *errorMesage) const;
 
@@ -184,7 +184,7 @@ private:
             ProjectExplorer::DeploymentData &deploymentData);
     QString destDirFor(const TargetInformation &ti);
 
-    Qt4Manager *m_manager;
+    QmakeManager *m_manager;
     QmakeProFileNode *m_rootProjectNode;
     Internal::QmakeNodesWatcher *m_nodesWatcher;
 
@@ -218,8 +218,8 @@ private:
     ProjectExplorer::Target *m_activeTarget;
 
     friend class Internal::QmakeProjectFile;
-    friend class Internal::Qt4ProjectConfigWidget;
-    friend class Qt4Manager; // to schedule a async update if the unconfigured settings change
+    friend class Internal::QmakeProjectConfigWidget;
+    friend class QmakeManager; // to schedule a async update if the unconfigured settings change
 };
 
 } // namespace QmakeProjectManager

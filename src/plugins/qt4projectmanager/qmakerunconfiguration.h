@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef QT4RUNCONFIGURATION_H
-#define QT4RUNCONFIGURATION_H
+#ifndef QMAKERUNCONFIGURATION_H
+#define QMAKERUNCONFIGURATION_H
 
 #include <qt4projectmanager/qmakerunconfigurationfactory.h>
 
@@ -61,16 +61,16 @@ class TargetInformation;
 namespace Internal {
 class Qt4RunConfigurationFactory;
 
-class Qt4RunConfiguration : public ProjectExplorer::LocalApplicationRunConfiguration
+class QmakeRunConfiguration : public ProjectExplorer::LocalApplicationRunConfiguration
 {
     Q_OBJECT
     // to change the display name and arguments and set the userenvironmentchanges
-    friend class Qt4RunConfigurationWidget;
+    friend class QmakeRunConfigurationWidget;
     friend class Qt4RunConfigurationFactory;
 
 public:
-    Qt4RunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
-    virtual ~Qt4RunConfiguration();
+    QmakeRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
+    virtual ~QmakeRunConfiguration();
 
     virtual bool isEnabled() const;
     virtual QString disabledReason() const;
@@ -111,7 +111,7 @@ private slots:
     void proFileUpdated(QmakeProjectManager::QmakeProFileNode *pro, bool success, bool parseInProgress);
 
 protected:
-    Qt4RunConfiguration(ProjectExplorer::Target *parent, Qt4RunConfiguration *source);
+    QmakeRunConfiguration(ProjectExplorer::Target *parent, QmakeRunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
 
 private:
@@ -138,13 +138,13 @@ private:
     bool m_parseInProgress;
 };
 
-class Qt4RunConfigurationWidget : public QWidget
+class QmakeRunConfigurationWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    Qt4RunConfigurationWidget(Qt4RunConfiguration *qt4runconfigration, QWidget *parent);
-    ~Qt4RunConfigurationWidget();
+    QmakeRunConfigurationWidget(QmakeRunConfiguration *qmakeRunConfiguration, QWidget *parent);
+    ~QmakeRunConfigurationWidget();
 
 protected:
     void showEvent(QShowEvent *event);
@@ -168,7 +168,7 @@ private slots:
     void usingDyldImageSuffixChanged(bool);
 
 private:
-    Qt4RunConfiguration *m_qt4RunConfiguration;
+    QmakeRunConfiguration *m_qmakeRunConfiguration;
     bool m_ignoreChange;
     QLabel *m_disabledIcon;
     QLabel *m_disabledReason;
@@ -213,4 +213,4 @@ private:
 } // namespace Internal
 } // namespace QmakeProjectManager
 
-#endif // QT4RUNCONFIGURATION_H
+#endif // QMAKERUNCONFIGURATION_H

@@ -45,7 +45,7 @@ class MakeStep;
 class QmakeBuildConfigurationFactory;
 class QmakeProFileNode;
 
-namespace Internal { class Qt4ProjectConfigWidget; }
+namespace Internal { class QmakeProjectConfigWidget; }
 
 class QT4PROJECTMANAGER_EXPORT QmakeBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
@@ -151,7 +151,7 @@ private:
     QmakeProjectManager::QmakeProFileNode *m_subNodeBuild;
     ProjectExplorer::FileNode *m_fileNodeBuild;
 
-    friend class Internal::Qt4ProjectConfigWidget;
+    friend class Internal::QmakeProjectConfigWidget;
     friend class QmakeBuildConfigurationFactory;
 };
 

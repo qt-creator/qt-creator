@@ -92,12 +92,12 @@ void updateBoilerPlateCodeFiles(const AbstractMobileApp *app, const QString &pro
     const QList<AbstractGeneratedFileInfo> updates =
             app->fileUpdates(proFile);
     if (!updates.empty()) {
-        const QString title = Qt4Manager::tr("Update of Generated Files");
+        const QString title = QmakeManager::tr("Update of Generated Files");
         QStringList fileNames;
         foreach (const AbstractGeneratedFileInfo &info, updates)
             fileNames.append(QDir::toNativeSeparators(info.fileInfo.fileName()));
         const QString message =
-                Qt4Manager::tr("In project<br><br>%1<br><br>The following files are either "
+                QmakeManager::tr("In project<br><br>%1<br><br>The following files are either "
                                "outdated or have been modified:<br><br>%2<br><br>Do you want "
                                "Qt Creator to update the files? Any changes will be lost.")
                 .arg(proFile, fileNames.join(QLatin1String(", ")));
@@ -328,7 +328,7 @@ bool QmakeProjectFile::reload(QString *errorString, ReloadFlag flag, ChangeType 
   QmakeProject manages information about an individual Qt 4 (.pro) project file.
   */
 
-QmakeProject::QmakeProject(Qt4Manager *manager, const QString &fileName) :
+QmakeProject::QmakeProject(QmakeManager *manager, const QString &fileName) :
     m_manager(manager),
     m_rootProjectNode(0),
     m_nodesWatcher(new Internal::QmakeNodesWatcher(this)),
@@ -870,7 +870,7 @@ ProjectExplorer::IProjectManager *QmakeProject::projectManager() const
     return m_manager;
 }
 
-Qt4Manager *QmakeProject::qt4ProjectManager() const
+QmakeManager *QmakeProject::qt4ProjectManager() const
 {
     return m_manager;
 }

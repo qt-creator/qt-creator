@@ -42,7 +42,7 @@
 using namespace QmakeProjectManager;
 using namespace QmakeProjectManager::Internal;
 
-ProFileEditorFactory::ProFileEditorFactory(Qt4Manager *manager, TextEditor::TextEditorActionHandler *handler) :
+ProFileEditorFactory::ProFileEditorFactory(QmakeManager *manager, TextEditor::TextEditorActionHandler *handler) :
     m_manager(manager),
     m_actionHandler(handler)
 {

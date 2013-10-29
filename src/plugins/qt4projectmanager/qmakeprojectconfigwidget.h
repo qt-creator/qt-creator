@@ -46,15 +46,15 @@ class QmakeProFileNode;
 
 namespace Internal {
 namespace Ui {
-class Qt4ProjectConfigWidget;
+class QmakeProjectConfigWidget;
 }
 
-class Qt4ProjectConfigWidget : public ProjectExplorer::NamedWidget
+class QmakeProjectConfigWidget : public ProjectExplorer::NamedWidget
 {
     Q_OBJECT
 public:
-    Qt4ProjectConfigWidget(QmakeBuildConfiguration *bc);
-    ~Qt4ProjectConfigWidget();
+    QmakeProjectConfigWidget(QmakeBuildConfiguration *bc);
+    ~QmakeProjectConfigWidget();
 
 private slots:
     // User changes in our widgets
@@ -71,7 +71,7 @@ private:
     void updateDetails();
     void setProblemLabel(const QString &text);
 
-    Ui::Qt4ProjectConfigWidget *m_ui;
+    Ui::QmakeProjectConfigWidget *m_ui;
     QAbstractButton *m_browseButton;
     QmakeBuildConfiguration *m_buildConfiguration;
     Utils::DetailsWidget *m_detailsContainer;

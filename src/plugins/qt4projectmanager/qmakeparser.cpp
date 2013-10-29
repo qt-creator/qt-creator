@@ -95,7 +95,7 @@ void QMakeParser::stdError(const QString &line)
 using namespace QmakeProjectManager::Internal;
 using namespace ProjectExplorer;
 
-void Qt4ProjectManagerPlugin::testQmakeOutputParsers_data()
+void QmakeProjectManagerPlugin::testQmakeOutputParsers_data()
 {
     const Core::Id categoryBuildSystem = Core::Id(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
     QTest::addColumn<QString>("input");
@@ -163,7 +163,7 @@ void Qt4ProjectManagerPlugin::testQmakeOutputParsers_data()
             << QString();
 }
 
-void Qt4ProjectManagerPlugin::testQmakeOutputParsers()
+void QmakeProjectManagerPlugin::testQmakeOutputParsers()
 {
     OutputParserTester testbench;
     testbench.appendOutputParser(new QMakeParser);

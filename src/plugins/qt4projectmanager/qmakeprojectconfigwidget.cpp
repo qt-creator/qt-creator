@@ -43,7 +43,7 @@ using namespace QmakeProjectManager;
 using namespace QmakeProjectManager::Internal;
 using namespace ProjectExplorer;
 
-Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(QmakeBuildConfiguration *bc)
+QmakeProjectConfigWidget::QmakeProjectConfigWidget(QmakeBuildConfiguration *bc)
     : NamedWidget(),
       m_buildConfiguration(bc),
       m_ignoreChange(false)
@@ -60,7 +60,7 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(QmakeBuildConfiguration *bc)
     vbox->addWidget(m_detailsContainer);
     QWidget *details = new QWidget(m_detailsContainer);
     m_detailsContainer->setWidget(details);
-    m_ui = new Ui::Qt4ProjectConfigWidget();
+    m_ui = new Ui::QmakeProjectConfigWidget();
     m_ui->setupUi(details);
 
     m_browseButton = m_ui->shadowBuildDirEdit->buttonAtIndex(0);
@@ -110,31 +110,31 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(QmakeBuildConfiguration *bc)
     updateProblemLabel();
 }
 
-Qt4ProjectConfigWidget::~Qt4ProjectConfigWidget()
+QmakeProjectConfigWidget::~QmakeProjectConfigWidget()
 {
     delete m_ui;
 }
 
-void Qt4ProjectConfigWidget::updateDetails()
+void QmakeProjectConfigWidget::updateDetails()
 {
     m_detailsContainer->setSummaryText(
                 tr("building in <b>%1</b>")
                 .arg(m_buildConfiguration->buildDirectory().toUserOutput()));
 }
 
-void Qt4ProjectConfigWidget::setProblemLabel(const QString &text)
+void QmakeProjectConfigWidget::setProblemLabel(const QString &text)
 {
     m_ui->warningLabel->setVisible(!text.isEmpty());
     m_ui->problemLabel->setVisible(!text.isEmpty());
     m_ui->problemLabel->setText(text);
 }
 
-void Qt4ProjectConfigWidget::environmentChanged()
+void QmakeProjectConfigWidget::environmentChanged()
 {
     m_ui->shadowBuildDirEdit->setEnvironment(m_buildConfiguration->environment());
 }
 
-void Qt4ProjectConfigWidget::buildDirectoryChanged()
+void QmakeProjectConfigWidget::buildDirectoryChanged()
 {
     if (m_ignoreChange)
         return;
@@ -152,14 +152,14 @@ void Qt4ProjectConfigWidget::buildDirectoryChanged()
     updateProblemLabel();
 }
 
-void Qt4ProjectConfigWidget::onBeforeBeforeShadowBuildDirBrowsed()
+void QmakeProjectConfigWidget::onBeforeBeforeShadowBuildDirBrowsed()
 {
     QString initialDirectory = m_buildConfiguration->target()->project()->projectDirectory();
     if (!initialDirectory.isEmpty())
         m_ui->shadowBuildDirEdit->setInitialBrowsePathBackup(initialDirectory);
 }
 
-void Qt4ProjectConfigWidget::shadowBuildClicked(bool checked)
+void QmakeProjectConfigWidget::shadowBuildClicked(bool checked)
 {
     m_ui->shadowBuildDirEdit->setEnabled(checked);
     m_browseButton->setEnabled(checked);
@@ -178,7 +178,7 @@ void Qt4ProjectConfigWidget::shadowBuildClicked(bool checked)
     updateProblemLabel();
 }
 
-void Qt4ProjectConfigWidget::shadowBuildEdited()
+void QmakeProjectConfigWidget::shadowBuildEdited()
 {
     if (m_buildConfiguration->rawBuildDirectory().toString() == m_ui->shadowBuildDirEdit->rawPath())
         return;
@@ -188,7 +188,7 @@ void Qt4ProjectConfigWidget::shadowBuildEdited()
     m_ignoreChange = false;
 }
 
-void Qt4ProjectConfigWidget::updateProblemLabel()
+void QmakeProjectConfigWidget::updateProblemLabel()
 {
     m_ui->shadowBuildDirEdit->triggerChanged();
     ProjectExplorer::Kit *k = m_buildConfiguration->target()->kit();

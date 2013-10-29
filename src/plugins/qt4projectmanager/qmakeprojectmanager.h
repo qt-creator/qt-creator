@@ -47,20 +47,19 @@ class ToolChain;
 namespace QmakeProjectManager {
 
 namespace Internal {
-class Qt4Builder;
 class ProFileEditorWidget;
-class Qt4ProjectManagerPlugin;
+class QmakeProjectManagerPlugin;
 } // namespace Internal
 
 class QmakeProject;
 
-class QT4PROJECTMANAGER_EXPORT Qt4Manager : public ProjectExplorer::IProjectManager
+class QT4PROJECTMANAGER_EXPORT QmakeManager : public ProjectExplorer::IProjectManager
 {
     Q_OBJECT
 
 public:
-    Qt4Manager(Internal::Qt4ProjectManagerPlugin *plugin);
-    ~Qt4Manager();
+    QmakeManager(Internal::QmakeProjectManagerPlugin *plugin);
+    ~QmakeManager();
 
     void registerProject(QmakeProject *project);
     void unregisterProject(QmakeProject *project);
@@ -96,14 +95,14 @@ public slots:
 private:
     QList<QmakeProject *> m_projects;
     void handleSubDirContextMenu(Action action, bool isFileBuild);
-    void handleSubDirContextMenu(Qt4Manager::Action action, bool isFileBuild,
+    void handleSubDirContextMenu(QmakeManager::Action action, bool isFileBuild,
                                  ProjectExplorer::Project *contextProject,
                                  ProjectExplorer::Node *contextNode,
                                  ProjectExplorer::FileNode *contextFile);
     void addLibrary(const QString &fileName, Internal::ProFileEditorWidget *editor = 0);
     void runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *node);
 
-    Internal::Qt4ProjectManagerPlugin *m_plugin;
+    Internal::QmakeProjectManagerPlugin *m_plugin;
     ProjectExplorer::Node *m_contextNode;
     ProjectExplorer::Project *m_contextProject;
     ProjectExplorer::FileNode *m_contextFile;

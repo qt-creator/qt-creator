@@ -212,8 +212,8 @@ bool AbstractMobileAppWizard::postGenerateFiles(const QWizard *w,
     Q_UNUSED(w)
     Q_UNUSED(l)
     Q_UNUSED(errorMessage)
-    Qt4Manager * const manager
-        = ExtensionSystem::PluginManager::getObject<Qt4Manager>();
+    QmakeManager * const manager
+        = ExtensionSystem::PluginManager::getObject<QmakeManager>();
     Q_ASSERT(manager);
     QmakeProject project(manager, app()->path(AbstractMobileApp::AppPro));
     bool success = true;

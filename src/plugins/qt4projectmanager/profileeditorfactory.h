@@ -36,7 +36,7 @@ namespace TextEditor { class TextEditorActionHandler; }
 
 namespace QmakeProjectManager {
 
-class Qt4Manager;
+class QmakeManager;
 
 namespace Internal {
 
@@ -45,14 +45,14 @@ class ProFileEditorFactory : public Core::IEditorFactory
     Q_OBJECT
 
 public:
-    ProFileEditorFactory(Qt4Manager *parent, TextEditor::TextEditorActionHandler *handler);
+    ProFileEditorFactory(QmakeManager *parent, TextEditor::TextEditorActionHandler *handler);
 
     Core::IEditor *createEditor(QWidget *parent);
 
-    Qt4Manager *qt4ProjectManager() const { return m_manager; }
+    QmakeManager *qmakeProjectManager() const { return m_manager; }
 
 private:
-    Qt4Manager *m_manager;
+    QmakeManager *m_manager;
     TextEditor::TextEditorActionHandler *m_actionHandler;
 };
 

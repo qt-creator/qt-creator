@@ -193,7 +193,7 @@ void QmakeBuildConfiguration::updateShadowBuild()
 
 NamedWidget *QmakeBuildConfiguration::createConfigWidget()
 {
-    return new Qt4ProjectConfigWidget(this);
+    return new QmakeProjectConfigWidget(this);
 }
 
 QString QmakeBuildConfiguration::defaultShadowBuildDirectory() const

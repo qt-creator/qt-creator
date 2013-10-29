@@ -79,13 +79,13 @@ using namespace QmakeProjectManager::Internal;
 using namespace QmakeProjectManager;
 using namespace ProjectExplorer;
 
-Qt4ProjectManagerPlugin::Qt4ProjectManagerPlugin()
+QmakeProjectManagerPlugin::QmakeProjectManagerPlugin()
     : m_previousStartupProject(0), m_previousTarget(0)
 {
 
 }
 
-Qt4ProjectManagerPlugin::~Qt4ProjectManagerPlugin()
+QmakeProjectManagerPlugin::~QmakeProjectManagerPlugin()
 {
     //removeObject(m_embeddedPropertiesPage);
     //delete m_embeddedPropertiesPage;
@@ -96,7 +96,7 @@ Qt4ProjectManagerPlugin::~Qt4ProjectManagerPlugin()
     delete m_qt4ProjectManager;
 }
 
-bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     Q_UNUSED(arguments)
     const Core::Context projectContext(QmakeProjectManager::Constants::PROJECT_ID);
@@ -108,7 +108,7 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     m_projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();
 
     //create and register objects
-    m_qt4ProjectManager = new Qt4Manager(this);
+    m_qt4ProjectManager = new QmakeManager(this);
     addObject(m_qt4ProjectManager);
 
     TextEditor::TextEditorActionHandler *editorHandler
@@ -288,10 +288,10 @@ bool Qt4ProjectManagerPlugin::initialize(const QStringList &arguments, QString *
     return true;
 }
 
-void Qt4ProjectManagerPlugin::extensionsInitialized()
+void QmakeProjectManagerPlugin::extensionsInitialized()
 { }
 
-void Qt4ProjectManagerPlugin::startupProjectChanged()
+void QmakeProjectManagerPlugin::startupProjectChanged()
 {
     if (m_previousStartupProject)
         disconnect(m_previousStartupProject, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
@@ -306,7 +306,7 @@ void Qt4ProjectManagerPlugin::startupProjectChanged()
     activeTargetChanged();
 }
 
-void Qt4ProjectManagerPlugin::activeTargetChanged()
+void QmakeProjectManagerPlugin::activeTargetChanged()
 {
     if (m_previousTarget)
         disconnect(m_previousTarget, SIGNAL(activeBuildConfigurationChanged(ProjectExplorer::BuildConfiguration*)),
@@ -321,7 +321,7 @@ void Qt4ProjectManagerPlugin::activeTargetChanged()
     updateRunQMakeAction();
 }
 
-void Qt4ProjectManagerPlugin::updateRunQMakeAction()
+void QmakeProjectManagerPlugin::updateRunQMakeAction()
 {
     bool enable = true;
     if (BuildManager::isBuilding(m_projectExplorer->currentProject()))
@@ -335,7 +335,7 @@ void Qt4ProjectManagerPlugin::updateRunQMakeAction()
     m_runQMakeAction->setEnabled(enable);
 }
 
-void Qt4ProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node, ProjectExplorer::Project *project)
+void QmakeProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node, ProjectExplorer::Project *project)
 {
     m_addLibraryActionContextMenu->setEnabled(qobject_cast<QmakeProFileNode *>(node));
 
@@ -395,7 +395,7 @@ void Qt4ProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node, 
     m_buildFileContextMenu->setEnabled(buildFilePossible && !isBuilding);
 }
 
-void Qt4ProjectManagerPlugin::buildStateChanged(ProjectExplorer::Project *pro)
+void QmakeProjectManagerPlugin::buildStateChanged(ProjectExplorer::Project *pro)
 {
     ProjectExplorer::Project *currentProject = m_projectExplorer->currentProject();
     if (pro == currentProject) {
@@ -405,7 +405,7 @@ void Qt4ProjectManagerPlugin::buildStateChanged(ProjectExplorer::Project *pro)
     }
 }
 
-void Qt4ProjectManagerPlugin::updateBuildFileAction()
+void QmakeProjectManagerPlugin::updateBuildFileAction()
 {
     bool visible = false;
     bool enabled = false;

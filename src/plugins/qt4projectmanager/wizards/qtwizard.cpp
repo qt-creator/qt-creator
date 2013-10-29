@@ -272,7 +272,7 @@ bool BaseQt4ProjectWizardDialog::writeUserFile(const QString &proFileName) const
     if (!m_targetSetupPage)
         return false;
 
-    Qt4Manager *manager = ExtensionSystem::PluginManager::getObject<Qt4Manager>();
+    QmakeManager *manager = ExtensionSystem::PluginManager::getObject<QmakeManager>();
     Q_ASSERT(manager);
 
     QmakeProject *pro = new QmakeProject(manager, proFileName);

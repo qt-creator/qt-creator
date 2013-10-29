@@ -63,7 +63,7 @@ static const char *qt4FileTypes[] = {
     "Qt4ResourceFiles"
 };
 
-Qt4Manager::Qt4Manager(Qt4ProjectManagerPlugin *plugin)
+QmakeManager::QmakeManager(QmakeProjectManagerPlugin *plugin)
   : m_plugin(plugin),
     m_contextNode(0),
     m_contextProject(0),
@@ -71,32 +71,32 @@ Qt4Manager::Qt4Manager(Qt4ProjectManagerPlugin *plugin)
 {
 }
 
-Qt4Manager::~Qt4Manager()
+QmakeManager::~QmakeManager()
 {
 }
 
-void Qt4Manager::registerProject(QmakeProject *project)
+void QmakeManager::registerProject(QmakeProject *project)
 {
     m_projects.append(project);
 }
 
-void Qt4Manager::unregisterProject(QmakeProject *project)
+void QmakeManager::unregisterProject(QmakeProject *project)
 {
     m_projects.removeOne(project);
 }
 
-void Qt4Manager::notifyChanged(const QString &name)
+void QmakeManager::notifyChanged(const QString &name)
 {
     foreach (QmakeProject *pro, m_projects)
         pro->notifyChanged(name);
 }
 
-QString Qt4Manager::mimeType() const
+QString QmakeManager::mimeType() const
 {
     return QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE);
 }
 
-ProjectExplorer::Project *Qt4Manager::openProject(const QString &fileName, QString *errorString)
+ProjectExplorer::Project *QmakeManager::openProject(const QString &fileName, QString *errorString)
 {
     if (!QFileInfo(fileName).isFile()) {
         if (errorString)
@@ -108,37 +108,37 @@ ProjectExplorer::Project *Qt4Manager::openProject(const QString &fileName, QStri
     return new QmakeProject(this, fileName);
 }
 
-ProjectExplorer::Node *Qt4Manager::contextNode() const
+ProjectExplorer::Node *QmakeManager::contextNode() const
 {
     return m_contextNode;
 }
 
-void Qt4Manager::setContextNode(ProjectExplorer::Node *node)
+void QmakeManager::setContextNode(ProjectExplorer::Node *node)
 {
     m_contextNode = node;
 }
 
-ProjectExplorer::Project *Qt4Manager::contextProject() const
+ProjectExplorer::Project *QmakeManager::contextProject() const
 {
     return m_contextProject;
 }
 
-void Qt4Manager::setContextProject(ProjectExplorer::Project *project)
+void QmakeManager::setContextProject(ProjectExplorer::Project *project)
 {
     m_contextProject = project;
 }
 
-ProjectExplorer::FileNode *Qt4Manager::contextFile() const
+ProjectExplorer::FileNode *QmakeManager::contextFile() const
 {
     return m_contextFile;
 }
 
-void Qt4Manager::setContextFile(ProjectExplorer::FileNode *file)
+void QmakeManager::setContextFile(ProjectExplorer::FileNode *file)
 {
     m_contextFile = file;
 }
 
-void Qt4Manager::addLibrary()
+void QmakeManager::addLibrary()
 {
     ProFileEditorWidget *editor =
         qobject_cast<ProFileEditorWidget*>(Core::EditorManager::currentEditor()->widget());
@@ -146,14 +146,14 @@ void Qt4Manager::addLibrary()
         addLibrary(editor->editorDocument()->filePath(), editor);
 }
 
-void Qt4Manager::addLibraryContextMenu()
+void QmakeManager::addLibraryContextMenu()
 {
     ProjectExplorer::Node *node = ProjectExplorer::ProjectExplorerPlugin::instance()->currentNode();
     if (qobject_cast<QmakeProFileNode *>(node))
         addLibrary(node->path());
 }
 
-void Qt4Manager::addLibrary(const QString &fileName, ProFileEditorWidget *editor)
+void QmakeManager::addLibrary(const QString &fileName, ProFileEditorWidget *editor)
 {
     AddLibraryWizard wizard(fileName, Core::EditorManager::instance());
     if (wizard.exec() != QDialog::Accepted)
@@ -184,17 +184,17 @@ void Qt4Manager::addLibrary(const QString &fileName, ProFileEditorWidget *editor
 }
 
 
-void Qt4Manager::runQMake()
+void QmakeManager::runQMake()
 {
     runQMake(SessionManager::startupProject(), 0);
 }
 
-void Qt4Manager::runQMakeContextMenu()
+void QmakeManager::runQMakeContextMenu()
 {
     runQMake(m_contextProject, m_contextNode);
 }
 
-void Qt4Manager::runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *node)
+void QmakeManager::runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *node)
 {
     if (!ProjectExplorer::ProjectExplorerPlugin::instance()->saveModifiedFiles())
         return;
@@ -221,27 +221,27 @@ void Qt4Manager::runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *no
     bc->setSubNodeBuild(0);
 }
 
-void Qt4Manager::buildSubDirContextMenu()
+void QmakeManager::buildSubDirContextMenu()
 {
     handleSubDirContextMenu(BUILD, false);
 }
 
-void Qt4Manager::cleanSubDirContextMenu()
+void QmakeManager::cleanSubDirContextMenu()
 {
     handleSubDirContextMenu(CLEAN, false);
 }
 
-void Qt4Manager::rebuildSubDirContextMenu()
+void QmakeManager::rebuildSubDirContextMenu()
 {
     handleSubDirContextMenu(REBUILD, false);
 }
 
-void Qt4Manager::buildFileContextMenu()
+void QmakeManager::buildFileContextMenu()
 {
     handleSubDirContextMenu(BUILD, true);
 }
 
-void Qt4Manager::buildFile()
+void QmakeManager::buildFile()
 {
     if (Core::IDocument *currentDocument= Core::EditorManager::currentDocument()) {
         const QString file = currentDocument->filePath();
@@ -253,12 +253,12 @@ void Qt4Manager::buildFile()
     }
 }
 
-void Qt4Manager::handleSubDirContextMenu(Qt4Manager::Action action, bool isFileBuild)
+void QmakeManager::handleSubDirContextMenu(QmakeManager::Action action, bool isFileBuild)
 {
     handleSubDirContextMenu(action, isFileBuild, m_contextProject, m_contextNode, m_contextFile);
 }
 
-void Qt4Manager::handleSubDirContextMenu(Qt4Manager::Action action, bool isFileBuild,
+void QmakeManager::handleSubDirContextMenu(QmakeManager::Action action, bool isFileBuild,
                                          ProjectExplorer::Project *contextProject,
                                          ProjectExplorer::Node *contextNode,
                                          ProjectExplorer::FileNode *contextFile)
@@ -311,7 +311,7 @@ void Qt4Manager::handleSubDirContextMenu(Qt4Manager::Action action, bool isFileB
     bc->setFileNodeBuild(0);
 }
 
-QString Qt4Manager::fileTypeId(ProjectExplorer::FileType type)
+QString QmakeManager::fileTypeId(ProjectExplorer::FileType type)
 {
     switch (type) {
     case HeaderType:

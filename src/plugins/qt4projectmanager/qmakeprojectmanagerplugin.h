@@ -48,7 +48,7 @@ namespace Utils { class ParameterAction; }
 
 namespace QmakeProjectManager {
 
-class Qt4Manager;
+class QmakeManager;
 class QtVersionManager;
 class QmakeProject;
 
@@ -56,14 +56,14 @@ namespace Internal {
 
 class ProFileEditorFactory;
 
-class Qt4ProjectManagerPlugin : public ExtensionSystem::IPlugin
+class QmakeProjectManagerPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Qt4ProjectManager.json")
 
 public:
-    Qt4ProjectManagerPlugin();
-    ~Qt4ProjectManagerPlugin();
+    QmakeProjectManagerPlugin();
+    ~QmakeProjectManagerPlugin();
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
 
@@ -83,7 +83,7 @@ private slots:
 private:
     ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
     ProFileEditorFactory *m_proFileEditorFactory;
-    Qt4Manager *m_qt4ProjectManager;
+    QmakeManager *m_qt4ProjectManager;
     QmakeProject *m_previousStartupProject;
     ProjectExplorer::Target *m_previousTarget;
 
