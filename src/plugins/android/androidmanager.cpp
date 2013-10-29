@@ -330,10 +330,10 @@ Utils::FileName AndroidManager::apkPath(ProjectExplorer::Target *target, BuildTy
 QStringList AndroidManager::availableTargetApplications(ProjectExplorer::Target *target)
 {
     QStringList apps;
-    QmakeProjectManager::QmakeProject *qt4Project = qobject_cast<QmakeProjectManager::QmakeProject *>(target->project());
-    if (!qt4Project)
+    QmakeProjectManager::QmakeProject *qmakeProject = qobject_cast<QmakeProjectManager::QmakeProject *>(target->project());
+    if (!qmakeProject)
         return apps;
-    foreach (QmakeProjectManager::QmakeProFileNode *proFile, qt4Project->applicationProFiles()) {
+    foreach (QmakeProjectManager::QmakeProFileNode *proFile, qmakeProject->applicationProFiles()) {
         if (proFile->projectType() == QmakeProjectManager::ApplicationTemplate) {
             if (proFile->targetInformation().target.startsWith(QLatin1String("lib"))
                     && proFile->targetInformation().target.endsWith(QLatin1String(".so")))
@@ -509,8 +509,8 @@ QString AndroidManager::targetApplicationPath(ProjectExplorer::Target *target)
     QString selectedApp = targetApplication(target);
     if (selectedApp.isEmpty())
         return QString();
-    QmakeProjectManager::QmakeProject *qt4Project = qobject_cast<QmakeProjectManager::QmakeProject *>(target->project());
-    foreach (QmakeProjectManager::QmakeProFileNode *proFile, qt4Project->applicationProFiles()) {
+    QmakeProjectManager::QmakeProject *qmakeProject = qobject_cast<QmakeProjectManager::QmakeProject *>(target->project());
+    foreach (QmakeProjectManager::QmakeProFileNode *proFile, qmakeProject->applicationProFiles()) {
         if (proFile->projectType() == QmakeProjectManager::ApplicationTemplate) {
             if (proFile->targetInformation().target.startsWith(QLatin1String("lib"))
                     && proFile->targetInformation().target.endsWith(QLatin1String(".so"))) {
@@ -529,8 +529,8 @@ QString AndroidManager::targetApplicationPath(ProjectExplorer::Target *target)
 bool AndroidManager::createAndroidTemplatesIfNecessary(ProjectExplorer::Target *target)
 {
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
-    QmakeProjectManager::QmakeProject *qt4Project = qobject_cast<QmakeProjectManager::QmakeProject*>(target->project());
-    if (!qt4Project || !qt4Project->rootProjectNode() || !version)
+    QmakeProjectManager::QmakeProject *qmakeProject = qobject_cast<QmakeProjectManager::QmakeProject*>(target->project());
+    if (!qmakeProject || !qmakeProject->rootProjectNode() || !version)
         return false;
 
     // TODO we should create the AndroidManifest.xml file for that version
@@ -540,7 +540,7 @@ bool AndroidManager::createAndroidTemplatesIfNecessary(ProjectExplorer::Target *
     Utils::FileName javaSrcPath
             = Utils::FileName::fromString(version->qmakeProperty("QT_INSTALL_PREFIX"))
             .appendPath(QLatin1String("src/android/java"));
-    QDir projectDir(qt4Project->projectDirectory());
+    QDir projectDir(qmakeProject->projectDirectory());
     Utils::FileName androidPath = dirPath(target);
 
     QStringList m_ignoreFiles;
@@ -607,7 +607,7 @@ bool AndroidManager::createAndroidTemplatesIfNecessary(ProjectExplorer::Target *
         }
     }
     if (!androidFiles.isEmpty())
-        qt4Project->rootProjectNode()->addFiles(androidFiles);
+        qmakeProject->rootProjectNode()->addFiles(androidFiles);
 
     int minApiLevel = 4;
     if (QtSupport::BaseQtVersion *qt = QtSupport::QtKitInformation::qtVersion(target->kit()))
@@ -812,9 +812,9 @@ QVector<AndroidManager::Library> AndroidManager::availableQtLibsWithDependencies
 
     Utils::FileName readelfPath = AndroidConfigurations::instance().readelfPath(target->activeRunConfiguration()->abi().architecture(),
                                                                                 atc->ndkToolChainVersion());
-    const QmakeProjectManager::QmakeProject *const qt4Project
+    const QmakeProjectManager::QmakeProject *const qmakeProject
             = qobject_cast<const QmakeProjectManager::QmakeProject *>(target->project());
-    if (!qt4Project || !version)
+    if (!qmakeProject || !version)
         return QVector<AndroidManager::Library>();
     QString qtLibsPath = version->qmakeProperty("QT_INSTALL_LIBS");
     if (!readelfPath.toFileInfo().exists()) {
@@ -904,11 +904,11 @@ bool AndroidManager::setBundledInLib(ProjectExplorer::Target *target, const QStr
 QStringList AndroidManager::availablePrebundledLibs(ProjectExplorer::Target *target)
 {
     QStringList libs;
-    QmakeProjectManager::QmakeProject *qt4Project = qobject_cast<QmakeProjectManager::QmakeProject *>(target->project());
-    if (!qt4Project)
+    QmakeProjectManager::QmakeProject *qmakeProject = qobject_cast<QmakeProjectManager::QmakeProject *>(target->project());
+    if (!qmakeProject)
         return libs;
 
-    foreach (QmakeProjectManager::QmakeProFileNode *node, qt4Project->allProFiles())
+    foreach (QmakeProjectManager::QmakeProFileNode *node, qmakeProject->allProFiles())
         if (node->projectType() == QmakeProjectManager::LibraryTemplate)
             libs << node->targetInformation().target;
     return libs;

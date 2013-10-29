@@ -83,7 +83,7 @@ private slots:
 private:
     ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
     ProFileEditorFactory *m_proFileEditorFactory;
-    QmakeManager *m_qt4ProjectManager;
+    QmakeManager *m_qmakeProjectManager;
     QmakeProject *m_previousStartupProject;
     ProjectExplorer::Target *m_previousTarget;
 

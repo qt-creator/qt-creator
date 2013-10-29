@@ -157,12 +157,12 @@ QmakeNodeStaticData::QmakeNodeStaticData()
     qAddPostRoutine(clearQmakeNodeStaticData);
 }
 
-Q_GLOBAL_STATIC(QmakeNodeStaticData, qt4NodeStaticData)
+Q_GLOBAL_STATIC(QmakeNodeStaticData, qmakeNodeStaticData)
 
 static void clearQmakeNodeStaticData()
 {
-    qt4NodeStaticData()->fileTypeData.clear();
-    qt4NodeStaticData()->projectIcon = QIcon();
+    qmakeNodeStaticData()->fileTypeData.clear();
+    qmakeNodeStaticData()->projectIcon = QIcon();
 }
 
 enum { debug = 0 };
@@ -233,10 +233,10 @@ bool QmakePriFile::reload(QString *errorString, ReloadFlag flag, ChangeType type
 
 namespace QmakeProjectManager {
 
-QmakePriFileNode::QmakePriFileNode(QmakeProject *project, QmakeProFileNode* qt4ProFileNode, const QString &filePath)
+QmakePriFileNode::QmakePriFileNode(QmakeProject *project, QmakeProFileNode *qmakeProFileNode, const QString &filePath)
         : ProjectNode(filePath),
           m_project(project),
-          m_qmakeProFileNode(qt4ProFileNode),
+          m_qmakeProFileNode(qmakeProFileNode),
           m_projectFilePath(QDir::fromNativeSeparators(filePath)),
           m_projectDir(QFileInfo(filePath).absolutePath()),
           m_includedInExactParse(true)
@@ -246,8 +246,7 @@ QmakePriFileNode::QmakePriFileNode(QmakeProject *project, QmakeProFileNode* qt4P
     Core::DocumentManager::addDocument(m_qmakePriFile);
 
     setDisplayName(QFileInfo(filePath).completeBaseName());
-
-    setIcon(qt4NodeStaticData()->projectIcon);
+    setIcon(qmakeNodeStaticData()->projectIcon);
 }
 
 QmakePriFileNode::~QmakePriFileNode()
@@ -635,7 +634,7 @@ void QmakePriFileNode::update(ProFile *includeFileExact, QtSupport::ProFileReade
     if (includeFileCumlative)
         baseVPathsCumulative = baseVPaths(readerCumulative, projectDir, m_qmakeProFileNode->buildDir());
 
-    const QVector<QmakeNodeStaticData::FileTypeData> &fileTypes = qt4NodeStaticData()->fileTypeData;
+    const QVector<QmakeNodeStaticData::FileTypeData> &fileTypes = qmakeNodeStaticData()->fileTypeData;
 
     // update files
     QFileInfo tmpFi;
@@ -738,7 +737,7 @@ bool QmakePriFileNode::folderChanged(const QString &changedFolder, const QSet<Ut
 
     // Apply the differences
     // per file type
-    const QVector<QmakeNodeStaticData::FileTypeData> &fileTypes = qt4NodeStaticData()->fileTypeData;
+    const QVector<QmakeNodeStaticData::FileTypeData> &fileTypes = qmakeNodeStaticData()->fileTypeData;
     for (int i = 0; i < fileTypes.size(); ++i) {
         FileType type = fileTypes.at(i).type;
         QSet<Utils::FileName> add = filterFilesRecursiveEnumerata(type, addedFiles);
@@ -1073,7 +1072,7 @@ bool QmakePriFileNode::saveModifiedEditors()
         return false;
     // force instant reload of ourselves
     QtSupport::ProFileCacheManager::instance()->discardFile(m_projectFilePath);
-    m_project->qt4ProjectManager()->notifyChanged(m_projectFilePath);
+    m_project->qmakeProjectManager()->notifyChanged(m_projectFilePath);
     return true;
 }
 
@@ -1220,7 +1219,7 @@ void QmakePriFileNode::save(const QStringList &lines)
     saver.write(lines.join(QLatin1String("\n")).toLocal8Bit());
     saver.finalize(Core::ICore::mainWindow());
 
-    m_project->qt4ProjectManager()->notifyChanged(m_projectFilePath);
+    m_project->qmakeProjectManager()->notifyChanged(m_projectFilePath);
     Core::DocumentManager::unexpectFileChange(m_projectFilePath);
     // This is a hack.
     // We are saving twice in a very short timeframe, once the editor and once the ProFile.
@@ -1449,8 +1448,8 @@ const QmakeProFileNode *QmakeProFileNode::findProFileFor(const QString &fileName
     if (fileName == path())
         return this;
     foreach (ProjectNode *pn, subProjectNodes())
-        if (QmakeProFileNode *qt4ProFileNode = qobject_cast<QmakeProFileNode *>(pn))
-            if (const QmakeProFileNode *result = qt4ProFileNode->findProFileFor(fileName))
+        if (QmakeProFileNode *qmakeProFileNode = qobject_cast<QmakeProFileNode *>(pn))
+            if (const QmakeProFileNode *result = qmakeProFileNode->findProFileFor(fileName))
                 return result;
     return 0;
 }
@@ -1743,9 +1742,9 @@ void QmakeProFileNode::applyEvaluate(EvalResult evalResult, bool async)
         // probably all subfiles/projects have changed anyway
         // delete files && folders && projects
         foreach (ProjectNode *projectNode, subProjectNodes()) {
-            if (QmakeProFileNode *qt4ProFileNode = qobject_cast<QmakeProFileNode *>(projectNode)) {
-                qt4ProFileNode->setValidParseRecursive(false);
-                qt4ProFileNode->setParseInProgressRecursive(false);
+            if (QmakeProFileNode *qmakeProFileNode = qobject_cast<QmakeProFileNode *>(projectNode)) {
+                qmakeProFileNode->setValidParseRecursive(false);
+                qmakeProFileNode->setParseInProgressRecursive(false);
             }
         }
 
@@ -1918,11 +1917,11 @@ void QmakeProFileNode::applyEvaluate(EvalResult evalResult, bool async)
             if (loop) {
                 // Do nothing
             } else if (fileExact || fileCumlative) {
-                QmakePriFileNode *qt4PriFileNode = new QmakePriFileNode(m_project, this, nodeToAdd);
-                qt4PriFileNode->setParentFolderNode(this); // Needed for loop detection
-                qt4PriFileNode->setIncludedInExactParse(fileExact != 0 && includedInExactParse());
-                qt4PriFileNode->update(fileExact, m_readerExact, fileCumlative, m_readerCumulative);
-                toAdd << qt4PriFileNode;
+                QmakePriFileNode *qmakePriFileNode = new QmakePriFileNode(m_project, this, nodeToAdd);
+                qmakePriFileNode->setParentFolderNode(this); // Needed for loop detection
+                qmakePriFileNode->setIncludedInExactParse(fileExact != 0 && includedInExactParse());
+                qmakePriFileNode->update(fileExact, m_readerExact, fileCumlative, m_readerCumulative);
+                toAdd << qmakePriFileNode;
             } else {
                 QmakeProFileNode *qmakeProFileNode = new QmakeProFileNode(m_project, nodeToAdd);
                 qmakeProFileNode->setParentFolderNode(this); // Needed for loop detection

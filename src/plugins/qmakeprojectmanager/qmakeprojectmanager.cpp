@@ -56,7 +56,7 @@ using namespace QmakeProjectManager;
 using namespace QmakeProjectManager::Internal;
 
 // Known file types of a Qt 4 project
-static const char *qt4FileTypes[] = {
+static const char *qmakeFileTypes[] = {
     "CppHeaderFiles",
     "CppSourceFiles",
     "Qt4FormFiles",
@@ -198,14 +198,14 @@ void QmakeManager::runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *
 {
     if (!ProjectExplorer::ProjectExplorerPlugin::instance()->saveModifiedFiles())
         return;
-    QmakeProject *qt4pro = qobject_cast<QmakeProject *>(p);
-    QTC_ASSERT(qt4pro, return);
+    QmakeProject *qmakeProject = qobject_cast<QmakeProject *>(p);
+    QTC_ASSERT(qmakeProject, return);
 
-    if (!qt4pro->activeTarget() ||
-        !qt4pro->activeTarget()->activeBuildConfiguration())
+    if (!qmakeProject->activeTarget() ||
+        !qmakeProject->activeTarget()->activeBuildConfiguration())
         return;
 
-    QmakeBuildConfiguration *bc = static_cast<QmakeBuildConfiguration *>(qt4pro->activeTarget()->activeBuildConfiguration());
+    QmakeBuildConfiguration *bc = static_cast<QmakeBuildConfiguration *>(qmakeProject->activeTarget()->activeBuildConfiguration());
     QMakeStep *qs = bc->qmakeStep();
     if (!qs)
         return;
@@ -213,7 +213,7 @@ void QmakeManager::runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *
     //found qmakeStep, now use it
     qs->setForced(true);
 
-    if (node != 0 && node != qt4pro->rootProjectNode())
+    if (node != 0 && node != qmakeProject->rootProjectNode())
         if (QmakeProFileNode *profile = qobject_cast<QmakeProFileNode *>(node))
             bc->setSubNodeBuild(profile);
 
@@ -263,23 +263,23 @@ void QmakeManager::handleSubDirContextMenu(QmakeManager::Action action, bool isF
                                          ProjectExplorer::Node *contextNode,
                                          ProjectExplorer::FileNode *contextFile)
 {
-    QmakeProject *qt4pro = qobject_cast<QmakeProject *>(contextProject);
-    QTC_ASSERT(qt4pro, return);
+    QmakeProject *qmakeProject = qobject_cast<QmakeProject *>(contextProject);
+    QTC_ASSERT(qmakeProject, return);
 
-    if (!qt4pro->activeTarget() ||
-        !qt4pro->activeTarget()->activeBuildConfiguration())
+    if (!qmakeProject->activeTarget() ||
+        !qmakeProject->activeTarget()->activeBuildConfiguration())
     return;
 
     if (!contextNode || !contextFile)
         isFileBuild = false;
-    QmakeBuildConfiguration *bc = qobject_cast<QmakeBuildConfiguration *>(qt4pro->activeTarget()->activeBuildConfiguration());
+    QmakeBuildConfiguration *bc = qobject_cast<QmakeBuildConfiguration *>(qmakeProject->activeTarget()->activeBuildConfiguration());
     if (!bc)
         return;
 
     if (contextNode) {
         if (QmakePriFileNode *prifile = qobject_cast<QmakePriFileNode *>(contextNode)) {
             if (QmakeProFileNode *profile = prifile->proFileNode()) {
-                if (profile != qt4pro->rootProjectNode() || isFileBuild)
+                if (profile != qmakeProject->rootProjectNode() || isFileBuild)
                     bc->setSubNodeBuild(profile);
             }
         }
@@ -315,13 +315,13 @@ QString QmakeManager::fileTypeId(ProjectExplorer::FileType type)
 {
     switch (type) {
     case HeaderType:
-        return QLatin1String(qt4FileTypes[0]);
+        return QLatin1String(qmakeFileTypes[0]);
     case SourceType:
-        return QLatin1String(qt4FileTypes[1]);
+        return QLatin1String(qmakeFileTypes[1]);
     case FormType:
-        return QLatin1String(qt4FileTypes[2]);
+        return QLatin1String(qmakeFileTypes[2]);
     case ResourceType:
-        return QLatin1String(qt4FileTypes[3]);
+        return QLatin1String(qmakeFileTypes[3]);
     case UnknownFileType:
     default:
         break;

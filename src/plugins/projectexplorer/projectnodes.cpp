@@ -312,7 +312,7 @@ FolderNode *FolderNode::findSubFolder(const QString &path)
   In-memory presentation of a virtual folder.
   Note that the node itself + all children (files and folders) are "managed" by the owning project.
   A virtual folder does not correspond to a actual folder on the file system. See for example the
-  sources, headers and forms folder the qt4projectmanager creates
+  sources, headers and forms folder the QmakeProjectManager creates
   VirtualFolderNodes are always sorted before FolderNodes and are sorted according to their priority.
 
   \sa ProjectExplorer::FileNode, ProjectExplorer::ProjectNode

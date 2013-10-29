@@ -79,7 +79,7 @@ public:
     Core::Id id() const;
     Core::IDocument *document() const;
     ProjectExplorer::IProjectManager *projectManager() const;
-    QmakeManager *qt4ProjectManager() const;
+    QmakeManager *qmakeProjectManager() const;
 
     bool supportsKit(ProjectExplorer::Kit *k, QString *errorMesage) const;
 

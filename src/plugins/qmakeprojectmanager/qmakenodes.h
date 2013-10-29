@@ -134,13 +134,13 @@ class QmakePriFile;
 struct InternalNode;
 }
 
-// Implements ProjectNode for qt4 pro files
+// Implements ProjectNode for qmake .pri files
 class QMAKEPROJECTMANAGER_EXPORT QmakePriFileNode : public ProjectExplorer::ProjectNode
 {
     Q_OBJECT
 
 public:
-    QmakePriFileNode(QmakeProject *project, QmakeProFileNode* qt4ProFileNode, const QString &filePath);
+    QmakePriFileNode(QmakeProject *project, QmakeProFileNode *qmakeProFileNode, const QString &filePath);
     ~QmakePriFileNode();
 
     void update(ProFile *includeFileExact, QtSupport::ProFileReader *readerExact, ProFile *includeFileCumlative, QtSupport::ProFileReader *readerCumalative);
@@ -354,7 +354,7 @@ struct QMAKEPROJECTMANAGER_EXPORT ProjectVersion {
     int patch;
 };
 
-// Implements ProjectNode for qt4 pro files
+// Implements ProjectNode for qmake .pro files
 class QMAKEPROJECTMANAGER_EXPORT QmakeProFileNode : public QmakePriFileNode
 {
     Q_OBJECT

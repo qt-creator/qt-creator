@@ -78,8 +78,8 @@ public:
     // Those functions are used in a few places.
     // The drawback is that we shouldn't actually depend on them being always there
     // That is generally the stuff that is asked should normally be transferred to
-    // Qt4Project *
-    // So that we can later enable people to build qt4projects the way they would like
+    // QmakeProject *
+    // So that we can later enable people to build qmake the way they would like
     QMakeStep *qmakeStep() const;
     MakeStep *makeStep() const;
 

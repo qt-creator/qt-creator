@@ -870,7 +870,7 @@ ProjectExplorer::IProjectManager *QmakeProject::projectManager() const
     return m_manager;
 }
 
-QmakeManager *QmakeProject::qt4ProjectManager() const
+QmakeManager *QmakeProject::qmakeProjectManager() const
 {
     return m_manager;
 }
@@ -1048,9 +1048,9 @@ void QmakeProject::collectAllfProFiles(QList<QmakeProFileNode *> &list, QmakePro
     if (parse == ExactAndCumulativeParse || node->includedInExactParse())
         list.append(node);
     foreach (ProjectNode *n, node->subProjectNodes()) {
-        QmakeProFileNode *qt4ProFileNode = qobject_cast<QmakeProFileNode *>(n);
-        if (qt4ProFileNode)
-            collectAllfProFiles(list, qt4ProFileNode, parse);
+        QmakeProFileNode *qmakeProFileNode = qobject_cast<QmakeProFileNode *>(n);
+        if (qmakeProFileNode)
+            collectAllfProFiles(list, qmakeProFileNode, parse);
     }
 }
 
@@ -1062,9 +1062,9 @@ void QmakeProject::collectApplicationProFiles(QList<QmakeProFileNode *> &list, Q
             list.append(node);
     }
     foreach (ProjectNode *n, node->subProjectNodes()) {
-        QmakeProFileNode *qt4ProFileNode = qobject_cast<QmakeProFileNode *>(n);
-        if (qt4ProFileNode)
-            collectApplicationProFiles(list, qt4ProFileNode, parse);
+        QmakeProFileNode *qmakeProFileNode = qobject_cast<QmakeProFileNode *>(n);
+        if (qmakeProFileNode)
+            collectApplicationProFiles(list, qmakeProFileNode, parse);
     }
 }
 
