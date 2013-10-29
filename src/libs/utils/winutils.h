@@ -50,15 +50,6 @@ QTCREATOR_UTILS_EXPORT QString winGetDLLVersion(WinDLLVersionType t,
                                                 const QString &name,
                                                 QString *errorMessage);
 
-// Return the short (8.3) file name
-QTCREATOR_UTILS_EXPORT QString getShortPathName(const QString &name);
-
-// Returns long name
-QTCREATOR_UTILS_EXPORT QString getLongPathName(const QString &name);
-
-// Returns long name with canonical capitalization.
-QTCREATOR_UTILS_EXPORT QString normalizePathName(const QString &name);
-
 QTCREATOR_UTILS_EXPORT bool winIs64BitSystem();
 
 // Check for a 64bit binary.
