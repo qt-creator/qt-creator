@@ -21892,7 +21892,7 @@ QML オブザーバをコンパイルするには、Qt バージョンのペー�
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Qt4</source>
         <translation type="obsolete">Qt4</translation>
@@ -21915,14 +21915,14 @@ QML オブザーバをコンパイルするには、Qt バージョンのペー�
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::AbstractMobileApp</name>
+    <name>QmakeProjectManager::AbstractMobileApp</name>
     <message>
         <source>Could not open template file &apos;%1&apos;.</source>
         <translation>テンプレートファイル &apos;%1&apos; を開けませんでした。</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::AbstractMobileAppWizardDialog</name>
+    <name>QmakeProjectManager::AbstractMobileAppWizardDialog</name>
     <message>
         <source>Qt Versions</source>
         <translation type="obsolete">Qt バージョン</translation>
@@ -21953,7 +21953,7 @@ QML オブザーバをコンパイルするには、Qt バージョンのペー�
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::CodaRunControl</name>
+    <name>QmakeProjectManager::CodaRunControl</name>
     <message>
         <source>No device is connected. Please connect a device and try again.
 </source>
@@ -22060,7 +22060,7 @@ QML オブザーバをコンパイルするには、Qt バージョンのペー�
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::AddLibraryWizard</name>
+    <name>QmakeProjectManager::Internal::AddLibraryWizard</name>
     <message>
         <source>Add Library</source>
         <translation>ライブラリを追加</translation>
@@ -22079,7 +22079,7 @@ QML オブザーバをコンパイルするには、Qt バージョンのペー�
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::BaseQt4ProjectWizardDialog</name>
+    <name>QmakeProjectManager::Internal::BaseQmakeProjectWizardDialog</name>
     <message>
         <source>Modules</source>
         <translation>モジュール</translation>
@@ -22094,7 +22094,7 @@ QML オブザーバをコンパイルするには、Qt バージョンのペー�
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::ClassDefinition</name>
+    <name>QmakeProjectManager::Internal::ClassDefinition</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -22201,7 +22201,7 @@ QML オブザーバをコンパイルするには、Qt バージョンのペー�
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::ClassList</name>
+    <name>QmakeProjectManager::Internal::ClassList</name>
     <message>
         <source>&lt;New class&gt;</source>
         <translation>&lt;新しいクラス&gt;</translation>
@@ -22216,7 +22216,7 @@ QML オブザーバをコンパイルするには、Qt バージョンのペー�
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::ConsoleAppWizard</name>
+    <name>QmakeProjectManager::Internal::ConsoleAppWizard</name>
     <message>
         <source>Qt Console Application</source>
         <translation>Qt コンソールアプリケーション</translation>
@@ -22231,14 +22231,14 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::ConsoleAppWizardDialog</name>
+    <name>QmakeProjectManager::Internal::ConsoleAppWizardDialog</name>
     <message>
         <source>This wizard generates a Qt4 console application project. The application derives from QCoreApplication and does not provide a GUI.</source>
         <translation>Qt4 コンソールアプリケーションのプロジェクトを生成するウィザードです。GUI を持たない QCoreApplication を派生したアプリケーションを生成します。</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::CustomWidgetPluginWizardPage</name>
+    <name>QmakeProjectManager::Internal::CustomWidgetPluginWizardPage</name>
     <message>
         <source>WizardPage</source>
         <translation>ウィザードページ</translation>
@@ -22277,7 +22277,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::CustomWidgetWidgetsWizardPage</name>
+    <name>QmakeProjectManager::Internal::CustomWidgetWidgetsWizardPage</name>
     <message>
         <source>Custom Qt Widget Wizard</source>
         <translation>カスタム Qt ウィジェットウィザード</translation>
@@ -22300,7 +22300,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::CustomWidgetWizard</name>
+    <name>QmakeProjectManager::Internal::CustomWidgetWizard</name>
     <message>
         <source>Qt Custom Designer Widget</source>
         <translation>Qt カスタムデザイナウィジェット</translation>
@@ -22311,7 +22311,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::CustomWidgetWizardDialog</name>
+    <name>QmakeProjectManager::Internal::CustomWidgetWizardDialog</name>
     <message>
         <source>This wizard generates a Qt4 Designer Custom Widget or a Qt4 Designer Custom Widget Collection project.</source>
         <translation>このウィザードでは Qt4 デザイナ用カスタムウィジェットもしくは Qt4 デザイナカスタムウィジェットコレクションプロジェクトを生成します。</translation>
@@ -22326,7 +22326,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::DesignerExternalEditor</name>
+    <name>QmakeProjectManager::Internal::DesignerExternalEditor</name>
     <message>
         <source>Qt Designer is not responding (%1).</source>
         <translation>Qt Designer が応答しません (%1)。</translation>
@@ -22337,7 +22337,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::DetailsPage</name>
+    <name>QmakeProjectManager::Internal::DetailsPage</name>
     <message>
         <source>System Library</source>
         <translation>システムライブラリ</translation>
@@ -22372,7 +22372,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::EmptyProjectWizard</name>
+    <name>QmakeProjectManager::Internal::EmptyProjectWizard</name>
     <message>
         <source>Empty Qt Project</source>
         <translation>空の Qt プロジェクト</translation>
@@ -22383,14 +22383,14 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::EmptyProjectWizardDialog</name>
+    <name>QmakeProjectManager::Internal::EmptyProjectWizardDialog</name>
     <message>
         <source>This wizard generates an empty Qt4 project. Add files to it later on by using the other wizards.</source>
         <translation>このウィザードでは空の Qt4 プロジェクトを生成します。後で他のウィザード等を使ってファイルを追加して下さい。</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::ExternalQtEditor</name>
+    <name>QmakeProjectManager::Internal::ExternalQtEditor</name>
     <message>
         <source>Unable to start &quot;%1&quot;</source>
         <translation>&quot;%1&quot; を開始できません</translation>
@@ -22401,7 +22401,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::FilesPage</name>
+    <name>QmakeProjectManager::Internal::FilesPage</name>
     <message>
         <source>Class Information</source>
         <translation>クラス情報</translation>
@@ -22412,7 +22412,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::GcceToolChainFactory</name>
+    <name>QmakeProjectManager::Internal::GcceToolChainFactory</name>
     <message>
         <source>GCCE</source>
         <translation type="obsolete">GCCE</translation>
@@ -22427,7 +22427,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::GuiAppWizard</name>
+    <name>QmakeProjectManager::Internal::GuiAppWizard</name>
     <message>
         <source>Qt Gui Application</source>
         <translation>Qt GUI アプリケーション</translation>
@@ -22442,7 +22442,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::GuiAppWizardDialog</name>
+    <name>QmakeProjectManager::Internal::GuiAppWizardDialog</name>
     <message>
         <source>This wizard generates a Qt4 GUI application project. The application derives by default from QApplication and includes an empty widget.</source>
         <translation>Qt4 GUIアプリケーションプロジェクトを生成するウィザードです。QApplicationを派生し、空のウィジェットを含んだアプリケーションが生成されます。</translation>
@@ -22453,7 +22453,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Html5AppWizard</name>
+    <name>QmakeProjectManager::Internal::Html5AppWizard</name>
     <message>
         <source>HTML5 Application</source>
         <translation>HTML5 アプリケーション</translation>
@@ -22476,7 +22476,7 @@ You can build the application and deploy it on desktop and mobile target platfor
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Html5AppWizardDialog</name>
+    <name>QmakeProjectManager::Internal::Html5AppWizardDialog</name>
     <message>
         <source>New HTML5 Application</source>
         <translation>HTML5 アプリケーションの新規作成</translation>
@@ -22491,14 +22491,14 @@ You can build the application and deploy it on desktop and mobile target platfor
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Html5AppWizardOptionsPage</name>
+    <name>QmakeProjectManager::Internal::Html5AppWizardOptionsPage</name>
     <message>
         <source>Select HTML File</source>
         <translation>HTML ファイルを選択</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::LibraryDetailsController</name>
+    <name>QmakeProjectManager::Internal::LibraryDetailsController</name>
     <message>
         <source>Linkage:</source>
         <translation>リンク方法:</translation>
@@ -22525,7 +22525,7 @@ You can build the application and deploy it on desktop and mobile target platfor
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::LibraryDetailsWidget</name>
+    <name>QmakeProjectManager::Internal::LibraryDetailsWidget</name>
     <message>
         <source>Library:</source>
         <translation>ライブラリ:</translation>
@@ -22604,7 +22604,7 @@ You can build the application and deploy it on desktop and mobile target platfor
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::LibraryTypePage</name>
+    <name>QmakeProjectManager::Internal::LibraryTypePage</name>
     <message>
         <source>Library Type</source>
         <translation>ライブラリの種類</translation>
@@ -22653,7 +22653,7 @@ Adds the library and include paths to the .pro file.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::LibraryWizard</name>
+    <name>QmakeProjectManager::Internal::LibraryWizard</name>
     <message>
         <source>C++ Library</source>
         <translation>C++ ライブラリ</translation>
@@ -22668,7 +22668,7 @@ Adds the library and include paths to the .pro file.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::LibraryWizardDialog</name>
+    <name>QmakeProjectManager::Internal::LibraryWizardDialog</name>
     <message>
         <source>Shared Library</source>
         <translation>共有ライブラリ</translation>
@@ -22699,14 +22699,14 @@ Adds the library and include paths to the .pro file.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MakeStepFactory</name>
+    <name>QmakeProjectManager::Internal::MakeStepFactory</name>
     <message>
         <source>Make</source>
         <translation></translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MobileAppWizardGenericOptionsPage</name>
+    <name>QmakeProjectManager::Internal::MobileAppWizardGenericOptionsPage</name>
     <message>
         <source>Automatically Rotate Orientation</source>
         <translation>自動的に方向を回転</translation>
@@ -22729,7 +22729,7 @@ Adds the library and include paths to the .pro file.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MobileAppWizardMaemoOptionsPage</name>
+    <name>QmakeProjectManager::Internal::MobileAppWizardMaemoOptionsPage</name>
     <message>
         <source>Invalid Icon</source>
         <translation type="obsolete">無効なアイコン</translation>
@@ -22764,7 +22764,7 @@ Adds the library and include paths to the .pro file.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::ModulesPage</name>
+    <name>QmakeProjectManager::Internal::ModulesPage</name>
     <message>
         <source>Select Required Modules</source>
         <translation>必須モジュールの選択</translation>
@@ -22775,28 +22775,28 @@ Adds the library and include paths to the .pro file.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::PluginGenerator</name>
+    <name>QmakeProjectManager::Internal::PluginGenerator</name>
     <message>
         <source>Creating multiple widget libraries (%1, %2) in one project (%3) is not supported.</source>
         <translation>一つのプロジェクト(%3)で複数のウィジェットライブラリ(%1, %2)の作成はサポートしていません。</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::ProjectLoadWizard</name>
+    <name>QmakeProjectManager::Internal::ProjectLoadWizard</name>
     <message>
         <source>Project Setup</source>
         <translation type="obsolete">プロジェクト設定</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QMakeStepFactory</name>
+    <name>QmakeProjectManager::Internal::QMakeStepFactory</name>
     <message>
         <source>qmake</source>
         <translation>qmake</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Qt4PriFileNode</name>
+    <name>QmakeProjectManager::Internal::QmakePriFileNode</name>
     <message>
         <source>Headers</source>
         <translation type="obsolete">ヘッダー</translation>
@@ -22855,7 +22855,7 @@ Adds the library and include paths to the .pro file.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Qt4ProjectConfigWidget</name>
+    <name>QmakeProjectManager::Internal::QmakeProjectConfigWidget</name>
     <message>
         <source>&lt;a href=&quot;import&quot;&gt;Import existing build&lt;/a&gt;</source>
         <translation type="obsolete">&lt;a href=&quot;import&quot;&gt;既存ビルド構成のインポート&lt;/a&gt;</translation>
@@ -22967,7 +22967,7 @@ Adds the library and include paths to the .pro file.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Qt4ProjectManagerPlugin</name>
+    <name>QmakeProjectManager::Internal::QmakeProjectManagerPlugin</name>
     <message>
         <source>Run qmake</source>
         <translation>qmake 実行</translation>
@@ -23034,7 +23034,7 @@ Adds the library and include paths to the .pro file.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Qt4RunConfiguration</name>
+    <name>QmakeProjectManager::Internal::QmakeRunConfiguration</name>
     <message>
         <source>The .pro file is currently being parsed.</source>
         <translation type="obsolete">.pro ファイルをパースしています。</translation>
@@ -23069,7 +23069,7 @@ Adds the library and include paths to the .pro file.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Qt4RunConfigurationWidget</name>
+    <name>QmakeProjectManager::Internal::QmakeRunConfigurationWidget</name>
     <message>
         <source>Arguments:</source>
         <translation>引数:</translation>
@@ -23128,7 +23128,7 @@ Adds the library and include paths to the .pro file.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Qt4SymbianTarget</name>
+    <name>QmakeProjectManager::Internal::QmakeSymbianTarget</name>
     <message>
         <source>&lt;b&gt;Device:&lt;/b&gt; Not connected</source>
         <translation type="obsolete">&lt;b&gt;デバイス:&lt;/b&gt; 未接続</translation>
@@ -23147,7 +23147,7 @@ Adds the library and include paths to the .pro file.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Qt4Target</name>
+    <name>QmakeProjectManager::Internal::QmakeTarget</name>
     <message>
         <source>Desktop</source>
         <comment>Qt4 Desktop target display name</comment>
@@ -23175,7 +23175,7 @@ Adds the library and include paths to the .pro file.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QtQuickApp</name>
+    <name>QmakeProjectManager::Internal::QtQuickApp</name>
     <message>
         <source>The QML import path &apos;%1&apos; cannot be found.</source>
         <translation>QML インポートパス &apos;%1&apos; が見つかりませんでした。</translation>
@@ -23198,7 +23198,7 @@ Adds the library and include paths to the .pro file.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QtQuickAppWizard</name>
+    <name>QmakeProjectManager::Internal::QtQuickAppWizard</name>
     <message>
         <source>Qt Quick Application</source>
         <translation type="obsolete">Qt Quick アプリケーション</translation>
@@ -23299,7 +23299,7 @@ Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QtQuickAppWizardDialog</name>
+    <name>QmakeProjectManager::Internal::QtQuickAppWizardDialog</name>
     <message>
         <source>New Qt Quick Application</source>
         <translation>Qt Quick アプリケーションの新規作成</translation>
@@ -23318,7 +23318,7 @@ Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QtQuickComponentSetOptionsPage</name>
+    <name>QmakeProjectManager::Internal::QtQuickComponentSetOptionsPage</name>
     <message>
         <source>Select QML File</source>
         <translation>QML ファイルを選択</translation>
@@ -23337,7 +23337,7 @@ Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::RvctToolChainConfigWidget</name>
+    <name>QmakeProjectManager::Internal::RvctToolChainConfigWidget</name>
     <message>
         <source>Form</source>
         <translation type="obsolete">フォーム</translation>
@@ -23364,7 +23364,7 @@ Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::RvctToolChainFactory</name>
+    <name>QmakeProjectManager::Internal::RvctToolChainFactory</name>
     <message>
         <source>ARMv5</source>
         <translation type="obsolete">ARMv5</translation>
@@ -23384,7 +23384,7 @@ Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60CertificateInfo</name>
+    <name>QmakeProjectManager::Internal::S60CertificateInfo</name>
     <message>
         <source>The certificate &quot;%1&quot; has already expired and cannot be used.
 Expiration date: %2.</source>
@@ -23441,7 +23441,7 @@ Valid from: %2.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60CommandPublishStep</name>
+    <name>QmakeProjectManager::Internal::S60CommandPublishStep</name>
     <message>
         <source>Running %1</source>
         <extracomment>%1 is a name of the Publish Step i.e. Clean Step</extracomment>
@@ -23449,7 +23449,7 @@ Valid from: %2.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60CreatePackageParser</name>
+    <name>QmakeProjectManager::Internal::S60CreatePackageParser</name>
     <message>
         <source>The binary package &apos;%1&apos; was patched to be installable after being self-signed.
 %2
@@ -23465,7 +23465,7 @@ Use a developer certificate or any other signing option to prevent this patching
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60CreatePackageStep</name>
+    <name>QmakeProjectManager::Internal::S60CreatePackageStep</name>
     <message>
         <source>Create SIS Package</source>
         <extracomment>default create SIS package build step display name</extracomment>
@@ -23547,7 +23547,7 @@ Use a developer certificate or any other signing option to prevent this patching
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60CreatePackageStepConfigWidget</name>
+    <name>QmakeProjectManager::Internal::S60CreatePackageStepConfigWidget</name>
     <message>
         <source>self-signed</source>
         <translation type="obsolete">自己署名</translation>
@@ -23582,14 +23582,14 @@ Use a developer certificate or any other signing option to prevent this patching
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60CreatePackageStepFactory</name>
+    <name>QmakeProjectManager::Internal::S60CreatePackageStepFactory</name>
     <message>
         <source>Create SIS Package</source>
         <translation type="obsolete">SIS パッケージの作成</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60CreatePackageStepWidget</name>
+    <name>QmakeProjectManager::Internal::S60CreatePackageStepWidget</name>
     <message>
         <source>Self-signed certificate</source>
         <translation type="obsolete">自己署名証明書</translation>
@@ -23628,7 +23628,7 @@ Use a developer certificate or any other signing option to prevent this patching
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DeployConfigurationWidget</name>
+    <name>QmakeProjectManager::Internal::S60DeployConfigurationWidget</name>
     <message>
         <source>Device:</source>
         <translation type="obsolete">デバイス:</translation>
@@ -23759,7 +23759,7 @@ Use a developer certificate or any other signing option to prevent this patching
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DeployStep</name>
+    <name>QmakeProjectManager::Internal::S60DeployStep</name>
     <message>
         <source>Unable to remove existing file &apos;%1&apos;: %2</source>
         <translation type="obsolete">存在しているファイル &apos;%1&apos; を削除できません: %2</translation>
@@ -23888,21 +23888,21 @@ Use a developer certificate or any other signing option to prevent this patching
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DeployStepFactory</name>
+    <name>QmakeProjectManager::Internal::S60DeployStepFactory</name>
     <message>
         <source>Deploy SIS Package</source>
         <translation type="obsolete">SIS パッケージをデプロイ</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DeployStepWidget</name>
+    <name>QmakeProjectManager::Internal::S60DeployStepWidget</name>
     <message>
         <source>Deploy SIS Package</source>
         <translation type="obsolete">SIS パッケージをデプロイ</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DeviceDebugRunControl</name>
+    <name>QmakeProjectManager::Internal::S60DeviceDebugRunControl</name>
     <message>
         <source>Warning: Cannot locate the symbol file belonging to %1.
 </source>
@@ -23925,7 +23925,7 @@ Use a developer certificate or any other signing option to prevent this patching
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DeviceRunConfigurationWidget</name>
+    <name>QmakeProjectManager::Internal::S60DeviceRunConfigurationWidget</name>
     <message>
         <source>Arguments:</source>
         <translation type="obsolete">引数:</translation>
@@ -23936,7 +23936,7 @@ Use a developer certificate or any other signing option to prevent this patching
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60EmulatorRunConfiguration</name>
+    <name>QmakeProjectManager::Internal::S60EmulatorRunConfiguration</name>
     <message>
         <source>%1 in Symbian Emulator</source>
         <extracomment>S60 emulator run configuration default display name, %1 is base pro-File name
@@ -23959,21 +23959,21 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60EmulatorRunConfigurationFactory</name>
+    <name>QmakeProjectManager::Internal::S60EmulatorRunConfigurationFactory</name>
     <message>
         <source>%1 in Symbian Emulator</source>
         <translation type="obsolete">Symbian エミュレータ上の %1</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60EmulatorRunConfigurationWidget</name>
+    <name>QmakeProjectManager::Internal::S60EmulatorRunConfigurationWidget</name>
     <message>
         <source>Executable:</source>
         <translation type="obsolete">実行ファイル:</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60EmulatorRunControl</name>
+    <name>QmakeProjectManager::Internal::S60EmulatorRunControl</name>
     <message>
         <source>Starting %1...
 </source>
@@ -23992,7 +23992,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60Manager</name>
+    <name>QmakeProjectManager::Internal::S60Manager</name>
     <message>
         <source>Run in Emulator</source>
         <translation type="obsolete">エミュレータで実行</translation>
@@ -24003,7 +24003,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60PublisherOvi</name>
+    <name>QmakeProjectManager::Internal::S60PublisherOvi</name>
     <message>
         <source>Clean</source>
         <translation type="obsolete">クリーン</translation>
@@ -24055,7 +24055,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60PublishingBuildSettingsPageOvi</name>
+    <name>QmakeProjectManager::Internal::S60PublishingBuildSettingsPageOvi</name>
     <message>
         <source>No valid Qt version has been detected.&lt;br&gt;Define a correct Qt version in &quot;Options &gt; Qt4&quot;</source>
         <translation type="obsolete">有効な Qt バージョンが検出されていません。&lt;br&gt;&quot;設定 &gt; Qt4&quot; で正しい Qt バージョンを定義して下さい</translation>
@@ -24084,7 +24084,7 @@ Previous Qt versions have limitations in building suitable SIS files.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60PublishingResultsPageOvi</name>
+    <name>QmakeProjectManager::Internal::S60PublishingResultsPageOvi</name>
     <message>
         <source>Open Containing Folder</source>
         <translation type="obsolete">フォルダを開く</translation>
@@ -24099,7 +24099,7 @@ Previous Qt versions have limitations in building suitable SIS files.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60PublishingSisSettingsPageOvi</name>
+    <name>QmakeProjectManager::Internal::S60PublishingSisSettingsPageOvi</name>
     <message>
         <source>This should be application&apos;s display name. &lt;br&gt;It cannot be empty.&lt;br&gt;</source>
         <translation type="obsolete">これはアプリケーションの表示名にする必要があります。 &lt;br&gt;空にする事はできません。&lt;br&gt;</translation>
@@ -24234,7 +24234,7 @@ Previous Qt versions have limitations in building suitable SIS files.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60PublishingWizardFactoryOvi</name>
+    <name>QmakeProjectManager::Internal::S60PublishingWizardFactoryOvi</name>
     <message>
         <source>Publish Qt Symbian Applications to Ovi Store</source>
         <translation type="obsolete">Qt Symbian アプリケーションを Ovi Store に公開</translation>
@@ -24290,7 +24290,7 @@ NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB。
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60PublishingWizardOvi</name>
+    <name>QmakeProjectManager::Internal::S60PublishingWizardOvi</name>
     <message>
         <source>Publishing to Ovi Store</source>
         <translation type="obsolete">Ovi Store に公開</translation>
@@ -24313,7 +24313,7 @@ NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB。
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::SubdirsProjectWizard</name>
+    <name>QmakeProjectManager::Internal::SubdirsProjectWizard</name>
     <message>
         <source>Subdirs Project</source>
         <translation>サブディレクトリプロジェクト</translation>
@@ -24337,14 +24337,14 @@ NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB。
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::SubdirsProjectWizardDialog</name>
+    <name>QmakeProjectManager::Internal::SubdirsProjectWizardDialog</name>
     <message>
         <source>This wizard generates a Qt4 subdirs project. Add subprojects to it later on by using the other wizards.</source>
         <translation>このウィザードで Qt4 サブディレクトリプロジェクトを生成します。後で他のウィザード等を使ってサブプロジェクトを追加して下さい。</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::SummaryPage</name>
+    <name>QmakeProjectManager::Internal::SummaryPage</name>
     <message>
         <source>Summary</source>
         <translation>サマリ</translation>
@@ -24355,7 +24355,7 @@ NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB。
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::SymbianQtConfigWidget</name>
+    <name>QmakeProjectManager::Internal::SymbianQtConfigWidget</name>
     <message>
         <source>S60 SDK:</source>
         <translation type="obsolete">S60 SDK:</translation>
@@ -24366,7 +24366,7 @@ NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB。
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::TargetSetupPage</name>
+    <name>QmakeProjectManager::Internal::TargetSetupPage</name>
     <message>
         <source>Setup targets for your project</source>
         <translation type="obsolete">プロジェクトのターゲットを設定</translation>
@@ -24389,7 +24389,7 @@ NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB。
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::TestWizard</name>
+    <name>QmakeProjectManager::Internal::TestWizard</name>
     <message>
         <source>Qt Unit Test</source>
         <translation>Qt ユニットテスト</translation>
@@ -24400,7 +24400,7 @@ NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB。
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::TestWizardDialog</name>
+    <name>QmakeProjectManager::Internal::TestWizardDialog</name>
     <message>
         <source>This wizard generates a Qt unit test consisting of a single source file with a test class.</source>
         <translation>Qt ユニットテストとして1個のソースファイルで構成されたテストクラスを生成します。</translation>
@@ -24411,7 +24411,7 @@ NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB。
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::TestWizardPage</name>
+    <name>QmakeProjectManager::Internal::TestWizardPage</name>
     <message>
         <source>WizardPage</source>
         <translation>ウィザードページ</translation>
@@ -24462,7 +24462,7 @@ NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB。
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::WinscwToolChainConfigWidget</name>
+    <name>QmakeProjectManager::Internal::WinscwToolChainConfigWidget</name>
     <message>
         <source>Dialog</source>
         <translation type="obsolete">ダイアログ</translation>
@@ -24481,7 +24481,7 @@ NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB。
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::WinscwToolChainFactory</name>
+    <name>QmakeProjectManager::Internal::WinscwToolChainFactory</name>
     <message>
         <source>WINSCW</source>
         <translation type="obsolete">WINSCW</translation>
@@ -24492,7 +24492,7 @@ NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB。
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::MakeStep</name>
+    <name>QmakeProjectManager::MakeStep</name>
     <message>
         <source>Make</source>
         <comment>Qt4 MakeStep display name.</comment>
@@ -24524,7 +24524,7 @@ NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB。
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::MakeStepConfigWidget</name>
+    <name>QmakeProjectManager::MakeStepConfigWidget</name>
     <message>
         <source>Override %1:</source>
         <translation>%1 の代わりに使用するコマンド:</translation>
@@ -24551,7 +24551,7 @@ NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB。
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::PassphraseForKeyDialog</name>
+    <name>QmakeProjectManager::PassphraseForKeyDialog</name>
     <message>
         <source>Passphrase:</source>
         <translation type="obsolete">パスフレーズ:</translation>
@@ -24570,7 +24570,7 @@ NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB。
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::QMakeStep</name>
+    <name>QmakeProjectManager::QMakeStep</name>
     <message>
         <source>qmake</source>
         <extracomment>QMakeStep default display name</extracomment>
@@ -24614,7 +24614,7 @@ NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB。
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::QMakeStepConfigWidget</name>
+    <name>QmakeProjectManager::QMakeStepConfigWidget</name>
     <message>
         <source>QML Debugging</source>
         <translation>QML デバッグ</translation>
@@ -24661,7 +24661,7 @@ NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB。
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::QmlDebuggingLibrary</name>
+    <name>QmakeProjectManager::QmlDebuggingLibrary</name>
     <message>
         <source>Only available for Qt 4.7.1 or newer.</source>
         <translation>Qt 4.7.1 以降でのみ利用可能です。</translation>
@@ -24690,7 +24690,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::QmlDumpTool</name>
+    <name>QmakeProjectManager::QmlDumpTool</name>
     <message>
         <source>Only available for Qt for Desktop and Qt for Qt Simulator.</source>
         <translation>デスクトップ向けまたは Qt シミュレータ向けでのみ利用可能です。</translation>
@@ -24713,7 +24713,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::QmlObserverTool</name>
+    <name>QmakeProjectManager::QmlObserverTool</name>
     <message>
         <source>Only available for Qt for Desktop or Qt for Qt Simulator.</source>
         <translation>デスクトップ向けまたは Qt シミュレータ向けでのみ利用可能です。</translation>
@@ -24732,7 +24732,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Qt4BaseTargetFactory</name>
+    <name>QmakeProjectManager::QmakeBaseTargetFactory</name>
     <message>
         <source>%1 Debug</source>
         <extracomment>Name of a debug build configuration to created by a project wizard, %1 being the Qt version name. We recommend not translating it.</extracomment>
@@ -24745,14 +24745,14 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Qt4BuildConfiguration</name>
+    <name>QmakeProjectManager::QmakeBuildConfiguration</name>
     <message>
         <source>Parsing the .pro file</source>
         <translation>.pro ファイルをパースしています</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Qt4BuildConfigurationFactory</name>
+    <name>QmakeProjectManager::QmakeBuildConfigurationFactory</name>
     <message>
         <source>Using Qt Version &quot;%1&quot;</source>
         <translation type="obsolete">Qt バージョン &quot;%1&quot; を使用</translation>
@@ -24791,7 +24791,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Qt4DefaultTargetSetupWidget</name>
+    <name>QmakeProjectManager::QmakeDefaultTargetSetupWidget</name>
     <message>
         <source>Add build from:</source>
         <translation type="obsolete">ビルドを追加:</translation>
@@ -24906,7 +24906,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Qt4Manager</name>
+    <name>QmakeProjectManager::QmakeManager</name>
     <message>
         <source>Full path to the bin/ install directory of the current project&apos;s Qt version.</source>
         <translation type="obsolete">現在のプロジェクトの Qt バージョンをインストールしたディレクトリの bin ディレクトリへのフルパスです。</translation>
@@ -24945,7 +24945,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Qt4ProFileNode</name>
+    <name>QmakeProjectManager::QmakeProFileNode</name>
     <message>
         <source>Error while parsing file %1. Giving up.</source>
         <translation>ファイル &apos;%1&apos; のパース中にエラーが発生しました。中止します。</translation>
@@ -24956,7 +24956,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Qt4Project</name>
+    <name>QmakeProjectManager::QmakeProject</name>
     <message>
         <source>Evaluating</source>
         <translation>評価中</translation>
@@ -24987,7 +24987,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Qt4Target</name>
+    <name>QmakeProjectManager::QmakeTarget</name>
     <message>
         <source>Desktop</source>
         <comment>Qt4 Desktop target display name</comment>
@@ -25030,7 +25030,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::QtVersion</name>
+    <name>QmakeProjectManager::QtVersion</name>
     <message>
         <source>The Qt version is invalid: %1</source>
         <extracomment>%1: Reason for being invalid</extracomment>
@@ -25051,7 +25051,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::S60DeployConfiguration</name>
+    <name>QmakeProjectManager::S60DeployConfiguration</name>
     <message>
         <source>Deploy %1 to Symbian device</source>
         <translation type="obsolete">Symbian デバイスに %1 をデプロイ</translation>
@@ -25062,7 +25062,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::S60DeployConfigurationFactory</name>
+    <name>QmakeProjectManager::S60DeployConfigurationFactory</name>
     <message>
         <source>%1 on Symbian Device</source>
         <translation type="obsolete">Symbian デバイス上の %1</translation>
@@ -25073,7 +25073,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::S60DeviceRunConfiguration</name>
+    <name>QmakeProjectManager::S60DeviceRunConfiguration</name>
     <message>
         <source>%1 on Symbian Device</source>
         <extracomment>S60 device runconfiguration default display name, %1 is base pro-File name</extracomment>
@@ -25094,14 +25094,14 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::S60DeviceRunConfigurationFactory</name>
+    <name>QmakeProjectManager::S60DeviceRunConfigurationFactory</name>
     <message>
         <source>%1 on Symbian Device</source>
         <translation type="obsolete">Symbian デバイス上の %1</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::S60RunControlBase</name>
+    <name>QmakeProjectManager::S60RunControlBase</name>
     <message>
         <source>Launching</source>
         <translation type="obsolete">起動中</translation>
@@ -25136,7 +25136,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::SbsV2Parser</name>
+    <name>QmakeProjectManager::SbsV2Parser</name>
     <message>
         <source>SBSv2 build log</source>
         <translation type="obsolete">SBSv2 ビルドログ</translation>
@@ -25158,7 +25158,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::TargetSetupPage</name>
+    <name>QmakeProjectManager::TargetSetupPage</name>
     <message>
         <source>Target Setup</source>
         <translation type="obsolete">ターゲット設定</translation>
@@ -35359,7 +35359,7 @@ If you choose not to continue Qt Creator will not try to load the .shared file.<
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Qt4PriFileNode</name>
+    <name>QmakeProjectManager::QmakePriFileNode</name>
     <message>
         <source>Headers</source>
         <translation>ヘッダー</translation>
@@ -35418,7 +35418,7 @@ If you choose not to continue Qt Creator will not try to load the .shared file.<
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::PngIconScaler</name>
+    <name>QmakeProjectManager::Internal::PngIconScaler</name>
     <message>
         <source>Wrong Icon Size</source>
         <translation>間違ったアイコンサイズ</translation>
@@ -37082,7 +37082,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MakeStep</name>
+    <name>QmakeProjectManager::Internal::MakeStep</name>
     <message>
         <source>Make arguments:</source>
         <translation>Make 引数:</translation>
@@ -37093,7 +37093,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QMakeStep</name>
+    <name>QmakeProjectManager::Internal::QMakeStep</name>
     <message>
         <source>qmake build configuration:</source>
         <translation>qmake のビルド構成:</translation>
@@ -37120,14 +37120,14 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60CertificateDetailsDialog</name>
+    <name>QmakeProjectManager::Internal::S60CertificateDetailsDialog</name>
     <message>
         <source>Details of Certificate</source>
         <translation type="obsolete">証明書の詳細</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Html5AppWizardSourcesPage</name>
+    <name>QmakeProjectManager::Internal::Html5AppWizardSourcesPage</name>
     <message>
         <source>WizardPage</source>
         <translation>ウィザードページ</translation>
@@ -37170,7 +37170,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MobileAppWizardHarmattanOptionsPage</name>
+    <name>QmakeProjectManager::Internal::MobileAppWizardHarmattanOptionsPage</name>
     <message>
         <source>WizardPage</source>
         <translation>ウィザードページ</translation>
@@ -37189,7 +37189,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MobileAppWizardSymbianOptionsPage</name>
+    <name>QmakeProjectManager::Internal::MobileAppWizardSymbianOptionsPage</name>
     <message>
         <source>WizardPage</source>
         <translation type="obsolete">ウィザードページ</translation>
@@ -37208,7 +37208,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MobileLibraryWizardOptionPage</name>
+    <name>QmakeProjectManager::Internal::MobileLibraryWizardOptionPage</name>
     <message>
         <source>WizardPage</source>
         <translation>ウィザードページ</translation>
@@ -39544,14 +39544,14 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::UnconfiguredProjectPanel</name>
+    <name>QmakeProjectManager::Internal::UnconfiguredProjectPanel</name>
     <message>
         <source>Configure Project</source>
         <translation>プロジェクトを構成</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::TargetSetupPageWrapper</name>
+    <name>QmakeProjectManager::Internal::TargetSetupPageWrapper</name>
     <message>
         <source>Configure Project</source>
         <translation>プロジェクトを構成</translation>
@@ -39570,7 +39570,7 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::UnConfiguredSettingsWidget</name>
+    <name>QmakeProjectManager::Internal::UnConfiguredSettingsWidget</name>
     <message>
         <source>Qt Version:</source>
         <translation type="obsolete">Qt バージョン:</translation>
@@ -44173,7 +44173,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QmakeKitConfigWidget</name>
+    <name>QmakeProjectManager::Internal::QmakeKitConfigWidget</name>
     <message>
         <source>The mkspec to use when building the project with qmake.&lt;br&gt;This setting is ignored when using other build systems.</source>
         <translation type="unfinished"></translation>
@@ -44184,7 +44184,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::QmakeKitInformation</name>
+    <name>QmakeProjectManager::QmakeKitInformation</name>
     <message>
         <source>No Qt version set, so mkspec is ignored.</source>
         <translation>Qt バージョンが設定されていない為、mkspec は無視されます。</translation>
@@ -44199,7 +44199,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Qt4TargetSetupWidget</name>
+    <name>QmakeProjectManager::QmakeTargetSetupWidget</name>
     <message>
         <source>Manage...</source>
         <translation>管理...</translation>
@@ -44216,7 +44216,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::ImportWidget</name>
+    <name>QmakeProjectManager::Internal::ImportWidget</name>
     <message>
         <source>Import Build from...</source>
         <translation>ビルドをインポート...</translation>
