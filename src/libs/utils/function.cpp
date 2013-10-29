@@ -41,19 +41,12 @@ void functionUser(Utils::function<int()> generator, Utils::function<void(int)> c
 
 struct GenFunctor
 {
-    int operator()() const { return 29; }
+    int operator()() { return 29; }
 };
 
 struct ConsumerFunctor
 {
     void operator()(int) {}
-};
-
-struct ConsumerFunctor2
-{
-    ConsumerFunctor2() : i(0) { }
-    int i;
-    void operator()(int j) { i = j; }
 };
 
 int generatorF()
@@ -71,9 +64,6 @@ void test()
 {
     functionUser(GenFunctor(), ConsumerFunctor());
     functionUser(&generatorF, &consumerF);
-    ConsumerFunctor2 f2;
-    GenFunctor g2;
-    functionUser(Utils::cref(g2), Utils::ref(f2));
 }
 
 } // end namespace
