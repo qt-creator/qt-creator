@@ -214,6 +214,7 @@ static QList<Abi> guessGccAbi(const QString &m, const QByteArray &macros)
 }
 
 static QList<Abi> guessGccAbi(const FileName &path, const QStringList &env,
+                              const QByteArray &macros,
                               const QStringList &extraArgs = QStringList())
 {
     if (path.isEmpty())
@@ -224,7 +225,6 @@ static QList<Abi> guessGccAbi(const FileName &path, const QStringList &env,
     QString machine = QString::fromLocal8Bit(runGcc(path, arguments, env)).trimmed();
     if (machine.isEmpty())
         return QList<Abi>(); // no need to continue if running failed once...
-    QByteArray macros = gccPredefinedMacros(path, gccPredefinedMacrosOptions(), env);
     return guessGccAbi(machine, macros);
 }
 
@@ -724,7 +724,8 @@ QList<Abi> GccToolChain::detectSupportedAbis() const
 {
     Environment env = Environment::systemEnvironment();
     addToEnvironment(env);
-    return guessGccAbi(m_compilerCommand, env.toStringList(), platformCodeGenFlags());
+    QByteArray macros = predefinedMacros(QStringList());
+    return guessGccAbi(m_compilerCommand, env.toStringList(), macros, platformCodeGenFlags());
 }
 
 QString GccToolChain::detectVersion() const
@@ -803,7 +804,9 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(const QString &comp
         return result;
 
     GccToolChain::addCommandPathToEnvironment(compilerPath, systemEnvironment);
-    QList<Abi> abiList = guessGccAbi(compilerPath, systemEnvironment.toStringList());
+    QByteArray macros
+            = gccPredefinedMacros(compilerPath, gccPredefinedMacrosOptions(), systemEnvironment.toStringList());
+    QList<Abi> abiList = guessGccAbi(compilerPath, systemEnvironment.toStringList(), macros);
     if (!abiList.contains(requiredAbi)) {
         if (requiredAbi.wordWidth() != 64
                 || !abiList.contains(Abi(requiredAbi.architecture(), requiredAbi.os(), requiredAbi.osFlavor(),
@@ -813,6 +816,7 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(const QString &comp
 
     foreach (const Abi &abi, abiList) {
         QScopedPointer<GccToolChain> tc(createToolChain(true));
+        tc->setMacroCache(QStringList(), macros);
         if (tc.isNull())
             return result;
 
@@ -875,6 +879,7 @@ void GccToolChainConfigWidget::applyImpl()
     tc->setDisplayName(displayName); // reset display name
     tc->setPlatformCodeGenFlags(splitString(m_platformCodeGenFlagsLineEdit->text()));
     tc->setPlatformLinkerFlags(splitString(m_platformLinkerFlagsLineEdit->text()));
+    tc->setMacroCache(tc->platformCodeGenFlags(), m_macros);
 }
 
 void GccToolChainConfigWidget::setFromToolchain()
@@ -937,7 +942,9 @@ void GccToolChainConfigWidget::handleCompilerCommandChange()
     if (haveCompiler) {
         Environment env = Environment::systemEnvironment();
         GccToolChain::addCommandPathToEnvironment(path, env);
-        abiList = guessGccAbi(path, env.toStringList(),
+        QStringList args = gccPredefinedMacrosOptions() + splitString(m_platformCodeGenFlagsLineEdit->text());
+        m_macros = gccPredefinedMacros(path, args, env.toStringList());
+        abiList = guessGccAbi(path, env.toStringList(), m_macros,
                               splitString(m_platformCodeGenFlagsLineEdit->text()));
     }
     m_abiWidget->setEnabled(haveCompiler);

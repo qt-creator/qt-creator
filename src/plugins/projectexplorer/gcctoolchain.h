@@ -43,6 +43,7 @@ namespace ProjectExplorer {
 
 namespace Internal {
 class ClangToolChainFactory;
+class GccToolChainConfigWidget;
 class GccToolChainFactory;
 class MingwToolChainFactory;
 class LinuxIccToolChainFactory;
@@ -145,6 +146,7 @@ private:
     mutable QList<HeaderPath> m_headerPaths;
     mutable QString m_version;
 
+    friend class Internal::GccToolChainConfigWidget;
     friend class Internal::GccToolChainFactory;
     friend class ToolChainFactory;
 };
