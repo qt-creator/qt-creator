@@ -35,7 +35,9 @@
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/project.h>
 #include <utils/environment.h>
+#include <utils/qtcassert.h>
 
 namespace CMakeProjectManager {
 
@@ -53,6 +55,9 @@ public:
         kitId = bc->target()->kit()->id();
         environment = bc->environment();
         useNinja = bc->useNinja();
+
+        QTC_ASSERT(bc->target()->project(), return);
+        sourceDirectory = bc->target()->project()->projectDirectory();
     }
 
     Utils::Environment environment;
