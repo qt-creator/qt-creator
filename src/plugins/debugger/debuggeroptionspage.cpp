@@ -37,6 +37,7 @@
 #include <utils/detailswidget.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/winutils.h>
 
 #include <QFormLayout>
 #include <QHeaderView>
