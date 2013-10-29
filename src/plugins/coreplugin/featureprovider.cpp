@@ -44,8 +44,8 @@
     and only if all required features are available, the wizard is displayed
     when creating a new file or project.
 
-    Qt4VersionManager creates an instance of IFeatureProvider and provides Qt specific features for the available
-    versions of Qt.
+    The QtSupport plugin creates an instance of IFeatureProvider and provides Qt specific
+    features for the available versions of Qt.
 
     \sa Core::IWizard
     \sa QtSupport::QtVersionManager
