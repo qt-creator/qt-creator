@@ -921,7 +921,7 @@ static FolderNode *folderOf(FolderNode *in, FileType fileType, const QString &fi
     return 0;
 }
 
-// Find the Qt4ProFileNode that contains a file of a certain type.
+// Find the QmakeProFileNode that contains a file of a certain type.
 // First recurse down to folder, then find the pro-file.
 static QmakeProFileNode *proFileNodeOf(QmakeProFileNode *in, FileType fileType, const QString &fileName)
 {
@@ -1392,7 +1392,7 @@ bool QmakeProject::supportsNoTargetPanel() const
     return true;
 }
 
-// All the Qt4 run configurations should share code.
+// All the Qmake run configurations should share code.
 // This is a rather suboptimal way to do that for disabledReason()
 // but more pratical then duplicated the code everywhere
 QString QmakeProject::disabledReasonForRunConfiguration(const QString &proFilePath)

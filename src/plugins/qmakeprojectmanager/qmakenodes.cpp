@@ -1733,7 +1733,7 @@ void QmakeProFileNode::applyEvaluate(EvalResult evalResult, bool async)
     }
 
     if (debug)
-        qDebug() << "Qt4ProFileNode - updating files for file " << m_projectFilePath;
+        qDebug() << "QmakeProFileNode - updating files for file " << m_projectFilePath;
 
     QmakeProjectType projectType = proFileTemplateTypeToProjectType(
                 (evalResult == EvalOk ? m_readerExact : m_readerCumulative)->templateType());

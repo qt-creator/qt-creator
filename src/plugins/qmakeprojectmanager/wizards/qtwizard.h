@@ -102,7 +102,7 @@ private:
     enum { targetPageId = 1 };
 };
 
-/* BaseQt4ProjectWizardDialog: Additionally offers modules page
+/* BaseQmakeProjectWizardDialog: Additionally offers modules page
  * and getter/setter for blank-delimited modules list, transparently
  * handling the visibility of the modules page list as well as a page
  * to select targets and Qt versions.

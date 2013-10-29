@@ -143,6 +143,6 @@ private:
     bool m_ignoreChange;
 };
 
-} // Qt4ProjectManager
+} // QmakeProjectManager
 
 #endif // MAKESTEP_H

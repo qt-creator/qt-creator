@@ -51,7 +51,7 @@ enum { debug = 0 };
 namespace QmakeProjectManager {
 namespace Internal {
 
-// Figure out the Qt4 project used by the file if any
+// Figure out the qmake project used by the file if any
 static QmakeProject *qmakeProjectFor(const QString &fileName)
 {
     if (ProjectExplorer::Project *baseProject = ProjectExplorer::SessionManager::projectForFile(fileName))

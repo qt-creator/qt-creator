@@ -96,7 +96,7 @@ public:
 
     virtual bool isEnabled() const;
     virtual QString disabledReason() const;
-    /// \internal For Qt4Project, since that manages the parsing information
+    /// \internal For QmakeProject, since that manages the parsing information
     void setEnabled(bool enabled);
 
     BuildType buildType() const;
