@@ -55,7 +55,6 @@ class QmakeBuildConfiguration;
 class QmakeManager;
 class QmakePriFileNode;
 class QmakeProFileNode;
-class Qt4RunStep;
 class TargetInformation;
 
 namespace Internal {
