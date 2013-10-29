@@ -71,7 +71,7 @@ public:
 
 class QmakeProject;
 
-class QT4PROJECTMANAGER_EXPORT MakeStep : public ProjectExplorer::AbstractProcessStep
+class QMAKEPROJECTMANAGER_EXPORT MakeStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
     friend class Internal::MakeStepFactory;

@@ -2,7 +2,7 @@ QT += network
 include(../../qtcreatorplugin.pri)
 
 DEFINES += \
-    QT4PROJECTMANAGER_LIBRARY
+    QMAKEPROJECTMANAGER_LIBRARY
 
 HEADERS += \
     qmakebuildinfo.h \

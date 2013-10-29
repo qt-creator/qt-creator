@@ -135,7 +135,7 @@ struct InternalNode;
 }
 
 // Implements ProjectNode for qt4 pro files
-class QT4PROJECTMANAGER_EXPORT QmakePriFileNode : public ProjectExplorer::ProjectNode
+class QMAKEPROJECTMANAGER_EXPORT QmakePriFileNode : public ProjectExplorer::ProjectNode
 {
     Q_OBJECT
 
@@ -300,7 +300,7 @@ private:
 
 } // namespace Internal
 
-class QT4PROJECTMANAGER_EXPORT TargetInformation
+class QMAKEPROJECTMANAGER_EXPORT TargetInformation
 {
 public:
     bool valid;
@@ -336,26 +336,26 @@ public:
 
 };
 
-struct QT4PROJECTMANAGER_EXPORT InstallsItem {
+struct QMAKEPROJECTMANAGER_EXPORT InstallsItem {
     InstallsItem(QString p, QStringList f) : path(p), files(f) {}
     QString path;
     QStringList files;
 };
 
-struct QT4PROJECTMANAGER_EXPORT InstallsList {
+struct QMAKEPROJECTMANAGER_EXPORT InstallsList {
     void clear() { targetPath.clear(); items.clear(); }
     QString targetPath;
     QList<InstallsItem> items;
 };
 
-struct QT4PROJECTMANAGER_EXPORT ProjectVersion {
+struct QMAKEPROJECTMANAGER_EXPORT ProjectVersion {
     int major;
     int minor;
     int patch;
 };
 
 // Implements ProjectNode for qt4 pro files
-class QT4PROJECTMANAGER_EXPORT QmakeProFileNode : public QmakePriFileNode
+class QMAKEPROJECTMANAGER_EXPORT QmakeProFileNode : public QmakePriFileNode
 {
     Q_OBJECT
 

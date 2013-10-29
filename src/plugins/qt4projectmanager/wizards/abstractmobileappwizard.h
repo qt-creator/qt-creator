@@ -47,7 +47,7 @@ class AbstractMobileApp;
 namespace Internal { class MobileAppWizardGenericOptionsPage; }
 
 /// \internal
-class QT4PROJECTMANAGER_EXPORT AbstractMobileAppWizardDialog : public ProjectExplorer::BaseProjectWizardDialog
+class QMAKEPROJECTMANAGER_EXPORT AbstractMobileAppWizardDialog : public ProjectExplorer::BaseProjectWizardDialog
 {
     Q_OBJECT
 
@@ -88,7 +88,7 @@ private:
 };
 
 /// \internal
-class QT4PROJECTMANAGER_EXPORT AbstractMobileAppWizard : public Core::BaseFileWizard
+class QMAKEPROJECTMANAGER_EXPORT AbstractMobileAppWizard : public Core::BaseFileWizard
 {
     Q_OBJECT
 protected:

@@ -45,7 +45,7 @@ namespace QmakeProjectManager {
 /// \internal
 struct
 #ifndef CREATORLESSTEST
-    QT4PROJECTMANAGER_EXPORT
+    QMAKEPROJECTMANAGER_EXPORT
 #endif // CREATORLESSTEST
     AbstractGeneratedFileInfo
 {
@@ -73,7 +73,7 @@ typedef QPair<QString, QString> DeploymentFolder; // QPair<.source, .target>
 /// \internal
 class
 #ifndef CREATORLESSTEST
-    QT4PROJECTMANAGER_EXPORT
+    QMAKEPROJECTMANAGER_EXPORT
 #endif // CREATORLESSTEST
     AbstractMobileApp : public QObject
 {

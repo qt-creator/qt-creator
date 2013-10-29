@@ -36,7 +36,7 @@
 
 namespace QmakeProjectManager {
 
-class QT4PROJECTMANAGER_EXPORT QmakeKitInformation : public ProjectExplorer::KitInformation
+class QMAKEPROJECTMANAGER_EXPORT QmakeKitInformation : public ProjectExplorer::KitInformation
 {
     Q_OBJECT
 

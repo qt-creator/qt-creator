@@ -71,7 +71,7 @@ public:
 } // namespace Internal
 
 
-class QT4PROJECTMANAGER_EXPORT QMakeStep : public ProjectExplorer::AbstractProcessStep
+class QMAKEPROJECTMANAGER_EXPORT QMakeStep : public ProjectExplorer::AbstractProcessStep
 {
     Q_OBJECT
     friend class Internal::QMakeStepFactory;

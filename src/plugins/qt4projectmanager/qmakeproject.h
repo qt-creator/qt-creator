@@ -68,7 +68,7 @@ class QmakeProjectFile;
 class QmakeNodesWatcher;
 }
 
-class  QT4PROJECTMANAGER_EXPORT QmakeProject : public ProjectExplorer::Project
+class  QMAKEPROJECTMANAGER_EXPORT QmakeProject : public ProjectExplorer::Project
 {
     Q_OBJECT
 

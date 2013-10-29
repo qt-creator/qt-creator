@@ -53,7 +53,7 @@ class QmakeProjectManagerPlugin;
 
 class QmakeProject;
 
-class QT4PROJECTMANAGER_EXPORT QmakeManager : public ProjectExplorer::IProjectManager
+class QMAKEPROJECTMANAGER_EXPORT QmakeManager : public ProjectExplorer::IProjectManager
 {
     Q_OBJECT
 

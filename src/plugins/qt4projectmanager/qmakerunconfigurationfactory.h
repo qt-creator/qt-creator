@@ -38,7 +38,7 @@ namespace ProjectExplorer { class Node; }
 
 namespace QmakeProjectManager {
 
-class QT4PROJECTMANAGER_EXPORT QmakeRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
+class QMAKEPROJECTMANAGER_EXPORT QmakeRunConfigurationFactory : public ProjectExplorer::IRunConfigurationFactory
 {
     Q_OBJECT
 

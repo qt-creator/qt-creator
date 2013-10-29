@@ -47,7 +47,7 @@ class QmakeProFileNode;
 
 namespace Internal { class QmakeProjectConfigWidget; }
 
-class QT4PROJECTMANAGER_EXPORT QmakeBuildConfiguration : public ProjectExplorer::BuildConfiguration
+class QMAKEPROJECTMANAGER_EXPORT QmakeBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
     Q_OBJECT
 
@@ -155,7 +155,7 @@ private:
     friend class QmakeBuildConfigurationFactory;
 };
 
-class QT4PROJECTMANAGER_EXPORT QmakeBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
+class QMAKEPROJECTMANAGER_EXPORT QmakeBuildConfigurationFactory : public ProjectExplorer::IBuildConfigurationFactory
 {
     Q_OBJECT
 
