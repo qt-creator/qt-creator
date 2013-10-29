@@ -243,11 +243,16 @@ void DebuggerItemManager::autoDetectGdbOrLldbDebuggers()
 
 void DebuggerItemManager::readLegacyDebuggers()
 {
-    QFileInfo settingsLocation(Core::ICore::settings()->fileName());
-    FileName legacyKits = FileName::fromString(settingsLocation.absolutePath() + QLatin1String(DEBUGGER_LEGACY_FILENAME));
+    QFileInfo systemLocation(Core::ICore::settings(QSettings::SystemScope)->fileName());
+    readLegacyDebuggers(FileName::fromString(systemLocation.absolutePath() + QLatin1String(DEBUGGER_LEGACY_FILENAME)));
+    QFileInfo userLocation(Core::ICore::settings()->fileName());
+    readLegacyDebuggers(FileName::fromString(userLocation.absolutePath() + QLatin1String(DEBUGGER_LEGACY_FILENAME)));
+}
 
+void DebuggerItemManager::readLegacyDebuggers(const FileName &file)
+{
     PersistentSettingsReader reader;
-    if (!reader.load(legacyKits))
+    if (!reader.load(file))
         return;
 
     foreach (const QVariant &v, reader.restoreValues()) {
