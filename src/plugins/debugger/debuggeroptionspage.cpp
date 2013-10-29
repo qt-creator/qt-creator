@@ -141,7 +141,8 @@ void DebuggerItemConfigWidget::setItem(const DebuggerItem &item)
 void DebuggerItemConfigWidget::apply()
 {
     DebuggerItem item = m_model->currentDebugger();
-    QTC_ASSERT(item.isValid(), return);
+    if (!item.isValid())
+        return; // Nothing was selected here.
 
     item.setDisplayName(m_displayNameLineEdit->text());
     item.setCommand(m_binaryChooser->fileName());
