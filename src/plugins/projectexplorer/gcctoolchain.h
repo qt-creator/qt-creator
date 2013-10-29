@@ -98,6 +98,11 @@ protected:
 
     GccToolChain(const GccToolChain &);
 
+    typedef QPair<QStringList, QByteArray> CacheItem;
+
+    void setMacroCache(const QStringList &allCxxflags, const QByteArray &macroCache) const;
+    QByteArray macroCache(const QStringList &allCxxflags) const;
+
     virtual QString defaultDisplayName() const;
     virtual CompilerFlags defaultCompilerFlags() const;
 

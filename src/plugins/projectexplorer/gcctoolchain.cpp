@@ -256,6 +256,38 @@ GccToolChain::GccToolChain(const GccToolChain &tc) :
     m_version(tc.m_version)
 { }
 
+void GccToolChain::setMacroCache(const QStringList &allCxxflags, const QByteArray &macros) const
+{
+    if (macros.isNull())
+        return;
+
+    CacheItem runResults;
+    QByteArray data = macros;
+    runResults.first = allCxxflags;
+    if (macros.isNull())
+        data = QByteArray("");
+    runResults.second = data;
+
+    m_predefinedMacros.push_back(runResults);
+    if (m_predefinedMacros.size() > PREDEFINED_MACROS_CACHE_SIZE)
+        m_predefinedMacros.pop_front();
+}
+
+QByteArray GccToolChain::macroCache(const QStringList &allCxxflags) const
+{
+    for (GccCache::iterator it = m_predefinedMacros.begin(); it != m_predefinedMacros.end(); ++it) {
+        if (it->first == allCxxflags) {
+            // Increase cached item priority
+            CacheItem pair = *it;
+            m_predefinedMacros.erase(it);
+            m_predefinedMacros.push_back(pair);
+
+            return pair.second;
+        }
+    }
+    return QByteArray();
+}
+
 QString GccToolChain::defaultDisplayName() const
 {
     if (!m_targetAbi.isValid())
@@ -329,20 +361,10 @@ bool GccToolChain::isValid() const
 QByteArray GccToolChain::predefinedMacros(const QStringList &cxxflags) const
 {
     QStringList allCxxflags = m_platformCodeGenFlags + cxxflags;  // add only cxxflags is empty?
-    typedef QPair<QStringList, QByteArray> CacheItem;
 
-    for (GccCache::iterator it = m_predefinedMacros.begin(); it != m_predefinedMacros.end(); ++it)
-        if (it->first == allCxxflags) {
-            // Increase cached item priority
-            CacheItem pair = *it;
-            m_predefinedMacros.erase(it);
-            m_predefinedMacros.push_back(pair);
-
-            return pair.second;
-        }
-
-    CacheItem runResults;
-    runResults.first = allCxxflags;
+    QByteArray macros = macroCache(allCxxflags);
+    if (!macros.isNull())
+        return macros;
 
     // Using a clean environment breaks ccache/distcc/etc.
     Environment env = Environment::systemEnvironment();
@@ -377,14 +399,11 @@ QByteArray GccToolChain::predefinedMacros(const QStringList &cxxflags) const
                 || a == QLatin1String("-fopenmp") || a == QLatin1String("-Wno-deprecated"))
             arguments << a;
     }
+    macros = gccPredefinedMacros(m_compilerCommand, reinterpretOptions(arguments),
+                                 env.toStringList());
 
-    runResults.second = gccPredefinedMacros(m_compilerCommand, reinterpretOptions(arguments), env.toStringList());
-
-    m_predefinedMacros.push_back(runResults);
-    if (m_predefinedMacros.size() > PREDEFINED_MACROS_CACHE_SIZE)
-        m_predefinedMacros.pop_front();
-
-    return runResults.second;
+    setMacroCache(allCxxflags, macros);
+    return macros;
 }
 
 /**
