@@ -87,7 +87,8 @@ struct ExtensionMap {
 
 bool HelpViewer::isLocalUrl(const QUrl &url)
 {
-    return url.scheme() == QLatin1String("qthelp");
+    return url.scheme() == QLatin1String("about") // "No documenation available"
+            || url.scheme() == QLatin1String("qthelp");
 }
 
 bool HelpViewer::canOpenPage(const QString &url)
