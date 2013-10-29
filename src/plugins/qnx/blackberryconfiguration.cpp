@@ -39,6 +39,7 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/toolchainmanager.h>
+#include <projectexplorer/gcctoolchain.h>
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtversionmanager.h>
@@ -181,48 +182,44 @@ QList<Utils::EnvironmentItem> BlackBerryConfiguration::qnxEnv() const
     return m_qnxEnv;
 }
 
-void BlackBerryConfiguration::createConfigurationPerQtVersion(
-        const FileName &qmakePath, Qnx::QnxArchitecture arch)
-{
-    QnxAbstractQtVersion *version = createQtVersion(qmakePath, arch);
-    ToolChain *toolChain = createToolChain(version);
-    Kit *kit = createKit(version, toolChain);
-
-    if (version && toolChain && kit) {
-        // register
-        QtVersionManager::addVersion(version);
-        ToolChainManager::registerToolChain(toolChain);
-        KitManager::registerKit(kit);
-    }
-}
-
 QnxAbstractQtVersion *BlackBerryConfiguration::createQtVersion(
-        const FileName &qmakePath, Qnx::QnxArchitecture arch)
+        const FileName &qmakePath, Qnx::QnxArchitecture arch, const QString &versionName)
 {
     QnxAbstractQtVersion *version = new BlackBerryQtVersion(
             arch, qmakePath, true, QString(), m_ndkEnvFile.toString());
-    version->setDisplayName(tr("Qt %1 for %2 %3 - %4").arg(
-            version->qtVersionString(), version->platformDisplayName(),
-            version->archString(), m_targetName));
+    version->setDisplayName(tr("Qt %1 for %2").arg(version->qtVersionString(), versionName));
+    QtVersionManager::addVersion(version);
     return version;
 }
 
-QnxToolChain *BlackBerryConfiguration::createToolChain(QnxAbstractQtVersion *version)
+QnxToolChain *BlackBerryConfiguration::createToolChain(
+        ProjectExplorer::Abi abi, const QString &versionName)
 {
     QnxToolChain* toolChain = new QnxToolChain(ToolChain::AutoDetection);
-    //: QCC is the compiler for QNX.
-    toolChain->setDisplayName(tr("QCC for Qt %1 for %2 %3 - %4").arg(
-            version->qtVersionString(), version->platformDisplayName(),
-            version->archString(), m_targetName));
+    toolChain->setDisplayName(tr("QCC for %1").arg(versionName));
     toolChain->setCompilerCommand(m_gccCompiler);
     toolChain->setNdkPath(ndkPath());
-    QList<Abi> abis = version->qtAbis();
-    if (!abis.isEmpty())
-        toolChain->setTargetAbi(abis.first());
+    if (abi.isValid())
+        toolChain->setTargetAbi(abi);
+    ToolChainManager::registerToolChain(toolChain);
     return toolChain;
 }
 
-Kit *BlackBerryConfiguration::createKit(QnxAbstractQtVersion *version, ToolChain *toolChain)
+QVariant BlackBerryConfiguration::createDebuggerItem(
+        QList<ProjectExplorer::Abi> abis, Qnx::QnxArchitecture arch, const QString &versionName)
+{
+    Utils::FileName command = arch == X86 ? m_simulatorDebugger : m_deviceDebugger;
+    DebuggerItem debugger;
+    debugger.setCommand(command);
+    debugger.setEngineType(GdbEngineType);
+    debugger.setAutoDetected(true);
+    debugger.setAbis(abis);
+    debugger.setDisplayName(tr("Debugger for %1").arg(versionName));
+    return DebuggerItemManager::registerDebugger(debugger);
+}
+
+Kit *BlackBerryConfiguration::createKit(
+        QnxAbstractQtVersion *version, QnxToolChain *toolChain, const QVariant &debuggerItemId)
 {
     Kit *kit = new Kit;
     bool isSimulator = version->architecture() == X86;
@@ -230,17 +227,8 @@ Kit *BlackBerryConfiguration::createKit(QnxAbstractQtVersion *version, ToolChain
     QtKitInformation::setQtVersion(kit, version);
     ToolChainKitInformation::setToolChain(kit, toolChain);
 
-    DebuggerItem debugger;
-    debugger.setCommand(isSimulator ? m_simulatorDebugger : m_deviceDebugger);
-    debugger.setEngineType(GdbEngineType);
-    debugger.setAutoDetected(true);
-    debugger.setAbi(toolChain->targetAbi());
-    debugger.setDisplayName(tr("Debugger for Qt %1 for %2 %3 - %4").arg(
-            version->qtVersionString(), version->platformDisplayName(),
-            version->archString(), m_targetName));
-
-    QVariant id = DebuggerItemManager::registerDebugger(debugger);
-    DebuggerKitInformation::setDebugger(kit, id);
+    if (debuggerItemId.isValid())
+        DebuggerKitInformation::setDebugger(kit, debuggerItemId);
 
     if (isSimulator)
         QmakeProjectManager::QmakeKitInformation::setMkspec(
@@ -249,9 +237,7 @@ Kit *BlackBerryConfiguration::createKit(QnxAbstractQtVersion *version, ToolChain
     DeviceTypeKitInformation::setDeviceTypeId(kit, Constants::QNX_BB_OS_TYPE);
     SysRootKitInformation::setSysRoot(kit, m_sysRoot);
 
-    kit->setDisplayName(tr("%1 %2 - Qt %3 - %4").arg(
-            version->platformDisplayName(), isSimulator ? tr("Simulator") : tr("Device"),
-            version->qtVersionString(), m_targetName));
+    kit->setDisplayName(version->displayName());
     kit->setIconPath(FileName::fromString(QLatin1String(Constants::QNX_BB_CATEGORY_ICON)));
 
     kit->setAutoDetected(true);
@@ -264,6 +250,7 @@ Kit *BlackBerryConfiguration::createKit(QnxAbstractQtVersion *version, ToolChain
     kit->setSticky(DebuggerKitInformation::id(), true);
     kit->setSticky(QmakeProjectManager::QmakeKitInformation::id(), true);
 
+    KitManager::registerKit(kit);
     return kit;
 }
 
@@ -296,15 +283,53 @@ bool BlackBerryConfiguration::activate()
 
     deactivate(); // cleaning-up artifacts autodetected by old QtCreator versions
 
+    QString armVersionName = tr("BlackBerry Device - %1").arg(m_targetName);
+    QString x86VersionName = tr("BlackBerry Simulator - %1").arg(m_targetName);
+
+    // create versions
+    QnxAbstractQtVersion *qt4ArmVersion = 0;
+    QnxAbstractQtVersion *qt4X86Version = 0;
+    QnxAbstractQtVersion *qt5ArmVersion = 0;
+    QnxAbstractQtVersion *qt5X86Version = 0;
+    QList<Abi> armAbis;
+    QList<Abi> x86Abis;
+
     if (!m_qmake4BinaryFile.isEmpty()) {
-        createConfigurationPerQtVersion(m_qmake4BinaryFile, Qnx::ArmLeV7);
-        createConfigurationPerQtVersion(m_qmake4BinaryFile, Qnx::X86);
+        qt4ArmVersion = createQtVersion(m_qmake4BinaryFile, Qnx::ArmLeV7, armVersionName);
+        armAbis << qt4ArmVersion->qtAbis();
+        qt4X86Version = createQtVersion(m_qmake4BinaryFile, Qnx::X86, x86VersionName);
+        x86Abis << qt4X86Version->qtAbis();
+    }
+    if (!m_qmake5BinaryFile.isEmpty()) {
+        qt5ArmVersion = createQtVersion(m_qmake5BinaryFile, Qnx::ArmLeV7, armVersionName);
+        foreach (Abi abi, qt5ArmVersion->qtAbis())
+            if (!armAbis.contains(abi))
+                armAbis << abi;
+        qt5X86Version = createQtVersion(m_qmake5BinaryFile, Qnx::X86, x86VersionName);
+        foreach (Abi abi, qt5X86Version->qtAbis())
+            if (!x86Abis.contains(abi))
+                x86Abis << abi;
     }
 
-    if (!m_qmake5BinaryFile.isEmpty()) {
-        createConfigurationPerQtVersion(m_qmake5BinaryFile, Qnx::ArmLeV7);
-        createConfigurationPerQtVersion(m_qmake5BinaryFile, Qnx::X86);
-    }
+    // create toolchains
+    QnxToolChain *armToolChain = createToolChain(
+                !armAbis.isEmpty() ? armAbis.first() : Abi(), armVersionName);
+    QnxToolChain *x86ToolChain = createToolChain(
+                !x86Abis.isEmpty() ? x86Abis.first() : Abi(), x86VersionName);
+
+    // create debuggers
+    QVariant armDebuggerItemId = createDebuggerItem(armAbis, Qnx::ArmLeV7, armVersionName);
+    QVariant x86DebuggerItemId = createDebuggerItem(x86Abis, Qnx::X86, x86VersionName);
+
+    // create kits
+    if (qt4ArmVersion)
+        createKit(qt4ArmVersion, armToolChain, armDebuggerItemId);
+    if (qt4X86Version)
+        createKit(qt4X86Version, x86ToolChain, x86DebuggerItemId);
+    if (qt5ArmVersion)
+        createKit(qt5ArmVersion, armToolChain, armDebuggerItemId);
+    if (qt5X86Version)
+        createKit(qt5X86Version, x86ToolChain, x86DebuggerItemId);
 
     return true;
 }
