@@ -255,7 +255,6 @@ QVariantMap AddToolChainOperation::addToolChain(const QVariantMap &map,
 
     QVariantMap result = RmKeysOperation::rmKeys(map, QStringList() << QLatin1String(COUNT));
 
-    std::cout << "Registering ToolChain " << count << std::endl;
     const QString tc = QString::fromLatin1(PREFIX) + QString::number(count);
 
     KeyValuePairList data;
