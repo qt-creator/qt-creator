@@ -31,6 +31,7 @@
 
 #include "operation.h"
 
+#include "adddebuggeroperation.h"
 #include "addkeysoperation.h"
 #include "addkitoperation.h"
 #include "addqtoperation.h"
@@ -38,6 +39,7 @@
 #include "findkeyoperation.h"
 #include "findvalueoperation.h"
 #include "getoperation.h"
+#include "rmdebuggeroperation.h"
 #include "rmkeysoperation.h"
 #include "rmkitoperation.h"
 #include "rmqtoperation.h"
@@ -160,13 +162,15 @@ int main(int argc, char *argv[])
     Settings settings;
 
     QList<Operation *> operations;
-    operations << new AddKeysOperation
+    operations << new AddDebuggerOperation
+               << new AddKeysOperation
                << new AddKitOperation
                << new AddQtOperation
                << new AddToolChainOperation
                << new FindKeyOperation
                << new FindValueOperation
                << new GetOperation
+               << new RmDebuggerOperation
                << new RmKeysOperation
                << new RmKitOperation
                << new RmQtOperation

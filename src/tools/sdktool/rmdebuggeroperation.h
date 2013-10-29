@@ -27,18 +27,16 @@
 **
 ****************************************************************************/
 
-#ifndef ADDKITOPERATION_H
-#define ADDKITOPERATION_H
+#ifndef RMDEBUGGEROPERATION_H
+#define RMDEBUGGEROPERATION_H
 
 #include "operation.h"
 
 #include <QString>
 
-class AddKitOperation : public Operation
+class RmDebuggerOperation : public Operation
 {
 public:
-    AddKitOperation();
-
     QString name() const;
     QString helpText() const;
     QString argumentsHelpText() const;
@@ -51,28 +49,10 @@ public:
     bool test() const;
 #endif
 
-    static QVariantMap addKit(const QVariantMap &map,
-                              const QString &id, const QString &displayName, const QString &icon, const QString &debuggerId,
-                              const quint32 &debuggerType, const QString &debugger,
-                              const QByteArray &deviceType, const QString &sysRoot,
-                              const QString &tc, const QString &qt, const QString &mkspec,
-                              const KeyValuePairList &extra);
-
-    static QVariantMap initializeKits();
+    static QVariantMap rmDebugger(const QVariantMap &map, const QString &id);
 
 private:
     QString m_id;
-    QString m_displayName;
-    QString m_icon;
-    QString m_debuggerId;
-    quint32 m_debuggerEngine;
-    QString m_debugger;
-    QString m_deviceType;
-    QString m_sysRoot;
-    QString m_tc;
-    QString m_qt;
-    QString m_mkspec;
-    KeyValuePairList m_extra;
 };
 
-#endif // ADDKITOPERATION_H
+#endif // RMDEBUGGEROPERATION_H

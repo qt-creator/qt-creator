@@ -27,17 +27,17 @@
 **
 ****************************************************************************/
 
-#ifndef ADDKITOPERATION_H
-#define ADDKITOPERATION_H
+#ifndef ADDDEBUGGEROPERATION_H
+#define ADDDEBUGGEROPERATION_H
 
 #include "operation.h"
 
 #include <QString>
 
-class AddKitOperation : public Operation
+class AddDebuggerOperation : public Operation
 {
 public:
-    AddKitOperation();
+    AddDebuggerOperation();
 
     QString name() const;
     QString helpText() const;
@@ -51,28 +51,20 @@ public:
     bool test() const;
 #endif
 
-    static QVariantMap addKit(const QVariantMap &map,
-                              const QString &id, const QString &displayName, const QString &icon, const QString &debuggerId,
-                              const quint32 &debuggerType, const QString &debugger,
-                              const QByteArray &deviceType, const QString &sysRoot,
-                              const QString &tc, const QString &qt, const QString &mkspec,
-                              const KeyValuePairList &extra);
+    static QVariantMap addDebugger(const QVariantMap &map,
+                                   const QString &id, const QString &displayName,
+                                   const quint32 &engine, const QString &binary,
+                                   const QStringList &abis, const KeyValuePairList &extra);
 
-    static QVariantMap initializeKits();
+    static QVariantMap initializeDebuggers();
 
 private:
     QString m_id;
     QString m_displayName;
-    QString m_icon;
-    QString m_debuggerId;
-    quint32 m_debuggerEngine;
-    QString m_debugger;
-    QString m_deviceType;
-    QString m_sysRoot;
-    QString m_tc;
-    QString m_qt;
-    QString m_mkspec;
+    quint32 m_engine;
+    QString m_binary;
+    QStringList m_abis;
     KeyValuePairList m_extra;
 };
 
-#endif // ADDKITOPERATION_H
+#endif // ADDDEBUGGEROPERATION_H

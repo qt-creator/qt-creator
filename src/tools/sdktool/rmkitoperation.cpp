@@ -63,7 +63,7 @@ QString RmKitOperation::helpText() const
 
 QString RmKitOperation::argumentsHelpText() const
 {
-    return QLatin1String("    --id <ID>                                  id of the new kit.\n");
+    return QLatin1String("    --id <ID>                                  id of the kit to remove.\n");
 }
 
 bool RmKitOperation::setArguments(const QStringList &args)
@@ -102,7 +102,7 @@ bool RmKitOperation::test() const
             AddKitOperation::addKit(AddKitOperation::initializeKits(),
                                     QLatin1String("testId"), QLatin1String("Test Qt Version"),
                                     QLatin1String("/tmp/icon.png"),
-                                    1, QLatin1String("/usr/bin/gdb-test"),
+                                    QString(), 1, QLatin1String("/usr/bin/gdb-test"),
                                     QByteArray("Desktop"), QString(),
                                     QLatin1String("{some-tc-id}"), QLatin1String("{some-qt-id}"),
                                     QLatin1String("unsupported/mkspec"),
@@ -110,7 +110,7 @@ bool RmKitOperation::test() const
     map =
             AddKitOperation::addKit(map, QLatin1String("testId2"), QLatin1String("Test Qt Version"),
                                     QLatin1String("/tmp/icon2.png"),
-                                    1, QLatin1String("/usr/bin/gdb-test2"),
+                                    QString(), 1, QLatin1String("/usr/bin/gdb-test2"),
                                     QByteArray("Desktop"), QString(),
                                     QLatin1String("{some-tc-id2}"), QLatin1String("{some-qt-id2}"),
                                     QLatin1String("unsupported/mkspec2"),
