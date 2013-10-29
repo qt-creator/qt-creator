@@ -3250,7 +3250,14 @@ void tst_Dumpers::dumper_data()
                % Check("s.0", "[0]", "1", "bool")  // 1 -> true is done on display
                % Check("s.1", "[1]", "0", "bool");
 
-    QTest::newRow("QUrl")
+    QTest::newRow("QUrl1")
+            << Data("#include <QUrl>",
+                    "QUrl url;\n"
+                    "unused(&url);\n")
+               % CoreProfile()
+               % Check("url", "<invalid>", "@QUrl");
+
+    QTest::newRow("QUrl2")
             << Data("#include <QUrl>",
                     "QUrl url = QUrl::fromEncoded(\"http://foo@qt-project.org:10/have_fun\");\n"
                     "unused(&url);\n")

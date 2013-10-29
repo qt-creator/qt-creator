@@ -1715,6 +1715,10 @@ def qdump__QTextDocument(d, value):
 
 def qdump__QUrl(d, value):
     if d.qtVersion() < 0x050000:
+        if not d.dereferenceValue(value):
+            # d == 0 if QUrl was constructed with default constructor
+            d.putValue("<invalid>")
+            return
         data = value["d"].dereference()
         d.putByteArrayValue(data["encodedOriginal"])
         d.putPlainChildren(data)
@@ -1729,7 +1733,12 @@ def qdump__QUrl(d, value):
         # - QString path;
         # - QString query;
         # - QString fragment;
-        schemeAddr = d.dereferenceValue(value) + 2 * d.intSize()
+        privAddress = d.dereferenceValue(value)
+        if not privAddress:
+            # d == 0 if QUrl was constructed with default constructor
+            d.putValue("<invalid>")
+            return
+        schemeAddr = privAddress + 2 * d.intSize()
         scheme = d.encodeStringHelper(d.dereference(schemeAddr))
         userName = d.encodeStringHelper(d.dereference(schemeAddr + 1 * d.ptrSize()))
         password = d.encodeStringHelper(d.dereference(schemeAddr + 2 * d.ptrSize()))
