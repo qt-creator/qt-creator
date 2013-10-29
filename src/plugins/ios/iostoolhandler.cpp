@@ -258,6 +258,10 @@ MyProcess::MyProcess(QObject *parent) : QProcess(parent)
 {
 }
 
+MyProcess::~MyProcess()
+{
+}
+
 int MyProcess::processOutputSocket()
 {
     return 0;

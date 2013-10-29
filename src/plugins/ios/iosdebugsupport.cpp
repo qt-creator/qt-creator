@@ -49,8 +49,12 @@
 #include <QTcpServer>
 
 #include <stdio.h>
-#include <unistd.h>
 #include <fcntl.h>
+#ifdef Q_OS_UNIX
+#include <unistd.h>
+#else
+#include <io.h>
+#endif
 
 using namespace Debugger;
 using namespace ProjectExplorer;
