@@ -508,10 +508,10 @@ QList<HeaderPath> GccToolChain::systemHeaderPaths(const QStringList &cxxflags, c
                 arguments << a;
         }
 
-        arguments <<  QLatin1String("-xc++")
-                   << QLatin1String("-E")
-                   << QLatin1String("-v")
-                   << QLatin1String("-");
+        arguments << QLatin1String("-xc++")
+                  << QLatin1String("-E")
+                  << QLatin1String("-v")
+                  << QLatin1String("-");
 
         m_headerPaths = gccHeaderPaths(m_compilerCommand, reinterpretOptions(arguments), env.toStringList());
     }
