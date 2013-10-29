@@ -111,7 +111,7 @@ protected:
 
     // Reinterpret options for compiler drivers inheriting from GccToolChain (e.g qcc) to apply -Wp option
     // that passes the initial options directly down to the gcc compiler
-    virtual QStringList reinterpretOptions(const QStringList &argument) const;
+    virtual QStringList reinterpretOptions(const QStringList &argument) const { return argument; }
     static QList<HeaderPath> gccHeaderPaths(const Utils::FileName &gcc, const QStringList &args, const QStringList &env);
 
     static const int PREDEFINED_MACROS_CACHE_SIZE;

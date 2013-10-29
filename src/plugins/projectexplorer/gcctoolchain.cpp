@@ -734,12 +734,6 @@ QString GccToolChain::detectVersion() const
     return gccVersion(m_compilerCommand, env.toStringList());
 }
 
-QStringList GccToolChain::reinterpretOptions(const QStringList &arg) const
-{
-    // Nothing todo
-    return arg;
-}
-
 // --------------------------------------------------------------------------
 // GccToolChainFactory
 // --------------------------------------------------------------------------
