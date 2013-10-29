@@ -492,7 +492,7 @@ MakeStepFactory::~MakeStepFactory()
 
 bool MakeStepFactory::canCreate(BuildStepList *parent, const Core::Id id) const
 {
-    if (parent->target()->project()->id() == Constants::QT4PROJECT_ID)
+    if (parent->target()->project()->id() == Constants::QMAKEPROJECT_ID)
         return id == MAKESTEP_BS_ID;
     return false;
 }
@@ -539,7 +539,7 @@ BuildStep *MakeStepFactory::restore(BuildStepList *parent, const QVariantMap &ma
 
 QList<Core::Id> MakeStepFactory::availableCreationIds(BuildStepList *parent) const
 {
-    if (parent->target()->project()->id() == Constants::QT4PROJECT_ID)
+    if (parent->target()->project()->id() == Constants::QMAKEPROJECT_ID)
         return QList<Core::Id>() << Core::Id(MAKESTEP_BS_ID);
     return QList<Core::Id>();
 }

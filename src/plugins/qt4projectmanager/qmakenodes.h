@@ -69,7 +69,7 @@ class QmakeProFileNode;
 class QmakeProject;
 
 //  Type of projects
-enum Qt4ProjectType {
+enum QmakeProjectType {
     InvalidProject = 0,
     ApplicationTemplate,
     LibraryTemplate,
@@ -79,7 +79,7 @@ enum Qt4ProjectType {
 };
 
 // Other variables of interest
-enum Qt4Variable {
+enum QmakeVariable {
     DefinesVar = 1,
     IncludePathVar,
     CppFlagsVar,
@@ -222,7 +222,7 @@ private:
     QSet<QString> m_watchedFolders;
     bool m_includedInExactParse;
 
-    // managed by Qt4ProFileNode
+    // managed by QmakeProFileNode
     friend class QmakeProjectManager::QmakeProFileNode;
     friend class Internal::QmakePriFile; // for scheduling updates on modified
     // internal temporary subtree representation
@@ -260,12 +260,12 @@ public:
 
 signals:
     void projectTypeChanged(QmakeProjectManager::QmakeProFileNode *projectNode,
-                            const QmakeProjectManager::Qt4ProjectType oldType,
-                            const QmakeProjectManager::Qt4ProjectType newType);
+                            const QmakeProjectManager::QmakeProjectType oldType,
+                            const QmakeProjectManager::QmakeProjectType newType);
 
     void variablesChanged(QmakeProFileNode *projectNode,
-                          const QHash<Qt4Variable, QStringList> &oldValues,
-                          const QHash<Qt4Variable, QStringList> &newValues);
+                          const QHash<QmakeVariable, QStringList> &oldValues,
+                          const QHash<QmakeVariable, QStringList> &newValues);
 
     void proFileUpdated(QmakeProjectManager::QmakeProFileNode *projectNode, bool success, bool parseInProgress);
 
@@ -369,10 +369,10 @@ public:
 
     bool hasBuildTargets() const;
 
-    Qt4ProjectType projectType() const;
+    QmakeProjectType projectType() const;
 
-    QStringList variableValue(const Qt4Variable var) const;
-    QString singleVariableValue(const Qt4Variable var) const;
+    QStringList variableValue(const QmakeVariable var) const;
+    QString singleVariableValue(const QmakeVariable var) const;
 
     bool isSubProjectDeployable(const QString &filePath) const {
         return !m_subProjectsNotToDeploy.contains(filePath);
@@ -403,7 +403,7 @@ public:
     bool validParse() const;
     bool parseInProgress() const;
 
-    bool hasBuildTargets(Qt4ProjectType projectType) const;
+    bool hasBuildTargets(QmakeProjectType projectType) const;
     bool isDebugAndRelease() const;
 
     void setParseInProgress(bool b);
@@ -425,7 +425,7 @@ private:
 
     void asyncEvaluate(QFutureInterface<EvalResult> &fi);
 
-    typedef QHash<Qt4Variable, QStringList> Qt4VariablesHash;
+    typedef QHash<QmakeVariable, QStringList> QmakeVariablesHash;
 
     void updateUiFiles();
 
@@ -445,15 +445,14 @@ private:
     bool m_validParse;
     bool m_parseInProgress;
 
-    Qt4ProjectType m_projectType;
-    Qt4VariablesHash m_varValues;
+    QmakeProjectType m_projectType;
+    QmakeVariablesHash m_varValues;
 
     QMap<QString, QDateTime> m_uitimestamps;
-    TargetInformation m_qt4targetInformation;
+    TargetInformation m_qmakeTargetInformation;
     QString m_resolvedMkspecPath;
     QStringList m_subProjectsNotToDeploy;
     InstallsList m_installsList;
-    friend class Qt4NodeHierarchy;
 
     QHash<QString, QString> m_uiFiles; // ui-file path, ui header path
 

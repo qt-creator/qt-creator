@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef QT4PM_QMAKEKITCONFIGWIDGET_H
-#define QT4PM_QMAKEKITCONFIGWIDGET_H
+#ifndef QMAKEKITCONFIGWIDGET_H
+#define QMAKEKITCONFIGWIDGET_H
 
 #include <projectexplorer/kitconfigwidget.h>
 
@@ -67,4 +67,4 @@ private:
 } // namespace Internal
 } // namespace QmakeProjectManager
 
-#endif // QT4PM_QMAKEKITCONFIGWIDGET_H
+#endif // QMAKEKITCONFIGWIDGET_H

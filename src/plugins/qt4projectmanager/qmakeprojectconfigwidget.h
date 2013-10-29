@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef QT4PROJECTCONFIGWIDGET_H
-#define QT4PROJECTCONFIGWIDGET_H
+#ifndef QMAKEPROJECTCONFIGWIDGET_H
+#define QMAKEPROJECTCONFIGWIDGET_H
 
 #include <projectexplorer/namedwidget.h>
 
@@ -82,4 +82,4 @@ private:
 } // namespace Internal
 } // namespace QmakeProjectManager
 
-#endif // QT4PROJECTCONFIGWIDGET_H
+#endif // QMAKEPROJECTCONFIGWIDGET_H

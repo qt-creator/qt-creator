@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef QT4PROJECTMANAGERPLUGIN_H
-#define QT4PROJECTMANAGERPLUGIN_H
+#ifndef QMAKEPROJECTMANAGERPLUGIN_H
+#define QMAKEPROJECTMANAGERPLUGIN_H
 
 #include <extensionsystem/iplugin.h>
 #include <coreplugin/icontext.h>
@@ -106,4 +106,4 @@ private:
 } // namespace Internal
 } // namespace QmakeProjectManager
 
-#endif // QT4PROJECTMANAGERPLUGIN_H
+#endif // QMAKEPROJECTMANAGERPLUGIN_H

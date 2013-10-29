@@ -76,14 +76,14 @@ using namespace ProjectExplorer;
 using namespace QtSupport;
 using namespace Utils;
 
-const char QT4_BC_ID[] = "Qt4ProjectManager.Qt4BuildConfiguration";
+const char QMAKE_BC_ID[] = "Qt4ProjectManager.Qt4BuildConfiguration";
 const char USE_SHADOW_BUILD_KEY[] = "Qt4ProjectManager.Qt4BuildConfiguration.UseShadowBuild";
 const char BUILD_CONFIGURATION_KEY[] = "Qt4ProjectManager.Qt4BuildConfiguration.BuildConfiguration";
 
 enum { debug = 0 };
 
 QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target) :
-    BuildConfiguration(target, Core::Id(QT4_BC_ID)),
+    BuildConfiguration(target, Core::Id(QMAKE_BC_ID)),
     m_shadowBuild(true),
     m_isEnabled(false),
     m_qmakeBuildConfiguration(0),
@@ -676,7 +676,7 @@ bool QmakeBuildConfigurationFactory::canRestore(const Target *parent, const QVar
 {
     if (!canHandle(parent))
         return false;
-    return ProjectExplorer::idFromMap(map) == QT4_BC_ID;
+    return ProjectExplorer::idFromMap(map) == QMAKE_BC_ID;
 }
 
 BuildConfiguration *QmakeBuildConfigurationFactory::restore(Target *parent, const QVariantMap &map)

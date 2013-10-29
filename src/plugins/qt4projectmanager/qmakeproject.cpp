@@ -890,7 +890,7 @@ QString QmakeProject::displayName() const
 
 Core::Id QmakeProject::id() const
 {
-    return Core::Id(Constants::QT4PROJECT_ID);
+    return Core::Id(Constants::QMAKEPROJECT_ID);
 }
 
 Core::IDocument *QmakeProject::document() const

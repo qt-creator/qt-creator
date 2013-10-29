@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef QT4PROJECTMANAGERCONSTANTS_H
-#define QT4PROJECTMANAGERCONSTANTS_H
+#ifndef QMAKEPROJECTMANAGERCONSTANTS_H
+#define QMAKEPROJECTMANAGERCONSTANTS_H
 
 #include <QtGlobal>
 
@@ -70,7 +70,7 @@ const char ADDLIBRARY[] = "Qt4.AddLibrary";
 const char PROFILE_EVALUATE[] = "Qt4ProjectManager.ProFileEvaluate";
 
 // Project
-const char QT4PROJECT_ID[] = "Qt4ProjectManager.Qt4Project";
+const char QMAKEPROJECT_ID[] = "Qt4ProjectManager.Qt4Project";
 
 // ICONS
 const char ICON_QTQUICK_APP[] = ":/wizards/images/qtquickapp.png";
@@ -84,5 +84,4 @@ const char QMAKEVAR_QUICK2_DEBUG[] = "CONFIG+=qml_debug";
 } // namespace Constants
 } // namespace QmakeProjectManager
 
-#endif // QT4PROJECTMANAGERCONSTANTS_H
-
+#endif // QMAKEPROJECTMANAGERCONSTANTS_H

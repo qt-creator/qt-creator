@@ -63,7 +63,7 @@ using Utils::PersistentSettingsWriter;
 
 namespace {
 
-const char QT4_RC_PREFIX[] = "Qt4ProjectManager.Qt4RunConfiguration:";
+const char QMAKE_RC_PREFIX[] = "Qt4ProjectManager.Qt4RunConfiguration:";
 const char COMMAND_LINE_ARGUMENTS_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments";
 const char PRO_FILE_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.ProFile";
 const char USE_TERMINAL_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration.UseTerminal";
@@ -72,7 +72,7 @@ const char USER_WORKING_DIRECTORY_KEY[] = "Qt4ProjectManager.Qt4RunConfiguration
 
 QString pathFromId(Core::Id id)
 {
-    return id.suffixAfter(QT4_RC_PREFIX);
+    return id.suffixAfter(QMAKE_RC_PREFIX);
 }
 
 } // namespace
@@ -662,7 +662,7 @@ bool Qt4RunConfigurationFactory::canRestore(ProjectExplorer::Target *parent, con
 {
     if (!canHandle(parent))
         return false;
-    return ProjectExplorer::idFromMap(map).toString().startsWith(QLatin1String(QT4_RC_PREFIX));
+    return ProjectExplorer::idFromMap(map).toString().startsWith(QLatin1String(QMAKE_RC_PREFIX));
 }
 
 ProjectExplorer::RunConfiguration *Qt4RunConfigurationFactory::doRestore(ProjectExplorer::Target *parent,
@@ -691,7 +691,7 @@ QList<Core::Id> Qt4RunConfigurationFactory::availableCreationIds(ProjectExplorer
         return result;
 
     QmakeProject *project = static_cast<QmakeProject *>(parent->project());
-    QStringList proFiles = project->applicationProFilePathes(QLatin1String(QT4_RC_PREFIX));
+    QStringList proFiles = project->applicationProFilePathes(QLatin1String(QMAKE_RC_PREFIX));
     foreach (const QString &pf, proFiles)
         result << Core::Id::fromString(pf);
     return result;
