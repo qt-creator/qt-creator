@@ -425,4 +425,4 @@ void QmakeProjectManagerPlugin::updateBuildFileAction()
     m_buildFileAction->setEnabled(enabled);
 }
 
-Q_EXPORT_PLUGIN(Qt4ProjectManagerPlugin)
+Q_EXPORT_PLUGIN(QmakeProjectManagerPlugin)
