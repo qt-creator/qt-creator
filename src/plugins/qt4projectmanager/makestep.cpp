@@ -188,7 +188,7 @@ bool MakeStep::init()
 
     QString args;
 
-    QmakeProjectManager::Qt4ProFileNode *subNode = bc->subNodeBuild();
+    QmakeProjectManager::QmakeProFileNode *subNode = bc->subNodeBuild();
     if (subNode) {
         QString makefile = subNode->makefile();
         if (makefile.isEmpty())
@@ -262,7 +262,7 @@ bool MakeStep::init()
     appendOutputParser(new QMakeParser); // make may cause qmake to be run, add last to make sure
                                          // it has a low priority.
 
-    m_scriptTarget = (static_cast<Qt4Project *>(bc->target()->project())->rootQt4ProjectNode()->projectType() == ScriptTemplate);
+    m_scriptTarget = (static_cast<QmakeProject *>(bc->target()->project())->rootQmakeProjectNode()->projectType() == ScriptTemplate);
 
     return AbstractProcessStep::init();
 }

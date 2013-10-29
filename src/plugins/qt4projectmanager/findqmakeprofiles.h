@@ -33,17 +33,17 @@
 #include <projectexplorer/nodesvisitor.h>
 
 namespace QmakeProjectManager {
-class Qt4ProFileNode;
+class QmakeProFileNode;
 namespace Internal {
 
-class FindQt4ProFiles: protected ProjectExplorer::NodesVisitor {
-
+class FindQmakeProFiles: protected ProjectExplorer::NodesVisitor
+{
 public:
-    QList<Qt4ProFileNode *> operator()(ProjectExplorer::ProjectNode *root);
+    QList<QmakeProFileNode *> operator()(ProjectExplorer::ProjectNode *root);
 protected:
     virtual void visitProjectNode(ProjectExplorer::ProjectNode *projectNode);
 private:
-    QList<Qt4ProFileNode *> m_proFiles;
+    QList<QmakeProFileNode *> m_proFiles;
 };
 
 } // namespace Internal

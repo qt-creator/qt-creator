@@ -45,7 +45,7 @@ class Project;
 
 namespace QmakeProjectManager {
 class QmakeBuildConfiguration;
-class Qt4Project;
+class QmakeProject;
 
 namespace Internal {
 

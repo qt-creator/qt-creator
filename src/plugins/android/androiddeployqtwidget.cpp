@@ -135,7 +135,7 @@ AndroidDeployQtWidget::AndroidDeployQtWidget(AndroidDeployQtStep *step)
     connect(m_ui->createAndroidManifestButton, SIGNAL(clicked()),
             this, SLOT(createManifestButton()));
 
-    m_extraLibraryListModel = new AndroidExtraLibraryListModel(static_cast<QmakeProjectManager::Qt4Project *>(m_step->project()),
+    m_extraLibraryListModel = new AndroidExtraLibraryListModel(static_cast<QmakeProjectManager::QmakeProject *>(m_step->project()),
                                                                this);
     m_ui->androidExtraLibsListView->setModel(m_extraLibraryListModel);
 
@@ -156,8 +156,8 @@ AndroidDeployQtWidget::~AndroidDeployQtWidget()
 
 void AndroidDeployQtWidget::checkProjectTemplate()
 {
-    QmakeProjectManager::Qt4Project *project = static_cast<QmakeProjectManager::Qt4Project *>(m_step->project());
-    if (project->rootQt4ProjectNode()->projectType() == QmakeProjectManager::ApplicationTemplate)
+    QmakeProjectManager::QmakeProject *project = static_cast<QmakeProjectManager::QmakeProject *>(m_step->project());
+    if (project->rootQmakeProjectNode()->projectType() == QmakeProjectManager::ApplicationTemplate)
         m_ui->additionalLibrariesGroupBox->setEnabled(true);
     else
         m_ui->additionalLibrariesGroupBox->setEnabled(false);
@@ -171,9 +171,9 @@ void AndroidDeployQtWidget::createManifestButton()
 
 void AndroidDeployQtWidget::updateInputFileUi()
 {
-    QmakeProjectManager::Qt4Project *project
-            = static_cast<QmakeProjectManager::Qt4Project *>(m_step->project());
-    QList<QmakeProjectManager::Qt4ProFileNode *> nodes = project->applicationProFiles();
+    QmakeProjectManager::QmakeProject *project
+            = static_cast<QmakeProjectManager::QmakeProject *>(m_step->project());
+    QList<QmakeProjectManager::QmakeProFileNode *> nodes = project->applicationProFiles();
     int size = nodes.size();
     if (size == 0 || size == 1) {
         // there's nothing to select, e.g. before parsing
@@ -185,7 +185,7 @@ void AndroidDeployQtWidget::updateInputFileUi()
         m_ui->inputFileComboBox->setVisible(true);
 
         m_ui->inputFileComboBox->clear();
-        foreach (QmakeProjectManager::Qt4ProFileNode *node, nodes) {
+        foreach (QmakeProjectManager::QmakeProFileNode *node, nodes) {
             QString file = node->singleVariableValue(QmakeProjectManager::AndroidDeploySettingsFile);
             m_ui->inputFileComboBox->addItem(node->displayName(), file);
         }

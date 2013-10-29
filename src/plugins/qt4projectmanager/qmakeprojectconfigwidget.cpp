@@ -49,7 +49,7 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(QmakeBuildConfiguration *bc)
       m_ignoreChange(false)
 {
     m_defaultShadowBuildDir
-            = Qt4Project::shadowBuildDirectory(bc->target()->project()->projectFilePath(),
+            = QmakeProject::shadowBuildDirectory(bc->target()->project()->projectFilePath(),
                                                bc->target()->kit(),
                                                Utils::FileUtils::fileSystemFriendlyName(bc->displayName()));
 
@@ -92,7 +92,7 @@ Qt4ProjectConfigWidget::Qt4ProjectConfigWidget(QmakeBuildConfiguration *bc)
     connect(m_ui->shadowBuildDirEdit, SIGNAL(changed(QString)),
             this, SLOT(shadowBuildEdited()));
 
-    Qt4Project *project = static_cast<Qt4Project *>(bc->target()->project());
+    QmakeProject *project = static_cast<QmakeProject *>(bc->target()->project());
     connect(project, SIGNAL(environmentChanged()), this, SLOT(environmentChanged()));
     connect(project, SIGNAL(buildDirectoryInitialized()), this, SLOT(updateProblemLabel()));
     connect(project, SIGNAL(proFilesEvaluated()), this, SLOT(updateProblemLabel()));
@@ -201,8 +201,8 @@ void Qt4ProjectConfigWidget::updateProblemLabel()
         return;
     }
 
-    Qt4Project *p = static_cast<Qt4Project *>(m_buildConfiguration->target()->project());
-    if (p->rootQt4ProjectNode()->parseInProgress() || !p->rootQt4ProjectNode()->validParse()) {
+    QmakeProject *p = static_cast<QmakeProject *>(m_buildConfiguration->target()->project());
+    if (p->rootQmakeProjectNode()->parseInProgress() || !p->rootQmakeProjectNode()->validParse()) {
         setProblemLabel(QString());
         return;
     }

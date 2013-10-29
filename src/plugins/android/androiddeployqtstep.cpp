@@ -345,11 +345,11 @@ void AndroidDeployQtStep::runCommand(const QString &program, const QStringList &
 
 void AndroidDeployQtStep::updateInputFile()
 {
-    QmakeProjectManager::Qt4Project *pro = static_cast<QmakeProjectManager::Qt4Project *>(project());
-    QList<QmakeProjectManager::Qt4ProFileNode *> nodes = pro->applicationProFiles();
+    QmakeProjectManager::QmakeProject *pro = static_cast<QmakeProjectManager::QmakeProject *>(project());
+    QList<QmakeProjectManager::QmakeProFileNode *> nodes = pro->applicationProFiles();
 
     QStringList inputFiles;
-    foreach (QmakeProjectManager::Qt4ProFileNode *node, nodes)
+    foreach (QmakeProjectManager::QmakeProFileNode *node, nodes)
         inputFiles << node->singleVariableValue(QmakeProjectManager::AndroidDeploySettingsFile);
 
     if (!inputFiles.contains(m_inputFile))

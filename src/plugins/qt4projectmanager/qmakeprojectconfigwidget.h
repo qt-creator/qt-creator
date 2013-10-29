@@ -42,7 +42,7 @@ namespace Utils {
 
 namespace QmakeProjectManager {
 class QmakeBuildConfiguration;
-class Qt4ProFileNode;
+class QmakeProFileNode;
 
 namespace Internal {
 namespace Ui {

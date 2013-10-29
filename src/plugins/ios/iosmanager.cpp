@@ -58,7 +58,7 @@ namespace Internal {
 
 bool IosManager::supportsIos(ProjectExplorer::Target *target)
 {
-    if (!qobject_cast<QmakeProjectManager::Qt4Project *>(target->project()))
+    if (!qobject_cast<QmakeProjectManager::QmakeProject *>(target->project()))
         return false;
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
     return version && version->type() == QLatin1String(Ios::Constants::IOSQT);

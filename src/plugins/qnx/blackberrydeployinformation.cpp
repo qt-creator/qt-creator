@@ -241,8 +241,8 @@ void BlackBerryDeployInformation::updateModel()
 
     beginResetModel();
     QList<BarPackageDeployInformation> keep;
-    QList<QmakeProjectManager::Qt4ProFileNode *> appNodes = project()->applicationProFiles();
-    foreach (QmakeProjectManager::Qt4ProFileNode *node, appNodes) {
+    QList<QmakeProjectManager::QmakeProFileNode *> appNodes = project()->applicationProFiles();
+    foreach (QmakeProjectManager::QmakeProFileNode *node, appNodes) {
         bool nodeFound = false;
         for (int i = 0; i < m_deployInformation.size(); ++i) {
             if (m_deployInformation[i].proFilePath == node->path()
@@ -264,9 +264,9 @@ void BlackBerryDeployInformation::updateModel()
     endResetModel();
 }
 
-QmakeProjectManager::Qt4Project *BlackBerryDeployInformation::project() const
+QmakeProjectManager::QmakeProject *BlackBerryDeployInformation::project() const
 {
-    return static_cast<QmakeProjectManager::Qt4Project *>(m_target->project());
+    return static_cast<QmakeProjectManager::QmakeProject *>(m_target->project());
 }
 
 void BlackBerryDeployInformation::initModel()
@@ -282,7 +282,7 @@ void BlackBerryDeployInformation::initModel()
         return;
     }
 
-    const QmakeProjectManager::Qt4ProFileNode *const rootNode = project()->rootQt4ProjectNode();
+    const QmakeProjectManager::QmakeProFileNode *const rootNode = project()->rootQmakeProjectNode();
     if (!rootNode || rootNode->parseInProgress()) // Can be null right after project creation by wizard.
         return;
 
@@ -291,15 +291,15 @@ void BlackBerryDeployInformation::initModel()
     beginResetModel();
     m_deployInformation.clear();
 
-    QList<QmakeProjectManager::Qt4ProFileNode *> appNodes = project()->applicationProFiles();
-    foreach (QmakeProjectManager::Qt4ProFileNode *node, appNodes)
+    QList<QmakeProjectManager::QmakeProFileNode *> appNodes = project()->applicationProFiles();
+    foreach (QmakeProjectManager::QmakeProFileNode *node, appNodes)
         m_deployInformation << deployInformationFromNode(node);
 
     endResetModel();
     connect(project(), SIGNAL(proFilesEvaluated()), this, SLOT(updateModel()));
 }
 
-BarPackageDeployInformation BlackBerryDeployInformation::deployInformationFromNode(QmakeProjectManager::Qt4ProFileNode *node) const
+BarPackageDeployInformation BlackBerryDeployInformation::deployInformationFromNode(QmakeProjectManager::QmakeProFileNode *node) const
 {
     QmakeProjectManager::TargetInformation ti = node->targetInformation();
 

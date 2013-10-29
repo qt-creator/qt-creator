@@ -52,10 +52,10 @@ namespace QmakeProjectManager {
 namespace Internal {
 
 // Figure out the Qt4 project used by the file if any
-static Qt4Project *qt4ProjectFor(const QString &fileName)
+static QmakeProject *qt4ProjectFor(const QString &fileName)
 {
     if (ProjectExplorer::Project *baseProject = ProjectExplorer::SessionManager::projectForFile(fileName))
-        if (Qt4Project *project = qobject_cast<Qt4Project*>(baseProject))
+        if (QmakeProject *project = qobject_cast<QmakeProject*>(baseProject))
             return project;
     return 0;
 }
@@ -138,7 +138,7 @@ bool ExternalQtEditor::getEditorLaunchData(const QString &fileName,
                                            QString *errorMessage) const
 {
     // Get the binary either from the current Qt version of the project or Path
-    if (const Qt4Project *project = qt4ProjectFor(fileName)) {
+    if (const QmakeProject *project = qt4ProjectFor(fileName)) {
         if (const ProjectExplorer::Target *target = project->activeTarget()) {
             if (const QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target->kit())) {
                 data->binary = (qtVersion->*commandAccessor)();

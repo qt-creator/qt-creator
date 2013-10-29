@@ -112,7 +112,7 @@ DeployConfiguration *IosDeployConfigurationFactory::clone(Target *parent, Deploy
 QList<Core::Id> IosDeployConfigurationFactory::availableCreationIds(Target *parent) const
 {
     QList<Core::Id> ids;
-    if (!qobject_cast<QmakeProjectManager::Qt4Project *>(parent->project()))
+    if (!qobject_cast<QmakeProjectManager::QmakeProject *>(parent->project()))
         return ids;
     if (!parent->project()->supportsKit(parent->kit()))
         return ids;

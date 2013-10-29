@@ -275,7 +275,7 @@ bool BaseQt4ProjectWizardDialog::writeUserFile(const QString &proFileName) const
     Qt4Manager *manager = ExtensionSystem::PluginManager::getObject<Qt4Manager>();
     Q_ASSERT(manager);
 
-    Qt4Project *pro = new Qt4Project(manager, proFileName);
+    QmakeProject *pro = new QmakeProject(manager, proFileName);
     bool success = m_targetSetupPage->setupProject(pro);
     if (success)
         pro->saveSettings();
@@ -283,7 +283,7 @@ bool BaseQt4ProjectWizardDialog::writeUserFile(const QString &proFileName) const
     return success;
 }
 
-bool BaseQt4ProjectWizardDialog::setupProject(Qt4Project *project) const
+bool BaseQt4ProjectWizardDialog::setupProject(QmakeProject *project) const
 {
     if (!m_targetSetupPage)
         return true;

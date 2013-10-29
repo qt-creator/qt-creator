@@ -43,8 +43,8 @@
 
 using namespace Android;
 using namespace Android::Internal;
-using QmakeProjectManager::Qt4Project;
-using QmakeProjectManager::Qt4ProFileNode;
+using QmakeProjectManager::QmakeProject;
+using QmakeProjectManager::QmakeProFileNode;
 
 //
 // NoApplicationProFilePage
@@ -63,7 +63,7 @@ NoApplicationProFilePage::NoApplicationProFilePage(CreateAndroidManifestWizard *
 //
 // ChooseProFilePage
 //
-ChooseProFilePage::ChooseProFilePage(CreateAndroidManifestWizard *wizard, const QList<Qt4ProFileNode *> &nodes)
+ChooseProFilePage::ChooseProFilePage(CreateAndroidManifestWizard *wizard, const QList<QmakeProFileNode *> &nodes)
     : m_wizard(wizard)
 {
     QFormLayout *fl = new QFormLayout(this);
@@ -73,7 +73,7 @@ ChooseProFilePage::ChooseProFilePage(CreateAndroidManifestWizard *wizard, const 
     fl->addRow(label);
 
     m_comboBox = new QComboBox(this);
-    foreach (Qt4ProFileNode *node, nodes)
+    foreach (QmakeProFileNode *node, nodes)
         m_comboBox->addItem(node->displayName(), QVariant::fromValue(static_cast<void *>(node))); // TODO something more?
 
     connect(m_comboBox, SIGNAL(currentIndexChanged(int)),
@@ -86,7 +86,7 @@ ChooseProFilePage::ChooseProFilePage(CreateAndroidManifestWizard *wizard, const 
 void ChooseProFilePage::nodeSelected(int index)
 {
     Q_UNUSED(index)
-    m_wizard->setNode(static_cast<Qt4ProFileNode *>(m_comboBox->itemData(m_comboBox->currentIndex()).value<void *>()));
+    m_wizard->setNode(static_cast<QmakeProFileNode *>(m_comboBox->itemData(m_comboBox->currentIndex()).value<void *>()));
 }
 
 
@@ -133,8 +133,8 @@ CreateAndroidManifestWizard::CreateAndroidManifestWizard(ProjectExplorer::Target
 {
     setWindowTitle(tr("Create Android Manifest Wizard"));
 
-    Qt4Project *project = static_cast<Qt4Project *>(target->project());
-    QList<Qt4ProFileNode *> nodes = project->applicationProFiles();
+    QmakeProject *project = static_cast<QmakeProject *>(target->project());
+    QList<QmakeProFileNode *> nodes = project->applicationProFiles();
     if (nodes.isEmpty()) {
         // oh uhm can't create anything
         addPage(new NoApplicationProFilePage(this));
@@ -147,12 +147,12 @@ CreateAndroidManifestWizard::CreateAndroidManifestWizard(ProjectExplorer::Target
     }
 }
 
-QmakeProjectManager::Qt4ProFileNode *CreateAndroidManifestWizard::node() const
+QmakeProjectManager::QmakeProFileNode *CreateAndroidManifestWizard::node() const
 {
     return m_node;
 }
 
-void CreateAndroidManifestWizard::setNode(QmakeProjectManager::Qt4ProFileNode *node)
+void CreateAndroidManifestWizard::setNode(QmakeProjectManager::QmakeProFileNode *node)
 {
     m_node = node;
 }

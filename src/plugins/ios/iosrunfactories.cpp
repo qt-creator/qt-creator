@@ -97,8 +97,8 @@ QList<Core::Id> IosRunConfigurationFactory::availableCreationIds(Target *parent)
     if (!IosManager::supportsIos(parent))
         return ids;
     Core::Id baseId(IOS_RC_ID_PREFIX);
-    QList<Qt4ProFileNode *> nodes = static_cast<Qt4Project *>(parent->project())->allProFiles();
-    foreach (Qt4ProFileNode *node, nodes)
+    QList<QmakeProFileNode *> nodes = static_cast<QmakeProject *>(parent->project())->allProFiles();
+    foreach (QmakeProFileNode *node, nodes)
         if (node->projectType() == ApplicationTemplate || node->projectType() == LibraryTemplate
                 || node->projectType() == AuxTemplate)
             ids << baseId.withSuffix(node->path());

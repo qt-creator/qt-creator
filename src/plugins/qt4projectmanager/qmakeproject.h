@@ -53,8 +53,8 @@ class MakeStep;
 class QMakeStep;
 class QmakeBuildConfiguration;
 class Qt4Manager;
-class Qt4PriFileNode;
-class Qt4ProFileNode;
+class QmakePriFileNode;
+class QmakeProFileNode;
 class Qt4RunStep;
 class TargetInformation;
 
@@ -62,19 +62,19 @@ namespace Internal {
 class CentralizedFolderWatcher;
 class FileItem;
 class GCCPreprocessor;
-class Qt4ProjectFiles;
+class QmakeProjectFiles;
 class Qt4ProjectConfigWidget;
-class Qt4ProjectFile;
-class Qt4NodesWatcher;
+class QmakeProjectFile;
+class QmakeNodesWatcher;
 }
 
-class  QT4PROJECTMANAGER_EXPORT Qt4Project : public ProjectExplorer::Project
+class  QT4PROJECTMANAGER_EXPORT QmakeProject : public ProjectExplorer::Project
 {
     Q_OBJECT
 
 public:
-    Qt4Project(Qt4Manager *manager, const QString &proFile);
-    virtual ~Qt4Project();
+    QmakeProject(Qt4Manager *manager, const QString &proFile);
+    virtual ~QmakeProject();
 
     QString displayName() const;
     Core::Id id() const;
@@ -85,7 +85,7 @@ public:
     bool supportsKit(ProjectExplorer::Kit *k, QString *errorMesage) const;
 
     ProjectExplorer::ProjectNode *rootProjectNode() const;
-    Qt4ProFileNode *rootQt4ProjectNode() const;
+    QmakeProFileNode *rootQmakeProjectNode() const;
     bool validParse(const QString &proFilePath) const;
     bool parseInProgress(const QString &proFilePath) const;
 
@@ -93,22 +93,22 @@ public:
     virtual QString generatedUiHeader(const QString &formFile) const;
 
     enum Parsing {ExactParse, ExactAndCumulativeParse };
-    QList<Qt4ProFileNode *> allProFiles(Parsing parse = ExactParse) const;
-    QList<Qt4ProFileNode *> applicationProFiles(Parsing parse = ExactParse) const;
+    QList<QmakeProFileNode *> allProFiles(Parsing parse = ExactParse) const;
+    QList<QmakeProFileNode *> applicationProFiles(Parsing parse = ExactParse) const;
     bool hasApplicationProFile(const QString &path) const;
     QStringList applicationProFilePathes(const QString &prepend = QString(), Parsing parse = ExactParse) const;
 
     void notifyChanged(const QString &name);
 
     /// \internal
-    QtSupport::ProFileReader *createProFileReader(const Qt4ProFileNode *qt4ProFileNode, QmakeBuildConfiguration *bc = 0);
+    QtSupport::ProFileReader *createProFileReader(const QmakeProFileNode *qmakeProFileNode, QmakeBuildConfiguration *bc = 0);
     /// \internal
     ProFileGlobals *qmakeGlobals();
     /// \internal
     void destroyProFileReader(QtSupport::ProFileReader *reader);
 
     /// \internal
-    void scheduleAsyncUpdate(QmakeProjectManager::Qt4ProFileNode *node);
+    void scheduleAsyncUpdate(QmakeProjectManager::QmakeProFileNode *node);
     /// \internal
     void incrementPendingEvaluateFutures();
     /// \internal
@@ -116,12 +116,12 @@ public:
     /// \internal
     bool wasEvaluateCanceled();
 
-    // For Qt4ProFileNode after a on disk change
+    // For QmakeProFileNode after a on disk change
     void updateFileList();
     void updateCodeModels();
 
-    void watchFolders(const QStringList &l, Qt4PriFileNode *node);
-    void unwatchFolders(const QStringList &l, Qt4PriFileNode *node);
+    void watchFolders(const QStringList &l, QmakePriFileNode *node);
+    void unwatchFolders(const QStringList &l, QmakePriFileNode *node);
 
     bool needsConfiguration() const;
 
@@ -145,7 +145,7 @@ public:
 
     ProjectExplorer::KitMatcher *createRequiredKitMatcher() const;
 signals:
-    void proFileUpdated(QmakeProjectManager::Qt4ProFileNode *node, bool, bool);
+    void proFileUpdated(QmakeProjectManager::QmakeProFileNode *node, bool, bool);
     void buildDirectoryInitialized();
     void proFilesEvaluated();
 
@@ -163,39 +163,39 @@ private slots:
     void activeTargetWasChanged();
 
 private:
-    QString executableFor(const Qt4ProFileNode *node);
+    QString executableFor(const QmakeProFileNode *node);
     void updateRunConfigurations();
 
     void updateCppCodeModel();
     void updateQmlJSCodeModel();
 
-    static void collectAllfProFiles(QList<Qt4ProFileNode *> &list, Qt4ProFileNode *node, Parsing parse);
-    static void collectApplicationProFiles(QList<Qt4ProFileNode *> &list, Qt4ProFileNode *node, Parsing parse);
-    static void findProFile(const QString& fileName, Qt4ProFileNode *root, QList<Qt4ProFileNode *> &list);
-    static bool hasSubNode(Qt4PriFileNode *root, const QString &path);
+    static void collectAllfProFiles(QList<QmakeProFileNode *> &list, QmakeProFileNode *node, Parsing parse);
+    static void collectApplicationProFiles(QList<QmakeProFileNode *> &list, QmakeProFileNode *node, Parsing parse);
+    static void findProFile(const QString& fileName, QmakeProFileNode *root, QList<QmakeProFileNode *> &list);
+    static bool hasSubNode(QmakePriFileNode *root, const QString &path);
 
     static bool equalFileList(const QStringList &a, const QStringList &b);
 
     void updateBuildSystemData();
-    void collectData(const Qt4ProFileNode *node, ProjectExplorer::DeploymentData &deploymentData);
-    void collectApplicationData(const Qt4ProFileNode *node,
+    void collectData(const QmakeProFileNode *node, ProjectExplorer::DeploymentData &deploymentData);
+    void collectApplicationData(const QmakeProFileNode *node,
                                 ProjectExplorer::DeploymentData &deploymentData);
-    void collectLibraryData(const Qt4ProFileNode *node,
+    void collectLibraryData(const QmakeProFileNode *node,
             ProjectExplorer::DeploymentData &deploymentData);
     QString destDirFor(const TargetInformation &ti);
 
     Qt4Manager *m_manager;
-    Qt4ProFileNode *m_rootProjectNode;
-    Internal::Qt4NodesWatcher *m_nodesWatcher;
+    QmakeProFileNode *m_rootProjectNode;
+    Internal::QmakeNodesWatcher *m_nodesWatcher;
 
-    Internal::Qt4ProjectFile *m_fileInfo;
+    Internal::QmakeProjectFile *m_fileInfo;
 
     // Current configuration
     QString m_oldQtIncludePath;
     QString m_oldQtLibsPath;
 
     // cached lists of all of files
-    Internal::Qt4ProjectFiles *m_projectFiles;
+    Internal::QmakeProjectFiles *m_projectFiles;
 
     QMakeVfs *m_qmakeVfs;
 
@@ -209,7 +209,7 @@ private:
     enum AsyncUpdateState { NoState, Base, AsyncFullUpdatePending, AsyncPartialUpdatePending, AsyncUpdateInProgress, ShuttingDown };
     AsyncUpdateState m_asyncUpdateState;
     bool m_cancelEvaluate;
-    QList<Qt4ProFileNode *> m_partialEvaluate;
+    QList<QmakeProFileNode *> m_partialEvaluate;
 
     QFuture<void> m_codeModelFuture;
 
@@ -217,7 +217,7 @@ private:
 
     ProjectExplorer::Target *m_activeTarget;
 
-    friend class Internal::Qt4ProjectFile;
+    friend class Internal::QmakeProjectFile;
     friend class Internal::Qt4ProjectConfigWidget;
     friend class Qt4Manager; // to schedule a async update if the unconfigured settings change
 };

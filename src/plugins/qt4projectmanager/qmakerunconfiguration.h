@@ -53,9 +53,9 @@ class DetailsWidget;
 
 namespace QmakeProjectManager {
 
-class Qt4Project;
-class Qt4ProFileNode;
-class Qt4PriFileNode;
+class QmakeProject;
+class QmakeProFileNode;
+class QmakePriFileNode;
 class TargetInformation;
 
 namespace Internal {
@@ -108,14 +108,14 @@ signals:
 
 private slots:
     void kitChanged();
-    void proFileUpdated(QmakeProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress);
+    void proFileUpdated(QmakeProjectManager::QmakeProFileNode *pro, bool success, bool parseInProgress);
 
 protected:
     Qt4RunConfiguration(ProjectExplorer::Target *parent, Qt4RunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
 
 private:
-    QPair<QString, QString> extractWorkingDirAndExecutable(const Qt4ProFileNode *node) const;
+    QPair<QString, QString> extractWorkingDirAndExecutable(const QmakeProFileNode *node) const;
     void setBaseWorkingDirectory(const QString &workingDirectory);
     QString baseWorkingDirectory() const;
     void setCommandLineArguments(const QString &argumentsString);

@@ -41,7 +41,7 @@ class TargetSetupPage;
 
 namespace QmakeProjectManager {
 
-class Qt4Project;
+class QmakeProject;
 
 namespace Internal {
 
@@ -131,7 +131,7 @@ public:
     void setDeselectedModules(const QString &);
 
     bool writeUserFile(const QString &proFileName) const;
-    bool setupProject(Qt4Project *project) const;
+    bool setupProject(QmakeProject *project) const;
     bool isQtPlatformSelected(const QString &platform) const;
     QList<Core::Id> selectedKits() const;
 

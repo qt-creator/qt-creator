@@ -67,7 +67,7 @@ static Utils::FileName defaultBuildDirectory(bool supportsShadowBuild,
                                              const QString &suffix)
 {
     if (supportsShadowBuild)
-        return Utils::FileName::fromString(Qt4Project::shadowBuildDirectory(projectPath, k, suffix));
+        return Utils::FileName::fromString(QmakeProject::shadowBuildDirectory(projectPath, k, suffix));
     return Utils::FileName::fromString(ProjectExplorer::Project::projectDirectory(projectPath));
 }
 
@@ -199,7 +199,7 @@ NamedWidget *QmakeBuildConfiguration::createConfigWidget()
 QString QmakeBuildConfiguration::defaultShadowBuildDirectory() const
 {
     // todo displayName isn't ideal
-    return Qt4Project::shadowBuildDirectory(target()->project()->projectFilePath(),
+    return QmakeProject::shadowBuildDirectory(target()->project()->projectFilePath(),
                                             target()->kit(), displayName());
 }
 
@@ -212,7 +212,7 @@ bool QmakeBuildConfiguration::supportsShadowBuilds()
 /// If only a sub tree should be build this function returns which sub node
 /// should be build
 /// \see QMakeBuildConfiguration::setSubNodeBuild
-Qt4ProFileNode *QmakeBuildConfiguration::subNodeBuild() const
+QmakeProFileNode *QmakeBuildConfiguration::subNodeBuild() const
 {
     return m_subNodeBuild;
 }
@@ -223,7 +223,7 @@ Qt4ProFileNode *QmakeBuildConfiguration::subNodeBuild() const
 /// calling BuildManager::buildProject( BuildConfiguration * )
 /// and reset immediately afterwards
 /// That is m_subNodesBuild is set only temporarly
-void QmakeBuildConfiguration::setSubNodeBuild(Qt4ProFileNode *node)
+void QmakeBuildConfiguration::setSubNodeBuild(QmakeProFileNode *node)
 {
     m_subNodeBuild = node;
 }
@@ -260,7 +260,7 @@ void QmakeBuildConfiguration::setBuildDirectory(const FileName &directory)
 
 QString QmakeBuildConfiguration::makefile() const
 {
-    return static_cast<Qt4Project *>(target()->project())->rootQt4ProjectNode()->makefile();
+    return static_cast<QmakeProject *>(target()->project())->rootQmakeProjectNode()->makefile();
 }
 
 BaseQtVersion::QmakeBuildConfigs QmakeBuildConfiguration::qmakeBuildConfiguration() const
@@ -283,7 +283,7 @@ void QmakeBuildConfiguration::emitProFileEvaluateNeeded()
     Target *t = target();
     Project *p = t->project();
     if (t->activeBuildConfiguration() == this && p->activeTarget() == t)
-        static_cast<Qt4Project *>(p)->scheduleAsyncUpdate();
+        static_cast<QmakeProject *>(p)->scheduleAsyncUpdate();
 }
 
 void QmakeBuildConfiguration::emitQMakeBuildConfigurationChanged()
@@ -544,7 +544,7 @@ bool QmakeBuildConfigurationFactory::canHandle(const Target *t) const
 {
     if (!t->project()->supportsKit(t->kit()))
         return false;
-    return qobject_cast<Qt4Project *>(t->project());
+    return qobject_cast<QmakeProject *>(t->project());
 }
 
 QmakeBuildInfo *QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,

@@ -52,7 +52,7 @@ class ProFileEditorWidget;
 class Qt4ProjectManagerPlugin;
 } // namespace Internal
 
-class Qt4Project;
+class QmakeProject;
 
 class QT4PROJECTMANAGER_EXPORT Qt4Manager : public ProjectExplorer::IProjectManager
 {
@@ -62,8 +62,8 @@ public:
     Qt4Manager(Internal::Qt4ProjectManagerPlugin *plugin);
     ~Qt4Manager();
 
-    void registerProject(Qt4Project *project);
-    void unregisterProject(Qt4Project *project);
+    void registerProject(QmakeProject *project);
+    void unregisterProject(QmakeProject *project);
     void notifyChanged(const QString &name);
 
     virtual QString mimeType() const;
@@ -94,7 +94,7 @@ public slots:
     void buildFile();
 
 private:
-    QList<Qt4Project *> m_projects;
+    QList<QmakeProject *> m_projects;
     void handleSubDirContextMenu(Action action, bool isFileBuild);
     void handleSubDirContextMenu(Qt4Manager::Action action, bool isFileBuild,
                                  ProjectExplorer::Project *contextProject,

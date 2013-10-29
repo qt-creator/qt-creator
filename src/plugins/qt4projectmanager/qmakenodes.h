@@ -65,8 +65,8 @@ class Project;
 
 namespace QmakeProjectManager {
 class QmakeBuildConfiguration;
-class Qt4ProFileNode;
-class Qt4Project;
+class QmakeProFileNode;
+class QmakeProject;
 
 //  Type of projects
 enum Qt4ProjectType {
@@ -130,18 +130,18 @@ using ProjectExplorer::ProjectFileType;
 using ProjectExplorer::FileType;
 
 namespace Internal {
-class Qt4PriFile;
+class QmakePriFile;
 struct InternalNode;
 }
 
 // Implements ProjectNode for qt4 pro files
-class QT4PROJECTMANAGER_EXPORT Qt4PriFileNode : public ProjectExplorer::ProjectNode
+class QT4PROJECTMANAGER_EXPORT QmakePriFileNode : public ProjectExplorer::ProjectNode
 {
     Q_OBJECT
 
 public:
-    Qt4PriFileNode(Qt4Project *project, Qt4ProFileNode* qt4ProFileNode, const QString &filePath);
-    ~Qt4PriFileNode();
+    QmakePriFileNode(QmakeProject *project, QmakeProFileNode* qt4ProFileNode, const QString &filePath);
+    ~QmakePriFileNode();
 
     void update(ProFile *includeFileExact, QtSupport::ProFileReader *readerExact, ProFile *includeFileCumlative, QtSupport::ProFileReader *readerCumalative);
 
@@ -168,8 +168,8 @@ public:
     bool deploysFolder(const QString &folder) const;
     QList<ProjectExplorer::RunConfiguration *> runConfigurationsFor(Node *node);
 
-    QList<Qt4PriFileNode*> subProjectNodesExact() const;
-    Qt4ProFileNode *proFileNode() const;
+    QmakeProFileNode *proFileNode() const;
+    QList<QmakePriFileNode*> subProjectNodesExact() const;
 
     // Set by parent
     bool includedInExactParse() const;
@@ -208,13 +208,13 @@ private:
     QStringList fullVPaths(const QStringList &baseVPaths, QtSupport::ProFileReader *reader, const QString &qmakeVariable, const QString &projectDir) const;
     void watchFolders(const QSet<QString> &folders);
 
-    Qt4Project *m_project;
-    Qt4ProFileNode *m_qt4ProFileNode;
+    QmakeProject *m_project;
+    QmakeProFileNode *m_qmakeProFileNode;
     QString m_projectFilePath;
     QString m_projectDir;
 
     QMap<QString, QtSupport::UiCodeModelSupport *> m_uiCodeModelSupport;
-    Internal::Qt4PriFile *m_qt4PriFile;
+    Internal::QmakePriFile *m_qmakePriFile;
 
     // Memory is cheap...
     QMap<ProjectExplorer::FileType, QSet<Utils::FileName> > m_files;
@@ -223,18 +223,18 @@ private:
     bool m_includedInExactParse;
 
     // managed by Qt4ProFileNode
-    friend class QmakeProjectManager::Qt4ProFileNode;
-    friend class Internal::Qt4PriFile; // for scheduling updates on modified
+    friend class QmakeProjectManager::QmakeProFileNode;
+    friend class Internal::QmakePriFile; // for scheduling updates on modified
     // internal temporary subtree representation
     friend struct Internal::InternalNode;
 };
 
 namespace Internal {
-class Qt4PriFile : public Core::IDocument
+class QmakePriFile : public Core::IDocument
 {
     Q_OBJECT
 public:
-    Qt4PriFile(Qt4PriFileNode *qt4PriFile);
+    QmakePriFile(QmakePriFileNode *qmakePriFile);
     virtual bool save(QString *errorString, const QString &fileName, bool autoSave);
 
     virtual QString defaultPath() const;
@@ -248,31 +248,31 @@ public:
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
 
 private:
-    Qt4PriFileNode *m_priFile;
+    QmakePriFileNode *m_priFile;
 };
 
-class Qt4NodesWatcher : public ProjectExplorer::NodesWatcher
+class QmakeNodesWatcher : public ProjectExplorer::NodesWatcher
 {
     Q_OBJECT
 
 public:
-    Qt4NodesWatcher(QObject *parent = 0);
+    QmakeNodesWatcher(QObject *parent = 0);
 
 signals:
-    void projectTypeChanged(QmakeProjectManager::Qt4ProFileNode *projectNode,
+    void projectTypeChanged(QmakeProjectManager::QmakeProFileNode *projectNode,
                             const QmakeProjectManager::Qt4ProjectType oldType,
                             const QmakeProjectManager::Qt4ProjectType newType);
 
-    void variablesChanged(Qt4ProFileNode *projectNode,
+    void variablesChanged(QmakeProFileNode *projectNode,
                           const QHash<Qt4Variable, QStringList> &oldValues,
                           const QHash<Qt4Variable, QStringList> &newValues);
 
-    void proFileUpdated(QmakeProjectManager::Qt4ProFileNode *projectNode, bool success, bool parseInProgress);
+    void proFileUpdated(QmakeProjectManager::QmakeProFileNode *projectNode, bool success, bool parseInProgress);
 
 private:
     // let them emit signals
-    friend class QmakeProjectManager::Qt4ProFileNode;
-    friend class Qt4PriFileNode;
+    friend class QmakeProjectManager::QmakeProFileNode;
+    friend class QmakePriFileNode;
 };
 
 class ProVirtualFolderNode : public ProjectExplorer::VirtualFolderNode
@@ -355,17 +355,17 @@ struct QT4PROJECTMANAGER_EXPORT ProjectVersion {
 };
 
 // Implements ProjectNode for qt4 pro files
-class QT4PROJECTMANAGER_EXPORT Qt4ProFileNode : public Qt4PriFileNode
+class QT4PROJECTMANAGER_EXPORT QmakeProFileNode : public QmakePriFileNode
 {
     Q_OBJECT
 
 public:
-    Qt4ProFileNode(Qt4Project *project,
+    QmakeProFileNode(QmakeProject *project,
                    const QString &filePath,
                    QObject *parent = 0);
-    ~Qt4ProFileNode();
+    ~QmakeProFileNode();
 
-    bool isParent(Qt4ProFileNode *node);
+    bool isParent(QmakeProFileNode *node);
 
     bool hasBuildTargets() const;
 
@@ -385,7 +385,7 @@ public:
     static QString uiHeaderFile(const QString &uiDir, const QString &formFile);
     QHash<QString, QString> uiFiles() const;
 
-    const Qt4ProFileNode *findProFileFor(const QString &string) const;
+    const QmakeProFileNode *findProFileFor(const QString &string) const;
     TargetInformation targetInformation() const;
 
     InstallsList installsList() const;

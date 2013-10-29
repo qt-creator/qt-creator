@@ -90,8 +90,8 @@ void BlackBerryDeployConfiguration::setupBarDescriptor()
     QString projectName = target()->project()->displayName();
 
     QString targetName;
-    QmakeProjectManager::Qt4Project *project =  static_cast<QmakeProjectManager::Qt4Project *>(target()->project());
-    foreach (QmakeProjectManager::Qt4ProFileNode *node, project->applicationProFiles()) {
+    QmakeProjectManager::QmakeProject *project =  static_cast<QmakeProjectManager::QmakeProject *>(target()->project());
+    foreach (QmakeProjectManager::QmakeProFileNode *node, project->applicationProFiles()) {
         QString target = node->targetInformation().target;
         if (!target.isEmpty()) {
             targetName = target;

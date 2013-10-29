@@ -36,7 +36,7 @@ namespace QtSupport { class BaseQtVersion; }
 
 namespace QmakeProjectManager {
 
-class Qt4Project;
+class QmakeProject;
 
 namespace Internal {
 

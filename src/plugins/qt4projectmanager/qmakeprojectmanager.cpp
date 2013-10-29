@@ -75,19 +75,19 @@ Qt4Manager::~Qt4Manager()
 {
 }
 
-void Qt4Manager::registerProject(Qt4Project *project)
+void Qt4Manager::registerProject(QmakeProject *project)
 {
     m_projects.append(project);
 }
 
-void Qt4Manager::unregisterProject(Qt4Project *project)
+void Qt4Manager::unregisterProject(QmakeProject *project)
 {
     m_projects.removeOne(project);
 }
 
 void Qt4Manager::notifyChanged(const QString &name)
 {
-    foreach (Qt4Project *pro, m_projects)
+    foreach (QmakeProject *pro, m_projects)
         pro->notifyChanged(name);
 }
 
@@ -105,7 +105,7 @@ ProjectExplorer::Project *Qt4Manager::openProject(const QString &fileName, QStri
         return 0;
     }
 
-    return new Qt4Project(this, fileName);
+    return new QmakeProject(this, fileName);
 }
 
 ProjectExplorer::Node *Qt4Manager::contextNode() const
@@ -149,7 +149,7 @@ void Qt4Manager::addLibrary()
 void Qt4Manager::addLibraryContextMenu()
 {
     ProjectExplorer::Node *node = ProjectExplorer::ProjectExplorerPlugin::instance()->currentNode();
-    if (qobject_cast<Qt4ProFileNode *>(node))
+    if (qobject_cast<QmakeProFileNode *>(node))
         addLibrary(node->path());
 }
 
@@ -198,7 +198,7 @@ void Qt4Manager::runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *no
 {
     if (!ProjectExplorer::ProjectExplorerPlugin::instance()->saveModifiedFiles())
         return;
-    Qt4Project *qt4pro = qobject_cast<Qt4Project *>(p);
+    QmakeProject *qt4pro = qobject_cast<QmakeProject *>(p);
     QTC_ASSERT(qt4pro, return);
 
     if (!qt4pro->activeTarget() ||
@@ -214,7 +214,7 @@ void Qt4Manager::runQMake(ProjectExplorer::Project *p, ProjectExplorer::Node *no
     qs->setForced(true);
 
     if (node != 0 && node != qt4pro->rootProjectNode())
-        if (Qt4ProFileNode *profile = qobject_cast<Qt4ProFileNode *>(node))
+        if (QmakeProFileNode *profile = qobject_cast<QmakeProFileNode *>(node))
             bc->setSubNodeBuild(profile);
 
     BuildManager::appendStep(qs, tr("QMake"));
@@ -263,7 +263,7 @@ void Qt4Manager::handleSubDirContextMenu(Qt4Manager::Action action, bool isFileB
                                          ProjectExplorer::Node *contextNode,
                                          ProjectExplorer::FileNode *contextFile)
 {
-    Qt4Project *qt4pro = qobject_cast<Qt4Project *>(contextProject);
+    QmakeProject *qt4pro = qobject_cast<QmakeProject *>(contextProject);
     QTC_ASSERT(qt4pro, return);
 
     if (!qt4pro->activeTarget() ||
@@ -277,8 +277,8 @@ void Qt4Manager::handleSubDirContextMenu(Qt4Manager::Action action, bool isFileB
         return;
 
     if (contextNode) {
-        if (Qt4PriFileNode *prifile = qobject_cast<Qt4PriFileNode *>(contextNode)) {
-            if (Qt4ProFileNode *profile = prifile->proFileNode()) {
+        if (QmakePriFileNode *prifile = qobject_cast<QmakePriFileNode *>(contextNode)) {
+            if (QmakeProFileNode *profile = prifile->proFileNode()) {
                 if (profile != qt4pro->rootProjectNode() || isFileBuild)
                     bc->setSubNodeBuild(profile);
             }

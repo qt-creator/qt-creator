@@ -68,7 +68,7 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
     ProjectExplorer::IDevice::ConstPtr device = DeviceKitInformation::device(target->kit());
     if (device.isNull())
         return 0;
-    Qt4Project *project = static_cast<Qt4Project *>(target->project());
+    QmakeProject *project = static_cast<QmakeProject *>(target->project());
 
     DebuggerStartParameters params;
     if (device->type() == Core::Id(Ios::Constants::IOS_DEVICE_TYPE))
@@ -98,8 +98,8 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
         params.remoteSetupNeeded = true;
         //TODO: Not sure if these are the right paths.
         params.projectSourceDirectory = project->projectDirectory();
-        params.projectSourceFiles = project->files(Qt4Project::ExcludeGeneratedFiles);
-        params.projectBuildDirectory = project->rootQt4ProjectNode()->buildDir();
+        params.projectSourceFiles = project->files(QmakeProject::ExcludeGeneratedFiles);
+        params.projectBuildDirectory = project->rootQmakeProjectNode()->buildDir();
     }
 
     DebuggerRunControl * const debuggerRunControl

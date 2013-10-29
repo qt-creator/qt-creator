@@ -87,7 +87,7 @@ Qt4RunConfiguration::Qt4RunConfiguration(ProjectExplorer::Target *parent, Core::
     m_runMode(Gui),
     m_isUsingDyldImageSuffix(false)
 {
-    Qt4Project *project = static_cast<Qt4Project *>(parent->project());
+    QmakeProject *project = static_cast<QmakeProject *>(parent->project());
     m_parseSuccess = project->validParse(m_proFilePath);
     m_parseInProgress = project->parseInProgress(m_proFilePath);
 
@@ -123,11 +123,11 @@ QString Qt4RunConfiguration::disabledReason() const
                 .arg(QFileInfo(m_proFilePath).fileName());
 
     if (!m_parseSuccess)
-        return static_cast<Qt4Project *>(target()->project())->disabledReasonForRunConfiguration(m_proFilePath);
+        return static_cast<QmakeProject *>(target()->project())->disabledReasonForRunConfiguration(m_proFilePath);
     return QString();
 }
 
-void Qt4RunConfiguration::proFileUpdated(QmakeProjectManager::Qt4ProFileNode *pro, bool success, bool parseInProgress)
+void Qt4RunConfiguration::proFileUpdated(QmakeProjectManager::QmakeProFileNode *pro, bool success, bool parseInProgress)
 {
     ProjectExplorer::LocalEnvironmentAspect *aspect
             = extraAspect<ProjectExplorer::LocalEnvironmentAspect>();
@@ -162,8 +162,8 @@ void Qt4RunConfiguration::ctor()
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
     m_forcedGuiMode = (version && version->type() == QLatin1String(QtSupport::Constants::SIMULATORQT));
 
-    connect(target()->project(), SIGNAL(proFileUpdated(QmakeProjectManager::Qt4ProFileNode*,bool,bool)),
-            this, SLOT(proFileUpdated(QmakeProjectManager::Qt4ProFileNode*,bool,bool)));
+    connect(target()->project(), SIGNAL(proFileUpdated(QmakeProjectManager::QmakeProFileNode*,bool,bool)),
+            this, SLOT(proFileUpdated(QmakeProjectManager::QmakeProFileNode*,bool,bool)));
     connect(target(), SIGNAL(kitChanged()),
             this, SLOT(kitChanged()));
 }
@@ -435,16 +435,16 @@ bool Qt4RunConfiguration::fromMap(const QVariantMap &map)
 
     m_userWorkingDirectory = map.value(QLatin1String(USER_WORKING_DIRECTORY_KEY)).toString();
 
-    m_parseSuccess = static_cast<Qt4Project *>(target()->project())->validParse(m_proFilePath);
-    m_parseInProgress = static_cast<Qt4Project *>(target()->project())->parseInProgress(m_proFilePath);
+    m_parseSuccess = static_cast<QmakeProject *>(target()->project())->validParse(m_proFilePath);
+    m_parseInProgress = static_cast<QmakeProject *>(target()->project())->parseInProgress(m_proFilePath);
 
     return LocalApplicationRunConfiguration::fromMap(map);
 }
 
 QString Qt4RunConfiguration::executable() const
 {
-    Qt4Project *pro = static_cast<Qt4Project *>(target()->project());
-    const Qt4ProFileNode *node = pro->rootQt4ProjectNode()->findProFileFor(m_proFilePath);
+    QmakeProject *pro = static_cast<QmakeProject *>(target()->project());
+    const QmakeProFileNode *node = pro->rootQmakeProjectNode()->findProFileFor(m_proFilePath);
     return extractWorkingDirAndExecutable(node).second;
 }
 
@@ -487,8 +487,8 @@ QString Qt4RunConfiguration::baseWorkingDirectory() const
         return m_userWorkingDirectory;
 
     // else what the pro file reader tells us
-    Qt4Project *pro = static_cast<Qt4Project *>(target()->project());
-    const Qt4ProFileNode *node = pro->rootQt4ProjectNode()->findProFileFor(m_proFilePath);
+    QmakeProject *pro = static_cast<QmakeProject *>(target()->project());
+    const QmakeProFileNode *node = pro->rootQmakeProjectNode()->findProFileFor(m_proFilePath);
     return extractWorkingDirAndExecutable(node).first;
 }
 
@@ -533,7 +533,7 @@ void Qt4RunConfiguration::addToBaseEnvironment(Utils::Environment &env) const
     // The user could be linking to a library found via a -L/some/dir switch
     // to find those libraries while actually running we explicitly prepend those
     // dirs to the library search path
-    const Qt4ProFileNode *node = static_cast<Qt4Project *>(target()->project())->rootQt4ProjectNode()->findProFileFor(m_proFilePath);
+    const QmakeProFileNode *node = static_cast<QmakeProject *>(target()->project())->rootQmakeProjectNode()->findProFileFor(m_proFilePath);
     if (node) {
         const QStringList libDirectories = node->variableValue(LibDirectoriesVar);
         if (!libDirectories.isEmpty()) {
@@ -583,7 +583,7 @@ Utils::OutputFormatter *Qt4RunConfiguration::createOutputFormatter() const
     return new QtSupport::QtOutputFormatter(target()->project());
 }
 
-QPair<QString, QString> Qt4RunConfiguration::extractWorkingDirAndExecutable(const Qt4ProFileNode *node) const
+QPair<QString, QString> Qt4RunConfiguration::extractWorkingDirAndExecutable(const QmakeProFileNode *node) const
 {
     if (!node)
         return qMakePair(QString(), QString());
@@ -642,14 +642,14 @@ bool Qt4RunConfigurationFactory::canCreate(ProjectExplorer::Target *parent, cons
 {
     if (!canHandle(parent))
         return false;
-    Qt4Project *project = static_cast<Qt4Project *>(parent->project());
+    QmakeProject *project = static_cast<QmakeProject *>(parent->project());
     return project->hasApplicationProFile(pathFromId(id));
 }
 
 ProjectExplorer::RunConfiguration *Qt4RunConfigurationFactory::doCreate(ProjectExplorer::Target *parent, const Core::Id id)
 {
     Qt4RunConfiguration *rc = new Qt4RunConfiguration(parent, id);
-    const Qt4ProFileNode *node = static_cast<Qt4Project *>(parent->project())->rootQt4ProjectNode()->findProFileFor(rc->proFilePath());
+    const QmakeProFileNode *node = static_cast<QmakeProject *>(parent->project())->rootQmakeProjectNode()->findProFileFor(rc->proFilePath());
     if (node) // should always be found
         rc->setRunMode(node->variableValue(ConfigVar).contains(QLatin1String("console"))
                        && !node->variableValue(QtVar).contains(QLatin1String("testlib"))
@@ -690,7 +690,7 @@ QList<Core::Id> Qt4RunConfigurationFactory::availableCreationIds(ProjectExplorer
     if (!canHandle(parent))
         return result;
 
-    Qt4Project *project = static_cast<Qt4Project *>(parent->project());
+    QmakeProject *project = static_cast<QmakeProject *>(parent->project());
     QStringList proFiles = project->applicationProFilePathes(QLatin1String(QT4_RC_PREFIX));
     foreach (const QString &pf, proFiles)
         result << Core::Id::fromString(pf);
@@ -706,7 +706,7 @@ bool Qt4RunConfigurationFactory::canHandle(ProjectExplorer::Target *t) const
 {
     if (!t->project()->supportsKit(t->kit()))
         return false;
-    if (!qobject_cast<Qt4Project *>(t->project()))
+    if (!qobject_cast<QmakeProject *>(t->project()))
         return false;
     Core::Id devType = ProjectExplorer::DeviceTypeKitInformation::deviceTypeId(t->kit());
     return devType == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;

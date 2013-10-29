@@ -60,7 +60,7 @@ QList<Core::Id> BlackBerryDeployConfigurationFactory::availableCreationIds(Proje
 {
     QList<Core::Id> result;
 
-    QmakeProjectManager::Qt4Project *project = qobject_cast<QmakeProjectManager::Qt4Project *>(parent->project());
+    QmakeProjectManager::QmakeProject *project = qobject_cast<QmakeProjectManager::QmakeProject *>(parent->project());
     if (!project)
         return result;
 

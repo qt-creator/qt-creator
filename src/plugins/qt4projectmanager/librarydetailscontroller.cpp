@@ -884,11 +884,11 @@ bool PackageLibraryDetailsController::isLinkPackageGenerated() const
     if (!project)
         return false;
 
-    const Qt4ProFileNode *rootProject = qobject_cast<const Qt4ProFileNode *>(project->rootProjectNode());
+    const QmakeProFileNode *rootProject = qobject_cast<const QmakeProFileNode *>(project->rootProjectNode());
     if (!rootProject)
         return false;
 
-    const Qt4ProFileNode *currentProject = rootProject->findProFileFor(proFile());
+    const QmakeProFileNode *currentProject = rootProject->findProFileFor(proFile());
     if (!currentProject)
         return false;
 
@@ -980,7 +980,7 @@ AddLibraryWizard::LinkageType InternalLibraryDetailsController::suggestedLinkage
     const int currentIndex = libraryDetailsWidget()->libraryComboBox->currentIndex();
     AddLibraryWizard::LinkageType type = AddLibraryWizard::NoLinkage;
     if (currentIndex >= 0) {
-        Qt4ProFileNode *proFileNode = m_proFileNodes.at(currentIndex);
+        QmakeProFileNode *proFileNode = m_proFileNodes.at(currentIndex);
         const QStringList configVar = proFileNode->variableValue(ConfigVar);
         if (configVar.contains(QLatin1String("staticlib"))
                 || configVar.contains(QLatin1String("static")))
@@ -996,7 +996,7 @@ AddLibraryWizard::MacLibraryType InternalLibraryDetailsController::suggestedMacL
     const int currentIndex = libraryDetailsWidget()->libraryComboBox->currentIndex();
     AddLibraryWizard::MacLibraryType type = AddLibraryWizard::NoLibraryType;
     if (currentIndex >= 0) {
-        Qt4ProFileNode *proFileNode = m_proFileNodes.at(currentIndex);
+        QmakeProFileNode *proFileNode = m_proFileNodes.at(currentIndex);
         const QStringList configVar = proFileNode->variableValue(ConfigVar);
         if (configVar.contains(QLatin1String("lib_bundle")))
             type = AddLibraryWizard::FrameworkType;
@@ -1011,7 +1011,7 @@ QString InternalLibraryDetailsController::suggestedIncludePath() const
     const int currentIndex = libraryDetailsWidget()->libraryComboBox->currentIndex();
     QString includePath;
     if (currentIndex >= 0) {
-        Qt4ProFileNode *proFileNode = m_proFileNodes.at(currentIndex);
+        QmakeProFileNode *proFileNode = m_proFileNodes.at(currentIndex);
         QFileInfo fi(proFileNode->path());
         includePath = fi.absolutePath();
     }
@@ -1042,9 +1042,9 @@ void InternalLibraryDetailsController::updateProFile()
     QFileInfo fi(rootProject->path());
     m_rootProjectPath = fi.absolutePath();
     QDir rootDir(m_rootProjectPath);
-    FindQt4ProFiles findQt4ProFiles;
-    QList<Qt4ProFileNode *> proFiles = findQt4ProFiles(rootProject);
-    foreach (Qt4ProFileNode *proFileNode, proFiles) {
+    FindQmakeProFiles findQt4ProFiles;
+    QList<QmakeProFileNode *> proFiles = findQt4ProFiles(rootProject);
+    foreach (QmakeProFileNode *proFileNode, proFiles) {
         const QString proFilePath = proFileNode->path();
         if (proFileNode->projectType() == LibraryTemplate) {
             const QStringList configVar = proFileNode->variableValue(ConfigVar);
@@ -1071,7 +1071,7 @@ void InternalLibraryDetailsController::slotCurrentLibraryChanged()
         libraryDetailsWidget()->libraryComboBox->setToolTip(
                     libraryDetailsWidget()->libraryComboBox->itemData(
                         currentIndex, Qt::ToolTipRole).toString());
-        Qt4ProFileNode *proFileNode = m_proFileNodes.at(currentIndex);
+        QmakeProFileNode *proFileNode = m_proFileNodes.at(currentIndex);
         const QStringList configVar = proFileNode->variableValue(ConfigVar);
         if (creatorPlatform() == CreatorWindows) {
             bool useSubfolders = false;
@@ -1133,7 +1133,7 @@ QString InternalLibraryDetailsController::snippet() const
     QDir projectSrcDir(fi.absolutePath());
 
     // project node which we want to link against
-    Qt4ProFileNode *proFileNode = m_proFileNodes.at(currentIndex);
+    QmakeProFileNode *proFileNode = m_proFileNodes.at(currentIndex);
     TargetInformation targetInfo = proFileNode->targetInformation();
 
     const QString targetRelativePath = appendSeparator(projectBuildDir.relativeFilePath(targetInfo.buildDir));

@@ -297,7 +297,7 @@ void Qt4ProjectManagerPlugin::startupProjectChanged()
         disconnect(m_previousStartupProject, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
                    this, SLOT(activeTargetChanged()));
 
-    m_previousStartupProject = qobject_cast<Qt4Project *>(SessionManager::startupProject());
+    m_previousStartupProject = qobject_cast<QmakeProject *>(SessionManager::startupProject());
 
     if (m_previousStartupProject)
         connect(m_previousStartupProject, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
@@ -326,7 +326,7 @@ void Qt4ProjectManagerPlugin::updateRunQMakeAction()
     bool enable = true;
     if (BuildManager::isBuilding(m_projectExplorer->currentProject()))
         enable = false;
-    Qt4Project *pro = qobject_cast<Qt4Project *>(m_projectExplorer->currentProject());
+    QmakeProject *pro = qobject_cast<QmakeProject *>(m_projectExplorer->currentProject());
     if (!pro
             || !pro->activeTarget()
             || !pro->activeTarget()->activeBuildConfiguration())
@@ -337,13 +337,13 @@ void Qt4ProjectManagerPlugin::updateRunQMakeAction()
 
 void Qt4ProjectManagerPlugin::updateContextActions(ProjectExplorer::Node *node, ProjectExplorer::Project *project)
 {
-    m_addLibraryActionContextMenu->setEnabled(qobject_cast<Qt4ProFileNode *>(node));
+    m_addLibraryActionContextMenu->setEnabled(qobject_cast<QmakeProFileNode *>(node));
 
-    Qt4ProFileNode *proFileNode = qobject_cast<Qt4ProFileNode *>(node);
-    Qt4Project *qt4Project = qobject_cast<Qt4Project *>(project);
-    Qt4ProFileNode *subProjectNode = 0;
+    QmakeProFileNode *proFileNode = qobject_cast<QmakeProFileNode *>(node);
+    QmakeProject *qt4Project = qobject_cast<QmakeProject *>(project);
+    QmakeProFileNode *subProjectNode = 0;
     if (node) {
-        if (Qt4PriFileNode *subPriFileNode = qobject_cast<Qt4PriFileNode *>(node->projectNode()))
+        if (QmakePriFileNode *subPriFileNode = qobject_cast<QmakePriFileNode *>(node->projectNode()))
             subProjectNode = subPriFileNode->proFileNode();
     }
     ProjectExplorer::FileNode *fileNode = qobject_cast<ProjectExplorer::FileNode *>(node);
@@ -415,9 +415,9 @@ void Qt4ProjectManagerPlugin::updateBuildFileAction()
         Node *node  = SessionManager::nodeForFile(file);
         Project *project = SessionManager::projectForFile(file);
         m_buildFileAction->setParameter(QFileInfo(file).fileName());
-        visible = qobject_cast<Qt4Project *>(project)
+        visible = qobject_cast<QmakeProject *>(project)
                 && node
-                && qobject_cast<Qt4PriFileNode *>(node->projectNode());
+                && qobject_cast<QmakePriFileNode *>(node->projectNode());
 
         enabled = !BuildManager::isBuilding(project);
     }

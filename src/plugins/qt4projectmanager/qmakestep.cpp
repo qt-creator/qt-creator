@@ -277,7 +277,7 @@ bool QMakeStep::init()
 
     setOutputParser(new QMakeParser);
 
-    Qt4ProFileNode *node = static_cast<Qt4Project *>(qt4bc->target()->project())->rootQt4ProjectNode();
+    QmakeProFileNode *node = static_cast<QmakeProject *>(qt4bc->target()->project())->rootQmakeProjectNode();
     if (qt4bc->subNodeBuild())
         node = qt4bc->subNodeBuild();
     QString proFile = node->path();
@@ -353,7 +353,7 @@ bool QMakeStep::processSucceeded(int exitCode, QProcess::ExitStatus status)
     bool result = AbstractProcessStep::processSucceeded(exitCode, status);
     if (!result)
         m_needToRunQMake = true;
-    Qt4Project *project = static_cast<Qt4Project *>(qmakeBuildConfiguration()->target()->project());
+    QmakeProject *project = static_cast<QmakeProject *>(qmakeBuildConfiguration()->target()->project());
     project->emitBuildDirectoryInitialized();
     return result;
 }

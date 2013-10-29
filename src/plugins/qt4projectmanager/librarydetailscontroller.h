@@ -33,7 +33,7 @@
 #include "addlibrarywizard.h"
 
 namespace QmakeProjectManager {
-class Qt4ProFileNode;
+class QmakeProFileNode;
 namespace Internal {
 
 namespace Ui {
@@ -196,7 +196,7 @@ private slots:
     void updateProFile();
 private:
     QString m_rootProjectPath;
-    QVector<Qt4ProFileNode *> m_proFileNodes;
+    QVector<QmakeProFileNode *> m_proFileNodes;
 };
 
 } // namespace Internal

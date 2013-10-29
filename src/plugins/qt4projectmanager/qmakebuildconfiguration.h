@@ -43,7 +43,7 @@ class QmakeBuildInfo;
 class QMakeStep;
 class MakeStep;
 class QmakeBuildConfigurationFactory;
-class Qt4ProFileNode;
+class QmakeProFileNode;
 
 namespace Internal { class Qt4ProjectConfigWidget; }
 
@@ -58,8 +58,8 @@ public:
     ProjectExplorer::NamedWidget *createConfigWidget();
     bool isShadowBuild() const;
 
-    void setSubNodeBuild(QmakeProjectManager::Qt4ProFileNode *node);
-    QmakeProjectManager::Qt4ProFileNode *subNodeBuild() const;
+    void setSubNodeBuild(QmakeProjectManager::QmakeProFileNode *node);
+    QmakeProjectManager::QmakeProFileNode *subNodeBuild() const;
 
     ProjectExplorer::FileNode *fileNodeBuild() const;
     void setFileNodeBuild(ProjectExplorer::FileNode *node);
@@ -148,7 +148,7 @@ private:
     bool m_isEnabled;
     bool m_qtVersionSupportsShadowBuilds;
     QtSupport::BaseQtVersion::QmakeBuildConfigs m_qmakeBuildConfiguration;
-    QmakeProjectManager::Qt4ProFileNode *m_subNodeBuild;
+    QmakeProjectManager::QmakeProFileNode *m_subNodeBuild;
     ProjectExplorer::FileNode *m_fileNodeBuild;
 
     friend class Internal::Qt4ProjectConfigWidget;

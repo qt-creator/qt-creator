@@ -50,7 +50,7 @@ namespace QmakeProjectManager {
 
 class Qt4Manager;
 class QtVersionManager;
-class Qt4Project;
+class QmakeProject;
 
 namespace Internal {
 
@@ -84,7 +84,7 @@ private:
     ProjectExplorer::ProjectExplorerPlugin *m_projectExplorer;
     ProFileEditorFactory *m_proFileEditorFactory;
     Qt4Manager *m_qt4ProjectManager;
-    Qt4Project *m_previousStartupProject;
+    QmakeProject *m_previousStartupProject;
     ProjectExplorer::Target *m_previousTarget;
 
     QAction *m_runQMakeAction;

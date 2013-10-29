@@ -69,7 +69,7 @@ public:
 };
 } //namespace Internal
 
-class Qt4Project;
+class QmakeProject;
 
 class QT4PROJECTMANAGER_EXPORT MakeStep : public ProjectExplorer::AbstractProcessStep
 {

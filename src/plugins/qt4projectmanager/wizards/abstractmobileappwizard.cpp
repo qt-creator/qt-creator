@@ -215,7 +215,7 @@ bool AbstractMobileAppWizard::postGenerateFiles(const QWizard *w,
     Qt4Manager * const manager
         = ExtensionSystem::PluginManager::getObject<Qt4Manager>();
     Q_ASSERT(manager);
-    Qt4Project project(manager, app()->path(AbstractMobileApp::AppPro));
+    QmakeProject project(manager, app()->path(AbstractMobileApp::AppPro));
     bool success = true;
     if (wizardDialog()->m_targetsPage) {
         success = wizardDialog()->m_targetsPage->setupProject(&project);

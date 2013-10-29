@@ -33,15 +33,15 @@
 using namespace QmakeProjectManager;
 using namespace QmakeProjectManager::Internal;
 
-QList<Qt4ProFileNode *> FindQt4ProFiles::operator()(ProjectExplorer::ProjectNode *root)
+QList<QmakeProFileNode *> FindQmakeProFiles::operator()(ProjectExplorer::ProjectNode *root)
 {
     m_proFiles.clear();
     root->accept(this);
     return m_proFiles;
 }
 
-void FindQt4ProFiles::visitProjectNode(ProjectExplorer::ProjectNode *projectNode)
+void FindQmakeProFiles::visitProjectNode(ProjectExplorer::ProjectNode *projectNode)
 {
-    if (Qt4ProFileNode *pro = qobject_cast<Qt4ProFileNode *>(projectNode))
+    if (QmakeProFileNode *pro = qobject_cast<QmakeProFileNode *>(projectNode))
         m_proFiles.append(pro);
 }

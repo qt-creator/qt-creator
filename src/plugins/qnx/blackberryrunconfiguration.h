@@ -40,7 +40,7 @@ class Target;
 
 namespace QmakeProjectManager {
 class QmakeBuildConfiguration;
-class Qt4Project;
+class QmakeProject;
 }
 
 namespace Qnx {

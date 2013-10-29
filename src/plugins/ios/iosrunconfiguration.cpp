@@ -144,9 +144,9 @@ QString IosRunConfiguration::profilePath() const
 
 QString IosRunConfiguration::appName() const
 {
-    Qt4Project *pro = qobject_cast<Qt4Project *>(target()->project());
+    QmakeProject *pro = qobject_cast<QmakeProject *>(target()->project());
     if (pro) {
-        const Qt4ProFileNode *node = pro->rootQt4ProjectNode()->findProFileFor(profilePath());
+        const QmakeProFileNode *node = pro->rootQmakeProjectNode()->findProFileFor(profilePath());
         if (node) {
             TargetInformation ti = node->targetInformation();
             if (ti.valid) {
