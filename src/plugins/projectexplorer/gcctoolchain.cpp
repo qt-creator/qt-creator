@@ -111,6 +111,11 @@ static QByteArray runGcc(const FileName &gcc, const QStringList &arguments, cons
     return data;
 }
 
+static const QStringList gccPredefinedMacrosOptions()
+{
+    return QStringList() << QLatin1String("-xc++") << QLatin1String("-E") << QLatin1String("-dM");
+}
+
 static QByteArray gccPredefinedMacros(const FileName &gcc, const QStringList &args, const QStringList &env)
 {
     QStringList arguments = args;
@@ -206,16 +211,6 @@ static QList<Abi> guessGccAbi(const QString &m, const QByteArray &macros)
         abiList << Abi(arch, os, flavor, format, width);
     }
     return abiList;
-}
-
-static QStringList gccPredefinedMacrosOptions()
-{
-    QStringList gccOptions;
-    gccOptions << QLatin1String("-xc++")
-               << QLatin1String("-E")
-               << QLatin1String("-dM");
-
-    return gccOptions;
 }
 
 static QList<Abi> guessGccAbi(const FileName &path, const QStringList &env,
