@@ -1587,7 +1587,6 @@ class Dumper(DumperBase):
             self.useFancy = int(args['fancy'])
         if 'passexceptions' in args:
             self.passExceptions = int(args['passexceptions'])
-        self.passExceptions = True # FIXME
         self.reportVariables(args)
 
     def disassemble(self, args):
