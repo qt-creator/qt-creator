@@ -272,12 +272,14 @@ def copySettingsToTmpDir(destination=None, omitFiles=[]):
 
 # current dir is directory holding qtcreator.py
 origSettingsDir = os.path.abspath(os.path.join(os.getcwd(), "..", "..", "settings"))
+sdkPath = os.path.expanduser("~/QtSDK")
 
 if platform.system() in ('Windows', 'Microsoft'):
     sdkPath = "C:\\QtSDK"
     origSettingsDir = os.path.join(origSettingsDir, "windows")
+elif platform.system() == 'Darwin':
+    origSettingsDir = os.path.join(origSettingsDir, "mac")
 else:
-    sdkPath = os.path.expanduser("~/QtSDK")
     origSettingsDir = os.path.join(origSettingsDir, "unix")
 srcPath = os.getenv("SYSTEST_SRCPATH", sdkPath + "/src")
 

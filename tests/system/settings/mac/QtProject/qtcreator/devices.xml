@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE QtCreatorDevices>
+<!-- Written by Qt Creator 2.5.83, 2012-09-26T12:18:05. -->
+<qtcreator>
+ <data>
+  <variable>DeviceManager</variable>
+  <valuemap type="QVariantMap">
+   <valuemap type="QVariantMap" key="DefaultDevices">
+    <value type="QString" key="Desktop">Desktop Device</value>
+    <value type="QString" key="GenericLinuxOsType">{7c5a3673-e300-4286-9666-0f86d3e3dc38}</value>
+    <value type="QString" key="HarmattanOsType">{1a0985cf-ad32-487c-8af8-85ee532ac19c}</value>
+    <value type="QString" key="Maemo5OsType">{68a75dff-5ec6-40cb-884f-8f383ed2ebb2}</value>
+   </valuemap>
+   <valuelist type="QVariantList" key="DeviceList">
+    <valuemap type="QVariantMap">
+     <value type="int" key="Authentication">1</value>
+     <value type="QString" key="FreePortsSpec">10000-10100</value>
+     <value type="QString" key="Host">192.168.2.15</value>
+     <value type="QByteArray" key="InternalId">{68a75dff-5ec6-40cb-884f-8f383ed2ebb2}</value>
+     <value type="QString" key="KeyFile"></value>
+     <value type="QString" key="Name">Maemo5/Fremantle Device</value>
+     <value type="int" key="Origin">0</value>
+     <value type="QString" key="OsType">Maemo5OsType</value>
+     <value type="QString" key="Password"></value>
+     <value type="int" key="SshPort">22</value>
+     <value type="int" key="Timeout">10</value>
+     <value type="int" key="Type">0</value>
+     <value type="QString" key="Uname">developer</value>
+    </valuemap>
+    <valuemap type="QVariantMap">
+     <value type="int" key="Authentication">1</value>
+     <value type="QString" key="FreePortsSpec">10000-10100</value>
+     <value type="QString" key="Host">192.168.2.15</value>
+     <value type="QByteArray" key="InternalId">{1a0985cf-ad32-487c-8af8-85ee532ac19c}</value>
+     <value type="QString" key="KeyFile"></value>
+     <value type="QString" key="Name">MeeGo 1.2 Harmattan Device</value>
+     <value type="int" key="Origin">0</value>
+     <value type="QString" key="OsType">HarmattanOsType</value>
+     <value type="QString" key="Password"></value>
+     <value type="int" key="SshPort">22</value>
+     <value type="int" key="Timeout">10</value>
+     <value type="int" key="Type">0</value>
+     <value type="QString" key="Uname">developer</value>
+    </valuemap>
+    <valuemap type="QVariantMap">
+     <value type="int" key="Authentication">1</value>
+     <value type="QString" key="FreePortsSpec"></value>
+     <value type="QString" key="Host"></value>
+     <value type="QByteArray" key="InternalId">Desktop Device</value>
+     <value type="QString" key="KeyFile"></value>
+     <value type="QString" key="Name">Run locally</value>
+     <value type="int" key="Origin">1</value>
+     <value type="QString" key="OsType">Desktop</value>
+     <value type="QString" key="Password"></value>
+     <value type="int" key="SshPort">0</value>
+     <value type="int" key="Timeout">0</value>
+     <value type="int" key="Type">0</value>
+     <value type="QString" key="Uname"></value>
+    </valuemap>
+    <valuemap type="QVariantMap">
+     <value type="int" key="Authentication">1</value>
+     <value type="QString" key="FreePortsSpec">10000-10100</value>
+     <value type="QString" key="Host">192.168.2.15</value>
+     <value type="QByteArray" key="InternalId">{7c5a3673-e300-4286-9666-0f86d3e3dc38}</value>
+     <value type="QString" key="KeyFile"></value>
+     <value type="QString" key="Name">Generic Linux Device</value>
+     <value type="int" key="Origin">0</value>
+     <value type="QString" key="OsType">GenericLinuxOsType</value>
+     <value type="QString" key="Password"></value>
+     <value type="int" key="SshPort">22</value>
+     <value type="int" key="Timeout">10</value>
+     <value type="int" key="Type">0</value>
+     <value type="QString" key="Uname">developer</value>
+    </valuemap>
+   </valuelist>
+  </valuemap>
+ </data>
+</qtcreator>
