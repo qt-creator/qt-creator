@@ -39,17 +39,17 @@
 
 #include <iostream>
 
-static char VERSION[] = "Version";
-static char COUNT[] = "DebuggerItem.Count";
-static char PREFIX[] = "DebuggerItem.";
+const char VERSION[] = "Version";
+const char COUNT[] = "DebuggerItem.Count";
+const char PREFIX[] = "DebuggerItem.";
 
 // Debuggers:
-static char ID[] = "Id";
-static char DISPLAYNAME[] = "DisplayName";
-static char AUTODETECTED[] = "AutoDetected";
-static char ABIS[] = "Abis";
-static char BINARY[] = "Binary";
-static char ENGINE_TYPE[] = "EngineType";
+const char ID[] = "Id";
+const char DISPLAYNAME[] = "DisplayName";
+const char AUTODETECTED[] = "AutoDetected";
+const char ABIS[] = "Abis";
+const char BINARY[] = "Binary";
+const char ENGINE_TYPE[] = "EngineType";
 
 AddDebuggerOperation::AddDebuggerOperation()
     : m_engine(0)

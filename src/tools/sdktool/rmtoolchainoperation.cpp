@@ -39,11 +39,11 @@
 #include <iostream>
 
 // ToolChain file stuff:
-static char COUNT[] = "ToolChain.Count";
-static char PREFIX[] = "ToolChain.";
+const char COUNT[] = "ToolChain.Count";
+const char PREFIX[] = "ToolChain.";
 
 // ToolChain:
-static char ID[] = "ProjectExplorer.ToolChain.Id";
+const char ID[] = "ProjectExplorer.ToolChain.Id";
 
 QString RmToolChainOperation::name() const
 {

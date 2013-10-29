@@ -40,28 +40,28 @@
 #include <iostream>
 
 // Qt version file stuff:
-static char PREFIX[] = "Profile.";
-static char VERSION[] = "Version";
-static char COUNT[] = "Profile.Count";
-static char DEFAULT[] = "Profile.Default";
+const char PREFIX[] = "Profile.";
+const char VERSION[] = "Version";
+const char COUNT[] = "Profile.Count";
+const char DEFAULT[] = "Profile.Default";
 
 // Kit:
-static char ID[] = "PE.Profile.Id";
-static char DISPLAYNAME[] = "PE.Profile.Name";
-static char ICON[] = "PE.Profile.Icon";
-static char AUTODETECTED[] = "PE.Profile.Autodetected";
-static char SDK[] = "PE.Profile.SDK";
-static char DATA[] = "PE.Profile.Data";
+const char ID[] = "PE.Profile.Id";
+const char DISPLAYNAME[] = "PE.Profile.Name";
+const char ICON[] = "PE.Profile.Icon";
+const char AUTODETECTED[] = "PE.Profile.Autodetected";
+const char SDK[] = "PE.Profile.SDK";
+const char DATA[] = "PE.Profile.Data";
 
 // Standard KitInformation:
-static char DEBUGGER[] = "Debugger.Information";
-static char DEBUGGER_ENGINE[] = "EngineType";
-static char DEBUGGER_BINARY[] = "Binary";
-static char DEVICE_TYPE[] = "PE.Profile.DeviceType";
-static char SYSROOT[] = "PE.Profile.SysRoot";
-static char TOOLCHAIN[] = "PE.Profile.ToolChain";
-static char MKSPEC[] = "QtPM4.mkSpecInformation";
-static char QT[] = "QtSupport.QtInformation";
+const char DEBUGGER[] = "Debugger.Information";
+const char DEBUGGER_ENGINE[] = "EngineType";
+const char DEBUGGER_BINARY[] = "Binary";
+const char DEVICE_TYPE[] = "PE.Profile.DeviceType";
+const char SYSROOT[] = "PE.Profile.SysRoot";
+const char TOOLCHAIN[] = "PE.Profile.ToolChain";
+const char MKSPEC[] = "QtPM4.mkSpecInformation";
+const char QT[] = "QtSupport.QtInformation";
 
 AddKitOperation::AddKitOperation()
     : m_debuggerEngine(0)

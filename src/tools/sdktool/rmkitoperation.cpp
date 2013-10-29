@@ -41,15 +41,15 @@
 #include <iostream>
 
 // Qt version file stuff:
-static char PREFIX[] = "Profile.";
-static char COUNT[] = "Profile.Count";
-static char DEFAULT[] = "Profile.Default";
+const char PREFIX[] = "Profile.";
+const char COUNT[] = "Profile.Count";
+const char DEFAULT[] = "Profile.Default";
 #ifdef WITH_TESTS
-static char VERSION[] = "Version";
+const char VERSION[] = "Version";
 #endif
 
 // Kit:
-static char ID[] = "PE.Profile.Id";
+const char ID[] = "PE.Profile.Id";
 
 QString RmKitOperation::name() const
 {

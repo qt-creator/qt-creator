@@ -41,14 +41,14 @@
 #include <iostream>
 
 // Qt version file stuff:
-static char PREFIX[] = "DebuggerItem.";
-static char COUNT[] = "DebuggerItem.Count";
+const char PREFIX[] = "DebuggerItem.";
+const char COUNT[] = "DebuggerItem.Count";
 #ifdef WITH_TESTS
-static char VERSION[] = "Version";
+const char VERSION[] = "Version";
 #endif
 
 // Kit:
-static char ID[] = "Id";
+const char ID[] = "Id";
 
 QString RmDebuggerOperation::name() const
 {
