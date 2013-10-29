@@ -27,8 +27,8 @@
 **
 ****************************************************************************/
 
-#ifndef QMAKERUNCONFIGURATION_H
-#define QMAKERUNCONFIGURATION_H
+#ifndef DESKTOPQMAKERUNCONFIGURATION_H
+#define DESKTOPQMAKERUNCONFIGURATION_H
 
 #include <qmakeprojectmanager/qmakerunconfigurationfactory.h>
 
@@ -59,18 +59,18 @@ class QmakePriFileNode;
 class TargetInformation;
 
 namespace Internal {
-class Qt4RunConfigurationFactory;
+class DesktopQmakeRunConfigurationFactory;
 
-class QmakeRunConfiguration : public ProjectExplorer::LocalApplicationRunConfiguration
+class DesktopQmakeRunConfiguration : public ProjectExplorer::LocalApplicationRunConfiguration
 {
     Q_OBJECT
     // to change the display name and arguments and set the userenvironmentchanges
-    friend class QmakeRunConfigurationWidget;
-    friend class Qt4RunConfigurationFactory;
+    friend class DesktopQmakeRunConfigurationWidget;
+    friend class DesktopQmakeRunConfigurationFactory;
 
 public:
-    QmakeRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
-    virtual ~QmakeRunConfiguration();
+    DesktopQmakeRunConfiguration(ProjectExplorer::Target *parent, Core::Id id);
+    virtual ~DesktopQmakeRunConfiguration();
 
     virtual bool isEnabled() const;
     virtual QString disabledReason() const;
@@ -111,7 +111,7 @@ private slots:
     void proFileUpdated(QmakeProjectManager::QmakeProFileNode *pro, bool success, bool parseInProgress);
 
 protected:
-    QmakeRunConfiguration(ProjectExplorer::Target *parent, QmakeRunConfiguration *source);
+    DesktopQmakeRunConfiguration(ProjectExplorer::Target *parent, DesktopQmakeRunConfiguration *source);
     virtual bool fromMap(const QVariantMap &map);
 
 private:
@@ -138,13 +138,13 @@ private:
     bool m_parseInProgress;
 };
 
-class QmakeRunConfigurationWidget : public QWidget
+class DesktopQmakeRunConfigurationWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    QmakeRunConfigurationWidget(QmakeRunConfiguration *qmakeRunConfiguration, QWidget *parent);
-    ~QmakeRunConfigurationWidget();
+    DesktopQmakeRunConfigurationWidget(DesktopQmakeRunConfiguration *qmakeRunConfiguration, QWidget *parent);
+    ~DesktopQmakeRunConfigurationWidget();
 
 protected:
     void showEvent(QShowEvent *event);
@@ -168,7 +168,7 @@ private slots:
     void usingDyldImageSuffixChanged(bool);
 
 private:
-    QmakeRunConfiguration *m_qmakeRunConfiguration;
+    DesktopQmakeRunConfiguration *m_qmakeRunConfiguration;
     bool m_ignoreChange;
     QLabel *m_disabledIcon;
     QLabel *m_disabledReason;
@@ -183,13 +183,13 @@ private:
     bool m_isShown;
 };
 
-class Qt4RunConfigurationFactory : public QmakeRunConfigurationFactory
+class DesktopQmakeRunConfigurationFactory : public QmakeRunConfigurationFactory
 {
     Q_OBJECT
 
 public:
-    explicit Qt4RunConfigurationFactory(QObject *parent = 0);
-    ~Qt4RunConfigurationFactory();
+    explicit DesktopQmakeRunConfigurationFactory(QObject *parent = 0);
+    ~DesktopQmakeRunConfigurationFactory();
 
     bool canCreate(ProjectExplorer::Target *parent, const Core::Id id) const;
     bool canRestore(ProjectExplorer::Target *parent, const QVariantMap &map) const;
@@ -213,4 +213,4 @@ private:
 } // namespace Internal
 } // namespace QmakeProjectManager
 
-#endif // QMAKERUNCONFIGURATION_H
+#endif // DESKTOPQMAKERUNCONFIGURATION_H

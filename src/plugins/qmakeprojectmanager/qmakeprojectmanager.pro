@@ -61,7 +61,7 @@ HEADERS += \
     librarydetailscontroller.h \
     findqmakeprofiles.h \
     qmakeprojectmanager_global.h \
-    qmakerunconfiguration.h \
+    desktopqmakerunconfiguration.h \
     profilecompletionassist.h
 
 SOURCES += \
@@ -118,7 +118,7 @@ SOURCES += \
     addlibrarywizard.cpp \
     librarydetailscontroller.cpp \
     findqmakeprofiles.cpp \
-    qmakerunconfiguration.cpp \
+    desktopqmakerunconfiguration.cpp \
     profilecompletionassist.cpp
 
 FORMS += makestep.ui \

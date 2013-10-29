@@ -22,6 +22,7 @@ QtcPlugin {
         name: "General"
         files: [
             "addlibrarywizard.cpp", "addlibrarywizard.h",
+            "desktopqmakerunconfiguration.cpp", "desktopqmakerunconfiguration.h",
             "externaleditors.cpp", "externaleditors.h",
             "findqmakeprofiles.cpp", "findqmakeprofiles.h",
             "librarydetailscontroller.cpp", "librarydetailscontroller.h",
@@ -51,7 +52,6 @@ QtcPlugin {
             "qmakeprojectmanagerconstants.h",
             "qmakeprojectmanagerplugin.cpp", "qmakeprojectmanagerplugin.h",
             "qtmodulesinfo.cpp", "qtmodulesinfo.h",
-            "qmakerunconfiguration.cpp", "qmakerunconfiguration.h",
         ]
     }
 

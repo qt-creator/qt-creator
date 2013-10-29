@@ -34,7 +34,7 @@
 #include "qmakestep.h"
 #include "makestep.h"
 #include "qmakebuildconfiguration.h"
-#include "qmakerunconfiguration.h"
+#include "desktopqmakerunconfiguration.h"
 #include "wizards/consoleappwizard.h"
 #include "wizards/guiappwizard.h"
 #include "wizards/librarywizard.h"
@@ -138,7 +138,7 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     addAutoReleasedObject(new MakeStepFactory);
 
     addAutoReleasedObject(new QmakeBuildConfigurationFactory);
-    addAutoReleasedObject(new Qt4RunConfigurationFactory);
+    addAutoReleasedObject(new DesktopQmakeRunConfigurationFactory);
 
     if (Utils::HostOsInfo::isMacHost())
         addAutoReleasedObject(new MacDesignerExternalEditor);
