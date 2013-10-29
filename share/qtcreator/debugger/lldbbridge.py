@@ -650,6 +650,7 @@ class Dumper(DumperBase):
         self.processArgs_ = args.get('processArgs', '')
         self.attachPid_ = args.get('attachPid', 0)
         self.sysRoot_ = args.get('sysRoot', '')
+        self.remoteChannel_ = args.get('remoteChannel', '')
 
         if len(self.sysRoot_)>0:
             self.debugger.SetCurrentPlatformSDKRoot(self.sysRoot_)
@@ -670,15 +671,28 @@ class Dumper(DumperBase):
         if self.attachPid_ > 0:
             attachInfo = lldb.SBAttachInfo(self.attachPid_)
             self.process = self.target.Attach(attachInfo, error)
+            if not err.Success():
+                self.report('state="inferiorrunfailed"')
+                return
+            self.report('pid="%s"' % self.process.GetProcessID())
+            self.report('state="enginerunandinferiorstopok"')
+        elif len(self.remoteChannel_) > 0:
+            err = lldb.SBError()
+            self.process = self.target.ConnectRemote(
+            self.debugger.GetListener(),
+            self.remoteChannel_, None, error)
+            self.report('state="enginerunandinferiorstopok"')
         else:
             launchInfo = lldb.SBLaunchInfo(self.processArgs_.split(' '))
             launchInfo.SetWorkingDirectory(os.getcwd())
             environmentList = [key + "=" + value for key,value in os.environ.items()]
             launchInfo.SetEnvironmentEntries(environmentList, False)
             self.process = self.target.Launch(launchInfo, error)
-
-        self.report('pid="%s"' % self.process.GetProcessID())
-        self.report('state="enginerunandinferiorrunok"')
+            if not err.Success():
+                self.report('state="inferiorrunfailed"')
+                return
+            self.report('pid="%s"' % self.process.GetProcessID())
+            self.report('state="enginerunandinferiorrunok"')
 
         event = lldb.SBEvent()
         while True:

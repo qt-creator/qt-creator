@@ -83,8 +83,8 @@ signals:
                         const QString &deviceId, Ios::IosToolHandler::OpStatus status);
     void didStartApp(Ios::IosToolHandler *handler, const QString &bundlePath,
                      const QString &deviceId, Ios::IosToolHandler::OpStatus status);
-    void gotGdbserverSocket(Ios::IosToolHandler *handler, const QString &bundlePath,
-                            const QString &deviceId, int gdbFd);
+    void gotGdbserverPort(Ios::IosToolHandler *handler, const QString &bundlePath,
+                            const QString &deviceId, int gdbPort);
     void gotInferiorPid(Ios::IosToolHandler *handler, const QString &bundlePath,
                         const QString &deviceId, Q_PID pid);
     void deviceInfo(Ios::IosToolHandler *handler, const QString &deviceId,
@@ -98,7 +98,7 @@ public slots:
 private slots:
     void subprocessError(QProcess::ProcessError error);
     void subprocessFinished(int exitCode, QProcess::ExitStatus exitStatus);
-    void subprocessHasData(int socket);
+    void subprocessHasData();
 private:
     friend class Ios::Internal::IosToolHandlerPrivate;
     Ios::Internal::IosToolHandlerPrivate *d;

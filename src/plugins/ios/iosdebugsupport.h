@@ -54,7 +54,7 @@ public:
     ~IosDebugSupport();
 
 private slots:
-    void handleGdbServerFd(int gdbServerFd);
+    void handleGdbServerPort(int gdbServerFd);
     void handleGotInferiorPid(Q_PID);
     void handleRemoteProcessFinished(bool cleanEnd);
 
@@ -66,7 +66,6 @@ private:
     IosRunner * const m_runner;
     const QString m_dumperLib;
 
-    int m_gdbServerFd;
     int m_qmlPort;
 };
 

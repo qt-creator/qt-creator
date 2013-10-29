@@ -92,6 +92,7 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
         if (ToolChain *tc = ToolChainKitInformation::toolChain(kit))
             params.toolChainAbi = tc->targetAbi();
         params.executable = runConfig->exePath().toString();
+        params.remoteChannel = QLatin1String("connect://localhost:0");
     }
     if (aspect->useQmlDebugger()) {
         params.languages |= QmlLanguage;
@@ -116,7 +117,7 @@ IosDebugSupport::IosDebugSupport(IosRunConfiguration *runConfig,
     DebuggerRunControl *runControl)
     : QObject(runControl), m_runControl(runControl),
       m_runner(new IosRunner(this, runConfig, true)),
-      m_gdbServerFd(0), m_qmlPort(0)
+      m_qmlPort(0)
 {
 
     connect(m_runControl->engine(), SIGNAL(requestRemoteSetup()),
@@ -124,8 +125,8 @@ IosDebugSupport::IosDebugSupport(IosRunConfiguration *runConfig,
     connect(m_runControl, SIGNAL(finished()),
             m_runner, SLOT(stop()));
 
-    connect(m_runner, SIGNAL(gotGdbSocket(int)),
-        SLOT(handleGdbServerFd(int)));
+    connect(m_runner, SIGNAL(gotGdbserverPort(int)),
+        SLOT(handleGdbServerPort(int)));
     connect(m_runner, SIGNAL(gotInferiorPid(Q_PID)),
         SLOT(handleGotInferiorPid(Q_PID)));
     connect(m_runner, SIGNAL(finished(bool)),
@@ -139,18 +140,12 @@ IosDebugSupport::IosDebugSupport(IosRunConfiguration *runConfig,
 
 IosDebugSupport::~IosDebugSupport()
 {
-    if (m_gdbServerFd > 0)
-        close(m_gdbServerFd);
 }
 
-void IosDebugSupport::handleGdbServerFd(int gdbServerFd)
+void IosDebugSupport::handleGdbServerPort(int gdbServerPort)
 {
-    if (m_gdbServerFd > 0) {
-        close(m_gdbServerFd);
-        m_gdbServerFd = 0;
-    }
-    if (gdbServerFd > 0) {
-        m_runControl->engine()->notifyEngineRemoteSetupDone(m_gdbServerFd, m_qmlPort);
+    if (gdbServerPort > 0) {
+        m_runControl->engine()->notifyEngineRemoteSetupDone(gdbServerPort, m_qmlPort);
     } else {
         m_runControl->engine()->notifyEngineRemoteSetupFailed(
                     tr("Could not get debug server file descriptor."));

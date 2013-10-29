@@ -38,26 +38,34 @@
 #include <QFile>
 #include <QMapIterator>
 #include <QScopedArrayPointer>
+#include <QTcpServer>
+#include <QSocketNotifier>
+#include <QTcpSocket>
 
 #include "iosdevicemanager.h"
 #include <sys/types.h>
+#include <string.h>
 #include <sys/socket.h>
 #include <sys/un.h>
-#include <unistd.h>
-#include <string.h>
 #include <errno.h>
+#ifdef Q_OS_UNIX
+#include <unistd.h>
+#include <fcntl.h>
+#endif
 
+static const bool debugGdbEchoServer = false;
 
 class IosTool: public QObject {
     Q_OBJECT
 public:
     IosTool(QObject *parent = 0);
+    virtual ~IosTool();
     void run(const QStringList &args);
     void doExit(int errorCode = 0);
     void writeMsg(const char *msg);
     void writeMsg(const QString &msg);
     void stopXml(int errorCode);
-public slots:
+private slots:
     void isTransferringApp(const QString &bundlePath, const QString &deviceId, int progress,
                            const QString &info);
     void didTransferApp(const QString &bundlePath, const QString &deviceId,
@@ -67,15 +75,27 @@ public slots:
     void deviceInfo(const QString &deviceId, const Ios::IosDeviceManager::Dict &info);
     void appOutput(const QString &output);
     void errorMsg(const QString &msg);
+    void handleNewConnection();
+    void handleGdbServerSocketHasData(int socket);
+    void handleCreatorHasData();
+    void handleCreatorHasError(QAbstractSocket::SocketError error);
 private:
+    bool startServer();
+    void stopGdbServer(int errorCode = 0);
+
     int maxProgress;
     int opLeft;
     bool debug;
+    bool ipv6;
     bool inAppOutput;
     bool splitAppOutput; // as QXmlStreamReader reports the text attributes atomically it is better to split
     Ios::IosDeviceManager::AppOp appOp;
     QFile outFile;
     QXmlStreamWriter out;
+    int gdbFileDescriptor;
+    QTcpSocket *creatorSocket;
+    QSocketNotifier *gdbServerNotifier;
+    QTcpServer gdbServer;
 };
 
 IosTool::IosTool(QObject *parent):
@@ -83,11 +103,15 @@ IosTool::IosTool(QObject *parent):
     maxProgress(0),
     opLeft(0),
     debug(false),
+    ipv6(false),
     inAppOutput(false),
     splitAppOutput(true),
     appOp(Ios::IosDeviceManager::Install),
     outFile(),
-    out(&outFile)
+    out(&outFile),
+    gdbFileDescriptor(-1),
+    creatorSocket(0),
+    gdbServerNotifier(0)
 {
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     outFile.open(stdout, QIODevice::WriteOnly, QFile::DontCloseHandle);
@@ -96,6 +120,12 @@ IosTool::IosTool(QObject *parent):
 #endif
     out.setAutoFormatting(true);
     out.setCodec("UTF-8");
+}
+
+IosTool::~IosTool()
+{
+    delete creatorSocket; // not strictly required
+    delete gdbServerNotifier; // not strictly required
 }
 
 void IosTool::run(const QStringList &args)
@@ -128,6 +158,8 @@ void IosTool::run(const QStringList &args)
             appOp = Ios::IosDeviceManager::AppOp(appOp | Ios::IosDeviceManager::Install);
         } else if (arg == QLatin1String("-run")) {
             appOp = Ios::IosDeviceManager::AppOp(appOp | Ios::IosDeviceManager::Run);
+        } else if (arg == QLatin1String("-ipv6")) {
+            ipv6 = true;
         } else if (arg == QLatin1String("-debug")) {
             appOp = Ios::IosDeviceManager::AppOp(appOp | Ios::IosDeviceManager::Run);
             debug = true;
@@ -229,68 +261,6 @@ void IosTool::isTransferringApp(const QString &bundlePath, const QString &device
     outFile.flush();
 }
 
-#ifndef CMSG_SPACE
-size_t CMSG_SPACE(size_t len) {
-        msghdr msg;
-        cmsghdr cmsg;
-        msg.msg_control = &cmsg;
-        msg.msg_controllen =  ~socklen_t(0); /* To maximize the chance that CMSG_NXTHDR won't return NULL */
-        cmsg.cmsg_len = CMSG_LEN(len);
-        return reinterpret_cast<unsigned char *>(CMSG_NXTHDR(&msg, &cmsg)) - reinterpret_cast<unsigned char *>(&cmsg);
-}
-#endif
-
-int send_fd(int socket, int fd_to_send)
-{
-    /* storage space needed for an ancillary element with a paylod of length is CMSG_SPACE(sizeof(length)) */
-    size_t dimAncillaryBuffer = CMSG_SPACE(sizeof(int));
-    QScopedArrayPointer<char> ancillary_element_buffer(new char[dimAncillaryBuffer]);
-    int available_ancillary_element_buffer_space;
-
-    /* at least one vector of one byte must be sent */
-    char message_buffer[1];
-    message_buffer[0] = '.';
-    iovec io_vector[1];
-
-    io_vector[0].iov_base = message_buffer;
-    io_vector[0].iov_len = 1;
-
-    /* initialize socket message */
-    msghdr socket_message;
-    memset(&socket_message, 0, sizeof(msghdr));
-    socket_message.msg_iov = io_vector;
-    socket_message.msg_iovlen = 1;
-
-    /* provide space for the ancillary data */
-    available_ancillary_element_buffer_space = dimAncillaryBuffer;
-    memset(ancillary_element_buffer.data(), 0, available_ancillary_element_buffer_space);
-    socket_message.msg_control = ancillary_element_buffer.data();
-    socket_message.msg_controllen = available_ancillary_element_buffer_space;
-
-    /* initialize a single ancillary data element for fd passing */
-    cmsghdr *control_message = NULL;
-    control_message = CMSG_FIRSTHDR(&socket_message);
-    control_message->cmsg_level = SOL_SOCKET;
-    control_message->cmsg_type = SCM_RIGHTS;
-    control_message->cmsg_len = CMSG_LEN(sizeof(int));
-    *((int *) CMSG_DATA(control_message)) = fd_to_send;
-
-    qptrdiff res = sendmsg(socket, &socket_message, 0);
-    while (true) {
-        qptrdiff nRead = recv(socket, &message_buffer[0], 1, MSG_WAITALL);
-        if (nRead == -1) {
-            if (errno == EINTR)
-                continue;
-            qDebug() << "wait in send_fd failed " << qt_error_string(errno);
-            sleep(4);
-            return res;
-        }
-        if (nRead == 1)
-            break;
-    }
-    return res;
-}
-
 void IosTool::didTransferApp(const QString &bundlePath, const QString &deviceId,
                              Ios::IosDeviceManager::OpStatus status)
 {
@@ -326,7 +296,7 @@ void IosTool::didStartApp(const QString &bundlePath, const QString &deviceId,
                            QLatin1String("FAILURE"));
     //out.writeCharacters(QString()); // trigger a complete closing of the empty element
     outFile.flush();
-    if (appOp == Ios::IosDeviceManager::Install) {
+    if (status != Ios::IosDeviceManager::Success || appOp == Ios::IosDeviceManager::Install) {
         doExit();
         return;
     }
@@ -341,14 +311,14 @@ void IosTool::didStartApp(const QString &bundlePath, const QString &deviceId,
         return;
     }
     if (debug) {
-        stopXml(0);
-        // these are 67 characters, this is used as read size on the other side...
-        const char *msg = "Now sending the gdbserver socket, will need a unix socket to succeed";
-        outFile.write(msg, strlen(msg));
+        gdbFileDescriptor=gdbFd;
+        if (!startServer()) {
+            doExit(-4);
+            return;
+        }
+        out.writeTextElement(QLatin1String("gdb_server_port"),
+                             QString::number(gdbServer.serverPort()));
         outFile.flush();
-        int sent = send_fd(1, gdbFd);
-        sleep(1);
-        QCoreApplication::exit(sent == -1);
     } else {
         if (!splitAppOutput) {
             out.writeStartElement(QLatin1String("app_output"));
@@ -408,6 +378,160 @@ void IosTool::appOutput(const QString &output)
 void IosTool::errorMsg(const QString &msg)
 {
     writeMsg(msg + QLatin1Char('\n'));
+}
+
+void IosTool::handleNewConnection()
+{
+    if (creatorSocket) {
+        gdbServer.close();
+        QTcpSocket *s = gdbServer.nextPendingConnection();
+        delete s;
+        return;
+    }
+    creatorSocket = gdbServer.nextPendingConnection();
+    connect(creatorSocket, SIGNAL(readyRead()), SLOT(handleCreatorHasData()));
+    connect(creatorSocket, SIGNAL(error(QAbstractSocket::SocketError)),
+            SLOT(handleCreatorHasError(QAbstractSocket::SocketError)));
+    gdbServerNotifier = new QSocketNotifier(gdbFileDescriptor, QSocketNotifier::Read, this);
+    connect(gdbServerNotifier, SIGNAL(activated(int)), SLOT(handleGdbServerSocketHasData(int)));
+    gdbServer.close();
+}
+
+void IosTool::handleGdbServerSocketHasData(int socket)
+{
+    gdbServerNotifier->setEnabled(false);
+    char buf[255];
+    while (true) {
+        qptrdiff rRead = read(socket, &buf, sizeof(buf)-1);
+        if (rRead == -1) {
+            if (errno == EINTR)
+                continue;
+            if (errno == EAGAIN) {
+                gdbServerNotifier->setEnabled(true);
+                return;
+            }
+            errorMsg(qt_error_string(errno));
+            close(socket);
+            stopGdbServer(-1);
+            return;
+        }
+        if (rRead == 0) {
+            stopGdbServer(0);
+            return;
+        }
+        if (debugGdbEchoServer) {
+            writeMsg("gdbServerReplies:");
+            buf[rRead] = 0;
+            writeMsg(buf);
+        }
+        qint64 pos = 0;
+        while (true) {
+            qint64 writtenNow = creatorSocket->write(buf + int(pos), rRead);
+            if (writtenNow == -1) {
+                writeMsg(creatorSocket->errorString());
+                stopGdbServer(-1);
+                return;
+            }
+            if (writtenNow < rRead) {
+                pos += writtenNow;
+                rRead -= qptrdiff(writtenNow);
+            } else {
+                break;
+            }
+        }
+    }
+}
+
+void IosTool::stopGdbServer(int errorCode)
+{
+    if (debugGdbEchoServer)
+        writeMsg("gdbServerStops");
+    if (!creatorSocket)
+        return;
+    if (gdbFileDescriptor > 0) {
+        ::close(gdbFileDescriptor);
+        gdbFileDescriptor = -1;
+        if (gdbServerNotifier)
+            delete gdbServerNotifier;
+    }
+    if (creatorSocket->isOpen())
+        creatorSocket->close();
+    delete creatorSocket;
+    doExit(errorCode);
+}
+
+void IosTool::handleCreatorHasData()
+{
+    char buf[255];
+    while (true) {
+        qint64 toRead = creatorSocket->bytesAvailable();
+        if (qint64(sizeof(buf)-1) < toRead)
+            toRead = sizeof(buf)-1;
+        qint64 rRead = creatorSocket->read(buf, toRead);
+        if (rRead == -1) {
+            errorMsg(creatorSocket->errorString());
+            stopGdbServer();
+            return;
+        }
+        if (rRead == 0) {
+            if (!creatorSocket->isOpen())
+                stopGdbServer();
+            return;
+        }
+        int pos = 0;
+        int irep = 0;
+        if (debugGdbEchoServer) {
+            writeMsg("sendToGdbServer:");
+            buf[rRead] = 0;
+            writeMsg(buf);
+        }
+        while (true) {
+            qptrdiff written = write(gdbFileDescriptor, buf + pos, rRead);
+            if (written == -1) {
+                if (errno == EINTR)
+                    continue;
+                if (errno == EAGAIN) {
+                    if (++irep > 10) {
+                        sleep(1);
+                        irep = 0;
+                    }
+                    continue;
+                }
+                errorMsg(creatorSocket->errorString());
+                stopGdbServer();
+                return;
+            }
+            if (written == 0) {
+                stopGdbServer();
+                return;
+            }
+            if (written < rRead) {
+                pos += written;
+                rRead -= written;
+            } else {
+                break;
+            }
+        }
+    }
+}
+
+void IosTool::handleCreatorHasError(QAbstractSocket::SocketError error)
+{
+    errorMsg(tr("Ios Debugging connection to creator failed with error %1").arg(error));
+    stopGdbServer();
+}
+
+bool IosTool::startServer()
+{
+    if (gdbFileDescriptor <= 0 || gdbServer.isListening() || creatorSocket != 0)
+        return false;
+    fcntl(gdbFileDescriptor, F_SETFL, fcntl(gdbFileDescriptor, F_GETFL, 0) | O_NONBLOCK);
+    gdbServer.setMaxPendingConnections(1);
+    connect(&gdbServer, SIGNAL(newConnection()), SLOT(handleNewConnection()));
+    if (ipv6)
+        return gdbServer.listen(QHostAddress(QHostAddress::LocalHostIPv6), 0);
+    else
+        return gdbServer.listen(QHostAddress(QHostAddress::LocalHost), 0);
 }
 
 

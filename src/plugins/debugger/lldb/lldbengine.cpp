@@ -182,7 +182,8 @@ void LldbEngine::setupInferior()
     cmd.arg("attachPid", ((sp.startMode == AttachCrashedExternal || sp.startMode == AttachExternal)
                           ? sp.attachPID : 0));
     cmd.arg("sysRoot", sp.sysRoot);
-    cmd.arg("remoteChannel", ((sp.startMode == AttachToRemoteProcess || sp.startMode == AttachToRemoteServer)
+    cmd.arg("remoteChannel", ((sp.startMode == AttachToRemoteProcess
+                               || sp.startMode == AttachToRemoteServer)
                               ? sp.remoteChannel : QString()));
 
     runCommand(cmd);
@@ -1132,10 +1133,9 @@ void LldbEngine::notifyEngineRemoteSetupDone(int portOrPid, int qmlPort)
         } else {
             QString &rc = startParameters().remoteChannel;
             const int sepIndex = rc.lastIndexOf(QLatin1Char(':'));
-            if (sepIndex != -1) {
+            if (sepIndex != -1)
                 rc.replace(sepIndex + 1, rc.count() - sepIndex - 1,
                            QString::number(portOrPid));
-            }
         }
     }
     startLldb();
