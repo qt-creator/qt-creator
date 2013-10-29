@@ -3,11 +3,15 @@ TEMPLATE = app
 LIBS += -lbbdata -lbb -lbbcascades
 QT += declarative xml
 
-SOURCES += main.cpp \
-    %ProjectName%.cpp
+SOURCES += \
+    src/main.cpp \
+    src/applicationui.cpp \
 
-HEADERS += %ProjectName%.hpp
+HEADERS += \
+    src/applicationui.h \
 
-OTHER_FILES += bar-descriptor.xml \
+OTHER_FILES += \
+    bar-descriptor.xml \
     assets/main.qml \
-    assets/SecondPage.qml
+
+
