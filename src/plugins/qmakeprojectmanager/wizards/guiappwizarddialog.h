@@ -53,7 +53,7 @@ struct GuiAppParameters
     bool isMobileApplication;
 };
 
-class GuiAppWizardDialog : public BaseQt4ProjectWizardDialog
+class GuiAppWizardDialog : public BaseQmakeProjectWizardDialog
 {
     Q_OBJECT
 

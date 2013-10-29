@@ -42,7 +42,7 @@ class CustomWidgetPluginWizardPage;
 struct PluginOptions;
 struct FileNamingParameters;
 
-class CustomWidgetWizardDialog : public BaseQt4ProjectWizardDialog
+class CustomWidgetWizardDialog : public BaseQmakeProjectWizardDialog
 {
     Q_OBJECT
 public:

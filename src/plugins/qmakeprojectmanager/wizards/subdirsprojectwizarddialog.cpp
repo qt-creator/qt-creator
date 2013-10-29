@@ -37,7 +37,7 @@ SubdirsProjectWizardDialog::SubdirsProjectWizardDialog(const QString &templateNa
                                                const QIcon &icon,
                                                QWidget *parent,
                                                const Core::WizardDialogParameters &parameters) :
-    BaseQt4ProjectWizardDialog(false, parent, parameters)
+    BaseQmakeProjectWizardDialog(false, parent, parameters)
 {
     setWindowIcon(icon);
     setWindowTitle(templateName);

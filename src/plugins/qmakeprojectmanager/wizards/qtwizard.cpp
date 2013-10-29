@@ -88,7 +88,7 @@ bool QtWizard::qt4ProjectPostGenerateFiles(const QWizard *w,
                                            const Core::GeneratedFiles &generatedFiles,
                                            QString *errorMessage)
 {
-    const BaseQt4ProjectWizardDialog *dialog = qobject_cast<const BaseQt4ProjectWizardDialog *>(w);
+    const BaseQmakeProjectWizardDialog *dialog = qobject_cast<const BaseQmakeProjectWizardDialog *>(w);
 
     // Generate user settings
     foreach (const Core::GeneratedFile &file, generatedFiles)
@@ -127,15 +127,15 @@ bool QtWizard::showModulesPageForLibraries()
     return true;
 }
 
-// ------------ CustomQt4ProjectWizard
-CustomQt4ProjectWizard::CustomQt4ProjectWizard()
+// ------------ CustomQmakeProjectWizard
+CustomQmakeProjectWizard::CustomQmakeProjectWizard()
 {
 }
 
-QWizard *CustomQt4ProjectWizard::createWizardDialog
+QWizard *CustomQmakeProjectWizard::createWizardDialog
     (QWidget *parent, const Core::WizardDialogParameters &wizardDialogParameters) const
 {
-    BaseQt4ProjectWizardDialog *wizard = new BaseQt4ProjectWizardDialog(false, parent, wizardDialogParameters);
+    BaseQmakeProjectWizardDialog *wizard = new BaseQmakeProjectWizardDialog(false, parent, wizardDialogParameters);
 
     if (!wizardDialogParameters.extraValues().contains(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS)))
         wizard->addTargetSetupPage(false, targetPageId);
@@ -145,18 +145,18 @@ QWizard *CustomQt4ProjectWizard::createWizardDialog
     return wizard;
 }
 
-bool CustomQt4ProjectWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage)
+bool CustomQmakeProjectWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage)
 {
     return QtWizard::qt4ProjectPostGenerateFiles(w, l, errorMessage);
 }
 
-void CustomQt4ProjectWizard::registerSelf()
+void CustomQmakeProjectWizard::registerSelf()
 {
-    ProjectExplorer::CustomWizard::registerFactory<CustomQt4ProjectWizard>(QLatin1String("qt4project"));
+    ProjectExplorer::CustomWizard::registerFactory<CustomQmakeProjectWizard>(QLatin1String("qt4project"));
 }
 
-// ----------------- BaseQt4ProjectWizardDialog
-BaseQt4ProjectWizardDialog::BaseQt4ProjectWizardDialog(bool showModulesPage, QWidget *parent,
+// ----------------- BaseQmakeProjectWizardDialog
+BaseQmakeProjectWizardDialog::BaseQmakeProjectWizardDialog(bool showModulesPage, QWidget *parent,
                                                        const Core::WizardDialogParameters &parameters) :
     ProjectExplorer::BaseProjectWizardDialog(parent, parameters),
     m_modulesPage(0),
@@ -167,7 +167,7 @@ BaseQt4ProjectWizardDialog::BaseQt4ProjectWizardDialog(bool showModulesPage, QWi
     init(showModulesPage);
 }
 
-BaseQt4ProjectWizardDialog::BaseQt4ProjectWizardDialog(bool showModulesPage,
+BaseQmakeProjectWizardDialog::BaseQmakeProjectWizardDialog(bool showModulesPage,
                                                        Utils::ProjectIntroPage *introPage,
                                                        int introId, QWidget *parent,
                                                        const Core::WizardDialogParameters &parameters) :
@@ -180,7 +180,7 @@ BaseQt4ProjectWizardDialog::BaseQt4ProjectWizardDialog(bool showModulesPage,
     init(showModulesPage);
 }
 
-BaseQt4ProjectWizardDialog::~BaseQt4ProjectWizardDialog()
+BaseQmakeProjectWizardDialog::~BaseQmakeProjectWizardDialog()
 {
     if (m_targetSetupPage && !m_targetSetupPage->parent())
         delete m_targetSetupPage;
@@ -188,7 +188,7 @@ BaseQt4ProjectWizardDialog::~BaseQt4ProjectWizardDialog()
         delete m_modulesPage;
 }
 
-void BaseQt4ProjectWizardDialog::init(bool showModulesPage)
+void BaseQmakeProjectWizardDialog::init(bool showModulesPage)
 {
     if (showModulesPage)
         m_modulesPage = new ModulesPage;
@@ -196,7 +196,7 @@ void BaseQt4ProjectWizardDialog::init(bool showModulesPage)
             this, SLOT(generateProfileName(QString,QString)));
 }
 
-int BaseQt4ProjectWizardDialog::addModulesPage(int id)
+int BaseQmakeProjectWizardDialog::addModulesPage(int id)
 {
     if (!m_modulesPage)
         return -1;
@@ -210,7 +210,7 @@ int BaseQt4ProjectWizardDialog::addModulesPage(int id)
     return newId;
 }
 
-int BaseQt4ProjectWizardDialog::addTargetSetupPage(bool mobile, int id)
+int BaseQmakeProjectWizardDialog::addTargetSetupPage(bool mobile, int id)
 {
     m_targetSetupPage = new ProjectExplorer::TargetSetupPage;
     const QString platform = selectedPlatform();
@@ -233,12 +233,12 @@ int BaseQt4ProjectWizardDialog::addTargetSetupPage(bool mobile, int id)
     return id;
 }
 
-QStringList BaseQt4ProjectWizardDialog::selectedModulesList() const
+QStringList BaseQmakeProjectWizardDialog::selectedModulesList() const
 {
     return m_modulesPage ? m_modulesPage->selectedModulesList() : m_selectedModules;
 }
 
-void BaseQt4ProjectWizardDialog::setSelectedModules(const QString &modules, bool lock)
+void BaseQmakeProjectWizardDialog::setSelectedModules(const QString &modules, bool lock)
 {
     const QStringList modulesList = modules.split(QLatin1Char(' '));
     if (m_modulesPage) {
@@ -251,12 +251,12 @@ void BaseQt4ProjectWizardDialog::setSelectedModules(const QString &modules, bool
     }
 }
 
-QStringList BaseQt4ProjectWizardDialog::deselectedModulesList() const
+QStringList BaseQmakeProjectWizardDialog::deselectedModulesList() const
 {
     return m_modulesPage ? m_modulesPage->deselectedModulesList() : m_deselectedModules;
 }
 
-void BaseQt4ProjectWizardDialog::setDeselectedModules(const QString &modules)
+void BaseQmakeProjectWizardDialog::setDeselectedModules(const QString &modules)
 {
     const QStringList modulesList = modules.split(QLatin1Char(' '));
     if (m_modulesPage) {
@@ -267,7 +267,7 @@ void BaseQt4ProjectWizardDialog::setDeselectedModules(const QString &modules)
     }
 }
 
-bool BaseQt4ProjectWizardDialog::writeUserFile(const QString &proFileName) const
+bool BaseQmakeProjectWizardDialog::writeUserFile(const QString &proFileName) const
 {
     if (!m_targetSetupPage)
         return false;
@@ -283,14 +283,14 @@ bool BaseQt4ProjectWizardDialog::writeUserFile(const QString &proFileName) const
     return success;
 }
 
-bool BaseQt4ProjectWizardDialog::setupProject(QmakeProject *project) const
+bool BaseQmakeProjectWizardDialog::setupProject(QmakeProject *project) const
 {
     if (!m_targetSetupPage)
         return true;
     return m_targetSetupPage->setupProject(project);
 }
 
-bool BaseQt4ProjectWizardDialog::isQtPlatformSelected(const QString &platform) const
+bool BaseQmakeProjectWizardDialog::isQtPlatformSelected(const QString &platform) const
 {
     QList<Core::Id> selectedKitList = selectedKits();
 
@@ -301,20 +301,20 @@ bool BaseQt4ProjectWizardDialog::isQtPlatformSelected(const QString &platform) c
     return false;
 }
 
-QList<Core::Id> BaseQt4ProjectWizardDialog::selectedKits() const
+QList<Core::Id> BaseQmakeProjectWizardDialog::selectedKits() const
 {
     if (!m_targetSetupPage)
         return m_profileIds;
     return m_targetSetupPage->selectedKits();
 }
 
-void BaseQt4ProjectWizardDialog::addExtensionPages(const QList<QWizardPage *> &wizardPageList)
+void BaseQmakeProjectWizardDialog::addExtensionPages(const QList<QWizardPage *> &wizardPageList)
 {
     foreach (QWizardPage *p,wizardPageList)
         Core::BaseFileWizard::applyExtensionPageShortTitle(this, addPage(p));
 }
 
-void BaseQt4ProjectWizardDialog::generateProfileName(const QString &name, const QString &path)
+void BaseQmakeProjectWizardDialog::generateProfileName(const QString &name, const QString &path)
 {
     if (!m_targetSetupPage)
         return;

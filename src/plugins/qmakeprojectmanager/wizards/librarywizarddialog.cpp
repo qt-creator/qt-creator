@@ -135,7 +135,7 @@ LibraryWizardDialog::LibraryWizardDialog(const QString &templateName,
                                          bool showModulesPage,
                                          QWidget *parent,
                                          const Core::WizardDialogParameters &parameters) :
-    BaseQt4ProjectWizardDialog(showModulesPage, new LibraryIntroPage, -1, parent, parameters),
+    BaseQmakeProjectWizardDialog(showModulesPage, new LibraryIntroPage, -1, parent, parameters),
     m_filesPage(new FilesPage),
     m_mobilePage(new MobileLibraryWizardOptionPage),
     m_pluginBaseClassesInitialized(false),
@@ -247,7 +247,7 @@ int LibraryWizardDialog::nextId() const
         return skipModulesPageIfNeeded();
     }
 
-    return BaseQt4ProjectWizardDialog::nextId();
+    return BaseQmakeProjectWizardDialog::nextId();
 }
 
 void LibraryWizardDialog::initializePage(int id)
@@ -262,7 +262,7 @@ void LibraryWizardDialog::initializePage(int id)
             mobileItem->setNextShownItem(modulesItem);
 
     }
-    BaseQt4ProjectWizardDialog::initializePage(id);
+    BaseQmakeProjectWizardDialog::initializePage(id);
 }
 
 void LibraryWizardDialog::cleanupPage(int id)
@@ -271,7 +271,7 @@ void LibraryWizardDialog::cleanupPage(int id)
         Utils::WizardProgressItem *mobileItem = wizardProgress()->item(m_mobilePageId);
         mobileItem->setNextShownItem(0);
     }
-    BaseQt4ProjectWizardDialog::cleanupPage(id);
+    BaseQmakeProjectWizardDialog::cleanupPage(id);
 }
 
 QtProjectParameters LibraryWizardDialog::parameters() const

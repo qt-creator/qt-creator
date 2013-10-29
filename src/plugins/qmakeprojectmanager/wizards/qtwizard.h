@@ -84,12 +84,12 @@ private:
 };
 
 // A custom wizard with an additional Qt 4 target page
-class CustomQt4ProjectWizard : public ProjectExplorer::CustomProjectWizard
+class CustomQmakeProjectWizard : public ProjectExplorer::CustomProjectWizard
 {
     Q_OBJECT
 
 public:
-    CustomQt4ProjectWizard();
+    CustomQmakeProjectWizard();
 
     static void registerSelf();
 
@@ -108,18 +108,19 @@ private:
  * to select targets and Qt versions.
  */
 
-class BaseQt4ProjectWizardDialog : public ProjectExplorer::BaseProjectWizardDialog {
+class BaseQmakeProjectWizardDialog : public ProjectExplorer::BaseProjectWizardDialog
+{
     Q_OBJECT
 protected:
-    explicit BaseQt4ProjectWizardDialog(bool showModulesPage,
+    explicit BaseQmakeProjectWizardDialog(bool showModulesPage,
                                         Utils::ProjectIntroPage *introPage,
                                         int introId,
                                         QWidget *parent,
                                         const Core::WizardDialogParameters &parameters);
 public:
-    explicit BaseQt4ProjectWizardDialog(bool showModulesPage, QWidget *parent,
+    explicit BaseQmakeProjectWizardDialog(bool showModulesPage, QWidget *parent,
                                         const Core::WizardDialogParameters &parameters);
-    virtual ~BaseQt4ProjectWizardDialog();
+    virtual ~BaseQmakeProjectWizardDialog();
 
     int addModulesPage(int id = -1);
     int addTargetSetupPage(bool mobile = false, int id = -1);

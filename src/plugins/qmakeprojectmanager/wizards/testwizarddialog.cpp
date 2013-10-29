@@ -52,7 +52,7 @@ TestWizardDialog::TestWizardDialog(const QString &templateName,
                                    const QIcon &icon,
                                    QWidget *parent,
                                    const Core::WizardDialogParameters &parameters)  :
-    BaseQt4ProjectWizardDialog(true, parent, parameters),
+    BaseQmakeProjectWizardDialog(true, parent, parameters),
     m_testPage(new TestWizardPage),
     m_testPageId(-1), m_modulesPageId(-1)
 {

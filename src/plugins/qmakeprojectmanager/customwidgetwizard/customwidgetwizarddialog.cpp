@@ -62,7 +62,7 @@ CustomWidgetWizardDialog::CustomWidgetWizardDialog(const QString &templateName,
                                                    const QIcon &icon,
                                                    QWidget *parent,
                                                    const Core::WizardDialogParameters &parameters) :
-    BaseQt4ProjectWizardDialog(false, parent, parameters),
+    BaseQmakeProjectWizardDialog(false, parent, parameters),
     m_widgetsPage(new CustomWidgetWidgetsWizardPage),
     m_pluginPage(new CustomWidgetPluginWizardPage),
     m_widgetPageId(-1), m_pluginPageId(-1)

@@ -37,7 +37,7 @@ namespace Internal {
 
 struct QtProjectParameters;
 
-class SubdirsProjectWizardDialog : public BaseQt4ProjectWizardDialog
+class SubdirsProjectWizardDialog : public BaseQmakeProjectWizardDialog
 {
     Q_OBJECT
 public:

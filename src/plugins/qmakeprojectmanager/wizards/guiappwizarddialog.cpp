@@ -50,7 +50,7 @@ GuiAppWizardDialog::GuiAppWizardDialog(const QString &templateName,
                                        bool isMobile,
                                        QWidget *parent,
                                        const Core::WizardDialogParameters &parameters) :
-    BaseQt4ProjectWizardDialog(showModulesPage, parent, parameters),
+    BaseQmakeProjectWizardDialog(showModulesPage, parent, parameters),
     m_filesPage(new FilesPage)
 {
     setWindowIcon(icon);

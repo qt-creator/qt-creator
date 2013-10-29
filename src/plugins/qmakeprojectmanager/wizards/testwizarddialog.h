@@ -58,7 +58,7 @@ struct TestWizardParameters {
     QString fileName;
 };
 
-class TestWizardDialog : public BaseQt4ProjectWizardDialog
+class TestWizardDialog : public BaseQmakeProjectWizardDialog
 {
     Q_OBJECT
 public:

@@ -39,7 +39,7 @@ ConsoleAppWizardDialog::ConsoleAppWizardDialog(const QString &templateName,
                                                const QIcon &icon,
                                                bool showModulesPage,
                                                QWidget *parent, const Core::WizardDialogParameters &parameters) :
-    BaseQt4ProjectWizardDialog(showModulesPage, parent, parameters)
+    BaseQmakeProjectWizardDialog(showModulesPage, parent, parameters)
 {
     setWindowIcon(icon);
     setWindowTitle(templateName);

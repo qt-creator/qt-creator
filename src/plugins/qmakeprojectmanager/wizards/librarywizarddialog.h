@@ -42,7 +42,7 @@ struct LibraryParameters;
 struct MobileLibraryParameters;
 
 // Library wizard dialog.
-class LibraryWizardDialog : public BaseQt4ProjectWizardDialog
+class LibraryWizardDialog : public BaseQmakeProjectWizardDialog
 {
     Q_OBJECT
 
