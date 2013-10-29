@@ -41,7 +41,7 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
-#include <qt4projectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakeproject.h>
 #include <remotelinux/genericdirectuploadstep.h>
 
 using namespace Qnx;

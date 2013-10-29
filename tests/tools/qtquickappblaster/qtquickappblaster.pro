@@ -2,7 +2,7 @@ CREATORSOURCEDIR = ../../../
 
 DEFINES += \
     CREATORLESSTEST
-APPSOURCEDIR = $$CREATORSOURCEDIR/src/plugins/qt4projectmanager/wizards
+APPSOURCEDIR = $$CREATORSOURCEDIR/src/plugins/qmakeprojectmanager/wizards
 HEADERS += \
     $$APPSOURCEDIR/qtquickapp.h \
     $$APPSOURCEDIR/html5app.h \

@@ -102,7 +102,7 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     const Core::Context projectContext(QmakeProjectManager::Constants::PROJECT_ID);
     Core::Context projecTreeContext(ProjectExplorer::Constants::C_PROJECT_TREE);
 
-    if (!Core::MimeDatabase::addMimeTypes(QLatin1String(":qmakeprojectmanager/Qt4ProjectManager.mimetypes.xml"), errorMessage))
+    if (!Core::MimeDatabase::addMimeTypes(QLatin1String(":qmakeprojectmanager/QmakeProjectManager.mimetypes.xml"), errorMessage))
         return false;
 
     m_projectExplorer = ProjectExplorer::ProjectExplorerPlugin::instance();

@@ -35,7 +35,7 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/target.h>
 
-#include <qt4projectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakeproject.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
 

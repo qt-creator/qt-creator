@@ -37,8 +37,8 @@
 #include <projectexplorer/target.h>
 #include <qtsupport/qtoutputformatter.h>
 #include <qtsupport/qtkitinformation.h>
-#include <qt4projectmanager/qmakeproject.h>
-#include <qt4projectmanager/qmakenodes.h>
+#include <qmakeprojectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakenodes.h>
 
 #include <utils/qtcassert.h>
 

@@ -1,4 +1,4 @@
-QTC_PLUGIN_NAME = Qt4ProjectManager
+QTC_PLUGIN_NAME = QmakeProjectManager
 QTC_LIB_DEPENDS += \
     qmljs
 QTC_PLUGIN_DEPENDS += \

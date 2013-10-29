@@ -34,8 +34,8 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/target.h>
-#include <qt4projectmanager/qmakeproject.h>
-#include <qt4projectmanager/qmakenodes.h>
+#include <qmakeprojectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakenodes.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitinformation.h>
 

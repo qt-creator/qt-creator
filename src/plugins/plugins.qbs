@@ -47,7 +47,7 @@ Project {
         "qmlprofiler/qmlprofiler.qbs",
         "qmlprojectmanager/qmlprojectmanager.qbs",
         "qnx/qnx.qbs",
-        "qt4projectmanager/qt4projectmanager.qbs",
+        "qmakeprojectmanager/qmakeprojectmanager.qbs",
         "qtsupport/qtsupport.qbs",
         "remotelinux/remotelinux.qbs",
         "resourceeditor/resourceeditor.qbs",

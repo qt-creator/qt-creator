@@ -42,9 +42,9 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
-#include <qt4projectmanager/qmakebuildconfiguration.h>
-#include <qt4projectmanager/qmakeproject.h>
-#include <qt4projectmanager/qmakenodes.h>
+#include <qmakeprojectmanager/qmakebuildconfiguration.h>
+#include <qmakeprojectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakenodes.h>
 #include <qtsupport/qtkitinformation.h>
 
 #include <coreplugin/icore.h>

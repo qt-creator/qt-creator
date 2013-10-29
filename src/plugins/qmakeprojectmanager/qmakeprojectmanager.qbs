@@ -3,7 +3,7 @@ import qbs.base 1.0
 import QtcPlugin
 
 QtcPlugin {
-    name: "Qt4ProjectManager"
+    name: "QmakeProjectManager"
 
     Depends { name: "Qt"; submodules: ["widgets", "network"] }
     Depends { name: "Core" }

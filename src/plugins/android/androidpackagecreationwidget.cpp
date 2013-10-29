@@ -41,8 +41,8 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <qt4projectmanager/qmakebuildconfiguration.h>
-#include <qt4projectmanager/qmakestep.h>
+#include <qmakeprojectmanager/qmakebuildconfiguration.h>
+#include <qmakeprojectmanager/qmakestep.h>
 
 #include <QTimer>
 

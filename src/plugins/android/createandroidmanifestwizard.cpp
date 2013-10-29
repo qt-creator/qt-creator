@@ -30,8 +30,8 @@
 #include "createandroidmanifestwizard.h"
 
 #include <projectexplorer/target.h>
-#include <qt4projectmanager/qmakeproject.h>
-#include <qt4projectmanager/qmakenodes.h>
+#include <qmakeprojectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakenodes.h>
 #include <proparser/prowriter.h>
 #include <QComboBox>
 #include <QFormLayout>

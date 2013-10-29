@@ -44,7 +44,7 @@
 #include <qtsupport/qtversionmanager.h>
 #include <qtsupport/qtkitinformation.h>
 
-#include <qt4projectmanager/qmakekitinformation.h>
+#include <qmakeprojectmanager/qmakekitinformation.h>
 
 #include <debugger/debuggeritemmanager.h>
 #include <debugger/debuggerkitinformation.h>

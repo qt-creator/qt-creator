@@ -30,7 +30,7 @@
 #ifndef QMAKERUNCONFIGURATION_H
 #define QMAKERUNCONFIGURATION_H
 
-#include <qt4projectmanager/qmakerunconfigurationfactory.h>
+#include <qmakeprojectmanager/qmakerunconfigurationfactory.h>
 
 #include <projectexplorer/localapplicationrunconfiguration.h>
 

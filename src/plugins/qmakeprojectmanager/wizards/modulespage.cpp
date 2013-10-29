@@ -29,7 +29,7 @@
 
 #include "modulespage.h"
 
-#include <qt4projectmanager/qtmodulesinfo.h>
+#include <qmakeprojectmanager/qtmodulesinfo.h>
 
 #include <QDebug>
 

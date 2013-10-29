@@ -3,7 +3,7 @@ QTC_PLUGIN_DEPENDS += \
     coreplugin \
     debugger \
     projectexplorer \
-    qt4projectmanager \
+    qmakeprojectmanager \
     qtsupport \
     texteditor \
     analyzerbase

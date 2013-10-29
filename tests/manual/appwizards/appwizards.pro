@@ -3,7 +3,7 @@ include ($$CREATORSOURCEDIR/qtcreator.pri)
 
 DEFINES += \
     CREATORLESSTEST
-APPSOURCEDIR = $$CREATORSOURCEDIR/src/plugins/qt4projectmanager/wizards
+APPSOURCEDIR = $$CREATORSOURCEDIR/src/plugins/qmakeprojectmanager/wizards
 LIBS *= -L$$IDE_LIBRARY_PATH -lUtils
 HEADERS += \
     $$APPSOURCEDIR/qtquickapp.h \

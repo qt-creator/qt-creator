@@ -19,7 +19,7 @@ SUBDIRS   = \
     cvs \
     cpptools \
     qtsupport \
-    qt4projectmanager \
+    qmakeprojectmanager \
     locator \
     debugger \
     help \

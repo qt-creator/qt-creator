@@ -35,8 +35,8 @@
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 
-#include <qt4projectmanager/qmakeproject.h>
-#include <qt4projectmanager/qmakeprojectmanagerconstants.h>
+#include <qmakeprojectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>

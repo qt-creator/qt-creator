@@ -33,8 +33,8 @@
 #include "../qmakeprojectimporter.h"
 
 #include <extensionsystem/pluginmanager.h>
-#include <qt4projectmanager/qmakeproject.h>
-#include <qt4projectmanager/qmakeprojectmanager.h>
+#include <qmakeprojectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakeprojectmanager.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtkitinformation.h>
 #include <projectexplorer/projectexplorer.h>
