@@ -90,6 +90,7 @@ void tst_PluginManager::init()
 
 void tst_PluginManager::cleanup()
 {
+    m_pm->shutdown();
     delete m_pm;
     delete m_objectAdded;
     delete m_aboutToRemoveObject;
