@@ -1676,16 +1676,14 @@ def doit():
     db.report('lldbversion="%s"' % lldb.SBDebugger.GetVersionString())
     db.report('state="enginesetupok"')
 
-    while True:
-        readable, _, _ = select.select([sys.stdin], [], [])
-        for reader in readable:
-            if reader == sys.stdin:
-                line = sys.stdin.readline()
-                try:
-                    db.execute(convertHash(json.loads(line)))
-                except:
-                    warn("EXCEPTION CAUGHT: %s" % sys.exc_info()[1])
-                    pass
+    line = sys.stdin.readline()
+    while line:
+        try:
+            db.execute(convertHash(json.loads(line)))
+        except:
+            warn("EXCEPTION CAUGHT: %s" % sys.exc_info()[1])
+            pass
+        line = sys.stdin.readline()
 
 
 # Used in dumper auto test.
