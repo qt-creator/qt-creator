@@ -30,6 +30,9 @@
 #include "importmanagerview.h"
 #include "importswidget.h"
 
+#include <rewritingexception.h>
+
+#include <QMessageBox>
 
 namespace QmlDesigner {
 
@@ -244,14 +247,24 @@ void ImportManagerView::scriptFunctionsChanged(const ModelNode &/*node*/, const 
 
 void ImportManagerView::removeImport(const Import &import)
 {
-    if (model())
-        model()->changeImports(QList<Import>(), QList<Import>() << import);
+    try {
+        if (model())
+            model()->changeImports(QList<Import>(), QList<Import>() << import);
+    }
+    catch (RewritingException &e) {
+        QMessageBox::warning(0, "Error", e.description());
+    }
 }
 
 void ImportManagerView::addImport(const Import &import)
 {
-    if (model())
-        model()->changeImports(QList<Import>() << import, QList<Import>());
+    try {
+        if (model())
+            model()->changeImports(QList<Import>() << import, QList<Import>());
+    }
+    catch (RewritingException &e) {
+        QMessageBox::warning(0, "Error", e.description());
+    }
 }
 
 } // namespace QmlDesigner
