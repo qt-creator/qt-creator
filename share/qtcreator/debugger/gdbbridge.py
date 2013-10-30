@@ -1208,8 +1208,15 @@ class Dumper(DumperBase):
             # Try _some_ fallback (good enough for the std::complex dumper)
             return gdb.parse_and_eval("{%s}%s" % (referencedType, address))
 
+    def selectedInferior(self):
+        try:
+            return gdb.selected_inferior()
+        except:
+            # Pre gdb 7.4. Right now we don't have more than one inferior anyway.
+            return gdb.inferiors()[0]
+
     def readRawMemory(self, addr, size):
-        mem = gdb.selected_inferior().read_memory(addr, size)
+        mem = self.selectedInferior().read_memory(addr, size)
         if sys.version_info[0] >= 3:
             mem.tobytes()
         return mem
