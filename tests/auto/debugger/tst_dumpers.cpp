@@ -910,7 +910,7 @@ void tst_Dumpers::dumper()
                     "python from gdbbridge import *\n"
                     "run " + nograb + "\n"
                     "up\n"
-                    "python print('@%sS@%s@' % ('N', qtNamespace()))\n"
+                    "python print('@%sS@%s@' % ('N', theDumper.qtNamespace()))\n"
                     "bb options:fancy,autoderef,dyntype,pe vars: expanded:" + expanded + " typeformats:\n";
         } else {
             cmds += "run\n";

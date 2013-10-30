@@ -298,57 +298,9 @@ class ScanStackCommand(gdb.Command):
 
 ScanStackCommand()
 
-def registerDumper(funcname, function):
-    global qqDumpers, qqFormats, qqEditable
-    try:
-        #warn("FUNCTION: %s " % funcname)
-        #funcname = function.func_name
-        if funcname.startswith("qdump__"):
-            type = funcname[7:]
-            qqDumpers[type] = function
-            qqFormats[type] = qqFormats.get(type, "")
-        elif funcname.startswith("qform__"):
-            type = funcname[7:]
-            formats = ""
-            try:
-                formats = function()
-            except:
-                pass
-            qqFormats[type] = formats
-        elif funcname.startswith("qedit__"):
-            type = funcname[7:]
-            try:
-                qqEditable[type] = function
-            except:
-                pass
-    except:
-        pass
 
 def bbsetup(args = ''):
-    global qqDumpers, qqFormats, qqEditable, typeCache
-    qqDumpers = {}
-    qqFormats = {}
-    qqEditable = {}
-    typeCache = {}
-    module = sys.modules[__name__]
-
-    #warn("KEYS: %s " % module.__dict__.keys())
-    for name in module.__dict__.keys():
-        #warn("KEY: %s " % name)
-        #warn("FUNCT: %s " % module.__dict__[name])
-        registerDumper(name, module.__dict__[name])
-
-    result = "dumpers=["
-    #qqNs = qtNamespace() # This is too early
-    for key, value in qqFormats.items():
-        if key in qqEditable:
-            result += '{type="%s",formats="%s",editable="true"},' % (key, value)
-        else:
-            result += '{type="%s",formats="%s"},' % (key, value)
-    result += ']'
-    #result += ',namespace="%s"' % qqNs
-    print(result)
-    return result
+    print(theDumper.bbsetup())
 
 registerCommand("bbsetup", bbsetup)
 
@@ -377,18 +329,8 @@ class PlainDumper:
                 for child in children:
                     d.putSubItem(child[0], child[1])
 
-def importPlainDumper(printer):
-    global qqDumpers, qqFormats
-    name = printer.name.replace("::", "__")
-    qqDumpers[name] = PlainDumper(printer)
-    qqFormats[name] = ""
-
 def importPlainDumpers(args):
-    return
-    for obj in gdb.objfiles():
-        for printers in obj.pretty_printers + gdb.pretty_printers:
-            for printer in printers.subprinters:
-                importPlainDumper(printer)
+    theDumper.importPlainDumpers()
 
 registerCommand("importPlainDumpers", importPlainDumpers)
 
@@ -651,27 +593,6 @@ def value(expr):
 Value = gdb.Value
 
 
-qqNs = None
-
-def qtNamespace():
-    # FIXME: This only works when call from inside a Qt function frame.
-    global qqNs
-    if not qqNs is None:
-        return qqNs
-    try:
-        str = gdb.execute("ptype QString::Null", to_string=True)
-        # The result looks like:
-        # "type = const struct myns::QString::Null {"
-        # "    <no data fields>"
-        # "}"
-        pos1 = str.find("struct") + 7
-        pos2 = str.find("QString::Null")
-        if pos1 > -1 and pos2 > -1:
-            qqNs = str[pos1:pos2]
-            return qqNs
-        return ""
-    except:
-        return ""
 
 def stripTypedefs(type):
     type = type.unqualified()
@@ -698,23 +619,8 @@ class LocalItem:
 #######################################################################
 
 def bbedit(args):
-    global qqEditable
-    (type, expr, value) = args.split(",")
-    type = b16decode(type)
-    ns = qtNamespace()
-    if type.startswith(ns):
-        type = type[len(ns):]
-    type = type.replace("::", "__")
-    pos = type.find('<')
-    if pos != -1:
-        type = type[0:pos]
-    expr = b16decode(expr)
-    value = b16decode(value)
-    #warn("EDIT: %s %s %s %s: " % (pos, type, expr, value))
-    if qqEditable.has_key(type):
-        qqEditable[type](expr, value)
-    else:
-        gdb.execute("set (%s)=%s" % (expr, value))
+    #(type, expr, value) = args.split(",")
+    theDumper.bbedit(args.split(","))
 
 registerCommand("bbedit", bbedit)
 
@@ -781,7 +687,9 @@ class Dumper(DumperBase):
         # These values will be kept between calls to 'run'.
         self.isGdb = True
         self.childEventAddress = None
-        self.cachedQtVersion = None
+
+        # Later set, or not set:
+        #self.cachedQtVersion
 
     def run(self, args):
         self.output = []
@@ -841,9 +749,7 @@ class Dumper(DumperBase):
         self.partialUpdate = "partial" in options
         self.tooltipOnly = "tooltiponly" in options
         self.noLocals = "nolocals" in options
-        self.ns = qtNamespace()
-
-        #warn("NAMESPACE: '%s'" % self.ns)
+        #warn("NAMESPACE: '%s'" % self.qtNamespace())
         #warn("VARIABLES: %s" % varList)
         #warn("EXPANDED INAMES: %s" % self.expandedINames)
         #warn("WATCHERS: %s" % watchers)
@@ -1209,10 +1115,14 @@ class Dumper(DumperBase):
     def selectedInferior(self):
         try:
             # gdb.Inferior is new in gdb 7.2
-            return gdb.selected_inferior()
+            self.cachedInferior = gdb.selected_inferior()
         except:
             # Pre gdb 7.4. Right now we don't have more than one inferior anyway.
-            return gdb.inferiors()[0]
+            self.cachedInferior = gdb.inferiors()[0]
+
+        # Memoize result.
+        self.selectedInferior = lambda: self.cachedInferior
+        return self.cachedInferior
 
     def readRawMemory(self, addr, size):
         mem = self.selectedInferior().read_memory(addr, size)
@@ -1289,16 +1199,20 @@ class Dumper(DumperBase):
         return xrange(min(toInteger(self.currentMaxNumChild), toInteger(self.currentNumChild)))
 
     def qtVersion(self):
-        if self.cachedQtVersion is None:
+        try:
+            self.cachedQtVersion = extractQtVersion()
+        except:
             try:
-                self.cachedQtVersion = extractQtVersion()
+                # This will fail on Qt 5
+                gdb.execute("ptype QString::shared_empty", to_string=True)
+                self.cachedQtVersion = 0x040800
             except:
-                try:
-                    # This will fail on Qt 5
-                    gdb.execute("ptype QString::shared_empty", to_string=True)
-                    self.cachedQtVersion = 0x040800
-                except:
-                    self.cachedQtVersion = 0x050000
+                #self.cachedQtVersion = 0x050000
+                # Assume Qt 5 until we have a definitive answer.
+                return 0x050000
+
+        # Memoize good results.
+        self.qtVersion = lambda: self.cachedQtVersion
         return self.cachedQtVersion
 
     # Convenience function.
@@ -1390,8 +1304,9 @@ class Dumper(DumperBase):
 
     def stripNamespaceFromType(self, typeName):
         type = stripClassTag(typeName)
-        if len(self.ns) > 0 and type.startswith(self.ns):
-            type = type[len(self.ns):]
+        ns = self.qtNamespace()
+        if len(ns) > 0 and type.startswith(ns):
+            type = type[len(ns):]
         pos = type.find("<")
         # FIXME: make it recognize  foo<A>::bar<B>::iterator?
         while pos != -1:
@@ -1424,12 +1339,6 @@ class Dumper(DumperBase):
             self.putValue(value, encoding)
             self.putType(type)
             self.putNumChild(0)
-
-    def currentItemFormat(self):
-        format = self.formats.get(self.currentIName)
-        if format is None:
-            format = self.typeformats.get(stripForFormat(str(self.currentType)))
-        return format
 
     def putSubItem(self, component, value, tryDynamic=True):
         with SubItem(self, component):
@@ -1563,8 +1472,6 @@ class Dumper(DumperBase):
             self.putNumChild(0)
             return
 
-        global qqDumpers, qqFormats
-
         type = value.type.unqualified()
         typeName = str(type)
         tryDynamic &= self.useDynamicType
@@ -1653,9 +1560,9 @@ class Dumper(DumperBase):
             return
 
         if type.code == TypedefCode:
-            if typeName in qqDumpers:
+            if typeName in self.qqDumpers:
                 self.putType(typeName)
-                qqDumpers[typeName](self, value)
+                self.qqDumpers[typeName](self, value)
                 return
 
             type = stripTypedefs(type)
@@ -1708,9 +1615,7 @@ class Dumper(DumperBase):
 
             innerType = type.target()
             innerTypeName = str(innerType.unqualified())
-            format = self.formats.get(self.currentIName)
-            if format is None:
-                format = self.typeformats.get(stripForFormat(str(type)))
+            format = self.currentItemFormat(type)
 
             if innerType.code == VoidCode:
                 #warn("VOID POINTER: %s" % format)
@@ -1868,9 +1773,7 @@ class Dumper(DumperBase):
             self.putItem(expensiveDowncast(value), False)
             return
 
-        format = self.formats.get(self.currentIName)
-        if format is None:
-            format = self.typeformats.get(stripForFormat(typeName))
+        format = self.currentItemFormat(typeName)
 
         if self.useFancy and (format is None or format >= 1):
             self.putType(typeName)
@@ -1890,9 +1793,9 @@ class Dumper(DumperBase):
                     return
 
             #warn(" STRIPPED: %s" % nsStrippedType)
-            #warn(" DUMPERS: %s" % qqDumpers)
-            #warn(" DUMPERS: %s" % (nsStrippedType in qqDumpers))
-            dumper = qqDumpers.get(nsStrippedType, None)
+            #warn(" DUMPERS: %s" % self.qqDumpers)
+            #warn(" DUMPERS: %s" % (nsStrippedType in self.qqDumpers))
+            dumper = self.qqDumpers.get(nsStrippedType, None)
             if not dumper is None:
                 if tryDynamic:
                     dumper(self, expensiveDowncast(value))
@@ -2031,10 +1934,57 @@ class Dumper(DumperBase):
                     with Children(self, 1):
                         self.listAnonymous(value, name, field.type)
 
+    def registerDumper(self, funcname, function):
+        try:
+            #warn("FUNCTION: %s " % funcname)
+            #funcname = function.func_name
+            if funcname.startswith("qdump__"):
+                type = funcname[7:]
+                self.qqDumpers[type] = function
+                self.qqFormats[type] = self.qqFormats.get(type, "")
+            elif funcname.startswith("qform__"):
+                type = funcname[7:]
+                formats = ""
+                try:
+                    formats = function()
+                except:
+                    pass
+                self.qqFormats[type] = formats
+            elif funcname.startswith("qedit__"):
+                type = funcname[7:]
+                try:
+                    self.qqEditable[type] = function
+                except:
+                    pass
+        except:
+            pass
+
+    def bbsetup(self):
+        self.qqDumpers = {}
+        self.qqFormats = {}
+        self.qqEditable = {}
+        self.typeCache = {}
+        module = sys.modules[__name__]
+
+        #warn("KEYS: %s " % module.__dict__.keys())
+        for name in module.__dict__.keys():
+            #warn("KEY: %s " % name)
+            #warn("FUNCT: %s " % module.__dict__[name])
+            self.registerDumper(name, module.__dict__[name])
+
+        result = "dumpers=["
+        for key, value in self.qqFormats.items():
+            if key in self.qqEditable:
+                result += '{type="%s",formats="%s",editable="true"},' % (key, value)
+            else:
+                result += '{type="%s",formats="%s"},' % (key, value)
+        result += ']'
+        return result
+
     def threadname(self, maximalStackDepth):
         e = gdb.selected_frame()
-        ns = qtNamespace()
         out = ""
+        ns = self.qtNamespace()
         while True:
             maximalStackDepth -= 1
             if maximalStackDepth < 0:
@@ -2086,6 +2036,54 @@ class Dumper(DumperBase):
             oldthread.switch()
         return out + ']'
 
+
+    def importPlainDumper(self, printer):
+        name = printer.name.replace("::", "__")
+        self.qqDumpers[name] = PlainDumper(printer)
+        self.qqFormats[name] = ""
+
+    def importPlainDumpers(self):
+        for obj in gdb.objfiles():
+            for printers in obj.pretty_printers + gdb.pretty_printers:
+                for printer in printers.subprinters:
+                    self.importPlainDumper(printer)
+
+    def qtNamespace(self):
+        # FIXME: This only works when call from inside a Qt function frame.
+        namespace = ""
+        try:
+            str = gdb.execute("ptype QString::Null", to_string=True)
+            # The result looks like:
+            # "type = const struct myns::QString::Null {"
+            # "    <no data fields>"
+            # "}"
+            pos1 = str.find("struct") + 7
+            pos2 = str.find("QString::Null")
+            if pos1 > -1 and pos2 > -1:
+                namespace = str[pos1:pos2]
+            self.cachedQtNamespace = namespace
+            self.ns = lambda: self.cachedQtNamespace
+        except:
+            pass
+
+        return namespace
+
+    def bbedit(self, type, expr, value):
+        type = b16decode(type)
+        ns = self.qtNamespace()
+        if type.startswith(ns):
+            type = type[len(ns):]
+        type = type.replace("::", "__")
+        pos = type.find('<')
+        if pos != -1:
+            type = type[0:pos]
+        expr = b16decode(expr)
+        value = b16decode(value)
+        #warn("EDIT: %s %s %s %s: " % (pos, type, expr, value))
+        if self.qqEditable.has_key(type):
+            self.qqEditable[type](expr, value)
+        else:
+            gdb.execute("set (%s)=%s" % (expr, value))
 
 
 # Global instance.
