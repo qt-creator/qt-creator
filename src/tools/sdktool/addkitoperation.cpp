@@ -65,7 +65,6 @@ const char QT[] = "QtSupport.QtInformation";
 
 AddKitOperation::AddKitOperation()
     : m_debuggerEngine(0)
-    , m_debugger(QLatin1String("auto"))
 {
 }
 
@@ -219,6 +218,9 @@ bool AddKitOperation::setArguments(const QStringList &args)
         std::cerr << "Can not set both debugger id and debugger/debuggerengine." << std::endl << std::endl;
         return false;
     }
+
+    if (m_debuggerId.isEmpty() && m_debugger.isEmpty())
+        m_debugger = QLatin1String("auto");
 
     return !m_id.isEmpty() && !m_displayName.isEmpty() && !m_deviceType.isEmpty();
 }
