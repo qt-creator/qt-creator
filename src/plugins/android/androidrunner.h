@@ -71,7 +71,6 @@ signals:
     void remoteErrorOutput(const QByteArray &output);
 
 private slots:
-    void killPID();
     void checkPID();
     void logcatReadStandardError();
     void logcatReadStandardOutput();
