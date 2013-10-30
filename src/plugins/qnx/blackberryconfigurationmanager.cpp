@@ -33,6 +33,7 @@
 #include "blackberrycertificate.h"
 #include "blackberryconfiguration.h"
 
+#include "qnxtoolchain.h"
 #include "qnxutils.h"
 
 #include <coreplugin/icore.h>
@@ -210,6 +211,24 @@ void BlackBerryConfigurationManager::clearInvalidConfigurations()
     }
 }
 
+// Switch to QnxToolchain for exisintg configuration using GccToolChain
+void BlackBerryConfigurationManager::checkToolChainConfiguration()
+{
+    foreach (BlackBerryConfiguration *config, m_configs) {
+        foreach (ToolChain *tc, ToolChainManager::toolChains()) {
+            if (tc->compilerCommand() == config->gccCompiler()
+                    && !tc->id().startsWith(QLatin1String(Constants::QNX_TOOLCHAIN_ID))) {
+                if (config->isActive()) {
+                    // reset
+                    config->deactivate();
+                    config->activate();
+                    break;
+                }
+            }
+        }
+    }
+}
+
 bool BlackBerryConfigurationManager::addConfiguration(BlackBerryConfiguration *config)
 {
     foreach (BlackBerryConfiguration *c, m_configs) {
@@ -298,6 +317,7 @@ void BlackBerryConfigurationManager::loadSettings()
     clearInvalidConfigurations();
     loadAutoDetectedConfigurations();
     loadManualConfigurations();
+    checkToolChainConfiguration();
 
     emit settingsLoaded();
 }

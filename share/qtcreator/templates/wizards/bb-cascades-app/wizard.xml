@@ -38,12 +38,12 @@
     <displayname>BlackBerry Cascades Application</displayname>;
     <description>Creates a Cascades application for BlackBerry 10.</description>
     <files>
-        <file source="main.cpp" openeditor="true"/>
         <file source="assets/main.qml" openeditor="true"/>
-        <file source="assets/SecondPage.qml" openeditor="true"/>
         <file source="bar-descriptor.xml" openeditor="true"/>
         <file source="project.pro" target="%ProjectName%.pro" openproject="true"/>
-        <file source="project.hpp" target="%ProjectName%.hpp" openproject="true"/>
-        <file source="project.cpp" target="%ProjectName%.cpp" openproject="true"/>
-   </files>
+        <file source="src/main.cpp" openeditor="true"/>
+        <file source="src/applicationui.h" openproject="true"/>
+        <file source="src/applicationui.cpp" openproject="true"/>
+        <file source="icon.png"/>
+    </files>
 </wizard>

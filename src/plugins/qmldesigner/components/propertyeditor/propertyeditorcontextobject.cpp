@@ -119,11 +119,12 @@ void PropertyEditorContextObject::setSpecificQmlData(const QString &newSpecificQ
         return;
 
     m_specificQmlData = newSpecificQmlData;
-    emit specificQmlDataChanged();
 
     delete m_qmlComponent;
     m_qmlComponent = 0;
+
     emit specificQmlComponentChanged();
+    emit specificQmlDataChanged();
 }
 
 void PropertyEditorContextObject::setStateName(const QString &newStateName)

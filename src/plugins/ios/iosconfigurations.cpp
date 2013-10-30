@@ -312,7 +312,7 @@ void IosConfigurations::updateAutomaticKitList()
                 //DeviceKitInformation::setDevice(newKit, device);
 
                 Debugger::DebuggerItem debugger;
-                debugger.setCommand(pToolchain->suggestedDebugger());
+                debugger.setCommand(pToolchain->suggestedDebugger()); // use lldbPath() instead?
                 debugger.setEngineType(Debugger::LldbEngineType);
                 debugger.setDisplayName(tr("IOS Debugger"));
                 debugger.setAutoDetected(true);
@@ -369,6 +369,11 @@ void IosConfigurations::setIgnoreAllDevices(bool ignoreDevices)
 FileName IosConfigurations::developerPath()
 {
     return m_instance->m_developerPath;
+}
+
+FileName IosConfigurations::lldbPath()
+{
+    return m_instance->m_lldbPath;
 }
 
 void IosConfigurations::save()
@@ -432,6 +437,18 @@ void IosConfigurations::setDeveloperPath(const FileName &devPath)
         m_instance->m_developerPath = devPath;
         m_instance->save();
         updateAutomaticKitList();
+        QProcess lldbInfo;
+        lldbInfo.start(QLatin1String("xcrun"), QStringList() << QLatin1String("--find")
+                       << QLatin1String("lldb"));
+        if (!lldbInfo.waitForFinished(2000)) {
+            lldbInfo.kill();
+        } else {
+            QByteArray lPath=lldbInfo.readAll();
+            lPath.chop(1);
+            Utils::FileName lldbPath = Utils::FileName::fromString(QString::fromLocal8Bit(lPath.data(), lPath.size()));
+            if (lldbPath.toFileInfo().exists())
+                m_instance->m_lldbPath = lldbPath;
+        }
         emit m_instance->updated();
     }
 }

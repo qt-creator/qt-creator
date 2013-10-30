@@ -73,6 +73,6 @@ private:
 Q_DECLARE_OPERATORS_FOR_FLAGS(ProWriter::PutFlags)
 
 } // namespace Internal
-} // namespace Qt4ProjectManager
+} // namespace QmakeProjectManager
 
 #endif // PROWRITER_H

@@ -6,7 +6,7 @@ QtcTool {
     Depends { name: "Qt"; submodules: ["core", "widgets"]; }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }
-    Depends { name: "Qt4ProjectManager" }
+    Depends { name: "QmakeProjectManager" }
     Depends { name: "Utils" }
     files: [
         "main.cpp",

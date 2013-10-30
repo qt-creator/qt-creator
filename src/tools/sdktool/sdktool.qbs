@@ -12,6 +12,7 @@ QtcTool {
             ? 'DATA_PATH="."' : 'DATA_PATH="../share/qtcreator"'])
 
     files: [
+        "adddebuggeroperation.cpp", "adddebuggeroperation.h",
         "addkeysoperation.cpp",
         "addkeysoperation.h",
         "addkitoperation.cpp",
@@ -29,6 +30,7 @@ QtcTool {
         "main.cpp",
         "operation.cpp",
         "operation.h",
+        "rmdebuggeroperation.cpp", "rmdebuggeroperation.h",
         "rmkeysoperation.cpp",
         "rmkeysoperation.h",
         "rmkitoperation.cpp",

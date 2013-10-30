@@ -52,7 +52,7 @@ public:
 #endif
 
     static QVariantMap addKit(const QVariantMap &map,
-                              const QString &id, const QString &displayName, const QString &icon,
+                              const QString &id, const QString &displayName, const QString &icon, const QString &debuggerId,
                               const quint32 &debuggerType, const QString &debugger,
                               const QByteArray &deviceType, const QString &sysRoot,
                               const QString &tc, const QString &qt, const QString &mkspec,
@@ -64,6 +64,7 @@ private:
     QString m_id;
     QString m_displayName;
     QString m_icon;
+    QString m_debuggerId;
     quint32 m_debuggerEngine;
     QString m_debugger;
     QString m_deviceType;

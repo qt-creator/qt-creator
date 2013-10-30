@@ -73,6 +73,8 @@ Utils::FileName Settings::getPath(const QString &file)
         result.appendPath(QLatin1String("devices"));
     else if (file == QLatin1String("android"))
         result.appendPath(QLatin1String("android"));
+    else if (file == QLatin1String("debuggers"))
+        result.appendPath(QLatin1String("debuggers"));
     else
         return Utils::FileName();
     result.append(QLatin1String(".xml"));

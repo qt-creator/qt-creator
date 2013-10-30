@@ -124,6 +124,8 @@ QmlConsoleView::QmlConsoleView(QWidget *parent) :
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+    horizontalScrollBar()->setSingleStep(20);
+    verticalScrollBar()->setSingleStep(20);
 
     connect(this, SIGNAL(activated(QModelIndex)), SLOT(onRowActivated(QModelIndex)));
 }

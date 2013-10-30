@@ -38,7 +38,7 @@
 #include "qnxconstants.h"
 
 #include <projectexplorer/target.h>
-#include <qt4projectmanager/qmakebuildconfiguration.h>
+#include <qmakeprojectmanager/qmakebuildconfiguration.h>
 #include <ssh/sshremoteprocessrunner.h>
 #include <utils/qtcassert.h>
 

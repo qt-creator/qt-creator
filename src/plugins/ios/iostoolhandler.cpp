@@ -41,6 +41,7 @@
 #include <QCoreApplication>
 #include <QList>
 #include <QScopedArrayPointer>
+#include <QProcessEnvironment>
 
 #if defined(Q_OS_UNIX)
 #include <sys/types.h>
@@ -65,6 +66,7 @@ class MyProcess: public QProcess
     Q_OBJECT
 public:
     explicit MyProcess(QObject *parent = 0);
+    ~MyProcess();
     int processOutputSocket();
     QSocketNotifier *notifier();
 protected:
@@ -224,8 +226,13 @@ MyProcess::MyProcess(QObject *parent) : QProcess(parent)
     if (socketpair(PF_UNIX, SOCK_STREAM, 0, &m_sockets[0]) == -1) {
         qDebug() << "IosToolHandler socketpair failed ";
     }
-    shutdown(m_sockets[0], SHUT_WR);
     m_notifier = new QSocketNotifier(m_sockets[0], QSocketNotifier::Read, this);
+}
+
+MyProcess::~MyProcess()
+{
+    ::close(m_sockets[0]);
+    ::close(m_sockets[1]);
 }
 
 int MyProcess::processOutputSocket()
@@ -245,10 +252,13 @@ void MyProcess::setupChildProcess()
         emit finished(-1, QProcess::CrashExit);
         exit(-1);
     }
-    shutdown(1, SHUT_RD); // leave open for handshake when transferring fd?
 }
 #else
 MyProcess::MyProcess(QObject *parent) : QProcess(parent)
+{
+}
+
+MyProcess::~MyProcess()
 {
 }
 
@@ -272,6 +282,11 @@ IosToolHandlerPrivate::IosToolHandlerPrivate(IosToolHandler::DeviceType devType,
     q(q), state(NonStarted), devType(devType), buffer(4*lookaheadSize, 0), iBegin(0), iEnd(0),
     gdbSocket(-1)
 {
+    QProcessEnvironment env(QProcessEnvironment::systemEnvironment());
+    foreach (const QString &k, env.keys())
+        if (k.startsWith(QLatin1String("DYLD_")))
+            env.remove(k);
+    process.setProcessEnvironment(env);
     QObject::connect(process.notifier(), SIGNAL(activated(int)), q, SLOT(subprocessHasData(int)));
     QObject::connect(&process, SIGNAL(finished(int,QProcess::ExitStatus)),
             q, SLOT(subprocessFinished(int,QProcess::ExitStatus)));
@@ -498,6 +513,8 @@ int recv_fd(int socket)
         if ( (control_message->cmsg_level == SOL_SOCKET) &&
                 (control_message->cmsg_type == SCM_RIGHTS) ) {
             sent_fd = *((int *) CMSG_DATA(control_message));
+            // aknowledge fd
+            send(socket, "x", 1, 0);
             return sent_fd;
         }
     }
@@ -777,7 +794,7 @@ void IosToolHandlerPrivate::subprocessHasData(int socket)
                     currentData = buffer.mid(0, lastXmlSize); // remove this??
                 }
                 qptrdiff toRead = lookaheadSize - (iEnd - spacerStart);
-                qptrdiff reallyRead = recv(socket, buffer.data() + iBegin, toRead, 0);
+                qptrdiff reallyRead = recv(socket, buffer.data() + iEnd, toRead, 0);
                 if (reallyRead == 0) { // eof
                     stop();
                     return;
@@ -799,14 +816,19 @@ void IosToolHandlerPrivate::subprocessHasData(int socket)
                 iEnd += reallyRead;
                 if (reallyRead != toRead)
                     continue;
-                if (spacerStart < iEnd && buffer.at(spacerStart) != 'n') {
+                if (spacerStart < iEnd && buffer.at(spacerStart) != 'N') {
                     ++spacerStart;
-                    while (spacerStart < iEnd && buffer.at(spacerStart) != 'n')
+                    while (spacerStart < iEnd && buffer.at(spacerStart) != 'N')
                         ++spacerStart;
                     continue;
                 }
             }
+            if (buffer.at(iEnd-1) != 'd') {
+                qDebug() << "IosToolHandler: bad alignment of spacer: " << buffer.mid(iBegin, iEnd - iBegin);
+                return;
+            }
             gdbSocket = recv_fd(socket);
+            qDebug() << "IosToolHandler: receivedSocket";
             gotGdbserverSocket(bundlePath, deviceId, gdbSocket);
             stop();
             return;

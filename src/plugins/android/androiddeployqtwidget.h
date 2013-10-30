@@ -38,7 +38,7 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class AndroidDeployQtWidget; }
 QT_END_NAMESPACE
 
-namespace QmakeProjectManager { class Qt4BuildConfiguration; }
+namespace QmakeProjectManager { class QmakeBuildConfiguration; }
 
 namespace Android {
 namespace Internal {
@@ -85,7 +85,7 @@ private:
     Ui::AndroidDeployQtWidget *m_ui;
     AndroidDeployQtStep *m_step;
     AndroidExtraLibraryListModel *m_extraLibraryListModel;
-    QmakeProjectManager::Qt4BuildConfiguration *m_currentBuildConfiguration;
+    QmakeProjectManager::QmakeBuildConfiguration *m_currentBuildConfiguration;
     bool m_ignoreChange;
 };
 

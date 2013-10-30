@@ -31,7 +31,7 @@
 #define ANDROIDRUNFACTORIES_H
 
 #include <projectexplorer/runconfiguration.h>
-#include <qt4projectmanager/qmakerunconfigurationfactory.h>
+#include <qmakeprojectmanager/qmakerunconfigurationfactory.h>
 
 namespace ProjectExplorer {
 class RunControl;

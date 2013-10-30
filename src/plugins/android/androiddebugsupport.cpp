@@ -43,9 +43,9 @@
 
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
-#include <qt4projectmanager/qmakebuildconfiguration.h>
-#include <qt4projectmanager/qmakenodes.h>
-#include <qt4projectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakebuildconfiguration.h>
+#include <qmakeprojectmanager/qmakenodes.h>
+#include <qmakeprojectmanager/qmakeproject.h>
 #include <qtsupport/qtkitinformation.h>
 
 #include <QDir>
@@ -86,7 +86,7 @@ static QStringList qtSoPaths(QtSupport::BaseQtVersion *qtVersion)
 RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *runConfig, QString *errorMessage)
 {
     Target *target = runConfig->target();
-    Qt4Project *project = static_cast<Qt4Project *>(target->project());
+    QmakeProject *project = static_cast<QmakeProject *>(target->project());
 
     DebuggerStartParameters params;
     params.startMode = AttachToRemoteServer;
@@ -102,11 +102,11 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
         params.debuggerCommand = DebuggerKitInformation::debuggerCommand(kit).toString();
         if (ToolChain *tc = ToolChainKitInformation::toolChain(kit))
             params.toolChainAbi = tc->targetAbi();
-        params.executable = project->rootQt4ProjectNode()->buildDir() + QLatin1String("/app_process");
+        params.executable = project->rootQmakeProjectNode()->buildDir() + QLatin1String("/app_process");
         params.remoteChannel = runConfig->remoteChannel();
         params.solibSearchPath.clear();
-        QList<Qt4ProFileNode *> nodes = project->allProFiles();
-        foreach (Qt4ProFileNode *node, nodes)
+        QList<QmakeProFileNode *> nodes = project->allProFiles();
+        foreach (QmakeProFileNode *node, nodes)
             if (node->projectType() == ApplicationTemplate)
                 params.solibSearchPath.append(node->targetInformation().buildDir);
         QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
@@ -121,8 +121,8 @@ RunControl *AndroidDebugSupport::createDebugRunControl(AndroidRunConfiguration *
         params.remoteSetupNeeded = true;
         //TODO: Not sure if these are the right paths.
         params.projectSourceDirectory = project->projectDirectory();
-        params.projectSourceFiles = project->files(Qt4Project::ExcludeGeneratedFiles);
-        params.projectBuildDirectory = project->rootQt4ProjectNode()->buildDir();
+        params.projectSourceFiles = project->files(QmakeProject::ExcludeGeneratedFiles);
+        params.projectBuildDirectory = project->rootQmakeProjectNode()->buildDir();
     }
 
     DebuggerRunControl * const debuggerRunControl

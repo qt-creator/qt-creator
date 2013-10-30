@@ -43,6 +43,7 @@ namespace ProjectExplorer {
 
 namespace Internal {
 class ClangToolChainFactory;
+class GccToolChainConfigWidget;
 class GccToolChainFactory;
 class MingwToolChainFactory;
 class LinuxIccToolChainFactory;
@@ -98,13 +99,21 @@ protected:
 
     GccToolChain(const GccToolChain &);
 
+    typedef QPair<QStringList, QByteArray> CacheItem;
+
+    void setMacroCache(const QStringList &allCxxflags, const QByteArray &macroCache) const;
+    QByteArray macroCache(const QStringList &allCxxflags) const;
+
     virtual QString defaultDisplayName() const;
     virtual CompilerFlags defaultCompilerFlags() const;
 
     virtual QList<Abi> detectSupportedAbis() const;
     virtual QString detectVersion() const;
 
-    static QList<HeaderPath> gccHeaderPaths(const Utils::FileName &gcc, const QStringList &args, const QStringList &env, const Utils::FileName &sysrootPath);
+    // Reinterpret options for compiler drivers inheriting from GccToolChain (e.g qcc) to apply -Wp option
+    // that passes the initial options directly down to the gcc compiler
+    virtual QStringList reinterpretOptions(const QStringList &argument) const { return argument; }
+    static QList<HeaderPath> gccHeaderPaths(const Utils::FileName &gcc, const QStringList &args, const QStringList &env);
 
     static const int PREDEFINED_MACROS_CACHE_SIZE;
     mutable GccCache m_predefinedMacros;
@@ -137,6 +146,7 @@ private:
     mutable QList<HeaderPath> m_headerPaths;
     mutable QString m_version;
 
+    friend class Internal::GccToolChainConfigWidget;
     friend class Internal::GccToolChainFactory;
     friend class ToolChainFactory;
 };

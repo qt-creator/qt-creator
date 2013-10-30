@@ -5773,6 +5773,7 @@ void BaseTextEditorWidget::unfoldAll()
 void BaseTextEditorWidget::setReadOnly(bool b)
 {
     QPlainTextEdit::setReadOnly(b);
+    emit readOnlyChanged();
     if (b)
         setTextInteractionFlags(textInteractionFlags() | Qt::TextSelectableByKeyboard);
 }

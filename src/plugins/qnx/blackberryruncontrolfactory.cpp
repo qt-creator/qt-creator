@@ -46,7 +46,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
-#include <qt4projectmanager/qmakebuildconfiguration.h>
+#include <qmakeprojectmanager/qmakebuildconfiguration.h>
 #include <qtsupport/qtkitinformation.h>
 
 using namespace Qnx;

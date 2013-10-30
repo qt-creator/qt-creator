@@ -34,8 +34,6 @@
         \row
             \li \inlineimage creator-gs-01.png
             \li \inlineimage creator-gs-02.png
-            \li \inlineimage creator-gs-03.png
-            \li \inlineimage creator-gs-04.png
         \row
             \li \b {\l{IDE Overview}}
 
@@ -46,6 +44,10 @@
 
                 If you have not used \QC before, and want to become familiar
                 with the parts of the user interface, go to \l{User Interface}.
+        \row
+            \li \inlineimage creator-gs-03.png
+            \li \inlineimage creator-gs-04.png
+        \row
             \li \b {\l{Building and Running an Example}}
 
                 To check that \l{glossary-buildandrun-kit}{kits} for building and running were

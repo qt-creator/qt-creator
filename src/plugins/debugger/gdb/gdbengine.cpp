@@ -79,12 +79,6 @@
 #include <QMessageBox>
 #include <QPushButton>
 
-#ifdef Q_OS_UNIX
-#include <unistd.h>
-#include <dlfcn.h>
-#endif
-#include <ctype.h>
-
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -1331,39 +1325,6 @@ static bool isExitedReason(const QByteArray &reason)
         //|| reason == "signal-received" // inferior received signal
         || reason == "exited";           // inferior exited
 }
-
-#if 0
-void GdbEngine::handleAqcuiredInferior()
-{
-    // Reverse debugging. FIXME: Should only be used when available.
-    //if (debuggerCore()->boolSetting(EnableReverseDebugging))
-    //    postCommand("target response");
-
-    tryLoadDebuggingHelpers();
-
-#    ifndef Q_OS_MAC
-    // intentionally after tryLoadDebuggingHelpers(),
-    // otherwise we'd interrupt solib loading.
-    if (debuggerCore()->boolSetting(AllPluginBreakpoints)) {
-        postCommand("set auto-solib-add on");
-        postCommand("set stop-on-solib-events 0");
-        postCommand("sharedlibrary .*");
-    } else if (debuggerCore()->boolSetting(SelectedPluginBreakpoints)) {
-        postCommand("set auto-solib-add on");
-        postCommand("set stop-on-solib-events 1");
-        postCommand("sharedlibrary "
-          + theDebuggerStringSetting(SelectedPluginBreakpointsPattern));
-    } else if (debuggerCore()->boolSetting(NoPluginBreakpoints)) {
-        // should be like that already
-        postCommand("set auto-solib-add off");
-        postCommand("set stop-on-solib-events 0");
-    }
-#    endif
-
-    // It's nicer to see a bit of the world we live in.
-    reloadModulesInternal();
-}
-#endif
 
 void GdbEngine::handleStopResponse(const GdbMi &data)
 {

@@ -37,7 +37,7 @@ class QComboBox;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Target; }
-namespace QmakeProjectManager { class Qt4ProFileNode; }
+namespace QmakeProjectManager { class QmakeProFileNode; }
 
 namespace Android {
 namespace Internal {
@@ -57,7 +57,7 @@ class ChooseProFilePage : public QWizardPage
 {
     Q_OBJECT
 public:
-    ChooseProFilePage(CreateAndroidManifestWizard *wizard, const QList<QmakeProjectManager::Qt4ProFileNode *> &nodes);
+    ChooseProFilePage(CreateAndroidManifestWizard *wizard, const QList<QmakeProjectManager::QmakeProFileNode *> &nodes);
 private slots:
     void nodeSelected(int index);
 private:
@@ -81,8 +81,8 @@ class CreateAndroidManifestWizard : public Utils::Wizard
 public:
     CreateAndroidManifestWizard(ProjectExplorer::Target *target);
 
-    QmakeProjectManager::Qt4ProFileNode *node() const;
-    void setNode(QmakeProjectManager::Qt4ProFileNode *node);
+    QmakeProjectManager::QmakeProFileNode *node() const;
+    void setNode(QmakeProjectManager::QmakeProFileNode *node);
 
     QString sourceFileName() const;
 
@@ -93,7 +93,7 @@ public slots:
 private:
     void createAndroidManifestFile();
     ProjectExplorer::Target *m_target;
-    QmakeProjectManager::Qt4ProFileNode *m_node;
+    QmakeProjectManager::QmakeProFileNode *m_node;
     QString m_directory;
 };
 }

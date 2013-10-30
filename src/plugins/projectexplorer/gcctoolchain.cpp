@@ -111,47 +111,19 @@ static QByteArray runGcc(const FileName &gcc, const QStringList &arguments, cons
     return data;
 }
 
+static const QStringList gccPredefinedMacrosOptions()
+{
+    return QStringList() << QLatin1String("-xc++") << QLatin1String("-E") << QLatin1String("-dM");
+}
+
 static QByteArray gccPredefinedMacros(const FileName &gcc, const QStringList &args, const QStringList &env)
 {
-    QStringList arguments;
-    arguments << QLatin1String("-xc++")
-              << QLatin1String("-E")
-              << QLatin1String("-dM");
-    foreach (const QString &a, args) {
-        if (a == QLatin1String("-m128bit-long-double") || a == QLatin1String("-m32")
-                || a == QLatin1String("-m3dnow") || a == QLatin1String("-m3dnowa")
-                || a == QLatin1String("-m64") || a == QLatin1String("-m96bit-long-double")
-                || a == QLatin1String("-mabm") || a == QLatin1String("-maes")
-                || a.startsWith(QLatin1String("-march=")) || a == QLatin1String("-mavx")
-                || a.startsWith(QLatin1String("-masm=")) || a == QLatin1String("-mcx16")
-                || a == QLatin1String("-mfma") || a == QLatin1String("-mfma4")
-                || a == QLatin1String("-mlwp") || a == QLatin1String("-mpclmul")
-                || a == QLatin1String("-mpopcnt") || a == QLatin1String("-msse")
-                || a == QLatin1String("-msse2") || a == QLatin1String("-msse2avx")
-                || a == QLatin1String("-msse3") || a == QLatin1String("-msse4")
-                || a == QLatin1String("-msse4.1") || a == QLatin1String("-msse4.2")
-                || a == QLatin1String("-msse4a") || a == QLatin1String("-mssse3")
-                || a.startsWith(QLatin1String("-mtune=")) || a == QLatin1String("-mxop")
-                || a == QLatin1String("-Os") || a == QLatin1String("-O0") || a == QLatin1String("-O1")
-                || a == QLatin1String("-O2") || a == QLatin1String("-O3")
-                || a == QLatin1String("-ffinite-math-only") || a == QLatin1String("-fshort-double")
-                || a == QLatin1String("-fshort-wchar") || a == QLatin1String("-fsignaling-nans")
-                || a == QLatin1String("-fno-inline") || a == QLatin1String("-fno-exceptions")
-                || a == QLatin1String("-fstack-protector") || a == QLatin1String("-fstack-protector-all")
-                || a == QLatin1String("-fsanitize=address") || a == QLatin1String("-fno-rtti")
-                || a.startsWith(QLatin1String("-std=")) || a.startsWith(QLatin1String("-stdlib="))
-                || a.startsWith(QLatin1String("-specs="))
-                || a == QLatin1String("-ansi") || a == QLatin1String("-undef")
-                || a.startsWith(QLatin1String("-D")) || a.startsWith(QLatin1String("-U"))
-                || a == QLatin1String("-fopenmp") || a == QLatin1String("-Wno-deprecated"))
-            arguments << a;
-    }
-
+    QStringList arguments = args;
     arguments << QLatin1String("-");
 
     QByteArray predefinedMacros = runGcc(gcc, arguments, env);
     // Sanity check in case we get an error message instead of real output:
-    QTC_CHECK(predefinedMacros.startsWith("#define "));
+    QTC_CHECK(predefinedMacros.isNull() || predefinedMacros.startsWith("#define "));
     if (Utils::HostOsInfo::isMacHost()) {
         // Turn off flag indicating Apple's blocks support
         const QByteArray blocksDefine("#define __BLOCKS__ 1");
@@ -169,23 +141,10 @@ static QByteArray gccPredefinedMacros(const FileName &gcc, const QStringList &ar
 
 const int GccToolChain::PREDEFINED_MACROS_CACHE_SIZE = 16;
 
-QList<HeaderPath> GccToolChain::gccHeaderPaths(const FileName &gcc, const QStringList &args,
-                                               const QStringList &env, const FileName &sysrootPath)
+QList<HeaderPath> GccToolChain::gccHeaderPaths(const FileName &gcc, const QStringList &arguments,
+                                               const QStringList &env)
 {
     QList<HeaderPath> systemHeaderPaths;
-    QStringList arguments;
-    if (!sysrootPath.isEmpty())
-        arguments.append(QString::fromLatin1("--sysroot=%1").arg(sysrootPath.toString()));
-    foreach (const QString &a, args) {
-        if (a.startsWith(QLatin1String("-stdlib=")))
-            arguments << a;
-    }
-
-    arguments << QLatin1String("-xc++")
-              << QLatin1String("-E")
-              << QLatin1String("-v")
-              << QLatin1String("-");
-
     QByteArray line;
     QByteArray data = runGcc(gcc, arguments, env);
     QBuffer cpp(&data);
@@ -255,6 +214,7 @@ static QList<Abi> guessGccAbi(const QString &m, const QByteArray &macros)
 }
 
 static QList<Abi> guessGccAbi(const FileName &path, const QStringList &env,
+                              const QByteArray &macros,
                               const QStringList &extraArgs = QStringList())
 {
     if (path.isEmpty())
@@ -265,7 +225,6 @@ static QList<Abi> guessGccAbi(const FileName &path, const QStringList &env,
     QString machine = QString::fromLocal8Bit(runGcc(path, arguments, env)).trimmed();
     if (machine.isEmpty())
         return QList<Abi>(); // no need to continue if running failed once...
-    QByteArray macros = gccPredefinedMacros(path, QStringList(), env);
     return guessGccAbi(machine, macros);
 }
 
@@ -296,6 +255,38 @@ GccToolChain::GccToolChain(const GccToolChain &tc) :
     m_headerPaths(tc.m_headerPaths),
     m_version(tc.m_version)
 { }
+
+void GccToolChain::setMacroCache(const QStringList &allCxxflags, const QByteArray &macros) const
+{
+    if (macros.isNull())
+        return;
+
+    CacheItem runResults;
+    QByteArray data = macros;
+    runResults.first = allCxxflags;
+    if (macros.isNull())
+        data = QByteArray("");
+    runResults.second = data;
+
+    m_predefinedMacros.push_back(runResults);
+    if (m_predefinedMacros.size() > PREDEFINED_MACROS_CACHE_SIZE)
+        m_predefinedMacros.pop_front();
+}
+
+QByteArray GccToolChain::macroCache(const QStringList &allCxxflags) const
+{
+    for (GccCache::iterator it = m_predefinedMacros.begin(); it != m_predefinedMacros.end(); ++it) {
+        if (it->first == allCxxflags) {
+            // Increase cached item priority
+            CacheItem pair = *it;
+            m_predefinedMacros.erase(it);
+            m_predefinedMacros.push_back(pair);
+
+            return pair.second;
+        }
+    }
+    return QByteArray();
+}
 
 QString GccToolChain::defaultDisplayName() const
 {
@@ -370,31 +361,49 @@ bool GccToolChain::isValid() const
 QByteArray GccToolChain::predefinedMacros(const QStringList &cxxflags) const
 {
     QStringList allCxxflags = m_platformCodeGenFlags + cxxflags;  // add only cxxflags is empty?
-    typedef QPair<QStringList, QByteArray> CacheItem;
 
-    for (GccCache::iterator it = m_predefinedMacros.begin(); it != m_predefinedMacros.end(); ++it)
-        if (it->first == allCxxflags) {
-            // Increase cached item priority
-            CacheItem pair = *it;
-            m_predefinedMacros.erase(it);
-            m_predefinedMacros.push_back(pair);
-
-            return pair.second;
-        }
-
-    CacheItem runResults;
-    runResults.first = allCxxflags;
+    QByteArray macros = macroCache(allCxxflags);
+    if (!macros.isNull())
+        return macros;
 
     // Using a clean environment breaks ccache/distcc/etc.
     Environment env = Environment::systemEnvironment();
     addToEnvironment(env);
-    runResults.second = gccPredefinedMacros(m_compilerCommand, allCxxflags, env.toStringList());
+    QStringList arguments = gccPredefinedMacrosOptions();
+    foreach (const QString &a, allCxxflags) {
+        if (a == QLatin1String("-m128bit-long-double") || a == QLatin1String("-m32")
+                || a == QLatin1String("-m3dnow") || a == QLatin1String("-m3dnowa")
+                || a == QLatin1String("-m64") || a == QLatin1String("-m96bit-long-double")
+                || a == QLatin1String("-mabm") || a == QLatin1String("-maes")
+                || a.startsWith(QLatin1String("-march=")) || a == QLatin1String("-mavx")
+                || a.startsWith(QLatin1String("-masm=")) || a == QLatin1String("-mcx16")
+                || a == QLatin1String("-mfma") || a == QLatin1String("-mfma4")
+                || a == QLatin1String("-mlwp") || a == QLatin1String("-mpclmul")
+                || a == QLatin1String("-mpopcnt") || a == QLatin1String("-msse")
+                || a == QLatin1String("-msse2") || a == QLatin1String("-msse2avx")
+                || a == QLatin1String("-msse3") || a == QLatin1String("-msse4")
+                || a == QLatin1String("-msse4.1") || a == QLatin1String("-msse4.2")
+                || a == QLatin1String("-msse4a") || a == QLatin1String("-mssse3")
+                || a.startsWith(QLatin1String("-mtune=")) || a == QLatin1String("-mxop")
+                || a == QLatin1String("-Os") || a == QLatin1String("-O0") || a == QLatin1String("-O1")
+                || a == QLatin1String("-O2") || a == QLatin1String("-O3")
+                || a == QLatin1String("-ffinite-math-only") || a == QLatin1String("-fshort-double")
+                || a == QLatin1String("-fshort-wchar") || a == QLatin1String("-fsignaling-nans")
+                || a == QLatin1String("-fno-inline") || a == QLatin1String("-fno-exceptions")
+                || a == QLatin1String("-fstack-protector") || a == QLatin1String("-fstack-protector-all")
+                || a == QLatin1String("-fsanitize=address") || a == QLatin1String("-fno-rtti")
+                || a.startsWith(QLatin1String("-std=")) || a.startsWith(QLatin1String("-stdlib="))
+                || a.startsWith(QLatin1String("-specs="))
+                || a == QLatin1String("-ansi") || a == QLatin1String("-undef")
+                || a.startsWith(QLatin1String("-D")) || a.startsWith(QLatin1String("-U"))
+                || a == QLatin1String("-fopenmp") || a == QLatin1String("-Wno-deprecated"))
+            arguments << a;
+    }
+    macros = gccPredefinedMacros(m_compilerCommand, reinterpretOptions(arguments),
+                                 env.toStringList());
 
-    m_predefinedMacros.push_back(runResults);
-    if (m_predefinedMacros.size() > PREDEFINED_MACROS_CACHE_SIZE)
-        m_predefinedMacros.pop_front();
-
-    return runResults.second;
+    setMacroCache(allCxxflags, macros);
+    return macros;
 }
 
 /**
@@ -501,8 +510,24 @@ QList<HeaderPath> GccToolChain::systemHeaderPaths(const QStringList &cxxflags, c
         // Using a clean environment breaks ccache/distcc/etc.
         Environment env = Environment::systemEnvironment();
         addToEnvironment(env);
-        m_headerPaths = gccHeaderPaths(m_compilerCommand, m_platformCodeGenFlags + cxxflags , // add only cxxflags is empty?
-                                       env.toStringList(), sysRoot);
+        // Prepare arguments
+        QStringList arguments;
+        if (!sysRoot.isEmpty())
+            arguments.append(QString::fromLatin1("--sysroot=%1").arg(sysRoot.toString()));
+
+        QStringList flags;
+        flags << m_platformCodeGenFlags << cxxflags;
+        foreach (const QString &a, flags) {
+            if (a.startsWith(QLatin1String("-stdlib=")))
+                arguments << a;
+        }
+
+        arguments << QLatin1String("-xc++")
+                  << QLatin1String("-E")
+                  << QLatin1String("-v")
+                  << QLatin1String("-");
+
+        m_headerPaths = gccHeaderPaths(m_compilerCommand, reinterpretOptions(arguments), env.toStringList());
     }
     return m_headerPaths;
 }
@@ -699,7 +724,8 @@ QList<Abi> GccToolChain::detectSupportedAbis() const
 {
     Environment env = Environment::systemEnvironment();
     addToEnvironment(env);
-    return guessGccAbi(m_compilerCommand, env.toStringList(), platformCodeGenFlags());
+    QByteArray macros = predefinedMacros(QStringList());
+    return guessGccAbi(m_compilerCommand, env.toStringList(), macros, platformCodeGenFlags());
 }
 
 QString GccToolChain::detectVersion() const
@@ -778,7 +804,9 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(const QString &comp
         return result;
 
     GccToolChain::addCommandPathToEnvironment(compilerPath, systemEnvironment);
-    QList<Abi> abiList = guessGccAbi(compilerPath, systemEnvironment.toStringList());
+    QByteArray macros
+            = gccPredefinedMacros(compilerPath, gccPredefinedMacrosOptions(), systemEnvironment.toStringList());
+    QList<Abi> abiList = guessGccAbi(compilerPath, systemEnvironment.toStringList(), macros);
     if (!abiList.contains(requiredAbi)) {
         if (requiredAbi.wordWidth() != 64
                 || !abiList.contains(Abi(requiredAbi.architecture(), requiredAbi.os(), requiredAbi.osFlavor(),
@@ -788,6 +816,7 @@ QList<ToolChain *> GccToolChainFactory::autoDetectToolchains(const QString &comp
 
     foreach (const Abi &abi, abiList) {
         QScopedPointer<GccToolChain> tc(createToolChain(true));
+        tc->setMacroCache(QStringList(), macros);
         if (tc.isNull())
             return result;
 
@@ -850,6 +879,7 @@ void GccToolChainConfigWidget::applyImpl()
     tc->setDisplayName(displayName); // reset display name
     tc->setPlatformCodeGenFlags(splitString(m_platformCodeGenFlagsLineEdit->text()));
     tc->setPlatformLinkerFlags(splitString(m_platformLinkerFlagsLineEdit->text()));
+    tc->setMacroCache(tc->platformCodeGenFlags(), m_macros);
 }
 
 void GccToolChainConfigWidget::setFromToolchain()
@@ -912,7 +942,9 @@ void GccToolChainConfigWidget::handleCompilerCommandChange()
     if (haveCompiler) {
         Environment env = Environment::systemEnvironment();
         GccToolChain::addCommandPathToEnvironment(path, env);
-        abiList = guessGccAbi(path, env.toStringList(),
+        QStringList args = gccPredefinedMacrosOptions() + splitString(m_platformCodeGenFlagsLineEdit->text());
+        m_macros = gccPredefinedMacros(path, args, env.toStringList());
+        abiList = guessGccAbi(path, env.toStringList(), m_macros,
                               splitString(m_platformCodeGenFlagsLineEdit->text()));
     }
     m_abiWidget->setEnabled(haveCompiler);

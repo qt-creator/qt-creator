@@ -35,8 +35,8 @@
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 
-#include <qt4projectmanager/qmakeproject.h>
-#include <qt4projectmanager/qmakeprojectmanagerconstants.h>
+#include <qmakeprojectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
@@ -109,12 +109,12 @@ void AndroidQtVersion::addToEnvironment(const ProjectExplorer::Kit *k, Utils::En
     env.set(QLatin1String("ANDROID_NDK_HOST"), AndroidConfigurations::instance().config().toolchainHost);
     env.set(QLatin1String("ANDROID_NDK_ROOT"), AndroidConfigurations::instance().config().ndkLocation.toUserOutput());
 
-    Qt4Project *qt4pro = qobject_cast<QmakeProjectManager::Qt4Project *>(ProjectExplorerPlugin::instance()->currentProject());
-    if (!qt4pro || !qt4pro->activeTarget()
+    QmakeProject *qmakeProject = qobject_cast<QmakeProjectManager::QmakeProject *>(ProjectExplorerPlugin::instance()->currentProject());
+    if (!qmakeProject || !qmakeProject->activeTarget()
             || QtSupport::QtKitInformation::qtVersion(k)->type() != QLatin1String(Constants::ANDROIDQT))
         return;
 
-    Target *target = qt4pro->activeTarget();
+    Target *target = qmakeProject->activeTarget();
     if (DeviceTypeKitInformation::deviceTypeId(target->kit()) != Constants::ANDROID_DEVICE_TYPE)
         return;
     if (AndroidConfigurations::instance().config().ndkLocation.isEmpty()

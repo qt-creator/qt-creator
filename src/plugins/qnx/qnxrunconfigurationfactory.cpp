@@ -37,7 +37,7 @@
 
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
-#include <qt4projectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakeproject.h>
 
 using namespace Qnx;
 using namespace Qnx::Internal;
@@ -58,7 +58,7 @@ QList<Core::Id> QnxRunConfigurationFactory::availableCreationIds(ProjectExplorer
     if (!canHandle(parent))
         return ids;
 
-    QmakeProjectManager::Qt4Project *qt4Project = qobject_cast<QmakeProjectManager::Qt4Project *>(parent->project());
+    QmakeProjectManager::QmakeProject *qt4Project = qobject_cast<QmakeProjectManager::QmakeProject *>(parent->project());
     if (!qt4Project)
         return ids;
 
@@ -85,7 +85,7 @@ bool QnxRunConfigurationFactory::canCreate(ProjectExplorer::Target *parent, cons
     if (!canHandle(parent) || !id.name().startsWith(Constants::QNX_QNX_RUNCONFIGURATION_PREFIX))
         return false;
 
-    QmakeProjectManager::Qt4Project *qt4Project = qobject_cast<QmakeProjectManager::Qt4Project *>(parent->project());
+    QmakeProjectManager::QmakeProject *qt4Project = qobject_cast<QmakeProjectManager::QmakeProject *>(parent->project());
     if (!qt4Project)
         return false;
 

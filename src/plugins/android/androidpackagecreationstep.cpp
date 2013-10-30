@@ -42,9 +42,9 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
-#include <qt4projectmanager/qmakebuildconfiguration.h>
-#include <qt4projectmanager/qmakeproject.h>
-#include <qt4projectmanager/qmakenodes.h>
+#include <qmakeprojectmanager/qmakebuildconfiguration.h>
+#include <qmakeprojectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakenodes.h>
 #include <qtsupport/qtkitinformation.h>
 
 #include <coreplugin/icore.h>
@@ -98,18 +98,18 @@ void AndroidPackageCreationStep::ctor()
 
 bool AndroidPackageCreationStep::init()
 {
-    const Qt4BuildConfiguration *bc = qobject_cast<Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
+    const QmakeBuildConfiguration *bc = qobject_cast<QmakeBuildConfiguration *>(target()->activeBuildConfiguration());
     if (!bc) {
         raiseError(tr("Cannot create Android package: current build configuration is not Qt 4."));
         return false;
     }
-    Qt4Project *project = static_cast<Qt4Project *>(target()->project());
+    QmakeProject *project = static_cast<QmakeProject *>(target()->project());
     m_outputParser.setProjectFileList(project->files(Project::AllFiles));
 
     // Copying
     m_androidDir = AndroidManager::dirPath(target());
     Utils::FileName path = m_androidDir;
-    QString androidTargetArch = project->rootQt4ProjectNode()->singleVariableValue(QmakeProjectManager::AndroidArchVar);
+    QString androidTargetArch = project->rootQmakeProjectNode()->singleVariableValue(QmakeProjectManager::AndroidArchVar);
     if (androidTargetArch.isEmpty()) {
         raiseError(tr("Cannot create Android package: No ANDROID_TARGET_ARCH set in make spec."));
         return false;
@@ -434,8 +434,8 @@ void AndroidPackageCreationStep::collectFiles(QList<DeployItem> *deployList,
     if (!version)
         return;
 
-    Qt4Project *project = static_cast<Qt4Project *>(target()->project());
-    QString androidTargetArch = project->rootQt4ProjectNode()->singleVariableValue(QmakeProjectManager::AndroidArchVar);
+    QmakeProject *project = static_cast<QmakeProject *>(target()->project());
+    QString androidTargetArch = project->rootQmakeProjectNode()->singleVariableValue(QmakeProjectManager::AndroidArchVar);
 
     QString androidAssetsPath = m_androidDir.toString() + QLatin1String("/assets/");
     QString androidJarPath = m_androidDir.toString() + QLatin1String("/libs/");

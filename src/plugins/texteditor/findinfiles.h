@@ -71,6 +71,8 @@ private slots:
     void openFileBrowser();
 
 private:
+    QString path() const;
+
     QStringListModel m_directoryStrings;
     QString m_directorySetting;
     QPointer<QWidget> m_configWidget;

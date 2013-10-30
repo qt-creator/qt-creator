@@ -83,6 +83,7 @@ private:
     static void autoDetectGdbOrLldbDebuggers();
     static void autoDetectCdbDebuggers();
     static void readLegacyDebuggers();
+    static void readLegacyDebuggers(const Utils::FileName &file);
 
     static Utils::PersistentSettingsWriter *m_writer;
     static QList<DebuggerItem> m_debuggers;

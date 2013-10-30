@@ -37,7 +37,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/gnumakeparser.h>
 #include <utils/hostosinfo.h>
-#include <qt4projectmanager/qmakeparser.h>
+#include <qmakeprojectmanager/qmakeparser.h>
 
 #include <QDir>
 

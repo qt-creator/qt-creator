@@ -53,6 +53,7 @@ public:
     static bool ignoreAllDevices();
     static void setIgnoreAllDevices(bool ignoreDevices);
     static Utils::FileName developerPath();
+    static Utils::FileName lldbPath();
 
 signals:
     void updated();
@@ -68,6 +69,7 @@ private:
     static void setDeveloperPath(const Utils::FileName &devPath);
 
     Utils::FileName m_developerPath;
+    Utils::FileName m_lldbPath;
     bool m_ignoreAllDevices;
 };
 

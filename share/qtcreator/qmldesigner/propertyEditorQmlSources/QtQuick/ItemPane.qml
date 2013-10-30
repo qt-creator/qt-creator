@@ -169,6 +169,13 @@ Rectangle {
 
                             id: specificsTwo;
                             sourceComponent: specificQmlComponent
+
+                            property string theSource: specificQmlData
+
+                            onTheSourceChanged: {
+                                active = false
+                                active = true
+                            }
                         }
 
                         Loader {

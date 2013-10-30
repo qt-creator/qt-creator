@@ -37,8 +37,8 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 
+#include <projectexplorer/abi.h>
 #include <projectexplorer/kit.h>
-#include <projectexplorer/gcctoolchain.h>
 
 #include <QObject>
 #include <QCoreApplication>
@@ -46,11 +46,15 @@
 namespace QtSupport {
 class BaseQtVersion;
 }
+namespace Debugger {
+class DebuggerItem;
+}
 
 namespace Qnx {
 namespace Internal {
 
 class QnxAbstractQtVersion;
+class QnxToolChain;
 
 class BlackBerryConfiguration
 {
@@ -87,13 +91,15 @@ private:
     Utils::FileName m_sysRoot;
     QList<Utils::EnvironmentItem> m_qnxEnv;
 
-    void createConfigurationPerQtVersion(
-            const Utils::FileName &qmakePath, Qnx::QnxArchitecture arch);
     QnxAbstractQtVersion* createQtVersion(
-            const Utils::FileName &qmakePath, Qnx::QnxArchitecture arch);
-    ProjectExplorer::GccToolChain* createGccToolChain(QnxAbstractQtVersion *version);
+            const Utils::FileName &qmakePath, Qnx::QnxArchitecture arch, const QString &versionName);
+    QnxToolChain* createToolChain(
+            ProjectExplorer::Abi abi, const QString &versionName);
+    QVariant createDebuggerItem(
+            QList<ProjectExplorer::Abi> abis, Qnx::QnxArchitecture arch, const QString &versionName);
     ProjectExplorer::Kit* createKit(
-            QnxAbstractQtVersion* version, ProjectExplorer::ToolChain* toolChain);
+            QnxAbstractQtVersion* version, QnxToolChain* toolChain,
+            const QVariant &debuggerItemId);
     QList<QtSupport::BaseQtVersion *> findRegisteredQtVersions() const;
 };
 

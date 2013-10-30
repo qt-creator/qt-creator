@@ -39,8 +39,8 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <debugger/debuggerconstants.h>
-#include <qt4projectmanager/qmakeproject.h>
-#include <qt4projectmanager/qmakenodes.h>
+#include <qmakeprojectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakenodes.h>
 #include <qtsupport/customexecutablerunconfiguration.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
@@ -97,8 +97,8 @@ QList<Core::Id> IosRunConfigurationFactory::availableCreationIds(Target *parent)
     if (!IosManager::supportsIos(parent))
         return ids;
     Core::Id baseId(IOS_RC_ID_PREFIX);
-    QList<Qt4ProFileNode *> nodes = static_cast<Qt4Project *>(parent->project())->allProFiles();
-    foreach (Qt4ProFileNode *node, nodes)
+    QList<QmakeProFileNode *> nodes = static_cast<QmakeProject *>(parent->project())->allProFiles();
+    foreach (QmakeProFileNode *node, nodes)
         if (node->projectType() == ApplicationTemplate || node->projectType() == LibraryTemplate
                 || node->projectType() == AuxTemplate)
             ids << baseId.withSuffix(node->path());

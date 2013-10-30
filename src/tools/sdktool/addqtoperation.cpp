@@ -42,16 +42,16 @@
 #include <iostream>
 
 // Qt version file stuff:
-static char PREFIX[] = "QtVersion.";
-static char VERSION[] = "Version";
+const char PREFIX[] = "QtVersion.";
+const char VERSION[] = "Version";
 
 // BaseQtVersion:
-static char ID[] = "Id";
-static char DISPLAYNAME[] = "Name";
-static char AUTODETECTED[] = "isAutodetected";
-static char AUTODETECTION_SOURCE[] = "autodetectionSource";
-static char QMAKE[] = "QMakePath";
-static char TYPE[] = "QtVersion.Type";
+const char ID[] = "Id";
+const char DISPLAYNAME[] = "Name";
+const char AUTODETECTED[] = "isAutodetected";
+const char AUTODETECTION_SOURCE[] = "autodetectionSource";
+const char QMAKE[] = "QMakePath";
+const char TYPE[] = "QtVersion.Type";
 
 QString AddQtOperation::name() const
 {

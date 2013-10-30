@@ -97,6 +97,7 @@ SOURCES += qnxplugin.cpp \
     blackberryinstallwizard.cpp \
     qnxdeviceprocesssignaloperation.cpp \
     qnxdeviceprocesslist.cpp \
+    qnxtoolchain.cpp \
     slog2inforunner.cpp
 
 HEADERS += qnxplugin.h\
@@ -194,6 +195,7 @@ HEADERS += qnxplugin.h\
     blackberryinstallwizard.h \
     qnxdeviceprocesssignaloperation.h \
     qnxdeviceprocesslist.h \
+    qnxtoolchain.h \
     slog2inforunner.h
 
 

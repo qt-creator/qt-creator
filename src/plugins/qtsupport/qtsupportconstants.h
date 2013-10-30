@@ -74,7 +74,7 @@ const char ANDROID_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Android");
 const char IOS_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Ios");
 
 // QML wizard icon
-// both the qt4projectmanager and the qmlprojectmanager do have qt quick wizards
+// both the qmakeprojectmanager and the qmlprojectmanager do have qt quick wizards
 // so we define the icon here
 const char QML_WIZARD_ICON[] = ":/qmlproject/images/qml_wizard.png";
 

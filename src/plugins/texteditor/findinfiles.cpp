@@ -32,6 +32,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <find/findplugin.h>
 #include <utils/filesearch.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -87,14 +88,13 @@ Utils::FileIterator *FindInFiles::files(const QStringList &nameFilters,
 
 QVariant FindInFiles::additionalParameters() const
 {
-    return qVariantFromValue(QDir::fromNativeSeparators(m_directory->currentText()));
+    return qVariantFromValue(path());
 }
 
 QString FindInFiles::label() const
 {
     const QChar slash = QLatin1Char('/');
-    const QStringList &nonEmptyComponents = QDir::cleanPath(
-                QFileInfo(QDir::fromNativeSeparators(m_directory->currentText())).absoluteFilePath())
+    const QStringList &nonEmptyComponents = QDir::cleanPath(QFileInfo(path()).absoluteFilePath())
             .split(slash, QString::SkipEmptyParts);
     return tr("Directory '%1':").arg(nonEmptyComponents.isEmpty() ? QString(slash) : nonEmptyComponents.last());
 }
@@ -103,7 +103,7 @@ QString FindInFiles::toolTip() const
 {
     //: %3 is filled by BaseFileFind::runNewSearch
     return tr("Path: %1\nFilter: %2\n%3")
-            .arg(QDir::toNativeSeparators(QFileInfo(m_directory->currentText()).absoluteFilePath()))
+            .arg(QDir::toNativeSeparators(QFileInfo(path()).absoluteFilePath()))
             .arg(fileNameFilters().join(QLatin1String(",")));
 }
 
@@ -149,13 +149,19 @@ void FindInFiles::openFileBrowser()
 {
     if (!m_directory)
         return;
-    QString oldDir = m_directory->currentText();
+    QString oldDir = path();
     if (!QDir(oldDir).exists())
         oldDir.clear();
     QString dir = QFileDialog::getExistingDirectory(m_configWidget,
         tr("Directory to search"), oldDir);
     if (!dir.isEmpty())
         m_directory->setEditText(QDir::toNativeSeparators(dir));
+}
+
+QString FindInFiles::path() const
+{
+    return QDir::fromNativeSeparators(Utils::FileUtils::normalizePathName(
+                                          m_directory->currentText()));
 }
 
 void FindInFiles::writeSettings(QSettings *settings)

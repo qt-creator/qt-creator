@@ -122,6 +122,7 @@ void TextEditorActionHandler::setupActions(BaseTextEditorWidget *editor)
     QObject::connect(editor, SIGNAL(undoAvailable(bool)), this, SLOT(updateUndoAction()));
     QObject::connect(editor, SIGNAL(redoAvailable(bool)), this, SLOT(updateRedoAction()));
     QObject::connect(editor, SIGNAL(copyAvailable(bool)), this, SLOT(updateCopyAction()));
+    QObject::connect(editor, SIGNAL(readOnlyChanged()), this, SLOT(updateActions()));
 }
 
 

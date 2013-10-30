@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>QmakeProjectManager::Internal::CustomWidgetWidgetsWizardPage</class>
+ <widget class="QWizardPage" name="QmakeProjectManager::Internal::CustomWidgetWidgetsWizardPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>668</width>
+    <height>475</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Custom Qt Widget Wizard</string>
+  </property>
+  <property name="title">
+   <string>Custom Widget List</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="2" column="1" rowspan="2">
+    <widget class="QWidget" name="tabStackWidget" native="true">
+     <property name="minimumSize">
+      <size>
+       <width>400</width>
+       <height>200</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QmakeProjectManager::Internal::ClassList" name="classList">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>400</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="2">
+    <widget class="QLabel" name="subTitleLabel">
+     <property name="text">
+      <string>Specify the list of custom widgets and their properties.</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <spacer name="titleSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>10</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="2" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Widget &amp;Classes:</string>
+       </property>
+       <property name="buddy">
+        <cstring>classList</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="addButton">
+       <property name="text">
+        <string>...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="deleteButton">
+       <property name="text">
+        <string>...</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QmakeProjectManager::Internal::ClassList</class>
+   <extends>QListWidget</extends>
+   <header location="global">qmakeprojectmanager/customwidgetwizard/classlist.h</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>classList</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

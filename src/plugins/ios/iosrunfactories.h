@@ -30,7 +30,7 @@
 #define IOSRUNFACTORIES_H
 
 #include <projectexplorer/runconfiguration.h>
-#include <qt4projectmanager/qmakerunconfigurationfactory.h>
+#include <qmakeprojectmanager/qmakerunconfigurationfactory.h>
 #include <utils/qtcoverride.h>
 
 namespace ProjectExplorer {

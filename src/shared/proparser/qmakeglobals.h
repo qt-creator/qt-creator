@@ -105,6 +105,7 @@ public:
     QProcessEnvironment environment;
 #endif
     QString qmake_abslocation;
+    QStringList qmake_args;
 
     QString qmakespec, xqmakespec;
     QString user_template, user_template_prefix;
@@ -135,6 +136,7 @@ public:
 
     QString expandEnvVars(const QString &str) const;
     QString shadowedPath(const QString &fileName) const;
+    QStringList splitPathList(const QString &value) const;
 
 private:
     QString getEnv(const QString &) const;

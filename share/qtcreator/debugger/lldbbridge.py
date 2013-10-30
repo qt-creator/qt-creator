@@ -431,34 +431,6 @@ class Dumper(DumperBase):
     def directBaseClass(self, typeobj, index = 0):
         return typeobj.GetDirectBaseClassAtIndex(index)
 
-    def extractTemplateArgument(self, typename, index):
-        level = 0
-        skipSpace = False
-        inner = ''
-        for c in typename[typename.find('<') + 1 : -1]:
-            if c == '<':
-                inner += c
-                level += 1
-            elif c == '>':
-                level -= 1
-                inner += c
-            elif c == ',':
-                if level == 0:
-                    if index == 0:
-                        return inner.strip()
-                    index -= 1
-                    inner = ''
-                else:
-                    inner += c
-                    skipSpace = True
-            else:
-                if skipSpace and c == ' ':
-                    pass
-                else:
-                    inner += c
-                    skipSpace = False
-        return inner.strip()
-
     def templateArgument(self, typeobj, index):
         type = typeobj.GetTemplateArgumentType(index)
         if type.IsValid():
@@ -705,7 +677,10 @@ class Dumper(DumperBase):
         self.startMode_ = args.get('startMode', 1)
         self.processArgs_ = args.get('processArgs', '')
         self.attachPid_ = args.get('attachPid', 0)
+        self.sysRoot_ = args.get('sysRoot', '')
 
+        if len(self.sysRoot_)>0:
+            self.debugger.SetCurrentPlatformSDKRoot(self.sysRoot_)
         self.target = self.debugger.CreateTarget(self.executable_, None, None, True, error)
         self.importDumpers()
 
@@ -723,7 +698,6 @@ class Dumper(DumperBase):
         if self.attachPid_ > 0:
             attachInfo = lldb.SBAttachInfo(self.attachPid_)
             self.process = self.target.Attach(attachInfo, error)
-
         else:
             launchInfo = lldb.SBLaunchInfo(self.processArgs_.split(' '))
             launchInfo.SetWorkingDirectory(os.getcwd())
@@ -1613,7 +1587,6 @@ class Dumper(DumperBase):
             self.useFancy = int(args['fancy'])
         if 'passexceptions' in args:
             self.passExceptions = int(args['passexceptions'])
-        self.passExceptions = True # FIXME
         self.reportVariables(args)
 
     def disassemble(self, args):

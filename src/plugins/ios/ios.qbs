@@ -8,7 +8,7 @@ QtcPlugin {
 
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
-    Depends { name: "Qt4ProjectManager" }
+    Depends { name: "QmakeProjectManager" }
     Depends { name: "Debugger" }
     Depends { name: "QtSupport" }
     Depends { name: "Qt"; submodules: ["widgets", "xml", "network"] }

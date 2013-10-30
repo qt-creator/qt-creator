@@ -41,20 +41,18 @@
 
     \section1 Creating the Project
 
-    Let us start with creating an empty Qt project.
-
     \list 1
 
-        \li Select \gui{File > New File or Project > Other Project >
-            Empty Qt Project > Choose}.
+        \li Select \gui File > \gui {New File or Project} > \gui Applications >
+            \gui {Qt Quick 2 Application (Qt Quick Controls)} > \gui Choose.
 
         \li In the \gui{Name} field, type \b{accelbubble}.
 
         \li In the \gui {Create in} field, enter the path for the project files.
-            For example, \c {C:\Qt\examples}, and then click \gui{Next} (on
-            Mac OS X, it is \gui Continue).
+            For example, \c {C:\Qt\examples}, and then click \gui{Next} (or
+            \gui Continue on Mac OS X).
 
-        \li Select an Android \l{glossary-buildandrun-kit}{kit} for arm,
+        \li Select an Android \l{glossary-buildandrun-kit}{kit} for ARM,
             and click \gui{Next}.
 
             \note Kits are listed if they have been specified in \gui Tools >
@@ -63,106 +61,73 @@
         \li Select \gui Next in the following dialogs to use the default
             settings.
 
-        \li Review the project settings, and click \gui{Finish} (on Mac OS X,
-            it is \gui Done).
+        \li Review the project settings, and click \gui{Finish} (or \gui Done on
+            Mac OS X).
+
     \endlist
 
-    \QC creates the project and displays its contents under the \gui Projects
-    view on the sidebar. You can only see a .pro file under the project as we
-    created an empty project, but the remaining bits will be added
-    during the course of this tutorial.
+    \QC generates a default QML file that you can modify to create the main view
+    of the application.
 
     \section1 Creating the Main View
 
     The main view of the application displays an SVG bubble image at the center
     of the main window.
 
-    \list 1
-
-        \li In the \gui Edit mode, right-click on the \b{accelbubble} project
-            and select \gui{Add new} to open the \gui{New File} dialog.
-
-        \li Select \gui{Qt > QML File (Qt Quick 2)} and click \gui Choose to
-            give a name to the QML file.
-
-        \li In the \gui Name field, type "accelbubble" and select \gui Next.
-
-        \li Select \gui Finish to add accelbubble.qml to the project.
-    \endlist
-
-    \QC adds a default QML file containing a Rectangle. Here is how the QML
-    file looks:
-
-    \snippet qml/tutorial_initialqml.qml initialcode
-
-    Now let us edit accelbubble.qml to add the bits required for our
-    application.
+    To use the Bluebubble.svg used by the Qt Sensors example, Accel Bubble, in
+    your project, you must copy it to the project directory (same subdirectory
+    as the QML file) from the examples directory in the Qt installation
+    directory. For example:
+    \c {C:\Qt\Qt5.2.0\5.2.0\msvc2010\examples\sensors\accelbubble\content}.
+    The image appears in the \gui Resources pane. You can also use any other
+    image or a QML type, instead.
 
     \list 1
 
-        \li Replace the existing import statement with the following:
+        \li In the \gui Projects view, double-click the main.qml file
+            to open it in the code editor.
 
-            \snippet qml/tutorial_updatedmainview.qml imports
+        \li Modify the properties of the ApplicationWindow type to specify the
+            application name, give the ApplicationWindow an id, and to set it
+            visible, as illustrated by the following code snippet:
 
-        \li Replace the Rectangle type with ApplicationWindow, which
-            will be the top-level window for our application.
-
-        \li Set the \a id, \a title, \a visible, and the window dimension
-            properties (width and height) with the values given in the
-            following snippet:
-
-            \quotefromfile qml/tutorial_updatedmainview.qml
+            \quotefromfile accelbubble/main.qml
             \skipto ApplicationWindow
-            \printuntil true
+            \printuntil visible
+            \skipto /^\}/
+            \printuntil }
+
+        \li Click \gui Design to open the file in \QMLD.
+
+        \li In the \gui Navigator pane, select \gui Button and press \key Delete
+            to delete it.
+
+        \li In the \gui Library view, \gui Resources tab, select Bluebubble.svg
+            and drag and drop it to the canvas.
+
+        \li In the \gui Properties pane, \gui Id field, enter \e bubble to be
+            able to reference the image from other places.
+
+        \li In the code editor, add the following new properties to the image to
+            position the image at the center of ApplicationWindow when the
+            application starts:
+
+            \quotefromfile accelbubble/main.qml
+            \skipto Image
+            \printuntil bubble.width
+
+         \li Set the x and y position of the image based on the new
+            properties:
+
+            \dots
+            \printuntil centerY
             \skipto /^\}/
             \printuntil }
     \endlist
 
-    \section1 Adding an SVG Image
+    Here is how the accelbubble.qml file looks after you made the changes:
 
-    SVG is an XML-based image format that enables you to combine vector
-    graphics, raster graphics, and text into one image. It is based on
-    an open standard developed and maintained by \l{http://www.w3.org/}{W3C}.
-
-    Qt supports the \l{http://www.w3.org/TR/SVGTiny12/}{SVGT} v1.2, which is a
-    trimmed version of the \l{http://www.w3.org/TR/SVG12/}{SVG Full v1.2}
-    specification, for mobile devices.
-
-    You can copy the Bluebubble.svg used by the Qt Sensors example, Accel
-    Bubble, to your project directory or find an SVG image that uses SVGT v1.2.
-
-    \note If you choose to create a new SVG image, ensure that the \a svg root
-    element has the \a version attribute with the value 1.1 or 1.2, and baseProfile
-    with \c tiny.
-
-    \list 1
-        \li Open accelbubble.qml in \gui Edit mode and add an Image type
-            within the ApplicationWindow.
-        \li Set the image \a id, \a source, and \a smooth properties as shown
-            in the following code block:
-
-            \quotefromfile qml/tutorial_updatedmainview.qml
-            \skipto Image
-            \printuntil true
-
-        \li Add the following new properties to the image:
-
-            \dots
-            \printuntil bubbleCenter:
-
-            \note These properties are used to position the image
-             at the center of ApplicationWindow when the application starts.
-        \li Set the x and y position of the image based on the new
-            properties.
-
-            \dots
-            \printuntil }
-    \endlist
-
-    Here is how the accelbubble.qml file looks after making the changes
-    mentioned earlier in this section:
-
-    \quotefromfile qml/tutorial_updatedmainview.qml
+    \quotefromfile accelbubble/main.qml
     \skipto import QtQuick
     \printuntil 1.0
     \codeline
@@ -170,7 +135,9 @@
     \printuntil true
 
     \skipto Image
-    \printuntil /^\}\
+    \printuntil y:
+    \skipto /^\}/
+    \printuntil }
 
 
     \section1 Moving the Bubble
@@ -179,14 +146,15 @@
     Accelerometer sensor values.
 
     \list 1
-        \li Add the following import statement to accelbubble.qml:
+        \li Add the following import statement to main.qml:
 
-            \snippet qml/tutorial_finalmainqml.qml sensorimport
+            \code
+            import QtSensors 5.0
+            \endcode
 
-        \li Add the Accelerometer type with the necessary properties as shown
-            in the following code block:
+        \li Add the Accelerometer type with the necessary properties:
 
-            \quotefromfile qml/tutorial_finalmainqml.qml
+            \quotefromfile accelbubble/main.qml
             \skipto Accelerometer
             \printuntil true
             \skipto }
@@ -196,93 +164,61 @@
             x and y position of the bubble based on the current Accelerometer
             values:
 
-            \snippet qml/tutorial_finalmainqml.qml jsfunctions
+            \quotefromfile accelbubble/main.qml
+            \skipto function
+            \printuntil Math.atan(x
+            \printuntil }
 
         \li Add the following JavaScript code for \a onReadingChanged signal of
             Accelerometer type to make the bubble move when the Accelerometer
             values change:
 
-            \snippet qml/tutorial_finalmainqml.qml readingchanged
+            \quotefromfile accelbubble/main.qml
+            \skipto onReadingChanged
+            \printuntil }
 
         \li Add SmoothedAnimation behavior on the \a x and \a y properties of
             the bubble to make its movement look smoother.
 
-            \snippet qml/tutorial_finalmainqml.qml smoothedanim
+            \quotefromfile accelbubble/main.qml
+            \skipto Behavior
+            \printuntil x
+            \printuntil }
+            \printuntil }
      \endlist
 
+    \section1 Adding Dependencies
+
+    Update the accelbubble.pro file with the following library dependency
+    information:
+
+    \code
+    QT += quick sensors svg xml
+    \endcode
 
     \section1 Running the Application
 
-    The main view is complete but the application is not ready yet. This
-    section provides instructions to add a few lines of C++ code that loads the
-    QML file when you try to run the application on an Android device.
+    The application is complete and ready to be deployed to an Android device:
 
     \list 1
-        \li Right-click on the project in \gui Edit mode and select
-            \gui{Add New > Qt > Qt Resource File}.
 
-        \li Name the resource file as \a accelbubble.qrc and click \gui Next.
+        \li Enable \e{USB Debugging} on the device.
 
-        \li Select \gui Finish in the following dialog to add the resource file
-            to the project and open it in \gui Edit mode.
+        \li Connect the device to the development PC.
 
-        \li Select \gui {Add > Add Prefix} and add \c / as the prefix.
-
-            \note The prefix is used every time you refer to the .qrc file
-                  contents from the C++ code.
-
-        \li Select \gui {Add > Add Files} and add accelbubble.qml and Bluebubble.svg
-            to the resource file.
-
-        \li Right-click on the project in \gui Edit mode and select
-            \gui {Add New} to open the \gui {New File} dialog.
-
-        \li Select \gui {C++ > C++ Source File > Choose}
-
-        \li Name the file as \a main.cpp and click \gui Next.
-
-        \li Select \gui Finish to add main.cpp to the project and open it in
-            edit mode.
-
-        \li Add the following lines of C++ code to main.cpp to load the
-            accelbubble.qml file from accelbubble.qrc:
-
-            \quotefromfile tutorial_main.cpp
-            \skipto #include
-            \printuntil }
-
-        \li Update the accelbubble.pro file with the following library
-            dependency information:
-
-            \code
-              QT += quick sensors svg xml
-            \endcode
-    \endlist
-
-    The application is complete and ready to be deployed to the device.
-    Enable "USB Debugging" on your Android device and connect it to your PC.
     If you are using a device running Android v4.2.2, it should prompt you to
     verify the connection to allow USB debugging from the PC it is connected
     to. To avoid such prompts every time you connect the device, check
     "Always allow from the computer" and select \gui OK.
 
-    To run the application on the device, press CTRL + R keys in \QC
-    \gui Edit mode.
+        \li To run the application on the device, press \key {Ctrl+R}.
+
+    \endlist
 
     \section1 Example Code
 
-    When you have completed the steps mentioned in the earlier sections, the
-    accelbubble.qml, main.cpp, and accelbubble.pro files look as follows:
+    When you have completed the steps, the main.qml file should look as follows:
 
-    \section2 accelbubble.qml
+    \quotefile accelbubble/main.qml
 
-    \quotefile qml/tutorial_finalmainqml.qml
-
-    \section2 main.cpp
-
-    \quotefile tutorial_main.cpp
-
-    \section2 accelbubble.pro
-
-    \quotefile tutorial_accelbubble.pro
 */

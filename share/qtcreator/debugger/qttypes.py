@@ -541,10 +541,12 @@ def qdump__QHash(d, value):
                 it = nodePtr.dereference().cast(innerType)
                 with SubItem(d, i):
                     if isCompact:
-                        # cannot reference "key" directly because it is inside
-                        # anonymous union for (u)int key in Qt4
-                        keyAddress = d.addressOf(it) + d.ptrSize() # addr + QHashNode*
-                        d.putMapName(d.createValue(keyAddress, keyType))
+                        key = it["key"]
+                        if not key:
+                            # LLDB can't access directly since it's in anonymous union
+                            # for Qt4 optimized int keytype
+                            key = it[1]["key"]
+                        d.putMapName(key)
                         d.putItem(it["value"])
                         d.putType(valueType)
                     else:
@@ -553,17 +555,13 @@ def qdump__QHash(d, value):
 
 
 def qdump__QHashNode(d, value):
-    keyType = d.templateArgument(value.type, 0)
-    valueType = d.templateArgument(value.type, 1)
     key = value["key"]
+    if not key:
+        # LLDB can't access directly since it's in anonymous union
+        # for Qt4 optimized int keytype
+        key = value[1]["key"]
     val = value["value"]
-
-    #if d.isSimpleType(keyType) and d.isSimpleType(valueType):
-    #    d.putName(key)
-    #    d.putValue(val)
-    #else:
     d.putEmptyValue()
-
     d.putNumChild(2)
     if d.isExpanded():
         with Children(d):

@@ -40,19 +40,19 @@
 #include <iostream>
 
 // ToolChain file stuff:
-static char COUNT[] = "ToolChain.Count";
-static char PREFIX[] = "ToolChain.";
-static char VERSION[] = "Version";
+const char COUNT[] = "ToolChain.Count";
+const char PREFIX[] = "ToolChain.";
+const char VERSION[] = "Version";
 
 // ToolChain:
-static char ID[] = "ProjectExplorer.ToolChain.Id";
-static char DISPLAYNAME[] = "ProjectExplorer.ToolChain.DisplayName";
-static char AUTODETECTED[] = "ProjectExplorer.ToolChain.Autodetect";
+const char ID[] = "ProjectExplorer.ToolChain.Id";
+const char DISPLAYNAME[] = "ProjectExplorer.ToolChain.DisplayName";
+const char AUTODETECTED[] = "ProjectExplorer.ToolChain.Autodetect";
 
 // GCC ToolChain:
-static char PATH[] = "ProjectExplorer.GccToolChain.Path";
-static char TARGET_ABI[] = "ProjectExplorer.GccToolChain.TargetAbi";
-static char SUPPORTED_ABIS[] = "ProjectExplorer.GccToolChain.SupportedAbis";
+const char PATH[] = "ProjectExplorer.GccToolChain.Path";
+const char TARGET_ABI[] = "ProjectExplorer.GccToolChain.TargetAbi";
+const char SUPPORTED_ABIS[] = "ProjectExplorer.GccToolChain.SupportedAbis";
 
 QString AddToolChainOperation::name() const
 {
@@ -255,7 +255,6 @@ QVariantMap AddToolChainOperation::addToolChain(const QVariantMap &map,
 
     QVariantMap result = RmKeysOperation::rmKeys(map, QStringList() << QLatin1String(COUNT));
 
-    std::cout << "Registering ToolChain " << count << std::endl;
     const QString tc = QString::fromLatin1(PREFIX) + QString::number(count);
 
     KeyValuePairList data;

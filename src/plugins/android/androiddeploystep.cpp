@@ -44,9 +44,9 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/target.h>
-#include <qt4projectmanager/qmakebuildconfiguration.h>
-#include <qt4projectmanager/qmakeproject.h>
-#include <qt4projectmanager/qmakenodes.h>
+#include <qmakeprojectmanager/qmakebuildconfiguration.h>
+#include <qmakeprojectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakenodes.h>
 
 #include <qtsupport/qtkitinformation.h>
 
@@ -117,7 +117,7 @@ bool AndroidDeployStep::init()
     if (!version)
         return false;
 
-    const Qt4BuildConfiguration *bc = static_cast<Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
+    const QmakeBuildConfiguration *bc = static_cast<QmakeBuildConfiguration *>(target()->activeBuildConfiguration());
     if (!bc)
         return false;
 
@@ -134,7 +134,7 @@ bool AndroidDeployStep::init()
     m_androidDirPath = AndroidManager::dirPath(target());
     m_apkPathDebug = AndroidManager::apkPath(target(), AndroidManager::DebugBuild).toString();
     m_apkPathRelease = AndroidManager::apkPath(target(), AndroidManager::ReleaseBuildSigned).toString();
-    m_buildDirectory = static_cast<Qt4Project *>(target()->project())->rootQt4ProjectNode()->buildDir();
+    m_buildDirectory = static_cast<QmakeProject *>(target()->project())->rootQmakeProjectNode()->buildDir();
     m_runDeployAction = m_deployAction;
     ToolChain *tc = ToolChainKitInformation::toolChain(target()->kit());
     if (!tc || tc->type() != QLatin1String(Constants::ANDROID_TOOLCHAIN_TYPE)) {
@@ -143,7 +143,7 @@ bool AndroidDeployStep::init()
     }
     m_ndkToolChainVersion = static_cast<AndroidToolChain *>(tc)->ndkToolChainVersion();
 
-    QString arch = static_cast<Qt4Project *>(project())->rootQt4ProjectNode()->singleVariableValue(QmakeProjectManager::AndroidArchVar);
+    QString arch = static_cast<QmakeProject *>(project())->rootQmakeProjectNode()->singleVariableValue(QmakeProjectManager::AndroidArchVar);
     if (!arch.isEmpty())
         m_libgnustl = AndroidManager::libGnuStl(arch, m_ndkToolChainVersion);
     return true;

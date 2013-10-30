@@ -14,8 +14,8 @@
 
 NSString *simulatorPrefrencesName = @"com.apple.iphonesimulator";
 NSString *deviceProperty = @"SimulateDevice";
-NSString *deviceIphoneRetina3_5Inch = @"iPhone (Retina 3.5-inch)";
-NSString *deviceIphoneRetina4_0Inch = @"iPhone (Retina 4-inch)";
+NSString *deviceIphoneRetina3_5Inch = @"iPhone Retina (3.5-inch)";
+NSString *deviceIphoneRetina4_0Inch = @"iPhone Retina (4-inch)";
 NSString *deviceIphone = @"iPhone";
 NSString *deviceIpad = @"iPad";
 NSString *deviceIpadRetina = @"iPad (Retina)";
@@ -156,6 +156,7 @@ NSString *deviceIpadRetina = @"iPad (Retina)";
       return;
     }
     nsprintf(@"<inferior_pid>%@</inferior_pid>", [session simulatedApplicationPID]);
+    fflush(stdout);
     pidCheckingTimer = [[NSTimer scheduledTimerWithTimeInterval:5.0 target:self
             selector:@selector(checkPid:) userInfo:nil repeats: TRUE] retain];
   } else {
@@ -266,6 +267,16 @@ NSString *deviceIpadRetina = @"iPad (Retina)";
     }
   }
 
+
+  NSString *sdkVersion = [sdkRoot sdkVersion];
+  NSString *appSupportDir = [NSString stringWithFormat:@"%@/Library/Application Support/iPhone Simulator/%@",
+                             NSHomeDirectory(), sdkVersion];
+  [environment addEntriesFromDictionary:@{
+   @"CFFIXED_USER_HOME" : appSupportDir,
+   @"IPHONE_SIMULATOR_ROOT" : [sdkRoot sdkRootPath],
+   @"NSUnbufferedIO" : @"YES",
+   }];
+
   /* Set up the session configuration */
   tClass = objc_getClass("DTiPhoneSimulatorSessionConfig");
   if (tClass == nil) {
@@ -275,7 +286,7 @@ NSString *deviceIpadRetina = @"iPad (Retina)";
   config = [[[tClass alloc] init] autorelease];
   [config setApplicationToSimulateOnStart:appSpec];
   [config setSimulatedSystemRoot:sdkRoot];
-  [config setSimulatedApplicationShouldWaitForDebugger:shouldStartDebugger];
+  [config setSimulatedApplicationShouldWaitForDebugger:shouldWaitDebugger];
 
   [config setSimulatedApplicationLaunchArgs:args];
   [config setSimulatedApplicationLaunchEnvironment:environment];

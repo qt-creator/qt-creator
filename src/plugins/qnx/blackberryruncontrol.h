@@ -35,7 +35,7 @@
 #include <projectexplorer/runconfiguration.h>
 
 namespace QmakeProjectManager {
-class Qt4BuildConfiguration;
+class QmakeBuildConfiguration;
 }
 
 namespace Qnx {

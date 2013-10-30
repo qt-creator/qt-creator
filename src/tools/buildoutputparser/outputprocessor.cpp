@@ -33,7 +33,7 @@
 #include <projectexplorer/gccparser.h>
 #include <projectexplorer/gnumakeparser.h>
 #include <projectexplorer/osparser.h>
-#include <qt4projectmanager/qmakeparser.h>
+#include <qmakeprojectmanager/qmakeparser.h>
 #include <qtsupport/qtparser.h>
 #include <utils/fileutils.h>
 

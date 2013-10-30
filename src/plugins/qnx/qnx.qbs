@@ -11,7 +11,7 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "QmlDebug" }
     Depends { name: "QtSupport" }
-    Depends { name: "Qt4ProjectManager" }
+    Depends { name: "QmakeProjectManager" }
     Depends { name: "RemoteLinux" }
     Depends { name: "TextEditor" }
     Depends { name: "QmlDebug" }
@@ -187,6 +187,8 @@ QtcPlugin {
         "blackberrysigningutils.h",
         "pathchooserdelegate.cpp",
         "pathchooserdelegate.h",
+        "qnxtoolchain.cpp",
+        "qnxtoolchain.h",
         "qnx.qrc",
         "qnxabstractqtversion.cpp",
         "qnxabstractqtversion.h",

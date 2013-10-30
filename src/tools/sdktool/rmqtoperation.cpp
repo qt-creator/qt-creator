@@ -39,10 +39,10 @@
 #include <iostream>
 
 // ToolChain file stuff:
-static char PREFIX[] = "QtVersion.";
+const char PREFIX[] = "QtVersion.";
 
 // ToolChain:
-static char AUTODETECTION_SOURCE[] = "autodetectionSource";
+const char AUTODETECTION_SOURCE[] = "autodetectionSource";
 
 QString RmQtOperation::name() const
 {

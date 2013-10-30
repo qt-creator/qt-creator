@@ -45,9 +45,9 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/project.h>
 #include <qtsupport/qtkitinformation.h>
-#include <qt4projectmanager/qmakebuildconfiguration.h>
-#include <qt4projectmanager/qmakeproject.h>
-#include <qt4projectmanager/qmakenodes.h>
+#include <qmakeprojectmanager/qmakebuildconfiguration.h>
+#include <qmakeprojectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakenodes.h>
 #include <QInputDialog>
 #include <QMessageBox>
 
@@ -188,8 +188,8 @@ bool AndroidDeployQtStep::init()
         m_serialNumber = info.serialNumber;
     }
 
-    QmakeProjectManager::Qt4BuildConfiguration *bc
-            = static_cast<QmakeProjectManager::Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
+    QmakeProjectManager::QmakeBuildConfiguration *bc
+            = static_cast<QmakeProjectManager::QmakeBuildConfiguration *>(target()->activeBuildConfiguration());
 
     if (m_signPackage) {
         // check keystore and certificate passwords
@@ -345,11 +345,11 @@ void AndroidDeployQtStep::runCommand(const QString &program, const QStringList &
 
 void AndroidDeployQtStep::updateInputFile()
 {
-    QmakeProjectManager::Qt4Project *pro = static_cast<QmakeProjectManager::Qt4Project *>(project());
-    QList<QmakeProjectManager::Qt4ProFileNode *> nodes = pro->applicationProFiles();
+    QmakeProjectManager::QmakeProject *pro = static_cast<QmakeProjectManager::QmakeProject *>(project());
+    QList<QmakeProjectManager::QmakeProFileNode *> nodes = pro->applicationProFiles();
 
     QStringList inputFiles;
-    foreach (QmakeProjectManager::Qt4ProFileNode *node, nodes)
+    foreach (QmakeProjectManager::QmakeProFileNode *node, nodes)
         inputFiles << node->singleVariableValue(QmakeProjectManager::AndroidDeploySettingsFile);
 
     if (!inputFiles.contains(m_inputFile))

@@ -30,6 +30,7 @@
 #define IOSDEBUGSUPPORT_H
 
 #include "iosrunconfiguration.h"
+#include <QProcess>
 
 namespace Debugger { class DebuggerRunControl; }
 namespace ProjectExplorer { class RunControl; }
@@ -50,9 +51,11 @@ public:
 
     IosDebugSupport(IosRunConfiguration *runConfig,
         Debugger::DebuggerRunControl *runControl);
+    ~IosDebugSupport();
 
 private slots:
     void handleGdbServerFd(int gdbServerFd);
+    void handleGotInferiorPid(Q_PID);
     void handleRemoteProcessFinished(bool cleanEnd);
 
     void handleRemoteOutput(const QString &output);
@@ -63,7 +66,7 @@ private:
     IosRunner * const m_runner;
     const QString m_dumperLib;
 
-    int m_gdbServerPort;
+    int m_gdbServerFd;
     int m_qmlPort;
 };
 

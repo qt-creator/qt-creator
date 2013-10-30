@@ -36,9 +36,9 @@
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildsteplist.h>
-#include <qt4projectmanager/qmakebuildconfiguration.h>
-#include <qt4projectmanager/qmakeproject.h>
-#include <qt4projectmanager/qmakenodes.h>
+#include <qmakeprojectmanager/qmakebuildconfiguration.h>
+#include <qmakeprojectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakenodes.h>
 #include <qtsupport/qtoutputformatter.h>
 #include <qtsupport/qtkitinformation.h>
 #include "ui_iosrunconfiguration.h"
@@ -144,9 +144,9 @@ QString IosRunConfiguration::profilePath() const
 
 QString IosRunConfiguration::appName() const
 {
-    Qt4Project *pro = qobject_cast<Qt4Project *>(target()->project());
+    QmakeProject *pro = qobject_cast<QmakeProject *>(target()->project());
     if (pro) {
-        const Qt4ProFileNode *node = pro->rootQt4ProjectNode()->findProFileFor(profilePath());
+        const QmakeProFileNode *node = pro->rootQmakeProjectNode()->findProFileFor(profilePath());
         if (node) {
             TargetInformation ti = node->targetInformation();
             if (ti.valid) {
@@ -167,8 +167,8 @@ Utils::FileName IosRunConfiguration::bundleDir() const
         qDebug() << "unexpected device type in bundleDirForTarget: " << devType.toString();
         return res;
     }
-    Qt4BuildConfiguration *bc =
-            qobject_cast<Qt4BuildConfiguration *>(target()->activeBuildConfiguration());
+    QmakeBuildConfiguration *bc =
+            qobject_cast<QmakeBuildConfiguration *>(target()->activeBuildConfiguration());
     if (bc) {
         res = bc->buildDirectory();
         switch (bc->buildType()) {

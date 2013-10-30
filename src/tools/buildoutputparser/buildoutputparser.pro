@@ -1,7 +1,7 @@
 TEMPLATE = app
 TARGET = buildoutputparser
 QTC_LIB_DEPENDS = utils
-QTC_PLUGIN_DEPENDS = projectexplorer qtsupport qt4projectmanager
+QTC_PLUGIN_DEPENDS = projectexplorer qtsupport qmakeprojectmanager
 
 QT = core gui
 CONFIG += console

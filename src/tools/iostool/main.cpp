@@ -45,6 +45,7 @@
 #include <sys/un.h>
 #include <unistd.h>
 #include <string.h>
+#include <errno.h>
 
 
 class IosTool: public QObject {
@@ -274,7 +275,20 @@ int send_fd(int socket, int fd_to_send)
     control_message->cmsg_len = CMSG_LEN(sizeof(int));
     *((int *) CMSG_DATA(control_message)) = fd_to_send;
 
-    return sendmsg(socket, &socket_message, 0);
+    qptrdiff res = sendmsg(socket, &socket_message, 0);
+    while (true) {
+        qptrdiff nRead = recv(socket, &message_buffer[0], 1, MSG_WAITALL);
+        if (nRead == -1) {
+            if (errno == EINTR)
+                continue;
+            qDebug() << "wait in send_fd failed " << qt_error_string(errno);
+            sleep(4);
+            return res;
+        }
+        if (nRead == 1)
+            break;
+    }
+    return res;
 }
 
 void IosTool::didTransferApp(const QString &bundlePath, const QString &deviceId,
@@ -329,7 +343,7 @@ void IosTool::didStartApp(const QString &bundlePath, const QString &deviceId,
     if (debug) {
         stopXml(0);
         // these are 67 characters, this is used as read size on the other side...
-        const char *msg = "now sending the gdbserver socket, will need a unix socket to succeed";
+        const char *msg = "Now sending the gdbserver socket, will need a unix socket to succeed";
         outFile.write(msg, strlen(msg));
         outFile.flush();
         int sent = send_fd(1, gdbFd);

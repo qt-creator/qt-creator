@@ -35,10 +35,10 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
-#include <qt4projectmanager/qmakenodes.h>
-#include <qt4projectmanager/qmakeproject.h>
-#include <qt4projectmanager/qmakeprojectmanagerconstants.h>
-#include <qt4projectmanager/qmakebuildconfiguration.h>
+#include <qmakeprojectmanager/qmakenodes.h>
+#include <qmakeprojectmanager/qmakeproject.h>
+#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
+#include <qmakeprojectmanager/qmakebuildconfiguration.h>
 #include <qtsupport/customexecutablerunconfiguration.h>
 #include <qtsupport/qtkitinformation.h>
 #include <qtsupport/qtsupportconstants.h>
@@ -58,7 +58,7 @@ namespace Internal {
 
 bool IosManager::supportsIos(ProjectExplorer::Target *target)
 {
-    if (!qobject_cast<QmakeProjectManager::Qt4Project *>(target->project()))
+    if (!qobject_cast<QmakeProjectManager::QmakeProject *>(target->project()))
         return false;
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target->kit());
     return version && version->type() == QLatin1String(Ios::Constants::IOSQT);
@@ -66,8 +66,8 @@ bool IosManager::supportsIos(ProjectExplorer::Target *target)
 
 QString IosManager::resDirForTarget(Target *target)
 {
-    Qt4BuildConfiguration *bc =
-            qobject_cast<Qt4BuildConfiguration *>(target->activeBuildConfiguration());
+    QmakeBuildConfiguration *bc =
+            qobject_cast<QmakeBuildConfiguration *>(target->activeBuildConfiguration());
     return bc->buildDirectory().toString();
 }
 
