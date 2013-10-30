@@ -57,20 +57,20 @@ Item {
     Connections {
         target: root
         onWidthChanged: fitInView();
-        onCandidateHeightChanged: fitInView();
+        onHeightChanged: fitInView();
     }
 
     function fitInView() {
         // don't reposition if it does not fit
-        if (root.width < width || root.candidateHeight < height)
+        if (root.width < width || root.height < height)
             return;
 
         if (x + width > root.width)
             x = root.width - width;
         if (x < 0)
             x = 0;
-        if (y + height - yoffset > root.candidateHeight)
-            y = root.candidateHeight - height + yoffset;
+        if (y + height - yoffset > root.height)
+            y = root.height - height + yoffset;
         if (y < yoffset)
             y = yoffset;
     }
@@ -162,7 +162,7 @@ Item {
         drag.minimumX: 0
         drag.maximumX: root.width - parent.width
         drag.minimumY: yoffset
-        drag.maximumY: root.candidateHeight - parent.height + yoffset
+        drag.maximumY: root.height - parent.height + yoffset
         onClicked: {
             if ((selectionRange.x < flick.contentX) ^ (selectionRange.x+selectionRange.width > flick.contentX + flick.width)) {
                 root.recenter(selectionRange.startTime + selectionRange.duration/2);
