@@ -1219,7 +1219,9 @@ class Dumper(DumperBase):
     # https://sourceware.org/ml/gdb-patches/2013-09/msg00571.html
     def dereference(self, addr):
         #return long(gdb.Value(addr).cast(self.voidPtrType().pointer()).dereference())
-        return struct.unpack("P", self.readRawMemory(addr, self.ptrSize()))[0]
+        ptrSize = self.ptrSize()
+        code = "I" if ptrSize == 4 else "Q"
+        return struct.unpack(code, self.readRawMemory(addr, ptrSize))[0]
 
     def extractInt64(self, addr):
         return struct.unpack("q", self.readRawMemory(addr, 8))[0]
