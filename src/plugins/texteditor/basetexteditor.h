@@ -325,6 +325,7 @@ public slots:
 signals:
     void changed();
     void assistFinished();
+    void readOnlyChanged();
 
     // ITextEditor
     void contentsChanged();
