@@ -32,6 +32,7 @@ import Monitor 1.0
 
 Canvas2D {
     id: timeDisplay
+    objectName: "TimeMarks"
 
     property real startTime
     property real endTime

@@ -33,6 +33,7 @@ import "Overview.js" as Plotter
 
 Canvas2D {
     id: canvas
+    objectName: "Overview"
 
     // ***** properties
     height: 50
