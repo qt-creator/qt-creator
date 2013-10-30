@@ -68,7 +68,7 @@ Section {
         ComboBox {
             backendValue: backendValues.fontFamily
             Layout.fillWidth: true
-            model: ["Arial"]
+            model: ["Arial", "Times New Roman", "Courier", "Verdana", "Tahoma"]
         }
 
         Label {
