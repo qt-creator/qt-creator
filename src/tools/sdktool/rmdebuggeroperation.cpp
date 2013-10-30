@@ -156,14 +156,11 @@ QVariantMap RmDebuggerOperation::rmDebugger(const QVariantMap &map, const QStrin
         return map;
     }
 
-    int debuggerPos = -1;
     for (int i = 0; i < count; ++i) {
         const QString key = QString::fromLatin1(PREFIX) + QString::number(i);
         QVariantMap debugger = map.value(key).toMap();
-        if (debugger.value(QLatin1String(ID)).toString() == id) {
-            debuggerPos = i;
+        if (debugger.value(QLatin1String(ID)).toString() == id)
             continue;
-        }
         debuggerList << debugger;
     }
     if (debuggerList.count() == map.count() - 2) {
