@@ -937,9 +937,6 @@ void Context2D::setupPainter()
 
 void Context2D::beginPainting()
 {
-    if (m_width <= 0 || m_height <=0)
-        return;
-
     if (m_pixmap.width() != m_width || m_pixmap.height() != m_height) {
         if (m_painter.isActive())
             m_painter.end();

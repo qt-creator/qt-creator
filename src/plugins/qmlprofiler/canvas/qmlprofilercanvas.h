@@ -31,6 +31,8 @@
 #define QMLPROFILERCANVAS_H
 
 #include <QQuickPaintedItem>
+#include <QTimer>
+#include <QMutex>
 
 QT_BEGIN_NAMESPACE
 class Context2D;
@@ -43,28 +45,18 @@ class QmlProfilerCanvas : public QQuickPaintedItem
 {
     Q_OBJECT
 
-    Q_PROPERTY(bool dirty READ dirty WRITE setDirty NOTIFY dirtyChanged)
-
 public:
     QmlProfilerCanvas();
 
-    bool dirty() const { return m_dirty; }
-    void setDirty(bool dirty)
-    {
-        if (m_dirty != dirty) {
-            m_dirty = dirty;
-            emit dirtyChanged(dirty);
-        }
-    }
-
 signals:
-    void dirtyChanged(bool dirty);
-
     void drawRegion(Context2D *ctxt, const QRect &region);
 
 public slots:
     void requestPaint();
     void requestRedraw();
+
+private slots:
+    void draw();
 
 protected:
     virtual void paint(QPainter *);
@@ -73,7 +65,8 @@ protected:
 private:
     Context2D *m_context2d;
 
-    bool m_dirty;
+    QTimer m_drawTimer;
+    QMutex m_pixmapMutex;
 };
 
 }
