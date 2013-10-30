@@ -1444,8 +1444,6 @@ void tst_Dumpers::dumper_data()
                     "hash[22] = \"22.0\";\n")
                % CoreProfile()
                % Check("hash", "<1 items>", "@QHash<int, @QString>")
-               % Check("hash.0", "[0]", "", Type4("@QHashNode<@QString>"))
-               % Check("hash.0", "[0]", "", Type5("@QHashNode<int, @QString>"))
                % Check("hash.0.key", "22", "int")
                % Check("hash.0.value", "\"22.0\"", "@QString");
 
