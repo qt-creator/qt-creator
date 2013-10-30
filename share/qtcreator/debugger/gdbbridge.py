@@ -192,14 +192,6 @@ def catchCliOutput(command):
     removeTempFile(filename)
     return lines
 
-def selectedInferior():
-    try:
-        # Does not exist in 7.3.
-        return gdb.selected_inferior()
-    except:
-        pass
-    # gdb.Inferior is new in gdb 7.2
-    return gdb.inferiors()[0]
 
 #######################################################################
 #
@@ -733,9 +725,12 @@ registerCommand("bbedit", bbedit)
 #
 #######################################################################
 
+
 def bb(args):
     global typesToReport
-    output = Dumper(args).output
+    global theDumper
+    theDumper.run(args)
+    output = theDumper.output
     output.append('],typeinfo=[')
     for name in typesToReport.keys():
         type = typesToReport[name]
@@ -780,10 +775,15 @@ def extractQtVersion():
 
 class Dumper(DumperBase):
 
-    def __init__(self, args):
+    def __init__(self):
         DumperBase.__init__(self)
 
+        # These values will be kept between calls to 'run'.
         self.isGdb = True
+        self.childEventAddress = None
+        self.cachedQtVersion = None
+
+    def run(self, args):
         self.output = []
         self.currentIName = ""
         self.currentPrintsAddress = True
@@ -801,8 +801,6 @@ class Dumper(DumperBase):
         self.formats = {}
         self.useDynamicType = True
         self.expandedINames = {}
-        self.childEventAddress = None
-        self.cachedQtVersion = None
 
         watchers = ""
         resultVarName = ""
@@ -1210,6 +1208,7 @@ class Dumper(DumperBase):
 
     def selectedInferior(self):
         try:
+            # gdb.Inferior is new in gdb 7.2
             return gdb.selected_inferior()
         except:
             # Pre gdb 7.4. Right now we don't have more than one inferior anyway.
@@ -1934,7 +1933,7 @@ class Dumper(DumperBase):
                self.putFields(value)
 
     def readMemory(self, base, size):
-        inferior = selectedInferior()
+        inferior = self.selectedInferior()
         mem = inferior.read_memory(base, size)
         if sys.version_info[0] >= 3:
             return bytesToString(binascii.hexlify(mem.tobytes()))
@@ -2032,74 +2031,77 @@ class Dumper(DumperBase):
                     with Children(self, 1):
                         self.listAnonymous(value, name, field.type)
 
+    def threadname(self, maximalStackDepth):
+        e = gdb.selected_frame()
+        ns = qtNamespace()
+        out = ""
+        while True:
+            maximalStackDepth -= 1
+            if maximalStackDepth < 0:
+                break
+            e = e.older()
+            if e == None or e.name() == None:
+                break
+            if e.name() == ns + "QThreadPrivate::start" \
+                    or e.name() == "_ZN14QThreadPrivate5startEPv@4":
+                try:
+                    thrptr = e.read_var("thr").dereference()
+                    obtype = d.lookupType(ns + "QObjectPrivate").pointer()
+                    d_ptr = thrptr["d_ptr"]["d"].cast(obtype).dereference()
+                    try:
+                        objectName = d_ptr["objectName"]
+                    except: # Qt 5
+                        p = d_ptr["extraData"]
+                        if not self.isNull(p):
+                            objectName = p.dereference()["objectName"]
+                    if not objectName is None:
+                        data, size, alloc = self.stringData(objectName)
+                        if size > 0:
+                             s = self.readMemory(data, 2 * size)
+
+                    thread = gdb.selected_thread()
+                    inner = '{valueencoded="';
+                    inner += str(Hex4EncodedLittleEndianWithoutQuotes)+'",id="'
+                    inner += str(thread.num) + '",value="'
+                    inner += s
+                    #inner += self.encodeString(objectName)
+                    inner += '"},'
+
+                    out += inner
+                except:
+                    pass
+        return out
+
+    def threadnames(self, maximalStackDepth):
+        out = '['
+        oldthread = gdb.selected_thread()
+        if oldthread:
+            try:
+                inferior = self.selectedInferior()
+                for thread in inferior.threads():
+                    thread.switch()
+                    out += self.threadname(maximalStackDepth)
+            except:
+                pass
+            oldthread.switch()
+        return out + ']'
+
+
+
+# Global instance.
+theDumper = Dumper()
+
+
 #######################################################################
 #
 # ThreadNames Command
 #
 #######################################################################
 
-def threadname(arg):
-    try:
-        e = gdb.selected_frame()
-    except:
-        return
-    d = Dumper("")
-    out = ""
-    maximalStackDepth = int(arg)
-    ns = qtNamespace()
-    while True:
-        maximalStackDepth -= 1
-        if maximalStackDepth < 0:
-            break
-        e = e.older()
-        if e == None or e.name() == None:
-            break
-        if e.name() == ns + "QThreadPrivate::start" \
-                or e.name() == "_ZN14QThreadPrivate5startEPv@4":
-            try:
-                thrptr = e.read_var("thr").dereference()
-                obtype = d.lookupType(ns + "QObjectPrivate").pointer()
-                d_ptr = thrptr["d_ptr"]["d"].cast(obtype).dereference()
-                try:
-                    objectName = d_ptr["objectName"]
-                except: # Qt 5
-                    p = d_ptr["extraData"]
-                    if not d.isNull(p):
-                        objectName = p.dereference()["objectName"]
-                if not objectName is None:
-                    data, size, alloc = d.stringData(objectName)
-                    if size > 0:
-                         s = d.readMemory(data, 2 * size)
-
-                thread = gdb.selected_thread()
-                inner = '{valueencoded="';
-                inner += str(Hex4EncodedLittleEndianWithoutQuotes)+'",id="'
-                inner += str(thread.num) + '",value="'
-                inner += s
-                #inner += d.encodeString(objectName)
-                inner += '"},'
-
-                out += inner
-            except:
-                pass
-    return out
-
-
 def threadnames(arg):
-    out = '['
-    oldthread = gdb.selected_thread()
-    try:
-        inferior = selectedInferior()
-        for thread in inferior.threads():
-            thread.switch()
-            out += threadname(arg)
-    except:
-        pass
-    oldthread.switch()
-    return out + ']'
+    return theDumper.threadnames(int(arg))
 
 registerCommand("threadnames", threadnames)
-
 
 #######################################################################
 #
