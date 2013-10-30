@@ -152,6 +152,7 @@ bool DebuggerItemModel::updateDebuggerStandardItem(const DebuggerItem &item, boo
     QFont font = sitem->font();
     font.setBold(changed);
     parent->child(row, 0)->setData(item.displayName(), Qt::DisplayRole);
+    parent->child(row, 0)->setData(item.abiNames(), Qt::UserRole + 2);
     parent->child(row, 0)->setFont(font);
     parent->child(row, 1)->setData(item.command().toUserOutput(), Qt::DisplayRole);
     parent->child(row, 1)->setFont(font);

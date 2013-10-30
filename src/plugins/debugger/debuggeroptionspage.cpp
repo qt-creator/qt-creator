@@ -148,6 +148,7 @@ void DebuggerItemConfigWidget::apply()
     item.setCommand(m_binaryChooser->fileName());
     item.reinitializeFromFile();
     m_model->updateDebugger(item);
+    setItem(item);
 }
 
 // --------------------------------------------------------------------------
