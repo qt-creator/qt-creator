@@ -277,6 +277,9 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
         const QChar slash = QLatin1Char('/');
         const StringVersionControlPairs::const_iterator cend = allThatCanManage.constEnd();
         for (StringVersionControlPairs::const_iterator i = allThatCanManage.constBegin(); i != cend; ++i) {
+            // If topLevel was already cached for another VC, skip this one
+            if (tmpDir.count() < i->first.count())
+                continue;
             d->cache(i->second, i->first, tmpDir);
             tmpDir = i->first;
             const int slashPos = tmpDir.lastIndexOf(slash);
