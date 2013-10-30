@@ -37,44 +37,6 @@
     You only need Qt libraries that are built for iOS. You can install them as
     part of Qt 5.2, or later.
 
-    \section1 Creating Device Connections
-
-    When you connect an iOS device to a Mac computer with USB, \QC
-    automatically detects the device if you have configured it by using Xcode.
-    To view information about the connected device, select \gui Preferences >
-    \gui Devices.
-
-    \image qtcreator-ios-device-configurations.png "Devices dialog"
-
-    If the current device state is \gui Connected, (the traffic light icon is
-    orange), you need to configure the device using Xcode.
-
-    The connections between \QC and an iOS device are protected by using an
-    iOS Developer Program certificate that you receive from Apple for a charge
-    when you
-    \l{http://developer.apple.com/library/ios/documentation/IDEs/Conceptual/AppDistributionGuide/EnrollingADP/EnrollingADP.html}
-    {enroll in the iOS Developer Program}. The certificate is copied to the
-    device when you configure the device.
-
-    \section1 Testing on iOS Simulator
-
-    If you do not have an iOS device or you do not want to create an account,
-    you can test applications on
-    \l{http://developer.apple.com/library/ios/documentation/IDEs/Conceptual/iOS_Simulator_Guide/Introduction/Introduction.html}
-    {iOS Simulator}, which is installed as part of Xcode. Each Xcode version
-    simulates a predefined set of hardware devices and software versions. You
-    can change the simulated hardware and software version from within iOS
-    Simulator.
-
-    \QC uses the Xcode version set as current on the Mac computer.
-    To check the version, enter the following command:
-
-    \c {xcode-select --print-path}
-
-    To change the version, enter the following command:
-
-    \c {xcode-select --version}
-
     \section1 Configuring Devices
 
     The process of configuring devices and the UI varies slightly depending on
@@ -85,7 +47,9 @@
 
     \list 1
 
-        \li Connect the device to a Mac computer with a USB cable.
+        \li Make sure that you have Xcode and Qt for iOS installed.
+
+        \li Connect the device to the Mac computer with a USB cable.
 
         \li Start Xcode to configure the device:
 
@@ -108,11 +72,22 @@
 
             \endlist
 
+        The connections between \QC and an iOS device are protected by using an
+        iOS Developer Program certificate that you receive from Apple for a
+        charge when you
+        \l{http://developer.apple.com/library/ios/documentation/IDEs/Conceptual/AppDistributionGuide/EnrollingADP/EnrollingADP.html}
+         {enroll in the iOS Developer Program}. The certificate is copied to the
+        device when you configure the device.
+
         The next time you connect the device to the Mac computer, \QC
         detects it automatically. To disable automatic connections to a
         device that you do not use for development, select \gui Preferences >
         \gui iOS, and deselect the
         \gui {Ask about devices not in developer mode} check box.
+
+        \li Select \gui {Qt Creator} > \gui {About Plugins} >
+            \gui {Device Support} > \gui iOS to enable the iOS plugin.
+            Restart \QC to be able to use the plugin.
 
         \li To specify build settings:
 
@@ -123,6 +98,8 @@
 
             \li Select \gui Projects > \gui {Build & Run} > \gui {Add Kit} to
                 add a kit for building and running applications on iOS.
+
+                \image qtcreator-ios-add-kit.png "Build & Run Settings"
 
             \li Check that the \gui {iOS build} field contains the build
                 commands for an Xcode build. To add an Xcode build step, select
@@ -141,5 +118,36 @@
     to the device.
 
     \endlist
+
+    \section1 Viewing Device Connection Status
+
+    When you connect an iOS device to a Mac computer with USB, \QC
+    automatically detects the device if you have configured it by using Xcode.
+    To view information about the connected device, select \gui Preferences >
+    \gui Devices.
+
+    \image qtcreator-ios-device-configurations.png "Devices dialog"
+
+    If the current device state is \gui Connected, (the traffic light icon is
+    orange), you need to configure the device using Xcode.
+
+    \section1 Testing on iOS Simulator
+
+    If you do not have an iOS device or you do not want to create an account,
+    you can test applications on
+    \l{http://developer.apple.com/library/ios/documentation/IDEs/Conceptual/iOS_Simulator_Guide/Introduction/Introduction.html}
+    {iOS Simulator}, which is installed as part of Xcode. Each Xcode version
+    simulates a predefined set of hardware devices and software versions. You
+    can change the simulated hardware and software version from within iOS
+    Simulator.
+
+    \QC uses the Xcode version set as current on the Mac computer.
+    To check the version, enter the following command:
+
+    \c {xcode-select --print-path}
+
+    To change the version, enter the following command:
+
+    \c {xcode-select --version}
 
 */
