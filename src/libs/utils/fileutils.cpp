@@ -635,18 +635,18 @@ FileName FileName::relativeChildPath(const FileName &parent) const
 FileName &FileName::appendPath(const QString &s)
 {
     if (!isEmpty() && !QString::endsWith(QLatin1Char('/')))
-        append(QLatin1Char('/'));
-    append(s);
+        appendString(QLatin1Char('/'));
+    appendString(s);
     return *this;
 }
 
-FileName &FileName::append(const QString &str)
+FileName &FileName::appendString(const QString &str)
 {
     QString::append(str);
     return *this;
 }
 
-FileName &FileName::append(QChar str)
+FileName &FileName::appendString(QChar str)
 {
     QString::append(str);
     return *this;

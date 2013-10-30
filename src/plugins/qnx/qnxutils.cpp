@@ -182,7 +182,7 @@ Utils::FileName QnxUtils::executableWithExtension(const Utils::FileName &fileNam
 {
     Utils::FileName result = fileName;
     if (Utils::HostOsInfo::isWindowsHost())
-        result.append(QLatin1String(".exe"));
+        result.appendString(QLatin1String(".exe"));
     return result;
 }
 

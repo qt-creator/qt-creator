@@ -75,8 +75,8 @@ public:
 
     Utils::FileName relativeChildPath(const FileName &parent) const;
     Utils::FileName &appendPath(const QString &s);
-    Utils::FileName &append(const QString &str);
-    Utils::FileName &append(QChar str);
+    Utils::FileName &appendString(const QString &str);
+    Utils::FileName &appendString(QChar str);
 
     using QString::size;
     using QString::count;

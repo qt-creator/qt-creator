@@ -77,6 +77,6 @@ Utils::FileName Settings::getPath(const QString &file)
         result.appendPath(QLatin1String("debuggers"));
     else
         return Utils::FileName();
-    result.append(QLatin1String(".xml"));
+    result.appendString(QLatin1String(".xml"));
     return result;
 }

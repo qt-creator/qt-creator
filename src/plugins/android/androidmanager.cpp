@@ -288,7 +288,7 @@ Utils::FileName AndroidManager::libsPath(ProjectExplorer::Target *target)
 
 Utils::FileName AndroidManager::stringsPath(ProjectExplorer::Target *target)
 {
-    return dirPath(target).append(AndroidStringsFileName);
+    return dirPath(target).appendString(AndroidStringsFileName);
 }
 
 Utils::FileName AndroidManager::defaultPropertiesPath(ProjectExplorer::Target *target)

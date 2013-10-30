@@ -334,22 +334,22 @@ FileName AndroidConfigurations::toolPath(Abi::Architecture architecture, const Q
 
 FileName AndroidConfigurations::stripPath(Abi::Architecture architecture, const QString &ndkToolChainVersion) const
 {
-    return toolPath(architecture, ndkToolChainVersion).append(QLatin1String("-strip" QTC_HOST_EXE_SUFFIX));
+    return toolPath(architecture, ndkToolChainVersion).appendString(QLatin1String("-strip" QTC_HOST_EXE_SUFFIX));
 }
 
 FileName AndroidConfigurations::readelfPath(Abi::Architecture architecture, const QString &ndkToolChainVersion) const
 {
-    return toolPath(architecture, ndkToolChainVersion).append(QLatin1String("-readelf" QTC_HOST_EXE_SUFFIX));
+    return toolPath(architecture, ndkToolChainVersion).appendString(QLatin1String("-readelf" QTC_HOST_EXE_SUFFIX));
 }
 
 FileName AndroidConfigurations::gccPath(Abi::Architecture architecture, const QString &ndkToolChainVersion) const
 {
-    return toolPath(architecture, ndkToolChainVersion).append(QLatin1String("-gcc" QTC_HOST_EXE_SUFFIX));
+    return toolPath(architecture, ndkToolChainVersion).appendString(QLatin1String("-gcc" QTC_HOST_EXE_SUFFIX));
 }
 
 FileName AndroidConfigurations::gdbPath(Abi::Architecture architecture, const QString &ndkToolChainVersion) const
 {
-    return toolPath(architecture, ndkToolChainVersion).append(QLatin1String("-gdb" QTC_HOST_EXE_SUFFIX));
+    return toolPath(architecture, ndkToolChainVersion).appendString(QLatin1String("-gdb" QTC_HOST_EXE_SUFFIX));
 }
 
 FileName AndroidConfigurations::openJDKPath() const
