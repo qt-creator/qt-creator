@@ -162,6 +162,7 @@ Column {
                 ComboBox {
                     model: ["NoHighlightRange", "ApplyRange", "StrictlyEnforceRange"]
                     backendValue: backendValues.highlightRangeMode
+                    Layout.fillWidth: true
                 }
 
                 ExpandingSpacer {
