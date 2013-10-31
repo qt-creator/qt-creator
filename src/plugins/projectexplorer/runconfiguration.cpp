@@ -617,7 +617,7 @@ bool RunControl::showPromptToStopDialog(const QString &title,
         messageBox.button(QDialogButtonBox::Cancel)->setText(cancelButtonText);
     messageBox.setDefaultButton(QDialogButtonBox::Yes);
     if (prompt) {
-        messageBox.setCheckBoxText(tr("Do not ask again"));
+        messageBox.setCheckBoxText(Utils::CheckableMessageBox::msgDoNotAskAgain());
         messageBox.setChecked(false);
     } else {
         messageBox.setCheckBoxVisible(false);

@@ -28,12 +28,14 @@
 ****************************************************************************/
 
 #include "checkablemessagebox.h"
+#include "qtcassert.h"
 
-#include <QPushButton>
+#include <QApplication>
 #include <QCheckBox>
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QDebug>
+#include <QPushButton>
+#include <QSettings>
 
 /*!
     \class Utils::CheckableMessageBox
@@ -45,6 +47,8 @@
     Emulates the QMessageBox API with
     static conveniences. The message label can open external URLs.
 */
+
+static const char kDoNotAskAgainKey[] = "DoNotAskAgain";
 
 namespace Utils {
 
@@ -281,6 +285,96 @@ CheckableMessageBox::information(QWidget *parent,
 QMessageBox::StandardButton CheckableMessageBox::dialogButtonBoxToMessageBoxButton(QDialogButtonBox::StandardButton db)
 {
     return static_cast<QMessageBox::StandardButton>(int(db));
+}
+
+/*!
+    Shows a message box with given \a title and \a text, and a \gui {Do not ask again} check box.
+    If the user checks the check box and accepts the dialog with the \a acceptButton,
+    further invocations of this function with the same \a settings and \a settingsSubKey will not
+    show the dialog, but instantly return \a acceptButton.
+
+    Returns the clicked button, or QDialogButtonBox::NoButton if the user rejects the dialog
+    with the escape key, or \a acceptButton if the dialog is suppressed.
+*/
+QDialogButtonBox::StandardButton
+CheckableMessageBox::doNotAskAgainQuestion(QWidget *parent, const QString &title,
+                                           const QString &text, QSettings *settings,
+                                           const QString &settingsSubKey,
+                                           QDialogButtonBox::StandardButtons buttons,
+                                           QDialogButtonBox::StandardButton defaultButton,
+                                           QDialogButtonBox::StandardButton acceptButton)
+
+{
+    QTC_CHECK(settings);
+    if (settings) {
+        settings->beginGroup(QLatin1String(kDoNotAskAgainKey));
+        bool shouldNotAsk = settings->value(settingsSubKey, false).toBool();
+        settings->endGroup();
+        if (shouldNotAsk)
+            return acceptButton;
+    }
+
+    CheckableMessageBox mb(parent);
+    mb.setWindowTitle(title);
+    mb.setIconPixmap(QMessageBox::standardIcon(QMessageBox::Question));
+    mb.setText(text);
+    mb.setCheckBoxVisible(true);
+    mb.setCheckBoxText(CheckableMessageBox::msgDoNotAskAgain());
+    mb.setChecked(false);
+    mb.setStandardButtons(buttons);
+    mb.setDefaultButton(defaultButton);
+    mb.exec();
+
+    if (settings) {
+        settings->beginGroup(QLatin1String(kDoNotAskAgainKey));
+        if (mb.isChecked() && (mb.clickedStandardButton() == acceptButton))
+            settings->setValue(settingsSubKey, true);
+        else // clean up doesn't hurt
+            settings->remove(settingsSubKey);
+        settings->endGroup();
+    }
+    return mb.clickedStandardButton();
+}
+
+/*!
+    Resets all suppression settings for doNotAskAgainQuestion() found in \a settings,
+    so all these message boxes are shown again.
+ */
+void CheckableMessageBox::resetAllDoNotAskAgainQuestions(QSettings *settings)
+{
+    QTC_ASSERT(settings, return);
+    settings->beginGroup(QLatin1String(kDoNotAskAgainKey));
+    foreach (const QString &subKey, settings->childKeys())
+        settings->remove(subKey);
+    settings->endGroup();
+}
+
+/*!
+    Returns whether any message boxes from doNotAskAgainQuestion() are suppressed
+    in the \a settings.
+*/
+bool CheckableMessageBox::hasSuppressedQuestions(QSettings *settings)
+{
+    QTC_ASSERT(settings, return false);
+    bool hasSuppressed = false;
+    settings->beginGroup(QLatin1String(kDoNotAskAgainKey));
+    foreach (const QString &subKey, settings->childKeys()) {
+        if (settings->value(subKey, false).toBool()) {
+            hasSuppressed = true;
+            break;
+        }
+    }
+    settings->endGroup();
+    return hasSuppressed;
+}
+
+/*!
+    Returns the standard \gui {Do not ask again} check box text.
+    \sa doNotAskAgainQuestion()
+*/
+QString CheckableMessageBox::msgDoNotAskAgain()
+{
+    return QApplication::translate("Utils::CheckableMessageBox", "Do not &ask again");
 }
 
 } // namespace Utils

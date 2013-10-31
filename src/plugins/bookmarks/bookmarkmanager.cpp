@@ -295,19 +295,12 @@ void BookmarkView::keyPressEvent(QKeyEvent *event)
 
 void BookmarkView::removeAll()
 {
-    const QString key = QLatin1String("Bookmarks.DontAskAgain");
-    QSettings *settings = ICore::settings();
-    bool checked = settings->value(key).toBool();
-    if (!checked) {
-        if (Utils::CheckableMessageBox::question(this,
-                tr("Remove All Bookmarks"),
-                tr("Are you sure you want to remove all bookmarks from all files in the current session?"),
-                tr("Do not &ask again."),
-                &checked, QDialogButtonBox::Yes | QDialogButtonBox::No, QDialogButtonBox::No)
-                    != QDialogButtonBox::Yes)
-            return;
-        settings->setValue(key, checked);
-    }
+    if (Utils::CheckableMessageBox::doNotAskAgainQuestion(this,
+            tr("Remove All Bookmarks"),
+            tr("Are you sure you want to remove all bookmarks from all files in the current session?"),
+            ICore::settings(),
+            QLatin1String("RemoveAllBookmarks")) != QDialogButtonBox::Yes)
+        return;
 
     // The performance of this function could be greatly improved.
     while (m_manager->rowCount()) {
