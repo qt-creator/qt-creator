@@ -891,7 +891,9 @@ class Dumper(DumperBase):
         return 4
 
     def ptrSize(self):
-        return self.lookupType('void*').sizeof
+        self.cachedPtrSize = self.lookupType('void*').sizeof
+        self.ptrSize = lambda: self.cachedPtrSize
+        return self.cachedPtrSize
 
     def createValue(self, address, referencedType):
         try:
