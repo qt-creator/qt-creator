@@ -185,7 +185,7 @@ void LldbEngine::setupInferior()
     cmd.arg("remoteChannel", ((sp.startMode == AttachToRemoteProcess
                                || sp.startMode == AttachToRemoteServer)
                               ? sp.remoteChannel : QString()));
-
+    cmd.arg("platform", sp.platform);
     runCommand(cmd);
     requestUpdateWatchers();
 }

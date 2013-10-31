@@ -633,9 +633,12 @@ class Dumper(DumperBase):
         self.attachPid_ = args.get('attachPid', 0)
         self.sysRoot_ = args.get('sysRoot', '')
         self.remoteChannel_ = args.get('remoteChannel', '')
+        self.platform_ = args.get('platform', '')
 
-        if len(self.sysRoot_)>0:
+        if self.sysRoot_:
             self.debugger.SetCurrentPlatformSDKRoot(self.sysRoot_)
+        if self.platform_:
+            self.debugger.SetCurrentPlatform(self.platform_)
         self.target = self.debugger.CreateTarget(self.executable_, None, None, True, error)
         self.importDumpers()
 
@@ -653,16 +656,18 @@ class Dumper(DumperBase):
         if self.attachPid_ > 0:
             attachInfo = lldb.SBAttachInfo(self.attachPid_)
             self.process = self.target.Attach(attachInfo, error)
-            if not err.Success():
+            if not error.Success():
                 self.report('state="inferiorrunfailed"')
                 return
             self.report('pid="%s"' % self.process.GetProcessID())
             self.report('state="enginerunandinferiorstopok"')
         elif len(self.remoteChannel_) > 0:
-            err = lldb.SBError()
             self.process = self.target.ConnectRemote(
             self.debugger.GetListener(),
             self.remoteChannel_, None, error)
+            if not error.Success():
+                self.report('state="inferiorrunfailed"')
+                return
             self.report('state="enginerunandinferiorstopok"')
         else:
             launchInfo = lldb.SBLaunchInfo(self.processArgs_.split(' '))

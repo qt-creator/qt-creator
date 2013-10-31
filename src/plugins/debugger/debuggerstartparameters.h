@@ -87,6 +87,7 @@ public:
     QString debuggerCommand;
     ProjectExplorer::Abi toolChainAbi;
 
+    QString platform;
     QString executable;
     QString displayName; // Used in the Snapshots view.
     QString startMessage; // First status message shown.
