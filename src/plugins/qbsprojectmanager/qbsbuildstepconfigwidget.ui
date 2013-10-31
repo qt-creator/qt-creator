@@ -213,8 +213,6 @@
   <zorder>qmlDebuggingLabel</zorder>
   <zorder>propertyLabel</zorder>
   <zorder>propertyEdit</zorder>
-  <zorder></zorder>
-  <zorder></zorder>
   <zorder>commandLineKeyLabel</zorder>
   <zorder>flagsLabel</zorder>
   <zorder>jobsLabel</zorder>
