@@ -270,7 +270,7 @@ class Dumper(DumperBase):
         self.eventState = lldb.eStateInvalid
         self.options = {}
         self.expandedINames = {}
-        self.passExceptions = True
+        self.passExceptions = False
         self.useLldbDumpers = False
         self.autoDerefPointers = True
         self.useDynamicType = True
