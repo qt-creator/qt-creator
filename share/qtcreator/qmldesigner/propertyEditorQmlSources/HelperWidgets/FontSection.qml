@@ -83,7 +83,6 @@ Section {
             property bool isSetup;
 
             onSelectionFlagChanged: {
-                print("selection changed");
                 isSetup = true;
                 sizeType.currentIndex = 1
                 if (pixelSize.isInModel)
