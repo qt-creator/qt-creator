@@ -893,6 +893,10 @@ void tst_Dumpers::dumper()
 
     if (m_debuggerEngine == DumpTestGdbEngine) {
         exe = m_debuggerBinary;
+
+        const QFileInfo gdbBinaryFile(QString::fromLatin1(exe));
+        const QByteArray uninstalledData = gdbBinaryFile.absolutePath().toLocal8Bit() + "/data-directory/python";
+
         args << QLatin1String("-i")
              << QLatin1String("mi")
              << QLatin1String("-quiet")
@@ -907,6 +911,7 @@ void tst_Dumpers::dumper()
 
         if (m_usePython) {
             cmds += "python sys.path.insert(1, '" + dumperDir + "')\n"
+                    "python sys.path.append('" + uninstalledData + "')\n"
                     "python from gdbbridge import *\n"
                     "run " + nograb + "\n"
                     "up\n"

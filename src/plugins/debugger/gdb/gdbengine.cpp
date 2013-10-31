@@ -4936,7 +4936,12 @@ void GdbEngine::tryLoadPythonDumpers()
     const QByteArray dumperSourcePath =
         Core::ICore::resourcePath().toLocal8Bit() + "/debugger/";
 
+    const QFileInfo gdbBinaryFile(m_gdb);
+    const QByteArray uninstalledData = gdbBinaryFile.absolutePath().toLocal8Bit()
+            + "/data-directory/python";
+
    postCommand("python sys.path.insert(1, '" + dumperSourcePath + "')", ConsoleCommand);
+   postCommand("python sys.path.append('" + uninstalledData + "')", ConsoleCommand);
    postCommand("python from gdbbridge import *", ConsoleCommand, CB(handlePythonSetup));
 }
 

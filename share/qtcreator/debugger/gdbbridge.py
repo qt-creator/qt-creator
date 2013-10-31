@@ -520,7 +520,6 @@ class Dumper(DumperBase):
         #warn("WATCHERS: %s" % watchers)
         #warn("PARTIAL: %s" % self.partialUpdate)
         #warn("NO LOCALS: %s" % self.noLocals)
-        module = sys.modules[__name__]
 
         #
         # Locals
@@ -1759,13 +1758,12 @@ class Dumper(DumperBase):
         self.qqFormats = {}
         self.qqEditable = {}
         self.typeCache = {}
-        module = sys.modules[__name__]
 
-        #warn("KEYS: %s " % module.__dict__.keys())
-        for name in module.__dict__.keys():
-            #warn("KEY: %s " % name)
-            #warn("FUNCT: %s " % module.__dict__[name])
-            self.registerDumper(name, module.__dict__[name])
+        # It's __main__ from gui, gdbbridge from test. Brush over it...
+        for modname in ['__main__', 'gdbbridge']:
+            dic = sys.modules[modname].__dict__
+            for name in dic.keys():
+                self.registerDumper(name, dic[name])
 
         result = "dumpers=["
         for key, value in self.qqFormats.items():
