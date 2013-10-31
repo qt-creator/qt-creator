@@ -320,6 +320,13 @@ void IosConfigurations::updateAutomaticKitList()
                 QVariant id = Debugger::DebuggerItemManager::registerDebugger(debugger);
                 Debugger::DebuggerKitInformation::setDebugger(newKit, id);
 
+                newKit->setMutable(DeviceKitInformation::id(), true);
+                newKit->setSticky(QtKitInformation::id(), true);
+                newKit->setSticky(ToolChainKitInformation::id(), true);
+                newKit->setSticky(DeviceTypeKitInformation::id(), true);
+                newKit->setSticky(SysRootKitInformation::id(), true);
+                newKit->setSticky(Debugger::DebuggerKitInformation::id(), true);
+
                 SysRootKitInformation::setSysRoot(newKit, p.sdkPath);
                 // QmakeProjectManager::QmakeKitInformation::setMkspec(newKit,
                 //    Utils::FileName::fromString(QLatin1String("macx-ios-clang")));
