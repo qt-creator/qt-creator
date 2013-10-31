@@ -148,6 +148,7 @@
                 \li \l{Adding Kits}
                 \li \l{Adding Qt Versions}
                 \li \l{Adding Compilers}
+                \li \l{Adding Debuggers}
                 \li \l{Specifying Build Settings}
                 \li \l{Specifying Run Settings}
                 \li \l{Specifying Editor Settings}
