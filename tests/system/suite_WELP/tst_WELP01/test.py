@@ -55,9 +55,8 @@ def clickItemVerifyHelpCombo(qmlItem, expectedHelpComboRegex, testDetails):
                 "Verifying: Getting Started topic is being displayed.")
 
 def main():
-    if isQt4Build:
-        test.log("Welcome mode is only available if Creator was built on Qt 5")
-        return
+    test.log("Welcome mode is not scriptable at the moment")
+    return
     global webPageContentLoadedValue, gettingStartedText
     # open Qt Creator
     startApplication("qtcreator" + SettingsPath)
