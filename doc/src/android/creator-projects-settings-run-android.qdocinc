@@ -1,29 +1,25 @@
     To configure Android packages, select \gui Projects >
-    \gui Run > \gui {Package configurations}. The Android system uses the
-    information from the file to start application components.
+    \gui Run > \gui {Package configurations} > \gui Details. The Android system
+    uses the information from the file to start application components.
 
     \image qtcreator-android-manifest.png "Package configuration"
 
     \section2 Selecting API Level
 
     In the \gui {Android target SDK} field, you can select the API level to use
-    for the Android target SDK.
+    for building the application. Usually, you should select the newest API
+    level available.
 
+    This field does not specify the minimum supported API level nor the target
+    API level, which you can specify in the Android manifest file.
     For more information about Android API levels, see
     \l{http://developer.android.com/guide/topics/manifest/uses-sdk-element.html#ApiLevels}
     {What is API Level?}.
 
-    The minimum API level is android-4 for Necessitas and android-9 for Qt 5.
-    \QC does not allow you to select an API level that the Qt version specified
-    for the kit does not support.
-
-    \note The android-4 API level does not support multitouch. If your
-    application needs multitouch, select a higher API level.
-
     \section2 Selecting Qt Libraries
 
     In the \gui Libraries group, specify which Qt libraries the application uses.
-    To automatically determine this, select \gui {Read Infomation from
+    To automatically determine this, select \gui {Read Information from
     Application (Must Be Compiled)}. Alternatively, you can manually select the
     Qt libraries and the external libraries you think your application needs.
     Make sure to arrange the libraries so that depended libraries appear before
@@ -41,34 +37,3 @@
     a private key from the keystore. To create new keys, select \gui Create.
 
     \image qtcreator-android-sign-package.png "Sign Package"
-
-    \section1 Editing Manifest Files
-
-    To specify information for the Android manifest file, open it in \QC.
-
-    \image qtcreator-android-manifest-editor.png "Android Manifest Editor"
-
-    Select the \gui {XML Source} tab to edit the file in XML format.
-
-    In the \gui {Package name} field, enter a package name for the application.
-    The application is launched by an automatically generated Java launcher that
-    is packaged with the application into an Android package (.apk). For more
-    information, see
-    \l{http://developer.android.com/guide/components/fundamentals.html}
-    {Android Application Fundamentals}.
-
-    You can specify an internal version number for the package in the
-    \gui {Version code} field. It is used to determine whether one version of
-    the application is more recent than another. In the \gui {Version name}
-    field, specify the version number that is shown to users.
-
-    In the \gui Application group, you can give the application a name and
-    select an icon for it. The three icon fields can contain different versions
-    of the icon with low, medium, and high DPI values, from left to right.
-
-    In the \gui Permissions field, you can specify the permissions that your
-    application needs. Users are asked to grant the permissions when they
-    install the application. Android OS then grants the application access to
-    the appropriate data and features.
-
-    To add permissions, select \gui Add and select permissions from the list.

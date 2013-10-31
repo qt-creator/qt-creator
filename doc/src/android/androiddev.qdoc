@@ -47,16 +47,21 @@
 
     \list
 
-        \li OpenJDK Java Development Kit
+        \li Java Development Kit (JDK)
 
-            To check whether you have OpenJDK installed, enter the following
+            To check whether you have JDK installed, enter the following
             command:
 
             \c {java -version}
 
-            To install OpenJDK, enter the following command:
+            On Linux and Mac OS X, you can use OpenJDK. To install it on Linux,
+            enter the following command:
 
             \c {sudo apt-get install openjdk-6-jdk}
+
+            On Windows, you must download and install JDK from
+            \l{http://www.oracle.com/technetwork/java/javase/downloads/index.html}
+            {Java SE Downloads} on the Oracle site.
 
         \li \l{http://ant.apache.org/bindownload.cgi}{Apache Ant} 1.8.0, or
             later
@@ -125,10 +130,10 @@
 
     You must download and install the latest Android NDK and SDK, and update the
     SDK to get the API and tools packages needed for development. In addition,
-    you must install Qt for Android from the Qt 5.1 packages.
+    you must install Qt for Android as part of Qt 5.2, or later.
 
     For more information, see
-    \l{http://qt-project.org/doc/qt-5.1/qtdoc/android-support.html}{Android}.
+    \l{http://qt-project.org/doc/qt-5/android-support.html}{Qt for Android}.
 
     To configure connections between \QC and Android devices:
 
@@ -148,20 +153,13 @@
             follow the instructions of the wizard. For more information, see
             \l{Creating Qt Quick Projects}.
 
-        \li To specify information for the Android manifest file, select
-            \gui Projects > \gui Run for the \gui Android kit.
-
-        \li Select \gui Details to view the
-            \gui {Package configurations}. For more information about the
-            options you have, see
-            \l{Specifying Settings for Application Packages}.
-
         \li To specify settings for deploying applications to Android, select
+            \gui Projects > \gui Run for the \gui Android kit, and then select
             \gui Details to view the \gui {Deploy configurations}. For more
             information about the options you have, see
             \l{Deploying Applications to Android Devices}.
 
-        \li Enable debugging on your Android device and connect it to the PC.
+        \li Enable debugging on your Android device.
 
             Debugging is enabled in different ways on different Android devices.
             Look for \gui {USB Debugging} under \gui {Developer Options}. On
@@ -169,7 +167,40 @@
             when you tap the \gui {Build number} field in \gui Settings >
             \gui About several times.
 
+        \li Connect the Android device to the development PC with a USB cable.
+            You might be asked to select a device in the
+            \gui {Select Android Devices} dialog.
     \endlist
+
+    \section1 Selecting Android Devices
+
+    When you deploy an application to an Android device with Android
+    version 4.2 or later, the \gui {Select Android Devices} dialog opens. It
+    lists the devices that are connected to the development PC. and their
+    status. You can select devices from the \gui {Compatible Devices} list for
+    deployment.
+
+    If \QC determines that a device is not ready for deployment, it places the
+    device in the \gui {Incompatible Devices} list, with information about the
+    issue. For example, you might need to authorize the connection on the
+    device. After you authorize the connection on the device, select
+    \gui {Refresh Device List}. The device is moved to the
+    \gui {Compatible Devices} list and you can select it for deployment.
+
+    Other reasons for placing a device on the \gui {Incompatible Devices} are
+    that the Android version on the device is too old or that the tool chain
+    used for building does not match the Android architecture on the device
+    (for example, you cannot deploy an ARM build on an x86 device).
+
+    \image qtcreator-android-select-devices.png "Select Android Devices dialog"
+
+    Android Virtual Devices (AVD) are also listed. To create new AVDs, select
+    \gui {Create Android Virtual Device}.
+
+    To set a device as the default device for a particular Android architecture,
+    select the \gui {Always use this device for architecture} check box. The
+    \gui {Select Android Devices} dialog will not appear until you switch to
+    another project or restart \QC.
 
     \section1 Using the Android Emulator
 
