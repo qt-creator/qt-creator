@@ -65,15 +65,6 @@ def parseAndEvaluate(exp):
 
 def listOfLocals(varList):
     frame = gdb.selected_frame()
-    try:
-        frame = gdb.selected_frame()
-        #warn("FRAME %s: " % frame)
-    except RuntimeError as error:
-        warn("FRAME NOT ACCESSIBLE: %s" % error)
-        return []
-    except:
-        warn("FRAME NOT ACCESSIBLE FOR UNKNOWN REASONS")
-        return []
 
     try:
         block = frame.block()
