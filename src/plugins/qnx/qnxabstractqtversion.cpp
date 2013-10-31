@@ -90,7 +90,7 @@ void QnxAbstractQtVersion::fromMap(const QVariantMap &map)
 QList<ProjectExplorer::Abi> QnxAbstractQtVersion::detectQtAbis() const
 {
     ensureMkSpecParsed();
-    return qtAbisFromLibrary(qtCorePath(versionInfo(), qtVersionString()));
+    return qtAbisFromLibrary(qtCorePaths(versionInfo(), qtVersionString()));
 }
 
 void QnxAbstractQtVersion::addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const

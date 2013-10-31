@@ -90,7 +90,7 @@ QString IosQtVersion::invalidReason() const
 
 QList<ProjectExplorer::Abi> IosQtVersion::detectQtAbis() const
 {
-    QList<ProjectExplorer::Abi> abis = qtAbisFromLibrary(qtCorePath(versionInfo(), qtVersionString()));
+    QList<ProjectExplorer::Abi> abis = qtAbisFromLibrary(qtCorePaths(versionInfo(), qtVersionString()));
     for (int i = 0; i < abis.count(); ++i) {
         abis[i] = Abi(abis.at(i).architecture(),
                       abis.at(i).os(),

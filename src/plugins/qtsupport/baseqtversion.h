@@ -247,8 +247,9 @@ protected:
     virtual QList<ProjectExplorer::Task> reportIssuesImpl(const QString &proFile, const QString &buildDir) const;
 
     // helper function for desktop and simulator to figure out the supported abis based on the libraries
-    static Utils::FileName qtCorePath(const QHash<QString,QString> &versionInfo, const QString &versionString);
-    static QList<ProjectExplorer::Abi> qtAbisFromLibrary(const Utils::FileName &coreLibrary);
+    static QList<Utils::FileName> qtCorePaths(const QHash<QString,QString> &versionInfo,
+                                              const QString &versionString);
+    static QList<ProjectExplorer::Abi> qtAbisFromLibrary(const QList<Utils::FileName> &coreLibraries);
 
     void ensureMkSpecParsed() const;
     virtual void parseMkSpec(ProFileEvaluator *) const;

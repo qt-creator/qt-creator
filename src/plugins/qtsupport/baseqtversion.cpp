@@ -1517,13 +1517,14 @@ void BaseQtVersion::buildDebuggingHelper(ToolChain *tc, int tools)
     ProgressManager::addTask(task, taskName, "Qt::BuildHelpers");
 }
 
-FileName BaseQtVersion::qtCorePath(const QHash<QString,QString> &versionInfo, const QString &versionString)
+QList<FileName> BaseQtVersion::qtCorePaths(const QHash<QString,QString> &versionInfo, const QString &versionString)
 {
     QStringList dirs;
     dirs << qmakeProperty(versionInfo, "QT_INSTALL_LIBS")
          << qmakeProperty(versionInfo, "QT_INSTALL_BINS");
 
-    QFileInfoList staticLibs;
+    QList<FileName> staticLibs;
+    QList<FileName> dynamicLibs;
     foreach (const QString &dir, dirs) {
         if (dir.isEmpty())
             continue;
@@ -1536,33 +1537,35 @@ FileName BaseQtVersion::qtCorePath(const QHash<QString,QString> &versionInfo, co
                     && file.endsWith(QLatin1String(".framework"))) {
                 // handle Framework
                 FileName lib(info);
-                lib.appendPath(file.left(file.lastIndexOf(QLatin1Char('.'))));
-                return lib;
-            }
-            if (info.isReadable()) {
+                dynamicLibs.append(lib.appendPath(file.left(file.lastIndexOf(QLatin1Char('.')))));
+            } else if (info.isReadable()) {
                 if (file.startsWith(QLatin1String("libQtCore"))
                         || file.startsWith(QLatin1String("libQt5Core"))
                         || file.startsWith(QLatin1String("QtCore"))
                         || file.startsWith(QLatin1String("Qt5Core"))) {
-                    // Only handle static libs if we can not find dynamic ones:
                     if (file.endsWith(QLatin1String(".a")) || file.endsWith(QLatin1String(".lib")))
-                        staticLibs.append(info);
+                        staticLibs.append(FileName(info));
                     else if (file.endsWith(QLatin1String(".dll"))
                              || file.endsWith(QString::fromLatin1(".so.") + versionString)
                              || file.endsWith(QLatin1String(".so"))
                              || file.endsWith(QLatin1Char('.') + versionString + QLatin1String(".dylib")))
-                        return FileName(info);
+                        dynamicLibs.append(FileName(info));
                 }
             }
         }
     }
-    // Return path to first static library found:
-    if (!staticLibs.isEmpty())
-        return FileName(staticLibs.at(0));
-    return FileName();
+    // Only handle static libs if we can not find dynamic ones:
+    if (dynamicLibs.isEmpty())
+        return staticLibs;
+    return dynamicLibs;
 }
 
-QList<Abi> BaseQtVersion::qtAbisFromLibrary(const FileName &coreLibrary)
+QList<Abi> BaseQtVersion::qtAbisFromLibrary(const QList<FileName> &coreLibraries)
 {
-    return Abi::abisOfBinary(coreLibrary);
+    QList<Abi> res;
+    foreach (const FileName &library, coreLibraries)
+        foreach (const Abi &abi, Abi::abisOfBinary(library))
+            if (!res.contains(abi))
+                res.append(abi);
+    return res;
 }
