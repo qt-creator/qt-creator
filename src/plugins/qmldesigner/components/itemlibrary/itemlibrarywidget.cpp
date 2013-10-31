@@ -51,6 +51,10 @@
 
 #include <QQuickItem>
 
+enum {
+    debug = false
+};
+
 namespace QmlDesigner {
 
 ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
@@ -68,6 +72,7 @@ ItemLibraryWidget::ItemLibraryWidget(QWidget *parent) :
 
     /* create Items view and its model */
     m_itemsView->setResizeMode(QQuickView::SizeRootObjectToView);
+    m_itemsView->engine()->setOutputWarningsToStandardError(debug);
     m_itemLibraryModel = new Internal::ItemLibraryModel(this);
     m_itemLibraryModel->setItemIconSize(m_itemIconSize);
 
