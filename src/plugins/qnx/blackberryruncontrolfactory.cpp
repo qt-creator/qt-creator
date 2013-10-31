@@ -127,6 +127,7 @@ Debugger::DebuggerStartParameters BlackBerryRunControlFactory::startParameters(
     params.startMode = Debugger::AttachToRemoteServer;
     params.debuggerCommand = Debugger::DebuggerKitInformation::debuggerCommand(k).toString();
     params.sysRoot = ProjectExplorer::SysRootKitInformation::sysRoot(k).toString();
+    params.useCtrlCStub = true;
 
     if (ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(k))
         params.toolChainAbi = tc->targetAbi();

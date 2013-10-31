@@ -76,6 +76,7 @@ static DebuggerStartParameters createDebuggerStartParameters(const QnxRunConfigu
     params.startMode = AttachToRemoteServer;
     params.debuggerCommand = DebuggerKitInformation::debuggerCommand(k).toString();
     params.sysRoot = SysRootKitInformation::sysRoot(k).toString();
+    params.useCtrlCStub = true;
 
     if (ToolChain *tc = ToolChainKitInformation::toolChain(k))
         params.toolChainAbi = tc->targetAbi();

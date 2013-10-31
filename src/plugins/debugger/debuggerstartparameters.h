@@ -73,7 +73,8 @@ public:
         closeMode(KillAtClose),
         testReceiver(0),
         testCallback(0),
-        testCase(0)
+        testCase(0),
+        useCtrlCStub(false)
     {}
 
     //Core::Id profileId;
@@ -136,6 +137,7 @@ public:
 
     // For QNX debugging
     QString remoteExecutable;
+    bool useCtrlCStub;
 
     // For Debugger testing.
     QObject *testReceiver;
