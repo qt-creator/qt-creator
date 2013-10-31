@@ -108,8 +108,18 @@ void IosConfigurations::updateAutomaticKitList()
                 continue;
             if (p.compilerPath == toolchain->compilerCommand()
                     && p.backendFlags == toolchain->platformCodeGenFlags()) {
-                platformToolchainMap[p.name] = toolchain;
                 found = true;
+                if (p.architecture == QLatin1String("i386")
+                        && toolchain->targetAbi().wordWidth() != 32) {
+                    if (debugProbe)
+                        qDebug() << "resetting api of " << toolchain->displayName();
+                    toolchain->setTargetAbi(Abi(Abi::X86Architecture,
+                                                Abi::MacOS, Abi::GenericMacFlavor,
+                                                Abi::MachOFormat, 32));
+                }
+                platformToolchainMap[p.name] = toolchain;
+                if (debugProbe)
+                    qDebug() << p.name << " -> " << toolchain->displayName();
             }
         }
         if (!found && (tc->displayName().startsWith(QLatin1String("iphone"))
@@ -153,6 +163,14 @@ void IosConfigurations::updateAutomaticKitList()
             toolchain->setPlatformCodeGenFlags(p.backendFlags);
             toolchain->setPlatformLinkerFlags(p.backendFlags);
             toolchain->setCompilerCommand(p.compilerPath);
+            if (p.architecture == QLatin1String("i386")) {
+                if (debugProbe)
+                    qDebug() << "setting toolchain Abi for " << toolchain->displayName();
+                toolchain->setTargetAbi(Abi(Abi::X86Architecture,Abi::MacOS, Abi::GenericMacFlavor,
+                                            Abi::MachOFormat, 32));
+            }
+            if (debugProbe)
+                qDebug() << "adding toolchain " << p.name;
             ToolChainManager::registerToolChain(toolchain);
             platformToolchainMap.insert(p.name, toolchain);
             QMapIterator<QString, Platform> iter2(iter);
@@ -178,6 +196,9 @@ void IosConfigurations::updateAutomaticKitList()
                     || (p.platformKind & Platform::Cxx11Support) != 0
                     || !p.compilerPath.toString().contains(QLatin1String("clang")))
                 toRemove.append(p.name);
+            else if (debugProbe)
+                qDebug() << "keeping" << p.name << " " << p.compilerPath.toString() << " "
+                         << p.backendFlags;
         }
         foreach (const QString &pName, toRemove) {
             if (debugProbe)

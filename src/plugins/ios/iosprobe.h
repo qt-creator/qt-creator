@@ -69,7 +69,6 @@ public:
 private:
     void addDeveloperPath(const QString &path);
     void detectDeveloperPaths();
-    void setArch(Platform *platform, const QString &pathToGcc, const QStringList &extraFlags);
     void setupDefaultToolchains(const QString &devPath, const QString &xcodeName);
     void detectFirst();
     QMap<QString, Platform> detectedPlatforms();
