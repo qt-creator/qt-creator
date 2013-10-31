@@ -1047,8 +1047,8 @@ void LldbEngine::fetchMemory(MemoryAgent *agent, QObject *editorToken,
     if (id == -1) {
         id = ++m_lastAgentId;
         m_memoryAgents.insert(agent, id);
-        m_memoryAgentTokens.insert(id, editorToken);
     }
+    m_memoryAgentTokens.insert(id, editorToken);
     runCommand(Command("fetchMemory")
                .arg("address", addr)
                .arg("length", length)
