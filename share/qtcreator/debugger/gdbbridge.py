@@ -356,196 +356,6 @@ def removeTempFile(name):
 
 
 
-#
-# VTable
-#
-def hasVTable(type):
-    fields = type.fields()
-    if len(fields) == 0:
-        return False
-    if fields[0].is_base_class:
-        return hasVTable(fields[0].type)
-    return str(fields[0].type) ==  "int (**)(void)"
-
-def dynamicTypeName(value):
-    if hasVTable(value.type):
-        #vtbl = str(parseAndEvaluate("{int(*)(int)}%s" % int(value.address)))
-        try:
-            # Fails on 7.1 due to the missing to_string.
-            vtbl = gdb.execute("info symbol {int*}%s" % int(value.address),
-                to_string = True)
-            pos1 = vtbl.find("vtable ")
-            if pos1 != -1:
-                pos1 += 11
-                pos2 = vtbl.find(" +", pos1)
-                if pos2 != -1:
-                    return vtbl[pos1 : pos2]
-        except:
-            pass
-    return str(value.type)
-
-def downcast(value):
-    try:
-        return value.cast(value.dynamic_type)
-    except:
-        pass
-    #try:
-    #    return value.cast(lookupType(dynamicTypeName(value)))
-    #except:
-    #    pass
-    return value
-
-def expensiveDowncast(value):
-    try:
-        return value.cast(value.dynamic_type)
-    except:
-        pass
-    try:
-        return value.cast(lookupType(dynamicTypeName(value)))
-    except:
-        pass
-    return value
-
-typeCache = {}
-
-typesToReport = {}
-typesReported = {}
-
-def addToCache(type):
-    global typesReported
-    global typesToReport
-    typename = str(type)
-    if typename in typesReported:
-        return
-    typesReported[typename] = True
-    typesToReport[typename] = type
-
-def lookupType(typestring):
-    global typeCache
-    global typesToReport
-    type = typeCache.get(typestring)
-    #warn("LOOKUP 1: %s -> %s" % (typestring, type))
-    if not type is None:
-        return type
-
-    if typestring == "void":
-        type = gdb.lookup_type(typestring)
-        typeCache[typestring] = type
-        typesToReport[typestring] = type
-        return type
-
-    #try:
-    #    type = gdb.parse_and_eval("{%s}&main" % typestring).type
-    #    if not type is None:
-    #        typeCache[typestring] = type
-    #        typesToReport[typestring] = type
-    #        return type
-    #except:
-    #    pass
-
-    # See http://sourceware.org/bugzilla/show_bug.cgi?id=13269
-    # gcc produces "{anonymous}", gdb "(anonymous namespace)"
-    # "<unnamed>" has been seen too. The only thing gdb
-    # understands when reading things back is "(anonymous namespace)"
-    if typestring.find("{anonymous}") != -1:
-        ts = typestring
-        ts = ts.replace("{anonymous}", "(anonymous namespace)")
-        type = lookupType(ts)
-        if not type is None:
-            typeCache[typestring] = type
-            typesToReport[typestring] = type
-            return type
-
-    #warn(" RESULT FOR 7.2: '%s': %s" % (typestring, type))
-
-    # This part should only trigger for
-    # gdb 7.1 for types with namespace separators.
-    # And anonymous namespaces.
-
-    ts = typestring
-    while True:
-        #warn("TS: '%s'" % ts)
-        if ts.startswith("class "):
-            ts = ts[6:]
-        elif ts.startswith("struct "):
-            ts = ts[7:]
-        elif ts.startswith("const "):
-            ts = ts[6:]
-        elif ts.startswith("volatile "):
-            ts = ts[9:]
-        elif ts.startswith("enum "):
-            ts = ts[5:]
-        elif ts.endswith(" const"):
-            ts = ts[:-6]
-        elif ts.endswith(" volatile"):
-            ts = ts[:-9]
-        elif ts.endswith("*const"):
-            ts = ts[:-5]
-        elif ts.endswith("*volatile"):
-            ts = ts[:-8]
-        else:
-            break
-
-    if ts.endswith('*'):
-        type = lookupType(ts[0:-1])
-        if not type is None:
-            type = type.pointer()
-            typeCache[typestring] = type
-            typesToReport[typestring] = type
-            return type
-
-    try:
-        #warn("LOOKING UP '%s'" % ts)
-        type = gdb.lookup_type(ts)
-    except RuntimeError as error:
-        #warn("LOOKING UP '%s': %s" % (ts, error))
-        # See http://sourceware.org/bugzilla/show_bug.cgi?id=11912
-        exp = "(class '%s'*)0" % ts
-        try:
-            type = parseAndEvaluate(exp).type.target()
-        except:
-            # Can throw "RuntimeError: No type named class Foo."
-            pass
-    except:
-        #warn("LOOKING UP '%s' FAILED" % ts)
-        pass
-
-    if not type is None:
-        typeCache[typestring] = type
-        typesToReport[typestring] = type
-        return type
-
-    # This could still be None as gdb.lookup_type("char[3]") generates
-    # "RuntimeError: No type named char[3]"
-    typeCache[typestring] = type
-    typesToReport[typestring] = type
-    return type
-
-def templateArgument(type, position):
-    try:
-        # This fails on stock 7.2 with
-        # "RuntimeError: No type named myns::QObject.\n"
-        return type.template_argument(position)
-    except:
-        # That's something like "myns::QList<...>"
-        return lookupType(self.extractTemplateArgument(str(type.strip_typedefs()), position))
-
-
-# Workaround for gdb < 7.1
-def numericTemplateArgument(type, position):
-    try:
-        return int(type.template_argument(position))
-    except RuntimeError as error:
-        # ": No type named 30."
-        msg = str(error)
-        msg = msg[14:-1]
-        # gdb at least until 7.4 produces for std::array<int, 4u>
-        # for template_argument(1): RuntimeError: No type named 4u.
-        if msg[-1] == 'u':
-           msg = msg[0:-1]
-        return int(msg)
-
-
 class OutputSafer:
     def __init__(self, d):
         self.d = d
@@ -610,7 +420,6 @@ class LocalItem:
 #######################################################################
 
 def bbedit(args):
-    #(type, expr, value) = args.split(",")
     theDumper.bbedit(args.split(","))
 
 registerCommand("bbedit", bbedit)
@@ -624,43 +433,9 @@ registerCommand("bbedit", bbedit)
 
 
 def bb(args):
-    global typesToReport
-    global theDumper
-    theDumper.run(args)
-    output = theDumper.output
-    output.append('],typeinfo=[')
-    for name in typesToReport.keys():
-        type = typesToReport[name]
-        # Happens e.g. for '(anonymous namespace)::InsertDefOperation'
-        if not type is None:
-            output.append('{name="%s",size="%s"}'
-                % (b64encode(name), type.sizeof))
-    output.append(']')
-    typesToReport = {}
-    return "".join(output)
-
-
-def p1(args):
-    import cProfile
-    cProfile.run('bb("%s")' % args, "/tmp/bbprof")
-    import pstats
-    pstats.Stats('/tmp/bbprof').sort_stats('time').print_stats()
-    return ""
-
-
-def p2(args):
-    import timeit
-    return timeit.repeat('bb("%s")' % args,
-        'from __main__ import bb', number=10)
+    print(theDumper.run(args))
 
 registerCommand("bb", bb)
-registerCommand("p1", p1)
-registerCommand("p2", p2)
-
-def extractQtVersion():
-    version = str(gdb.parse_and_eval("qVersion()"))
-    (major, minor, patch) = version[version.find('"')+1:version.rfind('"')].split('.')
-    return 0x10000 * int(major) + 0x100 * int(minor) + int(patch)
 
 
 #######################################################################
@@ -678,9 +453,8 @@ class Dumper(DumperBase):
         # These values will be kept between calls to 'run'.
         self.isGdb = True
         self.childEventAddress = None
-
-        # Later set, or not set:
-        #self.cachedQtVersion
+        self.typesReported = {}
+        self.typesToReport = {}
 
     def run(self, args):
         self.output = []
@@ -789,7 +563,7 @@ class Dumper(DumperBase):
                 pass
 
         for item in locals:
-            value = downcast(item.value) if self.useDynamicType else item.value
+            value = self.downcast(item.value) if self.useDynamicType else item.value
             with OutputSafer(self):
                 self.anonNumber = -1
 
@@ -843,6 +617,16 @@ class Dumper(DumperBase):
 
         #print('data=[' + locals + sep + watchers + ']\n')
 
+        self.output.append('],typeinfo=[')
+        for name in self.typesToReport.keys():
+            type = self.typesToReport[name]
+            # Happens e.g. for '(anonymous namespace)::InsertDefOperation'
+            if not type is None:
+                self.output.append('{name="%s",size="%s"}'
+                    % (b64encode(name), type.sizeof))
+        self.output.append(']')
+        self.typesToReport = {}
+        return "".join(self.output)
 
     def enterSubItem(self, item):
         if not item.iname:
@@ -925,7 +709,7 @@ class Dumper(DumperBase):
         #warn("CALL: %s" % exp)
         result = None
         try:
-            result = self.parseAndEvaluate(exp)
+            result = gdb.parse_and_eval(exp)
         except:
             pass
         #warn("  -> %s" % result)
@@ -1005,13 +789,27 @@ class Dumper(DumperBase):
             return False
 
     def templateArgument(self, typeobj, position):
-        return templateArgument(typeobj, position)
+        try:
+            # This fails on stock 7.2 with
+            # "RuntimeError: No type named myns::QObject.\n"
+            return typeobj.template_argument(position)
+        except:
+            # That's something like "myns::QList<...>"
+            return self.lookupType(self.extractTemplateArgument(str(typeobj.strip_typedefs()), position))
 
     def numericTemplateArgument(self, typeobj, position):
-        return numericTemplateArgument(typeobj, position)
-
-    def lookupType(self, typeName):
-        return lookupType(typeName)
+        # Workaround for gdb < 7.1
+        try:
+            return int(typeobj.template_argument(position))
+        except RuntimeError as error:
+            # ": No type named 30."
+            msg = str(error)
+            msg = msg[14:-1]
+            # gdb at least until 7.4 produces for std::array<int, 4u>
+            # for template_argument(1): RuntimeError: No type named 4u.
+            if msg[-1] == 'u':
+               msg = msg[0:-1]
+            return int(msg)
 
     def handleWatch(self, exp, iname):
         exp = str(exp)
@@ -1060,7 +858,9 @@ class Dumper(DumperBase):
                     self.putNumChild(0)
 
     def intType(self):
-        return self.lookupType('int')
+        self.cachedIntType = self.lookupType('int')
+        self.intType = lambda: self.cachedIntType
+        return self.cachedIntType
 
     def charType(self):
         return self.lookupType('char')
@@ -1191,7 +991,9 @@ class Dumper(DumperBase):
 
     def qtVersion(self):
         try:
-            self.cachedQtVersion = extractQtVersion()
+            version = str(gdb.parse_and_eval("qVersion()"))
+            (major, minor, patch) = version[version.find('"')+1:version.rfind('"')].split('.')
+            self.cachedQtVersion = 0x10000 * int(major) + 0x100 * int(minor) + int(patch)
         except:
             try:
                 # This will fail on Qt 5
@@ -1466,7 +1268,7 @@ class Dumper(DumperBase):
         type = value.type.unqualified()
         typeName = str(type)
         tryDynamic &= self.useDynamicType
-        addToCache(type) # Fill type cache
+        self.addToCache(type) # Fill type cache
         if tryDynamic:
             self.putAddress(value.address)
 
@@ -1761,7 +1563,7 @@ class Dumper(DumperBase):
 
 
         if tryDynamic:
-            self.putItem(expensiveDowncast(value), False)
+            self.putItem(self.expensiveDowncast(value), False)
             return
 
         format = self.currentItemFormat(typeName)
@@ -1789,7 +1591,7 @@ class Dumper(DumperBase):
             dumper = self.qqDumpers.get(nsStrippedType, None)
             if not dumper is None:
                 if tryDynamic:
-                    dumper(self, expensiveDowncast(value))
+                    dumper(self, self.expensiveDowncast(value))
                 else:
                     dumper(self, value)
                 return
@@ -1897,7 +1699,7 @@ class Dumper(DumperBase):
                         #bitsize = getattr(field, "bitsize", None)
                         #if not bitsize is None:
                         #    self.put("bitsize=\"%s\"" % bitsize)
-                        self.putItem(downcast(value[field.name]))
+                        self.putItem(self.downcast(value[field.name]))
 
 
     def listAnonymous(self, value, name, type):
@@ -1987,7 +1789,7 @@ class Dumper(DumperBase):
                     or e.name() == "_ZN14QThreadPrivate5startEPv@4":
                 try:
                     thrptr = e.read_var("thr").dereference()
-                    obtype = d.lookupType(ns + "QObjectPrivate").pointer()
+                    obtype = self.lookupType(ns + "QObjectPrivate").pointer()
                     d_ptr = thrptr["d_ptr"]["d"].cast(obtype).dereference()
                     try:
                         objectName = d_ptr["objectName"]
@@ -2076,10 +1878,194 @@ class Dumper(DumperBase):
         else:
             gdb.execute("set (%s)=%s" % (expr, value))
 
+    def hasVTable(self, type):
+        fields = type.fields()
+        if len(fields) == 0:
+            return False
+        if fields[0].is_base_class:
+            return hasVTable(fields[0].type)
+        return str(fields[0].type) ==  "int (**)(void)"
+
+    def dynamicTypeName(self, value):
+        if self.hasVTable(value.type):
+            #vtbl = str(parseAndEvaluate("{int(*)(int)}%s" % int(value.address)))
+            try:
+                # Fails on 7.1 due to the missing to_string.
+                vtbl = gdb.execute("info symbol {int*}%s" % int(value.address),
+                    to_string = True)
+                pos1 = vtbl.find("vtable ")
+                if pos1 != -1:
+                    pos1 += 11
+                    pos2 = vtbl.find(" +", pos1)
+                    if pos2 != -1:
+                        return vtbl[pos1 : pos2]
+            except:
+                pass
+        return str(value.type)
+
+    def downcast(self, value):
+        try:
+            return value.cast(value.dynamic_type)
+        except:
+            pass
+        #try:
+        #    return value.cast(self.lookupType(self.dynamicTypeName(value)))
+        #except:
+        #    pass
+        return value
+
+    def expensiveDowncast(self, value):
+        try:
+            return value.cast(value.dynamic_type)
+        except:
+            pass
+        try:
+            return value.cast(self.lookupType(self.dynamicTypeName(value)))
+        except:
+            pass
+        return value
+
+    def addToCache(self, type):
+        typename = str(type)
+        if typename in self.typesReported:
+            return
+        self.typesReported[typename] = True
+        self.typesToReport[typename] = type
+
+    def lookupType(self, typestring):
+        type = self.typeCache.get(typestring)
+        #warn("LOOKUP 1: %s -> %s" % (typestring, type))
+        if not type is None:
+            return type
+
+        if typestring == "void":
+            type = gdb.lookup_type(typestring)
+            self.typeCache[typestring] = type
+            self.typesToReport[typestring] = type
+            return type
+
+        #try:
+        #    type = gdb.parse_and_eval("{%s}&main" % typestring).type
+        #    if not type is None:
+        #        self.typeCache[typestring] = type
+        #        self.typesToReport[typestring] = type
+        #        return type
+        #except:
+        #    pass
+
+        # See http://sourceware.org/bugzilla/show_bug.cgi?id=13269
+        # gcc produces "{anonymous}", gdb "(anonymous namespace)"
+        # "<unnamed>" has been seen too. The only thing gdb
+        # understands when reading things back is "(anonymous namespace)"
+        if typestring.find("{anonymous}") != -1:
+            ts = typestring
+            ts = ts.replace("{anonymous}", "(anonymous namespace)")
+            type = self.lookupType(ts)
+            if not type is None:
+                self.typeCache[typestring] = type
+                self.typesToReport[typestring] = type
+                return type
+
+        #warn(" RESULT FOR 7.2: '%s': %s" % (typestring, type))
+
+        # This part should only trigger for
+        # gdb 7.1 for types with namespace separators.
+        # And anonymous namespaces.
+
+        ts = typestring
+        while True:
+            #warn("TS: '%s'" % ts)
+            if ts.startswith("class "):
+                ts = ts[6:]
+            elif ts.startswith("struct "):
+                ts = ts[7:]
+            elif ts.startswith("const "):
+                ts = ts[6:]
+            elif ts.startswith("volatile "):
+                ts = ts[9:]
+            elif ts.startswith("enum "):
+                ts = ts[5:]
+            elif ts.endswith(" const"):
+                ts = ts[:-6]
+            elif ts.endswith(" volatile"):
+                ts = ts[:-9]
+            elif ts.endswith("*const"):
+                ts = ts[:-5]
+            elif ts.endswith("*volatile"):
+                ts = ts[:-8]
+            else:
+                break
+
+        if ts.endswith('*'):
+            type = self.lookupType(ts[0:-1])
+            if not type is None:
+                type = type.pointer()
+                self.typeCache[typestring] = type
+                self.typesToReport[typestring] = type
+                return type
+
+        try:
+            #warn("LOOKING UP '%s'" % ts)
+            type = gdb.lookup_type(ts)
+        except RuntimeError as error:
+            #warn("LOOKING UP '%s': %s" % (ts, error))
+            # See http://sourceware.org/bugzilla/show_bug.cgi?id=11912
+            exp = "(class '%s'*)0" % ts
+            try:
+                type = parseAndEvaluate(exp).type.target()
+            except:
+                # Can throw "RuntimeError: No type named class Foo."
+                pass
+        except:
+            #warn("LOOKING UP '%s' FAILED" % ts)
+            pass
+
+        if not type is None:
+            self.typeCache[typestring] = type
+            self.typesToReport[typestring] = type
+            return type
+
+        # This could still be None as gdb.lookup_type("char[3]") generates
+        # "RuntimeError: No type named char[3]"
+        self.typeCache[typestring] = type
+        self.typesToReport[typestring] = type
+        return type
+
+
 
 # Global instance.
 theDumper = Dumper()
 
+#######################################################################
+#
+# Internal profiling
+#
+#######################################################################
+
+def p1(args):
+    import cProfile
+    cProfile.run('bb("%s")' % args, "/tmp/bbprof")
+    import pstats
+    pstats.Stats('/tmp/bbprof').sort_stats('time').print_stats()
+    return ""
+
+registerCommand("p1", p1)
+
+def p2(args):
+    import timeit
+    return timeit.repeat('bb("%s")' % args,
+        'from __main__ import bb', number=10)
+
+registerCommand("p2", p2)
+
+def profileit(args):
+    eval(args)
+
+def profile(args):
+    import timeit
+    return timeit.repeat('profileit("%s")' % args, 'from __main__ import profileit', number=10000)
+
+registerCommand("pp", profile)
 
 #######################################################################
 #
