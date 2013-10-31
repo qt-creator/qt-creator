@@ -947,9 +947,12 @@ class Dumper(DumperBase):
 
     def isQObject(self, value):
         try:
-        #if True:
             vtable = self.dereference(toInteger(value.address)) # + ptrSize
+            if vtable & 0x3: # This is not a pointer.
+                return False
             metaObjectEntry = self.dereference(vtable) # It's the first entry.
+            if metaObjectEntry & 0x3: # This is not a pointer.
+                return False
             #warn("MO: 0x%x " % metaObjectEntry)
             s = gdb.execute("info symbol 0x%x" % metaObjectEntry, to_string=True)
             #warn("S: %s " % s)
