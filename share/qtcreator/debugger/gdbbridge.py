@@ -871,9 +871,6 @@ class Dumper(DumperBase):
     def charPtrType(self):
         return self.lookupType('char*')
 
-    def intPtrType(self):
-        return self.lookupType('int*')
-
     def voidPtrType(self):
         return self.lookupType('void*')
 
