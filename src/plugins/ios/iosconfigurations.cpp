@@ -312,7 +312,7 @@ void IosConfigurations::updateAutomaticKitList()
                 //DeviceKitInformation::setDevice(newKit, device);
 
                 Debugger::DebuggerItem debugger;
-                debugger.setCommand(pToolchain->suggestedDebugger()); // use lldbPath() instead?
+                debugger.setCommand(lldbPath());
                 debugger.setEngineType(Debugger::LldbEngineType);
                 debugger.setDisplayName(tr("IOS Debugger"));
                 debugger.setAutoDetected(true);

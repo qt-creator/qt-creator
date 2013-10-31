@@ -109,7 +109,8 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
 
     DebuggerRunControl * const debuggerRunControl
         = DebuggerPlugin::createDebugger(params, runConfig, errorMessage);
-    new IosDebugSupport(runConfig, debuggerRunControl);
+    if (debuggerRunControl)
+        new IosDebugSupport(runConfig, debuggerRunControl);
     return debuggerRunControl;
 }
 
