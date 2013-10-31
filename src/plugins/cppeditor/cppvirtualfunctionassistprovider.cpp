@@ -211,16 +211,29 @@ enum VirtualType { Virtual, PureVirtual };
 
 static bool isVirtualFunction_helper(const Function *function,
                                      const LookupContext &context,
-                                     VirtualType virtualType)
+                                     VirtualType virtualType,
+                                     const Function **firstVirtual)
 {
+    enum { Unknown, False, True } res = Unknown;
+
+    if (firstVirtual)
+        *firstVirtual = 0;
+
     if (!function)
         return false;
 
     if (virtualType == PureVirtual)
-        return function->isPureVirtual();
+        res = function->isPureVirtual() ? True : False;
 
-    if (function->isVirtual())
-        return true;
+    if (function->isVirtual()) {
+        if (firstVirtual)
+            *firstVirtual = function;
+        if (res == Unknown)
+            res = True;
+    }
+
+    if (!firstVirtual && res != Unknown)
+        return res == True;
 
     QList<LookupItem> results = context.lookup(function->name(), function->enclosingScope());
     if (!results.isEmpty()) {
@@ -233,25 +246,34 @@ static bool isVirtualFunction_helper(const Function *function,
                     if (functionType == function) // already tested
                         continue;
                     if (functionType->isFinal())
-                        return false;
-                    if (functionType->isVirtual())
-                        return true;
+                        return res == True;
+                    if (functionType->isVirtual()) {
+                        if (!firstVirtual)
+                            return true;
+                        if (res == Unknown)
+                            res = True;
+                        *firstVirtual = functionType;
+                    }
                 }
             }
         }
     }
 
-    return false;
+    return res == True;
 }
 
-bool FunctionHelper::isVirtualFunction(const Function *function, const LookupContext &context)
+bool FunctionHelper::isVirtualFunction(const Function *function,
+                                       const LookupContext &context,
+                                       const Function **firstVirtual)
 {
-    return isVirtualFunction_helper(function, context, Virtual);
+    return isVirtualFunction_helper(function, context, Virtual, firstVirtual);
 }
 
-bool FunctionHelper::isPureVirtualFunction(const Function *function, const LookupContext &context)
+bool FunctionHelper::isPureVirtualFunction(const Function *function,
+                                           const LookupContext &context,
+                                           const Function **firstVirtual)
 {
-    return isVirtualFunction_helper(function, context, PureVirtual);
+    return isVirtualFunction_helper(function, context, PureVirtual, firstVirtual);
 }
 
 QList<Symbol *> FunctionHelper::overrides(Function *function, Class *functionsClass,
@@ -320,6 +342,7 @@ typedef QList<Virtuality> VirtualityList;
 
 Q_DECLARE_METATYPE(CppEditor::Internal::Virtuality)
 Q_DECLARE_METATYPE(CppEditor::Internal::VirtualityList)
+Q_DECLARE_METATYPE(QList<int>)
 
 namespace CppEditor {
 namespace Internal {
@@ -329,11 +352,14 @@ void CppEditorPlugin::test_functionhelper_virtualFunctions()
     // Create and parse document
     QFETCH(QByteArray, source);
     QFETCH(VirtualityList, virtualityList);
+    QFETCH(QList<int>, firstVirtualList);
     Document::Ptr document = Document::create(QLatin1String("virtuals"));
     document->setUtf8Source(source);
     document->check(); // calls parse();
     QCOMPARE(document->diagnosticMessages().size(), 0);
     QVERIFY(document->translationUnit()->ast());
+    QList<const Function *> allFunctions;
+    const Function *firstVirtual = 0;
 
     // Iterate through Function symbols
     Snapshot snapshot;
@@ -342,21 +368,35 @@ void CppEditorPlugin::test_functionhelper_virtualFunctions()
     Control *control = document->translationUnit()->control();
     Symbol **end = control->lastSymbol();
     for (Symbol **it = control->firstSymbol(); it != end; ++it) {
-        const CPlusPlus::Symbol *symbol = *it;
-        if (const Function *function = symbol->asFunction()) {
+        if (const Function *function = (*it)->asFunction()) {
+            allFunctions.append(function);
             QTC_ASSERT(!virtualityList.isEmpty(), return);
             Virtuality virtuality = virtualityList.takeFirst();
-            if (FunctionHelper::isVirtualFunction(function, context)) {
-                if (FunctionHelper::isPureVirtualFunction(function, context))
+            QTC_ASSERT(!firstVirtualList.isEmpty(), return);
+            int firstVirtualIndex = firstVirtualList.takeFirst();
+            bool isVirtual = FunctionHelper::isVirtualFunction(function, context, &firstVirtual);
+            bool isPureVirtual = FunctionHelper::isPureVirtualFunction(function, context,
+                                                                       &firstVirtual);
+
+            // Test for regressions introduced by firstVirtual
+            QCOMPARE(FunctionHelper::isVirtualFunction(function, context), isVirtual);
+            QCOMPARE(FunctionHelper::isPureVirtualFunction(function, context), isPureVirtual);
+            if (isVirtual) {
+                if (isPureVirtual)
                     QCOMPARE(virtuality, PureVirtual);
                 else
                     QCOMPARE(virtuality, Virtual);
             } else {
                 QCOMPARE(virtuality, NotVirtual);
             }
+            if (firstVirtualIndex == -1)
+                QVERIFY(!firstVirtual);
+            else
+                QCOMPARE(firstVirtual, allFunctions.at(firstVirtualIndex));
         }
     }
     QVERIFY(virtualityList.isEmpty());
+    QVERIFY(firstVirtualList.isEmpty());
 }
 
 void CppEditorPlugin::test_functionhelper_virtualFunctions_data()
@@ -364,55 +404,66 @@ void CppEditorPlugin::test_functionhelper_virtualFunctions_data()
     typedef QByteArray _;
     QTest::addColumn<QByteArray>("source");
     QTest::addColumn<VirtualityList>("virtualityList");
+    QTest::addColumn<QList<int> >("firstVirtualList");
 
     QTest::newRow("none")
             << _("struct None { void foo() {} };\n")
-            << (VirtualityList() << NotVirtual);
+            << (VirtualityList() << NotVirtual)
+            << (QList<int>() << -1);
 
     QTest::newRow("single-virtual")
             << _("struct V { virtual void foo() {} };\n")
-            << (VirtualityList() << Virtual);
+            << (VirtualityList() << Virtual)
+            << (QList<int>() << 0);
 
     QTest::newRow("single-pure-virtual")
             << _("struct PV { virtual void foo() = 0; };\n")
-            << (VirtualityList() << PureVirtual);
+            << (VirtualityList() << PureVirtual)
+            << (QList<int>() << 0);
 
     QTest::newRow("virtual-derived-with-specifier")
             << _("struct Base { virtual void foo() {} };\n"
                  "struct Derived : Base { virtual void foo() {} };\n")
-            << (VirtualityList() << Virtual << Virtual);
+            << (VirtualityList() << Virtual << Virtual)
+            << (QList<int>() << 0 << 0);
 
     QTest::newRow("virtual-derived-implicit")
             << _("struct Base { virtual void foo() {} };\n"
                  "struct Derived : Base { void foo() {} };\n")
-            << (VirtualityList() << Virtual << Virtual);
+            << (VirtualityList() << Virtual << Virtual)
+            << (QList<int>() << 0 << 0);
 
     QTest::newRow("not-virtual-then-virtual")
             << _("struct Base { void foo() {} };\n"
                  "struct Derived : Base { virtual void foo() {} };\n")
-            << (VirtualityList() << NotVirtual << Virtual);
+            << (VirtualityList() << NotVirtual << Virtual)
+            << (QList<int>() << -1 << 1);
 
     QTest::newRow("virtual-final-not-virtual")
             << _("struct Base { virtual void foo() {} };\n"
                  "struct Derived : Base { void foo() final {} };\n"
                  "struct Derived2 : Derived { void foo() {} };")
-            << (VirtualityList() << Virtual << Virtual << NotVirtual);
+            << (VirtualityList() << Virtual << Virtual << NotVirtual)
+            << (QList<int>() << 0 << 0 << -1);
 
     QTest::newRow("virtual-then-pure")
             << _("struct Base { virtual void foo() {} };\n"
                  "struct Derived : Base { virtual void foo() = 0; };\n"
                  "struct Derived2 : Derived { void foo() {} };")
-            << (VirtualityList() << Virtual << PureVirtual << Virtual);
+            << (VirtualityList() << Virtual << PureVirtual << Virtual)
+            << (QList<int>() << 0 << 0 << 0);
 
     QTest::newRow("virtual-virtual-final-not-virtual")
             << _("struct Base { virtual void foo() {} };\n"
                  "struct Derived : Base { virtual void foo() final {} };\n"
                  "struct Derived2 : Derived { void foo() {} };")
-            << (VirtualityList() << Virtual << Virtual << NotVirtual);
+            << (VirtualityList() << Virtual << Virtual << NotVirtual)
+            << (QList<int>() << 0 << 0 << -1);
 
     QTest::newRow("ctor-virtual-dtor")
             << _("struct Base { Base() {} virtual ~Base() {} };\n")
-            << (VirtualityList() << NotVirtual << Virtual);
+            << (VirtualityList() << NotVirtual << Virtual)
+            << (QList<int>() << -1 << 1);
 }
 
 } // namespace Internal
