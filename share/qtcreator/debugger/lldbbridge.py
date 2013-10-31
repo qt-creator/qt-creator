@@ -1175,8 +1175,8 @@ class Dumper(DumperBase):
         for value in values:
             if self.dummyValue is None:
                 self.dummyValue = value
-            name = value.name
-            if value.name in shadowed:
+            name = value.GetName()
+            if name in shadowed:
                 level = shadowed[name]
                 shadowed[name] = level + 1
                 name += "@%s" % level
