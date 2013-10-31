@@ -747,7 +747,6 @@ bool QmlAnchorBindingProxy::verticalCentered()
 
 QString QmlAnchorBindingProxy::topTarget() const
 {
-    qDebug() << "top node" << idForNode(m_topTarget);
     return idForNode(m_topTarget);
 }
 
