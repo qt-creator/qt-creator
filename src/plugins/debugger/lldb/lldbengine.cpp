@@ -157,6 +157,8 @@ void LldbEngine::startLldb()
     args.append(m_lldbCmd);
     showMessage(_("STARTING LLDB ") + args.join(QLatin1String(" ")));
     m_lldbProc.setEnvironment(startParameters().environment.toStringList());
+    if (!startParameters().workingDirectory.isEmpty())
+        m_lldbProc.setWorkingDirectory(startParameters().workingDirectory);
 
     m_lldbProc.start(_("python"), args);
 
