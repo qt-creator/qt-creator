@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 #include "selectablefilesmodel.h"
-#include <projectexplorerconstants.h>
+#include "projectexplorerconstants.h"
 
 #include <coreplugin/fileiconprovider.h>
 #include <coreplugin/icore.h>

@@ -76,7 +76,7 @@
 #include "miniprojecttargetselector.h"
 #include "taskhub.h"
 #include "customtoolchain.h"
-#include <selectablefilesmodel.h>
+#include "selectablefilesmodel.h"
 #include <projectexplorer/customwizard/customwizard.h>
 #include "devicesupport/desktopdevice.h"
 #include "devicesupport/desktopdevicefactory.h"
