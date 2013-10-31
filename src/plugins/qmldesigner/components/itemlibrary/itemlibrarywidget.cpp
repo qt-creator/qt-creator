@@ -412,6 +412,9 @@ QIcon ItemLibraryFileIconProvider::icon(const QFileInfo &info) const
         pixmap = defaultIcon.pixmap(defaultIcon.actualSize(m_iconSize));
     }
 
+    if (pixmap.isNull())
+        return pixmap;
+
     if (pixmap.width() == m_iconSize.width()
             && pixmap.height() == m_iconSize.height())
         return pixmap;

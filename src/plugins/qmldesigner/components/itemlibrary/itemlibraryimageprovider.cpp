@@ -44,6 +44,10 @@ QPixmap ItemLibraryImageProvider::requestPixmap(const QString &id, QSize *size, 
         size->setWidth(pixmap.width());
         size->setHeight(pixmap.height());
     }
+
+    if (pixmap.isNull())
+        return pixmap;
+
     if (requestedSize.isValid())
         return pixmap.scaled(requestedSize);
     return pixmap;
