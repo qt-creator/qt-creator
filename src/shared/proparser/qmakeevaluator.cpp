@@ -1181,23 +1181,18 @@ bool QMakeEvaluator::loadSpec()
         QMakeEvaluator evaluator(m_option, m_parser, m_vfs, m_handler);
         evaluator.m_sourceRoot = m_sourceRoot;
         evaluator.m_buildRoot = m_buildRoot;
-        if (!m_superfile.isEmpty()) {
-            valuesRef(ProKey("_QMAKE_SUPER_CACHE_")) << ProString(m_superfile);
-            if (evaluator.evaluateFile(
-                    m_superfile, QMakeHandler::EvalConfigFile, LoadProOnly) != ReturnTrue)
-                return false;
+
+        if (!m_superfile.isEmpty() && evaluator.evaluateFile(
+                m_superfile, QMakeHandler::EvalConfigFile, LoadProOnly|LoadHidden) != ReturnTrue) {
+            return false;
         }
-        if (!m_conffile.isEmpty()) {
-            valuesRef(ProKey("_QMAKE_CONF_")) << ProString(m_conffile);
-            if (evaluator.evaluateFile(
-                    m_conffile, QMakeHandler::EvalConfigFile, LoadProOnly) != ReturnTrue)
-                return false;
+        if (!m_conffile.isEmpty() && evaluator.evaluateFile(
+                m_conffile, QMakeHandler::EvalConfigFile, LoadProOnly|LoadHidden) != ReturnTrue) {
+            return false;
         }
-        if (!m_cachefile.isEmpty()) {
-            valuesRef(ProKey("_QMAKE_CACHE_")) << ProString(m_cachefile);
-            if (evaluator.evaluateFile(
-                    m_cachefile, QMakeHandler::EvalConfigFile, LoadProOnly) != ReturnTrue)
-                return false;
+        if (!m_cachefile.isEmpty() && evaluator.evaluateFile(
+                m_cachefile, QMakeHandler::EvalConfigFile, LoadProOnly|LoadHidden) != ReturnTrue) {
+            return false;
         }
         if (qmakespec.isEmpty()) {
             if (!m_hostBuild)
@@ -1231,19 +1226,25 @@ bool QMakeEvaluator::loadSpec()
   cool:
     m_qmakespec = QDir::cleanPath(qmakespec);
 
-    if (!m_superfile.isEmpty()
-        && evaluateFile(m_superfile, QMakeHandler::EvalConfigFile, LoadProOnly|LoadHidden) != ReturnTrue) {
-        return false;
+    if (!m_superfile.isEmpty()) {
+        valuesRef(ProKey("_QMAKE_SUPER_CACHE_")) << ProString(m_superfile);
+        if (evaluateFile(
+                m_superfile, QMakeHandler::EvalConfigFile, LoadProOnly|LoadHidden) != ReturnTrue)
+            return false;
     }
     if (!loadSpecInternal())
         return false;
-    if (!m_conffile.isEmpty()
-        && evaluateFile(m_conffile, QMakeHandler::EvalConfigFile, LoadProOnly) != ReturnTrue) {
-        return false;
+    if (!m_conffile.isEmpty()) {
+        valuesRef(ProKey("_QMAKE_CONF_")) << ProString(m_conffile);
+        if (evaluateFile(
+                m_conffile, QMakeHandler::EvalConfigFile, LoadProOnly) != ReturnTrue)
+            return false;
     }
-    if (!m_cachefile.isEmpty()
-        && evaluateFile(m_cachefile, QMakeHandler::EvalConfigFile, LoadProOnly) != ReturnTrue) {
-        return false;
+    if (!m_cachefile.isEmpty()) {
+        valuesRef(ProKey("_QMAKE_CACHE_")) << ProString(m_cachefile);
+        if (evaluateFile(
+                m_cachefile, QMakeHandler::EvalConfigFile, LoadProOnly) != ReturnTrue)
+            return false;
     }
     return true;
 }
