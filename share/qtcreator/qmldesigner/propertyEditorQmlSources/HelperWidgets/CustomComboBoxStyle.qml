@@ -36,6 +36,10 @@ ComboBoxStyle {
     property color highlightColor: "orange"
     property color textColor: "#eee"
 
+    __editor: Item {
+
+    }
+
     background: Item {
         implicitWidth: 120
         implicitHeight: 25
