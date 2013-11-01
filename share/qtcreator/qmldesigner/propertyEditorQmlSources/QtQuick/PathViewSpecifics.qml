@@ -47,7 +47,7 @@ Column {
                 toolTip: qsTr("Drag margin")
             }
 
-            SectionLayout {
+            SecondColumnLayout {
                 SpinBox {
                     backendValue: backendValues.dragMargin
                     minimumValue: 100;
@@ -128,101 +128,101 @@ Column {
                 }
             }
         }
+    }
+    Section {
+        anchors.left: parent.left
+        anchors.right: parent.right
+        caption: qsTr("Path View Highlight")
 
-        Section {
-            anchors.left: parent.left
-            anchors.right: parent.right
-            caption: qsTr("Path View Highlight")
+        SectionLayout {
 
-            SectionLayout {
-
-                Label {
-                    text: qsTr("Range")
-                    toolTip: qsTr("Highlight range")
-                }
-
-                SecondColumnLayout {
-                    ComboBox {
-                        model: ["NoHighlightRange", "ApplyRange", "StrictlyEnforceRange"]
-                        backendValue: backendValues.highlightRangeMode
-                    }
-
-                    ExpandingSpacer {
-
-                    }
-                }
-
-
-                Label {
-                    text: qsTr("Move duration")
-                    toolTip: qsTr("Move animation duration of the highlight delegate.")
-                }
-
-                SecondColumnLayout {
-                    SpinBox {
-                        backendValue: backendValues.highlightMoveDuration
-                        minimumValue: 0;
-                        maximumValue: 1000;
-                        decimals: 0
-                    }
-
-                    ExpandingSpacer {
-
-                    }
-                }
-
-                Label {
-                    text: qsTr("Preferred begin")
-                    toolTip: qsTr("Preferred highlight begin - must be smaller than Preferred end.")
-                }
-
-                SecondColumnLayout {
-                    SpinBox {
-                        backendValue: backendValues.preferredHighlightBegin
-                        minimumValue: 0;
-                        maximumValue: 1000;
-                        decimals: 0
-                    }
-
-                    ExpandingSpacer {
-
-                    }
-                }
-
-                Label {
-                    text: qsTr("Preferred end")
-                    toolTip: qsTr("Preferred highlight end - must be larger than Preferred begin.")
-                }
-
-                SecondColumnLayout {
-                    SpinBox {
-                        backendValue: backendValues.preferredHighlightEnd
-                        minimumValue: 0;
-                        maximumValue: 1000;
-                        decimals: 0
-                    }
-
-                    ExpandingSpacer {
-
-                    }
-                }
-
-                Label {
-                    text: qsTr("Follows current")
-                    toolTip: qsTr("Determines whether the highlight is managed by the view.")
-                }
-
-                SecondColumnLayout {
-                    CheckBox {
-                        backendValue: backendValues.highlightFollowsCurrentItem
-                    }
-
-                    ExpandingSpacer {
-
-                    }
-                }
-
+            Label {
+                text: qsTr("Range")
+                toolTip: qsTr("Highlight range")
             }
+
+            SecondColumnLayout {
+                ComboBox {
+                    model: ["NoHighlightRange", "ApplyRange", "StrictlyEnforceRange"]
+                    backendValue: backendValues.highlightRangeMode
+                    Layout.fillWidth: true
+                }
+
+                ExpandingSpacer {
+
+                }
+            }
+
+
+            Label {
+                text: qsTr("Move duration")
+                toolTip: qsTr("Move animation duration of the highlight delegate.")
+            }
+
+            SecondColumnLayout {
+                SpinBox {
+                    backendValue: backendValues.highlightMoveDuration
+                    minimumValue: 0;
+                    maximumValue: 1000;
+                    decimals: 0
+                }
+
+                ExpandingSpacer {
+
+                }
+            }
+
+            Label {
+                text: qsTr("Preferred begin")
+                toolTip: qsTr("Preferred highlight begin - must be smaller than Preferred end.")
+            }
+
+            SecondColumnLayout {
+                SpinBox {
+                    backendValue: backendValues.preferredHighlightBegin
+                    minimumValue: 0;
+                    maximumValue: 1000;
+                    decimals: 0
+                }
+
+                ExpandingSpacer {
+
+                }
+            }
+
+            Label {
+                text: qsTr("Preferred end")
+                toolTip: qsTr("Preferred highlight end - must be larger than Preferred begin.")
+            }
+
+            SecondColumnLayout {
+                SpinBox {
+                    backendValue: backendValues.preferredHighlightEnd
+                    minimumValue: 0;
+                    maximumValue: 1000;
+                    decimals: 0
+                }
+
+                ExpandingSpacer {
+
+                }
+            }
+
+            Label {
+                text: qsTr("Follows current")
+                toolTip: qsTr("Determines whether the highlight is managed by the view.")
+            }
+
+            SecondColumnLayout {
+                CheckBox {
+                    backendValue: backendValues.highlightFollowsCurrentItem
+                }
+
+                ExpandingSpacer {
+
+                }
+            }
+
         }
     }
 }

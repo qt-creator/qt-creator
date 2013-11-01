@@ -67,10 +67,10 @@ QString AddDebuggerOperation::helpText() const
 
 QString AddDebuggerOperation::argumentsHelpText() const
 {
-    return QLatin1String("    --id <ID>                                  id of the new kit (required).\n"
-                         "    --name <NAME>                              display name of the new kit (required).\n"
-                         "    --engine <ENGINE>                          debuggerengine of the new kit.\n"
-                         "    --binary <PATH>                            debugger of the new kit.\n"
+    return QLatin1String("    --id <ID>                                  id of the new debugger (required).\n"
+                         "    --name <NAME>                              display name of the new debugger (required).\n"
+                         "    --engine <ENGINE>                          the debugger engine to use.\n"
+                         "    --binary <PATH>                            path to the debugger binary.\n"
                          "    --abis <ABI,ABI>                           list of ABI strings (comma separated).\n"
                          "    <KEY> <TYPE:VALUE>                         extra key value pairs\n");
 }

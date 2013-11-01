@@ -43,6 +43,8 @@
 #include <QTime>
 #include <QMessageBox>
 
+#include <signal.h>
+
 namespace Ios {
 namespace Internal {
 
@@ -50,7 +52,7 @@ IosRunner::IosRunner(QObject *parent, IosRunConfiguration *runConfig, bool debug
     : QObject(parent), m_toolHandler(0), m_bundleDir(runConfig->bundleDir().toString()),
       m_arguments(runConfig->commandLineArguments()),
       m_device(ProjectExplorer::DeviceKitInformation::device(runConfig->target()->kit())),
-      m_debuggingMode(debuggingMode), m_cleanExit(false)
+      m_debuggingMode(debuggingMode), m_cleanExit(false), m_pid(0)
 {
 }
 
@@ -108,8 +110,8 @@ void IosRunner::start()
             SLOT(handleDidStartApp(Ios::IosToolHandler*,QString,QString,Ios::IosToolHandler::OpStatus)));
     connect(m_toolHandler, SIGNAL(errorMsg(Ios::IosToolHandler*,QString)),
             SLOT(handleErrorMsg(Ios::IosToolHandler*,QString)));
-    connect(m_toolHandler, SIGNAL(gotGdbserverSocket(Ios::IosToolHandler*,QString,QString,int)),
-            SLOT(handleGotGdbserverSocket(Ios::IosToolHandler*,QString,QString,int)));
+    connect(m_toolHandler, SIGNAL(gotGdbserverPort(Ios::IosToolHandler*,QString,QString,int)),
+            SLOT(handleGotGdbserverPort(Ios::IosToolHandler*,QString,QString,int)));
     connect(m_toolHandler, SIGNAL(gotInferiorPid(Ios::IosToolHandler*,QString,QString,Q_PID)),
             SLOT(handleGotInferiorPid(Ios::IosToolHandler*,QString,QString,Q_PID)));
     connect(m_toolHandler, SIGNAL(toolExited(Ios::IosToolHandler*,int)),
@@ -121,8 +123,13 @@ void IosRunner::start()
 
 void IosRunner::stop()
 {
-    if (m_toolHandler)
+    if (m_toolHandler) {
+#ifdef Q_OS_UNIX
+        if (m_pid > 0)
+            kill(m_pid, SIGKILL);
+#endif
         m_toolHandler->stop();
+    }
 }
 
 void IosRunner::handleDidStartApp(IosToolHandler *handler, const QString &bundlePath,
@@ -133,18 +140,19 @@ void IosRunner::handleDidStartApp(IosToolHandler *handler, const QString &bundle
         emit didStartApp(status);
 }
 
-void IosRunner::handleGotGdbserverSocket(IosToolHandler *handler, const QString &bundlePath,
-                                         const QString &deviceId, int gdbFd)
+void IosRunner::handleGotGdbserverPort(IosToolHandler *handler, const QString &bundlePath,
+                                         const QString &deviceId, int gdbPort)
 {
     Q_UNUSED(bundlePath); Q_UNUSED(deviceId);
     if (m_toolHandler == handler)
-        emit gotGdbserverSocket(gdbFd);
+        emit gotGdbserverPort(gdbPort);
 }
 
 void IosRunner::handleGotInferiorPid(IosToolHandler *handler, const QString &bundlePath,
                                      const QString &deviceId, Q_PID pid)
 {
     Q_UNUSED(bundlePath); Q_UNUSED(deviceId);
+    m_pid = pid;
     if (m_toolHandler == handler)
         emit gotInferiorPid(pid);
 }

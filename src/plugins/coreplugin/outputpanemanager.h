@@ -75,6 +75,7 @@ public slots:
 
 protected:
     void focusInEvent(QFocusEvent *e);
+    void resizeEvent(QResizeEvent *e);
 
 private slots:
     void showPage(int flags);
@@ -132,6 +133,7 @@ private:
     QPixmap m_minimizeIcon;
     QPixmap m_maximizeIcon;
     bool m_maximised;
+    int m_outputPaneHeight;
 };
 
 class OutputPaneToggleButton : public QToolButton

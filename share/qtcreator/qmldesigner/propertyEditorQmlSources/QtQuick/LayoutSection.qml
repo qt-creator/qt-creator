@@ -100,17 +100,17 @@ Section {
                         backendValue: backendValues.anchors_topMargin
                     }
 
-                    ButtonRow {
-                        exclusive: true
-                        ButtonRowButton {
-                            iconSource: "../HelperWidgets/images/anchor-top.png"
+//                    ButtonRow {
+//                        exclusive: true
+//                        ButtonRowButton {
+//                            iconSource: "../HelperWidgets/images/anchor-top.png"
 
-                        }
+//                        }
 
-                        ButtonRowButton {
-                            iconSource: "../HelperWidgets/images/anchor-bottom.png"
-                        }
-                    }
+//                        ButtonRowButton {
+//                            iconSource: "../HelperWidgets/images/anchor-bottom.png"
+//                        }
+//                    }
                 }
             }
         }
@@ -159,16 +159,16 @@ Section {
 
                     }
 
-                    ButtonRow {
-                        exclusive: true
-                        ButtonRowButton {
-                            iconSource: "../HelperWidgets/images/anchor-top.png"
-                        }
+//                    ButtonRow {
+//                        exclusive: true
+//                        ButtonRowButton {
+//                            iconSource: "../HelperWidgets/images/anchor-top.png"
+//                        }
 
-                        ButtonRowButton {
-                            iconSource: "../HelperWidgets/images/anchor-bottom.png"
-                        }
-                    }
+//                        ButtonRowButton {
+//                            iconSource: "../HelperWidgets/images/anchor-bottom.png"
+//                        }
+//                    }
                 }
             }
         }
@@ -216,17 +216,17 @@ Section {
                         backendValue: backendValues.anchors_leftMargin
                     }
 
-                    ButtonRow {
-                        exclusive: true
+//                    ButtonRow {
+//                        exclusive: true
 
-                        ButtonRowButton {
-                            iconSource: "../HelperWidgets/images/anchor-left.png"
-                        }
+//                        ButtonRowButton {
+//                            iconSource: "../HelperWidgets/images/anchor-left.png"
+//                        }
 
-                        ButtonRowButton {
-                            iconSource: "../HelperWidgets/images/anchor-right.png"
-                        }
-                    }
+//                        ButtonRowButton {
+//                            iconSource: "../HelperWidgets/images/anchor-right.png"
+//                        }
+//                    }
                 }
             }
         }
@@ -274,17 +274,17 @@ Section {
                         backendValue: backendValues.anchors_rightMargin
                     }
 
-                    ButtonRow {
-                        exclusive: true
+//                    ButtonRow {
+//                        exclusive: true
 
-                        ButtonRowButton {
-                            iconSource: "../HelperWidgets/images/anchor-left.png"
-                        }
+//                        ButtonRowButton {
+//                            iconSource: "../HelperWidgets/images/anchor-left.png"
+//                        }
 
-                        ButtonRowButton {
-                            iconSource: "../HelperWidgets/images/anchor-right.png"
-                        }
-                    }
+//                        ButtonRowButton {
+//                            iconSource: "../HelperWidgets/images/anchor-right.png"
+//                        }
+//                    }
                 }
             }
         }
@@ -331,17 +331,17 @@ Section {
                         backendValue: backendValues.anchors_horizontalCenterOffset
                     }
 
-                    ButtonRow {
-                        exclusive: true
+//                    ButtonRow {
+//                        exclusive: true
 
-                        ButtonRowButton {
-                            iconSource: "../HelperWidgets/images/anchor-left.png"
-                        }
+//                        ButtonRowButton {
+//                            iconSource: "../HelperWidgets/images/anchor-left.png"
+//                        }
 
-                        ButtonRowButton {
-                            iconSource: "../HelperWidgets/images/anchor-right.png"
-                        }
-                    }
+//                        ButtonRowButton {
+//                            iconSource: "../HelperWidgets/images/anchor-right.png"
+//                        }
+//                    }
                 }
             }
         }
@@ -388,17 +388,17 @@ Section {
                         backendValue: backendValues.anchors_verticalCenterOffset
                     }
 
-                    ButtonRow {
-                        exclusive: true
+//                    ButtonRow {
+//                        exclusive: true
 
-                        ButtonRowButton {
-                            iconSource: "../HelperWidgets/images/anchor-top.png"
-                        }
+//                        ButtonRowButton {
+//                            iconSource: "../HelperWidgets/images/anchor-top.png"
+//                        }
 
-                        ButtonRowButton {
-                            iconSource: "../HelperWidgets/images/anchor-bottom.png"
-                        }
-                    }
+//                        ButtonRowButton {
+//                            iconSource: "../HelperWidgets/images/anchor-bottom.png"
+//                        }
+//                    }
                 }
             }
         }

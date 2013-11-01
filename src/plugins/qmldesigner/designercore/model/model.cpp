@@ -1733,7 +1733,6 @@ QList<Import> Model::possibleImports() const
 {
     QList<Import> possibleImportList;
 
-    possibleImportList.append(Import::createLibraryImport("QtQuick", "2.1"));
     possibleImportList.append(Import::createLibraryImport("QtQuick.Controls", "1.0"));
     possibleImportList.append(Import::createLibraryImport("QtQuick.Layouts", "1.0"));
     possibleImportList.append(Import::createLibraryImport("QtQuick.Window", "2.0"));

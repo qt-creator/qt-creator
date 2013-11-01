@@ -69,7 +69,8 @@ void DebugView::modelAttached(Model *model)
 {
     log(tr("Model attached"), tr("FileName %1").arg(model->fileUrl().toLocalFile()));
     m_debugViewWidget->setDebugViewEnabled(isDebugViewEnabled());
-    qDebug() << "enabled: " << isDebugViewEnabled();
+    if (isDebugViewEnabled())
+        qDebug() << tr("DebugView is enabled");
     AbstractView::modelAttached(model);
 }
 

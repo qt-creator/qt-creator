@@ -51,6 +51,6 @@ unix:*-g++* {
 }
 
 linux*|freebsd* {
-    LIBS += -lrt
+    LIBS += -lrt $$QMAKE_LIBS_DYNLOAD
 }
 }

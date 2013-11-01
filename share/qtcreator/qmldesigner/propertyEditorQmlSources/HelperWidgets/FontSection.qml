@@ -68,7 +68,7 @@ Section {
         ComboBox {
             backendValue: backendValues.fontFamily
             Layout.fillWidth: true
-            model: ["Arial"]
+            model: ["Arial", "Times New Roman", "Courier", "Verdana", "Tahoma"]
         }
 
         Label {
@@ -83,7 +83,6 @@ Section {
             property bool isSetup;
 
             onSelectionFlagChanged: {
-                print("selection changed");
                 isSetup = true;
                 sizeType.currentIndex = 1
                 if (pixelSize.isInModel)

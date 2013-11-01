@@ -1,7 +1,7 @@
 TARGET = iostool
 
 QT       += core
-QT       += gui xml
+QT       += gui xml network
 
 CONFIG   += console
 

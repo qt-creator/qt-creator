@@ -490,18 +490,18 @@ void BlackBerryInstallWizardFinalPage::initializePage()
         }
     }
 
-    QString actionMsg;
-    if (m_data.mode == BlackBerryInstallerDataHandler::UninstallMode)
-        actionMsg = tr("uninstalling");
-    else
-        actionMsg = tr("installing");
-
+    QString message;
     if (m_data.exitCode == 0 && m_data.exitStatus == QProcess::NormalExit) {
-        label->setText(tr("Finished %1 target:\n %2").arg(actionMsg, m_data.target));
+        message = m_data.mode == BlackBerryInstallerDataHandler::UninstallMode ?
+            tr("Finished uninstalling target:\n %1").arg(m_data.target) :
+            tr("Finished installing target:\n %1").arg(m_data.target);
         emit done();
     } else {
-        label->setText(tr("An error has occurred while %1 target:\n %2").arg(actionMsg, m_data.target));
+        message = m_data.mode == BlackBerryInstallerDataHandler::UninstallMode ?
+            tr("An error has occurred while uninstalling target:\n %1").arg(m_data.target) :
+            tr("An error has occurred while installing target:\n %1").arg(m_data.target);
     }
+    label->setText(message);
 }
 
 } // namespace Internal

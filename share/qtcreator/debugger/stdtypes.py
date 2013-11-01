@@ -321,7 +321,7 @@ def qdump__std__stringHelper1(d, value, charSize):
     qdump_stringHelper(d, sizePtr, size * charSize, charSize)
 
 def qdump_stringHelper(d, data, size, charSize):
-    cutoff = min(size, qqStringCutOff)
+    cutoff = min(size, d.stringCutOff)
     mem = d.readMemory(data, cutoff)
     if charSize == 1:
         encodingType = Hex2EncodedLatin1

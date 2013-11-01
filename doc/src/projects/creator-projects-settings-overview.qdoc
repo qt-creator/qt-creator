@@ -52,7 +52,7 @@
 
     Each kit consists of a set of values that define one environment, such as a
     device, compiler, and Qt version. For more information, see
-    \l{Adding Qt Versions} and \l{Adding Compilers}.
+    \l{Adding Qt Versions}, \l{Adding Compilers}, and \l{Adding Debuggers}.
 
     To copy the build and run settings for a kit to another kit, select
     \gui {Copy to Kit} in the kit menu.

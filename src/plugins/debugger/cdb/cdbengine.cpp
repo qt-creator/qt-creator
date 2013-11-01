@@ -840,7 +840,7 @@ void CdbEngine::runEngine()
     if (debuggerCore()->boolSetting(CdbBreakOnCrtDbgReport)) {
         const QByteArray module = msvcRunTime(startParameters().toolChainAbi.osFlavor());
         const QByteArray debugModule = module + 'D';
-        const QByteArray wideFunc = CdbOptionsPage::crtDbgReport + 'W';
+        const QByteArray wideFunc = QByteArray(CdbOptionsPage::crtDbgReport).append('W');
         postCommand(breakAtFunctionCommand(CdbOptionsPage::crtDbgReport, module), 0);
         postCommand(breakAtFunctionCommand(wideFunc, module), 0);
         postCommand(breakAtFunctionCommand(CdbOptionsPage::crtDbgReport, debugModule), 0);

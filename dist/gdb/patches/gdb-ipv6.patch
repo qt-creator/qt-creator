@@ -1,7 +1,7 @@
-diff -Nru a/gdb-7.5.1/gdb/gdbserver/gdbreplay.c b/gdb-7.5.1/gdb/gdbserver/gdbreplay.c
---- a/gdb-7.5.1/gdb/gdbserver/gdbreplay.c	2012-08-22 13:05:02 -0700
-+++ b/gdb-7.5.1/gdb/gdbserver/gdbreplay.c	2013-04-15 03:20:40 -0700
-@@ -190,14 +190,41 @@
+diff -Nru a/gdb-7.6.1/gdb/gdbserver/gdbreplay.c b/gdb-7.6.1/gdb/gdbserver/gdbreplay.c
+--- a/gdb-7.6.1/gdb/gdbserver/gdbreplay.c	2012-08-22 13:05:02 -0700
++++ b/gdb-7.6.1/gdb/gdbserver/gdbreplay.c	2013-04-15 03:20:40 -0700
+@@ -189,14 +189,41 @@ remote_close (void)
  static void
  remote_open (char *name)
  {
@@ -47,9 +47,9 @@ diff -Nru a/gdb-7.5.1/gdb/gdbserver/gdbreplay.c b/gdb-7.5.1/gdb/gdbserver/gdbrep
  #ifdef USE_WIN32API
        static int winsock_initialized;
  #endif
-diff -Nru a/gdb-7.5.1/gdb/gdbserver/remote-utils.c b/gdb-7.5.1/gdb/gdbserver/remote-utils.c
---- a/gdb-7.5.1/gdb/gdbserver/remote-utils.c	2012-04-28 23:28:30 -0700
-+++ b/gdb-7.5.1/gdb/gdbserver/remote-utils.c	2013-04-16 06:25:07 -0700
+diff -Nru a/gdb-7.6.1/gdb/gdbserver/remote-utils.c b/gdb-7.6.1/gdb/gdbserver/remote-utils.c
+--- a/gdb-7.6.1/gdb/gdbserver/remote-utils.c	2012-04-28 23:28:30 -0700
++++ b/gdb-7.6.1/gdb/gdbserver/remote-utils.c	2013-04-16 06:25:07 -0700
 @@ -16,6 +16,8 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
@@ -76,8 +76,8 @@ diff -Nru a/gdb-7.5.1/gdb/gdbserver/remote-utils.c b/gdb-7.5.1/gdb/gdbserver/rem
 @@ -109,7 +118,7 @@
  static int remote_is_stdio = 0;
  
- static gdb_fildes_t remote_desc = INVALID_DESCRIPTOR;
--static gdb_fildes_t listen_desc = INVALID_DESCRIPTOR;
+ gdb_fildes_t remote_desc = INVALID_DESCRIPTOR;
+-gdb_fildes_t listen_desc = INVALID_DESCRIPTOR;
 +gdb_fildes_t *listening_sockets = NULL;
  
  /* FIXME headerize? */
@@ -474,10 +474,10 @@ diff -Nru a/gdb-7.5.1/gdb/gdbserver/remote-utils.c b/gdb-7.5.1/gdb/gdbserver/rem
      }
  }
  
-diff -Nru a/gdb-7.5.1/gdb/ser-tcp.c b/gdb-7.5.1/gdb/ser-tcp.c
---- a/gdb-7.5.1/gdb/ser-tcp.c	2012-01-04 00:17:10 -0800
-+++ b/gdb-7.5.1/gdb/ser-tcp.c	2013-04-15 03:20:40 -0700
-@@ -38,7 +38,9 @@
+diff -Nru a/gdb-7.6.1/gdb/ser-tcp.c b/gdb-7.6.1/gdb/ser-tcp.c
+--- a/gdb-7.6.1/gdb/ser-tcp.c	2012-01-04 00:17:10 -0800
++++ b/gdb-7.6.1/gdb/ser-tcp.c	2013-04-15 03:20:40 -0700
+@@ -37,7 +37,9 @@
  #include <sys/time.h>
  
  #ifdef USE_WIN32API
@@ -487,7 +487,7 @@ diff -Nru a/gdb-7.5.1/gdb/ser-tcp.c b/gdb-7.5.1/gdb/ser-tcp.c
  #ifndef ETIMEDOUT
  #define ETIMEDOUT WSAETIMEDOUT
  #endif
-@@ -50,6 +52,7 @@
+@@ -49,6 +51,7 @@
  #include <netdb.h>
  #include <sys/socket.h>
  #include <netinet/tcp.h>
@@ -495,7 +495,7 @@ diff -Nru a/gdb-7.5.1/gdb/ser-tcp.c b/gdb-7.5.1/gdb/ser-tcp.c
  #endif
  
  #include <signal.h>
-@@ -79,76 +82,49 @@
+@@ -78,76 +81,49 @@ static unsigned int tcp_retry_limit = 15
  
  #define POLL_INTERVAL 5
  
@@ -609,7 +609,7 @@ diff -Nru a/gdb-7.5.1/gdb/ser-tcp.c b/gdb-7.5.1/gdb/ser-tcp.c
  }
  
  /* Open a tcp socket.  */
-@@ -156,18 +132,24 @@
+@@ -155,18 +131,24 @@ wait_for_connect (struct serial *scb, in
  int
  net_open (struct serial *scb, const char *name)
  {
@@ -637,7 +637,7 @@ diff -Nru a/gdb-7.5.1/gdb/ser-tcp.c b/gdb-7.5.1/gdb/ser-tcp.c
    use_udp = 0;
    if (strncmp (name, "udp:", 4) == 0)
      {
-@@ -177,134 +159,286 @@
+@@ -176,134 +158,286 @@ net_open (struct serial *scb, const char
    else if (strncmp (name, "tcp:", 4) == 0)
      name = name + 4;
  

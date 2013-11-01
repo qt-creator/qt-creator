@@ -48,6 +48,10 @@
     you can \gui{Clone} the kit and change the parameters in
     the clone. Make sure to select the cloned kit for your project.
 
+    If the debugger you want to use is not automatically detected, select
+    \gui Tools > \gui Options > \gui {Build & Run} > \gui Debuggers > \gui Add
+    to add it.
+
     \note To use the debugging tools for Windows, you must install them
     and add the Symbol Server provided by Microsoft to the symbol search
     path of the debugger. For more information, see \l{Setting the Symbol

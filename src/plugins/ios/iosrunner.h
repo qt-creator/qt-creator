@@ -64,7 +64,7 @@ public slots:
 
 signals:
     void didStartApp(Ios::IosToolHandler::OpStatus status);
-    void gotGdbserverSocket(int gdbFd);
+    void gotGdbserverPort(int gdbPort);
     void gotInferiorPid(Q_PID pid);
     void appOutput(const QString &output);
     void errorMsg(const QString &msg);
@@ -74,8 +74,8 @@ private slots:
     void warnAboutDeployFail();
     void handleDidStartApp(Ios::IosToolHandler *handler, const QString &bundlePath,
                            const QString &deviceId, Ios::IosToolHandler::OpStatus status);
-    void handleGotGdbserverSocket(Ios::IosToolHandler *handler, const QString &bundlePath,
-                                  const QString &deviceId, int gdbFd);
+    void handleGotGdbserverPort(Ios::IosToolHandler *handler, const QString &bundlePath,
+                                const QString &deviceId, int gdbPort);
     void handleGotInferiorPid(Ios::IosToolHandler *handler, const QString &bundlePath,
                               const QString &deviceId, Q_PID pid);
     void handleAppOutput(Ios::IosToolHandler *handler, const QString &output);
@@ -89,6 +89,7 @@ private:
     ProjectExplorer::IDevice::ConstPtr m_device;
     bool m_debuggingMode;
     bool m_cleanExit;
+    Q_PID m_pid;
 };
 
 } // namespace Internal

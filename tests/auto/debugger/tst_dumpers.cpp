@@ -910,7 +910,7 @@ void tst_Dumpers::dumper()
                     "python from gdbbridge import *\n"
                     "run " + nograb + "\n"
                     "up\n"
-                    "python print('@%sS@%s@' % ('N', qtNamespace()))\n"
+                    "python print('@%sS@%s@' % ('N', theDumper.qtNamespace()))\n"
                     "bb options:fancy,autoderef,dyntype,pe vars: expanded:" + expanded + " typeformats:\n";
         } else {
             cmds += "run\n";
@@ -1444,8 +1444,6 @@ void tst_Dumpers::dumper_data()
                     "hash[22] = \"22.0\";\n")
                % CoreProfile()
                % Check("hash", "<1 items>", "@QHash<int, @QString>")
-               % Check("hash.0", "[0]", "", Type4("@QHashNode<@QString>"))
-               % Check("hash.0", "[0]", "", Type5("@QHashNode<int, @QString>"))
                % Check("hash.0.key", "22", "int")
                % Check("hash.0.value", "\"22.0\"", "@QString");
 
@@ -3252,7 +3250,14 @@ void tst_Dumpers::dumper_data()
                % Check("s.0", "[0]", "1", "bool")  // 1 -> true is done on display
                % Check("s.1", "[1]", "0", "bool");
 
-    QTest::newRow("QUrl")
+    QTest::newRow("QUrl1")
+            << Data("#include <QUrl>",
+                    "QUrl url;\n"
+                    "unused(&url);\n")
+               % CoreProfile()
+               % Check("url", "<invalid>", "@QUrl");
+
+    QTest::newRow("QUrl2")
             << Data("#include <QUrl>",
                     "QUrl url = QUrl::fromEncoded(\"http://foo@qt-project.org:10/have_fun\");\n"
                     "unused(&url);\n")

@@ -275,9 +275,10 @@ public:
     AMDeviceRef device;
     int progressBase;
     int unexpectedChars;
+    bool aknowledge;
 private:
     bool checkRead(qptrdiff nRead, int &maxRetry);
-    int handleChar(QByteArray &res, char c, int status);
+    int handleChar(int sock, QByteArray &res, char c, int status);
 };
 
 // ------- IosManagerPrivate interface --------
@@ -709,7 +710,7 @@ int IosDeviceManagerPrivate::processGdbServer(int fd)
 // ------- ConnectSession implementation --------
 
 CommandSession::CommandSession(const QString &deviceId) : deviceId(deviceId), device(0),
-    progressBase(0), unexpectedChars(0)
+    progressBase(0), unexpectedChars(0), aknowledge(true)
 { }
 
 CommandSession::~CommandSession() { }
@@ -876,7 +877,7 @@ bool CommandSession::checkRead(qptrdiff nRead, int &maxRetry)
     return true;
 }
 
-int CommandSession::handleChar(QByteArray &res, char c, int status)
+int CommandSession::handleChar(int fd, QByteArray &res, char c, int status)
 {
     switch (status) {
     case 0:
@@ -911,6 +912,8 @@ int CommandSession::handleChar(QByteArray &res, char c, int status)
                 ++unexpectedChars;
             }
         }
+        if (status == 3 && aknowledge)
+            writeAll(fd, "+", 1);
         return status + 1;
     case 4:
         addError(QString::fromLatin1("gone past end in readGdbReply"));
@@ -940,7 +943,7 @@ QByteArray CommandSession::readGdbReply(ServiceSocket fd)
             qDebug() << "gdbReply read " << buf;
         }
         for (qptrdiff i = 0; i< nRead; ++i)
-            status = handleChar(res, buf[i], status);
+            status = handleChar(fd, res, buf[i], status);
         toRead = 4 - status;
     }
     if (status != 4) {
@@ -1095,8 +1098,8 @@ bool AppOpSession::runApp()
         // gdbServer protocol, see http://sourceware.org/gdb/onlinedocs/gdb/Remote-Protocol.html#Remote-Protocol
         // and the lldb handling of that (with apple specific stuff)
         // http://llvm.org/viewvc/llvm-project/lldb/trunk/tools/debugserver/source/RNBRemote.cpp
-        failure = !sendGdbCommand(gdbFd, "QStartNoAckMode"); // avoid and send required aknowledgements?
-        if (!failure) failure = !expectGdbOkReply(gdbFd);
+        //failure = !sendGdbCommand(gdbFd, "QStartNoAckMode"); // avoid and send required aknowledgements?
+        //if (!failure) failure = !expectGdbOkReply(gdbFd);
         if (!failure) failure = !sendGdbCommand(gdbFd, "QEnvironmentHexEncoded:"); // send the environment with a series of these commands...
         if (!failure) failure = !sendGdbCommand(gdbFd, "QSetDisableASLR:1"); // avoid address randomization to debug
         if (!failure) failure = !expectGdbOkReply(gdbFd);

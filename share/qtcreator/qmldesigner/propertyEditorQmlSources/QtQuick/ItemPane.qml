@@ -166,6 +166,7 @@ Rectangle {
                         Loader {
                             anchors.left: parent.left
                             anchors.right: parent.right
+                            visible: theSource !== ""
 
                             id: specificsTwo;
                             sourceComponent: specificQmlComponent

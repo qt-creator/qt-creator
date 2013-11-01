@@ -6,23 +6,11 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>463</width>
-    <height>121</height>
+    <width>557</width>
+    <height>233</height>
    </rect>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <property name="leftMargin">
-    <number>0</number>
-   </property>
-   <property name="topMargin">
-    <number>0</number>
-   </property>
-   <property name="rightMargin">
-    <number>0</number>
-   </property>
-   <property name="bottomMargin">
-    <number>0</number>
-   </property>
+  <layout class="QFormLayout" name="formLayout">
    <item row="0" column="0">
     <widget class="QLabel" name="buildVariantLabel">
      <property name="text">
@@ -31,56 +19,77 @@
     </widget>
    </item>
    <item row="0" column="1">
-    <widget class="QComboBox" name="buildVariantComboBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_5">
      <item>
-      <property name="text">
-       <string>Debug</string>
-      </property>
+      <widget class="QComboBox" name="buildVariantComboBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <item>
+        <property name="text">
+         <string>Debug</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Release</string>
+        </property>
+       </item>
+      </widget>
      </item>
      <item>
-      <property name="text">
-       <string>Release</string>
-      </property>
+      <spacer name="spacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>70</width>
+         <height>13</height>
+        </size>
+       </property>
+      </spacer>
      </item>
-    </widget>
-   </item>
-   <item row="0" column="2">
-    <widget class="QSpinBox" name="jobSpinBox"/>
-   </item>
-   <item row="0" column="3">
-    <widget class="QLabel" name="jobsLabel">
-     <property name="text">
-      <string>jobs</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="4">
-    <spacer name="spacer">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>15</width>
-       <height>5</height>
-      </size>
-     </property>
-    </spacer>
+    </layout>
    </item>
    <item row="1" column="0">
+    <widget class="QLabel" name="jobsLabel">
+     <property name="text">
+      <string>Parallel Jobs:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <layout class="QHBoxLayout" name="horizontalLayout_6">
+     <item>
+      <widget class="QSpinBox" name="jobSpinBox"/>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item row="2" column="0">
     <widget class="QLabel" name="qmlDebuggingLabel">
      <property name="text">
       <string>Enable QML debugging:</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="1" colspan="4">
+   <item row="2" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QCheckBox" name="qmlDebuggingLibraryCheckBox">
@@ -121,17 +130,28 @@
      </item>
     </layout>
    </item>
-   <item row="2" column="0">
+   <item row="3" column="0">
     <widget class="QLabel" name="propertyLabel">
      <property name="text">
       <string>Properties:</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="1" colspan="4">
-    <widget class="QbsPropertyLineEdit" name="propertyEdit"/>
+   <item row="3" column="1">
+    <widget class="QbsPropertyLineEdit" name="propertyEdit">
+     <property name="text">
+      <string notr="true"/>
+     </property>
+    </widget>
    </item>
-   <item row="3" column="0" colspan="5">
+   <item row="4" column="0">
+    <widget class="QLabel" name="flagsLabel">
+     <property name="text">
+      <string>Flags:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
       <widget class="QCheckBox" name="dryRunCheckBox">
@@ -162,7 +182,41 @@
      </item>
     </layout>
    </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="commandLineKeyLabel">
+     <property name="text">
+      <string>Equivalent command line:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1">
+    <widget class="QPlainTextEdit" name="commandLineTextEdit">
+     <property name="undoRedoEnabled">
+      <bool>false</bool>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+     <property name="plainText">
+      <string notr="true"/>
+     </property>
+     <property name="textInteractionFlags">
+      <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+     </property>
+    </widget>
+   </item>
   </layout>
+  <zorder>buildVariantLabel</zorder>
+  <zorder>qmlDebuggingLabel</zorder>
+  <zorder>propertyLabel</zorder>
+  <zorder>propertyEdit</zorder>
+  <zorder>commandLineKeyLabel</zorder>
+  <zorder>flagsLabel</zorder>
+  <zorder>jobsLabel</zorder>
+  <zorder>commandLineTextEdit</zorder>
  </widget>
  <customwidgets>
   <customwidget>

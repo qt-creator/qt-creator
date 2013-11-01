@@ -32,15 +32,17 @@
 
     \QC provides a debugger plugin that acts as an interface between the \QC
     core and external native debuggers such as the GNU Symbolic Debugger (GDB),
-    the Microsoft Console Debugger (CDB), and a QML/JavaScript debugger.
+    the Microsoft Console Debugger (CDB), a QML/JavaScript debugger, and the
+    debugger of the low level virtual machine (LLVM) project, LLDB.
 
     \list
 
         \li \l{Setting Up Debugger}
 
             The debugger plugin automatically selects a suitable
-            native debugger for your projects from the ones found
-            on your system. Manual overriding of this choice is possible.
+            native debugger for each \l{glossary-buildandrun-kit}{kit} from the
+            ones found on your system. You can edit the kits to override this
+            choice.
 
         \li \l{Launching the Debugger}
 

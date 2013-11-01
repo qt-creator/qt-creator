@@ -28,11 +28,11 @@
 ****************************************************************************/
 
 #include "importswidget.h"
+#include "importlabel.h"
+#include "importmanagercombobox.h"
 
 #include <QVBoxLayout>
 #include <QComboBox>
-
-#include "importlabel.h"
 
 namespace QmlDesigner {
 
@@ -40,7 +40,7 @@ ImportsWidget::ImportsWidget(QWidget *parent) :
     QWidget(parent)
 {
     setWindowTitle(tr("Import Manager"));
-    m_addImportComboBox = new QComboBox(this);
+    m_addImportComboBox = new ImportManagerComboBox(this);
     connect(m_addImportComboBox, SIGNAL(activated(int)), this, SLOT(addSelectedImport(int)));
 }
 
@@ -149,6 +149,9 @@ void ImportsWidget::updateLayout()
 void ImportsWidget::addSelectedImport(int addImportComboBoxIndex)
 {
     Import selectedImport = m_addImportComboBox->itemData(addImportComboBoxIndex).value<Import>();
+
+    if (selectedImport.isEmpty())
+        return;
 
     emit addImport(selectedImport);
 }

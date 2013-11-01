@@ -94,7 +94,7 @@ def qdump__QAbstractItemModel(d, value):
     #format == 2:
     # Create a default-constructed QModelIndex on the stack.
     try:
-        ri = d.makeValue(d.ns + "QModelIndex", "-1, -1, 0, 0")
+        ri = d.makeValue(d.qtNamespace() + "QModelIndex", "-1, -1, 0, 0")
         this_ = d.makeExpression(value)
         ri_ = d.makeExpression(ri)
         rowCount = int(d.parseAndEvaluate("%s.rowCount(%s)" % (this_, ri_)))
@@ -147,8 +147,9 @@ def qdump__QModelIndex(d, value):
 
     mm = m.dereference()
     mm = mm.cast(mm.type.unqualified())
+    ns = d.qtNamespace()
     try:
-        mi = d.makeValue(d.ns + "QModelIndex", "%s,%s,%s,%s" % (r, c, p, m))
+        mi = d.makeValue(ns + "QModelIndex", "%s,%s,%s,%s" % (r, c, p, m))
         mm_ = d.makeExpression(mm)
         mi_ = d.makeExpression(mi)
         rowCount = int(d.parseAndEvaluate("%s.rowCount(%s)" % (mm_, mi_)))
@@ -162,7 +163,7 @@ def qdump__QModelIndex(d, value):
         # Access DisplayRole as value
         val = d.parseAndEvaluate("%s.data(%s, 0)" % (mm_, mi_))
         v = val["d"]["data"]["ptr"]
-        d.putStringValue(d.makeValue(d.ns + 'QString', v))
+        d.putStringValue(d.makeValue(ns + 'QString', v))
     except:
         d.putValue("(invalid)")
 
@@ -181,7 +182,7 @@ def qdump__QModelIndex(d, value):
             #d.putCallItem("parent", val, "parent")
             #with SubItem(d, "model"):
             #    d.putValue(m)
-            #    d.putType(d.ns + "QAbstractItemModel*")
+            #    d.putType(ns + "QAbstractItemModel*")
             #    d.putNumChild(1)
     #gdb.execute("call free($mi)")
 
@@ -192,7 +193,7 @@ def qdump__QDate(d, value):
         d.putValue(jd, JulianDate)
         d.putNumChild(1)
         if d.isExpanded():
-            qt = d.ns + "Qt::"
+            qt = d.qtNamespace() + "Qt::"
             if d.isLldb:
                 qt += "DateFormat::" # FIXME: Bug?...
             # FIXME: This improperly uses complex return values.
@@ -213,8 +214,9 @@ def qdump__QTime(d, value):
         d.putValue(mds, MillisecondsSinceMidnight)
         d.putNumChild(1)
         if d.isExpanded():
-            qtdate = d.ns + "Qt::"
-            qttime = d.ns + "Qt::"
+            ns = d.qtNamespace()
+            qtdate = ns + "Qt::"
+            qttime = ns + "Qt::"
             if d.isLldb:
                 qtdate += "DateFormat::" # FIXME: Bug?...
             # FIXME: This improperly uses complex return values.
@@ -267,8 +269,8 @@ def qdump__QDateTime(d, value):
         if d.isExpanded():
             # FIXME: This improperly uses complex return values.
             with Children(d):
-                qtdate = d.ns + "Qt::"
-                qttime = d.ns + "Qt::"
+                qtdate = d.qtNamespace() + "Qt::"
+                qttime = qtdate
                 if d.isLldb:
                     qtdate += "DateFormat::" # FIXME: Bug?...
                     qttime += "TimeSpec::" # FIXME: Bug?...
@@ -320,24 +322,25 @@ def qdump__QDir(d, value):
     d.putStringValueByAddress(privAddress + dirEntryOffset)
     if d.isExpanded():
         with Children(d):
+            ns = d.qtNamespace()
             d.call(value, "count")  # Fill cache.
             #d.putCallItem("absolutePath", value, "absolutePath")
             #d.putCallItem("canonicalPath", value, "canonicalPath")
             with SubItem(d, "absolutePath"):
-                typ = d.lookupType(d.ns + "QString")
+                typ = d.lookupType(ns + "QString")
                 d.putItem(d.createValue(privAddress + absoluteDirEntryOffset, typ))
             with SubItem(d, "entryInfoList"):
-                typ = d.lookupType(d.ns + "QList<" + d.ns + "QFileInfo>")
+                typ = d.lookupType(ns + "QList<" + ns + "QFileInfo>")
                 d.putItem(d.createValue(privAddress + fileInfosOffset, typ))
             with SubItem(d, "entryList"):
-                typ = d.lookupType(d.ns + "QStringList")
+                typ = d.lookupType(ns + "QStringList")
                 d.putItem(d.createValue(privAddress + filesOffset, typ))
 
 
 def qdump__QFile(d, value):
     try:
         # Try using debug info first.
-        ptype = d.lookupType(d.ns + "QFilePrivate").pointer()
+        ptype = d.lookupType(d.qtNamespace() + "QFilePrivate").pointer()
         d_ptr = value["d_ptr"]["d"]
         fileNameAddress = d.addressOf(d_ptr.cast(ptype).dereference()["fileName"])
         d.putNumChild(1)
@@ -370,7 +373,8 @@ def qdump__QFileInfo(d, value):
     d.putStringValueByAddress(filePathAddress)
     d.putNumChild(1)
     if d.isExpanded():
-        with Children(d, childType=d.lookupType(d.ns + "QString")):
+        ns = d.qtNamespace()
+        with Children(d, childType=d.lookupType(ns + "QString")):
             d.putCallItem("absolutePath", value, "absolutePath")
             d.putCallItem("absoluteFilePath", value, "absoluteFilePath")
             d.putCallItem("canonicalPath", value, "canonicalPath")
@@ -399,7 +403,7 @@ def qdump__QFileInfo(d, value):
             else:
                 with SubItem(d, "permissions"):
                     d.putEmptyValue()
-                    d.putType(d.ns + "QFile::Permissions")
+                    d.putType(ns + "QFile::Permissions")
                     d.putNumChild(10)
                     if d.isExpanded():
                         with Children(d, 10):
@@ -793,7 +797,7 @@ def qdump__QLocale(d, value):
     #global qqLocalesCount
     #if qqLocalesCount is None:
     #    #try:
-    #        qqLocalesCount = int(value(d.ns + 'locale_data_size'))
+    #        qqLocalesCount = int(value(ns + 'locale_data_size'))
     #    #except:
     #        qqLocalesCount = 438
     #try:
@@ -810,15 +814,16 @@ def qdump__QLocale(d, value):
     return
     # FIXME: Poke back for variants.
     if d.isExpanded():
-        with Children(d, childType=d.lookupType(d.ns + "QChar"), childNumChild=0):
+        ns = d.qtNamespace()
+        with Children(d, childType=d.lookupType(ns + "QChar"), childNumChild=0):
             d.putCallItem("country", value, "country")
             d.putCallItem("language", value, "language")
             d.putCallItem("measurementSystem", value, "measurementSystem")
             d.putCallItem("numberOptions", value, "numberOptions")
             d.putCallItem("timeFormat_(short)", value,
-                "timeFormat", d.ns + "QLocale::ShortFormat")
+                "timeFormat", ns + "QLocale::ShortFormat")
             d.putCallItem("timeFormat_(long)", value,
-                "timeFormat", d.ns + "QLocale::LongFormat")
+                "timeFormat", ns + "QLocale::LongFormat")
             d.putCallItem("decimalPoint", value, "decimalPoint")
             d.putCallItem("exponential", value, "exponential")
             d.putCallItem("percent", value, "percent")
@@ -858,7 +863,7 @@ def qdumpHelper__Qt4_QMap(d, value, forceLong):
         # QMapPayloadNode is QMapNode except for the 'forward' member, so
         # its size is most likely the offset of the 'forward' member therein.
         # Or possibly 2 * sizeof(void *)
-        nodeType = d.lookupType(d.ns + "QMapNode<%s,%s>" % (keyType, valueType))
+        nodeType = d.lookupType(d.qtNamespace() + "QMapNode<%s,%s>" % (keyType, valueType))
         nodePointerType = nodeType.pointer()
         payloadSize = nodeType.sizeof - 2 * nodePointerType.sizeof
 
@@ -976,9 +981,10 @@ def extractCString(table, offset):
 
 def qdump__QObject(d, value):
     d.putQObjectNameValue(value)
+    ns = d.qtNamespace()
 
     try:
-        privateTypeName = d.ns + "QObjectPrivate"
+        privateTypeName = ns + "QObjectPrivate"
         privateType = d.lookupType(privateTypeName)
         staticMetaObject = value["staticMetaObject"]
     except:
@@ -1030,7 +1036,7 @@ def qdump__QObject(d, value):
       with Children(d):
 
         # Local data.
-        if privateTypeName != d.ns + "QObjectPrivate":
+        if privateTypeName != ns + "QObjectPrivate":
             if not privateType is None:
               with SubItem(d, "data"):
                 d.putEmptyValue()
@@ -1043,7 +1049,7 @@ def qdump__QObject(d, value):
 
         d.putFields(value)
         # Parent and children.
-        if stripClassTag(str(value.type)) == d.ns + "QObject":
+        if stripClassTag(str(value.type)) == ns + "QObject":
             d.putSubItem("parent", d_ptr["parent"])
             d.putSubItem("children", d_ptr["children"])
 
@@ -1055,7 +1061,7 @@ def qdump__QObject(d, value):
                 dynamicPropertyCount = 0
             else:
                 extraDataType = d.lookupType(
-                    d.ns + "QObjectPrivate::ExtraData").pointer()
+                    ns + "QObjectPrivate::ExtraData").pointer()
                 extraData = extraData.cast(extraDataType)
                 ed = extraData.dereference()
                 names = ed["propertyNames"]
@@ -1077,7 +1083,7 @@ def qdump__QObject(d, value):
 
             if d.isExpanded():
                 # FIXME: Make this global. Don't leak.
-                variant = "'%sQVariant'" % d.ns
+                variant = "'%sQVariant'" % ns
                 # Avoid malloc symbol clash with QVector
                 gdb.execute("set $d = (%s*)calloc(sizeof(%s), 1)"
                     % (variant, variant))
@@ -1087,11 +1093,11 @@ def qdump__QObject(d, value):
                     # Dynamic properties.
                     if dynamicPropertyCount != 0:
                         dummyType = d.voidPtrType().pointer()
-                        namesType = d.lookupType(d.ns + "QByteArray")
+                        namesType = d.lookupType(ns + "QByteArray")
                         valuesBegin = values["d"]["begin"]
                         valuesEnd = values["d"]["end"]
                         valuesArray = values["d"]["array"]
-                        valuesType = d.lookupType(d.ns + "QVariant")
+                        valuesType = d.lookupType(ns + "QVariant")
                         p = namesArray.cast(dummyType) + namesBegin
                         q = valuesArray.cast(dummyType) + valuesBegin
                         for i in xrange(dynamicPropertyCount):
@@ -1124,9 +1130,9 @@ def qdump__QObject(d, value):
                             #warn("FLAGS: %s " % flags)
                             #warn("PROPERTY: %s %s " % (propertyType, propertyName))
                             # #exp = '((\'%sQObject\'*)%s)->property("%s")' \
-                            #     % (d.ns, value.address, propertyName)
+                            #     % (ns, value.address, propertyName)
                             #exp = '"((\'%sQObject\'*)%s)"' %
-                            #(d.ns, value.address,)
+                            #(ns, value.address,)
                             #warn("EXPRESSION:  %s" % exp)
                             prop = d.call(value, "property",
                                 str(cleanAddress(metaStringData + metaData[offset])))
@@ -1150,10 +1156,10 @@ def qdump__QObject(d, value):
                             else:
                                 # User types.
                            #    func = "typeToName(('%sQVariant::Type')%d)"
-                           #       % (d.ns, variantType)
+                           #       % (ns, variantType)
                            #    type = str(d.call(value, func))
                            #    type = type[type.find('"') + 1 : type.rfind('"')]
-                           #    type = type.replace("Q", d.ns + "Q") # HACK!
+                           #    type = type.replace("Q", ns + "Q") # HACK!
                            #    data = d.call(value, "constData")
                            #    tdata = data.cast(d.lookupType(type).pointer())
                            #      .dereference()
@@ -1465,15 +1471,16 @@ def qdump__QRegExp(d, value):
             # - QStringList captures             (+3ptr +2enum +1bool +3pad?)
             # FIXME: Remove need to call. Needed to warm up cache.
             d.call(value, "capturedTexts") # create cache
+            ns = d.qtNamespace()
             with SubItem(d, "syntax"):
                 # value["priv"]["engineKey"["capturedCache"]
                 address = engineKeyAddress + d.ptrSize()
-                typ = d.lookupType(d.ns + "QRegExp::PatternSyntax")
+                typ = d.lookupType(ns + "QRegExp::PatternSyntax")
                 d.putItem(d.createValue(address, typ))
             with SubItem(d, "captures"):
                 # value["priv"]["capturedCache"]
                 address = privAddress + 3 * d.ptrSize() + 12
-                typ = d.lookupType(d.ns + "QStringList")
+                typ = d.lookupType(ns + "QStringList")
                 d.putItem(d.createValue(address, typ))
 
 
@@ -1496,7 +1503,8 @@ def qdump__QRegion(d, value):
         if d.isExpanded():
             with Children(d):
                 v = d.ptrSize()
-                rectType = d.lookupType(d.ns + "QRect")
+                ns = d.qtNamespace()
+                rectType = d.lookupType(ns + "QRect")
                 d.putIntItem("numRects", n)
                 d.putSubItem("extents", d.createValue(pp + 2 * v, rectType))
                 d.putSubItem("innerRect", d.createValue(pp + 2 * v + rectType.sizeof, rectType))
@@ -1504,12 +1512,12 @@ def qdump__QRegion(d, value):
                 # FIXME
                 try:
                     # Can fail if QVector<QRect> debuginfo is missing.
-                    vectType = d.lookupType("%sQVector<%sQRect>" % (d.ns, d.ns))
+                    vectType = d.lookupType("%sQVector<%sQRect>" % (ns, ns))
                     d.putSubItem("rects", d.createValue(pp + v, vectType))
                 except:
                     with SubItem(d, "rects"):
                         d.putItemCount(n)
-                        d.putType("%sQVector<%sQRect>" % (d.ns, d.ns))
+                        d.putType("%sQVector<%sQRect>" % (ns, ns))
                         d.putNumChild(0)
 
 
@@ -1715,6 +1723,10 @@ def qdump__QTextDocument(d, value):
 
 def qdump__QUrl(d, value):
     if d.qtVersion() < 0x050000:
+        if not d.dereferenceValue(value):
+            # d == 0 if QUrl was constructed with default constructor
+            d.putValue("<invalid>")
+            return
         data = value["d"].dereference()
         d.putByteArrayValue(data["encodedOriginal"])
         d.putPlainChildren(data)
@@ -1729,7 +1741,12 @@ def qdump__QUrl(d, value):
         # - QString path;
         # - QString query;
         # - QString fragment;
-        schemeAddr = d.dereferenceValue(value) + 2 * d.intSize()
+        privAddress = d.dereferenceValue(value)
+        if not privAddress:
+            # d == 0 if QUrl was constructed with default constructor
+            d.putValue("<invalid>")
+            return
+        schemeAddr = privAddress + 2 * d.intSize()
         scheme = d.encodeStringHelper(d.dereference(schemeAddr))
         userName = d.encodeStringHelper(d.dereference(schemeAddr + 1 * d.ptrSize()))
         password = d.encodeStringHelper(d.dereference(schemeAddr + 2 * d.ptrSize()))
@@ -1752,7 +1769,7 @@ def qdump__QUrl(d, value):
         d.putValue(url, Hex4EncodedLittleEndian)
         d.putNumChild(8)
         if d.isExpanded():
-            stringType = d.lookupType(d.ns + "QString")
+            stringType = d.lookupType(d.qtNamespace() + "QString")
             with Children(d):
                 d.putIntItem("port", port)
                 d.putGenericItem("scheme", stringType, scheme, Hex4EncodedLittleEndian)
@@ -1765,12 +1782,12 @@ def qdump__QUrl(d, value):
 
 def qdumpHelper_QVariant_0(d, data):
     # QVariant::Invalid
-    d.putBetterType("%sQVariant (invalid)" % d.ns)
+    d.putBetterType("%sQVariant (invalid)" % d.qtNamespace())
     d.putValue("(invalid)")
 
 def qdumpHelper_QVariant_1(d, data):
     # QVariant::Bool
-    d.putBetterType("%sQVariant (bool)" % d.ns)
+    d.putBetterType("%sQVariant (bool)" % d.qtNamespace())
     if int(data["b"]):
         d.putValue("true")
     else:
@@ -1778,27 +1795,27 @@ def qdumpHelper_QVariant_1(d, data):
 
 def qdumpHelper_QVariant_2(d, data):
     # QVariant::Int
-    d.putBetterType("%sQVariant (int)" % d.ns)
+    d.putBetterType("%sQVariant (int)" % d.qtNamespace())
     d.putValue(int(data["i"]))
 
 def qdumpHelper_QVariant_3(d, data):
     # uint
-    d.putBetterType("%sQVariant (uint)" % d.ns)
+    d.putBetterType("%sQVariant (uint)" % d.qtNamespace())
     d.putValue(int(data["u"]))
 
 def qdumpHelper_QVariant_4(d, data):
     # qlonglong
-    d.putBetterType("%sQVariant (qlonglong)" % d.ns)
+    d.putBetterType("%sQVariant (qlonglong)" % d.qtNamespace())
     d.putValue(int(data["ll"]))
 
 def qdumpHelper_QVariant_5(d, data):
     # qulonglong
-    d.putBetterType("%sQVariant (qulonglong)" % d.ns)
+    d.putBetterType("%sQVariant (qulonglong)" % d.qtNamespace())
     d.putValue(int(data["ull"]))
 
 def qdumpHelper_QVariant_6(d, data):
     # QVariant::Double
-    d.putBetterType("%sQVariant (double)" % d.ns)
+    d.putBetterType("%sQVariant (double)" % d.qtNamespace())
     d.putValue(float(data["d"]))
 
 qdumpHelper_QVariants_A = [
@@ -1884,7 +1901,7 @@ def qdumpHelper__QVariant(d, value):
     else:
         innert = qdumpHelper_QVariants_C[variantType - 64]
 
-    inner = d.ns + innert
+    inner = d.qtNamespace() + innert
 
     innerType = d.lookupType(inner)
     sizePD = 8 # sizeof(QVariant::Private::Data)
@@ -1899,7 +1916,7 @@ def qdumpHelper__QVariant(d, value):
 
     d.putEmptyValue(-99)
     d.putItem(val)
-    d.putBetterType("%sQVariant (%s)" % (d.ns, innert))
+    d.putBetterType("%sQVariant (%s)" % (d.qtNamespace(), innert))
 
     return (None, innert, True)
 
@@ -1913,14 +1930,15 @@ def qdump__QVariant(d, value):
     # User types.
     d_ptr = value["d"]
     typeCode = int(d_ptr["type"])
+    ns = d.qtNamespace()
     try:
-        exp = "((const char *(*)(int))%sQMetaType::typeName)(%d)" % (d.ns, typeCode)
+        exp = "((const char *(*)(int))%sQMetaType::typeName)(%d)" % (ns, typeCode)
         type = str(d.parseAndEvaluate(exp))
     except:
-        exp = "%sQMetaType::typeName(%d)" % (d.ns, typeCode)
+        exp = "%sQMetaType::typeName(%d)" % (ns, typeCode)
         type = str(d.parseAndEvaluate(exp))
     type = type[type.find('"') + 1 : type.rfind('"')]
-    type = type.replace("Q", d.ns + "Q") # HACK!
+    type = type.replace("Q", ns + "Q") # HACK!
     type = type.replace("uint", "unsigned int") # HACK!
     type = type.replace("COMMA", ",") # HACK!
     type = type.replace(" ,", ",") # Lldb
@@ -1928,7 +1946,7 @@ def qdump__QVariant(d, value):
     data = d.call(value, "constData")
     #warn("DATA: %s" % data)
     d.putEmptyValue(-99)
-    d.putType("%sQVariant (%s)" % (d.ns, type))
+    d.putType("%sQVariant (%s)" % (ns, type))
     d.putNumChild(1)
     tdata = data.cast(d.lookupType(type).pointer()).dereference()
     if d.isExpanded():
@@ -2066,7 +2084,7 @@ def qdump__QTJSC__JSValue(d, value):
 
             try:
                 # FIXME: This might not always be a variant.
-                delegateType = d.lookupType(d.ns + "QScript::QVariantDelegate").pointer()
+                delegateType = d.lookupType(d.qtNamespace() + "QScript::QVariantDelegate").pointer()
                 delegate = scriptObject["d"]["delegate"].cast(delegateType)
                 #d.putSubItem("delegate", delegate)
                 variant = delegate["m_value"]
@@ -2087,21 +2105,22 @@ def qdump__QScriptValue(d, value):
     #  type          QScriptValuePrivate::Type: { JavaScriptCore, Number, String }
     #d.putEmptyValue()
     dd = value["d_ptr"]["d"]
+    ns = d.qtNamespace()
     if d.isNull(dd):
         d.putValue("(invalid)")
         d.putNumChild(0)
         return
     if int(dd["type"]) == 1: # Number
         d.putValue(dd["numberValue"])
-        d.putType("%sQScriptValue (Number)" % d.ns)
+        d.putType("%sQScriptValue (Number)" % ns)
         d.putNumChild(0)
         return
     if int(dd["type"]) == 2: # String
         d.putStringValue(dd["stringValue"])
-        d.putType("%sQScriptValue (String)" % d.ns)
+        d.putType("%sQScriptValue (String)" % ns)
         return
 
-    d.putType("%sQScriptValue (JSCoreValue)" % d.ns)
+    d.putType("%sQScriptValue (JSCoreValue)" % ns)
     x = dd["jscValue"]["u"]
     tag = x["asBits"]["tag"]
     payload = x["asBits"]["payload"]
@@ -2135,11 +2154,11 @@ def qdump__QScriptValue(d, value):
 
     try:
         # This might already fail for "native" payloads.
-        scriptObjectType = d.lookupType(d.ns + "QScriptObject").pointer()
+        scriptObjectType = d.lookupType(ns + "QScriptObject").pointer()
         scriptObject = payload.cast(scriptObjectType)
 
         # FIXME: This might not always be a variant.
-        delegateType = d.lookupType(d.ns + "QScript::QVariantDelegate").pointer()
+        delegateType = d.lookupType(ns + "QScript::QVariantDelegate").pointer()
         delegate = scriptObject["d"]["delegate"].cast(delegateType)
         #d.putSubItem("delegate", delegate)
 
@@ -2147,7 +2166,7 @@ def qdump__QScriptValue(d, value):
         #d.putSubItem("variant", variant)
         t = qdump__QVariant(d, variant)
         # Override the "QVariant (foo)" output
-        d.putBetterType("%sQScriptValue (%s)" % (d.ns, t))
+        d.putBetterType("%sQScriptValue (%s)" % (ns, t))
         if t != "JSCoreValue":
             return
     except:

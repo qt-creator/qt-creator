@@ -644,7 +644,8 @@ BuildConfiguration *QmakeBuildConfigurationFactory::create(Target *parent, const
             = QmakeBuildConfiguration::removeQMLInspectorFromArguments(&additionalArguments);
     if (!additionalArguments.isEmpty())
         qmakeStep->setUserArguments(additionalArguments);
-    qmakeStep->setLinkQmlDebuggingLibrary(enableQmlDebugger);
+    if (!qmakeInfo->makefile.isEmpty())
+        qmakeStep->setLinkQmlDebuggingLibrary(enableQmlDebugger);
 
     bc->setQMakeBuildConfiguration(config);
 

@@ -28,9 +28,11 @@
 ****************************************************************************/
 
 #include "importlabel.h"
+#include <coreplugin/coreconstants.h>
 
 #include <QHBoxLayout>
 #include <QPushButton>
+#include <QIcon>
 
 namespace QmlDesigner {
 
@@ -41,7 +43,8 @@ ImportLabel::ImportLabel(QWidget *parent) :
     layout->setContentsMargins(0, 0, 0, 0);
 
 
-    m_removeButton = new QPushButton("X", this);
+    m_removeButton = new QPushButton(this);
+    m_removeButton->setIcon(QIcon(Core::Constants::ICON_CLOSE_DOCUMENT));
     m_removeButton->setFlat(true);
     m_removeButton->setMaximumWidth(20);
     m_removeButton->setMaximumHeight(20);

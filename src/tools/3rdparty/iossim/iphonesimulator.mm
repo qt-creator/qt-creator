@@ -271,11 +271,11 @@ NSString *deviceIpadRetina = @"iPad (Retina)";
   NSString *sdkVersion = [sdkRoot sdkVersion];
   NSString *appSupportDir = [NSString stringWithFormat:@"%@/Library/Application Support/iPhone Simulator/%@",
                              NSHomeDirectory(), sdkVersion];
-  [environment addEntriesFromDictionary:@{
-   @"CFFIXED_USER_HOME" : appSupportDir,
-   @"IPHONE_SIMULATOR_ROOT" : [sdkRoot sdkRootPath],
-   @"NSUnbufferedIO" : @"YES",
-   }];
+  NSMutableDictionary *mutableEnv = [NSMutableDictionary dictionaryWithDictionary:environment];
+  [mutableEnv setObject:appSupportDir forKey:@"CFFIXED_USER_HOME"];
+  [mutableEnv setObject:[sdkRoot sdkRootPath] forKey:@"IPHONE_SIMULATOR_ROOT"];
+  [mutableEnv setObject:@"YES" forKey:@"NSUnbufferedIO"];
+  environment = mutableEnv;
 
   /* Set up the session configuration */
   tClass = objc_getClass("DTiPhoneSimulatorSessionConfig");

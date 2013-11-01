@@ -112,6 +112,8 @@ public:
         IAssistProposal *immediateProposal = processor->immediateProposal(assistInterface);
         IAssistProposal *finalProposal = processor->perform(assistInterface);
 
+        VirtualFunctionAssistProvider::clearParams();
+
         m_immediateItems = itemList(immediateProposal->model());
         m_finalItems = itemList(finalProposal->model());
 
@@ -1394,6 +1396,25 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_itemOrder
             << OverrideItem(QLatin1String("C::virt"), 2)
             << OverrideItem(QLatin1String("A::virt"), 8)
             << OverrideItem(QLatin1String("B::virt"), 5);
+
+    TestCase test(TestCase::FollowSymbolUnderCursorAction, source, immediateResults, finalResults);
+    test.run();
+}
+
+/// Check: If class templates are involved, the class and function symbols might be generated.
+///        In that case, make sure that the symbols are not deleted before we reference them.
+void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_instantiatedSymbols()
+{
+    const QByteArray source =
+            "template <class T> struct A { virtual void virt() {} };\n"
+            "void f(A<int> *l) { l->$@virt(); }\n"
+            ;
+
+    const OverrideItemList immediateResults = OverrideItemList()
+            << OverrideItem(QLatin1String("A::virt"), 1)
+            << OverrideItem(QLatin1String("...searching overrides"));
+    const OverrideItemList finalResults = OverrideItemList()
+            << OverrideItem(QLatin1String("A::virt"), 1);
 
     TestCase test(TestCase::FollowSymbolUnderCursorAction, source, immediateResults, finalResults);
     test.run();

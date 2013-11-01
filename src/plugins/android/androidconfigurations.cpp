@@ -857,7 +857,13 @@ void AndroidConfigurations::updateAutomaticKitList()
     }
 
     DeviceManager *dm = DeviceManager::instance();
-    IDevice::ConstPtr device = dm->find(Core::Id(Constants::ANDROID_DEVICE_ID)); // should always exist
+    IDevice::ConstPtr device = dm->find(Core::Id(Constants::ANDROID_DEVICE_ID));
+    if (device.isNull()) {
+        // no device, means no sdk path
+        foreach (Kit *k, existingKits)
+            KitManager::deregisterKit(k);
+        return;
+    }
 
     // register new kits
     QList<Kit *> newKits;

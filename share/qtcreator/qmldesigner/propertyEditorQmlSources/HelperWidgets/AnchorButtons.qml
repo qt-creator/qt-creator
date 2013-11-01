@@ -92,9 +92,9 @@ ButtonRow {
         onClicked: {
             if (checked) {
                 anchorBackend.verticalCentered = false;
-                anchorBackend.rightAnchored = true;
+                anchorBackend.leftAnchored = true;
             } else {
-                anchorBackend.rightAnchored = false;
+                anchorBackend.leftAnchored = false;
             }
         }
     }

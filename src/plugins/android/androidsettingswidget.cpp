@@ -313,10 +313,11 @@ void AndroidSettingsWidget::searchForAnt(const QString &location)
     QDir parentFolder = QFileInfo(location).absoluteDir();
     foreach (const QString &file, parentFolder.entryList()) {
         if (file.startsWith(QLatin1String("apache-ant"))) {
-            QString ant = parentFolder.absolutePath() + QLatin1Char('/') + file + QLatin1String("/bin/ant.bat");
-            if (QFileInfo(ant).exists()) {
-                m_androidConfig.antLocation = Utils::FileName::fromString(ant);
-                m_ui->AntLocationLineEdit->setText(ant);
+            Utils::FileName ant = Utils::FileName::fromString(parentFolder.absolutePath());
+            ant.appendPath(file).appendPath(QLatin1String("bin")).appendPath(QLatin1String("ant.bat"));
+            if (ant.toFileInfo().exists()) {
+                m_androidConfig.antLocation = ant;
+                m_ui->AntLocationLineEdit->setText(ant.toUserOutput());
             }
         }
     }

@@ -370,7 +370,9 @@ void AndroidRunner::logcatReadStandardOutput()
         if (line.endsWith('\r'))
             line.chop(1);
         line.append('\n');
-        if (line.startsWith("E/"))
+        if (line.startsWith("E/")
+                || line.startsWith("D/Qt")
+                || line.startsWith("W/"))
             emit remoteErrorOutput(line);
         else
             emit remoteOutput(line);

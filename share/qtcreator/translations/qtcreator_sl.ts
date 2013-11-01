@@ -10576,7 +10576,7 @@ v sistem za nadzor različic (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::ConsoleAppWizard</name>
+    <name>QmakeProjectManager::Internal::ConsoleAppWizard</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/consoleappwizard.cpp" line="+63"/>
         <source>Qt Console Application</source>
@@ -10593,7 +10593,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::ConsoleAppWizardDialog</name>
+    <name>QmakeProjectManager::Internal::ConsoleAppWizardDialog</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/consoleappwizarddialog.cpp" line="+54"/>
         <source>This wizard generates a Qt4 console application project. The application derives from QCoreApplication and does not provide a GUI.</source>
@@ -10601,7 +10601,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::EmptyProjectWizard</name>
+    <name>QmakeProjectManager::Internal::EmptyProjectWizard</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/emptyprojectwizard.cpp" line="+49"/>
         <source>Empty Qt Project</source>
@@ -10614,7 +10614,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::EmptyProjectWizardDialog</name>
+    <name>QmakeProjectManager::Internal::EmptyProjectWizardDialog</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/emptyprojectwizarddialog.cpp" line="+48"/>
         <source>This wizard generates an empty Qt4 project. Add files to it later on by using the other wizards.</source>
@@ -10622,7 +10622,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::FilesPage</name>
+    <name>QmakeProjectManager::Internal::FilesPage</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/filespage.cpp" line="+48"/>
         <source>Class Information</source>
@@ -10635,7 +10635,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::GuiAppWizard</name>
+    <name>QmakeProjectManager::Internal::GuiAppWizard</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/guiappwizard.cpp" line="+90"/>
         <source>Qt Gui Application</source>
@@ -10656,7 +10656,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::GuiAppWizardDialog</name>
+    <name>QmakeProjectManager::Internal::GuiAppWizardDialog</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/guiappwizarddialog.cpp" line="+64"/>
         <source>This wizard generates a Qt4 GUI application project. The application derives by default from QApplication and includes an empty widget.</source>
@@ -10669,7 +10669,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::LibraryWizard</name>
+    <name>QmakeProjectManager::Internal::LibraryWizard</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/librarywizard.cpp" line="+59"/>
         <source>C++ Library</source>
@@ -10682,7 +10682,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::LibraryWizardDialog</name>
+    <name>QmakeProjectManager::Internal::LibraryWizardDialog</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/librarywizarddialog.cpp" line="+123"/>
         <source>Shared Library</source>
@@ -10732,7 +10732,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::ModulesPage</name>
+    <name>QmakeProjectManager::Internal::ModulesPage</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/modulespage.cpp" line="+54"/>
         <source>Select Required Modules</source>
@@ -10749,7 +10749,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::ProjectLoadWizard</name>
+    <name>QmakeProjectManager::Internal::ProjectLoadWizard</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/projectloadwizard.cpp" line="+52"/>
         <source>Project Setup</source>
@@ -10761,7 +10761,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Qt4PriFileNode</name>
+    <name>QmakeProjectManager::Internal::QmakePriFileNode</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt4nodes.cpp" line="+88"/>
         <source>Headers</source>
@@ -10846,7 +10846,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Qt4ProjectConfigWidget</name>
+    <name>QmakeProjectManager::Internal::QmakeProjectConfigWidget</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt4projectconfigwidget.ui"/>
         <source>&lt;a href=&quot;import&quot;&gt;Import existing build&lt;/a&gt;</source>
@@ -10980,7 +10980,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Qt4ProjectManagerPlugin</name>
+    <name>QmakeProjectManager::Internal::QmakeProjectManagerPlugin</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt4projectmanagerplugin.cpp" line="+180"/>
         <location line="+6"/>
@@ -11023,7 +11023,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Qt4RunConfiguration</name>
+    <name>QmakeProjectManager::Internal::QmakeRunConfiguration</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-desktop/qt4runconfiguration.cpp" line="+146"/>
         <source>The .pro file is currently being parsed.</source>
@@ -11056,7 +11056,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Qt4RunConfigurationWidget</name>
+    <name>QmakeProjectManager::Internal::QmakeRunConfigurationWidget</name>
     <message>
         <location line="-470"/>
         <source>Arguments:</source>
@@ -11128,7 +11128,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::MakeStep</name>
+    <name>QmakeProjectManager::MakeStep</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/makestep.cpp" line="+89"/>
         <source>Make</source>
@@ -11156,7 +11156,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::MakeStepConfigWidget</name>
+    <name>QmakeProjectManager::MakeStepConfigWidget</name>
     <message>
         <location line="+89"/>
         <source>Override %1:</source>
@@ -11173,7 +11173,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MakeStepFactory</name>
+    <name>QmakeProjectManager::Internal::MakeStepFactory</name>
     <message>
         <location line="+123"/>
         <source>Make</source>
@@ -11181,7 +11181,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::QMakeStep</name>
+    <name>QmakeProjectManager::QMakeStep</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qmakestep.cpp" line="+106"/>
         <source>qmake</source>
@@ -11236,7 +11236,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::QMakeStepConfigWidget</name>
+    <name>QmakeProjectManager::QMakeStepConfigWidget</name>
     <message>
         <location line="+229"/>
         <source>Building helpers</source>
@@ -11274,7 +11274,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QMakeStepFactory</name>
+    <name>QmakeProjectManager::Internal::QMakeStepFactory</name>
     <message>
         <location line="+76"/>
         <source>qmake</source>
@@ -11282,7 +11282,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Qt4Manager</name>
+    <name>QmakeProjectManager::QmakeManager</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt4projectmanager.cpp" line="+142"/>
         <source>Full path to the bin/ install directory of the current project&apos;s Qt version.</source>
@@ -14212,7 +14212,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::ClassDefinition</name>
+    <name>QmakeProjectManager::Internal::ClassDefinition</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/customwidgetwizard/classdefinition.ui"/>
         <source>Form</source>
@@ -14345,7 +14345,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::CustomWidgetPluginWizardPage</name>
+    <name>QmakeProjectManager::Internal::CustomWidgetPluginWizardPage</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/customwidgetwizard/customwidgetpluginwizardpage.ui"/>
         <source>WizardPage</source>
@@ -14393,7 +14393,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::CustomWidgetWidgetsWizardPage</name>
+    <name>QmakeProjectManager::Internal::CustomWidgetWidgetsWizardPage</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/customwidgetwizard/customwidgetwidgetswizardpage.ui"/>
         <source>Custom Qt Widget Wizard</source>
@@ -16106,7 +16106,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::ClassList</name>
+    <name>QmakeProjectManager::Internal::ClassList</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/customwidgetwizard/classlist.cpp" line="+72"/>
         <source>&lt;New class&gt;</source>
@@ -16124,7 +16124,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::CustomWidgetWizard</name>
+    <name>QmakeProjectManager::Internal::CustomWidgetWizard</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/customwidgetwizard/customwidgetwizard.cpp" line="+51"/>
         <source>Qt Custom Designer Widget</source>
@@ -16137,7 +16137,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::CustomWidgetWizardDialog</name>
+    <name>QmakeProjectManager::Internal::CustomWidgetWizardDialog</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/customwidgetwizard/customwidgetwizarddialog.cpp" line="+55"/>
         <source>This wizard generates a Qt4 Designer Custom Widget or a Qt4 Designer Custom Widget Collection project.</source>
@@ -16155,7 +16155,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::PluginGenerator</name>
+    <name>QmakeProjectManager::Internal::PluginGenerator</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/customwidgetwizard/plugingenerator.cpp" line="+172"/>
         <source>Creating multiple widget libraries (%1, %2) in one project (%3) is not supported.</source>
@@ -16171,7 +16171,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::ExternalQtEditor</name>
+    <name>QmakeProjectManager::Internal::ExternalQtEditor</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/externaleditors.cpp" line="-34"/>
         <source>Unable to start &quot;%1&quot;</source>
@@ -16184,7 +16184,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::DesignerExternalEditor</name>
+    <name>QmakeProjectManager::Internal::DesignerExternalEditor</name>
     <message>
         <location line="+190"/>
         <source>Qt Designer is not responding (%1).</source>
@@ -16197,7 +16197,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DeviceDebugRunControl</name>
+    <name>QmakeProjectManager::Internal::S60DeviceDebugRunControl</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60devicedebugruncontrol.cpp" line="+135"/>
         <source>Warning: Cannot locate the symbol file belonging to %1.
@@ -16236,7 +16236,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DeviceRunConfigurationWidget</name>
+    <name>QmakeProjectManager::Internal::S60DeviceRunConfigurationWidget</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60devicerunconfigurationwidget.cpp" line="+83"/>
         <source>Arguments:</source>
@@ -16273,7 +16273,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60EmulatorRunConfiguration</name>
+    <name>QmakeProjectManager::Internal::S60EmulatorRunConfiguration</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60emulatorrunconfiguration.cpp" line="+95"/>
         <location line="+77"/>
@@ -16307,7 +16307,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60EmulatorRunConfigurationWidget</name>
+    <name>QmakeProjectManager::Internal::S60EmulatorRunConfigurationWidget</name>
     <message>
         <location line="+96"/>
         <source>Executable:</source>
@@ -16319,7 +16319,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60EmulatorRunConfigurationFactory</name>
+    <name>QmakeProjectManager::Internal::S60EmulatorRunConfigurationFactory</name>
     <message>
         <location line="+100"/>
         <source>%1 in Symbian Emulator</source>
@@ -16327,7 +16327,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60EmulatorRunControl</name>
+    <name>QmakeProjectManager::Internal::S60EmulatorRunControl</name>
     <message>
         <location line="+30"/>
         <source>Starting %1...
@@ -16357,7 +16357,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60Manager</name>
+    <name>QmakeProjectManager::Internal::S60Manager</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60manager.cpp" line="+121"/>
         <source>Run in Emulator</source>
@@ -17445,7 +17445,7 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60CreatePackageStepWidget</name>
+    <name>QmakeProjectManager::Internal::S60CreatePackageStepWidget</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60createpackagestep.ui"/>
         <source>Self-signed certificate</source>
@@ -17501,7 +17501,7 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::TargetSetupPage</name>
+    <name>QmakeProjectManager::Internal::TargetSetupPage</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/targetsetuppage.ui"/>
         <source>Setup targets for your project</source>
@@ -17573,7 +17573,7 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::TestWizardPage</name>
+    <name>QmakeProjectManager::Internal::TestWizardPage</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/testwizardpage.ui"/>
         <source>WizardPage</source>
@@ -20709,7 +20709,7 @@ cilj »%1«?</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Qt4Target</name>
+    <name>QmakeProjectManager::Internal::QmakeTarget</name>
     <message>
         <location line="+10"/>
         <source>Desktop</source>
@@ -21518,7 +21518,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60CreatePackageStep</name>
+    <name>QmakeProjectManager::Internal::S60CreatePackageStep</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60createpackagestep.cpp" line="+139"/>
         <source>Create SIS Package</source>
@@ -21620,7 +21620,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60CreatePackageStepFactory</name>
+    <name>QmakeProjectManager::Internal::S60CreatePackageStepFactory</name>
     <message>
         <location line="+251"/>
         <source>Create SIS Package</source>
@@ -21628,7 +21628,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60CreatePackageStepConfigWidget</name>
+    <name>QmakeProjectManager::Internal::S60CreatePackageStepConfigWidget</name>
     <message>
         <location line="+126"/>
         <source>Reset Passphrases</source>
@@ -21705,7 +21705,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Qt4Project</name>
+    <name>QmakeProjectManager::QmakeProject</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt4project.cpp" line="+760"/>
         <source>Evaluating</source>
@@ -21713,7 +21713,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager</name>
+    <name>QmakeProjectManager</name>
     <message>
         <location filename="../../../src/plugins/qtsupport/qtsupportconstants.h" line="-16"/>
         <source>Qt4</source>
@@ -21740,7 +21740,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::QtVersion</name>
+    <name>QmakeProjectManager::QtVersion</name>
     <message>
         <location filename="../../../src/plugins/qtsupport/baseqtversion.cpp" line="+927"/>
         <source>The Qt version is invalid: %1</source>
@@ -21902,7 +21902,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::BaseQt4ProjectWizardDialog</name>
+    <name>QmakeProjectManager::Internal::BaseQmakeProjectWizardDialog</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/qtwizard.cpp" line="+233"/>
         <location line="+4"/>
@@ -21920,7 +21920,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::TestWizard</name>
+    <name>QmakeProjectManager::Internal::TestWizard</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/testwizard.cpp" line="+54"/>
         <source>Qt Unit Test</source>
@@ -21933,7 +21933,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::TestWizardDialog</name>
+    <name>QmakeProjectManager::Internal::TestWizardDialog</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/testwizarddialog.cpp" line="+61"/>
         <source>This wizard generates a Qt unit test consisting of a single source file with a test class.</source>
@@ -24033,7 +24033,7 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::LibraryDetailsWidget</name>
+    <name>QmakeProjectManager::Internal::LibraryDetailsWidget</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/librarydetailswidget.ui"/>
         <source>Library:</source>
@@ -24131,7 +24131,7 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::RvctToolChainConfigWidget</name>
+    <name>QmakeProjectManager::Internal::RvctToolChainConfigWidget</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/rvcttoolchainconfigwidget.ui"/>
         <source>Form</source>
@@ -24268,7 +24268,7 @@ Starejše različice so pri gradnji ustreznih datotek SIS omejene.</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::WinscwToolChainConfigWidget</name>
+    <name>QmakeProjectManager::Internal::WinscwToolChainConfigWidget</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/winscwtoolchainconfigwidget.ui"/>
         <source>Dialog</source>
@@ -31489,7 +31489,7 @@ Raje uporabite gumb za ustavitev.</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::AddLibraryWizard</name>
+    <name>QmakeProjectManager::Internal::AddLibraryWizard</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/addlibrarywizard.cpp" line="+92"/>
         <source>Add Library</source>
@@ -31512,7 +31512,7 @@ Raje uporabite gumb za ustavitev.</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::LibraryTypePage</name>
+    <name>QmakeProjectManager::Internal::LibraryTypePage</name>
     <message>
         <location line="+27"/>
         <source>Library Type</source>
@@ -31571,7 +31571,7 @@ V datoteko *.pro se ne doda niti poti do knjižnice niti poti do vključitev.</t
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::DetailsPage</name>
+    <name>QmakeProjectManager::Internal::DetailsPage</name>
     <message>
         <location line="+59"/>
         <source>Internal Library</source>
@@ -31614,7 +31614,7 @@ V datoteko *.pro se ne doda niti poti do knjižnice niti poti do vključitev.</t
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::SummaryPage</name>
+    <name>QmakeProjectManager::Internal::SummaryPage</name>
     <message>
         <location line="+20"/>
         <source>Summary</source>
@@ -31627,7 +31627,7 @@ V datoteko *.pro se ne doda niti poti do knjižnice niti poti do vključitev.</t
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::LibraryDetailsController</name>
+    <name>QmakeProjectManager::Internal::LibraryDetailsController</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/librarydetailscontroller.cpp" line="+231"/>
         <source>Linkage:</source>
@@ -31660,7 +31660,7 @@ V datoteko *.pro se ne doda niti poti do knjižnice niti poti do vključitev.</t
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Qt4Target</name>
+    <name>QmakeProjectManager::QmakeTarget</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-desktop/qt4desktoptarget.cpp" line="+58"/>
         <source>Desktop</source>
@@ -31705,7 +31705,7 @@ V datoteko *.pro se ne doda niti poti do knjižnice niti poti do vključitev.</t
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::CodaRunControl</name>
+    <name>QmakeProjectManager::CodaRunControl</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/codaruncontrol.cpp" line="+100"/>
         <source>No device is connected. Please connect a device and try again.
@@ -31831,7 +31831,7 @@ V datoteko *.pro se ne doda niti poti do knjižnice niti poti do vključitev.</t
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::GcceToolChainFactory</name>
+    <name>QmakeProjectManager::Internal::GcceToolChainFactory</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/gccetoolchain.cpp" line="+89"/>
         <location line="+73"/>
@@ -31851,7 +31851,7 @@ V datoteko *.pro se ne doda niti poti do knjižnice niti poti do vključitev.</t
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::PassphraseForKeyDialog</name>
+    <name>QmakeProjectManager::PassphraseForKeyDialog</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/passphraseforkeydialog.cpp" line="+55"/>
         <source>Passphrase:</source>
@@ -31874,7 +31874,7 @@ V datoteko *.pro se ne doda niti poti do knjižnice niti poti do vključitev.</t
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Qt4SymbianTarget</name>
+    <name>QmakeProjectManager::Internal::QmakeSymbianTarget</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/qt4symbiantarget.cpp" line="+99"/>
         <source>&lt;b&gt;Device:&lt;/b&gt; Not connected</source>
@@ -31897,7 +31897,7 @@ V datoteko *.pro se ne doda niti poti do knjižnice niti poti do vključitev.</t
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::RvctToolChainFactory</name>
+    <name>QmakeProjectManager::Internal::RvctToolChainFactory</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/rvcttoolchain.cpp" line="+80"/>
         <source>ARMv5</source>
@@ -31924,7 +31924,7 @@ V datoteko *.pro se ne doda niti poti do knjižnice niti poti do vključitev.</t
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60CertificateInfo</name>
+    <name>QmakeProjectManager::Internal::S60CertificateInfo</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60certificateinfo.cpp" line="+179"/>
         <source>The certificate &quot;%1&quot; has already expired and cannot be used.
@@ -31996,7 +31996,7 @@ Veljavno od: %2.</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60CreatePackageParser</name>
+    <name>QmakeProjectManager::Internal::S60CreatePackageParser</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60createpackageparser.cpp" line="+62"/>
         <source>The binary package &apos;%1&apos; was patched to be installable after being self-signed.
@@ -32015,7 +32015,7 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::S60DeployConfiguration</name>
+    <name>QmakeProjectManager::S60DeployConfiguration</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60deployconfiguration.cpp" line="+322"/>
         <source>Deploy %1 to Symbian device</source>
@@ -32028,7 +32028,7 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::S60DeployConfigurationFactory</name>
+    <name>QmakeProjectManager::S60DeployConfigurationFactory</name>
     <message>
         <location line="+139"/>
         <source>%1 on Symbian Device</source>
@@ -32041,7 +32041,7 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DeployConfigurationWidget</name>
+    <name>QmakeProjectManager::Internal::S60DeployConfigurationWidget</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60deployconfigurationwidget.cpp" line="+130"/>
         <source>Device:</source>
@@ -32201,7 +32201,7 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DeployStep</name>
+    <name>QmakeProjectManager::Internal::S60DeployStep</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60deploystep.cpp" line="+78"/>
         <source>Unable to remove existing file &apos;%1&apos;: %2</source>
@@ -32357,7 +32357,7 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DeployStepWidget</name>
+    <name>QmakeProjectManager::Internal::S60DeployStepWidget</name>
     <message>
         <location line="+21"/>
         <source>Deploy SIS Package</source>
@@ -32365,7 +32365,7 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DeployStepFactory</name>
+    <name>QmakeProjectManager::Internal::S60DeployStepFactory</name>
     <message>
         <location line="+74"/>
         <source>Deploy SIS Package</source>
@@ -32373,7 +32373,7 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::S60DeviceRunConfiguration</name>
+    <name>QmakeProjectManager::S60DeviceRunConfiguration</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60devicerunconfiguration.cpp" line="+96"/>
         <location line="+82"/>
@@ -32401,7 +32401,7 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::S60DeviceRunConfigurationFactory</name>
+    <name>QmakeProjectManager::S60DeviceRunConfigurationFactory</name>
     <message>
         <location line="+190"/>
         <source>%1 on Symbian Device</source>
@@ -32409,7 +32409,7 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60PublisherOvi</name>
+    <name>QmakeProjectManager::Internal::S60PublisherOvi</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60publisherovi.cpp" line="+160"/>
         <source>Clean</source>
@@ -32474,7 +32474,7 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60CommandPublishStep</name>
+    <name>QmakeProjectManager::Internal::S60CommandPublishStep</name>
     <message>
         <location line="+115"/>
         <source>Running %1</source>
@@ -32484,7 +32484,7 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60PublishingBuildSettingsPageOvi</name>
+    <name>QmakeProjectManager::Internal::S60PublishingBuildSettingsPageOvi</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60publishingbuildsettingspageovi.cpp" line="+90"/>
         <source>No valid Qt version has been detected.&lt;br&gt;Define a correct Qt version in &quot;Options &gt; Qt4&quot;</source>
@@ -32497,7 +32497,7 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60PublishingResultsPageOvi</name>
+    <name>QmakeProjectManager::Internal::S60PublishingResultsPageOvi</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60publishingresultspageovi.cpp" line="+60"/>
         <source>Open Containing Folder</source>
@@ -32510,7 +32510,7 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60PublishingSisSettingsPageOvi</name>
+    <name>QmakeProjectManager::Internal::S60PublishingSisSettingsPageOvi</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60publishingsissettingspageovi.cpp" line="+145"/>
         <source>This should be application&apos;s display name. &lt;br&gt;It cannot be empty.&lt;br&gt;</source>
@@ -32588,7 +32588,7 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60PublishingWizardFactoryOvi</name>
+    <name>QmakeProjectManager::Internal::S60PublishingWizardFactoryOvi</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60publishingwizardfactories.cpp" line="+52"/>
         <source>Publish Qt Symbian Applications to Ovi Store</source>
@@ -32618,7 +32618,7 @@ Oddelek za zagotavljanje kakovosti v Ovi bo zavrnil program, če na naslednji st
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60PublishingWizardOvi</name>
+    <name>QmakeProjectManager::Internal::S60PublishingWizardOvi</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60publishingwizardovi.cpp" line="+47"/>
         <source>Publishing to Ovi Store</source>
@@ -32641,7 +32641,7 @@ Oddelek za zagotavljanje kakovosti v Ovi bo zavrnil program, če na naslednji st
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::S60RunControlBase</name>
+    <name>QmakeProjectManager::S60RunControlBase</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/s60runcontrolbase.cpp" line="+119"/>
         <source>Launching</source>
@@ -32683,7 +32683,7 @@ Oddelek za zagotavljanje kakovosti v Ovi bo zavrnil program, če na naslednji st
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::SbsV2Parser</name>
+    <name>QmakeProjectManager::SbsV2Parser</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/sbsv2parser.cpp" line="+68"/>
         <source>SBSv2 build log</source>
@@ -32710,7 +32710,7 @@ Oddelek za zagotavljanje kakovosti v Ovi bo zavrnil program, če na naslednji st
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::SymbianQtConfigWidget</name>
+    <name>QmakeProjectManager::Internal::SymbianQtConfigWidget</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/symbianqtversion.cpp" line="+188"/>
         <source>S60 SDK:</source>
@@ -32723,7 +32723,7 @@ Oddelek za zagotavljanje kakovosti v Ovi bo zavrnil program, če na naslednji st
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::WinscwToolChainFactory</name>
+    <name>QmakeProjectManager::Internal::WinscwToolChainFactory</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt-s60/winscwtoolchain.cpp" line="+141"/>
         <location line="+235"/>
@@ -32737,7 +32737,7 @@ Oddelek za zagotavljanje kakovosti v Ovi bo zavrnil program, če na naslednji st
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Qt4BuildConfiguration</name>
+    <name>QmakeProjectManager::QmakeBuildConfiguration</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt4buildconfiguration.cpp" line="+637"/>
         <source>Parsing the .pro file</source>
@@ -32745,7 +32745,7 @@ Oddelek za zagotavljanje kakovosti v Ovi bo zavrnil program, če na naslednji st
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Qt4BuildConfigurationFactory</name>
+    <name>QmakeProjectManager::QmakeBuildConfigurationFactory</name>
     <message>
         <location line="+37"/>
         <source>Using Qt Version &quot;%1&quot;</source>
@@ -32779,7 +32779,7 @@ Oddelek za zagotavljanje kakovosti v Ovi bo zavrnil program, če na naslednji st
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Qt4ProFileNode</name>
+    <name>QmakeProjectManager::QmakeProFileNode</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt4nodes.cpp" line="+494"/>
         <source>Error while parsing file %1. Giving up.</source>
@@ -32792,7 +32792,7 @@ Oddelek za zagotavljanje kakovosti v Ovi bo zavrnil program, če na naslednji st
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Qt4BaseTargetFactory</name>
+    <name>QmakeProjectManager::QmakeBaseTargetFactory</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/qt4target.cpp" line="+205"/>
         <source>%1 Debug</source>
@@ -32824,7 +32824,7 @@ Oddelek za zagotavljanje kakovosti v Ovi bo zavrnil program, če na naslednji st
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Qt4DefaultTargetSetupWidget</name>
+    <name>QmakeProjectManager::QmakeDefaultTargetSetupWidget</name>
     <message>
         <location line="+61"/>
         <source>Add build from:</source>
@@ -32893,7 +32893,7 @@ Oddelek za zagotavljanje kakovosti v Ovi bo zavrnil program, če na naslednji st
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::AbstractMobileAppWizardDialog</name>
+    <name>QmakeProjectManager::AbstractMobileAppWizardDialog</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/abstractmobileappwizard.cpp" line="+79"/>
         <source>Qt Versions</source>
@@ -32921,7 +32921,7 @@ Oddelek za zagotavljanje kakovosti v Ovi bo zavrnil program, če na naslednji st
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::AbstractMobileApp</name>
+    <name>QmakeProjectManager::AbstractMobileApp</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/html5app.cpp" line="+199"/>
         <location line="+21"/>
@@ -32930,7 +32930,7 @@ Oddelek za zagotavljanje kakovosti v Ovi bo zavrnil program, če na naslednji st
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Html5AppWizardDialog</name>
+    <name>QmakeProjectManager::Internal::Html5AppWizardDialog</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/html5appwizard.cpp" line="+64"/>
         <source>New HTML5 Application</source>
@@ -32948,7 +32948,7 @@ Oddelek za zagotavljanje kakovosti v Ovi bo zavrnil program, če na naslednji st
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Html5AppWizard</name>
+    <name>QmakeProjectManager::Internal::Html5AppWizard</name>
     <message>
         <location line="+30"/>
         <source>HTML5 Application</source>
@@ -32965,7 +32965,7 @@ Program lahko zgradite in ga razmestite na namizju ali na mobilnih platformah. N
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Html5AppWizardOptionsPage</name>
+    <name>QmakeProjectManager::Internal::Html5AppWizardOptionsPage</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/html5appwizardpages.cpp" line="+58"/>
         <source>Select HTML File</source>
@@ -32990,7 +32990,7 @@ V naprej izbere Qt za simulator in razpoložljive ciljne mobilne naprave.</trans
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MobileAppWizardGenericOptionsPage</name>
+    <name>QmakeProjectManager::Internal::MobileAppWizardGenericOptionsPage</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/mobileappwizardpages.cpp" line="+75"/>
         <source>Automatically Rotate Orientation</source>
@@ -33008,7 +33008,7 @@ V naprej izbere Qt za simulator in razpoložljive ciljne mobilne naprave.</trans
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MobileAppWizardMaemoOptionsPage</name>
+    <name>QmakeProjectManager::Internal::MobileAppWizardMaemoOptionsPage</name>
     <message>
         <location line="+122"/>
         <source>Invalid Icon</source>
@@ -33041,7 +33041,7 @@ V naprej izbere Qt za simulator in razpoložljive ciljne mobilne naprave.</trans
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QtQuickApp</name>
+    <name>QmakeProjectManager::Internal::QtQuickApp</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/qtquickapp.cpp" line="+141"/>
         <source>The QML import path &apos;%1&apos; cannot be found.</source>
@@ -33064,7 +33064,7 @@ V naprej izbere Qt za simulator in razpoložljive ciljne mobilne naprave.</trans
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QtQuickAppWizardDialog</name>
+    <name>QmakeProjectManager::Internal::QtQuickAppWizardDialog</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/qtquickappwizard.cpp" line="+71"/>
         <source>New Qt Quick Application</source>
@@ -33082,7 +33082,7 @@ V naprej izbere Qt za simulator in razpoložljive ciljne mobilne naprave.</trans
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QtQuickAppWizard</name>
+    <name>QmakeProjectManager::Internal::QtQuickAppWizard</name>
     <message>
         <location line="+53"/>
         <source>Qt Quick Application</source>
@@ -33099,7 +33099,7 @@ Program lahko zgradite in ga razmestite na namizju ali na mobilnih platformah. N
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QtQuickComponentSetOptionsPage</name>
+    <name>QmakeProjectManager::Internal::QtQuickComponentSetOptionsPage</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/qtquickappwizardpages.cpp" line="+59"/>
         <source>Select QML File</source>
@@ -33107,7 +33107,7 @@ Program lahko zgradite in ga razmestite na namizju ali na mobilnih platformah. N
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::SubdirsProjectWizard</name>
+    <name>QmakeProjectManager::Internal::SubdirsProjectWizard</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/subdirsprojectwizard.cpp" line="+50"/>
         <source>Subdirs Project</source>
@@ -33136,7 +33136,7 @@ Program lahko zgradite in ga razmestite na namizju ali na mobilnih platformah. N
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::SubdirsProjectWizardDialog</name>
+    <name>QmakeProjectManager::Internal::SubdirsProjectWizardDialog</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/subdirsprojectwizarddialog.cpp" line="+48"/>
         <source>This wizard generates a Qt4 subdirs project. Add subprojects to it later on by using the other wizards.</source>
@@ -33144,7 +33144,7 @@ Program lahko zgradite in ga razmestite na namizju ali na mobilnih platformah. N
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::TargetSetupPage</name>
+    <name>QmakeProjectManager::TargetSetupPage</name>
     <message>
         <location filename="../../../src/plugins/qt4projectmanager/wizards/targetsetuppage.cpp" line="+67"/>
         <source>Target Setup</source>
@@ -33249,7 +33249,7 @@ Program lahko zgradite in ga razmestite na namizju ali na mobilnih platformah. N
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::QmlDebuggingLibrary</name>
+    <name>QmakeProjectManager::QmlDebuggingLibrary</name>
     <message>
         <location filename="../../../src/plugins/qtsupport/qmldebugginglibrary.cpp" line="+73"/>
         <source>Only available for Qt 4.7.1 or newer.</source>
@@ -33278,7 +33278,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::QmlDumpTool</name>
+    <name>QmakeProjectManager::QmlDumpTool</name>
     <message>
         <location filename="../../../src/plugins/qtsupport/qmldumptool.cpp" line="+201"/>
         <source>Only available for Qt for Desktop and Qt for Qt Simulator.</source>
@@ -33323,7 +33323,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::QmlObserverTool</name>
+    <name>QmakeProjectManager::QmlObserverTool</name>
     <message>
         <location filename="../../../src/plugins/qtsupport/qmlobservertool.cpp" line="+62"/>
         <source>Only available for Qt for Desktop or Qt for Qt Simulator.</source>
@@ -37917,7 +37917,7 @@ Ali jo žalite končati?</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Qt4ProFileNode</name>
+    <name>QmakeProjectManager::Internal::QmakeProFileNode</name>
     <message>
         <source>Error while parsing file %1. Giving up.</source>
         <translation type="obsolete">Napaka med razčlenjevanjem datoteke %1.</translation>
@@ -37928,7 +37928,7 @@ Ali jo žalite končati?</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QtOptionsPageWidget</name>
+    <name>QmakeProjectManager::Internal::QtOptionsPageWidget</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation type="obsolete">&lt;vnesite ime&gt;</translation>
@@ -38010,7 +38010,7 @@ Ali jo žalite končati?</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QtVersionManager</name>
+    <name>QmakeProjectManager::Internal::QtVersionManager</name>
     <message>
         <source>+</source>
         <translation type="obsolete">+</translation>
@@ -38085,7 +38085,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::QtVersionManager</name>
+    <name>QmakeProjectManager::QtVersionManager</name>
     <message>
         <source>&lt;not found&gt;</source>
         <translation type="obsolete">&lt;ni najdeno&gt;</translation>
@@ -38322,7 +38322,7 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::GettingStartedWelcomePageWidget</name>
+    <name>QmakeProjectManager::Internal::GettingStartedWelcomePageWidget</name>
     <message>
         <source>Form</source>
         <translation type="obsolete">Obrazec</translation>
@@ -38488,7 +38488,7 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DevicesPreferencePane</name>
+    <name>QmakeProjectManager::Internal::S60DevicesPreferencePane</name>
     <message>
         <source>Form</source>
         <translation type="obsolete">Obrazec</translation>
@@ -38939,28 +38939,28 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::GettingStartedWelcomePage</name>
+    <name>QmakeProjectManager::Internal::GettingStartedWelcomePage</name>
     <message>
         <source>Getting Started</source>
         <translation type="obsolete">Začnite tu</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DeviceRunConfiguration</name>
+    <name>QmakeProjectManager::Internal::S60DeviceRunConfiguration</name>
     <message>
         <source>%1 on Symbian Device</source>
         <translation type="obsolete">%1 na napravi Symbian</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DeviceRunConfigurationFactory</name>
+    <name>QmakeProjectManager::Internal::S60DeviceRunConfigurationFactory</name>
     <message>
         <source>%1 on Symbian Device</source>
         <translation type="obsolete">%1 na napravi Symbian</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DeviceRunControlBase</name>
+    <name>QmakeProjectManager::Internal::S60DeviceRunControlBase</name>
     <message>
         <source>Executable file: %1</source>
         <translation type="obsolete">Izvršljiva datoteka: %1</translation>
@@ -39059,7 +39059,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DeviceRunControl</name>
+    <name>QmakeProjectManager::Internal::S60DeviceRunControl</name>
     <message>
         <source>Finished.</source>
         <translation type="obsolete">Zaključeno.</translation>
@@ -39078,7 +39078,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60Devices::Device</name>
+    <name>QmakeProjectManager::Internal::S60Devices::Device</name>
     <message>
         <source>Id:</source>
         <translation type="obsolete">ID:</translation>
@@ -40740,7 +40740,7 @@ Preverite nastavitve projekta.</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoConfigTestDialog</name>
+    <name>QmakeProjectManager::Internal::MaemoConfigTestDialog</name>
     <message>
         <source>Testing configuration...</source>
         <translation type="obsolete">Preizkušanje nastavitve …</translation>
@@ -40803,7 +40803,7 @@ Ali ste zagnali Qemu?</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoPackageContents</name>
+    <name>QmakeProjectManager::Internal::MaemoPackageContents</name>
     <message>
         <source>Local File Path</source>
         <translation type="obsolete">Pot do krajevne datoteke</translation>
@@ -40814,7 +40814,7 @@ Ali ste zagnali Qemu?</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoPackageCreationStep</name>
+    <name>QmakeProjectManager::Internal::MaemoPackageCreationStep</name>
     <message>
         <source>Creating package file ...</source>
         <translation type="obsolete">Ustvarjanje datoteke paketa …</translation>
@@ -40873,7 +40873,7 @@ Ali ste zagnali Qemu?</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoPackageCreationWidget</name>
+    <name>QmakeProjectManager::Internal::MaemoPackageCreationWidget</name>
     <message>
         <source>&lt;b&gt;Create Package:&lt;/b&gt; </source>
         <translation type="obsolete">&lt;b&gt;Ustvarjanje paketa:&lt;/b&gt; </translation>
@@ -40892,14 +40892,14 @@ Ali ste zagnali Qemu?</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoRunConfiguration</name>
+    <name>QmakeProjectManager::Internal::MaemoRunConfiguration</name>
     <message>
         <source>New Maemo Run Configuration</source>
         <translation type="obsolete">Nove nastavitve za zagon za Maemo</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoRunConfigurationWidget</name>
+    <name>QmakeProjectManager::Internal::MaemoRunConfigurationWidget</name>
     <message>
         <source>Run configuration name:</source>
         <translation type="obsolete">Ime nastavitev za zagon:</translation>
@@ -40926,7 +40926,7 @@ Ali ste zagnali Qemu?</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::AbstractMaemoRunControl</name>
+    <name>QmakeProjectManager::Internal::AbstractMaemoRunControl</name>
     <message>
         <source>No device configuration set for run configuration.</source>
         <translation type="obsolete">V nastavitvah za zagon ni bilo nastavljenih nobenih nastavitev naprave.</translation>
@@ -40989,28 +40989,28 @@ Ali ste zagnali Qemu?</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoRunConfigurationFactory</name>
+    <name>QmakeProjectManager::Internal::MaemoRunConfigurationFactory</name>
     <message>
         <source>New Maemo Run Configuration</source>
         <translation type="obsolete">Nove nastavitve za zagon za Maemo</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoRunControlFactory</name>
+    <name>QmakeProjectManager::Internal::MaemoRunControlFactory</name>
     <message>
         <source>Run on device</source>
         <translation type="obsolete">Zaženi na napravi</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoSettingsPage</name>
+    <name>QmakeProjectManager::Internal::MaemoSettingsPage</name>
     <message>
         <source>Maemo Device Configurations</source>
         <translation type="obsolete">Nastavitve naprave Maemo</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoSettingsWidget</name>
+    <name>QmakeProjectManager::Internal::MaemoSettingsWidget</name>
     <message>
         <source>New Device Configuration %1</source>
         <comment>Standard Configuration name with number</comment>
@@ -41054,7 +41054,7 @@ Ali ste zagnali Qemu?</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoSshConfigDialog</name>
+    <name>QmakeProjectManager::Internal::MaemoSshConfigDialog</name>
     <message>
         <source>Save Public Key File</source>
         <translation type="obsolete">Shrani datoteko z javnim ključem</translation>
@@ -41075,7 +41075,7 @@ Ali ste zagnali Qemu?</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QemuRuntimeManager</name>
+    <name>QmakeProjectManager::Internal::QemuRuntimeManager</name>
     <message>
         <source>Start Maemo Emulator</source>
         <translation type="obsolete">Zaženi posnemovalnik Maemo</translation>
@@ -41106,7 +41106,7 @@ Ali ste zagnali Qemu?</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DevicesBaseWidget</name>
+    <name>QmakeProjectManager::Internal::S60DevicesBaseWidget</name>
     <message>
         <source>Default</source>
         <translation type="obsolete">Privzeto</translation>
@@ -41125,14 +41125,14 @@ Ali ste zagnali Qemu?</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DevicesModel</name>
+    <name>QmakeProjectManager::Internal::S60DevicesModel</name>
     <message>
         <source>No Qt installed</source>
         <translation type="obsolete">Nameščen ni noben Qt</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::GnuPocS60DevicesWidget</name>
+    <name>QmakeProjectManager::Internal::GnuPocS60DevicesWidget</name>
     <message>
         <source>Step 1 of 2: Choose GnuPoc folder</source>
         <translation type="obsolete">Korak 1 od 2: izberite mapo z GnuPoc</translation>
@@ -41151,7 +41151,7 @@ Ali ste zagnali Qemu?</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Qt4BuildConfigurationFactory</name>
+    <name>QmakeProjectManager::Internal::QmakeBuildConfigurationFactory</name>
     <message>
         <source>Using Qt Version &quot;%1&quot;</source>
         <translation type="obsolete">Uporablja Qt različice »%1«</translation>
@@ -41174,7 +41174,7 @@ Ali ste zagnali Qemu?</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Qt4TargetFactory</name>
+    <name>QmakeProjectManager::Internal::QmakeTargetFactory</name>
     <message>
         <source>Debug</source>
         <translation type="obsolete">Razhroščevanje</translation>
@@ -41185,7 +41185,7 @@ Ali ste zagnali Qemu?</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MobileGuiAppWizard</name>
+    <name>QmakeProjectManager::Internal::MobileGuiAppWizard</name>
     <message>
         <source>Mobile Qt Application</source>
         <translation type="obsolete">Mobilni program Qt</translation>

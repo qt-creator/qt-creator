@@ -41,44 +41,6 @@ else:
 verbosity = 0
 verbosity = 1
 
-qqStringCutOff = 10000
-
-# This is a cache mapping from 'type name' to 'display alternatives'.
-qqFormats = {}
-
-# This is a cache of all known dumpers.
-qqDumpers = {}
-
-# This is a cache of all dumpers that support writing.
-qqEditable = {}
-
-# This is an approximation of the Qt Version found
-qqVersion = None
-
-# This keeps canonical forms of the typenames, without array indices etc.
-qqStripForFormat = {}
-
-def stripForFormat(typeName):
-    global qqStripForFormat
-    if typeName in qqStripForFormat:
-        return qqStripForFormat[typeName]
-    stripped = ""
-    inArray = 0
-    for c in stripClassTag(typeName):
-        if c == '<':
-            break
-        if c == ' ':
-            continue
-        if c == '[':
-            inArray += 1
-        elif c == ']':
-            inArray -= 1
-        if inArray and ord(c) >= 48 and ord(c) <= 57:
-            continue
-        stripped +=  c
-    qqStripForFormat[typeName] = stripped
-    return stripped
-
 def hasPlot():
     fileName = "/usr/bin/gnuplot"
     return os.path.isfile(fileName) and os.access(fileName, os.X_OK)
@@ -261,6 +223,44 @@ class DumperBase:
         self.isGdb = False
         self.isLldb = False
 
+        # Later set, or not set:
+        # cachedQtVersion
+        self.stringCutOff = 10000
+
+        # This is a cache mapping from 'type name' to 'display alternatives'.
+        self.qqFormats = {}
+
+        # This is a cache of all known dumpers.
+        self.qqDumpers = {}
+
+        # This is a cache of all dumpers that support writing.
+        self.qqEditable = {}
+
+        # This keeps canonical forms of the typenames, without array indices etc.
+        self.cachedFormats = {}
+
+
+    def stripForFormat(self, typeName):
+        if typeName in self.cachedFormats:
+            return self.cachedFormats[typeName]
+        stripped = ""
+        inArray = 0
+        for c in stripClassTag(typeName):
+            if c == '<':
+                break
+            if c == ' ':
+                continue
+            if c == '[':
+                inArray += 1
+            elif c == ']':
+                inArray -= 1
+            if inArray and ord(c) >= 48 and ord(c) <= 57:
+                continue
+            stripped +=  c
+        self.cachedFormats[typeName] = stripped
+        return stripped
+
+
     def is32bit(self):
         return self.ptrSize() == 4
 
@@ -268,7 +268,7 @@ class DumperBase:
         if limit is None:
             return size
         if limit == 0:
-            return min(size, qqStringCutOff)
+            return min(size, self.stringCutOff)
         return min(size, limit)
 
     def byteArrayDataHelper(self, addr):
@@ -372,10 +372,11 @@ class DumperBase:
         return self.putValue(self.encodeString(value), Hex4EncodedLittleEndian)
 
     def putMapName(self, value):
-        if str(value.type) == self.ns + "QString":
+        ns = self.qtNamespace()
+        if str(value.type) == ns + "QString":
             self.put('key="%s",' % self.encodeString(value))
             self.put('keyencoded="%s",' % Hex4EncodedLittleEndian)
-        elif str(value.type) == self.ns + "QByteArray":
+        elif str(value.type) == ns + "QByteArray":
             self.put('key="%s",' % self.encodeByteArray(value))
             self.put('keyencoded="%s",' % Hex2EncodedLatin1)
         else:
@@ -416,9 +417,9 @@ class DumperBase:
     def encodeCArray(self, p, innerType, suffix):
         t = self.lookupType(innerType)
         p = p.cast(t.pointer())
-        limit = self.findFirstZero(p, qqStringCutOff)
+        limit = self.findFirstZero(p, self.stringCutOff)
         s = self.readMemory(p, limit * t.sizeof)
-        if limit > qqStringCutOff:
+        if limit > self.stringCutOff:
             s += suffix
         return s
 
@@ -503,6 +504,14 @@ class DumperBase:
 
         return type == "QStringList" and self.qtVersion() >= 0x050000
 
+    def currentItemFormat(self, type = None):
+        format = self.formats.get(self.currentIName)
+        if format is None:
+            if type is None:
+                type = self.currentType
+            needle = self.stripForFormat(str(type))
+            format = self.typeformats.get(needle)
+        return format
 
 def cleanAddress(addr):
     if addr is None:

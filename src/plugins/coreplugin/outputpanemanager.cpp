@@ -121,7 +121,8 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     m_opToolBarWidgets(new QStackedWidget),
     m_minimizeIcon(QLatin1String(":/core/images/arrowdown.png")),
     m_maximizeIcon(QLatin1String(":/core/images/arrowup.png")),
-    m_maximised(false)
+    m_maximised(false),
+    m_outputPaneHeight(0)
 {
     setWindowTitle(tr("Output"));
 
@@ -376,6 +377,8 @@ void OutputPaneManager::readSettings()
         if (visibility.contains(m_ids.at(i).toString()))
             m_buttons.at(i)->setVisible(visibility.value(m_ids.at(i).toString()));
     }
+
+    m_outputPaneHeight = settings->value(QLatin1String("OutputPanePlaceHolder/Height"), 0).toInt();
 }
 
 void OutputPaneManager::slotNext()
@@ -473,8 +476,6 @@ void OutputPaneManager::showPage(int idx, int flags)
     }
 
     if (ph) {
-        QSettings *settings = ICore::settings();
-        int height = settings->value(QLatin1String("OutputPanePlaceHolder/Height"), 0).toInt();
         // make the page visible
         ph->setVisible(true);
         ensurePageVisible(idx);
@@ -485,7 +486,7 @@ void OutputPaneManager::showPage(int idx, int flags)
             ICore::raiseWindow(m_outputWidgetPane);
         }
 
-        ph->setDefaultHeight(height);
+        ph->setDefaultHeight(m_outputPaneHeight);
         if (flags & IOutputPane::EnsureSizeHint)
             ph->ensureSizeHintAsMinimum();
     } else {
@@ -506,6 +507,13 @@ void OutputPaneManager::focusInEvent(QFocusEvent *e)
 {
     if (QWidget *w = m_outputWidgetPane->currentWidget())
         w->setFocus(e->reason());
+}
+
+void OutputPaneManager::resizeEvent(QResizeEvent *e)
+{
+    if (e->size().height() == 0)
+        return;
+    m_outputPaneHeight = e->size().height();
 }
 
 void OutputPaneManager::setCurrentIndex(int idx)
@@ -572,12 +580,7 @@ void OutputPaneManager::saveSettings() const
         settings->setValue(QLatin1String(outputPaneVisibleKeyC), m_buttons.at(i)->isVisible());
     }
     settings->endArray();
-    OutputPanePlaceHolder *ph = OutputPanePlaceHolder::getCurrent();
-    if (ph) {
-        int height = ph->height();
-        if (height)
-            settings->setValue(QLatin1String("OutputPanePlaceHolder/Height"), height);
-    }
+    settings->setValue(QLatin1String("OutputPanePlaceHolder/Height"), m_outputPaneHeight);
 }
 
 void OutputPaneManager::clearPage()

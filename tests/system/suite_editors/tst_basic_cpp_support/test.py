@@ -109,6 +109,7 @@ def main():
     __typeAndWaitForAction__(cppwindow, "<Shift+F2>")
     test.compare(lineUnderCursor(findObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")), "    Dummy(int a);")
     cppwindow = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
+    snooze(2)
     __typeAndWaitForAction__(cppwindow, "<Shift+F2>")
     test.compare(lineUnderCursor(findObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")), "Dummy::Dummy(int)")
     invokeMenuItem("File", "Exit")

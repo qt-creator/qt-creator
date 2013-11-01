@@ -78,27 +78,6 @@ import lldb
 
 qqWatchpointOffset = 10000
 
-def registerDumper(function):
-    if hasattr(function, 'func_name'):
-        funcname = function.func_name
-        if funcname.startswith("qdump__"):
-            type = funcname[7:]
-            qqDumpers[type] = function
-            qqFormats[type] = qqFormats.get(type, "")
-        elif funcname.startswith("qform__"):
-            type = funcname[7:]
-            formats = ""
-            try:
-                formats = function()
-            except:
-                pass
-            qqFormats[type] = formats
-        elif funcname.startswith("qedit__"):
-            type = funcname[7:]
-            try:
-                qqEditable[type] = function
-            except:
-                pass
 
 def warn(message):
     print('\n\nWARNING="%s",\n' % message.encode("latin1").replace('"', "'"))
@@ -291,9 +270,8 @@ class Dumper(DumperBase):
         self.eventState = lldb.eStateInvalid
         self.options = {}
         self.expandedINames = {}
-        self.passExceptions = True
+        self.passExceptions = False
         self.useLldbDumpers = False
-        self.ns = ""
         self.autoDerefPointers = True
         self.useDynamicType = True
         self.useFancy = True
@@ -449,10 +427,7 @@ class Dumper(DumperBase):
         return typeobj.GetTypeClass() in (lldb.eTypeClassStruct, lldb.eTypeClassClass)
 
     def qtVersion(self):
-        global qqVersion
-        if not qqVersion is None:
-            return qqVersion
-        qqVersion = 0x0
+        self.cachedQtVersion = 0x0
         coreExpression = re.compile(r"(lib)?Qt5?Core")
         for n in range(0, self.target.GetNumModules()):
             module = self.target.GetModuleAtIndex(n)
@@ -461,10 +436,13 @@ class Dumper(DumperBase):
                 reverseVersion.reverse()
                 shift = 0
                 for v in reverseVersion:
-                    qqVersion += v << shift
+                    self.cachedQtVersion += v << shift
                     shift += 8
                 break
-        return qqVersion
+
+        # Memoize good results.
+        self.qtVersion = lambda: self.cachedQtVersion
+        return self.cachedQtVersion
 
     def intSize(self):
         return 4
@@ -535,12 +513,6 @@ class Dumper(DumperBase):
 
     def putField(self, name, value):
         self.put('%s="%s",' % (name, value))
-
-    def currentItemFormat(self):
-        format = self.formats.get(self.currentIName)
-        if format is None:
-            format = self.typeformats.get(stripForFormat(str(self.currentType)))
-        return format
 
     def isMovableType(self, type):
         if type.GetTypeClass() in (lldb.eTypeClassBuiltin, lldb.eTypeClassPointer):
@@ -678,6 +650,7 @@ class Dumper(DumperBase):
         self.processArgs_ = args.get('processArgs', '')
         self.attachPid_ = args.get('attachPid', 0)
         self.sysRoot_ = args.get('sysRoot', '')
+        self.remoteChannel_ = args.get('remoteChannel', '')
 
         if len(self.sysRoot_)>0:
             self.debugger.SetCurrentPlatformSDKRoot(self.sysRoot_)
@@ -698,15 +671,28 @@ class Dumper(DumperBase):
         if self.attachPid_ > 0:
             attachInfo = lldb.SBAttachInfo(self.attachPid_)
             self.process = self.target.Attach(attachInfo, error)
+            if not err.Success():
+                self.report('state="inferiorrunfailed"')
+                return
+            self.report('pid="%s"' % self.process.GetProcessID())
+            self.report('state="enginerunandinferiorstopok"')
+        elif len(self.remoteChannel_) > 0:
+            err = lldb.SBError()
+            self.process = self.target.ConnectRemote(
+            self.debugger.GetListener(),
+            self.remoteChannel_, None, error)
+            self.report('state="enginerunandinferiorstopok"')
         else:
             launchInfo = lldb.SBLaunchInfo(self.processArgs_.split(' '))
             launchInfo.SetWorkingDirectory(os.getcwd())
             environmentList = [key + "=" + value for key,value in os.environ.items()]
             launchInfo.SetEnvironmentEntries(environmentList, False)
             self.process = self.target.Launch(launchInfo, error)
-
-        self.report('pid="%s"' % self.process.GetProcessID())
-        self.report('state="enginerunandinferiorrunok"')
+            if not err.Success():
+                self.report('state="inferiorrunfailed"')
+                return
+            self.report('pid="%s"' % self.process.GetProcessID())
+            self.report('state="enginerunandinferiorrunok"')
 
         event = lldb.SBEvent()
         while True:
@@ -845,11 +831,16 @@ class Dumper(DumperBase):
             self.currentValuePriority = priority
             self.currentValueEncoding = encoding
 
+    def qtNamespace(self):
+        # FIXME
+        return ""
+
     def stripNamespaceFromType(self, typeName):
         #type = stripClassTag(typeName)
         type = typeName
-        #if len(self.ns) > 0 and type.startswith(self.ns):
-        #    type = type[len(self.ns):]
+        #ns = qtNamespace()
+        #if len(ns) > 0 and type.startswith(ns):
+        #    type = type[len(ns):]
         pos = type.find("<")
         # FIXME: make it recognize  foo<A>::bar<B>::iterator?
         while pos != -1:
@@ -912,10 +903,10 @@ class Dumper(DumperBase):
 
         # Typedefs
         if typeClass == lldb.eTypeClassTypedef:
-            if typeName in qqDumpers:
+            if typeName in self.qqDumpers:
                 self.putType(typeName)
                 self.context = value
-                qqDumpers[typeName](self, value)
+                self.qqDumpers[typeName](self, value)
                 return
             realType = value.GetType()
             if hasattr(realType, 'GetCanonicalType'):
@@ -970,9 +961,7 @@ class Dumper(DumperBase):
             innerType = value.GetType().GetPointeeType().unqualified()
             innerTypeName = str(innerType)
 
-            format = self.formats.get(self.currentIName)
-            if format is None:
-                format = self.typeformats.get(stripForFormat(str(type)))
+            format = self.currentItemFormat(type)
 
             if innerTypeName == "void":
                 warn("VOID POINTER: %s" % format)
@@ -1130,11 +1119,11 @@ class Dumper(DumperBase):
         if self.useFancy:
             stripped = self.stripNamespaceFromType(typeName).replace("::", "__")
             #warn("STRIPPED: %s" % stripped)
-            #warn("DUMPABLE: %s" % (stripped in qqDumpers))
-            if stripped in qqDumpers:
+            #warn("DUMPABLE: %s" % (stripped in self.qqDumpers))
+            if stripped in self.qqDumpers:
                 self.putType(typeName)
                 self.context = value
-                qqDumpers[stripped](self, value)
+                self.qqDumpers[stripped](self, value)
                 return
 
         # Normal value
@@ -1200,8 +1189,8 @@ class Dumper(DumperBase):
         for value in values:
             if self.dummyValue is None:
                 self.dummyValue = value
-            name = value.name
-            if value.name in shadowed:
+            name = value.GetName()
+            if name in shadowed:
                 level = shadowed[name]
                 shadowed[name] = level + 1
                 name += "@%s" % level
@@ -1634,13 +1623,34 @@ class Dumper(DumperBase):
         self.reportError(error)
         self.reportVariables()
 
+    def registerDumper(self, function):
+        if hasattr(function, 'func_name'):
+            funcname = function.func_name
+            if funcname.startswith("qdump__"):
+                type = funcname[7:]
+                self.qqDumpers[type] = function
+                self.qqFormats[type] = self.qqFormats.get(type, "")
+            elif funcname.startswith("qform__"):
+                type = funcname[7:]
+                formats = ""
+                try:
+                    formats = function()
+                except:
+                    pass
+                self.qqFormats[type] = formats
+            elif funcname.startswith("qedit__"):
+                type = funcname[7:]
+                try:
+                    self.qqEditable[type] = function
+                except:
+                    pass
+
     def importDumpers(self, _ = None):
         result = lldb.SBCommandReturnObject()
         interpreter = self.debugger.GetCommandInterpreter()
-        global qqDumpers, qqFormats, qqEditable
         items = globals()
         for key in items:
-            registerDumper(items[key])
+            self.registerDumper(items[key])
 
     def execute(self, args):
         getattr(self, args['cmd'])(args)
@@ -1680,16 +1690,14 @@ def doit():
     db.report('lldbversion="%s"' % lldb.SBDebugger.GetVersionString())
     db.report('state="enginesetupok"')
 
-    while True:
-        readable, _, _ = select.select([sys.stdin], [], [])
-        for reader in readable:
-            if reader == sys.stdin:
-                line = sys.stdin.readline()
-                try:
-                    db.execute(convertHash(json.loads(line)))
-                except:
-                    warn("EXCEPTION CAUGHT: %s" % sys.exc_info()[1])
-                    pass
+    line = sys.stdin.readline()
+    while line:
+        try:
+            db.execute(convertHash(json.loads(line)))
+        except:
+            warn("EXCEPTION CAUGHT: %s" % sys.exc_info()[1])
+            pass
+        line = sys.stdin.readline()
 
 
 # Used in dumper auto test.

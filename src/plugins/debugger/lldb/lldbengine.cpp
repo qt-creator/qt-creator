@@ -157,6 +157,8 @@ void LldbEngine::startLldb()
     args.append(m_lldbCmd);
     showMessage(_("STARTING LLDB ") + args.join(QLatin1String(" ")));
     m_lldbProc.setEnvironment(startParameters().environment.toStringList());
+    if (!startParameters().workingDirectory.isEmpty())
+        m_lldbProc.setWorkingDirectory(startParameters().workingDirectory);
 
     m_lldbProc.start(_("python"), args);
 
@@ -180,7 +182,8 @@ void LldbEngine::setupInferior()
     cmd.arg("attachPid", ((sp.startMode == AttachCrashedExternal || sp.startMode == AttachExternal)
                           ? sp.attachPID : 0));
     cmd.arg("sysRoot", sp.sysRoot);
-    cmd.arg("remoteChannel", ((sp.startMode == AttachToRemoteProcess || sp.startMode == AttachToRemoteServer)
+    cmd.arg("remoteChannel", ((sp.startMode == AttachToRemoteProcess
+                               || sp.startMode == AttachToRemoteServer)
                               ? sp.remoteChannel : QString()));
 
     runCommand(cmd);
@@ -1047,8 +1050,8 @@ void LldbEngine::fetchMemory(MemoryAgent *agent, QObject *editorToken,
     if (id == -1) {
         id = ++m_lastAgentId;
         m_memoryAgents.insert(agent, id);
-        m_memoryAgentTokens.insert(id, editorToken);
     }
+    m_memoryAgentTokens.insert(id, editorToken);
     runCommand(Command("fetchMemory")
                .arg("address", addr)
                .arg("length", length)
@@ -1130,10 +1133,9 @@ void LldbEngine::notifyEngineRemoteSetupDone(int portOrPid, int qmlPort)
         } else {
             QString &rc = startParameters().remoteChannel;
             const int sepIndex = rc.lastIndexOf(QLatin1Char(':'));
-            if (sepIndex != -1) {
+            if (sepIndex != -1)
                 rc.replace(sepIndex + 1, rc.count() - sepIndex - 1,
                            QString::number(portOrPid));
-            }
         }
     }
     startLldb();

@@ -15876,7 +15876,7 @@ au système de gestion de version (%2) ?</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::ConsoleAppWizard</name>
+    <name>QmakeProjectManager::Internal::ConsoleAppWizard</name>
     <message>
         <source>Qt4 Console Application</source>
         <translation type="obsolete">Application Qt4 en console</translation>
@@ -15899,7 +15899,7 @@ Présélectionne un bureau Qt pour compiler l&apos;application si disponible.</t
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::ConsoleAppWizardDialog</name>
+    <name>QmakeProjectManager::Internal::ConsoleAppWizardDialog</name>
     <message>
         <source>This wizard generates a Qt4 console application project. The application derives from QCoreApplication and does not provide a GUI.</source>
         <translation type="obsolete">Cet assistant génère un projet d&apos;application Qt4 console. L&apos;application dérive de QCoreApplication et ne fournit pas d&apos;interface graphique.</translation>
@@ -15910,7 +15910,7 @@ Présélectionne un bureau Qt pour compiler l&apos;application si disponible.</t
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::DesignerExternalEditor</name>
+    <name>QmakeProjectManager::Internal::DesignerExternalEditor</name>
     <message>
         <source>Qt Designer is not responding (%1).</source>
         <translation>Qt Designer ne répond pas (%1).</translation>
@@ -15921,14 +15921,14 @@ Présélectionne un bureau Qt pour compiler l&apos;application si disponible.</t
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::EmbeddedPropertiesPanel</name>
+    <name>QmakeProjectManager::Internal::EmbeddedPropertiesPanel</name>
     <message>
         <source>Embedded Linux</source>
         <translation type="obsolete">Linux embarqué</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::EmptyProjectWizard</name>
+    <name>QmakeProjectManager::Internal::EmptyProjectWizard</name>
     <message>
         <source>Empty Qt4 Project</source>
         <translation type="obsolete">Projet Qt4 vide</translation>
@@ -15947,7 +15947,7 @@ Présélectionne un bureau Qt pour compiler l&apos;application si disponible.</t
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::EmptyProjectWizardDialog</name>
+    <name>QmakeProjectManager::Internal::EmptyProjectWizardDialog</name>
     <message>
         <source>This wizard generates an empty Qt4 project. Add files to it later on by using the other wizards.</source>
         <translation type="obsolete">Cet assistant génère un projet Qt4 vide. Vous pouvez ajouter des fichiers plus tard en utilisant les autres assistants.</translation>
@@ -15958,7 +15958,7 @@ Présélectionne un bureau Qt pour compiler l&apos;application si disponible.</t
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::ExternalQtEditor</name>
+    <name>QmakeProjectManager::Internal::ExternalQtEditor</name>
     <message>
         <source>Unable to start &quot;%1&quot;</source>
         <translation>Impossible de démarrer &quot;%1&quot;</translation>
@@ -15969,7 +15969,7 @@ Présélectionne un bureau Qt pour compiler l&apos;application si disponible.</t
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::FilesPage</name>
+    <name>QmakeProjectManager::Internal::FilesPage</name>
     <message>
         <source>Class Information</source>
         <translation>Information sur la classe</translation>
@@ -15980,7 +15980,7 @@ Présélectionne un bureau Qt pour compiler l&apos;application si disponible.</t
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::GuiAppWizard</name>
+    <name>QmakeProjectManager::Internal::GuiAppWizard</name>
     <message>
         <source>Qt4 Gui Application</source>
         <translation type="obsolete">Application graphique Qt4</translation>
@@ -16008,7 +16008,7 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::GuiAppWizardDialog</name>
+    <name>QmakeProjectManager::Internal::GuiAppWizardDialog</name>
     <message>
         <source>This wizard generates a Qt4 GUI application project. The application derives by default from QApplication and includes an empty widget.</source>
         <translation type="obsolete">Cet assistant génère un projet d&apos;application graphique Qt4. L&apos;application dérive par défaut de QApplication et inclut un widget vide.</translation>
@@ -16023,7 +16023,7 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::LibraryWizard</name>
+    <name>QmakeProjectManager::Internal::LibraryWizard</name>
     <message>
         <source>C++ Library</source>
         <translation>Bibliothèque C++</translation>
@@ -16042,7 +16042,7 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::LibraryWizardDialog</name>
+    <name>QmakeProjectManager::Internal::LibraryWizardDialog</name>
     <message>
         <source>Shared library</source>
         <translation type="obsolete">Bibliothèque partagée</translation>
@@ -16089,7 +16089,7 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::ModulesPage</name>
+    <name>QmakeProjectManager::Internal::ModulesPage</name>
     <message>
         <source>Select required modules</source>
         <translation type="obsolete">Sélectionner les modules requis</translation>
@@ -16104,7 +16104,7 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::ProEditor</name>
+    <name>QmakeProjectManager::Internal::ProEditor</name>
     <message>
         <source>New</source>
         <translation type="obsolete">Nouveau</translation>
@@ -16159,7 +16159,7 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::ProEditorModel</name>
+    <name>QmakeProjectManager::Internal::ProEditorModel</name>
     <message>
         <source>&lt;Global Scope&gt;</source>
         <translation type="obsolete">&lt;Portée Globale&gt;</translation>
@@ -16198,7 +16198,7 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::ProjectLoadWizard</name>
+    <name>QmakeProjectManager::Internal::ProjectLoadWizard</name>
     <message>
         <source>Import existing build settings</source>
         <translation type="obsolete">Importer des paramètres de compilation existants</translation>
@@ -16225,7 +16225,7 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Qt4BuildEnvironmentWidget</name>
+    <name>QmakeProjectManager::Internal::QmakeBuildEnvironmentWidget</name>
     <message>
         <source>Clear system environment</source>
         <translation type="obsolete">Nettoyer l&apos;environnement système</translation>
@@ -16236,7 +16236,7 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Qt4PriFileNode</name>
+    <name>QmakeProjectManager::Internal::QmakePriFileNode</name>
     <message>
         <source>Headers</source>
         <translation type="obsolete">En-têtes</translation>
@@ -16323,7 +16323,7 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Qt4ProFileNode</name>
+    <name>QmakeProjectManager::Internal::QmakeProFileNode</name>
     <message>
         <source>Error while parsing file %1. Giving up.</source>
         <translation type="obsolete">Erreur pendant le parcours du fichier %1. Abandon.</translation>
@@ -16334,7 +16334,7 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Qt4ProjectConfigWidget</name>
+    <name>QmakeProjectManager::Internal::QmakeProjectConfigWidget</name>
     <message>
         <source>Configuration Name:</source>
         <translation type="obsolete">Nom de la configuration :</translation>
@@ -16491,7 +16491,7 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Qt4ProjectManagerPlugin</name>
+    <name>QmakeProjectManager::Internal::QmakeProjectManagerPlugin</name>
     <message>
         <source>Run qmake</source>
         <translation>Exécuter qmake</translation>
@@ -16566,7 +16566,7 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Qt4RunConfiguration</name>
+    <name>QmakeProjectManager::Internal::QmakeRunConfiguration</name>
     <message>
         <source>Qt4RunConfiguration</source>
         <translation type="obsolete">Qt4RunConfiguration</translation>
@@ -16613,7 +16613,7 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Qt4RunConfigurationWidget</name>
+    <name>QmakeProjectManager::Internal::QmakeRunConfigurationWidget</name>
     <message>
         <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2 (in terminal)</source>
         <translation type="obsolete">Lancement de l&apos;exécutable &lt;b&gt;%1&lt;/b&gt; %2 (dans un terminal)</translation>
@@ -16704,7 +16704,7 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QtOptionsPageWidget</name>
+    <name>QmakeProjectManager::Internal::QtOptionsPageWidget</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation type="obsolete">&lt;spécifier un nom&gt;</translation>
@@ -16839,7 +16839,7 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QtVersionManager</name>
+    <name>QmakeProjectManager::Internal::QtVersionManager</name>
     <message>
         <source>Qt versions</source>
         <translation type="obsolete">Versions de Qt</translation>
@@ -16974,14 +16974,14 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QtWizard</name>
+    <name>QmakeProjectManager::Internal::QtWizard</name>
     <message>
         <source>The project %1 could not be opened.</source>
         <translation type="obsolete">Le projet %1 ne peut pas être ouvert.</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::ValueEditor</name>
+    <name>QmakeProjectManager::Internal::ValueEditor</name>
     <message>
         <source>Edit Variable</source>
         <translation type="obsolete">Éditer une variable</translation>
@@ -17060,7 +17060,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::MakeStep</name>
+    <name>QmakeProjectManager::MakeStep</name>
     <message>
         <source>Make</source>
         <comment>Qt4 MakeStep display name.</comment>
@@ -17121,7 +17121,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::MakeStepConfigWidget</name>
+    <name>QmakeProjectManager::MakeStepConfigWidget</name>
     <message>
         <source>Override %1:</source>
         <translation>Supplanter %1 :</translation>
@@ -17156,14 +17156,14 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MakeStepFactory</name>
+    <name>QmakeProjectManager::Internal::MakeStepFactory</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::QMakeStep</name>
+    <name>QmakeProjectManager::QMakeStep</name>
     <message>
         <source>
 &lt;font color=&quot;#ff0000&quot;&gt;&lt;b&gt;No valid Qt version set. Set one in Preferences &lt;/b&gt;&lt;/font&gt;
@@ -17232,7 +17232,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::QMakeStepConfigWidget</name>
+    <name>QmakeProjectManager::QMakeStepConfigWidget</name>
     <message>
         <source>&lt;b&gt;QMake:&lt;/b&gt; No Qt version set. QMake can not be run.</source>
         <translation type="obsolete">&lt;b&gt;QMake:&lt;/b&gt; Aucune version de Qt définie. QMake ne peut être lancé.</translation>
@@ -17295,7 +17295,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QMakeStepFactory</name>
+    <name>QmakeProjectManager::Internal::QMakeStepFactory</name>
     <message>
         <source>QMake</source>
         <translation type="obsolete">QMake</translation>
@@ -17306,7 +17306,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Qt4Manager</name>
+    <name>QmakeProjectManager::QmakeManager</name>
     <message>
         <source>Loading project %1 ...</source>
         <translation type="obsolete">Chargement du projet %1...</translation>
@@ -17371,7 +17371,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::QtVersionManager</name>
+    <name>QmakeProjectManager::QtVersionManager</name>
     <message>
         <source>MinGW from %1</source>
         <translation type="obsolete">MinGW depuis %1</translation>
@@ -21666,7 +21666,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::ClassDefinition</name>
+    <name>QmakeProjectManager::Internal::ClassDefinition</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -21773,7 +21773,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::CustomWidgetPluginWizardPage</name>
+    <name>QmakeProjectManager::Internal::CustomWidgetPluginWizardPage</name>
     <message>
         <source>WizardPage</source>
         <translation>WizardPage</translation>
@@ -21812,7 +21812,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::CustomWidgetWidgetsWizardPage</name>
+    <name>QmakeProjectManager::Internal::CustomWidgetWidgetsWizardPage</name>
     <message>
         <source>Custom Qt Widget Wizard</source>
         <translation>Assistant de Widget Qt personnalisé</translation>
@@ -21835,7 +21835,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::GettingStartedWelcomePageWidget</name>
+    <name>QmakeProjectManager::Internal::GettingStartedWelcomePageWidget</name>
     <message>
         <source>Form</source>
         <translation type="obsolete">Formulaire</translation>
@@ -22106,7 +22106,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DevicesPreferencePane</name>
+    <name>QmakeProjectManager::Internal::S60DevicesPreferencePane</name>
     <message>
         <source>Form</source>
         <translation type="obsolete">Formulaire</translation>
@@ -23752,7 +23752,7 @@ Raison : %2</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::ClassList</name>
+    <name>QmakeProjectManager::Internal::ClassList</name>
     <message>
         <source>&lt;New class&gt;</source>
         <translation>&lt;Nouvelle classe&gt;</translation>
@@ -23767,7 +23767,7 @@ Raison : %2</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::CustomWidgetWizard</name>
+    <name>QmakeProjectManager::Internal::CustomWidgetWizard</name>
     <message>
         <source>Qt4 Designer Custom Widget</source>
         <translation type="obsolete">Widget personnalisé pour Qt4 Designer</translation>
@@ -23786,7 +23786,7 @@ Raison : %2</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::CustomWidgetWizardDialog</name>
+    <name>QmakeProjectManager::Internal::CustomWidgetWizardDialog</name>
     <message>
         <source>This wizard generates a Qt4 Designer Custom Widget or a Qt4 Designer Custom Widget Collection project.</source>
         <translation type="obsolete">Cet assistant génère un projet pour créer un widget personnalisé ou une collection de widgets personnalisés pour Qt4 Designer.</translation>
@@ -23806,7 +23806,7 @@ Raison : %2</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::PluginGenerator</name>
+    <name>QmakeProjectManager::Internal::PluginGenerator</name>
     <message>
         <source>Cannot open icon file %1.</source>
         <translation type="obsolete">Impossible d&apos;ouvrir le fichier d&apos;icône %1.</translation>
@@ -23821,14 +23821,14 @@ Raison : %2</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::GettingStartedWelcomePage</name>
+    <name>QmakeProjectManager::Internal::GettingStartedWelcomePage</name>
     <message>
         <source>Getting Started</source>
         <translation type="obsolete">Commencer</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DeviceRunConfiguration</name>
+    <name>QmakeProjectManager::Internal::S60DeviceRunConfiguration</name>
     <message>
         <source>QtS60DeviceRunConfiguration</source>
         <translation type="obsolete">QtS60DeviceRunConfiguration</translation>
@@ -23849,7 +23849,7 @@ Raison : %2</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DeviceRunConfigurationWidget</name>
+    <name>QmakeProjectManager::Internal::S60DeviceRunConfigurationWidget</name>
     <message>
         <source>Device:</source>
         <translation type="obsolete">Appareil mobile :</translation>
@@ -23934,14 +23934,14 @@ Raison : %2</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DeviceRunConfigurationFactory</name>
+    <name>QmakeProjectManager::Internal::S60DeviceRunConfigurationFactory</name>
     <message>
         <source>%1 on Symbian Device</source>
         <translation type="obsolete">%1 sur appareil Symbian</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DeviceRunControlBase</name>
+    <name>QmakeProjectManager::Internal::S60DeviceRunControlBase</name>
     <message>
         <source>Creating %1.sisx ...</source>
         <translation type="obsolete">Création de %1.sisx...</translation>
@@ -24087,7 +24087,7 @@ Veuillez vérifier que le téléphone est connecté et que App TRK est lancé.</
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DeviceRunControl</name>
+    <name>QmakeProjectManager::Internal::S60DeviceRunControl</name>
     <message>
         <source>Launching</source>
         <translation type="obsolete">Lancement</translation>
@@ -24148,7 +24148,7 @@ Veuillez vérifier que le téléphone est connecté et que App TRK est lancé.</
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DeviceDebugRunControl</name>
+    <name>QmakeProjectManager::Internal::S60DeviceDebugRunControl</name>
     <message>
         <source>Warning: Cannot locate the symbol file belonging to %1.</source>
         <translation type="obsolete">Attention : Impossible de trouver le fichier de symboles appartenant à %1.</translation>
@@ -24185,14 +24185,14 @@ Veuillez vérifier que le téléphone est connecté et que App TRK est lancé.</
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DevicesWidget</name>
+    <name>QmakeProjectManager::Internal::S60DevicesWidget</name>
     <message>
         <source>No Qt installed</source>
         <translation type="obsolete">Qt non installé</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60EmulatorRunConfigurationWidget</name>
+    <name>QmakeProjectManager::Internal::S60EmulatorRunConfigurationWidget</name>
     <message>
         <source>Name:</source>
         <translation type="obsolete">Nom :</translation>
@@ -24207,7 +24207,7 @@ Veuillez vérifier que le téléphone est connecté et que App TRK est lancé.</
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60EmulatorRunConfiguration</name>
+    <name>QmakeProjectManager::Internal::S60EmulatorRunConfiguration</name>
     <message>
         <source>%1 in Symbian Emulator</source>
         <extracomment>S60 emulator run configuration default display name, %1 is base pro-File name
@@ -24242,14 +24242,14 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60EmulatorRunConfigurationFactory</name>
+    <name>QmakeProjectManager::Internal::S60EmulatorRunConfigurationFactory</name>
     <message>
         <source>%1 in Symbian Emulator</source>
         <translation type="obsolete">%1 sur l&apos;émulateur Symbian</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60EmulatorRunControl</name>
+    <name>QmakeProjectManager::Internal::S60EmulatorRunControl</name>
     <message>
         <source>Starting %1...</source>
         <translation type="obsolete">Démarrage %1...</translation>
@@ -24274,7 +24274,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60Manager</name>
+    <name>QmakeProjectManager::Internal::S60Manager</name>
     <message>
         <source>Run in Emulator</source>
         <translation type="obsolete">Démarrer sur l&apos;émulateur</translation>
@@ -24289,7 +24289,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Qt4BuildConfigurationFactory</name>
+    <name>QmakeProjectManager::QmakeBuildConfigurationFactory</name>
     <message>
         <source>Using Default Qt Version</source>
         <translation type="obsolete">Utiliser la version de Qt par défaut</translation>
@@ -24894,7 +24894,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60Devices::Device</name>
+    <name>QmakeProjectManager::Internal::S60Devices::Device</name>
     <message>
         <source>Id:</source>
         <translation type="obsolete">Id :</translation>
@@ -26523,7 +26523,7 @@ Vous pouvez choisir entre mettre les changements dans une remise ou de les aband
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60CreatePackageStepWidget</name>
+    <name>QmakeProjectManager::Internal::S60CreatePackageStepWidget</name>
     <message>
         <source>Form</source>
         <translation type="obsolete">Formulaire</translation>
@@ -26570,7 +26570,7 @@ Vous pouvez choisir entre mettre les changements dans une remise ou de les aband
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::TargetSetupPage</name>
+    <name>QmakeProjectManager::Internal::TargetSetupPage</name>
     <message>
         <source>Setup targets for your project</source>
         <translation type="obsolete">Installer les cibles pour votre projet</translation>
@@ -26715,7 +26715,7 @@ Vous pouvez choisir entre mettre les changements dans une remise ou de les aband
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::TestWizardPage</name>
+    <name>QmakeProjectManager::Internal::TestWizardPage</name>
     <message>
         <source>WizardPage</source>
         <translation>WizardPage</translation>
@@ -30585,7 +30585,7 @@ Mettre des points d&apos;arrêt par nom de fichier et numéro de ligne pourrait 
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Qt4Target</name>
+    <name>QmakeProjectManager::Internal::QmakeTarget</name>
     <message>
         <source>Desktop</source>
         <comment>Qt4 Desktop target display name</comment>
@@ -32129,7 +32129,7 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoConfigTestDialog</name>
+    <name>QmakeProjectManager::Internal::MaemoConfigTestDialog</name>
     <message>
         <source>Testing configuration...</source>
         <translation type="obsolete">Test de la configuration...</translation>
@@ -32226,7 +32226,7 @@ Did you start Qemu?</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoPackageContents</name>
+    <name>QmakeProjectManager::Internal::MaemoPackageContents</name>
     <message>
         <source>Local File Path</source>
         <translation type="obsolete">Chemin du fichier local</translation>
@@ -32237,7 +32237,7 @@ Did you start Qemu?</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoPackageCreationStep</name>
+    <name>QmakeProjectManager::Internal::MaemoPackageCreationStep</name>
     <message>
         <source>Creating package file ...</source>
         <translation type="obsolete">Créer un fichier de paquet...</translation>
@@ -32356,7 +32356,7 @@ Nous allons essayer de travailler avec cela mais vous pourrez rencontrer des pro
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoPackageCreationWidget</name>
+    <name>QmakeProjectManager::Internal::MaemoPackageCreationWidget</name>
     <message>
         <source>No Version Available.</source>
         <translation type="obsolete">Aucune version disponible.</translation>
@@ -32423,7 +32423,7 @@ Nous allons essayer de travailler avec cela mais vous pourrez rencontrer des pro
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoRunConfiguration</name>
+    <name>QmakeProjectManager::Internal::MaemoRunConfiguration</name>
     <message>
         <source>New Maemo Run Configuration</source>
         <translation type="obsolete">Nouvelle configuration d&apos;exécution pour Maemo</translation>
@@ -32443,7 +32443,7 @@ Nous allons essayer de travailler avec cela mais vous pourrez rencontrer des pro
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoRunConfigurationWidget</name>
+    <name>QmakeProjectManager::Internal::MaemoRunConfigurationWidget</name>
     <message>
         <source>Run configuration name:</source>
         <translation type="obsolete">Exécuter la configuration nommée :</translation>
@@ -32588,7 +32588,7 @@ Nous allons essayer de travailler avec cela mais vous pourrez rencontrer des pro
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::AbstractMaemoRunControl</name>
+    <name>QmakeProjectManager::Internal::AbstractMaemoRunControl</name>
     <message>
         <source>No device configuration set for run configuration.</source>
         <translation type="obsolete">Aucune configuration de périphérique définie pour exécuter la configuration.</translation>
@@ -32651,28 +32651,28 @@ Nous allons essayer de travailler avec cela mais vous pourrez rencontrer des pro
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoRunConfigurationFactory</name>
+    <name>QmakeProjectManager::Internal::MaemoRunConfigurationFactory</name>
     <message>
         <source>New Maemo Run Configuration</source>
         <translation type="obsolete">Nouvelle configuration d&apos;exécution pour Maemo</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoRunControlFactory</name>
+    <name>QmakeProjectManager::Internal::MaemoRunControlFactory</name>
     <message>
         <source>Run on device</source>
         <translation type="obsolete">Exécuter sur le périphérique</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoSettingsPage</name>
+    <name>QmakeProjectManager::Internal::MaemoSettingsPage</name>
     <message>
         <source>Maemo Device Configurations</source>
         <translation type="obsolete">Configurations du périphérique Maemo</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoSettingsWidget</name>
+    <name>QmakeProjectManager::Internal::MaemoSettingsWidget</name>
     <message>
         <source>New Device Configuration %1</source>
         <comment>Standard Configuration name with number</comment>
@@ -32728,7 +32728,7 @@ Nous allons essayer de travailler avec cela mais vous pourrez rencontrer des pro
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoSshConfigDialog</name>
+    <name>QmakeProjectManager::Internal::MaemoSshConfigDialog</name>
     <message>
         <source>Save Public Key File</source>
         <translation type="obsolete">Enregistrer le fichier de clé publique</translation>
@@ -32749,7 +32749,7 @@ Nous allons essayer de travailler avec cela mais vous pourrez rencontrer des pro
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QemuRuntimeManager</name>
+    <name>QmakeProjectManager::Internal::QemuRuntimeManager</name>
     <message>
         <source>Start Maemo Emulator</source>
         <translation type="obsolete">Démarrer l&apos;émulateur Maemo</translation>
@@ -32780,7 +32780,7 @@ Nous allons essayer de travailler avec cela mais vous pourrez rencontrer des pro
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60CreatePackageStep</name>
+    <name>QmakeProjectManager::Internal::S60CreatePackageStep</name>
     <message>
         <source>Create SIS Package</source>
         <comment>Create SIS package build step name</comment>
@@ -32867,14 +32867,14 @@ Nous allons essayer de travailler avec cela mais vous pourrez rencontrer des pro
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60CreatePackageStepFactory</name>
+    <name>QmakeProjectManager::Internal::S60CreatePackageStepFactory</name>
     <message>
         <source>Create SIS Package</source>
         <translation type="obsolete">Créer le paquet SIS</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60CreatePackageStepConfigWidget</name>
+    <name>QmakeProjectManager::Internal::S60CreatePackageStepConfigWidget</name>
     <message>
         <source>self-signed</source>
         <translation type="obsolete">auto-signé</translation>
@@ -32913,7 +32913,7 @@ Nous allons essayer de travailler avec cela mais vous pourrez rencontrer des pro
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DevicesBaseWidget</name>
+    <name>QmakeProjectManager::Internal::S60DevicesBaseWidget</name>
     <message>
         <source>Default</source>
         <translation type="obsolete">Défaut</translation>
@@ -32932,14 +32932,14 @@ Nous allons essayer de travailler avec cela mais vous pourrez rencontrer des pro
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DevicesModel</name>
+    <name>QmakeProjectManager::Internal::S60DevicesModel</name>
     <message>
         <source>No Qt installed</source>
         <translation type="obsolete">Qt non installé</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::GnuPocS60DevicesWidget</name>
+    <name>QmakeProjectManager::Internal::GnuPocS60DevicesWidget</name>
     <message>
         <source>Step 1 of 2: Choose GnuPoc folder</source>
         <translation type="obsolete">Étape 1 sur 2 : Choisir le répertoire GnuPoc</translation>
@@ -32985,7 +32985,7 @@ Nous allons essayer de travailler avec cela mais vous pourrez rencontrer des pro
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Qt4BuildConfigurationFactory</name>
+    <name>QmakeProjectManager::Internal::QmakeBuildConfigurationFactory</name>
     <message>
         <source>Using Qt Version &quot;%1&quot;</source>
         <translation type="obsolete">Utiliser la version Qt &quot;%1&quot;</translation>
@@ -33018,7 +33018,7 @@ Nous allons essayer de travailler avec cela mais vous pourrez rencontrer des pro
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Qt4Project</name>
+    <name>QmakeProjectManager::QmakeProject</name>
     <message>
         <source>Evaluating</source>
         <translation>Évaluation</translation>
@@ -33049,7 +33049,7 @@ Nous allons essayer de travailler avec cela mais vous pourrez rencontrer des pro
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Qt4</source>
         <translation type="obsolete">Qt4</translation>
@@ -33080,7 +33080,7 @@ Nous allons essayer de travailler avec cela mais vous pourrez rencontrer des pro
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Qt4TargetFactory</name>
+    <name>QmakeProjectManager::Internal::QmakeTargetFactory</name>
     <message>
         <source>Debug</source>
         <translation type="obsolete">Debug</translation>
@@ -33091,7 +33091,7 @@ Nous allons essayer de travailler avec cela mais vous pourrez rencontrer des pro
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::QtVersion</name>
+    <name>QmakeProjectManager::QtVersion</name>
     <message>
         <source>The Qt version is invalid: %1</source>
         <extracomment>%1: Reason for being invalid</extracomment>
@@ -33298,7 +33298,7 @@ Nous allons essayer de travailler avec cela mais vous pourrez rencontrer des pro
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MobileGuiAppWizard</name>
+    <name>QmakeProjectManager::Internal::MobileGuiAppWizard</name>
     <message>
         <source>Mobile Qt Application</source>
         <translation type="obsolete">Application Qt pour mobiles</translation>
@@ -33311,7 +33311,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::BaseQt4ProjectWizardDialog</name>
+    <name>QmakeProjectManager::Internal::BaseQmakeProjectWizardDialog</name>
     <message>
         <source>Modules</source>
         <translation>Modules</translation>
@@ -33330,7 +33330,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::TestWizard</name>
+    <name>QmakeProjectManager::Internal::TestWizard</name>
     <message>
         <source>Qt Unit Test</source>
         <translation>Test unitaire Qt</translation>
@@ -33341,7 +33341,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::TestWizardDialog</name>
+    <name>QmakeProjectManager::Internal::TestWizardDialog</name>
     <message>
         <source>This wizard generates a Qt unit test consisting of a single source file with a test class.</source>
         <translation>Cet assistant génère un test unitaire Qt consistant en un fichier source unique avec une classe de test.</translation>
@@ -33860,7 +33860,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::LibraryDetailsWidget</name>
+    <name>QmakeProjectManager::Internal::LibraryDetailsWidget</name>
     <message>
         <source>Library:</source>
         <translation>Bibliothèque :</translation>
@@ -36634,7 +36634,7 @@ utilisez import Qt 4.7 au lieu de import QtQuick 1.0</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::AddLibraryWizard</name>
+    <name>QmakeProjectManager::Internal::AddLibraryWizard</name>
     <message>
         <source>Add Library</source>
         <translation>Ajouter une bibliothèque</translation>
@@ -36653,7 +36653,7 @@ utilisez import Qt 4.7 au lieu de import QtQuick 1.0</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::LibraryTypePage</name>
+    <name>QmakeProjectManager::Internal::LibraryTypePage</name>
     <message>
         <source>Library Type</source>
         <translation>Type de bibliothèque</translation>
@@ -36704,7 +36704,7 @@ Ajoute la bibliothèque et les chemins d&apos;inclusion dans le fichier .pro.</t
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::DetailsPage</name>
+    <name>QmakeProjectManager::Internal::DetailsPage</name>
     <message>
         <source>System Library</source>
         <translation>Bibliothèque  système</translation>
@@ -36739,7 +36739,7 @@ Ajoute la bibliothèque et les chemins d&apos;inclusion dans le fichier .pro.</t
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::SummaryPage</name>
+    <name>QmakeProjectManager::Internal::SummaryPage</name>
     <message>
         <source>Summary</source>
         <translation>Résumé</translation>
@@ -36750,7 +36750,7 @@ Ajoute la bibliothèque et les chemins d&apos;inclusion dans le fichier .pro.</t
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::LibraryDetailsController</name>
+    <name>QmakeProjectManager::Internal::LibraryDetailsController</name>
     <message>
         <source>Linkage:</source>
         <translation>Edition de liens :</translation>
@@ -36780,7 +36780,7 @@ Ajoute la bibliothèque et les chemins d&apos;inclusion dans le fichier .pro.</t
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::QmlDumpTool</name>
+    <name>QmakeProjectManager::QmlDumpTool</name>
     <message>
         <source>Only available for Qt for Desktop and Qt for Qt Simulator.</source>
         <translation>Seulement disponible pour Qt for Desktop et Qt for Qt Simulator. </translation>
@@ -36824,7 +36824,7 @@ Raison : %2</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::QmlObserverTool</name>
+    <name>QmakeProjectManager::QmlObserverTool</name>
     <message>
         <source>Only available for Qt for Desktop or Qt for Qt Simulator.</source>
         <translation>Seulement disponible pour Qt for Desktop et Qt for Qt Simulateur. </translation>
@@ -36860,7 +36860,7 @@ Raison : %2</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoDebugSupport</name>
+    <name>QmakeProjectManager::Internal::MaemoDebugSupport</name>
     <message>
         <source>No device configuration set for run configuration.</source>
         <translation type="obsolete">Aucune configuration de périphérique définie pour exécuter la configuration.</translation>
@@ -36903,7 +36903,7 @@ Raison : %2</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoDeployableListModel</name>
+    <name>QmakeProjectManager::Internal::MaemoDeployableListModel</name>
     <message>
         <source>File already in list.</source>
         <translation type="obsolete">Le fichier est déjà dans la liste.</translation>
@@ -36942,7 +36942,7 @@ Raison : %2</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoDeployStep</name>
+    <name>QmakeProjectManager::Internal::MaemoDeployStep</name>
     <message>
         <source>Deploy to Maemo device</source>
         <extracomment>MaemoDeployStep default display name</extracomment>
@@ -37076,14 +37076,14 @@ Raison : %2</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoDeployStepFactory</name>
+    <name>QmakeProjectManager::Internal::MaemoDeployStepFactory</name>
     <message>
         <source>Deploy to device</source>
         <translation type="obsolete">Déployer sur le périphérique</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoDeployStepWidget</name>
+    <name>QmakeProjectManager::Internal::MaemoDeployStepWidget</name>
     <message>
         <source>&lt;b&gt;Deploy to device&lt;/b&gt;: %1</source>
         <translation type="obsolete">&lt;b&gt;Déployer sur le périphérique&lt;/b&gt; : %1</translation>
@@ -37133,7 +37133,7 @@ Raison : %2</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoDeviceEnvReader</name>
+    <name>QmakeProjectManager::Internal::MaemoDeviceEnvReader</name>
     <message>
         <source>Could not connect to host: %1</source>
         <translation type="obsolete">Impossible de se connecter à l&apos;hôte : %1</translation>
@@ -37153,21 +37153,21 @@ Remote stderr was: &apos;%1&apos;</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoPackageCreationFactory</name>
+    <name>QmakeProjectManager::Internal::MaemoPackageCreationFactory</name>
     <message>
         <source>Create Debian Package</source>
         <translation type="obsolete">Créer un paquet Debian</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoProFilesUpdateDialog</name>
+    <name>QmakeProjectManager::Internal::MaemoProFilesUpdateDialog</name>
     <message>
         <source>Updateable Project Files</source>
         <translation type="obsolete">Fichiers de projet possiblement à mettre à jour</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoQemuManager</name>
+    <name>QmakeProjectManager::Internal::MaemoQemuManager</name>
     <message>
         <source>Start Maemo Emulator</source>
         <translation type="obsolete">Démarrer l&apos;émulateur Maemo</translation>
@@ -37198,7 +37198,7 @@ Remote stderr was: &apos;%1&apos;</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoRemoteMounter</name>
+    <name>QmakeProjectManager::Internal::MaemoRemoteMounter</name>
     <message>
         <source>No directories to mount</source>
         <translation type="obsolete">Pas de répertoire à monter</translation>
@@ -37281,7 +37281,7 @@ stderr était : %1</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoRemoteMountsModel</name>
+    <name>QmakeProjectManager::Internal::MaemoRemoteMountsModel</name>
     <message>
         <source>Local directory</source>
         <translation type="obsolete">Répertoire local</translation>
@@ -37292,7 +37292,7 @@ stderr était : %1</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoRunControl</name>
+    <name>QmakeProjectManager::Internal::MaemoRunControl</name>
     <message>
         <source>No device configuration set for run configuration.</source>
         <translation type="obsolete">Aucune configuration de périphérique définie pour exécuter la configuration.</translation>
@@ -37311,7 +37311,7 @@ stderr était : %1</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoSshRunner</name>
+    <name>QmakeProjectManager::Internal::MaemoSshRunner</name>
     <message>
         <source>Connecting to device...</source>
         <translation type="obsolete">Connexion au périphérique...</translation>
@@ -37374,7 +37374,7 @@ stderr était : %1</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoTemplatesManager</name>
+    <name>QmakeProjectManager::Internal::MaemoTemplatesManager</name>
     <message>
         <source>Unable to create Debian templates: dh_make failed (%1)</source>
         <translatorcomment>dourouc : idem précédent. </translatorcomment>
@@ -37433,7 +37433,7 @@ stderr était : %1</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::PassphraseForKeyDialog</name>
+    <name>QmakeProjectManager::PassphraseForKeyDialog</name>
     <message>
         <source>Passphrase:</source>
         <translatorcomment>Terme anglais utilisé pour un mot de passe généralement long et plus sécurisé</translatorcomment>
@@ -37457,7 +37457,7 @@ stderr était : %1</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DeployConfiguration</name>
+    <name>QmakeProjectManager::Internal::S60DeployConfiguration</name>
     <message>
         <source>Deploy %1 to Symbian device</source>
         <translation type="obsolete">Déployer %1 sur périphérique Symbian</translation>
@@ -37468,7 +37468,7 @@ stderr était : %1</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DeployConfigurationFactory</name>
+    <name>QmakeProjectManager::Internal::S60DeployConfigurationFactory</name>
     <message>
         <source>%1 on Symbian Device</source>
         <translation type="obsolete">%1 sur périphérique Symbian</translation>
@@ -37479,7 +37479,7 @@ stderr était : %1</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DeployConfigurationWidget</name>
+    <name>QmakeProjectManager::Internal::S60DeployConfigurationWidget</name>
     <message>
         <source>Device:</source>
         <translation type="obsolete">Appareil mobile :</translation>
@@ -37643,7 +37643,7 @@ stderr était : %1</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DeployStep</name>
+    <name>QmakeProjectManager::Internal::S60DeployStep</name>
     <message>
         <source>Unable to remove existing file &apos;%1&apos;: %2</source>
         <translation type="obsolete">Impossible de supprimer le fichier existant &quot;%1&quot; : %2</translation>
@@ -37823,21 +37823,21 @@ Veuillez vérifier que le téléphone est connecté et que App TRK est lancé.</
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DeployStepWidget</name>
+    <name>QmakeProjectManager::Internal::S60DeployStepWidget</name>
     <message>
         <source>Deploy SIS Package</source>
         <translation type="obsolete">Déployer le paquet SIS</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60DeployStepFactory</name>
+    <name>QmakeProjectManager::Internal::S60DeployStepFactory</name>
     <message>
         <source>Deploy SIS Package</source>
         <translation type="obsolete">Déployer le paquet SIS</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::SbsV2Parser</name>
+    <name>QmakeProjectManager::SbsV2Parser</name>
     <message>
         <source>SBSv2 build log</source>
         <translation type="obsolete">Journal de compilation de SBSv2</translation>
@@ -37860,7 +37860,7 @@ Veuillez vérifier que le téléphone est connecté et que App TRK est lancé.</
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Qt4DeployConfigurationFactory</name>
+    <name>QmakeProjectManager::Internal::QmakeDeployConfigurationFactory</name>
     <message>
         <source>Deploy to Symbian device</source>
         <translation type="obsolete">Déployer sur périphérique Symbian</translation>
@@ -37871,7 +37871,7 @@ Veuillez vérifier que le téléphone est connecté et que App TRK est lancé.</
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::AbstractMobileApp</name>
+    <name>QmakeProjectManager::AbstractMobileApp</name>
     <message>
         <source>Could not open desktop file template</source>
         <translation type="obsolete">Impossible d&apos;ouvrir le fichier template d&apos;ordinateur de bureau</translation>
@@ -37890,7 +37890,7 @@ Veuillez vérifier que le téléphone est connecté et que App TRK est lancé.</
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::AbstractMobileAppWizardDialog</name>
+    <name>QmakeProjectManager::Internal::AbstractMobileAppWizardDialog</name>
     <message>
         <source>Qt Versions</source>
         <translation type="obsolete">Versions de Qt</translation>
@@ -37916,7 +37916,7 @@ Présélectionne la version de Qt pour le simulateur et les mobiles si disponibl
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MobileAppWizardOptionsPage</name>
+    <name>QmakeProjectManager::Internal::MobileAppWizardOptionsPage</name>
     <message>
         <source>Automatically Rotate Orientation</source>
         <translation type="obsolete">Pivoter l&apos;orientation automatiquement</translation>
@@ -37943,7 +37943,7 @@ Présélectionne la version de Qt pour le simulateur et les mobiles si disponibl
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QtQuickApp</name>
+    <name>QmakeProjectManager::Internal::QtQuickApp</name>
     <message>
         <source>The QML import path &apos;%1&apos; cannot be found.</source>
         <translation type="obsolete">Le chemin d&apos;import QML &quot;%1&quot; est introuvable.</translation>
@@ -37970,7 +37970,7 @@ Présélectionne la version de Qt pour le simulateur et les mobiles si disponibl
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QtQuickAppWizardDialog</name>
+    <name>QmakeProjectManager::Internal::QtQuickAppWizardDialog</name>
     <message>
         <source>New Qt Quick Application</source>
         <translation>Nouvelle application Qt Quick</translation>
@@ -37993,7 +37993,7 @@ Présélectionne la version de Qt pour le simulateur et les mobiles si disponibl
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QtQuickAppWizard</name>
+    <name>QmakeProjectManager::Internal::QtQuickAppWizard</name>
     <message>
         <source>Qt Quick Application</source>
         <translation type="obsolete">Application Qt Quick</translation>
@@ -38160,7 +38160,7 @@ Requiert &lt;b&gt;Qt 4.7.0&lt;/b&gt; ou plus récent.</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QtQuickAppWizardSourcesPage</name>
+    <name>QmakeProjectManager::Internal::QtQuickAppWizardSourcesPage</name>
     <message>
         <source>Select QML File</source>
         <translation type="obsolete">Sélectionner un fichier QML</translation>
@@ -39109,7 +39109,7 @@ Les pulls locaux ne sont pas appliqués à la branche maître. </translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::DebuggingHelper</name>
+    <name>QmakeProjectManager::Internal::DebuggingHelper</name>
     <message>
         <source>Used to extract QML type information from library-based plugins.</source>
         <translation type="obsolete">Utilisé pour extraire le type d&apos;information QML pour les plugins bibliothèques.</translation>
@@ -39568,7 +39568,7 @@ Les pulls locaux ne sont pas appliqués à la branche maître. </translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::RvctToolChainConfigWidget</name>
+    <name>QmakeProjectManager::Internal::RvctToolChainConfigWidget</name>
     <message>
         <source>Form</source>
         <translation type="obsolete">Formulaire</translation>
@@ -39681,7 +39681,7 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::WinscwToolChainConfigWidget</name>
+    <name>QmakeProjectManager::Internal::WinscwToolChainConfigWidget</name>
     <message>
         <source>Dialog</source>
         <translation type="obsolete">Boîte de dialogue</translation>
@@ -39700,7 +39700,7 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QtVersionInfo</name>
+    <name>QmakeProjectManager::Internal::QtVersionInfo</name>
     <message>
         <source>Version name:</source>
         <translation type="obsolete">Nom de version :</translation>
@@ -43514,7 +43514,7 @@ Please build the debugging helpers on the Qt version options page.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::QmlDebuggingLibrary</name>
+    <name>QmakeProjectManager::QmlDebuggingLibrary</name>
     <message>
         <source>Only available for Qt 4.7.1 or newer.</source>
         <translation>Seulement disponible pour Qt 4.7.1 ou plus récent.</translation>
@@ -43543,7 +43543,7 @@ Raison : %2</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Qt4Target</name>
+    <name>QmakeProjectManager::QmakeTarget</name>
     <message>
         <source>Desktop</source>
         <comment>Qt4 Desktop target display name</comment>
@@ -43586,14 +43586,14 @@ Raison : %2</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoDeviceConfigurations</name>
+    <name>QmakeProjectManager::Internal::MaemoDeviceConfigurations</name>
     <message>
         <source>(default for %1)</source>
         <translation type="obsolete">(paramètre par défaut pour %1)</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoDeviceConfigurationsSettingsWidget</name>
+    <name>QmakeProjectManager::Internal::MaemoDeviceConfigurationsSettingsWidget</name>
     <message>
         <source>Physical Device</source>
         <translation type="obsolete">Périphérique physique</translation>
@@ -43636,28 +43636,28 @@ Raison : %2</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoDeviceConfigWizardStartPage</name>
+    <name>QmakeProjectManager::Internal::MaemoDeviceConfigWizardStartPage</name>
     <message>
         <source>General Information</source>
         <translation type="obsolete">Informations générales</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoDeviceConfigWizardPreviousKeySetupCheckPage</name>
+    <name>QmakeProjectManager::Internal::MaemoDeviceConfigWizardPreviousKeySetupCheckPage</name>
     <message>
         <source>Device Status Check</source>
         <translation type="obsolete">Vérification de l&apos;état du périphérique</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoDeviceConfigWizardReuseKeysCheckPage</name>
+    <name>QmakeProjectManager::Internal::MaemoDeviceConfigWizardReuseKeysCheckPage</name>
     <message>
         <source>Existing Keys Check</source>
         <translation type="obsolete">Vérification des clés existantes</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoDeviceConfigWizardKeyCreationPage</name>
+    <name>QmakeProjectManager::Internal::MaemoDeviceConfigWizardKeyCreationPage</name>
     <message>
         <source>Key Creation</source>
         <translation type="obsolete">Création de clé</translation>
@@ -43696,7 +43696,7 @@ Raison : %2</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoDeviceConfigWizardKeyDeploymentPage</name>
+    <name>QmakeProjectManager::Internal::MaemoDeviceConfigWizardKeyDeploymentPage</name>
     <message>
         <source>Key Deployment</source>
         <translation type="obsolete">Déploiement de la clé</translation>
@@ -43723,7 +43723,7 @@ Raison : %2</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoDeviceConfigWizardFinalPage</name>
+    <name>QmakeProjectManager::Internal::MaemoDeviceConfigWizardFinalPage</name>
     <message>
         <source>Setup Finished</source>
         <translation type="obsolete">Fin de l&apos;installation</translation>
@@ -43738,14 +43738,14 @@ Raison : %2</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoDeviceConfigWizard</name>
+    <name>QmakeProjectManager::Internal::MaemoDeviceConfigWizard</name>
     <message>
         <source>New Device Configuration Setup</source>
         <translation type="obsolete">Configuration du nouveau périphérique</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoGlobal</name>
+    <name>QmakeProjectManager::Internal::MaemoGlobal</name>
     <message>
         <source>Could not connect to host: %1</source>
         <translation type="obsolete">Impossible de se connecter à l&apos;hôte : %1</translation>
@@ -43791,7 +43791,7 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoKeyDeployer</name>
+    <name>QmakeProjectManager::Internal::MaemoKeyDeployer</name>
     <message>
         <source>Could not read public key file &apos;%1&apos;.</source>
         <translation type="obsolete">Impossible de lire le fichier de clé publique &quot;%1&quot;.</translation>
@@ -43806,14 +43806,14 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoPerTargetDeviceConfigurationListModel</name>
+    <name>QmakeProjectManager::Internal::MaemoPerTargetDeviceConfigurationListModel</name>
     <message>
         <source>(default)</source>
         <translation type="obsolete">(par défaut)</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoPublishedProjectModel</name>
+    <name>QmakeProjectManager::Internal::MaemoPublishedProjectModel</name>
     <message>
         <source>Include in package</source>
         <translation type="obsolete">Inclure dans le paquet</translation>
@@ -43828,7 +43828,7 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoPublisherFremantleFree</name>
+    <name>QmakeProjectManager::Internal::MaemoPublisherFremantleFree</name>
     <message>
         <source>Canceled.</source>
         <translation type="obsolete">Annulé.</translation>
@@ -43976,7 +43976,7 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoPublishingUploadSettingsPageFremantleFree</name>
+    <name>QmakeProjectManager::Internal::MaemoPublishingUploadSettingsPageFremantleFree</name>
     <message>
         <source>Publishing to Fremantle&apos;s &quot;Extras-devel/free&quot; Repository</source>
         <translation type="obsolete">Publication sur le dépôt &quot;extras-devel/free&quot; de Fremantle</translation>
@@ -43991,7 +43991,7 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoPublishingWizardFactoryFremantleFree</name>
+    <name>QmakeProjectManager::Internal::MaemoPublishingWizardFactoryFremantleFree</name>
     <message>
         <source>Publish for &quot;Fremantle Extras-devel free&quot; repository</source>
         <translation type="obsolete">Publication sur le dépôt &quot;extras-devel/free&quot; de Fremantle</translation>
@@ -44002,7 +44002,7 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoPublishingWizardFremantleFree</name>
+    <name>QmakeProjectManager::Internal::MaemoPublishingWizardFremantleFree</name>
     <message>
         <source>Publishing to Fremantle&apos;s &quot;Extras-devel free&quot; Repository</source>
         <translation type="obsolete">Publier sur le dépôt &quot;extras-devel-free&quot; de Fremantle</translation>
@@ -44021,14 +44021,14 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoRemoteProcessesDialog</name>
+    <name>QmakeProjectManager::Internal::MaemoRemoteProcessesDialog</name>
     <message>
         <source>Remote Error</source>
         <translation type="obsolete">Erreur distante</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoRemoteProcessList</name>
+    <name>QmakeProjectManager::Internal::MaemoRemoteProcessList</name>
     <message>
         <source>Connection failure: %1</source>
         <translation type="obsolete">Échec de la connexion : %1</translation>
@@ -44060,21 +44060,21 @@ Remote stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoDeviceConfigurationsSettingsPage</name>
+    <name>QmakeProjectManager::Internal::MaemoDeviceConfigurationsSettingsPage</name>
     <message>
         <source>Maemo Device Configurations</source>
         <translation type="obsolete">Configurations du périphérique Maemo</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoQemuSettingsPage</name>
+    <name>QmakeProjectManager::Internal::MaemoQemuSettingsPage</name>
     <message>
         <source>Qemu Settings</source>
         <translation type="obsolete">Paramètres Qemu</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoQemuCrashDialog</name>
+    <name>QmakeProjectManager::Internal::MaemoQemuCrashDialog</name>
     <message>
         <source>Qemu error</source>
         <translation type="obsolete">Erreur de Qemu</translation>
@@ -44097,7 +44097,7 @@ Remote stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoToolChainFactory</name>
+    <name>QmakeProjectManager::Internal::MaemoToolChainFactory</name>
     <message>
         <source>Maemo GCC</source>
         <translation type="obsolete">GCC pour Maemo</translation>
@@ -44112,7 +44112,7 @@ Remote stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoUsedPortsGatherer</name>
+    <name>QmakeProjectManager::Internal::MaemoUsedPortsGatherer</name>
     <message>
         <source>Connection error: %1</source>
         <translation type="obsolete">Erreur de connexion : %1</translation>
@@ -44136,7 +44136,7 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Qt4MaemoDeployConfigurationFactory</name>
+    <name>QmakeProjectManager::Internal::QmakeMaemoDeployConfigurationFactory</name>
     <message>
         <source>Deploy to Maemo5 device</source>
         <translation type="obsolete">Déployer sur un périphérique Maemo 5</translation>
@@ -44151,7 +44151,7 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::AbstractQt4MaemoTarget</name>
+    <name>QmakeProjectManager::Internal::AbstractQmakeMaemoTarget</name>
     <message>
         <source>File &apos;%1&apos; does not exist</source>
         <translation type="obsolete">Le fichier &quot;%1&apos; n&quot;existe pas</translation>
@@ -44190,7 +44190,7 @@ Voulez-vous les ajouter au projet ? </translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::AbstractDebBasedQt4MaemoTarget</name>
+    <name>QmakeProjectManager::Internal::AbstractDebBasedQmakeMaemoTarget</name>
     <message>
         <source>Debian changelog file &apos;%1&apos; has unexpected format.</source>
         <translation type="obsolete">Le fichier de journal des changements Debian &quot;%1&quot; a un format inattendu.</translation>
@@ -44237,7 +44237,7 @@ Voulez-vous les ajouter au projet ? </translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::CodaRunControl</name>
+    <name>QmakeProjectManager::Internal::CodaRunControl</name>
     <message>
         <source>No device is connected. Please connect a device and try again.</source>
         <translation type="obsolete">Pas de périphérique connecté. Veuillez en connecter un et réessayer. </translation>
@@ -44312,7 +44312,7 @@ Voulez-vous les ajouter au projet ? </translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::GcceToolChainFactory</name>
+    <name>QmakeProjectManager::Internal::GcceToolChainFactory</name>
     <message>
         <source>GCCE</source>
         <translation type="obsolete">GCCE</translation>
@@ -44327,7 +44327,7 @@ Voulez-vous les ajouter au projet ? </translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Qt4SymbianTarget</name>
+    <name>QmakeProjectManager::Internal::QmakeSymbianTarget</name>
     <message>
         <source>&lt;b&gt;Device:&lt;/b&gt; Not connected</source>
         <translation type="obsolete">&lt;b&gt;Périphérique :&lt;/b&gt;Non connecté</translation>
@@ -44346,7 +44346,7 @@ Voulez-vous les ajouter au projet ? </translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::RvctToolChainFactory</name>
+    <name>QmakeProjectManager::Internal::RvctToolChainFactory</name>
     <message>
         <source>ARMv5</source>
         <translation type="obsolete">ARMv5</translation>
@@ -44366,7 +44366,7 @@ Voulez-vous les ajouter au projet ? </translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60CertificateInfo</name>
+    <name>QmakeProjectManager::Internal::S60CertificateInfo</name>
     <message>
         <source>The certificate &quot;%1&quot; has already expired and cannot be used.
 Expiration date: %2.</source>
@@ -44424,7 +44424,7 @@ Valid from: %2.</source>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60CreatePackageParser</name>
+    <name>QmakeProjectManager::Internal::S60CreatePackageParser</name>
     <message>
         <source>The binary package &apos;%1&apos; was patched to be installable after being self-signed.
 %2
@@ -44440,7 +44440,7 @@ Utilisez un certificat développeur ou une autre option de signature pour évite
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60PublisherOvi</name>
+    <name>QmakeProjectManager::Internal::S60PublisherOvi</name>
     <message>
         <source>Error while reading .pro file %1: %2</source>
         <translation type="obsolete">Erreur lors de la lecture du fichier .pro %1 : %2</translation>
@@ -44514,7 +44514,7 @@ Utilisez un certificat développeur ou une autre option de signature pour évite
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60PublishingResultsPageOvi</name>
+    <name>QmakeProjectManager::Internal::S60PublishingResultsPageOvi</name>
     <message>
         <source>Open Containing Folder</source>
         <translation type="obsolete">Ouvrir le dossier contenant</translation>
@@ -44529,7 +44529,7 @@ Utilisez un certificat développeur ou une autre option de signature pour évite
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60PublishingSisSettingsPageOvi</name>
+    <name>QmakeProjectManager::Internal::S60PublishingSisSettingsPageOvi</name>
     <message>
         <source>%1 is a default vendor name used for testing and development. &lt;br&gt;The Vendor_Name field cannot contain the name &apos;Nokia&apos;. &lt;br&gt;You are advised against using the default names &apos;Vendor&apos; and &apos;Vendor-EN&apos;. &lt;br&gt;You should also not leave the entry blank. &lt;br&gt;see &lt;a href=&quot;http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;Packaging and Signing&lt;/a&gt; for guidelines.&lt;br&gt;</source>
         <translation type="obsolete">%1 est un nom de vendeur par défaut utilisé pour les tests et le développement. &lt;br&gt;Le champ Vendor_Name ne peut contenir le nom &apos;Nokia&apos;. &lt;br&gt;Il est conseillé de ne pas utiliser les noms par défaut &apos;Vendor&apos; et &apos;Vendor-EN&apos;. &lt;br&gt;Vous devez également ne pas laisser l&apos;entrée vide. &lt;br&gt;Voir &lt;a href=&quot;http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;mise en paquet et signaure&lt;/a&gt; comme guides.&lt;br&gt;</translation>
@@ -44672,7 +44672,7 @@ Utilisez un certificat développeur ou une autre option de signature pour évite
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60PublishingWizardFactoryOvi</name>
+    <name>QmakeProjectManager::Internal::S60PublishingWizardFactoryOvi</name>
     <message>
         <source>Publish Qt Symbian Applications to Ovi Store</source>
         <translation type="obsolete">Publier l&apos;application Qt Symbian sur l&apos;Ovi Store</translation>
@@ -44727,7 +44727,7 @@ Votre application peut aussi être rejeté par l&apos;assurance qualité du Noki
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60PublishingWizardOvi</name>
+    <name>QmakeProjectManager::Internal::S60PublishingWizardOvi</name>
     <message>
         <source>Publishing to Ovi Store</source>
         <translation type="obsolete">Publication sur l&apos;Ovi Store</translation>
@@ -44750,7 +44750,7 @@ Votre application peut aussi être rejeté par l&apos;assurance qualité du Noki
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60RunControlBase</name>
+    <name>QmakeProjectManager::Internal::S60RunControlBase</name>
     <message>
         <source>Launching</source>
         <translation type="obsolete">Lancement</translation>
@@ -44781,7 +44781,7 @@ Votre application peut aussi être rejeté par l&apos;assurance qualité du Noki
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::TrkRunControl</name>
+    <name>QmakeProjectManager::Internal::TrkRunControl</name>
     <message>
         <source>No device is connected. Please connect a device and try again.</source>
         <translation type="obsolete">Aucun périphérique n&apos;est connecté. Veuillez connecter un périphérique et réessayer. </translation>
@@ -44830,7 +44830,7 @@ Veuillez vérifier que le téléphone est connecté et que App TRK est lancé.</
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::WinscwToolChainFactory</name>
+    <name>QmakeProjectManager::Internal::WinscwToolChainFactory</name>
     <message>
         <source>WINSCW</source>
         <translation type="obsolete">WINSCW</translation>
@@ -44841,7 +44841,7 @@ Veuillez vérifier que le téléphone est connecté et que App TRK est lancé.</
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Qt4BaseTargetFactory</name>
+    <name>QmakeProjectManager::QmakeBaseTargetFactory</name>
     <message>
         <source>%1 Debug</source>
         <extracomment>Name of a debug build configuration to created by a project wizard, %1 being the Qt version name. We recommend not translating it.</extracomment>
@@ -44867,7 +44867,7 @@ Veuillez vérifier que le téléphone est connecté et que App TRK est lancé.</
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Qt4DefaultTargetSetupWidget</name>
+    <name>QmakeProjectManager::QmakeDefaultTargetSetupWidget</name>
     <message>
         <source>Add build from:</source>
         <translation type="obsolete">Ajouter une compilation depuis : </translation>
@@ -44990,7 +44990,7 @@ Veuillez vérifier que le téléphone est connecté et que App TRK est lancé.</
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::AbstractMobileAppWizardDialog</name>
+    <name>QmakeProjectManager::AbstractMobileAppWizardDialog</name>
     <message>
         <source>Qt Versions</source>
         <translation type="obsolete">Versions de Qt</translation>
@@ -45025,7 +45025,7 @@ Veuillez vérifier que le téléphone est connecté et que App TRK est lancé.</
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Html5AppWizardDialog</name>
+    <name>QmakeProjectManager::Internal::Html5AppWizardDialog</name>
     <message>
         <source>New HTML5 Application</source>
         <translation>Nouvelle application HTML5</translation>
@@ -45040,7 +45040,7 @@ Veuillez vérifier que le téléphone est connecté et que App TRK est lancé.</
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Html5AppWizard</name>
+    <name>QmakeProjectManager::Internal::Html5AppWizard</name>
     <message>
         <source>HTML5 Application</source>
         <translation>Application HTML5</translation>
@@ -45063,7 +45063,7 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Html5AppWizardOptionsPage</name>
+    <name>QmakeProjectManager::Internal::Html5AppWizardOptionsPage</name>
     <message>
         <source>Select HTML File</source>
         <translatorcomment>impératif ?</translatorcomment>
@@ -45071,7 +45071,7 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MobileAppWizardGenericOptionsPage</name>
+    <name>QmakeProjectManager::Internal::MobileAppWizardGenericOptionsPage</name>
     <message>
         <source>Automatically Rotate Orientation</source>
         <translation>Pivoter l&apos;orientation automatiquement</translation>
@@ -45094,7 +45094,7 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MobileAppWizardMaemoOptionsPage</name>
+    <name>QmakeProjectManager::Internal::MobileAppWizardMaemoOptionsPage</name>
     <message>
         <source>Invalid Icon</source>
         <translation type="obsolete">Icône invalide</translation>
@@ -45137,7 +45137,7 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::SubdirsProjectWizard</name>
+    <name>QmakeProjectManager::Internal::SubdirsProjectWizard</name>
     <message>
         <source>Subdirs Project</source>
         <translation>Projet de sous-répertoires</translation>
@@ -45161,7 +45161,7 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::SubdirsProjectWizardDialog</name>
+    <name>QmakeProjectManager::Internal::SubdirsProjectWizardDialog</name>
     <message>
         <source>This wizard generates a Qt4 subdirs project. Add subprojects to it later on by using the other wizards.</source>
         <translation type="obsolete">Cet assistant génère un projet Qt4 avec sous-répertoires. Ajoutez-y des sous-projets plus tard en utilisant d&apos;autres assistants. </translation>
@@ -45172,7 +45172,7 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::TargetSetupPage</name>
+    <name>QmakeProjectManager::TargetSetupPage</name>
     <message>
         <source>Target Setup</source>
         <translation type="obsolete">Installation de la cible</translation>
@@ -45512,7 +45512,7 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MaemoToolChainConfigWidget</name>
+    <name>QmakeProjectManager::Internal::MaemoToolChainConfigWidget</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE target:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Chemin de MADDE :&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Chemin de la cible MADDE :&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Débogueur :&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -48396,7 +48396,7 @@ Souhaitez-vous réessayer ?</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::CodaRunControl</name>
+    <name>QmakeProjectManager::CodaRunControl</name>
     <message>
         <source>No device is connected. Please connect a device and try again.
 </source>
@@ -48502,7 +48502,7 @@ Souhaitez-vous réessayer ?</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::S60DeployConfiguration</name>
+    <name>QmakeProjectManager::S60DeployConfiguration</name>
     <message>
         <source>Deploy %1 to Symbian device</source>
         <translation type="obsolete">Déployer %1 sur périphérique Symbian</translation>
@@ -48513,7 +48513,7 @@ Souhaitez-vous réessayer ?</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::S60DeployConfigurationFactory</name>
+    <name>QmakeProjectManager::S60DeployConfigurationFactory</name>
     <message>
         <source>%1 on Symbian Device</source>
         <translation type="obsolete">%1 sur périphérique Symbian</translation>
@@ -48524,7 +48524,7 @@ Souhaitez-vous réessayer ?</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::S60DeviceRunConfiguration</name>
+    <name>QmakeProjectManager::S60DeviceRunConfiguration</name>
     <message>
         <source>%1 on Symbian Device</source>
         <extracomment>S60 device runconfiguration default display name, %1 is base pro-File name</extracomment>
@@ -48545,14 +48545,14 @@ Souhaitez-vous réessayer ?</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::S60DeviceRunConfigurationFactory</name>
+    <name>QmakeProjectManager::S60DeviceRunConfigurationFactory</name>
     <message>
         <source>%1 on Symbian Device</source>
         <translation type="obsolete">%1 sur périphérique Symbian</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60CommandPublishStep</name>
+    <name>QmakeProjectManager::Internal::S60CommandPublishStep</name>
     <message>
         <source>Running %1</source>
         <extracomment>%1 is a name of the Publish Step i.e. Clean Step</extracomment>
@@ -48560,7 +48560,7 @@ Souhaitez-vous réessayer ?</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60PublishingBuildSettingsPageOvi</name>
+    <name>QmakeProjectManager::Internal::S60PublishingBuildSettingsPageOvi</name>
     <message>
         <source>No valid Qt version has been detected.&lt;br&gt;Define a correct Qt version in &quot;Options &gt; Qt4&quot;</source>
         <translation type="obsolete">Aucune version de Qt valide n&apos;a été détecté. &lt;br/&gt; Définissez-en une correcte dans &quot;Options &gt; Qt4&quot;</translation>
@@ -48589,7 +48589,7 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::S60RunControlBase</name>
+    <name>QmakeProjectManager::S60RunControlBase</name>
     <message>
         <source>Launching</source>
         <translation type="obsolete">Lancement</translation>
@@ -48622,7 +48622,7 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::SymbianQtConfigWidget</name>
+    <name>QmakeProjectManager::Internal::SymbianQtConfigWidget</name>
     <message>
         <source>S60 SDK:</source>
         <translation type="obsolete">SDK S60 :</translation>
@@ -48633,14 +48633,14 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Qt4BuildConfiguration</name>
+    <name>QmakeProjectManager::QmakeBuildConfiguration</name>
     <message>
         <source>Parsing the .pro file</source>
         <translation>Analyse du fichier .pro</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Qt4ProFileNode</name>
+    <name>QmakeProjectManager::QmakeProFileNode</name>
     <message>
         <source>Error while parsing file %1. Giving up.</source>
         <translation>Erreur pendant l&apos;analyse du fichier %1. Abandon.</translation>
@@ -48651,7 +48651,7 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QtQuickComponentSetOptionsPage</name>
+    <name>QmakeProjectManager::Internal::QtQuickComponentSetOptionsPage</name>
     <message>
         <source>Select QML File</source>
         <translation>Sélectionner un fichier QML</translation>
@@ -53938,7 +53938,7 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Qt4PriFileNode</name>
+    <name>QmakeProjectManager::QmakePriFileNode</name>
     <message>
         <source>Headers</source>
         <translation>En-têtes</translation>
@@ -53997,7 +53997,7 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::PngIconScaler</name>
+    <name>QmakeProjectManager::Internal::PngIconScaler</name>
     <message>
         <source>Wrong Icon Size</source>
         <translation>Mauvaise taille d&apos;icône</translation>
@@ -55559,7 +55559,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MakeStep</name>
+    <name>QmakeProjectManager::Internal::MakeStep</name>
     <message>
         <source>Make arguments:</source>
         <translation>Arguments de Make :</translation>
@@ -55570,7 +55570,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QMakeStep</name>
+    <name>QmakeProjectManager::Internal::QMakeStep</name>
     <message>
         <source>qmake build configuration:</source>
         <translation>Configuration de qmake pour la compilation :</translation>
@@ -55597,14 +55597,14 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::S60CertificateDetailsDialog</name>
+    <name>QmakeProjectManager::Internal::S60CertificateDetailsDialog</name>
     <message>
         <source>Details of Certificate</source>
         <translation type="obsolete">Détails du certificat</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::Html5AppWizardSourcesPage</name>
+    <name>QmakeProjectManager::Internal::Html5AppWizardSourcesPage</name>
     <message>
         <source>WizardPage</source>
         <translation>WizardPage</translation>
@@ -55647,7 +55647,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MobileAppWizardHarmattanOptionsPage</name>
+    <name>QmakeProjectManager::Internal::MobileAppWizardHarmattanOptionsPage</name>
     <message>
         <source>WizardPage</source>
         <translation>WizardPage</translation>
@@ -55666,7 +55666,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MobileAppWizardSymbianOptionsPage</name>
+    <name>QmakeProjectManager::Internal::MobileAppWizardSymbianOptionsPage</name>
     <message>
         <source>WizardPage</source>
         <translation type="obsolete">WizardPage</translation>
@@ -55685,7 +55685,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::MobileLibraryWizardOptionPage</name>
+    <name>QmakeProjectManager::Internal::MobileLibraryWizardOptionPage</name>
     <message>
         <source>WizardPage</source>
         <translation>WizardPage</translation>
@@ -58085,14 +58085,14 @@ des références à des éléments dans d&apos;autres fichiers, des boucles, etc
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::UnconfiguredProjectPanel</name>
+    <name>QmakeProjectManager::Internal::UnconfiguredProjectPanel</name>
     <message>
         <source>Configure Project</source>
         <translation>Configurer le projet</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::TargetSetupPageWrapper</name>
+    <name>QmakeProjectManager::Internal::TargetSetupPageWrapper</name>
     <message>
         <source>Configure Project</source>
         <translation>Configurer le projet</translation>
@@ -58131,7 +58131,7 @@ des références à des éléments dans d&apos;autres fichiers, des boucles, etc
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::UnConfiguredSettingsWidget</name>
+    <name>QmakeProjectManager::Internal::UnConfiguredSettingsWidget</name>
     <message>
         <source>Qt Creator can open qmake projects without configuring them for building.
 The C++ and QML code models need a Qt version and tool chain to offer code completion.
@@ -63351,7 +63351,7 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::QmakeKitConfigWidget</name>
+    <name>QmakeProjectManager::Internal::QmakeKitConfigWidget</name>
     <message>
         <source>The mkspec to use when building the project with qmake.&lt;br&gt;This setting is ignored when using other build systems.</source>
         <translation>Le mkspec à utiliser lors de la compilation du projet avec qmake.&lt;br&gt;Ce paramètre est ignoré lors de l&apos;utilisation avec d&apos;autres systèmes de compilation.</translation>
@@ -63362,7 +63362,7 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::QmakeKitInformation</name>
+    <name>QmakeProjectManager::QmakeKitInformation</name>
     <message>
         <source>No Qt version set, so mkspec is ignored.</source>
         <translation>Aucune version de Qt définie, mkspec est donc ignoré.</translation>
@@ -63377,7 +63377,7 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Qt4TargetSetupWidget</name>
+    <name>QmakeProjectManager::QmakeTargetSetupWidget</name>
     <message>
         <source>Manage...</source>
         <translation>Gérer...</translation>
@@ -63394,7 +63394,7 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
     </message>
 </context>
 <context>
-    <name>Qt4ProjectManager::Internal::ImportWidget</name>
+    <name>QmakeProjectManager::Internal::ImportWidget</name>
     <message>
         <source>Import Build from...</source>
         <translation>Importer la compilation depuis...</translation>
