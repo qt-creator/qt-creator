@@ -210,6 +210,8 @@ void BlackBerryNDKSettingsWidget::removeNdkTarget()
                                   QMessageBox::Yes | QMessageBox::No);
 
     if (button == QMessageBox::Yes) {
+        m_activatedTargets.removeOne(config);
+        m_deactivatedTargets.removeOne(config);
         m_bbConfigManager->removeConfiguration(config);
         m_manualNdks->removeChild(m_ui->ndksTreeWidget->currentItem());
     }
