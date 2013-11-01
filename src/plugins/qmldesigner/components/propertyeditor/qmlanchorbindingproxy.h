@@ -104,6 +104,8 @@ public:
     QString verticalTarget() const;
     QString horizontalTarget() const;
 
+    QmlItemNode getItemNode() const { return m_qmlItemNode; }
+
 public:
     void setTopTarget(const QString &target);
     void setBottomTarget(const QString &target);
