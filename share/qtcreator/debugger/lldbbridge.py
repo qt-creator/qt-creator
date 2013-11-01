@@ -262,10 +262,16 @@ class Dumper(DumperBase):
         #self.debugger.EnableLog("lldb", ["all"])
         self.debugger.Initialize()
         self.debugger.HandleCommand("settings set auto-confirm on")
-        if not hasattr(lldb.SBType, 'GetCanonicalType'): # "Test" for 179.5
-            warn("DISABLING DEFAULT FORMATTERS")
-            self.debugger.HandleCommand('type category delete gnu-libstdc++')
-            self.debugger.HandleCommand('type category delete libcxx')
+
+        # FIXME: warn("DISABLING DEFAULT FORMATTERS")
+        # It doesn't work at all with 179.5 and we have some bad
+        # interactonn in 3000
+        # if not hasattr(lldb.SBType, 'GetCanonicalType'): # "Test" for 179.5
+        self.debugger.HandleCommand('type category delete gnu-libstdc++')
+        self.debugger.HandleCommand('type category delete libcxx')
+        #for i in range(self.debugger.GetNumCategories()):
+        #    self.debugger.GetCategoryAtIndex(i).SetEnabled(False)
+
         self.isLldb = True
         self.process = None
         self.target = None
