@@ -1044,6 +1044,7 @@ QList<FileName> ClangToolChain::suggestedMkspecList() const
     if (abi.os() == Abi::MacOS)
         return QList<FileName>()
                 << FileName::fromString(QLatin1String("macx-clang"))
+                << FileName::fromString(QLatin1String("macx-clang-32"))
                 << FileName::fromString(QLatin1String("unsupported/macx-clang"))
                 << FileName::fromString(QLatin1String("macx-ios-clang"));
     else if (abi.os() == Abi::LinuxOS)
