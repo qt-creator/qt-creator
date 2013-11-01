@@ -157,6 +157,7 @@ QString QMakeStep::allArguments(bool shorted)
 ///
 /// moreArguments,
 /// -unix for Maemo
+/// iphoneos/iphonesimulator for ios
 /// QMAKE_VAR_QMLJSDEBUGGER_PATH
 QStringList QMakeStep::deducedArguments()
 {
@@ -175,11 +176,18 @@ QStringList QMakeStep::deducedArguments()
                 arguments << QLatin1String("CONFIG+=x86");
             else if (targetAbi.wordWidth() == 64)
                 arguments << QLatin1String("CONFIG+=x86_64");
+
+            const char IOSQT[] = "Qt4ProjectManager.QtVersion.Ios"; // from Ios::Constants (include header?)
+            QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
+            if (version && version->type() == QLatin1String(IOSQT))
+                arguments << QLatin1String("CONFIG+=iphonesimulator");
         } else if (targetAbi.architecture() == ProjectExplorer::Abi::PowerPCArchitecture) {
             if (targetAbi.wordWidth() == 32)
                 arguments << QLatin1String("CONFIG+=ppc");
             else if (targetAbi.wordWidth() == 64)
                 arguments << QLatin1String("CONFIG+=ppc64");
+        } else if (targetAbi.architecture() == ProjectExplorer::Abi::ArmArchitecture) {
+            arguments << QLatin1String("CONFIG+=iphoneos");
         }
     }
 
