@@ -30,7 +30,6 @@
 #include "localapplicationrunconfiguration.h"
 
 #include "buildconfiguration.h"
-#include "localenvironmentaspect.h"
 
 #include <utils/stringutils.h>
 #include <coreplugin/variablemanager.h>
@@ -39,9 +38,7 @@
 
 #include <QDir>
 
-
 namespace ProjectExplorer {
-
 
 namespace Internal {
 class FallBackMacroExpander : public Utils::AbstractQtcMacroExpander {
@@ -67,15 +64,11 @@ bool FallBackMacroExpander::resolveMacro(const QString &name, QString *ret)
 
 LocalApplicationRunConfiguration::LocalApplicationRunConfiguration(Target *target, const Core::Id id) :
     RunConfiguration(target, id), m_macroExpander(0)
-{
-    ctor();
-}
+{ }
 
 LocalApplicationRunConfiguration::LocalApplicationRunConfiguration(Target *target, LocalApplicationRunConfiguration *rc) :
     RunConfiguration(target, rc), m_macroExpander(0)
-{
-    ctor();
-}
+{ }
 
 LocalApplicationRunConfiguration::~LocalApplicationRunConfiguration()
 {
@@ -94,11 +87,6 @@ Utils::AbstractMacroExpander *LocalApplicationRunConfiguration::macroExpander() 
     if (!m_macroExpander)
         m_macroExpander = new Internal::FallBackMacroExpander(target());
     return m_macroExpander;
-}
-
-void LocalApplicationRunConfiguration::ctor()
-{
-    addExtraAspect(new LocalEnvironmentAspect(this));
 }
 
 } // namespace ProjectExplorer

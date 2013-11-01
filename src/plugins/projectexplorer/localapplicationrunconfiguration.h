@@ -66,7 +66,6 @@ protected:
     Utils::AbstractMacroExpander *macroExpander() const;
 
 private:
-    void ctor();
     mutable Utils::AbstractMacroExpander *m_macroExpander;
 };
 

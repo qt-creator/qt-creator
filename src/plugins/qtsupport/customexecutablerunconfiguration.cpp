@@ -32,7 +32,7 @@
 #include "qtkitinformation.h"
 
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/environmentaspect.h>
+#include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/abi.h>
@@ -72,6 +72,8 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(ProjectExplor
     m_workingDirectory(QLatin1String(ProjectExplorer::Constants::DEFAULT_WORKING_DIR)),
     m_runMode(Gui)
 {
+    addExtraAspect(new ProjectExplorer::LocalEnvironmentAspect(this));
+
     if (!parent->activeBuildConfiguration())
         m_workingDirectory = QLatin1String(ProjectExplorer::Constants::DEFAULT_WORKING_DIR_ALTERNATE);
     ctor();

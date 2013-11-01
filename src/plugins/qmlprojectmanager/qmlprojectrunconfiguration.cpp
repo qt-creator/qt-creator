@@ -60,6 +60,8 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(ProjectExplorer::Target *
     m_scriptFile(QLatin1String(M_CURRENT_FILE)),
     m_isEnabled(false)
 {
+    addExtraAspect(new QmlProjectEnvironmentAspect(this));
+
     ctor();
 }
 
@@ -98,8 +100,6 @@ void QmlProjectRunConfiguration::ctor()
         setDisplayName(tr("QML Scene", "QMLRunConfiguration display name."));
     else
         setDisplayName(tr("QML Viewer", "QMLRunConfiguration display name."));
-
-    addExtraAspect(new QmlProjectEnvironmentAspect(this));
 }
 
 QString QmlProjectRunConfiguration::executable() const
