@@ -134,7 +134,6 @@ private slots:
 
     // QML debugging:
     void linkQmlDebuggingLibraryChecked(bool checked);
-    void buildQmlDebuggingHelper();
 
 private:
     Ui::QbsBuildStepConfigWidget *m_ui;

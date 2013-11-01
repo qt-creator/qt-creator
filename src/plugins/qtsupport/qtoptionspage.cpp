@@ -37,8 +37,6 @@
 #include "qtversionmanager.h"
 #include "qtversionfactory.h"
 #include "qmldumptool.h"
-#include "qmldebugginglibrary.h"
-#include "qmlobservertool.h"
 
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <projectexplorer/toolchainmanager.h>
@@ -179,10 +177,6 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
             this, SLOT(buildGdbHelper()));
     connect(m_debuggingHelperUi->qmlDumpBuildButton, SIGNAL(clicked()),
             this, SLOT(buildQmlDump()));
-    connect(m_debuggingHelperUi->qmlDebuggingLibBuildButton, SIGNAL(clicked()),
-            this, SLOT(buildQmlDebuggingLibrary()));
-    connect(m_debuggingHelperUi->qmlObserverBuildButton, SIGNAL(clicked()),
-            this, SLOT(buildQmlObserver()));
 
     connect(m_debuggingHelperUi->showLogButton, SIGNAL(clicked()),
             this, SLOT(slotShowDebuggingBuildLog()));
@@ -248,12 +242,8 @@ void QtOptionsPageWidget::debuggingHelperBuildFinished(int qtVersionId, const QS
     bool success = true;
     if (tools & DebuggingHelperBuildTask::GdbDebugging)
         success &= version->hasGdbDebuggingHelper();
-    if (tools & DebuggingHelperBuildTask::QmlDebugging)
-        success &= version->hasQmlDebuggingLibrary();
     if (tools & DebuggingHelperBuildTask::QmlDump)
         success &= version->hasQmlDump();
-    if (tools & DebuggingHelperBuildTask::QmlObserver)
-        success &= version->hasQmlObserver();
 
     if (!success)
         showDebuggingBuildLog(item);
@@ -468,19 +458,6 @@ void QtOptionsPageWidget::buildGdbHelper()
 void QtOptionsPageWidget::buildQmlDump()
 {
     buildDebuggingHelper(DebuggingHelperBuildTask::QmlDump);
-}
-
-void QtOptionsPageWidget::buildQmlDebuggingLibrary()
-{
-    buildDebuggingHelper(DebuggingHelperBuildTask::QmlDebugging);
-}
-
-void QtOptionsPageWidget::buildQmlObserver()
-{
-    DebuggingHelperBuildTask::Tools qmlDbgTools =
-            DebuggingHelperBuildTask::QmlObserver;
-    qmlDbgTools |= DebuggingHelperBuildTask::QmlDebugging;
-    buildDebuggingHelper(qmlDbgTools);
 }
 
 // Non-modal dialog
@@ -741,28 +718,19 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
         const DebuggingHelperBuildTask::Tools availableTools = DebuggingHelperBuildTask::availableTools(version);
         const bool canBuildGdbHelper = availableTools & DebuggingHelperBuildTask::GdbDebugging;
         const bool canBuildQmlDumper = availableTools & DebuggingHelperBuildTask::QmlDump;
-        const bool canBuildQmlDebuggingLib = availableTools & DebuggingHelperBuildTask::QmlDebugging;
-        const bool canBuildQmlObserver = availableTools & DebuggingHelperBuildTask::QmlObserver;
 
         const bool hasGdbHelper = !version->gdbDebuggingHelperLibrary().isEmpty();
         const bool hasQmlDumper = version->hasQmlDump();
         const bool needsQmlDumper = version->needsQmlDump();
-        const bool hasQmlDebuggingLib = version->hasQmlDebuggingLibrary();
-        const bool needsQmlDebuggingLib = version->needsQmlDebuggingLibrary();
-        const bool hasQmlObserver = !version->qmlObserverTool().isEmpty();
 
         bool isBuildingGdbHelper = false;
         bool isBuildingQmlDumper = false;
-        bool isBuildingQmlDebuggingLib = false;
-        bool isBuildingQmlObserver = false;
 
         if (currentItem) {
             DebuggingHelperBuildTask::Tools buildingTools
                     = currentItem->data(0, BuildRunningRole).value<DebuggingHelperBuildTask::Tools>();
             isBuildingGdbHelper = buildingTools & DebuggingHelperBuildTask::GdbDebugging;
             isBuildingQmlDumper = buildingTools & DebuggingHelperBuildTask::QmlDump;
-            isBuildingQmlDebuggingLib = buildingTools & DebuggingHelperBuildTask::QmlDebugging;
-            isBuildingQmlObserver = buildingTools & DebuggingHelperBuildTask::QmlObserver;
         }
 
         // get names of tools from labels
@@ -772,10 +740,6 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
             helperNames << m_debuggingHelperUi->gdbHelperLabel->text().remove(colon);
         if (hasQmlDumper)
             helperNames << m_debuggingHelperUi->qmlDumpLabel->text().remove(colon);
-        if (hasQmlDebuggingLib)
-            helperNames << m_debuggingHelperUi->qmlDebuggingLibLabel->text().remove(colon);
-        if (hasQmlObserver)
-            helperNames << m_debuggingHelperUi->qmlObserverLabel->text().remove(colon);
 
         QString status;
         if (helperNames.isEmpty()) {
@@ -829,60 +793,6 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
         m_debuggingHelperUi->qmlDumpStatus->setToolTip(qmlDumpStatusToolTip);
         m_debuggingHelperUi->qmlDumpBuildButton->setEnabled(canBuildQmlDumper & !isBuildingQmlDumper);
 
-        QString qmlDebuggingLibStatusText, qmlDebuggingLibToolTip;
-        Qt::TextInteractionFlags qmlDebuggingLibStatusTextFlags = Qt::NoTextInteraction;
-        if (hasQmlDebuggingLib) {
-            qmlDebuggingLibStatusText = QDir::toNativeSeparators(
-                        version->qmlDebuggingHelperLibrary(false));
-            const QString debugPath = QDir::toNativeSeparators(
-                        version->qmlDebuggingHelperLibrary(true));
-
-            if (qmlDebuggingLibStatusText != debugPath) {
-                if (!qmlDebuggingLibStatusText.isEmpty()
-                        && !debugPath.isEmpty()) {
-                    qmlDebuggingLibStatusText += QLatin1Char('\n');
-                }
-                qmlDebuggingLibStatusText += debugPath;
-            }
-            qmlDebuggingLibStatusTextFlags = Qt::TextSelectableByMouse;
-        } else {
-            if (!needsQmlDebuggingLib) {
-                qmlDebuggingLibStatusText = tr("<i>Not needed.</i>");
-            } else if (canBuildQmlDebuggingLib) {
-                qmlDebuggingLibStatusText = tr("<i>Not yet built.</i>");
-            } else {
-                qmlDebuggingLibStatusText = tr("<i>Cannot be compiled.</i>");
-                QmlDebuggingLibrary::canBuild(version, &qmlDebuggingLibToolTip);
-            }
-        }
-        m_debuggingHelperUi->qmlDebuggingLibStatus->setText(qmlDebuggingLibStatusText);
-        m_debuggingHelperUi->qmlDebuggingLibStatus->setTextInteractionFlags(qmlDebuggingLibStatusTextFlags);
-        m_debuggingHelperUi->qmlDebuggingLibStatus->setToolTip(qmlDebuggingLibToolTip);
-        m_debuggingHelperUi->qmlDebuggingLibBuildButton->setEnabled(needsQmlDebuggingLib
-                                                                    && canBuildQmlDebuggingLib
-                                                                    && !isBuildingQmlDebuggingLib);
-
-        QString qmlObserverStatusText, qmlObserverToolTip;
-        Qt::TextInteractionFlags qmlObserverStatusTextFlags = Qt::NoTextInteraction;
-        if (hasQmlObserver) {
-            qmlObserverStatusText = QDir::toNativeSeparators(version->qmlObserverTool());
-            qmlObserverStatusTextFlags = Qt::TextSelectableByMouse;
-        }  else {
-            if (!needsQmlDebuggingLib) {
-                qmlObserverStatusText = tr("<i>Not needed.</i>");
-            } else if (canBuildQmlObserver) {
-                qmlObserverStatusText = tr("<i>Not yet built.</i>");
-            } else {
-                qmlObserverStatusText = tr("<i>Cannot be compiled.</i>");
-                QmlObserverTool::canBuild(version, &qmlObserverToolTip);
-            }
-        }
-        m_debuggingHelperUi->qmlObserverStatus->setText(qmlObserverStatusText);
-        m_debuggingHelperUi->qmlObserverStatus->setTextInteractionFlags(qmlObserverStatusTextFlags);
-        m_debuggingHelperUi->qmlObserverStatus->setToolTip(qmlObserverToolTip);
-        m_debuggingHelperUi->qmlObserverBuildButton->setEnabled(canBuildQmlObserver
-                                                                & !isBuildingQmlObserver);
-
         QList<ToolChain*> toolchains = toolChains(currentVersion());
         QString selectedToolChainId = currentItem->data(0, ToolChainIdRole).toString();
         m_debuggingHelperUi->toolChainComboBox->clear();
@@ -901,13 +811,9 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
         m_debuggingHelperUi->showLogButton->setEnabled(hasLog);
 
         const bool canBuild = canBuildGdbHelper
-                               || canBuildQmlDumper
-                               || (canBuildQmlDebuggingLib && needsQmlDebuggingLib)
-                               || canBuildQmlObserver;
+                               || canBuildQmlDumper;
         const bool isBuilding = isBuildingGdbHelper
-                                 || isBuildingQmlDumper
-                                 || isBuildingQmlDebuggingLib
-                                 || isBuildingQmlObserver;
+                                 || isBuildingQmlDumper;
 
         m_debuggingHelperUi->rebuildButton->setEnabled(canBuild && !isBuilding);
         m_debuggingHelperUi->toolChainComboBox->setEnabled(canBuild && !isBuilding);
@@ -1112,8 +1018,7 @@ QString QtOptionsPageWidget::searchKeywords() const
     ts << sep << m_versionUi->versionNameLabel->text()
        << sep << m_versionUi->pathLabel->text()
        << sep << m_debuggingHelperUi->gdbHelperLabel->text()
-       << sep << m_debuggingHelperUi->qmlDumpLabel->text()
-       << sep << m_debuggingHelperUi->qmlObserverLabel->text();
+       << sep << m_debuggingHelperUi->qmlDumpLabel->text();
 
     rc.remove(QLatin1Char('&'));
     return rc;

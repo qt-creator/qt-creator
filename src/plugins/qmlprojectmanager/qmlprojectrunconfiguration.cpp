@@ -110,10 +110,7 @@ QString QmlProjectRunConfiguration::executable() const
 
     if (id() == Constants::QML_SCENE_RC_ID)
         return version->qmlsceneCommand();
-    if (!version->needsQmlDebuggingLibrary())
-        return version->qmlviewerCommand();
-    return version->qmlObserverTool();
-
+    return version->qmlviewerCommand();
 }
 
 ProjectExplorer::LocalApplicationRunConfiguration::RunMode QmlProjectRunConfiguration::runMode() const

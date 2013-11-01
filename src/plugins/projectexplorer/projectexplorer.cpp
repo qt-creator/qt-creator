@@ -1663,9 +1663,6 @@ void ProjectExplorerPlugin::showRunErrorMessage(const QString &errorMessage)
     if (errorMessage.isNull()) {
         // a error occured, but message was not set
         QMessageBox::critical(ICore::mainWindow(), tr("Unknown error"), errorMessage);
-    } else if (errorMessage.isEmpty()) {
-        // a error, but the message was set to empty
-        // hack for qml observer warning, show nothing at all
     } else {
         QMessageBox::critical(ICore::mainWindow(), tr("Could Not Run"), errorMessage);
     }

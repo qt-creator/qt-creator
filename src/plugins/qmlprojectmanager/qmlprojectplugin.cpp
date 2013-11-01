@@ -77,29 +77,6 @@ void QmlProjectPlugin::extensionsInitialized()
 {
 }
 
-void QmlProjectPlugin::showQmlObserverToolWarning()
-{
-    QMessageBox dialog(QApplication::activeWindow());
-    QPushButton *qtPref = dialog.addButton(tr("Open Qt Versions"),
-                                           QMessageBox::ActionRole);
-    dialog.addButton(QMessageBox::Cancel);
-    dialog.setDefaultButton(qtPref);
-    dialog.setWindowTitle(tr("QML Observer Missing"));
-    dialog.setText(tr("QML Observer could not be found for this Qt version."));
-    dialog.setInformativeText(tr(
-                                  "QML Observer is used to offer debugging features for "
-                                  "Qt Quick UI projects in the Qt 4.7 series.\n\n"
-                                  "To compile QML Observer, go to the Qt Versions page, "
-                                  "select the current Qt version, "
-                                  "and click Build in the Helpers section."));
-    dialog.exec();
-    if (dialog.clickedButton() == qtPref) {
-        Core::ICore::showOptionsDialog(
-                    ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
-                    QtSupport::Constants::QTVERSION_SETTINGS_PAGE_ID);
-    }
-}
-
 } // namespace QmlProjectManager
 
 Q_EXPORT_PLUGIN(QmlProjectManager::QmlProjectPlugin)

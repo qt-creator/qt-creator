@@ -6,16 +6,32 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>404</width>
-    <height>176</height>
+    <width>330</width>
+    <height>85</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="margin">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
     <number>0</number>
    </property>
    <item>
     <layout class="QGridLayout" name="gridLayout">
+     <item row="1" column="2">
+      <widget class="QPushButton" name="qmlDumpBuildButton">
+       <property name="text">
+        <string>Build</string>
+       </property>
+      </widget>
+     </item>
      <item row="1" column="0">
       <widget class="QLabel" name="qmlDumpLabel">
        <property name="toolTip">
@@ -23,6 +39,13 @@
        </property>
        <property name="text">
         <string>QML Dump:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QPushButton" name="gdbHelperBuildButton">
+       <property name="text">
+        <string>Build</string>
        </property>
       </widget>
      </item>
@@ -39,50 +62,7 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="qmlObserverLabel">
-       <property name="toolTip">
-        <string>A modified version of qmlviewer with support for QML/JS debugging.</string>
-       </property>
-       <property name="text">
-        <string>QML Observer:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="QLabel" name="qmlObserverStatus">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-         <horstretch>2</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string notr="true">TextLabel</string>
-       </property>
-      </widget>
-     </item>
      <item row="2" column="0">
-      <widget class="QLabel" name="qmlDebuggingLibLabel">
-       <property name="text">
-        <string>QML Debugging Library:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QLabel" name="qmlDebuggingLibStatus">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-         <horstretch>2</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string notr="true">TextLabel</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0">
       <widget class="QLabel" name="gdbHelperLabel">
        <property name="toolTip">
         <string>Helps showing content of Qt types. Only used in older versions of GDB.</string>
@@ -92,7 +72,7 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
+     <item row="2" column="1">
       <widget class="QLabel" name="gdbHelperStatus">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -102,34 +82,6 @@
        </property>
        <property name="text">
         <string notr="true">TextLabel</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <widget class="QPushButton" name="qmlDumpBuildButton">
-       <property name="text">
-        <string>Build</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="2">
-      <widget class="QPushButton" name="qmlDebuggingLibBuildButton">
-       <property name="text">
-        <string>Build</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="2">
-      <widget class="QPushButton" name="qmlObserverBuildButton">
-       <property name="text">
-        <string>Build</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="2">
-      <widget class="QPushButton" name="gdbHelperBuildButton">
-       <property name="text">
-        <string>Build</string>
        </property>
       </widget>
      </item>

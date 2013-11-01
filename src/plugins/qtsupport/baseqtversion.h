@@ -193,18 +193,13 @@ public:
 
     virtual bool supportsBinaryDebuggingHelper() const;
     virtual QString gdbDebuggingHelperLibrary() const;
-    virtual QString qmlDebuggingHelperLibrary(bool debugVersion) const;
     virtual QString qmlDumpTool(bool debugVersion) const;
-    virtual QString qmlObserverTool() const;
     virtual QStringList debuggingHelperLibraryLocations() const;
 
     virtual bool hasGdbDebuggingHelper() const;
     virtual bool hasQmlDump() const;
     virtual bool hasQmlDumpWithRelocatableFlag() const;
     virtual bool needsQmlDump() const;
-    virtual bool hasQmlDebuggingLibrary() const;
-    virtual bool needsQmlDebuggingLibrary() const;
-    virtual bool hasQmlObserver() const;
     Utils::Environment qmlToolsEnvironment() const;
 
     virtual QtConfigWidget *createConfigurationWidget() const;
@@ -270,8 +265,6 @@ private:
     bool m_isAutodetected;
     mutable bool m_hasDebuggingHelper; // controlled by m_versionInfoUpToDate
     mutable bool m_hasQmlDump;         // controlled by m_versionInfoUpToDate
-    mutable bool m_hasQmlDebuggingLibrary; // controlled by m_versionInfoUpdate
-    mutable bool m_hasQmlObserver;     // controlled by m_versionInfoUpToDate
     mutable bool m_mkspecUpToDate;
     mutable bool m_mkspecReadUpToDate;
     mutable bool m_defaultConfigIsDebug;

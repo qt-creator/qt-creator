@@ -193,25 +193,9 @@ QStringList QMakeStep::deducedArguments()
 
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
     if (linkQmlDebuggingLibrary() && version) {
-        if (!version->needsQmlDebuggingLibrary()) {
-            // This Qt version has the QML debugging services built in, however
-            // they still need to be enabled at compile time
-            // TODO: For Qt5, we can pass both arguments as there can be Qt Quick 1/2 projects.
-            // Currently there is no support for debugging multiple engines.
-            arguments << QLatin1String(Constants::QMAKEVAR_QUICK1_DEBUG);
-            if (version->qtVersion().majorVersion >= 5)
-                arguments << QLatin1String(Constants::QMAKEVAR_QUICK2_DEBUG);
-        } else {
-            const QString qmlDebuggingHelperLibrary = version->qmlDebuggingHelperLibrary(true);
-            if (!qmlDebuggingHelperLibrary.isEmpty()) {
-                // Do not turn debugger path into native path separators: Qmake does not like that!
-                const QString debuggingHelperPath
-                        = QFileInfo(qmlDebuggingHelperLibrary).dir().path();
-
-                arguments << QLatin1String(Constants::QMAKEVAR_QMLJSDEBUGGER_PATH)
-                             + QLatin1Char('=') + debuggingHelperPath;
-            }
-        }
+        arguments << QLatin1String(Constants::QMAKEVAR_QUICK1_DEBUG);
+        if (version->qtVersion().majorVersion >= 5)
+            arguments << QLatin1String(Constants::QMAKEVAR_QUICK2_DEBUG);
     }
 
 
@@ -478,8 +462,6 @@ QMakeStepConfigWidget::QMakeStepConfigWidget(QMakeStep *step)
             this, SLOT(buildConfigurationSelected()));
     connect(m_ui->qmlDebuggingLibraryCheckBox, SIGNAL(toggled(bool)),
             this, SLOT(linkQmlDebuggingLibraryChecked(bool)));
-    connect(m_ui->qmlDebuggingWarningText, SIGNAL(linkActivated(QString)),
-            this, SLOT(buildQmlDebuggingHelper()));
     connect(step, SIGNAL(userArgumentsChanged()),
             this, SLOT(userArgumentsChanged()));
     connect(step, SIGNAL(linkQmlDebuggingLibraryChanged()),
@@ -598,12 +580,6 @@ void QMakeStepConfigWidget::linkQmlDebuggingLibraryChecked(bool checked)
     question->setModal(true);
     connect(question, SIGNAL(finished(int)), this, SLOT(recompileMessageBoxFinished(int)));
     question->show();
-}
-
-void QMakeStepConfigWidget::buildQmlDebuggingHelper()
-{
-    QtSupport::BaseQtVersion::buildDebuggingHelper(m_step->target()->kit(),
-                                                   static_cast<int>(QtSupport::DebuggingHelperBuildTask::QmlDebugging));
 }
 
 void QMakeStepConfigWidget::updateSummaryLabel()

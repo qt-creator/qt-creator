@@ -1183,18 +1183,6 @@
             d.putSubItem("value", value)
     \endcode
 
-
-    \section1 Debugging Helpers for QML
-
-    The debugging helpers for QML provide you with code completion for custom modules
-    (\c qmldump) and debugging Qt Quick UI projects (\c qmlobserver).
-
-    You have to build the QML Inspector once for each Qt version that you want
-    to debug
-    with. Select \gui{Tools > Options > Build & Run > Qt Versions}.
-
-    \note QML Inspector requires Qt 4.7.1 or later.
-
     \section1 Enabling Debugging Helpers for Qt's Bootstrapped Applications
 
     Qt's bootstrapped applications (such as moc and qmake) are built in a way

@@ -51,10 +51,8 @@ class QTSUPPORT_EXPORT DebuggingHelperBuildTask : public QObject
 public:
     enum DebuggingHelper {
         GdbDebugging = 0x01,
-        QmlDebugging = 0x02,
-        QmlObserver = 0x04,
-        QmlDump = 0x08,
-        AllTools = GdbDebugging | QmlDebugging | QmlObserver | QmlDump
+        QmlDump = 0x02,
+        AllTools = GdbDebugging | QmlDump
     };
     Q_DECLARE_FLAGS(Tools, DebuggingHelper)
 
