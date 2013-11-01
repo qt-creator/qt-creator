@@ -158,7 +158,6 @@ void DebuggerKitConfigWidget::onDebuggerAdded(const QVariant &id)
     const DebuggerItem *item = DebuggerItemManager::findById(id);
     QTC_ASSERT(item, return);
     m_comboBox->addItem(item->displayName(), id);
-    updateComboBox(id);
 }
 
 void DebuggerKitConfigWidget::onDebuggerUpdated(const QVariant &id)
