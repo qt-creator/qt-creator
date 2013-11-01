@@ -51,20 +51,22 @@ from creatortypes import *
 lldbCmd = 'lldb'
 if len(sys.argv) > 1:
     lldbCmd = sys.argv[1]
+
 proc = subprocess.Popen(args=[lldbCmd, '-P'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 (path, error) = proc.communicate()
+
 if error.startswith('lldb: invalid option -- P'):
-    sys.stdout.write('msg=\'Could not run "%s -P". Trying to find lldb.so from Xcode.\'\n' % lldbCmd)
+    sys.stdout.write('msg=\'Could not run "%s -P". Trying to find lldb.so from Xcode.\'@\n' % lldbCmd)
     proc = subprocess.Popen(args=['xcode-select', '--print-path'],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (path, error) = proc.communicate()
     if len(error):
         path = '/Applications/Xcode.app/Contents/SharedFrameworks/LLDB.framework/Versions/A/Resources/Python/'
-        sys.stdout.write('msg=\'Could not run "xcode-select --print-path"\n')
-        sys.stdout.write('msg=\'Using hardcoded fallback at %s\'\n' % path)
+        sys.stdout.write('msg=\'Could not run "xcode-select --print-path"@\n')
+        sys.stdout.write('msg=\'Using hardcoded fallback at %s\'@\n' % path)
     else:
         path = path.strip() + '/../SharedFrameworks/LLDB.framework/Versions/A/Resources/Python/'
-        sys.stdout.write('msg=\'Using fallback at %s\'\n' % path)
+        sys.stdout.write('msg=\'Using fallback at %s\'@\n' % path)
 
 sys.path.insert(1, path.strip())
 
@@ -121,7 +123,7 @@ stateNames = ["invalid", "unloaded", "connected", "attaching", "launching", "sto
 def loggingCallback(args):
     s = args.strip()
     s = s.replace('"', "'")
-    sys.stdout.write('log="%s"\n' % s)
+    sys.stdout.write('log="%s"@\n' % s)
 
 def check(exp):
     if not exp:
@@ -1252,7 +1254,7 @@ class Dumper(DumperBase):
             self.report(result)
 
     def report(self, stuff):
-        sys.stdout.write(stuff + "\n")
+        sys.stdout.write(stuff + "@\n")
 
     def interruptInferior(self, _ = None):
         if self.process is None:
