@@ -520,9 +520,9 @@ bool TargetSetupPage::setupProject(Project *project)
         widget->clearKit();
     }
 
+    reset();
     project->setup(toSetUp);
 
-    reset(); // This will delete the pointers held in toSetUp!
     toSetUp.clear();
 
     Target *activeTarget = 0;
