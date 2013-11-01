@@ -521,24 +521,6 @@ class Dumper(DumperBase):
             return True
         return self.isKnownMovableType(self.stripNamespaceFromType(type.GetName()))
 
-    def putIntItem(self, name, value):
-        with SubItem(self, name):
-            self.putValue(value)
-            self.putType("int")
-            self.putNumChild(0)
-
-    def putBoolItem(self, name, value):
-        with SubItem(self, name):
-            self.putValue(value)
-            self.putType("bool")
-            self.putNumChild(0)
-
-    def putGenericItem(self, name, type, value, encoding = None):
-        with SubItem(self, name):
-            self.putValue(value, encoding)
-            self.putType(type)
-            self.putNumChild(0)
-
     def putNumChild(self, numchild):
         #warn("NUM CHILD: '%s' '%s'" % (numchild, self.currentChildNumChild))
         #if numchild != self.currentChildNumChild:
@@ -560,14 +542,6 @@ class Dumper(DumperBase):
             self.currentValuePriority = priority
             self.currentValueEncoding = encoding
         #self.put('value="%s",' % value)
-
-    # Convenience function.
-    def putItemCount(self, count, maximum = 1000000000):
-        # This needs to override the default value, so don't use 'put' directly.
-        if count > maximum:
-            self.putValue('<>%s items>' % maximum)
-        else:
-            self.putValue('<%s items>' % count)
 
     def putName(self, name):
         self.put('name="%s",' % name)

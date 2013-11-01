@@ -1009,29 +1009,11 @@ class Dumper(DumperBase):
         self.qtVersion = lambda: self.cachedQtVersion
         return self.cachedQtVersion
 
-    # Convenience function.
-    def putItemCount(self, count, maximum = 1000000000):
-        # This needs to override the default value, so don't use 'put' directly.
-        if count > maximum:
-            self.putValue('<>%s items>' % maximum)
-        else:
-            self.putValue('<%s items>' % count)
-
     def putType(self, type, priority = 0):
         # Higher priority values override lower ones.
         if priority >= self.currentTypePriority:
             self.currentType = str(type)
             self.currentTypePriority = priority
-
-    def putNoType(self):
-        # FIXME: replace with something that does not need special handling
-        # in SubItem.__exit__().
-        self.putBetterType(" ")
-
-    def putInaccessible(self):
-        #self.putBetterType(" ")
-        self.putNumChild(0)
-        self.currentValue = None
 
     def putBetterType(self, type):
         self.currentType = str(type)
@@ -1115,24 +1097,6 @@ class Dumper(DumperBase):
         if self.isSimpleType(type):
             return True
         return self.isKnownMovableType(self.stripNamespaceFromType(str(type)))
-
-    def putIntItem(self, name, value):
-        with SubItem(self, name):
-            self.putValue(value)
-            self.putType("int")
-            self.putNumChild(0)
-
-    def putBoolItem(self, name, value):
-        with SubItem(self, name):
-            self.putValue(value)
-            self.putType("bool")
-            self.putNumChild(0)
-
-    def putGenericItem(self, name, type, value, encoding = None):
-        with SubItem(self, name):
-            self.putValue(value, encoding)
-            self.putType(type)
-            self.putNumChild(0)
 
     def putSubItem(self, component, value, tryDynamic=True):
         with SubItem(self, component):
