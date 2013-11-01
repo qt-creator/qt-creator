@@ -521,7 +521,7 @@ DebuggerSettings::DebuggerSettings()
         "does not provide reliable information as it does not use scope "
         "information, it is switched off by default."));
     item->setCheckable(true);
-    item->setDefaultValue(false);
+    item->setDefaultValue(true);
     insertItem(UseToolTipsInMainEditor, item);
 
     item = new SavedAction(this);
