@@ -34,13 +34,14 @@
     \e session. To restore the session automatically when you start \QC,
     select \gui {File > Session Manager > Restore last session on startup}.
 
-    A session is an arbitrary collection of:
+    When you open or create any of the following items, they automatically
+    become a part of the session:
 
     \list
 
-        \li Open projects with their dependencies (including SUBDIRS projects)
+        \li Projects with their dependencies (including SUBDIRS projects)
 
-        \li Open editors
+        \li Editors
 
         \li Breakpoints and expressions
 
@@ -54,8 +55,11 @@
     developers working on the same projects.
 
     For example, if you work on a project and need to switch to another project
-    for a while, you can save your workspace as a session. This makes it easier
-    to return to working on the first project later.
+    for a while, you can save your workspace as a session and then close the
+    project and all the files in it. Everything that you open after saving the
+    session becomes a part of a new session. When you want to return to working
+    on the first project, open the saved session. \QC opens the projects and
+    files that belong to the session.
 
     To create a new session or remove existing sessions, select \gui File >
     \gui{Session Manager}.
@@ -66,12 +70,12 @@
     not create or select a session, \QC always uses the default session, which
     was created the last time you exited \QC.
 
-    When you launch \QC, a list of existing sessions is displayed on the
-    \gui{Welcome screen}.
+    When you launch \QC, a list of existing sessions is displayed in the
+    \gui Welcome mode.
 
     \image qtcreator-welcome-session.png
 
-    When you start \QC from the command prompt, you can give the name of
+    When you start \QC from the command line, you can give the name of
     a session as argument and \QC will start with this session.
 
     For more information, see \l{Using Command Line Options}.
