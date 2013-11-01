@@ -44,6 +44,7 @@ import QtQuick.Layouts 1.0
 import QtQuick.Controls 1.0 as Controls
 
 Section {
+    id: fontSection
     anchors.left: parent.left
     anchors.right: parent.right
     caption: qsTr("Font")
@@ -58,6 +59,15 @@ Section {
     property variant italicStyle: backendValues.font_italic
     property variant underlineStyle: backendValues.font_underline
     property variant strikeoutStyle: backendValues.font_strikeout
+
+    onPointSizeChanged: {
+        sizeWidget.setPointPixelSize();
+    }
+
+    onPixelSizeChanged: {
+        sizeWidget.setPointPixelSize();
+    }
+
 
     SectionLayout {
         columns: 2
@@ -82,12 +92,17 @@ Section {
             property bool pixelSize: sizeType.currentText === "pixels"
             property bool isSetup;
 
-            onSelectionFlagChanged: {
-                isSetup = true;
+
+            function setPointPixelSize() {
+                sizeWidget.isSetup = true;
                 sizeType.currentIndex = 1
-                if (pixelSize.isInModel)
+                if (fontSection.pixelSize.isInModel)
                     sizeType.currentIndex = 0
-                isSetup = false;
+                sizeWidget.isSetup = false;
+            }
+
+            onSelectionFlagChanged: {
+                sizeWidget.setPointPixelSize();
             }
 
             SpinBox {
