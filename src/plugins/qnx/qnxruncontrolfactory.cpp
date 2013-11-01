@@ -81,7 +81,7 @@ static DebuggerStartParameters createDebuggerStartParameters(const QnxRunConfigu
     if (ToolChain *tc = ToolChainKitInformation::toolChain(k))
         params.toolChainAbi = tc->targetAbi();
 
-    params.symbolFileName = runConfig->localExecutableFilePath();
+    params.executable = runConfig->localExecutableFilePath();
     params.remoteExecutable = runConfig->remoteExecutableFilePath();
     params.remoteChannel = device->sshParameters().host + QLatin1String(":-1");
     params.displayName = runConfig->displayName();

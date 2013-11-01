@@ -115,7 +115,6 @@ public:
 
     // Used by remote debugging.
     QString remoteChannel;
-    QString symbolFileName;
     QString serverStartScript;
     QString debugInfoLocation; // Gdb "set-debug-file-directory".
     QStringList debugSourceLocation; // Gdb "directory"

@@ -126,12 +126,21 @@ void QnxDebugSupport::handleRemoteProcessFinished(bool success)
 
 void QnxDebugSupport::handleDebuggingFinished()
 {
+    // setFinished() will kill "pdebug", but we also have to kill
+    // the inferior process, as invoking "kill" in gdb doesn't work
+    // on QNX gdb
     setFinished();
+    killInferiorProcess();
 }
 
 QString QnxDebugSupport::executable() const
 {
     return m_useCppDebugger? QLatin1String(Constants::QNX_DEBUG_EXECUTABLE) : QnxAbstractRunSupport::executable();
+}
+
+void QnxDebugSupport::killInferiorProcess()
+{
+    device()->signalOperation()->killProcess(QnxAbstractRunSupport::executable());
 }
 
 void QnxDebugSupport::handleProgressReport(const QString &progressOutput)
