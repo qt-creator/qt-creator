@@ -129,6 +129,7 @@ my $last = $doctitle;
 my $lastpage = $title2page{$last};
 for my $title (@toc) {
     my $page = $title2page{$title};
+    defined($page) or die "TOC refers to unknown page '$title'.\n";
     $next{$last} = $page;
     $prev{$title} = $lastpage;
     $last = $title;
