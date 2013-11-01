@@ -46,10 +46,11 @@ Column {
             }
 
             SecondColumnLayout {
-                LineEdit {
-                    backendValue: backendValues.source
-                    implicitWidth: 180
+                UrlChooser {
+                     Layout.fillWidth: true
+                     backendValue: backendValues.source
                 }
+
                 ExpandingSpacer {
 
                 }
