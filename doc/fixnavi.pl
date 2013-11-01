@@ -126,10 +126,13 @@ for my $file (@files) {
 my %prev = ();
 my %next = ();
 my $last = $doctitle;
+my $lastpage = $title2page{$last};
 for my $title (@toc) {
-    $next{$last} = $title2page{$title};
-    $prev{$title} = $title2page{$last};
+    my $page = $title2page{$title};
+    $next{$last} = $page;
+    $prev{$title} = $lastpage;
     $last = $title;
+    $lastpage = $page;
 }
 
 for my $file (@files) {
