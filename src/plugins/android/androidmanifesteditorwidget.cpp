@@ -35,6 +35,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/infobar.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <texteditor/plaintexteditor.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectwindow.h>
@@ -44,6 +45,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/kitinformation.h>
 #include <texteditor/texteditoractionhandler.h>
+#include <texteditor/texteditorsettings.h>
 #include <qmakeprojectmanager/qmakeproject.h>
 
 #include <QLineEdit>
@@ -95,48 +97,43 @@ Project *androidProject(const QString &file)
 
 } // anonymous namespace
 
-AndroidManifestEditorWidget::AndroidManifestEditorWidget(QWidget *parent)
-    : TextEditor::PlainTextEditorWidget(new AndroidManifestDocument(this), parent),
+AndroidManifestEditorWidget::AndroidManifestEditorWidget()
+    : QWidget(),
       m_dirty(false),
       m_stayClean(false),
       m_setAppName(false),
       m_appNameInStringsXml(false)
 {
-    configure(QLatin1String(Constants::ANDROID_MANIFEST_MIME_TYPE));
+    m_textEditorWidget = new AndroidManifestTextEditorWidget(this);
+    TextEditor::TextEditorSettings::initializeEditor(m_textEditorWidget);
 
     initializePage();
-
-    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     m_timerParseCheck.setInterval(800);
     m_timerParseCheck.setSingleShot(true);
 
+    m_editor = new AndroidManifestEditor(this);
+
     connect(&m_timerParseCheck, SIGNAL(timeout()),
             this, SLOT(delayedParseCheck()));
 
-    connect(document(), SIGNAL(contentsChanged()),
+    connect(m_textEditorWidget->document(), SIGNAL(contentsChanged()),
             this, SLOT(startParseCheck()));
-}
-
-TextEditor::BaseTextEditor *AndroidManifestEditorWidget::createEditor()
-{
-    return new AndroidManifestEditor(this);
 }
 
 void AndroidManifestEditorWidget::initializePage()
 {
-    QWidget *mainWidget = new QWidget(this);
-    mainWidget->setAutoFillBackground(true);
-    // If the user clicks on the mainwidget it gets focus, even though that's not visible
-    // This is to prevent the parent, the actual basetexteditorwidget from getting focus
-    mainWidget->setFocusPolicy(Qt::WheelFocus);
-    mainWidget->installEventFilter(this);
+    QHBoxLayout *layout = new QHBoxLayout(this);
+    layout->setMargin(0);
+    m_stackedWidget = new QStackedWidget(this); // simplfy make AndroidManifestEditorWidget a stacked widget
+    layout->addWidget(m_stackedWidget);
 
     Core::IContext *myContext = new Core::IContext(this);
-    myContext->setWidget(mainWidget);
-    myContext->setContext(Core::Context(androidManifestEditorGeneralPaneContextId));
+    myContext->setWidget(m_stackedWidget);
+    myContext->setContext(Core::Context(androidManifestEditorGeneralPaneContextId)); // where is the context used?
     Core::ICore::addContextObject(myContext);
+
+    QWidget *mainWidget = new QWidget; // different name
 
     QVBoxLayout *topLayout = new QVBoxLayout(mainWidget);
 
@@ -444,7 +441,8 @@ void AndroidManifestEditorWidget::initializePage()
 
     topLayout->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Fixed, QSizePolicy::MinimumExpanding));
 
-    m_overlayWidget = mainWidget;
+    m_stackedWidget->insertWidget(General, mainWidget);
+    m_stackedWidget->insertWidget(Source, m_textEditorWidget);
 }
 
 bool AndroidManifestEditorWidget::eventFilter(QObject *obj, QEvent *event)
@@ -454,18 +452,12 @@ bool AndroidManifestEditorWidget::eventFilter(QObject *obj, QEvent *event)
             QTimer::singleShot(0, this, SLOT(updateTargetComboBox()));
     }
 
-    if (obj == m_overlayWidget)
-        if (event->type() == QEvent::KeyPress
-                || event->type() == QEvent::KeyRelease) {
-            return true;
-        }
-
-    return TextEditor::PlainTextEditorWidget::eventFilter(obj, event);
+    return QWidget::eventFilter(obj, event);
 }
 
 void AndroidManifestEditorWidget::updateTargetComboBox()
 {
-    const QString docPath(baseTextDocument()->filePath());
+    const QString docPath(m_textEditorWidget->baseTextDocument()->filePath());
     ProjectExplorer::Project *project = androidProject(docPath);
     QStringList items;
     if (project) {
@@ -487,28 +479,20 @@ void AndroidManifestEditorWidget::updateTargetComboBox()
     m_targetLineEdit->addItems(items);
 }
 
-void AndroidManifestEditorWidget::resizeEvent(QResizeEvent *event)
-{
-    PlainTextEditorWidget::resizeEvent(event);
-    QSize s = QSize(rect().width(), rect().height());
-    m_overlayWidget->resize(s);
-}
-
 bool AndroidManifestEditorWidget::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
-    bool result = PlainTextEditorWidget::open(errorString, fileName, realFileName);
+    bool result = m_textEditorWidget->open(errorString, fileName, realFileName);
 
     updateSdkVersions();
 
     if (!result)
         return result;
 
-    Q_UNUSED(errorString);
     QString error;
     int errorLine;
     int errorColumn;
     QDomDocument doc;
-    if (doc.setContent(toPlainText(), &error, &errorLine, &errorColumn)) {
+    if (doc.setContent(m_textEditorWidget->toPlainText(), &error, &errorLine, &errorColumn)) {
         if (checkDocument(doc, &error, &errorLine, &errorColumn)) {
             if (activePage() != Source)
                 syncToWidgets(doc);
@@ -518,7 +502,6 @@ bool AndroidManifestEditorWidget::open(QString *errorString, const QString &file
     // some error occured
     updateInfoBar(error, errorLine, errorColumn);
     setActivePage(Source);
-
     return true;
 }
 
@@ -527,7 +510,7 @@ void AndroidManifestEditorWidget::setDirty(bool dirty)
     if (m_stayClean)
         return;
     m_dirty = dirty;
-    emit changed();
+    emit guiChanged();
 }
 
 bool AndroidManifestEditorWidget::isModified() const
@@ -541,7 +524,7 @@ bool AndroidManifestEditorWidget::isModified() const
 
 AndroidManifestEditorWidget::EditorPage AndroidManifestEditorWidget::activePage() const
 {
-    return m_overlayWidget->isVisibleTo(const_cast<AndroidManifestEditorWidget *>(this)) ? General : Source;
+    return AndroidManifestEditorWidget::EditorPage(m_stackedWidget->currentIndex());
 }
 
 bool AndroidManifestEditorWidget::setActivePage(EditorPage page)
@@ -557,22 +540,15 @@ bool AndroidManifestEditorWidget::setActivePage(EditorPage page)
     } else {
         if (!syncToWidgets())
             return false;
-
-        QWidget *fw = m_overlayWidget->focusWidget();
-        if (fw && fw != m_overlayWidget)
-            fw->setFocus();
-        else
-            m_packageNameLineEdit->setFocus();
+// TODO?
+//        QWidget *fw = m_overlayWidget->focusWidget();
+//        if (fw && fw != m_overlayWidget)
+//            fw->setFocus();
+//        else
+//            m_packageNameLineEdit->setFocus();
     }
 
-    m_overlayWidget->setVisible(page == General);
-    if (page == General) {
-        setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    } else {
-        setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-        setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    }
+    m_stackedWidget->setCurrentIndex(page);
     return true;
 }
 
@@ -582,7 +558,7 @@ void AndroidManifestEditorWidget::preSave()
         syncToEditor();
 
     if (m_setAppName && m_appNameInStringsXml) {
-        QString baseDir = QFileInfo(baseTextDocument()->filePath()).absolutePath();
+        QString baseDir = QFileInfo(m_textEditorWidget->baseTextDocument()->filePath()).absolutePath();
         QString fileName = baseDir + QLatin1String("/res/values/strings.xml");
         QFile f(fileName);
         if (f.open(QIODevice::ReadOnly)) {
@@ -606,7 +582,7 @@ void AndroidManifestEditorWidget::preSave()
         m_setAppName = false;
     }
 
-    QString baseDir = QFileInfo(baseTextDocument()->filePath()).absolutePath();
+    QString baseDir = QFileInfo(m_textEditorWidget->baseTextDocument()->filePath()).absolutePath();
     if (!m_lIconPath.isEmpty()) {
         copyIcon(LowDPI, baseDir, m_lIconPath);
         m_lIconPath.clear();
@@ -624,12 +600,22 @@ void AndroidManifestEditorWidget::preSave()
     updateInfoBar();
 }
 
+Core::IEditor *AndroidManifestEditorWidget::editor() const
+{
+    return m_editor;
+}
+
+TextEditor::PlainTextEditorWidget *AndroidManifestEditorWidget::textEditorWidget() const
+{
+    return m_textEditorWidget;
+}
+
 bool AndroidManifestEditorWidget::syncToWidgets()
 {
     QDomDocument doc;
     QString errorMessage;
     int errorLine, errorColumn;
-    if (doc.setContent(toPlainText(), &errorMessage, &errorLine, &errorColumn)) {
+    if (doc.setContent(m_textEditorWidget->toPlainText(), &errorMessage, &errorLine, &errorColumn)) {
         if (checkDocument(doc, &errorMessage, &errorLine, &errorColumn)) {
             hideInfoBar();
             syncToWidgets(doc);
@@ -678,7 +664,7 @@ void AndroidManifestEditorWidget::updateInfoBar()
     QDomDocument doc;
     int errorLine, errorColumn;
     QString errorMessage;
-    if (doc.setContent(toPlainText(), &errorMessage, &errorLine, &errorColumn)) {
+    if (doc.setContent(m_textEditorWidget->toPlainText(), &errorMessage, &errorLine, &errorColumn)) {
         if (checkDocument(doc, &errorMessage, &errorLine, &errorColumn)) {
             hideInfoBar();
             return;
@@ -690,7 +676,7 @@ void AndroidManifestEditorWidget::updateInfoBar()
 
 void AndroidManifestEditorWidget::updateSdkVersions()
 {
-    const QString docPath(baseTextDocument()->filePath());
+    const QString docPath(m_textEditorWidget->baseTextDocument()->filePath());
     Project *project = androidProject(docPath);
     QPair<int, int> apiLevels = AndroidManager::apiLevelRange(project ? project->activeTarget() : 0);
     for (int i = apiLevels.first; i < apiLevels.second + 1; ++i)
@@ -708,7 +694,7 @@ void AndroidManifestEditorWidget::updateSdkVersions()
 
 void AndroidManifestEditorWidget::updateInfoBar(const QString &errorMessage, int line, int column)
 {
-    Core::InfoBar *infoBar = baseTextDocument()->infoBar();
+    Core::InfoBar *infoBar = m_textEditorWidget->baseTextDocument()->infoBar();
     QString text;
     if (line < 0)
         text = tr("Could not parse file: '%1'.").arg(errorMessage);
@@ -726,14 +712,14 @@ void AndroidManifestEditorWidget::updateInfoBar(const QString &errorMessage, int
 
 void AndroidManifestEditorWidget::hideInfoBar()
 {
-    Core::InfoBar *infoBar = baseTextDocument()->infoBar();
-    infoBar->removeInfo(infoBarId);
+    Core::InfoBar *infoBar = m_textEditorWidget->baseTextDocument()->infoBar();
+        infoBar->removeInfo(infoBarId);
     m_timerParseCheck.stop();
 }
 
 void AndroidManifestEditorWidget::gotoError()
 {
-    gotoLine(m_errorLine, m_errorColumn);
+    m_textEditorWidget->gotoLine(m_errorLine, m_errorColumn);
 }
 
 void setApiLevel(QComboBox *box, const QDomElement &element, const QString &attribute)
@@ -765,7 +751,7 @@ void AndroidManifestEditorWidget::syncToWidgets(const QDomDocument &doc)
     setApiLevel(m_androidMinSdkVersion, usesSdkElement, QLatin1String("android:minSdkVersion"));
     setApiLevel(m_androidTargetSdkVersion, usesSdkElement, QLatin1String("android:targetSdkVersion"));
 
-    QString baseDir = QFileInfo(baseTextDocument()->filePath()).absolutePath();
+    QString baseDir = QFileInfo(m_textEditorWidget->baseTextDocument()->filePath()).absolutePath();
     QString fileName = baseDir + QLatin1String("/res/values/strings.xml");
 
     QDomElement applicationElement = manifest.firstChildElement(QLatin1String("application"));
@@ -883,7 +869,7 @@ int extractVersion(const QString &string)
 void AndroidManifestEditorWidget::syncToEditor()
 {
     QDomDocument doc;
-    if (!doc.setContent(toPlainText())) {
+    if (!doc.setContent(m_textEditorWidget->toPlainText())) {
         // This should not happen
         updateInfoBar();
         return;
@@ -930,11 +916,11 @@ void AndroidManifestEditorWidget::syncToEditor()
 
 
     QString newText = doc.toString(4);
-    if (newText == toPlainText())
+    if (newText == m_textEditorWidget->toPlainText())
         return;
 
-    setPlainText(newText);
-    document()->setModified(true); // Why is this necessary?
+    m_textEditorWidget->setPlainText(newText);
+    m_textEditorWidget->document()->setModified(true);
 
     m_dirty = false;
 }
@@ -1062,7 +1048,7 @@ void AndroidManifestEditorWidget::removePermission()
 void AndroidManifestEditorWidget::setAppName()
 {
     m_setAppName = true;
-    emit changed();
+    setDirty(true);
 }
 
 void AndroidManifestEditorWidget::setPackageName()
@@ -1154,3 +1140,12 @@ int PermissionsModel::rowCount(const QModelIndex &parent) const
     Q_UNUSED(parent)
     return m_permissions.count();
 }
+
+
+AndroidManifestTextEditorWidget::AndroidManifestTextEditorWidget(AndroidManifestEditorWidget *parent)
+    : TextEditor::PlainTextEditorWidget(new AndroidManifestDocument(parent), parent),
+      m_parent(parent)
+{
+    baseTextDocument()->setMimeType(QLatin1String(Constants::ANDROID_MANIFEST_MIME_TYPE));
+}
+

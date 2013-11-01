@@ -31,6 +31,7 @@
 #define ANDROIDMANIFESTEDITOR_H
 
 #include "androidmanifestdocument.h"
+#include "androidmanifesteditorwidget.h"
 
 #include <coreplugin/editormanager/ieditor.h>
 #include <texteditor/basetexteditor.h>
@@ -41,9 +42,8 @@ QT_END_NAMESPACE
 
 namespace Android {
 namespace Internal {
-class AndroidManifestEditorWidget;
 
-class AndroidManifestEditor : public TextEditor::BaseTextEditor
+class AndroidManifestEditor : public Core::IEditor
 {
     Q_OBJECT
 
@@ -51,13 +51,18 @@ public:
     explicit AndroidManifestEditor(AndroidManifestEditorWidget *editorWidget);
 
     Core::Id id() const;
+    bool open(QString *errorString, const QString &fileName, const QString &realFileName);
+    QWidget *toolBar();
+    AndroidManifestEditorWidget *widget() const;
+    Core::IDocument *document();
+    TextEditor::BaseTextEditorWidget *textEditor() const;
 
 private slots:
     void changeEditorPage(QAction *action);
 
 private:
-    AndroidManifestDocument *m_document;
     QString m_displayName;
+    QToolBar *m_toolBar;
     QActionGroup *m_actionGroup;
 };
 

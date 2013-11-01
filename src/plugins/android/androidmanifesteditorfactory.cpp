@@ -39,6 +39,19 @@
 using namespace Android;
 using namespace Android::Internal;
 
+class AndroidTextEditorActionHandler : public TextEditor::TextEditorActionHandler
+{
+public:
+    explicit AndroidTextEditorActionHandler(QObject *parent)
+        : TextEditorActionHandler(parent, Constants::ANDROID_MANIFEST_EDITOR_CONTEXT)
+    {}
+private:
+    TextEditor::BaseTextEditorWidget *resolveTextEditorWidget(Core::IEditor *editor) const
+    {
+        AndroidManifestEditor *androidManifestEditor = static_cast<AndroidManifestEditor *>(editor);
+        return androidManifestEditor->textEditor();
+    }
+};
 
 AndroidManifestEditorFactory::AndroidManifestEditorFactory(QObject *parent)
     : Core::IEditorFactory(parent)
@@ -46,12 +59,11 @@ AndroidManifestEditorFactory::AndroidManifestEditorFactory(QObject *parent)
     setId(Constants::ANDROID_MANIFEST_EDITOR_ID);
     setDisplayName(tr("Android Manifest editor"));
     addMimeType(Constants::ANDROID_MANIFEST_MIME_TYPE);
-    new TextEditor::TextEditorActionHandler(this, Constants::ANDROID_MANIFEST_EDITOR_CONTEXT);
+    new AndroidTextEditorActionHandler(this);
 }
 
 Core::IEditor *AndroidManifestEditorFactory::createEditor()
 {
-    AndroidManifestEditorWidget *editor = new AndroidManifestEditorWidget();
-    TextEditor::TextEditorSettings::initializeEditor(editor);
-    return editor->editor();
+    AndroidManifestEditorWidget *androidManifestEditorWidget = new AndroidManifestEditorWidget();
+    return androidManifestEditorWidget->editor();
 }

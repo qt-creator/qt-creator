@@ -54,6 +54,7 @@ namespace Core { class IEditor; }
 namespace Android {
 namespace Internal {
 class AndroidManifestEditor;
+class AndroidManifestEditorWidget;
 
 
 class PermissionsModel: public QAbstractListModel
@@ -75,16 +76,24 @@ private:
     QStringList m_permissions;
 };
 
-class AndroidManifestEditorWidget : public TextEditor::PlainTextEditorWidget
+class AndroidManifestTextEditorWidget : public TextEditor::PlainTextEditorWidget
+{
+public:
+    AndroidManifestTextEditorWidget(AndroidManifestEditorWidget *parent = 0);
+protected:
+    AndroidManifestEditorWidget *m_parent;
+};
+
+class AndroidManifestEditorWidget : public QWidget
 {
     Q_OBJECT
 public:
     enum EditorPage {
-        General,
-        Source
+        General = 0,
+        Source = 1
     };
 
-    explicit AndroidManifestEditorWidget(QWidget *parent = 0);
+    explicit AndroidManifestEditorWidget();
 
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
 
@@ -95,12 +104,16 @@ public:
 
     void preSave();
 
+    Core::IEditor *editor() const;
+    TextEditor::PlainTextEditorWidget *textEditorWidget() const;
+
 public slots:
     void setDirty(bool dirty = true);
 
+signals:
+    void guiChanged();
+
 protected:
-    TextEditor::BaseTextEditor *createEditor();
-    void resizeEvent(QResizeEvent *event);
     bool eventFilter(QObject *obj, QEvent *event);
 private slots:
     void setLDPIIcon();
@@ -165,8 +178,10 @@ private:
     QPushButton *m_removePermissionButton;
     QComboBox *m_permissionsComboBox;
 
-    QWidget *m_overlayWidget;
     QTimer m_timerParseCheck;
+    TextEditor::PlainTextEditorWidget *m_textEditorWidget;
+    QStackedWidget *m_stackedWidget;
+    AndroidManifestEditor *m_editor;
 };
 } // namespace Internal
 } // namespace Android
