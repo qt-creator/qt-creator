@@ -139,6 +139,23 @@ def __createProjectSetNameAndPath__(path, projectName = None, checks = True):
     clickButton(waitForObject(":Next_QPushButton"))
     return str(projectName)
 
+def __createProjectHandleQtQuickSelection__(qtQuickVersion, withControls):
+    comboBox = waitForObject("{type='QComboBox' unnamed='1' visible='1' "
+                             "leftWidget={text='Qt Quick component set:' type='QLabel' unnamed='1' "
+                             "visible='1'}}")
+    if qtQuickVersion == 1:
+        selectFromCombo(comboBox, "Qt Quick 1.1")
+        if withControls:
+            test.warning("Controls are not available for Quick 1.")
+    elif qtQuickVersion == 2:
+        if withControls:
+            selectFromCombo(comboBox, "Qt Quick Controls 1.0")
+        else:
+            selectFromCombo(comboBox, "Qt Quick 2.0")
+    else:
+        test.fatal("Got unknown Qt Quick version: %s - trying to continue." % str(qtQuickVersion))
+    clickButton(waitForObject(":Next_QPushButton"))
+
 # Selects the Qt versions for a project
 # param checks turns tests in the function on if set to True
 # param available a list holding the available targets
@@ -234,35 +251,26 @@ def createProject_Qt_Console(path, projectName, checks = True):
     __verifyFileCreation__(path, expectedFiles)
     return checkedTargets
 
-def createNewQtQuickApplication(workingDir, projectName = None, templateFile = None,
+def createNewQtQuickApplication(workingDir, projectName = None,
                                 targets=Targets.desktopTargetClasses(), qtQuickVersion=1,
-                                fromWelcome=False):
-    if templateFile:
-        available = __createProjectOrFileSelectType__("  Applications", "Qt Quick %d Application (from Existing QML File)"
-                                                      % qtQuickVersion, fromWelcome)
-    else:
-        available = __createProjectOrFileSelectType__("  Applications", "Qt Quick %d Application (Built-in Types)"
-                                                % qtQuickVersion, fromWelcome)
+                                fromWelcome=False, withControls=False):
+    available = __createProjectOrFileSelectType__("  Applications", "Qt Quick Application", fromWelcome)
     projectName = __createProjectSetNameAndPath__(workingDir, projectName)
-    if templateFile:
-        baseLineEd = waitForObject("{type='Utils::BaseValidatingLineEdit' unnamed='1' visible='1'}")
-        type(baseLineEd, templateFile)
-        nextButton = waitForObject(":Next_QPushButton")
-        clickButton(nextButton)
+    __createProjectHandleQtQuickSelection__(qtQuickVersion, withControls)
     checkedTargets = __chooseTargets__(targets, available)
     snooze(1)
-    nextButton = waitForObject(":Next_QPushButton")
-    clickButton(nextButton)
+    clickButton(waitForObject(":Next_QPushButton"))
     __createProjectHandleLastPage__()
 
     progressBarWait(10000)
     return checkedTargets, projectName
 
-def createNewQtQuickUI(workingDir, qtQuickVersion=1):
-    __createProjectOrFileSelectType__("  Applications", "Qt Quick %d UI" % qtQuickVersion)
+def createNewQtQuickUI(workingDir, qtQuickVersion=1, withControls=False):
+    __createProjectOrFileSelectType__("  Applications", "Qt Quick UI")
     if workingDir == None:
         workingDir = tempDir()
     projectName = __createProjectSetNameAndPath__(workingDir)
+    __createProjectHandleQtQuickSelection__(qtQuickVersion, withControls)
     __createProjectHandleLastPage__()
     return projectName
 
@@ -443,7 +451,10 @@ def __closeSubprocessByHookingInto__(executable, port, function, sType, userDefT
             # assuming we're still on the build settings of the current project (TODO)
             switchViewTo(ViewConstants.PROJECTS)
             if sType == SubprocessType.QT_QUICK_UI:
-                selectConfig = "QML Viewer"
+                if "qmlscene" in executable:
+                    selectConfig = "QML Scene"
+                else:
+                    selectConfig = "QML Viewer"
             else:
                 selectConfig = executable
             selectFromCombo(waitForObject("{buddy={text='Run configuration:' type='QLabel' "
