@@ -181,9 +181,7 @@ void TargetSettingsPanelWidget::setupUi()
     // Now set the correct target
     int index = m_targets.indexOf(m_project->activeTarget());
     m_selector->setCurrentIndex(index);
-    m_selector->setCurrentSubIndex(0);
-
-    currentTargetChanged(index, 0);
+    currentTargetChanged(index, m_selector->currentSubIndex());
 
     connect(m_selector, SIGNAL(currentChanged(int,int)),
             this, SLOT(currentTargetChanged(int,int)));
@@ -488,7 +486,9 @@ void TargetSettingsPanelWidget::targetAdded(ProjectExplorer::Target *target)
         if (m_targets.count() == pos ||
             m_targets.at(pos)->displayName() > target->displayName()) {
             m_targets.insert(pos, target);
-            m_selector->insertTarget(pos, target->displayName());
+            m_selector->insertTarget(pos, m_project->hasActiveBuildSettings() ? 0 : 1,
+                                     target->displayName());
+
             break;
         }
     }

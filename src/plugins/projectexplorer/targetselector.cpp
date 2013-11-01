@@ -116,13 +116,13 @@ void TargetSelector::menuAboutToHide()
     updateButtons();
 }
 
-void TargetSelector::insertTarget(int index, const QString &name)
+void TargetSelector::insertTarget(int index, int subIndex, const QString &name)
 {
     QTC_ASSERT(index >= 0 && index <= m_targets.count(), return);
 
     Target target;
     target.name = name;
-    target.currentSubIndex = 0;
+    target.currentSubIndex = subIndex;
 
     m_targets.insert(index, target);
 
