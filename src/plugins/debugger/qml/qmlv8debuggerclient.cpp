@@ -55,6 +55,7 @@
 #endif
 
 using namespace Core;
+using QmlDebug::QmlDebugStream;
 
 namespace Debugger {
 namespace Internal {
@@ -522,7 +523,7 @@ void QmlV8DebuggerClientPrivate::setBreakpoint(const QString type, const QString
     //    }
     if (type == _(EVENT)) {
         QByteArray params;
-        QDataStream rs(&params, QIODevice::WriteOnly);
+        QmlDebugStream rs(&params, QIODevice::WriteOnly);
         rs <<  target.toUtf8() << enabled;
         logSendMessage(QString(_("%1 %2 %3 %4")).arg(_(V8DEBUG), _(BREAKONSIGNAL), target, enabled?_("enabled"):_("disabled")));
         q->sendMessage(packMessage(BREAKONSIGNAL, params));
@@ -892,7 +893,7 @@ QByteArray QmlV8DebuggerClientPrivate::packMessage(const QByteArray &type, const
 {
     SDEBUG(message);
     QByteArray request;
-    QDataStream rs(&request, QIODevice::WriteOnly);
+    QmlDebugStream rs(&request, QIODevice::WriteOnly);
     QByteArray cmd = V8DEBUG;
     rs << cmd << type << message;
     return request;
@@ -1160,7 +1161,7 @@ void QmlV8DebuggerClient::getSourceFiles()
 
 void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
 {
-    QDataStream ds(data);
+    QmlDebugStream ds(data);
     QByteArray command;
     ds >> command;
 

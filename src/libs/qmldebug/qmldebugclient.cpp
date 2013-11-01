@@ -38,6 +38,8 @@
 namespace QmlDebug {
 
 const int protocolVersion = 1;
+int QmlDebugClient::s_dataStreamVersion = QDataStream::Qt_4_7;
+
 const QString serverId = QLatin1String("QDeclarativeDebugServer");
 const QString clientId = QLatin1String("QDeclarativeDebugClient");
 
@@ -95,7 +97,8 @@ void QmlDebugConnectionPrivate::advertisePlugins()
 void QmlDebugConnectionPrivate::connected()
 {
     QPacket pack;
-    pack << serverId << 0 << protocolVersion << plugins.keys();
+    QDataStream str;
+    pack << serverId << 0 << protocolVersion << plugins.keys() << QDataStream().version();
     protocol->send(pack);
     q->flush();
 }
@@ -131,6 +134,12 @@ void QmlDebugConnectionPrivate::readyRead()
                         serverPlugins.insert(pluginNames.at(i), pluginVersion);
                     }
 
+                    if (!pack.isEmpty()) {
+                        pack >> QmlDebugClient::s_dataStreamVersion;
+                        if (QmlDebugClient::s_dataStreamVersion
+                                > QDataStream().version())
+                            qWarning() << "Server returned invalid data stream version!";
+                    }
                     validHello = true;
                 }
             }
@@ -407,6 +416,30 @@ void QmlDebugClient::statusChanged(ClientStatus)
 
 void QmlDebugClient::messageReceived(const QByteArray &)
 {
+}
+
+QmlDebugStream::QmlDebugStream()
+    : QDataStream()
+{
+    setVersion(QmlDebugClient::s_dataStreamVersion);
+}
+
+QmlDebugStream::QmlDebugStream(QIODevice *d)
+    : QDataStream(d)
+{
+    setVersion(QmlDebugClient::s_dataStreamVersion);
+}
+
+QmlDebugStream::QmlDebugStream(QByteArray *ba, QIODevice::OpenMode flags)
+    : QDataStream(ba, flags)
+{
+    setVersion(QmlDebugClient::s_dataStreamVersion);
+}
+
+QmlDebugStream::QmlDebugStream(const QByteArray &ba)
+    : QDataStream(ba)
+{
+    setVersion(QmlDebugClient::s_dataStreamVersion);
 }
 
 } // namespace QmlDebug

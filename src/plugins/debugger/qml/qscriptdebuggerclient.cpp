@@ -34,10 +34,13 @@
 #include <debugger/stackhandler.h>
 #include <debugger/debuggercore.h>
 #include <debugger/debuggerstringutils.h>
+#include <qmldebug/qmldebugclient.h>
 
 #include <QFileInfo>
 #include <QMessageBox>
 #include <utils/qtcassert.h>
+
+using QmlDebug::QmlDebugStream;
 
 namespace Debugger {
 namespace Internal {
@@ -138,7 +141,7 @@ QScriptDebuggerClient::~QScriptDebuggerClient()
 void QScriptDebuggerClient::executeStep()
 {
     QByteArray reply;
-    QDataStream rs(&reply, QIODevice::WriteOnly);
+    QmlDebugStream rs(&reply, QIODevice::WriteOnly);
     QByteArray cmd = "STEPINTO";
     rs << cmd;
     d->logSendMessage(QLatin1String(cmd));
@@ -148,7 +151,7 @@ void QScriptDebuggerClient::executeStep()
 void QScriptDebuggerClient::executeStepOut()
 {
     QByteArray reply;
-    QDataStream rs(&reply, QIODevice::WriteOnly);
+    QmlDebugStream rs(&reply, QIODevice::WriteOnly);
     QByteArray cmd = "STEPOUT";
     rs << cmd;
     d->logSendMessage(QLatin1String(cmd));
@@ -158,7 +161,7 @@ void QScriptDebuggerClient::executeStepOut()
 void QScriptDebuggerClient::executeNext()
 {
     QByteArray reply;
-    QDataStream rs(&reply, QIODevice::WriteOnly);
+    QmlDebugStream rs(&reply, QIODevice::WriteOnly);
     QByteArray cmd = "STEPOVER";
     rs << cmd;
     d->logSendMessage(QLatin1String(cmd));
@@ -168,7 +171,7 @@ void QScriptDebuggerClient::executeNext()
 void QScriptDebuggerClient::executeStepI()
 {
     QByteArray reply;
-    QDataStream rs(&reply, QIODevice::WriteOnly);
+    QmlDebugStream rs(&reply, QIODevice::WriteOnly);
     QByteArray cmd = "STEPINTO";
     rs << cmd;
     d->logSendMessage(QLatin1String(cmd));
@@ -189,7 +192,7 @@ void QScriptDebuggerClient::executeRunToLine(const ContextData &data)
 void QScriptDebuggerClient::continueInferior()
 {
     QByteArray reply;
-    QDataStream rs(&reply, QIODevice::WriteOnly);
+    QmlDebugStream rs(&reply, QIODevice::WriteOnly);
     QByteArray cmd = "CONTINUE";
     rs << cmd;
     d->logSendMessage(QLatin1String(cmd));
@@ -199,7 +202,7 @@ void QScriptDebuggerClient::continueInferior()
 void QScriptDebuggerClient::interruptInferior()
 {
     QByteArray reply;
-    QDataStream rs(&reply, QIODevice::WriteOnly);
+    QmlDebugStream rs(&reply, QIODevice::WriteOnly);
     QByteArray cmd = "INTERRUPT";
     rs << cmd;
     d->logSendMessage(QLatin1String(cmd));
@@ -234,7 +237,7 @@ void QScriptDebuggerClient::resetSession()
 void QScriptDebuggerClient::activateFrame(int index)
 {
     QByteArray reply;
-    QDataStream rs(&reply, QIODevice::WriteOnly);
+    QmlDebugStream rs(&reply, QIODevice::WriteOnly);
     QByteArray cmd = "ACTIVATE_FRAME";
     rs << cmd
        << index;
@@ -287,7 +290,7 @@ void QScriptDebuggerClient::changeBreakpoint(const BreakpointModelId &id)
 void QScriptDebuggerClient::synchronizeBreakpoints()
 {
     QByteArray reply;
-    QDataStream rs(&reply, QIODevice::WriteOnly);
+    QmlDebugStream rs(&reply, QIODevice::WriteOnly);
     QByteArray cmd = "BREAKPOINTS";
     rs << cmd
        << d->breakpoints;
@@ -314,7 +317,7 @@ void QScriptDebuggerClient::assignValueInDebugger(const WatchData *data,
                                                   const QVariant &valueV)
 {
     QByteArray reply;
-    QDataStream rs(&reply, QIODevice::WriteOnly);
+    QmlDebugStream rs(&reply, QIODevice::WriteOnly);
     QByteArray cmd = "EXEC";
     rs << cmd;
     QString expression = QString(_("%1 = %2;")).arg(expr).arg(valueV.toString());
@@ -328,7 +331,7 @@ void QScriptDebuggerClient::assignValueInDebugger(const WatchData *data,
 void QScriptDebuggerClient::updateWatchData(const WatchData &data)
 {
     QByteArray reply;
-    QDataStream rs(&reply, QIODevice::WriteOnly);
+    QmlDebugStream rs(&reply, QIODevice::WriteOnly);
     QByteArray cmd = "EXEC";
     rs << cmd;
     rs << data.iname << data.name;
@@ -340,7 +343,7 @@ void QScriptDebuggerClient::updateWatchData(const WatchData &data)
 void QScriptDebuggerClient::executeDebuggerCommand(const QString &command)
 {
     QByteArray reply;
-    QDataStream rs(&reply, QIODevice::WriteOnly);
+    QmlDebugStream rs(&reply, QIODevice::WriteOnly);
     QByteArray cmd = "EXEC";
     QByteArray console = "console";
     rs << cmd << console << command;
@@ -353,7 +356,7 @@ void QScriptDebuggerClient::synchronizeWatchers(const QStringList &watchers)
 {
     // send watchers list
     QByteArray reply;
-    QDataStream rs(&reply, QIODevice::WriteOnly);
+    QmlDebugStream rs(&reply, QIODevice::WriteOnly);
     QByteArray cmd = "WATCH_EXPRESSIONS";
     rs << cmd;
     d->logSendMessage(QString::fromLatin1("%1 (%2)").arg(QLatin1String(cmd),
@@ -368,7 +371,7 @@ void QScriptDebuggerClient::expandObject(const QByteArray &iname, quint64 object
         return;
 
     QByteArray reply;
-    QDataStream rs(&reply, QIODevice::WriteOnly);
+    QmlDebugStream rs(&reply, QIODevice::WriteOnly);
     QByteArray cmd = "EXPAND";
     rs << cmd;
     rs << iname << objectId;
@@ -381,7 +384,7 @@ void QScriptDebuggerClient::sendPing()
 {
     d->ping++;
     QByteArray reply;
-    QDataStream rs(&reply, QIODevice::WriteOnly);
+    QmlDebugStream rs(&reply, QIODevice::WriteOnly);
     QByteArray cmd = "PING";
     rs << cmd;
     rs << d->ping;
@@ -392,7 +395,7 @@ void QScriptDebuggerClient::sendPing()
 void QScriptDebuggerClient::messageReceived(const QByteArray &data)
 {
     QByteArray rwData = data;
-    QDataStream stream(&rwData, QIODevice::ReadOnly);
+    QmlDebugStream stream(&rwData, QIODevice::ReadOnly);
 
     QByteArray command;
     stream >> command;
