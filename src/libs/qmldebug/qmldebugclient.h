@@ -33,6 +33,8 @@
 #include "qmldebug_global.h"
 #include <qtcpsocket.h>
 
+#include <QDataStream>
+
 namespace QmlDebug {
 
 class QmlDebugConnectionPrivate;
