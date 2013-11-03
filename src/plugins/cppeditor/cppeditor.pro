@@ -4,6 +4,7 @@ include(../../qtcreatorplugin.pri)
 HEADERS += \
     cppautocompleter.h \
     cppclasswizard.h \
+    cppcodemodelinspectordialog.h \
     cppeditor.h \
     cppeditor_global.h \
     cppeditorconstants.h \
@@ -33,6 +34,7 @@ HEADERS += \
 SOURCES += \
     cppautocompleter.cpp \
     cppclasswizard.cpp \
+    cppcodemodelinspectordialog.cpp \
     cppeditor.cpp \
     cppeditorplugin.cpp \
     cppelementevaluator.cpp \
@@ -57,7 +59,8 @@ SOURCES += \
     cppvirtualfunctionproposalitem.cpp
 
 FORMS += \
-    cpppreprocessordialog.ui
+    cpppreprocessordialog.ui \
+    cppcodemodelinspectordialog.ui
 
 RESOURCES += \
     cppeditor.qrc
@@ -74,4 +77,3 @@ equals(TEST, 1) {
         followsymbol_switchmethoddecldef_test.cpp
     DEFINES += SRCDIR=\\\"$$PWD\\\"
 }
-

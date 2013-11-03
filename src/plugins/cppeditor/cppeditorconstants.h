@@ -44,6 +44,7 @@ const char FIND_USAGES[] = "CppEditor.FindUsages";
 const char OPEN_PREPROCESSOR_DIALOG[] = "CppEditor.OpenPreprocessorDialog";
 const char M_REFACTORING_MENU_INSERTION_POINT[] = "CppEditor.RefactorGroup";
 const char UPDATE_CODEMODEL[] = "CppEditor.UpdateCodeModel";
+const char INSPECT_CPP_CODEMODEL[] = "CppEditor.InspectCppCodeModel";
 
 const int TYPE_HIERARCHY_PRIORITY = 700;
 const char TYPE_HIERARCHY_ID[] = "CppEditor.TypeHierarchy";

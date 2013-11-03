@@ -808,6 +808,11 @@ Symbol **Control::lastSymbol() const
     return &*d->symbols.begin() + d->symbols.size();
 }
 
+unsigned Control::symbolCount() const
+{
+    return unsigned(d->symbols.size());
+}
+
 bool Control::hasSymbol(Symbol *symbol) const
 {
     return std::find(d->symbols.begin(), d->symbols.end(), symbol) != d->symbols.end();

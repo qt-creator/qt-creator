@@ -213,6 +213,7 @@ public:
 
     Symbol **firstSymbol() const;
     Symbol **lastSymbol() const;
+    unsigned symbolCount() const;
 
     bool hasSymbol(Symbol *symbol) const;
     void addSymbol(Symbol *symbol);

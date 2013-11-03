@@ -46,6 +46,7 @@ namespace CppEditor {
 namespace Internal {
 
 class CPPEditorWidget;
+class CppCodeModelInspectorDialog;
 class CppQuickFixCollector;
 class CppQuickFixAssistProvider;
 
@@ -90,6 +91,7 @@ public slots:
 private slots:
     void onTaskStarted(Core::Id type);
     void onAllTasksFinished(Core::Id type);
+    void inspectCppCodeModel();
 
 #ifdef WITH_TESTS
 private slots:
@@ -241,6 +243,8 @@ private:
     QAction *m_openIncludeHierarchyAction;
 
     CppQuickFixAssistProvider *m_quickFixProvider;
+
+    QPointer<CppCodeModelInspectorDialog> m_cppCodeModelInspectorDialog;
 
     QPointer<TextEditor::ITextEditor> m_currentEditor;
 };

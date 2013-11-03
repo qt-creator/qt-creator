@@ -42,6 +42,8 @@
 #include "cppquickfixes.h"
 #include "cpphighlighterfactory.h"
 
+#include "cppcodemodelinspectordialog.h"
+
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
@@ -285,6 +287,11 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     connect(m_reparseExternallyChangedFiles, SIGNAL(triggered()), cppModelManager, SLOT(updateModifiedSourceFiles()));
     cppToolsMenu->addAction(cmd);
 
+    QAction *inspectCppCodeModel = new QAction(tr("Debug: Inspect C++ Code Model"), this);
+    cmd = ActionManager::registerAction(inspectCppCodeModel, Constants::INSPECT_CPP_CODEMODEL, globalContext);
+    cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+Shift+F12") : tr("Ctrl+Shift+F12")));
+    connect(inspectCppCodeModel, SIGNAL(triggered()), this, SLOT(inspectCppCodeModel()));
+
     m_actionHandler = new TextEditor::TextEditorActionHandler(CppEditor::Constants::C_CPPEDITOR,
         TextEditor::TextEditorActionHandler::Format
         | TextEditor::TextEditorActionHandler::UnCommentSelection
@@ -384,6 +391,16 @@ void CppEditorPlugin::onAllTasksFinished(Core::Id type)
         m_reparseExternallyChangedFiles->setEnabled(true);
         m_openTypeHierarchyAction->setEnabled(true);
         m_openIncludeHierarchyAction->setEnabled(true);
+    }
+}
+
+void CppEditorPlugin::inspectCppCodeModel()
+{
+    if (m_cppCodeModelInspectorDialog) {
+        ICore::raiseWindow(m_cppCodeModelInspectorDialog);
+    } else {
+        m_cppCodeModelInspectorDialog = new CppCodeModelInspectorDialog(ICore::mainWindow());
+        m_cppCodeModelInspectorDialog->show();
     }
 }
 
