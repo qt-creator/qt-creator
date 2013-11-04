@@ -32,6 +32,7 @@
 
 #include <qmakeprojectmanager/qmakeprojectmanager_global.h>
 #include <projectexplorer/baseprojectwizarddialog.h>
+#include <qtsupport/baseqtversion.h>
 
 namespace ProjectExplorer { class TargetSetupPage; }
 
@@ -53,16 +54,18 @@ protected:
     explicit AbstractMobileAppWizardDialog(QWidget *parent, const QtSupport::QtVersionNumber &minimumQtVersionNumber,
                                            const QtSupport::QtVersionNumber &maximumQtVersionNumber,
                                            const Core::WizardDialogParameters &parameters);
-    void addKitsPage();
-
 public:
     ProjectExplorer::TargetSetupPage *kitsPage() const;
 
 protected:
     int addPageWithTitle(QWizardPage *page, const QString &title);
+    void addKitsPage();
+    void updateKitsPage();
 
 private:
     ProjectExplorer::TargetSetupPage *m_kitsPage;
+    const QtSupport::QtVersionNumber m_minimumQtVersionNumber;
+    const QtSupport::QtVersionNumber m_maximumQtVersionNumber;
 };
 
 /// \internal

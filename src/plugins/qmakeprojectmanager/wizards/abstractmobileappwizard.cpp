@@ -52,9 +52,25 @@ AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent,
                                                              const Core::WizardDialogParameters &parameters)
     : ProjectExplorer::BaseProjectWizardDialog(parent, parameters)
     , m_kitsPage(0)
+    , m_minimumQtVersionNumber(minimumQtVersionNumber)
+    , m_maximumQtVersionNumber(maximumQtVersionNumber)
 {
     if (!parameters.extraValues().contains(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS))) {
         m_kitsPage = new ProjectExplorer::TargetSetupPage;
+        updateKitsPage();
+        resize(900, 450);
+    }
+}
+
+void AbstractMobileAppWizardDialog::addKitsPage()
+{
+    if (m_kitsPage)
+        addPageWithTitle(m_kitsPage, tr("Kits"));
+}
+
+void AbstractMobileAppWizardDialog::updateKitsPage()
+{
+    if (m_kitsPage) {
         m_kitsPage->setProjectImporter(new Internal::QmakeProjectImporter(path()));
         QString platform = selectedPlatform();
         if (platform.isEmpty()) {
@@ -65,16 +81,9 @@ AbstractMobileAppWizardDialog::AbstractMobileAppWizardDialog(QWidget *parent,
             m_kitsPage->setPreferredKitMatcher(new QtSupport::QtPlatformKitMatcher(platform));
         }
         m_kitsPage->setRequiredKitMatcher(new QtSupport::QtVersionKitMatcher(requiredFeatures(),
-                                                                                minimumQtVersionNumber,
-                                                                                maximumQtVersionNumber));
-        resize(900, 450);
+                                                                             m_minimumQtVersionNumber,
+                                                                             m_maximumQtVersionNumber));
     }
-}
-
-void AbstractMobileAppWizardDialog::addKitsPage()
-{
-    if (m_kitsPage)
-        addPageWithTitle(m_kitsPage, tr("Kits"));
 }
 
 ProjectExplorer::TargetSetupPage *AbstractMobileAppWizardDialog::kitsPage() const

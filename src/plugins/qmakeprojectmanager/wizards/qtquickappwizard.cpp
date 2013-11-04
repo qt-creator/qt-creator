@@ -39,7 +39,6 @@
 #include <projectexplorer/targetsetuppage.h>
 
 #include <QIcon>
-#include <QDebug>
 
 namespace QmakeProjectManager {
 namespace Internal {
@@ -52,6 +51,8 @@ public:
     explicit QtQuickAppWizardDialog(QWidget *parent, const Core::WizardDialogParameters &parameters);
     QtQuickApp::ComponentSet componentSet() const { return m_componentSetPage->componentSet(); }
 
+protected:
+    void initializePage(int id);
 
 private:
     QtQuickComponentSetPage *m_componentSetPage;
@@ -70,6 +71,29 @@ QtQuickAppWizardDialog::QtQuickAppWizardDialog(QWidget *parent,
     addPageWithTitle(m_componentSetPage, tr("Component Set"));
 
     addKitsPage();
+}
+
+void QtQuickAppWizardDialog::initializePage(int id)
+{
+    if (page(id) == kitsPage()) {
+        Core::FeatureSet features = Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_1);
+        QtQuickApp::ComponentSet components = componentSet();
+        switch (components) {
+        case QtQuickApp::QtQuick10Components:
+            features = Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_1);
+            break;
+        case QtQuickApp::QtQuick20Components:
+            features = Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_2);
+            break;
+        case QtQuickApp::QtQuickControls10:
+            features = Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_2)
+                    | Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_CONTROLS);
+            break;
+        }
+        setRequiredFeatures(features);
+        updateKitsPage();
+    }
+    AbstractMobileAppWizardDialog::initializePage(id);
 }
 
 class QtQuickAppWizardPrivate
