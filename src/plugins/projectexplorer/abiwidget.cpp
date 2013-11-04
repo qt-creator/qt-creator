@@ -148,7 +148,15 @@ void AbiWidget::setAbis(const QList<Abi> &abiList, const Abi &current)
     bool blocked = blockSignals(true);
     d->m_abi->clear();
 
-    d->m_abi->addItem(tr("<custom>"), QLatin1String("custom"));
+    Abi defaultAbi = current;
+    if (defaultAbi.isNull()) {
+        if (!abiList.isEmpty())
+            defaultAbi = abiList.at(0);
+        else
+            defaultAbi = Abi::hostAbi();
+    }
+
+    d->m_abi->addItem(tr("<custom>"), defaultAbi.toString());
     d->m_abi->setCurrentIndex(0);
 
     for (int i = 0; i < abiList.count(); ++i) {
@@ -198,10 +206,8 @@ void AbiWidget::modeChanged()
     d->m_binaryFormatComboBox->setEnabled(customMode);
     d->m_wordWidthComboBox->setEnabled(customMode);
 
-    if (!customMode) {
-        Abi current(d->m_abi->itemData(d->m_abi->currentIndex()).toString());
-        setCustomAbi(current);
-    }
+    Abi current(d->m_abi->itemData(d->m_abi->currentIndex()).toString());
+    setCustomAbi(current);
 }
 
 void AbiWidget::customAbiChanged()
@@ -238,7 +244,8 @@ void AbiWidget::setCustomAbi(const Abi &current)
             break;
         }
     }
-    d->m_abi->setItemData(0, current.toString());
+    if (d->m_abi->currentIndex() == 0)
+        d->m_abi->setItemData(0, current.toString());
     blockSignals(blocked);
 
     emit abiChanged();
