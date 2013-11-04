@@ -276,7 +276,6 @@ class Dumper(DumperBase):
         self.process = None
         self.target = None
         self.eventState = lldb.eStateInvalid
-        self.options = {}
         self.expandedINames = {}
         self.passExceptions = False
         self.useLldbDumpers = False
@@ -1543,9 +1542,6 @@ class Dumper(DumperBase):
         output = result.GetOutput()
         error = str(result.GetError())
         self.report('success="%d",output="%s",error="%s"' % (success, output, error))
-
-    def setOptions(self, args):
-        self.options = args
 
     def setWatchers(self, args):
         #self.currentWatchers = args['watchers']
