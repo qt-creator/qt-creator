@@ -62,6 +62,7 @@ signals:
 private slots:
     void osChanged();
     void modeChanged();
+    void customAbiChanged();
 
 private:
     void setCustomAbi(const Abi &a);
