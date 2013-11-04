@@ -50,6 +50,7 @@ ImportLabel::ImportLabel(QWidget *parent) :
     m_removeButton->setMaximumHeight(20);
     m_removeButton->setFocusPolicy(Qt::NoFocus);
     m_removeButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    m_removeButton->setToolTip(tr("Remove Import"));
     connect(m_removeButton, SIGNAL(clicked()), this, SLOT(emitRemoveImport()));
     layout->addWidget(m_removeButton);
 
