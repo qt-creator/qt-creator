@@ -61,7 +61,6 @@ public:
     explicit GuiAppWizardDialog(const QString &templateName,
                                 const QIcon &icon,
                                 bool showModulesPage,
-                                bool mobile,
                                 QWidget *parent,
                                 const Core::WizardDialogParameters &parameters);
 

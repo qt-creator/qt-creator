@@ -72,7 +72,7 @@ static inline QStringList baseClasses()
 namespace QmakeProjectManager {
 namespace Internal {
 
-GuiAppWizard::GuiAppWizard(bool isMobile)
+GuiAppWizard::GuiAppWizard()
 {
     setId(QLatin1String("C.Qt4Gui"));
     setCategory(QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY));
@@ -84,7 +84,6 @@ GuiAppWizard::GuiAppWizard(bool isMobile)
                   "Preselects a desktop Qt for building the application if available."));
     setIcon(QIcon(QLatin1String(":/wizards/images/gui.png")));
     setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QWIDGETS));
-    m_createMobileProject = isMobile;
 }
 
 QWizard *GuiAppWizard::createWizardDialog(QWidget *parent,
@@ -92,7 +91,6 @@ QWizard *GuiAppWizard::createWizardDialog(QWidget *parent,
 {
     GuiAppWizardDialog *dialog = new GuiAppWizardDialog(displayName(), icon(),
                                                         showModulesPageForApplications(),
-                                                        m_createMobileProject,
                                                         parent, wizardDialogParameters);
     dialog->setProjectName(GuiAppWizardDialog::uniqueProjectName(wizardDialogParameters.defaultPath()));
     // Order! suffixes first to generate files correctly

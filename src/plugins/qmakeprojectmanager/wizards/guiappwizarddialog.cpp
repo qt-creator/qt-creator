@@ -47,7 +47,6 @@ GuiAppParameters::GuiAppParameters()
 GuiAppWizardDialog::GuiAppWizardDialog(const QString &templateName,
                                        const QIcon &icon,
                                        bool showModulesPage,
-                                       bool isMobile,
                                        QWidget *parent,
                                        const Core::WizardDialogParameters &parameters) :
     BaseQmakeProjectWizardDialog(showModulesPage, parent, parameters),
@@ -63,7 +62,7 @@ GuiAppWizardDialog::GuiAppWizardDialog(const QString &templateName,
 
     addModulesPage();
     if (!parameters.extraValues().contains(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS)))
-        addTargetSetupPage(isMobile);
+        addTargetSetupPage();
 
     m_filesPage->setFormInputCheckable(true);
     m_filesPage->setClassTypeComboVisible(false);

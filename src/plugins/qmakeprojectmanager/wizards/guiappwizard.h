@@ -42,7 +42,7 @@ class GuiAppWizard : public QtWizard
     Q_OBJECT
 
 public:
-    GuiAppWizard(bool isMobile = false);
+    GuiAppWizard();
 
 private:
     QWizard *createWizardDialog(QWidget *parent,
@@ -55,7 +55,6 @@ private:
                                     const GuiAppParameters &params,
                                     QString *target, QString *errorMessage);
 
-    bool m_createMobileProject;
 };
 
 } // namespace Internal

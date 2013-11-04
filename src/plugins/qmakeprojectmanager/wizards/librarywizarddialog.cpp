@@ -198,7 +198,7 @@ QtProjectParameters::Type  LibraryWizardDialog::type() const
 
 bool LibraryWizardDialog::isModulesPageSkipped() const
 {
-    // When leaving the intro, target or mobile page, the modules page is skipped
+    // When leaving the intro or target page, the modules page is skipped
     // in the case of a plugin since it knows its dependencies by itself.
     return type() == QtProjectParameters::Qt4Plugin;
 }
