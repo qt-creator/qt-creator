@@ -57,15 +57,4 @@
             applications for them.
 
     \endlist
-
-    \section1 Related Topics
-
-    \list
-
-        \li \l{Adding Qt Designer Plugins}
-
-            You can use Qt APIs to create plugins that extend Qt applications.
-            This enables you to add your own widgets to \QD.
-
-    \endlist
 */
