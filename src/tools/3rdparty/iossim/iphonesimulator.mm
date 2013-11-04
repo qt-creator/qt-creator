@@ -11,6 +11,7 @@
 #import <sys/types.h>
 #import <sys/stat.h>
 #import <objc/runtime.h>
+#import <AppKit/NSRunningApplication.h>
 
 NSString *simulatorPrefrencesName = @"com.apple.iphonesimulator";
 NSString *deviceProperty = @"SimulateDevice";
@@ -123,11 +124,15 @@ NSString *deviceIpadRetina = @"iPad (Retina)";
 
 - (void)session:(DTiPhoneSimulatorSession *)mySession didStart:(BOOL)started withError:(NSError *)error {
   if (startOnly && mySession) {
+    [NSTask launchedTaskWithLaunchPath:@"/usr/bin/osascript"
+          arguments:[NSArray arrayWithObjects:@"-e", @"tell application \"iPhone Simulator\"  to activate", nil]];
     nsprintf(@"<msg>Simulator started (no session)</msg>");
     [self doExit:EXIT_SUCCESS];
     return;
   }
   if (started) {
+      [NSTask launchedTaskWithLaunchPath:@"/usr/bin/osascript"
+          arguments:[NSArray arrayWithObjects:@"-e", @"tell application \"iPhone Simulator\"  to activate", nil]];
       if (shouldStartDebugger) {
         char*args[4] = { NULL, NULL, (char*)[[[mySession simulatedApplicationPID] description] UTF8String], NULL };
         if (useGDB) {
@@ -151,12 +156,12 @@ NSString *deviceIpadRetina = @"iPad (Retina)";
     if (verbose) {
       nsprintf(@"<msg>Session started</msg>");
     }
+    nsprintf(@"<inferior_pid>%@</inferior_pid>", [session simulatedApplicationPID]);
+    fflush(stdout);
     if (exitOnStartup) {
       [self doExit:EXIT_SUCCESS];
       return;
     }
-    nsprintf(@"<inferior_pid>%@</inferior_pid>", [session simulatedApplicationPID]);
-    fflush(stdout);
     pidCheckingTimer = [[NSTimer scheduledTimerWithTimeInterval:5.0 target:self
             selector:@selector(checkPid:) userInfo:nil repeats: TRUE] retain];
   } else {

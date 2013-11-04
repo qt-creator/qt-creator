@@ -22,7 +22,8 @@ QtcTool {
     ]
     cpp.linkerFlags: base.concat(["-sectcreate", "__TEXT", "__info_plist", path + "/Info.plist",
                                   "-fobjc-link-runtime"])
-    cpp.frameworks: base.concat(["Foundation", "CoreServices", "ApplicationServices", "IOKit"])
+    cpp.frameworks: base.concat(["Foundation", "CoreServices", "ApplicationServices", "IOKit",
+                                 "AppKit"])
     cpp.frameworkPaths: base.concat("/System/Library/PrivateFrameworks")
 
     toolInstallDir: project.ide_libexec_path + "/ios"
