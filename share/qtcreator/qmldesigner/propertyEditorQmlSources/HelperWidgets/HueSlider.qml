@@ -76,8 +76,6 @@ Item {
             Rectangle {
                 anchors.fill: track
                 anchors.margins: -1
-                //anchors.topMargin: -2
-                //anchors.leftMargin: -2
                 color: "darkGray"
             }
 
@@ -96,30 +94,25 @@ Item {
                 height: parent.height
             }
 
-//            BorderImage {
-//                source: "images/sunken_frame.png"
-//                border.left: 4
-//                border.right: 4
-//                border.top: 4
-//                border.bottom: 4
-//                anchors.fill: track
-//                anchors.margins: -1
-//                anchors.topMargin: -2
-//                anchors.leftMargin: -2
-//            }
-
             Rectangle {
                 id: handle
                 width: 14
-                height: 8
+                height: 10
+
+                opacity: 0.9
 
                 anchors.horizontalCenter: parent.horizontalCenter
                 smooth: true
 
-                radius: 24
-                color: "gray"
+                radius: 2
                 border.color: "black"
                 border.width: 1
+
+                gradient: Gradient {
+                    GradientStop {color: "#2c2c2c" ; position: 0}
+                    GradientStop {color: "#343434" ; position: 0.15}
+                    GradientStop {color: "#373737" ; position: 1.0}
+                }
 
 
                 y: updatePos()
