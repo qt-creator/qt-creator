@@ -31,6 +31,8 @@
 import QtQuick 2.1
 import QtQuick.Controls 1.0 as Controls
 import QtQuick.Window 2.0
+import QtQuick.Controls.Styles 1.1
+import "Constants.js" as Constants
 
 Item {
     width: 14
@@ -72,13 +74,13 @@ Item {
     property string backendExpression: backendValue.expression;
 
     onActiveChanged: {
-            if (active) {
-                setIcon();
-                opacity = 1;
-            } else {
-                opacity = 0;
-            }
+        if (active) {
+            setIcon();
+            opacity = 1;
+        } else {
+            opacity = 0;
         }
+    }
 
     onIsBoundBackendChanged: {
         setIcon();
@@ -107,76 +109,126 @@ Item {
         }
     }
 
-     Controls.Menu {
-         id: menu
-         Controls.MenuItem {
-             text: "Reset"
-             onTriggered: {
-                 transaction.start();
-                 backendValue.resetValue();
-                 backendValue.resetValue();
-                 transaction.end();
-             }
-         }
-         Controls.MenuItem {
-             text: "Set Binding"
-             onTriggered: {
-                 textField.text = backendValue.expression
-                 expressionDialog.visible = true
-             }
-         }
-     }
+    Controls.Menu {
+        id: menu
+        Controls.MenuItem {
+            text: "Reset"
+            onTriggered: {
+                transaction.start();
+                backendValue.resetValue();
+                backendValue.resetValue();
+                transaction.end();
+            }
+        }
+        Controls.MenuItem {
+            text: "Set Binding"
+            onTriggered: {
+                textField.text = backendValue.expression
+                expressionDialog.visible = true
+            }
+        }
+    }
 
-     Rectangle {
-         parent: itemPane
-         visible: false
-         x: 10
-         color: "gray"
-         radius: 4
-         id: expressionDialog
+    Rectangle {
+        parent: itemPane
+        visible: false
+        x: 10
+        color: "#424242"
 
-         onVisibleChanged: {
-             var pos  = itemPane.mapFromItem(extendedFunctionButton.parent, 0, 0);
-             y = pos.y + 2;
-         }
+        radius: 3
+        border.color: "black"
+        gradient: Gradient {
+            GradientStop {color: "#2c2c2c" ; position: 0}
+            GradientStop {color: "#343434" ; position: 0.15}
+            GradientStop {color: "#373737" ; position: 1.0}
+        }
 
-         width: parent.width - 20
-         height: 120
+        id: expressionDialog
 
-         Controls.TextField {
-             id: textField
-             anchors.fill: parent
-             anchors.leftMargin: 4
-             anchors.rightMargin: 4
-             anchors.topMargin: 4
-             anchors.bottomMargin: 20
-             onAccepted: {
-                 backendValue.expression = textField.text
-                 expressionDialog.visible = false
-             }
-         }
+        onVisibleChanged: {
+            var pos  = itemPane.mapFromItem(extendedFunctionButton.parent, 0, 0);
+            y = pos.y + 2;
+        }
 
-         Row {
-             spacing: 6
+        width: parent.width - 20
+        height: 120
 
-         Controls.Button {
-             text: "Apply"
-             iconSource: "images/apply.png"
-             onClicked: {
-                 backendValue.expression = textField.text
-                 expressionDialog.visible = false
-             }
-         }
-         Controls.Button {
-             text: "Cancel"
-             iconSource: "images/cancel.png"
-             onClicked: {
-                 expressionDialog.visible = false
-             }
-         }
-         anchors.right: parent.right
-         anchors.bottom: parent.bottom
-         }
-     }
+        Controls.TextField {
+            id: textField
+            anchors.fill: parent
+            anchors.leftMargin: 4
+            anchors.rightMargin: 4
+            anchors.topMargin: 4
+            anchors.bottomMargin: 20
+            onAccepted: {
+                backendValue.expression = textField.text
+                expressionDialog.visible = false
+            }
+
+            style: TextFieldStyle {
+                textColor: Constants.colorsDefaultText
+                padding.top: 3
+                padding.bottom: 1
+                padding.left: 16
+                placeholderTextColor: "gray"
+                background: Rectangle {
+                    implicitWidth: 100
+                    implicitHeight: 23
+                    radius: 3
+                    gradient: Gradient {
+                        GradientStop {color: "#2c2c2c" ; position: 0}
+                        GradientStop {color: "#343434" ; position: 0.15}
+                        GradientStop {color: "#373737" ; position: 1.0}
+                    }
+                }
+            }
+        }
+
+        Row {
+            spacing: 0
+            Button {
+                style: ButtonStyle {
+                    background: Image {
+                        source: "images/apply.png"
+                        Rectangle {
+                            opacity:  control.pressed ? 0.5 : 0
+                            anchors.fill: parent
+                            gradient: Gradient {
+                                GradientStop {color: "#606060" ; position: 0}
+                                GradientStop {color: "#404040" ; position: 0.07}
+                                GradientStop {color: "#303030" ; position: 1}
+                            }
+                        }
+                    }
+                }
+                onClicked: {
+                    backendValue.expression = textField.text
+                    expressionDialog.visible = false
+                }
+            }
+            Button {
+                style: ButtonStyle {
+                    background: Image {
+                        source: "images/cancel.png"
+
+                        Rectangle {
+                            opacity:  control.pressed ? 0.5 : 0
+                            anchors.fill: parent
+                            gradient: Gradient {
+                                GradientStop {color: "#606060" ; position: 0}
+                                GradientStop {color: "#404040" ; position: 0.07}
+                                GradientStop {color: "#303030" ; position: 1}
+                            }
+                        }
+                    }
+                }
+                onClicked: {
+                    expressionDialog.visible = false
+                }
+            }
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+        }
+    }
 
 }
