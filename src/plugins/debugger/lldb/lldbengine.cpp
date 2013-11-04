@@ -188,6 +188,7 @@ void LldbEngine::setupInferior()
     cmd.arg("platform", sp.platform);
     runCommand(cmd);
     requestUpdateWatchers();
+    updateLocals(); // update display options
 }
 
 void LldbEngine::runEngine()
