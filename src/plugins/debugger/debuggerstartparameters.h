@@ -71,10 +71,10 @@ public:
         useContinueInsteadOfRun(false),
         startMode(NoStartMode),
         closeMode(KillAtClose),
+        useCtrlCStub(false),
         testReceiver(0),
         testCallback(0),
-        testCase(0),
-        useCtrlCStub(false)
+        testCase(0)
     {}
 
     //Core::Id profileId;
