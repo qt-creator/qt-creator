@@ -85,7 +85,7 @@ void DesktopProcessSignalOperation::appendMsgCannotKill(int pid, const QString &
 {
     if (!m_errorMessage.isEmpty())
         m_errorMessage += QChar::fromLatin1('\n');
-    m_errorMessage += tr("Cannot kill process with pid %1: %3").arg(pid).arg(why);
+    m_errorMessage += tr("Cannot kill process with pid %1: %2").arg(pid).arg(why);
     m_errorMessage += QLatin1Char(' ');
 }
 
@@ -93,7 +93,7 @@ void DesktopProcessSignalOperation::appendMsgCannotInterrupt(int pid, const QStr
 {
     if (!m_errorMessage.isEmpty())
         m_errorMessage += QChar::fromLatin1('\n');
-    m_errorMessage += tr("Cannot interrupt process with pid %1: %3").arg(pid).arg(why);
+    m_errorMessage += tr("Cannot interrupt process with pid %1: %2").arg(pid).arg(why);
     m_errorMessage += QLatin1Char(' ');
 }
 
