@@ -213,6 +213,7 @@ IosDeviceManager::TranslationMap IosDeviceManager::translationMap()
         return *translationMap;
     TranslationMap &tMap = *new TranslationMap;
     tMap[QLatin1String("deviceName")]      = tr("Device name");
+    //: Whether the device is in developer mode.
     tMap[QLatin1String("developerStatus")] = tr("Developer status");
     tMap[QLatin1String("deviceConnected")] = tr("Connected");
     tMap[QLatin1String("YES")]             = tr("yes");
