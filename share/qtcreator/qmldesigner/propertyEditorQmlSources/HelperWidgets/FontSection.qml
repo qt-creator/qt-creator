@@ -75,10 +75,9 @@ Section {
         Label {
             text: qsTr("Font")
         }
-        ComboBox {
-            backendValue: backendValues.fontFamily
+        FontComboBox {
+            backendValue: fontFamily
             Layout.fillWidth: true
-            model: ["Arial", "Times New Roman", "Courier", "Verdana", "Tahoma"]
         }
 
         Label {
