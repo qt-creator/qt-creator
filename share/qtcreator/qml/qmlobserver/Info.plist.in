@@ -25,8 +25,7 @@ version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 Other Usage
 
 Alternatively, this file may be used in accordance with the terms and
-conditions contained in a signed written agreement between you and Digia.
-
+conditions contained in a signed written agreement between you and Digia.</string>
 	<key>CFBundleIconFile</key>
 	<string>@ICON@</string>
 	<key>CFBundleIdentifier</key>
