@@ -1695,6 +1695,7 @@ def testit():
 
     db.debugger.SetAsync(False)
     db.expandedINames = set(sys.argv[3].split(','))
+    db.passExceptions = True
 
     db.setupInferior({'cmd':'setupInferior','executable':sys.argv[2],'token':1})
     db.handleBreakpoints({'cmd':'handleBreakpoints','bkpts':[{'operation':'add',
