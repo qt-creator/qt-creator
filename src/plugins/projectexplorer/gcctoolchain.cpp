@@ -939,9 +939,12 @@ QStringList GccToolChainConfigWidget::splitString(const QString &s)
 
 void GccToolChainConfigWidget::handleCompilerCommandChange()
 {
+    bool haveCompiler = false;
+    Abi currentAbi = m_abiWidget->currentAbi();
+    bool customAbi = m_abiWidget->isCustomAbi();
     FileName path = m_compilerCommand->fileName();
     QList<Abi> abiList;
-    bool haveCompiler = false;
+
     if (!path.isEmpty()) {
         QFileInfo fi(path.toFileInfo());
         haveCompiler = fi.isExecutable() && fi.isFile();
@@ -955,8 +958,15 @@ void GccToolChainConfigWidget::handleCompilerCommandChange()
                               splitString(m_platformCodeGenFlagsLineEdit->text()));
     }
     m_abiWidget->setEnabled(haveCompiler);
-    Abi currentAbi = m_abiWidget->currentAbi();
-    m_abiWidget->setAbis(abiList, abiList.contains(currentAbi) ? currentAbi : Abi());
+
+    // Find a good ABI for the new compiler:
+    Abi newAbi;
+    if (customAbi)
+        newAbi = currentAbi;
+    else if (abiList.contains(currentAbi))
+        newAbi = currentAbi;
+
+    m_abiWidget->setAbis(abiList, newAbi);
     emit dirty();
 }
 
