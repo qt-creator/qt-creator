@@ -52,6 +52,11 @@ namespace Internal {
 class AbiWidgetPrivate
 {
 public:
+    bool isCustom() const
+    {
+        return m_abi->currentIndex() == 0;
+    }
+
     QComboBox *m_abi;
 
     QComboBox *m_architectureComboBox;
@@ -168,7 +173,7 @@ void AbiWidget::setAbis(const QList<Abi> &abiList, const Abi &current)
     }
 
     d->m_abi->setVisible(!abiList.isEmpty());
-    if (d->m_abi->currentIndex() == 0) {
+    if (d->isCustom()) {
         if (!current.isValid() && !abiList.isEmpty())
             d->m_abi->setCurrentIndex(1); // default to the first Abi if none is selected.
         else
@@ -199,15 +204,14 @@ void AbiWidget::osChanged()
 
 void AbiWidget::modeChanged()
 {
-    const bool customMode = (d->m_abi->currentIndex() == 0);
+    const bool customMode = d->isCustom();
     d->m_architectureComboBox->setEnabled(customMode);
     d->m_osComboBox->setEnabled(customMode);
     d->m_osFlavorComboBox->setEnabled(customMode);
     d->m_binaryFormatComboBox->setEnabled(customMode);
     d->m_wordWidthComboBox->setEnabled(customMode);
 
-    Abi current(d->m_abi->itemData(d->m_abi->currentIndex()).toString());
-    setCustomAbi(current);
+    setCustomAbi(currentAbi());
 }
 
 void AbiWidget::customAbiChanged()
@@ -244,7 +248,7 @@ void AbiWidget::setCustomAbi(const Abi &current)
             break;
         }
     }
-    if (d->m_abi->currentIndex() == 0)
+    if (d->isCustom())
         d->m_abi->setItemData(0, current.toString());
     blockSignals(blocked);
 
