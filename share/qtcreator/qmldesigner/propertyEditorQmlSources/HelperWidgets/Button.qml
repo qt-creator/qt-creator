@@ -41,6 +41,7 @@
 import QtQuick 2.1
 import QtQuick.Controls 1.1 as Controls
 import QtQuick.Controls.Styles 1.1
+import "Constants.js" as Constants
 
 Controls.Button {
     property color borderColor: "#222"
@@ -48,7 +49,7 @@ Controls.Button {
     property color textColor: "#eee"
     style: ButtonStyle {
         label: Text {
-            color: CreatorStyle.textColor
+            color: Constants.colorsDefaultText
             anchors.fill: parent
             renderType: Text.NativeRendering
             verticalAlignment: Text.AlignVCenter
