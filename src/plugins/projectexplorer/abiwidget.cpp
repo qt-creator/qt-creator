@@ -146,7 +146,7 @@ AbiWidget::~AbiWidget()
 
 void AbiWidget::setAbis(const QList<Abi> &abiList, const Abi &current)
 {
-    blockSignals(true);
+    bool blocked = blockSignals(true);
     d->m_abi->clear();
 
     d->m_abi->addItem(tr("<custom>"), QLatin1String("custom"));
@@ -168,7 +168,7 @@ void AbiWidget::setAbis(const QList<Abi> &abiList, const Abi &current)
     }
     modeChanged();
 
-    blockSignals(false);
+    blockSignals(blocked);
 }
 
 Abi AbiWidget::currentAbi() const
@@ -185,14 +185,14 @@ Abi AbiWidget::currentAbi() const
 
 void AbiWidget::osChanged()
 {
-    d->m_osFlavorComboBox->blockSignals(true);
+    bool blocked = d->m_osFlavorComboBox->blockSignals(true);
     d->m_osFlavorComboBox->clear();
     Abi::OS os = static_cast<Abi::OS>(d->m_osComboBox->itemData(d->m_osComboBox->currentIndex()).toInt());
     QList<Abi::OSFlavor> flavors = Abi::flavorsForOs(os);
     foreach (Abi::OSFlavor f, flavors)
         d->m_osFlavorComboBox->addItem(Abi::toString(f), static_cast<int>(f));
     d->m_osFlavorComboBox->setCurrentIndex(0); // default to generic flavor
-    d->m_osFlavorComboBox->blockSignals(false);
+    d->m_osFlavorComboBox->blockSignals(blocked);
 
     emit abiChanged();
 }
