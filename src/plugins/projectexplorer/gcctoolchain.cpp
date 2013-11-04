@@ -372,8 +372,13 @@ QByteArray GccToolChain::predefinedMacros(const QStringList &cxxflags) const
     Environment env = Environment::systemEnvironment();
     addToEnvironment(env);
     QStringList arguments = gccPredefinedMacrosOptions();
-    foreach (const QString &a, allCxxflags) {
-        if (a == QLatin1String("-m128bit-long-double") || a == QLatin1String("-m32")
+    for (int iArg = 0; iArg < allCxxflags.length(); ++iArg) {
+        const QString &a = allCxxflags.at(iArg);
+        if (a == QLatin1String("-arch") || a == QLatin1String("-sysroot")
+                || a == QLatin1String("-isysroot")) {
+            if (++iArg < allCxxflags.length())
+                arguments << a << allCxxflags.at(iArg);
+        } else if (a == QLatin1String("-m128bit-long-double") || a == QLatin1String("-m32")
                 || a == QLatin1String("-m3dnow") || a == QLatin1String("-m3dnowa")
                 || a == QLatin1String("-m64") || a == QLatin1String("-m96bit-long-double")
                 || a == QLatin1String("-mabm") || a == QLatin1String("-maes")
