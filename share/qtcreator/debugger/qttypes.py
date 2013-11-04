@@ -1723,13 +1723,27 @@ def qdump__QTextDocument(d, value):
 
 def qdump__QUrl(d, value):
     if d.qtVersion() < 0x050000:
-        if not d.dereferenceValue(value):
+        privAddress = d.dereferenceValue(value)
+        if not privAddress:
             # d == 0 if QUrl was constructed with default constructor
             d.putValue("<invalid>")
             return
-        data = value["d"].dereference()
-        d.putByteArrayValue(data["encodedOriginal"])
-        d.putPlainChildren(data)
+        encodedOriginalAddress = privAddress + 8 * d.ptrSize()
+        d.putValue(d.encodeByteArrayHelper(d.dereference(encodedOriginalAddress)), Hex2EncodedLatin1)
+        d.putNumChild(8)
+        if d.isExpanded():
+            stringType = d.lookupType(d.qtNamespace() + "QString")
+            baType = d.lookupType(d.qtNamespace() + "QByteArray")
+            with Children(d):
+                # Qt 4 only decodes the original string if some detail is requested
+                d.putCallItem("scheme", value, "scheme")
+                d.putCallItem("userName", value, "userName")
+                d.putCallItem("password", value, "password")
+                d.putCallItem("host", value, "host")
+                d.putCallItem("path", value, "path")
+                d.putCallItem("query", value, "encodedQuery")
+                d.putCallItem("fragment", value, "fragment")
+                d.putCallItem("port", value, "port")
     else:
         # QUrlPrivate:
         # - QAtomicInt ref;

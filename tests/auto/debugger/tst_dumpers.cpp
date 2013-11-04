@@ -3290,14 +3290,15 @@ void tst_Dumpers::dumper_data()
                     "unused(&url);\n")
                % CoreProfile()
                % Check("url", UnsubstitutedValue("\"http://foo@qt-project.org:10/have_fun\""), "@QUrl")
-               % Check("url.port", Value5("10"), "int")
-               % Check("url.scheme", Value5("\"http\""), "@QString")
-               % Check("url.userName", Value5("\"foo\""), "@QString")
-               % Check("url.password", Value5("\"\""), "@QString")
-               % Check("url.host", Value5("\"qt-project.org\""), "@QString")
-               % Check("url.path", Value5("\"/have_fun\""), "@QString")
-               //% Check("url.query", Value5("\"\""), "@QString")  That's a QByteArray in Qt 4
-               % Check("url.fragment", Value5("\"\""), "@QString");
+               % Check("url.port", "10", "int")
+               % Check("url.scheme", "\"http\"", "@QString")
+               % Check("url.userName", "\"foo\"", "@QString")
+               % Check("url.password", "\"\"", "@QString")
+               % Check("url.host", "\"qt-project.org\"", "@QString")
+               % Check("url.path", "\"/have_fun\"", "@QString")
+               % Check("url.query", "\"\"", Type4("@QByteArray"))
+               % Check("url.query", "\"\"", Type5("@QString"))
+               % Check("url.fragment", "\"\"", "@QString");
 
     QTest::newRow("QStringQuotes")
             << Data("#include <QString>\n",
