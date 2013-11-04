@@ -72,6 +72,16 @@ const Import ImportLabel::import() const
     return m_import;
 }
 
+void ImportLabel::setReadOnly(bool readOnly) const
+{
+    m_removeButton->setDisabled(readOnly);
+    if (readOnly) {
+         m_removeButton->setIcon(QIcon());
+    } else {
+         m_removeButton->setIcon(QIcon(Core::Constants::ICON_CLOSE_DOCUMENT));
+    }
+}
+
 void ImportLabel::emitRemoveImport()
 {
     emit removeImport(m_import);

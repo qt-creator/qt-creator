@@ -45,6 +45,7 @@ public:
 
     void setImport(const Import &import);
     const Import import() const;
+    void setReadOnly(bool) const;
 
 signals:
     void removeImport(const Import &import);

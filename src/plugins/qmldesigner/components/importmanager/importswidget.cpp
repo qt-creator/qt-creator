@@ -78,7 +78,7 @@ void ImportsWidget::removePossibleImports()
 void ImportsWidget::setUsedImports(const QList<Import> &usedImports)
 {
     foreach (ImportLabel *importLabel, m_importLabels)
-        importLabel->setDisabled(usedImports.contains(importLabel->import()));
+        importLabel->setReadOnly(usedImports.contains(importLabel->import()));
 
 }
 
