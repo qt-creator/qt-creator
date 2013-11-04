@@ -156,7 +156,6 @@ QString QMakeStep::allArguments(bool shorted)
 
 ///
 /// moreArguments,
-/// -unix for Maemo
 /// iphoneos/iphonesimulator for ios
 /// QMAKE_VAR_QMLJSDEBUGGER_PATH
 QStringList QMakeStep::deducedArguments()
