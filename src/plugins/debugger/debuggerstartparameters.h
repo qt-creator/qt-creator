@@ -38,6 +38,7 @@
 #include <utils/environment.h>
 #include <projectexplorer/abi.h>
 #include <projectexplorer/kit.h>
+#include <projectexplorer/devicesupport/idevice.h>
 
 #include <QMetaType>
 
@@ -86,6 +87,7 @@ public:
     QString sysRoot;
     QString debuggerCommand;
     ProjectExplorer::Abi toolChainAbi;
+    ProjectExplorer::IDevice::ConstPtr device;
 
     QString platform;
     QString executable;

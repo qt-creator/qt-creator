@@ -37,6 +37,8 @@
 
 #include <coreplugin/id.h>
 
+#include <projectexplorer/devicesupport/idevice.h>
+
 #include <QProcess>
 #include <QTextCodec>
 #include <QTime>
@@ -251,6 +253,7 @@ protected: ////////// Gdb Process Management //////////
     void handleAdapterCrashed(const QString &msg);
 
 private slots:
+    void handleInterruptDeviceInferior(const QString &error);
     void handleGdbFinished(int, QProcess::ExitStatus status);
     void handleGdbError(QProcess::ProcessError error);
     void readGdbStandardOutput();
@@ -727,6 +730,7 @@ protected:
     void interruptLocalInferior(qint64 pid);
 
     GdbProcess *m_gdbProc;
+    ProjectExplorer::DeviceProcessSignalOperation::Ptr m_signalOperation;
 };
 
 

@@ -65,8 +65,9 @@
 #include <debugger/shared/hostutils.h>
 
 #include <coreplugin/icore.h>
-#include <projectexplorer/taskhub.h>
+#include <projectexplorer/devicesupport/deviceprocess.h>
 #include <projectexplorer/itaskhandler.h>
+#include <projectexplorer/taskhub.h>
 #include <texteditor/itexteditor.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -840,8 +841,33 @@ void GdbEngine::interruptInferior()
     } else {
         showStatusMessage(tr("Stop requested..."), 5000);
         showMessage(_("TRYING TO INTERRUPT INFERIOR"));
-        interruptInferior2();
+        if (Utils::HostOsInfo::isWindowsHost() && !m_isQnxGdb) {
+            QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state(); notifyInferiorStopFailed());
+            QTC_ASSERT(!m_signalOperation, notifyInferiorStopFailed());
+            m_signalOperation = startParameters().device->signalOperation();
+            QTC_ASSERT(m_signalOperation, notifyInferiorStopFailed());
+            connect(m_signalOperation.data(), SIGNAL(finished(QString)),
+                    SLOT(handleInterruptDeviceInferior(QString)));
+
+            m_signalOperation->setDebuggerCommand(startParameters().debuggerCommand);
+            m_signalOperation->interruptProcess(inferiorPid());
+        } else {
+            interruptInferior2();
+        }
     }
+}
+
+void GdbEngine::handleInterruptDeviceInferior(const QString &error)
+{
+    if (error.isEmpty()) {
+        showMessage(QLatin1String("Interrupted ") + QString::number(inferiorPid()));
+        notifyInferiorStopOk();
+    } else {
+        showMessage(error, LogError);
+        notifyInferiorStopFailed();
+    }
+    m_signalOperation->disconnect(this);
+    m_signalOperation.clear();
 }
 
 void GdbEngine::interruptInferiorTemporarily()
