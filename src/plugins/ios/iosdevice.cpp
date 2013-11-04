@@ -84,7 +84,7 @@ IosDevice::IosDevice()
                              IDevice::Hardware,
                              Constants::IOS_DEVICE_ID)
 {
-    setDisplayName(QCoreApplication::translate("Ios::Internal::IosDevice", "iOS Device"));
+    setDisplayName(IosDevice::name());
     setDeviceState(DeviceStateUnknown);
 }
 
@@ -98,7 +98,7 @@ IosDevice::IosDevice(const QString &uid)
                              IDevice::Hardware,
                              Core::Id(Constants::IOS_DEVICE_ID).withSuffix(uid))
 {
-    setDisplayName(QCoreApplication::translate("Ios::Internal::IosDevice", "iOS Device"));
+    setDisplayName(IosDevice::name());
     setDeviceState(DeviceStateUnknown);
 }
 
@@ -182,6 +182,12 @@ QString IosDevice::uniqueDeviceID() const
 {
     return id().suffixAfter(Core::Id(Constants::IOS_DEVICE_ID));
 }
+
+QString IosDevice::name()
+{
+    return QCoreApplication::translate("Ios::Internal::IosDevice", "iOS Device");
+}
+
 /*
 // add back?
 

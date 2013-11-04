@@ -68,6 +68,9 @@ public:
     // add back? currently unused...
     //QString cpuArchitecure() const;
     //QString productType() const;
+
+    static QString name();
+
 protected:
     friend class IosDeviceFactory;
     friend class Ios::Internal::IosDeviceManager;

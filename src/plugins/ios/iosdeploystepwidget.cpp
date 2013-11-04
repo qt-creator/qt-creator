@@ -55,9 +55,7 @@ IosDeployStepWidget::~IosDeployStepWidget()
 
 QString IosDeployStepWidget::displayName() const
 {
-    QString deviceName = tr("iOS Device");
-    if (!m_step->device().isNull())
-        deviceName = m_step->device()->displayName();
+    const QString deviceName = m_step->device().isNull() ? IosDevice::name() : m_step->device()->displayName();
     return tr("<b>Deploy to %1</b>").arg(deviceName);
 }
 

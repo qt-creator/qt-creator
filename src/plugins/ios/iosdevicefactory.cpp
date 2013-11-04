@@ -42,9 +42,7 @@ IosDeviceFactory::IosDeviceFactory()
 
 QString IosDeviceFactory::displayNameForId(Core::Id type) const
 {
-    if (type == Constants::IOS_DEVICE_TYPE)
-        return tr("iOS Device");
-    return QString();
+    return type == Constants::IOS_DEVICE_TYPE ? IosDevice::name() : QString();
 }
 
 QList<Core::Id> IosDeviceFactory::availableCreationIds() const

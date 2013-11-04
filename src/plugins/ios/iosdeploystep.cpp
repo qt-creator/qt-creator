@@ -76,11 +76,7 @@ void IosDeployStep::ctor()
 {
     m_transferStatus = NoTransfer;
     m_device = ProjectExplorer::DeviceKitInformation::device(target()->kit());
-    QString devName;
-    if (!m_device.isNull())
-        devName = m_device->displayName();
-    if (devName.isEmpty())
-        devName = tr("iOS device");
+    const QString devName = m_device.isNull() ? IosDevice::name() : m_device->displayName();
     setDefaultDisplayName(tr("Deploy to %1").arg(devName));
 }
 
