@@ -70,8 +70,6 @@ signals:
     void errorMsg(const QString &msg);
     void finished(bool cleanExit);
 private slots:
-    void warnAboutRunFail();
-    void warnAboutDeployFail();
     void handleDidStartApp(Ios::IosToolHandler *handler, const QString &bundlePath,
                            const QString &deviceId, Ios::IosToolHandler::OpStatus status);
     void handleGotGdbserverPort(Ios::IosToolHandler *handler, const QString &bundlePath,
