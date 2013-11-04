@@ -650,6 +650,7 @@ void QmakeProject::update()
     m_asyncUpdateState = Base;
     enableActiveQmakeBuildConfiguration(activeTarget(), true);
     updateBuildSystemData();
+    activeTarget()->updateDefaultDeployConfigurations();
     updateRunConfigurations();
     emit proFilesEvaluated();
 }
