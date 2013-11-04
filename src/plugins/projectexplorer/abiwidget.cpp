@@ -184,6 +184,14 @@ void AbiWidget::setAbis(const QList<Abi> &abiList, const Abi &current)
     blockSignals(blocked);
 }
 
+QList<Abi> AbiWidget::supportedAbis() const
+{
+    QList<Abi> result;
+    for (int i = 1; i < d->m_abi->count(); ++i)
+        result << Abi(d->m_abi->itemData(i).toString());
+    return result;
+}
+
 Abi AbiWidget::currentAbi() const
 {
     return Abi(d->m_abi->itemData(d->m_abi->currentIndex()).toString());
