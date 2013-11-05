@@ -1306,7 +1306,7 @@ class Dumper(DumperBase):
                 % binascii.hexlify(msg))
         elif type == lldb.SBProcess.eBroadcastBitSTDERR:
             msg = self.process.GetSTDERR(1024)
-            self.report('output={channel="stdout",data="%s"}'
+            self.report('output={channel="stderr",data="%s"}'
                 % binascii.hexlify(msg))
         elif type == lldb.SBProcess.eBroadcastBitProfileData:
             pass
