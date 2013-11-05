@@ -35,8 +35,7 @@
 
         \li \l {Creating Qt Quick Projects}
 
-            You can either create Qt Quick projects from scratch or import
-            existing projects to \QC.
+            You can use wizards to create Qt Quick projects.
         \li \l {Using Qt Quick Designer}
 
             You can use the code editor (Edit mode) or the visual editor (Design

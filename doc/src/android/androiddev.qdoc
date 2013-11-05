@@ -106,8 +106,7 @@
 
         \li To create an application, select \gui File >
             \gui {New File or Project} > \gui Applications >
-            \gui {Qt Quick Application 1 (Built-in Elements)} or
-            \gui {Qt Quick Application 2 (Built-in Elements)} > \gui Choose, and
+            \gui {Qt Quick Application} > \gui Choose, and
             follow the instructions of the wizard. For more information, see
             \l{Creating Qt Quick Projects}.
 
@@ -149,7 +148,7 @@
             warning if it cannot find a suitable Qt version.
 
         \li Select \gui File > \gui {New File or Project} > \gui Applications >
-            \gui {Qt Quick Application 2 (Built-in Elements)} > \gui Choose, and
+            \gui {Qt Quick Application} > \gui Choose, and
             follow the instructions of the wizard. For more information, see
             \l{Creating Qt Quick Projects}.
 

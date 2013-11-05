@@ -39,8 +39,8 @@
 
         \li \l{Developing Qt Quick Applications}
 
-            You can either create Qt Quick projects from scratch or import
-            existing projects to \QC. You can use the code editor (Edit mode)
+            You can use wizards to create Qt Quick projects that contain
+            boiler-plate code. You can use the code editor (Edit mode)
             or the visual editor (Design mode) to develop Qt Quick applications.
         \li \l{Developing Widget Based Applications}
 
