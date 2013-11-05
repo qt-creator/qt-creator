@@ -182,7 +182,7 @@ void GdbRemoteServerEngine::setupInferior()
 
     //const QByteArray sysroot = sp.sysroot.toLocal8Bit();
     //const QByteArray remoteArch = sp.remoteArchitecture.toLatin1();
-    const QString args = sp.processArgs;
+    const QString args = isMasterEngine() ? startParameters().processArgs : masterEngine()->startParameters().processArgs;
 
 //    if (!remoteArch.isEmpty())
 //        postCommand("set architecture " + remoteArch);
