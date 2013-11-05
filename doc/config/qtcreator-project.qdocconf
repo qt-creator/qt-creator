@@ -7,7 +7,10 @@ imagedirs = $SRCDIR/images $SRCDIR/templates/images
 outputdir = $OUTDIR
 exampledirs = $SRCDIR/examples \
               $SRCDIR/snippets
-indexes                 = qt.index
+indexes +=    $QT_INSTALL_DOCS/qtwidgets/qtwidgets.index \
+              $QT_INSTALL_DOCS/qtcore/qtcore.index \
+              $QT_INSTALL_DOCS/qtqml/qtqml.index \
+              $QT_INSTALL_DOCS/qtquick/qtquick.index
 
 include(macros.qdocconf)
 include(qt-cpp-ignore.qdocconf)
