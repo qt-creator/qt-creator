@@ -443,6 +443,7 @@ bool GenericProposalWidget::updateAndCheck(const QString &prefix)
     if (d->m_model->size() == 0
             || (!d->m_model->keepPerfectMatch(d->m_reason)
                 && isPerfectMatch(prefix, d->m_model))) {
+        d->m_completionListView->reset();
         abort();
         return false;
     }
@@ -474,6 +475,7 @@ bool GenericProposalWidget::updateAndCheck(const QString &prefix)
         if (d->m_model->size() == 1) {
             IAssistProposalItem *item = d->m_model->proposalItem(0);
             if (item->implicitlyApplies()) {
+                d->m_completionListView->reset();
                 abort();
                 emit proposalItemActivated(item);
                 return false;
