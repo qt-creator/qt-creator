@@ -170,6 +170,11 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
         if (QWidget *w = pk->createWidget(this))
             m_potentialWidgets.append(w);
 
+    m_baseLayout->addWidget(m_importWidget);
+    foreach (QWidget *widget, m_potentialWidgets)
+        m_baseLayout->addWidget(widget);
+    m_baseLayout->addItem(m_spacer);
+
     QObject *km = KitManager::instance();
     connect(km, SIGNAL(kitAdded(ProjectExplorer::Kit*)),
             this, SLOT(handleKitAddition(ProjectExplorer::Kit*)));
@@ -183,11 +188,6 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
 
 void TargetSetupPage::initializePage()
 {
-    m_baseLayout->addWidget(m_importWidget);
-    foreach (QWidget *widget, m_potentialWidgets)
-        m_baseLayout->addWidget(widget);
-    m_baseLayout->addItem(m_spacer);
-
     reset();
 
     setupWidgets();
