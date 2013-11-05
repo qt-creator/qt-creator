@@ -298,7 +298,9 @@ void NavigatorTreeModel::updateItemRowOrder(const NodeListProperty &listProperty
     } else {
         parentIdItem = itemRow.idItem->parent();
     }
-    Q_ASSERT(parentIdItem);
+
+    if (!parentIdItem) //### Items without a parent should not exist
+        return;
 
     if (currentRow != newRow) {
         QList<QStandardItem*> items = parentIdItem->takeRow(currentRow);
