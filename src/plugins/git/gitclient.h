@@ -197,8 +197,7 @@ public:
     bool synchronousStashRestore(const QString &workingDirectory,
                                  const QString &stash,
                                  bool pop = false,
-                                 const QString &branch = QString(),
-                                 QString *errorMessage = 0);
+                                 const QString &branch = QString());
     bool synchronousStashRemove(const QString &workingDirectory,
                                 const QString &stash = QString(),
                                 QString *errorMessage = 0);
