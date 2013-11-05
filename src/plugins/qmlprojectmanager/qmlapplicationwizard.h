@@ -42,18 +42,19 @@ namespace Internal {
 
 class QmlApp;
 class TemplateInfo;
+class QmlComponentSetPage;
 
 class QmlApplicationWizardDialog : public ProjectExplorer::BaseProjectWizardDialog
 {
     Q_OBJECT
 public:
-    QmlApplicationWizardDialog(QmlApp *qmlApp, QWidget *parent,
+    QmlApplicationWizardDialog(QWidget *parent,
                                const Core::WizardDialogParameters &parameters);
 
-    QmlApp *qmlApp() const;
+    TemplateInfo templateInfo() const;
 
 private:
-    QmlApp *m_qmlApp;
+    QmlComponentSetPage *m_componentSetPage;
 };
 
 
@@ -62,7 +63,7 @@ class QmlApplicationWizard : public Core::BaseFileWizard
     Q_OBJECT
 
 public:
-    explicit QmlApplicationWizard(const TemplateInfo &templateInfo);
+    explicit QmlApplicationWizard();
 
     static void createInstances(ExtensionSystem::IPlugin *plugin);
 
@@ -74,7 +75,6 @@ private:
     bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage);
 
 private:
-//    mutable QString m_id;
     QmlApp *m_qmlApp;
 };
 

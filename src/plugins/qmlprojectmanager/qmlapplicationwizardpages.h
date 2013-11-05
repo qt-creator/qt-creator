@@ -27,55 +27,34 @@
 **
 ****************************************************************************/
 
-#include "qmlprojectplugin.h"
-#include "qmlprojectmanager.h"
-#include "qmlproject.h"
-#include "qmlprojectrunconfigurationfactory.h"
-#include "qmlapplicationwizard.h"
-#include "fileformat/qmlprojectfileformat.h"
+#ifndef QMLAPPLICATIONWIZARDPAGES_H
+#define QMLAPPLICATIONWIZARDPAGES_H
 
-#include <coreplugin/fileiconprovider.h>
-#include <coreplugin/icore.h>
-#include <coreplugin/mimedatabase.h>
-
-#include <qtsupport/qtsupportconstants.h>
-
-#include <QtPlugin>
-
-#include <QApplication>
-#include <QMessageBox>
-#include <QPushButton>
+#include <QWizardPage>
 
 namespace QmlProjectManager {
+namespace Internal {
 
-QmlProjectPlugin::QmlProjectPlugin()
-{ }
+class TemplateInfo;
 
-QmlProjectPlugin::~QmlProjectPlugin()
+class QmlComponentSetPage : public QWizardPage
 {
-}
+    Q_OBJECT
 
-bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
-{
-    using namespace Core;
+public:
+    explicit QmlComponentSetPage(QWidget *parent = 0);
+    ~QmlComponentSetPage();
 
-    const QLatin1String mimetypesXml(":/qmlproject/QmlProjectManager.mimetypes.xml");
+    TemplateInfo templateInfo() const;
 
-    if (!MimeDatabase::addMimeTypes(mimetypesXml, errorMessage))
-        return false;
+private slots:
+    void updateDescription(int index);
 
-    addAutoReleasedObject(new Internal::Manager);
-    addAutoReleasedObject(new Internal::QmlProjectRunConfigurationFactory);
-    addAutoReleasedObject(new Internal::QmlApplicationWizard);
+private:
+    class QmlComponentSetPagePrivate *d;
+};
 
-    FileIconProvider::registerIconOverlayForSuffix(":/qmlproject/images/qmlproject.png", "qmlproject");
-    return true;
-}
-
-void QmlProjectPlugin::extensionsInitialized()
-{
-}
-
+} // namespace Internal
 } // namespace QmlProjectManager
 
-Q_EXPORT_PLUGIN(QmlProjectManager::QmlProjectPlugin)
+#endif // QMLAPPLICATIONWIZARDPAGES_H

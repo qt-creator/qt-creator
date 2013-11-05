@@ -41,6 +41,7 @@
 
 #include "qmlprojectmanager.h"
 #include "qmlproject.h"
+#include "qmlapplicationwizardpages.h"
 
 #include <QIcon>
 
@@ -52,20 +53,23 @@ using namespace QmakeProjectManager;
 namespace QmlProjectManager {
 namespace Internal {
 
-QmlApplicationWizardDialog::QmlApplicationWizardDialog(QmlApp *qmlApp, QWidget *parent, const WizardDialogParameters &parameters)
-    : BaseProjectWizardDialog(parent, parameters),
-      m_qmlApp(qmlApp)
+QmlApplicationWizardDialog::QmlApplicationWizardDialog(QWidget *parent, const WizardDialogParameters &parameters)
+    : BaseProjectWizardDialog(parent, parameters)
 {
     setWindowTitle(tr("New Qt Quick UI Project"));
     setIntroDescription(tr("This wizard generates a Qt Quick UI project."));
+    m_componentSetPage = new QmlComponentSetPage;
+    const int pageId = addPage(m_componentSetPage);
+    wizardProgress()->item(pageId)->setTitle(tr("Component Set"));
 }
 
-QmlApp *QmlApplicationWizardDialog::qmlApp() const
+TemplateInfo QmlApplicationWizardDialog::templateInfo() const
 {
-    return m_qmlApp;
+    return m_componentSetPage->templateInfo();
 }
 
-QmlApplicationWizard::QmlApplicationWizard(const TemplateInfo &templateInfo)
+
+QmlApplicationWizard::QmlApplicationWizard()
     : m_qmlApp(new QmlApp(this))
 {
     setWizardKind(ProjectWizard);
@@ -74,47 +78,14 @@ QmlApplicationWizard::QmlApplicationWizard(const TemplateInfo &templateInfo)
     setIcon(QIcon(QLatin1String(QmakeProjectManager::Constants::ICON_QTQUICK_APP)));
     setDisplayCategory(
          QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY_DISPLAY));
-    setDisplayName(tr("Qt Quick Application"));
-    setDescription(tr("Creates a Qt Quick application project."));
-
-    m_qmlApp->setTemplateInfo(templateInfo);
-}
-
-void QmlApplicationWizard::createInstances(ExtensionSystem::IPlugin *plugin)
-{
-    foreach (const TemplateInfo &templateInfo, QmlApp::templateInfos()) {
-        QmlApplicationWizard *wizard = new QmlApplicationWizard(templateInfo);
-        wizard->setDisplayName(templateInfo.displayName);
-        wizard->setDescription(templateInfo.description);
-        const QString imagePath = templateInfo.templatePath + QLatin1String("/template.png");
-        if (QFileInfo(imagePath).exists())
-            wizard->setDescriptionImage(imagePath);
-        wizard->setCategory(
-                    QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY));
-        wizard->setDisplayCategory(
-                    QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY_DISPLAY));
-        wizard->setWizardKind(IWizard::ProjectWizard);
-        wizard->setId(templateInfo.wizardId);
-
-        QStringList stringList =
-                templateInfo.featuresRequired.split(QLatin1Char(','), QString::SkipEmptyParts);
-        FeatureSet features;
-        foreach (const QString &string, stringList) {
-            Feature feature(Id::fromString(string.trimmed()));
-            features |= feature;
-        }
-
-        wizard->setRequiredFeatures(features);
-        wizard->setIcon(QIcon(QLatin1String(QmakeProjectManager::Constants::ICON_QTQUICK_APP)));
-        plugin->addAutoReleasedObject(wizard);
-    }
+    setDisplayName(tr("Qt Quick UI"));
+    setDescription(tr("Creates a Qt Quick UI project."));
 }
 
 QWizard *QmlApplicationWizard::createWizardDialog(QWidget *parent,
     const WizardDialogParameters &wizardDialogParameters) const
 {
-    QmlApplicationWizardDialog *wizardDialog = new QmlApplicationWizardDialog(m_qmlApp,
-                                                                              parent, wizardDialogParameters);
+    QmlApplicationWizardDialog *wizardDialog = new QmlApplicationWizardDialog(parent, wizardDialogParameters);
 
     connect(wizardDialog, SIGNAL(projectParametersChanged(QString,QString)), m_qmlApp,
         SLOT(setProjectNameAndBaseDirectory(QString,QString)));
@@ -129,9 +100,11 @@ QWizard *QmlApplicationWizard::createWizardDialog(QWidget *parent,
     return wizardDialog;
 }
 
-GeneratedFiles QmlApplicationWizard::generateFiles(const QWizard * /*wizard*/,
-                                                       QString *errorMessage) const
+GeneratedFiles QmlApplicationWizard::generateFiles(const QWizard *w,
+                                                   QString *errorMessage) const
 {
+    const QmlApplicationWizardDialog *wizard = qobject_cast<const QmlApplicationWizardDialog*>(w);
+    m_qmlApp->setTemplateInfo(wizard->templateInfo());
     return m_qmlApp->generateFiles(errorMessage);
 }
 

@@ -50,14 +50,9 @@ static QStringList binaryFiles()
     return result;
 }
 
-QString QmlApp::templateRootDirectory()
+static QString templateRootDirectory()
 {
     return Core::ICore::resourcePath() + QLatin1String("/templates/qml/");
-}
-
-TemplateInfo::TemplateInfo()
-    : priority(5)
-{
 }
 
 QmlApp::QmlApp(QObject *parent)
@@ -100,18 +95,13 @@ QString QmlApp::creatorFileName() const
     return m_creatorFileName;
 }
 
-const TemplateInfo &QmlApp::templateInfo() const
-{
-    return m_templateInfo;
-}
-
 QString QmlApp::templateDirectory() const
 {
     const QDir dir(templateRootDirectory() + m_templateInfo.templateName);
     return QDir::cleanPath(dir.absolutePath());
 }
 
-QStringList QmlApp::templateNames()
+static QStringList templateNames()
 {
     QStringList templateNameList;
     const QDir templateRoot(templateRootDirectory());
@@ -177,7 +167,7 @@ static bool parseTemplateXml(QXmlStreamReader &reader, TemplateInfo *info)
         if (reader.name() == tag_template) {
             info->openFile = reader.attributes().value(attribute_openEditor).toString();
             if (reader.attributes().hasAttribute(attribute_priority))
-                info->priority = reader.attributes().value(attribute_priority).toString().toInt();
+                info->priority = reader.attributes().value(attribute_priority).toString();
 
             if (reader.attributes().hasAttribute(attribute_id))
                 info->wizardId = reader.attributes().value(attribute_id).toString();
@@ -201,24 +191,39 @@ static bool parseTemplateXml(QXmlStreamReader &reader, TemplateInfo *info)
     return true;
 }
 
+class TemplateInfoList
+{
+public:
+    TemplateInfoList()
+    {
+        QMultiMap<QString, TemplateInfo> multiMap;
+        foreach (const QString &templateName, templateNames()) {
+            const QString templatePath = templateRootDirectory() + templateName;
+            QFile xmlFile(templatePath + QLatin1String("/template.xml"));
+            if (!xmlFile.open(QIODevice::ReadOnly)) {
+                qWarning().nospace() << QString::fromLatin1("Cannot open %1").arg(QDir::toNativeSeparators(QFileInfo(xmlFile.fileName()).absoluteFilePath()));
+                continue;
+            }
+            TemplateInfo info;
+            info.templateName = templateName;
+            info.templatePath = templatePath;
+            QXmlStreamReader reader(&xmlFile);
+            if (parseTemplateXml(reader, &info))
+                multiMap.insert(info.priority, info);
+        }
+        m_templateInfoList = multiMap.values();
+    }
+    QList<TemplateInfo> templateInfoList() const { return m_templateInfoList; }
+
+private:
+    QList<TemplateInfo> m_templateInfoList;
+};
+
+Q_GLOBAL_STATIC(TemplateInfoList, templateInfoList)
+
 QList<TemplateInfo> QmlApp::templateInfos()
 {
-    QList<TemplateInfo> result;
-    foreach (const QString &templateName, templateNames()) {
-        const QString templatePath = templateRootDirectory() + templateName;
-        QFile xmlFile(templatePath + QLatin1String("/template.xml"));
-        if (!xmlFile.open(QIODevice::ReadOnly)) {
-            qWarning().nospace() << QString::fromLatin1("Cannot open %1").arg(QDir::toNativeSeparators(QFileInfo(xmlFile.fileName()).absoluteFilePath()));
-            continue;
-        }
-        TemplateInfo info;
-        info.templateName = templateName;
-        info.templatePath = templatePath;
-        QXmlStreamReader reader(&xmlFile);
-        if (parseTemplateXml(reader, &info))
-            result.append(info);
-    }
-    return result;
+    return templateInfoList()->templateInfoList();
 }
 
 static QFileInfoList allFilesRecursive(const QString &path)
@@ -361,7 +366,6 @@ QString QmlApp::renameQmlFile(const QString &fileName) {
 
 Core::GeneratedFiles QmlApp::generateFiles(QString *errorMessage)
 {
-
     Core::GeneratedFiles files;
 
     QTC_ASSERT(errorMessage, return files);
