@@ -13,7 +13,8 @@ SOURCES += propertyeditorview.cpp \
     gradientlineqmladaptor.cpp \
     propertyeditorqmlbackend.cpp \
     propertyeditorwidget.cpp \
-    fileresourcesmodel.cpp
+    fileresourcesmodel.cpp \
+    components/propertyeditor/gradientmodel.cpp
 
 HEADERS += propertyeditorview.h \
     qmlanchorbindingproxy.h \
@@ -29,7 +30,8 @@ HEADERS += propertyeditorview.h \
     gradientlineqmladaptor.h \
     propertyeditorqmlbackend.h \
     propertyeditorwidget.h \
-    fileresourcesmodel.h
+    fileresourcesmodel.h \
+    components/propertyeditor/gradientmodel.h
     
 QT += qml quick
 
