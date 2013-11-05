@@ -118,8 +118,7 @@ FORMS += makestep.ui \
     qmakeprojectconfigwidget.ui \
     librarydetailswidget.ui \
     wizards/testwizardpage.ui \
-    wizards/html5appwizardsourcespage.ui \
-    wizards/qtquickcomponentsetoptionspage.ui
+    wizards/html5appwizardsourcespage.ui
 
 RESOURCES += qmakeprojectmanager.qrc \
     wizards/wizards.qrc

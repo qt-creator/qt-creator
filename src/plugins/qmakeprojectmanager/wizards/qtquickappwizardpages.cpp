@@ -28,8 +28,9 @@
 ****************************************************************************/
 
 #include "qtquickappwizardpages.h"
-#include "ui_qtquickcomponentsetoptionspage.h"
 #include <QComboBox>
+#include <QLabel>
+#include <QVBoxLayout>
 
 namespace QmakeProjectManager {
 namespace Internal {

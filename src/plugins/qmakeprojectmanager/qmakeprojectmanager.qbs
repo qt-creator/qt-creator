@@ -108,7 +108,6 @@ QtcPlugin {
             "qtquickapp.cpp", "qtquickapp.h",
             "qtquickappwizard.cpp", "qtquickappwizard.h",
             "qtquickappwizardpages.cpp", "qtquickappwizardpages.h",
-            "qtquickcomponentsetoptionspage.ui",
             "qtwizard.cpp", "qtwizard.h",
             "subdirsprojectwizard.cpp", "subdirsprojectwizard.h",
             "subdirsprojectwizarddialog.cpp", "subdirsprojectwizarddialog.h",
