@@ -387,7 +387,8 @@ void BuildManager::nextBuildQueue()
     }
 
     disconnectOutput(d->m_currentBuildStep);
-    ++d->m_progress;
+    if (!d->m_skipDisabled)
+        ++d->m_progress;
     d->m_progressFutureInterface->setProgressValueAndText(d->m_progress*100, msgProgress(d->m_progress, d->m_maxProgress));
     decrementActiveBuildSteps(d->m_currentBuildStep);
 
@@ -511,10 +512,12 @@ bool BuildManager::buildQueueAppend(QList<BuildStep *> steps, QStringList names)
 
     // Everthing init() well
     for (i = 0; i < count; ++i) {
-        ++d->m_maxProgress;
         d->m_buildQueue.append(steps.at(i));
         d->m_stepNames.append(names.at(i));
-        d->m_enabledState.append(steps.at(i)->enabled());
+        bool enabled = steps.at(i)->enabled();
+        d->m_enabledState.append(enabled);
+        if (enabled)
+            ++d->m_maxProgress;
         incrementActiveBuildSteps(steps.at(i));
     }
     return true;
