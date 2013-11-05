@@ -82,6 +82,7 @@ private:
 private:
     QmlDesigner::QmlItemNode m_itemNode;
     QString m_gradientPropertyName;
+    bool m_lock;
 
 };
 

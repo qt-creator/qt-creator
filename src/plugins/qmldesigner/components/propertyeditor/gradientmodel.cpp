@@ -39,7 +39,7 @@
 #include <rewritertransaction.h>
 
 GradientModel::GradientModel(QObject *parent) :
-    QAbstractListModel(parent)
+    QAbstractListModel(parent), m_lock(false)
 {
 }
 
@@ -97,6 +97,9 @@ QVariant GradientModel::data(const QModelIndex &index, int role) const
 
 void GradientModel::addStop(qreal position, const QColor &color)
 {
+    if (m_lock)
+        return;
+
     if (!m_itemNode.isValid() || gradientPropertyName().isEmpty())
         return;
 
@@ -128,6 +131,9 @@ void GradientModel::addStop(qreal position, const QColor &color)
 
 void GradientModel::addGradient()
 {
+    if (m_lock)
+        return;
+
     if (!m_itemNode.isValid() || gradientPropertyName().isEmpty())
         return;
 
@@ -166,6 +172,12 @@ void GradientModel::addGradient()
 
 void GradientModel::setColor(int index, const QColor &color)
 {
+    if (m_lock)
+        return;
+
+    if (!m_itemNode.modelNode().isSelected())
+        return;
+
     if (index < rowCount()) {
         QmlDesigner::ModelNode gradientNode =  m_itemNode.modelNode().nodeProperty(gradientPropertyName().toUtf8()).modelNode();
         QmlDesigner::QmlObjectNode stop = gradientNode.nodeListProperty("stops").toModelNodeList().at(index);
@@ -178,6 +190,9 @@ void GradientModel::setColor(int index, const QColor &color)
 
 void GradientModel::setPosition(int index, qreal positition)
 {
+    if (m_lock)
+        return;
+
     if (index < rowCount()) {
         QmlDesigner::ModelNode gradientNode =  m_itemNode.modelNode().nodeProperty(gradientPropertyName().toUtf8()).modelNode();
         QmlDesigner::QmlObjectNode stop = gradientNode.nodeListProperty("stops").toModelNodeList().at(index);
@@ -256,9 +271,11 @@ void GradientModel::registerDeclarativeType()
 
 void GradientModel::setupModel()
 {
+    m_lock = true;
     beginResetModel();
 
     endResetModel();
+    m_lock = false;
 }
 
 void GradientModel::setAnchorBackend(const QVariant anchorBackend)
@@ -272,7 +289,12 @@ void GradientModel::setAnchorBackend(const QVariant anchorBackend)
         m_itemNode = backendCasted->getItemNode();
 
     setupModel();
+
+    m_lock = true;
+
     emit anchorBackendChanged();
+
+    m_lock = false;
 }
 
 QString GradientModel::gradientPropertyName() const
