@@ -92,6 +92,8 @@ void QmlProjectRunConfiguration::ctor()
     // reset default settings in constructor
     connect(EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(changeCurrentFile(Core::IEditor*)));
+    connect(EditorManager::instance(), SIGNAL(currentDocumentStateChanged()),
+            this, SLOT(changeCurrentFile()));
 
     connect(target(), SIGNAL(kitChanged()),
             this, SLOT(updateEnabled()));
@@ -263,6 +265,9 @@ bool QmlProjectRunConfiguration::fromMap(const QVariantMap &map)
 
 void QmlProjectRunConfiguration::changeCurrentFile(IEditor *editor)
 {
+    if (!editor)
+        editor = EditorManager::currentEditor();
+
     if (editor)
         m_currentFileFilename = editor->document()->filePath();
     updateEnabled();

@@ -91,7 +91,7 @@ public:
     ProjectExplorer::Abi abi() const;
 
 private slots:
-    void changeCurrentFile(Core::IEditor*);
+    void changeCurrentFile(Core::IEditor* = 0);
     void updateEnabled();
 
 protected:
