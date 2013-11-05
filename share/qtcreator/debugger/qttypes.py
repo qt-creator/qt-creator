@@ -587,8 +587,13 @@ def qHashIteratorHelper(d, value):
             # -> QHashNode<int, float> with 'proper' spacing,
             # as space changes confuse LLDB.
             innerTypeName = hashTypeName.replace("QHash", "QHashNode", 1)
-            node = value["i"].cast(d.lookupType(innerTypeName).pointer())
-            d.putSubItem("key", node["key"])
+            node = value["i"].cast(d.lookupType(innerTypeName).pointer()).dereference()
+            key = node["key"]
+            if not key:
+                # LLDB can't access directly since it's in anonymous union
+                # for Qt4 optimized int keytype
+                key = node[1]["key"]
+            d.putSubItem("key", key)
             d.putSubItem("value", node["value"])
 
 def qdump__QHash__const_iterator(d, value):
