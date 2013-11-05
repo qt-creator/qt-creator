@@ -1301,6 +1301,7 @@ class Dumper(DumperBase):
                 self.reportThreads()
                 self.reportLocation()
                 self.reportVariables()
+                self.reportRegisters()
         elif type == lldb.SBProcess.eBroadcastBitInterrupt:
             pass
         elif type == lldb.SBProcess.eBroadcastBitSTDOUT:
