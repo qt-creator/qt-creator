@@ -41,6 +41,7 @@ ClangParser::ClangParser() :
     m_inLineRegExp(QLatin1String("^In (.*) included from (.*):(\\d+):$")),
     m_messageRegExp(QLatin1String("^") + QLatin1String(FILE_PATTERN) + QLatin1String("(:(\\d+):\\d+|\\((\\d+)\\) *): +(fatal +)?(error|warning|note): (.*)$")),
     m_summaryRegExp(QLatin1String("^\\d+ (warnings?|errors?)( and \\d (warnings?|errors?))? generated.$")),
+    m_codesignRegExp(QLatin1String("^Code ?Sign error: (.*)$")),
     m_expectSnippet(false)
 {
     setObjectName(QLatin1String("ClangParser"));
@@ -97,6 +98,17 @@ void ClangParser::stdError(const QString &line)
             task.type = Task::Warning;
         else if (m_messageRegExp.cap(7) == QLatin1String("note"))
             task.type = Task::Unknown;
+        newTask(task);
+        return;
+    }
+
+    if (m_codesignRegExp.indexIn(lne) > -1) {
+        m_expectSnippet = true;
+        Task task(Task::Error,
+                  m_codesignRegExp.cap(1),
+                  Utils::FileName(),
+                  -1,
+                  Core::Id(Constants::TASK_CATEGORY_COMPILE));
         newTask(task);
         return;
     }
@@ -220,6 +232,22 @@ void ProjectExplorerPlugin::testClangOutputParser_data()
                                           "            int x = option->rect.x() + horizontal ? 2 : 6;\n"
                                           "                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^"),
                             Utils::FileName::fromUserInput(QLatin1String("/home/code/src/creator/src/plugins/coreplugin/manhattanstyle.cpp")), 567,
+                            categoryCompile))
+                << QString();
+        QTest::newRow("code sign error")
+                << QString::fromLatin1("Check dependencies\n"
+                                       "Code Sign error: No matching provisioning profiles found: No provisioning profiles with a valid signing identity (i.e. certificate and private key pair) were found.\n"
+                                       "CodeSign error: code signing is required for product type 'Application' in SDK 'iOS 7.0'")
+                << OutputParserTester::STDERR
+                << QString() << QString::fromLatin1("Check dependencies\n")
+                << (QList<ProjectExplorer::Task>()
+                    << Task(Task::Error,
+                            QLatin1String("No matching provisioning profiles found: No provisioning profiles with a valid signing identity (i.e. certificate and private key pair) were found."),
+                            Utils::FileName(), -1,
+                            categoryCompile)
+                    << Task(Task::Error,
+                            QLatin1String("code signing is required for product type 'Application' in SDK 'iOS 7.0'"),
+                            Utils::FileName(), -1,
                             categoryCompile))
                 << QString();
 }

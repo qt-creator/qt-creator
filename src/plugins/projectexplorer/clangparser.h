@@ -50,6 +50,7 @@ private:
     QRegExp m_inLineRegExp;
     QRegExp m_messageRegExp;
     QRegExp m_summaryRegExp;
+    QRegExp m_codesignRegExp;
     bool m_expectSnippet;
 };
 
