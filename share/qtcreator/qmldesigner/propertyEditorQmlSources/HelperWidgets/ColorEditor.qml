@@ -82,15 +82,13 @@ Column {
 
         onCurrentColorChanged: {
             if (supportGradient && gradientLine.visible)
-            colorEditor.color = gradientLine.currentColor
+                colorEditor.color = gradientLine.currentColor
         }
 
         onHasGradientChanged: {
              if (!supportGradient)
                  return
 
-            print("onHasGradientChanged")
-            print(gradientLine.hasGradient)
             if (gradientLine.hasGradient)
                 buttonRow.initalChecked = 1
             else
