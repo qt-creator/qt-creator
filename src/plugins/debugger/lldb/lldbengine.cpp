@@ -187,7 +187,6 @@ void LldbEngine::setupInferior()
                               ? sp.remoteChannel : QString()));
     cmd.arg("platform", sp.platform);
     runCommand(cmd);
-    requestUpdateWatchers();
     updateLocals(); // update display options
 }
 
@@ -730,8 +729,6 @@ void LldbEngine::updateLocals()
 {
     WatchHandler *handler = watchHandler();
 
-    //requestUpdateWatchers();
-
     Command cmd("updateData");
     cmd.arg("expanded", handler->expansionRequests());
     cmd.arg("typeformats", handler->typeFormatRequests());
@@ -776,6 +773,18 @@ void LldbEngine::updateLocals()
     cmd.arg("fancy", debuggerCore()->boolSetting(UseDebuggingHelpers));
     cmd.arg("autoderef", debuggerCore()->boolSetting(AutoDerefPointers));
     cmd.arg("dyntype", debuggerCore()->boolSetting(UseDynamicType));
+
+    cmd.beginList("watchers");
+    QHashIterator<QByteArray, int> it(WatchHandler::watcherNames());
+    while (it.hasNext()) {
+        it.next();
+        cmd.beginGroup()
+            .arg("iname", "watch." + QByteArray::number(it.value()))
+            .arg("exp", it.key().toHex())
+            .endGroup();
+    }
+    cmd.endList();
+
     //cmd.arg("partial", ??)
     //cmd.arg("tooltipOnly", ??)
     //cmd.arg("resultvarname", m_resultVarName);
@@ -860,22 +869,6 @@ void LldbEngine::readLldbStandardOutput()
         m_inbuffer = m_inbuffer.mid(pos + 2);
         emit outputReady(response);
     }
-}
-
-void LldbEngine::requestUpdateWatchers()
-{
-    QHashIterator<QByteArray, int> it(WatchHandler::watcherNames());
-    QList<QByteArray> watcherData;
-    while (it.hasNext()) {
-        it.next();
-        QHash<QByteArray, QByteArray> hash;
-        hash["iname"] = "\"watch." + QByteArray::number(it.value()) + '"';
-        hash["exp"] = '"' + it.key().toHex() + '"';
-        watcherData.append(Command::toData(hash));
-    }
-    Command cmd("setWatchers");
-    cmd.args.append("\"watchers\":" + Command::toData(watcherData) + ',');
-    runCommand(cmd);
 }
 
 void LldbEngine::refreshLocals(const GdbMi &vars)

@@ -1185,15 +1185,11 @@ class Dumper(DumperBase):
                 iname = watcher['iname']
                 index = iname[iname.find('.') + 1:]
                 exp = binascii.unhexlify(watcher['exp'])
-                warn("EXP: %s" % exp)
-                warn("INDEX: %s" % index)
                 if exp == "":
                     self.put('type="",value="",exp=""')
                     continue
 
                 value = self.dummyValue.CreateValueFromExpression(iname, exp)
-                #value = self.dummyValue
-                warn("VALUE: %s" % value)
                 self.currentIName = 'watch'
                 with SubItem(self, index):
                     self.put('exp="%s",' % exp)
@@ -1530,11 +1526,6 @@ class Dumper(DumperBase):
         error = str(result.GetError())
         self.report('success="%d",output="%s",error="%s"' % (success, output, error))
 
-    def setWatchers(self, args):
-        #self.currentWatchers = args['watchers']
-        #warn("WATCHERS %s" % self.currentWatchers)
-        self.reportData()
-
     def updateData(self, args):
         if 'expanded' in args:
             self.expandedINames = set(args['expanded'].split(','))
@@ -1546,6 +1537,8 @@ class Dumper(DumperBase):
             self.useFancy = int(args['fancy'])
         if 'passexceptions' in args:
             self.passExceptions = int(args['passexceptions'])
+        if 'watchers' in args:
+            self.currentWatchers = args['watchers']
         self.reportVariables(args)
 
     def disassemble(self, args):
