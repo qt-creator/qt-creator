@@ -60,15 +60,4 @@
             the application files to the connected device. You can test and
             debug the application on the device.
     \endlist
-
-    \section1 Related Topics
-
-    \list
-        \li \l{Publishing}
-
-            When you are ready to publish the application on a publishing
-            channel, you must make sure that the installation file meets the
-            requirements for publishing on the channel.
-    \endlist
-
 */
