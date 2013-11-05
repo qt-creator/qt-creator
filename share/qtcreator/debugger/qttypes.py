@@ -1580,7 +1580,12 @@ def qdump__QSet(d, value):
             for i in d.childRange():
                 it = node.dereference().cast(innerType)
                 with SubItem(d, i):
-                    d.putItem(it["key"])
+                    key = it["key"]
+                    if not key:
+                        # LLDB can't access directly since it's in anonymous union
+                        # for Qt4 optimized int keytype
+                        key = it[1]["key"]
+                    d.putItem(key)
                 node = hashDataNextNode(node, numBuckets)
 
 
