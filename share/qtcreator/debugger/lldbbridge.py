@@ -90,15 +90,9 @@ def showException(msg, exType, exValue, exTraceback):
     lines = [line for line in traceback.format_exception(exType, exValue, exTraceback)]
     warn('\n'.join(lines))
 
-def registerCommand(name, func):
-    pass
-
 def fileName(file):
     return str(file) if file.IsValid() else ''
 
-
-# Data members
-PointerCode = 102
 
 # Breakpoints. Keep synchronized with BreakpointType in breakpoint.h
 UnknownType = 0
@@ -375,7 +369,6 @@ class Dumper(DumperBase):
 
     def isSimpleType(self, typeobj):
         typeClass = typeobj.GetTypeClass()
-        #warn("TYPECLASS: %s" % typeClass)
         return typeClass == lldb.eTypeClassBuiltin
 
     def childAt(self, value, index):
@@ -1318,12 +1311,6 @@ class Dumper(DumperBase):
         elif type == lldb.SBProcess.eBroadcastBitProfileData:
             pass
 
-    def processEvents(self):
-        event = lldb.SBEvent()
-        while self.debugger.GetListener().PeekAtNextEvent(event):
-            self.debugger.GetListener().GetNextEvent(event)
-            self.handleEvent(event)
-
     def describeBreakpoint(self, bp, modelId):
         isWatch = isinstance(bp, lldb.SBWatchpoint)
         if isWatch:
@@ -1642,11 +1629,6 @@ class Dumper(DumperBase):
             cont = args['continuation']
             self.report('continuation="%s"' % cont)
 
-    def consumeEvents(self):
-        event = lldb.SBEvent()
-        if self.debugger.GetListener().PeekAtNextEvent(event):
-            self.debugger.GetListener().GetNextEvent(event)
-            self.handleEvent(event)
 
 def convertHash(args):
     if sys.version_info[0] == 3:
