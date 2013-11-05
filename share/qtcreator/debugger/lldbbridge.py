@@ -744,29 +744,37 @@ class Dumper(DumperBase):
         return None
 
     def reportStack(self, _ = None):
-        if self.process is None:
+        if not self.process:
             self.report('msg="No process"')
+            return
+        thread = self.currentThread()
+        if not thread:
+            self.report('msg="No thread"')
+            return
+        frame = thread.GetSelectedFrame()
+        if frame:
+            frameId = frame.GetFrameID()
         else:
-            thread = self.currentThread()
-            result = 'stack={current-frame="%s"' % thread.GetSelectedFrame().GetFrameID()
-            result += ',current-thread="%s"' % thread.GetThreadID()
-            result += ',frames=['
-            n = thread.GetNumFrames()
-            for i in xrange(n):
-                frame = thread.GetFrameAtIndex(i)
-                lineEntry = frame.GetLineEntry()
-                line = lineEntry.GetLine()
-                usable = line != 0
-                result += '{pc="0x%x"' % frame.GetPC()
-                result += ',level="%d"' % frame.idx
-                result += ',addr="0x%x"' % frame.GetPCAddress().GetLoadAddress(self.target)
-                result += ',func="%s"' % frame.GetFunctionName()
-                result += ',line="%d"' % line
-                result += ',fullname="%s"' % fileName(lineEntry.file)
-                result += ',usable="%d"' % usable
-                result += ',file="%s"},' % fileName(lineEntry.file)
-            result += '],hasmore="0"},'
-            self.report(result)
+            frameId = 0;
+        result = 'stack={current-frame="%s"' % frameId
+        result += ',current-thread="%s"' % thread.GetThreadID()
+        result += ',frames=['
+        n = thread.GetNumFrames()
+        for i in xrange(n):
+            frame = thread.GetFrameAtIndex(i)
+            lineEntry = frame.GetLineEntry()
+            line = lineEntry.GetLine()
+            usable = line != 0
+            result += '{pc="0x%x"' % frame.GetPC()
+            result += ',level="%d"' % frame.idx
+            result += ',addr="0x%x"' % frame.GetPCAddress().GetLoadAddress(self.target)
+            result += ',func="%s"' % frame.GetFunctionName()
+            result += ',line="%d"' % line
+            result += ',fullname="%s"' % fileName(lineEntry.file)
+            result += ',usable="%d"' % usable
+            result += ',file="%s"},' % fileName(lineEntry.file)
+        result += '],hasmore="0"},'
+        self.report(result)
 
     def putType(self, type, priority = 0):
         # Higher priority values override lower ones.
