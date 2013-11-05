@@ -55,6 +55,7 @@ class FileName;
 namespace CppEditor {
 namespace Internal {
 
+class CPPEditor;
 class CPPEditorWidget;
 class CppInclude;
 class CppIncludeLabel;
@@ -73,6 +74,7 @@ public slots:
 
 private slots:
     void onItemClicked(const QModelIndex &index);
+    void editorsClosed(QList<Core::IEditor *> editors);
 
 private:
     void showNoIncludeHierarchyLabel();
@@ -84,6 +86,7 @@ private:
     Utils::AnnotatedItemDelegate *m_delegate;
     CppIncludeLabel *m_inspectedFile;
     QLabel *m_includeHierarchyInfoLabel;
+    CPPEditor *m_editor;
 };
 
 // @todo: Pretty much the same design as the OutlineWidgetStack. Maybe we can generalize the

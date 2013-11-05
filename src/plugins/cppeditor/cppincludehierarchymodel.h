@@ -41,9 +41,14 @@ enum ItemRole {
 
 } // Anonymous
 
+namespace Core {
+class IEditor;
+}
+
 namespace CppEditor {
 namespace Internal {
 
+class CPPEditor;
 class CppIncludeHierarchyItem;
 
 class CppIncludeHierarchyModel : public QAbstractItemModel
@@ -63,7 +68,7 @@ public:
     bool hasChildren(const QModelIndex &parent) const;
 
     void clear();
-    void buildHierarchy(const QString &filePath);
+    void buildHierarchy(CPPEditor *editor, const QString &filePath);
     bool isEmpty() const;
 
 private:
@@ -77,6 +82,7 @@ private:
     CppIncludeHierarchyItem *m_rootItem;
     CppIncludeHierarchyItem *m_includesItem;
     CppIncludeHierarchyItem *m_includedByItem;
+    CPPEditor *m_editor;
 };
 
 } // namespace Internal

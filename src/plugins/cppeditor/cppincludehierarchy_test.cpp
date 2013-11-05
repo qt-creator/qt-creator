@@ -30,6 +30,8 @@
 #include "cppeditorplugin.h"
 #include "cppincludehierarchymodel.h"
 
+#include <coreplugin/editormanager/editormanager.h>
+#include <cppeditor/cppeditor.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <utils/fileutils.h>
 
@@ -47,6 +49,7 @@ class TestCase
 public:
     TestCase(const QList<QByteArray> &sourceList)
         : m_cmm(CppModelManagerInterface::instance())
+        , m_editor(0)
     {
         QStringList filePaths;
         const int sourceListSize = sourceList.size();
@@ -82,22 +85,30 @@ public:
 
     ~TestCase()
     {
+        // Close editor
+        if (m_editor)
+            Core::EditorManager::closeEditor(m_editor, false);
+
         m_cmm->GC();
         QVERIFY(m_cmm->snapshot().isEmpty());
     }
 
-    void run(int includesCount, int includedByCount) const
+    void run(int includesCount, int includedByCount)
     {
         const QString fileName = QDir::tempPath() + QLatin1String("/file1.h");
 
+        m_editor = qobject_cast<CPPEditor *>(Core::EditorManager::openEditor(fileName));
+        QVERIFY(m_editor);
+
         CppIncludeHierarchyModel model(0);
-        model.buildHierarchy(fileName);
+        model.buildHierarchy(m_editor, fileName);
         QCOMPARE(model.rowCount(model.index(0, 0)), includesCount);
         QCOMPARE(model.rowCount(model.index(1, 0)), includedByCount);
     }
 
 private:
     CppModelManagerInterface *m_cmm;
+    CPPEditor *m_editor;
 };
 }
 

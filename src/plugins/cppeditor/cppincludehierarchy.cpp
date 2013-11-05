@@ -36,6 +36,7 @@
 #include "cppincludehierarchymodel.h"
 #include "cppincludehierarchytreeview.h"
 
+#include <coreplugin/editormanager/editormanager.h>
 #include <cplusplus/CppDocument.h>
 
 #include <utils/annotateditemdelegate.h>
@@ -89,7 +90,8 @@ CppIncludeHierarchyWidget::CppIncludeHierarchyWidget() :
     m_treeView(0),
     m_model(0),
     m_delegate(0),
-    m_includeHierarchyInfoLabel(0)
+    m_includeHierarchyInfoLabel(0),
+    m_editor(0)
 {
     m_inspectedFile = new CppIncludeLabel(this);
     m_inspectedFile->setMargin(5);
@@ -118,6 +120,9 @@ CppIncludeHierarchyWidget::CppIncludeHierarchyWidget() :
     setLayout(layout);
 
     connect(CppEditorPlugin::instance(), SIGNAL(includeHierarchyRequested()), SLOT(perform()));
+    connect(Core::EditorManager::instance(), SIGNAL(editorsClosed(QList<Core::IEditor *>)),
+            this, SLOT(editorsClosed(QList<Core::IEditor *>)));
+
 }
 
 CppIncludeHierarchyWidget::~CppIncludeHierarchyWidget()
@@ -128,15 +133,16 @@ void CppIncludeHierarchyWidget::perform()
 {
     showNoIncludeHierarchyLabel();
 
-    CPPEditor *editor = qobject_cast<CPPEditor *>(Core::EditorManager::currentEditor());
-    if (!editor)
+    m_editor = qobject_cast<CPPEditor *>(Core::EditorManager::currentEditor());
+    if (!m_editor)
         return;
-    CPPEditorWidget *widget = qobject_cast<CPPEditorWidget *>(editor->widget());
+
+    CPPEditorWidget *widget = qobject_cast<CPPEditorWidget *>(m_editor->widget());
     if (!widget)
         return;
 
     m_model->clear();
-    m_model->buildHierarchy(widget->editorDocument()->filePath());
+    m_model->buildHierarchy(m_editor, widget->editorDocument()->filePath());
     if (m_model->isEmpty())
         return;
 
@@ -160,6 +166,14 @@ void CppIncludeHierarchyWidget::onItemClicked(const QModelIndex &index)
                                           link.targetLine,
                                           link.targetColumn,
                                           Constants::CPPEDITOR_ID);
+}
+
+void CppIncludeHierarchyWidget::editorsClosed(QList<Core::IEditor *> editors)
+{
+    foreach (Core::IEditor *editor, editors) {
+        if (m_editor == editor)
+            perform();
+    }
 }
 
 void CppIncludeHierarchyWidget::showNoIncludeHierarchyLabel()
