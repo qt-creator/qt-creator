@@ -59,6 +59,7 @@
 using namespace ProjectExplorer;
 using namespace QtSupport;
 using namespace Utils;
+using namespace Debugger;
 
 const bool debugProbe = false;
 
@@ -243,6 +244,9 @@ void IosConfigurations::updateAutomaticKitList()
             qtVersionsForArch[abi.architecture()].append(qtVersion);
     }
 
+    const DebuggerItem *possibleDebugger = DebuggerItemManager::findByEngineType(Debugger::LldbEngineType);
+    QVariant debuggerId = (possibleDebugger ? possibleDebugger->id() : QVariant());
+
     QList<Kit *> existingKits;
     QList<bool> kitMatched;
     foreach (Kit *k, KitManager::kits()) {
@@ -331,22 +335,15 @@ void IosConfigurations::updateAutomaticKitList()
                 ToolChainKitInformation::setToolChain(newKit, pToolchain);
                 QtKitInformation::setQtVersion(newKit, qt);
                 //DeviceKitInformation::setDevice(newKit, device);
-
-                Debugger::DebuggerItem debugger;
-                debugger.setCommand(lldbPath());
-                debugger.setEngineType(Debugger::LldbEngineType);
-                debugger.setDisplayName(tr("IOS Debugger"));
-                debugger.setAutoDetected(true);
-                debugger.setAbi(pToolchain->targetAbi());
-                QVariant id = Debugger::DebuggerItemManager::registerDebugger(debugger);
-                Debugger::DebuggerKitInformation::setDebugger(newKit, id);
+                if (!debuggerId.isValid())
+                    Debugger::DebuggerKitInformation::setDebugger(newKit,
+                                                                  debuggerId);
 
                 newKit->setMutable(DeviceKitInformation::id(), true);
                 newKit->setSticky(QtKitInformation::id(), true);
                 newKit->setSticky(ToolChainKitInformation::id(), true);
                 newKit->setSticky(DeviceTypeKitInformation::id(), true);
                 newKit->setSticky(SysRootKitInformation::id(), true);
-                newKit->setSticky(Debugger::DebuggerKitInformation::id(), true);
 
                 SysRootKitInformation::setSysRoot(newKit, p.sdkPath);
                 // QmakeProjectManager::QmakeKitInformation::setMkspec(newKit,
@@ -356,11 +353,29 @@ void IosConfigurations::updateAutomaticKitList()
             }
         }
     }
-    // deleting extra (old) kits
     for (int i = 0; i < kitMatched.size(); ++i) {
+        // deleting extra (old) kits
         if (!kitMatched.at(i) && !existingKits.at(i)->isValid()) {
             qDebug() << "deleting kit " << existingKits.at(i)->displayName();
             KitManager::deregisterKit(existingKits.at(i));
+        }
+        // fix old kits
+        if (kitMatched.at(i)) {
+            Kit *kit = existingKits.at(i);
+            kit->blockNotification();
+            const Debugger::DebuggerItem *debugger = Debugger::DebuggerKitInformation::debugger(kit);
+            if ((!debugger || !debugger->isValid()) && debuggerId.isValid())
+                Debugger::DebuggerKitInformation::setDebugger(kit, debuggerId);
+            if (!kit->isMutable(DeviceKitInformation::id())) {
+                kit->setMutable(DeviceKitInformation::id(), true);
+                kit->setSticky(QtKitInformation::id(), true);
+                kit->setSticky(ToolChainKitInformation::id(), true);
+                kit->setSticky(DeviceTypeKitInformation::id(), true);
+                kit->setSticky(SysRootKitInformation::id(), true);
+            }
+            if (kit->isSticky(Debugger::DebuggerKitInformation::id()))
+                kit->setSticky(Debugger::DebuggerKitInformation::id(), false);
+            kit->unblockNotification();
         }
     }
 }
@@ -397,11 +412,6 @@ void IosConfigurations::setIgnoreAllDevices(bool ignoreDevices)
 FileName IosConfigurations::developerPath()
 {
     return m_instance->m_developerPath;
-}
-
-FileName IosConfigurations::lldbPath()
-{
-    return m_instance->m_lldbPath;
 }
 
 void IosConfigurations::save()
@@ -465,18 +475,6 @@ void IosConfigurations::setDeveloperPath(const FileName &devPath)
         m_instance->m_developerPath = devPath;
         m_instance->save();
         updateAutomaticKitList();
-        QProcess lldbInfo;
-        lldbInfo.start(QLatin1String("xcrun"), QStringList() << QLatin1String("--find")
-                       << QLatin1String("lldb"));
-        if (!lldbInfo.waitForFinished(2000)) {
-            lldbInfo.kill();
-        } else {
-            QByteArray lPath=lldbInfo.readAll();
-            lPath.chop(1);
-            Utils::FileName lldbPath = Utils::FileName::fromString(QString::fromLocal8Bit(lPath.data(), lPath.size()));
-            if (lldbPath.toFileInfo().exists())
-                m_instance->m_lldbPath = lldbPath;
-        }
         emit m_instance->updated();
     }
 }

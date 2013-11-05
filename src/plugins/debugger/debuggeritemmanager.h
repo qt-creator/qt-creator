@@ -62,6 +62,7 @@ public:
 
     static const DebuggerItem *findByCommand(const Utils::FileName &command);
     static const DebuggerItem *findById(const QVariant &id);
+    static const DebuggerItem *findByEngineType(DebuggerEngineType engineType);
 
     static void restoreDebuggers();
     static QString uniqueDisplayName(const QString &base);
