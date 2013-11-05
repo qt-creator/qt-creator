@@ -64,7 +64,9 @@ public:
                     if (isCheckable(i) && source->isCheckable(j))
                         setChecked(i, source->checked(j));
                     break;
-                } else if (stateFile < sourceStateFile) {
+                } else if (((stateFile.first & UntrackedFile)
+                            == (sourceStateFile.first & UntrackedFile))
+                           && (stateFile < sourceStateFile)) {
                     break;
                 }
             }
