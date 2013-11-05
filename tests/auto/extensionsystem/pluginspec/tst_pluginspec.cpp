@@ -248,7 +248,7 @@ void tst_PluginSpec::loadLibrary()
     QVERIFY(spec->resolveDependencies(QList<PluginSpec *>()));
     QVERIFY2(spec->loadLibrary(), qPrintable(spec->errorString));
     QVERIFY(spec->plugin != 0);
-    QVERIFY(QString::fromLocal8Bit(spec->plugin->metaObject()->className()) == QString::fromLocal8Bit("MyPlugin::MyPluginImpl"));
+    QVERIFY(QLatin1String(spec->plugin->metaObject()->className()) == QLatin1String("MyPlugin::MyPluginImpl"));
     QCOMPARE(spec->state, PluginSpec::Loaded);
     QVERIFY(!spec->hasError);
     QCOMPARE(spec->plugin->pluginSpec(), ps);

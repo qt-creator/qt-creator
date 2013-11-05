@@ -140,7 +140,7 @@ void RemoteLinuxAnalyzeSupport::startExecution()
     connect(runner, SIGNAL(reportError(QString)), SLOT(handleAppRunnerError(QString)));
 
     const QStringList args = arguments()
-            << QString::fromLocal8Bit("-qmljsdebugger=port:%1,block").arg(d->qmlPort);
+            << QString::fromLatin1("-qmljsdebugger=port:%1,block").arg(d->qmlPort);
     runner->setWorkingDirectory(workingDirectory());
     runner->setEnvironment(environment());
     runner->start(device(), remoteFilePath(), args);

@@ -68,7 +68,7 @@ bool NameDemanglerPrivate::demangle(const QString &mangledName)
         if (m_parseState.m_pos != m_parseState.m_mangledName.size())
             throw ParseException(QLatin1String("Unconsumed input"));
         if (m_parseState.m_parseStack.count() != 1) {
-            throw ParseException(QString::fromLocal8Bit("There are %1 elements on the parse stack; "
+            throw ParseException(QString::fromLatin1("There are %1 elements on the parse stack; "
                     "expected one.").arg(m_parseState.m_parseStack.count()));
         }
 
@@ -78,11 +78,11 @@ bool NameDemanglerPrivate::demangle(const QString &mangledName)
         m_demangledName = QLatin1String(m_parseState.stackTop()->toByteArray());
         success = true;
     } catch (const ParseException &p) {
-        m_errorString = QString::fromLocal8Bit("Parse error at index %1 of mangled name '%2': %3.")
+        m_errorString = QString::fromLatin1("Parse error at index %1 of mangled name '%2': %3.")
                 .arg(m_parseState.m_pos).arg(mangledName, p.error);
         success = false;
     } catch (const InternalDemanglerException &e) {
-        m_errorString = QString::fromLocal8Bit("Internal demangler error at function %1, file %2, "
+        m_errorString = QString::fromLatin1("Internal demangler error at function %1, file %2, "
                 "line %3").arg(e.func, e.file).arg(e.line);
         success = false;
     }

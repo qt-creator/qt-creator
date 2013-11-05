@@ -218,7 +218,7 @@ void SshChannelManager::removeChannel(ChannelIterator it)
     const int removeCount = m_sessions.remove(it.value());
     if (removeCount != 1) {
         throw SshClientException(SshInternalError,
-                QString::fromLocal8Bit("Internal error: Unexpected session count %1 for channel.")
+                QString::fromLatin1("Internal error: Unexpected session count %1 for channel.")
                                  .arg(removeCount));
     }
     m_channels.erase(it);
