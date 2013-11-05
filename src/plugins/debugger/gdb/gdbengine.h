@@ -52,6 +52,7 @@ class DebugInfoTask;
 class DebugInfoTaskHandler;
 class GdbResponse;
 class GdbMi;
+class MemoryAgentCookie;
 
 class WatchData;
 class DisassemblerAgentCookie;
@@ -571,6 +572,7 @@ protected:
 
     virtual void fetchMemory(MemoryAgent *agent, QObject *token,
         quint64 addr, quint64 length);
+    void fetchMemoryHelper(const MemoryAgentCookie &cookie);
     void handleChangeMemory(const GdbResponse &response);
     virtual void changeMemory(MemoryAgent *agent, QObject *token,
         quint64 addr, const QByteArray &data);
