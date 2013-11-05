@@ -194,7 +194,7 @@ NewDialog::NewDialog(QWidget *parent) :
     m_ui->frame->setPalette(p);
     m_okButton = m_ui->buttonBox->button(QDialogButtonBox::Ok);
     m_okButton->setDefault(true);
-    m_okButton->setText(tr("&Choose..."));
+    m_okButton->setText(tr("Choose..."));
 
     m_model = new QStandardItemModel(this);
     m_twoLevelProxyModel = new TwoLevelProxyModel(this);
