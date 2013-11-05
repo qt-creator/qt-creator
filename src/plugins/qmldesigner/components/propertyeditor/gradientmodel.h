@@ -33,6 +33,7 @@
 #include <qmlitemnode.h>
 
 #include <QAbstractListModel>
+#include <QColor>
 #include <QtQml>
 
 class GradientModel : public QAbstractListModel
