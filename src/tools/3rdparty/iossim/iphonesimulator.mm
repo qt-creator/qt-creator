@@ -278,7 +278,12 @@ NSString *deviceIpadRetina = @"iPad (Retina)";
                              NSHomeDirectory(), sdkVersion];
   NSMutableDictionary *mutableEnv = [NSMutableDictionary dictionaryWithDictionary:environment];
   [mutableEnv setObject:appSupportDir forKey:@"CFFIXED_USER_HOME"];
+  [mutableEnv setObject:appSupportDir forKey:@"IPHONE_SHARED_RESOURCES_DIRECTORY"];
+  [mutableEnv setObject:appSupportDir forKey:@"HOME"];
   [mutableEnv setObject:[sdkRoot sdkRootPath] forKey:@"IPHONE_SIMULATOR_ROOT"];
+  [mutableEnv setObject:[sdkRoot sdkRootPath] forKey:@"DYLD_ROOT_PATH"];
+  [mutableEnv setObject:[sdkRoot sdkRootPath] forKey:@"DYLD_FRAMEWORK_PATH"];
+  [mutableEnv setObject:[sdkRoot sdkRootPath] forKey:@"DYLD_LIBRARY_PATH"];
   [mutableEnv setObject:@"YES" forKey:@"NSUnbufferedIO"];
   environment = mutableEnv;
 
