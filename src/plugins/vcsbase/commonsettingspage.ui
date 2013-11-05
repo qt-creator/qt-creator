@@ -137,7 +137,7 @@ name &lt;email&gt; alias &lt;email&gt;</string>
    <item row="5" column="0">
     <widget class="QLabel" name="sshPromptLabel">
      <property name="toolTip">
-      <string>Specifies a command that is executed to graphically prompt for a password, 
+      <string>Specifies a command that is executed to graphically prompt for a password,
 should a repository require SSH-authentication (see documentation on SSH and the environment variable SSH_ASKPASS).</string>
      </property>
      <property name="text">
