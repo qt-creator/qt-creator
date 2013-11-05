@@ -118,6 +118,7 @@ void TimelineRenderer::drawItemsToPainter(QPainter *p, int modelIndex, int fromI
     int modelRowStart = 0;
     for (int mi = 0; mi < modelIndex; mi++)
         modelRowStart += m_profilerModelProxy->rowCount(mi);
+    QRect window = p->window();
 
     for (int i = fromIndex; i <= toIndex; i++) {
         int x, y, width, height;
@@ -125,6 +126,8 @@ void TimelineRenderer::drawItemsToPainter(QPainter *p, int modelIndex, int fromI
 
         int rowNumber = m_profilerModelProxy->getEventRow(modelIndex, i);
         y = (modelRowStart + rowNumber) * DefaultRowHeight;
+        if (y >= window.bottom())
+            continue;
 
         width = m_profilerModelProxy->getDuration(modelIndex, i) * m_spacing;
         if (width < 1)
@@ -132,6 +135,8 @@ void TimelineRenderer::drawItemsToPainter(QPainter *p, int modelIndex, int fromI
 
         height = DefaultRowHeight * m_profilerModelProxy->getHeight(modelIndex, i);
         y += DefaultRowHeight - height;
+        if (y + height < window.top())
+            continue;
 
         // normal events
         p->setBrush(m_profilerModelProxy->getColor(modelIndex, i));
@@ -201,6 +206,7 @@ void TimelineRenderer::drawBindingLoopMarkers(QPainter *p, int modelIndex, int f
     QPen markerPen = QPen(QColor("orange"),2);
     QBrush shadowBrush = QBrush(QColor("grey"));
     QBrush markerBrush = QBrush(QColor("orange"));
+    QRect window = p->window();
 
     p->save();
     for (int i = fromIndex; i <= toIndex; i++) {
@@ -228,8 +234,12 @@ void TimelineRenderer::drawBindingLoopMarkers(QPainter *p, int modelIndex, int f
             if (radius < 2)
                 radius = 2;
 
-            // shadow
             int shadowoffset = 2;
+            if ((yfrom + radius + shadowoffset < window.top() && yto + radius + shadowoffset < window.top()) ||
+                    (yfrom - radius >= window.bottom() && yto - radius >= window.bottom()))
+                return;
+
+            // shadow
             p->setPen(shadowPen);
             p->setBrush(shadowBrush);
             p->drawEllipse(QPoint(xfrom, yfrom + shadowoffset), radius, radius);
