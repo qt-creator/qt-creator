@@ -81,6 +81,23 @@ void IosConfigurations::updateAutomaticKitList()
             break;
         }
     }
+    // filter out all non iphone, non base, non clang or cxx11 platforms, as we don't set up kits for those
+    {
+        QMap<QString, Platform>::iterator iter(platforms.begin());
+        while (iter != platforms.end()) {
+            const Platform &p = iter.value();
+            if (!p.name.startsWith(QLatin1String("iphone")) || (p.platformKind & Platform::BasePlatform) == 0
+                    || (p.platformKind & Platform::Cxx11Support) != 0
+                    || !p.compilerPath.toString().contains(QLatin1String("clang")))
+                iter = platforms.erase(iter);
+            else {
+                if (debugProbe)
+                    qDebug() << "keeping" << p.name << " " << p.compilerPath.toString() << " "
+                             << p.backendFlags;
+                ++iter;
+            }
+        }
+    }
 
     QMap<QString, GccToolChain *> platformToolchainMap;
     // check existing toolchains (and remove old ones)
@@ -135,10 +152,7 @@ void IosConfigurations::updateAutomaticKitList()
         while (iter.hasNext()) {
             iter.next();
             const Platform &p = iter.value();
-            if (platformToolchainMap.contains(p.name)
-                || (p.platformKind & Platform::BasePlatform) == 0
-                || (p.name.startsWith(QLatin1String("iphone"))
-                    && (p.platformKind & Platform::Cxx11Support) != 0))
+            if (platformToolchainMap.contains(p.name))
                 continue;
             GccToolChain *toolchain;
             if (p.compilerPath.toFileInfo().baseName().startsWith(QLatin1String("clang")))
@@ -184,27 +198,6 @@ void IosConfigurations::updateAutomaticKitList()
                     platformToolchainMap[p2.name] = toolchain;
                 }
             }
-        }
-    }
-    // filter out all non iphone, non base, non clang or cxx11 platforms, as we don't set up kits for those
-    {
-        QStringList toRemove;
-        QMapIterator<QString, Platform> iter(platforms);
-        while (iter.hasNext()) {
-            iter.next();
-            const Platform &p = iter.value();
-            if (!p.name.startsWith(QLatin1String("iphone")) || (p.platformKind & Platform::BasePlatform) == 0
-                    || (p.platformKind & Platform::Cxx11Support) != 0
-                    || !p.compilerPath.toString().contains(QLatin1String("clang")))
-                toRemove.append(p.name);
-            else if (debugProbe)
-                qDebug() << "keeping" << p.name << " " << p.compilerPath.toString() << " "
-                         << p.backendFlags;
-        }
-        foreach (const QString &pName, toRemove) {
-            if (debugProbe)
-                qDebug() << "filtering out " << pName;
-            platforms.remove(pName);
         }
     }
     QMap<Abi::Architecture, QList<BaseQtVersion *> > qtVersionsForArch;
