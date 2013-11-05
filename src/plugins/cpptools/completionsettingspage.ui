@@ -205,7 +205,7 @@
       <item>
        <widget class="QCheckBox" name="enableDoxygenCheckBox">
         <property name="toolTip">
-         <string>Automatically create a Doxygen comment upon pressing enter after a /** or /*!</string>
+         <string>Automatically create a Doxygen comment upon pressing enter after a /**, /*!, //! or ///</string>
         </property>
         <property name="text">
          <string>Enable Doxygen blocks</string>
