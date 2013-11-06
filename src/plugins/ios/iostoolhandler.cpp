@@ -547,9 +547,8 @@ void IosToolHandlerPrivate::subprocessHasData()
                     stop();
                     return;
                 }
-                if (rRead == 0) {
+                if (rRead == 0)
                     return;
-                }
                 if (debugToolHandler)
                     qDebug() << "subprocessHasData read " << QByteArray(buf, rRead);
                 outputParser.addData(QByteArray(buf, rRead));
