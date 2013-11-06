@@ -474,6 +474,148 @@ class DumperBase:
         self.putNumChild(0)
         self.currentValue = None
 
+    def putFormattedPointer(self, value):
+        #warn("POINTER: %s" % value)
+        if self.isNull(value):
+            #warn("NULL POINTER")
+            self.putType(value.type)
+            self.putValue("0x0")
+            self.putNumChild(0)
+            return True
+
+        typeName = str(value.type)
+        innerType = value.type.target().unqualified()
+        innerTypeName = str(innerType)
+
+        try:
+            value.dereference()
+        except:
+            # Failure to dereference a pointer should at least
+            # show the value of a pointer.
+            self.putValue(cleanAddress(value))
+            self.putType(typeName)
+            self.putNumChild(0)
+            return True
+
+        format = self.currentItemFormat(value.type)
+
+        if innerTypeName == "void":
+            #warn("VOID POINTER: %s" % format)
+            self.putType(typeName)
+            self.putValue(str(value))
+            self.putNumChild(0)
+            return True
+
+        if format == None and innerTypeName == "char":
+            # Use Latin1 as default for char *.
+            self.putType(typeName)
+            self.putValue(self.encodeCharArray(value), Hex2EncodedLatin1)
+            self.putNumChild(0)
+            return True
+
+        if format == 0:
+            # Explicitly requested bald pointer.
+            self.putType(typeName)
+            self.putPointerValue(value)
+            self.putNumChild(1)
+            if self.currentIName in self.expandedINames:
+                with Children(self):
+                    with SubItem(self, '*'):
+                        self.putItem(value.dereference())
+            return True
+
+        if format == 1:
+            # Explicitly requested Latin1 formatting.
+            self.putType(typeName)
+            self.putValue(self.encodeCharArray(value), Hex2EncodedLatin1)
+            self.putNumChild(0)
+            return True
+
+        if format == 2:
+            # Explicitly requested UTF-8 formatting.
+            self.putType(typeName)
+            self.putValue(self.encodeCharArray(value), Hex2EncodedUtf8)
+            self.putNumChild(0)
+            return True
+
+        if format == 3:
+            # Explicitly requested local 8 bit formatting.
+            self.putType(typeName)
+            self.putValue(self.encodeCharArray(value), Hex2EncodedLocal8Bit)
+            self.putNumChild(0)
+            return True
+
+        if format == 4:
+            # Explicitly requested UTF-16 formatting.
+            self.putType(typeName)
+            self.putValue(self.encodeChar2Array(value), Hex4EncodedLittleEndian)
+            self.putNumChild(0)
+            return True
+
+        if format == 5:
+            # Explicitly requested UCS-4 formatting.
+            self.putType(typeName)
+            self.putValue(self.encodeChar4Array(value), Hex8EncodedLittleEndian)
+            self.putNumChild(0)
+            return True
+
+        if format == 6:
+            # Explicitly requested formatting as array of 10 items.
+            self.putType(typeName)
+            self.putItemCount(10)
+            self.putNumChild(10)
+            self.putArrayData(innerType, value, 10)
+            return True
+
+        if format == 7:
+            # Explicitly requested formatting as array of 1000 items.
+            self.putType(typeName)
+            self.putItemCount(1000)
+            self.putNumChild(1000)
+            self.putArrayData(innerType, value, 1000)
+            return True
+
+        if self.isFunctionType(innerType):
+            # A function pointer.
+            val = str(value)
+            pos = val.find(" = ") # LLDB only, but...
+            if pos > 0:
+                val = val[pos + 3:]
+            self.putValue(val)
+            self.putType(innerTypeName)
+            self.putNumChild(0)
+            return
+
+        #warn("AUTODEREF: %s" % self.autoDerefPointers)
+        #warn("INAME: %s" % self.currentIName)
+        if self.autoDerefPointers or self.currentIName.endswith('.this'):
+            ## Generic pointer type with format None
+            #warn("GENERIC AUTODEREF POINTER: %s AT %s TO %s"
+            #    % (type, value.address, innerTypeName))
+            # Never dereference char types.
+            if innerTypeName != "char" \
+                    and innerTypeName != "signed char" \
+                    and innerTypeName != "unsigned char"  \
+                    and innerTypeName != "wchar_t":
+                self.putType(innerTypeName)
+                savedCurrentChildType = self.currentChildType
+                self.currentChildType = stripClassTag(innerTypeName)
+                self.putItem(value.dereference())
+                self.currentChildType = savedCurrentChildType
+                #self.putPointerValue(value)
+                self.put('origaddr="%s",' % value.address)
+                return True
+
+        #warn("GENERIC PLAIN POINTER: %s" % value.type)
+        #warn("ADDR PLAIN POINTER: %s" % value.address)
+        self.putType(typeName)
+        self.putValue("0x%x" % self.pointerValue(value))
+        self.putNumChild(1)
+        if self.currentIName in self.expandedINames:
+            with Children(self):
+                with SubItem(self, "*"):
+                    self.putItem(value.dereference())
+
     def putQObjectNameValue(self, value):
         try:
             intSize = self.intSize()

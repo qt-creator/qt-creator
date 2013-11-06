@@ -1221,6 +1221,9 @@ class Dumper(DumperBase):
         with SubItem(self, name):
             self.putItem(result)
 
+    def isFunctionType(self, type):
+        return type.code == MethodCode or type.code == FunctionCode
+
     def putItem(self, value, tryDynamic=True):
         if value is None:
             # Happens for non-available watchers in gdb versions that
@@ -1347,153 +1350,13 @@ class Dumper(DumperBase):
             return
 
         if type.code == PointerCode:
-            #warn("POINTER: %s" % value)
-
             # This could still be stored in a register and
             # potentially dereferencable.
             if value.is_optimized_out:
                 self.putValue("<optimized out>")
-
-            try:
-                value.dereference()
-            except:
-                # Failure to dereference a pointer should at least
-                # show the value of a pointer.
-                self.putValue(cleanAddress(value))
-                self.putType(typeName)
-                self.putNumChild(0)
                 return
 
-            if self.isNull(value):
-                #warn("NULL POINTER")
-                self.putType(typeName)
-                self.putValue("0x0")
-                self.putNumChild(0)
-                return
-
-            innerType = type.target()
-            innerTypeName = str(innerType.unqualified())
-            format = self.currentItemFormat(type)
-
-            if innerType.code == VoidCode:
-                #warn("VOID POINTER: %s" % format)
-                self.putType(typeName)
-                self.putValue(str(value))
-                self.putNumChild(0)
-                return
-
-            if format == None and innerTypeName == "char":
-                # Use Latin1 as default for char *.
-                self.putType(typeName)
-                self.putValue(self.encodeCharArray(value), Hex2EncodedLatin1)
-                self.putNumChild(0)
-                return
-
-            if format == 0:
-                # Explicitly requested bald pointer.
-                self.putType(typeName)
-                self.putPointerValue(value)
-                self.putNumChild(1)
-                if self.currentIName in self.expandedINames:
-                    with Children(self):
-                        with SubItem(self, '*'):
-                            self.putItem(value.dereference())
-                return
-
-            if format == 1:
-                # Explicitly requested Latin1 formatting.
-                self.putType(typeName)
-                self.putValue(self.encodeCharArray(value), Hex2EncodedLatin1)
-                self.putNumChild(0)
-                return
-
-            if format == 2:
-                # Explicitly requested UTF-8 formatting.
-                self.putType(typeName)
-                self.putValue(self.encodeCharArray(value), Hex2EncodedUtf8)
-                self.putNumChild(0)
-                return
-
-            if format == 3:
-                # Explicitly requested local 8 bit formatting.
-                self.putType(typeName)
-                self.putValue(self.encodeCharArray(value), Hex2EncodedLocal8Bit)
-                self.putNumChild(0)
-                return
-
-            if format == 4:
-                # Explicitly requested UTF-16 formatting.
-                self.putType(typeName)
-                self.putValue(self.encodeChar2Array(value), Hex4EncodedLittleEndian)
-                self.putNumChild(0)
-                return
-
-            if format == 5:
-                # Explicitly requested UCS-4 formatting.
-                self.putType(typeName)
-                self.putValue(self.encodeChar4Array(value), Hex8EncodedLittleEndian)
-                self.putNumChild(0)
-                return
-
-            if format == 6:
-                # Explicitly requested formatting as array of 10 items.
-                self.putType(typeName)
-                self.putItemCount(10)
-                self.putNumChild(10)
-                self.putArrayData(innerType, value, 10)
-                return
-
-            if format == 7:
-                # Explicitly requested formatting as array of 1000 items.
-                self.putType(typeName)
-                self.putItemCount(1000)
-                self.putNumChild(1000)
-                self.putArrayData(innerType, value, 1000)
-                return
-
-            if innerType.code == MethodCode or innerType.code == FunctionCode:
-                # A function pointer with format None.
-                self.putValue(str(value))
-                self.putType(typeName)
-                self.putNumChild(0)
-                return
-
-            #warn("AUTODEREF: %s" % self.autoDerefPointers)
-            #warn("INAME: %s" % self.currentIName)
-            if self.autoDerefPointers or self.currentIName.endswith('.this'):
-                ## Generic pointer type with format None
-                #warn("GENERIC AUTODEREF POINTER: %s AT %s TO %s"
-                #    % (type, value.address, innerTypeName))
-                # Never dereference char types.
-                if innerTypeName != "char" \
-                        and innerTypeName != "signed char" \
-                        and innerTypeName != "unsigned char"  \
-                        and innerTypeName != "wchar_t":
-                    self.putType(innerType)
-                    savedCurrentChildType = self.currentChildType
-                    self.currentChildType = stripClassTag(innerTypeName)
-                    self.putItem(value.dereference())
-                    self.currentChildType = savedCurrentChildType
-                    #self.putPointerValue(value)
-                    self.put('origaddr="%s",' % value.address)
-                    return
-
-            # Fall back to plain pointer printing.
-            #warn("GENERIC PLAIN POINTER: %s" % value.type)
-            #warn("ADDR PLAIN POINTER: %s" % value.address)
-            self.putType(typeName)
-            self.putField("aaa", "1")
-            #self.put('addr="0x%x",' % toInteger(value.address))
-            #self.putAddress(value.address)
-            self.putField("bbb", "1")
-            #self.putPointerValue(value)
-            self.putValue("0x%x" % value.cast(self.lookupType("unsigned long")))
-            self.putField("ccc", "1")
-            self.putNumChild(1)
-            if self.currentIName in self.expandedINames:
-                with Children(self):
-                    with SubItem(self, "*"):
-                        self.putItem(value.dereference())
+            self.putFormattedPointer(value)
             return
 
         if type.code == MethodPointerCode \
