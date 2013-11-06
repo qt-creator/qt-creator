@@ -65,10 +65,8 @@ QString QtQuickApp::pathExtended(int fileType) const
     const QString appViewerTargetSubDir = appViewerOriginSubDir();
 
     const QString mainQmlFile = QLatin1String("main.qml");
-    const QString mainPageQmlFile = QLatin1String("MainPage.qml");
 
-    const QString qmlOriginDir = originsRoot() + QLatin1String("qml/app/")
-                        + componentSetDir(componentSet()) + QLatin1Char('/');
+    const QString qmlOriginDir = originsRoot() + QLatin1String("qml/app/");
 
     const QString pathBase = outputPathBase();
 
@@ -76,15 +74,12 @@ QString QtQuickApp::pathExtended(int fileType) const
         case MainQml:                       return pathBase + qmlSubDir + mainQmlFile;
         case MainQmlDeployed:               return qmlSubDir + mainQmlFile;
         case MainQmlOrigin:                 return qmlOriginDir + mainQmlFile;
-        case MainPageQml:                   return pathBase + qmlSubDir + mainPageQmlFile;
-        case MainPageQmlOrigin:             return qmlOriginDir + mainPageQmlFile;
         case AppViewerPri:                  return pathBase + appViewerTargetSubDir + fileName(AppViewerPri);
         case AppViewerPriOrigin:            return originsRoot() + appViewerOriginSubDir() + fileName(AppViewerPri);
         case AppViewerCpp:                  return pathBase + appViewerTargetSubDir + fileName(AppViewerCpp);
         case AppViewerCppOrigin:            return originsRoot() + appViewerOriginSubDir() + fileName(AppViewerCpp);
         case AppViewerH:                    return pathBase + appViewerTargetSubDir + fileName(AppViewerH);
         case AppViewerHOrigin:              return originsRoot() + appViewerOriginSubDir() + fileName(AppViewerH);
-        case QmlDir:                        return pathBase + qmlSubDir;
         case QmlDirProFileRelative:         return QString(qmlSubDir).remove(qmlSubDir.length() - 1, 1);
         default:                            qFatal("QtQuickApp::pathExtended() needs more work");
     }
@@ -201,9 +196,6 @@ QByteArray QtQuickApp::generateFileExtended(int fileType,
         case QtQuickAppGeneratedFileInfo::MainQmlFile:
             data = readBlob(path(MainQmlOrigin), errorMessage);
             break;
-        case QtQuickAppGeneratedFileInfo::MainPageQmlFile:
-            data = readBlob(path(MainPageQmlOrigin), errorMessage);
-            break;
         case QtQuickAppGeneratedFileInfo::AppViewerPriFile:
             data = readBlob(path(AppViewerPriOrigin), errorMessage);
             data.append(readBlob(path(DeploymentPriOrigin), errorMessage));
@@ -262,19 +254,6 @@ QList<DeploymentFolder> QtQuickApp::deploymentFolders() const
     QList<DeploymentFolder> result;
     result.append(DeploymentFolder(path(QmlDirProFileRelative), QLatin1String("qml")));
     return result;
-}
-
-QString QtQuickApp::componentSetDir(ComponentSet componentSet) const
-{
-    switch (componentSet) {
-    case QtQuick20Components:
-        return QLatin1String("qtquick20");
-    case QtQuickControls10:
-        return QLatin1String("qtquick21");
-    case QtQuick10Components:
-    default:
-        return QLatin1String("qtquick10");
-    }
 }
 
 } // namespace Internal

@@ -39,7 +39,6 @@ struct QtQuickAppGeneratedFileInfo : public AbstractGeneratedFileInfo
 {
     enum ExtendedFileType {
         MainQmlFile = ExtendedFile,
-        MainPageQmlFile,
         AppViewerPriFile,
         AppViewerCppFile,
         AppViewerHFile
@@ -61,10 +60,7 @@ public:
         AppViewerCppOrigin,
         AppViewerH,
         AppViewerHOrigin,
-        QmlDir,
-        QmlDirProFileRelative,
-        MainPageQml,
-        MainPageQmlOrigin
+        QmlDirProFileRelative
     };
 
     enum ComponentSet {
@@ -105,8 +101,6 @@ private:
         bool &commentOutNextLine) const;
     QList<AbstractGeneratedFileInfo> updateableFiles(const QString &mainProFile) const;
     QList<DeploymentFolder> deploymentFolders() const;
-
-    QString componentSetDir(ComponentSet componentSet) const;
 
     QFileInfo m_mainQmlFile;
     ComponentSet m_componentSet;
