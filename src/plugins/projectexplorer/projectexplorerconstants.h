@@ -245,6 +245,8 @@ const char VAR_CURRENTKIT_FILESYSTEMNAME[] = "CurrentKit:FileSystemName";
 const char VAR_CURRENTKIT_ID[] = "CurrentKit:Id";
 const char VAR_CURRENTBUILD_NAME[] = "CurrentBuild:Name";
 const char VAR_CURRENTBUILD_TYPE[] = "CurrentBuild:Type";
+const char VAR_CURRENTSESSION_PREFIX[] = "CurrentSession";
+const char VAR_CURRENTSESSION_NAME[] = "CurrentSession:Name";
 
 // Unconfigured Panel
 const char UNCONFIGURED_PANEL_PAGE_ID[] = "UnconfiguredPanel";
