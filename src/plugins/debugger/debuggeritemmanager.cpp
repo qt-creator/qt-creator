@@ -370,14 +370,10 @@ QVariant DebuggerItemManager::registerDebugger(const DebuggerItem &item)
     return addDebugger(item);
 }
 
-void DebuggerItemManager::deregisterDebugger(const DebuggerItem &item)
+void DebuggerItemManager::deregisterDebugger(const QVariant &id)
 {
-    QTC_ASSERT(!item.command().isEmpty(), return);
-    QTC_ASSERT(!item.displayName().isEmpty(), return);
-    QTC_ASSERT(item.engineType() != NoEngineType, return);
-
-    if (findById(item.id()))
-        removeDebugger(item.id());
+    if (findById(id))
+        removeDebugger(id);
 }
 
 QVariant DebuggerItemManager::addDebugger(const DebuggerItem &item)

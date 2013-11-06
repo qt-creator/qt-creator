@@ -368,7 +368,7 @@ void BlackBerryConfiguration::deactivate()
     foreach (const DebuggerItem &item, DebuggerItemManager::debuggers())
         if (item.isAutoDetected() &&
                 (item.command() == m_simulatorDebugger || item.command() == m_deviceDebugger))
-                DebuggerItemManager::deregisterDebugger(item);
+                DebuggerItemManager::deregisterDebugger(item.id());
 
     foreach (ToolChain *toolChain, ToolChainManager::toolChains())
         if (toolChain->isAutoDetected()
