@@ -544,7 +544,8 @@ void TaskWindow::setShowWarnings(bool show)
 {
     d->m_filter->setFilterIncludesWarnings(show);
     d->m_filter->setFilterIncludesUnknowns(show); // "Unknowns" are often associated with warnings
-    setBadgeNumber(d->m_filter->rowCount());
+    d->m_badgeCount = d->m_filter->rowCount();
+    setBadgeNumber(d->m_badgeCount);
 }
 
 void TaskWindow::updateCategoriesMenu()
