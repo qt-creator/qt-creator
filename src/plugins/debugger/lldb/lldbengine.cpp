@@ -826,7 +826,7 @@ QString LldbEngine::errorMessage(QProcess::ProcessError error) const
             return tr("An error occurred when attempting to read from "
                 "the Lldb process. For example, the process may not be running.");
         default:
-            return tr("An unknown error in the Lldb process occurred.") + QLatin1Char(' ');
+            return tr("An unknown error in the LLDB process occurred.") + QLatin1Char(' ');
     }
 }
 
