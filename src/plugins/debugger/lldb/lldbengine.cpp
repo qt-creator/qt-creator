@@ -126,6 +126,19 @@ void LldbEngine::shutdownEngine()
     m_lldbProc.kill();
 }
 
+void LldbEngine::abortDebugger()
+{
+    if (targetState() == DebuggerFinished) {
+        // We already tried. Try harder.
+        showMessage(_("ABORTING DEBUGGER. SECOND TIME."));
+        m_lldbProc.kill();
+    } else {
+        // Be friendly the first time. This will change targetState().
+        showMessage(_("ABORTING DEBUGGER. FIRST TIME."));
+        quitDebugger();
+    }
+}
+
 void LldbEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());

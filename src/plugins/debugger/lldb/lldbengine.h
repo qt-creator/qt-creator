@@ -100,6 +100,7 @@ private:
     void runEngine();
     void shutdownInferior();
     void shutdownEngine();
+    void abortDebugger();
 
     bool setToolTipExpression(const QPoint &mousePos,
         TextEditor::ITextEditor *editor, const DebuggerToolTipContext &);
