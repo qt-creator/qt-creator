@@ -108,7 +108,8 @@ QmlProject::QmlProject(Internal::Manager *manager, const QString &fileName)
     : m_manager(manager),
       m_fileName(fileName),
       m_defaultImport(UnknownImport),
-      m_modelManager(QmlJS::ModelManagerInterface::instance())
+      m_modelManager(QmlJS::ModelManagerInterface::instance()),
+      m_activeTarget(0)
 {
     setProjectContext(Context(QmlProjectManager::Constants::PROJECTCONTEXT));
     setProjectLanguages(Context(ProjectExplorer::Constants::LANG_QMLJS));
@@ -142,7 +143,19 @@ void QmlProject::addedTarget(ProjectExplorer::Target *target)
         addedRunConfiguration(rc);
 }
 
-void QmlProject::onActiveTargetChanged(ProjectExplorer::Target * /*target*/)
+void QmlProject::onActiveTargetChanged(ProjectExplorer::Target *target)
+{
+    if (m_activeTarget)
+        disconnect(m_activeTarget, SIGNAL(kitChanged()), this, SLOT(onKitChanged()));
+    m_activeTarget = target;
+    if (m_activeTarget)
+        connect(target, SIGNAL(kitChanged()), this, SLOT(onKitChanged()));
+
+    // make sure e.g. the default qml imports are adapted
+    refresh(Configuration);
+}
+
+void QmlProject::onKitChanged()
 {
     // make sure e.g. the default qml imports are adapted
     refresh(Configuration);
@@ -401,6 +414,11 @@ bool QmlProject::fromMap(const QVariantMap &map)
 
     connect(this, SIGNAL(activeTargetChanged(ProjectExplorer::Target*)),
             this, SLOT(onActiveTargetChanged(ProjectExplorer::Target*)));
+
+    // make sure we get updates on kit changes
+    m_activeTarget = activeTarget();
+    if (m_activeTarget)
+        connect(m_activeTarget, SIGNAL(kitChanged()), this, SLOT(onKitChanged()));
 
     return true;
 }
