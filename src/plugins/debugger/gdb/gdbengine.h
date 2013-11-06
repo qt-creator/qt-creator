@@ -37,6 +37,8 @@
 
 #include <coreplugin/id.h>
 
+#include <projectexplorer/devicesupport/idevice.h>
+
 #include <QProcess>
 #include <QTextCodec>
 #include <QTime>
@@ -50,6 +52,7 @@ class DebugInfoTask;
 class DebugInfoTaskHandler;
 class GdbResponse;
 class GdbMi;
+class MemoryAgentCookie;
 
 class WatchData;
 class DisassemblerAgentCookie;
@@ -251,6 +254,7 @@ protected: ////////// Gdb Process Management //////////
     void handleAdapterCrashed(const QString &msg);
 
 private slots:
+    void handleInterruptDeviceInferior(const QString &error);
     void handleGdbFinished(int, QProcess::ExitStatus status);
     void handleGdbError(QProcess::ProcessError error);
     void readGdbStandardOutput();
@@ -568,6 +572,7 @@ protected:
 
     virtual void fetchMemory(MemoryAgent *agent, QObject *token,
         quint64 addr, quint64 length);
+    void fetchMemoryHelper(const MemoryAgentCookie &cookie);
     void handleChangeMemory(const GdbResponse &response);
     virtual void changeMemory(MemoryAgent *agent, QObject *token,
         quint64 addr, const QByteArray &data);
@@ -727,6 +732,7 @@ protected:
     void interruptLocalInferior(qint64 pid);
 
     GdbProcess *m_gdbProc;
+    ProjectExplorer::DeviceProcessSignalOperation::Ptr m_signalOperation;
 };
 
 

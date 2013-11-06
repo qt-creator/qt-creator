@@ -72,9 +72,7 @@ ${staging}/gdb-${version}/configure: ${source}/gdb-${version}.tar.bz2 | makestag
 	echo "Extracting gdb..." && \
 	tar xf ${source}/gdb-${version}.tar.bz2 && \
 	cd gdb-${version} && \
-	touch configure && \
-	patch -p2 < ${broot}/patches/gdb-ipv6.patch && \
-	patch -p1 < ${broot}/patches/datadir.patch
+	touch configure
 
 ${staging}/lib/libiconv.a: ${source}/libiconv-${iconvversion}.tar.gz | makestagingdir
 	cd ${staging} && \

@@ -106,12 +106,12 @@
                 Qt Quick applications.
 
                 For more information, see \l{Debugging and Analyzing}.
-            \li \b {\l{Publishing}}
+            \li \b {Publishing}
 
                 \QC allows you to create installation packages for mobile
                 devices that are suitable for publishing to application stores
-                and other channels. For more information, see
-                \l{Publishing}.
+                and other channels. You must make sure that the package contents
+                meet the requirements for publishing on the channel.
     \endtable
 
 */

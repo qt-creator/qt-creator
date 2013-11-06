@@ -112,11 +112,7 @@ QString IosRunConfiguration::defaultDisplayName()
 {
     ProjectExplorer::IDevice::ConstPtr dev =
             ProjectExplorer::DeviceKitInformation::device(target()->kit());
-    QString devName;
-    if (!dev.isNull())
-        devName = dev->displayName();
-    if (devName.isEmpty())
-        devName = tr("iOS device");
+    const QString devName = dev.isNull() ? IosDevice::name() : dev->displayName();
     return tr("Run on %1").arg(devName);
 }
 

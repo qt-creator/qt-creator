@@ -259,7 +259,7 @@ EditorManagerPrivate::~EditorManagerPrivate()
 static EditorManager *m_instance = 0;
 static EditorManagerPrivate *d;
 
-QWidget *EditorManager::instance() { return m_instance; }
+EditorManager *EditorManager::instance() { return m_instance; }
 
 EditorManager::EditorManager(QWidget *parent) :
     QWidget(parent)

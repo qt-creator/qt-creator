@@ -50,6 +50,7 @@ ImportLabel::ImportLabel(QWidget *parent) :
     m_removeButton->setMaximumHeight(20);
     m_removeButton->setFocusPolicy(Qt::NoFocus);
     m_removeButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    m_removeButton->setToolTip(tr("Remove Import"));
     connect(m_removeButton, SIGNAL(clicked()), this, SLOT(emitRemoveImport()));
     layout->addWidget(m_removeButton);
 
@@ -69,6 +70,16 @@ void ImportLabel::setImport(const Import &import)
 const Import ImportLabel::import() const
 {
     return m_import;
+}
+
+void ImportLabel::setReadOnly(bool readOnly) const
+{
+    m_removeButton->setDisabled(readOnly);
+    if (readOnly) {
+         m_removeButton->setIcon(QIcon());
+    } else {
+         m_removeButton->setIcon(QIcon(Core::Constants::ICON_CLOSE_DOCUMENT));
+    }
 }
 
 void ImportLabel::emitRemoveImport()

@@ -29,6 +29,7 @@
 
 #include "androiddevice.h"
 #include "androidconstants.h"
+#include "androidsignaloperation.h"
 
 #include <QCoreApplication>
 
@@ -91,7 +92,7 @@ bool AndroidDevice::canAutoDetectPorts() const
 
 DeviceProcessSignalOperation::Ptr AndroidDevice::signalOperation() const
 {
-    return DeviceProcessSignalOperation::Ptr();
+    return DeviceProcessSignalOperation::Ptr(new AndroidSignalOperation());
 }
 
 IDevice::Ptr AndroidDevice::clone() const

@@ -138,7 +138,7 @@ QWizard *CustomQmakeProjectWizard::createWizardDialog
     BaseQmakeProjectWizardDialog *wizard = new BaseQmakeProjectWizardDialog(false, parent, wizardDialogParameters);
 
     if (!wizardDialogParameters.extraValues().contains(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS)))
-        wizard->addTargetSetupPage(false, targetPageId);
+        wizard->addTargetSetupPage(targetPageId);
 
     initProjectWizardDialog(wizard, wizardDialogParameters.defaultPath(),
                             wizardDialogParameters.extensionPages());
@@ -210,12 +210,11 @@ int BaseQmakeProjectWizardDialog::addModulesPage(int id)
     return newId;
 }
 
-int BaseQmakeProjectWizardDialog::addTargetSetupPage(bool mobile, int id)
+int BaseQmakeProjectWizardDialog::addTargetSetupPage(int id)
 {
     m_targetSetupPage = new ProjectExplorer::TargetSetupPage;
     const QString platform = selectedPlatform();
-    Core::FeatureSet features = mobile ? Core::FeatureSet(QtSupport::Constants::FEATURE_MOBILE)
-                                       : Core::FeatureSet(QtSupport::Constants::FEATURE_DESKTOP);
+    Core::FeatureSet features = Core::FeatureSet(QtSupport::Constants::FEATURE_DESKTOP);
     if (platform.isEmpty())
         m_targetSetupPage->setPreferredKitMatcher(new QtSupport::QtVersionKitMatcher(features));
     else

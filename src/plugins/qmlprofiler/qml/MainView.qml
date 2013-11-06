@@ -35,9 +35,7 @@ Rectangle {
 
     // ***** properties
 
-    property int candidateHeight: 0
     property int scrollY: 0
-    height: Math.max( candidateHeight, labels.height + 2 )
 
     property int singleRowHeight: 30
 
@@ -464,9 +462,9 @@ Rectangle {
                         root.updateVerticalScroll(itemY);
                     } else
                         if (itemY + root.singleRowHeight >
-                                root.scrollY + root.candidateHeight) {
+                                root.scrollY + root.height) {
                             root.updateVerticalScroll(itemY + root.singleRowHeight -
-                                                      root.candidateHeight);
+                                                      root.height);
                     }
 
                 } else {
@@ -533,7 +531,7 @@ Rectangle {
             id: col
             Repeater {
                 model: labels.rowCount
-                delegate: Label { }
+                delegate: CategoryLabel { }
             }
         }
     }
@@ -584,7 +582,7 @@ Rectangle {
     }
 
     Rectangle {
-        y: root.scrollY + root.candidateHeight - height
+        y: root.scrollY + root.height - height
         height: 6
         width: root.width
         x: 0

@@ -63,7 +63,7 @@ GdbRemoteServerEngine::GdbRemoteServerEngine(const DebuggerStartParameters &star
     m_isMulti = false;
     m_targetPid = -1;
 #ifdef Q_OS_WIN
-    m_gdbProc->setUseCtrlCStub(!startParameters.remoteExecutable.isEmpty()); // This is only set for QNX
+    m_gdbProc->setUseCtrlCStub(startParameters.useCtrlCStub); // This is only set for QNX/BlackBerry
 #endif
     connect(&m_uploadProc, SIGNAL(error(QProcess::ProcessError)),
         SLOT(uploadProcError(QProcess::ProcessError)));
@@ -179,11 +179,6 @@ void GdbRemoteServerEngine::setupInferior()
         QFileInfo fi(sp.executable);
         executableFileName = fi.absoluteFilePath();
     }
-    QString symbolFileName;
-    if (!sp.symbolFileName.isEmpty()) {
-        QFileInfo fi(sp.symbolFileName);
-        symbolFileName = fi.absoluteFilePath();
-    }
 
     //const QByteArray sysroot = sp.sysroot.toLocal8Bit();
     //const QByteArray remoteArch = sp.remoteArchitecture.toLatin1();
@@ -221,17 +216,12 @@ void GdbRemoteServerEngine::setupInferior()
     if (debuggerCore()->boolSetting(TargetAsync))
         postCommand("set target-async on", CB(handleSetTargetAsync));
 
-    if (executableFileName.isEmpty() && symbolFileName.isEmpty()) {
+    if (executableFileName.isEmpty()) {
         showMessage(tr("No symbol file given."), StatusBar);
         callTargetRemote();
         return;
     }
 
-    if (!symbolFileName.isEmpty()) {
-        postCommand("-file-symbol-file \""
-                    + symbolFileName.toLocal8Bit() + '"',
-                    CB(handleFileExecAndSymbols));
-    }
     if (!executableFileName.isEmpty()) {
         postCommand("-file-exec-and-symbols \"" + executableFileName.toLocal8Bit() + '"',
             CB(handleFileExecAndSymbols));
@@ -360,8 +350,11 @@ void GdbRemoteServerEngine::handleTargetQnx(const GdbResponse &response)
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
 
         const qint64 pid = isMasterEngine() ? startParameters().attachPID : masterEngine()->startParameters().attachPID;
+        const QString remoteExecutable = isMasterEngine() ? startParameters().remoteExecutable : masterEngine()->startParameters().remoteExecutable;
         if (pid > -1)
             postCommand("attach " + QByteArray::number(pid), CB(handleAttach));
+        else if (!remoteExecutable.isEmpty())
+            postCommand("set nto-executable " + remoteExecutable.toLatin1(), CB(handleSetNtoExecutable));
         else
             handleInferiorPrepared();
     } else {
@@ -395,21 +388,32 @@ void GdbRemoteServerEngine::handleAttach(const GdbResponse &response)
     }
 }
 
+void GdbRemoteServerEngine::handleSetNtoExecutable(const GdbResponse &response)
+{
+    QTC_ASSERT(state() == InferiorSetupRequested, qDebug() << state());
+    switch (response.resultClass) {
+    case GdbResultDone:
+    case GdbResultRunning: {
+        showMessage(_("EXECUTABLE SET"));
+        showMessage(msgAttachedToStoppedInferior(), StatusBar);
+        handleInferiorPrepared();
+        break;
+    }
+    case GdbResultError:
+    default:
+        QString msg = QString::fromLocal8Bit(response.data["msg"].data());
+        notifyInferiorSetupFailed(msg);
+    }
+
+}
+
 void GdbRemoteServerEngine::runEngine()
 {
     QTC_ASSERT(state() == EngineRunRequested, qDebug() << state());
 
-    const QString remoteExecutable = startParameters().remoteExecutable;
+    const QString remoteExecutable = startParameters().remoteExecutable; // This is only set for pure QNX
     if (!remoteExecutable.isEmpty()) {
-        // Cannot use -exec-run for QNX gdb 7.4 as it does not support path parameter for the MI call
-        const bool useRun = m_isQnxGdb && m_gdbVersion > 70300;
-        QByteArray command = useRun ? "run" : "-exec-run";
-        command += " " + remoteExecutable.toLocal8Bit();
-
-        const QByteArray arguments = isMasterEngine() ? startParameters().processArgs.toLocal8Bit() : masterEngine()->startParameters().processArgs.toLocal8Bit();
-        command += " " + arguments;
-
-        postCommand(command, GdbEngine::RunRequest, CB(handleExecRun));
+        postCommand("-exec-run", GdbEngine::RunRequest, CB(handleExecRun));
     } else {
         notifyEngineRunAndInferiorStopOk();
         continueInferiorInternal();

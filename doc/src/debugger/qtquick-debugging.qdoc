@@ -30,12 +30,7 @@
 
     \title Debugging Qt Quick Projects
 
-    \note You need Qt 4.7.1 or later to debug Qt Quick projects. Debugging
-    projects not created with the Qt Quick wizards is only supported with
-    Qt 4.8, or later.
-
-    To debug Qt Quick applications running on devices, you must install
-    Qt 4.7.4, or later, libraries on devices.
+    \note You need Qt 4.8 or later to debug Qt Quick projects.
 
     For an example of how to debug Qt Quick Projects, see
     \l{Debugging a Qt Quick Example Application}.

@@ -60,21 +60,10 @@ const int AbstractMobileApp::StubVersion = 9;
 
 AbstractMobileApp::AbstractMobileApp()
     : QObject()
-    , m_orientation(ScreenOrientationAuto)
 {
 }
 
 AbstractMobileApp::~AbstractMobileApp() { }
-
-void AbstractMobileApp::setOrientation(ScreenOrientation orientation)
-{
-    m_orientation = orientation;
-}
-
-AbstractMobileApp::ScreenOrientation AbstractMobileApp::orientation() const
-{
-    return m_orientation;
-}
 
 void AbstractMobileApp::setProjectName(const QString &name)
 {
@@ -167,25 +156,7 @@ QByteArray AbstractMobileApp::generateMainCpp(QString *errorMessage) const
     QString line;
     while (!(line = in.readLine()).isNull()) {
         bool adaptLine = true;
-        if (line.contains(QLatin1String("// ORIENTATION"))) {
-            const char *orientationString;
-            switch (orientation()) {
-            case ScreenOrientationLockLandscape:
-                orientationString = "ScreenOrientationLockLandscape";
-                break;
-            case ScreenOrientationLockPortrait:
-                orientationString = "ScreenOrientationLockPortrait";
-                break;
-            case ScreenOrientationAuto:
-                orientationString = "ScreenOrientationAuto";
-                break;
-            case ScreenOrientationImplicit:
-            default:
-                continue; // omit line
-            }
-            insertParameter(line, mainWindowClassName() + QLatin1String("::")
-                + QLatin1String(orientationString));
-        } else if (line.contains(QLatin1String("// DELETE_LINE"))) {
+        if (line.contains(QLatin1String("// DELETE_LINE"))) {
             continue; // omit this line in the output
         } else {
             adaptLine = adaptCurrentMainCppTemplateLine(line);

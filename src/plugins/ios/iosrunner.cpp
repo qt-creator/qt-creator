@@ -38,12 +38,16 @@
 #include <projectexplorer/devicesupport/deviceapplicationrunner.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/taskhub.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <QDir>
 #include <QTime>
 #include <QMessageBox>
 
 #include <signal.h>
+
+using namespace ProjectExplorer;
 
 namespace Ios {
 namespace Internal {
@@ -163,35 +167,17 @@ void IosRunner::handleAppOutput(IosToolHandler *handler, const QString &output)
     emit appOutput(output);
 }
 
-void IosRunner::warnAboutRunFail()
-{
-    QMessageBox mBox;
-    mBox.setText(tr("Running on iOS device failed."));
-    mBox.setInformativeText(tr("The certificates in Xcode or the device might be outdated. Check the certificates in the organizer window of Xcode, and try again."));
-    mBox.setStandardButtons(QMessageBox::Ok);
-    mBox.setDefaultButton(QMessageBox::Ok);
-    mBox.setIcon(QMessageBox::Information);
-    mBox.exec();
-}
-
-void IosRunner::warnAboutDeployFail()
-{
-    QMessageBox mBox;
-    mBox.setText(tr("Deploying to iOS device failed."));
-    mBox.setInformativeText(tr("This might be due to an incorrect Info.plist or outdated certificates in Xcode or device (see organizer window of Xcode)."));
-    mBox.setStandardButtons(QMessageBox::Ok);
-    mBox.setDefaultButton(QMessageBox::Ok);
-    mBox.setIcon(QMessageBox::Information);
-    mBox.exec();
-}
-
 void IosRunner::handleErrorMsg(IosToolHandler *handler, const QString &msg)
 {
     Q_UNUSED(handler);
     if (msg.contains(QLatin1String("AMDeviceStartService returned -402653150")))
-        QTimer::singleShot(0, this, SLOT(warnAboutRunFail()));
-    else if (msg.contains(QLatin1String("AMDeviceInstallApplication returned -402653103")))
-        QTimer::singleShot(0, this, SLOT(warnAboutDeployFail()));
+        TaskHub::addTask(Task::Warning,
+                         tr("Run failed. The settings in the Organizer window of Xcode might be incorrect."),
+                         ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
+    else if (msg.contains(QLatin1String("Unexpected reply: ELocked (454c6f636b6564) vs OK (OK)")))
+        TaskHub::addTask(Task::Error,
+                         tr("The device is locked, please unlock."),
+                         ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
     emit errorMsg(msg);
 }
 

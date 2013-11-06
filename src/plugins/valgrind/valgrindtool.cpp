@@ -102,47 +102,32 @@ static void startLocalTool(IAnalyzerTool *tool)
                 ? AnalyzerManager::tr("Debug")
                 : AnalyzerManager::tr("Release");
 
-        QSettings *settings = ICore::settings();
-        const QString configKey = QLatin1String("Analyzer.AnalyzeCorrectMode");
-        int ret;
-        if (settings->contains(configKey)) {
-            ret = settings->value(configKey, QDialog::Accepted).toInt();
-        } else {
-            QString toolModeString;
-            switch (tool->toolMode()) {
-                case IAnalyzerTool::DebugMode:
-                    toolModeString = AnalyzerManager::tr("Debug");
-                    break;
-                case IAnalyzerTool::ReleaseMode:
-                    toolModeString = AnalyzerManager::tr("Release");
-                    break;
-                default:
-                    QTC_CHECK(false);
-            }
-            //const QString toolName = tool->displayName();
-            const QString toolName = AnalyzerManager::tr("Tool"); // FIXME
-            const QString title = AnalyzerManager::tr("Run %1 in %2 Mode?").arg(toolName).arg(currentMode);
-            const QString message = AnalyzerManager::tr("<html><head/><body><p>You are trying "
-                "to run the tool \"%1\" on an application in %2 mode. "
-                "The tool is designed to be used in %3 mode.</p><p>"
-                "Debug and Release mode run-time characteristics differ "
-                "significantly, analytical findings for one mode may or "
-                "may not be relevant for the other.</p><p>"
-                "Do you want to continue and run the tool in %2 mode?</p></body></html>")
-                    .arg(toolName).arg(currentMode).arg(toolModeString);
-            const QString checkBoxText = AnalyzerManager::tr("&Do not ask again");
-            bool checkBoxSetting = false;
-            const QDialogButtonBox::StandardButton button =
-                Utils::CheckableMessageBox::question(ICore::mainWindow(),
-                    title, message, checkBoxText,
-                    &checkBoxSetting, QDialogButtonBox::Yes|QDialogButtonBox::Cancel,
-                    QDialogButtonBox::Cancel);
-            ret = button == QDialogButtonBox::Yes ? QDialog::Accepted : QDialog::Rejected;
-
-            if (checkBoxSetting && ret == QDialog::Accepted)
-                settings->setValue(configKey, ret);
+        QString toolModeString;
+        switch (tool->toolMode()) {
+            case IAnalyzerTool::DebugMode:
+                toolModeString = AnalyzerManager::tr("Debug");
+                break;
+            case IAnalyzerTool::ReleaseMode:
+                toolModeString = AnalyzerManager::tr("Release");
+                break;
+            default:
+                QTC_CHECK(false);
         }
-        if (ret == QDialog::Rejected)
+        //const QString toolName = tool->displayName();
+        const QString toolName = AnalyzerManager::tr("Tool"); // FIXME
+        const QString title = AnalyzerManager::tr("Run %1 in %2 Mode?").arg(toolName).arg(currentMode);
+        const QString message = AnalyzerManager::tr("<html><head/><body><p>You are trying "
+            "to run the tool \"%1\" on an application in %2 mode. "
+            "The tool is designed to be used in %3 mode.</p><p>"
+            "Debug and Release mode run-time characteristics differ "
+            "significantly, analytical findings for one mode may or "
+            "may not be relevant for the other.</p><p>"
+            "Do you want to continue and run the tool in %2 mode?</p></body></html>")
+                .arg(toolName).arg(currentMode).arg(toolModeString);
+        if (Utils::CheckableMessageBox::doNotAskAgainQuestion(ICore::mainWindow(),
+                title, message, ICore::settings(), QLatin1String("AnalyzerCorrectModeWarning"),
+                QDialogButtonBox::Yes|QDialogButtonBox::Cancel,
+                QDialogButtonBox::Cancel, QDialogButtonBox::Yes) != QDialogButtonBox::Yes)
             return;
     }
 

@@ -42,7 +42,7 @@ Controls.ComboBox {
         id: colorLogic
         backendValue: comboBox.backendValue
         onValueFromBackendChanged: {
-            comboBox.currentIndex = comboBox.find( comboBox.backendValue.valueToString);
+            comboBox.currentIndex = comboBox.find(comboBox.backendValue.valueToString);
         }
     }
 

@@ -38,10 +38,12 @@
 #include <utils/fileutils.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
+#include <utils/hostosinfo.h>
 
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
+#include <QProcess>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -217,6 +219,19 @@ void DebuggerItemManager::autoDetectGdbOrLldbDebuggers()
 
     QFileInfoList suspects;
 
+    if (HostOsInfo::isMacHost()) {
+        QProcess lldbInfo;
+        lldbInfo.start(QLatin1String("xcrun"), QStringList() << QLatin1String("--find")
+                       << QLatin1String("lldb"));
+        if (!lldbInfo.waitForFinished(2000)) {
+            lldbInfo.kill();
+            lldbInfo.waitForFinished();
+        } else {
+            QByteArray lPath = lldbInfo.readAll();
+            suspects.append(QFileInfo(QString::fromLocal8Bit(lPath.data(), lPath.size() -1)));
+        }
+    }
+
     QStringList path = Environment::systemEnvironment().path();
     foreach (const QString &base, path) {
         QDir dir(base);
@@ -298,6 +313,14 @@ const DebuggerItem *DebuggerItemManager::findById(const QVariant &id)
         if (item.id() == id)
             return &item;
 
+    return 0;
+}
+
+const DebuggerItem *DebuggerItemManager::findByEngineType(DebuggerEngineType engineType)
+{
+    foreach (const DebuggerItem &item, m_debuggers)
+        if (item.engineType() == engineType && item.isValid())
+            return &item;
     return 0;
 }
 

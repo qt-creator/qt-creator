@@ -166,12 +166,11 @@ void AndroidRunner::checkPID()
 void AndroidRunner::forceStop()
 {
     QProcess proc;
-    proc.start(m_adb, selector() << _("shell") << _("am") << _("force-stop"));
+    proc.start(m_adb, selector() << _("shell") << _("am") << _("force-stop")
+               << m_packageName);
     proc.waitForFinished();
-}
 
-void AndroidRunner::killPID()
-{
+    // try killing it via kill -9
     const QByteArray out = runPs();
     int from = 0;
     while (1) {
@@ -198,7 +197,6 @@ void AndroidRunner::asyncStart()
 {
     QMutexLocker locker(&m_mutex);
     forceStop();
-    killPID();
 
     if (m_useCppDebugger) {
         // Remove pong file.
@@ -345,7 +343,7 @@ void AndroidRunner::stop()
     QMutexLocker locker(&m_mutex);
     m_checkPIDTimer.stop();
     if (m_processPID != -1) {
-        killPID();
+        forceStop();
         emit remoteProcessFinished(tr("\n\n'%1' terminated.").arg(m_packageName));
     }
     //QObject::disconnect(&m_adbLogcatProcess, 0, this, 0);

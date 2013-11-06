@@ -37,9 +37,7 @@ namespace Internal {
 
 struct QtProjectParameters;
 class FilesPage;
-class MobileLibraryWizardOptionPage;
 struct LibraryParameters;
-struct MobileLibraryParameters;
 
 // Library wizard dialog.
 class LibraryWizardDialog : public BaseQmakeProjectWizardDialog
@@ -58,7 +56,6 @@ public:
 
     QtProjectParameters parameters() const;
     LibraryParameters libraryParameters() const;
-    MobileLibraryParameters mobileLibraryParameters() const;
 
     static QString pluginInterface(const QString &baseClass);
 
@@ -74,17 +71,14 @@ private slots:
 private:
     QtProjectParameters::Type type() const;
     void setupFilesPage();
-    void setupMobilePage();
     bool isModulesPageSkipped() const;
     int skipModulesPageIfNeeded() const;
 
     FilesPage *m_filesPage;
-    MobileLibraryWizardOptionPage *m_mobilePage;
     bool m_pluginBaseClassesInitialized;
     int m_filesPageId;
     int m_modulesPageId;
     int m_targetPageId;
-    int m_mobilePageId;
 };
 
 } // namespace Internal

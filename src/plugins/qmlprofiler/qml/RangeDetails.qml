@@ -62,7 +62,7 @@ Item {
     Connections {
         target: root
         onWidthChanged: fitInView();
-        onCandidateHeightChanged: fitInView();
+        onHeightChanged: fitInView();
     }
 
     //property int eventInfo
@@ -97,15 +97,15 @@ Item {
 
     function fitInView() {
         // don't reposition if it does not fit
-        if (root.width < width || root.candidateHeight < height)
+        if (root.width < width || root.height < height)
             return;
 
         if (x + width > root.width)
             x = root.width - width;
         if (x < 0)
             x = 0;
-        if (y - yoffset + height > root.candidateHeight)
-            y = root.candidateHeight - height + yoffset;
+        if (y - yoffset + height > root.height)
+            y = root.height - height + yoffset;
         if (y < yoffset)
             y = yoffset;
     }
@@ -193,7 +193,7 @@ Item {
         drag.minimumX: 0
         drag.maximumX: root.width - parent.width
         drag.minimumY: yoffset
-        drag.maximumY: root.candidateHeight - parent.height + yoffset
+        drag.maximumY: root.height - parent.height + yoffset
         onClicked: {
             root.gotoSourceLocation(file, line, column);
             root.recenterOnItem(view.selectedModel, view.selectedItem);

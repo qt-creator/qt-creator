@@ -31,9 +31,6 @@
     Linux device plugin. However, if the device does not have Qt libraries, you
     need a fake Qt installation.
 
-    Currently, you must use qmake to generate Makefiles for building the
-    application.
-
     The bare metal device type accepts custom GDB commands that you specify in
     the device options.
 

@@ -197,6 +197,10 @@ void TargetSetupPage::initializePage()
 
 void TargetSetupPage::setRequiredKitMatcher(KitMatcher *matcher)
 {
+    if (matcher == m_requiredMatcher)
+        return;
+    if (m_requiredMatcher)
+        delete m_requiredMatcher;
     m_requiredMatcher = matcher;
 }
 
@@ -216,6 +220,10 @@ QList<Core::Id> TargetSetupPage::selectedKits() const
 
 void TargetSetupPage::setPreferredKitMatcher(KitMatcher *matcher)
 {
+    if (matcher == m_preferredMatcher)
+        return;
+    if (m_preferredMatcher)
+        delete m_preferredMatcher;
     m_preferredMatcher = matcher;
 }
 
@@ -302,6 +310,8 @@ void TargetSetupPage::setProjectPath(const QString &path)
 
 void TargetSetupPage::setProjectImporter(ProjectImporter *importer)
 {
+    if (importer == m_importer)
+        return;
     if (m_importer)
         delete m_importer;
     m_importer = importer;
@@ -520,9 +530,9 @@ bool TargetSetupPage::setupProject(Project *project)
         widget->clearKit();
     }
 
+    reset();
     project->setup(toSetUp);
 
-    reset(); // This will delete the pointers held in toSetUp!
     toSetUp.clear();
 
     Target *activeTarget = 0;

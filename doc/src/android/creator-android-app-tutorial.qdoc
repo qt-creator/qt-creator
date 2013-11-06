@@ -44,13 +44,16 @@
     \list 1
 
         \li Select \gui File > \gui {New File or Project} > \gui Applications >
-            \gui {Qt Quick 2 Application (Qt Quick Controls)} > \gui Choose.
+            \gui {Qt Quick Application} > \gui Choose.
 
         \li In the \gui{Name} field, type \b{accelbubble}.
 
         \li In the \gui {Create in} field, enter the path for the project files.
             For example, \c {C:\Qt\examples}, and then click \gui{Next} (or
             \gui Continue on Mac OS X).
+
+        \li In the \gui {Qt Quick component set} field, select
+            \gui {Qt Quick Controls 1.0}.
 
         \li Select an Android \l{glossary-buildandrun-kit}{kit} for ARM,
             and click \gui{Next}.

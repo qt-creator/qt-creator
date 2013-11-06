@@ -21,6 +21,7 @@ QtcPlugin {
         files: [
             "qmlapp.cpp", "qmlapp.h",
             "qmlapplicationwizard.cpp", "qmlapplicationwizard.h",
+            "qmlapplicationwizardpages.cpp", "qmlapplicationwizardpages.h",
             "qmlproject.cpp", "qmlproject.h",
             "qmlproject.qrc",
             "qmlprojectconstants.h",

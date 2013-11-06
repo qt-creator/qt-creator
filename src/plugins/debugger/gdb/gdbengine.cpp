@@ -65,8 +65,9 @@
 #include <debugger/shared/hostutils.h>
 
 #include <coreplugin/icore.h>
-#include <projectexplorer/taskhub.h>
+#include <projectexplorer/devicesupport/deviceprocess.h>
 #include <projectexplorer/itaskhandler.h>
+#include <projectexplorer/taskhub.h>
 #include <texteditor/itexteditor.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -840,8 +841,33 @@ void GdbEngine::interruptInferior()
     } else {
         showStatusMessage(tr("Stop requested..."), 5000);
         showMessage(_("TRYING TO INTERRUPT INFERIOR"));
-        interruptInferior2();
+        if (Utils::HostOsInfo::isWindowsHost() && !m_isQnxGdb) {
+            QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state(); notifyInferiorStopFailed());
+            QTC_ASSERT(!m_signalOperation, notifyInferiorStopFailed());
+            m_signalOperation = startParameters().device->signalOperation();
+            QTC_ASSERT(m_signalOperation, notifyInferiorStopFailed());
+            connect(m_signalOperation.data(), SIGNAL(finished(QString)),
+                    SLOT(handleInterruptDeviceInferior(QString)));
+
+            m_signalOperation->setDebuggerCommand(startParameters().debuggerCommand);
+            m_signalOperation->interruptProcess(inferiorPid());
+        } else {
+            interruptInferior2();
+        }
     }
+}
+
+void GdbEngine::handleInterruptDeviceInferior(const QString &error)
+{
+    if (error.isEmpty()) {
+        showMessage(QLatin1String("Interrupted ") + QString::number(inferiorPid()));
+        notifyInferiorStopOk();
+    } else {
+        showMessage(error, LogError);
+        notifyInferiorStopFailed();
+    }
+    m_signalOperation->disconnect(this);
+    m_signalOperation.clear();
 }
 
 void GdbEngine::interruptInferiorTemporarily()
@@ -4331,28 +4357,36 @@ void GdbEngine::handleWatchPoint(const GdbResponse &response)
 class MemoryAgentCookie
 {
 public:
-    MemoryAgentCookie() : agent(0), token(0), address(0) {}
-
-    MemoryAgentCookie(MemoryAgent *agent_, QObject *token_, quint64 address_)
-        : agent(agent_), token(token_), address(address_)
+    MemoryAgentCookie()
+        : accumulator(0), pendingRequests(0), agent(0), token(0), base(0), offset(0), length(0)
     {}
 
 public:
+    QByteArray *accumulator; // Shared between split request. Last one cleans up.
+    uint *pendingRequests; // Shared between split request. Last one cleans up.
+
     QPointer<MemoryAgent> agent;
     QPointer<QObject> token;
-    quint64 address;
+    quint64 base; // base address.
+    uint offset; // offset to base, and in accumulator
+    uint length; //
 };
+
 
 void GdbEngine::changeMemory(MemoryAgent *agent, QObject *token,
         quint64 addr, const QByteArray &data)
 {
-    QByteArray cmd = "-data-write-memory " + QByteArray::number(addr) + " d 1";
+    QByteArray cmd = "-data-write-memory 0x" + QByteArray::number(addr, 16) + " d 1";
     foreach (unsigned char c, data) {
         cmd.append(' ');
         cmd.append(QByteArray::number(uint(c)));
     }
-    postCommand(cmd, NeedsStop, CB(handleChangeMemory),
-        QVariant::fromValue(MemoryAgentCookie(agent, token, addr)));
+    MemoryAgentCookie ac;
+    ac.agent = agent;
+    ac.token = token;
+    ac.base = addr;
+    ac.length = data.size();
+    postCommand(cmd, NeedsStop, CB(handleChangeMemory), QVariant::fromValue(ac));
 }
 
 void GdbEngine::handleChangeMemory(const GdbResponse &response)
@@ -4363,10 +4397,21 @@ void GdbEngine::handleChangeMemory(const GdbResponse &response)
 void GdbEngine::fetchMemory(MemoryAgent *agent, QObject *token, quint64 addr,
                             quint64 length)
 {
-    postCommand("-data-read-memory " + QByteArray::number(addr) + " x 1 1 "
-            + QByteArray::number(length),
-        NeedsStop, CB(handleFetchMemory),
-        QVariant::fromValue(MemoryAgentCookie(agent, token, addr)));
+    MemoryAgentCookie ac;
+    ac.accumulator = new QByteArray(length, char());
+    ac.pendingRequests = new uint(1);
+    ac.agent = agent;
+    ac.token = token;
+    ac.base = addr;
+    ac.length = length;
+    fetchMemoryHelper(ac);
+}
+
+void GdbEngine::fetchMemoryHelper(const MemoryAgentCookie &ac)
+{
+    postCommand("-data-read-memory 0x" + QByteArray::number(ac.base + ac.offset, 16) + " x 1 1 "
+            + QByteArray::number(ac.length),
+                NeedsStop, CB(handleFetchMemory), QVariant::fromValue(ac));
 }
 
 void GdbEngine::handleFetchMemory(const GdbResponse &response)
@@ -4376,22 +4421,46 @@ void GdbEngine::handleFetchMemory(const GdbResponse &response)
     // prev-page="0x08910c78",memory=[{addr="0x08910c88",
     // data=["1","0","0","0","5","0","0","0","0","0","0","0","0","0","0","0"]}]
     MemoryAgentCookie ac = response.cookie.value<MemoryAgentCookie>();
+    --*ac.pendingRequests;
+    showMessage(QString::fromLatin1("PENDING: %1").arg(*ac.pendingRequests));
     QTC_ASSERT(ac.agent, return);
-    QByteArray ba;
-    GdbMi memory = response.data["memory"];
-    QTC_ASSERT(memory.children().size() <= 1, return);
-    if (memory.children().isEmpty())
-        return;
-    GdbMi memory0 = memory.children().at(0); // we asked for only one 'row'
-    GdbMi data = memory0["data"];
-    foreach (const GdbMi &child, data.children()) {
-        bool ok = true;
-        unsigned char c = '?';
-        c = child.data().toUInt(&ok, 0);
-        QTC_ASSERT(ok, return);
-        ba.append(c);
+    if (response.resultClass == GdbResultDone) {
+        GdbMi memory = response.data["memory"];
+        QTC_ASSERT(memory.children().size() <= 1, return);
+        if (memory.children().isEmpty())
+            return;
+        GdbMi memory0 = memory.children().at(0); // we asked for only one 'row'
+        GdbMi data = memory0["data"];
+        for (int i = 0, n = data.children().size(); i != n; ++i) {
+            const GdbMi &child = data.children().at(i);
+            bool ok = true;
+            unsigned char c = '?';
+            c = child.data().toUInt(&ok, 0);
+            QTC_ASSERT(ok, return);
+            (*ac.accumulator)[ac.offset + i] = c;
+        }
+    } else {
+        // We have an error
+        if (ac.length > 1) {
+            // ... and size > 1, split the load and re-try.
+            *ac.pendingRequests += 2;
+            uint hunk = ac.length / 2;
+            MemoryAgentCookie ac1 = ac;
+            ac1.length = hunk;
+            ac1.offset = ac.offset;
+            MemoryAgentCookie ac2 = ac;
+            ac2.length = ac.length - hunk;
+            ac2.offset = ac.offset + hunk;
+            fetchMemoryHelper(ac1);
+            fetchMemoryHelper(ac2);
+        }
     }
-    ac.agent->addLazyData(ac.token, ac.address, ba);
+
+    if (*ac.pendingRequests <= 0) {
+        ac.agent->addLazyData(ac.token, ac.base, *ac.accumulator);
+        delete ac.pendingRequests;
+        delete ac.accumulator;
+    }
 }
 
 class DisassemblerAgentCookie
@@ -4730,13 +4799,6 @@ void GdbEngine::startGdb(const QStringList &args)
     gdbArgs << _("mi");
     if (!debuggerCore()->boolSetting(LoadGdbInit))
         gdbArgs << _("-n");
-    if (HostOsInfo::isWindowsHost()) {
-        const QFileInfo gdbBinaryFile(m_gdb);
-        const QString gdbDirectory(gdbBinaryFile.absolutePath());
-        const QString gdbDataDir = gdbDirectory + _("/data-directory");
-        if (QFile::exists(gdbDataDir))
-            gdbArgs << _("--data-directory") << gdbDataDir;
-    }
     gdbArgs += args;
 
     connect(m_gdbProc, SIGNAL(error(QProcess::ProcessError)),
@@ -4936,7 +4998,12 @@ void GdbEngine::tryLoadPythonDumpers()
     const QByteArray dumperSourcePath =
         Core::ICore::resourcePath().toLocal8Bit() + "/debugger/";
 
+    const QFileInfo gdbBinaryFile(m_gdb);
+    const QByteArray uninstalledData = gdbBinaryFile.absolutePath().toLocal8Bit()
+            + "/data-directory/python";
+
    postCommand("python sys.path.insert(1, '" + dumperSourcePath + "')", ConsoleCommand);
+   postCommand("python sys.path.append('" + uninstalledData + "')", ConsoleCommand);
    postCommand("python from gdbbridge import *", ConsoleCommand, CB(handlePythonSetup));
 }
 

@@ -83,6 +83,14 @@
         \li In the \gui{Compiler path} field, enter the path to the directory
             where the compiler is located.
 
+        \li In the \gui {Platform codegen flags} field, check the flags passed
+            to the compiler that specify the architecture on the target
+            platform.
+
+        \li In the \gui {Platform linker flags} field, check the flags passed to
+            the linker that specify the architecture on the target platform.
+            The linker flags are used only when building with Qbs.
+
             The other settings to specify depend on the compiler.
 
     \endlist
@@ -126,6 +134,31 @@
         \li In the \gui {Qt mkspecs} field, specify the path to the directory
             where mkspecs are located. Usually, the path is specified relative
             to the Qt mkspecs directory.
+
+        \li In the \gui {Error parser} field, select the error parser to use.
+            Select \gui Custom, and then select \gui {Customer Parser Settings}
+            to specify settings for a custom parser:
+
+            \image qtcreator-custom-parser.png
+
+            \list 1
+
+                \li In the \gui {Error message capture pattern} field, specify
+                    a regular expression to define what is an error. The custom
+                    parser matches the compile output line by line against the
+                    regular expression and displays errors in the \gui Issues
+                    output pane. Create regular expression groups that contain
+                    the file name, line number and error message.
+
+                \li In the \gui {Capture Positions} field, map the regular
+                    expression groups to \gui {File name}, \gui {Line number},
+                    and \gui Message.
+
+                \li In the \gui {Test} group, you can test how the message that
+                    you enter in the \gui {Error message} field is matched when
+                    using the current settings.
+
+            \endlist
 
     \endlist
 

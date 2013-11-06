@@ -95,7 +95,6 @@ QmlProfilerClientManager::QmlProfilerClientManager(QObject *parent) :
 
 QmlProfilerClientManager::~QmlProfilerClientManager()
 {
-    disconnectClientSignals();
     delete d->connection;
     delete d->qmlclientplugin.data();
     delete d->v8clientplugin.data();

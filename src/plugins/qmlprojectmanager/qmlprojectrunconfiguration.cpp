@@ -60,6 +60,8 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(ProjectExplorer::Target *
     m_scriptFile(QLatin1String(M_CURRENT_FILE)),
     m_isEnabled(false)
 {
+    addExtraAspect(new QmlProjectEnvironmentAspect(this));
+
     ctor();
 }
 
@@ -90,6 +92,8 @@ void QmlProjectRunConfiguration::ctor()
     // reset default settings in constructor
     connect(EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
             this, SLOT(changeCurrentFile(Core::IEditor*)));
+    connect(EditorManager::instance(), SIGNAL(currentDocumentStateChanged()),
+            this, SLOT(changeCurrentFile()));
 
     connect(target(), SIGNAL(kitChanged()),
             this, SLOT(updateEnabled()));
@@ -98,8 +102,6 @@ void QmlProjectRunConfiguration::ctor()
         setDisplayName(tr("QML Scene", "QMLRunConfiguration display name."));
     else
         setDisplayName(tr("QML Viewer", "QMLRunConfiguration display name."));
-
-    addExtraAspect(new QmlProjectEnvironmentAspect(this));
 }
 
 QString QmlProjectRunConfiguration::executable() const
@@ -110,10 +112,7 @@ QString QmlProjectRunConfiguration::executable() const
 
     if (id() == Constants::QML_SCENE_RC_ID)
         return version->qmlsceneCommand();
-    if (!version->needsQmlDebuggingLibrary())
-        return version->qmlviewerCommand();
-    return version->qmlObserverTool();
-
+    return version->qmlviewerCommand();
 }
 
 ProjectExplorer::LocalApplicationRunConfiguration::RunMode QmlProjectRunConfiguration::runMode() const
@@ -266,6 +265,9 @@ bool QmlProjectRunConfiguration::fromMap(const QVariantMap &map)
 
 void QmlProjectRunConfiguration::changeCurrentFile(IEditor *editor)
 {
+    if (!editor)
+        editor = EditorManager::currentEditor();
+
     if (editor)
         m_currentFileFilename = editor->document()->filePath();
     updateEnabled();

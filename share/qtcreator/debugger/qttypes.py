@@ -587,8 +587,13 @@ def qHashIteratorHelper(d, value):
             # -> QHashNode<int, float> with 'proper' spacing,
             # as space changes confuse LLDB.
             innerTypeName = hashTypeName.replace("QHash", "QHashNode", 1)
-            node = value["i"].cast(d.lookupType(innerTypeName).pointer())
-            d.putSubItem("key", node["key"])
+            node = value["i"].cast(d.lookupType(innerTypeName).pointer()).dereference()
+            key = node["key"]
+            if not key:
+                # LLDB can't access directly since it's in anonymous union
+                # for Qt4 optimized int keytype
+                key = node[1]["key"]
+            d.putSubItem("key", key)
             d.putSubItem("value", node["value"])
 
 def qdump__QHash__const_iterator(d, value):
@@ -1575,7 +1580,12 @@ def qdump__QSet(d, value):
             for i in d.childRange():
                 it = node.dereference().cast(innerType)
                 with SubItem(d, i):
-                    d.putItem(it["key"])
+                    key = it["key"]
+                    if not key:
+                        # LLDB can't access directly since it's in anonymous union
+                        # for Qt4 optimized int keytype
+                        key = it[1]["key"]
+                    d.putItem(key)
                 node = hashDataNextNode(node, numBuckets)
 
 
@@ -1723,13 +1733,27 @@ def qdump__QTextDocument(d, value):
 
 def qdump__QUrl(d, value):
     if d.qtVersion() < 0x050000:
-        if not d.dereferenceValue(value):
+        privAddress = d.dereferenceValue(value)
+        if not privAddress:
             # d == 0 if QUrl was constructed with default constructor
             d.putValue("<invalid>")
             return
-        data = value["d"].dereference()
-        d.putByteArrayValue(data["encodedOriginal"])
-        d.putPlainChildren(data)
+        encodedOriginalAddress = privAddress + 8 * d.ptrSize()
+        d.putValue(d.encodeByteArrayHelper(d.dereference(encodedOriginalAddress)), Hex2EncodedLatin1)
+        d.putNumChild(8)
+        if d.isExpanded():
+            stringType = d.lookupType(d.qtNamespace() + "QString")
+            baType = d.lookupType(d.qtNamespace() + "QByteArray")
+            with Children(d):
+                # Qt 4 only decodes the original string if some detail is requested
+                d.putCallItem("scheme", value, "scheme")
+                d.putCallItem("userName", value, "userName")
+                d.putCallItem("password", value, "password")
+                d.putCallItem("host", value, "host")
+                d.putCallItem("path", value, "path")
+                d.putCallItem("query", value, "encodedQuery")
+                d.putCallItem("fragment", value, "fragment")
+                d.putCallItem("port", value, "port")
     else:
         # QUrlPrivate:
         # - QAtomicInt ref;
@@ -1908,9 +1932,7 @@ def qdumpHelper__QVariant(d, value):
     isSpecial = d.qtVersion() >= 0x050000 \
             and (innert == "QVariantMap" or innert == "QVariantHash")
     if innerType.sizeof > sizePD or isSpecial:
-        sizePS = 2 * d.ptrSize() # sizeof(QVariant::PrivateShared)
-        val = (data.cast(d.charPtrType()) + sizePS) \
-            .cast(innerType.pointer()).dereference()
+        val = data["ptr"].cast(innerType.pointer().pointer()).dereference().dereference()
     else:
         val = data.cast(innerType)
 

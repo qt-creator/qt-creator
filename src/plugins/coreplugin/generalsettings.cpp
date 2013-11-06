@@ -33,9 +33,10 @@
 #include "infobar.h"
 #include "editormanager/editormanager.h"
 
+#include <utils/checkablemessagebox.h>
+#include <utils/consoleprocess.h>
 #include <utils/hostosinfo.h>
 #include <utils/stylehelper.h>
-#include <utils/consoleprocess.h>
 #include <utils/unixutils.h>
 
 #include <QMessageBox>
@@ -137,7 +138,8 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
 
     m_page->autoSaveCheckBox->setChecked(EditorManager::autoSaveEnabled());
     m_page->autoSaveInterval->setValue(EditorManager::autoSaveInterval());
-    m_page->resetWarningsButton->setEnabled(Core::InfoBar::anyGloballySuppressed());
+    m_page->resetWarningsButton->setEnabled(Core::InfoBar::anyGloballySuppressed()
+                                            || Utils::CheckableMessageBox::hasSuppressedQuestions(ICore::settings()));
 
     connect(m_page->resetColorButton, SIGNAL(clicked()),
             this, SLOT(resetInterfaceColor()));
@@ -208,6 +210,7 @@ void GeneralSettings::resetInterfaceColor()
 void GeneralSettings::resetWarnings()
 {
     Core::InfoBar::clearGloballySuppressed();
+    Utils::CheckableMessageBox::resetAllDoNotAskAgainQuestions(ICore::settings());
     m_page->resetWarningsButton->setEnabled(false);
 }
 

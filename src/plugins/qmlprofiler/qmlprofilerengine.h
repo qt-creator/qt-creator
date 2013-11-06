@@ -76,9 +76,6 @@ private slots:
     void profilerStateChanged();
 
 private:
-    void showQmlObserverToolWarning();
-
-private:
     class QmlProfilerEnginePrivate;
     QmlProfilerEnginePrivate *d;
 };

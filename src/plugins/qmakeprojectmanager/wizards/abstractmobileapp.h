@@ -80,13 +80,6 @@ class
     Q_OBJECT
 
 public:
-    enum ScreenOrientation {
-        ScreenOrientationLockLandscape,
-        ScreenOrientationLockPortrait,
-        ScreenOrientationAuto,
-        ScreenOrientationImplicit // Don't set in application at all
-    };
-
     enum FileType {
         MainCpp,
         MainCppOrigin,
@@ -105,8 +98,6 @@ public:
 
     virtual ~AbstractMobileApp();
 
-    void setOrientation(ScreenOrientation orientation);
-    ScreenOrientation orientation() const;
     void setProjectName(const QString &name);
     QString projectName() const;
     void setProjectPath(const QString &path);
@@ -174,7 +165,6 @@ private:
     QFileInfo m_projectPath;
     QString m_pngIcon64;
     QString m_pngIcon80;
-    ScreenOrientation m_orientation;
 };
 
 } // namespace QmakeProjectManager

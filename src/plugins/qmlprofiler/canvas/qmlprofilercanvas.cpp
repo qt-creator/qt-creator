@@ -39,36 +39,45 @@ namespace Internal {
 
 QmlProfilerCanvas::QmlProfilerCanvas()
     : m_context2d(new Context2D(this))
-    , m_dirty(true)
 {
     setAcceptedMouseButtons(Qt::LeftButton);
+    m_drawTimer.setSingleShot(true);
+    connect(&m_drawTimer, SIGNAL(timeout()), this, SLOT(draw()));
+
+    m_drawTimer.start();
 }
 
 void QmlProfilerCanvas::requestPaint()
 {
-    update();
+    if (m_context2d->size().width() != width()
+            || m_context2d->size().height() != height()) {
+        m_drawTimer.start();
+    } else {
+        update();
+    }
 }
 
 void QmlProfilerCanvas::requestRedraw()
 {
-    setDirty(true);
+    m_drawTimer.start();
+}
+
+// called from GUI thread. Draws into m_context2d.
+void QmlProfilerCanvas::draw()
+{
+    QMutexLocker lock(&m_pixmapMutex);
+    m_context2d->reset();
+    m_context2d->setSize(width(), height());
+
+    if (width() != 0 && height() != 0)
+        emit drawRegion(m_context2d, QRect(0, 0, width(), height()));
     update();
 }
 
+// called from OpenGL thread. Renders m_context2d into OpenGL buffer.
 void QmlProfilerCanvas::paint(QPainter *p)
 {
-    if (m_context2d->size().width() != width() || m_context2d->size().height() != height()) {
-        m_dirty = true;
-        m_context2d->setSize(width(), height());
-    }
-
-    if (m_dirty) {
-        m_context2d->reset();
-
-        emit drawRegion(m_context2d, QRect(0, 0, width(), height()));
-        setDirty(false);
-    }
-
+    QMutexLocker lock(&m_pixmapMutex);
     p->drawPixmap(0, 0, m_context2d->pixmap());
 }
 

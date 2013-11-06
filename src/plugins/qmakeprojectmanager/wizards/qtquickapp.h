@@ -67,11 +67,6 @@ public:
         MainPageQmlOrigin
     };
 
-    enum Mode {
-        ModeGenerate,
-        ModeImport
-    };
-
     enum ComponentSet {
         QtQuick10Components,
         QtQuick20Components,
@@ -82,9 +77,6 @@ public:
 
     void setComponentSet(ComponentSet componentSet);
     ComponentSet componentSet() const;
-
-    void setMainQml(Mode mode, const QString &file = QString());
-    Mode mainQmlMode() const;
 
 #ifndef CREATORLESSTEST
     virtual Core::GeneratedFiles generateFiles(QString *errorMessage) const;
@@ -117,7 +109,6 @@ private:
     QString componentSetDir(ComponentSet componentSet) const;
 
     QFileInfo m_mainQmlFile;
-    Mode m_mainQmlMode;
     ComponentSet m_componentSet;
 };
 

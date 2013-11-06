@@ -119,4 +119,10 @@
             the context menu.
 
     \endlist
+
+    \section1 Adding Widgets
+
+    You can use Qt APIs to create plugins that extend Qt applications. This
+    enables you to add your own widgets to \QD. For more information, see
+    \l{Adding Qt Designer Plugins}
 */

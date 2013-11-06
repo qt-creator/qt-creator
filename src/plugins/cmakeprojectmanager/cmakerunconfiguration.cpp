@@ -36,7 +36,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/helpmanager.h>
 #include <qtsupport/qtkitinformation.h>
-#include <projectexplorer/environmentaspect.h>
+#include <projectexplorer/localenvironmentaspect.h>
 #include <projectexplorer/target.h>
 
 #include <utils/pathchooser.h>
@@ -75,6 +75,7 @@ CMakeRunConfiguration::CMakeRunConfiguration(ProjectExplorer::Target *parent, Co
     m_title(title),
     m_enabled(true)
 {
+    addExtraAspect(new ProjectExplorer::LocalEnvironmentAspect(this));
     ctor();
 }
 

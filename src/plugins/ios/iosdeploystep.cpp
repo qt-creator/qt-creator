@@ -39,6 +39,7 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/taskhub.h>
 #include <qmakeprojectmanager/qmakebuildconfiguration.h>
 #include <qmakeprojectmanager/qmakeproject.h>
 #include <qmakeprojectmanager/qmakenodes.h>
@@ -76,11 +77,7 @@ void IosDeployStep::ctor()
 {
     m_transferStatus = NoTransfer;
     m_device = ProjectExplorer::DeviceKitInformation::device(target()->kit());
-    QString devName;
-    if (!m_device.isNull())
-        devName = m_device->displayName();
-    if (devName.isEmpty())
-        devName = tr("iOS device");
+    const QString devName = m_device.isNull() ? IosDevice::name() : m_device->displayName();
     setDefaultDisplayName(tr("Deploy to %1").arg(devName));
 }
 
@@ -101,6 +98,9 @@ void IosDeployStep::run(QFutureInterface<bool> &fi)
     m_futureInterface = fi;
     QTC_CHECK(m_transferStatus == NoTransfer);
     if (iosdevice().isNull()) {
+        if (iossimulator().isNull())
+            TaskHub::addTask(Task::Error, tr("Deployment failed. No iOS device found."),
+                             ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
         m_futureInterface.reportResult(!iossimulator().isNull());
         cleanup();
         m_futureInterface.reportFinished();
@@ -151,10 +151,14 @@ void IosDeployStep::handleDidTransferApp(IosToolHandler *handler, const QString 
 {
     Q_UNUSED(handler); Q_UNUSED(bundlePath); Q_UNUSED(deviceId);
     QTC_CHECK(m_transferStatus == TransferInProgress);
-    if (status == IosToolHandler::Success)
+    if (status == IosToolHandler::Success) {
         m_transferStatus = TransferOk;
-    else
+    } else {
         m_transferStatus = TransferFailed;
+        TaskHub::addTask(Task::Error,
+                         tr("Deployment failed. The settings in the Organizer window of Xcode might be incorrect."),
+                         ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
+    }
     m_futureInterface.reportResult(status == IosToolHandler::Success);
 }
 
@@ -163,6 +167,8 @@ void IosDeployStep::handleFinished(IosToolHandler *handler)
     switch (m_transferStatus) {
     case TransferInProgress:
         m_transferStatus = TransferFailed;
+        TaskHub::addTask(Task::Error, tr("Deployment failed."),
+                         ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
         m_futureInterface.reportResult(false);
         break;
     case NoTransfer:
@@ -179,6 +185,10 @@ void IosDeployStep::handleFinished(IosToolHandler *handler)
 void IosDeployStep::handleErrorMsg(IosToolHandler *handler, const QString &msg)
 {
     Q_UNUSED(handler);
+    if (msg.contains(QLatin1String("AMDeviceInstallApplication returned -402653103")))
+        TaskHub::addTask(Task::Warning,
+                         tr("The Info.plist might be incorrect."),
+                         ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
     emit addOutput(msg, BuildStep::ErrorMessageOutput);
 }
 
@@ -215,7 +225,7 @@ QString IosDeployStep::appBundle() const
 void IosDeployStep::raiseError(const QString &errorString)
 {
     emit addTask(Task(Task::Error, errorString, Utils::FileName::fromString(QString()), -1,
-        ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM));
+        ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT));
 }
 
 void IosDeployStep::writeOutput(const QString &text, OutputFormat format)

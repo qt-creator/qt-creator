@@ -96,6 +96,8 @@ QbsRunConfiguration::QbsRunConfiguration(ProjectExplorer::Target *parent, Core::
     m_currentInstallStep(0),
     m_currentBuildStepList(0)
 {
+    addExtraAspect(new ProjectExplorer::LocalEnvironmentAspect(this));
+
     ctor();
 }
 

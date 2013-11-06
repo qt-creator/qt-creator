@@ -67,7 +67,7 @@ Html5AppWizardDialog::Html5AppWizardDialog(QWidget *parent,
 
     m_htmlOptionsPage = new Html5AppWizardOptionsPage;
     addPageWithTitle(m_htmlOptionsPage, tr("HTML Options"));
-    addMobilePages();
+    addKitsPage();
 }
 
 
@@ -114,8 +114,8 @@ AbstractMobileAppWizardDialog *Html5AppWizard::createWizardDialogInternal(QWidge
 
 void Html5AppWizard::projectPathChanged(const QString &path) const
 {
-    if (d->wizardDialog->targetsPage())
-        d->wizardDialog->targetsPage()->setProjectPath(path);
+    if (d->wizardDialog->kitsPage())
+        d->wizardDialog->kitsPage()->setProjectPath(path);
 }
 
 void Html5AppWizard::prepareGenerateFiles(const QWizard *w,

@@ -17,8 +17,6 @@ HEADERS += \
     uicodemodelsupport.h \
     baseqtversion.h \
     qmldumptool.h \
-    qmlobservertool.h \
-    qmldebugginglibrary.h \
     qtoptionspage.h \
     customexecutablerunconfiguration.h \
     customexecutableconfigurationwidget.h \
@@ -48,8 +46,6 @@ SOURCES += \
     uicodemodelsupport.cpp \
     baseqtversion.cpp \
     qmldumptool.cpp \
-    qmlobservertool.cpp \
-    qmldebugginglibrary.cpp \
     qtoptionspage.cpp \
     customexecutablerunconfiguration.cpp \
     customexecutableconfigurationwidget.cpp \

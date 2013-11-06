@@ -162,10 +162,11 @@ struct LldbOnly {};
 
 struct Context
 {
-    Context() : qtVersion(0) {}
+    Context() : qtVersion(0), gccVersion(0) {}
 
     QByteArray nameSpace;
     int qtVersion;
+    int gccVersion;
 };
 
 struct Name
@@ -199,12 +200,16 @@ static QByteArray parentIName(const QByteArray &iname)
 
 struct ValueBase
 {
-    ValueBase() : hasPtrSuffix(false), isFloatValue(false), substituteNamespace(true), version(0) {}
+    ValueBase()
+      : hasPtrSuffix(false), isFloatValue(false), substituteNamespace(true),
+        qtVersion(0), minimalGccVersion(0)
+    {}
 
     bool hasPtrSuffix;
     bool isFloatValue;
     bool substituteNamespace;
-    int version;
+    int qtVersion;
+    int minimalGccVersion;
 };
 
 struct Value : public ValueBase
@@ -220,16 +225,22 @@ struct Value : public ValueBase
             return true;
 
         if (context.qtVersion) {
-            if (version == 4) {
+            if (qtVersion == 4) {
                 if (context.qtVersion < 0x40000 || context.qtVersion >= 0x50000) {
                     //QWARN("Qt 4 specific case skipped");
                     return true;
                 }
-            } else if (version == 5) {
+            } else if (qtVersion == 5) {
                 if (context.qtVersion < 0x50000 || context.qtVersion >= 0x60000) {
                     //QWARN("Qt 5 specific case skipped");
                     return true;
                 }
+            }
+        }
+        if (minimalGccVersion && context.gccVersion) {
+            if (minimalGccVersion >= context.gccVersion) {
+                //QWARN("Current GCC is too old for this test.")
+                return true;
             }
         }
         QString actualValue = actualValue0;
@@ -257,6 +268,8 @@ struct Value : public ValueBase
         return actualValue == expectedValue;
     }
 
+    void setMinimalGccVersion(int version) { minimalGccVersion = version; }
+
     QString value;
 };
 
@@ -274,12 +287,12 @@ struct FloatValue : Value
 
 struct Value4 : Value
 {
-    Value4(const QByteArray &value) : Value(value) { version = 4; }
+    Value4(const QByteArray &value) : Value(value) { qtVersion = 4; }
 };
 
 struct Value5 : Value
 {
-    Value5(const QByteArray &value) : Value(value) { version = 5; }
+    Value5(const QByteArray &value) : Value(value) { qtVersion = 5; }
 };
 
 struct UnsubstitutedValue : Value
@@ -289,19 +302,19 @@ struct UnsubstitutedValue : Value
 
 struct Type
 {
-    Type() : version(0) {}
-    Type(const char *str) : type(str), version(0) {}
-    Type(const QByteArray &ba) : type(ba), version(0) {}
+    Type() : qtVersion(0) {}
+    Type(const char *str) : type(str), qtVersion(0) {}
+    Type(const QByteArray &ba) : type(ba), qtVersion(0) {}
 
     bool matches(const QByteArray &actualType0, const Context &context) const
     {
         if (context.qtVersion) {
-            if (version == 4) {
+            if (qtVersion == 4) {
                 if (context.qtVersion < 0x40000 || context.qtVersion >= 0x50000) {
                     //QWARN("Qt 4 specific case skipped");
                     return true;
                 }
-            } else if (version == 5) {
+            } else if (qtVersion == 5) {
                 if (context.qtVersion < 0x50000 || context.qtVersion >= 0x60000) {
                     //QWARN("Qt 5 specific case skipped");
                     return true;
@@ -319,17 +332,17 @@ struct Type
         return actualType == expectedType;
     }
     QByteArray type;
-    int version;
+    int qtVersion;
 };
 
 struct Type4 : Type
 {
-    Type4(const QByteArray &ba) : Type(ba) { version = 4; }
+    Type4(const QByteArray &ba) : Type(ba) { qtVersion = 4; }
 };
 
 struct Type5 : Type
 {
-    Type5(const QByteArray &ba) : Type(ba) { version = 5; }
+    Type5(const QByteArray &ba) : Type(ba) { qtVersion = 5; }
 };
 
 enum DebuggerEngine
@@ -825,11 +838,16 @@ void tst_Dumpers::dumper()
             "\n\nint main(int argc, char *argv[])"
             "\n{"
             "\n    int qtversion = " + (data.useQt ? "QT_VERSION" : "0") + ";"
+            "\n#ifdef __GNUC__"
+            "\n    int gccversion = 0x10000 * __GNUC__ + 0x100 * __GNUC_MINOR__;"
+            "\n#else"
+            "\n    int gccversion = 0;"
+            "\n#endif"
             "\n" + (data.useQHash ?
                 "\n#if QT_VERSION >= 0x050000"
                 "\nqt_qhash_seed.testAndSetRelaxed(-1, 0);"
                 "\n#endif\n" : "") +
-            "\n    unused(&argc, &argv, &qtversion);\n"
+            "\n    unused(&argc, &argv, &qtversion, &gccversion);\n"
             "\n" + data.code +
             "\n    breakHere();"
             "\n    return 0;"
@@ -893,6 +911,10 @@ void tst_Dumpers::dumper()
 
     if (m_debuggerEngine == DumpTestGdbEngine) {
         exe = m_debuggerBinary;
+
+        const QFileInfo gdbBinaryFile(QString::fromLatin1(exe));
+        const QByteArray uninstalledData = gdbBinaryFile.absolutePath().toLocal8Bit() + "/data-directory/python";
+
         args << QLatin1String("-i")
              << QLatin1String("mi")
              << QLatin1String("-quiet")
@@ -907,6 +929,7 @@ void tst_Dumpers::dumper()
 
         if (m_usePython) {
             cmds += "python sys.path.insert(1, '" + dumperDir + "')\n"
+                    "python sys.path.append('" + uninstalledData + "')\n"
                     "python from gdbbridge import *\n"
                     "run " + nograb + "\n"
                     "up\n"
@@ -1044,6 +1067,8 @@ void tst_Dumpers::dumper()
         dummy.name = QLatin1String(child["name"].data());
         if (dummy.iname == "local.qtversion")
             context.qtVersion = child["value"].toInt();
+        else if (dummy.iname == "local.gccversion")
+            context.gccVersion = child["value"].toInt();
         else
             parseWatchData(expandedINames, dummy, child, &list);
     }
@@ -1092,7 +1117,7 @@ void tst_Dumpers::dumper()
         qDebug() << "SOME TESTS NOT EXECUTED: ";
         foreach (const Check &check, data.checks) {
             qDebug() << "  TEST NOT FOUND FOR INAME: " << check.iname;
-            if (!fail && check.expectedValue.version != 0)
+            if (!fail && check.expectedValue.qtVersion != 0)
                 fail = true;
         }
         qDebug() << "SEEN INAMES " << seenINames;
@@ -1105,6 +1130,8 @@ void tst_Dumpers::dumper()
         qDebug() << "CONTENTS     : " << contents;
         qDebug() << "Qt VERSION   : "
             << qPrintable(QString::number(context.qtVersion, 16));
+        qDebug() << "GCC VERSION   : "
+            << qPrintable(QString::number(context.gccVersion, 16));
         qDebug() << "BUILD DIR    : " << qPrintable(t->buildPath);
     }
     QVERIFY(ok);
@@ -3263,14 +3290,15 @@ void tst_Dumpers::dumper_data()
                     "unused(&url);\n")
                % CoreProfile()
                % Check("url", UnsubstitutedValue("\"http://foo@qt-project.org:10/have_fun\""), "@QUrl")
-               % Check("url.port", Value5("10"), "int")
-               % Check("url.scheme", Value5("\"http\""), "@QString")
-               % Check("url.userName", Value5("\"foo\""), "@QString")
-               % Check("url.password", Value5("\"\""), "@QString")
-               % Check("url.host", Value5("\"qt-project.org\""), "@QString")
-               % Check("url.path", Value5("\"/have_fun\""), "@QString")
-               //% Check("url.query", Value5("\"\""), "@QString")  That's a QByteArray in Qt 4
-               % Check("url.fragment", Value5("\"\""), "@QString");
+               % Check("url.port", "10", "int")
+               % Check("url.scheme", "\"http\"", "@QString")
+               % Check("url.userName", "\"foo\"", "@QString")
+               % Check("url.password", "\"\"", "@QString")
+               % Check("url.host", "\"qt-project.org\"", "@QString")
+               % Check("url.path", "\"/have_fun\"", "@QString")
+               % Check("url.query", "\"\"", Type4("@QByteArray"))
+               % Check("url.query", "\"\"", Type5("@QString"))
+               % Check("url.fragment", "\"\"", "@QString");
 
     QTest::newRow("QStringQuotes")
             << Data("#include <QString>\n",

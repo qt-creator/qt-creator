@@ -1744,7 +1744,10 @@ QList<Import> Model::usedImports() const
 {
     QList<Import> usedImportList;
 
-    usedImportList.append(Import::createLibraryImport("QtQuick"));
+    usedImportList.append(Import::createLibraryImport("QtQuick", "1.0"));
+    usedImportList.append(Import::createLibraryImport("QtQuick", "1.1"));
+    usedImportList.append(Import::createLibraryImport("QtQuick", "2.0"));
+    usedImportList.append(Import::createLibraryImport("QtQuick", "2.1"));
 
     return usedImportList;
 }

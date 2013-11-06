@@ -41,12 +41,10 @@ def main():
     mainWindow = waitForObject(":Qt Creator_Core::Internal::MainWindow")
     test.verify(waitFor("sessionName in str(mainWindow.windowTitle)", 2000),
                 "Verifying window title contains created session name.")
-    if not isQt4Build:
-        checkWelcomePage(sessionName, True)
     for project in projects:
         openQmakeProject(project)
     progressBarWait(20000)
-    checkNavigator(46, "Verifying whether all projects have been opened.")
+    checkNavigator(49, "Verifying whether all projects have been opened.")
     openDocument("propertyanimation.QML.qml.color-animation\\.qml")
     openDocument("declarative-music-browser.Headers.utility\\.h")
     checkOpenDocuments(2, "Verifying whether 2 files are open.")
@@ -54,15 +52,12 @@ def main():
     switchSession("default")
     test.verify(waitFor("'Qt Creator' == str(mainWindow.windowTitle)", 2000),
                 "Verifying window title is set to default.")
-    if not isQt4Build:
-        checkWelcomePage(sessionName, False)
-        switchViewTo(ViewConstants.EDIT)
     checkNavigator(1, "Verifying that no more project is opened.")
     checkOpenDocuments(0, "Verifying whether all files have been closed.")
     switchSession(sessionName)
     test.verify(waitFor("sessionName in str(mainWindow.windowTitle)", 2000),
                 "Verifying window title contains created session name.")
-    checkNavigator(46, "Verifying whether all projects have been re-opened.")
+    checkNavigator(49, "Verifying whether all projects have been re-opened.")
     checkOpenDocuments(2, "Verifying whether 2 files have been re-opened.")
     if test.verify("utility.h" in str(mainWindow.windowTitle),
                    "Verifying whether utility.h has been opened."):

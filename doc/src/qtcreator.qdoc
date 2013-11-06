@@ -26,7 +26,7 @@
 /*!
     \contentspage{index.html}{Qt Creator}
     \page index.html
-    \nextpage creator-overview.html
+    \nextpage creator-getting-started.html
 
     \title Qt Creator Manual
 
@@ -251,7 +251,6 @@
             \endlist
 
         \endlist
-        \li \l{Publishing}
         \li \l{Advanced Use}
         \list
             \li \l{Supported Platforms}

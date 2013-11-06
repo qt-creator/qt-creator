@@ -32,6 +32,7 @@
 
 #include <qmakeprojectmanager/qmakeprojectmanager_global.h>
 #include <projectexplorer/baseprojectwizarddialog.h>
+#include <qtsupport/baseqtversion.h>
 
 namespace ProjectExplorer { class TargetSetupPage; }
 
@@ -44,8 +45,6 @@ namespace QmakeProjectManager {
 
 class AbstractMobileApp;
 
-namespace Internal { class MobileAppWizardGenericOptionsPage; }
-
 /// \internal
 class QMAKEPROJECTMANAGER_EXPORT AbstractMobileAppWizardDialog : public ProjectExplorer::BaseProjectWizardDialog
 {
@@ -55,36 +54,18 @@ protected:
     explicit AbstractMobileAppWizardDialog(QWidget *parent, const QtSupport::QtVersionNumber &minimumQtVersionNumber,
                                            const QtSupport::QtVersionNumber &maximumQtVersionNumber,
                                            const Core::WizardDialogParameters &parameters);
-    void addMobilePages();
-
 public:
-    ProjectExplorer::TargetSetupPage *targetsPage() const;
+    ProjectExplorer::TargetSetupPage *kitsPage() const;
 
 protected:
     int addPageWithTitle(QWizardPage *page, const QString &title);
-    virtual void initializePage(int id);
-    virtual void setIgnoreGenericOptionsPage(bool);
-    virtual int nextId() const;
-
-    Utils::WizardProgressItem *targetsPageItem() const;
+    void addKitsPage();
+    void updateKitsPage();
 
 private:
-    int idOfNextGenericPage() const;
-    Utils::WizardProgressItem *itemOfNextGenericPage() const;
-    bool isQtPlatformSelected(const QString &platform) const;
-    QList<Core::Id> selectedKits() const;
-
-    Internal::MobileAppWizardGenericOptionsPage *m_genericOptionsPage;
-    ProjectExplorer::TargetSetupPage *m_targetsPage;
-
-    int m_genericOptionsPageId;
-    int m_targetsPageId;
-    bool m_ignoreGeneralOptions; // If true, do not show generic mobile options page.
-    Utils::WizardProgressItem *m_targetItem;
-    Utils::WizardProgressItem *m_genericItem;
-    QList<Core::Id> m_kitIds;
-
-    friend class AbstractMobileAppWizard;
+    ProjectExplorer::TargetSetupPage *m_kitsPage;
+    const QtSupport::QtVersionNumber m_minimumQtVersionNumber;
+    const QtSupport::QtVersionNumber m_maximumQtVersionNumber;
 };
 
 /// \internal

@@ -65,7 +65,9 @@ Column {
 
     onColorChanged: {
         textField.text = gradientLine.colorToString(color);
-        gradientLine.currentColor = color
+
+        if (supportGradient && gradientLine.visible)
+            gradientLine.currentColor = color
 
         if (buttonRow.checkedIndex !== 1)
             //Delay setting the color to keep ui responsive
@@ -79,7 +81,19 @@ Column {
         width: parent.width
 
         onCurrentColorChanged: {
-            colorEditor.color = gradientLine.currentColor
+            if (supportGradient && gradientLine.visible)
+                colorEditor.color = gradientLine.currentColor
+        }
+
+        onHasGradientChanged: {
+             if (!supportGradient)
+                 return
+
+            if (gradientLine.hasGradient)
+                buttonRow.initalChecked = 1
+            else
+                buttonRow.initalChecked = 0
+            buttonRow.checkedIndex = buttonRow.initalChecked
         }
     }
 
@@ -112,8 +126,6 @@ Column {
                 backendValue: colorEditor.backendendValue
 
                 onAccepted: {
-                    print("color")
-                    print(textField.text)
                     colorEditor.color = textField.text
                 }
                 Layout.preferredWidth: 80
@@ -131,7 +143,8 @@ Column {
                 ButtonRowButton {
                     iconSource: "images/icon_color_solid.png"
                     onClicked: {
-                        colorEditor.backendendValue.resetValue();
+                        colorEditor.backendendValue.resetValue()
+                        gradientLine.deleteGradient()
                     }
 
                 }
@@ -139,7 +152,8 @@ Column {
                     visible: supportGradient
                     iconSource: "images/icon_color_gradient.png"
                     onClicked: {
-                        print("gradient")
+                        colorEditor.backendendValue.resetValue()
+                        gradientLine.addGradient()
                     }
 
                 }
@@ -147,10 +161,10 @@ Column {
                     iconSource: "images/icon_color_none.png"
                     onClicked: {
                         colorEditor.color = "#00000000"
+                        gradientLine.deleteGradient()
                     }
 
                 }
-
             }
 
             ExpandingSpacer {

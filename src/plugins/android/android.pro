@@ -48,7 +48,8 @@ HEADERS += \
     androiddeployqtwidget.h \
     createandroidmanifestwizard.h \
     androidpotentialkit.h \
-    androidextralibrarylistmodel.h
+    androidextralibrarylistmodel.h \
+    androidsignaloperation.h
 
 SOURCES += \
     androidconfigurations.cpp \
@@ -91,7 +92,8 @@ SOURCES += \
     androiddeployqtwidget.cpp \
     createandroidmanifestwizard.cpp \
     androidpotentialkit.cpp \
-    androidextralibrarylistmodel.cpp
+    androidextralibrarylistmodel.cpp \
+    androidsignaloperation.cpp
 
 FORMS += \
     androidsettingswidget.ui \

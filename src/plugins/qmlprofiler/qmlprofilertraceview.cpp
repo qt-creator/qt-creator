@@ -153,7 +153,7 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
     groupLayout->setSpacing(0);
 
     d->m_mainView = new ScrollableQuickView();
-    d->m_mainView->setResizeMode(QQuickView::SizeViewToRootObject);
+    d->m_mainView->setResizeMode(QQuickView::SizeRootObjectToView);
     QWidget *mainViewContainer = QWidget::createWindowContainer(d->m_mainView);
 
     MouseWheelResizer *resizer = new MouseWheelResizer(this);
@@ -229,10 +229,8 @@ void QmlProfilerTraceView::reset()
     d->m_overview->setSource(QUrl(QLatin1String("qrc:/qmlprofiler/Overview.qml")));
 
     d->m_mainView->setSource(QUrl(QLatin1String("qrc:/qmlprofiler/MainView.qml")));
-    QQuickItem *rootObject = d->m_mainView->rootObject();
-    rootObject->setProperty("width", QVariant(width()));
-    rootObject->setProperty("candidateHeight", QVariant(height() - d->m_timebar->height() - d->m_overview->height()));
 
+    QQuickItem *rootObject = d->m_mainView->rootObject();
     connect(rootObject, SIGNAL(updateCursorPosition()), this, SLOT(updateCursorPosition()));
     connect(rootObject, SIGNAL(updateRangeButton()), this, SLOT(updateRangeButton()));
     connect(rootObject, SIGNAL(updateLockButton()), this, SLOT(updateLockButton()));

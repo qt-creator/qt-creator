@@ -83,6 +83,8 @@ DesktopQmakeRunConfiguration::DesktopQmakeRunConfiguration(Target *parent, Core:
     m_runMode(Gui),
     m_isUsingDyldImageSuffix(false)
 {
+    addExtraAspect(new ProjectExplorer::LocalEnvironmentAspect(this));
+
     QmakeProject *project = static_cast<QmakeProject *>(parent->project());
     m_parseSuccess = project->validParse(m_proFilePath);
     m_parseInProgress = project->parseInProgress(m_proFilePath);

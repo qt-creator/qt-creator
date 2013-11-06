@@ -75,10 +75,13 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
     QmakeProject *project = static_cast<QmakeProject *>(target->project());
 
     DebuggerStartParameters params;
-    if (device->type() == Core::Id(Ios::Constants::IOS_DEVICE_TYPE))
+    if (device->type() == Core::Id(Ios::Constants::IOS_DEVICE_TYPE)) {
         params.startMode = AttachToRemoteProcess;
-    else
+        params.platform = QLatin1String("remote-ios");
+    } else {
         params.startMode = AttachExternal;
+        params.platform = QLatin1String("ios-simulator");
+    }
     params.displayName = runConfig->appName();
     params.remoteSetupNeeded = true;
 
@@ -109,7 +112,8 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
 
     DebuggerRunControl * const debuggerRunControl
         = DebuggerPlugin::createDebugger(params, runConfig, errorMessage);
-    new IosDebugSupport(runConfig, debuggerRunControl);
+    if (debuggerRunControl)
+        new IosDebugSupport(runConfig, debuggerRunControl);
     return debuggerRunControl;
 }
 

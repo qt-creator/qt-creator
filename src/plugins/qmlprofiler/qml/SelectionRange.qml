@@ -184,7 +184,7 @@ Rectangle {
                 width: 4
                 height: 63
                 fillMode: Image.Tile
-                y: root.scrollY + root.candidateHeight / 2 - 32
+                y: root.scrollY + root.height / 2 - 32
             }
         }
 
@@ -252,7 +252,7 @@ Rectangle {
                 width: 4
                 height: 63
                 fillMode: Image.Tile
-                y: root.scrollY + root.candidateHeight / 2 - 32
+                y: root.scrollY + root.height / 2 - 32
             }
         }
 

@@ -65,6 +65,8 @@ private:
 
     QString executable() const;
 
+    void killInferiorProcess();
+
     Debugger::DebuggerEngine *m_engine;
     int m_pdebugPort;
     int m_qmlPort;

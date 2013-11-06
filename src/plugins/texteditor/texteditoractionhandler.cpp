@@ -384,7 +384,7 @@ QAction *TextEditorActionHandler::registerAction(const Core::Id &id,
     QAction *result = new QAction(title, this);
     Core::Command *command = Core::ActionManager::registerAction(result, id, m_contextId, scriptable);
     if (!keySequence.isEmpty())
-        command->setKeySequence(keySequence);
+        command->setDefaultKeySequence(keySequence);
 
     if (container && menueGroup)
         container->addAction(command, menueGroup);

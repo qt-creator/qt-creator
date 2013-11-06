@@ -39,7 +39,6 @@
 #include <projectexplorer/targetsetuppage.h>
 
 #include <QIcon>
-#include <QDebug>
 
 namespace QmakeProjectManager {
 namespace Internal {
@@ -49,24 +48,18 @@ class QtQuickAppWizardDialog : public AbstractMobileAppWizardDialog
     Q_OBJECT
 
 public:
-    explicit QtQuickAppWizardDialog(QWidget *parent, const Core::WizardDialogParameters &parameters,
-                                    QtQuickAppWizard::Kind kind);
+    explicit QtQuickAppWizardDialog(QWidget *parent, const Core::WizardDialogParameters &parameters);
+    QtQuickApp::ComponentSet componentSet() const { return m_componentSetPage->componentSet(); }
 
 protected:
-    bool validateCurrentPage();
+    void initializePage(int id);
 
 private:
-    QtQuickComponentSetOptionsPage *m_componentOptionsPage;
-    int m_componentOptionsPageId;
-
-    Utils::WizardProgressItem *m_componentItem;
-
-    friend class QtQuickAppWizard;
+    QtQuickComponentSetPage *m_componentSetPage;
 };
 
 QtQuickAppWizardDialog::QtQuickAppWizardDialog(QWidget *parent,
-                                               const Core::WizardDialogParameters &parameters,
-                                               QtQuickAppWizard::Kind kind)
+                                               const Core::WizardDialogParameters &parameters)
     : AbstractMobileAppWizardDialog(parent,
                                     QtSupport::QtVersionNumber(4, 7, 0),
                                     QtSupport::QtVersionNumber(5, INT_MAX, INT_MAX), parameters)
@@ -74,33 +67,39 @@ QtQuickAppWizardDialog::QtQuickAppWizardDialog(QWidget *parent,
     setWindowTitle(tr("New Qt Quick Application"));
     setIntroDescription(tr("This wizard generates a Qt Quick application project."));
 
-    if (kind == QtQuickAppWizard::ImportQml || kind == QtQuickAppWizard::ImportQml2) { //Choose existing qml file
-        m_componentOptionsPage = new Internal::QtQuickComponentSetOptionsPage;
-        m_componentOptionsPageId = addPageWithTitle(m_componentOptionsPage, tr("Select existing QML file"));
-        m_componentItem = wizardProgress()->item(m_componentOptionsPageId);
-    }
+    m_componentSetPage = new Internal::QtQuickComponentSetPage;
+    addPageWithTitle(m_componentSetPage, tr("Component Set"));
 
-    AbstractMobileAppWizardDialog::addMobilePages();
-
-    if (kind == QtQuickAppWizard::ImportQml || kind == QtQuickAppWizard::ImportQml2) {
-        if (targetsPageItem())
-            m_componentItem->setNextItems(QList<Utils::WizardProgressItem *>()
-                                          << targetsPageItem());
-    }
+    addKitsPage();
 }
 
-bool QtQuickAppWizardDialog::validateCurrentPage()
+void QtQuickAppWizardDialog::initializePage(int id)
 {
-    if (currentPage() == m_componentOptionsPage)
-        setIgnoreGenericOptionsPage(false);
-    return AbstractMobileAppWizardDialog::validateCurrentPage();
+    if (page(id) == kitsPage()) {
+        Core::FeatureSet features = Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_1);
+        QtQuickApp::ComponentSet components = componentSet();
+        switch (components) {
+        case QtQuickApp::QtQuick10Components:
+            features = Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_1);
+            break;
+        case QtQuickApp::QtQuick20Components:
+            features = Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_2);
+            break;
+        case QtQuickApp::QtQuickControls10:
+            features = Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_2)
+                    | Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_CONTROLS);
+            break;
+        }
+        setRequiredFeatures(features);
+        updateKitsPage();
+    }
+    AbstractMobileAppWizardDialog::initializePage(id);
 }
 
 class QtQuickAppWizardPrivate
 {
     class QtQuickApp *app;
     class QtQuickAppWizardDialog *wizardDialog;
-    QtQuickAppWizard::Kind kind;
     friend class QtQuickAppWizard;
 };
 
@@ -112,6 +111,9 @@ QtQuickAppWizard::QtQuickAppWizard()
     setId(QLatin1String("D.QMLA Application"));
     setCategory(QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY));
     setDisplayCategory(QLatin1String(ProjectExplorer::Constants::QT_APPLICATION_WIZARD_CATEGORY_DISPLAY));
+    setDisplayName(tr("Qt Quick Application"));
+    setDescription(tr("Creates a Qt Quick application project that can contain both QML and C++ code."));
+    setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK));
 
     d->app = new QtQuickApp;
     d->wizardDialog = 0;
@@ -123,111 +125,17 @@ QtQuickAppWizard::~QtQuickAppWizard()
     delete d;
 }
 
-void QtQuickAppWizard::createInstances(ExtensionSystem::IPlugin *plugin)
-{
-    const QString basicDescription = tr("Creates a Qt Quick 1 application project that can contain "
-                                        "both QML and C++ code and includes a QDeclarativeView.\n\n");
-    const QString basicDescription2 = tr("Creates a Qt Quick 2 application project that can contain "
-                                        "both QML and C++ code and includes a QQuickView.\n\n");
-
-    Core::FeatureSet basicFeatures = Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_1);
-
-    QtQuickAppWizard *wizard = new QtQuickAppWizard;
-    wizard->setQtQuickKind(QtQuick1_1);
-    wizard->setDisplayName(tr("Qt Quick 1 Application (Built-in Types)"));
-    wizard->setDescription(basicDescription + tr("The built-in QML types in the QtQuick 1 namespace allow "
-                                                   "you to write cross-platform applications with "
-                                                   "a custom look and feel.\n\nRequires <b>Qt 4.8.0</b> or newer."));
-    wizard->setRequiredFeatures(basicFeatures);
-    plugin->addAutoReleasedObject(wizard);
-
-
-    wizard = new QtQuickAppWizard;
-    wizard->setQtQuickKind(QtQuick2_0);
-    wizard->setDisplayName(tr("Qt Quick 2 Application (Built-in Types)"));
-    wizard->setDescription(basicDescription2 + tr("The built-in QML types in the QtQuick 2 namespace allow "
-                                                    "you to write cross-platform applications with "
-                                                    "a custom look and feel.\n\nRequires <b>Qt 5.0</b> or newer."));
-    wizard->setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_2));
-    plugin->addAutoReleasedObject(wizard);
-
-
-    wizard = new QtQuickAppWizard;
-    wizard->setQtQuickKind(ImportQml);
-    wizard->setDisplayName(tr("Qt Quick 1 Application (from Existing QML File)"));
-    wizard->setDescription(basicDescription +  tr("Creates a deployable Qt Quick application from "
-                                                    "existing QML files. All files and directories that "
-                                                    "reside in the same directory as the main .qml file "
-                                                    "are deployed. You can modify the contents of the "
-                                                    "directory any time before deploying.\n\nRequires <b>Qt 4.8.0</b> or newer."));
-    wizard->setRequiredFeatures(basicFeatures);
-    plugin->addAutoReleasedObject(wizard);
-
-
-    wizard = new QtQuickAppWizard;
-    wizard->setQtQuickKind(ImportQml2);
-    wizard->setDisplayName(tr("Qt Quick 2 Application (from Existing QML File)"));
-    wizard->setDescription(basicDescription2 + tr("Creates a deployable Qt Quick application from "
-                                                    "existing QML files. All files and directories that "
-                                                    "reside in the same directory as the main .qml file "
-                                                    "are deployed. You can modify the contents of the "
-                                                    "directory any time before deploying.\n\nRequires <b>Qt 5.0</b> or newer."));
-
-    wizard->setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_2));
-    plugin->addAutoReleasedObject(wizard);
-
-    wizard = new QtQuickAppWizard;
-    wizard->setQtQuickKind(QtQuick_Controls_1_0);
-
-    wizard->setDisplayName(tr("Qt Quick 2 Application (Qt Quick Controls)"));
-    wizard->setDescription(basicDescription +  tr("Creates a deployable Qt Quick application using "
-                                                  "Qt Quick Controls. All files and directories that "
-                                                  "reside in the same directory as the main .qml file "
-                                                  "are deployed. You can modify the contents of the "
-                                                  "directory any time before deploying.\n\nRequires <b>Qt 5.1.0</b> or newer."));
-    wizard->setRequiredFeatures(Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_2)
-                                | Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_CONTROLS));
-    plugin->addAutoReleasedObject(wizard);
-}
-
 AbstractMobileAppWizardDialog *QtQuickAppWizard::createWizardDialogInternal(QWidget *parent,
                                                                             const Core::WizardDialogParameters &parameters) const
 {
-    d->wizardDialog = new QtQuickAppWizardDialog(parent, parameters, qtQuickKind());
-
-    switch (qtQuickKind()) {
-    case QtQuick1_1:
-        d->app->setComponentSet(QtQuickApp::QtQuick10Components);
-        d->app->setMainQml(QtQuickApp::ModeGenerate);
-        break;
-    case ImportQml:
-        d->app->setComponentSet(QtQuickApp::QtQuick10Components);
-        d->app->setMainQml(QtQuickApp::ModeImport);
-        break;
-    case ImportQml2:
-        d->app->setComponentSet(QtQuickApp::QtQuick20Components);
-        d->app->setMainQml(QtQuickApp::ModeImport);
-        break;
-    case QtQuick2_0:
-        d->app->setComponentSet(QtQuickApp::QtQuick20Components);
-        d->app->setMainQml(QtQuickApp::ModeGenerate);
-        break;
-    case QtQuick_Controls_1_0:
-        d->app->setComponentSet(QtQuickApp::QtQuickControls10);
-        d->app->setMainQml(QtQuickApp::ModeGenerate);
-        break;
-    default:
-        qWarning() << "QtQuickAppWizard illegal subOption:" << qtQuickKind();
-        break;
-    }
-
+    d->wizardDialog = new QtQuickAppWizardDialog(parent, parameters);
     return d->wizardDialog;
 }
 
 void QtQuickAppWizard::projectPathChanged(const QString &path) const
 {
-    if (d->wizardDialog->targetsPage())
-        d->wizardDialog->targetsPage()->setProjectPath(path);
+    if (d->wizardDialog->kitsPage())
+        d->wizardDialog->kitsPage()->setProjectPath(path);
 }
 
 void QtQuickAppWizard::prepareGenerateFiles(const QWizard *w,
@@ -235,23 +143,7 @@ void QtQuickAppWizard::prepareGenerateFiles(const QWizard *w,
 {
     Q_UNUSED(errorMessage)
     const QtQuickAppWizardDialog *wizard = qobject_cast<const QtQuickAppWizardDialog*>(w);
-
-    if (d->app->mainQmlMode() == QtQuickApp::ModeGenerate) {
-        d->app->setMainQml(QtQuickApp::ModeGenerate);
-    } else {
-        const QString mainQmlFile = wizard->m_componentOptionsPage->mainQmlFile();
-        d->app->setMainQml(QtQuickApp::ModeImport, mainQmlFile);
-    }
-}
-
-void QtQuickAppWizard::setQtQuickKind(QtQuickAppWizard::Kind kind)
-{
-    d->kind = kind;
-}
-
-QtQuickAppWizard::Kind QtQuickAppWizard::qtQuickKind() const
-{
-    return d->kind;
+    d->app->setComponentSet(wizard->componentSet());
 }
 
 QString QtQuickAppWizard::fileToOpenPostGeneration() const

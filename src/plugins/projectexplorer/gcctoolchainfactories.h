@@ -100,7 +100,6 @@ private:
     QLineEdit *m_platformLinkerFlagsLineEdit;
     AbiWidget *m_abiWidget;
 
-    QList<Abi> m_abiList;
     bool m_isReadOnly;
     QByteArray m_macros;
 };

@@ -21,10 +21,6 @@ HEADERS += \
     profilehoverhandler.h \
     wizards/qtprojectparameters.h \
     wizards/guiappwizard.h \
-    wizards/mobileapp.h \
-    wizards/mobileappwizardpages.h \
-    wizards/mobilelibrarywizardoptionpage.h \
-    wizards/mobilelibraryparameters.h \
     wizards/consoleappwizard.h \
     wizards/consoleappwizarddialog.h \
     wizards/libraryparameters.h \
@@ -80,10 +76,6 @@ SOURCES += \
     profilehoverhandler.cpp \
     wizards/qtprojectparameters.cpp \
     wizards/guiappwizard.cpp \
-    wizards/mobileapp.cpp \
-    wizards/mobileappwizardpages.cpp \
-    wizards/mobilelibrarywizardoptionpage.cpp \
-    wizards/mobilelibraryparameters.cpp \
     wizards/consoleappwizard.cpp \
     wizards/consoleappwizarddialog.cpp \
     wizards/libraryparameters.cpp \
@@ -126,10 +118,7 @@ FORMS += makestep.ui \
     qmakeprojectconfigwidget.ui \
     librarydetailswidget.ui \
     wizards/testwizardpage.ui \
-    wizards/html5appwizardsourcespage.ui \
-    wizards/mobilelibrarywizardoptionpage.ui \
-    wizards/mobileappwizardgenericoptionspage.ui \
-    wizards/qtquickcomponentsetoptionspage.ui
+    wizards/html5appwizardsourcespage.ui
 
 RESOURCES += qmakeprojectmanager.qrc \
     wizards/wizards.qrc

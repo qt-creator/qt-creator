@@ -84,7 +84,7 @@ IosDevice::IosDevice()
                              IDevice::Hardware,
                              Constants::IOS_DEVICE_ID)
 {
-    setDisplayName(QCoreApplication::translate("Ios::Internal::IosDevice", "iOS Device"));
+    setDisplayName(IosDevice::name());
     setDeviceState(DeviceStateUnknown);
 }
 
@@ -98,7 +98,7 @@ IosDevice::IosDevice(const QString &uid)
                              IDevice::Hardware,
                              Core::Id(Constants::IOS_DEVICE_ID).withSuffix(uid))
 {
-    setDisplayName(QCoreApplication::translate("Ios::Internal::IosDevice", "iOS Device"));
+    setDisplayName(IosDevice::name());
     setDeviceState(DeviceStateUnknown);
 }
 
@@ -182,6 +182,12 @@ QString IosDevice::uniqueDeviceID() const
 {
     return id().suffixAfter(Core::Id(Constants::IOS_DEVICE_ID));
 }
+
+QString IosDevice::name()
+{
+    return QCoreApplication::translate("Ios::Internal::IosDevice", "iOS Device");
+}
+
 /*
 // add back?
 
@@ -207,6 +213,7 @@ IosDeviceManager::TranslationMap IosDeviceManager::translationMap()
         return *translationMap;
     TranslationMap &tMap = *new TranslationMap;
     tMap[QLatin1String("deviceName")]      = tr("Device name");
+    //: Whether the device is in developer mode.
     tMap[QLatin1String("developerStatus")] = tr("Developer status");
     tMap[QLatin1String("deviceConnected")] = tr("Connected");
     tMap[QLatin1String("YES")]             = tr("yes");

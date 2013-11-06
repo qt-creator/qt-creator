@@ -371,6 +371,31 @@ class DumperBase:
     def putStringValue(self, value):
         return self.putValue(self.encodeString(value), Hex4EncodedLittleEndian)
 
+    def putAddressItem(self, name, value, type = ""):
+        with SubItem(self, name):
+            self.putValue("0x%x" % value)
+            self.putType(type)
+            self.putNumChild(0)
+
+    def putIntItem(self, name, value):
+        with SubItem(self, name):
+            self.putValue(value)
+            self.putType("int")
+            self.putNumChild(0)
+
+    def putBoolItem(self, name, value):
+        with SubItem(self, name):
+            self.putValue(value)
+            self.putType("bool")
+            self.putNumChild(0)
+
+    def putGenericItem(self, name, type, value, encoding = None):
+        with SubItem(self, name):
+            self.putValue(value, encoding)
+            self.putType(type)
+            self.putNumChild(0)
+
+
     def putMapName(self, value):
         ns = self.qtNamespace()
         if str(value.type) == ns + "QString":
@@ -431,6 +456,23 @@ class DumperBase:
 
     def encodeChar4Array(self, p):
         return self.encodeCArray(p, "unsigned int", "2e0000002e0000002e000000")
+
+    def putItemCount(self, count, maximum = 1000000000):
+        # This needs to override the default value, so don't use 'put' directly.
+        if count > maximum:
+            self.putValue('<>%s items>' % maximum)
+        else:
+            self.putValue('<%s items>' % count)
+
+    def putNoType(self):
+        # FIXME: replace with something that does not need special handling
+        # in SubItem.__exit__().
+        self.putBetterType(" ")
+
+    def putInaccessible(self):
+        #self.putBetterType(" ")
+        self.putNumChild(0)
+        self.currentValue = None
 
     def putQObjectNameValue(self, value):
         try:

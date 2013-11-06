@@ -19,7 +19,7 @@ LIBS += \
   -framework ApplicationServices \
   -framework CoreFoundation \
   -F/System/Library/PrivateFrameworks \
-  -framework IOKit
+  -framework IOKit -framework AppKit
 
 iPhoneSimulatorRemoteClientDirectLinking {
   LIBS += \

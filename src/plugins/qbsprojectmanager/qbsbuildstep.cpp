@@ -366,8 +366,6 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
     connect(m_ui->propertyEdit, SIGNAL(propertiesChanged()), this, SLOT(changeProperties()));
     connect(m_ui->qmlDebuggingLibraryCheckBox, SIGNAL(toggled(bool)),
             this, SLOT(linkQmlDebuggingLibraryChecked(bool)));
-    connect(m_ui->qmlDebuggingWarningText, SIGNAL(linkActivated(QString)),
-            this, SLOT(buildQmlDebuggingHelper()));
     connect(QtSupport::QtVersionManager::instance(), SIGNAL(dumpUpdatedFor(Utils::FileName)),
             this, SLOT(updateQmlDebuggingOption()));
     updateState();
@@ -529,12 +527,6 @@ void QbsBuildStepConfigWidget::linkQmlDebuggingLibraryChecked(bool checked)
     m_ignoreChange = true;
     m_step->setQbsConfiguration(data);
     m_ignoreChange = false;
-}
-
-void QbsBuildStepConfigWidget::buildQmlDebuggingHelper()
-{
-    QtSupport::BaseQtVersion::buildDebuggingHelper(m_step->target()->kit(),
-                                                   static_cast<int>(QtSupport::DebuggingHelperBuildTask::QmlDebugging));
 }
 
 // --------------------------------------------------------------------

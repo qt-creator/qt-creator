@@ -1172,10 +1172,7 @@ void CdbEngine::interruptInferior()
         notifyInferiorRunOk();
         return;
     }
-    if (!doInterruptInferior(NoSpecialStop)) {
-        STATE_DEBUG(state(), Q_FUNC_INFO, __LINE__, "notifyInferiorStopFailed")
-        notifyInferiorStopFailed();
-    }
+    doInterruptInferior(NoSpecialStop);
 }
 
 void CdbEngine::doInterruptInferiorCustomSpecialStop(const QVariant &v)
@@ -1185,21 +1182,32 @@ void CdbEngine::doInterruptInferiorCustomSpecialStop(const QVariant &v)
     m_customSpecialStopData.push_back(v);
 }
 
-bool CdbEngine::doInterruptInferior(SpecialStopMode sm)
+void CdbEngine::handleDoInterruptInferior(const QString &errorMessage)
 {
-    const SpecialStopMode oldSpecialMode = m_specialStopMode;
-    m_specialStopMode = sm;
-
-    showMessage(QString::fromLatin1("Interrupting process %1...").arg(inferiorPid()), LogMisc);
-    QString errorMessage;
-
-    const bool ok = interruptProcess(inferiorPid(), CdbEngineType,
-                                     &errorMessage, m_cdbIs64Bit);
-    if (!ok) {
-        m_specialStopMode = oldSpecialMode;
+    if (errorMessage.isEmpty()) {
+        showMessage(QLatin1String("Interrupted ") + QString::number(inferiorPid()));
+    } else {
         showMessage(errorMessage, LogError);
+        notifyInferiorStopFailed();
     }
-    return ok;
+    m_signalOperation->disconnect(this);
+    m_signalOperation.clear();
+}
+
+void CdbEngine::doInterruptInferior(SpecialStopMode sm)
+{
+    showMessage(QString::fromLatin1("Interrupting process %1...").arg(inferiorPid()), LogMisc);
+
+    QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state(); notifyInferiorStopFailed(); return;);
+    QTC_ASSERT(!m_signalOperation, notifyInferiorStopFailed();  return;);
+    m_signalOperation = startParameters().device->signalOperation();
+    m_specialStopMode = sm;
+    QTC_ASSERT(m_signalOperation, notifyInferiorStopFailed(); return;);
+    connect(m_signalOperation.data(), SIGNAL(finished(QString)),
+            SLOT(handleDoInterruptInferior(QString)));
+
+    m_signalOperation->setDebuggerCommand(startParameters().debuggerCommand);
+    m_signalOperation->interruptProcess(inferiorPid());
 }
 
 void CdbEngine::executeRunToLine(const ContextData &data)

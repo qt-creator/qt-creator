@@ -31,23 +31,29 @@
 #define QTQUICKAPPWIZARDPAGES_H
 
 #include <QWizardPage>
+#include "qtquickapp.h"
 
 namespace QmakeProjectManager {
 namespace Internal {
 
-class QtQuickComponentSetOptionsPage : public QWizardPage
+class QtQuickComponentSetPage : public QWizardPage
 {
     Q_OBJECT
 
 public:
-    explicit QtQuickComponentSetOptionsPage(QWidget *parent = 0);
-    virtual ~QtQuickComponentSetOptionsPage();
+    explicit QtQuickComponentSetPage(QWidget *parent = 0);
+    virtual ~QtQuickComponentSetPage();
 
-    QString mainQmlFile() const;
-    virtual bool isComplete() const;
+    QtQuickApp::ComponentSet componentSet() const;
+
+private slots:
+    void updateDescription(int index);
 
 private:
-    class QtQuickComponentSetOptionsPagePrivate *d;
+    QtQuickApp::ComponentSet componentSet(int index) const;
+    QString description(QtQuickApp::ComponentSet componentSet) const;
+
+    class QtQuickComponentSetPagePrivate *d;
 };
 
 } // namespace Internal

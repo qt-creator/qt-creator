@@ -101,11 +101,14 @@ GerritPushDialog::GerritPushDialog(const QString &workingDir, const QString &rev
         if (ref.contains(head) || ref.isEmpty())
             continue;
 
-        remoteBranch = ref;
+        if (remoteBranch.isEmpty())
+            remoteBranch = ref;
 
         // Prefer remote tracking branch if it exists and contains the latest remote commit
-        if (ref == remoteTrackingBranch)
+        if (ref == remoteTrackingBranch) {
+            remoteBranch = ref;
             break;
+        }
     }
 
     if (!remoteBranch.isEmpty()) {

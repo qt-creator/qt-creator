@@ -111,37 +111,6 @@ void IosProbe::detectDeveloperPaths()
     addDeveloperPath(QLatin1String("/Applications/Xcode.app/Contents/Developer"));
 }
 
-void IosProbe::setArch(Platform *platform, const QString &pathToGcc, const QStringList &extraFlags)
-{
-    if (!extraFlags.isEmpty())
-        platform->backendFlags = extraFlags;
-    // setting architecture and endianness only here, bercause the same compiler
-    // can support several ones
-    QStringList flags(extraFlags);
-    flags << QLatin1String("-dumpmachine");
-    QString compilerTriplet = qsystem(pathToGcc, flags).simplified();
-    QStringList compilerTripletl = compilerTriplet.split(QLatin1Char('-'));
-    if (compilerTripletl.count() < 2) {
-        qDebug() << QString::fromLatin1("Detected '%1', but I don't understand "
-                                             "its architecture '%2'.")
-                      .arg(pathToGcc, compilerTriplet);
-        return;
-    }
-
-    QString endianness, architecture;
-    architecture = compilerTripletl.at(0);
-    endianness = QLatin1String("little");
-
-    if (debugProbe)
-        qDebug() << QString::fromLatin1("    Toolchain %1 detected:\n"
-                                        "        binary: %2\n"
-                                        "        triplet: %3\n"
-                                        "        arch: %4").arg(platform->name, pathToGcc,
-                                                                compilerTriplet, architecture);
-
-    platform->architecture = architecture;
-}
-
 void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xcodeName)
 {
     if (debugProbe)
@@ -201,16 +170,15 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xco
             bool hasGcc = gccFileInfo.exists();
 
             QStringList extraFlags;
-            if (defaultProp.contains(QLatin1String("ARCHS"))) {
-                QString arch = defaultProp.value(QLatin1String("ARCHS")).toString();
-                if (arch == QLatin1String("$(NATIVE_ARCH_32_BIT)"))
-                    extraFlags << QLatin1String("-arch") << QLatin1String("i386");
-            }
             if (defaultProp.contains(QLatin1String("NATIVE_ARCH"))) {
                 QString arch = defaultProp.value(QLatin1String("NATIVE_ARCH")).toString();
                 if (!arch.startsWith(QLatin1String("arm")))
                     qDebug() << indent << QString::fromLatin1("Expected arm architecture, not %1").arg(arch);
                 extraFlags << QLatin1String("-arch") << arch;
+            } else if (name == QLatin1String("iphonesimulator")) {
+                QString arch = defaultProp.value(QLatin1String("ARCHS")).toString();
+                // don't generate a toolchain for 64 bit (to fix when we support that)
+                extraFlags << QLatin1String("-arch") << QLatin1String("i386");
             }
             if (hasClang) {
                 Platform clangProfile;
@@ -220,7 +188,13 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xco
                 clangProfile.platformPath = Utils::FileName(fInfo);
                 clangProfile.platformInfo = infoSettings;
                 clangProfile.compilerPath = Utils::FileName(clangFileInfo);
-                setArch(&clangProfile, clangFileInfo.canonicalFilePath(), extraFlags);
+                QStringList flags = extraFlags;
+                flags << QLatin1String("-dumpmachine");
+                QString compilerTriplet = qsystem(clangFileInfo.canonicalFilePath(), flags)
+                        .simplified();
+                QStringList compilerTripletl = compilerTriplet.split(QLatin1Char('-'));
+                clangProfile.architecture = compilerTripletl.value(0);
+                clangProfile.backendFlags = extraFlags;
                 if (debugProbe)
                     qDebug() << indent << QString::fromLatin1("* adding profile %1").arg(clangProfile.name);
                 m_platforms[clangProfile.name] = clangProfile;
@@ -239,7 +213,13 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xco
                 gccProfile.platformPath = Utils::FileName(fInfo);
                 gccProfile.platformInfo = infoSettings;
                 gccProfile.compilerPath = Utils::FileName(gccFileInfo);
-                setArch(&gccProfile, gccFileInfo.canonicalFilePath(), extraFlags);
+                QStringList flags = extraFlags;
+                flags << QLatin1String("-dumpmachine");
+                QString compilerTriplet = qsystem(gccFileInfo.canonicalFilePath(), flags)
+                        .simplified();
+                QStringList compilerTripletl = compilerTriplet.split(QLatin1Char('-'));
+                gccProfile.architecture = compilerTripletl.value(0);
+                gccProfile.backendFlags = extraFlags;
                 if (debugProbe)
                     qDebug() << indent << QString::fromLatin1("* adding profile %1").arg(gccProfile.name);
                 m_platforms[gccProfile.name] = gccProfile;
@@ -283,37 +263,12 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xco
                         sdkPath = sdkDirInfo.canonicalFilePath();
                         sdkSettings = sdkInfo;
                     }
-                    if (hasClang){
-                        Platform pSdk;
-                        pSdk = m_platforms[clangFullName];
-                        pSdk.name = safeName + QLatin1String("-clang") + xcodeName;
-                        pSdk.sdkPath = Utils::FileName(sdkDirInfo);
-                        pSdk.sdkSettings = sdkInfo;
-                        if (debugProbe)
-                            qDebug() << indent << QString::fromLatin1("* adding profile %1").arg(pSdk.name);
-                        m_platforms[pSdk.name] = pSdk;
-                        pSdk.backendFlags.append(QLatin1String("-std=c++11"));
-                        pSdk.backendFlags.append(QLatin1String("-stdlib=libc++"));
-                        pSdk.name = safeName + QLatin1String("-clang11") + xcodeName;
-                        m_platforms[pSdk.name] = pSdk;
-                    }
-                    if (hasGcc) {
-                        Platform pSdk;
-                        pSdk = m_platforms[gccFullName];
-                        pSdk.name = safeName + QLatin1String("-gcc") + xcodeName;
-                        pSdk.sdkPath = Utils::FileName(sdkDirInfo);
-                        pSdk.sdkSettings = sdkInfo;
-                        if (debugProbe)
-                            qDebug() << indent << QString::fromLatin1("* adding profile %1").arg(pSdk.name);
-                        m_platforms[pSdk.name] = pSdk;
-                    }
                 }
                 if (!sdkPath.isEmpty())
                     sysRoot = sdkPath;
                 else if (!sdkName.isEmpty())
                     qDebug() << indent << QString::fromLatin1("Failed to find sysroot %1").arg(sdkName);
             }
-            //m_platforms.remove(clangFullName);
             if (hasClang && !sysRoot.isEmpty()) {
                 m_platforms[clangFullName].platformKind |= Platform::BasePlatform;
                 m_platforms[clangFullName].sdkPath = Utils::FileName::fromString(sysRoot);
@@ -322,7 +277,6 @@ void IosProbe::setupDefaultToolchains(const QString &devPath, const QString &xco
                 m_platforms[clang11FullName].sdkPath = Utils::FileName::fromString(sysRoot);
                 m_platforms[clang11FullName].sdkSettings = sdkSettings;
             }
-            //m_platforms.remove(gccFullName);
             if (hasGcc && !sysRoot.isEmpty()) {
                 m_platforms[gccFullName].platformKind |= Platform::BasePlatform;
                 m_platforms[gccFullName].sdkPath = Utils::FileName::fromString(sysRoot);

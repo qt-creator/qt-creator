@@ -76,7 +76,7 @@ QStringList DesktopQtVersion::warningReason() const
 
 QList<ProjectExplorer::Abi> DesktopQtVersion::detectQtAbis() const
 {
-    return qtAbisFromLibrary(qtCorePath(versionInfo(), qtVersionString()));
+    return qtAbisFromLibrary(qtCorePaths(versionInfo(), qtVersionString()));
 }
 
 QString DesktopQtVersion::description() const

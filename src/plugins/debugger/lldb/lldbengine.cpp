@@ -185,9 +185,10 @@ void LldbEngine::setupInferior()
     cmd.arg("remoteChannel", ((sp.startMode == AttachToRemoteProcess
                                || sp.startMode == AttachToRemoteServer)
                               ? sp.remoteChannel : QString()));
-
+    cmd.arg("platform", sp.platform);
     runCommand(cmd);
     requestUpdateWatchers();
+    updateLocals(); // update display options
 }
 
 void LldbEngine::runEngine()
@@ -825,7 +826,7 @@ QString LldbEngine::errorMessage(QProcess::ProcessError error) const
             return tr("An error occurred when attempting to read from "
                 "the Lldb process. For example, the process may not be running.");
         default:
-            return tr("An unknown error in the Lldb process occurred.") + QLatin1Char(' ');
+            return tr("An unknown error in the LLDB process occurred.") + QLatin1Char(' ');
     }
 }
 
@@ -852,11 +853,11 @@ void LldbEngine::readLldbStandardOutput()
     showMessage(_("Lldb stdout: " + out));
     m_inbuffer.append(out);
     while (true) {
-        int pos = m_inbuffer.indexOf('\n');
+        int pos = m_inbuffer.indexOf("@\n");
         if (pos == -1)
             break;
         QByteArray response = m_inbuffer.left(pos).trimmed();
-        m_inbuffer = m_inbuffer.mid(pos + 1);
+        m_inbuffer = m_inbuffer.mid(pos + 2);
         emit outputReady(response);
     }
 }

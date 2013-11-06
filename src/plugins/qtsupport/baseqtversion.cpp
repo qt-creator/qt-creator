@@ -29,9 +29,7 @@
 
 #include "baseqtversion.h"
 #include "qtconfigwidget.h"
-#include "qmlobservertool.h"
 #include "qmldumptool.h"
-#include "qmldebugginglibrary.h"
 #include "qtkitinformation.h"
 
 #include "qtversionmanager.h"
@@ -141,8 +139,6 @@ BaseQtVersion::BaseQtVersion(const FileName &qmakeCommand, bool isAutodetected, 
       m_isAutodetected(isAutodetected),
       m_hasDebuggingHelper(false),
       m_hasQmlDump(false),
-      m_hasQmlDebuggingLibrary(false),
-      m_hasQmlObserver(false),
       m_mkspecUpToDate(false),
       m_mkspecReadUpToDate(false),
       m_defaultConfigIsDebug(true),
@@ -164,8 +160,6 @@ BaseQtVersion::BaseQtVersion()
     :  m_id(-1), m_isAutodetected(false),
     m_hasDebuggingHelper(false),
     m_hasQmlDump(false),
-    m_hasQmlDebuggingLibrary(false),
-    m_hasQmlObserver(false),
     m_mkspecUpToDate(false),
     m_mkspecReadUpToDate(false),
     m_defaultConfigIsDebug(true),
@@ -918,8 +912,6 @@ void BaseQtVersion::updateVersionInfo() const
     m_hasDocumentation = false;
     m_hasDebuggingHelper = false;
     m_hasQmlDump = false;
-    m_hasQmlDebuggingLibrary = false;
-    m_hasQmlObserver = false;
 
     if (!queryQMakeVariables(qmakeCommand(), qmakeRunEnvironment(), &m_versionInfo)) {
         m_qmakeIsExecutable = false;
@@ -938,10 +930,6 @@ void BaseQtVersion::updateVersionInfo() const
             m_hasQmlDump
                     = !QmlDumpTool::toolForQtPaths(qtInstallData, qtInstallBins, qtHeaderData, false).isEmpty()
                     || !QmlDumpTool::toolForQtPaths(qtInstallData, qtInstallBins, qtHeaderData, true).isEmpty();
-            m_hasQmlDebuggingLibrary
-                    = !QmlDebuggingLibrary::libraryByInstallData(qtInstallData, false).isEmpty()
-                || !QmlDebuggingLibrary::libraryByInstallData(qtInstallData, true).isEmpty();
-            m_hasQmlObserver = !QmlObserverTool::toolByInstallData(qtInstallData).isEmpty();
         }
     }
 
@@ -1107,23 +1095,6 @@ bool BaseQtVersion::needsQmlDump() const
     return qtVersion() < QtVersionNumber(4, 8, 0);
 }
 
-bool BaseQtVersion::hasQmlDebuggingLibrary() const
-{
-    updateVersionInfo();
-    return m_hasQmlDebuggingLibrary;
-}
-
-bool BaseQtVersion::needsQmlDebuggingLibrary() const
-{
-    return qtVersion() < QtVersionNumber(4, 8, 0);
-}
-
-bool BaseQtVersion::hasQmlObserver() const
-{
-    updateVersionInfo();
-    return m_hasQmlObserver;
-}
-
 Environment BaseQtVersion::qmlToolsEnvironment() const
 {
     // FIXME: This seems broken!
@@ -1158,22 +1129,6 @@ QString BaseQtVersion::qmlDumpTool(bool debugVersion) const
     const QString qtInstallBins = qmakeProperty("QT_INSTALL_BINS");
     const QString qtHeaderData = qmakeProperty("QT_INSTALL_HEADERS");
     return QmlDumpTool::toolForQtPaths(qtInstallData, qtInstallBins, qtHeaderData, debugVersion);
-}
-
-QString BaseQtVersion::qmlDebuggingHelperLibrary(bool debugVersion) const
-{
-    QString qtInstallData = qmakeProperty("QT_INSTALL_DATA");
-    if (qtInstallData.isEmpty())
-        return QString();
-    return QmlDebuggingLibrary::libraryByInstallData(qtInstallData, debugVersion);
-}
-
-QString BaseQtVersion::qmlObserverTool() const
-{
-    QString qtInstallData = qmakeProperty("QT_INSTALL_DATA");
-    if (qtInstallData.isEmpty())
-        return QString();
-    return QmlObserverTool::toolByInstallData(qtInstallData);
 }
 
 QStringList BaseQtVersion::debuggingHelperLibraryLocations() const
@@ -1472,25 +1427,19 @@ bool BaseQtVersion::isQmlDebuggingSupported(Kit *k, QString *reason)
 
 bool BaseQtVersion::isQmlDebuggingSupported(QString *reason) const
 {
-    if (!needsQmlDebuggingLibrary() || hasQmlDebuggingLibrary())
-        return true;
-
     if (!isValid()) {
         if (reason)
             *reason = QCoreApplication::translate("BaseQtVersion", "Invalid Qt version.");
         return false;
     }
 
-    if (qtVersion() < QtVersionNumber(4, 7, 1)) {
+    if (qtVersion() < QtVersionNumber(4, 8, 0)) {
         if (reason)
-            *reason = QCoreApplication::translate("BaseQtVersion", "Requires Qt 4.7.1 or newer.");
+            *reason = QCoreApplication::translate("BaseQtVersion", "Requires Qt 4.8.0 or newer.");
         return false;
     }
 
-    if (reason)
-        *reason = QCoreApplication::translate("BaseQtVersion", "Library not available. <a href='compile'>Compile...</a>");
-
-    return false;
+    return true;
 }
 
 void BaseQtVersion::buildDebuggingHelper(Kit *k, int tools)
@@ -1517,13 +1466,14 @@ void BaseQtVersion::buildDebuggingHelper(ToolChain *tc, int tools)
     ProgressManager::addTask(task, taskName, "Qt::BuildHelpers");
 }
 
-FileName BaseQtVersion::qtCorePath(const QHash<QString,QString> &versionInfo, const QString &versionString)
+QList<FileName> BaseQtVersion::qtCorePaths(const QHash<QString,QString> &versionInfo, const QString &versionString)
 {
     QStringList dirs;
     dirs << qmakeProperty(versionInfo, "QT_INSTALL_LIBS")
          << qmakeProperty(versionInfo, "QT_INSTALL_BINS");
 
-    QFileInfoList staticLibs;
+    QList<FileName> staticLibs;
+    QList<FileName> dynamicLibs;
     foreach (const QString &dir, dirs) {
         if (dir.isEmpty())
             continue;
@@ -1536,33 +1486,35 @@ FileName BaseQtVersion::qtCorePath(const QHash<QString,QString> &versionInfo, co
                     && file.endsWith(QLatin1String(".framework"))) {
                 // handle Framework
                 FileName lib(info);
-                lib.appendPath(file.left(file.lastIndexOf(QLatin1Char('.'))));
-                return lib;
-            }
-            if (info.isReadable()) {
+                dynamicLibs.append(lib.appendPath(file.left(file.lastIndexOf(QLatin1Char('.')))));
+            } else if (info.isReadable()) {
                 if (file.startsWith(QLatin1String("libQtCore"))
                         || file.startsWith(QLatin1String("libQt5Core"))
                         || file.startsWith(QLatin1String("QtCore"))
                         || file.startsWith(QLatin1String("Qt5Core"))) {
-                    // Only handle static libs if we can not find dynamic ones:
                     if (file.endsWith(QLatin1String(".a")) || file.endsWith(QLatin1String(".lib")))
-                        staticLibs.append(info);
+                        staticLibs.append(FileName(info));
                     else if (file.endsWith(QLatin1String(".dll"))
                              || file.endsWith(QString::fromLatin1(".so.") + versionString)
                              || file.endsWith(QLatin1String(".so"))
                              || file.endsWith(QLatin1Char('.') + versionString + QLatin1String(".dylib")))
-                        return FileName(info);
+                        dynamicLibs.append(FileName(info));
                 }
             }
         }
     }
-    // Return path to first static library found:
-    if (!staticLibs.isEmpty())
-        return FileName(staticLibs.at(0));
-    return FileName();
+    // Only handle static libs if we can not find dynamic ones:
+    if (dynamicLibs.isEmpty())
+        return staticLibs;
+    return dynamicLibs;
 }
 
-QList<Abi> BaseQtVersion::qtAbisFromLibrary(const FileName &coreLibrary)
+QList<Abi> BaseQtVersion::qtAbisFromLibrary(const QList<FileName> &coreLibraries)
 {
-    return Abi::abisOfBinary(coreLibrary);
+    QList<Abi> res;
+    foreach (const FileName &library, coreLibraries)
+        foreach (const Abi &abi, Abi::abisOfBinary(library))
+            if (!res.contains(abi))
+                res.append(abi);
+    return res;
 }

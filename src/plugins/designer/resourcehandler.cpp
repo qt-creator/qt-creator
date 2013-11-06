@@ -166,13 +166,6 @@ void ResourceHandler::updateResources(bool updateProjectResources)
             }
         }
 
-        QStringList originalSorted = m_originalUiQrcPaths;
-        originalSorted.sort();
-        QStringList projectSorted = projectQrcFiles;
-        projectSorted.sort();
-        if (originalSorted != projectSorted)
-            m_form->setDirty(true);
-
 #if QT_VERSION >= 0x050000
         m_form->activateResourceFilePaths(projectQrcFiles);
         m_form->setResourceFileSaveMode(QDesignerFormWindowInterface::SaveOnlyUsedResourceFiles);

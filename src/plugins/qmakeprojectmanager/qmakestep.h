@@ -157,9 +157,6 @@ private slots:
     void buildConfigurationSelected();
     void linkQmlDebuggingLibraryChecked(bool checked);
 
-    // other
-    void buildQmlDebuggingHelper();
-
 private slots:
     void recompileMessageBoxFinished(int button);
 

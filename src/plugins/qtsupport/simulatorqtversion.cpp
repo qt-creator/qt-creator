@@ -77,7 +77,7 @@ QStringList SimulatorQtVersion::warningReason() const
 QList<ProjectExplorer::Abi> SimulatorQtVersion::detectQtAbis() const
 {
     ensureMkSpecParsed();
-    return qtAbisFromLibrary(qtCorePath(versionInfo(), qtVersionString()));
+    return qtAbisFromLibrary(qtCorePaths(versionInfo(), qtVersionString()));
 }
 
 QString SimulatorQtVersion::description() const

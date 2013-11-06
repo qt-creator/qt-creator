@@ -273,7 +273,7 @@ void DebuggerItemModel::apply()
 {
     foreach (const QVariant &id, m_removedItems) {
         const DebuggerItem *item = DebuggerItemManager::findById(id);
-        QTC_CHECK(item);
+        QTC_ASSERT(item, return);
         DebuggerItemManager::deregisterDebugger(*item);
     }
 

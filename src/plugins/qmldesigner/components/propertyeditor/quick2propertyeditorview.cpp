@@ -30,6 +30,8 @@
 #include "quick2propertyeditorview.h"
 
 #include "propertyeditorvalue.h"
+#include "fileresourcesmodel.h"
+#include "gradientmodel.h"
 
 #include <QVBoxLayout>
 
@@ -106,6 +108,8 @@ void Quick2PropertyEditorView::registerQmlTypes()
     if (!declarativeTypesRegistered) {
         declarativeTypesRegistered = true;
         PropertyEditorValue::registerDeclarativeTypes();
+        FileResourcesModel::registerDeclarativeType();
+        GradientModel::registerDeclarativeType();
     }
 }
 

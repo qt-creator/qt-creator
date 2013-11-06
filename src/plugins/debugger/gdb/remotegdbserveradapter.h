@@ -88,6 +88,7 @@ private:
     void handleTargetExtendedAttach(const GdbResponse &response);
     void handleTargetQnx(const GdbResponse &response);
     void handleAttach(const GdbResponse &response);
+    void handleSetNtoExecutable(const GdbResponse &response);
     void handleInterruptInferior(const GdbResponse &response);
     void handleExecRun(const GdbResponse &response);
 

@@ -48,24 +48,26 @@ from misctypes import *
 from boosttypes import *
 from creatortypes import *
 
+lldbCmd = 'lldb'
+if len(sys.argv) > 1:
+    lldbCmd = sys.argv[1]
 
-proc = subprocess.Popen(args=[sys.argv[1], '-P'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+proc = subprocess.Popen(args=[lldbCmd, '-P'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 (path, error) = proc.communicate()
 
 if error.startswith('lldb: invalid option -- P'):
-    sys.stdout.write('msg=\'Could not run "%s -P". Trying to find lldb.so from Xcode.\'\n' % sys.argv[1])
+    sys.stdout.write('msg=\'Could not run "%s -P". Trying to find lldb.so from Xcode.\'@\n' % lldbCmd)
     proc = subprocess.Popen(args=['xcode-select', '--print-path'],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (path, error) = proc.communicate()
     if len(error):
         path = '/Applications/Xcode.app/Contents/SharedFrameworks/LLDB.framework/Versions/A/Resources/Python/'
-        sys.stdout.write('msg=\'Could not run "xcode-select --print-path"\n')
-        sys.stdout.write('msg=\'Using hardcoded fallback at %s\'\n' % path)
+        sys.stdout.write('msg=\'Could not run "xcode-select --print-path"@\n')
+        sys.stdout.write('msg=\'Using hardcoded fallback at %s\'@\n' % path)
     else:
         path = path.strip() + '/../SharedFrameworks/LLDB.framework/Versions/A/Resources/Python/'
-        sys.stdout.write('msg=\'Using fallback at %s\'\n' % path)
+        sys.stdout.write('msg=\'Using fallback at %s\'@\n' % path)
 
-#sys.path.append(path)
 sys.path.insert(1, path.strip())
 
 import lldb
@@ -88,15 +90,9 @@ def showException(msg, exType, exValue, exTraceback):
     lines = [line for line in traceback.format_exception(exType, exValue, exTraceback)]
     warn('\n'.join(lines))
 
-def registerCommand(name, func):
-    pass
-
 def fileName(file):
     return str(file) if file.IsValid() else ''
 
-
-# Data members
-PointerCode = 102
 
 # Breakpoints. Keep synchronized with BreakpointType in breakpoint.h
 UnknownType = 0
@@ -121,7 +117,7 @@ stateNames = ["invalid", "unloaded", "connected", "attaching", "launching", "sto
 def loggingCallback(args):
     s = args.strip()
     s = s.replace('"', "'")
-    sys.stdout.write('log="%s"\n' % s)
+    sys.stdout.write('log="%s"@\n' % s)
 
 def check(exp):
     if not exp:
@@ -260,15 +256,20 @@ class Dumper(DumperBase):
         #self.debugger.EnableLog("lldb", ["all"])
         self.debugger.Initialize()
         self.debugger.HandleCommand("settings set auto-confirm on")
-        if not hasattr(lldb.SBType, 'GetCanonicalType'): # "Test" for 179.5
-            warn("DISABLING DEFAULT FORMATTERS")
-            self.debugger.HandleCommand('type category delete gnu-libstdc++')
-            self.debugger.HandleCommand('type category delete libcxx')
+
+        # FIXME: warn("DISABLING DEFAULT FORMATTERS")
+        # It doesn't work at all with 179.5 and we have some bad
+        # interactonn in 3000
+        # if not hasattr(lldb.SBType, 'GetCanonicalType'): # "Test" for 179.5
+        self.debugger.HandleCommand('type category delete gnu-libstdc++')
+        self.debugger.HandleCommand('type category delete libcxx')
+        #for i in range(self.debugger.GetNumCategories()):
+        #    self.debugger.GetCategoryAtIndex(i).SetEnabled(False)
+
         self.isLldb = True
         self.process = None
         self.target = None
         self.eventState = lldb.eStateInvalid
-        self.options = {}
         self.expandedINames = {}
         self.passExceptions = False
         self.useLldbDumpers = False
@@ -368,7 +369,6 @@ class Dumper(DumperBase):
 
     def isSimpleType(self, typeobj):
         typeClass = typeobj.GetTypeClass()
-        #warn("TYPECLASS: %s" % typeClass)
         return typeClass == lldb.eTypeClassBuiltin
 
     def childAt(self, value, index):
@@ -519,24 +519,6 @@ class Dumper(DumperBase):
             return True
         return self.isKnownMovableType(self.stripNamespaceFromType(type.GetName()))
 
-    def putIntItem(self, name, value):
-        with SubItem(self, name):
-            self.putValue(value)
-            self.putType("int")
-            self.putNumChild(0)
-
-    def putBoolItem(self, name, value):
-        with SubItem(self, name):
-            self.putValue(value)
-            self.putType("bool")
-            self.putNumChild(0)
-
-    def putGenericItem(self, name, type, value, encoding = None):
-        with SubItem(self, name):
-            self.putValue(value, encoding)
-            self.putType(type)
-            self.putNumChild(0)
-
     def putNumChild(self, numchild):
         #warn("NUM CHILD: '%s' '%s'" % (numchild, self.currentChildNumChild))
         #if numchild != self.currentChildNumChild:
@@ -558,14 +540,6 @@ class Dumper(DumperBase):
             self.currentValuePriority = priority
             self.currentValueEncoding = encoding
         #self.put('value="%s",' % value)
-
-    # Convenience function.
-    def putItemCount(self, count, maximum = 1000000000):
-        # This needs to override the default value, so don't use 'put' directly.
-        if count > maximum:
-            self.putValue('<>%s items>' % maximum)
-        else:
-            self.putValue('<%s items>' % count)
 
     def putName(self, name):
         self.put('name="%s",' % name)
@@ -651,9 +625,12 @@ class Dumper(DumperBase):
         self.attachPid_ = args.get('attachPid', 0)
         self.sysRoot_ = args.get('sysRoot', '')
         self.remoteChannel_ = args.get('remoteChannel', '')
+        self.platform_ = args.get('platform', '')
 
-        if len(self.sysRoot_)>0:
+        if self.sysRoot_:
             self.debugger.SetCurrentPlatformSDKRoot(self.sysRoot_)
+        if self.platform_:
+            self.debugger.SetCurrentPlatform(self.platform_)
         self.target = self.debugger.CreateTarget(self.executable_, None, None, True, error)
         self.importDumpers()
 
@@ -671,16 +648,18 @@ class Dumper(DumperBase):
         if self.attachPid_ > 0:
             attachInfo = lldb.SBAttachInfo(self.attachPid_)
             self.process = self.target.Attach(attachInfo, error)
-            if not err.Success():
+            if not error.Success():
                 self.report('state="inferiorrunfailed"')
                 return
             self.report('pid="%s"' % self.process.GetProcessID())
             self.report('state="enginerunandinferiorstopok"')
         elif len(self.remoteChannel_) > 0:
-            err = lldb.SBError()
             self.process = self.target.ConnectRemote(
             self.debugger.GetListener(),
             self.remoteChannel_, None, error)
+            if not error.Success():
+                self.report('state="inferiorrunfailed"')
+                return
             self.report('state="enginerunandinferiorstopok"')
         else:
             launchInfo = lldb.SBLaunchInfo(self.processArgs_.split(' '))
@@ -688,7 +667,7 @@ class Dumper(DumperBase):
             environmentList = [key + "=" + value for key,value in os.environ.items()]
             launchInfo.SetEnvironmentEntries(environmentList, False)
             self.process = self.target.Launch(launchInfo, error)
-            if not err.Success():
+            if not error.Success():
                 self.report('state="inferiorrunfailed"')
                 return
             self.report('pid="%s"' % self.process.GetProcessID())
@@ -1252,7 +1231,7 @@ class Dumper(DumperBase):
             self.report(result)
 
     def report(self, stuff):
-        sys.stdout.write(stuff + "\n")
+        sys.stdout.write(stuff + "@\n")
 
     def interruptInferior(self, _ = None):
         if self.process is None:
@@ -1327,16 +1306,10 @@ class Dumper(DumperBase):
                 % binascii.hexlify(msg))
         elif type == lldb.SBProcess.eBroadcastBitSTDERR:
             msg = self.process.GetSTDERR(1024)
-            self.report('output={channel="stdout",data="%s"}'
+            self.report('output={channel="stderr",data="%s"}'
                 % binascii.hexlify(msg))
         elif type == lldb.SBProcess.eBroadcastBitProfileData:
             pass
-
-    def processEvents(self):
-        event = lldb.SBEvent()
-        while self.debugger.GetListener().PeekAtNextEvent(event):
-            self.debugger.GetListener().GetNextEvent(event)
-            self.handleEvent(event)
 
     def describeBreakpoint(self, bp, modelId):
         isWatch = isinstance(bp, lldb.SBWatchpoint)
@@ -1557,9 +1530,6 @@ class Dumper(DumperBase):
         error = str(result.GetError())
         self.report('success="%d",output="%s",error="%s"' % (success, output, error))
 
-    def setOptions(self, args):
-        self.options = args
-
     def setWatchers(self, args):
         #self.currentWatchers = args['watchers']
         #warn("WATCHERS %s" % self.currentWatchers)
@@ -1659,11 +1629,6 @@ class Dumper(DumperBase):
             cont = args['continuation']
             self.report('continuation="%s"' % cont)
 
-    def consumeEvents(self):
-        event = lldb.SBEvent()
-        if self.debugger.GetListener().PeekAtNextEvent(event):
-            self.debugger.GetListener().GetNextEvent(event)
-            self.handleEvent(event)
 
 def convertHash(args):
     if sys.version_info[0] == 3:
@@ -1712,6 +1677,7 @@ def testit():
 
     db.debugger.SetAsync(False)
     db.expandedINames = set(sys.argv[3].split(','))
+    db.passExceptions = True
 
     db.setupInferior({'cmd':'setupInferior','executable':sys.argv[2],'token':1})
     db.handleBreakpoints({'cmd':'handleBreakpoints','bkpts':[{'operation':'add',
@@ -1729,9 +1695,9 @@ def testit():
     db.reportVariables()
     #db.report("DUMPER=%s" % qqDumpers)
 
-
-if len(sys.argv) > 2:
-    testit()
-else:
-    doit()
+if __name__ == "__main__":
+    if len(sys.argv) > 2:
+        testit()
+    else:
+        doit()
 

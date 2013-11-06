@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 import QtQuick 2.1
+import HelperWidgets 2.0
 
 Item {
     width: 300
@@ -36,9 +37,20 @@ Item {
     property color currentColor
     property alias model: repeater.model
 
+    property bool hasGradient: gradientModel.hasGradient
+
     onCurrentColorChanged: {
-        repeater.model.setProperty(colorLine.selectedIndex, "color", colorToString(currentColor))
+        gradientModel.setColor(colorLine.selectedIndex, currentColor)
         colorLine.invalidate()
+    }
+
+    function addGradient() {
+        gradientModel.addGradient()
+        colorLine.invalidate()
+    }
+
+    function deleteGradient() {
+        gradientModel.deleteGradient()
     }
 
     function dec2hex(integer) {
@@ -72,26 +84,29 @@ Item {
             for (var i = 0; i < repeater.model.count; i++) {
                 repeater.itemAt(i).item.highlighted = false
             }
+
+            if (repeater.model.count < index + 1)
+                return;
+
             repeater.itemAt(index).item.highlighted = true
             colorLine.selectedIndex = index
             currentColor = repeater.itemAt(index).item.color
         }
 
         function invalidate() {
-
             var gradientString = "import QtQuick 2.0; Gradient {"
 
-            for (var i = 0; i < repeater.model.count; i++) {
+            for (var i = 0; i < gradientModel.count; i++) {
                 gradientString += "GradientStop {}"
             }
             gradientString += "}"
 
             var gradientObject = Qt.createQmlObject(gradientString, gradientRectangle, "test");
 
-            for (var i = 0; i < repeater.model.count; i++) {
+            for (i = 0; i < gradientModel.count; i++) {
                 repeater.itemAt(i).item.y = 20 //fixes corner case for dragging overlapped items
-                gradientObject.stops[i].color =  repeater.model.get(i).color
-                gradientObject.stops[i].position = repeater.model.get(i).position
+                gradientObject.stops[i].color =  gradientModel.getColor(i)
+                gradientObject.stops[i].position = gradientModel.getPosition(i)
             }
 
             gradientRectangle.gradient = gradientObject;
@@ -103,10 +118,12 @@ Item {
                 height: 40
                 anchors.left: parent.left
                 anchors.right: parent.right
+
                 onClicked: {
                     var currentPosition = mouseX / colorLine.effectiveWidth
-                    repeater.model.append({ "position": currentPosition, "color": colorToString(currentColor) })
-                    colorLine.select(repeater.model.count - 1)
+
+                    gradientModel.addStop(currentPosition, currentColor)
+                    colorLine.select(gradientModel.count - 1)
                     colorLine.invalidate()
                 }
                 Item {
@@ -116,22 +133,13 @@ Item {
 
                 Repeater {
                     id: repeater
-                    model: ListModel {
-                        id: gradientListModel
-                        ListElement {
-                            position: 0
+                    model: GradientModel {
+                        anchorBackendProperty: anchorBackend
+                        gradientPropertyName: "gradient"
+                        id: gradientModel
 
-                            readOnly: true
-                            color: "black"
-                        }
-
-                        ListElement {
-                            position: 1
-
-                            readOnly: true
-                            color: "white"
-                        }
                     }
+
                     delegate: Loader {
                         id: loader
 
@@ -144,7 +152,7 @@ Item {
                         Binding {
                             target: loader.item
                             property: "x"
-                            value: colorLine.effectiveWidth * position
+                            value: position === undefined ? 0 : colorLine.effectiveWidth * position
                         }
                         Binding {
                             target: loader.item
@@ -279,11 +287,12 @@ Item {
 
                 onReleased: {
                     if (drag.active) {
-                        repeater.model.setProperty(index, "position", parent.x / colorLine.effectiveWidth)
+                        gradientModel.setPosition(colorLine.selectedIndex, parent.x / colorLine.effectiveWidth)
+
                         if (parent.y < 10) {
                             if (!readOnly) {
                                 colorLine.select(index - 1)
-                                repeater.model.remove(index)
+                                gradientModel.removeStop(index)
                             }
                         }
                         parent.y = 20

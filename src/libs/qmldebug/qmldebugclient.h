@@ -33,6 +33,8 @@
 #include "qmldebug_global.h"
 #include <qtcpsocket.h>
 
+#include <QDataStream>
+
 namespace QmlDebug {
 
 class QmlDebugConnectionPrivate;
@@ -103,6 +105,18 @@ private:
     friend class QmlDebugConnection;
     friend class QmlDebugConnectionPrivate;
     QScopedPointer<QmlDebugClientPrivate> d_ptr;
+
+public:
+    static int s_dataStreamVersion;
+};
+
+class QMLDEBUG_EXPORT QmlDebugStream : public QDataStream
+{
+public:
+    QmlDebugStream();
+    explicit QmlDebugStream(QIODevice *d);
+    QmlDebugStream(QByteArray *ba, QIODevice::OpenMode flags);
+    QmlDebugStream(const QByteArray &ba);
 };
 
 } // namespace QmlDebug

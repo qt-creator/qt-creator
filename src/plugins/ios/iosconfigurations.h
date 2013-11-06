@@ -69,7 +69,6 @@ private:
     static void setDeveloperPath(const Utils::FileName &devPath);
 
     Utils::FileName m_developerPath;
-    Utils::FileName m_lldbPath;
     bool m_ignoreAllDevices;
 };
 

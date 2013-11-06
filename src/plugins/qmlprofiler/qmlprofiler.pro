@@ -69,7 +69,7 @@ RESOURCES += \
 
 OTHER_FILES += \
     qml/Detail.qml \
-    qml/Label.qml \
+    qml/CategoryLabel.qml \
     qml/MainView.qml \
     qml/RangeDetails.qml \
     qml/RangeMover.qml \

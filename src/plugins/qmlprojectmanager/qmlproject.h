@@ -97,6 +97,7 @@ private slots:
     void refreshFiles(const QSet<QString> &added, const QSet<QString> &removed);
     void addedTarget(ProjectExplorer::Target *target);
     void onActiveTargetChanged(ProjectExplorer::Target *target);
+    void onKitChanged();
     void addedRunConfiguration(ProjectExplorer::RunConfiguration *);
 
 protected:
@@ -113,6 +114,7 @@ private:
     QString m_projectName;
     QmlImport m_defaultImport;
     QmlJS::ModelManagerInterface *m_modelManager;
+    ProjectExplorer::Target *m_activeTarget;
 
     // plain format
     QStringList m_files;

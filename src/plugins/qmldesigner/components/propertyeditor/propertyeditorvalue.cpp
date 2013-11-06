@@ -264,9 +264,9 @@ void PropertyEditorValue::resetValue()
 
 void PropertyEditorValue::registerDeclarativeTypes()
 {
-    qmlRegisterType<PropertyEditorValue>("Bauhaus",1,0,"PropertyEditorValue");
-    qmlRegisterType<PropertyEditorNodeWrapper>("Bauhaus",1,0,"PropertyEditorNodeWrapper");
-    qmlRegisterType<QQmlPropertyMap>("Bauhaus",1,0,"QQmlPropertyMap");
+    qmlRegisterType<PropertyEditorValue>("HelperWidgets",2,0,"PropertyEditorValue");
+    qmlRegisterType<PropertyEditorNodeWrapper>("HelperWidgets",2,0,"PropertyEditorNodeWrapper");
+    qmlRegisterType<QQmlPropertyMap>("HelperWidgets",2,0,"QQmlPropertyMap");
 }
 
 PropertyEditorNodeWrapper::PropertyEditorNodeWrapper(PropertyEditorValue* parent) : QObject(parent), m_valuesPropertyMap(this)

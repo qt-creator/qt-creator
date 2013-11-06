@@ -85,7 +85,7 @@ void DesktopProcessSignalOperation::appendMsgCannotKill(int pid, const QString &
 {
     if (!m_errorMessage.isEmpty())
         m_errorMessage += QChar::fromLatin1('\n');
-    m_errorMessage += tr("Cannot kill process with pid %1: %3").arg(pid).arg(why);
+    m_errorMessage += tr("Cannot kill process with pid %1: %2").arg(pid).arg(why);
     m_errorMessage += QLatin1Char(' ');
 }
 
@@ -93,7 +93,7 @@ void DesktopProcessSignalOperation::appendMsgCannotInterrupt(int pid, const QStr
 {
     if (!m_errorMessage.isEmpty())
         m_errorMessage += QChar::fromLatin1('\n');
-    m_errorMessage += tr("Cannot interrupt process with pid %1: %3").arg(pid).arg(why);
+    m_errorMessage += tr("Cannot interrupt process with pid %1: %2").arg(pid).arg(why);
     m_errorMessage += QLatin1Char(' ');
 }
 
@@ -121,6 +121,12 @@ void DesktopProcessSignalOperation::killProcessSilently(int pid)
 void DesktopProcessSignalOperation::interruptProcessSilently(int pid)
 {
 #ifdef Q_OS_WIN
+    enum SpecialInterrupt { NoSpecialInterrupt, Win32Interrupt, Win64Interrupt };
+
+    bool is64BitSystem = Utils::winIs64BitSystem();
+    SpecialInterrupt si = NoSpecialInterrupt;
+    if (is64BitSystem)
+        si = Utils::winIs64BitBinary(m_debuggerCommand) ? Win64Interrupt : Win32Interrupt;
     /*
     Windows 64 bit has a 32 bit subsystem (WOW64) which makes it possible to run a
     32 bit application inside a 64 bit environment.
@@ -162,17 +168,17 @@ GDB 32bit | Api             | Api             | N/A             | Win32         
             break;
         }
         bool creatorIs64Bit = Utils::winIs64BitBinary(qApp->applicationFilePath());
-        if (!Utils::winIs64BitSystem() ||
-                m_specialInterrupt == NoSpecialInterrupt ||
-                m_specialInterrupt == Win64Interrupt && creatorIs64Bit ||
-                m_specialInterrupt == Win32Interrupt && !creatorIs64Bit) {
+        if (!is64BitSystem
+                || si == NoSpecialInterrupt
+                || si == Win64Interrupt && creatorIs64Bit
+                || si == Win32Interrupt && !creatorIs64Bit) {
             if (!DebugBreakProcess(inferior)) {
                 appendMsgCannotInterrupt(pid, tr("DebugBreakProcess failed:")
                                           + QLatin1Char(' ') + Utils::winErrorMessage(GetLastError()));
             }
-        } else if (m_specialInterrupt == Win32Interrupt || m_specialInterrupt == Win64Interrupt) {
+        } else if (si == Win32Interrupt || si == Win64Interrupt) {
             QString executable = QCoreApplication::applicationDirPath();
-            executable += m_specialInterrupt == Win32Interrupt
+            executable += si == Win32Interrupt
                     ? QLatin1String("/win32interrupt.exe")
                     : QLatin1String("/win64interrupt.exe");
             if (!QFile::exists(executable)) {

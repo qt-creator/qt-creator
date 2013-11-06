@@ -492,6 +492,19 @@ QString MemcheckErrorView::defaultSuppressionFile() const
     return m_defaultSuppFile;
 }
 
+void MemcheckErrorView::updateGeometries()
+{
+    if (model()) {
+        QModelIndex index = model()->index(0, modelColumn(), rootIndex());
+        QStyleOptionViewItem option = viewOptions();
+        // delegate for row / column
+        QSize step = itemDelegate()->sizeHint(option, index);
+        horizontalScrollBar()->setSingleStep(step.width() + spacing());
+        verticalScrollBar()->setSingleStep(step.height() + spacing());
+    }
+    QListView::updateGeometries();
+}
+
 // slot, can (for now) be invoked either when the settings were modified *or* when the active
 // settings object has changed.
 void MemcheckErrorView::settingsChanged(ValgrindBaseSettings *settings)

@@ -113,16 +113,6 @@ bool QmlProfilerRunControl::startEngine()
 
     d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppStarting);
 
-    if (ProjectExplorer::LocalApplicationRunConfiguration *rc =
-            qobject_cast<ProjectExplorer::LocalApplicationRunConfiguration *>(runConfiguration())) {
-        if (rc->executable().isEmpty()) {
-            showQmlObserverToolWarning();
-            d->m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
-            AnalyzerManager::stopTool();
-            return false;
-        }
-    }
-
     if (startParameters().startMode == StartLocal) {
         d->m_noDebugOutputTimer.start();
     } else {
@@ -314,29 +304,6 @@ void QmlProfilerRunControl::profilerStateChanged()
     }
     default:
         break;
-    }
-}
-
-void QmlProfilerRunControl::showQmlObserverToolWarning()
-{
-    QMessageBox dialog(QApplication::activeWindow());
-    QPushButton *qtPref = dialog.addButton(tr("Open Qt Versions"),
-                                           QMessageBox::ActionRole);
-    dialog.addButton(QMessageBox::Cancel);
-    dialog.setDefaultButton(qtPref);
-    dialog.setWindowTitle(tr("QML Observer Missing"));
-    dialog.setText(tr("QML Observer could not be found for this Qt version."));
-    dialog.setInformativeText(tr(
-                                  "QML Observer is used to offer debugging features for "
-                                  "Qt Quick UI projects in the Qt 4.7 series.\n\n"
-                                  "To compile QML Observer, go to the Qt Versions page, "
-                                  "select the current Qt version, "
-                                  "and click Build in the Helpers section."));
-    dialog.exec();
-    if (dialog.clickedButton() == qtPref) {
-        Core::ICore::showOptionsDialog(
-                    ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY,
-                    QtSupport::Constants::QTVERSION_SETTINGS_PAGE_ID);
     }
 }
 

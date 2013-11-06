@@ -123,7 +123,7 @@ public:
     virtual ~BaseQmakeProjectWizardDialog();
 
     int addModulesPage(int id = -1);
-    int addTargetSetupPage(bool mobile = false, int id = -1);
+    int addTargetSetupPage(int id = -1);
 
     QStringList selectedModulesList() const;
     void setSelectedModules(const QString &, bool lock = false);

@@ -51,7 +51,7 @@ my %next_define_skips = ();
 my %prev_polarity_skips = ();
 my %next_polarity_skips = ();
 for my $file (@files) {
-    my ($curpage, $inhdr, $intoc, $inif) = ("", 0, 0, 0);
+    my ($curpage, $inhdr, $havetoc, $intoc, $inif) = ("", 0, 0, 0, 0);
     my ($define_skip, $polarity_skip, $skipping) = ("", 0, 0);
     my ($prev_define_skip, $prev_polarity_skip, $prev_skip,
         $next_define_skip, $next_polarity_skip, $next_skip) = ("", 0, "", "", 0, "");
@@ -73,7 +73,9 @@ for my $file (@files) {
             $inif = 0;
             $skipping = 0;
             $define_skip = "";
-        } elsif (keys(%title2page) == 1 && /^\h*\\list/) {
+        } elsif (keys(%title2page) == 1 && /^\h*\\section1 Table Of Contents/) {
+            $havetoc = 1;
+        } elsif ($havetoc && /^\h*\\list/) {
             $intoc++;
         } elsif ($intoc) {
             if (/^\h*\\endlist/) {
@@ -111,6 +113,7 @@ for my $file (@files) {
             }
         } else {
             if (/^\h*\\contentspage\b/) {
+                $havetoc = 0;
                 $inhdr = 1;
             }
         }
@@ -123,10 +126,14 @@ for my $file (@files) {
 my %prev = ();
 my %next = ();
 my $last = $doctitle;
+my $lastpage = $title2page{$last};
 for my $title (@toc) {
-    $next{$last} = $title2page{$title};
-    $prev{$title} = $title2page{$last};
+    my $page = $title2page{$title};
+    defined($page) or die "TOC refers to unknown page '$title'.\n";
+    $next{$last} = $page;
+    $prev{$title} = $lastpage;
     $last = $title;
+    $lastpage = $page;
 }
 
 for my $file (@files) {

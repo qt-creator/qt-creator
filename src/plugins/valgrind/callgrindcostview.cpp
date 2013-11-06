@@ -53,8 +53,6 @@ CostView::CostView(QWidget *parent)
 {
     setSelectionMode(QAbstractItemView::ExtendedSelection);
     setSelectionBehavior(QAbstractItemView::SelectRows);
-    setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-    setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
     setUniformRowHeights(true);
     setAutoScroll(false);
     setSortingEnabled(true);

@@ -31,8 +31,6 @@
 #include "filespage.h"
 #include "libraryparameters.h"
 #include "modulespage.h"
-#include "mobilelibrarywizardoptionpage.h"
-#include "mobilelibraryparameters.h"
 
 #include <utils/projectintropage.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -137,10 +135,8 @@ LibraryWizardDialog::LibraryWizardDialog(const QString &templateName,
                                          const Core::WizardDialogParameters &parameters) :
     BaseQmakeProjectWizardDialog(showModulesPage, new LibraryIntroPage, -1, parent, parameters),
     m_filesPage(new FilesPage),
-    m_mobilePage(new MobileLibraryWizardOptionPage),
     m_pluginBaseClassesInitialized(false),
-    m_filesPageId(-1), m_modulesPageId(-1), m_targetPageId(-1),
-    m_mobilePageId(-1)
+    m_filesPageId(-1), m_modulesPageId(-1), m_targetPageId(-1)
 {
     setWindowIcon(icon);
     setWindowTitle(templateName);
@@ -152,7 +148,6 @@ LibraryWizardDialog::LibraryWizardDialog(const QString &templateName,
 
     if (!parameters.extraValues().contains(QLatin1String(ProjectExplorer::Constants::PROJECT_KIT_IDS))) {
         m_targetPageId = addTargetSetupPage();
-        m_mobilePageId = addPage(m_mobilePage);
     }
 
     m_modulesPageId = addModulesPage();
@@ -165,28 +160,16 @@ LibraryWizardDialog::LibraryWizardDialog(const QString &templateName,
 
     Utils::WizardProgressItem *introItem = wizardProgress()->item(startId());
     Utils::WizardProgressItem *targetItem = 0;
-    Utils::WizardProgressItem *mobileItem = 0;
     if (m_targetPageId != -1)
         targetItem = wizardProgress()->item(m_targetPageId);
-    if (m_mobilePageId != -1)
-        mobileItem = wizardProgress()->item(m_mobilePageId);
     Utils::WizardProgressItem *modulesItem = wizardProgress()->item(m_modulesPageId);
     Utils::WizardProgressItem *filesItem = wizardProgress()->item(m_filesPageId);
     filesItem->setTitle(tr("Details"));
 
     if (m_targetPageId != -1) {
         targetItem->setNextItems(QList<Utils::WizardProgressItem *>()
-                                 << mobileItem << modulesItem << filesItem);
+                                 << modulesItem << filesItem);
         targetItem->setNextShownItem(0);
-        mobileItem->setNextItems(QList<Utils::WizardProgressItem *>()
-                                 << modulesItem << filesItem);
-        mobileItem->setNextShownItem(0);
-    } else if (m_mobilePageId != -1) {
-        introItem->setNextItems(QList<Utils::WizardProgressItem *>()
-                                 << mobileItem);
-        mobileItem->setNextItems(QList<Utils::WizardProgressItem *>()
-                                 << modulesItem << filesItem);
-        mobileItem->setNextShownItem(0);
     } else {
         introItem->setNextItems(QList<Utils::WizardProgressItem *>()
                                  << modulesItem << filesItem);
@@ -215,7 +198,7 @@ QtProjectParameters::Type  LibraryWizardDialog::type() const
 
 bool LibraryWizardDialog::isModulesPageSkipped() const
 {
-    // When leaving the intro, target or mobile page, the modules page is skipped
+    // When leaving the intro or target page, the modules page is skipped
     // in the case of a plugin since it knows its dependencies by itself.
     return type() == QtProjectParameters::Qt4Plugin;
 }
@@ -230,20 +213,9 @@ int LibraryWizardDialog::skipModulesPageIfNeeded() const
 int LibraryWizardDialog::nextId() const
 {
     if (m_targetPageId != -1) {
-        if (currentId() == m_targetPageId) {
-
-            int next = m_modulesPageId;
-
-            if (next == m_modulesPageId)
-                return skipModulesPageIfNeeded();
-
-            return next;
-        } else if (currentId() == m_mobilePageId) {
+        if (currentId() == m_targetPageId)
             return skipModulesPageIfNeeded();
-        }
     } else if (currentId() == startId()) {
-        return skipModulesPageIfNeeded();
-    } else if (currentId() == m_mobilePageId) {
         return skipModulesPageIfNeeded();
     }
 
@@ -252,14 +224,14 @@ int LibraryWizardDialog::nextId() const
 
 void LibraryWizardDialog::initializePage(int id)
 {
-    if (m_targetPageId != -1 && (id == m_targetPageId || id == m_mobilePageId)) {
-        Utils::WizardProgressItem *mobileItem = wizardProgress()->item(m_mobilePageId);
+    if (m_targetPageId != -1 && id == m_targetPageId) {
+        Utils::WizardProgressItem *targetsItem = wizardProgress()->item(m_targetPageId);
         Utils::WizardProgressItem *modulesItem = wizardProgress()->item(m_modulesPageId);
         Utils::WizardProgressItem *filesItem = wizardProgress()->item(m_filesPageId);
         if (isModulesPageSkipped())
-            mobileItem->setNextShownItem(filesItem);
+            targetsItem->setNextShownItem(filesItem);
         else
-            mobileItem->setNextShownItem(modulesItem);
+            targetsItem->setNextShownItem(modulesItem);
 
     }
     BaseQmakeProjectWizardDialog::initializePage(id);
@@ -267,9 +239,9 @@ void LibraryWizardDialog::initializePage(int id)
 
 void LibraryWizardDialog::cleanupPage(int id)
 {
-    if (m_targetPageId != -1 && (id == m_targetPageId || id == m_mobilePageId)) {
-        Utils::WizardProgressItem *mobileItem = wizardProgress()->item(m_mobilePageId);
-        mobileItem->setNextShownItem(0);
+    if (m_targetPageId != -1 && id == m_targetPageId) {
+        Utils::WizardProgressItem *targetsItem = wizardProgress()->item(m_targetPageId);
+        targetsItem->setNextShownItem(0);
     }
     BaseQmakeProjectWizardDialog::cleanupPage(id);
 }
@@ -303,9 +275,6 @@ void LibraryWizardDialog::slotCurrentIdChanged(int id)
         qDebug() << Q_FUNC_INFO << id;
     if (id == m_filesPageId)
         setupFilesPage();// Switching to files page: Set up base class accordingly (plugin)
-    else if (id == m_mobilePageId
-             || (currentPage() && currentPage()->isFinalPage()))
-        setupMobilePage();
 }
 
 void LibraryWizardDialog::setupFilesPage()
@@ -338,13 +307,6 @@ void LibraryWizardDialog::setupFilesPage()
     }
 }
 
-void LibraryWizardDialog::setupMobilePage()
-{
-    if (type() == QtProjectParameters::Qt4Plugin)
-        m_mobilePage->setQtPluginDirectory(projectName());
-    m_mobilePage->setLibraryType(type());
-}
-
 LibraryParameters LibraryWizardDialog::libraryParameters() const
 {
     LibraryParameters rc;
@@ -364,17 +326,6 @@ QString LibraryWizardDialog::pluginInterface(const QString &baseClass)
     return QString();
 }
 
-MobileLibraryParameters LibraryWizardDialog::mobileLibraryParameters() const
-{
-    MobileLibraryParameters mlp;
-    mlp.libraryType = type();
-    mlp.fileName = projectName();
-
-    // Maemo stuff should always be added to pro file. Even if no mobile target is specified
-    mlp.type |= MobileLibraryParameters::Linux;
-
-    return mlp;
-}
 
 } // namespace Internal
 } // namespace QmakeProjectManager

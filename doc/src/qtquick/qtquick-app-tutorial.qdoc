@@ -48,17 +48,20 @@
     \list 1
 
         \li Select \gui{File > New File or Project > Applications >
-            Qt Quick 2 Application (Built-in Types) > Choose}.
-
-            \note The QML types used in this example are also supported in Qt Quick 1. To create
-            this example application for platforms that run Qt 4, select \gui {Qt Quick 1
-            Application (Built-in Types)}.
+            Qt Quick Application > Choose}.
 
         \li In the \gui{Name} field, type \b {Transitions}.
 
         \li In the \gui {Create in} field, enter the path for the project files.
             For example, \c {C:\Qt\examples}, and then click \gui{Next} (on
             Windows and Linux) or \gui Continue (on Mac OS).
+
+        \li In the \gui {Qt Quick component set} field, select
+            \gui {Qt Quick 2.0}.
+
+            \note The QML types used in this example are also supported in
+            Qt Quick 1.1. To create this example application for platforms that
+            run Qt 4, select \gui {Qt Quick 1.1}.
 
         \li Select \l{glossary-buildandrun-kit}{kits} for running and building your project,
             and then click \gui{Next}.

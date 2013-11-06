@@ -104,6 +104,8 @@ QtcPlugin {
         "androidsettingswidget.cpp",
         "androidsettingswidget.h",
         "androidsettingswidget.ui",
+        "androidsignaloperation.cpp",
+        "androidsignaloperation.h",
         "androidtoolchain.cpp",
         "androidtoolchain.h",
         "certificatesmodel.cpp",

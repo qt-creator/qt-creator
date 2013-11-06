@@ -33,13 +33,24 @@
 #include "qnxabstractqtversion.h"
 
 #include <utils/hostosinfo.h>
+#include <utils/synchronousprocess.h>
 
 #include <QDir>
 #include <QDesktopServices>
 #include <QDomDocument>
+#include <QProcess>
+#include <QTemporaryFile>
+#include <QApplication>
 
 using namespace Qnx;
 using namespace Qnx::Internal;
+
+namespace {
+const char *EVAL_ENV_VARS[] = {
+    "QNX_TARGET", "QNX_HOST", "QNX_CONFIGURATION", "MAKEFLAGS", "LD_LIBRARY_PATH",
+    "PATH", "QDE", "CPUVARDIR", "PYTHONPATH"
+};
+}
 
 QString QnxUtils::addQuotes(const QString &string)
 {
@@ -81,122 +92,63 @@ QList<Utils::EnvironmentItem> QnxUtils::qnxEnvironmentFromNdkFile(const QString 
 {
     QList <Utils::EnvironmentItem> items;
 
-    QFile file(fileName);
-    if (!file.open(QIODevice::ReadOnly))
+    if (!QFileInfo(fileName).exists())
         return items;
 
-    QTextStream str(&file);
-    QMap<QString, QString> fileContent;
+    const bool isWindows = Utils::HostOsInfo::isWindowsHost();
+
+    // locking creating bbndk-env file wrapper script
+    QTemporaryFile tmpFile(
+            QDir::tempPath() + QDir::separator()
+            + QLatin1String("bbndk-env-eval-XXXXXX") + QLatin1String(isWindows ? ".bat" : ".sh"));
+    if (!tmpFile.open())
+        return items;
+    tmpFile.setTextModeEnabled(true);
+
+    // writing content to wrapper script
+    QTextStream fileContent(&tmpFile);
+    if (isWindows)
+        fileContent << QLatin1String("@echo off\n")
+                    << QLatin1String("call ") << fileName << QLatin1Char('\n');
+    else
+        fileContent << QLatin1String("#!/bin/bash\n")
+                    << QLatin1String(". ") << fileName << QLatin1Char('\n');
+    QString linePattern = QString::fromLatin1(isWindows ? "echo %1=%%1%" : "echo %1=$%1");
+    for (int i = 0, len = sizeof(EVAL_ENV_VARS) / sizeof(const char *); i < len; ++i)
+        fileContent << linePattern.arg(QLatin1String(EVAL_ENV_VARS[i])) << QLatin1Char('\n');
+    tmpFile.close();
+
+    // running wrapper script
+    QProcess process;
+    if (isWindows)
+        process.start(QLatin1String("cmd.exe"),
+                QStringList() << QLatin1String("/C") << tmpFile.fileName());
+    else
+        process.start(QLatin1String("/bin/bash"),
+                QStringList() << tmpFile.fileName());
+
+    // waiting for finish
+    QApplication::setOverrideCursor(Qt::BusyCursor);
+    bool waitResult = process.waitForFinished(10000);
+    QApplication::restoreOverrideCursor();
+    if (!waitResult) {
+        Utils::SynchronousProcess::stopProcess(process);
+        return items;
+    }
+
+    if (process.exitStatus() != QProcess::NormalExit || process.exitCode() != 0)
+        return items;
+
+    // parsing process output
+    QTextStream str(&process);
     while (!str.atEnd()) {
         QString line = str.readLine();
-        if (!line.contains(QLatin1Char('=')))
-            continue;
-
         int equalIndex = line.indexOf(QLatin1Char('='));
-        QString var = line.left(equalIndex);
-        //Remove set in front
-        if (var.startsWith(QLatin1String("set ")))
-            var = var.right(var.size() - 4);
-
-        QString value = line.mid(equalIndex + 1);
-
-        // BASE_DIR (and BASE_DIR_REPLACED in some recent internal versions) variable is
-        // evaluated when souring the bbnk-env script
-        // BASE_DIR="$( cd "$(dirname "${BASH_SOURCE[0]}" )" && pwd )"
-        // We already know the NDK path so we can set the variable value
-        // TODO: Do not parse bbnk-env!
-        if (var == QLatin1String("BASE_DIR") ||  var == QLatin1String("BASE_DIR_REPLACED"))
-            value = QFileInfo(fileName).dir().absolutePath();
-
-        // LATEST_LINUX_JRE is evaluated when sourcing the file script
-        // TODO: run the script and get environment instead of parsing it(?)
-        if (var == QLatin1String("LATEST_LINUX_JRE"))
+        if (equalIndex < 0)
             continue;
-
-        if (Utils::HostOsInfo::isWindowsHost()) {
-            QRegExp systemVarRegExp(QLatin1String("IF NOT DEFINED ([\\w\\d]+)\\s+set ([\\w\\d]+)=([\\w\\d]+)"));
-            if (line.contains(systemVarRegExp)) {
-                var = systemVarRegExp.cap(2);
-                Utils::Environment sysEnv = Utils::Environment::systemEnvironment();
-                QString sysVar = systemVarRegExp.cap(1);
-                if (sysEnv.hasKey(sysVar))
-                    value = sysEnv.value(sysVar);
-                else
-                    value = systemVarRegExp.cap(3);
-            }
-        } else if (Utils::HostOsInfo::isAnyUnixHost()) {
-            QRegExp systemVarRegExp(QLatin1String("\\$\\{([\\w\\d]+):=([\\w\\d]+)\\}")); // to match e.g. "${QNX_HOST_VERSION:=10_0_9_52}"
-            if (value.contains(systemVarRegExp)) {
-                Utils::Environment sysEnv = Utils::Environment::systemEnvironment();
-                QString sysVar = systemVarRegExp.cap(1);
-                if (sysEnv.hasKey(sysVar))
-                    value = sysEnv.value(sysVar);
-                else
-                    value = systemVarRegExp.cap(2);
-            }
-        }
-
-        if (value.startsWith(QLatin1Char('"')))
-            value = value.mid(1);
-        if (value.endsWith(QLatin1Char('"')))
-            value = value.left(value.size() - 1);
-
-        fileContent[var] = value;
-    }
-    file.close();
-
-    QMapIterator<QString, QString> it(fileContent);
-    while (it.hasNext()) {
-        it.next();
-        QStringList values;
-        if (Utils::HostOsInfo::isWindowsHost())
-            values = it.value().split(QLatin1Char(';'));
-        else if (Utils::HostOsInfo::isAnyUnixHost())
-            values = it.value().split(QLatin1Char(':'));
-
-        QString key = it.key();
-        QStringList modifiedValues;
-        foreach (const QString &value, values) {
-            const QString ownKeyAsWindowsVar = QLatin1Char('%') + key + QLatin1Char('%');
-            const QString ownKeyAsUnixVar = QLatin1Char('$') + key;
-            if (value == ownKeyAsUnixVar) { // e.g. $PATH ==> ${PATH}
-                QString val = key;
-                val.prepend(QLatin1String("${"));
-                val.append(QLatin1Char('}'));
-                modifiedValues.append(val);
-            } else if (value == ownKeyAsWindowsVar) {
-                modifiedValues.append(value);
-            } else {
-                if (value.contains(QLatin1String("LATEST_LINUX_JRE"))) // Skip evaluated LATEST_LINUX_JRE variable
-                    continue;
-
-                QString val = value;
-                if (val.contains(QLatin1Char('%')) || val.contains(QLatin1Char('$'))) {
-                    QMapIterator<QString, QString> replaceIt(fileContent);
-                    while (replaceIt.hasNext()) {
-                        replaceIt.next();
-                        const QString replaceKey = replaceIt.key();
-                        if (replaceKey == key)
-                            continue;
-
-                        const QString keyAsWindowsVar = QLatin1Char('%') + replaceKey + QLatin1Char('%');
-                        const QString keyAsUnixVar = QLatin1Char('$') + replaceKey;
-                        if (val.contains(keyAsWindowsVar))
-                            val.replace(keyAsWindowsVar, replaceIt.value());
-                        if (val.contains(keyAsUnixVar))
-                            val.replace(keyAsUnixVar, replaceIt.value());
-                    }
-                }
-
-                // This variable will be properly set based on the qt version architecture
-                if (key == QLatin1String("CPUVARDIR"))
-                    continue;
-
-                modifiedValues.append(val);
-            }
-        }
-
-        items.append(Utils::EnvironmentItem(key, modifiedValues.join(QString(Utils::HostOsInfo::pathListSeparator()))));
+        QString var = line.left(equalIndex);
+        QString value = line.mid(equalIndex + 1);
+        items.append(Utils::EnvironmentItem(var, value));
     }
 
     return items;

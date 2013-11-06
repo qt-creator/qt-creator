@@ -29,20 +29,20 @@
 
 #include "iosplugin.h"
 
+#include "iosbuildstep.h"
+#include "iosconfigurations.h"
 #include "iosconstants.h"
-#include "iosconfigurations.h"
+#include "iosdeployconfiguration.h"
+#include "iosdeploystepfactory.h"
 #include "iosdevicefactory.h"
-#include "iossimulator.h"
-#include "iossimulatorfactory.h"
-#include "iosconfigurations.h"
 #include "iosmanager.h"
+#include "iosqtversionfactory.h"
 #include "iosrunfactories.h"
 #include "iossettingspage.h"
+#include "iossimulator.h"
+#include "iossimulatorfactory.h"
 #include "iostoolhandler.h"
-#include "iosqtversionfactory.h"
-#include "iosbuildstep.h"
-#include "iosdeploystepfactory.h"
-#include "iosdeployconfiguration.h"
+
 #include <projectexplorer/kitmanager.h>
 #include <qtsupport/qtversionmanager.h>
 
@@ -73,7 +73,7 @@ bool IosPlugin::initialize(const QStringList &arguments, QString *errorMessage)
     addAutoReleasedObject(new Internal::IosBuildStepFactory);
     addAutoReleasedObject(new Internal::IosDeployStepFactory);
     addAutoReleasedObject(new Internal::IosDeployConfigurationFactory);
-    //ProjectExplorer::KitManager::instance()->registerKitInformation(new Internal::IosGdbServerKitInformation);
+
     return true;
 }
 

@@ -39,8 +39,8 @@
 
         \li \l{Developing Qt Quick Applications}
 
-            You can either create Qt Quick projects from scratch or import
-            existing projects to \QC. You can use the code editor (Edit mode)
+            You can use wizards to create Qt Quick projects that contain
+            boiler-plate code. You can use the code editor (Edit mode)
             or the visual editor (Design mode) to develop Qt Quick applications.
         \li \l{Developing Widget Based Applications}
 
@@ -55,17 +55,6 @@
             Mobile devices have been designed for use when mobile. Keep the
             characteristics of mobile devices in mind when you create
             applications for them.
-
-    \endlist
-
-    \section1 Related Topics
-
-    \list
-
-        \li \l{Adding Qt Designer Plugins}
-
-            You can use Qt APIs to create plugins that extend Qt applications.
-            This enables you to add your own widgets to \QD.
 
     \endlist
 */

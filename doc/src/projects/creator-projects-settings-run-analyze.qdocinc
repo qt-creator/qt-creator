@@ -1,21 +1,21 @@
-    \section2 Specifying Analyzer Settings
+    \section2 Specifying Valgrind Settings
 
     \QC integrates \l{Analyzing Code}{Valgrind code analysis tools} for
     detecting memory leaks and profiling function execution. You can configure
     the tools according to your needs.
 
-    You can specify analyzer settings either globally for all projects or separately for each
+    You can specify Valgrind settings either globally for all projects or separately for each
     project.
 
-    To specify analyzer settings for the current project:
+    To specify Valgrind settings for the current project:
 
     \list 1
 
-        \li In the \gui {Analyzer Settings} section, select \gui Custom.
+        \li In the \gui {Valgrind Settings} section, select \gui Custom.
 
-        \li Specify analyzer settings for the project.
+        \li Specify Valgrind settings for the project.
 
-            \image qtcreator-analyzer-settings.png "Analyzer Settings"
+            \image qtcreator-analyzer-settings.png "Valgrind Settings"
 
     \endlist
 
@@ -23,14 +23,14 @@
 
     \list
 
-        \li \l{Selecting Options for Memory Analysis}
-
         \li \l{Selecting Profiling Options}
+
+        \li \l{Selecting Options for Memory Analysis}
 
     \endlist
 
     Click \gui {Restore Global} to revert to the global settings.
 
-    To specify global analyzer settings, select \gui {Tools > Options >
+    To specify global Valgrind settings, select \gui {Tools > Options >
     Analyzer}.
 

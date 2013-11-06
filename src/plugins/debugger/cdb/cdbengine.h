@@ -32,6 +32,8 @@
 
 #include <debugger/debuggerengine.h>
 
+#include <projectexplorer/devicesupport/idevice.h>
+
 #include <QSharedPointer>
 #include <QProcess>
 #include <QMap>
@@ -154,6 +156,8 @@ private slots:
     void consoleStubProcessStarted();
     void consoleStubExited();
 
+    void handleDoInterruptInferior(const QString &errorMessage);
+
 private:
     typedef QHash<BreakpointModelId, BreakpointResponse> PendingBreakPointMap;
     typedef QPair<QString, QString> SourcePathMapping;
@@ -193,7 +197,7 @@ private:
     void handleSessionAccessible(unsigned long cdbExState);
     void handleSessionInaccessible(unsigned long cdbExState);
     void handleSessionIdle(const QByteArray &message);
-    bool doInterruptInferior(SpecialStopMode sm);
+    void doInterruptInferior(SpecialStopMode sm);
     void doInterruptInferiorCustomSpecialStop(const QVariant &v);
     void doContinueInferior();
     inline void parseOutputLine(QByteArray line);
@@ -254,6 +258,7 @@ private:
     //! Debugger accessible (expecting commands)
     bool m_accessible;
     SpecialStopMode m_specialStopMode;
+    ProjectExplorer::DeviceProcessSignalOperation::Ptr m_signalOperation;
     int m_nextCommandToken;
     QList<CdbBuiltinCommandPtr> m_builtinCommandQueue;
     int m_currentBuiltinCommandIndex; //!< Current command whose output is recorded.

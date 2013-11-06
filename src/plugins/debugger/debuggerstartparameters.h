@@ -38,6 +38,7 @@
 #include <utils/environment.h>
 #include <projectexplorer/abi.h>
 #include <projectexplorer/kit.h>
+#include <projectexplorer/devicesupport/idevice.h>
 
 #include <QMetaType>
 
@@ -71,6 +72,7 @@ public:
         useContinueInsteadOfRun(false),
         startMode(NoStartMode),
         closeMode(KillAtClose),
+        useCtrlCStub(false),
         testReceiver(0),
         testCallback(0),
         testCase(0)
@@ -85,7 +87,9 @@ public:
     QString sysRoot;
     QString debuggerCommand;
     ProjectExplorer::Abi toolChainAbi;
+    ProjectExplorer::IDevice::ConstPtr device;
 
+    QString platform;
     QString executable;
     QString displayName; // Used in the Snapshots view.
     QString startMessage; // First status message shown.
@@ -113,7 +117,6 @@ public:
 
     // Used by remote debugging.
     QString remoteChannel;
-    QString symbolFileName;
     QString serverStartScript;
     QString debugInfoLocation; // Gdb "set-debug-file-directory".
     QStringList debugSourceLocation; // Gdb "directory"
@@ -136,6 +139,7 @@ public:
 
     // For QNX debugging
     QString remoteExecutable;
+    bool useCtrlCStub;
 
     // For Debugger testing.
     QObject *testReceiver;

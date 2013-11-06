@@ -284,7 +284,7 @@ void RemoteProcessTest::handleConnected()
 {
     Q_ASSERT(m_state == TestingIoDevice);
 
-    m_catProcess = m_sshConnection->createRemoteProcess(QString::fromLocal8Bit("/bin/cat").toUtf8());
+    m_catProcess = m_sshConnection->createRemoteProcess(QString::fromLatin1("/bin/cat").toUtf8());
     connect(m_catProcess.data(), SIGNAL(started()), SLOT(handleProcessStarted()));
     connect(m_catProcess.data(), SIGNAL(closed(int)), SLOT(handleProcessClosed(int)));
     m_started = false;

@@ -95,7 +95,7 @@ public:
     typedef QList<IEditorFactory *> EditorFactoryList;
     typedef QList<IExternalEditor *> ExternalEditorList;
 
-    static QWidget *instance();
+    static EditorManager *instance();
 
     static EditorToolBar *createToolBar(QWidget *parent = 0);
 

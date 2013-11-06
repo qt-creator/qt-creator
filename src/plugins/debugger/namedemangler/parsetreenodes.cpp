@@ -1180,7 +1180,7 @@ void OperatorNameNode::parse()
         } else if (id == "az") {
             m_type = AlignofExprType;
         } else {
-            throw ParseException(QString::fromLocal8Bit("Invalid operator encoding '%1'")
+            throw ParseException(QString::fromLatin1("Invalid operator encoding '%1'")
                     .arg(QString::fromLocal8Bit(id)));
         }
     }
@@ -1912,7 +1912,7 @@ void TemplateParamNode::parse()
             }
         }
         if (!isConversionOperator) {
-            throw ParseException(QString::fromLocal8Bit("Invalid template parameter index %1")
+            throw ParseException(QString::fromLatin1("Invalid template parameter index %1")
                     .arg(m_index));
         }
     } else {
@@ -2486,7 +2486,7 @@ void TypeNode::parse()
                     = DEMANGLER_CAST(TemplateParamNode, MY_CHILD_AT(0));
             if (templateParamNode->childCount() == 0) {
                 if (templateParamNode->index() >= parseState()->templateParamCount()) {
-                    throw ParseException(QString::fromLocal8Bit("Invalid template parameter "
+                    throw ParseException(QString::fromLatin1("Invalid template parameter "
                         "index %1 in forwarding").arg(templateParamNode->index()));
                 }
                 templateParamNode->addChild(parseState()

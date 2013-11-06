@@ -72,7 +72,7 @@ void QmlJSPreviewRunner::run(const QString &filename)
 
     if (!errorMessage.isEmpty())
         QMessageBox::warning(0, tr("Failed to preview Qt Quick file"),
-                             tr("Could not preview Qt Quick (QML) file. Reason: \n%1").arg(errorMessage));
+                             tr("Could not preview Qt Quick (QML) file. Reason:\n%1").arg(errorMessage));
 }
 
 

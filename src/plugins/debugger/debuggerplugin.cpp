@@ -661,9 +661,9 @@ bool fillParameters(DebuggerStartParameters *sp, const Kit *kit, QString *errorM
     if (tc)
         sp->toolChainAbi = tc->targetAbi();
 
-    IDevice::ConstPtr device = DeviceKitInformation::device(kit);
-    if (device) {
-        sp->connParams = device->sshParameters();
+    sp->device = DeviceKitInformation::device(kit);
+    if (sp->device) {
+        sp->connParams = sp->device->sshParameters();
         // Could have been set from command line.
         if (sp->remoteChannel.isEmpty())
             sp->remoteChannel = sp->connParams.host + QLatin1Char(':') + QString::number(sp->connParams.port);
@@ -2598,7 +2598,6 @@ static QString formatStartParameters(DebuggerStartParameters &sp)
     }
     str << "Sysroot: " << sp.sysRoot << '\n';
     str << "Debug Source Location: " << sp.debugSourceLocation.join(QLatin1String(":")) << '\n';
-    str << "Symbol file: " << sp.symbolFileName << '\n';
     str << "Dumper libraries: " << QDir::toNativeSeparators(sp.dumperLibrary);
     foreach (const QString &dl, sp.dumperLibraryLocations)
         str << ' ' << QDir::toNativeSeparators(dl);
