@@ -272,7 +272,7 @@ Utils::FileName AndroidManager::dirPath(ProjectExplorer::Target *target)
 {
     QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target->kit());
     if (qtVersion && qtVersion->qtVersion() >= QtSupport::QtVersionNumber(5, 2, 0))
-        return target->activeBuildConfiguration()->buildDirectory().appendPath(AndroidDirName);
+        return target->activeBuildConfiguration()->buildDirectory().appendPath(QLatin1String(Constants::ANDROID_BUILDDIRECTORY));
     return Utils::FileName::fromString(target->project()->projectDirectory()).appendPath(AndroidDirName);
 }
 
