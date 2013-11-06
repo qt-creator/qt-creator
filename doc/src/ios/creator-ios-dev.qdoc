@@ -85,9 +85,9 @@
         \gui iOS, and deselect the
         \gui {Ask about devices not in developer mode} check box.
 
-        \li Select \gui {Qt Creator} > \gui {About Plugins} >
-            \gui {Device Support} > \gui iOS to enable the iOS plugin.
-            Restart \QC to be able to use the plugin.
+        \note If \QC does not detect the devices, the iOS plugin might not be
+        enabled. Select \gui {Qt Creator} > \gui {About Plugins} >
+        \gui {Device Support} > \gui iOS and restart \QC.
 
         \li To specify build settings:
 
@@ -100,10 +100,6 @@
                 add a kit for building and running applications on iOS.
 
                 \image qtcreator-ios-add-kit.png "Build & Run Settings"
-
-            \li Check that the \gui {iOS build} field contains the build
-                commands for an Xcode build. To add an Xcode build step, select
-                \gui {Add Build Step} > \gui xcodebuild.
 
         \endlist
 
