@@ -49,7 +49,7 @@ bool ChangeImportsVisitor::add(QmlJS::AST::UiProgram *ast, const Import &import)
     if (!ast)
         return false;
 
-    if (ast->imports && ast->imports->import) {
+    if (ast->headers && ast->headers->headerItem) {
         int insertionPoint = 0;
         if (ast->members && ast->members->member)
             insertionPoint = ast->members->member->firstSourceLocation().begin();
@@ -77,10 +77,11 @@ bool ChangeImportsVisitor::remove(QmlJS::AST::UiProgram *ast, const Import &impo
     if (!ast)
         return false;
 
-    for (UiImportList *iter = ast->imports; iter; iter = iter->next) {
-        if (equals(iter->import, import)) {
-            int start = iter->import->firstSourceLocation().begin();
-            int end = iter->import->lastSourceLocation().end();
+    for (UiHeaderItemList *iter = ast->headers; iter; iter = iter->next) {
+        UiImport *iterImport = AST::cast<UiImport *>(iter->headerItem);
+        if (equals(iterImport, import)) {
+            int start = iterImport->firstSourceLocation().begin();
+            int end = iterImport->lastSourceLocation().end();
             includeSurroundingWhitespace(start, end);
             replace(start, end - start, QString());
             setDidRewriting(true);

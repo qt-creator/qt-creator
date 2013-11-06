@@ -93,12 +93,12 @@ void TypeDescriptionReader::readDocument(UiProgram *ast)
         return;
     }
 
-    if (!ast->imports || ast->imports->next) {
+    if (!ast->headers || ast->headers->next || !AST::cast<AST::UiImport *>(ast->headers->headerItem)) {
         addError(SourceLocation(), tr("Expected a single import."));
         return;
     }
 
-    UiImport *import = ast->imports->import;
+    UiImport *import = AST::cast<AST::UiImport *>(ast->headers->headerItem);
     if (toString(import->importUri) != QLatin1String("QtQuick.tooling")) {
         addError(import->importToken, tr("Expected import of QtQuick.tooling."));
         return;
@@ -612,20 +612,28 @@ void TypeDescriptionReader::readEnumValues(AST::UiScriptBinding *ast, LanguageUt
         return;
     }
 
-    for (PropertyNameAndValueList *it = objectLit->properties; it; it = it->next) {
-        StringLiteralPropertyName *propName = dynamic_cast<StringLiteralPropertyName *>(it->name);
-        NumericLiteral *value = dynamic_cast<NumericLiteral *>(it->value);
-        UnaryMinusExpression *minus = dynamic_cast<UnaryMinusExpression *>(it->value);
-        if (minus)
-            value = dynamic_cast<NumericLiteral *>(minus->expression);
-        if (!propName || !value) {
-            addError(objectLit->firstSourceLocation(), tr("Expected object literal to contain only 'string: number' elements."));
+    for (PropertyAssignmentList *it = objectLit->properties; it; it = it->next) {
+        PropertyNameAndValue *assignement = AST::cast<PropertyNameAndValue *>(it->assignment);
+        if (assignement) {
+            StringLiteralPropertyName *propName = dynamic_cast<StringLiteralPropertyName *>(assignement->name);
+            NumericLiteral *value = dynamic_cast<NumericLiteral *>(assignement->value);
+            UnaryMinusExpression *minus = dynamic_cast<UnaryMinusExpression *>(assignement->value);
+            if (minus)
+                value = dynamic_cast<NumericLiteral *>(minus->expression);
+            if (!propName || !value) {
+                addError(objectLit->firstSourceLocation(), tr("Expected object literal to contain only 'string: number' elements."));
+                continue;
+            }
+
+            double v = value->value;
+            if (minus)
+                v = -v;
+            fme->addKey(propName->id.toString(), v);
             continue;
         }
-
-        double v = value->value;
-        if (minus)
-            v = -v;
-        fme->addKey(propName->id.toString(), v);
+        PropertyGetterSetter *getterSetter = AST::cast<PropertyGetterSetter *>(it->assignment);
+        if (getterSetter) {
+            addError(objectLit->firstSourceLocation(), tr("Enum should not contain getter and setters, but only 'string: number' elements."));
+        }
     }
 }

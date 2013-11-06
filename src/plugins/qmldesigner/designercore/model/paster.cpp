@@ -89,12 +89,13 @@ protected:
         return oldStateName;
     }
 
-    bool visit(UiImportList *ast) {
-        for (UiImportList *it = ast; it; it = it->next) {
-            if (it->import) {
-                m_paster->addImports(createImport(it->import));
+    bool visit(UiHeaderItemList *ast) {
+        for (UiHeaderItemList *it = ast; it; it = it->next) {
+            AST::UiImport *import = AST::cast<AST::UiImport *>(it->headerItem)
+            if (import) {
+                m_paster->addImports(createImport(import));
 
-                m_locations.remove(toLocation(it->import->firstSourceLocation(), it->import->lastSourceLocation()));
+                m_locations.remove(toLocation(import->firstSourceLocation(), import->lastSourceLocation()));
             }
         }
 

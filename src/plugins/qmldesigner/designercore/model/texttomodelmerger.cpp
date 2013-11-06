@@ -690,8 +690,8 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc,
 {
     QList<Import> existingImports = m_rewriterView->model()->imports();
 
-    for (UiImportList *iter = doc->qmlProgram()->imports; iter; iter = iter->next) {
-        UiImport *import = iter->import;
+    for (UiHeaderItemList *iter = doc->qmlProgram()->headers; iter; iter = iter->next) {
+        UiImport *import = AST::cast<UiImport *>(iter->headerItem);
         if (!import)
             continue;
 

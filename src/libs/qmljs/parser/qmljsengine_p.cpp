@@ -30,15 +30,15 @@
 #include "qmljsengine_p.h"
 #include "qmljsglobal_p.h"
 
-#include <qnumeric.h>
-#include <QHash>
-#include <QDebug>
+#include <QtCore/qnumeric.h>
+#include <QtCore/qhash.h>
+#include <QtCore/qdebug.h>
 
 QT_QML_BEGIN_NAMESPACE
 
 namespace QmlJS {
 
-static int toDigit(char c)
+static inline int toDigit(char c)
 {
     if ((c >= '0') && (c <= '9'))
         return c - '0';

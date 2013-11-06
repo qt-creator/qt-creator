@@ -44,13 +44,13 @@ QT_BEGIN_NAMESPACE
 
     QmlError includes a textual description of the error, as well
     as location information (the file, line, and column). The toString()
-    function creates a single-line, human-readable string containing all of
+    method creates a single-line, human-readable string containing all of
     this information, for example:
     \code
     file:///home/user/test.qml:7:8: Invalid property assignment: double expected
     \endcode
 
-    You can use qDebug() or qWarning() to output errors to the console. This function
+    You can use qDebug() or qWarning() to output errors to the console. This method
     will attempt to open the file indicated by the error
     and include additional contextual information.
     \code
@@ -59,7 +59,7 @@ QT_BEGIN_NAMESPACE
                ^
     \endcode
 
-    \note The QtQuick 1 version is named QDeclarativeError.
+    Note that the \l {Qt Quick 1} version is named QDeclarativeError
 
     \sa QQuickView::errors(), QmlComponent::errors()
 */
@@ -78,10 +78,11 @@ public:
     QString description;
     quint16 line;
     quint16 column;
+    QObject *object;
 };
 
 QmlErrorPrivate::QmlErrorPrivate()
-: line(0), column(0)
+: line(0), column(0), object()
 {
 }
 
@@ -116,6 +117,7 @@ QmlError &QmlError::operator=(const QmlError &other)
         d->description = other.d->description;
         d->line = other.d->line;
         d->column = other.d->column;
+        d->object = other.d->object;
     }
     return *this;
 }
@@ -137,7 +139,7 @@ bool QmlError::isValid() const
 }
 
 /*!
-    Returns the URL for the file that caused this error.
+    Returns the url for the file that caused this error.
 */
 QUrl QmlError::url() const
 {
@@ -209,6 +211,27 @@ void QmlError::setColumn(int column)
 }
 
 /*!
+    Returns the nearest object where this error occurred.
+    Exceptions in bound property expressions set this to the object
+    to which the property belongs. It will be 0 for all
+    other exceptions.
+ */
+QObject *QmlError::object() const
+{
+    if (d) return d->object;
+    else return 0;
+}
+
+/*!
+    Sets the nearest \a object where this error occurred.
+ */
+void QmlError::setObject(QObject *object)
+{
+    if (!d) d = new QmlErrorPrivate;
+    d->object = object;
+}
+
+/*!
     Returns the error as a human readable string.
 */
 QString QmlError::toString() const
@@ -237,6 +260,7 @@ QString QmlError::toString() const
 
 /*!
     \relates QmlError
+    \fn QDebug operator<<(QDebug debug, const QmlError &error)
 
     Outputs a human readable version of \a error to \a debug.
 */

@@ -125,7 +125,17 @@ bool Evaluate::visit(AST::UiProgram *)
     return false;
 }
 
-bool Evaluate::visit(AST::UiImportList *)
+bool Evaluate::visit(AST::UiHeaderItemList *)
+{
+    return false;
+}
+
+bool Evaluate::visit(AST::UiQualifiedPragmaId *)
+{
+    return false;
+}
+
+bool Evaluate::visit(AST::UiPragma *)
 {
     return false;
 }
@@ -281,7 +291,17 @@ bool Evaluate::visit(AST::Elision *)
     return false;
 }
 
-bool Evaluate::visit(AST::PropertyNameAndValueList *)
+bool Evaluate::visit(AST::PropertyAssignmentList *)
+{
+    return false;
+}
+
+bool Evaluate::visit(AST::PropertyGetterSetter *)
+{
+    return false;
+}
+
+bool Evaluate::visit(AST::PropertyNameAndValue *)
 {
     return false;
 }

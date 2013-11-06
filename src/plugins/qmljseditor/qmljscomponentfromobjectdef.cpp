@@ -93,8 +93,8 @@ public:
 
         QString imports;
         UiProgram *prog = currentFile->qmljsDocument()->qmlProgram();
-        if (prog && prog->imports) {
-            const int start = currentFile->startOf(prog->imports->firstSourceLocation());
+        if (prog && prog->headers) {
+            const int start = currentFile->startOf(prog->headers->firstSourceLocation());
             const int end = currentFile->startOf(prog->members->member->firstSourceLocation());
             imports = currentFile->textOf(start, end);
         }

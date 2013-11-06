@@ -104,7 +104,7 @@ bool QmlDirParser::parse(const QString &source)
         if (ch->isNull())
             break;
 
-        QString sections[3];
+        QString sections[4];
         int sectionCount = 0;
 
         do {
@@ -114,7 +114,7 @@ bool QmlDirParser::parse(const QString &source)
             }
             const QChar *start = ch;
             scanWord(ch);
-            if (sectionCount < 3) {
+            if (sectionCount < 4) {
                 sections[sectionCount++] = source.mid(start-source.constData(), ch-start);
             } else {
                 reportError(lineNumber, start-lineStart, QLatin1String("unexpected token"));
@@ -148,14 +148,14 @@ bool QmlDirParser::parse(const QString &source)
             }
             if (!firstLine) {
                 reportError(lineNumber, 0,
-                            QString::fromUtf8("module identifier directive must be the first command in a qmldir file"));
+                            QString::fromUtf8("module identifier directive must be the first directive in a qmldir file"));
                 continue;
             }
 
             _typeNamespace = sections[1];
 
         } else if (sections[0] == QLatin1String("plugin")) {
-            if (sectionCount < 2) {
+            if (sectionCount < 2 || sectionCount > 3) {
                 reportError(lineNumber, 0,
                             QString::fromUtf8("plugin directive requires one or two arguments, but %1 were provided").arg(sectionCount - 1));
 
@@ -175,6 +175,43 @@ bool QmlDirParser::parse(const QString &source)
             Component entry(sections[1], sections[2], -1, -1);
             entry.internal = true;
             _components.insertMulti(entry.typeName, entry);
+        } else if (sections[0] == QLatin1String("singleton")) {
+            if (sectionCount < 3 || sectionCount > 4) {
+                reportError(lineNumber, 0,
+                            QString::fromUtf8("singleton types require 2 or 3 arguments, but %1 were provided").arg(sectionCount - 1));
+                continue;
+            } else if (sectionCount == 3) {
+                // handle qmldir directory listing case where singleton is defined in the following pattern:
+                // singleton TestSingletonType TestSingletonType.qml
+                Component entry(sections[1], sections[2], -1, -1);
+                entry.singleton = true;
+                _components.insertMulti(entry.typeName, entry);
+            } else {
+                // handle qmldir module listing case where singleton is defined in the following pattern:
+                // singleton TestSingletonType 2.0 TestSingletonType20.qml
+                const QString &version = sections[2];
+                const int dotIndex = version.indexOf(QLatin1Char('.'));
+
+                if (dotIndex == -1) {
+                    reportError(lineNumber, 0, QLatin1String("expected '.'"));
+                } else if (version.indexOf(QLatin1Char('.'), dotIndex + 1) != -1) {
+                    reportError(lineNumber, 0, QLatin1String("unexpected '.'"));
+                } else {
+                    bool validVersionNumber = false;
+                    const int majorVersion = parseInt(QStringRef(&version, 0, dotIndex), &validVersionNumber);
+
+                    if (validVersionNumber) {
+                        const int minorVersion = parseInt(QStringRef(&version, dotIndex+1, version.length()-dotIndex-1), &validVersionNumber);
+
+                        if (validVersionNumber) {
+                            const QString &fileName = sections[3];
+                            Component entry(sections[1], fileName, majorVersion, minorVersion);
+                            entry.singleton = true;
+                            _components.insertMulti(entry.typeName, entry);
+                        }
+                    }
+                }
+            }
         } else if (sections[0] == QLatin1String("typeinfo")) {
             if (sectionCount != 2) {
                 reportError(lineNumber, 0,

@@ -45,7 +45,7 @@
 #include "qmljsglobal_p.h"
 #include "qmljsmemorypool_p.h"
 
-#include <QtCore/QString>
+#include <QtCore/qstring.h>
 
 QT_QML_BEGIN_NAMESPACE
 
@@ -164,8 +164,10 @@ public:
         Kind_PreDecrementExpression,
         Kind_PreIncrementExpression,
         Kind_Program,
+        Kind_PropertyAssignmentList,
+        Kind_PropertyGetterSetter,
         Kind_PropertyName,
-        Kind_PropertyNameAndValueList,
+        Kind_PropertyNameAndValue,
         Kind_RegExpLiteral,
         Kind_ReturnStatement,
         Kind_SourceElement,
@@ -193,18 +195,20 @@ public:
 
         Kind_UiArrayBinding,
         Kind_UiImport,
-        Kind_UiImportList,
         Kind_UiObjectBinding,
         Kind_UiObjectDefinition,
         Kind_UiObjectInitializer,
         Kind_UiObjectMemberList,
         Kind_UiArrayMemberList,
+        Kind_UiPragma,
         Kind_UiProgram,
         Kind_UiParameterList,
         Kind_UiPublicMember,
         Kind_UiQualifiedId,
+        Kind_UiQualifiedPragmaId,
         Kind_UiScriptBinding,
-        Kind_UiSourceElement
+        Kind_UiSourceElement,
+        Kind_UiHeaderItemList
     };
 
     inline Node()
@@ -475,7 +479,7 @@ public:
     ObjectLiteral():
         properties (0) { kind = K; }
 
-    ObjectLiteral(PropertyNameAndValueList *plist):
+    ObjectLiteral(PropertyAssignmentList *plist):
         properties (plist) { kind = K; }
 
     virtual void accept0(Visitor *visitor);
@@ -487,7 +491,7 @@ public:
     { return rbraceToken; }
 
 // attributes
-    PropertyNameAndValueList *properties;
+    PropertyAssignmentList *properties;
     SourceLocation lbraceToken;
     SourceLocation rbraceToken;
 };
@@ -591,22 +595,59 @@ public:
     SourceLocation propertyNameToken;
 };
 
-class QML_PARSER_EXPORT PropertyNameAndValueList: public Node
+class QML_PARSER_EXPORT PropertyAssignment: public Node
 {
 public:
-    QMLJS_DECLARE_AST_NODE(PropertyNameAndValueList)
+    PropertyAssignment() {}
+};
 
-    PropertyNameAndValueList(PropertyName *n, ExpressionNode *v):
-        name (n), value (v), next (this)
-        { kind = K; }
+class QML_PARSER_EXPORT PropertyAssignmentList: public Node
+{
+public:
+    QMLJS_DECLARE_AST_NODE(PropertyAssignmentList)
 
-    PropertyNameAndValueList(PropertyNameAndValueList *previous, PropertyName *n, ExpressionNode *v):
-        name (n), value (v)
+    PropertyAssignmentList(PropertyAssignment *assignment)
+        : assignment(assignment)
+        , next(this)
+    { kind = K; }
+
+    PropertyAssignmentList(PropertyAssignmentList *previous, PropertyAssignment *assignment)
+        : assignment(assignment)
     {
         kind = K;
         next = previous->next;
         previous->next = this;
     }
+
+    inline PropertyAssignmentList *finish ()
+    {
+        PropertyAssignmentList *front = next;
+        next = 0;
+        return front;
+    }
+
+    virtual void accept0(Visitor *visitor);
+
+    virtual SourceLocation firstSourceLocation() const
+    { return assignment->firstSourceLocation(); }
+
+    virtual SourceLocation lastSourceLocation() const
+    { return next ? next->lastSourceLocation() : assignment->lastSourceLocation(); }
+
+// attributes
+    PropertyAssignment *assignment;
+    PropertyAssignmentList *next;
+    SourceLocation commaToken;
+};
+
+class QML_PARSER_EXPORT PropertyNameAndValue: public PropertyAssignment
+{
+public:
+    QMLJS_DECLARE_AST_NODE(PropertyNameAndValue)
+
+    PropertyNameAndValue(PropertyName *n, ExpressionNode *v)
+        : name(n), value(v)
+    { kind = K; }
 
     virtual void accept0(Visitor *visitor);
 
@@ -614,25 +655,51 @@ public:
     { return name->firstSourceLocation(); }
 
     virtual SourceLocation lastSourceLocation() const
-    {
-        if (next)
-            return next->lastSourceLocation();
-        return value->lastSourceLocation();
-    }
-
-    inline PropertyNameAndValueList *finish ()
-    {
-        PropertyNameAndValueList *front = next;
-        next = 0;
-        return front;
-    }
+    { return value->lastSourceLocation(); }
 
 // attributes
     PropertyName *name;
-    ExpressionNode *value;
-    PropertyNameAndValueList *next;
     SourceLocation colonToken;
+    ExpressionNode *value;
     SourceLocation commaToken;
+};
+
+class QML_PARSER_EXPORT PropertyGetterSetter: public PropertyAssignment
+{
+public:
+    QMLJS_DECLARE_AST_NODE(PropertyGetterSetter)
+
+    enum Type {
+        Getter,
+        Setter
+    };
+
+    PropertyGetterSetter(PropertyName *n, FunctionBody *b)
+        : type(Getter), name(n), formals(0), functionBody (b)
+    { kind = K; }
+
+    PropertyGetterSetter(PropertyName *n, FormalParameterList *f, FunctionBody *b)
+        : type(Setter), name(n), formals(f), functionBody (b)
+    { kind = K; }
+
+    virtual void accept0(Visitor *visitor);
+
+    virtual SourceLocation firstSourceLocation() const
+    { return getSetToken; }
+
+    virtual SourceLocation lastSourceLocation() const
+    { return rbraceToken; }
+
+// attributes
+    Type type;
+    SourceLocation getSetToken;
+    PropertyName *name;
+    SourceLocation lparenToken;
+    FormalParameterList *formals;
+    SourceLocation rparenToken;
+    SourceLocation lbraceToken;
+    FunctionBody *functionBody;
+    SourceLocation rbraceToken;
 };
 
 class QML_PARSER_EXPORT IdentifierPropertyName: public PropertyName
@@ -2194,44 +2261,6 @@ public:
     SourceLocation semicolonToken;
 };
 
-class QML_PARSER_EXPORT UiImportList: public Node
-{
-public:
-    QMLJS_DECLARE_AST_NODE(UiImportList)
-
-    UiImportList(UiImport *import)
-        : import(import),
-          next(this)
-    { kind = K; }
-
-    UiImportList(UiImportList *previous, UiImport *import)
-        : import(import)
-    {
-        kind = K;
-        next = previous->next;
-        previous->next = this;
-    }
-
-    UiImportList *finish()
-    {
-        UiImportList *head = next;
-        next = 0;
-        return head;
-    }
-
-    virtual void accept0(Visitor *visitor);
-
-    virtual SourceLocation firstSourceLocation() const
-    { return import->firstSourceLocation(); }
-
-    virtual SourceLocation lastSourceLocation() const
-    { return next ? next->lastSourceLocation() : import->lastSourceLocation(); }
-
-// attributes
-    UiImport *import;
-    UiImportList *next;
-};
-
 class QML_PARSER_EXPORT UiObjectMember: public Node
 {
 public:
@@ -2278,21 +2307,131 @@ public:
     UiObjectMember *member;
 };
 
+class QML_PARSER_EXPORT UiQualifiedPragmaId: public Node
+{
+public:
+    QMLJS_DECLARE_AST_NODE(UiQualifiedPragmaId)
+
+    UiQualifiedPragmaId(const QStringRef &name)
+        : next(this), name(name)
+    { kind = K; }
+
+    UiQualifiedPragmaId(UiQualifiedPragmaId *previous, const QStringRef &name)
+        : name(name)
+    {
+        kind = K;
+        next = previous->next;
+        previous->next = this;
+    }
+
+    UiQualifiedPragmaId *finish()
+    {
+        UiQualifiedPragmaId *head = next;
+        next = 0;
+        return head;
+    }
+
+    virtual void accept0(Visitor *visitor);
+
+    virtual SourceLocation firstSourceLocation() const
+    { return identifierToken; }
+
+    virtual SourceLocation lastSourceLocation() const
+    { return next ? next->lastSourceLocation() : identifierToken; }
+
+// attributes
+    UiQualifiedPragmaId *next;
+    QStringRef name;
+    SourceLocation identifierToken;
+};
+
+class QML_PARSER_EXPORT UiPragma: public Node
+{
+public:
+    QMLJS_DECLARE_AST_NODE(UiPragma)
+
+    UiPragma(UiQualifiedPragmaId *type)
+        : pragmaType(type)
+    { kind = K; }
+
+    virtual void accept0(Visitor *visitor);
+
+    virtual SourceLocation firstSourceLocation() const
+    { return pragmaToken; }
+
+    virtual SourceLocation lastSourceLocation() const
+    { return semicolonToken; }
+
+// attributes
+    UiQualifiedPragmaId *pragmaType;
+    SourceLocation pragmaToken;
+    SourceLocation semicolonToken;
+};
+
+class QML_PARSER_EXPORT UiHeaderItemList: public Node
+{
+public:
+    QMLJS_DECLARE_AST_NODE(UiHeaderItemList)
+
+    UiHeaderItemList(UiImport *import)
+        : headerItem(import), next(this)
+    { kind = K; }
+
+    UiHeaderItemList(UiPragma *pragma)
+        : headerItem(pragma), next(this)
+    { kind = K; }
+
+    UiHeaderItemList(UiHeaderItemList *previous, UiImport *import)
+        : headerItem(import)
+    {
+        kind = K;
+        next = previous->next;
+        previous->next = this;
+    }
+
+    UiHeaderItemList(UiHeaderItemList *previous, UiPragma *pragma)
+        : headerItem(pragma)
+    {
+        kind = K;
+        next = previous->next;
+        previous->next = this;
+    }
+
+    UiHeaderItemList *finish()
+    {
+        UiHeaderItemList *head = next;
+        next = 0;
+        return head;
+    }
+
+    virtual void accept0(Visitor *visitor);
+
+    virtual SourceLocation firstSourceLocation() const
+    { return headerItem->firstSourceLocation(); }
+
+    virtual SourceLocation lastSourceLocation() const
+    { return next ? next->lastSourceLocation() : headerItem->lastSourceLocation(); }
+
+// attributes
+    Node *headerItem;
+    UiHeaderItemList *next;
+};
+
 class QML_PARSER_EXPORT UiProgram: public Node
 {
 public:
     QMLJS_DECLARE_AST_NODE(UiProgram)
 
-    UiProgram(UiImportList *imports, UiObjectMemberList *members)
-        : imports(imports), members(members)
+    UiProgram(UiHeaderItemList *headers, UiObjectMemberList *members)
+        : headers(headers), members(members)
     { kind = K; }
 
     virtual void accept0(Visitor *visitor);
 
     virtual SourceLocation firstSourceLocation() const
     {
-        if (imports)
-            return imports->firstSourceLocation();
+        if (headers)
+            return headers->firstSourceLocation();
         else if (members)
             return members->firstSourceLocation();
         return SourceLocation();
@@ -2302,13 +2441,13 @@ public:
     {
         if (members)
             return members->lastSourceLocation();
-        else if (imports)
-            return imports->lastSourceLocation();
+        else if (headers)
+            return headers->lastSourceLocation();
         return SourceLocation();
     }
 
 // attributes
-    UiImportList *imports;
+    UiHeaderItemList *headers;
     UiObjectMemberList *members;
 };
 

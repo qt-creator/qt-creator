@@ -83,17 +83,18 @@ public:
     struct Component
     {
         Component()
-            : majorVersion(0), minorVersion(0), internal(false) {}
+            : majorVersion(0), minorVersion(0), internal(false), singleton(false) {}
 
         Component(const QString &typeName, const QString &fileName, int majorVersion, int minorVersion)
             : typeName(typeName), fileName(fileName), majorVersion(majorVersion), minorVersion(minorVersion),
-            internal(false) {}
+            internal(false), singleton(false) {}
 
         QString typeName;
         QString fileName;
         int majorVersion;
         int minorVersion;
         bool internal;
+        bool singleton;
     };
 
     struct Script

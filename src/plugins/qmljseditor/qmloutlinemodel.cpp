@@ -270,7 +270,7 @@ private:
             QModelIndex index = m_model->enterTestCase(rhsObjLit);
             m_nodeToIndex.insert(rhsObjLit, index);
 
-            if (AST::PropertyNameAndValueList *properties = rhsObjLit->properties)
+            if (AST::PropertyAssignmentList *properties = rhsObjLit->properties)
                 visitProperties(properties);
 
             m_model->leaveTestCase();
@@ -278,14 +278,14 @@ private:
         return true;
     }
 
-    void visitProperties(AST::PropertyNameAndValueList *properties)
+    void visitProperties(AST::PropertyAssignmentList *properties)
     {
         while (properties) {
             QModelIndex index = m_model->enterTestCaseProperties(properties);
             m_nodeToIndex.insert(properties, index);
-
-            if (AST::ObjectLiteral *objLiteral = AST::cast<AST::ObjectLiteral *>(properties->value))
-                visitProperties(objLiteral->properties);
+            if (AST::PropertyNameAndValue *assignment = AST::cast<AST::PropertyNameAndValue *>(properties->assignment))
+                if (AST::ObjectLiteral *objLiteral = AST::cast<AST::ObjectLiteral *>(assignment->value))
+                    visitProperties(objLiteral->properties);
 
             m_model->leaveTestCaseProperties();
             properties = properties->next;
@@ -595,24 +595,38 @@ void QmlOutlineModel::leaveTestCase()
     leaveNode();
 }
 
-QModelIndex QmlOutlineModel::enterTestCaseProperties(AST::PropertyNameAndValueList *propertyNameAndValueList)
+QModelIndex QmlOutlineModel::enterTestCaseProperties(AST::PropertyAssignmentList *propertyAssignmentList)
 {
     QMap<int, QVariant> objectData;
-    if (AST::IdentifierPropertyName *propertyName = AST::cast<AST::IdentifierPropertyName *>(propertyNameAndValueList->name)) {
-        objectData.insert(Qt::DisplayRole, propertyName->id.toString());
-        objectData.insert(ItemTypeRole, ElementBindingType);
-        QmlOutlineItem *item;
-        if (propertyNameAndValueList->value->kind == AST::Node::Kind_FunctionExpression)
-            item = enterNode(objectData, propertyNameAndValueList, 0, m_icons->functionDeclarationIcon());
-        else if (propertyNameAndValueList->value->kind == AST::Node::Kind_ObjectLiteral)
-            item = enterNode(objectData, propertyNameAndValueList, 0, m_icons->objectDefinitionIcon());
-        else
-            item = enterNode(objectData, propertyNameAndValueList, 0, m_icons->scriptBindingIcon());
+    if (AST::PropertyNameAndValue *assignment = AST::cast<AST::PropertyNameAndValue *>(
+                propertyAssignmentList->assignment)) {
+        if (AST::IdentifierPropertyName *propertyName = AST::cast<AST::IdentifierPropertyName *>(assignment->name)) {
+            objectData.insert(Qt::DisplayRole, propertyName->id.toString());
+            objectData.insert(ItemTypeRole, ElementBindingType);
+            QmlOutlineItem *item;
+            if (assignment->value->kind == AST::Node::Kind_FunctionExpression)
+                item = enterNode(objectData, assignment, 0, m_icons->functionDeclarationIcon());
+            else if (assignment->value->kind == AST::Node::Kind_ObjectLiteral)
+                item = enterNode(objectData, assignment, 0, m_icons->objectDefinitionIcon());
+            else
+                item = enterNode(objectData, assignment, 0, m_icons->scriptBindingIcon());
 
-        return item->index();
-    } else {
-        return QModelIndex();
+            return item->index();
+        }
     }
+    if (AST::PropertyGetterSetter *getterSetter = AST::cast<AST::PropertyGetterSetter *>(
+                propertyAssignmentList->assignment)) {
+        if (AST::IdentifierPropertyName *propertyName = AST::cast<AST::IdentifierPropertyName *>(getterSetter->name)) {
+            objectData.insert(Qt::DisplayRole, propertyName->id.toString());
+            objectData.insert(ItemTypeRole, ElementBindingType);
+            QmlOutlineItem *item;
+            item = enterNode(objectData, getterSetter, 0, m_icons->functionDeclarationIcon());
+
+            return item->index();
+
+        }
+    }
+    return QModelIndex();
 }
 
 void QmlOutlineModel::leaveTestCaseProperties()
@@ -642,8 +656,8 @@ AST::SourceLocation QmlOutlineModel::sourceLocation(const QModelIndex &index) co
             location = getLocation(member);
         else if (AST::ExpressionNode *expression = node->expressionCast())
             location = getLocation(expression);
-        else if (AST::PropertyNameAndValueList *propertyNameAndValueList = AST::cast<AST::PropertyNameAndValueList *>(node))
-            location = getLocation(propertyNameAndValueList);
+        else if (AST::PropertyAssignmentList *propertyAssignmentList = AST::cast<AST::PropertyAssignmentList *>(node))
+            location = getLocation(propertyAssignmentList);
     }
     return location;
 }
@@ -913,10 +927,26 @@ AST::SourceLocation QmlOutlineModel::getLocation(AST::ExpressionNode *exprNode) 
     return location;
 }
 
-AST::SourceLocation QmlOutlineModel::getLocation(AST::PropertyNameAndValueList *propertyNode) {
+AST::SourceLocation QmlOutlineModel::getLocation(AST::PropertyAssignmentList *propertyNode) {
+    if (AST::PropertyNameAndValue *assignment = AST::cast<AST::PropertyNameAndValue *>(propertyNode->assignment))
+        return getLocation(assignment);
+    if (AST::PropertyGetterSetter *getterSetter = AST::cast<AST::PropertyGetterSetter *>(propertyNode->assignment))
+        return getLocation(getterSetter);
+    return propertyNode->commaToken; // should never happen
+}
+
+AST::SourceLocation QmlOutlineModel::getLocation(AST::PropertyNameAndValue *propertyNode) {
     AST::SourceLocation location;
     location.offset = propertyNode->name->propertyNameToken.offset;
     location.length = propertyNode->value->lastSourceLocation().end() - location.offset;
+
+    return location;
+}
+
+AST::SourceLocation QmlOutlineModel::getLocation(AST::PropertyGetterSetter *propertyNode) {
+    AST::SourceLocation location;
+    location.offset = propertyNode->name->propertyNameToken.offset;
+    location.length = propertyNode->rbraceToken.end() - location.offset;
 
     return location;
 }

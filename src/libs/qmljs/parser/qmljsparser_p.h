@@ -59,8 +59,8 @@
 #include "qmljsast_p.h"
 #include "qmljsengine_p.h"
 
-#include <QtCore/QList>
-#include <QtCore/QString>
+#include <QtCore/qlist.h>
+#include <QtCore/qstring.h>
 
 QT_QML_BEGIN_NAMESPACE
 
@@ -89,7 +89,8 @@ public:
       AST::FunctionDeclaration *FunctionDeclaration;
       AST::Node *Node;
       AST::PropertyName *PropertyName;
-      AST::PropertyNameAndValueList *PropertyNameAndValueList;
+      AST::PropertyAssignment *PropertyAssignment;
+      AST::PropertyAssignmentList *PropertyAssignmentList;
       AST::SourceElement *SourceElement;
       AST::SourceElements *SourceElements;
       AST::Statement *Statement;
@@ -99,7 +100,8 @@ public:
       AST::VariableDeclarationList *VariableDeclarationList;
 
       AST::UiProgram *UiProgram;
-      AST::UiImportList *UiImportList;
+      AST::UiHeaderItemList *UiHeaderItemList;
+      AST::UiPragma *UiPragma;
       AST::UiImport *UiImport;
       AST::UiParameterList *UiParameterList;
       AST::UiPublicMember *UiPublicMember;
@@ -112,6 +114,7 @@ public:
       AST::UiObjectMemberList *UiObjectMemberList;
       AST::UiArrayMemberList *UiArrayMemberList;
       AST::UiQualifiedId *UiQualifiedId;
+      AST::UiQualifiedPragmaId *UiQualifiedPragmaId;
     };
 
 public:
@@ -193,6 +196,7 @@ protected:
     { return location_stack [tos + index - 1]; }
 
     AST::UiQualifiedId *reparseAsQualifiedId(AST::ExpressionNode *expr);
+    AST::UiQualifiedPragmaId *reparseAsQualifiedPragmaId(AST::ExpressionNode *expr);
 
 protected:
     Engine *driver;
@@ -232,9 +236,9 @@ protected:
 
 
 
-#define J_SCRIPT_REGEXPLITERAL_RULE1 79
+#define J_SCRIPT_REGEXPLITERAL_RULE1 87
 
-#define J_SCRIPT_REGEXPLITERAL_RULE2 80
+#define J_SCRIPT_REGEXPLITERAL_RULE2 88
 
 QT_QML_END_NAMESPACE
 
