@@ -38,6 +38,7 @@
 #include <variantproperty.h>
 #include <qmldesignerplugin.h>
 #include <viewmanager.h>
+#include <nodeinstanceview.h>
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>

@@ -32,26 +32,20 @@
 
 #include "abstractview.h"
 
-#include <rewriterview.h>
-#include <nodeinstanceview.h>
-#include <itemlibraryview.h>
-#include <navigatorview.h>
-#include <stateseditorview.h>
-#include <formeditorview.h>
-#include <propertyeditorview.h>
-#include <componentview.h>
-#include <debugview.h>
-#include <importmanagerview.h>
-#include <designeractionmanagerview.h>
 #include <QWidgetAction>
 
 namespace QmlDesigner {
 
 class DesignDocument;
+class AbstractCustomTool;
+class DesignerActionManager;
+class NodeInstanceView;
 
 namespace Internal {
     class DesignModeWidget;
 }
+
+class ViewManagerData;
 
 class QMLDESIGNERCORE_EXPORT ViewManager
 {
@@ -111,18 +105,7 @@ private: // functions
     void switchStateEditorViewToSavedState();
 
 private: // variables
-    QmlModelState m_savedState;
-    Internal::DebugView m_debugView;
-    ComponentView m_componentView;
-    FormEditorView m_formEditorView;
-    ItemLibraryView m_itemLibraryView;
-    NavigatorView m_navigatorView;
-    PropertyEditorView m_propertyEditorView;
-    StatesEditorView m_statesEditorView;
-    NodeInstanceView m_nodeInstanceView;
-    DesignerActionManagerView m_designerActionManagerView;
-
-    QList<QWeakPointer<AbstractView> > m_additionalViews;
+    ViewManagerData *d;
 };
 
 } // namespace QmlDesigner
