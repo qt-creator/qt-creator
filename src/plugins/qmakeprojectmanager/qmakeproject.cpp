@@ -429,10 +429,10 @@ bool QmakeProject::fromMap(const QVariantMap &map)
     foreach (QmakeProFileNode *node, applicationProFiles(QmakeProject::ExactAndCumulativeParse)) {
         const QString path = node->path();
 
-        qtQuickApp.setComponentSet(QtQuickApp::QtQuick10Components);
-        updateBoilerPlateCodeFiles(&qtQuickApp, path);
-        qtQuickApp.setComponentSet(QtQuickApp::QtQuick20Components);
-        updateBoilerPlateCodeFiles(&qtQuickApp, path);
+        foreach (TemplateInfo info, QtQuickApp::templateInfos()) {
+            qtQuickApp.setTemplateInfo(info);
+            updateBoilerPlateCodeFiles(&qtQuickApp, path);
+        }
         updateBoilerPlateCodeFiles(&html5App, path);
     }
     return true;

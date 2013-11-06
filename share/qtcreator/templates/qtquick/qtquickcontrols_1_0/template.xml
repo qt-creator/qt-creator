@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template openeditor="main.qml" priority="A"
+    featuresRequired="QtSupport.Wizards.FeatureQtQuick, QtSupport.Wizards.FeatureQtQuick.2, QtSupport.Wizards.FeatureQtQuick.Controls"
+    viewerdir="qtquick2controlsapplicationviewer"
+    viewerclassname="QtQuick2ControlsApplicationViewer"
+    stubversionminor="1">
+    <displayname>Qt Quick Controls 1.0</displayname>
+    <description>Creates a Qt Quick 2 application project that can contain both QML and C++ code and includes a QQuickView. Creates a deployable Qt Quick application using Qt Quick Controls. All files and directories that reside in the same directory as the main .qml file are deployed. You can modify the contents of the directory any time before deploying. Requires Qt 5.1 or newer.</description>
+</template>

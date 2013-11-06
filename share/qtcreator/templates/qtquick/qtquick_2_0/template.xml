@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template openeditor="main.qml" priority="B"
+    featuresRequired="QtSupport.Wizards.FeatureQtQuick, QtSupport.Wizards.FeatureQtQuick.2"
+    viewerdir="qtquick2applicationviewer"
+    viewerclassname="QtQuick2ApplicationViewer"
+    stubversionminor="5">
+    <displayname>Qt Quick 2.0</displayname>
+    <description>Creates a Qt Quick 2 application project that can contain both QML and C++ code and includes a QQuickView. The built-in QML types in the QtQuick 2 namespace allow you to write cross-platform applications with a custom look and feel. Requires Qt 5.0 or newer.</description>
+</template>

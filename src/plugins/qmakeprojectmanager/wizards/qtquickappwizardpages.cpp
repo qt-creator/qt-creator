@@ -42,31 +42,6 @@ public:
     QLabel *m_descriptionLabel;
 };
 
-QString QtQuickComponentSetPage::description(QtQuickApp::ComponentSet componentSet) const
-{
-    const QString basicDescription = tr("Creates a Qt Quick 1 application project that can contain "
-                                        "both QML and C++ code and includes a QDeclarativeView.<br><br>");
-    const QString basicDescription2 = tr("Creates a Qt Quick 2 application project that can contain "
-                                        "both QML and C++ code and includes a QQuickView.<br><br>");
-    switch (componentSet) {
-    case QtQuickApp::QtQuickControls10:
-        return basicDescription2 +  tr("Creates a deployable Qt Quick application using "
-                                      "Qt Quick Controls. All files and directories that "
-                                      "reside in the same directory as the main .qml file "
-                                      "are deployed. You can modify the contents of the "
-                                      "directory any time before deploying.\n\nRequires <b>Qt 5.1</b> or newer.");
-    case QtQuickApp::QtQuick20Components:
-        return basicDescription2 + tr("The built-in QML types in the QtQuick 2 namespace allow "
-                                                            "you to write cross-platform applications with "
-                                                            "a custom look and feel.\n\nRequires <b>Qt 5.0</b> or newer.");
-    case QtQuickApp::QtQuick10Components:
-        return basicDescription + tr("The built-in QML types in the QtQuick 1 namespace allow "
-                                     "you to write cross-platform applications with "
-                                     "a custom look and feel.\n\nRequires <b>Qt 4.8</b> or newer.");
-    }
-    return QString();
-}
-
 QtQuickComponentSetPage::QtQuickComponentSetPage(QWidget *parent)
     : QWizardPage(parent)
     , d(new QtQuickComponentSetPagePrivate)
@@ -77,9 +52,8 @@ QtQuickComponentSetPage::QtQuickComponentSetPage(QWidget *parent)
 
     QLabel *label = new QLabel(tr("Qt Quick component set:"), this);
     d->m_versionComboBox = new QComboBox(this);
-    d->m_versionComboBox->addItem(tr("Qt Quick Controls 1.0"), QtQuickApp::QtQuickControls10);
-    d->m_versionComboBox->addItem(tr("Qt Quick 2.0"), QtQuickApp::QtQuick20Components);
-    d->m_versionComboBox->addItem(tr("Qt Quick 1.1"), QtQuickApp::QtQuick10Components);
+    foreach (const TemplateInfo &templateInfo, QtQuickApp::templateInfos())
+        d->m_versionComboBox->addItem(templateInfo.displayName);
 
     l->addWidget(label);
     l->addWidget(d->m_versionComboBox);
@@ -87,7 +61,8 @@ QtQuickComponentSetPage::QtQuickComponentSetPage(QWidget *parent)
     d->m_descriptionLabel = new QLabel(this);
     d->m_descriptionLabel->setWordWrap(true);
     d->m_descriptionLabel->setTextFormat(Qt::RichText);
-    connect(d->m_versionComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(updateDescription(int)));
+    connect(d->m_versionComboBox, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(updateDescription(int)));
     updateDescription(d->m_versionComboBox->currentIndex());
 
     mainLayout->addLayout(l);
@@ -99,19 +74,20 @@ QtQuickComponentSetPage::~QtQuickComponentSetPage()
     delete d;
 }
 
-QtQuickApp::ComponentSet QtQuickComponentSetPage::componentSet(int index) const
+TemplateInfo QtQuickComponentSetPage::templateInfo() const
 {
-    return (QtQuickApp::ComponentSet)d->m_versionComboBox->itemData(index).toInt();
-}
-
-QtQuickApp::ComponentSet QtQuickComponentSetPage::componentSet() const
-{
-    return componentSet(d->m_versionComboBox->currentIndex());
+    if (QtQuickApp::templateInfos().isEmpty())
+        return TemplateInfo();
+    return QtQuickApp::templateInfos().at(d->m_versionComboBox->currentIndex());
 }
 
 void QtQuickComponentSetPage::updateDescription(int index)
 {
-    d->m_descriptionLabel->setText(description(componentSet(index)));
+    if (QtQuickApp::templateInfos().isEmpty())
+        return;
+
+    const TemplateInfo templateInfo = QtQuickApp::templateInfos().at(index);
+    d->m_descriptionLabel->setText(templateInfo.description);
 }
 
 } // namespace Internal

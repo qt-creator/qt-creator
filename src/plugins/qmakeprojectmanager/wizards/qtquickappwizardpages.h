@@ -44,15 +44,12 @@ public:
     explicit QtQuickComponentSetPage(QWidget *parent = 0);
     virtual ~QtQuickComponentSetPage();
 
-    QtQuickApp::ComponentSet componentSet() const;
+    TemplateInfo templateInfo() const;
 
 private slots:
     void updateDescription(int index);
 
 private:
-    QtQuickApp::ComponentSet componentSet(int index) const;
-    QString description(QtQuickApp::ComponentSet componentSet) const;
-
     class QtQuickComponentSetPagePrivate *d;
 };
 
