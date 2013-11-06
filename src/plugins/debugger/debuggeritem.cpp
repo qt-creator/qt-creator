@@ -33,6 +33,7 @@
 
 #include <projectexplorer/abi.h>
 #include <utils/fileutils.h>
+#include <utils/qtcassert.h>
 
 #include <QProcess>
 #include <QUuid>
@@ -56,7 +57,6 @@ namespace Debugger {
 
 DebuggerItem::DebuggerItem()
 {
-    m_id = QUuid::createUuid().toString();
     m_engineType = NoEngineType;
     m_isAutoDetected = false;
 }
@@ -82,6 +82,12 @@ DebuggerItem::DebuggerItem(const QVariantMap &data)
         if (abi.isValid())
             m_abis.append(abi);
     }
+}
+
+void DebuggerItem::createId()
+{
+    QTC_ASSERT(!m_id.isValid(), return);
+    m_id = QUuid::createUuid().toString();
 }
 
 void DebuggerItem::reinitializeFromFile()

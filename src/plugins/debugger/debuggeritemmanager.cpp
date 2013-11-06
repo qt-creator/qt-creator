@@ -180,6 +180,7 @@ void DebuggerItemManager::autoDetectCdbDebuggers()
         if (findByCommand(cdb))
             continue;
         DebuggerItem item;
+        item.createId();
         item.setAutoDetected(true);
         item.setAbis(Abi::abisOfBinary(cdb));
         item.setCommand(cdb);
@@ -245,6 +246,7 @@ void DebuggerItemManager::autoDetectGdbOrLldbDebuggers()
             if (findByCommand(command))
                 continue;
             DebuggerItem item;
+            item.createId();
             item.setCommand(command);
             item.reinitializeFromFile();
             //: %1: Debugger engine type (GDB, LLDB, CDB...), %2: Path
@@ -290,6 +292,7 @@ void DebuggerItemManager::readLegacyDebuggers(const FileName &file)
         if (findByCommand(command))
             continue;
         DebuggerItem item;
+        item.createId();
         item.setCommand(command);
         item.setAutoDetected(true);
         item.reinitializeFromFile();
@@ -365,9 +368,24 @@ void DebuggerItemManager::saveDebuggers()
 
 QVariant DebuggerItemManager::registerDebugger(const DebuggerItem &item)
 {
-    QTC_ASSERT(!findById(item.id()), return item.id());
+    // Force addition when Id is set.
+    if (item.id().isValid())
+        return addDebugger(item);
 
-    return addDebugger(item);
+    // Otherwise, try re-using existing item first.
+    foreach (const DebuggerItem &d, m_debuggers) {
+        if (d.command() == item.command()
+                && d.isAutoDetected() == item.isAutoDetected()
+                && d.engineType() == item.engineType()
+                && d.displayName() == item.displayName()
+                && d.abis() == item.abis())
+            return d.id();
+    }
+
+    // Nothing suitable. Create a new id and add the item.
+    DebuggerItem di = item;
+    di.createId();
+    return addDebugger(di);
 }
 
 void DebuggerItemManager::deregisterDebugger(const QVariant &id)

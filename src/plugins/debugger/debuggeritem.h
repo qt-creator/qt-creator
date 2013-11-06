@@ -54,6 +54,7 @@ public:
     DebuggerItem();
     DebuggerItem(const QVariantMap &data);
 
+    void createId();
     bool canClone() const { return true; }
     bool isValid() const;
     QString engineTypeName() const;
