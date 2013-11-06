@@ -548,7 +548,6 @@ void IosToolHandlerPrivate::subprocessHasData()
                     return;
                 }
                 if (rRead == 0) {
-                    qDebug() << "read 0";
                     return;
                 }
                 if (debugToolHandler)
