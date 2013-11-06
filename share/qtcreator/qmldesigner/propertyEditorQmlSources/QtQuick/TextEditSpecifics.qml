@@ -46,7 +46,7 @@ Column {
         caption: qsTr("Text Color")
 
         ColorEditor {
-            caption: qsTr(" Text Color")
+            caption: qsTr("Text Color")
             backendendValue: backendValues.color
             supportGradient: false
         }
