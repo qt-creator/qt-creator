@@ -108,6 +108,24 @@ bool Qt5InformationNodeInstanceServer::isDirtyRecursiveForNonInstanceItems(QQuic
     return false;
 }
 
+bool Qt5InformationNodeInstanceServer::isDirtyRecursiveForParentInstances(QQuickItem *item) const
+{
+    if (DesignerSupport::isDirty(item,  DesignerSupport::TransformUpdateMask))
+        return true;
+
+    QQuickItem *parentItem = item->parentItem();
+
+    if (parentItem) {
+        if (hasInstanceForObject(parentItem) && DesignerSupport::isDirty(parentItem,  DesignerSupport::TransformUpdateMask))
+                return true;
+
+        return isDirtyRecursiveForParentInstances(parentItem);
+
+    }
+
+    return false;
+}
+
 void Qt5InformationNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 {
     static bool inFunction = false;
@@ -126,7 +144,8 @@ void Qt5InformationNodeInstanceServer::collectItemChangesAndSendChangeCommands()
 
                     if (isDirtyRecursiveForNonInstanceItems(item))
                         informationChangedInstanceSet.insert(instance);
-
+                    else if (isDirtyRecursiveForParentInstances(item))
+                        informationChangedInstanceSet.insert(instance);
 
                     if (DesignerSupport::isDirty(item, DesignerSupport::ParentChanged)) {
                         m_parentChangedSet.insert(instance);
