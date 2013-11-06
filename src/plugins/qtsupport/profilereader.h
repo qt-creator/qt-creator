@@ -58,7 +58,7 @@ public:
     virtual void fileMessage(const QString &msg);
 
 signals:
-    void errorFound(const QString &error, Core::MessageManager::PrintToOutputPaneFlags flag);
+    void writeMessage(const QString &error, Core::MessageManager::PrintToOutputPaneFlags flag);
 
 private:
     bool m_verbose;
