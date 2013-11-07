@@ -67,19 +67,19 @@ QT_BEGIN_NAMESPACE
 #define fL1S(s) QString::fromLatin1(s)
 
 
-QMakeBaseKey::QMakeBaseKey(const QString &_root, bool _hostBuild)
-    : root(_root), hostBuild(_hostBuild)
+QMakeBaseKey::QMakeBaseKey(const QString &_root, const QString &_stash, bool _hostBuild)
+    : root(_root), stash(_stash), hostBuild(_hostBuild)
 {
 }
 
 uint qHash(const QMakeBaseKey &key)
 {
-    return qHash(key.root) ^ (uint)key.hostBuild;
+    return qHash(key.root) ^ qHash(key.stash) ^ (uint)key.hostBuild;
 }
 
 bool operator==(const QMakeBaseKey &one, const QMakeBaseKey &two)
 {
-    return one.root == two.root && one.hostBuild == two.hostBuild;
+    return one.root == two.root && one.stash == two.stash && one.hostBuild == two.hostBuild;
 }
 
 QMakeBaseEnv::QMakeBaseEnv()
@@ -1132,6 +1132,19 @@ bool QMakeEvaluator::prepareProject(const QString &inDir)
         dir = qdfi.path();
     }
 
+    dir = m_outputDir;
+    forever {
+        QString stashfile = dir + QLatin1String("/.qmake.stash");
+        if (dir == (!superdir.isEmpty() ? superdir : m_buildRoot) || m_vfs->exists(stashfile)) {
+            m_stashfile = QDir::cleanPath(stashfile);
+            break;
+        }
+        QFileInfo qdfi(dir);
+        if (qdfi.isRoot())
+            break;
+        dir = qdfi.path();
+    }
+
     return true;
 }
 
@@ -1246,6 +1259,12 @@ bool QMakeEvaluator::loadSpec()
                 m_cachefile, QMakeHandler::EvalConfigFile, LoadProOnly) != ReturnTrue)
             return false;
     }
+    if (!m_stashfile.isEmpty() && m_vfs->exists(m_stashfile)) {
+        valuesRef(ProKey("_QMAKE_STASH_")) << ProString(m_stashfile);
+        if (evaluateFile(
+                m_stashfile, QMakeHandler::EvalConfigFile, LoadProOnly) != ReturnTrue)
+            return false;
+    }
     return true;
 }
 
@@ -1323,7 +1342,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
 #ifdef PROEVALUATOR_THREAD_SAFE
         m_option->mutex.lock();
 #endif
-        QMakeBaseEnv **baseEnvPtr = &m_option->baseEnvs[QMakeBaseKey(m_buildRoot, m_hostBuild)];
+        QMakeBaseEnv **baseEnvPtr = &m_option->baseEnvs[QMakeBaseKey(m_buildRoot, m_stashfile, m_hostBuild)];
         if (!*baseEnvPtr)
             *baseEnvPtr = new QMakeBaseEnv;
         QMakeBaseEnv *baseEnv = *baseEnvPtr;
@@ -1350,6 +1369,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::visitProFile(
             baseEval->m_superfile = m_superfile;
             baseEval->m_conffile = m_conffile;
             baseEval->m_cachefile = m_cachefile;
+            baseEval->m_stashfile = m_stashfile;
             baseEval->m_sourceRoot = m_sourceRoot;
             baseEval->m_buildRoot = m_buildRoot;
             baseEval->m_hostBuild = m_hostBuild;

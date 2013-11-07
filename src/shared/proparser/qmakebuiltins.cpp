@@ -1580,11 +1580,11 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
     }
     case T_CACHE: {
         if (args.count() > 3) {
-            evalError(fL1S("cache(var, [set|add|sub] [transient] [super], [srcvar]) requires one to three arguments."));
+            evalError(fL1S("cache(var, [set|add|sub] [transient] [super|stash], [srcvar]) requires one to three arguments."));
             return ReturnFalse;
         }
         bool persist = true;
-        bool super = false;
+        enum { TargetStash, TargetCache, TargetSuper } target = TargetCache;
         enum { CacheSet, CacheAdd, CacheSub } mode = CacheSet;
         ProKey srcvar;
         if (args.count() >= 2) {
@@ -1593,7 +1593,9 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
                 if (m_tmp3 == QLatin1String("transient")) {
                     persist = false;
                 } else if (m_tmp3 == QLatin1String("super")) {
-                    super = true;
+                    target = TargetSuper;
+                } else if (m_tmp3 == QLatin1String("stash")) {
+                    target = TargetStash;
                 } else if (m_tmp3 == QLatin1String("set")) {
                     mode = CacheSet;
                 } else if (m_tmp3 == QLatin1String("add")) {
@@ -1632,7 +1634,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
                 m_option->mutex.lock();
 #endif
                 QMakeBaseEnv *baseEnv =
-                        m_option->baseEnvs.value(QMakeBaseKey(m_buildRoot, hostBuild));
+                        m_option->baseEnvs.value(QMakeBaseKey(m_buildRoot, m_stashfile, hostBuild));
 #ifdef PROEVALUATOR_THREAD_SAFE
                 // It's ok to unlock this before locking baseEnv,
                 // as we have no intention to initialize the env.
@@ -1665,21 +1667,23 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
                             removeEach(&newval, diffval);
                     }
                     if (oldval != newval) {
-                        baseEval->valuesRef(dstvar) = newval;
-                        if (super) {
-                            do {
-                                if (dstvar == QLatin1String("QMAKEPATH")) {
-                                    baseEval->m_qmakepath = newval.toQStringList();
-                                    baseEval->updateMkspecPaths();
-                                } else if (dstvar == QLatin1String("QMAKEFEATURES")) {
-                                    baseEval->m_qmakefeatures = newval.toQStringList();
-                                } else {
-                                    break;
-                                }
-                                baseEval->updateFeaturePaths();
-                                if (hostBuild == m_hostBuild)
-                                    m_featureRoots = baseEval->m_featureRoots;
-                            } while (false);
+                        if (target != TargetStash || !m_stashfile.isEmpty()) {
+                            baseEval->valuesRef(dstvar) = newval;
+                            if (target == TargetSuper) {
+                                do {
+                                    if (dstvar == QLatin1String("QMAKEPATH")) {
+                                        baseEval->m_qmakepath = newval.toQStringList();
+                                        baseEval->updateMkspecPaths();
+                                    } else if (dstvar == QLatin1String("QMAKEFEATURES")) {
+                                        baseEval->m_qmakefeatures = newval.toQStringList();
+                                    } else {
+                                        break;
+                                    }
+                                    baseEval->updateFeaturePaths();
+                                    if (hostBuild == m_hostBuild)
+                                        m_featureRoots = baseEval->m_featureRoots;
+                                } while (false);
+                            }
                         }
                         changed = true;
                     }
@@ -1710,14 +1714,14 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
             varstr += QLatin1Char('\n');
         }
         QString fn;
-        if (super) {
+        if (target == TargetSuper) {
             if (m_superfile.isEmpty()) {
                 m_superfile = QDir::cleanPath(m_outputDir + QLatin1String("/.qmake.super"));
                 printf("Info: creating super cache file %s\n", qPrintable(m_superfile));
                 valuesRef(ProKey("_QMAKE_SUPER_CACHE_")) << ProString(m_superfile);
             }
             fn = m_superfile;
-        } else {
+        } else if (target == TargetCache) {
             if (m_cachefile.isEmpty()) {
                 m_cachefile = QDir::cleanPath(m_outputDir + QLatin1String("/.qmake.cache"));
                 printf("Info: creating cache file %s\n", qPrintable(m_cachefile));
@@ -1729,6 +1733,14 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
                 // The sub-projects will find the new cache all by themselves.
             }
             fn = m_cachefile;
+        } else {
+            fn = m_stashfile;
+            if (fn.isEmpty())
+                fn = QDir::cleanPath(m_outputDir + QLatin1String("/.qmake.stash"));
+            if (!m_vfs->exists(fn)) {
+                printf("Info: creating stash file %s\n", qPrintable(fn));
+                valuesRef(ProKey("_QMAKE_STASH_")) << ProString(fn);
+            }
         }
         return writeFile(fL1S("cache "), fn, QIODevice::Append, varstr);
     }
