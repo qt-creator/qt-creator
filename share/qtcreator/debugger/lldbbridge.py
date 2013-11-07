@@ -912,12 +912,12 @@ class Dumper(DumperBase):
 
         # Arrays
         if typeClass == lldb.eTypeClassArray:
-            qdump____c_style_array__(self, value)
+            self.putCStyleArray(value)
             return
 
         # Vectors like char __attribute__ ((vector_size (8)))
         if typeClass == lldb.eTypeClassVector:
-            qdump____c_style_array__(self, value)
+            self.putCStyleArray(value)
             return
 
         # References

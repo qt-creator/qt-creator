@@ -474,6 +474,40 @@ class DumperBase:
         self.putNumChild(0)
         self.currentValue = None
 
+    def putCStyleArray(self, value):
+        type = value.type.unqualified()
+        targetType = value[0].type
+        #self.putAddress(value.address)
+        self.putType(type)
+        self.putNumChild(1)
+        format = self.currentItemFormat()
+        isDefault = format == None and str(targetType.unqualified()) == "char"
+        if isDefault or format == 0 or format == 1 or format == 2:
+            blob = self.readMemory(self.addressOf(value), type.sizeof)
+
+        if isDefault:
+            # Use Latin1 as default for char [].
+            self.putValue(blob, Hex2EncodedLatin1)
+        elif format == 0:
+            # Explicitly requested Latin1 formatting.
+            self.putValue(blob, Hex2EncodedLatin1)
+        elif format == 1:
+            # Explicitly requested UTF-8 formatting.
+            self.putValue(blob, Hex2EncodedUtf8)
+        elif format == 2:
+            # Explicitly requested Local 8-bit formatting.
+            self.putValue(blob, Hex2EncodedLocal8Bit)
+        else:
+            self.putValue("@0x%x" % self.pointerValue(value.cast(targetType.pointer())))
+
+        if self.currentIName in self.expandedINames:
+            p = self.addressOf(value)
+            ts = targetType.sizeof
+            if not self.tryPutArrayContents(targetType, p, int(type.sizeof / ts)):
+                with Children(self, childType=targetType,
+                        addrBase=p, addrStep=ts):
+                    self.putFields(value)
+
     def putFormattedPointer(self, value):
         #warn("POINTER: %s" % value)
         if self.isNull(value):

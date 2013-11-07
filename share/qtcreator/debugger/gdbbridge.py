@@ -1346,7 +1346,7 @@ class Dumper(DumperBase):
             return
 
         if type.code == ArrayCode:
-            qdump____c_style_array__(self, value)
+            self.putCStyleArray(value)
             return
 
         if type.code == PointerCode:

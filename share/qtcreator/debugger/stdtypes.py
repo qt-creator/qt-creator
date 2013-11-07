@@ -29,41 +29,6 @@
 
 from dumper import *
 
-def qdump____c_style_array__(d, value):
-    type = value.type.unqualified()
-    targetType = value[0].type
-    #d.putAddress(value.address)
-    d.putType(type)
-    d.putNumChild(1)
-    format = d.currentItemFormat()
-    isDefault = format == None and str(targetType.unqualified()) == "char"
-    if isDefault or format == 0 or format == 1 or format == 2:
-        blob = d.readMemory(d.addressOf(value), type.sizeof)
-
-    if isDefault:
-        # Use Latin1 as default for char [].
-        d.putValue(blob, Hex2EncodedLatin1)
-    elif format == 0:
-        # Explicitly requested Latin1 formatting.
-        d.putValue(blob, Hex2EncodedLatin1)
-    elif format == 1:
-        # Explicitly requested UTF-8 formatting.
-        d.putValue(blob, Hex2EncodedUtf8)
-    elif format == 2:
-        # Explicitly requested Local 8-bit formatting.
-        d.putValue(blob, Hex2EncodedLocal8Bit)
-    else:
-        d.putValue("@0x%x" % d.pointerValue(value.cast(targetType.pointer())))
-
-    if d.currentIName in d.expandedINames:
-        p = d.addressOf(value)
-        ts = targetType.sizeof
-        if not d.tryPutArrayContents(targetType, p, int(type.sizeof / ts)):
-            with Children(d, childType=targetType,
-                    addrBase=p, addrStep=ts):
-                d.putFields(value)
-
-
 def qdump__std__array(d, value):
     size = d.numericTemplateArgument(value.type, 1)
     d.putItemCount(size)
