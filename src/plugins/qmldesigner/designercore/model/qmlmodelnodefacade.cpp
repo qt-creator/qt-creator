@@ -29,7 +29,6 @@
 
 #include "qmlmodelnodefacade.h"
 #include "nodeinstanceview.h"
-#include <qmldesignerplugin.h>
 
 namespace QmlDesigner {
 
@@ -44,9 +43,14 @@ AbstractView *QmlModelNodeFacade::view() const
         return 0;
 }
 
-NodeInstanceView *QmlModelNodeFacade::nodeInstanceView()
+NodeInstanceView *QmlModelNodeFacade::nodeInstanceView(const ModelNode &modelNode)
 {
-    return QmlDesignerPlugin::instance()->viewManager().nodeInstanceView();
+    return modelNode.model()->nodeInstanceView();
+}
+
+NodeInstanceView *QmlModelNodeFacade::nodeInstanceView() const
+{
+    return nodeInstanceView(m_modelNode);
 }
 
 
@@ -79,9 +83,9 @@ bool QmlModelNodeFacade::isValid() const
 bool QmlModelNodeFacade::isValidQmlModelNodeFacade(const ModelNode &modelNode)
 {
     return modelNode.isValid()
-            && nodeInstanceView()
-            && nodeInstanceView()->hasInstanceForModelNode(modelNode)
-            && nodeInstanceView()->instanceForModelNode(modelNode).isValid();
+            && nodeInstanceView(modelNode)
+            && nodeInstanceView(modelNode)->hasInstanceForModelNode(modelNode)
+            && nodeInstanceView(modelNode)->instanceForModelNode(modelNode).isValid();
 }
 
 bool QmlModelNodeFacade::isRootNode() const
