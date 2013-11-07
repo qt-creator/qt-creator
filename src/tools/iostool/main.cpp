@@ -517,7 +517,7 @@ void IosTool::handleCreatorHasData()
 
 void IosTool::handleCreatorHasError(QAbstractSocket::SocketError error)
 {
-    errorMsg(tr("Ios Debugging connection to creator failed with error %1").arg(error));
+    errorMsg(tr("iOS Debugging connection to creator failed with error %1").arg(error));
     stopGdbServer();
 }
 

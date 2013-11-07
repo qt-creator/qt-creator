@@ -48,7 +48,7 @@ IosSimulator::IosSimulator(Core::Id id, Utils::FileName simulatorPath)
               id),
       m_simulatorPath(simulatorPath)
 {
-    setDisplayName(QCoreApplication::translate("Ios::Internal::IosSimulator", "Ios Simulator"));
+    setDisplayName(QCoreApplication::translate("Ios::Internal::IosSimulator", "iOS Simulator"));
 }
 
 IosSimulator::IosSimulator()
@@ -57,14 +57,14 @@ IosSimulator::IosSimulator()
                              IDevice::Emulator,
                              Core::Id(Constants::IOS_SIMULATOR_DEVICE_ID))
 {
-    setDisplayName(QCoreApplication::translate("Ios::Internal::IosSimulator", "Ios Simulator"));
+    setDisplayName(QCoreApplication::translate("Ios::Internal::IosSimulator", "iOS Simulator"));
     setDeviceState(DeviceReadyToUse);
 }
 
 IosSimulator::IosSimulator(const IosSimulator &other)
     : IDevice(other)
 {
-    setDisplayName(QCoreApplication::translate("Ios::Internal::IosSimulator", "Ios Simulator"));
+    setDisplayName(QCoreApplication::translate("Ios::Internal::IosSimulator", "iOS Simulator"));
 }
 
 
@@ -75,7 +75,7 @@ IDevice::DeviceInfo IosSimulator::deviceInformation() const
 
 QString IosSimulator::displayType() const
 {
-    return QCoreApplication::translate("Ios::Internal::IosSimulator", "Ios Simulator");
+    return QCoreApplication::translate("Ios::Internal::IosSimulator", "iOS Simulator");
 }
 
 IDeviceWidget *IosSimulator::createWidget()
