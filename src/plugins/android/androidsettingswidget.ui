@@ -214,7 +214,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>Ant location:</string>
+        <string>Ant executable:</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
