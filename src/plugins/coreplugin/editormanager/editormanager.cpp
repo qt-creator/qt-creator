@@ -139,8 +139,13 @@ void EditorManagerPlaceHolder::currentModeChanged(Core::IMode *mode)
 {
     if (m_mode == mode) {
         m_current = this;
+        QWidget *previousFocus = 0;
+        if (EditorManager::instance()->focusWidget() && EditorManager::instance()->focusWidget()->hasFocus())
+            previousFocus = EditorManager::instance()->focusWidget();
         layout()->addWidget(EditorManager::instance());
         EditorManager::instance()->show();
+        if (previousFocus)
+            previousFocus->setFocus();
     } else if (m_current == this) {
         m_current = 0;
     }
