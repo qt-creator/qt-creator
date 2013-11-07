@@ -1042,6 +1042,50 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
     context->leaveScope();
 }
 
+static QVariant parsePropertyExpression(ExpressionNode *expressionNode)
+{
+    Q_ASSERT(expressionNode);
+
+    ArrayLiteral *arrayLiteral = cast<ArrayLiteral *>(expressionNode);
+
+    if (arrayLiteral) {
+        QList<QVariant> variantList;
+        for (ElementList *it = arrayLiteral->elements; it; it = it->next)
+            variantList << parsePropertyExpression(it->expression);
+        return variantList;
+    }
+
+    StringLiteral *stringLiteral = cast<AST::StringLiteral *>(expressionNode);
+    if (stringLiteral)
+        return stringLiteral->value.toString();
+
+    TrueLiteral *trueLiteral = cast<AST::TrueLiteral *>(expressionNode);
+    if (trueLiteral)
+        return true;
+
+    FalseLiteral *falseLiteral = cast<AST::FalseLiteral *>(expressionNode);
+    if (falseLiteral)
+        return false;
+
+    NumericLiteral *numericLiteral = cast<AST::NumericLiteral *>(expressionNode);
+    if (numericLiteral)
+        return numericLiteral->value;
+
+
+    return QVariant();
+}
+
+QVariant parsePropertyScriptBinding(UiScriptBinding *uiScriptBinding)
+{
+    Q_ASSERT(uiScriptBinding);
+
+    ExpressionStatement *expStmt = cast<ExpressionStatement *>(uiScriptBinding->statement);
+    if (!expStmt)
+        return QVariant();
+
+    return parsePropertyExpression(expStmt->expression);
+}
+
 QmlDesigner::PropertyName TextToModelMerger::syncScriptBinding(ModelNode &modelNode,
                                              const QString &prefix,
                                              UiScriptBinding *script,
@@ -1078,7 +1122,9 @@ QmlDesigner::PropertyName TextToModelMerger::syncScriptBinding(ModelNode &modelN
         if (isPropertyChangesType(modelNode.type())
                 || isConnectionsType(modelNode.type())) {
             AbstractProperty modelProperty = modelNode.property(astPropertyName.toUtf8());
-            const QVariant variantValue(deEscape(stripQuotes(astValue)));
+            QVariant variantValue = parsePropertyScriptBinding(script);
+            if (!variantValue.isValid())
+                variantValue = deEscape(stripQuotes(astValue));
             syncVariantProperty(modelProperty, variantValue, TypeName(), differenceHandler);
             return astPropertyName.toUtf8();
         } else {
