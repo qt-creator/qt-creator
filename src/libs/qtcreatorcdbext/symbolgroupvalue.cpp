@@ -1534,7 +1534,7 @@ bool readQt5StringData(const SymbolGroupValue &dV, int qtMajorVersion,
     if (!memory)
         return false;
     *array = reinterpret_cast<CharType *>(memory);
-    if ((*arraySize < *fullSize) && zeroTerminated)
+    if ((*arraySize <= *fullSize) && zeroTerminated)
         *(*array + *arraySize) = CharType(0);
     return true;
 }
