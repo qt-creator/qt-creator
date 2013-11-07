@@ -107,12 +107,9 @@ public:
                           const QString condition = QString(), int ignoreCount = -1);
     void clearBreakpoint(int breakpoint);
     void setExceptionBreak(QmlV8DebuggerClient::Exceptions type, bool enabled = false);
-    void listBreakpoints();
 
-    void v8flags(const QString flags);
     void version();
     //void profile(ProfileCommand command); //NOT SUPPORTED
-    void gc();
     void clearCache();
 
     void logSendMessage(const QString &msg) const;
@@ -654,44 +651,6 @@ void QmlV8DebuggerClientPrivate::setExceptionBreak(QmlV8DebuggerClient::Exceptio
     q->sendMessage(packMessage(V8REQUEST, jsonMessage.toString().toUtf8()));
 }
 
-void QmlV8DebuggerClientPrivate::listBreakpoints()
-{
-    //    { "seq"       : <number>,
-    //      "type"      : "request",
-    //      "command"   : "listbreakpoints",
-    //    }
-    QScriptValue jsonVal = initObject();
-    jsonVal.setProperty(_(COMMAND),
-                        QScriptValue(_(LISTBREAKPOINTS)));
-
-    const QScriptValue jsonMessage = stringifier.call(QScriptValue(), QScriptValueList() << jsonVal);
-    logSendMessage(QString(_("%1 %2 %3")).arg(_(V8DEBUG), _(V8REQUEST), jsonMessage.toString()));
-    q->sendMessage(packMessage(V8REQUEST, jsonMessage.toString().toUtf8()));
-}
-
-void QmlV8DebuggerClientPrivate::v8flags(const QString flags)
-{
-    //    { "seq"       : <number>,
-    //      "type"      : "request",
-    //      "command"   : "v8flags",
-    //      "arguments" : { "flags" : <string: a sequence of v8 flags just like
-    //                                  those used on the command line>
-    //                    }
-    //    }
-    QScriptValue jsonVal = initObject();
-    jsonVal.setProperty(_(COMMAND), QScriptValue(_(V8FLAGS)));
-
-    QScriptValue args = parser.call(QScriptValue(), QScriptValueList() << QScriptValue(_(OBJECT)));
-
-    args.setProperty(_(FLAGS), QScriptValue(flags));
-
-    jsonVal.setProperty(_(ARGUMENTS), args);
-
-    const QScriptValue jsonMessage = stringifier.call(QScriptValue(), QScriptValueList() << jsonVal);
-    logSendMessage(QString(_("%1 %2 %3")).arg(_(V8DEBUG), _(V8REQUEST), jsonMessage.toString()));
-    q->sendMessage(packMessage(V8REQUEST, jsonMessage.toString().toUtf8()));
-}
-
 void QmlV8DebuggerClientPrivate::version()
 {
     //    { "seq"       : <number>,
@@ -730,29 +689,6 @@ void QmlV8DebuggerClientPrivate::version()
 //    logSendMessage(QString(_("%1 %2 %3")).arg(_(V8DEBUG), _(V8REQUEST), jsonMessage.toString()));
 //    q->sendMessage(packMessage(V8REQUEST, jsonMessage.toString().toUtf8()));
 //}
-
-void QmlV8DebuggerClientPrivate::gc()
-{
-    //    { "seq"       : <number>,
-    //      "type"      : "request",
-    //      "command"   : "gc",
-    //      "arguments" : { "type" : <string: "all">,
-    //                    }
-    //    }
-    QScriptValue jsonVal = initObject();
-    jsonVal.setProperty(_(COMMAND),
-                        QScriptValue(_(GARBAGECOLLECTOR)));
-
-    QScriptValue args = parser.call(QScriptValue(), QScriptValueList() << QScriptValue(_(OBJECT)));
-
-    args.setProperty(_(TYPE), QScriptValue(_(ALL)));
-
-    jsonVal.setProperty(_(ARGUMENTS), args);
-
-    const QScriptValue jsonMessage = stringifier.call(QScriptValue(), QScriptValueList() << jsonVal);
-    logSendMessage(QString(_("%1 %2 %3")).arg(_(V8DEBUG), _(V8REQUEST), jsonMessage.toString()));
-    q->sendMessage(packMessage(V8REQUEST, jsonMessage.toString().toUtf8()));
-}
 
 QVariant valueFromRef(int handle, const QVariant &refsVal, bool *success)
 {
@@ -1224,10 +1160,6 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                         updateEvaluationResult(seq, success, QVariant(map), QVariant());
                     }
 
-                } else if (debugCommand == _(LISTBREAKPOINTS)) {
-                    if (success)
-                        updateBreakpoints(resp.value(_(BODY)));
-
                 } else if (debugCommand == _(SETBREAKPOINT)) {
                     //                { "seq"         : <number>,
                     //                  "type"        : "response",
@@ -1354,8 +1286,6 @@ void QmlV8DebuggerClient::messageReceived(const QByteArray &data)
                                              resp.value(_(BODY)).toMap().
                                              value(_("V8Version")).toString()));
 
-                } else if (debugCommand == _(V8FLAGS)) {
-                } else if (debugCommand == _(GARBAGECOLLECTOR)) {
                 } else {
                     // DO NOTHING
                 }
@@ -1862,56 +1792,6 @@ void QmlV8DebuggerClient::updateEvaluationResult(int sequence, bool success,
             }
             //Insert the newly evaluated expression to the Watchers Window
             watchHandler->insertData(watchDataList);
-        }
-    }
-}
-
-void QmlV8DebuggerClient::updateBreakpoints(const QVariant &bodyVal)
-{
-    //    { "seq"         : <number>,
-    //      "type"        : "response",
-    //      "request_seq" : <number>,
-    //      "command"     : "listbreakpoints",
-    //      "body"        : { "breakpoints": [ { "type"             : <string: "scriptId"  or "scriptName".>,
-    //                                           "script_id"        : <int: script id.  Only defined if type is scriptId.>,
-    //                                           "script_name"      : <string: script name.  Only defined if type is scriptName.>,
-    //                                           "number"           : <int: breakpoint number.  Starts from 1.>,
-    //                                           "line"             : <int: line number of this breakpoint.  Starts from 0.>,
-    //                                           "column"           : <int: column number of this breakpoint.  Starts from 0.>,
-    //                                           "groupId"          : <int: group id of this breakpoint.>,
-    //                                           "hit_count"        : <int: number of times this breakpoint has been hit.  Starts from 0.>,
-    //                                           "active"           : <bool: true if this breakpoint is enabled.>,
-    //                                           "ignoreCount"      : <int: remaining number of times to ignore breakpoint.  Starts from 0.>,
-    //                                           "actual_locations" : <actual locations of the breakpoint.>,
-    //                                         }
-    //                                       ],
-    //                        "breakOnExceptions"         : <true if break on all exceptions is enabled>,
-    //                        "breakOnUncaughtExceptions" : <true if break on uncaught exceptions is enabled>
-    //                      }
-    //      "running"     : <is the VM running after sending this response>
-    //      "success"     : true
-    //    }
-
-    const QVariantMap body = bodyVal.toMap();
-    const QVariantList breakpoints = body.value(_("breakpoints")).toList();
-    BreakHandler *handler = d->engine->breakHandler();
-
-    foreach (const QVariant &breakpoint, breakpoints) {
-        const QVariantMap breakpointData = breakpoint.toMap();
-
-        int index = breakpointData.value(_("number")).toInt();
-        BreakpointModelId id = d->breakpoints.key(index);
-        BreakpointResponse br = handler->response(id);
-
-        const QVariantList actualLocations = breakpointData.value(_("actual_locations")).toList();
-        foreach (const QVariant &location, actualLocations) {
-            const QVariantMap locationData = location.toMap();
-            br.lineNumber = locationData.value(_("line")).toInt() + 1;
-            br.enabled = breakpointData.value(_("active")).toBool();
-            br.hitCount = breakpointData.value(_("hit_count")).toInt();
-            br.ignoreCount = breakpointData.value(_("ignoreCount")).toInt();
-
-            handler->setResponse(id, br);
         }
     }
 }

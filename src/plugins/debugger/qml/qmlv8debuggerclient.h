@@ -109,8 +109,6 @@ private:
 
     void updateEvaluationResult(int sequence, bool success, const QVariant &bodyVal,
                                 const QVariant &refsVal);
-    void updateBreakpoints(const QVariant &bodyVal);
-
     void expandLocalsAndWatchers(const QVariant &bodyVal, const QVariant &refsVal);
     QList<WatchData> createWatchDataList(const WatchData *parent,
                                          const QVariantList &properties,

@@ -83,11 +83,8 @@ const char SETBREAKPOINT[] = "setbreakpoint";
 const char CHANGEBREAKPOINT[] = "changebreakpoint";
 const char CLEARBREAKPOINT[] = "clearbreakpoint";
 const char SETEXCEPTIONBREAK[] = "setexceptionbreak";
-const char V8FLAGS[] = "v8flags";
 const char VERSION[] = "version";
 const char DISCONNECT[] = "disconnect";
-const char LISTBREAKPOINTS[] = "listbreakpoints";
-const char GARBAGECOLLECTOR[] = "gc";
 //const char PROFILE[] = "profile";
 
 const char REQUEST[] = "request";
