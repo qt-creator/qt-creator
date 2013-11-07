@@ -389,7 +389,7 @@ void ReadOnlyFilesDialog::initDialog(const QStringList &fileNames)
         IVersionControl *versionControlForFile =
                 VcsManager::findVersionControlForDirectory(directory);
         const bool fileManagedByVCS = versionControlForFile
-                && versionControlForFile->openSupportMode() != IVersionControl::NoOpen;
+                && versionControlForFile->openSupportMode(fileName) != IVersionControl::NoOpen;
         if (fileManagedByVCS) {
             const QString vcsOpenTextForFile =
                     versionControlForFile->vcsOpenText().remove(QLatin1Char('&'));
@@ -407,7 +407,7 @@ void ReadOnlyFilesDialog::initDialog(const QStringList &fileNames)
                     vcsMakeWritableTextForAll.clear();
             }
             // Add make writable if it is supported by the reposetory.
-            if (versionControlForFile->openSupportMode() == IVersionControl::OpenOptional) {
+            if (versionControlForFile->openSupportMode(fileName) == IVersionControl::OpenOptional) {
                 useMakeWritable = true;
                 createRadioButtonForItem(item, radioButtonGroup, MakeWritable);
             }

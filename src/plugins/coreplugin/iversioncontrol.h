@@ -100,9 +100,9 @@ public:
     virtual bool supportsOperation(Operation operation) const = 0;
 
     /*!
-     * Returns the open support mode.
+     * Returns the open support mode for \a fileName.
      */
-    virtual OpenSupportMode openSupportMode() const;
+    virtual OpenSupportMode openSupportMode(const QString &fileName) const;
 
     /*!
      * Called prior to save, if the file is read only. Should be implemented if

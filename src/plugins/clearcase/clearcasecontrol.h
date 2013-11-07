@@ -53,7 +53,7 @@ public:
     bool isConfigured() const;
 
     bool supportsOperation(Operation operation) const;
-    OpenSupportMode openSupportMode() const;
+    OpenSupportMode openSupportMode(const QString &fileName) const;
     bool vcsOpen(const QString &fileName);
     SettingsFlags settingsFlags() const;
     bool vcsAdd(const QString &fileName);

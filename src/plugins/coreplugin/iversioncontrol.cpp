@@ -46,8 +46,9 @@ QString IVersionControl::vcsTopic(const QString &)
     return QString();
 }
 
-IVersionControl::OpenSupportMode IVersionControl::openSupportMode() const
+IVersionControl::OpenSupportMode IVersionControl::openSupportMode(const QString &fileName) const
 {
+    Q_UNUSED(fileName);
     return NoOpen;
 }
 

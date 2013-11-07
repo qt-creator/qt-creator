@@ -81,8 +81,9 @@ bool CvsControl::supportsOperation(Operation operation) const
     return rc;
 }
 
-Core::IVersionControl::OpenSupportMode CvsControl::openSupportMode() const
+Core::IVersionControl::OpenSupportMode CvsControl::openSupportMode(const QString &fileName) const
 {
+    Q_UNUSED(fileName);
     return OpenOptional;
 }
 
