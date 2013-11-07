@@ -962,6 +962,9 @@ class Dumper(DumperBase):
             if self.dummyValue is None:
                 self.dummyValue = value
             name = value.GetName()
+            if name is None:
+                warn("NO NAME FOR VALUE: %s" % value)
+                continue
             if name in shadowed:
                 level = shadowed[name]
                 shadowed[name] = level + 1
