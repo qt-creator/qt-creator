@@ -512,9 +512,6 @@ class Dumper(DumperBase):
     def put(self, stuff):
         sys.stdout.write(stuff)
 
-    def putField(self, name, value):
-        self.put('%s="%s",' % (name, value))
-
     def isMovableType(self, type):
         if type.GetTypeClass() in (lldb.eTypeClassBuiltin, lldb.eTypeClassPointer):
             return True
@@ -525,30 +522,8 @@ class Dumper(DumperBase):
         #if numchild != self.currentChildNumChild:
         self.put('numchild="%s",' % numchild)
 
-    def putEmptyValue(self, priority = -10):
-        if priority >= self.currentValuePriority:
-            self.currentValue = ""
-            self.currentValuePriority = priority
-            self.currentValueEncoding = None
-
     def putSimpleValue(self, value, encoding = None, priority = 0):
         self.putValue(value.GetValue(), encoding, priority)
-
-    def putValue(self, value, encoding = None, priority = 0):
-        # Higher priority values override lower ones.
-        if priority >= self.currentValuePriority:
-            self.currentValue = value
-            self.currentValuePriority = priority
-            self.currentValueEncoding = encoding
-        #self.put('value="%s",' % value)
-
-    def putName(self, name):
-        self.put('name="%s",' % name)
-
-    def isExpanded(self):
-        #warn("IS EXPANDED: %s in %s: %s" % (self.currentIName,
-        #    self.expandedINames, self.currentIName in self.expandedINames))
-        return self.currentIName in self.expandedINames
 
     def tryPutArrayContents(self, typeobj, base, n):
         if not self.isSimpleType(typeobj):
@@ -599,13 +574,6 @@ class Dumper(DumperBase):
         if self.currentMaxNumChild is None:
             return xrange(0, self.currentNumChild)
         return xrange(min(self.currentMaxNumChild, self.currentNumChild))
-
-    def putPlainChildren(self, value):
-        self.putEmptyValue(-99)
-        self.putNumChild(1)
-        if self.currentIName in self.expandedINames:
-            with Children(self):
-               self.putFields(value)
 
     def lookupType(self, name):
         #warn("LOOKUP TYPE NAME: %s" % name)
@@ -777,13 +745,6 @@ class Dumper(DumperBase):
         result += '],hasmore="0"},'
         self.report(result)
 
-    def putType(self, type, priority = 0):
-        # Higher priority values override lower ones.
-        if priority >= self.currentTypePriority:
-            self.currentType = str(type)
-            self.currentTypePriority = priority
-        #warn("TYPE: %s PRIORITY: %s" % (type, priority))
-
     def putBetterType(self, type):
         try:
             self.currentType = type.GetName()
@@ -811,13 +772,6 @@ class Dumper(DumperBase):
             return name.find("10metaObjectEv") > 0
         except:
             return False
-
-    def putValue(self, value, encoding = None, priority = 0):
-        # Higher priority values override lower ones.
-        if priority >= self.currentValuePriority:
-            self.currentValue = value
-            self.currentValuePriority = priority
-            self.currentValueEncoding = encoding
 
     def qtNamespace(self):
         # FIXME

@@ -464,6 +464,31 @@ class DumperBase:
         else:
             self.putValue('<%s items>' % count)
 
+    def putField(self, name, value):
+        self.put('%s="%s",' % (name, value))
+
+    def putType(self, type, priority = 0):
+        # Higher priority values override lower ones.
+        if priority >= self.currentTypePriority:
+            self.currentType = str(type)
+            self.currentTypePriority = priority
+
+    def putValue(self, value, encoding = None, priority = 0):
+        # Higher priority values override lower ones.
+        if priority >= self.currentValuePriority:
+            self.currentValue = value
+            self.currentValuePriority = priority
+            self.currentValueEncoding = encoding
+
+    def putEmptyValue(self, priority = -10):
+        if priority >= self.currentValuePriority:
+            self.currentValue = ""
+            self.currentValuePriority = priority
+            self.currentValueEncoding = None
+
+    def putName(self, name):
+        self.put('name="%s",' % name)
+
     def putNoType(self):
         # FIXME: replace with something that does not need special handling
         # in SubItem.__exit__().
@@ -473,6 +498,23 @@ class DumperBase:
         #self.putBetterType(" ")
         self.putNumChild(0)
         self.currentValue = None
+
+    def putNamedSubItem(self, component, value, name):
+        with SubItem(self, component):
+            self.putName(name)
+            self.putItem(value)
+
+    def isExpanded(self):
+        #warn("IS EXPANDED: %s in %s: %s" % (self.currentIName,
+        #    self.expandedINames, self.currentIName in self.expandedINames))
+        return self.currentIName in self.expandedINames
+
+    def putPlainChildren(self, value):
+        self.putEmptyValue(-99)
+        self.putNumChild(1)
+        if self.currentIName in self.expandedINames:
+            with Children(self):
+               self.putFields(value)
 
     def putCStyleArray(self, value):
         type = value.type.unqualified()

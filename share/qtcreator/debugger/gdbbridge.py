@@ -982,9 +982,6 @@ class Dumper(DumperBase):
     def put(self, value):
         self.output.append(value)
 
-    def putField(self, name, value):
-        self.put('%s="%s",' % (name, value))
-
     def childRange(self):
         if self.currentMaxNumChild is None:
             return xrange(0, toInteger(self.currentNumChild))
@@ -1009,12 +1006,6 @@ class Dumper(DumperBase):
         self.qtVersion = lambda: self.cachedQtVersion
         return self.cachedQtVersion
 
-    def putType(self, type, priority = 0):
-        # Higher priority values override lower ones.
-        if priority >= self.currentTypePriority:
-            self.currentType = str(type)
-            self.currentTypePriority = priority
-
     def putBetterType(self, type):
         self.currentType = str(type)
         self.currentTypePriority = self.currentTypePriority + 1
@@ -1033,21 +1024,8 @@ class Dumper(DumperBase):
         if numchild != self.currentChildNumChild:
             self.put('numchild="%s",' % numchild)
 
-    def putEmptyValue(self, priority = -10):
-        if priority >= self.currentValuePriority:
-            self.currentValue = ""
-            self.currentValuePriority = priority
-            self.currentValueEncoding = None
-
     def putSimpleValue(self, value, encoding = None, priority = 0):
         self.putValue(value, encoding, priority)
-
-    def putValue(self, value, encoding = None, priority = 0):
-        # Higher priority values override lower ones.
-        if priority >= self.currentValuePriority:
-            self.currentValue = value
-            self.currentValuePriority = priority
-            self.currentValueEncoding = encoding
 
     def putPointerValue(self, value):
         # Use a lower priority
@@ -1064,14 +1042,6 @@ class Dumper(DumperBase):
                 self.put('editvalue="%s",' % value)
         else:
             self.put('editvalue="%s|%s",' % (cmd, value))
-
-    def putName(self, name):
-        self.put('name="%s",' % name)
-
-    def isExpanded(self):
-        #warn("IS EXPANDED: %s in %s: %s" % (self.currentIName,
-        #    self.expandedINames, self.currentIName in self.expandedINames))
-        return self.currentIName in self.expandedINames
 
     def isExpandedSubItem(self, component):
         iname = "%s.%s" % (self.currentIName, component)
@@ -1101,11 +1071,6 @@ class Dumper(DumperBase):
     def putSubItem(self, component, value, tryDynamic=True):
         with SubItem(self, component):
             self.putItem(value, tryDynamic)
-
-    def putNamedSubItem(self, component, value, name):
-        with SubItem(self, component):
-            self.putName(name)
-            self.putItem(value)
 
     def isSimpleType(self, typeobj):
         code = typeobj.code
