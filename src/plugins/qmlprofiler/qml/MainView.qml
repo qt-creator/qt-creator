@@ -430,7 +430,7 @@ Rectangle {
                     endTime = end;
                     var newStartX = (startTime - qmlProfilerModelProxy.traceStartTime()) *
                             flick.width / (endTime-startTime);
-                    if (Math.abs(newStartX - startX) >= 1)
+                    if (isFinite(newStartX) && Math.abs(newStartX - startX) >= 1)
                         startX = newStartX;
                 }
             }
