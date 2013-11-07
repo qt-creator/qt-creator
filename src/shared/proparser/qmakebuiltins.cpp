@@ -1712,14 +1712,14 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
         QString fn;
         if (super) {
             if (m_superfile.isEmpty()) {
-                m_superfile = m_outputDir + QLatin1String("/.qmake.super");
+                m_superfile = QDir::cleanPath(m_outputDir + QLatin1String("/.qmake.super"));
                 printf("Info: creating super cache file %s\n", qPrintable(m_superfile));
                 valuesRef(ProKey("_QMAKE_SUPER_CACHE_")) << ProString(m_superfile);
             }
             fn = m_superfile;
         } else {
             if (m_cachefile.isEmpty()) {
-                m_cachefile = m_outputDir + QLatin1String("/.qmake.cache");
+                m_cachefile = QDir::cleanPath(m_outputDir + QLatin1String("/.qmake.cache"));
                 printf("Info: creating cache file %s\n", qPrintable(m_cachefile));
                 valuesRef(ProKey("_QMAKE_CACHE_")) << ProString(m_cachefile);
                 // We could update m_{source,build}Root and m_featureRoots here, or even
