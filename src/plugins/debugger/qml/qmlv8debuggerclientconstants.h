@@ -44,7 +44,6 @@ const char TYPE[] = "type";
 const char COMMAND[] = "command";
 const char ARGUMENTS[] = "arguments";
 const char STEPACTION[] = "stepaction";
-const char STEPCOUNT[] = "stepcount";
 const char EXPRESSION[] = "expression";
 const char FRAME[] = "frame";
 const char GLOBAL[] = "global";
@@ -76,11 +75,8 @@ const char EVALUATE[] = "evaluate";
 const char LOOKUP[] = "lookup";
 const char BACKTRACE[] = "backtrace";
 const char SCOPE[] = "scope";
-const char SCOPES[] = "scopes";
 const char SCRIPTS[] = "scripts";
-const char SOURCE[] = "source";
 const char SETBREAKPOINT[] = "setbreakpoint";
-const char CHANGEBREAKPOINT[] = "changebreakpoint";
 const char CLEARBREAKPOINT[] = "clearbreakpoint";
 const char SETEXCEPTIONBREAK[] = "setexceptionbreak";
 const char VERSION[] = "version";
@@ -93,7 +89,6 @@ const char NEXT[] = "next";
 const char OUT[] = "out";
 
 const char FUNCTION[] = "function";
-const char SCRIPT[] = "script";
 const char SCRIPTREGEXP[] = "scriptRegExp";
 const char EVENT[] = "event";
 
