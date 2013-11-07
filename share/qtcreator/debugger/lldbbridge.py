@@ -134,11 +134,8 @@ def impl_SBValue__add__(self, offset):
         itemsize = self.GetType().GetPointeeType().GetByteSize()
         address = self.GetValueAsUnsigned() + offset * itemsize
         address = address & 0xFFFFFFFFFFFFFFFF  # Force unsigned
-
-        # We don't have a dumper object
-        #return createPointerValue(self, address, self.GetType().GetPointeeType())
-        addr = int(address) & 0xFFFFFFFFFFFFFFFF
-        return self.CreateValueFromAddress(None, addr, self.GetType().GetPointeeType()).AddressOf()
+        return self.CreateValueFromAddress(None, address,
+                self.GetType().GetPointeeType()).AddressOf()
 
     raise RuntimeError("SBValue.__add__ not implemented: %s" % self.GetType())
     return NotImplemented
