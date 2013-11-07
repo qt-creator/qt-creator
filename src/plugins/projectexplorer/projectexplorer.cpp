@@ -1677,12 +1677,10 @@ void ProjectExplorerPlugin::executeRunConfiguration(RunConfiguration *runConfigu
 
 void ProjectExplorerPlugin::showRunErrorMessage(const QString &errorMessage)
 {
-    if (errorMessage.isNull()) {
-        // a error occured, but message was not set
-        QMessageBox::critical(ICore::mainWindow(), tr("Unknown error"), errorMessage);
-    } else {
-        QMessageBox::critical(ICore::mainWindow(), tr("Could Not Run"), errorMessage);
-    }
+    // Empty, non-null means 'canceled' (custom executable dialog for libraries), whereas
+    // empty, null means an error occurred, but message was not set
+    if (!errorMessage.isEmpty() || errorMessage.isNull())
+        QMessageBox::critical(ICore::mainWindow(), errorMessage.isNull() ? tr("Unknown error") : tr("Could Not Run"), errorMessage);
 }
 
 void ProjectExplorerPlugin::startRunControl(RunControl *runControl, RunMode runMode)
