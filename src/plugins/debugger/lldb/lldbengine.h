@@ -33,6 +33,7 @@
 #include <debugger/debuggerengine.h>
 #include <debugger/disassembleragent.h>
 #include <debugger/memoryagent.h>
+#include <debugger/watchhandler.h>
 
 #include <QPointer>
 #include <QProcess>
@@ -157,6 +158,7 @@ private:
     Q_SLOT void runEngine2();
     Q_SLOT void updateAll();
     Q_SLOT void updateLocals();
+    void doUpdateLocals(UpdateParameters params);
     void refreshAll(const GdbMi &all);
     void refreshThreads(const GdbMi &threads);
     void refreshStack(const GdbMi &stack);
@@ -201,6 +203,9 @@ private:
     QMap<QPointer<DisassemblerAgent>, int> m_disassemblerAgents;
     QMap<QPointer<MemoryAgent>, int> m_memoryAgents;
     QHash<int, QPointer<QObject> > m_memoryAgentTokens;
+    QScopedPointer<DebuggerToolTipContext> m_toolTipContext;
+
+    void showToolTip();
 };
 
 } // namespace Internal
