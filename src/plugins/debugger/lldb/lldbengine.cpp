@@ -120,29 +120,6 @@ void LldbEngine::runCommand(const Command &command)
     m_lldbProc.write(cmd);
 }
 
-void LldbEngine::showToolTip()
-{
-    if (m_toolTipContext.isNull())
-        return;
-    const QString expression = m_toolTipContext->expression;
-    if (DebuggerToolTipManager::debug())
-        qDebug() << "GdbEngine::showToolTip " << expression << m_toolTipContext->iname << (*m_toolTipContext);
-
-    if (m_toolTipContext->iname.startsWith("tooltip")
-        && (!debuggerCore()->boolSetting(UseToolTipsInMainEditor)
-            || !watchHandler()->isValidToolTip(m_toolTipContext->iname))) {
-        watchHandler()->removeData(m_toolTipContext->iname);
-        return;
-    }
-
-    DebuggerToolTipWidget *tw = new DebuggerToolTipWidget;
-    tw->setContext(*m_toolTipContext);
-    tw->acquireEngine(this);
-    DebuggerToolTipManager::showToolTip(m_toolTipContext->mousePosition, tw);
-    // Prevent tooltip from re-occurring (classic GDB, QTCREATORBUG-4711).
-    m_toolTipContext.reset();
-}
-
 void LldbEngine::shutdownInferior()
 {
     QTC_ASSERT(state() == InferiorShutdownRequested, qDebug() << state());
@@ -664,6 +641,35 @@ static WatchData m_toolTip;
 static QPoint m_toolTipPos;
 static QHash<QString, WatchData> m_toolTipCache;
 
+void LldbEngine::showToolTip()
+{
+    if (m_toolTipContext.isNull())
+        return;
+    const QString expression = m_toolTipContext->expression;
+    if (DebuggerToolTipManager::debug())
+        qDebug() << "LldbEngine::showToolTip " << expression << m_toolTipContext->iname << (*m_toolTipContext);
+
+    if (m_toolTipContext->iname.startsWith("tooltip")
+        && (!debuggerCore()->boolSetting(UseToolTipsInMainEditor)
+            || !watchHandler()->isValidToolTip(m_toolTipContext->iname))) {
+        watchHandler()->removeData(m_toolTipContext->iname);
+        return;
+    }
+
+    DebuggerToolTipWidget *tw = new DebuggerToolTipWidget;
+    tw->setContext(*m_toolTipContext);
+    tw->acquireEngine(this);
+    DebuggerToolTipManager::showToolTip(m_toolTipContext->mousePosition, tw);
+    // Prevent tooltip from re-occurring (classic GDB, QTCREATORBUG-4711).
+    m_toolTipContext.reset();
+}
+
+void LldbEngine::resetLocation()
+{
+    m_toolTipContext.reset();
+    DebuggerEngine::resetLocation();
+}
+
 bool LldbEngine::setToolTipExpression(const QPoint &mousePos,
     TextEditor::ITextEditor *editor, const DebuggerToolTipContext &contextIn)
 {
@@ -814,8 +820,6 @@ void LldbEngine::doUpdateLocals(UpdateParameters params)
     }
     cmd.endList();
 
-    //cmd.arg("partial", ??)
-    //cmd.arg("tooltipOnly", ??)
     //cmd.arg("resultvarname", m_resultVarName);
 
     runCommand(cmd);
@@ -912,6 +916,7 @@ void LldbEngine::refreshLocals(const GdbMi &vars)
     //if (!partial) {
         list.append(*handler->findData("local"));
         list.append(*handler->findData("watch"));
+        list.append(*handler->findData("tooltip"));
         list.append(*handler->findData("return"));
     //}
 
@@ -929,6 +934,8 @@ void LldbEngine::refreshLocals(const GdbMi &vars)
         parseWatchData(handler->expandedINames(), dummy, child, &list);
     }
     handler->insertData(list);
+
+    showToolTip();
  }
 
 void LldbEngine::refreshStack(const GdbMi &stack)

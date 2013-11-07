@@ -979,18 +979,19 @@ class Dumper(DumperBase):
         if not self.dummyValue is None:
             for watcher in self.currentWatchers:
                 iname = watcher['iname']
-                index = iname[iname.find('.') + 1:]
+                # could be 'watch.0' or 'tooltip.deadbead'
+                (base, component) = iname.split('.')
                 exp = binascii.unhexlify(watcher['exp'])
                 if exp == "":
                     self.put('type="",value="",exp=""')
                     continue
 
                 value = self.dummyValue.CreateValueFromExpression(iname, exp)
-                self.currentIName = 'watch'
-                with SubItem(self, index):
+                self.currentIName = base
+                with SubItem(self, component):
                     self.put('exp="%s",' % exp)
                     self.put('wname="%s",' % binascii.hexlify(exp))
-                    self.put('iname="%s",' % self.currentIName)
+                    self.put('iname="%s",' % iname)
                     self.putItem(value)
 
         self.put(']')
