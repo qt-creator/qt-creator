@@ -338,6 +338,13 @@ Rectangle {
         }
     }
 
+    Flickable {
+        id: vertflick
+        flickableDirection: Flickable.VerticalFlick
+        width: parent.width
+        height: root.height
+        clip: true
+        contentHeight: labels.height
 
     // ***** child items
     TimeMarks {
@@ -354,9 +361,8 @@ Rectangle {
         anchors.topMargin: labels.y
         anchors.right: parent.right
         anchors.left: labels.right
-        height: root.height
-        contentWidth: 0;
-        contentHeight: labels.height
+        contentWidth: 0
+        height: labels.height + labelsTail.height
         flickableDirection: Flickable.HorizontalFlick
 
         onContentXChanged: {
@@ -392,7 +398,7 @@ Rectangle {
         SelectionRange {
             id: selectionRange
             visible: root.selectionRangeMode
-            height: root.height
+            height: parent.height
             z: 2
         }
 
@@ -403,7 +409,7 @@ Rectangle {
 
             x: flick.contentX
             width: flick.width
-            height: root.height
+            height: parent.height
 
             property real startX: 0
 
@@ -477,7 +483,7 @@ Rectangle {
             id: selectionRangeControl
             enabled: false
             width: flick.width
-            height: root.height
+            height: flick.height
             x: flick.contentX
             hoverEnabled: enabled
             z: 2
@@ -492,19 +498,6 @@ Rectangle {
                 selectionRange.movedOnCreation();
             }
         }
-    }
-
-    SelectionRangeDetails {
-        id: selectionRangeDetails
-        visible: root.selectionRangeMode
-        startTime: selectionRange.startTimeString
-        duration: selectionRange.durationString
-        endTime: selectionRange.endTimeString
-        showDuration: selectionRange.width > 1
-    }
-
-    RangeDetails {
-        id: rangeDetails
     }
 
     Rectangle {
@@ -527,7 +520,7 @@ Rectangle {
     Rectangle {
         id: labelsTail
         anchors.top: labels.bottom
-        anchors.bottom: root.bottom
+        height: Math.max(0, vertflick.height - labels.height)
         width: labels.width
         color: labels.color
     }
@@ -535,9 +528,9 @@ Rectangle {
     // Gradient borders
     Item {
         anchors.left: labels.right
+        anchors.top: labels.top
+        anchors.bottom: labelsTail.bottom
         width: 6
-        anchors.top: root.top
-        anchors.bottom: root.bottom
         Rectangle {
             x: parent.width
             transformOrigin: Item.TopLeft
@@ -549,6 +542,20 @@ Rectangle {
                 GradientStop { position: 1.0; color: "#86000000"; }
             }
         }
+    }
+    }
+
+    SelectionRangeDetails {
+        id: selectionRangeDetails
+        visible: root.selectionRangeMode
+        startTime: selectionRange.startTimeString
+        duration: selectionRange.durationString
+        endTime: selectionRange.endTimeString
+        showDuration: selectionRange.width > 1
+    }
+
+    RangeDetails {
+        id: rangeDetails
     }
 
     Item {
