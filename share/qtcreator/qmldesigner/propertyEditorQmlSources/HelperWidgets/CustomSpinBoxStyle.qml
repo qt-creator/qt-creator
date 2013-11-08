@@ -38,6 +38,7 @@ SpinBoxStyle {
     textColor: spinBox.textColor
     padding.top: 3
     padding.bottom: 1
+    padding.right: 18
 
     incrementControl: Item {
         implicitWidth: 14
