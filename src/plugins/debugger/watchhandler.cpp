@@ -2007,20 +2007,6 @@ void WatchHandler::removeTooltip()
     m_model->destroyChildren(m_model->m_tooltipRoot);
 }
 
-void WatchHandler::rebuildModel()
-{
-//    m_model->destroyChildren(m_model->m_watchRoot);
-
-//    foreach (const QString &exp, watchedExpressions()) {
-//        WatchData data;
-//        data.exp = exp.toLatin1();
-//        data.name = exp;
-//        data.iname = watcherName(data.exp);
-//        data.setAllUnneeded();
-//        insertIncompleteData(data);
-//    }
-}
-
 void WatchHandler::setTypeFormats(const TypeFormats &typeFormats)
 {
     m_model->m_reportedTypeFormats = typeFormats;

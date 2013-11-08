@@ -94,7 +94,6 @@ public:
     void loadSessionData();
     void saveSessionData();
     void removeTooltip();
-    void rebuildModel();
 
     bool isExpandedIName(const QByteArray &iname) const;
     QSet<QByteArray> expandedINames() const;
