@@ -1807,7 +1807,7 @@ static bool dumpQByteArrayFromQPrivateClass(const SymbolGroupValue &v,
  * Dump 2nd string past its QSharedData base class. */
 static inline bool dumpQFileInfo(const SymbolGroupValue &v, std::wostream &str)
 {
-    return dumpQStringFromQPrivateClass(v, QPDM_qSharedDataPadded, qStringSize(v.context()),  str);
+    return dumpQStringFromQPrivateClass(v, QPDM_qSharedDataPadded, 0,  str);
 }
 
 /* Dump QDir, for whose private class no debugging information is available.
