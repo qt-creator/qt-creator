@@ -1628,9 +1628,11 @@ static unsigned qSharedDataSize(const SymbolGroupValueContext &ctx)
 }
 
 /* Return the size of a QString */
-static unsigned qStringSize(const SymbolGroupValueContext &ctx)
+static unsigned qStringSize(const SymbolGroupValueContext &/*ctx*/)
 {
-    static const unsigned size = SymbolGroupValue::sizeOf(QtInfo::get(ctx).prependQtCoreModule("QString").c_str());
+//    static const unsigned size = SymbolGroupValue::sizeOf(QtInfo::get(ctx).prependQtCoreModule("QString").c_str());
+// FIXME: Workaround the issue that GetTypeSize returns strange values;
+    static const unsigned size = SymbolGroupValue::pointerSize();
     return size;
 }
 
@@ -1642,9 +1644,11 @@ static unsigned qListSize(const SymbolGroupValueContext &ctx)
 }
 
 /* Return the size of a QByteArray */
-static unsigned qByteArraySize(const SymbolGroupValueContext &ctx)
+static unsigned qByteArraySize(const SymbolGroupValueContext &/*ctx*/)
 {
-    static const unsigned size = SymbolGroupValue::sizeOf(QtInfo::get(ctx).prependQtCoreModule("QByteArray").c_str());
+//    static const unsigned size = SymbolGroupValue::sizeOf(QtInfo::get(ctx).prependQtCoreModule("QByteArray").c_str());
+// FIXME: Workaround the issue that GetTypeSize returns strange values;
+    static const unsigned size = SymbolGroupValue::pointerSize();
     return size;
 }
 
