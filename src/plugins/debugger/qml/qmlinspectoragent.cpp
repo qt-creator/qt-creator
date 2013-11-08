@@ -73,6 +73,9 @@ QmlInspectorAgent::QmlInspectorAgent(DebuggerEngine *engine, QObject *parent)
 quint32 QmlInspectorAgent::queryExpressionResult(int debugId,
                                                  const QString &expression)
 {
+    if (!m_engineClient)
+        return 0;
+
     if (debug)
         qDebug() << __FUNCTION__ << '(' << debugId << expression
                  << m_engine.debugId() << ')';
