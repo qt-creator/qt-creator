@@ -33,6 +33,7 @@
 #include <debugger/debuggercore.h>
 #include <debugger/debuggerdialogs.h>
 #include <debugger/debuggerinternalconstants.h>
+#include <debugger/debuggermainwindow.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerprotocol.h>
 #include <debugger/debuggerstartparameters.h>
@@ -818,6 +819,8 @@ void LldbEngine::doUpdateLocals(UpdateParameters params)
     //cmd.arg("resultvarname", m_resultVarName);
 
     runCommand(cmd);
+
+    reloadRegisters();
 }
 
 void LldbEngine::handleLldbError(QProcess::ProcessError error)
@@ -1050,7 +1053,8 @@ void LldbEngine::refreshLocation(const GdbMi &reportedLocation)
 
 void LldbEngine::reloadRegisters()
 {
-    runCommand("reportRegisters");
+    if (debuggerCore()->isDockVisible(QLatin1String(DOCKWIDGET_REGISTER)))
+        runCommand("reportRegisters");
 }
 
 void LldbEngine::fetchDisassembler(DisassemblerAgent *agent)

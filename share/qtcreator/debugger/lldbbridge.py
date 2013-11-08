@@ -997,7 +997,6 @@ class Dumper(DumperBase):
         self.report('')
 
     def reportData(self, _ = None):
-        self.reportRegisters()
         if self.process is None:
             self.report('process="none"')
         else:
