@@ -349,10 +349,10 @@ Rectangle {
         // ***** child items
         TimeMarks {
             id: backgroundMarks
-            y: labels.y
-            height: flick.height
+            y: vertflick.contentY
+            height: vertflick.height
+            width: flick.width
             anchors.left: flick.left
-            anchors.right: flick.right
         }
 
         Flickable {

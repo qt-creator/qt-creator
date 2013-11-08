@@ -49,6 +49,10 @@ Canvas2D {
         requestRedraw();
     }
 
+    onYChanged: {
+        requestRedraw();
+    }
+
     Connections {
         target: labels
         onHeightChanged: { requestRedraw(); }
@@ -71,6 +75,8 @@ Canvas2D {
 
         timePerPixel = timePerBlock/pixelsPerBlock;
 
+        var lineStart = y < 0 ? -y : 0;
+        var lineEnd = Math.min(height, labels.height - y);
 
         ctxt.fillStyle = "#000000";
         ctxt.font = "8px sans-serif";
@@ -78,16 +84,16 @@ Canvas2D {
             var x = Math.floor(ii*pixelsPerBlock - realStartPos);
             ctxt.strokeStyle = "#B0B0B0";
             ctxt.beginPath();
-            ctxt.moveTo(x, 0);
-            ctxt.lineTo(x, height);
+            ctxt.moveTo(x, lineStart);
+            ctxt.lineTo(x, lineEnd);
             ctxt.stroke();
 
             ctxt.strokeStyle = "#CCCCCC";
             for (var jj=1; jj < 5; jj++) {
                 var xx = Math.floor(ii*pixelsPerBlock + jj*pixelsPerSection - realStartPos);
                 ctxt.beginPath();
-                ctxt.moveTo(xx, 0);
-                ctxt.lineTo(xx, height);
+                ctxt.moveTo(xx, lineStart);
+                ctxt.lineTo(xx, lineEnd);
                 ctxt.stroke();
             }
         }
@@ -119,30 +125,36 @@ Canvas2D {
 
     function drawBackgroundBars( ctxt, region ) {
         var colorIndex = true;
+
         // row background
-        for (var y=0; y < labels.height; y+= root.singleRowHeight) {
+        var backgroundOffset = y < 0 ? -y : -(y % (2 * root.singleRowHeight));
+        for (var currentY= backgroundOffset; currentY < Math.min(height, labels.height - y); currentY += root.singleRowHeight) {
             ctxt.fillStyle = colorIndex ? "#f0f0f0" : "white";
             ctxt.strokeStyle = colorIndex ? "#f0f0f0" : "white";
-            ctxt.fillRect(0, y, width, root.singleRowHeight);
+            ctxt.fillRect(0, currentY, width, root.singleRowHeight);
             colorIndex = !colorIndex;
         }
 
         // separators
         var cumulatedHeight = 0;
-        for (var modelIndex = 0; modelIndex < qmlProfilerModelProxy.modelCount(); modelIndex++) {
+        for (var modelIndex = 0; modelIndex < qmlProfilerModelProxy.modelCount() && cumulatedHeight < y + height; modelIndex++) {
             for (var i=0; i<qmlProfilerModelProxy.categoryCount(modelIndex); i++) {
                 cumulatedHeight += root.singleRowHeight * qmlProfilerModelProxy.categoryDepth(modelIndex, i);
+                if (cumulatedHeight < y)
+                    continue;
 
                 ctxt.strokeStyle = "#B0B0B0";
                 ctxt.beginPath();
-                ctxt.moveTo(0, cumulatedHeight);
-                ctxt.lineTo(width, cumulatedHeight);
+                ctxt.moveTo(0, cumulatedHeight - y);
+                ctxt.lineTo(width, cumulatedHeight - y);
                 ctxt.stroke();
             }
         }
 
         // bottom
-        ctxt.fillStyle = "#f5f5f5";
-        ctxt.fillRect(0, labels.height, width, height - labels.height);
+        if (height > labels.height - y) {
+            ctxt.fillStyle = "#f5f5f5";
+            ctxt.fillRect(0, labels.height - y, width, Math.min(height - labels.height + y, labelsTail.height));
+        }
     }
 }
