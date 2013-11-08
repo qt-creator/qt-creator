@@ -238,7 +238,6 @@ void QmlProfilerTraceView::reset()
     connect(this, SIGNAL(jumpToNext()), rootObject, SLOT(nextEvent()));
     connect(rootObject, SIGNAL(selectedEventChanged(int)), this, SIGNAL(selectedEventChanged(int)));
     connect(rootObject, SIGNAL(changeToolTip(QString)), this, SLOT(updateToolTip(QString)));
-    connect(rootObject, SIGNAL(updateVerticalScroll(int)), this, SLOT(updateVerticalScroll(int)));
 }
 
 QWidget *QmlProfilerTraceView::createToolbar()
@@ -373,8 +372,6 @@ qint64 QmlProfilerTraceView::selectionEnd() const
 void QmlProfilerTraceView::clearDisplay()
 {
     d->m_zoomControl->setRange(0,0);
-
-    updateVerticalScroll(0);
     d->m_mainView->rootObject()->setProperty("scrollY", QVariant(0));
 
     QMetaObject::invokeMethod(d->m_mainView->rootObject(), "clearAll");
@@ -494,10 +491,6 @@ void QmlProfilerTraceView::mouseWheelMoved(int mouseX, int mouseY, int wheelDelt
 void QmlProfilerTraceView::updateToolTip(const QString &text)
 {
     setToolTip(text);
-}
-
-void QmlProfilerTraceView::updateVerticalScroll(int /*newPosition*/)
-{
 }
 
 void QmlProfilerTraceView::resizeEvent(QResizeEvent *event)

@@ -117,7 +117,6 @@ private slots:
     void mouseWheelMoved(int mouseX, int mouseY, int wheelDelta);
 
     void updateToolTip(const QString &text);
-    void updateVerticalScroll(int newPosition);
     void profilerDataModelStateChanged();
 
 protected:

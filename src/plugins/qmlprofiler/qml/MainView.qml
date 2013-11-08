@@ -35,8 +35,6 @@ Rectangle {
 
     // ***** properties
 
-    property int scrollY: 0
-
     property int singleRowHeight: 30
 
     property bool dataAvailable: true
@@ -64,7 +62,6 @@ Rectangle {
     property real selectionRangeEnd: selectionRange.startTime + selectionRange.duration
 
     signal changeToolTip(string text)
-    signal updateVerticalScroll(int newPosition)
 
     property bool recordingEnabled: false
     property bool appKilled : false
@@ -458,18 +455,6 @@ Rectangle {
                         zoomControl.setRange(from, from + windowLength);
 
                     }
-
-                    // center view (vertically)
-                    var itemY = view.getYPosition(selectedModel, selectedItem);
-                    if (itemY < root.scrollY) {
-                        root.updateVerticalScroll(itemY);
-                    } else
-                        if (itemY + root.singleRowHeight >
-                                root.scrollY + root.height) {
-                            root.updateVerticalScroll(itemY + root.singleRowHeight -
-                                                      root.height);
-                    }
-
                 } else {
                     root.hideRangeDetails();
                 }
@@ -585,7 +570,7 @@ Rectangle {
     }
 
     Rectangle {
-        y: root.scrollY + root.height - height
+        y: root.height - height
         height: 6
         width: root.width
         x: 0
