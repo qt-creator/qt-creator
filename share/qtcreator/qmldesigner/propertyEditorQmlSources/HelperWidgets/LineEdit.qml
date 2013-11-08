@@ -40,6 +40,8 @@ Controls.TextField {
     property color highlightColor: "orange"
     property color textColor: colorLogic.textColor
 
+    property bool showTranslateCheckBox: true
+
     ExtendedFunctionButton {
         x: 2
         y: 4
@@ -76,6 +78,7 @@ Controls.TextField {
         padding.top: 3
         padding.bottom: 1
         padding.left: 16
+        padding.right: 16
         placeholderTextColor: "gray"
         background: Rectangle {
             implicitWidth: 100
@@ -97,5 +100,47 @@ Controls.TextField {
                 visible: control.activeFocus
             }
         }
+    }
+
+    Controls.CheckBox {
+        anchors.right: parent.right
+        anchors.verticalCenter: parent.verticalCenter
+        id: trCheckbox
+
+        checked: backendValue.isTranslated
+        onClicked: {
+            if (trCheckbox.checked) {
+                backendValue.expression = "qsTr(\"" + escapeString(lineEdit.text) + "\")"
+            } else {
+                backendValue.value = lineEdit.text
+            }
+            colorLogic.evaluate();
+        }
+
+        function escapeString(string) {
+            var str  = string;
+            str = str.replace(/\\/g, "\\\\");
+            str.replace(/\"/g, "\\\"");
+            str = str.replace(/\t/g, "\\t");
+            str = str.replace(/\r/g, "\\r");
+            str = str.replace(/\n/g, '\\n');
+            return str;
+        }
+
+        visible: showTranslateCheckBox
+
+
+        style: CheckBoxStyle {
+            spacing: 8
+            label: Controls.Label { text: control.text ; color: checkBox.textColor }
+            indicator:  Item {
+                implicitWidth: 16
+                implicitHeight: 16
+                Image { source: "qrc:qmldesigner/images/checkbox_tr_" +
+                                (control.checked ? "checked": "unchecked") +
+                                (control.pressed ? "_pressed": "") + ".png" }
+            }
+        }                                          //control.pressed ? "qrc:qmldesigner/images/checkbox_unchecked_pressed.png" :
+
     }
 }

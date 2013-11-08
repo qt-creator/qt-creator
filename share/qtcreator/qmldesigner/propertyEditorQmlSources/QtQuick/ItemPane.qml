@@ -76,6 +76,7 @@ Rectangle {
                             text: backendValues.id.value
                             Layout.fillWidth: true
                             Layout.maximumWidth: 320
+                            showTranslateCheckBox: false
                         }
 
                         ExpandingSpacer {
