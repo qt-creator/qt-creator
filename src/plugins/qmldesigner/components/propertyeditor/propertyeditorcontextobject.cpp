@@ -90,7 +90,7 @@ QQmlComponent *PropertyEditorContextObject::specificQmlComponent()
 
     m_qmlComponent = new QQmlComponent(m_qmlContext->engine(), this);
 
-    m_qmlComponent->setData(m_specificQmlData.toAscii(), QUrl::fromLocalFile("specfics.qml"));
+    m_qmlComponent->setData(m_specificQmlData.toLatin1(), QUrl::fromLocalFile("specfics.qml"));
 
     return m_qmlComponent;
 }
