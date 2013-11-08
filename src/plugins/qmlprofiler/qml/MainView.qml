@@ -409,6 +409,9 @@ Rectangle {
             height: root.height
 
             property real startX: 0
+
+            onEndTimeChanged: requestPaint()
+
             onStartXChanged: {
                 var newStartTime = Math.round(startX * (endTime - startTime) / flick.width) +
                         qmlProfilerModelProxy.traceStartTime();
