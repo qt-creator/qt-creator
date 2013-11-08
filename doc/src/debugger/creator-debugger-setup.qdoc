@@ -73,9 +73,10 @@
     Qt Creator supports native debuggers when working with
     compiled code. On most supported platforms, the GNU Symbolic Debugger
     GDB can be used. On Microsoft Windows, when using the Microsoft tool chain
-    the Microsoft Console Debugger CDB, is needed. There is also an
-    incomplete experimental interface to LLDB on Mac OS and Linux available
-    when building \QC from source.
+    the Microsoft Console Debugger CDB, is needed. On Mac OS X, the LLDB
+    debugger can be used. Basic support for LLDB is also available on Linux,
+    but it is restricted by LLDB's capabilities there, and considered
+    experimental.
 
     The following table summarizes the support for debugging C++ code:
 
@@ -87,7 +88,7 @@
         \row
             \li Linux
             \li GCC, ICC
-            \li GDB
+            \li GDB, LLDB (experimental)
         \row
             \li Unix
             \li GCC, ICC
@@ -95,7 +96,7 @@
         \row
             \li Mac OS X
             \li GCC, Clang
-            \li Apple GDB, FSF GDB (experimental), LLDB (experimental)
+            \li Apple GDB, FSF GDB (experimental), LLDB
         \row
             \li Windows/MinGW
             \li GCC
@@ -150,7 +151,7 @@
 
     You can use the LLDB version delivered with Xcode, but we recommend that you
     build it from sources using Xcode. The minimal supported version is LLDB
-    300.99.
+    300.2.51.
 
     \omit
 
@@ -246,8 +247,7 @@
 
        \row
             \li LLDB
-            \li An LLDB version is delivered with Xcode, but we recommend that
-                you build LLDB from sources using Xcode.
+            \li We recommend using the LLDB version that is delivered with Xcode 5.
     \endtable
 
     \section1 Mapping Source Paths
