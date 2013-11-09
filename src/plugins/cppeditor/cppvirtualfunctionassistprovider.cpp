@@ -227,9 +227,12 @@ static bool isVirtualFunction_helper(const Function *function,
         LookupContext context(document, snapshot);
         QList<LookupItem> results = context.lookup(function->name(), function->enclosingScope());
         if (!results.isEmpty()) {
+            const bool isDestructor = function->name()->isDestructorNameId();
             foreach (const LookupItem &item, results) {
                 if (Symbol *symbol = item.declaration()) {
                     if (Function *functionType = symbol->type()->asFunctionType()) {
+                        if (functionType->name()->isDestructorNameId() != isDestructor)
+                            continue;
                         if (functionType == function) // already tested
                             continue;
                         if (functionType->isFinal())
@@ -409,6 +412,10 @@ void CppEditorPlugin::test_functionhelper_virtualFunctions_data()
                  "struct Derived : Base { virtual void foo() final {} };\n"
                  "struct Derived2 : Derived { void foo() {} };")
             << (VirtualityList() << Virtual << Virtual << NotVirtual);
+
+    QTest::newRow("ctor-virtual-dtor")
+            << _("struct Base { Base() {} virtual ~Base() {} };\n")
+            << (VirtualityList() << NotVirtual << Virtual);
 }
 
 } // namespace Internal
