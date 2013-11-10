@@ -128,11 +128,13 @@ bool VirtualFunctionHelper::canLookupVirtualFunctionOverrides(Function *function
     if (IdExpressionAST *idExpressionAST = m_baseExpressionAST->asIdExpression()) {
         NameAST *name = idExpressionAST->name;
         const bool nameIsQualified = name && name->asQualifiedName();
-        result = !nameIsQualified && FunctionHelper::isVirtualFunction(function, m_snapshot);
+        result = !nameIsQualified && FunctionHelper::isVirtualFunction(
+                    function, LookupContext(m_document, m_snapshot));
     } else if (MemberAccessAST *memberAccessAST = m_baseExpressionAST->asMemberAccess()) {
         NameAST *name = memberAccessAST->member_name;
         const bool nameIsQualified = name && name->asQualifiedName();
-        if (!nameIsQualified && FunctionHelper::isVirtualFunction(function, m_snapshot)) {
+        if (!nameIsQualified && FunctionHelper::isVirtualFunction(
+                    function, LookupContext(m_document, m_snapshot))) {
             TranslationUnit *unit = m_expressionDocument->translationUnit();
             QTC_ASSERT(unit, return false);
             m_accessTokenKind = unit->tokenKind(memberAccessAST->access_token);

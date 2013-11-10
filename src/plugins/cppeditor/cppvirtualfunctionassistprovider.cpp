@@ -210,7 +210,7 @@ IAssistProcessor *VirtualFunctionAssistProvider::createProcessor() const
 enum VirtualType { Virtual, PureVirtual };
 
 static bool isVirtualFunction_helper(const Function *function,
-                                     const Snapshot &snapshot,
+                                     const LookupContext &context,
                                      VirtualType virtualType)
 {
     if (!function)
@@ -222,24 +222,20 @@ static bool isVirtualFunction_helper(const Function *function,
     if (function->isVirtual())
         return true;
 
-    const QString filePath = QString::fromUtf8(function->fileName(), function->fileNameLength());
-    if (Document::Ptr document = snapshot.document(filePath)) {
-        LookupContext context(document, snapshot);
-        QList<LookupItem> results = context.lookup(function->name(), function->enclosingScope());
-        if (!results.isEmpty()) {
-            const bool isDestructor = function->name()->isDestructorNameId();
-            foreach (const LookupItem &item, results) {
-                if (Symbol *symbol = item.declaration()) {
-                    if (Function *functionType = symbol->type()->asFunctionType()) {
-                        if (functionType->name()->isDestructorNameId() != isDestructor)
-                            continue;
-                        if (functionType == function) // already tested
-                            continue;
-                        if (functionType->isFinal())
-                            return false;
-                        if (functionType->isVirtual())
-                            return true;
-                    }
+    QList<LookupItem> results = context.lookup(function->name(), function->enclosingScope());
+    if (!results.isEmpty()) {
+        const bool isDestructor = function->name()->isDestructorNameId();
+        foreach (const LookupItem &item, results) {
+            if (Symbol *symbol = item.declaration()) {
+                if (Function *functionType = symbol->type()->asFunctionType()) {
+                    if (functionType->name()->isDestructorNameId() != isDestructor)
+                        continue;
+                    if (functionType == function) // already tested
+                        continue;
+                    if (functionType->isFinal())
+                        return false;
+                    if (functionType->isVirtual())
+                        return true;
                 }
             }
         }
@@ -248,14 +244,14 @@ static bool isVirtualFunction_helper(const Function *function,
     return false;
 }
 
-bool FunctionHelper::isVirtualFunction(const Function *function, const Snapshot &snapshot)
+bool FunctionHelper::isVirtualFunction(const Function *function, const LookupContext &context)
 {
-    return isVirtualFunction_helper(function, snapshot, Virtual);
+    return isVirtualFunction_helper(function, context, Virtual);
 }
 
-bool FunctionHelper::isPureVirtualFunction(const Function *function, const Snapshot &snapshot)
+bool FunctionHelper::isPureVirtualFunction(const Function *function, const LookupContext &context)
 {
-    return isVirtualFunction_helper(function, snapshot, PureVirtual);
+    return isVirtualFunction_helper(function, context, PureVirtual);
 }
 
 QList<Symbol *> FunctionHelper::overrides(Function *function, Class *functionsClass,
@@ -342,6 +338,7 @@ void CppEditorPlugin::test_functionhelper_virtualFunctions()
     // Iterate through Function symbols
     Snapshot snapshot;
     snapshot.insert(document);
+    const LookupContext context(document, snapshot);
     Control *control = document->translationUnit()->control();
     Symbol **end = control->lastSymbol();
     for (Symbol **it = control->firstSymbol(); it != end; ++it) {
@@ -349,8 +346,8 @@ void CppEditorPlugin::test_functionhelper_virtualFunctions()
         if (const Function *function = symbol->asFunction()) {
             QTC_ASSERT(!virtualityList.isEmpty(), return);
             Virtuality virtuality = virtualityList.takeFirst();
-            if (FunctionHelper::isVirtualFunction(function, snapshot)) {
-                if (FunctionHelper::isPureVirtualFunction(function, snapshot))
+            if (FunctionHelper::isVirtualFunction(function, context)) {
+                if (FunctionHelper::isPureVirtualFunction(function, context))
                     QCOMPARE(virtuality, PureVirtual);
                 else
                     QCOMPARE(virtuality, Virtual);

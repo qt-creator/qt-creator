@@ -74,10 +74,10 @@ class FunctionHelper
 {
 public:
     static bool isVirtualFunction(const CPlusPlus::Function *function,
-                                  const CPlusPlus::Snapshot &snapshot);
+                                  const CPlusPlus::LookupContext &context);
 
     static bool isPureVirtualFunction(const CPlusPlus::Function *function,
-                                      const CPlusPlus::Snapshot &snapshot);
+                                      const CPlusPlus::LookupContext &context);
 
     static QList<CPlusPlus::Symbol *> overrides(CPlusPlus::Function *function,
                                                 CPlusPlus::Class *functionsClass,
