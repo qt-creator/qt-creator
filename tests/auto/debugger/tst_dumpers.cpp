@@ -1047,12 +1047,8 @@ void tst_Dumpers::dumper()
         QVERIFY(pos1 != -1);
         do {
             pos1 += locals.length();
-            if (output.at(pos1) == '[')
-                ++pos1;
             int pos2 = output.indexOf("\n", pos1);
             QVERIFY(pos2 != -1);
-            if (output.at(pos2 - 1) == ']')
-                --pos2;
             contents += output.mid(pos1, pos2 - pos1);
             pos1 = output.indexOf(locals, pos2);
         } while (pos1 != -1);
