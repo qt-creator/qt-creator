@@ -92,7 +92,7 @@ QString Import::toString(bool skipAlias) const
 
 bool Import::operator==(const Import &other) const
 {
-    return url() == other.url() && file() == other.file() && version() == other.version() && alias() == other.alias();
+    return url() == other.url() && file() == other.file() && (version() == other.version() || version().isEmpty() || other.version().isEmpty());
 }
 
 bool Import::isSameModule(const Import &other) const
