@@ -347,17 +347,15 @@ struct Type5 : Type
 
 enum DebuggerEngine
 {
-    DumpTestGdbEngine,
-    DumpTestCdbEngine,
-    DumpTestLldbEngine
+    DumpTestGdbEngine = 0x01,
+    DumpTestCdbEngine = 0x02,
+    DumpTestLldbEngine = 0x04,
 };
 
 struct CheckBase
 {
-    CheckBase() : useLldb(true), useGdb(true) {}
-
-    mutable bool useLldb;
-    mutable bool useGdb;
+    CheckBase() : enginesForCheck(DumpTestGdbEngine | DumpTestCdbEngine | DumpTestLldbEngine) {}
+    mutable int enginesForCheck;
 };
 
 struct Check : CheckBase
@@ -377,28 +375,33 @@ struct Check : CheckBase
 
     bool matchesEngine(DebuggerEngine engine) const
     {
-        return (engine == DumpTestLldbEngine && useLldb)
-            || (engine == DumpTestGdbEngine && useGdb);
+        return (engine & enginesForCheck);
+    }
+
+    const Check &setEngines(int debuggerEngine)
+    {
+        enginesForCheck = debuggerEngine;
+        return *this;
     }
 
     const Check &setForLldbOnly() const
     {
-        clearUsed();
-        useLldb = true;
+        enginesForCheck = DumpTestLldbEngine;
         return *this;
     }
 
     const Check &setForGdbOnly() const
     {
-        clearUsed();
-        useGdb = true;
+        enginesForCheck = DumpTestGdbEngine;
         return *this;
     }
 
-    void clearUsed() const
+    const Check &setForCdbOnly()
     {
-        useLldb = useGdb = false;
+        enginesForCheck = DumpTestCdbEngine;
+        return *this;
     }
+
     QByteArray iname;
     Name expectedName;
     Value expectedValue;
