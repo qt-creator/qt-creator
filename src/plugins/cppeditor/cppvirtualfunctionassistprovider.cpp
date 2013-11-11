@@ -387,6 +387,9 @@ void CppEditorPlugin::test_functionhelper_virtualFunctions()
                 else
                     QCOMPARE(virtuality, Virtual);
             } else {
+                QEXPECT_FAIL("virtual-dtor-dtor", "Not implemented", Abort);
+                if (allFunctions.size() == 3)
+                    QEXPECT_FAIL("dtor-virtual-dtor-dtor", "Not implemented", Abort);
                 QCOMPARE(virtuality, NotVirtual);
             }
             if (firstVirtualIndex == -1)
@@ -464,6 +467,19 @@ void CppEditorPlugin::test_functionhelper_virtualFunctions_data()
             << _("struct Base { Base() {} virtual ~Base() {} };\n")
             << (VirtualityList() << NotVirtual << Virtual)
             << (QList<int>() << -1 << 1);
+
+    QTest::newRow("virtual-dtor-dtor")
+            << _("struct Base { virtual ~Base() {} };\n"
+                 "struct Derived : Base { ~Derived() {} };\n")
+            << (VirtualityList() << Virtual << Virtual)
+            << (QList<int>() << 0 << 0);
+
+    QTest::newRow("dtor-virtual-dtor-dtor")
+            << _("struct Base { ~Base() {} };\n"
+                 "struct Derived : Base { virtual ~Derived() {} };\n"
+                 "struct Derived2 : Derived { ~Derived2() {} };\n")
+            << (VirtualityList() << NotVirtual << Virtual << Virtual)
+            << (QList<int>() << -1 << 1 << 1);
 }
 
 } // namespace Internal
