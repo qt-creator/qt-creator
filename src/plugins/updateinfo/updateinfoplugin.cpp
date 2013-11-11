@@ -41,6 +41,7 @@
 
 #include <qtconcurrentrun.h>
 
+#include <QBasicTimer>
 #include <QDomDocument>
 #include <QFile>
 #include <QFutureWatcher>
