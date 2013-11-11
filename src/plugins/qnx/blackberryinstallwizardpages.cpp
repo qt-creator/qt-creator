@@ -487,11 +487,11 @@ void BlackBerryInstallWizardFinalPage::initializePage()
                 return;
             }
 
-            label->setText(tr("Target is being added.").arg(m_data.ndkPath));
+            label->setText(tr("Target %1 is being added.").arg(m_data.ndkPath));
             emit done();
             return;
         } else {
-            label->setText(tr("Target is already added.").arg(m_data.ndkPath));
+            label->setText(tr("Target %1 is already added.").arg(m_data.ndkPath));
             return;
         }
     }
