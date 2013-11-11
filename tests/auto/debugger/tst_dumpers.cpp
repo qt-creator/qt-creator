@@ -1279,7 +1279,8 @@ void tst_Dumpers::dumper_data()
                     "QChar c = s.at(0);\n"
                     "unused(&c);\n")
                % CoreProfile()
-               % Check("c", "120", "@QChar");
+               % Check("c", "'x' (120)", "@QChar").setForCdbOnly()
+               % Check("c", "120", "@QChar").setEngines(DumpTestGdbEngine | DumpTestLldbEngine);
 
     QTest::newRow("QDate0")
             << Data("#include <QDate>\n",
