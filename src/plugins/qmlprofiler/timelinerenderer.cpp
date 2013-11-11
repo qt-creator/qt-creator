@@ -118,15 +118,14 @@ void TimelineRenderer::drawItemsToPainter(QPainter *p, int modelIndex, int fromI
     int modelRowStart = 0;
     for (int mi = 0; mi < modelIndex; mi++)
         modelRowStart += m_profilerModelProxy->rowCount(mi);
-    QRect window = p->window();
 
     for (int i = fromIndex; i <= toIndex; i++) {
         int currentX, currentY, itemWidth, itemHeight;
         currentX = (m_profilerModelProxy->getStartTime(modelIndex, i) - m_startTime) * m_spacing;
 
         int rowNumber = m_profilerModelProxy->getEventRow(modelIndex, i);
-        currentY = (modelRowStart + rowNumber) * DefaultRowHeight;
-        if (currentY >= window.bottom())
+        currentY = (modelRowStart + rowNumber) * DefaultRowHeight - y();
+        if (currentY >= height())
             continue;
 
         itemWidth = m_profilerModelProxy->getDuration(modelIndex, i) * m_spacing;
@@ -135,7 +134,7 @@ void TimelineRenderer::drawItemsToPainter(QPainter *p, int modelIndex, int fromI
 
         itemHeight = DefaultRowHeight * m_profilerModelProxy->getHeight(modelIndex, i);
         currentY += DefaultRowHeight - itemHeight;
-        if (currentY + itemHeight < window.top())
+        if (currentY + itemHeight < 0)
             continue;
 
         // normal events
@@ -175,7 +174,9 @@ void TimelineRenderer::drawSelectionBoxes(QPainter *p, int modelIndex, int fromI
             continue;
 
         currentX = (m_profilerModelProxy->getStartTime(modelIndex, i) - m_startTime) * m_spacing;
-        currentY = (modelRowStart + m_profilerModelProxy->getEventRow(modelIndex, i)) * DefaultRowHeight;
+        currentY = (modelRowStart + m_profilerModelProxy->getEventRow(modelIndex, i)) * DefaultRowHeight - y();
+        if (currentY + DefaultRowHeight < 0 || height() < currentY)
+            continue;
 
         itemWidth = m_profilerModelProxy->getDuration(modelIndex, i) * m_spacing;
         if (itemWidth < 1)
@@ -206,7 +207,6 @@ void TimelineRenderer::drawBindingLoopMarkers(QPainter *p, int modelIndex, int f
     QPen markerPen = QPen(QColor("orange"),2);
     QBrush shadowBrush = QBrush(QColor("grey"));
     QBrush markerBrush = QBrush(QColor("orange"));
-    QRect window = p->window();
 
     p->save();
     for (int i = fromIndex; i <= toIndex; i++) {
@@ -216,15 +216,13 @@ void TimelineRenderer::drawBindingLoopMarkers(QPainter *p, int modelIndex, int f
             xfrom = (m_profilerModelProxy->getStartTime(modelIndex, i) +
                      m_profilerModelProxy->getDuration(modelIndex, i)/2 -
                      m_startTime) * m_spacing;
-            yfrom = getYPosition(modelIndex, i);
-            yfrom += DefaultRowHeight / 2;
+            yfrom = getYPosition(modelIndex, i) + DefaultRowHeight / 2 - y();
 
             // to
             xto = (m_profilerModelProxy->getStartTime(modelIndex, destindex) +
                    m_profilerModelProxy->getDuration(modelIndex, destindex)/2 -
                    m_startTime) * m_spacing;
-            yto = getYPosition(modelIndex, destindex);
-            yto += DefaultRowHeight / 2;
+            yto = getYPosition(modelIndex, destindex) + DefaultRowHeight / 2 - y();
 
             // radius
             int eventWidth = m_profilerModelProxy->getDuration(modelIndex, i) * m_spacing;
@@ -235,8 +233,8 @@ void TimelineRenderer::drawBindingLoopMarkers(QPainter *p, int modelIndex, int f
                 radius = 2;
 
             int shadowoffset = 2;
-            if ((yfrom + radius + shadowoffset < window.top() && yto + radius + shadowoffset < window.top()) ||
-                    (yfrom - radius >= window.bottom() && yto - radius >= window.bottom()))
+            if ((yfrom + radius + shadowoffset < 0 && yto + radius + shadowoffset < 0) ||
+                    (yfrom - radius >= height() && yto - radius >= height()))
                 return;
 
             // shadow
@@ -322,8 +320,8 @@ void TimelineRenderer::manageHovered(int mouseX, int mouseY)
         return;
 
     qint64 time = mouseX * (m_endTime - m_startTime) / width() + m_startTime;
-    int row = mouseY / DefaultRowHeight;
-    int modelIndex = modelFromPosition(mouseY);
+    int row = (mouseY + y()) / DefaultRowHeight;
+    int modelIndex = modelFromPosition(mouseY + y());
 
     // already covered? nothing to do
     if (m_currentSelection.eventIndex != -1 &&

@@ -408,12 +408,15 @@ Rectangle {
                 profilerModelProxy: qmlProfilerModelProxy
 
                 x: flick.contentX
+                y: vertflick.contentY
                 width: flick.width
-                height: parent.height
+                height: vertflick.height
 
                 property real startX: 0
 
                 onEndTimeChanged: requestPaint()
+                onYChanged: requestPaint()
+                onHeightChanged: requestPaint()
 
                 onStartXChanged: {
                     var newStartTime = Math.round(startX * (endTime - startTime) / flick.width) +
