@@ -814,7 +814,8 @@ void SessionManagerPrivate::restoreStartupProject(const PersistentSettingsReader
         }
     }
     if (!m_startupProject) {
-        qWarning() << "Could not find startup project" << startupProject;
+        if (!startupProject.isEmpty())
+            qWarning() << "Could not find startup project" << startupProject;
         if (!m_projects.isEmpty())
             m_instance->setStartupProject(m_projects.first());
     }
