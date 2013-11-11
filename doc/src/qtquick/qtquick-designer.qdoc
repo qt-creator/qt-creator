@@ -136,28 +136,22 @@
 
     \section1 QML Type Library
 
-    The \gui {Library} pane contains two tabs: \gui {QML Types} and \gui {Resources}.
+    The \gui {Library} pane enables you to select QML types, UI components, and
+    resources, as well as to manage imports.
+
     The \gui {QML Types} pane displays the QML types grouped by category: your own QML
-    components, basic types, positioner types, and views.
+    components, basic types, layouts, positioner types, and views.
 
     Sets of UI components with the look and feel of a particular mobile device
     platform have been defined for Qt Quick 1. Since Qt 5.1, a set of Qt Quick
     Controls is available for creating classic desktop-style user interfaces
     using Qt Quick 2.1. The Qt Quick Components and Controls are based on
     standard QML types. To view the components and controls in the
-    \gui {Library} pane, add import
-    statements to the QML file in the \gui Edit mode. For example:
+    \gui {Library} pane, import the component sets in the \gui Imports pane.
 
-    \list
-
-        \li \c {import com.nokia.meego 1.0} for MeeGo
-        \li \c {import QtQuick.Controls 1.0} for Qt Quick Controls
-
-    \endlist
-
-    The \gui {Qt Quick Application} wizards for a particular platform, such as
-    MeeGo Harmattan, and the \gui {Qt Quick 2 UI with Controls} wizard add the
-    import statements automatically.
+    The \gui {Qt Quick Application} wizards for a particular platform add the
+    import statements automatically. You can remove import statements in the
+    \gui Imports pane.
 
     \image qmldesigner-qml-components.png "QML Components pane"
 
