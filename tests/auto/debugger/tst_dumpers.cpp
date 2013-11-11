@@ -1301,10 +1301,14 @@ void tst_Dumpers::dumper_data()
                     "unused(&date);\n")
                % CoreProfile()
                % Check("date", "Tue Jan 1 1980", "@QDate")
-               % Check("date.(ISO)", "\"1980-01-01\"", "@QString")
-               % CheckType("date.(Locale)", "@QString")
-               % CheckType("date.(SystemLocale)", "@QString")
-               % Check("date.toString", "\"Tue Jan 1 1980\"", "@QString");
+               % Check("date.(ISO)", "\"1980-01-01\"", "@QString").setEngines(
+                   DumpTestGdbEngine | DumpTestLldbEngine)
+               % CheckType("date.(Locale)", "@QString").setEngines(
+                   DumpTestGdbEngine | DumpTestLldbEngine)
+               % CheckType("date.(SystemLocale)", "@QString").setEngines(
+                   DumpTestGdbEngine | DumpTestLldbEngine)
+               % Check("date.toString", "\"Tue Jan 1 1980\"", "@QString").setEngines(
+                   DumpTestGdbEngine | DumpTestLldbEngine);
 
     QTest::newRow("QTime0")
             << Data("#include <QTime>\n",
@@ -1317,10 +1321,14 @@ void tst_Dumpers::dumper_data()
                     "QTime time(13, 15, 32);")
                % CoreProfile()
                % Check("time", "13:15:32", "@QTime")
-               % Check("time.(ISO)", "\"13:15:32\"", "@QString")
-               % CheckType("time.(Locale)", "@QString")
-               % CheckType("time.(SystemLocale)", "@QString")
-               % Check("time.toString", "\"13:15:32\"", "@QString");
+               % Check("time.(ISO)", "\"13:15:32\"", "@QString").setEngines(
+                   DumpTestGdbEngine | DumpTestLldbEngine)
+               % CheckType("time.(Locale)", "@QString").setEngines(
+                   DumpTestGdbEngine | DumpTestLldbEngine)
+               % CheckType("time.(SystemLocale)", "@QString").setEngines(
+                   DumpTestGdbEngine | DumpTestLldbEngine)
+               % Check("time.toString", "\"13:15:32\"", "@QString").setEngines(
+                   DumpTestGdbEngine | DumpTestLldbEngine);
 
     QTest::newRow("QDateTime0")
             << Data("#include <QDateTime>\n",
@@ -1336,13 +1344,20 @@ void tst_Dumpers::dumper_data()
                % CoreProfile()
                % Check("date", Value4("Tue Jan 1 13:15:32 1980"), "@QDateTime")
                % Check("date", Value5("Tue Jan 1 13:15:32 1980 GMT"), "@QDateTime")
-               % Check("date.(ISO)", "\"1980-01-01T13:15:32Z\"", "@QString")
-               % CheckType("date.(Locale)", "@QString")
-               % CheckType("date.(SystemLocale)", "@QString")
-               % Check("date.toString", Value4("\"Tue Jan 1 13:15:32 1980\""), "@QString")
-               % Check("date.toString", Value5("\"Tue Jan 1 13:15:32 1980 GMT\""), "@QString")
-               % Check("date.toUTC", Value4("Tue Jan 1 13:15:32 1980"), "@QDateTime")
-               % Check("date.toUTC", Value5("Tue Jan 1 13:15:32 1980 GMT"), "@QDateTime");
+               % Check("date.(ISO)", "\"1980-01-01T13:15:32Z\"", "@QString").setEngines(
+                   DumpTestGdbEngine | DumpTestLldbEngine)
+               % CheckType("date.(Locale)", "@QString").setEngines(
+                   DumpTestGdbEngine | DumpTestLldbEngine)
+               % CheckType("date.(SystemLocale)", "@QString").setEngines(
+                   DumpTestGdbEngine | DumpTestLldbEngine)
+               % Check("date.toString", Value4("\"Tue Jan 1 13:15:32 1980\""), "@QString").setEngines(
+                   DumpTestGdbEngine | DumpTestLldbEngine)
+               % Check("date.toString", Value5("\"Tue Jan 1 13:15:32 1980 GMT\""), "@QString").setEngines(
+                   DumpTestGdbEngine | DumpTestLldbEngine)
+               % Check("date.toUTC", Value4("Tue Jan 1 13:15:32 1980"), "@QDateTime").setEngines(
+                   DumpTestGdbEngine | DumpTestLldbEngine)
+               % Check("date.toUTC", Value5("Tue Jan 1 13:15:32 1980 GMT"), "@QDateTime").setEngines(
+                   DumpTestGdbEngine | DumpTestLldbEngine);
 
 #ifdef Q_OS_WIN
     QByteArray tempDir = "\"C:/Program Files\"";
