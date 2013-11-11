@@ -1291,8 +1291,7 @@ void tst_Dumpers::dumper_data()
                     "QDate date;\n"
                     "unused(&date);\n")
                % CoreProfile()
-               % Check("date", Value4("(invalid)"), "@QDate")
-               % Check("date", Value5(""), "@QDate");
+               % Check("date", "(invalid)", "@QDate");
 
     QTest::newRow("QDate1")
             << Data("#include <QDate>\n",
