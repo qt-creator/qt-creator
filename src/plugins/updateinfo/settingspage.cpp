@@ -36,8 +36,8 @@ using namespace UpdateInfo;
 using namespace UpdateInfo::Internal;
 
 SettingsPage::SettingsPage(UpdateInfoPlugin *plugin)
-    : m_plugin(plugin)
-    , m_page(0)
+    : m_page(0)
+    , m_plugin(plugin)
 {
     setId(Constants::FILTER_OPTIONS_PAGE);
     setCategory(Core::Constants::SETTINGS_CATEGORY_CORE);
