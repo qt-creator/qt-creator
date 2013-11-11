@@ -66,6 +66,7 @@ public:
     QString ndkPath() const;
     QString displayName() const;
     QString targetName() const;
+    QString qnxHost() const;
     bool isAutoDetected() const;
     bool isActive() const;
     bool isValid() const;
@@ -81,6 +82,7 @@ public:
 private:
     QString m_displayName;
     QString m_targetName;
+    QString m_qnxHost;
     bool m_isAutoDetected;
     Utils::FileName m_ndkEnvFile;
     Utils::FileName m_qmake4BinaryFile;
