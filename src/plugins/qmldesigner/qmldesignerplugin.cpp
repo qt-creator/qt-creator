@@ -264,17 +264,15 @@ void QmlDesignerPlugin::selectModelNodeUnderTextCursor()
 {
     const int cursorPos = currentDesignDocument()->plainTextEdit()->textCursor().position();
     ModelNode node = currentDesignDocument()->rewriterView()->nodeAtTextCursorPosition(cursorPos);
-    if (currentDesignDocument()->rewriterView() && node.isValid()) {
+    if (currentDesignDocument()->rewriterView() && node.isValid())
         currentDesignDocument()->rewriterView()->setSelectedModelNodes(QList<ModelNode>() << node);
-    }
 }
 
 void QmlDesignerPlugin::activateAutoSynchronization()
 {
     // text editor -> visual editor
-    if (!currentDesignDocument()->isDocumentLoaded()) {
+    if (!currentDesignDocument()->isDocumentLoaded())
         currentDesignDocument()->loadDocument(currentDesignDocument()->plainTextEdit());
-    }
 
     currentDesignDocument()->attachRewriterToModel();
 

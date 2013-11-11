@@ -632,8 +632,7 @@ void TypeDescriptionReader::readEnumValues(AST::UiScriptBinding *ast, LanguageUt
             continue;
         }
         PropertyGetterSetter *getterSetter = AST::cast<PropertyGetterSetter *>(it->assignment);
-        if (getterSetter) {
+        if (getterSetter)
             addError(objectLit->firstSourceLocation(), tr("Enum should not contain getter and setters, but only 'string: number' elements."));
-        }
     }
 }

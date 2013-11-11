@@ -482,9 +482,8 @@ void QmlProfilerTraceView::contextMenuEvent(QContextMenuEvent *ev)
                         d->m_viewContainer->selectionStart(),
                         d->m_viewContainer->selectionEnd());
         }
-        if (selectedAction == getGlobalStatsAction) {
+        if (selectedAction == getGlobalStatsAction)
             d->m_viewContainer->getStatisticsInRange(-1, -1);
-        }
     }
 }
 

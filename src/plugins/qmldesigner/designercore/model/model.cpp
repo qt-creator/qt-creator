@@ -1938,14 +1938,12 @@ void Model::attachView(AbstractView *view)
 {
 //    Internal::WriteLocker locker(d);
     RewriterView *rewriterView = qobject_cast<RewriterView*>(view);
-    if (rewriterView) {
+    if (rewriterView)
         return;
-    }
 
     NodeInstanceView *nodeInstanceView = qobject_cast<NodeInstanceView*>(view);
-    if (nodeInstanceView) {
+    if (nodeInstanceView)
         return;
-    }
 
     d->attachView(view);
 }
@@ -1964,14 +1962,12 @@ void Model::detachView(AbstractView *view, ViewNotification emitDetachNotify)
     bool emitNotify = (emitDetachNotify == NotifyView);
 
     RewriterView *rewriterView = qobject_cast<RewriterView*>(view);
-    if (rewriterView) {
+    if (rewriterView)
         return;
-    }
 
     NodeInstanceView *nodeInstanceView = qobject_cast<NodeInstanceView*>(view);
-    if (nodeInstanceView) {
+    if (nodeInstanceView)
         return;
-    }
 
     d->detachView(view, emitNotify);
 }

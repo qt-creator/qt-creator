@@ -148,11 +148,10 @@ void LldbEngine::abortDebugger()
 void LldbEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
-    if (startParameters().remoteSetupNeeded) {
+    if (startParameters().remoteSetupNeeded)
         notifyEngineRequestRemoteSetup();
-    } else {
+    else
         startLldb();
-    }
 }
 
 void LldbEngine::startLldb()

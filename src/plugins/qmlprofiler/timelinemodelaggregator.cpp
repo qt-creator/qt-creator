@@ -207,11 +207,10 @@ int TimelineModelAggregator::modelIndexForCategory(int absoluteCategoryIndex) co
 {
     int categoryIndex = absoluteCategoryIndex;
     for (int modelIndex = 0; modelIndex < d->modelList.count(); modelIndex++)
-        if (categoryIndex < d->modelList[modelIndex]->categoryCount()) {
+        if (categoryIndex < d->modelList[modelIndex]->categoryCount())
             return modelIndex;
-        } else {
+        else
             categoryIndex -= d->modelList[modelIndex]->categoryCount();
-        }
 
     return modelCount()-1;
 }

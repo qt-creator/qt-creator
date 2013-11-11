@@ -1235,9 +1235,8 @@ void TextToModelMerger::syncSignalHandler(AbstractProperty &modelProperty,
 {
     if (modelProperty.isSignalHandlerProperty()) {
         SignalHandlerProperty signalHandlerProperty = modelProperty.toSignalHandlerProperty();
-        if (signalHandlerProperty.source() != javascript) {
+        if (signalHandlerProperty.source() != javascript)
             differenceHandler.signalHandlerSourceDiffer(signalHandlerProperty, javascript);
-        }
     } else {
         differenceHandler.shouldBeSignalHandlerProperty(modelProperty, javascript);
     }

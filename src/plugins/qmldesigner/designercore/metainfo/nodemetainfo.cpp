@@ -956,9 +956,8 @@ QString NodeMetaInfoPrivate::importDirectoryPath() const
             if (modelManager) {
                 foreach (const QString &importPath, modelManager->importPaths()) {
                     const QString targetPath = QDir(importPath).filePath(importInfo.path());
-                    if (QDir(targetPath).exists()) {
+                    if (QDir(targetPath).exists())
                         return targetPath;
-                    }
                 }
             }
         }

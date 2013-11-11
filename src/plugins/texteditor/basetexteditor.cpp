@@ -1905,9 +1905,8 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
         }
         if (!electricChar.isNull() && d->m_autoCompleter->contextAllowsElectricCharacters(cursor))
             indent(document(), cursor, electricChar);
-        if (!autoText.isEmpty()) {
+        if (!autoText.isEmpty())
             cursor.setPosition(autoText.length() == 1 ? cursor.position() : cursor.anchor());
-        }
 
         if (doEditBlock) {
             cursor.endEditBlock();
@@ -6321,9 +6320,8 @@ void BaseTextEditor::openGotoLocator()
 {
     Core::EditorManager::activateEditor(this, Core::EditorManager::IgnoreNavigationHistory);
     if (Core::Command *cmd = Core::ActionManager::command(Core::Constants::GOTO)) {
-        if (QAction *act = cmd->action()) {
+        if (QAction *act = cmd->action())
             act->trigger();
-        }
     }
 }
 

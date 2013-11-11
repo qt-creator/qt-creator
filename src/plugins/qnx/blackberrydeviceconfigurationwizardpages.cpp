@@ -193,9 +193,8 @@ QListWidgetItem *BlackBerryDeviceConfigurationWizardSetupPage::findDeviceListIte
     int count = m_ui->deviceListWidget->count();
     for (int i = 0; i < count; ++i) {
         QListWidgetItem *item = m_ui->deviceListWidget->item(i);
-        if (item->data(ItemKindRole).value<ItemKind>() == itemKind) {
+        if (item->data(ItemKindRole).value<ItemKind>() == itemKind)
             return item;
-        }
     }
     return 0;
 }

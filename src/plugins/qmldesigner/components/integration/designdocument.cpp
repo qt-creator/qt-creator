@@ -194,11 +194,10 @@ QString DesignDocument::displayName() const
 
 QString DesignDocument::simplfiedDisplayName() const
 {
-    if (rootModelNode().id().isEmpty()) {
+    if (rootModelNode().id().isEmpty())
         return rootModelNode().id();
-    } else {
+    else
         return rootModelNode().simplifiedTypeName();
-    }
 
     QStringList list = displayName().split(QLatin1Char('/'));
     return list.last();
@@ -637,9 +636,8 @@ void DesignDocument::redo()
 static bool isFileInProject(DesignDocument *designDocument, ProjectExplorer::Project *project)
 {
     foreach (const QString &fileNameInProject, project->files(ProjectExplorer::Project::ExcludeGeneratedFiles)) {
-        if (designDocument->fileName() == fileNameInProject) {
+        if (designDocument->fileName() == fileNameInProject)
             return true;
-        }
     }
 
     return false;

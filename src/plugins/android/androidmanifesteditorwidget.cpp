@@ -455,9 +455,8 @@ void AndroidManifestEditorWidget::initializePage()
 bool AndroidManifestEditorWidget::eventFilter(QObject *obj, QEvent *event)
 {
     if (obj == m_targetLineEdit) {
-        if (event->type() == QEvent::FocusIn) {
+        if (event->type() == QEvent::FocusIn)
             QTimer::singleShot(0, this, SLOT(updateTargetComboBox()));
-        }
     }
 
     if (obj == m_overlayWidget)
@@ -561,9 +560,8 @@ bool AndroidManifestEditorWidget::setActivePage(EditorPage page)
         syncToEditor();
         setFocus();
     } else {
-        if (!syncToWidgets()) {
+        if (!syncToWidgets())
             return false;
-        }
 
         QWidget *fw = m_overlayWidget->focusWidget();
         if (fw && fw != m_overlayWidget)

@@ -367,15 +367,13 @@ bool AndroidManager::bundleQt(ProjectExplorer::Target *target)
 {
     AndroidDeployStep *androidDeployStep
         = AndroidGlobal::buildStep<AndroidDeployStep>(target->activeDeployConfiguration());
-    if (androidDeployStep) {
+    if (androidDeployStep)
         return androidDeployStep->deployAction() == AndroidDeployStep::BundleLibraries;
-    }
 
     AndroidDeployQtStep *androidDeployQtStep
             = AndroidGlobal::buildStep<AndroidDeployQtStep>(target->activeDeployConfiguration());
-    if (androidDeployQtStep) {
+    if (androidDeployQtStep)
         return androidDeployQtStep->deployAction() == AndroidDeployQtStep::BundleLibrariesDeployment;
-    }
 
     return false;
 }
@@ -819,9 +817,8 @@ QVector<AndroidManager::Library> AndroidManager::availableQtLibsWithDependencies
     if (!qmakeProject || !version)
         return QVector<AndroidManager::Library>();
     QString qtLibsPath = version->qmakeProperty("QT_INSTALL_LIBS");
-    if (!readelfPath.toFileInfo().exists()) {
+    if (!readelfPath.toFileInfo().exists())
         return QVector<AndroidManager::Library>();
-    }
     LibrariesMap mapLibs;
     QDir libPath;
     QDirIterator it(qtLibsPath, QStringList() << QLatin1String("*.so"), QDir::Files, QDirIterator::Subdirectories);
@@ -997,9 +994,8 @@ QString AndroidManager::loadLocal(ProjectExplorer::Target *target, int apiLevel,
                                 dependencyLib = dependencyLib.arg(apiLevel);
                             if (libElement.hasAttribute(QLatin1String("extends"))) {
                                 const QString extends = libElement.attribute(QLatin1String("extends"));
-                                if (libs.contains(extends)) {
+                                if (libs.contains(extends))
                                     dependencyLibs << dependencyLib;
-                                }
                             } else if (!dependencyLibs.contains(dependencyLib)) {
                                 dependencyLibs << dependencyLib;
                             }

@@ -111,11 +111,10 @@ private:
 QString QrcParser::normalizedQrcFilePath(const QString &path) {
     QString normPath = path;
     int endPrefix = 0;
-    if (path.startsWith(QLatin1String("qrc:/"))) {
+    if (path.startsWith(QLatin1String("qrc:/")))
         endPrefix = 4;
-    } else if (path.startsWith(QLatin1String(":/"))) {
+    else if (path.startsWith(QLatin1String(":/")))
         endPrefix = 1;
-    }
     if (endPrefix < path.size() && path.at(endPrefix) == QLatin1Char('/'))
         while (endPrefix + 1 < path.size() && path.at(endPrefix+1) == QLatin1Char('/'))
             ++endPrefix;
@@ -377,9 +376,8 @@ void QrcParserPrivate::collectFilesInPath(const QString &path, QMap<QString,QStr
                 QString fileName = res.key().right(res.key().size()-key.size());
                 QStringList &els = (*contents)[fileName];
                 foreach (const QString &val, res.value())
-                    if (!els.contains(val)){
+                    if (!els.contains(val))
                         els << val;
-                    }
                 ++res;
             } else {
                 QString dirName = res.key().mid(key.size(), endDir - key.size() + 1);

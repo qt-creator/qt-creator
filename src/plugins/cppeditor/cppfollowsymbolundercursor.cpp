@@ -468,9 +468,8 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
                 // token[.....] == ....
                 // token[i + n] == T_RPAREN
 
-                if (i + 1 < tokens.size() && tokens.at(i + 1).is(T_LPAREN)) {
+                if (i + 1 < tokens.size() && tokens.at(i + 1).is(T_LPAREN))
                     closingParenthesisPos = skipMatchingParentheses(tokens, i - 1, 0);
-                }
             } else if ((i > 3 && tk.is(T_LPAREN) && tokens.at(i - 1).is(T_IDENTIFIER)
                         && tokens.at(i - 2).is(T_LPAREN)
                     && (tokens.at(i - 3).is(T_SIGNAL) || tokens.at(i - 3).is(T_SLOT)))) {

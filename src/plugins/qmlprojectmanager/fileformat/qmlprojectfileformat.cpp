@@ -88,9 +88,8 @@ QmlProjectItem *QmlProjectFileFormat::parseProjectFile(const QString &fileName, 
         if (importPathsProperty.isValid())
             projectItem->setImportPaths(importPathsProperty.toStringList());
 
-        if (debug) {
+        if (debug)
             qDebug() << "importPath:" << importPathsProperty << "mainFile:" << mainFileProperty;
-        }
 
         foreach (const QmlJS::SimpleReaderNode::Ptr &childNode, rootNode->children()) {
             if (childNode->name() == QLatin1String("QmlFiles")) {

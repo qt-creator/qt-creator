@@ -1121,9 +1121,8 @@ ClassOrNamespace *ResolveExpression::baseExpression(const QList<LookupItem> &bas
                 if (! isTypeTypedefed(originalType, ty)
                         || ! areOriginalAndTypedefedTypePointer(originalType, ty)) {
                     *replacedDotOperator = originalType->isPointerType() || ty->isPointerType();
-                    if (PointerType *ptrTy = ty->asPointerType()) {
+                    if (PointerType *ptrTy = ty->asPointerType())
                         ty = ptrTy->elementType();
-                    }
                 }
             }
 

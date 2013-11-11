@@ -1176,9 +1176,8 @@ void ProjectExplorerPlugin::updateVariable(const QByteArray &variable)
                 projectFilePath = doc->filePath();
             if (Target *target = project->activeTarget()) {
                 kit = target->kit();
-                if (BuildConfiguration *buildConfiguration = target->activeBuildConfiguration()) {
+                if (BuildConfiguration *buildConfiguration = target->activeBuildConfiguration())
                     buildConfigurationName = buildConfiguration->displayName();
-                }
             }
         }
         ProjectMacroExpander expander(projectFilePath, projectName, kit, buildConfigurationName);

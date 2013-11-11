@@ -728,9 +728,8 @@ void EditorManager::closeView(Core::Internal::EditorView *view)
 bool EditorManager::closeAllEditors(bool askAboutModifiedEditors)
 {
     d->m_documentModel->removeAllRestoredDocuments();
-    if (closeDocuments(d->m_documentModel->openedDocuments(), askAboutModifiedEditors)) {
+    if (closeDocuments(d->m_documentModel->openedDocuments(), askAboutModifiedEditors))
         return true;
-    }
     return false;
 }
 

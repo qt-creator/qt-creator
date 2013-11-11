@@ -537,9 +537,8 @@ QString GitDiffHandler::workingTreeContents(const QString &fileName) const
     QString absoluteFileName = workingDir.absoluteFilePath(fileName);
 
     QFile file(absoluteFileName);
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text))
         return m_editor->editorWidget()->codec()->toUnicode(file.readAll());
-    }
     return QString();
 }
 

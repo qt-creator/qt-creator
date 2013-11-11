@@ -311,9 +311,8 @@ Import LinkPrivate::importFileOrDirectory(Document::Ptr doc, const ImportInfo &i
         QLocale locale;
         QStringList filePaths = ModelManagerInterface::instance()
                 ->filesAtQrcPath(path, &locale, 0, ModelManagerInterface::ActiveQrcResources);
-        if (filePaths.isEmpty()) {
+        if (filePaths.isEmpty())
             filePaths = ModelManagerInterface::instance()->filesAtQrcPath(path);
-        }
         if (!filePaths.isEmpty()) {
             Document::Ptr importedDoc = snapshot.document(filePaths.at(0));
             if (importedDoc)

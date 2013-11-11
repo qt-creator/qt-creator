@@ -62,9 +62,8 @@ void TextEditor::setMimeTypeForHighlighter(Highlighter *highlighter, const Core:
     if (!definitionId.isEmpty()) {
         const QSharedPointer<HighlightDefinition> &definition =
             Manager::instance()->definition(definitionId);
-        if (!definition.isNull() && definition->isValid()) {
+        if (!definition.isNull() && definition->isValid())
             highlighter->setDefaultContext(definition->initialContext());
-        }
     }
 }
 

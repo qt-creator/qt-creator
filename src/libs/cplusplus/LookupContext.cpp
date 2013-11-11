@@ -344,9 +344,8 @@ ClassOrNamespace *LookupContext::lookupType(const Name *name, Scope *scope,
                 if (name->isNameId()) {
                     if (const Name *usingDeclarationName = ud->name()) {
                         if (const QualifiedNameId *q = usingDeclarationName->asQualifiedNameId()) {
-                            if (q->name() && q->name()->isEqualTo(name)) {
+                            if (q->name() && q->name()->isEqualTo(name))
                                 return bindings()->globalNamespace()->lookupType(q);
-                            }
                         }
                     }
                 }
@@ -802,9 +801,8 @@ ClassOrNamespace *ClassOrNamespace::findBlock(Block *block)
     flush();
 
     QHash<Block *, ClassOrNamespace *>::const_iterator citBlock = _blocks.find(block);
-    if (citBlock != _blocks.end()) {
+    if (citBlock != _blocks.end())
         return citBlock.value();
-    }
 
     for (citBlock = _blocks.begin(); citBlock != _blocks.end(); ++citBlock) {
         if (ClassOrNamespace *foundNestedBlock = citBlock.value()->findBlock(block))
@@ -1110,9 +1108,8 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
                         for (unsigned i = 0; i < klassMemberCount; ++i){
                             Symbol *klassMemberAsSymbol = klass->memberAt(i);
                             if (klassMemberAsSymbol->isTypedef()) {
-                                if (Declaration *declaration = klassMemberAsSymbol->asDeclaration()) {
+                                if (Declaration *declaration = klassMemberAsSymbol->asDeclaration())
                                     qDebug() << "Member: " << oo(declaration->type(), declaration->name());
-                                }
                             }
                         }
                     }

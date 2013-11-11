@@ -192,11 +192,10 @@ static QString getSourceForUrl(const QString &fileURl)
 {
     Utils::FileReader fileReader;
 
-    if (fileReader.fetch(fileURl)) {
+    if (fileReader.fetch(fileURl))
         return fileReader.data();
-    } else {
+    else
         return Utils::FileReader::fetchQrc(fileURl);
-    }
 }
 
 void ItemLibraryEntry::setQmlPath(const QString &qml)

@@ -81,11 +81,10 @@ QVariant GradientModel::data(const QModelIndex &index, int role) const
             return index.row();
         }
 
-        if (role == Qt::UserRole + 1) {
+        if (role == Qt::UserRole + 1)
             return getPosition(index.row());
-        } else if (role == Qt::UserRole + 2) {
+        else if (role == Qt::UserRole + 2)
             return getColor(index.row());
-        }
 
         qWarning() << Q_FUNC_INFO << "invalid role";
     } else {
@@ -181,9 +180,8 @@ void GradientModel::setColor(int index, const QColor &color)
     if (index < rowCount()) {
         QmlDesigner::ModelNode gradientNode =  m_itemNode.modelNode().nodeProperty(gradientPropertyName().toUtf8()).modelNode();
         QmlDesigner::QmlObjectNode stop = gradientNode.nodeListProperty("stops").toModelNodeList().at(index);
-        if (stop.isValid()) {
+        if (stop.isValid())
             stop.setVariantProperty("color", color);
-        }
         setupModel();
     }
 }
@@ -196,9 +194,8 @@ void GradientModel::setPosition(int index, qreal positition)
     if (index < rowCount()) {
         QmlDesigner::ModelNode gradientNode =  m_itemNode.modelNode().nodeProperty(gradientPropertyName().toUtf8()).modelNode();
         QmlDesigner::QmlObjectNode stop = gradientNode.nodeListProperty("stops").toModelNodeList().at(index);
-        if (stop.isValid()) {
+        if (stop.isValid())
             stop.setVariantProperty("position", positition);
-        }
         setupModel();
     }
 }
@@ -208,9 +205,8 @@ QColor GradientModel::getColor(int index) const
     if (index < rowCount()) {
         QmlDesigner::ModelNode gradientNode =  m_itemNode.modelNode().nodeProperty(gradientPropertyName().toUtf8()).modelNode();
         QmlDesigner::QmlObjectNode stop = gradientNode.nodeListProperty("stops").toModelNodeList().at(index);
-        if (stop.isValid()) {
+        if (stop.isValid())
             return stop.modelValue("color").value<QColor>();
-        }
     }
     qWarning() << Q_FUNC_INFO << "invalid color index";
     return QColor();
@@ -221,9 +217,8 @@ qreal GradientModel::getPosition(int index) const
     if (index < rowCount()) {
         QmlDesigner::ModelNode gradientNode =  m_itemNode.modelNode().nodeProperty(gradientPropertyName().toUtf8()).modelNode();
         QmlDesigner::QmlObjectNode stop = gradientNode.nodeListProperty("stops").toModelNodeList().at(index);
-        if (stop.isValid()) {
+        if (stop.isValid())
             return stop.modelValue("position").toReal();
-        }
     }
     qWarning() << Q_FUNC_INFO << "invalid position index";
     return 0.0;

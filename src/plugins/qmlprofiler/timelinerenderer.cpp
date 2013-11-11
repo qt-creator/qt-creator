@@ -55,14 +55,12 @@ TimelineRenderer::TimelineRenderer(QQuickPaintedItem *parent) :
 
 void TimelineRenderer::setProfilerModelProxy(QObject *profilerModelProxy)
 {
-    if (m_profilerModelProxy) {
+    if (m_profilerModelProxy)
         disconnect(m_profilerModelProxy, SIGNAL(expandedChanged()), this, SLOT(requestPaint()));
-    }
     m_profilerModelProxy = qobject_cast<TimelineModelAggregator *>(profilerModelProxy);
 
-    if (m_profilerModelProxy) {
+    if (m_profilerModelProxy)
         connect(m_profilerModelProxy, SIGNAL(expandedChanged()), this, SLOT(requestPaint()));
-    }
     emit profilerModelProxyChanged(m_profilerModelProxy);
 }
 

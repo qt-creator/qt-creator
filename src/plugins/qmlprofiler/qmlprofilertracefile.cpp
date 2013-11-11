@@ -548,9 +548,8 @@ void QmlProfilerFileWriter::calculateMeasuredTime(const QVector<QmlProfilerSimpl
                 level--;
         }
         endtimesPerLevel[level] = event.startTime + event.duration;
-        if (level == QmlDebug::Constants::QML_MIN_LEVEL) {
+        if (level == QmlDebug::Constants::QML_MIN_LEVEL)
             duration += event.duration;
-        }
     }
 
     m_measuredTime = duration;

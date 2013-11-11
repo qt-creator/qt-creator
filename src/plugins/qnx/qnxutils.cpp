@@ -210,11 +210,10 @@ QString QnxUtils::dataDirPath()
 
 QString QnxUtils::qConfigPath()
 {
-    if (Utils::HostOsInfo::isMacHost() || Utils::HostOsInfo::isWindowsHost()) {
+    if (Utils::HostOsInfo::isMacHost() || Utils::HostOsInfo::isWindowsHost())
         return dataDirPath() + QLatin1String("/BlackBerry Native SDK/qconfig");
-    } else {
+    else
         return dataDirPath() + QLatin1String("/bbndk/qconfig");
-    }
 }
 
 QString QnxUtils::defaultTargetVersion(const QString &ndkPath)

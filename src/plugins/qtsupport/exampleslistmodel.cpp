@@ -125,19 +125,16 @@ public:
         if (qtVersionSetting != noQtVersionsId) {
             //ensure that the unique Qt id is valid
             foreach (BaseQtVersion *version, qtVersions) {
-                if (version->uniqueId() == qtVersionSetting) {
+                if (version->uniqueId() == qtVersionSetting)
                     newQtVersionSetting = qtVersionSetting;
-                }
             }
         }
 
-        if (newQtVersionSetting == noQtVersionsId) {
+        if (newQtVersionSetting == noQtVersionsId)
             newQtVersionSetting = findHighestQtVersion();
-        }
 
-        if (newQtVersionSetting != qtVersionSetting) {
+        if (newQtVersionSetting != qtVersionSetting)
             setUniqueQtVersionIdSetting(newQtVersionSetting);
-        }
 
 
         foreach (BaseQtVersion *version, qtVersions) {

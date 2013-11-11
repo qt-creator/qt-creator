@@ -141,9 +141,8 @@ bool SearchSymbols::visit(Class *symbol)
     QString name = symbolName(symbol);
     QString scopedName = scopedSymbolName(name);
     QString previousScope = switchScope(scopedName);
-    if (symbolsToSearchFor & SymbolSearcher::Classes) {
+    if (symbolsToSearchFor & SymbolSearcher::Classes)
         appendItem(name, QString(), previousScope, ModelItemInfo::Class, symbol);
-    }
     for (unsigned i = 0; i < symbol->memberCount(); ++i) {
         accept(symbol->memberAt(i));
     }
