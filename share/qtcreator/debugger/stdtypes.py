@@ -90,6 +90,10 @@ def qdump__std__complex(d, value):
 
 
 def qdump__std__deque(d, value):
+    if d.isQnxTarget():
+        qdump__std__deque__QNX(d, value)
+        return
+
     innerType = d.templateArgument(value.type, 0)
     innerSize = innerType.sizeof
     bufsize = 1
@@ -122,11 +126,47 @@ def qdump__std__deque(d, value):
                     plast = pfirst + bufsize
                     pcur = pfirst
 
+def qdump__std__deque__QNX(d, value):
+    innerType = d.templateArgument(value.type, 0)
+    innerSize = innerType.sizeof
+    if innerSize <= 1:
+        bufsize = 16
+    elif innerSize <= 2:
+        bufsize = 8
+    elif innerSize <= 4:
+        bufsize = 4
+    elif innerSize <= 8:
+        bufsize = 2
+    else:
+        bufsize = 1
+
+    myoff = value['_Myoff']
+    mysize = value['_Mysize']
+    mapsize = value['_Mapsize']
+
+    d.check(0 <= mapsize and mapsize <= 1000 * 1000 * 1000)
+    d.putItemCount(mysize)
+    d.putNumChild(mysize)
+    if d.isExpanded():
+        with Children(d, mysize, maxNumChild=2000, childType=innerType):
+            map = value['_Map']
+            for i in d.childRange():
+                block = myoff / bufsize
+                offset = myoff - (block * bufsize)
+                if mapsize <= block:
+                    block -= mapsize
+                d.putSubItem(i, map[block][offset])
+                myoff += 1;
+
 def qdump__std____debug__deque(d, value):
     qdump__std__deque(d, value)
 
 
 def qdump__std__list(d, value):
+    if d.isQnxTarget():
+        qdump__std__list__QNX(d, value)
+        return
+
     head = d.dereferenceValue(value)
     impl = value["_M_impl"]
     node = impl["_M_node"]
@@ -148,6 +188,21 @@ def qdump__std__list(d, value):
                 d.putSubItem(i, (p + 1).cast(innerPointer).dereference())
                 p = p["_M_next"]
 
+def qdump__std__list__QNX(d, value):
+    node = value["_Myhead"]
+    size = value["_Mysize"]
+
+    d.putItemCount(size, 1000)
+    d.putNumChild(size)
+
+    if d.isExpanded():
+        p = node["_Next"]
+        innerType = d.templateArgument(value.type, 0)
+        with Children(d, size, maxNumChild=1000, childType=innerType):
+            for i in d.childRange():
+                d.putSubItem(i, p['_Myval'])
+                p = p["_Next"]
+
 def qdump__std____debug__list(d, value):
     qdump__std__list(d, value)
 
@@ -155,6 +210,10 @@ def qform__std__map():
     return mapForms()
 
 def qdump__std__map(d, value):
+    if d.isQnxTarget():
+        qdump__std__map__QNX(d, value)
+        return
+
     impl = value["_M_t"]["_M_impl"]
     size = int(impl["_M_node_count"])
     d.check(0 <= size and size <= 100*1000*1000)
@@ -209,6 +268,63 @@ def qdump__std__map(d, value):
                     node = node["_M_right"]
                     while not d.isNull(node["_M_left"]):
                         node = node["_M_left"]
+
+def qdump__std__map__QNX(d, value):
+    size = value['_Mysize']
+    d.check(0 <= size and size <= 100*1000*1000)
+    d.putItemCount(size)
+    d.putNumChild(size)
+
+    if d.isExpanded():
+        keyType = d.templateArgument(value.type, 0)
+        valueType = d.templateArgument(value.type, 1)
+        try:
+            # Does not work on gcc 4.4, the allocator type (fourth template
+            # argument) seems not to be available.
+            pairType = d.templateArgument(d.templateArgument(value.type, 3), 0)
+            pairPointer = pairType.pointer()
+        except:
+            # So use this as workaround:
+            pairType = d.templateArgument(impl.type, 1)
+            pairPointer = pairType.pointer()
+        isCompact = d.isMapCompact(keyType, valueType)
+        innerType = pairType
+        if isCompact:
+            innerType = valueType
+        head = value['_Myhead']
+        node = head['_Left']
+        nodeType = head.type
+        childType = innerType
+        if size == 0:
+            childType = pairType
+        childNumChild = 2
+        if isCompact:
+            childNumChild = None
+        with Children(d, size, maxNumChild=1000,
+                childType=childType, childNumChild=childNumChild):
+            for i in d.childRange():
+                with SubItem(d, i):
+                    pair = node.cast(nodeType).dereference()['_Myval']
+                    if isCompact:
+                        d.putMapName(pair["first"])
+                        d.putItem(pair["second"])
+                    else:
+                        d.putEmptyValue()
+                        if d.isExpanded():
+                            with Children(d, 2):
+                                d.putSubItem("first", pair["first"])
+                                d.putSubItem("second", pair["second"])
+                if not node['_Right']['_Isnil']:
+                    node = node['_Right']
+                    while not node['_Left']['_Isnil']:
+                        node = node['_Left']
+                else:
+                    parent = node['_Parent']
+                    while node == parent['_Right']['_Isnil']:
+                        node = parent
+                        parent = parent['_Parent']
+                    if node['_Right'] != parent:
+                        node = parent
 
 def qdump__std____debug__map(d, value):
     qdump__std__map(d, value)
@@ -271,6 +387,10 @@ def qdump__std____cxx1998__set(d, value):
     qdump__std__set(d, value)
 
 def qdump__std__set(d, value):
+    if d.isQnxTarget():
+        qdump__std__set__QNX(d, value)
+        return
+
     impl = value["_M_t"]["_M_impl"]
     size = int(impl["_M_node_count"])
     d.check(0 <= size and size <= 100*1000*1000)
@@ -294,6 +414,30 @@ def qdump__std__set(d, value):
                     while not d.isNull(node["_M_left"]):
                         node = node["_M_left"]
 
+def qdump__std__set__QNX(d, value):
+    size = value['_Mysize']
+    d.check(0 <= size and size <= 100*1000*1000)
+    d.putItemCount(size)
+    d.putNumChild(size)
+    if d.isExpanded():
+        valueType = d.templateArgument(value.type, 0)
+        head = value['_Myhead']
+        node = head['_Left']
+        nodeType = head.type
+        with Children(d, size, maxNumChild=1000, childType=valueType):
+            for i in d.childRange():
+                d.putSubItem(i, node.cast(nodeType).dereference()['_Myval'])
+                if not node['_Right']['_Isnil']:
+                    node = node['_Right']
+                    while not node['_Left']['_Isnil']:
+                        node = node['_Left']
+                else:
+                    parent = node['_Parent']
+                    while node == parent['_Right']['_Isnil']:
+                        node = parent
+                        parent = parent['_Parent']
+                    if node['_Right'] != parent:
+                        node = parent
 
 def qdump__std__stack(d, value):
     qdump__std__deque(d, value["c"])
@@ -308,6 +452,10 @@ def qdump__std__string(d, value):
     qdump__std__stringHelper1(d, value, 1)
 
 def qdump__std__stringHelper1(d, value, charSize):
+    if d.isQnxTarget():
+        qdump__std__stringHelper1__QNX(d, value, charSize)
+        return
+
     data = value["_M_dataplus"]["_M_p"]
     # We can't lookup the std::string::_Rep type without crashing LLDB,
     # so hard-code assumption on member position
@@ -315,6 +463,20 @@ def qdump__std__stringHelper1(d, value, charSize):
     sizePtr = data.cast(d.sizetType().pointer())
     size = int(sizePtr[-3])
     alloc = int(sizePtr[-2])
+    refcount = int(sizePtr[-1])
+    d.check(refcount >= -1) # Can be -1 accoring to docs.
+    d.check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
+    qdump_stringHelper(d, sizePtr, size * charSize, charSize)
+
+def qdump__std__stringHelper1__QNX(d, value, charSize):
+    size = value['_Mysize']
+    alloc = value['_Myres']
+    _BUF_SIZE = 16 / charSize
+    if _BUF_SIZE <= alloc: #(_BUF_SIZE <= _Myres ? _Bx._Ptr : _Bx._Buf);
+        data = value['_Bx']['_Ptr']
+    else:
+        data = value['_Bx']['_Buf']
+    sizePtr = data.cast(d.charType().pointer())
     refcount = int(sizePtr[-1])
     d.check(refcount >= -1) # Can be -1 accoring to docs.
     d.check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
@@ -545,6 +707,10 @@ def qedit__std__vector(expr, value):
     gdb.execute(cmd)
 
 def qdump__std__vector(d, value):
+    if d.isQnxTarget():
+        qdump__std__vector__QNX(d, value)
+        return
+
     impl = value["_M_impl"]
     type = d.templateArgument(value.type, 0)
     alloc = impl["_M_end_of_storage"]
@@ -568,6 +734,40 @@ def qdump__std__vector(d, value):
     d.checkPointer(start)
     d.checkPointer(finish)
     d.checkPointer(alloc)
+
+    d.putItemCount(size)
+    d.putNumChild(size)
+    if d.isExpanded():
+        if isBool:
+            with Children(d, size, maxNumChild=10000, childType=type):
+                for i in d.childRange():
+                    q = start + int(i / storagesize)
+                    d.putBoolItem(str(i), (q.dereference() >> (i % storagesize)) & 1)
+        else:
+            d.putArrayData(type, start, size)
+
+def qdump__std__vector__QNX(d, value):
+    type = d.templateArgument(value.type, 0)
+    isBool = str(type) == 'bool'
+    if isBool:
+        impl = value['_Myvec']
+        start = impl['_Myfirst']
+        last = impl['_Mylast']
+        end = impl['_Myend']
+        size = value['_Mysize']
+        storagesize = start.dereference().type.sizeof * 8
+    else:
+        start = value['_Myfirst']
+        last = value['_Mylast']
+        end = value['_Myend']
+        size = int (last - start)
+        alloc = int (end - start)
+
+    d.check(0 <= size and size <= 1000 * 1000 * 1000)
+    d.check(last <= end)
+    d.checkPointer(start)
+    d.checkPointer(last)
+    d.checkPointer(end)
 
     d.putItemCount(size)
     d.putNumChild(size)

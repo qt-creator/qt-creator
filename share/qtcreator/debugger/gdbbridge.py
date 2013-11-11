@@ -990,6 +990,12 @@ class Dumper(DumperBase):
             return xrange(0, toInteger(self.currentNumChild))
         return xrange(min(toInteger(self.currentMaxNumChild), toInteger(self.currentNumChild)))
 
+    def isArmArchitecture(self):
+        return 'arm' in gdb.TARGET_CONFIG.lower()
+
+    def isQnxTarget(self):
+        return 'qnx' in gdb.TARGET_CONFIG.lower()
+
     def qtVersion(self):
         try:
             version = str(gdb.parse_and_eval("qVersion()"))
@@ -998,7 +1004,7 @@ class Dumper(DumperBase):
         except:
             try:
                 # This will fail on Qt 5
-                gdb.execute("ptype QString::shared_empty", to_string=True)
+                gdb.execute("ptype QString::shared_null", to_string=True)
                 self.cachedQtVersion = 0x040800
             except:
                 #self.cachedQtVersion = 0x050000
@@ -1008,6 +1014,21 @@ class Dumper(DumperBase):
         # Memoize good results.
         self.qtVersion = lambda: self.cachedQtVersion
         return self.cachedQtVersion
+
+    def isQt3Support(self):
+        if self.qtVersion() >= 0x050000:
+            return False
+        else:
+            try:
+                # This will fail on Qt 4 without Qt 3 support
+                gdb.execute("ptype QChar::null", to_string=True)
+                self.cachedIsQt3Suport = True
+            except:
+                self.cachedIsQt3Suport = False
+
+        # Memoize good results.
+        self.isQt3Support = lambda: self.cachedIsQt3Suport
+        return self.cachedIsQt3Suport
 
     def putType(self, type, priority = 0):
         # Higher priority values override lower ones.

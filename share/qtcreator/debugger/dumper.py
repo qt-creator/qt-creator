@@ -260,9 +260,18 @@ class DumperBase:
         self.cachedFormats[typeName] = stripped
         return stripped
 
+    def isArmArchitecture(self):
+        return False
+
+    def isQnxTarget(self):
+        return False
 
     def is32bit(self):
         return self.ptrSize() == 4
+
+    def isQt3Support(self):
+        # assume no Qt 3 support by default
+        return False
 
     def computeLimit(self, size, limit):
         if limit is None:

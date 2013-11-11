@@ -291,6 +291,7 @@ def qdump__QDir(d, value):
     privAddress = d.dereferenceValue(value)
     bit32 = d.is32bit()
     qt5 = d.qtVersion() >= 0x050000
+    qt3support = d.isQt3Support()
     # QDirPrivate:
     # QAtomicInt ref
     # QStringList nameFilters;
@@ -306,7 +307,7 @@ def qdump__QDir(d, value):
     # QFileInfoList fileInfos;
     # QFileSystemEntry dirEntry;
     # QFileSystemEntry absoluteDirEntry;
-    qt3SupportAddition = 0 if qt5 else d.ptrSize() # qt5 doesn't have qt3support
+    qt3SupportAddition = d.ptrSize() if qt3support else 0
     filesOffset = (24 if bit32 else 40) + qt3SupportAddition
     fileInfosOffset = filesOffset + d.ptrSize()
     dirEntryOffset = fileInfosOffset + d.ptrSize()
@@ -733,6 +734,7 @@ def qdump__QImage(d, value):
 
     ptrSize = d.ptrSize()
     isQt5 = d.qtVersion() >= 0x050000
+    qt3Support = d.isQt3Support()
     offset = (3 if isQt5 else 2) * ptrSize
     base = d.dereference(d.addressOf(value) + offset)
     width = d.extractInt(base + 4)
@@ -740,7 +742,7 @@ def qdump__QImage(d, value):
     nbytes = d.extractInt(base + 16)
     padding = d.ptrSize() - d.intSize()
     pixelRatioSize = 8 if isQt5 else 0
-    jumpTableSize = ptrSize if not isQt5 else 0  # FIXME: Assumes Qt3 Support
+    jumpTableSize = ptrSize if qt3Support else 0
     bits = d.dereference(base + 20 + padding + pixelRatioSize + ptrSize)
     iformat = d.extractInt(base + 20 + padding + pixelRatioSize + jumpTableSize + 2 * ptrSize)
     d.putValue("(%dx%d)" % (width, height))
@@ -870,7 +872,10 @@ def qdumpHelper__Qt4_QMap(d, value, forceLong):
         # Or possibly 2 * sizeof(void *)
         nodeType = d.lookupType(d.qtNamespace() + "QMapNode<%s,%s>" % (keyType, valueType))
         nodePointerType = nodeType.pointer()
-        payloadSize = nodeType.sizeof - 2 * nodePointerType.sizeof
+        if d.isArmArchitecture() and d.isQnxTarget() and str(valueType) == 'QVariant': # symbols reports payload size at wrong size 24
+            payloadSize = 28
+        else:
+            payloadSize = nodeType.sizeof - 2 * nodePointerType.sizeof
 
         if isCompact:
             innerType = valueType
