@@ -89,6 +89,28 @@ android-no-sdk {
         export(copydeploymentfolders.commands)
         QMAKE_EXTRA_TARGETS += first copydeploymentfolders
     }
+} ios {
+    copyCommand =
+    for(deploymentfolder, DEPLOYMENTFOLDERS) {
+        source = $$MAINPROFILEPWD/$$eval($${deploymentfolder}.source)
+        source = $$replace(source, \\\\, /)
+        target = $CODESIGNING_FOLDER_PATH/$$eval($${deploymentfolder}.target)
+        target = $$replace(target, \\\\, /)
+        sourcePathSegments = $$split(source, /)
+        targetFullPath = $$target/$$last(sourcePathSegments)
+        targetFullPath ~= s,/\\.?/,/,
+        !isEqual(source,$$targetFullPath) {
+            !isEmpty(copyCommand):copyCommand += &&
+            copyCommand += mkdir -p \"$$target\"
+            copyCommand += && cp -r \"$$source\" \"$$target\"
+        }
+    }
+    !isEmpty(copyCommand) {
+        copyCommand = echo Copying application data... && $$copyCommand
+        !isEmpty(QMAKE_POST_LINK): QMAKE_POST_LINK += ";"
+        QMAKE_POST_LINK += "$$copyCommand"
+        export(QMAKE_POST_LINK)
+    }
 } else:unix {
     maemo5 {
         desktopfile.files = $${TARGET}.desktop
