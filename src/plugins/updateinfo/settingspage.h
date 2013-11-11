@@ -27,60 +27,38 @@
 **
 ****************************************************************************/
 
-#ifndef UPDATEINFOPLUGIN_H
-#define UPDATEINFOPLUGIN_H
+#ifndef SETTINGSPAGE_H
+#define SETTINGSPAGE_H
 
-#include <extensionsystem/iplugin.h>
+#include "ui_settingspage.h"
 
-#include <QTime>
-#include <QDomDocument>
+#include <coreplugin/dialogs/ioptionspage.h>
 
 namespace UpdateInfo {
-
-namespace Constants {
-    const char FILTER_OPTIONS_PAGE[] = QT_TRANSLATE_NOOP("Update", "Update");
-} // namespace Constants
-
 namespace Internal {
 
-class SettingsPage;
-class UpdateInfoPluginPrivate;
+class UpdateInfoPlugin;
 
-class UpdateInfoPlugin : public ExtensionSystem::IPlugin
+class SettingsPage : public Core::IOptionsPage
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "UpdateInfo.json")
 
 public:
-    UpdateInfoPlugin();
-    virtual ~UpdateInfoPlugin();
+    explicit SettingsPage(UpdateInfoPlugin *plugin);
 
-    bool delayedInitialize();
-    void extensionsInitialized();
-    bool initialize(const QStringList &arguments, QString *errorMessage);
-
-    void loadSettings();
-    void saveSettings();
-
-    QTime scheduledUpdateTime() const;
-    void setScheduledUpdateTime(const QTime &time);
-
-protected:
-    void timerEvent(QTimerEvent *event);
-
-private slots:
-    void parseUpdates();
-    void startUpdaterUiApplication();
+    QWidget *createPage(QWidget *parent);
+    void apply();
+    void finish();
+    bool matches(const QString &searchKey) const;
 
 private:
-    QDomDocument update();
-    template <typename T> void settingsHelper(T *settings);
-
-private:
-    UpdateInfoPluginPrivate *d;
+    QWidget *m_page;
+    Ui::SettingsWidget m_ui;
+    QString m_searchKeywords;
+    UpdateInfoPlugin *m_plugin;
 };
 
 } // namespace Internal
 } // namespace UpdateInfo
 
-#endif // UPDATEINFOPLUGIN_H
+#endif // SETTINGSPAGE_H

@@ -16,5 +16,8 @@ QtcPlugin {
         "updateinfobutton.h",
         "updateinfoplugin.cpp",
         "updateinfoplugin.h",
+        "settingspage.cpp",
+        "settingspage.h",
+        "settingspage.ui",
     ]
 }

@@ -27,60 +27,48 @@
 **
 ****************************************************************************/
 
-#ifndef UPDATEINFOPLUGIN_H
-#define UPDATEINFOPLUGIN_H
+#include "settingspage.h"
+#include "updateinfoplugin.h"
 
-#include <extensionsystem/iplugin.h>
+#include <coreplugin/coreconstants.h>
 
-#include <QTime>
-#include <QDomDocument>
+using namespace UpdateInfo;
+using namespace UpdateInfo::Internal;
 
-namespace UpdateInfo {
-
-namespace Constants {
-    const char FILTER_OPTIONS_PAGE[] = QT_TRANSLATE_NOOP("Update", "Update");
-} // namespace Constants
-
-namespace Internal {
-
-class SettingsPage;
-class UpdateInfoPluginPrivate;
-
-class UpdateInfoPlugin : public ExtensionSystem::IPlugin
+SettingsPage::SettingsPage(UpdateInfoPlugin *plugin)
+    : m_plugin(plugin)
+    , m_page(0)
 {
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "UpdateInfo.json")
+    setId(Constants::FILTER_OPTIONS_PAGE);
+    setCategory(Core::Constants::SETTINGS_CATEGORY_CORE);
+    setCategoryIcon(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE_ICON));
+    setDisplayName(QCoreApplication::translate("Update", UpdateInfo::Constants::FILTER_OPTIONS_PAGE));
+    setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::SETTINGS_TR_CATEGORY_CORE));
+}
 
-public:
-    UpdateInfoPlugin();
-    virtual ~UpdateInfoPlugin();
+QWidget *SettingsPage::createPage(QWidget *parent)
+{
+    m_page = new QWidget(parent);
+    m_ui.setupUi(m_page);
+    if (m_searchKeywords.isEmpty())
+        m_searchKeywords = m_ui.m_info->text();
+    m_ui.m_timeTable->setCurrentText(QTime(m_plugin->scheduledUpdateTime())
+        .toString(QLatin1String("hh:mm")));
+    return m_page;
+}
 
-    bool delayedInitialize();
-    void extensionsInitialized();
-    bool initialize(const QStringList &arguments, QString *errorMessage);
+void SettingsPage::apply()
+{
+    m_plugin->setScheduledUpdateTime(QTime::fromString(m_ui.m_timeTable->currentText(),
+        QLatin1String("hh:mm")));
+    m_plugin->saveSettings();
+}
 
-    void loadSettings();
-    void saveSettings();
+void SettingsPage::finish()
+{
+}
 
-    QTime scheduledUpdateTime() const;
-    void setScheduledUpdateTime(const QTime &time);
-
-protected:
-    void timerEvent(QTimerEvent *event);
-
-private slots:
-    void parseUpdates();
-    void startUpdaterUiApplication();
-
-private:
-    QDomDocument update();
-    template <typename T> void settingsHelper(T *settings);
-
-private:
-    UpdateInfoPluginPrivate *d;
-};
-
-} // namespace Internal
-} // namespace UpdateInfo
-
-#endif // UPDATEINFOPLUGIN_H
+bool SettingsPage::matches(const QString &searchKey) const
+{
+    return m_searchKeywords.contains(searchKey, Qt::CaseInsensitive);
+}
