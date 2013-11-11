@@ -1112,6 +1112,14 @@ void tst_Dumpers::dumper()
     }
 
     if (!data.checks.isEmpty()) {
+        for (int i = data.checks.size(); --i >= 0; ) {
+            Check check = data.checks.at(i);
+            if (!check.matchesEngine(m_debuggerEngine))
+                data.checks.removeAt(i);
+        }
+    }
+
+    if (!data.checks.isEmpty()) {
         bool fail = false;
         qDebug() << "SOME TESTS NOT EXECUTED: ";
         foreach (const Check &check, data.checks) {
