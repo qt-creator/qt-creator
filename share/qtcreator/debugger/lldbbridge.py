@@ -671,6 +671,13 @@ class Dumper(DumperBase):
         line = frame.line_entry.line
         self.report('location={file="%s",line="%s",addr="%s"}' % (file, line, frame.pc))
 
+    def firstStoppedThread(self):
+        for i in xrange(0, self.process.GetNumThreads()):
+            thread = self.process.GetThreadAtIndex(i)
+            if thread.GetStopReason() == lldb.eStopReasonBreakpoint:
+                return thread
+        return None
+
     def reportThreads(self):
         reasons = ['None', 'Trace', 'Breakpoint', 'Watchpoint', 'Signal', 'Exception',
             'Exec', 'PlanComplete']
@@ -699,8 +706,7 @@ class Dumper(DumperBase):
         result += '],current-thread-id="%s"},' % self.currentThread().id
         self.report(result)
 
-    def firstUsableFrame(self):
-        thread = self.currentThread()
+    def firstUsableFrame(self, thread):
         for i in xrange(10):
             frame = thread.GetFrameAtIndex(i)
             lineEntry = frame.GetLineEntry()
@@ -1082,9 +1088,12 @@ class Dumper(DumperBase):
         if type == lldb.SBProcess.eBroadcastBitStateChanged:
             state = self.process.GetState()
             if state == lldb.eStateStopped:
-                usableFrame = self.firstUsableFrame()
-                if usableFrame:
-                    self.currentThread().SetSelectedFrame(usableFrame)
+                stoppedThread = self.firstStoppedThread()
+                if stoppedThread:
+                    self.process.SetSelectedThread(stoppedThread)
+                    usableFrame = self.firstUsableFrame(stoppedThread)
+                    if usableFrame:
+                        stoppedThread.SetSelectedFrame(usableFrame)
                 self.reportStack()
                 self.reportThreads()
                 self.reportLocation()
