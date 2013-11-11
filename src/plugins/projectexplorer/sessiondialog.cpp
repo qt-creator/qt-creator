@@ -186,6 +186,17 @@ void SessionDialog::markItems()
     }
 }
 
+void SessionDialog::addSessionToUi(const QString &name, bool switchTo)
+{
+    m_ui.sessionList->clear();
+    QStringList sessions = SessionManager::sessions();
+    m_ui.sessionList->addItems(sessions);
+    m_ui.sessionList->setCurrentRow(sessions.indexOf(name));
+    markItems();
+    if (switchTo)
+        switchToSession();
+}
+
 void SessionDialog::updateActions()
 {
     if (m_ui.sessionList->currentItem()) {
@@ -209,18 +220,12 @@ void SessionDialog::createNew()
     newSessionInputDialog.setWindowTitle(tr("New session name"));
 
     if (newSessionInputDialog.exec() == QDialog::Accepted) {
-        QString newSession = newSessionInputDialog.value();
-        if (newSession.isEmpty() || SessionManager::sessions().contains(newSession))
+        QString sessionName = newSessionInputDialog.value();
+        if (sessionName.isEmpty() || SessionManager::sessions().contains(sessionName))
             return;
 
-        SessionManager::createSession(newSession);
-        m_ui.sessionList->clear();
-        QStringList sessions = SessionManager::sessions();
-        m_ui.sessionList->addItems(sessions);
-        m_ui.sessionList->setCurrentRow(sessions.indexOf(newSession));
-        markItems();
-        if (newSessionInputDialog.isSwitchToRequested())
-            switchToSession();
+        SessionManager::createSession(sessionName);
+        addSessionToUi(sessionName, newSessionInputDialog.isSwitchToRequested());
     }
 }
 
@@ -232,13 +237,8 @@ void SessionDialog::clone()
 
     if (newSessionInputDialog.exec() == QDialog::Accepted) {
         QString newSession = newSessionInputDialog.value();
-        if (SessionManager::cloneSession(m_ui.sessionList->currentItem()->text(), newSession)) {
-            m_ui.sessionList->clear();
-            QStringList sessions = SessionManager::sessions();
-            m_ui.sessionList->addItems(sessions);
-            m_ui.sessionList->setCurrentRow(sessions.indexOf(newSession));
-            markItems();
-        }
+        if (SessionManager::cloneSession(m_ui.sessionList->currentItem()->text(), newSession))
+            addSessionToUi(newSession, newSessionInputDialog.isSwitchToRequested());
     }
 }
 
