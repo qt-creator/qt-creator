@@ -121,26 +121,26 @@ void TimelineRenderer::drawItemsToPainter(QPainter *p, int modelIndex, int fromI
     QRect window = p->window();
 
     for (int i = fromIndex; i <= toIndex; i++) {
-        int x, y, width, height;
-        x = (m_profilerModelProxy->getStartTime(modelIndex, i) - m_startTime) * m_spacing;
+        int currentX, currentY, itemWidth, itemHeight;
+        currentX = (m_profilerModelProxy->getStartTime(modelIndex, i) - m_startTime) * m_spacing;
 
         int rowNumber = m_profilerModelProxy->getEventRow(modelIndex, i);
-        y = (modelRowStart + rowNumber) * DefaultRowHeight;
-        if (y >= window.bottom())
+        currentY = (modelRowStart + rowNumber) * DefaultRowHeight;
+        if (currentY >= window.bottom())
             continue;
 
-        width = m_profilerModelProxy->getDuration(modelIndex, i) * m_spacing;
-        if (width < 1)
-            width = 1;
+        itemWidth = m_profilerModelProxy->getDuration(modelIndex, i) * m_spacing;
+        if (itemWidth < 1)
+            itemWidth = 1;
 
-        height = DefaultRowHeight * m_profilerModelProxy->getHeight(modelIndex, i);
-        y += DefaultRowHeight - height;
-        if (y + height < window.top())
+        itemHeight = DefaultRowHeight * m_profilerModelProxy->getHeight(modelIndex, i);
+        currentY += DefaultRowHeight - itemHeight;
+        if (currentY + itemHeight < window.top())
             continue;
 
         // normal events
         p->setBrush(m_profilerModelProxy->getColor(modelIndex, i));
-        p->drawRect(x, y, width, height);
+        p->drawRect(currentX, currentY, itemWidth, itemHeight);
     }
     p->restore();
 }
@@ -168,23 +168,23 @@ void TimelineRenderer::drawSelectionBoxes(QPainter *p, int modelIndex, int fromI
     p->setPen(lightPen);
     p->setBrush(Qt::transparent);
 
-    int x, y, width;
+    int currentX, currentY, itemWidth;
     QRect selectedItemRect(0,0,0,0);
     for (int i = fromIndex; i <= toIndex; i++) {
         if (m_profilerModelProxy->getEventId(modelIndex, i) != id)
             continue;
 
-        x = (m_profilerModelProxy->getStartTime(modelIndex, i) - m_startTime) * m_spacing;
-        y = (modelRowStart + m_profilerModelProxy->getEventRow(modelIndex, i)) * DefaultRowHeight;
+        currentX = (m_profilerModelProxy->getStartTime(modelIndex, i) - m_startTime) * m_spacing;
+        currentY = (modelRowStart + m_profilerModelProxy->getEventRow(modelIndex, i)) * DefaultRowHeight;
 
-        width = m_profilerModelProxy->getDuration(modelIndex, i)*m_spacing;
-        if (width<1)
-            width = 1;
+        itemWidth = m_profilerModelProxy->getDuration(modelIndex, i) * m_spacing;
+        if (itemWidth < 1)
+            itemWidth = 1;
 
         if (i == m_selectedItem)
-            selectedItemRect = QRect(x, y-1, width, DefaultRowHeight+1);
+            selectedItemRect = QRect(currentX, currentY - 1, itemWidth, DefaultRowHeight + 1);
         else
-            p->drawRect(x,y,width,DefaultRowHeight);
+            p->drawRect(currentX, currentY, itemWidth, DefaultRowHeight);
     }
 
     // draw the selected item rectangle the last, so that it's overlayed
@@ -316,14 +316,14 @@ void TimelineRenderer::manageClicked()
 
 }
 
-void TimelineRenderer::manageHovered(int x, int y)
+void TimelineRenderer::manageHovered(int mouseX, int mouseY)
 {
     if (m_endTime - m_startTime <=0 || m_lastEndTime - m_lastStartTime <= 0)
         return;
 
-    qint64 time = x * (m_endTime - m_startTime) / width() + m_startTime;
-    int row = y / DefaultRowHeight;
-    int modelIndex = modelFromPosition(y);
+    qint64 time = mouseX * (m_endTime - m_startTime) / width() + m_startTime;
+    int row = mouseY / DefaultRowHeight;
+    int modelIndex = modelFromPosition(mouseY);
 
     // already covered? nothing to do
     if (m_currentSelection.eventIndex != -1 &&
