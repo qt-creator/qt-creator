@@ -85,7 +85,7 @@ IDeviceWidget *IosSimulator::createWidget()
 
 QList<Core::Id> IosSimulator::actionIds() const
 {
-    return QList<Core::Id>()<<Core::Id(Constants::IOS_DEVICE_ID);
+    return QList<Core::Id>();
 }
 
 QString IosSimulator::displayNameForActionId(Core::Id actionId) const
