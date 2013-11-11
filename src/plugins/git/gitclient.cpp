@@ -37,8 +37,8 @@
 #include "gitversioncontrol.h"
 #include "mergetool.h"
 #include "branchadddialog.h"
+#include "gerrit/gerritplugin.h"
 
-#include <gerrit/gerritplugin.h>
 #include <vcsbase/submitfilemodel.h>
 
 #include <coreplugin/editormanager/editormanager.h>
