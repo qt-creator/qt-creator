@@ -70,7 +70,7 @@
 
             \li In the \gui Text field, type \b Button.
 
-                You can select the text color in the \gui Color section and the
+                You can select the text color in the \gui {Text color} field and the
                 font, size, and style in the
                 \gui Font section.
 
@@ -166,18 +166,18 @@
         \li Click \gui {Design} to edit the file in the visual editor.
 
         \li Drag and drop two \gui {Border Image} items from the \gui Library pane
-            to the scene.
+            to the canvas.
 
-        \li Drag and drop a \gui Text item to the scene.
+        \li Drag and drop a \gui Text item to the canvas.
 
-        \li Drag and drop a \gui {Mouse Area} to the screen.
+        \li Drag and drop a \gui {Mouse Area} to the canvas.
 
         \li In the \gui Navigator pane, select \gui border_image1 to specify
             settings for it in the \gui Properties pane:
 
         \list a
 
-            \li Select \gui {Set Expression} in the menu next to the
+            \li Select \gui {Set Binding} in the menu next to the
                 \gui Visibility check box.
 
             \li Enter the following expression to specify that the image is
@@ -219,12 +219,9 @@
             \li In the \gui Color field, use the color picker to select
                 the font color, or enter a value in the field.
 
-            \li In the \gui Text field, select \gui {Set Expression} and
+            \li In the \gui Text field, select \gui {Set Binding} and
                 enter a pointer to the \c {text} property that you specified
                 earlier: \c {parent.txt}.
-
-            \li Select the \gui Smooth check box to enable smooth text
-                rendering.
 
             \li In the \gui Size field, select \gui {Pixels} to specify the font
                 size in pixels. By default, the size is specified in points.
@@ -242,7 +239,7 @@
             \li Click \gui Advanced to specify scaling for the text in the
                 \gui Scale field.
 
-            \li Select \gui {Set Expression} and enter the following expression:
+            \li Select \gui {Set Binding} and enter the following expression:
                 \c {if (!mousearea1.pressed) { 1 } else { 0.95 }}.
 
                 \note You can enter long and complicated expressions also in the
