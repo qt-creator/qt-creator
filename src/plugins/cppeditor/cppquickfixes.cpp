@@ -158,10 +158,8 @@ InsertionLocation insertLocationForMethodDefinition(Symbol *symbol, const bool u
             = locator.methodDefinition(symbol, useSymbolFinder, fileName);
     for (int i = 0; i < list.count(); ++i) {
         InsertionLocation location = list.at(i);
-        if (location.isValid() && location.fileName() == fileName) {
+        if (location.isValid() && location.fileName() == fileName)
             return location;
-            break;
-        }
     }
 
     // ...failed,
@@ -4769,11 +4767,11 @@ public:
                     ? Qt::Checked : Qt::Unchecked;
             for (Scope::iterator it = clazz->firstMember(); it != clazz->lastMember(); ++it) {
                 if (const Function *func = (*it)->type()->asFunctionType()) {
-                    if (!func->isVirtual())
+                    // Filter virtual destructors
+                    if (func->name()->asDestructorNameId())
                         continue;
 
-                    // Filter virtual destructors
-                    if (printer.prettyName(func->name()).startsWith(QLatin1Char('~')))
+                    if (!func->isVirtual())
                         continue;
 
                     // Filter OQbject's
@@ -4917,16 +4915,12 @@ public:
             switch (spec) {
             case InsertionPointLocator::Private:
                 return InsertionPointLocator::PrivateSlot;
-                break;
             case InsertionPointLocator::Protected:
                 return InsertionPointLocator::ProtectedSlot;
-                break;
             case InsertionPointLocator::Public:
                 return InsertionPointLocator::PublicSlot;
-                break;
             default:
                 return spec;
-                break;
             }
         }
         return spec;
