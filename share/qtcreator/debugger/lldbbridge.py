@@ -634,7 +634,8 @@ class Dumper(DumperBase):
             launchInfo.SetEnvironmentEntries(environmentList, False)
             self.process = self.target.Launch(launchInfo, error)
             if not error.Success():
-                self.report('state="inferiorrunfailed"')
+                self.reportError(error)
+                self.report('state="enginerunfailed"')
                 return
             self.report('pid="%s"' % self.process.GetProcessID())
             self.report('state="enginerunandinferiorrunok"')
