@@ -68,8 +68,10 @@
         \li \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-textinput.html}{Text Input}
             adds a single line of editable plain text that can be validated.
 
+        \omit
         \li \l{http://qt-project.org/doc/qt-5.0/qtwebkit/qml-qtwebkit3-webview.html}{Web View}
             adds web content to a canvas.
+        \endomit
 
     \endlist
 
