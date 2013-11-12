@@ -148,6 +148,12 @@ bool DebuggerItemModel::updateDebuggerStandardItem(const DebuggerItem &item, boo
     QTC_ASSERT(sitem, return false);
     QStandardItem *parent = sitem->parent();
     QTC_ASSERT(parent, return false);
+
+    // Do not mark items as changed if they actually are not:
+    DebuggerItem orig = debuggerItem(sitem);
+    if (orig == item && DebuggerItemManager::findById(orig.id()))
+        changed = false;
+
     int row = sitem->row();
     QFont font = sitem->font();
     font.setBold(changed);
