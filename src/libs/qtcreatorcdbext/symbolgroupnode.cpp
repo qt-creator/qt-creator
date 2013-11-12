@@ -371,7 +371,8 @@ enum DumpEncoding // WatchData encoding of GDBMI values
     DumpEncodingHex_Utf8_LittleEndian_WithQuotes = 9,
     DumpEncodingJulianDate = 14,
     DumpEncodingMillisecondsSinceMidnight = 15,
-    DumpEncodingJulianDateAndMillisecondsSinceMidnight = 16
+    DumpEncodingJulianDateAndMillisecondsSinceMidnight = 16,
+    DumpEncodingMillisecondsSinceEpoch = 29
 };
 
 /* Recode arrays/pointers of char*, wchar_t according to users
@@ -1127,7 +1128,9 @@ int SymbolGroupNode::dumpNode(std::ostream &str,
         encoding = DumpEncodingMillisecondsSinceMidnight;
         break;
     case KT_QDateTime:
-        encoding = DumpEncodingJulianDateAndMillisecondsSinceMidnight;
+        encoding = QtInfo::get(ctx).version < 5
+                ? DumpEncodingJulianDateAndMillisecondsSinceMidnight
+                : DumpEncodingMillisecondsSinceEpoch;
         break;
     }
     if (encoding) {
