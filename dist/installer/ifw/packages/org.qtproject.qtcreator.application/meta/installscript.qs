@@ -153,12 +153,6 @@ Component.prototype.createOperations = function()
     component.createOperations();
     if ( installer.value("os") == "win" )
     {
-        component.addOperation( "SetPluginPathOnQtCore",
-                                "@TargetDir@/bin",
-                                "@TargetDir@/plugins");
-        component.addOperation( "SetImportsPathOnQtCore",
-                                "@TargetDir@/bin",
-                                "@TargetDir@/bin");
         component.addOperation( "CreateShortcut",
                                 component.qtCreatorBinaryPath,
                                 "@StartMenuDir@/Qt Creator.lnk",
@@ -173,13 +167,6 @@ Component.prototype.createOperations = function()
     }
     if ( installer.value("os") == "x11" )
     {
-        component.addOperation( "SetPluginPathOnQtCore",
-                                "@TargetDir@/lib/qtcreator",
-                                "@TargetDir@/lib/qtcreator/plugins");
-        component.addOperation( "SetImportsPathOnQtCore",
-                                "@TargetDir@/lib/qtcreator",
-                                "@TargetDir@/bin");
-
         component.addOperation( "InstallIcons", "@TargetDir@/share/icons" );
         component.addOperation( "CreateDesktopEntry",
                                 "QtProject-qtcreator.desktop",
