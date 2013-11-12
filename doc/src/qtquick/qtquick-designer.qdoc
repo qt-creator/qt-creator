@@ -547,7 +547,8 @@
     the position of an item within a column or a row, the new position might
     not be displayed correctly on the canvas.
 
-    To refresh the image on the canvas, press \key R or select the \gui {Reset
-    View} button on the canvas toolbar.
+    To refresh the image on the canvas, press \key R or select
+    \inlineimage qmldesigner-reset-view.png
+    (\gui {Reset View}).
 
 */
