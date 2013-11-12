@@ -630,7 +630,10 @@ QString decodeData(const QByteArray &ba, int encoding)
             return QString::fromUtf8(decodedBa);
         }
         case MillisecondsSinceEpoch: {
-            const qint64 ms = ba.toLongLong();
+            bool ok = false;
+            const qint64 ms = ba.toLongLong(&ok);
+            if (!ok)
+                return QLatin1String(ba);
             QDateTime d;
             d.setTimeSpec(Qt::UTC);
             d.setMSecsSinceEpoch(ms);
