@@ -120,8 +120,10 @@ QWidget *EnvironmentAspectWidget::additionalWidget() const
 void EnvironmentAspectWidget::baseEnvironmentSelected(int idx)
 {
     m_ignoreChange = true;
-    m_aspect->setBaseEnvironmentBase(m_baseEnvironmentComboBox->itemData(idx).toInt());
+    int base = m_baseEnvironmentComboBox->itemData(idx).toInt();
+    m_aspect->setBaseEnvironmentBase(base);
     m_environmentWidget->setBaseEnvironment(m_aspect->baseEnvironment());
+    m_environmentWidget->setBaseEnvironmentText(m_aspect->baseEnvironmentDisplayName(base));
     m_ignoreChange = false;
 }
 
