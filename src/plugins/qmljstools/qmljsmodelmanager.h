@@ -36,6 +36,7 @@
 #include <qmljs/qmljsqrcparser.h>
 
 #include <cplusplus/CppDocument.h>
+#include <utils/qtcoverride.h>
 
 #include <QFuture>
 #include <QFutureSynchronizer>
@@ -75,26 +76,26 @@ public:
 
     void delayedInitialization();
 
-    virtual WorkingCopy workingCopy() const;
-    virtual QmlJS::Snapshot snapshot() const;
-    virtual QmlJS::Snapshot newestSnapshot() const;
+    WorkingCopy workingCopy() const QTC_OVERRIDE;
+    QmlJS::Snapshot snapshot() const QTC_OVERRIDE;
+    QmlJS::Snapshot newestSnapshot() const QTC_OVERRIDE;
 
-    virtual void updateSourceFiles(const QStringList &files,
-                                   bool emitDocumentOnDiskChanged);
-    virtual void fileChangedOnDisk(const QString &path);
-    virtual void removeFiles(const QStringList &files);
-    virtual QStringList filesAtQrcPath(const QString &path, const QLocale *locale = 0,
-                                       ProjectExplorer::Project *project = 0,
-                                       QrcResourceSelector resources = AllQrcResources);
-    virtual QMap<QString,QStringList> filesInQrcPath(const QString &path,
-                                                     const QLocale *locale = 0,
-                                                     ProjectExplorer::Project *project = 0,
-                                                     bool addDirs = false,
-                                                     QrcResourceSelector resources = AllQrcResources);
+    void updateSourceFiles(const QStringList &files,
+                           bool emitDocumentOnDiskChanged) QTC_OVERRIDE;
+    void fileChangedOnDisk(const QString &path) QTC_OVERRIDE;
+    void removeFiles(const QStringList &files) QTC_OVERRIDE;
+    QStringList filesAtQrcPath(const QString &path, const QLocale *locale = 0,
+                               ProjectExplorer::Project *project = 0,
+                               QrcResourceSelector resources = AllQrcResources) QTC_OVERRIDE;
+    QMap<QString,QStringList> filesInQrcPath(const QString &path,
+                                             const QLocale *locale = 0,
+                                             ProjectExplorer::Project *project = 0,
+                                             bool addDirs = false,
+                                             QrcResourceSelector resources = AllQrcResources) QTC_OVERRIDE;
 
-    virtual QList<ProjectInfo> projectInfos() const;
-    virtual ProjectInfo projectInfo(ProjectExplorer::Project *project) const;
-    virtual void updateProjectInfo(const ProjectInfo &pinfo);
+    QList<ProjectInfo> projectInfos() const QTC_OVERRIDE;
+    ProjectInfo projectInfo(ProjectExplorer::Project *project) const QTC_OVERRIDE;
+    void updateProjectInfo(const ProjectInfo &pinfo) QTC_OVERRIDE;
     Q_SLOT virtual void removeProjectInfo(ProjectExplorer::Project *project);
     virtual ProjectInfo projectInfoForPath(QString path);
 
@@ -103,21 +104,21 @@ public:
     void emitDocumentChangedOnDisk(QmlJS::Document::Ptr doc);
     void updateQrcFile(const QString &path);
 
-    virtual QStringList importPaths() const;
-    virtual QmlJS::QmlLanguageBundles activeBundles() const;
-    virtual QmlJS::QmlLanguageBundles extendedBundles() const;
+    QStringList importPaths() const QTC_OVERRIDE;
+    QmlJS::QmlLanguageBundles activeBundles() const QTC_OVERRIDE;
+    QmlJS::QmlLanguageBundles extendedBundles() const QTC_OVERRIDE;
 
-    virtual void loadPluginTypes(const QString &libraryPath, const QString &importPath,
-                                 const QString &importUri, const QString &importVersion);
+    void loadPluginTypes(const QString &libraryPath, const QString &importPath,
+                         const QString &importUri, const QString &importVersion) QTC_OVERRIDE;
 
-    virtual CppDataHash cppData() const;
+    CppDataHash cppData() const QTC_OVERRIDE;
 
-    virtual QmlJS::LibraryInfo builtins(const QmlJS::Document::Ptr &doc) const;
+    QmlJS::LibraryInfo builtins(const QmlJS::Document::Ptr &doc) const QTC_OVERRIDE;
 
-    virtual void joinAllThreads();
+    void joinAllThreads() QTC_OVERRIDE;
 
 public slots:
-    virtual void resetCodeModel();
+    void resetCodeModel() QTC_OVERRIDE;
 
 Q_SIGNALS:
     void projectPathChanged(const QString &projectPath);
