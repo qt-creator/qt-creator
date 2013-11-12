@@ -65,6 +65,7 @@ class DebuggerItemConfigWidget : public QWidget
 
 public:
     explicit DebuggerItemConfigWidget(DebuggerItemModel *model);
+    DebuggerItem store() const;
     void setItem(const DebuggerItem &item);
     void apply();
 
@@ -74,6 +75,8 @@ private:
     PathChooser *m_binaryChooser;
     QLineEdit *m_abis;
     DebuggerItemModel *m_model;
+    bool m_autodetected;
+    QVariant m_id;
 };
 
 DebuggerItemConfigWidget::DebuggerItemConfigWidget(DebuggerItemModel *model) :
@@ -104,8 +107,27 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget(DebuggerItemModel *model) :
     formLayout->addRow(new QLabel(tr("ABIs:")), m_abis);
 }
 
+DebuggerItem DebuggerItemConfigWidget::store() const
+{
+    DebuggerItem item(m_id);
+    if (m_id.isNull())
+        return item;
+
+    item.setDisplayName(m_displayNameLineEdit->text());
+    item.setCommand(m_binaryChooser->fileName());
+    item.setAutoDetected(m_autodetected);
+    item.reinitializeFromFile();
+    m_model->updateDebugger(item);
+    return item;
+}
+
 void DebuggerItemConfigWidget::setItem(const DebuggerItem &item)
 {
+    store(); // store away the (changed) settings for future use
+
+    m_autodetected = item.isAutoDetected();
+    m_id = item.id();
+
     m_displayNameLineEdit->setEnabled(!item.isAutoDetected());
     m_displayNameLineEdit->setText(item.displayName());
 
@@ -144,10 +166,7 @@ void DebuggerItemConfigWidget::apply()
     if (!item.isValid())
         return; // Nothing was selected here.
 
-    item.setDisplayName(m_displayNameLineEdit->text());
-    item.setCommand(m_binaryChooser->fileName());
-    item.reinitializeFromFile();
-    m_model->updateDebugger(item);
+    item = store();
     setItem(item);
 }
 
