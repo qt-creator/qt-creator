@@ -52,7 +52,7 @@ QWidget *SettingsPage::createPage(QWidget *parent)
     m_ui.setupUi(m_page);
     if (m_searchKeywords.isEmpty())
         m_searchKeywords = m_ui.m_info->text();
-    m_ui.m_timeTable->setCurrentText(QTime(m_plugin->scheduledUpdateTime())
+    m_ui.m_timeTable->setItemText(m_ui.m_timeTable->currentIndex(), QTime(m_plugin->scheduledUpdateTime())
         .toString(QLatin1String("hh:mm")));
     return m_page;
 }

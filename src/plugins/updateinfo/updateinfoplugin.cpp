@@ -47,6 +47,7 @@
 #include <QFutureWatcher>
 #include <QMenu>
 #include <QProcess>
+#include <QtPlugin>
 
 namespace {
     static const quint32 OneMinute = 60000;
