@@ -143,7 +143,6 @@ signals:
 private:
     void contextMenuEvent(QContextMenuEvent *);
     QWidget *createToolbar();
-    QWidget *createZoomToolbar();
 
     void setRecording(bool recording);
     void setAppKilled();

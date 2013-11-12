@@ -136,7 +136,6 @@ public:
 
     QToolButton *m_buttonRange;
     QToolButton *m_buttonLock;
-    QWidget *m_zoomToolbar;
     int m_currentZoomLevel;
 };
 
@@ -172,10 +171,6 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
     QWidget *overviewContainer = QWidget::createWindowContainer(d->m_overview);
     overviewContainer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     overviewContainer->setMaximumHeight(50);
-
-    d->m_zoomToolbar = createZoomToolbar();
-    d->m_zoomToolbar->move(0, d->m_timebar->height());
-    d->m_zoomToolbar->setVisible(false);
 
     toolsLayout->addWidget(createToolbar());
     toolsLayout->addWidget(timeBarContainer);
@@ -269,7 +264,6 @@ QWidget *QmlProfilerTraceView::createToolbar()
     buttonZoomControls->setToolTip(tr("Show zoom slider"));
     buttonZoomControls->setCheckable(true);
     buttonZoomControls->setChecked(false);
-    connect(buttonZoomControls, SIGNAL(toggled(bool)), d->m_zoomToolbar, SLOT(setVisible(bool)));
     connect(this, SIGNAL(enableToolbar(bool)), buttonZoomControls, SLOT(setEnabled(bool)));
 
     d->m_buttonRange = new QToolButton;
@@ -297,49 +291,6 @@ QWidget *QmlProfilerTraceView::createToolbar()
     toolBarLayout->addWidget(new Utils::StyledSeparator());
     toolBarLayout->addWidget(d->m_buttonRange);
     toolBarLayout->addWidget(d->m_buttonLock);
-
-    return bar;
-}
-
-
-QWidget *QmlProfilerTraceView::createZoomToolbar()
-{
-    Utils::StyledBar *bar = new Utils::StyledBar(this);
-    bar->setStyleSheet(QLatin1String("background: #9B9B9B"));
-    bar->setSingleRow(true);
-    bar->setFixedWidth(150);
-    bar->setFixedHeight(24);
-
-    QHBoxLayout *toolBarLayout = new QHBoxLayout(bar);
-    toolBarLayout->setMargin(0);
-    toolBarLayout->setSpacing(0);
-
-    QSlider *zoomSlider = new QSlider(Qt::Horizontal);
-    zoomSlider->setFocusPolicy(Qt::NoFocus);
-    zoomSlider->setRange(1, sliderTicks);
-    zoomSlider->setInvertedAppearance(true);
-    zoomSlider->setPageStep(sliderTicks/100);
-    connect(this, SIGNAL(enableToolbar(bool)), zoomSlider, SLOT(setEnabled(bool)));
-    connect(zoomSlider, SIGNAL(valueChanged(int)), this, SLOT(setZoomLevel(int)));
-    connect(this, SIGNAL(zoomLevelChanged(int)), zoomSlider, SLOT(setValue(int)));
-    zoomSlider->setStyleSheet(QLatin1String("\
-        QSlider:horizontal {\
-            background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #444444, stop: 1 #5a5a5a);\
-            border: 1px #313131;\
-            height: 20px;\
-            margin: 0px 0px 0px 0px;\
-        }\
-        QSlider::add-page:horizontal {\
-            background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #5a5a5a, stop: 1 #444444);\
-            border: 1px #313131;\
-        }\
-        QSlider::sub-page:horizontal {\
-            background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #5a5a5a, stop: 1 #444444);\
-            border: 1px #313131;\
-        }\
-        "));
-
-    toolBarLayout->addWidget(zoomSlider);
 
     return bar;
 }
