@@ -29,35 +29,36 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BLACKBERRYCHECKDEVMODESTEP_H
-#define QNX_INTERNAL_BLACKBERRYCHECKDEVMODESTEP_H
+#ifndef QNX_INTERNAL_BLACKBERRYCHECKDEBUGTOKENSTEPFACTORY_H
+#define QNX_INTERNAL_BLACKBERRYCHECKDEBUGTOKENSTEPFACTORY_H
 
-#include "blackberryabstractdeploystep.h"
+#include <projectexplorer/buildstep.h>
 
 namespace Qnx {
 namespace Internal {
 
-class BlackBerryCheckDevModeStep : public BlackBerryAbstractDeployStep
+class BlackBerryCheckDebugTokenStepFactory : public ProjectExplorer::IBuildStepFactory
 {
     Q_OBJECT
-    friend class BlackBerryCheckDevModeStepFactory;
-
 public:
-    explicit BlackBerryCheckDevModeStep(ProjectExplorer::BuildStepList *bsl);
+    explicit BlackBerryCheckDebugTokenStepFactory(QObject *parent = 0);
 
-    bool init();
-    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
+    QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *parent) const;
+    QString displayNameForId(const Core::Id id) const;
 
-protected:
-    BlackBerryCheckDevModeStep(ProjectExplorer::BuildStepList *bsl, BlackBerryCheckDevModeStep *bs);
+    bool canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const;
+    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, const Core::Id id);
 
-    void processStarted(const ProjectExplorer::ProcessParameters &params);
+    bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const;
+    ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent,
+                                        const QVariantMap &map);
 
-private:
-    QString password() const;
+    bool canClone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product) const;
+    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent,
+                                      ProjectExplorer::BuildStep *product);
 };
 
 } // namespace Internal
 } // namespace Qnx
 
-#endif // QNX_INTERNAL_BLACKBERRYCHECKDEVMODESTEP_H
+#endif // QNX_INTERNAL_BLACKBERRYCHECKDEVMODESTEPFACTORY_H

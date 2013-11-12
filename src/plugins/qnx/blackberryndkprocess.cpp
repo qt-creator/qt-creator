@@ -47,6 +47,7 @@ BlackBerryNdkProcess::BlackBerryNdkProcess(const QString &command, QObject *pare
 {
     m_process->setProcessChannelMode(QProcess::MergedChannels);
 
+    connect(m_process, SIGNAL(started()), this, SIGNAL(started()));
     connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)),
             this, SLOT(processFinished()));
     connect(m_process, SIGNAL(error(QProcess::ProcessError)),

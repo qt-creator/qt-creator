@@ -29,9 +29,9 @@
 **
 ****************************************************************************/
 
-#include "blackberrycheckdevmodestepfactory.h"
+#include "blackberrycheckdebugtokenstepfactory.h"
 
-#include "blackberrycheckdevmodestep.h"
+#include "blackberrycheckdebugtokenstep.h"
 #include "blackberrydeviceconfigurationfactory.h"
 #include "qnxconstants.h"
 
@@ -43,12 +43,12 @@
 using namespace Qnx;
 using namespace Qnx::Internal;
 
-BlackBerryCheckDevModeStepFactory::BlackBerryCheckDevModeStepFactory(QObject *parent) :
+BlackBerryCheckDebugTokenStepFactory::BlackBerryCheckDebugTokenStepFactory(QObject *parent) :
     ProjectExplorer::IBuildStepFactory(parent)
 {
 }
 
-QList<Core::Id> BlackBerryCheckDevModeStepFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
+QList<Core::Id> BlackBerryCheckDebugTokenStepFactory::availableCreationIds(ProjectExplorer::BuildStepList *parent) const
 {
     if (parent->id() != ProjectExplorer::Constants::BUILDSTEPS_DEPLOY)
         return QList<Core::Id>();
@@ -57,52 +57,52 @@ QList<Core::Id> BlackBerryCheckDevModeStepFactory::availableCreationIds(ProjectE
     if (deviceType != BlackBerryDeviceConfigurationFactory::deviceType())
         return QList<Core::Id>();
 
-    return QList<Core::Id>() << Core::Id(Constants::QNX_CHECK_DEVELOPMENT_MODE_BS_ID);
+    return QList<Core::Id>() << Core::Id(Constants::QNX_CHECK_DEBUG_TOKEN_BS_ID);
 }
 
-QString BlackBerryCheckDevModeStepFactory::displayNameForId(const Core::Id id) const
+QString BlackBerryCheckDebugTokenStepFactory::displayNameForId(const Core::Id id) const
 {
-    if (id == Constants::QNX_CHECK_DEVELOPMENT_MODE_BS_ID)
-        return tr("Check Development Mode");
+    if (id == Constants::QNX_CHECK_DEBUG_TOKEN_BS_ID)
+        return tr("Check Debug Token");
     return QString();
 }
 
-bool BlackBerryCheckDevModeStepFactory::canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const
+bool BlackBerryCheckDebugTokenStepFactory::canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const
 {
     return availableCreationIds(parent).contains(id);
 }
 
-ProjectExplorer::BuildStep *BlackBerryCheckDevModeStepFactory::create(ProjectExplorer::BuildStepList *parent, const Core::Id id)
+ProjectExplorer::BuildStep *BlackBerryCheckDebugTokenStepFactory::create(ProjectExplorer::BuildStepList *parent, const Core::Id id)
 {
     if (!canCreate(parent, id))
         return 0;
-    return new BlackBerryCheckDevModeStep(parent);
+    return new BlackBerryCheckDebugTokenStep(parent);
 }
 
-bool BlackBerryCheckDevModeStepFactory::canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const
+bool BlackBerryCheckDebugTokenStepFactory::canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const
 {
     return canCreate(parent, ProjectExplorer::idFromMap(map));
 }
 
-ProjectExplorer::BuildStep *BlackBerryCheckDevModeStepFactory::restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map)
+ProjectExplorer::BuildStep *BlackBerryCheckDebugTokenStepFactory::restore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map)
 {
     if (!canRestore(parent, map))
         return 0;
-    BlackBerryCheckDevModeStep *bs = new BlackBerryCheckDevModeStep(parent);
+    BlackBerryCheckDebugTokenStep *bs = new BlackBerryCheckDebugTokenStep(parent);
     if (bs->fromMap(map))
         return bs;
     delete bs;
     return 0;
 }
 
-bool BlackBerryCheckDevModeStepFactory::canClone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product) const
+bool BlackBerryCheckDebugTokenStepFactory::canClone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product) const
 {
     return canCreate(parent, product->id());
 }
 
-ProjectExplorer::BuildStep *BlackBerryCheckDevModeStepFactory::clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product)
+ProjectExplorer::BuildStep *BlackBerryCheckDebugTokenStepFactory::clone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product)
 {
     if (!canClone(parent, product))
         return 0;
-    return new BlackBerryCheckDevModeStep(parent, static_cast<BlackBerryCheckDevModeStep *>(product));
+    return new BlackBerryCheckDebugTokenStep(parent, static_cast<BlackBerryCheckDebugTokenStep *>(product));
 }

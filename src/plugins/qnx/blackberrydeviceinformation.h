@@ -62,6 +62,7 @@ public:
     QString deviceOS() const;
     QString hardwareId() const;
     QString debugTokenAuthor() const;
+    QString debugTokenValidationError() const;
     bool debugTokenValid() const;
     QString scmBundle() const;
     QString hostName() const;
@@ -75,6 +76,7 @@ private:
     QString m_debugTokenAuthor;
     QString m_scmBundle;
     QString m_hostName;
+    QString m_debugTokenValidationError;
     bool m_debugTokenValid;
     bool m_isSimulator;
     bool m_isProductionDevice;

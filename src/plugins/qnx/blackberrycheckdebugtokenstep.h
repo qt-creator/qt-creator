@@ -29,27 +29,49 @@
 **
 ****************************************************************************/
 
-#include "blackberrycheckdevmodestepconfigwidget.h"
+#ifndef QNX_INTERNAL_BLACKBERRYCHECKDEBUGTOKENSTEP_H
+#define QNX_INTERNAL_BLACKBERRYCHECKDEBUGTOKENSTEP_H
 
-using namespace Qnx;
-using namespace Qnx::Internal;
+#include "blackberrydeviceconfiguration.h"
 
-BlackBerryCheckDevModeStepConfigWidget::BlackBerryCheckDevModeStepConfigWidget() :
-    ProjectExplorer::BuildStepConfigWidget()
+#include <projectexplorer/buildstep.h>
+
+QT_BEGIN_NAMESPACE
+class QEventLoop;
+QT_END_NAMESPACE
+
+namespace Qnx {
+namespace Internal {
+
+class BlackBerryDeviceInformation;
+class BlackBerryCheckDebugTokenStep : public ProjectExplorer::BuildStep
 {
-}
+    Q_OBJECT
+    friend class BlackBerryCheckDebugTokenStepFactory;
 
-QString BlackBerryCheckDevModeStepConfigWidget::displayName() const
-{
-    return tr("<b>Check development mode</b>");
-}
+public:
+    explicit BlackBerryCheckDebugTokenStep(ProjectExplorer::BuildStepList *bsl);
 
-QString BlackBerryCheckDevModeStepConfigWidget::summaryText() const
-{
-    return displayName();
-}
+    bool init();
+    void run(QFutureInterface<bool> &fi);
+    ProjectExplorer::BuildStepConfigWidget *createConfigWidget();
 
-bool BlackBerryCheckDevModeStepConfigWidget::showWidget() const
-{
-    return false;
-}
+    void raiseError(const QString& error);
+
+protected:
+    BlackBerryCheckDebugTokenStep(ProjectExplorer::BuildStepList *bsl, BlackBerryCheckDebugTokenStep *bs);
+
+protected slots:
+    void checkDeviceInfo(int status);
+    void emitOutputInfo();
+
+private:
+    BlackBerryDeviceInformation *m_deviceInfo;
+    BlackBerryDeviceConfiguration::ConstPtr m_device;
+    QEventLoop *m_eventLoop;
+};
+
+} // namespace Internal
+} // namespace Qnx
+
+#endif // QNX_INTERNAL_BLACKBERRYCHECKDEBUGTOKENSTEP_H

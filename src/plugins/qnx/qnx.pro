@@ -69,9 +69,9 @@ SOURCES += qnxplugin.cpp \
     blackberrydebugtokenuploader.cpp \
     blackberrydebugtokenreader.cpp \
     blackberryndkprocess.cpp \
-    blackberrycheckdevmodestepfactory.cpp \
-    blackberrycheckdevmodestep.cpp \
-    blackberrycheckdevmodestepconfigwidget.cpp \
+    blackberrycheckdebugtokenstep.cpp \
+    blackberrycheckdebugtokenstepconfigwidget.cpp \
+    blackberrycheckdebugtokenstepfactory.cpp \
     blackberrydeviceconnection.cpp \
     blackberrydeviceconnectionmanager.cpp \
     blackberrydeviceinformation.cpp \
@@ -167,9 +167,9 @@ HEADERS += qnxplugin.h\
     blackberrydebugtokenuploader.h \
     blackberrydebugtokenreader.h \
     blackberryndkprocess.h \
-    blackberrycheckdevmodestepfactory.h \
-    blackberrycheckdevmodestep.h \
-    blackberrycheckdevmodestepconfigwidget.h \
+    blackberrycheckdebugtokenstep.h \
+    blackberrycheckdebugtokenstepconfigwidget.h \
+    blackberrycheckdebugtokenstepfactory.h \
     blackberrydeviceconnection.h \
     blackberrydeviceconnectionmanager.h \
     blackberrydeviceinformation.h \

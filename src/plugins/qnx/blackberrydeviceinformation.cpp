@@ -68,6 +68,7 @@ void BlackBerryDeviceInformation::resetResults()
     m_deviceOS.clear();
     m_hardwareId.clear();
     m_debugTokenAuthor.clear();
+    m_debugTokenValidationError.clear();
     m_scmBundle.clear();
     m_hostName.clear();
     m_debugTokenValid = false;
@@ -93,6 +94,11 @@ QString BlackBerryDeviceInformation::hardwareId() const
 QString BlackBerryDeviceInformation::debugTokenAuthor() const
 {
     return m_debugTokenAuthor;
+}
+
+QString BlackBerryDeviceInformation::debugTokenValidationError() const
+{
+    return m_debugTokenValidationError;
 }
 
 QString BlackBerryDeviceInformation::scmBundle() const
@@ -125,8 +131,9 @@ void BlackBerryDeviceInformation::processData(const QString &line)
     static const QString devicepin = QLatin1String("devicepin::0x");
     static const QString device_os = QLatin1String("device_os::");
     static const QString hardwareid = QLatin1String("hardwareid::");
-    static const QString debug_token_author = QLatin1String("debug_token_author::");
-    static const QString debug_token_valid = QLatin1String("debug_token_valid:b:");
+    static const QString debug_token_author = QLatin1String("[n]debug_token_author::");
+    static const QString debug_token_validation_error = QLatin1String("[n]debug_token_validation_error::");
+    static const QString debug_token_valid = QLatin1String("[n]debug_token_valid:b:");
     static const QString simulator = QLatin1String("simulator:b:");
     static const QString scmbundle = QLatin1String("scmbundle::");
     static const QString hostname = QLatin1String("hostname::");
@@ -140,6 +147,8 @@ void BlackBerryDeviceInformation::processData(const QString &line)
         m_hardwareId = line.mid(hardwareid.size()).trimmed();
     else if (line.startsWith(debug_token_author))
         m_debugTokenAuthor = line.mid(debug_token_author.size()).trimmed();
+    else if (line.startsWith(debug_token_validation_error))
+        m_debugTokenValidationError = line.mid(debug_token_validation_error.size()).trimmed();
     else if (line.startsWith(debug_token_valid))
         m_debugTokenValid = line.mid(debug_token_valid.size()).trimmed() == QLatin1String("true");
     else if (line.startsWith(simulator))

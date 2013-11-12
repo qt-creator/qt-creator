@@ -29,27 +29,27 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BLACKBERRYCHECKDEVMODESTEPCONFIGWIDGET_H
-#define QNX_INTERNAL_BLACKBERRYCHECKDEVMODESTEPCONFIGWIDGET_H
+#include "blackberrycheckdebugtokenstepconfigwidget.h"
 
-#include <projectexplorer/buildstep.h>
+using namespace Qnx;
+using namespace Qnx::Internal;
 
-namespace Qnx {
-namespace Internal {
-
-class BlackBerryCheckDevModeStepConfigWidget : public ProjectExplorer::BuildStepConfigWidget
+BlackBerryCheckDebugTokenConfigWidget::BlackBerryCheckDebugTokenConfigWidget() :
+    ProjectExplorer::BuildStepConfigWidget()
 {
-    Q_OBJECT
-public:
-    explicit BlackBerryCheckDevModeStepConfigWidget();
+}
 
-    QString displayName() const;
-    QString summaryText() const;
+QString BlackBerryCheckDebugTokenConfigWidget::displayName() const
+{
+    return tr("<b>Check debug token</b>");
+}
 
-    bool showWidget() const;
-};
+QString BlackBerryCheckDebugTokenConfigWidget::summaryText() const
+{
+    return displayName();
+}
 
-} // namespace Internal
-} // namespace Qnx
-
-#endif // QNX_INTERNAL_BLACKBERRYCHECKDEVMODESTEPCONFIGWIDGET_H
+bool BlackBerryCheckDebugTokenConfigWidget::showWidget() const
+{
+    return false;
+}

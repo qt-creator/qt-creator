@@ -29,36 +29,27 @@
 **
 ****************************************************************************/
 
-#ifndef QNX_INTERNAL_BLACKBERRYCHECKDEVMODESTEPFACTORY_H
-#define QNX_INTERNAL_BLACKBERRYCHECKDEVMODESTEPFACTORY_H
+#ifndef QNX_INTERNAL_BLACKBERRYCHECKDEBUGTOKENSTEPCONFIGWIDGET_H
+#define QNX_INTERNAL_BLACKBERRYCHECKDEBUGTOKENSTEPCONFIGWIDGET_H
 
 #include <projectexplorer/buildstep.h>
 
 namespace Qnx {
 namespace Internal {
 
-class BlackBerryCheckDevModeStepFactory : public ProjectExplorer::IBuildStepFactory
+class BlackBerryCheckDebugTokenConfigWidget : public ProjectExplorer::BuildStepConfigWidget
 {
     Q_OBJECT
 public:
-    explicit BlackBerryCheckDevModeStepFactory(QObject *parent = 0);
+    explicit BlackBerryCheckDebugTokenConfigWidget();
 
-    QList<Core::Id> availableCreationIds(ProjectExplorer::BuildStepList *parent) const;
-    QString displayNameForId(const Core::Id id) const;
+    QString displayName() const;
+    QString summaryText() const;
 
-    bool canCreate(ProjectExplorer::BuildStepList *parent, const Core::Id id) const;
-    ProjectExplorer::BuildStep *create(ProjectExplorer::BuildStepList *parent, const Core::Id id);
-
-    bool canRestore(ProjectExplorer::BuildStepList *parent, const QVariantMap &map) const;
-    ProjectExplorer::BuildStep *restore(ProjectExplorer::BuildStepList *parent,
-                                        const QVariantMap &map);
-
-    bool canClone(ProjectExplorer::BuildStepList *parent, ProjectExplorer::BuildStep *product) const;
-    ProjectExplorer::BuildStep *clone(ProjectExplorer::BuildStepList *parent,
-                                      ProjectExplorer::BuildStep *product);
+    bool showWidget() const;
 };
 
 } // namespace Internal
 } // namespace Qnx
 
-#endif // QNX_INTERNAL_BLACKBERRYCHECKDEVMODESTEPFACTORY_H
+#endif // QNX_INTERNAL_BLACKBERRYCHECKDEVMODESTEPCONFIGWIDGET_H

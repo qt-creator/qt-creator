@@ -65,6 +65,7 @@ public:
 
 signals:
     void finished(int status);
+    void started();
 
 protected:
     explicit BlackBerryNdkProcess(const QString &command, QObject *parent = 0);
