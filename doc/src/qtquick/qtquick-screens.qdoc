@@ -357,7 +357,8 @@
 
     \section1 Adding User Interaction Methods
 
-    You can add the following basic interaction methods to scenes:
+    You can use the following QML types to add basic interaction methods to
+    screens:
 
     \list
 
@@ -376,6 +377,74 @@
             enables simple mouse handling.
 
     \endlist
+
+    From Qt 5.1, you can also use the following
+    \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qtquickcontrols-index.html}
+    {Qt Quick Controls} to present or receive input from the user:
+
+    \list
+
+        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-button.html}
+            {Button} provides a push button that you can associate with an
+            action.
+
+        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-checkbox.html}
+            {Check Box} provides an option button that can be toggled on
+            (checked) or off (unchecked).
+
+        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-combobox.html}
+            {Combo Box} provides a drop-down list. Add items to the combo box by
+            assigning it a ListModel, or a list of strings to the model
+            property.
+
+        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-groupbox.html}
+            {Group Box} provides a frame, a title on top, and place for various
+            other controls inside the frame.
+
+        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-label.html}
+            {Label} provides a text label that follows the font and color scheme
+            of the system.
+
+        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-progressbar.html}
+            {Progress Bar} indicates the progress of an operation.
+
+        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-radiobutton.html}
+            {Radio Button} provides an option button that can be switched on
+            (checked) or off (unchecked).
+
+        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-slider.html}
+            {Slider (Horizontal) and Slider (Vertical)} enable the user to move
+            a slider handle along a horizontal or vertical groove and translate
+            the handle's position into a value within the specified range.
+
+        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-spinbox.html}
+            {Spin Box} enables the user to specify a value by clicking the up or
+            down buttons, by pressing up or down on the keyboard, or by entering
+            a value in the box.
+
+        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-statusbar.html}
+            {Status Bar} contains status information in your application. It
+            does not provide a layout of its own, but requires you to position
+            its contents, for instance by creating a \gui {Row Layout}.
+
+        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-textarea.html}
+            {Text Area} displays multiple lines of editable formatted text.
+
+        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-textfield.html}
+            {Text Field} displays a single line of editable plain text.
+
+        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-toolbar.html}
+            {Tool Bar} provides styling for ToolButton as well as other controls
+            that it can contain. However, it does not provide a layout of its
+            own, but requires you to position its contents, for instance by
+            creating a \gui {Row Layout}.
+
+        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-toolbutton.html}
+            {Tool Button} provides a button that is functionally similar to
+            \gui Button, but that looks more suitable on a \gui {Tool Bar}.
+
+    \endlist
+
 
     \section1 Implementing Application Logic
 
