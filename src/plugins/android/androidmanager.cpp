@@ -790,7 +790,7 @@ QString AndroidManager::androidNameForApiLevel(int x)
     case 19:
         return QLatin1String("Android 4.4");
     default:
-        return QLatin1String("Unknown Android version.");
+        return tr("Unknown Android version.");
     }
 }
 
