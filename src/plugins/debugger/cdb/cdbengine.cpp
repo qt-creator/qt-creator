@@ -1198,7 +1198,6 @@ void CdbEngine::doInterruptInferior(SpecialStopMode sm)
 {
     showMessage(QString::fromLatin1("Interrupting process %1...").arg(inferiorPid()), LogMisc);
 
-    QTC_ASSERT(state() == InferiorStopRequested, qDebug() << state(); notifyInferiorStopFailed(); return;);
     QTC_ASSERT(!m_signalOperation, notifyInferiorStopFailed();  return;);
     m_signalOperation = startParameters().device->signalOperation();
     m_specialStopMode = sm;
