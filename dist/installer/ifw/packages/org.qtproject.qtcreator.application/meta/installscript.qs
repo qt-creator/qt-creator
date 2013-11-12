@@ -166,13 +166,9 @@ Component.prototype.createOperations = function()
         component.addElevatedOperation("Execute", "{0,3010,1638}", "@TargetDir@\\lib\\vcredist_msvc2010\\vcredist_x86.exe", "/norestart", "/q");
         registerWindowsFileTypeExtensions();
 
-        try {
-            if (component.userInterface("AssociateCommonFiletypesForm").AssociateCommonFiletypesCheckBox
-                .checked) {
-                    registerCommonWindowsFileTypeExtensions();
-            }
-        } catch(e) {
-            print(e);
+        if (component.userInterface("AssociateCommonFiletypesForm").AssociateCommonFiletypesCheckBox
+            .checked) {
+                registerCommonWindowsFileTypeExtensions();
         }
     }
     if ( installer.value("os") == "x11" )
