@@ -59,10 +59,6 @@ using namespace QmlDebug;
 namespace QmlProfiler {
 namespace Internal {
 
-const int sliderTicks = 10000;
-const qreal sliderExp = 3;
-
-
 /////////////////////////////////////////////////////////
 bool MouseWheelResizer::eventFilter(QObject *obj, QEvent *event)
 {
@@ -136,7 +132,6 @@ public:
 
     QToolButton *m_buttonRange;
     QToolButton *m_buttonLock;
-    int m_currentZoomLevel;
 };
 
 QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerTool *profilerTool, QmlProfilerViewManager *container, QmlProfilerModelManager *modelManager, QmlProfilerStateManager *profilerState)
@@ -204,7 +199,6 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
 
     // Minimum height: 5 rows of 20 pixels + scrollbar of 50 pixels + 20 pixels margin
     setMinimumHeight(170);
-    d->m_currentZoomLevel = 0;
 }
 
 QmlProfilerTraceView::~QmlProfilerTraceView()
@@ -236,7 +230,6 @@ void QmlProfilerTraceView::reset()
 
     QObject *zoomSlider = rootObject->findChild<QObject*>(QLatin1String("zoomSliderToolBar"));
     connect(this, SIGNAL(enableToolbar(bool)), zoomSlider, SLOT(toggleEnabled()));
-    connect(zoomSlider, SIGNAL(zoomLevelChanged(int)), this, SLOT(setZoomLevel(int)));
     connect(this, SIGNAL(showZoomSlider(bool)), zoomSlider, SLOT(toggleVisible()));
 }
 
@@ -409,15 +402,6 @@ void QmlProfilerTraceView::updateLockButton()
 
 ////////////////////////////////////////////////////////
 // Zoom control
-void QmlProfilerTraceView::setZoomLevel(int zoomLevel)
-{
-    if (d->m_currentZoomLevel != zoomLevel && d->m_mainView->rootObject()) {
-        QVariant newFactor = pow(qreal(zoomLevel) / qreal(sliderTicks), sliderExp);
-        d->m_currentZoomLevel = zoomLevel;
-        QMetaObject::invokeMethod(d->m_mainView->rootObject(), "updateWindowLength", Q_ARG(QVariant, newFactor));
-    }
-}
-
 void QmlProfilerTraceView::updateRange()
 {
     if (!d->m_modelManager)
@@ -427,12 +411,7 @@ void QmlProfilerTraceView::updateRange()
         return;
     if (d->m_modelManager->traceTime()->duration() <= 0)
         return;
-    int newLevel = pow(duration / d->m_modelManager->traceTime()->duration(), 1/sliderExp) * sliderTicks;
-    if (d->m_currentZoomLevel != newLevel) {
-        d->m_currentZoomLevel = newLevel;
-        emit zoomLevelChanged(newLevel);
-        QMetaObject::invokeMethod(d->m_mainView->rootObject()->findChild<QObject*>(QLatin1String("zoomSliderToolBar")), "setZoomLevel", Q_ARG(QVariant, newLevel));
-    }
+    QMetaObject::invokeMethod(d->m_mainView->rootObject()->findChild<QObject*>(QLatin1String("zoomSliderToolBar")), "updateZoomLevel");
 }
 
 void QmlProfilerTraceView::mouseWheelMoved(int mouseX, int mouseY, int wheelDelta)

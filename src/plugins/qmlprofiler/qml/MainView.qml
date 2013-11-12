@@ -176,45 +176,6 @@ Rectangle {
         view.selectPrev();
     }
 
-    function updateWindowLength(absoluteFactor) {
-        var windowLength = view.endTime - view.startTime;
-        if (qmlProfilerModelProxy.traceEndTime() <= qmlProfilerModelProxy.traceStartTime() ||
-                windowLength <= 0)
-            return;
-        var currentFactor = windowLength / qmlProfilerModelProxy.traceDuration();
-        updateZoom(absoluteFactor / currentFactor);
-    }
-
-    function updateZoom(relativeFactor) {
-        var min_length = 1e5; // 0.1 ms
-        var windowLength = view.endTime - view.startTime;
-        if (windowLength < min_length)
-            windowLength = min_length;
-        var newWindowLength = windowLength * relativeFactor;
-
-        if (newWindowLength > qmlProfilerModelProxy.traceDuration()) {
-            newWindowLength = qmlProfilerModelProxy.traceDuration();
-            relativeFactor = newWindowLength / windowLength;
-        }
-        if (newWindowLength < min_length) {
-            newWindowLength = min_length;
-            relativeFactor = newWindowLength / windowLength;
-        }
-
-        var fixedPoint = (view.startTime + view.endTime) / 2;
-
-        if (view.selectedItem !== -1) {
-            // center on selected item if it's inside the current screen
-            var newFixedPoint = qmlProfilerModelProxy.getStartTime(view.selectedModel, view.selectedItem);
-            if (newFixedPoint >= view.startTime && newFixedPoint < view.endTime)
-                fixedPoint = newFixedPoint;
-        }
-
-
-        var startTime = fixedPoint - relativeFactor*(fixedPoint - view.startTime);
-        zoomControl.setRange(startTime, startTime + newWindowLength);
-    }
-
     function updateZoomCentered(centerX, relativeFactor)
     {
         var min_length = 1e5; // 0.1 ms
@@ -572,10 +533,13 @@ Rectangle {
         x: 0
         y: 0
 
-        signal zoomLevelChanged(int value)
         function toggleEnabled() {enabled = !enabled}
         function toggleVisible() {visible = !visible}
-        function setZoomLevel(level) {zoomSlider.value = level}
+        function updateZoomLevel() {
+            zoomSlider.externalUpdate = true;
+            zoomSlider.value = Math.pow((view.endTime - view.startTime) / qmlProfilerModelProxy.traceDuration(), 1 / zoomSlider.exponent) * zoomSlider.maximumValue;
+        }
+
 
         Slider {
             id: zoomSlider
@@ -584,9 +548,34 @@ Rectangle {
             maximumValue: 10000
             stepSize: 100
 
-            // For some reason the child may generate a meaningless value
-            // change event before the parent is initialized.
-            onValueChanged: if (parent) parent.zoomLevelChanged(value)
+            property int exponent: 3
+            property bool externalUpdate: false
+            property int minWindowLength: 1e5 // 0.1 ms
+
+            onValueChanged: {
+                if (externalUpdate || qmlProfilerModelProxy.traceEndTime() <= qmlProfilerModelProxy.traceStartTime()) {
+                    // Zoom range is independently updated. We shouldn't mess
+                    // with it here as otherwise we might introduce rounding
+                    // or arithmetic errors.
+                    externalUpdate = false;
+                    return;
+                }
+
+                var windowLength = Math.max(
+                            Math.pow(value / maximumValue, exponent) * qmlProfilerModelProxy.traceDuration(),
+                            minWindowLength);
+
+                var fixedPoint = (view.startTime + view.endTime) / 2;
+                if (view.selectedItem !== -1) {
+                    // center on selected item if it's inside the current screen
+                    var newFixedPoint = qmlProfilerModelProxy.getStartTime(view.selectedModel, view.selectedItem);
+                    if (newFixedPoint >= view.startTime && newFixedPoint < view.endTime)
+                        fixedPoint = newFixedPoint;
+                }
+
+                var startTime = Math.max(qmlProfilerModelProxy.traceStartTime(), fixedPoint - windowLength / 2)
+                zoomControl.setRange(startTime, startTime + windowLength);
+            }
         }
     }
 

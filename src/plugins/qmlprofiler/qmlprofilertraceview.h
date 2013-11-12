@@ -112,7 +112,6 @@ private slots:
     void toggleLockMode(bool);
     void updateLockButton();
 
-    void setZoomLevel(int zoomLevel);
     void updateRange();
     void mouseWheelMoved(int mouseX, int mouseY, int wheelDelta);
 
@@ -136,7 +135,6 @@ signals:
     void rangeModeChanged(bool);
     void lockModeChanged(bool);
     void enableToolbar(bool);
-    void zoomLevelChanged(int);
     void showZoomSlider(bool);
 
     void resized();
