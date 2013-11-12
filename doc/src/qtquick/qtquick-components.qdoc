@@ -92,8 +92,10 @@
 
     \list 1
 
-        \li Select \gui {File > New File or Project > Files and Classes > QML
-            > Choose} to create a new .qml file.
+        \li Select \gui File > \gui {New File or Project} >
+            \gui {Files and Classes} > \gui Qt > \gui {QML File (Qt Quick 1)} or
+            \gui {QML File (Qt Quick 2)} > \gui Choose to create a new .qml
+            file.
 
             \note Components are listed in the \gui {QML Components} section of
             the \gui Library pane only if the filename begins with a capital
