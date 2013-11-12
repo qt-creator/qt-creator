@@ -158,8 +158,6 @@ private:
     QmlJS::QmlLanguageBundles m_activeBundles;
     QmlJS::QmlLanguageBundles m_extendedBundles;
 
-    QFutureSynchronizer<void> m_synchronizer;
-
     QTimer *m_updateCppQmlTypesTimer;
     QTimer *m_asyncResetTimer;
     QHash<QString, QPair<CPlusPlus::Document::Ptr, bool> > m_queuedCppDocuments;
@@ -173,6 +171,8 @@ private:
     QMap<ProjectExplorer::Project *, ProjectInfo> m_projects;
 
     PluginDumper *m_pluginDumper;
+
+    QFutureSynchronizer<void> m_synchronizer;
 };
 
 } // namespace Internal

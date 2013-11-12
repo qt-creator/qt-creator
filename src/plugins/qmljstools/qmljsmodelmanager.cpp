@@ -825,6 +825,8 @@ void ModelManager::parse(QFutureInterface<void> &future,
     QSet<QString> newLibraries;
 
     for (int i = 0; i < files.size(); ++i) {
+        if (future.isCanceled())
+            break;
         future.setProgressValue(qreal(i) / files.size() * progressRange);
 
         const QString fileName = files.at(i);
