@@ -68,122 +68,122 @@
           </property>
           <item>
            <property name="text">
-            <string>00:00</string>
+            <string notr="true">00:00</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>01:00</string>
+            <string notr="true">01:00</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>02:00</string>
+            <string notr="true">02:00</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>03:00</string>
+            <string notr="true">03:00</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>04:00</string>
+            <string notr="true">04:00</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>05:00</string>
+            <string notr="true">05:00</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>06:00</string>
+            <string notr="true">06:00</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>07:00</string>
+            <string notr="true">07:00</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>08:00</string>
+            <string notr="true">08:00</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>09:00</string>
+            <string notr="true">09:00</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>10:00</string>
+            <string notr="true">10:00</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>11:00</string>
+            <string notr="true">11:00</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>12:00</string>
+            <string notr="true">12:00</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>13:00</string>
+            <string notr="true">13:00</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>14:00</string>
+            <string notr="true">14:00</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>15:00</string>
+            <string notr="true">15:00</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>16:00</string>
+            <string notr="true">16:00</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>17:00</string>
+            <string notr="true">17:00</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>18:00</string>
+            <string notr="true">18:00</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>19:00</string>
+            <string notr="true">19:00</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>20:00</string>
+            <string notr="true">20:00</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>21:00</string>
+            <string notr="true">21:00</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>22:00</string>
+            <string notr="true">22:00</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>23:00</string>
+            <string notr="true">23:00</string>
            </property>
           </item>
          </widget>
