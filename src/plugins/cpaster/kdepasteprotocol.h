@@ -40,8 +40,6 @@ class StickyNotesPasteProtocol : public NetworkProtocol
 public:
     StickyNotesPasteProtocol();
 
-    QString name() const { return m_name; }
-
     virtual unsigned capabilities() const;
 
     virtual void fetch(const QString &id);
@@ -58,8 +56,6 @@ public:
     QString hostUrl() const { return m_hostUrl; }
     void setHostUrl(const QString &hostUrl);
 
-    void setName(const QString &name) { m_name = name; }
-
 public slots:
     void fetchFinished();
     void pasteFinished();
@@ -70,7 +66,6 @@ protected:
 
 private:
     QString m_hostUrl;
-    QString m_name;
 
     QNetworkReply *m_fetchReply;
     QNetworkReply *m_pasteReply;
@@ -87,8 +82,10 @@ public:
     KdePasteProtocol()
     {
         setHostUrl(QLatin1String("http://pastebin.kde.org/"));
-        setName(QLatin1String("Paste.KDE.Org"));
     }
+
+    QString name() const { return protocolName(); }
+    static QString protocolName();
 };
 
 } // namespace CodePaster

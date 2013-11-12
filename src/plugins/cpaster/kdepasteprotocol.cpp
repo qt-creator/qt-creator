@@ -239,4 +239,9 @@ void StickyNotesPasteProtocol::listFinished()
     m_listReply = 0;
 }
 
+QString KdePasteProtocol::protocolName()
+{
+    return QLatin1String("Paste.KDE.Org");
+}
+
 } // namespace CodePaster
