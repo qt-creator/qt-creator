@@ -29,6 +29,7 @@
 
 import QtQuick 2.1
 import Monitor 1.0
+import QtQuick.Controls 1.0
 
 Rectangle {
     id: root
@@ -559,6 +560,34 @@ Rectangle {
 
     RangeDetails {
         id: rangeDetails
+    }
+
+    Rectangle {
+        objectName: "zoomSliderToolBar"
+        color: "#9b9b9b"
+        enabled: false
+        visible: false
+        width: labels.width
+        height: 24
+        x: 0
+        y: 0
+
+        signal zoomLevelChanged(int value)
+        function toggleEnabled() {enabled = !enabled}
+        function toggleVisible() {visible = !visible}
+        function setZoomLevel(level) {zoomSlider.value = level}
+
+        Slider {
+            id: zoomSlider
+            anchors.fill: parent
+            minimumValue: 1
+            maximumValue: 10000
+            stepSize: 100
+
+            // For some reason the child may generate a meaningless value
+            // change event before the parent is initialized.
+            onValueChanged: if (parent) parent.zoomLevelChanged(value)
+        }
     }
 
     Item {

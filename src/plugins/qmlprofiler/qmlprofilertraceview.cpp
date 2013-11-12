@@ -233,6 +233,11 @@ void QmlProfilerTraceView::reset()
     connect(this, SIGNAL(jumpToNext()), rootObject, SLOT(nextEvent()));
     connect(rootObject, SIGNAL(selectedEventChanged(int)), this, SIGNAL(selectedEventChanged(int)));
     connect(rootObject, SIGNAL(changeToolTip(QString)), this, SLOT(updateToolTip(QString)));
+
+    QObject *zoomSlider = rootObject->findChild<QObject*>(QLatin1String("zoomSliderToolBar"));
+    connect(this, SIGNAL(enableToolbar(bool)), zoomSlider, SLOT(toggleEnabled()));
+    connect(zoomSlider, SIGNAL(zoomLevelChanged(int)), this, SLOT(setZoomLevel(int)));
+    connect(this, SIGNAL(showZoomSlider(bool)), zoomSlider, SLOT(toggleVisible()));
 }
 
 QWidget *QmlProfilerTraceView::createToolbar()
@@ -264,6 +269,7 @@ QWidget *QmlProfilerTraceView::createToolbar()
     buttonZoomControls->setToolTip(tr("Show zoom slider"));
     buttonZoomControls->setCheckable(true);
     buttonZoomControls->setChecked(false);
+    connect(buttonZoomControls, SIGNAL(toggled(bool)), this, SIGNAL(showZoomSlider(bool)));
     connect(this, SIGNAL(enableToolbar(bool)), buttonZoomControls, SLOT(setEnabled(bool)));
 
     d->m_buttonRange = new QToolButton;
@@ -425,6 +431,7 @@ void QmlProfilerTraceView::updateRange()
     if (d->m_currentZoomLevel != newLevel) {
         d->m_currentZoomLevel = newLevel;
         emit zoomLevelChanged(newLevel);
+        QMetaObject::invokeMethod(d->m_mainView->rootObject()->findChild<QObject*>(QLatin1String("zoomSliderToolBar")), "setZoomLevel", Q_ARG(QVariant, newLevel));
     }
 }
 

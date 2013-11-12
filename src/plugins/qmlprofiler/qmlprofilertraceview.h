@@ -137,6 +137,7 @@ signals:
     void lockModeChanged(bool);
     void enableToolbar(bool);
     void zoomLevelChanged(int);
+    void showZoomSlider(bool);
 
     void resized();
 
