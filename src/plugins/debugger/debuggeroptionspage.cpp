@@ -245,6 +245,8 @@ void DebuggerOptionsPage::cloneDebugger()
         return;
 
     DebuggerItem newItem;
+    newItem.createId();
+    newItem.setAutoDetected(false);
     newItem.setCommand(item.command());
     newItem.setEngineType(item.engineType());
     newItem.setAbis(item.abis());
@@ -257,6 +259,8 @@ void DebuggerOptionsPage::cloneDebugger()
 void DebuggerOptionsPage::addDebugger()
 {
     DebuggerItem item;
+    item.createId();
+    item.setAutoDetected(false);
     item.setEngineType(NoEngineType);
     item.setDisplayName(DebuggerItemManager::uniqueDisplayName(tr("New Debugger")));
     item.setAutoDetected(false);
