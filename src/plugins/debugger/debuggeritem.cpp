@@ -98,6 +98,7 @@ void DebuggerItem::reinitializeFromFile()
         m_engineType = NoEngineType;
         return;
     }
+    m_abis.clear();
     QByteArray ba = proc.readAll();
     if (ba.contains("gdb")) {
         m_engineType = GdbEngineType;
