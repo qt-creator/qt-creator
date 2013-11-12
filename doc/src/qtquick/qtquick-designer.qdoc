@@ -501,7 +501,7 @@
 
     \section2 Hiding Item Boundaries
 
-    Qt Quick Designer displays the boundaries of items on the canvas. To hide
+    \QMLD displays the boundaries of items on the canvas. To hide
     the boundaries, click the
     \inlineimage qmldesigner-show-bounding-rectangles-button.png
     button.
