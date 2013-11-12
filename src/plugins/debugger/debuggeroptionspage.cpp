@@ -334,7 +334,7 @@ void DebuggerOptionsPage::updateState()
     DebuggerItem item = m_model->currentDebugger();
 
     canCopy = item.isValid() && item.canClone();
-    canDelete = !item.isAutoDetected();
+    canDelete = m_model->currentIndex().parent().isValid() && !item.isAutoDetected();
 
     m_cloneButton->setEnabled(canCopy);
     m_delButton->setEnabled(canDelete);
