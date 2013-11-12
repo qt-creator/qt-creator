@@ -32,6 +32,19 @@
 namespace ProjectExplorer
 {
 
+static QString taskTypeIcon(Task::TaskType t)
+{
+    switch (t) {
+    case Task::Warning:
+        return QLatin1String(":/projectexplorer/images/compile_warning.png");
+    case Task::Error:
+        return QLatin1String(":/projectexplorer/images/compile_error.png");
+    case Task::Unknown:
+        break;
+    }
+    return QString();
+}
+
 unsigned int Task::s_nextId = 1;
 
 /*!
@@ -44,9 +57,11 @@ Task::Task() : taskId(0), type(Unknown), line(-1)
 { }
 
 Task::Task(TaskType type_, const QString &description_,
-           const Utils::FileName &file_, int line_, Core::Id category_) :
+           const Utils::FileName &file_, int line_, Core::Id category_,
+           const Utils::FileName &iconFile) :
     taskId(s_nextId), type(type_), description(description_),
-    file(file_), line(line_), movedLine(line_), category(category_)
+    file(file_), line(line_), movedLine(line_), category(category_),
+    icon(iconFile.isEmpty() ? taskTypeIcon(type_) : iconFile.toString())
 {
     ++s_nextId;
 }
@@ -70,6 +85,7 @@ void Task::clear()
     movedLine = -1;
     category = Core::Id();
     type = Task::Unknown;
+    icon = QIcon();
 }
 
 //

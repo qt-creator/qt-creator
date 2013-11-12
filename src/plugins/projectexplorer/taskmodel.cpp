@@ -255,7 +255,7 @@ QVariant TaskModel::data(const QModelIndex &index, int role) const
     else if (role == TaskModel::Category)
         return m_tasks.at(index.row()).category.uniqueIdentifier();
     else if (role == TaskModel::Icon)
-        return TaskHub::taskTypeIcon(m_tasks.at(index.row()).type);
+        return m_tasks.at(index.row()).icon;
     else if (role == TaskModel::Task_t)
         return QVariant::fromValue(task(index));
     return QVariant();

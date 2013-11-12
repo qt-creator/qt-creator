@@ -54,7 +54,8 @@ public:
 
     Task();
     Task(TaskType type, const QString &description,
-         const Utils::FileName &file, int line, Core::Id category);
+         const Utils::FileName &file, int line, Core::Id category,
+         const Utils::FileName &iconName = Utils::FileName());
 
     bool isNull() const;
     void clear();
@@ -66,6 +67,7 @@ public:
     int line;
     int movedLine; // contains a line number if the line was moved in the editor
     Core::Id category;
+    QIcon icon;
     void addMark(TextEditor::BaseTextMark *mark);
 
     // Having a QList<QTextLayout::FormatRange> in Task isn't that great

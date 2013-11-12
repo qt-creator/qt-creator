@@ -261,9 +261,9 @@ TaskWindow::TaskWindow() : d(new TaskWindowPrivate)
 
     d->m_listview->setContextMenuPolicy(Qt::ActionsContextMenu);
 
-    d->m_filterWarningsButton = createFilterButton(TaskHub::taskTypeIcon(Task::Warning),
-                                                   tr("Show Warnings"),
-                                                   this, SLOT(setShowWarnings(bool)));
+    d->m_filterWarningsButton = createFilterButton(
+                QIcon(QLatin1String(":/projectexplorer/images/compile_warning.png")),
+                tr("Show Warnings"), this, SLOT(setShowWarnings(bool)));
 
     d->m_categoriesButton = new QToolButton;
     d->m_categoriesButton->setIcon(QIcon(QLatin1String(Core::Constants::ICON_FILTER)));

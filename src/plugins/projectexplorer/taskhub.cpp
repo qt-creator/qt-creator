@@ -117,7 +117,7 @@ void TaskHub::addTask(Task task)
     if (task.line != -1 && !task.file.isEmpty()) {
         bool visible = (task.type == Task::Warning || task.type == Task::Error);
         TaskMark *mark = new TaskMark(task.taskId, task.file.toString(), task.line, visible);
-        mark->setIcon(taskTypeIcon(task.type));
+        mark->setIcon(task.icon);
         mark->setPriority(TextEditor::ITextMark::LowPriority);
         task.addMark(mark);
         emit m_instance->taskAdded(task);
@@ -165,18 +165,5 @@ void TaskHub::setCategoryVisibility(const Core::Id &categoryId, bool visible)
 void TaskHub::requestPopup()
 {
     emit m_instance->popupRequested(Core::IOutputPane::NoModeSwitch);
-}
-
-QIcon TaskHub::taskTypeIcon(Task::TaskType t)
-{
-    switch (t) {
-    case Task::Warning:
-        return m_instance->m_warningIcon;
-    case Task::Error:
-        return m_instance->m_errorIcon;
-    case Task::Unknown:
-        break;
-    }
-    return QIcon();
 }
 

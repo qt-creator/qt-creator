@@ -66,8 +66,6 @@ public:
 
     static void requestPopup();
 
-    static QIcon taskTypeIcon(ProjectExplorer::Task::TaskType t);
-
 signals:
     void categoryAdded(Core::Id categoryId, const QString &displayName, bool visible);
     void taskAdded(const ProjectExplorer::Task &task);
