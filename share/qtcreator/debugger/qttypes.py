@@ -165,7 +165,7 @@ def qdump__QModelIndex(d, value):
         v = val["d"]["data"]["ptr"]
         d.putStringValue(d.makeValue(ns + 'QString', v))
     except:
-        d.putValue("(invalid)")
+        d.putValue("")
 
     d.putNumChild(rowCount * columnCount)
     if d.isExpanded():
