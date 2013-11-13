@@ -779,7 +779,6 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
         {
             QRect rect = option->rect;
             bool horizontal = option->state & State_Horizontal;
-            rect = option->rect;
 
             // Map offset for global window gradient
             QPoint offset = widget->window()->mapToGlobal(option->rect.topLeft()) -
