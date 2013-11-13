@@ -126,10 +126,8 @@ public:
        lead to any editors to reload or any other editor manager actions. */
     static void notifyFilesChangedInternally(const QStringList &files);
 
-    static void executeOpenWithMenuAction(QAction *action);
-
 public slots:
-    void slotExecuteOpenWithMenuAction(QAction *action);
+    static void executeOpenWithMenuAction(QAction *action);
 
 signals:
     void currentFileChanged(const QString &filePath);

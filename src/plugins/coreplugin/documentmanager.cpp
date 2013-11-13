@@ -1368,11 +1368,6 @@ void DocumentManager::executeOpenWithMenuAction(QAction *action)
         EditorManager::openExternalEditor(entry.fileName, entry.externalEditor->id());
 }
 
-void DocumentManager::slotExecuteOpenWithMenuAction(QAction *action)
-{
-    executeOpenWithMenuAction(action);
-}
-
 bool DocumentManager::eventFilter(QObject *obj, QEvent *e)
 {
     if (obj == qApp && e->type() == QEvent::ApplicationActivate) {
