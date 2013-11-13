@@ -85,7 +85,7 @@ QDataStream &operator>>(QDataStream &in, TokenCommand &command)
 
 bool operator ==(const TokenCommand &first, const TokenCommand &second)
 {
-    return first.m_tokenNumber == second.m_tokenNumber
+    return first.m_tokenName == second.m_tokenName
             && first.m_tokenNumber == second.m_tokenNumber
             && first.m_instanceIdVector == second.m_instanceIdVector;
 }
