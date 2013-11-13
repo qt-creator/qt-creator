@@ -94,6 +94,7 @@ QmlDesignerPlugin::QmlDesignerPlugin() :
 
 QmlDesignerPlugin::~QmlDesignerPlugin()
 {
+    Core::DesignMode::instance()->unregisterDesignWidget(m_mainWidget);
     Core::ICore::removeContextObject(m_context);
     m_context = 0;
     m_instance = 0;
