@@ -1392,7 +1392,7 @@ void CdbEngine::postBuiltinCommand(const QByteArray &cmd, unsigned flags,
         showMessage(msg, LogError);
         return;
     }
-    if (!flags & QuietCommand)
+    if (!(flags & QuietCommand))
         showMessage(QString::fromLocal8Bit(cmd), LogInput);
 
     const int token = m_nextCommandToken++;
@@ -1439,7 +1439,7 @@ void CdbEngine::postExtensionCommand(const QByteArray &cmd,
     if (!arguments.isEmpty())
         str <<  ' ' << arguments;
 
-    if (!flags & QuietCommand)
+    if (!(flags & QuietCommand))
         showMessage(QString::fromLocal8Bit(fullCmd), LogInput);
 
     CdbExtensionCommandPtr pendingCommand(new CdbExtensionCommand(fullCmd, token, flags, handler, nextCommandFlag, cookie));
