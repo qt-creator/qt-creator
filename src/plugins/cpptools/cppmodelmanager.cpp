@@ -461,7 +461,7 @@ CppEditorSupport *CppModelManager::cppEditorSupport(TextEditor::BaseTextEditor *
     QMutexLocker locker(&m_cppEditorSupportsMutex);
 
     CppEditorSupport *editorSupport = m_cppEditorSupports.value(textEditor, 0);
-    if (!editorSupport) {
+    if (!editorSupport && isCppEditor(textEditor)) {
         editorSupport = new CppEditorSupport(this, textEditor);
         m_cppEditorSupports.insert(textEditor, editorSupport);
     }

@@ -37,6 +37,7 @@
 #include <coreplugin/testdatadir.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <cpptools/cppmodelmanager.h>
+#include <cpptools/cpptoolseditorsupport.h>
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Overview.h>
@@ -91,8 +92,13 @@ public:
         const QString functionName = QLatin1String("on_pushButton_clicked");
         const QString qualifiedFunctionName = QLatin1String("Form::") + functionName;
 
-        foreach (const QString &file, files)
-            QVERIFY(EditorManager::openEditor(file));
+        QList<TextEditor::BaseTextEditor *> editors;
+        foreach (const QString &file, files) {
+            IEditor *editor = EditorManager::openEditor(file);
+            TextEditor::BaseTextEditor *e = qobject_cast<TextEditor::BaseTextEditor *>(editor);
+            QVERIFY(e);
+            editors << e;
+        }
         QCOMPARE(EditorManager::documentModel()->openedDocuments().size(), files.size());
         while (!m_modelManager->snapshot().contains(cppFile)
                  || !m_modelManager->snapshot().contains(hFile)) {
@@ -114,15 +120,21 @@ public:
         QVERIFY(integration);
         integration->emitNavigateToSlot(QLatin1String("pushButton"), QLatin1String("clicked()"),
                                         QStringList());
-        QApplication::processEvents();
-
-        // Checks after
-        m_modelManager->updateSourceFiles(QStringList() << cppFile << hFile).waitForFinished();
 
         QCOMPARE(EditorManager::currentDocument()->filePath(), cppFile);
         QVERIFY(EditorManager::currentDocument()->isModified());
 
+        // Wait for updated documents
+        foreach (TextEditor::BaseTextEditor *editor, editors) {
+            if (CppEditorSupport *editorSupport = m_modelManager->cppEditorSupport(editor)) {
+                while (editorSupport->isUpdatingDocument())
+                    QApplication::processEvents();
+            }
+        }
+
+        // Checks after
         Document::Ptr cppDocumentAfter = m_modelManager->snapshot().document(cppFile);
+
         QCOMPARE(cppDocumentAfter->globalSymbolCount(), 3U);
         QVERIFY(containsSymbol(cppDocumentAfter->globalNamespace(), qualifiedFunctionName));
 

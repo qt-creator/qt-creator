@@ -125,6 +125,9 @@ public:
 
     QSharedPointer<SnapshotUpdater> snapshotUpdater();
 
+    /// Checks whether the document is (re)parsed or about to be (re)parsed.
+    bool isUpdatingDocument();
+
 signals:
     void documentUpdated();
     void diagnosticsChanged();

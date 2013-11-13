@@ -308,6 +308,11 @@ void CppEditorSupport::updateDocumentNow()
     }
 }
 
+bool CppEditorSupport::isUpdatingDocument()
+{
+    return m_updateDocumentTimer->isActive() || m_documentParser.isRunning();
+}
+
 void CppEditorSupport::onDocumentUpdated(Document::Ptr doc)
 {
     if (doc.isNull())
