@@ -1378,9 +1378,9 @@ void tst_Dumpers::dumper_data()
 #ifdef Q_OS_WIN
             << Data("#include <QFile>\n"
                     "#include <QFileInfo>\n",
-                    "QFile file(\"C:\\\\Program Files\\t\");\n"
+                    "QFile file(\"C:\\\\Program Files\\\\t\");\n"
                     "file.setObjectName(\"A QFile instance\");\n"
-                    "QFileInfo fi(\"C:\\Program Files\\tt\");\n"
+                    "QFileInfo fi(\"C:\\\\Program Files\\\\tt\");\n"
                     "QString s = fi.absoluteFilePath();\n")
                % Check("fi", "\"C:/Program Files/tt\"", "QFileInfo")
                % Check("file", "\"C:\\Program Files\\t\"", "QFile")
