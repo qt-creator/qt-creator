@@ -449,7 +449,7 @@ void TranslationUnit::message(DiagnosticClient::Level level, unsigned index, con
     if (DiagnosticClient *client = control()->diagnosticClient()) {
         client->report(level, fileName, line, column, format, args);
     } else {
-        fprintf(stderr, "%s:%d: ", fileName->chars(), line);
+        fprintf(stderr, "%s:%u: ", fileName->chars(), line);
         const char *l = "error";
         if (level == DiagnosticClient::Warning)
             l = "warning";
