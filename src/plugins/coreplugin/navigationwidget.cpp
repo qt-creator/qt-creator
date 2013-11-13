@@ -178,7 +178,7 @@ NavigationWidget *NavigationWidget::instance()
     return NavigationWidgetPrivate::m_instance;
 }
 
-void NavigationWidget::setFactories(const QList<INavigationWidgetFactory *> factories)
+void NavigationWidget::setFactories(const QList<INavigationWidgetFactory *> &factories)
 {
     Context navicontext(Core::Constants::C_NAVIGATION_PANE);
 
