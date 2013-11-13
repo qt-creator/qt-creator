@@ -67,10 +67,6 @@ public:
           m_settingsPage(0)
     {
     }
-    ~UpdateInfoPluginPrivate()
-    {
-        delete m_settingsPage;
-    }
 
     QString updaterProgram;
     QString updaterRunUiArgument;
@@ -95,7 +91,6 @@ UpdateInfoPlugin::UpdateInfoPlugin()
 
 UpdateInfoPlugin::~UpdateInfoPlugin()
 {
-    removeObject(d->m_settingsPage);
     delete d;
 }
 
@@ -128,7 +123,7 @@ bool UpdateInfoPlugin::initialize(const QStringList & /* arguments */, QString *
     }
 
     d->m_settingsPage = new SettingsPage(this);
-    addObject(d->m_settingsPage);
+    addAutoReleasedObject(d->m_settingsPage);
 
     ActionContainer *const container = ActionManager::actionContainer(Core::Constants::M_HELP);
     container->menu()->addAction(tr("Start Updater"), this, SLOT(startUpdaterUiApplication()));
