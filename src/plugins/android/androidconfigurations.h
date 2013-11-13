@@ -36,6 +36,7 @@
 #include <QVector>
 #include <QHash>
 #include <QMap>
+#include <QFutureInterface>
 #include <projectexplorer/abi.h>
 #include <utils/fileutils.h>
 
@@ -107,7 +108,8 @@ public:
     QString startAVD(const QString &name, int apiLevel, QString cpuAbi) const;
     bool startAVDAsync(const QString &avdName) const;
     QString findAvd(int apiLevel, const QString &cpuAbi) const;
-    QString waitForAvd(int apiLevel, const QString &cpuAbi) const;
+    QString waitForAvd(int apiLevel, const QString &cpuAbi, const QFutureInterface<bool> &fi = QFutureInterface<bool>()) const;
+    // special version for AndroidDeployQt::run
     QString bestNdkPlatformMatch(const QString &targetAPI) const;
 
     QStringList makeExtraSearchDirectories() const;
@@ -121,6 +123,8 @@ public:
 
     QString getProductModel(const QString &device) const;
     bool hasFinishedBooting(const QString &device) const;
+    bool waitForBooted(const QString &serialNumber, const QFutureInterface<bool> &fi) const;
+    bool isConnected(const QString &serialNumber) const;
 
     AndroidDeviceInfo showDeviceDialog(ProjectExplorer::Project *project, int apiLevel, const QString &abi);
     void setDefaultDevice(ProjectExplorer::Project *project, const QString &abi, const QString &serialNumber); // serial number or avd name

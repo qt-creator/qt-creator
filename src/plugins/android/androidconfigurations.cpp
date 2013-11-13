@@ -659,32 +659,45 @@ QString AndroidConfigurations::findAvd(int apiLevel, const QString &cpuAbi) cons
     return QString();
 }
 
-QString AndroidConfigurations::waitForAvd(int apiLevel, const QString &cpuAbi) const
+bool AndroidConfigurations::isConnected(const QString &serialNumber) const
+{
+    QVector<AndroidDeviceInfo> devices = connectedDevices();
+    foreach (AndroidDeviceInfo device, devices) {
+        if (device.serialNumber == serialNumber)
+            return true;
+    }
+    return false;
+}
+
+bool AndroidConfigurations::waitForBooted(const QString &serialNumber, const QFutureInterface<bool> &fi) const
+{
+    // found a serial number, now wait until it's done booting...
+    for (int i = 0; i < 60; ++i) {
+        if (fi.isCanceled())
+            return false;
+        if (hasFinishedBooting(serialNumber)) {
+            return true;
+        } else {
+            Utils::sleep(2000);
+            if (!isConnected(serialNumber)) // device was disconnected
+                return false;
+        }
+    }
+    return false;
+}
+
+QString AndroidConfigurations::waitForAvd(int apiLevel, const QString &cpuAbi, const QFutureInterface<bool> &fi) const
 {
     // we cannot use adb -e wait-for-device, since that doesn't work if a emulator is already running
-
-    // 15 rounds of 8s sleeping, a minute for the avd to start
+    // 60 rounds of 2s sleeping, two minutes for the avd to start
     QString serialNumber;
-    for (int i = 0; i < 15; ++i) {
-        QVector<AndroidDeviceInfo> devices = connectedDevices();
-        foreach (AndroidDeviceInfo device, devices) {
-            if (!device.serialNumber.startsWith(QLatin1String("emulator")))
-                continue;
-            if (!device.cpuAbi.contains(cpuAbi))
-                continue;
-            if (device.sdk != apiLevel)
-                continue;
-            serialNumber = device.serialNumber;
-            // found a serial number, now wait until it's done booting...
-            for (int i = 0; i < 15; ++i) {
-                if (hasFinishedBooting(serialNumber))
-                    return serialNumber;
-                else
-                    Utils::sleep(8000);
-            }
+    for (int i = 0; i < 60; ++i) {
+        if (fi.isCanceled())
             return QString();
-        }
-        Utils::sleep(8000);
+        serialNumber = findAvd(apiLevel, cpuAbi);
+        if (!serialNumber.isEmpty())
+            return waitForBooted(serialNumber, fi) ?  serialNumber : QString();
+        Utils::sleep(2000);
     }
     return QString();
 }

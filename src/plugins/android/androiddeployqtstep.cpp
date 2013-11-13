@@ -295,7 +295,7 @@ bool AndroidDeployQtStep::init()
 void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
 {
     if (!m_avdName.isEmpty()) {
-        QString serialNumber = AndroidConfigurations::instance().waitForAvd(m_deviceAPILevel, m_targetArch);
+        QString serialNumber = AndroidConfigurations::instance().waitForAvd(m_deviceAPILevel, m_targetArch, fi);
         if (serialNumber.isEmpty()) {
             fi.reportResult(false);
             return;
