@@ -493,6 +493,11 @@ void AndroidDeployQtStep::setInputFile(const QString &file)
     m_inputFile = file;
 }
 
+bool AndroidDeployQtStep::runInGuiThread() const
+{
+    return false;
+}
+
 bool AndroidDeployQtStep::verboseOutput() const
 {
     return m_verbose;

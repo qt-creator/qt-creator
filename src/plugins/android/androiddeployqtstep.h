@@ -107,6 +107,8 @@ public:
     QString inputFile() const;
     void setInputFile(const QString &file);
 
+    bool runInGuiThread() const;
+
 signals:
     // also on purpose emitted if the possible values of this changed
     void inputFileChanged();
