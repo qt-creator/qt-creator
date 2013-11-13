@@ -287,7 +287,7 @@ bool AndroidDeployQtStep::init()
     if (!result)
         return false;
 
-    if (!AndroidConfigurations::instance().findAvd(m_deviceAPILevel, m_targetArch))
+    if (AndroidConfigurations::instance().findAvd(m_deviceAPILevel, m_targetArch).isEmpty())
         AndroidConfigurations::instance().startAVDAsync(m_avdName);
     return true;
 }

@@ -622,7 +622,7 @@ QVector<AndroidDeviceInfo> AndroidConfigurations::androidVirtualDevices() const
 
 QString AndroidConfigurations::startAVD(const QString &name, int apiLevel, QString cpuAbi) const
 {
-    if (findAvd(apiLevel, cpuAbi) || startAVDAsync(name))
+    if (!findAvd(apiLevel, cpuAbi).isEmpty() || startAVDAsync(name))
         return waitForAvd(apiLevel, cpuAbi);
     return QString();
 }
@@ -644,7 +644,7 @@ bool AndroidConfigurations::startAVDAsync(const QString &avdName) const
     return true;
 }
 
-bool AndroidConfigurations::findAvd(int apiLevel, const QString &cpuAbi) const
+QString AndroidConfigurations::findAvd(int apiLevel, const QString &cpuAbi) const
 {
     QVector<AndroidDeviceInfo> devices = connectedDevices();
     foreach (AndroidDeviceInfo device, devices) {
@@ -654,9 +654,9 @@ bool AndroidConfigurations::findAvd(int apiLevel, const QString &cpuAbi) const
             continue;
         if (device.sdk != apiLevel)
             continue;
-        return true;
+        return device.serialNumber;
     }
-    return false;
+    return QString();
 }
 
 QString AndroidConfigurations::waitForAvd(int apiLevel, const QString &cpuAbi) const

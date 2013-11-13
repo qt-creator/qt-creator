@@ -389,7 +389,7 @@ void AndroidDeployStep::deployFiles(QProcess *process, const QList<DeployItem> &
 bool AndroidDeployStep::deployPackage()
 {
     if (!m_avdName.isEmpty()) {
-        if (!AndroidConfigurations::instance().findAvd(m_deviceAPILevel, m_targetArch)
+        if (AndroidConfigurations::instance().findAvd(m_deviceAPILevel, m_targetArch).isEmpty()
                 && !AndroidConfigurations::instance().startAVDAsync(m_avdName))
             return false;
         m_deviceSerialNumber = AndroidConfigurations::instance().waitForAvd(m_deviceAPILevel, m_targetArch);
