@@ -327,11 +327,7 @@ Rectangle {
             height: labels.height + labelsTail.height
             flickableDirection: Flickable.HorizontalFlick
 
-            onContentXChanged: {
-                if (Math.round(view.startX) !== contentX)
-                    view.startX = contentX;
-            }
-
+            onContentXChanged: view.updateZoomControl()
             clip:true
 
             MouseArea {
@@ -374,25 +370,20 @@ Rectangle {
                 width: flick.width
                 height: vertflick.height
 
-                property real startX: 0
-
                 onEndTimeChanged: requestPaint()
                 onYChanged: requestPaint()
                 onHeightChanged: requestPaint()
 
-                onStartXChanged: {
-                    var newStartTime = Math.round(startX * (endTime - startTime) / flick.width) +
+                function updateZoomControl() {
+                    var newStartTime = Math.round(flick.contentX * (endTime - startTime) / flick.width) +
                             qmlProfilerModelProxy.traceStartTime();
                     if (Math.abs(newStartTime - startTime) > 1) {
-                        var newEndTime = Math.round((startX+flick.width) *
+                        var newEndTime = Math.round((flick.contentX + flick.width) *
                                                     (endTime - startTime) /
                                                     flick.width) +
                                                     qmlProfilerModelProxy.traceStartTime();
                         zoomControl.setRange(newStartTime, newEndTime);
                     }
-
-                    if (Math.round(startX) !== flick.contentX)
-                        flick.contentX = startX;
                 }
 
                 function updateFlickRange(start, end) {
@@ -401,8 +392,8 @@ Rectangle {
                         endTime = end;
                         var newStartX = (startTime - qmlProfilerModelProxy.traceStartTime()) *
                                 flick.width / (endTime-startTime);
-                        if (isFinite(newStartX) && Math.abs(newStartX - startX) >= 1)
-                            startX = newStartX;
+                        if (isFinite(newStartX) && Math.abs(newStartX - flick.contentX) >= 1)
+                            flick.contentX = newStartX;
                     }
                 }
 
