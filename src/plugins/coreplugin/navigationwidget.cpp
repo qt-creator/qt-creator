@@ -134,6 +134,7 @@ void NavigationWidgetPlaceHolder::currentModeAboutToChange(Core::IMode *mode)
 struct NavigationWidgetPrivate
 {
     explicit NavigationWidgetPrivate(QAction *toggleSideBarAction);
+    ~NavigationWidgetPrivate() { delete m_factoryModel; }
 
     QList<Internal::NavigationSubWidget *> m_subWidgets;
     QHash<QShortcut *, Core::Id> m_shortcutMap;
@@ -144,7 +145,7 @@ struct NavigationWidgetPrivate
     bool m_suppressed;
     int m_width;
     static NavigationWidget* m_instance;
-    QAction *m_toggleSideBarAction;
+    QAction *m_toggleSideBarAction; // does not take ownership
 };
 
 NavigationWidgetPrivate::NavigationWidgetPrivate(QAction *toggleSideBarAction) :
