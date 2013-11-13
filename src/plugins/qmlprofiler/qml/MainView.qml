@@ -335,29 +335,6 @@ Rectangle {
             onContentXChanged: view.updateZoomControl()
             clip:true
 
-            MouseArea {
-                id: selectionRangeDrag
-                enabled: selectionRange.ready
-                anchors.fill: selectionRange
-                drag.target: selectionRange
-                drag.axis: "XAxis"
-                drag.minimumX: 0
-                drag.maximumX: flick.contentWidth - selectionRange.width
-                onPressed: {
-                    selectionRange.isDragging = true;
-                }
-                onReleased: {
-                    selectionRange.isDragging = false;
-                }
-                onDoubleClicked: {
-                    zoomControl.setRange(selectionRange.startTime,
-                                         selectionRange.startTime + selectionRange.duration);
-                    root.selectionRangeMode = false;
-                    root.updateRangeButton();
-                }
-            }
-
-
             SelectionRange {
                 id: selectionRange
                 visible: root.selectionRangeMode
@@ -434,11 +411,8 @@ Rectangle {
                 }
 
              // hack to pass mouse events to the other mousearea if enabled
-                startDragArea: selectionRangeDrag.enabled ? selectionRangeDrag.x :
-                                                            -flick.contentX
-                endDragArea: selectionRangeDrag.enabled ?
-                                 selectionRangeDrag.x + selectionRangeDrag.width :
-                                 -flick.contentX-1
+                startDragArea: selectionRange.ready ? selectionRange.getLeft() : -flick.contentX
+                endDragArea: selectionRange.ready ? selectionRange.getRight() : -flick.contentX-1
             }
             MouseArea {
                 id: selectionRangeControl
@@ -517,7 +491,7 @@ Rectangle {
         startTime: selectionRange.startTimeString
         duration: selectionRange.durationString
         endTime: selectionRange.endTimeString
-        showDuration: selectionRange.width > 1
+        showDuration: selectionRange.getWidth() > 1
     }
 
     RangeDetails {
