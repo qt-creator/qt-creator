@@ -32,6 +32,10 @@
 
 #include "languageutils_global.h"
 
+QT_BEGIN_NAMESPACE
+class QCryptographicHash;
+QT_END_NAMESPACE
+
 namespace LanguageUtils {
 
 class LANGUAGEUTILS_EXPORT ComponentVersion
@@ -55,6 +59,7 @@ public:
 
     bool isValid() const;
     QString toString() const;
+    void addToHash(QCryptographicHash &hash) const;
 };
 
 bool LANGUAGEUTILS_EXPORT operator<(const ComponentVersion &lhs, const ComponentVersion &rhs);

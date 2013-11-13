@@ -71,6 +71,8 @@ public:
     Language::Enum language() const;
     void setLanguage(Language::Enum l);
 
+    QString importId() const;
+    QByteArray fingerprint() const;
     AST::UiProgram *qmlProgram() const;
     AST::Program *jsProgram() const;
     AST::ExpressionNode *expression() const;
@@ -113,6 +115,7 @@ private:
     QString _componentName;
     QString _source;
     QWeakPointer<Document> _ptr;
+    QByteArray _fingerprint;
     int _editorRevision;
     Language::Enum _language;
     bool _parsedCorrectly;
@@ -127,6 +130,8 @@ public:
     QString uri;
     LanguageUtils::ComponentVersion version;
     QString cppName;
+
+    void addToHash(QCryptographicHash &hash) const;
 };
 
 class QMLJS_EXPORT LibraryInfo
@@ -154,14 +159,20 @@ private:
     typedef QList<LanguageUtils::FakeMetaObject::ConstPtr> FakeMetaObjectList;
     FakeMetaObjectList _metaObjects;
     QList<ModuleApiInfo> _moduleApis;
+    QByteArray _fingerprint;
 
     PluginTypeInfoStatus _dumpStatus;
     QString _dumpError;
 
 public:
     explicit LibraryInfo(Status status = NotScanned);
-    explicit LibraryInfo(const QmlDirParser &parser);
+    explicit LibraryInfo(const QmlDirParser &parser, const QByteArray &fingerprint = QByteArray());
     ~LibraryInfo();
+
+    QByteArray calculateFingerprint() const;
+    void updateFingerprint();
+    QByteArray fingerprint() const
+    { return _fingerprint; }
 
     QList<QmlDirParser::Component> components() const
     { return _components; }

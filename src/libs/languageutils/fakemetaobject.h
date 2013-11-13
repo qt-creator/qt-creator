@@ -39,6 +39,10 @@
 #include <QHash>
 #include <QSharedPointer>
 
+QT_BEGIN_NAMESPACE
+class QCryptographicHash;
+QT_END_NAMESPACE
+
 namespace LanguageUtils {
 
 class LANGUAGEUTILS_EXPORT FakeMetaEnum {
@@ -60,6 +64,7 @@ public:
     int keyCount() const;
     QStringList keys() const;
     bool hasKey(const QString &key) const;
+    void addToHash(QCryptographicHash &hash) const;
 };
 
 class LANGUAGEUTILS_EXPORT FakeMetaMethod {
@@ -96,6 +101,7 @@ public:
 
     int revision() const;
     void setRevision(int r);
+    void addToHash(QCryptographicHash &hash) const;
 
 private:
     QString m_name;
@@ -125,6 +131,7 @@ public:
     bool isWritable() const;
     bool isPointer() const;
     int revision() const;
+    void addToHash(QCryptographicHash &hash) const;
 };
 
 class LANGUAGEUTILS_EXPORT FakeMetaObject {
@@ -144,6 +151,7 @@ public:
         int metaObjectRevision;
 
         bool isValid() const;
+        void addToHash(QCryptographicHash &hash) const;
     };
 
 private:
@@ -157,6 +165,7 @@ private:
     QList<FakeMetaMethod> m_methods;
     QString m_defaultPropertyName;
     QString m_attachedTypeName;
+    QByteArray m_fingerprint;
 
 public:
     FakeMetaObject();
@@ -195,6 +204,9 @@ public:
 
     QString attachedTypeName() const;
     void setAttachedTypeName(const QString &name);
+    QByteArray calculateFingerprint() const;
+    void updateFingerprint();
+    QByteArray fingerprint() const;
 };
 
 } // namespace LanguageUtils

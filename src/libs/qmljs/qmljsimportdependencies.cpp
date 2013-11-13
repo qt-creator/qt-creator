@@ -29,6 +29,7 @@
 
 #include "qmljsimportdependencies.h"
 #include "qmljsinterpreter.h"
+#include "qmljsqrcparser.h"
 
 #include <utils/qtcassert.h>
 #include <utils/function.h>
@@ -113,6 +114,46 @@ ImportKey::ImportKey()
       minorVersion(LanguageUtils::ComponentVersion::NoVersion)
 { }
 
+ImportKey::ImportKey(const ImportInfo &info)
+    : type(info.type())
+    , majorVersion(info.version().majorVersion())
+    , minorVersion(info.version().minorVersion())
+{
+    splitPath = QFileInfo(info.path()).canonicalFilePath().split(QLatin1Char('/'),
+                                                                 QString::KeepEmptyParts);
+}
+
+ImportKey::ImportKey(ImportType::Enum type, const QString &path, int majorVersion, int minorVersion)
+    : type(type)
+    , majorVersion(majorVersion)
+    , minorVersion(minorVersion)
+{
+    switch (type) {
+    case ImportType::Library:
+        splitPath = path.split(QLatin1Char('.'));
+        break;
+    case ImportType::ImplicitDirectory:
+    case ImportType::Directory:
+        splitPath = path.split(QLatin1Char('/'));
+        if (splitPath.length() > 1 && splitPath.last().isEmpty())
+            splitPath.removeLast();
+        break;
+    case ImportType::File:
+    case ImportType::QrcFile:
+        splitPath = QrcParser::normalizedQrcFilePath(path).split(QLatin1Char('/'));
+        break;
+    case ImportType::QrcDirectory:
+        splitPath = QrcParser::normalizedQrcDirectoryPath(path).split(QLatin1Char('/'));
+        if (splitPath.length() > 1 && splitPath.last().isEmpty())
+            splitPath.removeLast();
+        break;
+    case ImportType::Invalid:
+    case ImportType::UnknownFile:
+        splitPath = path.split(QLatin1Char('/'));
+        break;
+    }
+}
+
 void ImportKey::addToHash(QCryptographicHash &hash) const
 {
     hash.addData(reinterpret_cast<const char *>(&type), sizeof(type));
@@ -151,15 +192,6 @@ ImportKey ImportKey::flatKey() const {
     ImportKey res = *this;
     res.splitPath = flatPath;
     return res;
-}
-
-ImportKey::ImportKey(const ImportInfo &info)
-    : type(info.type())
-    , majorVersion(info.version().majorVersion())
-    , minorVersion(info.version().minorVersion())
-{
-    splitPath = QFileInfo(info.path()).canonicalFilePath().split(QChar::fromLatin1('/'),
-                                                                 QString::KeepEmptyParts);
 }
 
 QString ImportKey::path() const
@@ -430,8 +462,8 @@ bool operator !=(const Export &i1, const Export &i2)
 
 CoreImport::CoreImport() : language(Language::Qml) { }
 
-CoreImport::CoreImport(const QString &importId, QList<Export> possibleExports,
-                       Language::Enum language, QByteArray fingerprint)
+CoreImport::CoreImport(const QString &importId, const QList<Export> &possibleExports,
+                       Language::Enum language, const QByteArray &fingerprint)
     : importId(importId), possibleExports(possibleExports), language(language),
       fingerprint(fingerprint)
 { }
@@ -463,7 +495,7 @@ MatchedImport::MatchedImport()
 { }
 
 MatchedImport::MatchedImport(ImportMatchStrength matchStrength, ImportKey importKey,
-                             QString coreImportId)
+                             const QString &coreImportId)
     : matchStrength(matchStrength), importKey(importKey), coreImportId(coreImportId)
 { }
 
@@ -474,8 +506,11 @@ int MatchedImport::compare(const MatchedImport &o) const {
     res = importKey.compare(o.importKey);
     if (res != 0)
         return res;
-    res = coreImportId.compare(o.coreImportId);
-    return res;
+    if (coreImportId < o.coreImportId)
+        return -1;
+    if (coreImportId > o.coreImportId)
+        return 1;
+    return 0;
 }
 
 bool operator ==(const MatchedImport &m1, const MatchedImport &m2)

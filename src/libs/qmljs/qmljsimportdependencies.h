@@ -80,6 +80,11 @@ bool operator <(const ImportMatchStrength &m1, const ImportMatchStrength &m2);
  * \brief The ImportKey class represent an import (or export), and can be used as hash key
  *
  * This represent only what is to be imported, *not* how (i.e. no as clause)
+ *
+ * Order is defined so that files in the same directory are contiguous, and different
+ * ImportKind are separated.
+ * This is used to efficiently iterate just on library imports, or just on a directory
+ * while preserving space.
  */
 class QMLJS_EXPORT ImportKey
 {
@@ -94,6 +99,9 @@ public:
 
     explicit ImportKey();
     explicit ImportKey(const ImportInfo &info);
+    ImportKey(ImportType::Enum type, const QString &path,
+              int majorVersion = LanguageUtils::ComponentVersion::NoVersion,
+              int minorVersion = LanguageUtils::ComponentVersion::NoVersion);
 
     ImportType::Enum type;
     QStringList splitPath;
@@ -134,8 +142,8 @@ class QMLJS_EXPORT CoreImport
 {
 public:
     CoreImport();
-    CoreImport(const QString &importId, QList<Export> possibleExports = QList<Export>(),
-               Language::Enum language = Language::Qml, QByteArray fingerprint = QByteArray());
+    CoreImport(const QString &importId, const QList<Export> &possibleExports = QList<Export>(),
+               Language::Enum language = Language::Qml, const QByteArray &fingerprint = QByteArray());
     QString importId;
     QList<Export> possibleExports;
     Language::Enum language;
@@ -161,7 +169,8 @@ class QMLJS_EXPORT MatchedImport
 {
 public:
     MatchedImport();
-    MatchedImport(ImportMatchStrength matchStrength, ImportKey importKey, QString coreImportId);
+    MatchedImport(ImportMatchStrength matchStrength, ImportKey importKey,
+                  const QString &coreImportId);
 
     ImportMatchStrength matchStrength;
     ImportKey importKey;
