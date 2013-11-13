@@ -796,14 +796,20 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
             check.enableMessage(StaticAnalysis::WarnImperativeCodeNotEditableInVisualDesigner);
             check.enableMessage(StaticAnalysis::WarnUnsupportedTypeInVisualDesigner);
             check.enableMessage(StaticAnalysis::WarnReferenceToParentItemNotSupportedByVisualDesigner);
+            check.enableMessage(StaticAnalysis::WarnReferenceToParentItemNotSupportedByVisualDesigner);
+            check.enableMessage(StaticAnalysis::WarnAboutQtQuick1InsteadQtQuick2);
             //## triggers too often ## check.enableMessage(StaticAnalysis::WarnUndefinedValueForVisualDesigner);
-            check.enableMessage(StaticAnalysis::WarnStatesOnlyInRootItemForVisualDesigner);
 
             foreach (const StaticAnalysis::Message &message, check()) {
                 if (message.severity == Severity::Error)
                     errors.append(RewriterView::Error(message.toDiagnosticMessage(), QUrl::fromLocalFile(doc->fileName())));
-                if (message.severity == Severity::Warning)
-                    warnings.append(RewriterView::Error(message.toDiagnosticMessage(), QUrl::fromLocalFile(doc->fileName())));
+                if (message.severity == Severity::Warning) {
+                    if (message.type == StaticAnalysis::WarnAboutQtQuick1InsteadQtQuick2) {
+                        errors.append(RewriterView::Error(message.toDiagnosticMessage(), QUrl::fromLocalFile(doc->fileName())));
+                    } else {
+                        warnings.append(RewriterView::Error(message.toDiagnosticMessage(), QUrl::fromLocalFile(doc->fileName())));
+                    }
+                }
             }
 
             if (!errors.isEmpty()) {
