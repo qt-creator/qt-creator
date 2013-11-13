@@ -1027,8 +1027,6 @@ void LldbEngine::refreshState(const GdbMi &reportedState)
         notifyEngineSetupFailed();
     else if (newState == "enginerunfailed")
         notifyEngineRunFailed();
-    else if (newState == "stopped")
-        notifyInferiorSpontaneousStop();
     else if (newState == "inferiorsetupok")
         notifyInferiorSetupOk();
     else if (newState == "enginerunandinferiorrunok")
