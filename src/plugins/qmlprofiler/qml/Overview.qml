@@ -49,12 +49,15 @@ Canvas2D {
     }
 
     function updateRange() {
-        var newStartTime = Math.round(rangeMover.x * qmlProfilerModelProxy.traceDuration() / width) + qmlProfilerModelProxy.traceStartTime();
-        var newEndTime = Math.round((rangeMover.x + rangeMover.width) * qmlProfilerModelProxy.traceDuration() / width) + qmlProfilerModelProxy.traceStartTime();
+        var newStartTime = Math.round(rangeMover.getLeft() * qmlProfilerModelProxy.traceDuration() / width) + qmlProfilerModelProxy.traceStartTime();
+        var newEndTime = Math.round(rangeMover.getRight() * qmlProfilerModelProxy.traceDuration() / width) + qmlProfilerModelProxy.traceStartTime();
         if (startTime !== newStartTime || endTime !== newEndTime) {
             zoomControl.setRange(newStartTime, newEndTime);
         }
+    }
 
+    function clamp(val, min, max) {
+        return Math.min(Math.max(val, min), max);
     }
 
     // ***** connections to external objects
@@ -62,14 +65,17 @@ Canvas2D {
         target: zoomControl
         onRangeChanged: {
             if (qmlProfilerModelProxy) {
-                startTime = zoomControl.startTime();
-                endTime = zoomControl.endTime();
+                startTime = clamp(zoomControl.startTime(), qmlProfilerModelProxy.traceStartTime(), qmlProfilerModelProxy.traceEndTime());
+                endTime = clamp(zoomControl.endTime(), startTime, qmlProfilerModelProxy.traceEndTime());
                 var newRangeX = (startTime - qmlProfilerModelProxy.traceStartTime()) * width / qmlProfilerModelProxy.traceDuration();
-                if (rangeMover.x !== newRangeX)
-                    rangeMover.x = newRangeX;
-                var newWidth = (endTime-startTime) * width / qmlProfilerModelProxy.traceDuration();
-                if (rangeMover.width !== newWidth)
-                    rangeMover.width = newWidth;
+                var newWidth = (endTime - startTime) * width / qmlProfilerModelProxy.traceDuration();
+                var widthChanged = Math.abs(newWidth - rangeMover.getWidth()) > 1;
+                var leftChanged = Math.abs(newRangeX - rangeMover.getLeft()) > 1;
+                if (leftChanged)
+                    rangeMover.setLeft(newRangeX);
+
+                if (leftChanged || widthChanged)
+                    rangeMover.setRight(newRangeX + newWidth);
             }
         }
     }
@@ -97,13 +103,20 @@ Canvas2D {
     MouseArea {
         anchors.fill: canvas
         function jumpTo(posX) {
-            var newX = posX - rangeMover.width/2;
+            var rangeWidth = rangeMover.getWidth();
+            var newX = posX - rangeWidth / 2;
             if (newX < 0)
                 newX = 0;
-            if (newX + rangeMover.width > canvas.width)
-                newX = canvas.width - rangeMover.width;
-            rangeMover.x = newX;
-            updateRange();
+            if (newX + rangeWidth > canvas.width)
+                newX = canvas.width - rangeWidth;
+
+            if (newX < rangeMover.getLeft()) {
+                rangeMover.setLeft(newX);
+                rangeMover.setRight(newX + rangeWidth);
+            } else if (newX > rangeMover.getLeft()) {
+                rangeMover.setRight(newX + rangeWidth);
+                rangeMover.setLeft(newX);
+            }
         }
 
         onPressed: {
@@ -117,6 +130,7 @@ Canvas2D {
     RangeMover {
         id: rangeMover
         visible: dataReady
+        onRangeChanged: canvas.updateRange()
     }
 
     Rectangle {

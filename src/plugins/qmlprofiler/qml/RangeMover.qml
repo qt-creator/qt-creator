@@ -31,41 +31,46 @@ import QtQuick 2.1
 
 Rectangle {
     id: rangeMover
+    anchors.fill: parent
+    color: "transparent"
+    signal rangeChanged()
+    signal rangeDoubleClicked()
 
-
+    property color handleColor: "#869cd1"
     property color rangeColor:"#444a64b8"
+    property color dragColor:"#664a64b8"
     property color borderColor:"#cc4a64b8"
     property color dragMarkerColor: "#4a64b8"
-    width: 20
-    height: 50
+    property color singleLineColor: "#4a64b8"
 
-    color: rangeColor
+    function setLeft(left) { leftRange.x = left }
+    function getLeft() { return leftRange.x }
 
-    property bool dragStarted: false
-    onXChanged: {
-        if (dragStarted) canvas.updateRange()
-    }
+    function setRight(right) { rightRange.x = right }
+    function getRight() { return rightRange.x }
 
-    MouseArea {
-        anchors.fill: parent
-        drag.target: rangeMover
-        drag.axis: "XAxis"
-        drag.minimumX: 0
-        drag.maximumX: canvas.width - rangeMover.width
-        onPressed: {
-            parent.dragStarted = true;
-        }
-        onReleased: {
-            parent.dragStarted = false;
-        }
+    function getWidth() { return rightRange.x - leftRange.x }
+
+    Rectangle {
+        id: selectedRange
+
+        x: leftRange.x
+        width: rightRange.x - leftRange.x
+        height: parent.height
+
+        color: width > 1 ? (dragArea.pressed ? dragColor : rangeColor) : singleLineColor
+
+        onXChanged: parent.rangeChanged()
+        onWidthChanged: parent.rangeChanged()
     }
 
     Rectangle {
         id: leftRange
 
-        // used for dragging the borders
-        property real initialX: 0
-        property real initialWidth: 0
+        onXChanged: {
+            if (dragArea.drag.active)
+                rightRange.x = x + dragArea.origWidth;
+        }
 
         x: 0
         height: parent.height
@@ -75,9 +80,9 @@ Rectangle {
         Rectangle {
             id: leftBorderHandle
             height: parent.height
-            x: -width
+            anchors.right: parent.left
             width: 7
-            color: "#869cd1"
+            color: handleColor
             visible: false
             Image {
                 source: "range_handle.png"
@@ -85,7 +90,7 @@ Rectangle {
                 width: 4
                 height: 9
                 fillMode: Image.Tile
-                y: rangeMover.height / 2 - 4
+                y: parent.height / 2 - 4
             }
         }
 
@@ -97,25 +102,14 @@ Rectangle {
             }
         }
 
-        onXChanged: {
-            if (x !== 0) {
-                rangeMover.width = initialWidth - x;
-                rangeMover.x = initialX + x;
-                x = 0;
-                canvas.updateRange();
-            }
-        }
-
         MouseArea {
-            x: -10
-            width: 13
-            y: 0
-            height: parent.height
+            anchors.fill: leftBorderHandle
 
             drag.target: leftRange
             drag.axis: "XAxis"
-            drag.minimumX: -parent.initialX
-            drag.maximumX: parent.initialWidth - 2
+            drag.minimumX: 0
+            drag.maximumX: rangeMover.width
+            drag.onActiveChanged: drag.maximumX = rightRange.x
 
             hoverEnabled: true
 
@@ -128,17 +122,13 @@ Rectangle {
             onReleased: {
                 if (!containsMouse) parent.state = "";
             }
-            onPressed: {
-                parent.initialX = rangeMover.x;
-                parent.initialWidth = rangeMover.width;
-            }
         }
     }
 
     Rectangle {
         id: rightRange
 
-        x: rangeMover.width
+        x: 1
         height: parent.height
         width: 1
         color: borderColor
@@ -146,9 +136,9 @@ Rectangle {
         Rectangle {
             id: rightBorderHandle
             height: parent.height
-            x: 1
+            anchors.left: parent.right
             width: 7
-            color: "#869cd1"
+            color: handleColor
             visible: false
             Image {
                 source: "range_handle.png"
@@ -156,7 +146,7 @@ Rectangle {
                 width: 4
                 height: 9
                 fillMode: Image.Tile
-                y: rangeMover.height / 2 - 4
+                y: parent.height / 2 - 4
             }
         }
 
@@ -168,23 +158,14 @@ Rectangle {
             }
         }
 
-        onXChanged: {
-            if (x!=rangeMover.width) {
-                rangeMover.width = x;
-                canvas.updateRange();
-            }
-        }
-
         MouseArea {
-            x: -3
-            width: 13
-            y: 0
-            height: parent.height
+            anchors.fill: rightBorderHandle
 
             drag.target: rightRange
             drag.axis: "XAxis"
-            drag.minimumX: 1
-            drag.maximumX: canvas.width - rangeMover.x
+            drag.minimumX: 0
+            drag.maximumX: rangeMover.width
+            drag.onActiveChanged: drag.minimumX = leftRange.x
 
             hoverEnabled: true
 
@@ -200,4 +181,16 @@ Rectangle {
         }
     }
 
+    MouseArea {
+        id: dragArea
+        property int origWidth: 0
+
+        anchors.fill: selectedRange
+        drag.target: leftRange
+        drag.axis: "XAxis"
+        drag.minimumX: 0
+        drag.maximumX: rangeMover.width - origWidth
+        drag.onActiveChanged: origWidth = selectedRange.width
+        onDoubleClicked: parent.rangeDoubleClicked()
+    }
 }
