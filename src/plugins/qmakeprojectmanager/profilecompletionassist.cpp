@@ -38,6 +38,7 @@ using namespace TextEditor;
 
 static const char *const variableKeywords[] = {
     "CCFLAG",
+    "CLEAN_DEPS",
     "CONFIG",
     "DEFINES",
     "DEF_FILE",
