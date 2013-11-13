@@ -43,7 +43,7 @@ class CMakeBuildInfo : public ProjectExplorer::BuildInfo
 {
 public:
     CMakeBuildInfo(const ProjectExplorer::IBuildConfigurationFactory *f) :
-        ProjectExplorer::BuildInfo(f) { }
+        ProjectExplorer::BuildInfo(f), useNinja(false) { }
 
     CMakeBuildInfo(const Internal::CMakeBuildConfiguration *bc) :
         ProjectExplorer::BuildInfo(ProjectExplorer::IBuildConfigurationFactory::find(bc->target()))
