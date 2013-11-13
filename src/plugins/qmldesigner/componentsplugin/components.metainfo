@@ -11,7 +11,7 @@ MetaInfo {
             version: "1.0"
             requiredImport: "QtQuick.Controls"
 
-            Property { name: "text"; type: "QString"; value: "Button"; }
+            Property { name: "text"; type: "binding"; value: "qsTr(\"Button\")"; }
         }
     }
 
@@ -39,7 +39,7 @@ MetaInfo {
             version: "1.0"
             requiredImport: "QtQuick.Controls"
 
-            Property { name: "text"; type: "QString"; value: "Check Box"; }
+            Property { name: "text"; type: "binding"; value: "qsTr(\"Check Box\")"; }
         }
     }
 
@@ -54,7 +54,7 @@ MetaInfo {
             version: "1.0"
             requiredImport: "QtQuick.Controls"
 
-            Property { name: "text"; type: "QString"; value: "Radio Button"; }
+            Property { name: "text"; type: "binding"; value: "qsTr(\"Radio Button\")"; }
         }
     }
 
@@ -108,7 +108,7 @@ MetaInfo {
             version: "1.0"
             requiredImport: "QtQuick.Controls"
 
-            Property { name: "text"; type: "QString"; value: "Label"; }
+            Property { name: "text"; type: "binding"; value: "qsTr(\"Label\")"; }
         }
     }
 
@@ -123,7 +123,7 @@ MetaInfo {
             version: "1.0"
             requiredImport: "QtQuick.Controls"
 
-            Property { name: "placeholderText"; type: "QString"; value: "Text Field"; }
+            Property { name: "placeholderText"; type: "binding"; value: "qsTr(\"Text Field\")"; }
         }
     }
 

@@ -63,7 +63,8 @@ MetaInfo {
             libraryIcon: ":/qtquickplugin/images/text-icon.png"
             version: "1.0"
 
-            QmlSource { source: ":/qtquickplugin/source/text.qml" }
+            Property { name: "font.pixelSize"; type: "int"; value: 12; }
+            Property { name: "text"; type: "binding"; value: "qsTr(\"Text\")"; }
         }
 
         ItemLibraryEntry {
@@ -72,7 +73,8 @@ MetaInfo {
             libraryIcon: ":/qtquickplugin/images/text-icon.png"
             version: "2.0"
 
-            QmlSource { source: ":/qtquickplugin/source/textv2.qml" }
+            Property { name: "font.pixelSize"; type: "int"; value: 12; }
+            Property { name: "text"; type: "binding"; value: "qsTr(\"Text\")"; }
         }
     }
 
@@ -86,7 +88,11 @@ MetaInfo {
             libraryIcon: ":/qtquickplugin/images/text-edit-icon.png"
             version: "1.0"
 
-            QmlSource { source: ":/qtquickplugin/source/textedit.qml" }
+            Property { name: "width"; type: "int"; value: 80; }
+            Property { name: "height"; type: "int"; value: 20; }
+            Property { name: "font.pixelSize"; type: "int"; value: 12; }
+            Property { name: "text"; type: "binding"; value: "qsTr(\"Text Edit\")"; }
+
         }
 
         ItemLibraryEntry {
@@ -95,7 +101,10 @@ MetaInfo {
             libraryIcon: ":/qtquickplugin/images/text-edit-icon.png"
             version: "2.0"
 
-            QmlSource { source: ":/qtquickplugin/source/texteditv2.qml" }
+            Property { name: "width"; type: "int"; value: 80; }
+            Property { name: "height"; type: "int"; value: 20; }
+            Property { name: "font.pixelSize"; type: "int"; value: 12; }
+            Property { name: "text"; type: "binding"; value: "qsTr(\"Text Edit\")"; }
         }
     }
 
@@ -109,7 +118,10 @@ MetaInfo {
             libraryIcon: ":/qtquickplugin/images/text-edit-icon.png"
             version: "1.0"
 
-            QmlSource { source: ":/qtquickplugin/source/textinput.qml" }
+            Property { name: "width"; type: "int"; value: 80; }
+            Property { name: "height"; type: "int"; value: 20; }
+            Property { name: "font.pixelSize"; type: "int"; value: 12; }
+            Property { name: "text"; type: "binding"; value: "qsTr(\"Text Input\")"; }
         }
 
         ItemLibraryEntry {
@@ -118,7 +130,10 @@ MetaInfo {
             libraryIcon: ":/qtquickplugin/images/text-input-icon.png"
             version: "2.0"
 
-            QmlSource { source: ":/qtquickplugin/source/textinput.qml" }
+            Property { name: "width"; type: "int"; value: 80; }
+            Property { name: "height"; type: "int"; value: 20; }
+            Property { name: "font.pixelSize"; type: "int"; value: 12; }
+            Property { name: "text"; type: "binding"; value: "qsTr(\"Text Input\")"; }
         }
     }
 
