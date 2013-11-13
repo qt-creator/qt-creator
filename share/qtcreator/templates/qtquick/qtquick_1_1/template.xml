@@ -5,5 +5,5 @@
     viewerclassname="QtQuick1ApplicationViewer"
     stubversionminor="24">
     <displayname>Qt Quick 1.1</displayname>
-    <description>Creates a Qt Quick 1 application project that can contain both QML and C++ code and includes a QDeclarativeView. The built-in QML types in the QtQuick 1 namespace allow you to write cross-platform applications with a custom look and feel. Requires Qt 4.8 or newer.</description>
+    <description>Creates a deployable Qt Quick 1 application using the "QtQuick 1.1" import. Requires Qt 4.8 or newer.</description>
 </template>
