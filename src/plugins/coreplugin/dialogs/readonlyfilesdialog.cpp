@@ -366,7 +366,7 @@ void ReadOnlyFilesDialog::updateSelectAll()
 void ReadOnlyFilesDialog::initDialog(const QStringList &fileNames)
 {
     ui->setupUi(this);
-    ui->buttonBox->addButton(tr("&Change Permission"), QDialogButtonBox::AcceptRole);
+    ui->buttonBox->addButton(tr("Change &Permission"), QDialogButtonBox::AcceptRole);
     ui->buttonBox->addButton(QDialogButtonBox::Cancel);
 
     QString vcsOpenTextForAll;
