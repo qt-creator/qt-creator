@@ -2,11 +2,15 @@
 
 #include "cppmodelmanager.h"
 
+#include <coreplugin/editormanager/editormanager.h>
+
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/textfileformat.h>
 
 #include <QCoreApplication>
 #include <QCryptographicHash>
+#include <QTextCodec>
 
 /*!
  * \class CppTools::Internal::CppPreprocessor
@@ -30,7 +34,8 @@ CppPreprocessor::CppPreprocessor(QPointer<CppModelManager> modelManager,
       m_modelManager(modelManager),
       m_dumpFileNameWhileParsing(dumpFileNameWhileParsing),
       m_preprocess(this, &m_env),
-      m_revision(0)
+      m_revision(0),
+      m_defaultCodec(Core::EditorManager::defaultTextCodec())
 {
     m_preprocess.setKeepComments(true);
 }
@@ -41,7 +46,8 @@ CppPreprocessor::CppPreprocessor(QPointer<CppModelManager> modelManager, const S
       m_modelManager(modelManager),
       m_dumpFileNameWhileParsing(dumpFileNameWhileParsing),
       m_preprocess(this, &m_env),
-      m_revision(0)
+      m_revision(0),
+      m_defaultCodec(Core::EditorManager::defaultTextCodec())
 {
     m_preprocess.setKeepComments(true);
 }
@@ -182,9 +188,14 @@ void CppPreprocessor::getFileContents(const QString &absoluteFilePath,
         return;
     }
 
-    QString errStr;
-    if (contents)
-        Utils::TextFileFormat::readFileUTF8(absoluteFilePath, contents, &errStr);
+    if (contents) {
+        QString error;
+        if (Utils::TextFileFormat::readFileUTF8(absoluteFilePath, m_defaultCodec, contents, &error)
+                != Utils::TextFileFormat::ReadSuccess) {
+            qWarning("Error reading file \"%s\": \"%s\".", qPrintable(absoluteFilePath),
+                     qPrintable(error));
+        }
+    }
     if (revision)
         *revision = 0;
 }
