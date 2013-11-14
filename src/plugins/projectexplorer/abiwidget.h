@@ -55,6 +55,7 @@ public:
 
     void setAbis(const QList<Abi> &, const Abi &current);
     QList<Abi> supportedAbis() const;
+    bool isCustomAbi() const;
     Abi currentAbi() const;
 
 signals:

@@ -192,6 +192,11 @@ QList<Abi> AbiWidget::supportedAbis() const
     return result;
 }
 
+bool AbiWidget::isCustomAbi() const
+{
+    return d->isCustom();
+}
+
 Abi AbiWidget::currentAbi() const
 {
     return Abi(d->m_abi->itemData(d->m_abi->currentIndex()).toString());
