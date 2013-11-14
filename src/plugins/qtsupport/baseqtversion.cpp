@@ -796,6 +796,7 @@ void BaseQtVersion::ensureMkSpecParsed() const
     QMakeVfs vfs;
     ProFileGlobals option;
     option.setProperties(versionInfo());
+    option.environment = qmakeRunEnvironment().toProcessEnvironment();
     ProMessageHandler msgHandler(true);
     ProFileCacheManager::instance()->incRefCount();
     QMakeParser parser(ProFileCacheManager::instance()->cache(), &vfs, &msgHandler);
