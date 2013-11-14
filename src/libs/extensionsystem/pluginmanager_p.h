@@ -104,7 +104,8 @@ public:
     QStringList pluginPaths;
     QString extension;
     QList<QObject *> allObjects; // ### make this a QList<QPointer<QObject> > > ?
-    QStringList defaultDisabledPlugins;
+    QStringList defaultDisabledPlugins; // Plugins/Ignored from install settings
+    QStringList defaultEnabledPlugins; // Plugins/ForceEnabled from install settings
     QStringList disabledPlugins;
     QStringList forceEnabledPlugins;
     // delayed initialization

@@ -907,8 +907,10 @@ void PluginManagerPrivate::writeSettings()
 */
 void PluginManagerPrivate::readSettings()
 {
-    if (globalSettings)
+    if (globalSettings) {
         defaultDisabledPlugins = globalSettings->value(QLatin1String(C_IGNORED_PLUGINS)).toStringList();
+        defaultEnabledPlugins = globalSettings->value(QLatin1String(C_FORCEENABLED_PLUGINS)).toStringList();
+    }
     if (settings) {
         disabledPlugins = settings->value(QLatin1String(C_IGNORED_PLUGINS)).toStringList();
         forceEnabledPlugins = settings->value(QLatin1String(C_FORCEENABLED_PLUGINS)).toStringList();
@@ -1225,9 +1227,14 @@ void PluginManagerPrivate::readPluginPaths()
             collection = new PluginCollection(spec->category());
             pluginCategories.insert(spec->category(), collection);
         }
-        if (defaultDisabledPlugins.contains(spec->name())) {
+        // defaultDisabledPlugins and defaultEnabledPlugins from install settings
+        // is used to override the defaults read from the plugin spec
+        if (!spec->isDisabledByDefault() && defaultDisabledPlugins.contains(spec->name())) {
             spec->setDisabledByDefault(true);
             spec->setEnabled(false);
+        } else if (spec->isDisabledByDefault() && defaultEnabledPlugins.contains(spec->name())) {
+            spec->setDisabledByDefault(false);
+            spec->setEnabled(true);
         }
         if (spec->isDisabledByDefault() && forceEnabledPlugins.contains(spec->name()))
             spec->setEnabled(true);
