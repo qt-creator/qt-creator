@@ -33,6 +33,8 @@
 #include <QStringList>
 #include <QFileInfo>
 
+#include <iostream>
+
 #include <qt5nodeinstanceclientproxy.h>
 
 #include <QQmlComponent>
@@ -110,7 +112,7 @@ int main(int argc, char *argv[])
     }
 
     if (application.arguments().count() == 2 && application.arguments().at(1) == "--version") {
-        qDebug() << QCoreApplication::applicationVersion();
+        std::cout << 2;
         return 0;
     }
 
