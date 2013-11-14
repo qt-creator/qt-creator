@@ -43,6 +43,10 @@ Slog2InfoRunner::Slog2InfoRunner(const QString &applicationId, const RemoteLinux
     , m_found(false)
     , m_currentLogs(false)
 {
+    // See QTCREATORBUG-10712 for details.
+    // We need to limit length of ApplicationId to 63 otherwise it would not match one in slog2info.
+    m_applicationId.truncate(63);
+
     m_testProcess = new ProjectExplorer::SshDeviceProcess(device, this);
     connect(m_testProcess, SIGNAL(finished()), this, SLOT(handleTestProcessCompleted()));
 
@@ -67,8 +71,10 @@ void Slog2InfoRunner::stop()
     if (m_testProcess->state() == QProcess::Running)
         m_testProcess->kill();
 
-    if (m_logProcess->state() == QProcess::Running)
+    if (m_logProcess->state() == QProcess::Running) {
         m_logProcess->kill();
+        processLog(true);
+    }
 }
 
 bool Slog2InfoRunner::commandFound() const
@@ -104,60 +110,66 @@ void Slog2InfoRunner::launchSlog2Info()
                                              QString::fromLatin1("dd HH:mm:ss"));
 
     QStringList arguments;
-    arguments << QLatin1String("-w")
-              << QLatin1String("-b")
-              << m_applicationId;
+    arguments << QLatin1String("-w");
     m_logProcess->start(QLatin1String("slog2info"), arguments);
 }
 
 void Slog2InfoRunner::readLogStandardOutput()
 {
-    const QString message = QString::fromLatin1(m_logProcess->readAllStandardOutput());
-    const QStringList multiLine = message.split(QLatin1Char('\n'));
-    Q_FOREACH (const QString &line, multiLine) {
-        // Note: This is useless if/once slog2info -b displays only logs from recent launches
-        if (!m_launchDateTime.isNull())
-        {
-            // Check if logs are from the recent launch
-            if (!m_currentLogs) {
-                QDateTime dateTime = QDateTime::fromString(line.split(m_applicationId).first().mid(4).trimmed(),
-                                                           QString::fromLatin1("dd HH:mm:ss.zzz"));
-
-                m_currentLogs = dateTime >= m_launchDateTime;
-                if (!m_currentLogs)
-                    continue;
-            }
-        }
-
-        // The line could be a part of a previous log message that contains a '\n'
-        // In that case only the message body is displayed
-        if (!line.contains(m_applicationId) && !line.isEmpty()) {
-            emit output(line + QLatin1Char('\n'), Utils::StdOutFormat);
-            continue;
-        }
-
-        QStringList validLineBeginnings;
-        validLineBeginnings << QLatin1String("qt-msg      0  ")
-                            << QLatin1String("qt-msg*     0  ")
-                            << QLatin1String("default*  9000  ")
-                            << QLatin1String("default   9000  ")
-                            << QLatin1String("                           0  ");
-        Q_FOREACH (const QString &beginning, validLineBeginnings) {
-            if (showQtMessage(beginning, line))
-                break;
-        }
-    }
+    processLog(false);
 }
 
-bool Slog2InfoRunner::showQtMessage(const QString &pattern, const QString &line)
+void Slog2InfoRunner::processLog(bool force)
 {
-    const int index = line.indexOf(pattern);
-    if (index != -1) {
-        const QString str = line.right(line.length()-index-pattern.length()) + QLatin1Char('\n');
-        emit output(str, Utils::StdOutFormat);
-        return true;
+    QString input = QString::fromLatin1(m_logProcess->readAllStandardOutput());
+    QStringList lines = input.split(QLatin1Char('\n'));
+    if (lines.isEmpty())
+        return;
+    lines.first().prepend(m_remainingData);
+    if (force)
+        m_remainingData.clear();
+    else
+        m_remainingData = lines.takeLast();
+    foreach (const QString &line, lines)
+        processLogLine(line);
+}
+
+void Slog2InfoRunner::processLogLine(const QString &line)
+{
+    // The "(\\s+\\S+)?" represents a named buffer. If message has noname (aka empty) buffer
+    // then the message might get cut for the first number in the message.
+    // The "\\s+(\\b.*)?$" represents a space followed by a message. We are unable to determinate
+    // how many spaces represent separators and how many are a part of the messages, so resulting
+    // messages has all whitespaces at the beginning of the message trimmed.
+    static QRegExp regexp(QLatin1String(
+        "^[a-zA-Z]+\\s+([0-9]+ [0-9]+:[0-9]+:[0-9]+.[0-9]+)\\s+(\\S+)(\\s+(\\S+))?\\s+([0-9]+)\\s+(\\b.*)?$"));
+
+    if (!regexp.exactMatch(line) || regexp.captureCount() != 6)
+        return;
+
+    // Note: This is useless if/once slog2info -b displays only logs from recent launches
+    if (!m_launchDateTime.isNull()) {
+        // Check if logs are from the recent launch
+        if (!m_currentLogs) {
+            QDateTime dateTime = QDateTime::fromString(regexp.cap(1),
+                                                       QLatin1String("dd HH:mm:ss.zzz"));
+            m_currentLogs = dateTime >= m_launchDateTime;
+            if (!m_currentLogs)
+                return;
+        }
     }
-    return false;
+
+    QString applicationId = regexp.cap(2);
+    if (!applicationId.startsWith(m_applicationId))
+        return;
+
+    QString bufferName = regexp.cap(4);
+    int bufferId = regexp.cap(5).toInt();
+    // filtering out standard BB10 messages
+    if (bufferName == QLatin1String("default") && bufferId == 8900)
+        return;
+
+    emit output(regexp.cap(6) + QLatin1Char('\n'), Utils::StdOutFormat);
 }
 
 void Slog2InfoRunner::readLogStandardError()
