@@ -286,7 +286,7 @@ static void parse(QFutureInterface<void> &future, CppEditorSupport *support)
     QSharedPointer<SnapshotUpdater> updater = support->snapshotUpdater();
 
     updater->update(cmm->workingCopy());
-    cmm->finishedRefreshingSourceFiles(QStringList(updater->document()->fileName()));
+    cmm->finishedRefreshingSourceFiles(QStringList(updater->fileInEditor()));
 
     future.setProgressValue(1);
 }
@@ -298,7 +298,7 @@ void CppEditorSupport::updateDocumentNow()
     } else {
         m_updateDocumentTimer->stop();
 
-        if (m_fileIsBeingReloaded)
+        if (m_fileIsBeingReloaded || fileName().isEmpty())
             return;
 
         if (m_highlightingSupport && !m_highlightingSupport->requiresSemanticInfo())
