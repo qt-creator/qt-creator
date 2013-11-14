@@ -56,6 +56,10 @@ def qdump__Debugger__Internal__BreakpointModelId(d, value):
     d.putValue("%s.%s" % (int(value["m_majorPart"]), int(value["m_minorPart"])))
     d.putPlainChildren(value)
 
+def qdump__Debugger__Internal__ThreadId(d, value):
+    d.putValue("%s" % value["m_id"])
+    d.putPlainChildren(value)
+
 def qdump__CPlusPlus__ByteArrayRef(d, value):
     d.putValue(d.encodeCharArray(value["m_start"], 100, value["m_length"]),
         Hex2EncodedLatin1)
