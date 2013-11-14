@@ -4,7 +4,6 @@
         <file>qml/ItemsViewStyle.qml</file>
         <file>qml/SectionView.qml</file>
         <file>qml/SingleItemView.qml</file>
-        <file>qml/Scrollbar.qml</file>
         <file>qml/Selector.qml</file>
 
         <file>images/item-default-icon.png</file>

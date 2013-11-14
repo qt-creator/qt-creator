@@ -28,6 +28,8 @@
 ****************************************************************************/
 
 import QtQuick 2.1
+import QtQuick.Controls 1.1
+import  QtQuick.Controls.Styles 1.0
 
 /* The view displaying the item grid.
 
@@ -178,39 +180,66 @@ focus */
         }
     }
 
-    Flickable {
-        id: itemsFlickable
-
+    ScrollView {
         anchors.top: parent.top
         anchors.topMargin: 3
         anchors.bottom: parent.bottom
         anchors.left: parent.left
-        anchors.right: scrollbarFrame.left
-        boundsBehavior: Flickable.DragOverBounds
+        anchors.right: parent.right
 
-        interactive: false
-        contentHeight: col.height
+        style: ScrollViewStyle {
+            scrollBarBackground: Rectangle {
+                width: 10
+                color: style.scrollbarColor
+                border.width: 1
+                border.color: style.scrollbarBorderColor
 
-        /* Limit the content position. Without this, resizing would get the
-content position out of scope regarding the scrollbar. */
-        function limitContentPos() {
-            if (contentY < 0) {
-                contentY = 0;
-            } else {
-                var maxContentY = Math.max(0, contentHeight - height)
-                if (contentY > maxContentY)
-                    contentY = maxContentY;
             }
+
+            handle: Item {
+                implicitWidth: 10
+                implicitHeight: 8
+                Rectangle {
+                    border.color: style.scrollbarBorderColor
+                    border.width: 1
+                    anchors.fill: parent
+                    color: style.sectionTitleBackgroundColor
+                }
+            }
+
+            decrementControl: Item {}
+            incrementControl: Item {}
         }
-        onHeightChanged: limitContentPos()
-        onContentHeightChanged: limitContentPos()
 
-        Column {
-            id: col
+        Flickable {
+            id: itemsFlickable
 
-            Repeater {
-                model: itemLibraryModel  // to be set in Qml context
-                delegate: sectionDelegate
+            boundsBehavior: Flickable.DragOverBounds
+
+            //interactive: false
+            contentHeight: col.height
+
+            /* Limit the content position. Without this, resizing would get the
+content position out of scope regarding the scrollbar. */
+            function limitContentPos() {
+                if (contentY < 0) {
+                    contentY = 0;
+                } else {
+                    var maxContentY = Math.max(0, contentHeight - height)
+                    if (contentY > maxContentY)
+                        contentY = maxContentY;
+                }
+            }
+            onHeightChanged: limitContentPos()
+            onContentHeightChanged: limitContentPos()
+
+            Column {
+                id: col
+
+                Repeater {
+                    model: itemLibraryModel  // to be set in Qml context
+                    delegate: sectionDelegate
+                }
             }
         }
     }
@@ -225,13 +254,5 @@ content position out of scope regarding the scrollbar. */
         anchors.right: parent.right
         anchors.rightMargin: 2
         width: (itemsFlickable.contentHeight > itemsFlickable.height)? 11:0
-
-        Scrollbar {
-            id: scrollbar
-            anchors.fill: parent
-            anchors.leftMargin: 1
-
-            flickable: itemsFlickable
-        }
     }
 }
