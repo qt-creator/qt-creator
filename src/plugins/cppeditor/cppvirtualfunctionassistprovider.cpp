@@ -255,35 +255,6 @@ bool FunctionHelper::isPureVirtualFunction(const Function *function, const Snaps
     return isVirtualFunction_helper(function, snapshot, PureVirtual);
 }
 
-static bool isDerivedOf(Class *derivedClassCandidate, Class *baseClass,
-                        const Snapshot &snapshot)
-{
-    QTC_ASSERT(derivedClassCandidate && baseClass, return false);
-
-    QList<CppClass> l = QList<CppClass>() << CppClass(derivedClassCandidate);
-
-    while (!l.isEmpty()) {
-        CppClass clazz = l.takeFirst();
-        QTC_ASSERT(clazz.declaration, continue);
-
-        const QString fileName = QString::fromUtf8(clazz.declaration->fileName());
-        const Document::Ptr document = snapshot.document(fileName);
-        if (!document)
-            continue;
-        const LookupContext context(document, snapshot);
-        clazz.lookupBases(clazz.declaration, context);
-
-        foreach (const CppClass &base, clazz.bases) {
-            if (base.declaration == baseClass)
-                return true;
-            if (!l.contains(base))
-                l << base;
-        }
-    }
-
-    return false;
-}
-
 QList<Symbol *> FunctionHelper::overrides(Function *function, Class *functionsClass,
                                           Class *staticClass, const Snapshot &snapshot)
 {
@@ -296,7 +267,7 @@ QList<Symbol *> FunctionHelper::overrides(Function *function, Class *functionsCl
 
     // Find overrides
     CppEditor::Internal::CppClass cppClass = CppClass(functionsClass);
-    cppClass.lookupDerived(functionsClass, snapshot);
+    cppClass.lookupDerived(staticClass, snapshot);
 
     QList<CppClass> l;
     l << cppClass;
@@ -308,11 +279,6 @@ QList<Symbol *> FunctionHelper::overrides(Function *function, Class *functionsCl
         QTC_ASSERT(clazz.declaration, continue);
         Class *c = clazz.declaration->asClass();
         QTC_ASSERT(c, continue);
-
-        if (c != functionsClass && c != staticClass) {
-            if (!isDerivedOf(c, staticClass, snapshot))
-                continue;
-        }
 
         foreach (const CppClass &d, clazz.derived) {
             if (!l.contains(d))
