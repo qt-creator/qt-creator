@@ -876,8 +876,6 @@
 
     \list
 
-        \li \gui{CodePaster}
-
         \li \gui{Pastebin.Com}
 
         \li \gui{Pastebin.Ca}
@@ -888,29 +886,54 @@
 
     \endlist
 
-    To configure the server, select \gui{Tools} > \gui{Options} >
-    \gui{Code Pasting} > \gui CodePaster. In the \gui Server field, specify the
-    host name of the CodePaster service.
+    \section1 Specifying Settings for Code Pasting
+
+    To specify settings for the code pasting service:
+
+    \list 1
+
+        \li Select \gui Tools > \gui Options  > \gui{Code Pasting}.
+
+            \image qtcreator-code-pasting-options.png "Code Pasting options"
+
+        \li In the \gui {Default protocol} field, select a code pasting service
+            to use by default.
+
+        \li In the \gui Username field, enter your username.
+
+        \li In the \gui {Expires after} field, specify the time to keep the
+            pasted snippet on the server.
+
+        \li Select the \gui {Copy-paste URL to clipboard} check box to copy the
+            URL of the post on the code pasting service to the clipboard when
+            you paste a post.
+
+        \li Select the \gui {Display Output pane after sending a post} to
+            display the URL in the \gui {General Messages} output pane when you
+            paste a post.
+
+    \endlist
 
     Select \gui Fileshare to specify the path to a shared
     network drive. The code snippets are copied to the drive as simple files.
     You have to delete obsolete files from the drive manually.
 
+    \section1 Using Code Pasting Services
+
     To paste a snippet of code onto the server, select \gui{Tools} >
     \gui{Code Pasting} > \gui{Paste Snippet} or press \key{Alt+C,Alt+P}.
     By default, \QC copies the URL of the snippet to the clipboard and displays
-    the URL in the \gui Output pane.
+    the URL in the \gui {General Messages} output pane.
+
+    To paste any content that you copied to the clipboard, select \gui Tools >
+    \gui {Code Pasting} > \gui {Paste Clipboard}.
 
     To fetch a snippet of code from the server, select \gui{Tools} >
-    \gui{Code Pasting} > \gui{Fetch Snippet} or press \key{Alt+C,Alt+F}.
+    \gui{Code Pasting} > \gui{Fetch Snippet} or press \key{Alt+C,Alt+F}. Select
+    the snippet to fetch from the list.
 
-    To fetch content from a URL on a CodePaster service, select \gui{Tools} >
-    \gui{Code Pasting} > \gui{Fetch from URL}. The content is opened in the code
-    editor.
-
-    \note To use \gui{Pastebin.Com}, configure the domain
-    prefix in \gui{Tools} > \gui{Options} > \gui{Code Pasting} >
-    \gui{Pastebin.com}.
+    To fetch the content stored at an URL, select \gui Tools >
+    \gui {Code Pasting} > \gui {Fetch from URL}.
 
     For example, you might ask colleagues to review a change that you plan to
     submit to a version control system. If you use the Git version control
