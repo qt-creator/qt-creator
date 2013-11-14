@@ -135,6 +135,7 @@ QV8ProfilerEventsWidget::QV8ProfilerEventsWidget(QWidget *parent,
     connect(d->m_eventTree, SIGNAL(eventSelected(int)), d->m_eventParents, SLOT(displayEvent(int)));
     connect(d->m_eventChildren, SIGNAL(eventClicked(int)), d->m_eventTree, SLOT(selectEvent(int)));
     connect(d->m_eventParents, SIGNAL(eventClicked(int)), d->m_eventTree, SLOT(selectEvent(int)));
+    connect(d->v8Model, SIGNAL(changed()), this, SLOT(updateEnabledState()));
 
     // widget arrangement
     QVBoxLayout *groupLayout = new QVBoxLayout;
@@ -156,7 +157,7 @@ QV8ProfilerEventsWidget::QV8ProfilerEventsWidget(QWidget *parent,
 
     d->m_profilerTool = profilerTool;
     d->m_viewContainer = container;
-
+    setEnabled(false);
 }
 
 QV8ProfilerEventsWidget::~QV8ProfilerEventsWidget()
@@ -164,11 +165,17 @@ QV8ProfilerEventsWidget::~QV8ProfilerEventsWidget()
     delete d;
 }
 
+void QV8ProfilerEventsWidget::updateEnabledState()
+{
+    setEnabled(!d->v8Model->isEmpty());
+}
+
 void QV8ProfilerEventsWidget::clear()
 {
     d->m_eventTree->clear();
     d->m_eventChildren->clear();
     d->m_eventParents->clear();
+    setEnabled(false);
 }
 
 QModelIndex QV8ProfilerEventsWidget::selectedItem() const

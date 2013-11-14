@@ -74,6 +74,7 @@ signals:
 public slots:
     void updateSelectedEvent(int eventId) const;
     void selectBySourceLocation(const QString &filename, int line, int column);
+    void updateEnabledState();
 
 protected:
     void contextMenuEvent(QContextMenuEvent *ev);
