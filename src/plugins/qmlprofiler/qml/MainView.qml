@@ -307,6 +307,11 @@ Rectangle {
         height: root.height
         clip: true
         contentHeight: labels.height
+        boundsBehavior: Flickable.StopAtBounds
+
+        // ScrollView will try to deinteractivate it. We don't want that
+        // as the horizontal flickable is interactive, too.
+        onInteractiveChanged: interactive = true
 
         // ***** child items
         TimeMarks {
@@ -499,6 +504,11 @@ Rectangle {
                 }
             }
         }
+    }
+
+    ScrollView {
+        contentItem: vertflick
+        anchors.fill: parent
     }
 
     SelectionRangeDetails {
