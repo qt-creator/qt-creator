@@ -510,8 +510,10 @@ int main(int argc, char **argv)
         return 1;
     }
     if (PluginManager::hasError()) {
-        PluginErrorOverview errorOverview;
-        errorOverview.exec();
+        PluginErrorOverview *errorOverview = new PluginErrorOverview(QApplication::activeWindow());
+        errorOverview->setAttribute(Qt::WA_DeleteOnClose);
+        errorOverview->setModal(true);
+        errorOverview->show();
     }
 
     // Set up remote arguments.
