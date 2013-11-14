@@ -52,6 +52,7 @@ public:
     bool isValid() const { return m_id != -1; }
     qint64 raw() const { return m_id; }
     bool operator==(const ThreadId other) const { return m_id == other.m_id; }
+    bool operator!=(const ThreadId other) const { return m_id != other.m_id; }
 
 private:
     qint64 m_id;
