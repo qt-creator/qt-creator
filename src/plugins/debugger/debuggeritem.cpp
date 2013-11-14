@@ -79,7 +79,7 @@ DebuggerItem::DebuggerItem(const QVariantMap &data)
 
     foreach (const QString &a, data.value(QLatin1String(DEBUGGER_INFORMATION_ABIS)).toStringList()) {
         Abi abi(a);
-        if (abi.isValid())
+        if (!abi.isNull())
             m_abis.append(abi);
     }
 }
