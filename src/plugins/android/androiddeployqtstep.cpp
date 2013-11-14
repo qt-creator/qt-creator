@@ -299,6 +299,7 @@ void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
         QString serialNumber = AndroidConfigurations::instance().waitForAvd(m_deviceAPILevel, m_targetArch);
         if (serialNumber.isEmpty()) {
             fi.reportResult(false);
+            emit finished();
             return;
         }
         m_serialNumber = serialNumber;
@@ -495,7 +496,7 @@ void AndroidDeployQtStep::setInputFile(const QString &file)
 
 bool AndroidDeployQtStep::runInGuiThread() const
 {
-    return false;
+    return true;
 }
 
 bool AndroidDeployQtStep::verboseOutput() const
