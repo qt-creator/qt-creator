@@ -542,14 +542,18 @@ QString BaseTextEditorWidget::msgTextTooLarge(quint64 size)
 void BaseTextEditorWidget::updateCannotDecodeInfo()
 {
     setReadOnly(d->m_document->hasDecodingError());
+    Core::InfoBar *infoBar = d->m_document->infoBar();
+    Core::Id selectEncodingId(Constants::SELECT_ENCODING);
     if (d->m_document->hasDecodingError()) {
-        Core::InfoBarEntry info(Core::Id(Constants::SELECT_ENCODING),
+        if (!infoBar->canInfoBeAdded(selectEncodingId))
+            return;
+        Core::InfoBarEntry info(selectEncodingId,
             tr("<b>Error:</b> Could not decode \"%1\" with \"%2\"-encoding. Editing not possible.")
             .arg(d->m_document->displayName()).arg(QString::fromLatin1(d->m_document->codec()->name())));
         info.setCustomButtonInfo(tr("Select Encoding"), this, SLOT(selectEncoding()));
-        d->m_document->infoBar()->addInfo(info);
+        infoBar->addInfo(info);
     } else {
-        d->m_document->infoBar()->removeInfo(Core::Id(Constants::SELECT_ENCODING));
+        infoBar->removeInfo(selectEncodingId);
     }
 }
 
