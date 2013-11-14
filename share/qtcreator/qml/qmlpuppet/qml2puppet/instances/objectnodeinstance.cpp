@@ -1050,14 +1050,20 @@ QObject *ObjectNodeInstance::createPrimitive(const QString &typeName, int majorN
     QObject *object = 0;
     QQmlType *type = getQmlType(typeName, majorNumber, minorNumber);
 
-    if (type && !type->isComposite())  {
+    if (type
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 2, 0))
+            && !type->isComposite()
+#endif
+        )  {
         if (type->typeName() == "QQmlComponent") {
             object = new QQmlComponent(context->engine(), 0);
         } else  {
             object = type->create();
         }
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 2, 0))
     } else if (type->isComposite()) {
         object = createComponent(type->sourceUrl(), context);
+#endif
     } else {
         qWarning() << "QuickDesigner: Cannot create an object of type"
                    << QString("%1 %2,%3").arg(typeName).arg(majorNumber).arg(minorNumber)
