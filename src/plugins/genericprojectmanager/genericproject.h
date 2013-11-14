@@ -81,9 +81,6 @@ public:
 
     void refresh(RefreshOptions options);
 
-    QStringList includePaths() const;
-    void setIncludePaths(const QStringList &includePaths);
-
     QByteArray defines() const;
     QStringList projectIncludePaths() const;
     QStringList files() const;
