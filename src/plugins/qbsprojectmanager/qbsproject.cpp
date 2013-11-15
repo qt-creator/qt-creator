@@ -483,8 +483,10 @@ void QbsProject::prepareForParsing()
     m_forceParsing = false;
 
     TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
-    if (m_qbsUpdateFutureInterface)
+    if (m_qbsUpdateFutureInterface) {
         m_qbsUpdateFutureInterface->reportCanceled();
+        m_qbsUpdateFutureInterface->reportFinished();
+    }
     delete m_qbsUpdateFutureInterface;
     m_qbsUpdateFutureInterface = 0;
 
