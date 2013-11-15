@@ -1093,6 +1093,10 @@
 
         \li Align continuation lines.
 
+        \li Bind pointers (*) and references (&) in types and declarations to
+            identifiers, type names, or left or right \c const or \c volatile
+            keywords.
+
     \endlist
 
     You can use the live preview to see how the options change the indentation.
@@ -1232,6 +1236,17 @@
     statements.
 
     \image qtcreator-code-style-alignment.png "Alignment options"
+
+    \section1 Binding Pointers and References
+
+    To bind pointers (*) and references (&) in types and declarations to
+    identifiers, type names, or left or right \c const or \c volatile keywords,
+    select the check boxes in the \gui {Pointers and References} tab.
+
+    The * and & characters are automatically bound to identifiers of pointers to
+    functions and pointers to arrays.
+
+    \image qtcreator-pointers-references.png "Pointers and References options"
 
 */
 
