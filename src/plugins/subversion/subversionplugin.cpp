@@ -503,12 +503,6 @@ void SubversionPlugin::diffCommitFiles(const QStringList &files)
     m_client->diff(m_commitRepository, files);
 }
 
-static inline void setWorkingDirectory(Core::IEditor *editor, const QString &wd)
-{
-    if (VcsBase::VcsBaseEditorWidget *ve = qobject_cast<VcsBase::VcsBaseEditorWidget*>(editor->widget()))
-        ve->setWorkingDirectory(wd);
-}
-
 SubversionSubmitEditor *SubversionPlugin::openSubversionSubmitEditor(const QString &fileName)
 {
     Core::IEditor *editor = Core::EditorManager::openEditor(fileName,
