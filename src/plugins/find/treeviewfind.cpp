@@ -207,9 +207,8 @@ QModelIndex TreeViewFind::nextIndex(const QModelIndex &idx, bool *wrapped) const
     QModelIndex current = model->index(idx.row(), 0, idx.parent());
 
     // check for children
-    if (model->rowCount(current) > 0) {
+    if (model->rowCount(current) > 0)
         return current.child(0, 0);
-    }
 
     // no more children, go up and look for parent with more children
     QModelIndex nextIndex;

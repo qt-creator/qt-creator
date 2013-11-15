@@ -57,7 +57,7 @@ public:
     static QList<DebuggerItem> debuggers();
 
     static QVariant registerDebugger(const DebuggerItem &item);
-    static void deregisterDebugger(const DebuggerItem &item);
+    static void deregisterDebugger(const QVariant &id);
     static void setItemData(const QVariant &id, const QString& displayName, const Utils::FileName &fileName);
 
     static const DebuggerItem *findByCommand(const Utils::FileName &command);

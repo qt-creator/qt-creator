@@ -117,9 +117,8 @@ void AndroidDeployStepWidget::setQASIPackagePath()
     QString packagePath =
         QFileDialog::getOpenFileName(this, tr("Qt Android Smart Installer"),
                                      QDir::homePath(), tr("Android package (*.apk)"));
-    if (!packagePath.isEmpty()) {
+    if (!packagePath.isEmpty())
         AndroidManager::installQASIPackage(m_step->target(), packagePath);
-    }
 }
 
 

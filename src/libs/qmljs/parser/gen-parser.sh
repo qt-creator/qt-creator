@@ -12,7 +12,7 @@
 
 me=$(dirname $0)
 
-for i in $QTDIR/src/qml/qml/parser/*.{g,h,cpp,pri}; do
+for i in $QTDIR/src/qml/parser/*.{g,h,cpp,pri}; do
     sed -f $me/cmd.sed $i > $me/$(echo $(basename $i) | sed s/qqmljs/qmljs/)
 done
 

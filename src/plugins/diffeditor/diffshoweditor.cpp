@@ -163,11 +163,10 @@ QWidget *DiffShowEditor::toolBar()
 
 void DiffShowEditor::setDescriptionVisible(bool visible)
 {
-    if (visible) {
+    if (visible)
         m_toggleDescriptionButton->setToolTip(tr("Hide Change Description"));
-    } else {
+    else
         m_toggleDescriptionButton->setToolTip(tr("Show Change Description"));
-    }
     m_diffShowWidget->setVisible(visible);
 }
 

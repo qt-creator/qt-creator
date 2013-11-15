@@ -156,11 +156,10 @@ QByteArray AbstractMobileApp::generateMainCpp(QString *errorMessage) const
     QString line;
     while (!(line = in.readLine()).isNull()) {
         bool adaptLine = true;
-        if (line.contains(QLatin1String("// DELETE_LINE"))) {
+        if (line.contains(QLatin1String("// DELETE_LINE")))
             continue; // omit this line in the output
-        } else {
+        else
             adaptLine = adaptCurrentMainCppTemplateLine(line);
-        }
         if (adaptLine) {
             const int commentIndex = line.indexOf(QLatin1String(" //"));
             if (commentIndex != -1)

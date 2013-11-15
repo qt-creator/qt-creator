@@ -115,6 +115,7 @@ CppEditorSupport::CppEditorSupport(CppModelManager *modelManager, BaseTextEditor
     , m_textEditor(textEditor)
     , m_updateDocumentInterval(UpdateDocumentDefaultInterval)
     , m_revision(0)
+    , m_editorVisible(textEditor->widget()->isVisible())
     , m_cachedContentsEditorRevision(-1)
     , m_fileIsBeingReloaded(false)
     , m_initialized(false)
@@ -151,6 +152,13 @@ CppEditorSupport::CppEditorSupport(CppModelManager *modelManager, BaseTextEditor
             this, SLOT(onAboutToReload()));
     connect(m_textEditor->document(), SIGNAL(reloadFinished(bool)),
             this, SLOT(onReloadFinished()));
+
+    connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor *)),
+            this, SLOT(onCurrentEditorChanged()));
+    m_editorGCTimer = new QTimer(this);
+    m_editorGCTimer->setSingleShot(true);
+    m_editorGCTimer->setInterval(EditorHiddenGCTimeout);
+    connect(m_editorGCTimer, SIGNAL(timeout()), this, SLOT(releaseResources()));
 
     updateDocument();
 }
@@ -278,7 +286,7 @@ static void parse(QFutureInterface<void> &future, CppEditorSupport *support)
     QSharedPointer<SnapshotUpdater> updater = support->snapshotUpdater();
 
     updater->update(cmm->workingCopy());
-    cmm->finishedRefreshingSourceFiles(QStringList(updater->document()->fileName()));
+    cmm->finishedRefreshingSourceFiles(QStringList(updater->fileInEditor()));
 
     future.setProgressValue(1);
 }
@@ -290,7 +298,7 @@ void CppEditorSupport::updateDocumentNow()
     } else {
         m_updateDocumentTimer->stop();
 
-        if (m_fileIsBeingReloaded)
+        if (m_fileIsBeingReloaded || fileName().isEmpty())
             return;
 
         if (m_highlightingSupport && !m_highlightingSupport->requiresSemanticInfo())
@@ -298,6 +306,11 @@ void CppEditorSupport::updateDocumentNow()
 
         m_documentParser = QtConcurrent::run(&parse, this);
     }
+}
+
+bool CppEditorSupport::isUpdatingDocument()
+{
+    return m_updateDocumentTimer->isActive() || m_documentParser.isRunning();
 }
 
 void CppEditorSupport::onDocumentUpdated(Document::Ptr doc)
@@ -458,6 +471,30 @@ void CppEditorSupport::updateEditorNow()
     editorWidget->setExtraSelections(BaseTextEditorWidget::CodeWarningsSelection,
                                      m_editorUpdates.selections);
     editorWidget->setIfdefedOutBlocks(m_editorUpdates.ifdefedOutBlocks);
+}
+
+void CppEditorSupport::onCurrentEditorChanged()
+{
+    bool editorVisible = m_textEditor->widget()->isVisible();
+
+    if (m_editorVisible != editorVisible) {
+        m_editorVisible = editorVisible;
+        if (editorVisible) {
+            m_editorGCTimer->stop();
+            QMutexLocker locker(&m_lastSemanticInfoLock);
+            if (!m_lastSemanticInfo.doc)
+                updateDocumentNow();
+        } else {
+            m_editorGCTimer->start(EditorHiddenGCTimeout);
+        }
+    }
+}
+
+void CppEditorSupport::releaseResources()
+{
+    snapshotUpdater()->releaseSnapshot();
+    QMutexLocker semanticLocker(&m_lastSemanticInfoLock);
+    m_lastSemanticInfo = SemanticInfo();
 }
 
 SemanticInfo::Source CppEditorSupport::currentSource(bool force)

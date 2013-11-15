@@ -91,6 +91,7 @@ public:
     ~Engine();
 
     void setCode(const QString &code);
+    const QString &code() const { return _code; }
 
     void addComment(int pos, int len, int line, int col);
     QList<AST::SourceLocation> comments() const;

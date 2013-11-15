@@ -62,7 +62,11 @@ Item {
         colorButton.alpha = myAlpha
     }
 
+    property bool block: false
+
     function invalidateColor() {
+        if (block)
+            return;
         colorButton.color = Qt.hsla(hue, saturation, lightness, alpha);
         hueSlider.value = hue
         hueSlider2.value = hue
@@ -95,11 +99,16 @@ Item {
             h /= 6
         }
 
+        block = true
+
         if (s > 0)
             colorButton.hue = h
 
         colorButton.saturation = s
         colorButton.lightness = l
+
+        block = false
+        invalidateColor()
     }
 
     Image {

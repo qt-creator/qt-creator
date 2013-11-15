@@ -65,13 +65,13 @@ const char DESKTOP_PLATFORM[] = "Desktop";
 const char EMBEDDED_LINUX_PLATFORM[] = "Embedded Linux";
 const char WINDOWS_CE_PLATFORM[] = "Windows CE";
 const char ANDROID_PLATFORM[] = "Android";
-const char IOS_PLATFORM[] = "Ios";
+const char IOS_PLATFORM[] = "iOS";
 
 const char DESKTOP_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Desktop");
 const char EMBEDDED_LINUX_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Embedded Linux");
 const char WINDOWS_CE_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Windows CE");
 const char ANDROID_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Android");
-const char IOS_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "Ios");
+const char IOS_PLATFORM_TR[] = QT_TRANSLATE_NOOP("QtSupport", "iOS");
 
 // QML wizard icon
 // both the qmakeprojectmanager and the qmlprojectmanager do have qt quick wizards

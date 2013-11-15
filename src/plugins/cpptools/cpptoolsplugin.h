@@ -227,6 +227,9 @@ private slots:
     void test_headersource_data();
     void test_headersource();
 
+    void test_typehierarchy_data();
+    void test_typehierarchy();
+
 private:
     void test_completion();
 #endif

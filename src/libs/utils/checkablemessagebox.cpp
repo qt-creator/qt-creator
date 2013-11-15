@@ -344,8 +344,7 @@ void CheckableMessageBox::resetAllDoNotAskAgainQuestions(QSettings *settings)
 {
     QTC_ASSERT(settings, return);
     settings->beginGroup(QLatin1String(kDoNotAskAgainKey));
-    foreach (const QString &subKey, settings->childKeys())
-        settings->remove(subKey);
+    settings->remove(QString());
     settings->endGroup();
 }
 

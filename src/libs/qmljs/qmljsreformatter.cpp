@@ -662,15 +662,38 @@ protected:
         return false;
     }
 
-    virtual bool visit(PropertyNameAndValueList *ast)
+    virtual bool visit(PropertyAssignmentList *ast)
     {
-        for (PropertyNameAndValueList *it = ast; it; it = it->next) {
-            accept(it->name);
-            out(": ", ast->colonToken);
-            accept(it->value);
-            if (it->next) {
-                out(",", ast->commaToken); // always invalid?
-                newLine();
+        for (PropertyAssignmentList *it = ast; it; it = it->next) {
+            PropertyNameAndValue *assignment = AST::cast<PropertyNameAndValue *>(it->assignment);
+            if (assignment) {
+                accept(assignment->name);
+                out(": ", assignment->colonToken);
+                accept(assignment->value);
+                if (it->next) {
+                    out(",", ast->commaToken); // always invalid?
+                    newLine();
+                }
+                continue;
+            }
+            PropertyGetterSetter *getterSetter = AST::cast<PropertyGetterSetter *>(it->assignment);
+            if (getterSetter) {
+                switch (getterSetter->type) {
+                case PropertyGetterSetter::Getter:
+                    out("get");
+                    break;
+                case PropertyGetterSetter::Setter:
+                    out("set");
+                    break;
+                }
+
+                accept(getterSetter->name);
+                out("(", getterSetter->lparenToken);
+                accept(getterSetter->formals);
+                out("(", getterSetter->rparenToken);
+                out(" {", getterSetter->lbraceToken);
+                accept(getterSetter->functionBody);
+                out(" }", getterSetter->rbraceToken);
             }
         }
         return false;
@@ -1136,10 +1159,10 @@ protected:
     }
 
 
-    virtual bool visit(UiImportList *ast)
+    virtual bool visit(UiHeaderItemList *ast)
     {
-        for (UiImportList *it = ast; it; it = it->next) {
-            accept(it->import);
+        for (UiHeaderItemList *it = ast; it; it = it->next) {
+            accept(it->headerItem);
             newLine();
         }
         requireEmptyLine();

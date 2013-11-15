@@ -155,11 +155,10 @@ void ImageViewer::contextMenuEvent(QContextMenuEvent *ev)
     copyAction->setEnabled(hasImage);
     imageViewerAction->setEnabled(hasImage);
     QAction *action = menu.exec(ev->globalPos());
-    if (action == copyAction) {
+    if (action == copyAction)
         QApplication::clipboard()->setImage(image);
-    } else if (action == imageViewerAction) {
+    else if (action == imageViewerAction)
         openImageViewer(image);
-    }
 }
 
 #include "imageviewer.moc"

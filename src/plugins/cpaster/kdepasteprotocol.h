@@ -34,14 +34,11 @@
 
 namespace CodePaster {
 
-class KdePasteProtocol : public NetworkProtocol
+class StickyNotesPasteProtocol : public NetworkProtocol
 {
     Q_OBJECT
 public:
-    KdePasteProtocol();
-
-    static QString protocolName();
-    QString name() const { return protocolName(); }
+    StickyNotesPasteProtocol();
 
     virtual unsigned capabilities() const;
 
@@ -54,6 +51,11 @@ public:
                        const QString &description = QString());
     virtual void list();
 
+
+
+    QString hostUrl() const { return m_hostUrl; }
+    void setHostUrl(const QString &hostUrl);
+
 public slots:
     void fetchFinished();
     void pasteFinished();
@@ -63,6 +65,8 @@ protected:
     virtual bool checkConfiguration(QString *errorMessage = 0);
 
 private:
+    QString m_hostUrl;
+
     QNetworkReply *m_fetchReply;
     QNetworkReply *m_pasteReply;
     QNetworkReply *m_listReply;
@@ -70,6 +74,18 @@ private:
     QString m_fetchId;
     int m_postId;
     bool m_hostChecked;
+};
+
+class KdePasteProtocol : public StickyNotesPasteProtocol
+{
+public:
+    KdePasteProtocol()
+    {
+        setHostUrl(QLatin1String("http://pastebin.kde.org/"));
+    }
+
+    QString name() const { return protocolName(); }
+    static QString protocolName();
 };
 
 } // namespace CodePaster

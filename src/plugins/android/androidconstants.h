@@ -65,6 +65,8 @@ const char ANDROID_DEVICE_ID[] = "Android Device";
 const char ANDROID_MANIFEST_MIME_TYPE[] = "application/vnd.google.android.android_manifest";
 const char ANDROID_MANIFEST_EDITOR_ID[] = "Android.AndroidManifestEditor.Id";
 const char ANDROID_MANIFEST_EDITOR_CONTEXT[] = "Android.AndroidManifestEditor.Id";
+
+const char ANDROID_BUILDDIRECTORY[] = "android-build";
 } // namespace Constants;
 } // namespace Android
 

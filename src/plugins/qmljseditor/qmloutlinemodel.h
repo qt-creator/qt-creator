@@ -122,7 +122,7 @@ private:
     QModelIndex enterTestCase(QmlJS::AST::ObjectLiteral *objectLiteral);
     void leaveTestCase();
 
-    QModelIndex enterTestCaseProperties(QmlJS::AST::PropertyNameAndValueList *propertyNameAndValueList);
+    QModelIndex enterTestCaseProperties(QmlJS::AST::PropertyAssignmentList *propertyAssignmentList);
     void leaveTestCaseProperties();
 
 private:
@@ -139,7 +139,9 @@ private:
     static QString asString(QmlJS::AST::UiQualifiedId *id);
     static QmlJS::AST::SourceLocation getLocation(QmlJS::AST::UiObjectMember *objMember);
     static QmlJS::AST::SourceLocation getLocation(QmlJS::AST::ExpressionNode *exprNode);
-    static QmlJS::AST::SourceLocation getLocation(QmlJS::AST::PropertyNameAndValueList *propertyNode);
+    static QmlJS::AST::SourceLocation getLocation(QmlJS::AST::PropertyAssignmentList *propertyNode);
+    static QmlJS::AST::SourceLocation getLocation(QmlJS::AST::PropertyNameAndValue *propertyNode);
+    static QmlJS::AST::SourceLocation getLocation(QmlJS::AST::PropertyGetterSetter *propertyNode);
     QIcon getIcon(QmlJS::AST::UiQualifiedId *objDef);
 
     QString getAnnotation(QmlJS::AST::UiObjectInitializer *objInitializer);

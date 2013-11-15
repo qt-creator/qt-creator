@@ -120,7 +120,8 @@ enum Type
     ErrInvalidStringValuePattern = 320,
     ErrLongerStringValueExpected = 321,
     ErrShorterStringValueExpected = 322,
-    ErrInvalidArrayValueLength = 323
+    ErrInvalidArrayValueLength = 323,
+    WarnAboutQtQuick1InsteadQtQuick2 = 324
 };
 
 class QMLJS_EXPORT PrototypeMessageData {

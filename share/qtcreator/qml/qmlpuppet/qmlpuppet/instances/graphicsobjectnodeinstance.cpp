@@ -43,7 +43,8 @@ namespace Internal {
 
 GraphicsObjectNodeInstance::GraphicsObjectNodeInstance(QGraphicsObject *graphicsObject)
    : ObjectNodeInstance(graphicsObject),
-   m_isMovable(true)
+     m_hasContent(true),
+     m_isMovable(true)
 {
     QGraphicsItemPrivate::get(graphicsObject)->sendParentChangeNotification = 1;
 }

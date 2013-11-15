@@ -42,8 +42,6 @@ Rectangle {
 
         Rectangle {
             id: middleRightRect
-            x: 13
-            y: 16
             width: 64
             height: 64
             color: "#00000000"
@@ -61,7 +59,6 @@ Rectangle {
 
         Rectangle {
             id: bottomLeftRect
-            y: 11
             width: 64
             height: 64
             color: "#00000000"

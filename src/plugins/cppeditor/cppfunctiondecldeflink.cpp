@@ -60,13 +60,12 @@ using namespace Utils;
 FunctionDeclDefLinkFinder::FunctionDeclDefLinkFinder(QObject *parent)
     : QObject(parent)
 {
-    connect(&m_watcher, SIGNAL(finished()),
-            this, SLOT(onFutureDone()));
 }
 
 void FunctionDeclDefLinkFinder::onFutureDone()
 {
-    QSharedPointer<FunctionDeclDefLink> link = m_watcher.result();
+    QSharedPointer<FunctionDeclDefLink> link = m_watcher->result();
+    m_watcher.reset();
     if (link) {
         link->linkSelection = m_scannedSelection;
         link->nameSelection = m_nameSelection;
@@ -256,7 +255,9 @@ void FunctionDeclDefLinkFinder::startFindLinkAt(
     result->sourceFunctionDeclarator = funcDecl;
 
     // handle the rest in a thread
-    m_watcher.setFuture(QtConcurrent::run(&findLinkHelper, result, refactoringChanges));
+    m_watcher.reset(new QFutureWatcher<QSharedPointer<FunctionDeclDefLink> >());
+    connect(m_watcher.data(), SIGNAL(finished()), this, SLOT(onFutureDone()));
+    m_watcher->setFuture(QtConcurrent::run(&findLinkHelper, result, refactoringChanges));
 }
 
 FunctionDeclDefLink::FunctionDeclDefLink()
@@ -268,10 +269,6 @@ FunctionDeclDefLink::FunctionDeclDefLink()
     targetFunction = 0;
     targetDeclaration = 0;
     targetFunctionDeclarator = 0;
-}
-
-FunctionDeclDefLink::~FunctionDeclDefLink()
-{
 }
 
 bool FunctionDeclDefLink::isValid() const

@@ -600,17 +600,18 @@ QString decodeData(const QByteArray &ba, int encoding)
         }
         case JulianDate: { // 14, an integer count
             const QDate date = dateFromData(ba.toInt());
-            return date.toString(Qt::TextDate);
+            return date.isValid() ? date.toString(Qt::TextDate) : QLatin1String("(invalid)");
         }
         case MillisecondsSinceMidnight: {
             const QTime time = timeFromData(ba.toInt());
-            return time.toString(Qt::TextDate);
+            return time.isValid() ? time.toString(Qt::TextDate) : QLatin1String("(invalid)");
         }
         case JulianDateAndMillisecondsSinceMidnight: {
             const int p = ba.indexOf('/');
             const QDate date = dateFromData(ba.left(p).toInt());
             const QTime time = timeFromData(ba.mid(p + 1 ).toInt());
-            return QDateTime(date, time).toString(Qt::TextDate);
+            const QDateTime dateTime = QDateTime(date, time);
+            return dateTime.isValid() ? dateTime.toString(Qt::TextDate) : QLatin1String("(invalid)");
         }
         case IPv6AddressAndHexScopeId: { // 27, 16 hex-encoded bytes, "%" and the string-encoded scope
             const int p = ba.indexOf('%');
@@ -633,7 +634,7 @@ QString decodeData(const QByteArray &ba, int encoding)
             QDateTime d;
             d.setTimeSpec(Qt::UTC);
             d.setMSecsSinceEpoch(ms);
-            return d.toString(Qt::TextDate);
+            return d.isValid() ? d.toString(Qt::TextDate) : QLatin1String("(invalid)");
         }
     }
     qDebug() << "ENCODING ERROR: " << encoding;

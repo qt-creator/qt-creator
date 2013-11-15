@@ -33,6 +33,7 @@
 #include <debugger/debuggercore.h>
 #include <debugger/debuggerdialogs.h>
 #include <debugger/debuggerinternalconstants.h>
+#include <debugger/debuggermainwindow.h>
 #include <debugger/debuggerplugin.h>
 #include <debugger/debuggerprotocol.h>
 #include <debugger/debuggerstartparameters.h>
@@ -69,6 +70,11 @@
 
 namespace Debugger {
 namespace Internal {
+
+static QByteArray tooltipIName(const QString &exp)
+{
+    return "tooltip." + exp.toLatin1().toHex();
+}
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -126,14 +132,26 @@ void LldbEngine::shutdownEngine()
     m_lldbProc.kill();
 }
 
+void LldbEngine::abortDebugger()
+{
+    if (targetState() == DebuggerFinished) {
+        // We already tried. Try harder.
+        showMessage(_("ABORTING DEBUGGER. SECOND TIME."));
+        m_lldbProc.kill();
+    } else {
+        // Be friendly the first time. This will change targetState().
+        showMessage(_("ABORTING DEBUGGER. FIRST TIME."));
+        quitDebugger();
+    }
+}
+
 void LldbEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
-    if (startParameters().remoteSetupNeeded) {
+    if (startParameters().remoteSetupNeeded)
         notifyEngineRequestRemoteSetup();
-    } else {
+    else
         startLldb();
-    }
 }
 
 void LldbEngine::startLldb()
@@ -187,7 +205,6 @@ void LldbEngine::setupInferior()
                               ? sp.remoteChannel : QString()));
     cmd.arg("platform", sp.platform);
     runCommand(cmd);
-    requestUpdateWatchers();
     updateLocals(); // update display options
 }
 
@@ -623,79 +640,87 @@ static WatchData m_toolTip;
 static QPoint m_toolTipPos;
 static QHash<QString, WatchData> m_toolTipCache;
 
-bool LldbEngine::setToolTipExpression(const QPoint &mousePos,
-    TextEditor::ITextEditor *editor, const DebuggerToolTipContext &ctx)
+void LldbEngine::showToolTip()
 {
-    Q_UNUSED(mousePos);
-    Q_UNUSED(editor);
+    if (m_toolTipContext.isNull())
+        return;
+    const QString expression = m_toolTipContext->expression;
+    if (DebuggerToolTipManager::debug())
+        qDebug() << "LldbEngine::showToolTip " << expression << m_toolTipContext->iname << (*m_toolTipContext);
 
-    if (state() != InferiorStopOk) {
-        //SDEBUG("SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED");
-        return false;
-    }
-    // Check mime type and get expression (borrowing some C++ - functions)
-    const QString javaPythonMimeType =
-        QLatin1String("application/javascript");
-    if (!editor->document() || editor->document()->mimeType() != javaPythonMimeType)
-        return false;
-
-    int line;
-    int column;
-    QString exp = cppExpressionAt(editor, ctx.position, &line, &column);
-
-/*
-    if (m_toolTipCache.contains(exp)) {
-        const WatchData & data = m_toolTipCache[exp];
-        q->watchHandler()->removeChildren(data.iname);
-        insertData(data);
+    if (m_toolTipContext->iname.startsWith("tooltip")
+        && (!debuggerCore()->boolSetting(UseToolTipsInMainEditor)
+            || !watchHandler()->isValidToolTip(m_toolTipContext->iname))) {
+        watchHandler()->removeData(m_toolTipContext->iname);
         return;
     }
-*/
 
-    QToolTip::hideText();
-    if (exp.isEmpty() || exp.startsWith(QLatin1Char('#')))  {
-        QToolTip::hideText();
+    DebuggerToolTipWidget *tw = new DebuggerToolTipWidget;
+    tw->setContext(*m_toolTipContext);
+    tw->acquireEngine(this);
+    DebuggerToolTipManager::showToolTip(m_toolTipContext->mousePosition, tw);
+    // Prevent tooltip from re-occurring (classic GDB, QTCREATORBUG-4711).
+    m_toolTipContext.reset();
+}
+
+void LldbEngine::resetLocation()
+{
+    m_toolTipContext.reset();
+    DebuggerEngine::resetLocation();
+}
+
+bool LldbEngine::setToolTipExpression(const QPoint &mousePos,
+    TextEditor::ITextEditor *editor, const DebuggerToolTipContext &contextIn)
+{
+    if (state() != InferiorStopOk || !isCppEditor(editor)) {
+        //qDebug() << "SUPPRESSING DEBUGGER TOOLTIP, INFERIOR NOT STOPPED "
+        // " OR NOT A CPPEDITOR";
         return false;
     }
 
-    if (!hasLetterOrNumber(exp)) {
-        QToolTip::showText(m_toolTipPos, tr("\"%1\" contains no identifier.").arg(exp));
-        return true;
-    }
-
-    if (exp.startsWith(QLatin1Char('"')) && exp.endsWith(QLatin1Char('"'))) {
-        QToolTip::showText(m_toolTipPos, tr("String literal %1").arg(exp));
-        return true;
-    }
-
-    if (exp.startsWith(QLatin1String("++")) || exp.startsWith(QLatin1String("--")))
-        exp.remove(0, 2);
-
-    if (exp.endsWith(QLatin1String("++")) || exp.endsWith(QLatin1String("--")))
-        exp.remove(0, 2);
-
-    if (exp.startsWith(QLatin1Char('<')) || exp.startsWith(QLatin1Char('[')))
+    DebuggerToolTipContext context = contextIn;
+    int line, column;
+    QString exp = fixCppExpression(cppExpressionAt(editor, context.position, &line, &column, &context.function));
+    if (exp.isEmpty())
         return false;
+    // Prefer a filter on an existing local variable if it can be found.
+    QByteArray iname;
+    if (const WatchData *localVariable = watchHandler()->findCppLocalVariable(exp)) {
+        exp = QLatin1String(localVariable->exp);
+        iname = localVariable->iname;
+    } else {
+        iname = tooltipIName(exp);
+    }
 
-    if (hasSideEffects(exp)) {
-        QToolTip::showText(m_toolTipPos,
-            tr("Cowardly refusing to evaluate expression \"%1\" "
-               "with potential side effects.").arg(exp));
+    if (DebuggerToolTipManager::debug())
+        qDebug() << "GdbEngine::setToolTipExpression1 " << exp << iname << context;
+
+    // Same expression: Display synchronously.
+    if (!m_toolTipContext.isNull() && m_toolTipContext->expression == exp) {
+        showToolTip();
         return true;
     }
 
-#if 0
-    //if (status() != InferiorStopOk)
-    //    return;
+    m_toolTipContext.reset(new DebuggerToolTipContext(context));
+    m_toolTipContext->mousePosition = mousePos;
+    m_toolTipContext->expression = exp;
+    m_toolTipContext->iname = iname;
+    // Local variable: Display synchronously.
+    if (iname.startsWith("local")) {
+        showToolTip();
+        return true;
+    }
 
-    // FIXME: 'exp' can contain illegal characters
-    m_toolTip = WatchData();
-    m_toolTip.exp = exp;
-    m_toolTip.name = exp;
-    m_toolTip.iname = tooltipIName;
-    insertData(m_toolTip);
-#endif
-    return false;
+    if (DebuggerToolTipManager::debug())
+        qDebug() << "GdbEngine::setToolTipExpression2 " << exp << (*m_toolTipContext);
+
+    UpdateParameters params;
+    params.tryPartial = true;
+    params.tooltipOnly = true;
+    params.varList = iname;
+    doUpdateLocals(params);
+
+    return true;
 }
 
 void LldbEngine::updateAll()
@@ -728,59 +753,77 @@ void LldbEngine::updateWatchData(const WatchData &data, const WatchUpdateFlags &
 
 void LldbEngine::updateLocals()
 {
-    WatchHandler *handler = watchHandler();
+    UpdateParameters params;
+    doUpdateLocals(params);
+}
 
-    //requestUpdateWatchers();
+void LldbEngine::doUpdateLocals(UpdateParameters params)
+{
+    WatchHandler *handler = watchHandler();
 
     Command cmd("updateData");
     cmd.arg("expanded", handler->expansionRequests());
     cmd.arg("typeformats", handler->typeFormatRequests());
     cmd.arg("formats", handler->individualFormatRequests());
 
-//    const QString fileName = stackHandler()->currentFrame().file;
-//    if (!fileName.isEmpty()) {
-//        const QString function = stackHandler()->currentFrame().function;
-//        typedef DebuggerToolTipManager::ExpressionInamePair ExpressionInamePair;
-//        typedef DebuggerToolTipManager::ExpressionInamePairs ExpressionInamePairs;
-
-//        // Re-create tooltip items that are not filters on existing local variables in
-//        // the tooltip model.
-//        ExpressionInamePairs toolTips = DebuggerToolTipManager::instance()
-//                ->treeWidgetExpressions(fileName, objectName(), function);
-
-//        const QString currentExpression = tooltipExpression();
-//        if (!currentExpression.isEmpty()) {
-//            int currentIndex = -1;
-//            for (int i = 0; i < toolTips.size(); ++i) {
-//                if (toolTips.at(i).first == currentExpression) {
-//                    currentIndex = i;
-//                    break;
-//                }
-//            }
-//            if (currentIndex < 0)
-//                toolTips.push_back(ExpressionInamePair(currentExpression, tooltipIName(currentExpression)));
-//        }
-
-//        foreach (const ExpressionInamePair &p, toolTips) {
-//            if (p.second.startsWith("tooltip")) {
-//                QHash<QByteArray, QByteArray> hash;
-//                hash["exp"] = p.first.toLatin1();
-//                hash["id"] = p.second;
-//                watcherData.append(Command::toData(hash));
-//            }
-//        }
-//    }
-
     const static bool alwaysVerbose = !qgetenv("QTC_DEBUGGER_PYTHON_VERBOSE").isEmpty();
     cmd.arg("passexceptions", alwaysVerbose);
     cmd.arg("fancy", debuggerCore()->boolSetting(UseDebuggingHelpers));
     cmd.arg("autoderef", debuggerCore()->boolSetting(AutoDerefPointers));
     cmd.arg("dyntype", debuggerCore()->boolSetting(UseDynamicType));
-    //cmd.arg("partial", ??)
-    //cmd.arg("tooltipOnly", ??)
+    cmd.arg("partial", params.tryPartial);
+    cmd.arg("tooltiponly", params.tooltipOnly);
+
+    cmd.beginList("watchers");
+    // Watchers
+    QHashIterator<QByteArray, int> it(WatchHandler::watcherNames());
+    while (it.hasNext()) {
+        it.next();
+        cmd.beginGroup()
+            .arg("iname", "watch." + QByteArray::number(it.value()))
+            .arg("exp", it.key().toHex())
+        .endGroup();
+    }
+    // Tooltip
+    const StackFrame frame = stackHandler()->currentFrame();
+    if (!frame.file.isEmpty()) {
+        // Re-create tooltip items that are not filters on existing local variables in
+        // the tooltip model.
+        DebuggerToolTipContexts toolTips =
+            DebuggerToolTipManager::treeWidgetExpressions(frame.file, objectName(), frame.function);
+
+        const QString currentExpression =
+             m_toolTipContext.isNull() ? QString() : m_toolTipContext->expression;
+        if (!currentExpression.isEmpty()) {
+            int currentIndex = -1;
+            for (int i = 0; i < toolTips.size(); ++i) {
+                if (toolTips.at(i).expression == currentExpression) {
+                    currentIndex = i;
+                    break;
+                }
+            }
+            if (currentIndex < 0) {
+                DebuggerToolTipContext context;
+                context.expression = currentExpression;
+                context.iname = tooltipIName(currentExpression);
+                toolTips.push_back(context);
+            }
+        }
+        foreach (const DebuggerToolTipContext &p, toolTips) {
+            if (p.iname.startsWith("tooltip"))
+                cmd.beginGroup()
+                    .arg("iname", p.iname)
+                    .arg("exp", p.expression.toLatin1().toHex())
+                .endGroup();
+        }
+    }
+    cmd.endList();
+
     //cmd.arg("resultvarname", m_resultVarName);
 
     runCommand(cmd);
+
+    reloadRegisters();
 }
 
 void LldbEngine::handleLldbError(QProcess::ProcessError error)
@@ -862,22 +905,6 @@ void LldbEngine::readLldbStandardOutput()
     }
 }
 
-void LldbEngine::requestUpdateWatchers()
-{
-    QHashIterator<QByteArray, int> it(WatchHandler::watcherNames());
-    QList<QByteArray> watcherData;
-    while (it.hasNext()) {
-        it.next();
-        QHash<QByteArray, QByteArray> hash;
-        hash["iname"] = "\"watch." + QByteArray::number(it.value()) + '"';
-        hash["exp"] = '"' + it.key().toHex() + '"';
-        watcherData.append(Command::toData(hash));
-    }
-    Command cmd("setWatchers");
-    cmd.args.append("\"watchers\":" + Command::toData(watcherData) + ',');
-    runCommand(cmd);
-}
-
 void LldbEngine::refreshLocals(const GdbMi &vars)
 {
     //const bool partial = response.cookie.toBool();
@@ -888,6 +915,7 @@ void LldbEngine::refreshLocals(const GdbMi &vars)
     //if (!partial) {
         list.append(*handler->findData("local"));
         list.append(*handler->findData("watch"));
+        list.append(*handler->findData("tooltip"));
         list.append(*handler->findData("return"));
     //}
 
@@ -905,6 +933,8 @@ void LldbEngine::refreshLocals(const GdbMi &vars)
         parseWatchData(handler->expandedINames(), dummy, child, &list);
     }
     handler->insertData(list);
+
+    showToolTip();
  }
 
 void LldbEngine::refreshStack(const GdbMi &stack)
@@ -994,8 +1024,8 @@ void LldbEngine::refreshState(const GdbMi &reportedState)
         notifyEngineSetupOk();
     else if (newState == "enginesetupfailed")
         notifyEngineSetupFailed();
-    else if (newState == "stopped")
-        notifyInferiorSpontaneousStop();
+    else if (newState == "enginerunfailed")
+        notifyEngineRunFailed();
     else if (newState == "inferiorsetupok")
         notifyInferiorSetupOk();
     else if (newState == "enginerunandinferiorrunok")
@@ -1029,7 +1059,8 @@ void LldbEngine::refreshLocation(const GdbMi &reportedLocation)
 
 void LldbEngine::reloadRegisters()
 {
-    runCommand("reportRegisters");
+    if (debuggerCore()->isDockVisible(QLatin1String(DOCKWIDGET_REGISTER)))
+        runCommand("reportRegisters");
 }
 
 void LldbEngine::fetchDisassembler(DisassemblerAgent *agent)

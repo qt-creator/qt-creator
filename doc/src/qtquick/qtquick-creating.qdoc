@@ -51,10 +51,6 @@
             need to have the development environment installed on your
             computer to create and run this type of project.
 
-            \gui {Qt Quick 2 UI with Controls} imports the Qt Quick Controls.
-            This project requires that you have installed the Qt Quick Controls
-            for your Qt version (5.1 or later).
-
         \li \gui {Qt Quick Extension Plugins} (in the \gui Libraries category)
             create C++ plugins that make it possible to offer extensions that
             can be loaded dynamically into Qt Quick applications. Select
@@ -66,10 +62,30 @@
 
     \section1 Creating Qt Quick UI Projects
 
-    Select \gui File > \gui {New File or Project} > \gui Applications >
-    \gui {Qt Quick 1 UI}, \gui {Qt Quick 2 UI}, or
-    \gui {Qt Quick 2 UI with Controls} > \gui Choose and follow the instructions
-    of the wizard.
+    \list 1
+
+        \li Select \gui File > \gui {New File or Project} > \gui Applications >
+            \gui {Qt Quick UI} > \gui Choose.
+
+        \li In the \gui {Qt Quick component set} field, select the component set
+            to use for the project. The Qt Quick imports enable you to create
+            cross-platform applications with a custom look and feel, whereas the
+            Qt Quick Controls provide the look and feel for a particular
+            platform:
+
+        \list
+
+            \li Select \gui {Qt Quick Controls 1.0} or \gui {Qt Quick 2.0} to
+                develop for platforms that run Qt 5.
+
+            \li Select \gui {Qt Quick 1.1} to develop for platforms that run
+                Qt 4.7.4. To develop for platforms that run Qt 4.7.1, 4.7.2, or
+                4.7.3, you must change the import statement to import Qt Quick
+                1.0.
+
+        \endlist
+
+    \endlist
 
     \QC creates the following files:
 
@@ -84,10 +100,6 @@
 
     \endlist
 
-    The \c import statement in the beginning of the .qml file specifies the Qt modules to
-    \l{http://qt-project.org/doc/qt-5.0/qtqml/qtqml-syntax-imports.html}{import}. Each Qt module
-    contains a set of default QML types. Specify a version to get the features you want.
-
     To use JavaScript and image files in the application, copy them to the
     project folder.
 
@@ -99,22 +111,8 @@
             \gui {Qt Quick Application} > \gui Choose.
 
         \li In the \gui {Qt Quick component set} field, select the component set
-            to use for the project. The Qt Quick imports enable you to create
-            cross-platform applications with a custom look and feel, whereas the
-            Qt Quick Controls provide the look and feel for a particular
-            platform:
-
-        \list 1
-
-            \li Select \gui {Qt Quick Controls 1.0} or \gui {Qt Quick 2.0} to
-                develop for platforms that run Qt 5.
-
-            \li Select \gui {Qt Quick 1.1} to develop for platforms that run
-                Qt 4.7.4. To develop for platforms that run Qt 4.7.1, 4.7.2, or
-                4.7.3, you must change the import statement to import Qt Quick
-                1.0.
-
-        \endlist
+            to use for the project. For more information, see
+            \l{Creating Qt Quick UI Projects}.
 
         \li Select \l{glossary-buildandrun-kit}{kits} for running and building
             your project, and then click \gui{Next}.

@@ -34,6 +34,7 @@
 
 #include "javaparser.h"
 #include "androidmanager.h"
+#include "androidconstants.h"
 
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -232,7 +233,7 @@ bool AndroidDeployQtStep::init()
     else if (m_deployAction == BundleLibrariesDeployment)
         deploymentMethod = QLatin1String("bundled");
 
-    QString outputDir = bc->buildDirectory().appendPath(QLatin1String("android")).toString();
+    QString outputDir = bc->buildDirectory().appendPath(QLatin1String(Constants::ANDROID_BUILDDIRECTORY)).toString();
 
     QStringList arguments;
     arguments << QLatin1String("--input")
@@ -298,6 +299,7 @@ void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
         QString serialNumber = AndroidConfigurations::instance().waitForAvd(m_deviceAPILevel, m_targetArch, fi);
         if (serialNumber.isEmpty()) {
             fi.reportResult(false);
+            emit finished();
             return;
         }
         m_serialNumber = serialNumber;
@@ -490,6 +492,11 @@ QString AndroidDeployQtStep::inputFile() const
 void AndroidDeployQtStep::setInputFile(const QString &file)
 {
     m_inputFile = file;
+}
+
+bool AndroidDeployQtStep::runInGuiThread() const
+{
+    return true;
 }
 
 bool AndroidDeployQtStep::verboseOutput() const

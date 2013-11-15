@@ -591,9 +591,8 @@ QPair<QString, QString> DesktopQmakeRunConfiguration::extractWorkingDirAndExecut
     QString workingDir;
     if (!destDir.isEmpty()) {
         bool workingDirIsBaseDir = false;
-        if (destDir == ti.buildTarget) {
+        if (destDir == ti.buildTarget)
             workingDirIsBaseDir = true;
-        }
         if (QDir::isRelativePath(destDir))
             destDir = QDir::cleanPath(ti.buildDir + QLatin1Char('/') + destDir);
 

@@ -145,9 +145,8 @@ QString IosRunConfiguration::appName() const
         const QmakeProFileNode *node = pro->rootQmakeProjectNode()->findProFileFor(profilePath());
         if (node) {
             TargetInformation ti = node->targetInformation();
-            if (ti.valid) {
+            if (ti.valid)
                 return ti.target;
-            }
         }
     }
     qDebug() << "IosRunConfiguration::appName failed";

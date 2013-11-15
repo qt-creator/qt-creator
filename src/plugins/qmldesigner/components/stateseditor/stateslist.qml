@@ -28,6 +28,8 @@
 ****************************************************************************/
 
 import QtQuick 2.1
+import QtQuick.Controls 1.0
+import QtQuick.Controls.Styles 1.0
 
 Rectangle {
     id: root
@@ -197,12 +199,12 @@ Rectangle {
                 anchors.right:index==0 ? parent.right : removeState.left
                 anchors.leftMargin:4
                 anchors.rightMargin:4 + container.baseStateOffset
-                height: txt.height
+                height: txt.height + 8
                 clip: false
                 Text {
                     anchors.top: parent.top
                     anchors.topMargin: 2
-                    anchors.horizontalCenter: textLimits.horizontalCenter
+                    anchors.centerIn: parent
                     id: txt
                     color: root.currentStateInternalId==nodeId ? "white" : "#E1E1E1";
                     text: stateName
@@ -210,6 +212,7 @@ Rectangle {
                     elide:Qt.ElideMiddle
                     horizontalAlignment:Qt.AlignHCenter
                     renderType: Text.NativeRendering
+                    verticalAlignment: Text.AlignVCenter
                 }
                 Rectangle {
                     id: textFrame
@@ -241,9 +244,8 @@ Rectangle {
                 Rectangle {
                     id:stateNameEditor
                     visible:false
-                    onVisibleChanged: stateNameInput.updateScroll();
 
-                    height:parent.height+4
+                    height:parent.height+2
                     width:parent.width
                     clip:true
 
@@ -257,46 +259,30 @@ Rectangle {
                         }
                     }
 
-                    Text {
-                        text:stateNameInput.text
-                        visible:false
-                        id:textMetric
-                        renderType: Text.NativeRendering
-                    }
-                    Text {
-                        visible:false
-                        id:cursorMetric
-                        renderType: Text.NativeRendering
-                    }
-
-
                     Item {
-                        x:6
-                        y:2
+                        x:4
                         width:parent.width-10
                         height:parent.height
                         clip:true
 
-                        TextInput {
+                        TextField {
+                            y: 2
                             id:stateNameInput
                             text:stateName
-                            width:Math.max(textMetric.width+4, parent.width)
-                            onCursorPositionChanged: updateScroll();
-                            renderType: Text.NativeRendering
-                            function updateScroll() {
-                                cursorMetric.text=text.substring(0,cursorPosition);
-                                var cM = cursorPosition>0?cursorMetric.width:0;
-                                if (cM+4+x>parent.width)
-                                x = parent.width - cM - 4;
-                                cursorMetric.text=text.substring(0,cursorPosition-1);
-                                var cM = cursorPosition>1?cursorMetric.width:0;
-                                if (cM+x<0)
-                                x = -cM;
-                            }
+                            width: parent.width
                             onAccepted: {
                                 if (stateNameEditor.visible) {
                                     stateNameEditor.visible = false;
                                     statesEditorModel.renameState(nodeId,text);
+                                }
+                            }
+
+                            style: TextFieldStyle {
+                                padding.top: 1
+                                padding.bottom: 1
+                                padding.left: 1
+                                padding.right: 1
+                                background: Item {
                                 }
                             }
                         }

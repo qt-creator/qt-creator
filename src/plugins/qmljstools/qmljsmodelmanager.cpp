@@ -138,9 +138,8 @@ ModelManagerInterface::ProjectInfo QmlJSTools::defaultProjectInfoForProject(
 void QmlJSTools::setupProjectInfoQmlBundles(ModelManagerInterface::ProjectInfo &projectInfo)
 {
     ProjectExplorer::Target *activeTarget = 0;
-    if (projectInfo.project) {
+    if (projectInfo.project)
         activeTarget = projectInfo.project->activeTarget();
-    }
     ProjectExplorer::Kit *activeKit = activeTarget
             ? activeTarget->kit() : ProjectExplorer::KitManager::defaultKit();
     QHash<QString, QString> replacements;
@@ -377,9 +376,8 @@ QFuture<void> ModelManager::refreshSourceFiles(const QStringList &sourceFiles,
 
     m_synchronizer.addFuture(result);
 
-    if (sourceFiles.count() > 1) {
+    if (sourceFiles.count() > 1)
         ProgressManager::addTask(result, tr("Indexing"), Constants::TASK_INDEX);
-    }
 
     return result;
 }
@@ -825,6 +823,8 @@ void ModelManager::parse(QFutureInterface<void> &future,
     QSet<QString> newLibraries;
 
     for (int i = 0; i < files.size(); ++i) {
+        if (future.isCanceled())
+            break;
         future.setProgressValue(qreal(i) / files.size() * progressRange);
 
         const QString fileName = files.at(i);

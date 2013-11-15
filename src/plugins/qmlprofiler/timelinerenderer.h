@@ -190,7 +190,7 @@ private:
     int modelFromPosition(int y);
 
     void manageClicked();
-    void manageHovered(int x, int y);
+    void manageHovered(int mouseX, int mouseY);
 
 private:
     qint64 m_startTime;

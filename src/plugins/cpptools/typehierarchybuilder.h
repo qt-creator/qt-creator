@@ -33,6 +33,7 @@
 #include "cpptools_global.h"
 #include "cppmodelmanagerinterface.h"
 
+#include <cplusplus/DependencyTable.h>
 #include <cplusplus/Overview.h>
 
 #include <QList>
@@ -66,14 +67,15 @@ public:
 
 private:
     void reset();
-    void buildDerived(TypeHierarchy *typeHierarchy);
+    void buildDerived(TypeHierarchy *typeHierarchy, const QStringList &dependencies);
+    QStringList filesDependingOn(CPlusPlus::Symbol *symbol) const;
 
     CPlusPlus::Symbol *_symbol;
     CPlusPlus::Snapshot _snapshot;
-    QStringList _dependencies;
     QSet<CPlusPlus::Symbol *> _visited;
     QHash<QString, QSet<QString> > _candidates;
     CPlusPlus::Overview _overview;
+    CPlusPlus::DependencyTable _dependencyTable;
 };
 
 } // CppTools

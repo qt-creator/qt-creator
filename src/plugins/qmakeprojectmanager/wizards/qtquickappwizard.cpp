@@ -49,7 +49,7 @@ class QtQuickAppWizardDialog : public AbstractMobileAppWizardDialog
 
 public:
     explicit QtQuickAppWizardDialog(QWidget *parent, const Core::WizardDialogParameters &parameters);
-    QtQuickApp::ComponentSet componentSet() const { return m_componentSetPage->componentSet(); }
+    TemplateInfo templateInfo() const;
 
 protected:
     void initializePage(int id);
@@ -76,25 +76,25 @@ QtQuickAppWizardDialog::QtQuickAppWizardDialog(QWidget *parent,
 void QtQuickAppWizardDialog::initializePage(int id)
 {
     if (page(id) == kitsPage()) {
-        Core::FeatureSet features = Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_1);
-        QtQuickApp::ComponentSet components = componentSet();
-        switch (components) {
-        case QtQuickApp::QtQuick10Components:
-            features = Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_1);
-            break;
-        case QtQuickApp::QtQuick20Components:
-            features = Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_2);
-            break;
-        case QtQuickApp::QtQuickControls10:
-            features = Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_2)
-                    | Core::Feature(QtSupport::Constants::FEATURE_QT_QUICK_CONTROLS);
-            break;
+        QStringList stringList =
+                templateInfo().featuresRequired.split(QLatin1Char(','), QString::SkipEmptyParts);
+        Core::FeatureSet features;
+        foreach (const QString &string, stringList) {
+            Core::Feature feature(Core::Id::fromString(string.trimmed()));
+            features |= feature;
         }
+
         setRequiredFeatures(features);
         updateKitsPage();
     }
     AbstractMobileAppWizardDialog::initializePage(id);
 }
+
+TemplateInfo QtQuickAppWizardDialog::templateInfo() const
+{
+    return m_componentSetPage->templateInfo();
+}
+
 
 class QtQuickAppWizardPrivate
 {
@@ -143,7 +143,7 @@ void QtQuickAppWizard::prepareGenerateFiles(const QWizard *w,
 {
     Q_UNUSED(errorMessage)
     const QtQuickAppWizardDialog *wizard = qobject_cast<const QtQuickAppWizardDialog*>(w);
-    d->app->setComponentSet(wizard->componentSet());
+    d->app->setTemplateInfo(wizard->templateInfo());
 }
 
 QString QtQuickAppWizard::fileToOpenPostGeneration() const

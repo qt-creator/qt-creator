@@ -100,8 +100,9 @@ bool JsonCheck::visit(ObjectLiteral *ast)
         return false;
 
     QSet<QString> propertiesFound;
-    for (PropertyNameAndValueList *it = ast->properties; it; it = it->next) {
-        StringLiteralPropertyName *literalName = cast<StringLiteralPropertyName *>(it->name);
+    for (PropertyAssignmentList *it = ast->properties; it; it = it->next) {
+        PropertyNameAndValue *assignment = AST::cast<AST::PropertyNameAndValue *>(it->assignment);
+        StringLiteralPropertyName *literalName = cast<StringLiteralPropertyName *>(assignment->name);
         if (literalName) {
             const QString &propertyName = literalName->id.toString();
             if (m_schema->hasPropertySchema(propertyName)) {
@@ -109,7 +110,7 @@ bool JsonCheck::visit(ObjectLiteral *ast)
                 propertiesFound.insert(propertyName);
                 // Sec. 5.2: "... each property definition's value MUST be a schema..."
                 m_schema->enterNestedPropertySchema(propertyName);
-                processSchema(it->value);
+                processSchema(assignment->value);
                 m_schema->leaveNestedSchema();
             } else {
                 analysis()->m_messages.append(Message(ErrInvalidPropertyName,
@@ -119,7 +120,7 @@ bool JsonCheck::visit(ObjectLiteral *ast)
             }
         }  else {
             analysis()->m_messages.append(Message(ErrStringValueExpected,
-                                                  it->name->firstSourceLocation(),
+                                                  assignment->name->firstSourceLocation(),
                                                   QString(), QString(),
                                                   false));
         }

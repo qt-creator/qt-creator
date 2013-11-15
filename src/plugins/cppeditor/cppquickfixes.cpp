@@ -2550,6 +2550,7 @@ public:
         if (m_defpos == DefPosImplementationFile) {
             const QString declFile = QString::fromUtf8(decl->fileName(), decl->fileNameLength());
             const QDir dir = QFileInfo(declFile).dir();
+            setPriority(2);
             setDescription(QCoreApplication::translate("CppEditor::InsertDefOperation",
                                                        "Add Definition in %1")
                            .arg(dir.relativeFilePath(m_loc.isValid() ? m_loc.fileName()
@@ -2561,6 +2562,7 @@ public:
             setDescription(QCoreApplication::translate("CppEditor::InsertDefOperation",
                                                        "Add Definition Inside Class"));
         } else if (m_defpos == DefPosOutsideClass) {
+            setPriority(1);
             setDescription(QCoreApplication::translate("CppEditor::InsertDefOperation",
                                                        "Add Definition Outside Class"));
         }

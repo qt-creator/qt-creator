@@ -405,11 +405,10 @@ QList<Diff> Differ::diffMyers(const QString &text1, const QString &text2)
              k <= qMin(d, kMaxForward - qAbs(d + kMaxForward) % 2);
              k = k + 2) {
             int x;
-            if (k == -d || (k < d && forwardV[k + vShift - 1] < forwardV[k + vShift + 1])) {
+            if (k == -d || (k < d && forwardV[k + vShift - 1] < forwardV[k + vShift + 1]))
                 x = forwardV[k + vShift + 1]; // copy vertically from diagonal k + 1, y increases, y may exceed the graph
-            } else {
+            else
                 x = forwardV[k + vShift - 1] + 1; // copy horizontally from diagonal k - 1, x increases, x may exceed the graph
-            }
             int y = x - k;
 
             if (x > n) {
@@ -441,11 +440,10 @@ QList<Diff> Differ::diffMyers(const QString &text1, const QString &text2)
              k <= qMin(d, kMaxReverse - qAbs(d + kMaxReverse) % 2);
              k = k + 2) {
             int x;
-            if (k == -d || (k < d && reverseV[k + vShift - 1] < reverseV[k + vShift + 1])) {
+            if (k == -d || (k < d && reverseV[k + vShift - 1] < reverseV[k + vShift + 1]))
                 x = reverseV[k + vShift + 1];
-            } else {
+            else
                 x = reverseV[k + vShift - 1] + 1;
-            }
             int y = x - k;
 
             if (x > n) {
@@ -559,9 +557,8 @@ int Differ::findSubtextEnd(const QString &text,
 {
     if (m_currentDiffMode == Differ::LineMode) {
         int subtextEnd = text.indexOf(QLatin1Char('\n'), subtextStart);
-        if (subtextEnd == -1) {
+        if (subtextEnd == -1)
             subtextEnd = text.count() - 1;
-        }
         return ++subtextEnd;
     } else if (m_currentDiffMode == Differ::WordMode) {
         if (!text.at(subtextStart).isLetter())
@@ -732,9 +729,8 @@ QList<Diff> Differ::cleanupSemantics(const QList<Diff> &diffList)
             }
             equalitiesToBeSplit.insert(data.equalityIndex, true);
             equalities.removeAt(i);
-            if (i > 0) {
+            if (i > 0)
                 i--; // reexamine previous equality
-            }
         } else {
             i++;
         }
@@ -807,9 +803,8 @@ QList<Diff> Differ::cleanupSemanticsLossless(const QList<Diff> &diffList)
             thisDiff.text = bestEdit;
             nextDiff.text = bestEquality2;
 
-            if (!bestEquality1.isEmpty()) {
+            if (!bestEquality1.isEmpty())
                 newDiffList.append(prevDiff); // append modified equality1
-            }
             if (bestEquality2.isEmpty()) {
                 i++;
                 if (i < diffList.count())

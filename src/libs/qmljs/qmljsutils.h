@@ -31,6 +31,7 @@
 #define QMLJS_QMLJSUTILS_H
 
 #include "qmljs_global.h"
+#include "qmljsconstants.h"
 #include "parser/qmljsastfwd_p.h"
 #include "parser/qmljsengine_p.h"
 
@@ -67,7 +68,7 @@ AST::SourceLocation locationFromRange(const T *node)
 template <class T>
 DiagnosticMessage errorMessage(const T *node, const QString &message)
 {
-    return DiagnosticMessage(Severity::Error,
+    return DiagnosticMessage(QmlJS::Severity::Error,
                              locationFromRange(node),
                              message);
 }

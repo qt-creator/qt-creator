@@ -118,7 +118,8 @@ equals(TEST, 1) {
         symbolsearcher_test.cpp \
         cpppreprocessor_test.cpp \
         cpppreprocessertesthelper.cpp \
-        cppheadersource_test.cpp
+        cppheadersource_test.cpp \
+        typehierarchybuilder_test.cpp
 
     HEADERS += \
         cpppreprocessertesthelper.h \

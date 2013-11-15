@@ -89,11 +89,10 @@ protected:
     void mouseDoubleClickEvent(QMouseEvent *ev)
     {
         int line = cursorForPosition(ev->pos()).block().blockNumber();
-        if (unsigned taskid = m_taskids.value(line, 0)) {
+        if (unsigned taskid = m_taskids.value(line, 0))
             TaskHub::showTaskInEditor(taskid);
-        } else {
+        else
             QPlainTextEdit::mouseDoubleClickEvent(ev);
-        }
     }
 
 private:

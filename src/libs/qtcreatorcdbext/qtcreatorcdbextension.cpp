@@ -1011,11 +1011,10 @@ extern "C" HRESULT CALLBACK stack(CIDebugClient *Client, PCSTR argsIn)
          tokens.pop_front();
     }
     if (!tokens.empty()) {
-        if (tokens.front() == "unlimited") {
+        if (tokens.front() == "unlimited")
             maxFrames = 1000;
-        } else {
+        else
             integerFromString(tokens.front(), &maxFrames);
-        }
     }
 
     const std::string stack = gdbmiStack(exc.control(), exc.symbols(),

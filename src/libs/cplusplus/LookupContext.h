@@ -87,6 +87,9 @@ public:
 
     Symbol *lookupInScope(const QList<const Name *> &fullName);
 
+    /// The class this ClassOrNamespace is based on.
+    Class *rootClass() const { return _rootClass; }
+
 private:
     typedef std::map<const Name *, ClassOrNamespace *, Name::Compare> Table;
     typedef std::map<const TemplateNameId *, ClassOrNamespace *, TemplateNameId::Compare> TemplateNameIdTable;
@@ -95,7 +98,8 @@ private:
     void flush();
 
     /// \internal
-    ClassOrNamespace *findOrCreateType(const Name *name, ClassOrNamespace *origin = 0);
+    ClassOrNamespace *findOrCreateType(const Name *name, ClassOrNamespace *origin = 0,
+                                       Class *clazz = 0);
 
     void addTodo(Symbol *symbol);
     void addSymbol(Symbol *symbol);
@@ -144,6 +148,8 @@ private:
 
     AlreadyConsideredClassContainer<Class> _alreadyConsideredClasses;
     AlreadyConsideredClassContainer<TemplateNameId> _alreadyConsideredTemplates;
+
+    Class *_rootClass;
 
     class NestedClassInstantiator
     {

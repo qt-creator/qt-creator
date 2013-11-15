@@ -54,6 +54,8 @@ public:
     ~AbiWidget();
 
     void setAbis(const QList<Abi> &, const Abi &current);
+    QList<Abi> supportedAbis() const;
+    bool isCustomAbi() const;
     Abi currentAbi() const;
 
 signals:
@@ -62,6 +64,7 @@ signals:
 private slots:
     void osChanged();
     void modeChanged();
+    void customAbiChanged();
 
 private:
     void setCustomAbi(const Abi &a);

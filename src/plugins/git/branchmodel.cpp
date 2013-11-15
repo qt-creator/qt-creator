@@ -380,9 +380,8 @@ void BranchModel::setCurrentBranch()
     BranchNode *local = m_rootNode->children.at(LocalBranches);
     int pos = 0;
     for (pos = 0; pos < local->count(); ++pos) {
-        if (local->children.at(pos)->name == currentBranch) {
+        if (local->children.at(pos)->name == currentBranch)
             m_currentBranch = local->children[pos];
-        }
     }
 }
 

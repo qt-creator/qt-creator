@@ -146,10 +146,12 @@ QString AndroidSettingsWidget::searchKeywords() const
 void AndroidSettingsWidget::initGui()
 {
     m_ui->setupUi(this);
-    if (checkSDK(m_androidConfig.sdkLocation))
+    if (checkSDK(m_androidConfig.sdkLocation)) {
         m_ui->SDKLocationLineEdit->setText(m_androidConfig.sdkLocation.toUserOutput());
-    else
+    } else {
         m_androidConfig.sdkLocation.clear();
+        m_ui->AVDManagerFrame->setEnabled(false);
+    }
     if (checkNDK(m_androidConfig.ndkLocation))
         m_ui->NDKLocationLineEdit->setText(m_androidConfig.ndkLocation.toUserOutput());
     else

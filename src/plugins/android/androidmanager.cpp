@@ -272,7 +272,7 @@ Utils::FileName AndroidManager::dirPath(ProjectExplorer::Target *target)
 {
     QtSupport::BaseQtVersion *qtVersion = QtSupport::QtKitInformation::qtVersion(target->kit());
     if (qtVersion && qtVersion->qtVersion() >= QtSupport::QtVersionNumber(5, 2, 0))
-        return target->activeBuildConfiguration()->buildDirectory().appendPath(AndroidDirName);
+        return target->activeBuildConfiguration()->buildDirectory().appendPath(QLatin1String(Constants::ANDROID_BUILDDIRECTORY));
     return Utils::FileName::fromString(target->project()->projectDirectory()).appendPath(AndroidDirName);
 }
 
@@ -367,15 +367,13 @@ bool AndroidManager::bundleQt(ProjectExplorer::Target *target)
 {
     AndroidDeployStep *androidDeployStep
         = AndroidGlobal::buildStep<AndroidDeployStep>(target->activeDeployConfiguration());
-    if (androidDeployStep) {
+    if (androidDeployStep)
         return androidDeployStep->deployAction() == AndroidDeployStep::BundleLibraries;
-    }
 
     AndroidDeployQtStep *androidDeployQtStep
             = AndroidGlobal::buildStep<AndroidDeployQtStep>(target->activeDeployConfiguration());
-    if (androidDeployQtStep) {
+    if (androidDeployQtStep)
         return androidDeployQtStep->deployAction() == AndroidDeployQtStep::BundleLibrariesDeployment;
-    }
 
     return false;
 }
@@ -789,6 +787,8 @@ QString AndroidManager::androidNameForApiLevel(int x)
         return QLatin1String("Android 4.2, 4.2.2");
     case 18:
         return QLatin1String("Android 4.3");
+    case 19:
+        return QLatin1String("Android 4.4");
     default:
         return QLatin1String("Unknown Android version.");
     }
@@ -817,9 +817,8 @@ QVector<AndroidManager::Library> AndroidManager::availableQtLibsWithDependencies
     if (!qmakeProject || !version)
         return QVector<AndroidManager::Library>();
     QString qtLibsPath = version->qmakeProperty("QT_INSTALL_LIBS");
-    if (!readelfPath.toFileInfo().exists()) {
+    if (!readelfPath.toFileInfo().exists())
         return QVector<AndroidManager::Library>();
-    }
     LibrariesMap mapLibs;
     QDir libPath;
     QDirIterator it(qtLibsPath, QStringList() << QLatin1String("*.so"), QDir::Files, QDirIterator::Subdirectories);
@@ -995,9 +994,8 @@ QString AndroidManager::loadLocal(ProjectExplorer::Target *target, int apiLevel,
                                 dependencyLib = dependencyLib.arg(apiLevel);
                             if (libElement.hasAttribute(QLatin1String("extends"))) {
                                 const QString extends = libElement.attribute(QLatin1String("extends"));
-                                if (libs.contains(extends)) {
+                                if (libs.contains(extends))
                                     dependencyLibs << dependencyLib;
-                                }
                             } else if (!dependencyLibs.contains(dependencyLib)) {
                                 dependencyLibs << dependencyLib;
                             }

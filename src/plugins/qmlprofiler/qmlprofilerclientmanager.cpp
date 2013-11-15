@@ -104,13 +104,11 @@ QmlProfilerClientManager::~QmlProfilerClientManager()
 
 void QmlProfilerClientManager::setModelManager(QmlProfilerModelManager *m)
 {
-    if (d->modelManager) {
+    if (d->modelManager)
         disconnect(this,SIGNAL(dataReadyForProcessing()), d->modelManager, SLOT(complete()));
-    }
     d->modelManager = m;
-    if (d->modelManager) {
+    if (d->modelManager)
         connect(this,SIGNAL(dataReadyForProcessing()), d->modelManager, SLOT(complete()));
-    }
 }
 
 ////////////////////////////////////////////////////////////////

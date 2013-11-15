@@ -73,7 +73,7 @@ QDataStream &operator>>(QDataStream &in, DebugOutputCommand &command)
 bool operator ==(const DebugOutputCommand &first, const DebugOutputCommand &second)
 {
     return first.m_type == second.m_type
-            && second.m_text == second.m_text;
+            && first.m_text == second.m_text;
 }
 
 QDebug operator <<(QDebug debug, const DebugOutputCommand &command)

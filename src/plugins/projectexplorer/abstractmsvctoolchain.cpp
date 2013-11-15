@@ -342,19 +342,16 @@ void AbstractMsvcToolChain::inferWarningsForLevel(int warningLevel, WarningFlags
     // reset all except unrelated flag
     flags = flags & WarningsAsErrors;
 
-    if (warningLevel >= 1) {
+    if (warningLevel >= 1)
         flags |= WarningFlags(WarningsDefault | WarnIgnoredQualfiers | WarnHiddenLocals  | WarnUnknownPragma);
-    }
-    if (warningLevel >= 2) {
+    if (warningLevel >= 2)
         flags |= WarningsAll;
-    }
     if (warningLevel >= 3) {
         flags |= WarningFlags(WarningsExtra | WarnNonVirtualDestructor | WarnSignedComparison
                 | WarnUnusedLocals | WarnDeprecated);
     }
-    if (warningLevel >= 4) {
+    if (warningLevel >= 4)
         flags |= WarnUnusedParams;
-    }
 }
 
 bool AbstractMsvcToolChain::operator ==(const ToolChain &other) const

@@ -270,8 +270,7 @@ void OpenEditorsWindow::addHistoryItems(const QList<EditLocation> &history, Edit
 
         m_editorList->addTopLevelItem(item);
 
-        if (m_editorList->topLevelItemCount() == 1){
+        if (m_editorList->topLevelItemCount() == 1)
             m_editorList->setCurrentItem(item);
-        }
     }
 }

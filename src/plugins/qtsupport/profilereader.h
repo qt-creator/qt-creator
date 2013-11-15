@@ -49,7 +49,7 @@ class QTSUPPORT_EXPORT ProMessageHandler : public QObject, public QMakeHandler
     Q_OBJECT
 
 public:
-    ProMessageHandler(bool verbose = false);
+    ProMessageHandler(bool verbose = true);
     virtual ~ProMessageHandler() {}
 
     virtual void aboutToEval(ProFile *, ProFile *, EvalFileType) {}
@@ -57,8 +57,10 @@ public:
     virtual void message(int type, const QString &msg, const QString &fileName, int lineNo);
     virtual void fileMessage(const QString &msg);
 
+    void setVerbose(bool on) { m_verbose = on; }
+
 signals:
-    void errorFound(const QString &error, Core::MessageManager::PrintToOutputPaneFlags flag);
+    void writeMessage(const QString &error, Core::MessageManager::PrintToOutputPaneFlags flag);
 
 private:
     bool m_verbose;
@@ -71,6 +73,8 @@ class QTSUPPORT_EXPORT ProFileReader : public ProMessageHandler, public QMakePar
 public:
     ProFileReader(ProFileGlobals *option, QMakeVfs *vfs);
     ~ProFileReader();
+
+    void setCumulative(bool on);
 
     QList<ProFile*> includeFiles() const;
 

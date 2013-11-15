@@ -122,6 +122,7 @@ Column {
             LineEdit {
                 id: textField
                 inputMask: "\\#HHHHHHhh"
+                showTranslateCheckBox: false
 
                 backendValue: colorEditor.backendendValue
 

@@ -49,8 +49,10 @@
 #  if defined(QT_BUILD_QMLDEVTOOLS_LIB) || defined(QT_QMLDEVTOOLS_LIB)
      // QmlDevTools is a static library
 #    define QML_PARSER_EXPORT
-#  else
+#  elif defined(QT_BUILD_QML_LIB)
 #    define QML_PARSER_EXPORT Q_AUTOTEST_EXPORT
+#  else
+#    define QML_PARSER_EXPORT
 #  endif
 #endif // QT_CREATOR
 

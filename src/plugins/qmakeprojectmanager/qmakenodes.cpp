@@ -1245,6 +1245,7 @@ QStringList QmakePriFileNode::varNames(ProjectExplorer::FileType type)
     case ProjectExplorer::HeaderType:
         vars << QLatin1String("HEADERS");
         vars << QLatin1String("OBJECTIVE_HEADERS");
+        vars << QLatin1String("PRECOMPILED_HEADER");
         break;
     case ProjectExplorer::SourceType:
         vars << QLatin1String("SOURCES");
@@ -1318,6 +1319,7 @@ QStringList QmakePriFileNode::varNamesForRemoving()
     QStringList vars;
     vars << QLatin1String("HEADERS");
     vars << QLatin1String("OBJECTIVE_HEADERS");
+    vars << QLatin1String("PRECOMPILED_HEADER");
     vars << QLatin1String("SOURCES");
     vars << QLatin1String("OBJECTIVE_SOURCES");
     vars << QLatin1String("RESOURCES");

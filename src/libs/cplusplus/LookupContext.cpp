@@ -344,9 +344,8 @@ ClassOrNamespace *LookupContext::lookupType(const Name *name, Scope *scope,
                 if (name->isNameId()) {
                     if (const Name *usingDeclarationName = ud->name()) {
                         if (const QualifiedNameId *q = usingDeclarationName->asQualifiedNameId()) {
-                            if (q->name() && q->name()->isEqualTo(name)) {
+                            if (q->name() && q->name()->isEqualTo(name))
                                 return bindings()->globalNamespace()->lookupType(q);
-                            }
                         }
                     }
                 }
@@ -529,6 +528,7 @@ ClassOrNamespace::ClassOrNamespace(CreateBindings *factory, ClassOrNamespace *pa
     , _scopeLookupCache(0)
     , _templateId(0)
     , _instantiationOrigin(0)
+    , _rootClass(0)
 #ifdef DEBUG_LOOKUP
     , _name(0)
 #endif // DEBUG_LOOKUP
@@ -801,9 +801,8 @@ ClassOrNamespace *ClassOrNamespace::findBlock(Block *block)
     flush();
 
     QHash<Block *, ClassOrNamespace *>::const_iterator citBlock = _blocks.find(block);
-    if (citBlock != _blocks.end()) {
+    if (citBlock != _blocks.end())
         return citBlock.value();
-    }
 
     for (citBlock = _blocks.begin(); citBlock != _blocks.end(); ++citBlock) {
         if (ClassOrNamespace *foundNestedBlock = citBlock.value()->findBlock(block))
@@ -1067,6 +1066,8 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
         instantiation->_enums.append(reference->unscopedEnums());
         instantiation->_usings.append(reference->usings());
 
+        instantiation->_rootClass = reference->rootClass();
+
         // It gets a bit complicated if the reference is actually a class template because we
         // now must worry about dependent names in base classes.
         if (Template *templateSpecialization = referenceClass->enclosingTemplate()) {
@@ -1107,9 +1108,8 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name, ClassOrNamespac
                         for (unsigned i = 0; i < klassMemberCount; ++i){
                             Symbol *klassMemberAsSymbol = klass->memberAt(i);
                             if (klassMemberAsSymbol->isTypedef()) {
-                                if (Declaration *declaration = klassMemberAsSymbol->asDeclaration()) {
+                                if (Declaration *declaration = klassMemberAsSymbol->asDeclaration())
                                     qDebug() << "Member: " << oo(declaration->type(), declaration->name());
-                                }
                             }
                         }
                     }
@@ -1347,7 +1347,8 @@ void ClassOrNamespace::addNestedType(const Name *alias, ClassOrNamespace *e)
     _classOrNamespaces[alias] = e;
 }
 
-ClassOrNamespace *ClassOrNamespace::findOrCreateType(const Name *name, ClassOrNamespace *origin)
+ClassOrNamespace *ClassOrNamespace::findOrCreateType(const Name *name, ClassOrNamespace *origin,
+                                                     Class *clazz)
 {
     if (! name)
         return this;
@@ -1356,15 +1357,16 @@ ClassOrNamespace *ClassOrNamespace::findOrCreateType(const Name *name, ClassOrNa
 
     if (const QualifiedNameId *q = name->asQualifiedNameId()) {
         if (! q->base())
-            return globalNamespace()->findOrCreateType(q->name(), origin);
+            return globalNamespace()->findOrCreateType(q->name(), origin, clazz);
 
-        return findOrCreateType(q->base(), origin)->findOrCreateType(q->name(), origin);
+        return findOrCreateType(q->base(), origin)->findOrCreateType(q->name(), origin, clazz);
 
     } else if (name->isNameId() || name->isTemplateNameId() || name->isAnonymousNameId()) {
         ClassOrNamespace *e = nestedType(name, origin);
 
         if (! e) {
             e = _factory->allocClassOrNamespace(this);
+            e->_rootClass = clazz;
 #ifdef DEBUG_LOOKUP
             e->_name = name;
 #endif // DEBUG_LOOKUP
@@ -1470,7 +1472,8 @@ void CreateBindings::process(Document::Ptr doc)
 
 ClassOrNamespace *CreateBindings::enterClassOrNamespaceBinding(Symbol *symbol)
 {
-    ClassOrNamespace *entity = _currentClassOrNamespace->findOrCreateType(symbol->name());
+    ClassOrNamespace *entity = _currentClassOrNamespace->findOrCreateType(symbol->name(), 0,
+                                                                          symbol->asClass());
     entity->addSymbol(symbol);
 
     return switchCurrentClassOrNamespace(entity);
@@ -1478,7 +1481,8 @@ ClassOrNamespace *CreateBindings::enterClassOrNamespaceBinding(Symbol *symbol)
 
 ClassOrNamespace *CreateBindings::enterGlobalClassOrNamespace(Symbol *symbol)
 {
-    ClassOrNamespace *entity = _globalNamespace->findOrCreateType(symbol->name());
+    ClassOrNamespace *entity = _globalNamespace->findOrCreateType(symbol->name(), 0,
+                                                                  symbol->asClass());
     entity->addSymbol(symbol);
 
     return switchCurrentClassOrNamespace(entity);
@@ -1516,7 +1520,7 @@ bool CreateBindings::visit(Class *klass)
         binding = _currentClassOrNamespace->lookupType(klass->name());
 
     if (! binding)
-        binding = _currentClassOrNamespace->findOrCreateType(klass->name());
+        binding = _currentClassOrNamespace->findOrCreateType(klass->name(), 0, klass);
 
     _currentClassOrNamespace = binding;
     _currentClassOrNamespace->addSymbol(klass);
@@ -1568,7 +1572,8 @@ bool CreateBindings::visit(Declaration *decl)
                 }
             } else if (Class *klass = ty->asClassType()) {
                 if (const Identifier *nameId = decl->name()->asNameId()) {
-                    ClassOrNamespace *binding = _currentClassOrNamespace->findOrCreateType(nameId);
+                    ClassOrNamespace *binding
+                        = _currentClassOrNamespace->findOrCreateType(nameId, 0, klass);
                     binding->addSymbol(klass);
                 }
             }

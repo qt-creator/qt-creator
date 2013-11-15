@@ -84,6 +84,7 @@ QmlConsoleView::QmlConsoleView(QWidget *parent) :
     setFrameStyle(QFrame::NoFrame);
     setHeaderHidden(true);
     setRootIsDecorated(false);
+    setUniformRowHeights(true);
     setEditTriggers(QAbstractItemView::AllEditTriggers);
     setStyleSheet(QLatin1String("QTreeView::branch:has-siblings:!adjoins-item {"
                                 "border-image: none;"

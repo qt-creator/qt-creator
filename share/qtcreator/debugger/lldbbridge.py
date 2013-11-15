@@ -134,11 +134,8 @@ def impl_SBValue__add__(self, offset):
         itemsize = self.GetType().GetPointeeType().GetByteSize()
         address = self.GetValueAsUnsigned() + offset * itemsize
         address = address & 0xFFFFFFFFFFFFFFFF  # Force unsigned
-
-        # We don't have a dumper object
-        #return createPointerValue(self, address, self.GetType().GetPointeeType())
-        addr = int(address) & 0xFFFFFFFFFFFFFFFF
-        return self.CreateValueFromAddress(None, addr, self.GetType().GetPointeeType()).AddressOf()
+        return self.CreateValueFromAddress(None, address,
+                self.GetType().GetPointeeType()).AddressOf()
 
     raise RuntimeError("SBValue.__add__ not implemented: %s" % self.GetType())
     return NotImplemented
@@ -203,6 +200,7 @@ lldb.SBValue.dereference = lambda self: self.Dereference()
 lldb.SBValue.address = property(lambda self: self.GetAddress())
 
 lldb.SBType.pointer = lambda self: self.GetPointerType()
+lldb.SBType.target = lambda self: self.GetPointeeType()
 lldb.SBType.code = lambda self: self.GetTypeClass()
 lldb.SBType.sizeof = property(lambda self: self.GetByteSize())
 
@@ -511,9 +509,6 @@ class Dumper(DumperBase):
     def put(self, stuff):
         sys.stdout.write(stuff)
 
-    def putField(self, name, value):
-        self.put('%s="%s",' % (name, value))
-
     def isMovableType(self, type):
         if type.GetTypeClass() in (lldb.eTypeClassBuiltin, lldb.eTypeClassPointer):
             return True
@@ -524,30 +519,8 @@ class Dumper(DumperBase):
         #if numchild != self.currentChildNumChild:
         self.put('numchild="%s",' % numchild)
 
-    def putEmptyValue(self, priority = -10):
-        if priority >= self.currentValuePriority:
-            self.currentValue = ""
-            self.currentValuePriority = priority
-            self.currentValueEncoding = None
-
     def putSimpleValue(self, value, encoding = None, priority = 0):
         self.putValue(value.GetValue(), encoding, priority)
-
-    def putValue(self, value, encoding = None, priority = 0):
-        # Higher priority values override lower ones.
-        if priority >= self.currentValuePriority:
-            self.currentValue = value
-            self.currentValuePriority = priority
-            self.currentValueEncoding = encoding
-        #self.put('value="%s",' % value)
-
-    def putName(self, name):
-        self.put('name="%s",' % name)
-
-    def isExpanded(self):
-        #warn("IS EXPANDED: %s in %s: %s" % (self.currentIName,
-        #    self.expandedINames, self.currentIName in self.expandedINames))
-        return self.currentIName in self.expandedINames
 
     def tryPutArrayContents(self, typeobj, base, n):
         if not self.isSimpleType(typeobj):
@@ -598,13 +571,6 @@ class Dumper(DumperBase):
         if self.currentMaxNumChild is None:
             return xrange(0, self.currentNumChild)
         return xrange(min(self.currentMaxNumChild, self.currentNumChild))
-
-    def putPlainChildren(self, value):
-        self.putEmptyValue(-99)
-        self.putNumChild(1)
-        if self.currentIName in self.expandedINames:
-            with Children(self):
-               self.putFields(value)
 
     def lookupType(self, name):
         #warn("LOOKUP TYPE NAME: %s" % name)
@@ -668,7 +634,8 @@ class Dumper(DumperBase):
             launchInfo.SetEnvironmentEntries(environmentList, False)
             self.process = self.target.Launch(launchInfo, error)
             if not error.Success():
-                self.report('state="inferiorrunfailed"')
+                self.reportError(error)
+                self.report('state="enginerunfailed"')
                 return
             self.report('pid="%s"' % self.process.GetProcessID())
             self.report('state="enginerunandinferiorrunok"')
@@ -705,6 +672,13 @@ class Dumper(DumperBase):
         line = frame.line_entry.line
         self.report('location={file="%s",line="%s",addr="%s"}' % (file, line, frame.pc))
 
+    def firstStoppedThread(self):
+        for i in xrange(0, self.process.GetNumThreads()):
+            thread = self.process.GetThreadAtIndex(i)
+            if thread.GetStopReason() == lldb.eStopReasonBreakpoint:
+                return thread
+        return None
+
     def reportThreads(self):
         reasons = ['None', 'Trace', 'Breakpoint', 'Watchpoint', 'Signal', 'Exception',
             'Exec', 'PlanComplete']
@@ -733,8 +707,7 @@ class Dumper(DumperBase):
         result += '],current-thread-id="%s"},' % self.currentThread().id
         self.report(result)
 
-    def firstUsableFrame(self):
-        thread = self.currentThread()
+    def firstUsableFrame(self, thread):
         for i in xrange(10):
             frame = thread.GetFrameAtIndex(i)
             lineEntry = frame.GetLineEntry()
@@ -744,36 +717,37 @@ class Dumper(DumperBase):
         return None
 
     def reportStack(self, _ = None):
-        if self.process is None:
+        if not self.process:
             self.report('msg="No process"')
+            return
+        thread = self.currentThread()
+        if not thread:
+            self.report('msg="No thread"')
+            return
+        frame = thread.GetSelectedFrame()
+        if frame:
+            frameId = frame.GetFrameID()
         else:
-            thread = self.currentThread()
-            result = 'stack={current-frame="%s"' % thread.GetSelectedFrame().GetFrameID()
-            result += ',current-thread="%s"' % thread.GetThreadID()
-            result += ',frames=['
-            n = thread.GetNumFrames()
-            for i in xrange(n):
-                frame = thread.GetFrameAtIndex(i)
-                lineEntry = frame.GetLineEntry()
-                line = lineEntry.GetLine()
-                usable = line != 0
-                result += '{pc="0x%x"' % frame.GetPC()
-                result += ',level="%d"' % frame.idx
-                result += ',addr="0x%x"' % frame.GetPCAddress().GetLoadAddress(self.target)
-                result += ',func="%s"' % frame.GetFunctionName()
-                result += ',line="%d"' % line
-                result += ',fullname="%s"' % fileName(lineEntry.file)
-                result += ',usable="%d"' % usable
-                result += ',file="%s"},' % fileName(lineEntry.file)
-            result += '],hasmore="0"},'
-            self.report(result)
-
-    def putType(self, type, priority = 0):
-        # Higher priority values override lower ones.
-        if priority >= self.currentTypePriority:
-            self.currentType = str(type)
-            self.currentTypePriority = priority
-        #warn("TYPE: %s PRIORITY: %s" % (type, priority))
+            frameId = 0;
+        result = 'stack={current-frame="%s"' % frameId
+        result += ',current-thread="%s"' % thread.GetThreadID()
+        result += ',frames=['
+        n = thread.GetNumFrames()
+        for i in xrange(n):
+            frame = thread.GetFrameAtIndex(i)
+            lineEntry = frame.GetLineEntry()
+            line = lineEntry.GetLine()
+            usable = line != 0
+            result += '{pc="0x%x"' % frame.GetPC()
+            result += ',level="%d"' % frame.idx
+            result += ',addr="0x%x"' % frame.GetPCAddress().GetLoadAddress(self.target)
+            result += ',func="%s"' % frame.GetFunctionName()
+            result += ',line="%d"' % line
+            result += ',fullname="%s"' % fileName(lineEntry.file)
+            result += ',usable="%d"' % usable
+            result += ',file="%s"},' % fileName(lineEntry.file)
+        result += '],hasmore="0"},'
+        self.report(result)
 
     def putBetterType(self, type):
         try:
@@ -802,13 +776,6 @@ class Dumper(DumperBase):
             return name.find("10metaObjectEv") > 0
         except:
             return False
-
-    def putValue(self, value, encoding = None, priority = 0):
-        # Higher priority values override lower ones.
-        if priority >= self.currentValuePriority:
-            self.currentValue = value
-            self.currentValuePriority = priority
-            self.currentValueEncoding = encoding
 
     def qtNamespace(self):
         # FIXME
@@ -845,6 +812,9 @@ class Dumper(DumperBase):
                 self.currentAddress = 'addr="0x%s",' % int(addr)
             except:
                 pass
+
+    def isFunctionType(self, type):
+        return type.IsFunctionType()
 
     def putItem(self, value, tryDynamic=True):
         #value = value.GetDynamicValue(lldb.eDynamicCanRunTarget)
@@ -900,12 +870,12 @@ class Dumper(DumperBase):
 
         # Arrays
         if typeClass == lldb.eTypeClassArray:
-            qdump____c_style_array__(self, value)
+            self.putCStyleArray(value)
             return
 
         # Vectors like char __attribute__ ((vector_size (8)))
         if typeClass == lldb.eTypeClassVector:
-            qdump____c_style_array__(self, value)
+            self.putCStyleArray(value)
             return
 
         # References
@@ -920,178 +890,8 @@ class Dumper(DumperBase):
 
         # Pointers
         if value.GetType().IsPointerType():
-            if self.isNull(value):
-                self.putType(typeName)
-                self.putValue("0x0")
-                self.putNumChild(0)
-                return
-
-            try:
-                value.dereference()
-            except:
-                # Failure to dereference a pointer should at least
-                # show the value of a pointer.
-                self.putValue(cleanAddress(value))
-                self.putType(typeName)
-                self.putNumChild(0)
-                return
-
-            type = value.GetType()
-            innerType = value.GetType().GetPointeeType().unqualified()
-            innerTypeName = str(innerType)
-
-            format = self.currentItemFormat(type)
-
-            if innerTypeName == "void":
-                warn("VOID POINTER: %s" % format)
-                self.putType(typeName)
-                self.putValue(str(value))
-                self.putNumChild(0)
-                return
-
-            if format == None and innerTypeName == "char":
-                # Use Latin1 as default for char *.
-                self.putType(typeName)
-                self.putValue(self.encodeCharArray(value), Hex2EncodedLatin1)
-                self.putNumChild(0)
-                return
-
-            if format == 0:
-                # Explicitly requested bald pointer.
-                self.putType(typeName)
-                self.putPointerValue(value)
-                self.putNumChild(1)
-                if self.currentIName in self.expandedINames:
-                    with Children(self):
-                        with SubItem(self, '*'):
-                            self.putItem(value.dereference())
-                return
-
-            if format == 1:
-                # Explicitly requested Latin1 formatting.
-                self.putType(typeName)
-                self.putValue(self.encodeCharArray(value), Hex2EncodedLatin1)
-                self.putNumChild(0)
-                return
-
-            if format == 2:
-                # Explicitly requested UTF-8 formatting.
-                self.putType(typeName)
-                self.putValue(self.encodeCharArray(value), Hex2EncodedUtf8)
-                self.putNumChild(0)
-                return
-
-            if format == 3:
-                # Explicitly requested local 8 bit formatting.
-                self.putType(typeName)
-                self.putValue(self.encodeCharArray(value), Hex2EncodedLocal8Bit)
-                self.putNumChild(0)
-                return
-
-            if format == 4:
-                # Explicitly requested UTF-16 formatting.
-                self.putType(typeName)
-                self.putValue(self.encodeChar2Array(value), Hex4EncodedLittleEndian)
-                self.putNumChild(0)
-                return
-
-            if format == 5:
-                # Explicitly requested UCS-4 formatting.
-                self.putType(typeName)
-                self.putValue(self.encodeChar4Array(value), Hex8EncodedLittleEndian)
-                self.putNumChild(0)
-                return
-
-            if format == 6:
-                # Explicitly requested formatting as array of 10 items.
-                self.putType(typeName)
-                self.putItemCount(10)
-                self.putNumChild(10)
-                self.putArrayData(innerType, value, 10)
-                return
-
-            if format == 7:
-                # Explicitly requested formatting as array of 1000 items.
-                self.putType(typeName)
-                self.putItemCount(1000)
-                self.putNumChild(1000)
-                self.putArrayData(innerType, value, 1000)
-                return
-
-            if innerType.IsFunctionType():
-                # A function pointer.
-                val = str(value)
-                pos = val.find(" = ")
-                if pos > 0:
-                    val = val[pos + 3:]
-                self.putValue(val)
-                self.putType(innerType)
-                self.putNumChild(0)
-                return
-
-            #warn("AUTODEREF: %s" % self.autoDerefPointers)
-            #warn("INAME: %s" % self.currentIName)
-            if self.autoDerefPointers or self.currentIName.endswith('.this'):
-                ## Generic pointer type with format None
-                #warn("GENERIC AUTODEREF POINTER: %s AT %s TO %s"
-                #    % (type, value.address, innerTypeName))
-                # Never dereference char types.
-                if innerTypeName != "char" \
-                        and innerTypeName != "signed char" \
-                        and innerTypeName != "unsigned char"  \
-                        and innerTypeName != "wchar_t":
-                    self.putType(innerType)
-                    savedCurrentChildType = self.currentChildType
-                    self.currentChildType = stripClassTag(innerTypeName)
-                    self.putItem(value.dereference())
-                    self.currentChildType = savedCurrentChildType
-                    #self.putPointerValue(value)
-                    self.put('origaddr="%s",' % value.address)
-                    return
-
-            # Fall back to plain pointer printing.
-            #warn("GENERIC PLAIN POINTER: %s" % value.type)
-            #warn("ADDR PLAIN POINTER: %s" % value.address)
-            #self.putType(typeName)
-            #self.putField("aaa", "1")
-            ##self.put('addr="0x%x",' % toInteger(value.address))
-            ##self.putAddress(value.address)
-            #self.putField("bbb", "1")
-            ##self.putPointerValue(value)
-            #self.putValue("0x%x" % value.cast(self.lookupType("unsigned long")))
-            #self.putField("ccc", "1")
-            #self.putNumChild(1)
-            #if self.currentIName in self.expandedINames:
-            #    with Children(self):
-            #        with SubItem(self, "*"):
-            #            self.putItem(value.dereference())
-            #return
-
-            #if self.autoDerefPointers:
-            #    self.putType(innerType)
-            #    savedCurrentChildType = self.currentChildType
-            #    self.currentChildType = str(innerType)
-            #    inner = value.Dereference()
-            #    if inner.IsValid():
-            #        self.putItem(inner)
-            #        self.currentChildType = savedCurrentChildType
-            #        self.put('origaddr="%s",' % value.address)
-            #        return
-#
-#            else:
-
-            numchild = value.GetNumChildren()
-            self.put('iname="%s",' % self.currentIName)
-            self.putType(typeName)
-            self.putValue('0x%x' % value.GetValueAsUnsigned())
-            self.put('numchild="1",')
-            self.put('addr="0x%x",' % value.GetLoadAddress())
-            if self.currentIName in self.expandedINames:
-                with Children(self):
-                    child = value.Dereference()
-                    with SubItem(self, child):
-                        self.putItem(child)
-
+            self.putFormattedPointer(value)
+            return
 
         #warn("VALUE: %s" % value)
         #warn("FANCY: %s" % self.useFancy)
@@ -1169,6 +969,9 @@ class Dumper(DumperBase):
             if self.dummyValue is None:
                 self.dummyValue = value
             name = value.GetName()
+            if name is None:
+                warn("NO NAME FOR VALUE: %s" % value)
+                continue
             if name in shadowed:
                 level = shadowed[name]
                 shadowed[name] = level + 1
@@ -1183,29 +986,25 @@ class Dumper(DumperBase):
         if not self.dummyValue is None:
             for watcher in self.currentWatchers:
                 iname = watcher['iname']
-                index = iname[iname.find('.') + 1:]
+                # could be 'watch.0' or 'tooltip.deadbead'
+                (base, component) = iname.split('.')
                 exp = binascii.unhexlify(watcher['exp'])
-                warn("EXP: %s" % exp)
-                warn("INDEX: %s" % index)
                 if exp == "":
                     self.put('type="",value="",exp=""')
                     continue
 
                 value = self.dummyValue.CreateValueFromExpression(iname, exp)
-                #value = self.dummyValue
-                warn("VALUE: %s" % value)
-                self.currentIName = 'watch'
-                with SubItem(self, index):
+                self.currentIName = base
+                with SubItem(self, component):
                     self.put('exp="%s",' % exp)
                     self.put('wname="%s",' % binascii.hexlify(exp))
-                    self.put('iname="%s",' % self.currentIName)
+                    self.put('iname="%s",' % iname)
                     self.putItem(value)
 
         self.put(']')
         self.report('')
 
     def reportData(self, _ = None):
-        self.reportRegisters()
         if self.process is None:
             self.report('process="none"')
         else:
@@ -1290,13 +1089,17 @@ class Dumper(DumperBase):
         if type == lldb.SBProcess.eBroadcastBitStateChanged:
             state = self.process.GetState()
             if state == lldb.eStateStopped:
-                usableFrame = self.firstUsableFrame()
-                if usableFrame:
-                    self.currentThread().SetSelectedFrame(usableFrame)
+                stoppedThread = self.firstStoppedThread()
+                if stoppedThread:
+                    self.process.SetSelectedThread(stoppedThread)
+                    usableFrame = self.firstUsableFrame(stoppedThread)
+                    if usableFrame:
+                        stoppedThread.SetSelectedFrame(usableFrame)
                 self.reportStack()
                 self.reportThreads()
                 self.reportLocation()
                 self.reportVariables()
+                self.reportRegisters()
         elif type == lldb.SBProcess.eBroadcastBitInterrupt:
             pass
         elif type == lldb.SBProcess.eBroadcastBitSTDOUT:
@@ -1530,11 +1333,6 @@ class Dumper(DumperBase):
         error = str(result.GetError())
         self.report('success="%d",output="%s",error="%s"' % (success, output, error))
 
-    def setWatchers(self, args):
-        #self.currentWatchers = args['watchers']
-        #warn("WATCHERS %s" % self.currentWatchers)
-        self.reportData()
-
     def updateData(self, args):
         if 'expanded' in args:
             self.expandedINames = set(args['expanded'].split(','))
@@ -1546,6 +1344,8 @@ class Dumper(DumperBase):
             self.useFancy = int(args['fancy'])
         if 'passexceptions' in args:
             self.passExceptions = int(args['passexceptions'])
+        if 'watchers' in args:
+            self.currentWatchers = args['watchers']
         self.reportVariables(args)
 
     def disassemble(self, args):

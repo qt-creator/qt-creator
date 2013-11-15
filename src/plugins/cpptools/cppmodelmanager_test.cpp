@@ -1000,7 +1000,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_editor()
         while (sup->lastSemanticInfoDocument().isNull())
             QCoreApplication::processEvents();
 
-        sup->snapshotUpdater()->setEditorDefines(editorDefines.toLatin1());
+        sup->snapshotUpdater()->setEditorDefines(editorDefines.toUtf8());
         sup->snapshotUpdater()->update(mm->workingCopy());
 
         Document::Ptr doc = mm->snapshot().document(main1File);

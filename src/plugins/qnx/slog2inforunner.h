@@ -38,6 +38,7 @@
 #include <utils/outputformat.h>
 
 #include <QDateTime>
+#include <QByteArray>
 
 namespace ProjectExplorer {
 class SshDeviceProcess;
@@ -75,7 +76,8 @@ private slots:
 
 private:
     void readLaunchTime();
-    bool showQtMessage(const QString &pattern, const QString &line);
+    void processLog(bool force);
+    void processLogLine(const QString &line);
 
     QString m_applicationId;
 
@@ -83,6 +85,7 @@ private:
 
     QDateTime m_launchDateTime;
     bool m_currentLogs;
+    QString m_remainingData;
 
     ProjectExplorer::SshDeviceProcess *m_launchDateTimeProcess;
     ProjectExplorer::SshDeviceProcess *m_testProcess;

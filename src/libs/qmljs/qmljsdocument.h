@@ -38,6 +38,7 @@
 #include "parser/qmldirparser_p.h"
 #include "parser/qmljsengine_p.h"
 #include "qmljs_global.h"
+#include "qmljsconstants.h"
 
 namespace QmlJS {
 

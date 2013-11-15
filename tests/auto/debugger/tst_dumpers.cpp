@@ -347,17 +347,15 @@ struct Type5 : Type
 
 enum DebuggerEngine
 {
-    DumpTestGdbEngine,
-    DumpTestCdbEngine,
-    DumpTestLldbEngine
+    DumpTestGdbEngine = 0x01,
+    DumpTestCdbEngine = 0x02,
+    DumpTestLldbEngine = 0x04,
 };
 
 struct CheckBase
 {
-    CheckBase() : useLldb(true), useGdb(true) {}
-
-    mutable bool useLldb;
-    mutable bool useGdb;
+    CheckBase() : enginesForCheck(DumpTestGdbEngine | DumpTestCdbEngine | DumpTestLldbEngine) {}
+    mutable int enginesForCheck;
 };
 
 struct Check : CheckBase
@@ -377,28 +375,33 @@ struct Check : CheckBase
 
     bool matchesEngine(DebuggerEngine engine) const
     {
-        return (engine == DumpTestLldbEngine && useLldb)
-            || (engine == DumpTestGdbEngine && useGdb);
+        return (engine & enginesForCheck);
+    }
+
+    const Check &setEngines(int debuggerEngine)
+    {
+        enginesForCheck = debuggerEngine;
+        return *this;
     }
 
     const Check &setForLldbOnly() const
     {
-        clearUsed();
-        useLldb = true;
+        enginesForCheck = DumpTestLldbEngine;
         return *this;
     }
 
     const Check &setForGdbOnly() const
     {
-        clearUsed();
-        useGdb = true;
+        enginesForCheck = DumpTestGdbEngine;
         return *this;
     }
 
-    void clearUsed() const
+    const Check &setForCdbOnly()
     {
-        useLldb = useGdb = false;
+        enginesForCheck = DumpTestCdbEngine;
+        return *this;
     }
+
     QByteArray iname;
     Name expectedName;
     Value expectedValue;
@@ -1044,12 +1047,8 @@ void tst_Dumpers::dumper()
         QVERIFY(pos1 != -1);
         do {
             pos1 += locals.length();
-            if (output.at(pos1) == '[')
-                ++pos1;
             int pos2 = output.indexOf("\n", pos1);
             QVERIFY(pos2 != -1);
-            if (output.at(pos2 - 1) == ']')
-                --pos2;
             contents += output.mid(pos1, pos2 - pos1);
             pos1 = output.indexOf(locals, pos2);
         } while (pos1 != -1);
@@ -1109,6 +1108,14 @@ void tst_Dumpers::dumper()
                     qDebug() << "SKIPPING NON-MATCHING TEST FOR " << item.iname;
                 }
             }
+        }
+    }
+
+    if (!data.checks.isEmpty()) {
+        for (int i = data.checks.size(); --i >= 0; ) {
+            Check check = data.checks.at(i);
+            if (!check.matchesEngine(m_debuggerEngine))
+                data.checks.removeAt(i);
         }
     }
 
@@ -1276,15 +1283,15 @@ void tst_Dumpers::dumper_data()
                     "QChar c = s.at(0);\n"
                     "unused(&c);\n")
                % CoreProfile()
-               % Check("c", "120", "@QChar");
+               % Check("c", "'x' (120)", "@QChar").setForCdbOnly()
+               % Check("c", "120", "@QChar").setEngines(DumpTestGdbEngine | DumpTestLldbEngine);
 
     QTest::newRow("QDate0")
             << Data("#include <QDate>\n",
                     "QDate date;\n"
                     "unused(&date);\n")
                % CoreProfile()
-               % Check("date", Value4("(invalid)"), "@QDate")
-               % Check("date", Value5(""), "@QDate");
+               % Check("date", "(invalid)", "@QDate");
 
     QTest::newRow("QDate1")
             << Data("#include <QDate>\n",
@@ -1293,10 +1300,14 @@ void tst_Dumpers::dumper_data()
                     "unused(&date);\n")
                % CoreProfile()
                % Check("date", "Tue Jan 1 1980", "@QDate")
-               % Check("date.(ISO)", "\"1980-01-01\"", "@QString")
-               % CheckType("date.(Locale)", "@QString")
-               % CheckType("date.(SystemLocale)", "@QString")
-               % Check("date.toString", "\"Tue Jan 1 1980\"", "@QString");
+               % Check("date.(ISO)", "\"1980-01-01\"", "@QString").setEngines(
+                   DumpTestGdbEngine | DumpTestLldbEngine)
+               % CheckType("date.(Locale)", "@QString").setEngines(
+                   DumpTestGdbEngine | DumpTestLldbEngine)
+               % CheckType("date.(SystemLocale)", "@QString").setEngines(
+                   DumpTestGdbEngine | DumpTestLldbEngine)
+               % Check("date.toString", "\"Tue Jan 1 1980\"", "@QString").setEngines(
+                   DumpTestGdbEngine | DumpTestLldbEngine);
 
     QTest::newRow("QTime0")
             << Data("#include <QTime>\n",
@@ -1309,10 +1320,14 @@ void tst_Dumpers::dumper_data()
                     "QTime time(13, 15, 32);")
                % CoreProfile()
                % Check("time", "13:15:32", "@QTime")
-               % Check("time.(ISO)", "\"13:15:32\"", "@QString")
-               % CheckType("time.(Locale)", "@QString")
-               % CheckType("time.(SystemLocale)", "@QString")
-               % Check("time.toString", "\"13:15:32\"", "@QString");
+               % Check("time.(ISO)", "\"13:15:32\"", "@QString").setEngines(
+                   DumpTestGdbEngine | DumpTestLldbEngine)
+               % CheckType("time.(Locale)", "@QString").setEngines(
+                   DumpTestGdbEngine | DumpTestLldbEngine)
+               % CheckType("time.(SystemLocale)", "@QString").setEngines(
+                   DumpTestGdbEngine | DumpTestLldbEngine)
+               % Check("time.toString", "\"13:15:32\"", "@QString").setEngines(
+                   DumpTestGdbEngine | DumpTestLldbEngine);
 
     QTest::newRow("QDateTime0")
             << Data("#include <QDateTime>\n",
@@ -1328,13 +1343,20 @@ void tst_Dumpers::dumper_data()
                % CoreProfile()
                % Check("date", Value4("Tue Jan 1 13:15:32 1980"), "@QDateTime")
                % Check("date", Value5("Tue Jan 1 13:15:32 1980 GMT"), "@QDateTime")
-               % Check("date.(ISO)", "\"1980-01-01T13:15:32Z\"", "@QString")
-               % CheckType("date.(Locale)", "@QString")
-               % CheckType("date.(SystemLocale)", "@QString")
-               % Check("date.toString", Value4("\"Tue Jan 1 13:15:32 1980\""), "@QString")
-               % Check("date.toString", Value5("\"Tue Jan 1 13:15:32 1980 GMT\""), "@QString")
-               % Check("date.toUTC", Value4("Tue Jan 1 13:15:32 1980"), "@QDateTime")
-               % Check("date.toUTC", Value5("Tue Jan 1 13:15:32 1980 GMT"), "@QDateTime");
+               % Check("date.(ISO)", "\"1980-01-01T13:15:32Z\"", "@QString").setEngines(
+                   DumpTestGdbEngine | DumpTestLldbEngine)
+               % CheckType("date.(Locale)", "@QString").setEngines(
+                   DumpTestGdbEngine | DumpTestLldbEngine)
+               % CheckType("date.(SystemLocale)", "@QString").setEngines(
+                   DumpTestGdbEngine | DumpTestLldbEngine)
+               % Check("date.toString", Value4("\"Tue Jan 1 13:15:32 1980\""), "@QString").setEngines(
+                   DumpTestGdbEngine | DumpTestLldbEngine)
+               % Check("date.toString", Value5("\"Tue Jan 1 13:15:32 1980 GMT\""), "@QString").setEngines(
+                   DumpTestGdbEngine | DumpTestLldbEngine)
+               % Check("date.toUTC", Value4("Tue Jan 1 13:15:32 1980"), "@QDateTime").setEngines(
+                   DumpTestGdbEngine | DumpTestLldbEngine)
+               % Check("date.toUTC", Value5("Tue Jan 1 13:15:32 1980 GMT"), "@QDateTime").setEngines(
+                   DumpTestGdbEngine | DumpTestLldbEngine);
 
 #ifdef Q_OS_WIN
     QByteArray tempDir = "\"C:/Program Files\"";

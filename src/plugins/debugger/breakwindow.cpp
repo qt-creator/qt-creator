@@ -581,12 +581,12 @@ void BreakpointDialog::typeChanged(int)
     case BreakpointByAddress:
     case WatchpointAtAddress:
         setParts(AddressPart|AllConditionParts|TracePointPart, m_savedParameters);
-        setPartsEnabled(AddressPart|AllConditionParts|TracePointPart|TracePointPart);
+        setPartsEnabled(AddressPart|AllConditionParts|TracePointPart);
         clearOtherParts(AddressPart|AllConditionParts|TracePointPart);
         break;
     case WatchpointAtExpression:
         setParts(ExpressionPart|AllConditionParts|TracePointPart, m_savedParameters);
-        setPartsEnabled(ExpressionPart|AllConditionParts|TracePointPart|TracePointPart);
+        setPartsEnabled(ExpressionPart|AllConditionParts|TracePointPart);
         clearOtherParts(ExpressionPart|AllConditionParts|TracePointPart);
         break;
     case BreakpointOnQmlSignalEmit:

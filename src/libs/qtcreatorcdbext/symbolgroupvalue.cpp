@@ -276,6 +276,14 @@ ULONG64 SymbolGroupValue::readUnsignedValue(CIDebugDataSpaces *ds,
     return readPODFromMemory<ULONG64>(ds, address, debuggeeTypeSize, defaultValue, errorMessage);
 }
 
+LONG64 SymbolGroupValue::readSignedValue(CIDebugDataSpaces *ds,
+                                         ULONG64 address, ULONG debuggeeTypeSize,
+                                         LONG64 defaultValue,
+                                         std::string *errorMessage /* = 0 */)
+{
+    return readPODFromMemory<LONG64>(ds, address, debuggeeTypeSize, defaultValue, errorMessage);
+}
+
 // Note: sizeof(int) should always be 4 on Win32/Win64, no need to
 // differentiate between host and debuggee int types. When implementing
 // something like 'long', different size on host/debuggee must be taken
@@ -1534,7 +1542,7 @@ bool readQt5StringData(const SymbolGroupValue &dV, int qtMajorVersion,
     if (!memory)
         return false;
     *array = reinterpret_cast<CharType *>(memory);
-    if ((*arraySize < *fullSize) && zeroTerminated)
+    if ((*arraySize <= *fullSize) && zeroTerminated)
         *(*array + *arraySize) = CharType(0);
     return true;
 }
@@ -1628,9 +1636,11 @@ static unsigned qSharedDataSize(const SymbolGroupValueContext &ctx)
 }
 
 /* Return the size of a QString */
-static unsigned qStringSize(const SymbolGroupValueContext &ctx)
+static unsigned qStringSize(const SymbolGroupValueContext &/*ctx*/)
 {
-    static const unsigned size = SymbolGroupValue::sizeOf(QtInfo::get(ctx).prependQtCoreModule("QString").c_str());
+//    static const unsigned size = SymbolGroupValue::sizeOf(QtInfo::get(ctx).prependQtCoreModule("QString").c_str());
+// FIXME: Workaround the issue that GetTypeSize returns strange values;
+    static const unsigned size = SymbolGroupValue::pointerSize();
     return size;
 }
 
@@ -1642,9 +1652,11 @@ static unsigned qListSize(const SymbolGroupValueContext &ctx)
 }
 
 /* Return the size of a QByteArray */
-static unsigned qByteArraySize(const SymbolGroupValueContext &ctx)
+static unsigned qByteArraySize(const SymbolGroupValueContext &/*ctx*/)
 {
-    static const unsigned size = SymbolGroupValue::sizeOf(QtInfo::get(ctx).prependQtCoreModule("QByteArray").c_str());
+//    static const unsigned size = SymbolGroupValue::sizeOf(QtInfo::get(ctx).prependQtCoreModule("QByteArray").c_str());
+// FIXME: Workaround the issue that GetTypeSize returns strange values;
+    static const unsigned size = SymbolGroupValue::pointerSize();
     return size;
 }
 
@@ -1807,7 +1819,7 @@ static bool dumpQByteArrayFromQPrivateClass(const SymbolGroupValue &v,
  * Dump 2nd string past its QSharedData base class. */
 static inline bool dumpQFileInfo(const SymbolGroupValue &v, std::wostream &str)
 {
-    return dumpQStringFromQPrivateClass(v, QPDM_qSharedDataPadded, qStringSize(v.context()),  str);
+    return dumpQStringFromQPrivateClass(v, QPDM_qSharedDataPadded, 0,  str);
 }
 
 /* Dump QDir, for whose private class no debugging information is available.
@@ -2093,10 +2105,33 @@ static bool dumpQTime(const SymbolGroupValue &v, std::wostream &str)
 static bool dumpQDateTime(const SymbolGroupValue &v, std::wostream &str)
 {
     // QDate is 64bit starting from Qt 5 which is always aligned 64bit.
-    const int qtVersion = QtInfo::get(v.context()).version;
-       const ULONG64 dateAddr = qtVersion < 5 ?
-       addressOfQPrivateMember(v, QPDM_qSharedData, 0) :
-       addressOfQPrivateMember(v, QPDM_None, 8);
+    if (QtInfo::get(v.context()).version == 5) {
+        int additionalOffset = 8 /*int64*/ + SymbolGroupValue::sizeOf("Qt::TimeSpec")
+                + SymbolGroupValue::intSize() + SymbolGroupValue::sizeOf("QTimeZone");
+        const ULONG64 statusAddr = addressOfQPrivateMember(v, QPDM_qSharedDataPadded,
+                                                           additionalOffset);
+        if (!statusAddr)
+            return false;
+
+        enum StatusFlag {
+            ValidDate = 0x04,
+            ValidTime = 0x08,
+            ValidDateTime = 0x10
+        };
+        const int status = SymbolGroupValue::readIntValue(v.context().dataspaces, statusAddr);
+        if (!(status & ValidDateTime || ((status & ValidDate) && (status & ValidTime))))
+            return true;
+        const ULONG64 msecsAddr = addressOfQPrivateMember(v, QPDM_qSharedDataPadded, 0);
+        if (!msecsAddr)
+            return false;
+        const LONG64 msecs = SymbolGroupValue::readSignedValue(
+                    v.context().dataspaces, msecsAddr, 8, 0);
+        if (msecs)
+            str << msecs;
+        return  true;
+    }
+
+    const ULONG64 dateAddr = addressOfQPrivateMember(v, QPDM_qSharedData, 0);
     if (!dateAddr)
         return false;
     const int date =
@@ -2106,7 +2141,7 @@ static bool dumpQDateTime(const SymbolGroupValue &v, std::wostream &str)
         str << L"<null>";
         return true;
     }
-    const ULONG64 timeAddr = dateAddr + (qtVersion < 5 ? SymbolGroupValue::intSize() : 8);
+    const ULONG64 timeAddr = dateAddr + SymbolGroupValue::intSize();
     const int time =
         SymbolGroupValue::readIntValue(v.context().dataspaces,
                                        timeAddr, SymbolGroupValue::intSize(), 0);

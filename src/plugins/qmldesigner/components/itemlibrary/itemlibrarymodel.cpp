@@ -75,9 +75,8 @@ QVariant ItemLibrarySortedModel::data(const QModelIndex &index, int role) const
     if (m_roleNames.contains(role)) {
         QVariant value = m_privList.at(index.row())->property(m_roleNames.value(role));
 
-        if (ItemLibrarySortedModel* model = qobject_cast<ItemLibrarySortedModel *>(value.value<QObject*>())) {
+        if (ItemLibrarySortedModel* model = qobject_cast<ItemLibrarySortedModel *>(value.value<QObject*>()))
             return QVariant::fromValue(model);
-        }
 
         return m_privList.at(index.row())->property(m_roleNames.value(role));
     }
@@ -145,11 +144,10 @@ bool ItemLibrarySortedModel::setElementVisible(int libId, bool visible)
         return false;
 
     int visiblePos = visibleElementPosition(libId);
-    if (visible) {
+    if (visible)
         privateInsert(visiblePos, (m_elementModels.value(libId)));
-    } else {
+    else
         privateRemove(visiblePos);
-    }
 
     m_elementOrder[pos].visible = visible;
     return true;
@@ -240,9 +238,8 @@ void ItemLibrarySortedModel::resetModel()
 
 void ItemLibrarySortedModel::addRoleName(const QByteArray &roleName)
 {
-    if (m_roleNames.values().contains(roleName)) {
+    if (m_roleNames.values().contains(roleName))
         return;
-    }
 
     int key = m_roleNames.count();
     m_roleNames.insert(key, roleName);

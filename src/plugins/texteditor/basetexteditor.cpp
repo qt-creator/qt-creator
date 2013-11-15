@@ -542,14 +542,18 @@ QString BaseTextEditorWidget::msgTextTooLarge(quint64 size)
 void BaseTextEditorWidget::updateCannotDecodeInfo()
 {
     setReadOnly(d->m_document->hasDecodingError());
+    Core::InfoBar *infoBar = d->m_document->infoBar();
+    Core::Id selectEncodingId(Constants::SELECT_ENCODING);
     if (d->m_document->hasDecodingError()) {
-        Core::InfoBarEntry info(Core::Id(Constants::SELECT_ENCODING),
+        if (!infoBar->canInfoBeAdded(selectEncodingId))
+            return;
+        Core::InfoBarEntry info(selectEncodingId,
             tr("<b>Error:</b> Could not decode \"%1\" with \"%2\"-encoding. Editing not possible.")
             .arg(d->m_document->displayName()).arg(QString::fromLatin1(d->m_document->codec()->name())));
         info.setCustomButtonInfo(tr("Select Encoding"), this, SLOT(selectEncoding()));
-        d->m_document->infoBar()->addInfo(info);
+        infoBar->addInfo(info);
     } else {
-        d->m_document->infoBar()->removeInfo(Core::Id(Constants::SELECT_ENCODING));
+        infoBar->removeInfo(selectEncodingId);
     }
 }
 
@@ -1905,9 +1909,8 @@ void BaseTextEditorWidget::keyPressEvent(QKeyEvent *e)
         }
         if (!electricChar.isNull() && d->m_autoCompleter->contextAllowsElectricCharacters(cursor))
             indent(document(), cursor, electricChar);
-        if (!autoText.isEmpty()) {
+        if (!autoText.isEmpty())
             cursor.setPosition(autoText.length() == 1 ? cursor.position() : cursor.anchor());
-        }
 
         if (doEditBlock) {
             cursor.endEditBlock();
@@ -6321,9 +6324,8 @@ void BaseTextEditor::openGotoLocator()
 {
     Core::EditorManager::activateEditor(this, Core::EditorManager::IgnoreNavigationHistory);
     if (Core::Command *cmd = Core::ActionManager::command(Core::Constants::GOTO)) {
-        if (QAction *act = cmd->action()) {
+        if (QAction *act = cmd->action())
             act->trigger();
-        }
     }
 }
 

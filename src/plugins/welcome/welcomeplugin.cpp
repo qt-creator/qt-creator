@@ -165,16 +165,15 @@ WelcomeMode::WelcomeMode() :
     styledBar->setObjectName(QLatin1String("WelcomePageStyledBar"));
     layout->addWidget(styledBar);
 
-    // QScrollArea *scrollArea = new QScrollArea(m_modeWidget);
-    // scrollArea->setFrameShape(QFrame::NoFrame);
-    // layout->addWidget(scrollArea);
-    // scrollArea->setWidget(m_welcomePage);
-    // scrollArea->setWidgetResizable(true);
+    QScrollArea *scrollArea = new QScrollArea(m_modeWidget);
+    scrollArea->setFrameShape(QFrame::NoFrame);
+    scrollArea->setWidgetResizable(true);
 
-    QWidget *container = QWidget::createWindowContainer(m_welcomePage, m_modeWidget);
+    QWidget *container = QWidget::createWindowContainer(m_welcomePage, scrollArea);
     container->setMinimumSize(QSize(880, 548));
-    layout->addWidget(container);
+    scrollArea->setWidget(container);
     m_modeWidget->setLayout(layout);
+    layout->addWidget(scrollArea);
 
     connect(PluginManager::instance(), SIGNAL(objectAdded(QObject*)), SLOT(welcomePluginAdded(QObject*)));
 

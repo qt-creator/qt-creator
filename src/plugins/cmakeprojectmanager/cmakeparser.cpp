@@ -58,11 +58,10 @@ void CMakeParser::stdError(const QString &line)
 {
     QString trimmedLine = rightTrimmed(line);
     if (trimmedLine.isEmpty() && !m_lastTask.isNull()) {
-        if (m_skippedFirstEmptyLine) {
+        if (m_skippedFirstEmptyLine)
             doFlush();
-        } else {
+        else
             m_skippedFirstEmptyLine = true;
-        }
         return;
     }
     if (m_skippedFirstEmptyLine)

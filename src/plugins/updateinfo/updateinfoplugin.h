@@ -32,11 +32,18 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <QTime>
 #include <QDomDocument>
 
 namespace UpdateInfo {
+
+namespace Constants {
+    const char FILTER_OPTIONS_PAGE[] = QT_TRANSLATE_NOOP("Update", "Update");
+} // namespace Constants
+
 namespace Internal {
 
+class SettingsPage;
 class UpdateInfoPluginPrivate;
 
 class UpdateInfoPlugin : public ExtensionSystem::IPlugin
@@ -48,21 +55,28 @@ public:
     UpdateInfoPlugin();
     virtual ~UpdateInfoPlugin();
 
-    virtual bool initialize(const QStringList &arguments, QString *errorMessage);
+    bool delayedInitialize();
+    void extensionsInitialized();
+    bool initialize(const QStringList &arguments, QString *errorMessage);
 
-    virtual void extensionsInitialized();
+    void loadSettings();
+    void saveSettings();
 
-private slots:
-    void startUpdaterUiApplication();
-    void reactOnUpdaterOutput();
+    QTime scheduledUpdateTime() const;
+    void setScheduledUpdateTime(const QTime &time);
 
 protected:
     void timerEvent(QTimerEvent *event);
 
+private slots:
+    void parseUpdates();
+    void startUpdaterUiApplication();
+
 private:
-    void startCheckTimer(uint milliseconds);
-    void stopCurrentCheckTimer();
-    QDomDocument checkForUpdates();
+    QDomDocument update();
+    template <typename T> void settingsHelper(T *settings);
+
+private:
     UpdateInfoPluginPrivate *d;
 };
 

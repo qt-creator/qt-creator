@@ -44,7 +44,7 @@ QtOutputFormatter::QtOutputFormatter(ProjectExplorer::Project *project)
     , m_qmlError(QLatin1String("^(file:///.+"    // file url
                                ":\\d+"           // colon, line
                                "(?::\\d+)?)"     // colon, column (optional)
-                               ":"))             // colon
+                               "[: \t]"))        // colon, space or tab
     , m_qtError(QLatin1String("Object::.*in (.*:\\d+)"))
     , m_qtAssert(QLatin1String("ASSERT: .* in file (.+, line \\d+)"))
     , m_qtAssertX(QLatin1String("ASSERT failure in .*: \".*\", file (.+, line \\d+)"))

@@ -396,9 +396,8 @@ void PropertyEditorView::setupQmlBackend()
 
     QString specificQmlData;
 
-    if (m_selectedNode.isValid() && m_selectedNode.metaInfo().isValid() && diffClassName != m_selectedNode.type()) {
+    if (m_selectedNode.isValid() && m_selectedNode.metaInfo().isValid() && diffClassName != m_selectedNode.type())
         specificQmlData = PropertyEditorQmlBackend::templateGeneration(m_selectedNode.metaInfo(), model()->metaInfo(diffClassName), m_selectedNode);
-    }
 
     PropertyEditorQmlBackend *currentQmlBackend = m_qmlBackendHash.value(qmlFile.toString());
 

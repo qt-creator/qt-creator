@@ -290,7 +290,11 @@ void NodeInstanceView::propertiesAboutToBeRemoved(const QList<AbstractProperty>&
             nonNodePropertyList.append(property);
     }
 
-    nodeInstanceServer()->removeInstances(createRemoveInstancesCommand(nodeList));
+    RemoveInstancesCommand removeInstancesCommand = createRemoveInstancesCommand(nodeList);
+
+    if (!removeInstancesCommand.instanceIds().isEmpty())
+        nodeInstanceServer()->removeInstances(removeInstancesCommand);
+
     nodeInstanceServer()->removeSharedMemory(createRemoveSharedMemoryCommand("Image", nodeList));
     nodeInstanceServer()->removeProperties(createRemovePropertiesCommand(nonNodePropertyList));
 

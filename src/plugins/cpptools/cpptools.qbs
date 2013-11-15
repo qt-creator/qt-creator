@@ -139,7 +139,8 @@ QtcPlugin {
             "cpplocatorfilter_test.cpp",
             "symbolsearcher_test.cpp",
             "cpppreprocessor_test.cpp",
-            "cpppreprocessertesthelper.cpp", "cpppreprocessertesthelper.h"
+            "cpppreprocessertesthelper.cpp", "cpppreprocessertesthelper.h",
+            "typehierarchybuilder_test.cpp"
         ]
 
         cpp.defines: outer.concat(['SRCDIR="' + FileInfo.path(filePath) + '"'])

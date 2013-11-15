@@ -48,9 +48,10 @@ public:
     VirtualFunctionAssistProvider();
 
     struct Parameters {
-        Parameters() : function(0), cursorPosition(-1), openInNextSplit(false) {}
+        Parameters() : function(0), staticClass(0), cursorPosition(-1), openInNextSplit(false) {}
 
         CPlusPlus::Function *function;
+        CPlusPlus::Class *staticClass;
         QSharedPointer<CPlusPlus::TypeOfExpression> typeOfExpression; // Keeps instantiated symbols.
         CPlusPlus::Snapshot snapshot;
         int cursorPosition;
@@ -80,6 +81,7 @@ public:
 
     static QList<CPlusPlus::Symbol *> overrides(CPlusPlus::Function *function,
                                                 CPlusPlus::Class *functionsClass,
+                                                CPlusPlus::Class *staticClass,
                                                 const CPlusPlus::Snapshot &snapshot);
 };
 

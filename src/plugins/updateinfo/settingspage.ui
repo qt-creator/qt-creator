@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>UpdateInfo::Internal::SettingsWidget</class>
+ <widget class="QWidget" name="UpdateInfo::Internal::SettingsWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>482</width>
+    <height>364</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Configure Filters</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Qt Creator Update Settings</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QLabel" name="m_info">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Qt Creator automatically runs a scheduled update check on a daily basis. If Qt Creator is not in use on the scheduled time or maintenance is behind schedule, the automatic update check will be run next time Qt Creator starts.</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Run update check daily at:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="m_timeTable">
+          <property name="currentIndex">
+           <number>12</number>
+          </property>
+          <item>
+           <property name="text">
+            <string notr="true">00:00</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string notr="true">01:00</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string notr="true">02:00</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string notr="true">03:00</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string notr="true">04:00</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string notr="true">05:00</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string notr="true">06:00</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string notr="true">07:00</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string notr="true">08:00</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string notr="true">09:00</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string notr="true">10:00</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string notr="true">11:00</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string notr="true">12:00</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string notr="true">13:00</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string notr="true">14:00</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string notr="true">15:00</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string notr="true">16:00</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string notr="true">17:00</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string notr="true">18:00</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string notr="true">19:00</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string notr="true">20:00</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string notr="true">21:00</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string notr="true">22:00</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string notr="true">23:00</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>253</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -33,6 +33,7 @@
 
 #include <projectexplorer/abi.h>
 #include <utils/fileutils.h>
+#include <utils/qtcassert.h>
 
 #include <QProcess>
 #include <QUuid>
@@ -56,7 +57,6 @@ namespace Debugger {
 
 DebuggerItem::DebuggerItem()
 {
-    m_id = QUuid::createUuid().toString();
     m_engineType = NoEngineType;
     m_isAutoDetected = false;
 }
@@ -79,9 +79,15 @@ DebuggerItem::DebuggerItem(const QVariantMap &data)
 
     foreach (const QString &a, data.value(QLatin1String(DEBUGGER_INFORMATION_ABIS)).toStringList()) {
         Abi abi(a);
-        if (abi.isValid())
+        if (!abi.isNull())
             m_abis.append(abi);
     }
+}
+
+void DebuggerItem::createId()
+{
+    QTC_ASSERT(!m_id.isValid(), return);
+    m_id = QUuid::createUuid().toString();
 }
 
 void DebuggerItem::reinitializeFromFile()
@@ -92,6 +98,7 @@ void DebuggerItem::reinitializeFromFile()
         m_engineType = NoEngineType;
         return;
     }
+    m_abis.clear();
     QByteArray ba = proc.readAll();
     if (ba.contains("gdb")) {
         m_engineType = GdbEngineType;

@@ -42,7 +42,10 @@
 
 namespace Debugger {
 
-namespace Internal { class DebuggerItemModel; }
+namespace Internal {
+class DebuggerItemConfigWidget;
+class DebuggerItemModel;
+} // namespace Internal
 
 // -----------------------------------------------------------------------
 // DebuggerItem
@@ -54,6 +57,7 @@ public:
     DebuggerItem();
     DebuggerItem(const QVariantMap &data);
 
+    void createId();
     bool canClone() const { return true; }
     bool isValid() const;
     QString engineTypeName() const;
@@ -96,6 +100,7 @@ private:
     bool m_isAutoDetected;
     QList<ProjectExplorer::Abi> m_abis;
 
+    friend class Internal::DebuggerItemConfigWidget;
     friend class Internal::DebuggerItemModel;
 };
 

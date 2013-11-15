@@ -39,13 +39,28 @@ struct QtQuickAppGeneratedFileInfo : public AbstractGeneratedFileInfo
 {
     enum ExtendedFileType {
         MainQmlFile = ExtendedFile,
-        MainPageQmlFile,
         AppViewerPriFile,
         AppViewerCppFile,
         AppViewerHFile
     };
 
     QtQuickAppGeneratedFileInfo() : AbstractGeneratedFileInfo() {}
+};
+
+class TemplateInfo
+{
+public:
+    TemplateInfo() : stubVersionMinor(9) {}
+    QString templateName;
+    QString templatePath;
+    QString displayName;
+    QString description;
+    QString openFile;
+    QString featuresRequired;
+    QString priority;
+    QString viewerClassName;
+    QString viewerDir;
+    int stubVersionMinor;
 };
 
 class QtQuickApp : public AbstractMobileApp
@@ -61,22 +76,14 @@ public:
         AppViewerCppOrigin,
         AppViewerH,
         AppViewerHOrigin,
-        QmlDir,
-        QmlDirProFileRelative,
-        MainPageQml,
-        MainPageQmlOrigin
-    };
-
-    enum ComponentSet {
-        QtQuick10Components,
-        QtQuick20Components,
-        QtQuickControls10
+        QmlDirProFileRelative
     };
 
     QtQuickApp();
 
-    void setComponentSet(ComponentSet componentSet);
-    ComponentSet componentSet() const;
+    static QList<TemplateInfo> templateInfos();
+
+    void setTemplateInfo(const TemplateInfo &templateInfo);
 
 #ifndef CREATORLESSTEST
     virtual Core::GeneratedFiles generateFiles(QString *errorMessage) const;
@@ -106,10 +113,8 @@ private:
     QList<AbstractGeneratedFileInfo> updateableFiles(const QString &mainProFile) const;
     QList<DeploymentFolder> deploymentFolders() const;
 
-    QString componentSetDir(ComponentSet componentSet) const;
-
     QFileInfo m_mainQmlFile;
-    ComponentSet m_componentSet;
+    TemplateInfo m_templateInfo;
 };
 
 } // namespace Internal

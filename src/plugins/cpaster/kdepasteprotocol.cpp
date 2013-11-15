@@ -38,13 +38,22 @@
 
 #include <QNetworkReply>
 
+#include <algorithm>
+
 enum { debug = 0 };
 
-static const char hostUrlC[]= "http://paste.kde.org/";
-static const char showPhpScriptpC[] = "show.php";
+static inline QByteArray expiryParameter(int daysRequested)
+{
+    // Obtained by 'pastebin.kde.org/api/xml/parameter/expire' on 11.11.2013
+    static const int expiryTimesMin[] = {1800, 21600, 86400, 604800, 2592000};
+    const int *end = expiryTimesMin + sizeof(expiryTimesMin) / sizeof(expiryTimesMin[0]);
+    // Find the first element >= requested span, search up to n - 1 such that 'end' defaults to last value.
+    const int *match = std::lower_bound(expiryTimesMin, end - 1, 24 * 60 * daysRequested);
+    return QByteArray("expire=") + QByteArray::number(*match);
+}
 
 namespace CodePaster {
-KdePasteProtocol::KdePasteProtocol() :
+StickyNotesPasteProtocol::StickyNotesPasteProtocol() :
     m_fetchReply(0),
     m_pasteReply(0),
     m_listReply(0),
@@ -54,69 +63,71 @@ KdePasteProtocol::KdePasteProtocol() :
 {
 }
 
-QString KdePasteProtocol::protocolName()
+void StickyNotesPasteProtocol::setHostUrl(const QString &hostUrl)
 {
-    return QLatin1String("Paste.KDE.Org");
+    m_hostUrl = hostUrl;
+    if (!m_hostUrl.endsWith(QLatin1Char('/')))
+        m_hostUrl.append(QLatin1Char('/'));
 }
 
-unsigned KdePasteProtocol::capabilities() const
+unsigned StickyNotesPasteProtocol::capabilities() const
 {
-    return ListCapability | PostUserNameCapability;
+    return ListCapability | PostDescriptionCapability;
 }
 
-bool KdePasteProtocol::checkConfiguration(QString *errorMessage)
+bool StickyNotesPasteProtocol::checkConfiguration(QString *errorMessage)
 {
     if (m_hostChecked)  // Check the host once.
         return true;
-    const bool ok = httpStatus(QLatin1String(hostUrlC), errorMessage);
+    const bool ok = httpStatus(m_hostUrl, errorMessage);
     if (ok)
         m_hostChecked = true;
     return ok;
 }
 
+// Query 'http://pastebin.kde.org/api/xml/parameter/language' to obtain the valid values.
 static inline QByteArray pasteLanguage(Protocol::ContentType ct)
 {
     switch (ct) {
     case Protocol::Text:
         break;
     case Protocol::C:
-        return "paste_lang=c";
+        return "language=c";
     case Protocol::Cpp:
-        return "paste_lang=cpp-qt";
+        return "language=cpp-qt";
     case Protocol::JavaScript:
-        return "paste_lang=javascript";
+        return "language=javascript";
     case Protocol::Diff:
-        return "paste_lang=diff";
+        return "language=diff";
     case Protocol::Xml:
-        return "paste_lang=xml";
+        return "language=xml";
     }
-    return QByteArray("paste_lang=text");
+    return QByteArray("language=text");
 }
 
-void KdePasteProtocol::paste(const QString &text,
+void StickyNotesPasteProtocol::paste(const QString &text,
                                    ContentType ct, int expiryDays,
                                    const QString &username,
                                    const QString &comment,
                                    const QString &description)
 {
+    Q_UNUSED(username)
     Q_UNUSED(comment);
-    Q_UNUSED(description);
     QTC_ASSERT(!m_pasteReply, return);
 
     // Format body
-    QByteArray pasteData = "api_submit=true&mode=xml";
-    if (!username.isEmpty()) {
-        pasteData += "&paste_user=";
-        pasteData += QUrl::toPercentEncoding(username);
-    }
-    pasteData += "&paste_data=";
+    QByteArray pasteData = "&data=";
     pasteData += QUrl::toPercentEncoding(fixNewLines(text));
-    pasteData += "&paste_expire=";
-    pasteData += QByteArray::number(expiryDays * 86400);
     pasteData += '&';
     pasteData += pasteLanguage(ct);
+    pasteData += '&';
+    pasteData += expiryParameter(expiryDays);
+    if (!description.isEmpty()) {
+        pasteData += "&title=";
+        pasteData += QUrl::toPercentEncoding(description);
+    }
 
-    m_pasteReply = httpPost(QLatin1String(hostUrlC), pasteData);
+    m_pasteReply = httpPost(m_hostUrl + QLatin1String("api/xml/create"), pasteData);
     connect(m_pasteReply, SIGNAL(finished()), this, SLOT(pasteFinished()));
     if (debug)
         qDebug() << "paste: sending " << m_pasteReply << pasteData;
@@ -134,25 +145,25 @@ static QString parseElement(QIODevice *device, const QString &elementName)
     return QString();
 }
 
-void KdePasteProtocol::pasteFinished()
+void StickyNotesPasteProtocol::pasteFinished()
 {
     if (m_pasteReply->error()) {
-        qWarning("%s protocol error: %s", qPrintable(protocolName()),qPrintable(m_pasteReply->errorString()));
+        qWarning("%s protocol error: %s", qPrintable(name()),qPrintable(m_pasteReply->errorString()));
     } else {
         // Parse id from '<result><id>143204</id><hash></hash></result>'
         // No useful error reports have been observed.
         const QString id = parseElement(m_pasteReply, QLatin1String("id"));
         if (id.isEmpty())
-            qWarning("%s protocol error: Could not send entry.", qPrintable(protocolName()));
+            qWarning("%s protocol error: Could not send entry.", qPrintable(name()));
         else
-            emit pasteDone(QLatin1String(hostUrlC) + id);
+            emit pasteDone(m_hostUrl + id);
     }
 
     m_pasteReply->deleteLater();
     m_pasteReply = 0;
 }
 
-void KdePasteProtocol::fetch(const QString &id)
+void StickyNotesPasteProtocol::fetch(const QString &id)
 {
     QTC_ASSERT(!m_fetchReply, return);
 
@@ -161,8 +172,7 @@ void KdePasteProtocol::fetch(const QString &id)
     const int lastSlashPos = m_fetchId.lastIndexOf(QLatin1Char('/'));
     if (lastSlashPos != -1)
         m_fetchId.remove(0, lastSlashPos + 1);
-    QString url = QLatin1String(hostUrlC) + QLatin1String(showPhpScriptpC)
-            + QLatin1String("?format=xml&id=") + m_fetchId;
+    QString url = m_hostUrl + QLatin1String("api/xml/show/") + m_fetchId;
     if (debug)
         qDebug() << "fetch: sending " << url;
 
@@ -173,9 +183,9 @@ void KdePasteProtocol::fetch(const QString &id)
 // Parse: '<result><id>143228</id><author>foo</author><timestamp>1320661026</timestamp><language>text</language>
 //  <data>bar</data></result>'
 
-void KdePasteProtocol::fetchFinished()
+void StickyNotesPasteProtocol::fetchFinished()
 {
-    const QString title = protocolName() + QLatin1String(": ") + m_fetchId;
+    const QString title = name() + QLatin1String(": ") + m_fetchId;
     QString content;
     const bool error = m_fetchReply->error();
     if (error) {
@@ -191,36 +201,32 @@ void KdePasteProtocol::fetchFinished()
     emit fetchDone(title, content, error);
 }
 
-void KdePasteProtocol::list()
+void StickyNotesPasteProtocol::list()
 {
     QTC_ASSERT(!m_listReply, return);
 
     // Trailing slash is important to prevent redirection.
-    QString url = QLatin1String(hostUrlC) + QLatin1String("api/xml/all/");
+    QString url = m_hostUrl + QLatin1String("api/xml/list");
     m_listReply = httpGet(url);
     connect(m_listReply, SIGNAL(finished()), this, SLOT(listFinished()));
     if (debug)
         qDebug() << "list: sending " << url << m_listReply;
 }
 
-// Parse 'result><pastes><paste_1>id1</paste_1><paste_2>id2</paste_2>...'
+// Parse 'result><pastes><paste>id1</paste><paste>id2</paste>...'
 static inline QStringList parseList(QIODevice *device)
 {
     QStringList result;
     QXmlStreamReader reader(device);
-    const QString pasteElementPrefix = QLatin1String("paste_");
+    const QString pasteElement = QLatin1String("paste");
     while (!reader.atEnd()) {
-#if QT_VERSION >= 0x040800
-        if (reader.readNext() == QXmlStreamReader::StartElement && reader.name().startsWith(pasteElementPrefix))
-#else
-        if (reader.readNext() == QXmlStreamReader::StartElement && reader.name().toString().startsWith(pasteElementPrefix))
-#endif
+        if (reader.readNext() == QXmlStreamReader::StartElement && reader.name() == pasteElement)
             result.append(reader.readElementText());
     }
     return result;
 }
 
-void KdePasteProtocol::listFinished()
+void StickyNotesPasteProtocol::listFinished()
 {
     const bool error = m_listReply->error();
     if (error) {
@@ -231,6 +237,11 @@ void KdePasteProtocol::listFinished()
     }
     m_listReply->deleteLater();
     m_listReply = 0;
+}
+
+QString KdePasteProtocol::protocolName()
+{
+    return QLatin1String("Paste.KDE.Org");
 }
 
 } // namespace CodePaster

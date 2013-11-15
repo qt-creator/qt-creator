@@ -32,16 +32,6 @@
 
     You can edit .qml files in the \QMLD visual editor or in the code editor.
 
-    \note In \QC 2.7, \QMLD supports both Qt Quick 1 and Qt Quick 2. However,
-    the \QC packages that are not delivered with Qt 5 are still built with
-    Qt 4.8, and therefore do not contain qml2puppet, which is the external
-    process that is responsible for rendering Qt Quick 2. To develop Qt Quick 2
-    applications using \QMLD, download the Qt 5.0.1 packages and build
-    qml2puppet yourself. The sources for qml2puppet are located in
-    \c{qt-creator\share\qtcreator\qml\qmlpuppet\qml2puppet}. The qml2puppet is
-    installed to \c{qtbase\bin}. If you then configure Qt 5.0.1 for your
-    project, \QMLD picks up the qml2puppet and supports Qt Quick 2.0.
-
     In \gui Projects, double-click a .qml file to open it in the code editor.
     Then select the \gui {Design} mode to edit the file in the visual editor.
 
@@ -146,28 +136,22 @@
 
     \section1 QML Type Library
 
-    The \gui {Library} pane contains two tabs: \gui {QML Types} and \gui {Resources}.
+    The \gui {Library} pane enables you to select QML types, UI components, and
+    resources, as well as to manage imports.
+
     The \gui {QML Types} pane displays the QML types grouped by category: your own QML
-    components, basic types, positioner types, and views.
+    components, basic types, layouts, positioner types, and views.
 
     Sets of UI components with the look and feel of a particular mobile device
     platform have been defined for Qt Quick 1. Since Qt 5.1, a set of Qt Quick
     Controls is available for creating classic desktop-style user interfaces
     using Qt Quick 2.1. The Qt Quick Components and Controls are based on
     standard QML types. To view the components and controls in the
-    \gui {Library} pane, add import
-    statements to the QML file in the \gui Edit mode. For example:
+    \gui {Library} pane, import the component sets in the \gui Imports pane.
 
-    \list
-
-        \li \c {import com.nokia.meego 1.0} for MeeGo
-        \li \c {import QtQuick.Controls 1.0} for Qt Quick Controls
-
-    \endlist
-
-    The \gui {Qt Quick Application} wizards for a particular platform, such as
-    MeeGo Harmattan, and the \gui {Qt Quick 2 UI with Controls} wizard add the
-    import statements automatically.
+    The \gui {Qt Quick Application} wizards for a particular platform add the
+    import statements automatically. You can remove import statements in the
+    \gui Imports pane.
 
     \image qmldesigner-qml-components.png "QML Components pane"
 
@@ -244,29 +228,6 @@
             \li FALSE (hightlighted)
             \li The type is explicitly set to hidden.
     \endtable
-
-    \section2 Setting Expressions
-
-    \l{http://qt-project.org/doc/qt-5.0/qtqml/qtqml-syntax-propertybinding.html}
-    {Property binding} is a
-    declarative way of specifying the value of a property.
-    Binding allows a property value to be expressed as an JavaScript expression
-    that defines the value relative to other property values or data accessible
-    in the application. The property value is automatically kept up to date if
-    the other properties or data values change.
-
-    Property bindings are created implicitly in QML whenever a property is
-    assigned a JavaScript expression. To set JavaScript expressions as values of
-    properties in \QMLD, click the circle icon next to a property to open a
-    context menu, and select \gui {Set Expression}.
-
-    \image qmldesigner-set-expression.png "Type properties context menu"
-
-    To remove expressions, select \gui Reset in the context menu.
-
-    For more information on the JavaScript environment provided by QML, see
-    \l{http://qt-project.org/doc/qt-5.0/qtqml/qtqml-javascript-topic.html}
-    {Integrating QML and JavaScript}.
 
     \section2 Marking Text Items for Translation
 
@@ -366,59 +327,6 @@
         }
     \endqml
 
-    \section2 Setting Anchors and Margins
-
-    In addition to arranging QML types in a grid, row, or column, you can use
-    \l{http://qt-project.org/doc/qt-5.0/qtquick/qtquick-positioning-anchors.html}{anchors}
-    to lay out screens. In an anchor-based layout, each QML type can be thought of as having a
-    set of invisible \e anchor lines: top, bottom, left, right, fill, horizontal
-    center, vertical center, and baseline.
-
-    In the \gui Layout pane you can set anchors and margins for items. To set
-    the anchors of an item, click the anchor buttons. You can combine the
-    top/bottom, left/right, and horizontal/vertical anchors to anchor items in
-    the corners of the parent item or center them horizontally or vertically
-    within the parent item.
-
-    \image qmldesigner-anchor-buttons.png "Anchor buttons"
-
-    Specifying the baseline anchor in Qt Quick Designer is
-    not supported. You can specify it using the code editor.
-
-    For performance reasons, you can only anchor an item to its siblings and
-    direct parent. By default, an item is anchored to its parent when you
-    use the anchor buttons. Select a sibling of the item in the \gui Target
-    field to anchor to it, instead.
-
-    Arbitrary anchoring is not supported. For example, you cannot specify:
-    \c {anchor.left: parent.right}. You have to specify: \c {anchor.left: parent.left}.
-    When you use the anchor buttons, anchors to the parent item are always
-    specified to the same side. However, anchors to sibling items are specified
-    to the opposite side: \c {anchor.left: sibling.right}. This allows you to keep
-    sibling items together.
-
-    In the following image, \gui{Rectangle 2} is anchored to \gui{Rectangle 1}
-    on its left and to the bottom of its parent.
-
-    \image qmldesigner-anchors.png "Anchoring sibling items"
-
-    The anchors for \gui{Rectangle 2} are specified as follows in code:
-
-    \qml
-    Rectangle {
-        id: rectangle2
-        anchors.left: rectangle1.right
-        anchors.leftMargin: 15
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 15
-        //
-    }
-    \endqml
-
-    Margins specify the amount of empty space to leave to the outside of an item.
-    Margins only have meaning for anchors. They do not take any effect when using
-    other layouts or absolute positioning.
-
     \section2 Building Transformations on Items
 
     The \gui Advanced pane allows you to configure advanced transformations,
@@ -487,12 +395,9 @@
 
     For more information on adding animation, see \l{Animating Screens}.
 
-    \section1 Aligning and Positioning QML Types
+    \section1 Working with QML Types on Canvas
 
-    The position of an item on the canvas can be either absolute or relative
-    to other items. In the item properties, you can set the x and y
-    coordinates of an item, or \l{Setting Anchors and Margins}{anchor} it to
-    its parent and sibling items.
+    You design applications on the canvas by placing items on it.
 
     \section2 Snapping to Parent and Sibling Items
 
@@ -517,7 +422,7 @@
 
     \section2 Hiding Item Boundaries
 
-    Qt Quick Designer displays the boundaries of items on the canvas. To hide
+    \QMLD displays the boundaries of items on the canvas. To hide
     the boundaries, click the
     \inlineimage qmldesigner-show-bounding-rectangles-button.png
     button.
@@ -549,13 +454,13 @@
 
     \image qmldesigner-preview-size.png "Canvas width and height"
 
-    \section1 Specifying Canvas Size
+    \section2 Specifying Canvas Size
 
     To change the canvas size, select \gui {Tools > Options > Qt Quick
     > Qt Quick Designer} and
     specify the canvas width and height in the \gui Canvas group.
 
-    \section1 Refreshing the Canvas
+    \section2 Refreshing the Canvas
 
     When you open QML files in \QMLD, the items in the file are drawn on
     the canvas. When you edit the item properties in \QMLD, the QML file and
@@ -563,7 +468,8 @@
     the position of an item within a column or a row, the new position might
     not be displayed correctly on the canvas.
 
-    To refresh the image on the canvas, press \key R or select the \gui {Reset
-    View} button on the canvas toolbar.
+    To refresh the image on the canvas, press \key R or select
+    \inlineimage qmldesigner-reset-view.png
+    (\gui {Reset View}).
 
 */

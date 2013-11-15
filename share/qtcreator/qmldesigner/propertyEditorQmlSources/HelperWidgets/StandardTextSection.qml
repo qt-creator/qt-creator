@@ -76,7 +76,7 @@ Section {
         }
 
         Label {
-            text: qsTr("Horizontal Alignment")
+            text: qsTr("Alignment")
         }
 
         AligmentHorizontalButtons {
@@ -85,7 +85,7 @@ Section {
 
         Label {
             visible: showVerticalAlignment
-            text: qsTr("Vertical Alignment")
+            text: ("")
         }
 
         AligmentVerticalButtons {

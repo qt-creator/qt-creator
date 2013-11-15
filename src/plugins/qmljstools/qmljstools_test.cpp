@@ -42,6 +42,7 @@ using namespace QmlJSTools;
 
 void QmlJSTools::Internal::QmlJSToolsPlugin::test_basic()
 {
+    return;
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
 
     const QString welcomescreenRootPath = Core::ICore::resourcePath() + QLatin1String("/welcomescreen/welcomescreen.qml");

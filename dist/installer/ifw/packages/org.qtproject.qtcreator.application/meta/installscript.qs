@@ -73,7 +73,7 @@ registerCommonWindowsFileTypeExtensions = function()
     for (var i = 0; i < headerExtensions.length; ++i) {
         component.addOperation( "RegisterFileType",
                                 headerExtensions[i],
-                                component.qtCreatorBinaryPath + " -client '%1'",
+                                component.qtCreatorBinaryPath + " -client \"%1\"",
                                 "C++ Header file",
                                 "text/plain",
                                 component.qtCreatorBinaryPath + ",3",
@@ -85,7 +85,7 @@ registerCommonWindowsFileTypeExtensions = function()
     for (var i = 0; i < cppExtensions.length; ++i) {
         component.addOperation( "RegisterFileType",
                                 cppExtensions[i],
-                                component.qtCreatorBinaryPath + " -client '%1'",
+                                component.qtCreatorBinaryPath + " -client \"%1\"",
                                 "C++ Source file",
                                 "text/plain",
                                 component.qtCreatorBinaryPath + ",2",
@@ -94,7 +94,7 @@ registerCommonWindowsFileTypeExtensions = function()
 
     component.addOperation( "RegisterFileType",
                             "c",
-                            component.qtCreatorBinaryPath + " -client '%1'",
+                            component.qtCreatorBinaryPath + " -client \"%1\"",
                             "C Source file",
                             "text/plain",
                             component.qtCreatorBinaryPath + ",1",
@@ -105,42 +105,42 @@ registerWindowsFileTypeExtensions = function()
 {
     component.addOperation( "RegisterFileType",
                             "ui",
-                            component.qtCreatorBinaryPath + " -client '%1'",
+                            component.qtCreatorBinaryPath + " -client \"%1\"",
                             "Qt UI file",
                             "text/plain",
                             component.qtCreatorBinaryPath + ",4",
                             "ProgId=QtProject.QtCreator.ui");
     component.addOperation( "RegisterFileType",
                             "pro",
-                            component.qtCreatorBinaryPath + " -client '%1'",
+                            component.qtCreatorBinaryPath + " -client \"%1\"",
                             "Qt Project file",
                             "text/plain",
                             component.qtCreatorBinaryPath + ",5",
                             "ProgId=QtProject.QtCreator.pro");
     component.addOperation( "RegisterFileType",
                             "pri",
-                            component.qtCreatorBinaryPath + " -client '%1'",
+                            component.qtCreatorBinaryPath + " -client \"%1\"",
                             "Qt Project Include file",
                             "text/plain",
                             component.qtCreatorBinaryPath + ",6",
                             "ProgId=QtProject.QtCreator.pri");
     component.addOperation( "RegisterFileType",
                             "qbs",
-                            component.qtCreatorBinaryPath + " -client '%1'",
+                            component.qtCreatorBinaryPath + " -client \"%1\"",
                             "Qbs Project file",
                             "text/plain",
                             component.qtCreatorBinaryPath + ",5",
                             "ProgId=QtProject.QtCreator.qbs");
     component.addOperation( "RegisterFileType",
                             "qs",
-                            component.qtCreatorBinaryPath + " -client '%1'",
+                            component.qtCreatorBinaryPath + " -client \"%1\"",
                             "Qt Script file",
                             "text/plain",
                             component.qtCreatorBinaryPath + ",0",
                             "ProgId=QtProject.QtCreator.qs");
     component.addOperation( "RegisterFileType",
                             "qml",
-                            component.qtCreatorBinaryPath + " -client '%1'",
+                            component.qtCreatorBinaryPath + " -client \"%1\"",
                             "Qt Quick Markup language file",
                             "text/plain",
                             component.qtCreatorBinaryPath + ",7",
@@ -153,12 +153,6 @@ Component.prototype.createOperations = function()
     component.createOperations();
     if ( installer.value("os") == "win" )
     {
-        component.addOperation( "SetPluginPathOnQtCore",
-                                "@TargetDir@/bin",
-                                "@TargetDir@/plugins");
-        component.addOperation( "SetImportsPathOnQtCore",
-                                "@TargetDir@/bin",
-                                "@TargetDir@/bin");
         component.addOperation( "CreateShortcut",
                                 component.qtCreatorBinaryPath,
                                 "@StartMenuDir@/Qt Creator.lnk",
@@ -166,24 +160,13 @@ Component.prototype.createOperations = function()
         component.addElevatedOperation("Execute", "{0,3010,1638}", "@TargetDir@\\lib\\vcredist_msvc2010\\vcredist_x86.exe", "/norestart", "/q");
         registerWindowsFileTypeExtensions();
 
-        try {
-            if (component.userInterface("AssociateCommonFiletypesForm").AssociateCommonFiletypesCheckBox
-                .checked) {
-                    registerCommonWindowsFileTypeExtensions();
-            }
-        } catch(e) {
-            print(e);
+        if (component.userInterface("AssociateCommonFiletypesForm").AssociateCommonFiletypesCheckBox
+            .checked) {
+                registerCommonWindowsFileTypeExtensions();
         }
     }
     if ( installer.value("os") == "x11" )
     {
-        component.addOperation( "SetPluginPathOnQtCore",
-                                "@TargetDir@/lib/qtcreator",
-                                "@TargetDir@/lib/qtcreator/plugins");
-        component.addOperation( "SetImportsPathOnQtCore",
-                                "@TargetDir@/lib/qtcreator",
-                                "@TargetDir@/bin");
-
         component.addOperation( "InstallIcons", "@TargetDir@/share/icons" );
         component.addOperation( "CreateDesktopEntry",
                                 "QtProject-qtcreator.desktop",

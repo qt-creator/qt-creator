@@ -538,10 +538,15 @@ Check::Check(Document::Ptr doc, const ContextPtr &context)
     , _scopeBuilder(&_scopeChain)
     , _importsOk(false)
     , _inStatementBinding(false)
+    , _imports(0)
+    , _isQtQuick2(false)
+
 {
-    const Imports *imports = context->imports(doc.data());
-    if (imports && !imports->importFailed())
+    _imports = context->imports(doc.data());
+    if (_imports && !_imports->importFailed()) {
         _importsOk = true;
+        _isQtQuick2 = isQtQuick2();
+    }
 
     _enabledMessages = Message::allMessageTypes().toSet();
     disableMessage(HintAnonymousFunctionSpacing);
@@ -737,6 +742,13 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
             if (iter.error() != PrototypeIterator::NoError)
                 typeError = true;
             const ObjectValue *lastPrototype = prototypes.last();
+            foreach (const ObjectValue *objectValue, prototypes) {
+                if (objectValue->className() == QLatin1String("QGraphicsObject")
+                        && _isQtQuick2) {
+                    addMessage(WarnAboutQtQuick1InsteadQtQuick2, typeErrorLocation);
+                }
+            }
+
             if (iter.error() == PrototypeIterator::ReferenceResolutionError) {
                 if (const QmlPrototypeReference *ref =
                         value_cast<QmlPrototypeReference>(lastPrototype->prototype())) {
@@ -1353,6 +1365,16 @@ void Check::warnAboutUnnecessarySuppressions()
                 addMessage(WarnUnnecessaryMessageSuppression, entry.suppressionSource);
         }
     }
+}
+
+bool Check::isQtQuick2() const
+{
+    foreach (const Import &import, _imports->all()) {
+        if (import.info.name() == QLatin1String("QtQuick")
+                && import.info.version().majorVersion() == 2)
+            return true;
+    }
+    return false;
 }
 
 bool Check::visit(NewExpression *ast)

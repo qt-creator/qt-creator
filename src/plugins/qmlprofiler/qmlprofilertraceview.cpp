@@ -59,10 +59,6 @@ using namespace QmlDebug;
 namespace QmlProfiler {
 namespace Internal {
 
-const int sliderTicks = 10000;
-const qreal sliderExp = 3;
-
-
 /////////////////////////////////////////////////////////
 bool MouseWheelResizer::eventFilter(QObject *obj, QEvent *event)
 {
@@ -136,8 +132,6 @@ public:
 
     QToolButton *m_buttonRange;
     QToolButton *m_buttonLock;
-    QWidget *m_zoomToolbar;
-    int m_currentZoomLevel;
 };
 
 QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerTool *profilerTool, QmlProfilerViewManager *container, QmlProfilerModelManager *modelManager, QmlProfilerStateManager *profilerState)
@@ -173,10 +167,6 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
     overviewContainer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     overviewContainer->setMaximumHeight(50);
 
-    d->m_zoomToolbar = createZoomToolbar();
-    d->m_zoomToolbar->move(0, d->m_timebar->height());
-    d->m_zoomToolbar->setVisible(false);
-
     toolsLayout->addWidget(createToolbar());
     toolsLayout->addWidget(timeBarContainer);
     emit enableToolbar(false);
@@ -209,7 +199,6 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
 
     // Minimum height: 5 rows of 20 pixels + scrollbar of 50 pixels + 20 pixels margin
     setMinimumHeight(170);
-    d->m_currentZoomLevel = 0;
 }
 
 QmlProfilerTraceView::~QmlProfilerTraceView()
@@ -238,7 +227,10 @@ void QmlProfilerTraceView::reset()
     connect(this, SIGNAL(jumpToNext()), rootObject, SLOT(nextEvent()));
     connect(rootObject, SIGNAL(selectedEventChanged(int)), this, SIGNAL(selectedEventChanged(int)));
     connect(rootObject, SIGNAL(changeToolTip(QString)), this, SLOT(updateToolTip(QString)));
-    connect(rootObject, SIGNAL(updateVerticalScroll(int)), this, SLOT(updateVerticalScroll(int)));
+
+    QObject *zoomSlider = rootObject->findChild<QObject*>(QLatin1String("zoomSliderToolBar"));
+    connect(this, SIGNAL(enableToolbar(bool)), zoomSlider, SLOT(toggleEnabled()));
+    connect(this, SIGNAL(showZoomSlider(bool)), zoomSlider, SLOT(toggleVisible()));
 }
 
 QWidget *QmlProfilerTraceView::createToolbar()
@@ -270,7 +262,7 @@ QWidget *QmlProfilerTraceView::createToolbar()
     buttonZoomControls->setToolTip(tr("Show zoom slider"));
     buttonZoomControls->setCheckable(true);
     buttonZoomControls->setChecked(false);
-    connect(buttonZoomControls, SIGNAL(toggled(bool)), d->m_zoomToolbar, SLOT(setVisible(bool)));
+    connect(buttonZoomControls, SIGNAL(toggled(bool)), this, SIGNAL(showZoomSlider(bool)));
     connect(this, SIGNAL(enableToolbar(bool)), buttonZoomControls, SLOT(setEnabled(bool)));
 
     d->m_buttonRange = new QToolButton;
@@ -298,49 +290,6 @@ QWidget *QmlProfilerTraceView::createToolbar()
     toolBarLayout->addWidget(new Utils::StyledSeparator());
     toolBarLayout->addWidget(d->m_buttonRange);
     toolBarLayout->addWidget(d->m_buttonLock);
-
-    return bar;
-}
-
-
-QWidget *QmlProfilerTraceView::createZoomToolbar()
-{
-    Utils::StyledBar *bar = new Utils::StyledBar(this);
-    bar->setStyleSheet(QLatin1String("background: #9B9B9B"));
-    bar->setSingleRow(true);
-    bar->setFixedWidth(150);
-    bar->setFixedHeight(24);
-
-    QHBoxLayout *toolBarLayout = new QHBoxLayout(bar);
-    toolBarLayout->setMargin(0);
-    toolBarLayout->setSpacing(0);
-
-    QSlider *zoomSlider = new QSlider(Qt::Horizontal);
-    zoomSlider->setFocusPolicy(Qt::NoFocus);
-    zoomSlider->setRange(1, sliderTicks);
-    zoomSlider->setInvertedAppearance(true);
-    zoomSlider->setPageStep(sliderTicks/100);
-    connect(this, SIGNAL(enableToolbar(bool)), zoomSlider, SLOT(setEnabled(bool)));
-    connect(zoomSlider, SIGNAL(valueChanged(int)), this, SLOT(setZoomLevel(int)));
-    connect(this, SIGNAL(zoomLevelChanged(int)), zoomSlider, SLOT(setValue(int)));
-    zoomSlider->setStyleSheet(QLatin1String("\
-        QSlider:horizontal {\
-            background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #444444, stop: 1 #5a5a5a);\
-            border: 1px #313131;\
-            height: 20px;\
-            margin: 0px 0px 0px 0px;\
-        }\
-        QSlider::add-page:horizontal {\
-            background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #5a5a5a, stop: 1 #444444);\
-            border: 1px #313131;\
-        }\
-        QSlider::sub-page:horizontal {\
-            background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #5a5a5a, stop: 1 #444444);\
-            border: 1px #313131;\
-        }\
-        "));
-
-    toolBarLayout->addWidget(zoomSlider);
 
     return bar;
 }
@@ -373,8 +322,6 @@ qint64 QmlProfilerTraceView::selectionEnd() const
 void QmlProfilerTraceView::clearDisplay()
 {
     d->m_zoomControl->setRange(0,0);
-
-    updateVerticalScroll(0);
     d->m_mainView->rootObject()->setProperty("scrollY", QVariant(0));
 
     QMetaObject::invokeMethod(d->m_mainView->rootObject(), "clearAll");
@@ -455,15 +402,6 @@ void QmlProfilerTraceView::updateLockButton()
 
 ////////////////////////////////////////////////////////
 // Zoom control
-void QmlProfilerTraceView::setZoomLevel(int zoomLevel)
-{
-    if (d->m_currentZoomLevel != zoomLevel && d->m_mainView->rootObject()) {
-        QVariant newFactor = pow(qreal(zoomLevel) / qreal(sliderTicks), sliderExp);
-        d->m_currentZoomLevel = zoomLevel;
-        QMetaObject::invokeMethod(d->m_mainView->rootObject(), "updateWindowLength", Q_ARG(QVariant, newFactor));
-    }
-}
-
 void QmlProfilerTraceView::updateRange()
 {
     if (!d->m_modelManager)
@@ -473,11 +411,7 @@ void QmlProfilerTraceView::updateRange()
         return;
     if (d->m_modelManager->traceTime()->duration() <= 0)
         return;
-    int newLevel = pow(duration / d->m_modelManager->traceTime()->duration(), 1/sliderExp) * sliderTicks;
-    if (d->m_currentZoomLevel != newLevel) {
-        d->m_currentZoomLevel = newLevel;
-        emit zoomLevelChanged(newLevel);
-    }
+    QMetaObject::invokeMethod(d->m_mainView->rootObject()->findChild<QObject*>(QLatin1String("zoomSliderToolBar")), "updateZoomLevel");
 }
 
 void QmlProfilerTraceView::mouseWheelMoved(int mouseX, int mouseY, int wheelDelta)
@@ -494,10 +428,6 @@ void QmlProfilerTraceView::mouseWheelMoved(int mouseX, int mouseY, int wheelDelt
 void QmlProfilerTraceView::updateToolTip(const QString &text)
 {
     setToolTip(text);
-}
-
-void QmlProfilerTraceView::updateVerticalScroll(int /*newPosition*/)
-{
 }
 
 void QmlProfilerTraceView::resizeEvent(QResizeEvent *event)
@@ -552,9 +482,8 @@ void QmlProfilerTraceView::contextMenuEvent(QContextMenuEvent *ev)
                         d->m_viewContainer->selectionStart(),
                         d->m_viewContainer->selectionEnd());
         }
-        if (selectedAction == getGlobalStatsAction) {
+        if (selectedAction == getGlobalStatsAction)
             d->m_viewContainer->getStatisticsInRange(-1, -1);
-        }
     }
 }
 

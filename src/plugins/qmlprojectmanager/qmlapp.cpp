@@ -418,13 +418,12 @@ Core::GeneratedFiles QmlApp::generateFiles(QString *errorMessage)
             if (!canAddTemplate)
                 return Core::GeneratedFiles();
 
-            if (templateFile.fileName() == QLatin1String("main.pro")) {
+            if (templateFile.fileName() == QLatin1String("main.pro"))
                 files.last().setAttributes(Core::GeneratedFile::OpenProjectAttribute);
-            } else if (templateFile.fileName() == QLatin1String("main.qmlproject")) {
+            else if (templateFile.fileName() == QLatin1String("main.qmlproject"))
                 files.last().setAttributes(Core::GeneratedFile::OpenProjectAttribute);
-            } else if (templateFile.fileName() == m_templateInfo.openFile) {
+            else if (templateFile.fileName() == m_templateInfo.openFile)
                 files.last().setAttributes(Core::GeneratedFile::OpenEditorAttribute);
-            }
         }
     }
 

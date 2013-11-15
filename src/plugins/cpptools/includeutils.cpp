@@ -242,11 +242,10 @@ int LineForNewIncludeDirective::operator()(const QString &newIncludeFileName,
                 if (group.commonIncludeDir() == IncludeGroup::includeDir(pureIncludeFileName))
                     localBestIncludeGroup = group;
             }
-            if (!localBestIncludeGroup.isEmpty()) {
+            if (!localBestIncludeGroup.isEmpty())
                 bestGroup = localBestIncludeGroup;
-            } else {
+            else
                 bestGroup = groupsMixedIncludeDirs.last();
-            }
         }
     }
 

@@ -200,9 +200,6 @@ const char QT_APPLICATION_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("Project
 const char LIBRARIES_WIZARD_CATEGORY[] = "G.Libraries";
 const char LIBRARIES_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Libraries");
 
-const char PROJECT_WIZARD_CATEGORY[] = "I.Projects"; // (after Qt)
-const char PROJECT_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Non-Qt Project");
-
 const char IMPORT_WIZARD_CATEGORY[] = "T.Import";
 const char IMPORT_WIZARD_CATEGORY_DISPLAY[] = QT_TRANSLATE_NOOP("ProjectExplorer", "Import Project");
 
@@ -246,6 +243,8 @@ const char VAR_CURRENTKIT_FILESYSTEMNAME[] = "CurrentKit:FileSystemName";
 const char VAR_CURRENTKIT_ID[] = "CurrentKit:Id";
 const char VAR_CURRENTBUILD_NAME[] = "CurrentBuild:Name";
 const char VAR_CURRENTBUILD_TYPE[] = "CurrentBuild:Type";
+const char VAR_CURRENTSESSION_PREFIX[] = "CurrentSession";
+const char VAR_CURRENTSESSION_NAME[] = "CurrentSession:Name";
 
 const char HIDE_FILE_FILTER_SETTING[] = "GenericProject/FileFilter";
 const char HIDE_FILE_FILTER_DEFAULT[] = "Makefile*; *.o; *.obj; *~; *.files; *.config; *.creator; *.user; *.includes; *.autosave";

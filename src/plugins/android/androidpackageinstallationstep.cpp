@@ -29,6 +29,7 @@
 
 #include "androidpackageinstallationstep.h"
 #include "androidmanager.h"
+#include "androidconstants.h"
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/target.h>
@@ -69,7 +70,7 @@ bool AndroidPackageInstallationStep::init()
     if (m_androidDirectory == ProjectDirectory)
         dirPath = AndroidManager::dirPath(target()).toString();
     else
-        dirPath = bc->buildDirectory().appendPath((QLatin1String("android"))).toString();
+        dirPath = bc->buildDirectory().appendPath(QLatin1String(Constants::ANDROID_BUILDDIRECTORY)).toString();
     if (Utils::HostOsInfo::isWindowsHost())
         if (bc->environment().searchInPath(QLatin1String("sh.exe")).isEmpty())
             dirPath = QDir::toNativeSeparators(dirPath);

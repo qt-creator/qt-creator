@@ -391,11 +391,10 @@ bool QmlProject::fromMap(const QVariantMap &map)
 
         if (!kits.isEmpty()) {
             Kit *kit = 0;
-            if (kits.contains(KitManager::defaultKit())) {
+            if (kits.contains(KitManager::defaultKit()))
                 kit = KitManager::defaultKit();
-            } else {
+            else
                 kit = kits.first();
-            }
             addTarget(createTarget(kit));
         }
     }

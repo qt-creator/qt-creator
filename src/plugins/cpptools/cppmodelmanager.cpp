@@ -234,6 +234,11 @@ CppModelManager::CppModelManager(QObject *parent)
     , m_indexingSupporter(0)
     , m_enableGC(true)
 {
+    connect(this, SIGNAL(documentUpdated(CPlusPlus::Document::Ptr)),
+            this, SIGNAL(globalSnapshotChanged()));
+    connect(this, SIGNAL(aboutToRemoveFiles(QStringList)),
+            this, SIGNAL(globalSnapshotChanged()));
+
     m_findReferences = new CppFindReferences(this);
     m_indexerEnabled = qgetenv("QTCREATOR_NO_CODE_INDEXER").isNull();
 
@@ -456,7 +461,7 @@ CppEditorSupport *CppModelManager::cppEditorSupport(TextEditor::BaseTextEditor *
     QMutexLocker locker(&m_cppEditorSupportsMutex);
 
     CppEditorSupport *editorSupport = m_cppEditorSupports.value(textEditor, 0);
-    if (!editorSupport) {
+    if (!editorSupport && isCppEditor(textEditor)) {
         editorSupport = new CppEditorSupport(this, textEditor);
         m_cppEditorSupports.insert(textEditor, editorSupport);
     }

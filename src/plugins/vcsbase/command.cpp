@@ -496,13 +496,12 @@ Utils::SynchronousProcessResponse Command::runSynchronous(const QStringList &arg
     Utils::ExitCodeInterpreter defaultInterpreter(this);
     Utils::ExitCodeInterpreter *currentInterpreter = interpreter ? interpreter : &defaultInterpreter;
     // Result
-    if (timedOut) {
+    if (timedOut)
         response.result = Utils::SynchronousProcessResponse::Hang;
-    } else if (process->exitStatus() != QProcess::NormalExit) {
+    else if (process->exitStatus() != QProcess::NormalExit)
         response.result = Utils::SynchronousProcessResponse::TerminatedAbnormally;
-    } else {
+    else
         response.result = currentInterpreter->interpretExitCode(process->exitCode());
-    }
     return response;
 }
 

@@ -363,11 +363,12 @@ void Delta::insert(UiObjectMember *member, UiObjectMember *parentMember, const Q
         qmlText += doc->source().midRef(begin, end - begin);
 
         QStringList importList;
-        for (UiImportList *it = doc->qmlProgram()->imports; it; it = it->next) {
-            if (!it->import)
+        for (UiHeaderItemList *it = doc->qmlProgram()->headers; it; it = it->next) {
+            UiImport *import = AST::cast<UiImport *>(it->headerItem);
+            if (!import)
                 continue;
-            unsigned importBegin = it->import->firstSourceLocation().begin();
-            unsigned importEnd = it->import->lastSourceLocation().end();
+            unsigned importBegin = import->firstSourceLocation().begin();
+            unsigned importEnd = import->lastSourceLocation().end();
 
             importList << doc->source().mid(importBegin, importEnd - importBegin);
         }

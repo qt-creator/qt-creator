@@ -2057,8 +2057,6 @@ void DebuggerPluginPrivate::connectEngine(DebuggerEngine *engine)
     m_watchersWindow->setModel(engine->watchModel());
     m_inspectorWindow->setModel(engine->watchModel());
 
-    engine->watchHandler()->rebuildModel();
-
     mainWindow()->setEngineDebugLanguages(engine->startParameters().languages);
     mainWindow()->setCurrentEngine(engine);
 }

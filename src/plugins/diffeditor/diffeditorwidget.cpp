@@ -1051,11 +1051,10 @@ ChunkData DiffEditorWidget::calculateOriginalData(const QList<Diff> &diffList) c
         const QStringList lines = diff.text.split(QLatin1Char('\n'));
 
         const bool equal = isEqual(diffList, i);
-        if (diff.command == Diff::Insert) {
+        if (diff.command == Diff::Insert)
             lastRightLineEqual = lastRightLineEqual && equal;
-        } else if (diff.command == Diff::Delete) {
+        else if (diff.command == Diff::Delete)
             lastLeftLineEqual = lastLeftLineEqual && equal;
-        }
 
         const int lastLeftPos = currentLeftPos;
         const int lastRightPos = currentRightPos;

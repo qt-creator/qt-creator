@@ -78,11 +78,10 @@ void QmlAnchorBindingProxy::setup(const QmlItemNode &fxItemNode)
 
     m_ignoreQml = true;
 
-    if (m_qmlItemNode.modelNode().hasParentProperty()) {
+    if (m_qmlItemNode.modelNode().hasParentProperty())
         setDefaultAnchorTarget(m_qmlItemNode.modelNode().parentProperty().parentModelNode());
-    } else {
+    else
         setDefaultAnchorTarget(ModelNode());
-    }
 
     if (topAnchored()) {
         ModelNode targetNode = m_qmlItemNode.anchors().instanceAnchor(AnchorLine::Top).qmlItemNode();
@@ -404,16 +403,14 @@ QStringList QmlAnchorBindingProxy::possibleTargetItems() const
             itemList.removeAll(node);
 
     foreach (const QmlItemNode &itemNode, itemList) {
-        if (itemNode.isValid() && !itemNode.id().isEmpty()) {
+        if (itemNode.isValid() && !itemNode.id().isEmpty())
             stringList.append(itemNode.id());
-        }
     }
 
     QmlItemNode parent(m_qmlItemNode.instanceParent().toQmlItemNode());
 
-    if (parent.isValid()) {
+    if (parent.isValid())
         stringList.append(QLatin1String("parent"));
-    }
 
     return stringList;
 }

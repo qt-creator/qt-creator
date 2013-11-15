@@ -72,7 +72,7 @@ template <class T>
     if (optVerbose) {
         for (unsigned int i = 0; i < sizeof(T); i++) {
             unsigned int b = mem[i];
-            printf("%2d %2x %3d\n", i, b, b);
+            printf("%2u %2x %3u\n", i, b, b);
         }
         fflush(stdout);
     }

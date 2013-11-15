@@ -201,12 +201,32 @@ void Elision::accept0(Visitor *visitor)
     visitor->endVisit(this);
 }
 
-void PropertyNameAndValueList::accept0(Visitor *visitor)
+void PropertyNameAndValue::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        for (PropertyNameAndValueList *it = this; it; it = it->next) {
-            accept(it->name, visitor);
-            accept(it->value, visitor);
+        accept(name, visitor);
+        accept(value, visitor);
+    }
+
+    visitor->endVisit(this);
+}
+
+void PropertyGetterSetter::accept0(Visitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(name, visitor);
+        accept(formals, visitor);
+        accept(functionBody, visitor);
+    }
+
+    visitor->endVisit(this);
+}
+
+void PropertyAssignmentList::accept0(Visitor *visitor)
+{
+    if (visitor->visit(this)) {
+        for (PropertyAssignmentList *it = this; it; it = it->next) {
+            accept(it->assignment, visitor);
         }
     }
 
@@ -789,7 +809,7 @@ void DebuggerStatement::accept0(Visitor *visitor)
 void UiProgram::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        accept(imports, visitor);
+        accept(headers, visitor);
         accept(members, visitor);
     }
 
@@ -900,15 +920,33 @@ void UiImport::accept0(Visitor *visitor)
     visitor->endVisit(this);
 }
 
-void UiImportList::accept0(Visitor *visitor)
+void UiQualifiedPragmaId::accept0(Visitor *visitor)
 {
     if (visitor->visit(this)) {
-        accept(import, visitor);
+    }
+
+    visitor->endVisit(this);
+}
+
+void UiPragma::accept0(Visitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(pragmaType, visitor);
+    }
+
+    visitor->endVisit(this);
+}
+
+void UiHeaderItemList::accept0(Visitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(headerItem, visitor);
         accept(next, visitor);
     }
 
     visitor->endVisit(this);
 }
+
 
 void UiSourceElement::accept0(Visitor *visitor)
 {

@@ -108,9 +108,8 @@ QDomElement BarDescriptorConverter::ensureElement(QDomDocument &doc, const QStri
         ret = rootElement.appendChild(doc.createElement(tagName)).toElement();
         QTC_ASSERT(!ret.isNull(), return ret);
     }
-    if (!attributeName.isEmpty()) {
+    if (!attributeName.isEmpty())
         ret.setAttribute(attributeName, attributeValue);
-    }
     return ret;
 }
 

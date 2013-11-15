@@ -65,6 +65,7 @@ private slots:
 private:
     void addItems(bool setDefaultSession);
     void markItems();
+    void addSessionToUi(const QString &name, bool switchTo);
     Ui::SessionDialog m_ui;
 };
 

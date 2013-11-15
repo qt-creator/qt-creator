@@ -85,7 +85,7 @@ public:
     explicit NavigationWidget(QAction *toggleSideBarAction);
     virtual ~NavigationWidget();
 
-    void setFactories(const QList<INavigationWidgetFactory*> factories);
+    void setFactories(const QList<INavigationWidgetFactory*> &factories);
 
     void saveSettings(QSettings *settings);
     void restoreSettings(QSettings *settings);

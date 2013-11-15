@@ -128,9 +128,8 @@ void DiffEditorPlugin::diff()
 QString DiffEditorPlugin::getFileContents(const QString &fileName, QTextCodec *codec) const
 {
     QFile file(fileName);
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text))
         return codec->toUnicode(file.readAll());
-    }
     return QString();
 }
 

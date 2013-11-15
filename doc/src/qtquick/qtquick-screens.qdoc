@@ -87,7 +87,117 @@
 
     \section1 Positioning Items on Screens
 
-    You can use the following QML types to arrange items on screens:
+    The position of an item on the canvas can be either absolute or relative
+    to other items. If you are designing a static user interface,
+    \l{http://dev.qt-project.org/doc/qt-5.0/qtquick-positioning-topic.html#manual-positioning}
+    {manual positioning} provides the most efficient form of positioning items
+    on the screen. For a dynamic user interface, you can employ the following
+    positioning methods provided by Qt Quick:
+
+    \list
+
+        \li \l{Setting Bindings}
+
+        \li \l{Setting Anchors and Margins}
+
+        \li \l{Using Positioners}
+
+        \li \l{Using Layouts}
+
+        \li \l{Using Split Views}
+
+    \endlist
+
+    \section2 Setting Bindings
+
+    \l{http://qt-project.org/doc/qt-5.0/qtquick-positioning-topic.html#positioning-with-bindings}
+    {Property binding} is a declarative way of specifying the value of a property.
+    Binding allows a property value to be expressed as an JavaScript expression
+    that defines the value relative to other property values or data accessible
+    in the application. The property value is automatically kept up to date if
+    the other properties or data values change.
+
+    Property bindings are created implicitly in QML whenever a property is
+    assigned a JavaScript expression. To set JavaScript expressions as values of
+    properties in \QMLD, click the circle icon next to a property to open a
+    context menu, and select \gui {Set Binding}.
+
+    \image qmldesigner-set-expression.png "Type properties context menu"
+
+    To remove bindings, select \gui Reset in the context menu.
+
+    For more information on the JavaScript environment provided by QML, see
+    \l{http://qt-project.org/doc/qt-5.0/qtqml/qtqml-javascript-topic.html}
+    {Integrating QML and JavaScript}.
+
+    \QMLD cannot show bindings and using them might have a negative impact on
+    performance, so consider setting anchors and margins for items, instead.
+
+    For example, instead of setting \c {parent.width} for an item, you could
+    anchor the item to its sibling items on the left and the right.
+
+    \section2 Setting Anchors and Margins
+
+    In an
+    \l{http://qt-project.org/doc/qt-5.0/qtquick-positioning-anchors.html}
+    {anchor-based} layout, each QML type can be thought of as having a set of
+    invisible \e anchor lines: top, bottom, left, right, fill, horizontal
+    center, vertical center, and baseline.
+
+    In the \gui Layout pane you can set anchors and margins for items. To set
+    the anchors of an item, click the anchor buttons. You can combine the
+    top/bottom, left/right, and horizontal/vertical anchors to anchor items in
+    the corners of the parent item or center them horizontally or vertically
+    within the parent item.
+
+    \image qmldesigner-anchor-buttons.png "Anchor buttons"
+
+    Specifying the baseline anchor in \QMLD is not supported. You can specify it
+    using the code editor.
+
+    For performance reasons, you can only anchor an item to its siblings and
+    direct parent. By default, an item is anchored to its parent when you
+    use the anchor buttons. Select a sibling of the item in the \gui Target
+    field to anchor to it, instead.
+
+    Arbitrary anchoring is not supported. For example, you cannot specify:
+    \c {anchor.left: parent.right}. You have to specify: \c {anchor.left: parent.left}.
+    When you use the anchor buttons, anchors to the parent item are always
+    specified to the same side. However, anchors to sibling items are specified
+    to the opposite side: \c {anchor.left: sibling.right}. This allows you to keep
+    sibling items together.
+
+    In the following image, \gui{Rectangle 2} is anchored to \gui{Rectangle 1}
+    on its left and to the bottom of its parent.
+
+    \image qmldesigner-anchors.png "Anchoring sibling items"
+
+    The anchors for \gui{Rectangle 2} are specified as follows in code:
+
+    \qml
+    Rectangle {
+        id: rectangle2
+        anchors.left: rectangle1.right
+        anchors.leftMargin: 15
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 15
+        //
+    }
+    \endqml
+
+    Margins specify the amount of empty space to leave to the outside of an item.
+    Margins only have meaning for anchors. They do not take any effect when using
+    other layouts or absolute positioning.
+
+    \section2 Using Positioners
+
+    \l{http://qt-project.org/doc/qt-5.0/qtquick-positioning-layouts.html}
+    {Positioner items} are container items that manage the positions of items in
+    a declarative user interface. Positioners behave in a similar way to the
+    layout managers used with standard Qt widgets, except that they are also
+    containers in their own right.
+
+    You can use the following positioners to arrange items on screens:
 
     \list
 
@@ -109,6 +219,51 @@
     To lay out several items in a Column, Row, Grid, or Flow, select
     the items on the canvas, and then select \gui Layout in the context
     menu.
+
+    \section2 Using Layouts
+
+    From Qt 5.1, you can use QML types in the
+    \l{http://qt-project.org/doc/qt-5.1/qtquicklayouts/qtquicklayouts-index.html}
+    {Qt Quick Layouts module} to arrange Qt Quick items on screens. Unlike p
+    ositioners, they manage both the positions and sizes of items in a
+    declarative interface. They are well suited for resizable user interfaces.
+
+    You can use the following layout types to arrange items on screens:
+
+    \list
+
+        \li \l{http://qt-project.org/doc/qt-5.0/qml-qtquick-layouts-layout.html}
+            {Layout} provides attached properties for items pushed onto a
+            \gui {Column Layout}, \gui {Row Layout}, or \gui {Grid Layout}.
+
+        \li \l{http://qt-project.org/doc/qt-5.0/qml-qtquick-layouts-columnlayout.html}
+            {Column Layout} provides a grid layout with only one column.
+
+        \li \l{http://qt-project.org/doc/qt-5.0/qml-qtquick-layouts-rowlayout.html}
+            {Row Layout} provides a grid layout with only one row.
+
+        \li \l{http://qt-project.org/doc/qt-5.0/qml-qtquick-layouts-gridlayout.html}
+            {Grid Layout} provides a way of dynamically arranging items in a
+            grid.
+
+    \endlist
+
+    To lay out several items in a \gui {Column Layout}, \gui {Row Layout}, or
+    \gui {Grid Layout}, select the items on the canvas, and then select
+    \gui Layout in the context menu.
+
+    To make an item within a layout as wide as possible while respecting the
+    given constraints, select the item on the canvas and then select
+    \gui Layout > \gui {Fill Width} in the context menu. To make the item as
+    high as possible, select \gui {Fill Height}.
+
+    \section2 Using Split Views
+
+    From Qt 5.1, you can use the
+    \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-splitview.html}
+    {Split View} Qt Quick Control to arrange items horizontally or vertically
+    with a draggable splitter between each item.
+
 
     \section1 Using States
 
@@ -202,7 +357,8 @@
 
     \section1 Adding User Interaction Methods
 
-    You can add the following basic interaction methods to scenes:
+    You can use the following QML types to add basic interaction methods to
+    screens:
 
     \list
 
@@ -221,6 +377,74 @@
             enables simple mouse handling.
 
     \endlist
+
+    From Qt 5.1, you can also use the following
+    \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qtquickcontrols-index.html}
+    {Qt Quick Controls} to present or receive input from the user:
+
+    \list
+
+        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-button.html}
+            {Button} provides a push button that you can associate with an
+            action.
+
+        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-checkbox.html}
+            {Check Box} provides an option button that can be toggled on
+            (checked) or off (unchecked).
+
+        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-combobox.html}
+            {Combo Box} provides a drop-down list. Add items to the combo box by
+            assigning it a ListModel, or a list of strings to the model
+            property.
+
+        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-groupbox.html}
+            {Group Box} provides a frame, a title on top, and place for various
+            other controls inside the frame.
+
+        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-label.html}
+            {Label} provides a text label that follows the font and color scheme
+            of the system.
+
+        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-progressbar.html}
+            {Progress Bar} indicates the progress of an operation.
+
+        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-radiobutton.html}
+            {Radio Button} provides an option button that can be switched on
+            (checked) or off (unchecked).
+
+        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-slider.html}
+            {Slider (Horizontal) and Slider (Vertical)} enable the user to move
+            a slider handle along a horizontal or vertical groove and translate
+            the handle's position into a value within the specified range.
+
+        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-spinbox.html}
+            {Spin Box} enables the user to specify a value by clicking the up or
+            down buttons, by pressing up or down on the keyboard, or by entering
+            a value in the box.
+
+        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-statusbar.html}
+            {Status Bar} contains status information in your application. It
+            does not provide a layout of its own, but requires you to position
+            its contents, for instance by creating a \gui {Row Layout}.
+
+        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-textarea.html}
+            {Text Area} displays multiple lines of editable formatted text.
+
+        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-textfield.html}
+            {Text Field} displays a single line of editable plain text.
+
+        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-toolbar.html}
+            {Tool Bar} provides styling for ToolButton as well as other controls
+            that it can contain. However, it does not provide a layout of its
+            own, but requires you to position its contents, for instance by
+            creating a \gui {Row Layout}.
+
+        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-toolbutton.html}
+            {Tool Button} provides a button that is functionally similar to
+            \gui Button, but that looks more suitable on a \gui {Tool Bar}.
+
+    \endlist
+
 
     \section1 Implementing Application Logic
 

@@ -116,8 +116,9 @@
 #include <coreplugin/fileutils.h>
 #include <coreplugin/removefiledialog.h>
 #include <texteditor/findinfiles.h>
-#include <utils/qtcassert.h>
+#include <utils/fileutils.h>
 #include <utils/parameteraction.h>
+#include <utils/qtcassert.h>
 
 #include <QtPlugin>
 #include <QDebug>
@@ -1012,6 +1013,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     VariableManager::registerVariable(Constants::VAR_CURRENTKIT_ID, tr("The currently active kit's id."));
     VariableManager::registerVariable(Constants::VAR_CURRENTBUILD_NAME, tr("The currently active build configuration's name."));
     VariableManager::registerVariable(Constants::VAR_CURRENTBUILD_TYPE, tr("The currently active build configuration's type."));
+    VariableManager::registerFileVariables(Constants::VAR_CURRENTSESSION_PREFIX, tr("File where current session is saved."));
+    VariableManager::registerVariable(Constants::VAR_CURRENTSESSION_NAME, tr("Name of current session."));
 
     connect(VariableManager::instance(), SIGNAL(variableUpdateRequested(QByteArray)),
             this, SLOT(updateVariable(QByteArray)));
@@ -1160,6 +1163,20 @@ void ProjectExplorerPlugin::updateVariable(const QByteArray &variable)
         } else {
             VariableManager::remove(variable);
         }
+    } else if (variable == Constants::VAR_CURRENTSESSION_NAME) {
+        if (!SessionManager::activeSession().isEmpty())
+            VariableManager::insert(variable, SessionManager::activeSession());
+        else
+            VariableManager::remove(variable);
+    } else if (Core::VariableManager::isFileVariable(
+                   variable, ProjectExplorer::Constants::VAR_CURRENTSESSION_PREFIX)) {
+        if (!SessionManager::activeSession().isEmpty()) {
+            VariableManager::insert(variable, Core::VariableManager::fileVariableValue(variable,
+                 ProjectExplorer::Constants::VAR_CURRENTSESSION_PREFIX,
+                 SessionManager::sessionNameToFileName(SessionManager::activeSession()).toFileInfo()));
+        } else {
+            VariableManager::remove(variable);
+        }
     } else {
         QString projectName;
         QString projectFilePath;
@@ -1171,9 +1188,8 @@ void ProjectExplorerPlugin::updateVariable(const QByteArray &variable)
                 projectFilePath = doc->filePath();
             if (Target *target = project->activeTarget()) {
                 kit = target->kit();
-                if (BuildConfiguration *buildConfiguration = target->activeBuildConfiguration()) {
+                if (BuildConfiguration *buildConfiguration = target->activeBuildConfiguration())
                     buildConfigurationName = buildConfiguration->displayName();
-                }
             }
         }
         ProjectMacroExpander expander(projectFilePath, projectName, kit, buildConfigurationName);
@@ -1672,12 +1688,10 @@ void ProjectExplorerPlugin::executeRunConfiguration(RunConfiguration *runConfigu
 
 void ProjectExplorerPlugin::showRunErrorMessage(const QString &errorMessage)
 {
-    if (errorMessage.isNull()) {
-        // a error occured, but message was not set
-        QMessageBox::critical(ICore::mainWindow(), tr("Unknown error"), errorMessage);
-    } else {
-        QMessageBox::critical(ICore::mainWindow(), tr("Could Not Run"), errorMessage);
-    }
+    // Empty, non-null means 'canceled' (custom executable dialog for libraries), whereas
+    // empty, null means an error occurred, but message was not set
+    if (!errorMessage.isEmpty() || errorMessage.isNull())
+        QMessageBox::critical(ICore::mainWindow(), errorMessage.isNull() ? tr("Unknown error") : tr("Could Not Run"), errorMessage);
 }
 
 void ProjectExplorerPlugin::startRunControl(RunControl *runControl, RunMode runMode)

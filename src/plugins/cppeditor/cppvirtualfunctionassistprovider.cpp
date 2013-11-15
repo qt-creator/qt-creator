@@ -133,6 +133,7 @@ public:
     IAssistProposal *perform(const IAssistInterface *)
     {
         QTC_ASSERT(m_params.function, return 0);
+        QTC_ASSERT(m_params.staticClass, return 0);
         QTC_ASSERT(!m_params.snapshot.isEmpty(), return 0);
 
         Class *functionsClass = m_finder.findMatchingClassDeclaration(m_params.function,
@@ -140,8 +141,8 @@ public:
         if (!functionsClass)
             return 0;
 
-        const QList<Symbol *> overrides
-            = FunctionHelper::overrides(m_params.function, functionsClass, m_params.snapshot);
+        const QList<Symbol *> overrides = FunctionHelper::overrides(
+            m_params.function, functionsClass, m_params.staticClass, m_params.snapshot);
         if (overrides.isEmpty())
             return 0;
 
@@ -254,11 +255,40 @@ bool FunctionHelper::isPureVirtualFunction(const Function *function, const Snaps
     return isVirtualFunction_helper(function, snapshot, PureVirtual);
 }
 
+static bool isDerivedOf(Class *derivedClassCandidate, Class *baseClass,
+                        const Snapshot &snapshot)
+{
+    QTC_ASSERT(derivedClassCandidate && baseClass, return false);
+
+    QList<CppClass> l = QList<CppClass>() << CppClass(derivedClassCandidate);
+
+    while (!l.isEmpty()) {
+        CppClass clazz = l.takeFirst();
+        QTC_ASSERT(clazz.declaration, continue);
+
+        const QString fileName = QString::fromUtf8(clazz.declaration->fileName());
+        const Document::Ptr document = snapshot.document(fileName);
+        if (!document)
+            continue;
+        const LookupContext context(document, snapshot);
+        clazz.lookupBases(clazz.declaration, context);
+
+        foreach (const CppClass &base, clazz.bases) {
+            if (base.declaration == baseClass)
+                return true;
+            if (!l.contains(base))
+                l << base;
+        }
+    }
+
+    return false;
+}
+
 QList<Symbol *> FunctionHelper::overrides(Function *function, Class *functionsClass,
-                                          const Snapshot &snapshot)
+                                          Class *staticClass, const Snapshot &snapshot)
 {
     QList<Symbol *> result;
-    QTC_ASSERT(function && functionsClass, return result);
+    QTC_ASSERT(function && functionsClass && staticClass, return result);
 
     FullySpecifiedType referenceType = function->type();
     const Name *referenceName = function->name();
@@ -274,15 +304,22 @@ QList<Symbol *> FunctionHelper::overrides(Function *function, Class *functionsCl
     while (!l.isEmpty()) {
         // Add derived
         CppClass clazz = l.takeFirst();
+
+        QTC_ASSERT(clazz.declaration, continue);
+        Class *c = clazz.declaration->asClass();
+        QTC_ASSERT(c, continue);
+
+        if (c != functionsClass && c != staticClass) {
+            if (!isDerivedOf(c, staticClass, snapshot))
+                continue;
+        }
+
         foreach (const CppClass &d, clazz.derived) {
             if (!l.contains(d))
                 l << d;
         }
 
         // Check member functions
-        QTC_ASSERT(clazz.declaration, continue);
-        Class *c = clazz.declaration->asClass();
-        QTC_ASSERT(c, continue);
         for (int i = 0, total = c->memberCount(); i < total; ++i) {
             Symbol *candidate = c->memberAt(i);
             const Name *candidateName = candidate->name();

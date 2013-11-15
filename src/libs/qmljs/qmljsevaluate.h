@@ -64,7 +64,9 @@ protected:
 
     // Ui
     virtual bool visit(AST::UiProgram *ast);
-    virtual bool visit(AST::UiImportList *ast);
+    virtual bool visit(AST::UiHeaderItemList *ast);
+    virtual bool visit(AST::UiQualifiedPragmaId *ast);
+    virtual bool visit(AST::UiPragma *ast);
     virtual bool visit(AST::UiImport *ast);
     virtual bool visit(AST::UiPublicMember *ast);
     virtual bool visit(AST::UiSourceElement *ast);
@@ -90,7 +92,9 @@ protected:
     virtual bool visit(AST::ObjectLiteral *ast);
     virtual bool visit(AST::ElementList *ast);
     virtual bool visit(AST::Elision *ast);
-    virtual bool visit(AST::PropertyNameAndValueList *ast);
+    virtual bool visit(AST::PropertyAssignmentList *ast);
+    virtual bool visit(AST::PropertyGetterSetter *ast);
+    virtual bool visit(AST::PropertyNameAndValue *ast);
     virtual bool visit(AST::NestedExpression *ast);
     virtual bool visit(AST::IdentifierPropertyName *ast);
     virtual bool visit(AST::StringLiteralPropertyName *ast);

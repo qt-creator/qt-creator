@@ -63,7 +63,7 @@ namespace {
 static inline QStringList supportedVersionsList()
 {
     QStringList list;
-    list << QLatin1String("1.0") << QLatin1String("1.1") << QLatin1String("2.0") << QLatin1String("2.1");
+    list << QLatin1String("1.0") << QLatin1String("1.1") << QLatin1String("2.0") << QLatin1String("2.1") << QLatin1String("2.2");
     return list;
 }
 
@@ -690,8 +690,8 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc,
 {
     QList<Import> existingImports = m_rewriterView->model()->imports();
 
-    for (UiImportList *iter = doc->qmlProgram()->imports; iter; iter = iter->next) {
-        UiImport *import = iter->import;
+    for (UiHeaderItemList *iter = doc->qmlProgram()->headers; iter; iter = iter->next) {
+        UiImport *import = AST::cast<UiImport *>(iter->headerItem);
         if (!import)
             continue;
 
@@ -796,14 +796,20 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
             check.enableMessage(StaticAnalysis::WarnImperativeCodeNotEditableInVisualDesigner);
             check.enableMessage(StaticAnalysis::WarnUnsupportedTypeInVisualDesigner);
             check.enableMessage(StaticAnalysis::WarnReferenceToParentItemNotSupportedByVisualDesigner);
+            check.enableMessage(StaticAnalysis::WarnReferenceToParentItemNotSupportedByVisualDesigner);
+            check.enableMessage(StaticAnalysis::WarnAboutQtQuick1InsteadQtQuick2);
             //## triggers too often ## check.enableMessage(StaticAnalysis::WarnUndefinedValueForVisualDesigner);
-            check.enableMessage(StaticAnalysis::WarnStatesOnlyInRootItemForVisualDesigner);
 
             foreach (const StaticAnalysis::Message &message, check()) {
                 if (message.severity == Severity::Error)
                     errors.append(RewriterView::Error(message.toDiagnosticMessage(), QUrl::fromLocalFile(doc->fileName())));
-                if (message.severity == Severity::Warning)
-                    warnings.append(RewriterView::Error(message.toDiagnosticMessage(), QUrl::fromLocalFile(doc->fileName())));
+                if (message.severity == Severity::Warning) {
+                    if (message.type == StaticAnalysis::WarnAboutQtQuick1InsteadQtQuick2) {
+                        errors.append(RewriterView::Error(message.toDiagnosticMessage(), QUrl::fromLocalFile(doc->fileName())));
+                    } else {
+                        warnings.append(RewriterView::Error(message.toDiagnosticMessage(), QUrl::fromLocalFile(doc->fileName())));
+                    }
+                }
             }
 
             if (!errors.isEmpty()) {
@@ -1042,6 +1048,50 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
     context->leaveScope();
 }
 
+static QVariant parsePropertyExpression(ExpressionNode *expressionNode)
+{
+    Q_ASSERT(expressionNode);
+
+    ArrayLiteral *arrayLiteral = cast<ArrayLiteral *>(expressionNode);
+
+    if (arrayLiteral) {
+        QList<QVariant> variantList;
+        for (ElementList *it = arrayLiteral->elements; it; it = it->next)
+            variantList << parsePropertyExpression(it->expression);
+        return variantList;
+    }
+
+    StringLiteral *stringLiteral = cast<AST::StringLiteral *>(expressionNode);
+    if (stringLiteral)
+        return stringLiteral->value.toString();
+
+    TrueLiteral *trueLiteral = cast<AST::TrueLiteral *>(expressionNode);
+    if (trueLiteral)
+        return true;
+
+    FalseLiteral *falseLiteral = cast<AST::FalseLiteral *>(expressionNode);
+    if (falseLiteral)
+        return false;
+
+    NumericLiteral *numericLiteral = cast<AST::NumericLiteral *>(expressionNode);
+    if (numericLiteral)
+        return numericLiteral->value;
+
+
+    return QVariant();
+}
+
+QVariant parsePropertyScriptBinding(UiScriptBinding *uiScriptBinding)
+{
+    Q_ASSERT(uiScriptBinding);
+
+    ExpressionStatement *expStmt = cast<ExpressionStatement *>(uiScriptBinding->statement);
+    if (!expStmt)
+        return QVariant();
+
+    return parsePropertyExpression(expStmt->expression);
+}
+
 QmlDesigner::PropertyName TextToModelMerger::syncScriptBinding(ModelNode &modelNode,
                                              const QString &prefix,
                                              UiScriptBinding *script,
@@ -1078,7 +1128,9 @@ QmlDesigner::PropertyName TextToModelMerger::syncScriptBinding(ModelNode &modelN
         if (isPropertyChangesType(modelNode.type())
                 || isConnectionsType(modelNode.type())) {
             AbstractProperty modelProperty = modelNode.property(astPropertyName.toUtf8());
-            const QVariant variantValue(deEscape(stripQuotes(astValue)));
+            QVariant variantValue = parsePropertyScriptBinding(script);
+            if (!variantValue.isValid())
+                variantValue = deEscape(stripQuotes(astValue));
             syncVariantProperty(modelProperty, variantValue, TypeName(), differenceHandler);
             return astPropertyName.toUtf8();
         } else {
@@ -1189,9 +1241,8 @@ void TextToModelMerger::syncSignalHandler(AbstractProperty &modelProperty,
 {
     if (modelProperty.isSignalHandlerProperty()) {
         SignalHandlerProperty signalHandlerProperty = modelProperty.toSignalHandlerProperty();
-        if (signalHandlerProperty.source() != javascript) {
+        if (signalHandlerProperty.source() != javascript)
             differenceHandler.signalHandlerSourceDiffer(signalHandlerProperty, javascript);
-        }
     } else {
         differenceHandler.shouldBeSignalHandlerProperty(modelProperty, javascript);
     }
@@ -1364,8 +1415,7 @@ void ModelValidator::signalHandlerSourceDiffer(SignalHandlerProperty &modelPrope
 {
     Q_UNUSED(modelProperty)
     Q_UNUSED(javascript)
-    Q_ASSERT(modelProperty.source() == javascript);
-    Q_ASSERT(0);
+    QTC_ASSERT(modelProperty.source() == javascript, return);
 }
 
 void ModelValidator::shouldBeSignalHandlerProperty(AbstractProperty &modelProperty, const QString & /*javascript*/)

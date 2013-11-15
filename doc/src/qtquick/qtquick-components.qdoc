@@ -68,8 +68,10 @@
         \li \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-textinput.html}{Text Input}
             adds a single line of editable plain text that can be validated.
 
+        \omit
         \li \l{http://qt-project.org/doc/qt-5.0/qtwebkit/qml-qtwebkit3-webview.html}{Web View}
             adds web content to a canvas.
+        \endomit
 
     \endlist
 
@@ -92,8 +94,10 @@
 
     \list 1
 
-        \li Select \gui {File > New File or Project > Files and Classes > QML
-            > Choose} to create a new .qml file.
+        \li Select \gui File > \gui {New File or Project} >
+            \gui {Files and Classes} > \gui Qt > \gui {QML File (Qt Quick 1)} or
+            \gui {QML File (Qt Quick 2)} > \gui Choose to create a new .qml
+            file.
 
             \note Components are listed in the \gui {QML Components} section of
             the \gui Library pane only if the filename begins with a capital

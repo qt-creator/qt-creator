@@ -86,7 +86,9 @@ class ArrayLiteral;
 class ObjectLiteral;
 class ElementList;
 class Elision;
-class PropertyNameAndValueList;
+class PropertyAssignmentList;
+class PropertyGetterSetter;
+class PropertyNameAndValue;
 class PropertyName;
 class IdentifierPropertyName;
 class StringLiteralPropertyName;
@@ -153,7 +155,7 @@ class NestedExpression;
 
 // ui elements
 class UiProgram;
-class UiImportList;
+class UiPragma;
 class UiImport;
 class UiPublicMember;
 class UiParameterList;
@@ -167,6 +169,8 @@ class UiObjectMember;
 class UiObjectMemberList;
 class UiArrayMemberList;
 class UiQualifiedId;
+class UiQualifiedPragmaId;
+class UiHeaderItemList;
 
 } } // namespace AST
 

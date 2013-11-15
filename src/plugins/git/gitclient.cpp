@@ -539,9 +539,8 @@ QString GitDiffHandler::workingTreeContents(const QString &fileName) const
     QString absoluteFileName = workingDir.absoluteFilePath(fileName);
 
     QFile file(absoluteFileName);
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text))
         return m_editor->editorWidget()->codec()->toUnicode(file.readAll());
-    }
     return QString();
 }
 
@@ -3597,26 +3596,14 @@ void GitClient::stashPop(const QString &workingDirectory)
 bool GitClient::synchronousStashRestore(const QString &workingDirectory,
                                         const QString &stash,
                                         bool pop,
-                                        const QString &branch /* = QString()*/,
-                                        QString *errorMessage)
+                                        const QString &branch /* = QString()*/)
 {
     QStringList arguments(QLatin1String("stash"));
     if (branch.isEmpty())
         arguments << QLatin1String(pop ? "pop" : "apply") << stash;
     else
         arguments << QLatin1String("branch") << branch << stash;
-    QByteArray outputText;
-    QByteArray errorText;
-    const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText,
-                                        VcsBasePlugin::ExpectRepoChanges);
-    if (rc) {
-        const QString output = commandOutputFromLocal8Bit(outputText);
-        if (!output.isEmpty())
-            outputWindow()->append(output);
-    } else {
-        msgCannotRun(arguments, workingDirectory, errorText, errorMessage);
-    }
-    return rc;
+    return executeAndHandleConflicts(workingDirectory, arguments);
 }
 
 bool GitClient::synchronousStashRemove(const QString &workingDirectory,

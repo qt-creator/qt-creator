@@ -709,7 +709,7 @@ void CPPEditorWidget::setMimeType(const QString &mt)
     const QString &projectFile = ProjectExplorer::SessionManager::value(
                 QLatin1String(Constants::CPP_PREPROCESSOR_PROJECT_PREFIX) + filePath).toString();
     const QByteArray &additionalDirectives = ProjectExplorer::SessionManager::value(
-                projectFile + QLatin1Char(',') + filePath).toByteArray();
+                projectFile + QLatin1Char(',') + filePath).toString().toUtf8();
 
     QSharedPointer<SnapshotUpdater> updater
             = m_modelManager->cppEditorSupport(editor())->snapshotUpdater();
@@ -1988,7 +1988,7 @@ void CPPEditorWidget::showPreProcessorWidget()
     if (preProcessorDialog.exec() == QDialog::Accepted) {
         QSharedPointer<SnapshotUpdater> updater
                 = m_modelManager->cppEditorSupport(editor())->snapshotUpdater();
-        updater->setEditorDefines(preProcessorDialog.additionalPreProcessorDirectives().toLatin1());
+        updater->setEditorDefines(preProcessorDialog.additionalPreProcessorDirectives().toUtf8());
         updater->update(m_modelManager->workingCopy());
     }
 }

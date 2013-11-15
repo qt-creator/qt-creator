@@ -40,7 +40,7 @@ namespace {
 
 // ### does not necessarily give the full AST path!
 // intentionally does not contain lists like
-// UiImportList, SourceElements, UiObjectMemberList
+// UiHeaderItemList, SourceElements, UiObjectMemberList
 class AstPath: protected AST::Visitor
 {
     QList<AST::Node *> _path;

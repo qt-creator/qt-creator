@@ -117,8 +117,9 @@
             \li In the \gui Id field, enter \e page, to be able to reference the
                 rectangle from other places.
 
-            \li In the \gui Colors group, \gui Rectangle field, set the color to
-                #343434.
+            \li In the \gui Color field, set the color to #343434.
+
+            \li In the code editor, delete the \c {Qt.quit();} command.
 
         \endlist
 
@@ -147,7 +148,7 @@
             \li In the \gui Size field, set \gui W and \gui H to 64, for the
                 rectangle size to match the image size.
 
-            \li In the \gui Colors group, \gui Rectangle field, click the
+            \li In the \gui Color field, click the
                 \inlineimage qmldesigner-transparent-button.png
                 (\gui Transparent) button to make the rectangle transparent.
 

@@ -41,6 +41,7 @@ void AbstractTimelineModel::setModelManager(QmlProfilerModelManager *modelManage
 {
     m_modelManager = modelManager;
     connect(modelManager->simpleModel(),SIGNAL(changed()),this,SLOT(dataChanged()));
+    connect(modelManager,SIGNAL(stateChanged()),this,SLOT(dataChanged()));
     m_modelId = modelManager->registerModelProxy();
 }
 

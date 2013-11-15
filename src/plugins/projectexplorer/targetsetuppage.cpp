@@ -160,8 +160,6 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
     m_ui->centralWidget->setLayout(new QVBoxLayout);
     m_ui->centralWidget->layout()->setMargin(0);
 
-    setUseScrollArea(true);
-
     setTitle(tr("Kit Selection"));
 
     QList<IPotentialKit *> potentialKits =
@@ -169,6 +167,8 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
     foreach (IPotentialKit *pk, potentialKits)
         if (QWidget *w = pk->createWidget(this))
             m_potentialWidgets.append(w);
+
+    setUseScrollArea(true);
 
     QObject *km = KitManager::instance();
     connect(km, SIGNAL(kitAdded(ProjectExplorer::Kit*)),
@@ -183,11 +183,6 @@ TargetSetupPage::TargetSetupPage(QWidget *parent) :
 
 void TargetSetupPage::initializePage()
 {
-    m_baseLayout->addWidget(m_importWidget);
-    foreach (QWidget *widget, m_potentialWidgets)
-        m_baseLayout->addWidget(widget);
-    m_baseLayout->addItem(m_spacer);
-
     reset();
 
     setupWidgets();
@@ -546,9 +541,24 @@ bool TargetSetupPage::setupProject(Project *project)
 
 void TargetSetupPage::setUseScrollArea(bool b)
 {
+    QLayout *oldBaseLayout = m_baseLayout;
     m_baseLayout = b ? m_ui->scrollArea->widget()->layout() : m_ui->centralWidget->layout();
+    if (oldBaseLayout == m_baseLayout)
+        return;
     m_ui->scrollAreaWidget->setVisible(b);
     m_ui->centralWidget->setVisible(!b);
+
+    if (oldBaseLayout) {
+        oldBaseLayout->removeWidget(m_importWidget);
+        foreach (QWidget *widget, m_potentialWidgets)
+            oldBaseLayout->removeWidget(widget);
+        oldBaseLayout->removeItem(m_spacer);
+    }
+
+    m_baseLayout->addWidget(m_importWidget);
+    foreach (QWidget *widget, m_potentialWidgets)
+        m_baseLayout->addWidget(widget);
+    m_baseLayout->addItem(m_spacer);
 }
 
 } // namespace ProjectExplorer

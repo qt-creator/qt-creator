@@ -41,6 +41,8 @@
 
 namespace QmlJS {
 
+class Imports;
+
 class QMLJS_EXPORT Check: protected AST::Visitor
 {
     Q_DECLARE_TR_FUNCTIONS(QmlJS::Check)
@@ -115,6 +117,8 @@ private:
     void scanCommentsForAnnotations();
     void warnAboutUnnecessarySuppressions();
 
+    bool isQtQuick2() const;
+
     AST::Node *parent(int distance = 0);
 
     Document::Ptr _doc;
@@ -143,6 +147,8 @@ private:
 
     bool _importsOk;
     bool _inStatementBinding;
+    const Imports *_imports;
+    bool _isQtQuick2;
 };
 
 } // namespace QmlJS

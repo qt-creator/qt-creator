@@ -134,7 +134,7 @@ void QmlDebugConnectionPrivate::readyRead()
                         serverPlugins.insert(pluginNames.at(i), pluginVersion);
                     }
 
-                    if (!pack.isEmpty()) {
+                    if (!pack.atEnd()) {
                         pack >> QmlDebugClient::s_dataStreamVersion;
                         if (QmlDebugClient::s_dataStreamVersion
                                 > QDataStream().version())

@@ -253,7 +253,7 @@ Utils::FileName QbsProject::defaultBuildDirectory(const QString &path)
 {
     QFileInfo fi(path);
     const QString buildDir = QDir(fi.canonicalPath()).absoluteFilePath(QString::fromLatin1("../%1-build").arg(fi.baseName()));
-    return FileName::fromString(buildDir);
+    return FileName::fromString(QDir::cleanPath(buildDir));
 }
 
 qbs::Project QbsProject::qbsProject() const
