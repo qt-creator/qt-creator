@@ -144,7 +144,7 @@ int SearchResultTreeItemDelegate::drawLineNumber(QPainter *painter, const QStyle
 }
 
 void SearchResultTreeItemDelegate::drawText(QPainter *painter,
-                                            const QStyleOptionViewItem &opt,
+                                            const QStyleOptionViewItem &option,
                                             const QRect &rect,
                                             const QModelIndex &index) const
 {
@@ -159,7 +159,7 @@ void SearchResultTreeItemDelegate::drawText(QPainter *painter,
     const int searchTermStart = index.model()->data(index, ItemDataRoles::SearchTermStartRole).toInt();
     int searchTermLength = index.model()->data(index, ItemDataRoles::SearchTermLengthRole).toInt();
     if (searchTermStart < 0 || searchTermStart >= text.length() || searchTermLength < 1) {
-        QItemDelegate::drawDisplay(painter, opt, rect, text);
+        QItemDelegate::drawDisplay(painter, option, rect, text);
         return;
     }
     // clip searchTermLength to end of line
@@ -168,29 +168,48 @@ void SearchResultTreeItemDelegate::drawText(QPainter *painter,
     int searchTermStartPixels = painter->fontMetrics().width(text.left(searchTermStart));
     int searchTermLengthPixels = painter->fontMetrics().width(text.mid(searchTermStart, searchTermLength));
 
-    // Text before the highlighting
+    // rects
     QRect beforeHighlightRect(rect);
     beforeHighlightRect.setRight(beforeHighlightRect.left() + searchTermStartPixels);
-    QStyleOptionViewItem noHighlightOpt = opt;
+
+    QRect resultHighlightRect(rect);
+    resultHighlightRect.setLeft(beforeHighlightRect.right());
+    resultHighlightRect.setRight(resultHighlightRect.left() + searchTermLengthPixels);
+
+    QRect afterHighlightRect(rect);
+    afterHighlightRect.setLeft(resultHighlightRect.right());
+
+    // paint all highlight backgrounds
+    // qitemdelegate has problems with painting background when highlighted
+    // (highlighted background at wrong position because text is offset with textMargin)
+    // so we duplicate a lot here, see qitemdelegate for reference
+    bool isSelected = option.state & QStyle::State_Selected;
+    QPalette::ColorGroup cg = option.state & QStyle::State_Enabled
+                              ? QPalette::Normal : QPalette::Disabled;
+    if (cg == QPalette::Normal && !(option.state & QStyle::State_Active))
+        cg = QPalette::Inactive;
+    QStyleOptionViewItem baseOption = option;
+    baseOption.state &= ~QStyle::State_Selected;
+    if (isSelected) {
+        painter->fillRect(beforeHighlightRect.adjusted(textMargin, 0, textMargin, 0),
+                          option.palette.brush(cg, QPalette::Highlight));
+        painter->fillRect(afterHighlightRect.adjusted(textMargin, 0, textMargin, 0),
+                          option.palette.brush(cg, QPalette::Highlight));
+    }
+    const QColor highlightBackground =
+            index.model()->data(index, ItemDataRoles::ResultHighlightBackgroundColor).value<QColor>();
+    painter->fillRect(resultHighlightRect.adjusted(textMargin, 0, textMargin - 1, 0), QBrush(highlightBackground));
+
+    // Text before the highlighting
+    QStyleOptionViewItem noHighlightOpt = baseOption;
     noHighlightOpt.rect = beforeHighlightRect;
     noHighlightOpt.textElideMode = Qt::ElideNone;
+    if (isSelected)
+        noHighlightOpt.palette.setColor(QPalette::Text, noHighlightOpt.palette.color(cg, QPalette::HighlightedText));
     QItemDelegate::drawDisplay(painter, noHighlightOpt,
                                beforeHighlightRect, text.mid(0, searchTermStart));
 
-    // Highlight background
-    QRect highlightBackgroundRect(rect);
-    highlightBackgroundRect.setLeft(highlightBackgroundRect.left()
-                                    + searchTermStartPixels + textMargin - 1); // -1: Cosmetics
-    highlightBackgroundRect.setRight(highlightBackgroundRect.left()
-                                     + searchTermLengthPixels + 1); // +1: Cosmetics
-    const QColor highlightBackground =
-            index.model()->data(index, ItemDataRoles::ResultHighlightBackgroundColor).value<QColor>();
-    painter->fillRect(highlightBackgroundRect, QBrush(highlightBackground));
-
     // Highlight text
-    QRect resultHighlightRect(rect);
-    resultHighlightRect.setLeft(beforeHighlightRect.right());
-    resultHighlightRect.setRight(resultHighlightRect.left() + searchTermLengthPixels + textMargin);
     QStyleOptionViewItem highlightOpt = noHighlightOpt;
     const QColor highlightForeground =
             index.model()->data(index, ItemDataRoles::ResultHighlightForegroundColor).value<QColor>();
@@ -199,8 +218,6 @@ void SearchResultTreeItemDelegate::drawText(QPainter *painter,
                                text.mid(searchTermStart, searchTermLength));
 
     // Text after the Highlight
-    QRect afterHighlightRect(rect);
-    afterHighlightRect.setLeft(resultHighlightRect.right());
     noHighlightOpt.rect = afterHighlightRect;
     QItemDelegate::drawDisplay(painter, noHighlightOpt, afterHighlightRect,
                                text.mid(searchTermStart + searchTermLength));
