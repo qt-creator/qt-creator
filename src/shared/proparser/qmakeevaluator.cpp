@@ -1864,14 +1864,12 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateFile(
         VisitReturn ok = visitProFile(pro, type, flags);
         m_current = m_locationStack.pop();
         pro->deref();
-#ifdef PROEVALUATOR_FULL
         if (ok == ReturnTrue && !(flags & LoadHidden)) {
             ProStringList &iif = m_valuemapStack.first()[ProKey("QMAKE_INTERNAL_INCLUDED_FILES")];
             ProString ifn(fileName);
             if (!iif.contains(ifn))
                 iif << ifn;
         }
-#endif
         return ok;
     } else {
         return ReturnFalse;
@@ -1984,13 +1982,11 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateFileInto(
     if (ret != ReturnTrue)
         return ret;
     *values = visitor.m_valuemapStack.top();
-#ifdef PROEVALUATOR_FULL
     ProKey qiif("QMAKE_INTERNAL_INCLUDED_FILES");
     ProStringList &iif = m_valuemapStack.first()[qiif];
     foreach (const ProString &ifn, values->value(qiif))
         if (!iif.contains(ifn))
             iif << ifn;
-#endif
     return ReturnTrue;
 }
 
