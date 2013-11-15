@@ -284,7 +284,7 @@ QString QnxUtils::sdkInstallerPath(const QString &ndkPath)
 QString QnxUtils::qdeInstallProcess(const QString &ndkPath, const QString &option, const QString &version)
 {
     QString installerPath = sdkInstallerPath(ndkPath);
-    if (ndkPath.isEmpty())
+    if (installerPath.isEmpty())
         return QString();
 
     return QString::fromLatin1("%1 -nosplash -application com.qnx.tools.ide.sdk.manager.core.SDKInstallerApplication "
