@@ -83,7 +83,8 @@ public:
         Error,
         Function,
         RegionMarker,
-        Others
+        Others,
+        Identifier
     };
 
     void setTabSettings(const TabSettings &ts);

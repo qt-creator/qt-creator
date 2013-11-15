@@ -75,7 +75,8 @@ Highlighter::Highlighter(QTextDocument *parent) :
                    << TextEditor::C_TEXT // TODO : add style for error (eg. red underline)
                    << TextEditor::C_FUNCTION
                    << TextEditor::C_TEXT
-                   << TextEditor::C_TEXT;
+                   << TextEditor::C_TEXT
+                   << TextEditor::C_LOCAL;
     }
 
     setTextFormatCategories(categories);
@@ -113,6 +114,7 @@ KateFormatMap::KateFormatMap()
     m_ids.insert(QLatin1String("dsFunction"), Highlighter::Function);
     m_ids.insert(QLatin1String("dsRegionMarker"), Highlighter::RegionMarker);
     m_ids.insert(QLatin1String("dsOthers"), Highlighter::Others);
+    m_ids.insert(QLatin1String("dsIdentifier"), Highlighter::Identifier);
 }
 
 Q_GLOBAL_STATIC(KateFormatMap, kateFormatMap)
