@@ -90,7 +90,7 @@ void MakeStep::ctor()
 {
     m_percentProgress = QRegExp(QLatin1String("^\\[\\s*(\\d*)%\\]"));
     m_ninjaProgress = QRegExp(QLatin1String("^\\[\\s*(\\d*)/\\s*(\\d*)"));
-    m_ninjaProgressString = QLatin1String("[%s/%t "); // ninja: [33/100
+    m_ninjaProgressString = QLatin1String("[%f/%t "); // ninja: [33/100
     //: Default display name for the cmake make step.
     setDefaultDisplayName(tr("Make"));
 
