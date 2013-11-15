@@ -16,8 +16,6 @@
 
         \li QNX
 
-        \li \QS
-
     \endlist
 
     The following table summarizes operating system support for developing
@@ -57,11 +55,6 @@
             \li Yes
             \li Yes
             \li Yes (see \l{Running on QNX Devices} for limitations)
-        \row
-            \li \QS
-            \li Yes
-            \li Yes
-            \li Yes
     \endtable
 
     \note Symbian support has been removed from \QC 2.6. To develop for Symbian,

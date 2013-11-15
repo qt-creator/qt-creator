@@ -82,21 +82,6 @@
             a location from where it can be run on the device. You can change
             the relationship between the build, run, and deploy configurations.
 
-        \li \l{http://doc.qt.digia.com/qtsimulator/index.html}
-            {Using Qt Simulator}
-
-            You can use the \QS to test Qt applications that are
-            intended for mobile devices in an environment similar to that of
-            the device. You can change the information that the device has
-            about its configuration and environment.
-            \QS does not support any device specific APIs by design.
-            Therefore, applications that run well on \QS also run on
-            any device that hosts the Qt and Qt Mobility libraries.
-            The \QS is installed as part of the Qt 4 SDK. After it is
-            installed, you can create a \l{glossary-buildandrun-kit}{kit}
-            with \gui Desktop device type and the Qt Simulator Qt version for
-            building and running your projects.
-
     \endlist
 
 */

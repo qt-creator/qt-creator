@@ -2,9 +2,6 @@
 
     \list 1
 
-        \li Build and run the application for \l{Running on Qt Simulator}
-            {\QS}.
-
         \li Build and run the application for a device:
 
         \list 1
