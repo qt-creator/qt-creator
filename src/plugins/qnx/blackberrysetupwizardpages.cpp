@@ -220,6 +220,13 @@ void BlackBerrySetupWizardCertificatePage::validate()
         return;
     }
 
+    if (m_ui->password->text().size() < 6) {
+        // TODO: Use tr() once string freeze is over
+        m_ui->status->setText(QCoreApplication::translate("Qnx::Internal::BlackBerryCreateCertificateDialog", "Password must be at least 6 characters long."));
+        setComplete(false);
+        return;
+    }
+
     m_ui->status->clear();
     setComplete(true);
 }
