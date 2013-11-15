@@ -82,8 +82,9 @@ bool PerforceVersionControl::supportsOperation(Operation operation) const
     return false;
 }
 
-Core::IVersionControl::OpenSupportMode PerforceVersionControl::openSupportMode() const
+Core::IVersionControl::OpenSupportMode PerforceVersionControl::openSupportMode(const QString &fileName) const
 {
+    Q_UNUSED(fileName);
     return OpenOptional;
 }
 
