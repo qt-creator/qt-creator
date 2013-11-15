@@ -184,6 +184,7 @@ void BlackBerryNDKSettingsWidget::updateNdkList()
 void BlackBerryNDKSettingsWidget::addNdkTarget()
 {
     launchBlackBerryInstallerWizard(BlackBerryInstallerDataHandler::InstallMode);
+    emit targetsUpdated();
 }
 
 void BlackBerryNDKSettingsWidget::removeNdkTarget()
@@ -200,6 +201,7 @@ void BlackBerryNDKSettingsWidget::removeNdkTarget()
 
     if (config->isAutoDetected()) {
         uninstallNdkTarget();
+        emit targetsUpdated();
         return;
     }
 
@@ -214,6 +216,7 @@ void BlackBerryNDKSettingsWidget::removeNdkTarget()
         m_deactivatedTargets.removeOne(config);
         m_bbConfigManager->removeConfiguration(config);
         m_manualNdks->removeChild(m_ui->ndksTreeWidget->currentItem());
+        emit targetsUpdated();
     }
 }
 
@@ -231,6 +234,7 @@ void BlackBerryNDKSettingsWidget::activateNdkTarget()
            m_deactivatedTargets.removeAt(m_deactivatedTargets.indexOf(config));
 
         updateUi(m_ui->ndksTreeWidget->currentItem(), config);
+        emit targetsUpdated();
     }
 }
 
@@ -246,6 +250,7 @@ void BlackBerryNDKSettingsWidget::deactivateNdkTarget()
         m_deactivatedTargets << config;
         m_activatedTargets.removeAt(m_activatedTargets.indexOf(config));
         updateUi(m_ui->ndksTreeWidget->currentItem(), config);
+        emit targetsUpdated();
     }
 }
 

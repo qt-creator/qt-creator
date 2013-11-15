@@ -86,7 +86,7 @@ BlackBerrySetupWizardNdkPage::BlackBerrySetupWizardNdkPage(QWidget *parent) :
     m_widget = new BlackBerryNDKSettingsWidget(this);
     m_widget->setWizardMessageVisible(false);
 
-    connect(m_widget, SIGNAL(kitsUpdated()), this, SIGNAL(completeChanged()));
+    connect(m_widget, SIGNAL(targetsUpdated()), this, SIGNAL(completeChanged()));
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(m_widget);
