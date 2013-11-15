@@ -604,7 +604,7 @@ void QbsProjectNode::update(const qbs::ProjectData &prjData)
     foreach (const qbs::ProjectData &subData, prjData.subProjects()) {
         QbsProjectNode *qn = findProjectNode(subData.name());
         if (!qn) {
-            QbsProjectNode *subProject = new QbsProjectNode(prjData.location().fileName());
+            QbsProjectNode *subProject = new QbsProjectNode(subData.location().fileName());
             subProject->update(subData);
             toAdd << subProject;
         } else {
