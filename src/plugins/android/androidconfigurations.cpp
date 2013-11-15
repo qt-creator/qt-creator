@@ -772,8 +772,7 @@ bool AndroidConfigurations::hasFinishedBooting(const QString &device) const
 QStringList AndroidConfigurations::getAbis(const QString &device) const
 {
     QStringList result;
-    int i = 1;
-    while (true) {
+    for (int i = 1; i < 6; ++i) {
         QStringList arguments = AndroidDeviceInfo::adbSelector(device);
         arguments << QLatin1String("shell") << QLatin1String("getprop");
         if (i == 1)
@@ -791,7 +790,6 @@ QStringList AndroidConfigurations::getAbis(const QString &device) const
         if (abi.isEmpty())
             break;
         result << abi;
-        ++i;
     }
     return result;
 }
