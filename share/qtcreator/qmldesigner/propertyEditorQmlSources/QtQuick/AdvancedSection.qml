@@ -37,7 +37,14 @@ Section {
     caption: qsTr("Advanced")
 
     SectionLayout {
-        rows: 3
+        rows: 4
+
+        OriginControl {
+            backendValue: backendValues.transformOrigin
+        }
+
+        SecondColumnLayout {
+        }
 
         Label {
             text: qsTr("Scale")
