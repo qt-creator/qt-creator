@@ -67,7 +67,7 @@ using namespace Core::Internal;
     for running tasks in Qt Creator.
 
     It tracks the progress of a task that it is told
-    about, and shows a progress indicator in the left hand tool bar
+    about, and shows a progress indicator in the lower right
     of Qt Creator's main window to the user.
     The progress indicator also allows the user to cancel the task.
 
