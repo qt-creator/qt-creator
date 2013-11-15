@@ -116,10 +116,9 @@ QWidget *GeneralSettings::createPage(QWidget *parent)
         QSettings *settings = Core::ICore::settings();
         const QStringList availableTerminals = ConsoleProcess::availableTerminalEmulators();
         const QString currentTerminal = ConsoleProcess::terminalEmulator(settings, false);
-        const QString currentTerminalExplicit = ConsoleProcess::terminalEmulator(settings, true);
         m_page->terminalComboBox->addItems(availableTerminals);
         m_page->terminalComboBox->lineEdit()->setText(currentTerminal);
-        m_page->terminalComboBox->lineEdit()->setPlaceholderText(currentTerminalExplicit);
+        m_page->terminalComboBox->lineEdit()->setPlaceholderText(ConsoleProcess::defaultTerminalEmulator());
     } else {
         m_page->terminalLabel->hide();
         m_page->terminalComboBox->hide();
