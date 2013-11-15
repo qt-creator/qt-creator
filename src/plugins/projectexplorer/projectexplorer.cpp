@@ -1355,10 +1355,12 @@ QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileName
         QTC_ASSERT(!fileName.isEmpty(), continue);
 
         QFileInfo fi = QFileInfo(fileName);
-        QString canonicalFilePath = fi.canonicalFilePath();
+        QString filePath = fileName;
+        if (fi.exists()) // canonicalFilePath will be empty otherwise!
+            filePath = fi.canonicalFilePath();
         bool found = false;
         foreach (Project *pi, SessionManager::projects()) {
-            if (canonicalFilePath == pi->projectFilePath()) {
+            if (filePath == pi->projectFilePath()) {
                 found = true;
                 break;
             }
@@ -1374,7 +1376,7 @@ QList<Project *> ProjectExplorerPlugin::openProjects(const QStringList &fileName
             foreach (IProjectManager *manager, projectManagers) {
                 if (manager->mimeType() == mt.type()) {
                     QString tmp;
-                    if (Project *pro = manager->openProject(canonicalFilePath, &tmp)) {
+                    if (Project *pro = manager->openProject(filePath, &tmp)) {
                         if (pro->restoreSettings()) {
                             connect(pro, SIGNAL(fileListChanged()), this, SIGNAL(fileListChanged()));
                             SessionManager::addProject(pro);
