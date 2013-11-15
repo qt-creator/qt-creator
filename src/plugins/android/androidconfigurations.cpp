@@ -470,6 +470,8 @@ QVector<AndroidDeviceInfo> AndroidConfigurations::connectedDevices(QString *erro
     foreach (const QByteArray &device, adbDevs) {
         const QString serialNo = QString::fromLatin1(device.left(device.indexOf('\t')).trimmed());
         const QString deviceType = QString::fromLatin1(device.mid(device.indexOf('\t'))).trimmed();
+        if (isBootToQt(serialNo))
+            continue;
         AndroidDeviceInfo dev;
         dev.serialNumber = serialNo;
         dev.type = serialNo.startsWith(QLatin1String("emulator")) ? AndroidDeviceInfo::Emulator : AndroidDeviceInfo::Hardware;
@@ -687,6 +689,22 @@ QString AndroidConfigurations::waitForAvd(int apiLevel, const QString &cpuAbi) c
         Utils::sleep(8000);
     }
     return QString();
+}
+
+bool AndroidConfigurations::isBootToQt(const QString &device) const
+{
+    // workaround for '????????????' serial numbers
+    QStringList arguments = AndroidDeviceInfo::adbSelector(device);
+    arguments << QLatin1String("shell")
+              << QLatin1String("ls -l /system/bin/appcontroller || ls -l /usr/bin/appcontroller && echo Boot2Qt");
+
+    QProcess adbProc;
+    adbProc.start(adbToolPath().toString(), arguments);
+    if (!adbProc.waitForFinished(-1)) {
+        adbProc.kill();
+        return -1;
+    }
+    return adbProc.readAll().contains("Boot2Qt");
 }
 
 int AndroidConfigurations::getSDKVersion(const QString &device) const

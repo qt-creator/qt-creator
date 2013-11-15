@@ -146,6 +146,7 @@ private:
 
     int getSDKVersion(const QString &device) const;
     QStringList getAbis(const QString &device) const;
+    bool isBootToQt(const QString &device) const;
     void updateAvailableNdkPlatforms();
     void updateAvailableSdkPlatforms();
 
