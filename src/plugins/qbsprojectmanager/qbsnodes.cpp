@@ -256,9 +256,6 @@ QbsBaseProjectNode::QbsBaseProjectNode(const QString &path) :
 
 bool QbsBaseProjectNode::hasBuildTargets() const
 {
-    foreach (ProjectNode *n, subProjectNodes())
-        if (n->hasBuildTargets())
-            return true;
     return false;
 }
 
@@ -484,6 +481,11 @@ QbsProductNode::QbsProductNode(const qbs::ProductData &prd) :
 bool QbsProductNode::isEnabled() const
 {
     return m_qbsProductData.isEnabled();
+}
+
+bool QbsProductNode::hasBuildTargets() const
+{
+    return true;
 }
 
 void QbsProductNode::setQbsProductData(const qbs::ProductData prd)
