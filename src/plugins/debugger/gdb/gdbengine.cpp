@@ -3603,6 +3603,7 @@ void GdbEngine::handleStackSelectThread(const GdbResponse &)
 void GdbEngine::reloadFullStack()
 {
     PENDING_DEBUG("RELOAD FULL STACK");
+    resetLocation();
     postCommand("-stack-list-frames", Discardable, CB(handleStackListFrames),
         QVariant::fromValue<StackCookie>(StackCookie(true, true)));
 }
