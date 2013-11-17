@@ -920,38 +920,36 @@ def qdumpHelper__Qt5_QMap(d, value, forceLong):
         else:
             innerType = nodeType
 
-        with Children(d, n, childType=innerType):
-            toDo = []
-            i = -1
-            node = d_ptr["header"]
+
+        def helper(d, node, nodeType, isCompact, forceLong, i):
             left = node["left"]
             if not d.isNull(left):
-                toDo.append(left.dereference())
+                i = helper(d, left.dereference(), nodeType, isCompact, forceLong, i)
+
+            nodex = node.cast(nodeType)
+            with SubItem(d, i):
+                d.putField("iname", d.currentIName)
+                if isCompact:
+                    if forceLong:
+                        d.putName("[%s] %s" % (i, nodex["key"]))
+                    else:
+                        d.putMapName(nodex["key"])
+                    d.putItem(nodex["value"])
+                else:
+                    qdump__QMapNode(d, nodex)
+
+            i += 1
+
             right = node["right"]
             if not d.isNull(right):
-                toDo.append(right.dereference())
+                i = helper(d, right.dereference(), nodeType, isCompact, forceLong, i)
 
-            while len(toDo):
-                node = toDo[0].cast(nodeType)
-                toDo = toDo[1:]
-                left = node["left"]
-                if not d.isNull(left):
-                    toDo.append(left.dereference())
-                right = node["right"]
-                if not d.isNull(right):
-                    toDo.append(right.dereference())
-                i += 1
+            return i
 
-                with SubItem(d, i):
-                    d.putField("iname", d.currentIName)
-                    if isCompact:
-                        if forceLong:
-                            d.putName("[%s] %s" % (i, node["key"]))
-                        else:
-                            d.putMapName(node["key"])
-                        d.putItem(node["value"])
-                    else:
-                        qdump__QMapNode(d, node)
+        with Children(d, n, childType=innerType):
+            node = d_ptr["header"]
+            helper(d, node, nodeType, isCompact, forceLong, 0)
+
 
 
 def qdumpHelper__QMap(d, value, forceLong):
