@@ -3748,6 +3748,18 @@ namespace qstring  {
         dummyStatement(&str, &string, pstring);
     }
 
+    void testQString4()
+    {
+        QString str;
+        for (int i = 0; i < 1000000; ++i)
+            str += QString::fromLatin1("%1 ").arg(i);
+        BREAK_HERE;
+        BREAK_HERE;
+        BREAK_HERE;
+        BREAK_HERE;
+        dummyStatement(&str);
+    }
+
     void testQStringRef()
     {
         QString str = "Hello";
@@ -3763,6 +3775,7 @@ namespace qstring  {
         testQString1();
         testQString2();
         testQString3();
+        testQString4();
         testQStringRef();
         testQStringQuotes();
     }

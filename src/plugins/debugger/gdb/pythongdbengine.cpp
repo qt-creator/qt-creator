@@ -37,6 +37,7 @@
 
 #include <debugger/stackhandler.h>
 
+#include <utils/savedaction.h>
 #include <utils/qtcassert.h>
 
 #define PRECONDITION QTC_CHECK(hasPython())
@@ -57,6 +58,9 @@ void GdbEngine::updateLocalsPython(const UpdateParameters &params)
     QByteArray expanded = "expanded:" + handler->expansionRequests() + ' ';
     expanded += "typeformats:" + handler->typeFormatRequests() + ' ';
     expanded += "formats:" + handler->individualFormatRequests();
+
+    QByteArray cutOff = " stringcutoff:"
+        + debuggerCore()->action(MaximalStringLength)->value().toByteArray();
 
     QByteArray watchers;
     const QString fileName = stackHandler()->currentFrame().file;
@@ -127,7 +131,7 @@ void GdbEngine::updateLocalsPython(const UpdateParameters &params)
         resultVar = "resultvarname:" + m_resultVarName + ' ';
 
     postCommand("bb options:" + options + " vars:" + params.varList + ' '
-            + resultVar + expanded + " watchers:" + watchers.toHex(),
+            + resultVar + expanded + " watchers:" + watchers.toHex() + cutOff,
         Discardable, CB(handleStackFramePython), QVariant(params.tryPartial));
 }
 
