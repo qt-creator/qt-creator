@@ -159,10 +159,7 @@ public:
     bool synchronousLog(const QString &workingDirectory,
                         const QStringList &arguments,
                         QString *output, QString *errorMessage = 0);
-    bool synchronousAdd(const QString &workingDirectory,
-                        // Warning: Works only from 1.6.1 onwards
-                        bool intendToAdd,
-                        const QStringList &files);
+    bool synchronousAdd(const QString &workingDirectory, const QStringList &files);
     bool synchronousDelete(const QString &workingDirectory,
                            bool force,
                            const QStringList &files);
