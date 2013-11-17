@@ -91,6 +91,8 @@ QT_END_NAMESPACE
 
 namespace {
 
+typedef QByteArray _;
+
 /// A fake virtual functions assist provider that runs processor->perform() already in configure()
 class VirtualFunctionTestAssistProvider : public VirtualFunctionAssistProvider
 {
@@ -248,7 +250,7 @@ public:
              const OverrideItemList &expectedVirtualFunctionFinalProposal = OverrideItemList());
     ~TestCase();
 
-    void run(bool expectedFail = false);
+    void run();
 
 private:
     TestCase(const TestCase &);
@@ -393,7 +395,7 @@ TestDocumentPtr TestCase::testFileWithTargetCursorMarker()
     return TestDocumentPtr();
 }
 
-void TestCase::run(bool expectedFail)
+void TestCase::run()
 {
     TestDocumentPtr initialTestFile = testFileWithInitialCursorMarker();
     QVERIFY(initialTestFile);
@@ -451,8 +453,7 @@ void TestCase::run(bool expectedFail)
 //    qDebug() << "Expected line:" << expectedLine;
 //    qDebug() << "Expected column:" << expectedColumn;
 
-    if (expectedFail)
-        QEXPECT_FAIL("", "Contributor works on a fix.", Abort);
+    QEXPECT_FAIL("globalVarFromEnum", "Contributor works on a fix.", Abort);
     QCOMPARE(currentTextEditor->currentLine(), expectedLine);
     QCOMPARE(currentTextEditor->currentColumn() - 1, expectedColumn);
 
@@ -464,21 +465,19 @@ void TestCase::run(bool expectedFail)
 
 } // anonymous namespace
 
-void CppEditorPlugin::test_SwitchMethodDeclarationDefinition_fromFunctionDeclarationSymbol()
+void CppEditorPlugin::test_SwitchMethodDeclarationDefinition_data()
 {
-    QList<TestDocumentPtr> testFiles;
+    QTest::addColumn<QByteArray>("header");
+    QTest::addColumn<QByteArray>("source");
 
-    const QByteArray headerContents =
+    QTest::newRow("fromFunctionDeclarationSymbol") << _(
         "class C\n"
         "{\n"
         "public:\n"
         "    C();\n"
         "    int @function();\n"  // Line 5
         "};\n"
-        ;
-    testFiles << TestDocument::create(headerContents, QLatin1String("file.h"));
-
-    const QByteArray sourceContents =
+        ) << _(
         "#include \"file.h\"\n"
         "\n"
         "C::C()\n"
@@ -489,28 +488,16 @@ void CppEditorPlugin::test_SwitchMethodDeclarationDefinition_fromFunctionDeclara
         "{\n"
         "    return 1 + 1;\n"
         "}\n"                   // Line 10
-        ;
-    testFiles << TestDocument::create(sourceContents, QLatin1String("file.cpp"));
+    );
 
-    TestCase test(TestCase::SwitchBetweenMethodDeclarationDefinitionAction, testFiles);
-    test.run();
-}
-
-void CppEditorPlugin::test_SwitchMethodDeclarationDefinition_fromFunctionDefinitionSymbol()
-{
-    QList<TestDocumentPtr> testFiles;
-
-    const QByteArray headerContents =
+    QTest::newRow("fromFunctionDefinitionSymbol") << _(
         "class C\n"
         "{\n"
         "public:\n"
         "    C();\n"
         "    int $function();\n"
         "};\n"
-        ;
-    testFiles << TestDocument::create(headerContents, QLatin1String("file.h"));
-
-    const QByteArray sourceContents =
+        ) << _(
         "#include \"file.h\"\n"
         "\n"
         "C::C()\n"
@@ -521,28 +508,16 @@ void CppEditorPlugin::test_SwitchMethodDeclarationDefinition_fromFunctionDefinit
         "{\n"
         "    return 1 + 1;\n"
         "}\n"
-        ;
-    testFiles << TestDocument::create(sourceContents, QLatin1String("file.cpp"));
+    );
 
-    TestCase test(TestCase::SwitchBetweenMethodDeclarationDefinitionAction, testFiles);
-    test.run();
-}
-
-void CppEditorPlugin::test_SwitchMethodDeclarationDefinition_fromFunctionBody()
-{
-    QList<TestDocumentPtr> testFiles;
-
-    const QByteArray headerContents =
+    QTest::newRow("fromFunctionBody") << _(
         "class C\n"
         "{\n"
         "public:\n"
         "    C();\n"
         "    int $function();\n"
         "};\n"
-        ;
-    testFiles << TestDocument::create(headerContents, QLatin1String("file.h"));
-
-    const QByteArray sourceContents =
+        ) << _(
         "#include \"file.h\"\n"
         "\n"
         "C::C()\n"
@@ -553,28 +528,16 @@ void CppEditorPlugin::test_SwitchMethodDeclarationDefinition_fromFunctionBody()
         "{\n"
         "    return @1 + 1;\n"
         "}\n"                   // Line 10
-        ;
-    testFiles << TestDocument::create(sourceContents, QLatin1String("file.cpp"));
+    );
 
-    TestCase test(TestCase::SwitchBetweenMethodDeclarationDefinitionAction, testFiles);
-    test.run();
-}
-
-void CppEditorPlugin::test_SwitchMethodDeclarationDefinition_fromReturnType()
-{
-    QList<TestDocumentPtr> testFiles;
-
-    const QByteArray headerContents =
+    QTest::newRow("fromReturnType") << _(
         "class C\n"
         "{\n"
         "public:\n"
         "    C();\n"
         "    int $function();\n"
         "};\n"
-        ;
-    testFiles << TestDocument::create(headerContents, QLatin1String("file.h"));
-
-    const QByteArray sourceContents =
+        ) << _(
         "#include \"file.h\"\n"
         "\n"
         "C::C()\n"
@@ -585,32 +548,37 @@ void CppEditorPlugin::test_SwitchMethodDeclarationDefinition_fromReturnType()
         "{\n"
         "    return 1 + 1;\n"
         "}\n"                   // Line 10
-        ;
-    testFiles << TestDocument::create(sourceContents, QLatin1String("file.cpp"));
+    );
+}
+
+void CppEditorPlugin::test_SwitchMethodDeclarationDefinition()
+{
+    QFETCH(QByteArray, header);
+    QFETCH(QByteArray, source);
+
+    QList<TestDocumentPtr> testFiles;
+    testFiles << TestDocument::create(header, QLatin1String("file.h"));
+    testFiles << TestDocument::create(source, QLatin1String("file.cpp"));
 
     TestCase test(TestCase::SwitchBetweenMethodDeclarationDefinitionAction, testFiles);
     test.run();
 }
 
-/// Check ...
-void CppEditorPlugin::test_FollowSymbolUnderCursor_globalVarFromFunction()
+void CppEditorPlugin::test_FollowSymbolUnderCursor_data()
 {
-    const QByteArray source =
+    QTest::addColumn<QByteArray>("source");
+
+    /// Check ...
+    QTest::newRow("globalVarFromFunction") << _(
         "int $j;\n"
         "int main()\n"
         "{\n"
         "    @j = 2;\n"
         "}\n"           // Line 5
-        ;
+    );
 
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
-}
-
-void CppEditorPlugin::test_FollowSymbolUnderCursor_funLocalVarHidesClassMember()
-{
     // 3.3.10 Name hiding (par 3.), from text
-    const QByteArray source =
+    QTest::newRow("funLocalVarHidesClassMember") << _(
         "struct C {\n"
         "    void f()\n"
         "    {\n"
@@ -619,16 +587,10 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_funLocalVarHidesClassMember()
         "    }\n"
         "    int member;\n"
         "};\n"
-        ;
+    );
 
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
-}
-
-void CppEditorPlugin::test_FollowSymbolUnderCursor_funLocalVarHidesNamespaceMemberIntroducedByUsingDirective()
-{
     // 3.3.10 Name hiding (par 4.), from text
-    const QByteArray source =
+    QTest::newRow("funLocalVarHidesNamespaceMemberIntroducedByUsingDirective") << _(
         "namespace N {\n"
         "    int i;\n"
         "}\n"
@@ -639,139 +601,85 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_funLocalVarHidesNamespaceMemb
         "    int $i;\n"
         "    ++i@; // refers to local i;\n"
         "}\n"                                // Line 10
-        ;
+    );
 
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
-}
-
-void CppEditorPlugin::test_FollowSymbolUnderCursor_loopLocalVarHidesOuterScopeVariable1()
-{
     // 3.3.3 Block scope (par. 4), from text
     // Same for if, while, switch
-    const QByteArray source =
+    QTest::newRow("loopLocalVarHidesOuterScopeVariable1") << _(
         "int main()\n"
         "{\n"
         "    int i = 1;\n"
         "    for (int $i = 0; i < 10; ++i) { // 'i' refers to for's i\n"
         "        i = @i; // same\n"                                       // Line 5
         "    }\n"
-        "}\n";
-        ;
+        "}\n"
+    );
 
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
-}
-
-void CppEditorPlugin::test_FollowSymbolUnderCursor_loopLocalVarHidesOuterScopeVariable2()
-{
     // 3.3.3 Block scope (par. 4), from text
     // Same for if, while, switch
-    const QByteArray source =
+    QTest::newRow("loopLocalVarHidesOuterScopeVariable2") << _(
         "int main()\n"
         "{\n"
         "    int i = 1;\n"
         "    for (int $i = 0; @i < 10; ++i) { // 'i' refers to for's i\n"
         "        i = i; // same\n"                                         // Line 5
         "    }\n"
-        "}\n";
-        ;
+        "}\n"
+    );
 
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
-}
-
-void CppEditorPlugin::test_FollowSymbolUnderCursor_subsequentDefinedClassMember()
-{
     // 3.3.7 Class scope, part of the example
-    const QByteArray source =
+    QTest::newRow("subsequentDefinedClassMember") << _(
         "class X {\n"
         "    int f() { return @i; } // i refers to class's i\n"
         "    int $i;\n"
         "};\n"
-        ;
+    );
 
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
-}
-
-void CppEditorPlugin::test_FollowSymbolUnderCursor_classMemberHidesOuterTypeDef()
-{
     // 3.3.7 Class scope, part of the example
     // Variable name hides type name.
-    const QByteArray source =
+    QTest::newRow("classMemberHidesOuterTypeDef") << _(
         "typedef int c;\n"
         "class X {\n"
         "    int f() { return @c; } // c refers to class' c\n"
         "    int $c; // hides typedef name\n"
         "};\n"                                                 // Line 5
-        ;
+    );
 
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
-}
-
-void CppEditorPlugin::test_FollowSymbolUnderCursor_globalVarFromEnum()
-{
     // 3.3.2 Point of declaration (par. 1), copy-paste
-    const QByteArray source =
+    QTest::newRow("globalVarFromEnum") << _(
         "const int $x = 12;\n"
         "int main()\n"
         "{\n"
         "    enum { x = @x }; // x refers to global x\n"
         "}\n"                                             // Line 5
-        ;
+    );
 
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
-    test.run(/*expectedFail =*/ true);
-}
-
-void CppEditorPlugin::test_FollowSymbolUnderCursor_selfInitialization()
-{
     // 3.3.2 Point of declaration
-    const QByteArray source =
+    QTest::newRow("selfInitialization") << _(
         "int x = 12;\n"
         "int main()\n"
         "{\n"
         "   int $x = @x; // Second x refers to local x\n"
         "}\n"                                              // Line 5
-        ;
+    );
 
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
-}
-
-void CppEditorPlugin::test_FollowSymbolUnderCursor_pointerToClassInClassDefinition()
-{
     // 3.3.2 Point of declaration (par. 3), from text
-    const QByteArray source =
+    QTest::newRow("pointerToClassInClassDefinition") << _(
         "class $Foo {\n"
         "    @Foo *p; // Refers to above Foo\n"
         "};\n"
-        ;
+    );
 
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
-}
-
-void CppEditorPlugin::test_FollowSymbolUnderCursor_previouslyDefinedMemberFromArrayDefinition()
-{
     // 3.3.2 Point of declaration (par. 5), copy-paste
-    const QByteArray source =
+    QTest::newRow("previouslyDefinedMemberFromArrayDefinition") << _(
         "struct X {\n"
         "    enum E { $z = 16 };\n"
         "    int b[X::@z]; // z refers to defined z\n"
         "};\n"
-        ;
+    );
 
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
-}
-
-void CppEditorPlugin::test_FollowSymbolUnderCursor_outerStaticMemberVariableFromInsideSubclass()
-{
     // 3.3.7 Class scope (par. 2), from text
-    const QByteArray source =
+    QTest::newRow("outerStaticMemberVariableFromInsideSubclass") << _(
         "struct C\n"
         "{\n"
         "   struct I\n"
@@ -784,16 +692,10 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_outerStaticMemberVariableFrom
         "\n"                                           // Line 10
         "   static int $c;\n"
         "};\n"
-        ;
+    );
 
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
-}
-
-void CppEditorPlugin::test_FollowSymbolUnderCursor_memberVariableFollowingDotOperator()
-{
     // 3.3.7 Class scope (par. 1), part of point 5
-    const QByteArray source =
+    QTest::newRow("memberVariableFollowingDotOperator") << _(
         "struct C\n"
         "{\n"
         "    int $member;\n"
@@ -804,16 +706,10 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_memberVariableFollowingDotOpe
         "    C c;\n"
         "    c.@member++;\n"
         "}\n"                // Line 10
-        ;
+    );
 
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
-}
-
-void CppEditorPlugin::test_FollowSymbolUnderCursor_memberVariableFollowingArrowOperator()
-{
     // 3.3.7 Class scope (par. 1), part of point 5
-    const QByteArray source =
+    QTest::newRow("memberVariableFollowingArrowOperator") << _(
         "struct C\n"
         "{\n"
         "    int $member;\n"
@@ -824,16 +720,10 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_memberVariableFollowingArrowO
         "    C* c;\n"
         "    c->@member++;\n"
         "}\n"                   // Line 10
-        ;
+    );
 
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
-}
-
-void CppEditorPlugin::test_FollowSymbolUnderCursor_staticMemberVariableFollowingScopeOperator()
-{
     // 3.3.7 Class scope (par. 1), part of point 5
-    const QByteArray source =
+    QTest::newRow("staticMemberVariableFollowingScopeOperator") << _(
         "struct C\n"
         "{\n"
         "    static int $member;\n"
@@ -843,16 +733,10 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_staticMemberVariableFollowing
         "{\n"
         "    C::@member++;\n"
         "}\n"
-        ;
+    );
 
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
-}
-
-void CppEditorPlugin::test_FollowSymbolUnderCursor_staticMemberVariableFollowingDotOperator()
-{
     // 3.3.7 Class scope (par. 2), from text
-    const QByteArray source =
+    QTest::newRow("staticMemberVariableFollowingDotOperator") << _(
         "struct C\n"
         "{\n"
         "    static int $member;\n"
@@ -863,17 +747,11 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_staticMemberVariableFollowing
         "    C c;\n"
         "    c.@member;\n"
         "}\n"                       // Line 10
-        ;
-
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
-}
+    );
 
 
-void CppEditorPlugin::test_FollowSymbolUnderCursor_staticMemberVariableFollowingArrowOperator()
-{
     // 3.3.7 Class scope (par. 2), from text
-    const QByteArray source =
+    QTest::newRow("staticMemberVariableFollowingArrowOperator") << _(
         "struct C\n"
         "{\n"
         "    static int $member;\n"
@@ -884,30 +762,18 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_staticMemberVariableFollowing
         "    C *c;\n"
         "    c->@member++;\n"
         "}\n"                        // Line 10
-        ;
+    );
 
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
-}
-
-void CppEditorPlugin::test_FollowSymbolUnderCursor_previouslyDefinedEnumValueFromInsideEnum()
-{
     // 3.3.8 Enumeration scope
-    const QByteArray source =
+    QTest::newRow("previouslyDefinedEnumValueFromInsideEnum") << _(
         "enum {\n"
         "    $i = 0,\n"
         "    j = @i // refers to i above\n"
         "};\n"
-        ;
+    );
 
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
-}
-
-void CppEditorPlugin::test_FollowSymbolUnderCursor_nsMemberHidesNsMemberIntroducedByUsingDirective()
-{
     // 3.3.8 Enumeration scope
-    const QByteArray source =
+    QTest::newRow("nsMemberHidesNsMemberIntroducedByUsingDirective") << _(
         "namespace A {\n"
         "  char x;\n"
         "}\n"
@@ -921,17 +787,11 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_nsMemberHidesNsMemberIntroduc
         "{\n"
         "    B::@x++; // refers to B's X, not A::x\n"
         "}\n"
-        ;
+    );
 
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
-}
-
-void CppEditorPlugin::test_FollowSymbolUnderCursor_baseClassFunctionIntroducedByUsingDeclaration()
-{
     // 3.3.10 Name hiding, from text
     // www.stroustrup.com/bs_faq2.html#overloadderived
-    const QByteArray source =
+    QTest::newRow("baseClassFunctionIntroducedByUsingDeclaration") << _(
         "struct B {\n"
         "    int $f(int) {}\n"
         "};\n"
@@ -948,17 +808,11 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_baseClassFunctionIntroducedBy
         "    pd->@f(2); // refers to B::f\n"
         "    pd->f(2.3); // refers to D::f\n"                 // Line 15
         "}\n"
-        ;
+    );
 
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
-}
-
-void CppEditorPlugin::test_FollowSymbolUnderCursor_funWithSameNameAsBaseClassFunIntroducedByUsingDeclaration()
-{
     // 3.3.10 Name hiding, from text
     // www.stroustrup.com/bs_faq2.html#overloadderived
-    const QByteArray source =
+    QTest::newRow("funWithSameNameAsBaseClassFunIntroducedByUsingDeclaration") << _(
         "struct B {\n"
         "    int f(int) {}\n"
         "};\n"
@@ -975,18 +829,12 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_funWithSameNameAsBaseClassFun
         "    pd->f(2); // refers to B::f\n"
         "    pd->@f(2.3); // refers to D::f\n"                // Line 15
         "}\n"
-        ;
+    );
 
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
-}
-
-void CppEditorPlugin::test_FollowSymbolUnderCursor_funLocalVarHidesOuterClass()
-{
     // 3.3.10 Name hiding (par 2.), from text
     // A class name (9.1) or enumeration name (7.2) can be hidden by the name of a variable, data member,
     // function, or enumerator declared in the same scope.
-    const QByteArray source =
+    QTest::newRow("funLocalVarHidesOuterClass") << _(
         "struct C {};\n"
         "\n"
         "int main()\n"
@@ -994,15 +842,9 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_funLocalVarHidesOuterClass()
         "    int $C; // hides type C\n"  // Line 5
         "    ++@C;\n"
         "}\n"
-        ;
+    );
 
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
-}
-
-void CppEditorPlugin::test_FollowSymbolUnderCursor_classConstructor()
-{
-    const QByteArray source =
+    QTest::newRow("classConstructor") << _(
             "class Foo {\n"
             "    F@oo();"
             "    ~Foo();"
@@ -1012,15 +854,10 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_classConstructor()
             "}\n\n"
             "Foo::~Foo()\n"
             "{\n"
-            "}\n";
+            "}\n"
+    );
 
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
-}
-
-void CppEditorPlugin::test_FollowSymbolUnderCursor_classDestructor()
-{
-    const QByteArray source =
+    QTest::newRow("classDestructor") << _(
             "class Foo {\n"
             "    Foo();"
             "    ~@Foo();"
@@ -1030,8 +867,49 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_classDestructor()
             "}\n\n"
             "Foo::~$Foo()\n"
             "{\n"
-            "}\n";
+            "}\n"
+    );
 
+    QTest::newRow("using_QTCREATORBUG7903_globalNamespace") << _(
+            "namespace NS {\n"
+            "class Foo {};\n"
+            "}\n"
+            "using NS::$Foo;\n"
+            "void fun()\n"
+            "{\n"
+            "    @Foo foo;\n"
+            "}\n"
+    );
+
+    QTest::newRow("using_QTCREATORBUG7903_namespace") << _(
+            "namespace NS {\n"
+            "class Foo {};\n"
+            "}\n"
+            "namespace NS1 {\n"
+            "void fun()\n"
+            "{\n"
+            "    using NS::$Foo;\n"
+            "    @Foo foo;\n"
+            "}\n"
+            "}\n"
+    );
+
+    QTest::newRow("using_QTCREATORBUG7903_insideFunction") << _(
+            "namespace NS {\n"
+            "class Foo {};\n"
+            "}\n"
+            "void fun()\n"
+            "{\n"
+            "    using NS::$Foo;\n"
+            "    @Foo foo;\n"
+            "}\n"
+    );
+
+}
+
+void CppEditorPlugin::test_FollowSymbolUnderCursor()
+{
+    QFETCH(QByteArray, source);
     TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
     test.run();
 }
@@ -1198,59 +1076,6 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_classOperator_inOp()
     else
         source.replace("@2", QByteArray()).replace("$2", QByteArray())
                 .replace("@1", "@").replace("$1", "$");
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
-}
-
-void CppEditorPlugin::test_FollowSymbolUnderCursor_using_QTCREATORBUG7903_globalNamespace()
-{
-    const QByteArray source =
-            "namespace NS {\n"
-            "class Foo {};\n"
-            "}\n"
-            "using NS::$Foo;\n"
-            "void fun()\n"
-            "{\n"
-            "    @Foo foo;\n"
-            "}\n"
-        ;
-
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
-}
-
-void CppEditorPlugin::test_FollowSymbolUnderCursor_using_QTCREATORBUG7903_namespace()
-{
-    const QByteArray source =
-            "namespace NS {\n"
-            "class Foo {};\n"
-            "}\n"
-            "namespace NS1 {\n"
-            "void fun()\n"
-            "{\n"
-            "    using NS::$Foo;\n"
-            "    @Foo foo;\n"
-            "}\n"
-            "}\n"
-        ;
-
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
-}
-
-void CppEditorPlugin::test_FollowSymbolUnderCursor_using_QTCREATORBUG7903_insideFunction()
-{
-    const QByteArray source =
-            "namespace NS {\n"
-            "class Foo {};\n"
-            "}\n"
-            "void fun()\n"
-            "{\n"
-            "    using NS::$Foo;\n"
-            "    @Foo foo;\n"
-            "}\n"
-        ;
-
     TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
     test.run();
 }
