@@ -32,6 +32,8 @@
 #include "linuxdevice.h"
 #include "remotelinux_constants.h"
 
+#include <coreplugin/icore.h>
+
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
@@ -57,7 +59,7 @@ QList<Core::Id> GenericLinuxDeviceConfigurationFactory::availableCreationIds() c
 IDevice::Ptr GenericLinuxDeviceConfigurationFactory::create(Core::Id id) const
 {
     QTC_ASSERT(id == Constants::GenericLinuxOsType, return IDevice::Ptr());
-    GenericLinuxDeviceConfigurationWizard wizard;
+    GenericLinuxDeviceConfigurationWizard wizard(Core::ICore::mainWindow());
     if (wizard.exec() != QDialog::Accepted)
         return IDevice::Ptr();
     return wizard.device();
