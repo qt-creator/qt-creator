@@ -165,6 +165,7 @@ CppEditorSupport::CppEditorSupport(CppModelManager *modelManager, BaseTextEditor
 
 CppEditorSupport::~CppEditorSupport()
 {
+    m_documentParser.cancel();
     m_highlighter.cancel();
     m_futureSemanticInfo.cancel();
 
@@ -278,13 +279,15 @@ void CppEditorSupport::updateDocument()
     m_updateDocumentTimer->start(m_updateDocumentInterval);
 }
 
-static void parse(QFutureInterface<void> &future, CppEditorSupport *support)
+static void parse(QFutureInterface<void> &future, QSharedPointer<SnapshotUpdater> updater)
 {
     future.setProgressRange(0, 1);
+    if (future.isCanceled()) {
+        future.setProgressValue(1);
+        return;
+    }
 
     CppModelManager *cmm = qobject_cast<CppModelManager *>(CppModelManager::instance());
-    QSharedPointer<SnapshotUpdater> updater = support->snapshotUpdater();
-
     updater->update(cmm->workingCopy());
     cmm->finishedRefreshingSourceFiles(QStringList(updater->fileInEditor()));
 
@@ -304,7 +307,7 @@ void CppEditorSupport::updateDocumentNow()
         if (m_highlightingSupport && !m_highlightingSupport->requiresSemanticInfo())
             startHighlighting();
 
-        m_documentParser = QtConcurrent::run(&parse, this);
+        m_documentParser = QtConcurrent::run(&parse, snapshotUpdater());
     }
 }
 
