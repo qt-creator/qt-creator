@@ -36,6 +36,7 @@
 #include <utils/qtcassert.h>
 
 #include <QDebug>
+#include <QSortFilterProxyModel>
 
 namespace Debugger {
 namespace Internal {
@@ -136,8 +137,8 @@ ThreadsHandler::ThreadsHandler()
 {
     m_resetLocationScheduled = false;
     setObjectName(QLatin1String("ThreadsModel"));
-//    m_proxyModel = new QSortFilterProxyModel(this);
-//    m_proxyModel->setSourceModel(this);
+    m_proxyModel = new QSortFilterProxyModel(this);
+    m_proxyModel->setSourceModel(this);
 }
 
 int ThreadsHandler::currentThreadIndex() const
@@ -489,8 +490,7 @@ void ThreadsHandler::resetLocation()
 
 QAbstractItemModel *ThreadsHandler::model()
 {
-    return this;
-    //return m_proxyModel;
+    return m_proxyModel;
 }
 
 } // namespace Internal

@@ -101,8 +101,7 @@ private:
     const QIcon m_emptyIcon;
 
     bool m_resetLocationScheduled;
-
-    //QSortFilterProxyModel *m_proxyModel;
+    QSortFilterProxyModel *m_proxyModel;
 };
 
 } // namespace Internal
