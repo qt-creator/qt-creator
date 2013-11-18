@@ -363,13 +363,10 @@
         \li Select an automatically created kit in the list, and then select
             \gui Clone to create a copy of the kit.
 
-        \li In the \gui Debugger field, select \gui Edit to change the
-            automatically detected debugger to LLDB Engine.
-
-        \li In the \gui Engine field, select \gui {LLDB Engine}.
-
-        \li Select \gui Choose to set the path to the LLDB engine in the
-            \gui Binary field.
+        \li In the \gui Debugger field, select an LLDB Engine. If an LLDB Engine
+            is not listed, select \gui Manage to add it in \gui Tools >
+            \gui Options > \gui {Build & Run} > \gui Debuggers. For more
+            information, see \l {Adding Debuggers}.
 
         \li To use the debugger, add the kit in the \gui {Build Settings}
             of the project.
