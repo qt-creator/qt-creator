@@ -387,6 +387,15 @@ void PathChooser::slotBrowse()
         newPath = QFileDialog::getOpenFileName(this,
                 makeDialogTitle(tr("Choose Executable")), predefined,
                 d->m_dialogFilter);
+        if (HostOsInfo::hostOs() == OsTypeMac && newPath.endsWith(QLatin1String(".app"))) {
+            // possibly expand to Foo.app/Contents/MacOS/Foo
+            QFileInfo info(newPath);
+            if (info.isDir()) {
+                QString exePath = newPath + QLatin1String("/Contents/MacOS/") + info.completeBaseName();
+                if (QFileInfo(exePath).isExecutable())
+                    newPath = exePath;
+            }
+        }
         break;
     case PathChooser::File: // fall through
         newPath = QFileDialog::getOpenFileName(this,
