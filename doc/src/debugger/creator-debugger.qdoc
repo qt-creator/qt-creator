@@ -800,14 +800,12 @@
     A snapshot contains the complete state of the debugged program
     at a time, including the full memory contents.
 
-    To create snapshots of a debugged program, select \gui Create in the
-    context menu in the \gui Snapshot view.
+    To create snapshots of a debugged program, select \gui {Create Snapshot} in
+    the context menu in the \gui Snapshots view.
 
-    Double-click on entries in the snapshot view to switch between
+    Double-click on entries in the \gui Snapshots view to switch between
     snapshots. The debugger views are updated to reflect the
     state of the program at time of taking the snapshot.
-
-    By default, the \gui{Snapshots} view is hidden.
 
 */
 
