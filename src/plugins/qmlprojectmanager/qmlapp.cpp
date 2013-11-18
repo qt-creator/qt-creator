@@ -154,7 +154,6 @@ static bool parseTemplateXml(QXmlStreamReader &reader, TemplateInfo *info)
     static const QLatin1String tag_template("template");
     static const QLatin1String tag_displayName("displayname");
     static const QLatin1String tag_description("description");
-    static const QLatin1String attribute_id("id");
     static const QLatin1String attribute_featuresRequired("featuresRequired");
     static const QLatin1String attribute_openEditor("openeditor");
     static const QLatin1String attribute_priority("priority");
@@ -168,9 +167,6 @@ static bool parseTemplateXml(QXmlStreamReader &reader, TemplateInfo *info)
             info->openFile = reader.attributes().value(attribute_openEditor).toString();
             if (reader.attributes().hasAttribute(attribute_priority))
                 info->priority = reader.attributes().value(attribute_priority).toString();
-
-            if (reader.attributes().hasAttribute(attribute_id))
-                info->wizardId = reader.attributes().value(attribute_id).toString();
 
             if (reader.attributes().hasAttribute(attribute_featuresRequired))
                 info->featuresRequired = reader.attributes().value(attribute_featuresRequired).toString();

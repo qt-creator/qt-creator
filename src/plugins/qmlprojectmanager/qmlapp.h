@@ -47,7 +47,6 @@ public:
     QString displayName;
     QString description;
     QString openFile;
-    QString wizardId;
     QString featuresRequired;
     QString priority;
 };
