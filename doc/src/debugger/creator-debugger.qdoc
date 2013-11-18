@@ -246,7 +246,8 @@
     the user of \QC. To start debugging on a remote target with the
     necessary helper processes running, select the corresponding
     \l{glossary-buildandrun-kit}{kit} in
-    \gui{Projects > Build & Run} or in the \gui{Debug > Start Debugging} menu.
+    \gui{Projects > Build & Run}, and then select a function to start remote
+    debugging in the \gui{Debug > Start Debugging} menu.
 
     Special use cases, such as attaching to a running process on the
     target, might still require manual setup.
