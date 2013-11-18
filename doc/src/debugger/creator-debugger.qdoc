@@ -751,8 +751,8 @@
 
     \section2 Viewing Threads
 
-    If a multi-threaded program is interrupted, the \gui Thread view or the
-    combobox named \gui Thread in the debugger's status bar can be used to
+    If a multi-threaded program is interrupted, the \gui Threads view or the
+    combobox named \gui Threads in the debugger status bar can be used to
     switch from one thread to another. The \gui Stack view adjusts itself
     accordingly.
 
