@@ -222,8 +222,8 @@
 
     The \QC installation program asks you whether you want to
     register \QC as a post-mortem debugger. To change the setting, select
-    \gui{Tools > Options  > Debugger > Common > Use Qt Creator for post-mortem
-    debugging}.
+    \gui Tools > \gui Options > \gui Debugger > \gui General > \gui {Use Qt
+    Creator for post-mortem debugging}.
 
     You can launch the debugger in the post-mortem mode if an application
     crashes on Windows. Click the \gui {Debug in \QC} button in the error
