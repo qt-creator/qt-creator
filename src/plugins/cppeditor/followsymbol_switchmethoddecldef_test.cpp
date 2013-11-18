@@ -1078,10 +1078,13 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_classOperator_inOp()
     test.run();
 }
 
-/// Check: Static type is base class pointer, all overrides are presented.
-void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_allOverrides()
+void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_data()
 {
-    const QByteArray source =
+    QTest::addColumn<QByteArray>("source");
+    QTest::addColumn<OverrideItemList>("results");
+
+    /// Check: Static type is base class pointer, all overrides are presented.
+    QTest::newRow("allOverrides") << _(
             "struct A { virtual void virt() = 0; };\n"
             "void A::virt() {}\n"
             "\n"
@@ -1098,24 +1101,16 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_allOverri
             "void CD2::virt() {}\n"
             "\n"
             "int f(A *o) { o->$@virt(); }\n"
-            "}\n"
-            ;
-
-    const OverrideItemList finalResults = OverrideItemList()
+            "}\n")
+        << (OverrideItemList()
             << OverrideItem(QLatin1String("A::virt"), 2)
             << OverrideItem(QLatin1String("B::virt"), 5)
             << OverrideItem(QLatin1String("C::virt"), 8)
             << OverrideItem(QLatin1String("CD1::virt"), 11)
-            << OverrideItem(QLatin1String("CD2::virt"), 14);
+            << OverrideItem(QLatin1String("CD2::virt"), 14));
 
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source, finalResults);
-    test.run();
-}
-
-/// Check: Static type is derived class pointer, only overrides of sub classes are presented.
-void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_possibleOverrides1()
-{
-    const QByteArray source =
+    /// Check: Static type is derived class pointer, only overrides of sub classes are presented.
+    QTest::newRow("possibleOverrides1") << _(
             "struct A { virtual void virt() = 0; };\n"
             "void A::virt() {}\n"
             "\n"
@@ -1132,23 +1127,15 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_possibleO
             "void CD2::virt() {}\n"
             "\n"
             "int f(B *o) { o->$@virt(); }\n"
-            "}\n"
-            ;
-
-    const OverrideItemList finalResults = OverrideItemList()
+            "}\n")
+        << (OverrideItemList()
             << OverrideItem(QLatin1String("B::virt"), 5)
             << OverrideItem(QLatin1String("C::virt"), 8)
             << OverrideItem(QLatin1String("CD1::virt"), 11)
-            << OverrideItem(QLatin1String("CD2::virt"), 14);
+            << OverrideItem(QLatin1String("CD2::virt"), 14));
 
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source, finalResults);
-    test.run();
-}
-
-/// Check: Virtual function call in member of class hierarchy, only possible overrides are presented.
-void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_possibleOverrides2()
-{
-    const QByteArray source =
+    /// Check: Virtual function call in member of class hierarchy, only possible overrides are presented.
+    QTest::newRow("possibleOverrides2") << _(
             "struct A { virtual void virt(); };\n"
             "void A::virt() {}\n"
             "\n"
@@ -1158,38 +1145,22 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_possibleO
             "struct C : public B { void g() { virt$@(); } }; \n"
             "\n"
             "struct D : public C { void virt(); };\n"
-            "void D::virt() {}\n"
-            ;
-
-    const OverrideItemList finalResults = OverrideItemList()
+            "void D::virt() {}\n")
+        << (OverrideItemList()
             << OverrideItem(QLatin1String("B::virt"), 5)
-            << OverrideItem(QLatin1String("D::virt"), 10);
+            << OverrideItem(QLatin1String("D::virt"), 10));
 
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source, finalResults);
-    test.run();
-}
-
-/// Check: If no definition is found, fallback to the declaration.
-void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_fallbackToDeclaration()
-{
-    const QByteArray source =
+    /// Check: If no definition is found, fallback to the declaration.
+    QTest::newRow("fallbackToDeclaration") << _(
             "struct A { virtual void virt(); };\n"
             "\n"
-            "int f(A *o) { o->$@virt(); }\n"
-            ;
+            "int f(A *o) { o->$@virt(); }\n")
+        << (OverrideItemList()
+            << OverrideItem(QLatin1String("A::virt"), 1));
 
-    const OverrideItemList finalResults = OverrideItemList()
-            << OverrideItem(QLatin1String("A::virt"), 1);
-
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source, finalResults);
-    test.run();
-}
-
-/// Check: Ensure that the first entry in the final results is the same as the first in the
-///        immediate results.
-void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_itemOrder()
-{
-    const QByteArray source =
+    /// Check: Ensure that the first entry in the final results is the same as the first in the
+    ///        immediate results.
+    QTest::newRow("itemOrder") << _(
             "struct C { virtual void virt() = 0; };\n"
             "void C::virt() {}\n"
             "\n"
@@ -1199,38 +1170,22 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_itemOrder
             "struct A : B { void virt(); };\n"
             "void A::virt() {}\n"
             "\n"
-            "int f(C *o) { o->$@virt(); }\n"
-            ;
-
-    const OverrideItemList finalResults = OverrideItemList()
+            "int f(C *o) { o->$@virt(); }\n")
+        << (OverrideItemList()
             << OverrideItem(QLatin1String("C::virt"), 2)
             << OverrideItem(QLatin1String("A::virt"), 8)
-            << OverrideItem(QLatin1String("B::virt"), 5);
+            << OverrideItem(QLatin1String("B::virt"), 5));
 
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source, finalResults);
-    test.run();
-}
-
-/// Check: If class templates are involved, the class and function symbols might be generated.
-///        In that case, make sure that the symbols are not deleted before we reference them.
-void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_instantiatedSymbols()
-{
-    const QByteArray source =
+    /// Check: If class templates are involved, the class and function symbols might be generated.
+    ///        In that case, make sure that the symbols are not deleted before we reference them.
+    QTest::newRow("instantiatedSymbols") << _(
             "template <class T> struct A { virtual void virt() {} };\n"
-            "void f(A<int> *l) { l->$@virt(); }\n"
-            ;
+            "void f(A<int> *l) { l->$@virt(); }\n")
+        << (OverrideItemList()
+            << OverrideItem(QLatin1String("A::virt"), 1));
 
-    const OverrideItemList finalResults = OverrideItemList()
-            << OverrideItem(QLatin1String("A::virt"), 1);
-
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source, finalResults);
-    test.run();
-}
-
-/// Check: Static type is nicely resolved, especially for QSharedPointers.
-void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_QSharedPointer()
-{
-    const QByteArray source =
+    /// Check: Static type is nicely resolved, especially for QSharedPointers.
+    QTest::newRow("QSharedPointer") << _(
             "template <class T>\n"
             "class Basic\n"
             "{\n"
@@ -1249,19 +1204,119 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_QSharedPo
             "{\n"
             "    QSharedPointer<A> p(new A);\n"
             "    p->$@virt();\n"
-            "}\n"
-            ;
-
-    const OverrideItemList finalResults = OverrideItemList()
+            "}\n")
+        << (OverrideItemList()
             << OverrideItem(QLatin1String("A::virt"), 12)
-            << OverrideItem(QLatin1String("B::virt"), 13);
+            << OverrideItem(QLatin1String("B::virt"), 13));
 
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source, finalResults);
+    /// Check: In case there is no override for the static type of a function call expression,
+    ///        make sure to:
+    ///         1) include the last provided override (look up bases)
+    ///         2) and all overrides whose classes are derived from that static type
+    QTest::newRow("noSiblings_references") << _(
+            "struct A { virtual void virt(); };\n"
+            "struct B : A { void virt() {} };\n"
+            "struct C1 : B { void virt() {} };\n"
+            "struct C2 : B { };\n"
+            "struct D : C2 { void virt() {} };\n"
+            "\n"
+            "void f(C2 &o) { o.$@virt(); }\n")
+        << (OverrideItemList()
+            << OverrideItem(QLatin1String("B::virt"), 2)
+            << OverrideItem(QLatin1String("D::virt"), 5));
+
+    /// Variation of noSiblings_references
+    QTest::newRow("noSiblings_pointers") << _(
+            "struct A { virtual void virt(); };\n"
+            "struct B : A { void virt() {} };\n"
+            "struct C1 : B { void virt() {} };\n"
+            "struct C2 : B { };\n"
+            "struct D : C2 { void virt() {} };\n"
+            "\n"
+            "void f(C2 *o) { o->$@virt(); }\n")
+        << (OverrideItemList()
+            << OverrideItem(QLatin1String("B::virt"), 2)
+            << OverrideItem(QLatin1String("D::virt"), 5));
+
+    /// Variation of noSiblings_references
+    QTest::newRow("noSiblings_noBaseExpression") << _(
+            "struct A { virtual void virt() {} };\n"
+            "struct B : A { void virt() {} };\n"
+            "struct C1 : B { void virt() {} };\n"
+            "struct C2 : B { void g() { $@virt(); } };\n"
+            "struct D : C2 { void virt() {} };\n")
+        << (OverrideItemList()
+            << OverrideItem(QLatin1String("B::virt"), 2)
+            << OverrideItem(QLatin1String("D::virt"), 5));
+
+    /// Check: Trigger on a.virt() if a is of type &A.
+    QTest::newRow("onDotMemberAccessOfReferenceTypes") << _(
+            "struct A { virtual void virt() = 0; };\n"
+            "void A::virt() {}\n"
+            "\n"
+            "void client(A &o) { o.$@virt(); }\n")
+        << (OverrideItemList()
+            << OverrideItem(QLatin1String("A::virt"), 2));
+
+    /// Check: Do not trigger on a.virt() if a is of type A.
+    QTest::newRow("notOnDotMemberAccessOfNonReferenceType") << _(
+            "struct A { virtual void virt(); };\n"
+            "void A::$virt() {}\n"
+            "\n"
+            "void client(A o) { o.@virt(); }\n")
+        << OverrideItemList();
+
+    /// Check: Do not trigger on qualified function calls.
+    QTest::newRow("notOnQualified") << _(
+            "struct A { virtual void virt(); };\n"
+            "void A::$virt() {}\n"
+            "\n"
+            "struct B : public A {\n"
+            "    void virt();\n"
+            "    void g() { A::@virt(); }\n"
+            "};\n")
+        << OverrideItemList();
+
+    /// Check: Do not trigger on member function declaration.
+    QTest::newRow("notOnDeclaration") << _(
+            "struct A { virtual void virt(); };\n"
+            "void A::virt() {}\n"
+            "\n"
+            "struct B : public A { void virt@(); };\n"
+            "void B::$virt() {}\n")
+        << OverrideItemList();
+
+    /// Check: Do not trigger on function definition.
+    QTest::newRow("notOnDefinition") << _(
+            "struct A { virtual void virt(); };\n"
+            "void A::virt() {}\n"
+            "\n"
+            "struct B : public A { void $virt(); };\n"
+            "void B::@virt() {}\n")
+        << OverrideItemList();
+
+        QTest::newRow("notOnNonPointerNonReference") << _(
+            "struct A { virtual void virt(); };\n"
+            "void A::virt() {}\n"
+            "\n"
+            "struct B : public A { void virt(); };\n"
+            "void B::$virt() {}\n"
+            "\n"
+            "void client(B b) { b.@virt(); }\n")
+        << OverrideItemList();
+}
+
+void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall()
+{
+    QFETCH(QByteArray, source);
+    QFETCH(OverrideItemList, results);
+
+    TestCase test(TestCase::FollowSymbolUnderCursorAction, source, results);
     test.run();
 }
 
 /// Check: Base classes can be found although these might be defined in distinct documents.
-void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_multipeDocuments()
+void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_multipleDocuments()
 {
     QList<TestDocumentPtr> testFiles = QList<TestDocumentPtr>()
             << TestDocument::create("struct A { virtual void virt(int) = 0; };\n",
@@ -1279,164 +1334,6 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_multipeDo
             << OverrideItem(QLatin1String("B::virt"), 2);
 
     TestCase test(TestCase::FollowSymbolUnderCursorAction, testFiles, finalResults);
-    test.run();
-}
-
-/// Check: In case there is no override for the static type of a function call expression,
-///        make sure to:
-///         1) include the last provided override (look up bases)
-///         2) and all overrides whose classes are derived from that static type
-void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_noSiblings_references()
-{
-    const QByteArray source =
-            "struct A { virtual void virt(); };\n"
-            "struct B : A { void virt() {} };\n"
-            "struct C1 : B { void virt() {} };\n"
-            "struct C2 : B { };\n"
-            "struct D : C2 { void virt() {} };\n"
-            "\n"
-            "void f(C2 &o) { o.$@virt(); }\n"
-            ;
-
-    const OverrideItemList finalResults = OverrideItemList()
-            << OverrideItem(QLatin1String("B::virt"), 2)
-            << OverrideItem(QLatin1String("D::virt"), 5);
-
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source, finalResults);
-    test.run();
-}
-
-/// Variation of test_FollowSymbolUnderCursor_virtualFunctionCall_noSiblings_references
-void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_noSiblings_pointers()
-{
-    const QByteArray source =
-            "struct A { virtual void virt(); };\n"
-            "struct B : A { void virt() {} };\n"
-            "struct C1 : B { void virt() {} };\n"
-            "struct C2 : B { };\n"
-            "struct D : C2 { void virt() {} };\n"
-            "\n"
-            "void f(C2 *o) { o->$@virt(); }\n"
-            ;
-
-    const OverrideItemList finalResults = OverrideItemList()
-            << OverrideItem(QLatin1String("B::virt"), 2)
-            << OverrideItem(QLatin1String("D::virt"), 5);
-
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source, finalResults);
-    test.run();
-}
-
-/// Variation of test_FollowSymbolUnderCursor_virtualFunctionCall_noSiblings_references
-void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_noSiblings_noBaseExpression()
-{
-    const QByteArray source =
-            "struct A { virtual void virt() {} };\n"
-            "struct B : A { void virt() {} };\n"
-            "struct C1 : B { void virt() {} };\n"
-            "struct C2 : B { void g() { $@virt(); } };\n"
-            "struct D : C2 { void virt() {} };\n"
-            ;
-
-    const OverrideItemList finalResults = OverrideItemList()
-            << OverrideItem(QLatin1String("B::virt"), 2)
-            << OverrideItem(QLatin1String("D::virt"), 5);
-
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source, finalResults);
-    test.run();
-}
-
-/// Check: Trigger on a.virt() if a is of type &A.
-void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_onDotMemberAccessOfReferenceTypes()
-{
-    const QByteArray source =
-            "struct A { virtual void virt() = 0; };\n"
-            "void A::virt() {}\n"
-            "\n"
-            "void client(A &o) { o.$@virt(); }\n"
-            ;
-
-    const OverrideItemList finalResults = OverrideItemList()
-            << OverrideItem(QLatin1String("A::virt"), 2);
-
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source, finalResults);
-    test.run();
-}
-
-/// Check: Do not trigger on a.virt() if a is of type A.
-void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_notOnDotMemberAccessOfNonReferenceType()
-{
-    const QByteArray source =
-            "struct A { virtual void virt(); };\n"
-            "void A::$virt() {}\n"
-            "\n"
-            "void client(A o) { o.@virt(); }\n"
-            ;
-
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
-}
-
-/// Check: Do not trigger on qualified function calls.
-void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_notOnQualified()
-{
-    const QByteArray source =
-            "struct A { virtual void virt(); };\n"
-            "void A::$virt() {}\n"
-            "\n"
-            "struct B : public A {\n"
-            "    void virt();\n"
-            "    void g() { A::@virt(); }\n"
-            "};\n"
-            ;
-
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
-}
-
-/// Check: Do not trigger on member function declaration.
-void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_notOnDeclaration()
-{
-    const QByteArray source =
-            "struct A { virtual void virt(); };\n"
-            "void A::virt() {}\n"
-            "\n"
-            "struct B : public A { void virt@(); };\n"
-            "void B::$virt() {}\n"
-            ;
-
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
-}
-
-/// Check: Do not trigger on function definition.
-void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_notOnDefinition()
-{
-    const QByteArray source =
-            "struct A { virtual void virt(); };\n"
-            "void A::virt() {}\n"
-            "\n"
-            "struct B : public A { void $virt(); };\n"
-            "void B::@virt() {}\n"
-            ;
-
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
-    test.run();
-}
-
-void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_notOnNonPointerNonReference()
-{
-    const QByteArray source =
-            "struct A { virtual void virt(); };\n"
-            "void A::virt() {}\n"
-            "\n"
-            "struct B : public A { void virt(); };\n"
-            "void B::$virt() {}\n"
-            "\n"
-            "void client(B b) { b.@virt(); }\n"
-            ;
-
-    TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
     test.run();
 }
 

@@ -113,23 +113,9 @@ private slots:
     void test_FollowSymbolUnderCursor_classOperator_inOp_data();
     void test_FollowSymbolUnderCursor_classOperator_inOp();
 
-    void test_FollowSymbolUnderCursor_virtualFunctionCall_allOverrides();
-    void test_FollowSymbolUnderCursor_virtualFunctionCall_possibleOverrides1();
-    void test_FollowSymbolUnderCursor_virtualFunctionCall_possibleOverrides2();
-    void test_FollowSymbolUnderCursor_virtualFunctionCall_fallbackToDeclaration();
-    void test_FollowSymbolUnderCursor_virtualFunctionCall_itemOrder();
-    void test_FollowSymbolUnderCursor_virtualFunctionCall_instantiatedSymbols();
-    void test_FollowSymbolUnderCursor_virtualFunctionCall_QSharedPointer();
-    void test_FollowSymbolUnderCursor_virtualFunctionCall_multipeDocuments();
-    void test_FollowSymbolUnderCursor_virtualFunctionCall_noSiblings_references();
-    void test_FollowSymbolUnderCursor_virtualFunctionCall_noSiblings_pointers();
-    void test_FollowSymbolUnderCursor_virtualFunctionCall_noSiblings_noBaseExpression();
-    void test_FollowSymbolUnderCursor_virtualFunctionCall_onDotMemberAccessOfReferenceTypes();
-    void test_FollowSymbolUnderCursor_virtualFunctionCall_notOnDotMemberAccessOfNonReferenceType();
-    void test_FollowSymbolUnderCursor_virtualFunctionCall_notOnQualified();
-    void test_FollowSymbolUnderCursor_virtualFunctionCall_notOnDeclaration();
-    void test_FollowSymbolUnderCursor_virtualFunctionCall_notOnDefinition();
-    void test_FollowSymbolUnderCursor_virtualFunctionCall_notOnNonPointerNonReference();
+    void test_FollowSymbolUnderCursor_virtualFunctionCall_data();
+    void test_FollowSymbolUnderCursor_virtualFunctionCall();
+    void test_FollowSymbolUnderCursor_virtualFunctionCall_multipleDocuments();
 
     void test_doxygen_comments_qt_style();
     void test_doxygen_comments_qt_style_continuation();
