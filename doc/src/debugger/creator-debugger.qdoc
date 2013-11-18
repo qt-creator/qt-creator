@@ -209,7 +209,7 @@
     \endcode
 
     To launch the debugger in the core mode, select \gui{Debug > Start
-    Debugging > Attach to Core}.
+    Debugging > Load Core File}.
 
     Also in this mode, using a properly configured project containing
     the sources of the crashed program is not strictly necessary, but
