@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<template openeditor="main.qml" priority="B"
+<template openeditor="main.qml" priority="A"
     featuresRequired="QtSupport.Wizards.FeatureQtQuickProject, QtSupport.Wizards.FeatureQtQuick, QtSupport.Wizards.FeatureQtQuick.2"
     id="QB.QML Application for Qt Quick 2.0">
     <displayname>Qt Quick 2.0</displayname>
