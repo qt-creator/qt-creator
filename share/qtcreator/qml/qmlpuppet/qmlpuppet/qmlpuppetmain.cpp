@@ -35,6 +35,8 @@
 #include <private/qsimulatorconnection_p.h>
 #endif
 
+#include <iostream>
+
 #include <qt4nodeinstanceclientproxy.h>
 
 #ifdef ENABLE_QT_BREAKPAD
@@ -60,11 +62,11 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName("QtProject");
     QCoreApplication::setOrganizationDomain("qt-project.org");
     QCoreApplication::setApplicationName("QmlPuppet");
-    QCoreApplication::setApplicationVersion("1.1.0");
+    QCoreApplication::setApplicationVersion("2.0.0");
 
 
     if (application.arguments().count() == 2 && application.arguments().at(1) == "--version") {
-        qDebug() << QCoreApplication::applicationVersion();
+        std::cout << 2;
         return 0;
     }
 
