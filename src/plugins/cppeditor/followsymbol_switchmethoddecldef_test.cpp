@@ -1295,7 +1295,7 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_data()
             "void B::@virt() {}\n")
         << OverrideItemList();
 
-        QTest::newRow("notOnNonPointerNonReference") << _(
+    QTest::newRow("notOnNonPointerNonReference") << _(
             "struct A { virtual void virt(); };\n"
             "void A::virt() {}\n"
             "\n"
