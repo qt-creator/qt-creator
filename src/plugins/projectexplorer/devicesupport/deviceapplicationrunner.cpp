@@ -86,6 +86,7 @@ void DeviceApplicationRunner::start(const IDevice::ConstPtr &device,
 {
     QTC_ASSERT(d->state == Inactive, return);
 
+    d->state = Run;
     if (!device) {
         emit reportError(tr("Cannot run: No device."));
         setFinished();
@@ -101,7 +102,6 @@ void DeviceApplicationRunner::start(const IDevice::ConstPtr &device,
     d->stopRequested = false;
     d->success = true;
 
-    d->state = Run;
     d->deviceProcess = device->createProcess(this);
     connect(d->deviceProcess, SIGNAL(started()), SIGNAL(remoteProcessStarted()));
     connect(d->deviceProcess, SIGNAL(readyReadStandardOutput()), SLOT(handleRemoteStdout()));
