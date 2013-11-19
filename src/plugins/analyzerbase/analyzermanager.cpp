@@ -107,10 +107,8 @@ public:
 
     ~AnalyzerMode()
     {
-        // Make sure the editor manager does not get deleted.
         delete m_widget;
         m_widget = 0;
-        EditorManager::instance()->setParent(0);
     }
 };
 
