@@ -458,6 +458,7 @@ void TestCase::run()
         expectedImmediate << OverrideItem(QLatin1String("...searching overrides"));
     }
     QCOMPARE(immediateVirtualSymbolResults, expectedImmediate);
+    QEXPECT_FAIL("differentReturnTypes", "Doesn't work", Abort);
     QCOMPARE(finalVirtualSymbolResults, m_expectedVirtualFunctionProposal);
 }
 
@@ -1304,6 +1305,14 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_data()
             "\n"
             "void client(B b) { b.@virt(); }\n")
         << OverrideItemList();
+
+    QTest::newRow("differentReturnTypes") << _(
+            "struct Base { virtual Base *virt() { return this; } };\n"
+            "struct Derived : public Base { Derived *virt() { return this; } };\n"
+            "void client(Base *b) { b->$@virt(); }\n")
+        << (OverrideItemList()
+            << OverrideItem(QLatin1String("Base::virt"), 1)
+            << OverrideItem(QLatin1String("Derived::virt"), 2));
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall()
