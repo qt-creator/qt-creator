@@ -18,5 +18,5 @@ SOURCES += main.cpp
 # Please do not modify the following two lines. Required for deployment.
 include(qtquick1applicationviewer/qtquick1applicationviewer.pri)
 # REMOVE_NEXT_LINE (wizard will remove the include and append deployment.pri to qtquick1applicationviewer.pri, instead) #
-include(../shared/deployment.pri)
+include(../../shared/deployment.pri)
 qtcAddDeployment()
