@@ -71,6 +71,7 @@ public:
 };
 typedef QList<OverrideItem> OverrideItemList;
 Q_DECLARE_METATYPE(OverrideItem)
+Q_DECLARE_METATYPE(OverrideItemList)
 
 inline bool operator==(const OverrideItem &lhs, const OverrideItem &rhs)
 {
