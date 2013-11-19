@@ -9,15 +9,6 @@ DEPLOYMENTFOLDERS = folder_01
 # QML_IMPORT_PATH #
 QML_IMPORT_PATH =
 
-# If your application uses the Qt Mobility libraries, uncomment the following
-# lines and add the respective components to the MOBILITY variable.
-# CONFIG += mobility
-# MOBILITY +=
-
-# Speed up launching on MeeGo/Harmattan when using applauncherd daemon
-# HARMATTAN_BOOSTABLE #
-# CONFIG += qdeclarative-boostable
-
 # The .cpp file which was generated for your project. Feel free to hack it.
 SOURCES += main.cpp
 
