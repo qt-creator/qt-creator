@@ -33,9 +33,10 @@ import widgets 1.0
 Rectangle {
     id: rectangle1
     width: 1024
-    height: Math.min(3024, parent.height - y)
+    height: grid.contentHeight + 100
 
     CustomizedGridView {
+        id: grid
         anchors.rightMargin: 38
         anchors.bottomMargin: 60
         anchors.leftMargin: 38

@@ -30,33 +30,30 @@
 import QtQuick 2.1
 import QtQuick.Controls 1.0
 
-ScrollView {
+GridView {
     x: Math.max((width - (cellWidth * columns)) / 2, 0);
-    property alias model: gridView.model
-    GridView {
-        id: gridView
-        interactive: false
-        cellHeight: 240
-        cellWidth: 216
-        property int columns:  Math.max(Math.floor(width / cellWidth), 1)
+    id: gridView
+    interactive: false
+    cellHeight: 240
+    cellWidth: 216
+    property int columns:  Math.max(Math.floor(width / cellWidth), 1)
 
-        delegate: Delegate {
-            id: delegate
+    delegate: Delegate {
+        id: delegate
 
-            property bool isHelpImage: model.imageUrl.search(/qthelp/)  != -1
-            property string sourcePrefix: isHelpImage ? "image://helpimage/" : ""
+        property bool isHelpImage: model.imageUrl.search(/qthelp/)  != -1
+        property string sourcePrefix: isHelpImage ? "image://helpimage/" : ""
 
-            property string mockupSource: model.imageSource
-            property string helpSource: model.imageUrl !== "" ? sourcePrefix + encodeURI(model.imageUrl) : ""
+        property string mockupSource: model.imageSource
+        property string helpSource: model.imageUrl !== "" ? sourcePrefix + encodeURI(model.imageUrl) : ""
 
-            imageSource: model.imageSource === undefined ? helpSource : mockupSource
-            videoSource: model.imageSource === undefined ? model.imageUrl : mockupSource
+        imageSource: model.imageSource === undefined ? helpSource : mockupSource
+        videoSource: model.imageSource === undefined ? model.imageUrl : mockupSource
 
-            caption: model.name;
-            description: model.description
-            isVideo: model.isVideo === true
-            videoLength: model.videoLength !== undefined ? model.videoLength : ""
-            tags: model.tags
-        }
+        caption: model.name;
+        description: model.description
+        isVideo: model.isVideo === true
+        videoLength: model.videoLength !== undefined ? model.videoLength : ""
+        tags: model.tags
     }
 }
