@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<template openeditor="main.qml" priority="C"
+<template openeditor="main.qml" priority="F"
     featuresRequired="QtSupport.Wizards.FeatureQtQuick, QtSupport.Wizards.FeatureQtQuick.1.1"
     viewerdir="qtquick1applicationviewer"
     viewerclassname="QtQuick1ApplicationViewer"

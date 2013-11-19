@@ -95,7 +95,9 @@ public:
     static const int StubVersion;
 
 protected:
-    virtual QString appViewerBaseName() const;
+    virtual QByteArray generateProFile(QString *errorMessage) const;
+
+    QString appViewerBaseName() const;
     QString fileName(ExtendedFileType type) const;
     QString appViewerOriginSubDir() const;
 

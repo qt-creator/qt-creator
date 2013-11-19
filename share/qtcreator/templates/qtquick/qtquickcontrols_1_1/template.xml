@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<template openeditor="main.qml" priority="D"
+<template openeditor="main.qml" priority="B"
     featuresRequired="QtSupport.Wizards.FeatureQtQuick, QtSupport.Wizards.FeatureQtQuick.2, QtSupport.Wizards.FeatureQtQuick.Controls"
     viewerdir="qtquick2controlsapplicationviewer"
     viewerclassname="QtQuick2ControlsApplicationViewer"
     stubversionminor="1">
-    <displayname>Qt Quick Controls 1.0</displayname>
-    <description>Creates a deployable Qt Quick 2 application using Qt Quick Controls. Requires Qt 5.1 or newer.</description>
+    <displayname>Qt Quick Controls 1.1</displayname>
+    <description>Creates a deployable Qt Quick 2 application using Qt Quick Controls. Requires Qt 5.2 or newer.</description>
 </template>

@@ -44,6 +44,11 @@
 namespace QmakeProjectManager {
 namespace Internal {
 
+static QString qtQuickApplicationViewerDirectory()
+{
+    return Core::ICore::resourcePath() + QLatin1String("/templates/shared/qtquickapplicationviewer/");
+}
+
 static QString templateRootDirectory()
 {
     return Core::ICore::resourcePath() + QLatin1String("/templates/qtquick/");
@@ -208,11 +213,11 @@ QString QtQuickApp::pathExtended(int fileType) const
         case MainQmlDeployed:               return qmlSubDir + mainQmlFile;
         case MainQmlOrigin:                 return qmlOriginDir + mainQmlFile;
         case AppViewerPri:                  return pathBase + appViewerTargetSubDir + fileName(AppViewerPri);
-        case AppViewerPriOrigin:            return originsRoot() + appViewerOriginSubDir() + fileName(AppViewerPri);
+        case AppViewerPriOrigin:            return qtQuickApplicationViewerDirectory() + appViewerOriginSubDir() + fileName(AppViewerPri);
         case AppViewerCpp:                  return pathBase + appViewerTargetSubDir + fileName(AppViewerCpp);
-        case AppViewerCppOrigin:            return originsRoot() + appViewerOriginSubDir() + fileName(AppViewerCpp);
+        case AppViewerCppOrigin:            return qtQuickApplicationViewerDirectory() + appViewerOriginSubDir() + fileName(AppViewerCpp);
         case AppViewerH:                    return pathBase + appViewerTargetSubDir + fileName(AppViewerH);
-        case AppViewerHOrigin:              return originsRoot() + appViewerOriginSubDir() + fileName(AppViewerH);
+        case AppViewerHOrigin:              return qtQuickApplicationViewerDirectory() + appViewerOriginSubDir() + fileName(AppViewerH);
         case QmlDirProFileRelative:         return QString(qmlSubDir).remove(qmlSubDir.length() - 1, 1);
         default:                            qFatal("QtQuickApp::pathExtended() needs more work");
     }
@@ -292,6 +297,13 @@ QString QtQuickApp::fileName(QtQuickApp::ExtendedFileType type) const
 QString QtQuickApp::appViewerOriginSubDir() const
 {
     return appViewerBaseName() + QLatin1Char('/');
+}
+
+QByteArray QtQuickApp::generateProFile(QString *errorMessage) const
+{
+    QByteArray proFileContent = AbstractMobileApp::generateProFile(errorMessage);
+    proFileContent.replace("../../shared/qtquickapplicationviewer/", "");
+    return proFileContent;
 }
 
 QByteArray QtQuickApp::generateFileExtended(int fileType,

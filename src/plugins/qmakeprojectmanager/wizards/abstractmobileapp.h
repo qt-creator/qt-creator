@@ -121,6 +121,7 @@ public:
     static const QString DeploymentPriFileName;
 protected:
     AbstractMobileApp();
+    virtual QByteArray generateProFile(QString *errorMessage) const;
 
     static QString templatesRoot();
     static void insertParameter(QString &line, const QString &parameter);
@@ -146,7 +147,6 @@ protected:
 private:
     QByteArray generateDesktopFile(QString *errorMessage, int fileType) const;
     QByteArray generateMainCpp(QString *errorMessage) const;
-    QByteArray generateProFile(QString *errorMessage) const;
 
     virtual QByteArray generateFileExtended(int fileType,
         bool *versionAndCheckSum, QString *comment, QString *errorMessage) const = 0;
