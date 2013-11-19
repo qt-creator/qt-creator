@@ -201,6 +201,9 @@ public:
     bool wasScanned() const
     { return _status != NotScanned; }
 
+    bool wasFound() const
+    { return _status != NotFound; }
+
     PluginTypeInfoStatus pluginTypeInfoStatus() const
     { return _dumpStatus; }
 

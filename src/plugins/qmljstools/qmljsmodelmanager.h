@@ -34,6 +34,7 @@
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsqrcparser.h>
+#include <qmljs/qmljsconstants.h>
 
 #include <cplusplus/CppDocument.h>
 #include <utils/qtcoverride.h>
@@ -135,11 +136,22 @@ protected:
     QFuture<void> refreshSourceFiles(const QStringList &sourceFiles,
                                      bool emitDocumentOnDiskChanged);
 
+    static void parseLoop(QSet<QString> &scannedPaths, QSet<QString> &newLibraries,
+                          WorkingCopy workingCopy, QStringList files, ModelManager *modelManager,
+                          QmlJS::Language::Enum mainLanguage, bool emitDocChangedOnDisk,
+                          Utils::function<bool (qreal)> reportProgress);
     static void parse(QFutureInterface<void> &future,
                       WorkingCopy workingCopy,
                       QStringList files,
                       ModelManager *modelManager,
+                      QmlJS::Language::Enum mainLanguage,
                       bool emitDocChangedOnDisk);
+    static void importScan(QFutureInterface<void> &future,
+                    WorkingCopy workingCopy,
+                    QStringList paths,
+                    ModelManager *modelManager,
+                    QmlJS::Language::Enum mainLanguage,
+                    bool emitDocChangedOnDisk);
 
     void loadQmlTypeDescriptions();
     void loadQmlTypeDescriptions(const QString &path);
@@ -167,6 +179,7 @@ private:
     QmlJS::QmlLanguageBundles m_activeBundles;
     QmlJS::QmlLanguageBundles m_extendedBundles;
     QmlJS::ViewerContext m_vContext;
+    QSet<QString> m_scannedPaths;
 
     QTimer *m_updateCppQmlTypesTimer;
     QTimer *m_asyncResetTimer;

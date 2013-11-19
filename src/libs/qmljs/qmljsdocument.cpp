@@ -212,7 +212,7 @@ void Document::setLanguage(Language::Enum l)
 
 QString Document::importId() const
 {
-    return path();
+    return _fileName;
 }
 
 QByteArray Document::fingerprint() const
@@ -501,7 +501,7 @@ void Snapshot::insert(const Document::Ptr &document, bool allowInvalid)
         CoreImport cImport;
         cImport.importId = document->importId();
         cImport.language = document->language();
-        cImport.possibleExports << Export(ImportKey(ImportType::File, document->path()),
+        cImport.possibleExports << Export(ImportKey(ImportType::File, fileName),
                                           QString(), true);
         cImport.fingerprint = document->fingerprint();
         _dependencies.addCoreImport(cImport);
@@ -512,13 +512,34 @@ void Snapshot::insertLibraryInfo(const QString &path, const LibraryInfo &info)
 {
     QTC_CHECK(info.fingerprint() == info.calculateFingerprint());
     _libraries.insert(QDir::cleanPath(path), info);
+    if (!info.wasFound()) return;
     CoreImport cImport;
     cImport.importId = path;
     cImport.language = Language::Unknown;
+    QSet<ImportKey> packages;
     foreach (const ModuleApiInfo &moduleInfo, info.moduleApis()) {
         ImportKey iKey(ImportType::Library, moduleInfo.uri, moduleInfo.version.majorVersion(),
                        moduleInfo.version.minorVersion());
-        cImport.possibleExports << Export(iKey, path, true);
+        packages.insert(iKey);
+    }
+    foreach (const LanguageUtils::FakeMetaObject::ConstPtr &metaO, info.metaObjects()) {
+        foreach (const LanguageUtils::FakeMetaObject::Export &e, metaO->exports()) {
+            ImportKey iKey(ImportType::Library, e.package, e.version.majorVersion(),
+                           e.version.minorVersion());
+            packages.insert(iKey);
+        }
+    }
+
+    QStringList splitPath = path.split(QLatin1Char('/'));
+    foreach (const ImportKey &importKey, packages) {
+        QString requiredPath = QStringList(splitPath.mid(0, splitPath.size() - importKey.splitPath.size()))
+                .join(QLatin1Char('/'));
+        cImport.possibleExports << Export(importKey, requiredPath, true);
+    }
+    foreach (const QmlDirParser::Component &component, info.components()) {
+        foreach (const Export &e, cImport.possibleExports)
+            // renaming of type name not really represented here... fix?
+            _dependencies.addExport(component.fileName, e.exportName, e.pathRequired);
     }
     cImport.fingerprint = info.fingerprint();
     _dependencies.addCoreImport(cImport);

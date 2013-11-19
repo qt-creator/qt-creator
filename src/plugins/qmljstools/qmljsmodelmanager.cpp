@@ -49,6 +49,7 @@
 #include <qtsupport/qmldumptool.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <utils/hostosinfo.h>
+#include <utils/function.h>
 #include <extensionsystem/pluginmanager.h>
 
 #include <QDir>
@@ -360,7 +361,7 @@ QFuture<void> ModelManager::refreshSourceFiles(const QStringList &sourceFiles,
 
     QFuture<void> result = QtConcurrent::run(&ModelManager::parse,
                                               workingCopy(), sourceFiles,
-                                              this,
+                                              this, Language::Qml,
                                               emitDocumentOnDiskChanged);
 
     if (m_synchronizer.futures().size() > 10) {
@@ -386,7 +387,7 @@ void ModelManager::fileChangedOnDisk(const QString &path)
 {
     QtConcurrent::run(&ModelManager::parse,
                       workingCopy(), QStringList() << path,
-                      this, true);
+                      this, Language::Unknown, true);
 }
 
 void ModelManager::removeFiles(const QStringList &files)
@@ -700,7 +701,8 @@ static bool findNewQmlLibraryInPath(const QString &path,
                                     ModelManager *modelManager,
                                     QStringList *importedFiles,
                                     QSet<QString> *scannedPaths,
-                                    QSet<QString> *newLibraries)
+                                    QSet<QString> *newLibraries,
+                                    bool ignoreMissing)
 {
     // if we know there is a library, done
     const LibraryInfo &existingInfo = snapshot.libraryInfo(path);
@@ -715,8 +717,10 @@ static bool findNewQmlLibraryInPath(const QString &path,
     const QDir dir(path);
     QFile qmldirFile(dir.filePath(QLatin1String("qmldir")));
     if (!qmldirFile.exists()) {
-        LibraryInfo libraryInfo(LibraryInfo::NotFound);
-        modelManager->updateLibraryInfo(path, libraryInfo);
+        if (!ignoreMissing) {
+            LibraryInfo libraryInfo(LibraryInfo::NotFound);
+            modelManager->updateLibraryInfo(path, libraryInfo);
+        }
         return false;
     }
 
@@ -765,18 +769,18 @@ static void findNewQmlLibrary(
                 QString::number(version.minorVersion()));
     findNewQmlLibraryInPath(
                 libraryPath, snapshot, modelManager,
-                importedFiles, scannedPaths, newLibraries);
+                importedFiles, scannedPaths, newLibraries, false);
 
     libraryPath = QString::fromLatin1("%1.%2").arg(
                 path,
                 QString::number(version.majorVersion()));
     findNewQmlLibraryInPath(
                 libraryPath, snapshot, modelManager,
-                importedFiles, scannedPaths, newLibraries);
+                importedFiles, scannedPaths, newLibraries, false);
 
     findNewQmlLibraryInPath(
                 path, snapshot, modelManager,
-                importedFiles, scannedPaths, newLibraries);
+                importedFiles, scannedPaths, newLibraries, false);
 }
 
 static void findNewLibraryImports(const Document::Ptr &doc, const Snapshot &snapshot,
@@ -785,7 +789,7 @@ static void findNewLibraryImports(const Document::Ptr &doc, const Snapshot &snap
 {
     // scan current dir
     findNewQmlLibraryInPath(doc->path(), snapshot, modelManager,
-                            importedFiles, scannedPaths, newLibraries);
+                            importedFiles, scannedPaths, newLibraries, false);
 
     // scan dir and lib imports
     const QStringList importPaths = modelManager->importPaths();
@@ -793,7 +797,7 @@ static void findNewLibraryImports(const Document::Ptr &doc, const Snapshot &snap
         if (import.type() == ImportType::Directory) {
             const QString targetPath = import.path();
             findNewQmlLibraryInPath(targetPath, snapshot, modelManager,
-                                    importedFiles, scannedPaths, newLibraries);
+                                    importedFiles, scannedPaths, newLibraries, false);
         }
 
         if (import.type() == ImportType::Library) {
@@ -808,24 +812,18 @@ static void findNewLibraryImports(const Document::Ptr &doc, const Snapshot &snap
     }
 }
 
-void ModelManager::parse(QFutureInterface<void> &future,
-                            WorkingCopy workingCopy,
-                            QStringList files,
-                            ModelManager *modelManager,
-                            bool emitDocChangedOnDisk)
+void ModelManager::parseLoop(QSet<QString> &scannedPaths,
+                             QSet<QString> &newLibraries,
+                             WorkingCopy workingCopy,
+                             QStringList files,
+                             ModelManager *modelManager,
+                             Language::Enum mainLanguage,
+                             bool emitDocChangedOnDisk,
+                             Utils::function<bool(qreal)> reportProgress)
 {
-    int progressRange = files.size();
-    future.setProgressRange(0, progressRange);
-
-    // paths we have scanned for files and added to the files list
-    QSet<QString> scannedPaths;
-    // libraries we've found while scanning imports
-    QSet<QString> newLibraries;
-
     for (int i = 0; i < files.size(); ++i) {
-        if (future.isCanceled())
-            break;
-        future.setProgressValue(qreal(i) / files.size() * progressRange);
+        if (!reportProgress(qreal(i) / files.size()))
+            return;
 
         const QString fileName = files.at(i);
 
@@ -835,7 +833,9 @@ void ModelManager::parse(QFutureInterface<void> &future,
                 modelManager->updateQrcFile(fileName);
             continue;
         }
-
+        if (language == Language::Qml
+                && (mainLanguage == Language::QmlQtQuick1 || Language::QmlQtQuick2))
+            language = mainLanguage;
         QString contents;
         int documentRevision = 0;
 
@@ -878,7 +878,116 @@ void ModelManager::parse(QFutureInterface<void> &future,
         if (emitDocChangedOnDisk)
             modelManager->emitDocumentChangedOnDisk(doc);
     }
+}
 
+class FutureReporter
+{
+public:
+    FutureReporter(QFutureInterface<void> &future, int multiplier = 100, int base = 0)
+        :future(future), multiplier(multiplier), base(base)
+    { }
+    bool operator()(qreal val)
+    {
+        if (future.isCanceled())
+            return false;
+        future.setProgressValue(int(base + multiplier * val));
+        return true;
+    }
+private:
+    QFutureInterface<void> &future;
+    int multiplier;
+    int base;
+};
+
+void ModelManager::parse(QFutureInterface<void> &future,
+                         WorkingCopy workingCopy,
+                         QStringList files,
+                         ModelManager *modelManager,
+                         Language::Enum mainLanguage,
+                         bool emitDocChangedOnDisk)
+{
+    FutureReporter reporter(future);
+    future.setProgressRange(0, 100);
+
+    // paths we have scanned for files and added to the files list
+    QSet<QString> scannedPaths;
+    // libraries we've found while scanning imports
+    QSet<QString> newLibraries;
+    parseLoop(scannedPaths, newLibraries, workingCopy, files, modelManager, mainLanguage,
+              emitDocChangedOnDisk, reporter);
+    future.setProgressValue(100);
+}
+
+struct ScanItem {
+    QString path;
+    int depth;
+    ScanItem(QString path = QString(), int depth = 0)
+        : path(path), depth(depth)
+    { }
+};
+
+void ModelManager::importScan(QFutureInterface<void> &future,
+                              ModelManagerInterface::WorkingCopy workingCopy,
+                              QStringList paths, ModelManager *modelManager,
+                              Language::Enum language,
+                              bool emitDocChangedOnDisk)
+{
+    // paths we have scanned for files and added to the files list
+    QSet<QString> scannedPaths = modelManager->m_scannedPaths;
+    // libraries we've found while scanning imports
+    QSet<QString> newLibraries;
+
+    QVector<ScanItem> pathsToScan;
+    pathsToScan.reserve(paths.size());
+    foreach (const QString &path, paths) {
+        QString cPath = QDir::cleanPath(path);
+        if (modelManager->m_scannedPaths.contains(cPath))
+            continue;
+        pathsToScan.append(ScanItem(cPath));
+    }
+    const int maxScanDepth = 5;
+    int progressRange = pathsToScan.size() * (1 << (2 + maxScanDepth));
+    int totalWork(progressRange), workDone(0);
+    future.setProgressRange(0, progressRange); // update max length while iterating?
+    const bool libOnly = true; // FIXME remove when tested more
+    while (!pathsToScan.isEmpty() && !future.isCanceled()) {
+        ScanItem toScan = pathsToScan.last();
+        pathsToScan.removeLast();
+        int pathBudget = (maxScanDepth + 2 - toScan.depth);
+        if (!scannedPaths.contains(toScan.path)) {
+            QStringList importedFiles;
+            const Snapshot snapshot = modelManager->snapshot();
+            if (!findNewQmlLibraryInPath(toScan.path, snapshot, modelManager, &importedFiles,
+                                         &scannedPaths, &newLibraries, true)
+                    && !libOnly && snapshot.documentsInDirectory(toScan.path).isEmpty())
+                importedFiles += qmlFilesInDirectory(toScan.path);
+            workDone += 1;
+            future.setProgressValue(progressRange * workDone / totalWork);
+            if (!importedFiles.isEmpty()) {
+                FutureReporter reporter(future, progressRange * pathBudget / (4 * totalWork),
+                                        progressRange * workDone / totalWork);
+                parseLoop(scannedPaths, newLibraries, workingCopy, importedFiles, modelManager,
+                          language, emitDocChangedOnDisk, reporter); // run in parallel??
+                importedFiles.clear();
+            }
+            workDone += pathBudget / 4 - 1;
+            future.setProgressValue(progressRange * workDone / totalWork);
+        } else {
+            workDone += pathBudget / 4;
+        }
+        // always descend tree, as we might have just scanned with a smaller depth
+        if (toScan.depth < maxScanDepth) {
+            QDir dir(toScan.path);
+            QStringList subDirs(dir.entryList(QDir::Dirs));
+            workDone += 1;
+            totalWork += pathBudget / 2 * subDirs.size() - pathBudget * 3 / 4 + 1;
+            foreach (const QString path, subDirs)
+                pathsToScan.append(ScanItem(dir.absoluteFilePath(path), toScan.depth + 1));
+        } else {
+            workDone += pathBudget *3 / 4;
+        }
+        future.setProgressValue(progressRange * workDone / totalWork);
+    }
     future.setProgressValue(progressRange);
 }
 
@@ -993,6 +1102,33 @@ void ModelManager::updateImportPaths()
         findNewLibraryImports(doc, snapshot, this, &importedFiles, &scannedPaths, &newLibraries);
 
     updateSourceFiles(importedFiles, true);
+
+    QStringList pathToScan;
+    foreach (QString importPath, allImportPaths)
+        if (!m_scannedPaths.contains(importPath))
+            pathToScan.append(importPath);
+
+    if (pathToScan.count() > 1) {
+        QFuture<void> result = QtConcurrent::run(&ModelManager::importScan,
+                                                  workingCopy(), pathToScan,
+                                                  this, Language::Qml,
+                                                  true);
+
+        if (m_synchronizer.futures().size() > 10) {
+            QList<QFuture<void> > futures = m_synchronizer.futures();
+
+            m_synchronizer.clearFutures();
+
+            foreach (const QFuture<void> &future, futures) {
+                if (! (future.isFinished() || future.isCanceled()))
+                    m_synchronizer.addFuture(future);
+            }
+        }
+
+        m_synchronizer.addFuture(result);
+
+        ProgressManager::addTask(result, tr("Qml import scan"), Constants::TASK_IMPORT_SCAN);
+    }
 }
 
 void ModelManager::loadPluginTypes(const QString &libraryPath, const QString &importPath,
@@ -1133,6 +1269,7 @@ ViewerContext ModelManager::completeVContext(const ViewerContext &vCtx,
     case ViewerContext::AddAllPaths:
         res.paths << importPaths();
     }
+    res.flags = ViewerContext::Complete;
     return res;
 }
 

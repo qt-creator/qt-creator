@@ -40,6 +40,8 @@
 
 namespace QmlJS {
 
+static bool debugImportDependencies = false;
+
 ImportKind::Enum toImportKind(ImportType::Enum type)
 {
     switch (type) {
@@ -408,6 +410,40 @@ ImportKey::DirCompareInfo ImportKey::compareDir(const ImportKey &superDir) const
     return SameDir;
 }
 
+QString ImportKey::toString() const
+{
+    QString res;
+    switch (type) {
+    case ImportType::UnknownFile:
+    case ImportType::File:
+        res = path();
+        break;
+    case ImportType::Directory:
+    case ImportType::ImplicitDirectory:
+        res = path() + QLatin1Char('/');
+        break;
+    case ImportType::QrcDirectory:
+        res = QLatin1String("qrc:") + path() + QLatin1Char('/');
+        break;
+    case ImportType::QrcFile:
+        res = QLatin1String("qrc:") + path() + QLatin1Char('/');
+        break;
+    case ImportType::Invalid:
+        res = path();
+        break;
+    case ImportType::Library:
+        res = splitPath.join(QLatin1Char('.'));
+        break;
+    }
+
+    if (majorVersion != LanguageUtils::ComponentVersion::NoVersion
+            || minorVersion != LanguageUtils::ComponentVersion::NoVersion)
+        return res + QLatin1Char(' ') + QString::number(majorVersion)
+                + QLatin1Char('.') + QString::number(minorVersion);
+
+    return res;
+}
+
 uint qHash(const ImportKey &info)
 {
     uint res = ::qHash(info.type) ^
@@ -688,6 +724,12 @@ void ImportDependencies::addCoreImport(const CoreImport &import)
                 newImport.possibleExports.append(e);
     }
     m_coreImports.insert(newImport.importId, newImport);
+    if (debugImportDependencies) {
+        QDebug dbg(qDebug());
+        dbg << "added import "<< newImport.importId << " for";
+        foreach (const Export &e, newImport.possibleExports)
+            dbg << " " << e.exportName.toString() << "(" << e.pathRequired << ")";
+    }
 }
 
 void ImportDependencies::removeCoreImport(const QString &importId)
@@ -705,6 +747,8 @@ void ImportDependencies::removeCoreImport(const QString &importId)
         cImport.possibleExports = newExports;
     else
         m_coreImports.remove(importId);
+    if (debugImportDependencies)
+        qDebug() << "removed import with id:"<< importId;
 }
 
 void ImportDependencies::addExport(const QString &importId, const ImportKey &importKey,
@@ -719,6 +763,9 @@ void ImportDependencies::addExport(const QString &importId, const ImportKey &imp
     }
     CoreImport &importValue = m_coreImports[importId];
     importValue.possibleExports.append(Export(importKey, requiredPath, false));
+    if (debugImportDependencies)
+        qDebug() << "added export "<< importKey.toString() << " for id " <<importId
+                 << " (" << requiredPath << ")";
 }
 
 void ImportDependencies::removeExport(const QString &importId, const ImportKey &importKey,
@@ -726,28 +773,31 @@ void ImportDependencies::removeExport(const QString &importId, const ImportKey &
 {
     if (!m_coreImports.contains(importId)) {
         qDebug() << "non existing core import for removeExport(" << importId << ", "
-                 << importKey.path() << ")";
+                 << importKey.toString() << ")";
     } else {
         CoreImport &importValue = m_coreImports[importId];
         if (!importValue.possibleExports.removeOne(Export(importKey, requiredPath, false))) {
             qDebug() << "non existing export for removeExport(" << importId << ", "
-                     << importKey.path() << ")";
+                     << importKey.toString() << ")";
         }
         if (importValue.possibleExports.isEmpty() && importValue.fingerprint.isEmpty())
             m_coreImports.remove(importId);
     }
     if (!m_importCache.contains(importKey)) {
-        qDebug() << "missing possibleExport for " << importKey.path() << " when removing export of "
+        qDebug() << "missing possibleExport for " << importKey.toString() << " when removing export of "
                  << importId;
     } else {
         QStringList &cImp = m_importCache[importKey];
         if (!cImp.removeOne(importId)) {
-            qDebug() << "missing possibleExport backpointer for " << importKey.path() << " to "
+            qDebug() << "missing possibleExport backpointer for " << importKey.toString() << " to "
                      << importId;
         }
         if (cImp.isEmpty())
             m_importCache.remove(importKey);
     }
+    if (debugImportDependencies)
+        qDebug() << "removed export "<< importKey.toString() << " for id " << importId
+                 << " (" << requiredPath << ")";
 }
 
 void ImportDependencies::iterateOnCoreImports(
@@ -774,6 +824,8 @@ void ImportDependencies::iterateOnLibraryImports(
     iter_t i = m_importCache.lowerBound(firstLib);
     iter_t end = m_importCache.constEnd();
     while (i != end && i.key().type == ImportType::Library) {
+        if (debugImportDependencies)
+            qDebug() << "libloop:" << i.key().toString() << i.value();
         foreach (const QString &cImportName, i.value()) {
             CoreImport cImport = coreImport(cImportName);
             if (vContext.languageIsCompatible(cImport.language)) {
@@ -781,6 +833,9 @@ void ImportDependencies::iterateOnLibraryImports(
                     if (e.visibleInVContext(vContext) && e.exportName.type == ImportType::Library) {
                         ImportMatchStrength m = e.exportName.matchImport(i.key(), vContext);
                         if (m.hasMatch()) {
+                            if (debugImportDependencies)
+                                qDebug() << "import iterate:" << e.exportName.toString()
+                                         << " (" << e.pathRequired << "), id:" << cImport.importId;
                             if (!iterF(m, e, cImport))
                                 return;
                         }

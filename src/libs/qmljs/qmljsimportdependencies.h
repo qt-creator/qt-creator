@@ -118,6 +118,7 @@ public:
     int compare(const ImportKey &other) const;
     bool isDirectoryLike() const;
     DirCompareInfo compareDir(const ImportKey &other) const;
+    QString toString() const;
 };
 
 uint qHash(const ImportKey &info);
