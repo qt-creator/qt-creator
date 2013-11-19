@@ -176,14 +176,21 @@ void CppElementEvaluator::handleLookupItemMatch(const Snapshot &snapshot,
                    || (declaration->isTemplate() && declaration->asTemplate()->declaration()
                        && (declaration->asTemplate()->declaration()->isClass()
                            || declaration->asTemplate()->declaration()->isForwardClassDeclaration()))) {
+            LookupContext contextToUse = context;
             if (declaration->isForwardClassDeclaration())
                 if (Symbol *classDeclaration =
                         m_symbolFinder.findMatchingClassDeclaration(declaration, snapshot)) {
                     declaration = classDeclaration;
+                    const QString fileName = QString::fromUtf8(declaration->fileName(),
+                                                               declaration->fileNameLength());
+                    const Document::Ptr declarationDocument = snapshot.document(fileName);
+                    if (declarationDocument != context.thisDocument())
+                        contextToUse = LookupContext(declarationDocument, snapshot);
                 }
+
             CppClass *cppClass = new CppClass(declaration);
             if (m_lookupBaseClasses)
-                cppClass->lookupBases(declaration, context);
+                cppClass->lookupBases(declaration, contextToUse);
             if (m_lookupDerivedClasses)
                 cppClass->lookupDerived(declaration, snapshot);
             m_element = QSharedPointer<CppElement>(cppClass);
