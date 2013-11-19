@@ -169,6 +169,7 @@ CppEditorSupport::~CppEditorSupport()
     m_highlighter.cancel();
     m_futureSemanticInfo.cancel();
 
+    m_documentParser.waitForFinished();
     m_highlighter.waitForFinished();
     m_futureSemanticInfo.waitForFinished();
 }
