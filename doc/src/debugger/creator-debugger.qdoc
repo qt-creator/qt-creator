@@ -1169,18 +1169,6 @@
             d.putSubItem("key", key)
             d.putSubItem("value", value)
     \endcode
-
-    \section1 Enabling Debugging Helpers for Qt's Bootstrapped Applications
-
-    Qt's bootstrapped applications (such as moc and qmake) are built in a way
-    that is incompatible with the default build of the debugging helpers. To
-    work around this, add \c{dumper.cpp} to the compiled sources in the
-    application Makefile.
-
-    Choose \gui {Tools > Options > Debugger > Debugging Helper > Use debugging
-    helper from custom location}, and specify an invalid location, such as
-    \c{/dev/null}.
-
 */
 
 
