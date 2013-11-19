@@ -1829,10 +1829,6 @@ void GdbEngine::handlePythonSetup(const GdbResponse &response)
             postCommand("bbsetup");
         }
 
-        postCommand("python qqStringCutOff = "
-            + debuggerCore()->action(MaximalStringLength)->value().toByteArray(),
-            ConsoleCommand|NonCriticalResponse);
-
         m_hasPython = true;
         GdbMi data;
         data.fromStringMultiple(response.consoleStreamOutput);

@@ -628,7 +628,7 @@ class Dumper(DumperBase):
                 return
             self.report('state="enginerunandinferiorstopok"')
         else:
-            launchInfo = lldb.SBLaunchInfo(self.processArgs_.split(' '))
+            launchInfo = lldb.SBLaunchInfo(self.processArgs_.split())
             launchInfo.SetWorkingDirectory(os.getcwd())
             environmentList = [key + "=" + value for key,value in os.environ.items()]
             launchInfo.SetEnvironmentEntries(environmentList, False)

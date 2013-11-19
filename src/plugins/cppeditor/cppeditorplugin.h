@@ -308,6 +308,11 @@ private slots:
     void test_functionhelper_virtualFunctions();
     void test_functionhelper_virtualFunctions_data();
 
+    // tests for "Include Hiererchy"
+    void test_includeHierarchyModel_simpleIncludes();
+    void test_includeHierarchyModel_simpleIncludedBy();
+    void test_includeHierarchyModel_simpleIncludesAndIncludedBy();
+
     // The following tests depend on the projects that are loaded on startup
     // and will be skipped in case no projects are loaded.
     void test_openEachFile();

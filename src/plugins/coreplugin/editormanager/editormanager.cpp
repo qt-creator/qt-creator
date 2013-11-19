@@ -1253,6 +1253,7 @@ Core::IEditor *EditorManager::placeEditor(Core::Internal::EditorView *view, Core
                         if (replacementView)
                             replacementView->removeEditor(replacement);
                         sourceView->addEditor(replacement);
+                        sourceView->setCurrentEditor(replacement);
                     }
                 }
                 return editor;

@@ -286,6 +286,7 @@ public:
     QString m_superfile;
     QString m_conffile;
     QString m_cachefile;
+    QString m_stashfile;
     QString m_sourceRoot;
     QString m_buildRoot;
     QStringList m_qmakepath;

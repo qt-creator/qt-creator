@@ -3748,6 +3748,18 @@ namespace qstring  {
         dummyStatement(&str, &string, pstring);
     }
 
+    void testQString4()
+    {
+        QString str;
+        for (int i = 0; i < 1000000; ++i)
+            str += QString::fromLatin1("%1 ").arg(i);
+        BREAK_HERE;
+        BREAK_HERE;
+        BREAK_HERE;
+        BREAK_HERE;
+        dummyStatement(&str);
+    }
+
     void testQStringRef()
     {
         QString str = "Hello";
@@ -3763,6 +3775,7 @@ namespace qstring  {
         testQString1();
         testQString2();
         testQString3();
+        testQString4();
         testQStringRef();
         testQStringQuotes();
     }
@@ -3951,7 +3964,7 @@ namespace qthread {
                 // Check j 3 int.
                 // CheckType this qthread::Thread.
                 // Check this.@1  QThread.
-                // Check this.@1.@1 "This is thread #3" QObject.
+                // Check this.@1.@1 "Thread #3" QObject.
                 // Continue.
                 dummyStatement(this);
             }
@@ -3969,7 +3982,7 @@ namespace qthread {
         Thread thread[N];
         for (int i = 0; i != N; ++i) {
             thread[i].setId(i);
-            thread[i].setObjectName("This is thread #" + QString::number(i));
+            thread[i].setObjectName("Thread #" + QString::number(i));
             thread[i].start();
         }
         BREAK_HERE;
@@ -3980,9 +3993,9 @@ namespace qthread {
         // Expand thread.13.@1.
         // CheckType thread qthread::Thread [14].
         // Check thread.0  qthread::Thread.
-        // Check thread.0.@1.@1 "This is thread #0" qthread::Thread.
+        // Check thread.0.@1.@1 "Thread #0" qthread::Thread.
         // Check thread.13  qthread::Thread.
-        // Check thread.13.@1.@1 "This is thread #13" qthread::Thread.
+        // Check thread.13.@1.@1 "Thread #13" qthread::Thread.
         // Continue.
         for (int i = 0; i != N; ++i) {
             thread[i].wait();

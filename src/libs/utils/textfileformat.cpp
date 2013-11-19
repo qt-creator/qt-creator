@@ -304,6 +304,40 @@ TextFileFormat::ReadResult TextFileFormat::readFileUTF8(const QString &fileName,
     return TextFileFormat::ReadSuccess;
 }
 
+TextFileFormat::ReadResult TextFileFormat::readFileUTF8(const QString &fileName,
+                                                        const QTextCodec *defaultCodec,
+                                                        QByteArray *plainText, QString *errorString)
+{
+    QByteArray data;
+    try {
+        Utils::FileReader reader;
+        if (!reader.fetch(fileName, errorString))
+            return Utils::TextFileFormat::ReadIOError;
+        data = reader.data();
+    } catch (const std::bad_alloc &) {
+        *errorString = QCoreApplication::translate("Utils::TextFileFormat", "Out of memory.");
+        return Utils::TextFileFormat::ReadMemoryAllocationError;
+    }
+
+    Utils::TextFileFormat format = Utils::TextFileFormat::detect(data);
+    if (!format.codec)
+        format.codec = defaultCodec ? defaultCodec : QTextCodec::codecForLocale();
+    if (format.codec->name() == "UTF-8") {
+        if (format.hasUtf8Bom)
+            data.remove(0, 3);
+        *plainText = data;
+        return Utils::TextFileFormat::ReadSuccess;
+    }
+
+    QString target;
+    if (!format.decode(data, &target)) {
+        *errorString = QCoreApplication::translate("Utils::TextFileFormat", "An encoding error was encountered.");
+        return Utils::TextFileFormat::ReadEncodingError;
+    }
+    *plainText = target.toUtf8();
+    return Utils::TextFileFormat::ReadSuccess;
+}
+
 /*!
     Writes out a text file.
 */

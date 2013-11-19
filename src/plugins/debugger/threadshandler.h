@@ -57,7 +57,7 @@ class ThreadsHandler : public QAbstractTableModel
 public:
     ThreadsHandler();
 
-    int currentThreadIndex() const { return m_currentIndex; }
+    int currentThreadIndex() const;
     ThreadId currentThread() const;
     ThreadId threadAt(int index) const;
     void setCurrentThread(ThreadId id);
@@ -93,10 +93,10 @@ private:
         int role = Qt::DisplayRole) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
     void updateThreadBox();
-    void dataChanged(int index);
+    void threadDataChanged(ThreadId id);
 
     Threads m_threads;
-    int m_currentIndex;
+    ThreadId m_currentId;
     const QIcon m_positionIcon;
     const QIcon m_emptyIcon;
 

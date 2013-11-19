@@ -158,7 +158,7 @@ void ShortcutSettings::targetIdentifierChanged()
 
 void ShortcutSettings::setKeySequence(const QKeySequence &key)
 {
-    m_keyNum = m_key[0] = m_key[1] = m_key[2] = m_key[3] = 0;
+    m_key[0] = m_key[1] = m_key[2] = m_key[3] = 0;
     m_keyNum = key.count();
     for (int i = 0; i < m_keyNum; ++i) {
         m_key[i] = key[i];

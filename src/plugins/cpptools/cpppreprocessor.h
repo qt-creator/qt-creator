@@ -9,6 +9,10 @@
 #include <QHash>
 #include <QPointer>
 
+QT_BEGIN_NAMESPACE
+class QTextCodec;
+QT_END_NAMESPACE
+
 namespace CppTools {
 namespace Internal {
 
@@ -75,6 +79,7 @@ protected:
     virtual void sourceNeeded(unsigned line, const QString &fileName, IncludeType type);
 
 private:
+    CppPreprocessor();
     void addFrameworkPath(const QString &frameworkPath);
 
     CPlusPlus::Snapshot m_snapshot;
@@ -92,6 +97,7 @@ private:
     QSet<QString> m_processed;
     unsigned m_revision;
     QHash<QString, QString> m_fileNameCache;
+    QTextCodec *m_defaultCodec;
 };
 
 } // namespace Internal

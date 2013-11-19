@@ -33,3 +33,4 @@ FontSection 2.0 FontSection.qml
 FlickableSection 2.0 FlickableSection.qml
 UrlChooser 2.0 UrlChooser.qml
 FontComboBox 2.0 FontComboBox.qml
+OriginControl 2.0 OriginControl.qml

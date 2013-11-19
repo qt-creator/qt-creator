@@ -47,29 +47,11 @@
 
     \list
 
-        \li Java Development Kit (JDK)
-
-            To check whether you have JDK installed, enter the following
-            command:
-
-            \c {java -version}
-
-            On Linux and Mac OS X, you can use OpenJDK. To install it on Linux,
-            enter the following command:
-
-            \c {sudo apt-get install openjdk-6-jdk}
-
-            On Windows, you must download and install JDK from
-            \l{http://www.oracle.com/technetwork/java/javase/downloads/index.html}
-            {Java SE Downloads} on the Oracle site.
+        \li \l{http://www.oracle.com/technetwork/java/javase/downloads/index.html}
+            {Java SE Development Kit (JDK)} version 6, or later
 
         \li \l{http://ant.apache.org/bindownload.cgi}{Apache Ant} 1.8.0, or
             later
-
-            To check the Ant version, enter the following command on the command
-            line:
-
-            \c {ant -version}
 
         \li A tool chain for building applications for Android devices. You have
             several options, such as the
@@ -79,7 +61,36 @@
             \l{http://necessitas.kde.org/necessitas/necessitas_sdk_installer.php}
             {Necessitas SDK} (supported for development with Qt 4).
 
-    \endlist
+        \li On Windows, you also need the following:
+
+          \list
+
+            \li MinGW v4.8.0 revision 2
+
+            \li Android Debug Bridge (ADB) driver on the Windows platform to
+                enable USB debugging. The default USB driver on Windows does not
+                allow debugging. For more information about obtaining the USB
+                driver, see \l{http://developer.android.com/sdk/win-usb.html}.
+
+                After installing the driver, try running a few basic
+                \l{http://developer.android.com/tools/help/adb.html}{adb}
+                commands to check that your device responds to them.
+
+          \endlist
+
+        \endlist
+
+        After installing these tools, update the Android SDK to get the API
+        and tools packages required for development. You can use the
+        \l{http://developer.android.com/tools/help/android.html}{android} tool
+        that comes with the SDK Tools package. For example, on Ubuntu the
+        following command starts the
+        \l{http://developer.android.com/sdk/installing/adding-packages.html}
+        {Android SDK Manager}, where you can select the packages to install:
+
+        \code
+        ./android update sdk
+        \endcode
 
     \section1 Developing with Qt 4
 

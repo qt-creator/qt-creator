@@ -1844,14 +1844,16 @@ static inline bool dumpQRegExp(const SymbolGroupValue &v, std::wostream &str)
 static inline bool dumpQFile(const SymbolGroupValue &v, std::wostream &str)
 {
     // Get address of the file name string, obtain value by dumping a QString at address
-    static unsigned qIoDevicePrivateSize = 0;
-    if (!qIoDevicePrivateSize) {
-        const std::string qIoDevicePrivateType = QtInfo::get(v.context()).prependQtCoreModule("QIODevicePrivate");
-        qIoDevicePrivateSize = padOffset(SymbolGroupValue::sizeOf(qIoDevicePrivateType.c_str()));
+    static unsigned qFileBasePrivateSize = 0;
+    if (!qFileBasePrivateSize) {
+        const QtInfo info = QtInfo::get(v.context());
+        const std::string qIoDevicePrivateType =info.prependQtCoreModule(
+                    info.version < 5 ? "QIODevicePrivate" : "QFileDevicePrivate");
+        qFileBasePrivateSize = padOffset(SymbolGroupValue::sizeOf(qIoDevicePrivateType.c_str()));
     }
-    if (!qIoDevicePrivateSize)
+    if (!qFileBasePrivateSize)
         return false;
-    return dumpQStringFromQPrivateClass(v, QPDM_qVirtual, qIoDevicePrivateSize,  str);
+    return dumpQStringFromQPrivateClass(v, QPDM_qVirtual, qFileBasePrivateSize,  str);
 }
 
 /* Dump QHostAddress, for whose private class no debugging information is available.

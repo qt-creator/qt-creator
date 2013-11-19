@@ -130,7 +130,7 @@ static QString threadToolTip(const ThreadData &thread)
 */
 
 ThreadsHandler::ThreadsHandler()
-  : m_currentIndex(-1),
+  : m_currentId(),
     m_positionIcon(QLatin1String(":/debugger/images/location_16.png")),
     m_emptyIcon(QLatin1String(":/debugger/images/debugger_empty_14.png"))
 {
@@ -138,6 +138,11 @@ ThreadsHandler::ThreadsHandler()
     setObjectName(QLatin1String("ThreadsModel"));
 //    m_proxyModel = new QSortFilterProxyModel(this);
 //    m_proxyModel->setSourceModel(this);
+}
+
+int ThreadsHandler::currentThreadIndex() const
+{
+    return indexOf(m_currentId);
 }
 
 int ThreadsHandler::rowCount(const QModelIndex &parent) const
@@ -196,7 +201,7 @@ QVariant ThreadsHandler::data(const QModelIndex &index, int role) const
     case Qt::DecorationRole:
         // Return icon that indicates whether this is the active stack frame.
         if (index.column() == 0)
-            return (index.row() == m_currentIndex) ? m_positionIcon : m_emptyIcon;
+            return (thread.id == m_currentId) ? m_positionIcon : m_emptyIcon;
         break;
     case ThreadData::IdRole:
         return thread.id.raw();
@@ -246,9 +251,7 @@ Qt::ItemFlags ThreadsHandler::flags(const QModelIndex &index) const
 
 ThreadId ThreadsHandler::currentThread() const
 {
-    if (m_currentIndex < 0 || m_currentIndex >= m_threads.size())
-        return ThreadId();
-    return m_threads[m_currentIndex].id;
+    return m_currentId;
 }
 
 ThreadId ThreadsHandler::threadAt(int index) const
@@ -259,23 +262,22 @@ ThreadId ThreadsHandler::threadAt(int index) const
 
 void ThreadsHandler::setCurrentThread(ThreadId id)
 {
-    const int index = indexOf(id);
-    if (index == m_currentIndex)
+    if (id == m_currentId)
         return;
 
+    const int index = indexOf(id);
     if (index == -1) {
         qWarning("ThreadsHandler::setCurrentThreadId: No such thread %d.", int(id.raw()));
         return;
     }
 
     // Emit changed for previous frame.
-    if (m_currentIndex != -1)
-        dataChanged(m_currentIndex);
+    threadDataChanged(m_currentId);
 
-    m_currentIndex = index;
+    m_currentId = id;
 
     // Emit changed for new frame.
-    dataChanged(m_currentIndex);
+    threadDataChanged(m_currentId);
 
     updateThreadBox();
 }
@@ -297,7 +299,7 @@ void ThreadsHandler::updateThread(const ThreadData &thread)
         endInsertRows();
     } else {
         mergeThreadData(m_threads[i], thread);
-        dataChanged(i);
+        threadDataChanged(thread.id);
     }
 }
 
@@ -315,8 +317,14 @@ void ThreadsHandler::setThreads(const Threads &threads)
 {
     beginResetModel();
     m_threads = threads;
-    if (m_currentIndex >= m_threads.size())
-        m_currentIndex = -1;
+    bool found = false;
+    for (int i = 0, n = m_threads.size(); i < n; ++i)
+        if (threads.at(i).id == m_currentId) {
+            found = true;
+            break;
+        }
+    if (!found)
+        m_currentId = ThreadId();
     m_resetLocationScheduled = false;
     endResetModel();
     updateThreadBox();
@@ -327,13 +335,17 @@ void ThreadsHandler::updateThreadBox()
     QStringList list;
     foreach (const ThreadData &thread, m_threads)
         list.append(QString::fromLatin1("#%1 %2").arg(thread.id.raw()).arg(thread.name));
-    debuggerCore()->setThreads(list, m_currentIndex);
+    debuggerCore()->setThreads(list, indexOf(m_currentId));
 }
 
-void ThreadsHandler::dataChanged(int index)
+void ThreadsHandler::threadDataChanged(ThreadId id)
 {
-    Q_UNUSED(index);
-    layoutChanged();
+    int row = indexOf(id);
+    if (row < 0)
+        return;
+    QModelIndex l = index(row, 0);
+    QModelIndex r = index(row, ThreadData::ColumnCount - 1);
+    dataChanged(l, r);
 }
 
 Threads ThreadsHandler::threads() const
@@ -351,7 +363,7 @@ void ThreadsHandler::removeAll()
 {
     beginResetModel();
     m_threads.clear();
-    m_currentIndex = -1;
+    m_currentId = ThreadId();
     endResetModel();
 }
 
@@ -381,7 +393,7 @@ void ThreadsHandler::notifyRunning(ThreadId id)
     int i = indexOf(id);
     if (i >= 0) {
         m_threads[i].notifyRunning();
-        dataChanged(i);
+        threadDataChanged(id);
     }
 }
 
@@ -411,7 +423,7 @@ void ThreadsHandler::notifyStopped(ThreadId id)
     int i = indexOf(id);
     if (i >= 0) {
         m_threads[i].stopped = true;
-        dataChanged(i);
+        threadDataChanged(id);
     }
 }
 
@@ -423,15 +435,10 @@ void ThreadsHandler::updateThreads(const GdbMi &data)
     // state="stopped",core="0"}],current-thread-id="1"
 
     // Emit changed for previous frame.
-    if (m_currentIndex != -1) {
-        dataChanged(m_currentIndex);
-        m_currentIndex = -1;
-    }
-
-    ThreadId currentId;
-    const GdbMi current = data["current-thread-id"];
-    if (current.isValid())
-        currentId = ThreadId(current.data().toLongLong());
+//    if (m_currentIndex != -1) {
+//        rowChanged(m_currentIndex);
+//        m_currentIndex = -1;
+//    }
 
     const QList<GdbMi> items = data["threads"].children();
     const int n = items.size();
@@ -449,17 +456,20 @@ void ThreadsHandler::updateThreads(const GdbMi &data)
         thread.fileName = frame["fullname"].toLatin1();
         thread.lineNumber = frame["line"].toInt();
         thread.module = QString::fromLocal8Bit(frame["from"].data());
-        thread.stopped = true;
         thread.name = item["name"].toLatin1();
-        if (thread.state == QLatin1String("running"))
-            thread.stopped = false;
-        if (thread.id == currentId)
-            m_currentIndex = index;
+        thread.stopped = thread.state != QLatin1String("running");
         updateThread(thread);
     }
 
-    if (m_currentIndex != -1)
-        dataChanged(m_currentIndex);
+    const GdbMi current = data["current-thread-id"];
+    if (current.isValid()) {
+        ThreadId currentId = ThreadId(current.data().toLongLong());
+        if (currentId != m_currentId) {
+            threadDataChanged(m_currentId);
+            m_currentId = currentId;
+            threadDataChanged(m_currentId);
+        }
+    }
 
     updateThreadBox();
 }

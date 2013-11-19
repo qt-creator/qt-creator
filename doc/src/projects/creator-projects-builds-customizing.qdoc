@@ -31,7 +31,7 @@
     \title  Customizing the Build Process
 
     To specify the relationship between the release, build,
-    and deploy configurations, select \gui {Tools > Options > Project}. By
+    and deploy configurations, select \gui Tools > \gui Options > \gui {Build & Run}. By
     default, the \gui {Always build project before deploying it} and the
     \gui {Always deploy project before running it} options are enabled.
     Therefore, when you select the \gui Run function, \QC checks for changes in

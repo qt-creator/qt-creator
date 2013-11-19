@@ -89,7 +89,7 @@ android-no-sdk {
         export(copydeploymentfolders.commands)
         QMAKE_EXTRA_TARGETS += first copydeploymentfolders
     }
-} ios {
+} else:ios {
     copyCommand =
     for(deploymentfolder, DEPLOYMENTFOLDERS) {
         source = $$MAINPROFILEPWD/$$eval($${deploymentfolder}.source)

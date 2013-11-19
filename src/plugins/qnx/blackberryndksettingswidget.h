@@ -62,7 +62,7 @@ public:
    QList<BlackBerryConfiguration *> deactivatedTargets();
 
 signals:
-    void kitsUpdated();
+    void targetsUpdated();
 
 public slots:
     void launchBlackBerrySetupWizard() const;

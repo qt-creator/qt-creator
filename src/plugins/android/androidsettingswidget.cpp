@@ -316,7 +316,11 @@ void AndroidSettingsWidget::searchForAnt(const QString &location)
     foreach (const QString &file, parentFolder.entryList()) {
         if (file.startsWith(QLatin1String("apache-ant"))) {
             Utils::FileName ant = Utils::FileName::fromString(parentFolder.absolutePath());
-            ant.appendPath(file).appendPath(QLatin1String("bin")).appendPath(QLatin1String("ant.bat"));
+            ant.appendPath(file).appendPath(QLatin1String("bin"));
+            if (Utils::HostOsInfo::isWindowsHost())
+                ant.appendPath(QLatin1String("ant.bat"));
+            else
+                ant.appendPath(QLatin1String("ant"));
             if (ant.toFileInfo().exists()) {
                 m_androidConfig.antLocation = ant;
                 m_ui->AntLocationLineEdit->setText(ant.toUserOutput());

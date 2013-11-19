@@ -492,6 +492,8 @@ class Dumper(DumperBase):
                 resultVarName = arg[pos:]
             elif arg.startswith("expanded:"):
                 self.expandedINames = set(arg[pos:].split(","))
+            elif arg.startswith("stringcutoff:"):
+                self.stringCutOff = int(arg[pos:])
             elif arg.startswith("typeformats:"):
                 for f in arg[pos:].split(","):
                     pos = f.find("=")

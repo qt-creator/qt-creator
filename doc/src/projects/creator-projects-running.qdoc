@@ -31,8 +31,8 @@
     \title Running on Multiple Platforms
 
     By default, running an application also builds it and deploys it to a
-    location from where it can be run on the desktop, in \QS, or
-    on a mobile device that is connected to the development PC.
+    location from where it can be run on the desktop, on a device emulator or
+    simulator, or on a mobile device that is connected to the development PC.
 
     To run executable files without deploying them first, deselect the
     \gui {Tools > Options > Project > Always deploy project before running it}
@@ -42,7 +42,6 @@
     \l{Specifying Run Settings}.
 
     \include projects/creator-projects-running-desktop.qdocinc
-    \include projects/creator-projects-running-simulator.qdocinc
     \include linux-mobile/creator-projects-running-generic-linux.qdocinc
     \include qnx/creator-projects-running-qnx.qdocinc
 */

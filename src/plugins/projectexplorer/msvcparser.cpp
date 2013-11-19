@@ -70,8 +70,7 @@ MsvcParser::MsvcParser()
                                + QLatin1String(ERROR_PATTERN) + QLatin1String(".*)$"));
     m_compileRegExp.setMinimal(true);
     QTC_CHECK(m_compileRegExp.isValid());
-    m_additionalInfoRegExp.setPattern(QString::fromLatin1("^        (.*)\\((\\d+)\\) : (.*)$"));
-    m_additionalInfoRegExp.setMinimal(true);
+    m_additionalInfoRegExp.setPattern(QString::fromLatin1("^        (?:(could be |or )\\s*')?(.*)\\((\\d+)\\) : (.*)$"));
     QTC_CHECK(m_additionalInfoRegExp.isValid());
 }
 
@@ -123,10 +122,13 @@ void MsvcParser::stdOutput(const QString &line)
         return;
     }
     if (infoPos > -1) {
-        m_lastTask = Task(Task::Unknown,
-                          m_additionalInfoRegExp.cap(3).trimmed(), /* description */
-                          Utils::FileName::fromUserInput(m_additionalInfoRegExp.cap(1)), /* fileName */
-                          m_additionalInfoRegExp.cap(2).toInt(), /* linenumber */
+        QString description = m_additionalInfoRegExp.cap(1)
+                + m_additionalInfoRegExp.cap(4).trimmed();
+        if (!m_additionalInfoRegExp.cap(1).isEmpty())
+            description.chop(1); // Remove trailing quote
+        m_lastTask = Task(Task::Unknown, description,
+                          Utils::FileName::fromUserInput(m_additionalInfoRegExp.cap(2)), /* fileName */
+                          m_additionalInfoRegExp.cap(3).toInt(), /* linenumber */
                           Constants::TASK_CATEGORY_COMPILE);
         return;
     }
@@ -361,6 +363,27 @@ void ProjectExplorerPlugin::testMsvcOutputParsers_data()
                                       "]"),
                         Utils::FileName::fromUserInput(QLatin1String("symbolgroupvalue.cpp")), 2314,
                         Constants::TASK_CATEGORY_COMPILE))
+            << QString();
+
+    QTest::newRow("Ambiguous symbol")
+            << QString::fromLatin1("D:\\Project\\file.h(98) : error C2872: 'UINT64' : ambiguous symbol\n"
+                                   "        could be 'C:\\Program Files (x86)\\Microsoft SDKs\\Windows\\v7.0A\\include\\basetsd.h(83) : unsigned __int64 UINT64'\n"
+                                   "        or       'D:\\Project\\types.h(71) : Types::UINT64'")
+            << OutputParserTester::STDOUT
+            << QString() << QString()
+            << (QList<Task>()
+                << Task(Task::Error,
+                        QLatin1String("C2872: 'UINT64' : ambiguous symbol"),
+                        Utils::FileName::fromUserInput(QLatin1String("D:\\Project\\file.h")), 98,
+                        Constants::TASK_CATEGORY_COMPILE)
+            << Task(Task::Unknown,
+                    QLatin1String("could be unsigned __int64 UINT64"),
+                    Utils::FileName::fromUserInput(QLatin1String("C:\\Program Files (x86)\\Microsoft SDKs\\Windows\\v7.0A\\include\\basetsd.h")), 83,
+                    Constants::TASK_CATEGORY_COMPILE)
+            << Task(Task::Unknown,
+                    QLatin1String("or Types::UINT64"),
+                    Utils::FileName::fromUserInput(QLatin1String("D:\\Project\\types.h")), 71,
+                    Constants::TASK_CATEGORY_COMPILE))
             << QString();
 }
 

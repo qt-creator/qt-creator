@@ -54,9 +54,10 @@ class QMakeEvaluator;
 class QMakeBaseKey
 {
 public:
-    QMakeBaseKey(const QString &_root, bool _hostBuild);
+    QMakeBaseKey(const QString &_root, const QString &_stash, bool _hostBuild);
 
     QString root;
+    QString stash;
     bool hostBuild;
 };
 

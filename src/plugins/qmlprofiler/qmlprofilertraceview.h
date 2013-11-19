@@ -45,17 +45,6 @@ namespace Internal {
 class QmlProfilerStateManager;
 class QmlProfilerViewManager;
 
-// capture mouse wheel events
-class MouseWheelResizer : public QObject {
-    Q_OBJECT
-public:
-    MouseWheelResizer(QObject *parent=0):QObject(parent){}
-protected:
-    bool eventFilter(QObject *obj, QEvent *event);
-signals:
-    void mouseWheelMoved(int x, int y, int delta);
-};
-
 // centralized zoom control
 class ZoomControl : public QObject {
     Q_OBJECT
@@ -74,17 +63,6 @@ private:
     qint64 m_startTime;
     qint64 m_endTime;
 };
-
-class ScrollableQuickView : public QQuickView
-{
-    Q_OBJECT
-public:
-    explicit ScrollableQuickView(QQuickView *parent = 0);
-    ~ScrollableQuickView();
-protected:
-    void scrollContentsBy(int dx, int dy);
-};
-
 
 class QmlProfilerTraceView : public QWidget
 {
@@ -113,7 +91,6 @@ private slots:
     void updateLockButton();
 
     void updateRange();
-    void mouseWheelMoved(int mouseX, int mouseY, int wheelDelta);
 
     void updateToolTip(const QString &text);
     void profilerDataModelStateChanged();

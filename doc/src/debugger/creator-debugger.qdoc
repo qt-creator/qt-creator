@@ -209,7 +209,7 @@
     \endcode
 
     To launch the debugger in the core mode, select \gui{Debug > Start
-    Debugging > Attach to Core}.
+    Debugging > Load Core File}.
 
     Also in this mode, using a properly configured project containing
     the sources of the crashed program is not strictly necessary, but
@@ -222,8 +222,8 @@
 
     The \QC installation program asks you whether you want to
     register \QC as a post-mortem debugger. To change the setting, select
-    \gui{Tools > Options  > Debugger > Common > Use Qt Creator for post-mortem
-    debugging}.
+    \gui Tools > \gui Options > \gui Debugger > \gui General > \gui {Use Qt
+    Creator for post-mortem debugging}.
 
     You can launch the debugger in the post-mortem mode if an application
     crashes on Windows. Click the \gui {Debug in \QC} button in the error
@@ -246,7 +246,8 @@
     the user of \QC. To start debugging on a remote target with the
     necessary helper processes running, select the corresponding
     \l{glossary-buildandrun-kit}{kit} in
-    \gui{Projects > Build & Run} or in the \gui{Debug > Start Debugging} menu.
+    \gui{Projects > Build & Run}, and then select a function to start remote
+    debugging in the \gui{Debug > Start Debugging} menu.
 
     Special use cases, such as attaching to a running process on the
     target, might still require manual setup.
@@ -750,8 +751,8 @@
 
     \section2 Viewing Threads
 
-    If a multi-threaded program is interrupted, the \gui Thread view or the
-    combobox named \gui Thread in the debugger's status bar can be used to
+    If a multi-threaded program is interrupted, the \gui Threads view or the
+    combobox named \gui Threads in the debugger status bar can be used to
     switch from one thread to another. The \gui Stack view adjusts itself
     accordingly.
 

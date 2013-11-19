@@ -86,9 +86,8 @@ bool GitVersionControl::vcsOpen(const QString & /*fileName*/)
 
 bool GitVersionControl::vcsAdd(const QString & fileName)
 {
-    // Implement in terms of using "--intent-to-add"
     const QFileInfo fi(fileName);
-    return m_client->synchronousAdd(fi.absolutePath(), true, QStringList(fi.fileName()));
+    return m_client->synchronousAdd(fi.absolutePath(), QStringList(fi.fileName()));
 }
 
 bool GitVersionControl::vcsDelete(const QString & fileName)

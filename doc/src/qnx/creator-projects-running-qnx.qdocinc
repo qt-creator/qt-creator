@@ -10,6 +10,8 @@
         \li If you are running on a BlackBerry device, create an Application
             Descriptor File if it does not already exist. For more information, see \l{Deploying Applications to QNX Devices}.
 
+        \li Make sure that your kit has your QNX or BlackBerry 10 device set.
+
         \li Click the \gui Run button.
 
     \endlist
@@ -19,7 +21,7 @@
 
     If you are running on a BlackBerry device, \QC generates a BAR package,
     installs it on the device, and executes the selected application. The
-    application views are displayed on the device. Command-line output is
+    application views are displayed on the device. Standard output is
     visible in the \QC \gui {Application Output} view.
 
     \note Debugging is currently only fully supported on Linux and Mac OS.

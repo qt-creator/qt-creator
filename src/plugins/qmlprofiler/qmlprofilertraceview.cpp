@@ -60,44 +60,12 @@ namespace QmlProfiler {
 namespace Internal {
 
 /////////////////////////////////////////////////////////
-bool MouseWheelResizer::eventFilter(QObject *obj, QEvent *event)
-{
-    if (event->type() == QEvent::Wheel) {
-        QWheelEvent *ev = static_cast<QWheelEvent *>(event);
-        if (ev->modifiers() & Qt::ControlModifier) {
-            emit mouseWheelMoved(ev->pos().x(), ev->pos().y(), ev->delta());
-            return true;
-        }
-    }
-    return QObject::eventFilter(obj, event);
-}
-
-/////////////////////////////////////////////////////////
 void ZoomControl::setRange(qint64 startTime, qint64 endTime)
 {
     if (m_startTime != startTime || m_endTime != endTime) {
         m_startTime = startTime;
         m_endTime = endTime;
         emit rangeChanged();
-    }
-}
-
-/////////////////////////////////////////////////////////
-ScrollableQuickView::ScrollableQuickView(QQuickView *parent)
-    : QQuickView(parent)
-{
-}
-
-ScrollableQuickView::~ScrollableQuickView()
-{
-}
-
-void ScrollableQuickView::scrollContentsBy(int /*dx*/, int dy)
-{
-    // special workaround to track the scrollbar
-    if (rootObject()) {
-        int scrollY = rootObject()->property("scrollY").toInt();
-        rootObject()->setProperty("scrollY", QVariant(scrollY - dy));
     }
 }
 
@@ -121,7 +89,7 @@ public:
 
     QSize m_sizeHint;
 
-    ScrollableQuickView *m_mainView;
+    QQuickView *m_mainView;
     QQuickView *m_timebar;
     QQuickView *m_overview;
     QmlProfilerModelManager *m_modelManager;
@@ -146,12 +114,9 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, Analyzer::IAnalyzerT
     groupLayout->setContentsMargins(0, 0, 0, 0);
     groupLayout->setSpacing(0);
 
-    d->m_mainView = new ScrollableQuickView();
+    d->m_mainView = new QQuickView();
     d->m_mainView->setResizeMode(QQuickView::SizeRootObjectToView);
     QWidget *mainViewContainer = QWidget::createWindowContainer(d->m_mainView);
-
-    MouseWheelResizer *resizer = new MouseWheelResizer(this);
-    connect(resizer,SIGNAL(mouseWheelMoved(int,int,int)), this, SLOT(mouseWheelMoved(int,int,int)));
 
     QHBoxLayout *toolsLayout = new QHBoxLayout;
 
@@ -414,16 +379,6 @@ void QmlProfilerTraceView::updateRange()
     QMetaObject::invokeMethod(d->m_mainView->rootObject()->findChild<QObject*>(QLatin1String("zoomSliderToolBar")), "updateZoomLevel");
 }
 
-void QmlProfilerTraceView::mouseWheelMoved(int mouseX, int mouseY, int wheelDelta)
-{
-    Q_UNUSED(mouseY);
-    QQuickItem *rootObject = d->m_mainView->rootObject();
-    if (rootObject) {
-        QMetaObject::invokeMethod(rootObject, "wheelZoom",
-                                  Q_ARG(QVariant, QVariant(mouseX)),
-                                  Q_ARG(QVariant, QVariant(wheelDelta)));
-    }
-}
 ////////////////////////////////////////////////////////
 void QmlProfilerTraceView::updateToolTip(const QString &text)
 {

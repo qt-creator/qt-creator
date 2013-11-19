@@ -1663,18 +1663,12 @@ bool GitClient::synchronousLog(const QString &workingDirectory, const QStringLis
     return rc;
 }
 
-// Warning: 'intendToAdd' works only from 1.6.1 onwards
-bool GitClient::synchronousAdd(const QString &workingDirectory,
-                               bool intendToAdd,
-                               const QStringList &files)
+bool GitClient::synchronousAdd(const QString &workingDirectory, const QStringList &files)
 {
     QByteArray outputText;
     QByteArray errorText;
     QStringList arguments;
-    arguments << QLatin1String("add");
-    if (intendToAdd)
-        arguments << QLatin1String("--intent-to-add");
-    arguments.append(files);
+    arguments << QLatin1String("add") << files;
     const bool rc = fullySynchronousGit(workingDirectory, arguments, &outputText, &errorText);
     if (!rc) {
         msgCannotRun(tr("Cannot add %n file(s) to \"%1\": %2", 0, files.size())
@@ -3160,7 +3154,7 @@ bool GitClient::addAndCommit(const QString &repositoryDirectory,
     if (!filesToRemove.isEmpty() && !synchronousDelete(repositoryDirectory, true, filesToRemove))
         return false;
 
-    if (!filesToAdd.isEmpty() && !synchronousAdd(repositoryDirectory, false, filesToAdd))
+    if (!filesToAdd.isEmpty() && !synchronousAdd(repositoryDirectory, filesToAdd))
         return false;
 
     // Do the final commit

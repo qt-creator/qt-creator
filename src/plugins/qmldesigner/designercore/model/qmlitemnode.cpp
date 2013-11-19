@@ -32,6 +32,7 @@
 #include "qmlchangeset.h"
 #include "nodelistproperty.h"
 #include "variantproperty.h"
+#include "bindingproperty.h"
 #include "qmlanchors.h"
 #include "invalidmodelnodeexception.h"
 #include "itemlibraryinfo.h"
@@ -134,13 +135,20 @@ QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibrary
             }
         }
 
+        typedef QPair<PropertyName, QString> PropertyBindingEntry;
+        QList<PropertyBindingEntry> propertyBindingList;
         if (itemLibraryEntry.qmlSource().isEmpty()) {
             QList<QPair<PropertyName, QVariant> > propertyPairList;
             propertyPairList.append(qMakePair(PropertyName("x"), QVariant(qRound(position.x()))));
             propertyPairList.append(qMakePair(PropertyName("y"), QVariant(qRound(position.y()))));
 
-            foreach (const PropertyContainer &property, itemLibraryEntry.properties())
-                propertyPairList.append(qMakePair(property.name(), property.value()));
+            foreach (const PropertyContainer &property, itemLibraryEntry.properties()) {
+                if (property.type() == QLatin1String("binding")) {
+                    propertyBindingList.append(PropertyBindingEntry(property.name(), property.value().toString()));
+                } else {
+                    propertyPairList.append(qMakePair(property.name(), property.value()));
+                }
+            }
 
             newQmlItemNode = QmlItemNode(view->createModelNode(itemLibraryEntry.typeName(), majorVersion, minorVersion, propertyPairList));
         } else {
@@ -159,6 +167,9 @@ QmlItemNode QmlItemNode::createQmlItemNode(AbstractView *view, const ItemLibrary
             newQmlItemNode.modelNode().variantProperty("opacity").setValue(0);
             newQmlItemNode.setVariantProperty("opacity", 1);
         }
+
+        foreach (const PropertyBindingEntry &propertyBindingEntry, propertyBindingList)
+            newQmlItemNode.modelNode().bindingProperty(propertyBindingEntry.first).setExpression(propertyBindingEntry.second);
 
         Q_ASSERT(newQmlItemNode.isValid());
     }

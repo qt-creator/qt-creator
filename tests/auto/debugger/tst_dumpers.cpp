@@ -660,7 +660,7 @@ private:
     TempStuff *t;
     QByteArray m_debuggerBinary;
     QByteArray m_qmakeBinary;
-    QProcessEnvironment m_env;
+    Environment m_env;
     bool m_usePython;
     DebuggerEngine m_debuggerEngine;
     bool m_keepTemp;
@@ -698,7 +698,7 @@ void tst_Dumpers::initTestCase()
     m_forceKeepTemp = qgetenv("QTC_KEEP_TEMP_FOR_TEST").toInt();
     qDebug() << "Force keep temp    : " << m_forceKeepTemp;
 
-    Environment utilsEnv = Environment::systemEnvironment();
+    m_env = Environment::systemEnvironment();
 
     if (m_debuggerEngine == DumpTestGdbEngine) {
         QProcess debugger;
@@ -728,13 +728,12 @@ void tst_Dumpers::initTestCase()
     } else if (m_debuggerEngine == DumpTestCdbEngine) {
         QByteArray envBat = qgetenv("QTC_MSVC_ENV_BAT");
         QMap <QString, QString> envPairs;
-        QVERIFY(generateEnvironmentSettings(utilsEnv, QString::fromLatin1(envBat), QString(), envPairs));
+        QVERIFY(generateEnvironmentSettings(m_env, QString::fromLatin1(envBat), QString(), envPairs));
         for (QMap<QString,QString>::const_iterator envIt = envPairs.begin(); envIt!=envPairs.end(); ++envIt)
-                utilsEnv.set(envIt.key(), envIt.value());
-
+                m_env.set(envIt.key(), envIt.value());
         const QByteArray cdbextPath = QByteArray(CDBEXT_PATH) + QByteArray("\\qtcreatorcdbext64");
         QVERIFY(QFile::exists(QString::fromLatin1(cdbextPath + QByteArray("\\qtcreatorcdbext.dll"))));
-        utilsEnv.appendOrSet(QLatin1String("_NT_DEBUGGER_EXTENSION_PATH"),
+        m_env.appendOrSet(QLatin1String("_NT_DEBUGGER_EXTENSION_PATH"),
                              QString::fromLatin1(cdbextPath),
                              QLatin1String(";"));
     } else if (m_debuggerEngine == DumpTestLldbEngine) {
@@ -756,7 +755,6 @@ void tst_Dumpers::initTestCase()
         qDebug() << "Lldb version       :" << output << ba << m_lldbVersion;
         QVERIFY(m_lldbVersion);
     }
-    m_env = utilsEnv.toProcessEnvironment();
 }
 
 void tst_Dumpers::init()
@@ -871,10 +869,12 @@ void tst_Dumpers::dumper()
 
     QProcess make;
     make.setWorkingDirectory(t->buildPath);
-    cmd = m_debuggerEngine == DumpTestCdbEngine ? QString::fromLatin1("nmake")
-                                                : QString::fromLatin1("make");
-    //qDebug() << "Starting make: " << cmd;
-    make.start(cmd);
+    make.setProcessEnvironment(m_env.toProcessEnvironment());
+
+    cmd = m_debuggerEngine == DumpTestCdbEngine ? m_env.searchInPath(QLatin1String("nmake.exe"))
+                                                : QLatin1String("make");
+
+    make.start(cmd, QStringList());
     QVERIFY(make.waitForFinished());
     output = make.readAllStandardOutput();
     error = make.readAllStandardError();
@@ -985,7 +985,7 @@ void tst_Dumpers::dumper()
     t->input = cmds;
 
     QProcess debugger;
-    debugger.setProcessEnvironment(m_env);
+    debugger.setProcessEnvironment(m_env.toProcessEnvironment());
     debugger.setWorkingDirectory(t->buildPath);
     debugger.start(QString::fromLatin1(exe), args);
     QVERIFY(debugger.waitForStarted());
@@ -1378,9 +1378,9 @@ void tst_Dumpers::dumper_data()
 #ifdef Q_OS_WIN
             << Data("#include <QFile>\n"
                     "#include <QFileInfo>\n",
-                    "QFile file(\"C:\\\\Program Files\\t\");\n"
+                    "QFile file(\"C:\\\\Program Files\\\\t\");\n"
                     "file.setObjectName(\"A QFile instance\");\n"
-                    "QFileInfo fi(\"C:\\Program Files\\tt\");\n"
+                    "QFileInfo fi(\"C:\\\\Program Files\\\\tt\");\n"
                     "QString s = fi.absoluteFilePath();\n")
                % Check("fi", "\"C:/Program Files/tt\"", "QFileInfo")
                % Check("file", "\"C:\\Program Files\\t\"", "QFile")

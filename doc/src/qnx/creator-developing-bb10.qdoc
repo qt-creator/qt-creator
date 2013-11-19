@@ -34,8 +34,8 @@
     Before starting to develop for BlackBerry 10 you need to download the following tools:
 
     \list
-        \li \l {http://developer.blackberry.com/native/} {The BlackBerry 10 Native SDK}
-        \li \l {http://developer.blackberry.com/native/} {The BlackBerry 10 Dev Alpha Simulator} if you do not have a BlackBerry DevAlpha device
+        \li \l {http://developer.blackberry.com/native/download/} {QNX Momentics IDE} - it is recommend to download the latest version to enable all \QC features
+        \li \l {http://developer.blackberry.com/native/download/} {BlackBerry 10 Simulator} if you do not have a BlackBerry 10 device
         \li BlackBerry code signing keys (https://www.blackberry.com/SignedKeys/)
     \endlist
 
@@ -45,10 +45,33 @@
     To set up your BlackBerry 10 environment in \QC:
 
     \list 1
-        \li Select \gui Tools > \gui Options > \gui BlackBerry > \gui NDK to set your NDK path.
-        \li Select \gui Tools > \gui Options > \gui BlackBerry > \gui Keys to register and create a developer certificate.
-        \li Select \gui Tools > \gui Options > \gui Devices > \gui Add > \gui {Blackberry Device} to add a BlackBerry Device. You can add either the physical device or the simulator.
-        \li Create and upload a debug token bar file when adding the device from the wizard.
+
+        \li Set up API Levels:
+
+        \list 1
+            \li Select \gui Tools > \gui Options > \gui BlackBerry > \gui NDK to list all registered API Levels automatically detected by \QC.
+            \li The API Levels printed with a bold font are active. Use \gui Activate and \gui Deactivate to change it. When an API Level is active, \QC registers kits, Qt versions, tool chains, and debuggers to enable BlackBerry 10 development against the API Level.
+            \li Use \gui Add to install a new API Level or to register an existing one.
+            \li It is recommended to install the latest API Level too even though you are not going to use it. This will enable all \QC features including device auto-detection and the new BlackBerry Signing Keys process.
+        \endlist
+
+        \li Set up your Signing Keys:
+
+        \list 1
+            \li Select \gui Tools > \gui Options > \gui BlackBerry > \gui Keys.
+            \li Register a BlackBerry Signing Authority - if you do not have any, the page will guide you to an online web form to request one.
+            \li Select \gui {Create Certificate} to create a Developer Certificate.
+        \endlist
+
+        \li Register your device:
+
+        \list 1
+            \li On the device, select \gui Settings > \gui {Security and Privacy} > \gui {Development Mode} to switch the BlackBerry 10 device to development mode.
+            \li Select \gui Tools > \gui Options > \gui Devices > \gui Add > \gui {Blackberry Device} to add a BlackBerry Device. You can add either the physical device or the simulator.
+            \li Select \gui Upload to upload your debug token to the device.
+            \li Select \gui Tools > \gui Options > \gui {Build & Run} > \gui Kits to add your device to compatible BlackBerry 10 kits.
+        \endlist
+
     \endlist
 
     \include qnx/creator-key-management-qnx.qdocinc

@@ -1,7 +1,7 @@
 DEFINES += EXTENSIONSYSTEM_LIBRARY
 include(../../qtcreatorlibrary.pri)
 
-unix:!macx:!freebsd*:LIBS += -ldl
+unix:LIBS += $$QMAKE_LIBS_DYNLOAD
 
 !isEmpty(vcproj) {
     DEFINES += IDE_TEST_DIR=\"$$IDE_SOURCE_TREE\"
