@@ -51,6 +51,9 @@ using namespace CPlusPlus;
 using namespace CppEditor::Internal;
 
 namespace {
+
+typedef QByteArray _;
+
 /**
  * Encapsulates the whole process of setting up an editor,
  * pressing ENTER and checking the result.
@@ -140,205 +143,149 @@ void TestCase::run(const QByteArray &expected, int undoCount)
 }
 } // anonymous namespace
 
-void CppEditorPlugin::test_doxygen_comments_qt_style()
+void CppEditorPlugin::test_doxygen_comments_data()
 {
-    const QByteArray given =
+    QTest::addColumn<QByteArray>("given");
+    QTest::addColumn<QByteArray>("expected");
+
+    QTest::newRow("qt_style") << _(
         "bool preventFolding;\n"
         "/*!|\n"
         "int a;\n"
-        ;
-    const QByteArray expected =
+        ) << _(
         "bool preventFolding;\n"
         "/*!\n"
         " * \\brief a\n"
         " */\n"
         "int a;\n"
-        ;
+    );
 
-    TestCase data(given);
-    data.run(expected);
-}
-
-void CppEditorPlugin::test_doxygen_comments_qt_style_continuation()
-{
-    const QByteArray given =
+    QTest::newRow("qt_style_continuation") << _(
         "bool preventFolding;\n"
         "/*!\n"
         " * \\brief a|\n"
         " */\n"
         "int a;\n"
-        ;
-    const QByteArray expected =
+        ) << _(
         "bool preventFolding;\n"
         "/*!\n"
         " * \\brief a\n"
         " *\n"
         " */\n"
         "int a;\n"
-        ;
+    );
 
-    TestCase data(given);
-    data.run(expected);
-}
-
-void CppEditorPlugin::test_doxygen_comments_java_style()
-{
-    const QByteArray given =
+    QTest::newRow("java_style") << _(
         "bool preventFolding;\n"
         "/**|\n"
         "int a;\n"
-        ;
-    const QByteArray expected =
+        ) << _(
         "bool preventFolding;\n"
         "/**\n"
         " * @brief a\n"
         " */\n"
         "int a;\n"
-        ;
+    );
 
-    TestCase data(given);
-    data.run(expected);
-}
-
-void CppEditorPlugin::test_doxygen_comments_java_style_continuation()
-{
-    const QByteArray given =
+    QTest::newRow("java_style_continuation") << _(
         "bool preventFolding;\n"
         "/**\n"
         " * @brief a|\n"
         " */\n"
         "int a;\n"
-        ;
-    const QByteArray expected =
+        ) << _(
         "bool preventFolding;\n"
         "/**\n"
         " * @brief a\n"
         " *\n"
         " */\n"
         "int a;\n"
-        ;
+    );
 
-    TestCase data(given);
-    data.run(expected);
-}
-
-void CppEditorPlugin::test_doxygen_comments_cpp_styleA()
-{
-   const QByteArray given =
+    QTest::newRow("cpp_styleA") << _(
          "bool preventFolding;\n"
          "///|\n"
          "int a;\n"
-         ;
-
-   const QByteArray expected =
+        ) << _(
          "bool preventFolding;\n"
          "///\n"
          "/// \\brief a\n"
          "///\n"
          "int a;\n"
-         ;
-   TestCase data(given);
-   data.run(expected);
-}
+    );
 
-void CppEditorPlugin::test_doxygen_comments_cpp_styleB()
-{
-   const QByteArray given =
+    QTest::newRow("cpp_styleB") << _(
          "bool preventFolding;\n"
          "//!|\n"
          "int a;\n"
-         ;
-
-   const QByteArray expected =
+        ) << _(
          "bool preventFolding;\n"
          "//!\n"
          "//! \\brief a\n"
          "//!\n"
          "int a;\n"
-         ;
-   TestCase data(given);
-   data.run(expected);
-}
+    );
 
-void CppEditorPlugin::test_doxygen_comments_cpp_styleA_continuation()
-{
-   const QByteArray given =
+    QTest::newRow("cpp_styleA_continuation") << _(
          "bool preventFolding;\n"
          "///\n"
          "/// \\brief a|\n"
          "///\n"
          "int a;\n"
-         ;
-   const QByteArray expected =
+        ) << _(
          "bool preventFolding;\n"
          "///\n"
          "/// \\brief a\n"
          "///\n"
          "///\n"
          "int a;\n"
-         ;
+     );
 
-   TestCase data(given);
-   data.run(expected);
-}
-
-/// test cpp style doxygen comment when inside a indented scope
-void CppEditorPlugin::test_doxygen_comments_cpp_styleA_indented()
-{
-   const QByteArray given =
+    /// test cpp style doxygen comment when inside a indented scope
+    QTest::newRow("cpp_styleA_indented") << _(
          "    bool preventFolding;\n"
          "    ///|\n"
          "    int a;\n"
-         ;
-
-   const QByteArray expected =
+        ) << _(
          "    bool preventFolding;\n"
          "    ///\n"
          "    /// \\brief a\n"
          "    ///\n"
          "    int a;\n"
-         ;
-   TestCase data(given);
-   data.run(expected);
-}
+    );
 
-/// test cpp style doxygen comment continuation when inside a indented scope
-void CppEditorPlugin::test_doxygen_comments_cpp_styleA_indented_continuation()
-{
-   const QByteArray given =
+    /// test cpp style doxygen comment continuation when inside a indented scope
+    QTest::newRow("cpp_styleA_indented_continuation") << _(
          "    bool preventFolding;\n"
          "    ///\n"
          "    /// \\brief a|\n"
          "    ///\n"
          "    int a;\n"
-         ;
-   const QByteArray expected =
+        ) << _(
          "    bool preventFolding;\n"
          "    ///\n"
          "    /// \\brief a\n"
          "    ///\n"
          "    ///\n"
          "    int a;\n"
-         ;
+    );
 
-   TestCase data(given);
-   data.run(expected);
-}
-
-void CppEditorPlugin::test_doxygen_comments_cpp_styleA_corner_case()
-{
-    const QByteArray given =
+    QTest::newRow("cpp_styleA_corner_case") << _(
           "bool preventFolding;\n"
           "///\n"
           "void d(); ///|\n"
-          ;
-    const QByteArray expected =
+        ) << _(
             "bool preventFolding;\n"
             "///\n"
             "void d(); ///\n"
             "\n"
-          ;
+    );
+}
 
+void CppEditorPlugin::test_doxygen_comments()
+{
+    QFETCH(QByteArray, given);
+    QFETCH(QByteArray, expected);
     TestCase data(given);
     data.run(expected);
 }
