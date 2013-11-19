@@ -366,15 +366,13 @@ void ItemLibraryWidget::setResourcePath(const QString &resourcePath)
 void ItemLibraryWidget::startDragAndDrop(int itemLibId)
 {
     QMimeData *mimeData = m_itemLibraryModel->getMimeData(itemLibId);
-    CustomItemLibraryDrag *drag = new CustomItemLibraryDrag(this);
+    QDrag *drag = new QDrag(this);
     const QImage image = qvariant_cast<QImage>(mimeData->imageData());
 
     drag->setPixmap(m_itemLibraryModel->getIcon(itemLibId).pixmap(32, 32));
-    drag->setPreview(QPixmap::fromImage(image));
     drag->setMimeData(mimeData);
 
     QQuickItem *rootItem = qobject_cast<QQuickItem*>(m_itemsView->rootObject());
-    connect(rootItem, SIGNAL(stopDragAndDrop()), drag, SLOT(stopDrag()));
 
     drag->exec();
 }
