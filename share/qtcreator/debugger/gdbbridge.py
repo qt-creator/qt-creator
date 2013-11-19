@@ -1568,7 +1568,7 @@ class Dumper(DumperBase):
         result += ']'
         return result
 
-    def threadname(self, maximalStackDepth):
+    def threadname(self, maximalStackDepth, objectPrivateType):
         e = gdb.selected_frame()
         out = ""
         ns = self.qtNamespace()
@@ -1583,8 +1583,7 @@ class Dumper(DumperBase):
                     or e.name() == "_ZN14QThreadPrivate5startEPv@4":
                 try:
                     thrptr = e.read_var("thr").dereference()
-                    obtype = self.lookupType(ns + "QObjectPrivate").pointer()
-                    d_ptr = thrptr["d_ptr"]["d"].cast(obtype).dereference()
+                    d_ptr = thrptr["d_ptr"]["d"].cast(objectPrivateType).dereference()
                     try:
                         objectName = d_ptr["objectName"]
                     except: # Qt 5
@@ -1614,10 +1613,11 @@ class Dumper(DumperBase):
         oldthread = gdb.selected_thread()
         if oldthread:
             try:
+                objectPrivateType = gdb.lookup_type(ns + "QObjectPrivate").pointer()
                 inferior = self.selectedInferior()
                 for thread in inferior.threads():
                     thread.switch()
-                    out += self.threadname(maximalStackDepth)
+                    out += self.threadname(maximalStackDepth, objectPrivateType)
             except:
                 pass
             oldthread.switch()
