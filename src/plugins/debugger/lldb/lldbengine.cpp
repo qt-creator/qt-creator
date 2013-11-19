@@ -83,7 +83,7 @@ static QByteArray tooltipIName(const QString &exp)
 ///////////////////////////////////////////////////////////////////////
 
 LldbEngine::LldbEngine(const DebuggerStartParameters &startParameters)
-    : DebuggerEngine(startParameters)
+    : DebuggerEngine(startParameters), m_continueAtNextSpontaneousStop(false)
 {
     m_lastAgentId = 0;
     m_lastToken = 0;
@@ -197,13 +197,19 @@ void LldbEngine::setupInferior()
     cmd.arg("executable", QFileInfo(sp.executable).absoluteFilePath());
     cmd.arg("startMode", sp.startMode); // directly relying on this is brittle wrt. insertions, so check it here
     cmd.arg("processArgs", sp.processArgs);
-    cmd.arg("attachPid", ((sp.startMode == AttachCrashedExternal || sp.startMode == AttachExternal)
-                          ? sp.attachPID : 0));
+
+    QTC_CHECK(!sp.attachPID || (sp.startMode == AttachCrashedExternal
+                                || sp.startMode == AttachExternal));
+    cmd.arg("attachPid", sp.attachPID);
     cmd.arg("sysRoot", sp.sysRoot);
     cmd.arg("remoteChannel", ((sp.startMode == AttachToRemoteProcess
                                || sp.startMode == AttachToRemoteServer)
                               ? sp.remoteChannel : QString()));
     cmd.arg("platform", sp.platform);
+    QTC_CHECK(!sp.continueAfterAttach || (sp.startMode == AttachToRemoteProcess
+                                          || sp.startMode == AttachExternal
+                                          || sp.startMode == AttachToRemoteServer));
+    m_continueAtNextSpontaneousStop = false;
     runCommand(cmd);
     updateLocals(); // update display options
 }
@@ -1014,9 +1020,13 @@ void LldbEngine::refreshState(const GdbMi &reportedState)
         notifyInferiorRunOk();
     else if (newState == "inferiorrunfailed")
         notifyInferiorRunFailed();
-    else if (newState == "stopped")
+    else if (newState == "stopped") {
         notifyInferiorSpontaneousStop();
-    else if (newState == "inferiorstopok")
+        if (m_continueAtNextSpontaneousStop) {
+            m_continueAtNextSpontaneousStop = false;
+            continueInferior();
+        }
+    } else if (newState == "inferiorstopok")
         notifyInferiorStopOk();
     else if (newState == "inferiorstopfailed")
         notifyInferiorStopFailed();
@@ -1028,9 +1038,11 @@ void LldbEngine::refreshState(const GdbMi &reportedState)
         notifyEngineRunFailed();
     else if (newState == "inferiorsetupok")
         notifyInferiorSetupOk();
-    else if (newState == "enginerunandinferiorrunok")
+    else if (newState == "enginerunandinferiorrunok") {
+        if (startParameters().continueAfterAttach)
+            m_continueAtNextSpontaneousStop = true;
         notifyEngineRunAndInferiorRunOk();
-    else if (newState == "enginerunandinferiorstopok")
+    } else if (newState == "enginerunandinferiorstopok")
         notifyEngineRunAndInferiorStopOk();
     else if (newState == "inferiorshutdownok")
         notifyInferiorShutdownOk();

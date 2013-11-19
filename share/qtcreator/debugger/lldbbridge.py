@@ -618,7 +618,10 @@ class Dumper(DumperBase):
                 self.report('state="inferiorrunfailed"')
                 return
             self.report('pid="%s"' % self.process.GetProcessID())
-            self.report('state="enginerunandinferiorstopok"')
+            # even if it stops it seems that lldb assumes it is running and later detects that
+            # it did stop after all, so it is be better to mirror that and wait for the spontaneous
+            # stop
+            self.report('state="enginerunandinferiorrunok"')
         elif len(self.remoteChannel_) > 0:
             self.process = self.target.ConnectRemote(
             self.debugger.GetListener(),
@@ -626,7 +629,10 @@ class Dumper(DumperBase):
             if not error.Success():
                 self.report('state="inferiorrunfailed"')
                 return
-            self.report('state="enginerunandinferiorstopok"')
+            # even if it stops it seems that lldb assumes it is running and later detects that
+            # it did stop after all, so it is be better to mirror that and wait for the spontaneous
+            # stop
+            self.report('state="enginerunandinferiorrunok"')
         else:
             launchInfo = lldb.SBLaunchInfo(self.processArgs_.split())
             launchInfo.SetWorkingDirectory(os.getcwd())

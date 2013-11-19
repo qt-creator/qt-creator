@@ -84,6 +84,8 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
     }
     params.displayName = runConfig->appName();
     params.remoteSetupNeeded = true;
+    if (!params.breakOnMain)
+        params.continueAfterAttach = true;
 
     Debugger::DebuggerRunConfigurationAspect *aspect
             = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
