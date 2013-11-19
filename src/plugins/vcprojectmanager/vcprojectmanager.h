@@ -57,7 +57,6 @@ private:
     bool checkIfVersion2003(const QString &filePath) const;
     bool checkIfVersion2005(const QString &filePath) const;
     bool checkIfVersion2008(const QString &filePath) const;
-    void readSchemaPath();
 
 private:
     ProjectExplorer::Project *m_contextProject;

@@ -33,6 +33,7 @@
 #include "vcprojectbuildoptionspage.h"
 #include "vcprojectmanagerconstants.h"
 #include "vcprojectmodel/vcprojectdocument_constants.h"
+#include "vcschemamanager.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -53,9 +54,7 @@ namespace Internal {
 
 VcManager::VcManager(VcProjectBuildOptionsPage *configPage) :
     m_configPage(configPage)
-{
-    readSchemaPath();
-}
+{}
 
 QString VcManager::mimeType() const
 {
@@ -110,11 +109,14 @@ void VcManager::updateContextMenu(Project *project, ProjectExplorer::Node *node)
 
 bool VcManager::checkIfVersion2003(const QString &filePath) const
 {
-    if (m_vc2003Schema.isEmpty()) {
+    VcSchemaManager *schemaMgr = VcSchemaManager::instance();
+    QString vc2003Schema = schemaMgr->documentSchema(Constants::SV_2003);
+
+    if (vc2003Schema.isEmpty()) {
         return false;
     }
 
-    QFile schemaFile(m_vc2003Schema);
+    QFile schemaFile(vc2003Schema);
     schemaFile.open(QIODevice::ReadOnly);
 
     QXmlSchema schema;
@@ -134,10 +136,12 @@ bool VcManager::checkIfVersion2003(const QString &filePath) const
 
 bool VcManager::checkIfVersion2005(const QString &filePath) const
 {
-    if (m_vc2005Schema.isEmpty())
+    VcSchemaManager *schemaMgr = VcSchemaManager::instance();
+    QString vc2005Schema = schemaMgr->documentSchema(Constants::SV_2005);
+    if (vc2005Schema.isEmpty())
         return false;
 
-    QFile schemaFile(m_vc2005Schema);
+    QFile schemaFile(vc2005Schema);
     schemaFile.open(QIODevice::ReadOnly);
 
     QXmlSchema schema;
@@ -157,10 +161,12 @@ bool VcManager::checkIfVersion2005(const QString &filePath) const
 
 bool VcManager::checkIfVersion2008(const QString &filePath) const
 {
-    if (m_vc2008Schema.isEmpty())
+    VcSchemaManager *schemaMgr = VcSchemaManager::instance();
+    QString vc2008Schema = schemaMgr->documentSchema(Constants::SV_2008);
+    if (vc2008Schema.isEmpty())
         return false;
 
-    QFile schemaFile(m_vc2008Schema);
+    QFile schemaFile(vc2008Schema);
     schemaFile.open(QIODevice::ReadOnly);
 
     QXmlSchema schema;
@@ -176,28 +182,6 @@ bool VcManager::checkIfVersion2008(const QString &filePath) const
     }
 
     return false;
-}
-
-void VcManager::readSchemaPath()
-{
-    QSettings *settings = Core::ICore::settings();
-    settings->beginGroup(QLatin1String(VcProjectManager::Constants::VC_PROJECT_SETTINGS_GROUP));
-    QString msSchemaPathsData = settings->value(QLatin1String(VcProjectManager::Constants::VC_PROJECT_SCHEMA_PATH)).toString();
-    settings->endGroup();
-
-    QStringList schemaPaths = msSchemaPathsData.split(QLatin1Char(';'));
-
-    foreach (const QString &schema, schemaPaths) {
-        QStringList schemaData = schema.split(QLatin1String("::"));
-        if (schemaData.size() == 2) {
-            if (schemaData[0] == QLatin1String(Constants::VC_PROJECT_SCHEMA_2003_QUIALIFIER))
-                m_vc2003Schema = schemaData[1];
-            else if (schemaData[0] == QLatin1String(Constants::VC_PROJECT_SCHEMA_2005_QUIALIFIER))
-                m_vc2005Schema = schemaData[1];
-            else if (schemaData[0] == QLatin1String(Constants::VC_PROJECT_SCHEMA_2008_QUIALIFIER))
-                m_vc2008Schema = schemaData[1];
-        }
-    }
 }
 
 } // namespace Internal
