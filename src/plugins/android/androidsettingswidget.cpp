@@ -35,6 +35,10 @@
 #include "androidconstants.h"
 #include "androidtoolchain.h"
 
+#ifdef Q_OS_WIN
+#include <utils/winutils.h>
+#endif
+#include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/kitmanager.h>
@@ -434,8 +438,12 @@ void AndroidSettingsWidget::manageAVD()
     QProcess *avdProcess = new QProcess();
     connect(this, SIGNAL(destroyed()), avdProcess, SLOT(deleteLater()));
     connect(avdProcess, SIGNAL(finished(int)), avdProcess, SLOT(deleteLater()));
-    avdProcess->start(AndroidConfigurations::instance().androidToolPath().toString(),
-                      QStringList() << QLatin1String("avd"));
+
+    avdProcess->setProcessEnvironment(AndroidConfigurations::instance().androidToolEnvironment().toProcessEnvironment());
+    QString executable = AndroidConfigurations::instance().androidToolPath().toString();
+    QStringList arguments = QStringList() << QLatin1String("avd");
+
+    avdProcess->start(executable, arguments);
 }
 
 

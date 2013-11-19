@@ -248,6 +248,7 @@ void AndroidConfigurations::updateAvailableSdkPlatforms()
     m_availableSdkPlatforms.clear();
 
     QProcess proc;
+    proc.setProcessEnvironment(androidToolEnvironment().toProcessEnvironment());
     proc.start(androidToolPath().toString(), QStringList() << QLatin1String("list") << QLatin1String("target")); // list avaialbe AVDs
     if (!proc.waitForFinished(-1)) {
         proc.terminate();
@@ -281,6 +282,14 @@ FileName AndroidConfigurations::adbToolPath() const
 {
     FileName path = m_config.sdkLocation;
     return path.appendPath(QLatin1String("platform-tools/adb" QTC_HOST_EXE_SUFFIX));
+}
+
+Utils::Environment AndroidConfigurations::androidToolEnvironment() const
+{
+    Utils::Environment env = Utils::Environment::systemEnvironment();
+    if (!m_config.openJDKLocation.isEmpty())
+        env.set(QLatin1String("JAVA_HOME"), m_config.openJDKLocation.toUserOutput());
+    return env;
 }
 
 FileName AndroidConfigurations::androidToolPath() const
@@ -524,6 +533,7 @@ QString AndroidConfigurations::createAVD(int minApiLevel, QString targetArch) co
 QString AndroidConfigurations::createAVD(const QString &target, const QString &name, const QString &abi, int sdcardSize ) const
 {
     QProcess proc;
+    proc.setProcessEnvironment(androidToolEnvironment().toProcessEnvironment());
     proc.start(androidToolPath().toString(),
                QStringList() << QLatin1String("create") << QLatin1String("avd")
                << QLatin1String("-t") << target
@@ -565,6 +575,7 @@ QString AndroidConfigurations::createAVD(const QString &target, const QString &n
 bool AndroidConfigurations::removeAVD(const QString &name) const
 {
     QProcess proc;
+    proc.setProcessEnvironment(androidToolEnvironment().toProcessEnvironment());
     proc.start(androidToolPath().toString(),
                QStringList() << QLatin1String("delete") << QLatin1String("avd")
                << QLatin1String("-n") << name);
@@ -579,6 +590,7 @@ QVector<AndroidDeviceInfo> AndroidConfigurations::androidVirtualDevices() const
 {
     QVector<AndroidDeviceInfo> devices;
     QProcess proc;
+    proc.setProcessEnvironment(androidToolEnvironment().toProcessEnvironment());
     proc.start(androidToolPath().toString(),
                QStringList() << QLatin1String("list") << QLatin1String("avd")); // list available AVDs
     if (!proc.waitForFinished(-1)) {

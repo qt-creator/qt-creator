@@ -38,6 +38,7 @@
 #include <QMap>
 #include <projectexplorer/abi.h>
 #include <utils/fileutils.h>
+#include <utils/environment.h>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
@@ -89,6 +90,7 @@ public:
     QStringList sdkTargets(int minApiLevel = 0) const;
     Utils::FileName adbToolPath() const;
     Utils::FileName androidToolPath() const;
+    Utils::Environment androidToolEnvironment() const;
     Utils::FileName antToolPath() const;
     Utils::FileName emulatorToolPath() const;
     Utils::FileName gccPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
