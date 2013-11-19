@@ -141,6 +141,9 @@ void QbsRunConfiguration::ctor()
     connect(target(), SIGNAL(activeDeployConfigurationChanged(ProjectExplorer::DeployConfiguration*)),
             this, SLOT(installStepChanged()));
     installStepChanged();
+
+    if (isConsoleApplication())
+        m_runMode = Console;
 }
 
 QWidget *QbsRunConfiguration::createConfigurationWidget()
@@ -206,13 +209,10 @@ QString QbsRunConfiguration::executable() const
 
 ProjectExplorer::LocalApplicationRunConfiguration::RunMode QbsRunConfiguration::runMode() const
 {
-    if (forcedGuiMode())
-        return LocalApplicationRunConfiguration::Gui;
-
     return m_runMode;
 }
 
-bool QbsRunConfiguration::forcedGuiMode() const
+bool QbsRunConfiguration::isConsoleApplication() const
 {
     QbsProject *pro = static_cast<QbsProject *>(target()->project());
     const qbs::ProductData product = findProduct(pro->qbsProjectData(), m_qbsProduct);
@@ -388,8 +388,6 @@ QbsRunConfigurationWidget::QbsRunConfigurationWidget(QbsRunConfiguration *rc, QW
 
     QHBoxLayout *innerBox = new QHBoxLayout();
     m_useTerminalCheck = new QCheckBox(tr("Run in terminal"), this);
-    m_useTerminalCheck->setChecked(m_rc->runMode() == ProjectExplorer::LocalApplicationRunConfiguration::Console);
-    m_useTerminalCheck->setVisible(!m_rc->forcedGuiMode());
     innerBox->addWidget(m_useTerminalCheck);
 
     innerBox->addStretch();
@@ -436,6 +434,8 @@ void QbsRunConfigurationWidget::runConfigurationEnabledChange()
     m_disabledIcon->setVisible(!enabled);
     m_disabledReason->setVisible(!enabled);
     m_disabledReason->setText(m_rc->disabledReason());
+
+    m_useTerminalCheck->setChecked(m_rc->runMode() == ProjectExplorer::LocalApplicationRunConfiguration::Console);
     targetInformationHasChanged();
 }
 
@@ -495,10 +495,8 @@ void QbsRunConfigurationWidget::commandLineArgumentsChanged(const QString &args)
 
 void QbsRunConfigurationWidget::runModeChanged(ProjectExplorer::LocalApplicationRunConfiguration::RunMode runMode)
 {
-    if (!m_ignoreChange) {
-        m_useTerminalCheck->setVisible(!m_rc->forcedGuiMode());
+    if (!m_ignoreChange)
         m_useTerminalCheck->setChecked(runMode == ProjectExplorer::LocalApplicationRunConfiguration::Console);
-    }
 }
 
 // --------------------------------------------------------------------
