@@ -1609,6 +1609,10 @@ class Dumper(DumperBase):
         return out
 
     def threadnames(self, maximalStackDepth):
+        # FIXME: This needs a proper implementation for MinGW, and only there.
+        # Linux, Mac and QNX mirror the objectName()to the underlying threads,
+        # so we get the names already as part of the -thread-info output.
+        return '[]'
         out = '['
         oldthread = gdb.selected_thread()
         if oldthread:
