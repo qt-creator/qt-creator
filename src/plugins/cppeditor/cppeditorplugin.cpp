@@ -306,9 +306,6 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     connect(ProgressManager::instance(), SIGNAL(allTasksFinished(Core::Id)),
             this, SLOT(onAllTasksFinished(Core::Id)));
 
-    connect(EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
-            SLOT(currentEditorChanged(Core::IEditor*)));
-
     readSettings();
     return true;
 }
@@ -388,15 +385,6 @@ void CppEditorPlugin::onAllTasksFinished(Core::Id type)
         m_openTypeHierarchyAction->setEnabled(true);
         m_openIncludeHierarchyAction->setEnabled(true);
     }
-}
-
-void CppEditorPlugin::currentEditorChanged(IEditor *editor)
-{
-    if (!editor)
-        return;
-
-    if (CPPEditorWidget *editorWidget = currentCppEditorWidget())
-        editorWidget->semanticRehighlight(/*force = */ true);
 }
 
 void CppEditorPlugin::openTypeHierarchy()

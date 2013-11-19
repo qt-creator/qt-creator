@@ -90,7 +90,6 @@ public slots:
 private slots:
     void onTaskStarted(Core::Id type);
     void onAllTasksFinished(Core::Id type);
-    void currentEditorChanged(Core::IEditor *editor);
 
 #ifdef WITH_TESTS
 private slots:
