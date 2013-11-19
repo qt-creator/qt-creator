@@ -35,6 +35,7 @@
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
 
+#include <QCoreApplication>
 #include <QStringList>
 #include <QTimer>
 
@@ -95,6 +96,13 @@ void DeviceApplicationRunner::start(const IDevice::ConstPtr &device,
 
     if (!device->canCreateProcess()) {
         emit reportError(tr("Cannot run: Device is not able to create processes."));
+        setFinished();
+        return;
+    }
+
+    if (command.isEmpty()) {
+        emit reportError(QCoreApplication::translate("RemoteLinux::RemoteLinuxRunConfiguration",
+                                                     "Don't know what to run.")); // FIXME: Transitional message for 3.0.
         setFinished();
         return;
     }
