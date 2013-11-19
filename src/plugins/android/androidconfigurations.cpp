@@ -714,7 +714,7 @@ bool AndroidConfigurations::isBootToQt(const QString &device) const
     adbProc.start(adbToolPath().toString(), arguments);
     if (!adbProc.waitForFinished(-1)) {
         adbProc.kill();
-        return -1;
+        return false;
     }
     return adbProc.readAll().contains("Boot2Qt");
 }
