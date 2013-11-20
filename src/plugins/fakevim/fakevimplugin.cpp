@@ -99,6 +99,7 @@
 #include <QTextBlock>
 #include <QTextCursor>
 #include <QTextEdit>
+#include <QTimer>
 #include <QTreeWidgetItem>
 
 using namespace TextEditor;
@@ -120,7 +121,11 @@ class MiniBuffer : public QStackedWidget
     Q_OBJECT
 
 public:
-    MiniBuffer() : m_label(new QLabel(this)), m_edit(new QLineEdit(this)), m_eventFilter(0)
+    MiniBuffer()
+        : m_label(new QLabel(this))
+        , m_edit(new QLineEdit(this))
+        , m_eventFilter(0)
+        , m_lastMessageLevel(MessageMode)
     {
         connect(m_edit, SIGNAL(textEdited(QString)), SLOT(changed()));
         connect(m_edit, SIGNAL(cursorPositionChanged(int,int)), SLOT(changed()));
@@ -129,6 +134,10 @@ public:
 
         addWidget(m_label);
         addWidget(m_edit);
+
+        m_hideTimer.setSingleShot(true);
+        m_hideTimer.setInterval(8000);
+        connect(&m_hideTimer, SIGNAL(timeout()), SLOT(hide()));
     }
 
     void setContents(const QString &contents, int cursorPos, int anchorPos,
@@ -145,25 +154,32 @@ public:
             m_edit->blockSignals(false);
             setCurrentWidget(m_edit);
             m_edit->setFocus();
-        } else if (contents.isEmpty() && messageLevel != MessageShowCmd) {
-            hide();
         } else {
-            show();
-            m_label->setText(contents);
+            if (contents.isEmpty()) {
+                if (m_lastMessageLevel == MessageMode)
+                    hide();
+                else
+                    m_hideTimer.start();
+            } else {
+                m_hideTimer.stop();
+                show();
 
-            QString css;
-            if (messageLevel == MessageError) {
-                css = _("border:1px solid rgba(255,255,255,150);"
-                        "background-color:rgba(255,0,0,100);");
-            } else if (messageLevel == MessageWarning) {
-                css = _("border:1px solid rgba(255,255,255,120);"
-                        "background-color:rgba(255,255,0,20);");
-            } else if (messageLevel == MessageShowCmd) {
-                css = _("border:1px solid rgba(255,255,255,120);"
-                        "background-color:rgba(100,255,100,30);");
+                m_label->setText(contents);
+
+                QString css;
+                if (messageLevel == MessageError) {
+                    css = _("border:1px solid rgba(255,255,255,150);"
+                            "background-color:rgba(255,0,0,100);");
+                } else if (messageLevel == MessageWarning) {
+                    css = _("border:1px solid rgba(255,255,255,120);"
+                            "background-color:rgba(255,255,0,20);");
+                } else if (messageLevel == MessageShowCmd) {
+                    css = _("border:1px solid rgba(255,255,255,120);"
+                            "background-color:rgba(100,255,100,30);");
+                }
+                m_label->setStyleSheet(QString::fromLatin1(
+                    "*{border-radius:2px;padding-left:4px;padding-right:4px;%1}").arg(css));
             }
-            m_label->setStyleSheet(QString::fromLatin1(
-                "*{border-radius:2px;padding-left:4px;padding-right:4px;%1}").arg(css));
 
             if (m_edit->hasFocus())
                 emit edited(QString(), -1, -1);
@@ -183,6 +199,8 @@ public:
             }
             m_eventFilter = eventFilter;
         }
+
+        m_lastMessageLevel = messageLevel;
     }
 
     QSize sizeHint() const
@@ -209,6 +227,8 @@ private:
     QLabel *m_label;
     QLineEdit *m_edit;
     QObject *m_eventFilter;
+    QTimer m_hideTimer;
+    int m_lastMessageLevel;
 };
 
 ///////////////////////////////////////////////////////////////////////
@@ -1124,11 +1144,20 @@ void FakeVimPluginPrivate::userActionTriggered()
     const int key = act->data().toInt();
     if (!key)
         return;
-    QString cmd = userCommandMap().value(key);
     IEditor *editor = EditorManager::currentEditor();
     FakeVimHandler *handler = m_editorToHandler[editor];
-    if (handler)
+    if (handler) {
+        // If disabled, enable FakeVim mode just for single user command.
+        bool enableFakeVim = !theFakeVimSetting(ConfigUseFakeVim)->value().toBool();
+        if (enableFakeVim)
+            setUseFakeVimInternal(true);
+
+        const QString cmd = userCommandMap().value(key);
         handler->handleInput(cmd);
+
+        if (enableFakeVim)
+            setUseFakeVimInternal(false);
+    }
 }
 
 
