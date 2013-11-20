@@ -30,14 +30,10 @@
 #ifndef THREADSHANDLER_H
 #define THREADSHANDLER_H
 
-#include <QAbstractTableModel>
-#include <QIcon>
-
 #include "threaddata.h"
 
-QT_BEGIN_NAMESPACE
-class QSortFilterProxyModel;
-QT_END_NAMESPACE
+#include <QAbstractTableModel>
+#include <QIcon>
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -92,6 +88,7 @@ private:
     QVariant headerData(int section, Qt::Orientation orientation,
         int role = Qt::DisplayRole) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
+    void sort(int, Qt::SortOrder);
     void updateThreadBox();
     void threadDataChanged(ThreadId id);
 
@@ -101,7 +98,6 @@ private:
     const QIcon m_emptyIcon;
 
     bool m_resetLocationScheduled;
-    QSortFilterProxyModel *m_proxyModel;
 };
 
 } // namespace Internal

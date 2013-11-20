@@ -36,12 +36,11 @@
 #include <utils/qtcassert.h>
 
 #include <QDebug>
-#include <QSortFilterProxyModel>
 
 namespace Debugger {
 namespace Internal {
 
-void mergeThreadData(ThreadData &data, const ThreadData &other)
+static void mergeThreadData(ThreadData &data, const ThreadData &other)
 {
     if (!other.core.isEmpty())
         data.core = other.core;
@@ -65,6 +64,40 @@ void mergeThreadData(ThreadData &data, const ThreadData &other)
         data.state = other.state;
     if (other.lineNumber != -1)
         data.lineNumber = other.lineNumber;
+}
+
+static QVariant threadPart(const ThreadData &thread, int column)
+{
+    switch (column) {
+    case ThreadData::IdColumn:
+        return thread.id.raw();
+    case ThreadData::FunctionColumn:
+        return thread.function;
+    case ThreadData::FileColumn:
+        return thread.fileName.isEmpty() ? thread.module : thread.fileName;
+    case ThreadData::LineColumn:
+        return thread.lineNumber >= 0
+            ? QString::number(thread.lineNumber) : QString();
+    case ThreadData::AddressColumn:
+        return thread.address > 0
+            ? QLatin1String("0x") + QString::number(thread.address, 16)
+            : QString();
+    case ThreadData::CoreColumn:
+        return thread.core;
+    case ThreadData::StateColumn:
+        return thread.state;
+    case ThreadData::TargetIdColumn:
+        if (thread.targetId.startsWith(QLatin1String("Thread ")))
+            return thread.targetId.mid(7);
+        return thread.targetId;
+    case ThreadData::NameColumn:
+        return thread.name;
+    case ThreadData::DetailsColumn:
+        return thread.details;
+    case ThreadData::ComboNameColumn:
+        return QString::fromLatin1("#%1 %2").arg(thread.id.raw()).arg(thread.name);
+    }
+    return QVariant();
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -137,8 +170,6 @@ ThreadsHandler::ThreadsHandler()
 {
     m_resetLocationScheduled = false;
     setObjectName(QLatin1String("ThreadsModel"));
-    m_proxyModel = new QSortFilterProxyModel(this);
-    m_proxyModel->setSourceModel(this);
 }
 
 int ThreadsHandler::currentThreadIndex() const
@@ -168,35 +199,7 @@ QVariant ThreadsHandler::data(const QModelIndex &index, int role) const
 
     switch (role) {
     case Qt::DisplayRole:
-        switch (index.column()) {
-        case ThreadData::IdColumn:
-            return thread.id.raw();
-        case ThreadData::FunctionColumn:
-            return thread.function;
-        case ThreadData::FileColumn:
-            return thread.fileName.isEmpty() ? thread.module : thread.fileName;
-        case ThreadData::LineColumn:
-            return thread.lineNumber >= 0
-                ? QString::number(thread.lineNumber) : QString();
-        case ThreadData::AddressColumn:
-            return thread.address > 0
-                ? QLatin1String("0x") + QString::number(thread.address, 16)
-                : QString();
-        case ThreadData::CoreColumn:
-            return thread.core;
-        case ThreadData::StateColumn:
-            return thread.state;
-        case ThreadData::TargetIdColumn:
-            if (thread.targetId.startsWith(QLatin1String("Thread ")))
-                return thread.targetId.mid(7);
-            return thread.targetId;
-        case ThreadData::NameColumn:
-            return thread.name;
-        case ThreadData::DetailsColumn:
-            return thread.details;
-        case ThreadData::ComboNameColumn:
-            return QString::fromLatin1("#%1 %2").arg(thread.id.raw()).arg(thread.name);
-        }
+        return threadPart(thread, index.column());
     case Qt::ToolTipRole:
         return threadToolTip(thread);
     case Qt::DecorationRole:
@@ -248,6 +251,32 @@ Qt::ItemFlags ThreadsHandler::flags(const QModelIndex &index) const
     const bool stopped = row >= 0 && row < m_threads.size()
             && m_threads.at(row).stopped;
     return stopped ? QAbstractTableModel::flags(index) : Qt::ItemFlags(0);
+}
+
+struct Sorter
+{
+    Sorter(int column, Qt::SortOrder order)
+        : m_column(column), m_order(order)
+    {}
+
+    bool operator()(const ThreadData &t1, const ThreadData &t2) const
+    {
+        const QVariant v1 = threadPart(t1, m_column);
+        const QVariant v2 = threadPart(t2, m_column);
+        if (v1 == v2)
+            return false;
+        return (v1 < v2) ^ (m_order == Qt::DescendingOrder);
+    }
+
+    int m_column;
+    Qt::SortOrder m_order;
+};
+
+void ThreadsHandler::sort(int column, Qt::SortOrder order)
+{
+    layoutAboutToBeChanged();
+    qSort(m_threads.begin(), m_threads.end(), Sorter(column, order));
+    layoutChanged();
 }
 
 ThreadId ThreadsHandler::currentThread() const
@@ -490,7 +519,7 @@ void ThreadsHandler::resetLocation()
 
 QAbstractItemModel *ThreadsHandler::model()
 {
-    return m_proxyModel;
+    return this;
 }
 
 } // namespace Internal
