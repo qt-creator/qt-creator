@@ -388,7 +388,7 @@ bool AndroidDeployQtStep::fromMap(const QVariantMap &map)
     m_deployAction = AndroidDeployQtAction(map.value(QLatin1String(DeployActionKey),
                                                      BundleLibrariesDeployment).toInt());
     m_keystorePath = Utils::FileName::fromString(map.value(KeystoreLocationKey).toString());
-    m_signPackage = map.value(SignPackageKey).toBool();
+    m_signPackage = false; // don't restore this
     m_buildTargetSdk = map.value(BuildTargetSdkKey).toString();
     m_verbose = map.value(VerboseOutputKey).toBool();
     m_inputFile = map.value(InputFile).toString();
