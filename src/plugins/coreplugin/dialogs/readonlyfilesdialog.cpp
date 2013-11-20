@@ -257,33 +257,33 @@ int ReadOnlyFilesDialog::exec()
 
     ReadOnlyResult result = RO_Cancel;
     QStringList failedToMakeWritable;
-    foreach (ReadOnlyFilesDialogPrivate::ButtonGroupForFile buttengroup, d->buttonGroups) {
-        result = static_cast<ReadOnlyResult>(buttengroup.group->checkedId());
+    foreach (ReadOnlyFilesDialogPrivate::ButtonGroupForFile buttongroup, d->buttonGroups) {
+        result = static_cast<ReadOnlyResult>(buttongroup.group->checkedId());
         switch (result) {
         case RO_MakeWritable:
-            if (!Utils::FileUtils::makeWritable(Utils::FileName(QFileInfo(buttengroup.fileName)))) {
-                failedToMakeWritable << buttengroup.fileName;
+            if (!Utils::FileUtils::makeWritable(Utils::FileName(QFileInfo(buttongroup.fileName)))) {
+                failedToMakeWritable << buttongroup.fileName;
                 continue;
             }
             break;
         case RO_OpenVCS:
-            if (!d->versionControls[buttengroup.fileName]->vcsOpen(buttengroup.fileName)) {
-                failedToMakeWritable << buttengroup.fileName;
+            if (!d->versionControls[buttongroup.fileName]->vcsOpen(buttongroup.fileName)) {
+                failedToMakeWritable << buttongroup.fileName;
                 continue;
             }
             break;
         case RO_SaveAs:
             if (!EditorManager::saveDocumentAs(d->document)) {
-                failedToMakeWritable << buttengroup.fileName;
+                failedToMakeWritable << buttongroup.fileName;
                 continue;
             }
             break;
         default:
-            failedToMakeWritable << buttengroup.fileName;
+            failedToMakeWritable << buttongroup.fileName;
             continue;
         }
-        if (!QFileInfo(buttengroup.fileName).isWritable())
-            failedToMakeWritable << buttengroup.fileName;
+        if (!QFileInfo(buttongroup.fileName).isWritable())
+            failedToMakeWritable << buttongroup.fileName;
     }
     if (!failedToMakeWritable.isEmpty()) {
         if (d->showWarnings)
