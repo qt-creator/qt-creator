@@ -432,7 +432,7 @@ QString ImportKey::toString() const
         res = path();
         break;
     case ImportType::Library:
-        res = splitPath.join(QLatin1Char('.'));
+        res = splitPath.join(QLatin1String("."));
         break;
     }
 

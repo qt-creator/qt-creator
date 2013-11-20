@@ -533,7 +533,7 @@ void Snapshot::insertLibraryInfo(const QString &path, const LibraryInfo &info)
     QStringList splitPath = path.split(QLatin1Char('/'));
     foreach (const ImportKey &importKey, packages) {
         QString requiredPath = QStringList(splitPath.mid(0, splitPath.size() - importKey.splitPath.size()))
-                .join(QLatin1Char('/'));
+                .join(QLatin1String("/"));
         cImport.possibleExports << Export(importKey, requiredPath, true);
     }
     foreach (const QmlDirParser::Component &component, info.components()) {
