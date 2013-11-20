@@ -265,7 +265,8 @@ struct Sorter
         const QVariant v2 = threadPart(t2, m_column);
         if (v1 == v2)
             return false;
-        return (v1 < v2) ^ (m_order == Qt::DescendingOrder);
+        // FIXME: Use correct toXXX();
+        return (v1.toString() < v2.toString()) ^ (m_order == Qt::DescendingOrder);
     }
 
     int m_column;
