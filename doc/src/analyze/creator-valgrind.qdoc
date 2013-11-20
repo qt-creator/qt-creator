@@ -97,6 +97,25 @@
     uninitialized memory} check box is selected by default. You can deselect it
     to make Memcheck run faster.
 
+    Memcheck searches for memory leaks when the client application finishes. To
+    view the amount of leaks that occurred, select \gui {Summary Only} in the
+    \gui {Check for leaks on finish} field. To also view details of each leak,
+    select \gui Full.
+
+    \section2 Showing Reachable and Indirectly Lost Blocks
+
+    \e Reachable blocks are blocks that are pointed at by a pointer or chain
+    of pointers and that might have been freed before the application exited.
+    \e {Indirectly lost} blocks are considered lost because all the blocks that
+    point to them are themselves lost. For example, all the children of a lost
+    root node are indirectly lost.
+
+    By default, Memcheck does not report reachable and indirectly lost blocks.
+    To have them reported, select the \gui {Show reachable and indirectly lost
+    blocks}.
+
+    \section2 Suppressing Errors
+
     Memcheck detects numerous problems in the system libraries, such as the C
     library, which come pre-installed with your OS. As you cannot easily fix
     them, you want to suppress them. Valgrind reads a list of errors to suppress
