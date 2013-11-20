@@ -43,13 +43,13 @@
     typedef QCoreApplication MyQApplication;
 #endif
 
-#include <Control.h>
-#include <Parser.h>
-#include <AST.h>
-#include <ASTVisitor.h>
-#include <Symbols.h>
-#include <CoreTypes.h>
-#include <Literals.h>
+#include <cplusplus/Control.h>
+#include <cplusplus/Parser.h>
+#include <cplusplus/AST.h>
+#include <cplusplus/ASTVisitor.h>
+#include <cplusplus/Symbols.h>
+#include <cplusplus/CoreTypes.h>
+#include <cplusplus/Literals.h>
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/Names.h>
@@ -1078,11 +1078,11 @@ void generateAST_cpp(const Snapshot &snapshot, const QDir &cplusplusDir)
         return;
     }
 
-    const QString source = QTextStream(&file).readAll();
+    const QByteArray source = file.readAll();
     file.close();
 
     QTextDocument cpp_document;
-    cpp_document.setPlainText(source);
+    cpp_document.setPlainText(QString::fromUtf8(source));
 
     Document::Ptr AST_cpp_document = snapshot.preprocessedDocument(source, fileName);
     AST_cpp_document->check();
@@ -1386,11 +1386,11 @@ QStringList generateAST_H(const Snapshot &snapshot, const QDir &cplusplusDir, co
     if (! file.open(QFile::ReadOnly))
         return astDerivedClasses;
 
-    const QString source = QTextStream(&file).readAll();
+    const QByteArray source = file.readAll();
     file.close();
 
     QTextDocument document;
-    document.setPlainText(source);
+    document.setPlainText(QString::fromUtf8(source));
 
     AST_h_document  = snapshot.preprocessedDocument(source, fileName);
     AST_h_document->check();
@@ -1537,11 +1537,11 @@ void generateASTFwd_h(const Snapshot &snapshot, const QDir &cplusplusDir, const 
     if (! file.open(QFile::ReadOnly))
         return;
 
-    const QString source = QTextStream(&file).readAll();
+    const QByteArray source = file.readAll();
     file.close();
 
     QTextDocument document;
-    document.setPlainText(source);
+    document.setPlainText(QString::fromUtf8(source));
     Document::Ptr doc = snapshot.preprocessedDocument(source, fileName);
     doc->check();
 
