@@ -441,6 +441,11 @@ void GdbEngine::handleResponse(const QByteArray &buff)
                     // We get multiple *running after thread creation and in Windows terminals.
                     showMessage(QString::fromLatin1("NOTE: INFERIOR STILL RUNNING IN STATE %1.").
                                 arg(QLatin1String(DebuggerEngine::stateName(state()))));
+                } else if (Utils::HostOsInfo::isWindowsHost() && (state() == InferiorStopRequested
+                               || state() == InferiorShutdownRequested)) {
+                    // FIXME: Breakpoints on Windows are exceptions which are thrown in newly
+                    // created threads so we have to filter out the running threads messages when
+                    // we request a stop.
                 } else {
                     notifyInferiorRunOk();
                 }
