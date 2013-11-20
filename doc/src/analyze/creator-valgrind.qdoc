@@ -252,8 +252,8 @@
 
     \list 1
 
-        \li Select \gui {Analyze > Valgrind Memory Analyzer (External)} or
-            \gui {Valgrind Function Profiler (External)}.
+        \li Select \gui {Analyze > Valgrind Memory Analyzer (Remote)} or
+            \gui {Valgrind Function Profiler (Remote)}.
 
             \image qtcreator-valgrind-remote-settings.png "Start Analyzer dialog"
 
