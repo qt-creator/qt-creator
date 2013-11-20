@@ -952,7 +952,7 @@ void ModelManager::importScan(QFutureInterface<void> &future,
     const bool libOnly = true; // FIXME remove when tested more
     while (!pathsToScan.isEmpty() && !future.isCanceled()) {
         ScanItem toScan = pathsToScan.last();
-        pathsToScan.removeLast();
+        pathsToScan.pop_back();
         int pathBudget = (maxScanDepth + 2 - toScan.depth);
         if (!scannedPaths.contains(toScan.path)) {
             QStringList importedFiles;
