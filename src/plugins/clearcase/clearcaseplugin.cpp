@@ -256,16 +256,22 @@ FileStatus::Status ClearCasePlugin::getFileStatus(const QString &fileName) const
     QString buffer = runCleartoolSync(viewRoot, args);
 
     const int atatpos = buffer.indexOf(QLatin1String("@@"));
-    if (atatpos != -1) { // probably managed file
-        // find first whitespace. anything before that is not interesting
-        const int wspos = buffer.indexOf(QRegExp(QLatin1String("\\s")));
+    if (atatpos != -1) { // probably a managed file
         const QString absFile =
                 viewRootDir.absoluteFilePath(
                     QDir::fromNativeSeparators(buffer.left(atatpos)));
-
         QTC_CHECK(QFile(absFile).exists());
         QTC_CHECK(!absFile.isEmpty());
 
+        // "cleartool ls" of a derived object looks like this:
+        // /path/to/file/export/MyFile.h@@--11-13T19:52.266580
+        const QChar c = buffer.at(atatpos + 2);
+        const bool isDerivedObject = c != QLatin1Char('/') && c != QLatin1Char('\\');
+        if (isDerivedObject)
+            return FileStatus::Derived;
+
+        // find first whitespace. anything before that is not interesting
+        const int wspos = buffer.indexOf(QRegExp(QLatin1String("\\s")));
         if (buffer.lastIndexOf(QLatin1String("CHECKEDOUT"), wspos) != -1)
             return FileStatus::CheckedOut;
         else
@@ -1940,7 +1946,8 @@ bool ClearCasePlugin::ccCheckUcm(const QString &viewname, const QString &working
 bool ClearCasePlugin::managesFile(const QString &workingDirectory, const QString &fileName) const
 {
     QString absFile = QFileInfo(QDir(workingDirectory), fileName).absoluteFilePath();
-    return getFileStatus(absFile) != FileStatus::NotManaged;
+    const FileStatus::Status status = getFileStatus(absFile);
+    return status != FileStatus::NotManaged && status != FileStatus::Derived;
 }
 
 ViewData ClearCasePlugin::ccGetView(const QString &workingDir) const

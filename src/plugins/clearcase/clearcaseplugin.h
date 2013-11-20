@@ -89,7 +89,8 @@ public:
         CheckedOut = 0x02,
         Hijacked   = 0x04,
         NotManaged = 0x08,
-        Missing    = 0x10
+        Missing    = 0x10,
+        Derived    = 0x20
     } status;
 
     QFile::Permissions permissions;
