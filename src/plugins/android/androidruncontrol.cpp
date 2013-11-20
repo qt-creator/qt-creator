@@ -107,7 +107,7 @@ QString AndroidRunControl::displayName() const
 
 QIcon AndroidRunControl::icon() const
 {
-    return QIcon(QLatin1String(ProjectExplorer::Constants::ICON_DEBUG_SMALL));
+    return QIcon(QLatin1String(ProjectExplorer::Constants::ICON_RUN_SMALL));
 }
 
 } // namespace Internal
