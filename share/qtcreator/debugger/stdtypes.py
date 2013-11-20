@@ -497,16 +497,16 @@ def qdump__std____debug__unordered_set(d, value):
     qdump__std__unordered_set(d, value)
 
 
-def qedit__std__vector(expr, value):
-    values = value.split(',')
+def qedit__std__vector(d, value, data):
+    import gdb
+    values = data.split(',')
     n = len(values)
-    ob = gdb.parse_and_eval(expr)
-    innerType = d.templateArgument(ob.type, 0)
+    innerType = d.templateArgument(value.type, 0)
     cmd = "set $d = (%s*)calloc(sizeof(%s)*%s,1)" % (innerType, innerType, n)
     gdb.execute(cmd)
-    cmd = "set {void*[3]}%s = {$d, $d+%s, $d+%s}" % (ob.address, n, n)
+    cmd = "set {void*[3]}%s = {$d, $d+%s, $d+%s}" % (value.address, n, n)
     gdb.execute(cmd)
-    cmd = "set (%s[%d])*$d={%s}" % (innerType, n, value)
+    cmd = "set (%s[%d])*$d={%s}" % (innerType, n, data)
     gdb.execute(cmd)
 
 def qdump__std__vector(d, value):
@@ -566,12 +566,11 @@ def qdump__std____1__vector(d, value):
 def qdump__std____debug__vector(d, value):
     qdump__std__vector(d, value)
 
-def qedit__std__string(expr, value):
-    cmd = "print (%s).assign(\"%s\")" % (expr, value)
-    gdb.execute(cmd)
+def qedit__std__string(d, value, data):
+    d.call(value, "assign", '"%s"' % data.replace('"', '\\"'))
 
-def qedit__string(expr, value):
-    qedit__std__string(expr, value)
+def qedit__string(d, expr, value):
+    qedit__std__string(d, expr, value)
 
 def qdump__string(d, value):
     qdump__std__string(d, value)
