@@ -101,13 +101,13 @@ ColumnLayout {
                 width: parent.width
             }
 
-            Text {
+            NativeText {
                 text: qsTr("New to Qt?")
                 font.pixelSize: 18
                 font.bold: false
             }
 
-            Text {
+            NativeText {
                 text: qsTr("Learn how to develop your own applications and explore Qt Creator.")
                 font.pixelSize: 12
                 wrapMode: Text.WordWrap
