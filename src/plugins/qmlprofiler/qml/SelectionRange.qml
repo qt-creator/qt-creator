@@ -42,6 +42,7 @@ RangeMover {
     property real duration: Math.max(getWidth() * viewTimePerPixel, 500)
     property real viewTimePerPixel: 1
     property int creationState : 0
+    property int creationReference : 0
 
     Connections {
         target: zoomControl
@@ -65,6 +66,7 @@ RangeMover {
     function reset(setVisible) {
         setRight(getLeft() + 1);
         creationState = 0;
+        creationReference = 0;
         visible = setVisible;
     }
 
@@ -75,17 +77,20 @@ RangeMover {
             pos = width;
 
         switch (creationState) {
-        case 1: {
+        case 1:
+            creationReference = pos;
             setLeft(pos);
             setRight(pos + 1);
             break;
-        }
-        case 2: {
-            setLeft(Math.min(getLeft(), pos));
-            setRight(Math.max(getRight(), pos));
+        case 2:
+            if (pos > creationReference) {
+                setLeft(creationReference);
+                setRight(pos);
+            } else if (pos < creationReference) {
+                setLeft(pos);
+                setRight(creationReference);
+            }
             break;
-        }
-        default: return;
         }
     }
 
@@ -104,6 +109,7 @@ RangeMover {
     function releasedOnCreation() {
         if (selectionRange.creationState === 2) {
             flick.interactive = true;
+            vertflick.stayInteractive = true;
             selectionRange.creationState = 3;
             selectionRangeControl.enabled = false;
         }
@@ -112,6 +118,7 @@ RangeMover {
     function pressedOnCreation() {
         if (selectionRange.creationState === 1) {
             flick.interactive = false;
+            vertflick.stayInteractive = false;
             selectionRange.setPos(selectionRangeControl.mouseX + flick.contentX);
             selectionRange.creationState = 2;
         }
