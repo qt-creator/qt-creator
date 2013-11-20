@@ -120,11 +120,6 @@ void RemoteLinuxRunConfiguration::init()
 
 bool RemoteLinuxRunConfiguration::isEnabled() const
 {
-    if (remoteExecutableFilePath().isEmpty()) {
-        d->disabledReason = tr("Don't know what to run.");
-        return false;
-    }
-    d->disabledReason.clear();
     return true;
 }
 

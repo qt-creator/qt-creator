@@ -706,6 +706,7 @@ void AndroidManager::updateTarget(ProjectExplorer::Target *target, const QString
         params << QLatin1String("-t") << targetSDK;
     if (!name.isEmpty())
         params << QLatin1String("-n") << name;
+    androidProc.setProcessEnvironment(AndroidConfigurations::instance().androidToolEnvironment().toProcessEnvironment());
     androidProc.start(AndroidConfigurations::instance().androidToolPath().toString(), params);
     if (!androidProc.waitForFinished(-1))
         androidProc.terminate();

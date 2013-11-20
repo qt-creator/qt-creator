@@ -9,11 +9,6 @@ DEPLOYMENTFOLDERS = folder_01
 # QML_IMPORT_PATH #
 QML_IMPORT_PATH =
 
-# If your application uses the Qt Mobility libraries, uncomment the following
-# lines and add the respective components to the MOBILITY variable.
-# CONFIG += mobility
-# MOBILITY +=
-
 # The .cpp file which was generated for your project. Feel free to hack it.
 SOURCES += main.cpp
 
@@ -23,5 +18,5 @@ SOURCES += main.cpp
 # Please do not modify the following two lines. Required for deployment.
 include(qtquick2applicationviewer/qtquick2applicationviewer.pri)
 # REMOVE_NEXT_LINE (wizard will remove the include and append deployment.pri to qmlapplicationviewer.pri, instead) #
-include(../shared/deployment.pri)
+include(../../shared/deployment.pri)
 qtcAddDeployment()

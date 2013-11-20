@@ -216,8 +216,13 @@ void BuildManager::cancel()
             return;
         d->m_canceling = true;
         d->m_watcher.cancel();
-        if (d->m_currentBuildStep->runInGuiThread())
+        if (d->m_currentBuildStep->runInGuiThread()) {
             d->m_currentBuildStep->cancel();
+            while (d->m_canceling)
+                QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+        } else {
+            d->m_watcher.waitForFinished();
+        }
     }
 }
 

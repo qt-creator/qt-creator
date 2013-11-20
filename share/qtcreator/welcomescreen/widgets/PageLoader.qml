@@ -34,10 +34,16 @@ Item {
 
     property alias model: repeater.model
 
+    height: repeater.height
+
     Repeater {
         id: repeater
+        height: itemAt(tab.currentIndex).height
         Loader {
-            anchors.fill: parent
+            id: loader
+            anchors.left: parent.left
+            anchors.right: parent.right
+            height: item.height
             property bool active: index === tab.currentIndex
             property bool wasActive
             onActiveChanged: {

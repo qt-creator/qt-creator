@@ -303,8 +303,7 @@ Rectangle {
     Flickable {
         id: vertflick
         flickableDirection: Flickable.VerticalFlick
-        width: parent.width
-        height: root.height
+        anchors.fill: parent
         clip: true
         contentHeight: labels.height
         boundsBehavior: Flickable.StopAtBounds
@@ -318,8 +317,8 @@ Rectangle {
             id: backgroundMarks
             y: vertflick.contentY
             height: vertflick.height
-            width: flick.width
-            anchors.left: flick.left
+            anchors.right: parent.right
+            anchors.left: labels.right
         }
 
         Flickable {

@@ -382,6 +382,7 @@ void SettingsDialog::createGui()
     headerHLayout->addWidget(m_headerLabel);
 
     m_stackedLayout->setMargin(0);
+    m_stackedLayout->addWidget(new QWidget); // no category selected, for example when filtering
 
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok |
                                                        QDialogButtonBox::Apply |
@@ -467,6 +468,7 @@ void SettingsDialog::disconnectTabWidgets()
 
 void SettingsDialog::updateEnabledTabs(Category *category, const QString &searchText)
 {
+    int firstEnabledTab = -1;
     for (int i = 0; i < category->pages.size(); ++i) {
         const IOptionsPage *page = category->pages.at(i);
         const bool enabled = searchText.isEmpty()
@@ -474,13 +476,24 @@ void SettingsDialog::updateEnabledTabs(Category *category, const QString &search
                              || page->displayName().contains(searchText, Qt::CaseInsensitive)
                              || page->matches(searchText);
         category->tabWidget->setTabEnabled(i, enabled);
+        if (enabled && firstEnabledTab < 0)
+            firstEnabledTab = i;
+    }
+    if (!category->tabWidget->isTabEnabled(category->tabWidget->currentIndex())
+            && firstEnabledTab != -1) {
+        // QTabWidget is dumb, so this can happen
+        category->tabWidget->setCurrentIndex(firstEnabledTab);
     }
 }
 
 void SettingsDialog::currentChanged(const QModelIndex &current)
 {
-    if (current.isValid())
+    if (current.isValid()) {
         showCategory(m_proxyModel->mapToSource(current).row());
+    } else {
+        m_stackedLayout->setCurrentIndex(0);
+        m_headerLabel->setText(QString());
+    }
 }
 
 void SettingsDialog::currentTabChanged(int index)

@@ -35,7 +35,7 @@ Column {
     spacing: 16
 
     signal itemChanged
-    property int currentIndex: 0
+    property int currentIndex: -1
 
     onCurrentIndexChanged: welcomeMode.activePlugin = currentIndex
     Component.onCompleted: currentIndex = welcomeMode.activePlugin

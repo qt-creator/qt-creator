@@ -29,43 +29,46 @@
 
 import QtQuick 2.1
 import widgets 1.0
+import QtQuick.Controls 1.0
 
-Rectangle {
-    width: 920
-    height: 600
-    color: "#edf0f2"
-    id: root
+ScrollView {
+    id: scrollView
 
     property var fonts: CustomFonts {}
     property var colors: CustomColors { }
-
-    SideBar {
-        id: sideBar
-        model: pagesModel
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
-
-    }
-
     Rectangle {
-        color: "#737373"
-        width: 1
-        height: parent.height
+        width: Math.max(920, scrollView.flickableItem.width - 30)
+        height: Math.max(loader.height, scrollView.flickableItem.height);
 
-        anchors.right: sideBar.right
+        id: root
+
+        SideBar {
+            id: sideBar
+            model: pagesModel
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
+
+        }
+
+        Rectangle {
+            color: "#737373"
+            width: 1
+            height: parent.height
+
+            anchors.right: sideBar.right
+        }
+
+        QtObject {
+            id: tab
+            property int currentIndex: sideBar.currentIndex
+        }
+
+        PageLoader {
+            id: loader
+            model: pagesModel
+            anchors.left: sideBar.right
+            anchors.right: parent.right
+        }
+
     }
-
-    QtObject {
-        id: tab
-        property int currentIndex: sideBar.currentIndex
-    }
-
-    PageLoader {
-        anchors.top: parent.top
-        model: pagesModel
-        anchors.bottom: parent.bottom
-        anchors.left: sideBar.right
-        anchors.right: parent.right
-    }
-
 }

@@ -656,20 +656,6 @@
     The \gui{Locals and Expressions} view also provides access to the most
     powerful feature of the debugger: comprehensive display of data belonging
     to Qt's basic objects.
-
-    To enable Qt's basic objects data display feature:
-
-    \list
-
-        \li Select \gui Tools > \gui {Options} > \gui Debugger >
-            \gui{Debugging Helper} and check the \gui{Use Debugging Helper}
-            checkbox.
-
-        \li The \gui{Locals and Expressions} view is reorganized to provide a
-            high-level view of the objects.
-
-    \endlist
-
     For example, in case of QObject, instead of displaying a pointer to some
     private data structure, you see a list of children, signals and slots.
 
@@ -1183,18 +1169,6 @@
             d.putSubItem("key", key)
             d.putSubItem("value", value)
     \endcode
-
-    \section1 Enabling Debugging Helpers for Qt's Bootstrapped Applications
-
-    Qt's bootstrapped applications (such as moc and qmake) are built in a way
-    that is incompatible with the default build of the debugging helpers. To
-    work around this, add \c{dumper.cpp} to the compiled sources in the
-    application Makefile.
-
-    Choose \gui {Tools > Options > Debugger > Debugging Helper > Use debugging
-    helper from custom location}, and specify an invalid location, such as
-    \c{/dev/null}.
-
 */
 
 
