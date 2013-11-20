@@ -61,6 +61,7 @@ private slots:
 protected:
     virtual void paint(QPainter *);
     virtual void componentComplete();
+    virtual void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry);
 
 private:
     Context2D *m_context2d;

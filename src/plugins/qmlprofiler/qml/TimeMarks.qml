@@ -38,21 +38,6 @@ Canvas2D {
     property real endTime
     property real timePerPixel
 
-    Component.onCompleted: {
-        requestRedraw();
-    }
-
-    onWidthChanged: {
-        requestRedraw();
-    }
-    onHeightChanged: {
-        requestRedraw();
-    }
-
-    onYChanged: {
-        requestRedraw();
-    }
-
     Connections {
         target: labels
         onHeightChanged: { requestRedraw(); }
