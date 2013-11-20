@@ -58,25 +58,22 @@ bool ViewerContext::languageIsCompatible(Language::Enum l) const
 {
     switch (language) {
     case Language::JavaScript:
-        return l == Language::JavaScript;
     case Language::Json:
-        return l == Language::Json;
+    case Language::QmlProject:
+    case Language::QmlQbs:
+    case Language::QmlTypeInfo:
+        return language == l;
     case Language::Qml:
         return l == Language::Qml || l == Language::QmlQtQuick1 || l == Language::QmlQtQuick2
                 || Language::JavaScript;
-    case Language::QmlProject:
-        return l == Language::QmlProject;
-    case Language::QmlQbs:
-        return l == Language::QmlQbs;
     case Language::QmlQtQuick1:
         return l == Language::Qml || l == Language::QmlQtQuick1 || Language::JavaScript;
     case Language::QmlQtQuick2:
         return l == Language::Qml || l == Language::QmlQtQuick2 || Language::JavaScript;
-    case Language::QmlTypeInfo:
-        return l == Language::QmlTypeInfo;
     case Language::Unknown: // ?
-        return true;
+        break;
     }
+    return true;
 }
 
 } // namespace QmlJS
