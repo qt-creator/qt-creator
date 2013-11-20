@@ -59,6 +59,9 @@ namespace {
 
 class MyTestDataDir : public Core::Internal::Tests::TestDataDir {
 public:
+    MyTestDataDir()
+        : TestDataDir(QString())
+    {}
     MyTestDataDir(const QString &dir)
         : TestDataDir(QLatin1String(SRCDIR "/../../../tests/designer/") + dir)
     {}
@@ -248,7 +251,7 @@ private:
 #endif
 
 /// Check: Executes "Go To Slot..." on a QPushButton in a *.ui file and checks if the respective
-/// header and source files are updated.
+/// header and source files are correctly updated.
 void Designer::Internal::FormEditorPlugin::test_gotoslot()
 {
 #if QT_VERSION >= 0x050000
@@ -267,11 +270,39 @@ void Designer::Internal::FormEditorPlugin::test_gotoslot_data()
     typedef QLatin1String _;
     QTest::addColumn<QStringList>("files");
 
-    MyTestDataDir testData(QLatin1String("gotoslot_withoutProject"));
+    MyTestDataDir testDataDirWithoutProject(_("gotoslot_withoutProject"));
     QTest::newRow("withoutProject")
         << (QStringList()
-            << testData.file(_("form.cpp"))
-            << testData.file(_("form.h"))
-            << testData.file(_("form.ui")));
+            << testDataDirWithoutProject.file(_("form.cpp"))
+            << testDataDirWithoutProject.file(_("form.h"))
+            << testDataDirWithoutProject.file(_("form.ui")));
+
+    // Finding the right class for inserting definitions/declarations is based on
+    // finding a class with a member whose type is the class from the "ui_xxx.h" header.
+    // In the following test data the header files contain an extra class referencing
+    // the same class name.
+
+    MyTestDataDir testDataDir;
+
+    testDataDir = MyTestDataDir(_("gotoslot_insertIntoCorrectClass_pointer"));
+    QTest::newRow("insertIntoCorrectClass_pointer")
+        << (QStringList()
+            << testDataDir.file(_("form.cpp"))
+            << testDataDir.file(_("form.h"))
+            << testDataDirWithoutProject.file(_("form.ui"))); // reuse
+
+    testDataDir = MyTestDataDir(_("gotoslot_insertIntoCorrectClass_non-pointer"));
+    QTest::newRow("insertIntoCorrectClass_non-pointer")
+        << (QStringList()
+            << testDataDir.file(_("form.cpp"))
+            << testDataDir.file(_("form.h"))
+            << testDataDirWithoutProject.file(_("form.ui"))); // reuse
+
+    testDataDir = MyTestDataDir(_("gotoslot_insertIntoCorrectClass_pointer_ns_using"));
+    QTest::newRow("insertIntoCorrectClass_pointer_ns_using")
+        << (QStringList()
+            << testDataDir.file(_("form.cpp"))
+            << testDataDir.file(_("form.h"))
+            << testDataDir.file(_("form.ui")));
 #endif
 }
