@@ -52,6 +52,7 @@ struct Range
     Range();
     Range(int b, int e, RangeMode m = RangeCharMode);
     QString toString() const;
+    bool isValid() const;
 
     int beginPos;
     int endPos;
