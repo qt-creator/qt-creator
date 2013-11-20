@@ -122,7 +122,7 @@ void Core::Internal::ProgressManagerPrivate::doSetApplicationLabel(const QString
     if (text.isEmpty()) {
         pITask->SetOverlayIcon(winId, NULL, NULL);
     } else {
-        QPixmap pix = QPixmap(QLatin1String(":/projectexplorer/images/compile_error.png"));
+        QPixmap pix = QPixmap(QLatin1String(":/core/images/compile_error_taskbar.png"));
         QPainter p(&pix);
         p.setPen(Qt::white);
         QFont font = p.font();
