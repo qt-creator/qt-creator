@@ -249,9 +249,6 @@ void QtQuickApp::handleCurrentProFileTemplateLine(const QString &line,
         if (!nextLine.startsWith(QLatin1String("QML_IMPORT_PATH =")))
             return;
         proFile << nextLine << endl;
-    } else if (line.contains(QLatin1String("# HARMATTAN_BOOSTABLE"))) {
-        QString nextLine = proFileTemplate.readLine(); // eats '# CONFIG += qdeclarative-boostable'
-        proFile << nextLine << endl;
     }
 }
 
