@@ -57,6 +57,10 @@ Core::Id ClearCaseControl::id() const
 
 bool ClearCaseControl::isConfigured() const
 {
+#ifdef WITH_TESTS
+    if (m_plugin->isFakeCleartool())
+        return true;
+#endif
     const QString binary = m_plugin->settings().ccBinaryPath;
     if (binary.isEmpty())
         return false;

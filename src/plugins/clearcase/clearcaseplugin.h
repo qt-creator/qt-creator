@@ -167,6 +167,10 @@ public:
 
     bool ccCheckUcm(const QString &viewname, const QString &workingDir) const;
     bool managesFile(const QString &workingDirectory, const QString &fileName) const;
+#ifdef WITH_TESTS
+    inline void setFakeCleartool(const bool b = true) { m_fakeClearTool = b; }
+    inline bool isFakeCleartool() const { return m_fakeClearTool; }
+#endif
 
 public slots:
     void vcsAnnotate(const QString &workingDir, const QString &file,
@@ -199,9 +203,16 @@ private slots:
     void closing();
     void updateStatusActions();
 #ifdef WITH_TESTS
+    void initTestCase();
+    void cleanupTestCase();
     void testDiffFileResolving_data();
     void testDiffFileResolving();
     void testLogResolving();
+    void testFileStatusParsing_data();
+    void testFileStatusParsing();
+    void testFileNotManaged();
+    void testStatusActions_data();
+    void testStatusActions();
 #endif
 
 protected:
@@ -282,6 +293,10 @@ private:
     QSharedPointer<StatusMap> m_statusMap;
 
     static ClearCasePlugin *m_clearcasePluginInstance;
+#ifdef WITH_TESTS
+    bool m_fakeClearTool;
+    QString m_tempFile;
+#endif
 };
 
 } // namespace Internal

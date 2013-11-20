@@ -42,12 +42,25 @@ public:
     explicit ClearCaseSync(ClearCasePlugin *plugin, QSharedPointer<StatusMap> statusMap);
     void run(QFutureInterface<void> &future, QStringList &files);
 
+    QStringList updateStatusHotFiles(const QString &viewRoot, const bool isDynamic, int &total);
+    void updateStatus(const QDir &viewRootDir, const bool isDynamic, const QStringList &files);
+    void processLine(const QDir &viewRootDir, const QString &buffer);
+    void updateTotalFilesCount(const QString view, ClearCaseSettings settings, const int processed);
+    void updateStatusForNotManagedFiles(const QStringList &files);
 signals:
     void updateStreamAndView();
 
 private:
     ClearCasePlugin *m_plugin;
     QSharedPointer<StatusMap> m_statusMap;
+
+public slots:
+#ifdef WITH_TESTS
+    void verifyParseStatus(const QString &fileName, const QString &cleartoolLsLine,
+                           const FileStatus::Status);
+    void verifyFileNotManaged();
+#endif
+
 };
 
 } // namespace Internal
