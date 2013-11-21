@@ -676,9 +676,14 @@
     values of QMap, select \gui {Change Local Display Format} > \gui Compact.
 
     You can use the \gui{Locals and Expressions} view to change the contents of
-    variables of simple data types, for example, \c int or \c float when the
+    variables of simple data types, for example, \c int, \c float, QString
+    and \c std::string when the
     program is interrupted. To do so, click the \gui Value column, modify
     the value with the inplace editor, and press \key Enter (or \key Return).
+
+    To change the complete contents of QVector or \c std::vector values,
+    type all values separated by commas into the \gui Value column of
+    the main entry.
 
     You can enable tooltips in the main editor displaying this information.
     For more information, see \l{Showing Tooltips in Debug Mode}.
