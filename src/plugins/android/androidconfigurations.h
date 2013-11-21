@@ -101,7 +101,7 @@ public:
     Utils::FileName zipalignPath() const;
     Utils::FileName stripPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
     Utils::FileName readelfPath(ProjectExplorer::Abi::Architecture architecture, const QString &ndkToolChainVersion) const;
-    QString createAVD(int minApiLevel = 0, QString targetArch = QString()) const;
+    QString createAVD(QWidget *parent, int minApiLevel = 0, QString targetArch = QString()) const;
     QString createAVD(const QString &target, const QString &name, const QString &abi, int sdcardSize) const;
     bool removeAVD(const QString &name) const;
     QVector<AndroidDeviceInfo> connectedDevices(QString *error = 0) const;

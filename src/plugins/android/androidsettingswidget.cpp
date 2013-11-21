@@ -402,7 +402,7 @@ void AndroidSettingsWidget::browseOpenJDKLocation()
 
 void AndroidSettingsWidget::addAVD()
 {
-    AndroidConfigurations::instance().createAVD();
+    AndroidConfigurations::instance().createAVD(this);
     m_AVDModel.setAvdList(AndroidConfigurations::instance().androidVirtualDevices());
     avdActivated(m_ui->AVDTableView->currentIndex());
 }

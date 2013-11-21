@@ -496,9 +496,9 @@ QVector<AndroidDeviceInfo> AndroidConfigurations::connectedDevices(QString *erro
     return devices;
 }
 
-QString AndroidConfigurations::createAVD(int minApiLevel, QString targetArch) const
+QString AndroidConfigurations::createAVD(QWidget *parent, int minApiLevel, QString targetArch) const
 {
-    QDialog d;
+    QDialog d(parent);
     Ui::AddNewAVDDialog avdDialog;
     avdDialog.setupUi(&d);
     // NOTE: adb list targets does actually include information on which abis are supported per apilevel
