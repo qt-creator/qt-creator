@@ -41,6 +41,7 @@
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Overview.h>
+#include <utils/fileutils.h>
 
 #include <QDesignerFormEditorInterface>
 #include <QDesignerIntegrationInterface>
@@ -63,56 +64,51 @@ public:
     {}
 };
 
-bool containsSymbol(Scope *scope, const QString &functionName)
+QString expectedContentsForFile(const QString &filePath)
 {
-    Overview oo;
-    for (int i = 0, end = scope->memberCount(); i < end; ++i) {
-        Symbol *symbol = scope->memberAt(i);
-        const QString symbolName = oo.prettyName(symbol->name());
-        if (symbolName == functionName)
-            return true;
-    }
-    return false;
+    QFileInfo fi(filePath);
+    const QString referenceFileName = QLatin1String("reference_") + fi.fileName();
+    const QString referenceFilePath = fi.dir().absoluteFilePath(referenceFileName);
+
+    Utils::FileReader fileReader;
+    const bool isFetchOk = fileReader.fetch(referenceFilePath);
+    if (isFetchOk)
+        return QString::fromUtf8(fileReader.data());
+    return QString();
 }
 
 class GoToSlotTest
 {
 public:
-    GoToSlotTest() : m_modelManager(CppModelManagerInterface::instance()) { cleanup(); }
+    GoToSlotTest(const QStringList &files)
+        : m_files(files)
+        , m_modelManager(CppModelManagerInterface::instance())
+    {
+        QCOMPARE(files.size(), 3);
+        cleanup();
+    }
     ~GoToSlotTest() { cleanup(); }
 
     void run() const
     {
-        MyTestDataDir testData(QLatin1String("gotoslot_withoutProject"));
-        const QString cppFile = testData.file(QLatin1String("form.cpp"));
-        const QString hFile = testData.file(QLatin1String("form.h"));
-        const QString uiFile = testData.file(QLatin1String("form.ui"));
-        const QStringList files = QStringList() << cppFile << hFile << uiFile;
-
-        const QString functionName = QLatin1String("on_pushButton_clicked");
-        const QString qualifiedFunctionName = QLatin1String("Form::") + functionName;
-
         QList<TextEditor::BaseTextEditor *> editors;
-        foreach (const QString &file, files) {
+        foreach (const QString &file, m_files) {
             IEditor *editor = EditorManager::openEditor(file);
             TextEditor::BaseTextEditor *e = qobject_cast<TextEditor::BaseTextEditor *>(editor);
             QVERIFY(e);
             editors << e;
         }
-        QCOMPARE(EditorManager::documentModel()->openedDocuments().size(), files.size());
+        TextEditor::BaseTextEditor *cppFileEditor = editors.at(0);
+        TextEditor::BaseTextEditor *hFileEditor = editors.at(1);
+
+        const QString cppFile = m_files.at(0);
+        const QString hFile = m_files.at(1);
+
+        QCOMPARE(EditorManager::documentModel()->openedDocuments().size(), m_files.size());
         while (!m_modelManager->snapshot().contains(cppFile)
                  || !m_modelManager->snapshot().contains(hFile)) {
             QApplication::processEvents();
         }
-
-        // Checks before
-        Document::Ptr cppDocumentBefore = m_modelManager->snapshot().document(cppFile);
-        QCOMPARE(cppDocumentBefore->globalSymbolCount(), 2U);
-        QVERIFY(!containsSymbol(cppDocumentBefore->globalNamespace(), qualifiedFunctionName));
-
-        Document::Ptr hDocumentBefore = m_modelManager->snapshot().document(hFile);
-        QCOMPARE(hDocumentBefore->globalSymbolAt(1)->asScope()->memberCount(), 3U);
-        QVERIFY(!containsSymbol(hDocumentBefore->globalSymbolAt(1)->asScope(), functionName));
 
         // Execute "Go To Slot"
         FormEditorW *few = FormEditorW::instance();
@@ -132,15 +128,9 @@ public:
             }
         }
 
-        // Checks after
-        Document::Ptr cppDocumentAfter = m_modelManager->snapshot().document(cppFile);
-
-        QCOMPARE(cppDocumentAfter->globalSymbolCount(), 3U);
-        QVERIFY(containsSymbol(cppDocumentAfter->globalNamespace(), qualifiedFunctionName));
-
-        Document::Ptr hDocumentAfter = m_modelManager->snapshot().document(hFile);
-        QCOMPARE(hDocumentAfter->globalSymbolAt(1)->asScope()->memberCount(), 4U);
-        QVERIFY(containsSymbol(hDocumentAfter->globalSymbolAt(1)->asScope(), functionName));
+        // Compare
+        QCOMPARE(cppFileEditor->textDocument()->contents(), expectedContentsForFile(cppFile));
+        QCOMPARE(hFileEditor->textDocument()->contents(), expectedContentsForFile(hFile));
     }
 
 private:
@@ -154,6 +144,7 @@ private:
     }
 
 private:
+    QStringList m_files;
     CppModelManagerInterface *m_modelManager;
 };
 
@@ -162,12 +153,27 @@ private:
 
 /// Check: Executes "Go To Slot..." on a QPushButton in a *.ui file and checks if the respective
 /// header and source files are updated.
-void Designer::Internal::FormEditorPlugin::test_gotoslot_withoutProject()
+void Designer::Internal::FormEditorPlugin::test_gotoslot()
 {
 #if QT_VERSION >= 0x050000
-    GoToSlotTest test;
+    QFETCH(QStringList, files);
+
+    GoToSlotTest test(files);
     test.run();
 #else
     QSKIP("Available only with >= Qt5", SkipSingle);
 #endif
+}
+
+void FormEditorPlugin::test_gotoslot_data()
+{
+    typedef QLatin1String _;
+    QTest::addColumn<QStringList>("files");
+
+    MyTestDataDir testData(QLatin1String("gotoslot_withoutProject"));
+    QTest::newRow("withoutProject")
+        << (QStringList()
+            << testData.file(_("form.cpp"))
+            << testData.file(_("form.h"))
+            << testData.file(_("form.ui")));
 }

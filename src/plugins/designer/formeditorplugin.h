@@ -53,7 +53,8 @@ private:
 
 private slots:
 #ifdef WITH_TESTS
-    void test_gotoslot_withoutProject();
+    void test_gotoslot();
+    void test_gotoslot_data();
 #endif
 };
 
