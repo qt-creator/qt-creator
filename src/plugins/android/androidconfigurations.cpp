@@ -422,7 +422,7 @@ AndroidDeviceInfo AndroidConfigurations::showDeviceDialog(ProjectExplorer::Proje
                 return info;
     }
 
-    AndroidDeviceDialog dialog(apiLevel, abi);
+    AndroidDeviceDialog dialog(apiLevel, abi, Core::ICore::mainWindow());
     if (dialog.exec() == QDialog::Accepted) {
         AndroidDeviceInfo info = dialog.device();
         if (dialog.saveDeviceSelection()) {
