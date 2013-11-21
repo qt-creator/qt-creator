@@ -1526,7 +1526,7 @@ bool ClearCasePlugin::vcsOpen(const QString &workingDir, const QString &fileName
             QFile::rename(absPath + QLatin1String(".hijack"), absPath);
         }
 
-        if ((!response.error || response.stdOut.contains(QLatin1String("already checked out")))
+        if ((!response.error || response.stdErr.contains(QLatin1String("already checked out")))
                 && !m_settings.disableIndexer) {
             setStatus(absPath, FileStatus::CheckedOut);
         }
@@ -1658,7 +1658,7 @@ bool ClearCasePlugin::ccFileOp(const QString &workingDir, const QString &title, 
         runCleartool(workingDir, args, m_settings.timeOutMS(),
                      ShowStdOutInLogWindow | FullySynchronously);
     if (coResponse.error) {
-        if (coResponse.stdOut.contains(QLatin1String("already checked out")))
+        if (coResponse.stdErr.contains(QLatin1String("already checked out")))
             noCheckout = true;
         else
             return false;
