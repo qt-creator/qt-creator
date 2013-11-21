@@ -3068,6 +3068,24 @@ namespace stdptr {
 } // namespace stdptr
 
 
+namespace lambda {
+
+    void testLambda()
+    {
+#ifdef USE_CXX11
+        std::string x;
+        auto f = [&] () -> const std::string & {
+                int z = x.size();
+                return x;
+         };
+        auto c = f();
+        BREAK_HERE;
+        dummyStatement(&x, &f, &c);
+#endif
+    }
+
+} // namespace lambda
+
 namespace stdset {
 
     void testStdSetInt()
@@ -6859,6 +6877,7 @@ int main(int argc, char *argv[])
     stdstring::testStdString();
     stdvector::testStdVector();
     stdptr::testStdPtr();
+    lambda::testLambda();
 
     qbytearray::testQByteArray();
     qdatetime::testDateTime();
