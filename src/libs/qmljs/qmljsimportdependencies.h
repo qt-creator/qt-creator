@@ -224,6 +224,8 @@ public:
     QSet<ImportKey> libraryImports(const ViewerContext &viewContext) const;
     QSet<ImportKey> subdirImports(const ImportKey &baseKey, const ViewerContext &viewContext) const;
 private:
+    void removeImportCacheEntry(const ImportKey &importKey, const QString &importId);
+
     QMap<ImportKey, QStringList> m_importCache;
     QMap<QString, CoreImport> m_coreImports;
 };
