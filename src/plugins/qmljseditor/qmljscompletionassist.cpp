@@ -985,13 +985,16 @@ const SemanticInfo &QmlJSCompletionAssistInterface::semanticInfo() const
 
 namespace {
 
-struct QmlJSLessThan
+class QmlJSLessThan
 {
+public:
+    QmlJSLessThan(const QString &searchString) : m_searchString(searchString)
+    { }
     bool operator() (const BasicProposalItem *a, const BasicProposalItem *b)
     {
         if (a->order() != b->order())
             return a->order() > b->order();
-        else if (a->text().isEmpty())
+        else if (a->text().isEmpty() && ! b->text().isEmpty())
             return true;
         else if (b->text().isEmpty())
             return false;
@@ -1001,8 +1004,14 @@ struct QmlJSLessThan
             return false;
         else if (a->text().at(0).isLower() && b->text().at(0).isUpper())
             return true;
+        int m1 = PersistentTrie::matchStrength(m_searchString, a->text());
+        int m2 = PersistentTrie::matchStrength(m_searchString, b->text());
+        if (m1 != m2)
+            return m1 > m2;
         return a->text() < b->text();
     }
+private:
+    QString m_searchString;
 };
 
 } // Anonymous
@@ -1023,9 +1032,9 @@ void QmlJSAssistProposalModel::filter(const QString &prefix)
     m_currentItems = newCurrentItems;
 }
 
-void QmlJSAssistProposalModel::sort(const QString &)
+void QmlJSAssistProposalModel::sort(const QString &prefix)
 {
-    qSort(currentItems().first, currentItems().second, QmlJSLessThan());
+    qSort(currentItems().first, currentItems().second, QmlJSLessThan(prefix));
 }
 
 bool QmlJSAssistProposalModel::keepPerfectMatch(TextEditor::AssistReason reason) const

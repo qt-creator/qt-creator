@@ -654,7 +654,7 @@ int matchStrength(const QString &searchStr, const QString &str)
 {
     QString::const_iterator i = searchStr.constBegin(), iEnd = searchStr.constEnd(),
         j = str.constBegin(), jEnd = str.constEnd();
-    bool lastWasNotUpper=true, lastWasSpacer=true, lastWasMatch = false;
+    bool lastWasNotUpper=true, lastWasSpacer=true, lastWasMatch = false, didJump = false;
     int res = 0;
     while (i != iEnd && j != jEnd) {
         bool thisIsUpper = (*j).isUpper();
@@ -667,6 +667,7 @@ int matchStrength(const QString &searchStr, const QString &str)
             lastWasMatch = true;
             ++i;
         } else {
+            didJump = true;
             lastWasMatch = false;
         }
         ++j;
@@ -674,9 +675,11 @@ int matchStrength(const QString &searchStr, const QString &str)
         lastWasSpacer = !thisIsLetterOrNumber;
     }
     if (i != iEnd)
-        return iEnd - i;
+        return i - iEnd;
     if (j == jEnd)
         ++res;
+    if (!didJump)
+        res+=2;
     return res;
 }
 
