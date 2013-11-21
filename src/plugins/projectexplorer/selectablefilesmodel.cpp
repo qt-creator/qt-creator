@@ -82,7 +82,7 @@ void SelectableFilesModel::startParsing(const QString &baseDir)
 void SelectableFilesModel::run(QFutureInterface<void> &fi)
 {
     m_futureCount = 0;
-    buildTree(m_baseDir, m_rootForFuture, fi);
+    buildTree(m_baseDir, m_rootForFuture, fi, 5);
 }
 
 void SelectableFilesModel::buildTreeFinished()
@@ -131,8 +131,10 @@ bool SelectableFilesModel::filter(Tree *t)
     return false;
 }
 
-void SelectableFilesModel::buildTree(const QString &baseDir, Tree *tree, QFutureInterface<void> &fi)
+void SelectableFilesModel::buildTree(const QString &baseDir, Tree *tree, QFutureInterface<void> &fi, int symlinkDepth)
 {
+    if (symlinkDepth == 0)
+        return;
     const QFileInfoList fileInfoList = QDir(baseDir).entryInfoList(QDir::Files |
                                                                    QDir::Dirs |
                                                                    QDir::NoDotAndDotDot);
@@ -146,14 +148,12 @@ void SelectableFilesModel::buildTree(const QString &baseDir, Tree *tree, QFuture
         }
         ++m_futureCount;
         if (fileInfo.isDir()) {
-            if (fileInfo.isSymLink())
-                continue;
             Tree *t = new Tree;
             t->parent = tree;
             t->name = fileInfo.fileName();
             t->fullPath = fileInfo.filePath();
             t->isDir = true;
-            buildTree(fileInfo.filePath(), t, fi);
+            buildTree(fileInfo.filePath(), t, fi, symlinkDepth - fileInfo.isSymLink());
             allChecked &= t->checked == Qt::Checked;
             allUnchecked &= t->checked == Qt::Unchecked;
             tree->childDirectories.append(t);

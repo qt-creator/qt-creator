@@ -126,7 +126,7 @@ private:
     void run(QFutureInterface<void> &fi);
     void collectFiles(Tree *root, QStringList *result) const;
     void collectPaths(Tree *root, QStringList *result) const;
-    void buildTree(const QString &baseDir, Tree *tree, QFutureInterface<void> &fi);
+    void buildTree(const QString &baseDir, Tree *tree, QFutureInterface<void> &fi, int symlinkDepth);
     void deleteTree(Tree *tree);
     void propagateUp(const QModelIndex &index);
     void propagateDown(const QModelIndex &index);
