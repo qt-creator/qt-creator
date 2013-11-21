@@ -510,7 +510,7 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
 
          if ((valid || entry.forceImport())
                  && (entry.requiredImport().isEmpty()
-                     || model->hasImport(entryToImport(entry), true, false) || entry.forceImport())) {
+                     || model->hasImport(entryToImport(entry), true, true) || entry.forceImport())) {
             QString itemSectionName = entry.category();
             ItemLibrarySectionModel *sectionModel;
             ItemLibraryItemModel *itemModel;
