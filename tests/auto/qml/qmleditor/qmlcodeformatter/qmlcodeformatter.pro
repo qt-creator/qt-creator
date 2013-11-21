@@ -2,9 +2,9 @@ include(../../../qttest.pri)
 
 SRCDIR = ../../../../../src
 
-include($$SRCDIR/libs/qmljs/qmljs.pri)
-include($$SRCDIR/libs/utils/utils.pri)
-include($$SRCDIR/libs/languageutils/languageutils.pri)
+include($$SRCDIR/libs/qmljs/qmljs-lib.pri)
+include($$SRCDIR/libs/utils/utils-lib.pri)
+include($$SRCDIR/libs/languageutils/languageutils-lib.pri)
 
 SOURCES += \
     tst_qmlcodeformatter.cpp \

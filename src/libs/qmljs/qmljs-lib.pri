@@ -94,3 +94,5 @@ contains(QT, gui) {
         $$PWD/qmljscodeformatter.h \
         $$PWD/qmljsreformatter.h
 }
+
+QT += xml
