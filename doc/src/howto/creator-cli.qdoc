@@ -91,6 +91,11 @@
             \li  -profile
             \li  Output plugin start up and shut down profiling data.
 
+       \row
+            \li -pluginpath <path>
+            \li Add a path where \QC looks for plugins. To specify several
+                paths, add the \c{-pluginpath} option for each path.
+
         \row
             \li  -settingspath <path>
             \li  Override the default path where user settings are stored.
