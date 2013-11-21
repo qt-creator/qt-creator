@@ -119,6 +119,9 @@ void FormEditorItem::setHighlightBoundingRect(bool highlight)
 
 void FormEditorItem::blurContent(bool blurContent)
 {
+    if (!scene())
+        return;
+
     if (m_blurContent != blurContent) {
         m_blurContent = blurContent;
         update();
