@@ -154,7 +154,12 @@ def __createProjectHandleQtQuickSelection__(qtQuickVersion, withControls):
             selectFromCombo(comboBox, "Qt Quick 2.0")
     else:
         test.fatal("Got unknown Qt Quick version: %s - trying to continue." % str(qtQuickVersion))
+    label = waitForObject("{type='QLabel' unnamed='1' visible='1' text?='Creates a *' }")
+    requires = re.match(".*Requires Qt (\d\.\d).*", str(label.text))
+    if requires:
+        requires = requires.group(1)
     clickButton(waitForObject(":Next_QPushButton"))
+    return requires
 
 # Selects the Qt versions for a project
 # param checks turns tests in the function on if set to True
@@ -186,6 +191,30 @@ def __verifyFileCreation__(path, expectedFiles):
         if filename != path:
             filename = os.path.join(path, filename)
         test.verify(os.path.exists(filename), "Checking if '" + filename + "' was created")
+
+def __modifyAvailableTargets__(available, requiredQt, asStrings=False):
+    threeDigits = re.compile("\d{3}")
+    requiredQtVersion = requiredQt.replace(".", "") + "0"
+    tmp = list(available) # we need a deep copy
+    for currentItem in tmp:
+        if asStrings:
+            item = currentItem
+        else:
+            item = Targets.getStringForTarget(currentItem)
+        found = threeDigits.search(item)
+        if found:
+            if found.group(0) < requiredQtVersion:
+                # Quick 1.1 supports 4.7.4 only for running, debugging is unsupported
+                # so the least required version is 4.8, but 4.7.4 will be still listed
+                if not (requiredQtVersion == "480" and found.group(0) == "474"):
+                    available.remove(currentItem)
+            if requiredQtVersion > "480":
+                toBeRemoved = [Targets.EMBEDDED_LINUX, Targets.SIMULATOR]
+                if asStrings:
+                    toBeRemoved = Targets.getTargetsAsStrings(toBeRemoved)
+                for t in toBeRemoved:
+                    if t in available:
+                        available.remove(t)
 
 # Creates a Qt GUI project
 # param path specifies where to create the project
@@ -256,7 +285,8 @@ def createNewQtQuickApplication(workingDir, projectName = None,
                                 fromWelcome=False, withControls=False):
     available = __createProjectOrFileSelectType__("  Applications", "Qt Quick Application", fromWelcome)
     projectName = __createProjectSetNameAndPath__(workingDir, projectName)
-    __createProjectHandleQtQuickSelection__(qtQuickVersion, withControls)
+    requiredQt = __createProjectHandleQtQuickSelection__(qtQuickVersion, withControls)
+    __modifyAvailableTargets__(available, requiredQt)
     checkedTargets = __chooseTargets__(targets, available)
     snooze(1)
     clickButton(waitForObject(":Next_QPushButton"))
