@@ -62,7 +62,10 @@ public:
     Target targetAt(int index) const;
     int targetCount() const { return m_targets.size(); }
     int currentIndex() const { return m_currentTargetIndex; }
-    int currentSubIndex() const { return m_targets.at(m_currentTargetIndex).currentSubIndex; }
+    int currentSubIndex() const {
+        return m_currentTargetIndex == -1 ? -1
+                                          : m_targets.at(m_currentTargetIndex).currentSubIndex;
+    }
 
     void setTargetMenu(QMenu *menu);
 
