@@ -330,6 +330,7 @@ Rectangle {
             contentWidth: 0
             height: labels.height + labelsTail.height
             flickableDirection: Flickable.HorizontalFlick
+            boundsBehavior: Flickable.StopAtBounds
 
             onContentXChanged: view.updateZoomControl()
             clip:true
