@@ -250,7 +250,7 @@ void AndroidConfigurations::updateAvailableSdkPlatforms()
     QProcess proc;
     proc.setProcessEnvironment(androidToolEnvironment().toProcessEnvironment());
     proc.start(androidToolPath().toString(), QStringList() << QLatin1String("list") << QLatin1String("target")); // list avaialbe AVDs
-    if (!proc.waitForFinished(-1)) {
+    if (!proc.waitForFinished(5000)) {
         proc.terminate();
         return;
     }
@@ -460,7 +460,7 @@ QVector<AndroidDeviceInfo> AndroidConfigurations::connectedDevices(QString *erro
     QVector<AndroidDeviceInfo> devices;
     QProcess adbProc;
     adbProc.start(adbToolPath().toString(), QStringList() << QLatin1String("devices"));
-    if (!adbProc.waitForFinished(-1)) {
+    if (!adbProc.waitForFinished(5000)) {
         adbProc.kill();
         if (error)
             *error = tr("Could not run: %1").arg(adbToolPath().toString() + QLatin1String(" devices"));
@@ -579,7 +579,7 @@ bool AndroidConfigurations::removeAVD(const QString &name) const
     proc.start(androidToolPath().toString(),
                QStringList() << QLatin1String("delete") << QLatin1String("avd")
                << QLatin1String("-n") << name);
-    if (!proc.waitForFinished(-1)) {
+    if (!proc.waitForFinished(5000)) {
         proc.terminate();
         return false;
     }
@@ -593,7 +593,7 @@ QVector<AndroidDeviceInfo> AndroidConfigurations::androidVirtualDevices() const
     proc.setProcessEnvironment(androidToolEnvironment().toProcessEnvironment());
     proc.start(androidToolPath().toString(),
                QStringList() << QLatin1String("list") << QLatin1String("avd")); // list available AVDs
-    if (!proc.waitForFinished(-1)) {
+    if (!proc.waitForFinished(5000)) {
         proc.terminate();
         return devices;
     }
@@ -725,7 +725,7 @@ bool AndroidConfigurations::isBootToQt(const QString &device) const
 
     QProcess adbProc;
     adbProc.start(adbToolPath().toString(), arguments);
-    if (!adbProc.waitForFinished(-1)) {
+    if (!adbProc.waitForFinished(5000)) {
         adbProc.kill();
         return false;
     }
@@ -741,7 +741,7 @@ int AndroidConfigurations::getSDKVersion(const QString &device) const
 
     QProcess adbProc;
     adbProc.start(adbToolPath().toString(), arguments);
-    if (!adbProc.waitForFinished(-1)) {
+    if (!adbProc.waitForFinished(5000)) {
         adbProc.kill();
         return -1;
     }
@@ -764,7 +764,7 @@ QString AndroidConfigurations::getProductModel(const QString &device) const
 
     QProcess adbProc;
     adbProc.start(adbToolPath().toString(), arguments);
-    if (!adbProc.waitForFinished(-1)) {
+    if (!adbProc.waitForFinished(5000)) {
         adbProc.kill();
         return device;
     }
@@ -784,7 +784,7 @@ bool AndroidConfigurations::hasFinishedBooting(const QString &device) const
 
     QProcess adbProc;
     adbProc.start(adbToolPath().toString(), arguments);
-    if (!adbProc.waitForFinished(-1)) {
+    if (!adbProc.waitForFinished(5000)) {
         adbProc.kill();
         return false;
     }
@@ -807,7 +807,7 @@ QStringList AndroidConfigurations::getAbis(const QString &device) const
 
         QProcess adbProc;
         adbProc.start(adbToolPath().toString(), arguments);
-        if (!adbProc.waitForFinished(-1)) {
+        if (!adbProc.waitForFinished(5000)) {
             adbProc.kill();
             return result;
         }
