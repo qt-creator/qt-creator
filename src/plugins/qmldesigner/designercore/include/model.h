@@ -99,6 +99,8 @@ public:
     QList<Import> possibleImports() const;
     QList<Import> usedImports() const;
     void changeImports(const QList<Import> &importsToBeAdded, const QList<Import> &importsToBeRemoved);
+    void setPossibleImports(const QList<Import> &possibleImports);
+    void setUsedImports(const QList<Import> &usedImports);
     bool hasImport(const Import &import, bool ignoreAlias = true, bool allowHigherVersion = false);
     QString pathForImport(const Import &import);
 

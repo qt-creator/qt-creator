@@ -48,6 +48,7 @@
 #include <qmljs/qmljsutils.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsqrcparser.h>
+#include <qmljs/qmljsinterpreter.h>
 
 #include <utils/qtcassert.h>
 
@@ -726,6 +727,67 @@ void TextToModelMerger::setupImports(const Document::Ptr &doc,
         differenceHandler.importAbsentInQMl(import);
 }
 
+void TextToModelMerger::setupPossibleImports(const QmlJS::Snapshot &snapshot, const QmlJS::ViewerContext &viewContext)
+{
+    QList<Import> possibleImports;
+
+    QSet<ImportKey> possibleImportKeys = snapshot.importDependencies()->libraryImports(viewContext);
+
+    QHash<QString, ImportKey> filteredPossibleImportKeys;
+    foreach (const ImportKey &importKey, possibleImportKeys) {
+        if (!filteredPossibleImportKeys.contains(importKey.path())
+                || filteredPossibleImportKeys.value(importKey.path()).majorVersion < importKey.majorVersion
+                || (filteredPossibleImportKeys.value(importKey.path()).majorVersion == importKey.majorVersion
+                    && filteredPossibleImportKeys.value(importKey.path()).minorVersion < importKey.minorVersion))
+        filteredPossibleImportKeys.insert(importKey.path(), importKey);
+    }
+
+    filteredPossibleImportKeys.remove(QLatin1String("<cpp>"));
+    filteredPossibleImportKeys.remove(QLatin1String("QML"));
+    filteredPossibleImportKeys.remove(QLatin1String("QtQml"));
+    filteredPossibleImportKeys.remove(QLatin1String("QtQuick/PrivateWidgets"));
+
+    QList<QmlJS::Import> allImports = m_scopeChain->context()->imports(m_document.data())->all();
+
+    foreach (const QmlJS::Import &import, allImports) {
+        filteredPossibleImportKeys.remove(import.info.path());
+    }
+
+    foreach (const ImportKey &importKey, filteredPossibleImportKeys) {
+        QString libraryName = importKey.splitPath.join(QLatin1Char('.'));
+        QString version = QString(QStringLiteral("%1.%2").arg(importKey.majorVersion).arg(importKey.minorVersion));
+        possibleImports.append(Import::createLibraryImport(libraryName, version));
+    }
+
+    if ( m_rewriterView->isAttached())
+        m_rewriterView->model()->setPossibleImports(possibleImports);
+}
+
+void TextToModelMerger::setupUsedImports()
+{
+     QList<QmlJS::Import> allImports = m_scopeChain->context()->imports(m_document.data())->all();
+
+     QList<Import> usedImports;
+
+     foreach (const QmlJS::Import &import, allImports) {
+         if (import.used) {
+            if (import.info.type() == ImportType::Library) {
+                usedImports.append(Import::createLibraryImport(import.info.name(), import.info.version().toString(), import.info.as()));
+            } else if (import.info.type() == ImportType::Directory || import.info.type() == ImportType::File) {
+                usedImports.append(Import::createFileImport(import.info.name(), import.info.version().toString(), import.info.as()));
+            }
+         }
+     }
+     // even if not explicitly used we probably want to keep QtQuick imports
+     usedImports.append(Import::createLibraryImport("QtQuick", "1.0"));
+     usedImports.append(Import::createLibraryImport("QtQuick", "1.1"));
+     usedImports.append(Import::createLibraryImport("QtQuick", "2.0"));
+     usedImports.append(Import::createLibraryImport("QtQuick", "2.1"));
+
+    if (m_rewriterView->isAttached())
+        m_rewriterView->model()->setUsedImports(usedImports);
+}
+
 bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceHandler)
 {
 //    qDebug() << "TextToModelMerger::load with data:" << data;
@@ -768,6 +830,8 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
         }
 
         setupImports(doc, differenceHandler);
+        setupPossibleImports(snapshot, vContext);
+        setupUsedImports();
 
         if (m_rewriterView->model()->imports().isEmpty()) {
             const QmlJS::DiagnosticMessage diagnosticMessage(QmlJS::Severity::Error, AST::SourceLocation(0, 0, 0, 0), QCoreApplication::translate("QmlDesigner::TextToModelMerger", "No import statements found"));

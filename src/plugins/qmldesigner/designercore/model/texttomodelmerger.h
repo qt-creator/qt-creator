@@ -59,6 +59,8 @@ public:
     bool isActive() const;
 
     void setupImports(const QmlJS::Document::Ptr &doc, DifferenceHandler &differenceHandler);
+    void setupPossibleImports(const QmlJS::Snapshot &snapshot, const QmlJS::ViewerContext &viewContext);
+    void setupUsedImports();
     bool load(const QString &data, DifferenceHandler &differenceHandler);
 
     RewriterView *view() const
