@@ -350,7 +350,7 @@ void interactiveCompletionTester(){
         res = matchStrengthSort(line,res);
         qDebug() << "possible completions:[";
         foreach (const QString &s, res) {
-            qDebug() << s;
+            qDebug() << matchStrength(line,s) << " " << s;
         }
         qDebug() << "]";
     }
