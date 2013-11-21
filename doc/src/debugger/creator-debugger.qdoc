@@ -901,7 +901,7 @@
 
         \li There is no GDB to communicate with MSVC compiled applications on
             Windows. So information can be displayed nicely only in a limited
-            fashion by using a cdb extension DLL.
+            fashion by using a CDB extension DLL.
 
     \endlist
 
