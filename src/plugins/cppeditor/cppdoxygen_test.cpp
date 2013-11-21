@@ -170,7 +170,7 @@ void CppEditorPlugin::test_doxygen_comments_data()
         "bool preventFolding;\n"
         "/*!\n"
         " * \\brief a\n"
-        " *\n"
+        " * \n"
         " */\n"
         "int a;\n"
     );
@@ -197,7 +197,7 @@ void CppEditorPlugin::test_doxygen_comments_data()
         "bool preventFolding;\n"
         "/**\n"
         " * @brief a\n"
-        " *\n"
+        " * \n"
         " */\n"
         "int a;\n"
     );
@@ -236,7 +236,7 @@ void CppEditorPlugin::test_doxygen_comments_data()
          "bool preventFolding;\n"
          "///\n"
          "/// \\brief a\n"
-         "///\n"
+         "/// \n"
          "///\n"
          "int a;\n"
      );
@@ -265,7 +265,7 @@ void CppEditorPlugin::test_doxygen_comments_data()
          "    bool preventFolding;\n"
          "    ///\n"
          "    /// \\brief a\n"
-         "    ///\n"
+         "    /// \n"
          "    ///\n"
          "    int a;\n"
     );
