@@ -138,6 +138,7 @@ private:
     bool m_dirty; // indicates that we need to call syncToEditor()
     bool m_stayClean;
     bool m_setAppName;
+    bool m_appNameInStringsXml;
     int m_errorLine;
     int m_errorColumn;
 
