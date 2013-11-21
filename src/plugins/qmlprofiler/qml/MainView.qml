@@ -317,7 +317,7 @@ Rectangle {
             id: backgroundMarks
             y: vertflick.contentY
             height: vertflick.height
-            anchors.right: parent.right
+            width: root.width - labels.width
             anchors.left: labels.right
         }
 
