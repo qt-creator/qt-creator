@@ -66,6 +66,11 @@ const QLatin1String ManualNDKsGroup("ManualNDKs");
 const QLatin1String ActiveNDKsGroup("ActiveNDKs");
 }
 
+static bool sortConfigurationsByVersion(const BlackBerryConfiguration *a, const BlackBerryConfiguration *b)
+{
+    return a->version() > b->version();
+}
+
 BlackBerryConfigurationManager::BlackBerryConfigurationManager(QObject *parent)
     :QObject(parent)
 {
@@ -90,8 +95,7 @@ void BlackBerryConfigurationManager::loadManualConfigurations()
             ndkEnvPath = QnxUtils::envFilePath(ndkPath);
         }
 
-        BlackBerryConfiguration *config = new BlackBerryConfiguration(Utils::FileName::fromString(ndkEnvPath),
-                                                                      false);
+        BlackBerryConfiguration *config = new BlackBerryConfiguration(Utils::FileName::fromString(ndkEnvPath));
         if (!addConfiguration(config))
             delete config;
 
@@ -106,9 +110,7 @@ void BlackBerryConfigurationManager::loadAutoDetectedConfigurations()
 {
     QStringList activePaths = activeConfigurationNdkEnvPaths();
     foreach (const NdkInstallInformation &ndkInfo, QnxUtils::installedNdks()) {
-        QString envFilePath = QnxUtils::envFilePath(ndkInfo.path, ndkInfo.version);
-        BlackBerryConfiguration *config = new BlackBerryConfiguration(Utils::FileName::fromString(envFilePath),
-                                                                      true, ndkInfo.name);
+        BlackBerryConfiguration *config = new BlackBerryConfiguration(ndkInfo);
         if (!addConfiguration(config)) {
             delete config;
             continue;
@@ -242,7 +244,9 @@ bool BlackBerryConfigurationManager::addConfiguration(BlackBerryConfiguration *c
     }
 
     if (config->isValid()) {
-        m_configs.append(config);
+        QList<BlackBerryConfiguration *>::iterator it = qLowerBound(m_configs.begin(), m_configs.end(),
+                                                                    config, &sortConfigurationsByVersion);
+        m_configs.insert(it, config);
         return true;
     }
 

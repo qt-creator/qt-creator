@@ -479,7 +479,7 @@ void BlackBerryInstallWizardFinalPage::initializePage()
         BlackBerryConfiguration *config = configManager.configurationFromEnvFile(Utils::FileName::fromString(m_data.ndkPath));
 
         if (!config) {
-            config = new BlackBerryConfiguration(Utils::FileName::fromString(m_data.ndkPath), false);
+            config = new BlackBerryConfiguration(Utils::FileName::fromString(m_data.ndkPath));
             if (!configManager.addConfiguration(config)) {
                 delete config;
                 // TODO: more explicit error message!

@@ -32,6 +32,8 @@
 #ifndef BLACKBERRYCONFIGURATIONS_H
 #define BLACKBERRYCONFIGURATIONS_H
 
+#include "qnxutils.h"
+#include "blackberryversionnumber.h"
 #include "qnxconstants.h"
 
 #include <utils/environment.h>
@@ -60,13 +62,15 @@ class BlackBerryConfiguration
 {
     Q_DECLARE_TR_FUNCTIONS(Qnx::Internal::BlackBerryConfiguration)
 public:
-    BlackBerryConfiguration(const Utils::FileName &ndkEnvFile, bool isAutoDetected, const QString &displayName = QString());
+    BlackBerryConfiguration(const NdkInstallInformation &ndkInstallInfo);
+    BlackBerryConfiguration(const Utils::FileName &ndkEnvFile);
     bool activate();
     void deactivate();
     QString ndkPath() const;
     QString displayName() const;
     QString targetName() const;
     QString qnxHost() const;
+    BlackBerryVersionNumber version() const;
     bool isAutoDetected() const;
     bool isActive() const;
     bool isValid() const;
@@ -84,6 +88,7 @@ private:
     QString m_targetName;
     QString m_qnxHost;
     bool m_isAutoDetected;
+    BlackBerryVersionNumber m_version;
     Utils::FileName m_ndkEnvFile;
     Utils::FileName m_qmake4BinaryFile;
     Utils::FileName m_qmake5BinaryFile;
@@ -93,6 +98,7 @@ private:
     Utils::FileName m_sysRoot;
     QList<Utils::EnvironmentItem> m_qnxEnv;
 
+    void ctor();
     QnxAbstractQtVersion* createQtVersion(
             const Utils::FileName &qmakePath, Qnx::QnxArchitecture arch, const QString &versionName);
     QnxToolChain* createToolChain(

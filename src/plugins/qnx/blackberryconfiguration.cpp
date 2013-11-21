@@ -33,7 +33,8 @@
 #include "blackberryqtversion.h"
 
 #include "qnxtoolchain.h"
-#include "qnxutils.h"
+
+#include <utils/qtcassert.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/kitmanager.h>
@@ -62,14 +63,30 @@ using namespace Debugger;
 namespace Qnx {
 namespace Internal {
 
-BlackBerryConfiguration::BlackBerryConfiguration(const FileName &ndkEnvFile, bool isAutoDetected,
-                                                 const QString &displayName)
+BlackBerryConfiguration::BlackBerryConfiguration(const NdkInstallInformation &ndkInstallInfo)
+    : m_isAutoDetected(true)
 {
-    Q_ASSERT(!QFileInfo(ndkEnvFile.toString()).isDir());
+    QString envFilePath = QnxUtils::envFilePath(ndkInstallInfo.path, ndkInstallInfo.version);
+    QTC_ASSERT(!envFilePath.isEmpty(), return);
+    m_ndkEnvFile = Utils::FileName::fromString(envFilePath);
+    m_displayName = ndkInstallInfo.name;
+    m_qnxEnv = QnxUtils::qnxEnvironmentFromNdkFile(m_ndkEnvFile.toString());
+    QString sep = QString::fromLatin1("/qnx6");
+    // The QNX_TARGET value is using Unix-like separator on all platforms.
+    m_targetName = ndkInstallInfo.target.split(sep).first().split(QLatin1Char('/')).last();
+    m_qnxHost = ndkInstallInfo.host;
+    m_sysRoot = FileName::fromString(ndkInstallInfo.target);
+    m_version = BlackBerryVersionNumber(ndkInstallInfo.version);
+    ctor();
+}
+
+BlackBerryConfiguration::BlackBerryConfiguration(const FileName &ndkEnvFile)
+    : m_isAutoDetected(false)
+{
+    QTC_ASSERT(!QFileInfo(ndkEnvFile.toString()).isDir(), return);
     m_ndkEnvFile = ndkEnvFile;
-    m_isAutoDetected = isAutoDetected;
-    QString ndkPath = ndkEnvFile.parentDir().toString();
-    m_displayName = displayName.isEmpty() ? ndkPath.split(QDir::separator()).last() : displayName;
+    QString ndkPath = m_ndkEnvFile.parentDir().toString();
+    m_displayName = ndkPath.split(QDir::separator()).last();
     m_qnxEnv = QnxUtils::qnxEnvironmentFromNdkFile(m_ndkEnvFile.toString());
 
     QString ndkTarget;
@@ -89,6 +106,15 @@ BlackBerryConfiguration::BlackBerryConfiguration(const FileName &ndkEnvFile, boo
     if (QDir(ndkTarget).exists())
         m_sysRoot = FileName::fromString(ndkTarget);
 
+    m_version = BlackBerryVersionNumber::fromNdkEnvFileName(QFileInfo(m_ndkEnvFile.toString()).baseName());
+    if (m_version.isEmpty())
+        m_version = BlackBerryVersionNumber::fromTargetName(m_targetName);
+
+    ctor();
+}
+
+void BlackBerryConfiguration::ctor()
+{
     FileName qmake4Path = QnxUtils::executableWithExtension(FileName::fromString(m_qnxHost + QLatin1String("/usr/bin/qmake")));
     FileName qmake5Path = QnxUtils::executableWithExtension(FileName::fromString(m_qnxHost + QLatin1String("/usr/bin/qt5/qmake")));
     FileName gccPath = QnxUtils::executableWithExtension(FileName::fromString(m_qnxHost + QLatin1String("/usr/bin/qcc")));
@@ -129,6 +155,11 @@ QString BlackBerryConfiguration::targetName() const
 QString BlackBerryConfiguration::qnxHost() const
 {
     return m_qnxHost;
+}
+
+BlackBerryVersionNumber BlackBerryConfiguration::version() const
+{
+    return m_version;
 }
 
 bool BlackBerryConfiguration::isAutoDetected() const

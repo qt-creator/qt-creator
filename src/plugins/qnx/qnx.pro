@@ -98,7 +98,8 @@ SOURCES += qnxplugin.cpp \
     qnxdeviceprocesssignaloperation.cpp \
     qnxdeviceprocesslist.cpp \
     qnxtoolchain.cpp \
-    slog2inforunner.cpp
+    slog2inforunner.cpp \
+    blackberryversionnumber.cpp
 
 HEADERS += qnxplugin.h\
     qnxconstants.h \
@@ -196,7 +197,8 @@ HEADERS += qnxplugin.h\
     qnxdeviceprocesssignaloperation.h \
     qnxdeviceprocesslist.h \
     qnxtoolchain.h \
-    slog2inforunner.h
+    slog2inforunner.h \
+    blackberryversionnumber.h
 
 
 FORMS += \

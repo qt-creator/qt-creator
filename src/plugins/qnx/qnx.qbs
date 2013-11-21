@@ -185,6 +185,8 @@ QtcPlugin {
         "blackberrysetupwizardfinishpage.ui",
         "blackberrysigningutils.cpp",
         "blackberrysigningutils.h",
+        "blackberryversionnumber.cpp",
+        "blackberryversionnumber.h",
         "pathchooserdelegate.cpp",
         "pathchooserdelegate.h",
         "qnxtoolchain.cpp",
