@@ -39,7 +39,7 @@ RangeMover {
     property string durationString: detailedPrintTime(duration)
 
     property real startTime: getLeft() * viewTimePerPixel + qmlProfilerModelProxy.traceStartTime()
-    property real duration: getWidth() * viewTimePerPixel
+    property real duration: Math.max(getWidth() * viewTimePerPixel, 500)
     property real viewTimePerPixel: 1
     property int creationState : 0
 
