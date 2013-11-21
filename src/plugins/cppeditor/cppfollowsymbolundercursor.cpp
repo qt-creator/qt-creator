@@ -119,7 +119,7 @@ bool VirtualFunctionHelper::canLookupVirtualFunctionOverrides(Function *function
 {
     m_function = function;
     if (!m_function || !m_baseExpressionAST || !m_expressionDocument || !m_document || !m_scope
-            || m_scope->isClass() || m_snapshot.isEmpty()) {
+            || m_scope->isClass() || m_scope->isFunction() || m_snapshot.isEmpty()) {
         return false;
     }
 
