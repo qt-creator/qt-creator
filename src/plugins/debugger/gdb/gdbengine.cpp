@@ -4308,10 +4308,8 @@ void GdbEngine::assignValueInDebugger(const WatchData *data,
             + value.toString().toUtf8().toHex();
         postCommand(cmd, Discardable, CB(handleVarAssign));
     } else {
-        postCommand("-var-delete assign");
-        postCommand("-var-create assign * " + expression.toLatin1());
-        postCommand("-var-assign assign " +
-                GdbMi::escapeCString(value.toString().toLatin1()),
+        postCommand("set variable (" + expression.toLatin1() + ")="
+            + GdbMi::escapeCString(value.toString().toLatin1()),
             Discardable, CB(handleVarAssign));
     }
 }
