@@ -75,6 +75,8 @@ static inline QStringList importPaths() {
 
 static inline bool checkIfDerivedFromItem(const QString &fileName)
 {
+    return true;
+
     QmlJS::Snapshot snapshot;
 
 
