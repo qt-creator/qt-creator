@@ -138,6 +138,7 @@ DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(KitChooser *chooser, 
     processFilterLineEdit = new FilterLineEdit(q);
     processFilterLineEdit->setPlaceholderText(DeviceProcessesDialog::tr("Filter"));
     processFilterLineEdit->setFocus(Qt::TabFocusReason);
+    processFilterLineEdit->setHistoryCompleter(QLatin1String("DeviceProcessDialogFilter"));
 
     kitChooser->populate();
 
@@ -184,6 +185,8 @@ DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(KitChooser *chooser, 
 //    QFrame *line = new QFrame(this);
 //    line->setFrameShape(QFrame::HLine);
 //    line->setFrameShadow(QFrame::Sunken);
+
+    proxyModel.setFilterRegExp(processFilterLineEdit->text());
 
     connect(processFilterLineEdit, SIGNAL(textChanged(QString)),
         &proxyModel, SLOT(setFilterRegExp(QString)));
