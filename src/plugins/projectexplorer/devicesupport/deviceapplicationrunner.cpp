@@ -35,7 +35,6 @@
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
 
-#include <QCoreApplication>
 #include <QStringList>
 #include <QTimer>
 
@@ -101,8 +100,7 @@ void DeviceApplicationRunner::start(const IDevice::ConstPtr &device,
     }
 
     if (command.isEmpty()) {
-        emit reportError(QCoreApplication::translate("RemoteLinux::RemoteLinuxRunConfiguration",
-                                                     "Don't know what to run.")); // FIXME: Transitional message for 3.0.
+        emit reportError(tr("Cannot run: No command given."));
         setFinished();
         return;
     }
