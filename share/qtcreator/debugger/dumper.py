@@ -601,7 +601,7 @@ class DumperBase:
         if format == 0:
             # Explicitly requested bald pointer.
             self.putType(typeName)
-            self.putPointerValue(value)
+            self.putValue(b16encode(str(value)), Hex2EncodedUtf8WithoutQuotes)
             self.putNumChild(1)
             if self.currentIName in self.expandedINames:
                 with Children(self):
