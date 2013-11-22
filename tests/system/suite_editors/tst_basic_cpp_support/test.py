@@ -45,10 +45,6 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    overrideInstallLazySignalHandler()
-    # used simplified object to omit the visible property - causes Squish problem here otherwise
-    installLazySignalHandler("{type='CppEditor::Internal::CPPEditorWidget'}", "textChanged()",
-                             "__handleTextChanged__")
     openQmakeProject(proFile)
     progressBarWait(20000)
     selectFromLocator("dummy.cpp")
@@ -114,17 +110,11 @@ def main():
     test.compare(lineUnderCursor(findObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")), "Dummy::Dummy(int)")
     invokeMenuItem("File", "Exit")
 
-def __handleTextChanged__(*args):
-    global textChanged
-    textChanged = True
-
 def __typeAndWaitForAction__(editor, keyCombination):
-    global textChanged
-    textChanged = False
+    origTxt = str(editor.plainText)
     cursorPos = editor.textCursor().position()
     type(editor, keyCombination)
-    waitFor("textChanged or cppEditorPositionChanged(cursorPos)", 2000)
-    if not (textChanged or cppEditorPositionChanged(cursorPos)):
+    if not waitFor("cppEditorPositionChanged(cursorPos) or origTxt != str(editor.plainText)", 2000):
         test.warning("Waiting timed out...")
 
 def cppEditorPositionChanged(origPos):
