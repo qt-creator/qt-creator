@@ -644,20 +644,13 @@ class DumperBase:
             self.putNumChild(0)
             return True
 
-        if format == 6:
-            # Explicitly requested formatting as array of 10 items.
+        if format >= 6 and format <= 9:
+            # Explicitly requested formatting as array of n items.
+            n = (10, 100, 1000, 10000)[format - 6]
             self.putType(typeName)
-            self.putItemCount(10)
-            self.putNumChild(10)
-            self.putArrayData(innerType, value, 10)
-            return True
-
-        if format == 7:
-            # Explicitly requested formatting as array of 1000 items.
-            self.putType(typeName)
-            self.putItemCount(1000)
-            self.putNumChild(1000)
-            self.putArrayData(innerType, value, 1000)
+            self.putItemCount(n)
+            self.putNumChild(n)
+            self.putArrayData(innerType, value, n)
             return True
 
         if self.isFunctionType(innerType):

@@ -1230,8 +1230,10 @@ QStringList WatchModel::typeFormatList(const WatchData &data) const
             << tr("Local 8bit string")
             << tr("UTF16 string")
             << tr("UCS4 string")
-            << tr("Array of 10 items")
-            << tr("Array of 1000 items");
+            << tr("Array of %1 items").arg(10)
+            << tr("Array of %1 items").arg(100)
+            << tr("Array of %1 items").arg(1000)
+            << tr("Array of %1 items").arg(10000);
     if (data.type.contains("char[") || data.type.contains("char ["))
         return QStringList()
             << tr("Latin1 string")
