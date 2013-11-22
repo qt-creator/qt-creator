@@ -60,7 +60,8 @@
     \section1 Viewing Function Tooltips
 
     To hide function tooltips by default, select \gui {Tools > Options >
-    Text Editor > Show help tooltips using the mouse > On Shift+Mouseover}. You
+    Text Editor > Behavior > Show help tooltips using the mouse >
+    On Shift+Mouseover}. You
     can still view the tooltips by pressing and holding down the \key Shift
     key.
 
@@ -110,7 +111,7 @@
             (\gui {Add Bookmark}) button on the toolbar.
 
         \li In the \gui {Add Bookmark} dialog, click \gui OK to save the
-            page title as a bookmark in the \gui Bookmarks folder.
+            page title as a bookmark in the selected folder.
 
     \endlist
 
