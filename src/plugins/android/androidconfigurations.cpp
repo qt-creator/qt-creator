@@ -37,6 +37,7 @@
 #include "androiddevicedialog.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 #include <utils/hostosinfo.h>
 #include <utils/persistentsettings.h>
 #include <projectexplorer/kitmanager.h>
@@ -564,6 +565,8 @@ QString AndroidConfigurations::createAVD(const QString &target, const QString &n
         if (proc.state() != QProcess::Running)
             break;
     }
+
+    Core::MessageManager::write(QString::fromLocal8Bit(question), Core::MessageManager::Flash);
 
     proc.waitForFinished();
 
