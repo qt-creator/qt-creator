@@ -1443,7 +1443,7 @@ void GitClient::show(const QString &source, const QString &id,
 
         GitDiffHandler *handler = new GitDiffHandler(diffEditor,
                                                      gitBinaryPath(),
-                                                     workingDirectory,
+                                                     findRepositoryForDirectory(workingDirectory),
                                                      processEnvironment(),
                                                      settings()->intValue(GitSettings::timeoutKey));
         handler->show(id);

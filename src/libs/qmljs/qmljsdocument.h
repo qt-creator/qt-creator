@@ -39,11 +39,13 @@
 #include "parser/qmljsengine_p.h"
 #include "qmljs_global.h"
 #include "qmljsconstants.h"
+#include "qmljsimportdependencies.h"
 
 namespace QmlJS {
 
 class Bind;
 class Snapshot;
+class ImportDependencies;
 
 class QMLJS_EXPORT Document
 {
@@ -69,6 +71,8 @@ public:
     Language::Enum language() const;
     void setLanguage(Language::Enum l);
 
+    QString importId() const;
+    QByteArray fingerprint() const;
     AST::UiProgram *qmlProgram() const;
     AST::Program *jsProgram() const;
     AST::ExpressionNode *expression() const;
@@ -111,6 +115,7 @@ private:
     QString _componentName;
     QString _source;
     QWeakPointer<Document> _ptr;
+    QByteArray _fingerprint;
     int _editorRevision;
     Language::Enum _language;
     bool _parsedCorrectly;
@@ -125,6 +130,8 @@ public:
     QString uri;
     LanguageUtils::ComponentVersion version;
     QString cppName;
+
+    void addToHash(QCryptographicHash &hash) const;
 };
 
 class QMLJS_EXPORT LibraryInfo
@@ -152,14 +159,20 @@ private:
     typedef QList<LanguageUtils::FakeMetaObject::ConstPtr> FakeMetaObjectList;
     FakeMetaObjectList _metaObjects;
     QList<ModuleApiInfo> _moduleApis;
+    QByteArray _fingerprint;
 
     PluginTypeInfoStatus _dumpStatus;
     QString _dumpError;
 
 public:
     explicit LibraryInfo(Status status = NotScanned);
-    explicit LibraryInfo(const QmlDirParser &parser);
+    explicit LibraryInfo(const QmlDirParser &parser, const QByteArray &fingerprint = QByteArray());
     ~LibraryInfo();
+
+    QByteArray calculateFingerprint() const;
+    void updateFingerprint();
+    QByteArray fingerprint() const
+    { return _fingerprint; }
 
     QList<QmlDirParser::Component> components() const
     { return _components; }
@@ -188,6 +201,9 @@ public:
     bool wasScanned() const
     { return _status != NotScanned; }
 
+    bool wasFound() const
+    { return _status != NotFound; }
+
     PluginTypeInfoStatus pluginTypeInfoStatus() const
     { return _dumpStatus; }
 
@@ -204,9 +220,11 @@ class QMLJS_EXPORT Snapshot
     QHash<QString, Document::Ptr> _documents;
     QHash<QString, QList<Document::Ptr> > _documentsByPath;
     QHash<QString, LibraryInfo> _libraries;
+    ImportDependencies _dependencies;
 
 public:
     Snapshot();
+    Snapshot(const Snapshot &o);
     ~Snapshot();
 
     typedef _Base::iterator iterator;
@@ -218,6 +236,9 @@ public:
     void insert(const Document::Ptr &document, bool allowInvalid = false);
     void insertLibraryInfo(const QString &path, const LibraryInfo &info);
     void remove(const QString &fileName);
+
+    const ImportDependencies *importDependencies() const;
+    ImportDependencies *importDependencies();
 
     Document::Ptr document(const QString &fileName) const;
     QList<Document::Ptr> documentsInDirectory(const QString &path) const;

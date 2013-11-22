@@ -31,7 +31,7 @@
 
     To use Qbs to build a project, you must create a .qbs file for the project.
     For more information, see the
-    \l{http://doc-snapshot.qt-project.org/qbs/index.html}{Qbs Manual}.
+    \l{http://qt-project.org/doc/qbs/index.html}{Qbs Manual}.
 
     \section1 Enabling the Qbs Plugin
 
@@ -58,18 +58,20 @@
 
     \list 1
 
-        \li Create a .qbs file for your project. For examples, see the
-            \c {tests\manual} directory in the qbs repository.
-
-        \li In \QC, select \gui File > \gui {Open File or Project}.
-
-        \li Select the .qbs file for your project.
+        \li Select \gui File > \gui {New File or Project} > \gui {Plain C
+            Project (Qbs Build)} or \gui {Plain C++ Project (Qbs Build)} >
+            \gui Choose, and follow the instructions of the wizard to create a
+            Qbs project.
 
             \image creator-qbs-project.png
 
+        \li Edit the .qbs file for you project. Usually, you must add the
+            \c Depends item for a Qt application. For examples, see the
+            \c {examples} directory in the qbs repository.
+
         \li Click the
             \inlineimage qtcreator-run.png
-            (\gui Run) button to run the application.
+            (\gui Run) button to build, deploy, and run the application.
 
         \endlist
 

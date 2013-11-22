@@ -35,6 +35,7 @@ QtcLibrary {
             "qmljsevaluate.cpp", "qmljsevaluate.h",
             "qmljsicons.cpp", "qmljsicons.h",
             "qmljsicontextpane.h",
+            "qmljsimportdependencies.cpp", "qmljsimportdependencies.h",
             "qmljsindenter.cpp", "qmljsindenter.h",
             "qmljsinterpreter.cpp", "qmljsinterpreter.h",
             "qmljslineinfo.cpp", "qmljslineinfo.h",
@@ -52,7 +53,8 @@ QtcLibrary {
             "qmljsstaticanalysismessage.cpp", "qmljsstaticanalysismessage.h",
             "qmljstypedescriptionreader.cpp", "qmljstypedescriptionreader.h",
             "qmljsutils.cpp", "qmljsutils.h",
-            "qmljsvalueowner.cpp", "qmljsvalueowner.h"
+            "qmljsvalueowner.cpp", "qmljsvalueowner.h",
+            "qmljsviewercontext.cpp", "qmljsviewercontext.h"
         ]
     }
 

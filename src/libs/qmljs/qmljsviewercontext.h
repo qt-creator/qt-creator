@@ -27,61 +27,37 @@
 **
 ****************************************************************************/
 
-#include <QDebug>
+#ifndef VIEWERCONTEXT_H
+#define VIEWERCONTEXT_H
 
-#include <QApplication>
+#include "qmljs_global.h"
+#include "qmljsconstants.h"
+
 #include <QStringList>
-#ifdef QT_SIMULATOR
-#include <private/qsimulatorconnection_p.h>
-#endif
 
-#include <iostream>
+namespace QmlJS {
 
-#include <qt4nodeinstanceclientproxy.h>
-
-#ifdef ENABLE_QT_BREAKPAD
-#include <qtsystemexceptionhandler.h>
-#endif
-
-#ifdef Q_OS_WIN
-#include <windows.h>
-#endif
-
-int main(int argc, char *argv[])
+class QMLJS_EXPORT ViewerContext
 {
-#ifdef QT_SIMULATOR
-    QtSimulatorPrivate::SimulatorConnection::createStubInstance();
-#endif
+public:
+    enum Flags {
+        Complete,
+        AddAllPaths,
+        AddQtPath
+    };
 
-#ifdef Q_OS_MAC //This keeps qml2puppet from stealing focus
-    qputenv("QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM", "true");
-#endif
+    ViewerContext();
+    ViewerContext(QStringList selectors, QStringList paths,
+                  Language::Enum language = Language::Qml,
+                  Flags flags = AddAllPaths);
 
-    QApplication application(argc, argv);
+    bool languageIsCompatible(Language::Enum l) const;
 
-    QCoreApplication::setOrganizationName("QtProject");
-    QCoreApplication::setOrganizationDomain("qt-project.org");
-    QCoreApplication::setApplicationName("QmlPuppet");
-    QCoreApplication::setApplicationVersion("2.0.0");
+    QStringList selectors;
+    QStringList paths;
+    Language::Enum language;
+    Flags flags;
+};
 
-
-    if (application.arguments().count() == 2 && application.arguments().at(1) == "--version") {
-        std::cout << 2;
-        return 0;
-    }
-
-    if (application.arguments().count() < 4)
-        return -1;
-
-#ifdef ENABLE_QT_BREAKPAD
-    QtSystemExceptionHandler systemExceptionHandler;
-#endif
-
-    new QmlDesigner::Qt4NodeInstanceClientProxy(&application);
-
-#if defined(Q_OS_WIN) && defined(QT_NO_DEBUG) && !defined(ENABLE_QT_BREAKPAD)
-    SetErrorMode(SEM_NOGPFAULTERRORBOX); //We do not want to see any message boxes
-#endif
-
-    return application.exec();
-}
+} // namespace QmlJS
+#endif // VIEWERCONTEXT_H

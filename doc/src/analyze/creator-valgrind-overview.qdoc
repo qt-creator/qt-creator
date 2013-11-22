@@ -36,8 +36,8 @@
     to use them from \QC.
 
     To run the Valgrind tools on a remote host over SSH, select \gui {Analyze
-    > Valgrind Memory Analyzer (External)} or \gui {Valgrind Function Profiler
-    (External)}.
+    > Valgrind Memory Analyzer (Remote)} or \gui {Valgrind Function Profiler
+    (Remote)}.
 
     To stop the currently running analyzer, select \gui {Analyze
     > Stop}.

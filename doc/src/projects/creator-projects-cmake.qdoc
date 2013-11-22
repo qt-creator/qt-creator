@@ -110,6 +110,69 @@
     For more information about known issues for the current version, see
     \l{Known Issues}.
 
+    \section1 Deploying CMake Projects to Embedded Linux Devices
+
+    \QC cannot extract files to be installed from a CMake project, and
+    therefore, only executable targets are automatically added to deployment
+    files. You must specify all other files in the \c QtCreatorDeployment.txt
+    file that you create and place in the root directory of the CMake project.
+
+    Use the following syntax in the file:
+
+    \code
+    <deployment/prefix>
+    <relative/source/file1>:<relative/destination/dir1>
+    ...
+    <relative/source/filen>:<relative/destination/dirn>
+    \endcode
+
+    Where:
+
+    \list
+
+        \li \c{<deployment/prefix>} is the (absolute) path prefix to where files
+            are copied on the remote machine.
+
+        \li \c{<relative/source/file>} is the file path relative to the CMake
+            project root. No directories or wildcards are allowed in this
+            value.
+
+        \li \c{<relative/destination/dir>} is the destination directory path
+            relative to \c{deployment/prefix}.
+
+    \endlist
+
+    To automate the creation of \c QtCreatorDeployment.txt file:
+
+    \list 1
+
+        \li Define the following macros in the top level \c CMakeLists.txt file:
+
+            \code
+            file(WRITE "${CMAKE_SOURCE_DIR}/QtCreatorDeployment.txt" "<deployment/prefix>\n")
+
+            macro(add_deployment_file SRC DEST)
+                file(RELATIVE_PATH path ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+                file(APPEND "${CMAKE_SOURCE_DIR}/QtCreatorDeployment.txt" "${path}/${SRC}:${DEST}\n")
+            endmacro()
+
+            macro(add_deployment_directory SRC DEST)
+                file(GLOB_RECURSE files RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${SRC}/*")
+                foreach(filename ${files})
+                    get_filename_component(path ${filename} PATH)
+                    add_deployment_file("${filename}" "${DEST}/${path}")
+                endforeach(filename)
+            endmacro()
+            \endcode
+
+        \li Use \c {add_deployment_file(<file/name>)} to add files and
+            \c {add_deployment_directory(<folder/name>)} to add directories
+             (including subdirectories) to the \c QtCreatorDeployment.txt file.
+
+        \li Re-run \c cmake after you add or remove files using the macros.
+
+    \endlist
+
     \section1 Adding External Libraries to CMake Projects
 
     Through external libraries, \QC can support code completion and syntax

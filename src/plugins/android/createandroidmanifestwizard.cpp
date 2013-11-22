@@ -76,6 +76,7 @@ ChooseProFilePage::ChooseProFilePage(CreateAndroidManifestWizard *wizard, const 
     foreach (QmakeProFileNode *node, nodes)
         m_comboBox->addItem(node->displayName(), QVariant::fromValue(static_cast<void *>(node))); // TODO something more?
 
+    nodeSelected(0);
     connect(m_comboBox, SIGNAL(currentIndexChanged(int)),
             this, SLOT(nodeSelected(int)));
 

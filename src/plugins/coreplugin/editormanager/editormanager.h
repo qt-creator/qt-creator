@@ -79,12 +79,10 @@ class CORE_EXPORT EditorManagerPlaceHolder : public QWidget
 public:
     explicit EditorManagerPlaceHolder(Core::IMode *mode, QWidget *parent = 0);
     ~EditorManagerPlaceHolder();
-    static EditorManagerPlaceHolder* current();
 private slots:
     void currentModeChanged(Core::IMode *);
 private:
     Core::IMode *m_mode;
-    static EditorManagerPlaceHolder* m_current;
 };
 
 class CORE_EXPORT EditorManager : public QWidget

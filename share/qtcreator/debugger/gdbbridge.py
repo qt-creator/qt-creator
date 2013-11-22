@@ -420,7 +420,7 @@ class LocalItem:
 #######################################################################
 
 def bbedit(args):
-    theDumper.bbedit(args.split(","))
+    theDumper.bbedit(args)
 
 registerCommand("bbedit", bbedit)
 
@@ -706,7 +706,8 @@ class Dumper(DumperBase):
         if type.find(":") >= 0:
             type = "'" + type + "'"
         # 'class' is needed, see http://sourceware.org/bugzilla/show_bug.cgi?id=11912
-        exp = "((class %s*)%s)->%s(%s)" % (type, value.address, func, arg)
+        #exp = "((class %s*)%s)->%s(%s)" % (type, value.address, func, arg)
+        exp = "((%s*)%s)->%s(%s)" % (type, value.address, func, arg)
         #warn("CALL: %s" % exp)
         result = None
         try:
@@ -902,6 +903,15 @@ class Dumper(DumperBase):
         except:
             # Try _some_ fallback (good enough for the std::complex dumper)
             return gdb.parse_and_eval("{%s}%s" % (referencedType, address))
+
+    def setValue(self, address, type, value):
+        cmd = "set {%s}%s=%s" % (type, address, value)
+        gdb.execute(cmd)
+
+    def setValues(self, address, type, values):
+        cmd = "set {%s[%s]}%s={%s}" \
+            % (type, len(values), address, ','.join(map(str, values)))
+        gdb.execute(cmd)
 
     def selectedInferior(self):
         try:
@@ -1630,6 +1640,10 @@ class Dumper(DumperBase):
         return out
 
     def threadnames(self, maximalStackDepth):
+        # FIXME: This needs a proper implementation for MinGW, and only there.
+        # Linux, Mac and QNX mirror the objectName()to the underlying threads,
+        # so we get the names already as part of the -thread-info output.
+        return '[]'
         out = '['
         oldthread = gdb.selected_thread()
         if oldthread:
@@ -1676,22 +1690,25 @@ class Dumper(DumperBase):
 
         return namespace
 
-    def bbedit(self, type, expr, value):
-        type = b16decode(type)
+    def bbedit(self, args):
+        (typeName, expr, data) = args.split(',')
+        typeName = b16decode(typeName)
         ns = self.qtNamespace()
-        if type.startswith(ns):
-            type = type[len(ns):]
-        type = type.replace("::", "__")
-        pos = type.find('<')
+        if typeName.startswith(ns):
+            typeName = typeName[len(ns):]
+        typeName = typeName.replace("::", "__")
+        pos = typeName.find('<')
         if pos != -1:
-            type = type[0:pos]
+            typeName = typeName[0:pos]
         expr = b16decode(expr)
-        value = b16decode(value)
-        #warn("EDIT: %s %s %s %s: " % (pos, type, expr, value))
-        if self.qqEditable.has_key(type):
-            self.qqEditable[type](expr, value)
+        data = b16decode(data)
+        if typeName in self.qqEditable:
+            #self.qqEditable[typeName](self, expr, data)
+            value = gdb.parse_and_eval(expr)
+            self.qqEditable[typeName](self, value, data)
         else:
-            gdb.execute("set (%s)=%s" % (expr, value))
+            cmd = "set variable (%s)=%s" % (expr, data)
+            gdb.execute(cmd)
 
     def hasVTable(self, type):
         fields = type.fields()

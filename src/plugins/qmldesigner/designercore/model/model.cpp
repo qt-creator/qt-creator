@@ -1731,30 +1731,27 @@ QList<Import> Model::imports() const
 
 QList<Import> Model::possibleImports() const
 {
-    QList<Import> possibleImportList;
-
-    possibleImportList.append(Import::createLibraryImport("QtQuick.Controls", "1.0"));
-    possibleImportList.append(Import::createLibraryImport("QtQuick.Layouts", "1.0"));
-    possibleImportList.append(Import::createLibraryImport("QtQuick.Window", "2.0"));
-
-    return possibleImportList;
+    return d->m_possibleImportList;
 }
 
 QList<Import> Model::usedImports() const
 {
-    QList<Import> usedImportList;
-
-    usedImportList.append(Import::createLibraryImport("QtQuick", "1.0"));
-    usedImportList.append(Import::createLibraryImport("QtQuick", "1.1"));
-    usedImportList.append(Import::createLibraryImport("QtQuick", "2.0"));
-    usedImportList.append(Import::createLibraryImport("QtQuick", "2.1"));
-
-    return usedImportList;
+    return d->m_usedImportList;
 }
 
 void Model::changeImports(const QList<Import> &importsToBeAdded, const QList<Import> &importsToBeRemoved)
 {
     d->changeImports(importsToBeAdded, importsToBeRemoved);
+}
+
+void Model::setPossibleImports(const QList<Import> &possibleImports)
+{
+    d->m_possibleImportList = possibleImports;
+}
+
+void Model::setUsedImports(const QList<Import> &usedImports)
+{
+    d->m_usedImportList = usedImports;
 }
 
 

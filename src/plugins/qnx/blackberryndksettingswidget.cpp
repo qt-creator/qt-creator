@@ -144,15 +144,18 @@ void BlackBerryNDKSettingsWidget::updateInfoTable(QTreeWidgetItem* currentItem)
     if (!config)
         return;
 
-    foreach (const NdkInstallInformation &ndkInfo, QnxUtils::installedNdks())
-    {
-        if (ndkInfo.name == config->displayName()) {
-            m_ui->baseNameLabel->setText(ndkInfo.name);
-            m_ui->ndkPathLabel->setText(ndkInfo.path);
-            m_ui->versionLabel->setText(ndkInfo.version);
-            m_ui->hostLabel->setText(ndkInfo.host);
-            m_ui->targetLabel->setText(ndkInfo.target);
-            break;
+    m_ui->baseNameLabel->setText(config->displayName());
+    m_ui->ndkPathLabel->setText(QDir::toNativeSeparators(config->ndkPath()));
+    m_ui->hostLabel->setText(QDir::toNativeSeparators(config->qnxHost()));
+    m_ui->targetLabel->setText(QDir::toNativeSeparators(config->sysRoot().toString()));
+    m_ui->versionLabel->clear();
+    // TODO: Add a versionNumber attribute for the BlackBerryConfiguration class
+    if (config->isAutoDetected()) {
+        foreach (const NdkInstallInformation &ndkInfo, QnxUtils::installedNdks()) {
+            if (ndkInfo.name == config->displayName()) {
+                m_ui->versionLabel->setText(ndkInfo.version);
+                break;
+            }
         }
     }
 

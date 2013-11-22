@@ -223,6 +223,7 @@ void TypeDescriptionReader::readComponent(UiObjectDefinition *ast)
 
     // ### add implicit export into the package of c++ types
     fmo->addExport(fmo->className(), QmlJS::CppQmlTypes::cppPackage, ComponentVersion());
+    fmo->updateFingerprint();
     _objects->insert(fmo->className(), fmo);
 }
 

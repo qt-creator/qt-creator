@@ -236,6 +236,8 @@ private:
     Model *m_q;
     MetaInfo m_metaInfo;
     QList<Import> m_imports;
+    QList<Import> m_possibleImportList;
+    QList<Import> m_usedImportList;
     QList<QWeakPointer<AbstractView> > m_viewList;
     QList<InternalNodePointer> m_selectedInternalNodeList;
     QHash<QString,InternalNodePointer> m_idNodeHash;

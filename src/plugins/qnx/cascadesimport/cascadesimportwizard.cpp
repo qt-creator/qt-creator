@@ -129,11 +129,6 @@ CascadesImportWizard::~CascadesImportWizard()
 {
 }
 
-Core::FeatureSet CascadesImportWizard::requiredFeatures() const
-{
-    return Core::FeatureSet(Constants::QNX_BB_FEATURE);
-}
-
 Core::BaseFileWizard::ExtensionList CascadesImportWizard::selectExtensions()
 {
     return Core::BaseFileWizard::ExtensionList();

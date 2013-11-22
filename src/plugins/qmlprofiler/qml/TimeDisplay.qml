@@ -38,17 +38,6 @@ Canvas2D {
     property real endTime : 0
     property real timePerPixel: 0
 
-
-    Component.onCompleted: {
-        requestRedraw();
-    }
-    onWidthChanged: {
-        requestRedraw();
-    }
-    onHeightChanged: {
-        requestRedraw();
-    }
-
     Connections {
         target: zoomControl
         onRangeChanged: {

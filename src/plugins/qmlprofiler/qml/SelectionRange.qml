@@ -69,6 +69,11 @@ RangeMover {
     }
 
     function setPos(pos) {
+        if (pos < 0)
+            pos = 0;
+        else if (pos > width)
+            pos = width;
+
         switch (creationState) {
         case 1: {
             setLeft(pos);

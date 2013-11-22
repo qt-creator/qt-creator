@@ -116,16 +116,8 @@ private slots:
     void test_FollowSymbolUnderCursor_virtualFunctionCall();
     void test_FollowSymbolUnderCursor_virtualFunctionCall_multipleDocuments();
 
-    void test_doxygen_comments_qt_style();
-    void test_doxygen_comments_qt_style_continuation();
-    void test_doxygen_comments_java_style();
-    void test_doxygen_comments_java_style_continuation();
-    void test_doxygen_comments_cpp_styleA();
-    void test_doxygen_comments_cpp_styleB();
-    void test_doxygen_comments_cpp_styleA_indented();
-    void test_doxygen_comments_cpp_styleA_continuation();
-    void test_doxygen_comments_cpp_styleA_indented_continuation();
-    void test_doxygen_comments_cpp_styleA_corner_case();
+    void test_doxygen_comments_data();
+    void test_doxygen_comments();
 
     void test_quickfix_CompleteSwitchCaseStatement_basic1();
     void test_quickfix_CompleteSwitchCaseStatement_basic2();

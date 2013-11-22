@@ -73,27 +73,27 @@ BlackBerryConfiguration::BlackBerryConfiguration(const FileName &ndkEnvFile, boo
     m_qnxEnv = QnxUtils::qnxEnvironmentFromNdkFile(m_ndkEnvFile.toString());
 
     QString ndkTarget;
-    QString qnxHost;
     foreach (const Utils::EnvironmentItem &item, m_qnxEnv) {
         if (item.name == QLatin1String("QNX_TARGET"))
             ndkTarget = item.value;
 
         else if (item.name == QLatin1String("QNX_HOST"))
-            qnxHost = item.value;
+            m_qnxHost = item.value;
 
     }
 
-    QString sep = QString::fromLatin1("%1qnx6").arg(QDir::separator());
-    m_targetName = ndkTarget.split(sep).first().split(QDir::separator()).last();
+    // The QNX_TARGET value is using Unix-like separator on all platforms.
+    QString sep = QString::fromLatin1("/qnx6");
+    m_targetName = ndkTarget.split(sep).first().split(QLatin1Char('/')).last();
 
     if (QDir(ndkTarget).exists())
         m_sysRoot = FileName::fromString(ndkTarget);
 
-    FileName qmake4Path = QnxUtils::executableWithExtension(FileName::fromString(qnxHost + QLatin1String("/usr/bin/qmake")));
-    FileName qmake5Path = QnxUtils::executableWithExtension(FileName::fromString(qnxHost + QLatin1String("/usr/bin/qt5/qmake")));
-    FileName gccPath = QnxUtils::executableWithExtension(FileName::fromString(qnxHost + QLatin1String("/usr/bin/qcc")));
-    FileName deviceGdbPath = QnxUtils::executableWithExtension(FileName::fromString(qnxHost + QLatin1String("/usr/bin/ntoarm-gdb")));
-    FileName simulatorGdbPath = QnxUtils::executableWithExtension(FileName::fromString(qnxHost + QLatin1String("/usr/bin/ntox86-gdb")));
+    FileName qmake4Path = QnxUtils::executableWithExtension(FileName::fromString(m_qnxHost + QLatin1String("/usr/bin/qmake")));
+    FileName qmake5Path = QnxUtils::executableWithExtension(FileName::fromString(m_qnxHost + QLatin1String("/usr/bin/qt5/qmake")));
+    FileName gccPath = QnxUtils::executableWithExtension(FileName::fromString(m_qnxHost + QLatin1String("/usr/bin/qcc")));
+    FileName deviceGdbPath = QnxUtils::executableWithExtension(FileName::fromString(m_qnxHost + QLatin1String("/usr/bin/ntoarm-gdb")));
+    FileName simulatorGdbPath = QnxUtils::executableWithExtension(FileName::fromString(m_qnxHost + QLatin1String("/usr/bin/ntox86-gdb")));
 
     if (qmake4Path.toFileInfo().exists())
         m_qmake4BinaryFile = qmake4Path;
@@ -124,6 +124,11 @@ QString BlackBerryConfiguration::displayName() const
 QString BlackBerryConfiguration::targetName() const
 {
     return m_targetName;
+}
+
+QString BlackBerryConfiguration::qnxHost() const
+{
+    return m_qnxHost;
 }
 
 bool BlackBerryConfiguration::isAutoDetected() const

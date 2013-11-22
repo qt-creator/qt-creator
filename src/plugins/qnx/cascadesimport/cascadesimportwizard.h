@@ -68,7 +68,6 @@ public:
     CascadesImportWizard(QObject *parent = 0);
     virtual ~CascadesImportWizard();
 
-    Core::FeatureSet requiredFeatures() const;
 protected:
     ExtensionList selectExtensions();
     QWizard* createWizardDialog(QWidget *parent,

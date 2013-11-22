@@ -446,7 +446,7 @@ void AndroidDeviceDialog::refreshDeviceList()
 
 void AndroidDeviceDialog::createAvd()
 {
-    QString avd = AndroidConfigurations::instance().createAVD(m_apiLevel, m_abi);
+    QString avd = AndroidConfigurations::instance().createAVD(this, m_apiLevel, m_abi);
     if (avd.isEmpty())
         return;
     refreshDeviceList();

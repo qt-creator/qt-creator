@@ -165,7 +165,7 @@ def qdump__QModelIndex(d, value):
         v = val["d"]["data"]["ptr"]
         d.putStringValue(d.makeValue(ns + 'QString', v))
     except:
-        d.putValue("(invalid)")
+        d.putValue("")
 
     d.putNumChild(rowCount * columnCount)
     if d.isExpanded():
@@ -1645,17 +1645,10 @@ def qdump__QStandardItem(d, value):
         d.putPlainChildren(value)
 
 
-def qedit__QString(expr, value):
-    cmd = "call (%s).resize(%d)" % (expr, len(value))
-    gdb.execute(cmd)
-    d = gdb.parse_and_eval(expr)["d"]["data"]
-    cmd = "set {short[%d]}%s={" % (len(value), d.pointerValue(d))
-    for i in range(len(value)):
-        if i != 0:
-            cmd += ','
-        cmd += str(ord(value[i]))
-    cmd += '}'
-    gdb.execute(cmd)
+def qedit__QString(d, value, data):
+    d.call(value, "resize", str(len(data)))
+    (base, size, alloc) = d.stringData(value)
+    d.setValues(base, "short", [ord(c) for c in data])
 
 def qform__QString():
     return "Inline,Separate Window"
@@ -1981,15 +1974,19 @@ def qdump__QVariant(d, value):
     return tdata.type
 
 
-def qedit__QVector(expr, value):
-    values = value.split(',')
-    ob = gdb.parse_and_eval(expr)
-    cmd = "call (%s).resize(%d)" % (expr, len(values))
-    gdb.execute(cmd)
-    innerType = d.templateArgument(ob.type, 0)
-    ptr = ob["p"]["array"].cast(d.voidPtrType())
-    cmd = "set {%s[%d]}%s={%s}" % (innerType, len(values), d.pointerValue(ptr), value)
-    gdb.execute(cmd)
+def qedit__QVector(d, value, data):
+    values = data.split(',')
+    size = len(values)
+    d.call(value, "resize", str(size))
+    innerType = d.templateArgument(value.type, 0)
+    try:
+        # Qt 5. Will fail on Qt 4 due to the missing 'offset' member.
+        offset = value["d"]["offset"]
+        base = d.pointerValue(value["d"].cast(d.charPtrType()) + offset)
+    except:
+        # Qt 4.
+        base = d.pointerValue(value["p"]["array"])
+    d.setValues(base, innerType, values)
 
 
 def qform__QVector():

@@ -35,14 +35,22 @@ namespace QmlJS {
 namespace ImportType {
 enum Enum {
     Invalid,
-    ImplicitDirectory,
     Library,
-    File,
     Directory,
-    QrcFile,
+    ImplicitDirectory,
+    File,
+    UnknownFile, // refers a file/directory that wasn't found (or to an url)
     QrcDirectory,
-    ImplicitQrcDirectory,
-    UnknownFile // refers a file/directory that wasn't found
+    QrcFile
+};
+}
+
+namespace ImportKind {
+enum Enum {
+    Invalid,
+    Library,
+    Path,
+    QrcPath,
 };
 }
 

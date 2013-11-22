@@ -609,14 +609,12 @@ static LanguageUtils::FakeMetaObject::Ptr buildFakeMetaObject(
         BaseClass *base = klass->baseClassAt(0);
         if (!base->name())
             return fmo;
-
         const QString baseClassName = namePrinter.prettyName(base->name());
         fmo->setSuperclassName(baseClassName);
 
         Class *baseClass = lookupClass(baseClassName, klass, typeOf);
         if (!baseClass)
             return fmo;
-
         buildFakeMetaObject(baseClass, fakeMetaObjects, typeOf);
     }
 
@@ -735,8 +733,10 @@ void FindExportedCppTypes::operator()(const CPlusPlus::Document::Ptr &document)
 
     // convert to list of FakeMetaObject::ConstPtr
     m_exportedTypes.reserve(fakeMetaObjects.size());
-    foreach (const LanguageUtils::FakeMetaObject::Ptr &fmo, fakeMetaObjects)
+    foreach (const LanguageUtils::FakeMetaObject::Ptr &fmo, fakeMetaObjects) {
+        fmo->updateFingerprint();
         m_exportedTypes += fmo;
+    }
 }
 
 QList<LanguageUtils::FakeMetaObject::ConstPtr> FindExportedCppTypes::exportedTypes() const

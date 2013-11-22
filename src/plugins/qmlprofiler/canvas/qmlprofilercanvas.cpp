@@ -92,6 +92,13 @@ void QmlProfilerCanvas::componentComplete()
             QMetaObject::connect(this, p.notifySignalIndex(), this, requestPaintMethod, 0, 0);
     }
     QQuickItem::componentComplete();
+    requestRedraw();
+}
+
+void QmlProfilerCanvas::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)
+{
+    QQuickItem::geometryChanged(newGeometry, oldGeometry);
+    requestRedraw();
 }
 
 }

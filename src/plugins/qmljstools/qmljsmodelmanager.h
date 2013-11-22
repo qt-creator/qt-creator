@@ -34,6 +34,7 @@
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsqrcparser.h>
+#include <qmljs/qmljsconstants.h>
 
 #include <cplusplus/CppDocument.h>
 #include <utils/qtcoverride.h>
@@ -115,6 +116,14 @@ public:
 
     QmlJS::LibraryInfo builtins(const QmlJS::Document::Ptr &doc) const QTC_OVERRIDE;
 
+    QmlJS::ViewerContext completeVContext(
+            const QmlJS::ViewerContext &vCtx,
+            const QmlJS::Document::Ptr &doc = QmlJS::Document::Ptr(0)) const QTC_OVERRIDE;
+    QmlJS::ViewerContext defaultVContext(
+            bool autoComplete = true,
+            const QmlJS::Document::Ptr &doc = QmlJS::Document::Ptr(0)) const QTC_OVERRIDE;
+    void setDefaultVContext(const QmlJS::ViewerContext &vContext) QTC_OVERRIDE;
+
     void joinAllThreads() QTC_OVERRIDE;
 
 public slots:
@@ -127,11 +136,22 @@ protected:
     QFuture<void> refreshSourceFiles(const QStringList &sourceFiles,
                                      bool emitDocumentOnDiskChanged);
 
+    static void parseLoop(QSet<QString> &scannedPaths, QSet<QString> &newLibraries,
+                          WorkingCopy workingCopy, QStringList files, ModelManager *modelManager,
+                          QmlJS::Language::Enum mainLanguage, bool emitDocChangedOnDisk,
+                          Utils::function<bool (qreal)> reportProgress);
     static void parse(QFutureInterface<void> &future,
                       WorkingCopy workingCopy,
                       QStringList files,
                       ModelManager *modelManager,
+                      QmlJS::Language::Enum mainLanguage,
                       bool emitDocChangedOnDisk);
+    static void importScan(QFutureInterface<void> &future,
+                    WorkingCopy workingCopy,
+                    QStringList paths,
+                    ModelManager *modelManager,
+                    QmlJS::Language::Enum mainLanguage,
+                    bool emitDocChangedOnDisk);
 
     void loadQmlTypeDescriptions();
     void loadQmlTypeDescriptions(const QString &path);
@@ -158,6 +178,8 @@ private:
     QStringList m_defaultImportPaths;
     QmlJS::QmlLanguageBundles m_activeBundles;
     QmlJS::QmlLanguageBundles m_extendedBundles;
+    QmlJS::ViewerContext m_vContext;
+    QSet<QString> m_scannedPaths;
 
     QTimer *m_updateCppQmlTypesTimer;
     QTimer *m_asyncResetTimer;

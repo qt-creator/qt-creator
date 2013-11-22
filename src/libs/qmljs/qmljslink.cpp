@@ -34,7 +34,8 @@
 #include "qmljsbind.h"
 #include "qmljsutils.h"
 #include "qmljsmodelmanagerinterface.h"
-#include <qmljs/qmljsqrcparser.h>
+#include "qmljsqrcparser.h"
+#include "qmljsconstants.h"
 
 #include <QDir>
 #include <QDebug>
@@ -83,6 +84,7 @@ public:
     ValueOwner *valueOwner;
     QStringList importPaths;
     LibraryInfo builtins;
+    ViewerContext vContext;
 
     QHash<ImportCacheKey, Import> importCache;
 
@@ -131,13 +133,14 @@ public:
     \l{QmlJSEditor::SemanticInfo} of a \l{QmlJSEditor::QmlJSTextEditorWidget}.
 */
 
-Link::Link(const Snapshot &snapshot, const QStringList &importPaths, const LibraryInfo &builtins)
+Link::Link(const Snapshot &snapshot, const ViewerContext &vContext, const LibraryInfo &builtins)
     : d(new LinkPrivate)
 {
     d->valueOwner = new ValueOwner;
     d->snapshot = snapshot;
-    d->importPaths = importPaths;
+    d->importPaths = vContext.paths;
     d->builtins = builtins;
+    d->vContext = vContext;
 
     d->diagnosticMessages = 0;
     d->allDiagnosticMessages = 0;
@@ -173,14 +176,14 @@ Link::Link(const Snapshot &snapshot, const QStringList &importPaths, const Libra
 ContextPtr Link::operator()(QHash<QString, QList<DiagnosticMessage> > *messages)
 {
     d->allDiagnosticMessages = messages;
-    return Context::create(d->snapshot, d->valueOwner, d->linkImports());
+    return Context::create(d->snapshot, d->valueOwner, d->linkImports(), d->vContext);
 }
 
 ContextPtr Link::operator()(const Document::Ptr &doc, QList<DiagnosticMessage> *messages)
 {
     d->document = doc;
     d->diagnosticMessages = messages;
-    return Context::create(d->snapshot, d->valueOwner, d->linkImports());
+    return Context::create(d->snapshot, d->valueOwner, d->linkImports(), d->vContext);
 }
 
 Link::~Link()

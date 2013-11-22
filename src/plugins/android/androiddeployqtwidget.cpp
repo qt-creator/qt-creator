@@ -82,9 +82,11 @@ AndroidDeployQtWidget::AndroidDeployQtWidget(AndroidDeployQtStep *step)
     }
 
     // signing
+    m_ui->signPackageCheckBox->setChecked(m_step->signPackage());
     m_ui->KeystoreLocationLineEdit->setText(m_step->keystorePath().toUserOutput());
     m_ui->signingDebugWarningIcon->hide();
     m_ui->signingDebugWarningLabel->hide();
+    signPackageCheckBoxToggled(m_step->signPackage());
 
     m_ui->verboseOutputCheckBox->setChecked(m_step->verboseOutput());
     m_ui->openPackageLocationCheckBox->setChecked(m_step->openPackageLocation());

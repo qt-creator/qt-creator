@@ -53,7 +53,7 @@ void QmlJSTools::Internal::QmlJSToolsPlugin::test_basic()
     Document::Ptr doc = snapshot.document(welcomescreenRootPath);
     QVERIFY(doc && doc->isQmlDocument());
 
-    ContextPtr context = Link(snapshot, QStringList(), LibraryInfo())();
+    ContextPtr context = Link(snapshot, ViewerContext(), LibraryInfo())();
     QVERIFY(context);
 
     const CppComponentValue *rectangleValue = context->valueOwner()->cppQmlTypes().objectByQualifiedName(

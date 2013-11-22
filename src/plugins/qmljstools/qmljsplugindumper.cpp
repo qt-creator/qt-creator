@@ -339,6 +339,7 @@ void PluginDumper::qmlPluginTypeDumpDone(int exitCode)
         if (!warning.isEmpty())
             printParseWarnings(libraryPath, warning);
     }
+    libraryInfo.updateFingerprint();
 
     m_modelManager->updateLibraryInfo(libraryPath, libraryInfo);
 }
@@ -361,6 +362,7 @@ void PluginDumper::qmlPluginTypeDumpError(QProcess::ProcessError)
         const Snapshot snapshot = m_modelManager->snapshot();
         LibraryInfo libraryInfo = snapshot.libraryInfo(libraryPath);
         libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError, qmldumpFailedMessage(libraryPath, errorMessages));
+        libraryInfo.updateFingerprint();
         m_modelManager->updateLibraryInfo(libraryPath, libraryInfo);
     }
 }
@@ -418,6 +420,7 @@ void PluginDumper::loadQmltypesFile(const QStringList &qmltypesFilePaths,
     if (!warnings.isEmpty())
         printParseWarnings(libraryPath, warnings.join(QLatin1String("\n")));
 
+    libraryInfo.updateFingerprint();
     m_modelManager->updateLibraryInfo(libraryPath, libraryInfo);
 }
 
@@ -456,6 +459,7 @@ void PluginDumper::dump(const Plugin &plugin)
         }
 
         libraryInfo.setPluginTypeInfoStatus(LibraryInfo::DumpError, errorMessage);
+        libraryInfo.updateFingerprint();
         m_modelManager->updateLibraryInfo(plugin.qmldirPath, libraryInfo);
         return;
     }

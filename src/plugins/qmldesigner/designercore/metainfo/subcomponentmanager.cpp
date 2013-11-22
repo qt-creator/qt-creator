@@ -75,6 +75,8 @@ static inline QStringList importPaths() {
 
 static inline bool checkIfDerivedFromItem(const QString &fileName)
 {
+    return true;
+
     QmlJS::Snapshot snapshot;
 
 
@@ -101,7 +103,7 @@ static inline bool checkIfDerivedFromItem(const QString &fileName)
 
     snapshot.insert(document);
 
-    QmlJS::Link link(snapshot, modelManager->importPaths(), QmlJS::ModelManagerInterface::instance()->builtins(document));
+    QmlJS::Link link(snapshot, modelManager->defaultVContext(), QmlJS::ModelManagerInterface::instance()->builtins(document));
 
     QList<QmlJS::DiagnosticMessage> diagnosticLinkMessages;
     QmlJS::ContextPtr context = link(document, &diagnosticLinkMessages);

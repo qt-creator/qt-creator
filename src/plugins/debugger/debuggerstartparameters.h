@@ -64,6 +64,7 @@ public:
         attachPID(-1),
         useTerminal(false),
         breakOnMain(false),
+        continueAfterAttach(false),
         multiProcess(false),
         languages(AnyLanguage),
         qmlServerAddress(QLatin1String("127.0.0.1")),
@@ -102,6 +103,7 @@ public:
     qint64 attachPID;
     bool useTerminal;
     bool breakOnMain;
+    bool continueAfterAttach;
     bool multiProcess;
     DebuggerLanguages languages;
 

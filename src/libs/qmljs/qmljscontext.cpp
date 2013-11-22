@@ -54,17 +54,20 @@ using namespace QmlJS::AST;
     QmlJSTextEditorWidget::semanticInfo()::context.
 */
 
-ContextPtr Context::create(const QmlJS::Snapshot &snapshot, ValueOwner *valueOwner, const ImportsPerDocument &imports)
+ContextPtr Context::create(const QmlJS::Snapshot &snapshot, ValueOwner *valueOwner,
+                           const ImportsPerDocument &imports, const ViewerContext &vContext)
 {
-    QSharedPointer<Context> result(new Context(snapshot, valueOwner, imports));
+    QSharedPointer<Context> result(new Context(snapshot, valueOwner, imports, vContext));
     result->_ptr = result;
     return result;
 }
 
-Context::Context(const QmlJS::Snapshot &snapshot, ValueOwner *valueOwner, const ImportsPerDocument &imports)
+Context::Context(const QmlJS::Snapshot &snapshot, ValueOwner *valueOwner,
+                 const ImportsPerDocument &imports, const ViewerContext &vContext)
     : _snapshot(snapshot),
       _valueOwner(valueOwner),
-      _imports(imports)
+      _imports(imports),
+      _vContext(vContext)
 {
 }
 

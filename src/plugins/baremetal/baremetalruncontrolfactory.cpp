@@ -89,7 +89,7 @@ DebuggerStartParameters BareMetalRunControlFactory::startParameters(const BareMe
     params.languages |= CppLanguage;
     params.processArgs = runConfig->arguments();
     params.startMode = AttachToRemoteServer;
-    params.executable = Utils::HostOsInfo::withExecutableSuffix(runConfig->localExecutableFilePath());
+    params.executable = runConfig->localExecutableFilePath();
     params.remoteSetupNeeded = false; //FIXME probably start debugserver with that, how?
     params.displayName = runConfig->displayName();
     if (const Project *project = target->project()) {

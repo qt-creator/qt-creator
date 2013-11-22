@@ -33,7 +33,8 @@
 #include "qmljs_global.h"
 #include "qmljsdocument.h"
 #include "qmljsbundle.h"
-
+#include "qmljsconstants.h"
+#include "qmljsviewercontext.h"
 #include <utils/environment.h>
 
 #include <QObject>
@@ -174,6 +175,12 @@ public:
     virtual CppDataHash cppData() const = 0;
 
     virtual LibraryInfo builtins(const Document::Ptr &doc) const = 0;
+
+    virtual ViewerContext completeVContext(const ViewerContext &vCtx,
+                                           const Document::Ptr &doc = Document::Ptr(0)) const = 0;
+    virtual ViewerContext defaultVContext(bool autoComplete = true,
+                                          const Document::Ptr &doc = Document::Ptr(0)) const = 0;
+    virtual void setDefaultVContext(const ViewerContext &vContext) = 0;
 
     // Blocks until all parsing threads are done. Used for testing.
     virtual void joinAllThreads() = 0;

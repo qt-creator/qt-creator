@@ -430,6 +430,7 @@ bool handleDoxygenCppStyleContinuation(QTextCursor &cursor,
 
     const QString commentMarker = text.mid(offset, 3);
     newLine.append(commentMarker);
+    newLine.append(QLatin1Char(' '));
 
     cursor.insertText(newLine);
     e->accept();
@@ -481,12 +482,13 @@ bool handleDoxygenContinuation(QTextCursor &cursor,
             c.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, offset);
             newLine.append(c.selectedText());
             if (text.at(offset) == QLatin1Char('/')) {
-                newLine.append(QLatin1String(" *"));
+                newLine.append(QLatin1String(" * "));
             } else {
                 int start = offset;
                 while (offset < blockPos && text.at(offset) == QLatin1Char('*'))
                     ++offset;
                 newLine.append(QString(offset - start, QLatin1Char('*')));
+                newLine.append(QLatin1Char(' '));
             }
             cursor.insertText(newLine);
             e->accept();

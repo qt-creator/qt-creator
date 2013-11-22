@@ -35,10 +35,12 @@
 #include <cplusplus/CppDocument.h>
 #include <cppeditor/cppeditor.h>
 #include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/cpptoolseditorsupport.h>
 
 #include <QSet>
 
 using namespace CPlusPlus;
+using namespace CppTools;
 
 namespace CppEditor {
 namespace Internal {
@@ -48,7 +50,7 @@ CppIncludeHierarchyModel::CppIncludeHierarchyModel(QObject *parent)
     , m_rootItem(new CppIncludeHierarchyItem(QString()))
     , m_includesItem(new CppIncludeHierarchyItem(tr("Includes"), m_rootItem))
     , m_includedByItem(new CppIncludeHierarchyItem(tr("Included by"), m_rootItem))
-
+    , m_editor(0)
 {
     m_rootItem->appendChild(m_includesItem);
     m_rootItem->appendChild(m_includedByItem);
@@ -199,6 +201,15 @@ void CppIncludeHierarchyModel::clear()
     endResetModel();
 }
 
+void CppIncludeHierarchyModel::buildHierarchy(CPPEditor *editor, const QString &filePath)
+{
+    m_editor = editor;
+    beginResetModel();
+    buildHierarchyIncludes(filePath);
+    buildHierarchyIncludedBy(filePath);
+    endResetModel();
+}
+
 bool CppIncludeHierarchyModel::hasChildren(const QModelIndex &parent) const
 {
     if (!parent.isValid())
@@ -208,14 +219,6 @@ bool CppIncludeHierarchyModel::hasChildren(const QModelIndex &parent) const
 
     Q_ASSERT(parentItem);
     return parentItem->hasChildren();
-}
-
-void CppIncludeHierarchyModel::buildHierarchy(const QString &filePath)
-{
-    beginResetModel();
-    buildHierarchyIncludes(filePath);
-    buildHierarchyIncludedBy(filePath);
-    endResetModel();
 }
 
 bool CppIncludeHierarchyModel::isEmpty() const
@@ -233,7 +236,11 @@ void CppIncludeHierarchyModel::buildHierarchyIncludes_helper(const QString &file
                                                              CppIncludeHierarchyItem *parent,
                                                              QSet<QString> *cyclic, bool recursive)
 {
-    const Snapshot &snapshot = CppTools::CppModelManagerInterface::instance()->snapshot();
+    if (!m_editor)
+        return;
+
+    CppModelManagerInterface *cppMM = CppModelManagerInterface::instance();
+    const Snapshot &snapshot = cppMM->cppEditorSupport(m_editor)->snapshotUpdater()->snapshot();
     Document::Ptr doc = snapshot.document(filePath);
     if (!doc)
         return;

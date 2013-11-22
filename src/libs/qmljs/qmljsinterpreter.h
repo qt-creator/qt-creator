@@ -33,6 +33,7 @@
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljs_global.h>
 #include <qmljs/qmljsconstants.h>
+#include <qmljs/qmljsimportdependencies.h>
 
 #include <QFileInfoList>
 #include <QList>
@@ -912,6 +913,7 @@ public:
     // const!
     ObjectValue *object;
     ImportInfo info;
+    DependencyInfo::ConstPtr deps;
     // uri imports: path to library, else empty
     QString libraryPath;
     // whether the import succeeded
