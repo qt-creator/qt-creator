@@ -33,7 +33,8 @@ def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    targets = Targets.desktopTargetClasses()
+    # Requires Qt 4.8
+    targets = Targets.desktopTargetClasses() ^ Targets.DESKTOP_474_GCC
     if not checkDebuggingLibrary(Targets.intToArray(targets)):
         test.fatal("Error while checking debugging libraries - leaving this test.")
         invokeMenuItem("File", "Exit")
