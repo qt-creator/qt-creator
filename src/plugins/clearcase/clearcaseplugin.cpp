@@ -1638,7 +1638,7 @@ bool ClearCasePlugin::ccFileOp(const QString &workingDir, const QString &title, 
     connect(buttonBox, SIGNAL(rejected()), &fileOpDlg, SLOT(reject()));
 
     if (!fileOpDlg.exec())
-        return true;
+        return false;
 
     QString comment = commentEdit->toPlainText();
     if (m_viewData.isUcm && actSelector->changed())
