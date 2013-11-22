@@ -34,24 +34,34 @@ import re
 # test search in help mode and advanced search
 searchKeywordDictionary={ "deployment":True, "deplmint":False, "build":True, "bld":False }
 
+
 def __getSelectedText__():
+    hv = findObject(":Qt Creator_Help::Internal::HelpViewer")
     try:
-        selText = findObject(":Qt Creator_Help::Internal::HelpViewer").selectedText
+        selText = hv.selectedText
         if className(selText) != 'instancemethod':
             return str(selText)
     except:
         pass
     try:
-        hv = findObject(":Qt Creator_Help::Internal::HelpViewer")
         selText = getHighlightsInHtml(str(hv.toHtml()))
     except:
         test.warning("Could not get highlighted text.")
         selText = ''
     return str(selText)
 
-def __handleTextChanged__(obj):
-    global textHasChanged
-    textHasChanged = True
+def __getUrl__():
+    helpViewer = findObject(":Qt Creator_Help::Internal::HelpViewer")
+    try:
+        url = helpViewer.url
+    except:
+        try:
+            url = helpViewer.source
+        except:
+            return ""
+    if isQt4Build:
+        return str(url.toString())
+    return str(url.scheme) + "://" + str(url.host) + str(url.path)
 
 def getHighlightsInHtml(htmlCode):
     pattern = re.compile('color:#ff0000;">(.*?)</span>')
@@ -60,16 +70,14 @@ def getHighlightsInHtml(htmlCode):
         if curr.group(1) in res:
             continue
         res += "%s " % curr.group(1)
-    test.log(res)
     return res
 
 def main():
-    global sdkPath, textHasChanged
+    global sdkPath
     noMatch = "Your search did not match any documents."
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
         return
-    installLazySignalHandler(":Qt Creator_Help::Internal::HelpViewer", "textChanged()", "__handleTextChanged__")
     addHelpDocumentation([os.path.join(sdkPath, "Documentation", "qt.qch")])
     # switch to help mode
     switchViewTo(ViewConstants.HELP)
@@ -98,13 +106,13 @@ def main():
             test.verify(waitFor("re.match('[1-9]\d* - [1-9]\d* of [1-9]\d* Hits',"
                                 "str(findObject(':Hits_QLabel').text))", 2000),
                                 "Verifying if search results found with 1+ hits for: " + searchKeyword)
-            textHasChanged = False
             selText = __getSelectedText__()
+            url = __getUrl__()
             # click in the widget, tab to first item and press enter
             mouseClick(waitForObject(":Hits_QCLuceneResultWidget"), 1, 1, 0, Qt.LeftButton)
             type(waitForObject(":Hits_QCLuceneResultWidget"), "<Tab>")
             type(waitForObject(":Hits_QCLuceneResultWidget"), "<Return>")
-            waitFor("textHasChanged or selText != __getSelectedText__()")
+            waitFor("__getUrl__() != url or selText != __getSelectedText__()")
             # verify if search keyword is found in results
             test.verify(searchKeyword.lower() in __getSelectedText__().lower(),
                         searchKeyword + " search result can be found")
@@ -138,12 +146,12 @@ def main():
     mouseClick(resultsView, 1, 1, 0, Qt.LeftButton)
     type(resultsView, "<Tab>")
     type(resultsView, "<Return>")
-    test.verify("printing" in str(findObject(":Qt Creator_Help::Internal::HelpViewer").selectedText).lower(),
+    test.verify("printing" in str(__getSelectedText__()).lower(),
                 "printing advanced search result can be found")
     for i in range(2):
         type(resultsView, "<Tab>")
     type(resultsView, "<Return>")
-    test.verify("sql" in str(findObject(":Qt Creator_Help::Internal::HelpViewer").selectedText).lower(),
+    test.verify("sql" in str(__getSelectedText__()).lower(),
                 "sql advanced search result can be found")
     # verify if simple search is properly disabled
     test.verify(findObject(":Qt Creator.Help_Search for:_QLineEdit").enabled == False,
