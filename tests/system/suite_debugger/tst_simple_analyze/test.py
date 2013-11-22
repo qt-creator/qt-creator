@@ -88,8 +88,8 @@ def main():
             waitFor('"Elapsed:    5" in str(elapsedLabel.text)', 20000)
             clickButton(stopButton)
             if safeClickTab("JavaScript"):
-                model = waitForObject(":JavaScript.QmlProfilerEventsTable_QmlProfiler::"
-                                      "Internal::QV8ProfilerEventsMainView").model()
+                model = findObject(":JavaScript.QmlProfilerEventsTable_QmlProfiler::"
+                                   "Internal::QV8ProfilerEventsMainView").model()
                 test.compare(model.rowCount(), 0)
             if safeClickTab("Events"):
                 colPercent, colTotal, colCalls, colMean, colMedian, colLongest, colShortest = range(2, 9)
