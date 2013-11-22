@@ -58,8 +58,6 @@ public:
 
 private:
     QList<AbstractTimelineModel*> timelineModels;
-
-
 };
 
 } // namespace Internal
