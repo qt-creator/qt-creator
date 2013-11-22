@@ -76,21 +76,14 @@ def prepareQmlFile():
     editor.plainText = "\n".join([line.lstrip() for line in lines]) + "\n"
     return True
 
-def handleTextChanged(*args):
-    global textHasChanged
-    textHasChanged = True
-
 def testReIndent():
-    global originalText,textHasChanged
-    installLazySignalHandler(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget",
-                             "textChanged()", "handleTextChanged")
-    textHasChanged = False
+    global originalText
     editor = waitForObject(":Qt Creator_QmlJSEditor::QmlJSTextEditorWidget")
     type(editor, "<Ctrl+A>")
     test.log("calling re-indent")
     starttime = datetime.utcnow()
     type(editor, "<Ctrl+I>")
-    waitFor("textHasChanged==True", 25000)
+    waitFor("originalText == str(editor.plainText)", 25000)
     endtime = datetime.utcnow()
     textAfterReIndent = "%s" % editor.plainText
     if originalText==textAfterReIndent:
