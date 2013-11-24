@@ -107,6 +107,7 @@ private slots:
     void gcc_attributes_2();
     void gcc_attributes_3();
     void crash_test_1();
+    void thread_local_1();
 
     // expressions
     void simple_name_1();
@@ -244,6 +245,16 @@ void tst_AST::crash_test_1()
     QSharedPointer<TranslationUnit> unit(parseStatement("decltype auto\n"));
     AST *ast = unit->ast();
     QVERIFY(ast);
+}
+
+void tst_AST::thread_local_1()
+{
+    QSharedPointer<TranslationUnit> unit(parseStatement("__thread int i;\n"));
+    AST *ast = unit->ast();
+    QVERIFY(ast);
+    QCOMPARE(diag.errorCount, 0);
+    QCOMPARE(Token::name(T_THREAD_LOCAL), "thread_local");
+    QCOMPARE(Token::name(T___THREAD), "__thread");
 }
 
 void tst_AST::simple_declaration_1()

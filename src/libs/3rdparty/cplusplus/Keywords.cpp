@@ -803,6 +803,17 @@ static inline int classify8(const char *s, LanguageFeatures features)
             }
           }
         }
+        else if (s[3] == 'h') {
+          if (s[4] == 'r') {
+            if (s[5] == 'e') {
+              if (s[6] == 'a') {
+                if (s[7] == 'd') {
+                  return T___THREAD;
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -1431,6 +1442,31 @@ static inline int classify12(const char *s, LanguageFeatures features)
                       if (s[10] == 's') {
                         if (s[11] == 't') {
                           return T_DYNAMIC_CAST;
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  else if (features.cxx11Enabled && s[0] == 't') {
+    if (s[1] == 'h') {
+      if (s[2] == 'r') {
+        if (s[3] == 'e') {
+          if (s[4] == 'a') {
+            if (s[5] == 'd') {
+              if (s[6] == '_') {
+                if (s[7] == 'l') {
+                  if (s[8] == 'o') {
+                    if (s[9] == 'c') {
+                      if (s[10] == 'a') {
+                        if (s[11] == 'l') {
+                          return T_THREAD_LOCAL;
                         }
                       }
                     }

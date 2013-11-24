@@ -3725,7 +3725,10 @@ bool Parser::lookAtStorageClassSpecifier() const
     case T_EXTERN:
     case T_MUTABLE:
     case T_TYPEDEF:
+    case T___THREAD:
         return true;
+    case T_THREAD_LOCAL:
+        return _languageFeatures.cxx11Enabled;
     case T_CONSTEXPR:
         if (_languageFeatures.cxx11Enabled)
             return true;
