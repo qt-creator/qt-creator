@@ -136,6 +136,7 @@ private:
     bool completeScope(const QList<CPlusPlus::LookupItem> &results);
     void completeNamespace(CPlusPlus::ClassOrNamespace *binding);
     void completeClass(CPlusPlus::ClassOrNamespace *b, bool staticLookup = true);
+    void addClassMembersToCompletion(CPlusPlus::Scope *scope, bool staticLookup);
     bool completeQtMethod(const QList<CPlusPlus::LookupItem> &results, bool wantSignals);
     bool completeSignal(const QList<CPlusPlus::LookupItem> &results)
     { return completeQtMethod(results, true); }

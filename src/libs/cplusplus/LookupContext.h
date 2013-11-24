@@ -93,6 +93,7 @@ public:
 private:
     typedef std::map<const Name *, ClassOrNamespace *, Name::Compare> Table;
     typedef std::map<const TemplateNameId *, ClassOrNamespace *, TemplateNameId::Compare> TemplateNameIdTable;
+    typedef QHash<const AnonymousNameId *, ClassOrNamespace *> Anonymouses;
 
     /// \internal
     void flush();
@@ -138,7 +139,8 @@ private:
     QSharedPointer<Control> _control;
     TemplateNameIdTable _specializations;
     QMap<const TemplateNameId *, ClassOrNamespace *> _instantiations;
-    QHash<const AnonymousNameId *, ClassOrNamespace *> _anonymouses;
+    Anonymouses _anonymouses;
+    QSet<const AnonymousNameId *> _declaredAnonymouses;
 
     QHash<Internal::FullyQualifiedName, Symbol *> *_scopeLookupCache;
 

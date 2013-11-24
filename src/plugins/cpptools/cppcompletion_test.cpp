@@ -1425,7 +1425,9 @@ void CppToolsPlugin::test_completion_data()
             "   @\n"
             "}\n"
         ) << _("s.") << (QStringList()
-            << QLatin1String("S"));
+            << QLatin1String("S")
+            << QLatin1String("i")
+            << QLatin1String("c"));
 
     QTest::newRow("instantiate_template_function") << _(
             "template <typename T>\n"
@@ -1438,6 +1440,65 @@ void CppToolsPlugin::test_completion_data()
         ) << _("templateFunction<A>()->") << (QStringList()
             << QLatin1String("A")
             << QLatin1String("a"));
+
+    QTest::newRow("nested_anonymous_class_QTCREATORBUG10876_1") << _(
+            "struct EnclosingStruct\n"
+            "{\n"
+            "   int memberOfEnclosingStruct;\n"
+            "   struct\n"
+            "   {\n"
+            "       int memberNestedAnonymousClass;\n"
+            "   };\n"
+            "   void fun()\n"
+            "   {\n"
+            "       @\n"
+            "   }\n"
+            "};\n"
+        ) << _("member") << (QStringList()
+            << QLatin1String("memberNestedAnonymousClass")
+            << QLatin1String("memberOfEnclosingStruct"));
+
+    QTest::newRow("nested_anonymous_class_QTCREATORBUG10876_2") << _(
+            "struct EnclosingStruct\n"
+            "{\n"
+            "   int memberOfEnclosingStruct;\n"
+            "   struct\n"
+            "   {\n"
+            "       int memberOfNestedAnonymousClass;\n"
+            "       struct\n"
+            "       {\n"
+            "           int memberOfNestedOfNestedAnonymousClass;\n"
+            "       };\n"
+            "   };\n"
+            "   void fun()\n"
+            "   {\n"
+            "       @\n"
+            "   }\n"
+            "};\n"
+        ) << _("member") << (QStringList()
+            << QLatin1String("memberOfNestedAnonymousClass")
+            << QLatin1String("memberOfNestedOfNestedAnonymousClass")
+            << QLatin1String("memberOfEnclosingStruct"));
+
+    QTest::newRow("nested_anonymous_class_QTCREATORBUG10876_3") << _(
+            "struct EnclosingStruct\n"
+            "{\n"
+            "   int memberOfEnclosingStruct;\n"
+            "   struct\n"
+            "   {\n"
+            "       int memberOfNestedAnonymousClass;\n"
+            "       struct\n"
+            "       {\n"
+            "           int memberOfNestedOfNestedAnonymousClass;\n"
+            "       } nestedOfNestedAnonymousClass;\n"
+            "   };\n"
+            "   void fun()\n"
+            "   {\n"
+            "       @\n"
+            "   }\n"
+            "};\n"
+        ) << _("nestedOfNestedAnonymousClass.") << (QStringList()
+            << QLatin1String("memberOfNestedOfNestedAnonymousClass"));
 
     QTest::newRow("crash_cloning_template_class_QTCREATORBUG9329") << _(
             "struct A {};\n"
