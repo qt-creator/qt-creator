@@ -299,6 +299,7 @@ QWidget *CMakeSettingsPage::widget()
         formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
         m_pathchooser = new Utils::PathChooser;
         m_pathchooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+        m_pathchooser->setHistoryCompleter(QLatin1String("Cmake.Command.History"));
         formLayout->addRow(tr("Executable:"), m_pathchooser);
         formLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
 

@@ -250,6 +250,7 @@ CMakeRunConfigurationWidget::CMakeRunConfigurationWidget(CMakeRunConfiguration *
     m_workingDirectoryEdit->setExpectedKind(Utils::PathChooser::Directory);
     m_workingDirectoryEdit->setBaseDirectory(m_cmakeRunConfiguration->target()->project()->projectDirectory());
     m_workingDirectoryEdit->setPath(m_cmakeRunConfiguration->baseWorkingDirectory());
+    m_workingDirectoryEdit->setHistoryCompleter(QLatin1String("WorkingDir.History"));
     ProjectExplorer::EnvironmentAspect *aspect
             = m_cmakeRunConfiguration->extraAspect<ProjectExplorer::EnvironmentAspect>();
     if (aspect) {

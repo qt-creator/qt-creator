@@ -466,6 +466,7 @@ ShadowBuildPage::ShadowBuildPage(CMakeOpenProjectWizard *cmakeWizard, bool chang
     m_pc->setBaseDirectory(m_cmakeWizard->sourceDirectory());
     m_pc->setPath(m_cmakeWizard->buildDirectory());
     m_pc->setExpectedKind(Utils::PathChooser::Directory);
+    m_pc->setHistoryCompleter(QLatin1String("Cmake.BuildDir.History"));
     connect(m_pc, SIGNAL(changed(QString)), this, SLOT(buildDirectoryChanged()));
     fl->addRow(tr("Build directory:"), m_pc);
     setTitle(tr("Build Location"));
@@ -489,6 +490,7 @@ ChooseCMakePage::ChooseCMakePage(CMakeOpenProjectWizard *cmakeWizard)
     // Show a field for the user to enter
     m_cmakeExecutable = new Utils::PathChooser(this);
     m_cmakeExecutable->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    m_cmakeExecutable->setHistoryCompleter(QLatin1String("Cmake.Command.History"));
     fl->addRow(tr("CMake Executable:"), m_cmakeExecutable);
 
     connect(m_cmakeExecutable, SIGNAL(editingFinished()),
