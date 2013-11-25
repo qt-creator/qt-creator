@@ -62,23 +62,19 @@
     \section1 Using Data Models
 
     You can create the following types of views to organize items provided by
-    \l{http://qt-project.org/doc/qt-5.0/qtquick/qtquick-modelviewsdata-modelview.html}{data models}:
+    \l{Models and Views in Qt Quick}{data models}:
 
     \list
 
-        \li \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-gridview.html}{Grid View}
-            provides a grid vizualization of a model.
+        \li GridView provides a grid vizualization of a model.
 
-        \li \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-listview.html}{List View}
-            provides a list vizualization of a model.
+        \li ListView provides a list vizualization of a model.
 
-        \li \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-pathview.html}{Path View}
-            visualizes the contents of a model along a path.
+        \li PathView visualizes the contents of a model along a path.
 
     \endlist
 
-    When you add a Grid View, List View, or Path View, the
-    \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-listmodel.html}{ListModel} and the
+    When you add a GridView, ListView, or PathView, the ListModel and the
     delegate component that creates an instance for each item in the model are
     added automatically. You can edit item properties
     in the \gui Properties pane or
@@ -89,7 +85,7 @@
 
     The position of an item on the canvas can be either absolute or relative
     to other items. If you are designing a static user interface,
-    \l{http://dev.qt-project.org/doc/qt-5.0/qtquick-positioning-topic.html#manual-positioning}
+    \l{Important Concepts In Qt Quick - Positioning#manual-positioning}
     {manual positioning} provides the most efficient form of positioning items
     on the screen. For a dynamic user interface, you can employ the following
     positioning methods provided by Qt Quick:
@@ -110,7 +106,7 @@
 
     \section2 Setting Bindings
 
-    \l{http://qt-project.org/doc/qt-5.0/qtquick-positioning-topic.html#positioning-with-bindings}
+    \l{Positioning with Bindings}
     {Property binding} is a declarative way of specifying the value of a property.
     Binding allows a property value to be expressed as an JavaScript expression
     that defines the value relative to other property values or data accessible
@@ -127,8 +123,7 @@
     To remove bindings, select \gui Reset in the context menu.
 
     For more information on the JavaScript environment provided by QML, see
-    \l{http://qt-project.org/doc/qt-5.0/qtqml/qtqml-javascript-topic.html}
-    {Integrating QML and JavaScript}.
+    \l{Integrating QML and JavaScript}.
 
     \QMLD cannot show bindings and using them might have a negative impact on
     performance, so consider setting anchors and margins for items, instead.
@@ -138,8 +133,7 @@
 
     \section2 Setting Anchors and Margins
 
-    In an
-    \l{http://qt-project.org/doc/qt-5.0/qtquick-positioning-anchors.html}
+    In an \l{Important Concepts In Qt Quick - Positioning#anchors}
     {anchor-based} layout, each QML type can be thought of as having a set of
     invisible \e anchor lines: top, bottom, left, right, fill, horizontal
     center, vertical center, and baseline.
@@ -191,7 +185,7 @@
 
     \section2 Using Positioners
 
-    \l{http://qt-project.org/doc/qt-5.0/qtquick-positioning-layouts.html}
+    \l{Important Concepts In Qt Quick - Positioning#positioners}
     {Positioner items} are container items that manage the positions of items in
     a declarative user interface. Positioners behave in a similar way to the
     layout managers used with standard Qt widgets, except that they are also
@@ -201,17 +195,15 @@
 
     \list
 
-        \li \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-column.html}{Column}
-            arranges its child items vertically.
+        \li \l{Column} arranges its child items vertically.
 
-        \li \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-row.html}{Row}
-            arranges its child items horizontally.
+        \li \l{Row} arranges its child items horizontally.
 
-        \li \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-grid.html}{Grid}
+        \li \l{Grid}
             arranges its child items so that they are aligned in a grid and
             are not overlapping.
 
-        \li \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-flow.html}{Flow}
+        \li \l{Flow}
             arranges its child items side by side, wrapping as necessary.
 
     \endlist
@@ -222,28 +214,23 @@
 
     \section2 Using Layouts
 
-    From Qt 5.1, you can use QML types in the
-    \l{http://qt-project.org/doc/qt-5.1/qtquicklayouts/qtquicklayouts-index.html}
-    {Qt Quick Layouts module} to arrange Qt Quick items on screens. Unlike p
-    ositioners, they manage both the positions and sizes of items in a
+    From Qt 5.1, you can use QML types in the \l{qtquicklayouts-index.html}
+    {Qt Quick Layouts} module to arrange Qt Quick items on screens. Unlike
+    positioners, they manage both the positions and sizes of items in a
     declarative interface. They are well suited for resizable user interfaces.
 
     You can use the following layout types to arrange items on screens:
 
     \list
 
-        \li \l{http://qt-project.org/doc/qt-5.0/qml-qtquick-layouts-layout.html}
-            {Layout} provides attached properties for items pushed onto a
+        \li \l{Layout} provides attached properties for items pushed onto a
             \gui {Column Layout}, \gui {Row Layout}, or \gui {Grid Layout}.
 
-        \li \l{http://qt-project.org/doc/qt-5.0/qml-qtquick-layouts-columnlayout.html}
-            {Column Layout} provides a grid layout with only one column.
+        \li ColumnLayout provides a grid layout with only one column.
 
-        \li \l{http://qt-project.org/doc/qt-5.0/qml-qtquick-layouts-rowlayout.html}
-            {Row Layout} provides a grid layout with only one row.
+        \li RowLayout provides a grid layout with only one row.
 
-        \li \l{http://qt-project.org/doc/qt-5.0/qml-qtquick-layouts-gridlayout.html}
-            {Grid Layout} provides a way of dynamically arranging items in a
+        \li GridLayout provides a way of dynamically arranging items in a
             grid.
 
     \endlist
@@ -259,9 +246,8 @@
 
     \section2 Using Split Views
 
-    From Qt 5.1, you can use the
-    \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-splitview.html}
-    {Split View} Qt Quick Control to arrange items horizontally or vertically
+    From Qt 5.1, you can use the SplitView Qt Quick Control to arrange items
+    horizontally or vertically
     with a draggable splitter between each item.
 
 
@@ -344,16 +330,14 @@
     use different types of animated transitions. For example, you can animate
     changes to property values and colors. You can use rotation animation to
     control the direction of rotation. For more information, see
-    \l{http://qt-project.org/doc/qt-5.0/qtquick/qtquick-statesanimations-animations.html}
-    {Animation and Transitions in Qt Quick}.
+    \l{Animation and Transitions in Qt Quick}.
 
     You can use the \c ParallelAnimation type to start several animations at
     the same time. Or use the \c SequentialAnimation type to run them one
     after another.
 
     You can use the code editor to specify transitions. For more information,
-    see \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-transition.html}
-    {Transition}.
+    see \l{Transition}.
 
     \section1 Adding User Interaction Methods
 
@@ -362,85 +346,70 @@
 
     \list
 
-        \li \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-flickable.html}{Flickable}
+        \li \l{Flickable}
             items can be flicked horizontally or vertically.
 
-        \li \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-flipable.html}{Flipable}
+        \li \l{Flipable}
             items can be flipped between their front and back sides by using
             rotation, state, and transition.
 
-        \li \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-focusscope.html}{Focus Scope}
+        \li FocusScope
             assists in keyboard focus handling when building reusable QML
             components.
 
-        \li \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-mousearea.html}{Mouse Area}
-            enables simple mouse handling.
+        \li MouseArea enables simple mouse handling.
 
     \endlist
 
     From Qt 5.1, you can also use the following
-    \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qtquickcontrols-index.html}
-    {Qt Quick Controls} to present or receive input from the user:
+    \l{Qt Quick Controls} to present or receive input from the user:
 
     \list
 
-        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-button.html}
-            {Button} provides a push button that you can associate with an
+        \li \l{Button} provides a push button that you can associate with an
             action.
 
-        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-checkbox.html}
-            {Check Box} provides an option button that can be toggled on
+        \li CheckBox provides an option button that can be toggled on
             (checked) or off (unchecked).
 
-        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-combobox.html}
-            {Combo Box} provides a drop-down list. Add items to the combo box by
+        \li ComboBox provides a drop-down list. Add items to the combo box by
             assigning it a ListModel, or a list of strings to the model
             property.
 
-        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-groupbox.html}
-            {Group Box} provides a frame, a title on top, and place for various
+        \li GroupBox provides a frame, a title on top, and place for various
             other controls inside the frame.
 
-        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-label.html}
-            {Label} provides a text label that follows the font and color scheme
+        \li \l{Label} provides a text label that follows the font and color scheme
             of the system.
 
-        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-progressbar.html}
-            {Progress Bar} indicates the progress of an operation.
+        \li ProgressBar indicates the progress of an operation.
 
-        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-radiobutton.html}
-            {Radio Button} provides an option button that can be switched on
+        \li RadioButton provides an option button that can be switched on
             (checked) or off (unchecked).
 
-        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-slider.html}
+        \li \l{Slider}
             {Slider (Horizontal) and Slider (Vertical)} enable the user to move
             a slider handle along a horizontal or vertical groove and translate
             the handle's position into a value within the specified range.
 
-        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-spinbox.html}
-            {Spin Box} enables the user to specify a value by clicking the up or
+        \li SpinBox enables the user to specify a value by clicking the up or
             down buttons, by pressing up or down on the keyboard, or by entering
             a value in the box.
 
-        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-statusbar.html}
-            {Status Bar} contains status information in your application. It
+        \li StatusBar contains status information in your application. It
             does not provide a layout of its own, but requires you to position
             its contents, for instance by creating a \gui {Row Layout}.
 
-        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-textarea.html}
-            {Text Area} displays multiple lines of editable formatted text.
+        \li TextArea displays multiple lines of editable formatted text.
 
-        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-textfield.html}
-            {Text Field} displays a single line of editable plain text.
+        \li TextField displays a single line of editable plain text.
 
-        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-toolbar.html}
-            {Tool Bar} provides styling for ToolButton as well as other controls
+        \li ToolBar provides styling for ToolButton as well as other controls
             that it can contain. However, it does not provide a layout of its
             own, but requires you to position its contents, for instance by
             creating a \gui {Row Layout}.
 
-        \li \l{http://qt-project.org/doc/qt-5.1/qtquickcontrols/qml-qtquick-controls1-toolbutton.html}
-            {Tool Button} provides a button that is functionally similar to
+        \li ToolButton provides a button that is functionally similar to
             \gui Button, but that looks more suitable on a \gui {Tool Bar}.
 
     \endlist
@@ -450,12 +419,9 @@
 
     A user interface is only a part of an application, and not really useful by itself.
     You can use Qt or JavaScript to implement the application logic. For more information on
-    using JavaScript, see
-    \l{http://qt-project.org/doc/qt-5.0/qtqml/qtqml-javascript-topic.html}
-    {Integrating QML and JavaScript}.
+    using JavaScript, see \l{Integrating QML and JavaScript}.
 
     For an example of how to use JavaScript to develop a game, see the
-    \l{http://qt-project.org/doc/qt-5.0/qtquick/qtquick2-qml-advtutorial.html}
-    {QML Advanced Tutorial}.
+    \l{QML Advanced Tutorial}.
 
 */

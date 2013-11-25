@@ -31,10 +31,10 @@
     \title Creating a Qt Quick Application
 
     This tutorial uses built-in QML types and illustrates basic concepts of
-    \l {http://qt-project.org/doc/qt-5.0/qtquick/qtquick-index.html}{Qt Quick}.
+    \l{Qt Quick}.
 
     This tutorial describes how to use \QC to implement Qt states and transitions. We use
-    \l{http://qt-project.org/doc/qt-5.0/qtquick/animation.html}{Qt example code} to
+    \l{Animation}{Qt example code} to
     create an application that displays a Qt logo that moves between three rectangles on the
     page when you click them.
 

@@ -142,8 +142,7 @@
     SDK to get the API and tools packages needed for development. In addition,
     you must install Qt for Android as part of Qt 5.2, or later.
 
-    For more information, see
-    \l{http://qt-project.org/doc/qt-5/android-support.html}{Qt for Android}.
+    For more information, see \l{Qt for Android}.
 
     To configure connections between \QC and Android devices:
 

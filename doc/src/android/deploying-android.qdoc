@@ -154,8 +154,7 @@
     For more information, see \l{Selecting Android Devices}.
 
     For more information about the \c androiddeployqt tool, see
-    \l{http://qt-project.org/doc/qt-5/deployment-android.html}
-    {Deploying an Application on Android}.
+    \l{Deploying an Application on Android}.
 
     \section2 Specifying Settings for Qt 5 Packages
 
@@ -168,8 +167,7 @@
     The anddroiddeployqt tool uses the information in the project .pro file to
     create APKs. For more information about the qmake variables
     that you can set in the .pro file to tailor the APK, see
-     \l{http://qt-project.org/doc/qt-5/deployment-android.html#qmake-variables}
-    {qmake Variables}.
+     \l{Deploying an Application on Android#qmake-variables}{qmake Variables}.
 
     You can view information about what the anddroiddeployqt tool is doing in
     the \gui {Compile Output} pane. To view additional information, select the

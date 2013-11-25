@@ -55,9 +55,7 @@
     specify other command line arguments for the tools, select \gui {Tools >
     External > Configure}.
 
-    For more information about Qt Linguist, see
-    \l{http://qt-project.org/doc/qt-5.0/qtlinguist/qtlinguist-index.html}
-    {Qt Linguist Manual}.
+    For more information about Qt Linguist, see \l{Qt Linguist Manual}.
 
     \section1 Previewing QML Files
 

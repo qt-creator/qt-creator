@@ -155,7 +155,7 @@
             import QtSensors 5.0
             \endcode
 
-        \li Add the Accelerometer type with the necessary properties:
+        \li Add the \l{Accelerometer} type with the necessary properties:
 
             \quotefromfile accelbubble/main.qml
             \skipto Accelerometer

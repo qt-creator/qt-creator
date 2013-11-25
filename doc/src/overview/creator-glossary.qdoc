@@ -67,9 +67,7 @@
                 contained in a .qml file. For instance, a Button component may
                 be defined in Button.qml. The QML runtime may instantiate this
                 Button component to create Button objects. Alternatively, a
-                component may be defined inside a
-                \l{http://qt-project.org/doc/qt-5.0/qtqml/qml-qtquick2-component.html}
-                {Component} QML type.
+                component may be defined inside a \l{Component} QML type.
 
         \row
             \li Deploy configuration

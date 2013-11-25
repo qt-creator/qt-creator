@@ -48,8 +48,7 @@
     \section1 Previewing Images
 
     The Qt Quick Toolbar for images allows you to edit the properties of
-    \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-borderimage.html}{Border Image}
-    and \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-image.html}{Image} items.
+    BorderImage and \l{Image} items.
     You can scale and tile the images, replace them with other images,
     preview them, and change the image margins.
 
@@ -63,7 +62,7 @@
     \section1 Formatting Text
 
     The Qt Quick Toolbar for text allows you to edit the properties of
-    \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-text.html}{Text} items.
+    \l{Text} items.
     You can change the font family and size as well as text formatting, style,
     alignment, and color.
 
@@ -79,8 +78,7 @@
     \section1 Previewing Animation
 
     The Qt Quick Toolbar for animation allows you to edit the properties of
-    \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-propertyanimation.html}
-    {PropertyAnimation} items and the items that inherit it. You can
+    PropertyAnimation items and the items that inherit it. You can
     change the easing curve type and duration. For some curves, you can also
     specify amplitude, period, and overshoot values.
 
@@ -91,8 +89,7 @@
     \section1 Editing Rectangles
 
     The Qt Quick Toolbar for rectangles allows you to edit the properties of
-    \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-rectangle.html}{Rectangle}
-    items. You can change the fill and border colors and add
+    \l{Rectangle} items. You can change the fill and border colors and add
     gradients.
 
     \image qml-toolbar-rectangle.png "Qt Quick Toolbar for rectangles"
