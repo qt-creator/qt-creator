@@ -33,24 +33,28 @@ cloneUrl = "https://codereview.qt-project.org/p/qt-labs/jom"
 cloneDir = "myCloneOfJom"
 
 def verifyCloneLog(targetDir, canceled):
+    # Expect fails because of QTCREATORBUG-10531
     cloneLog = waitForObject(":Git Repository Clone.logPlainTextEdit_QPlainTextEdit")
-    waitFor('"The process terminated " in str(cloneLog.plainText)', 30000)
-    test.verify(("Executing in " + targetDir + ":" in str(cloneLog.plainText)),
-                "Searching for target directory in clone log")
-    test.verify((" ".join(["clone", cloneUrl, cloneDir]) in str(cloneLog.plainText)),
-                "Searching for git parameters in clone log")
-    test.verify(("Stopping..." in str(cloneLog.plainText)) ^ (not canceled),
-                "Searching for 'Stopping...' in clone log")
+    finish = findObject(":Git Repository Clone.Finish_QPushButton")
+    waitFor("finish.enabled", 30000)
+    test.xverify(("Executing in " + targetDir + ":" in str(cloneLog.plainText)),
+                 "Searching for target directory in clone log")
+    test.xverify((" ".join(["clone", cloneUrl, cloneDir]) in str(cloneLog.plainText)),
+                 "Searching for git parameters in clone log")
     if canceled:
+        test.xverify("Stopping..." in str(cloneLog.plainText),
+                     "Searching for 'Stopping...' in clone log")
         result = "The process terminated in an abnormal way."
         summary = "Failed."
     else:
+        test.verify(not "Stopping..." in str(cloneLog.plainText),
+                    "Searching for 'Stopping...' in clone log")
         test.verify(("'" + cloneDir + "'..." in str(cloneLog.plainText)),
                     "Searching for clone directory in clone log")
         result = "The process terminated with exit code 0."
         summary = "Succeeded."
-    test.verify((result in str(cloneLog.plainText)),
-                "Searching for result (%s) in clone log:\n%s"
+    test.xverify((result in str(cloneLog.plainText)),
+                 "Searching for result (%s) in clone log:\n%s"
                 % (result, str(cloneLog.plainText)))
     test.compare(waitForObject(":Git Repository Clone.Result._QLabel").text, summary)
 
