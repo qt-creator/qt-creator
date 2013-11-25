@@ -263,6 +263,7 @@ void BlackBerryDeviceConfigurationWidget::updateDeviceFromUi()
 void BlackBerryDeviceConfigurationWidget::initGui()
 {
     ui->keyFileLineEdit->setExpectedKind(Utils::PathChooser::File);
+    ui->keyFileLineEdit->setHistoryCompleter(QLatin1String("BB.Key.History"));
     ui->keyFileLineEdit->lineEdit()->setMinimumWidth(0);
 
     const QSsh::SshConnectionParameters &sshParams = deviceConfiguration()->sshParameters();

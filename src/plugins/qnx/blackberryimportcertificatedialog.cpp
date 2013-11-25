@@ -49,6 +49,7 @@ BlackBerryImportCertificateDialog::BlackBerryImportCertificateDialog(
 {
     m_ui->setupUi(this);
     m_ui->certPath->setExpectedKind(Utils::PathChooser::File);
+    m_ui->certPath->setHistoryCompleter(QLatin1String("BB.Certificate.History"));
     m_ui->certPath->setPromptDialogTitle(tr("Import Certificate"));
     m_ui->certPath->setPromptDialogFilter(tr("PKCS 12 Archives (*.p12)"));
 

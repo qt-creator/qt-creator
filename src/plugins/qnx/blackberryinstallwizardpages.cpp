@@ -63,6 +63,7 @@ NdkPathChooser::NdkPathChooser(Mode mode, QWidget *parent)
     : Utils::PathChooser(parent)
     , m_mode(mode)
 {
+    setHistoryCompleter(QLatin1String("Qnx.NdkPath.History"));
     if (m_mode == NdkPathChooser::InstallMode) {
         setExpectedKind(Utils::PathChooser::Directory);
     } else {

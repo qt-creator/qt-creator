@@ -55,6 +55,7 @@ BlackBerryDebugTokenRequestDialog::BlackBerryDebugTokenRequestDialog(
     m_ui->progressBar->hide();
     m_ui->status->clear();
     m_ui->debugTokenPath->setExpectedKind(Utils::PathChooser::SaveFile);
+    m_ui->debugTokenPath->setHistoryCompleter(QLatin1String("BB.DebugToken.History"));
     m_ui->debugTokenPath->setPromptDialogTitle(tr("Request Debug Token"));
     m_ui->debugTokenPath->setPromptDialogFilter(tr("BAR Files (*.bar)"));
 

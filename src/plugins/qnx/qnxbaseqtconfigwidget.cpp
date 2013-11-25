@@ -52,6 +52,7 @@ QnxBaseQtConfigWidget::QnxBaseQtConfigWidget(QnxAbstractQtVersion *version)
     m_ui->sdkLabel->setText(version->sdkDescription());
 
     m_ui->sdkPath->setExpectedKind(Utils::PathChooser::ExistingDirectory);
+    m_ui->sdkPath->setHistoryCompleter(QLatin1String("Qnx.Sdk.History"));
     m_ui->sdkPath->setPath(version->sdkPath());
 
     connect(m_ui->sdkPath, SIGNAL(changed(QString)), this, SLOT(updateSdkPath(QString)));

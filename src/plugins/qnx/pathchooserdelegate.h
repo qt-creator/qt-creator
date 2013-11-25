@@ -60,12 +60,15 @@ public:
     void updateEditorGeometry(QWidget *editor,
         const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
+    void setHistoryCompleter(const QString &key);
+
 private slots:
     void emitCommitData();
 
 private:
     Utils::PathChooser::Kind m_kind;
     QString m_filter;
+    QString m_historyKey;
 };
 
 } // namespace Internal

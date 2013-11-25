@@ -210,10 +210,12 @@ QnxToolChainConfigWidget::QnxToolChainConfigWidget(QnxToolChain *tc)
     , m_abiWidget(new AbiWidget)
 {
     m_compilerCommand->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    m_compilerCommand->setHistoryCompleter(QLatin1String("Qnx.ToolChain.History"));
     m_compilerCommand->setFileName(tc->compilerCommand());
     m_compilerCommand->setEnabled(!tc->isAutoDetected());
 
     m_ndkPath->setExpectedKind(Utils::PathChooser::ExistingDirectory);
+    m_ndkPath->setHistoryCompleter(QLatin1String("Qnx.Ndk.History"));
     m_ndkPath->setPath(tc->ndkPath());
     m_ndkPath->setEnabled(!tc->isAutoDetected());
 
