@@ -59,6 +59,7 @@ GenericLinuxDeviceConfigurationWizardSetupPage::GenericLinuxDeviceConfigurationW
     setTitle(tr("Connection"));
     setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
     d->ui.privateKeyPathChooser->setExpectedKind(PathChooser::File);
+    d->ui.privateKeyPathChooser->setHistoryCompleter(QLatin1String("Ssh.KeyFile.History"));
     d->ui.privateKeyPathChooser->setPromptDialogTitle(tr("Choose a Private Key File"));
     connect(d->ui.nameLineEdit, SIGNAL(textChanged(QString)), SIGNAL(completeChanged()));
     connect(d->ui.hostNameLineEdit, SIGNAL(textChanged(QString)), SIGNAL(completeChanged()));

@@ -183,6 +183,7 @@ void GenericLinuxDeviceConfigurationWidget::initGui()
     m_ui->portsWarningLabel->setToolTip(QLatin1String("<font color=\"red\">")
         + tr("You will need at least one port.") + QLatin1String("</font>"));
     m_ui->keyFileLineEdit->setExpectedKind(PathChooser::File);
+    m_ui->keyFileLineEdit->setHistoryCompleter(QLatin1String("Ssh.KeyFile.History"));
     m_ui->keyFileLineEdit->lineEdit()->setMinimumWidth(0);
     QRegExpValidator * const portsValidator
         = new QRegExpValidator(QRegExp(PortList::regularExpression()), this);
