@@ -261,7 +261,7 @@ TaskWindow::TaskWindow() : d(new TaskWindowPrivate)
 
     d->m_listview->setContextMenuPolicy(Qt::ActionsContextMenu);
 
-    d->m_filterWarningsButton = createFilterButton(d->m_model->taskTypeIcon(Task::Warning),
+    d->m_filterWarningsButton = createFilterButton(TaskHub::taskTypeIcon(Task::Warning),
                                                    tr("Show Warnings"),
                                                    this, SLOT(setShowWarnings(bool)));
 
