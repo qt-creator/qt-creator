@@ -244,6 +244,7 @@ DebuggerSourcePathMappingWidget::DebuggerSourcePathMappingWidget(QWidget *parent
 
     // Edit part
     m_targetChooser->setExpectedKind(PathChooser::ExistingDirectory);
+    m_targetChooser->setHistoryCompleter(QLatin1String("Debugger.MappingTarget.History"));
     connect(m_sourceLineEdit, SIGNAL(textChanged(QString)),
             this, SLOT(slotEditSourceFieldChanged()));
     connect(m_targetChooser, SIGNAL(changed(QString)),

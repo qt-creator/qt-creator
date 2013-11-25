@@ -236,14 +236,17 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     d->forceLocalLabel->setBuddy(d->forceLocalCheckBox);
 
     d->localExecFileName = new PathChooser(this);
+    d->localExecFileName->setHistoryCompleter(QLatin1String("LocalExecutable"));
     d->localExecFileName->setExpectedKind(PathChooser::File);
     d->localExecFileName->setPromptDialogTitle(tr("Select Executable"));
 
     d->localCoreFileName = new PathChooser(this);
+    d->localCoreFileName->setHistoryCompleter(QLatin1String("Debugger.CoreFile.History"));
     d->localCoreFileName->setExpectedKind(PathChooser::File);
     d->localCoreFileName->setPromptDialogTitle(tr("Select Core File"));
 
     d->overrideStartScriptFileName = new PathChooser(this);
+    d->overrideStartScriptFileName->setHistoryCompleter(QLatin1String("Debugger.StartupScript.History"));
     d->overrideStartScriptFileName->setExpectedKind(PathChooser::File);
     d->overrideStartScriptFileName->setPromptDialogTitle(tr("Select Startup Script"));
 

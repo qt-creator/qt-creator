@@ -279,6 +279,7 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     d->debuginfoPathChooser->setToolTip(tr(
         "Base path for external debug information and debug sources. "
         "If empty, $SYSROOT/usr/lib/debug will be chosen."));
+    d->debuginfoPathChooser->setHistoryCompleter(QLatin1String("Debugger.DebugLocation.History"));
 
     QFrame *line = new QFrame(this);
     line->setFrameShape(QFrame::HLine);

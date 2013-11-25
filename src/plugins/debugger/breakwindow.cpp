@@ -170,6 +170,7 @@ BreakpointDialog::BreakpointDialog(BreakpointModelId id, QWidget *parent)
     m_labelType->setBuddy(m_comboBoxType);
 
     m_pathChooserFileName = new Utils::PathChooser(groupBoxBasic);
+    m_pathChooserFileName->setHistoryCompleter(QLatin1String("Debugger.Breakpoint.File.History"));
     m_pathChooserFileName->setExpectedKind(Utils::PathChooser::File);
     m_labelFileName = new QLabel(tr("&File name:"), groupBoxBasic);
     m_labelFileName->setBuddy(m_pathChooserFileName);
