@@ -199,6 +199,12 @@
                 Plain C or C++ project that uses CMake but does not use the Qt
                 library
 
+            \li Plain C or C++ Project (Qbs Build)
+
+                Plain C or C++ project that uses Qbs but does not use the Qt
+                library. This project type is listed if the experimental Qbs
+                plugin has been enabled in \gui Help > \gui {About Plugins}.
+
         \endlist
 
         \li Import Project
