@@ -321,6 +321,7 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
     PathChooser *chooser = new PathChooser;
     txt->setBuddy(chooser);
     chooser->setExpectedKind(PathChooser::ExistingDirectory);
+    chooser->setHistoryCompleter(QLatin1String("Qt.WritableExamplesDir.History"));
     QSettings *settings = Core::ICore::settings();
     chooser->setPath(settings->value(QString::fromLatin1(C_FALLBACK_ROOT),
                                      Core::DocumentManager::projectsDirectory()).toString());
