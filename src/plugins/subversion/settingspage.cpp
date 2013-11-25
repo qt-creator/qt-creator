@@ -48,6 +48,7 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
 {
     m_ui.setupUi(this);
     m_ui.pathChooser->setExpectedKind(PathChooser::ExistingCommand);
+    m_ui.pathChooser->setHistoryCompleter(QLatin1String("Subversion.Command.History"));
     m_ui.pathChooser->setPromptDialogTitle(tr("Subversion Command"));
 }
 
