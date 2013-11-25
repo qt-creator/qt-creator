@@ -48,6 +48,7 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
 {
     m_ui.setupUi(this);
     m_ui.commandPathChooser->setExpectedKind(PathChooser::ExistingCommand);
+    m_ui.commandPathChooser->setHistoryCompleter(QLatin1String("Cvs.Command.History"));
     m_ui.commandPathChooser->setPromptDialogTitle(tr("CVS Command"));
 }
 
