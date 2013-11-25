@@ -609,60 +609,6 @@ void CppEditorPlugin::test_quickfix_GenerateGetterSetter_basicGetterWithPrefixAn
     data.run(&factory);
 }
 
-/// Checks: In addition to test_quickfix_GenerateGetterSetter_basicGetterWithPrefix
-/// generated definitions should fit in the namespace.
-void CppEditorPlugin::test_quickfix_GenerateGetterSetter_basicGetterWithPrefixAndNamespaceToCpp()
-{
-    QList<TestDocumentPtr> testFiles;
-    QByteArray original;
-    QByteArray expected;
-
-    // Header File
-    original =
-        "namespace SomeNamespace {\n"
-        "class Something\n"
-        "{\n"
-        "    int @it;\n"
-        "};\n"
-        "}\n";
-    expected =
-        "namespace SomeNamespace {\n"
-        "class Something\n"
-        "{\n"
-        "    int it;\n"
-        "\n"
-        "public:\n"
-        "    int getIt() const;\n"
-        "    void setIt(int value);\n"
-        "};\n"
-        "}\n\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
-
-    // Source File
-    original =
-        "#include \"file.h\"\n"
-        "namespace SomeNamespace {\n"
-        "}\n";
-    expected =
-        "#include \"file.h\"\n"
-        "namespace SomeNamespace {\n"
-        "int Something::getIt() const\n"
-        "{\n"
-        "    return it;\n"
-        "}\n"
-        "\n"
-        "void Something::setIt(int value)\n"
-        "{\n"
-        "    it = value;\n"
-        "}\n\n"
-        "}\n\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
-
-    GenerateGetterSetter factory;
-    TestCase data(testFiles);
-    data.run(&factory);
-}
-
 /// Checks:
 /// 1. Getter: "get" prefix is not necessary.
 /// 2. Setter: Parameter name is base name.
@@ -1175,6 +1121,480 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_basic()
     data.run(&factory);
 }
 
+void CppEditorPlugin::test_quickfix_InsertDefFromDecl_freeFunction()
+{
+    const QByteArray original = "void free()@;\n";
+    const QByteArray expected =
+        "void free()\n"
+        "{\n\n"
+        "}\n"
+        "\n"
+        ;
+
+    InsertDefFromDecl factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check not triggering when it is a statement
+void CppEditorPlugin::test_quickfix_InsertDefFromDecl_notTriggeringStatement()
+{
+    const QByteArray original =
+            "class Foo {\n"
+            "public:\n"
+            "    Foo() {}\n"
+            "};\n"
+            "void freeFunc() {\n"
+            "    Foo @f();"
+            "}\n";
+    const QByteArray expected = original + "\n";
+
+    InsertDefFromDecl factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: Add local variable for a free function.
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_freeFunction()
+{
+    const QByteArray original =
+        "int foo() {return 1;}\n"
+        "void bar() {fo@o();}";
+    const QByteArray expected =
+        "int foo() {return 1;}\n"
+        "void bar() {int localFoo = foo();}\n";
+
+    AssignToLocalVariable factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: Add local variable for a member function.
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_memberFunction()
+{
+    const QByteArray original =
+        "class Foo {public: int* fooFunc();}\n"
+        "void bar() {\n"
+        "    Foo *f = new Foo;\n"
+        "    @f->fooFunc();\n"
+        "}";
+    const QByteArray expected =
+        "class Foo {public: int* fooFunc();}\n"
+        "void bar() {\n"
+        "    Foo *f = new Foo;\n"
+        "    int *localFooFunc = f->fooFunc();\n"
+        "}\n";
+
+    AssignToLocalVariable factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: Add local variable for a static member function.
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_staticMemberFunction()
+{
+    const QByteArray original =
+        "class Foo {public: static int* fooFunc();}\n"
+        "void bar() {\n"
+        "    Foo::fooF@unc();\n"
+        "}";
+    const QByteArray expected =
+        "class Foo {public: static int* fooFunc();}\n"
+        "void bar() {\n"
+        "    int *localFooFunc = Foo::fooFunc();\n"
+        "}\n";
+
+    AssignToLocalVariable factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: Add local variable for a new Expression.
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_newExpression()
+{
+    const QByteArray original =
+        "class Foo {}\n"
+        "void bar() {\n"
+        "    new Fo@o;\n"
+        "}";
+    const QByteArray expected =
+        "class Foo {}\n"
+        "void bar() {\n"
+        "    Foo *localFoo = new Foo;\n"
+        "}\n";
+
+    AssignToLocalVariable factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: No trigger for function inside member initialization list.
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noInitializationList()
+{
+    const QByteArray original =
+        "class Foo\n"
+        "{\n"
+        "    public: Foo : m_i(fooF@unc()) {}\n"
+        "    int fooFunc() {return 2;}\n"
+        "    int m_i;\n"
+        "};";
+    const QByteArray expected = original + "\n";
+
+    AssignToLocalVariable factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: No trigger for void functions.
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noVoidFunction()
+{
+    const QByteArray original =
+        "void foo() {}\n"
+        "void bar() {fo@o();}";
+    const QByteArray expected = original + "\n";
+
+    AssignToLocalVariable factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: No trigger for void member functions.
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noVoidMemberFunction()
+{
+    const QByteArray original =
+        "class Foo {public: void fooFunc();}\n"
+        "void bar() {\n"
+        "    Foo *f = new Foo;\n"
+        "    @f->fooFunc();\n"
+        "}";
+    const QByteArray expected = original + "\n";
+
+    AssignToLocalVariable factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: No trigger for void static member functions.
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noVoidStaticMemberFunction()
+{
+    const QByteArray original =
+        "class Foo {public: static void fooFunc();}\n"
+        "void bar() {\n"
+        "    Foo::fo@oFunc();\n"
+        "}";
+    const QByteArray expected = original + "\n";
+
+    AssignToLocalVariable factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: No trigger for functions in expressions.
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noFunctionInExpression()
+{
+    const QByteArray original =
+        "int foo(int a) {return a;}\n"
+        "int bar() {return 1;}"
+        "void baz() {foo(@bar() + bar());}";
+    const QByteArray expected = original + "\n";
+
+    AssignToLocalVariable factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: No trigger for functions in functions. (QTCREATORBUG-9510)
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noFunctionInFunction()
+{
+    const QByteArray original =
+        "int foo(int a, int b) {return a + b;}\n"
+        "int bar(int a) {return a;}\n"
+        "void baz() {\n"
+        "    int a = foo(ba@r(), bar());\n"
+        "}\n";
+    const QByteArray expected = original + "\n";
+
+    AssignToLocalVariable factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: No trigger for functions in return statements (classes).
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noReturnClass1()
+{
+    const QByteArray original =
+        "class Foo {public: static void fooFunc();}\n"
+        "Foo* bar() {\n"
+        "    return new Fo@o;\n"
+        "}";
+    const QByteArray expected = original + "\n";
+
+    AssignToLocalVariable factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: No trigger for functions in return statements (classes). (QTCREATORBUG-9525)
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noReturnClass2()
+{
+    const QByteArray original =
+        "class Foo {public: int fooFunc();}\n"
+        "int bar() {\n"
+        "    return (new Fo@o)->fooFunc();\n"
+        "}";
+    const QByteArray expected = original + "\n";
+
+    AssignToLocalVariable factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: No trigger for functions in return statements (functions).
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noReturnFunc1()
+{
+    const QByteArray original =
+        "class Foo {public: int fooFunc();}\n"
+        "int bar() {\n"
+        "    return Foo::fooFu@nc();\n"
+        "}";
+    const QByteArray expected = original + "\n";
+
+    AssignToLocalVariable factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: No trigger for functions in return statements (functions). (QTCREATORBUG-9525)
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noReturnFunc2()
+{
+    const QByteArray original =
+        "int bar() {\n"
+        "    return list.firs@t().foo;\n"
+        "}\n";
+    const QByteArray expected = original + "\n";
+
+    AssignToLocalVariable factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: No trigger for functions which does not match in signature.
+void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noSignatureMatch()
+{
+    const QByteArray original =
+        "int someFunc(int);\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    some@Func();\n"
+        "}";
+    const QByteArray expected = original + "\n";
+
+    AssignToLocalVariable factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_freeFunction()
+{
+    const QByteArray original =
+        "void foo(const char *a, long b = 1)\n"
+        "{return 1@56 + 123 + 156;}";
+    const QByteArray expected =
+        "void foo(const char *a, long b = 1, int newParameter = 156)\n"
+        "{return newParameter + 123 + newParameter;}\n";
+
+    ExtractLiteralAsParameter factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_memberFunction()
+{
+    const QByteArray original =
+        "class Narf {\n"
+        "public:\n"
+        "    int zort();\n"
+        "};\n\n"
+        "int Narf::zort()\n"
+        "{ return 15@5 + 1; }";
+    const QByteArray expected =
+        "class Narf {\n"
+        "public:\n"
+        "    int zort(int newParameter = 155);\n"
+        "};\n\n"
+        "int Narf::zort(int newParameter)\n"
+        "{ return newParameter + 1; }\n";
+
+    ExtractLiteralAsParameter factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_memberFunctionInline()
+{
+    const QByteArray original =
+        "class Narf {\n"
+        "public:\n"
+        "    int zort()\n"
+        "    { return 15@5 + 1; }\n"
+        "};";
+    const QByteArray expected =
+        "class Narf {\n"
+        "public:\n"
+        "    int zort(int newParameter = 155)\n"
+        "    { return newParameter + 1; }\n"
+        "};\n";
+
+    ExtractLiteralAsParameter factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: optimize postcrement
+void CppEditorPlugin::test_quickfix_OptimizeForLoop_postcrement()
+{
+    const QByteArray original = "void foo() {f@or (int i = 0; i < 3; i++) {}}\n";
+    const QByteArray expected = "void foo() {for (int i = 0; i < 3; ++i) {}}\n\n";
+    OptimizeForLoop factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: optimize condition
+void CppEditorPlugin::test_quickfix_OptimizeForLoop_condition()
+{
+    const QByteArray original = "void foo() {f@or (int i = 0; i < 3 + 5; ++i) {}}\n";
+    const QByteArray expected = "void foo() {for (int i = 0, total = 3 + 5; i < total; ++i) {}}\n\n";
+    OptimizeForLoop factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: optimize fliped condition
+void CppEditorPlugin::test_quickfix_OptimizeForLoop_flipedCondition()
+{
+    const QByteArray original = "void foo() {f@or (int i = 0; 3 + 5 > i; ++i) {}}\n";
+    const QByteArray expected = "void foo() {for (int i = 0, total = 3 + 5; total > i; ++i) {}}\n\n";
+    OptimizeForLoop factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: if "total" used, create other name.
+void CppEditorPlugin::test_quickfix_OptimizeForLoop_alterVariableName()
+{
+    const QByteArray original = "void foo() {f@or (int i = 0, total = 0; i < 3 + 5; ++i) {}}\n";
+    const QByteArray expected = "void foo() {for (int i = 0, total = 0, totalX = 3 + 5; i < totalX; ++i) {}}\n\n";
+    OptimizeForLoop factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: optimize postcrement and condition
+void CppEditorPlugin::test_quickfix_OptimizeForLoop_optimizeBoth()
+{
+    const QByteArray original = "void foo() {f@or (int i = 0; i < 3 + 5; i++) {}}\n";
+    const QByteArray expected = "void foo() {for (int i = 0, total = 3 + 5; i < total; ++i) {}}\n\n";
+    OptimizeForLoop factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: empty initializier
+void CppEditorPlugin::test_quickfix_OptimizeForLoop_emptyInitializer()
+{
+    const QByteArray original = "int i; void foo() {f@or (; i < 3 + 5; ++i) {}}\n";
+    const QByteArray expected = "int i; void foo() {for (int total = 3 + 5; i < total; ++i) {}}\n\n";
+    OptimizeForLoop factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: wrong initializier type -> no trigger
+void CppEditorPlugin::test_quickfix_OptimizeForLoop_wrongInitializer()
+{
+    const QByteArray original = "int i; void foo() {f@or (double a = 0; i < 3 + 5; ++i) {}}\n";
+    const QByteArray expected = "int i; void foo() {f@or (double a = 0; i < 3 + 5; ++i) {}}\n\n";
+    OptimizeForLoop factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: No trigger when numeric
+void CppEditorPlugin::test_quickfix_OptimizeForLoop_noTriggerNumeric1()
+{
+    const QByteArray original = "void foo() {fo@r (int i = 0; i < 3; ++i) {}}\n";
+    const QByteArray expected = original + "\n";
+    OptimizeForLoop factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Check: No trigger when numeric
+void CppEditorPlugin::test_quickfix_OptimizeForLoop_noTriggerNumeric2()
+{
+    const QByteArray original = "void foo() {fo@r (int i = 0; i < -3; ++i) {}}\n";
+    const QByteArray expected = original + "\n";
+    OptimizeForLoop factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+/// Checks: In addition to test_quickfix_GenerateGetterSetter_basicGetterWithPrefix
+/// generated definitions should fit in the namespace.
+void CppEditorPlugin::test_quickfix_GenerateGetterSetter_basicGetterWithPrefixAndNamespaceToCpp()
+{
+    QList<TestDocumentPtr> testFiles;
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+        "namespace SomeNamespace {\n"
+        "class Something\n"
+        "{\n"
+        "    int @it;\n"
+        "};\n"
+        "}\n";
+    expected =
+        "namespace SomeNamespace {\n"
+        "class Something\n"
+        "{\n"
+        "    int it;\n"
+        "\n"
+        "public:\n"
+        "    int getIt() const;\n"
+        "    void setIt(int value);\n"
+        "};\n"
+        "}\n\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original =
+        "#include \"file.h\"\n"
+        "namespace SomeNamespace {\n"
+        "}\n";
+    expected =
+        "#include \"file.h\"\n"
+        "namespace SomeNamespace {\n"
+        "int Something::getIt() const\n"
+        "{\n"
+        "    return it;\n"
+        "}\n"
+        "\n"
+        "void Something::setIt(int value)\n"
+        "{\n"
+        "    it = value;\n"
+        "}\n\n"
+        "}\n\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    GenerateGetterSetter factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+
 /// Check if definition is inserted right after class for insert definition outside
 void CppEditorPlugin::test_quickfix_InsertDefFromDecl_afterClass()
 {
@@ -1400,21 +1820,6 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_namespace2()
     data.run(&factory);
 }
 
-void CppEditorPlugin::test_quickfix_InsertDefFromDecl_freeFunction()
-{
-    const QByteArray original = "void free()@;\n";
-    const QByteArray expected =
-        "void free()\n"
-        "{\n\n"
-        "}\n"
-        "\n"
-        ;
-
-    InsertDefFromDecl factory;
-    TestCase data(original, expected);
-    data.run(&factory);
-}
-
 /// Check definition insert inside class
 void CppEditorPlugin::test_quickfix_InsertDefFromDecl_insideClass()
 {
@@ -1447,24 +1852,6 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_notTriggeringWhenDefinitio
     InsertDefFromDecl factory;
     TestCase data(original, expected);
     data.run(&factory, 1);
-}
-
-/// Check not triggering when it is a statement
-void CppEditorPlugin::test_quickfix_InsertDefFromDecl_notTriggeringStatement()
-{
-    const QByteArray original =
-            "class Foo {\n"
-            "public:\n"
-            "    Foo() {}\n"
-            "};\n"
-            "void freeFunc() {\n"
-            "    Foo @f();"
-            "}\n";
-    const QByteArray expected = original + "\n";
-
-    InsertDefFromDecl factory;
-    TestCase data(original, expected);
-    data.run(&factory);
 }
 
 /// Find right implementation file.
@@ -3392,80 +3779,6 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_structWithAssignedVariable
     data.run(&factory);
 }
 
-/// Check: Add local variable for a free function.
-void CppEditorPlugin::test_quickfix_AssignToLocalVariable_freeFunction()
-{
-    const QByteArray original =
-        "int foo() {return 1;}\n"
-        "void bar() {fo@o();}";
-    const QByteArray expected =
-        "int foo() {return 1;}\n"
-        "void bar() {int localFoo = foo();}\n";
-
-    AssignToLocalVariable factory;
-    TestCase data(original, expected);
-    data.run(&factory);
-}
-
-/// Check: Add local variable for a member function.
-void CppEditorPlugin::test_quickfix_AssignToLocalVariable_memberFunction()
-{
-    const QByteArray original =
-        "class Foo {public: int* fooFunc();}\n"
-        "void bar() {\n"
-        "    Foo *f = new Foo;\n"
-        "    @f->fooFunc();\n"
-        "}";
-    const QByteArray expected =
-        "class Foo {public: int* fooFunc();}\n"
-        "void bar() {\n"
-        "    Foo *f = new Foo;\n"
-        "    int *localFooFunc = f->fooFunc();\n"
-        "}\n";
-
-    AssignToLocalVariable factory;
-    TestCase data(original, expected);
-    data.run(&factory);
-}
-
-/// Check: Add local variable for a static member function.
-void CppEditorPlugin::test_quickfix_AssignToLocalVariable_staticMemberFunction()
-{
-    const QByteArray original =
-        "class Foo {public: static int* fooFunc();}\n"
-        "void bar() {\n"
-        "    Foo::fooF@unc();\n"
-        "}";
-    const QByteArray expected =
-        "class Foo {public: static int* fooFunc();}\n"
-        "void bar() {\n"
-        "    int *localFooFunc = Foo::fooFunc();\n"
-        "}\n";
-
-    AssignToLocalVariable factory;
-    TestCase data(original, expected);
-    data.run(&factory);
-}
-
-/// Check: Add local variable for a new Expression.
-void CppEditorPlugin::test_quickfix_AssignToLocalVariable_newExpression()
-{
-    const QByteArray original =
-        "class Foo {}\n"
-        "void bar() {\n"
-        "    new Fo@o;\n"
-        "}";
-    const QByteArray expected =
-        "class Foo {}\n"
-        "void bar() {\n"
-        "    Foo *localFoo = new Foo;\n"
-        "}\n";
-
-    AssignToLocalVariable factory;
-    TestCase data(original, expected);
-    data.run(&factory);
-}
-
 void CppEditorPlugin::test_quickfix_AssignToLocalVariable_templates()
 {
 
@@ -3501,173 +3814,6 @@ void CppEditorPlugin::test_quickfix_AssignToLocalVariable_templates()
 
     AssignToLocalVariable factory;
     TestCase data(testFiles);
-    data.run(&factory);
-}
-
-/// Check: No trigger for function inside member initialization list.
-void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noInitializationList()
-{
-    const QByteArray original =
-        "class Foo\n"
-        "{\n"
-        "    public: Foo : m_i(fooF@unc()) {}\n"
-        "    int fooFunc() {return 2;}\n"
-        "    int m_i;\n"
-        "};";
-    const QByteArray expected = original + "\n";
-
-    AssignToLocalVariable factory;
-    TestCase data(original, expected);
-    data.run(&factory);
-}
-
-/// Check: No trigger for void functions.
-void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noVoidFunction()
-{
-    const QByteArray original =
-        "void foo() {}\n"
-        "void bar() {fo@o();}";
-    const QByteArray expected = original + "\n";
-
-    AssignToLocalVariable factory;
-    TestCase data(original, expected);
-    data.run(&factory);
-}
-
-/// Check: No trigger for void member functions.
-void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noVoidMemberFunction()
-{
-    const QByteArray original =
-        "class Foo {public: void fooFunc();}\n"
-        "void bar() {\n"
-        "    Foo *f = new Foo;\n"
-        "    @f->fooFunc();\n"
-        "}";
-    const QByteArray expected = original + "\n";
-
-    AssignToLocalVariable factory;
-    TestCase data(original, expected);
-    data.run(&factory);
-}
-
-/// Check: No trigger for void static member functions.
-void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noVoidStaticMemberFunction()
-{
-    const QByteArray original =
-        "class Foo {public: static void fooFunc();}\n"
-        "void bar() {\n"
-        "    Foo::fo@oFunc();\n"
-        "}";
-    const QByteArray expected = original + "\n";
-
-    AssignToLocalVariable factory;
-    TestCase data(original, expected);
-    data.run(&factory);
-}
-
-/// Check: No trigger for functions in expressions.
-void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noFunctionInExpression()
-{
-    const QByteArray original =
-        "int foo(int a) {return a;}\n"
-        "int bar() {return 1;}"
-        "void baz() {foo(@bar() + bar());}";
-    const QByteArray expected = original + "\n";
-
-    AssignToLocalVariable factory;
-    TestCase data(original, expected);
-    data.run(&factory);
-}
-
-/// Check: No trigger for functions in functions. (QTCREATORBUG-9510)
-void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noFunctionInFunction()
-{
-    const QByteArray original =
-        "int foo(int a, int b) {return a + b;}\n"
-        "int bar(int a) {return a;}\n"
-        "void baz() {\n"
-        "    int a = foo(ba@r(), bar());\n"
-        "}\n";
-    const QByteArray expected = original + "\n";
-
-    AssignToLocalVariable factory;
-    TestCase data(original, expected);
-    data.run(&factory);
-}
-
-/// Check: No trigger for functions in return statements (classes).
-void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noReturnClass1()
-{
-    const QByteArray original =
-        "class Foo {public: static void fooFunc();}\n"
-        "Foo* bar() {\n"
-        "    return new Fo@o;\n"
-        "}";
-    const QByteArray expected = original + "\n";
-
-    AssignToLocalVariable factory;
-    TestCase data(original, expected);
-    data.run(&factory);
-}
-
-/// Check: No trigger for functions in return statements (classes). (QTCREATORBUG-9525)
-void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noReturnClass2()
-{
-    const QByteArray original =
-        "class Foo {public: int fooFunc();}\n"
-        "int bar() {\n"
-        "    return (new Fo@o)->fooFunc();\n"
-        "}";
-    const QByteArray expected = original + "\n";
-
-    AssignToLocalVariable factory;
-    TestCase data(original, expected);
-    data.run(&factory);
-}
-
-/// Check: No trigger for functions in return statements (functions).
-void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noReturnFunc1()
-{
-    const QByteArray original =
-        "class Foo {public: int fooFunc();}\n"
-        "int bar() {\n"
-        "    return Foo::fooFu@nc();\n"
-        "}";
-    const QByteArray expected = original + "\n";
-
-    AssignToLocalVariable factory;
-    TestCase data(original, expected);
-    data.run(&factory);
-}
-
-/// Check: No trigger for functions in return statements (functions). (QTCREATORBUG-9525)
-void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noReturnFunc2()
-{
-    const QByteArray original =
-        "int bar() {\n"
-        "    return list.firs@t().foo;\n"
-        "}\n";
-    const QByteArray expected = original + "\n";
-
-    AssignToLocalVariable factory;
-    TestCase data(original, expected);
-    data.run(&factory);
-}
-
-/// Check: No trigger for functions which does not match in signature.
-void CppEditorPlugin::test_quickfix_AssignToLocalVariable_noSignatureMatch()
-{
-    const QByteArray original =
-        "int someFunc(int);\n"
-        "\n"
-        "void f()\n"
-        "{\n"
-        "    some@Func();\n"
-        "}";
-    const QByteArray expected = original + "\n";
-
-    AssignToLocalVariable factory;
-    TestCase data(original, expected);
     data.run(&factory);
 }
 
@@ -3736,20 +3882,6 @@ void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_typeDeduction()
     data.run(&factory);
 }
 
-void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_freeFunction()
-{
-    const QByteArray original =
-        "void foo(const char *a, long b = 1)\n"
-        "{return 1@56 + 123 + 156;}";
-    const QByteArray expected =
-        "void foo(const char *a, long b = 1, int newParameter = 156)\n"
-        "{return newParameter + 123 + newParameter;}\n";
-
-    ExtractLiteralAsParameter factory;
-    TestCase data(original, expected);
-    data.run(&factory);
-}
-
 void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_freeFunction_separateFiles()
 {
     QList<TestDocumentPtr> testFiles;
@@ -3774,28 +3906,6 @@ void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_freeFunction_separ
 
     ExtractLiteralAsParameter factory;
     TestCase data(testFiles);
-    data.run(&factory);
-}
-
-void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_memberFunction()
-{
-    const QByteArray original =
-        "class Narf {\n"
-        "public:\n"
-        "    int zort();\n"
-        "};\n\n"
-        "int Narf::zort()\n"
-        "{ return 15@5 + 1; }";
-    const QByteArray expected =
-        "class Narf {\n"
-        "public:\n"
-        "    int zort(int newParameter = 155);\n"
-        "};\n\n"
-        "int Narf::zort(int newParameter)\n"
-        "{ return newParameter + 1; }\n";
-
-    ExtractLiteralAsParameter factory;
-    TestCase data(original, expected);
     data.run(&factory);
 }
 
@@ -3831,26 +3941,6 @@ void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_memberFunction_sep
 
     ExtractLiteralAsParameter factory;
     TestCase data(testFiles);
-    data.run(&factory);
-}
-
-void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_memberFunctionInline()
-{
-    const QByteArray original =
-        "class Narf {\n"
-        "public:\n"
-        "    int zort()\n"
-        "    { return 15@5 + 1; }\n"
-        "};";
-    const QByteArray expected =
-        "class Narf {\n"
-        "public:\n"
-        "    int zort(int newParameter = 155)\n"
-        "    { return newParameter + 1; }\n"
-        "};\n";
-
-    ExtractLiteralAsParameter factory;
-    TestCase data(original, expected);
     data.run(&factory);
 }
 
@@ -4294,95 +4384,5 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_BaseClassInNamespace()
     InsertVirtualMethods factory(new InsertVirtualMethodsDialogTest(
                                      InsertVirtualMethodsDialog::ModeImplementationFile, true));
     TestCase data(testFiles);
-    data.run(&factory);
-}
-
-/// Check: optimize postcrement
-void CppEditorPlugin::test_quickfix_OptimizeForLoop_postcrement()
-{
-    const QByteArray original = "void foo() {f@or (int i = 0; i < 3; i++) {}}\n";
-    const QByteArray expected = "void foo() {for (int i = 0; i < 3; ++i) {}}\n\n";
-    OptimizeForLoop factory;
-    TestCase data(original, expected);
-    data.run(&factory);
-}
-
-/// Check: optimize condition
-void CppEditorPlugin::test_quickfix_OptimizeForLoop_condition()
-{
-    const QByteArray original = "void foo() {f@or (int i = 0; i < 3 + 5; ++i) {}}\n";
-    const QByteArray expected = "void foo() {for (int i = 0, total = 3 + 5; i < total; ++i) {}}\n\n";
-    OptimizeForLoop factory;
-    TestCase data(original, expected);
-    data.run(&factory);
-}
-
-/// Check: optimize fliped condition
-void CppEditorPlugin::test_quickfix_OptimizeForLoop_flipedCondition()
-{
-    const QByteArray original = "void foo() {f@or (int i = 0; 3 + 5 > i; ++i) {}}\n";
-    const QByteArray expected = "void foo() {for (int i = 0, total = 3 + 5; total > i; ++i) {}}\n\n";
-    OptimizeForLoop factory;
-    TestCase data(original, expected);
-    data.run(&factory);
-}
-
-/// Check: if "total" used, create other name.
-void CppEditorPlugin::test_quickfix_OptimizeForLoop_alterVariableName()
-{
-    const QByteArray original = "void foo() {f@or (int i = 0, total = 0; i < 3 + 5; ++i) {}}\n";
-    const QByteArray expected = "void foo() {for (int i = 0, total = 0, totalX = 3 + 5; i < totalX; ++i) {}}\n\n";
-    OptimizeForLoop factory;
-    TestCase data(original, expected);
-    data.run(&factory);
-}
-
-/// Check: optimize postcrement and condition
-void CppEditorPlugin::test_quickfix_OptimizeForLoop_optimizeBoth()
-{
-    const QByteArray original = "void foo() {f@or (int i = 0; i < 3 + 5; i++) {}}\n";
-    const QByteArray expected = "void foo() {for (int i = 0, total = 3 + 5; i < total; ++i) {}}\n\n";
-    OptimizeForLoop factory;
-    TestCase data(original, expected);
-    data.run(&factory);
-}
-
-/// Check: empty initializier
-void CppEditorPlugin::test_quickfix_OptimizeForLoop_emptyInitializer()
-{
-    const QByteArray original = "int i; void foo() {f@or (; i < 3 + 5; ++i) {}}\n";
-    const QByteArray expected = "int i; void foo() {for (int total = 3 + 5; i < total; ++i) {}}\n\n";
-    OptimizeForLoop factory;
-    TestCase data(original, expected);
-    data.run(&factory);
-}
-
-/// Check: wrong initializier type -> no trigger
-void CppEditorPlugin::test_quickfix_OptimizeForLoop_wrongInitializer()
-{
-    const QByteArray original = "int i; void foo() {f@or (double a = 0; i < 3 + 5; ++i) {}}\n";
-    const QByteArray expected = "int i; void foo() {f@or (double a = 0; i < 3 + 5; ++i) {}}\n\n";
-    OptimizeForLoop factory;
-    TestCase data(original, expected);
-    data.run(&factory);
-}
-
-/// Check: No trigger when numeric
-void CppEditorPlugin::test_quickfix_OptimizeForLoop_noTriggerNumeric1()
-{
-    const QByteArray original = "void foo() {fo@r (int i = 0; i < 3; ++i) {}}\n";
-    const QByteArray expected = original + "\n";
-    OptimizeForLoop factory;
-    TestCase data(original, expected);
-    data.run(&factory);
-}
-
-/// Check: No trigger when numeric
-void CppEditorPlugin::test_quickfix_OptimizeForLoop_noTriggerNumeric2()
-{
-    const QByteArray original = "void foo() {fo@r (int i = 0; i < -3; ++i) {}}\n";
-    const QByteArray expected = original + "\n";
-    OptimizeForLoop factory;
-    TestCase data(original, expected);
     data.run(&factory);
 }
