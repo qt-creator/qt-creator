@@ -28,7 +28,7 @@
 ****************************************************************************/
 
 
-import QtQuick 2.1
+import QtQuick 2.2
 import QtQuick.Controls 1.1 as Controls
 import QtQuick.Controls.Styles 1.0
 
@@ -57,7 +57,7 @@ Controls.TextField {
         }
     }
 
-    onAccepted: {
+     onEditingFinished: {
         if (backendValue.value !== text)
             backendValue.value = text;
     }
