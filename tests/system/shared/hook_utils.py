@@ -85,7 +85,7 @@ def batchEditRunEnvironment(kitCount, currentTarget, modifications, alreadyOnRun
     clickButton(waitForObject("{text='OK' type='QPushButton' unnamed='1' visible='1' "
                               "window=':Edit Environment_ProjectExplorer::EnvironmentItemsDialog'}"))
 
-def modifyRunSettingsForHookIntoQtQuickUI(kitCount, workingDir, projectName, port):
+def modifyRunSettingsForHookIntoQtQuickUI(kitCount, workingDir, projectName, port, quickVersion=1):
     switchViewTo(ViewConstants.PROJECTS)
     switchToBuildOrRunSettingsFor(kitCount, 0, ProjectSettings.RUN, True)
 
@@ -102,12 +102,15 @@ def modifyRunSettingsForHookIntoQtQuickUI(kitCount, workingDir, projectName, por
                      "Using fallback of pushing STOP inside Creator.")
         return None
     test.log("Using (QtVersion/mkspec) %s/%s with SquishPath %s" % (qtVersion, mkspec, squishPath))
-    if platform.system() == "Darwin":
-        qmlViewer = os.path.abspath(os.path.dirname(qmake) + "/QMLViewer.app")
+    if quickVersion == 1:
+        if platform.system() == "Darwin":
+            executable = os.path.abspath(os.path.dirname(qmake) + "/QMLViewer.app")
+        else:
+            executable = os.path.abspath(os.path.dirname(qmake) + "/qmlviewer")
     else:
-        qmlViewer = os.path.abspath(os.path.dirname(qmake) + "/qmlviewer")
+        executable = os.path.abspath(os.path.dirname(qmake) + "/qmlscene")
     if platform.system() in ('Microsoft', 'Windows'):
-        qmlViewer = qmlViewer + ".exe"
+        executable = executable + ".exe"
     addRunConfig = waitForObject("{container={window=':Qt Creator_Core::Internal::MainWindow' "
                               "type='ProjectExplorer::Internal::RunSettingsWidget' unnamed='1' "
                               "visible='1'} occurrence='2' text='Add' type='QPushButton' "
@@ -129,7 +132,7 @@ def modifyRunSettingsForHookIntoQtQuickUI(kitCount, workingDir, projectName, por
     projectPath = os.path.abspath("%s/%s" % (workingDir, projectName))
     replaceEditorContent(exeLineEd, startAUT)
     replaceEditorContent(argLineEd, "--verbose --port=%d %s %s.qml"
-                         % (port, qmlViewer, projectName))
+                         % (port, executable, projectName))
     replaceEditorContent(wdLineEd, projectPath)
     clickButton(waitForObject("{text='Details' type='Utils::DetailsButton' unnamed='1' visible='1' "
                               "window=':Qt Creator_Core::Internal::MainWindow' "
@@ -144,7 +147,7 @@ def modifyRunSettingsForHookIntoQtQuickUI(kitCount, workingDir, projectName, por
     if not platform.system() in ('Microsoft', 'Windows'):
         if not os.getenv("DISPLAY"):
             __addVariableToRunEnvironment__("DISPLAY", ":0.0")
-    result = qmlViewer
+    result = executable
     switchViewTo(ViewConstants.EDIT)
     return result
 
@@ -155,6 +158,7 @@ def __addVariableToRunEnvironment__(name, value):
                               "container={window=':Qt Creator_Core::Internal::MainWindow' "
                               "type='Utils::DetailsWidget' unnamed='1' visible='1' occurrence='2'}}"))
     varNameLineEd = waitForObject("{type='QExpandingLineEdit' visible='1' unnamed='1'}")
+    doubleClick(varNameLineEd)
     replaceEditorContent(varNameLineEd, name)
     type(varNameLineEd, "<Return>")
     row = getTableRowOf(name, ":Qt Creator_QTableView")

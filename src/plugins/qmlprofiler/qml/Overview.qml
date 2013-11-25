@@ -51,7 +51,7 @@ Canvas2D {
     function updateRange() {
         var newStartTime = Math.round(rangeMover.getLeft() * qmlProfilerModelProxy.traceDuration() / width) + qmlProfilerModelProxy.traceStartTime();
         var newEndTime = Math.round(rangeMover.getRight() * qmlProfilerModelProxy.traceDuration() / width) + qmlProfilerModelProxy.traceStartTime();
-        if (startTime !== newStartTime || endTime !== newEndTime) {
+        if ((startTime !== newStartTime || endTime !== newEndTime) && newEndTime - newStartTime > 500) {
             zoomControl.setRange(newStartTime, newEndTime);
         }
     }

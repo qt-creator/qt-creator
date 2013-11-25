@@ -122,7 +122,9 @@ void tst_Check::test()
     QVERIFY(!doc->source().isEmpty());
     QVERIFY(doc->diagnosticMessages().isEmpty());
 
-    ContextPtr context = Link(snapshot, QStringList(), LibraryInfo())();
+    ViewerContext vContext;
+    vContext.flags = ViewerContext::Complete;
+    ContextPtr context = Link(snapshot, vContext, LibraryInfo())();
 
     Check checker(doc, context);
     QList<Message> messages = checker();

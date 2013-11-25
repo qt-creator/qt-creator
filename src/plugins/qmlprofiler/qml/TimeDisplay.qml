@@ -115,16 +115,26 @@ Canvas2D {
 
     function prettyPrintTime( t )
     {
-        if (t <= 0) return "0";
-        if (t<1000) return t+" ns";
-        t = t/1000;
-        if (t<1000) return t+" μs";
-        t = Math.floor(t/100)/10;
-        if (t<1000) return t+" ms";
-        t = Math.floor(t)/1000;
-        if (t<60) return t+" s";
-        var m = Math.floor(t/60);
-        t = Math.floor(t - m*60);
-        return m+"m"+t+"s";
+        var round = 1;
+        var barrier = 1;
+        var range = endTime - startTime;
+        var units = ["μs", "ms", "s"];
+
+        for (var i = 0; i < units.length; ++i) {
+            barrier *= 1000;
+            if (range < barrier)
+                round *= 1000;
+            else if (range < barrier * 10)
+                round *= 100;
+            else if (range < barrier * 100)
+                round *= 10;
+            if (t < barrier * 1000)
+                return Math.floor(t / (barrier / round)) / round + units[i];
+        }
+
+        t /= barrier;
+        var m = Math.floor(t / 60);
+        var s = Math.floor((t - m * 60) * round) / round;
+        return m + "m" + s + "s";
     }
 }

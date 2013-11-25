@@ -157,7 +157,7 @@
     Put jom.exe in a location in the %PATH%. Go to the \gui {Build Settings}
     and set jom.exe as the make command.
 
-    \note: Unlike GNU make, jom automatically detects your cores and spawns as
+    \note Unlike GNU make, jom automatically detects your cores and spawns as
     many parallel processes as your CPU has cores. You can override this
     behavior by using the \c{-j} parameter as described above.
 

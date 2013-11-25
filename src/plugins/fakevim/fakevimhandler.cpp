@@ -784,10 +784,9 @@ static const QMap<QString, int> &vimKeyNames()
     return k;
 }
 
-bool isControlModifier(const Qt::KeyboardModifiers &mods)
+static bool isOnlyControlModifier(const Qt::KeyboardModifiers &mods)
 {
-    static const int ctrl = HostOsInfo::controlModifier();
-    return (mods & ctrl) == ctrl;
+    return (mods ^ HostOsInfo::controlModifier()) == Qt::NoModifier;
 }
 
 
@@ -949,7 +948,7 @@ public:
 
     bool isControl() const
     {
-        return isControlModifier(m_modifiers);
+        return isOnlyControlModifier(m_modifiers);
     }
 
     bool isControl(int c) const
@@ -2221,7 +2220,7 @@ bool FakeVimHandler::Private::wantsOverride(QKeyEvent *ev)
     }
 
     // We are interested in overriding most Ctrl key combinations.
-    if (isControlModifier(mods)
+    if (isOnlyControlModifier(mods)
             && !config(ConfigPassControlKey).toBool()
             && ((key >= Key_A && key <= Key_Z && key != Key_K)
                 || key == Key_BracketLeft || key == Key_BracketRight)) {

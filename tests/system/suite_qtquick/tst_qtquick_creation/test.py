@@ -52,7 +52,9 @@ def main():
                 result = addExecutableAsAttachableAUT(projectName, 11223)
                 allowAppThroughWinFW(workingDir, projectName)
                 if result:
-                    result = runAndCloseApp(True, projectName, 11223, "subprocessFunction", SubprocessType.QT_QUICK_APPLICATION)
+                    result = runAndCloseApp(True, projectName, 11223,
+                                            "subprocessFunctionQuick%d" % qVer,
+                                            SubprocessType.QT_QUICK_APPLICATION)
                 else:
                     result = runAndCloseApp(sType=SubprocessType.QT_QUICK_APPLICATION)
                 removeExecutableAsAttachableAUT(projectName, 11223)
@@ -65,8 +67,15 @@ def main():
 
     invokeMenuItem("File", "Exit")
 
-def subprocessFunction():
-    helloWorldText = waitForObject("{container={type='QmlApplicationViewer' visible='1' unnamed='1'} "
-                                   "enabled='true' text='Hello World' type='Text' unnamed='1' visible='true'}")
-    test.log("Clicking 'Hello World' Text to close QmlApplicationViewer")
+def subprocessFunctionGenericQuick(quickVersion):
+    helloWorldText = waitForObject("{container={type='QtQuick%dApplicationViewer' visible='1' "
+                                   "unnamed='1'} enabled='true' text='Hello World' type='Text' "
+                                   "unnamed='1' visible='true'}" % quickVersion)
+    test.log("Clicking 'Hello World' Text to close QtQuick%dApplicationViewer" % quickVersion)
     mouseClick(helloWorldText, 5, 5, 0, Qt.LeftButton)
+
+def subprocessFunctionQuick1():
+    subprocessFunctionGenericQuick(1)
+
+def subprocessFunctionQuick2():
+    subprocessFunctionGenericQuick(2)

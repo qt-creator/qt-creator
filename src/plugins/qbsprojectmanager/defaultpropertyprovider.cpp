@@ -96,7 +96,8 @@ QVariantMap DefaultPropertyProvider::properties(const ProjectExplorer::Kit *k, c
                                    : QStringList() << QLatin1String("msvc"));
         } else if (targetAbi.os() == ProjectExplorer::Abi::MacOS) {
             data.insert(QLatin1String(QBS_TARGETOS), QStringList() << QLatin1String("osx")
-                        << QLatin1String("darwin") << QLatin1String("unix"));
+                        << QLatin1String("darwin") << QLatin1String("bsd4")
+                        << QLatin1String("bsd") << QLatin1String("unix"));
             if (tc->type() != QLatin1String("clang")) {
                 data.insert(QLatin1String(QBS_TOOLCHAIN), QLatin1String("gcc"));
             } else {
