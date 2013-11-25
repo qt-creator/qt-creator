@@ -45,6 +45,7 @@ OptionsPageWidget::OptionsPageWidget(QWidget *parent) :
 {
     m_ui.setupUi(this);
     m_ui.commandChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    m_ui.commandChooser->setHistoryCompleter(QLatin1String("Mercurial.Command.History"));
     m_ui.commandChooser->setPromptDialogTitle(tr("Mercurial Command"));
 }
 

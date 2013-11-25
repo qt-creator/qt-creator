@@ -44,6 +44,7 @@ SrcDestDialog::SrcDestDialog(QWidget *parent) :
 {
     m_ui->setupUi(this);
     m_ui->localPathChooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
+    m_ui->localPathChooser->setHistoryCompleter(QLatin1String("Hg.SourceDir.History"));
     QUrl repoUrl(getRepoUrl());
     if (repoUrl.isEmpty())
         return;
