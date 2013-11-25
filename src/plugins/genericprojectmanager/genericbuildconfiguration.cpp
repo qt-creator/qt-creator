@@ -211,6 +211,7 @@ GenericBuildSettingsWidget::GenericBuildSettingsWidget(GenericBuildConfiguration
 
     // build directory
     m_pathChooser = new Utils::PathChooser(this);
+    m_pathChooser->setHistoryCompleter(QLatin1String("Generic.BuildDir.History"));
     m_pathChooser->setEnabled(true);
     fl->addRow(tr("Build directory:"), m_pathChooser);
     connect(m_pathChooser, SIGNAL(changed(QString)), this, SLOT(buildDirectoryChanged()));
