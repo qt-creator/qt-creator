@@ -34,6 +34,11 @@ import QtQuick.Controls.Styles 1.0
 
 Controls.TextField {
 
+    Controls.Action {
+           //Workaround to avoid that "Delete" deletes the item.
+           shortcut: "Delete"
+       }
+
     id: lineEdit
     property variant backendValue
     property color borderColor: "#222"
