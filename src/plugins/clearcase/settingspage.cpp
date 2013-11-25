@@ -52,6 +52,7 @@ SettingsPageWidget::SettingsPageWidget(QWidget *parent) :
     m_ui.setupUi(this);
     m_ui.commandPathChooser->setPromptDialogTitle(tr("ClearCase Command"));
     m_ui.commandPathChooser->setExpectedKind(PathChooser::ExistingCommand);
+    m_ui.commandPathChooser->setHistoryCompleter(QLatin1String("ClearCase.Command.History"));
 }
 
 ClearCaseSettings SettingsPageWidget::settings() const
