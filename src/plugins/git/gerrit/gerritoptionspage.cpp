@@ -99,9 +99,11 @@ GerritOptionsWidget::GerritOptionsWidget(QWidget *parent)
     formLayout->addRow(tr("&User:"), m_userLineEdit);
     m_sshChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_sshChooser->setCommandVersionArguments(QStringList(QLatin1String("-V")));
+    m_sshChooser->setHistoryCompleter(QLatin1String("Git.SshCommand.History"));
     formLayout->addRow(tr("&ssh:"), m_sshChooser);
     formLayout->addRow(tr("&Repository:"), m_repositoryChooser);
     m_repositoryChooser->setToolTip(tr("Default repository where patches will be applied."));
+    m_repositoryChooser->setHistoryCompleter(QLatin1String("Git.RepoDir.History"));
     formLayout->addRow(tr("Pr&ompt:"), m_promptPathCheckBox);
     m_promptPathCheckBox->setToolTip(tr("If checked, user will always be\n"
                                         "asked to confirm the repository path."));
