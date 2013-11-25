@@ -276,6 +276,7 @@ QbsInstallStepConfigWidget::QbsInstallStepConfigWidget(QbsInstallStep *step) :
 
     m_ui->installRootChooser->setPromptDialogTitle(tr("Qbs Install Prefix"));
     m_ui->installRootChooser->setExpectedKind(Utils::PathChooser::Directory);
+    m_ui->installRootChooser->setHistoryCompleter(QLatin1String("Qbs.InstallRoot.History"));
 
     connect(m_ui->installRootChooser, SIGNAL(changed(QString)), this, SLOT(changeInstallRoot()));
     connect(m_ui->removeFirstCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeRemoveFirst(bool)));
