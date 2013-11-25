@@ -44,6 +44,7 @@ OptionsPageWidget::OptionsPageWidget(QWidget *parent)
     m_ui.setupUi(this);
     m_ui.commandChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_ui.commandChooser->setPromptDialogTitle(tr("Bazaar Command"));
+    m_ui.commandChooser->setHistoryCompleter(QLatin1String("Bazaar.Command.History"));
 }
 
 BazaarSettings OptionsPageWidget::settings() const
