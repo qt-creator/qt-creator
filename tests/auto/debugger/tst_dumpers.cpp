@@ -822,9 +822,16 @@ void tst_Dumpers::dumper()
 
     QFile source(t->buildPath + QLatin1Char('/') + QLatin1String(mainFile));
     QVERIFY(source.open(QIODevice::ReadWrite));
-    QByteArray fullCode =
+    QByteArray fullCode = QByteArray() +
             "\n\nvoid unused(const void *first,...) { (void) first; }"
-            "\n\nvoid breakHere() {}"
+            "\n\n#if defined(_MSC_VER)" + (data.useQt ?
+                "\n#include <qt_windows.h>" :
+                "\n#include <Windows.h>") +
+            "\n#define BREAK DebugBreak();"
+            "\n#else"
+            "\n#define BREAK asm(\"int $3\");"
+            "\n#endif"
+            "\n"
             "\n\n" + data.includes +
             "\n\n" + (data.useQHash ?
                 "\n#include <QByteArray>"
@@ -847,7 +854,7 @@ void tst_Dumpers::dumper()
                 "\n#endif\n" : "") +
             "\n    unused(&argc, &argv, &qtversion, &gccversion);\n"
             "\n" + data.code +
-            "\n    breakHere();"
+            "\n    BREAK;"
             "\n    return 0;"
             "\n}\n";
     source.write(fullCode);
@@ -923,7 +930,6 @@ void tst_Dumpers::dumper()
 
         cmds = "set confirm off\n"
                 "file doit\n"
-                "break breakHere\n"
                 "set print object on\n"
                 "set auto-load python-scripts no\n";
 
@@ -932,7 +938,6 @@ void tst_Dumpers::dumper()
                     "python sys.path.append('" + uninstalledData + "')\n"
                     "python from gdbbridge import *\n"
                     "run " + nograb + "\n"
-                    "up\n"
                     "python print('@%sS@%s@' % ('N', theDumper.qtNamespace()))\n"
                     "bb options:fancy,autoderef,dyntype,pe vars: expanded:" + expanded + " typeformats:\n";
         } else {
@@ -956,7 +961,6 @@ void tst_Dumpers::dumper()
              << QLatin1String("debug\\doit.exe");
         cmds = "l+t\n"
                "l+s\n"
-               "bu `doit!" + source.fileName().toLatin1() + ":5`\n"
                "sxi 0x4000001f\n"
                "g\n"
                "gu\n"
@@ -3404,7 +3408,7 @@ void tst_Dumpers::dumper_data()
 
     QTest::newRow("QString3")
             << Data("#include <QString>\n"
-                    "void stringRefTest(const QString &refstring) { breakHere(); unused(&refstring); }\n",
+                    "void stringRefTest(const QString &refstring) { BREAK; unused(&refstring); }\n",
                     "stringRefTest(QString(\"Ref String Test\"));\n")
                % CoreProfile()
                % Check("refstring", "\"Ref String Test\"", "@QString &");
@@ -3514,7 +3518,7 @@ void tst_Dumpers::dumper_data()
                     "    void run()\n"
                     "    {\n"
                     "        if (m_id == 3)\n"
-                    "            breakHere();\n"
+                    "            BREAK;\n"
                     "    }\n"
                     "    int m_id;\n"
                     "};\n",
@@ -3659,7 +3663,7 @@ void tst_Dumpers::dumper_data()
                     "var.setValue(my);\n"
                     "int t = QMetaType::type(\"MyType\");\n"
                     "const char *s = QMetaType::typeName(t);\n"
-                    "breakHere();\n"
+                    "BREAK;\n"
                     "unused(&var, &t, &s);\n")
                % CoreProfile()
                % Check("my", "<2 items>", "MyType")
@@ -4402,7 +4406,7 @@ void tst_Dumpers::dumper_data()
                     "    QString n = \"2\";\n"
                     "    {\n"
                     "        double n = 3.5;\n"
-                    "        breakHere();\n"
+                    "        BREAK;\n"
                     "        unused(&n);\n"
                     "    }\n"
                     "    unused(&n);\n"
@@ -4805,7 +4809,7 @@ void tst_Dumpers::dumper_data()
 //    "void g(int c, int d)\n"
 //    "{\n"
 //        "qDebug() << c << d;\n"
-//        "breakHere()"\n"
+//        "BREAK"\n"
 //\n"
 //    "void f(int a, int b)\n"
 //    "{\n"
@@ -4915,18 +4919,18 @@ void tst_Dumpers::dumper_data()
 
     QTest::newRow("valist")
             << Data("#include <stdarg.h>\n"
-                    "void breakHere();\n"
                     "void test(const char *format, ...)\n"
                     "{\n"
                     "    va_list arg;\n"
                     "    va_start(arg, format);\n"
                     "    int i = va_arg(arg, int);\n"
                     "    double f = va_arg(arg, double);\n"
-                    "    unused(&i, &f);\n"
                     "    va_end(arg);\n"
-                    "    breakHere();\n"
+                    "    BREAK;\n"
+                    "    unused(&i, &f);\n"
                     "}\n",
                     "test(\"abc\", 1, 2.0);\n")
+               % Check("format", "\"abc\"", "char *")
                % Check("i", "1", "int")
                % Check("f", "2", "double");
 

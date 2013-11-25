@@ -1492,16 +1492,11 @@ def testit():
     db.passExceptions = True
 
     db.setupInferior({'cmd':'setupInferior','executable':sys.argv[2],'token':1})
-    db.handleBreakpoints({'cmd':'handleBreakpoints','bkpts':[{'operation':'add',
-        'modelid':'1','type':2,'ignorecount':0,'condition':'','function':'breakHere',
-        'oneshot':0,'enabled':1,'file':'','line':0}]})
 
     error = lldb.SBError()
     listener = db.debugger.GetListener()
     db.process = db.target.Launch(listener, None, None, None, None,
         None, None, 0, False, error)
-
-    db.currentThread().SetSelectedFrame(1)
 
     db.report = savedReport
     db.reportVariables()
