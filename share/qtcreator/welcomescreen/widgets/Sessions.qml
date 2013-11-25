@@ -34,7 +34,7 @@ Item {
     id: root
     property var model
     property int topMargin: 6
-    height: Math.min(content.contentHeight + topMargin, parent.height - 260)
+    height: content.contentHeight + 200
 
     ListView {
         id: content
