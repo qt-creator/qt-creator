@@ -587,6 +587,7 @@ CustomWizardParameters::ParseResult
                     if (!booleanAttributeValue(reader, wizardEnabledAttributeC, true))
                         return ParseDisabled;
                     bp->id = attributeValue(reader, idAttributeC);
+                    id = bp->id;
                     bp->category = attributeValue(reader, categoryAttributeC);
                     bp->kind = kindAttribute(reader);
                     bp->requiredFeatures = requiredFeatures(reader);

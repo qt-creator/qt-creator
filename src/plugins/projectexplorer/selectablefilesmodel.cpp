@@ -696,7 +696,7 @@ void SelectableFilesDialogAddDirectory::createPathChooser(QVBoxLayout *layout, c
 
     m_pathChooser = new Utils::PathChooser;
     m_pathChooser->setPath(path);
-
+    m_pathChooser->setHistoryCompleter(QLatin1String("PE.AddToProjectDir.History"));
     m_sourceDirectoryLabel = new QLabel(tr("Source directory:"));
     hbox->addWidget(m_sourceDirectoryLabel);
 

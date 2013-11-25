@@ -111,6 +111,7 @@ public:
                       Core::IWizard::Data *bp, QString *errorMessage);
     QString toString() const;
 
+    QString id;
     QString directory;
     QString klass;
     QList<CustomWizardFile> files;

@@ -236,6 +236,7 @@ ProcessStepConfigWidget::ProcessStepConfigWidget(ProcessStep *step)
 {
     m_ui.setupUi(this);
     m_ui.command->setExpectedKind(Utils::PathChooser::Command);
+    m_ui.command->setHistoryCompleter(QLatin1String("PE.ProcessStepCommand.History"));
     m_ui.workingDirectory->setExpectedKind(Utils::PathChooser::Directory);
 
     BuildConfiguration *bc = m_step->buildConfiguration();

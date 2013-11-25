@@ -852,6 +852,7 @@ GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
     const QStringList gnuVersionArgs = QStringList(QLatin1String("--version"));
     m_compilerCommand->setExpectedKind(PathChooser::ExistingCommand);
     m_compilerCommand->setCommandVersionArguments(gnuVersionArgs);
+    m_compilerCommand->setHistoryCompleter(QLatin1String("PE.Gcc.Command.History"));
     m_mainLayout->addRow(tr("&Compiler path:"), m_compilerCommand);
     m_platformCodeGenFlagsLineEdit = new QLineEdit(this);
     m_platformCodeGenFlagsLineEdit->setText(QtcProcess::joinArgs(tc->platformCodeGenFlags()));

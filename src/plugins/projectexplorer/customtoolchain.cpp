@@ -501,7 +501,9 @@ CustomToolChainConfigWidget::CustomToolChainConfigWidget(CustomToolChain *tc) :
     m_cxx11Flags->setToolTip(tr("Comma-separated list of flags that turn on C++11 support."));
     m_mkspecs->setToolTip(tr("Comma-separated list of mkspecs."));
     m_compilerCommand->setExpectedKind(PathChooser::ExistingCommand);
+    m_compilerCommand->setHistoryCompleter(QLatin1String("PE.ToolChainCommand.History"));
     m_makeCommand->setExpectedKind(PathChooser::ExistingCommand);
+    m_makeCommand->setHistoryCompleter(QLatin1String("PE.MakeCommand.History"));
     m_mainLayout->addRow(tr("&Compiler path:"), m_compilerCommand);
     m_mainLayout->addRow(tr("&Make path:"), m_makeCommand);
     m_mainLayout->addRow(tr("&ABI:"), m_abiWidget);
