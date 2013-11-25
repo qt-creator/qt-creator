@@ -158,6 +158,7 @@ SuppressionDialog::SuppressionDialog(MemcheckErrorView *view, const QList<Error>
     }
 
     m_fileChooser->setExpectedKind(Utils::PathChooser::File);
+    m_fileChooser->setHistoryCompleter(QLatin1String("Valgrind.Suppression.History"));
     m_fileChooser->setPath(defaultSuppFile.fileName());
     m_fileChooser->setPromptDialogFilter(QLatin1String("*.supp"));
     m_fileChooser->setPromptDialogTitle(tr("Select Suppression File"));

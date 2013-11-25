@@ -55,6 +55,7 @@ ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings,
     m_model = new QStandardItemModel(this);
 
     m_ui->valgrindExeChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    m_ui->valgrindExeChooser->setHistoryCompleter(QLatin1String("Valgrind.Command.History"));
     m_ui->valgrindExeChooser->setPromptDialogTitle(tr("Valgrind Command"));
 
     updateUi();
