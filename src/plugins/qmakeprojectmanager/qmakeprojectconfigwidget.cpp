@@ -67,6 +67,7 @@ QmakeProjectConfigWidget::QmakeProjectConfigWidget(QmakeBuildConfiguration *bc)
 
     m_ui->shadowBuildDirEdit->setPromptDialogTitle(tr("Shadow Build Directory"));
     m_ui->shadowBuildDirEdit->setExpectedKind(Utils::PathChooser::ExistingDirectory);
+    m_ui->shadowBuildDirEdit->setHistoryCompleter(QLatin1String("BuildDir.History"));
     m_ui->shadowBuildDirEdit->setEnvironment(bc->environment());
     m_ui->shadowBuildDirEdit->setBaseDirectory(bc->target()->project()->projectDirectory());
     bool isShadowBuild = bc->isShadowBuild();

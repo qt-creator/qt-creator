@@ -326,7 +326,7 @@ MakeStepConfigWidget::MakeStepConfigWidget(MakeStep *makeStep)
 
     m_ui->makePathChooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
     m_ui->makePathChooser->setBaseDirectory(Utils::PathChooser::homePath());
-
+    m_ui->makePathChooser->setHistoryCompleter(QLatin1String("PE.MakeCommand.History"));
 
     const QString &makeCmd = m_makeStep->makeCommand();
     m_ui->makePathChooser->setPath(makeCmd);

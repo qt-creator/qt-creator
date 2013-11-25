@@ -217,6 +217,7 @@ DesktopQmakeRunConfigurationWidget::DesktopQmakeRunConfigurationWidget(DesktopQm
 
     m_workingDirectoryEdit = new PathChooser(this);
     m_workingDirectoryEdit->setExpectedKind(PathChooser::Directory);
+    m_workingDirectoryEdit->setHistoryCompleter(QLatin1String("WorkingDir.History"));
     m_workingDirectoryEdit->setPath(m_qmakeRunConfiguration->baseWorkingDirectory());
     m_workingDirectoryEdit->setBaseDirectory(m_qmakeRunConfiguration->target()->project()->projectDirectory());
     EnvironmentAspect *aspect = qmakeRunConfiguration->extraAspect<EnvironmentAspect>();

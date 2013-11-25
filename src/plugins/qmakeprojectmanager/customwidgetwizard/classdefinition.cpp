@@ -40,6 +40,7 @@ ClassDefinition::ClassDefinition(QWidget *parent) :
 {
     m_ui.setupUi(this);
     m_ui.iconPathChooser->setExpectedKind(Utils::PathChooser::File);
+    m_ui.iconPathChooser->setHistoryCompleter(QLatin1String("Qmake.Icon.History"));
     m_ui.iconPathChooser->setPromptDialogTitle(tr("Select Icon"));
     m_ui.iconPathChooser->setPromptDialogFilter(tr("Icon files (*.png *.ico *.jpg *.xpm *.tif *.svg)"));
 }

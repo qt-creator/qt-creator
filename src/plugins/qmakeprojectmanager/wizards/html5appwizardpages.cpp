@@ -45,6 +45,7 @@ Html5AppWizardOptionsPage::Html5AppWizardOptionsPage(QWidget *parent)
 {
     d->ui.setupUi(this);
     d->ui.importLineEdit->setExpectedKind(Utils::PathChooser::File);
+    d->ui.importLineEdit->setHistoryCompleter(QLatin1String("Qmake.Html.History"));
     d->ui.importLineEdit->setPromptDialogFilter(QLatin1String("*.html"));
     d->ui.importLineEdit->setPromptDialogTitle(tr("Select HTML File"));
     connect(d->ui.importLineEdit, SIGNAL(changed(QString)), SIGNAL(completeChanged()));
