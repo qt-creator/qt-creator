@@ -32,6 +32,7 @@
 #include "cppeditor.h"
 #include "cppfunctiondecldeflink.h"
 #include "cppquickfixassistant.h"
+#include "cppvirtualfunctionassistprovider.h"
 
 #include <coreplugin/icore.h>
 
@@ -40,6 +41,7 @@
 #include <cpptools/cpppointerdeclarationformatter.h>
 #include <cpptools/cpptoolsconstants.h>
 #include <cpptools/cpptoolsreuse.h>
+#include <cpptools/functionutils.h>
 #include <cpptools/includeutils.h>
 #include <cpptools/insertionpointlocator.h>
 #include <cpptools/symbolfinder.h>
@@ -4690,7 +4692,6 @@ public:
         , m_insertPosDecl(0)
         , m_insertPosOutside(0)
         , m_functionCount(0)
-        , m_implementedFunctionCount(0)
     {
         setDescription(QCoreApplication::translate(
                            "CppEditor::QuickFix", "Insert Virtual Functions of Base Classes"));
@@ -4742,7 +4743,7 @@ public:
                             && (clazz = interface->context().lookupType(symbol))
                             && !visitedBaseClasses.contains(clazz)
                             && !baseClasses.contains(base)) {
-                        baseClasses << base;
+                        baseClasses.prepend(base);
                         baseClassQueue.enqueue(clazz);
                     }
                 }
@@ -4755,36 +4756,36 @@ public:
         printer.showFunctionSignatures = true;
         const TextEditor::FontSettings &fs = TextEditor::TextEditorSettings::fontSettings();
         const Format formatReimpFunc = fs.formatFor(C_DISABLED_CODE);
+        QHash<const Function *, QStandardItem *> virtualFunctions;
         foreach (const Class *clazz, baseClasses) {
             QStandardItem *itemBase = new QStandardItem(printer.prettyName(clazz->name()));
-            itemBase->setData(false, InsertVirtualMethodsDialog::Implemented);
+            itemBase->setData(false, InsertVirtualMethodsDialog::Reimplemented);
             itemBase->setData(qVariantFromValue((void *) clazz),
                               InsertVirtualMethodsDialog::ClassOrFunction);
-            const QString baseClassName = printer.prettyName(clazz->name());
-            const Qt::CheckState funcItemsCheckState = (baseClassName != QLatin1String("QObject")
-                    && baseClassName != QLatin1String("QWidget")
-                    && baseClassName != QLatin1String("QPaintDevice"))
-                    ? Qt::Checked : Qt::Unchecked;
             for (Scope::iterator it = clazz->firstMember(); it != clazz->lastMember(); ++it) {
                 if (const Function *func = (*it)->type()->asFunctionType()) {
                     // Filter virtual destructors
                     if (func->name()->asDestructorNameId())
                         continue;
 
-                    if (!func->isVirtual())
+                    const Function *firstVirtual = 0;
+                    const bool isVirtual = FunctionUtils::isVirtualFunction(
+                                func, interface->context(), &firstVirtual);
+                    if (!isVirtual)
                         continue;
 
                     // Filter OQbject's
                     //   - virtual const QMetaObject *metaObject() const;
                     //   - virtual void *qt_metacast(const char *);
                     //   - virtual int qt_metacall(QMetaObject::Call, int, void **);
-                    if (baseClassName == QLatin1String("QObject")) {
-                        if (printer.prettyName(func->name()) == QLatin1String("metaObject"))
+                    if (printer.prettyName(firstVirtual->enclosingClass()->name())
+                            == QLatin1String("QObject")) {
+                        const QString funcName = printer.prettyName(func->name());
+                        if (funcName == QLatin1String("metaObject")
+                                || funcName == QLatin1String("qt_metacast")
+                                || funcName == QLatin1String("qt_metacall")) {
                             continue;
-                        if (printer.prettyName(func->name()) == QLatin1String("qt_metacast"))
-                            continue;
-                        if (printer.prettyName(func->name()) == QLatin1String("qt_metacall"))
-                            continue;
+                        }
                     }
 
                     // Do not implement existing functions inside target class
@@ -4802,75 +4803,82 @@ public:
                         }
                     }
 
-                    // Do not show when reimplemented from an other class
-                    bool funcReimplemented = false;
-                    for (int i = baseClasses.count() - 1; i >= 0; --i) {
-                        const Class *prevClass = baseClasses.at(i);
-                        if (clazz == prevClass)
-                            break; // reached current class
-
-                        for (const Symbol *symbol = prevClass->find(funcName->identifier());
-                             symbol; symbol = symbol->next()) {
-                            if (!symbol->name()
-                                    || !funcName->identifier()->isEqualTo(symbol->identifier())) {
-                                continue;
-                            }
-                            if (symbol->type().isEqualTo(func->type())) {
-                                funcReimplemented = true;
-                                break;
-                            }
-                        }
-                    }
-                    if (funcReimplemented)
-                        continue;
-
                     // Construct function item
+                    const bool isReimplemented = (func != firstVirtual);
                     const bool isPureVirtual = func->isPureVirtual();
                     QString itemName = printer.prettyType(func->type(), func->name());
                     if (isPureVirtual)
                         itemName += QLatin1String(" = 0");
                     const QString itemReturnTypeString = printer.prettyType(func->returnType());
-                    QStandardItem *funcItem = new QStandardItem(
-                                itemName + QLatin1String(" : ") + itemReturnTypeString);
-                    if (!funcExistsInClass) {
-                        funcItem->setCheckable(true);
-                        funcItem->setCheckState(Qt::Checked);
-                    } else {
+                    itemName += QLatin1String(" : ") + itemReturnTypeString;
+                    if (isReimplemented)
+                        itemName += QLatin1String(" (redeclared)");
+                    QStandardItem *funcItem = new QStandardItem(itemName);
+                    funcItem->setCheckable(true);
+                    if (isReimplemented) {
+                        factory->setHasReimplementedFunctions(true);
                         funcItem->setEnabled(false);
-                        funcItem->setData(formatReimpFunc.foreground(), Qt::ForegroundRole);
-                        if (formatReimpFunc.background().isValid())
-                            funcItem->setData(formatReimpFunc.background(), Qt::BackgroundRole);
+                        funcItem->setCheckState(Qt::Unchecked);
+                        if (QStandardItem *first = virtualFunctions[firstVirtual]) {
+                            if (!first->data(InsertVirtualMethodsDialog::Reimplemented).toBool()) {
+                                first->setCheckState(isPureVirtual ? Qt::Checked : Qt::Unchecked);
+                                factory->updateCheckBoxes(first);
+                            }
+                        }
+                    } else {
+                        if (!funcExistsInClass) {
+                            funcItem->setCheckState(isPureVirtual ? Qt::Checked : Qt::Unchecked);
+                        } else {
+                            funcItem->setEnabled(false);
+                            funcItem->setCheckState(Qt::Checked);
+                            funcItem->setData(formatReimpFunc.foreground(), Qt::ForegroundRole);
+                            if (formatReimpFunc.background().isValid())
+                                funcItem->setData(formatReimpFunc.background(), Qt::BackgroundRole);
+                        }
                     }
 
                     funcItem->setData(qVariantFromValue((void *) func),
                                       InsertVirtualMethodsDialog::ClassOrFunction);
                     funcItem->setData(isPureVirtual, InsertVirtualMethodsDialog::PureVirtual);
                     funcItem->setData(acessSpec(*it), InsertVirtualMethodsDialog::AccessSpec);
-                    funcItem->setData(funcExistsInClass, InsertVirtualMethodsDialog::Implemented);
-                    funcItem->setCheckState(funcItemsCheckState);
+                    funcItem->setData(funcExistsInClass || isReimplemented,
+                                      InsertVirtualMethodsDialog::Reimplemented);
 
                     itemBase->appendRow(funcItem);
+                    virtualFunctions[func] = funcItem;
 
                     // update internal counters
-                    if (funcExistsInClass)
-                        ++m_implementedFunctionCount;
-                    else
+                    if (!funcExistsInClass)
                         ++m_functionCount;
                 }
             }
             if (itemBase->hasChildren()) {
+                itemBase->setData(false, InsertVirtualMethodsDialog::Reimplemented);
+                bool enabledFound = false;
+                Qt::CheckState state = Qt::Unchecked;
                 for (int i = 0; i < itemBase->rowCount(); ++i) {
-                    if (itemBase->child(i, 0)->isCheckable()) {
+                    QStandardItem *childItem = itemBase->child(i, 0);
+                    if (!childItem->isEnabled())
+                        continue;
+                    if (!enabledFound) {
+                        state = childItem->checkState();
+                        enabledFound = true;
+                    }
+                    if (childItem->isCheckable()) {
                         if (!itemBase->isCheckable()) {
                             itemBase->setCheckable(true);
                             itemBase->setTristate(true);
-                            itemBase->setData(false, InsertVirtualMethodsDialog::Implemented);
+                            itemBase->setCheckState(state);
                         }
-                        if (itemBase->child(i, 0)->checkState() == Qt::Checked) {
-                            itemBase->setCheckState(Qt::Checked);
+                        if (state != childItem->checkState()) {
+                            itemBase->setCheckState(Qt::PartiallyChecked);
                             break;
                         }
                     }
+                }
+                if (!enabledFound) {
+                    itemBase->setCheckable(true);
+                    itemBase->setEnabled(false);
                 }
                 m_factory->classFunctionModel->invisibleRootItem()->appendRow(itemBase);
             }
@@ -4883,7 +4891,6 @@ public:
         bool isHeaderFile = false;
         m_cppFileName = correspondingHeaderOrSource(interface->fileName(), &isHeaderFile);
         m_factory->setHasImplementationFile(isHeaderFile && !m_cppFileName.isEmpty());
-        m_factory->setHasReimplementedFunctions(m_implementedFunctionCount != 0);
 
         m_valid = true;
     }
@@ -5087,7 +5094,6 @@ private:
     int m_insertPosDecl;
     int m_insertPosOutside;
     unsigned m_functionCount;
-    unsigned m_implementedFunctionCount;
 };
 
 class InsertVirtualMethodsFilterModel : public QSortFilterProxyModel
@@ -5113,14 +5119,14 @@ public:
 
             for (int i = 0; i < sourceModel()->rowCount(index); ++i) {
                 const QModelIndex child = sourceModel()->index(i, 0, index);
-                if (!child.data(InsertVirtualMethodsDialog::Implemented).toBool())
+                if (!child.data(InsertVirtualMethodsDialog::Reimplemented).toBool())
                     return true;
             }
             return false;
         }
 
         if (m_hideReimplemented)
-            return !index.data(InsertVirtualMethodsDialog::Implemented).toBool();
+            return !index.data(InsertVirtualMethodsDialog::Reimplemented).toBool();
         return true;
     }
 
@@ -5174,7 +5180,7 @@ void InsertVirtualMethodsDialog::initGui()
     m_view->setHeaderHidden(true);
     groupBoxViewLayout->addWidget(m_view);
     m_hideReimplementedFunctions =
-            new QCheckBox(tr("&Hide already implemented functions of current class"), this);
+            new QCheckBox(tr("&Hide reimplemented functions"), this);
     groupBoxViewLayout->addWidget(m_hideReimplementedFunctions);
 
     // Insertion options
@@ -5223,7 +5229,7 @@ void InsertVirtualMethodsDialog::initData()
     m_view->setModel(classFunctionFilterModel);
     m_expansionStateNormal.clear();
     m_expansionStateReimp.clear();
-    m_hideReimplementedFunctions->setVisible(m_hasReimplementedFunctions);
+    m_hideReimplementedFunctions->setEnabled(m_hasReimplementedFunctions);
     m_virtualKeyword->setChecked(m_insertKeywordVirtual);
     m_insertMode->setCurrentIndex(m_insertMode->findData(m_implementationMode));
 
@@ -5304,8 +5310,9 @@ void InsertVirtualMethodsDialog::updateCheckBoxes(QStandardItem *item)
         if (!item->isCheckable() || state == Qt::PartiallyChecked)
             return;
         for (int i = 0; i < item->rowCount(); ++i) {
-            if (item->child(i, 0)->isCheckable())
-                item->child(i, 0)->setCheckState(state);
+            QStandardItem *childItem = item->child(i, 0);
+            if (childItem->isCheckable() && childItem->isEnabled())
+                childItem->setCheckState(state);
         }
     } else {
         QStandardItem *parent = item->parent();
@@ -5313,7 +5320,8 @@ void InsertVirtualMethodsDialog::updateCheckBoxes(QStandardItem *item)
             return;
         const Qt::CheckState state = item->checkState();
         for (int i = 0; i < parent->rowCount(); ++i) {
-            if (state != parent->child(i, 0)->checkState()) {
+            QStandardItem *childItem = parent->child(i, 0);
+            if (childItem->isEnabled() && state != childItem->checkState()) {
                 parent->setCheckState(Qt::PartiallyChecked);
                 return;
             }

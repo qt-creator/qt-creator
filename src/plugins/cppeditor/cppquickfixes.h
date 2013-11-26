@@ -532,7 +532,7 @@ class InsertVirtualMethodsDialog : public QDialog
 public:
     enum CustomItemRoles {
         ClassOrFunction = Qt::UserRole + 1,
-        Implemented = Qt::UserRole + 2,
+        Reimplemented = Qt::UserRole + 2,
         PureVirtual = Qt::UserRole + 3,
         AccessSpec = Qt::UserRole + 4
     };
@@ -556,8 +556,10 @@ public:
     bool hideReimplementedFunctions() const;
     virtual bool gather();
 
-private slots:
+public slots:
     void updateCheckBoxes(QStandardItem *item);
+
+private slots:
     void setHideReimplementedFunctions(bool hide);
 
 private:
