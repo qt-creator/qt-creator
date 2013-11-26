@@ -65,6 +65,7 @@ public:
 
     bool dryRun() const;
     bool keepGoing() const;
+    bool checkTimestamps() const;
     int maxJobs() const;
     QString buildVariant() const;
 
@@ -93,6 +94,7 @@ private:
 
     void setDryRun(bool dr);
     void setKeepGoing(bool kg);
+    void setCheckTimestamps(bool ts);
     void setMaxJobs(int jobcount);
 
     QVariantMap m_qbsConfiguration;
@@ -129,6 +131,7 @@ private slots:
     void changeBuildVariant(int);
     void changeDryRun(bool dr);
     void changeKeepGoing(bool kg);
+    void changeCheckTimestamps(bool ts);
     void changeJobCount(int count);
     void changeProperties();
 

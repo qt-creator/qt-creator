@@ -168,6 +168,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QCheckBox" name="checkTimestampCheckBox">
+       <property name="text">
+        <string>Check timestamps</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="checkBoxSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>

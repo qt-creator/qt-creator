@@ -50,6 +50,7 @@
 static const char QBS_CONFIG[] = "Qbs.Configuration";
 static const char QBS_DRY_RUN[] = "Qbs.DryRun";
 static const char QBS_KEEP_GOING[] = "Qbs.DryKeepGoing";
+static const char QBS_CHECK_TIMESTAMPS[] = "Qbs.CheckTimestamps";
 static const char QBS_MAXJOBCOUNT[] = "Qbs.MaxJobs";
 
 // --------------------------------------------------------------------
@@ -69,6 +70,7 @@ QbsBuildStep::QbsBuildStep(ProjectExplorer::BuildStepList *bsl) :
 {
     setDisplayName(tr("Qbs Build"));
     setQbsConfiguration(QVariantMap());
+    m_qbsBuildOptions.setForceTimestampCheck(true);
 }
 
 QbsBuildStep::QbsBuildStep(ProjectExplorer::BuildStepList *bsl, const QbsBuildStep *other) :
@@ -194,6 +196,11 @@ bool QbsBuildStep::keepGoing() const
     return m_qbsBuildOptions.keepGoing();
 }
 
+bool QbsBuildStep::checkTimestamps() const
+{
+    return m_qbsBuildOptions.forceTimestampCheck();
+}
+
 int QbsBuildStep::maxJobs() const
 {
     if (m_qbsBuildOptions.maxJobCount() > 0)
@@ -209,6 +216,7 @@ bool QbsBuildStep::fromMap(const QVariantMap &map)
     setQbsConfiguration(map.value(QLatin1String(QBS_CONFIG)).toMap());
     m_qbsBuildOptions.setDryRun(map.value(QLatin1String(QBS_DRY_RUN)).toBool());
     m_qbsBuildOptions.setKeepGoing(map.value(QLatin1String(QBS_KEEP_GOING)).toBool());
+    m_qbsBuildOptions.setForceTimestampCheck(map.value(QLatin1String(QBS_CHECK_TIMESTAMPS), true).toBool());
     m_qbsBuildOptions.setMaxJobCount(map.value(QLatin1String(QBS_MAXJOBCOUNT)).toInt());
     return true;
 }
@@ -219,6 +227,7 @@ QVariantMap QbsBuildStep::toMap() const
     map.insert(QLatin1String(QBS_CONFIG), m_qbsConfiguration);
     map.insert(QLatin1String(QBS_DRY_RUN), m_qbsBuildOptions.dryRun());
     map.insert(QLatin1String(QBS_KEEP_GOING), m_qbsBuildOptions.keepGoing());
+    map.insert(QLatin1String(QBS_CHECK_TIMESTAMPS), m_qbsBuildOptions.forceTimestampCheck());
     map.insert(QLatin1String(QBS_MAXJOBCOUNT), m_qbsBuildOptions.maxJobCount());
     return map;
 }
@@ -333,6 +342,14 @@ void QbsBuildStep::setKeepGoing(bool kg)
     emit qbsBuildOptionsChanged();
 }
 
+void QbsBuildStep::setCheckTimestamps(bool ts)
+{
+    if (m_qbsBuildOptions.forceTimestampCheck() == ts)
+        return;
+    m_qbsBuildOptions.setForceTimestampCheck(ts);
+    emit qbsBuildOptionsChanged();
+}
+
 void QbsBuildStep::setMaxJobs(int jobcount)
 {
     if (m_qbsBuildOptions.maxJobCount() == jobcount)
@@ -362,6 +379,8 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
             this, SLOT(changeBuildVariant(int)));
     connect(m_ui->dryRunCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeDryRun(bool)));
     connect(m_ui->keepGoingCheckBox, SIGNAL(toggled(bool)), this, SLOT(changeKeepGoing(bool)));
+    connect(m_ui->checkTimestampCheckBox, SIGNAL(toggled(bool)),
+            this, SLOT(changeCheckTimestamps(bool)));
     connect(m_ui->jobSpinBox, SIGNAL(valueChanged(int)), this, SLOT(changeJobCount(int)));
     connect(m_ui->propertyEdit, SIGNAL(propertiesChanged()), this, SLOT(changeProperties()));
     connect(m_ui->qmlDebuggingLibraryCheckBox, SIGNAL(toggled(bool)),
@@ -386,6 +405,7 @@ void QbsBuildStepConfigWidget::updateState()
     if (!m_ignoreChange) {
         m_ui->dryRunCheckBox->setChecked(m_step->dryRun());
         m_ui->keepGoingCheckBox->setChecked(m_step->keepGoing());
+        m_ui->checkTimestampCheckBox->setChecked(m_step->checkTimestamps());
         m_ui->jobSpinBox->setValue(m_step->maxJobs());
         updatePropertyEdit(m_step->qbsConfiguration());
         m_ui->qmlDebuggingLibraryCheckBox->setChecked(m_step->isQmlDebuggingEnabled());
@@ -402,6 +422,8 @@ void QbsBuildStepConfigWidget::updateState()
         command += QLatin1String("--dry-run ");
     if (m_step->keepGoing())
         command += QLatin1String("--keep-going ");
+    if (m_step->checkTimestamps())
+        command += QLatin1String("--check-timestamps ");
     command += QString::fromLatin1("--jobs %1 ").arg(m_step->maxJobs());
     command += QString::fromLatin1("%1 profile:%2").arg(buildVariant, m_step->profile());
 
@@ -477,6 +499,13 @@ void QbsBuildStepConfigWidget::changeKeepGoing(bool kg)
 {
     m_ignoreChange = true;
     m_step->setKeepGoing(kg);
+    m_ignoreChange = false;
+}
+
+void QbsBuildStepConfigWidget::changeCheckTimestamps(bool ts)
+{
+    m_ignoreChange = true;
+    m_step->setCheckTimestamps(ts);
     m_ignoreChange = false;
 }
 
