@@ -165,8 +165,9 @@ void Designer::Internal::FormEditorPlugin::test_gotoslot()
 #endif
 }
 
-void FormEditorPlugin::test_gotoslot_data()
+void Designer::Internal::FormEditorPlugin::test_gotoslot_data()
 {
+#if QT_VERSION >= 0x050000
     typedef QLatin1String _;
     QTest::addColumn<QStringList>("files");
 
@@ -176,4 +177,5 @@ void FormEditorPlugin::test_gotoslot_data()
             << testData.file(_("form.cpp"))
             << testData.file(_("form.h"))
             << testData.file(_("form.ui")));
+#endif
 }
