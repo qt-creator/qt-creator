@@ -77,6 +77,96 @@ QString expectedContentsForFile(const QString &filePath)
     return QString();
 }
 
+class DocumentContainsFunctionDefinition: protected SymbolVisitor
+{
+public:
+    bool operator()(Scope *scope, const QString function)
+    {
+        if (!scope)
+            return false;
+
+        m_referenceFunction = function;
+        m_result = false;
+
+        accept(scope);
+        return m_result;
+    }
+
+protected:
+    bool preVisit(Symbol *) { return !m_result; }
+
+    bool visit(Function *symbol)
+    {
+        const QString function = m_overview.prettyName(symbol->name());
+        if (function == m_referenceFunction)
+            m_result = true;
+        return false;
+    }
+
+private:
+    bool m_result;
+    QString m_referenceFunction;
+    Overview m_overview;
+};
+
+class DocumentContainsDeclaration: protected SymbolVisitor
+{
+public:
+    bool operator()(Scope *scope, const QString function)
+    {
+        if (!scope)
+            return false;
+
+        m_referenceFunction = function;
+        m_result = false;
+
+        accept(scope);
+        return m_result;
+    }
+
+protected:
+    bool preVisit(Symbol *) { return !m_result; }
+
+    void postVisit(Symbol *symbol)
+    {
+        if (symbol->isClass())
+            m_currentClass.clear();
+    }
+
+    bool visit(Class *symbol)
+    {
+        m_currentClass = m_overview.prettyName(symbol->name());
+        return true;
+    }
+
+    bool visit(Declaration *symbol)
+    {
+        QString declaration = m_overview.prettyName(symbol->name());
+        if (!m_currentClass.isEmpty())
+            declaration = m_currentClass + QLatin1String("::") + declaration;
+        if (m_referenceFunction == declaration)
+            m_result = true;
+        return false;
+    }
+
+private:
+    bool m_result;
+    QString m_referenceFunction;
+    QString m_currentClass;
+    Overview m_overview;
+};
+
+bool documentContainsFunctionDefinition(const Document::Ptr &document, const QString function)
+{
+    return DocumentContainsFunctionDefinition()(document->globalNamespace(), function);
+}
+
+bool documentContainsMemberFunctionDeclaration(const Document::Ptr &document,
+                                               const QString declaration)
+{
+    return DocumentContainsDeclaration()(document->globalNamespace(), declaration);
+}
+
 class GoToSlotTest
 {
 public:
@@ -129,8 +219,14 @@ public:
         }
 
         // Compare
-        QCOMPARE(cppFileEditor->textDocument()->contents(), expectedContentsForFile(cppFile));
-        QCOMPARE(hFileEditor->textDocument()->contents(), expectedContentsForFile(hFile));
+        const Document::Ptr cppDocument
+            = m_modelManager->cppEditorSupport(cppFileEditor)->snapshotUpdater()->document();
+        const Document::Ptr hDocument
+            = m_modelManager->cppEditorSupport(hFileEditor)->snapshotUpdater()->document();
+        QVERIFY(documentContainsFunctionDefinition(cppDocument,
+            QLatin1String("Form::on_pushButton_clicked")));
+        QVERIFY(documentContainsMemberFunctionDeclaration(hDocument,
+            QLatin1String("Form::on_pushButton_clicked")));
     }
 
 private:
