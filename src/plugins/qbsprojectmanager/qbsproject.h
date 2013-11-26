@@ -90,6 +90,7 @@ public:
     QString profileForTarget(const ProjectExplorer::Target *t) const;
     bool isParsing() const;
     bool hasParseResult() const;
+    void parseCurrentBuildConfiguration(bool force);
 
     Utils::FileName defaultBuildDirectory() const;
     static Utils::FileName defaultBuildDirectory(const QString &path);
@@ -101,7 +102,6 @@ public:
 
 public slots:
     void invalidate();
-    void parseCurrentBuildConfiguration();
     void delayParsing();
     void delayForcedParsing();
 
@@ -117,6 +117,7 @@ private slots:
     void targetWasAdded(ProjectExplorer::Target *t);
     void changeActiveTarget(ProjectExplorer::Target *t);
     void buildConfigurationChanged(ProjectExplorer::BuildConfiguration *bc);
+    void startParsing();
 
 private:
     bool fromMap(const QVariantMap &map);

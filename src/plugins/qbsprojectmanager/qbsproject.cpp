@@ -112,7 +112,7 @@ QbsProject::QbsProject(QbsManager *manager, const QString &fileName) :
             this, SLOT(targetWasAdded(ProjectExplorer::Target*)));
     connect(this, SIGNAL(environmentChanged()), this, SLOT(delayParsing()));
 
-    connect(&m_parsingDelay, SIGNAL(timeout()), this, SLOT(parseCurrentBuildConfiguration()));
+    connect(&m_parsingDelay, SIGNAL(timeout()), this, SLOT(startParsing()));
 
     updateDocuments(QSet<QString>() << fileName);
 
@@ -357,6 +357,11 @@ void QbsProject::buildConfigurationChanged(BuildConfiguration *bc)
     }
 }
 
+void QbsProject::startParsing()
+{
+    parseCurrentBuildConfiguration(false);
+}
+
 void QbsProject::delayParsing()
 {
     m_parsingDelay.start();
@@ -368,9 +373,12 @@ void QbsProject::delayForcedParsing()
     delayParsing();
 }
 
-void QbsProject::parseCurrentBuildConfiguration()
+void QbsProject::parseCurrentBuildConfiguration(bool force)
 {
     m_parsingDelay.stop();
+
+    if (!m_forceParsing)
+        m_forceParsing = force;
 
     if (!activeTarget())
         return;

@@ -405,7 +405,7 @@ void QbsProjectManagerPlugin::buildProducts(QbsProject *project, const QStringLi
 void QbsProjectManagerPlugin::reparseCurrentProject()
 {
     if (m_currentProject)
-        m_currentProject->parseCurrentBuildConfiguration();
+        m_currentProject->parseCurrentBuildConfiguration(true);
 }
 
 } // namespace Internal
