@@ -465,6 +465,8 @@ void TestCase::run()
 
 } // anonymous namespace
 
+Q_DECLARE_METATYPE(QList<TestDocumentPtr>)
+
 void CppEditorPlugin::test_SwitchMethodDeclarationDefinition_data()
 {
     QTest::addColumn<QByteArray>("header");
@@ -870,6 +872,12 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_data()
             "}\n"
     );
 
+    QTest::newRow("skipForwardDeclarationBasic") << _(
+            "class $Foo {};\n"
+            "class Foo;\n"
+            "@Foo foo;\n"
+    );
+
     QTest::newRow("using_QTCREATORBUG7903_globalNamespace") << _(
             "namespace NS {\n"
             "class Foo {};\n"
@@ -911,6 +919,27 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor()
 {
     QFETCH(QByteArray, source);
     TestCase test(TestCase::FollowSymbolUnderCursorAction, source);
+    test.run();
+}
+
+void CppEditorPlugin::test_FollowSymbolUnderCursor_multipleDocuments_data()
+{
+    QTest::addColumn<QList<TestDocumentPtr> >("documents");
+
+    QTest::newRow("skipForwardDeclarationBasic") << (QList<TestDocumentPtr>()
+        << TestDocument::create("class $Foo {};\n",
+                                QLatin1String("defined.h"))
+        << TestDocument::create("class Foo;\n"
+                                "@Foo foo;\n",
+                                QLatin1String("forwardDeclaredAndUsed.h"))
+    );
+}
+
+void CppEditorPlugin::test_FollowSymbolUnderCursor_multipleDocuments()
+{
+    QFETCH(QList<TestDocumentPtr>, documents);
+
+    TestCase test(TestCase::FollowSymbolUnderCursorAction, documents);
     test.run();
 }
 

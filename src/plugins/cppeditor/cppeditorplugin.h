@@ -98,6 +98,9 @@ private slots:
     void test_SwitchMethodDeclarationDefinition_data();
     void test_SwitchMethodDeclarationDefinition();
 
+    void test_FollowSymbolUnderCursor_multipleDocuments_data();
+    void test_FollowSymbolUnderCursor_multipleDocuments();
+
     void test_FollowSymbolUnderCursor_data();
     void test_FollowSymbolUnderCursor();
 
