@@ -3115,6 +3115,7 @@ void tst_Dumpers::dumper_data()
                     "v.push_back(true);\n"
                     "v.push_back(false);\n"
                     "unused(&v);\n")
+                // Known issue: Clang produces "std::vector<std::allocator<bool>>
                % Check("v", "<5 items>", "std::vector<bool>")
                % Check("v.0", "[0]", "1", "bool")
                % Check("v.1", "[1]", "0", "bool")
