@@ -352,24 +352,6 @@ IVersionControl *VcsManager::checkout(const QString &versionControlType,
     return 0;
 }
 
-bool VcsManager::findVersionControl(const QString &versionControlType)
-{
-    foreach (IVersionControl * versionControl, allVersionControls()) {
-        if (versionControl->displayName() == versionControlType)
-            return true;
-    }
-    return false;
-}
-
-QString VcsManager::repositoryUrl(const QString &directory)
-{
-    IVersionControl *vc = findVersionControlForDirectory(directory);
-
-    if (vc && vc->supportsOperation(Core::IVersionControl::GetRepositoryRootOperation))
-       return vc->vcsGetRepositoryURL(directory);
-    return QString();
-}
-
 bool VcsManager::promptToDelete(IVersionControl *vc, const QString &fileName)
 {
     QTC_ASSERT(vc, return true);
