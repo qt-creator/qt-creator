@@ -939,11 +939,15 @@ void ModelManager::importScan(QFutureInterface<void> &future,
 
     QVector<ScanItem> pathsToScan;
     pathsToScan.reserve(paths.size());
-    foreach (const QString &path, paths) {
-        QString cPath = QDir::cleanPath(path);
-        if (modelManager->m_scannedPaths.contains(cPath))
-            continue;
-        pathsToScan.append(ScanItem(cPath));
+    {
+        QMutexLocker l(&modelManager->m_mutex);
+        foreach (const QString &path, paths) {
+            QString cPath = QDir::cleanPath(path);
+            if (modelManager->m_scannedPaths.contains(cPath))
+                continue;
+            pathsToScan.append(ScanItem(cPath));
+            modelManager->m_scannedPaths.insert(cPath);
+        }
     }
     const int maxScanDepth = 5;
     int progressRange = pathsToScan.size() * (1 << (2 + maxScanDepth));
@@ -989,6 +993,12 @@ void ModelManager::importScan(QFutureInterface<void> &future,
         future.setProgressValue(progressRange * workDone / totalWork);
     }
     future.setProgressValue(progressRange);
+    if (future.isCanceled()) {
+        // assume no work has been done
+        QMutexLocker l(&modelManager->m_mutex);
+        foreach (const QString &path, paths)
+            modelManager->m_scannedPaths.remove(path);
+    }
 }
 
 // Check whether fileMimeType is the same or extends knownMimeType
@@ -1104,9 +1114,13 @@ void ModelManager::updateImportPaths()
     updateSourceFiles(importedFiles, true);
 
     QStringList pathToScan;
-    foreach (QString importPath, allImportPaths)
-        if (!m_scannedPaths.contains(importPath))
-            pathToScan.append(importPath);
+    {
+        QMutexLocker l(&m_mutex);
+        foreach (QString importPath, allImportPaths)
+            if (!m_scannedPaths.contains(importPath)) {
+                pathToScan.append(importPath);
+            }
+    }
 
     if (pathToScan.count() > 1) {
         QFuture<void> result = QtConcurrent::run(&ModelManager::importScan,
