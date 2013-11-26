@@ -174,7 +174,7 @@ void DebuggerKitConfigWidget::onDebuggerRemoved(const QVariant &id)
 {
     if (const int pos = indexOf(id)) {
         m_comboBox->removeItem(pos);
-        updateComboBox(id);
+        refresh();
     }
 }
 
