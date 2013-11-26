@@ -202,17 +202,9 @@ private slots:
     void test_quickfix_ExtractLiteralAsParameter_freeFunction_separateFiles();
     void test_quickfix_ExtractLiteralAsParameter_memberFunction_separateFiles();
 
-    void test_quickfix_InsertVirtualMethods_onlyDecl();
-    void test_quickfix_InsertVirtualMethods_onlyDeclWithoutVirtual();
-    void test_quickfix_InsertVirtualMethods_Access();
-    void test_quickfix_InsertVirtualMethods_Superclass();
-    void test_quickfix_InsertVirtualMethods_SuperclassOverride();
-    void test_quickfix_InsertVirtualMethods_PureVirtualOnlyDecl();
-    void test_quickfix_InsertVirtualMethods_PureVirtualInside();
-    void test_quickfix_InsertVirtualMethods_inside();
-    void test_quickfix_InsertVirtualMethods_outside();
+    void test_quickfix_InsertVirtualMethods_data();
+    void test_quickfix_InsertVirtualMethods();
     void test_quickfix_InsertVirtualMethods_implementationFile();
-    void test_quickfix_InsertVirtualMethods_notrigger_allImplemented();
     void test_quickfix_InsertVirtualMethods_BaseClassInNamespace();
 
     void test_functionhelper_virtualFunctions();

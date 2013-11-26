@@ -3664,17 +3664,25 @@ void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_memberFunction_sep
     data.run(&factory);
 }
 
-/// Check: Insert only declarations
-void CppEditorPlugin::test_quickfix_InsertVirtualMethods_onlyDecl()
+Q_DECLARE_METATYPE(InsertVirtualMethodsDialog::ImplementationMode)
+
+void CppEditorPlugin::test_quickfix_InsertVirtualMethods_data()
 {
-    const QByteArray original =
+    QTest::addColumn<InsertVirtualMethodsDialog::ImplementationMode>("implementationMode");
+    QTest::addColumn<bool>("insertVirtualKeyword");
+    QTest::addColumn<QByteArray>("original");
+    QTest::addColumn<QByteArray>("expected");
+
+    // Check: Insert only declarations
+    QTest::newRow("onlyDecl")
+        << InsertVirtualMethodsDialog::ModeOnlyDeclarations << true << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int virtualFuncA();\n"
         "};\n\n"
         "class Derived : public Bas@eA {\n"
-        "};";
-    const QByteArray expected =
+        "};"
+        ) << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int virtualFuncA();\n"
@@ -3684,25 +3692,19 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_onlyDecl()
         "    // BaseA interface\n"
         "public:\n"
         "    virtual int virtualFuncA();\n"
-        "};\n";
+        "};\n"
+    );
 
-    InsertVirtualMethods factory(new InsertVirtualMethodsDialogTest(
-                                     InsertVirtualMethodsDialog::ModeOnlyDeclarations, true));
-    TestCase data(original, expected);
-    data.run(&factory);
-}
-
-/// Check: Insert only declarations vithout virtual keyword
-void CppEditorPlugin::test_quickfix_InsertVirtualMethods_onlyDeclWithoutVirtual()
-{
-    const QByteArray original =
+    // Check: Insert only declarations vithout virtual keyword
+    QTest::newRow("onlyDeclWithoutVirtual")
+        << InsertVirtualMethodsDialog::ModeOnlyDeclarations << false << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int virtualFuncA();\n"
         "};\n\n"
         "class Derived : public Bas@eA {\n"
-        "};";
-    const QByteArray expected =
+        "};"
+        ) << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int virtualFuncA();\n"
@@ -3712,18 +3714,12 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_onlyDeclWithoutVirtual(
         "    // BaseA interface\n"
         "public:\n"
         "    int virtualFuncA();\n"
-        "};\n";
+        "};\n"
+    );
 
-    InsertVirtualMethods factory(new InsertVirtualMethodsDialogTest(
-                                     InsertVirtualMethodsDialog::ModeOnlyDeclarations, false));
-    TestCase data(original, expected);
-    data.run(&factory);
-}
-
-/// Check: Are access specifiers considered
-void CppEditorPlugin::test_quickfix_InsertVirtualMethods_Access()
-{
-    const QByteArray original =
+    // Check: Are access specifiers considered
+    QTest::newRow("Access")
+        << InsertVirtualMethodsDialog::ModeOnlyDeclarations << true << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int a();\n"
@@ -3741,8 +3737,8 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_Access()
         "    virtual int g();\n"
         "};\n\n"
         "class Der@ived : public BaseA {\n"
-        "};";
-    const QByteArray expected =
+        "};"
+        ) << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int a();\n"
@@ -3776,18 +3772,12 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_Access()
         "    virtual int f();\n\n"
         "signals:\n"
         "    virtual int g();\n"
-        "};\n";
+        "};\n"
+    );
 
-    InsertVirtualMethods factory(new InsertVirtualMethodsDialogTest(
-                                     InsertVirtualMethodsDialog::ModeOnlyDeclarations, true));
-    TestCase data(original, expected);
-    data.run(&factory);
-}
-
-/// Check: Is a base class of a base class considered.
-void CppEditorPlugin::test_quickfix_InsertVirtualMethods_Superclass()
-{
-    const QByteArray original =
+    // Check: Is a base class of a base class considered.
+    QTest::newRow("Superclass")
+        << InsertVirtualMethodsDialog::ModeOnlyDeclarations << true << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int a();\n"
@@ -3797,8 +3787,8 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_Superclass()
         "    virtual int b();\n"
         "};\n\n"
         "class Der@ived : public BaseB {\n"
-        "};";
-    const QByteArray expected =
+        "};"
+        ) << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int a();\n"
@@ -3816,18 +3806,12 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_Superclass()
         "    // BaseA interface\n"
         "public:\n"
         "    virtual int a();\n"
-        "};\n";
+        "};\n"
+    );
 
-    InsertVirtualMethods factory(new InsertVirtualMethodsDialogTest(
-                                     InsertVirtualMethodsDialog::ModeOnlyDeclarations, true));
-    TestCase data(original, expected);
-    data.run(&factory);
-}
-
-/// Check: Do not insert reimplemented functions twice.
-void CppEditorPlugin::test_quickfix_InsertVirtualMethods_SuperclassOverride()
-{
-    const QByteArray original =
+    // Check: Do not insert reimplemented functions twice.
+    QTest::newRow("SuperclassOverride")
+        << InsertVirtualMethodsDialog::ModeOnlyDeclarations << true << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int a();\n"
@@ -3837,8 +3821,8 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_SuperclassOverride()
         "    virtual int a();\n"
         "};\n\n"
         "class Der@ived : public BaseB {\n"
-        "};";
-    const QByteArray expected =
+        "};"
+        ) << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int a();\n"
@@ -3852,25 +3836,19 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_SuperclassOverride()
         "    // BaseA interface\n"
         "public:\n"
         "    virtual int a();\n"
-        "};\n";
+        "};\n"
+    );
 
-    InsertVirtualMethods factory(new InsertVirtualMethodsDialogTest(
-                                     InsertVirtualMethodsDialog::ModeOnlyDeclarations, true));
-    TestCase data(original, expected);
-    data.run(&factory);
-}
-
-/// Check: Insert only declarations for pure virtual function
-void CppEditorPlugin::test_quickfix_InsertVirtualMethods_PureVirtualOnlyDecl()
-{
-    const QByteArray original =
+    // Check: Insert only declarations for pure virtual function
+    QTest::newRow("PureVirtualOnlyDecl")
+        << InsertVirtualMethodsDialog::ModeOnlyDeclarations << true << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int virtualFuncA() = 0;\n"
         "};\n\n"
         "class Derived : public Bas@eA {\n"
-        "};";
-    const QByteArray expected =
+        "};"
+        ) << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int virtualFuncA() = 0;\n"
@@ -3880,25 +3858,19 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_PureVirtualOnlyDecl()
         "    // BaseA interface\n"
         "public:\n"
         "    virtual int virtualFuncA();\n"
-        "};\n";
+        "};\n"
+    );
 
-    InsertVirtualMethods factory(new InsertVirtualMethodsDialogTest(
-                                     InsertVirtualMethodsDialog::ModeOnlyDeclarations, true));
-    TestCase data(original, expected);
-    data.run(&factory);
-}
-
-/// Check: Insert pure virtual functions inside class
-void CppEditorPlugin::test_quickfix_InsertVirtualMethods_PureVirtualInside()
-{
-    const QByteArray original =
+    // Check: Insert pure virtual functions inside class
+    QTest::newRow("PureVirtualInside")
+        << InsertVirtualMethodsDialog::ModeInsideClass << true << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int virtualFuncA() = 0;\n"
         "};\n\n"
         "class Derived : public Bas@eA {\n"
-        "};";
-    const QByteArray expected =
+        "};"
+        ) << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int virtualFuncA() = 0;\n"
@@ -3910,25 +3882,19 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_PureVirtualInside()
         "    virtual int virtualFuncA()\n"
         "    {\n"
         "    }\n"
-        "};\n";
+        "};\n"
+    );
 
-    InsertVirtualMethods factory(new InsertVirtualMethodsDialogTest(
-                                     InsertVirtualMethodsDialog::ModeInsideClass, true));
-    TestCase data(original, expected);
-    data.run(&factory);
-}
-
-/// Check: Insert inside class
-void CppEditorPlugin::test_quickfix_InsertVirtualMethods_inside()
-{
-    const QByteArray original =
+    // Check: Insert inside class
+    QTest::newRow("inside")
+        << InsertVirtualMethodsDialog::ModeInsideClass << true << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int virtualFuncA();\n"
         "};\n\n"
         "class Derived : public Bas@eA {\n"
-        "};";
-    const QByteArray expected =
+        "};"
+        ) << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int virtualFuncA();\n"
@@ -3940,25 +3906,19 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_inside()
         "    virtual int virtualFuncA()\n"
         "    {\n"
         "    }\n"
-        "};\n";
+        "};\n"
+    );
 
-    InsertVirtualMethods factory(new InsertVirtualMethodsDialogTest(
-                                     InsertVirtualMethodsDialog::ModeInsideClass, true));
-    TestCase data(original, expected);
-    data.run(&factory);
-}
-
-/// Check: Insert outside class
-void CppEditorPlugin::test_quickfix_InsertVirtualMethods_outside()
-{
-    const QByteArray original =
+    // Check: Insert outside class
+    QTest::newRow("outside")
+        << InsertVirtualMethodsDialog::ModeOutsideClass << true << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int virtualFuncA();\n"
         "};\n\n"
         "class Derived : public Bas@eA {\n"
-        "};";
-    const QByteArray expected =
+        "};"
+        ) << _(
         "class BaseA {\n"
         "public:\n"
         "    virtual int virtualFuncA();\n"
@@ -3971,38 +3931,41 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_outside()
         "};\n\n"
         "int Derived::virtualFuncA()\n"
         "{\n"
-        "}\n";
+        "}\n"
+    );
 
-    InsertVirtualMethods factory(new InsertVirtualMethodsDialogTest(
-                                     InsertVirtualMethodsDialog::ModeOutsideClass, true));
-    TestCase data(original, expected);
-    data.run(&factory);
+    // Check: No trigger: all implemented
+    QTest::newRow("notrigger_allImplemented")
+        << InsertVirtualMethodsDialog::ModeOutsideClass << true << _(
+        "class BaseA {\n"
+        "public:\n"
+        "    virtual int virtualFuncA();\n"
+        "};\n\n"
+        "class Derived : public Bas@eA {\n"
+        "public:\n"
+        "    virtual int virtualFuncA();\n"
+        "};"
+        ) << _(
+        "class BaseA {\n"
+        "public:\n"
+        "    virtual int virtualFuncA();\n"
+        "};\n\n"
+        "class Derived : public Bas@eA {\n"
+        "public:\n"
+        "    virtual int virtualFuncA();\n"
+        "};\n"
+    );
 }
 
-/// Check: No trigger: all implemented
-void CppEditorPlugin::test_quickfix_InsertVirtualMethods_notrigger_allImplemented()
+void CppEditorPlugin::test_quickfix_InsertVirtualMethods()
 {
-    const QByteArray original =
-        "class BaseA {\n"
-        "public:\n"
-        "    virtual int virtualFuncA();\n"
-        "};\n\n"
-        "class Derived : public Bas@eA {\n"
-        "public:\n"
-        "    virtual int virtualFuncA();\n"
-        "};";
-    const QByteArray expected =
-        "class BaseA {\n"
-        "public:\n"
-        "    virtual int virtualFuncA();\n"
-        "};\n\n"
-        "class Derived : public Bas@eA {\n"
-        "public:\n"
-        "    virtual int virtualFuncA();\n"
-        "};\n";
+    QFETCH(InsertVirtualMethodsDialog::ImplementationMode, implementationMode);
+    QFETCH(bool, insertVirtualKeyword);
+    QFETCH(QByteArray, original);
+    QFETCH(QByteArray, expected);
 
-    InsertVirtualMethods factory(new InsertVirtualMethodsDialogTest(
-                                     InsertVirtualMethodsDialog::ModeOutsideClass, true));
+    InsertVirtualMethods factory(
+                new InsertVirtualMethodsDialogTest(implementationMode, insertVirtualKeyword));
     TestCase data(original, expected);
     data.run(&factory);
 }
