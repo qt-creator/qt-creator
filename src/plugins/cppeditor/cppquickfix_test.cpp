@@ -1852,6 +1852,36 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_erroneousStatementAtEndOfF
     data.run(&factory);
 }
 
+/// Check: Respect rvalue references
+void CppEditorPlugin::test_quickfix_InsertDefFromDecl_rvalueReference()
+{
+    QList<TestDocumentPtr> testFiles;
+
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original = "void f(Foo &&)@;\n";
+    expected = original + "\n";
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+
+    // Source File
+    original = "";
+    expected =
+            "\n"
+            "void f(Foo &&)\n"
+            "{\n"
+            "\n"
+            "}\n"
+            "\n"
+            ;
+    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+
+    InsertDefFromDecl factory;
+    TestCase data(testFiles);
+    data.run(&factory);
+}
+
 // Function for one of InsertDeclDef section cases
 void insertToSectionDeclFromDef(const QByteArray &section, int sectionIndex)
 {

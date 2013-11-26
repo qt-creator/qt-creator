@@ -87,7 +87,7 @@ void CloneType::visit(PointerType *type)
 
 void CloneType::visit(ReferenceType *type)
 {
-    _type.setType(_control->referenceType(_clone->type(type->elementType(), _subst)));
+    _type.setType(_control->referenceType(_clone->type(type->elementType(), _subst), type->isRvalueReference()));
 }
 
 void CloneType::visit(ArrayType *type)

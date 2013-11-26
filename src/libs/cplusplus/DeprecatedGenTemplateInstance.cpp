@@ -112,7 +112,7 @@ private:
 
         virtual void visit(ReferenceType *refTy)
         {
-            _type.setType(control()->referenceType(q->apply(refTy->elementType())));
+            _type.setType(control()->referenceType(q->apply(refTy->elementType()), refTy->isRvalueReference()));
         }
 
         virtual void visit(ArrayType *arrayTy)

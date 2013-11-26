@@ -117,7 +117,7 @@ public:
         virtual void visit(ReferenceType *type)
         {
             const FullySpecifiedType elementType = rewrite->rewriteType(type->elementType());
-            temps.append(control()->referenceType(elementType));
+            temps.append(control()->referenceType(elementType, type->isRvalueReference()));
         }
 
         virtual void visit(ArrayType *type)
