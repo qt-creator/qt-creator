@@ -878,6 +878,12 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_data()
             "@Foo foo;\n"
     );
 
+    QTest::newRow("skipForwardDeclarationTemplates") << _(
+            "template <class E> class $Container {};\n"
+            "template <class E> class Container;\n"
+            "@Container<int> container;\n"
+    );
+
     QTest::newRow("using_QTCREATORBUG7903_globalNamespace") << _(
             "namespace NS {\n"
             "class Foo {};\n"
@@ -912,7 +918,6 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_data()
             "    @Foo foo;\n"
             "}\n"
     );
-
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor()
@@ -931,6 +936,14 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_multipleDocuments_data()
                                 QLatin1String("defined.h"))
         << TestDocument::create("class Foo;\n"
                                 "@Foo foo;\n",
+                                QLatin1String("forwardDeclaredAndUsed.h"))
+    );
+
+    QTest::newRow("skipForwardDeclarationTemplates") << (QList<TestDocumentPtr>()
+        << TestDocument::create("template <class E> class $Container {};\n",
+                                QLatin1String("defined.h"))
+        << TestDocument::create("template <class E> class Container;\n"
+                                "@Container<int> container;\n",
                                 QLatin1String("forwardDeclaredAndUsed.h"))
     );
 }

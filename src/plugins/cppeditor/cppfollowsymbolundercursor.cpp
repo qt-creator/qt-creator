@@ -242,6 +242,24 @@ Link findMacroLink(const QByteArray &name, const Document::Ptr &doc)
     return Link();
 }
 
+/// Considers also forward declared templates.
+static bool isForwardClassDeclaration(Type *type)
+{
+    if (!type)
+        return false;
+
+    if (type->isForwardClassDeclarationType()) {
+        return true;
+    } else if (Template *templ = type->asTemplateType()) {
+        if (Symbol *declaration = templ->declaration()) {
+            if (declaration->isForwardClassDeclaration())
+                return true;
+        }
+    }
+
+    return false;
+}
+
 inline LookupItem skipForwardDeclarations(const QList<LookupItem> &resolvedSymbols)
 {
     QList<LookupItem> candidates = resolvedSymbols;
@@ -249,11 +267,11 @@ inline LookupItem skipForwardDeclarations(const QList<LookupItem> &resolvedSymbo
     LookupItem result = candidates.first();
     const FullySpecifiedType ty = result.type().simplified();
 
-    if (ty->isForwardClassDeclarationType()) {
+    if (isForwardClassDeclaration(ty.type())) {
         while (!candidates.isEmpty()) {
             LookupItem r = candidates.takeFirst();
 
-            if (!r.type()->isForwardClassDeclarationType()) {
+            if (!isForwardClassDeclaration(r.type().type())) {
                 result = r;
                 break;
             }
@@ -676,8 +694,15 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
                 if (def == lastVisibleSymbol)
                     def = 0; // jump to declaration then.
 
-                if (symbol->isForwardClassDeclaration())
+                if (symbol->isForwardClassDeclaration()) {
                     def = symbolFinder->findMatchingClassDeclaration(symbol, snapshot);
+                } else if (Template *templ = symbol->asTemplate()) {
+                    if (Symbol *declaration = templ->declaration()) {
+                        if (declaration->isForwardClassDeclaration())
+                            def = symbolFinder->findMatchingClassDeclaration(declaration, snapshot);
+                    }
+                }
+
             }
 
             link = m_widget->linkToSymbol(def ? def : symbol);
