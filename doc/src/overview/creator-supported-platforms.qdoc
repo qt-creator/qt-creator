@@ -40,14 +40,32 @@
 
     \list
 
-        \li Windows 7
+        \li Windows
 
-        \li Windows XP Service Pack 2
+        \list
 
-        \li Windows Vista
+            \li Windows Vista
 
-        \li (K)Ubuntu Linux 10.04 (32-bit and 64-bit) or later, with the
-            following:
+            \li Windows 7
+
+            \li Windows 8
+
+            \li Windows 8.1
+
+        \endlist
+
+        \note Some \QC plugins rely on Direct3D (part of DirectX). You might
+        have to manually enable support for it if you are running Windows in a
+        Virtual Machine. For more information, see
+        \l{http://www.virtualbox.org/manual/ch04.html#guestadd-3d}
+        {Hardware 3D acceleration (OpenGL and Direct3D 8/9)} and
+        \l{http://pubs.vmware.com/workstation-10/index.jsp?topic=%2Fcom.vmware.ws.using.doc%2FGUID-EA588485-718A-4FD8-81F5-B6E1F04C5788.html}
+        {Prepare the Host System to Use DirectX 9 Accelerated Graphics}.
+
+        \li (K)Ubuntu Linux 11.10 (32-bit and 64-bit) or later
+
+        To build Qt applications using \QC on Linux, you usually need the
+        following:
 
             \list
 
@@ -79,11 +97,12 @@
 
                 \li libxrandr-dev
 
-                \li If you are using QtOpenGL, libgl-dev and libglu-dev
+                \li libgl-dev and libglu-dev if you use Qt OpenGL (deprecated
+                    in Qt 5) or Qt GUI OpenGL functions
 
             \endlist
 
-        \li Mac OS 10.5 or later with the following:
+        \li Mac OS 10.6 or later with the following:
 
             \list
 
