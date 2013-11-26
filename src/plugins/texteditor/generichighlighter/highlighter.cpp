@@ -50,6 +50,30 @@ namespace {
     static const QLatin1Char kHash('#');
 }
 
+class HighlighterCodeFormatterData : public CodeFormatterData
+{
+public:
+    HighlighterCodeFormatterData() : m_foldingIndentDelta(0), m_originalObservableState(-1) {}
+    ~HighlighterCodeFormatterData() {}
+    int m_foldingIndentDelta;
+    int m_originalObservableState;
+    QStack<QString> m_foldingRegions;
+    QSharedPointer<Internal::Context> m_contextToContinue;
+};
+
+HighlighterCodeFormatterData *formatterData(const QTextBlock &block)
+{
+    HighlighterCodeFormatterData *data = 0;
+    if (TextBlockUserData *userData = BaseTextDocumentLayout::userData(block)) {
+        data = static_cast<HighlighterCodeFormatterData *>(userData->codeFormatterData());
+        if (!data) {
+            data = new HighlighterCodeFormatterData;
+            userData->setCodeFormatterData(data);
+        }
+    }
+    return data;
+}
+
 Highlighter::Highlighter(QTextDocument *parent) :
     TextEditor::SyntaxHighlighter(parent),
     m_regionDepth(0),
@@ -83,12 +107,6 @@ Highlighter::Highlighter(QTextDocument *parent) :
 }
 
 Highlighter::~Highlighter()
-{}
-
-Highlighter::BlockData::BlockData() : m_foldingIndentDelta(0), m_originalObservableState(-1)
-{}
-
-Highlighter::BlockData::~BlockData()
 {}
 
 // Mapping from Kate format strings to format ids.
@@ -135,8 +153,6 @@ void Highlighter::highlightBlock(const QString &text)
 {
     if (!m_defaultContext.isNull() && !m_isBroken) {
         try {
-            if (!currentBlockUserData())
-                initializeBlockData();
             setupDataForBlock(text);
 
             handleContextChange(m_currentContext->lineBeginContext(),
@@ -188,8 +204,8 @@ void Highlighter::setupDataForBlock(const QString &text)
         else
             setupFromPersistent();
 
-        blockData(currentBlockUserData())->m_foldingRegions =
-            blockData(currentBlock().previous().userData())->m_foldingRegions;
+        formatterData(currentBlock())->m_foldingRegions =
+                formatterData(currentBlock().previous())->m_foldingRegions;
     }
 
     assignCurrentContext();
@@ -204,7 +220,7 @@ void Highlighter::setupDefault()
 
 void Highlighter::setupFromWillContinue()
 {
-    BlockData *previousData = blockData(currentBlock().previous().userData());
+    HighlighterCodeFormatterData *previousData = formatterData(currentBlock().previous());
     if (previousData->m_originalObservableState == Default ||
         previousData->m_originalObservableState == -1) {
         m_contexts.push_back(previousData->m_contextToContinue);
@@ -212,7 +228,7 @@ void Highlighter::setupFromWillContinue()
         pushContextSequence(previousData->m_originalObservableState);
     }
 
-    BlockData *data = blockData(currentBlock().userData());
+    HighlighterCodeFormatterData *data = formatterData(currentBlock());
     data->m_originalObservableState = previousData->m_originalObservableState;
 
     if (currentBlockState() == -1 || extractObservableState(currentBlockState()) == Default)
@@ -221,7 +237,7 @@ void Highlighter::setupFromWillContinue()
 
 void Highlighter::setupFromContinued()
 {
-    BlockData *previousData = blockData(currentBlock().previous().userData());
+    HighlighterCodeFormatterData *previousData = formatterData(currentBlock().previous());
 
     Q_ASSERT(previousData->m_originalObservableState != WillContinue &&
              previousData->m_originalObservableState != Continued);
@@ -264,19 +280,19 @@ void Highlighter::iterateThroughRules(const QString &text,
 
             if (!m_indentationBasedFolding) {
                 if (!rule->beginRegion().isEmpty()) {
-                    blockData(currentBlockUserData())->m_foldingRegions.push(rule->beginRegion());
+                    formatterData(currentBlock())->m_foldingRegions.push(rule->beginRegion());
                     ++m_regionDepth;
                     if (progress->isOpeningBraceMatchAtFirstNonSpace())
-                        ++blockData(currentBlockUserData())->m_foldingIndentDelta;
+                        ++formatterData(currentBlock())->m_foldingIndentDelta;
                 }
                 if (!rule->endRegion().isEmpty()) {
                     QStack<QString> *currentRegions =
-                        &blockData(currentBlockUserData())->m_foldingRegions;
+                        &formatterData(currentBlock())->m_foldingRegions;
                     if (!currentRegions->isEmpty() && rule->endRegion() == currentRegions->top()) {
                         currentRegions->pop();
                         --m_regionDepth;
                         if (progress->isClosingBraceMatchAtNonEnd())
-                            --blockData(currentBlockUserData())->m_foldingIndentDelta;
+                            --formatterData(currentBlock())->m_foldingIndentDelta;
                     }
                 }
                 progress->clearBracesMatches();
@@ -442,10 +458,10 @@ void Highlighter::applyFormat(int offset,
 
 void Highlighter::createWillContinueBlock()
 {
-    BlockData *data = blockData(currentBlockUserData());
+    HighlighterCodeFormatterData *data = formatterData(currentBlock());
     const int currentObservableState = extractObservableState(currentBlockState());
     if (currentObservableState == Continued) {
-        BlockData *previousData = blockData(currentBlock().previous().userData());
+        HighlighterCodeFormatterData *previousData = formatterData(currentBlock().previous());
         data->m_originalObservableState = previousData->m_originalObservableState;
     } else if (currentObservableState != WillContinue) {
         data->m_originalObservableState = currentObservableState;
@@ -464,7 +480,7 @@ void Highlighter::analyseConsistencyOfWillContinueBlock(const QString &text)
     }
 
     if (text.length() == 0 || text.at(text.length() - 1) != kBackSlash) {
-        BlockData *data = blockData(currentBlockUserData());
+        HighlighterCodeFormatterData *data = formatterData(currentBlock());
         data->m_contextToContinue.clear();
         setCurrentBlockState(computeState(data->m_originalObservableState));
     }
@@ -501,18 +517,6 @@ QString Highlighter::currentContextSequence() const
         sequence.append(m_contexts.at(i)->id());
 
     return sequence;
-}
-
-Highlighter::BlockData *Highlighter::initializeBlockData()
-{
-    BlockData *data = new BlockData;
-    setCurrentBlockUserData(data);
-    return data;
-}
-
-Highlighter::BlockData *Highlighter::blockData(QTextBlockUserData *userData)
-{
-    return static_cast<BlockData *>(userData);
 }
 
 void Highlighter::pushDynamicContext(const QSharedPointer<Context> &baseContext)
@@ -556,26 +560,27 @@ int Highlighter::computeState(const int observableState) const
 void Highlighter::applyRegionBasedFolding() const
 {
     int folding = 0;
-    BlockData *data = blockData(currentBlockUserData());
-    BlockData *previousData = blockData(currentBlock().previous().userData());
+    TextBlockUserData *currentBlockUserData = BaseTextDocumentLayout::userData(currentBlock());
+    HighlighterCodeFormatterData *data = formatterData(currentBlock());
+    HighlighterCodeFormatterData *previousData = formatterData(currentBlock().previous());
     if (previousData) {
         folding = extractRegionDepth(previousBlockState());
         if (data->m_foldingIndentDelta != 0) {
             folding += data->m_foldingIndentDelta;
             if (data->m_foldingIndentDelta > 0)
-                data->setFoldingStartIncluded(true);
+                currentBlockUserData->setFoldingStartIncluded(true);
             else
-                previousData->setFoldingEndIncluded(false);
+                BaseTextDocumentLayout::userData(currentBlock().previous())->setFoldingEndIncluded(false);
             data->m_foldingIndentDelta = 0;
         }
     }
-    data->setFoldingEndIncluded(true);
-    data->setFoldingIndent(folding);
+    currentBlockUserData->setFoldingEndIncluded(true);
+    currentBlockUserData->setFoldingIndent(folding);
 }
 
 void Highlighter::applyIndentationBasedFolding(const QString &text) const
 {
-    BlockData *data = blockData(currentBlockUserData());
+    TextBlockUserData *data = BaseTextDocumentLayout::userData(currentBlock());
     data->setFoldingEndIncluded(true);
 
     // If this line is empty, check its neighbours. They all might be part of the same block.
