@@ -297,7 +297,24 @@ void Lexer::scan_helper(Token *tok)
         break;
 
     case '?':
-        tok->f.kind = T_QUESTION;
+        if (_yychar == '?') {
+            yyinp();
+            if (_yychar == '(') {
+                yyinp();
+                tok->f.kind = T_LBRACKET;
+            } else if (_yychar == ')') {
+                yyinp();
+                tok->f.kind = T_RBRACKET;
+            } else if (_yychar == '<') {
+                yyinp();
+                tok->f.kind = T_LBRACE;
+            } else if (_yychar == '>') {
+                yyinp();
+                tok->f.kind = T_RBRACE;
+            }
+        } else {
+            tok->f.kind = T_QUESTION;
+        }
         break;
 
     case '+':
