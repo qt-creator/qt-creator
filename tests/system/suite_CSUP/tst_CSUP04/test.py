@@ -65,7 +65,7 @@ def main():
         return
     # wait until search finished and verify search results
     waitFor("searchFinished", 20000)
-    validateSearchResult(18)
+    validateSearchResult(14)
     result = re.search("QmlApplicationViewer", str(editorWidget.plainText))
     test.verify(result, "Verifying if: The list of all usages of the selected text is displayed in Search Results. "
                 "File with used text is opened.")
