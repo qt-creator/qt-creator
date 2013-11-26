@@ -96,9 +96,7 @@ QtcPlugin {
         "qbspropertylineedit.cpp",
         "qbspropertylineedit.h",
         "qbsrunconfiguration.cpp",
-        "qbsrunconfiguration.h",
-        "qbsstep.cpp",
-        "qbsstep.h"
+        "qbsrunconfiguration.h"
     ]
 }
 
