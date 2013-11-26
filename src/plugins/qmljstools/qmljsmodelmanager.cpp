@@ -950,13 +950,13 @@ void ModelManager::importScan(QFutureInterface<void> &future,
     int totalWork(progressRange), workDone(0);
     future.setProgressRange(0, progressRange); // update max length while iterating?
     const bool libOnly = true; // FIXME remove when tested more
+    const Snapshot snapshot = modelManager->snapshot();
     while (!pathsToScan.isEmpty() && !future.isCanceled()) {
         ScanItem toScan = pathsToScan.last();
         pathsToScan.pop_back();
         int pathBudget = (maxScanDepth + 2 - toScan.depth);
         if (!scannedPaths.contains(toScan.path)) {
             QStringList importedFiles;
-            const Snapshot snapshot = modelManager->snapshot();
             if (!findNewQmlLibraryInPath(toScan.path, snapshot, modelManager, &importedFiles,
                                          &scannedPaths, &newLibraries, true)
                     && !libOnly && snapshot.documentsInDirectory(toScan.path).isEmpty())
