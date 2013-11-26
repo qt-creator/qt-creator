@@ -59,10 +59,8 @@ def main():
     manualQModelIndex = getQModelIndexStr("text?='Qt Creator Manual *'",
                                           ":Qt Creator_QHelpContentWidget")
     doubleClick(manualQModelIndex, 5, 5, 0, Qt.LeftButton)
-    gettingStartedQModelIndex = getQModelIndexStr("text='Getting Started'", manualQModelIndex)
-    doubleClick(gettingStartedQModelIndex, 5, 5, 0, Qt.LeftButton)
     mouseClick(waitForObject(getQModelIndexStr("text='Building and Running an Example'",
-                                               gettingStartedQModelIndex)), 5, 5, 0, Qt.LeftButton)
+                                               manualQModelIndex)), 5, 5, 0, Qt.LeftButton)
     # open bookmarks window
     clickButton(waitForObject(":Qt Creator.Add Bookmark_QToolButton"))
     clickButton(waitForObject(":Add Bookmark.ExpandBookmarksList_QToolButton"))
