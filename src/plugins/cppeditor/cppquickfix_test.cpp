@@ -3979,6 +3979,34 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_outside()
     data.run(&factory);
 }
 
+/// Check: No trigger: all implemented
+void CppEditorPlugin::test_quickfix_InsertVirtualMethods_notrigger_allImplemented()
+{
+    const QByteArray original =
+        "class BaseA {\n"
+        "public:\n"
+        "    virtual int virtualFuncA();\n"
+        "};\n\n"
+        "class Derived : public Bas@eA {\n"
+        "public:\n"
+        "    virtual int virtualFuncA();\n"
+        "};";
+    const QByteArray expected =
+        "class BaseA {\n"
+        "public:\n"
+        "    virtual int virtualFuncA();\n"
+        "};\n\n"
+        "class Derived : public Bas@eA {\n"
+        "public:\n"
+        "    virtual int virtualFuncA();\n"
+        "};\n";
+
+    InsertVirtualMethods factory(new InsertVirtualMethodsDialogTest(
+                                     InsertVirtualMethodsDialog::ModeOutsideClass, true));
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
 /// Check: Insert in implementation file
 void CppEditorPlugin::test_quickfix_InsertVirtualMethods_implementationFile()
 {
@@ -4023,34 +4051,6 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_implementationFile()
     InsertVirtualMethods factory(new InsertVirtualMethodsDialogTest(
                                      InsertVirtualMethodsDialog::ModeImplementationFile, true));
     TestCase data(testFiles);
-    data.run(&factory);
-}
-
-/// Check: No trigger: all implemented
-void CppEditorPlugin::test_quickfix_InsertVirtualMethods_notrigger_allImplemented()
-{
-    const QByteArray original =
-        "class BaseA {\n"
-        "public:\n"
-        "    virtual int virtualFuncA();\n"
-        "};\n\n"
-        "class Derived : public Bas@eA {\n"
-        "public:\n"
-        "    virtual int virtualFuncA();\n"
-        "};";
-    const QByteArray expected =
-        "class BaseA {\n"
-        "public:\n"
-        "    virtual int virtualFuncA();\n"
-        "};\n\n"
-        "class Derived : public Bas@eA {\n"
-        "public:\n"
-        "    virtual int virtualFuncA();\n"
-        "};\n";
-
-    InsertVirtualMethods factory(new InsertVirtualMethodsDialogTest(
-                                     InsertVirtualMethodsDialog::ModeOutsideClass, true));
-    TestCase data(original, expected);
     data.run(&factory);
 }
 
