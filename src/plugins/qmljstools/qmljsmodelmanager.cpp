@@ -232,6 +232,7 @@ QStringList QmlJSTools::qmlAndJsGlobPatterns()
 
 ModelManager::ModelManager(QObject *parent):
         ModelManagerInterface(parent),
+        m_shouldScanImports(false),
         m_pluginDumper(new PluginDumper(this))
 {
     m_synchronizer.setCancelOnWait(true);
@@ -379,6 +380,20 @@ QFuture<void> ModelManager::refreshSourceFiles(const QStringList &sourceFiles,
 
     if (sourceFiles.count() > 1)
         ProgressManager::addTask(result, tr("Indexing"), Constants::TASK_INDEX);
+
+    if (sourceFiles.count() > 1 && !m_shouldScanImports) {
+        bool scan = false;
+        {
+            QMutexLocker l(&m_mutex);
+            if (!m_shouldScanImports) {
+                m_shouldScanImports = true;
+                scan = true;
+            }
+        }
+        if (scan)
+        updateImportPaths();
+    }
+
 
     return result;
 }
@@ -1113,6 +1128,8 @@ void ModelManager::updateImportPaths()
 
     updateSourceFiles(importedFiles, true);
 
+    if (!m_shouldScanImports)
+        return;
     QStringList pathToScan;
     {
         QMutexLocker l(&m_mutex);
