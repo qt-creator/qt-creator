@@ -847,14 +847,6 @@ public slots:
         }
     }
 
-    void synchronizeWatchers()
-    {
-        for (int i = 0, n = m_snapshotHandler->size(); i != n; ++i) {
-            if (DebuggerEngine *engine = m_snapshotHandler->at(i))
-                engine->watchHandler()->updateWatchers();
-        }
-    }
-
     void editorOpened(Core::IEditor *editor);
     void updateBreakMenuItem(Core::IEditor *editor);
     void setBusyCursor(bool busy);
@@ -1025,7 +1017,6 @@ public slots:
 
     void handleExecJumpToLine()
     {
-        //removeTooltip();
         currentEngine()->resetLocation();
         ContextData data;
         if (currentTextEditorPosition(&data))
@@ -1034,7 +1025,6 @@ public slots:
 
     void handleExecRunToLine()
     {
-        //removeTooltip();
         currentEngine()->resetLocation();
         ContextData data;
         if (currentTextEditorPosition(&data))

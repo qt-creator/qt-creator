@@ -80,20 +80,16 @@ public:
     void watchVariable(const QString &exp);
     Q_SLOT void clearWatches();
 
-    void updateWatchers(); // Called after locals are fetched
-
     void showEditValue(const WatchData &data);
 
     const WatchData *watchData(const QModelIndex &) const;
     const QModelIndex watchDataIndex(const QByteArray &iname) const;
     const WatchData *findData(const QByteArray &iname) const;
     const WatchData *findCppLocalVariable(const QString &name) const;
-    QString displayForAutoTest(const QByteArray &iname) const;
     bool hasItem(const QByteArray &iname) const;
 
     void loadSessionData();
     void saveSessionData();
-    void removeTooltip();
 
     bool isExpandedIName(const QByteArray &iname) const;
     QSet<QByteArray> expandedINames() const;
@@ -115,7 +111,6 @@ public:
     static int unprintableBase();
 
     QByteArray watcherName(const QByteArray &exp);
-    void synchronizeWatchers();
     QString editorContents();
     void editTypeFormats(bool includeLocals, const QByteArray &iname);
 

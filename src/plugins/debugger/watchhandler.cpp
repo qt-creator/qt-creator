@@ -982,14 +982,6 @@ QString WatchModel::displayType(const WatchData &data) const
     return result;
 }
 
-QString WatchModel::displayForAutoTest(const QByteArray &iname) const
-{
-    WatchItem *item = findItem(iname);
-    if (item)
-        return displayValue(*item) + QLatin1Char(' ') + displayType(*item);
-    return QString();
-}
-
 QVariant WatchModel::data(const QModelIndex &idx, int role) const
 {
     if (!idx.isValid())
@@ -1880,20 +1872,6 @@ void WatchHandler::loadSessionData()
         watchExpression(exp);
 }
 
-void WatchHandler::updateWatchers()
-{
-    m_model->destroyChildren(m_model->m_watchRoot);
-    // Copy over all watchers and mark all watchers as incomplete.
-    foreach (const QByteArray &exp, theWatcherNames.keys()) {
-        WatchData data;
-        data.iname = watcherName(exp);
-        data.setAllNeeded();
-        data.name = QLatin1String(exp);
-        data.exp = exp;
-        insertIncompleteData(data);
-    }
-}
-
 QAbstractItemModel *WatchHandler::model() const
 {
     return m_model;
@@ -1926,11 +1904,6 @@ const WatchData *WatchHandler::findCppLocalVariable(const QString &name) const
     if (const WatchData *wd = findData(iname))
         return wd;
     return 0;
-}
-
-QString WatchHandler::displayForAutoTest(const QByteArray &iname) const
-{
-    return m_model->displayForAutoTest(iname);
 }
 
 bool WatchHandler::hasItem(const QByteArray &iname) const
@@ -2020,11 +1993,6 @@ QString WatchHandler::editorContents()
     QString contents;
     m_model->showInEditorHelper(&contents, m_model->m_root, 0);
     return contents;
-}
-
-void WatchHandler::removeTooltip()
-{
-    m_model->destroyChildren(m_model->m_tooltipRoot);
 }
 
 void WatchHandler::setTypeFormats(const TypeFormats &typeFormats)
