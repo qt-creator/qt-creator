@@ -644,7 +644,7 @@ class DumperBase:
             self.putNumChild(0)
             return True
 
-        if format >= 6 and format <= 9:
+        if not format is None and format >= 6 and format <= 9:
             # Explicitly requested formatting as array of n items.
             n = (10, 100, 1000, 10000)[format - 6]
             self.putType(typeName)
