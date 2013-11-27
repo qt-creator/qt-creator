@@ -774,6 +774,11 @@ public:
         setDescription(QApplication::translate("CppTools::QuickFix",
                                                "Move Declaration out of Condition"));
 
+        reset();
+    }
+
+    void reset()
+    {
         condition = mk.Condition();
         pattern = mk.IfStatement(condition);
     }
@@ -826,6 +831,8 @@ void MoveDeclarationOutOfIf::match(const CppQuickFixInterface &interface,
                     result.append(op);
                     return;
                 }
+
+                op->reset();
             }
         }
     }
@@ -841,7 +848,11 @@ public:
     {
         setDescription(QApplication::translate("CppTools::QuickFix",
                                                "Move Declaration out of Condition"));
+        reset();
+    }
 
+    void reset()
+    {
         condition = mk.Condition();
         pattern = mk.WhileStatement(condition);
     }
@@ -903,6 +914,8 @@ void MoveDeclarationOutOfWhile::match(const CppQuickFixInterface &interface,
                     result.append(op);
                     return;
                 }
+
+                op->reset();
             }
         }
     }
