@@ -153,7 +153,7 @@ public:
     /*!
      * Called to get the version control repository root.
      */
-    virtual QString vcsGetRepositoryURL(const QString &director) = 0;
+    virtual QString vcsGetRepositoryURL(const QString &directory) = 0;
 
     /*!
      * Topic (e.g. name of the current branch)
