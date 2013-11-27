@@ -42,6 +42,7 @@
 
 namespace Debugger {
 
+class DebuggerItemManager;
 namespace Internal {
 class DebuggerItemConfigWidget;
 class DebuggerItemModel;
@@ -63,7 +64,6 @@ public:
     QString engineTypeName() const;
 
     QVariantMap toMap() const;
-    void reinitializeFromFile();
 
     QVariant id() const { return m_id; }
 
@@ -92,6 +92,7 @@ public:
 
 private:
     DebuggerItem(const QVariant &id);
+    void reinitializeFromFile();
 
     QVariant m_id;
     QString m_displayName;
@@ -102,6 +103,7 @@ private:
 
     friend class Internal::DebuggerItemConfigWidget;
     friend class Internal::DebuggerItemModel;
+    friend class DebuggerItemManager;
 };
 
 } // namespace Debugger

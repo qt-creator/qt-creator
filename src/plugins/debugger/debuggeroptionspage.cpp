@@ -39,6 +39,7 @@
 #include <utils/qtcassert.h>
 #include <utils/winutils.h>
 
+#include <QFileInfo>
 #include <QFormLayout>
 #include <QHeaderView>
 #include <QLabel>
@@ -59,26 +60,6 @@ static const char debuggingToolsWikiLinkC[] = "http://qt-project.org/wiki/Qt_Cre
 // DebuggerItemConfigWidget
 // -----------------------------------------------------------------------
 
-class DebuggerItemConfigWidget : public QWidget
-{
-    Q_DECLARE_TR_FUNCTIONS(Debugger::Internal::DebuggerItemConfigWidget)
-
-public:
-    explicit DebuggerItemConfigWidget(DebuggerItemModel *model);
-    DebuggerItem store() const;
-    void setItem(const DebuggerItem &item);
-    void apply();
-
-private:
-    QLineEdit *m_displayNameLineEdit;
-    QLabel *m_cdbLabel;
-    PathChooser *m_binaryChooser;
-    QLineEdit *m_abis;
-    DebuggerItemModel *m_model;
-    bool m_autodetected;
-    QVariant m_id;
-};
-
 DebuggerItemConfigWidget::DebuggerItemConfigWidget(DebuggerItemModel *model) :
     m_model(model)
 {
@@ -90,6 +71,7 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget(DebuggerItemModel *model) :
     m_binaryChooser->setExpectedKind(PathChooser::ExistingCommand);
     m_binaryChooser->setMinimumWidth(400);
     m_binaryChooser->setHistoryCompleter(QLatin1String("DebuggerPaths"));
+    connect(m_binaryChooser, SIGNAL(changed(QString)), this, SLOT(commandWasChanged()));
 
     m_cdbLabel = new QLabel(this);
     m_cdbLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
@@ -107,7 +89,7 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget(DebuggerItemModel *model) :
     formLayout->addRow(new QLabel(tr("ABIs:")), m_abis);
 }
 
-DebuggerItem DebuggerItemConfigWidget::store() const
+DebuggerItem DebuggerItemConfigWidget::item() const
 {
     DebuggerItem item(m_id);
     if (m_id.isNull())
@@ -116,9 +98,26 @@ DebuggerItem DebuggerItemConfigWidget::store() const
     item.setDisplayName(m_displayNameLineEdit->text());
     item.setCommand(m_binaryChooser->fileName());
     item.setAutoDetected(m_autodetected);
-    item.reinitializeFromFile();
-    m_model->updateDebugger(item);
+    QList<ProjectExplorer::Abi> abiList;
+    foreach (const QString &a, m_abis->text().split(QRegExp(QLatin1String("[^A-Za-z0-9-_]+")))) {
+        ProjectExplorer::Abi abi(a);
+        if (a.isNull())
+            continue;
+        abiList << a;
+    }
+    item.setAbis(abiList);
     return item;
+}
+
+
+void DebuggerItemConfigWidget::store() const
+{
+    m_model->updateDebugger(item());
+}
+
+void DebuggerItemConfigWidget::setAbis(const QStringList &abiNames)
+{
+    m_abis->setText(abiNames.join(QLatin1String(", ")));
 }
 
 void DebuggerItemConfigWidget::setItem(const DebuggerItem &item)
@@ -157,17 +156,34 @@ void DebuggerItemConfigWidget::setItem(const DebuggerItem &item)
     m_cdbLabel->setVisible(!text.isEmpty());
     m_binaryChooser->setCommandVersionArguments(QStringList(versionCommand));
 
-    m_abis->setText(item.abiNames().join(QLatin1String(", ")));
+    setAbis(item.abiNames());
 }
 
 void DebuggerItemConfigWidget::apply()
 {
-    DebuggerItem item = m_model->currentDebugger();
-    if (!item.isValid())
+    DebuggerItem current = m_model->currentDebugger();
+    if (!current.isValid())
         return; // Nothing was selected here.
 
-    item = store();
-    setItem(item);
+    store();
+    setItem(item());
+}
+
+void DebuggerItemConfigWidget::commandWasChanged()
+{
+    // Use DebuggerItemManager as a cache:
+    const DebuggerItem *existing
+            = DebuggerItemManager::findByCommand(m_binaryChooser->fileName());
+    if (existing) {
+        setAbis(existing->abiNames());
+    } else {
+        QFileInfo fi = QFileInfo(m_binaryChooser->path());
+        if (fi.isExecutable()) {
+            DebuggerItem tmp = item();
+            tmp.reinitializeFromFile();
+            setAbis(tmp.abiNames());
+        }
+    }
 }
 
 // --------------------------------------------------------------------------

@@ -433,10 +433,18 @@ void DebuggerItemManager::setItemData(const QVariant &id, const QString &display
     for (int i = 0, n = m_debuggers.size(); i != n; ++i) {
         DebuggerItem &item = m_debuggers[i];
         if (item.id() == id) {
-            item.setDisplayName(displayName);
-            item.setCommand(fileName);
-            item.reinitializeFromFile();
-            emit m_instance->debuggerUpdated(id);
+            bool changed = false;
+            if (item.displayName() != displayName) {
+                item.setDisplayName(displayName);
+                changed = true;
+            }
+            if (item.command() != fileName) {
+                item.setCommand(fileName);
+                item.reinitializeFromFile();
+                changed = true;
+            }
+            if (changed)
+                emit m_instance->debuggerUpdated(id);
             break;
         }
     }
