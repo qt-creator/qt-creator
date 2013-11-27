@@ -515,13 +515,11 @@ class Dumper(DumperBase):
         self.autoDerefPointers = "autoderef" in options
         self.partialUpdate = "partial" in options
         self.tooltipOnly = "tooltiponly" in options
-        self.noLocals = "nolocals" in options
         #warn("NAMESPACE: '%s'" % self.qtNamespace())
         #warn("VARIABLES: %s" % varList)
         #warn("EXPANDED INAMES: %s" % self.expandedINames)
         #warn("WATCHERS: %s" % watchers)
         #warn("PARTIAL: %s" % self.partialUpdate)
-        #warn("NO LOCALS: %s" % self.noLocals)
 
         #
         # Locals
@@ -548,7 +546,7 @@ class Dumper(DumperBase):
                 pass
             varList = []
 
-        if fullUpdateNeeded and not self.tooltipOnly and not self.noLocals:
+        if fullUpdateNeeded and not self.tooltipOnly:
             locals = listOfLocals(varList)
 
         # Take care of the return value of the last function call.
