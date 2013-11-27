@@ -365,6 +365,8 @@ CdbEngine::CdbEngine(const DebuggerStartParameters &sp) :
             this, SLOT(operateByInstructionTriggered(bool)));
     connect(debuggerCore()->action(VerboseLog), SIGNAL(triggered(bool)),
             this, SLOT(verboseLogTriggered(bool)));
+    connect(debuggerCore()->action(CreateFullBacktrace), SIGNAL(triggered()),
+            this, SLOT(createFullBacktrace()));
     setObjectName(QLatin1String("CdbEngine"));
     connect(&m_process, SIGNAL(finished(int)), this, SLOT(processFinished()));
     connect(&m_process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(processError()));
@@ -595,6 +597,16 @@ void CdbEngine::consoleStubProcessStarted()
 
 void CdbEngine::consoleStubExited()
 {
+}
+
+void CdbEngine::createFullBacktrace()
+{
+    postBuiltinCommand("~*kp", 0, &CdbEngine::handleCreateFullBackTrace);
+}
+
+void CdbEngine::handleCreateFullBackTrace(const CdbEngine::CdbBuiltinCommandPtr &cmd)
+{
+    debuggerCore()->openTextEditor(QLatin1String("Backtrace $"), QLatin1String(cmd->joinedReply()));
 }
 
 void CdbEngine::setupEngine()
@@ -1101,6 +1113,7 @@ bool CdbEngine::hasCapability(unsigned cap) const
            |BreakOnThrowAndCatchCapability // Sort-of: Can break on throw().
            |BreakConditionCapability|TracePointCapability
            |BreakModuleCapability
+           |CreateFullBacktraceCapability
            |OperateByInstructionCapability
            |RunToLineCapability
            |MemoryAddressCapability);
