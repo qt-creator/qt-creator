@@ -67,19 +67,6 @@ public:
     {}
 };
 
-QString expectedContentsForFile(const QString &filePath)
-{
-    QFileInfo fi(filePath);
-    const QString referenceFileName = QLatin1String("reference_") + fi.fileName();
-    const QString referenceFilePath = fi.dir().absoluteFilePath(referenceFileName);
-
-    Utils::FileReader fileReader;
-    const bool isFetchOk = fileReader.fetch(referenceFilePath);
-    if (isFetchOk)
-        return QString::fromUtf8(fileReader.data());
-    return QString();
-}
-
 class DocumentContainsFunctionDefinition: protected SymbolVisitor
 {
 public:
