@@ -89,8 +89,8 @@ QmakeBuildConfiguration *enableActiveQmakeBuildConfiguration(ProjectExplorer::Ta
 
 void updateBoilerPlateCodeFiles(const AbstractMobileApp *app, const QString &proFile)
 {
-    const QList<AbstractGeneratedFileInfo> updates =
-            app->fileUpdates(proFile);
+    const QList<AbstractGeneratedFileInfo> updates = app->fileUpdates(proFile);
+    const QString nativeProFile = QDir::toNativeSeparators(proFile);
     if (!updates.empty()) {
         const QString title = QmakeManager::tr("Update of Generated Files");
         QStringList fileNames;
@@ -100,7 +100,7 @@ void updateBoilerPlateCodeFiles(const AbstractMobileApp *app, const QString &pro
                 QmakeManager::tr("In project<br><br>%1<br><br>The following files are either "
                                "outdated or have been modified:<br><br>%2<br><br>Do you want "
                                "Qt Creator to update the files? Any changes will be lost.")
-                .arg(proFile, fileNames.join(QLatin1String(", ")));
+                .arg(nativeProFile, fileNames.join(QLatin1String(", ")));
         if (QMessageBox::question(0, title, message, QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
             QString error;
             if (!app->updateFiles(updates, error))
