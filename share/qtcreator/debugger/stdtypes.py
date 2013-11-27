@@ -280,7 +280,7 @@ def qdump__std__stringHelper1(d, value, charSize):
     sizePtr = data.cast(d.sizetType().pointer())
     size = int(sizePtr[-3])
     alloc = int(sizePtr[-2])
-    refcount = int(sizePtr[-1])
+    refcount = int(sizePtr[-1]) & 0xffffffff
     d.check(refcount >= -1) # Can be -1 accoring to docs.
     d.check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
     qdump_stringHelper(d, sizePtr, size * charSize, charSize)
