@@ -142,6 +142,7 @@ private slots:
     void test_quickfix_InsertDefFromDecl_macroUsesAtEndOfFile2();
     void test_quickfix_InsertDefFromDecl_erroneousStatementAtEndOfFile();
     void test_quickfix_InsertDefFromDecl_rvalueReference();
+    void test_quickfix_InsertDefFromDecl_findImplementationFile();
 
     void test_quickfix_InsertDeclFromDef();
 

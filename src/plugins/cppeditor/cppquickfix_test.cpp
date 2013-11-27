@@ -1764,6 +1764,46 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_rvalueReference()
     QuickFixTestCase(testFiles, &factory);
 }
 
+/// Find right implementation file. (QTCREATORBUG-10728)
+void CppEditorPlugin::test_quickfix_InsertDefFromDecl_findImplementationFile()
+{
+    QList<QuickFixTestDocument::Ptr> testFiles;
+
+    QByteArray original;
+    QByteArray expected;
+
+    // Header File
+    original =
+            "class Foo {\n"
+            "    void bar();\n"
+            "    void ba@z();\n"
+            "};\n"
+            "\n"
+            "void Foo::bar()\n"
+            "{}\n";
+    expected = original + "\n";
+    testFiles << QuickFixTestDocument::create("file.h", original, expected);
+
+    // Source File
+    original =
+            "#include \"file.h\"\n"
+            ;
+    expected =
+            "#include \"file.h\"\n"
+            "\n"
+            "\n"
+            "void Foo::baz()\n"
+            "{\n"
+            "\n"
+            "}\n"
+            "\n"
+            ;
+    testFiles << QuickFixTestDocument::create("file.cpp", original, expected);
+
+    InsertDefFromDecl factory;
+    QuickFixTestCase(testFiles, &factory);
+}
+
 // Function for one of InsertDeclDef section cases
 void insertToSectionDeclFromDef(const QByteArray &section, int sectionIndex)
 {
