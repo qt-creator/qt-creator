@@ -93,6 +93,8 @@ BlackBerrySetupWizard::BlackBerrySetupWizard(QWidget *parent) :
     m_uploader = new BlackBerryDebugTokenUploader(this);
     m_keyGenerator = new QSsh::SshKeyGenerator;
 
+    connect(m_ndkPage, SIGNAL(targetsUpdated()),
+            this, SIGNAL(ndkTargetsUpdated()));
     connect(m_deviceInfo, SIGNAL(finished(int)),
             this, SLOT(deviceInfoFinished(int)));
     connect(m_requester, SIGNAL(finished(int)),

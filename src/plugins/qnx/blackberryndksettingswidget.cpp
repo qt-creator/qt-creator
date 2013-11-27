@@ -124,6 +124,7 @@ void BlackBerryNDKSettingsWidget::launchBlackBerrySetupWizard() const
     }
 
     BlackBerrySetupWizard wizard;
+    connect(&wizard, SIGNAL(ndkTargetsUpdated()), this, SLOT(updateNdkList()));
     wizard.exec();
 }
 

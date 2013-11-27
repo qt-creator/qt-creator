@@ -69,6 +69,7 @@ public slots:
 
 signals:
     void stepFinished();
+    void ndkTargetsUpdated();
 
 private slots:
     void processNextStep();
