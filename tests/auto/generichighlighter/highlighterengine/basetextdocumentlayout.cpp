@@ -27,28 +27,12 @@
 **
 ****************************************************************************/
 
-#ifndef BASETEXTDOCUMENTLAYOUT_H
-#define BASETEXTDOCUMENTLAYOUT_H
+#include "basetextdocumentlayout.h"
 
-#include <QTextBlockUserData>
-
-// Replaces the "real" basetextdocumentlayout.h file.
-
-struct CodeFormatterData {};
-
-struct TextBlockUserData : QTextBlockUserData
+TextBlockUserData *BaseTextDocumentLayout::userData(const QTextBlock &block)
 {
-    TextBlockUserData() : m_data(0) {}
-    virtual ~TextBlockUserData() {}
-
-    void setFoldingStartIncluded(const bool) {}
-    void setFoldingEndIncluded(const bool) {}
-    void setFoldingIndent(const int) {}
-    void setCodeFormatterData(CodeFormatterData *data) { m_data = data; }
-    CodeFormatterData *codeFormatterData() { return m_data; }
-    CodeFormatterData *m_data;
-};
-
-namespace BaseTextDocumentLayout { TextBlockUserData *userData(const QTextBlock &block); }
-
-#endif // BASETEXTDOCUMENTLAYOUT_H
+    TextBlockUserData *data = static_cast<TextBlockUserData*>(block.userData());
+    if (!data && block.isValid())
+        const_cast<QTextBlock &>(block).setUserData((data = new TextBlockUserData));
+    return data;
+}

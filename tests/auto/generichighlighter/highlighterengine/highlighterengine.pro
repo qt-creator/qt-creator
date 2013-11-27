@@ -7,6 +7,7 @@ SOURCES += \
     tst_highlighterengine.cpp \
     highlightermock.cpp \
     formats.cpp \
+    basetextdocumentlayout.cpp \
     syntaxhighlighter.cpp \
     $$GENERICHIGHLIGHTERDIR/highlighter.cpp \
     $$GENERICHIGHLIGHTERDIR/context.cpp \
