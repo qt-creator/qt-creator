@@ -123,47 +123,19 @@ private slots:
     void test_doxygen_comments_data();
     void test_doxygen_comments();
 
-    void test_quickfix_CompleteSwitchCaseStatement_basic1();
-    void test_quickfix_CompleteSwitchCaseStatement_basic2();
-    void test_quickfix_CompleteSwitchCaseStatement_oneValueMissing();
-    void test_quickfix_CompleteSwitchCaseStatement_QTCREATORBUG10366_1();
-    void test_quickfix_CompleteSwitchCaseStatement_QTCREATORBUG10366_2();
+    void test_quickfix_data();
+    void test_quickfix();
 
-    void test_quickfix_GenerateGetterSetter_basicGetterWithPrefix();
-    void test_quickfix_GenerateGetterSetter_basicGetterWithPrefixAndNamespace();
     void test_quickfix_GenerateGetterSetter_basicGetterWithPrefixAndNamespaceToCpp();
-    void test_quickfix_GenerateGetterSetter_basicGetterWithoutPrefix();
-    void test_quickfix_GenerateGetterSetter_customType();
-    void test_quickfix_GenerateGetterSetter_constMember();
-    void test_quickfix_GenerateGetterSetter_pointerToNonConst();
-    void test_quickfix_GenerateGetterSetter_pointerToConst();
-    void test_quickfix_GenerateGetterSetter_staticMember();
-    void test_quickfix_GenerateGetterSetter_secondDeclarator();
-    void test_quickfix_GenerateGetterSetter_triggeringRightAfterPointerSign();
-    void test_quickfix_GenerateGetterSetter_notTriggeringOnMemberFunction();
-    void test_quickfix_GenerateGetterSetter_notTriggeringOnMemberArray();
-    void test_quickfix_GenerateGetterSetter_notTriggeringWhenGetterOrSetterExist();
 
-    void test_quickfix_MoveDeclarationOutOfIf_ifOnly();
-    void test_quickfix_MoveDeclarationOutOfIf_ifElse();
-    void test_quickfix_MoveDeclarationOutOfIf_ifElseIf();
-
-    void test_quickfix_MoveDeclarationOutOfWhile_singleWhile();
-    void test_quickfix_MoveDeclarationOutOfWhile_whileInWhile();
-
-    void test_quickfix_ReformatPointerDeclaration();
-
-    void test_quickfix_InsertDefFromDecl_basic();
     void test_quickfix_InsertDefFromDecl_afterClass();
     void test_quickfix_InsertDefFromDecl_headerSource_basic1();
     void test_quickfix_InsertDefFromDecl_headerSource_basic2();
     void test_quickfix_InsertDefFromDecl_headerSource_basic3();
     void test_quickfix_InsertDefFromDecl_headerSource_namespace1();
     void test_quickfix_InsertDefFromDecl_headerSource_namespace2();
-    void test_quickfix_InsertDefFromDecl_freeFunction();
     void test_quickfix_InsertDefFromDecl_insideClass();
     void test_quickfix_InsertDefFromDecl_notTriggeringWhenDefinitionExists();
-    void test_quickfix_InsertDefFromDecl_notTriggeringStatement();
     void test_quickfix_InsertDefFromDecl_findRightImplementationFile();
     void test_quickfix_InsertDefFromDecl_ignoreSurroundingGeneratedDeclarations();
     void test_quickfix_InsertDefFromDecl_respectWsInOperatorNames1();
@@ -223,30 +195,12 @@ private slots:
     void test_quickfix_MoveFuncDefToDecl_CtorWithInitialization();
     void test_quickfix_MoveFuncDefToDecl_structWithAssignedVariable();
 
-    void test_quickfix_AssignToLocalVariable_freeFunction();
-    void test_quickfix_AssignToLocalVariable_memberFunction();
-    void test_quickfix_AssignToLocalVariable_staticMemberFunction();
-    void test_quickfix_AssignToLocalVariable_newExpression();
     void test_quickfix_AssignToLocalVariable_templates();
-    void test_quickfix_AssignToLocalVariable_noInitializationList();
-    void test_quickfix_AssignToLocalVariable_noVoidFunction();
-    void test_quickfix_AssignToLocalVariable_noVoidMemberFunction();
-    void test_quickfix_AssignToLocalVariable_noVoidStaticMemberFunction();
-    void test_quickfix_AssignToLocalVariable_noFunctionInExpression();
-    void test_quickfix_AssignToLocalVariable_noFunctionInFunction();
-    void test_quickfix_AssignToLocalVariable_noReturnClass1();
-    void test_quickfix_AssignToLocalVariable_noReturnClass2();
-    void test_quickfix_AssignToLocalVariable_noReturnFunc1();
-    void test_quickfix_AssignToLocalVariable_noReturnFunc2();
-    void test_quickfix_AssignToLocalVariable_noSignatureMatch();
 
     void test_quickfix_ExtractLiteralAsParameter_typeDeduction_data();
     void test_quickfix_ExtractLiteralAsParameter_typeDeduction();
-    void test_quickfix_ExtractLiteralAsParameter_freeFunction();
     void test_quickfix_ExtractLiteralAsParameter_freeFunction_separateFiles();
-    void test_quickfix_ExtractLiteralAsParameter_memberFunction();
     void test_quickfix_ExtractLiteralAsParameter_memberFunction_separateFiles();
-    void test_quickfix_ExtractLiteralAsParameter_memberFunctionInline();
 
     void test_quickfix_InsertVirtualMethods_onlyDecl();
     void test_quickfix_InsertVirtualMethods_onlyDeclWithoutVirtual();
@@ -260,16 +214,6 @@ private slots:
     void test_quickfix_InsertVirtualMethods_implementationFile();
     void test_quickfix_InsertVirtualMethods_notrigger_allImplemented();
     void test_quickfix_InsertVirtualMethods_BaseClassInNamespace();
-
-    void test_quickfix_OptimizeForLoop_postcrement();
-    void test_quickfix_OptimizeForLoop_condition();
-    void test_quickfix_OptimizeForLoop_flipedCondition();
-    void test_quickfix_OptimizeForLoop_alterVariableName();
-    void test_quickfix_OptimizeForLoop_optimizeBoth();
-    void test_quickfix_OptimizeForLoop_emptyInitializer();
-    void test_quickfix_OptimizeForLoop_wrongInitializer();
-    void test_quickfix_OptimizeForLoop_noTriggerNumeric1();
-    void test_quickfix_OptimizeForLoop_noTriggerNumeric2();
 
     void test_functionhelper_virtualFunctions();
     void test_functionhelper_virtualFunctions_data();
