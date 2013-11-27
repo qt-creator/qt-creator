@@ -190,14 +190,12 @@ enum DebuggerEngineType
     PdbEngineType     = 0x008,
     QmlEngineType     = 0x020,
     QmlCppEngineType  = 0x040,
-    LldbLibEngineType = 0x080,
     LldbEngineType    = 0x100,
     AllEngineTypes = GdbEngineType
         | CdbEngineType
         | PdbEngineType
         | QmlEngineType
         | QmlCppEngineType
-        | LldbLibEngineType
         | LldbEngineType
 };
 

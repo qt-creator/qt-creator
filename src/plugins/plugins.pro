@@ -87,5 +87,3 @@ SUBDIRS += debugger/dumper.pro
 linux-* {
      SUBDIRS += debugger/ptracepreload.pro
 }
-
-include (debugger/lldblib/guest/qtcreator-lldb.pri)

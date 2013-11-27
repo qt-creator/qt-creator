@@ -132,16 +132,6 @@ QtcPlugin {
     }
 
     Group {
-        name: "lldblib"
-        id: lldblib
-        prefix: "lldblib/"
-        files: [
-            "ipcenginehost.cpp", "ipcenginehost.h",
-            "lldbenginehost.cpp", "lldbenginehost.h"
-        ]
-    }
-
-    Group {
         name: "pdb"
         prefix: "pdb/"
         files: ["pdbengine.cpp", "pdbengine.h"]
@@ -244,16 +234,6 @@ QtcPlugin {
         files: [
             "registerpostmortemaction.cpp",
             "registerpostmortemaction.h",
-        ]
-    }
-
-    Group {
-        name: "LLDBOptions"
-        condition: qbs.targetOS.contains("osx")
-        files: [
-            "lldblib/lldboptionspage.cpp",
-            "lldblib/lldboptionspage.h",
-            "lldblib/lldboptionspagewidget.ui",
         ]
     }
 
