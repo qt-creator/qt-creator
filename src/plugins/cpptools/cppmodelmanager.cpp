@@ -64,7 +64,8 @@ namespace CppTools {
 
 uint qHash(const ProjectPart &p)
 {
-    uint h = qHash(p.defines) ^ p.cVersion ^ p.cxxVersion ^ p.cxxExtensions ^ p.qtVersion;
+    uint h = qHash(p.toolchainDefines) ^ qHash(p.projectDefines) ^ p.cVersion ^ p.cxxVersion
+            ^ p.cxxExtensions ^ p.qtVersion;
 
     foreach (const QString &i, p.includePaths)
         h ^= qHash(i);
@@ -78,7 +79,9 @@ uint qHash(const ProjectPart &p)
 bool operator==(const ProjectPart &p1,
                 const ProjectPart &p2)
 {
-    if (p1.defines != p2.defines)
+    if (p1.toolchainDefines != p2.toolchainDefines)
+        return false;
+    if (p1.projectDefines != p2.projectDefines)
         return false;
     if (p1.cVersion != p2.cVersion)
         return false;
@@ -363,6 +366,22 @@ QStringList CppModelManager::internalFrameworkPaths() const
     return frameworkPaths;
 }
 
+static void addUnique(const QList<QByteArray> &defs, QByteArray *macros, QSet<QByteArray> *alreadyIn)
+{
+    Q_ASSERT(macros);
+    Q_ASSERT(alreadyIn);
+
+    foreach (const QByteArray &def, defs) {
+        if (def.trimmed().isEmpty())
+            continue;
+        if (!alreadyIn->contains(def)) {
+            macros->append(def);
+            macros->append('\n');
+            alreadyIn->insert(def);
+        }
+    }
+}
+
 QByteArray CppModelManager::internalDefinedMacros() const
 {
     QByteArray macros;
@@ -372,14 +391,8 @@ QByteArray CppModelManager::internalDefinedMacros() const
         it.next();
         const ProjectInfo pinfo = it.value();
         foreach (const ProjectPart::Ptr &part, pinfo.projectParts()) {
-            const QList<QByteArray> defs = part->defines.split('\n');
-            foreach (const QByteArray &def, defs) {
-                if (!alreadyIn.contains(def)) {
-                    macros += def;
-                    macros.append('\n');
-                    alreadyIn.insert(def);
-                }
-            }
+            addUnique(part->toolchainDefines.split('\n'), &macros, &alreadyIn);
+            addUnique(part->projectDefines.split('\n'), &macros, &alreadyIn);
         }
     }
     return macros;
@@ -422,7 +435,8 @@ void CppModelManager::dumpModelManagerConfiguration()
             qDebug() << "cxxExtensions:" << cxxExtensions;
             qDebug() << "Qt version:" << part->qtVersion;
             qDebug() << "precompiled header:" << part->precompiledHeaders;
-            qDebug() << "defines:" << part->defines;
+            qDebug() << "toolchain defines:" << part->toolchainDefines;
+            qDebug() << "project defines:" << part->projectDefines;
             qDebug() << "includes:" << part->includePaths;
             qDebug() << "frameworkPaths:" << part->frameworkPaths;
             qDebug() << "files:" << part->files;
@@ -795,7 +809,7 @@ ProjectPart::Ptr CppModelManager::fallbackProjectPart() const
 {
     ProjectPart::Ptr part(new ProjectPart);
 
-    part->defines = m_definedMacros;
+    part->projectDefines = m_definedMacros;
     part->includePaths = m_includePaths;
     part->frameworkPaths = m_frameworkPaths;
     part->cVersion = ProjectPart::C11;

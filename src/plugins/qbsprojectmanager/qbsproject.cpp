@@ -643,7 +643,7 @@ void QbsProject::updateCppCodeModel(const qbs::ProjectData &prj)
             part->includePaths += grpIncludePaths;
             part->frameworkPaths += grpFrameworkPaths;
             part->precompiledHeaders = QStringList(pch);
-            part->defines += grpDefines;
+            part->projectDefines += grpDefines;
             pinfo.appendProjectPart(part);
         }
     }

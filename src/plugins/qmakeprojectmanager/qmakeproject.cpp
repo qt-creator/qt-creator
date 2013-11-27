@@ -528,7 +528,7 @@ void QmakeProject::updateCppCodeModel()
                                 SysRootKitInformation::sysRoot(k));
 
         // part->defines
-        part->defines += pro->cxxDefines();
+        part->projectDefines += pro->cxxDefines();
 
         // part->includePaths, part->frameworkPaths
         part->includePaths.append(pro->variableValue(IncludePathVar));

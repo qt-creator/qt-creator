@@ -433,7 +433,7 @@ void AutotoolsProject::updateCppCodeModel()
         part->files << CppTools::ProjectFile(file, CppTools::ProjectFile::CXXSource);
 
     part->includePaths += m_makefileParserThread->includePaths();
-    part->defines += m_makefileParserThread->defines();
+    part->projectDefines += m_makefileParserThread->defines();
     pinfo.appendProjectPart(part);
 
     modelManager->updateProjectInfo(pinfo);

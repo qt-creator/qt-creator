@@ -265,7 +265,7 @@ void GenericProject::refresh(RefreshOptions options)
         }
 
         part->cxxVersion = CppTools::ProjectPart::CXX11; // assume C++11
-        part->defines += m_defines;
+        part->projectDefines += m_defines;
 
         // ### add _defines.
 

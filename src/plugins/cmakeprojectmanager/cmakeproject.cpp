@@ -350,7 +350,7 @@ bool CMakeProject::parseCMakeLists()
         // This explicitly adds -I. to the include paths
         part->includePaths += projectDirectory();
         part->includePaths += cbpparser.includeFiles();
-        part->defines += cbpparser.defines();
+        part->projectDefines += cbpparser.defines();
 
         CppTools::ProjectFileAdder adder(part->files);
         foreach (const QString &file, m_files)

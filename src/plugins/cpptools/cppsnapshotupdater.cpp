@@ -69,7 +69,8 @@ void SnapshotUpdater::update(CppModelManager::WorkingCopy workingCopy)
     }
 
     if (m_projectPart) {
-        configFile += m_projectPart->defines;
+        configFile += m_projectPart->toolchainDefines;
+        configFile += m_projectPart->projectDefines;
         includePaths = m_projectPart->includePaths;
         frameworkPaths = m_projectPart->frameworkPaths;
         if (m_usePrecompiledHeaders)

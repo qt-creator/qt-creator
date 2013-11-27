@@ -106,7 +106,8 @@ public:
     QString projectFile;
     ProjectExplorer::Project *project;
     QList<ProjectFile> files;
-    QByteArray defines;
+    QByteArray projectDefines;
+    QByteArray toolchainDefines;
     QStringList includePaths;
     QStringList frameworkPaths;
     QStringList precompiledHeaders;

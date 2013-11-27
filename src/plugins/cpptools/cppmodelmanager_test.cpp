@@ -217,7 +217,7 @@ void CppToolsPlugin::test_modelmanager_paths_are_clean()
     ProjectPart::Ptr part(new ProjectPart);
     part->cxxVersion = ProjectPart::CXX98;
     part->qtVersion = ProjectPart::Qt5;
-    part->defines = QByteArray("#define OH_BEHAVE -1\n");
+    part->projectDefines = QByteArray("#define OH_BEHAVE -1\n");
     part->includePaths = QStringList() << testDataDir.includeDir(false);
     part->frameworkPaths = QStringList() << testDataDir.frameworksDir(false);
     pi.appendProjectPart(part);
@@ -251,7 +251,7 @@ void CppToolsPlugin::test_modelmanager_framework_headers()
     ProjectPart::Ptr part(new ProjectPart);
     part->cxxVersion = ProjectPart::CXX98;
     part->qtVersion = ProjectPart::Qt5;
-    part->defines = QByteArray("#define OH_BEHAVE -1\n");
+    part->projectDefines = QByteArray("#define OH_BEHAVE -1\n");
     part->includePaths << testDataDir.includeDir();
     part->frameworkPaths << testDataDir.frameworksDir();
     const QString &source = testDataDir.fileFromSourcesDir(
@@ -300,7 +300,7 @@ void CppToolsPlugin::test_modelmanager_refresh_also_includes_of_project_files()
     ProjectPart::Ptr part(new ProjectPart);
     part->cxxVersion = ProjectPart::CXX98;
     part->qtVersion = ProjectPart::Qt5;
-    part->defines = QByteArray("#define OH_BEHAVE -1\n");
+    part->projectDefines = QByteArray("#define OH_BEHAVE -1\n");
     part->includePaths = QStringList() << testDataDir.includeDir(false);
     part->files.append(ProjectFile(testCpp, ProjectFile::CXXSource));
     pi.appendProjectPart(part);
@@ -320,7 +320,7 @@ void CppToolsPlugin::test_modelmanager_refresh_also_includes_of_project_files()
     QVERIFY(macrosInHeaderBefore.first().name() == "test_modelmanager_refresh_h");
 
     // Introduce a define that will enable another define once the document is reparsed.
-    part->defines = QByteArray("#define TEST_DEFINE 1\n");
+    part->projectDefines = QByteArray("#define TEST_DEFINE 1\n");
     pi.clearProjectParts();
     pi.appendProjectPart(part);
     mm->updateProjectInfo(pi);
@@ -377,7 +377,7 @@ void CppToolsPlugin::test_modelmanager_refresh_several_times()
         ProjectPart::Ptr part(new ProjectPart);
         // Simulate project configuration change by having different defines each time.
         defines += "\n#define ANOTHER_DEFINE";
-        part->defines = defines;
+        part->projectDefines = defines;
         part->cxxVersion = ProjectPart::CXX98;
         part->qtVersion = ProjectPart::Qt5;
         part->files.append(ProjectFile(testHeader1, ProjectFile::CXXHeader));
@@ -810,7 +810,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_project()
     part1->files.append(ProjectFile(header, ProjectFile::CXXHeader));
     part1->cxxVersion = ProjectPart::CXX11;
     part1->qtVersion = ProjectPart::NoQt;
-    part1->defines = QByteArray("#define SUB1\n");
+    part1->projectDefines = QByteArray("#define SUB1\n");
     part1->includePaths = QStringList() << testDataDirectory.includeDir(false);
 
     ProjectPart::Ptr part2(new ProjectPart);
@@ -818,7 +818,7 @@ void CppToolsPlugin::test_modelmanager_defines_per_project()
     part2->files.append(ProjectFile(header, ProjectFile::CXXHeader));
     part2->cxxVersion = ProjectPart::CXX11;
     part2->qtVersion = ProjectPart::NoQt;
-    part2->defines = QByteArray("#define SUB2\n");
+    part2->projectDefines = QByteArray("#define SUB2\n");
     part2->includePaths = QStringList() << testDataDirectory.includeDir(false);
 
     ProjectInfo pi = mm->projectInfo(project);

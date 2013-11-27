@@ -161,13 +161,7 @@ void ProjectPart::evaluateToolchain(const ToolChain *tc,
         else
             includePaths << header.path();
 
-    const QByteArray macros = tc->predefinedMacros(cxxflags);
-    if (!macros.isEmpty()) {
-        if (!defines.isEmpty())
-            defines += '\n';
-        defines += macros;
-        defines += '\n';
-    }
+    toolchainDefines = tc->predefinedMacros(cxxflags);
 }
 
 static CppModelManagerInterface *g_instance = 0;
@@ -235,5 +229,6 @@ void CppModelManagerInterface::ProjectInfo::appendProjectPart(const ProjectPart:
     // Update defines
     if (!m_defines.isEmpty())
         m_defines.append('\n');
-    m_defines.append(part->defines);
+    m_defines.append(part->toolchainDefines);
+    m_defines.append(part->projectDefines);
 }
