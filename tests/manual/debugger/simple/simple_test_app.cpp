@@ -176,6 +176,7 @@ void dummyStatement(...) {}
 
 #if USE_CXX11
 #include <array>
+#include <unordered_map>
 #endif
 #include <complex>
 #include <deque>
@@ -2802,6 +2803,220 @@ namespace stdlist {
 
 } // namespace stdlist
 
+namespace stdunorderedmap {
+
+#if USE_CXX11
+    void testStdUnorderedMapStringFoo()
+    {
+        // This is not supposed to work with the compiled dumpers.
+        std::unordered_map<std::string, Foo> map;
+        map["22.0"] = Foo(22);
+        map["33.0"] = Foo(33);
+        map["44.0"] = Foo(44);
+        BREAK_HERE;
+        // Expand map map.0 map.0.second map.2 map.2.second.
+        // Check map <3 items> std::unordered_map<QString, Foo>.
+        // Check map.0   std::pair<QString const, Foo>.
+        // Check map.0.first "22.0" QString.
+        // CheckType map.0.second Foo.
+        // Check map.0.second.a 22 int.
+        // Check map.1   std::pair<QString const, Foo>.
+        // Check map.2.first "44.0" QString.
+        // CheckType map.2.second Foo.
+        // Check map.2.second.a 44 int.
+        // Continue.
+        dummyStatement(&map);
+    }
+
+    void testStdUnorderedMapCharStarFoo()
+    {
+        std::unordered_map<const char *, Foo> map;
+        map["22.0"] = Foo(22);
+        map["33.0"] = Foo(33);
+        BREAK_HERE;
+        // Expand map map.0 map.0.first map.0.second map.1 map.1.second.
+        // Check map <2 items> std::unordered_map<char const*, Foo>.
+        // Check map.0   std::pair<char const* const, Foo>.
+        // CheckType map.0.first char *.
+        // Check map.0.first.*first 50 '2' char.
+        // CheckType map.0.second Foo.
+        // Check map.0.second.a 22 int.
+        // Check map.1   std::pair<char const* const, Foo>.
+        // CheckType map.1.first char *.
+        // Check map.1.first.*first 51 '3' char.
+        // CheckType map.1.second Foo.
+        // Check map.1.second.a 33 int.
+        // Continue.
+        dummyStatement(&map);
+    }
+
+    void testStdUnorderedMapUIntUInt()
+    {
+        std::unordered_map<uint, uint> map;
+        map[11] = 1;
+        map[22] = 2;
+        BREAK_HERE;
+        // Expand map.
+        // Check map <2 items> std::unordered_map<unsigned int, unsigned int>.
+        // Check map.11 1 unsigned int.
+        // Check map.22 2 unsigned int.
+        // Continue.
+        dummyStatement(&map);
+    }
+
+    void testStdUnorderedMapUIntStringList()
+    {
+#if 0
+        std::unordered_map<uint, QStringList> map;
+        map[11] = QStringList() << "11";
+        map[22] = QStringList() << "22";
+        BREAK_HERE;
+        // Expand map map.0 map.0.first map.0.second map.1 map.1.second.
+        // Check map <2 items> std::unordered_map<unsigned int, QStringList>.
+        // Check map.0   std::pair<unsigned int const, QStringList>.
+        // Check map.0.first 11 unsigned int.
+        // Check map.0.second <1 items> QStringList.
+        // Check map.0.second.0 "11" QString.
+        // Check map.1   std::pair<unsigned int const, QStringList>.
+        // Check map.1.first 22 unsigned int.
+        // Check map.1.second <1 items> QStringList.
+        // Check map.1.second.0 "22" QString.
+        // Continue.
+        dummyStatement(&map);
+#endif
+    }
+
+    void testStdUnorderedMapUIntStringListTypedef()
+    {
+#if 0
+        typedef std::unordered_map<uint, QStringList> T;
+        T map;
+        map[11] = QStringList() << "11";
+        map[22] = QStringList() << "22";
+        BREAK_HERE;
+        // Check map <2 items> stdmap::T.
+        // Continue.
+        dummyStatement(&map);
+#endif
+    }
+
+    void testStdUnorderedMapUIntFloat()
+    {
+        std::unordered_map<uint, float> map;
+        map[11] = 11.0;
+        map[22] = 22.0;
+        BREAK_HERE;
+        // Expand map.
+        // Check map <2 items> std::unordered_map<unsigned int, float>.
+        // Check map.11 11 float.
+        // Check map.22 22 float.
+        // Continue.
+        dummyStatement(&map);
+    }
+
+    void testStdUnorderedMapUIntFloatIterator()
+    {
+        typedef std::unordered_map<int, float> Map;
+        Map map;
+        map[11] = 11.0;
+        map[22] = 22.0;
+        map[33] = 33.0;
+        map[44] = 44.0;
+        map[55] = 55.0;
+        map[66] = 66.0;
+
+        Map::iterator it1 = map.begin();
+        Map::iterator it2 = it1; ++it2;
+        Map::iterator it3 = it2; ++it3;
+        Map::iterator it4 = it3; ++it4;
+        Map::iterator it5 = it4; ++it5;
+        Map::iterator it6 = it5; ++it6;
+
+        BREAK_HERE;
+        // Expand map.
+        // Check map <6 items> stdmap::Map.
+        // Check map.11 11 float.
+        // Check it1.first 11 int.
+        // Check it1.second 11 float.
+        // Check it6.first 66 int.
+        // Check it6.second 66 float.
+        // Continue.
+        dummyStatement(&map, &it1, &it2, &it3, &it4, &it5, &it6);
+    }
+
+    void testStdUnorderedMapStringFloat()
+    {
+        std::unordered_map<std::string, float> map;
+        map["11.0"] = 11.0;
+        map["22.0"] = 22.0;
+        BREAK_HERE;
+        // Expand map map.0 map.1.
+        // Check map <2 items> std::unordered_map<QString, float>.
+        // Check map.0   std::pair<QString const, float>.
+        // Check map.0.first "11.0" QString.
+        // Check map.0.second 11 float.
+        // Check map.1   std::pair<QString const, float>.
+        // Check map.1.first "22.0" QString.
+        // Check map.1.second 22 float.
+        // Continue.
+        dummyStatement(&map);
+    }
+
+    void testStdUnorderedMapIntString()
+    {
+        std::unordered_map<int, QString> map;
+        map[11] = "11.0";
+        map[22] = "22.0";
+        BREAK_HERE;
+        // Expand map map.0 map.1.
+        // Check map <2 items> std::unordered_map<int, QString>.
+        // Check map.0   std::pair<int const, QString>.
+        // Check map.0.first 11 int.
+        // Check map.0.second "11.0" QString.
+        // Check map.1   std::pair<int const, QString>.
+        // Check map.1.first 22 int.
+        // Check map.1.second "22.0" QString.
+        // Continue.
+        dummyStatement(&map);
+    }
+
+    void testStdUnorderedMapStringPointer()
+    {
+        QObject ob;
+        std::unordered_map<std::string, QPointer<QObject> > map;
+        map["Hallo"] = QPointer<QObject>(&ob);
+        map["Welt"] = QPointer<QObject>(&ob);
+        map["."] = QPointer<QObject>(&ob);
+        BREAK_HERE;
+        // Expand map map.0 map.2.
+        // Check map <3 items> std::unordered_map<QString, QPointer<QObject>>.
+        // Check map.0   std::pair<QString const, QPointer<QObject>>.
+        // Check map.0.first "." QString.
+        // CheckType map.0.second QPointer<QObject>.
+        // Check map.2   std::pair<QString const, QPointer<QObject>>.
+        // Check map.2.first "Welt" QString.
+        // Continue.
+        dummyStatement(&map);
+    }
+#endif
+
+    void testStdUnorderedMap()
+    {
+#if USE_CXX11
+        testStdUnorderedMapStringFoo();
+        testStdUnorderedMapCharStarFoo();
+        testStdUnorderedMapUIntUInt();
+        testStdUnorderedMapUIntStringList();
+        testStdUnorderedMapUIntStringListTypedef();
+        testStdUnorderedMapUIntFloat();
+        testStdUnorderedMapUIntFloatIterator();
+        testStdUnorderedMapStringFloat();
+        testStdUnorderedMapIntString();
+        testStdUnorderedMapStringPointer();
+#endif
+    }
+
+} // namespace stdunorderedmap
 
 namespace stdmap {
 
@@ -6871,6 +7086,7 @@ int main(int argc, char *argv[])
     stdlist::testStdList();
     stdhashset::testStdHashSet();
     stdmap::testStdMap();
+    stdunorderedmap::testStdUnorderedMap();
     stdset::testStdSet();
     stdstack::testStdStack();
     stdstream::testStdStream();
