@@ -196,7 +196,7 @@ VcsManager::~VcsManager()
     delete d;
 }
 
-QObject *VcsManager::instance()
+VcsManager *VcsManager::instance()
 {
     return m_instance;
 }

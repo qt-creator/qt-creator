@@ -58,7 +58,7 @@ class CORE_EXPORT VcsManager : public QObject
     Q_OBJECT
 
 public:
-    static QObject *instance();
+    static VcsManager *instance();
 
     static void extensionsInitialized();
 
