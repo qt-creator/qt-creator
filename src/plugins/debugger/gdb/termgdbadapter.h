@@ -52,8 +52,6 @@ public:
     ~GdbTermEngine();
 
 private:
-    DumperHandling dumperHandling() const;
-
     void setupEngine();
     void handleGdbStartFailed();
     void setupInferior();

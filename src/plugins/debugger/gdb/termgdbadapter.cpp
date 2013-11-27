@@ -74,14 +74,6 @@ GdbTermEngine::~GdbTermEngine()
     m_stubProc.disconnect(); // Avoid spurious state transitions from late exiting stub
 }
 
-GdbEngine::DumperHandling GdbTermEngine::dumperHandling() const
-{
-    // LD_PRELOAD fails for System-Qt on Mac.
-    return Utils::HostOsInfo::isWindowsHost() || Utils::HostOsInfo::isMacHost()
-            ? DumperLoadedByGdb
-            : DumperLoadedByAdapter; // Handles loading itself via LD_PRELOAD
-}
-
 void GdbTermEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
@@ -169,7 +161,7 @@ void GdbTermEngine::handleStubAttached(const GdbResponse &response)
         break;
     case GdbResultError:
         if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
-            notifyInferiorSetupFailed(DumperHelper::msgPtraceError(startParameters().startMode));
+            notifyInferiorSetupFailed(msgPtraceError(startParameters().startMode));
             break;
         }
         notifyInferiorSetupFailed(QString::fromLocal8Bit(response.data["msg"].data()));

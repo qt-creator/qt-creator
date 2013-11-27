@@ -49,8 +49,6 @@ public:
     explicit GdbRemoteServerEngine(const DebuggerStartParameters &startParameters);
 
 private:
-    DumperHandling dumperHandling() const;
-
     void setupEngine();
     void setupInferior();
     void runEngine();

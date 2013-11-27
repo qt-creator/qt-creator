@@ -28,7 +28,6 @@
 ****************************************************************************/
 
 #include "debugginghelperbuildtask.h"
-#include "debugginghelper.h"
 #include "qmldumptool.h"
 #include "baseqtversion.h"
 #include "qtversionmanager.h"
@@ -117,13 +116,6 @@ DebuggingHelperBuildTask::Tools DebuggingHelperBuildTask::availableTools(const B
     QTC_ASSERT(version, return 0);
     // Check the build requirements of the tools
     DebuggingHelperBuildTask::Tools tools = 0;
-    // Gdb helpers are needed on Mac/gdb only.
-    foreach (const Abi &abi, version->qtAbis()) {
-        if (abi.os() == Abi::MacOS) {
-            tools |= DebuggingHelperBuildTask::GdbDebugging;
-            break;
-        }
-    }
     if (QmlDumpTool::canBuild(version))
         tools |= QmlDump;
     return tools;
@@ -169,18 +161,6 @@ bool DebuggingHelperBuildTask::buildDebuggingHelper(QFutureInterface<void> &futu
     arguments.mkspec = m_mkspec;
     arguments.environment = m_environment;
 
-    if (m_tools & GdbDebugging) {
-        QString output, error;
-        bool success = true;
-
-        arguments.directory = DebuggingHelperLibrary::copy(m_qtInstallData, &error);
-        if (arguments.directory.isEmpty()
-                || !DebuggingHelperLibrary::build(arguments, &output, &error))
-            success = false;
-        log(output, error);
-        if (!success)
-            return false;
-    }
     future.setProgressValue(2);
 
     if (m_tools & QmlDump) {

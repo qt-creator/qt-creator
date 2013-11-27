@@ -20,7 +20,6 @@ HEADERS += \
     qtoptionspage.h \
     customexecutablerunconfiguration.h \
     customexecutableconfigurationwidget.h \
-    debugginghelper.h \
     debugginghelperbuildtask.h \
     qtsupportconstants.h \
     profilereader.h \
@@ -49,7 +48,6 @@ SOURCES += \
     qtoptionspage.cpp \
     customexecutablerunconfiguration.cpp \
     customexecutableconfigurationwidget.cpp \
-    debugginghelper.cpp \
     debugginghelperbuildtask.cpp \
     profilereader.cpp \
     qtparser.cpp \

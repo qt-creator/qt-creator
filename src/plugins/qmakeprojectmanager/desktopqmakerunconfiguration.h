@@ -81,8 +81,6 @@ public:
     bool forcedGuiMode() const;
     virtual QString workingDirectory() const;
     virtual QString commandLineArguments() const;
-    QString dumperLibrary() const;
-    QStringList dumperLibraryLocations() const;
 
     bool isUsingDyldImageSuffix() const;
     void setUsingDyldImageSuffix(bool state);

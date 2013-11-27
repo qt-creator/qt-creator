@@ -69,8 +69,6 @@ public:
     QString commandLineArguments() const;
 
     QWidget *createConfigurationWidget();
-    QString dumperLibrary() const;
-    QStringList dumperLibraryLocations() const;
 
     ProjectExplorer::Abi abi() const;
 

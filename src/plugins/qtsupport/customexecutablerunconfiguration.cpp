@@ -300,16 +300,6 @@ QWidget *CustomExecutableRunConfiguration::createConfigurationWidget()
     return new CustomExecutableConfigurationWidget(this);
 }
 
-QString CustomExecutableRunConfiguration::dumperLibrary() const
-{
-    return QtKitInformation::dumperLibrary(target()->kit());
-}
-
-QStringList CustomExecutableRunConfiguration::dumperLibraryLocations() const
-{
-    return QtKitInformation::dumperLibraryLocations(target()->kit());
-}
-
 ProjectExplorer::Abi CustomExecutableRunConfiguration::abi() const
 {
     return ProjectExplorer::Abi(); // return an invalid ABI: We do not know what we will end up running!

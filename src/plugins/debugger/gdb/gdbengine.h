@@ -66,123 +66,6 @@ enum DebuggingHelperState
     DebuggingHelperUnavailable
 };
 
-/* This is only used with Mac gdb since 2.2
- *
- * "Custom dumper" is a library compiled against the current
- * Qt containing functions to evaluate values of Qt classes
- * (such as QString, taking pointers to their addresses).
- * The library must be loaded into the debuggee.
- * It provides a function that takes input from an input buffer
- * and some parameters and writes output into an output buffer.
- * Parameter 1 is the protocol:
- * 1) Query. Fills output buffer with known types, Qt version and namespace.
- *    This information is parsed and stored by this class (special type
- *    enumeration).
- * 2) Evaluate symbol, taking address and some additional parameters
- *    depending on type. */
-
-class DumperHelper
-{
-public:
-    enum Type {
-        UnknownType,
-        SupportedType, // A type that requires no special handling by the dumper
-        // Below types require special handling
-        QAbstractItemType,
-        QObjectType, QWidgetType, QObjectSlotType, QObjectSignalType,
-        QVectorType, QMapType, QMultiMapType, QMapNodeType, QStackType,
-        StdVectorType, StdDequeType, StdSetType, StdMapType, StdStackType,
-        StdStringType
-    };
-
-    // Type/Parameter struct required for building a value query
-    struct TypeData {
-        TypeData();
-        void clear();
-
-        Type type;
-        bool isTemplate;
-        QByteArray tmplate;
-        QByteArray inner;
-    };
-
-    DumperHelper();
-    void clear();
-
-    double dumperVersion() const { return m_dumperVersion; }
-
-    int typeCount() const;
-    // Look up a simple, non-template  type
-    Type simpleType(const QByteArray &simpleType) const;
-    // Look up a (potentially) template type and fill parameter struct
-    TypeData typeData(const QByteArray &typeName) const;
-    Type type(const QByteArray &typeName) const;
-
-    int qtVersion() const;
-    QByteArray qtVersionString() const;
-    QByteArray qtNamespace() const;
-    void setQtNamespace(const QByteArray &ba)
-        { if (!ba.isEmpty()) m_qtNamespace = ba; }
-
-    // Complete parse of "query" (protocol 1) response from debuggee buffer.
-    // 'data' excludes the leading indicator character.
-    bool parseQuery(const GdbMi &data);
-    // Sizes can be added as the debugger determines them
-    void addSize(const QByteArray &type, int size);
-
-    // Determine the parameters required for an "evaluate" (protocol 2) call
-    void evaluationParameters(const WatchData &data,
-                              const TypeData &td,
-                              QByteArray *inBuffer,
-                              QList<QByteArray> *extraParameters) const;
-
-    QString toString(bool debug = false) const;
-
-    static QString msgDumperOutdated(double requiredVersion, double currentVersion);
-    static QString msgPtraceError(DebuggerStartMode sm);
-
-private:
-    typedef QMap<QByteArray, Type> NameTypeMap;
-    typedef QMap<QByteArray, int> SizeCache;
-
-    // Look up a simple (namespace) type
-    QByteArray evaluationSizeofTypeExpression(const QByteArray &typeName) const;
-
-    NameTypeMap m_nameTypeMap;
-    SizeCache m_sizeCache;
-
-    // The initial dumper query function returns sizes of some special
-    // types to aid CDB since it cannot determine the size of classes.
-    // They are not complete (std::allocator<X>).
-    enum SpecialSizeType { IntSize, PointerSize, StdAllocatorSize,
-                           QSharedPointerSize, QSharedDataPointerSize,
-                           QWeakPointerSize, QPointerSize,
-                           QListSize, QLinkedListSize, QVectorSize, QQueueSize,
-                           SpecialSizeCount };
-
-    // Resolve name to enumeration or SpecialSizeCount (invalid)
-    SpecialSizeType specialSizeType(const QByteArray &type) const;
-
-    int m_specialSizes[SpecialSizeCount];
-
-    typedef QMap<QByteArray, QByteArray> ExpressionCache;
-    ExpressionCache m_expressionCache;
-    int m_qtVersion;
-    double m_dumperVersion;
-    QByteArray m_qtNamespace;
-
-    void setQClassPrefixes(const QByteArray &qNamespace);
-
-    QByteArray m_qPointerPrefix;
-    QByteArray m_qSharedPointerPrefix;
-    QByteArray m_qSharedDataPointerPrefix;
-    QByteArray m_qWeakPointerPrefix;
-    QByteArray m_qListPrefix;
-    QByteArray m_qLinkedListPrefix;
-    QByteArray m_qVectorPrefix;
-    QByteArray m_qQueuePrefix;
-};
-
 class GdbEngine : public Debugger::DebuggerEngine
 {
     Q_OBJECT
@@ -206,9 +89,8 @@ private: ////////// General Interface //////////
 
     virtual bool acceptsDebuggerCommands() const;
     virtual void executeDebuggerCommand(const QString &command, DebuggerLanguages languages);
-    virtual QByteArray qtNamespace() const { return m_dumperHelper.qtNamespace(); }
-    virtual void setQtNamespace(const QByteArray &ns)
-        { return m_dumperHelper.setQtNamespace(ns); }
+    virtual QByteArray qtNamespace() const { return m_qtNamespace; }
+    virtual void setQtNamespace(const QByteArray &ns) { m_qtNamespace = ns; }
 
 private: ////////// General State //////////
 
@@ -228,7 +110,6 @@ protected: ////////// Gdb Process Management //////////
 
     void loadInitScript();
     void tryLoadPythonDumpers();
-    void pythonDumpersFailed();
 
     // Something went wrong with the adapter *before* adapterStarted() was emitted.
     // Make sure to clean up everything before emitting this signal.
@@ -359,7 +240,6 @@ private:
     CommandsDoneCallback m_commandsDoneCallback;
 
     QList<GdbCommand> m_commandsToRunOnTemporaryBreak;
-    int gdbVersion() const { return m_gdbVersion; }
 
 private: ////////// Gdb Output, State & Capability Handling //////////
 protected:
@@ -374,9 +254,7 @@ protected:
     StackFrame parseStackFrame(const GdbMi &mi, int level);
     void resetCommandQueue();
 
-    bool isSynchronous() const { return hasPython(); }
-    virtual bool hasPython() const;
-    bool supportsThreads() const;
+    bool isSynchronous() const { return true; }
 
     // Gdb initialization sequence
     void handleShowVersion(const GdbResponse &response);
@@ -384,12 +262,8 @@ protected:
     void handleHasPython(const GdbResponse &response);
     void handlePythonSetup(const GdbResponse &response);
 
-    int m_gdbVersion; // 6.8.0 is 60800
-    int m_gdbBuildVersion; // MAC only?
-    bool m_isMacGdb;
+    int m_gdbVersion; // 7.6.1 is 70601
     bool m_isQnxGdb;
-    bool m_hasBreakpointNotifications;
-    bool m_hasPython;
 
 private: ////////// Inferior Management //////////
 
@@ -428,9 +302,9 @@ private: ////////// Inferior Management //////////
 
     void maybeHandleInferiorPidChanged(const QString &pid);
     void handleInfoProc(const GdbResponse &response);
+    QString msgPtraceError(DebuggerStartMode sm);
 
 private: ////////// View & Data Stuff //////////
-    protected:
 
     void selectThread(ThreadId threadId);
     void activateFrame(int index);
@@ -439,10 +313,7 @@ private: ////////// View & Data Stuff //////////
     //
     // Breakpoint specific stuff
     //
-    void handleBreakList(const GdbResponse &response);
-    void handleBreakList(const GdbMi &table);
     void handleBreakModifications(const GdbMi &bkpts);
-    void handleBreakListMultiple(const GdbResponse &response);
     void handleBreakIgnore(const GdbResponse &response);
     void handleBreakDisable(const GdbResponse &response);
     void handleBreakEnable(const GdbResponse &response);
@@ -455,18 +326,15 @@ private: ////////// View & Data Stuff //////////
     void handleWatchInsert(const GdbResponse &response);
     void handleCatchInsert(const GdbResponse &response);
     void handleBkpt(const GdbMi &bkpt, const BreakpointModelId &id);
-    void handleInfoLine(const GdbResponse &response);
-    void extractDataFromInfoBreak(const QString &output, BreakpointModelId);
     void updateResponse(BreakpointResponse &response, const GdbMi &bkpt);
     QByteArray breakpointLocation(BreakpointModelId id); // For gdb/MI.
     QByteArray breakpointLocation2(BreakpointModelId id); // For gdb/CLI fallback.
     QString breakLocation(const QString &file) const;
-    void reloadBreakListInternal();
-    void attemptAdjustBreakpointLocation(BreakpointModelId id);
 
     //
     // Modules specific stuff
     //
+    protected:
     void loadSymbols(const QString &moduleName);
     Q_SLOT void loadAllSymbols();
     void loadSymbolsForStack();
@@ -474,6 +342,7 @@ private: ////////// View & Data Stuff //////////
     void requestModuleSections(const QString &moduleName);
     void reloadModules();
     void examineModules();
+
     void reloadModulesInternal();
     void handleModulesList(const GdbResponse &response);
     void handleShowModuleSymbols(const GdbResponse &response);
@@ -522,8 +391,6 @@ private: ////////// View & Data Stuff //////////
     DisassemblerLines parseMiDisassembler(const GdbMi &response);
     Q_SLOT void reloadDisassembly();
 
-    bool m_disassembleUsesComma;
-
     //
     // Source file specific stuff
     //
@@ -539,17 +406,13 @@ private: ////////// View & Data Stuff //////////
     QMap<QString, QString> m_fullToShortName;
     QMultiMap<QString, QString> m_baseNameToFullName;
 
-    void invalidateSourcesList();
     bool m_sourcesListUpdating;
-    bool m_breakListOutdated;
 
     //
     // Stack specific stuff
     //
 protected:
     void updateAll();
-        void updateAllClassic();
-        void updateAllPython();
     void handleStackListFrames(const GdbResponse &response);
     void handleStackSelectThread(const GdbResponse &response);
     void handleStackSelectFrame(const GdbResponse &response);
@@ -581,34 +444,15 @@ protected:
     virtual void watchPoint(const QPoint &);
     void handleWatchPoint(const GdbResponse &response);
 
-    void updateSubItemClassic(const WatchData &data);
-
     void updateWatchData(const WatchData &data, const WatchUpdateFlags &flags);
     void rebuildWatchModel();
     void showToolTip();
 
     void insertData(const WatchData &data);
     void sendWatchParameters(const QByteArray &params0);
-    void createGdbVariableClassic(const WatchData &data);
 
-    void runDebuggingHelperClassic(const WatchData &data, bool dumpChildren);
-    void runDirectDebuggingHelperClassic(const WatchData &data, bool dumpChildren);
-    bool hasDebuggingHelperForType(const QByteArray &type) const;
-
-    void handleVarListChildrenClassic(const GdbResponse &response);
-    void handleVarListChildrenHelperClassic(const GdbMi &child,
-        const WatchData &parent, int sortId);
-    void handleVarCreate(const GdbResponse &response);
     void handleVarAssign(const GdbResponse &response);
-    void handleEvaluateExpressionClassic(const GdbResponse &response);
-    void handleQueryDebuggingHelperClassic(const GdbResponse &response);
-    void handleDebuggingHelperValue2Classic(const GdbResponse &response);
-    void handleDebuggingHelperValue3Classic(const GdbResponse &response);
-    void handleDebuggingHelperEditValue(const GdbResponse &response);
-    void handleDebuggingHelperSetup(const GdbResponse &response);
-    void handleDebuggingHelperVersionCheckClassic(const GdbResponse &response);
     void handleDetach(const GdbResponse &response);
-
     void handleThreadGroupCreated(const GdbMi &result);
     void handleThreadGroupExited(const GdbMi &result);
 
@@ -616,17 +460,10 @@ protected:
     void handleCreateFullBacktrace(const GdbResponse &response);
 
     void updateLocals();
-        void updateLocalsClassic();
         void updateLocalsPython(const UpdateParameters &parameters);
             void handleStackFramePython(const GdbResponse &response);
 
-    void handleStackListLocalsClassic(const GdbResponse &response);
-
-    WatchData localVariable(const GdbMi &item,
-                            const QStringList &uninitializedVariables,
-                            QMap<QByteArray, int> *seen);
     void setLocals(const QList<GdbMi> &locals);
-    void handleStackListArgumentsClassic(const GdbResponse &response);
 
     QSet<QByteArray> m_processedNames;
     struct TypeInfo
@@ -641,13 +478,10 @@ protected:
     //
     // Dumper Management
     //
-    bool checkDebuggingHelpersClassic();
-    void setDebuggingHelperStateClassic(DebuggingHelperState);
-    void tryLoadDebuggingHelpersClassic();
     void reloadDebuggingHelpers();
 
     DebuggingHelperState m_debuggingHelperState;
-    DumperHelper m_dumperHelper;
+    QByteArray m_qtNamespace;
     QString m_gdb;
 
     //
@@ -699,10 +533,8 @@ protected:
     bool attemptQuickStart() const;
     bool m_fullStartDone;
     bool m_systemDumpersLoaded;
-    bool m_pythonAttemptedToLoad;
 
     // Test
-    bool m_forceAsyncModel;
     QList<WatchData> m_completed;
     QSet<QByteArray> m_uncompleted;
 
@@ -718,17 +550,7 @@ protected:
     QByteArray m_lastDebuggableCommand;
 
 protected:
-    enum DumperHandling
-    {
-        DumperNotAvailable,
-        DumperLoadedByAdapter,
-        DumperLoadedByGdbPreload,
-        DumperLoadedByGdb
-    };
-
     virtual void write(const QByteArray &data);
-
-    virtual DumperHandling dumperHandling() const = 0;
 
 protected:
     bool prepareCommand();
@@ -737,7 +559,6 @@ protected:
     GdbProcess *m_gdbProc;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr m_signalOperation;
 };
-
 
 } // namespace Internal
 } // namespace Debugger

@@ -75,16 +75,6 @@ GdbRemoteServerEngine::GdbRemoteServerEngine(const DebuggerStartParameters &star
         SLOT(uploadProcFinished()));
 }
 
-GdbEngine::DumperHandling GdbRemoteServerEngine::dumperHandling() const
-{
-    using namespace ProjectExplorer;
-    const Abi abi = startParameters().toolChainAbi;
-    if (abi.os() == Abi::WindowsOS
-            || abi.binaryFormat() == Abi::ElfFormat)
-        return DumperLoadedByGdb;
-    return DumperLoadedByGdbPreload;
-}
-
 void GdbRemoteServerEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
@@ -378,7 +368,7 @@ void GdbRemoteServerEngine::handleAttach(const GdbResponse &response)
     }
     case GdbResultError:
         if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
-            notifyInferiorSetupFailed(DumperHelper::msgPtraceError(startParameters().startMode));
+            notifyInferiorSetupFailed(msgPtraceError(startParameters().startMode));
             break;
         }
         // if msg != "ptrace: ..." fall through

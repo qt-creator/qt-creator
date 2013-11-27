@@ -212,16 +212,6 @@ void CMakeRunConfiguration::setCommandLineArguments(const QString &newText)
     m_arguments = newText;
 }
 
-QString CMakeRunConfiguration::dumperLibrary() const
-{
-    return QtSupport::QtKitInformation::dumperLibrary(target()->kit());
-}
-
-QStringList CMakeRunConfiguration::dumperLibraryLocations() const
-{
-    return QtSupport::QtKitInformation::dumperLibraryLocations(target()->kit());
-}
-
 void CMakeRunConfiguration::setEnabled(bool b)
 {
     if (m_enabled == b)

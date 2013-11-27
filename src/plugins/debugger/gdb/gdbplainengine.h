@@ -55,8 +55,6 @@ private:
     void interruptInferior2();
     void shutdownEngine();
 
-    DumperHandling dumperHandling() const;
-
     QByteArray execFilePath() const;
     QByteArray toLocalEncoding(const QString &s) const;
     QString fromLocalEncoding(const QByteArray &b) const;

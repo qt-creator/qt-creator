@@ -133,9 +133,7 @@ public:
     bool useContinueInsteadOfRun; // if connected to a hw debugger run is not possible but continue is used
     QByteArray commandsAfterConnect; // additional commands to post after connection to debug target
 
-    QString dumperLibrary;
     QStringList solibSearchPath;
-    QStringList dumperLibraryLocations;
     DebuggerStartMode startMode;
     DebuggerCloseMode closeMode;
 

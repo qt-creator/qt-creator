@@ -553,16 +553,6 @@ QString DesktopQmakeRunConfiguration::proFilePath() const
     return m_proFilePath;
 }
 
-QString DesktopQmakeRunConfiguration::dumperLibrary() const
-{
-    return QtSupport::QtKitInformation::dumperLibrary(target()->kit());
-}
-
-QStringList DesktopQmakeRunConfiguration::dumperLibraryLocations() const
-{
-    return QtSupport::QtKitInformation::dumperLibraryLocations(target()->kit());
-}
-
 QString DesktopQmakeRunConfiguration::defaultDisplayName()
 {
     QString defaultName;

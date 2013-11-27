@@ -50,8 +50,6 @@ public:
     explicit GdbAttachEngine(const DebuggerStartParameters &startParameters);
 
 private:
-    DumperHandling dumperHandling() const { return DumperLoadedByGdb; }
-
     void setupEngine();
     void setupInferior();
     void runEngine();

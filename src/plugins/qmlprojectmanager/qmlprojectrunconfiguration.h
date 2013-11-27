@@ -65,8 +65,6 @@ public:
     QString executable() const;
     RunMode runMode() const;
     QString commandLineArguments() const;
-    QString dumperLibrary() const;
-    QStringList dumperLibraryLocations() const;
 
     QString workingDirectory() const;
     QtSupport::BaseQtVersion *qtVersion() const;

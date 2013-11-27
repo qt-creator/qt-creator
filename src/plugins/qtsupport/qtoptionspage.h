@@ -106,7 +106,6 @@ private slots:
     void updateCurrentQtName();
     void buildDebuggingHelper(DebuggingHelperBuildTask::Tools tools
                               = DebuggingHelperBuildTask::AllTools);
-    void buildGdbHelper();
     void buildQmlDump();
     void slotShowDebuggingBuildLog();
     void debuggingHelperBuildFinished(int qtVersionId, const QString &output,

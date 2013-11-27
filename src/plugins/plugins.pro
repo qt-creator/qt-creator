@@ -89,7 +89,6 @@ for(p, SUBDIRS) {
     $$pv = $$QTC_PLUGIN_DEPENDS
 }
 
-SUBDIRS += debugger/dumper.pro
 linux-* {
      SUBDIRS += debugger/ptracepreload.pro
 }

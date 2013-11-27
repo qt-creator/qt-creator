@@ -112,13 +112,6 @@ void GdbPlainEngine::handleExecRun(const GdbResponse &response)
     }
 }
 
-GdbEngine::DumperHandling GdbPlainEngine::dumperHandling() const
-{
-    // LD_PRELOAD fails for System-Qt on Mac.
-    return Utils::HostOsInfo::isWindowsHost() || Utils::HostOsInfo::isMacHost()
-            ? DumperLoadedByGdb : DumperLoadedByGdbPreload;
-}
-
 void GdbPlainEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());

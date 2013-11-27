@@ -52,8 +52,6 @@ public:
     ~GdbCoreEngine();
 
 private:
-    DumperHandling dumperHandling() const { return DumperNotAvailable; }
-
     void setupEngine();
     void setupInferior();
     void runEngine();

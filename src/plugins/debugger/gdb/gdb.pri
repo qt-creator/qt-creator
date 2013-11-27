@@ -11,8 +11,6 @@ HEADERS += \
 
 SOURCES += \
     $$PWD/gdbengine.cpp \
-    $$PWD/classicgdbengine.cpp \
-    $$PWD/pythongdbengine.cpp \
     $$PWD/gdboptionspage.cpp \
     $$PWD/attachgdbadapter.cpp \
     $$PWD/coregdbadapter.cpp \

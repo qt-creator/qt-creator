@@ -35,13 +35,12 @@
 #include "qtfeatureprovider.h"
 #include "qtsupportconstants.h"
 
-#include <qtsupport/debugginghelper.h>
-
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/buildablehelperlibrary.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/hostosinfo.h>
 #include <utils/persistentsettings.h>
@@ -386,7 +385,7 @@ void QtVersionManager::saveQtVersions()
 
 void QtVersionManager::findSystemQt()
 {
-    FileName systemQMakePath = QtSupport::DebuggingHelperLibrary::findSystemQt(Environment::systemEnvironment());
+    FileName systemQMakePath = BuildableHelperLibrary::findSystemQt(Environment::systemEnvironment());
     if (systemQMakePath.isNull())
         return;
 

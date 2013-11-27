@@ -70,9 +70,6 @@ public:
 
     QString title() const;
 
-    QString dumperLibrary() const;
-    QStringList dumperLibraryLocations() const;
-
     QVariantMap toMap() const;
 
     void setEnabled(bool b);

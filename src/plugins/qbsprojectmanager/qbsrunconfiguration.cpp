@@ -294,16 +294,6 @@ QString QbsRunConfiguration::qbsProduct() const
     return m_qbsProduct;
 }
 
-QString QbsRunConfiguration::dumperLibrary() const
-{
-    return QtSupport::QtKitInformation::dumperLibrary(target()->kit());
-}
-
-QStringList QbsRunConfiguration::dumperLibraryLocations() const
-{
-    return QtSupport::QtKitInformation::dumperLibraryLocations(target()->kit());
-}
-
 QString QbsRunConfiguration::defaultDisplayName()
 {
     QString defaultName;

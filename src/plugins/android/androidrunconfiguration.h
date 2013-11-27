@@ -59,7 +59,6 @@ public:
     QString proFilePath() const;
 
     const QString remoteChannel() const;
-    const QString dumperLib() const;
 
     bool isEnabled() const;
     QString disabledReason() const;

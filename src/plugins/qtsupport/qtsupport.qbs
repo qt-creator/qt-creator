@@ -65,8 +65,6 @@ QtcPlugin {
         "customexecutableconfigurationwidget.h",
         "customexecutablerunconfiguration.cpp",
         "customexecutablerunconfiguration.h",
-        "debugginghelper.cpp",
-        "debugginghelper.h",
         "debugginghelper.ui",
         "debugginghelperbuildtask.cpp",
         "debugginghelperbuildtask.h",

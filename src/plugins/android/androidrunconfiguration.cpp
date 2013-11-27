@@ -150,14 +150,6 @@ const QString AndroidRunConfiguration::remoteChannel() const
     return QLatin1String(":5039");
 }
 
-const QString AndroidRunConfiguration::dumperLib() const
-{
-    QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(target()->kit());
-    if (!version)
-        return QString();
-    return version->gdbDebuggingHelperLibrary();
-}
-
 QString AndroidRunConfiguration::proFilePath() const
 {
     return m_proFilePath;

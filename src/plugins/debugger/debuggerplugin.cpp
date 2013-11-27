@@ -2585,10 +2585,6 @@ static QString formatStartParameters(DebuggerStartParameters &sp)
     }
     str << "Sysroot: " << sp.sysRoot << '\n';
     str << "Debug Source Location: " << sp.debugSourceLocation.join(QLatin1String(":")) << '\n';
-    str << "Dumper libraries: " << QDir::toNativeSeparators(sp.dumperLibrary);
-    foreach (const QString &dl, sp.dumperLibraryLocations)
-        str << ' ' << QDir::toNativeSeparators(dl);
-    str << '\n';
     return rc;
 }
 

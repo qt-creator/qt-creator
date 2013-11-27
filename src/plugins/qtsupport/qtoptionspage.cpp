@@ -172,8 +172,6 @@ QtOptionsPageWidget::QtOptionsPageWidget(QWidget *parent)
 
     connect(m_debuggingHelperUi->rebuildButton, SIGNAL(clicked()),
             this, SLOT(buildDebuggingHelper()));
-    connect(m_debuggingHelperUi->gdbHelperBuildButton, SIGNAL(clicked()),
-            this, SLOT(buildGdbHelper()));
     connect(m_debuggingHelperUi->qmlDumpBuildButton, SIGNAL(clicked()),
             this, SLOT(buildQmlDump()));
 
@@ -239,8 +237,6 @@ void QtOptionsPageWidget::debuggingHelperBuildFinished(int qtVersionId, const QS
     item->setData(0, BuildLogRole, output);
 
     bool success = true;
-    if (tools & DebuggingHelperBuildTask::GdbDebugging)
-        success &= version->hasGdbDebuggingHelper();
     if (tools & DebuggingHelperBuildTask::QmlDump)
         success &= version->hasQmlDump();
 
@@ -448,10 +444,6 @@ void QtOptionsPageWidget::buildDebuggingHelper(DebuggingHelperBuildTask::Tools t
     const QString taskName = tr("Building helpers");
 
     Core::ProgressManager::addTask(task, taskName, "QmakeProjectManager::BuildHelpers");
-}
-void QtOptionsPageWidget::buildGdbHelper()
-{
-    buildDebuggingHelper(DebuggingHelperBuildTask::GdbDebugging);
 }
 
 void QtOptionsPageWidget::buildQmlDump()
@@ -715,28 +707,22 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
         m_ui->debuggingHelperWidget->setVisible(false);
     } else {
         const DebuggingHelperBuildTask::Tools availableTools = DebuggingHelperBuildTask::availableTools(version);
-        const bool canBuildGdbHelper = availableTools & DebuggingHelperBuildTask::GdbDebugging;
         const bool canBuildQmlDumper = availableTools & DebuggingHelperBuildTask::QmlDump;
 
-        const bool hasGdbHelper = !version->gdbDebuggingHelperLibrary().isEmpty();
         const bool hasQmlDumper = version->hasQmlDump();
         const bool needsQmlDumper = version->needsQmlDump();
 
-        bool isBuildingGdbHelper = false;
         bool isBuildingQmlDumper = false;
 
         if (currentItem) {
             DebuggingHelperBuildTask::Tools buildingTools
                     = currentItem->data(0, BuildRunningRole).value<DebuggingHelperBuildTask::Tools>();
-            isBuildingGdbHelper = buildingTools & DebuggingHelperBuildTask::GdbDebugging;
             isBuildingQmlDumper = buildingTools & DebuggingHelperBuildTask::QmlDump;
         }
 
         // get names of tools from labels
         QStringList helperNames;
         const QChar colon = QLatin1Char(':');
-        if (hasGdbHelper)
-            helperNames << m_debuggingHelperUi->gdbHelperLabel->text().remove(colon);
         if (hasQmlDumper)
             helperNames << m_debuggingHelperUi->qmlDumpLabel->text().remove(colon);
 
@@ -749,21 +735,6 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
         }
 
         m_ui->debuggingHelperWidget->setSummaryText(status);
-
-        QString gdbHelperText;
-        Qt::TextInteractionFlags gdbHelperTextFlags = Qt::NoTextInteraction;
-        if (hasGdbHelper) {
-            gdbHelperText = QDir::toNativeSeparators(version->gdbDebuggingHelperLibrary());
-            gdbHelperTextFlags = Qt::TextSelectableByMouse;
-        } else {
-            if (canBuildGdbHelper)
-                gdbHelperText =  tr("<i>Not yet built.</i>");
-            else
-                gdbHelperText =  tr("<i>Not needed.</i>");
-        }
-        m_debuggingHelperUi->gdbHelperStatus->setText(gdbHelperText);
-        m_debuggingHelperUi->gdbHelperStatus->setTextInteractionFlags(gdbHelperTextFlags);
-        m_debuggingHelperUi->gdbHelperBuildButton->setEnabled(canBuildGdbHelper && !isBuildingGdbHelper);
 
         QString qmlDumpStatusText, qmlDumpStatusToolTip;
         Qt::TextInteractionFlags qmlDumpStatusTextFlags = Qt::NoTextInteraction;
@@ -809,10 +780,8 @@ void QtOptionsPageWidget::updateDebuggingHelperUi()
         const bool hasLog = currentItem && !currentItem->data(0, BuildLogRole).toString().isEmpty();
         m_debuggingHelperUi->showLogButton->setEnabled(hasLog);
 
-        const bool canBuild = canBuildGdbHelper
-                               || canBuildQmlDumper;
-        const bool isBuilding = isBuildingGdbHelper
-                                 || isBuildingQmlDumper;
+        const bool canBuild = canBuildQmlDumper;
+        const bool isBuilding = isBuildingQmlDumper;
 
         m_debuggingHelperUi->rebuildButton->setEnabled(canBuild && !isBuilding);
         m_debuggingHelperUi->toolChainComboBox->setEnabled(canBuild && !isBuilding);

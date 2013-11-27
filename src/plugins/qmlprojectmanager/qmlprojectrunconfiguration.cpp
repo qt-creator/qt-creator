@@ -140,16 +140,6 @@ QString QmlProjectRunConfiguration::commandLineArguments() const
     return args;
 }
 
-QString QmlProjectRunConfiguration::dumperLibrary() const
-{
-    return QString();
-}
-
-QStringList QmlProjectRunConfiguration::dumperLibraryLocations() const
-{
-    return QStringList();
-}
-
 QString QmlProjectRunConfiguration::workingDirectory() const
 {
     QFileInfo projectFile(target()->project()->projectFilePath());

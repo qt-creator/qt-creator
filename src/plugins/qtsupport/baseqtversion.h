@@ -191,12 +191,8 @@ public:
     static void buildDebuggingHelper(ProjectExplorer::Kit *k, int tools);
     void buildDebuggingHelper(ProjectExplorer::ToolChain *tc, int tools);
 
-    virtual bool supportsBinaryDebuggingHelper() const;
-    virtual QString gdbDebuggingHelperLibrary() const;
     virtual QString qmlDumpTool(bool debugVersion) const;
-    virtual QStringList debuggingHelperLibraryLocations() const;
 
-    virtual bool hasGdbDebuggingHelper() const;
     virtual bool hasQmlDump() const;
     virtual bool hasQmlDumpWithRelocatableFlag() const;
     virtual bool needsQmlDump() const;
@@ -263,7 +259,6 @@ private:
     int m_id;
 
     bool m_isAutodetected;
-    mutable bool m_hasDebuggingHelper; // controlled by m_versionInfoUpToDate
     mutable bool m_hasQmlDump;         // controlled by m_versionInfoUpToDate
     mutable bool m_mkspecUpToDate;
     mutable bool m_mkspecReadUpToDate;

@@ -41,7 +41,6 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/headerpath.h>
-#include <qtsupport/debugginghelper.h>
 #include <qtsupport/debugginghelperbuildtask.h>
 #include <qtsupport/qtsupportconstants.h>
 
@@ -137,7 +136,6 @@ int BaseQtVersion::getUniqueId()
 BaseQtVersion::BaseQtVersion(const FileName &qmakeCommand, bool isAutodetected, const QString &autodetectionSource)
     : m_id(getUniqueId()),
       m_isAutodetected(isAutodetected),
-      m_hasDebuggingHelper(false),
       m_hasQmlDump(false),
       m_mkspecUpToDate(false),
       m_mkspecReadUpToDate(false),
@@ -158,7 +156,6 @@ BaseQtVersion::BaseQtVersion(const FileName &qmakeCommand, bool isAutodetected, 
 
 BaseQtVersion::BaseQtVersion()
     :  m_id(-1), m_isAutodetected(false),
-    m_hasDebuggingHelper(false),
     m_hasQmlDump(false),
     m_mkspecUpToDate(false),
     m_mkspecReadUpToDate(false),
@@ -911,7 +908,6 @@ void BaseQtVersion::updateVersionInfo() const
     m_installed = true;
     m_hasExamples = false;
     m_hasDocumentation = false;
-    m_hasDebuggingHelper = false;
     m_hasQmlDump = false;
 
     if (!queryQMakeVariables(qmakeCommand(), qmakeRunEnvironment(), &m_versionInfo)) {
@@ -927,7 +923,6 @@ void BaseQtVersion::updateVersionInfo() const
     const QString qtHeaderData = qmakeProperty(m_versionInfo, "QT_INSTALL_HEADERS");
     if (!qtInstallData.isNull()) {
         if (!qtInstallData.isEmpty()) {
-            m_hasDebuggingHelper = !DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData).isEmpty();
             m_hasQmlDump
                     = !QmlDumpTool::toolForQtPaths(qtInstallData, qtInstallBins, qtHeaderData, false).isEmpty()
                     || !QmlDumpTool::toolForQtPaths(qtInstallData, qtInstallBins, qtHeaderData, true).isEmpty();
@@ -1072,13 +1067,6 @@ Environment BaseQtVersion::qmakeRunEnvironment() const
     return Environment::systemEnvironment();
 }
 
-bool BaseQtVersion::hasGdbDebuggingHelper() const
-{
-    updateVersionInfo();
-    return m_hasDebuggingHelper;
-}
-
-
 bool BaseQtVersion::hasQmlDump() const
 {
     updateVersionInfo();
@@ -1114,14 +1102,6 @@ Environment BaseQtVersion::qmlToolsEnvironment() const
     return environment;
 }
 
-QString BaseQtVersion::gdbDebuggingHelperLibrary() const
-{
-    QString qtInstallData = qmakeProperty("QT_INSTALL_DATA");
-    if (qtInstallData.isEmpty())
-        return QString();
-    return DebuggingHelperLibrary::debuggingHelperLibraryByInstallData(qtInstallData);
-}
-
 QString BaseQtVersion::qmlDumpTool(bool debugVersion) const
 {
     const QString qtInstallData = qmakeProperty("QT_INSTALL_DATA");
@@ -1130,21 +1110,6 @@ QString BaseQtVersion::qmlDumpTool(bool debugVersion) const
     const QString qtInstallBins = qmakeProperty("QT_INSTALL_BINS");
     const QString qtHeaderData = qmakeProperty("QT_INSTALL_HEADERS");
     return QmlDumpTool::toolForQtPaths(qtInstallData, qtInstallBins, qtHeaderData, debugVersion);
-}
-
-QStringList BaseQtVersion::debuggingHelperLibraryLocations() const
-{
-    QString qtInstallData = qmakeProperty("QT_INSTALL_DATA");
-    if (qtInstallData.isEmpty())
-        return QStringList();
-    return DebuggingHelperLibrary::debuggingHelperLibraryDirectories(qtInstallData);
-}
-
-bool BaseQtVersion::supportsBinaryDebuggingHelper() const
-{
-    if (!isValid())
-        return false;
-    return true;
 }
 
 void BaseQtVersion::recheckDumper()

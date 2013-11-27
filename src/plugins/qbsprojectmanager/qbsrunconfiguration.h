@@ -83,8 +83,6 @@ public:
     bool forcedGuiMode() const;
     QString workingDirectory() const;
     QString commandLineArguments() const;
-    QString dumperLibrary() const;
-    QStringList dumperLibraryLocations() const;
 
     QVariantMap toMap() const;
 
