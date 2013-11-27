@@ -92,9 +92,10 @@ def main():
     if not waitFor("'dummy.cpp ' in str(mainWin.windowTitle) and ' - cplusplus-tools - ' in str(mainWin.windowTitle)", 5000):
         test.warning("Opening dummy.cpp seems to have failed")
     # Reset cursor to the start of the document
-    cursor = findObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget").textCursor()
-    cursor.movePosition(QTextCursor.Start)
-    cppwindow.setTextCursor(cursor)
+    if platform.system() == 'Darwin':
+        type(cppwindow, "<Home>")
+    else:
+        type(cppwindow, "<Ctrl+Home>")
 
     type(cppwindow, "<Ctrl+F>")
     clickButton(waitForObject(":*Qt Creator_Utils::IconButton"))
