@@ -1091,6 +1091,7 @@ void AppOpSession::deviceCallbackReturned()
 bool AppOpSession::runApp()
 {
     bool failure = (device == 0);
+    QString exe = appPathOnDevice();
     ServiceSocket gdbFd = -1;
     if (!failure && !startService(QLatin1String("com.apple.debugserver"), gdbFd))
         gdbFd = -1;
@@ -1103,7 +1104,6 @@ bool AppOpSession::runApp()
         if (!failure) failure = !sendGdbCommand(gdbFd, "QEnvironmentHexEncoded:"); // send the environment with a series of these commands...
         if (!failure) failure = !sendGdbCommand(gdbFd, "QSetDisableASLR:1"); // avoid address randomization to debug
         if (!failure) failure = !expectGdbOkReply(gdbFd);
-        QString exe = appPathOnDevice();
         QStringList args = extraArgs;
         QByteArray runCommand("A");
         args.insert(0, exe);
