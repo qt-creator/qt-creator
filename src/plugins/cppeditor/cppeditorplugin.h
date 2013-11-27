@@ -141,6 +141,13 @@ private slots:
     void test_quickfix_GenerateGetterSetter_notTriggeringOnMemberArray();
     void test_quickfix_GenerateGetterSetter_notTriggeringWhenGetterOrSetterExist();
 
+    void test_quickfix_MoveDeclarationOutOfIf_ifOnly();
+    void test_quickfix_MoveDeclarationOutOfIf_ifElse();
+    void test_quickfix_MoveDeclarationOutOfIf_ifElseIf();
+
+    void test_quickfix_MoveDeclarationOutOfWhile_singleWhile();
+    void test_quickfix_MoveDeclarationOutOfWhile_whileInWhile();
+
     void test_quickfix_ReformatPointerDeclaration();
 
     void test_quickfix_InsertDefFromDecl_basic();

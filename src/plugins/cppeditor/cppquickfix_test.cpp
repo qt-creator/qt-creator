@@ -1003,6 +1003,145 @@ void CppEditorPlugin::test_quickfix_GenerateGetterSetter_notTriggeringWhenGetter
     data.run(&factory);
 }
 
+void CppEditorPlugin::test_quickfix_MoveDeclarationOutOfIf_ifOnly()
+{
+    const QByteArray original =
+            "void f()\n"
+            "{\n"
+            "    if (Foo *@foo = g())\n"
+            "        h();\n"
+            "}\n";
+
+    const QByteArray expected =
+            "void f()\n"
+            "{\n"
+            "    Foo *foo = g();\n"
+            "    if (foo)\n"
+            "        h();\n"
+            "}\n"
+            "\n";
+
+    MoveDeclarationOutOfIf factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+void CppEditorPlugin::test_quickfix_MoveDeclarationOutOfIf_ifElse()
+{
+    const QByteArray original =
+            "void f()\n"
+            "{\n"
+            "    if (Foo *@foo = g())\n"
+            "        h();\n"
+            "    else\n"
+            "        i();\n"
+            "}\n";
+
+    const QByteArray expected =
+            "void f()\n"
+            "{\n"
+            "    Foo *foo = g();\n"
+            "    if (foo)\n"
+            "        h();\n"
+            "    else\n"
+            "        i();\n"
+            "}\n"
+            "\n";
+
+    MoveDeclarationOutOfIf factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+void CppEditorPlugin::test_quickfix_MoveDeclarationOutOfIf_ifElseIf()
+{
+    const QByteArray original =
+            "void f()\n"
+            "{\n"
+            "    if (Foo *foo = g()) {\n"
+            "        if (Bar *@bar = x()) {\n"
+            "            h();\n"
+            "            j();\n"
+            "        }\n"
+            "    } else {\n"
+            "        i();\n"
+            "    }\n"
+            "}\n";
+
+    const QByteArray expected =
+            "void f()\n"
+            "{\n"
+            "    if (Foo *foo = g()) {\n"
+            "        Bar *bar = x();\n"
+            "        if (bar) {\n"
+            "            h();\n"
+            "            j();\n"
+            "        }\n"
+            "    } else {\n"
+            "        i();\n"
+            "    }\n"
+            "}\n"
+            "\n";
+
+    MoveDeclarationOutOfIf factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+void CppEditorPlugin::test_quickfix_MoveDeclarationOutOfWhile_singleWhile()
+{
+    const QByteArray original =
+            "void f()\n"
+            "{\n"
+            "    while (Foo *@foo = g())\n"
+            "        j();\n"
+            "}\n";
+
+    const QByteArray expected =
+            "void f()\n"
+            "{\n"
+            "    Foo *foo;\n"
+            "    while ((foo = g()) != 0)\n"
+            "        j();\n"
+            "}\n"
+            "\n";
+
+    MoveDeclarationOutOfWhile factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
+void CppEditorPlugin::test_quickfix_MoveDeclarationOutOfWhile_whileInWhile()
+{
+    const QByteArray original =
+            "void f()\n"
+            "{\n"
+            "    while (Foo *foo = g()) {\n"
+            "        while (Bar *@bar = h()) {\n"
+            "            i();\n"
+            "            j();\n"
+            "        }\n"
+            "    }\n"
+            "}\n";
+
+    const QByteArray expected =
+            "void f()\n"
+            "{\n"
+            "    while (Foo *foo = g()) {\n"
+            "        Bar *bar;\n"
+            "        while ((bar = h()) != 0) {\n"
+            "            i();\n"
+            "            j();\n"
+            "        }\n"
+            "    }\n"
+            "}\n"
+            "\n";
+
+    MoveDeclarationOutOfWhile factory;
+    TestCase data(original, expected);
+    data.run(&factory);
+}
+
 /// Check: Just a basic test since the main functionality is tested in
 /// cpppointerdeclarationformatter_test.cpp
 void CppEditorPlugin::test_quickfix_ReformatPointerDeclaration()
