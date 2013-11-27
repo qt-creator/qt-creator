@@ -127,7 +127,7 @@
         \li Select \gui Details to view the
             \gui {Package configurations}. For more information about the
             options you have, see
-            \l{Specifying Settings for Application Packages}.
+            \l{Specifying Settings for Qt 4 Packages}.
 
         \li To specify settings for deploying applications to Android, select
             \gui Details to view the \gui {Deploy configurations}. For more
