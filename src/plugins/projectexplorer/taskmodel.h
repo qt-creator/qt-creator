@@ -71,8 +71,6 @@ public:
 
     enum Roles { File = Qt::UserRole, Line, MovedLine, Description, FileNotFound, Type, Category, Icon, Task_t };
 
-    QIcon taskTypeIcon(Task::TaskType t) const;
-
     int taskCount(const Core::Id &categoryId);
     int errorTaskCount(const Core::Id &categoryId);
     int warningTaskCount(const Core::Id &categoryId);
@@ -125,8 +123,6 @@ private:
     int m_maxSizeOfFileName;
     int m_lastMaxSizeIndex;
     QFont m_fileMeasurementFont;
-    const QIcon m_errorIcon;
-    const QIcon m_warningIcon;
     int m_sizeOfLineNumber;
     QFont m_lineMeasurementFont;
 };

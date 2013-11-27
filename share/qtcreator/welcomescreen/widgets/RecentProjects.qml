@@ -30,10 +30,10 @@
 import QtQuick 2.1
 import QtQuick.Controls 1.0
 
-ScrollView {
+Rectangle {
     id: projectList
+    height: column.height + 200
 
-    property bool scrollBarVisible: false//projectList.verticalScrollBar.visible
     property alias model: repeater.model
 //    Behavior on verticalScrollBar.opacity  {
 //        PropertyAnimation {

@@ -173,6 +173,7 @@ enum Kind {
     T_SWITCH,
     T_TEMPLATE,
     T_THIS,
+    T_THREAD_LOCAL,
     T_THROW,
     T_TRUE,
     T_TRY,
@@ -189,6 +190,7 @@ enum Kind {
     T_WHILE,
 
     T___ATTRIBUTE__,
+    T___THREAD,
     T___TYPEOF__,
 
     // obj c++ @ keywords

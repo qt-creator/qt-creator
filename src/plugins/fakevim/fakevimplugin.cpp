@@ -1022,6 +1022,9 @@ FakeVimPluginPrivate::~FakeVimPluginPrivate()
     delete m_fakeVimUserCommandsPage;
     m_fakeVimUserCommandsPage = 0;
 
+    delete m_wordProvider;
+    m_wordProvider = 0;
+
     theFakeVimSettings()->deleteLater();
 }
 

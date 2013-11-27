@@ -160,27 +160,26 @@ static bool inherits(const Overview &o, const Class *klass, const QString &baseC
     return false;
 }
 
-// Check for a class name where haystack is a member class of an object.
-// So, haystack can be shorter (can have some namespaces omitted because of a
-// "using namespace" declaration, for example, comparing
-// "foo::Ui::form", against "using namespace foo; Ui::form".
-
-static bool matchMemberClassName(const QString &needle, const QString &hayStack)
+QString fullyQualifiedName(const LookupContext &context, const Name *name, Scope *scope)
 {
-    if (needle == hayStack)
-        return true;
-    if (!needle.endsWith(hayStack))
-        return false;
-    // Check if there really is a separator "::"
-    const int separatorPos = needle.size() - hayStack.size() - 1;
-    return separatorPos > 1 && needle.at(separatorPos) == QLatin1Char(':');
+    if (!name || !scope)
+        return QString();
+
+    const QList<LookupItem> items = context.lookup(name, scope);
+    if (items.isEmpty()) { // "ui_xxx.h" might not be generated and nothing is forward declared.
+        return Overview().prettyName(name);
+    } else {
+        Symbol *symbol = items.first().declaration();
+        return Overview().prettyName(LookupContext::fullyQualifiedName(symbol));
+    }
+    return QString();
 }
 
 // Find class definition in namespace (that is, the outer class
 // containing a member of the desired class type) or inheriting the desired class
 // in case of forms using the Multiple Inheritance approach
-static const Class *findClass(const Namespace *parentNameSpace,
-                                         const QString &className, QString *namespaceName)
+static const Class *findClass(const Namespace *parentNameSpace, const LookupContext &context,
+                              const QString &className, QString *namespaceName)
 {
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << className;
@@ -194,16 +193,22 @@ static const Class *findClass(const Namespace *parentNameSpace,
             // 1) we go through class members
             const unsigned classMemberCount = cl->memberCount();
             for (unsigned j = 0; j < classMemberCount; ++j)
-                if (const Declaration *decl = cl->memberAt(j)->asDeclaration()) {
+                if (Declaration *decl = cl->memberAt(j)->asDeclaration()) {
                 // we want to know if the class contains a member (so we look into
                 // a declaration) of uiClassName type
-                    const NamedType *nt = decl->type()->asNamedType();
+                    QString nameToMatch;
+                    if (const NamedType *nt = decl->type()->asNamedType()) {
+                        nameToMatch = fullyQualifiedName(context, nt->name(),
+                                                         decl->enclosingScope());
                     // handle pointers to member variables
-                    if (PointerType *pt = decl->type()->asPointerType())
-                        nt = pt->elementType()->asNamedType();
-
-                    if (nt && matchMemberClassName(className, o.prettyName(nt->name())))
-                            return cl;
+                    } else if (PointerType *pt = decl->type()->asPointerType()) {
+                        if (NamedType *nt = pt->elementType()->asNamedType()) {
+                            nameToMatch = fullyQualifiedName(context, nt->name(),
+                                                             decl->enclosingScope());
+                        }
+                    }
+                    if (!nameToMatch.isEmpty() && className == nameToMatch)
+                        return cl;
                 } // decl
             // 2) does it inherit the desired class
             if (inherits(o, cl, className))
@@ -214,7 +219,7 @@ static const Class *findClass(const Namespace *parentNameSpace,
                 QString tempNS = *namespaceName;
                 tempNS += o.prettyName(ns->name());
                 tempNS += QLatin1String("::");
-                if (const Class *cl = findClass(ns, className, &tempNS)) {
+                if (const Class *cl = findClass(ns, context, className, &tempNS)) {
                     *namespaceName = tempNS;
                     return cl;
                 }
@@ -445,14 +450,15 @@ static QString addParameterNames(const QString &functionSignature, const QString
 typedef QPair<const Class *, Document::Ptr> ClassDocumentPtrPair;
 
 static ClassDocumentPtrPair
-        findClassRecursively(const Snapshot &docTable,
-                             const Document::Ptr &doc, const QString &className,
+        findClassRecursively(const LookupContext &context, const QString &className,
                              unsigned maxIncludeDepth, QString *namespaceName)
 {
+    const Document::Ptr doc = context.thisDocument();
+    const Snapshot docTable = context.snapshot();
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << doc->fileName() << className << maxIncludeDepth;
     // Check document
-    if (const Class *cl = findClass(doc->globalNamespace(), className, namespaceName))
+    if (const Class *cl = findClass(doc->globalNamespace(), context, className, namespaceName))
         return ClassDocumentPtrPair(cl, doc);
     if (maxIncludeDepth) {
         // Check the includes
@@ -461,7 +467,9 @@ static ClassDocumentPtrPair
             const Snapshot::const_iterator it = docTable.find(include);
             if (it != docTable.end()) {
                 const Document::Ptr includeDoc = it.value();
-                const ClassDocumentPtrPair irc = findClassRecursively(docTable, it.value(), className, recursionMaxIncludeDepth, namespaceName);
+                LookupContext context(includeDoc, docTable);
+                const ClassDocumentPtrPair irc = findClassRecursively(context, className,
+                    recursionMaxIncludeDepth, namespaceName);
                 if (irc.first)
                     return irc;
             }
@@ -588,7 +596,8 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     Document::Ptr doc;
 
     foreach (const Document::Ptr &d, docMap) {
-        const ClassDocumentPtrPair cd = findClassRecursively(docTable, d, uiClass, 1u , &namespaceName);
+        LookupContext context(d, docTable);
+        const ClassDocumentPtrPair cd = findClassRecursively(context, uiClass, 1u , &namespaceName);
         if (cd.first) {
             cl = cd.first;
             doc = cd.second;

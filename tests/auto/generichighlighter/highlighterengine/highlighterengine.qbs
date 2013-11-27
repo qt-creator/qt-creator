@@ -31,7 +31,7 @@ Autotest {
     Group {
         name: "Drop-in sources for the plugin"
         files: [
-            "basetextdocumentlayout.h",
+            "basetextdocumentlayout.h", "basetextdocumentlayout.cpp",
             "syntaxhighlighter.h", "syntaxhighlighter.cpp",
             "tabsettings.h"
         ]

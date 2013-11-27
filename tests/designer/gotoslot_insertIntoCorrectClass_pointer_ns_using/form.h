@@ -1,13 +1,17 @@
 // Copyright header
 
-#ifndef FORM_H
-#define FORM_H
+#ifndef N_FORM_H
+#define N_FORM_H
 
 #include <QWidget>
 
+namespace N {
 namespace Ui {
 class Form;
 }
+}
+
+using namespace N;
 
 class Form : public QWidget
 {
@@ -17,11 +21,8 @@ public:
     explicit Form(QWidget *parent = 0);
     ~Form();
 
-private slots:
-    void on_pushButton_clicked();
-    
 private:
     Ui::Form *ui;
 };
 
-#endif // FORM_H
+#endif // N_FORM_H

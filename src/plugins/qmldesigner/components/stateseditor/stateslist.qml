@@ -161,8 +161,8 @@ Rectangle {
 
                 width:100
                 height:100
-                anchors.left: parent.left
-                anchors.leftMargin: (parent.width - width - container.baseStateOffset)/2
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.horizontalCenterOffset: -container.baseStateOffset / 2
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: 9
                 Image {

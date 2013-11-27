@@ -34,13 +34,21 @@
 
 // Replaces the "real" basetextdocumentlayout.h file.
 
+struct CodeFormatterData {};
+
 struct TextBlockUserData : QTextBlockUserData
 {
-    virtual ~TextBlockUserData(){}
+    TextBlockUserData() : m_data(0) {}
+    virtual ~TextBlockUserData() {}
 
     void setFoldingStartIncluded(const bool) {}
     void setFoldingEndIncluded(const bool) {}
     void setFoldingIndent(const int) {}
+    void setCodeFormatterData(CodeFormatterData *data) { m_data = data; }
+    CodeFormatterData *codeFormatterData() { return m_data; }
+    CodeFormatterData *m_data;
 };
+
+namespace BaseTextDocumentLayout { TextBlockUserData *userData(const QTextBlock &block); }
 
 #endif // BASETEXTDOCUMENTLAYOUT_H

@@ -38,7 +38,7 @@
 namespace CppTools {
 
 AbstractEditorSupport::AbstractEditorSupport(CppModelManagerInterface *modelmanager) :
-    m_modelmanager(modelmanager)
+    m_modelmanager(modelmanager), m_revision(0)
 {
 }
 
@@ -48,6 +48,7 @@ AbstractEditorSupport::~AbstractEditorSupport()
 
 void AbstractEditorSupport::updateDocument()
 {
+    ++m_revision;
     m_modelmanager->updateSourceFiles(QStringList(fileName()));
 }
 

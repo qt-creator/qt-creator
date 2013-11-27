@@ -35,8 +35,7 @@
 
     \image qtcreator-formedit.png
 
-    For more information about \QD, see the
-    \l{http://qt-project.org/doc/qt-5.0/qtdesigner/qtdesigner-manual.html}{Qt Designer Manual}.
+    For more information about \QD, see the \l{Qt Designer Manual}.
 
     Generally, the integrated \QD contains the same functions as the standalone
     \QD. The following sections describe the differences.
@@ -124,5 +123,5 @@
 
     You can use Qt APIs to create plugins that extend Qt applications. This
     enables you to add your own widgets to \QD. For more information, see
-    \l{Adding Qt Designer Plugins}
+    \l{Adding Qt Designer Plugins}.
 */

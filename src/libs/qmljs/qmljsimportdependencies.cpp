@@ -314,7 +314,7 @@ int ImportKey::compare(const ImportKey &other) const
         QString v2 = other.splitPath.at(i);
         if (v1 < v2)
             return -1;
-        if (v2 > v1)
+        if (v1 > v2)
             return 1;
     }
     if (len1 < len2)
@@ -626,7 +626,7 @@ void ImportDependencies::iterateOnCandidateImports(
         break;
     default:
     {
-        QStringList imp = m_importCache.value(key.flatKey());
+        const QStringList imp = m_importCache.value(key.flatKey());
         foreach (const QString &cImportName, imp) {
             CoreImport cImport = coreImport(cImportName);
             if (vContext.languageIsCompatible(cImport.language)) {
@@ -926,6 +926,40 @@ QSet<ImportKey> ImportDependencies::subdirImports(
     CollectImportKeys importCollector(res);
     iterateOnSubImports(baseKey, viewContext, importCollector);
     return res;
+}
+
+void ImportDependencies::checkConsistency() const
+{
+    QMapIterator<ImportKey, QStringList> j(m_importCache);
+    while (j.hasNext()) {
+        j.next();
+        foreach (const QString &s, j.value()) {
+            bool found = false;
+            foreach (const Export &e, m_coreImports.value(s).possibleExports)
+                if (e.exportName == j.key())
+                    found = true;
+            Q_ASSERT(found);
+        }
+    }
+    QMapIterator<QString,CoreImport> i(m_coreImports);
+    while (i.hasNext()) {
+        i.next();
+        foreach (const Export &e, i.value().possibleExports) {
+            if (!m_importCache.value(e.exportName).contains(i.key())) {
+                qDebug() << e.exportName.toString();
+                qDebug() << i.key();
+
+                QMapIterator<ImportKey, QStringList> j(m_importCache);
+                while (j.hasNext()) {
+                    j.next();
+                    qDebug() << j.key().toString() << j.value();
+                }
+                qDebug() << m_importCache.contains(e.exportName);
+                qDebug() << m_importCache.value(e.exportName);
+            }
+            Q_ASSERT(m_importCache.value(e.exportName).contains(i.key()));
+        }
+    }
 }
 
 } // namespace QmlJS

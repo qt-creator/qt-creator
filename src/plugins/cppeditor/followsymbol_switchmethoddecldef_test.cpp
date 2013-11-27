@@ -1314,6 +1314,14 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_data()
         << (OverrideItemList()
             << OverrideItem(QLatin1String("Base::virt"), 1)
             << OverrideItem(QLatin1String("Derived::virt"), 2));
+
+    QTest::newRow("QTCREATORBUG-10294_cursorIsAtTheEndOfVirtualFunctionName") << _(
+            "struct Base { virtual void virt() {} };\n"
+            "struct Derived : Base { void virt() {} };\n"
+            "void client(Base *b) { b->virt$@(); }\n")
+        << (OverrideItemList()
+            << OverrideItem(QLatin1String("Base::virt"), 1)
+            << OverrideItem(QLatin1String("Derived::virt"), 2));
 }
 
 void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall()

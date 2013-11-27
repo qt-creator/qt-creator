@@ -210,14 +210,14 @@ StaticAnalysisMessages::StaticAnalysisMessages()
            tr("%1 elements expected in array value."), 1);
     newMsg(WarnImperativeCodeNotEditableInVisualDesigner, Error,
             tr("Imperative code is not supported in the Qt Quick Designer."));
-    newMsg(WarnUnsupportedTypeInVisualDesigner, Error,
+    newMsg(WarnUnsupportedTypeInVisualDesigner, Warning,
             tr("This type is not supported in the Qt Quick Designer."));
     newMsg(WarnReferenceToParentItemNotSupportedByVisualDesigner, Error,
             tr("Reference to parent item cannot be resolved correctly by the Qt Quick Designer."));
-    newMsg(WarnUndefinedValueForVisualDesigner, Error,
+    newMsg(WarnUndefinedValueForVisualDesigner, Warning,
             tr("This visual property binding cannot be evaluated in the local context "
                "and might not show up in Qt Quick Designer as expected."));
-    newMsg(WarnStatesOnlyInRootItemForVisualDesigner, Error,
+    newMsg(WarnStatesOnlyInRootItemForVisualDesigner, Warning,
             tr("Qt Quick Designer only supports states in the root item."));
     newMsg(WarnAboutQtQuick1InsteadQtQuick2, Warning,
             tr("Using Qt Quick 1 code model instead of Qt Quick 2."));

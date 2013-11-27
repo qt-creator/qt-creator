@@ -105,7 +105,7 @@
 
     \section2 Setting the Stacking Order
 
-    The \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-item.html#z-prop}{z property} of an
+    The \l{Item#z-prop}{z property} of an
     item determines its position in relation to its sibling items in the
     type hierarchy. By default, items with a higher stacking value are
     drawn on top of siblings with a lower stacking value. Items with the same
@@ -334,8 +334,7 @@
     transformations to an item. Each transformation is applied in order, one at
     a time.
 
-    For more information on Transform types, see
-    \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-transform.html}{Transform}.
+    For more information on Transform types, see \l{Transform}.
 
     \section1 Adding States
 
@@ -373,8 +372,7 @@
 
     \endlist
 
-    The \gui State pane displays the different
-    \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-state.html}{states}
+    The \gui State pane displays the different \l{State}{states}
     of the component in the Qt Quick Designer.
 
     \image qmldesigner-transitions.png "State pane"

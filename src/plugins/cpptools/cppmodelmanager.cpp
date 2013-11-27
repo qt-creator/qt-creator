@@ -550,7 +550,7 @@ CppModelManager::WorkingCopy CppModelManager::buildWorkingCopyList()
     QSetIterator<AbstractEditorSupport *> it(m_extraEditorSupports);
     while (it.hasNext()) {
         AbstractEditorSupport *es = it.next();
-        workingCopy.insert(es->fileName(), es->contents());
+        workingCopy.insert(es->fileName(), es->contents(), es->revision());
     }
 
     // Add the project configuration file

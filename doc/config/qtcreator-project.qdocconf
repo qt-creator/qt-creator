@@ -10,7 +10,20 @@ exampledirs = $SRCDIR/examples \
 indexes +=    $QT_INSTALL_DOCS/qtwidgets/qtwidgets.index \
               $QT_INSTALL_DOCS/qtcore/qtcore.index \
               $QT_INSTALL_DOCS/qtqml/qtqml.index \
-              $QT_INSTALL_DOCS/qtquick/qtquick.index
+              $QT_INSTALL_DOCS/qtquick/qtquick.index \
+              $QT_INSTALL_DOCS/qmake/qmake.index \
+              $QT_INSTALL_DOCS/qtdesigner/qtdesigner.index \
+              $QT_INSTALL_DOCS/qtdoc/qtdoc.index \
+              $QT_INSTALL_DOCS/qtgui/qtgui.index \
+              $QT_INSTALL_DOCS/qthelp/qthelp.index \
+              $QT_INSTALL_DOCS/qtquickcontrols/qtquickcontrols.index \
+              $QT_INSTALL_DOCS/qtquicklayouts/qtquicklayouts.index \
+              $QT_INSTALL_DOCS/qtlinguist/qtlinguist.index \
+              $QT_INSTALL_DOCS/qtscript/qtscript.index \
+              $QT_INSTALL_DOCS/qtsensors/qtsensors.index \
+              $QT_INSTALL_DOCS/qtuitools/qtuitools.index \
+              $QT_INSTALL_DOCS/qtwebkit/qtwebkit.index \
+              $QT_INSTALL_DOCS/qtxml/qtxml.index
 
 include(macros.qdocconf)
 include(qt-cpp-ignore.qdocconf)

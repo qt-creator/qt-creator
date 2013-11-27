@@ -223,6 +223,7 @@ public:
 
     QSet<ImportKey> libraryImports(const ViewerContext &viewContext) const;
     QSet<ImportKey> subdirImports(const ImportKey &baseKey, const ViewerContext &viewContext) const;
+    void checkConsistency() const;
 private:
     void removeImportCacheEntry(const ImportKey &importKey, const QString &importId);
 

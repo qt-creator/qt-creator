@@ -306,6 +306,9 @@ MainWindow::~MainWindow()
     m_helpManager = 0;
     delete m_variableManager;
     m_variableManager = 0;
+
+    delete m_navigationWidget;
+    m_navigationWidget = 0;
 }
 
 bool MainWindow::init(QString *errorMessage)

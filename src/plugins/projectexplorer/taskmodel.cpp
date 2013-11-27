@@ -30,6 +30,7 @@
 #include "taskmodel.h"
 
 #include "task.h"
+#include "taskhub.h"
 
 #include <utils/qtcassert.h>
 
@@ -46,8 +47,6 @@ TaskModel::TaskModel(QObject *parent) :
     QAbstractItemModel(parent),
     m_maxSizeOfFileName(0),
     m_lastMaxSizeIndex(0),
-    m_errorIcon(QLatin1String(":/projectexplorer/images/compile_error.png")),
-    m_warningIcon(QLatin1String(":/projectexplorer/images/compile_warning.png")),
     m_sizeOfLineNumber(0)
 {
     m_categories.insert(Core::Id(), CategoryData());
@@ -81,19 +80,6 @@ bool TaskModel::hasFile(const QModelIndex &index) const
     if (!index.isValid() || row < 0 || row >= m_tasks.count())
         return false;
     return !m_tasks.at(row).file.isEmpty();
-}
-
-QIcon TaskModel::taskTypeIcon(Task::TaskType t) const
-{
-    switch (t) {
-    case Task::Warning:
-        return m_warningIcon;
-    case Task::Error:
-        return m_errorIcon;
-    case Task::Unknown:
-        break;
-    }
-    return QIcon();
 }
 
 void TaskModel::addCategory(const Core::Id &categoryId, const QString &categoryName)
@@ -269,7 +255,7 @@ QVariant TaskModel::data(const QModelIndex &index, int role) const
     else if (role == TaskModel::Category)
         return m_tasks.at(index.row()).category.uniqueIdentifier();
     else if (role == TaskModel::Icon)
-        return taskTypeIcon(m_tasks.at(index.row()).type);
+        return TaskHub::taskTypeIcon(m_tasks.at(index.row()).type);
     else if (role == TaskModel::Task_t)
         return QVariant::fromValue(task(index));
     return QVariant();

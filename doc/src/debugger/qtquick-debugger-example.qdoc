@@ -31,7 +31,7 @@
     \title Debugging a Qt Quick Example Application
 
     This section uses the
-    \l{http://qt-project.org/doc/qt-5.0/qtquick/qtquick2-qml-advtutorial.html}{Same Game}
+    \l{QML Advanced Tutorial}{Same Game}
     example application to illustrate how to debug Qt Quick applications in the
     \gui Debug mode.
 

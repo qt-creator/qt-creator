@@ -179,6 +179,7 @@ private:
     QmlJS::QmlLanguageBundles m_activeBundles;
     QmlJS::QmlLanguageBundles m_extendedBundles;
     QmlJS::ViewerContext m_vContext;
+    bool m_shouldScanImports;
     QSet<QString> m_scannedPaths;
 
     QTimer *m_updateCppQmlTypesTimer;

@@ -2,26 +2,18 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="ru">
 <context>
-    <name>AddNewAVDDialog</name>
+    <name>AdvancedSection</name>
     <message>
-        <source>Create new AVD</source>
-        <translation>Создание AVD</translation>
+        <source>Advanced</source>
+        <translation>Дополнительно</translation>
     </message>
     <message>
-        <source>Name:</source>
-        <translation>Название:</translation>
+        <source>Scale</source>
+        <translation>Масштаб</translation>
     </message>
     <message>
-        <source>SD card size:</source>
-        <translation>Размер SD-карты:</translation>
-    </message>
-    <message>
-        <source> MiB</source>
-        <translation> МиБ</translation>
-    </message>
-    <message>
-        <source>Kit:</source>
-        <translation>Комплект:</translation>
+        <source>Rotation</source>
+        <translation>Вращение</translation>
     </message>
 </context>
 <context>
@@ -29,25 +21,6 @@
     <message>
         <source>Analyzer</source>
         <translation>Анализатор</translation>
-    </message>
-</context>
-<context>
-    <name>Analyzer::AnalyzerManager</name>
-    <message>
-        <source>Tool &quot;%1&quot; started...</source>
-        <translation>Утилита «%1» запущена...</translation>
-    </message>
-    <message numerus="yes">
-        <source>Tool &quot;%1&quot; finished, %n issues were found.</source>
-        <translation>
-            <numerusform>Утилита «%1» завершилась, выявлена %n проблема.</numerusform>
-            <numerusform>Утилита «%1» завершилась, выявлено %n проблемы.</numerusform>
-            <numerusform>Утилита «%1» завершилась, выявлено %n проблем.</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>Tool &quot;%1&quot; finished, no issues were found.</source>
-        <translation>Утилита «%1» завершилась, проблем не выявлено.</translation>
     </message>
 </context>
 <context>
@@ -69,26 +42,6 @@
         <translation>Панель анализатора</translation>
     </message>
     <message>
-        <source>Debug</source>
-        <translation>Отладка</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Выпуск</translation>
-    </message>
-    <message>
-        <source>Run %1 in %2 Mode?</source>
-        <translation>Выполнить %1 в режиме %2?</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You are trying to run the tool &quot;%1&quot; on an application in %2 mode. The tool is designed to be used in %3 mode.&lt;/p&gt;&lt;p&gt;Debug and Release mode run-time characteristics differ significantly, analytical findings for one mode may or may not be relevant for the other.&lt;/p&gt;&lt;p&gt;Do you want to continue and run the tool in %2 mode?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Попытка выполнить утилиту «%1» для приложения в режиме %2. Утилита разработана для использования в режиме %3.&lt;/p&gt;&lt;p&gt;Работа в режимах отладки и выпуска значительно отличается, поэтому проблемы, найденные для одного из них, могут отсутствовать у другого.&lt;/p&gt;&lt;p&gt;Выполнить запуск утилиты в режиме %2?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>&amp;Do not ask again</source>
-        <translation>&amp;Больше не спрашивать</translation>
-    </message>
-    <message>
         <source>An analysis is still in progress.</source>
         <translation>Производится анализ.</translation>
     </message>
@@ -98,17 +51,14 @@
     </message>
 </context>
 <context>
-    <name>Analyzer::AnalyzerRunConfigurationAspect</name>
+    <name>Analyzer::AnalyzerRunConfigWidget</name>
     <message>
-        <source>Analyzer Settings</source>
-        <translation>Настройки анализатора</translation>
+        <source>Use &lt;strong&gt;Customized Settings&lt;strong&gt;</source>
+        <translation>Используйте &lt;strong&gt;особые настройки&lt;strong&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Analyzer::IAnalyzerTool</name>
     <message>
-        <source> (External)</source>
-        <translation> (Внешний)</translation>
+        <source>Use &lt;strong&gt;Global Settings&lt;strong&gt;</source>
+        <translation>Используйте &lt;strong&gt;глобальные настройки&lt;strong&gt;</translation>
     </message>
 </context>
 <context>
@@ -124,24 +74,6 @@
         <source>Analyzer</source>
         <extracomment>Category under which Analyzer tasks are listed in Issues view</extracomment>
         <translation>Анализатор</translation>
-    </message>
-</context>
-<context>
-    <name>Analyzer::Internal::AnalyzerRunConfigWidget</name>
-    <message>
-        <source>Analyzer settings:</source>
-        <translation>Настройки анализатора:</translation>
-    </message>
-    <message>
-        <source>Analyzer Settings</source>
-        <translation>Настройки анализатора</translation>
-    </message>
-</context>
-<context>
-    <name>Analyzer::Internal::AnalyzerToolDetailWidget</name>
-    <message>
-        <source>&lt;strong&gt;%1&lt;/strong&gt; settings</source>
-        <translation>Настройки &lt;strong&gt;%1&lt;/strong&gt;</translation>
     </message>
 </context>
 <context>
@@ -165,6 +97,53 @@
     <message>
         <source>Working directory:</source>
         <translation>Рабочий каталог:</translation>
+    </message>
+</context>
+<context>
+    <name>AnalyzerManager</name>
+    <message numerus="yes">
+        <source>Memory Analyzer Tool finished, %n issues were found.</source>
+        <translation>
+            <numerusform>Анализ памяти завершён, найдена %n проблема.</numerusform>
+            <numerusform>Анализ памяти завершён, найдено %n проблемы.</numerusform>
+            <numerusform>Анализ памяти завершён, найдено %n проблем.</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Memory Analyzer Tool finished, no issues were found.</source>
+        <translation>Анализ памяти завершён, проблем не найдено.</translation>
+    </message>
+    <message numerus="yes">
+        <source>Log file processed, %n issues were found.</source>
+        <translation>
+            <numerusform>Файл журнала обработан, найдена %n проблема.</numerusform>
+            <numerusform>Файл журнала обработан, найдено %n проблемы.</numerusform>
+            <numerusform>Файл журнала обработан, найдено %n проблем.</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Log file processed, no issues were found.</source>
+        <translation>Файл журнала обработан, проблем не найдено.</translation>
+    </message>
+    <message>
+        <source>Debug</source>
+        <translation>Отладка</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Выпуск</translation>
+    </message>
+    <message>
+        <source>Tool</source>
+        <translation>Инструмент</translation>
+    </message>
+    <message>
+        <source>Run %1 in %2 Mode?</source>
+        <translation>Выполнить %1 в режиме %2?</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You are trying to run the tool &quot;%1&quot; on an application in %2 mode. The tool is designed to be used in %3 mode.&lt;/p&gt;&lt;p&gt;Debug and Release mode run-time characteristics differ significantly, analytical findings for one mode may or may not be relevant for the other.&lt;/p&gt;&lt;p&gt;Do you want to continue and run the tool in %2 mode?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Попытка выполнить утилиту «%1» для приложения в режиме %2. Утилита разработана для использования в режиме %3.&lt;/p&gt;&lt;p&gt;Работа в режимах отладки и выпуска значительно отличается, поэтому проблемы, найденные для одного из них, могут отсутствовать у другого.&lt;/p&gt;&lt;p&gt;Выполнить запуск утилиты в режиме %2?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -221,14 +200,42 @@
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidAnalyzeSupport</name>
+    <name>Android::Internal::AddNewAVDDialog</name>
     <message>
-        <source>No analyzer tool selected.</source>
-        <translation>Инструмент анализа не выбран.</translation>
+        <source>Create new AVD</source>
+        <translation>Создание AVD</translation>
+    </message>
+    <message>
+        <source>Target API:</source>
+        <translation>Целевой API:</translation>
+    </message>
+    <message>
+        <source>Name:</source>
+        <translation>Название:</translation>
+    </message>
+    <message>
+        <source>SD card size:</source>
+        <translation>Размер SD-карты:</translation>
+    </message>
+    <message>
+        <source> MiB</source>
+        <translation> МБ</translation>
+    </message>
+    <message>
+        <source>ABI:</source>
+        <translation>ABI:</translation>
     </message>
 </context>
 <context>
     <name>Android::Internal::AndroidConfigurations</name>
+    <message>
+        <source>Could not run: %1</source>
+        <translation>Невозможно запустить: %1</translation>
+    </message>
+    <message>
+        <source>No devices found in output of: %1</source>
+        <translation>Устройства не обнаружены в выводе %1</translation>
+    </message>
     <message>
         <source>Error Creating AVD</source>
         <translation>Ошибка создания AVD</translation>
@@ -240,6 +247,10 @@ Please install an SDK of at least API version %1.</source>
 Установите хотя бы один SDK с версией API не ниже %1.</translation>
     </message>
     <message>
+        <source>Android Debugger for %1</source>
+        <translation>Отладчик Android для %1</translation>
+    </message>
+    <message>
         <source>Android for %1 (GCC %2, Qt %3)</source>
         <translation>Android для %1 (GCC %2, Qt %3) </translation>
     </message>
@@ -247,24 +258,36 @@ Please install an SDK of at least API version %1.</source>
 <context>
     <name>Android::Internal::AndroidCreateKeystoreCertificate</name>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Password is too short&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Пароль слишком короткий&lt;/span&gt;</translation>
+        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Keystore password is too short&lt;/span&gt;</source>
+        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Пароль связки ключей слишком короткий&lt;/span&gt;</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Passwords don&apos;t match&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Пароли не совпадают&lt;/span&gt;</translation>
+        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Keystore passwords do not match&lt;/span&gt;</source>
+        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Неверный пароль связки ключей&lt;/span&gt;</translation>
     </message>
     <message>
-        <source>&lt;span style=&quot; color:#00ff00;&quot;&gt;Password is ok&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#00ff00;&quot;&gt;Подходящий пароль&lt;/span&gt;</translation>
+        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Certificate password is too short&lt;/span&gt;</source>
+        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Пароль сертификата слишком короткий&lt;/span&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Certificate passwords do not match&lt;/span&gt;</source>
+        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Неверный пароль сертификата&lt;/span&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Certificate alias is missing&lt;/span&gt;</source>
+        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Отсутствует алиас сертификата&lt;/span&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Invalid country code&lt;/span&gt;</source>
+        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Неверный код страны&lt;/span&gt;</translation>
     </message>
     <message>
         <source>Keystore file name</source>
-        <translation>Имя файла хранилища ключей</translation>
+        <translation>Имя файла связки ключей</translation>
     </message>
     <message>
         <source>Keystore files (*.keystore *.jks)</source>
-        <translation>Файлы хранилищ ключей (*.keystore *.jks)</translation>
+        <translation>Файлы связок ключей (*.keystore *.jks)</translation>
     </message>
     <message>
         <source>Error</source>
@@ -286,27 +309,27 @@ Please install an SDK of at least API version %1.</source>
     </message>
 </context>
 <context>
-    <name>Android::Internal::AndroidDeployStep</name>
+    <name>Android::Internal::AndroidDeployQtStep</name>
     <message>
         <source>Deploy to Android device</source>
-        <extracomment>AndroidDeployStep default display name</extracomment>
+        <extracomment>AndroidDeployQtStep default display name</extracomment>
         <translation>Установка на устройство Android</translation>
     </message>
     <message>
-        <source>Please wait, searching for a suitable device for target:%1.</source>
-        <translation>Подождите, идёт поиск подходящего устройсва для цели: %1.</translation>
+        <source>Found old folder &quot;android&quot; in source directory. Qt 5.2 does not use that folder by default.</source>
+        <translation>Обнаружен старый каталог «android» в директории исходников. По умолчанию Qt 5.2 не использует его.</translation>
     </message>
     <message>
-        <source>Cannot deploy: no devices or emulators found for your package.</source>
-        <translation>Не удалось установить: не удалось найти ни одного устройства или эмулятора для пакета.</translation>
+        <source>No Android arch set by the .pro file.</source>
+        <translation>Архитектура Android не прописана в файле .pro.</translation>
     </message>
     <message>
-        <source>Could not run adb. No device found.</source>
-        <translation>Не удалось запустить adb. Устройство не найдено.</translation>
+        <source>Warning: Signing a debug package.</source>
+        <translation>Предупреждение: Подписывание отладочного пакета.</translation>
     </message>
     <message>
-        <source>adb finished with exit code %1.</source>
-        <translation>adb завершился с кодом %1.</translation>
+        <source>Pulling files necessary for debugging.</source>
+        <translation>Загрузка файлов, необходимых для отладки.</translation>
     </message>
     <message>
         <source>Package deploy: Running command &apos;%1 %2&apos;.</source>
@@ -321,8 +344,98 @@ Please install an SDK of at least API version %1.</source>
         <translation>Ошибка создания пакета: Команда «%1 %2» завершилась с ошибкой.</translation>
     </message>
     <message>
-        <source> Reason: %1</source>
-        <translation> Причина: %1</translation>
+        <source>Reason: %1</source>
+        <translation>Причина: %1</translation>
+    </message>
+    <message>
+        <source>Exit code: %1</source>
+        <translation>Код завершения: %1</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Ошибка</translation>
+    </message>
+    <message>
+        <source>Failed to run keytool.</source>
+        <translation>Не удалось запустить keytool.</translation>
+    </message>
+    <message>
+        <source>Invalid password.</source>
+        <translation>Неверный пароль.</translation>
+    </message>
+    <message>
+        <source>Keystore</source>
+        <translation>Связка ключей</translation>
+    </message>
+    <message>
+        <source>Keystore password:</source>
+        <translation>Пароль связки ключей:</translation>
+    </message>
+    <message>
+        <source>Certificate</source>
+        <translation>Сертификат</translation>
+    </message>
+    <message>
+        <source>Certificate password (%1):</source>
+        <translation>Пароль сертификата (%1):</translation>
+    </message>
+</context>
+<context>
+    <name>Android::Internal::AndroidDeployQtStepFactory</name>
+    <message>
+        <source>Deploy to Android device or emulator</source>
+        <translation>Установить на устройство или эмулятор Android</translation>
+    </message>
+</context>
+<context>
+    <name>Android::Internal::AndroidDeployQtWidget</name>
+    <message>
+        <source>&lt;b&gt;Deploy configurations&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Конфигурации установки&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Qt Android Smart Installer</source>
+        <translation>Qt Android Smart Installer</translation>
+    </message>
+    <message>
+        <source>Android package (*.apk)</source>
+        <translation>Пакет Android (*.apk)</translation>
+    </message>
+    <message>
+        <source>Select keystore file</source>
+        <translation>Выбор файла связки ключей</translation>
+    </message>
+    <message>
+        <source>Keystore files (*.keystore *.jks)</source>
+        <translation>Файлы связок ключей (*.keystore *.jks)</translation>
+    </message>
+    <message>
+        <source>Select additional libraries</source>
+        <translation>Выбор дополнительных библиотек</translation>
+    </message>
+    <message>
+        <source>Libraries (*.so)</source>
+        <translation>Библиотеки (*.so)</translation>
+    </message>
+</context>
+<context>
+    <name>Android::Internal::AndroidDeployStep</name>
+    <message>
+        <source>Deploy to Android device</source>
+        <extracomment>AndroidDeployStep default display name</extracomment>
+        <translation>Установка на устройство Android</translation>
+    </message>
+    <message>
+        <source>Package deploy: Running command &apos;%1 %2&apos;.</source>
+        <translation>Установка пакета: Выполнение команды «%1 %2».</translation>
+    </message>
+    <message>
+        <source>Packaging error: Could not start command &apos;%1 %2&apos;. Reason: %3</source>
+        <translation>Ошибка создания пакета: Не удалось выполнить команду «%1 %2»: %3</translation>
+    </message>
+    <message>
+        <source>Packaging Error: Command &apos;%1 %2&apos; failed.</source>
+        <translation>Ошибка создания пакета: Команда «%1 %2» завершилась с ошибкой.</translation>
     </message>
     <message>
         <source>Exit code: %1</source>
@@ -345,6 +458,10 @@ Please install an SDK of at least API version %1.</source>
         <translation>Не выбран инструментарий для Android.</translation>
     </message>
     <message>
+        <source>Reason: %1</source>
+        <translation>Причина: %1</translation>
+    </message>
+    <message>
         <source>Installing package onto %1.</source>
         <translation>Установка пакета на %1.</translation>
     </message>
@@ -353,7 +470,7 @@ Please install an SDK of at least API version %1.</source>
     <name>Android::Internal::AndroidDeployStepFactory</name>
     <message>
         <source>Deploy to Android device or emulator</source>
-        <translation>Установить на устройство/эмулятор Android</translation>
+        <translation>Установить на устройство или эмулятор Android</translation>
     </message>
 </context>
 <context>
@@ -383,10 +500,96 @@ Please install an SDK of at least API version %1.</source>
     </message>
 </context>
 <context>
+    <name>Android::Internal::AndroidDeviceDialog</name>
+    <message>
+        <source>Select Android Device</source>
+        <translation>Выбор устройства Android</translation>
+    </message>
+    <message>
+        <source>Refresh Device List</source>
+        <translation>Обновить список</translation>
+    </message>
+    <message>
+        <source>Create Android Virtual Device</source>
+        <translation>Создать виртуальное устройство</translation>
+    </message>
+    <message>
+        <source>Always use this device for architecture %1</source>
+        <translation>Всегда использовать для архитектуры %1</translation>
+    </message>
+    <message>
+        <source>ABI:</source>
+        <translation>ABI:</translation>
+    </message>
+    <message>
+        <source>Compatible devices</source>
+        <translation>Совместимые устройства</translation>
+    </message>
+    <message>
+        <source>Unauthorized. Please check the confirmation dialog on your device %1.</source>
+        <translation>Не авторизовано. Проверьте диалог подтверждения на устройстве %1.</translation>
+    </message>
+    <message>
+        <source>ABI is incompatible, device supports ABIs: %1.</source>
+        <translation>Несовместимое ABI. Устройство поддерживает только: %1.</translation>
+    </message>
+    <message>
+        <source>API Level of device is: %1.</source>
+        <translation>Уровень API устройства: %1.</translation>
+    </message>
+    <message>
+        <source>Incompatible devices</source>
+        <translation>Несовместимые устройства</translation>
+    </message>
+</context>
+<context>
     <name>Android::Internal::AndroidDeviceFactory</name>
     <message>
         <source>Android Device</source>
         <translation>Устройство Android</translation>
+    </message>
+</context>
+<context>
+    <name>Android::Internal::AndroidErrorMessage</name>
+    <message>
+        <source>Android: SDK installation error 0x%1</source>
+        <translation>Android: ошибка установки SDK 0x%1</translation>
+    </message>
+    <message>
+        <source>Android: NDK installation error 0x%1</source>
+        <translation>Android: ошибка установки NDK 0x%1</translation>
+    </message>
+    <message>
+        <source>Android: Java installation error 0x%1</source>
+        <translation>Android: ошибка установки Java 0x%1</translation>
+    </message>
+    <message>
+        <source>Android: ant installation error 0x%1</source>
+        <translation>Android: ошибка установки ant 0x%1</translation>
+    </message>
+    <message>
+        <source>Android: adb installation error 0x%1</source>
+        <translation>Android: ошибка установки adb 0x%1</translation>
+    </message>
+    <message>
+        <source>Android: Device connection error 0x%1</source>
+        <translation>Android: ошибка подключения к устройству 0x%1</translation>
+    </message>
+    <message>
+        <source>Android: Device permission error 0x%1</source>
+        <translation>Android: ошибка доступа к устройству 0x%1</translation>
+    </message>
+    <message>
+        <source>Android: Device authorization error 0x%1</source>
+        <translation>Android: ошибка авторизации устройства 0x%1</translation>
+    </message>
+    <message>
+        <source>Android: Device API level not supported: error 0x%1</source>
+        <translation>Android: уровень API устройства не поддерживается: ошибка 0x%1</translation>
+    </message>
+    <message>
+        <source>Android: Unknown error 0x%1</source>
+        <translation>Android: неизвестная ошибка 0x%1</translation>
     </message>
 </context>
 <context>
@@ -404,7 +607,7 @@ Please install an SDK of at least API version %1.</source>
     </message>
     <message>
         <source>Auto-detect</source>
-        <translation>Определить</translation>
+        <translation>Обнаружить</translation>
     </message>
     <message>
         <source>Edit...</source>
@@ -444,20 +647,24 @@ Please install at least one SDK.</source>
         <translation>Предупреждение</translation>
     </message>
     <message>
-        <source>Android files have been updated automatically</source>
-        <translation>Файлы Android были автоматически обновлены</translation>
+        <source>Android files have been updated automatically.</source>
+        <translation>Файлы Android были автоматически обновлены.</translation>
     </message>
     <message>
-        <source>Error creating Android templates</source>
-        <translation>Не удалось создать шаблоны для Android</translation>
+        <source>Error creating Android templates.</source>
+        <translation>Не удалось создать шаблоны для Android.</translation>
     </message>
     <message>
-        <source>Can&apos;t parse &apos;%1&apos;</source>
-        <translation>Не удалось обработать «%1»</translation>
+        <source>Cannot parse &apos;%1&apos;.</source>
+        <translation>Не удалось обработать «%1».</translation>
     </message>
     <message>
-        <source>Can&apos;t open &apos;%1&apos;</source>
-        <translation>Не удалось открыть «%1»</translation>
+        <source>Cannot open &apos;%1&apos;.</source>
+        <translation>Не удалось открыть «%1».</translation>
+    </message>
+    <message>
+        <source>Starting Android virtual device failed.</source>
+        <translation>Сбой запуска виртуального устройства Android.</translation>
     </message>
 </context>
 <context>
@@ -485,7 +692,7 @@ Please install at least one SDK.</source>
         <translation>Пакет</translation>
     </message>
     <message>
-        <source>&lt;p align=&quot;justify&quot;&gt;Please choose a valid package name for your application (e.g. &quot;org.example.myapplication&quot;).&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;Packages are usually defined using a hierarchical naming pattern, with levels in the hierarchy separated by periods (.) (pronounced &quot;dot&quot;).&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;In general, a package name begins with the top level domain name of the organization and then the organization&apos;s domain and then any subdomains listedin reverse order. The organization can then choose a specific name for their package. Package names should be all lowercase characters whenever possible.&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;Complete conventions for disambiguating package names and rules for naming packages when the Internet domain name cannot be directly used as a package name are described in section 7.7 of the Java Language Specification.&lt;/p&gt;</source>
+        <source>&lt;p align=&quot;justify&quot;&gt;Please choose a valid package name for your application (for example, &quot;org.example.myapplication&quot;).&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;Packages are usually defined using a hierarchical naming pattern, with levels in the hierarchy separated by periods (.) (pronounced &quot;dot&quot;).&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;In general, a package name begins with the top level domain name of the organization and then the organization&apos;s domain and then any subdomains listed in reverse order. The organization can then choose a specific name for their package. Package names should be all lowercase characters whenever possible.&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;Complete conventions for disambiguating package names and rules for naming packages when the Internet domain name cannot be directly used as a package name are described in section 7.7 of the Java Language Specification.&lt;/p&gt;</source>
         <translation>&lt;p align=&quot;justify&quot;&gt;Выберите корректное имя для приложения (например: «org.example.myapplication»).&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;Имена пакетам принято давать в виде иерархии, уровни которой разделяются точками.&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;Обычно название пакета начинается с доменного имени выше уровня организации, затем доменного имени организации и её поддоменов в обратном порядке. В самом конце может идти уникальное название пакета. Названия пакетов по возможности должны содержать только символы нижнего регистра.&lt;/p&gt;&lt;p align=&quot;justify&quot;&gt;Полностью соглашение о разрешении конфликтов имён пакетов и правила именования пакетов в случае невозможности использования доменных имён Internet описаны в разделе 7.7 спецификации языка Java.&lt;/p&gt;</translation>
     </message>
     <message>
@@ -505,6 +712,54 @@ Please install at least one SDK.</source>
         <translation>Название версии:</translation>
     </message>
     <message>
+        <source>Sets the minimum required version on which this application can be run.</source>
+        <translation>Задаёт минимальную версию SDK, на которой приложение может работать.</translation>
+    </message>
+    <message>
+        <source>Not set</source>
+        <translation>Не задана</translation>
+    </message>
+    <message>
+        <source>Minimum required SDK:</source>
+        <translation>Минимальный требуемый SDK:</translation>
+    </message>
+    <message>
+        <source>Sets the target SDK. Set this to the highest tested version.This disables compatibility behavior of the system for your application.</source>
+        <translation>Задаёт целевой SDK. Следует выбирать последнюю протестированную версию. Отменяет режим совместимости системы для приложения.</translation>
+    </message>
+    <message>
+        <source>Select low DPI icon.</source>
+        <translation>Выбрать значок низкого разрешения.</translation>
+    </message>
+    <message>
+        <source>Select medium DPI icon.</source>
+        <translation>Выбрать значок среднего разрешения.</translation>
+    </message>
+    <message>
+        <source>Select high DPI icon.</source>
+        <translation>Выбрать значок высокого разрешения.</translation>
+    </message>
+    <message>
+        <source>The structure of the Android manifest file is corrupted. Expected a top level &apos;manifest&apos; node.</source>
+        <translation>Структура файла манифеста Android повреждена. Требуется элемент верхнего уровня «manifest».</translation>
+    </message>
+    <message>
+        <source>The structure of the Android manifest file is corrupted. Expected an &apos;application&apos; and &apos;activity&apos; sub node.</source>
+        <translation>Структура файла манифеста Android повреждена. Требуются дочерние элементы «application» и «activity».</translation>
+    </message>
+    <message>
+        <source>Could not parse file: &apos;%1&apos;.</source>
+        <translation>Не удалось разобрать файл: «%1».</translation>
+    </message>
+    <message>
+        <source>%2: Could not parse file: &apos;%1&apos;.</source>
+        <translation>%2: Не удалось разобрать файл: «%1».</translation>
+    </message>
+    <message>
+        <source>Target SDK:</source>
+        <translation>Целевой SDK:</translation>
+    </message>
+    <message>
         <source>Application</source>
         <translation>Приложение</translation>
     </message>
@@ -515,18 +770,6 @@ Please install at least one SDK.</source>
     <message>
         <source>Run:</source>
         <translation>Запуск:</translation>
-    </message>
-    <message>
-        <source>Select low dpi icon</source>
-        <translation>Выбрать значок низкого разрешения</translation>
-    </message>
-    <message>
-        <source>Select medium dpi icon</source>
-        <translation>Выбрать значок среднего разрешения</translation>
-    </message>
-    <message>
-        <source>Select high dpi icon</source>
-        <translation>Выбрать значок высокого разрешения</translation>
     </message>
     <message>
         <source>Application icon:</source>
@@ -545,20 +788,8 @@ Please install at least one SDK.</source>
         <translation>Добавить</translation>
     </message>
     <message>
-        <source>The structure of the android manifest file is corrupt. Expected a top level &apos;manifest&apos; node.</source>
-        <translation>Повреждена структура файла Android Manifest. Требуется элемент верхнего уровня «manifest».</translation>
-    </message>
-    <message>
-        <source>The structure of the android manifest file is corrupt. Expected a &apos;application&apos; and &apos;activity&apos; sub node.</source>
-        <translation>Повреждена структура файла Android Manifest. Требуются дочерние элементы «application» и «activity».</translation>
-    </message>
-    <message>
-        <source>Could not parse file: &apos;%1&apos;</source>
-        <translation>Не удалось разобрать файл: «%1»</translation>
-    </message>
-    <message>
-        <source>%2: Could not parse file: &apos;%1&apos;</source>
-        <translation>%2: Не удалось разобрать файл: «%1»</translation>
+        <source>API %1: %2</source>
+        <translation>API %1: %2</translation>
     </message>
     <message>
         <source>Goto error</source>
@@ -601,6 +832,10 @@ Please install at least one SDK.</source>
     <message>
         <source>Cannot create Android package: No ANDROID_TARGET_ARCH set in make spec.</source>
         <translation>Не удалось создать пакет Android: ANDROID_TARGET_ARCH не задана в спецификации сборки.</translation>
+    </message>
+    <message>
+        <source>Warning: Signing a debug package.</source>
+        <translation>Предупреждение: Подписывание отладочного пакета.</translation>
     </message>
     <message>
         <source>Cannot find ELF information</source>
@@ -669,8 +904,8 @@ Please make sure your application is built successfully and is selected in Appli
         <translation>Ошибка создания пакета: Команда «%1 %2» завершилась с ошибкой.</translation>
     </message>
     <message>
-        <source> Reason: %1</source>
-        <translation> Причина: %1</translation>
+        <source>Reason: %1</source>
+        <translation>Причина: %1</translation>
     </message>
     <message>
         <source>Exit code: %1</source>
@@ -678,11 +913,11 @@ Please make sure your application is built successfully and is selected in Appli
     </message>
     <message>
         <source>Keystore</source>
-        <translation>Хранилище ключей</translation>
+        <translation>Связка ключей</translation>
     </message>
     <message>
         <source>Keystore password:</source>
-        <translation>Пароль хранилища:</translation>
+        <translation>Пароль связки ключей:</translation>
     </message>
     <message>
         <source>Certificate</source>
@@ -721,6 +956,32 @@ Please make sure your application is built successfully and is selected in Appli
         <source>Copy application data</source>
         <translation>Копирование данных приложения</translation>
     </message>
+    <message>
+        <source>Removing directory %1</source>
+        <translation>Удаление каталога %1</translation>
+    </message>
+</context>
+<context>
+    <name>Android::Internal::AndroidPackageInstallationStepWidget</name>
+    <message>
+        <source>&lt;b&gt;Make install&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Make install&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Make install</source>
+        <translation>Make install</translation>
+    </message>
+</context>
+<context>
+    <name>Android::Internal::AndroidPotentialKitWidget</name>
+    <message>
+        <source>Qt Creator needs additional settings to enable Android support.You can configure those settings in the Options dialog.</source>
+        <translation>Для включения поддержки Android требуются дополнительные настройки в диалоге Параметры.</translation>
+    </message>
+    <message>
+        <source>Open Settings</source>
+        <translation>Открыть параметры</translation>
+    </message>
 </context>
 <context>
     <name>Android::Internal::AndroidQtVersion</name>
@@ -736,6 +997,10 @@ Please make sure your application is built successfully and is selected in Appli
 </context>
 <context>
     <name>Android::Internal::AndroidRunConfiguration</name>
+    <message>
+        <source>The .pro file &apos;%1&apos; is currently being parsed.</source>
+        <translation>Идёт обработка файла .pro: «%1».</translation>
+    </message>
     <message>
         <source>Run on Android device</source>
         <translation>Запуск на устройстве Android</translation>
@@ -880,10 +1145,90 @@ Please make sure your application is built successfully and is selected in Appli
     </message>
 </context>
 <context>
+    <name>Android::Internal::ChooseDirectoryPage</name>
+    <message>
+        <source>Android package source directory:</source>
+        <translation>Исходный каталог пакета Android:</translation>
+    </message>
+    <message>
+        <source>Select the Android package source directory. The files in the Android package source directory are copied to the build directory&apos;s Android directory and the default files are overwritten.</source>
+        <translation>Выберите исходный каталог пакета Android. Файлы из него будут скопированы в директорию Android каталога сборки замещая стандарные.</translation>
+    </message>
+    <message>
+        <source>The Android manifest file will be created in the ANDROID_PACKAGE_SOURCE_DIR set in the .pro file.</source>
+        <translation>Файл манифеста Android будет создан в каталоге, заданном ANDROID_PACKAGE_SOURCE_DIR в файле .pro.</translation>
+    </message>
+</context>
+<context>
+    <name>Android::Internal::ChooseProFilePage</name>
+    <message>
+        <source>Select the .pro file for which you want to create an AndroidManifest.xml file.</source>
+        <translation>Выберите файл .pro, для которого следует создать файл AndroidManifest.xml.</translation>
+    </message>
+    <message>
+        <source>.pro file:</source>
+        <translation>Файл .pro:</translation>
+    </message>
+    <message>
+        <source>Select a .pro File</source>
+        <translation>Выбор файла .pro</translation>
+    </message>
+</context>
+<context>
+    <name>Android::Internal::CreateAndroidManifestWizard</name>
+    <message>
+        <source>Create Android Manifest Wizard</source>
+        <translation>Мастер создания манифеста Android</translation>
+    </message>
+    <message>
+        <source>Overwrite AndroidManifest.xml</source>
+        <translation>Перезапись AndroidManifest.xml</translation>
+    </message>
+    <message>
+        <source>Overwrite existing AndroidManifest.xml?</source>
+        <translation>Перезаписать существующий AndroidManifest.xml?</translation>
+    </message>
+    <message>
+        <source>File Removal Error</source>
+        <translation>Ошибка удаления файла</translation>
+    </message>
+    <message>
+        <source>Could not remove file %1.</source>
+        <translation>Не удалось удалить файл %1.</translation>
+    </message>
+    <message>
+        <source>File Creation Error</source>
+        <translation>Ошибка создания файла</translation>
+    </message>
+    <message>
+        <source>Could not create file %1.</source>
+        <translation>Не удалось создать файл %1.</translation>
+    </message>
+    <message>
+        <source>Project File not Updated</source>
+        <translation>Файл проекта не обновлён</translation>
+    </message>
+    <message>
+        <source>Could not update the .pro file %1.</source>
+        <translation>Не удалось обновить .pro файл %1.</translation>
+    </message>
+</context>
+<context>
+    <name>Android::Internal::NoApplicationProFilePage</name>
+    <message>
+        <source>No application .pro file found in this project.</source>
+        <translation>Не найден файл .pro приложения в этом проекте.</translation>
+    </message>
+    <message>
+        <source>No Application .pro File</source>
+        <translation>Нет файла .pro приложения</translation>
+    </message>
+</context>
+<context>
     <name>AndroidCreateKeystoreCertificate</name>
     <message>
         <source>Keystore</source>
-        <translation>Хранилище ключей</translation>
+        <translation>Связка ключей</translation>
     </message>
     <message>
         <source>Password:</source>
@@ -895,11 +1240,7 @@ Please make sure your application is built successfully and is selected in Appli
     </message>
     <message>
         <source>Show password</source>
-        <translation>Показывать пароль</translation>
-    </message>
-    <message>
-        <source>&lt;span style=&quot; color:#ff0000;&quot;&gt;Password is too short&lt;/span&gt;</source>
-        <translation>&lt;span style=&quot; color:#ff0000;&quot;&gt;Пароль слишком короткий&lt;/span&gt;</translation>
+        <translation>Отображать пароль</translation>
     </message>
     <message>
         <source>Certificate</source>
@@ -908,10 +1249,6 @@ Please make sure your application is built successfully and is selected in Appli
     <message>
         <source>Alias name:</source>
         <translation>Имя алиаса:</translation>
-    </message>
-    <message>
-        <source>Aaaaaaaa; </source>
-        <translation>Aaaaaaaa; </translation>
     </message>
     <message>
         <source>Keysize:</source>
@@ -938,12 +1275,8 @@ Please make sure your application is built successfully and is selected in Appli
         <translation>Двубуквенный код страны (например, RU):</translation>
     </message>
     <message>
-        <source>&gt;AA; </source>
-        <translation>&gt;AA; </translation>
-    </message>
-    <message>
         <source>Create a keystore and a certificate</source>
-        <translation>Создание хранилища ключей и сертификата</translation>
+        <translation>Создание связки ключей и сертификата</translation>
     </message>
     <message>
         <source>Certificate Distinguished Names</source>
@@ -957,12 +1290,145 @@ Please make sure your application is built successfully and is selected in Appli
         <source>State or province:</source>
         <translation>Штат или область:</translation>
     </message>
+    <message>
+        <source>Use Keystore password</source>
+        <translation>Пароль для связки ключей</translation>
+    </message>
+</context>
+<context>
+    <name>AndroidDeployQtWidget</name>
+    <message>
+        <source>Form</source>
+        <translation>Форма</translation>
+    </message>
+    <message>
+        <source>Sign package</source>
+        <translation>Подписывание пакета</translation>
+    </message>
+    <message>
+        <source>Keystore:</source>
+        <translation>Связка ключей:</translation>
+    </message>
+    <message>
+        <source>Create</source>
+        <translation>Создать</translation>
+    </message>
+    <message>
+        <source>Browse</source>
+        <translation>Обзор</translation>
+    </message>
+    <message>
+        <source>Signing a debug package</source>
+        <translation>Подписывание отладочного пакета</translation>
+    </message>
+    <message>
+        <source>Certificate alias:</source>
+        <translation>Алиас сертификата:</translation>
+    </message>
+    <message>
+        <source>Advanced Actions</source>
+        <translation>Дополнительно</translation>
+    </message>
+    <message>
+        <source>Clean Temporary Libraries Directory on Device</source>
+        <translation>Очистить временный каталог на устройстве</translation>
+    </message>
+    <message>
+        <source>Install Ministro from APK</source>
+        <translation>Установить Ministro из APK</translation>
+    </message>
+    <message>
+        <source>Reset Default Devices</source>
+        <translation>Сбросить устройства по умолчанию</translation>
+    </message>
+    <message>
+        <source>Open package location after build</source>
+        <translation>Открывать каталог пакета после создания</translation>
+    </message>
+    <message>
+        <source>Create AndroidManifest.xml</source>
+        <translation>Создать AndroidManifest.xml</translation>
+    </message>
+    <message>
+        <source>Application</source>
+        <translation>Приложение</translation>
+    </message>
+    <message>
+        <source>Android target SDK:</source>
+        <translation>Целевое SDK для Android:</translation>
+    </message>
+    <message>
+        <source>Qt Deployment</source>
+        <translation>Установка Qt</translation>
+    </message>
+    <message>
+        <source>Use the external Ministro application to download and maintain Qt libraries.</source>
+        <translation>Использовать внешнее приложение Ministro для загрузки и обслуживания библиотек Qt.</translation>
+    </message>
+    <message>
+        <source>Use Ministro service to install Qt</source>
+        <translation>Использовать Ministro для установки Qt</translation>
+    </message>
+    <message>
+        <source>Push local Qt libraries to device. You must have Qt libraries compiled for that platform.
+The APK will not be usable on any other device.</source>
+        <translation>Копировать локальные библиотеки Qt на устройство. Необходимо иметь библиотеки,
+собранные под эту платформу. Файл APK не будет работать на других устройствах.</translation>
+    </message>
+    <message>
+        <source>Deploy local Qt libraries to temporary directory</source>
+        <translation>Устанавливать Qt во временный каталог</translation>
+    </message>
+    <message>
+        <source>Creates a standalone APK.</source>
+        <translation>Создавать автономный APK.</translation>
+    </message>
+    <message>
+        <source>Bundle Qt libraries in APK</source>
+        <translation>Внедрять библиотеки Qt в APK</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Добавить</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>Удалить</translation>
+    </message>
+    <message>
+        <source>Verbose output</source>
+        <translation>Расширенный вывод</translation>
+    </message>
+    <message>
+        <source>Additional Libraries</source>
+        <translation>Дополнительные библиотеки</translation>
+    </message>
+    <message>
+        <source>List of extra libraries to include in Android package and load on startup.</source>
+        <translation>Список дополнительных библиотек для включения в пакет и загрузки при запуске.</translation>
+    </message>
+    <message>
+        <source>Select library to include in package.</source>
+        <translation>Выбор библиотеки для включения в пакет.</translation>
+    </message>
+    <message>
+        <source>Remove currently selected library from list.</source>
+        <translation>Удаление выбранной библиотеки из списка.</translation>
+    </message>
+    <message>
+        <source>Input file for androiddeployqt:</source>
+        <translation>Входной файл для androiddeployqt:</translation>
+    </message>
+    <message>
+        <source>Qt no longer uses the folder &quot;android&quot; in the project&apos;s source directory.</source>
+        <translation>Qt больше не использует каталог «android» в директории исходников проекта.</translation>
+    </message>
 </context>
 <context>
     <name>AndroidDeployStepWidget</name>
     <message>
         <source>Form</source>
-        <translation>Форма</translation>
+        <translation></translation>
     </message>
     <message>
         <source>Qt Deployment</source>
@@ -1006,6 +1472,10 @@ The APK will not be usable on any other device.</source>
         <source>Install Ministro from APK</source>
         <translation>Установить Ministro из APK</translation>
     </message>
+    <message>
+        <source>Reset Default Devices</source>
+        <translation>Сбросить устройства по умолчанию</translation>
+    </message>
 </context>
 <context>
     <name>AndroidPackageCreationWidget</name>
@@ -1043,7 +1513,7 @@ The APK will not be usable on any other device.</source>
     </message>
     <message>
         <source>Keystore:</source>
-        <translation>Хранилище ключей:</translation>
+        <translation>Связка ключей:</translation>
     </message>
     <message>
         <source>Create</source>
@@ -1070,6 +1540,10 @@ The APK will not be usable on any other device.</source>
 &lt;p align=&quot;justify&quot;&gt;Please be aware that the order is very important: If library &lt;i&gt;A&lt;/i&gt; depends on library &lt;i&gt;B&lt;/i&gt;, &lt;i&gt;B&lt;/i&gt; &lt;b&gt;must&lt;/b&gt; go before &lt;i&gt;A&lt;/i&gt;.&lt;/p&gt;</source>
         <translation>&lt;center&gt;Предустановленные библиотеки&lt;/center&gt;
 &lt;p align=&quot;justify&quot;&gt;Внимание. Порядок библиотек очень важен. Если библиотека &lt;i&gt;A&lt;/i&gt; зависит от библиотеки &lt;i&gt;B&lt;/i&gt;, то &lt;i&gt;B&lt;/i&gt; &lt;b&gt;должна&lt;/b&gt; идти перед &lt;i&gt;A&lt;/i&gt;&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Signing a debug package</source>
+        <translation>Подписывание отладочного пакета</translation>
     </message>
 </context>
 <context>
@@ -1215,16 +1689,13 @@ The APK will not be usable on any other device.</source>
 <context>
     <name>AutotoolsProjectManager::Internal::AutotoolsBuildConfigurationFactory</name>
     <message>
+        <source>Default</source>
+        <extracomment>The name of the build configuration created by default for a autotools project.</extracomment>
+        <translation>По умолчанию</translation>
+    </message>
+    <message>
         <source>Build</source>
         <translation>Сборка</translation>
-    </message>
-    <message>
-        <source>New Configuration</source>
-        <translation>Новая конфигурация</translation>
-    </message>
-    <message>
-        <source>New configuration name:</source>
-        <translation>Название новой конфигурации:</translation>
     </message>
 </context>
 <context>
@@ -1459,6 +1930,177 @@ The APK will not be usable on any other device.</source>
     </message>
 </context>
 <context>
+    <name>BarDescriptorConverter</name>
+    <message>
+        <source>Setting asset path: %1 to %2 type: %3 entry point: %4</source>
+        <translation>Задание пути к ресурсу: из %1 в %2 типа: %3 с точкой входа: %4</translation>
+    </message>
+    <message>
+        <source>Removing asset path: %1</source>
+        <translation>Удаление пути к ресурсу: %1</translation>
+    </message>
+    <message>
+        <source>Replacing asset source path: %1 -&gt; %2</source>
+        <translation>Замена исходного пути к ресурсу: %1 -&gt; %2</translation>
+    </message>
+    <message>
+        <source>Cannot find image asset definition: &lt;%1&gt;</source>
+        <translation>Не удалось найти определение ресурса изображения: &lt;%1&gt;</translation>
+    </message>
+    <message>
+        <source>Error parsing XML file &apos;%1&apos;: %2</source>
+        <translation>Ошибка разбора файла XML «%1»: %2</translation>
+    </message>
+</context>
+<context>
+    <name>BareMetal::BareMetalDeviceConfigurationFactory</name>
+    <message>
+        <source>Bare Metal Device</source>
+        <translation>Голое устройство</translation>
+    </message>
+</context>
+<context>
+    <name>BareMetal::BareMetalDeviceConfigurationWidget</name>
+    <message>
+        <source>Form</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>GDB commands:</source>
+        <translation>Команды GDB:</translation>
+    </message>
+    <message>
+        <source>GDB host:</source>
+        <translation>Хост GDB:</translation>
+    </message>
+    <message>
+        <source>GDB port:</source>
+        <translation>Порт GDB:</translation>
+    </message>
+</context>
+<context>
+    <name>BareMetal::BareMetalDeviceConfigurationWizard</name>
+    <message>
+        <source>New Bare Metal Device Configuration Setup</source>
+        <translation>Настройка новой конфигурации голого устройства</translation>
+    </message>
+</context>
+<context>
+    <name>BareMetal::BareMetalDeviceConfigurationWizardSetupPage</name>
+    <message>
+        <source>Set up GDB Server or Hardware Debugger</source>
+        <translation>Настройка сервера GDB или аппаратного отладчика</translation>
+    </message>
+    <message>
+        <source>Bare Metal Device</source>
+        <translation>Голое устройство</translation>
+    </message>
+</context>
+<context>
+    <name>BareMetal::BareMetalGdbCommandsDeployStep</name>
+    <message>
+        <source>GDB commands</source>
+        <translation>Команды GDB</translation>
+    </message>
+</context>
+<context>
+    <name>BareMetal::BareMetalRunConfiguration</name>
+    <message>
+        <source>%1 (via GDB server or hardware debugger)</source>
+        <extracomment>%1 is the name of the project run via hardware debugger</extracomment>
+        <translation>%1 (через сервер GDB или аппаратный отладчик)</translation>
+    </message>
+    <message>
+        <source>Run on GDB server or hardware debugger</source>
+        <extracomment>Bare Metal run configuration default run name</extracomment>
+        <translation>Запуск через сервер GDB или аппаратный отладчик</translation>
+    </message>
+</context>
+<context>
+    <name>BareMetal::BareMetalRunConfigurationWidget</name>
+    <message>
+        <source>Executable:</source>
+        <translation>Программа:</translation>
+    </message>
+    <message>
+        <source>Arguments:</source>
+        <translation>Параметры:</translation>
+    </message>
+    <message>
+        <source>&lt;default&gt;</source>
+        <translation>&lt;по умолчанию&gt;</translation>
+    </message>
+    <message>
+        <source>Working directory:</source>
+        <translation>Рабочий каталог:</translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <translation>Неизвестно</translation>
+    </message>
+</context>
+<context>
+    <name>BareMetal::Internal::BareMetalDevice</name>
+    <message>
+        <source>Bare Metal</source>
+        <translation>Голое железо</translation>
+    </message>
+</context>
+<context>
+    <name>BareMetal::Internal::BareMetalDeviceConfigurationWizardSetupPage</name>
+    <message>
+        <source>Form</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Name:</source>
+        <translation>Название:</translation>
+    </message>
+    <message>
+        <source>localhost</source>
+        <translation>localhost</translation>
+    </message>
+    <message>
+        <source>GDB port:</source>
+        <translation>Порт GDB:</translation>
+    </message>
+    <message>
+        <source>GDB host:</source>
+        <translation>Хост GDB:</translation>
+    </message>
+    <message>
+        <source>GDB commands:</source>
+        <translation>Команды GDB:</translation>
+    </message>
+    <message>
+        <source>load
+monitor reset</source>
+        <translation>load
+monitor reset</translation>
+    </message>
+</context>
+<context>
+    <name>BareMetal::Internal::BareMetalGdbCommandsDeployStepWidget</name>
+    <message>
+        <source>GDB commands:</source>
+        <translation>Команды GDB:</translation>
+    </message>
+</context>
+<context>
+    <name>BareMetal::Internal::BareMetalRunConfigurationFactory</name>
+    <message>
+        <source>%1 (on GDB server or hardware debugger)</source>
+        <translation>%1 (через сервер GDB или аппаратный отладчик)</translation>
+    </message>
+</context>
+<context>
+    <name>BareMetal::Internal::BareMetalRunControlFactory</name>
+    <message>
+        <source>Cannot debug: Kit has no device.</source>
+        <translation>Отладка невозможна: комплект не имеет устройства.</translation>
+    </message>
+</context>
+<context>
     <name>BaseFileWizard</name>
     <message>
         <source>Unable to create the directory %1.</source>
@@ -1516,12 +2158,8 @@ The APK will not be usable on any other device.</source>
         <translation>Некорректный профиль Qt.</translation>
     </message>
     <message>
-        <source>Requires Qt 4.7.1 or newer.</source>
-        <translation>Требуется Qt версии не ниже 4.7.1.</translation>
-    </message>
-    <message>
-        <source>Library not available. &lt;a href=&apos;compile&apos;&gt;Compile...&lt;/a&gt;</source>
-        <translation>Библиотека отсутствует. &lt;a href=&apos;compile&apos;&gt;Собрать...&lt;/a&gt;</translation>
+        <source>Requires Qt 4.8.0 or newer.</source>
+        <translation>Требуется Qt версии не ниже 4.8.0.</translation>
     </message>
     <message>
         <source>Building helpers</source>
@@ -1575,12 +2213,12 @@ Local commits are not pushed to the master branch until a normal commit is perfo
 <context>
     <name>Bazaar::Internal::BazaarDiffParameterWidget</name>
     <message>
-        <source>Ignore whitespace</source>
-        <translation>Пропускать пробелы</translation>
+        <source>Ignore Whitespace</source>
+        <translation>Игнорировать пробелы</translation>
     </message>
     <message>
-        <source>Ignore blank lines</source>
-        <translation>Пропускать пустые строки</translation>
+        <source>Ignore Blank Lines</source>
+        <translation>Игнорировать пустые строки</translation>
     </message>
 </context>
 <context>
@@ -1886,6 +2524,14 @@ The new branch will depend on the availability of the source branch for all oper
 <context>
     <name>Bazaar::Internal::CloneWizard</name>
     <message>
+        <source>Cloning</source>
+        <translation>Клонирование</translation>
+    </message>
+    <message>
+        <source>Cloning started...</source>
+        <translation>Клонирование запущено...</translation>
+    </message>
+    <message>
         <source>Clones a Bazaar branch and tries to load the contained project.</source>
         <translation>Клонирование ветки Bazaar с последующей попыткой загрузки содержащегося там проекта.</translation>
     </message>
@@ -1965,10 +2611,6 @@ The new branch will depend on the availability of the source branch for all oper
     <message>
         <source>s</source>
         <translation> сек</translation>
-    </message>
-    <message>
-        <source>Prompt on submit</source>
-        <translation>Спрашивать при фиксации</translation>
     </message>
     <message>
         <source>Bazaar</source>
@@ -2052,7 +2694,8 @@ The new branch will depend on the availability of the source branch for all oper
     <message>
         <source>Ignore differences between branches and overwrite
 unconditionally.</source>
-        <translation>Игнорировать отличия между ветками и перезаписывать.</translation>
+        <translation>Игнорировать отличия между ветками и перезаписывать
+без дополнительных вопросов.</translation>
     </message>
     <message>
         <source>By default, push will fail if the target directory exists, but does not already have a control directory.
@@ -2240,10 +2883,6 @@ Local pulls are not applied to the master branch.</source>
         <translation>Желаете удалить все закладки из всех файлов текущей сессии?</translation>
     </message>
     <message>
-        <source>Do not &amp;ask again.</source>
-        <translation>&amp;Больше не спрашивать.</translation>
-    </message>
-    <message>
         <source>Edit Note</source>
         <translation>Изменить заметку</translation>
     </message>
@@ -2340,6 +2979,38 @@ Local pulls are not applied to the master branch.</source>
         <source>Bottom</source>
         <translation>Снизу</translation>
     </message>
+    <message>
+        <source>Border Image</source>
+        <translation>Изображение рамки</translation>
+    </message>
+    <message>
+        <source>Border Left</source>
+        <translation>Левая рамка</translation>
+    </message>
+    <message>
+        <source>Border Right</source>
+        <translation>Правая рамка</translation>
+    </message>
+    <message>
+        <source>Border Top</source>
+        <translation>Верхняя рамка</translation>
+    </message>
+    <message>
+        <source>Border Bottom</source>
+        <translation>Нижняя рамка</translation>
+    </message>
+    <message>
+        <source>Horizontal Fill mode</source>
+        <translation>Режим горизонтального заполнения</translation>
+    </message>
+    <message>
+        <source>Vertical Fill mode</source>
+        <translation>Режим вертикального заполнения</translation>
+    </message>
+    <message>
+        <source>Source size</source>
+        <translation>Размер источника</translation>
+    </message>
 </context>
 <context>
     <name>BuildSettingsPanel</name>
@@ -2425,16 +3096,13 @@ Local pulls are not applied to the master branch.</source>
 <context>
     <name>CMakeProjectManager::Internal::CMakeBuildConfigurationFactory</name>
     <message>
+        <source>Default</source>
+        <extracomment>The name of the build configuration created by default for a cmake project.</extracomment>
+        <translation>По умолчанию</translation>
+    </message>
+    <message>
         <source>Build</source>
         <translation>Сборка</translation>
-    </message>
-    <message>
-        <source>New Configuration</source>
-        <translation>Новая конфигурация</translation>
-    </message>
-    <message>
-        <source>New configuration name:</source>
-        <translation>Название новой конфигурации:</translation>
     </message>
 </context>
 <context>
@@ -2503,12 +3171,12 @@ Local pulls are not applied to the master branch.</source>
         <translation>Запуск комплекта CMake</translation>
     </message>
     <message>
-        <source>The executable is not built by the current build configuration</source>
-        <translation>Приложение собрано не текущей конфигурацией сборки</translation>
+        <source>(disabled)</source>
+        <translation>(отключено)</translation>
     </message>
     <message>
-        <source> (disabled)</source>
-        <translation> (отключено)</translation>
+        <source>The executable is not built by the current build configuration</source>
+        <translation>Приложение собрано не текущей конфигурацией сборки</translation>
     </message>
 </context>
 <context>
@@ -2627,16 +3295,16 @@ Local pulls are not applied to the master branch.</source>
         <translation>Укажите путь к программе CMake, так как она не была найдена автоматически.</translation>
     </message>
     <message>
-        <source> The CMake executable (%1) does not exist.</source>
-        <translation> Программа CMake (%1) не существует.</translation>
+        <source>The CMake executable (%1) does not exist.</source>
+        <translation>Программа CMake (%1) отсутствует.</translation>
     </message>
     <message>
-        <source> The path %1 is not an executable.</source>
-        <translation> Путь %1 не является программой.</translation>
+        <source>The path %1 is not an executable.</source>
+        <translation>Путь %1 не является программой.</translation>
     </message>
     <message>
-        <source> The path %1 is not a valid CMake executable.</source>
-        <translation> Файл %1 не является программой CMake.</translation>
+        <source>The path %1 is not a valid CMake executable.</source>
+        <translation>Файл %1 не является программой CMake.</translation>
     </message>
 </context>
 <context>
@@ -2735,8 +3403,8 @@ Local pulls are not applied to the master branch.</source>
 <context>
     <name>CMakeProjectManager::Internal::ShadowBuildPage</name>
     <message>
-        <source>Please enter the directory in which you want to build your project. </source>
-        <translation>Укажите каталог, в котором желаете собирать проект. </translation>
+        <source>Please enter the directory in which you want to build your project.</source>
+        <translation>Укажите каталог, в котором желаете собирать проект.</translation>
     </message>
     <message>
         <source>Please enter the directory in which you want to build your project. Qt Creator recommends to not use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
@@ -2754,8 +3422,8 @@ Local pulls are not applied to the master branch.</source>
 <context>
     <name>CPlusPlus::CheckSymbols</name>
     <message>
-        <source>Only virtual methods can be marked &apos;final&apos;</source>
-        <translation>Только виртуальные методы могут иметь атрибут «final»</translation>
+        <source>Only virtual functions can be marked &apos;final&apos;</source>
+        <translation>Только виртуальные функции могут иметь атрибут «final»</translation>
     </message>
     <message>
         <source>Expected a namespace-name</source>
@@ -2780,27 +3448,35 @@ Local pulls are not applied to the master branch.</source>
 <context>
     <name>CPlusplus::CheckSymbols</name>
     <message>
-        <source>Only virtual methods can be marked &apos;override&apos;</source>
-        <translation>Только виртуальные методы могут иметь атрибут «override»</translation>
+        <source>Only virtual functions can be marked &apos;override&apos;</source>
+        <translation>Только виртуальные функции могут иметь атрибут «override»</translation>
     </message>
 </context>
 <context>
     <name>CheckBoxSpecifics</name>
     <message>
+        <source>Check Box</source>
+        <translation>Флажок</translation>
+    </message>
+    <message>
         <source>Text</source>
         <translation>Текст</translation>
     </message>
     <message>
-        <source>The text label for the check box</source>
-        <translation>Надпись возле флажка</translation>
+        <source>The text shown on the check box</source>
+        <translation>Текст, отображаемый у флажка</translation>
+    </message>
+    <message>
+        <source>Determines whether the check box gets focus if pressed.</source>
+        <translation>Определяет, получает ли флажок фокус при нажатии или нет.</translation>
     </message>
     <message>
         <source>Checked</source>
         <translation>Включён</translation>
     </message>
     <message>
-        <source>Determines whether the check box is checkable or not.</source>
-        <translation>Определяет, разрешено ли переключать флажок.</translation>
+        <source>The state of the check box</source>
+        <translation>Состояние флажка</translation>
     </message>
     <message>
         <source>Focus on press</source>
@@ -3288,8 +3964,8 @@ Local pulls are not applied to the master branch.</source>
         <translation>В случае использования внешней программы сравнения команда «diff» должна быть доступна.</translation>
     </message>
     <message>
-        <source> DiffUtils is available for free download &lt;a href=&quot;http://gnuwin32.sourceforge.net/packages/diffutils.htm&quot;&gt;here&lt;/a&gt;. Please extract it to a directory in your PATH.</source>
-        <translation> DiffUtils доступна для свободной загрузки &lt;a href=&quot;http://gnuwin32.sourceforge.net/packages/diffutils.htm&quot;&gt;отсюда&lt;/a&gt;. Распакуйте её в любой каталог, прописанный в переменной среды PATH.</translation>
+        <source>DiffUtils is available for free download &lt;a href=&quot;http://gnuwin32.sourceforge.net/packages/diffutils.htm&quot;&gt;here&lt;/a&gt;. Please extract it to a directory in your PATH.</source>
+        <translation>DiffUtils доступна для свободной загрузки &lt;a href=&quot;http://gnuwin32.sourceforge.net/packages/diffutils.htm&quot;&gt;отсюда&lt;/a&gt;. Распакуйте её в любой каталог, прописанный в переменной среды PATH.</translation>
     </message>
 </context>
 <context>
@@ -3344,36 +4020,6 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Code Pasting</source>
         <translation>Вставка кода</translation>
-    </message>
-</context>
-<context>
-    <name>CodePaster::CodePasterProtocol</name>
-    <message>
-        <source>No Server defined in the CodePaster preferences.</source>
-        <translation>Не указан сервер в настройках CodePaster.</translation>
-    </message>
-    <message>
-        <source>No Server defined in the CodePaster options.</source>
-        <translation>Не указан сервер в настройках CodePaster.</translation>
-    </message>
-    <message>
-        <source>No such paste</source>
-        <translation>Нет такой вставки</translation>
-    </message>
-</context>
-<context>
-    <name>CodePaster::CodePasterSettingsPage</name>
-    <message>
-        <source>CodePaster</source>
-        <translation>CodePaster</translation>
-    </message>
-    <message>
-        <source>Server:</source>
-        <translation>Сервер:</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;Note: Specify the host name for the CodePaster service without any protocol prepended (e.g. codepaster.mycompany.com).&lt;/i&gt;</source>
-        <translation>&lt;i&gt;Обратите внимание, что узел сервиса CodePaster нужно задавать без указания протокола (например: codepaster.mycompany.com).&lt;/i&gt;</translation>
     </message>
 </context>
 <context>
@@ -3721,6 +4367,17 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>ColumnSpecifics</name>
+    <message>
+        <source>Column</source>
+        <translation>Столбец</translation>
+    </message>
+    <message>
+        <source>Spacing</source>
+        <translation>Отступ</translation>
+    </message>
+</context>
+<context>
     <name>ComboBoxSpecifics</name>
     <message>
         <source>The tool tip shown for the combobox.</source>
@@ -3729,6 +4386,10 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Tool tip</source>
         <translation>Подсказка</translation>
+    </message>
+    <message>
+        <source>Combo Box</source>
+        <translation>Поле с выпадающим списком</translation>
     </message>
     <message>
         <source>Focus on press</source>
@@ -3884,16 +4545,16 @@ p, li { white-space: pre-wrap; }
         <translation>Не удалось открыть редактор для «%1».</translation>
     </message>
     <message>
-        <source> [read only]</source>
-        <translation> [только для чтения]</translation>
+        <source>[read only]</source>
+        <translation>[только для чтения]</translation>
     </message>
     <message>
-        <source> [folder]</source>
-        <translation> [каталог]</translation>
+        <source>[folder]</source>
+        <translation>[каталог]</translation>
     </message>
     <message>
-        <source> [symbolic link]</source>
-        <translation> [символьная ссылка]</translation>
+        <source>[symbolic link]</source>
+        <translation>[символьная ссылка]</translation>
     </message>
     <message>
         <source>The project directory %1 contains files which cannot be overwritten:
@@ -3957,6 +4618,17 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
+    <name>Core::DocumentModel</name>
+    <message>
+        <source>&lt;no document&gt;</source>
+        <translation>&lt;нет документа&gt;</translation>
+    </message>
+    <message>
+        <source>No document is selected.</source>
+        <translation>Документ не выбран.</translation>
+    </message>
+</context>
+<context>
     <name>Core::EditorManager</name>
     <message>
         <source>Revert to Saved</source>
@@ -3973,6 +4645,10 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Close Others</source>
         <translation>Закрыть другие</translation>
+    </message>
+    <message>
+        <source>Close All Except Visible</source>
+        <translation>Закрыть все, кроме видимых</translation>
     </message>
     <message>
         <source>Next Open Document in History</source>
@@ -4004,43 +4680,43 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Ctrl+W</source>
-        <translation></translation>
+        <translation>Ctrl+W</translation>
     </message>
     <message>
         <source>Ctrl+Shift+W</source>
-        <translation></translation>
+        <translation>Ctrl+Shift+W</translation>
     </message>
     <message>
         <source>Alt+Tab</source>
-        <translation></translation>
+        <translation>Alt+Tab</translation>
     </message>
     <message>
         <source>Ctrl+Tab</source>
-        <translation></translation>
+        <translation>Ctrl+Tab</translation>
     </message>
     <message>
         <source>Alt+Shift+Tab</source>
-        <translation></translation>
+        <translation>Alt+Shift+Tab</translation>
     </message>
     <message>
         <source>Ctrl+Shift+Tab</source>
-        <translation></translation>
+        <translation>Ctrl+Shift+Tab</translation>
     </message>
     <message>
         <source>Ctrl+Alt+Left</source>
-        <translation></translation>
+        <translation>Ctrl+Alt+Left</translation>
     </message>
     <message>
         <source>Alt+Left</source>
-        <translation></translation>
+        <translation>Alt+Left</translation>
     </message>
     <message>
         <source>Ctrl+Alt+Right</source>
-        <translation></translation>
+        <translation>Ctrl+Alt+Right</translation>
     </message>
     <message>
         <source>Alt+Right</source>
-        <translation></translation>
+        <translation>Alt+Right</translation>
     </message>
     <message>
         <source>Split</source>
@@ -4253,10 +4929,6 @@ p, li { white-space: pre-wrap; }
         <translation>&amp;Внешние</translation>
     </message>
     <message>
-        <source>Error while parsing external tool %1: %2</source>
-        <translation>Ошибка разбора внешней утилиты %1: %2</translation>
-    </message>
-    <message>
         <source>Error: External tool in %1 has duplicate id</source>
         <translation>Ошибка: Внешняя утилита в %1 имеет повторяющийся id</translation>
     </message>
@@ -4347,6 +5019,10 @@ p, li { white-space: pre-wrap; }
         <translation>Не удалось найти explorer.exe в путях запуска Проводника Windows.</translation>
     </message>
     <message>
+        <source>Find in This Directory...</source>
+        <translation>Найти в этом каталоге...</translation>
+    </message>
+    <message>
         <source>Show in Explorer</source>
         <translation>Показать в проводнике</translation>
     </message>
@@ -4373,6 +5049,21 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Could not delete file %1.</source>
         <translation>Не удалось удалить файл %1.</translation>
+    </message>
+</context>
+<context>
+    <name>Core::Internal::AddToVcsDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Add the file to version control (%1)</source>
+        <translation>Добавить файл под контроль версий (%1)</translation>
+    </message>
+    <message>
+        <source>Add the files to version control (%1)</source>
+        <translation>Добавить файлы под контроль версий (%1)</translation>
     </message>
 </context>
 <context>
@@ -4509,6 +5200,10 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Edit with vi</source>
         <translation>Открыть в vi</translation>
+    </message>
+    <message>
+        <source>Error while parsing external tool %1: %2</source>
+        <translation>Ошибка разбора внешней утилиты %1: %2</translation>
     </message>
 </context>
 <context>
@@ -4653,10 +5348,8 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>Core::Internal::ExternalToolRunner</name>
     <message>
-        <source>Could not find executable for &apos;%1&apos; (expanded &apos;%2&apos;)
-</source>
-        <translation>Не удалось найти программу для «%1» (полностью «%2»)
-</translation>
+        <source>Could not find executable for &apos;%1&apos; (expanded &apos;%2&apos;)</source>
+        <translation>Не удалось найти программу для «%1» (полностью «%2»)</translation>
     </message>
     <message>
         <source>Starting external tool &apos;%1&apos; %2</source>
@@ -5406,37 +6099,33 @@ Would you like to overwrite them?</source>
         <translation>Не удалось %1 файл</translation>
     </message>
     <message>
-        <source>%1 file %2 from version control system %3 failed.
-</source>
-        <translation>Не удалось %1 файл %2 из системы контроля версий %3.</translation>
-    </message>
-    <message>
         <source>No Version Control System Found</source>
         <translation>Не обнаружена система контроля версий</translation>
-    </message>
-    <message>
-        <source>Cannot open file %1 from version control system.
-No version control system found.
-</source>
-        <translation>Не удалось открыть файл %1 из системы контроля версий.
-Она не обнаружена.</translation>
     </message>
     <message>
         <source>Cannot Set Permissions</source>
         <translation>Не удалось задать права доступа</translation>
     </message>
     <message>
-        <source>Cannot set permissions for %1 to writable.
-</source>
-        <translation>Не удалось задать %1 права доступа на запись.</translation>
-    </message>
-    <message>
         <source>Cannot Save File</source>
         <translation>Не удалось сохранить файл</translation>
     </message>
     <message>
-        <source>Cannot save file %1
-</source>
+        <source>%1 file %2 from version control system %3 failed.</source>
+        <translation>Не удалось %1 файл %2 из системы контроля версий %3.</translation>
+    </message>
+    <message>
+        <source>Cannot open file %1 from version control system.
+No version control system found.</source>
+        <translation>Не удалось открыть файл %1 из системы контроля версий.
+Она не обнаружена.</translation>
+    </message>
+    <message>
+        <source>Cannot set permissions for %1 to writable.</source>
+        <translation>Не удалось задать %1 права доступа на запись.</translation>
+    </message>
+    <message>
+        <source>Cannot save file %1</source>
         <translation>Не удалось сохранить файл %1</translation>
     </message>
     <message>
@@ -5618,10 +6307,8 @@ Do you want to check them out now?</source>
 <context>
     <name>Core::OutputWindow</name>
     <message>
-        <source>Additional output omitted
-</source>
-        <translation>Дополнительный вывод опущен
-</translation>
+        <source>Additional output omitted</source>
+        <translation>Дополнительный вывод опущен</translation>
     </message>
 </context>
 <context>
@@ -5641,19 +6328,6 @@ Do you want to check them out now?</source>
     <message>
         <source>&amp;Remove from Version Control</source>
         <translation>У&amp;далить из контроля версий</translation>
-    </message>
-</context>
-<context>
-    <name>Core::ScriptManager</name>
-    <message>
-        <source>Exception at line %1: %2
-%3</source>
-        <translation>Исключение в строке %1: %2
-%3</translation>
-    </message>
-    <message>
-        <source>Unknown error</source>
-        <translation>Неизвестная ошибка</translation>
     </message>
 </context>
 <context>
@@ -5732,8 +6406,7 @@ to version control (%2)?</source>
     <message>
         <source>Could not add the file
 %1
-to version control (%2)
-</source>
+to version control (%2)</source>
         <translation>Не удалось добавить файл
 %1
 под контроль версий (%2)</translation>
@@ -5860,16 +6533,20 @@ to version control (%2)
         <translation>Заголовочный файл C++</translation>
     </message>
     <message>
-        <source>Switch Between Method Declaration/Definition</source>
-        <translation>Переключить объявление/определение метода</translation>
-    </message>
-    <message>
         <source>Shift+F2</source>
         <translation>Shift+F2</translation>
     </message>
     <message>
-        <source>Open Method Declaration/Definition in Next Split</source>
-        <translation>Открыть объявления/определения в следующей панели</translation>
+        <source>Switch Between Function Declaration/Definition</source>
+        <translation>Переключить объявление/реализацию функции</translation>
+    </message>
+    <message>
+        <source>Additional Preprocessor Directives...</source>
+        <translation>Дополнительные директивы препроцессора...</translation>
+    </message>
+    <message>
+        <source>Open Function Declaration/Definition in Next Split</source>
+        <translation>Открыть объявление/реализацию в следующей панели</translation>
     </message>
     <message>
         <source>Meta+E, Shift+F2</source>
@@ -5900,6 +6577,18 @@ to version control (%2)
         <translation>Ctrl+Shift+T</translation>
     </message>
     <message>
+        <source>Open Include Hierarchy</source>
+        <translation>Открыть иерархию включений</translation>
+    </message>
+    <message>
+        <source>Meta+Shift+I</source>
+        <translation>Meta+Shift+I</translation>
+    </message>
+    <message>
+        <source>Ctrl+Shift+I</source>
+        <translation>Ctrl+Shift+I</translation>
+    </message>
+    <message>
         <source>Rename Symbol Under Cursor</source>
         <translation>Переименовать символ под курсором</translation>
     </message>
@@ -5908,8 +6597,41 @@ to version control (%2)
         <translation>CTRL+SHIFT+R</translation>
     </message>
     <message>
-        <source>Update Code Model</source>
-        <translation>Обновить модель кода</translation>
+        <source>Reparse Externally Changed Files</source>
+        <translation>Переразобрать файлы изменённые извне</translation>
+    </message>
+</context>
+<context>
+    <name>CppEditor::Internal::CppIncludeHierarchyFactory</name>
+    <message>
+        <source>Include Hierarchy</source>
+        <translation>Иерархия включений</translation>
+    </message>
+</context>
+<context>
+    <name>CppEditor::Internal::CppIncludeHierarchyModel</name>
+    <message>
+        <source>Includes</source>
+        <translation>Включения</translation>
+    </message>
+    <message>
+        <source>Included by</source>
+        <translation>Включено из</translation>
+    </message>
+    <message>
+        <source>(none)</source>
+        <translation>(нет)</translation>
+    </message>
+    <message>
+        <source>(cyclic)</source>
+        <translation>(циклически)</translation>
+    </message>
+</context>
+<context>
+    <name>CppEditor::Internal::CppIncludeHierarchyWidget</name>
+    <message>
+        <source>No include hierarchy available</source>
+        <translation>Нет доступных иерархий включений</translation>
     </message>
 </context>
 <context>
@@ -5921,6 +6643,21 @@ to version control (%2)
     <message>
         <source>Collapse All</source>
         <translation>Свернуть всё</translation>
+    </message>
+</context>
+<context>
+    <name>CppEditor::Internal::CppPreProcessorDialog</name>
+    <message>
+        <source>Additional C++ Preprocessor Directives</source>
+        <translation>Дополнительные директивы препроцессора C++</translation>
+    </message>
+    <message>
+        <source>Project:</source>
+        <translation>Проект:</translation>
+    </message>
+    <message>
+        <source>Additional C++ Preprocessor Directives for %1:</source>
+        <translation>Дополнительные директивы препроцессора C++ для %1:</translation>
     </message>
 </context>
 <context>
@@ -6052,6 +6789,10 @@ to version control (%2)
     <message>
         <source>File Naming</source>
         <translation>Именование файлов</translation>
+    </message>
+    <message>
+        <source>Code Model</source>
+        <translation>Модель кода</translation>
     </message>
     <message>
         <source>C++</source>
@@ -6192,6 +6933,45 @@ to version control (%2)
     </message>
 </context>
 <context>
+    <name>CppTools::Internal::CppCodeModelSettingsPage</name>
+    <message>
+        <source>Form</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Code Completion and Semantic Highlighting</source>
+        <translation>Дополнение и подсветка кода</translation>
+    </message>
+    <message>
+        <source>C</source>
+        <translation>C</translation>
+    </message>
+    <message>
+        <source>C++</source>
+        <translation>C++</translation>
+    </message>
+    <message>
+        <source>Objective C</source>
+        <translation>Objective C</translation>
+    </message>
+    <message>
+        <source>Objective C++</source>
+        <translation>Objective C++</translation>
+    </message>
+    <message>
+        <source>Pre-compiled Headers</source>
+        <translation>Прекомпилированные заголовки</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When pre-compiled headers are not ignored, the parsing for code completion and semantic highlighting will process the pre-compiled header before processing any file.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;p&gt;Обрабатывать или нет прекомпилированные заголовки перед обработкой любого файла для дополнения и подсветки кода.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Ignore pre-compiled headers</source>
+        <translation>Игнорировать прекомпилированные заголовки</translation>
+    </message>
+</context>
+<context>
     <name>CppTools::Internal::CppCodeStyleSettingsPage</name>
     <message>
         <source>Form</source>
@@ -6220,10 +7000,6 @@ to version control (%2)
 &quot;protected&quot; and &quot;private&quot;</source>
         <translation>Объявления относительно
 «public», «protected» и «private»</translation>
-    </message>
-    <message>
-        <source>Statements within method body</source>
-        <translation>Операции внутри тела метода</translation>
     </message>
     <message>
         <source>Statements within blocks</source>
@@ -6255,10 +7031,6 @@ to version control (%2)
     <message>
         <source>Enum declarations</source>
         <translation>Определений перечислений</translation>
-    </message>
-    <message>
-        <source>Method declarations</source>
-        <translation>Определении методов</translation>
     </message>
     <message>
         <source>Blocks</source>
@@ -6421,31 +7193,79 @@ if (a &amp;&amp;
         <source>Right const/volatile</source>
         <translation>Правым const и volatile</translation>
     </message>
+    <message>
+        <source>Statements within function body</source>
+        <translation>Операции внутри тела функции</translation>
+    </message>
+    <message>
+        <source>Function declarations</source>
+        <translation>Объявления функций</translation>
+    </message>
 </context>
 <context>
     <name>CppTools::Internal::CppCurrentDocumentFilter</name>
     <message>
-        <source>C++ Methods in Current Document</source>
-        <translation>Методы C++ текущего документа</translation>
+        <source>C++ Symbols in Current Document</source>
+        <translation>Символы C++ текущего документа</translation>
     </message>
 </context>
 <context>
     <name>CppTools::Internal::CppFileSettingsPage</name>
     <message>
-        <source>Header suffix:</source>
-        <translation>Заголовочный:</translation>
+        <source>Headers</source>
+        <translation>Заголовочные</translation>
     </message>
     <message>
-        <source>Source suffix:</source>
-        <translation>Исходные тексты:</translation>
+        <source>&amp;Suffix:</source>
+        <translation>Р&amp;асширение:</translation>
     </message>
     <message>
-        <source>Lower case file names</source>
-        <translation>Имена файлов в нижнем регистре</translation>
+        <source>S&amp;earch paths:</source>
+        <translation>П&amp;ути поиска:</translation>
     </message>
     <message>
-        <source>License template:</source>
-        <translation>Шаблон лицензии:</translation>
+        <source>Comma-separated list of header paths.
+
+Paths can be absolute or relative to the directory of the current open document.
+
+These paths are used in addition to current directory on Switch Header/Source.</source>
+        <translation>Список путей к заголовочным файлам, разделённый запятыми.
+
+Пути могут быть абсолютными или относительными к каталогу текущего документа.
+
+Они используются в дополнение к текущему каталогу при переключении между заголовочным и исходным файлами.</translation>
+    </message>
+    <message>
+        <source>Sources</source>
+        <translation>Исходники</translation>
+    </message>
+    <message>
+        <source>S&amp;uffix:</source>
+        <translation>&amp;Расширение:</translation>
+    </message>
+    <message>
+        <source>Se&amp;arch paths:</source>
+        <translation>&amp;Пути поиска:</translation>
+    </message>
+    <message>
+        <source>Comma-separated list of source paths.
+
+Paths can be absolute or relative to the directory of the current open document.
+
+These paths are used in addition to current directory on Switch Header/Source.</source>
+        <translation>Список путей к исходным файлам, разделённый запятыми.
+
+Пути могут быть абсолютными или относительными к каталогу текущего документа.
+
+Они используются в дополнение к текущему каталогу при переключении между заголовочным и исходным файлами.</translation>
+    </message>
+    <message>
+        <source>&amp;Lower case file names</source>
+        <translation>&amp;Имена файлов в нижнем регистре</translation>
+    </message>
+    <message>
+        <source>License &amp;template:</source>
+        <translation>&amp;Шаблон лицензии:</translation>
     </message>
 </context>
 <context>
@@ -6493,15 +7313,15 @@ if (a &amp;&amp;
 <context>
     <name>CppTools::Internal::CppFunctionsFilter</name>
     <message>
-        <source>C++ Methods and Functions</source>
-        <translation>Методы и функции C++</translation>
+        <source>C++ Functions</source>
+        <translation>Функции C++</translation>
     </message>
 </context>
 <context>
     <name>CppTools::Internal::CppLocatorFilter</name>
     <message>
-        <source>C++ Classes and Methods</source>
-        <translation>Классы и методы C++</translation>
+        <source>C++ Classes, Enums and Functions</source>
+        <translation>Классы, перечисления и функции C++</translation>
     </message>
 </context>
 <context>
@@ -6546,8 +7366,8 @@ if (a &amp;&amp;
         <translation>Классы</translation>
     </message>
     <message>
-        <source>Methods</source>
-        <translation>Методы</translation>
+        <source>Functions</source>
+        <translation>Функции</translation>
     </message>
     <message>
         <source>Enums</source>
@@ -6589,8 +7409,8 @@ Flags: %3</source>
         <translation>Классы</translation>
     </message>
     <message>
-        <source>Methods</source>
-        <translation>Методы</translation>
+        <source>Functions</source>
+        <translation>Функции</translation>
     </message>
     <message>
         <source>Enums</source>
@@ -6688,8 +7508,16 @@ Flags: %3</source>
         <translation>Переформатировать указатели или ссылки</translation>
     </message>
     <message>
+        <source>Extract Constant as Function Parameter</source>
+        <translation>Извлечь константу, как параметр функции</translation>
+    </message>
+    <message>
         <source>Assign to Local Variable</source>
         <translation>Назначить локальной переменной</translation>
+    </message>
+    <message>
+        <source>Optimize for-Loop</source>
+        <translation>Оптимизировать цикл for</translation>
     </message>
     <message>
         <source>Convert to Objective-C String Literal</source>
@@ -6728,6 +7556,29 @@ Flags: %3</source>
     </message>
 </context>
 <context>
+    <name>CustomToolChain</name>
+    <message>
+        <source>GCC</source>
+        <translation>GCC</translation>
+    </message>
+    <message>
+        <source>Clang</source>
+        <translation>Clang</translation>
+    </message>
+    <message>
+        <source>ICC</source>
+        <translation>ICC</translation>
+    </message>
+    <message>
+        <source>MSVC</source>
+        <translation>MSVC</translation>
+    </message>
+    <message>
+        <source>Custom</source>
+        <translation>Другой</translation>
+    </message>
+</context>
+<context>
     <name>Cvs::Internal::CheckoutWizard</name>
     <message>
         <source>Checks out a CVS repository and tries to load the contained project.</source>
@@ -6763,12 +7614,12 @@ Flags: %3</source>
 <context>
     <name>Cvs::Internal::CvsDiffParameterWidget</name>
     <message>
-        <source>Ignore whitespace</source>
-        <translation>Пропускать пробелы</translation>
+        <source>Ignore Whitespace</source>
+        <translation>Игнорировать пробелы</translation>
     </message>
     <message>
-        <source>Ignore blank lines</source>
-        <translation>Пропускать пустые строки</translation>
+        <source>Ignore Blank Lines</source>
+        <translation>Игнорировать пустые строки</translation>
     </message>
 </context>
 <context>
@@ -7232,6 +8083,16 @@ Flags: %3</source>
         <translation>Остановлено на внутренней точке останова %1, поток %2.</translation>
     </message>
     <message>
+        <source>&lt;Unknown&gt;</source>
+        <comment>name</comment>
+        <translation>&lt;Неизвестный&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;Unknown&gt;</source>
+        <comment>meaning</comment>
+        <translation>&lt;Неизвестно&gt;</translation>
+    </message>
+    <message>
         <source>Found.</source>
         <translation>Найдена.</translation>
     </message>
@@ -7251,9 +8112,8 @@ Section %1: %2</source>
     </message>
     <message>
         <source>This does not seem to be a &quot;Debug&quot; build.
-Setting breakpoints by file name and line number may fail.
-</source>
-        <translation>Это не похоже на сборку для отладки.
+Setting breakpoints by file name and line number may fail.</source>
+        <translation>Это не похоже на отладочную сборку.
 Установка точек останова по имени файла и строке может не работать.</translation>
     </message>
     <message>
@@ -7275,16 +8135,6 @@ Setting breakpoints by file name and line number may fail.
     <message>
         <source>Interrupted.</source>
         <translation>Прервано.</translation>
-    </message>
-    <message>
-        <source> &lt;Unknown&gt; </source>
-        <comment>name</comment>
-        <translation> &lt;Неизвестно&gt; </translation>
-    </message>
-    <message>
-        <source> &lt;Unknown&gt; </source>
-        <comment>meaning</comment>
-        <translation> &lt;Неизвестно&gt; </translation>
     </message>
     <message>
         <source>&lt;p&gt;The inferior stopped because it received a signal from the Operating System.&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Signal name : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Signal meaning : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
@@ -7329,17 +8179,21 @@ Setting breakpoints by file name and line number may fail.
         <source>Attempting to interrupt.</source>
         <translation>Попытка прервать.</translation>
     </message>
+</context>
+<context>
+    <name>Debugger::DebuggerItemManager</name>
     <message>
-        <source>Debug Information</source>
-        <translation>Отладочная информация</translation>
+        <source>Auto-detected CDB at %1</source>
+        <translation>Обнаруженный CDB в %1</translation>
     </message>
     <message>
-        <source>Debugger Test</source>
-        <translation>Тестирование отладчика</translation>
+        <source>System %1 at %2</source>
+        <extracomment>%1: Debugger engine type (GDB, LLDB, CDB...), %2: Path</extracomment>
+        <translation>Система %1 в %2</translation>
     </message>
     <message>
-        <source>Debugger Runtime</source>
-        <translation>Выполнение отладчика</translation>
+        <source>Extracted from Kit %1</source>
+        <translation>Извлечён из набора %1</translation>
     </message>
 </context>
 <context>
@@ -7361,6 +8215,14 @@ Setting breakpoints by file name and line number may fail.
         <translation>Путь к отладчику должен быть абсолютным (%1).</translation>
     </message>
     <message>
+        <source>No Debugger</source>
+        <translation>Нет отладчика</translation>
+    </message>
+    <message>
+        <source>%1 Engine</source>
+        <translation>Отладчик %1</translation>
+    </message>
+    <message>
         <source>%1 &lt;None&gt;</source>
         <translation>%1 &lt;Отсутствует&gt;</translation>
     </message>
@@ -7371,18 +8233,6 @@ Setting breakpoints by file name and line number may fail.
     <message>
         <source>Debugger</source>
         <translation>Отладчик</translation>
-    </message>
-    <message>
-        <source>GDB Engine</source>
-        <translation>GDB</translation>
-    </message>
-    <message>
-        <source>CDB Engine</source>
-        <translation>CDB</translation>
-    </message>
-    <message>
-        <source>LLDB Engine</source>
-        <translation>LLDB</translation>
     </message>
     <message>
         <source>No kit found.</source>
@@ -7413,19 +8263,11 @@ Setting breakpoints by file name and line number may fail.
     </message>
     <message>
         <source>Some breakpoints cannot be handled by the debugger languages currently active, and will be ignored.</source>
-        <translation>Будут пропущены точки останова, не поддерживаемые доступными отладчику языками.</translation>
+        <translation>Точки останова, не поддерживаемые доступными отладчику языками, будут пропущены.</translation>
     </message>
     <message>
-        <source>Not enough free ports for QML debugging. </source>
+        <source>Not enough free ports for QML debugging.</source>
         <translation>Недостаточно свободных портов для отладки QML.</translation>
-    </message>
-    <message>
-        <source>Install &amp;Debug Information</source>
-        <translation>Установить &amp;отладочную информацию</translation>
-    </message>
-    <message>
-        <source>Tries to install missing debug information.</source>
-        <translation>Попытка установить отсутствующую информацию для отладки.</translation>
     </message>
 </context>
 <context>
@@ -7442,28 +8284,24 @@ Setting breakpoints by file name and line number may fail.
         <translation>Отладчик</translation>
     </message>
     <message>
-        <source>No executable specified.
-</source>
-        <translation>Программа не указана.
-</translation>
+        <source>&amp;Show this message again.</source>
+        <translation>&amp;Показывать это сообщение в дальнейшем.</translation>
     </message>
     <message>
-        <source>Debugging starts
-</source>
-        <translation>Отладка запущена
-</translation>
+        <source>No executable specified.</source>
+        <translation>Программа не указана.</translation>
     </message>
     <message>
-        <source>Debugging has failed
-</source>
-        <translation>Ошибка отладки
-</translation>
+        <source>Debugging starts</source>
+        <translation>Отладка запущена</translation>
     </message>
     <message>
-        <source>Debugging has finished
-</source>
-        <translation>Отладка завершена
-</translation>
+        <source>Debugging has failed</source>
+        <translation>Ошибка отладки</translation>
+    </message>
+    <message>
+        <source>Debugging has finished</source>
+        <translation>Отладка завершена</translation>
     </message>
     <message>
         <source>A debugging session is still in progress. Terminating the session in the current state can leave the target in an inconsistent state. Would you still like to terminate it?</source>
@@ -7481,8 +8319,8 @@ Setting breakpoints by file name and line number may fail.
         <translation>Выбор начального адреса</translation>
     </message>
     <message>
-        <source>Enter an address: </source>
-        <translation>Введите адрес: </translation>
+        <source>Enter an address:</source>
+        <translation>Введите адрес:</translation>
     </message>
 </context>
 <context>
@@ -8096,6 +8934,10 @@ This feature is only available for GDB.</source>
         <translation>Ошибка отладчика</translation>
     </message>
     <message>
+        <source>Failed to Start the Debugger</source>
+        <translation>Не удалось запустить отладчик</translation>
+    </message>
+    <message>
         <source>Normal</source>
         <translation>Обычный</translation>
     </message>
@@ -8208,7 +9050,7 @@ This feature is only available for GDB.</source>
     </message>
     <message>
         <source>Ignore first chance access violations</source>
-        <translation>Пропускать первые нарушения доступа к памяти</translation>
+        <translation>Игнорировать первые нарушения доступа к памяти</translation>
     </message>
 </context>
 <context>
@@ -8351,41 +9193,18 @@ This feature is only available for GDB.</source>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::DebuggerCore</name>
+    <name>Debugger::Internal::DebuggerItemConfigWidget</name>
     <message>
-        <source>Open Qt Options</source>
-        <translation>Открыть параметры Qt</translation>
+        <source>Name:</source>
+        <translation>Название:</translation>
     </message>
     <message>
-        <source>Turn off Helper Usage</source>
-        <translation>Не использовать помощника</translation>
+        <source>Path:</source>
+        <translation>Путь:</translation>
     </message>
     <message>
-        <source>Continue Anyway</source>
-        <translation>Всё равно продолжить</translation>
-    </message>
-    <message>
-        <source>Debugging Helper Missing</source>
-        <translation>Отсутствует помощник отладчика</translation>
-    </message>
-    <message>
-        <source>The debugger could not load the debugging helper library.</source>
-        <translation>Отладчик не смог загрузить библиотеку помощника отладчика.</translation>
-    </message>
-    <message>
-        <source>The debugging helper is used to nicely format the values of some Qt and Standard Library data types. It must be compiled for each used Qt version separately. In the Qt Creator Build and Run preferences page, select a Qt version, expand the Details section and click Build All.</source>
-        <translation>Помощник отладчика используется для отображения значений некоторых типов данных Qt и стандартной библиотеки. Он должен быть собран отдельно для каждого профиля Qt. Это можно сделать в настройках сборки и запуска, выбрав профиль Qt, развернув раздел «Подробнее» и нажав на «Собрать всё».</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::DebuggerKitConfigDialog</name>
-    <message>
-        <source>&amp;Engine:</source>
-        <translation>&amp;Отладчик:</translation>
-    </message>
-    <message>
-        <source>&amp;Binary:</source>
-        <translation>&amp;Программа:</translation>
+        <source>ABIs:</source>
+        <translation>ABI:</translation>
     </message>
     <message>
         <source>64-bit version</source>
@@ -8402,22 +9221,41 @@ This feature is only available for GDB.</source>
     </message>
 </context>
 <context>
+    <name>Debugger::Internal::DebuggerItemModel</name>
+    <message>
+        <source>Auto-detected</source>
+        <translation>Обнаруженные</translation>
+    </message>
+    <message>
+        <source>Manual</source>
+        <translation>Особые</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Имя</translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation>Путь</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>Тип</translation>
+    </message>
+</context>
+<context>
     <name>Debugger::Internal::DebuggerKitConfigWidget</name>
+    <message>
+        <source>None</source>
+        <translation>Не задан</translation>
+    </message>
+    <message>
+        <source>Manage...</source>
+        <translation>Управление...</translation>
+    </message>
     <message>
         <source>The debugger to use for this kit.</source>
         <translation>Отладчик, используемый с этим комплектом.</translation>
-    </message>
-    <message>
-        <source>Auto-detect</source>
-        <translation>Определить</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation>Изменить...</translation>
-    </message>
-    <message>
-        <source>Debugger for &quot;%1&quot;</source>
-        <translation>Отладчик для «%1»</translation>
     </message>
     <message>
         <source>Debugger:</source>
@@ -8433,6 +9271,37 @@ This feature is only available for GDB.</source>
     <message>
         <source>Debugger Toolbar</source>
         <translation>Панель отладчика</translation>
+    </message>
+</context>
+<context>
+    <name>Debugger::Internal::DebuggerOptionsPage</name>
+    <message>
+        <source>Debuggers</source>
+        <translation>Отладчики</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Добавить</translation>
+    </message>
+    <message>
+        <source>Clone</source>
+        <translation>Копировать</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>Удалить</translation>
+    </message>
+    <message>
+        <source>Clone of %1</source>
+        <translation>Копия %1</translation>
+    </message>
+    <message>
+        <source>New Debugger</source>
+        <translation>Новый отладчик</translation>
+    </message>
+    <message>
+        <source>Not recognized</source>
+        <translation>Не определён</translation>
     </message>
 </context>
 <context>
@@ -8663,6 +9532,14 @@ Qt Creator не может подключиться к нему.</translation>
     <message>
         <source>Debugging file %1.</source>
         <translation>Отладочный файл %1.</translation>
+    </message>
+    <message>
+        <source>Debug Information</source>
+        <translation>Отладочная информация</translation>
+    </message>
+    <message>
+        <source>Debugger Runtime</source>
+        <translation>Выполнение отладчика</translation>
     </message>
     <message>
         <source>Cannot attach to process with PID 0</source>
@@ -8986,6 +9863,14 @@ Qt Creator не может подключиться к нему.</translation>
         <translation>Автоматически закрывать отладчик</translation>
     </message>
     <message>
+        <source>Use Tooltips in Stack View when Debugging</source>
+        <translation>Подсказки в обзоре стека при отладке</translation>
+    </message>
+    <message>
+        <source>Checking this will enable tooltips in the stack view during debugging.</source>
+        <translation>Включает всплывающие подсказки в обзоре стека во время отладки.</translation>
+    </message>
+    <message>
         <source>List Source Files</source>
         <translation>Показать файлы исходников</translation>
     </message>
@@ -9176,15 +10061,6 @@ Qt Creator не может подключиться к нему.</translation>
     </message>
 </context>
 <context>
-    <name>Debugger::Internal::GdbAbstractPlainEngine</name>
-    <message>
-        <source>Starting executable failed:
-</source>
-        <translation>Не удалось запустить программу:
-</translation>
-    </message>
-</context>
-<context>
     <name>Debugger::Internal::GdbAttachEngine</name>
     <message>
         <source>Attached to process %1.</source>
@@ -9230,10 +10106,8 @@ Qt Creator не может подключиться к нему.</translation>
         <translation>Подключено к дампу.</translation>
     </message>
     <message>
-        <source>Attach to core &quot;%1&quot; failed:
-</source>
-        <translation>Не удалось подключиться к дампу «%1»:
-</translation>
+        <source>Attach to core &quot;%1&quot; failed:</source>
+        <translation>Не удалось подключиться к дампу «%1»:</translation>
     </message>
 </context>
 <context>
@@ -9265,10 +10139,6 @@ Qt Creator не может подключиться к нему.</translation>
     <message>
         <source>An error occurred when attempting to read from the gdb process. For example, the process may not be running.</source>
         <translation>Ошибка при получении данных от процесса gdb. Например, процесс уже перестал работать.</translation>
-    </message>
-    <message>
-        <source>An unknown error in the gdb process occurred. </source>
-        <translation>У процесса gdb возникла неопознанная ошибка. </translation>
     </message>
     <message>
         <source>Library %1 unloaded</source>
@@ -9337,6 +10207,18 @@ Try: %2</source>
         <translation>Приложение завершилось успешно</translation>
     </message>
     <message>
+        <source>Cannot continue debugged process:</source>
+        <translation>Невозможно продолжить отлаживаемый процесс:</translation>
+    </message>
+    <message>
+        <source>Cannot create snapshot:</source>
+        <translation>Не удалось создать снимок:</translation>
+    </message>
+    <message>
+        <source>Failed to start application:</source>
+        <translation>Не удалось запустить приложение:</translation>
+    </message>
+    <message>
         <source>The gdb process could not be stopped:
 %1</source>
         <translation>Невозможно остановить процесс gdb:
@@ -9369,6 +10251,14 @@ Try: %2</source>
     <message>
         <source>Normal</source>
         <translation>Обычный</translation>
+    </message>
+    <message>
+        <source>An unknown error in the gdb process occurred.</source>
+        <translation>У процесса gdb возникла неопознанная ошибка.</translation>
+    </message>
+    <message>
+        <source>An exception was triggered:</source>
+        <translation>Возникло исключение:</translation>
     </message>
     <message>
         <source>Displayed</source>
@@ -9413,12 +10303,6 @@ Try: %2</source>
     <message>
         <source>Cannot create snapshot file.</source>
         <translation>Не удалось создать файл снимка.</translation>
-    </message>
-    <message>
-        <source>Cannot create snapshot:
-</source>
-        <translation>Не удалось создать снимок:
-</translation>
     </message>
     <message>
         <source>Finished retrieving data</source>
@@ -9470,10 +10354,6 @@ Try: %2</source>
         <translation>Процесс gdb не смог запуститься. Или вызываемая программа «%1» отсутствует, или недостаточно прав на её запуск.
 %2</translation>
     </message>
-    <message>
-        <source>An exception was triggered: </source>
-        <translation>Возникло исключение: </translation>
-    </message>
     <message numerus="yes">
         <source>The gdb process has not responded to a command within %n second(s). This could mean it is stuck in an endless loop or taking longer than expected to perform the operation.
 You can choose between waiting longer or aborting debugging.</source>
@@ -9517,12 +10397,6 @@ You can choose between waiting longer or aborting debugging.</source>
     <message>
         <source>Execution Error</source>
         <translation>Ошибка выполнения</translation>
-    </message>
-    <message>
-        <source>Cannot continue debugged process:
-</source>
-        <translation>Невозможно продолжить отлаживаемый процесс:
-</translation>
     </message>
     <message>
         <source>Failed to shut down application</source>
@@ -9650,23 +10524,12 @@ This might yield incorrect results.</source>
         <translation>Установка точек останова...</translation>
     </message>
     <message>
-        <source>Failed to start application: </source>
-        <translation>Не удалось запустить приложение: </translation>
-    </message>
-    <message>
         <source>Failed to start application</source>
         <translation>Не удалось запустить приложение</translation>
     </message>
     <message>
         <source>Adapter crashed</source>
         <translation>Адаптер аварийно завершился</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::GdbLocalPlainEngine</name>
-    <message>
-        <source>Cannot set up communication with child process: %1</source>
-        <translation>Не удалось установить связь с дочерним процессом: %1</translation>
     </message>
 </context>
 <context>
@@ -9868,6 +10731,17 @@ receives a signal like SIGSEGV during debugging.</source>
     </message>
 </context>
 <context>
+    <name>Debugger::Internal::GdbPlainEngine</name>
+    <message>
+        <source>Starting executable failed:</source>
+        <translation>Не удалось запустить программу:</translation>
+    </message>
+    <message>
+        <source>Cannot set up communication with child process: %1</source>
+        <translation>Не удалось установить связь с дочерним процессом: %1</translation>
+    </message>
+</context>
+<context>
     <name>Debugger::Internal::GdbRemoteServerEngine</name>
     <message>
         <source>The upload process failed to start. Shell missing?</source>
@@ -9902,10 +10776,8 @@ receives a signal like SIGSEGV during debugging.</source>
         <translation>Не обнаружен файл символов.</translation>
     </message>
     <message>
-        <source>Reading debug information failed:
-</source>
-        <translation>Не удалось прочитать отладочную информацию:
-</translation>
+        <source>Reading debug information failed:</source>
+        <translation>Не удалось прочитать отладочную информацию:</translation>
     </message>
     <message>
         <source>Interrupting not possible</source>
@@ -9991,10 +10863,6 @@ receives a signal like SIGSEGV during debugging.</source>
 <context>
     <name>Debugger::Internal::LldbEngine</name>
     <message>
-        <source>Unable to start lldb &apos;%1&apos;: %2</source>
-        <translation>Не удалось запустить lldb «%1»: %2</translation>
-    </message>
-    <message>
         <source>Adapter start failed.</source>
         <translation>Не удалось запустить адаптер.</translation>
     </message>
@@ -10007,44 +10875,40 @@ receives a signal like SIGSEGV during debugging.</source>
         <translation>Потребовано прерывание...</translation>
     </message>
     <message>
-        <source>&apos;%1&apos; contains no identifier.</source>
-        <translation>«%1» не содержит идентификатора.</translation>
+        <source>LLDB I/O Error</source>
+        <translation>Ошибка ввода/вывода LLDB</translation>
     </message>
     <message>
-        <source>String literal %1</source>
-        <translation>Строковый литерал %1</translation>
+        <source>The LLDB process crashed some time after starting successfully.</source>
+        <translation>Процесс LLDB завершился крахом через некоторое время после успешного старта.</translation>
     </message>
     <message>
-        <source>Cowardly refusing to evaluate expression &apos;%1&apos; with potential side effects.</source>
-        <translation>Робкий отказ вычислить выражение «%1» с возможными побочными эффектами.</translation>
+        <source>An error occurred when attempting to write to the LLDB process. For example, the process may not be running, or it may have closed its input channel.</source>
+        <translation>Ошибка при отправке данных процессу LLDB. Например, процесс уже перестал работать или закрыл свой входной канал.</translation>
     </message>
     <message>
-        <source>Lldb I/O Error</source>
-        <translation>Ошибка ввода/вывода Lldb</translation>
-    </message>
-    <message>
-        <source>The Lldb process failed to start. Either the invoked program &apos;%1&apos; is missing, or you may have insufficient permissions to invoke the program.</source>
-        <translation>Не удалось запустить процесс Lldb. Либо программа «%1» отсутствует, либо недостаточно прав для её запуска.</translation>
-    </message>
-    <message>
-        <source>The Lldb process crashed some time after starting successfully.</source>
-        <translation>Процесс Lldb завершился крахом через некоторое время после успешного старта.</translation>
+        <source>An unknown error in the LLDB process occurred.</source>
+        <translation>У процесса LLDB возникла неопознанная ошибка.</translation>
     </message>
     <message>
         <source>The last waitFor...() function timed out. The state of QProcess is unchanged, and you can try calling waitFor...() again.</source>
         <translation>У последней функции waitFor...() истекло время ожидания. Состояние QProcess не изменилось, и вы можете попробовать вызвать waitFor...() снова.</translation>
     </message>
     <message>
-        <source>An error occurred when attempting to write to the Lldb process. For example, the process may not be running, or it may have closed its input channel.</source>
-        <translation>Ошибка при отправке данных процессу Lldb. Например, процесс уже перестал работать или закрыл свой входной канал.</translation>
+        <source>Unable to start LLDB &quot;%1&quot;: %2</source>
+        <translation>Не удалось запустить LLDB «%1»: %2</translation>
+    </message>
+    <message>
+        <source>The LLDB process failed to start. Either the invoked program &quot;%1&quot; is missing, or you may have insufficient permissions to invoke the program.</source>
+        <translation>Не удалось запустить процесс LLDB. Либо программа «%1» отсутствует, либо недостаточно прав для её запуска.</translation>
     </message>
     <message>
         <source>An error occurred when attempting to read from the Lldb process. For example, the process may not be running.</source>
         <translation>Ошибка при получении данных от процесса Lldb. Например, процесс уже перестал работать.</translation>
     </message>
     <message>
-        <source>An unknown error in the Lldb process occurred. </source>
-        <translation>У процесса Lldb возникла неопознанная ошибка. </translation>
+        <source>Adapter start failed</source>
+        <translation>Не удалось запустить адаптер</translation>
     </message>
 </context>
 <context>
@@ -10085,6 +10949,10 @@ receives a signal like SIGSEGV during debugging.</source>
     <message>
         <source>Debugger Log</source>
         <translation>Журнал отладки</translation>
+    </message>
+    <message>
+        <source>Repeat last command for debug reasons.</source>
+        <translation>Повторить последнюю команду в целях отладки.</translation>
     </message>
     <message>
         <source>Command:</source>
@@ -10353,8 +11221,8 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <translation>Ошибка при получении данных от процесса Pdb. Например, процесс уже перестал работать.</translation>
     </message>
     <message>
-        <source>An unknown error in the Pdb process occurred. </source>
-        <translation>У процесса Pdb возникла неопознанная ошибка. </translation>
+        <source>An unknown error in the Pdb process occurred.</source>
+        <translation>У процесса Pdb возникла неопознанная ошибка.</translation>
     </message>
 </context>
 <context>
@@ -10388,12 +11256,12 @@ Stepping into the module or setting breakpoints by file and is expected to work.
         <translation>Ошибка: (%1) %2</translation>
     </message>
     <message>
-        <source>Disconnected.
-
-</source>
-        <translation>Отключено.
-
-</translation>
+        <source>Disconnected.</source>
+        <translation>Отключено.</translation>
+    </message>
+    <message>
+        <source>Connected.</source>
+        <translation>Подключено.</translation>
     </message>
     <message>
         <source>Resolving host.</source>
@@ -10402,12 +11270,6 @@ Stepping into the module or setting breakpoints by file and is expected to work.
     <message>
         <source>Connecting to debug server.</source>
         <translation>Подключение к серверу отладки.</translation>
-    </message>
-    <message>
-        <source>Connected.
-</source>
-        <translation>Подключено.
-</translation>
     </message>
     <message>
         <source>Closing.</source>
@@ -10488,15 +11350,15 @@ Do you want to retry?</source>
         <translation>Отладчик QML отключён.</translation>
     </message>
     <message>
-        <source>Context: </source>
+        <source>Context:</source>
         <translation>Контекст:</translation>
     </message>
 </context>
 <context>
     <name>Debugger::Internal::QmlInspectorAgent</name>
     <message>
-        <source>Success: </source>
-        <translation>Успешно: </translation>
+        <source>Success:</source>
+        <translation>Успешно:</translation>
     </message>
     <message>
         <source>Properties</source>
@@ -10615,60 +11477,6 @@ Do you want to retry?</source>
     <message>
         <source>Registers</source>
         <translation>Регистры</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::RemoteGdbProcess</name>
-    <message>
-        <source>Connection failure: %1.</source>
-        <translation>Ошибка подключения: %1.</translation>
-    </message>
-    <message>
-        <source>Could not create FIFO.</source>
-        <translation>Невозможно создать FIFO.</translation>
-    </message>
-    <message>
-        <source>Application output reader unexpectedly finished.</source>
-        <translation>Процесс чтения вывода приложения неожиданно завершился.</translation>
-    </message>
-    <message>
-        <source>Remote GDB failed to start.</source>
-        <translation>Не удалось запустить удалённый GDB.</translation>
-    </message>
-    <message>
-        <source>Remote GDB crashed.</source>
-        <translation>Удалённый GDB завершился крахом.</translation>
-    </message>
-</context>
-<context>
-    <name>Debugger::Internal::ScriptEngine</name>
-    <message>
-        <source>Error:</source>
-        <translation>Ошибка:</translation>
-    </message>
-    <message>
-        <source>Running requested...</source>
-        <translation>Потребован запуск...</translation>
-    </message>
-    <message>
-        <source>&apos;%1&apos; contains no identifier.</source>
-        <translation>«%1» не содержит идентификатора.</translation>
-    </message>
-    <message>
-        <source>String literal %1.</source>
-        <translation>Строковый литерал %1.</translation>
-    </message>
-    <message>
-        <source>Cowardly refusing to evaluate expression &apos;%1&apos; with potential side effects.</source>
-        <translation>Робкий отказ вычислить выражение «%1» с возможными побочными эффектами.</translation>
-    </message>
-    <message>
-        <source>Stopped at %1:%2.</source>
-        <translation>Остановлено в позиции %1:%2.</translation>
-    </message>
-    <message>
-        <source>Stopped.</source>
-        <translation>Остановлено.</translation>
     </message>
 </context>
 <context>
@@ -10906,6 +11714,10 @@ Do you want to retry?</source>
     <message>
         <source>Server port:</source>
         <translation>Порт сервера:</translation>
+    </message>
+    <message>
+        <source>Override server address</source>
+        <translation>Переопределить адрес сервера</translation>
     </message>
     <message>
         <source>This option can be used to point to a script that will be used to start a debug server. If the field is empty, Qt Creator&apos;s default methods to set up debug servers will be used.</source>
@@ -11146,8 +11958,8 @@ Do you want to retry?</source>
         <translation>Отображаемый тип</translation>
     </message>
     <message>
-        <source> ... &lt;cut off&gt;</source>
-        <translation> ... &lt;обрезано&gt;</translation>
+        <source>... &lt;cut off&gt;</source>
+        <translation>... &lt;обрезано&gt;</translation>
     </message>
     <message>
         <source>Value</source>
@@ -11410,10 +12222,6 @@ Do you want to retry?</source>
         <translation>Формат для этого типа (сейчас %1)</translation>
     </message>
     <message>
-        <source>Use Display Format Based on Type </source>
-        <translation>Формат вывода основанный на типе </translation>
-    </message>
-    <message>
         <source>Change Display for Type &quot;%1&quot;:</source>
         <translation>Сменить отображение для типа «%1»:</translation>
     </message>
@@ -11456,6 +12264,10 @@ Do you want to retry?</source>
     <message>
         <source>Add Data Breakpoint</source>
         <translation>Добавить контрольную точку</translation>
+    </message>
+    <message>
+        <source>Use Display Format Based on Type</source>
+        <translation>Формат вывода основанный на типе</translation>
     </message>
     <message>
         <source>Setting a data breakpoint on an address will cause the program to stop when the data at the address is modified.</source>
@@ -11546,6 +12358,33 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
+    <name>DebuggerCore</name>
+    <message>
+        <source>Open Qt Options</source>
+        <translation>Открыть параметры Qt</translation>
+    </message>
+    <message>
+        <source>Turn off Helper Usage</source>
+        <translation>Не использовать помощника</translation>
+    </message>
+    <message>
+        <source>Continue Anyway</source>
+        <translation>Всё равно продолжить</translation>
+    </message>
+    <message>
+        <source>Debugging Helper Missing</source>
+        <translation>Отсутствует помощник отладчика</translation>
+    </message>
+    <message>
+        <source>The debugger could not load the debugging helper library.</source>
+        <translation>Отладчик не смог загрузить библиотеку помощника отладчика.</translation>
+    </message>
+    <message>
+        <source>The debugging helper is used to nicely format the values of some Qt and Standard Library data types. It must be compiled for each used Qt version separately. In the Qt Creator Build and Run preferences page, select a Qt version, expand the Details section and click Build All.</source>
+        <translation>Помощник отладчика используется для отображения значений некоторых типов данных Qt и стандартной библиотеки. Он должен быть собран отдельно для каждого профиля Qt. Это можно сделать в настройках сборки и запуска, выбрав профиль Qt, развернув раздел «Подробнее» и нажав на «Собрать всё».</translation>
+    </message>
+</context>
+<context>
     <name>DebuggerEngine</name>
     <message>
         <source>Debugging complex command lines is currently not supported on Windows.</source>
@@ -11557,6 +12396,14 @@ Do you want to retry?</source>
     <message>
         <source>Unable to create a debugger engine of the type &apos;%1&apos;</source>
         <translation>Не удалось создать отладчик типа «%1»</translation>
+    </message>
+    <message>
+        <source>Install &amp;Debug Information</source>
+        <translation>Установить &amp;отладочную информацию</translation>
+    </message>
+    <message>
+        <source>Tries to install missing debug information.</source>
+        <translation>Попытка установить отсутствующую отладочную информацию.</translation>
     </message>
 </context>
 <context>
@@ -11624,13 +12471,6 @@ Rebuilding the project might help.</source>
 Rebuilding the project might help.</source>
         <translation>Не удалось найти сгенерированный заголовочный файл «%1» в модели кода.
 Пересборка проекта может помочь.</translation>
-    </message>
-</context>
-<context>
-    <name>Designer::FormWindowEditor</name>
-    <message>
-        <source>untitled</source>
-        <translation>безымянный</translation>
     </message>
 </context>
 <context>
@@ -11889,10 +12729,6 @@ Please verify the #include-directives.</source>
         <translation>Ошибка поиска/добавления слота.</translation>
     </message>
     <message>
-        <source>Internal error: No project could be found for %1.</source>
-        <translation>Внутренняя ошибка: Не удалось найти проект для %1.</translation>
-    </message>
-    <message>
         <source>No documents matching &apos;%1&apos; could be found.
 Rebuilding the project might help.</source>
         <translation>Не удалось найти документы соответствующие «%1».
@@ -11929,7 +12765,7 @@ Rebuilding the project might help.</source>
     <name>DiffEditor::DiffEditor</name>
     <message>
         <source>Ignore Whitespace</source>
-        <translation>Пропускать пробелы</translation>
+        <translation>Игнорировать пробелы</translation>
     </message>
     <message>
         <source>Context Lines:</source>
@@ -11941,15 +12777,15 @@ Rebuilding the project might help.</source>
     </message>
     <message>
         <source>[%1] vs. [%2] %3</source>
-        <translation type="unfinished">[%1] против [%2] %3</translation>
+        <translation>[%1] против [%2] %3</translation>
     </message>
     <message>
         <source>%1 vs. %2</source>
-        <translation type="unfinished">%1 против %2</translation>
+        <translation>%1 против %2</translation>
     </message>
     <message>
         <source>[%1] %2 vs. [%3] %4</source>
-        <translation type="unfinished">[%1] %2 против [%3] %4</translation>
+        <translation>[%1] %2 против [%3] %4</translation>
     </message>
 </context>
 <context>
@@ -12205,6 +13041,10 @@ Rebuilding the project might help.</source>
         <source>URL:</source>
         <translation></translation>
     </message>
+    <message>
+        <source>Platforms:</source>
+        <translation>Платформы:</translation>
+    </message>
 </context>
 <context>
     <name>ExtensionSystem::Internal::PluginErrorOverview</name>
@@ -12269,6 +13109,10 @@ Rebuilding the project might help.</source>
         <source>None</source>
         <translation>Нет</translation>
     </message>
+    <message>
+        <source>All</source>
+        <translation>Все</translation>
+    </message>
 </context>
 <context>
     <name>ExtensionSystem::PluginErrorOverview</name>
@@ -12316,7 +13160,7 @@ Rebuilding the project might help.</source>
         <translation>Инициализирован</translation>
     </message>
     <message>
-        <source>Plugin&apos;s initialization method succeeded</source>
+        <source>Plugin&apos;s initialization function succeeded</source>
         <translation>Инициализация модуля завершилась успешно</translation>
     </message>
     <message>
@@ -12347,16 +13191,12 @@ Rebuilding the project might help.</source>
 <context>
     <name>ExtensionSystem::PluginManager</name>
     <message>
-        <source>Circular dependency detected:
-</source>
-        <translation>Обнаружена циклическая зависимость:
-</translation>
+        <source>Circular dependency detected:</source>
+        <translation>Обнаружена циклическая зависимость:</translation>
     </message>
     <message>
-        <source>%1(%2) depends on
-</source>
-        <translation>%1(%2) зависит от
-</translation>
+        <source>%1(%2) depends on</source>
+        <translation>%1(%2) зависит от</translation>
     </message>
     <message>
         <source>%1(%2)</source>
@@ -12449,10 +13289,6 @@ Reason: %3</source>
         <translation>Не реализовано в FakeVim.</translation>
     </message>
     <message>
-        <source>Unknown option: </source>
-        <translation>Неизвестный параметр: </translation>
-    </message>
-    <message>
         <source>Move lines into themselves.</source>
         <translation>Переместить строки в самих себя.</translation>
     </message>
@@ -12539,6 +13375,10 @@ Reason: %3</source>
     <message>
         <source>Cannot open file %1</source>
         <translation>Невозможно открыть файл %1</translation>
+    </message>
+    <message>
+        <source>Unknown option:</source>
+        <translation>Неизвестный параметр:</translation>
     </message>
     <message>
         <source>Invalid regular expression: %1</source>
@@ -12778,6 +13618,20 @@ Reason: %3</source>
     <message>
         <source>FakeVim</source>
         <translation></translation>
+    </message>
+</context>
+<context>
+    <name>FileConverter</name>
+    <message>
+        <source>===== Converting file: %1</source>
+        <translation>===== Преобразование файла: %1</translation>
+    </message>
+</context>
+<context>
+    <name>FileResourcesModel</name>
+    <message>
+        <source>Open File</source>
+        <translation>Открытие файла</translation>
     </message>
 </context>
 <context>
@@ -13135,6 +13989,56 @@ Reason: %3</source>
     </message>
 </context>
 <context>
+    <name>FlickableSection</name>
+    <message>
+        <source>Flickable</source>
+        <translation>Толкаемо</translation>
+    </message>
+    <message>
+        <source>Content size</source>
+        <translation>Размер содержимого</translation>
+    </message>
+    <message>
+        <source>Flick direction</source>
+        <translation>Направление толкания</translation>
+    </message>
+    <message>
+        <source>Behavior</source>
+        <translation>Поведение</translation>
+    </message>
+    <message>
+        <source>Bounds behavior</source>
+        <translation>Поведение границ</translation>
+    </message>
+    <message>
+        <source>Interactive</source>
+        <translation>Интерактивность</translation>
+    </message>
+    <message>
+        <source>Max. velocity</source>
+        <translation>Макс. скорость</translation>
+    </message>
+    <message>
+        <source>Maximum flick velocity</source>
+        <translation>Максимальная скорость толкания</translation>
+    </message>
+    <message>
+        <source>Deceleration</source>
+        <translation>Замедление</translation>
+    </message>
+    <message>
+        <source>Flick deceleration</source>
+        <translation>Замедление толкания</translation>
+    </message>
+</context>
+<context>
+    <name>FlipableSpecifics</name>
+    <message>
+        <source>Flipable</source>
+        <translation>Зеркально отображаемо</translation>
+    </message>
+</context>
+<context>
     <name>FlowSpecifics</name>
     <message>
         <source>Flow</source>
@@ -13148,9 +14052,32 @@ Reason: %3</source>
         <source>Spacing</source>
         <translation>Отступ</translation>
     </message>
+    <message>
+        <source>Layout Direction</source>
+        <translation>Направление компоновки</translation>
+    </message>
 </context>
 <context>
     <name>FontGroupBox</name>
+    <message>
+        <source>Font</source>
+        <translation>Шрифт</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>Размер</translation>
+    </message>
+    <message>
+        <source>Font style</source>
+        <translation>Начертание</translation>
+    </message>
+    <message>
+        <source>Style</source>
+        <translation>Стиль</translation>
+    </message>
+</context>
+<context>
+    <name>FontSection</name>
     <message>
         <source>Font</source>
         <translation>Шрифт</translation>
@@ -13256,16 +14183,13 @@ Reason: %3</source>
 <context>
     <name>GenericProjectManager::Internal::GenericBuildConfigurationFactory</name>
     <message>
+        <source>Default</source>
+        <extracomment>The name of the build configuration created by default for a generic project.</extracomment>
+        <translation>По умолчанию</translation>
+    </message>
+    <message>
         <source>Build</source>
         <translation>Сборка</translation>
-    </message>
-    <message>
-        <source>New Configuration</source>
-        <translation>Новая конфигурация</translation>
-    </message>
-    <message>
-        <source>New configuration name:</source>
-        <translation>Название новой конфигурации:</translation>
     </message>
 </context>
 <context>
@@ -13441,6 +14365,21 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
+    <name>GeometrySection</name>
+    <message>
+        <source>Geometry</source>
+        <translation>Геометрия</translation>
+    </message>
+    <message>
+        <source>Position</source>
+        <translation>Положение</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>Размер</translation>
+    </message>
+</context>
+<context>
     <name>Gerrit::Internal::FetchContext</name>
     <message>
         <source>Gerrit Fetch</source>
@@ -13461,6 +14400,10 @@ These files are preserved.</source>
 </context>
 <context>
     <name>Gerrit::Internal::GerritDialog</name>
+    <message>
+        <source>Apply in:</source>
+        <translation>Применить в:</translation>
+    </message>
     <message>
         <source>Gerrit %1@%2</source>
         <translation>Gerrit %1@%2</translation>
@@ -13508,10 +14451,6 @@ These files are preserved.</source>
     <message>
         <source>&amp;Checkout</source>
         <translation>&amp;Перейти</translation>
-    </message>
-    <message>
-        <source>Apply in: </source>
-        <translation>Применить в: </translation>
     </message>
     <message>
         <source>Fetching &quot;%1&quot;...</source>
@@ -13644,6 +14583,14 @@ asked to confirm the repository path.</source>
         <translation>Не удалось инициализировать диалог. Прервано.</translation>
     </message>
     <message>
+        <source>Error</source>
+        <translation>Ошибка</translation>
+    </message>
+    <message>
+        <source>Invalid Gerrit configuration. Host, user and ssh binary are mandatory.</source>
+        <translation>Неверная конфигурация Gerrit. Адрес, пользователь и путь к ssh обязательны.</translation>
+    </message>
+    <message>
         <source>Git is not available.</source>
         <translation>Git не доступен.</translation>
     </message>
@@ -13728,6 +14675,10 @@ Partial names can be used if they are unambiguous.</source>
         <source>Number of commits between HEAD and %1: %2</source>
         <translation>Число фиксаций между HEAD и %1: %2</translation>
     </message>
+    <message>
+        <source>... Include older branches ...</source>
+        <translation>... Включить более старые ветки ...</translation>
+    </message>
 </context>
 <context>
     <name>Gerrit::Internal::QueryContext</name>
@@ -13782,6 +14733,10 @@ Would you like to terminate it?</source>
         <source>Clone URL:</source>
         <translation>URL для клонирования:</translation>
     </message>
+    <message>
+        <source>Recursive</source>
+        <translation>Рекурсивно</translation>
+    </message>
 </context>
 <context>
     <name>Git::Internal::BaseGitDiffArgumentsWidget</name>
@@ -13795,11 +14750,11 @@ Would you like to terminate it?</source>
     </message>
     <message>
         <source>Ignore whitespace only changes.</source>
-        <translation>Пропускать изменения пробелов.</translation>
+        <translation>Игнорировать изменения пробелов.</translation>
     </message>
     <message>
         <source>Ignore Whitespace</source>
-        <translation>Пропускать пробелы</translation>
+        <translation>Игнорировать пробелы</translation>
     </message>
 </context>
 <context>
@@ -13879,6 +14834,10 @@ Would you like to terminate it?</source>
         <translation>Сменить ветку?</translation>
     </message>
     <message>
+        <source>Would you like to delete the tag &apos;%1&apos;?</source>
+        <translation>Удалить тег «%1»?</translation>
+    </message>
+    <message>
         <source>Would you like to delete the &lt;b&gt;unmerged&lt;/b&gt; branch &apos;%1&apos;?</source>
         <translation>Удалить &lt;b&gt;неуправляемую&lt;/b&gt; ветку «%1»?</translation>
     </message>
@@ -13887,12 +14846,12 @@ Would you like to terminate it?</source>
         <translation>Удалить ветку</translation>
     </message>
     <message>
-        <source>Branch Exists</source>
-        <translation>Ветка уже существует</translation>
+        <source>Delete Tag</source>
+        <translation>Удалить тег</translation>
     </message>
     <message>
-        <source>Local branch &apos;%1&apos; already exists.</source>
-        <translation>Локальная ветка «%1» уже существует.</translation>
+        <source>Rename Tag</source>
+        <translation>Переименовать тег</translation>
     </message>
     <message>
         <source>Would you like to delete the branch &apos;%1&apos;?</source>
@@ -13938,6 +14897,22 @@ Would you like to terminate it?</source>
         <source>Re&amp;name</source>
         <translation>Пере&amp;именовать</translation>
     </message>
+    <message>
+        <source>Cherry Pick</source>
+        <translation>Перенести изменения</translation>
+    </message>
+    <message>
+        <source>&amp;Track</source>
+        <translation>С&amp;вязать</translation>
+    </message>
+    <message>
+        <source>Cherry pick top commit from selected branch.</source>
+        <translation>Перенести последнюю фиксацию из выбранной ветки.</translation>
+    </message>
+    <message>
+        <source>Sets current branch to track the selected one.</source>
+        <translation>Сделать текущую ветку связанной с выбранной.</translation>
+    </message>
 </context>
 <context>
     <name>Git::Internal::BranchModel</name>
@@ -13945,13 +14920,17 @@ Would you like to terminate it?</source>
         <source>Local Branches</source>
         <translation>Локальные ветки</translation>
     </message>
+    <message>
+        <source>Remote Branches</source>
+        <translation>Внешние ветки</translation>
+    </message>
+    <message>
+        <source>Tags</source>
+        <translation>Теги</translation>
+    </message>
 </context>
 <context>
     <name>Git::Internal::ChangeSelectionDialog</name>
-    <message>
-        <source>Select a Git Commit</source>
-        <translation>Выбор фиксации Git</translation>
-    </message>
     <message>
         <source>Browse &amp;Directory...</source>
         <translation>Открыть &amp;каталог...</translation>
@@ -14012,9 +14991,21 @@ Would you like to terminate it?</source>
         <source>Working directory:</source>
         <translation>Рабочий каталог:</translation>
     </message>
+    <message>
+        <source>HEAD</source>
+        <translation>HEAD</translation>
+    </message>
 </context>
 <context>
     <name>Git::Internal::CloneWizard</name>
+    <message>
+        <source>Cloning</source>
+        <translation>Клонирование</translation>
+    </message>
+    <message>
+        <source>Cloning started...</source>
+        <translation>Клонирование запущено...</translation>
+    </message>
     <message>
         <source>Clones a Git repository and tries to load the contained project.</source>
         <translation>Клонирование хранилища Git с последующей попыткой загрузки содержащегося там проекта.</translation>
@@ -14079,11 +15070,11 @@ Would you like to terminate it?</source>
     </message>
     <message>
         <source>Ignore whitespace only changes.</source>
-        <translation>Пропускать изменения пробелов.</translation>
+        <translation>Игнорировать изменения пробелов.</translation>
     </message>
     <message>
         <source>Ignore Whitespace</source>
-        <translation>Пропускать пробелы</translation>
+        <translation>Игнорировать пробелы</translation>
     </message>
 </context>
 <context>
@@ -14121,24 +15112,30 @@ Would you like to terminate it?</source>
         <translation>Выполняется перебазирование. Что сделать?</translation>
     </message>
     <message>
-        <source>Conflicts detected</source>
-        <translation>Обнаружены конфликты</translation>
+        <source>You need to commit changes to finish merge.
+Commit now?</source>
+        <translation>Необходимо зафиксировать изменения для завершения объединения.
+Зафиксировать?</translation>
+    </message>
+    <message numerus="yes">
+        <source>Committed %n file(s).</source>
+        <translation>
+            <numerusform>Фиксирован %n файл.</numerusform>
+            <numerusform>Фиксировано %n файла.</numerusform>
+            <numerusform>Фиксировано %n файлов.</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>Amended &quot;%1&quot; (%n file(s)).</source>
+        <translation>
+            <numerusform>Внесено изменение «%1» (%n файл).</numerusform>
+            <numerusform>Внесено изменение «%1» (%n файла).</numerusform>
+            <numerusform>Внесено изменение «%1» (%n файлов).</numerusform>
+        </translation>
     </message>
     <message>
         <source>Git SVN Log</source>
         <translation>Git - история SVN</translation>
-    </message>
-    <message numerus="yes">
-        <source>Committed %n file(s).
-</source>
-        <translation>
-            <numerusform>Фиксирован %n файл.
-</numerusform>
-            <numerusform>Фиксировано %n файла.
-</numerusform>
-            <numerusform>Фиксировано %n файлов.
-</numerusform>
-        </translation>
     </message>
     <message>
         <source>Cannot determine the repository for &quot;%1&quot;.</source>
@@ -14147,6 +15144,10 @@ Would you like to terminate it?</source>
     <message>
         <source>Cannot parse the file output.</source>
         <translation>Не удалось разобрать файловый вывод.</translation>
+    </message>
+    <message>
+        <source>Cannot run &quot;%1 %2&quot; in &quot;%2&quot;: %3</source>
+        <translation>Не удалось выполнить «%1 %2» в «%2»: %3</translation>
     </message>
     <message>
         <source>Git Diff &quot;%1&quot;</source>
@@ -14161,6 +15162,10 @@ Would you like to terminate it?</source>
         <translation>Git - история «%1»</translation>
     </message>
     <message>
+        <source>Git Reflog &quot;%1&quot;</source>
+        <translation type="unfinished">Git - reflog «%1»</translation>
+    </message>
+    <message>
         <source>Cannot describe &quot;%1&quot;.</source>
         <translation>Не удалось описать «%1».</translation>
     </message>
@@ -14171,11 +15176,6 @@ Would you like to terminate it?</source>
     <message>
         <source>Git Blame &quot;%1&quot;</source>
         <translation>Git - аннотация «%1»</translation>
-    </message>
-    <message>
-        <source>Cannot checkout &quot;%1&quot; of &quot;%2&quot;: %3</source>
-        <extracomment>Meaning of the arguments: %1: Branch, %2: Repository, %3: Error message</extracomment>
-        <translation>Не удалось переключиться на «%1» в «%2»: %3</translation>
     </message>
     <message>
         <source>Cannot obtain log of &quot;%1&quot;: %2</source>
@@ -14201,10 +15201,6 @@ Would you like to terminate it?</source>
         <source>Cannot move from &quot;%1&quot; to &quot;%2&quot;: %3</source>
         <translation>Не удалось переместить из «%1» в «%2»: %3</translation>
     </message>
-    <message>
-        <source>Cannot reset &quot;%1&quot;: %2</source>
-        <translation>Не удалось сбросить «%1»: %2</translation>
-    </message>
     <message numerus="yes">
         <source>Cannot reset %n file(s) in &quot;%1&quot;: %2</source>
         <translation>
@@ -14224,16 +15220,55 @@ Would you like to terminate it?</source>
         <translation>Не удалось найти родительские ревизии для «%1» в «%2»: %3</translation>
     </message>
     <message>
-        <source>Cannot execute &quot;git %1&quot; in &quot;%2&quot;: %3</source>
-        <translation>Не удалось выполнить «git %1» в «%2»: %3</translation>
+        <source>No changes found.</source>
+        <translation>Изменений не найдено.</translation>
+    </message>
+    <message numerus="yes">
+        <source>and %n more</source>
+        <extracomment>Displayed after the untranslated message &quot;Branches: branch1, branch2 &apos;and %n more&apos;&quot; in git show.</extracomment>
+        <translation>
+            <numerusform>и ещё %n</numerusform>
+            <numerusform>и ещё %n</numerusform>
+            <numerusform>и ещё %n</numerusform>
+        </translation>
     </message>
     <message>
-        <source>Cannot retrieve branch of &quot;%1&quot;: %2</source>
-        <translation>Не удалось получить ветку для «%1»: %2</translation>
+        <source>Cannot set tracking branch: %1</source>
+        <translation>Не удалось привязать к ветке: %1</translation>
     </message>
     <message>
-        <source>Cannot run &quot;%1&quot; in &quot;%2&quot;: %3</source>
-        <translation>Не удалось выполнить «%1» в «%2»: %3</translation>
+        <source>Conflicts detected with commit %1.</source>
+        <translation>Обнаружены конфликты с фиксацией %1.</translation>
+    </message>
+    <message>
+        <source>Conflicts detected with files:
+%1</source>
+        <translation>Обнаружены конфликты с файлами:
+%1</translation>
+    </message>
+    <message>
+        <source>Conflicts detected.</source>
+        <translation>Обнаружены конфликты.</translation>
+    </message>
+    <message>
+        <source>Cannot determine Git version: %1</source>
+        <translation>Не удалось определить версию Git: %1</translation>
+    </message>
+    <message>
+        <source>Stash local changes and execute %1.</source>
+        <translation>Спрятать локальные изменения и выполнить %1.</translation>
+    </message>
+    <message>
+        <source>Discard (reset) local changes and execute %1.</source>
+        <translation>Отклонить (reset) локальные изменения и выполнить %1.</translation>
+    </message>
+    <message>
+        <source>Execute %1 with local changes in working directory.</source>
+        <translation>Выполнить %1 с локальными изменениями в рабочем каталоге.</translation>
+    </message>
+    <message>
+        <source>Cancel %1.</source>
+        <translation>Отменить %1.</translation>
     </message>
     <message>
         <source>REBASING</source>
@@ -14264,10 +15299,6 @@ Would you like to terminate it?</source>
         <translation>Не удалось получить описание ревизии «%1» в «%2»: %3</translation>
     </message>
     <message>
-        <source>Cannot stash in &quot;%1&quot;: %2</source>
-        <translation>Не удалось спрятать в «%1»: %2</translation>
-    </message>
-    <message>
         <source>Cannot resolve stash message &quot;%1&quot; in &quot;%2&quot;.</source>
         <extracomment>Look-up of a stash via its descriptive message failed.</extracomment>
         <translation>Не удалось найти спрятанное по сообщению «%1» в «%2».</translation>
@@ -14289,6 +15320,10 @@ Would you like to terminate it?</source>
     <message>
         <source>Cannot obtain status: %1</source>
         <translation>Не удалось получить состояние: %1</translation>
+    </message>
+    <message>
+        <source>Continue Merge</source>
+        <translation>Продолжить объединение</translation>
     </message>
     <message>
         <source>Continue Rebase</source>
@@ -14323,10 +15358,6 @@ Commit now?</source>
 Фиксировать?</translation>
     </message>
     <message>
-        <source>No changes found. </source>
-        <translation>Изменений не найдено.</translation>
-    </message>
-    <message>
         <source>Skip</source>
         <translation>Пропустить</translation>
     </message>
@@ -14345,18 +15376,6 @@ Commit now?</source>
     <message>
         <source>Cannot retrieve last commit data of repository &quot;%1&quot;.</source>
         <translation>Не удалось получить данные последней фиксации хранилища «%1».</translation>
-    </message>
-    <message numerus="yes">
-        <source>Amended &quot;%1&quot; (%n file(s)).
-</source>
-        <translation>
-            <numerusform>Внесено изменение «%1» (%n файл).
-</numerusform>
-            <numerusform>Внесено изменение «%1» (%n файла).
-</numerusform>
-            <numerusform>Внесено изменение «%1» (%n файлов).
-</numerusform>
-        </translation>
     </message>
     <message>
         <source>Amended &quot;%1&quot;.</source>
@@ -14387,10 +15406,6 @@ Commit now?</source>
         <translation>Файл не изменялся.</translation>
     </message>
     <message>
-        <source>Conflicts detected with commit %1</source>
-        <translation>Обнаружены конфликты с фиксацией %1</translation>
-    </message>
-    <message>
         <source>Conflicts Detected</source>
         <translation>Обнаружены конфликты</translation>
     </message>
@@ -14419,30 +15434,6 @@ Commit now?</source>
         <translation>Локальные фиксации не обнаружены</translation>
     </message>
     <message>
-        <source>Cannot restore stash &quot;%1&quot;: %2</source>
-        <translation>Не удалось восстановить спрятанное в «%1»: %2</translation>
-    </message>
-    <message>
-        <source>Cannot restore stash &quot;%1&quot; to branch &quot;%2&quot;: %3</source>
-        <translation>Не удалось восстановить спрятанное в «%1» в ветку «%2»: %3</translation>
-    </message>
-    <message>
-        <source>Cannot remove stashes of &quot;%1&quot;: %2</source>
-        <translation>Не удалось удалить спрятанное в «%1»: %2</translation>
-    </message>
-    <message>
-        <source>Cannot remove stash &quot;%1&quot; of &quot;%2&quot;: %3</source>
-        <translation>Не удалось удалить спрятанное «%1» в «%2»: %3</translation>
-    </message>
-    <message>
-        <source>Cannot retrieve stash list of &quot;%1&quot;: %2</source>
-        <translation>Не удалось получить список спрятанного в «%1»: %2</translation>
-    </message>
-    <message>
-        <source>Cannot determine git version: %1</source>
-        <translation>Не удалось определить версию git: %1</translation>
-    </message>
-    <message>
         <source>Uncommitted Changes Found</source>
         <translation>Обнаружены незафиксированные изменения</translation>
     </message>
@@ -14451,28 +15442,20 @@ Commit now?</source>
         <translation>Что необходимо сделать с локальными изменениями в:</translation>
     </message>
     <message>
+        <source>Stash &amp;&amp; Pop</source>
+        <translation>Спрятать и восстановить</translation>
+    </message>
+    <message>
+        <source>Stash local changes and pop when %1 finishes.</source>
+        <translation>Спрятать локальные изменения и восстановить после завершения %1.</translation>
+    </message>
+    <message>
         <source>Stash</source>
         <translation>Спрятать</translation>
     </message>
     <message>
-        <source>Stash local changes and continue.</source>
-        <translation>Спрятать локальные изменения и продолжить.</translation>
-    </message>
-    <message>
         <source>Discard</source>
         <translation>Отменить</translation>
-    </message>
-    <message>
-        <source>Discard (reset) local changes and continue.</source>
-        <translation>Отменить (сбросить) локальные изменения и продолжить.</translation>
-    </message>
-    <message>
-        <source>Continue with local changes in working directory.</source>
-        <translation>Продолжить с локальными изменениями в рабочем каталоге.</translation>
-    </message>
-    <message>
-        <source>Cancel current command.</source>
-        <translation>Отменить текущую команду.</translation>
     </message>
 </context>
 <context>
@@ -14491,6 +15474,17 @@ Commit now?</source>
     </message>
 </context>
 <context>
+    <name>Git::Internal::GitDiffSwitcher</name>
+    <message>
+        <source>Switch to Text Diff Editor</source>
+        <translation>Переключить в текстовый редактор отличий</translation>
+    </message>
+    <message>
+        <source>Switch to Side By Side Diff Editor</source>
+        <translation>Переключить в двусторонний редактор отличий</translation>
+    </message>
+</context>
+<context>
     <name>Git::Internal::GitEditor</name>
     <message>
         <source>Blame %1</source>
@@ -14499,6 +15493,18 @@ Commit now?</source>
     <message>
         <source>Blame Parent Revision %1</source>
         <translation>Аннотация родительской ревизии %1</translation>
+    </message>
+    <message>
+        <source>Chunk successfully staged</source>
+        <translation>Фрагмент успешно применён</translation>
+    </message>
+    <message>
+        <source>Stage Chunk...</source>
+        <translation>Применить фрагмент...</translation>
+    </message>
+    <message>
+        <source>Unstage Chunk...</source>
+        <translation>Отменить фрагмент...</translation>
     </message>
     <message>
         <source>Cherry-Pick Change %1</source>
@@ -14839,6 +15845,10 @@ Commit now?</source>
         <translation>Загрузить (fetch)</translation>
     </message>
     <message>
+        <source>Reflog</source>
+        <translation type="unfinished">Reflog</translation>
+    </message>
+    <message>
         <source>&amp;Patch</source>
         <translation>&amp;Изменение</translation>
     </message>
@@ -14905,6 +15915,10 @@ Commit now?</source>
     <message>
         <source>Gitk for folder of &quot;%1&quot;</source>
         <translation>Открыть в Gitk каталог «%1»</translation>
+    </message>
+    <message>
+        <source>Git Gui</source>
+        <translation type="unfinished">Git Gui</translation>
     </message>
     <message>
         <source>Repository Browser</source>
@@ -15026,6 +16040,30 @@ Commit now?</source>
     <message>
         <source>Select Change</source>
         <translation>Выбор изменения</translation>
+    </message>
+    <message>
+        <source>&amp;Commit only</source>
+        <translation>&amp;Только фиксировать</translation>
+    </message>
+    <message>
+        <source>Commit and &amp;Push</source>
+        <translation>Ф&amp;иксировать и отправить</translation>
+    </message>
+    <message>
+        <source>Commit and Push to &amp;Gerrit</source>
+        <translation>Фиксировать и отправить на &amp;Gerrit</translation>
+    </message>
+    <message>
+        <source>&amp;Commit and Push</source>
+        <translation>Фиксировать и &amp;отправить</translation>
+    </message>
+    <message>
+        <source>&amp;Commit and Push to Gerrit</source>
+        <translation>Фи&amp;ксировать и отправить на Gerrit</translation>
+    </message>
+    <message>
+        <source>&amp;Commit</source>
+        <translation>&amp;Фиксировать</translation>
     </message>
 </context>
 <context>
@@ -15277,10 +16315,6 @@ Remote: %4</source>
         <translation> сек</translation>
     </message>
     <message>
-        <source>Prompt on submit</source>
-        <translation>Спрашивать при фиксации</translation>
-    </message>
-    <message>
         <source>Pull with rebase</source>
         <translation>Принимать (pull) с перебазированием</translation>
     </message>
@@ -15324,10 +16358,6 @@ Perl через переменные среды окружения.</translation
     <message>
         <source>Repository Browser</source>
         <translation>Обозреватель хранилища</translation>
-    </message>
-    <message>
-        <source>Show diff side-by-side</source>
-        <translation>Двустороннее сравнение</translation>
     </message>
 </context>
 <context>
@@ -15628,6 +16658,10 @@ You can choose between stashing the changes or discarding them.</source>
         <source>Spacing</source>
         <translation>Отступ</translation>
     </message>
+    <message>
+        <source>Layout Direction</source>
+        <translation>Направление компоновки</translation>
+    </message>
 </context>
 <context>
     <name>GridViewSpecifics</name>
@@ -15722,6 +16756,14 @@ You can choose between stashing the changes or discarding them.</source>
     <message>
         <source>Range</source>
         <translation>Диапазон</translation>
+    </message>
+    <message>
+        <source>Cell Size</source>
+        <translation>Размер ячейки</translation>
+    </message>
+    <message>
+        <source>Layout Direction</source>
+        <translation>Направление компоновки</translation>
     </message>
 </context>
 <context>
@@ -16468,6 +17510,24 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
+    <name>ImportLogConverter</name>
+    <message>
+        <source>Generated by cascades importer ver: %1, %2</source>
+        <translation>Создан импортёром Cascades версии: %1, %2</translation>
+    </message>
+</context>
+<context>
+    <name>ImportManagerComboBox</name>
+    <message>
+        <source>Add new import</source>
+        <translation>Добавление нового импорта</translation>
+    </message>
+    <message>
+        <source>&lt;Add Import&gt;</source>
+        <translation>&lt;Добавить импорт&gt;</translation>
+    </message>
+</context>
+<context>
     <name>IndexWindow</name>
     <message>
         <source>&amp;Look for:</source>
@@ -16499,6 +17559,316 @@ Ids must begin with a lowercase letter.</source>
 %2</source>
         <translation>Неверный идентификатор: %1
 %2</translation>
+    </message>
+</context>
+<context>
+    <name>Ios</name>
+    <message>
+        <source>iOS</source>
+        <translation>iOS</translation>
+    </message>
+</context>
+<context>
+    <name>Ios::Internal::IosBuildStep</name>
+    <message>
+        <source>Base arguments:</source>
+        <translation>Базовые параметры:</translation>
+    </message>
+    <message>
+        <source>Extra arguments:</source>
+        <translation>Доп. параметры:</translation>
+    </message>
+    <message>
+        <source>xcodebuild</source>
+        <translation>xcodebuild</translation>
+    </message>
+    <message>
+        <source>Qt Creator needs a compiler set up to build. Configure a compiler in the kit preferences.</source>
+        <translation>Необходимо задать компилятор для сборки. Сделать это можно в настройках комплекта.</translation>
+    </message>
+    <message>
+        <source>Configuration is faulty. Check the Issues output pane for details.</source>
+        <translation>Конфигурация неисправна. Окно «Проблемы» содержит подробную информацию.</translation>
+    </message>
+    <message>
+        <source>Reset Defaults</source>
+        <translation>По умолчанию</translation>
+    </message>
+</context>
+<context>
+    <name>Ios::Internal::IosBuildStepConfigWidget</name>
+    <message>
+        <source>iOS build</source>
+        <comment>iOS BuildStep display name.</comment>
+        <translation>Сборка iOS</translation>
+    </message>
+</context>
+<context>
+    <name>Ios::Internal::IosConfigurations</name>
+    <message>
+        <source>%1 %2</source>
+        <translation>%1 %2</translation>
+    </message>
+</context>
+<context>
+    <name>Ios::Internal::IosDebugSupport</name>
+    <message>
+        <source>Could not get debug server file descriptor.</source>
+        <translation>Не удалось получить дескриптор файла сервера отладки.</translation>
+    </message>
+    <message>
+        <source>Got an invalid process id.</source>
+        <translation>Получен неверный идентификатор процесса.</translation>
+    </message>
+    <message>
+        <source>Run failed unexpectedly.</source>
+        <translation>Запуск неожиданно не удался.</translation>
+    </message>
+</context>
+<context>
+    <name>Ios::Internal::IosDeployConfiguration</name>
+    <message>
+        <source>Deploy to iOS</source>
+        <translation>Установка на iOS</translation>
+    </message>
+</context>
+<context>
+    <name>Ios::Internal::IosDeployConfigurationFactory</name>
+    <message>
+        <source>Deploy on iOS</source>
+        <translation>Установка на iOS</translation>
+    </message>
+</context>
+<context>
+    <name>Ios::Internal::IosDeployStep</name>
+    <message>
+        <source>Deploy to %1</source>
+        <translation>Установить на %1</translation>
+    </message>
+    <message>
+        <source>Error: no device available, deploy failed.</source>
+        <translation>Ошибка: устройство недоступно, установить не удалось.</translation>
+    </message>
+    <message>
+        <source>Deployment failed. No iOS device found.</source>
+        <translation>Не удалось установить. Устройства iOS не найдены.</translation>
+    </message>
+    <message>
+        <source>Deployment failed. The settings in the Organizer window of Xcode might be incorrect.</source>
+        <translation>Не удалось установить. Настройки Xcode в окне Organizer могут быть неверны.</translation>
+    </message>
+    <message>
+        <source>Deployment failed.</source>
+        <translation>Установка не удалась.</translation>
+    </message>
+    <message>
+        <source>The Info.plist might be incorrect.</source>
+        <translation>Файл Info.plist может быть неверным.</translation>
+    </message>
+</context>
+<context>
+    <name>Ios::Internal::IosDeployStepFactory</name>
+    <message>
+        <source>Deploy to iOS device or emulator</source>
+        <translation>Установка на устройство или эмулятор iOS</translation>
+    </message>
+</context>
+<context>
+    <name>Ios::Internal::IosDeployStepWidget</name>
+    <message>
+        <source>&lt;b&gt;Deploy to %1&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Установка на %1&lt;/b&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>Ios::Internal::IosDevice</name>
+    <message>
+        <source>iOS Device</source>
+        <translation>Устройство iOS</translation>
+    </message>
+    <message>
+        <source>iOS</source>
+        <translation>iOS</translation>
+    </message>
+</context>
+<context>
+    <name>Ios::Internal::IosDeviceManager</name>
+    <message>
+        <source>Device name</source>
+        <translation>Название устройства</translation>
+    </message>
+    <message>
+        <source>Developer status</source>
+        <extracomment>Whether the device is in developer mode.</extracomment>
+        <translation>Статус разработчика</translation>
+    </message>
+    <message>
+        <source>Connected</source>
+        <translation>Подключено</translation>
+    </message>
+    <message>
+        <source>yes</source>
+        <translation>да</translation>
+    </message>
+    <message>
+        <source>no</source>
+        <translation>нет</translation>
+    </message>
+    <message>
+        <source>unknown</source>
+        <translation>неизвестно</translation>
+    </message>
+    <message>
+        <source>An iOS device in user mode has been detected.</source>
+        <translation>Обнаружено устройство iOS работающее в пользовательском режиме.</translation>
+    </message>
+    <message>
+        <source>Do you want to see how to set it up for development?</source>
+        <translation>Желаете узнать, как перевести его в режим разработки?</translation>
+    </message>
+</context>
+<context>
+    <name>Ios::Internal::IosQtVersion</name>
+    <message>
+        <source>Failed to detect the ABIs used by the Qt version.</source>
+        <translation>Не удалось определить ABI, используемые профилем Qt.</translation>
+    </message>
+    <message>
+        <source>iOS</source>
+        <extracomment>Qt Version is meant for Ios</extracomment>
+        <translation>iOS</translation>
+    </message>
+</context>
+<context>
+    <name>Ios::Internal::IosRunConfiguration</name>
+    <message>
+        <source>Run on %1</source>
+        <translation>Запуск на %1</translation>
+    </message>
+</context>
+<context>
+    <name>Ios::Internal::IosRunConfigurationWidget</name>
+    <message>
+        <source>iOS run settings</source>
+        <translation>Настройки запуска iOS</translation>
+    </message>
+</context>
+<context>
+    <name>Ios::Internal::IosRunControl</name>
+    <message>
+        <source>Starting remote process.</source>
+        <translation>Запуск внешнего процесса.</translation>
+    </message>
+    <message>
+        <source>Run ended unexpectedly.</source>
+        <translation>Запуск неожиданно завершился.</translation>
+    </message>
+</context>
+<context>
+    <name>Ios::Internal::IosRunner</name>
+    <message>
+        <source>Run failed. The settings in the Organizer window of Xcode might be incorrect.</source>
+        <translation>Не удалось запустить. Настройки Xcode в окне Organizer могут быть неверны.</translation>
+    </message>
+    <message>
+        <source>The device is locked, please unlock.</source>
+        <translation>Устройство заблокировано, разблокируйте его.</translation>
+    </message>
+</context>
+<context>
+    <name>Ios::Internal::IosSettingsPage</name>
+    <message>
+        <source>iOS Configurations</source>
+        <translation>Конфигурации iOS</translation>
+    </message>
+</context>
+<context>
+    <name>Ios::Internal::IosSimulator</name>
+    <message>
+        <source>iOS Simulator</source>
+        <translation>Эмулятор iOS</translation>
+    </message>
+</context>
+<context>
+    <name>Ios::Internal::IosSimulatorFactory</name>
+    <message>
+        <source>iOS Simulator</source>
+        <translation>Эмулятор iOS</translation>
+    </message>
+</context>
+<context>
+    <name>Ios::IosToolHandler</name>
+    <message>
+        <source>Subprocess Error %1</source>
+        <translation>Ошибка %1 дочернего процесса</translation>
+    </message>
+</context>
+<context>
+    <name>IosDeployStepWidget</name>
+    <message>
+        <source>Form</source>
+        <translation></translation>
+    </message>
+</context>
+<context>
+    <name>IosRunConfiguration</name>
+    <message>
+        <source>Form</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Executable:</source>
+        <translation>Программа:</translation>
+    </message>
+    <message>
+        <source>Arguments:</source>
+        <translation>Параметры:</translation>
+    </message>
+</context>
+<context>
+    <name>IosSettingsWidget</name>
+    <message>
+        <source>iOS Configuration</source>
+        <translation>Конфигурация iOS</translation>
+    </message>
+    <message>
+        <source>Ask about devices not in developer mode</source>
+        <translation>Спрашивать об устройствах не в режиме разработки</translation>
+    </message>
+</context>
+<context>
+    <name>ItemPane</name>
+    <message>
+        <source>Type</source>
+        <translation>Тип</translation>
+    </message>
+    <message>
+        <source>id</source>
+        <translation>идентификатор</translation>
+    </message>
+    <message>
+        <source>Visibility</source>
+        <translation>Видимость</translation>
+    </message>
+    <message>
+        <source>Is Visible</source>
+        <translation>Виден</translation>
+    </message>
+    <message>
+        <source>Clip</source>
+        <translation>Обрезка</translation>
+    </message>
+    <message>
+        <source>Opacity</source>
+        <translation>Непрозрачность</translation>
+    </message>
+    <message>
+        <source>Layout</source>
+        <translation>Компоновка</translation>
+    </message>
+    <message>
+        <source>Advanced</source>
+        <translation>Дополнительно</translation>
     </message>
 </context>
 <context>
@@ -16542,6 +17912,25 @@ QML.</translation>
     <message>
         <source>Setting anchors in states is not supported.</source>
         <translation>Установка привязок на состояния не поддерживается.</translation>
+    </message>
+    <message>
+        <source>Target</source>
+        <translation>Цель</translation>
+    </message>
+    <message>
+        <source>Margin</source>
+        <translation>Отступ</translation>
+    </message>
+</context>
+<context>
+    <name>LayoutSection</name>
+    <message>
+        <source>Layout</source>
+        <translation>Компоновка</translation>
+    </message>
+    <message>
+        <source>Anchors</source>
+        <translation>Привязки</translation>
     </message>
     <message>
         <source>Target</source>
@@ -16680,6 +18069,10 @@ QML.</translation>
         <source>Range</source>
         <translation>Диапазон</translation>
     </message>
+    <message>
+        <source>Layout Direction</source>
+        <translation>Направление компоновки</translation>
+    </message>
 </context>
 <context>
     <name>Locator</name>
@@ -16792,12 +18185,12 @@ Do you want to kill it?</source>
         <translation>Завершить предыдущий процесс?</translation>
     </message>
     <message>
-        <source>finished</source>
-        <translation>завершено</translation>
+        <source>Command &apos;%1&apos; finished.</source>
+        <translation>Команда «%1» завершилась.</translation>
     </message>
     <message>
-        <source>failed</source>
-        <translation>сбой</translation>
+        <source>Command &apos;%1&apos; failed.</source>
+        <translation>Команда «%1» завершилась с ошибкой.</translation>
     </message>
     <message>
         <source>Could not find executable for &apos;%1&apos;</source>
@@ -16806,6 +18199,10 @@ Do you want to kill it?</source>
     <message>
         <source>Starting command &apos;%1&apos;</source>
         <translation>Запуск команды «%1»</translation>
+    </message>
+    <message>
+        <source>Could not start process: %1</source>
+        <translation>Не удалось запустить процесс: %1</translation>
     </message>
     <message>
         <source>Execute Custom Commands</source>
@@ -16951,6 +18348,25 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
+    <name>Macros::Internal::MacroManager</name>
+    <message>
+        <source>Playing Macro</source>
+        <translation>Воспроизведение сценария</translation>
+    </message>
+    <message>
+        <source>An error occurred while replaying the macro, execution stopped.</source>
+        <translation>Ошибка при воспроизведении сценария, выполнение остановлено.</translation>
+    </message>
+    <message>
+        <source>Macro mode. Type &quot;%1&quot; to stop recording and &quot;%2&quot; to play the macro.</source>
+        <translation>Режим сценария. Нажмите «%1» для остановки записи и «%2» для воспроизведения.</translation>
+    </message>
+    <message>
+        <source>Stop Recording Macro</source>
+        <translation>Остановить запись сценария</translation>
+    </message>
+</context>
+<context>
     <name>Macros::Internal::MacroOptionsWidget</name>
     <message>
         <source>Form</source>
@@ -17048,1305 +18464,6 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
-    <name>Macros::MacroManager</name>
-    <message>
-        <source>Playing Macro</source>
-        <translation>Воспроизведение сценария</translation>
-    </message>
-    <message>
-        <source>An error occurred while replaying the macro, execution stopped.</source>
-        <translation>Ошибка при воспроизведении сценария, оно остановлено.</translation>
-    </message>
-    <message>
-        <source>Macro mode. Type &quot;%1&quot; to stop recording and &quot;%2&quot; to play it</source>
-        <translation>Режим сценария. Нажмите «%1» для остановки записи и «%2» для воспроизведения</translation>
-    </message>
-    <message>
-        <source>Stop Recording Macro</source>
-        <translation>Остановить запись сценария</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::AbstractMaemoDeployByMountService</name>
-    <message>
-        <source>Missing target.</source>
-        <translation>Отсутствует цель.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::AbstractMaemoInstallPackageToSysrootStep</name>
-    <message>
-        <source>Cannot install package to sysroot without packaging step.</source>
-        <translation>Невозможно установить в sysroot без этапа создания пакета.</translation>
-    </message>
-    <message>
-        <source>Cannot install package to sysroot without a Qt version.</source>
-        <translation>Невозможно установить в sysroot без задания профиля Qt.</translation>
-    </message>
-    <message>
-        <source>Installing package to sysroot...</source>
-        <translation>Установка пакета в sysroot...</translation>
-    </message>
-    <message>
-        <source>Installation to sysroot failed, continuing anyway.</source>
-        <translation>Не удалось установить в sysroot, в любом случае продолжаем.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::AbstractMaemoInstallPackageToSysrootWidget</name>
-    <message>
-        <source>Cannot deploy to sysroot: No packaging step found.</source>
-        <translation>Не удалось установить в sysroot: этап создания пакета не найден.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::AbstractMaemoPackageCreationStep</name>
-    <message>
-        <source>Package up to date.</source>
-        <translation>Пакет уже обновлён.</translation>
-    </message>
-    <message>
-        <source>Package created.</source>
-        <translation>Пакет создан.</translation>
-    </message>
-    <message>
-        <source>Packaging failed: No Qt version.</source>
-        <translation>Не удалось создать пакет: не задан профил Qt.</translation>
-    </message>
-    <message>
-        <source>No Qt build configuration</source>
-        <translation>Нет конфигурации сборки Qt</translation>
-    </message>
-    <message>
-        <source>Creating package file...</source>
-        <translation>Создание файла пакета...</translation>
-    </message>
-    <message>
-        <source>Package Creation: Running command &apos;%1&apos;.</source>
-        <translation>Создание пакета: Выполнение команды «%1».</translation>
-    </message>
-    <message>
-        <source>Packaging failed: Could not start command &apos;%1&apos;. Reason: %2</source>
-        <translation>Не удалось создать пакет: невозможно запустить программу «%1». Причина: %2</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Command &apos;%1&apos; failed.</source>
-        <translation>Ошибка создания пакета: Команда «%1» завершилась с ошибкой.</translation>
-    </message>
-    <message>
-        <source> Reason: %1</source>
-        <translation> Причина: %1</translation>
-    </message>
-    <message>
-        <source>Exit code: %1</source>
-        <translation>Код завершения: %1</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::DebianManager</name>
-    <message>
-        <source>Error Creating Debian Project Templates</source>
-        <translation>Не удалось создать шаблоны для проекта Debian</translation>
-    </message>
-    <message>
-        <source>Failed to open debian changelog &quot;%1&quot; file for reading.</source>
-        <translation>Не удалось открыть для чтения файл debian changelog «%1».</translation>
-    </message>
-    <message>
-        <source>Debian changelog file &apos;%1&apos; has unexpected format.</source>
-        <translation>Файл журнала изменений Debian «%1» имеет неожиданный формат.</translation>
-    </message>
-    <message>
-        <source>Refusing to update changelog file: Already contains version &apos;%1&apos;.</source>
-        <translation>Не удалось обновить файл changelog: Уже содержит версию «%1».</translation>
-    </message>
-    <message>
-        <source>Cannot update changelog: Invalid format (no maintainer entry found).</source>
-        <translation>Не удалось обновить changelog: Неверный формат (нет записи о разработчике).</translation>
-    </message>
-    <message>
-        <source>Invalid icon data in Debian control file.</source>
-        <translation>Неверные данные значка в управляющем файле Debian.</translation>
-    </message>
-    <message>
-        <source>Could not read image file &apos;%1&apos;.</source>
-        <translation>Невозможно прочитать файл изображения «%1».</translation>
-    </message>
-    <message>
-        <source>Could not export image file &apos;%1&apos;.</source>
-        <translation>Невозможно экспортировать файл изображения «%1».</translation>
-    </message>
-    <message>
-        <source>Failed to create directory &quot;%1&quot;.</source>
-        <translation>Не удалось создать каталог «%1».</translation>
-    </message>
-    <message>
-        <source>Unable to create Debian templates: No Qt version set.</source>
-        <translation>Не удалось создать шаблоны Debian: профиль Qt не задан.</translation>
-    </message>
-    <message>
-        <source>Unable to create Debian templates: dh_make failed (%1).</source>
-        <translation>Не удалось создать шаблоны Debian: ошибка dh_make (%1).</translation>
-    </message>
-    <message>
-        <source>Unable to create debian templates: dh_make failed (%1).</source>
-        <translation>Не удалось создать шаблоны Debian: ошибка dh_make (%1).</translation>
-    </message>
-    <message>
-        <source>Unable to move new debian directory to &apos;%1&apos;.</source>
-        <translation>Невозможно переместить новый каталог debian в «%1».</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaddeDevice</name>
-    <message>
-        <source>Maemo5/Fremantle</source>
-        <translation>Maemo5/Fremantle</translation>
-    </message>
-    <message>
-        <source>MeeGo 1.2 Harmattan</source>
-        <translation>MeeGo 1.2 Harmattan</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaddeDeviceTester</name>
-    <message>
-        <source>Checking for Qt libraries...</source>
-        <translation>Проверка библиотек Qt...</translation>
-    </message>
-    <message>
-        <source>SSH connection error: %1
-</source>
-        <translation>Ошибка SSH подключения: %1
-</translation>
-    </message>
-    <message>
-        <source>Error checking for Qt libraries: %1
-</source>
-        <translation>Ошибка проверки библиотек Qt: %1
-</translation>
-    </message>
-    <message>
-        <source>Error checking for Qt libraries.
-</source>
-        <translation>Ошибка проверки библиотек Qt.
-</translation>
-    </message>
-    <message>
-        <source>Checking for connectivity support...</source>
-        <translation>Проверка поддержки connectivity...</translation>
-    </message>
-    <message>
-        <source>Error checking for connectivity tool: %1
-</source>
-        <translation>Ошибка проверки наличия программы connectivity: %1
-</translation>
-    </message>
-    <message>
-        <source>Error checking for connectivity tool.
-</source>
-        <translation>Ошибка проверки наличия программы connectivity.
-</translation>
-    </message>
-    <message>
-        <source>Connectivity tool not installed on device. Deployment currently not possible.</source>
-        <translation>Программа connectivity не обнаружена на устройстве. Установка пока невозможна.</translation>
-    </message>
-    <message>
-        <source>Please switch the device to developer mode via Settings -&gt; Security.</source>
-        <translation>Переключите устройство в режим разработчика в Settings -&gt; Security.</translation>
-    </message>
-    <message>
-        <source>Connectivity tool present.
-</source>
-        <translation>Программа connectivity обнаружена.
-</translation>
-    </message>
-    <message>
-        <source>Checking for QML tooling support...</source>
-        <translation>Проверка поддержки инструментария QML...</translation>
-    </message>
-    <message>
-        <source>Error checking for QML tooling support: %1
-</source>
-        <translation>Ошибка проверки поддержки инструментария QML: %1
-</translation>
-    </message>
-    <message>
-        <source>Error checking for QML tooling support.
-</source>
-        <translation>Ошибка проверки поддержки инструментария QML.
-</translation>
-    </message>
-    <message>
-        <source>Missing directory &apos;%1&apos;. You will not be able to do QML debugging on this device.
-</source>
-        <translation>Отсутствует каталог «%1». Невозможно отлаживать QML на этом устройстве.
-</translation>
-    </message>
-    <message>
-        <source>QML tooling support present.
-</source>
-        <translation>Поддержка инструментария QML обнаружена.
-</translation>
-    </message>
-    <message>
-        <source>No Qt packages installed.</source>
-        <translation>Пакеты Qt не установлены.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaddeQemuStartService</name>
-    <message>
-        <source>Checking whether to start Qemu...</source>
-        <translation>Проверять необходимость запуска Qemu...</translation>
-    </message>
-    <message>
-        <source>Target device is not an emulator. Nothing to do.</source>
-        <translation>Целевое устройство не эмулятор. Пропущено.</translation>
-    </message>
-    <message>
-        <source>Qemu is already running. Nothing to do.</source>
-        <translation>Qemu уже работает. Пропущено.</translation>
-    </message>
-    <message>
-        <source>Cannot deploy: Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
-        <translation>Не удалось установить: Qemu ещё не работает. Он перейдёт в состояние готовности через некоторое время. Повторите попытку позже.</translation>
-    </message>
-    <message>
-        <source>Cannot deploy: You want to deploy to Qemu, but it is not enabled for this Qt version.</source>
-        <translation>Не удалось установить: Попытка установить в Qemu, но он не включён для этого профиля Qt.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaddeQemuStartStep</name>
-    <message>
-        <source>Start Qemu, if necessary</source>
-        <translation>Запуск Qemy, если необходимо</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoCopyFilesViaMountStep</name>
-    <message>
-        <source>Deploy files via UTFS mount</source>
-        <translation>Установить файлы через монтирование UTFS</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoCopyToSysrootStep</name>
-    <message>
-        <source>Cannot copy to sysroot without build configuration.</source>
-        <translation>Невозможно скопировать в sysroot без конфигурации сборки.</translation>
-    </message>
-    <message>
-        <source>Cannot copy to sysroot without valid Qt version.</source>
-        <translation>Невозможно скопировать в sysroot без подходящей версии Qt.</translation>
-    </message>
-    <message>
-        <source>Copying files to sysroot...</source>
-        <translation>Копирование файлов в sysroot...</translation>
-    </message>
-    <message>
-        <source>Sysroot installation failed: %1
- Continuing anyway.</source>
-        <translation>Не удалось установить в sysroot: %1
- Всё равно продолжаем.</translation>
-    </message>
-    <message>
-        <source>Copy files to sysroot</source>
-        <translation>Скопировать файлы в sysroot</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDebianPackageCreationStep</name>
-    <message>
-        <source>Create Debian Package</source>
-        <translation>Создать пакет Debian</translation>
-    </message>
-    <message>
-        <source>Packaging failed: Could not get package name.</source>
-        <translation>Не удалось создать пакет: невозможно получить имя пакета.</translation>
-    </message>
-    <message>
-        <source>Packaging failed: Could not move package files from &apos;%1&apos; to &apos;%2&apos;.</source>
-        <translation>Не удалось создать пакет: невозможно переместить файлы пакета из «%1» в «%2».</translation>
-    </message>
-    <message>
-        <source>Your project name contains characters not allowed in Debian packages.
-They must only use lower-case letters, numbers, &apos;-&apos;, &apos;+&apos; and &apos;.&apos;.
-We will try to work around that, but you may experience problems.</source>
-        <translation>Название проекта содержит недопустимые для пакетов Debian символы.
-Допустимы только буквы в нижнем регистре, числа, «-», «+» и «.».
-Будет предпринята попытка обойти это, но могут возникнуть проблемы.</translation>
-    </message>
-    <message>
-        <source>Packaging failed: Foreign debian directory detected. You are not using a shadow build and there is a debian directory in your project root (&apos;%1&apos;). Qt Creator will not overwrite that directory. Please remove it or use the shadow build feature.</source>
-        <translation>Не удалось создать пакет: обнаружен чужой каталог debian. Теневая сборка не используется, а в корневом каталоге проекта («%1») находится каталог debian. Qt Creator не будет его перезаписывать. Следует вручную удалить этот каталог или использовать теневую сборку.</translation>
-    </message>
-    <message>
-        <source>Packaging failed: Could not remove directory &apos;%1&apos;: %2</source>
-        <translation>Не удалось создать пакет: невозможно удалить каталог «%1»: %2</translation>
-    </message>
-    <message>
-        <source>Could not create Debian directory &apos;%1&apos;.</source>
-        <translation>Невозможно создать каталог Debian «%1».</translation>
-    </message>
-    <message>
-        <source>Could not read manifest file &apos;%1&apos;: %2.</source>
-        <translation>Невозможно прочитать файл манифеста «%1»: %2.</translation>
-    </message>
-    <message>
-        <source>Could not write manifest file &apos;%1&apos;: %2.</source>
-        <translation>Невозможно записать файл манифеста «%1»: %2.</translation>
-    </message>
-    <message>
-        <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;.</source>
-        <translation>Невозможно скопировать файл «%1» в «%2».</translation>
-    </message>
-    <message>
-        <source>Error: Could not create file &apos;%1&apos;.</source>
-        <translation>Ошибка: Невозможно создать файл «%1».</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDebianPackageInstaller</name>
-    <message>
-        <source>Installation failed: You tried to downgrade a package, which is not allowed.</source>
-        <translation>Установка не удалась: была попытка установить пакет с версией ниже текущей, а это недопустимо.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeploymentMounter</name>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation>Ошибка подключения: %1</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizard</name>
-    <message>
-        <source>New Device Configuration Setup</source>
-        <translation>Настройка новой конфигурации устройства</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardCheckPreviousKeySetupPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Has a passwordless (key-based) login already been set up for this device?</source>
-        <translation>Настроен ли доступ без пароля (по ключу) для этого устройства?</translation>
-    </message>
-    <message>
-        <source>Yes, and the private key is located at</source>
-        <translation>Да, и ключ находится</translation>
-    </message>
-    <message>
-        <source>No</source>
-        <translation>Нет</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardFinalPage</name>
-    <message>
-        <source>The new device configuration will now be created.</source>
-        <translation>Будет создана конфигурация нового устройства.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardKeyCreationPage</name>
-    <message>
-        <source>Key Creation</source>
-        <translation>Создание ключей</translation>
-    </message>
-    <message>
-        <source>Cannot Create Keys</source>
-        <translation>Не удалось создать ключи</translation>
-    </message>
-    <message>
-        <source>The path you have entered is not a directory.</source>
-        <translation>Введённый путь не является каталогом.</translation>
-    </message>
-    <message>
-        <source>The directory you have entered does not exist and cannot be created.</source>
-        <translation>Введённый каталог не существует и не может быть создан.</translation>
-    </message>
-    <message>
-        <source>Creating keys...</source>
-        <translation>Создание ключей...</translation>
-    </message>
-    <message>
-        <source>Key creation failed: %1</source>
-        <translation>Не удалось создать ключи: %1</translation>
-    </message>
-    <message>
-        <source>Done.</source>
-        <translation>Готово.</translation>
-    </message>
-    <message>
-        <source>Could Not Save Key File</source>
-        <translation>Не удалось сохранить файл ключа</translation>
-    </message>
-    <message>
-        <source>WizardPage</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Qt Creator will now generate a new pair of keys. Please enter the directory to save the key files in and then press &quot;Create Keys&quot;.</source>
-        <translation>Qt Creator создаст пару новых ключей. Выберите каталог для их сохранения, а затем нажмите «Создать ключи».</translation>
-    </message>
-    <message>
-        <source>Directory:</source>
-        <translation>Каталог:</translation>
-    </message>
-    <message>
-        <source>Create Keys</source>
-        <translation>Создать ключи</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardKeyDeploymentPage</name>
-    <message>
-        <source>Key Deployment</source>
-        <translation>Установка ключа</translation>
-    </message>
-    <message>
-        <source>Deploying...</source>
-        <translation>Установка...</translation>
-    </message>
-    <message>
-        <source>Key Deployment Failure</source>
-        <translation>Не удалось установить ключ</translation>
-    </message>
-    <message>
-        <source>Key Deployment Success</source>
-        <translation>Ключ успешно установлен</translation>
-    </message>
-    <message>
-        <source>The key was successfully deployed. You may now close the &quot;%1&quot; application and continue.</source>
-        <translation>Ключ был успешно установлен. Теперь можно закрыть приложение «%1» и продолжить.</translation>
-    </message>
-    <message>
-        <source>Done.</source>
-        <translation>Готово.</translation>
-    </message>
-    <message>
-        <source>WizardPage</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>To deploy the public key to your device, please execute the following steps:
-&lt;ul&gt;
-&lt;li&gt;Connect the device to your computer (unless you plan to connect via WLAN).&lt;/li&gt;
-&lt;li&gt;On the device, start the &quot;%%%maddev%%%&quot; application.&lt;/li&gt;
-&lt;li&gt;In &quot;%%%maddev%%%&quot;, configure the device&apos;s IP address to the one shown below (or edit the field below to match the address you have configured).&lt;/li&gt;
-&lt;li&gt;In &quot;%%%maddev%%%&quot;, press &quot;Developer Password&quot; and enter it in the field below.&lt;/li&gt;
-&lt;li&gt;Click &quot;Deploy Key&quot;&lt;/li&gt;
-</source>
-        <translation>Для установки открытого ключа на устройство необходимо выполнить следующие этапы:
-&lt;ul&gt;
-&lt;li&gt;Подключить устройство к компьютеру (если не планируется подключение по WLAN).&lt;/li&gt;
-&lt;li&gt;Запустить на устройстве приложение «%%%maddev%%%».&lt;/li&gt;
-&lt;li&gt;Задать в «%%%maddev%%%» указанный ниже IP адрес устройства или изменить здесь, чтобы совпадал с уже настроенным.&lt;/li&gt;
-&lt;li&gt;В «%%%maddev%%%» нажать «Developer Password» и ввести его в поле «Пароль».&lt;/li&gt;
-&lt;li&gt;Нажать «Установить ключ»&lt;/li&gt;
-</translation>
-    </message>
-    <message>
-        <source>Device address:</source>
-        <translation>Адрес устройства:</translation>
-    </message>
-    <message>
-        <source>Password:</source>
-        <translation>Пароль:</translation>
-    </message>
-    <message>
-        <source>Deploy Key</source>
-        <translation>Установить ключ</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardPreviousKeySetupCheckPage</name>
-    <message>
-        <source>Device Status Check</source>
-        <translation>Проверка состояния устройства</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardReuseKeysCheckPage</name>
-    <message>
-        <source>Existing Keys Check</source>
-        <translation>Проверка существующих ключей</translation>
-    </message>
-    <message>
-        <source>WizardPage</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Do you want to re-use an existing pair of keys or should a new one be created?</source>
-        <translation>Использовать уже имеющуюся пару ключей или создать новую?</translation>
-    </message>
-    <message>
-        <source>Re-use existing keys</source>
-        <translation>Использовать существующую</translation>
-    </message>
-    <message>
-        <source>File containing the public key:</source>
-        <translation>Файл содержащий открытый ключ:</translation>
-    </message>
-    <message>
-        <source>File containing the private key:</source>
-        <translation>Файл содержащий закрытый ключ:</translation>
-    </message>
-    <message>
-        <source>Create new keys</source>
-        <translation>Создать новую</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardStartPage</name>
-    <message>
-        <source>General Information</source>
-        <translation>Основная информация</translation>
-    </message>
-    <message>
-        <source>MeeGo Device</source>
-        <translation>Устройство MeeGo</translation>
-    </message>
-    <message>
-        <source>%1 Device</source>
-        <translation>Устройство %1</translation>
-    </message>
-    <message>
-        <source>WizardPage</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>The name to identify this configuration:</source>
-        <translation>Название этой конфигурации:</translation>
-    </message>
-    <message>
-        <source>The kind of device:</source>
-        <translation>Тип устройства:</translation>
-    </message>
-    <message>
-        <source>Emulator</source>
-        <translation>Эмулятор</translation>
-    </message>
-    <message>
-        <source>Hardware Device</source>
-        <translation>Реальное</translation>
-    </message>
-    <message>
-        <source>The device&apos;s host name or IP address:</source>
-        <translation>Имя узла или IP адрес устройства:</translation>
-    </message>
-    <message>
-        <source>The SSH server port:</source>
-        <translation>Порт сервера SSH:</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoInstallDebianPackageToSysrootStep</name>
-    <message>
-        <source>Install Debian package to sysroot</source>
-        <translation>Установить пакет Debian в sysroot</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoInstallPackageViaMountStep</name>
-    <message>
-        <source>No Debian package creation step found.</source>
-        <translation>Не обнаружен этап сборки пакета Debian.</translation>
-    </message>
-    <message>
-        <source>Deploy package via UTFS mount</source>
-        <translation>Установить пакет через монтирование UTFS</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoMakeInstallToSysrootStep</name>
-    <message>
-        <source>Cannot deploy: No active build configuration.</source>
-        <translation>Невозможно установить: нет активной конфигурации сборки.</translation>
-    </message>
-    <message>
-        <source>Cannot deploy: Unusable build configuration.</source>
-        <translation>Невозможно установить: конфигурация сборки некорректна.</translation>
-    </message>
-    <message>
-        <source>Copy files to sysroot</source>
-        <translation>Скопировать файлы в sysroot</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoMountAndCopyFilesService</name>
-    <message>
-        <source>All files copied.</source>
-        <translation>Все файлы скопированы.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoMountAndInstallPackageService</name>
-    <message>
-        <source>Package installed.</source>
-        <translation>Пакет установлен.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPackageCreationWidget</name>
-    <message>
-        <source>Size should be %1x%2 pixels</source>
-        <translation>Размер должен быть %1x%2 пикселей</translation>
-    </message>
-    <message>
-        <source>No Version Available.</source>
-        <translation>Версия отсутствует.</translation>
-    </message>
-    <message>
-        <source>Could not read icon</source>
-        <translation>Невозможно прочитать значок</translation>
-    </message>
-    <message>
-        <source>Images</source>
-        <translation>Изображения</translation>
-    </message>
-    <message>
-        <source>Choose Image (will be scaled to %1x%2 pixels if necessary)</source>
-        <translation>Выбор изображения (при необходимости будет растянуто до %1х%2 пикселей)</translation>
-    </message>
-    <message>
-        <source>Could Not Set New Icon</source>
-        <translation>Невозможно установить новый значок</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation>Ошибка файла</translation>
-    </message>
-    <message>
-        <source>Could not set project name.</source>
-        <translation>Не удалось задать имя проекта.</translation>
-    </message>
-    <message>
-        <source>Could not set package name for project manager.</source>
-        <translation>Не удалось задать имя пакета для менеджера пакетов.</translation>
-    </message>
-    <message>
-        <source>Could not set project description.</source>
-        <translation>Не удалось задать описание проекта.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Create Package:&lt;/b&gt; </source>
-        <translation>&lt;b&gt;Создать пакет:&lt;/b&gt; </translation>
-    </message>
-    <message>
-        <source>Could Not Set Version Number</source>
-        <translation>Невозможно задать новый номер версии</translation>
-    </message>
-    <message>
-        <source>Package name:</source>
-        <translation>Имя пакета:</translation>
-    </message>
-    <message>
-        <source>Package version:</source>
-        <translation>Версия пакета:</translation>
-    </message>
-    <message>
-        <source>Major:</source>
-        <translation>Старший:</translation>
-    </message>
-    <message>
-        <source>Minor:</source>
-        <translation>Младший:</translation>
-    </message>
-    <message>
-        <source>Patch:</source>
-        <translation>Изменение:</translation>
-    </message>
-    <message>
-        <source>Short package description:</source>
-        <translation>Краткое описание пакета:</translation>
-    </message>
-    <message>
-        <source>Name to be displayed in Package Manager:</source>
-        <translation>Имя, отображаемое менеджером пакетов:</translation>
-    </message>
-    <message>
-        <source>Icon to be displayed in Package Manager:</source>
-        <translation>Значок, отображаемый менеджером пакетов:</translation>
-    </message>
-    <message>
-        <source>Adapt Debian file:</source>
-        <translation>Использовать файл Debian:</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation>Изменить...</translation>
-    </message>
-    <message>
-        <source>Edit spec file</source>
-        <translation>Изменить файл .spec</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublishedProjectModel</name>
-    <message>
-        <source>Include in package</source>
-        <translation>Включать в пакет</translation>
-    </message>
-    <message>
-        <source>Include</source>
-        <translation>Включать</translation>
-    </message>
-    <message>
-        <source>Do not include</source>
-        <translation>Не включать</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublisherFremantleFree</name>
-    <message>
-        <source>Canceled.</source>
-        <translation>Отменено.</translation>
-    </message>
-    <message>
-        <source>Publishing canceled by user.</source>
-        <translation>Публикация отменена пользователем.</translation>
-    </message>
-    <message>
-        <source>The project is missing some information important to publishing:</source>
-        <translation>У проекта отсутствует информация, необходимая для публикации:</translation>
-    </message>
-    <message>
-        <source>Publishing failed: Missing project information.</source>
-        <translation>Не удалось опубликовать: отсутствует информация о проекте.</translation>
-    </message>
-    <message>
-        <source>Error removing temporary directory: %1</source>
-        <translation>Ошибка удаления временного каталога: %1</translation>
-    </message>
-    <message>
-        <source>Publishing failed: Could not create source package.</source>
-        <translation>Не удалось опубликовать: не удалось создать архив исходников.</translation>
-    </message>
-    <message>
-        <source>Error: Could not create temporary directory.</source>
-        <translation>Ошибка: не удалось создать временный каталог.</translation>
-    </message>
-    <message>
-        <source>Error: Could not copy project directory.</source>
-        <translation>Ошибка: не удалось скопировать каталог проекта.</translation>
-    </message>
-    <message>
-        <source>Error: Could not fix newlines.</source>
-        <translation>Ошибка:не удалось исправить окончания строк.</translation>
-    </message>
-    <message>
-        <source>Publishing failed: Could not create package.</source>
-        <translation>Не удалось опубликовать: не удалось создать пакет.</translation>
-    </message>
-    <message>
-        <source>Removing left-over temporary directory...</source>
-        <translation>Удаление временного каталога...</translation>
-    </message>
-    <message>
-        <source>Setting up temporary directory...</source>
-        <translation>Подготовка временного каталога...</translation>
-    </message>
-    <message>
-        <source>Cleaning up temporary directory...</source>
-        <translation>Очистка временного каталога...</translation>
-    </message>
-    <message>
-        <source>Failed to create directory &apos;%1&apos;.</source>
-        <translation>Не удалось создать каталог «%1».</translation>
-    </message>
-    <message>
-        <source>Could not set execute permissions for rules file: %1</source>
-        <translation>Не удалость установить права на исполнение файлу правил: %1</translation>
-    </message>
-    <message>
-        <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;: %3.</source>
-        <translation>Не удалось скопировать файл «%1» в «%2»: %3.</translation>
-    </message>
-    <message>
-        <source>Error: Failed to start dpkg-buildpackage.</source>
-        <translation>Ошибка: не удалось запустить dpkg-buildpackage.</translation>
-    </message>
-    <message>
-        <source>Error: dpkg-buildpackage did not succeed.</source>
-        <translation>Ошибка: dpkg-buildpackage завершился с ошибкой.</translation>
-    </message>
-    <message>
-        <source>Package creation failed.</source>
-        <translation>Не удалось создать пакет.</translation>
-    </message>
-    <message>
-        <source>Done.</source>
-        <translation>Готово.</translation>
-    </message>
-    <message>
-        <source>Packaging finished successfully. The following files were created:
-</source>
-        <translation>Создание пакета успешно завершено. Созданы следующие файлы:
-</translation>
-    </message>
-    <message>
-        <source>No Qt version set.</source>
-        <translation>Профиль Qt не задан.</translation>
-    </message>
-    <message>
-        <source>Building source package...</source>
-        <translation>Создание пакета исходников...</translation>
-    </message>
-    <message>
-        <source>Starting scp...</source>
-        <translation>Запуск scp...</translation>
-    </message>
-    <message>
-        <source>Uploading file %1...</source>
-        <translation>Отправка файла %1...</translation>
-    </message>
-    <message>
-        <source>SSH error: %1</source>
-        <translation>Ошибка SSH: %1</translation>
-    </message>
-    <message>
-        <source>Make distclean failed: %1</source>
-        <translation>Не удалось выполнить make distclean: %1</translation>
-    </message>
-    <message>
-        <source>Upload failed.</source>
-        <translation>Отправка не удалась.</translation>
-    </message>
-    <message>
-        <source>Error uploading file: %1.</source>
-        <translation>Ошибка отправки файла: %1.</translation>
-    </message>
-    <message>
-        <source>Error uploading file.</source>
-        <translation>Ошибка отправки файла.</translation>
-    </message>
-    <message>
-        <source>All files uploaded.</source>
-        <translation>Все файлы отправлены.</translation>
-    </message>
-    <message>
-        <source>Upload succeeded. You should shortly receive an email informing you about the outcome of the build process.</source>
-        <translation>Отправка успешно завершена. Скоро придёт электронное письмо с результатом сборки.</translation>
-    </message>
-    <message>
-        <source>Cannot open file for reading: %1.</source>
-        <translation>Не удалось открыть файл для чтения: %1.</translation>
-    </message>
-    <message>
-        <source>Cannot read file: %1</source>
-        <translation>Не удалось прочитать файл: %1</translation>
-    </message>
-    <message>
-        <source>The package description is empty. You must set one in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
-        <translation>Описание проекта пусто. Необходимо задать его в Проекты -&gt; Запуск -&gt; Создание пакета -&gt; Подробнее.</translation>
-    </message>
-    <message>
-        <source>The package description is &apos;%1&apos;, which is probably not what you want. Please change it in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
-        <translation>Описание «%1», возможно не то, что ожидается. Смените его в Проекты -&gt; Запуск -&gt; Создание пакета -&gt; Подробнее.</translation>
-    </message>
-    <message>
-        <source>You have not set an icon for the package manager. The icon must be set in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
-        <translation>Значок для менеджера пакетов не задан. Он должен быть задан в Проекты -&gt; Запуск -&gt; Создание пакета -&gt; Подробнее.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublishingFileSelectionDialog</name>
-    <message>
-        <source>Choose Package Contents</source>
-        <translation>Выбор содержимого пакета</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Please select the files you want to be included in the source tarball.&lt;/b&gt;
-</source>
-        <translation>&lt;b&gt;Выберите файлы, которые должны быть включены в архив исходников.&lt;/b&gt;
-</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublishingResultPageFremantleFree</name>
-    <message>
-        <source>WizardPage</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Progress</source>
-        <translation>Выполнение</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublishingUploadSettingsPageFremantleFree</name>
-    <message>
-        <source>Publishing to Fremantle&apos;s &quot;Extras-devel/free&quot; Repository</source>
-        <translation>Публикация в хранилище «Extras-devel/free» от Fremantle</translation>
-    </message>
-    <message>
-        <source>Upload options</source>
-        <translation>Настройки отправки</translation>
-    </message>
-    <message>
-        <source>Choose a Private Key File</source>
-        <translation>Выберите секретный ключ</translation>
-    </message>
-    <message>
-        <source>WizardPage</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Upload Settings</source>
-        <translation>Настройки отправки</translation>
-    </message>
-    <message>
-        <source>Garage account name:</source>
-        <translation>Учётная запись Garage:</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;https://garage.maemo.org/account/register.php&quot;&gt;Get an account&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;https://garage.maemo.org/account/register.php&quot;&gt;Регистрация&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;https://garage.maemo.org/extras-assistant/index.php&quot;&gt;Request upload rights&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;https://garage.maemo.org/extras-assistant/index.php&quot;&gt;Запрос прав на выгрузку&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>Private key file:</source>
-        <translation>Файл секретного ключа:</translation>
-    </message>
-    <message>
-        <source>Server address:</source>
-        <translation>Адрес сервера:</translation>
-    </message>
-    <message>
-        <source>Target directory on server:</source>
-        <translation>Целевой каталог на сервере:</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublishingWizardFactoryFremantleFree</name>
-    <message>
-        <source>Publish for &quot;Fremantle Extras-devel free&quot; repository</source>
-        <translation>Публикация в хранилище «Extras-devel/free» от Fremantle</translation>
-    </message>
-    <message>
-        <source>This wizard will create a source archive and optionally upload it to a build server, where the project will be compiled and packaged and then moved to the &quot;Extras-devel free&quot; repository, from where users can install it onto their N900 devices. For the upload functionality, an account at garage.maemo.org is required.</source>
-        <translation>Этот мастер создаст архив исходников и отправит (опционально) их на сервер сборки, где проект будет скомпилирован и собран в пакет, а затем помещён в хранилище «Extras-devel free». Оттуда пользователи смогут установить его на свои устройства N900. Для отправки необходима учётная запись на garage.maemo.org.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublishingWizardFremantleFree</name>
-    <message>
-        <source>Publishing to Fremantle&apos;s &quot;Extras-devel free&quot; Repository</source>
-        <translation>Публикация в хранилище «Extras-devel/free» от Fremantle</translation>
-    </message>
-    <message>
-        <source>Build Settings</source>
-        <translation>Настройки сборки</translation>
-    </message>
-    <message>
-        <source>Upload Settings</source>
-        <translation>Настройки отправки</translation>
-    </message>
-    <message>
-        <source>Result</source>
-        <translation>Результат</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublishingWizardPageFremantleFree</name>
-    <message>
-        <source>WizardPage</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Choose build configuration:</source>
-        <translation>Выберите конфигурацию сборки:</translation>
-    </message>
-    <message>
-        <source>Only create source package, do not upload</source>
-        <translation>Создавать пакет исходников, но не отправлять</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoQemuCrashDialog</name>
-    <message>
-        <source>Qemu error</source>
-        <translation>Ошибка Qemu</translation>
-    </message>
-    <message>
-        <source>Qemu crashed.</source>
-        <translation>Qemu завершился крахом.</translation>
-    </message>
-    <message>
-        <source>Click here to change the OpenGL mode.</source>
-        <translation>Щёлкните здесь для смены режима OpenGL.</translation>
-    </message>
-    <message>
-        <source>You have configured Qemu to use OpenGL hardware acceleration, which might not be supported by your system. You could try using software rendering instead.</source>
-        <translation>Qemu настроен на аппаратное ускорение OpenGL, которое, возможно, не поддерживается вашей системой. Попробуйте включить программную отрисовку.</translation>
-    </message>
-    <message>
-        <source>Qemu is currently configured to auto-detect the OpenGL mode, which is known to not work in some cases. You might want to use software rendering instead.</source>
-        <translation>Qemu настроен на автоматическое определение режима OpenGL, которое иногда не работает. Попробуйте включить программную отрисовку.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoQemuManager</name>
-    <message>
-        <source>MeeGo Emulator</source>
-        <translation>Эмулятор MeeGo</translation>
-    </message>
-    <message>
-        <source>Start MeeGo Emulator</source>
-        <translation>Запустить эмулятор MeeGo</translation>
-    </message>
-    <message>
-        <source>Qemu has been shut down, because you removed the corresponding Qt version.</source>
-        <translation>Qemu был завершён, так как был удалён соответствующий ему профиль Qt.</translation>
-    </message>
-    <message>
-        <source>Qemu finished with error: Exit code was %1.</source>
-        <translation>Qemu завершился с ошибкой: код завершения %1.</translation>
-    </message>
-    <message>
-        <source>Qemu error</source>
-        <translation>Ошибка Qemu</translation>
-    </message>
-    <message>
-        <source>Qemu failed to start: %1</source>
-        <translation>Qemu не удалось запуститься: %1</translation>
-    </message>
-    <message>
-        <source>Stop MeeGo Emulator</source>
-        <translation>Остановить эмулятор MeeGo</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoQemuSettingsPage</name>
-    <message>
-        <source>MeeGo Qemu Settings</source>
-        <translation>Настройки Qemu для MeeGo</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoQemuSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>OpenGL Mode</source>
-        <translation>Режим OpenGL</translation>
-    </message>
-    <message>
-        <source>&amp;Hardware acceleration</source>
-        <translation>&amp;Аппаратное ускорение</translation>
-    </message>
-    <message>
-        <source>&amp;Software rendering</source>
-        <translation>&amp;Программная отрисовка</translation>
-    </message>
-    <message>
-        <source>&amp;Auto-detect</source>
-        <translation>А&amp;втоматическое определение</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoRemoteCopyFacility</name>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation>Ошибка подключения: %1</translation>
-    </message>
-    <message>
-        <source>Error: Copy command failed.</source>
-        <translation>Ошибка: Ошибка команды копирования.</translation>
-    </message>
-    <message>
-        <source>Copying file &apos;%1&apos; to directory &apos;%2&apos; on the device...</source>
-        <translation>Копирование файла «%1» в каталог «%2» устройства...</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoRemoteMounter</name>
-    <message>
-        <source>No directories to mount</source>
-        <translation>Отсутствуют каталоги для монтирования</translation>
-    </message>
-    <message>
-        <source>No directories to unmount</source>
-        <translation>Отсутствуют каталоги для отмонтирования</translation>
-    </message>
-    <message>
-        <source>Could not execute unmount request.</source>
-        <translation>Не удалось выполнить запрос на отмонтирование.</translation>
-    </message>
-    <message>
-        <source>Failure unmounting: %1</source>
-        <translation>Отмонтирование не удалось: %1</translation>
-    </message>
-    <message>
-        <source>Finished unmounting.</source>
-        <translation>Отмонтирование закончено.</translation>
-    </message>
-    <message>
-        <source>
-stderr was: &apos;%1&apos;</source>
-        <translation>
-содержимое stderr: «%1»</translation>
-    </message>
-    <message>
-        <source>Error: Not enough free ports on device to fulfill all mount requests.</source>
-        <translation>Ошибка: на устройстве недостаточно свободных портов для выполнения всех требуемых монтирований.</translation>
-    </message>
-    <message>
-        <source>Starting remote UTFS clients...</source>
-        <translation>Запуск внешнего клиента UTFS...</translation>
-    </message>
-    <message>
-        <source>Mount operation succeeded.</source>
-        <translation>Операция монтирования успешно завершена.</translation>
-    </message>
-    <message>
-        <source>Failure running UTFS client: %1</source>
-        <translation>Ошибка выполнения клиента UTFS: %1</translation>
-    </message>
-    <message>
-        <source>Starting UTFS servers...</source>
-        <translation>Запуск серверов UTFS...</translation>
-    </message>
-    <message>
-        <source>
-stderr was: %1</source>
-        <translation>
-содержимое stderr: %1</translation>
-    </message>
-    <message>
-        <source>Error running UTFS server: %1</source>
-        <translation>Ошибка работы сервера UTFS: %1</translation>
-    </message>
-    <message>
-        <source>Timeout waiting for UTFS servers to connect.</source>
-        <translation>Истекло время ожидания подключения серверов UTFS.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoRemoteMountsModel</name>
-    <message>
-        <source>Local directory</source>
-        <translation>Локальный каталог</translation>
-    </message>
-    <message>
-        <source>Remote mount point</source>
-        <translation>Внешняя точка монтрования</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoRunConfiguration</name>
-    <message>
-        <source>Not enough free ports on the device.</source>
-        <translation>У устройства недостаточно свободных портов.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoRunConfigurationWidget</name>
-    <message>
-        <source>Choose directory to mount</source>
-        <translation>Выбор каталога для монтирования</translation>
-    </message>
-    <message>
-        <source>No local directories to be mounted on the device.</source>
-        <translation>Локальные каталоги не смонтированы на устройстве.</translation>
-    </message>
-    <message>
-        <source>One local directory to be mounted on the device.</source>
-        <translation>Один локальный каталог смонтирован на устройстве.</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n local directories to be mounted on the device.</source>
-        <extracomment>Note: Only mountCount&gt;1 will occur here as 0, 1 are handled above.</extracomment>
-        <translation>
-            <numerusform>%n локальный каталог смонтирован на устройстве.</numerusform>
-            <numerusform>%n локальных каталога смонтировано на устройстве.</numerusform>
-            <numerusform>%n локальных каталогов смонтировано на устройстве.</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>WARNING: You want to mount %1 directories, but your device has only %n free ports.&lt;br&gt;You will not be able to run this configuration.</source>
-        <translation>
-            <numerusform>Предупреждение: попытка подключить %1 каталог(ов), когда у устройства только %n свободный порт.&lt;br&gt;Запустить эту конфигурацию будет невозможно.</numerusform>
-            <numerusform>Предупреждение: попытка подключить %1 каталог(ов), когда у устройства только %n свободных порта.&lt;br&gt;Запустить эту конфигурацию будет невозможно.</numerusform>
-            <numerusform>Предупреждение: попытка подключить %1 каталог(ов), когда у устройства только %n свободных портов.&lt;br&gt;Запустить эту конфигурацию будет невозможно.</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>WARNING: You want to mount %1 directories, but only %n ports on the device will be available in debug mode. &lt;br&gt;You will not be able to debug your application with this configuration.</source>
-        <translation>
-            <numerusform>ПРЕДУПРЕЖДЕНИЕ: попытка примонтировать %1 каталог(ов), но во время отладки на устройстве доступен только %n порт.&lt;br&gt;Невозможно отлаживать приложение в этой конфигурации.</numerusform>
-            <numerusform>ПРЕДУПРЕЖДЕНИЕ: попытка примонтировать %1 каталог(ов), но во время отладки на устройстве доступно только %n порта.&lt;br&gt;Невозможно отлаживать приложение в этой конфигурации.</numerusform>
-            <numerusform>ПРЕДУПРЕЖДЕНИЕ: попытка примонтировать %1 каталог(ов), но во время отладки на устройстве доступно только %n портов.&lt;br&gt;Невозможно отлаживать приложение в этой конфигурации.</numerusform>
-        </translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoRunControlFactory</name>
-    <message>
-        <source>Cannot debug: Kit has no device.</source>
-        <translation>Отладка невозможна: у комплекта нет устройства.</translation>
-    </message>
-    <message>
-        <source>Cannot debug: Not enough free ports available.</source>
-        <translation>Отладка невозможна: недостаточно свободных портов.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoUploadAndInstallPackageStep</name>
-    <message>
-        <source>No Debian package creation step found.</source>
-        <translation>Не обнаружен этап сборки пакета Debian.</translation>
-    </message>
-    <message>
-        <source>Deploy Debian package via SFTP upload</source>
-        <translation>Установить пакет Debian через загрузку по SFTP</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::Qt4MaemoDeployConfiguration</name>
-    <message>
-        <source>Add Packaging Files to Project</source>
-        <translation>Добавить в проект файлы создания пакета</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;Qt Creator has set up the following files to enable packaging:
-   %1
-Do you want to add them to the project?&lt;/html&gt;</source>
-        <translation>&lt;html&gt;Qt Creator создал следующие файлы для включения создания пакетов:
-   %1
-Добавить их в проект?&lt;/html&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::Qt4MaemoDeployConfigurationFactory</name>
-    <message>
-        <source>Copy Files to Maemo5 Device</source>
-        <translation>Копирование файлов на устройство Maemo5</translation>
-    </message>
-    <message>
-        <source>Build Debian Package and Install to Maemo5 Device</source>
-        <translation>Создание пакета Debian и установка на устройство Maemo5</translation>
-    </message>
-    <message>
-        <source>Build Debian Package and Install to Harmattan Device</source>
-        <translation>Создание пакета Debian и установка на устройство Harmattan</translation>
-    </message>
-</context>
-<context>
     <name>MainView</name>
     <message>
         <source>Painting</source>
@@ -18386,6 +18503,14 @@ Do you want to add them to the project?&lt;/html&gt;</source>
 </context>
 <context>
     <name>Mercurial::Internal::CloneWizard</name>
+    <message>
+        <source>Cloning</source>
+        <translation>Клонирование</translation>
+    </message>
+    <message>
+        <source>Cloning started...</source>
+        <translation>Клонирование запущено...</translation>
+    </message>
     <message>
         <source>Clones a Mercurial repository and tries to load the contained project.</source>
         <translation>Извлечение проекта из хранилища Mercurial с последующей попыткой его загрузки.</translation>
@@ -18481,12 +18606,12 @@ Do you want to add them to the project?&lt;/html&gt;</source>
 <context>
     <name>Mercurial::Internal::MercurialDiffParameterWidget</name>
     <message>
-        <source>Ignore whitespace</source>
-        <translation>Пропускать пробелы</translation>
+        <source>Ignore Whitespace</source>
+        <translation>Игнорировать пробелы</translation>
     </message>
     <message>
-        <source>Ignore blank lines</source>
-        <translation>Пропускать пустые строки</translation>
+        <source>Ignore Blank Lines</source>
+        <translation>Игнорировать пустые строки</translation>
     </message>
 </context>
 <context>
@@ -18742,10 +18867,6 @@ Do you want to add them to the project?&lt;/html&gt;</source>
         <translation> сек</translation>
     </message>
     <message>
-        <source>Prompt on submit</source>
-        <translation>Спрашивать при фиксации</translation>
-    </message>
-    <message>
         <source>Mercurial</source>
         <translation>Mercurial</translation>
     </message>
@@ -18845,6 +18966,10 @@ Do you want to add them to the project?&lt;/html&gt;</source>
     <message>
         <source>Objective-C source code</source>
         <translation>Файл исходных текстов Objective-C</translation>
+    </message>
+    <message>
+        <source>Objective-C++ source code</source>
+        <translation>Файл исходных текстов Objective-C++</translation>
     </message>
     <message>
         <source>CVS submit template</source>
@@ -19040,6 +19165,13 @@ Do you want to add them to the project?&lt;/html&gt;</source>
     </message>
 </context>
 <context>
+    <name>ModelManagerSupportInternal::displayName</name>
+    <message>
+        <source>Qt Creator Built-in</source>
+        <translation>Встроенный в Qt Creator</translation>
+    </message>
+</context>
+<context>
     <name>Modifiers</name>
     <message>
         <source>Manipulation</source>
@@ -19075,6 +19207,10 @@ Do you want to add them to the project?&lt;/html&gt;</source>
     <message>
         <source>This property holds whether hover events are handled.</source>
         <translation>Включает/выключает приём элементом событий наведения.</translation>
+    </message>
+    <message>
+        <source>Mouse Area</source>
+        <translation>Область мыши</translation>
     </message>
 </context>
 <context>
@@ -19209,6 +19345,14 @@ Do you want to add them to the project?&lt;/html&gt;</source>
         <source>Determines whether the highlight is managed by the view.</source>
         <translation>Определяет следует ли виду управлять подсветкой или нет.</translation>
     </message>
+    <message>
+        <source>Interactive</source>
+        <translation>Интерактивность</translation>
+    </message>
+    <message>
+        <source>Range</source>
+        <translation>Диапазон</translation>
+    </message>
 </context>
 <context>
     <name>Perforce::Internal::ChangeNumberDialog</name>
@@ -19279,8 +19423,8 @@ Do you want to add them to the project?&lt;/html&gt;</source>
 <context>
     <name>Perforce::Internal::PerforceDiffParameterWidget</name>
     <message>
-        <source>Ignore whitespace</source>
-        <translation>Пропускать пробелы</translation>
+        <source>Ignore Whitespace</source>
+        <translation>Игнорировать пробелы</translation>
     </message>
 </context>
 <context>
@@ -19885,10 +20029,6 @@ Do you want to add them to the project?&lt;/html&gt;</source>
         <translation>Библиотеки</translation>
     </message>
     <message>
-        <source>Non-Qt Project</source>
-        <translation>Проект без использования Qt</translation>
-    </message>
-    <message>
         <source>Import Project</source>
         <translation>Импортировать проект</translation>
     </message>
@@ -19942,10 +20082,8 @@ Do you want to add them to the project?&lt;/html&gt;</source>
         <translation>Во время работы программы возникли некоторые ошибки.</translation>
     </message>
     <message>
-        <source>Cannot retrieve debugging output.
-</source>
-        <translation>Не удалось получить отладочный вывод.
-</translation>
+        <source>Cannot retrieve debugging output.</source>
+        <translation>Не удалось получить отладочный вывод.</translation>
     </message>
 </context>
 <context>
@@ -20019,6 +20157,11 @@ Do you want to add them to the project?&lt;/html&gt;</source>
     <message>
         <source>Elapsed time: %1.</source>
         <translation>Прошло времени: %1.</translation>
+    </message>
+    <message>
+        <source>Deployment</source>
+        <comment>Category for deployment issues listed under &apos;Issues&apos;</comment>
+        <translation>Установка</translation>
     </message>
     <message>
         <source>Canceled build/deployment.</source>
@@ -20098,20 +20241,8 @@ Do you want to add them to the project?&lt;/html&gt;</source>
         <translation>Подробнее</translation>
     </message>
     <message>
-        <source>Creates a plain C project using qmake, not using the Qt library.</source>
-        <translation>Создание простого проекта под управлением qmake на языке C, но без использования библиотеки Qt.</translation>
-    </message>
-    <message>
-        <source>Creates a plain C++ project using qmake, not using the Qt library.</source>
-        <translation>Создание простого проекта под управлением qmake на языке C++, но без использования библиотеки Qt.</translation>
-    </message>
-    <message>
         <source>Creates a C++ plugin to load extensions dynamically into applications using the QDeclarativeEngine class. Requires Qt 4.7.0 or newer.</source>
         <translation>Создание C++ модуля для динамической загрузки расширений в приложение, использующее класс QDeclarativeEngine. Требуется Qt версии 4.7.0 или выше.</translation>
-    </message>
-    <message>
-        <source>Custom QML Extension  Plugin Parameters</source>
-        <translation>Параметры особого модуля расширяющего QML</translation>
     </message>
     <message>
         <source>URI:</source>
@@ -20130,22 +20261,6 @@ Do you want to add them to the project?&lt;/html&gt;</source>
         <translation>URL:</translation>
     </message>
     <message>
-        <source>Plain C Project</source>
-        <translation>Простой проект на языке C</translation>
-    </message>
-    <message>
-        <source>Creates a plain C project using CMake, not using the Qt library.</source>
-        <translation>Создание простого проекта под управлением CMake на языке C, но без использования библиотеки Qt.</translation>
-    </message>
-    <message>
-        <source>Plain C Project (CMake Build)</source>
-        <translation>Простой проект на языке C под управлением CMake</translation>
-    </message>
-    <message>
-        <source>Non-Qt Project</source>
-        <translation>Проект без использования Qt</translation>
-    </message>
-    <message>
         <source>Creates an application descriptor file.</source>
         <translation>Создание файла описания приложения.</translation>
     </message>
@@ -20158,32 +20273,12 @@ Do you want to add them to the project?&lt;/html&gt;</source>
         <translation>BlackBerry</translation>
     </message>
     <message>
-        <source>Creates a Qt Gui application for BlackBerry.</source>
-        <translation>Создание GUI приложения для BlackBerry с использованием Qt.</translation>
-    </message>
-    <message>
-        <source>BlackBerry Qt Gui Application</source>
-        <translation>GUI приложение Qt для BlackBerry</translation>
-    </message>
-    <message>
         <source>Creates an Qt5 application descriptor file.</source>
         <translation>Создание файла описания для приложения основанного на Qt5.</translation>
     </message>
     <message>
         <source>Qt5 Application descriptor</source>
         <translation>Описание для приложения Qt5</translation>
-    </message>
-    <message>
-        <source>Plain C++ Project</source>
-        <translation>Простой проект на языке C++</translation>
-    </message>
-    <message>
-        <source>Creates a plain C++ project using CMake, not using the Qt library.</source>
-        <translation>Создание простого проекта под управлением CMake на языке C++, но без использования библиотеки Qt.</translation>
-    </message>
-    <message>
-        <source>Plain C++ Project (CMake Build)</source>
-        <translation>Простой проект на языке C++ под управлением CMake</translation>
     </message>
     <message>
         <source>Libraries</source>
@@ -20212,14 +20307,6 @@ Do you want to add them to the project?&lt;/html&gt;</source>
     <message>
         <source>BlackBerry Cascades Application</source>
         <translation>Приложение на основе Blackberry Cascades</translation>
-    </message>
-    <message>
-        <source>Creates an experimental Qt 5 GUI application for BlackBerry 10. You need to provide your own build of Qt 5 for BlackBerry 10 since Qt 5 is not provided in the current BlackBerry 10 NDK and is not included in DevAlpha devices.</source>
-        <translation>Создание экспериментального GUI приложения на Qt 5 для BlackBerry 10. Вам потребуется добавить свою собственную сборку Qt 5 для BlackBerry 10, так как Qt 5 не входит в состав BlackBerry 10 NDK и не включён в устройства DevAlpha.</translation>
-    </message>
-    <message>
-        <source>BlackBerry Qt 5 GUI Application</source>
-        <translation>GUI приложение на Qt 5 для BlackBerry</translation>
     </message>
     <message>
         <source>Creates a qmake-based test project for which a code snippet can be entered.</source>
@@ -20306,8 +20393,64 @@ Do you want to add them to the project?&lt;/html&gt;</source>
         <translation>Локальные настройки пользователя</translation>
     </message>
     <message>
+        <source>Custom QML Extension Plugin Parameters</source>
+        <translation>Параметры особого модуля расширяющего QML</translation>
+    </message>
+    <message>
         <source>Creates a C++ plugin to load extensions dynamically into applications using the QQmlEngine class. Requires Qt 5.0 or newer.</source>
         <translation>Создание C++ модуля для динамической загрузки расширений в приложение, использующее класс QQmlEngine. Требуется Qt версии 5.0 или выше.</translation>
+    </message>
+    <message>
+        <source>Creates a plain C project using CMake, not using the Qt library.</source>
+        <translation>Создание простого проекта на языке C с использованием CMake и без библиотеки Qt.</translation>
+    </message>
+    <message>
+        <source>Plain C Project (CMake Build)</source>
+        <translation>Простой проект на C (сборка CMake)</translation>
+    </message>
+    <message>
+        <source>Non-Qt Project</source>
+        <translation>Проект без использования Qt</translation>
+    </message>
+    <message>
+        <source>Creates a plain C project using qbs.</source>
+        <translation>Создание простого проекта C с использованием qbs.</translation>
+    </message>
+    <message>
+        <source>Plain C Project (Qbs Build)</source>
+        <translation>Простой проект на C (сборка Qbs)</translation>
+    </message>
+    <message>
+        <source>Creates a plain C project using qmake, not using the Qt library.</source>
+        <translation>Создание простого проекта на языке С с использованием qmake и без библиотеки Qt.</translation>
+    </message>
+    <message>
+        <source>Plain C Project</source>
+        <translation>Простой проект на С</translation>
+    </message>
+    <message>
+        <source>Creates a plain C++ project using CMake, not using the Qt library.</source>
+        <translation>Создание простого проекта на С++ с использованием CMake и без библиотеки Qt.</translation>
+    </message>
+    <message>
+        <source>Plain C++ Project (CMake Build)</source>
+        <translation>Простой проект на С++ (сборка CMake)</translation>
+    </message>
+    <message>
+        <source>Creates a plain (non-Qt) C++ project using qbs.</source>
+        <translation>Создание простого проекта С++ с использованием qbs и без библиотеки Qt.</translation>
+    </message>
+    <message>
+        <source>Plain C++ Project (Qbs Build)</source>
+        <translation>Простой проект на С++ (сборка Qbs)</translation>
+    </message>
+    <message>
+        <source>Creates a plain C++ project using qmake, not using the Qt library.</source>
+        <translation>Создание простого проекта С++ с использованием qmake и без библиотеки Qt.</translation>
+    </message>
+    <message>
+        <source>Plain C++ Project</source>
+        <translation>Простой проект на С++</translation>
     </message>
 </context>
 <context>
@@ -20405,38 +20548,69 @@ Reason: %2</source>
     </message>
 </context>
 <context>
+    <name>ProjectExplorer::DesktopProcessSignalOperation</name>
+    <message>
+        <source>Cannot open process.</source>
+        <translation>Не удалось открыть процесс.</translation>
+    </message>
+    <message>
+        <source>Invalid process id.</source>
+        <translation>Неверный PID процесса.</translation>
+    </message>
+    <message>
+        <source>Cannot open process: %1</source>
+        <translation>Не удалось открыть процесс: %1</translation>
+    </message>
+    <message>
+        <source>DebugBreakProcess failed:</source>
+        <translation>Ошибка DebugBreakProcess:</translation>
+    </message>
+    <message>
+        <source>could not break the process.</source>
+        <translation>не удалось остановить процесс.</translation>
+    </message>
+    <message>
+        <source>%1 does not exist. If you built Qt Creator yourself, check out http://qt.gitorious.org/qt-creator/binary-artifacts.</source>
+        <translation>%1 не существует. Если производится сборка Qt Creator, то посетите http://qt.gitorious.org/qt-creator/binary-artifacts.</translation>
+    </message>
+    <message>
+        <source>Cannot kill process with pid %1: %2</source>
+        <translation>Не удалось завершить процесс с PID %1: %2</translation>
+    </message>
+    <message>
+        <source>Cannot interrupt process with pid %1: %2</source>
+        <translation>Не удалось прервать процесс с PID %1: %2</translation>
+    </message>
+    <message>
+        <source>Cannot start %1. Check src\tools\win64interrupt\win64interrupt.c for more information.</source>
+        <translation>Не удалось запустить %1. Подробности можно найти в src\tools\win64interrupt\win64interrupt.c.</translation>
+    </message>
+</context>
+<context>
     <name>ProjectExplorer::DeviceApplicationRunner</name>
+    <message>
+        <source>Cannot run: Device is not able to create processes.</source>
+        <translation>Не удалось запустить: Устройство не может создавать процессы.</translation>
+    </message>
     <message>
         <source>User requested stop. Shutting down...</source>
         <translation>Пользователь запросил останов. Завершение...</translation>
     </message>
     <message>
+        <source>Application failed to start: %1</source>
+        <translation>Не удалось запустить приложение: %1</translation>
+    </message>
+    <message>
+        <source>Application finished with exit code %1.</source>
+        <translation>Приложение завершилось с кодом %1.</translation>
+    </message>
+    <message>
+        <source>Application finished with exit code 0.</source>
+        <translation>Приложение завершилось с кодом 0.</translation>
+    </message>
+    <message>
         <source>Cannot run: No device.</source>
         <translation>Невозможно запустить: нет устройства.</translation>
-    </message>
-    <message>
-        <source>Connecting to device...</source>
-        <translation>Подключение к устройству...</translation>
-    </message>
-    <message>
-        <source>SSH connection failed: %1</source>
-        <translation>Не удалось установить подключение SSH: %1</translation>
-    </message>
-    <message>
-        <source>Application did not finish in time, aborting.</source>
-        <translation>Вышло время работы приложения, прерывание.</translation>
-    </message>
-    <message>
-        <source>Remote application crashed: %1</source>
-        <translation>Внешнее приложение завершилось крахом: %1</translation>
-    </message>
-    <message>
-        <source>Remote application finished with exit code %1.</source>
-        <translation>Внешнее приложение завершилось с кодом %1.</translation>
-    </message>
-    <message>
-        <source>Remote application finished with exit code 0.</source>
-        <translation>Внешнее приложение завершилось с кодом 0.</translation>
     </message>
 </context>
 <context>
@@ -20738,7 +20912,7 @@ Remote error output was: %1</source>
     </message>
     <message>
         <source>&amp;Clone Selected</source>
-        <translation>Д&amp;ублировать выделенную</translation>
+        <translation>Копировать выделенн&amp;ую</translation>
     </message>
     <message>
         <source>Rename...</source>
@@ -20756,6 +20930,10 @@ Remote error output was: %1</source>
     <message>
         <source>New configuration name:</source>
         <translation>Название новой конфигурации:</translation>
+    </message>
+    <message>
+        <source>New Configuration</source>
+        <translation>Новая конфигурация</translation>
     </message>
     <message>
         <source>Cancel Build &amp;&amp; Remove Build Configuration</source>
@@ -20869,14 +21047,14 @@ Remote error output was: %1</source>
 <context>
     <name>ProjectExplorer::Internal::CopyTaskHandler</name>
     <message>
-        <source>error: </source>
+        <source>error:</source>
         <extracomment>Task is of type: error</extracomment>
-        <translation>ошибка: </translation>
+        <translation>ошибка:</translation>
     </message>
     <message>
-        <source>warning: </source>
+        <source>warning:</source>
         <extracomment>Task is of type: warning</extracomment>
-        <translation>предупреждение: </translation>
+        <translation>предупреждение:</translation>
     </message>
 </context>
 <context>
@@ -20898,7 +21076,82 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
+    <name>ProjectExplorer::Internal::CustomParserConfigDialog</name>
+    <message>
+        <source>Custom Parser</source>
+        <translation>Особый обработчик</translation>
+    </message>
+    <message>
+        <source>&amp;Error message capture pattern:</source>
+        <translation>Шаблон захвата сообщений об &amp;ошибках:</translation>
+    </message>
+    <message>
+        <source>#error (.*):(\d+): (.*)$</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Capture Positions</source>
+        <translation>Положения захвата</translation>
+    </message>
+    <message>
+        <source>&amp;File name:</source>
+        <translation>&amp;Имя файла:</translation>
+    </message>
+    <message>
+        <source>&amp;Line number:</source>
+        <translation>&amp;Номер строки:</translation>
+    </message>
+    <message>
+        <source>&amp;Message:</source>
+        <translation>С&amp;ообщение:</translation>
+    </message>
+    <message>
+        <source>Test</source>
+        <translation>Проверка</translation>
+    </message>
+    <message>
+        <source>E&amp;rror message:</source>
+        <translation>&amp;Сообщение об ошибке:</translation>
+    </message>
+    <message>
+        <source>#error /home/user/src/test.c:891: Unknown identifier `test`</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>File name:</source>
+        <translation>Имя файла:</translation>
+    </message>
+    <message>
+        <source>TextLabel</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Line number:</source>
+        <translation>Номер строки:</translation>
+    </message>
+    <message>
+        <source>Message:</source>
+        <translation>Сообщение:</translation>
+    </message>
+    <message>
+        <source>Not applicable:</source>
+        <translation>Не применимо:</translation>
+    </message>
+    <message>
+        <source>Pattern is empty.</source>
+        <translation>Шаблон пуст.</translation>
+    </message>
+    <message>
+        <source>Pattern does not match the error message.</source>
+        <translation>Шаблон не соответствует сообщению об ошибке.</translation>
+    </message>
+</context>
+<context>
     <name>ProjectExplorer::Internal::CustomToolChainConfigWidget</name>
+    <message>
+        <source>Custom Parser Settings...</source>
+        <translation>Настроть обработчик...</translation>
+    </message>
     <message>
         <source>Each line defines a macro. Format is MACRO[=VALUE]</source>
         <translation>Каждая строка определяет макрос. Формат: MACRO[=VALUE]</translation>
@@ -20942,6 +21195,10 @@ Remote error output was: %1</source>
     <message>
         <source>&amp;Qt mkspecs:</source>
         <translation>Список &amp;Qt mkspec:</translation>
+    </message>
+    <message>
+        <source>&amp;Error parser:</source>
+        <translation>&amp;Обработчик ошибок:</translation>
     </message>
 </context>
 <context>
@@ -21071,8 +21328,31 @@ Remote error output was: %1</source>
         <translation>Нет</translation>
     </message>
     <message>
+        <source>Test</source>
+        <translation>Проверить</translation>
+    </message>
+    <message>
         <source>Show Running Processes</source>
         <translation>Запущенные процессы</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::DeviceTestDialog</name>
+    <message>
+        <source>Device Test</source>
+        <translation>Проверка устройства</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>Закрыть</translation>
+    </message>
+    <message>
+        <source>Device test finished successfully.</source>
+        <translation>Проверка устройства успешно завершена.</translation>
+    </message>
+    <message>
+        <source>Device test failed.</source>
+        <translation>Проверка устройства завершена с ошибкой.</translation>
     </message>
 </context>
 <context>
@@ -21125,10 +21405,6 @@ Remote error output was: %1</source>
     <message>
         <source>Open with</source>
         <translation>Открыть с помощью</translation>
-    </message>
-    <message>
-        <source>Find in this directory...</source>
-        <translation>Найти в текущем каталоге...</translation>
     </message>
     <message>
         <source>Open Parent Folder</source>
@@ -21197,6 +21473,17 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
+    <name>ProjectExplorer::Internal::ImportWidget</name>
+    <message>
+        <source>Import Build From...</source>
+        <translation>Импортировать сборку...</translation>
+    </message>
+    <message>
+        <source>Import</source>
+        <translation>Импортировать</translation>
+    </message>
+</context>
+<context>
     <name>ProjectExplorer::Internal::KitManagerConfigWidget</name>
     <message>
         <source>Name:</source>
@@ -21205,6 +21492,10 @@ Remote error output was: %1</source>
     <message>
         <source>Kit name and icon.</source>
         <translation>Название и значок комплекта.</translation>
+    </message>
+    <message>
+        <source>Mark as Mutable</source>
+        <translation>Сделать изменяемым</translation>
     </message>
     <message>
         <source>Select Icon</source>
@@ -21249,38 +21540,24 @@ Remote error output was: %1</source>
 <context>
     <name>ProjectExplorer::Internal::LocalApplicationRunControl</name>
     <message>
-        <source>No executable specified.
-</source>
-        <translation>Программа не указана.
-</translation>
+        <source>No executable specified.</source>
+        <translation>Программа не указана.</translation>
     </message>
     <message>
-        <source>Executable %1 does not exist.
-</source>
+        <source>Executable %1 does not exist.</source>
         <translation>Программа %1 отсутствует.</translation>
     </message>
     <message>
-        <source>Starting %1...
-</source>
-        <translation>Запускается %1...
-</translation>
+        <source>Starting %1...</source>
+        <translation>Запускается %1...</translation>
     </message>
     <message>
-        <source>%1 exited with code %2
-</source>
-        <translation>%1 завершился с кодом %2
-</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::LocalProcessList</name>
-    <message>
-        <source>Cannot terminate process %1: %2</source>
-        <translation>Не удалось завершить процесс %1: %2</translation>
+        <source>%1 crashed</source>
+        <translation>%1 завершился крахом</translation>
     </message>
     <message>
-        <source>Cannot open process %1: %2</source>
-        <translation>Не удалось открыть процесс %1: %2</translation>
+        <source>%1 exited with code %2</source>
+        <translation>%1 завершился с кодом %2</translation>
     </message>
 </context>
 <context>
@@ -21543,10 +21820,8 @@ Remote error output was: %1</source>
         <translation>&lt;Добавлено неявно&gt;</translation>
     </message>
     <message>
-        <source>The files are implicitly added to the projects:
-</source>
-        <translation>Файлы неявно добавленные в проекты:
-</translation>
+        <source>The files are implicitly added to the projects:</source>
+        <translation>Файлы неявно добавленные в проекты:</translation>
     </message>
     <message>
         <source>&lt;None&gt;</source>
@@ -21626,12 +21901,12 @@ to project &apos;%2&apos;.</source>
 <context>
     <name>ProjectExplorer::Internal::ProjectWelcomePage</name>
     <message>
-        <source>Develop</source>
-        <translation>Разработка</translation>
-    </message>
-    <message>
         <source>New Project</source>
         <translation>Новый проект</translation>
+    </message>
+    <message>
+        <source>Projects</source>
+        <translation>Проекты</translation>
     </message>
 </context>
 <context>
@@ -21655,25 +21930,6 @@ to project &apos;%2&apos;.</source>
     <message>
         <source>Files to be added in</source>
         <translation>Добавляемые файлы</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::PublishingWizardSelectionDialog</name>
-    <message>
-        <source>Publishing Wizard Selection</source>
-        <translation>Выбор мастера публикации</translation>
-    </message>
-    <message>
-        <source>Available Wizards:</source>
-        <translation>Доступные мастера:</translation>
-    </message>
-    <message>
-        <source>Start Wizard</source>
-        <translation>Запуск мастера</translation>
-    </message>
-    <message>
-        <source>Publishing is currently not possible for project &apos;%1&apos;.</source>
-        <translation>Для проекта «%1» публикация не доступна.</translation>
     </message>
 </context>
 <context>
@@ -21783,7 +22039,7 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>C&amp;lone</source>
-        <translation>&amp;Дублировать</translation>
+        <translation>&amp;Копировать</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
@@ -21891,22 +22147,20 @@ to project &apos;%2&apos;.</source>
         <translation>Комплект не подходит</translation>
     </message>
     <message>
-        <source>Build configurations:
-</source>
+        <source>Kit %1 is incompatible with kit %2.</source>
+        <translation>Комплекты %1 и %2 несовместимы.</translation>
+    </message>
+    <message>
+        <source>Build configurations:</source>
         <translation>Конфигурации сборки:</translation>
     </message>
     <message>
-        <source>Deploy configurations:
-</source>
+        <source>Deploy configurations:</source>
         <translation>Конфигурации установки:</translation>
     </message>
     <message>
-        <source>Run configurations </source>
-        <translation>Конфигурации запуска </translation>
-    </message>
-    <message>
-        <source>Kit %1 is incompatible with kit %2.</source>
-        <translation>Комплекты %1 и %2 несовместимы.</translation>
+        <source>Run configurations</source>
+        <translation>Конфигурации запуска</translation>
     </message>
     <message>
         <source>Partially Incompatible Kit</source>
@@ -21971,6 +22225,46 @@ to project &apos;%2&apos;.</source>
     <message>
         <source>Manage Kits...</source>
         <translation>Управление...</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::TargetSetupPageWrapper</name>
+    <message>
+        <source>Configure Project</source>
+        <translation>Настроить проект</translation>
+    </message>
+    <message>
+        <source>Cancel</source>
+        <translation>Отмена</translation>
+    </message>
+    <message>
+        <source>The project &lt;b&gt;%1&lt;/b&gt; is not yet configured.&lt;br/&gt;Qt Creator cannot parse the project, because no kit has been set up.</source>
+        <translation>Проект &lt;b&gt;%1&lt;/b&gt; ещё не настроен.&lt;br/&gt;Qt Creator не может обработать проект, так как комплект не задан.</translation>
+    </message>
+    <message>
+        <source>The project &lt;b&gt;%1&lt;/b&gt; is not yet configured.&lt;br/&gt;Qt Creator uses the kit &lt;b&gt;%2&lt;/b&gt; to parse the project.</source>
+        <translation>Проект &lt;b&gt;%1&lt;/b&gt; ещё не настроен.&lt;br/&gt;Для обработки проекта Qt Creator использует комплект &lt;b&gt;%2&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>The project &lt;b&gt;%1&lt;/b&gt; is not yet configured.&lt;br/&gt;Qt Creator uses the &lt;b&gt;invalid&lt;/b&gt; kit &lt;b&gt;%2&lt;/b&gt; to parse the project.</source>
+        <translation>Проект &lt;b&gt;%1&lt;/b&gt; ещё не настроен.&lt;br/&gt;Для обработки проекта Qt Creator использует &lt;b&gt;неверный&lt;/b&gt; комплект &lt;b&gt;%2&lt;/b&gt;.</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::TargetSetupWidget</name>
+    <message>
+        <source>Manage...</source>
+        <translation>Управление...</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Error:&lt;/b&gt; </source>
+        <comment>Severity is Task::Error</comment>
+        <translation>&lt;b&gt;Ошибка:&lt;/b&gt; </translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Warning:&lt;/b&gt; </source>
+        <comment>Severity is Task::Warning</comment>
+        <translation>&lt;b&gt;Предупреждение:&lt;/b&gt; </translation>
     </message>
 </context>
 <context>
@@ -22080,11 +22374,18 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>Clone</source>
-        <translation>Дублировать</translation>
+        <translation>Копировать</translation>
     </message>
     <message>
         <source>Remove</source>
         <translation>Удалить</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::Internal::UnconfiguredProjectPanel</name>
+    <message>
+        <source>Configure Project</source>
+        <translation>Настроить проект</translation>
     </message>
 </context>
 <context>
@@ -22171,6 +22472,13 @@ to project &apos;%2&apos;.</source>
     </message>
 </context>
 <context>
+    <name>ProjectExplorer::KitChooser</name>
+    <message>
+        <source>Manage...</source>
+        <translation>Управление...</translation>
+    </message>
+</context>
+<context>
     <name>ProjectExplorer::KitManager</name>
     <message>
         <source>Desktop</source>
@@ -22189,7 +22497,7 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>Clone</source>
-        <translation>Дублировать</translation>
+        <translation>Копировать</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -22213,6 +22521,15 @@ to project &apos;%2&apos;.</source>
     <message>
         <source>Clean Environment</source>
         <translation>Чистая среда</translation>
+    </message>
+</context>
+<context>
+    <name>ProjectExplorer::OsParser</name>
+    <message>
+        <source>The process can not access the file because it is being used by another process.
+Please close all running instances of your application before starting a build.</source>
+        <translation>Процесс не может получить доступ к файлу, так как он используется другим процессом.
+Завершайте все запущенные экземпляры приложения перед началом сборки.</translation>
     </message>
 </context>
 <context>
@@ -22329,14 +22646,6 @@ to project &apos;%2&apos;.</source>
         <translation>Установить проект «%1»</translation>
     </message>
     <message>
-        <source>Publish Project...</source>
-        <translation>Опубликовать проект...</translation>
-    </message>
-    <message>
-        <source>Publish Project &quot;%1&quot;...</source>
-        <translation>Опубликовать проект «%1»...</translation>
-    </message>
-    <message>
         <source>Clean Project</source>
         <translation>Очистить проект</translation>
     </message>
@@ -22426,6 +22735,10 @@ to project &apos;%2&apos;.</source>
         <translation>Остановить процесс сборки и выгрузить проект?</translation>
     </message>
     <message>
+        <source>The project %1 is not configured, skipping it.</source>
+        <translation>Проект %1 не настроен, пропущен.</translation>
+    </message>
+    <message>
         <source>No project loaded</source>
         <translation>Проект не загружен</translation>
     </message>
@@ -22440,12 +22753,6 @@ to project &apos;%2&apos;.</source>
     <message>
         <source>A build is in progress</source>
         <translation>Выполняется сборка</translation>
-    </message>
-    <message>
-        <source>Building &apos;%1&apos; is disabled: %2
-</source>
-        <translation>Сборка «%1» отключена: %2
-</translation>
     </message>
     <message>
         <source>Do Not Close</source>
@@ -22467,6 +22774,10 @@ to project &apos;%2&apos;.</source>
         <source>New Subproject</source>
         <comment>Title of dialog</comment>
         <translation>Создание подпроекта</translation>
+    </message>
+    <message>
+        <source>Could not add following files to project %1:</source>
+        <translation>Не удалось добавить в проект %1 следующие файлы:</translation>
     </message>
     <message>
         <source>Adding Files to Project Failed</source>
@@ -22507,13 +22818,13 @@ to project &apos;%2&apos;.</source>
     </message>
     <message>
         <source>Ignore all errors?</source>
-        <translation>Пропустить все ошибки?</translation>
+        <translation>Игнорировать все ошибки?</translation>
     </message>
     <message>
         <source>Found some build errors in current task.
 Do you want to ignore them?</source>
         <translation>Обнаружены некоторые ошибки сборки.
-Пропустить их?</translation>
+Игнорировать их?</translation>
     </message>
     <message>
         <source>Always save files before build</source>
@@ -22584,6 +22895,14 @@ Do you want to ignore them?</source>
         <translation>Тип активной конфигурации сборки.</translation>
     </message>
     <message>
+        <source>File where current session is saved.</source>
+        <translation>Файл, в который сохраняется текущая сессия.</translation>
+    </message>
+    <message>
+        <source>Name of current session.</source>
+        <translation>Название текущей сессии.</translation>
+    </message>
+    <message>
         <source>debug</source>
         <translation>отладка</translation>
     </message>
@@ -22621,11 +22940,6 @@ Do you want to ignore them?</source>
         <translation>Сборка</translation>
     </message>
     <message>
-        <source>The project %1 is not configured, skipping it.
-</source>
-        <translation>Проект %1 не настроен, пропущен.</translation>
-    </message>
-    <message>
         <source>No project loaded.</source>
         <translation>Проект не загружен.</translation>
     </message>
@@ -22640,6 +22954,10 @@ Do you want to ignore them?</source>
     <message>
         <source>Project has no build settings.</source>
         <translation>Проект не имеет настроек сборки.</translation>
+    </message>
+    <message>
+        <source>Building &apos;%1&apos; is disabled: %2</source>
+        <translation>Сборка «%1» отключена: %2</translation>
     </message>
     <message>
         <source>Cancel Build &amp;&amp; Close</source>
@@ -22679,12 +22997,6 @@ Do you want to ignore them?</source>
         <translation>Добавление существующих файлов</translation>
     </message>
     <message>
-        <source>Could not add following files to project %1:
-</source>
-        <translation>Не удалось добавить в проект %1 следующие файлы:
-</translation>
-    </message>
-    <message>
         <source>Project Editing Failed</source>
         <translation>Не удалось изменить проект</translation>
     </message>
@@ -22710,6 +23022,13 @@ Do you want to ignore them?</source>
     </message>
 </context>
 <context>
+    <name>ProjectExplorer::ProjectImporter</name>
+    <message>
+        <source>%1 - temporary</source>
+        <translation>%1 - временный</translation>
+    </message>
+</context>
+<context>
     <name>ProjectExplorer::ProjectsMode</name>
     <message>
         <source>Projects</source>
@@ -22724,23 +23043,6 @@ Do you want to ignore them?</source>
 
 Reason: %2</source>
         <translation>qmldump невозможно собрать ни в одном из каталогов:
-- %1
-
-Причина: %2</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::QmlObserverTool</name>
-    <message>
-        <source>The target directory %1 could not be created.</source>
-        <translation>Невозможно создать целевой каталог %1.</translation>
-    </message>
-    <message>
-        <source>QMLObserver could not be built in any of the directories:
-- %1
-
-Reason: %2</source>
-        <translation>QMLObserver невозможно собрать ни в одном из каталогов:
 - %1
 
 Причина: %2</translation>
@@ -22779,10 +23081,6 @@ Reason: %2</source>
     <message>
         <source>Keep Running</source>
         <translation>Продолжить выполнение</translation>
-    </message>
-    <message>
-        <source>Do not ask again</source>
-        <translation>Больше не спрашивать</translation>
     </message>
 </context>
 <context>
@@ -22876,6 +23174,21 @@ Reason: %2</source>
     </message>
 </context>
 <context>
+    <name>ProjectExplorer::SshDeviceProcess</name>
+    <message>
+        <source>Failed to kill remote process: %1</source>
+        <translation>Не удалось завершить удалённый процесс: %1</translation>
+    </message>
+    <message>
+        <source>Timeout waiting for remote process to finish.</source>
+        <translation>Истекло время ожидания завершения удалённого процесса.</translation>
+    </message>
+    <message>
+        <source>Terminated by request.</source>
+        <translation>Остановлено по требованию.</translation>
+    </message>
+</context>
+<context>
     <name>ProjectExplorer::SshDeviceProcessList</name>
     <message>
         <source>Connection failure: %1</source>
@@ -22894,16 +23207,8 @@ Reason: %2</source>
         <translation>Команда вывода списка аварийно завершилась с кодом %1.</translation>
     </message>
     <message>
-        <source>Error: Kill process failed to start: %1</source>
-        <translation>Ошибка: Процесс kill не смог запуститься: %1</translation>
-    </message>
-    <message>
-        <source>Error: Kill process crashed: %1</source>
-        <translation>Ошибка: Процесс kill завершился крахом: %1</translation>
-    </message>
-    <message>
-        <source>Kill process failed with exit code %1.</source>
-        <translation>Процесс kill аварийно завершился с кодом %1.</translation>
+        <source>Error: Kill process failed: %1</source>
+        <translation>Ошибка: Ошибка выполнения kill: %1</translation>
     </message>
     <message>
         <source>
@@ -22924,10 +23229,27 @@ Remote stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Target</name>
+    <name>ProjectExplorer::TargetSetupPage</name>
     <message>
-        <source>Default build</source>
-        <translation>Сборка по умолчанию</translation>
+        <source>&lt;span style=&quot; font-weight:600;&quot;&gt;No valid kits found.&lt;/span&gt;</source>
+        <translation>&lt;b&gt;Отсутствуют подходящие комплекты.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Please add a kit in the &lt;a href=&quot;buildandrun&quot;&gt;options&lt;/a&gt; or via the maintenance tool of the SDK.</source>
+        <translation>Добавьте комплект в &lt;a href=&quot;buildandrun&quot;&gt;настройках&lt;/a&gt; или через инструмент обслуживания SDK.</translation>
+    </message>
+    <message>
+        <source>Select Kits for Your Project</source>
+        <translation>Выбор комплектов для проекта</translation>
+    </message>
+    <message>
+        <source>Kit Selection</source>
+        <translation>Выбор комплекта</translation>
+    </message>
+    <message>
+        <source>Qt Creator can use the following kits for project &lt;b&gt;%1&lt;/b&gt;:</source>
+        <comment>%1: Project name</comment>
+        <translation>Qt Creator может использовать для проекта &lt;b&gt;%1&lt;/b&gt; следующие комплекты:</translation>
     </message>
 </context>
 <context>
@@ -22971,14 +23293,10 @@ Remote stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>PythonEditor::ClassNamePage</name>
+    <name>ProjectFileConverter</name>
     <message>
-        <source>Enter Class Name</source>
-        <translation>Введите имя класса</translation>
-    </message>
-    <message>
-        <source>The source file name will be derived from the class name</source>
-        <translation>Имя исходного файла будет получено из имени класса</translation>
+        <source>File &apos;%1&apos; not listed in &apos;%2&apos; file, should it be?</source>
+        <translation>Файл «%1» не перечислен в файле «%2», а должен?</translation>
     </message>
 </context>
 <context>
@@ -23001,17 +23319,6 @@ Remote stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>PythonEditor::ClassWizardDialog</name>
-    <message>
-        <source>Python Class Wizard</source>
-        <translation>Создание класса Python</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>Подробнее</translation>
-    </message>
-</context>
-<context>
     <name>PythonEditor::FileWizard</name>
     <message>
         <source>New %1</source>
@@ -23024,6 +23331,28 @@ Remote stderr was: %1</source>
     <message>
         <source>Creates an empty Python script with UTF-8 charset</source>
         <translation>Создание пустого сценария Python в кодировке UTF-8</translation>
+    </message>
+</context>
+<context>
+    <name>PythonEditor::Internal::ClassNamePage</name>
+    <message>
+        <source>Enter Class Name</source>
+        <translation>Введите имя класса</translation>
+    </message>
+    <message>
+        <source>The source file name will be derived from the class name</source>
+        <translation>Имя исходного файла будет получено из имени класса</translation>
+    </message>
+</context>
+<context>
+    <name>PythonEditor::Internal::ClassWizardDialog</name>
+    <message>
+        <source>Python Class Wizard</source>
+        <translation>Создание класса Python</translation>
+    </message>
+    <message>
+        <source>Details</source>
+        <translation>Подробнее</translation>
     </message>
 </context>
 <context>
@@ -23355,26 +23684,18 @@ Remote stderr was: %1</source>
 <context>
     <name>QbsProjectManager::Internal::QbsBuildConfigurationFactory</name>
     <message>
-        <source>Qbs based build</source>
-        <translation>Сборка на базе Qbs</translation>
+        <source>Build</source>
+        <translation>Сборка</translation>
     </message>
     <message>
-        <source>New Configuration</source>
-        <translation>Новая конфигурация</translation>
+        <source>Debug</source>
+        <extracomment>The name of the debug build configuration created by default for a qbs project.</extracomment>
+        <translation>Отладка</translation>
     </message>
     <message>
-        <source>New configuration name:</source>
-        <translation>Название новой конфигурации:</translation>
-    </message>
-    <message>
-        <source>%1 Debug</source>
-        <extracomment>Debug build configuration. We recommend not translating it.</extracomment>
-        <translation>%1 Debug</translation>
-    </message>
-    <message>
-        <source>%1 Release</source>
-        <extracomment>Release build configuration. We recommend not translating it.</extracomment>
-        <translation>%1 Release</translation>
+        <source>Release</source>
+        <extracomment>The name of the release build configuration created by default for a qbs project.</extracomment>
+        <translation>Выпуск</translation>
     </message>
 </context>
 <context>
@@ -23396,10 +23717,6 @@ Remote stderr was: %1</source>
     <message>
         <source>Dry run</source>
         <translation>Тестовое выполнение</translation>
-    </message>
-    <message>
-        <source>jobs</source>
-        <translation>потоках</translation>
     </message>
     <message>
         <source>Debug</source>
@@ -23433,6 +23750,18 @@ Remote stderr was: %1</source>
         <source>Enable QML debugging:</source>
         <translation>Включить отладку QML:</translation>
     </message>
+    <message>
+        <source>Parallel Jobs:</source>
+        <translation>Распараллелить на:</translation>
+    </message>
+    <message>
+        <source>Flags:</source>
+        <translation>Флаги:</translation>
+    </message>
+    <message>
+        <source>Equivalent command line:</source>
+        <translation>Итоговая командная строка:</translation>
+    </message>
 </context>
 <context>
     <name>QbsProjectManager::Internal::QbsBuildStepFactory</name>
@@ -23465,6 +23794,14 @@ Remote stderr was: %1</source>
     <message>
         <source>Keep going</source>
         <translation>Выполнять в</translation>
+    </message>
+    <message>
+        <source>Flags:</source>
+        <translation>Флаги:</translation>
+    </message>
+    <message>
+        <source>Equivalent command line:</source>
+        <translation>Итоговая командная строка:</translation>
     </message>
 </context>
 <context>
@@ -23506,6 +23843,14 @@ Remote stderr was: %1</source>
     <message>
         <source>&lt;b&gt;Qbs:&lt;/b&gt; %1</source>
         <translation>&lt;b&gt;Qbs:&lt;/b&gt; %1</translation>
+    </message>
+    <message>
+        <source>Flags:</source>
+        <translation>Флаги:</translation>
+    </message>
+    <message>
+        <source>Equivalent command line:</source>
+        <translation>Итоговая командная строка:</translation>
     </message>
 </context>
 <context>
@@ -23618,6 +23963,1395 @@ Remote stderr was: %1</source>
     </message>
 </context>
 <context>
+    <name>QmakeProjectManager::AbstractMobileApp</name>
+    <message>
+        <source>Could not open template file &apos;%1&apos;.</source>
+        <translation>Не удалось открыть файл шаблона «%1».</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::AbstractMobileAppWizardDialog</name>
+    <message>
+        <source>Kits</source>
+        <translation>Комплекты</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::AddLibraryWizard</name>
+    <message>
+        <source>Add Library</source>
+        <translation>Добавить библиотеку</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>Тип</translation>
+    </message>
+    <message>
+        <source>Details</source>
+        <translation>Подробнее</translation>
+    </message>
+    <message>
+        <source>Summary</source>
+        <translation>Итог</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::BaseQmakeProjectWizardDialog</name>
+    <message>
+        <source>Modules</source>
+        <translation>Модули</translation>
+    </message>
+    <message>
+        <source>Kits</source>
+        <translation>Комплекты</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::ClassDefinition</name>
+    <message>
+        <source>Form</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>The header file</source>
+        <translation>Заголовочный файл</translation>
+    </message>
+    <message>
+        <source>&amp;Sources</source>
+        <translation>&amp;Исходники</translation>
+    </message>
+    <message>
+        <source>Widget librar&amp;y:</source>
+        <translation>&amp;Библиотека виджета:</translation>
+    </message>
+    <message>
+        <source>Widget project &amp;file:</source>
+        <translation>&amp;Файл проекта виджета:</translation>
+    </message>
+    <message>
+        <source>Widget h&amp;eader file:</source>
+        <translation>&amp;Заголовочный файл виджета:</translation>
+    </message>
+    <message>
+        <source>The header file has to be specified in source code.</source>
+        <translation>Заголовочный файл, указываемый в исходном коде.</translation>
+    </message>
+    <message>
+        <source>Widge&amp;t source file:</source>
+        <translation>Файл &amp;реализации виджета:</translation>
+    </message>
+    <message>
+        <source>Widget &amp;base class:</source>
+        <translation>Б&amp;азовый класс виджета:</translation>
+    </message>
+    <message>
+        <source>QWidget</source>
+        <translation>QWidget</translation>
+    </message>
+    <message>
+        <source>Plugin class &amp;name:</source>
+        <translation>Имя класса &amp;модуля:</translation>
+    </message>
+    <message>
+        <source>Plugin &amp;header file:</source>
+        <translation>За&amp;головочный файл модуля:</translation>
+    </message>
+    <message>
+        <source>Plugin sou&amp;rce file:</source>
+        <translation>Файл реализа&amp;ции модуля:</translation>
+    </message>
+    <message>
+        <source>Icon file:</source>
+        <translation>Файл значка:</translation>
+    </message>
+    <message>
+        <source>&amp;Link library</source>
+        <translation>&amp;Подключить библиотеку</translation>
+    </message>
+    <message>
+        <source>Create s&amp;keleton</source>
+        <translation>Создать &amp;основу</translation>
+    </message>
+    <message>
+        <source>Include pro&amp;ject</source>
+        <translation>Включить про&amp;ект</translation>
+    </message>
+    <message>
+        <source>&amp;Description</source>
+        <translation>&amp;Описание</translation>
+    </message>
+    <message>
+        <source>G&amp;roup:</source>
+        <translation>&amp;Группа:</translation>
+    </message>
+    <message>
+        <source>&amp;Tooltip:</source>
+        <translation>&amp;Подсказка:</translation>
+    </message>
+    <message>
+        <source>W&amp;hat&apos;s this:</source>
+        <translation>&amp;Что это:</translation>
+    </message>
+    <message>
+        <source>The widget is a &amp;container</source>
+        <translation>Виджет &amp;является контейнером</translation>
+    </message>
+    <message>
+        <source>Property defa&amp;ults</source>
+        <translation>Исхо&amp;дные значения свойств</translation>
+    </message>
+    <message>
+        <source>dom&amp;XML:</source>
+        <translation>dom&amp;XML:</translation>
+    </message>
+    <message>
+        <source>Select Icon</source>
+        <translation>Выбор значка</translation>
+    </message>
+    <message>
+        <source>Icon files (*.png *.ico *.jpg *.xpm *.tif *.svg)</source>
+        <translation>Файлы значков (*.png *.ico *.jpg *.xpm *.tif *.svg)</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::ClassList</name>
+    <message>
+        <source>&lt;New class&gt;</source>
+        <translation>&lt;Новый класс&gt;</translation>
+    </message>
+    <message>
+        <source>Confirm Delete</source>
+        <translation>Подтверждение удаления</translation>
+    </message>
+    <message>
+        <source>Delete class %1 from list?</source>
+        <translation>Удалить класс %1 из списка?</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::ConsoleAppWizard</name>
+    <message>
+        <source>Qt Console Application</source>
+        <translation>Консольное приложение Qt</translation>
+    </message>
+    <message>
+        <source>Creates a project containing a single main.cpp file with a stub implementation.
+
+Preselects a desktop Qt for building the application if available.</source>
+        <translation>Создание проекта, содержащего один файл main.cpp с простейшей реализацией.
+
+Выбирается профиль «Desktop Qt» для сборки приложения, если он доступен.</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::ConsoleAppWizardDialog</name>
+    <message>
+        <source>This wizard generates a Qt console application project. The application derives from QCoreApplication and does not provide a GUI.</source>
+        <translation>Этот мастер создаст проект консольного приложения Qt. Оно будет производным от QCoreApplication и без GUI.</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::CustomWidgetPluginWizardPage</name>
+    <message>
+        <source>WizardPage</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Plugin and Collection Class Information</source>
+        <translation>Информация о модуле и классе коллекции</translation>
+    </message>
+    <message>
+        <source>Specify the properties of the plugin library and the collection class.</source>
+        <translation>Укажите свойства библиотеки модуля и класса коллекции.</translation>
+    </message>
+    <message>
+        <source>Collection class:</source>
+        <translation>Класс коллекции:</translation>
+    </message>
+    <message>
+        <source>Collection header file:</source>
+        <translation>Заголовочный файл:</translation>
+    </message>
+    <message>
+        <source>Collection source file:</source>
+        <translation>Исходный файл:</translation>
+    </message>
+    <message>
+        <source>Plugin name:</source>
+        <translation>Название модуля:</translation>
+    </message>
+    <message>
+        <source>Resource file:</source>
+        <translation>Файл ресурсов:</translation>
+    </message>
+    <message>
+        <source>icons.qrc</source>
+        <translation>icons.qrc</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::CustomWidgetWidgetsWizardPage</name>
+    <message>
+        <source>Custom Qt Widget Wizard</source>
+        <translation>Мастер пользовательских виджетов</translation>
+    </message>
+    <message>
+        <source>Custom Widget List</source>
+        <translation>Список пользовательских виджетов</translation>
+    </message>
+    <message>
+        <source>Specify the list of custom widgets and their properties.</source>
+        <translation>Укажите список пользовательских виджетов и их свойств.</translation>
+    </message>
+    <message>
+        <source>Widget &amp;Classes:</source>
+        <translation>&amp;Классы виджетов:</translation>
+    </message>
+    <message>
+        <source>...</source>
+        <translation>...</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::CustomWidgetWizard</name>
+    <message>
+        <source>Qt Custom Designer Widget</source>
+        <translation>Пользовательский виджет Qt Designer</translation>
+    </message>
+    <message>
+        <source>Creates a Qt Custom Designer Widget or a Custom Widget Collection.</source>
+        <translation>Создание пользовательского виджета Qt Designer или набора пользовательских виджетов.</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::CustomWidgetWizardDialog</name>
+    <message>
+        <source>This wizard generates a Qt Designer Custom Widget or a Qt Designer Custom Widget Collection project.</source>
+        <translation>Этот мастер создаст пользовательский виджет или набор пользовательских виджетов для Qt Designer.</translation>
+    </message>
+    <message>
+        <source>Custom Widgets</source>
+        <translation>Особые виджеты</translation>
+    </message>
+    <message>
+        <source>Plugin Details</source>
+        <translation>Подробнее о модуле</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::DesignerExternalEditor</name>
+    <message>
+        <source>Qt Designer is not responding (%1).</source>
+        <translation>Qt Designer не отвечает (%1).</translation>
+    </message>
+    <message>
+        <source>Unable to create server socket: %1</source>
+        <translation>Невозможно создать серверный сокет: %1</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::DesktopQmakeRunConfiguration</name>
+    <message>
+        <source>The .pro file &apos;%1&apos; is currently being parsed.</source>
+        <translation>Идёт обработка файла .pro: «%1».</translation>
+    </message>
+    <message>
+        <source>Qt Run Configuration</source>
+        <translation>Конфигурация выполнения Qt</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::DesktopQmakeRunConfigurationWidget</name>
+    <message>
+        <source>Executable:</source>
+        <translation>Программа:</translation>
+    </message>
+    <message>
+        <source>Arguments:</source>
+        <translation>Параметры:</translation>
+    </message>
+    <message>
+        <source>Select Working Directory</source>
+        <translation>Выбор рабочего каталога</translation>
+    </message>
+    <message>
+        <source>Reset to default</source>
+        <translation>По умолчанию</translation>
+    </message>
+    <message>
+        <source>Working directory:</source>
+        <translation>Рабочий каталог:</translation>
+    </message>
+    <message>
+        <source>Run in terminal</source>
+        <translation>Запускать в терминале</translation>
+    </message>
+    <message>
+        <source>Run on QVFb</source>
+        <translation>Запускать в QVFb</translation>
+    </message>
+    <message>
+        <source>Check this option to run the application on a Qt Virtual Framebuffer.</source>
+        <translation>Включите, для запуска приложения в Qt Virtual Framebuffer.</translation>
+    </message>
+    <message>
+        <source>Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)</source>
+        <translation>Использовать отладочные версии библиотек (DYLD_IMAGE_SUFFIX=_debug)</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::DetailsPage</name>
+    <message>
+        <source>Internal Library</source>
+        <translation>Внутренняя</translation>
+    </message>
+    <message>
+        <source>Choose the project file of the library to link to</source>
+        <translation>Выберите файл проекта библиотеки для компоновки</translation>
+    </message>
+    <message>
+        <source>External Library</source>
+        <translation>Внешняя</translation>
+    </message>
+    <message>
+        <source>Specify the library to link to and the includes path</source>
+        <translation>Выберите библиотеку для компоновки и пути к заголовочным файлам</translation>
+    </message>
+    <message>
+        <source>System Library</source>
+        <translation>Системная</translation>
+    </message>
+    <message>
+        <source>Specify the library to link to</source>
+        <translation>Выберите библиотеку для компоновки</translation>
+    </message>
+    <message>
+        <source>System Package</source>
+        <translation>Системный пакет</translation>
+    </message>
+    <message>
+        <source>Specify the package to link to</source>
+        <translation>Выберите пакет для компоновки</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::EmptyProjectWizard</name>
+    <message>
+        <source>Empty Qt Project</source>
+        <translation>Пустой проект Qt</translation>
+    </message>
+    <message>
+        <source>Creates a qmake-based project without any files. This allows you to create an application without any default classes.</source>
+        <translation>Создание проекта без файлов под управлением qmake. Это позволяет создать приложение без умолчальных классов.</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::EmptyProjectWizardDialog</name>
+    <message>
+        <source>This wizard generates an empty Qt project. Add files to it later on by using the other wizards.</source>
+        <translation>Этот мастер создаст пустой проект Qt. Нужно будет позже добавить в него файлы с помощью других мастеров.</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::ExternalQtEditor</name>
+    <message>
+        <source>Unable to start &quot;%1&quot;</source>
+        <translation>Не удалось запустить «%1»</translation>
+    </message>
+    <message>
+        <source>The application &quot;%1&quot; could not be found.</source>
+        <translation>Не удалось найти приложение «%1».</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::FilesPage</name>
+    <message>
+        <source>Class Information</source>
+        <translation>Информация о классе</translation>
+    </message>
+    <message>
+        <source>Specify basic information about the classes for which you want to generate skeleton source code files.</source>
+        <translation>Укажите базовую информацию о классах, для которых желаете создать шаблоны файлов исходных текстов.</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::GuiAppWizard</name>
+    <message>
+        <source>Qt Widgets Application</source>
+        <translation>Приложение Qt Widgets</translation>
+    </message>
+    <message>
+        <source>Creates a Qt application for the desktop. Includes a Qt Designer-based main window.
+
+Preselects a desktop Qt for building the application if available.</source>
+        <translation>Создание приложения Qt для настольных компьютеров. Включает основное окно в виде формы дизайнера Qt.
+
+Выбирается профиль «Desktop Qt» для сборки приложения, если он доступен.</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::GuiAppWizardDialog</name>
+    <message>
+        <source>This wizard generates a Qt Widgets Application project. The application derives by default from QApplication and includes an empty widget.</source>
+        <translation>Этот мастер создаст проект приложения Qt Widgets. По умолчанию приложение будет производным от QApplication и будет включать пустой виджет.</translation>
+    </message>
+    <message>
+        <source>Details</source>
+        <translation>Подробнее</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::Html5AppWizard</name>
+    <message>
+        <source>HTML5 Application</source>
+        <translation>Приложение HTML5</translation>
+    </message>
+    <message>
+        <source>Creates an HTML5 application project that can contain both HTML5 and C++ code and includes a WebKit view.
+
+You can build the application and deploy it on desktop and mobile target platforms.</source>
+        <translation>Создание проекта приложения HTML5, который может содержать код как HTML5, так и на С++, а так же включает просмотрщик WebKit.
+
+Можно создать приложение и установить его на настольный компьютер и мобильные платформы.</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::Html5AppWizardDialog</name>
+    <message>
+        <source>New HTML5 Application</source>
+        <translation>Новое приложение HTML5</translation>
+    </message>
+    <message>
+        <source>This wizard generates a HTML5 application project.</source>
+        <translation>Этот мастер создаст проект приложения HTML5.</translation>
+    </message>
+    <message>
+        <source>HTML Options</source>
+        <translation>Параметры HTML</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::Html5AppWizardOptionsPage</name>
+    <message>
+        <source>Select HTML File</source>
+        <translation>Выбор файла HTML</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::Html5AppWizardSourcesPage</name>
+    <message>
+        <source>WizardPage</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Main HTML File</source>
+        <translation>Основой HTML файл</translation>
+    </message>
+    <message>
+        <source>Generate an index.html file</source>
+        <translation>Создать файл index.html</translation>
+    </message>
+    <message>
+        <source>Import an existing .html file</source>
+        <translation>Импортировать существующий файл .html</translation>
+    </message>
+    <message>
+        <source>Load a URL</source>
+        <translation>Загрузить по ссылке</translation>
+    </message>
+    <message>
+        <source>http://</source>
+        <translation>http://</translation>
+    </message>
+    <message>
+        <source>Note: Unless you chose to load a URL, all files and directories that reside in the same directory as the main HTML file are deployed. You can modify the contents of the directory any time before deploying.</source>
+        <translation>Если не выбирать загрузку по ссылке, то будут установлены все файлы и каталоги, находящиеся там же, где и основной HTML файл. Можно изменить содержимое каталога в любое время до установки.</translation>
+    </message>
+    <message>
+        <source>Touch optimized navigation</source>
+        <translation>Навигация касаниями</translation>
+    </message>
+    <message>
+        <source>Enable touch optimized navigation</source>
+        <translation>Включить навигацию, оптимизированную под касания</translation>
+    </message>
+    <message>
+        <source>Touch optimized navigation will make the HTML page flickable and enlarge the area of touch sensitive elements. If you use a JavaScript framework which optimizes the touch interaction, leave the checkbox unchecked.</source>
+        <translation>Оптимизация навигации под касания сделает страницу HTML пролистываемой и увеличит зоны чувствительных элементов. Оставьте опцию отключённой при использовании оптимизированной под касания среды JavaScript.</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::LibraryDetailsController</name>
+    <message>
+        <source>Linkage:</source>
+        <translation>Компоновка:</translation>
+    </message>
+    <message>
+        <source>%1 Dynamic</source>
+        <translation>%1 Динамическая</translation>
+    </message>
+    <message>
+        <source>%1 Static</source>
+        <translation>%1 Статическая</translation>
+    </message>
+    <message>
+        <source>Mac:</source>
+        <translation>Mac:</translation>
+    </message>
+    <message>
+        <source>%1 Framework</source>
+        <translation>%1 Framework</translation>
+    </message>
+    <message>
+        <source>%1 Library</source>
+        <translation>%1 Библиотека</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::LibraryDetailsWidget</name>
+    <message>
+        <source>Library:</source>
+        <translation>Библиотека:</translation>
+    </message>
+    <message>
+        <source>Library file:</source>
+        <translation>Файл библиотеки:</translation>
+    </message>
+    <message>
+        <source>Include path:</source>
+        <translation>Путь к заголовочным файлам:</translation>
+    </message>
+    <message>
+        <source>Package:</source>
+        <translation>Пакет:</translation>
+    </message>
+    <message>
+        <source>Platform</source>
+        <translation>Платформа</translation>
+    </message>
+    <message>
+        <source>Linux</source>
+        <translation>Linux</translation>
+    </message>
+    <message>
+        <source>Mac</source>
+        <translation>Mac</translation>
+    </message>
+    <message>
+        <source>Windows</source>
+        <translation>Windows</translation>
+    </message>
+    <message>
+        <source>Linkage:</source>
+        <translation>Компоновка:</translation>
+    </message>
+    <message>
+        <source>Dynamic</source>
+        <translation>Динамическая</translation>
+    </message>
+    <message>
+        <source>Static</source>
+        <translation>Статическая</translation>
+    </message>
+    <message>
+        <source>Mac:</source>
+        <translation>Mac:</translation>
+    </message>
+    <message>
+        <source>Library</source>
+        <translation>Библиотека</translation>
+    </message>
+    <message>
+        <source>Framework</source>
+        <translation>Framework</translation>
+    </message>
+    <message>
+        <source>Windows:</source>
+        <translation>Windows:</translation>
+    </message>
+    <message>
+        <source>Library inside &quot;debug&quot; or &quot;release&quot; subfolder</source>
+        <translation>Библиотека в подкаталоге «debug» или «release»</translation>
+    </message>
+    <message>
+        <source>Add &quot;d&quot; suffix for debug version</source>
+        <translation>Добавить суффикс «d» для отладочной версии</translation>
+    </message>
+    <message>
+        <source>Remove &quot;d&quot; suffix for release version</source>
+        <translation>Удалить суффикс «d» для выпускаемой версии</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::LibraryTypePage</name>
+    <message>
+        <source>Library Type</source>
+        <translation>Тип библиотеки</translation>
+    </message>
+    <message>
+        <source>Choose the type of the library to link to</source>
+        <translation>Выберите тип компонуемой библиотеки</translation>
+    </message>
+    <message>
+        <source>Internal library</source>
+        <translation>Внутренняя</translation>
+    </message>
+    <message>
+        <source>Links to a library that is located in your build tree.
+Adds the library and include paths to the .pro file.</source>
+        <translation>Компоновка с внутренней библиотекой, являющейся частью проекта.
+Пути к выбранной библиотеке и её подключаемым файлам будут добавлены в .pro файл.</translation>
+    </message>
+    <message>
+        <source>External library</source>
+        <translation>Внешняя</translation>
+    </message>
+    <message>
+        <source>Links to a library that is not located in your build tree.
+Adds the library and include paths to the .pro file.</source>
+        <translation>Компоновка с внешней библиотекой, не являющейся частью проекта.
+Пути к выбранной библиотеке и её подключаемым файлам будут добавлены в .pro файл.</translation>
+    </message>
+    <message>
+        <source>System library</source>
+        <translation>Системная</translation>
+    </message>
+    <message>
+        <source>Links to a system library.
+Neither the path to the library nor the path to its includes is added to the .pro file.</source>
+        <translation>Компоновка с системной библиотекой.
+Пути к выбранной библиотеке и её подключаемым файлам не будут добавлены в .pro файл.</translation>
+    </message>
+    <message>
+        <source>System package</source>
+        <translation>Системный пакет</translation>
+    </message>
+    <message>
+        <source>Links to a system library using pkg-config.</source>
+        <translation>Компоновка с системной библиотекой используя pkg-config.</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::LibraryWizard</name>
+    <message>
+        <source>C++ Library</source>
+        <translation>Библиотека C++</translation>
+    </message>
+    <message>
+        <source>Creates a C++ library based on qmake. This can be used to create:&lt;ul&gt;&lt;li&gt;a shared C++ library for use with &lt;tt&gt;QPluginLoader&lt;/tt&gt; and runtime (Plugins)&lt;/li&gt;&lt;li&gt;a shared or static C++ library for use with another project at linktime&lt;/li&gt;&lt;/ul&gt;</source>
+        <translation>Создание проекта C++ библиотеки под управлением qmake. Может использоваться для разработки:&lt;ul&gt;&lt;li&gt;разделяемая C++ библиотека для загрузки через &lt;tt&gt;QPluginLoader&lt;/tt&gt; (подключаемый модуль)&lt;/li&gt;&lt;li&gt;разделяемая или статическая C++ библиотека для подключения к другому проекту на этапе компоновки&lt;/li&gt;&lt;/ul&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::LibraryWizardDialog</name>
+    <message>
+        <source>Shared Library</source>
+        <translation>Динамическая библиотека</translation>
+    </message>
+    <message>
+        <source>Statically Linked Library</source>
+        <translation>Статическая библиотека</translation>
+    </message>
+    <message>
+        <source>Qt Plugin</source>
+        <translation>Модуль Qt</translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation>Тип</translation>
+    </message>
+    <message>
+        <source>This wizard generates a C++ library project.</source>
+        <translation>Этот мастер создаст проект библиотеки С++.</translation>
+    </message>
+    <message>
+        <source>Details</source>
+        <translation>Подробнее</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::MakeStep</name>
+    <message>
+        <source>Make arguments:</source>
+        <translation>Параметры make:</translation>
+    </message>
+    <message>
+        <source>Override %1:</source>
+        <translation>Замена %1:</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::MakeStepFactory</name>
+    <message>
+        <source>Make</source>
+        <translation>Сборка</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::ModulesPage</name>
+    <message>
+        <source>Select Required Modules</source>
+        <translation>Выбор необходимых модулей</translation>
+    </message>
+    <message>
+        <source>Select the modules you want to include in your project. The recommended modules for this project are selected by default.</source>
+        <translation>Выберите модули, которые хотите включить в проект. Рекомендуемые для этого проекта модули уже выбраны по умолчанию.</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::PluginGenerator</name>
+    <message>
+        <source>Creating multiple widget libraries (%1, %2) in one project (%3) is not supported.</source>
+        <translation>Создание нескольких библиотек виджетов (%1, %2) в одном проекте (%3) не поддерживается.</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::QMakeStep</name>
+    <message>
+        <source>qmake build configuration:</source>
+        <translation>Конфигурация сборки qmake:</translation>
+    </message>
+    <message>
+        <source>Debug</source>
+        <translation>Отладка</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Выпуск</translation>
+    </message>
+    <message>
+        <source>Additional arguments:</source>
+        <translation>Дополнительные параметры:</translation>
+    </message>
+    <message>
+        <source>Link QML debugging library:</source>
+        <translation>Подключить библиотеку отладки QML:</translation>
+    </message>
+    <message>
+        <source>Effective qmake call:</source>
+        <translation>Параметры вызова qmake:</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::QMakeStepFactory</name>
+    <message>
+        <source>qmake</source>
+        <translation>qmake</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::QmakeKitConfigWidget</name>
+    <message>
+        <source>Qt mkspec:</source>
+        <translation>Qt mkspec:</translation>
+    </message>
+    <message>
+        <source>The mkspec to use when building the project with qmake.&lt;br&gt;This setting is ignored when using other build systems.</source>
+        <translation>mkspec, используемый для сборки qmake-проектов.&lt;br&gt;Для других проектов эта настройка не используется.</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::QmakeProjectConfigWidget</name>
+    <message>
+        <source>Shadow build:</source>
+        <translation>Теневая сборка:</translation>
+    </message>
+    <message>
+        <source>Build directory:</source>
+        <translation>Каталог сборки:</translation>
+    </message>
+    <message>
+        <source>problemLabel</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Shadow Build Directory</source>
+        <translation>Каталог теневой сборки</translation>
+    </message>
+    <message>
+        <source>General</source>
+        <translation>Основное</translation>
+    </message>
+    <message>
+        <source>building in &lt;b&gt;%1&lt;/b&gt;</source>
+        <translation>сборка в &lt;b&gt;%1&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>This kit cannot build this project since it does not define a Qt version.</source>
+        <translation>Невозможно собрать проект данным комплектом, так как для него не задан профиль Qt.</translation>
+    </message>
+    <message>
+        <source>The Qt version %1 does not support shadow builds, building might fail.</source>
+        <translation>Профиль Qt %1 не поддерживает теневую сборку, поэтому она может завершиться с ошибкой.</translation>
+    </message>
+    <message>
+        <source>Error:</source>
+        <translation>Ошибка:</translation>
+    </message>
+    <message>
+        <source>Warning:</source>
+        <translation>Предупреждение: </translation>
+    </message>
+    <message>
+        <source>A build for a different project exists in %1, which will be overwritten.</source>
+        <comment>%1 build directory</comment>
+        <translation>%1 уже является каталогом сборки другого проекта. Содержимое будет перезаписано.</translation>
+    </message>
+    <message>
+        <source>An incompatible build exists in %1, which will be overwritten.</source>
+        <comment>%1 build directory</comment>
+        <translation>В %1 обнаружена несовместимая сборка. Она будет замещена.</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::QmakeProjectImporter</name>
+    <message>
+        <source>Debug</source>
+        <translation>Отладка</translation>
+    </message>
+    <message>
+        <source>Release</source>
+        <translation>Выпуск</translation>
+    </message>
+    <message>
+        <source>No Build Found</source>
+        <translation>Сборка не найдена</translation>
+    </message>
+    <message>
+        <source>No build found in %1 matching project %2.</source>
+        <translation>В %1 не найдена сборка соответствующая проекту %2.</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::QmakeProjectManagerPlugin</name>
+    <message>
+        <source>Build</source>
+        <translation>Собрать</translation>
+    </message>
+    <message>
+        <source>Build &quot;%1&quot;</source>
+        <translation>Собрать «%1»</translation>
+    </message>
+    <message>
+        <source>Run qmake</source>
+        <translation>Запустить qmake</translation>
+    </message>
+    <message>
+        <source>Rebuild</source>
+        <translation>Пересобрать</translation>
+    </message>
+    <message>
+        <source>Clean</source>
+        <translation>Очистить</translation>
+    </message>
+    <message>
+        <source>Build Subproject</source>
+        <translation>Собрать подпроект</translation>
+    </message>
+    <message>
+        <source>Build Subproject &quot;%1&quot;</source>
+        <translation>Собрать подпроект «%1»</translation>
+    </message>
+    <message>
+        <source>Rebuild Subproject</source>
+        <translation>Пересобрать подпроект</translation>
+    </message>
+    <message>
+        <source>Rebuild Subproject &quot;%1&quot;</source>
+        <translation>Пересобрать подпроект «%1»</translation>
+    </message>
+    <message>
+        <source>Clean Subproject</source>
+        <translation>Очистить подпроект</translation>
+    </message>
+    <message>
+        <source>Clean Subproject &quot;%1&quot;</source>
+        <translation>Очистить подпроект «%1»</translation>
+    </message>
+    <message>
+        <source>Build File</source>
+        <translation>Собрать файл</translation>
+    </message>
+    <message>
+        <source>Build File &quot;%1&quot;</source>
+        <translation>Собрать файл «%1»</translation>
+    </message>
+    <message>
+        <source>Ctrl+Alt+B</source>
+        <translation>Ctrl+Alt+B</translation>
+    </message>
+    <message>
+        <source>Add Library...</source>
+        <translation>Добавить библиотеку...</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::Qt4Target</name>
+    <message>
+        <source>Desktop</source>
+        <comment>Qt4 Desktop target display name</comment>
+        <translation>Desktop</translation>
+    </message>
+    <message>
+        <source>Maemo Emulator</source>
+        <comment>Qt4 Maemo Emulator target display name</comment>
+        <translation>Эмулятор Maemo</translation>
+    </message>
+    <message>
+        <source>Maemo Device</source>
+        <comment>Qt4 Maemo Device target display name</comment>
+        <translation>Устройство Maemo</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::QtQuickAppWizard</name>
+    <message>
+        <source>Qt Quick Application</source>
+        <translation>Приложение Qt Quick</translation>
+    </message>
+    <message>
+        <source>Creates a Qt Quick application project that can contain both QML and C++ code.</source>
+        <translation>Создание проекта приложения Qt Quick, который может содержать как QML, так и C++ код.</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::QtQuickAppWizardDialog</name>
+    <message>
+        <source>New Qt Quick Application</source>
+        <translation>Новое приложение Qt Quick</translation>
+    </message>
+    <message>
+        <source>This wizard generates a Qt Quick application project.</source>
+        <translation>Этот мастер создаст проект приложения Qt Quick.</translation>
+    </message>
+    <message>
+        <source>Component Set</source>
+        <translation>Набор компонентов</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::QtQuickComponentSetPage</name>
+    <message>
+        <source>Select Qt Quick Component Set</source>
+        <translation>Выбор набора компонентов Qt Quick</translation>
+    </message>
+    <message>
+        <source>Qt Quick component set:</source>
+        <translation>Набор компонентов Qt Quick:</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::SubdirsProjectWizard</name>
+    <message>
+        <source>Subdirs Project</source>
+        <translation>Проект с поддиректориями</translation>
+    </message>
+    <message>
+        <source>Creates a qmake-based subdirs project. This allows you to group your projects in a tree structure.</source>
+        <translation>Создание проекта с поддиректориями на основе qmake. Он позволит организовать проект в виде дерева каталогов.</translation>
+    </message>
+    <message>
+        <source>Done &amp;&amp; Add Subproject</source>
+        <translation>Готово и добавить подпроект</translation>
+    </message>
+    <message>
+        <source>Finish &amp;&amp; Add Subproject</source>
+        <translation>Завершить и добавить подпроект</translation>
+    </message>
+    <message>
+        <source>New Subproject</source>
+        <comment>Title of dialog</comment>
+        <translation>Создание подпроекта</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::SubdirsProjectWizardDialog</name>
+    <message>
+        <source>This wizard generates a Qt subdirs project. Add subprojects to it later on by using the other wizards.</source>
+        <translation>Этот мастер создаст проект Qt с подкаталогами. Добавьте подпроекты в него позже с использованием уже других мастеров.</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::SummaryPage</name>
+    <message>
+        <source>Summary</source>
+        <translation>Итог</translation>
+    </message>
+    <message>
+        <source>The following snippet will be added to the&lt;br&gt;&lt;b&gt;%1&lt;/b&gt; file:</source>
+        <translation>Следующий код будет добавлен в&lt;br&gt;файл &lt;b&gt;%1&lt;/b&gt;:</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::TestWizard</name>
+    <message>
+        <source>Qt Unit Test</source>
+        <translation>Юнит-тест Qt</translation>
+    </message>
+    <message>
+        <source>Creates a QTestLib-based unit test for a feature or a class. Unit tests allow you to verify that the code is fit for use and that there are no regressions.</source>
+        <translation>Создание юнит-теста основанного на QTestLib для класса или свойства. Юнит тесты позволяют проверять код на пригодность и отсутствие регрессий.</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::TestWizardDialog</name>
+    <message>
+        <source>This wizard generates a Qt unit test consisting of a single source file with a test class.</source>
+        <translation>Этот мастер создаст юнит-тест Qt, содержащий один исходный файл с тестовым классом.</translation>
+    </message>
+    <message>
+        <source>Details</source>
+        <translation>Подробнее</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::Internal::TestWizardPage</name>
+    <message>
+        <source>WizardPage</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Specify basic information about the test class for which you want to generate skeleton source code file.</source>
+        <translation>Укажите основную информацию о тестовом классе, для которого желаете создать скелет исходного файла.</translation>
+    </message>
+    <message>
+        <source>Class name:</source>
+        <translation>Имя класса:</translation>
+    </message>
+    <message>
+        <source>Test slot:</source>
+        <translation>Тестовый слот:</translation>
+    </message>
+    <message>
+        <source>Type:</source>
+        <translation>Тип:</translation>
+    </message>
+    <message>
+        <source>Test</source>
+        <translation>Тест</translation>
+    </message>
+    <message>
+        <source>Benchmark</source>
+        <translation>Замер быстродействия</translation>
+    </message>
+    <message>
+        <source>Use a test data set</source>
+        <translation>Используется набор тестовых данных</translation>
+    </message>
+    <message>
+        <source>Requires QApplication</source>
+        <translation>Требуется QApplication</translation>
+    </message>
+    <message>
+        <source>Generate initialization and cleanup code</source>
+        <translation>Создать код инициализации и очистки</translation>
+    </message>
+    <message>
+        <source>File:</source>
+        <translation>Файл:</translation>
+    </message>
+    <message>
+        <source>Test Class Information</source>
+        <translation>Информация о тестовом классе</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::MakeStep</name>
+    <message>
+        <source>Make</source>
+        <comment>Qt MakeStep display name.</comment>
+        <translation>Сборка</translation>
+    </message>
+    <message>
+        <source>Qt Creator needs a compiler set up to build. Configure a compiler in the kit options.</source>
+        <translation>Необходимо задать компилятор для сборки. Сделать это можно в настройках комплекта.</translation>
+    </message>
+    <message>
+        <source>Configuration is faulty. Check the Issues view for details.</source>
+        <translation>Конфигурация неисправна. Окно «Проблемы» содержит подробную информацию.</translation>
+    </message>
+    <message>
+        <source>Cannot find Makefile. Check your build settings.</source>
+        <translation>Не удалось обнаружить Makefile. Проверьте настройки сборки.</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::MakeStepConfigWidget</name>
+    <message>
+        <source>Override %1:</source>
+        <translation>Заменить %1:</translation>
+    </message>
+    <message>
+        <source>Make:</source>
+        <translation>Make:</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Make:&lt;/b&gt; %1</source>
+        <translation>&lt;b&gt;Make:&lt;/b&gt; %1</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Make:&lt;/b&gt; No Qt build configuration.</source>
+        <translation>&lt;b&gt;Make:&lt;/b&gt; Нет конфигурации сборки Qt.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Make:&lt;/b&gt; %1 not found in the environment.</source>
+        <translation>&lt;b&gt;Make:&lt;/b&gt;программа %1 не найдена.</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::QMakeStep</name>
+    <message>
+        <source>qmake</source>
+        <extracomment>QMakeStep default display name</extracomment>
+        <translation>qmake</translation>
+    </message>
+    <message>
+        <source>Configuration is faulty, please check the Issues view for details.</source>
+        <translation>Конфигурация неисправна. Окно «Проблемы» содержит подробную информацию.</translation>
+    </message>
+    <message>
+        <source>Configuration unchanged, skipping qmake step.</source>
+        <translation>Настройки не изменились, этап qmake пропускается.</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::QMakeStepConfigWidget</name>
+    <message>
+        <source>QML Debugging</source>
+        <translation>Отладка QML</translation>
+    </message>
+    <message>
+        <source>The option will only take effect if the project is recompiled. Do you want to recompile now?</source>
+        <translation>Этот параметр вступит в силу только после перекомпиляции проекта. Перекомпилировать?</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;qmake:&lt;/b&gt; No Qt version set. Cannot run qmake.</source>
+        <translation>&lt;b&gt;qmake:&lt;/b&gt; Профиль Qt не выбран. Невозможно запустить qmake.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;qmake:&lt;/b&gt; %1 %2</source>
+        <translation>&lt;b&gt;qmake:&lt;/b&gt; %1 %2</translation>
+    </message>
+    <message>
+        <source>Enable QML debugging:</source>
+        <translation>Включить отладку QML:</translation>
+    </message>
+    <message>
+        <source>Might make your application vulnerable. Only use in a safe environment.</source>
+        <translation>Может сделать приложение уязвимым. Используйте только в безопасном окружении.</translation>
+    </message>
+    <message>
+        <source>&lt;No Qt version&gt;</source>
+        <translation>&lt;Профиль Qt не задан&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::QmakeBuildConfiguration</name>
+    <message>
+        <source>Parsing the .pro file</source>
+        <translation>Разбор файла .pro</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::QmakeBuildConfigurationFactory</name>
+    <message>
+        <source>Release</source>
+        <extracomment>The name of the release build configuration created by default for a qmake project.</extracomment>
+        <translation>Выпуск</translation>
+    </message>
+    <message>
+        <source>Debug</source>
+        <extracomment>The name of the debug build configuration created by default for a qmake project.</extracomment>
+        <translation>Отладка</translation>
+    </message>
+    <message>
+        <source>Build</source>
+        <translation>Сборка</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::QmakeKitInformation</name>
+    <message>
+        <source>No Qt version set, so mkspec is ignored.</source>
+        <translation>mkspec проигнорирован, так как профиль Qt не задан.</translation>
+    </message>
+    <message>
+        <source>Mkspec not found for Qt version.</source>
+        <translation>Не найден mkspec для профиля Qt.</translation>
+    </message>
+    <message>
+        <source>mkspec</source>
+        <translation>mkspec</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::QmakeManager</name>
+    <message>
+        <source>Update of Generated Files</source>
+        <translation>Обновление созданных файлов</translation>
+    </message>
+    <message>
+        <source>In project&lt;br&gt;&lt;br&gt;%1&lt;br&gt;&lt;br&gt;The following files are either outdated or have been modified:&lt;br&gt;&lt;br&gt;%2&lt;br&gt;&lt;br&gt;Do you want Qt Creator to update the files? Any changes will be lost.</source>
+        <translation>В проекте&lt;br&gt;&lt;br&gt;%1&lt;br&gt;&lt;br&gt;Следующие файлы или устарели, или были изменены:&lt;br&gt;&lt;br&gt;%2&lt;br&gt;&lt;br&gt;Желаете, чтобы Qt Creator обновил их? Все изменения будут утеряны.</translation>
+    </message>
+    <message>
+        <source>Failed opening project &apos;%1&apos;: Project is not a file</source>
+        <translation>Не удалось открыть проект «%1»: проект не является файлом</translation>
+    </message>
+    <message>
+        <source>QMake</source>
+        <translation>QMake</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::QmakePriFileNode</name>
+    <message>
+        <source>Headers</source>
+        <translation>Заголовочные</translation>
+    </message>
+    <message>
+        <source>Sources</source>
+        <translation>Исходники</translation>
+    </message>
+    <message>
+        <source>Forms</source>
+        <translation>Формы</translation>
+    </message>
+    <message>
+        <source>Resources</source>
+        <translation>Ресурсы</translation>
+    </message>
+    <message>
+        <source>QML</source>
+        <translation>QML</translation>
+    </message>
+    <message>
+        <source>Other files</source>
+        <translation>Другие файлы</translation>
+    </message>
+    <message>
+        <source>There are unsaved changes for project file %1.</source>
+        <translation>Имеются несохранённые изменения в файле проекта %1.</translation>
+    </message>
+    <message>
+        <source>Failed!</source>
+        <translation>Не удалось!</translation>
+    </message>
+    <message>
+        <source>Could not write project file %1.</source>
+        <translation>Не удалось записать в файл проекта %1.</translation>
+    </message>
+    <message>
+        <source>File Error</source>
+        <translation>Ошибка файла</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::QmakeProFileNode</name>
+    <message>
+        <source>Error while parsing file %1. Giving up.</source>
+        <translation>Ошибка разбора файла %1. Отмена.</translation>
+    </message>
+    <message>
+        <source>Could not find .pro file for sub dir &apos;%1&apos; in &apos;%2&apos;</source>
+        <translation>Не удалось найти .pro файл для подкаталога «%1» в «%2»</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::QmakeProject</name>
+    <message>
+        <source>Evaluating</source>
+        <translation>Вычисление</translation>
+    </message>
+    <message>
+        <source>No Qt version set in kit.</source>
+        <translation>Для комплекта не задан профиль Qt.</translation>
+    </message>
+    <message>
+        <source>The .pro file &apos;%1&apos; does not exist.</source>
+        <translation>.pro-файл «%1» не существует.</translation>
+    </message>
+    <message>
+        <source>The .pro file &apos;%1&apos; is not part of the project.</source>
+        <translation>.pro-файл «%1» не является частью проекта.</translation>
+    </message>
+    <message>
+        <source>The .pro file &apos;%1&apos; could not be parsed.</source>
+        <translation>Не удалось разобрать .pro-файл «%1».</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::QmlDumpTool</name>
+    <message>
+        <source>Only available for Qt for Desktop and Qt for Qt Simulator.</source>
+        <translation>Доступно только в Qt для настольных машин и симулятора.</translation>
+    </message>
+    <message>
+        <source>Only available for Qt 4.7.1 or newer.</source>
+        <translation>Доступно только в Qt версии 4.7.1 и выше.</translation>
+    </message>
+    <message>
+        <source>Not needed.</source>
+        <translation>Не требуется.</translation>
+    </message>
+    <message>
+        <source>Private headers are missing for this Qt version.</source>
+        <translation>Отсутствуют внутренние заголовочные файлы для этого профила Qt.</translation>
+    </message>
+    <message>
+        <source>qmldump</source>
+        <translation>qmldump</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::QtQuickAppWizard</name>
+    <message>
+        <source>Creates a deployable Qt Quick 1 application using the QtQuick 1.1 import. Requires Qt 4.8 or newer.</source>
+        <translation>Создание устанавливаемого приложение Qt Quick 1 с использованием импорта QtQuick 1.1. Требуется Qt версии 4.8 или выше.</translation>
+    </message>
+    <message>
+        <source>Qt Quick 1.1</source>
+        <translation>Qt Quick 1.1</translation>
+    </message>
+    <message>
+        <source>Creates a deployable Qt Quick 2 application using the QtQuick 2.0 import. Requires Qt 5.0 or newer.</source>
+        <translation>Создание устанавливаемого приложение Qt Quick 2 с использованием импорта QtQuick 2.0. Требуется Qt версии 5.0 или выше.</translation>
+    </message>
+    <message>
+        <source>Qt Quick 2.0</source>
+        <translation>Qt Quick 2.0</translation>
+    </message>
+    <message>
+        <source>Creates a deployable Qt Quick 2 application using Qt Quick Controls. Requires Qt 5.1 or newer.</source>
+        <translation>Создание устанавливаемого приложение Qt Quick 2 с использованием Qt Quick Controls. Требуется Qt версии 5.1 или выше.</translation>
+    </message>
+    <message>
+        <source>Qt Quick Controls 1.0</source>
+        <translation>Qt Quick Controls 1.0</translation>
+    </message>
+</context>
+<context>
+    <name>QmakeProjectManager::QtVersion</name>
+    <message>
+        <source>The Qt version is invalid: %1</source>
+        <extracomment>%1: Reason for being invalid</extracomment>
+        <translation>Некорректный профиль Qt: %1</translation>
+    </message>
+    <message>
+        <source>The qmake command &quot;%1&quot; was not found or is not executable.</source>
+        <extracomment>%1: Path to qmake executable</extracomment>
+        <translation>Не удалось найти программу qmake «%1» или она неисполняема.</translation>
+    </message>
+    <message>
+        <source>Qmake does not support build directories below the source directory.</source>
+        <translation>Qmake не поддерживает сборку в каталогах ниже каталога исходников.</translation>
+    </message>
+    <message>
+        <source>The build directory needs to be at the same level as the source directory.</source>
+        <translation>Каталог сборки должен быть на том же уровне, что и каталог исходников.</translation>
+    </message>
+</context>
+<context>
     <name>QmlApplicationWizard</name>
     <message>
         <source>Failed to read %1 template.</source>
@@ -23639,6 +25373,17 @@ Remote stderr was: %1</source>
         <source>The application is not set up for QML/JS debugging.</source>
         <extracomment>Error message shown after &apos;Could not connect ... debugger:&quot;</extracomment>
         <translation>Приложение не настроено для отладки QML/JS.</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::AddTabToTabViewDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Add tab:</source>
+        <translation>Добавить вкладку:</translation>
     </message>
 </context>
 <context>
@@ -23698,62 +25443,17 @@ Remote stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>QmlDesigner::Internal::BehaviorDialog</name>
+    <name>QmlDesigner::ImportLabel</name>
     <message>
-        <source>Dialog</source>
-        <translation></translation>
+        <source>Remove Import</source>
+        <translation>Удалить импорт</translation>
     </message>
+</context>
+<context>
+    <name>QmlDesigner::ImportsWidget</name>
     <message>
-        <source>Type:</source>
-        <translation>Тип:</translation>
-    </message>
-    <message>
-        <source>ID:</source>
-        <translation>Идентификатор:</translation>
-    </message>
-    <message>
-        <source>Property name:</source>
-        <translation>Имя свойства:</translation>
-    </message>
-    <message>
-        <source>Animation</source>
-        <translation>Анимация</translation>
-    </message>
-    <message>
-        <source>SpringFollow</source>
-        <translation>Упругое изменение</translation>
-    </message>
-    <message>
-        <source>Settings</source>
-        <translation>Настройки</translation>
-    </message>
-    <message>
-        <source>Duration:</source>
-        <translation>Продолжительность:</translation>
-    </message>
-    <message>
-        <source>Curve:</source>
-        <translation>Кривая:</translation>
-    </message>
-    <message>
-        <source>easeNone</source>
-        <translation>easeNone</translation>
-    </message>
-    <message>
-        <source>Source:</source>
-        <translation>Источник:</translation>
-    </message>
-    <message>
-        <source>Velocity:</source>
-        <translation>Скорость:</translation>
-    </message>
-    <message>
-        <source>Spring:</source>
-        <translation>Упругость:</translation>
-    </message>
-    <message>
-        <source>Damping:</source>
-        <translation>Затухание:</translation>
+        <source>Import Manager</source>
+        <translation>Управление импортом</translation>
     </message>
 </context>
 <context>
@@ -23765,6 +25465,10 @@ Remote stderr was: %1</source>
     <message>
         <source>FileName %1</source>
         <translation>Файл %1</translation>
+    </message>
+    <message>
+        <source>DebugView is enabled</source>
+        <translation>DebugView включён</translation>
     </message>
     <message>
         <source>Model detached</source>
@@ -23807,12 +25511,12 @@ Remote stderr was: %1</source>
         <translation>Элемент сменил родителя:</translation>
     </message>
     <message>
-        <source>New Id: </source>
-        <translation>Новый Id: </translation>
+        <source>New Id:</source>
+        <translation>Новый Id:</translation>
     </message>
     <message>
-        <source>Old Id: </source>
-        <translation>Старый Id: </translation>
+        <source>Old Id:</source>
+        <translation>Старый Id:</translation>
     </message>
     <message>
         <source>Node id changed:</source>
@@ -24046,6 +25750,11 @@ Remote stderr was: %1</source>
         <translation>Ресурсы</translation>
     </message>
     <message>
+        <source>Imports</source>
+        <comment>Title of library imports view</comment>
+        <translation>Зависимости</translation>
+    </message>
+    <message>
         <source>&lt;Filter&gt;</source>
         <comment>Library search input hint text</comment>
         <translation>&lt;Фильтр&gt;</translation>
@@ -24078,12 +25787,12 @@ Remote stderr was: %1</source>
         <translation>Неверный идентификатор</translation>
     </message>
     <message>
-        <source>%1 is an invalid id</source>
-        <translation>%1 является неверным идентификатором</translation>
+        <source>%1 is an invalid id.</source>
+        <translation>%1 ― неверный идентификатор.</translation>
     </message>
     <message>
-        <source>%1 already exists</source>
-        <translation>%1 уже существует</translation>
+        <source>%1 already exists.</source>
+        <translation>%1 уже существует.</translation>
     </message>
     <message>
         <source>Warning</source>
@@ -24141,6 +25850,14 @@ Remote stderr was: %1</source>
         <translation>&lt;code&gt;qml2puppet&lt;/code&gt; будет установлен в каталог &lt;code&gt;bin&lt;/code&gt; профиля Qt. Qt Quick Designer проверяет каталог &lt;code&gt;bin&lt;/code&gt; активного в проекте профиля Qt.</translation>
     </message>
     <message>
+        <source>QML Puppet Crashed</source>
+        <translation>QML Puppet завершился крахом</translation>
+    </message>
+    <message>
+        <source>You are recording a puppet stream and the puppet crashed. It is recommended to reopen the Qt Quick Designer and start again.</source>
+        <translation>Puppet завершился крахом при записи puppet-потока. Рекомендуется переоткрыть QML Designer и запустить запись снова.</translation>
+    </message>
+    <message>
         <source>Cannot Find QML Puppet Executable</source>
         <translation>Не удалось найти программу QML Puppet</translation>
     </message>
@@ -24153,7 +25870,7 @@ Remote stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>QmlDesigner::PropertyEditor</name>
+    <name>QmlDesigner::PropertyEditorView</name>
     <message>
         <source>Properties</source>
         <translation>Свойства</translation>
@@ -24163,12 +25880,12 @@ Remote stderr was: %1</source>
         <translation>Неверный идентификатор</translation>
     </message>
     <message>
-        <source>%1 is an invalid id</source>
-        <translation>%1 является неверным идентификатором</translation>
+        <source>%1 is an invalid id.</source>
+        <translation>%1 является неверным идентификатором.</translation>
     </message>
     <message>
-        <source>%1 already exists</source>
-        <translation>%1 уже существует</translation>
+        <source>%1 already exists.</source>
+        <translation>%1 уже существует.</translation>
     </message>
 </context>
 <context>
@@ -24176,20 +25893,6 @@ Remote stderr was: %1</source>
     <message>
         <source>Switch Text/Design</source>
         <translation>Переключить текст/дизайн</translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::QmlModelView</name>
-    <message>
-        <source>Invalid Id</source>
-        <translation>Неверный идентификатор</translation>
-    </message>
-</context>
-<context>
-    <name>QmlDesigner::ResetWidget</name>
-    <message>
-        <source>Reset All Properties</source>
-        <translation>Сбросить все свойства</translation>
     </message>
 </context>
 <context>
@@ -24347,6 +26050,17 @@ Remote stderr was: %1</source>
         <source>States</source>
         <comment>Title of Editor widget</comment>
         <translation>Состояния</translation>
+    </message>
+</context>
+<context>
+    <name>QmlDesigner::TabViewDesignerAction</name>
+    <message>
+        <source>Component already exists.</source>
+        <translation>Компонент уже существует.</translation>
+    </message>
+    <message>
+        <source>Naming Error</source>
+        <translation>Неверное имя</translation>
     </message>
 </context>
 <context>
@@ -24939,6 +26653,10 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>Qt Quick Designer only supports states in the root item.</source>
         <translation>Qt Quick Designer поддерживает состояния только в корневом элементе.</translation>
     </message>
+    <message>
+        <source>Using Qt Quick 1 code model instead of Qt Quick 2.</source>
+        <translation>Использованием модели кода Qt Quick 1 вместо Qt Quick 2.</translation>
+    </message>
 </context>
 <context>
     <name>QmlJS::TypeDescriptionReader</name>
@@ -25092,7 +26810,11 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
     <message>
         <source>Expected object literal to contain only &apos;string: number&apos; elements.</source>
-        <translation>Требуется, чтобы объектный литерал содержал только элементы «string: число».</translation>
+        <translation>Требуется, чтобы объектный литерал содержал только элементы «строка: число».</translation>
+    </message>
+    <message>
+        <source>Enum should not contain getter and setters, but only &apos;string: number&apos; elements.</source>
+        <translation>Перечисление не должно содержать ни геттеров, ни сеттеров, а только элементы «строка: число».</translation>
     </message>
 </context>
 <context>
@@ -25177,16 +26899,13 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
     <message>
         <source>// TODO: Move position bindings from the component to the Loader.
-//       Check all uses of &apos;parent&apos; inside the root element of the component.
-</source>
-        <translation>// TODO: Переместить размещение соединений из компонента в загрузчик.
-//       Проверить все использования «родителя» внутри корневого элемента компонента.
-</translation>
+//       Check all uses of &apos;parent&apos; inside the root element of the component.</source>
+        <translation>// TODO: Переместите привязки позиций из компонента в загрузчик.
+//        Проверьте каждое использовние «parent» в корневом элементе компонента.</translation>
     </message>
     <message>
-        <source>//       Rename all outer uses of the id &apos;%1&apos; to &apos;%2.item&apos;.
-</source>
-        <translation>//       Переименовать все внешние использования id «%1» в «%2.item».
+        <source>//       Rename all outer uses of the id &apos;%1&apos; to &apos;%2.item&apos;.</source>
+        <translation>//       Переименовать каждое внешнее использование id «%1» в «%2.item».
 </translation>
     </message>
     <message>
@@ -25292,7 +27011,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <translation>Не удалось выполнить предпросмотр файла Qt Quick</translation>
     </message>
     <message>
-        <source>Could not preview Qt Quick (QML) file. Reason: 
+        <source>Could not preview Qt Quick (QML) file. Reason:
 %1</source>
         <translation>Не удалось запустить предпросмотр файла Qt Quick (QML). Причина:
 %1</translation>
@@ -25394,8 +27113,8 @@ Qt Creator know about a likely URI.</source>
 <context>
     <name>QmlJSTools::Internal::FunctionFilter</name>
     <message>
-        <source>QML Methods and Functions</source>
-        <translation>Методы и функции QML</translation>
+        <source>QML Functions</source>
+        <translation>Функции QML</translation>
     </message>
 </context>
 <context>
@@ -25403,6 +27122,10 @@ Qt Creator know about a likely URI.</source>
     <message>
         <source>Indexing</source>
         <translation>Индексация</translation>
+    </message>
+    <message>
+        <source>Qml import scan</source>
+        <translation>Сканирование импорта Qml</translation>
     </message>
 </context>
 <context>
@@ -25420,12 +27143,10 @@ See &quot;Using QML Modules with Plugins&quot; in the documentation.</source>
     <message>
         <source>Automatic type dump of QML module failed.
 Errors:
-%1
-</source>
-        <translation>Не удалось загрузит типы из модуля QML.
+%1</source>
+        <translation>Не удалось загрузить типы из модуля QML.
 Ошибки:
-%1
-</translation>
+%1</translation>
     </message>
     <message>
         <source>Automatic type dump of QML module failed.
@@ -25591,6 +27312,26 @@ Error: %2</source>
         <translation>Некорректная форма экпоненциального числа</translation>
     </message>
     <message>
+        <source>Stray newline in string literal</source>
+        <translation>Неожиданный конец строки в строковом литерале</translation>
+    </message>
+    <message>
+        <source>Illegal hexadecimal escape sequence</source>
+        <translation>Недопустимая шестнадцатеричная ESC-последовательность</translation>
+    </message>
+    <message>
+        <source>Octal escape sequences are not allowed</source>
+        <translation>Восьмеричные ESC-последовательности недопустимы</translation>
+    </message>
+    <message>
+        <source>Decimal numbers can&apos;t start with &apos;0&apos;</source>
+        <translation>Десятичные числа не могут начинаться с «0»</translation>
+    </message>
+    <message>
+        <source>At least one hexadecimal digit is required after &apos;0%1&apos;</source>
+        <translation>Требуется как минимум одна шестнадцатеричная цифра после «0%1»</translation>
+    </message>
+    <message>
         <source>Unterminated regular expression literal</source>
         <translation>Незавершённый литерал регулярного выражения</translation>
     </message>
@@ -25620,6 +27361,21 @@ Error: %2</source>
     </message>
 </context>
 <context>
+    <name>QmlProfiler::Internal::BasicTimelineModel</name>
+    <message utf8="true">
+        <source> µs</source>
+        <translation> мкс</translation>
+    </message>
+    <message>
+        <source> ms</source>
+        <translation> мс</translation>
+    </message>
+    <message>
+        <source> s</source>
+        <translation> с</translation>
+    </message>
+</context>
+<context>
     <name>QmlProfiler::Internal::LocalQmlProfilerRunner</name>
     <message>
         <source>No executable file to launch.</source>
@@ -25627,10 +27383,75 @@ Error: %2</source>
     </message>
 </context>
 <context>
+    <name>QmlProfiler::Internal::PaintEventsModelProxy</name>
+    <message>
+        <source>Painting</source>
+        <translation>Отрисовка</translation>
+    </message>
+    <message utf8="true">
+        <source> µs</source>
+        <translation> мкс</translation>
+    </message>
+    <message>
+        <source> ms</source>
+        <translation> мс</translation>
+    </message>
+    <message>
+        <source> s</source>
+        <translation> с</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::QV8ProfilerDataModel</name>
+    <message>
+        <source>&lt;program&gt;</source>
+        <translation>&lt;программа&gt;</translation>
+    </message>
+    <message>
+        <source>Main Program</source>
+        <translation>Основная программа</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::QV8ProfilerEventsMainView</name>
+    <message utf8="true">
+        <source> µs</source>
+        <translation> мкс</translation>
+    </message>
+    <message>
+        <source> ms</source>
+        <translation> мс</translation>
+    </message>
+    <message>
+        <source> s</source>
+        <translation> с</translation>
+    </message>
+    <message>
+        <source>Paint</source>
+        <translation>Отрисовка</translation>
+    </message>
+    <message>
+        <source>Compile</source>
+        <translation>Компиляция</translation>
+    </message>
+    <message>
+        <source>Create</source>
+        <translation>Создание</translation>
+    </message>
+    <message>
+        <source>Binding</source>
+        <translation>Привязка</translation>
+    </message>
+    <message>
+        <source>Signal</source>
+        <translation>Сигнал</translation>
+    </message>
+</context>
+<context>
     <name>QmlProfiler::Internal::QmlProfilerAttachDialog</name>
     <message>
         <source>QML Profiler</source>
-        <translation>Профилер QML</translation>
+        <translation>Профайлер QML</translation>
     </message>
     <message>
         <source>&amp;Host:</source>
@@ -25666,28 +27487,26 @@ Error: %2</source>
     <message>
         <source>Could not connect to the in-process QML profiler.
 Do you want to retry?</source>
-        <translation>Не удалось подключиться к внутрипроцессному профилеру QML.
+        <translation>Не удалось подключиться к внутрипроцессному профайлеру QML.
 Повторить?</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerDataModel</name>
+    <name>QmlProfiler::Internal::QmlProfilerDataState</name>
     <message>
-        <source>Source code not available.</source>
-        <translation>Исходный код недоступен.</translation>
+        <source>Trying to set unknown state in events list.</source>
+        <translation>Попытка установить неизвестное состояние в списке событий.</translation>
     </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::QmlProfilerEventChildrenModelProxy</name>
     <message>
-        <source>&lt;bytecode&gt;</source>
-        <translation>&lt;байтовый код&gt;</translation>
+        <source>&lt;program&gt;</source>
+        <translation>&lt;программа&gt;</translation>
     </message>
-    <message>
-        <source>Animation Timer Update</source>
-        <translation>Обновление анимационного таймера</translation>
-    </message>
-    <message>
-        <source>&lt;Animation Update&gt;</source>
-        <translation>&lt;Обновление анимации&gt;</translation>
-    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::QmlProfilerEventParentsModelProxy</name>
     <message>
         <source>&lt;program&gt;</source>
         <translation>&lt;программа&gt;</translation>
@@ -25696,110 +27515,19 @@ Do you want to retry?</source>
         <source>Main Program</source>
         <translation>Основная программа</translation>
     </message>
-    <message>
-        <source>%1 animations at %2 FPS.</source>
-        <translation>%1 анимаций, %2 кадров в секунду.</translation>
-    </message>
-    <message>
-        <source>Unexpected complete signal in data model.</source>
-        <translation>Неожиданный сигнал complete в модели данных.</translation>
-    </message>
-    <message>
-        <source>No data to save.</source>
-        <translation>Нет данных для сохранения.</translation>
-    </message>
-    <message>
-        <source>Could not open %1 for writing.</source>
-        <translation>Не удалось открыть %1 для записи.</translation>
-    </message>
-    <message>
-        <source>Could not open %1 for reading.</source>
-        <translation>Не удалось открыть %1 для чтения.</translation>
-    </message>
-    <message>
-        <source>Error while parsing %1.</source>
-        <translation>Ошибка при разборе %1.</translation>
-    </message>
-    <message>
-        <source>Trying to set unknown state in events list.</source>
-        <translation>Попытка установить неизвестное состояние в списке событий.</translation>
-    </message>
-    <message>
-        <source>Invalid version of QML Trace file.</source>
-        <translation>Неверная версия файла трассировки QML.</translation>
-    </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerEngine</name>
+    <name>QmlProfiler::Internal::QmlProfilerEventRelativesView</name>
     <message>
-        <source>QML Profiler</source>
-        <translation>Профилер QML</translation>
-    </message>
-    <message>
-        <source>Qt Creator</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Could not connect to the in-process QML debugger:
-%1</source>
-        <extracomment>%1 is detailed error message</extracomment>
-        <translation>Не удалось подключиться к внутрипроцессному отладчику QML.
-%1</translation>
+        <source>Part of binding loop.</source>
+        <translation>Часть закольцованных связей.</translation>
     </message>
 </context>
 <context>
     <name>QmlProfiler::Internal::QmlProfilerEventsMainView</name>
     <message>
-        <source>Location</source>
-        <translation>Размещение</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>Тип</translation>
-    </message>
-    <message>
-        <source>Time in Percent</source>
-        <translation>Время в процентах</translation>
-    </message>
-    <message>
-        <source>Total Time</source>
-        <translation>Общее время</translation>
-    </message>
-    <message>
-        <source>Self Time in Percent</source>
-        <translation>Собственное время в процентах</translation>
-    </message>
-    <message>
-        <source>Self Time</source>
-        <translation>Собственное время</translation>
-    </message>
-    <message>
-        <source>Calls</source>
-        <translation>Вызовы</translation>
-    </message>
-    <message>
-        <source>Mean Time</source>
-        <translation>Среднее время</translation>
-    </message>
-    <message>
-        <source>Median Time</source>
-        <translation>Медианное время</translation>
-    </message>
-    <message>
-        <source>Longest Time</source>
-        <translation>Наибольшее время</translation>
-    </message>
-    <message>
-        <source>Shortest Time</source>
-        <translation>Наименьшее время</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>Подробнее</translation>
-    </message>
-    <message>
-        <source> (Opt)</source>
-        <translation> (Опт)</translation>
+        <source>(Opt)</source>
+        <translation>(Опт)</translation>
     </message>
     <message>
         <source>Binding is evaluated by the optimized engine.</source>
@@ -25849,46 +27577,18 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerEventsParentsAndChildrenView</name>
+    <name>QmlProfiler::Internal::QmlProfilerEventsModelProxy</name>
     <message>
-        <source>Part of binding loop.</source>
-        <translation>Часть закольцованных связей.</translation>
+        <source>&lt;program&gt;</source>
+        <translation>&lt;программа&gt;</translation>
     </message>
     <message>
-        <source>Callee</source>
-        <translation>Вызываемое</translation>
-    </message>
-    <message>
-        <source>Caller</source>
-        <translation>Вызывающее</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>Тип</translation>
-    </message>
-    <message>
-        <source>Total Time</source>
-        <translation>Общее время</translation>
-    </message>
-    <message>
-        <source>Calls</source>
-        <translation>Вызовы</translation>
-    </message>
-    <message>
-        <source>Callee Description</source>
-        <translation>Описание вызываемого</translation>
-    </message>
-    <message>
-        <source>Caller Description</source>
-        <translation>Описание вызывающего</translation>
+        <source>Main Program</source>
+        <translation>Основная программа</translation>
     </message>
 </context>
 <context>
     <name>QmlProfiler::Internal::QmlProfilerEventsWidget</name>
-    <message>
-        <source>Trace information from the v8 JavaScript engine. Available only in Qt5 based applications.</source>
-        <translation>Трассировочная информация из движка JavaScript v8. Доступна только в приложениях на базе Qt5.</translation>
-    </message>
     <message>
         <source>Copy Row</source>
         <translation>Скопировать строку</translation>
@@ -25911,10 +27611,50 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerRunControlFactory</name>
+    <name>QmlProfiler::Internal::QmlProfilerFileReader</name>
     <message>
-        <source>No analyzer tool selected</source>
-        <translation>Инструмент анализа не выбран</translation>
+        <source>Error while parsing trace data file: %1</source>
+        <translation>Ошибка разбора файла данных трассировки: %1</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::QmlProfilerPlugin</name>
+    <message>
+        <source>QML Profiler</source>
+        <translation>Профайлер QML</translation>
+    </message>
+    <message>
+        <source>QML Profiler (External)</source>
+        <translation>Профайлер QML (внешний)</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::QmlProfilerProcessedModel</name>
+    <message>
+        <source>&lt;bytecode&gt;</source>
+        <translation>&lt;байтовый код&gt;</translation>
+    </message>
+    <message>
+        <source>Source code not available.</source>
+        <translation>Исходный код недоступен.</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::Internal::QmlProfilerRunControl</name>
+    <message>
+        <source>Qt Creator</source>
+        <translation>Qt Creator</translation>
+    </message>
+    <message>
+        <source>Could not connect to the in-process QML debugger:
+%1</source>
+        <extracomment>%1 is detailed error message</extracomment>
+        <translation>Не удалось подключиться к внутрипроцессному отладчику QML.
+%1</translation>
+    </message>
+    <message>
+        <source>QML Profiler</source>
+        <translation>Профайлер QML</translation>
     </message>
 </context>
 <context>
@@ -25940,7 +27680,7 @@ references to elements in other files, loops, etc.)</source>
     <name>QmlProfiler::Internal::QmlProfilerTool</name>
     <message>
         <source>QML Profiler</source>
-        <translation>Профилер QML</translation>
+        <translation>Профайлер QML</translation>
     </message>
     <message>
         <source>The QML Profiler can be used to find performance bottlenecks in applications using QML.</source>
@@ -25952,7 +27692,7 @@ references to elements in other files, loops, etc.)</source>
     </message>
     <message>
         <source>QML Profiler Options</source>
-        <translation>Настройки профилера QML</translation>
+        <translation>Настройки профайлера QML</translation>
     </message>
     <message>
         <source>Save QML Trace</source>
@@ -25962,7 +27702,7 @@ references to elements in other files, loops, etc.)</source>
         <source>The QML profiler requires Qt 4.7.4 or newer.
 The Qt version configured in your active build configuration is too old.
 Do you want to continue?</source>
-        <translation>Профилеру QML требуется Qt версии 4.7.4 или выше.
+        <translation>Профайлеру QML требуется Qt версии 4.7.4 или выше.
 Версия Qt настроенная для текущей конфигурации сборки слишком старая.
 Продолжить?</translation>
     </message>
@@ -26048,6 +27788,28 @@ Please use the stop button instead.</source>
     </message>
 </context>
 <context>
+    <name>QmlProfiler::QmlProfilerModelManager</name>
+    <message>
+        <source>Unexpected complete signal in data model.</source>
+        <translation>Неожиданный сигнал complete в модели данных.</translation>
+    </message>
+    <message>
+        <source>Could not open %1 for writing.</source>
+        <translation>Не удалось открыть %1 для записи.</translation>
+    </message>
+    <message>
+        <source>Could not open %1 for reading.</source>
+        <translation>Не удалось открыть %1 для чтения.</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProfiler::QmlProfilerSimpleModel</name>
+    <message>
+        <source>Animations</source>
+        <translation>Анимации</translation>
+    </message>
+</context>
+<context>
     <name>QmlProjectManager::Internal::Manager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project is not a file</source>
@@ -26057,12 +27819,12 @@ Please use the stop button instead.</source>
 <context>
     <name>QmlProjectManager::Internal::QmlApplicationWizard</name>
     <message>
-        <source>Qt Quick Application</source>
-        <translation>Приложение Qt Quick</translation>
+        <source>Qt Quick UI</source>
+        <translation>Интерфейс Qt Quick</translation>
     </message>
     <message>
-        <source>Creates a Qt Quick application project.</source>
-        <translation>Создание проекта приложения Qt Quick.</translation>
+        <source>Creates a Qt Quick UI project.</source>
+        <translation>Создание проекта приложения с интерфейсом на Qt Quick.</translation>
     </message>
 </context>
 <context>
@@ -26074,6 +27836,21 @@ Please use the stop button instead.</source>
     <message>
         <source>This wizard generates a Qt Quick UI project.</source>
         <translation>Этот мастер создаст проект интерфейса пользователя на Qt Quick.</translation>
+    </message>
+    <message>
+        <source>Component Set</source>
+        <translation>Набор компонентов</translation>
+    </message>
+</context>
+<context>
+    <name>QmlProjectManager::Internal::QmlComponentSetPage</name>
+    <message>
+        <source>Select Qt Quick Component Set</source>
+        <translation>Выбор набора компонентов Qt Quick</translation>
+    </message>
+    <message>
+        <source>Qt Quick component set:</source>
+        <translation>Набор компонентов Qt Quick:</translation>
     </message>
 </context>
 <context>
@@ -26099,52 +27876,30 @@ Please use the stop button instead.</source>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::Internal::QmlProjectRunControl</name>
-    <message>
-        <source>Starting %1 %2
-</source>
-        <translation>Запускается %1 %2
-</translation>
-    </message>
-    <message>
-        <source>%1 exited with code %2
-</source>
-        <translation>%1 завершился с кодом %2
-</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProjectManager::Internal::QmlProjectRunControlFactory</name>
-    <message>
-        <source>Not enough free ports for QML debugging. </source>
-        <translation>Недостаточно свободных портов для отладки QML. </translation>
-    </message>
-</context>
-<context>
     <name>QmlProjectManager::QmlApplicationWizard</name>
     <message>
-        <source>Creates a Qt Quick 1 UI project with a single QML file that contains the main view. You can review Qt Quick 1 UI projects in the QML Viewer and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of projects. Requires Qt 4.8 or newer.</source>
-        <translation>Создание проекта Qt Quick 1 с одним файлом QML, содержащим главный интерфейс. Проверять проекты Qt Quick 1 можно без пересборки в QML Viewer. Для создания и запуска этого типа проектов не требуется интегрированная среда разработки. Требуется Qt версии 4.8 или выше.</translation>
+        <source>Creates a Qt Quick 1 UI project with a single QML file that contains the main view. You can review Qt Quick 1 UI projects in the QML Viewer and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of project. Requires Qt 4.8 or newer.</source>
+        <translation>Создание проекта Qt Quick 1 с одним файлом QML, содержащим главный интерфейс. Проверять проекты Qt Quick 1 можно без пересборки в QML Viewer. Для создания и запуска таких проектов интегрированная среда разработки не нужна. Требуется Qt версии 4.8 или выше.</translation>
     </message>
     <message>
-        <source>Qt Quick 1 UI</source>
-        <translation>Проект с интерфейсом Qt Quick 1</translation>
+        <source>Qt Quick 1.1</source>
+        <translation>Qt Quick 1.1</translation>
     </message>
     <message>
-        <source>Creates a Qt Quick 2 UI project with a single QML file that contains the main view. You can review Qt Quick 2 UI projects in the QML Scene and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of projects. Requires Qt 5.0 or newer.</source>
-        <translation>Создание проекта Qt Quick 2 с одним файлом QML, содержащим главный интерфейс. Проверять проекты Qt Quick 2 можно без пересборки в QML Scene. Для создания и запуска этого типа проектов не требуется интегрированная среда разработки. Требуется Qt версии 5.0 или выше.</translation>
+        <source>Creates a Qt Quick 2 UI project with a single QML file that contains the main view. You can review Qt Quick 2 UI projects in the QML Scene and you need not build them. You do not need to have the development environment installed on your computer to create and run this type of project. Requires Qt 5.0 or newer.</source>
+        <translation>Создание проекта Qt Quick 2 с одним файлом QML, содержащим главный интерфейс. Проверять проекты Qt Quick 2 можно без пересборки в QML Scene. Для создания и запуска таких проектов интегрированная среда разработки не нужна. Требуется Qt версии 5.0 или выше.</translation>
     </message>
     <message>
-        <source>Qt Quick 2 UI</source>
-        <translation>Проект с интерфейсом Qt Quick 2</translation>
+        <source>Qt Quick 2.0</source>
+        <translation>Qt Quick 2.0</translation>
+    </message>
+    <message>
+        <source>Qt Quick Controls 1.0</source>
+        <translation>Qt Quick Controls 1.0</translation>
     </message>
     <message>
         <source>Creates a Qt Quick 2 UI project with a single QML file that contains the main view and uses Qt Quick Controls. You can review Qt Quick 2 UI projects in the QML Scene and you need not build them. This project requires that you have installed Qt Quick Controls for your Qt version. Requires Qt 5.1 or newer.</source>
         <translation>Создание проекта Qt Quick 2 с одним файлом QML, содержащим главный интерфейс и использующим Qt Quick Controls. Проверять проекты Qt Quick 2 можно без пересборки в QML Scene. Проекту необходимо, чтобы для вашего профиля Qt были установлены Qt Quick Controls. Требуется Qt версии 5.1 или выше.</translation>
-    </message>
-    <message>
-        <source>Qt Quick 2 UI with Controls</source>
-        <translation>Проект с интерфейсом Qt Quick 2 с элементами управления</translation>
     </message>
 </context>
 <context>
@@ -26152,10 +27907,6 @@ Please use the stop button instead.</source>
     <message>
         <source>Error while loading project file %1.</source>
         <translation>Ошибка при загрузке файла проекта %1.</translation>
-    </message>
-    <message>
-        <source>QML project: %1</source>
-        <translation>Проект QML: %1</translation>
     </message>
     <message>
         <source>Warning while loading project file %1.</source>
@@ -26182,26 +27933,10 @@ Please use the stop button instead.</source>
     </message>
 </context>
 <context>
-    <name>QmlProjectManager::QmlProjectPlugin</name>
+    <name>QmlProjectManager::QmlProjectFileFormat</name>
     <message>
-        <source>Open Qt Versions</source>
-        <translation>Открыть профили Qt</translation>
-    </message>
-    <message>
-        <source>QML Observer Missing</source>
-        <translation>Отсутствует обозреватель QML</translation>
-    </message>
-    <message>
-        <source>QML Observer could not be found for this Qt version.</source>
-        <translation>Не удалось найти QML Observer для этого профиля Qt.</translation>
-    </message>
-    <message>
-        <source>QML Observer is used to offer debugging features for Qt Quick UI projects in the Qt 4.7 series.
-
-To compile QML Observer, go to the Qt Versions page, select the current Qt version, and click Build in the Helpers section.</source>
-        <translation>Обозреватель QML предоставляет возможности для отладки проектов с пользовательским интерфейсом Qt Quick для Qt версии 4.7.
-
-Для его сборки необходимо зайти на страницу настроек профилей Qt, выбрать текущий профиль Qt и щёлкнуть «Пересобрать» в разделе «Помощники».</translation>
+        <source>Invalid root element: %1</source>
+        <translation>Неверный корневой элемент: %1</translation>
     </message>
 </context>
 <context>
@@ -26605,7 +28340,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
     <message>
         <source>BlackBerry Messenger</source>
-        <translation type="unfinished">BlackBerry Messenger</translation>
+        <translation>BlackBerry Messenger</translation>
     </message>
     <message>
         <source>Calendar</source>
@@ -26665,25 +28400,6 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
         <source>Launching application failed</source>
         <translation>Не удалось запустить приложение</translation>
     </message>
-    <message>
-        <source>Cannot show debug output. Error: %1</source>
-        <translation>Не удалось отобразить отладочный вывод. Ошибка: %1</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryCertificateModel</name>
-    <message>
-        <source>Path</source>
-        <translation>Путь</translation>
-    </message>
-    <message>
-        <source>Author</source>
-        <translation>Автор</translation>
-    </message>
-    <message>
-        <source>Active</source>
-        <translation>Активный</translation>
-    </message>
 </context>
 <context>
     <name>Qnx::Internal::BlackBerryCheckDevModeStep</name>
@@ -26717,8 +28433,16 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
 <context>
     <name>Qnx::Internal::BlackBerryConfiguration</name>
     <message>
-        <source>The following errors occurred while setting up BB10 Configuration:</source>
-        <translation>При настройке конфигурации BB10 возникли следующие ошибки:</translation>
+        <source>Qt %1 for %2</source>
+        <translation>Qt %1 для %2</translation>
+    </message>
+    <message>
+        <source>QCC for %1</source>
+        <translation>QCC для %1</translation>
+    </message>
+    <message>
+        <source>Debugger for %1</source>
+        <translation>Отладчик для %1</translation>
     </message>
     <message>
         <source>- No Qt version found.</source>
@@ -26741,52 +28465,31 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
         <translation>Не удалось настроить конфигурацию BB10</translation>
     </message>
     <message>
-        <source>This Qt version was already registered.</source>
-        <translation>Этот профиль Qt уже зарегистрирован.</translation>
+        <source>BlackBerry Device - %1</source>
+        <translation>Устройство BlackBerry - %1</translation>
     </message>
     <message>
-        <source>Invalid Qt Version</source>
-        <translation>Неверный профиль Qt</translation>
+        <source>BlackBerry Simulator - %1</source>
+        <translation>Эмулятор BlackBerry - %1</translation>
     </message>
     <message>
-        <source>Unable to add BlackBerry Qt version.</source>
-        <translation>Невозможно добавить профиль Qt для BlackBerry.</translation>
+        <source>The following errors occurred while activating target: %1</source>
+        <translation>При активации цели возникли следующие ошибки: %1</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BlackBerryConfigurationManager</name>
+    <message>
+        <source>NDK Already Known</source>
+        <translation>NDK уже известен</translation>
     </message>
     <message>
-        <source>This compiler was already registered.</source>
-        <translation>Этот компилятор уже зарегистрирован.</translation>
-    </message>
-    <message>
-        <source>This kit was already registered.</source>
-        <translation>Этот комплект уже зарегистрирован.</translation>
-    </message>
-    <message>
-        <source>Qt Version Already Known</source>
-        <translation>Профиль Qt уже известен</translation>
-    </message>
-    <message>
-        <source>Compiler Already Known</source>
-        <translation>Компилятор уже известен</translation>
-    </message>
-    <message>
-        <source>Kit Already Known</source>
-        <translation>Комплект уже известен</translation>
-    </message>
-    <message>
-        <source>BlackBerry 10 (%1) - Simulator</source>
-        <translation>Эмулятор - BlackBerry 10 (%1)</translation>
-    </message>
-    <message>
-        <source>BlackBerry 10 (%1)</source>
-        <translation>BlackBerry 10 (%1)</translation>
+        <source>The NDK already has a configuration.</source>
+        <translation>Уже есть конфигурация для этого NDK.</translation>
     </message>
 </context>
 <context>
     <name>Qnx::Internal::BlackBerryCreateCertificateDialog</name>
-    <message>
-        <source>Path:</source>
-        <translation>Путь:</translation>
-    </message>
     <message>
         <source>Author:</source>
         <translation>Автор:</translation>
@@ -26801,15 +28504,11 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
     <message>
         <source>Show password</source>
-        <translation>Показывать пароль</translation>
+        <translation>Отображать пароль</translation>
     </message>
     <message>
         <source>Status</source>
         <translation>Состояние</translation>
-    </message>
-    <message>
-        <source>PKCS 12 archives (*.p12)</source>
-        <translation>Архивы PKCS 12 (*.p12)</translation>
     </message>
     <message>
         <source>Base directory does not exist.</source>
@@ -26820,6 +28519,10 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
         <translation>Введённые пароли не совпадают.</translation>
     </message>
     <message>
+        <source>Password must be at least 6 characters long.</source>
+        <translation>Пароль должен иметь длину не менее 6 символов.</translation>
+    </message>
+    <message>
         <source>Are you sure?</source>
         <translation>Вы уверены?</translation>
     </message>
@@ -26828,12 +28531,28 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
         <translation>Файл «%1» будет перезаписан. Продолжить?</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation>Ошибка</translation>
+        <source>The blackberry-keytool process is already running.</source>
+        <translation>Процесс blackberry-keytool уже выполняется.</translation>
     </message>
     <message>
-        <source>An unknown error occurred while creating the certificate.</source>
-        <translation>При создании сертификата возникла неизвестная ошибка.</translation>
+        <source>The password entered is invalid.</source>
+        <translation>Введённый пароль неверен.</translation>
+    </message>
+    <message>
+        <source>The password entered is too short.</source>
+        <translation>Введённый пароль слишком короткий.</translation>
+    </message>
+    <message>
+        <source>Invalid output format.</source>
+        <translation>Недопустимый выходной формат.</translation>
+    </message>
+    <message>
+        <source>An unknown error occurred.</source>
+        <translation>Возникла неизвестная ошибка.</translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation>Ошибка</translation>
     </message>
     <message>
         <source>Please be patient...</source>
@@ -26919,7 +28638,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
     <message>
         <source>Show passwords</source>
-        <translation>Показывать пароли</translation>
+        <translation>Отображать пароли</translation>
     </message>
     <message>
         <source>Package in development mode</source>
@@ -26934,29 +28653,6 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryCsjRegistrar</name>
-    <message>
-        <source>Failed to start blackberry-signer process.</source>
-        <translation>Не удалось запустить программу blackberry-signer.</translation>
-    </message>
-    <message>
-        <source>Process timed out.</source>
-        <translation>Время работы истекло.</translation>
-    </message>
-    <message>
-        <source>Child process has crashed.</source>
-        <translation>Дочерний процесс завершился крахом.</translation>
-    </message>
-    <message>
-        <source>Process I/O error.</source>
-        <translation>Ошибка ввода/вывода.</translation>
-    </message>
-    <message>
-        <source>Unknown process error.</source>
-        <translation>Неизвестная ошибка процесса.</translation>
-    </message>
-</context>
-<context>
     <name>Qnx::Internal::BlackBerryDebugTokenRequestDialog</name>
     <message>
         <source>Request Debug Token</source>
@@ -26967,24 +28663,8 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
         <translation>Путь к токену отладки:</translation>
     </message>
     <message>
-        <source>Keystore:</source>
-        <translation>Хранилище ключей:</translation>
-    </message>
-    <message>
-        <source>Keystore password:</source>
-        <translation>Пароль хранилища:</translation>
-    </message>
-    <message>
-        <source>CSK password:</source>
-        <translation>Пароль CSK:</translation>
-    </message>
-    <message>
         <source>Device PIN:</source>
         <translation>PIN устройства:</translation>
-    </message>
-    <message>
-        <source>Show password</source>
-        <translation>Показывать пароль</translation>
     </message>
     <message>
         <source>Status</source>
@@ -27011,8 +28691,8 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
         <translation>Файл «%1» будет перезаписан. Продолжить?</translation>
     </message>
     <message>
-        <source>Failed to request debug token: </source>
-        <translation>Не удалось получить токен отладки: </translation>
+        <source>Failed to request debug token:</source>
+        <translation>Не удалось получить токен отладки:</translation>
     </message>
     <message>
         <source>Wrong CSK password.</source>
@@ -27196,7 +28876,7 @@ Do you want Qt Creator to generate it for your project?</source>
     </message>
     <message>
         <source>Show password</source>
-        <translation>Отображать</translation>
+        <translation>Отображать пароль</translation>
     </message>
     <message>
         <source>Debug token:</source>
@@ -27217,10 +28897,6 @@ Do you want Qt Creator to generate it for your project?</source>
     <message>
         <source>Upload</source>
         <translation>Отправить</translation>
-    </message>
-    <message>
-        <source>Failed to upload debug token: </source>
-        <translation>Не удалось отправить токен отладки: </translation>
     </message>
     <message>
         <source>Qt Creator</source>
@@ -27267,6 +28943,14 @@ Do you want Qt Creator to generate it for your project?</source>
         <translation>Ошибка</translation>
     </message>
     <message>
+        <source>Invalid debug token path.</source>
+        <translation>Неверный путь к токену отладки.</translation>
+    </message>
+    <message>
+        <source>Failed to upload debug token:</source>
+        <translation>Не удалось отправить токен отладки:</translation>
+    </message>
+    <message>
         <source>Operation in Progress</source>
         <translation>Выполняется операция</translation>
     </message>
@@ -27287,14 +28971,88 @@ Do you want Qt Creator to generate it for your project?</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationWizardFinalPage</name>
+    <name>Qnx::Internal::BlackBerryDeviceConfigurationWizardConfigPage</name>
     <message>
-        <source>Setup Finished</source>
-        <translation>Настройка завершена</translation>
+        <source>Form</source>
+        <translation></translation>
     </message>
     <message>
-        <source>The new device configuration will now be created.</source>
+        <source>Debug Token</source>
+        <translation>Токен отладки</translation>
+    </message>
+    <message>
+        <source>Location:</source>
+        <translation>Размещение:</translation>
+    </message>
+    <message>
+        <source>Generate</source>
+        <translation>Создать</translation>
+    </message>
+    <message>
+        <source>Type:</source>
+        <translation>Тип:</translation>
+    </message>
+    <message>
+        <source>Configuration name:</source>
+        <translation>Название конфигурации:</translation>
+    </message>
+    <message>
+        <source>Configuration</source>
+        <translation>Конфигурация</translation>
+    </message>
+    <message>
+        <source>Debug token is needed for deploying applications to BlackBerry devices.</source>
+        <translation>Для установки приложений на устройства BlackBerry необходим токен отладки.</translation>
+    </message>
+    <message>
+        <source>Host name or IP address:</source>
+        <translation>IP-адрес или имя хоста:</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BlackBerryDeviceConfigurationWizardFinalPage</name>
+    <message>
+        <source>Summary</source>
+        <translation>Итог</translation>
+    </message>
+    <message>
+        <source>The new device configuration will be created now.</source>
         <translation>Будет создана конфигурация нового устройства.</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BlackBerryDeviceConfigurationWizardQueryPage</name>
+    <message>
+        <source>Form</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Device Information</source>
+        <translation>Информация об устройстве</translation>
+    </message>
+    <message>
+        <source>Querying device information. Please wait...</source>
+        <translation>Получение информации об устройстве. Ждите...</translation>
+    </message>
+    <message>
+        <source>Cannot connect to the device. Check if the device is in development mode and has matching host name and password.</source>
+        <translation>Не удалось подключиться к устройству. Проверьте, находится ли устройство в режиме разработки, а так же имя хоста и пароль.</translation>
+    </message>
+    <message>
+        <source>Generating SSH keys. Please wait...</source>
+        <translation>Создание ключей SSH. Ждите...</translation>
+    </message>
+    <message>
+        <source>Failed generating SSH key needed for securing connection to a device. Error:</source>
+        <translation>Не удалось создать ключи SSH, необходимые для подключения к устройству. Ошибка:</translation>
+    </message>
+    <message>
+        <source>Failed saving SSH key needed for securing connection to a device. Error:</source>
+        <translation>Не удалось сохранить ключи SSH, необходимые для подключения к устройству. Ошибка:</translation>
+    </message>
+    <message>
+        <source>Device information retrieved successfully.</source>
+        <translation>Информация об устройстве успешно получена.</translation>
     </message>
 </context>
 <context>
@@ -27304,79 +29062,32 @@ Do you want Qt Creator to generate it for your project?</source>
         <translation>WizardPage</translation>
     </message>
     <message>
-        <source>The name to identify this configuration:</source>
-        <translation>Название этой конфигурации:</translation>
-    </message>
-    <message>
-        <source>The device&apos;s host name or IP address:</source>
-        <translation>Имя узла или IP адрес устройства:</translation>
-    </message>
-    <message>
         <source>Device password:</source>
         <translation>Пароль устройства:</translation>
     </message>
     <message>
-        <source>Device type:</source>
-        <translation>Тип устройства:</translation>
+        <source>Connection</source>
+        <translation>Подключение</translation>
     </message>
     <message>
-        <source>Physical device</source>
-        <translation>Физическое устройство</translation>
+        <source>Specify device manually</source>
+        <translation>Укажите устройство вручную</translation>
     </message>
     <message>
-        <source>Simulator</source>
-        <translation>Эмулятор</translation>
+        <source>Auto-detecting devices - please wait...</source>
+        <translation>Определение устройств, ждите...</translation>
     </message>
     <message>
-        <source>Debug token:</source>
-        <translation>Токен отладки:</translation>
+        <source>No device has been auto-detected.</source>
+        <translation>Не удалость обнаружить устройств.</translation>
     </message>
     <message>
-        <source>Connection Details</source>
-        <translation>Подробности соединения</translation>
+        <source>Device auto-detection is available in BB NDK 10.2. Make sure that your device is in Development Mode.</source>
+        <translation>Определение устройств доступно в BB NDK 10.2. Убедитесь, что ваше устройство в режиме разработки.</translation>
     </message>
     <message>
-        <source>BlackBerry Device</source>
-        <translation>Устройство BlackBerry</translation>
-    </message>
-    <message>
-        <source>Request</source>
-        <translation>Запросить</translation>
-    </message>
-</context>
-<context>
-    <name>Qnx::Internal::BlackBerryDeviceConfigurationWizardSshKeyPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
-    </message>
-    <message>
-        <source>Private key file:</source>
-        <translation>Файл секретного ключа:</translation>
-    </message>
-    <message>
-        <source>Public key file:</source>
-        <translation>Файл открытого ключа:</translation>
-    </message>
-    <message>
-        <source>SSH Key Setup</source>
-        <translation>Настройка ключа SSH</translation>
-    </message>
-    <message>
-        <source>Please select an existing &lt;b&gt;4096&lt;/b&gt;-bit key or click &lt;b&gt;Generate&lt;/b&gt; to create a new one.</source>
-        <translation>Выберите &lt;b&gt;4096&lt;/b&gt;-битный ключ или щёлкните на &lt;b&gt;Создать&lt;/b&gt; для создания нового.</translation>
-    </message>
-    <message>
-        <source>Key Generation Failed</source>
-        <translation>Не удалось создать ключ</translation>
-    </message>
-    <message>
-        <source>Choose Private Key File Name</source>
-        <translation>Выберите имя файла секретного ключа</translation>
-    </message>
-    <message>
-        <source>Generate...</source>
-        <translation>Создать...</translation>
+        <source>Device host name or IP address:</source>
+        <translation>IP-адрес или имя узла устройства:</translation>
     </message>
 </context>
 <context>
@@ -27422,6 +29133,150 @@ Do you want Qt Creator to generate it for your project?</source>
     </message>
 </context>
 <context>
+    <name>Qnx::Internal::BlackBerryInstallWizard</name>
+    <message>
+        <source>BlackBerry NDK Installation Wizard</source>
+        <translation>Мастер установки BlackBerry NDK</translation>
+    </message>
+    <message>
+        <source>Confirmation</source>
+        <translation>Подтверждение</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to cancel?</source>
+        <translation>Желаете прервать?</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BlackBerryInstallWizardFinalPage</name>
+    <message>
+        <source>Summary</source>
+        <translation>Итог</translation>
+    </message>
+    <message>
+        <source>An error has occurred while adding target from:
+ %1</source>
+        <translation>Возникла ошибка при добавлении цели из:
+ %1</translation>
+    </message>
+    <message>
+        <source>Target is being added.</source>
+        <translation>Цель была добавлена.</translation>
+    </message>
+    <message>
+        <source>Target is already added.</source>
+        <translation>Цель уже добавлена.</translation>
+    </message>
+    <message>
+        <source>Finished uninstalling target:
+ %1</source>
+        <translation>Завершено удаление цели:
+ %1</translation>
+    </message>
+    <message>
+        <source>Finished installing target:
+ %1</source>
+        <translation>Завершена установка цели:
+ %1</translation>
+    </message>
+    <message>
+        <source>An error has occurred while uninstalling target:
+ %1</source>
+        <translation>Возникла ошибка при удалении цели:
+ %1</translation>
+    </message>
+    <message>
+        <source>An error has occurred while installing target:
+ %1</source>
+        <translation>Возникла ошибка при установке цели:
+ %1</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BlackBerryInstallWizardNdkPage</name>
+    <message>
+        <source>Form</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Native SDK</source>
+        <translation>Native SDK</translation>
+    </message>
+    <message>
+        <source>Specify 10.2 NDK path manually</source>
+        <translation>Указать путь к 10.2 NDK вручную</translation>
+    </message>
+    <message>
+        <source>Select Native SDK path:</source>
+        <translation>Выберите путь к Native SDK:</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BlackBerryInstallWizardOptionPage</name>
+    <message>
+        <source>Options</source>
+        <translation>Параметры</translation>
+    </message>
+    <message>
+        <source>Install New Target</source>
+        <translation>Установить новую цель</translation>
+    </message>
+    <message>
+        <source>Add Existing Target</source>
+        <translation>Добавить существующую цель</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BlackBerryInstallWizardProcessPage</name>
+    <message>
+        <source>Form</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Please wait...</source>
+        <translation>Ждите...</translation>
+    </message>
+    <message>
+        <source>Uninstalling</source>
+        <translation>Удаление</translation>
+    </message>
+    <message>
+        <source>Installing</source>
+        <translation>Установка</translation>
+    </message>
+    <message>
+        <source>Uninstalling target:</source>
+        <translation>Удаление цели:</translation>
+    </message>
+    <message>
+        <source>Installing target:</source>
+        <translation>Установка цели:</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BlackBerryInstallWizardTargetPage</name>
+    <message>
+        <source>Form</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Please select target:</source>
+        <translation>Выберите цель:</translation>
+    </message>
+    <message>
+        <source>Version</source>
+        <translation>Версия</translation>
+    </message>
+    <message>
+        <source>Querying available targets. Please wait...</source>
+        <translation>Поиск доступных целей. Ждите...</translation>
+    </message>
+    <message>
+        <source>Target</source>
+        <translation>Цель</translation>
+    </message>
+</context>
+<context>
     <name>Qnx::Internal::BlackBerryKeysPage</name>
     <message>
         <source>Keys</source>
@@ -27439,68 +29294,83 @@ Do you want Qt Creator to generate it for your project?</source>
         <translation>Центр подписывания BlackBerry</translation>
     </message>
     <message>
-        <source>Registered: Yes</source>
-        <translation>Зарегистрирован: да</translation>
-    </message>
-    <message>
-        <source>Register</source>
-        <translation>Зарегистрировать</translation>
-    </message>
-    <message>
-        <source>Unregister</source>
-        <translation>Отменить регистрацию</translation>
-    </message>
-    <message>
         <source>Developer Certificate</source>
         <translation>Сертификат разработчика</translation>
     </message>
     <message>
-        <source>Create</source>
-        <translation>Создать</translation>
+        <source>STATUS</source>
+        <translation>STATUS</translation>
     </message>
     <message>
-        <source>Import</source>
-        <translation>Импортировать</translation>
+        <source>Path:</source>
+        <translation>Путь:</translation>
     </message>
     <message>
-        <source>Delete</source>
-        <translation>Удалить</translation>
+        <source>PATH</source>
+        <translation>PATH</translation>
     </message>
     <message>
-        <source>Error</source>
-        <translation>Ошибка</translation>
+        <source>Author:</source>
+        <translation>Автор:</translation>
     </message>
     <message>
-        <source>Unregister Key</source>
-        <translation>Отмена регистрации ключа</translation>
+        <source>LABEL</source>
+        <translation>LABEL</translation>
     </message>
     <message>
-        <source>Could not insert default certificate.</source>
-        <translation>Не удалось вставить сертификат по умолчанию.</translation>
+        <source>No developer certificate has been found.</source>
+        <translation>Не удалось найти сертификат разработчика.</translation>
     </message>
     <message>
-        <source>Do you really want to unregister your key? This action cannot be undone.</source>
-        <translation>Желаете отозвать ваш ключ? Эту операцию нельзя отменить.</translation>
+        <source>Qt Creator</source>
+        <translation>Qt Creator</translation>
     </message>
     <message>
-        <source>Error storing certificate.</source>
-        <translation>Ошибка при сохранении сертификата.</translation>
+        <source>Invalid certificate password. Try again?</source>
+        <translation>Неверный пароль сертификата. Повторить?</translation>
     </message>
     <message>
-        <source>This certificate already exists.</source>
-        <translation>Этот сертификат уже существует.</translation>
+        <source>Error loading certificate.</source>
+        <translation>Ошибка загрузки сертификата.</translation>
     </message>
     <message>
-        <source>Delete Certificate</source>
-        <translation>Удаление сертификата</translation>
+        <source>This action cannot be undone. Would you like to continue?</source>
+        <translation>Эта операция не может быть отменена. Продолжить?</translation>
     </message>
     <message>
-        <source>Are you sure you want to delete this certificate?</source>
-        <translation>Желаете удалить сертификат?</translation>
+        <source>Loading...</source>
+        <translation>Загрузка...</translation>
     </message>
     <message>
-        <source>Registered: No</source>
-        <translation>Зарегистрирован: нет</translation>
+        <source>It appears you are using legacy key files. Please refer to the &lt;a href=&quot;https://developer.blackberry.com/native/documentation/core/com.qnx.doc.native_sdk.devguide/com.qnx.doc.native_sdk.devguide/topic/bbid_to_sa.html&quot;&gt;BlackBerry website&lt;/a&gt; to find out how to update your keys.</source>
+        <translation>Видимо используются устаревшие файлы ключей. Информация по их обновлению доступна на &lt;a href=&quot;https://developer.blackberry.com/native/documentation/core/com.qnx.doc.native_sdk.devguide/com.qnx.doc.native_sdk.devguide/topic/bbid_to_sa.html&quot;&gt;сайте BlackBerry&lt;/a&gt;.</translation>
+    </message>
+    <message>
+        <source>Your keys are ready to be used</source>
+        <translation>Ключи готовы к использованию</translation>
+    </message>
+    <message>
+        <source>No keys found. Please refer to the &lt;a href=&quot;https://www.blackberry.com/SignedKeys/codesigning.html&quot;&gt;BlackBerry website&lt;/a&gt; to find out how to request your keys.</source>
+        <translation>Не удалось найти ключи. Посетите &lt;a href=&quot;https://www.blackberry.com/SignedKeys/codesigning.html&quot;&gt;сайт BlackBerry&lt;/a&gt;, чтобы узнать, как их запросить.</translation>
+    </message>
+    <message>
+        <source>Open Certificate</source>
+        <translation>Открыть</translation>
+    </message>
+    <message>
+        <source>Clear Certificate</source>
+        <translation>Очистить</translation>
+    </message>
+    <message>
+        <source>Create Certificate</source>
+        <translation>Создать сертификат</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BlackBerryLogProcessRunner</name>
+    <message>
+        <source>Cannot show debug output. Error: %1</source>
+        <translation>Не удалось отобразить отладочный вывод. Ошибка: %1</translation>
     </message>
 </context>
 <context>
@@ -27517,12 +29387,24 @@ Do you want Qt Creator to generate it for your project?</source>
         <translation></translation>
     </message>
     <message>
-        <source>BlackBerry NDK Path </source>
-        <translation>Путь к BlackBerry NDK</translation>
-    </message>
-    <message>
         <source>Remove</source>
         <translation>Удалить</translation>
+    </message>
+    <message>
+        <source>NDK</source>
+        <translation>NDK</translation>
+    </message>
+    <message>
+        <source>NDK Environment File</source>
+        <translation>Файл среды NDK</translation>
+    </message>
+    <message>
+        <source>Auto-Detected</source>
+        <translation>Обнаруженные</translation>
+    </message>
+    <message>
+        <source>Manual</source>
+        <translation>Особые</translation>
     </message>
     <message>
         <source>Qt Creator</source>
@@ -27537,8 +29419,18 @@ Do you want Qt Creator to generate it for your project?</source>
         <translation>Очистка конфигурации BlackBerry 10</translation>
     </message>
     <message>
-        <source>Are you sure you want to remove the current BlackBerry configuration?</source>
-        <translation>Желаете удалить текущую конфигурацию BlackBerry?</translation>
+        <source>Are you sure you want to remove:
+ %1?</source>
+        <translation>Удалить:
+ %1?</translation>
+    </message>
+    <message>
+        <source>Confirmation</source>
+        <translation>Подтверждение</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to uninstall %1?</source>
+        <translation>Удалить %1?</translation>
     </message>
     <message>
         <source>Get started and configure your environment:</source>
@@ -27547,6 +29439,42 @@ Do you want Qt Creator to generate it for your project?</source>
     <message>
         <source>environment setup wizard</source>
         <translation>мастер настройки среды</translation>
+    </message>
+    <message>
+        <source>Activate</source>
+        <translation>Активировать</translation>
+    </message>
+    <message>
+        <source>Deactivate</source>
+        <translation>Деактивировать</translation>
+    </message>
+    <message>
+        <source>BlackBerry NDK Information</source>
+        <translation>Информация о BlackBerry NDK</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;NDK Base Name:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;b&gt;Основное название NDK:&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;NDK Path:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;b&gt;Путь к NDK:&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Version:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;b&gt;Версия:&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Host:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;b&gt;Хост:&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Target:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;b&gt;Цель:&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Добавить</translation>
     </message>
 </context>
 <context>
@@ -27573,85 +29501,6 @@ Do you want Qt Creator to generate it for your project?</source>
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::BlackBerryRegisterKeyDialog</name>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Obtaining keys&lt;/span&gt;&lt;/p&gt;&lt;p&gt;You will need to order a pair of CSJ files from BlackBerry, by &lt;a href=&quot;https://www.blackberry.com/SignedKeys/codesigning.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#004f69;&quot;&gt;visiting this page.&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Получение ключей&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Вам необходимо заказать пару файлов CSJ у BlackBerry путём &lt;a href=&quot;https://www.blackberry.com/SignedKeys/codesigning.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#004f69;&quot;&gt;посещения этой страницы.&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>PBDT CSJ file:</source>
-        <translation>Файл PBDT CSJ:</translation>
-    </message>
-    <message>
-        <source>RDK CSJ file:</source>
-        <translation>Файл RDK CSJ:</translation>
-    </message>
-    <message>
-        <source>CSJ PIN:</source>
-        <translation>CSJ PIN:</translation>
-    </message>
-    <message>
-        <source>Keystore password:</source>
-        <translation>Пароль хранилища:</translation>
-    </message>
-    <message>
-        <source>Confirm password:</source>
-        <translation>Повтор пароля:</translation>
-    </message>
-    <message>
-        <source>Generate developer certificate automatically</source>
-        <translation>Автоматически создавать сертификат разработчика</translation>
-    </message>
-    <message>
-        <source>Show</source>
-        <translation>Показывать</translation>
-    </message>
-    <message>
-        <source>This is the PIN you entered when you requested the CSJ files.</source>
-        <translation>Этот PIN вы ввели при запросе файлов CSJ.</translation>
-    </message>
-    <message>
-        <source>Status</source>
-        <translation>Состояние</translation>
-    </message>
-    <message>
-        <source>CSK passwords do not match.</source>
-        <translation>Пароли CSK не совпадают.</translation>
-    </message>
-    <message>
-        <source>Keystore password does not match.</source>
-        <translation>Пароли хранилища не совпадают.</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation>Ошибка</translation>
-    </message>
-    <message>
-        <source>Error creating developer certificate.</source>
-        <translation>Ошибка создания сертификата разработчика.</translation>
-    </message>
-    <message>
-        <source>Browse CSJ File</source>
-        <translation>Выбор файла CSJ</translation>
-    </message>
-    <message>
-        <source>CSJ files (*.csj)</source>
-        <translation>Файлы CSJ (*.csj)</translation>
-    </message>
-    <message>
-        <source>Register Key</source>
-        <translation>Регистрация ключа</translation>
-    </message>
-    <message>
-        <source>CSK password:</source>
-        <translation>Пароль CSK:</translation>
-    </message>
-    <message>
-        <source>Confirm CSK password:</source>
-        <translation>Повтор пароля CSK:</translation>
-    </message>
-</context>
-<context>
     <name>Qnx::Internal::BlackBerryRunConfiguration</name>
     <message>
         <source>Run on BlackBerry device</source>
@@ -27675,10 +29524,6 @@ Do you want Qt Creator to generate it for your project?</source>
         <source>No active deploy configuration</source>
         <translation>Не выбрана активная конфигурация установки</translation>
     </message>
-    <message>
-        <source>Device not connected</source>
-        <translation>Устройство не подключено</translation>
-    </message>
 </context>
 <context>
     <name>Qnx::Internal::BlackBerrySetupWizard</name>
@@ -27689,10 +29534,6 @@ Do you want Qt Creator to generate it for your project?</source>
     <message>
         <source>Reading device PIN...</source>
         <translation>Чтение PIN устройства...</translation>
-    </message>
-    <message>
-        <source>Registering CSJ keys...</source>
-        <translation>Регистрация ключей CSJ...</translation>
     </message>
     <message>
         <source>Generating developer certificate...</source>
@@ -27727,8 +29568,12 @@ Do you want Qt Creator to generate it for your project?</source>
         <translation>Ошибка создания сертификата разработчика.</translation>
     </message>
     <message>
-        <source>Failed to request debug token: </source>
-        <translation>Не удалось получить токен отладки: </translation>
+        <source>Failed to request debug token:</source>
+        <translation>Не удалось получить токен отладки:</translation>
+    </message>
+    <message>
+        <source>Failed to upload debug token:</source>
+        <translation>Не удалось отправить токен отладки:</translation>
     </message>
     <message>
         <source>Wrong CSK password.</source>
@@ -27767,10 +29612,6 @@ Do you want Qt Creator to generate it for your project?</source>
         <translation>Возникла неизвестная ошибка.</translation>
     </message>
     <message>
-        <source>Failed to upload debug token: </source>
-        <translation>Не удалось отправить токен отладки: </translation>
-    </message>
-    <message>
         <source>No route to host.</source>
         <translation>Отсутствует маршрут к узлу.</translation>
     </message>
@@ -27805,6 +29646,41 @@ Do you want Qt Creator to generate it for your project?</source>
     <message>
         <source>Public key file already exists: &apos;%1&apos;</source>
         <translation>Файл открытого ключа уже существует: «%1»</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::BlackBerrySetupWizardCertificatePage</name>
+    <message>
+        <source>Form</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Author:</source>
+        <translation>Автор:</translation>
+    </message>
+    <message>
+        <source>Password:</source>
+        <translation>Пароль:</translation>
+    </message>
+    <message>
+        <source>Confirm password:</source>
+        <translation>Повтор пароля:</translation>
+    </message>
+    <message>
+        <source>Show password</source>
+        <translation>Отображать пароль</translation>
+    </message>
+    <message>
+        <source>Status</source>
+        <translation>Состояние</translation>
+    </message>
+    <message>
+        <source>Create Developer Certificate</source>
+        <translation>Создание сертификата разработчика</translation>
+    </message>
+    <message>
+        <source>The entered passwords do not match.</source>
+        <translation>Введённые пароли не совпадают.</translation>
     </message>
 </context>
 <context>
@@ -27872,48 +29748,8 @@ Do you want Qt Creator to generate it for your project?</source>
         <translation></translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Obtaining keys&lt;/span&gt;&lt;/p&gt;&lt;p&gt;You will need to order a pair of CSJ files from BlackBerry, by &lt;a href=&quot;https://www.blackberry.com/SignedKeys/codesigning.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#004f69;&quot;&gt;visiting this page.&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Получение ключей&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Вам необходимо заказать пару файлов CSJ у BlackBerry путём &lt;a href=&quot;https://www.blackberry.com/SignedKeys/codesigning.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#004f69;&quot;&gt;посещения этой страницы.&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>PBDT CSJ file:</source>
-        <translation>Файл PBDT CSJ:</translation>
-    </message>
-    <message>
-        <source>RDK CSJ file:</source>
-        <translation>Файл RDK CSJ:</translation>
-    </message>
-    <message>
-        <source>CSJ PIN:</source>
-        <translation>CSJ PIN:</translation>
-    </message>
-    <message>
-        <source>The PIN you provided on the key request website</source>
-        <translation>PIN, указанный на сайте запроса ключа</translation>
-    </message>
-    <message>
-        <source>Password:</source>
-        <translation>Пароль:</translation>
-    </message>
-    <message>
-        <source>The password that will be used to access your keys and CSK files</source>
-        <translation>Пароль для доступа к ключам и файлам CSK</translation>
-    </message>
-    <message>
-        <source>Confirm password:</source>
-        <translation>Повтор пароля:</translation>
-    </message>
-    <message>
-        <source>Status</source>
-        <translation>Состояние</translation>
-    </message>
-    <message>
-        <source>Register Signing Keys</source>
-        <translation>Регистрация цифровой подписи</translation>
-    </message>
-    <message>
-        <source>Passwords do not match.</source>
-        <translation>Пароли не совпадают.</translation>
+        <source>Setup Signing Keys</source>
+        <translation>Настройка ключей подписи</translation>
     </message>
     <message>
         <source>Qt Creator</source>
@@ -27924,12 +29760,16 @@ Do you want Qt Creator to generate it for your project?</source>
         <translation>После закрытия мастера, вы будете перенаправлены на сайт запроса ключей BlackBerry. Продолжить?</translation>
     </message>
     <message>
-        <source>Browse CSJ File</source>
-        <translation>Выбор файла CSJ</translation>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Legacy keys detected&lt;/span&gt;&lt;/p&gt;&lt;p&gt;It appears you are using legacy key files. Please visit &lt;a href=&quot;https://developer.blackberry.com/native/documentation/core/com.qnx.doc.native_sdk.devguide/com.qnx.doc.native_sdk.devguide/topic/bbid_to_sa.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#004f69;&quot;&gt;this page&lt;/span&gt;&lt;/a&gt; to upgrade your keys.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Обнаружены устаревшие ключи&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Видимо вы используете устаревшие файлы ключей. Для их обновления посетите &lt;a href=&quot;https://developer.blackberry.com/native/documentation/core/com.qnx.doc.native_sdk.devguide/com.qnx.doc.native_sdk.devguide/topic/bbid_to_sa.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#004f69;&quot;&gt;эту страницу&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>CSJ files (*.csj)</source>
-        <translation>Файлы CSJ (*.csj)</translation>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Obtaining keys&lt;/span&gt;&lt;/p&gt;&lt;p&gt;You will need to order your signing keys from BlackBerry, by &lt;a href=&quot;https://www.blackberry.com/SignedKeys/codesigning.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#004f69;&quot;&gt;visiting this page.&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Получение ключей&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Посетите &lt;a href=&quot;https://www.blackberry.com/SignedKeys/codesigning.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#004f69;&quot;&gt;эту страницу.&lt;/span&gt;&lt;/a&gt;, чтобы заказать в BlackBerry ключи цифровой подписи&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Your BlackBerry signing keys have already been installed.</source>
+        <translation>Ваш ключ цифровой подписи BlackBerry уже установлен.</translation>
     </message>
 </context>
 <context>
@@ -27968,6 +29808,59 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
+    <name>Qnx::Internal::BlackBerrySigningUtils</name>
+    <message>
+        <source>Please provide your bbidtoken.csk PIN.</source>
+        <translation>Укажите PIN файла bbidtoken.csk.</translation>
+    </message>
+    <message>
+        <source>Please enter your certificate password.</source>
+        <translation>Введите пароль сертификата.</translation>
+    </message>
+    <message>
+        <source>Qt Creator</source>
+        <translation>Qt Creator</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::CascadesImportWizard</name>
+    <message>
+        <source>Momentics Cascades Project</source>
+        <translation>Проект Momentics Cascades</translation>
+    </message>
+    <message>
+        <source>Imports existing Cascades projects created within QNX Momentics IDE. This allows you to use the project in Qt Creator.</source>
+        <translation>Импортирует существующие проекты Cascades созданные в среде QNX Momentics, что позволяет использовать их в Qt Creator.</translation>
+    </message>
+    <message>
+        <source>Error generating file &apos;%1&apos;: %2</source>
+        <translation>Ошибка создания файла «%1»: %2</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::CascadesImportWizardDialog</name>
+    <message>
+        <source>Import Existing Momentics Cascades Project</source>
+        <translation>Импорт существующего проекта Momentics Cascades</translation>
+    </message>
+    <message>
+        <source>Momentics Cascades Project Name and Location</source>
+        <translation>Имя и размещение проекта Momentics Cascades</translation>
+    </message>
+    <message>
+        <source>Project Name and Location</source>
+        <translation>Имя и размещение проекта</translation>
+    </message>
+    <message>
+        <source>Momentics</source>
+        <translation>Momentics</translation>
+    </message>
+    <message>
+        <source>Qt Creator</source>
+        <translation>Qt Creator</translation>
+    </message>
+</context>
+<context>
     <name>Qnx::Internal::QNXPlugin</name>
     <message>
         <source>Bar descriptor file (BlackBerry)</source>
@@ -27999,10 +29892,8 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
 <context>
     <name>Qnx::Internal::QnxAnalyzeSupport</name>
     <message>
-        <source>Preparing remote side...
-</source>
-        <translation>Подготовка удалённой стороны...
-</translation>
+        <source>Preparing remote side...</source>
+        <translation>Подготовка удалённой стороны...</translation>
     </message>
     <message>
         <source>The %1 process closed unexpectedly.</source>
@@ -28023,10 +29914,8 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
 <context>
     <name>Qnx::Internal::QnxDebugSupport</name>
     <message>
-        <source>Preparing remote side...
-</source>
-        <translation>Подготовка удалённой стороны...
-</translation>
+        <source>Preparing remote side...</source>
+        <translation>Подготовка удалённой стороны...</translation>
     </message>
     <message>
         <source>The %1 process closed unexpectedly.</source>
@@ -28035,6 +29924,11 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     <message>
         <source>Initial setup failed: %1</source>
         <translation>Не удалось выполнить начальную настройку: %1</translation>
+    </message>
+    <message>
+        <source>Warning: &quot;slog2info&quot; is not found on the device, debug output not available!</source>
+        <translation>Предупреждение: «slog2info» не найдена на устройстве, вывод отладчика недоступен!
+</translation>
     </message>
 </context>
 <context>
@@ -28075,25 +29969,20 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
 <context>
     <name>Qnx::Internal::QnxDeviceTester</name>
     <message>
-        <source>%1 found.
-</source>
-        <translation>Найдено: %1.</translation>
+        <source>%1 found.</source>
+        <translation>%1 найдена.</translation>
     </message>
     <message>
-        <source>%1 not found.
-</source>
-        <translation>Не найдено: %1.</translation>
+        <source>%1 not found.</source>
+        <translation>%1 не найдена.</translation>
     </message>
     <message>
-        <source>An error occurred checking for %1.
-</source>
+        <source>An error occurred checking for %1.</source>
         <translation>Возникла ошибка при проверке %1.</translation>
     </message>
     <message>
-        <source>SSH connection error: %1
-</source>
-        <translation>Ошибка SSH подключения: %1
-</translation>
+        <source>SSH connection error: %1</source>
+        <translation>Ошибка подключения SSH: %1</translation>
     </message>
     <message>
         <source>Checking for %1...</source>
@@ -28131,10 +30020,52 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>Qnx::Internal::QnxRunControlFactory</name>
+    <name>Qnx::Internal::QnxRunControl</name>
     <message>
-        <source>No analyzer tool selected.</source>
-        <translation>Инструмент анализа не выбран.</translation>
+        <source>Warning: &quot;slog2info&quot; is not found on the device, debug output not available!</source>
+        <translation>Предупреждение: «slog2info» не найдена на устройстве, вывод отладчика недоступен!
+</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::QnxToolChainConfigWidget</name>
+    <message>
+        <source>&amp;Compiler path:</source>
+        <translation>Путь к &amp;компилятору:</translation>
+    </message>
+    <message>
+        <source>NDK/SDP path:</source>
+        <extracomment>SDP refers to &apos;Software Development Platform&apos;.</extracomment>
+        <translation>Путь к NDK/SDP:</translation>
+    </message>
+    <message>
+        <source>&amp;ABI:</source>
+        <translation>&amp;ABI:</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::QnxToolChainFactory</name>
+    <message>
+        <source>QCC</source>
+        <translation>QCC</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::Slog2InfoRunner</name>
+    <message>
+        <source>Cannot show slog2info output. Error: %1</source>
+        <translation>Не удалось отобразить вывод slog2info. Ошибка: %1</translation>
+    </message>
+</context>
+<context>
+    <name>Qnx::Internal::SrcProjectWizardPage</name>
+    <message>
+        <source>Choose the Location</source>
+        <translation>Выбор размещения</translation>
+    </message>
+    <message>
+        <source>Project path:</source>
+        <translation>Путь к проекту:</translation>
     </message>
 </context>
 <context>
@@ -28165,1689 +30096,10 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager</name>
+    <name>Qt4ProjectManager</name>
     <message>
         <source>Qt Versions</source>
         <translation>Профили Qt</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::AbstractMobileApp</name>
-    <message>
-        <source>Could not open template file &apos;%1&apos;.</source>
-        <translation>Не удалось открыть шаблонный файл «%1».</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::AbstractMobileAppWizardDialog</name>
-    <message>
-        <source>Targets</source>
-        <translation>Цели</translation>
-    </message>
-    <message>
-        <source>Mobile Options</source>
-        <translation>Мобильные параметры</translation>
-    </message>
-    <message>
-        <source>Maemo5 And MeeGo Specific</source>
-        <translation>Особенности Maemo5 и MeeGo</translation>
-    </message>
-    <message>
-        <source>Harmattan Specific</source>
-        <translation>Особенности Harmattan</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::AddLibraryWizard</name>
-    <message>
-        <source>Add Library</source>
-        <translation>Добавить библиотеку</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>Тип</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>Подробнее</translation>
-    </message>
-    <message>
-        <source>Summary</source>
-        <translation>Итог</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::BaseQmakeProjectWizardDialog</name>
-    <message>
-        <source>Modules</source>
-        <translation>Модули</translation>
-    </message>
-    <message>
-        <source>Kits</source>
-        <translation>Комплекты</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ClassDefinition</name>
-    <message>
-        <source>Form</source>
-        <translation>Форма</translation>
-    </message>
-    <message>
-        <source>The header file</source>
-        <translation>Заголовочный файл</translation>
-    </message>
-    <message>
-        <source>&amp;Sources</source>
-        <translation>&amp;Исходники</translation>
-    </message>
-    <message>
-        <source>Widget librar&amp;y:</source>
-        <translation>&amp;Библиотека виджета:</translation>
-    </message>
-    <message>
-        <source>Widget project &amp;file:</source>
-        <translation>&amp;Файл проекта виджета:</translation>
-    </message>
-    <message>
-        <source>Widget h&amp;eader file:</source>
-        <translation>&amp;Заголовочный файл виджета:</translation>
-    </message>
-    <message>
-        <source>Widge&amp;t source file:</source>
-        <translation>Файл &amp;реализации виджета:</translation>
-    </message>
-    <message>
-        <source>Widget &amp;base class:</source>
-        <translation>Б&amp;азовый класс виджета:</translation>
-    </message>
-    <message>
-        <source>QWidget</source>
-        <translation>QWidget</translation>
-    </message>
-    <message>
-        <source>Plugin class &amp;name:</source>
-        <translation>Имя класса &amp;модуля:</translation>
-    </message>
-    <message>
-        <source>Plugin &amp;header file:</source>
-        <translation>За&amp;головочный файл модуля:</translation>
-    </message>
-    <message>
-        <source>Plugin sou&amp;rce file:</source>
-        <translation>Файл реализа&amp;ции модуля:</translation>
-    </message>
-    <message>
-        <source>Icon file:</source>
-        <translation>Файл значка:</translation>
-    </message>
-    <message>
-        <source>&amp;Link library</source>
-        <translation>&amp;Подключить библиотеку</translation>
-    </message>
-    <message>
-        <source>Create s&amp;keleton</source>
-        <translation>Создать &amp;основу</translation>
-    </message>
-    <message>
-        <source>Include pro&amp;ject</source>
-        <translation>Включить про&amp;ект</translation>
-    </message>
-    <message>
-        <source>&amp;Description</source>
-        <translation>&amp;Описание</translation>
-    </message>
-    <message>
-        <source>G&amp;roup:</source>
-        <translation>&amp;Группа:</translation>
-    </message>
-    <message>
-        <source>&amp;Tooltip:</source>
-        <translation>&amp;Подсказка:</translation>
-    </message>
-    <message>
-        <source>W&amp;hat&apos;s this:</source>
-        <translation>&amp;Что это:</translation>
-    </message>
-    <message>
-        <source>The widget is a &amp;container</source>
-        <translation>Виджет &amp;является контейнером</translation>
-    </message>
-    <message>
-        <source>Property defa&amp;ults</source>
-        <translation>Исхо&amp;дные значения свойств</translation>
-    </message>
-    <message>
-        <source>dom&amp;XML:</source>
-        <translation>dom&amp;XML:</translation>
-    </message>
-    <message>
-        <source>Select Icon</source>
-        <translation>Выбор значка</translation>
-    </message>
-    <message>
-        <source>Icon files (*.png *.ico *.jpg *.xpm *.tif *.svg)</source>
-        <translation>Файлы значков (*.png *.ico *.jpg *.xpm *.tif *.svg)</translation>
-    </message>
-    <message>
-        <source>The header file has to be specified in source code.</source>
-        <translation>Заголовочный файл, указываемый в исходном коде.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ClassList</name>
-    <message>
-        <source>&lt;New class&gt;</source>
-        <translation>&lt;Новый класс&gt;</translation>
-    </message>
-    <message>
-        <source>Confirm Delete</source>
-        <translation>Подтверждение удаления</translation>
-    </message>
-    <message>
-        <source>Delete class %1 from list?</source>
-        <translation>Удалить класс %1 из списка?</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ConsoleAppWizard</name>
-    <message>
-        <source>Qt Console Application</source>
-        <translation>Консольное приложение Qt</translation>
-    </message>
-    <message>
-        <source>Creates a project containing a single main.cpp file with a stub implementation.
-
-Preselects a desktop Qt for building the application if available.</source>
-        <translation>Создание проекта, содержащего один файл main.cpp с простейшей реализацией.
-
-Выбирается профиль «Desktop Qt» для сборки приложения, если он доступен.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ConsoleAppWizardDialog</name>
-    <message>
-        <source>This wizard generates a Qt console application project. The application derives from QCoreApplication and does not provide a GUI.</source>
-        <translation>Этот мастер создаст проект консольного приложения Qt. Оно будет производным от QCoreApplication и без GUI.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetPluginWizardPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
-    </message>
-    <message>
-        <source>Plugin and Collection Class Information</source>
-        <translation>Информация о модуле и классе коллекции</translation>
-    </message>
-    <message>
-        <source>Specify the properties of the plugin library and the collection class.</source>
-        <translation>Укажите свойства библиотеки модуля и класса коллекции.</translation>
-    </message>
-    <message>
-        <source>Collection class:</source>
-        <translation>Класс коллекции:</translation>
-    </message>
-    <message>
-        <source>Collection header file:</source>
-        <translation>Заголовочный файл:</translation>
-    </message>
-    <message>
-        <source>Collection source file:</source>
-        <translation>Исходный файл:</translation>
-    </message>
-    <message>
-        <source>Plugin name:</source>
-        <translation>Название модуля:</translation>
-    </message>
-    <message>
-        <source>Resource file:</source>
-        <translation>Файл ресурсов:</translation>
-    </message>
-    <message>
-        <source>icons.qrc</source>
-        <translation>icons.qrc</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWidgetsWizardPage</name>
-    <message>
-        <source>Custom Qt Widget Wizard</source>
-        <translation>Мастер пользовательских виджетов</translation>
-    </message>
-    <message>
-        <source>Custom Widget List</source>
-        <translation>Список пользовательских виджетов</translation>
-    </message>
-    <message>
-        <source>Widget &amp;Classes:</source>
-        <translation>&amp;Классы виджетов:</translation>
-    </message>
-    <message>
-        <source>Specify the list of custom widgets and their properties.</source>
-        <translation>Укажите список пользовательских виджетов и их свойств.</translation>
-    </message>
-    <message>
-        <source>...</source>
-        <translation></translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWizard</name>
-    <message>
-        <source>Qt Custom Designer Widget</source>
-        <translation>Пользовательский виджет Qt Designer</translation>
-    </message>
-    <message>
-        <source>Creates a Qt Custom Designer Widget or a Custom Widget Collection.</source>
-        <translation>Создание пользовательского виджета Qt Designer или набора пользовательских виджетов.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWizardDialog</name>
-    <message>
-        <source>This wizard generates a Qt Designer Custom Widget or a Qt Designer Custom Widget Collection project.</source>
-        <translation>Этот мастер создаст пользовательский виджет или набор пользовательских виджетов для Qt Designer.</translation>
-    </message>
-    <message>
-        <source>Custom Widgets</source>
-        <translation>Особые виджеты</translation>
-    </message>
-    <message>
-        <source>Plugin Details</source>
-        <translation>Подробнее о модуле</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DesignerExternalEditor</name>
-    <message>
-        <source>Qt Designer is not responding (%1).</source>
-        <translation>Qt Designer не отвечает (%1).</translation>
-    </message>
-    <message>
-        <source>Unable to create server socket: %1</source>
-        <translation>Невозможно создать серверный сокет: %1</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DetailsPage</name>
-    <message>
-        <source>System Library</source>
-        <translation>Системная</translation>
-    </message>
-    <message>
-        <source>Specify the library to link to</source>
-        <translation>Выберите библиотеку для компоновки</translation>
-    </message>
-    <message>
-        <source>Specify the library to link to and the includes path</source>
-        <translation>Выберите библиотеку для компоновки и пути к заголовочным файлам</translation>
-    </message>
-    <message>
-        <source>Choose the project file of the library to link to</source>
-        <translation>Выберите файл проекта библиотеки для компоновки</translation>
-    </message>
-    <message>
-        <source>External Library</source>
-        <translation>Внешняя</translation>
-    </message>
-    <message>
-        <source>System Package</source>
-        <translation>Системный пакет</translation>
-    </message>
-    <message>
-        <source>Specify the package to link to</source>
-        <translation>Выберите пакет для компоновки</translation>
-    </message>
-    <message>
-        <source>Internal Library</source>
-        <translation>Внутренняя</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::EmptyProjectWizard</name>
-    <message>
-        <source>Empty Qt Project</source>
-        <translation>Пустой проект Qt</translation>
-    </message>
-    <message>
-        <source>Creates a qmake-based project without any files. This allows you to create an application without any default classes.</source>
-        <translation>Создание проекта без файлов под управлением qmake. Это позволяет создать приложение без умолчальных классов.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::EmptyProjectWizardDialog</name>
-    <message>
-        <source>This wizard generates an empty Qt project. Add files to it later on by using the other wizards.</source>
-        <translation>Этот мастер создаст пустой проект Qt. Нужно будет позже добавить в него файлы с помощью других мастеров.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ExternalQtEditor</name>
-    <message>
-        <source>Unable to start &quot;%1&quot;</source>
-        <translation>Не удалось запустить «%1»</translation>
-    </message>
-    <message>
-        <source>The application &quot;%1&quot; could not be found.</source>
-        <translation>Не удалось найти приложение «%1».</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::FilesPage</name>
-    <message>
-        <source>Class Information</source>
-        <translation>Информация о классе</translation>
-    </message>
-    <message>
-        <source>Specify basic information about the classes for which you want to generate skeleton source code files.</source>
-        <translation>Укажите базовую информацию о классах, для которых желаете создать шаблоны файлов исходных текстов.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::GuiAppWizard</name>
-    <message>
-        <source>Qt Gui Application</source>
-        <translation>GUI приложение Qt</translation>
-    </message>
-    <message>
-        <source>Creates a Qt application for the desktop. Includes a Qt Designer-based main window.
-
-Preselects a desktop Qt for building the application if available.</source>
-        <translation>Создание приложения Qt для настольных компьютеров. Включает основное окно в виде формы дизайнера Qt.
-
-Выбирается профиль «Desktop Qt» для сборки приложения, если он доступен.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::GuiAppWizardDialog</name>
-    <message>
-        <source>This wizard generates a Qt GUI application project. The application derives by default from QApplication and includes an empty widget.</source>
-        <translation>Этот мастер создаст проект графического приложения Qt. По умолчанию приложение будет производным от QApplication и будет включать пустой виджет.</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>Подробнее</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::Html5AppWizard</name>
-    <message>
-        <source>HTML5 Application</source>
-        <translation>Приложение HTML5</translation>
-    </message>
-    <message>
-        <source>Creates an HTML5 application project that can contain both HTML5 and C++ code and includes a WebKit view.
-
-You can build the application and deploy it on desktop and mobile target platforms.</source>
-        <translation>Создание проекта приложения HTML5, который может содержать код как HTML5, так и на С++, а так же включает просмотрщик WebKit.
-
-Можно создать приложение и установить его на настольный компьютер и мобильные платформы.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::Html5AppWizardDialog</name>
-    <message>
-        <source>New HTML5 Application</source>
-        <translation>Новое приложение HTML5</translation>
-    </message>
-    <message>
-        <source>This wizard generates a HTML5 application project.</source>
-        <translation>Этот мастер создаст проект приложения HTML5.</translation>
-    </message>
-    <message>
-        <source>HTML Options</source>
-        <translation>Параметры HTML</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::Html5AppWizardOptionsPage</name>
-    <message>
-        <source>Select HTML File</source>
-        <translation>Выбор файла HTML</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::Html5AppWizardSourcesPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Main HTML File</source>
-        <translation>Основой HTML файл</translation>
-    </message>
-    <message>
-        <source>Generate an index.html file</source>
-        <translation>Создать файл index.html</translation>
-    </message>
-    <message>
-        <source>Import an existing .html file</source>
-        <translation>Импортировать существующий файл .html</translation>
-    </message>
-    <message>
-        <source>Load a URL</source>
-        <translation>Загрузить по ссылке</translation>
-    </message>
-    <message>
-        <source>http://</source>
-        <translation>http://</translation>
-    </message>
-    <message>
-        <source>Note: Unless you chose to load a URL, all files and directories that reside in the same directory as the main HTML file are deployed. You can modify the contents of the directory any time before deploying.</source>
-        <translation>Если выбрать не загрузку по ссылке, то будут установлены все файлы и каталоги, находящиеся там же, где и основной HTML файл. Можно изменить содержимое каталога в любое время до установки.</translation>
-    </message>
-    <message>
-        <source>Touch optimized navigation</source>
-        <translation>Навигация касаниями</translation>
-    </message>
-    <message>
-        <source>Enable touch optimized navigation</source>
-        <translation>Включить навигацию, оптимизированную под касания</translation>
-    </message>
-    <message>
-        <source>Touch optimized navigation will make the HTML page flickable and enlarge the area of touch sensitive elements. If you use a JavaScript framework which optimizes the touch interaction, leave the checkbox unchecked.</source>
-        <translation>Оптимизация навигации под касания сделает страницу HTML толкаемой и увеличит зоны чувствительных элементов. Оставьте опцию отключённой при использовании оптимизированной под касания среды JavaScript.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ImportWidget</name>
-    <message>
-        <source>Import Build from...</source>
-        <translation>Импортировать сборку...</translation>
-    </message>
-    <message>
-        <source>Import</source>
-        <translation>Импортировать</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryDetailsController</name>
-    <message>
-        <source>Linkage:</source>
-        <translation>Компоновка:</translation>
-    </message>
-    <message>
-        <source>%1 Dynamic</source>
-        <translation>%1 Динамическая</translation>
-    </message>
-    <message>
-        <source>%1 Static</source>
-        <translation>%1 Статическая</translation>
-    </message>
-    <message>
-        <source>Mac:</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>%1 Framework</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>%1 Library</source>
-        <translation>%1 Библиотека</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryDetailsWidget</name>
-    <message>
-        <source>Library:</source>
-        <translation>Библиотека:</translation>
-    </message>
-    <message>
-        <source>Library file:</source>
-        <translation>Файл библиотеки:</translation>
-    </message>
-    <message>
-        <source>Include path:</source>
-        <translation>Путь к заголовочным файлам:</translation>
-    </message>
-    <message>
-        <source>Platform</source>
-        <translation>Платформа</translation>
-    </message>
-    <message>
-        <source>Linux</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Mac</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Windows</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Linkage:</source>
-        <translation>Компоновка:</translation>
-    </message>
-    <message>
-        <source>Dynamic</source>
-        <translation>Динамическая</translation>
-    </message>
-    <message>
-        <source>Static</source>
-        <translation>Статическая</translation>
-    </message>
-    <message>
-        <source>Mac:</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Library</source>
-        <translation>Библиотека</translation>
-    </message>
-    <message>
-        <source>Framework</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Windows:</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Library inside &quot;debug&quot; or &quot;release&quot; subfolder</source>
-        <translation>Библиотека в подкаталоге «debug» или «release»</translation>
-    </message>
-    <message>
-        <source>Add &quot;d&quot; suffix for debug version</source>
-        <translation>Добавить суффикс «d» для отладочной версии</translation>
-    </message>
-    <message>
-        <source>Remove &quot;d&quot; suffix for release version</source>
-        <translation>Удалить суффикс «d» для выпускаемой версии</translation>
-    </message>
-    <message>
-        <source>Package:</source>
-        <translation>Пакет:</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryTypePage</name>
-    <message>
-        <source>Library Type</source>
-        <translation>Тип библиотеки</translation>
-    </message>
-    <message>
-        <source>Choose the type of the library to link to</source>
-        <translation>Выберите тип компонуемой библиотеки</translation>
-    </message>
-    <message>
-        <source>System library</source>
-        <translation>Системная</translation>
-    </message>
-    <message>
-        <source>Links to a system library.
-Neither the path to the library nor the path to its includes is added to the .pro file.</source>
-        <translation>Компоновка с системной библиотекой.
-Пути к выбранной библиотеке и её подключаемым файлам не будут добавлены в .pro файл.</translation>
-    </message>
-    <message>
-        <source>System package</source>
-        <translation>Системный пакет</translation>
-    </message>
-    <message>
-        <source>Links to a system library using pkg-config.</source>
-        <translation>Компоновка с системной библиотекой используя pkg-config.</translation>
-    </message>
-    <message>
-        <source>External library</source>
-        <translation>Внешняя</translation>
-    </message>
-    <message>
-        <source>Links to a library that is not located in your build tree.
-Adds the library and include paths to the .pro file.</source>
-        <translation>Компоновка с внешней библиотекой, не являющейся частью проекта.
-Пути к выбранной библиотеке и её подключаемым файлам будут добавлены в .pro файл.</translation>
-    </message>
-    <message>
-        <source>Internal library</source>
-        <translation>Внутренняя</translation>
-    </message>
-    <message>
-        <source>Links to a library that is located in your build tree.
-Adds the library and include paths to the .pro file.</source>
-        <translation>Компоновка с внутренней библиотекой, являющейся частью проекта.
-Пути к выбранной библиотеке и её подключаемым файлам будут добавлены в .pro файл.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryWizard</name>
-    <message>
-        <source>C++ Library</source>
-        <translation>Библиотека C++</translation>
-    </message>
-    <message>
-        <source>Creates a C++ library based on qmake. This can be used to create:&lt;ul&gt;&lt;li&gt;a shared C++ library for use with &lt;tt&gt;QPluginLoader&lt;/tt&gt; and runtime (Plugins)&lt;/li&gt;&lt;li&gt;a shared or static C++ library for use with another project at linktime&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation>Создание проекта C++ библиотеки под управлением qmake. Может использоваться для разработки:&lt;ul&gt;&lt;li&gt;разделяемая C++ библиотека для загрузки через &lt;tt&gt;QPluginLoader&lt;/tt&gt; (подключаемый модуль)&lt;/li&gt;&lt;li&gt;разделяемая или статическая C++ библиотека для подключения к другому проекту на этапе компоновки&lt;/li&gt;&lt;/ul&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryWizardDialog</name>
-    <message>
-        <source>Shared Library</source>
-        <translation>Динамическая библиотека</translation>
-    </message>
-    <message>
-        <source>Statically Linked Library</source>
-        <translation>Статическая библиотека</translation>
-    </message>
-    <message>
-        <source>Qt Plugin</source>
-        <translation>Модуль Qt</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>Тип</translation>
-    </message>
-    <message>
-        <source>This wizard generates a C++ library project.</source>
-        <translation>Этот мастер создаст проект библиотеки С++.</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>Подробнее</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MakeStep</name>
-    <message>
-        <source>Make arguments:</source>
-        <translation>Параметры make:</translation>
-    </message>
-    <message>
-        <source>Override %1:</source>
-        <translation>Заменить %1:</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MakeStepFactory</name>
-    <message>
-        <source>Make</source>
-        <translation>Сборка</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MobileAppWizardGenericOptionsPage</name>
-    <message>
-        <source>Automatically Rotate Orientation</source>
-        <translation>Автоматически вращать</translation>
-    </message>
-    <message>
-        <source>Lock to Landscape Orientation</source>
-        <translation>Зафиксировать альбомную</translation>
-    </message>
-    <message>
-        <source>Lock to Portrait Orientation</source>
-        <translation>Зафиксировать портретную</translation>
-    </message>
-    <message>
-        <source>WizardPage</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Orientation behavior:</source>
-        <translation>Поведение ориентации:</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MobileAppWizardHarmattanOptionsPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Application icon (80x80):</source>
-        <translation>Значок приложения (80x80):</translation>
-    </message>
-    <message>
-        <source>Generate code to speed up the launching on the device.</source>
-        <translation>Создать код для ускорения запуска на устройстве.</translation>
-    </message>
-    <message>
-        <source>Make application boostable</source>
-        <translation>Делать приложение быстрее</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MobileAppWizardMaemoOptionsPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Application icon (64x64):</source>
-        <translation>Значок приложения (64x64):</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MobileLibraryWizardOptionPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Plugin&apos;s directory name:</source>
-        <translation>Название каталога модуля:</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ModulesPage</name>
-    <message>
-        <source>Select Required Modules</source>
-        <translation>Выбор необходимых модулей</translation>
-    </message>
-    <message>
-        <source>Select the modules you want to include in your project. The recommended modules for this project are selected by default.</source>
-        <translation>Выберите модули, которые хотите включить в проект. Рекомендуемые для этого проекта модули уже выбраны по умолчанию.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::PluginGenerator</name>
-    <message>
-        <source>Creating multiple widget libraries (%1, %2) in one project (%3) is not supported.</source>
-        <translation>Создание нескольких библиотек виджетов (%1, %2) в одном проекте (%3) не поддерживается.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::PngIconScaler</name>
-    <message>
-        <source>Wrong Icon Size</source>
-        <translation>Неверный размер значка</translation>
-    </message>
-    <message>
-        <source>The icon needs to be %1x%2 pixels big, but is not. Do you want Qt Creator to scale it?</source>
-        <translation>Значок должен быть размером в %1x%2 пикселей. Должен ли Qt Creator изменить его масштаб?</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation>Ошибка файла</translation>
-    </message>
-    <message>
-        <source>Could not copy icon file: %1</source>
-        <translation>Не удалось скопировать файл значка: %1</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QMakeStep</name>
-    <message>
-        <source>qmake build configuration:</source>
-        <translation>Конфигурация сборки qmake:</translation>
-    </message>
-    <message>
-        <source>Debug</source>
-        <translation>Отладка</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Выпуск</translation>
-    </message>
-    <message>
-        <source>Additional arguments:</source>
-        <translation>Дополнительные параметры:</translation>
-    </message>
-    <message>
-        <source>Link QML debugging library:</source>
-        <translation>Подключить библиотеку отладки QML:</translation>
-    </message>
-    <message>
-        <source>Effective qmake call:</source>
-        <translation>Параметры вызова qmake:</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QMakeStepFactory</name>
-    <message>
-        <source>qmake</source>
-        <translation>qmake</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeKitConfigWidget</name>
-    <message>
-        <source>The mkspec to use when building the project with qmake.&lt;br&gt;This setting is ignored when using other build systems.</source>
-        <translation>mkspec, используемый для сборки qmake-проектов.&lt;br&gt;Для других проектов эта настройка не используется.</translation>
-    </message>
-    <message>
-        <source>Qt mkspec:</source>
-        <translation>Qt mkspec:</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectConfigWidget</name>
-    <message>
-        <source>Shadow Build Directory</source>
-        <translation>Каталог теневой сборки</translation>
-    </message>
-    <message>
-        <source>A build for a different project exists in %1, which will be overwritten.</source>
-        <comment>%1 build directory</comment>
-        <translation>%1 уже является каталогом сборки другого проекта. Содержимое будет перезаписано.</translation>
-    </message>
-    <message>
-        <source>Error:</source>
-        <translation>Ошибка:</translation>
-    </message>
-    <message>
-        <source>building in &lt;b&gt;%1&lt;/b&gt;</source>
-        <translation>сборка в &lt;b&gt;%1&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>This kit cannot build this project since it does not define a Qt version.</source>
-        <translation>Невозможно собрать проект данным комплектом, так как для него не задан профиль Qt.</translation>
-    </message>
-    <message>
-        <source>The Qt version %1 does not support shadow builds, building might fail.</source>
-        <translation>Профиль Qt %1 не поддерживает теневую сборку, поэтому она может завершиться с ошибкой.</translation>
-    </message>
-    <message>
-        <source>Warning:</source>
-        <translation>Предупреждение: </translation>
-    </message>
-    <message>
-        <source>An incompatible build exists in %1, which will be overwritten.</source>
-        <comment>%1 build directory</comment>
-        <translation>В %1 обнаружена несовместимая сборка. Она будет замещена.</translation>
-    </message>
-    <message>
-        <source>General</source>
-        <translation>Основное</translation>
-    </message>
-    <message>
-        <source>problemLabel</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Shadow build:</source>
-        <translation>Теневая сборка:</translation>
-    </message>
-    <message>
-        <source>Build directory:</source>
-        <translation>Каталог сборки:</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectManagerPlugin</name>
-    <message>
-        <source>Run qmake</source>
-        <translation>Запустить qmake</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation>Собрать</translation>
-    </message>
-    <message>
-        <source>Build &quot;%1&quot;</source>
-        <translation>Собрать «%1»</translation>
-    </message>
-    <message>
-        <source>Rebuild</source>
-        <translation>Пересобрать</translation>
-    </message>
-    <message>
-        <source>Clean</source>
-        <translation>Очистить</translation>
-    </message>
-    <message>
-        <source>Build Subproject</source>
-        <translation>Собрать подпроект</translation>
-    </message>
-    <message>
-        <source>Build Subproject &quot;%1&quot;</source>
-        <translation>Собрать подпроект «%1»</translation>
-    </message>
-    <message>
-        <source>Rebuild Subproject</source>
-        <translation>Пересобрать подпроект</translation>
-    </message>
-    <message>
-        <source>Rebuild Subproject &quot;%1&quot;</source>
-        <translation>Пересобрать подпроект «%1»</translation>
-    </message>
-    <message>
-        <source>Clean Subproject</source>
-        <translation>Очистить подпроект</translation>
-    </message>
-    <message>
-        <source>Clean Subproject &quot;%1&quot;</source>
-        <translation>Очистить подпроект «%1»</translation>
-    </message>
-    <message>
-        <source>Build File</source>
-        <translation>Собрать файл</translation>
-    </message>
-    <message>
-        <source>Build File &quot;%1&quot;</source>
-        <translation>Собрать файл «%1»</translation>
-    </message>
-    <message>
-        <source>Ctrl+Alt+B</source>
-        <translation>Ctrl+Alt+B</translation>
-    </message>
-    <message>
-        <source>Add Library...</source>
-        <translation>Добавить библиотеку...</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeRunConfiguration</name>
-    <message>
-        <source>The .pro file &apos;%1&apos; is currently being parsed.</source>
-        <translation>Идёт обработка файла .pro: «%1».</translation>
-    </message>
-    <message>
-        <source>Qt Run Configuration</source>
-        <translation>Конфигурация выполнения Qt</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeRunConfigurationWidget</name>
-    <message>
-        <source>Select Working Directory</source>
-        <translation>Выбор рабочего каталога</translation>
-    </message>
-    <message>
-        <source>Working directory:</source>
-        <translation>Рабочий каталог:</translation>
-    </message>
-    <message>
-        <source>Run in terminal</source>
-        <translation>Запускать в терминале</translation>
-    </message>
-    <message>
-        <source>Run on QVFb</source>
-        <translation>Запускать в QVFb</translation>
-    </message>
-    <message>
-        <source>Check this option to run the application on a Qt Virtual Framebuffer.</source>
-        <translation>Включите, для запуска приложения в Qt Virtual Framebuffer.</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation>Параметры:</translation>
-    </message>
-    <message>
-        <source>Executable:</source>
-        <translation>Программа:</translation>
-    </message>
-    <message>
-        <source>Reset to default</source>
-        <translatorcomment>&quot;Сбросить к состоянию по умолчанию&quot; - слишком длинно</translatorcomment>
-        <translation>По умолчанию</translation>
-    </message>
-    <message>
-        <source>Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)</source>
-        <translation>Использовать отладочные версии библиотек (DYLD_IMAGE_SUFFIX=_debug)</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeTarget</name>
-    <message>
-        <source>Desktop</source>
-        <comment>Qt4 Desktop target display name</comment>
-        <translation>Desktop</translation>
-    </message>
-    <message>
-        <source>Maemo Emulator</source>
-        <comment>Qt4 Maemo Emulator target display name</comment>
-        <translation>Эмулятор Maemo</translation>
-    </message>
-    <message>
-        <source>Maemo Device</source>
-        <comment>Qt4 Maemo Device target display name</comment>
-        <translation>Устройство Maemo</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtQuickAppWizard</name>
-    <message>
-        <source>Creates a Qt Quick 1 application project that can contain both QML and C++ code and includes a QDeclarativeView.
-
-</source>
-        <translation>Создание проекта приложения Qt Quick 1, который может содержать код как QML, так и на С++, а так же включает QDeclarativeView.
-
-</translation>
-    </message>
-    <message>
-        <source>Qt Quick 1 Application for MeeGo Harmattan</source>
-        <translation>Приложение Qt Quick 1 для MeeGo Harmattan</translation>
-    </message>
-    <message>
-        <source>Qt Quick 1 Application (from Existing QML File)</source>
-        <translation>Приложение Qt Quick 1 (из существующего файла QML)</translation>
-    </message>
-    <message>
-        <source>Qt Quick 2 Application (from Existing QML File)</source>
-        <translation>Приложение Qt Quick 2 (из существующего файла QML)</translation>
-    </message>
-    <message>
-        <source>Creates a deployable Qt Quick application from existing QML files. All files and directories that reside in the same directory as the main .qml file are deployed. You can modify the contents of the directory any time before deploying.
-
-Requires &lt;b&gt;Qt 5.0&lt;/b&gt; or newer.</source>
-        <translation>Создание устанавливаемого приложения Qt Quick из существующих QML файлов. Все файлы и каталоги находящиеся вместе с основным файлом .qml будут устанавливаться. Содержимое каталога можно изменить в любой момент до установки.
-&lt;br/&gt;
-Требуется &lt;b&gt;Qt&lt;/b&gt; версии не ниже &lt;b&gt;5.0&lt;/b&gt;.</translation>
-    </message>
-    <message>
-        <source>The Qt Quick Components for MeeGo Harmattan are a set of ready-made components that are designed with specific native appearance for the MeeGo Harmattan platform.
-
-Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer, and the component set installed for your Qt version.</source>
-        <translation>Элементы Qt Quick для MeeGo Harmattan - это набор готовых элементов разработанных с учётом особенностей внешнего вида приложений для платформы MeeGo/Harmattan.
-&lt;br/&gt;
-Требуется &lt;b&gt;Qt&lt;/b&gt; версии не ниже &lt;b&gt;4.7.4&lt;/b&gt; и установленный набор элементов для выбранного профиля Qt.</translation>
-    </message>
-    <message>
-        <source>Creates a Qt Quick 2 application project that can contain both QML and C++ code and includes a QQuickView.
-
-</source>
-        <translation>Создание проекта приложения Qt Quick 2, который может содержать код как QML, так и на С++, а так же включает QQuickView.
-
-</translation>
-    </message>
-    <message>
-        <source>Qt Quick 1 Application (Built-in Types)</source>
-        <translation>Приложение Qt Quick 1 (встроенные типы)</translation>
-    </message>
-    <message>
-        <source>The built-in QML types in the QtQuick 1 namespace allow you to write cross-platform applications with a custom look and feel.
-
-Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
-        <translation>Встроенные типы QML из пространства имён QtQuick 1 позволяют создавать кросс-платформенные приложения с особым внешним видом и эргономикой.
-&lt;br/&gt;
-Требуется &lt;b&gt;Qt&lt;/b&gt; версии &lt;b&gt;4.7.0&lt;/b&gt; и выше.</translation>
-    </message>
-    <message>
-        <source>Qt Quick 2 Application (Built-in Types)</source>
-        <translation>Приложение Qt Quick 2 (встроенные типы)</translation>
-    </message>
-    <message>
-        <source>The built-in QML types in the QtQuick 2 namespace allow you to write cross-platform applications with a custom look and feel.
-
-Requires &lt;b&gt;Qt 5.0&lt;/b&gt; or newer.</source>
-        <translation>Встроенные типы QML из пространства имён QtQuick 2 позволяют создавать кросс-платформенные приложения с особым внешним видом и эргономикой.
-&lt;br/&gt;
-Требуется &lt;b&gt;Qt&lt;/b&gt; версии &lt;b&gt;5.0&lt;/b&gt; и выше.</translation>
-    </message>
-    <message>
-        <source>Creates a deployable Qt Quick application from existing QML files. All files and directories that reside in the same directory as the main .qml file are deployed. You can modify the contents of the directory any time before deploying.
-
-Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
-        <translation>Создание устанавливаемого приложения Qt Quick из существующих QML файлов. Все файлы и каталоги находящиеся вместе с основным файлом .qml будут устанавливаться. Содержимое каталога можно изменить в любой момент до установки.
-&lt;br/&gt;
-Требуется &lt;b&gt;Qt&lt;/b&gt; версии не ниже &lt;b&gt;4.7.0&lt;/b&gt;.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtQuickAppWizardDialog</name>
-    <message>
-        <source>New Qt Quick Application</source>
-        <translation>Новое приложение Qt Quick</translation>
-    </message>
-    <message>
-        <source>This wizard generates a Qt Quick application project.</source>
-        <translation>Этот мастер создаст проект приложения Qt Quick.</translation>
-    </message>
-    <message>
-        <source>Select existing QML file</source>
-        <translation>Выбор существующего файла QML</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtQuickComponentSetOptionsPage</name>
-    <message>
-        <source>Select QML File</source>
-        <translation>Выбор файла QML</translation>
-    </message>
-    <message>
-        <source>Select Existing QML file</source>
-        <translation>Выбор существующего файла QML</translation>
-    </message>
-    <message>
-        <source>All files and directories that reside in the same directory as the main QML file are deployed. You can modify the contents of the directory any time before deploying.</source>
-        <translation>Будут установлены все файлы и каталоги, находящиеся в том же каталоге, что и основной QML файл. До установки содержимое каталога может быть изменено в любой момент.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SubdirsProjectWizard</name>
-    <message>
-        <source>Subdirs Project</source>
-        <translation>Проект с поддиректориями</translation>
-    </message>
-    <message>
-        <source>Creates a qmake-based subdirs project. This allows you to group your projects in a tree structure.</source>
-        <translation>Создание проекта с поддиректориями на основе qmake. Он позволит организовать проект в виде дерева каталогов.</translation>
-    </message>
-    <message>
-        <source>Done &amp;&amp; Add Subproject</source>
-        <translation>Готово и добавить подпроект</translation>
-    </message>
-    <message>
-        <source>Finish &amp;&amp; Add Subproject</source>
-        <translation>Завершить и добавить подпроект</translation>
-    </message>
-    <message>
-        <source>New Subproject</source>
-        <comment>Title of dialog</comment>
-        <translation>Создание подпроекта</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SubdirsProjectWizardDialog</name>
-    <message>
-        <source>This wizard generates a Qt subdirs project. Add subprojects to it later on by using the other wizards.</source>
-        <translation>Этот мастер создаёт проект Qt с подкаталогами. Добавьте подпроекты в него позже с использованием уже других мастеров.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SummaryPage</name>
-    <message>
-        <source>Summary</source>
-        <translation>Итого</translation>
-    </message>
-    <message>
-        <source>The following snippet will be added to the&lt;br&gt;&lt;b&gt;%1&lt;/b&gt; file:</source>
-        <translation>Следующий код будет добавлен в&lt;br&gt;файл &lt;b&gt;%1&lt;/b&gt;:</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::TargetSetupPageWrapper</name>
-    <message>
-        <source>Configure Project</source>
-        <translation>Настроить проект</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Отмена</translation>
-    </message>
-    <message>
-        <source>The project &lt;b&gt;%1&lt;/b&gt; is not yet configured.&lt;br/&gt;Qt Creator cannot parse the project, because no kit has been set up.</source>
-        <translation>Проект &lt;b&gt;%1&lt;/b&gt; ещё не настроен.&lt;br/&gt;Qt Creator не может обработать проект, так как комплект не задан.</translation>
-    </message>
-    <message>
-        <source>The project &lt;b&gt;%1&lt;/b&gt; is not yet configured.&lt;br/&gt;Qt Creator uses the kit &lt;b&gt;%2&lt;/b&gt; to parse the project.</source>
-        <translation>Проект &lt;b&gt;%1&lt;/b&gt; ещё не настроен.&lt;br/&gt;Для обработки проекта Qt Creator использует комплект &lt;b&gt;%2&lt;/b&gt;.</translation>
-    </message>
-    <message>
-        <source>The project &lt;b&gt;%1&lt;/b&gt; is not yet configured.&lt;br/&gt;Qt Creator uses the &lt;b&gt;invalid&lt;/b&gt; kit &lt;b&gt;%2&lt;/b&gt; to parse the project.</source>
-        <translation>Проект &lt;b&gt;%1&lt;/b&gt; ещё не настроен.&lt;br/&gt;Для обработки проекта Qt Creator использует &lt;b&gt;неверный&lt;/b&gt; комплект &lt;b&gt;%2&lt;/b&gt;.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::TestWizard</name>
-    <message>
-        <source>Qt Unit Test</source>
-        <translation>Юнит-тест Qt</translation>
-    </message>
-    <message>
-        <source>Creates a QTestLib-based unit test for a feature or a class. Unit tests allow you to verify that the code is fit for use and that there are no regressions.</source>
-        <translation>Создание юнит-теста основанного на QTestLib для класса или свойства. Юнит тесты позволяют проверять код на соответствие целям и отсутствие регрессий.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::TestWizardDialog</name>
-    <message>
-        <source>This wizard generates a Qt unit test consisting of a single source file with a test class.</source>
-        <translation>Этот мастер создаст юнит-тест Qt, содержащий один исходный файл с проверяющим объектом.</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>Подробнее</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::TestWizardPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
-    </message>
-    <message>
-        <source>Class name:</source>
-        <translation>Имя класса:</translation>
-    </message>
-    <message>
-        <source>Type:</source>
-        <translation>Тип:</translation>
-    </message>
-    <message>
-        <source>Test</source>
-        <translation>Тест</translation>
-    </message>
-    <message>
-        <source>Benchmark</source>
-        <translation>Замер быстродействия</translation>
-    </message>
-    <message>
-        <source>File:</source>
-        <translation>Файл:</translation>
-    </message>
-    <message>
-        <source>Generate initialization and cleanup code</source>
-        <translation>Создать код инициализации и очистки</translation>
-    </message>
-    <message>
-        <source>Test slot:</source>
-        <translation>Тестовый слот:</translation>
-    </message>
-    <message>
-        <source>Requires QApplication</source>
-        <translation>Требуется QApplication</translation>
-    </message>
-    <message>
-        <source>Use a test data set</source>
-        <translation>Используется набор тестовых данных</translation>
-    </message>
-    <message>
-        <source>Specify basic information about the test class for which you want to generate skeleton source code file.</source>
-        <translation>Укажите основную информацию о тестовом классе, для которого желаете создать скелет исходника.</translation>
-    </message>
-    <message>
-        <source>Test Class Information</source>
-        <translation>Информация о тестовом классе</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::UnconfiguredProjectPanel</name>
-    <message>
-        <source>Configure Project</source>
-        <translation>Настроить проект</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::MakeStep</name>
-    <message>
-        <source>Make</source>
-        <comment>Qt MakeStep display name.</comment>
-        <translation>Сборка</translation>
-    </message>
-    <message>
-        <source>Qt Creator needs a compiler set up to build. Configure a compiler in the kit options.</source>
-        <translation>Необходимо задать компилятор для сборки. Сделать это можно в настройках комплекта.</translation>
-    </message>
-    <message>
-        <source>Cannot find Makefile. Check your build settings.</source>
-        <translation>Не удалось обнаружить Makefile. Проверьте настройки сборки.</translation>
-    </message>
-    <message>
-        <source>Configuration is faulty. Check the Issues view for details.</source>
-        <translation>Конфигурация неисправна. Окно «Проблемы» содержит подробную информацию.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::MakeStepConfigWidget</name>
-    <message>
-        <source>Make:</source>
-        <translation>Make:</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Make:&lt;/b&gt; %1</source>
-        <translation>&lt;b&gt;Make:&lt;/b&gt; %1</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Make:&lt;/b&gt; No Qt build configuration.</source>
-        <translation>&lt;b&gt;Make:&lt;/b&gt; Нет конфигурации сборки Qt.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Make:&lt;/b&gt; %1 not found in the environment.</source>
-        <translation>&lt;b&gt;Make:&lt;/b&gt;программа %1 не найдена.</translation>
-    </message>
-    <message>
-        <source>Override %1:</source>
-        <translation>Заменить %1:</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QMakeStep</name>
-    <message>
-        <source>qmake</source>
-        <extracomment>QMakeStep default display name</extracomment>
-        <translation>qmake</translation>
-    </message>
-    <message>
-        <source>Configuration is faulty, please check the Issues view for details.</source>
-        <translation>Конфигурация неисправна. Окно «Проблемы» содержит подробную информацию.</translation>
-    </message>
-    <message>
-        <source>Configuration unchanged, skipping qmake step.</source>
-        <translation>Настройки не изменились, этап qmake пропускается.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QMakeStepConfigWidget</name>
-    <message>
-        <source>QML Debugging</source>
-        <translation>Отладка QML</translation>
-    </message>
-    <message>
-        <source>The option will only take effect if the project is recompiled. Do you want to recompile now?</source>
-        <translation>Этот параметр вступит в силу только после перекомпиляции проекта. Перекомпилировать его?</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;qmake:&lt;/b&gt; No Qt version set. Cannot run qmake.</source>
-        <translation>&lt;b&gt;qmake:&lt;/b&gt; Профиль Qt не выбран. Невозможно запустить qmake.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;qmake:&lt;/b&gt; %1 %2</source>
-        <translation>&lt;b&gt;qmake:&lt;/b&gt; %1 %2</translation>
-    </message>
-    <message>
-        <source>Enable QML debugging:</source>
-        <translation>Включить отладку QML:</translation>
-    </message>
-    <message>
-        <source>Might make your application vulnerable. Only use in a safe environment.</source>
-        <translation>Может сделать приложение уязвимым. Используйте только в безопасном окружении.</translation>
-    </message>
-    <message>
-        <source>&lt;No Qt version&gt;</source>
-        <translation>&lt;Профиль Qt не задан&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeKitInformation</name>
-    <message>
-        <source>No Qt version set, so mkspec is ignored.</source>
-        <translation>mkspec пропущен,так как профиль Qt не задан.</translation>
-    </message>
-    <message>
-        <source>Mkspec not found for Qt version.</source>
-        <translation>Не найден mkspec для профиля Qt.</translation>
-    </message>
-    <message>
-        <source>mkspec</source>
-        <translation>mkspec</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmlDebuggingLibrary</name>
-    <message>
-        <source>Only available for Qt 4.7.1 or newer.</source>
-        <translation>Доступно только в Qt версии 4.7.1 и выше.</translation>
-    </message>
-    <message>
-        <source>Not needed.</source>
-        <translation>Не требуется.</translation>
-    </message>
-    <message>
-        <source>QML Debugging</source>
-        <translation>Отладка QML</translation>
-    </message>
-    <message>
-        <source>The target directory %1 could not be created.</source>
-        <translation>Не удалось создать целевой каталог %1.</translation>
-    </message>
-    <message>
-        <source>QML Debugging library could not be built in any of the directories:
-- %1
-
-Reason: %2</source>
-        <translation>Не удалось создать библиотеку отладки QML ни в одном из каталогов:
-- %1
-
-Причина: %2</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmlDumpTool</name>
-    <message>
-        <source>Only available for Qt for Desktop and Qt for Qt Simulator.</source>
-        <translation>Доступно только в Qt для настольных машин и симулятора.</translation>
-    </message>
-    <message>
-        <source>Only available for Qt 4.7.1 or newer.</source>
-        <translation>Доступно только в Qt версии 4.7.1 и выше.</translation>
-    </message>
-    <message>
-        <source>Not needed.</source>
-        <translation>Не требуется.</translation>
-    </message>
-    <message>
-        <source>Private headers are missing for this Qt version.</source>
-        <translation>Отсутствуют внутренние заголовочные файлы для этого профила Qt.</translation>
-    </message>
-    <message>
-        <source>qmldump</source>
-        <translation></translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmlObserverTool</name>
-    <message>
-        <source>Only available for Qt for Desktop or Qt for Qt Simulator.</source>
-        <translation>Доступно только в Qt для настольных машин и симулятора.</translation>
-    </message>
-    <message>
-        <source>Only available for Qt 4.7.1 or newer.</source>
-        <translation>Доступно только в Qt версии 4.7.1 и выше.</translation>
-    </message>
-    <message>
-        <source>Not needed.</source>
-        <translation>Не требуется.</translation>
-    </message>
-    <message>
-        <source>QMLObserver</source>
-        <translation></translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeBuildConfiguration</name>
-    <message>
-        <source>Parsing the .pro file</source>
-        <translation>Разбор файла .pro</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeBuildConfigurationFactory</name>
-    <message>
-        <source>Qmake based build</source>
-        <translation>Сборка на базе Qmake</translation>
-    </message>
-    <message>
-        <source>New Configuration</source>
-        <translation>Новая конфигурация</translation>
-    </message>
-    <message>
-        <source>New configuration name:</source>
-        <translation>Название новой конфигурации:</translation>
-    </message>
-    <message>
-        <source>%1 Debug</source>
-        <extracomment>Debug build configuration. We recommend not translating it.</extracomment>
-        <translation>%1 Debug</translation>
-    </message>
-    <message>
-        <source>%1 Release</source>
-        <extracomment>Release build configuration. We recommend not translating it.</extracomment>
-        <translation>%1 Release</translation>
-    </message>
-    <message>
-        <source>Debug</source>
-        <extracomment>Name of a debug build configuration to created by a project wizard. We recommend not translating it.</extracomment>
-        <translation>Debug</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <extracomment>Name of a release build configuration to be created by a project wizard. We recommend not translating it.</extracomment>
-        <translation>Release</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeManager</name>
-    <message>
-        <source>Update of Generated Files</source>
-        <translation>Обновление созданных файлов</translation>
-    </message>
-    <message>
-        <source>In project&lt;br&gt;&lt;br&gt;%1&lt;br&gt;&lt;br&gt;The following files are either outdated or have been modified:&lt;br&gt;&lt;br&gt;%2&lt;br&gt;&lt;br&gt;Do you want Qt Creator to update the files? Any changes will be lost.</source>
-        <translation>В проекте&lt;br&gt;&lt;br&gt;%1&lt;br&gt;&lt;br&gt;Следующие файлы или устарели, или были изменены:&lt;br&gt;&lt;br&gt;%2&lt;br&gt;&lt;br&gt;Желаете, чтобы Qt Creator обновил их? Все изменения будут утеряны.</translation>
-    </message>
-    <message>
-        <source>Failed opening project &apos;%1&apos;: Project is not a file</source>
-        <translation>Не удалось открыть проект «%1»: проект не является файлом</translation>
-    </message>
-    <message>
-        <source>QMake</source>
-        <translation>QMake</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakePriFileNode</name>
-    <message>
-        <source>Headers</source>
-        <translation>Заголовочные</translation>
-    </message>
-    <message>
-        <source>Sources</source>
-        <translation>Исходники</translation>
-    </message>
-    <message>
-        <source>Forms</source>
-        <translation>Формы</translation>
-    </message>
-    <message>
-        <source>Resources</source>
-        <translation>Ресурсы</translation>
-    </message>
-    <message>
-        <source>QML</source>
-        <translation>QML</translation>
-    </message>
-    <message>
-        <source>Other files</source>
-        <translation>Другие файлы</translation>
-    </message>
-    <message>
-        <source>There are unsaved changes for project file %1.</source>
-        <translation>Имеются несохранённые изменения в файле проекта %1.</translation>
-    </message>
-    <message>
-        <source>Failed!</source>
-        <translation>Не удалось!</translation>
-    </message>
-    <message>
-        <source>Could not write project file %1.</source>
-        <translation>Не удалось записать в файл проекта %1.</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation>Ошибка файла</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeProFileNode</name>
-    <message>
-        <source>Error while parsing file %1. Giving up.</source>
-        <translation>Ошибка разбора файла %1. Отмена.</translation>
-    </message>
-    <message>
-        <source>Could not find .pro file for sub dir &apos;%1&apos; in &apos;%2&apos;</source>
-        <translation>Не удалось найти .pro файл для подкаталога «%1» в «%2»</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeProject</name>
-    <message>
-        <source>Evaluating</source>
-        <translation>Вычисление</translation>
-    </message>
-    <message>
-        <source>No Qt version set in kit.</source>
-        <translation>Для комплекта не задан профиль Qt.</translation>
-    </message>
-    <message>
-        <source>The .pro file &apos;%1&apos; does not exist.</source>
-        <translation>.pro-файл «%1» не существует.</translation>
-    </message>
-    <message>
-        <source>The .pro file &apos;%1&apos; is not part of the project.</source>
-        <translation>.pro-файл «%1» не является частью проекта.</translation>
-    </message>
-    <message>
-        <source>The .pro file &apos;%1&apos; could not be parsed.</source>
-        <translation>Не удалось разобрать .pro-файл «%1».</translation>
-    </message>
-    <message>
-        <source>Debug</source>
-        <translation>Отладка</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Выпуск</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeTargetSetupWidget</name>
-    <message>
-        <source>Manage...</source>
-        <translation>Управление...</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Error:&lt;/b&gt; </source>
-        <comment>Severity is Task::Error</comment>
-        <translation>&lt;b&gt;Ошибка:&lt;/b&gt; </translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Warning:&lt;/b&gt; </source>
-        <comment>Severity is Task::Warning</comment>
-        <translation>&lt;b&gt;Предупреждение:&lt;/b&gt; </translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QtVersion</name>
-    <message>
-        <source>The Qt version is invalid: %1</source>
-        <extracomment>%1: Reason for being invalid</extracomment>
-        <translation>Некорректный профиль Qt: %1</translation>
-    </message>
-    <message>
-        <source>The qmake command &quot;%1&quot; was not found or is not executable.</source>
-        <extracomment>%1: Path to qmake executable</extracomment>
-        <translation>Не удалось найти программу qmake «%1» или она неисполняема.</translation>
-    </message>
-    <message>
-        <source>Qmake does not support build directories below the source directory.</source>
-        <translation>Qmake не поддерживает сборку в каталогах ниже каталога исходников.</translation>
-    </message>
-    <message>
-        <source>The build directory needs to be at the same level as the source directory.</source>
-        <translation>Каталог сборки должен быть на том же уровне, что и каталог исходников.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::TargetSetupPage</name>
-    <message>
-        <source>&lt;span style=&quot; font-weight:600;&quot;&gt;No valid kits found.&lt;/span&gt;</source>
-        <translation>&lt;b&gt;Отсутствуют подходящие комплекты.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Please add a kit in the &lt;a href=&quot;buildandrun&quot;&gt;options&lt;/a&gt; or via the maintenance tool of the SDK.</source>
-        <translation>Добавьте комплект в &lt;a href=&quot;buildandrun&quot;&gt;настройках&lt;/a&gt; или через инструмент обслуживания SDK.</translation>
-    </message>
-    <message>
-        <source>Select Kits for Your Project</source>
-        <translation>Выбор комплектов для проекта</translation>
-    </message>
-    <message>
-        <source>Kit Selection</source>
-        <translation>Выбор комплекта</translation>
-    </message>
-    <message>
-        <source>%1 - temporary</source>
-        <translation>%1 - временный</translation>
-    </message>
-    <message>
-        <source>Qt Creator can use the following kits for project &lt;b&gt;%1&lt;/b&gt;:</source>
-        <comment>%1: Project name</comment>
-        <translation>Qt Creator может использовать для проекта &lt;b&gt;%1&lt;/b&gt; следующие комплекты:</translation>
-    </message>
-    <message>
-        <source>No Build Found</source>
-        <translation>Сборка не найдена</translation>
-    </message>
-    <message>
-        <source>No build found in %1 matching project %2.</source>
-        <translation>В %1 не найдена сборка соответствующая проекту %2.</translation>
     </message>
 </context>
 <context>
@@ -29993,15 +30245,18 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
+    <name>QtObjectPane</name>
+    <message>
+        <source>Type</source>
+        <translation>Тип</translation>
+    </message>
+    <message>
+        <source>id</source>
+        <translation>идентификатор</translation>
+    </message>
+</context>
+<context>
     <name>QtSupport</name>
-    <message>
-        <source>MeeGo/Harmattan</source>
-        <translation>MeeGo/Harmattan</translation>
-    </message>
-    <message>
-        <source>Maemo/Fremantle</source>
-        <translation>Maemo/Fremantle</translation>
-    </message>
     <message>
         <source>Desktop</source>
         <translation>Desktop</translation>
@@ -30017,6 +30272,10 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     <message>
         <source>Android</source>
         <translation>Android</translation>
+    </message>
+    <message>
+        <source>iOS</source>
+        <translation>iOS</translation>
     </message>
 </context>
 <context>
@@ -30079,20 +30338,8 @@ cannot be found in the path.</source>
         <translation>Дампер QML:</translation>
     </message>
     <message>
-        <source>A modified version of qmlviewer with support for QML/JS debugging.</source>
-        <translation>Изменённая версия qmlviewer с поддержкой отладки Qml/JS.</translation>
-    </message>
-    <message>
-        <source>QML Observer:</source>
-        <translation>Обозреватель QML:</translation>
-    </message>
-    <message>
         <source>Build</source>
         <translation>Собрать</translation>
-    </message>
-    <message>
-        <source>QML Debugging Library:</source>
-        <translation>Отладочная библиотека QML:</translation>
     </message>
     <message>
         <source>Helps showing content of Qt types. Only used in older versions of GDB.</source>
@@ -30167,13 +30414,6 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::GettingStartedWelcomePage</name>
-    <message>
-        <source>Getting Started</source>
-        <translation>Начало работы</translation>
-    </message>
-</context>
-<context>
     <name>QtSupport::Internal::QtKitConfigWidget</name>
     <message>
         <source>The Qt library to use for all projects using this kit.&lt;br&gt;A Qt version is required for qmake-based projects and optional when using other build systems.</source>
@@ -30190,6 +30430,10 @@ cannot be found in the path.</source>
     <message>
         <source>Qt version:</source>
         <translation>Профиль Qt:</translation>
+    </message>
+    <message>
+        <source>%1 (invalid)</source>
+        <translation>%1 (неверный)</translation>
     </message>
 </context>
 <context>
@@ -30442,16 +30686,6 @@ cannot be found in the path.</source>
         <translation></translation>
     </message>
     <message>
-        <source>Maemo</source>
-        <comment>Qt Version is meant for Maemo5</comment>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Harmattan </source>
-        <comment>Qt Version is meant for Harmattan</comment>
-        <translation></translation>
-    </message>
-    <message>
         <source>No qmlscene installed.</source>
         <translation>qmlscene не установлен.</translation>
     </message>
@@ -30511,6 +30745,10 @@ cannot be found in the path.</source>
 <context>
     <name>RadioButtonSpecifics</name>
     <message>
+        <source>Radio Button</source>
+        <translation>Переключатель</translation>
+    </message>
+    <message>
         <source>Text</source>
         <translation>Текст</translation>
     </message>
@@ -30529,25 +30767,6 @@ cannot be found in the path.</source>
     <message>
         <source>Focus on press</source>
         <translation>Фокус при нажатии</translation>
-    </message>
-</context>
-<context>
-    <name>RangeDetails</name>
-    <message>
-        <source>Duration:</source>
-        <translation>Продолжительность:</translation>
-    </message>
-    <message>
-        <source>Details:</source>
-        <translation>Подробнее:</translation>
-    </message>
-    <message>
-        <source>Location:</source>
-        <translation>Размещение:</translation>
-    </message>
-    <message>
-        <source>Binding loop detected</source>
-        <translation>Обнаружена закольцованность связей</translation>
     </message>
 </context>
 <context>
@@ -30594,6 +30813,14 @@ cannot be found in the path.</source>
     <message>
         <source>Border</source>
         <translation>Рамка</translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation>Цвет</translation>
+    </message>
+    <message>
+        <source>Border Color</source>
+        <translation>Цвет рамки</translation>
     </message>
 </context>
 <context>
@@ -30699,6 +30926,10 @@ Is the device connected and set up for network access?</source>
 </context>
 <context>
     <name>RemoteLinux::CreateTarStepWidget</name>
+    <message>
+        <source>Ignore missing files</source>
+        <translation>Игнорировать отсутствующие файлы</translation>
+    </message>
     <message>
         <source>Tarball creation not possible.</source>
         <translation>Создание тарбола невозможно.</translation>
@@ -30817,7 +31048,7 @@ Is the device connected and set up for network access?</source>
     </message>
     <message>
         <source>Show password</source>
-        <translation>Отображать</translation>
+        <translation>Отображать пароль</translation>
     </message>
     <message>
         <source>Private key file:</source>
@@ -30843,6 +31074,14 @@ Is the device connected and set up for network access?</source>
         <source>Machine type:</source>
         <translation>Тип машины:</translation>
     </message>
+    <message>
+        <source>GDB server executable:</source>
+        <translation>Программа GDB server:</translation>
+    </message>
+    <message>
+        <source>Leave empty to look up executable in $PATH</source>
+        <translation>Оставьте пустым для поиска в $PATH</translation>
+    </message>
 </context>
 <context>
     <name>RemoteLinux::GenericLinuxDeviceConfigurationWizard</name>
@@ -30854,8 +31093,8 @@ Is the device connected and set up for network access?</source>
 <context>
     <name>RemoteLinux::GenericLinuxDeviceConfigurationWizardFinalPage</name>
     <message>
-        <source>Setup Finished</source>
-        <translation>Настройка завершена</translation>
+        <source>Summary</source>
+        <translation>Итог</translation>
     </message>
     <message>
         <source>The new device configuration will now be created.
@@ -30867,8 +31106,8 @@ In addition, device connectivity will be tested.</source>
 <context>
     <name>RemoteLinux::GenericLinuxDeviceConfigurationWizardSetupPage</name>
     <message>
-        <source>Connection Data</source>
-        <translation>Данные соединения</translation>
+        <source>Connection</source>
+        <translation>Подключение</translation>
     </message>
     <message>
         <source>Choose a Private Key File</source>
@@ -30890,38 +31129,32 @@ In addition, device connectivity will be tested.</source>
         <translation>Проверка версии ядра...</translation>
     </message>
     <message>
-        <source>SSH connection failure: %1
-</source>
+        <source>SSH connection failure: %1</source>
         <translation>Не удалось установить подключение SSH: %1</translation>
     </message>
     <message>
-        <source>uname failed: %1
-</source>
+        <source>uname failed: %1</source>
         <translation>Команда uname завершилась с ошибкой: %1</translation>
     </message>
     <message>
-        <source>uname failed.
-</source>
+        <source>uname failed.</source>
         <translation>Команда uname завершилась с ошибкой.</translation>
+    </message>
+    <message>
+        <source>Error gathering ports: %1</source>
+        <translation>Ошибка резервирования портов: %1</translation>
+    </message>
+    <message>
+        <source>All specified ports are available.</source>
+        <translation>Все указанные порты доступны.</translation>
+    </message>
+    <message>
+        <source>The following specified ports are currently in use: %1</source>
+        <translation>Следующие указанные порты уже используются: %1</translation>
     </message>
     <message>
         <source>Checking if specified ports are available...</source>
         <translation>Проверка на доступность указанных портов...</translation>
-    </message>
-    <message>
-        <source>Error gathering ports: %1
-</source>
-        <translation>Ошибка резервирования портов: %1</translation>
-    </message>
-    <message>
-        <source>All specified ports are available.
-</source>
-        <translation>Все указанные порты доступны.</translation>
-    </message>
-    <message>
-        <source>The following specified ports are currently in use: %1
-</source>
-        <translation>Следующие указанные порты уже используются: %1</translation>
     </message>
 </context>
 <context>
@@ -30936,6 +31169,10 @@ In addition, device connectivity will be tested.</source>
     <message>
         <source>Incremental deployment</source>
         <translation>Инкрементальная установка</translation>
+    </message>
+    <message>
+        <source>Ignore missing files</source>
+        <translation>Игнорировать отсутствующие файлы</translation>
     </message>
     <message>
         <source>Command line:</source>
@@ -30988,37 +31225,8 @@ In addition, device connectivity will be tested.</source>
         <translation>Обычный Linux</translation>
     </message>
     <message>
-        <source>Test</source>
-        <translation>Тест</translation>
-    </message>
-    <message>
         <source>Deploy Public Key...</source>
         <translation>Установить ключ...</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::LinuxDeviceTestDialog</name>
-    <message>
-        <source>Device Test</source>
-        <translation>Проверка устройства</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoGlobal</name>
-    <message>
-        <source>SDK Connectivity</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Mad Developer</source>
-        <translation></translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoPackageCreationFactory</name>
-    <message>
-        <source>Create Debian Package</source>
-        <translation>Создать пакет Debian</translation>
     </message>
 </context>
 <context>
@@ -31069,12 +31277,16 @@ In addition, device connectivity will be tested.</source>
 <context>
     <name>RemoteLinux::Internal::RemoteLinuxEnvironmentReader</name>
     <message>
-        <source>Connection error: %1</source>
-        <translation>Ошибка подключения: %1</translation>
+        <source>Error: %1</source>
+        <translation>Ошибка: %1</translation>
     </message>
     <message>
-        <source>Error running remote process: %1</source>
-        <translation>Ошибка выполнения внешнего процесса: %1</translation>
+        <source>Process exited with code %1.</source>
+        <translation>Процесс завершился с кодом %1.</translation>
+    </message>
+    <message>
+        <source>Error running &apos;env&apos;: %1</source>
+        <translation>При работе «env» возникла ошибка: %1</translation>
     </message>
     <message>
         <source>
@@ -31086,23 +31298,19 @@ Remote stderr was: &apos;%1&apos;</source>
 <context>
     <name>RemoteLinux::Internal::RemoteLinuxRunConfigurationFactory</name>
     <message>
-        <source> (on Remote Generic Linux Host)</source>
-        <translation> (на удалённой машине с Linux)</translation>
+        <source>(on Remote Generic Linux Host)</source>
+        <translation>(на удалённой машине с Linux)</translation>
     </message>
 </context>
 <context>
     <name>RemoteLinux::Internal::RemoteLinuxRunControlFactory</name>
     <message>
         <source>Cannot debug: Kit has no device.</source>
-        <translation>Отладка невозможна: у комплекта нет устройства.</translation>
+        <translation>Отладка невозможна: комплект не имеет устройства.</translation>
     </message>
     <message>
         <source>Cannot debug: Not enough free ports available.</source>
         <translation>Отладка невозможна: недостаточно свободных портов.</translation>
-    </message>
-    <message>
-        <source>No analyzer tool selected.</source>
-        <translation>Инструмент анализа не выбран.</translation>
     </message>
 </context>
 <context>
@@ -31115,8 +31323,7 @@ Remote stderr was: &apos;%1&apos;</source>
 <context>
     <name>RemoteLinux::LinuxDeviceDebugSupport</name>
     <message>
-        <source>Checking available ports...
-</source>
+        <source>Checking available ports...</source>
         <translation>Проверка доступных портов...</translation>
     </message>
     <message>
@@ -31126,21 +31333,6 @@ Remote stderr was: &apos;%1&apos;</source>
     <message>
         <source>Initial setup failed: %1</source>
         <translation>Не удалось выполнить начальную настройку: %1</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::LinuxDeviceTestDialog</name>
-    <message>
-        <source>Close</source>
-        <translation>Закрыть</translation>
-    </message>
-    <message>
-        <source>Device test finished successfully.</source>
-        <translation>Проверка устройства успешно завершена.</translation>
-    </message>
-    <message>
-        <source>Device test failed.</source>
-        <translation>Проверка устройства завершена с ошибкой.</translation>
     </message>
 </context>
 <context>
@@ -31169,8 +31361,7 @@ Remote stderr was: &apos;%1&apos;</source>
 <context>
     <name>RemoteLinux::RemoteLinuxAnalyzeSupport</name>
     <message>
-        <source>Checking available ports...
-</source>
+        <source>Checking available ports...</source>
         <translation>Проверка доступных портов...</translation>
     </message>
     <message>
@@ -31346,6 +31537,13 @@ Remote stderr was: &apos;%1&apos;</source>
     <message>
         <source>Remote path not set</source>
         <translation>Не задан внешний путь</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteLinux::RemoteLinuxSignalOperation</name>
+    <message>
+        <source>Exit code is %1. stderr:</source>
+        <translation>Код завершения %1. stderr:</translation>
     </message>
 </context>
 <context>
@@ -31532,10 +31730,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <source>Copy Resource Path to Clipboard</source>
         <translation>Скопировать путь до ресурса в буфер обмена</translation>
     </message>
-    <message>
-        <source>untitled</source>
-        <translation>безымянный</translation>
-    </message>
 </context>
 <context>
     <name>ResourceEditor::Internal::ResourceView</name>
@@ -31581,6 +31775,10 @@ Remote stderr was: &apos;%1&apos;</source>
         <source>Spacing</source>
         <translation>Отступ</translation>
     </message>
+    <message>
+        <source>Layout Direction</source>
+        <translation>Направление компоновки</translation>
+    </message>
 </context>
 <context>
     <name>SearchBar</name>
@@ -31612,7 +31810,7 @@ Remote stderr was: &apos;%1&apos;</source>
     <name>SessionItem</name>
     <message>
         <source>Clone</source>
-        <translation>Дублировать</translation>
+        <translation>Копировать</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -31639,6 +31837,33 @@ Remote stderr was: &apos;%1&apos;</source>
     <message>
         <source>Show Editor</source>
         <translation>Открыть редактор</translation>
+    </message>
+</context>
+<context>
+    <name>SideBar</name>
+    <message>
+        <source>New to Qt?</source>
+        <translation>Впервые с Qt?</translation>
+    </message>
+    <message>
+        <source>Learn how to develop your own applications and explore Qt Creator.</source>
+        <translation>Узнаете, как разрабатывать собственные приложения, и освоите Qt Creator.</translation>
+    </message>
+    <message>
+        <source>Get Started Now</source>
+        <translation>Начните прямо сейчас</translation>
+    </message>
+    <message>
+        <source>Online Community</source>
+        <translation>Онлайн сообщество</translation>
+    </message>
+    <message>
+        <source>Blogs</source>
+        <translation>Блоги</translation>
+    </message>
+    <message>
+        <source>User Guide</source>
+        <translation>Руководство пользователя</translation>
     </message>
 </context>
 <context>
@@ -31718,6 +31943,21 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
+    <name>StandardTextSection</name>
+    <message>
+        <source>Text</source>
+        <translation>Текст</translation>
+    </message>
+    <message>
+        <source>Wrap mode</source>
+        <translation>Режим переноса</translation>
+    </message>
+    <message>
+        <source>Alignment</source>
+        <translation>Выравнивание</translation>
+    </message>
+</context>
+<context>
     <name>SubComponentManager::parseDirectory</name>
     <message>
         <source>Invalid meta info</source>
@@ -31786,7 +32026,7 @@ with a password, which you can enter below.</source>
     </message>
     <message>
         <source>Ignore whitespace changes in annotation</source>
-        <translation>Пропускать изменения пробелов в описании</translation>
+        <translation>Игнорировать изменения пробелов в описании</translation>
     </message>
     <message>
         <source>Log count:</source>
@@ -31811,8 +32051,8 @@ with a password, which you can enter below.</source>
 <context>
     <name>Subversion::Internal::SubversionDiffParameterWidget</name>
     <message>
-        <source>Ignore whitespace</source>
-        <translation>Пропускать пробелы</translation>
+        <source>Ignore Whitespace</source>
+        <translation>Игнорировать пробелы</translation>
     </message>
 </context>
 <context>
@@ -32068,6 +32308,13 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
+    <name>TabViewToolAction</name>
+    <message>
+        <source>Add Tab...</source>
+        <translation>Добавить вкладку...</translation>
+    </message>
+</context>
+<context>
     <name>TargetSettingsPanelFactory</name>
     <message>
         <source>Build &amp; Run</source>
@@ -32115,24 +32362,20 @@ with a password, which you can enter below.</source>
         <translation>Текст</translation>
     </message>
     <message>
-        <source>The text of the text area</source>
-        <translation>Текст в области текста</translation>
-    </message>
-    <message>
         <source>Read only</source>
         <translation>Только для чтения</translation>
-    </message>
-    <message>
-        <source>Determines whether the text area is read only.</source>
-        <translation>Определяет, является ли текстовая область изменяемой или нет.</translation>
     </message>
     <message>
         <source>Color</source>
         <translation>Цвет</translation>
     </message>
     <message>
-        <source>The color of the text</source>
-        <translation>Цвет текста</translation>
+        <source>The text shown on the text area</source>
+        <translation>Текст, отображаемый в текстовой области</translation>
+    </message>
+    <message>
+        <source>Determines whether the text area is read only.</source>
+        <translation>Определяет, является ли текстовая область изменяемой или нет.</translation>
     </message>
     <message>
         <source>Document margins</source>
@@ -32143,12 +32386,8 @@ with a password, which you can enter below.</source>
         <translation>Отступы текстовой области</translation>
     </message>
     <message>
-        <source>Frame</source>
-        <translation>Рамка</translation>
-    </message>
-    <message>
-        <source>Determines whether the text area has a frame.</source>
-        <translation>Определяет, есть ли у текстовой области рамка или нет.</translation>
+        <source>Text Area</source>
+        <translation>Область текста</translation>
     </message>
     <message>
         <source>Frame width</source>
@@ -32205,6 +32444,18 @@ with a password, which you can enter below.</source>
         <source>Format</source>
         <translation>Формат</translation>
     </message>
+    <message>
+        <source>Text Color</source>
+        <translation>Цвет текста</translation>
+    </message>
+    <message>
+        <source>Selection Color</source>
+        <translation>Цвет выделения</translation>
+    </message>
+    <message>
+        <source>Text Input</source>
+        <translation>Текстовый ввод</translation>
+    </message>
 </context>
 <context>
     <name>TextEditor</name>
@@ -32234,10 +32485,6 @@ with a password, which you can enter below.</source>
 </context>
 <context>
     <name>TextEditor::BaseTextDocument</name>
-    <message>
-        <source>untitled</source>
-        <translation>безымянный</translation>
-    </message>
     <message>
         <source>Opening file</source>
         <translation>Открытие файла</translation>
@@ -32662,10 +32909,6 @@ Specifies how backspace interacts with indentation.
         <translation>Встроенная &amp;навигация с учётом верблюжьего регистра</translation>
     </message>
     <message>
-        <source>Show help tooltips:</source>
-        <translation>Показывать подсказки:</translation>
-    </message>
-    <message>
         <source>On Mouseover</source>
         <translation>При наведении</translation>
     </message>
@@ -32678,8 +32921,12 @@ Specifies how backspace interacts with indentation.
         <translation>При нажатии на Alt показывать справку о контексте или информацию о типе в виде подсказки.</translation>
     </message>
     <message>
-        <source>Using keyboard shortcut (Alt)</source>
-        <translation>Использовать сочетание клавиш (Alt)</translation>
+        <source>Show help tooltips using keyboard shortcut (Alt)</source>
+        <translation>Вызывать подсказки по сочетанию клавиш (Alt)</translation>
+    </message>
+    <message>
+        <source>Show help tooltips using the mouse:</source>
+        <translation>Показывать подсказки при использовании мышки:</translation>
     </message>
 </context>
 <context>
@@ -33194,15 +33441,15 @@ Please check the directory&apos;s access rights.</source>
     </message>
     <message>
         <source>Not a valid trigger.</source>
-        <translation>Неверное замещение.</translation>
+        <translation>Неверный инициатор.</translation>
     </message>
     <message>
         <source>Trigger</source>
-        <translation>Замещение</translation>
+        <translation>Инициатор</translation>
     </message>
     <message>
         <source>Trigger Variant</source>
-        <translation>Замещение варианта</translation>
+        <translation>Варианты замещения</translation>
     </message>
     <message>
         <source>Error reverting snippet.</source>
@@ -33714,10 +33961,6 @@ Influences the indentation of continuation lines.
         <translation>Перейти к файлу под курсором</translation>
     </message>
     <message>
-        <source>Jump to File Under Cursor in Next Split</source>
-        <translation>Перейти к файлу под курсором в следующей панели</translation>
-    </message>
-    <message>
         <source>Go to Line Start</source>
         <translation>Перейти в начало строки</translation>
     </message>
@@ -33957,14 +34200,6 @@ Applied to text, if no other rules matching.</source>
         <translation>Имя функции.</translation>
     </message>
     <message>
-        <source>Virtual Method</source>
-        <translation>Виртуальный метод</translation>
-    </message>
-    <message>
-        <source>Name of method declared as virtual.</source>
-        <translation>Имя метода, объявленного виртуальным.</translation>
-    </message>
-    <message>
         <source>QML Binding</source>
         <translation>Привязки QML</translation>
     </message>
@@ -34113,6 +34348,14 @@ Will not be applied to whitespace in comments and strings.</source>
     <message>
         <source>Applied to enumeration items.</source>
         <translation>Применяется к элементам перечисления.</translation>
+    </message>
+    <message>
+        <source>Virtual Function</source>
+        <translation>Виртуальная функция</translation>
+    </message>
+    <message>
+        <source>Name of function declared as virtual.</source>
+        <translation>Имя функции, объявленной виртуальной.</translation>
     </message>
     <message>
         <source>QML Root Object Property</source>
@@ -34315,6 +34558,71 @@ Will not be applied to whitespace in comments and strings.</source>
     <message>
         <source>Flags</source>
         <translation>Флаги</translation>
+    </message>
+</context>
+<context>
+    <name>TextInputSection</name>
+    <message>
+        <source>Text Input</source>
+        <translation>Текстовый ввод</translation>
+    </message>
+    <message>
+        <source>Input mask</source>
+        <translation>Маска ввода</translation>
+    </message>
+    <message>
+        <source>Echo mode</source>
+        <translation>Режим эха</translation>
+    </message>
+    <message>
+        <source>Pass. char</source>
+        <translation>Символ пароля</translation>
+    </message>
+    <message>
+        <source>Character displayed when users enter passwords.</source>
+        <translation>Символ отображаемый при вводе пользователем паролей.</translation>
+    </message>
+    <message>
+        <source>Flags</source>
+        <translation>Флаги</translation>
+    </message>
+    <message>
+        <source>Read only</source>
+        <translation>Только для чтения</translation>
+    </message>
+    <message>
+        <source>Cursor visible</source>
+        <translation>Курсор виден</translation>
+    </message>
+    <message>
+        <source>Active focus on press</source>
+        <translation>Активировать фокус при нажатии</translation>
+    </message>
+    <message>
+        <source>Auto scroll</source>
+        <translation>Прокручивать автоматически</translation>
+    </message>
+</context>
+<context>
+    <name>TextInputSpecifics</name>
+    <message>
+        <source>Text Color</source>
+        <translation>Цвет текста</translation>
+    </message>
+    <message>
+        <source>Selection Color</source>
+        <translation>Цвет выделения</translation>
+    </message>
+</context>
+<context>
+    <name>TextSpecifics</name>
+    <message>
+        <source>Text Color</source>
+        <translation>Цвет текста</translation>
+    </message>
+    <message>
+        <source>Style Color</source>
+        <translation>Цвет стиля</translation>
     </message>
 </context>
 <context>
@@ -34522,6 +34830,32 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
+    <name>Update</name>
+    <message>
+        <source>Update</source>
+        <translation>Обновление</translation>
+    </message>
+</context>
+<context>
+    <name>UpdateInfo::Internal::SettingsWidget</name>
+    <message>
+        <source>Configure Filters</source>
+        <translation>Настройка фильтров</translation>
+    </message>
+    <message>
+        <source>Qt Creator Update Settings</source>
+        <translation>Настройки обновлений Qt Creator</translation>
+    </message>
+    <message>
+        <source>Qt Creator automatically runs a scheduled update check on a daily basis. If Qt Creator is not in use on the scheduled time or maintenance is behind schedule, the automatic update check will be run next time Qt Creator starts.</source>
+        <translation>Qt Creator ежедневно в определённое время проверяет наличие обновлений. Если в это время Qt Creator не используется, то проверка обновлений будет выполнена при следующем его запуске.</translation>
+    </message>
+    <message>
+        <source>Run update check daily at:</source>
+        <translation>Выполнять ежедневную проверку в:</translation>
+    </message>
+</context>
+<context>
     <name>UpdateInfo::Internal::UpdateInfoPlugin</name>
     <message>
         <source>Could not determine location of maintenance tool. Please check your installation if you did not enable this plugin manually.</source>
@@ -34536,8 +34870,8 @@ Will not be applied to whitespace in comments and strings.</source>
         <translation>Запустить обновление</translation>
     </message>
     <message>
-        <source>Update</source>
-        <translation>Обновление</translation>
+        <source>Updates available</source>
+        <translation>Доступны обновления</translation>
     </message>
 </context>
 <context>
@@ -34552,6 +34886,10 @@ Will not be applied to whitespace in comments and strings.</source>
     <message>
         <source>Do not ask again</source>
         <translation>Больше не спрашивать</translation>
+    </message>
+    <message>
+        <source>Do not &amp;ask again</source>
+        <translation>&amp;Больше не спрашивать</translation>
     </message>
 </context>
 <context>
@@ -34777,14 +35115,6 @@ Will not be applied to whitespace in comments and strings.</source>
             <numerusform>%1: %n совпадение найдено в %2 файле(ах).</numerusform>
             <numerusform>%1: %n совпадения найдено в %2 файле(ах).</numerusform>
             <numerusform>%1: %n совпадений найдено в %2 файле(ах).</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1: %n occurrences found in %2 of %3 files.</source>
-        <translation>
-            <numerusform>%1: %n совпадение найдено в %2 из %3 файлах.</numerusform>
-            <numerusform>%1: %n совпадения найдено в %2 из %3 файлах.</numerusform>
-            <numerusform>%1: %n совпадений найдено в %2 из %3 файлах.</numerusform>
         </translation>
     </message>
 </context>
@@ -35207,6 +35537,10 @@ Will not be applied to whitespace in comments and strings.</source>
         <translation>&amp;Закрыть</translation>
     </message>
     <message>
+        <source>C&amp;lose All</source>
+        <translation>За&amp;крыть всё</translation>
+    </message>
+    <message>
         <source>Save &amp;as...</source>
         <translation>Сохранить &amp;как...</translation>
     </message>
@@ -35222,8 +35556,8 @@ Will not be applied to whitespace in comments and strings.</source>
         <translation>Файл изменён</translation>
     </message>
     <message>
-        <source>The unsaved file &lt;i&gt;%1&lt;/i&gt; has been changed outside Qt Creator. Do you want to reload it and discard your changes?</source>
-        <translation>Несохранённый файл &lt;i&gt;%1&lt;/i&gt; был изменён вне Qt Creator. Перезагрузить его с потерей изменений?</translation>
+        <source>The unsaved file &lt;i&gt;%1&lt;/i&gt; has changed outside Qt Creator. Do you want to reload it and discard your changes?</source>
+        <translation>Несохранённый файл &lt;i&gt;%1&lt;/i&gt; был изменён вне Qt Creator. Перезагрузить его с потерей текущих изменений?</translation>
     </message>
     <message>
         <source>The file &lt;i&gt;%1&lt;/i&gt; has changed outside Qt Creator. Do you want to reload it?</source>
@@ -35583,31 +35917,14 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Valgrind::Internal::CallgrindEngine</name>
+    <name>Valgrind::Internal::CallgrindRunControl</name>
     <message>
         <source>Profiling</source>
         <translation>Профилирование</translation>
     </message>
     <message>
-        <source>Profiling %1
-</source>
-        <translation>Профилирование %1
-</translation>
-    </message>
-</context>
-<context>
-    <name>Valgrind::Internal::CallgrindTool</name>
-    <message>
-        <source>Valgrind Function Profiler</source>
-        <translation>Профилер функций Valgrind</translation>
-    </message>
-    <message>
-        <source>Valgrind Profile uses the &quot;callgrind&quot; tool to record function calls when a program runs.</source>
-        <translation>Профилер Valgrind использует утилиту «callgrind» для записи вызовов функций при работе программы.</translation>
-    </message>
-    <message>
-        <source>Profile Costs of this Function and its Callees</source>
-        <translation>Цены функций и тех, кого они вызывают</translation>
+        <source>Profiling %1</source>
+        <translation>Профилирование %1</translation>
     </message>
 </context>
 <context>
@@ -35627,6 +35944,10 @@ Will not be applied to whitespace in comments and strings.</source>
     <message>
         <source>Visualization</source>
         <translation>Визуализация</translation>
+    </message>
+    <message>
+        <source>Load External XML Log File</source>
+        <translation>Загрузить внешний XML файл журнала</translation>
     </message>
     <message>
         <source>Request the dumping of profile information. This will update the callgrind visualization.</source>
@@ -35724,18 +36045,25 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Populating...</source>
         <translation>Заполнение...</translation>
     </message>
-</context>
-<context>
-    <name>Valgrind::Internal::MemcheckEngine</name>
     <message>
-        <source>Analyzing Memory</source>
-        <translation>Анализ памяти</translation>
+        <source>Open Callgrind XML Log File</source>
+        <translation>Загрузить XML файл журнала Callgrind</translation>
     </message>
     <message>
-        <source>Analyzing memory of %1
-</source>
-        <translation>Анализ памяти %1
-</translation>
+        <source>XML Files (*.xml);;All Files (*)</source>
+        <translation>Файлы XML (*.xml);;Все файлы (*)</translation>
+    </message>
+    <message>
+        <source>Internal Error</source>
+        <translation>Внутренняя ошибка</translation>
+    </message>
+    <message>
+        <source>Failed to open file for reading: %1</source>
+        <translation>Не удалось открыть файл для чтения: %1</translation>
+    </message>
+    <message>
+        <source>Parsing Profile Data...</source>
+        <translation>Обработка данных профилирования...</translation>
     </message>
 </context>
 <context>
@@ -35747,6 +36075,17 @@ Will not be applied to whitespace in comments and strings.</source>
     <message>
         <source>Suppress Error</source>
         <translation>Игнорировать ошибку</translation>
+    </message>
+</context>
+<context>
+    <name>Valgrind::Internal::MemcheckRunControl</name>
+    <message>
+        <source>Analyzing Memory</source>
+        <translation>Анализ памяти</translation>
+    </message>
+    <message>
+        <source>Analyzing memory of %1</source>
+        <translation>Анализ памяти %1</translation>
     </message>
 </context>
 <context>
@@ -35776,8 +36115,12 @@ Will not be applied to whitespace in comments and strings.</source>
         <translation>Неверный вызов «free()»</translation>
     </message>
     <message>
-        <source>Valgrind Analyze Memory uses the &quot;memcheck&quot; tool to find memory leaks</source>
-        <translation>Анализатор памяти Valgrind использует утилиту «memcheck» для обнаружения утечек памяти</translation>
+        <source>Load External XML Log File</source>
+        <translation>Загрузить внешний XML файл журнала</translation>
+    </message>
+    <message>
+        <source>Error occurred parsing Valgrind output: %1</source>
+        <translation>Ошибка при разборе вывода Valgrind: %1</translation>
     </message>
     <message>
         <source>Memory Issues</source>
@@ -35800,20 +36143,24 @@ Will not be applied to whitespace in comments and strings.</source>
         <translation>Эти файлы были использованы при последнем запуске анализатора.</translation>
     </message>
     <message>
-        <source>Valgrind Memory Analyzer</source>
-        <translation>Анализатор памяти Valgrind</translation>
-    </message>
-    <message>
         <source>Error Filter</source>
         <translation>Фильтр ошибок</translation>
+    </message>
+    <message>
+        <source>Open Memcheck XML Log File</source>
+        <translation>Загрузить XML файл журнала Memcheck</translation>
+    </message>
+    <message>
+        <source>XML Files (*.xml);;All Files (*)</source>
+        <translation>Файлы XML (*.xml);;Все файлы (*)</translation>
     </message>
     <message>
         <source>Internal Error</source>
         <translation>Внутренняя ошибка</translation>
     </message>
     <message>
-        <source>Error occurred parsing valgrind output: %1</source>
-        <translation>Ошибка при разборе вывода valgrind: %1</translation>
+        <source>Failed to open file for reading: %1</source>
+        <translation>Не удалось открыть файл для чтения: %1</translation>
     </message>
 </context>
 <context>
@@ -35833,13 +36180,6 @@ Will not be applied to whitespace in comments and strings.</source>
     <message>
         <source>Save Suppression</source>
         <translation>Сохранить исключения</translation>
-    </message>
-</context>
-<context>
-    <name>Valgrind::Internal::ValgrindBaseSettings</name>
-    <message>
-        <source>Valgrind</source>
-        <translation></translation>
     </message>
 </context>
 <context>
@@ -35894,7 +36234,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
     <message>
         <source>Limits the amount of results the profiler gives you. A lower limit will likely increase performance.</source>
-        <translation>Ограничивает количество результатов выдаваемых профилером. Чем меньше значение, тем выше скорость.</translation>
+        <translation>Ограничивает количество результатов выдаваемых профайлером. Чем меньше значение, тем выше скорость.</translation>
     </message>
     <message>
         <source>Result view: Minimum event cost:</source>
@@ -35975,9 +36315,90 @@ With cache simulation, further event counters are enabled:
         <source>Visualization: Minimum event cost:</source>
         <translation>Визуализация: Минимальная цена события:</translation>
     </message>
+    <message>
+        <source>Detect self-modifying code:</source>
+        <translation>Выявление самоизменяемого кода:</translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation>Нет</translation>
+    </message>
+    <message>
+        <source>Only on Stack</source>
+        <translation>Только в стеке</translation>
+    </message>
+    <message>
+        <source>Everywhere</source>
+        <translation>Везде</translation>
+    </message>
+    <message>
+        <source>Everywhere Except in File-backend Mappings</source>
+        <translation>Везде, кроме областей отображаемых файлов</translation>
+    </message>
+    <message>
+        <source>Show reachable and indirectly lost blocks</source>
+        <translation>Показывать доступные и косвенно потерянные блоки</translation>
+    </message>
+    <message>
+        <source>Check for leaks on finish:</source>
+        <translation>Проверять утечки при завершении:</translation>
+    </message>
+    <message>
+        <source>Summary Only</source>
+        <translation>Только итог</translation>
+    </message>
+    <message>
+        <source>Full</source>
+        <translation>Полностью</translation>
+    </message>
 </context>
 <context>
-    <name>Valgrind::Internal::ValgrindEngine</name>
+    <name>Valgrind::Internal::ValgrindOptionsPage</name>
+    <message>
+        <source>Valgrind</source>
+        <translation>Valgrind</translation>
+    </message>
+</context>
+<context>
+    <name>Valgrind::Internal::ValgrindPlugin</name>
+    <message>
+        <source>Valgrind Function Profile uses the &quot;callgrind&quot; tool to record function calls when a program runs.</source>
+        <translation>Профайлер функций Valgrind использует утилиту «callgrind» для записи вызовов функций при работе программы.</translation>
+    </message>
+    <message>
+        <source>Valgrind Analyze Memory uses the &quot;memcheck&quot; tool to find memory leaks.</source>
+        <translation>Анализатор памяти Valgrind использует утилиту «memcheck» для обнаружения утечек памяти.</translation>
+    </message>
+    <message>
+        <source>Valgrind Memory Analyzer</source>
+        <translation>Анализатор памяти Valgrind</translation>
+    </message>
+    <message>
+        <source>Valgrind Function Profiler</source>
+        <translation>Профайлер функций Valgrind</translation>
+    </message>
+    <message>
+        <source>Valgrind Memory Analyzer (Remote)</source>
+        <translation>Анализатор памяти Valgrind (удалённо)</translation>
+    </message>
+    <message>
+        <source>Valgrind Function Profiler (Remote)</source>
+        <translation>Профайлер функций Valgrind (удалённо)</translation>
+    </message>
+    <message>
+        <source>Profile Costs of This Function and Its Callees</source>
+        <translation>Цены функций и тех, кого они вызывают</translation>
+    </message>
+</context>
+<context>
+    <name>Valgrind::Internal::ValgrindRunConfigurationAspect</name>
+    <message>
+        <source>Valgrind Settings</source>
+        <translation>Настройки Valgrind</translation>
+    </message>
+</context>
+<context>
+    <name>Valgrind::Internal::ValgrindRunControl</name>
     <message>
         <source>Valgrind options: %1</source>
         <translation>Параметры Valgrind: %1</translation>
@@ -35987,39 +36408,24 @@ With cache simulation, further event counters are enabled:
         <translation>Рабочий каталог: %1</translation>
     </message>
     <message>
-        <source>Commandline arguments: %1</source>
-        <translation>Аргументы командной строки: %1</translation>
+        <source>Command line arguments: %1</source>
+        <translation>Параметры командной строки: %1</translation>
     </message>
     <message>
-        <source>** Analyzing finished **
-</source>
-        <translation>** Анализ завершён **
-</translation>
+        <source>Analyzing finished.</source>
+        <translation>Анализ завершён.</translation>
     </message>
     <message>
-        <source>** Error: &quot;%1&quot; could not be started: %2 **
-</source>
-        <translation>** Ошибка: Не удалось запустить «%1»: %2 **
-</translation>
+        <source>Error: &quot;%1&quot; could not be started: %2</source>
+        <translation>Ошибка: Не удалось запустить «%1»: %2</translation>
     </message>
     <message>
-        <source>** Error: no valgrind executable set **
-</source>
-        <translation>** Error: программа vlagrind не задана **
-</translation>
+        <source>Error: no Valgrind executable set.</source>
+        <translation>Ошибка: программа Valgrind не задана.</translation>
     </message>
     <message>
-        <source>** Process Terminated **
-</source>
-        <translation>** Процесс завершился **
-</translation>
-    </message>
-</context>
-<context>
-    <name>Valgrind::Internal::ValgrindRunControlFactory</name>
-    <message>
-        <source>No analyzer tool selected</source>
-        <translation>Инструмент анализа не выбран</translation>
+        <source>Process terminated.</source>
+        <translation>Процесс прерван.</translation>
     </message>
 </context>
 <context>
@@ -36030,7 +36436,34 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>Valgrind::RemoteValgrindProcess</name>
+    <name>Valgrind::Memcheck::MemcheckRunner</name>
+    <message>
+        <source>No network interface found for remote analysis.</source>
+        <translation>Не обнаружено сетевых подключений для удалённого анализа.</translation>
+    </message>
+    <message>
+        <source>Select Network Interface</source>
+        <translation>Выбор сетевого подключения</translation>
+    </message>
+    <message>
+        <source>More than one network interface was found on your machine. Please select the one you want to use for remote analysis.</source>
+        <translation>Обнаружено более одного сетевого подключения на вашей машине. Выберите одно для удалённого анализа.</translation>
+    </message>
+    <message>
+        <source>No network interface was chosen for remote analysis.</source>
+        <translation>Сетевое подключение не выбрано для удалённого анализа.</translation>
+    </message>
+    <message>
+        <source>XmlServer on %1:</source>
+        <translation>XmlServer на %1:</translation>
+    </message>
+    <message>
+        <source>LogServer on %1:</source>
+        <translation>LogServer на %1:</translation>
+    </message>
+</context>
+<context>
+    <name>Valgrind::ValgrindProcess</name>
     <message>
         <source>Could not determine remote PID.</source>
         <translation>Не удалось определить удалённый PID.</translation>
@@ -36276,12 +36709,12 @@ With cache simulation, further event counters are enabled:
 <context>
     <name>VcsBase::Command</name>
     <message>
-        <source>Error: VCS timed out after %1s.</source>
-        <translation>Ошибка: VCS превысила время ожидания (%1 сек).</translation>
-    </message>
-    <message>
         <source>Unable to start process, binary is empty</source>
         <translation>Не удалось запустить процесс - программа пуста</translation>
+    </message>
+    <message>
+        <source>Error: Executable timed out after %1s.</source>
+        <translation>Ошибка: программа превысила время ожидания (%1 сек).</translation>
     </message>
 </context>
 <context>
@@ -36323,16 +36756,16 @@ With cache simulation, further event counters are enabled:
         <translation>Путь, в котором будет создан каталог с загруженными данными.</translation>
     </message>
     <message>
-        <source>Checkout path:</source>
-        <translation>Путь загрузки:</translation>
-    </message>
-    <message>
         <source>The local directory that will contain the code after the checkout.</source>
         <translation>Локальный каталог, который будет содержать код после загрузки.</translation>
     </message>
     <message>
-        <source>Checkout directory:</source>
-        <translation>Каталог извлечения:</translation>
+        <source>Path:</source>
+        <translation>Путь:</translation>
+    </message>
+    <message>
+        <source>Directory:</source>
+        <translation>Каталог:</translation>
     </message>
 </context>
 <context>
@@ -36410,14 +36843,14 @@ name &lt;email&gt; alias &lt;email&gt;</source>
         <translation>&amp;Команда patch:</translation>
     </message>
     <message>
-        <source>Specifies a command that is executed to graphically prompt for a password, 
-should a repository require SSH-authentication (see documentation on SSH and the environment variable SSH_ASKPASS).</source>
-        <translation>Задаёт команду, которая запрашивает пароль в диалоговом окне для хранилищ, 
-требующих авторизацию по SSH (см. документацию к SSH и переменной среды SSH_ASKPASS).</translation>
-    </message>
-    <message>
         <source>&amp;SSH prompt command:</source>
         <translation>Команда &amp;запроса пароля SSH:</translation>
+    </message>
+    <message>
+        <source>Specifies a command that is executed to graphically prompt for a password,
+should a repository require SSH-authentication (see documentation on SSH and the environment variable SSH_ASKPASS).</source>
+        <translation>Задаёт команду запроса пароля в диалоговом окне для хранилищ,
+требующих авторизацию по SSH (см. документацию к SSH и переменной среды SSH_ASKPASS).</translation>
     </message>
 </context>
 <context>
@@ -36470,29 +36903,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>Copy URL Location</source>
         <translation>Скопировать адрес ссылки</translation>
-    </message>
-</context>
-<context>
-    <name>VcsBase::ProcessCheckoutJob</name>
-    <message>
-        <source>Unable to start %1: %2</source>
-        <translation>Не удалось запустить %1: %2</translation>
-    </message>
-    <message>
-        <source>The process terminated with exit code %1.</source>
-        <translation>Процесс завершился с кодом %1.</translation>
-    </message>
-    <message>
-        <source>The process returned exit code %1.</source>
-        <translation>Процесс вернул код %1.</translation>
-    </message>
-    <message>
-        <source>The process terminated in an abnormal way.</source>
-        <translation>Процесс был завершён некорректно.</translation>
-    </message>
-    <message>
-        <source>Stopping...</source>
-        <translation>Останавливается...</translation>
     </message>
 </context>
 <context>
@@ -36632,16 +37042,12 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>Контроль версий</translation>
     </message>
     <message>
-        <source>Executing: %1 %2
-</source>
-        <translation>Выполняется: %1 %2
-</translation>
+        <source>Executing: %1 %2</source>
+        <translation>Выполняется: %1 %2</translation>
     </message>
     <message>
-        <source>Executing in %1: %2 %3
-</source>
-        <translation>Выполняется в %1: %2 %3
-</translation>
+        <source>Executing in %1: %2 %3</source>
+        <translation>Выполняется в %1: %2 %3</translation>
     </message>
 </context>
 <context>
@@ -36673,10 +37079,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>Repository Creation Failed</source>
         <translation>Не удалось создать хранилище</translation>
-    </message>
-    <message>
-        <source>Error: Executable timed out after %1s.</source>
-        <translation>Ошибка: программа превысила время ожидания (%1 сек).</translation>
     </message>
     <message>
         <source>There is no patch-command configured in the common &apos;Version Control&apos; settings.</source>
@@ -36766,22 +37168,10 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>VcsCommand</name>
+    <name>VirtualFunctionsAssistProcessor</name>
     <message>
-        <source>
-&apos;%1&apos; failed (exit code %2).
-</source>
-        <translation>
-Ошибка команды «%1» (код завершения %2).
-</translation>
-    </message>
-    <message>
-        <source>
-&apos;%1&apos; completed (exit code %2).
-</source>
-        <translation>
-«%1» выполнено (код завершения %2).
-</translation>
+        <source>...searching overrides</source>
+        <translation>... поиск переопределений</translation>
     </message>
 </context>
 <context>
@@ -36892,6 +37282,21 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>Title</source>
         <translation>Заголовок</translation>
+    </message>
+</context>
+<context>
+    <name>WindowSpecifics</name>
+    <message>
+        <source>Window</source>
+        <translation>Окно</translation>
+    </message>
+    <message>
+        <source>Title</source>
+        <translation>Заголовок</translation>
+    </message>
+    <message>
+        <source>Size</source>
+        <translation>Размер</translation>
     </message>
 </context>
 <context>
@@ -37012,8 +37417,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>%1 обнаружил файл в /tmp/mdnsd, видимо, не удалось запустить службу.</translation>
     </message>
     <message>
-        <source>%1: log of previous daemon run is: &apos;%2&apos;.
-</source>
+        <source>%1: log of previous daemon run is: &apos;%2&apos;.</source>
         <translation>%1: история предыдущего запуска службы: «%2».</translation>
     </message>
     <message>
@@ -37031,10 +37435,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
 <context>
     <name>develop</name>
     <message>
-        <source>Develop</source>
-        <translation>Разработка</translation>
-    </message>
-    <message>
         <source>Sessions</source>
         <translation>Сессии</translation>
     </message>
@@ -37043,12 +37443,12 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>Последние проекты</translation>
     </message>
     <message>
-        <source>Open Project</source>
-        <translation>Открыть проект</translation>
+        <source>New Project</source>
+        <translation>Новый проект</translation>
     </message>
     <message>
-        <source>Create Project</source>
-        <translation>Создать проект</translation>
+        <source>Open Project</source>
+        <translation>Открыть проект</translation>
     </message>
 </context>
 <context>
@@ -37061,63 +37461,8 @@ should a repository require SSH-authentication (see documentation on SSH and the
 <context>
     <name>examples</name>
     <message>
-        <source>Examples</source>
-        <translation>Примеры</translation>
-    </message>
-    <message>
         <source>Search in Examples...</source>
         <translation>Поиск по примерам...</translation>
-    </message>
-</context>
-<context>
-    <name>gettingstarted</name>
-    <message>
-        <source>Getting Started</source>
-        <translation>Начало работы</translation>
-    </message>
-    <message>
-        <source>To select a tutorial and learn how to develop applications.</source>
-        <translation>Выберите учебник для обучения разработке приложений.</translation>
-    </message>
-    <message>
-        <source>Start Developing</source>
-        <translation>Начать разработку</translation>
-    </message>
-    <message>
-        <source>To check that the Qt SDK installation was successful, open an example application and run it.</source>
-        <translation>Проверьте правильности установки Qt SDK - откройте пример программы и запустите его.</translation>
-    </message>
-    <message>
-        <source>Building and Running an Example Application</source>
-        <translation>Сборка и запуск примера программы</translation>
-    </message>
-    <message>
-        <source>IDE Overview</source>
-        <translation>Обзор среды разработки</translation>
-    </message>
-    <message>
-        <source>To find out what kind of integrated environment (IDE) Qt Creator is.</source>
-        <translation>Познакомьтесь с Qt Creator - интегрированной средой разработки.</translation>
-    </message>
-    <message>
-        <source>To become familiar with the parts of the Qt Creator user interface and to learn how to use them.</source>
-        <translation>Узнайте больше об элементах пользовательского интерфейса Qt Creator и методах их использования.</translation>
-    </message>
-    <message>
-        <source>User Interface</source>
-        <translation>Интерфейс пользователя</translation>
-    </message>
-    <message>
-        <source>User Guide</source>
-        <translation>Руководство пользователя</translation>
-    </message>
-    <message>
-        <source>Online Community</source>
-        <translation>Онлайн сообщество</translation>
-    </message>
-    <message>
-        <source>Blogs</source>
-        <translation>Блоги</translation>
     </message>
 </context>
 <context>
@@ -37164,10 +37509,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
 </context>
 <context>
     <name>tutorials</name>
-    <message>
-        <source>Tutorials</source>
-        <translation>Учебники</translation>
-    </message>
     <message>
         <source>Search in Tutorials...</source>
         <translation>Поиск по учебникам...</translation>

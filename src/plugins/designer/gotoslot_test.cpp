@@ -59,6 +59,9 @@ namespace {
 
 class MyTestDataDir : public Core::Internal::Tests::TestDataDir {
 public:
+    MyTestDataDir()
+        : TestDataDir(QString())
+    {}
     MyTestDataDir(const QString &dir)
         : TestDataDir(QLatin1String(SRCDIR "/../../../tests/designer/") + dir)
     {}
@@ -75,6 +78,96 @@ QString expectedContentsForFile(const QString &filePath)
     if (isFetchOk)
         return QString::fromUtf8(fileReader.data());
     return QString();
+}
+
+class DocumentContainsFunctionDefinition: protected SymbolVisitor
+{
+public:
+    bool operator()(Scope *scope, const QString function)
+    {
+        if (!scope)
+            return false;
+
+        m_referenceFunction = function;
+        m_result = false;
+
+        accept(scope);
+        return m_result;
+    }
+
+protected:
+    bool preVisit(Symbol *) { return !m_result; }
+
+    bool visit(Function *symbol)
+    {
+        const QString function = m_overview.prettyName(symbol->name());
+        if (function == m_referenceFunction)
+            m_result = true;
+        return false;
+    }
+
+private:
+    bool m_result;
+    QString m_referenceFunction;
+    Overview m_overview;
+};
+
+class DocumentContainsDeclaration: protected SymbolVisitor
+{
+public:
+    bool operator()(Scope *scope, const QString function)
+    {
+        if (!scope)
+            return false;
+
+        m_referenceFunction = function;
+        m_result = false;
+
+        accept(scope);
+        return m_result;
+    }
+
+protected:
+    bool preVisit(Symbol *) { return !m_result; }
+
+    void postVisit(Symbol *symbol)
+    {
+        if (symbol->isClass())
+            m_currentClass.clear();
+    }
+
+    bool visit(Class *symbol)
+    {
+        m_currentClass = m_overview.prettyName(symbol->name());
+        return true;
+    }
+
+    bool visit(Declaration *symbol)
+    {
+        QString declaration = m_overview.prettyName(symbol->name());
+        if (!m_currentClass.isEmpty())
+            declaration = m_currentClass + QLatin1String("::") + declaration;
+        if (m_referenceFunction == declaration)
+            m_result = true;
+        return false;
+    }
+
+private:
+    bool m_result;
+    QString m_referenceFunction;
+    QString m_currentClass;
+    Overview m_overview;
+};
+
+bool documentContainsFunctionDefinition(const Document::Ptr &document, const QString function)
+{
+    return DocumentContainsFunctionDefinition()(document->globalNamespace(), function);
+}
+
+bool documentContainsMemberFunctionDeclaration(const Document::Ptr &document,
+                                               const QString declaration)
+{
+    return DocumentContainsDeclaration()(document->globalNamespace(), declaration);
 }
 
 class GoToSlotTest
@@ -129,8 +222,14 @@ public:
         }
 
         // Compare
-        QCOMPARE(cppFileEditor->textDocument()->contents(), expectedContentsForFile(cppFile));
-        QCOMPARE(hFileEditor->textDocument()->contents(), expectedContentsForFile(hFile));
+        const Document::Ptr cppDocument
+            = m_modelManager->cppEditorSupport(cppFileEditor)->snapshotUpdater()->document();
+        const Document::Ptr hDocument
+            = m_modelManager->cppEditorSupport(hFileEditor)->snapshotUpdater()->document();
+        QVERIFY(documentContainsFunctionDefinition(cppDocument,
+            QLatin1String("Form::on_pushButton_clicked")));
+        QVERIFY(documentContainsMemberFunctionDeclaration(hDocument,
+            QLatin1String("Form::on_pushButton_clicked")));
     }
 
 private:
@@ -152,7 +251,7 @@ private:
 #endif
 
 /// Check: Executes "Go To Slot..." on a QPushButton in a *.ui file and checks if the respective
-/// header and source files are updated.
+/// header and source files are correctly updated.
 void Designer::Internal::FormEditorPlugin::test_gotoslot()
 {
 #if QT_VERSION >= 0x050000
@@ -165,15 +264,45 @@ void Designer::Internal::FormEditorPlugin::test_gotoslot()
 #endif
 }
 
-void FormEditorPlugin::test_gotoslot_data()
+void Designer::Internal::FormEditorPlugin::test_gotoslot_data()
 {
+#if QT_VERSION >= 0x050000
     typedef QLatin1String _;
     QTest::addColumn<QStringList>("files");
 
-    MyTestDataDir testData(QLatin1String("gotoslot_withoutProject"));
+    MyTestDataDir testDataDirWithoutProject(_("gotoslot_withoutProject"));
     QTest::newRow("withoutProject")
         << (QStringList()
-            << testData.file(_("form.cpp"))
-            << testData.file(_("form.h"))
-            << testData.file(_("form.ui")));
+            << testDataDirWithoutProject.file(_("form.cpp"))
+            << testDataDirWithoutProject.file(_("form.h"))
+            << testDataDirWithoutProject.file(_("form.ui")));
+
+    // Finding the right class for inserting definitions/declarations is based on
+    // finding a class with a member whose type is the class from the "ui_xxx.h" header.
+    // In the following test data the header files contain an extra class referencing
+    // the same class name.
+
+    MyTestDataDir testDataDir;
+
+    testDataDir = MyTestDataDir(_("gotoslot_insertIntoCorrectClass_pointer"));
+    QTest::newRow("insertIntoCorrectClass_pointer")
+        << (QStringList()
+            << testDataDir.file(_("form.cpp"))
+            << testDataDir.file(_("form.h"))
+            << testDataDirWithoutProject.file(_("form.ui"))); // reuse
+
+    testDataDir = MyTestDataDir(_("gotoslot_insertIntoCorrectClass_non-pointer"));
+    QTest::newRow("insertIntoCorrectClass_non-pointer")
+        << (QStringList()
+            << testDataDir.file(_("form.cpp"))
+            << testDataDir.file(_("form.h"))
+            << testDataDirWithoutProject.file(_("form.ui"))); // reuse
+
+    testDataDir = MyTestDataDir(_("gotoslot_insertIntoCorrectClass_pointer_ns_using"));
+    QTest::newRow("insertIntoCorrectClass_pointer_ns_using")
+        << (QStringList()
+            << testDataDir.file(_("form.cpp"))
+            << testDataDir.file(_("form.h"))
+            << testDataDir.file(_("form.ui")));
+#endif
 }

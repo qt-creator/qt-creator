@@ -156,6 +156,8 @@ private slots:
     void consoleStubProcessStarted();
     void consoleStubExited();
 
+    void createFullBacktrace();
+
     void handleDoInterruptInferior(const QString &errorMessage);
 
 private:
@@ -227,6 +229,7 @@ private:
     void ensureUsing32BitStackInWow64(const CdbBuiltinCommandPtr &cmd);
     void handleSwitchWow64Stack(const CdbBuiltinCommandPtr &cmd);
     void jumpToAddress(quint64 address);
+    void handleCreateFullBackTrace(const CdbBuiltinCommandPtr &cmd);
 
     // Extension commands
     void handleThreads(const CdbExtensionCommandPtr &);

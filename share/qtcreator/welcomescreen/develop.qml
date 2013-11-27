@@ -33,7 +33,7 @@ import widgets 1.0
 Rectangle {
     id: rectangle1
     width: parent.width
-    height: 600
+    height: Math.max(sessions.height, recentProjects.height)
 
     Item {
         id: canvas
@@ -45,21 +45,9 @@ Rectangle {
         anchors.fill: parent
         anchors.topMargin: 0
 
-        Rectangle {
-            width: 1
-            height: Math.max(Math.min(recentProjects.contentHeight + 120, recentProjects.height), sessions.height)
-            color: "#c4c4c4"
-            anchors.left: sessions.right
-            anchors.leftMargin: -1
-            anchors.top: sessions.top
-            visible: !sessions.scrollBarVisible
-            id: sessionLine
-        }
-
         RecentProjects {
             x: 428
 
-            height: 432
             id: recentProjects
 
             anchors.leftMargin: 12
@@ -67,23 +55,10 @@ Rectangle {
 
             anchors.top: recentProjectsTitle.bottom
             anchors.topMargin: 20
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 40
             anchors.right: parent.right
             anchors.rightMargin: 60
 
             model: projectList
-        }
-
-        Rectangle {
-            id: line
-            width: 1
-            height: sessionLine.height
-            color: "#c4c4c4"
-            anchors.left: recentProjects.right
-            anchors.leftMargin: -1
-            anchors.top: recentProjects.top
-            visible: !recentProjects.scrollBarVisible
         }
 
         NativeText {

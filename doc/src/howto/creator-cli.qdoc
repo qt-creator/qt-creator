@@ -161,11 +161,11 @@
 
     \section1 Using Custom Styles
 
-    \QC is a \l{http://qt-project.org/doc/qt-5.0/qtwidgets/qapplication.html#QApplication}
+    \QC is a \l{QApplication}
     {Qt application}, and therefore, it accepts the command line options
     that all Qt applications accept. For example, you can use the \c {-style} and
     \c {-stylesheet} options to apply custom styles and
-    \l{http://qt-project.org/doc/qt-5.0/qtwidgets/stylesheet.html}{stylesheets}.
+    \l{QApplication#stylesheet}{stylesheets}.
     The styling is only applied during the current session.
 
     Exercise caution when applying styles, as overriding the existing styling

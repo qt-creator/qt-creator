@@ -135,18 +135,7 @@ private:
     void applyIndentationBasedFolding(const QString &text) const;
     int neighbouringNonEmptyBlockIndent(QTextBlock block, const bool previous) const;
 
-    struct BlockData : TextBlockUserData
-    {
-        BlockData();
-        virtual ~BlockData();
-
-        int m_foldingIndentDelta;
-        int m_originalObservableState;
-        QStack<QString> m_foldingRegions;
-        QSharedPointer<Internal::Context> m_contextToContinue;
-    };
-    BlockData *initializeBlockData();
-    static BlockData *blockData(QTextBlockUserData *userData);
+    static TextBlockUserData *blockData(QTextBlockUserData *userData);
 
     // Block states are composed by the region depth (used for code folding) and what I call
     // observable states. Observable states occupy the 12 least significant bits. They might have

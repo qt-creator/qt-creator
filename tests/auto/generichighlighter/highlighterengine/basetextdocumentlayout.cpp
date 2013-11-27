@@ -27,36 +27,12 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
-import widgets 1.0
+#include "basetextdocumentlayout.h"
 
-Item {
-    id: root
-    property var model
-    property int topMargin: 6
-    height: content.contentHeight + 200
-
-    ListView {
-        id: content
-        model: root.model
-
-        anchors.fill: parent
-        anchors.topMargin: topMargin
-        snapMode: ListView.SnapToItem
-        spacing: 4
-        clip: true
-
-        delegate: SessionItem {
-            function fullSessionName()
-            {
-                var newSessionName = sessionName
-                if (model.lastSession && sessionList.isDefaultVirgin())
-                    newSessionName = qsTr("%1 (last session)").arg(sessionName);
-                else if (model.activeSession && !sessionList.isDefaultVirgin())
-                    newSessionName = qsTr("%1 (current session)").arg(sessionName);
-                return newSessionName;
-            }
-            name: fullSessionName()
-        }
-    }
+TextBlockUserData *BaseTextDocumentLayout::userData(const QTextBlock &block)
+{
+    TextBlockUserData *data = static_cast<TextBlockUserData*>(block.userData());
+    if (!data && block.isValid())
+        const_cast<QTextBlock &>(block).setUserData((data = new TextBlockUserData));
+    return data;
 }

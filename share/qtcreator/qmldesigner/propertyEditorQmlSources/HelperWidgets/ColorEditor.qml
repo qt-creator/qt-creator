@@ -64,6 +64,8 @@ Column {
     id: colorEditor
 
     onColorChanged: {
+        if (!gradientLine.isCompleted)
+            return;
         textField.text = gradientLine.colorToString(color);
 
         if (supportGradient && gradientLine.visible)
@@ -75,6 +77,7 @@ Column {
     }
 
     GradientLine {
+        property bool isCompleted: false
         visible: buttonRow.checkedIndex === 1
         id: gradientLine
 
@@ -86,6 +89,7 @@ Column {
         }
 
         onHasGradientChanged: {
+            print("hasGradient")
              if (!supportGradient)
                  return
 
@@ -94,6 +98,11 @@ Column {
             else
                 buttonRow.initalChecked = 0
             buttonRow.checkedIndex = buttonRow.initalChecked
+        }
+
+        Component.onCompleted: {
+            colorEditor.color = gradientLine.currentColor
+            isCompleted= true
         }
     }
 

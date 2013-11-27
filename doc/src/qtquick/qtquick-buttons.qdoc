@@ -91,8 +91,7 @@
     \endlist
 
     To create a graphical button that scales beautifully without using vector
-    graphics, use the \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-borderimage.html}
-    {Border Image} type. For more information, see
+    graphics, use the \l{BorderImage} type. For more information, see
     \l{Creating Scalable Buttons and Borders}.
 
     */
@@ -108,8 +107,7 @@
     \title Creating Scalable Buttons and Borders
 
     You can use the
-    \l{http://qt-project.org/doc/qt-5.0/qtquick/qml-qtquick2-borderimage.html}
-    {Border Image} type to display an image, such as a PNG file, as a border
+    \l{BorderImage} type to display an image, such as a PNG file, as a border
     and a background.
 
     Use two Border Image items and suitable graphics to make it look like the

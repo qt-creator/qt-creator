@@ -108,7 +108,6 @@ public:
     Core::IEditor *editor() const { return m_ieditor; }
     void setEditor(Core::IEditor *ieditor) { m_ieditor = ieditor; }
 
-    bool hasSelection() const { return m_cursorPosition != m_anchorPosition; }
     int selectionStart() const { return qMin(m_anchorPosition, m_cursorPosition); }
     int selectionEnd() const { return qMax(m_anchorPosition, m_cursorPosition); }
 

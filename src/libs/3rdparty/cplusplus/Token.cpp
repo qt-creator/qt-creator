@@ -57,13 +57,13 @@ const char *token_names[] = {
     ("nullptr"), ("operator"), ("private"),
     ("protected"), ("public"), ("register"), ("reinterpret_cast"),
     ("return"), ("short"), ("signed"), ("sizeof"), ("static"),("static_assert"),
-    ("static_cast"), ("struct"), ("switch"), ("template"), ("this"),
+    ("static_cast"), ("struct"), ("switch"), ("template"), ("this"), ("thread_local"),
     ("throw"), ("true"), ("try"), ("typedef"), ("typeid"), ("typename"),
     ("union"), ("unsigned"), ("using"), ("virtual"), ("void"),
     ("volatile"), ("wchar_t"), ("while"),
 
     // gnu
-    ("__attribute__"), ("__typeof__"),
+    ("__attribute__"), ("__thread"), ("__typeof__"),
 
     // objc @keywords
     ("@catch"), ("@class"), ("@compatibility_alias"), ("@defs"), ("@dynamic"),

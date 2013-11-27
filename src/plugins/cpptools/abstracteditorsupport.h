@@ -50,6 +50,7 @@ public:
     virtual QString fileName() const = 0;
 
     void updateDocument();
+    unsigned revision() const { return m_revision; }
 
     // TODO: find a better place for common utility functions
     static QString functionAt(const CppModelManagerInterface *mm,
@@ -60,6 +61,7 @@ public:
 
 private:
     CppModelManagerInterface *m_modelmanager;
+    unsigned m_revision;
 };
 
 } // namespace CppTools

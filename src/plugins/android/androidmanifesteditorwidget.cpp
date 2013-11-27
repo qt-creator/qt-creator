@@ -99,7 +99,8 @@ AndroidManifestEditorWidget::AndroidManifestEditorWidget(QWidget *parent, TextEd
     : TextEditor::PlainTextEditorWidget(parent),
       m_dirty(false),
       m_stayClean(false),
-      m_setAppName(false)
+      m_setAppName(false),
+      m_appNameInStringsXml(false)
 {
     QSharedPointer<AndroidManifestDocument> doc(new AndroidManifestDocument(this));
     doc->setMimeType(QLatin1String(Constants::ANDROID_MANIFEST_MIME_TYPE));
@@ -586,7 +587,7 @@ void AndroidManifestEditorWidget::preSave()
     if (activePage() != Source)
         syncToEditor();
 
-    if (m_setAppName) {
+    if (m_setAppName && m_appNameInStringsXml) {
         QString baseDir = QFileInfo(static_cast<AndroidManifestDocument *>(editor()->document())->filePath()).absolutePath();
         QString fileName = baseDir + QLatin1String("/res/values/strings.xml");
         QFile f(fileName);
@@ -773,6 +774,8 @@ void AndroidManifestEditorWidget::syncToWidgets(const QDomDocument &doc)
     QString baseDir = QFileInfo(static_cast<AndroidManifestDocument *>(editor()->document())->filePath()).absolutePath();
     QString fileName = baseDir + QLatin1String("/res/values/strings.xml");
 
+    QDomElement applicationElement = manifest.firstChildElement(QLatin1String("application"));
+
     QFile f(fileName);
     if (f.exists() && f.open(QIODevice::ReadOnly)) {
         QDomDocument doc;
@@ -786,9 +789,13 @@ void AndroidManifestEditorWidget::syncToWidgets(const QDomDocument &doc)
                 metadataElem = metadataElem.nextSiblingElement(QLatin1String("string"));
             }
         }
+        m_appNameInStringsXml = true;
+    } else {
+        m_appNameLineEdit->setText(applicationElement.attribute(QLatin1String("android:label")));
+        m_appNameInStringsXml = false;
     }
 
-    QDomElement metadataElem = manifest.firstChildElement(QLatin1String("application")).firstChildElement(QLatin1String("activity")).firstChildElement(QLatin1String("meta-data"));
+    QDomElement metadataElem = applicationElement.firstChildElement(QLatin1String("activity")).firstChildElement(QLatin1String("meta-data"));
     while (!metadataElem.isNull()) {
         if (metadataElem.attribute(QLatin1String("android:name")) == QLatin1String("android.app.lib_name")) {
             m_targetLineEdit->setEditText(metadataElem.attribute(QLatin1String("android:value")));
@@ -892,6 +899,11 @@ void AndroidManifestEditorWidget::syncToEditor()
     manifest.setAttribute(QLatin1String("package"), m_packageNameLineEdit->text());
     manifest.setAttribute(QLatin1String("android:versionCode"), m_versionCode->value());
     manifest.setAttribute(QLatin1String("android:versionName"), m_versionNameLinedit->text());
+
+    if (!m_appNameInStringsXml) {
+        QDomElement application = manifest.firstChildElement(QLatin1String("application"));
+        application.setAttribute(QLatin1String("android:label"), m_appNameLineEdit->text());
+    }
 
     setUsesSdk(doc, manifest, extractVersion(m_androidMinSdkVersion->currentText()),
                extractVersion(m_androidTargetSdkVersion->currentText()));
