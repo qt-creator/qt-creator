@@ -1817,21 +1817,28 @@ void WatchHandler::saveWatchers()
     DebuggerCore::setSessionValue("Watchers", watchedExpressions());
 }
 
-void WatchHandler::loadTypeFormats()
+void WatchHandler::loadFormats()
 {
     QVariant value = DebuggerCore::sessionValue("DefaultFormats");
-    QMap<QString, QVariant> typeFormats = value.toMap();
-    QMapIterator<QString, QVariant> it(typeFormats);
+    QMapIterator<QString, QVariant> it(value.toMap());
     while (it.hasNext()) {
         it.next();
         if (!it.key().isEmpty())
             theTypeFormats.insert(it.key().toUtf8(), it.value().toInt());
     }
+
+    value = DebuggerCore::sessionValue("IndividualFormats");
+    it = QMapIterator<QString, QVariant>(value.toMap());
+    while (it.hasNext()) {
+        it.next();
+        if (!it.key().isEmpty())
+            theIndividualFormats.insert(it.key().toUtf8(), it.value().toInt());
+    }
 }
 
-void WatchHandler::saveTypeFormats()
+void WatchHandler::saveFormats()
 {
-    QMap<QString, QVariant> typeFormats;
+    QMap<QString, QVariant> formats;
     QHashIterator<QByteArray, int> it(theTypeFormats);
     while (it.hasNext()) {
         it.next();
@@ -1839,21 +1846,32 @@ void WatchHandler::saveTypeFormats()
         if (format != DecimalFormat) {
             const QByteArray key = it.key().trimmed();
             if (!key.isEmpty())
-                typeFormats.insert(QLatin1String(key), format);
+                formats.insert(QString::fromLatin1(key), format);
         }
     }
-    DebuggerCore::setSessionValue("DefaultFormats", typeFormats);
+    DebuggerCore::setSessionValue("DefaultFormats", formats);
+
+    formats.clear();
+    it = QHashIterator<QByteArray, int>(theIndividualFormats);
+    while (it.hasNext()) {
+        it.next();
+        const int format = it.value();
+        const QByteArray key = it.key().trimmed();
+        if (!key.isEmpty())
+            formats.insert(QString::fromLatin1(key), format);
+    }
+    DebuggerCore::setSessionValue("IndividualFormats", formats);
 }
 
 void WatchHandler::saveSessionData()
 {
     saveWatchers();
-    saveTypeFormats();
+    saveFormats();
 }
 
 void WatchHandler::loadSessionData()
 {
-    loadTypeFormats();
+    loadFormats();
     theWatcherNames.clear();
     m_watcherCounter = 0;
     QVariant value = DebuggerCore::sessionValue("Watchers");
@@ -1927,7 +1945,7 @@ void WatchHandler::setFormat(const QByteArray &type0, int format)
         theTypeFormats.remove(type);
     else
         theTypeFormats[type] = format;
-    saveTypeFormats();
+    saveFormats();
     m_model->emitDataChanged(1);
 }
 

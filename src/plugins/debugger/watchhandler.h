@@ -141,8 +141,8 @@ private:
     friend class WatchModel;
 
     void saveWatchers();
-    static void loadTypeFormats();
-    static void saveTypeFormats();
+    static void loadFormats();
+    static void saveFormats();
 
     void setFormat(const QByteArray &type, int format);
 
