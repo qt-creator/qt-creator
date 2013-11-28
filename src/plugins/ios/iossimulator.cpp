@@ -49,6 +49,7 @@ IosSimulator::IosSimulator(Core::Id id, Utils::FileName simulatorPath)
       m_simulatorPath(simulatorPath)
 {
     setDisplayName(QCoreApplication::translate("Ios::Internal::IosSimulator", "iOS Simulator"));
+    setDeviceState(DeviceReadyToUse);
 }
 
 IosSimulator::IosSimulator()
@@ -65,6 +66,7 @@ IosSimulator::IosSimulator(const IosSimulator &other)
     : IDevice(other)
 {
     setDisplayName(QCoreApplication::translate("Ios::Internal::IosSimulator", "iOS Simulator"));
+    setDeviceState(DeviceReadyToUse);
 }
 
 
