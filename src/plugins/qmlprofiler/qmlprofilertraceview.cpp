@@ -192,10 +192,22 @@ void QmlProfilerTraceView::reset()
     connect(this, SIGNAL(jumpToNext()), rootObject, SLOT(nextEvent()));
     connect(rootObject, SIGNAL(selectedEventChanged(int)), this, SIGNAL(selectedEventChanged(int)));
     connect(rootObject, SIGNAL(changeToolTip(QString)), this, SLOT(updateToolTip(QString)));
+    connect(this, SIGNAL(enableToolbar(bool)), this, SLOT(setZoomSliderEnabled(bool)));
+    connect(this, SIGNAL(showZoomSlider(bool)), this, SLOT(setZoomSliderVisible(bool)));
+}
 
-    QObject *zoomSlider = rootObject->findChild<QObject*>(QLatin1String("zoomSliderToolBar"));
-    connect(this, SIGNAL(enableToolbar(bool)), zoomSlider, SLOT(toggleEnabled()));
-    connect(this, SIGNAL(showZoomSlider(bool)), zoomSlider, SLOT(toggleVisible()));
+void QmlProfilerTraceView::setZoomSliderEnabled(bool enabled)
+{
+    QQuickItem *zoomSlider = d->m_mainView->rootObject()->findChild<QQuickItem*>(QLatin1String("zoomSliderToolBar"));
+    if (zoomSlider->isEnabled() != enabled)
+        zoomSlider->setEnabled(enabled);
+}
+
+void QmlProfilerTraceView::setZoomSliderVisible(bool visible)
+{
+    QQuickItem *zoomSlider = d->m_mainView->rootObject()->findChild<QQuickItem*>(QLatin1String("zoomSliderToolBar"));
+    if (zoomSlider->isVisible() != visible)
+        zoomSlider->setVisible(visible);
 }
 
 QWidget *QmlProfilerTraceView::createToolbar()

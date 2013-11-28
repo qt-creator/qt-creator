@@ -102,6 +102,8 @@ private slots:
     void profilerStateChanged();
     void clientRecordingChanged();
     void serverRecordingChanged();
+    void setZoomSliderEnabled(bool enabled);
+    void setZoomSliderVisible(bool visible);
 
 signals:
     void gotoSourceLocation(const QString &fileUrl, int lineNumber, int columNumber);

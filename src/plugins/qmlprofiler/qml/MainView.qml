@@ -514,8 +514,6 @@ Rectangle {
         x: 0
         y: 0
 
-        function toggleEnabled() {enabled = !enabled}
-        function toggleVisible() {visible = !visible}
         function updateZoomLevel() {
             zoomSlider.externalUpdate = true;
             zoomSlider.value = Math.pow((view.endTime - view.startTime) / qmlProfilerModelProxy.traceDuration(), 1 / zoomSlider.exponent) * zoomSlider.maximumValue;
