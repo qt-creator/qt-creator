@@ -298,6 +298,7 @@ int main(int argc, char **argv)
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
     // QML is unusable with the xlib backend
     QApplication::setGraphicsSystem(QLatin1String("raster"));
+    qputenv("QSG_RENDER_LOOP", "basic"); // workaround for QTBUG-35143
 #endif
 
     SharedTools::QtSingleApplication app((QLatin1String(appNameC)), argc, argv);
