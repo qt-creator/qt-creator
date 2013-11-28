@@ -13,18 +13,6 @@
       <description><![CDATA[This tutorial uses basic elements and illustrates basic concepts of Qt Quick.]]></description>
       <tags>qt quick,qml,states,transitions,visual designer,qt creator</tags>
     </tutorial>
-    <tutorial imageUrl="images/icons/qt_quick_1.png" difficulty="" projectPath="" name="Qt Quick Elements, Part 1" isVideo="true" videoUrl="http://youtu.be/vGIVWfLVZLM" videoLength="5:04">
-      <description><![CDATA[In this video Nigel Hietala describes how QML Elements are used. Nigel creates a new Qt Quick based application project using Qt SDK, shows how a basic UI is built using elements and is previewed in the Qt Quick viewer.]]></description>
-      <tags>qt quick,qml,qt sdk,qt creator</tags>
-    </tutorial>
-    <tutorial imageUrl="images/icons/qt_quick_2.png" difficulty="" projectPath="" name="Qt Quick Elements, Part 2" isVideo="true" videoUrl="http://youtu.be/fakxsSDBC-Q" videoLength="5:14">
-      <description><![CDATA[In this video Nigel Hietala describes how QML Components are created and used. Nigel shows how a reusable Qt Quick component is created by defining a separate QML file.]]></description>
-      <tags>qt quick,qml,qt sdk,qt creator</tags>
-    </tutorial>
-    <tutorial imageUrl="images/icons/qt_quick_3.png" difficulty="" projectPath="" name="Qt Quick Elements, Part 3" isVideo="true" videoUrl="http://youtu.be/UjjIk4e_6Q4" videoLength="5:50">
-      <description><![CDATA[In this video Nigel Hietala describes how to use the States and Transitions of Qt Quick. Nigel creates a simple application using a state to control the visibility of an image when a button is clicked.]]></description>
-      <tags>qt quick,qml,qt sdk,qt creator</tags>
-    </tutorial>
     <tutorial imageUrl="images/icons/ddays09.png" difficulty="" projectPath="" name="Qt Creator Bootcamp" isVideo="true" videoUrl="http://developer.qt.nokia.com/videos/watch/qt_creator_bootcamp" videoLength="58:29">
       <description><![CDATA[All you need to start with Qt Creator - a cross-platform IDE Are you developing cross-platform applications with Qt, but are missing a cross-platform development environment?]]></description>
       <tags>qt sdk,qt creator</tags>
