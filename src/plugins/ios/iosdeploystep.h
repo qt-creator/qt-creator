@@ -51,26 +51,6 @@ namespace Internal {
 class IosDeviceConfigListModel;
 class IosPackageCreationStep;
 
-class DeployItem
-{
-public:
-    DeployItem(const QString &_localFileName,
-               unsigned int _localTimeStamp,
-               const QString &_remoteFileName,
-               bool _needsStrip)
-        : localFileName(_localFileName),
-          remoteFileName(_remoteFileName),
-          localTimeStamp(_localTimeStamp),
-          remoteTimeStamp(0),
-          needsStrip(_needsStrip)
-    {}
-    QString localFileName;
-    QString remoteFileName;
-    unsigned int localTimeStamp;
-    unsigned int remoteTimeStamp;
-    bool needsStrip;
-};
-
 class IosDeployStep : public ProjectExplorer::BuildStep
 {
     Q_OBJECT
