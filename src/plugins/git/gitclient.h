@@ -367,7 +367,7 @@ private:
                                  const QStringList &arguments,
                                  VcsBase::VcsBaseEditorWidget* editor = 0,
                                  bool useOutputToWindow = false,
-                                 bool expectChanges = false,
+                                 unsigned additionalFlags = 0,
                                  int editorLineNumber = -1);
 
     // Fully synchronous git execution (QProcess-based).

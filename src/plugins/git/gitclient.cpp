@@ -1537,7 +1537,7 @@ void GitClient::blame(const QString &workingDirectory,
     arguments << QLatin1String("--") << fileName;
     if (!revision.isEmpty())
         arguments << revision;
-    executeGit(workingDirectory, arguments, editor, false, false, lineNumber);
+    executeGit(workingDirectory, arguments, editor, false, 0, lineNumber);
 }
 
 bool GitClient::synchronousCheckout(const QString &workingDirectory,
@@ -1567,7 +1567,10 @@ void GitClient::reset(const QString &workingDirectory, const QString &argument, 
     if (!commit.isEmpty())
         arguments << commit;
 
-    executeGit(workingDirectory, arguments, 0, true, argument == QLatin1String("--hard"));
+    unsigned flags = 0;
+    if (argument == QLatin1String("--hard"))
+        flags |= VcsBasePlugin::ExpectRepoChanges;
+    executeGit(workingDirectory, arguments, 0, true, flags);
 }
 
 void GitClient::addFile(const QString &workingDirectory, const QString &fileName)
@@ -2427,14 +2430,13 @@ VcsBase::Command *GitClient::executeGit(const QString &workingDirectory,
                                         const QStringList &arguments,
                                         VcsBase::VcsBaseEditorWidget* editor,
                                         bool useOutputToWindow,
-                                        bool expectChanges,
+                                        unsigned additionalFlags,
                                         int editorLineNumber)
 {
     outputWindow()->appendCommand(workingDirectory, settings()->stringValue(GitSettings::binaryPathKey), arguments);
     VcsBase::Command *command = createCommand(workingDirectory, editor, useOutputToWindow, editorLineNumber);
     command->addJob(arguments, settings()->intValue(GitSettings::timeoutKey));
-    if (expectChanges)
-        command->addFlags(VcsBasePlugin::ExpectRepoChanges);
+    command->addFlags(additionalFlags);
     command->execute();
     return command;
 }
@@ -2563,7 +2565,8 @@ void GitClient::updateSubmodulesIfNeeded(const QString &workingDirectory, bool p
     QStringList arguments;
     arguments << QLatin1String("submodule") << QLatin1String("update");
 
-    VcsBase::Command *cmd = executeGit(workingDirectory, arguments, 0, true, true);
+    VcsBase::Command *cmd = executeGit(workingDirectory, arguments, 0, true,
+                                       VcsBasePlugin::ExpectRepoChanges);
     connect(cmd, SIGNAL(finished(bool,int,QVariant)), this, SLOT(finishSubmoduleUpdate()));
 }
 
@@ -3510,7 +3513,8 @@ void GitClient::stashPop(const QString &workingDirectory, const QString &stash)
     arguments << QLatin1String("pop");
     if (!stash.isEmpty())
         arguments << stash;
-    VcsBase::Command *cmd = executeGit(workingDirectory, arguments, 0, true, true);
+    VcsBase::Command *cmd = executeGit(workingDirectory, arguments, 0, true,
+                                       VcsBasePlugin::ExpectRepoChanges);
     new ConflictHandler(cmd, workingDirectory);
 }
 
