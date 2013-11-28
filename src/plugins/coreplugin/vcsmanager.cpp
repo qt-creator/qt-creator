@@ -233,8 +233,11 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
 {
     typedef QPair<QString, IVersionControl *> StringVersionControlPair;
     typedef QList<StringVersionControlPair> StringVersionControlPairs;
-    if (inputDirectory.isEmpty())
+    if (inputDirectory.isEmpty()) {
+        if (topLevelDirectory)
+            topLevelDirectory->clear();
         return 0;
+    }
 
     // Make sure we an absolute path:
     const QString directory = QDir(inputDirectory).absolutePath();
