@@ -83,6 +83,12 @@ static const char decorateOption[] = "--decorate";
 namespace Git {
 namespace Internal {
 
+// Suppress git diff warnings about "LF will be replaced by CRLF..." on Windows.
+static inline unsigned diffExecutionFlags()
+{
+    return Utils::HostOsInfo::isWindowsHost() ? unsigned(VcsBase::VcsBasePlugin::SuppressStdErrInLogWindow) : 0u;
+}
+
 using VcsBase::VcsBasePlugin;
 
 class GitDiffSwitcher : public QObject
@@ -389,6 +395,7 @@ void GitDiffHandler::collectFilesList(const QStringList &additionalArguments)
     QStringList arguments;
     arguments << QLatin1String("diff") << QLatin1String("--name-only") << additionalArguments;
     command->addJob(arguments, m_timeout);
+    command->addFlags(diffExecutionFlags());
     command->execute();
 }
 
@@ -1186,6 +1193,7 @@ void GitClient::diff(const QString &workingDirectory,
                 command->addJob(arguments, timeout);
             }
         }
+        command->addFlags(diffExecutionFlags());
         command->execute();
     }
     if (newEditor) {
@@ -1256,7 +1264,7 @@ void GitClient::diff(const QString &workingDirectory, const QString &fileName)
 
         if (!fileName.isEmpty())
             cmdArgs << QLatin1String("--") << fileName;
-        executeGit(workingDirectory, cmdArgs, vcsEditor);
+        executeGit(workingDirectory, cmdArgs, vcsEditor, false, diffExecutionFlags());
     }
     if (newEditor) {
         GitDiffSwitcher *switcher = new GitDiffSwitcher(newEditor, this);
@@ -1315,7 +1323,7 @@ void GitClient::diffBranch(const QString &workingDirectory,
                 << vcsEditor->configurationWidget()->arguments()
                 << branchName;
 
-        executeGit(workingDirectory, cmdArgs, vcsEditor);
+        executeGit(workingDirectory, cmdArgs, vcsEditor, false, diffExecutionFlags());
     }
     if (newEditor) {
         GitDiffSwitcher *switcher = new GitDiffSwitcher(newEditor, this);
