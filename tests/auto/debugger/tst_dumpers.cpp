@@ -2564,8 +2564,7 @@ void tst_Dumpers::dumper_data()
                % Check("atts.attList.2.localname", "\"localPart3\"", "@QString")
                % Check("atts.attList.2.qname", "\"name3\"", "@QString")
                % Check("atts.attList.2.uri", "\"uri3\"", "@QString")
-               % Check("atts.attList.2.value", "\"value3\"", "@QString")
-               % Check("atts.d", "", "@QXmlAttributesPrivate");
+               % Check("atts.attList.2.value", "\"value3\"", "@QString");
 
     QTest::newRow("StdArray")
             << Data("#include <array>\n"
