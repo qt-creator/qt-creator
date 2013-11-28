@@ -1382,7 +1382,8 @@ void tst_Dumpers::dumper_data()
                     "unused(&dir, &s, &fi);\n")
                % CoreProfile()
                % Check("dir", tempDir, "@QDir")
-               % Check("dir.absolutePath", tempDir, "@QString");
+               % Check("dir.absolutePath", tempDir, "@QString").setEngines(
+                   DumpTestGdbEngine | DumpTestLldbEngine);
             // % Check("dir.canonicalPath", tempDir, "@QString");
 
     QTest::newRow("QFileInfo")
