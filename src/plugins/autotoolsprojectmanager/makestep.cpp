@@ -312,6 +312,8 @@ QString MakeStepConfigWidget::summaryText() const
 void MakeStepConfigWidget::updateDetails()
 {
     BuildConfiguration *bc = m_makeStep->buildConfiguration();
+    if (!bc)
+        bc = m_makeStep->target()->activeBuildConfiguration();
     ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(m_makeStep->target()->kit());
 
     if (tc) {
