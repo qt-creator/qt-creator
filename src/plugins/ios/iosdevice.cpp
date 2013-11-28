@@ -46,6 +46,8 @@
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
+#include <exception>
+
 using namespace ProjectExplorer;
 
 static bool debugDeviceDetection = false;
@@ -364,62 +366,80 @@ io_iterator_t gRemovedIter;
 extern "C" {
 void deviceConnectedCallback(void *refCon, io_iterator_t iterator)
 {
-    kern_return_t       kr;
-    io_service_t        usbDevice;
-    (void) refCon;
+    try {
+        kern_return_t       kr;
+        io_service_t        usbDevice;
+        (void) refCon;
 
-    while ((usbDevice = IOIteratorNext(iterator))) {
-        io_name_t       deviceName;
+        while ((usbDevice = IOIteratorNext(iterator))) {
+            io_name_t       deviceName;
 
-        // Get the USB device's name.
-        kr = IORegistryEntryGetName(usbDevice, deviceName);
-        QString name;
-        if (KERN_SUCCESS == kr)
-            name = QString::fromLocal8Bit(deviceName);
-        if (debugDeviceDetection)
-            qDebug() << "ios device " << name << " in deviceAddedCallback";
+            // Get the USB device's name.
+            kr = IORegistryEntryGetName(usbDevice, deviceName);
+            QString name;
+            if (KERN_SUCCESS == kr)
+                name = QString::fromLocal8Bit(deviceName);
+            if (debugDeviceDetection)
+                qDebug() << "ios device " << name << " in deviceAddedCallback";
 
-        CFStringRef cfUid = static_cast<CFStringRef>(IORegistryEntryCreateCFProperty(
-                                                         usbDevice,
-                                                         CFSTR(kUSBSerialNumberString),
-                                                         kCFAllocatorDefault, 0));
-        QString uid = CFStringRef2QString(cfUid);
-        CFRelease(cfUid);
-        IosDeviceManager::instance()->deviceConnected(uid, name);
-
-        // Done with this USB device; release the reference added by IOIteratorNext
-        kr = IOObjectRelease(usbDevice);
-    }
-}
-
-void deviceDisconnectedCallback(void *refCon, io_iterator_t iterator)
-{
-    kern_return_t       kr;
-    io_service_t        usbDevice;
-    (void) refCon;
-
-    while ((usbDevice = IOIteratorNext(iterator))) {
-        io_name_t       deviceName;
-
-        // Get the USB device's name.
-        kr = IORegistryEntryGetName(usbDevice, deviceName);
-        if (KERN_SUCCESS != kr)
-            deviceName[0] = '\0';
-        if (debugDeviceDetection)
-            qDebug() << "ios device " << deviceName << " in deviceDisconnectedCallback";
-
-        {
             CFStringRef cfUid = static_cast<CFStringRef>(IORegistryEntryCreateCFProperty(
                                                              usbDevice,
                                                              CFSTR(kUSBSerialNumberString),
                                                              kCFAllocatorDefault, 0));
             QString uid = CFStringRef2QString(cfUid);
             CFRelease(cfUid);
-            IosDeviceManager::instance()->deviceDisconnected(uid);
-        }
+            IosDeviceManager::instance()->deviceConnected(uid, name);
 
-        // Done with this USB device; release the reference added by IOIteratorNext
-        kr = IOObjectRelease(usbDevice);
+            // Done with this USB device; release the reference added by IOIteratorNext
+            kr = IOObjectRelease(usbDevice);
+        }
+    }
+    catch (std::exception &e) {
+        qDebug() << "Exception " << e.what() << " in iosdevice.cpp deviceConnectedCallback";
+    }
+    catch (...) {
+        qDebug() << "Exception in iosdevice.cpp deviceConnectedCallback";
+        throw;
+    }
+}
+
+void deviceDisconnectedCallback(void *refCon, io_iterator_t iterator)
+{
+    try {
+        kern_return_t       kr;
+        io_service_t        usbDevice;
+        (void) refCon;
+
+        while ((usbDevice = IOIteratorNext(iterator))) {
+            io_name_t       deviceName;
+
+            // Get the USB device's name.
+            kr = IORegistryEntryGetName(usbDevice, deviceName);
+            if (KERN_SUCCESS != kr)
+                deviceName[0] = '\0';
+            if (debugDeviceDetection)
+                qDebug() << "ios device " << deviceName << " in deviceDisconnectedCallback";
+
+            {
+                CFStringRef cfUid = static_cast<CFStringRef>(IORegistryEntryCreateCFProperty(
+                                                                 usbDevice,
+                                                                 CFSTR(kUSBSerialNumberString),
+                                                                 kCFAllocatorDefault, 0));
+                QString uid = CFStringRef2QString(cfUid);
+                CFRelease(cfUid);
+                IosDeviceManager::instance()->deviceDisconnected(uid);
+            }
+
+            // Done with this USB device; release the reference added by IOIteratorNext
+            kr = IOObjectRelease(usbDevice);
+        }
+    }
+    catch (std::exception &e) {
+        qDebug() << "Exception " << e.what() << " in iosdevice.cpp deviceDisconnectedCallback";
+    }
+    catch (...) {
+        qDebug() << "Exception in iosdevice.cpp deviceDisconnectedCallback";
+        throw;
     }
 }
 
