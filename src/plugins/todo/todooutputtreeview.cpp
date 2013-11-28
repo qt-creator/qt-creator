@@ -104,6 +104,18 @@ void TodoOutputTreeView::resizeEvent(QResizeEvent *event)
     setColumnWidth(Constants::OUTPUT_COLUMN_FILE, widthFile);
 }
 
+void TodoOutputTreeView::keyPressEvent(QKeyEvent *e)
+{
+    if (!e->modifiers()
+            && (e->key() == Qt::Key_Return || e->key() == Qt::Key_Enter)
+            && currentIndex().isValid()) {
+        emit clicked(currentIndex());
+        e->accept();
+        return;
+    }
+    QTreeView::keyPressEvent(e);
+}
+
 void TodoOutputTreeView::todoColumnResized(int column, int oldSize, int newSize)
 {
     Q_UNUSED(oldSize);
