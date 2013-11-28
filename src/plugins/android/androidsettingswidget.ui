@@ -323,7 +323,7 @@
         <item>
          <widget class="QPushButton" name="manageAVDPushButton">
           <property name="text">
-           <string>Start Android AVD Manager</string>
+           <string>Start AVD Manager</string>
           </property>
          </widget>
         </item>
