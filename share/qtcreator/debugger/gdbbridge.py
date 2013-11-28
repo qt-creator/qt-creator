@@ -962,7 +962,7 @@ class Dumper(DumperBase):
             if vtable & 0x3: # This is not a pointer.
                 return False
             metaObjectEntry = self.dereference(vtable) # It's the first entry.
-            if metaObjectEntry & 0x3: # This is not a pointer.
+            if metaObjectEntry & 0x1: # This is not a pointer.
                 return False
             #warn("MO: 0x%x " % metaObjectEntry)
             s = gdb.execute("info symbol 0x%x" % metaObjectEntry, to_string=True)
