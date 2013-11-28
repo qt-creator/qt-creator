@@ -3,7 +3,6 @@ DEFINES += QMLPROFILER_LIBRARY
 QT += network qml quick
 
 include(../../qtcreatorplugin.pri)
-include(canvas/canvas.pri)
 
 SOURCES += \
     qmlprofilerplugin.cpp \

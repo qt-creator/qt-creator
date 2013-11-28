@@ -41,9 +41,6 @@
 #include <analyzerbase/analyzermanager.h>
 #include <analyzerbase/analyzerruncontrol.h>
 
-#include "canvas/qdeclarativecontext2d_p.h"
-#include "canvas/qmlprofilercanvas.h"
-
 #include <utils/fancymainwindow.h>
 #include <utils/fileinprojectfinder.h>
 #include <utils/qtcassert.h>
@@ -119,9 +116,6 @@ QmlProfilerTool::QmlProfilerTool(QObject *parent)
     d->m_profilerState = 0;
     d->m_viewContainer = 0;
 
-    qmlRegisterType<QmlProfilerCanvas>("Monitor", 1, 0, "Canvas2D");
-    qmlRegisterType<Context2D>();
-    qmlRegisterType<CanvasGradient>();
     qmlRegisterType<TimelineRenderer>("Monitor", 1, 0,"TimelineRenderer");
 
     d->m_profilerState = new QmlProfilerStateManager(this);

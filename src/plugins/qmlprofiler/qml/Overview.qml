@@ -31,9 +31,10 @@ import QtQuick 2.1
 import Monitor 1.0
 import "Overview.js" as Plotter
 
-Canvas2D {
+Canvas {
     id: canvas
     objectName: "Overview"
+    contextType: "2d"
 
     // ***** properties
     height: 50
@@ -45,7 +46,7 @@ Canvas2D {
     function clearDisplay()
     {
         dataReady = false;
-        requestRedraw();
+        requestPaint();
     }
 
     function updateRange() {
@@ -84,18 +85,18 @@ Canvas2D {
         target: qmlProfilerModelProxy
         onDataAvailable: {
                 dataReady = true;
-                requestRedraw();
+                requestPaint();
         }
     }
 
 
     // ***** slots
-    onDrawRegion: {
+    onPaint: {
         Plotter.qmlProfilerModelProxy = qmlProfilerModelProxy;
         if (dataReady) {
-            Plotter.plot(canvas, ctxt, region);
+            Plotter.plot(canvas, context, region);
         } else {
-            Plotter.drawGraph(canvas, ctxt, region)    //just draw the background
+            Plotter.drawGraph(canvas, context, region)    //just draw the background
         }
     }
 

@@ -56,17 +56,6 @@ QtcPlugin {
     }
 
     Group {
-        name: "Canvas"
-        prefix: "canvas/"
-        files: [
-            "qdeclarativecanvas.cpp", "qdeclarativecanvas_p.h",
-            "qdeclarativecanvastimer.cpp", "qdeclarativecanvastimer_p.h",
-            "qdeclarativecontext2d.cpp", "qdeclarativecontext2d_p.h",
-            "qmlprofilercanvas.cpp", "qmlprofilercanvas.h"
-        ]
-    }
-
-    Group {
         name: "QML"
         prefix: "qml/"
         files: [

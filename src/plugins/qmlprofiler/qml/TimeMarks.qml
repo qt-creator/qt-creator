@@ -30,9 +30,10 @@
 import QtQuick 2.1
 import Monitor 1.0
 
-Canvas2D {
-    id: timeDisplay
+Canvas {
+    id: timeMarks
     objectName: "TimeMarks"
+    contextType: "2d"
 
     property real startTime
     property real endTime
@@ -40,11 +41,13 @@ Canvas2D {
 
     Connections {
         target: labels
-        onHeightChanged: { requestRedraw(); }
+        onHeightChanged: requestPaint()
     }
 
-    onDrawRegion: {
-        drawBackgroundBars( ctxt, region );
+    onYChanged: requestPaint()
+
+    onPaint: {
+        drawBackgroundBars( context, region );
 
         var totalTime = endTime - startTime;
         var spacing = width / totalTime;
@@ -63,23 +66,23 @@ Canvas2D {
         var lineStart = y < 0 ? -y : 0;
         var lineEnd = Math.min(height, labels.height - y);
 
-        ctxt.fillStyle = "#000000";
-        ctxt.font = "8px sans-serif";
+        context.fillStyle = "#000000";
+        context.font = "8px sans-serif";
         for (var ii = 0; ii < blockCount+1; ii++) {
             var x = Math.floor(ii*pixelsPerBlock - realStartPos);
-            ctxt.strokeStyle = "#B0B0B0";
-            ctxt.beginPath();
-            ctxt.moveTo(x, lineStart);
-            ctxt.lineTo(x, lineEnd);
-            ctxt.stroke();
+            context.strokeStyle = "#B0B0B0";
+            context.beginPath();
+            context.moveTo(x, lineStart);
+            context.lineTo(x, lineEnd);
+            context.stroke();
 
-            ctxt.strokeStyle = "#CCCCCC";
+            context.strokeStyle = "#CCCCCC";
             for (var jj=1; jj < 5; jj++) {
                 var xx = Math.floor(ii*pixelsPerBlock + jj*pixelsPerSection - realStartPos);
-                ctxt.beginPath();
-                ctxt.moveTo(xx, lineStart);
-                ctxt.lineTo(xx, lineEnd);
-                ctxt.stroke();
+                context.beginPath();
+                context.moveTo(xx, lineStart);
+                context.lineTo(xx, lineEnd);
+                context.stroke();
             }
         }
     }
@@ -88,19 +91,19 @@ Canvas2D {
         if (startTime !== start || endTime !== end) {
             startTime = start;
             endTime = end;
-            requestRedraw();
+            requestPaint();
         }
     }
 
-    function drawBackgroundBars( ctxt, region ) {
+    function drawBackgroundBars( context, region ) {
         var colorIndex = true;
 
         // row background
         var backgroundOffset = y < 0 ? -y : -(y % (2 * root.singleRowHeight));
         for (var currentY= backgroundOffset; currentY < Math.min(height, labels.height - y); currentY += root.singleRowHeight) {
-            ctxt.fillStyle = colorIndex ? "#f0f0f0" : "white";
-            ctxt.strokeStyle = colorIndex ? "#f0f0f0" : "white";
-            ctxt.fillRect(0, currentY, width, root.singleRowHeight);
+            context.fillStyle = colorIndex ? "#f0f0f0" : "white";
+            context.strokeStyle = colorIndex ? "#f0f0f0" : "white";
+            context.fillRect(0, currentY, width, root.singleRowHeight);
             colorIndex = !colorIndex;
         }
 
@@ -112,18 +115,18 @@ Canvas2D {
                 if (cumulatedHeight < y)
                     continue;
 
-                ctxt.strokeStyle = "#B0B0B0";
-                ctxt.beginPath();
-                ctxt.moveTo(0, cumulatedHeight - y);
-                ctxt.lineTo(width, cumulatedHeight - y);
-                ctxt.stroke();
+                context.strokeStyle = "#B0B0B0";
+                context.beginPath();
+                context.moveTo(0, cumulatedHeight - y);
+                context.lineTo(width, cumulatedHeight - y);
+                context.stroke();
             }
         }
 
         // bottom
         if (height > labels.height - y) {
-            ctxt.fillStyle = "#f5f5f5";
-            ctxt.fillRect(0, labels.height - y, width, Math.min(height - labels.height + y, labelsTail.height));
+            context.fillStyle = "#f5f5f5";
+            context.fillRect(0, labels.height - y, width, Math.min(height - labels.height + y, labelsTail.height));
         }
     }
 }

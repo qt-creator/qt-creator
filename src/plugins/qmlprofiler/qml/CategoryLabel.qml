@@ -47,7 +47,7 @@ Item {
 
     onExpandedChanged: {
         qmlProfilerModelProxy.setExpanded(modelIndex, categoryIndex, expanded);
-        backgroundMarks.requestRedraw();
+        backgroundMarks.requestPaint();
         getDescriptions();
         updateHeight();
     }
