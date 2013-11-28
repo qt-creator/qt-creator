@@ -83,8 +83,6 @@ public:
     ProjectExplorer::RunControl *create(ProjectExplorer::RunConfiguration *runConfiguration,
                        ProjectExplorer::RunMode mode,
                        QString *errorMessage) QTC_OVERRIDE;
-private:
-    mutable QMap<Core::Id, QPointer<ProjectExplorer::RunControl> > m_activeRunControls;
 };
 
 } // namespace Internal

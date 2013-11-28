@@ -157,26 +157,7 @@ bool IosRunControlFactory::canRun(RunConfiguration *runConfiguration,
 {
     if (mode != NormalRunMode && mode != DebugRunMode)
         return false;
-    IosRunConfiguration *rc = qobject_cast<IosRunConfiguration *>(runConfiguration);
-    if (!rc)
-        return false;
-
-    IDevice::ConstPtr device = DeviceKitInformation::device(rc->target()->kit());
-    if (!device || device->deviceState() != IDevice::DeviceReadyToUse)
-        return false;
-
-    // The device can only run the same application once, any subsequent runs will
-    // not launch a second instance. Disable the Run button if the application is already
-    // running on the device.
-    if (m_activeRunControls.contains(device->id())) {
-        QPointer<ProjectExplorer::RunControl> activeRunControl = m_activeRunControls[device->id()];
-        if (activeRunControl && activeRunControl.data()->isRunning())
-            return false;
-        else
-            m_activeRunControls.remove(device->id());
-    }
-
-    return rc;
+    return qobject_cast<IosRunConfiguration *>(runConfiguration);
 }
 
 RunControl *IosRunControlFactory::create(RunConfiguration *runConfig,
@@ -185,15 +166,10 @@ RunControl *IosRunControlFactory::create(RunConfiguration *runConfig,
     Q_ASSERT(canRun(runConfig, mode));
     IosRunConfiguration *rc = qobject_cast<IosRunConfiguration *>(runConfig);
     Q_ASSERT(rc);
-    RunControl *res = 0;
     if (mode == NormalRunMode)
-        res = new Ios::Internal::IosRunControl(rc);
+        return new Ios::Internal::IosRunControl(rc);
     else
-        res = IosDebugSupport::createDebugRunControl(rc, errorMessage);
-    IDevice::ConstPtr device = DeviceKitInformation::device(rc->target()->kit());
-    if (device)
-        m_activeRunControls[device->id()] = res;
-    return res;
+        return IosDebugSupport::createDebugRunControl(rc, errorMessage);
 }
 
 } // namespace Internal
