@@ -85,7 +85,7 @@ IosDevice::IosDevice()
                              Constants::IOS_DEVICE_ID)
 {
     setDisplayName(IosDevice::name());
-    setDeviceState(DeviceStateUnknown);
+    setDeviceState(DeviceDisconnected);
 }
 
 IosDevice::IosDevice(const IosDevice &other)
@@ -99,7 +99,7 @@ IosDevice::IosDevice(const QString &uid)
                              Core::Id(Constants::IOS_DEVICE_ID).withSuffix(uid))
 {
     setDisplayName(IosDevice::name());
-    setDeviceState(DeviceStateUnknown);
+    setDeviceState(DeviceDisconnected);
 }
 
 
