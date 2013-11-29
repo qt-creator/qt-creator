@@ -82,18 +82,24 @@ bool BlackBerrySigningUtils::hasDefaultCertificate()
     return keystore.exists();
 }
 
-QString BlackBerrySigningUtils::cskPassword(QWidget *passwordPromptParent)
+QString BlackBerrySigningUtils::cskPassword(QWidget *passwordPromptParent, bool *ok)
 {
     if (m_cskPassword.isEmpty())
-        m_cskPassword = promptPassword(tr("Please provide your bbidtoken.csk PIN."), passwordPromptParent);
+        m_cskPassword = promptPassword(tr("Please provide your bbidtoken.csk PIN."), passwordPromptParent, ok);
+    else if (ok)
+        *ok = true;
 
     return m_cskPassword;
 }
 
-QString BlackBerrySigningUtils::certificatePassword(QWidget *passwordPromptParent)
+QString BlackBerrySigningUtils::certificatePassword(QWidget *passwordPromptParent, bool *ok)
 {
-    if (m_certificatePassword.isEmpty())
-        m_certificatePassword = promptPassword(tr("Please enter your certificate password."), passwordPromptParent);
+    if (m_certificatePassword.isEmpty()) {
+        m_certificatePassword =
+            promptPassword(tr("Please enter your certificate password."), passwordPromptParent, ok);
+    } else if (ok) {
+        *ok = true;
+    }
 
     return m_certificatePassword;
 }
@@ -110,7 +116,12 @@ void BlackBerrySigningUtils::openDefaultCertificate(QWidget *passwordPromptParen
         return;
     }
 
-    const QString password = certificatePassword(passwordPromptParent);
+    bool ok;
+    const QString password = certificatePassword(passwordPromptParent, &ok);
+
+    // action has been canceled
+    if (!ok)
+        return;
 
     BlackBerryConfigurationManager &configManager = BlackBerryConfigurationManager::instance();
 
@@ -165,7 +176,8 @@ void BlackBerrySigningUtils::certificateLoaded(int status)
     emit defaultCertificateLoaded(status);
 }
 
-QString BlackBerrySigningUtils::promptPassword(const QString &message, QWidget *dialogParent) const
+QString BlackBerrySigningUtils::promptPassword(const QString &message,
+                                               QWidget *dialogParent, bool *ok) const
 {
     QInputDialog dialog(dialogParent);
     dialog.setWindowTitle(tr("Qt Creator"));
@@ -173,8 +185,15 @@ QString BlackBerrySigningUtils::promptPassword(const QString &message, QWidget *
     dialog.setLabelText(message);
     dialog.setTextEchoMode(QLineEdit::Password);
 
-    if (dialog.exec() == QDialog::Rejected)
+    if (dialog.exec() == QDialog::Rejected) {
+        if (ok)
+            *ok = false;
+
         return QString();
+    }
+
+    if (ok)
+        *ok = true;
 
     return dialog.textValue();
 }

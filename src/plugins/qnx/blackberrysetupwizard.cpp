@@ -215,6 +215,13 @@ void BlackBerrySetupWizard::debugTokenArrived(int status)
         break;
     }
 
+    BlackBerryConfigurationManager &configuration = BlackBerryConfigurationManager::instance();
+
+    QFile dt(configuration.defaultKeystorePath());
+
+    if (dt.exists())
+        dt.remove();
+
     QMessageBox::critical(this, tr("Error"), errorString);
 
     reset();
@@ -405,8 +412,13 @@ void BlackBerrySetupWizard::requestDebugToken()
 
     BlackBerryConfigurationManager &configuration = BlackBerryConfigurationManager::instance();
 
+    bool ok;
+    const QString cskPassword = m_utils.cskPassword(this, &ok);
+    if (!ok)
+        return;
+
     m_requester->requestDebugToken(configuration.defaultDebugTokenPath(),
-            m_utils.cskPassword(this), configuration.defaultKeystorePath(), certificatePassword(), m_devicePin);
+            cskPassword, configuration.defaultKeystorePath(), certificatePassword(), m_devicePin);
 }
 
 void BlackBerrySetupWizard::uploadDebugToken()

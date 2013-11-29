@@ -55,8 +55,8 @@ public:
     bool hasLegacyKeys();
     bool hasDefaultCertificate();
 
-    QString cskPassword(QWidget *passwordPromptParent = 0);
-    QString certificatePassword(QWidget *passwordPromptParent = 0);
+    QString cskPassword(QWidget *passwordPromptParent = 0, bool *ok = 0);
+    QString certificatePassword(QWidget *passwordPromptParent = 0, bool *ok = 0);
 
     const BlackBerryCertificate *defaultCertificate() const;
 
@@ -77,7 +77,7 @@ private:
 
     BlackBerrySigningUtils(QObject *parent = 0);
 
-    QString promptPassword(const QString &message, QWidget *dialogParent = 0) const;
+    QString promptPassword(const QString &message, QWidget *dialogParent = 0, bool *ok = 0) const;
 
     BlackBerryCertificate *m_defaultCertificate;
 

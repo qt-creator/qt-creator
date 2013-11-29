@@ -143,9 +143,24 @@ void BlackBerryDebugTokenRequestDialog::requestDebugToken()
 
     BlackBerryConfigurationManager &configuration = BlackBerryConfigurationManager::instance();
 
+    bool ok;
+    const QString cskPassword = m_utils.cskPassword(this, &ok);
+
+    if (!ok) {
+        setBusy(false);
+        return;
+    }
+
+    const QString certificatePassword = m_utils.certificatePassword(this, &ok);
+
+    if (!ok) {
+        setBusy(false);
+        return;
+    }
+
     m_requester->requestDebugToken(m_ui->debugTokenPath->path(),
-            m_utils.cskPassword(this), configuration.defaultKeystorePath(),
-            m_utils.certificatePassword(this), m_ui->devicePin->text());
+            cskPassword, configuration.defaultKeystorePath(),
+            certificatePassword, m_ui->devicePin->text());
 }
 
 void BlackBerryDebugTokenRequestDialog::setDefaultPath()
@@ -234,6 +249,11 @@ void BlackBerryDebugTokenRequestDialog::debugTokenArrived(int status)
         errorString += tr("An unknwon error has occurred.");
         break;
     }
+
+    QFile file(m_ui->debugTokenPath->path());
+
+    if (file.exists())
+        file.remove();
 
     QMessageBox::critical(this, tr("Error"), errorString);
 
