@@ -68,6 +68,8 @@ void BlackBerryKeysWidget::certificateLoaded(int status)
     switch (status) {
     case BlackBerryCertificate::Success:
         m_ui->certificateAuthor->setText(m_utils.defaultCertificate()->author());
+        m_ui->certificateAuthor->setVisible(true);
+        m_ui->authorLabel->setVisible(true);
         m_ui->openCertificateButton->setVisible(false);
         break;
     case BlackBerryCertificate::WrongPassword:
@@ -130,9 +132,18 @@ void BlackBerryKeysWidget::updateCertificateSection()
         BlackBerryConfigurationManager &configManager = BlackBerryConfigurationManager::instance();
 
         m_ui->certificatePath->setText(configManager.defaultKeystorePath());
-        m_ui->certificateAuthor->setText(tr("Loading..."));
 
-        loadDefaultCertificate();
+        const BlackBerryCertificate *certificate = m_utils.defaultCertificate();
+
+        if (certificate) {
+            m_ui->certificateAuthor->setText(certificate->author());
+            m_ui->openCertificateButton->setVisible(false);
+            return;
+        }
+
+        m_ui->openCertificateButton->setVisible(true);
+        m_ui->certificateAuthor->setVisible(false);
+        m_ui->authorLabel->setVisible(false);
     } else {
         setCreateCertificateVisible(true);
     }
@@ -157,14 +168,6 @@ void BlackBerryKeysWidget::updateKeysSection()
 
 void BlackBerryKeysWidget::loadDefaultCertificate()
 {
-    const BlackBerryCertificate *certificate = m_utils.defaultCertificate();
-
-    if (certificate) {
-        m_ui->certificateAuthor->setText(certificate->author());
-        m_ui->openCertificateButton->setVisible(false);
-        return;
-    }
-
     connect(&m_utils, SIGNAL(defaultCertificateLoaded(int)), this, SLOT(certificateLoaded(int)));
     m_utils.openDefaultCertificate();
 }
