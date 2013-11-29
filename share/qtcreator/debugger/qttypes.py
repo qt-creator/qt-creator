@@ -1706,7 +1706,7 @@ def qdump__QTextCursor(d, value):
         with Children(d):
             positionAddress = privAddress + 2 * d.ptrSize() + 8
             d.putIntItem("position", d.extractInt(positionAddress))
-            d.putIntItem("anchor", d.extractInt(positionAddress + intSize))
+            d.putIntItem("anchor", d.extractInt(positionAddress + d.intSize()))
             d.putCallItem("selected", value, "selectedText")
 
 
