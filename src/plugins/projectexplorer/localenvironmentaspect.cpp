@@ -69,11 +69,23 @@ Utils::Environment LocalEnvironmentAspect::baseEnvironment() const
         if (BuildConfiguration *bc = runConfiguration()->target()->activeBuildConfiguration()) {
             env = bc->environment();
         } else { // Fallback for targets without buildconfigurations:
+#if 1
+            // workaround for QTBUG-35143
             env = Utils::Environment::systemEnvironment();
+            env.unset(QLatin1String("QSG_RENDER_LOOP"));
+#else
+            env = Utils::Environment::systemEnvironment();
+#endif
             runConfiguration()->target()->kit()->addToEnvironment(env);
         }
     } else if (base == static_cast<int>(SystemEnvironmentBase)) {
-        env = Utils::Environment::systemEnvironment();
+#if 1
+            // workaround for QTBUG-35143
+            env = Utils::Environment::systemEnvironment();
+            env.unset(QLatin1String("QSG_RENDER_LOOP"));
+#else
+            env = Utils::Environment::systemEnvironment();
+#endif
     }
 
     if (const LocalApplicationRunConfiguration *rc = qobject_cast<const LocalApplicationRunConfiguration *>(runConfiguration()))

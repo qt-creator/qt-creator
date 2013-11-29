@@ -302,9 +302,9 @@ struct UnsubstitutedValue : Value
 
 struct Type
 {
-    Type() : qtVersion(0) {}
-    Type(const char *str) : type(str), qtVersion(0) {}
-    Type(const QByteArray &ba) : type(ba), qtVersion(0) {}
+    Type() : qtVersion(0), isPattern(false) {}
+    Type(const char *str) : type(str), qtVersion(0), isPattern(false) {}
+    Type(const QByteArray &ba) : type(ba), qtVersion(0), isPattern(false) {}
 
     bool matches(const QByteArray &actualType0, const Context &context) const
     {
@@ -329,10 +329,16 @@ struct Type
         expectedType.replace(' ', "");
         expectedType.replace("const", "");
         expectedType.replace('@', context.nameSpace);
+        if (isPattern) {
+            QString actual = QString::fromLatin1(actualType);
+            QString expected = QString::fromLatin1(expectedType);
+            return QRegExp(expected).exactMatch(actual);
+        }
         return actualType == expectedType;
     }
     QByteArray type;
     int qtVersion;
+    bool isPattern;
 };
 
 struct Type4 : Type
@@ -343,6 +349,11 @@ struct Type4 : Type
 struct Type5 : Type
 {
     Type5(const QByteArray &ba) : Type(ba) { qtVersion = 5; }
+};
+
+struct Pattern : Type
+{
+    Pattern(const QByteArray &ba) : Type(ba) { isPattern = true; }
 };
 
 enum DebuggerEngine
@@ -2564,8 +2575,7 @@ void tst_Dumpers::dumper_data()
                % Check("atts.attList.2.localname", "\"localPart3\"", "@QString")
                % Check("atts.attList.2.qname", "\"name3\"", "@QString")
                % Check("atts.attList.2.uri", "\"uri3\"", "@QString")
-               % Check("atts.attList.2.value", "\"value3\"", "@QString")
-               % Check("atts.d", "", "@QXmlAttributesPrivate");
+               % Check("atts.attList.2.value", "\"value3\"", "@QString");
 
     QTest::newRow("StdArray")
             << Data("#include <array>\n"
@@ -2576,8 +2586,8 @@ void tst_Dumpers::dumper_data()
                % CoreProfile()
                % Cxx11Profile()
                % MacLibCppProfile()
-               % Check("a", "<4 items>", "std::array<int, 4u>")
-               % Check("b", "<4 items>", "std::array<@QString, 4u>");
+               % Check("a", "<4 items>", Pattern("std::array<int, 4u.*>"))
+               % Check("b", "<4 items>", Pattern("std::array<@QString, 4u.*>"));
 
     QTest::newRow("StdComplex")
             << Data("#include <complex>\n",

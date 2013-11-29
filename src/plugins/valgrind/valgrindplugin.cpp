@@ -85,7 +85,7 @@ public:
 class ValgrindAction : public AnalyzerAction
 {
 public:
-    ValgrindAction() {}
+    explicit ValgrindAction(QObject *parent = 0) : AnalyzerAction(parent) { }
 };
 
 
@@ -114,7 +114,7 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
          "\"memcheck\" tool to find memory leaks.");
 
     if (!Utils::HostOsInfo::isWindowsHost()) {
-        action = new ValgrindAction;
+        action = new ValgrindAction(this);
         action->setId("Memcheck.Local");
         action->setTool(m_memcheckTool);
         action->setText(tr("Valgrind Memory Analyzer"));
@@ -124,7 +124,7 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
         action->setEnabled(false);
         AnalyzerManager::addAction(action);
 
-        action = new ValgrindAction;
+        action = new ValgrindAction(this);
         action->setId("Callgrind.Local");
         action->setTool(m_callgrindTool);
         action->setText(tr("Valgrind Function Profiler"));
@@ -135,7 +135,7 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
         AnalyzerManager::addAction(action);
     }
 
-    action = new ValgrindAction;
+    action = new ValgrindAction(this);
     action->setId("Memcheck.Remote");
     action->setTool(m_memcheckTool);
     action->setText(tr("Valgrind Memory Analyzer (Remote)"));
@@ -144,7 +144,7 @@ bool ValgrindPlugin::initialize(const QStringList &, QString *)
     action->setStartMode(StartRemote);
     AnalyzerManager::addAction(action);
 
-    action = new ValgrindAction;
+    action = new ValgrindAction(this);
     action->setId("Callgrind.Remote");
     action->setTool(m_callgrindTool);
     action->setText(tr("Valgrind Function Profiler (Remote)"));

@@ -41,18 +41,8 @@
     \l{Creating Qt Quick Projects}{type of the project}: Qt Quick UI or Qt Quick
     Application, and the Qt version used.
 
-    To debug Qt Quick UI projects:
-
-    \list 1
-
-        \li In \gui Projects mode \gui {Run Settings}, select the
-            \gui {Enable QML} check box in the \gui {Debugger Settings} to
-            enable QML debugging.
-
-        \li For Qt 4.7, compile the QML Inspector debugging helper. For more information,
-            see \l{Debugging Helpers for QML}.
-
-    \endlist
+    To debug Qt Quick UI projects, select the \gui {Enable QML} check box in the
+    \gui {Debugger Settings} in \gui Projects mode \gui {Run Settings}.
 
     To debug Qt Quick Applications:
 

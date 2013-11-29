@@ -75,6 +75,7 @@ IosDeployStep::~IosDeployStep() { }
 
 void IosDeployStep::ctor()
 {
+    m_toolHandler = 0;
     m_transferStatus = NoTransfer;
     m_device = ProjectExplorer::DeviceKitInformation::device(target()->kit());
     const QString devName = m_device.isNull() ? IosDevice::name() : m_device->displayName();
@@ -103,23 +104,24 @@ void IosDeployStep::run(QFutureInterface<bool> &fi)
                              ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
         m_futureInterface.reportResult(!iossimulator().isNull());
         cleanup();
-        m_futureInterface.reportFinished();
+        emit finished();
         return;
     }
     m_transferStatus = TransferInProgress;
-    IosToolHandler *toolHandler = new IosToolHandler(IosToolHandler::IosDeviceType, this);
+    QTC_CHECK(m_toolHandler == 0);
+    m_toolHandler = new IosToolHandler(IosToolHandler::IosDeviceType, this);
     m_futureInterface.setProgressRange(0, 200);
     m_futureInterface.setProgressValueAndText(0, QLatin1String("Transferring application"));
     m_futureInterface.reportStarted();
-    connect(toolHandler, SIGNAL(isTransferringApp(Ios::IosToolHandler*,QString,QString,int,int,QString)),
+    connect(m_toolHandler, SIGNAL(isTransferringApp(Ios::IosToolHandler*,QString,QString,int,int,QString)),
             SLOT(handleIsTransferringApp(Ios::IosToolHandler*,QString,QString,int,int,QString)));
-    connect(toolHandler, SIGNAL(didTransferApp(Ios::IosToolHandler*,QString,QString,Ios::IosToolHandler::OpStatus)),
+    connect(m_toolHandler, SIGNAL(didTransferApp(Ios::IosToolHandler*,QString,QString,Ios::IosToolHandler::OpStatus)),
             SLOT(handleDidTransferApp(Ios::IosToolHandler*,QString,QString,Ios::IosToolHandler::OpStatus)));
-    connect(toolHandler, SIGNAL(finished(Ios::IosToolHandler*)),
+    connect(m_toolHandler, SIGNAL(finished(Ios::IosToolHandler*)),
             SLOT(handleFinished(Ios::IosToolHandler*)));
-    connect(toolHandler, SIGNAL(errorMsg(Ios::IosToolHandler*,QString)),
+    connect(m_toolHandler, SIGNAL(errorMsg(Ios::IosToolHandler*,QString)),
             SLOT(handleErrorMsg(Ios::IosToolHandler*,QString)));
-    toolHandler->requestTransferApp(appBundle(), deviceId());
+    m_toolHandler->requestTransferApp(appBundle(), deviceId());
 }
 
 void IosDeployStep::cancel()
@@ -179,7 +181,7 @@ void IosDeployStep::handleFinished(IosToolHandler *handler)
     cleanup();
     handler->deleteLater();
     // move it when result is reported? (would need care to avoid problems with concurrent runs)
-    m_futureInterface.reportFinished();
+    emit finished();
 }
 
 void IosDeployStep::handleErrorMsg(IosToolHandler *handler, const QString &msg)

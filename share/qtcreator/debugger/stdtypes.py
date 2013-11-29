@@ -428,7 +428,7 @@ def qdump__std__stringHelper1(d, value, charSize):
     sizePtr = data.cast(d.sizetType().pointer())
     size = int(sizePtr[-3])
     alloc = int(sizePtr[-2])
-    refcount = int(sizePtr[-1])
+    refcount = int(sizePtr[-1]) & 0xffffffff
     d.check(refcount >= -1) # Can be -1 accoring to docs.
     d.check(0 <= size and size <= alloc and alloc <= 100*1000*1000)
     qdump_stringHelper(d, sizePtr, size * charSize, charSize)
@@ -687,7 +687,7 @@ def qdump__std__vector(d, value):
         start = impl["_M_start"]["_M_p"]
         finish = impl["_M_finish"]["_M_p"]
         # FIXME: 8 is CHAR_BIT
-        size = (int(finish) - int(start)) * 8
+        size = (d.pointerValue(finish) - d.pointerValue(start)) * 8
         size += int(impl["_M_finish"]["_M_offset"])
         size -= int(impl["_M_start"]["_M_offset"])
     else:
@@ -706,10 +706,11 @@ def qdump__std__vector(d, value):
     if d.isExpanded():
         if isBool:
             with Children(d, size, maxNumChild=10000, childType=type):
+                base = d.pointerValue(start)
                 for i in d.childRange():
-                    q = start + int(i / storagesize)
+                    q = base + int(i / 8)
                     d.putBoolItem(str(i),
-                        (int(q.dereference()) >> (i % storagesize)) & 1)
+                        (int(d.dereference(q)) >> (i % 8)) & 1)
         else:
             d.putArrayData(type, start, size)
 

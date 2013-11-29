@@ -43,6 +43,7 @@ public:
     ~TodoOutputTreeView();
 
     void resizeEvent(QResizeEvent *event);
+    void keyPressEvent(QKeyEvent *e);
 
 private slots:
     void todoColumnResized(int column, int oldSize, int newSize);

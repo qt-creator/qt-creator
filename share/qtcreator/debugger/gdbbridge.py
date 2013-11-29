@@ -960,7 +960,7 @@ class Dumper(DumperBase):
             if vtable & 0x3: # This is not a pointer.
                 return False
             metaObjectEntry = self.dereference(vtable) # It's the first entry.
-            if metaObjectEntry & 0x3: # This is not a pointer.
+            if metaObjectEntry & 0x1: # This is not a pointer.
                 return False
             #warn("MO: 0x%x " % metaObjectEntry)
             s = gdb.execute("info symbol 0x%x" % metaObjectEntry, to_string=True)
@@ -1272,7 +1272,7 @@ class Dumper(DumperBase):
                 # generic pointer." with MinGW's gcc 4.5 when it "identifies"
                 # a "QWidget &" as "void &" and with optimized out code.
                 self.putItem(value.cast(type.target().unqualified()))
-                self.putBetterType(typeName)
+                self.putBetterType("%s &" % self.currentType)
                 return
             except RuntimeError:
                 self.putValue("<optimized out reference>")

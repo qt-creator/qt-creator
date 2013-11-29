@@ -46,7 +46,7 @@ namespace Internal {
 class QmlProfilerAction : public AnalyzerAction
 {
 public:
-    QmlProfilerAction() {}
+    explicit QmlProfilerAction(QObject *parent = 0) : AnalyzerAction(parent) { }
 };
 
 bool QmlProfilerPlugin::debugOutput = false;
@@ -65,7 +65,7 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
         "The QML Profiler can be used to find performance bottlenecks in "
         "applications using QML.");
 
-    action = new QmlProfilerAction;
+    action = new QmlProfilerAction(this);
     action->setId("QmlProfiler.Local");
     action->setTool(tool);
     action->setText(tr("QML Profiler"));
@@ -74,7 +74,7 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
     action->setMenuGroup(Constants::G_ANALYZER_TOOLS);
     AnalyzerManager::addAction(action);
 
-    action = new QmlProfilerAction;
+    action = new QmlProfilerAction(this);
     action->setId("QmlProfiler.Remote");
     action->setTool(tool);
     action->setText(tr("QML Profiler (External)"));

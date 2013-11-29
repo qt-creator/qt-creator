@@ -100,10 +100,11 @@ void KitChooser::populate()
             m_chooser->setItemData(m_chooser->count() - 1, kitToolTip(kit), Qt::ToolTipRole);
         }
     }
-    m_chooser->setEnabled(m_chooser->count() > 1);
 
+    const int n = m_chooser->count();
     const int index = Core::ICore::settings()->value(QLatin1String(lastKitKey)).toInt();
-    m_chooser->setCurrentIndex(qMin(index, m_chooser->count()));
+    m_chooser->setCurrentIndex(0 <= index && index < n ? index : -1);
+    m_chooser->setEnabled(n > 1);
 }
 
 Kit *KitChooser::currentKit() const
