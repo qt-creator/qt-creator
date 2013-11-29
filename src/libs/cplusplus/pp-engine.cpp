@@ -917,23 +917,21 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
             && macroNameRef[0] == '_'
             && macroNameRef[1] == '_') {
         PPToken newTk;
+        QByteArray txt;
         if (macroNameRef == ppLine) {
-            QByteArray txt = QByteArray::number(tk->lineno);
+            txt = QByteArray::number(tk->lineno);
             newTk = generateToken(T_STRING_LITERAL, txt.constData(), txt.size(), tk->lineno, false);
         } else if (macroNameRef == ppFile) {
-            QByteArray txt;
             txt.append('"');
             txt.append(m_env->currentFileUtf8);
             txt.append('"');
             newTk = generateToken(T_STRING_LITERAL, txt.constData(), txt.size(), tk->lineno, false);
         } else if (macroNameRef == ppDate) {
-            QByteArray txt;
             txt.append('"');
             txt.append(QDate::currentDate().toString().toUtf8());
             txt.append('"');
             newTk = generateToken(T_STRING_LITERAL, txt.constData(), txt.size(), tk->lineno, false);
         } else if (macroNameRef == ppTime) {
-            QByteArray txt;
             txt.append('"');
             txt.append(QTime::currentTime().toString().toUtf8());
             txt.append('"');
@@ -941,10 +939,14 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
         }
 
         if (newTk.hasSource()) {
-            newTk.f.newline = tk->newline();
-            newTk.f.whitespace = tk->whitespace();
-            *tk = newTk;
-            return false;
+            Macro macro;
+            macro.setName(macroNameRef.toByteArray());
+            macro.setFileName(m_env->currentFile);
+            macro.setPredefined(true);
+            macro.setDefinition(txt, QVector<PPToken>() << newTk);
+            m_env->bind(macro);
+            if (m_client)
+                m_client->macroAdded(macro);
         }
     }
 

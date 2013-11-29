@@ -592,10 +592,12 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
             m_widget->showPreProcessorWidget();
         } else if (fileName != CppModelManagerInterface::configurationFileName()) {
             const Macro &macro = use->macro();
-            link.targetFileName = macro.fileName();
-            link.targetLine = macro.line();
-            link.linkTextStart = use->begin();
-            link.linkTextEnd = use->end();
+            if (!macro.isPredefined()) {
+                link.targetFileName = macro.fileName();
+                link.targetLine = macro.line();
+                link.linkTextStart = use->begin();
+                link.linkTextEnd = use->end();
+            }
         }
         return link;
     }

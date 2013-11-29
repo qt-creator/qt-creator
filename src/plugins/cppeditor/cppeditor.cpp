@@ -797,10 +797,12 @@ const Macro *CPPEditorWidget::findCanonicalMacro(const QTextCursor &cursor, Docu
     if (const Macro *macro = doc->findMacroDefinitionAt(line)) {
         QTextCursor macroCursor = cursor;
         const QByteArray name = identifierUnderCursor(&macroCursor).toLatin1();
-        if (macro->name() == name)
+        if (macro->name() == name && !macro->isPredefined())
             return macro;
     } else if (const Document::MacroUse *use = doc->findMacroUseAt(cursor.position())) {
-        return &use->macro();
+        const Macro &macro = use->macro();
+        if (!macro.isPredefined())
+            return &macro;
     }
 
     return 0;

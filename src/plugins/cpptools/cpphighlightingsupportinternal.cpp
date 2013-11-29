@@ -58,6 +58,9 @@ QFuture<TextEditor::HighlightingResult> CppHighlightingSupportInternal::highligh
 
     // Get macro definitions
     foreach (const CPlusPlus::Macro& macro, doc->definedMacros()) {
+        if (macro.isPredefined())
+            continue; // No "real" definition location
+
         int line, column;
         editor()->convertPosition(macro.offset(), &line, &column);
         ++column; //Highlighting starts at (column-1) --> compensate here

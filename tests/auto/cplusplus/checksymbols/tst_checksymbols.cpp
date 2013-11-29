@@ -175,6 +175,8 @@ private slots:
     void test_checksymbols_VirtualMethodUse();
     void test_checksymbols_LabelUse();
     void test_checksymbols_MacroUse();
+    void test_checksymbols_Macros__FILE__LINE__DATE__TIME__1();
+    void test_checksymbols_Macros__FILE__LINE__DATE__TIME__2();
     void test_checksymbols_FunctionUse();
     void test_checksymbols_PseudoKeywordUse();
     void test_checksymbols_StaticUse();
@@ -324,6 +326,55 @@ void tst_CheckSymbols::test_checksymbols_MacroUse()
            ;
 
     TestData::check(source, expectedUses, macroUses);
+}
+
+void tst_CheckSymbols::test_checksymbols_Macros__FILE__LINE__DATE__TIME__1()
+{
+    const QByteArray source =
+        "#define FILE_DATE_TIME __FILE__  \" / \"  __DATE__  \" / \"  __TIME__\n"
+        "#define LINE_NUMBER 0 + __LINE__\n"
+        "\n"
+        "void f()\n"
+        "{\n"
+        "    class Printer;\n"
+        "    Printer::printText(FILE_DATE_TIME); Printer::printInteger(LINE_NUMBER); Printer::nl();\n"
+        "    return;\n"
+        "}\n";
+    const QList<Use> expectedUses = QList<Use>()
+        << Use(4, 6, 1, CppHighlightingSupport::FunctionUse)
+        << Use(6, 11, 7, CppHighlightingSupport::TypeUse)
+        << Use(6, 11, 7, CppHighlightingSupport::TypeUse)
+        << Use(7, 5, 7, CppHighlightingSupport::TypeUse)
+        << Use(7, 41, 7, CppHighlightingSupport::TypeUse)
+        << Use(7, 77, 7, CppHighlightingSupport::TypeUse)
+           ;
+
+    TestData::check(source, expectedUses);
+}
+
+void tst_CheckSymbols::test_checksymbols_Macros__FILE__LINE__DATE__TIME__2()
+{
+    const QByteArray source =
+        "void f()\n"
+        "{\n"
+        "    class Printer;\n"
+        "    Printer::printInteger(__LINE__); Printer::printText(__FILE__); Printer::nl();\n"
+        "    Printer::printText(__DATE__); Printer::printText(__TIME__); Printer::nl();\n"
+        "    return;\n"
+        "}\n";
+    const QList<Use> expectedUses = QList<Use>()
+        << Use(1, 6, 1, CppHighlightingSupport::FunctionUse)
+        << Use(3, 11, 7, CppHighlightingSupport::TypeUse)
+        << Use(3, 11, 7, CppHighlightingSupport::TypeUse)
+        << Use(4, 5, 7, CppHighlightingSupport::TypeUse)
+        << Use(4, 38, 7, CppHighlightingSupport::TypeUse)
+        << Use(4, 68, 7, CppHighlightingSupport::TypeUse)
+        << Use(5, 5, 7, CppHighlightingSupport::TypeUse)
+        << Use(5, 35, 7, CppHighlightingSupport::TypeUse)
+        << Use(5, 65, 7, CppHighlightingSupport::TypeUse)
+           ;
+
+    TestData::check(source, expectedUses);
 }
 
 void tst_CheckSymbols::test_checksymbols_FunctionUse()
