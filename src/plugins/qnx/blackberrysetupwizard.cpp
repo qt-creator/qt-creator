@@ -406,7 +406,7 @@ void BlackBerrySetupWizard::requestDebugToken()
     BlackBerryConfigurationManager &configuration = BlackBerryConfigurationManager::instance();
 
     m_requester->requestDebugToken(configuration.defaultDebugTokenPath(),
-            m_utils.cskPassword(), configuration.defaultKeystorePath(), certificatePassword(), m_devicePin);
+            m_utils.cskPassword(this), configuration.defaultKeystorePath(), certificatePassword(), m_devicePin);
 }
 
 void BlackBerrySetupWizard::uploadDebugToken()

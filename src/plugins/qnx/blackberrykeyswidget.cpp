@@ -169,7 +169,7 @@ void BlackBerryKeysWidget::updateKeysSection()
 void BlackBerryKeysWidget::loadDefaultCertificate()
 {
     connect(&m_utils, SIGNAL(defaultCertificateLoaded(int)), this, SLOT(certificateLoaded(int)));
-    m_utils.openDefaultCertificate();
+    m_utils.openDefaultCertificate(this);
 }
 
 void BlackBerryKeysWidget::setCertificateError(const QString &error)

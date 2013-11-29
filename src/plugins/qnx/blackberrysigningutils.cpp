@@ -82,18 +82,18 @@ bool BlackBerrySigningUtils::hasDefaultCertificate()
     return keystore.exists();
 }
 
-QString BlackBerrySigningUtils::cskPassword()
+QString BlackBerrySigningUtils::cskPassword(QWidget *passwordPromptParent)
 {
     if (m_cskPassword.isEmpty())
-        m_cskPassword = promptPassword(tr("Please provide your bbidtoken.csk PIN."));
+        m_cskPassword = promptPassword(tr("Please provide your bbidtoken.csk PIN."), passwordPromptParent);
 
     return m_cskPassword;
 }
 
-QString BlackBerrySigningUtils::certificatePassword()
+QString BlackBerrySigningUtils::certificatePassword(QWidget *passwordPromptParent)
 {
     if (m_certificatePassword.isEmpty())
-        m_certificatePassword = promptPassword(tr("Please enter your certificate password."));
+        m_certificatePassword = promptPassword(tr("Please enter your certificate password."), passwordPromptParent);
 
     return m_certificatePassword;
 }
@@ -103,14 +103,14 @@ const BlackBerryCertificate * BlackBerrySigningUtils::defaultCertificate() const
     return m_defaultCertificate;
 }
 
-void BlackBerrySigningUtils::openDefaultCertificate()
+void BlackBerrySigningUtils::openDefaultCertificate(QWidget *passwordPromptParent)
 {
     if (m_defaultCertificate) {
         emit defaultCertificateLoaded(BlackBerryCertificate::Success);
         return;
     }
 
-    const QString password = certificatePassword();
+    const QString password = certificatePassword(passwordPromptParent);
 
     BlackBerryConfigurationManager &configManager = BlackBerryConfigurationManager::instance();
 
@@ -165,9 +165,9 @@ void BlackBerrySigningUtils::certificateLoaded(int status)
     emit defaultCertificateLoaded(status);
 }
 
-QString BlackBerrySigningUtils::promptPassword(const QString &message) const
+QString BlackBerrySigningUtils::promptPassword(const QString &message, QWidget *dialogParent) const
 {
-    QInputDialog dialog;
+    QInputDialog dialog(dialogParent);
     dialog.setWindowTitle(tr("Qt Creator"));
     dialog.setInputMode(QInputDialog::TextInput);
     dialog.setLabelText(message);

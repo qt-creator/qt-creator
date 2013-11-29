@@ -144,8 +144,8 @@ void BlackBerryDebugTokenRequestDialog::requestDebugToken()
     BlackBerryConfigurationManager &configuration = BlackBerryConfigurationManager::instance();
 
     m_requester->requestDebugToken(m_ui->debugTokenPath->path(),
-            m_utils.cskPassword(), configuration.defaultKeystorePath(),
-            m_utils.certificatePassword(), m_ui->devicePin->text());
+            m_utils.cskPassword(this), configuration.defaultKeystorePath(),
+            m_utils.certificatePassword(this), m_ui->devicePin->text());
 }
 
 void BlackBerryDebugTokenRequestDialog::setDefaultPath()
