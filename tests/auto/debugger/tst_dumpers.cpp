@@ -3131,8 +3131,9 @@ void tst_Dumpers::dumper_data()
                     "v.push_back(true);\n"
                     "v.push_back(false);\n"
                     "unused(&v);\n")
-                // Known issue: Clang produces "std::vector<std::allocator<bool>>
-               % Check("v", "<5 items>", "std::vector<bool>")
+               % Check("v", "<5 items>", "std::vector<bool>").setForGdbOnly()
+               // Known issue: Clang produces "std::vector<std::allocator<bool>>
+               % Check("v", "<5 items>", "std::vector<std::allocator<bool>>").setForLldbOnly()
                % Check("v.0", "[0]", "1", "bool")
                % Check("v.1", "[1]", "0", "bool")
                % Check("v.2", "[2]", "0", "bool")
@@ -3144,10 +3145,12 @@ void tst_Dumpers::dumper_data()
                     "std::vector<bool> v1(65, true);\n"
                     "std::vector<bool> v2(65);\n"
                     "unused(&v1, &v2);\n")
-               % Check("v1", "<65 items>", "std::vector<bool>")
+               % Check("v1", "<65 items>", "std::vector<bool>").setForGdbOnly()
+               % Check("v1", "<65 items>", "std::vector<std::allocator<bool>>").setForLldbOnly()
                % Check("v1.0", "[0]", "1", "bool")
                % Check("v1.64", "[64]", "1", "bool")
-               % Check("v2", "<65 items>", "std::vector<bool>")
+               % Check("v2", "<65 items>", "std::vector<bool>").setForGdbOnly()
+               % Check("v2", "<65 items>", "std::vector<std::allocator<bool>>").setForLldbOnly()
                % Check("v2.0", "[0]", "0", "bool")
                % Check("v2.64", "[64]", "0", "bool");
 
