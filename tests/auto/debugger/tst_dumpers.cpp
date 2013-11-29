@@ -1880,8 +1880,14 @@ void tst_Dumpers::dumper_data()
               % CheckType("loc", "@QLocale")
               % CheckType("m", "@QLocale::MeasurementSystem")
               % Check("loc1", "\"en_US\"", "@QLocale")
-              % Check("m1", Value5("@QLocale::ImperialUSSystem (1)"), "@QLocale::MeasurementSystem")
-              % Check("m1", Value4("@QLocale::ImperialSystem (1)"), "@QLocale::MeasurementSystem");
+              % Check("m1", Value5("@QLocale::ImperialUSSystem (1)"),
+                    "@QLocale::MeasurementSystem").setForGdbOnly()
+              % Check("m1", Value4("@QLocale::ImperialSystem (1)"),
+                    "@QLocale::MeasurementSystem").setForGdbOnly()
+              % Check("m1", Value5("ImperialUSSystem"),
+                    "@QLocale::MeasurementSystem").setForLldbOnly()
+              % Check("m1", Value4("ImperialSystem"),
+                    "@QLocale::MeasurementSystem").setForLldbOnly();
 
    QTest::newRow("QMapUIntStringList")
            << Data("#include <QMap>\n"
@@ -2586,8 +2592,8 @@ void tst_Dumpers::dumper_data()
                % CoreProfile()
                % Cxx11Profile()
                % MacLibCppProfile()
-               % Check("a", "<4 items>", Pattern("std::array<int, 4u.*>"))
-               % Check("b", "<4 items>", Pattern("std::array<@QString, 4u.*>"));
+               % Check("a", "<4 items>", Pattern("std::array<int, 4.*>"))
+               % Check("b", "<4 items>", Pattern("std::array<@QString, 4.*>"));
 
     QTest::newRow("StdComplex")
             << Data("#include <complex>\n",
