@@ -558,6 +558,8 @@ restart_search:
         usages.clear();
         foreach (const Document::MacroUse &use, doc->macroUses()) {
             const Macro &useMacro = use.macro();
+            if (useMacro.isPredefined())
+                continue;
 
             if (useMacro.fileName() == macro.fileName()) { // Check if this is a match, but possibly against an outdated document.
                 if (source.isEmpty())

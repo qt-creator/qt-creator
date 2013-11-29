@@ -357,11 +357,10 @@ QList<Task> DeviceKitInformation::validate(const Kit *k) const
 void DeviceKitInformation::fix(Kit *k)
 {
     IDevice::ConstPtr dev = DeviceKitInformation::device(k);
-    if (!dev.isNull() && dev->type() == DeviceTypeKitInformation::deviceTypeId(k))
-        return;
-
-    qWarning("Device is no longer known, removing from kit \"%s\".", qPrintable(k->displayName()));
-    setDeviceId(k, Core::Id());
+    if (!dev.isNull() && dev->type() != DeviceTypeKitInformation::deviceTypeId(k)) {
+        qWarning("Device is no longer known, removing from kit \"%s\".", qPrintable(k->displayName()));
+        setDeviceId(k, Core::Id());
+    }
 }
 
 void DeviceKitInformation::setup(Kit *k)

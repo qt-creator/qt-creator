@@ -334,6 +334,7 @@ private slots:
     void unfinished_function_like_macro_call();
     void nasty_macro_expansion();
     void glib_attribute();
+    void builtin__FILE__();
     void blockSkipping();
     void includes_1();
     void dont_eagerly_expand();
@@ -780,6 +781,27 @@ void tst_Preprocessor::glib_attribute()
             "}\n";
 
 //    DUMP_OUTPUT(preprocessed);
+    QCOMPARE(preprocessed, result____);
+}
+
+void tst_Preprocessor::builtin__FILE__()
+{
+    Client *client = 0; // no client.
+    Environment env;
+
+    Preprocessor preprocess(client, &env);
+    QByteArray preprocessed = preprocess.run(
+                QLatin1String("some-file.c"),
+                QByteArray("const char *f = __FILE__\n"
+                           ));
+    const QByteArray result____ =
+            "# 1 \"some-file.c\"\n"
+            "const char *f =\n"
+            "# expansion begin 16,8 ~1\n"
+            "\"some-file.c\"\n"
+            "# expansion end\n"
+            "# 2 \"some-file.c\"\n";
+
     QCOMPARE(preprocessed, result____);
 }
 

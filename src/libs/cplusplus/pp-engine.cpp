@@ -906,7 +906,51 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
 {
     ScopedBoolSwap s(m_state.m_inPreprocessorDirective, true);
 
-    Macro *macro = m_env->resolve(tk->asByteArrayRef());
+    static const QByteArray ppLine("__LINE__");
+    static const QByteArray ppFile("__FILE__");
+    static const QByteArray ppDate("__DATE__");
+    static const QByteArray ppTime("__TIME__");
+
+    ByteArrayRef macroNameRef = tk->asByteArrayRef();
+
+    if (macroNameRef.size() == 8
+            && macroNameRef[0] == '_'
+            && macroNameRef[1] == '_') {
+        PPToken newTk;
+        QByteArray txt;
+        if (macroNameRef == ppLine) {
+            txt = QByteArray::number(tk->lineno);
+            newTk = generateToken(T_STRING_LITERAL, txt.constData(), txt.size(), tk->lineno, false);
+        } else if (macroNameRef == ppFile) {
+            txt.append('"');
+            txt.append(m_env->currentFileUtf8);
+            txt.append('"');
+            newTk = generateToken(T_STRING_LITERAL, txt.constData(), txt.size(), tk->lineno, false);
+        } else if (macroNameRef == ppDate) {
+            txt.append('"');
+            txt.append(QDate::currentDate().toString().toUtf8());
+            txt.append('"');
+            newTk = generateToken(T_STRING_LITERAL, txt.constData(), txt.size(), tk->lineno, false);
+        } else if (macroNameRef == ppTime) {
+            txt.append('"');
+            txt.append(QTime::currentTime().toString().toUtf8());
+            txt.append('"');
+            newTk = generateToken(T_STRING_LITERAL, txt.constData(), txt.size(), tk->lineno, false);
+        }
+
+        if (newTk.hasSource()) {
+            Macro macro;
+            macro.setName(macroNameRef.toByteArray());
+            macro.setFileName(m_env->currentFile);
+            macro.setPredefined(true);
+            macro.setDefinition(txt, QVector<PPToken>() << newTk);
+            m_env->bind(macro);
+            if (m_client)
+                m_client->macroAdded(macro);
+        }
+    }
+
+    Macro *macro = m_env->resolve(macroNameRef);
     if (!macro
             || (tk->expanded()
                 && m_state.m_tokenBuffer

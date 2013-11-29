@@ -51,14 +51,7 @@ QString QmlProjectEnvironmentAspect::baseEnvironmentDisplayName(int base) const
 
 Utils::Environment QmlProjectManager::QmlProjectEnvironmentAspect::baseEnvironment() const
 {
-#if 1
-    // workaround for QTBUG-35143
-    Utils::Environment env = Utils::Environment::systemEnvironment();
-    env.unset(QLatin1String("QSG_RENDER_LOOP"));
-    return env;
-#else
     return Utils::Environment::systemEnvironment();
-#endif
 }
 
 QmlProjectEnvironmentAspect::QmlProjectEnvironmentAspect(ProjectExplorer::RunConfiguration *rc) :

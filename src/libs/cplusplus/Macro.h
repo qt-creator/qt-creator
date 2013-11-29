@@ -137,6 +137,12 @@ public:
     void setVariadic(bool isVariadic)
     { f._variadic = isVariadic; }
 
+    bool isPredefined() const
+    { return f._predefined; }
+
+    void setPredefined(bool isPredefined)
+    { f._predefined = isPredefined; }
+
     QString toString() const;
     QString toStringWithLineBreaks() const;
 
@@ -151,6 +157,7 @@ private:
         unsigned _hidden: 1;
         unsigned _functionLike: 1;
         unsigned _variadic: 1;
+        unsigned _predefined: 1;
     };
 
     QByteArray _name;

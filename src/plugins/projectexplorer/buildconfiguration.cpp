@@ -250,16 +250,8 @@ Target *BuildConfiguration::target() const
 Utils::Environment BuildConfiguration::baseEnvironment() const
 {
     Utils::Environment result;
-    if (useSystemEnvironment()) {
-#if 1
-        // workaround for QTBUG-35143
+    if (useSystemEnvironment())
         result = Utils::Environment::systemEnvironment();
-        result.unset(QLatin1String("QSG_RENDER_LOOP"));
-#else
-        result = Utils::Environment::systemEnvironment();
-#endif
-    }
-
     target()->kit()->addToEnvironment(result);
     return result;
 }
