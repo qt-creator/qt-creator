@@ -42,6 +42,7 @@
 #include <QList>
 #include <QScopedArrayPointer>
 #include <QProcessEnvironment>
+#include <QFileInfo>
 
 #include <string.h>
 #include <errno.h>
@@ -203,6 +204,12 @@ IosToolHandlerPrivate::IosToolHandlerPrivate(IosToolHandler::DeviceType devType,
     foreach (const QString &k, env.keys())
         if (k.startsWith(QLatin1String("DYLD_")))
             env.remove(k);
+    QString xcPath = IosConfigurations::developerPath().appendPath(QLatin1String("../OtherFrameworks")).toFileInfo().canonicalFilePath();
+    env.insert(QLatin1String("DYLD_FALLBACK_FRAMEWORK_PATH"),
+               xcPath.isEmpty() ?
+                   QLatin1String("/System/Library/PrivateFrameworks")
+                 : (xcPath + QLatin1String(":/System/Library/PrivateFrameworks")));
+
     process.setProcessEnvironment(env);
     QObject::connect(&process, SIGNAL(readyReadStandardOutput()), q, SLOT(subprocessHasData()));
     QObject::connect(&process, SIGNAL(finished(int,QProcess::ExitStatus)),
