@@ -38,11 +38,15 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
-#include <utils/qtcassert.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/basetexteditor.h>
+#include <texteditor/tabsettings.h>
+#include <utils/linecolumnlabel.h>
+#include <utils/qtcassert.h>
 
 #include <QAction>
+#include <QStyle>
+#include <QTextBlock>
 #include <QToolBar>
 
 using namespace ProjectExplorer;
@@ -82,6 +86,17 @@ BarDescriptorEditor::BarDescriptorEditor(BarDescriptorEditorWidget *editorWidget
     m_actionGroup->addAction(sourceAction);
 
     generalAction->setChecked(true);
+
+    m_cursorPositionLabel = new Utils::LineColumnLabel;
+    const int spacing = editorWidget->style()->pixelMetric(QStyle::PM_LayoutHorizontalSpacing) / 2;
+    m_cursorPositionLabel->setContentsMargins(spacing, 0, spacing, 0);
+
+    QWidget *spacer = new QWidget;
+    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    m_toolBar->addWidget(spacer);
+
+    m_cursorPositionAction = m_toolBar->addWidget(m_cursorPositionLabel);
+    connect(editorWidget->sourceWidget(), SIGNAL(cursorPositionChanged()), this, SLOT(updateCursorPosition()));
 
     setContext(Core::Context(Constants::QNX_BAR_DESCRIPTOR_EDITOR_CONTEXT,
             TextEditor::Constants::C_TEXTEDITOR));
@@ -133,6 +148,7 @@ void BarDescriptorEditor::setActivePage(BarDescriptorEditor::EditorPage page)
 
     if (page == Source) {
         editorWidget->setXmlSource(m_file->xmlSource());
+        updateCursorPosition();
     } else if (prevPage == Source) {
         TaskHub::clearTasks(Constants::QNX_TASK_CATEGORY_BARDESCRIPTOR);
         QString errorMsg;
@@ -150,7 +166,23 @@ void BarDescriptorEditor::setActivePage(BarDescriptorEditor::EditorPage page)
         }
     }
 
+    m_cursorPositionAction->setVisible(page == Source);
     editorWidget->setCurrentIndex(page);
+}
+
+void BarDescriptorEditor::updateCursorPosition()
+{
+    BarDescriptorEditorWidget *editorWidget = qobject_cast<BarDescriptorEditorWidget *>(widget());
+    QTC_ASSERT(editorWidget, return);
+
+    const QTextCursor cursor = editorWidget->sourceWidget()->textCursor();
+    const QTextBlock block = cursor.block();
+    const int line = block.blockNumber() + 1;
+    const int column = cursor.position() - block.position();
+    m_cursorPositionLabel->setText(tr("Line: %1, Col: %2").arg(line).arg(editorWidget->sourceWidget()->tabSettings().columnAt(block.text(), column)+1),
+                                   tr("Line: 9999, Col: 999"));
+    if (!block.isVisible())
+        editorWidget->sourceWidget()->ensureCursorVisible();
 }
 
 } // namespace Internal

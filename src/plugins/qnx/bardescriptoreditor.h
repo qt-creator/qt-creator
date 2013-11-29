@@ -39,6 +39,10 @@ class QActionGroup;
 class QToolBar;
 QT_END_NAMESPACE
 
+namespace Utils {
+class LineColumnLabel;
+}
+
 namespace Qnx {
 namespace Internal {
 
@@ -67,6 +71,7 @@ public:
 
 private slots:
     void changeEditorPage(QAction *action);
+    void updateCursorPosition();
 
 private:
     void setActivePage(EditorPage page);
@@ -75,6 +80,8 @@ private:
 
     QToolBar *m_toolBar;
     QActionGroup *m_actionGroup;
+    Utils::LineColumnLabel *m_cursorPositionLabel;
+    QAction *m_cursorPositionAction;
 };
 
 } // namespace Internal
