@@ -2666,6 +2666,7 @@ void tst_Dumpers::dumper_data()
                     "h.insert(194);\n"
                     "h.insert(2);\n"
                     "h.insert(3);\n")
+               % GdbOnly()
                % Profile("QMAKE_CXXFLAGS += -Wno-deprecated")
                % Check("h", "<4 items>", "__gnu__cxx::hash_set<int>")
                % Check("h.0", "[0]", "194", "int")
