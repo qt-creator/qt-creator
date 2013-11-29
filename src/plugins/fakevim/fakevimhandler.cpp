@@ -6477,10 +6477,19 @@ void FakeVimHandler::Private::scrollToLine(int line)
     EDITOR(setTextCursor(tc2));
     EDITOR(ensureCursorVisible());
 
+    int offset = 0;
     const QTextBlock block = document()->findBlockByLineNumber(line);
-    const QTextLine textLine = block.isValid()
-        ? block.layout()->lineAt(line - block.firstLineNumber()) : QTextLine();
-    tc2.setPosition(block.position() + (textLine.isValid() ? textLine.textStart() : 0));
+    if (block.isValid()) {
+        const int blockLineCount = block.layout()->lineCount();
+        const int lineInBlock = line - block.firstLineNumber();
+        if (0 <= lineInBlock && lineInBlock < blockLineCount) {
+            QTextLine textLine = block.layout()->lineAt(lineInBlock);
+            offset = textLine.textStart();
+        } else {
+//            QTC_CHECK(false);
+        }
+    }
+    tc2.setPosition(block.position() + offset);
     EDITOR(setTextCursor(tc2));
     EDITOR(ensureCursorVisible());
 
