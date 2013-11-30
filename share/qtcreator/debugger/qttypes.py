@@ -239,11 +239,25 @@ def qdump__QDateTime(d, value):
     base = d.dereferenceValue(value)
     if qtVersion >= 0x050200:
         dateBase = base + d.ptrSize() # Only QAtomicInt, but will be padded.
-        ms = d.extractInt64(dateBase)
-        offset = d.extractInt(dateBase + 12)
-        isValid = ms > 0
-        if isValid:
-            d.putValue("%s" % (ms - offset * 1000), MillisecondsSinceEpoch)
+        # qint64 m_msecs
+        # Qt::TimeSpec m_spec
+        # int m_offsetFromUtc
+        # QTimeZone m_timeZone // only #ifndef QT_BOOTSTRAPPED
+        # StatusFlags m_status
+        status = d.extractInt(dateBase + 16 + d.ptrSize())
+        if int(status & 0x10): # ValidDateTime
+            isValid = True
+            msecs = d.extractInt64(dateBase)
+            spec = d.extractInt(dateBase + 8)
+            offset = d.extractInt(dateBase + 12)
+            tzp = d.dereference(dateBase + 16)
+            if tzp == 0:
+                tz = ""
+            else:
+                idBase = tzp + 2 * d.ptrSize() # [QSharedData] + [vptr]
+                tz = d.encodeByteArrayHelper(d.dereference(idBase))
+            d.putValue("%s/%s/%s/%s/%s" % (msecs, spec, offset, tz, status),
+                DateTimeInternal)
     else:
         # This relies on the Qt4/Qt5 internal structure layout:
         # {sharedref(4), date(8), time(4+x)}

@@ -33,6 +33,7 @@
 #include <QDateTime>
 #include <QDebug>
 #include <QHostAddress>
+#include <QTimeZone>
 
 #include <ctype.h>
 
@@ -503,6 +504,53 @@ static QTime timeFromData(int ms)
     return ms == -1 ? QTime() : QTime(0, 0, 0, 0).addMSecs(ms);
 }
 
+// Stolen and adapted from qdatetime.cpp
+static void getDateTime(qint64 msecs, int status, QDate *date, QTime *time)
+{
+    enum {
+        SECS_PER_DAY = 86400,
+        MSECS_PER_DAY = 86400000,
+        SECS_PER_HOUR = 3600,
+        MSECS_PER_HOUR = 3600000,
+        SECS_PER_MIN = 60,
+        MSECS_PER_MIN = 60000,
+        TIME_T_MAX = 2145916799,  // int maximum 2037-12-31T23:59:59 UTC
+        JULIAN_DAY_FOR_EPOCH = 2440588 // result of julianDayFromDate(1970, 1, 1)
+    };
+
+    // Status of date/time
+    enum StatusFlag {
+        NullDate            = 0x01,
+        NullTime            = 0x02,
+        ValidDate           = 0x04,
+        ValidTime           = 0x08,
+        ValidDateTime       = 0x10,
+        TimeZoneCached      = 0x20,
+        SetToStandardTime   = 0x40,
+        SetToDaylightTime   = 0x80
+    };
+
+    qint64 jd = JULIAN_DAY_FOR_EPOCH;
+    qint64 ds = 0;
+
+    if (qAbs(msecs) >= MSECS_PER_DAY) {
+        jd += (msecs / MSECS_PER_DAY);
+        msecs %= MSECS_PER_DAY;
+    }
+
+    if (msecs < 0) {
+        ds = MSECS_PER_DAY - msecs - 1;
+        jd -= ds / MSECS_PER_DAY;
+        ds = ds % MSECS_PER_DAY;
+        ds = MSECS_PER_DAY - ds - 1;
+    } else {
+        ds = msecs;
+    }
+
+    *date = (status & NullDate) ? QDate() : QDate::fromJulianDay(jd);
+    *time = (status & NullTime) ? QTime() : QTime::fromMSecsSinceStartOfDay(ds);
+}
+
 QString decodeData(const QByteArray &ba, int encoding)
 {
     switch (encoding) {
@@ -629,15 +677,37 @@ QString decodeData(const QByteArray &ba, int encoding)
             const QByteArray decodedBa = QByteArray::fromHex(ba);
             return QString::fromUtf8(decodedBa);
         }
-        case MillisecondsSinceEpoch: {
-            bool ok = false;
-            const qint64 ms = ba.toLongLong(&ok);
-            if (!ok)
-                return QLatin1String(ba);
-            QDateTime d;
-            d.setTimeSpec(Qt::UTC);
-            d.setMSecsSinceEpoch(ms);
-            return d.isValid() ? d.toString(Qt::TextDate) : QLatin1String("(invalid)");
+        case DateTimeInternal: { // 29, DateTimeInternal: msecs, spec, offset, tz, status
+            int p0 = ba.indexOf('/');
+            int p1 = ba.indexOf('/', p0 + 1);
+            int p2 = ba.indexOf('/', p1 + 1);
+            int p3 = ba.indexOf('/', p2 + 1);
+
+            qint64 msecs = ba.left(p0).toLongLong();
+            ++p0;
+            Qt::TimeSpec spec = Qt::TimeSpec(ba.mid(p0, p1 - p0).toInt());
+            ++p1;
+            qulonglong offset = ba.mid(p1, p2 - p1).toInt();
+            ++p2;
+            QByteArray timeZoneId = QByteArray::fromHex(ba.mid(p2, p3 - p2));
+            ++p3;
+            int status = ba.mid(p3).toInt();
+
+            QDate date;
+            QTime time;
+            getDateTime(msecs, status, &date, &time);
+
+            QDateTime dateTime;
+            if (spec == Qt::OffsetFromUTC) {
+                dateTime = QDateTime(date, time, spec, offset);
+            } else if (spec == Qt::TimeZone) {
+                if (!QTimeZone::isTimeZoneIdAvailable(timeZoneId))
+                    return QLatin1String("<unavailable>");
+                dateTime = QDateTime(date, time, QTimeZone(timeZoneId));
+            } else {
+                dateTime = QDateTime(date, time, spec);
+            }
+            return dateTime.toString();
         }
     }
     qDebug() << "ENCODING ERROR: " << encoding;

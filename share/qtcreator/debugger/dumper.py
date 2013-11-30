@@ -816,7 +816,7 @@ Hex2EncodedFloat4, \
 Hex2EncodedFloat8, \
 IPv6AddressAndHexScopeId, \
 Hex2EncodedUtf8WithoutQuotes, \
-MillisecondsSinceEpoch \
+DateTimeInternal \
     = range(30)
 
 # Display modes. Keep that synchronized with DebuggerDisplay in watchutils.h
