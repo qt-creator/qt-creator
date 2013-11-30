@@ -115,5 +115,4 @@ ExtensionSystem::IPlugin::ShutdownFlag VcProjectManagerPlugin::aboutToShutdown()
 } // namespace Internal
 } // namespace VcProjectManager
 
-Q_EXPORT_PLUGIN2(VcProjectManager, VcProjectManager::Internal::VcProjectManagerPlugin)
-
+Q_EXPORT_PLUGIN(VcProjectManager)
