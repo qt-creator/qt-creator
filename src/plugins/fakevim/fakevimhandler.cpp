@@ -6517,11 +6517,22 @@ void FakeVimHandler::Private::moveToMatchingParanthesis()
 
     const int anc = anchor();
     QTextCursor tc = m_cursor;
+
+    // If no known parenthesis symbol is under cursor find one on the current line after cursor.
+    static const QString parenthesesChars(_("([{}])"));
+    while (!parenthesesChars.contains(document()->characterAt(tc.position())) && !tc.atBlockEnd())
+        tc.setPosition(tc.position() + 1);
+
+    if (tc.atBlockEnd())
+        tc = m_cursor;
+
     emit q->moveToMatchingParenthesis(&moved, &forward, &tc);
-    if (moved && forward)
-        tc.movePosition(Left, KeepAnchor, 1);
-    setAnchorAndPosition(anc, tc.position());
-    setTargetColumn();
+    if (moved) {
+        if (forward)
+            tc.movePosition(Left, KeepAnchor, 1);
+        setAnchorAndPosition(anc, tc.position());
+        setTargetColumn();
+    }
 }
 
 int FakeVimHandler::Private::cursorLineOnScreen() const

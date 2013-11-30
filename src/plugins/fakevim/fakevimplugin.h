@@ -136,6 +136,7 @@ private slots:
     void test_vim_command_x();
     void test_vim_command_yyp();
     void test_vim_command_y_dollar();
+    void test_vim_command_percent();
 
     void test_vim_visual_d();
     void test_vim_Visual_d();

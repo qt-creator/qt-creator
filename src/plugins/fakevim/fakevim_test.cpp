@@ -3025,6 +3025,90 @@ void FakeVimPlugin::test_vim_command_y_dollar()
     KEYS("$y$P", l[0]+'\n'+ l[1]+">>|>>\n" + lmid(2));
 }
 
+void FakeVimPlugin::test_vim_command_percent()
+{
+    TestData data;
+    setup(&data);
+
+    data.setText(
+        "bool f(int arg1) {" N
+        "    Q_ASSERT(arg1 >= 0);" N
+        "    if (arg1 > 0) return true; else if (arg1 <= 0) return false;" N
+        "}" N
+    );
+
+    KEYS("%",
+        "bool f(int arg1" X ") {" N
+        "    Q_ASSERT(arg1 >= 0);" N
+        "    if (arg1 > 0) return true; else if (arg1 <= 0) return false;" N
+        "}" N
+    );
+
+    KEYS("%",
+        "bool f" X "(int arg1) {" N
+        "    Q_ASSERT(arg1 >= 0);" N
+        "    if (arg1 > 0) return true; else if (arg1 <= 0) return false;" N
+        "}" N
+    );
+
+    KEYS("$h%",
+        "bool f(int arg1) {" N
+        "    Q_ASSERT(arg1 >= 0);" N
+        "    if (arg1 > 0) return true; else if (arg1 <= 0) return false;" N
+        X "}" N
+     );
+
+    KEYS("%",
+        "bool f(int arg1) " X "{" N
+        "    Q_ASSERT(arg1 >= 0);" N
+        "    if (arg1 > 0) return true; else if (arg1 <= 0) return false;" N
+        "}" N
+     );
+
+    KEYS("j%",
+        "bool f(int arg1) {" N
+        "    Q_ASSERT" X "(arg1 >= 0);" N
+        "    if (arg1 > 0) return true; else if (arg1 <= 0) return false;" N
+        "}" N
+    );
+
+    KEYS("%",
+        "bool f(int arg1) {" N
+        "    Q_ASSERT(arg1 >= 0" X ");" N
+        "    if (arg1 > 0) return true; else if (arg1 <= 0) return false;" N
+        "}" N
+    );
+
+    KEYS("j%",
+        "bool f(int arg1) {" N
+        "    Q_ASSERT(arg1 >= 0);" N
+        "    if (arg1 > 0) return true; else if (arg1 <= 0" X ") return false;" N
+        "}" N
+    );
+
+    KEYS("0%",
+        "bool f(int arg1) {" N
+        "    Q_ASSERT(arg1 >= 0);" N
+        "    if (arg1 > 0" X ") return true; else if (arg1 <= 0) return false;" N
+        "}" N
+    );
+
+    KEYS("%",
+        "bool f(int arg1) {" N
+        "    Q_ASSERT(arg1 >= 0);" N
+        "    if " X "(arg1 > 0) return true; else if (arg1 <= 0) return false;" N
+        "}" N
+    );
+
+    // jump to 50% of buffer
+    KEYS("50%",
+        "bool f(int arg1) {" N
+        "    Q_ASSERT(arg1 >= 0);" N
+        "    " X "if (arg1 > 0) return true; else if (arg1 <= 0) return false;" N
+        "}" N
+    );
+}
+
 void FakeVimPlugin::test_vim_command_Yp()
 {
     TestData data;
