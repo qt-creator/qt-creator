@@ -1298,6 +1298,21 @@ void tst_Dumpers::dumper_data()
                % Check("c", "'x' (120)", "@QChar").setForCdbOnly()
                % Check("c", "120", "@QChar").setEngines(DumpTestGdbEngine | DumpTestLldbEngine);
 
+    QTest::newRow("QTimeZone0")
+            << Data("#include <QTimeZone>\n",
+                    "QTimeZone tz;\n"
+                    "unused(&tz);\n")
+               % CoreProfile()
+               % Check("tz", "(null)", "@QTimeZone");
+
+    QTest::newRow("QTimeZone1")
+            << Data("#include <QTimeZone>\n",
+                    "QTimeZone tz(\"UTC+05:00\");\n"
+                    "unused(&tz);\n")
+               % CoreProfile()
+               % Check("tz", "\"UTC+05:00\"", "@QTimeZone")
+               % Check("tz.d.m_name", "\"UTC+05:00\"", "@QString");
+
     QTest::newRow("QDate0")
             << Data("#include <QDate>\n",
                     "QDate date;\n"

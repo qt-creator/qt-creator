@@ -231,6 +231,17 @@ def qdump__QTime(d, value):
         d.putNumChild(0)
 
 
+def qdump__QTimeZone(d, value):
+    base = d.dereferenceValue(value)
+    if d.isNull(base):
+        d.putValue("(null)")
+        d.putNumChild(0)
+        return
+    idAddr = base + 2 * d.ptrSize() # [QSharedData] + [vptr]
+    d.putByteArrayValueByAddress(idAddr)
+    d.putPlainChildren(value["d"])
+
+
 def qdump__QDateTime(d, value):
     qtVersion = d.qtVersion()
     isValid = False

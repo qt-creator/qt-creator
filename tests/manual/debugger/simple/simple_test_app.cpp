@@ -168,6 +168,7 @@ void dummyStatement(...) {}
 #include <QStandardItemModel>
 #include <QTextCursor>
 #include <QTextDocument>
+#include <QTimeZone>
 #endif
 
 #if USE_SCRIPTLIB
@@ -708,6 +709,14 @@ namespace undefined {
 
 namespace qdatetime {
 
+    void testQTimeZone()
+    {
+        QTimeZone zz;
+        QTimeZone tz("UTC+05:00");
+        BREAK_HERE;
+        dummyStatement(&zz, &tz);
+    }
+
     void testQDate()
     {
         QDate date;
@@ -768,6 +777,7 @@ namespace qdatetime {
 
     void testDateTime()
     {
+        testQTimeZone();
         testQDate();
         testQDateTime();
         testQTime();
