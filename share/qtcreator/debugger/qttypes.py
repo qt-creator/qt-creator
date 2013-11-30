@@ -1632,8 +1632,7 @@ def qdump__QSharedDataPointer(d, value):
             d.putPlainChildren(value)
             return
         d.putBetterType(d.currentType)
-        d.putItem(gdb.Value(d_ptr.cast(innerType.pointer())).dereference())
-        # d.putItem(value.dereference())
+        d.putItem(d_ptr.cast(innerType.pointer()).dereference())
 
 
 def qdump__QSharedPointer(d, value):
