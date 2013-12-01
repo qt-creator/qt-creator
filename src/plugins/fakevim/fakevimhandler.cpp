@@ -1896,7 +1896,7 @@ public:
     void setCurrentRange(const Range &range);
     Range currentRange() const { return Range(position(), anchor(), g.rangemode); }
 
-    void yankText(const Range &range, int toregister = '"');
+    void yankText(const Range &range, int toregister);
 
     void pasteText(bool afterCursor);
 
@@ -6806,7 +6806,26 @@ QString FakeVimHandler::Private::selectText(const Range &range) const
 
 void FakeVimHandler::Private::yankText(const Range &range, int reg)
 {
-    setRegister(reg, selectText(range), range.rangemode);
+    const QString text = selectText(range);
+    setRegister(reg, text, range.rangemode);
+
+    // If register is not specified or " ...
+    if (m_register == '"') {
+        // copy to yank register 0 too
+        setRegister('0', text, range.rangemode);
+
+        // with delete and change commands set register 1 (if text contains more lines) or
+        // small delete register -
+        if (g.submode == DeleteSubMode || g.submode == ChangeSubMode) {
+            if (text.contains(QLatin1Char('\n')))
+                setRegister('1', text, range.rangemode);
+            else
+                setRegister('-', text, range.rangemode);
+        }
+    } else {
+        // Always copy to " register too.
+        setRegister('"', text, range.rangemode);
+    }
 
     const int lines = document()->findBlock(range.endPos).blockNumber()
         - document()->findBlock(range.beginPos).blockNumber() + 1;

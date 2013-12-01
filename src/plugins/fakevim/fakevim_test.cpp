@@ -2259,6 +2259,45 @@ void FakeVimPlugin::test_vim_ex_yank()
     data.setText("abc" N "def");
     KEYS("\"xy$", X "abc" N "def");
     KEYS("\"xP", "ab" X "cabc" N "def");
+
+    data.setText(
+        "abc def" N
+        "ghi jkl" N
+    );
+    KEYS("yiwp",
+        "aab" X "cbc def" N
+        "ghi jkl" N
+    );
+    KEYS("u",
+        X "abc def" N
+        "ghi jkl" N
+    );
+    KEYS("\"0p",
+        "aab" X "cbc def" N
+        "ghi jkl" N
+    );
+    KEYS("\"xyiw",
+        X "aabcbc def" N
+        "ghi jkl" N
+    );
+    KEYS("\"0p",
+        "aab" X "cabcbc def" N
+        "ghi jkl" N
+    );
+    KEYS("\"xp",
+        "aabcaabcb" X "cabcbc def" N
+        "ghi jkl" N
+    );
+
+    // register " is last yank
+    data.setText(
+        "abc def" N
+        "ghi jkl" N
+    );
+    KEYS("yiwp\"xyiw\"\"p",
+        "aaabcb" X "cabcbc def" N
+        "ghi jkl" N
+    );
 }
 
 void FakeVimPlugin::test_vim_ex_delete()
