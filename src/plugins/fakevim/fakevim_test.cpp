@@ -2206,6 +2206,17 @@ void FakeVimPlugin::test_vim_substitute()
     COMMAND("'<,'>s/^/*", "abc" N "**def" N X "**ghi" N "jkl");
     KEYS("u", "abc" N X "*def" N "*ghi" N "jkl");
     KEYS("gv:s/^/+<CR>", "abc" N "+*def" N X "+*ghi" N "jkl");
+
+    // replace empty string
+    data.setText("abc");
+    COMMAND("s//--/g", "--a--b--c");
+
+    // remove characters
+    data.setText("abc def");
+    COMMAND("s/[abde]//g", "c f");
+    COMMAND("undo | s/[bcef]//g", "a d");
+    COMMAND("undo | s/\\w//g", " ");
+    COMMAND("undo | s/f\\|$/-/g", "abc de-");
 }
 
 void FakeVimPlugin::test_vim_ex_yank()

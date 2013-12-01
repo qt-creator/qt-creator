@@ -623,10 +623,22 @@ static bool substituteText(QString *text, QRegExp &pattern, const QString &repla
 {
     bool substituted = false;
     int pos = 0;
+    int right = -1;
     while (true) {
         pos = pattern.indexIn(*text, pos, QRegExp::CaretAtZero);
         if (pos == -1)
             break;
+
+        // ensure that substitution is advancing towards end of line
+        if (right == text->size() - pos) {
+            ++pos;
+            if (pos == text->size())
+                break;
+            continue;
+        }
+
+        right = text->size() - pos;
+
         substituted = true;
         QString matched = text->mid(pos, pattern.cap(0).size());
         QString repl;
@@ -652,7 +664,7 @@ static bool substituteText(QString *text, QRegExp &pattern, const QString &repla
             }
         }
         text->replace(pos, matched.size(), repl);
-        pos += qMax(1, repl.size());
+        pos += (repl.isEmpty() && matched.isEmpty()) ? 1 : repl.size();
 
         if (pos >= text->size() || !global)
             break;
