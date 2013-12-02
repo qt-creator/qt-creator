@@ -113,7 +113,8 @@ void IosConfigurations::updateAutomaticKitList()
             iter.next();
             const Platform &p = iter.value();
             if (p.compilerPath == toolchain->compilerCommand()
-                    && p.backendFlags == toolchain->platformCodeGenFlags()) {
+                    && p.backendFlags == toolchain->platformCodeGenFlags()
+                    && !platformToolchainMap.contains(p.name)) {
                 platformToolchainMap[p.name] = toolchain;
                 found = true;
             }
@@ -251,7 +252,7 @@ void IosConfigurations::updateAutomaticKitList()
                 qDebug() << "skipping existing kit with deviceKind " << deviceKind.toString();
             continue;
         }
-        if (!k->isAutoDetected()) // use also used set kits?
+        if (!k->isAutoDetected())
             continue;
         existingKits << k;
         kitMatched << false;
@@ -285,15 +286,20 @@ void IosConfigurations::updateAutomaticKitList()
 
             QList<BaseQtVersion *> qtVersions = qtVersionsForArch.value(arch);
             foreach (BaseQtVersion *qt, qtVersions) {
+                Kit *kitAtt = 0;
                 bool kitExists = false;
                 for (int i = 0; i < existingKits.size(); ++i) {
                     Kit *k = existingKits.at(i);
                     if (DeviceTypeKitInformation::deviceTypeId(k) == pDeviceType
                             && ToolChainKitInformation::toolChain(k) == pToolchain
-                            && SysRootKitInformation::sysRoot(k) == p.sdkPath
                             && QtKitInformation::qtVersion(k) == qt)
                     {
+                        QTC_CHECK(!kitMatched.value(i, true));
+                        // as we generate only two kits per qt (one for device and one for simulator)
+                        // we do not compare the sdk (thus automatically upgrading it in place if a
+                        // new Xcode is used). Change?
                         kitExists = true;
+                        kitAtt = k;
                         if (debugProbe)
                             qDebug() << "found existing kit " << k->displayName() << " for " << p.name
                                      << "," << qt->displayName();
@@ -302,73 +308,64 @@ void IosConfigurations::updateAutomaticKitList()
                         break;
                     }
                 }
-                if (kitExists)
-                    continue;
-                if (debugProbe)
-                    qDebug() << "setting up new kit for " << p.name;
-                Kit *newKit = new Kit;
-                newKit->setAutoDetected(true);
-                QString baseDisplayName = tr("%1 %2").arg(p.name, qt->displayName());
-                QString displayName = baseDisplayName;
-                for (int iVers = 1; iVers < 100; ++iVers) {
-                    bool unique = true;
-                    foreach (const Kit *k, existingKits) {
-                        if (k->displayName() == displayName) {
-                            unique = false;
-                            break;
+                if (kitExists) {
+                    kitAtt->blockNotification();
+                } else {
+                    if (debugProbe)
+                        qDebug() << "setting up new kit for " << p.name;
+                    kitAtt = new Kit;
+                    kitAtt->setAutoDetected(true);
+                    QString baseDisplayName = tr("%1 %2").arg(p.name, qt->displayName());
+                    QString displayName = baseDisplayName;
+                    for (int iVers = 1; iVers < 100; ++iVers) {
+                        bool unique = true;
+                        foreach (const Kit *k, existingKits) {
+                            if (k->displayName() == displayName) {
+                                unique = false;
+                                break;
+                            }
                         }
+                        if (unique) break;
+                        displayName = baseDisplayName + QLatin1String("-") + QString::number(iVers);
                     }
-                    if (unique) break;
-                    displayName = baseDisplayName + QLatin1String("-") + QString::number(iVers);
+                    kitAtt->setDisplayName(displayName);
                 }
-                newKit->setDisplayName(displayName);
-                newKit->setIconPath(Utils::FileName::fromString(
+                kitAtt->setIconPath(Utils::FileName::fromString(
                                         QLatin1String(Constants::IOS_SETTINGS_CATEGORY_ICON)));
-                DeviceTypeKitInformation::setDeviceTypeId(newKit, pDeviceType);
-                ToolChainKitInformation::setToolChain(newKit, pToolchain);
-                QtKitInformation::setQtVersion(newKit, qt);
-                //DeviceKitInformation::setDevice(newKit, device);
-                if (!debuggerId.isValid())
-                    Debugger::DebuggerKitInformation::setDebugger(newKit,
+                DeviceTypeKitInformation::setDeviceTypeId(kitAtt, pDeviceType);
+                ToolChainKitInformation::setToolChain(kitAtt, pToolchain);
+                QtKitInformation::setQtVersion(kitAtt, qt);
+                if ((!Debugger::DebuggerKitInformation::debugger(kitAtt)
+                        || !Debugger::DebuggerKitInformation::debugger(kitAtt)->isValid()
+                        || Debugger::DebuggerKitInformation::debugger(kitAtt)->engineType() != Debugger::LldbEngineType)
+                        && debuggerId.isValid())
+                    Debugger::DebuggerKitInformation::setDebugger(kitAtt,
                                                                   debuggerId);
 
-                newKit->setMutable(DeviceKitInformation::id(), true);
-                newKit->setSticky(QtKitInformation::id(), true);
-                newKit->setSticky(ToolChainKitInformation::id(), true);
-                newKit->setSticky(DeviceTypeKitInformation::id(), true);
-                newKit->setSticky(SysRootKitInformation::id(), true);
+                kitAtt->setMutable(DeviceKitInformation::id(), true);
+                kitAtt->setSticky(QtKitInformation::id(), true);
+                kitAtt->setSticky(ToolChainKitInformation::id(), true);
+                kitAtt->setSticky(DeviceTypeKitInformation::id(), true);
+                kitAtt->setSticky(SysRootKitInformation::id(), true);
+                kitAtt->setSticky(Debugger::DebuggerKitInformation::id(), false);
 
-                SysRootKitInformation::setSysRoot(newKit, p.sdkPath);
+                SysRootKitInformation::setSysRoot(kitAtt, p.sdkPath);
                 // QmakeProjectManager::QmakeKitInformation::setMkspec(newKit,
                 //    Utils::FileName::fromString(QLatin1String("macx-ios-clang")));
-                KitManager::registerKit(newKit);
-                existingKits << newKit;
+                if (kitExists) {
+                    kitAtt->unblockNotification();
+                } else {
+                    KitManager::registerKit(kitAtt);
+                    existingKits << kitAtt;
+                }
             }
         }
     }
     for (int i = 0; i < kitMatched.size(); ++i) {
         // deleting extra (old) kits
-        if (!kitMatched.at(i) && !existingKits.at(i)->isValid()) {
+        if (!kitMatched.at(i)) {
             qDebug() << "deleting kit " << existingKits.at(i)->displayName();
             KitManager::deregisterKit(existingKits.at(i));
-        }
-        // fix old kits
-        if (kitMatched.at(i)) {
-            Kit *kit = existingKits.at(i);
-            kit->blockNotification();
-            const Debugger::DebuggerItem *debugger = Debugger::DebuggerKitInformation::debugger(kit);
-            if ((!debugger || !debugger->isValid()) && debuggerId.isValid())
-                Debugger::DebuggerKitInformation::setDebugger(kit, debuggerId);
-            if (!kit->isMutable(DeviceKitInformation::id())) {
-                kit->setMutable(DeviceKitInformation::id(), true);
-                kit->setSticky(QtKitInformation::id(), true);
-                kit->setSticky(ToolChainKitInformation::id(), true);
-                kit->setSticky(DeviceTypeKitInformation::id(), true);
-                kit->setSticky(SysRootKitInformation::id(), true);
-            }
-            if (kit->isSticky(Debugger::DebuggerKitInformation::id()))
-                kit->setSticky(Debugger::DebuggerKitInformation::id(), false);
-            kit->unblockNotification();
         }
     }
 }
