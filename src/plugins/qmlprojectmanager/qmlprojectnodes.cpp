@@ -176,7 +176,11 @@ QList<ProjectExplorer::ProjectNode::ProjectAction> QmlProjectNode::supportedActi
     QList<ProjectAction> actions;
     actions.append(AddNewFile);
     actions.append(EraseFile);
-    actions.append(Rename);
+    if (node->nodeType() == ProjectExplorer::FileNodeType) {
+        ProjectExplorer::FileNode *fileNode = static_cast<ProjectExplorer::FileNode *>(node);
+        if (fileNode->fileType() != ProjectExplorer::ProjectFileType)
+            actions.append(Rename);
+    }
     return actions;
 }
 
