@@ -114,6 +114,8 @@ protected slots:
     void dataChanged();
 
 private:
+    void synthesizeLoadStart(PixmapCacheEvent &newEvent);
+
     class PixmapCacheModelPrivate;
     PixmapCacheModelPrivate *d;
 
