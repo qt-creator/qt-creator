@@ -109,7 +109,10 @@ bool PixmapCacheModel::expanded(int ) const
 void PixmapCacheModel::setExpanded(int category, bool expanded)
 {
     Q_UNUSED(category);
+    bool prev_expanded = d->isExpanded;
     d->isExpanded = expanded;
+    if (prev_expanded != expanded)
+        emit expandedChanged();
 }
 
 int PixmapCacheModel::categoryDepth(int categoryIndex) const
