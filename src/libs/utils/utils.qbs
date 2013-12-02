@@ -64,6 +64,8 @@ QtcLibrary {
         "environment.h",
         "environmentmodel.cpp",
         "environmentmodel.h",
+        "execmenu.cpp",
+        "execmenu.h",
         "faketooltip.cpp",
         "faketooltip.h",
         "fancylineedit.cpp",

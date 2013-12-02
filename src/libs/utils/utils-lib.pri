@@ -86,7 +86,8 @@ SOURCES += $$PWD/environment.cpp \
     $$PWD/tooltip/tipcontents.cpp \
     $$PWD/unixutils.cpp \
     $$PWD/function.cpp \
-    $$PWD/ansiescapecodehandler.cpp
+    $$PWD/ansiescapecodehandler.cpp \
+    $$PWD/execmenu.cpp
 
 win32 {
     SOURCES += \
@@ -180,7 +181,8 @@ HEADERS += \
     $$PWD/unixutils.h \
     $$PWD/qtcoverride.h \
     $$PWD/function.h \
-    $$PWD/ansiescapecodehandler.h
+    $$PWD/ansiescapecodehandler.h \
+    $$PWD/execmenu.h
 
 FORMS += $$PWD/filewizardpage.ui \
     $$PWD/projectintropage.ui \

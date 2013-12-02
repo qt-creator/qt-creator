@@ -27,48 +27,18 @@
 **
 ****************************************************************************/
 
+#include "execmenu.h"
 #include "fancylineedit.h"
 #include "historycompleter.h"
 #include "qtcassert.h"
 
 #include <QAbstractItemView>
-#include <QApplication>
 #include <QDebug>
-#include <QDesktopWidget>
 #include <QKeyEvent>
 #include <QMenu>
 #include <QPainter>
 #include <QPropertyAnimation>
 #include <QStyle>
-
-/*!
- * Opens \a menu at the specified \a widget position.
- * This function computes the position where to show the menu, and opens it with
- * QMenu::exec().
- */
-static void execMenuAtWidget(QMenu *menu, QWidget *widget)
-{
-    QPoint p;
-    QRect screen = qApp->desktop()->availableGeometry(widget);
-    QSize sh = menu->sizeHint();
-    QRect rect = widget->rect();
-    if (widget->isRightToLeft()) {
-        if (widget->mapToGlobal(QPoint(0, rect.bottom())).y() + sh.height() <= screen.height())
-            p = widget->mapToGlobal(rect.bottomRight());
-        else
-            p = widget->mapToGlobal(rect.topRight() - QPoint(0, sh.height()));
-        p.rx() -= sh.width();
-    } else {
-        if (widget->mapToGlobal(QPoint(0, rect.bottom())).y() + sh.height() <= screen.height())
-            p = widget->mapToGlobal(rect.bottomLeft());
-        else
-            p = widget->mapToGlobal(rect.topLeft() - QPoint(0, sh.height()));
-    }
-    p.rx() = qMax(screen.left(), qMin(p.x(), screen.right() - sh.width()));
-    p.ry() += 1;
-
-    menu->exec(p);
-}
 
 /*!
     \class Utils::FancyLineEdit
