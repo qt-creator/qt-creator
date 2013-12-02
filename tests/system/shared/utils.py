@@ -112,19 +112,16 @@ def selectFromLocator(filter, itemName = None):
     doubleClick(wantedItem, 5, 5, 0, Qt.LeftButton)
 
 def wordUnderCursor(window):
-    cursor = window.textCursor()
-    oldposition = cursor.position()
-    cursor.movePosition(QTextCursor.StartOfWord)
-    cursor.movePosition(QTextCursor.EndOfWord, QTextCursor.KeepAnchor)
-    returnValue = cursor.selectedText()
-    cursor.setPosition(oldposition)
-    return returnValue
+    return textUnderCursor(window, QTextCursor.StartOfWord, QTextCursor.EndOfWord)
 
 def lineUnderCursor(window):
+    return textUnderCursor(window, QTextCursor.StartOfLine, QTextCursor.EndOfLine)
+
+def textUnderCursor(window, fromPos, toPos):
     cursor = window.textCursor()
     oldposition = cursor.position()
-    cursor.movePosition(QTextCursor.StartOfLine)
-    cursor.movePosition(QTextCursor.EndOfLine, QTextCursor.KeepAnchor)
+    cursor.movePosition(fromPos)
+    cursor.movePosition(toPos, QTextCursor.KeepAnchor)
     returnValue = cursor.selectedText()
     cursor.setPosition(oldposition)
     return returnValue
