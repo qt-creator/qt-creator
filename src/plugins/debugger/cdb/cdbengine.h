@@ -251,7 +251,6 @@ private:
     unsigned parseStackTrace(const GdbMi &data, bool sourceStepInto);
     void mergeStartParametersSourcePathMap();
 
-    const QByteArray m_creatorExtPrefix;
     const QByteArray m_tokenPrefix;
 
     QProcess m_process;

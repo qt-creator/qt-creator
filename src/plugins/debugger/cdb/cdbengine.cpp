@@ -339,7 +339,6 @@ void addCdbOptionPages(QList<Core::IOptionsPage *> *opts)
 
 CdbEngine::CdbEngine(const DebuggerStartParameters &sp) :
     DebuggerEngine(sp),
-    m_creatorExtPrefix("<qtcreatorcdbext>|"),
     m_tokenPrefix("<token>"),
     m_effectiveStartMode(NoStartMode),
     m_accessible(false),
@@ -2554,11 +2553,12 @@ void CdbEngine::parseOutputLine(QByteArray line)
     while (isCdbPrompt(line))
         line.remove(0, CdbPromptLength);
     // An extension notification (potentially consisting of several chunks)
-    if (line.startsWith(m_creatorExtPrefix)) {
+    static const QByteArray creatorExtPrefix = "<qtcreatorcdbext>|";
+    if (line.startsWith(creatorExtPrefix)) {
         // "<qtcreatorcdbext>|type_char|token|remainingChunks|serviceName|message"
-        const char type = line.at(m_creatorExtPrefix.size());
+        const char type = line.at(creatorExtPrefix.size());
         // integer token
-        const int tokenPos = m_creatorExtPrefix.size() + 2;
+        const int tokenPos = creatorExtPrefix.size() + 2;
         const int tokenEndPos = line.indexOf('|', tokenPos);
         QTC_ASSERT(tokenEndPos != -1, return);
         const int token = line.mid(tokenPos, tokenEndPos - tokenPos).toInt();
