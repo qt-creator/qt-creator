@@ -244,13 +244,15 @@ public:
     QStringList synchronousBranchesForCommit(const QString &workingDirectory,
                                              const QString &revision);
     bool isRemoteCommit(const QString &workingDirectory, const QString &commit);
+    bool isFastForwardMerge(const QString &workingDirectory, const QString &branch);
 
     bool cloneRepository(const QString &directory, const QByteArray &url);
     QString vcsGetRepositoryURL(const QString &directory);
     void fetch(const QString &workingDirectory, const QString &remote);
     bool synchronousPull(const QString &workingDirectory, bool rebase);
     void push(const QString &workingDirectory, const QStringList &pushArgs = QStringList());
-    bool synchronousMerge(const QString &workingDirectory, const QString &branch);
+    bool synchronousMerge(const QString &workingDirectory, const QString &branch,
+                          bool allowFastForward = true);
     bool canRebase(const QString &workingDirectory) const;
     void rebase(const QString &workingDirectory, const QString &baseBranch);
     bool synchronousRevert(const QString &workingDirectory, const QString &commit);

@@ -2106,6 +2106,17 @@ bool GitClient::isRemoteCommit(const QString &workingDirectory, const QString &c
     return !outputText.isEmpty();
 }
 
+bool GitClient::isFastForwardMerge(const QString &workingDirectory, const QString &branch)
+{
+    QStringList arguments;
+    QByteArray outputText;
+    arguments << QLatin1String("merge-base") << QLatin1String(HEAD) << branch;
+    fullySynchronousGit(workingDirectory, arguments, &outputText, 0,
+                        VcsBasePlugin::SuppressCommandLogging);
+    return commandOutputFromLocal8Bit(outputText).trimmed()
+            == synchronousTopRevision(workingDirectory);
+}
+
 // Format an entry in a one-liner for selection list using git log.
 QString GitClient::synchronousShortDescription(const QString &workingDirectory, const QString &revision,
                                             const QString &format)
@@ -3485,12 +3496,15 @@ void GitClient::push(const QString &workingDirectory, const QStringList &pushArg
     executeGit(workingDirectory, arguments, 0, true);
 }
 
-bool GitClient::synchronousMerge(const QString &workingDirectory, const QString &branch)
+bool GitClient::synchronousMerge(const QString &workingDirectory, const QString &branch,
+                                 bool allowFastForward)
 {
     QString command = QLatin1String("merge");
-    QStringList arguments;
+    QStringList arguments(command);
 
-    arguments << command << branch;
+    if (!allowFastForward)
+        arguments << QLatin1String("--no-ff");
+    arguments << branch;
     return executeAndHandleConflicts(workingDirectory, arguments, command);
 }
 

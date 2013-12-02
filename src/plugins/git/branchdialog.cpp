@@ -38,11 +38,14 @@
 #include "stashdialog.h" // Label helpers
 
 #include <utils/qtcassert.h>
+#include <utils/execmenu.h>
 #include <vcsbase/vcsbaseoutputwindow.h>
 
+#include <QAction>
 #include <QItemSelectionModel>
 #include <QMessageBox>
 #include <QList>
+#include <QMenu>
 
 #include <QDebug>
 
@@ -321,8 +324,18 @@ void BranchDialog::merge()
 
     const QString branch = m_model->fullName(idx, true);
     GitClient *client = GitPlugin::instance()->gitClient();
+    bool allowFastForward = true;
+    if (client->isFastForwardMerge(m_repository, branch)) {
+        QMenu popup;
+        QAction *fastForward = popup.addAction(tr("Fast-Forward"));
+        popup.addAction(tr("No Fast-Forward"));
+        QAction *chosen = Utils::execMenuAtWidget(&popup, m_ui->mergeButton);
+        if (!chosen)
+            return;
+        allowFastForward = (chosen == fastForward);
+    }
     if (client->beginStashScope(m_repository, QLatin1String("merge"), AllowUnstashed))
-        client->synchronousMerge(m_repository, branch);
+        client->synchronousMerge(m_repository, branch, allowFastForward);
 }
 
 void BranchDialog::rebase()
