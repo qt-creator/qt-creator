@@ -2880,12 +2880,31 @@ void GitClient::launchGitK(const QString &workingDirectory, const QString &fileN
     QDir foundBinDir(binaryInfo.dir());
     const bool foundBinDirIsCmdDir = foundBinDir.dirName() == QLatin1String("cmd");
     QProcessEnvironment env = processEnvironment();
-    if (tryLauchingGitK(env, workingDirectory, fileName, foundBinDir.path(), foundBinDirIsCmdDir))
+    if (tryLauchingGitK(env, workingDirectory, fileName, foundBinDir.path()))
         return;
-    if (!foundBinDirIsCmdDir)
+
+    QString gitkPath = foundBinDir.path() + QLatin1String("/gitk");
+    VcsBase::VcsBaseOutputWindow::instance()->appendSilently(msgCannotLaunch(gitkPath));
+
+    if (foundBinDirIsCmdDir) {
+        foundBinDir.cdUp();
+        if (tryLauchingGitK(env, workingDirectory, fileName,
+                            foundBinDir.path() + QLatin1String("/bin"))) {
+            return;
+        }
+        gitkPath = foundBinDir.path() + QLatin1String("/gitk");
+        VcsBase::VcsBaseOutputWindow::instance()->appendSilently(msgCannotLaunch(gitkPath));
+    }
+
+    Utils::Environment sysEnv = Utils::Environment::systemEnvironment();
+    const QString exec = sysEnv.searchInPath(QLatin1String("gitk"));
+
+    if (!exec.isEmpty() && tryLauchingGitK(env, workingDirectory, fileName,
+                                           QFileInfo(exec).absolutePath())) {
         return;
-    foundBinDir.cdUp();
-    tryLauchingGitK(env, workingDirectory, fileName, foundBinDir.path() + QLatin1String("/bin"), false);
+    }
+
+    VcsBase::VcsBaseOutputWindow::instance()->appendError(msgCannotLaunch(QLatin1String("gitk")));
 }
 
 void GitClient::launchRepositoryBrowser(const QString &workingDirectory)
@@ -2898,8 +2917,7 @@ void GitClient::launchRepositoryBrowser(const QString &workingDirectory)
 bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
                                 const QString &workingDirectory,
                                 const QString &fileName,
-                                const QString &gitBinDirectory,
-                                bool silent)
+                                const QString &gitBinDirectory)
 {
     QString binary = gitBinDirectory + QLatin1String("/gitk");
     QStringList arguments;
@@ -2934,12 +2952,7 @@ bool GitClient::tryLauchingGitK(const QProcessEnvironment &env,
     } else {
         success = QProcess::startDetached(binary, arguments, workingDirectory);
     }
-    if (!success) {
-        if (silent)
-            outwin->appendSilently(msgCannotLaunch(binary));
-        else
-            outwin->appendError(msgCannotLaunch(binary));
-    }
+
     return success;
 }
 

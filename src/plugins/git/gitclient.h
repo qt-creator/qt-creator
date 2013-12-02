@@ -410,8 +410,7 @@ private:
     bool tryLauchingGitK(const QProcessEnvironment &env,
                          const QString &workingDirectory,
                          const QString &fileName,
-                         const QString &gitBinDirectory,
-                         bool silent);
+                         const QString &gitBinDirectory);
     bool cleanList(const QString &workingDirectory, const QString &flag, QStringList *files, QString *errorMessage);
 
     mutable QString m_gitVersionForBinary;
