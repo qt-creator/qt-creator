@@ -551,15 +551,16 @@ void Target::updateDefaultDeployConfigurations()
         dcIds.append(dcFactory->availableCreationIds(this));
 
     QList<DeployConfiguration *> dcList = deployConfigurations();
+    QList<Core::Id> toCreate = dcIds;
 
     foreach (DeployConfiguration *dc, dcList) {
         if (dcIds.contains(dc->id()))
-            dcIds.removeOne(dc->id());
+            toCreate.removeOne(dc->id());
         else
             removeDeployConfiguration(dc);
     }
 
-    foreach (Core::Id id, dcIds) {
+    foreach (Core::Id id, toCreate) {
         foreach (DeployConfigurationFactory *dcFactory, dcFactories) {
             if (dcFactory->canCreate(this, id)) {
                 DeployConfiguration *dc = dcFactory->create(this, id);
