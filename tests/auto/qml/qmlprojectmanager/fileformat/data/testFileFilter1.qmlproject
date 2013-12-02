@@ -1,0 +1,6 @@
+import QmlProject 1.0
+
+Project {
+  QmlFiles {
+  }
+}

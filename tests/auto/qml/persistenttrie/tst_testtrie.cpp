@@ -45,7 +45,7 @@ void tst_TestTrie::initTestCase() {
 
 const bool VERBOSE=false;
 
-tst_TestTrie::tst_TestTrie() { QObject::QObject(); }
+tst_TestTrie::tst_TestTrie() { }
 
 void tst_TestTrie::testListAll_data()
 {

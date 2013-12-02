@@ -1,0 +1,5 @@
+import QmlProject 1.1
+
+Project {
+  mainFile: "file1.qml"
+}

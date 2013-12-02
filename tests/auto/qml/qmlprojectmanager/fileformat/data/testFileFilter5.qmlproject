@@ -1,0 +1,8 @@
+import QmlProject 1.0
+
+Project {
+  QmlFiles {
+    paths: [ "file1.qml",
+             "file2.qml" ]
+  }
+}

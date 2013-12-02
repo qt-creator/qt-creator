@@ -54,33 +54,25 @@ private slots:
 
 tst_FileFormat::tst_FileFormat()
 {
-    QmlProjectFileFormat::registerDeclarativeTypes();
 }
 
 QString testDataDir = QLatin1String(SRCDIR "/data");
 
+static QmlProjectItem *loadQmlProject(QString name, QString *error)
+{
+    return QmlProjectFileFormat::parseProjectFile(testDataDir + "/" + name + ".qmlproject", error);
+}
+
 void tst_FileFormat::testFileFilter()
 {
+    QString error;
     //
     // Search for qml files in directory + subdirectories
     //
-    QString projectFile = QLatin1String(
-            "import QmlProject 1.0\n"
-            "Project {\n"
-            "  QmlFiles {"
-            "  }"
-            "}\n");
-
     {
-        QDeclarativeEngine engine;
-        QDeclarativeComponent component(&engine);
-        component.setData(projectFile.toUtf8(), QUrl());
-        if (!component.isReady())
-            qDebug() << component.errorString();
-        QVERIFY(component.isReady());
-
-        QmlProjectItem *project = qobject_cast<QmlProjectItem*>(component.create());
+        QmlProjectItem *project = loadQmlProject(QLatin1String("testFileFilter1"), &error);
         QVERIFY(project);
+        QVERIFY(error.isEmpty());
 
         project->setSourceDirectory(testDataDir);
 
@@ -88,88 +80,47 @@ void tst_FileFormat::testFileFilter()
                                                 << testDataDir + "/file2.qml"
                                                 << testDataDir + "/subdir/file3.qml");
         QCOMPARE(project->files().toSet(), expectedFiles.toSet());
+        delete project;
     }
 
     //
     // search for all qml files in directory
     //
-    projectFile = QLatin1String(
-            "import QmlProject 1.0\n"
-            "Project {\n"
-            "  QmlFiles {\n"
-            "    recursive: false\n"
-            "  }\n"
-            "}\n");
-
     {
-        QDeclarativeEngine engine;
-        QDeclarativeComponent component(&engine);
-        component.setData(projectFile.toUtf8(), QUrl());
-        if (!component.isReady())
-            qDebug() << component.errorString();
-        QVERIFY(component.isReady());
-
-        QmlProjectItem *project = qobject_cast<QmlProjectItem*>(component.create());
+        QmlProjectItem *project = loadQmlProject(QLatin1String("testFileFilter2"), &error);
         QVERIFY(project);
+        QVERIFY(error.isEmpty());
 
         project->setSourceDirectory(testDataDir);
 
         QStringList expectedFiles(QStringList() << testDataDir + "/file1.qml"
                                                 << testDataDir + "/file2.qml");
         QCOMPARE(project->files().toSet(), expectedFiles.toSet());
+        delete project;
     }
 
     //
     // search for all qml files in subdirectory
     //
-    projectFile = QLatin1String(
-            "import QmlProject 1.0\n"
-            "Project {\n"
-            "  QmlFiles {\n"
-            "    directory: \"subdir\"\n"
-            "  }\n"
-            "}\n");
-
     {
-        QDeclarativeEngine engine;
-        QDeclarativeComponent component(&engine);
-        component.setData(projectFile.toUtf8(), QUrl());
-        QVERIFY(component.isReady());
-
-        QmlProjectItem *project = qobject_cast<QmlProjectItem*>(component.create());
+        QmlProjectItem *project = loadQmlProject(QLatin1String("testFileFilter3"), &error);
         QVERIFY(project);
+        QVERIFY(error.isEmpty());
 
         project->setSourceDirectory(testDataDir);
 
         QStringList expectedFiles(QStringList() <<  testDataDir + "/subdir/file3.qml");
         QCOMPARE(project->files().toSet(), expectedFiles.toSet());
+        delete project;
     }
 
     //
     // multiple entries
     //
-    projectFile = QLatin1String(
-            "import QmlProject 1.0\n"
-            "Project {\n"
-            "  QmlFiles {\n"
-            "    directory: \".\"\n"
-            "    recursive: false\n"
-            "  }"
-            "  QmlFiles {\n"
-            "    directory: \"subdir\"\n"
-            "  }\n"
-            "}\n");
-
     {
-        QDeclarativeEngine engine;
-        QDeclarativeComponent component(&engine);
-        component.setData(projectFile.toUtf8(), QUrl());
-        if (!component.isReady())
-            qDebug() << component.errorString();
-        QVERIFY(component.isReady());
-
-        QmlProjectItem *project = qobject_cast<QmlProjectItem*>(component.create());
+        QmlProjectItem *project = loadQmlProject(QLatin1String("testFileFilter4"), &error);
         QVERIFY(project);
+        QVERIFY(error.isEmpty());
 
         project->setSourceDirectory(testDataDir);
 
@@ -178,151 +129,83 @@ void tst_FileFormat::testFileFilter()
                                                 << testDataDir + "/subdir/file3.qml");
         QCOMPARE(project->files().size(), 3);
         QCOMPARE(project->files().toSet(), expectedFiles.toSet());
+        delete project;
     }
 
     //
     // include specific list
     //
-    projectFile = QLatin1String(
-            "import QmlProject 1.0\n"
-            "Project {\n"
-            "  QmlFiles {\n"
-            "    paths: [ \"file1.qml\",\n"
-            "\"file2.qml\" ]\n"
-            "  }\n"
-            "}\n");
-
     {
-        QDeclarativeEngine engine;
-        QDeclarativeComponent component(&engine);
-        component.setData(projectFile.toUtf8(), QUrl());
-        if (!component.isReady())
-            qDebug() << component.errorString();
-        QVERIFY(component.isReady());
-
-        QmlProjectItem *project = qobject_cast<QmlProjectItem*>(component.create());
+        QmlProjectItem *project = loadQmlProject(QLatin1String("testFileFilter5"), &error);
         QVERIFY(project);
+        QVERIFY(error.isEmpty());
 
         project->setSourceDirectory(testDataDir);
 
         QStringList expectedFiles(QStringList() << testDataDir + "/file1.qml"
                                                 << testDataDir + "/file2.qml");
         QCOMPARE(project->files().toSet(), expectedFiles.toSet());
+        delete project;
     }
 
     //
     // include specific list
     //
-    projectFile = QLatin1String(
-            "import QmlProject 1.0\n"
-            "Project {\n"
-            "  ImageFiles {\n"
-            "    directory: \".\"\n"
-            "  }\n"
-            "}\n");
-
     {
-        QDeclarativeEngine engine;
-        QDeclarativeComponent component(&engine);
-        component.setData(projectFile.toUtf8(), QUrl());
-        if (!component.isReady())
-            qDebug() << component.errorString();
-        QVERIFY(component.isReady());
-
-        QmlProjectItem *project = qobject_cast<QmlProjectItem*>(component.create());
+        QmlProjectItem *project = loadQmlProject(QLatin1String("testFileFilter6"), &error);
         QVERIFY(project);
+        QVERIFY(error.isEmpty());
 
         project->setSourceDirectory(testDataDir);
 
         QStringList expectedFiles(QStringList() << testDataDir + "/image.gif");
         qDebug() << project->files().toSet() << expectedFiles.toSet();
         QCOMPARE(project->files().toSet(), expectedFiles.toSet());
+        delete project;
     }
 
     //
     // use wildcards
     //
-    projectFile = QLatin1String(
-            "import QmlProject 1.0\n"
-            "Project {\n"
-            "  ImageFiles {\n"
-            "    filter: \"?mage.[gf]if\"\n"
-            "  }\n"
-            "}\n");
-
     {
-        QDeclarativeEngine engine;
-        QDeclarativeComponent component(&engine);
-        component.setData(projectFile.toUtf8(), QUrl());
-        if (!component.isReady())
-            qDebug() << component.errorString();
-        QVERIFY(component.isReady());
-
-        QmlProjectItem *project = qobject_cast<QmlProjectItem*>(component.create());
+        QmlProjectItem *project = loadQmlProject(QLatin1String("testFileFilter7"), &error);
         QVERIFY(project);
+        QVERIFY(error.isEmpty());
 
         project->setSourceDirectory(testDataDir);
 
         QStringList expectedFiles(QStringList() << testDataDir + "/image.gif");
         qDebug() << project->files().toSet() << expectedFiles.toSet();
         QCOMPARE(project->files().toSet(), expectedFiles.toSet());
+        delete project;
     }
 
     //
     // use Files element (1.1)
     //
-    projectFile = QLatin1String(
-            "import QmlProject 1.1\n"
-            "Project {\n"
-            "  Files {\n"
-            "    filter: \"image.gif\"\n"
-            "  }\n"
-            "}\n");
-
     {
-        QDeclarativeEngine engine;
-        QDeclarativeComponent component(&engine);
-        component.setData(projectFile.toUtf8(), QUrl());
-        if (!component.isReady())
-            qDebug() << component.errorString();
-        QVERIFY(component.isReady());
-
-        QmlProjectItem *project = qobject_cast<QmlProjectItem*>(component.create());
+        QmlProjectItem *project = loadQmlProject(QLatin1String("testFileFilter8"), &error);
         QVERIFY(project);
+        QVERIFY(error.isEmpty());
 
         project->setSourceDirectory(testDataDir);
 
         QStringList expectedFiles(QStringList() << testDataDir + "/image.gif");
         qDebug() << project->files().toSet() << expectedFiles.toSet();
         QCOMPARE(project->files().toSet(), expectedFiles.toSet());
+        delete project;
     }
 }
 
 void tst_FileFormat::testMatchesFile()
 {
+    QString error;
     //
     // search for qml files in local directory
     //
-    QString projectFile = QLatin1String(
-            "import QmlProject 1.0\n"
-            "Project {\n"
-            "  QmlFiles {"
-            "    recursive: true"
-            "  }"
-            "  JavaScriptFiles {"
-            "    paths: [\"script.js\"]"
-            "  }"
-            "}\n");
-
-    QDeclarativeEngine engine;
-    QDeclarativeComponent component(&engine);
-    component.setData(projectFile.toUtf8(), QUrl());
-    if (!component.isReady())
-        qDebug() << component.errorString();
-    QVERIFY(component.isReady());
-
-    QmlProjectItem *project = qobject_cast<QmlProjectItem*>(component.create());
+    QmlProjectItem *project = loadQmlProject(QLatin1String("testMatchesFile"), &error);
     QVERIFY(project);
+    QVERIFY(error.isEmpty());
 
     project->setSourceDirectory(testDataDir);
 
@@ -331,63 +214,40 @@ void tst_FileFormat::testMatchesFile()
     QVERIFY(project->matchesFile(testDataDir + "/subdir/notyetexistingfile.qml"));
     QVERIFY(project->matchesFile(testDataDir + "/script.js"));
     QVERIFY(!project->matchesFile(testDataDir + "/script.css"));
+    delete project;
 }
 
 void tst_FileFormat::testLibraryPaths()
 {
+    QString error;
     //
     // search for qml files in local directory
     //
-    QString projectFile = QLatin1String(
-            "import QmlProject 1.0\n"
-            "Project {\n"
-            "  importPaths: [ \"../otherLibrary\", \"library\" ]\n"
-            "}\n");
+    QmlProjectItem *project = loadQmlProject(QLatin1String("testLibraryPaths"), &error);
+    QVERIFY(project);
+    QVERIFY(error.isEmpty());
 
-    {
-        QDeclarativeEngine engine;
-        QDeclarativeComponent component(&engine);
-        component.setData(projectFile.toUtf8(), QUrl());
-        if (!component.isReady())
-            qDebug() << component.errorString();
-        QVERIFY(component.isReady());
+    project->setSourceDirectory(testDataDir);
 
-        QmlProjectItem *project = qobject_cast<QmlProjectItem*>(component.create());
-        QVERIFY(project);
-
-        project->setSourceDirectory(testDataDir);
-
-        QStringList expectedPaths(QStringList() << SRCDIR "/otherLibrary"
-                                                << SRCDIR "/data/library");
-        qDebug() << expectedPaths << project->importPaths();
-        QCOMPARE(project->importPaths().toSet(), expectedPaths.toSet());
-    }
+    QStringList expectedPaths(QStringList() << SRCDIR "/otherLibrary"
+                                            << SRCDIR "/data/library");
+    qDebug() << expectedPaths << project->importPaths();
+    QCOMPARE(project->importPaths().toSet(), expectedPaths.toSet());
+    delete project;
 }
 
 void tst_FileFormat::testMainFile()
 {
+    QString error;
     //
     // search for qml files in local directory
     //
-    QString projectFile = QLatin1String(
-            "import QmlProject 1.1\n"
-            "Project {\n"
-            "  mainFile: \"file1.qml\"\n"
-            "}\n");
+    QmlProjectItem *project = loadQmlProject(QLatin1String("testMainFile"), &error);
+    QVERIFY(project);
+    QVERIFY(error.isEmpty());
 
-    {
-        QDeclarativeEngine engine;
-        QDeclarativeComponent component(&engine);
-        component.setData(projectFile.toUtf8(), QUrl());
-        if (!component.isReady())
-            qDebug() << component.errorString();
-        QVERIFY(component.isReady());
-
-        QmlProjectItem *project = qobject_cast<QmlProjectItem*>(component.create());
-        QVERIFY(project);
-
-        QCOMPARE(project->mainFile(), QString("file1.qml"));
-    }
+    QCOMPARE(project->mainFile(), QString("file1.qml"));
+    delete project;
 }
 
 QTEST_MAIN(tst_FileFormat);

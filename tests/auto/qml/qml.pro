@@ -1,8 +1,11 @@
 TEMPLATE = subdirs
 
-SUBDIRS +=  qmldesigner \
+SUBDIRS +=  \
+            #qmldesigner \
             qmleditor \
+            qmljssimplereader \
             qmlprojectmanager \
             codemodel \
             reformatter \
-            qrcparser
+            qrcparser \
+            persistenttrie

@@ -2,7 +2,6 @@ import qbs
 import "../../../autotest.qbs" as Autotest
 
 Autotest {
-    condition: false
     name: "QmlProjectManager file format autotest"
     Depends { name: "QmlProjectManager" }
     Depends { name: "Utils" }

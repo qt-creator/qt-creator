@@ -1,0 +1,7 @@
+import QmlProject 1.0
+
+Project {
+  ImageFiles {
+    directory: "."
+  }
+}

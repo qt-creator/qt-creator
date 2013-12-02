@@ -9,6 +9,7 @@ Project {
         "qmljssimplereader/qmljssimplereader.qbs",
         "qmlprojectmanager/qmlprojectmanager.qbs",
         "qrcparser/qrcparser.qbs",
-        "reformatter/reformatter.qbs"
+        "reformatter/reformatter.qbs",
+        "persistenttrie/persistenttrie.qbs"
     ]
 }

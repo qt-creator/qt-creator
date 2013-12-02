@@ -1,11 +1,8 @@
+QTC_LIB_DEPENDS += qmljs
 include(../../qttest.pri)
 
 DEFINES+=QTCREATORDIR=\\\"$$IDE_SOURCE_TREE\\\"
-DEFINES+=TESTSRCDIR=\\\"$$PWD\\\"
-
-include($$IDE_SOURCE_TREE/src/libs/utils/utils-lib.pri)
-include($$IDE_SOURCE_TREE/src/libs/languageutils/languageutils-lib.pri)
-include($$IDE_SOURCE_TREE/src/libs/qmljs/qmljs-lib.pri)
+DEFINES+=TESTSRCDIR=\\\"$$_PRO_FILE_PWD_\\\"
 
 TARGET = tst_trie_check
 
@@ -15,7 +12,6 @@ SOURCES += \
     tst_testtrie.cpp
 
 TEMPLATE = app
-TARGET = tester
 DEFINES += QMLJS_BUILD_DIR
 
 OTHER_FILES += \

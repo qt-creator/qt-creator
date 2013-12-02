@@ -5,7 +5,6 @@ Autotest {
     name: "QML code model check autotest"
     Depends { name: "LanguageUtils" }
     Depends { name: "QmlJS" }
-    Depends { name: "Utils" }
     Depends { name: "Qt.widgets" }
     files: "tst_check.cpp"
     cpp.defines: base.concat([

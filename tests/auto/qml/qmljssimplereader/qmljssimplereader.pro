@@ -1,10 +1,8 @@
+QTC_LIB_DEPENDS += qmljs
 include(../../qttest.pri)
 
 DEFINES+=QTCREATORDIR=\\\"$$IDE_SOURCE_TREE\\\"
-DEFINES+=TESTSRCDIR=\\\"$$PWD\\\"
-
-include($$IDE_SOURCE_TREE/src/libs/utils/utils.pri)
-include($$IDE_SOURCE_TREE/src/libs/qmljs/qmljs.pri)
+DEFINES+=TESTSRCDIR=\\\"$$_PRO_FILE_PWD_\\\"
 
 TARGET = tst_qmljssimplereader
 
