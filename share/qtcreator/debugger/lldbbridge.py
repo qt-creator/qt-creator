@@ -681,7 +681,12 @@ class Dumper(DumperBase):
     def firstStoppedThread(self):
         for i in xrange(0, self.process.GetNumThreads()):
             thread = self.process.GetThreadAtIndex(i)
-            if thread.GetStopReason() == lldb.eStopReasonBreakpoint:
+            reason = thread.GetStopReason()
+            if (reason == lldb.eStopReasonBreakpoint or
+                    reason == lldb.eStopReasonException or
+                    reason == lldb.eStopReasonPlanComplete or
+                    reason == lldb.eStopReasonSignal or
+                    reason == lldb.eStopReasonWatchpoint):
                 return thread
         return None
 
