@@ -1659,14 +1659,6 @@ SymbolGroupNodeVisitor::VisitResult
         return VisitSkipChildren;
     if (node->testFlags(SymbolGroupNode::AdditionalSymbol) && !node->testFlags(SymbolGroupNode::WatchNode))
         return VisitSkipChildren;
-    // Recurse to children only if expanded by explicit watchmodel request
-    // and initialized.
-    bool visitChildren = depth < 1; // Report only one level for Qt Creator.
-    // Visit children of a SymbolGroupNode only if not expanded by its dumpers.
-    if (visitChildren)
-        if (const SymbolGroupNode *realNode = node->resolveReference()->asSymbolGroupNode())
-            if (!realNode->isExpanded() || realNode->testFlags(SymbolGroupNode::Uninitialized|SymbolGroupNode::ExpandedByDumper))
-                    visitChildren = false;
     // Comma between same level children given obscured children
     if (depth == m_lastDepth)
         m_os << ',';
@@ -1679,16 +1671,28 @@ SymbolGroupNodeVisitor::VisitResult
     m_os << '{';
     const int childCount = node->dump(m_os, fullIname, m_parameters, m_context);
     m_os << ",numchild=\"" << childCount << '"';
-    if (!childCount)
-        visitChildren = false;
-    if (visitChildren) { // open children array
-        m_os << ",children=[";
-    } else {               // No children, close array.
-        m_os << '}';
+
+    if (childCount) {
+        // Recurse to children only if expanded by explicit watchmodel request
+        // and initialized.
+        // Visit children of a SymbolGroupNode only if not expanded by its dumpers.
+        bool skipit = false;
+        if (const SymbolGroupNode *realNode = node->resolveReference()->asSymbolGroupNode()) {
+            if (!realNode->isExpanded() || realNode->testFlags(SymbolGroupNode::Uninitialized | SymbolGroupNode::ExpandedByDumper))
+                skipit = true;
+        }
+        if (!skipit) {
+            m_os << ",children=[";
+            if (m_parameters.humanReadable())
+                m_os << '\n';
+            return VisitContinue;
+        }
     }
+    // No children, close array.
+    m_os << '}';
     if (m_parameters.humanReadable())
         m_os << '\n';
-    return visitChildren ? VisitContinue : VisitSkipChildren;
+    return VisitSkipChildren;
 }
 
 void DumpSymbolGroupNodeVisitor::childrenVisited(const AbstractSymbolGroupNode *n, unsigned)
