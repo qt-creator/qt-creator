@@ -112,6 +112,11 @@ int CppPreProcessorDialog::exec()
     return Accepted;
 }
 
+CppTools::ProjectPart::Ptr CppPreProcessorDialog::projectPart() const
+{
+    return m_partAdditions[m_ui->projectComboBox->currentIndex()].projectPart;
+}
+
 QString CppPreProcessorDialog::additionalPreProcessorDirectives() const
 {
     return m_ui->editWidget->toPlainText();
