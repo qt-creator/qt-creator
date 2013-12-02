@@ -218,7 +218,7 @@
     \gui Add. If you run an application without a device connected to the
     development PC and without an AVD specified, \QC asks you to add an AVD.
 
-    To manage AVDs, select \gui {Start Android AVD Manager}.
+    To manage AVDs, select \gui {Start AVD Manager}.
 
     \note The Android Emulator has a bug that prevents it from starting on some
     systems. If the Android Emulator does not start, you can try starting it
