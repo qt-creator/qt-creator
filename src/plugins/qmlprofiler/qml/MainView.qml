@@ -76,19 +76,12 @@ Rectangle {
         onRangeChanged: {
             var startTime = zoomControl.startTime();
             var endTime = zoomControl.endTime();
-            var duration = Math.abs(endTime - startTime);
 
-            mainviewTimePerPixel = duration / root.width;
+            mainviewTimePerPixel = Math.abs(endTime - startTime) / root.width;
 
             backgroundMarks.updateMarks(startTime, endTime);
             view.updateFlickRange(startTime, endTime);
-            if (duration > 0) {
-                var candidateWidth = qmlProfilerModelProxy.traceDuration() *
-                        flick.width / duration;
-                if (flick.contentWidth !== candidateWidth)
-                    flick.contentWidth = candidateWidth;
-            }
-
+            flick.setContentWidth();
         }
     }
 
@@ -325,6 +318,12 @@ Rectangle {
         }
 
         Flickable {
+            function setContentWidth() {
+                var duration = Math.abs(zoomControl.endTime() - zoomControl.startTime());
+                if (duration > 0)
+                    contentWidth = qmlProfilerModelProxy.traceDuration() * width / duration;
+            }
+
             id: flick
             anchors.top: parent.top
             anchors.topMargin: labels.y
@@ -336,6 +335,8 @@ Rectangle {
             boundsBehavior: Flickable.StopAtBounds
 
             onContentXChanged: view.updateZoomControl()
+            onWidthChanged: setContentWidth()
+
             clip:true
 
             SelectionRange {
