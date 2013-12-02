@@ -807,12 +807,11 @@ class ResetItemDelegate : public LogItemDelegate
 {
 public:
     ResetItemDelegate(LogChangeWidget *widget) : LogItemDelegate(widget) {}
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+    void initStyleOption(QStyleOptionViewItem *option, const QModelIndex &index) const
     {
-        QStyleOptionViewItem o = option;
         if (index.row() < currentRow())
-            o.font.setStrikeOut(true);
-        QStyledItemDelegate::paint(painter, o, index);
+            option->font.setStrikeOut(true);
+        LogItemDelegate::initStyleOption(option, index);
     }
 };
 

@@ -102,8 +102,6 @@ protected:
     LogItemDelegate(LogChangeWidget *widget);
 
     int currentRow() const;
-    virtual void paint(QPainter *painter, const QStyleOptionViewItem &option,
-                       const QModelIndex &index) const = 0;
 
 private:
     LogChangeWidget *m_widget;
