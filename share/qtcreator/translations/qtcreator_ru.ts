@@ -17799,8 +17799,8 @@ Ids must begin with a lowercase letter.</source>
 <context>
     <name>Ios::IosToolHandler</name>
     <message>
-        <source>Subprocess Error %1</source>
-        <translation>Ошибка %1 дочернего процесса</translation>
+        <source>iOS tool Error %1</source>
+        <translation>Ошибка %1 утилиты iOS</translation>
     </message>
 </context>
 <context>
