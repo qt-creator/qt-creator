@@ -1281,6 +1281,8 @@ static KnownType knownClassTypeHelper(const std::string &type,
             return KT_QFixedPoint;
         if (!type.compare(qPos, 11, "QScriptLine"))
             return KT_QScriptLine;
+        if (!type.compare(qPos, 11, "QTextCursor"))
+            return KT_QTextCursor;
         break;
     case 12:
         if (!type.compare(qPos, 12, "QKeySequence"))
@@ -2383,6 +2385,18 @@ static inline bool dumpQWindow(const SymbolGroupValue &v, std::wostream &str, vo
     return true;
 }
 
+//Dump a QTextCursor
+static inline bool dumpQTextCursor(const SymbolGroupValue &v, std::wostream &str)
+{
+    const unsigned offset = SymbolGroupValue::pointerSize() + SymbolGroupValue::sizeOf("double");
+    const ULONG64 posAddr = addressOfQPrivateMember(v, QPDM_qSharedDataPadded, offset);
+    if (!posAddr)
+        return false;
+    const int position = SymbolGroupValue::readIntValue(v.context().dataspaces, posAddr);
+    str << position;
+    return true;
+}
+
 // Dump a std::string.
 static bool dumpStd_W_String(const SymbolGroupValue &v, int type, std::wostream &str,
                              MemoryHandle **memoryHandle = 0)
@@ -2795,6 +2809,10 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
     case KT_StdString:
     case KT_StdWString:
         rc = dumpStd_W_String(v, kt, str, memoryHandleIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+        break;
+    case KT_QTextCursor:
+        rc = dumpQTextCursor(v, str) ? SymbolGroupNode::SimpleDumperOk
+                                     : SymbolGroupNode::SimpleDumperFailed;
         break;
     default:
         break;

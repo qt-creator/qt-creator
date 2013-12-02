@@ -5475,8 +5475,11 @@ namespace basic {
 
     void testLongEvaluation1()
     {
+        QTimeZone tz("UTC+05:00");
         QDateTime time = QDateTime::currentDateTime();
         const int N = 10000;
+        QDateTime x = time;
+        x.setTimeZone(tz);
         QDateTime bigv[N];
         for (int i = 0; i < 10000; ++i) {
             bigv[i] = time;

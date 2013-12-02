@@ -6,7 +6,7 @@
     <Publisher>Qt Project</Publisher>
     <ProductUrl>http://qt-project.org</ProductUrl>
 
-    <Icon>logo.png</Icon>
+    <InstallerWindowIcon>logo.png</InstallerWindowIcon>
     <Watermark>watermark.png</Watermark>
     <UninstallerName>QtCreatorUninst</UninstallerName>
     <!-- @homeDir@ and @rootDir@ are some of the supported vars -->

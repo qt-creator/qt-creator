@@ -1243,7 +1243,9 @@ void tst_Dumpers::dumper_data()
                     "ba += 2;\n")
                % CoreProfile()
                % Check("ba", QByteArray("\"Hello\"World")
-                       + char(0) + char(1) + char(2) + '"', "@QByteArray")
+                       + char(0) + char(1) + char(2) + '"', "@QByteArray").setEngines(
+                   DumpTestGdbEngine | DumpTestLldbEngine)
+               % Check("ba", QByteArray("\"Hello\"World...\""), "@QByteArray").setForCdbOnly()
                % Check("ba.0", "[0]", "72", "char")
                % Check("ba.11", "[11]", "0", "char")
                % Check("ba.12", "[12]", "1", "char")
@@ -1382,7 +1384,8 @@ void tst_Dumpers::dumper_data()
                     "unused(&dir, &s, &fi);\n")
                % CoreProfile()
                % Check("dir", tempDir, "@QDir")
-               % Check("dir.absolutePath", tempDir, "@QString");
+               % Check("dir.absolutePath", tempDir, "@QString").setEngines(
+                   DumpTestGdbEngine | DumpTestLldbEngine);
             // % Check("dir.canonicalPath", tempDir, "@QString");
 
     QTest::newRow("QFileInfo")
@@ -1880,8 +1883,14 @@ void tst_Dumpers::dumper_data()
               % CheckType("loc", "@QLocale")
               % CheckType("m", "@QLocale::MeasurementSystem")
               % Check("loc1", "\"en_US\"", "@QLocale")
-              % Check("m1", Value5("@QLocale::ImperialUSSystem (1)"), "@QLocale::MeasurementSystem")
-              % Check("m1", Value4("@QLocale::ImperialSystem (1)"), "@QLocale::MeasurementSystem");
+              % Check("m1", Value5("@QLocale::ImperialUSSystem (1)"),
+                    "@QLocale::MeasurementSystem").setForGdbOnly()
+              % Check("m1", Value4("@QLocale::ImperialSystem (1)"),
+                    "@QLocale::MeasurementSystem").setForGdbOnly()
+              % Check("m1", Value5("ImperialUSSystem"),
+                    "@QLocale::MeasurementSystem").setForLldbOnly()
+              % Check("m1", Value4("ImperialSystem"),
+                    "@QLocale::MeasurementSystem").setForLldbOnly();
 
    QTest::newRow("QMapUIntStringList")
            << Data("#include <QMap>\n"
@@ -2586,8 +2595,8 @@ void tst_Dumpers::dumper_data()
                % CoreProfile()
                % Cxx11Profile()
                % MacLibCppProfile()
-               % Check("a", "<4 items>", Pattern("std::array<int, 4u.*>"))
-               % Check("b", "<4 items>", Pattern("std::array<@QString, 4u.*>"));
+               % Check("a", "<4 items>", Pattern("std::array<int, 4.*>"))
+               % Check("b", "<4 items>", Pattern("std::array<@QString, 4.*>"));
 
     QTest::newRow("StdComplex")
             << Data("#include <complex>\n",
@@ -2660,6 +2669,7 @@ void tst_Dumpers::dumper_data()
                     "h.insert(194);\n"
                     "h.insert(2);\n"
                     "h.insert(3);\n")
+               % GdbOnly()
                % Profile("QMAKE_CXXFLAGS += -Wno-deprecated")
                % Check("h", "<4 items>", "__gnu__cxx::hash_set<int>")
                % Check("h.0", "[0]", "194", "int")
@@ -3125,8 +3135,9 @@ void tst_Dumpers::dumper_data()
                     "v.push_back(true);\n"
                     "v.push_back(false);\n"
                     "unused(&v);\n")
-                // Known issue: Clang produces "std::vector<std::allocator<bool>>
-               % Check("v", "<5 items>", "std::vector<bool>")
+               % Check("v", "<5 items>", "std::vector<bool>").setForGdbOnly()
+               // Known issue: Clang produces "std::vector<std::allocator<bool>>
+               % Check("v", "<5 items>", "std::vector<std::allocator<bool>>").setForLldbOnly()
                % Check("v.0", "[0]", "1", "bool")
                % Check("v.1", "[1]", "0", "bool")
                % Check("v.2", "[2]", "0", "bool")
@@ -3138,10 +3149,12 @@ void tst_Dumpers::dumper_data()
                     "std::vector<bool> v1(65, true);\n"
                     "std::vector<bool> v2(65);\n"
                     "unused(&v1, &v2);\n")
-               % Check("v1", "<65 items>", "std::vector<bool>")
+               % Check("v1", "<65 items>", "std::vector<bool>").setForGdbOnly()
+               % Check("v1", "<65 items>", "std::vector<std::allocator<bool>>").setForLldbOnly()
                % Check("v1.0", "[0]", "1", "bool")
                % Check("v1.64", "[64]", "1", "bool")
-               % Check("v2", "<65 items>", "std::vector<bool>")
+               % Check("v2", "<65 items>", "std::vector<bool>").setForGdbOnly()
+               % Check("v2", "<65 items>", "std::vector<std::allocator<bool>>").setForLldbOnly()
                % Check("v2.0", "[0]", "0", "bool")
                % Check("v2.64", "[64]", "0", "bool");
 

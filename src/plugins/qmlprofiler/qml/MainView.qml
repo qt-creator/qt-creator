@@ -309,8 +309,11 @@ Rectangle {
         boundsBehavior: Flickable.StopAtBounds
 
         // ScrollView will try to deinteractivate it. We don't want that
-        // as the horizontal flickable is interactive, too.
-        onInteractiveChanged: interactive = true
+        // as the horizontal flickable is interactive, too. We do occasionally
+        // switch to non-interactive ourselves, though.
+        property bool stayInteractive: true
+        onInteractiveChanged: interactive = stayInteractive
+        onStayInteractiveChanged: interactive = stayInteractive
 
         // ***** child items
         TimeMarks {
@@ -428,6 +431,9 @@ Rectangle {
                 }
                 onPressed:  {
                     selectionRange.pressedOnCreation();
+                }
+                onCanceled: {
+                    selectionRange.releasedOnCreation();
                 }
                 onPositionChanged: {
                     selectionRange.movedOnCreation();

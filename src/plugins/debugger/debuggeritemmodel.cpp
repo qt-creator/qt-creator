@@ -152,8 +152,8 @@ bool DebuggerItemModel::updateDebuggerStandardItem(const DebuggerItem &item, boo
     QTC_ASSERT(parent, return false);
 
     // Do not mark items as changed if they actually are not:
-    DebuggerItem orig = debuggerItem(sitem);
-    if (orig == item && DebuggerItemManager::findById(orig.id()))
+    const DebuggerItem *orig = DebuggerItemManager::findById(item.id());
+    if (orig && *orig == item)
         changed = false;
 
     int row = sitem->row();
