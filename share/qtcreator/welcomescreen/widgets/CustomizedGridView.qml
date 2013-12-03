@@ -47,8 +47,8 @@ GridView {
         property string mockupSource: model.imageSource
         property string helpSource: model.imageUrl !== "" ? sourcePrefix + encodeURI(model.imageUrl) : ""
 
-        imageSource: model.imageSource === undefined ? helpSource : mockupSource
-        videoSource: model.imageSource === undefined ? model.imageUrl : mockupSource
+        imageSource: isVideo ? "" : (model.imageSource === undefined ? helpSource : mockupSource)
+        videoSource: isVideo ? (model.imageSource === undefined ? model.imageUrl : mockupSource) : ""
 
         caption: model.name;
         description: model.description
