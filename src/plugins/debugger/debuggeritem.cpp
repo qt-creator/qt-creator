@@ -47,6 +47,7 @@ static const char DEBUGGER_INFORMATION_DISPLAYNAME[] = "DisplayName";
 static const char DEBUGGER_INFORMATION_ID[] = "Id";
 static const char DEBUGGER_INFORMATION_ENGINETYPE[] = "EngineType";
 static const char DEBUGGER_INFORMATION_AUTODETECTED[] = "AutoDetected";
+static const char DEBUGGER_INFORMATION_AUTODETECTION_SOURCE[] = "AutoDetectionSource";
 static const char DEBUGGER_INFORMATION_ABIS[] = "Abis";
 
 namespace Debugger {
@@ -74,6 +75,7 @@ DebuggerItem::DebuggerItem(const QVariantMap &data)
     m_id = data.value(QLatin1String(DEBUGGER_INFORMATION_ID)).toString();
     m_displayName = data.value(QLatin1String(DEBUGGER_INFORMATION_DISPLAYNAME)).toString();
     m_isAutoDetected = data.value(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTED), false).toBool();
+    m_autoDetectionSource = data.value(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTION_SOURCE)).toString();
     m_engineType = DebuggerEngineType(data.value(QLatin1String(DEBUGGER_INFORMATION_ENGINETYPE),
                                                  static_cast<int>(NoEngineType)).toInt());
 
@@ -185,6 +187,7 @@ QVariantMap DebuggerItem::toMap() const
     data.insert(QLatin1String(DEBUGGER_INFORMATION_COMMAND), m_command.toUserOutput());
     data.insert(QLatin1String(DEBUGGER_INFORMATION_ENGINETYPE), int(m_engineType));
     data.insert(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTED), m_isAutoDetected);
+    data.insert(QLatin1String(DEBUGGER_INFORMATION_AUTODETECTION_SOURCE), m_autoDetectionSource);
     data.insert(QLatin1String(DEBUGGER_INFORMATION_ABIS), abiNames());
     return data;
 }
@@ -207,6 +210,11 @@ void DebuggerItem::setCommand(const Utils::FileName &command)
 void DebuggerItem::setAutoDetected(bool isAutoDetected)
 {
     m_isAutoDetected = isAutoDetected;
+}
+
+void DebuggerItem::setAutoDetectionSource(const QString &autoDetectionSource)
+{
+    m_autoDetectionSource = autoDetectionSource;
 }
 
 void DebuggerItem::setAbis(const QList<ProjectExplorer::Abi> &abis)

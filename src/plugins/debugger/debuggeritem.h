@@ -79,6 +79,9 @@ public:
     bool isAutoDetected() const { return m_isAutoDetected; }
     void setAutoDetected(bool isAutoDetected);
 
+    QString autoDetectionSource() const { return m_autoDetectionSource; }
+    void setAutoDetectionSource(const QString &autoDetectionSource);
+
     QList<ProjectExplorer::Abi> abis() const { return m_abis; }
     void setAbis(const QList<ProjectExplorer::Abi> &abis);
     void setAbi(const ProjectExplorer::Abi &abi);
@@ -99,6 +102,7 @@ private:
     DebuggerEngineType m_engineType;
     Utils::FileName m_command;
     bool m_isAutoDetected;
+    QString m_autoDetectionSource;
     QList<ProjectExplorer::Abi> m_abis;
 
     friend class Internal::DebuggerItemConfigWidget;
