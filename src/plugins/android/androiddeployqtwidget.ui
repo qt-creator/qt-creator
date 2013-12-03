@@ -200,7 +200,7 @@
       <item row="1" column="0">
        <widget class="QLabel" name="targetSDKLabel">
         <property name="text">
-         <string>Android target SDK:</string>
+         <string>Android build SDK:</string>
         </property>
        </widget>
       </item>
@@ -241,7 +241,7 @@
      <item>
       <widget class="QLabel" name="oldFilesWarningLabel">
        <property name="text">
-        <string>Qt no longer uses the folder "android" in the project's source directory.</string>
+        <string>Qt no longer uses the folder &quot;android&quot; in the project's source directory.</string>
        </property>
        <property name="wordWrap">
         <bool>true</bool>
