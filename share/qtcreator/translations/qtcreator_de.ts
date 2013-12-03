@@ -7391,7 +7391,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     <name>ProjectExplorer::ApplicationLauncher</name>
     <message>
         <source>Failed to start program. Path or permissions wrong?</source>
-        <translation>Das Programm konnte nicht gestartet werden. Möglicherweise stimmt der Pfad nicht oder die Berechtigungen sind sind ausreichend?</translation>
+        <translation>Das Programm konnte nicht gestartet werden. Möglicherweise stimmt der Pfad nicht oder die Berechtigungen sind nicht ausreichend?</translation>
     </message>
     <message>
         <source>The program has unexpectedly finished.</source>
