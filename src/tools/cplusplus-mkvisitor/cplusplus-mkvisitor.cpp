@@ -27,19 +27,19 @@
 **
 ****************************************************************************/
 
-#include <AST.h>
-#include <ASTVisitor.h>
-#include <ASTPatternBuilder.h>
-#include <ASTMatcher.h>
-#include <Control.h>
-#include <Scope.h>
-#include <Bind.h>
-#include <TranslationUnit.h>
-#include <Literals.h>
-#include <Symbols.h>
-#include <Names.h>
-#include <CoreTypes.h>
-#include <SymbolVisitor.h>
+#include <cplusplus/AST.h>
+#include <cplusplus/ASTVisitor.h>
+#include <cplusplus/ASTPatternBuilder.h>
+#include <cplusplus/ASTMatcher.h>
+#include <cplusplus/Control.h>
+#include <cplusplus/Scope.h>
+#include <cplusplus/Bind.h>
+#include <cplusplus/TranslationUnit.h>
+#include <cplusplus/Literals.h>
+#include <cplusplus/Symbols.h>
+#include <cplusplus/Names.h>
+#include <cplusplus/CoreTypes.h>
+#include <cplusplus/SymbolVisitor.h>
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/LookupContext.h>
