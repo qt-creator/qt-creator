@@ -1349,7 +1349,9 @@ bool CvsPlugin::managesDirectory(const QString &directory, QString *topLevel /* 
          * not have a  "CVS" directory. The starting directory must be a managed
          * one. Go up and try to find the first unmanaged parent dir. */
         QDir lastDirectory = dir;
-        for (QDir parentDir = lastDirectory; parentDir.cdUp() ; lastDirectory = parentDir) {
+        for (QDir parentDir = lastDirectory;
+             !parentDir.isRoot() && parentDir.cdUp();
+             lastDirectory = parentDir) {
             if (!checkCVSDirectory(parentDir)) {
                 *topLevel = lastDirectory.absolutePath();
                 break;

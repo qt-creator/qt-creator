@@ -732,7 +732,7 @@ QString VcsBasePlugin::findRepositoryForDirectory(const QString &dirS,
                 qDebug() << "<VcsBasePlugin::findRepositoryForDirectory> " << absDirPath;
             return absDirPath;
         }
-    } while (directory.cdUp());
+    } while (!directory.isRoot() && directory.cdUp());
     if (debugRepositorySearch)
         qDebug() << "<VcsBasePlugin::findRepositoryForDirectory bailing out at " << directory.absolutePath();
     return QString();

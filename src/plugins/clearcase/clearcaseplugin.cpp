@@ -230,7 +230,7 @@ QString ClearCasePlugin::getDriveLetterOfPath(const QString &directory)
 {
     // cdUp until we get just the drive letter
     QDir dir(directory);
-    while (dir.cdUp())
+    while (!dir.isRoot() && dir.cdUp())
     { }
 
     return dir.path();

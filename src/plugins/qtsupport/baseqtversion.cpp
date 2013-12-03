@@ -218,7 +218,7 @@ QString BaseQtVersion::defaultDisplayName(const QString &versionString, const Fi
                 && dirName.compare(QLatin1String("qt"), Qt::CaseInsensitive)) {
                 break;
             }
-        } while (dir.cdUp());
+        } while (!dir.isRoot() && dir.cdUp());
     }
 
     return fromPath ?
