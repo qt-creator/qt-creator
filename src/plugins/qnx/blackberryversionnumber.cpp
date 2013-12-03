@@ -57,7 +57,7 @@ QString BlackBerryVersionNumber::toString() const
     return m_segments.join(QLatin1String("."));
 }
 
-bool BlackBerryVersionNumber::operator <(const BlackBerryVersionNumber &b) const
+bool BlackBerryVersionNumber::operator >(const BlackBerryVersionNumber &b) const
 {
     int minSize = size() > b.size() ? b.size() : size();
     for (int i = 0; i < minSize; i++) {
@@ -74,25 +74,14 @@ bool BlackBerryVersionNumber::operator <(const BlackBerryVersionNumber &b) const
                 int bInt = bParts[j].toInt(&bOk);
 
                 if (aOk && bOk)
-                    return aInt < bInt;
+                    return aInt > bInt;
 
-                return aParts[j].compare(bParts[j]) < 0;
+                return aParts[j].compare(bParts[j]) > 0;
             }
         }
     }
 
     return false;
-}
-
-bool BlackBerryVersionNumber::operator ==(const BlackBerryVersionNumber &b) const
-{
-    int minSize = size() > b.size() ? b.size() : size();
-    for (int i = 0; i < minSize; i++) {
-        if (segment(i) != b.segment(i))
-            return false;
-    }
-
-    return true;
 }
 
 QString BlackBerryVersionNumber::segment(int index) const

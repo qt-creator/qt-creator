@@ -34,10 +34,6 @@
 
 #include <QStringList>
 
-#include <utility>
-
-using namespace std::rel_ops;
-
 namespace Qnx {
 namespace Internal {
 class BlackBerryVersionNumber
@@ -56,8 +52,7 @@ public:
     static BlackBerryVersionNumber fromTargetName(const QString &targetName);
     static BlackBerryVersionNumber fromFileName(const QString &fileName, const QRegExp &regExp);
 
-    bool operator <(const BlackBerryVersionNumber &b) const;
-    bool operator ==(const BlackBerryVersionNumber &b) const;
+    bool operator >(const BlackBerryVersionNumber &b) const;
 
 private:
     QStringList m_segments;
