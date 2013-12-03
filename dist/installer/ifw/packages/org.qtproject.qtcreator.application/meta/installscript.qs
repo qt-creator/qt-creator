@@ -191,8 +191,9 @@ function isRoot()
 
 Component.prototype.installationFinishedPageIsShown = function()
 {
+    isroot = isRoot();
     try {
-        if (component.installed && installer.isInstaller() && installer.status == QInstaller.Success && !isRoot()) {
+        if (component.installed && installer.isInstaller() && installer.status == QInstaller.Success && !isroot) {
             installer.addWizardPageItem( component, "LaunchQtCreatorCheckBoxForm", QInstaller.InstallationFinished );
         }
     } catch(e) {
@@ -203,7 +204,7 @@ Component.prototype.installationFinishedPageIsShown = function()
 Component.prototype.installationFinished = function()
 {
     try {
-        if (component.installed && installer.isInstaller() && installer.status == QInstaller.Success && !isRoot()) {
+        if (component.installed && installer.isInstaller() && installer.status == QInstaller.Success && !isroot) {
             var isLaunchQtCreatorCheckBoxChecked = component.userInterface("LaunchQtCreatorCheckBoxForm").launchQtCreatorCheckBox.checked;
             if (isLaunchQtCreatorCheckBoxChecked)
                 installer.executeDetached(component.qtCreatorBinaryPath, new Array(), "@homeDir@");
