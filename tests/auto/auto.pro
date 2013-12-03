@@ -7,6 +7,7 @@ SUBDIRS += \
     debugger \
     diff \
     extensionsystem \
+    externaltool \
     environment \
     generichighlighter \
     profilewriter \

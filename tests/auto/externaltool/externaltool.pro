@@ -1,9 +1,9 @@
-IDE_BUILD_TREE = $$OUT_PWD/../../../
+QTC_PLUGIN_DEPENDS += coreplugin
 include(../qttest.pri)
-include(../../../src/plugins/coreplugin/coreplugin.pri)
+include($$IDE_SOURCE_TREE/src/plugins/coreplugin/coreplugin_dependencies.pri)
+include($$IDE_SOURCE_TREE/src/libs/utils/utils_dependencies.pri)
+
 LIBS *= -L$$IDE_PLUGIN_PATH/QtProject
-INCLUDEPATH *= $$IDE_SOURCE_TREE/src/plugins/coreplugin
-INCLUDEPATH *= $$IDE_BUILD_TREE/src/plugins/coreplugin
 
 SOURCES += tst_externaltooltest.cpp \
     $$IDE_SOURCE_TREE/src/plugins/coreplugin/externaltool.cpp

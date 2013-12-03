@@ -50,8 +50,7 @@ static const char TEST_XML1[] =
 "        <arguments>%{CurrentProjectFilePath}</arguments>"
 "        <workingdirectory>%{CurrentProjectPath}</workingdirectory>"
 "    </executable>"
-"</externaltool>"
-;
+"</externaltool>";
 
 static const char TEST_XML2[] =
 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
@@ -213,7 +212,8 @@ void ExternaltoolTest::testReadLocale()
     QCOMPARE(tool->description(), QString::fromLatin1("Grüezi"));
     QCOMPARE(tool->displayName(), QString::fromLatin1("Grüezi"));
     QCOMPARE(tool->displayCategory(), QString::fromLatin1("Grüezi"));
-    delete tool;}
+    delete tool;
+}
 
 QTEST_APPLESS_MAIN(ExternaltoolTest);
 
