@@ -91,25 +91,6 @@ void SettingsPageWidget::setSettings(const GitSettings &s)
     m_ui.repBrowserCommandPathChooser->setPath(s.stringValue(GitSettings::repositoryBrowserCmd));
 }
 
-QString SettingsPageWidget::searchKeywords() const
-{
-    QString rc;
-    QLatin1Char sep(' ');
-    QTextStream(&rc)
-            << sep << m_ui.pathlabel->text()
-            << sep << m_ui.winHomeCheckBox->text()
-            << sep << m_ui.groupBox->title()
-            << sep << m_ui.logCountLabel->text()
-            << sep << m_ui.timeoutLabel->text()
-            << sep << m_ui.gitkGroupBox->title()
-            << sep << m_ui.gitkOptionsLabel->text()
-            << sep << m_ui.repBrowserGroupBox->title()
-            << sep << m_ui.repBrowserCommandLabel->text()
-               ;
-    rc.remove(QLatin1Char('&'));
-    return rc;
-}
-
 // -------- SettingsPage
 SettingsPage::SettingsPage() :
     m_widget(0)
@@ -118,12 +99,12 @@ SettingsPage::SettingsPage() :
     setDisplayName(tr("Git"));
 }
 
-QWidget *SettingsPage::createPage(QWidget *parent)
+QWidget *SettingsPage::widget()
 {
-    m_widget = new SettingsPageWidget(parent);
-    m_widget->setSettings(GitPlugin::instance()->settings());
-    if (m_searchKeywords.isEmpty())
-        m_searchKeywords = m_widget->searchKeywords();
+    if (!m_widget) {
+        m_widget = new SettingsPageWidget;
+        m_widget->setSettings(GitPlugin::instance()->settings());
+    }
     return m_widget;
 }
 
@@ -142,9 +123,9 @@ void SettingsPage::apply()
     GitPlugin::instance()->setSettings(newSettings);
 }
 
-bool SettingsPage::matches(const QString &s) const
+void SettingsPage::finish()
 {
-    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
+    delete m_widget;
 }
 
 }

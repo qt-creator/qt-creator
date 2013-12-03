@@ -56,8 +56,6 @@ public:
     void setSettings(const QSharedPointer<CppCodeModelSettings> &s);
     void applyToSettings() const;
 
-    QString searchKeywords() const;
-
 private:
     bool applyToSettings(QComboBox *chooser, const QString &mimeType) const;
     void applyToWidget(QComboBox *chooser, const QString &mimeType) const;
@@ -73,15 +71,13 @@ public:
     explicit CppCodeModelSettingsPage(QSharedPointer<CppCodeModelSettings> &settings,
                                       QObject *parent = 0);
 
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
-    void finish() { }
-    bool matches(const QString &s) const;
+    void finish();
 
 private:
     const QSharedPointer<CppCodeModelSettings> m_settings;
     QPointer<CppCodeModelSettingsWidget> m_widget;
-    QString m_searchKeywords;
 };
 
 } // Internal namespace

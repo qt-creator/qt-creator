@@ -55,10 +55,9 @@ public:
     ~DisplaySettingsPage();
 
     // IOptionsPage
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
     void finish();
-    bool matches(const QString &s) const;
 
     const DisplaySettings &displaySettings() const;
 

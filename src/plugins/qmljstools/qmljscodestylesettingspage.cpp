@@ -95,17 +95,6 @@ void QmlJSCodeStylePreferencesWidget::setPreferences(TextEditor::ICodeStylePrefe
 }
 
 
-QString QmlJSCodeStylePreferencesWidget::searchKeywords() const
-{
-    QString rc;
-    QLatin1Char sep(' ');
-    QTextStream(&rc)
-       << sep << m_ui->tabPreferencesWidget->searchKeywords()
-          ;
-    rc.remove(QLatin1Char('&'));
-    return rc;
-}
-
 void QmlJSCodeStylePreferencesWidget::decorateEditor(const TextEditor::FontSettings &fontSettings)
 {
     const ISnippetProvider *provider = 0;
@@ -171,18 +160,19 @@ QmlJSCodeStyleSettingsPage::QmlJSCodeStyleSettingsPage(/*QSharedPointer<CppFileS
     setCategoryIcon(QLatin1String(QmlDesigner::Constants::SETTINGS_CATEGORY_QML_ICON));
 }
 
-QWidget *QmlJSCodeStyleSettingsPage::createPage(QWidget *parent)
+QWidget *QmlJSCodeStyleSettingsPage::widget()
 {
-    TextEditor::SimpleCodeStylePreferences *originalTabPreferences
-            = QmlJSToolsSettings::globalCodeStyle();
-    m_pageTabPreferences = new TextEditor::SimpleCodeStylePreferences(m_widget);
-    m_pageTabPreferences->setDelegatingPool(originalTabPreferences->delegatingPool());
-    m_pageTabPreferences->setTabSettings(originalTabPreferences->tabSettings());
-    m_pageTabPreferences->setCurrentDelegate(originalTabPreferences->currentDelegate());
-    m_pageTabPreferences->setId(originalTabPreferences->id());
-    m_widget = new CodeStyleEditor(TextEditorSettings::codeStyleFactory(QmlJSTools::Constants::QML_JS_SETTINGS_ID),
-                                   m_pageTabPreferences, parent);
-
+    if (!m_widget) {
+        TextEditor::SimpleCodeStylePreferences *originalTabPreferences
+                = QmlJSToolsSettings::globalCodeStyle();
+        m_pageTabPreferences = new TextEditor::SimpleCodeStylePreferences(m_widget);
+        m_pageTabPreferences->setDelegatingPool(originalTabPreferences->delegatingPool());
+        m_pageTabPreferences->setTabSettings(originalTabPreferences->tabSettings());
+        m_pageTabPreferences->setCurrentDelegate(originalTabPreferences->currentDelegate());
+        m_pageTabPreferences->setId(originalTabPreferences->id());
+        m_widget = new CodeStyleEditor(TextEditorSettings::codeStyleFactory(QmlJSTools::Constants::QML_JS_SETTINGS_ID),
+                                       m_pageTabPreferences);
+    }
     return m_widget;
 }
 
@@ -203,9 +193,9 @@ void QmlJSCodeStyleSettingsPage::apply()
     }
 }
 
-bool QmlJSCodeStyleSettingsPage::matches(const QString &s) const
+void QmlJSCodeStyleSettingsPage::finish()
 {
-    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
+    delete m_widget;
 }
 
 } // namespace Internal

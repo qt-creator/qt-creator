@@ -39,11 +39,12 @@
 #include <texteditor/texteditorsettings.h>
 #include <extensionsystem/pluginmanager.h>
 
-#include <QModelIndex>
 #include <QAbstractTableModel>
 #include <QList>
-#include <QTextStream>
 #include <QMessageBox>
+#include <QModelIndex>
+#include <QPointer>
+#include <QTextStream>
 
 namespace TextEditor {
 namespace Internal {
@@ -269,11 +270,12 @@ public:
 
     Core::Id id() const { return m_id; }
     const QString &displayName() const { return m_displayName; }
-    bool isKeyword(const QString &s) const { return m_keywords.contains(s, Qt::CaseInsensitive); }
     void configureUi(QWidget *parent);
 
     void apply();
     void finish();
+
+    QPointer<QWidget> m_widget;
 
 private slots:
     void loadSnippetGroup(int index);
@@ -302,7 +304,6 @@ private:
     const QString m_settingsPrefix;
     SnippetsTableModel *m_model;
     bool m_snippetsCollectionChanged;
-    QString m_keywords;
     SnippetsSettings m_settings;
     Ui::SnippetsSettingsPage m_ui;
 };
@@ -349,8 +350,6 @@ void SnippetsSettingsPagePrivate::configureUi(QWidget *w)
     m_ui.snippetsTable->setModel(m_model);
 
     m_ui.revertButton->setEnabled(false);
-
-    QTextStream(&m_keywords) << m_displayName;
 
     loadSettings();
     loadSnippetGroup(m_ui.groupCombo->currentIndex());
@@ -566,16 +565,13 @@ SnippetsSettingsPage::~SnippetsSettingsPage()
     delete d;
 }
 
-bool SnippetsSettingsPage::matches(const QString &s) const
+QWidget *SnippetsSettingsPage::widget()
 {
-    return d->isKeyword(s);
-}
-
-QWidget *SnippetsSettingsPage::createPage(QWidget *parent)
-{
-    QWidget *w = new QWidget(parent);
-    d->configureUi(w);
-    return w;
+    if (!d->m_widget) {
+        d->m_widget = new QWidget;
+        d->configureUi(d->m_widget);
+    }
+    return d->m_widget;
 }
 
 void SnippetsSettingsPage::apply()
@@ -586,6 +582,7 @@ void SnippetsSettingsPage::apply()
 void SnippetsSettingsPage::finish()
 {
     d->finish();
+    delete d->m_widget;
 }
 
 } // Internal

@@ -61,12 +61,12 @@ ShortcutSettings::ShortcutSettings(QObject *parent)
     setCategoryIcon(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE_ICON));
 }
 
-QWidget *ShortcutSettings::createPage(QWidget *parent)
+QWidget *ShortcutSettings::widget()
 {
     m_initialized = true;
     m_keyNum = m_key[0] = m_key[1] = m_key[2] = m_key[3] = 0;
 
-    QWidget *w = CommandMappings::createPage(parent);
+    QWidget *w = CommandMappings::widget();
 
     const QString pageTitle = tr("Keyboard Shortcuts");
     const QString targetLabelText = tr("Key sequence:");
@@ -77,12 +77,6 @@ QWidget *ShortcutSettings::createPage(QWidget *parent)
     setTargetEditTitle(editTitle);
     setTargetHeader(editTitle);
     targetEdit()->setPlaceholderText(tr("Type to set shortcut"));
-
-    if (m_searchKeywords.isEmpty()) {
-        QTextStream(&m_searchKeywords) << ' ' << pageTitle
-                << ' ' << targetLabelText
-                << ' ' << editTitle;
-    }
 
     return w;
 }
@@ -100,11 +94,6 @@ void ShortcutSettings::finish()
 
     CommandMappings::finish();
     m_initialized = false;
-}
-
-bool ShortcutSettings::matches(const QString &s) const
-{
-    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }
 
 bool ShortcutSettings::eventFilter(QObject *o, QEvent *e)

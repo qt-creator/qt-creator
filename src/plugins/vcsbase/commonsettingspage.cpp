@@ -115,12 +115,12 @@ CommonOptionsPage::CommonOptionsPage(QObject *parent) :
     setDisplayName(QCoreApplication::translate("VcsBase", Constants::VCS_COMMON_SETTINGS_NAME));
 }
 
-QWidget *CommonOptionsPage::createPage(QWidget *parent)
+QWidget *CommonOptionsPage::widget()
 {
-    m_widget = new CommonSettingsWidget(parent);
-    m_widget->setSettings(m_settings);
-    if (m_searchKeyWords.isEmpty())
-        m_searchKeyWords = m_widget->searchKeyWordMatchString();
+    if (!m_widget) {
+        m_widget = new CommonSettingsWidget;
+        m_widget->setSettings(m_settings);
+    }
     return m_widget;
 }
 
@@ -136,9 +136,9 @@ void CommonOptionsPage::apply()
     }
 }
 
-bool CommonOptionsPage::matches(const QString &key) const
+void CommonOptionsPage::finish()
 {
-    return m_searchKeyWords.contains(key, Qt::CaseInsensitive);
+    delete m_widget;
 }
 
 } // namespace Internal

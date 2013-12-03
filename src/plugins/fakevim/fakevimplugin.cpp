@@ -87,6 +87,7 @@
 #include <QFileDialog>
 #include <QtPlugin>
 #include <QObject>
+#include <QPointer>
 #include <QSettings>
 #include <QStackedWidget>
 #include <QTextStream>
@@ -234,10 +235,9 @@ public:
         setCategoryIcon(_(SETTINGS_CATEGORY_FAKEVIM_ICON));
     }
 
-    QWidget *createPage(QWidget *parent);
-    void apply() { m_group.apply(ICore::settings()); }
-    void finish() { m_group.finish(); }
-    virtual bool matches(const QString &) const;
+    QWidget *widget();
+    void apply();
+    void finish();
 
 private slots:
     void copyTextEditorSettings();
@@ -248,113 +248,98 @@ private slots:
 
 private:
     friend class DebuggerPlugin;
+    QPointer<QWidget> m_widget;
     Ui::FakeVimOptionPage m_ui;
-    QString m_searchKeywords;
     Utils::SavedActionSet m_group;
 };
 
-QWidget *FakeVimOptionPage::createPage(QWidget *parent)
+QWidget *FakeVimOptionPage::widget()
 {
-    QWidget *w = new QWidget(parent);
-    m_ui.setupUi(w);
-    const QString vimrcDefault = Utils::HostOsInfo::isAnyUnixHost() ?
-        QLatin1String("$HOME/.vimrc") : QLatin1String("%USERPROFILE%\\_vimrc");
-    m_ui.lineEditVimRcPath->setPlaceholderText(tr("Default: %1").arg(vimrcDefault));
+    if (!m_widget) {
+        m_widget = new QWidget;
+        m_ui.setupUi(m_widget);
+        const QString vimrcDefault = Utils::HostOsInfo::isAnyUnixHost() ?
+                    QLatin1String("$HOME/.vimrc") : QLatin1String("%USERPROFILE%\\_vimrc");
+        m_ui.lineEditVimRcPath->setPlaceholderText(tr("Default: %1").arg(vimrcDefault));
 
-    m_group.clear();
-    m_group.insert(theFakeVimSetting(ConfigUseFakeVim),
-        m_ui.checkBoxUseFakeVim);
-    m_group.insert(theFakeVimSetting(ConfigReadVimRc),
-        m_ui.checkBoxReadVimRc);
-    m_group.insert(theFakeVimSetting(ConfigVimRcPath),
-        m_ui.lineEditVimRcPath);
+        m_group.clear();
+        m_group.insert(theFakeVimSetting(ConfigUseFakeVim),
+                       m_ui.checkBoxUseFakeVim);
+        m_group.insert(theFakeVimSetting(ConfigReadVimRc),
+                       m_ui.checkBoxReadVimRc);
+        m_group.insert(theFakeVimSetting(ConfigVimRcPath),
+                       m_ui.lineEditVimRcPath);
 
-    m_group.insert(theFakeVimSetting(ConfigExpandTab),
-        m_ui.checkBoxExpandTab);
-    m_group.insert(theFakeVimSetting(ConfigHlSearch),
-        m_ui.checkBoxHlSearch);
-    m_group.insert(theFakeVimSetting(ConfigShiftWidth),
-        m_ui.spinBoxShiftWidth);
-    m_group.insert(theFakeVimSetting(ConfigShowMarks),
-        m_ui.checkBoxShowMarks);
+        m_group.insert(theFakeVimSetting(ConfigExpandTab),
+                       m_ui.checkBoxExpandTab);
+        m_group.insert(theFakeVimSetting(ConfigHlSearch),
+                       m_ui.checkBoxHlSearch);
+        m_group.insert(theFakeVimSetting(ConfigShiftWidth),
+                       m_ui.spinBoxShiftWidth);
+        m_group.insert(theFakeVimSetting(ConfigShowMarks),
+                       m_ui.checkBoxShowMarks);
 
-    m_group.insert(theFakeVimSetting(ConfigSmartTab),
-        m_ui.checkBoxSmartTab);
-    m_group.insert(theFakeVimSetting(ConfigStartOfLine),
-        m_ui.checkBoxStartOfLine);
-    m_group.insert(theFakeVimSetting(ConfigPassKeys),
-        m_ui.checkBoxPassKeys);
-    m_group.insert(theFakeVimSetting(ConfigTabStop),
-        m_ui.spinBoxTabStop);
-    m_group.insert(theFakeVimSetting(ConfigScrollOff),
-        m_ui.spinBoxScrollOff);
-    m_group.insert(theFakeVimSetting(ConfigBackspace),
-        m_ui.lineEditBackspace);
-    m_group.insert(theFakeVimSetting(ConfigIsKeyword),
-        m_ui.lineEditIsKeyword);
+        m_group.insert(theFakeVimSetting(ConfigSmartTab),
+                       m_ui.checkBoxSmartTab);
+        m_group.insert(theFakeVimSetting(ConfigStartOfLine),
+                       m_ui.checkBoxStartOfLine);
+        m_group.insert(theFakeVimSetting(ConfigPassKeys),
+                       m_ui.checkBoxPassKeys);
+        m_group.insert(theFakeVimSetting(ConfigTabStop),
+                       m_ui.spinBoxTabStop);
+        m_group.insert(theFakeVimSetting(ConfigScrollOff),
+                       m_ui.spinBoxScrollOff);
+        m_group.insert(theFakeVimSetting(ConfigBackspace),
+                       m_ui.lineEditBackspace);
+        m_group.insert(theFakeVimSetting(ConfigIsKeyword),
+                       m_ui.lineEditIsKeyword);
 
-    m_group.insert(theFakeVimSetting(ConfigPassControlKey),
-        m_ui.checkBoxPassControlKey);
-    m_group.insert(theFakeVimSetting(ConfigAutoIndent),
-        m_ui.checkBoxAutoIndent);
-    m_group.insert(theFakeVimSetting(ConfigSmartIndent),
-        m_ui.checkBoxSmartIndent);
+        m_group.insert(theFakeVimSetting(ConfigPassControlKey),
+                       m_ui.checkBoxPassControlKey);
+        m_group.insert(theFakeVimSetting(ConfigAutoIndent),
+                       m_ui.checkBoxAutoIndent);
+        m_group.insert(theFakeVimSetting(ConfigSmartIndent),
+                       m_ui.checkBoxSmartIndent);
 
-    m_group.insert(theFakeVimSetting(ConfigIncSearch),
-        m_ui.checkBoxIncSearch);
-    m_group.insert(theFakeVimSetting(ConfigUseCoreSearch),
-        m_ui.checkBoxUseCoreSearch);
-    m_group.insert(theFakeVimSetting(ConfigSmartCase),
-        m_ui.checkBoxSmartCase);
-    m_group.insert(theFakeVimSetting(ConfigIgnoreCase),
-        m_ui.checkBoxIgnoreCase);
-    m_group.insert(theFakeVimSetting(ConfigWrapScan),
-        m_ui.checkBoxWrapScan);
+        m_group.insert(theFakeVimSetting(ConfigIncSearch),
+                       m_ui.checkBoxIncSearch);
+        m_group.insert(theFakeVimSetting(ConfigUseCoreSearch),
+                       m_ui.checkBoxUseCoreSearch);
+        m_group.insert(theFakeVimSetting(ConfigSmartCase),
+                       m_ui.checkBoxSmartCase);
+        m_group.insert(theFakeVimSetting(ConfigIgnoreCase),
+                       m_ui.checkBoxIgnoreCase);
+        m_group.insert(theFakeVimSetting(ConfigWrapScan),
+                       m_ui.checkBoxWrapScan);
 
-    m_group.insert(theFakeVimSetting(ConfigShowCmd),
-        m_ui.checkBoxShowCmd);
+        m_group.insert(theFakeVimSetting(ConfigShowCmd),
+                       m_ui.checkBoxShowCmd);
 
-    connect(m_ui.pushButtonCopyTextEditorSettings, SIGNAL(clicked()),
-        SLOT(copyTextEditorSettings()));
-    connect(m_ui.pushButtonSetQtStyle, SIGNAL(clicked()),
-        SLOT(setQtStyle()));
-    connect(m_ui.pushButtonSetPlainStyle, SIGNAL(clicked()),
-        SLOT(setPlainStyle()));
-    connect(m_ui.pushButtonVimRcPath, SIGNAL(clicked()),
-        SLOT(openVimRc()));
-    connect(m_ui.checkBoxReadVimRc, SIGNAL(stateChanged(int)),
-        SLOT(updateVimRcWidgets()));
-    updateVimRcWidgets();
+        connect(m_ui.pushButtonCopyTextEditorSettings, SIGNAL(clicked()),
+                SLOT(copyTextEditorSettings()));
+        connect(m_ui.pushButtonSetQtStyle, SIGNAL(clicked()),
+                SLOT(setQtStyle()));
+        connect(m_ui.pushButtonSetPlainStyle, SIGNAL(clicked()),
+                SLOT(setPlainStyle()));
+        connect(m_ui.pushButtonVimRcPath, SIGNAL(clicked()),
+                SLOT(openVimRc()));
+        connect(m_ui.checkBoxReadVimRc, SIGNAL(stateChanged(int)),
+                SLOT(updateVimRcWidgets()));
+        updateVimRcWidgets();
 
-    if (m_searchKeywords.isEmpty()) {
-        QLatin1Char sep(' ');
-        QTextStream(&m_searchKeywords)
-                << sep << m_ui.checkBoxUseFakeVim->text()
-                << sep << m_ui.checkBoxReadVimRc->text()
-                << sep << m_ui.checkBoxAutoIndent->text()
-                << sep << m_ui.checkBoxSmartIndent->text()
-                << sep << m_ui.checkBoxExpandTab->text()
-                << sep << m_ui.checkBoxSmartTab->text()
-                << sep << m_ui.checkBoxHlSearch->text()
-                << sep << m_ui.checkBoxIncSearch->text()
-                << sep << m_ui.checkBoxStartOfLine->text()
-                << sep << m_ui.checkBoxUseCoreSearch->text()
-                << sep << m_ui.checkBoxSmartCase->text()
-                << sep << m_ui.checkBoxShowMarks->text()
-                << sep << m_ui.checkBoxPassControlKey->text()
-                << sep << m_ui.checkBoxPassKeys->text()
-                << sep << m_ui.checkBoxIgnoreCase->text()
-                << sep << m_ui.checkBoxWrapScan->text()
-                << sep << m_ui.checkBoxShowCmd->text()
-                << sep << m_ui.labelShiftWidth->text()
-                << sep << m_ui.labelTabulator->text()
-                << sep << m_ui.labelBackspace->text()
-                << sep << m_ui.labelIsKeyword->text()
-                << sep << m_ui.labelScrollOff->text()
-                << sep << m_ui.lineEditVimRcPath->text();
-        m_searchKeywords.remove(QLatin1Char('&'));
     }
-    return w;
+    return m_widget;
+}
+
+void FakeVimOptionPage::apply()
+{
+    m_group.apply(ICore::settings());
+}
+
+void FakeVimOptionPage::finish()
+{
+    m_group.finish();
+    delete m_widget;
 }
 
 void FakeVimOptionPage::copyTextEditorSettings()
@@ -411,11 +396,6 @@ void FakeVimOptionPage::updateVimRcWidgets()
     m_ui.pushButtonVimRcPath->setEnabled(enabled);
 }
 
-bool FakeVimOptionPage::matches(const QString &s) const
-{
-    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
-}
-
 //const char *FAKEVIM_CONTEXT = "FakeVim";
 
 ///////////////////////////////////////////////////////////////////////
@@ -441,7 +421,7 @@ public:
         setCategoryIcon(_(SETTINGS_CATEGORY_FAKEVIM_ICON));
     }
 
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void initialize();
     ExCommandMap &exCommandMap();
     ExCommandMap &defaultExCommandMap();
@@ -457,9 +437,9 @@ private:
     FakeVimPluginPrivate *m_q;
 };
 
-QWidget *FakeVimExCommandsPage::createPage(QWidget *parent)
+QWidget *FakeVimExCommandsPage::widget()
 {
-    QWidget *w = CommandMappings::createPage(parent);
+    QWidget *w = CommandMappings::widget();
     setPageTitle(tr("Ex Command Mapping"));
     setTargetHeader(tr("Ex Trigger Expression"));
     setTargetLabelText(tr("Regular expression:"));
@@ -666,37 +646,41 @@ public:
     void apply();
     void finish() {}
 
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void initialize() {}
     UserCommandMap &userCommandMap();
     UserCommandMap &defaultUserCommandMap();
 
 private:
     FakeVimPluginPrivate *m_q;
+    QPointer<QGroupBox> m_widget;
 };
 
-QWidget *FakeVimUserCommandsPage::createPage(QWidget *parent)
+QWidget *FakeVimUserCommandsPage::widget()
 {
-    QGroupBox *box = new QGroupBox(parent);
+    if (!m_widget) {
+        m_widget = new QGroupBox;
 
-    FakeVimUserCommandsModel *model = new FakeVimUserCommandsModel(m_q);
-    QTreeView *widget = new QTreeView;
-    widget->setModel(model);
-    widget->resizeColumnToContents(0);
+        FakeVimUserCommandsModel *model = new FakeVimUserCommandsModel(m_q);
+        QTreeView *widget = new QTreeView;
+        model->setParent(widget);
+        widget->setModel(model);
+        widget->resizeColumnToContents(0);
 
-    FakeVimUserCommandsDelegate *delegate = new FakeVimUserCommandsDelegate(widget);
-    widget->setItemDelegateForColumn(1, delegate);
+        FakeVimUserCommandsDelegate *delegate = new FakeVimUserCommandsDelegate(widget);
+        widget->setItemDelegateForColumn(1, delegate);
 
-    QGridLayout *layout = new QGridLayout(box);
-    layout->addWidget(widget, 0, 0);
-    box->setLayout(layout);
-
-    return box;
+        QGridLayout *layout = new QGridLayout(m_widget);
+        layout->addWidget(widget, 0, 0);
+        m_widget->setLayout(layout);
+    }
+    return m_widget;
 }
 
 void FakeVimUserCommandsPage::apply()
 {
     //m_q->writeSettings();
+    delete m_widget;
 }
 
 

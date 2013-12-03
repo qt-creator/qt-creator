@@ -56,67 +56,54 @@ CompletionSettingsPage::~CompletionSettingsPage()
     delete m_page;
 }
 
-QWidget *CompletionSettingsPage::createPage(QWidget *parent)
+QWidget *CompletionSettingsPage::widget()
 {
-    QWidget *w = new QWidget(parent);
-    m_page = new Ui::CompletionSettingsPage;
-    m_page->setupUi(w);
+    if (!m_widget) {
+        QWidget *m_widget = new QWidget;
+        m_page = new Ui::CompletionSettingsPage;
+        m_page->setupUi(m_widget);
 
-    const TextEditor::CompletionSettings &settings =
-            TextEditor::TextEditorSettings::completionSettings();
+        const TextEditor::CompletionSettings &settings =
+                TextEditor::TextEditorSettings::completionSettings();
 
-    int caseSensitivityIndex = 0;
-    switch (settings.m_caseSensitivity) {
-    case TextEditor::CaseSensitive:
-        caseSensitivityIndex = 0;
-        break;
-    case TextEditor::CaseInsensitive:
-        caseSensitivityIndex = 1;
-        break;
-    case TextEditor::FirstLetterCaseSensitive:
-        caseSensitivityIndex = 2;
-        break;
+        int caseSensitivityIndex = 0;
+        switch (settings.m_caseSensitivity) {
+        case TextEditor::CaseSensitive:
+            caseSensitivityIndex = 0;
+            break;
+        case TextEditor::CaseInsensitive:
+            caseSensitivityIndex = 1;
+            break;
+        case TextEditor::FirstLetterCaseSensitive:
+            caseSensitivityIndex = 2;
+            break;
+        }
+
+        int completionTriggerIndex = 0;
+        switch (settings.m_completionTrigger) {
+        case TextEditor::ManualCompletion:
+            completionTriggerIndex = 0;
+            break;
+        case TextEditor::TriggeredCompletion:
+            completionTriggerIndex = 1;
+            break;
+        case TextEditor::AutomaticCompletion:
+            completionTriggerIndex = 2;
+            break;
+        }
+
+        m_page->caseSensitivity->setCurrentIndex(caseSensitivityIndex);
+        m_page->completionTrigger->setCurrentIndex(completionTriggerIndex);
+        m_page->autoInsertBrackets->setChecked(settings.m_autoInsertBrackets);
+        m_page->surroundSelectedText->setChecked(settings.m_surroundingAutoBrackets);
+        m_page->partiallyComplete->setChecked(settings.m_partiallyComplete);
+        m_page->spaceAfterFunctionName->setChecked(settings.m_spaceAfterFunctionName);
+        m_page->enableDoxygenCheckBox->setChecked(m_commentsSettings.m_enableDoxygen);
+        m_page->generateBriefCheckBox->setChecked(m_commentsSettings.m_generateBrief);
+        m_page->leadingAsterisksCheckBox->setChecked(m_commentsSettings.m_leadingAsterisks);
+        m_page->generateBriefCheckBox->setEnabled(m_page->enableDoxygenCheckBox->isChecked());
     }
-
-    int completionTriggerIndex = 0;
-    switch (settings.m_completionTrigger) {
-    case TextEditor::ManualCompletion:
-        completionTriggerIndex = 0;
-        break;
-    case TextEditor::TriggeredCompletion:
-        completionTriggerIndex = 1;
-        break;
-    case TextEditor::AutomaticCompletion:
-        completionTriggerIndex = 2;
-        break;
-    }
-
-    m_page->caseSensitivity->setCurrentIndex(caseSensitivityIndex);
-    m_page->completionTrigger->setCurrentIndex(completionTriggerIndex);
-    m_page->autoInsertBrackets->setChecked(settings.m_autoInsertBrackets);
-    m_page->surroundSelectedText->setChecked(settings.m_surroundingAutoBrackets);
-    m_page->partiallyComplete->setChecked(settings.m_partiallyComplete);
-    m_page->spaceAfterFunctionName->setChecked(settings.m_spaceAfterFunctionName);
-    m_page->enableDoxygenCheckBox->setChecked(m_commentsSettings.m_enableDoxygen);
-    m_page->generateBriefCheckBox->setChecked(m_commentsSettings.m_generateBrief);
-    m_page->leadingAsterisksCheckBox->setChecked(m_commentsSettings.m_leadingAsterisks);
-
-    if (m_searchKeywords.isEmpty()) {
-        QTextStream(&m_searchKeywords) << m_page->caseSensitivityLabel->text()
-                << ' ' << m_page->autoInsertBrackets->text()
-                << ' ' << m_page->surroundSelectedText->text()
-                << ' ' << m_page->completionTriggerLabel->text()
-                << ' ' << m_page->partiallyComplete->text()
-                << ' ' << m_page->spaceAfterFunctionName->text()
-                << ' ' << m_page->enableDoxygenCheckBox->text()
-                << ' ' << m_page->generateBriefCheckBox->text()
-                << ' ' << m_page->leadingAsterisksCheckBox->text();
-        m_searchKeywords.remove(QLatin1Char('&'));
-    }
-
-    m_page->generateBriefCheckBox->setEnabled(m_page->enableDoxygenCheckBox->isChecked());
-
-    return w;
+    return m_widget;
 }
 
 void CompletionSettingsPage::apply()
@@ -142,11 +129,6 @@ void CompletionSettingsPage::apply()
     m_commentsSettings.toSettings(QLatin1String(CPPTOOLS_SETTINGSGROUP), Core::ICore::settings());
 
     emit commentsSettingsChanged(m_commentsSettings);
-}
-
-bool CompletionSettingsPage::matches(const QString &s) const
-{
-    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }
 
 TextEditor::CaseSensitivity CompletionSettingsPage::caseSensitivity() const
@@ -175,6 +157,7 @@ TextEditor::CompletionTrigger CompletionSettingsPage::completionTrigger() const
 
 void CompletionSettingsPage::finish()
 {
+    delete m_widget;
     if (!m_page) // page was never shown
         return;
     delete m_page;

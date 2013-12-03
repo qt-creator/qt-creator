@@ -45,8 +45,7 @@ public:
     SnippetsSettingsPage(Core::Id id, QObject *parent);
     ~SnippetsSettingsPage();
 
-    bool matches(const QString &s) const;
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
     void finish();
 

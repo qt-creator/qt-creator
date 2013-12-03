@@ -52,7 +52,6 @@ public:
     explicit SimpleCodeStylePreferencesWidget(QWidget *parent = 0);
 
     void setPreferences(ICodeStylePreferences *tabPreferences);
-    QString searchKeywords() const;
 
     void setFlat(bool on);
     TabSettingsWidget *tabSettingsWidget() const;

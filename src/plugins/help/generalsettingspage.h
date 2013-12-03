@@ -33,6 +33,8 @@
 #include "ui_generalsettingspage.h"
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <QPointer>
+
 namespace Help {
 namespace Internal {
 
@@ -45,10 +47,9 @@ class GeneralSettingsPage : public Core::IOptionsPage
 public:
     GeneralSettingsPage();
 
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
     void finish();
-    bool matches(const QString &s) const;
 
 signals:
     void fontChanged();
@@ -79,7 +80,7 @@ private:
     int m_startOption;
     bool m_returnOnClose;
 
-    QString m_searchKeywords;
+    QPointer<QWidget> m_widget;
     Ui::GeneralSettingsPage *m_ui;
 };
 

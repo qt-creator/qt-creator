@@ -33,6 +33,8 @@
 #include "ui_filtersettingspage.h"
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <QPointer>
+
 namespace Help {
 namespace Internal {
 
@@ -43,10 +45,9 @@ class FilterSettingsPage : public Core::IOptionsPage
 public:
     FilterSettingsPage();
 
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
     void finish();
-    bool matches(const QString &s) const;
 
 signals:
     void filtersChanged();
@@ -64,12 +65,12 @@ private:
 private:
     QString msgFilterLabel(const QString &filter) const;
     Ui::FilterSettingsPage m_ui;
+    QPointer<QWidget> m_widget;
 
     typedef QMap<QString, QStringList> FilterMap;
     FilterMap m_filterMap;
     FilterMap m_filterMapBackup;
 
-    QString m_searchKeywords;
     QStringList m_removedFilters;
 };
 

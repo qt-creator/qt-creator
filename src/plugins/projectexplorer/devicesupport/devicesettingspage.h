@@ -31,6 +31,8 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <QPointer>
+
 namespace ProjectExplorer {
 namespace Internal {
 
@@ -43,14 +45,12 @@ class DeviceSettingsPage : public Core::IOptionsPage
 public:
     DeviceSettingsPage(QObject *parent = 0);
 
-    bool matches(const QString &searchKeyWord) const;
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
     void finish();
 
 private:
-    QString m_keywords;
-    DeviceSettingsWidget *m_widget;
+    QPointer<DeviceSettingsWidget> m_widget;
 };
 
 } // namespace Internal

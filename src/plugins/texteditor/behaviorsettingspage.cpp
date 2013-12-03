@@ -49,6 +49,7 @@
 #include <qmljseditor/qmljseditorconstants.h>
 #include <qmljstools/qmljstoolsconstants.h>
 
+#include <QPointer>
 #include <QSettings>
 #include <QTextCodec>
 
@@ -59,6 +60,7 @@ struct BehaviorSettingsPage::BehaviorSettingsPagePrivate
     explicit BehaviorSettingsPagePrivate(const BehaviorSettingsPageParameters &p);
 
     const BehaviorSettingsPageParameters m_parameters;
+    QPointer<QWidget> m_widget;
     Internal::Ui::BehaviorSettingsPage *m_page;
 
     void init();
@@ -70,8 +72,6 @@ struct BehaviorSettingsPage::BehaviorSettingsPagePrivate
     StorageSettings m_storageSettings;
     BehaviorSettings m_behaviorSettings;
     ExtraEncodingSettings m_extraEncodingSettings;
-
-    QString m_searchKeywords;
 };
 
 BehaviorSettingsPage::BehaviorSettingsPagePrivate::BehaviorSettingsPagePrivate
@@ -114,30 +114,28 @@ BehaviorSettingsPage::~BehaviorSettingsPage()
     delete d;
 }
 
-QWidget *BehaviorSettingsPage::createPage(QWidget *parent)
+QWidget *BehaviorSettingsPage::widget()
 {
-    QWidget *w = new QWidget(parent);
-    d->m_page = new Internal::Ui::BehaviorSettingsPage;
-    d->m_page->setupUi(w);
-    if (Utils::HostOsInfo::isMacHost())
-        d->m_page->gridLayout->setContentsMargins(-1, 0, -1, 0); // don't ask.
-    d->m_pageCodeStyle = new SimpleCodeStylePreferences(w);
-    d->m_pageCodeStyle->setDelegatingPool(d->m_codeStyle->delegatingPool());
-    d->m_pageCodeStyle->setTabSettings(d->m_codeStyle->tabSettings());
-    d->m_pageCodeStyle->setCurrentDelegate(d->m_codeStyle->currentDelegate());
-    d->m_page->behaviorWidget->setCodeStyle(d->m_pageCodeStyle);
+    if (!d->m_widget) {
+        d->m_widget = new QWidget;
+        d->m_page = new Internal::Ui::BehaviorSettingsPage;
+        d->m_page->setupUi(d->m_widget);
+        if (Utils::HostOsInfo::isMacHost())
+            d->m_page->gridLayout->setContentsMargins(-1, 0, -1, 0); // don't ask.
+        d->m_pageCodeStyle = new SimpleCodeStylePreferences(d->m_widget);
+        d->m_pageCodeStyle->setDelegatingPool(d->m_codeStyle->delegatingPool());
+        d->m_pageCodeStyle->setTabSettings(d->m_codeStyle->tabSettings());
+        d->m_pageCodeStyle->setCurrentDelegate(d->m_codeStyle->currentDelegate());
+        d->m_page->behaviorWidget->setCodeStyle(d->m_pageCodeStyle);
 
-    TabSettingsWidget *tabSettingsWidget = d->m_page->behaviorWidget->tabSettingsWidget();
-    tabSettingsWidget->setCodingStyleWarningVisible(true);
-    connect(tabSettingsWidget, SIGNAL(codingStyleLinkClicked(TextEditor::TabSettingsWidget::CodingStyleLink)),
-            this, SLOT(openCodingStylePreferences(TextEditor::TabSettingsWidget::CodingStyleLink)));
+        TabSettingsWidget *tabSettingsWidget = d->m_page->behaviorWidget->tabSettingsWidget();
+        tabSettingsWidget->setCodingStyleWarningVisible(true);
+        connect(tabSettingsWidget, SIGNAL(codingStyleLinkClicked(TextEditor::TabSettingsWidget::CodingStyleLink)),
+                this, SLOT(openCodingStylePreferences(TextEditor::TabSettingsWidget::CodingStyleLink)));
 
-    settingsToUI();
-
-    if (d->m_searchKeywords.isEmpty())
-        d->m_searchKeywords = d->m_page->behaviorWidget->collectUiKeywords();
-
-    return w;
+        settingsToUI();
+    }
+    return d->m_widget;
 }
 
 void BehaviorSettingsPage::apply()
@@ -227,6 +225,7 @@ void BehaviorSettingsPage::settingsToUI()
 
 void BehaviorSettingsPage::finish()
 {
+    delete d->m_widget;
     if (!d->m_page) // page was never shown
         return;
     delete d->m_page;
@@ -261,11 +260,6 @@ const BehaviorSettings &BehaviorSettingsPage::behaviorSettings() const
 const ExtraEncodingSettings &BehaviorSettingsPage::extraEncodingSettings() const
 {
     return d->m_extraEncodingSettings;
-}
-
-bool BehaviorSettingsPage::matches(const QString &s) const
-{
-    return d->m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }
 
 

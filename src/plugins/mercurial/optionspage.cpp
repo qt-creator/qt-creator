@@ -68,37 +68,17 @@ void OptionsPageWidget::setSettings(const MercurialSettings &s)
     m_ui.timeout->setValue(s.intValue(MercurialSettings::timeoutKey));
 }
 
-QString OptionsPageWidget::searchKeywords() const
-{
-    QString rc;
-    QLatin1Char sep(' ');
-    QTextStream(&rc)
-            << sep << m_ui.configGroupBox->title()
-            << sep << m_ui.mercurialCommandLabel->text()
-            << sep << m_ui.userGroupBox->title()
-            << sep << m_ui.defaultUsernameLabel->text()
-            << sep << m_ui.defaultEmailLabel->text()
-            << sep << m_ui.miscGroupBox->title()
-            << sep << m_ui.showLogEntriesLabel->text()
-            << sep << m_ui.timeoutSecondsLabel->text()
-               ;
-    rc.remove(QLatin1Char('&'));
-    return rc;
-}
-
 OptionsPage::OptionsPage()
 {
     setId(VcsBase::Constants::VCS_ID_MERCURIAL);
     setDisplayName(tr("Mercurial"));
 }
 
-QWidget *OptionsPage::createPage(QWidget *parent)
+QWidget *OptionsPage::widget()
 {
     if (!optionsPageWidget)
-        optionsPageWidget = new OptionsPageWidget(parent);
+        optionsPageWidget = new OptionsPageWidget;
     optionsPageWidget->setSettings(MercurialPlugin::settings());
-    if (m_searchKeywords.isEmpty())
-        m_searchKeywords = optionsPageWidget->searchKeywords();
     return optionsPageWidget;
 }
 
@@ -115,7 +95,7 @@ void OptionsPage::apply()
     }
 }
 
-bool OptionsPage::matches(const QString &s) const
+void OptionsPage::finish()
 {
-    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
+    delete optionsPageWidget;
 }

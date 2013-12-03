@@ -34,6 +34,7 @@
 
 #include "vcsbaseoptionspage.h"
 
+#include <QPointer>
 #include <QWidget>
 
 namespace VcsBase {
@@ -65,10 +66,9 @@ class CommonOptionsPage : public VcsBaseOptionsPage
 public:
     explicit CommonOptionsPage(QObject *parent = 0);
 
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
-    void finish() { }
-    bool matches(const QString &key) const;
+    void finish();
 
     CommonVcsSettings settings() const { return m_settings; }
 
@@ -76,9 +76,8 @@ signals:
     void settingsChanged(const VcsBase::Internal::CommonVcsSettings &s);
 
 private:
-    CommonSettingsWidget *m_widget;
+    QPointer<CommonSettingsWidget> m_widget;
     CommonVcsSettings m_settings;
-    QString m_searchKeyWords;
 };
 
 } // namespace Internal

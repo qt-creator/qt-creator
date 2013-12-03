@@ -291,22 +291,23 @@ QString CMakeSettingsPage::findCmakeExecutable() const
     return Utils::Environment::systemEnvironment().searchInPath(QLatin1String("cmake"));
 }
 
-QWidget *CMakeSettingsPage::createPage(QWidget *parent)
+QWidget *CMakeSettingsPage::widget()
 {
-    QWidget *outerWidget = new QWidget(parent);
-    QFormLayout *formLayout = new QFormLayout(outerWidget);
-    formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
-    m_pathchooser = new Utils::PathChooser;
-    m_pathchooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    formLayout->addRow(tr("Executable:"), m_pathchooser);
-    formLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
+    if (!m_widget) {
+        m_widget = new QWidget;
+        QFormLayout *formLayout = new QFormLayout(m_widget);
+        formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+        m_pathchooser = new Utils::PathChooser;
+        m_pathchooser->setExpectedKind(Utils::PathChooser::ExistingCommand);
+        formLayout->addRow(tr("Executable:"), m_pathchooser);
+        formLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Ignored, QSizePolicy::MinimumExpanding));
+
+        m_preferNinja = new QCheckBox(tr("Prefer Ninja generator (CMake 2.8.9 or higher required)"));
+        formLayout->addRow(m_preferNinja);
+    }
     m_pathchooser->setPath(m_cmakeValidatorForUser.cmakeExecutable());
-
-    m_preferNinja = new QCheckBox(tr("Prefer Ninja generator (CMake 2.8.9 or higher required)"));
     m_preferNinja->setChecked(preferNinja());
-    formLayout->addRow(m_preferNinja);
-
-    return outerWidget;
+    return m_widget;
 }
 
 void CMakeSettingsPage::saveSettings() const
@@ -329,7 +330,7 @@ void CMakeSettingsPage::apply()
 
 void CMakeSettingsPage::finish()
 {
-
+    delete m_widget;
 }
 
 QString CMakeSettingsPage::cmakeExecutable() const

@@ -33,6 +33,8 @@
 #include "ui_docsettingspage.h"
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <QPointer>
+
 namespace Help {
 namespace Internal {
 
@@ -43,10 +45,9 @@ class DocSettingsPage : public Core::IOptionsPage
 public:
     DocSettingsPage();
 
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
-    void finish() {}
-    bool matches(const QString &s) const;
+    void finish();
 
 private slots:
     void addDocumentation();
@@ -59,8 +60,8 @@ private:
 
 private:
     Ui::DocSettingsPage m_ui;
+    QPointer<QWidget> m_widget;
 
-    QString m_searchKeywords;
     QString m_recentDialogPath;
 
     typedef QHash<QString, QString> NameSpaceToPathHash;

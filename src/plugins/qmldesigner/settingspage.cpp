@@ -73,18 +73,6 @@ void SettingsPageWidget::setSettings(const DesignerSettings &designerSettings)
     m_ui.designerEnableDebuggerCheckBox->setChecked(designerSettings.enableDebugView);
 }
 
-QString SettingsPageWidget::searchKeywords() const
-{
-    QString rc;
-    QTextStream(&rc)
-            << ' ' << m_ui.snapMarginLabel->text()
-            << ' ' << m_ui.itemSpacingLabel->text()
-            << ' ' << m_ui.canvasWidthLabel->text()
-            << ' ' << m_ui.canvasHeightLabel->text();
-    rc.remove(QLatin1Char('&'));
-    return rc;
-}
-
 void SettingsPageWidget::debugViewEnabledToggled(bool b)
 {
     if (b && ! m_ui.designerShowDebuggerCheckBox->isChecked())
@@ -102,12 +90,12 @@ SettingsPage::SettingsPage() :
     setCategoryIcon(QLatin1String(Constants::SETTINGS_CATEGORY_QML_ICON));
 }
 
-QWidget *SettingsPage::createPage(QWidget *parent)
+QWidget *SettingsPage::widget()
 {
-    m_widget = new SettingsPageWidget(parent);
-    m_widget->setSettings(QmlDesignerPlugin::instance()->settings());
-    if (m_searchKeywords.isEmpty())
-        m_searchKeywords = m_widget->searchKeywords();
+    if (!m_widget) {
+        m_widget = new SettingsPageWidget;
+        m_widget->setSettings(QmlDesignerPlugin::instance()->settings());
+    }
     return m_widget;
 }
 
@@ -118,7 +106,7 @@ void SettingsPage::apply()
     QmlDesignerPlugin::instance()->setSettings(m_widget->settings());
 }
 
-bool SettingsPage::matches(const QString &s) const
+void SettingsPage::finish()
 {
-    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
+    delete m_widget;
 }

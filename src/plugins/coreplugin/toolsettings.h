@@ -46,13 +46,11 @@ class ToolSettings : public IOptionsPage
 public:
     explicit ToolSettings(QObject *parent = 0);
 
-    bool matches(const QString & searchKeyWord) const;
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
     void finish();
 
 private:
-    QString m_searchKeywords;
     QPointer<ExternalToolConfig> m_widget;
 };
 

@@ -34,6 +34,8 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <QPointer>
+
 namespace UpdateInfo {
 namespace Internal {
 
@@ -46,15 +48,13 @@ class SettingsPage : public Core::IOptionsPage
 public:
     explicit SettingsPage(UpdateInfoPlugin *plugin);
 
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
     void finish();
-    bool matches(const QString &searchKey) const;
 
 private:
-    QWidget *m_page;
+    QPointer<QWidget> m_widget;
     Ui::SettingsWidget m_ui;
-    QString m_searchKeywords;
     UpdateInfoPlugin *m_plugin;
 };
 

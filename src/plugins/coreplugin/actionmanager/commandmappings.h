@@ -33,6 +33,7 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QObject>
+#include <QPointer>
 
 QT_BEGIN_NAMESPACE
 class QLineEdit;
@@ -60,7 +61,7 @@ protected slots:
 
 protected:
     // IOptionsPage
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     virtual void apply() {}
     virtual void finish();
 
@@ -80,6 +81,7 @@ protected:
     virtual void markPossibleCollisions(QTreeWidgetItem *) {}
     virtual void resetCollisionMarkers() {}
 private:
+    QPointer<QWidget> m_widget;
     Internal::Ui::CommandMappings *m_page;
 };
 

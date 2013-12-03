@@ -143,12 +143,12 @@ SettingsPage::SettingsPage()
     setDisplayName(tr("Perforce"));
 }
 
-QWidget *SettingsPage::createPage(QWidget *parent)
+QWidget *SettingsPage::widget()
 {
-    m_widget = new SettingsPageWidget(parent);
-    m_widget->setSettings(PerforcePlugin::settings());
-    if (m_searchKeywords.isEmpty())
-        m_searchKeywords = m_widget->searchKeywords();
+    if (!m_widget) {
+        m_widget = new SettingsPageWidget;
+        m_widget->setSettings(PerforcePlugin::settings());
+    }
     return m_widget;
 }
 
@@ -157,7 +157,7 @@ void SettingsPage::apply()
     PerforcePlugin::setSettings(m_widget->settings());
 }
 
-bool SettingsPage::matches(const QString &s) const
+void SettingsPage::finish()
 {
-    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
+    delete m_widget;
 }

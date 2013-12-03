@@ -72,59 +72,54 @@ GeneralSettingsPage::GeneralSettingsPage()
     setCategoryIcon(QLatin1String(Help::Constants::HELP_CATEGORY_ICON));
 }
 
-QWidget *GeneralSettingsPage::createPage(QWidget *parent)
+QWidget *GeneralSettingsPage::widget()
 {
-    QWidget *widget = new QWidget(parent);
-    m_ui = new Ui::GeneralSettingsPage;
-    m_ui->setupUi(widget);
-    m_ui->sizeComboBox->setEditable(false);
-    m_ui->styleComboBox->setEditable(false);
+    if (!m_widget) {
+        m_widget = new QWidget;
+        m_ui = new Ui::GeneralSettingsPage;
+        m_ui->setupUi(m_widget);
+        m_ui->sizeComboBox->setEditable(false);
+        m_ui->styleComboBox->setEditable(false);
 
-    m_font = qvariant_cast<QFont>(HelpManager::customValue(QLatin1String("font"), m_font));
+        m_font = qvariant_cast<QFont>(HelpManager::customValue(QLatin1String("font"), m_font));
 
-    updateFontSize();
-    updateFontStyle();
-    updateFontFamily();
+        updateFontSize();
+        updateFontStyle();
+        updateFontFamily();
 
-    m_homePage = HelpManager::customValue(QLatin1String("HomePage"), QString())
-        .toString();
-    if (m_homePage.isEmpty()) {
-        m_homePage = HelpManager::customValue(QLatin1String("DefaultHomePage"),
-            Help::Constants::AboutBlank).toString();
+        m_homePage = HelpManager::customValue(QLatin1String("HomePage"), QString())
+                .toString();
+        if (m_homePage.isEmpty()) {
+            m_homePage = HelpManager::customValue(QLatin1String("DefaultHomePage"),
+                                                  Help::Constants::AboutBlank).toString();
+        }
+        m_ui->homePageLineEdit->setText(m_homePage);
+
+        m_startOption = HelpManager::customValue(QLatin1String("StartOption"),
+                                                 Help::Constants::ShowLastPages).toInt();
+        m_ui->helpStartComboBox->setCurrentIndex(m_startOption);
+
+        m_contextOption = HelpManager::customValue(QLatin1String("ContextHelpOption"),
+                                                   Help::Constants::SideBySideIfPossible).toInt();
+        m_ui->contextHelpComboBox->setCurrentIndex(m_contextOption);
+
+        connect(m_ui->currentPageButton, SIGNAL(clicked()), this, SLOT(setCurrentPage()));
+        connect(m_ui->blankPageButton, SIGNAL(clicked()), this, SLOT(setBlankPage()));
+        connect(m_ui->defaultPageButton, SIGNAL(clicked()), this, SLOT(setDefaultPage()));
+
+        HelpViewer *viewer = CentralWidget::instance()->currentHelpViewer();
+        if (!viewer)
+            m_ui->currentPageButton->setEnabled(false);
+
+        m_ui->errorLabel->setVisible(false);
+        connect(m_ui->importButton, SIGNAL(clicked()), this, SLOT(importBookmarks()));
+        connect(m_ui->exportButton, SIGNAL(clicked()), this, SLOT(exportBookmarks()));
+
+        m_returnOnClose = HelpManager::customValue(QLatin1String("ReturnOnClose"),
+                                                   false).toBool();
+        m_ui->m_returnOnClose->setChecked(m_returnOnClose);
     }
-    m_ui->homePageLineEdit->setText(m_homePage);
-
-    m_startOption = HelpManager::customValue(QLatin1String("StartOption"),
-        Help::Constants::ShowLastPages).toInt();
-    m_ui->helpStartComboBox->setCurrentIndex(m_startOption);
-
-    m_contextOption = HelpManager::customValue(QLatin1String("ContextHelpOption"),
-        Help::Constants::SideBySideIfPossible).toInt();
-    m_ui->contextHelpComboBox->setCurrentIndex(m_contextOption);
-
-    connect(m_ui->currentPageButton, SIGNAL(clicked()), this, SLOT(setCurrentPage()));
-    connect(m_ui->blankPageButton, SIGNAL(clicked()), this, SLOT(setBlankPage()));
-    connect(m_ui->defaultPageButton, SIGNAL(clicked()), this, SLOT(setDefaultPage()));
-
-    HelpViewer *viewer = CentralWidget::instance()->currentHelpViewer();
-    if (!viewer)
-        m_ui->currentPageButton->setEnabled(false);
-
-    m_ui->errorLabel->setVisible(false);
-    connect(m_ui->importButton, SIGNAL(clicked()), this, SLOT(importBookmarks()));
-    connect(m_ui->exportButton, SIGNAL(clicked()), this, SLOT(exportBookmarks()));
-
-    if (m_searchKeywords.isEmpty()) {
-        QTextStream(&m_searchKeywords) << ' ' << m_ui->contextHelpLabel->text()
-           << ' ' << m_ui->startPageLabel->text() << ' ' << m_ui->homePageLabel->text();
-        m_searchKeywords.remove(QLatin1Char('&'));
-    }
-
-    m_returnOnClose = HelpManager::customValue(QLatin1String("ReturnOnClose"),
-        false).toBool();
-    m_ui->m_returnOnClose->setChecked(m_returnOnClose);
-
-    return widget;
+    return m_widget;
 }
 
 void GeneralSettingsPage::apply()
@@ -342,13 +337,9 @@ int GeneralSettingsPage::closestPointSizeIndex(int desiredPointSize) const
     return closestIndex;
 }
 
-bool GeneralSettingsPage::matches(const QString &s) const
-{
-    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
-}
-
 void GeneralSettingsPage::finish()
 {
+    delete m_widget;
     if (!m_ui) // page was never shown
         return;
     delete m_ui;

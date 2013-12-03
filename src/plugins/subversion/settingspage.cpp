@@ -82,26 +82,6 @@ void SettingsPageWidget::setSettings(const SubversionSettings &s)
     m_ui.logCountSpinBox->setValue(s.intValue(SubversionSettings::logCountKey));
 }
 
-QString SettingsPageWidget::searchKeywords() const
-{
-    QString rc;
-    QLatin1Char sep(' ');
-    QTextStream(&rc)
-            << sep << m_ui.generalGroupBox->title()
-            << sep << m_ui.commandLabel->text()
-            << sep << m_ui.userGroupBox->title()
-            << sep << m_ui.usernameLabel->text()
-            << sep << m_ui.passwordLabel->text()
-            << sep << m_ui.miscGroupBox->title()
-            << sep << m_ui.logCountLabel->text()
-            << sep << m_ui.timeOutLabel->text()
-            << sep << m_ui.promptToSubmitCheckBox->text()
-            << sep << m_ui.spaceIgnorantAnnotationCheckBox->text()
-               ;
-    rc.remove(QLatin1Char('&'));
-    return rc;
-}
-
 SettingsPage::SettingsPage() :
     m_widget(0)
 {
@@ -109,12 +89,12 @@ SettingsPage::SettingsPage() :
     setDisplayName(tr("Subversion"));
 }
 
-QWidget *SettingsPage::createPage(QWidget *parent)
+QWidget *SettingsPage::widget()
 {
-    m_widget = new SettingsPageWidget(parent);
-    m_widget->setSettings(SubversionPlugin::instance()->settings());
-    if (m_searchKeywords.isEmpty())
-        m_searchKeywords = m_widget->searchKeywords();
+    if (!m_widget) {
+        m_widget = new SettingsPageWidget;
+        m_widget->setSettings(SubversionPlugin::instance()->settings());
+    }
     return m_widget;
 }
 
@@ -123,7 +103,7 @@ void SettingsPage::apply()
     SubversionPlugin::instance()->setSettings(m_widget->settings());
 }
 
-bool SettingsPage::matches(const QString &s) const
+void SettingsPage::finish()
 {
-    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
+    delete m_widget;
 }

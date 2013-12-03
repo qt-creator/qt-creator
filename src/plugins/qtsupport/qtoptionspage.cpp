@@ -75,11 +75,10 @@ QtOptionsPage::QtOptionsPage()
     setCategoryIcon(QLatin1String(ProjectExplorer::Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));
 }
 
-QWidget *QtOptionsPage::createPage(QWidget *parent)
+QWidget *QtOptionsPage::widget()
 {
-    m_widget = new QtOptionsPageWidget(parent);
-    if (m_searchKeywords.isEmpty())
-        m_searchKeywords = m_widget->searchKeywords();
+    if (!m_widget)
+        m_widget = new QtOptionsPageWidget;
     return m_widget;
 }
 
@@ -92,9 +91,9 @@ void QtOptionsPage::apply()
     m_widget->apply();
 }
 
-bool QtOptionsPage::matches(const QString &s) const
+void QtOptionsPage::finish()
 {
-    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
+    delete m_widget;
 }
 
 //-----------------------------------------------------
@@ -1008,20 +1007,6 @@ QList<BaseQtVersion *> QtOptionsPageWidget::versions() const
     for (int i = 0; i < m_versions.count(); ++i)
         result.append(m_versions.at(i)->clone());
     return result;
-}
-
-QString QtOptionsPageWidget::searchKeywords() const
-{
-    QString rc;
-    QLatin1Char sep(' ');
-    QTextStream ts(&rc);
-    ts << sep << m_versionUi->versionNameLabel->text()
-       << sep << m_versionUi->pathLabel->text()
-       << sep << m_debuggingHelperUi->gdbHelperLabel->text()
-       << sep << m_debuggingHelperUi->qmlDumpLabel->text();
-
-    rc.remove(QLatin1Char('&'));
-    return rc;
 }
 
 } // namespace Internal

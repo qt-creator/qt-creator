@@ -50,7 +50,6 @@ public:
 
     BazaarSettings settings() const;
     void setSettings(const BazaarSettings &s);
-    QString searchKeywords() const;
 
 private:
     Ui::OptionsPage m_ui;
@@ -64,16 +63,14 @@ class OptionsPage : public VcsBase::VcsBaseOptionsPage
 public:
     OptionsPage();
 
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
     void finish() { }
-    bool matches(const QString &s) const;
 
 signals:
     void settingsChanged();
 
 private:
-    QString m_searchKeywords;
     QPointer<OptionsPageWidget> m_optionsPageWidget;
 };
 

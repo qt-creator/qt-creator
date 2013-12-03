@@ -62,10 +62,9 @@ public:
     ~BehaviorSettingsPage();
 
     // IOptionsPage
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
     void finish();
-    bool matches(const QString &s) const;
 
     ICodeStylePreferences *codeStyle() const;
     CodeStylePool *codeStylePool() const;

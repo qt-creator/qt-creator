@@ -36,7 +36,7 @@ using namespace UpdateInfo;
 using namespace UpdateInfo::Internal;
 
 SettingsPage::SettingsPage(UpdateInfoPlugin *plugin)
-    : m_page(0)
+    : m_widget(0)
     , m_plugin(plugin)
 {
     setId(Constants::FILTER_OPTIONS_PAGE);
@@ -46,15 +46,15 @@ SettingsPage::SettingsPage(UpdateInfoPlugin *plugin)
     setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::SETTINGS_TR_CATEGORY_CORE));
 }
 
-QWidget *SettingsPage::createPage(QWidget *parent)
+QWidget *SettingsPage::widget()
 {
-    m_page = new QWidget(parent);
-    m_ui.setupUi(m_page);
-    if (m_searchKeywords.isEmpty())
-        m_searchKeywords = m_ui.m_info->text();
-    m_ui.m_timeTable->setItemText(m_ui.m_timeTable->currentIndex(), QTime(m_plugin->scheduledUpdateTime())
-        .toString(QLatin1String("hh:mm")));
-    return m_page;
+    if (!m_widget) {
+        m_widget = new QWidget;
+        m_ui.setupUi(m_widget);
+        m_ui.m_timeTable->setItemText(m_ui.m_timeTable->currentIndex(), QTime(m_plugin->scheduledUpdateTime())
+            .toString(QLatin1String("hh:mm")));
+    }
+    return m_widget;
 }
 
 void SettingsPage::apply()
@@ -66,9 +66,5 @@ void SettingsPage::apply()
 
 void SettingsPage::finish()
 {
-}
-
-bool SettingsPage::matches(const QString &searchKey) const
-{
-    return m_searchKeywords.contains(searchKey, Qt::CaseInsensitive);
+    delete m_widget;
 }

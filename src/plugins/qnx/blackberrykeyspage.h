@@ -34,6 +34,8 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <QPointer>
+
 namespace Qnx {
 namespace Internal {
 
@@ -44,12 +46,12 @@ class BlackBerryKeysPage : public Core::IOptionsPage
     Q_OBJECT
 public:
     explicit BlackBerryKeysPage(QObject *parent = 0);
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
     void finish();
 
 private:
-    BlackBerryKeysWidget *m_widget;
+    QPointer<BlackBerryKeysWidget> m_widget;
 };
 
 } // namespace Internal

@@ -89,18 +89,6 @@ void CppSettingsPageWidget::setUiEmbedding(int v)
     }
 }
 
-QString CppSettingsPageWidget::searchKeywords() const
-{
-    QString rc;
-    QTextStream(&rc) << m_ui.ptrAggregationRadioButton->text()
-            << ' ' << m_ui.aggregationButton->text()
-            << ' ' << m_ui.multipleInheritanceButton->text()
-            << ' ' << m_ui.retranslateCheckBox->text()
-            << ' ' << m_ui.includeQtModuleCheckBox->text();
-    rc.remove(QLatin1Char('&'));
-    return rc;
-}
-
 // ---------- CppSettingsPage
 CppSettingsPage::CppSettingsPage(QObject *parent) : Core::IOptionsPage(parent)
 {
@@ -112,12 +100,12 @@ CppSettingsPage::CppSettingsPage(QObject *parent) : Core::IOptionsPage(parent)
     setCategoryIcon(QLatin1String(Designer::Constants::SETTINGS_CATEGORY_ICON));
 }
 
-QWidget *CppSettingsPage::createPage(QWidget *parent)
+QWidget *CppSettingsPage::widget()
 {
-    m_widget = new CppSettingsPageWidget(parent);
-    m_widget->setParameters(m_parameters);
-    if (m_searchKeywords.isEmpty())
-        m_searchKeywords = m_widget->searchKeywords();
+    if (!m_widget) {
+        m_widget = new CppSettingsPageWidget;
+        m_widget->setParameters(m_parameters);
+    }
     return m_widget;
 }
 
@@ -134,11 +122,7 @@ void CppSettingsPage::apply()
 
 void CppSettingsPage::finish()
 {
-}
-
-bool CppSettingsPage::matches(const QString &s) const
-{
-    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
+    delete m_widget;
 }
 
 } // namespace Internal

@@ -32,9 +32,10 @@
 
 #include "ui_settingspage.h"
 
-#include <QHash>
-
 #include <coreplugin/dialogs/ioptionspage.h>
+
+#include <QHash>
+#include <QPointer>
 
 QT_BEGIN_NAMESPACE
 class QListWidgetItem;
@@ -55,10 +56,9 @@ class SettingsPage : public Core::IOptionsPage
 public:
     explicit SettingsPage(LocatorPlugin *plugin);
 
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
     void finish();
-    bool matches(const QString &) const;
 
 private slots:
     void updateButtonStates();
@@ -74,14 +74,13 @@ private:
 
     Ui::SettingsWidget m_ui;
     LocatorPlugin *m_plugin;
-    QWidget *m_page;
+    QPointer<QWidget> m_widget;
     QList<ILocatorFilter *> m_filters;
     QList<ILocatorFilter *> m_addedFilters;
     QList<ILocatorFilter *> m_removedFilters;
     QList<ILocatorFilter *> m_customFilters;
     QList<ILocatorFilter *> m_refreshFilters;
     QHash<ILocatorFilter *, QByteArray> m_filterStates;
-    QString m_searchKeywords;
 };
 
 } // namespace Internal

@@ -32,6 +32,8 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <QPointer>
+
 QT_BEGIN_NAMESPACE
 class QDesignerOptionsPageInterface;
 QT_END_NAMESPACE
@@ -48,13 +50,14 @@ class SettingsPage : public Core::IOptionsPage
 public:
     explicit SettingsPage(QDesignerOptionsPageInterface *designerPage);
 
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
     void finish();
 
 private:
     QDesignerOptionsPageInterface *m_designerPage;
     bool m_initialized;
+    QPointer<QWidget> m_widget;
 };
 
 class SettingsPageProvider : public Core::IOptionsPageProvider

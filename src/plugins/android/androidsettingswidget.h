@@ -66,11 +66,10 @@ class AndroidSettingsWidget : public QWidget
     Q_OBJECT
 public:
     // Todo: This would be so much simpler if it just used Utils::PathChooser!!!
-    AndroidSettingsWidget(QWidget *parent);
+    AndroidSettingsWidget(QWidget *parent = 0);
     ~AndroidSettingsWidget();
 
     void saveSettings(bool saveNow = false);
-    QString searchKeywords() const;
 
 private slots:
     void sdkLocationEditingFinished();

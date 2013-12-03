@@ -450,92 +450,81 @@ ToolChainOptionsPage::ToolChainOptionsPage() :
     setCategoryIcon(QLatin1String(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));
 }
 
-QWidget *ToolChainOptionsPage::createPage(QWidget *parent)
+QWidget *ToolChainOptionsPage::widget()
 {
-    // Actual page setup:
-    m_configWidget = new QWidget(parent);
+    if (!m_configWidget) {
+        // Actual page setup:
+        m_configWidget = new QWidget;
 
-    m_toolChainView = new QTreeView(m_configWidget);
-    m_toolChainView->setUniformRowHeights(true);
-    m_toolChainView->header()->setStretchLastSection(false);
+        m_toolChainView = new QTreeView(m_configWidget);
+        m_toolChainView->setUniformRowHeights(true);
+        m_toolChainView->header()->setStretchLastSection(false);
 
-    m_addButton = new QPushButton(tr("Add"), m_configWidget);
-    m_cloneButton = new QPushButton(tr("Clone"), m_configWidget);
-    m_delButton = new QPushButton(tr("Remove"), m_configWidget);
+        m_addButton = new QPushButton(tr("Add"), m_configWidget);
+        m_cloneButton = new QPushButton(tr("Clone"), m_configWidget);
+        m_delButton = new QPushButton(tr("Remove"), m_configWidget);
 
-    m_container = new Utils::DetailsWidget(m_configWidget);
-    m_container->setState(Utils::DetailsWidget::NoSummary);
-    m_container->setVisible(false);
+        m_container = new Utils::DetailsWidget(m_configWidget);
+        m_container->setState(Utils::DetailsWidget::NoSummary);
+        m_container->setVisible(false);
 
-    QVBoxLayout *buttonLayout = new QVBoxLayout();
-    buttonLayout->setSpacing(6);
-    buttonLayout->setContentsMargins(0, 0, 0, 0);
-    buttonLayout->addWidget(m_addButton);
-    buttonLayout->addWidget(m_cloneButton);
-    buttonLayout->addWidget(m_delButton);
-    buttonLayout->addItem(new QSpacerItem(10, 40, QSizePolicy::Minimum, QSizePolicy::Expanding));
+        QVBoxLayout *buttonLayout = new QVBoxLayout();
+        buttonLayout->setSpacing(6);
+        buttonLayout->setContentsMargins(0, 0, 0, 0);
+        buttonLayout->addWidget(m_addButton);
+        buttonLayout->addWidget(m_cloneButton);
+        buttonLayout->addWidget(m_delButton);
+        buttonLayout->addItem(new QSpacerItem(10, 40, QSizePolicy::Minimum, QSizePolicy::Expanding));
 
-    QVBoxLayout *verticalLayout = new QVBoxLayout();
-    verticalLayout->addWidget(m_toolChainView);
-    verticalLayout->addWidget(m_container);
+        QVBoxLayout *verticalLayout = new QVBoxLayout();
+        verticalLayout->addWidget(m_toolChainView);
+        verticalLayout->addWidget(m_container);
 
-    QHBoxLayout *horizontalLayout = new QHBoxLayout(m_configWidget);
-    horizontalLayout->addLayout(verticalLayout);
-    horizontalLayout->addLayout(buttonLayout);
-    Q_ASSERT(!m_model);
-    m_model = new ToolChainModel(m_configWidget);
+        QHBoxLayout *horizontalLayout = new QHBoxLayout(m_configWidget);
+        horizontalLayout->addLayout(verticalLayout);
+        horizontalLayout->addLayout(buttonLayout);
+        Q_ASSERT(!m_model);
+        m_model = new ToolChainModel(m_configWidget);
 
-    connect(m_model, SIGNAL(toolChainStateChanged()), this, SLOT(updateState()));
+        connect(m_model, SIGNAL(toolChainStateChanged()), this, SLOT(updateState()));
 
-    m_toolChainView->setModel(m_model);
-    m_toolChainView->header()->setResizeMode(0, QHeaderView::ResizeToContents);
-    m_toolChainView->header()->setResizeMode(1, QHeaderView::Stretch);
-    m_toolChainView->expandAll();
+        m_toolChainView->setModel(m_model);
+        m_toolChainView->header()->setResizeMode(0, QHeaderView::ResizeToContents);
+        m_toolChainView->header()->setResizeMode(1, QHeaderView::Stretch);
+        m_toolChainView->expandAll();
 
-    m_selectionModel = m_toolChainView->selectionModel();
-    connect(m_selectionModel, SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SLOT(toolChainSelectionChanged()));
-    connect(ToolChainManager::instance(), SIGNAL(toolChainsChanged()),
-            this, SLOT(toolChainSelectionChanged()));
+        m_selectionModel = m_toolChainView->selectionModel();
+        connect(m_selectionModel, SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+                this, SLOT(toolChainSelectionChanged()));
+        connect(ToolChainManager::instance(), SIGNAL(toolChainsChanged()),
+                this, SLOT(toolChainSelectionChanged()));
 
-    // Get toolchainfactories:
-    m_factories = ExtensionSystem::PluginManager::getObjects<ToolChainFactory>();
+        // Get toolchainfactories:
+        m_factories = ExtensionSystem::PluginManager::getObjects<ToolChainFactory>();
 
-    // Set up add menu:
-    QMenu *addMenu = new QMenu(m_addButton);
-    QSignalMapper *mapper = new QSignalMapper(addMenu);
-    connect(mapper, SIGNAL(mapped(QObject*)), this, SLOT(createToolChain(QObject*)));
+        // Set up add menu:
+        QMenu *addMenu = new QMenu(m_addButton);
+        QSignalMapper *mapper = new QSignalMapper(addMenu);
+        connect(mapper, SIGNAL(mapped(QObject*)), this, SLOT(createToolChain(QObject*)));
 
-    foreach (ToolChainFactory *factory, m_factories) {
-        if (factory->canCreate()) {
-            QAction *action = new QAction(addMenu);
-            action->setText(factory->displayName());
-            connect(action, SIGNAL(triggered()), mapper, SLOT(map()));
-            mapper->setMapping(action, static_cast<QObject *>(factory));
+        foreach (ToolChainFactory *factory, m_factories) {
+            if (factory->canCreate()) {
+                QAction *action = new QAction(addMenu);
+                action->setText(factory->displayName());
+                connect(action, SIGNAL(triggered()), mapper, SLOT(map()));
+                mapper->setMapping(action, static_cast<QObject *>(factory));
 
-            addMenu->addAction(action);
+                addMenu->addAction(action);
+            }
         }
+        connect(m_cloneButton, SIGNAL(clicked()), mapper, SLOT(map()));
+        mapper->setMapping(m_cloneButton, static_cast<QObject *>(0));
+
+        m_addButton->setMenu(addMenu);
+
+        connect(m_delButton, SIGNAL(clicked()), this, SLOT(removeToolChain()));
+        updateState();
     }
-    connect(m_cloneButton, SIGNAL(clicked()), mapper, SLOT(map()));
-    mapper->setMapping(m_cloneButton, static_cast<QObject *>(0));
-
-    m_addButton->setMenu(addMenu);
-
-    connect(m_delButton, SIGNAL(clicked()), this, SLOT(removeToolChain()));
-
-    // setup keywords:
-    if (m_searchKeywords.isEmpty()) {
-        QLatin1Char sep(' ');
-        QTextStream stream(&m_searchKeywords);
-        stream << tr("Compilers");
-        foreach (ToolChainFactory *f, m_factories)
-            stream << sep << f->displayName();
-
-        m_searchKeywords.remove(QLatin1Char('&'));
-    }
-
-    updateState();
-
     return m_configWidget;
 }
 
@@ -550,8 +539,7 @@ void ToolChainOptionsPage::finish()
     disconnect(ToolChainManager::instance(), SIGNAL(toolChainsChanged()),
                this, SLOT(toolChainSelectionChanged()));
 
-    // delete by settingsdialog;
-    m_configWidget = 0;
+    delete m_configWidget;
 
     // children of m_configWidget
     m_model = 0;
@@ -561,11 +549,6 @@ void ToolChainOptionsPage::finish()
     m_addButton = 0;
     m_cloneButton = 0;
     m_delButton = 0;
-}
-
-bool ToolChainOptionsPage::matches(const QString &s) const
-{
-    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }
 
 void ToolChainOptionsPage::toolChainSelectionChanged()

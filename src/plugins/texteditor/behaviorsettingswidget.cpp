@@ -223,35 +223,6 @@ void BehaviorSettingsWidget::assignedExtraEncodingSettings(
         (ExtraEncodingSettings::Utf8BomSetting)d->m_ui.utf8BomBox->currentIndex();
 }
 
-QString BehaviorSettingsWidget::collectUiKeywords() const
-{
-    static const QLatin1Char sep(' ');
-    QString keywords;
-    QTextStream(&keywords)
-        << sep << d->m_ui.tabPreferencesWidget->searchKeywords()
-        << sep << d->m_ui.autoIndent->text()
-        << sep << d->m_ui.smartBackspaceLabel->text()
-        << sep << d->m_ui.tabKeyBehaviorLabel->text()
-        << sep << d->m_ui.cleanWhitespace->text()
-        << sep << d->m_ui.inEntireDocument->text()
-        << sep << d->m_ui.cleanIndentation->text()
-        << sep << d->m_ui.addFinalNewLine->text()
-        << sep << d->m_ui.encodingLabel->text()
-        << sep << d->m_ui.utf8BomLabel->text()
-        << sep << d->m_ui.mouseNavigation->text()
-        << sep << d->m_ui.scrollWheelZooming->text()
-        << sep << d->m_ui.helpTooltipsLabel->text()
-        << sep << d->m_ui.constrainTooltipsBox->itemText(0)
-        << sep << d->m_ui.constrainTooltipsBox->itemText(1)
-        << sep << d->m_ui.camelCaseNavigation->text()
-        << sep << d->m_ui.keyboardTooltips->text()
-        << sep << d->m_ui.groupBoxStorageSettings->title()
-        << sep << d->m_ui.groupBoxEncodings->title()
-        << sep << d->m_ui.groupBoxMouse->title();
-    keywords.remove(QLatin1Char('&'));
-    return keywords;
-}
-
 TabSettingsWidget *BehaviorSettingsWidget::tabSettingsWidget() const
 {
     return d->m_ui.tabPreferencesWidget->tabSettingsWidget();

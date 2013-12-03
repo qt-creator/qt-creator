@@ -150,29 +150,6 @@ void ProjectExplorerSettingsWidget::updateResetButton()
     m_ui.resetButton->setEnabled(buildDirectory() != QLatin1String(Core::Constants::DEFAULT_BUILD_DIRECTORY));
 }
 
-QString ProjectExplorerSettingsWidget::searchKeywords() const
-{
-    if (m_searchKeywords.isEmpty()) {
-        QLatin1Char sep(' ');
-        m_searchKeywords = m_ui.directoryGroupBox->title()
-                + sep + m_ui.currentDirectoryRadioButton->text()
-                + sep + m_ui.directoryRadioButton->text()
-                + sep + m_ui.buildAndRunGroupBox->title()
-                + sep + m_ui.saveAllFilesCheckBox->text()
-                + sep + m_ui.buildProjectBeforeDeployCheckBox->text()
-                + sep + m_ui.deployProjectBeforeRunCheckBox->text()
-                + sep + m_ui.showCompileOutputCheckBox->text()
-                + sep + m_ui.cleanOldAppOutputCheckBox->text()
-                + sep + m_ui.mergeStdErrAndStdOutCheckBox->text()
-                + sep + m_ui.mergeStdErrAndStdOutCheckBox->toolTip()
-                + sep + m_ui.wrapAppOutputCheckBox->text()
-                + sep + m_ui.jomLabel->text()
-                ;
-        m_searchKeywords.remove(QLatin1Char('&'));
-    }
-    return m_searchKeywords;
-}
-
 // ------------------ ProjectExplorerSettingsPage
 ProjectExplorerSettingsPage::ProjectExplorerSettingsPage()
 {
@@ -188,15 +165,15 @@ ProjectExplorerSettingsPage::~ProjectExplorerSettingsPage()
 {
 }
 
-QWidget *ProjectExplorerSettingsPage::createPage(QWidget *parent)
+QWidget *ProjectExplorerSettingsPage::widget()
 {
-    m_widget = new ProjectExplorerSettingsWidget(parent);
-    m_widget->setSettings(ProjectExplorerPlugin::projectExplorerSettings());
-    m_widget->setProjectsDirectory(Core::DocumentManager::projectsDirectory());
-    m_widget->setUseProjectsDirectory(Core::DocumentManager::useProjectsDirectory());
-    m_widget->setBuildDirectory(Core::DocumentManager::buildDirectory());
-    if (m_searchKeywords.isEmpty())
-        m_searchKeywords = m_widget->searchKeywords();
+    if (!m_widget) {
+        m_widget = new ProjectExplorerSettingsWidget;
+        m_widget->setSettings(ProjectExplorerPlugin::projectExplorerSettings());
+        m_widget->setProjectsDirectory(Core::DocumentManager::projectsDirectory());
+        m_widget->setUseProjectsDirectory(Core::DocumentManager::useProjectsDirectory());
+        m_widget->setBuildDirectory(Core::DocumentManager::buildDirectory());
+    }
     return m_widget;
 }
 
@@ -212,12 +189,7 @@ void ProjectExplorerSettingsPage::apply()
 
 void ProjectExplorerSettingsPage::finish()
 {
-    // Nothing to do
-}
-
-bool ProjectExplorerSettingsPage::matches(const QString &s) const
-{
-    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
+    delete m_widget;
 }
 
 } // namespace Internal

@@ -66,10 +66,9 @@ public:
     explicit SettingsPage(const QSharedPointer<Settings> &settings);
     ~SettingsPage();
 
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
     void finish() { }
-    bool matches(const QString &) const;
 
     void addProtocol(const QString& name);
 
@@ -78,7 +77,6 @@ private:
 
     QPointer<SettingsWidget> m_widget;
     QStringList m_protocols;
-    QString m_searchKeywords;
 };
 
 } // namespace CodePaster

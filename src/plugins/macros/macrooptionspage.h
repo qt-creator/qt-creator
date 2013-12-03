@@ -32,6 +32,8 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <QPointer>
+
 namespace Macros {
 namespace Internal {
 
@@ -45,12 +47,12 @@ public:
     MacroOptionsPage(QObject *parent = 0);
 
     // IOptionsPage implementation
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
     void finish();
 
 private:
-    Internal::MacroOptionsWidget *m_widget;
+    QPointer<MacroOptionsWidget> m_widget;
 };
 
 } // namespace Internal

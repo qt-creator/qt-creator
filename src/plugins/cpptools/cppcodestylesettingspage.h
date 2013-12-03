@@ -66,8 +66,6 @@ public:
 
     void setCodeStyle(CppTools::CppCodeStylePreferences *codeStylePreferences);
 
-    QString searchKeywords() const;
-
 private slots:
     void decorateEditors(const TextEditor::FontSettings &fontSettings);
     void setVisualizeWhitespace(bool on);
@@ -95,13 +93,11 @@ class CppCodeStyleSettingsPage : public Core::IOptionsPage
 public:
     explicit CppCodeStyleSettingsPage(QWidget *parent = 0);
 
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
-    void finish() { }
-    bool matches(const QString &) const;
+    void finish();
 
 private:
-    QString m_searchKeywords;
     CppCodeStylePreferences *m_pageCppCodeStylePreferences;
     QPointer<TextEditor::CodeStyleEditor> m_widget;
 };

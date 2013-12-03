@@ -52,9 +52,10 @@ BlackBerryNDKSettingsPage::BlackBerryNDKSettingsPage(QObject *parent) :
     setCategoryIcon(QLatin1String(Constants::QNX_BB_CATEGORY_ICON));
 }
 
-QWidget *BlackBerryNDKSettingsPage::createPage(QWidget *parent)
+QWidget *BlackBerryNDKSettingsPage::widget()
 {
-    m_widget = new BlackBerryNDKSettingsWidget(parent);
+    if (!m_widget)
+        m_widget = new BlackBerryNDKSettingsWidget;
     return m_widget;
 }
 
@@ -73,6 +74,7 @@ void BlackBerryNDKSettingsPage::apply()
 
 void BlackBerryNDKSettingsPage::finish()
 {
+    delete m_widget;
 }
 
 } // namespace Internal

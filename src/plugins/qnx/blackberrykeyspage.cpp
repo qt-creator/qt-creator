@@ -51,9 +51,10 @@ BlackBerryKeysPage::BlackBerryKeysPage(QObject *parent) :
                 Constants::QNX_BB_CATEGORY_TR));
 }
 
-QWidget *BlackBerryKeysPage::createPage(QWidget *parent)
+QWidget *BlackBerryKeysPage::widget()
 {
-    m_widget = new BlackBerryKeysWidget(parent);
+    if (!m_widget)
+        m_widget = new BlackBerryKeysWidget;
     return m_widget;
 }
 
@@ -63,6 +64,7 @@ void BlackBerryKeysPage::apply()
 
 void BlackBerryKeysPage::finish()
 {
+    delete m_widget;
 }
 
 } // namespace Internal

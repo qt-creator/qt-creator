@@ -59,76 +59,75 @@ KitOptionsPage::KitOptionsPage() :
     setCategoryIcon(QLatin1String(Constants::PROJECTEXPLORER_SETTINGS_CATEGORY_ICON));
 }
 
-QWidget *KitOptionsPage::createPage(QWidget *parent)
+QWidget *KitOptionsPage::widget()
 {
-    m_configWidget = new QWidget(parent);
+    if (!m_configWidget) {
+        m_configWidget = new QWidget;
 
-    m_kitsView = new QTreeView(m_configWidget);
-    m_kitsView->setUniformRowHeights(true);
-    m_kitsView->header()->setStretchLastSection(true);
-    m_kitsView->setSizePolicy(m_kitsView->sizePolicy().horizontalPolicy(),
+        m_kitsView = new QTreeView(m_configWidget);
+        m_kitsView->setUniformRowHeights(true);
+        m_kitsView->header()->setStretchLastSection(true);
+        m_kitsView->setSizePolicy(m_kitsView->sizePolicy().horizontalPolicy(),
                                   QSizePolicy::Ignored);
 
-    m_addButton = new QPushButton(tr("Add"), m_configWidget);
-    m_cloneButton = new QPushButton(tr("Clone"), m_configWidget);
-    m_delButton = new QPushButton(tr("Remove"), m_configWidget);
-    m_makeDefaultButton = new QPushButton(tr("Make Default"), m_configWidget);
+        m_addButton = new QPushButton(tr("Add"), m_configWidget);
+        m_cloneButton = new QPushButton(tr("Clone"), m_configWidget);
+        m_delButton = new QPushButton(tr("Remove"), m_configWidget);
+        m_makeDefaultButton = new QPushButton(tr("Make Default"), m_configWidget);
 
-    QVBoxLayout *buttonLayout = new QVBoxLayout();
-    buttonLayout->setSpacing(6);
-    buttonLayout->setContentsMargins(0, 0, 0, 0);
-    buttonLayout->addWidget(m_addButton);
-    buttonLayout->addWidget(m_cloneButton);
-    buttonLayout->addWidget(m_delButton);
-    buttonLayout->addWidget(m_makeDefaultButton);
-    buttonLayout->addStretch();
+        QVBoxLayout *buttonLayout = new QVBoxLayout();
+        buttonLayout->setSpacing(6);
+        buttonLayout->setContentsMargins(0, 0, 0, 0);
+        buttonLayout->addWidget(m_addButton);
+        buttonLayout->addWidget(m_cloneButton);
+        buttonLayout->addWidget(m_delButton);
+        buttonLayout->addWidget(m_makeDefaultButton);
+        buttonLayout->addStretch();
 
-    QHBoxLayout *horizontalLayout = new QHBoxLayout();
-    horizontalLayout->addWidget(m_kitsView);
-    horizontalLayout->addLayout(buttonLayout);
+        QHBoxLayout *horizontalLayout = new QHBoxLayout();
+        horizontalLayout->addWidget(m_kitsView);
+        horizontalLayout->addLayout(buttonLayout);
 
-    QVBoxLayout *verticalLayout = new QVBoxLayout(m_configWidget);
-    verticalLayout->addLayout(horizontalLayout);
+        QVBoxLayout *verticalLayout = new QVBoxLayout(m_configWidget);
+        verticalLayout->addLayout(horizontalLayout);
 
-    m_model = new Internal::KitModel(verticalLayout);
-    connect(m_model, SIGNAL(kitStateChanged()), this, SLOT(updateState()));
-    verticalLayout->setStretch(0, 1);
-    verticalLayout->setStretch(1, 0);
+        m_model = new Internal::KitModel(verticalLayout);
+        connect(m_model, SIGNAL(kitStateChanged()), this, SLOT(updateState()));
+        verticalLayout->setStretch(0, 1);
+        verticalLayout->setStretch(1, 0);
 
-    m_kitsView->setModel(m_model);
-    m_kitsView->header()->setResizeMode(0, QHeaderView::Stretch);
-    m_kitsView->expandAll();
+        m_kitsView->setModel(m_model);
+        m_kitsView->header()->setResizeMode(0, QHeaderView::Stretch);
+        m_kitsView->expandAll();
 
-    m_selectionModel = m_kitsView->selectionModel();
-    connect(m_selectionModel, SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SLOT(kitSelectionChanged()));
-    connect(KitManager::instance(), SIGNAL(kitAdded(ProjectExplorer::Kit*)),
-            this, SLOT(kitSelectionChanged()));
-    connect(KitManager::instance(), SIGNAL(kitRemoved(ProjectExplorer::Kit*)),
-            this, SLOT(kitSelectionChanged()));
-    connect(KitManager::instance(), SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
-            this, SLOT(kitSelectionChanged()));
+        m_selectionModel = m_kitsView->selectionModel();
+        connect(m_selectionModel, SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+                this, SLOT(kitSelectionChanged()));
+        connect(KitManager::instance(), SIGNAL(kitAdded(ProjectExplorer::Kit*)),
+                this, SLOT(kitSelectionChanged()));
+        connect(KitManager::instance(), SIGNAL(kitRemoved(ProjectExplorer::Kit*)),
+                this, SLOT(kitSelectionChanged()));
+        connect(KitManager::instance(), SIGNAL(kitUpdated(ProjectExplorer::Kit*)),
+                this, SLOT(kitSelectionChanged()));
 
-    // Set up add menu:
-    connect(m_addButton, SIGNAL(clicked()), this, SLOT(addNewKit()));
-    connect(m_cloneButton, SIGNAL(clicked()), this, SLOT(cloneKit()));
-    connect(m_delButton, SIGNAL(clicked()), this, SLOT(removeKit()));
-    connect(m_makeDefaultButton, SIGNAL(clicked()), this, SLOT(makeDefaultKit()));
+        // Set up add menu:
+        connect(m_addButton, SIGNAL(clicked()), this, SLOT(addNewKit()));
+        connect(m_cloneButton, SIGNAL(clicked()), this, SLOT(cloneKit()));
+        connect(m_delButton, SIGNAL(clicked()), this, SLOT(removeKit()));
+        connect(m_makeDefaultButton, SIGNAL(clicked()), this, SLOT(makeDefaultKit()));
 
-    m_searchKeywords = tr("Kits");
+        updateState();
 
-    updateState();
-
-    if (m_toShow) {
-        QModelIndex index = m_model->indexOf(m_toShow);
-        m_selectionModel->select(index,
-                                 QItemSelectionModel::Clear
-                                 | QItemSelectionModel::SelectCurrent
-                                 | QItemSelectionModel::Rows);
-        m_kitsView->scrollTo(index);
+        if (m_toShow) {
+            QModelIndex index = m_model->indexOf(m_toShow);
+            m_selectionModel->select(index,
+                                     QItemSelectionModel::Clear
+                                     | QItemSelectionModel::SelectCurrent
+                                     | QItemSelectionModel::Rows);
+            m_kitsView->scrollTo(index);
+        }
+        m_toShow = 0;
     }
-    m_toShow = 0;
-
     return m_configWidget;
 }
 
@@ -145,16 +144,11 @@ void KitOptionsPage::finish()
         m_model = 0;
     }
 
-    m_configWidget = 0; // deleted by settingsdialog
+    delete m_configWidget;
     m_selectionModel = 0; // child of m_configWidget
     m_kitsView = 0; // child of m_configWidget
     m_currentWidget = 0; // deleted by the model
     m_toShow = 0;
-}
-
-bool KitOptionsPage::matches(const QString &s) const
-{
-    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }
 
 void KitOptionsPage::showKit(Kit *k)

@@ -55,12 +55,13 @@ GerritOptionsPage::~GerritOptionsPage()
     delete m_widget;
 }
 
-QWidget *GerritOptionsPage::createPage(QWidget *parent)
+QWidget *GerritOptionsPage::widget()
 {
-    GerritOptionsWidget *gow = new GerritOptionsWidget(parent);
-    gow->setParameters(*m_parameters);
-    m_widget = gow;
-    return gow;
+    if (!m_widget) {
+        m_widget = new GerritOptionsWidget;
+        m_widget->setParameters(*m_parameters);
+    }
+    return m_widget;
 }
 
 void GerritOptionsPage::apply()
@@ -78,9 +79,9 @@ void GerritOptionsPage::apply()
     }
 }
 
-bool GerritOptionsPage::matches(const QString &s) const
+void GerritOptionsPage::finish()
 {
-    return s.contains(QLatin1String("gerrit"), Qt::CaseInsensitive);
+    delete m_widget;
 }
 
 GerritOptionsWidget::GerritOptionsWidget(QWidget *parent)

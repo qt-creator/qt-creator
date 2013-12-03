@@ -33,6 +33,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <QPointer>
 #include <QTextStream>
 
 using namespace TextEditor;
@@ -42,9 +43,9 @@ struct DisplaySettingsPage::DisplaySettingsPagePrivate
     explicit DisplaySettingsPagePrivate(const DisplaySettingsPageParameters &p);
 
     const DisplaySettingsPageParameters m_parameters;
+    QPointer<QWidget> m_widget;
     Internal::Ui::DisplaySettingsPage *m_page;
     DisplaySettings m_displaySettings;
-    QString m_searchKeywords;
 };
 
 DisplaySettingsPage::DisplaySettingsPagePrivate::DisplaySettingsPagePrivate
@@ -68,28 +69,15 @@ DisplaySettingsPage::~DisplaySettingsPage()
     delete d;
 }
 
-QWidget *DisplaySettingsPage::createPage(QWidget *parent)
+QWidget *DisplaySettingsPage::widget()
 {
-    QWidget *w = new QWidget(parent);
-    d->m_page = new Internal::Ui::DisplaySettingsPage;
-    d->m_page->setupUi(w);
-    settingsToUI();
-    if (d->m_searchKeywords.isEmpty()) {
-        QTextStream(&d->m_searchKeywords) << d->m_page->displayLineNumbers->text()
-          << ' ' << d->m_page->highlightCurrentLine->text()
-          << ' ' << d->m_page->displayFoldingMarkers->text()
-          << ' ' << d->m_page->highlightBlocks->text()
-          << ' ' << d->m_page->visualizeWhitespace->text()
-          << ' ' << d->m_page->animateMatchingParentheses->text()
-          << ' ' << d->m_page->highlightMatchingParentheses->text()
-          << ' ' << d->m_page->enableTextWrapping->text()
-          << ' ' << d->m_page->autoFoldFirstComment->text()
-          << ' ' << d->m_page->centerOnScroll->text()
-          << ' ' << d->m_page->openLinksInNextSplit->text()
-          << ' ' << d->m_page->displayFileEncoding->text();
-        d->m_searchKeywords.remove(QLatin1Char('&'));
+    if (!d->m_widget) {
+        d->m_widget = new QWidget;
+        d->m_page = new Internal::Ui::DisplaySettingsPage;
+        d->m_page->setupUi(d->m_widget);
+        settingsToUI();
     }
-    return w;
+    return d->m_widget;
 }
 
 void DisplaySettingsPage::apply()
@@ -104,6 +92,7 @@ void DisplaySettingsPage::apply()
 
 void DisplaySettingsPage::finish()
 {
+    delete d->m_widget;
     if (!d->m_page) // page was never shown
         return;
     delete d->m_page;
@@ -162,9 +151,4 @@ void DisplaySettingsPage::setDisplaySettings(const DisplaySettings &newDisplaySe
 
         emit displaySettingsChanged(newDisplaySettings);
     }
-}
-
-bool DisplaySettingsPage::matches(const QString &s) const
-{
-    return d->m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }

@@ -45,7 +45,7 @@ using namespace Locator;
 using namespace Locator::Internal;
 
 SettingsPage::SettingsPage(LocatorPlugin *plugin)
-    : m_plugin(plugin), m_page(0)
+    : m_plugin(plugin), m_widget(0)
 {
     setId(Constants::FILTER_OPTIONS_PAGE);
     setDisplayName(QCoreApplication::translate("Locator", Locator::Constants::FILTER_OPTIONS_PAGE));
@@ -54,33 +54,30 @@ SettingsPage::SettingsPage(LocatorPlugin *plugin)
     setCategoryIcon(QLatin1String(Core::Constants::SETTINGS_CATEGORY_CORE_ICON));
 }
 
-QWidget *SettingsPage::createPage(QWidget *parent)
+QWidget *SettingsPage::widget()
 {
+    if (!m_widget) {
+        m_widget = new QWidget;
+        m_ui.setupUi(m_widget);
+        m_ui.refreshInterval->setToolTip(m_ui.refreshIntervalLabel->toolTip());
+        connect(m_ui.filterList, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
+                this, SLOT(updateButtonStates()));
+        connect(m_ui.filterList, SIGNAL(itemActivated(QListWidgetItem*)),
+                this, SLOT(configureFilter(QListWidgetItem*)));
+        connect(m_ui.editButton, SIGNAL(clicked()),
+                this, SLOT(configureFilter()));
+        connect(m_ui.addButton, SIGNAL(clicked()),
+                this, SLOT(addCustomFilter()));
+        connect(m_ui.removeButton, SIGNAL(clicked()),
+                this, SLOT(removeCustomFilter()));
 
-    m_page = new QWidget(parent);
-    m_ui.setupUi(m_page);
-    m_ui.refreshInterval->setToolTip(m_ui.refreshIntervalLabel->toolTip());
-    connect(m_ui.filterList, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
-            this, SLOT(updateButtonStates()));
-    connect(m_ui.filterList, SIGNAL(itemActivated(QListWidgetItem*)),
-            this, SLOT(configureFilter(QListWidgetItem*)));
-    connect(m_ui.editButton, SIGNAL(clicked()),
-            this, SLOT(configureFilter()));
-    connect(m_ui.addButton, SIGNAL(clicked()),
-            this, SLOT(addCustomFilter()));
-    connect(m_ui.removeButton, SIGNAL(clicked()),
-            this, SLOT(removeCustomFilter()));
-
-    m_ui.refreshInterval->setValue(m_plugin->refreshInterval());
-    m_filters = m_plugin->filters();
-    m_customFilters = m_plugin->customFilters();
-    saveFilterStates();
-    updateFilterList();
-    if (m_searchKeywords.isEmpty()) {
-        m_searchKeywords = m_ui.refreshIntervalLabel->text();
-        m_searchKeywords.remove(QLatin1Char('&'));
+        m_ui.refreshInterval->setValue(m_plugin->refreshInterval());
+        m_filters = m_plugin->filters();
+        m_customFilters = m_plugin->customFilters();
+        saveFilterStates();
+        updateFilterList();
     }
-    return m_page;
+    return m_widget;
 }
 
 void SettingsPage::apply()
@@ -114,6 +111,7 @@ void SettingsPage::finish()
     m_filters.clear();
     m_customFilters.clear();
     m_refreshFilters.clear();
+    delete m_widget;
 }
 
 void SettingsPage::requestRefresh()
@@ -174,7 +172,7 @@ void SettingsPage::configureFilter(QListWidgetItem *item)
     if (!filter->isConfigurable())
         return;
     bool needsRefresh = false;
-    filter->openConfigDialog(m_page, needsRefresh);
+    filter->openConfigDialog(m_widget, needsRefresh);
     if (needsRefresh && !m_refreshFilters.contains(filter))
         m_refreshFilters.append(filter);
     updateFilterList();
@@ -184,7 +182,7 @@ void SettingsPage::addCustomFilter()
 {
     ILocatorFilter *filter = new DirectoryFilter;
     bool needsRefresh = false;
-    if (filter->openConfigDialog(m_page, needsRefresh)) {
+    if (filter->openConfigDialog(m_widget, needsRefresh)) {
         m_filters.append(filter);
         m_addedFilters.append(filter);
         m_customFilters.append(filter);
@@ -209,9 +207,4 @@ void SettingsPage::removeCustomFilter()
         m_removedFilters.append(filter);
     }
     updateFilterList();
-}
-
-bool SettingsPage::matches(const QString &s) const
-{
-    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }

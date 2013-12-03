@@ -34,6 +34,7 @@
 
 #include <QIcon>
 #include <QObject>
+#include <QStringList>
 
 namespace Core {
 
@@ -42,7 +43,8 @@ class CORE_EXPORT IOptionsPage : public QObject
     Q_OBJECT
 
 public:
-    IOptionsPage(QObject *parent = 0) : QObject(parent) {}
+    IOptionsPage(QObject *parent = 0);
+    virtual ~IOptionsPage();
 
     Id id() const { return m_id; }
     QString displayName() const { return m_displayName; }
@@ -50,8 +52,8 @@ public:
     QString displayCategory() const { return m_displayCategory; }
     QIcon categoryIcon() const { return QIcon(m_categoryIcon); }
 
-    virtual bool matches(const QString & /* searchKeyWord*/) const { return false; }
-    virtual QWidget *createPage(QWidget *parent) = 0;
+    virtual bool matches(const QString &searchKeyWord) const;
+    virtual QWidget *widget() = 0;
     virtual void apply() = 0;
     virtual void finish() = 0;
 
@@ -67,6 +69,9 @@ protected:
     QString m_displayName;
     QString m_displayCategory;
     QString m_categoryIcon;
+
+    mutable bool m_keywordsInitialized;
+    mutable QStringList m_keywords;
 };
 
 /*

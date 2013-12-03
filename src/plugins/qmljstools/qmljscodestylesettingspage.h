@@ -61,7 +61,6 @@ public:
     ~QmlJSCodeStylePreferencesWidget();
 
     void setPreferences(TextEditor::ICodeStylePreferences *preferences);
-    QString searchKeywords() const;
 
 private slots:
     void decorateEditor(const TextEditor::FontSettings &fontSettings);
@@ -82,13 +81,11 @@ class QmlJSCodeStyleSettingsPage : public Core::IOptionsPage
 public:
     explicit QmlJSCodeStyleSettingsPage(QWidget *parent = 0);
 
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
-    void finish() { }
-    bool matches(const QString &) const;
+    void finish();
 
 private:
-    QString m_searchKeywords;
     TextEditor::ICodeStylePreferences *m_pageTabPreferences;
     QPointer<TextEditor::CodeStyleEditor> m_widget;
 };

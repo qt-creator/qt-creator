@@ -440,7 +440,7 @@ void SettingsDialog::ensureCategoryWidget(Category *category)
     QTabWidget *tabWidget = new QTabWidget;
     for (int j = 0; j < category->pages.size(); ++j) {
         IOptionsPage *page = category->pages.at(j);
-        QWidget *widget = page->createPage(0);
+        QWidget *widget = page->widget();
         tabWidget->addTab(widget, page->displayName());
     }
 

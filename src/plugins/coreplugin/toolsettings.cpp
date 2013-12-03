@@ -56,17 +56,12 @@ ToolSettings::ToolSettings(QObject *parent) :
 }
 
 
-bool ToolSettings::matches(const QString & searchKeyWord) const
+QWidget *ToolSettings::widget()
 {
-    return m_searchKeywords.contains(searchKeyWord, Qt::CaseInsensitive);
-}
-
-QWidget *ToolSettings::createPage(QWidget *parent)
-{
-    m_widget = new ExternalToolConfig(parent);
-    m_widget->setTools(ExternalToolManager::toolsByCategory());
-    if (m_searchKeywords.isEmpty())
-        m_searchKeywords = m_widget->searchKeywords();
+    if (!m_widget) {
+        m_widget = new ExternalToolConfig;
+        m_widget->setTools(ExternalToolManager::toolsByCategory());
+    }
     return m_widget;
 }
 
@@ -206,4 +201,5 @@ void ToolSettings::apply()
 
 void ToolSettings::finish()
 {
+    delete m_widget;
 }

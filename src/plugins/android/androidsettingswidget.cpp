@@ -129,24 +129,6 @@ AndroidSettingsWidget::~AndroidSettingsWidget()
     delete m_ui;
 }
 
-QString AndroidSettingsWidget::searchKeywords() const
-{
-    QString rc;
-    QTextStream(&rc) << m_ui->SDKLocationLabel->text()
-        << ' ' << m_ui->SDKLocationLineEdit->text()
-        << ' ' << m_ui->NDKLocationLabel->text()
-        << ' ' << m_ui->NDKLocationLineEdit->text()
-        << ' ' << m_ui->AntLocationLabel->text()
-        << ' ' << m_ui->AntLocationLineEdit->text()
-        << ' ' << m_ui->OpenJDKLocationLabel->text()
-        << ' ' << m_ui->OpenJDKLocationLineEdit->text()
-        << ' ' << m_ui->AVDManagerLabel->text()
-        << ' ' << m_ui->DataPartitionSizeLable->text()
-        << ' ' << m_ui->DataPartitionSizeSpinBox->text();
-    rc.remove(QLatin1Char('&'));
-    return rc;
-}
-
 void AndroidSettingsWidget::initGui()
 {
     m_ui->setupUi(this);

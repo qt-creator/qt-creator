@@ -65,14 +65,6 @@ IosSettingsWidget::~IosSettingsWidget()
     delete m_ui;
 }
 
-QString IosSettingsWidget::searchKeywords() const
-{
-    QString rc;
-    QTextStream(&rc) << m_ui->deviceAskCheckBox->text();
-    rc.remove(QLatin1Char('&'));
-    return rc;
-}
-
 void IosSettingsWidget::initGui()
 {
     m_ui->setupUi(this);

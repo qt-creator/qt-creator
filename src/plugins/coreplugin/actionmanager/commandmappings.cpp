@@ -50,42 +50,43 @@ CommandMappings::CommandMappings(QObject *parent)
 
 // IOptionsPage
 
-QWidget *CommandMappings::createPage(QWidget *parent)
+QWidget *CommandMappings::widget()
 {
-    m_page = new Ui::CommandMappings();
-    QWidget *w = new QWidget(parent);
-    m_page->setupUi(w);
-    m_page->targetEdit->setAutoHideButton(Utils::FancyLineEdit::Right, true);
-    m_page->targetEdit->setPlaceholderText(QString());
-    m_page->targetEdit->installEventFilter(this);
+    if (!m_widget) {
+        m_page = new Ui::CommandMappings();
+        m_widget = new QWidget;
+        m_page->setupUi(m_widget);
+        m_page->targetEdit->setAutoHideButton(Utils::FancyLineEdit::Right, true);
+        m_page->targetEdit->setPlaceholderText(QString());
+        m_page->targetEdit->installEventFilter(this);
 
-    connect(m_page->targetEdit, SIGNAL(buttonClicked(Utils::FancyLineEdit::Side)),
-        this, SLOT(removeTargetIdentifier()));
-    connect(m_page->resetButton, SIGNAL(clicked()),
-        this, SLOT(resetTargetIdentifier()));
-    connect(m_page->exportButton, SIGNAL(clicked()),
-        this, SLOT(exportAction()));
-    connect(m_page->importButton, SIGNAL(clicked()),
-        this, SLOT(importAction()));
-    connect(m_page->defaultButton, SIGNAL(clicked()),
-        this, SLOT(defaultAction()));
+        connect(m_page->targetEdit, SIGNAL(buttonClicked(Utils::FancyLineEdit::Side)),
+            this, SLOT(removeTargetIdentifier()));
+        connect(m_page->resetButton, SIGNAL(clicked()),
+            this, SLOT(resetTargetIdentifier()));
+        connect(m_page->exportButton, SIGNAL(clicked()),
+            this, SLOT(exportAction()));
+        connect(m_page->importButton, SIGNAL(clicked()),
+            this, SLOT(importAction()));
+        connect(m_page->defaultButton, SIGNAL(clicked()),
+            this, SLOT(defaultAction()));
 
-    initialize();
+        initialize();
 
-    m_page->commandList->sortByColumn(0, Qt::AscendingOrder);
+        m_page->commandList->sortByColumn(0, Qt::AscendingOrder);
 
-    connect(m_page->filterEdit, SIGNAL(textChanged(QString)),
-        this, SLOT(filterChanged(QString)));
-    connect(m_page->commandList, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
-        this, SLOT(commandChanged(QTreeWidgetItem*)));
-    connect(m_page->targetEdit, SIGNAL(textChanged(QString)),
-        this, SLOT(targetIdentifierChanged()));
+        connect(m_page->filterEdit, SIGNAL(textChanged(QString)),
+            this, SLOT(filterChanged(QString)));
+        connect(m_page->commandList, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),
+            this, SLOT(commandChanged(QTreeWidgetItem*)));
+        connect(m_page->targetEdit, SIGNAL(textChanged(QString)),
+            this, SLOT(targetIdentifierChanged()));
 
-    new Utils::HeaderViewStretcher(m_page->commandList->header(), 1);
+        new Utils::HeaderViewStretcher(m_page->commandList->header(), 1);
 
-    commandChanged(0);
-
-    return w;
+        commandChanged(0);
+    }
+    return m_widget;
 }
 
 void CommandMappings::setImportExportEnabled(bool enabled)
@@ -126,6 +127,7 @@ void CommandMappings::setTargetHeader(const QString &s)
 
 void CommandMappings::finish()
 {
+    delete m_widget;
     if (!m_page) // page was never shown
         return;
     delete m_page;

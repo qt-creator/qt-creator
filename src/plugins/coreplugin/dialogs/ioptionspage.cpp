@@ -29,6 +29,11 @@
 
 #include "ioptionspage.h"
 
+#include <QCheckBox>
+#include <QGroupBox>
+#include <QLabel>
+#include <QPushButton>
+
 /*!
   \class Core::IOptionsPage
   \mainclass
@@ -43,12 +48,58 @@
   \li \c displayName() is the (translated) name for display
   \li \c category() is the unique id for the category that the page should be displayed in
   \li \c displayCategory() is the translated name of the category
-  \li \c createPage() is called to retrieve the widget to show in the
-        \gui Options dialog
-     The widget will be destroyed by the widget hierarchy when the dialog closes
+  \li \c widget() is called to retrieve the widget to show in the
+        \gui Options dialog. You should create a widget lazily here, and delete it again in the
+        finish() method. This method can be called multiple times, so you should only create a new
+        widget if the old one was deleted.
   \li \c apply() is called to store the settings. It should detect if any changes have been
          made and store those
-  \li \c finish() is called directly before the \gui Options dialog closes
-  \li \c matches() is used for the \gui Options dialog search filter
+  \li \c finish() is called directly before the \gui Options dialog closes. Here you should delete
+         the widget that was created in widget() to free resources.
+  \li \c matches() is used for the \gui Options dialog search filter. The default implementation
+         takes the widget() and searches for all labels, buttons, checkboxes and group boxes,
+         and matches on their texts/titles. You can implement your own matching algorithm, but
+         usually the default implementation will work fine.
   \endlist
 */
+
+
+Core::IOptionsPage::IOptionsPage(QObject *parent)
+    : QObject(parent),
+      m_keywordsInitialized(false)
+{
+
+}
+
+Core::IOptionsPage::~IOptionsPage()
+{
+}
+
+bool Core::IOptionsPage::matches(const QString &searchKeyWord) const
+{
+    if (!m_keywordsInitialized) {
+        IOptionsPage *that = const_cast<IOptionsPage *>(this);
+        QWidget *widget = that->widget();
+        if (!widget)
+            return false;
+        // find common subwidgets
+        foreach (const QLabel *label, widget->findChildren<QLabel *>())
+            m_keywords << label->text();
+        foreach (const QCheckBox *checkbox, widget->findChildren<QCheckBox *>())
+            m_keywords << checkbox->text();
+        foreach (const QPushButton *pushButton, widget->findChildren<QPushButton *>())
+            m_keywords << pushButton->text();
+        foreach (const QGroupBox *groupBox, widget->findChildren<QGroupBox *>())
+            m_keywords << groupBox->title();
+
+        // clean up accelerators
+        QMutableStringListIterator it(m_keywords);
+        while (it.hasNext())
+            it.next().remove(QLatin1Char('&'));
+        m_keywordsInitialized = true;
+    }
+    foreach (const QString &keyword, m_keywords)
+        if (keyword.contains(searchKeyWord, Qt::CaseInsensitive))
+            return true;
+    return false;
+}

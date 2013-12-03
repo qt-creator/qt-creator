@@ -35,6 +35,7 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QModelIndex>
+#include <QPointer>
 
 QT_BEGIN_NAMESPACE
 class QItemSelectionModel;
@@ -59,10 +60,9 @@ class PROJECTEXPLORER_EXPORT KitOptionsPage : public Core::IOptionsPage
 public:
     KitOptionsPage();
 
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
     void finish();
-    bool matches(const QString &) const;
 
     void showKit(Kit *k);
 
@@ -83,8 +83,7 @@ private:
     QPushButton *m_delButton;
     QPushButton *m_makeDefaultButton;
 
-    QWidget *m_configWidget;
-    QString m_searchKeywords;
+    QPointer<QWidget> m_configWidget;
 
     Internal::KitModel *m_model;
     QItemSelectionModel *m_selectionModel;

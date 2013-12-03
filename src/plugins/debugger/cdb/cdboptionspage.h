@@ -78,9 +78,8 @@ class CdbOptionsPageWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit CdbOptionsPageWidget(QWidget *parent);
+    explicit CdbOptionsPageWidget(QWidget *parent = 0);
     QStringList breakEvents() const;
-    QString searchKeywords() const;
 
     Utils::SavedActionSet group;
 
@@ -103,17 +102,15 @@ public:
     virtual ~CdbOptionsPage();
 
     // IOptionsPage
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
     void finish();
-    bool matches(const QString &) const;
 
     static const char *crtDbgReport;
 
 private:
     Utils::SavedActionSet group;
     QPointer<CdbOptionsPageWidget> m_widget;
-    QString m_searchKeywords;
 };
 
 class CdbPathsPage : public Core::IOptionsPage
@@ -127,10 +124,9 @@ public:
     static CdbPathsPage *instance();
 
     // IOptionsPage
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
     void finish();
-    bool matches(const QString &searchKeyWord) const;
 
 private:
     QPointer<CdbPathsPageWidget> m_widget;

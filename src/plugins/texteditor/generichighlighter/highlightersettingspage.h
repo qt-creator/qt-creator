@@ -52,10 +52,9 @@ public:
     HighlighterSettingsPage(Core::Id id, QObject *parent);
     ~HighlighterSettingsPage();
 
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
     void finish();
-    bool matches(const QString &s) const;
 
     const HighlighterSettings &highlighterSettings() const;
 

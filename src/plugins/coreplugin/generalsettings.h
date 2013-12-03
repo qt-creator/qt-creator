@@ -51,10 +51,9 @@ class GeneralSettings : public IOptionsPage
 public:
     GeneralSettings();
 
-    QWidget* createPage(QWidget *parent);
+    QWidget* widget();
     void apply();
     void finish();
-    virtual bool matches(const QString &) const;
 
 private slots:
     void resetInterfaceColor();
@@ -70,7 +69,6 @@ private:
     QString language() const;
     void setLanguage(const QString&);
     Ui::GeneralSettings *m_page;
-    QString m_searchKeywords;
     QPointer<QMessageBox> m_dialog;
     QPointer<QWidget> m_widget;
 };

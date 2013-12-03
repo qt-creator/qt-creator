@@ -101,23 +101,6 @@ void CppCodeModelSettingsWidget::applyToSettings() const
         m_settings->toSettings(Core::ICore::settings());
 }
 
-QString CppCodeModelSettingsWidget::searchKeywords() const
-{
-    QString rc;
-    QTextStream ts(&rc);
-    ts << m_ui->theGroupBox->title()
-       << ' ' << m_ui->cLabel->text()
-       << ' ' << m_ui->cppLabel->text()
-       << ' ' << m_ui->objcLabel->text()
-       << ' ' << m_ui->objcppLabel->text()
-       << ' ' << m_ui->anotherGroupBox->title()
-       << ' ' << m_ui->ignorePCHCheckBox->text();
-    foreach (const QString &mmsNames, m_settings->availableModelManagerSupportersByName().keys())
-          ts << ' ' << mmsNames;
-    rc.remove(QLatin1Char('&'));
-    return rc;
-}
-
 bool CppCodeModelSettingsWidget::applyToSettings(QComboBox *chooser, const QString &mimeType) const
 {
     QString newId = chooser->itemData(chooser->currentIndex()).toString();
@@ -141,12 +124,12 @@ CppCodeModelSettingsPage::CppCodeModelSettingsPage(QSharedPointer<CppCodeModelSe
     setCategoryIcon(QLatin1String(Constants::SETTINGS_CATEGORY_CPP_ICON));
 }
 
-QWidget *CppCodeModelSettingsPage::createPage(QWidget *parent)
+QWidget *CppCodeModelSettingsPage::widget()
 {
-    m_widget = new CppCodeModelSettingsWidget(parent);
-    m_widget->setSettings(m_settings);
-    if (m_searchKeywords.isEmpty())
-        m_searchKeywords = m_widget->searchKeywords();
+    if (!m_widget) {
+        m_widget = new CppCodeModelSettingsWidget;
+        m_widget->setSettings(m_settings);
+    }
     return m_widget;
 }
 
@@ -156,7 +139,7 @@ void CppCodeModelSettingsPage::apply()
         m_widget->applyToSettings();
 }
 
-bool CppCodeModelSettingsPage::matches(const QString &s) const
+void CppCodeModelSettingsPage::finish()
 {
-    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
+    delete m_widget;
 }

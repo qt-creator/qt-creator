@@ -32,6 +32,8 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <QPointer>
+
 namespace Android {
 namespace Internal {
 
@@ -44,14 +46,12 @@ class AndroidSettingsPage : public Core::IOptionsPage
 public:
     explicit AndroidSettingsPage(QObject *parent = 0);
 
-    bool matches(const QString &searchKeyWord) const;
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
     void finish();
 
 private:
-    QString m_keywords;
-    AndroidSettingsWidget *m_widget;
+    QPointer<AndroidSettingsWidget> m_widget;
 };
 
 } // namespace Internal

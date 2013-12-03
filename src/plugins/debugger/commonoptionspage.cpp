@@ -202,29 +202,6 @@ CommonOptionsPageWidget::CommonOptionsPageWidget
     }
 }
 
-QString CommonOptionsPageWidget::searchKeyWords() const
-{
-    QString rc;
-    const QLatin1Char sep(' ');
-    QTextStream stream(&rc);
-    stream << sep << checkBoxUseAlternatingRowColors->text()
-           << sep << checkBoxFontSizeFollowsEditor->text()
-           << sep << checkBoxUseToolTipsInMainEditor->text()
-           << sep << checkBoxListSourceFiles->text()
-           << sep << checkBoxBreakpointsFullPath->text()
-           << sep << checkBoxCloseBuffersOnExit->text()
-           << sep << checkBoxSwitchModeOnExit->text()
-           << sep << labelMaximalStackDepth->text()
-           << sep << checkBoxBringToForegroundOnInterrrupt->text()
-           << sep << checkBoxShowQmlObjectTree->text()
-           << sep << checkBoxWarnOnReleaseBuilds->text();
-    if (Utils::HostOsInfo::isWindowsHost())
-        stream << sep << checkBoxRegisterForPostMortem->text();
-
-    rc.remove(QLatin1Char('&'));
-    return rc;
-}
-
 GlobalDebuggerOptions CommonOptionsPageWidget::globalOptions() const
 {
     GlobalDebuggerOptions o;
@@ -274,22 +251,19 @@ void CommonOptionsPage::finish()
 {
     if (!m_group.isNull())
         m_group->finish();
+    delete m_widget;
 }
 
-QWidget *CommonOptionsPage::createPage(QWidget *parent)
+QWidget *CommonOptionsPage::widget()
 {
     if (m_group.isNull())
         m_group = QSharedPointer<Utils::SavedActionSet>(new Utils::SavedActionSet);
-    m_widget = new CommonOptionsPageWidget(m_group, parent);
-    m_widget->setGlobalOptions(*m_options);
-    if (m_searchKeywords.isEmpty())
-        m_searchKeywords = m_widget->searchKeyWords();
-    return m_widget;
-}
 
-bool CommonOptionsPage::matches(const QString &s) const
-{
-    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
+    if (!m_widget) {
+        m_widget = new CommonOptionsPageWidget(m_group);
+        m_widget->setGlobalOptions(*m_options);
+    }
+    return m_widget;
 }
 
 QString CommonOptionsPage::msgSetBreakpointAtFunction(const char *function)
@@ -334,57 +308,43 @@ void LocalsAndExpressionsOptionsPage::apply()
 void LocalsAndExpressionsOptionsPage::finish()
 {
     m_group.finish();
+    delete m_widget;
 }
 
-QWidget *LocalsAndExpressionsOptionsPage::createPage(QWidget *parent)
+QWidget *LocalsAndExpressionsOptionsPage::widget()
 {
-    QWidget *w = new QWidget(parent);
-    m_ui.setupUi(w);
+    if (!m_widget) {
+        m_widget = new QWidget;
+        m_ui.setupUi(m_widget);
 
-    m_group.clear();
-    DebuggerCore *dc = debuggerCore();
+        m_group.clear();
+        DebuggerCore *dc = debuggerCore();
 
-    m_group.insert(dc->action(UseDebuggingHelpers),
-        m_ui.debuggingHelperGroupBox);
+        m_group.insert(dc->action(UseDebuggingHelpers),
+                       m_ui.debuggingHelperGroupBox);
 
-    m_group.insert(dc->action(UseCodeModel),
-        m_ui.checkBoxUseCodeModel);
-    m_ui.checkBoxUseCodeModel->setToolTip(dc->action(UseCodeModel)->toolTip());
+        m_group.insert(dc->action(UseCodeModel),
+                       m_ui.checkBoxUseCodeModel);
+        m_ui.checkBoxUseCodeModel->setToolTip(dc->action(UseCodeModel)->toolTip());
 
-    m_group.insert(dc->action(ShowThreadNames),
-        m_ui.checkBoxShowThreadNames);
-    m_group.insert(dc->action(ShowStdNamespace), m_ui.checkBoxShowStdNamespace);
-    m_group.insert(dc->action(ShowQtNamespace), m_ui.checkBoxShowQtNamespace);
+        m_group.insert(dc->action(ShowThreadNames),
+                       m_ui.checkBoxShowThreadNames);
+        m_group.insert(dc->action(ShowStdNamespace), m_ui.checkBoxShowStdNamespace);
+        m_group.insert(dc->action(ShowQtNamespace), m_ui.checkBoxShowQtNamespace);
 
 
 #ifndef QT_DEBUG
 #if 0
-    cmd = am->registerAction(m_dumpLogAction,
-        DUMP_LOG, globalcontext);
-    //cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+D,Ctrl+L")));
-    cmd->setDefaultKeySequence(QKeySequence(QCoreApplication::translate("Debugger", "Ctrl+Shift+F11")));
-    mdebug->addAction(cmd);
+        cmd = am->registerAction(m_dumpLogAction,
+                                 DUMP_LOG, globalcontext);
+        //cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+D,Ctrl+L")));
+        cmd->setDefaultKeySequence(QKeySequence(QCoreApplication::translate("Debugger", "Ctrl+Shift+F11")));
+        mdebug->addAction(cmd);
 #endif
 #endif
-
-    if (m_searchKeywords.isEmpty()) {
-        QTextStream(&m_searchKeywords)
-                << ' ' << m_ui.debuggingHelperGroupBox->title()
-                << ' ' << m_ui.checkBoxUseCodeModel->text()
-                << ' ' << m_ui.checkBoxShowThreadNames->text()
-                << ' ' << m_ui.checkBoxShowStdNamespace->text()
-                << ' ' << m_ui.checkBoxShowQtNamespace->text();
-
-        m_searchKeywords.remove(QLatin1Char('&'));
     }
-    return w;
+    return m_widget;
 }
-
-bool LocalsAndExpressionsOptionsPage::matches(const QString &s) const
-{
-    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
-}
-
 
 } // namespace Internal
 } // namespace Debugger

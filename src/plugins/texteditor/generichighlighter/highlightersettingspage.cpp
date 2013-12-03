@@ -36,6 +36,7 @@
 #include <coreplugin/icore.h>
 
 #include <QMessageBox>
+#include <QPointer>
 
 using namespace TextEditor;
 using namespace Internal;
@@ -50,10 +51,9 @@ struct HighlighterSettingsPage::HighlighterSettingsPagePrivate
     const QString m_displayName;
     const QString m_settingsPrefix;
 
-    QString m_searchKeywords;
-
     HighlighterSettings m_settings;
 
+    QPointer<QWidget> m_widget;
     Ui::HighlighterSettingsPage *m_page;
 };
 
@@ -88,36 +88,30 @@ HighlighterSettingsPage::~HighlighterSettingsPage()
     delete m_d;
 }
 
-QWidget *HighlighterSettingsPage::createPage(QWidget *parent)
+QWidget *HighlighterSettingsPage::widget()
 {
-    QWidget *w = new QWidget(parent);
-    m_d->m_page = new Ui::HighlighterSettingsPage;
-    m_d->m_page->setupUi(w);
-    m_d->m_page->definitionFilesPath->setExpectedKind(Utils::PathChooser::ExistingDirectory);
-    m_d->m_page->definitionFilesPath->setHistoryCompleter(QLatin1String("TextEditor.Highlighter.History"));
-    m_d->m_page->definitionFilesPath->addButton(tr("Download Definitions..."), this,
-                                               SLOT(requestAvailableDefinitionsMetaData()));
-    m_d->m_page->fallbackDefinitionFilesPath->setExpectedKind(Utils::PathChooser::ExistingDirectory);
-    m_d->m_page->fallbackDefinitionFilesPath->setHistoryCompleter(QLatin1String("TextEditor.Highlighter.History"));
-    m_d->m_page->fallbackDefinitionFilesPath->addButton(tr("Autodetect"), this,
-                                                       SLOT(resetDefinitionsLocation()));
+    if (!m_d->m_widget) {
+        m_d->m_widget = new QWidget;
+        m_d->m_page = new Ui::HighlighterSettingsPage;
+        m_d->m_page->setupUi(m_d->m_widget);
+        m_d->m_page->definitionFilesPath->setExpectedKind(Utils::PathChooser::ExistingDirectory);
+        m_d->m_page->definitionFilesPath->setHistoryCompleter(QLatin1String("TextEditor.Highlighter.History"));
+        m_d->m_page->definitionFilesPath->addButton(tr("Download Definitions..."), this,
+                                                    SLOT(requestAvailableDefinitionsMetaData()));
+        m_d->m_page->fallbackDefinitionFilesPath->setExpectedKind(Utils::PathChooser::ExistingDirectory);
+        m_d->m_page->fallbackDefinitionFilesPath->setHistoryCompleter(QLatin1String("TextEditor.Highlighter.History"));
+        m_d->m_page->fallbackDefinitionFilesPath->addButton(tr("Autodetect"), this,
+                                                            SLOT(resetDefinitionsLocation()));
 
-    settingsToUI();
+        settingsToUI();
 
-    if (m_d->m_searchKeywords.isEmpty()) {
-        QTextStream(&m_d->m_searchKeywords) << m_d->m_page->definitionFilesGroupBox->title()
-            << m_d->m_page->locationLabel->text()
-            << m_d->m_page->useFallbackLocation->text()
-            << m_d->m_page->ignoreLabel->text();
+        connect(m_d->m_page->useFallbackLocation, SIGNAL(clicked(bool)),
+                this, SLOT(setFallbackLocationState(bool)));
+        connect(m_d->m_page->definitionFilesPath, SIGNAL(validChanged(bool)),
+                this, SLOT(setDownloadDefinitionsState(bool)));
+        connect(m_d->m_widget, SIGNAL(destroyed()), this, SLOT(ignoreDownloadReply()));
     }
-
-    connect(m_d->m_page->useFallbackLocation, SIGNAL(clicked(bool)),
-            this, SLOT(setFallbackLocationState(bool)));
-    connect(m_d->m_page->definitionFilesPath, SIGNAL(validChanged(bool)),
-            this, SLOT(setDownloadDefinitionsState(bool)));
-    connect(w, SIGNAL(destroyed()), this, SLOT(ignoreDownloadReply()));
-
-    return w;
+    return m_d->m_widget;
 }
 
 void HighlighterSettingsPage::apply()
@@ -135,15 +129,11 @@ void HighlighterSettingsPage::apply()
 
 void HighlighterSettingsPage::finish()
 {
+    delete m_d->m_widget;
     if (!m_d->m_page) // page was not shown
         return;
     delete m_d->m_page;
     m_d->m_page = 0;
-}
-
-bool HighlighterSettingsPage::matches(const QString &s) const
-{
-    return m_d->m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }
 
 const HighlighterSettings &HighlighterSettingsPage::highlighterSettings() const

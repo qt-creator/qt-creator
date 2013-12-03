@@ -54,7 +54,7 @@ namespace Internal {
 class GdbOptionsPageWidget : public QWidget
 {
 public:
-    explicit GdbOptionsPageWidget(QWidget *parent);
+    explicit GdbOptionsPageWidget(QWidget *parent = 0);
 
     QGroupBox *groupBoxGeneral;
     QLabel *labelGdbWatchdogTimeout;
@@ -83,7 +83,6 @@ public:
     //QLineEdit *lineEditSelectedPluginBreakpointsPattern;
 
     Utils::SavedActionSet group;
-    QString searchKeywords;
 };
 
 GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
@@ -297,19 +296,6 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
     //    setEnabled(dc->action(SelectedPluginBreakpoints)->value().toBool());
     //connect(radioButtonSelectedPluginBreakpoints, SIGNAL(toggled(bool)),
     //    lineEditSelectedPluginBreakpointsPattern, SLOT(setEnabled(bool)));
-
-    const QLatin1Char sep(' ');
-    QTextStream(&searchKeywords)
-            << sep << groupBoxGeneral->title()
-            << sep << checkBoxLoadGdbInit->text()
-            << sep << checkBoxLoadGdbDumpers->text()
-            << sep << checkBoxUseDynamicType->text()
-            << sep << labelGdbWatchdogTimeout->text()
-            << sep << checkBoxSkipKnownFrames->text()
-            << sep << checkBoxUseMessageBoxForSignals->text()
-            << sep << checkBoxAdjustBreakpointLocations->text();
-    ;
-    searchKeywords.remove(QLatin1Char('&'));
 }
 
 GdbOptionsPage::GdbOptionsPage()
@@ -325,9 +311,10 @@ GdbOptionsPage::~GdbOptionsPage()
 {
 }
 
-QWidget *GdbOptionsPage::createPage(QWidget *parent)
+QWidget *GdbOptionsPage::widget()
 {
-    m_widget = new GdbOptionsPageWidget(parent);
+    if (!m_widget)
+        m_widget = new GdbOptionsPageWidget;
     return m_widget;
 }
 
@@ -339,13 +326,10 @@ void GdbOptionsPage::apply()
 
 void GdbOptionsPage::finish()
 {
-    if (m_widget)
+    if (m_widget) {
         m_widget->group.finish();
-}
-
-bool GdbOptionsPage::matches(const QString &s) const
-{
-    return m_widget && m_widget->searchKeywords.contains(s, Qt::CaseInsensitive);
+        delete m_widget;
+    }
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -357,7 +341,7 @@ bool GdbOptionsPage::matches(const QString &s) const
 class GdbOptionsPageWidget2 : public QWidget
 {
 public:
-    explicit GdbOptionsPageWidget2(QWidget *parent);
+    explicit GdbOptionsPageWidget2(QWidget *parent = 0);
 
     QGroupBox *groupBoxDangerous;
     QLabel *labelDangerous;
@@ -371,7 +355,6 @@ public:
     QCheckBox *checkBoxMultiInferior;
 
     Utils::SavedActionSet group;
-    QString searchKeywords;
 };
 
 GdbOptionsPageWidget2::GdbOptionsPageWidget2(QWidget *parent)
@@ -460,16 +443,6 @@ GdbOptionsPageWidget2::GdbOptionsPageWidget2(QWidget *parent)
     group.insert(dc->action(AttemptQuickStart), checkBoxAttemptQuickStart);
     group.insert(dc->action(MultiInferior), checkBoxMultiInferior);
     group.insert(dc->action(EnableReverseDebugging), checkBoxEnableReverseDebugging);
-
-    const QLatin1Char sep(' ');
-    QTextStream(&searchKeywords)
-            << sep << groupBoxDangerous->title()
-            << sep << checkBoxTargetAsync->text()
-            << sep << checkBoxEnableReverseDebugging->text()
-            << sep << checkBoxAttemptQuickStart->text()
-            << sep << checkBoxMultiInferior->text()
-    ;
-    searchKeywords.remove(QLatin1Char('&'));
 }
 
 GdbOptionsPage2::GdbOptionsPage2()
@@ -485,9 +458,10 @@ GdbOptionsPage2::~GdbOptionsPage2()
 {
 }
 
-QWidget *GdbOptionsPage2::createPage(QWidget *parent)
+QWidget *GdbOptionsPage2::widget()
 {
-    m_widget = new GdbOptionsPageWidget2(parent);
+    if (!m_widget)
+        m_widget = new GdbOptionsPageWidget2;
     return m_widget;
 }
 
@@ -499,13 +473,10 @@ void GdbOptionsPage2::apply()
 
 void GdbOptionsPage2::finish()
 {
-    if (m_widget)
+    if (m_widget) {
         m_widget->group.finish();
-}
-
-bool GdbOptionsPage2::matches(const QString &s) const
-{
-    return m_widget && m_widget->searchKeywords.contains(s, Qt::CaseInsensitive);
+        delete m_widget;
+    }
 }
 
 } // namespace Internal

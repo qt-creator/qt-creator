@@ -35,6 +35,8 @@
 #include <texteditor/completionsettings.h>
 #include <texteditor/texteditoroptionspage.h>
 
+#include <QPointer>
+
 namespace CppTools {
 namespace Internal {
 
@@ -52,10 +54,9 @@ public:
     CompletionSettingsPage(QObject *parent);
     ~CompletionSettingsPage();
 
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
     void finish();
-    bool matches(const QString &) const;
 
     const CommentsSettings &commentsSettings() const;
 
@@ -69,7 +70,7 @@ private:
     bool requireCommentsSettingsUpdate() const;
 
     Ui::CompletionSettingsPage *m_page;
-    QString m_searchKeywords;
+    QPointer<QWidget> m_widget;
     CommentsSettings m_commentsSettings;
 };
 

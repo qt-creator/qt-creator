@@ -60,7 +60,6 @@ class CommonOptionsPageWidget : public QWidget
 public:
     explicit CommonOptionsPageWidget(const QSharedPointer<Utils::SavedActionSet> &group, QWidget *parent = 0);
 
-    QString searchKeyWords() const;
     GlobalDebuggerOptions globalOptions() const;
     void setGlobalOptions(const GlobalDebuggerOptions &go);
 
@@ -94,10 +93,9 @@ public:
     ~CommonOptionsPage();
 
     // IOptionsPage
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
     void finish();
-    bool matches(const QString &s) const;
 
     static QString msgSetBreakpointAtFunction(const char *function);
     static QString msgSetBreakpointAtFunctionToolTip(const char *function,
@@ -106,7 +104,6 @@ public:
 private:
     const QSharedPointer<GlobalDebuggerOptions> m_options;
     QSharedPointer<Utils::SavedActionSet> m_group;
-    QString m_searchKeywords;
     QPointer<CommonOptionsPageWidget> m_widget;
 };
 
@@ -123,15 +120,14 @@ public:
     LocalsAndExpressionsOptionsPage();
 
     // IOptionsPage
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
     void finish();
-    bool matches(const QString &s) const;
 
 private:
+    QPointer<QWidget> m_widget;
     Ui::DebuggingHelperOptionPage m_ui;
     Utils::SavedActionSet m_group;
-    QString m_searchKeywords;
 };
 
 } // namespace Internal

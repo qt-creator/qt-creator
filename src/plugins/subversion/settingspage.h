@@ -57,8 +57,6 @@ public:
     SubversionSettings settings() const;
     void setSettings(const SubversionSettings &);
 
-    QString searchKeywords() const;
-
 private:
     Ui::SettingsPage m_ui;
 };
@@ -71,14 +69,12 @@ class SettingsPage : public VcsBase::VcsBaseOptionsPage
 public:
     SettingsPage();
 
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
-    void finish() { }
-    bool matches(const QString &) const;
+    void finish();
 
 private:
-    QString m_searchKeywords;
-    SettingsPageWidget* m_widget;
+    QPointer<SettingsPageWidget> m_widget;
 };
 
 } // namespace Subversion

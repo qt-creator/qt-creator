@@ -34,6 +34,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <QPointer>
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -97,10 +98,9 @@ class DebuggerOptionsPage : public Core::IOptionsPage
 public:
     DebuggerOptionsPage();
 
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
     void finish();
-    bool matches(const QString &) const;
 
 private slots:
     void debuggerSelectionChanged();
@@ -111,8 +111,7 @@ private slots:
     void removeDebugger();
 
 private:
-    QWidget *m_configWidget;
-    QString m_searchKeywords;
+    QPointer<QWidget> m_configWidget;
 
     DebuggerItemModel *m_model;
     DebuggerItemConfigWidget *m_itemConfigWidget;

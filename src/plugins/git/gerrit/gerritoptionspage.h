@@ -78,10 +78,9 @@ public:
                       QObject *parent = 0);
     ~GerritOptionsPage();
 
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
-    void finish() { }
-    bool matches(const QString &) const;
+    void finish();
 
 private:
     const QSharedPointer<GerritParameters> &m_parameters;

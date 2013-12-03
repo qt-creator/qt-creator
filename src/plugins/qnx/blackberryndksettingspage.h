@@ -34,6 +34,8 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <QPointer>
+
 namespace Qnx {
 namespace Internal {
 
@@ -44,12 +46,12 @@ class BlackBerryNDKSettingsPage : public Core::IOptionsPage
     Q_OBJECT
 public:
     explicit BlackBerryNDKSettingsPage(QObject *parent = 0);
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
     void finish();
 
 private:
-    BlackBerryNDKSettingsWidget *m_widget;
+    QPointer<BlackBerryNDKSettingsWidget> m_widget;
 };
 
 } // namespace Internal

@@ -74,36 +74,18 @@ void SettingsPageWidget::setSettings(const CvsSettings &s)
     m_ui.describeByCommitIdCheckBox->setChecked(s.boolValue(CvsSettings::describeByCommitIdKey));
 }
 
-QString SettingsPageWidget::searchKeywords() const
-{
-    QString rc;
-    QLatin1Char sep(' ');
-    QTextStream(&rc)
-            << sep << m_ui.configGroupBox->title()
-            << sep << m_ui.commandLabel->text()
-            << sep << m_ui.rootLabel->text()
-            << sep << m_ui.miscGroupBox->title()
-            << sep << m_ui.timeOutLabel->text()
-            << sep << m_ui.diffOptionsLabel->text()
-            << sep << m_ui.promptToSubmitCheckBox->text()
-            << sep << m_ui.describeByCommitIdCheckBox->text()
-               ;
-    rc.remove(QLatin1Char('&'));
-    return rc;
-}
-
 SettingsPage::SettingsPage()
 {
     setId(VcsBase::Constants::VCS_ID_CVS);
     setDisplayName(tr("CVS"));
 }
 
-QWidget *SettingsPage::createPage(QWidget *parent)
+QWidget *SettingsPage::widget()
 {
-    m_widget = new SettingsPageWidget(parent);
-    m_widget->setSettings(CvsPlugin::instance()->settings());
-    if (m_searchKeywords.isEmpty())
-        m_searchKeywords = m_widget->searchKeywords();
+    if (!m_widget) {
+        m_widget = new SettingsPageWidget;
+        m_widget->setSettings(CvsPlugin::instance()->settings());
+    }
     return m_widget;
 }
 
@@ -112,7 +94,7 @@ void SettingsPage::apply()
     CvsPlugin::instance()->setSettings(m_widget->settings());
 }
 
-bool SettingsPage::matches(const QString &s) const
+void SettingsPage::finish()
 {
-    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
+    delete m_widget;
 }

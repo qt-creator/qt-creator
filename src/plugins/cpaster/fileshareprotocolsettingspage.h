@@ -78,7 +78,7 @@ public:
     explicit FileShareProtocolSettingsPage(const QSharedPointer<FileShareProtocolSettings> &s,
                                            QObject *parent = 0);
 
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
     void finish() { }
 

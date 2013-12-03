@@ -52,6 +52,7 @@
 
 #include <QtPlugin>
 #include <QCoreApplication>
+#include <QPointer>
 
 using namespace Analyzer;
 
@@ -72,14 +73,25 @@ public:
         setCategoryIcon(QLatin1String(":/images/analyzer_category.png"));
     }
 
-    QWidget *createPage(QWidget *parent) {
-        return new ValgrindConfigWidget(theGlobalSettings, parent, true);
+    QWidget *widget()
+    {
+        if (!m_widget)
+            m_widget = new ValgrindConfigWidget(theGlobalSettings, 0, true);
+        return m_widget;
     }
 
-    void apply() {
+    void apply()
+    {
         theGlobalSettings->writeSettings();
     }
-    void finish() {}
+
+    void finish()
+    {
+        delete m_widget;
+    }
+
+private:
+    QPointer<QWidget> m_widget;
 };
 
 class ValgrindAction : public AnalyzerAction

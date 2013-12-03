@@ -56,7 +56,6 @@ public:
     TabSettings tabSettings() const;
 
     void setFlat(bool on);
-    QString searchKeywords() const;
     void setCodingStyleWarningVisible(bool visible);
 
 public slots:

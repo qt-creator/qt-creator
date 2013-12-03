@@ -48,16 +48,10 @@ IosSettingsPage::IosSettingsPage(QObject *parent)
     setCategoryIcon(QLatin1String(Constants::IOS_SETTINGS_CATEGORY_ICON));
 }
 
-bool IosSettingsPage::matches(const QString &searchKeyWord) const
+QWidget *IosSettingsPage::widget()
 {
-    return m_keywords.contains(searchKeyWord, Qt::CaseInsensitive);
-}
-
-QWidget *IosSettingsPage::createPage(QWidget *parent)
-{
-    m_widget = new IosSettingsWidget(parent);
-    if (m_keywords.isEmpty())
-        m_keywords = m_widget->searchKeywords();
+    if (!m_widget)
+        m_widget = new IosSettingsWidget;
     return m_widget;
 }
 
@@ -69,6 +63,7 @@ void IosSettingsPage::apply()
 
 void IosSettingsPage::finish()
 {
+    delete m_widget;
 }
 
 } // namespace Internal

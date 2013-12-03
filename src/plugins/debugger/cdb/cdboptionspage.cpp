@@ -198,22 +198,6 @@ QStringList CdbOptionsPageWidget::breakEvents() const
     return m_breakEventWidget->breakEvents();
 }
 
-static QString stripColon(QString s)
-{
-    const int lastColon = s.lastIndexOf(QLatin1Char(':'));
-    if (lastColon != -1)
-        s.truncate(lastColon);
-    return s;
-}
-
-QString CdbOptionsPageWidget::searchKeywords() const
-{
-    QString rc;
-    QTextStream(&rc) << stripColon(m_ui.additionalArgumentsLabel->text());
-    rc.remove(QLatin1Char('&'));
-    return rc;
-}
-
 // ---------- CdbOptionsPage
 
 CdbOptionsPage::CdbOptionsPage()
@@ -230,11 +214,10 @@ CdbOptionsPage::~CdbOptionsPage()
 {
 }
 
-QWidget *CdbOptionsPage::createPage(QWidget *parent)
+QWidget *CdbOptionsPage::widget()
 {
-    m_widget = new CdbOptionsPageWidget(parent);
-    if (m_searchKeywords.isEmpty())
-        m_searchKeywords = m_widget->searchKeywords();
+    if (!m_widget)
+        m_widget = new CdbOptionsPageWidget;
     return m_widget;
 }
 
@@ -248,13 +231,10 @@ void CdbOptionsPage::apply()
 
 void CdbOptionsPage::finish()
 {
-    if (m_widget)
+    if (m_widget) {
         m_widget->group.finish();
-}
-
-bool CdbOptionsPage::matches(const QString &s) const
-{
-    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
+        delete m_widget;
+    }
 }
 
 // ---------- CdbPathsPage
@@ -266,8 +246,6 @@ public:
     Utils::SavedActionSet group;
 
 //    CdbPaths m_paths;
-    QString m_searchKeywords;
-
     CdbSymbolPathListEditor *m_symbolPathListEditor;
     Utils::PathListEditor *m_sourcePathListEditor;
 
@@ -280,7 +258,6 @@ CdbPathsPageWidget::CdbPathsPageWidget(QWidget *parent) :
     QVBoxLayout *layout = new QVBoxLayout(this);
 
     QString title = tr("Symbol Paths");
-    m_searchKeywords.append(title);
     QGroupBox* gbSymbolPath = new QGroupBox(this);
     gbSymbolPath->setTitle(title);
     QVBoxLayout *gbSymbolPathLayout = new QVBoxLayout(gbSymbolPath);
@@ -288,7 +265,6 @@ CdbPathsPageWidget::CdbPathsPageWidget(QWidget *parent) :
     gbSymbolPathLayout->addWidget(m_symbolPathListEditor);
 
     title = tr("Source Paths");
-    m_searchKeywords.append(title);
     QGroupBox* gbSourcePath = new QGroupBox(this);
     gbSourcePath->setTitle(title);
     QVBoxLayout *gbSourcePathLayout = new QVBoxLayout(gbSourcePath);
@@ -318,12 +294,10 @@ CdbPathsPage::~CdbPathsPage()
 {
 }
 
-QWidget *CdbPathsPage::createPage(QWidget *parent)
+QWidget *CdbPathsPage::widget()
 {
     if (!m_widget)
-        m_widget = new CdbPathsPageWidget(parent);
-    else
-        m_widget->setParent(parent);
+        m_widget = new CdbPathsPageWidget;
     return m_widget;
 }
 
@@ -335,14 +309,10 @@ void CdbPathsPage::apply()
 
 void CdbPathsPage::finish()
 {
-    if (m_widget)
+    if (m_widget) {
         m_widget->group.finish();
-}
-
-bool CdbPathsPage::matches(const QString &searchKeyWord) const
-{
-    return m_widget &&
-            m_widget->m_searchKeywords.contains(searchKeyWord, Qt::CaseInsensitive);
+        delete m_widget;
+    }
 }
 
 } // namespace Internal

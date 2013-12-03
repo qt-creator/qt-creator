@@ -62,10 +62,9 @@ class ShortcutSettings : public Core::CommandMappings
 public:
     ShortcutSettings(QObject *parent = 0);
 
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
     void finish();
-    bool matches(const QString &s) const;
 
 protected:
     bool eventFilter(QObject *o, QEvent *e);
@@ -94,7 +93,6 @@ private:
     QList<ShortcutItem *> m_scitems;
     int m_key[4], m_keyNum;
 
-    QString m_searchKeywords;
     bool m_initialized;
 };
 

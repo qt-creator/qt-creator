@@ -50,27 +50,26 @@ DocSettingsPage::DocSettingsPage()
     setCategoryIcon(QLatin1String(Help::Constants::HELP_CATEGORY_ICON));
 }
 
-QWidget *DocSettingsPage::createPage(QWidget *parent)
+QWidget *DocSettingsPage::widget()
 {
-    QWidget *widget = new QWidget(parent);
-    m_ui.setupUi(widget);
+    if (!m_widget) {
+        m_widget = new QWidget;
+        m_ui.setupUi(m_widget);
 
-    connect(m_ui.addButton, SIGNAL(clicked()), this, SLOT(addDocumentation()));
-    connect(m_ui.removeButton, SIGNAL(clicked()), this, SLOT(removeDocumentation()));
+        connect(m_ui.addButton, SIGNAL(clicked()), this, SLOT(addDocumentation()));
+        connect(m_ui.removeButton, SIGNAL(clicked()), this, SLOT(removeDocumentation()));
 
-    m_ui.docsListWidget->installEventFilter(this);
+        m_ui.docsListWidget->installEventFilter(this);
 
-    const QStringList nameSpaces = HelpManager::registeredNamespaces();
-    foreach (const QString &nameSpace, nameSpaces) {
-        addItem(nameSpace, HelpManager::fileFromNamespace(nameSpace));
-        m_filesToRegister.insert(nameSpace, HelpManager::fileFromNamespace(nameSpace));
+        const QStringList nameSpaces = HelpManager::registeredNamespaces();
+        foreach (const QString &nameSpace, nameSpaces) {
+            addItem(nameSpace, HelpManager::fileFromNamespace(nameSpace));
+            m_filesToRegister.insert(nameSpace, HelpManager::fileFromNamespace(nameSpace));
+        }
+
+        m_filesToUnregister.clear();
     }
-
-    m_filesToUnregister.clear();
-
-    if (m_searchKeywords.isEmpty())
-        m_searchKeywords = m_ui.groupBox->title();
-    return widget;
+    return m_widget;
 }
 
 void DocSettingsPage::addDocumentation()
@@ -155,9 +154,9 @@ void DocSettingsPage::apply()
     m_filesToUnregister.clear();
 }
 
-bool DocSettingsPage::matches(const QString &s) const
+void DocSettingsPage::finish()
 {
-    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
+    delete m_widget;
 }
 
 bool DocSettingsPage::eventFilter(QObject *object, QEvent *event)

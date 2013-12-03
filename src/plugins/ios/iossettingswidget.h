@@ -48,11 +48,10 @@ class IosSettingsWidget : public QWidget
     Q_OBJECT
 public:
     // Todo: This would be so much simpler if it just used Utils::PathChooser!!!
-    IosSettingsWidget(QWidget *parent);
+    IosSettingsWidget(QWidget *parent = 0);
     ~IosSettingsWidget();
 
     void saveSettings();
-    QString searchKeywords() const;
 
 private slots:
 

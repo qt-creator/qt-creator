@@ -35,6 +35,8 @@
 
 #include "ui_settingspage.h"
 
+#include <QPointer>
+
 namespace ClearCase {
 namespace Internal {
 
@@ -50,8 +52,6 @@ public:
     ClearCaseSettings settings() const;
     void setSettings(const ClearCaseSettings &);
 
-    QString searchKeywords() const;
-
 private:
     Ui::SettingsPage m_ui;
 };
@@ -64,14 +64,12 @@ class SettingsPage : public VcsBase::VcsBaseOptionsPage
 public:
     SettingsPage();
 
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
     void finish() { }
-    bool matches(const QString &) const;
 
 private:
-    QString m_searchKeywords;
-    SettingsPageWidget* m_widget;
+    QPointer<SettingsPageWidget> m_widget;
 };
 
 } // namespace ClearCase

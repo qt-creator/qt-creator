@@ -45,8 +45,7 @@ public:
     MimeTypeSettings(QObject *parent = 0);
     virtual ~MimeTypeSettings();
 
-    virtual bool matches(const QString &s) const;
-    virtual QWidget *createPage(QWidget *parent);
+    virtual QWidget *widget();
     virtual void apply();
     virtual void finish();
 

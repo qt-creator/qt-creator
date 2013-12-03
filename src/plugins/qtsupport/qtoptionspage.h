@@ -33,8 +33,9 @@
 #include "debugginghelperbuildtask.h"
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <QWidget>
 #include <QIcon>
+#include <QPointer>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 class QTreeWidgetItem;
@@ -63,12 +64,11 @@ class QtOptionsPageWidget : public QWidget
     Q_OBJECT
 
 public:
-    QtOptionsPageWidget(QWidget *parent);
+    QtOptionsPageWidget(QWidget *parent = 0);
     ~QtOptionsPageWidget();
     QList<BaseQtVersion *> versions() const;
     void finish();
     void apply();
-    QString searchKeywords() const;
 
 private:
     void updateDescriptionLabel();
@@ -141,14 +141,12 @@ class QtOptionsPage : public Core::IOptionsPage
 public:
     QtOptionsPage();
 
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
-    void finish() {}
-    bool matches(const QString &) const;
+    void finish();
 
 private:
-    QtOptionsPageWidget *m_widget;
-    QString m_searchKeywords;
+    QPointer<QtOptionsPageWidget> m_widget;
 };
 
 } //namespace Internal

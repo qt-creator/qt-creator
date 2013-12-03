@@ -67,37 +67,17 @@ void OptionsPageWidget::setSettings(const BazaarSettings &s)
     m_ui.timeout->setValue(s.intValue(BazaarSettings::timeoutKey));
 }
 
-QString OptionsPageWidget::searchKeywords() const
-{
-    QString rc;
-    QLatin1Char sep(' ');
-    QTextStream(&rc)
-            << sep << m_ui.configGroupBox->title()
-            << sep << m_ui.commandLabel->text()
-            << sep << m_ui.userGroupBox->title()
-            << sep << m_ui.defaultUsernameLabel->text()
-            << sep << m_ui.defaultEmailLabel->text()
-            << sep << m_ui.miscGroupBox->title()
-            << sep << m_ui.showLogEntriesLabel->text()
-            << sep << m_ui.timeoutSecondsLabel->text()
-               ;
-    rc.remove(QLatin1Char('&'));
-    return rc;
-}
-
 OptionsPage::OptionsPage()
 {
     setId(VcsBase::Constants::VCS_ID_BAZAAR);
     setDisplayName(tr("Bazaar"));
 }
 
-QWidget *OptionsPage::createPage(QWidget *parent)
+QWidget *OptionsPage::widget()
 {
     if (!m_optionsPageWidget)
-        m_optionsPageWidget = new OptionsPageWidget(parent);
+        m_optionsPageWidget = new OptionsPageWidget;
     m_optionsPageWidget->setSettings(BazaarPlugin::instance()->settings());
-    if (m_searchKeywords.isEmpty())
-        m_searchKeywords = m_optionsPageWidget->searchKeywords();
     return m_optionsPageWidget;
 }
 
@@ -113,9 +93,4 @@ void OptionsPage::apply()
         newSettings.writeSettings(Core::ICore::settings());
         emit settingsChanged();
     }
-}
-
-bool OptionsPage::matches(const QString &s) const
-{
-    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }

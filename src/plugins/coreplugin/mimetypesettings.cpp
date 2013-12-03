@@ -41,6 +41,7 @@
 #include <QCoreApplication>
 #include <QHash>
 #include <QMessageBox>
+#include <QPointer>
 #include <QScopedPointer>
 #include <QSet>
 #include <QStringList>
@@ -239,7 +240,6 @@ private slots:
 public:
     static const QChar kSemiColon;
 
-    QString m_keywords;
     MimeTypeSettingsModel *m_model;
     QSortFilterProxyModel *m_filterModel;
     int m_mimeForPatternSync;
@@ -249,6 +249,7 @@ public:
     QList<int> m_modifiedMimeTypes;
     QString m_filterPattern;
     Ui::MimeTypeSettingsPage m_ui;
+    QPointer<QWidget> m_widget;
 };
 
 const QChar MimeTypeSettingsPrivate::kSemiColon(QLatin1Char(';'));
@@ -586,16 +587,13 @@ MimeTypeSettings::~MimeTypeSettings()
     delete d;
 }
 
-bool MimeTypeSettings::matches(const QString &s) const
+QWidget *MimeTypeSettings::widget()
 {
-    return d->m_keywords.contains(s, Qt::CaseInsensitive);
-}
-
-QWidget *MimeTypeSettings::createPage(QWidget *parent)
-{
-    QWidget *w = new QWidget(parent);
-    d->configureUi(w);
-    return w;
+    if (!d->m_widget) {
+        d->m_widget = new QWidget;
+        d->configureUi(d->m_widget);
+    }
+    return d->m_widget;
 }
 
 void MimeTypeSettings::apply()
@@ -625,6 +623,7 @@ void MimeTypeSettings::finish()
             d->updateMimeDatabase();
     }
     d->resetState();
+    delete d->m_widget;
 }
 
 } // Internal

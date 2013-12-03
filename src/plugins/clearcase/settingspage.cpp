@@ -107,25 +107,6 @@ void SettingsPageWidget::setSettings(const ClearCaseSettings &s)
     m_ui.indexOnlyVOBsEdit->setText(s.indexOnlyVOBs);
 }
 
-QString SettingsPageWidget::searchKeywords() const
-{
-    QString rc;
-    QLatin1Char sep(' ');
-    QTextStream(&rc) << m_ui.commandLabel->text()
-            << sep << m_ui.autoCheckOutCheckBox->text()
-            << sep << m_ui.externalDiffRadioButton->text()
-            << sep << m_ui.graphicalDiffRadioButton->text()
-            << sep << m_ui.diffArgsLabel->text()
-            << sep << m_ui.historyCountLabel->text()
-            << sep << m_ui.promptCheckBox->text()
-            << sep << m_ui.disableIndexerCheckBox->text()
-            << sep << m_ui.timeOutLabel->text()
-            << sep << m_ui.indexOnlyVOBsLabel->text()
-               ;
-    rc.remove(QLatin1Char('&'));
-    return rc;
-}
-
 SettingsPage::SettingsPage() :
     m_widget(0)
 {
@@ -133,21 +114,15 @@ SettingsPage::SettingsPage() :
     setDisplayName(tr("ClearCase"));
 }
 
-QWidget *SettingsPage::createPage(QWidget *parent)
+QWidget *SettingsPage::widget()
 {
-    m_widget = new SettingsPageWidget(parent);
+    if (!m_widget)
+        m_widget = new SettingsPageWidget;
     m_widget->setSettings(ClearCasePlugin::instance()->settings());
-    if (m_searchKeywords.isEmpty())
-        m_searchKeywords = m_widget->searchKeywords();
     return m_widget;
 }
 
 void SettingsPage::apply()
 {
     ClearCasePlugin::instance()->setSettings(m_widget->settings());
-}
-
-bool SettingsPage::matches(const QString &s) const
-{
-    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }

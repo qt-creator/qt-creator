@@ -52,16 +52,10 @@ AndroidSettingsPage::AndroidSettingsPage(QObject *parent)
     setCategoryIcon(QLatin1String(Constants::ANDROID_SETTINGS_CATEGORY_ICON));
 }
 
-bool AndroidSettingsPage::matches(const QString &searchKeyWord) const
+QWidget *AndroidSettingsPage::widget()
 {
-    return m_keywords.contains(searchKeyWord, Qt::CaseInsensitive);
-}
-
-QWidget *AndroidSettingsPage::createPage(QWidget *parent)
-{
-    m_widget = new AndroidSettingsWidget(parent);
-    if (m_keywords.isEmpty())
-        m_keywords = m_widget->searchKeywords();
+    if (!m_widget)
+        m_widget = new AndroidSettingsWidget;
     return m_widget;
 }
 
@@ -97,6 +91,7 @@ void AndroidSettingsPage::apply()
 
 void AndroidSettingsPage::finish()
 {
+    delete m_widget;
 }
 
 } // namespace Internal

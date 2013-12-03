@@ -90,13 +90,12 @@ SettingsPage::~SettingsPage()
 {
 }
 
-QWidget *SettingsPage::createPage(QWidget *parent)
+QWidget *SettingsPage::widget()
 {
-    m_widget = new SettingsWidget(m_protocols, parent);
-    m_widget->setSettings(*m_settings);
-
-    if (m_searchKeywords.isEmpty())
-        m_searchKeywords = m_widget->searchKeywords();
+    if (!m_widget) {
+        m_widget = new SettingsWidget(m_protocols);
+        m_widget->setSettings(*m_settings);
+    }
     return m_widget;
 }
 
@@ -109,11 +108,6 @@ void SettingsPage::apply()
         *m_settings = newSettings;
         m_settings->toSettings(Core::ICore::settings());
     }
-}
-
-bool SettingsPage::matches(const QString &s) const
-{
-    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
 }
 
 void SettingsPage::addProtocol(const QString &name)

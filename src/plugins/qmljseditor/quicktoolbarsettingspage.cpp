@@ -101,16 +101,6 @@ void QuickToolBarSettingsPageWidget::setSettings(const QuickToolBarSettings &s)
     m_ui.textEditHelperCheckBoxPin->setChecked(s.pinContextPane);
 }
 
-QString QuickToolBarSettingsPageWidget::searchKeywords() const
-{
-    QString rc;
-    QTextStream(&rc)
-            << ' ' << m_ui.textEditHelperCheckBox->text()
-            << ' ' << m_ui.textEditHelperCheckBoxPin->text();
-    rc.remove(QLatin1Char('&'));
-    return rc;
-}
-
 QuickToolBarSettings QuickToolBarSettings::get()
 {
     QuickToolBarSettings settings;
@@ -129,12 +119,12 @@ QuickToolBarSettingsPage::QuickToolBarSettingsPage() :
     setCategoryIcon(QLatin1String(QmlDesigner::Constants::SETTINGS_CATEGORY_QML_ICON));
 }
 
-QWidget *QuickToolBarSettingsPage::createPage(QWidget *parent)
+QWidget *QuickToolBarSettingsPage::widget()
 {
-    m_widget = new QuickToolBarSettingsPageWidget(parent);
-    m_widget->setSettings(QuickToolBarSettings::get());
-    if (m_searchKeywords.isEmpty())
-        m_searchKeywords = m_widget->searchKeywords();
+    if (!m_widget) {
+        m_widget = new QuickToolBarSettingsPageWidget;
+        m_widget->setSettings(QuickToolBarSettings::get());
+    }
     return m_widget;
 }
 
@@ -145,7 +135,7 @@ void QuickToolBarSettingsPage::apply()
     m_widget->settings().set();
 }
 
-bool QuickToolBarSettingsPage::matches(const QString &s) const
+void QuickToolBarSettingsPage::finish()
 {
-    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
+    delete m_widget;
 }

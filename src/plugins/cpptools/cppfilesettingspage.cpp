@@ -293,21 +293,6 @@ CppFileSettings CppFileSettingsWidget::settings() const
     return rc;
 }
 
-QString CppFileSettingsWidget::searchKeywords() const
-{
-    QString rc;
-    QTextStream(&rc) << m_ui->headersGroupBox->title()
-            << ' ' << m_ui->headerSuffixLabel->text()
-            << ' ' << m_ui->headerSearchPathsLabel->text()
-            << ' ' << m_ui->sourcesGroupBox->title()
-            << ' ' << m_ui->sourceSuffixLabel->text()
-            << ' ' << m_ui->sourceSearchPathsLabel->text()
-            << ' ' << m_ui->lowerCaseFileNamesCheckBox->text()
-            << ' ' << m_ui->licenseTemplateLabel->text();
-    rc.remove(QLatin1Char('&'));
-    return rc;
-}
-
 static inline void setComboText(QComboBox *cb, const QString &text, int defaultIndex = 0)
 {
     const int index = cb->findText(text);
@@ -355,13 +340,13 @@ CppFileSettingsPage::CppFileSettingsPage(QSharedPointer<CppFileSettings> &settin
     setCategoryIcon(QLatin1String(Constants::SETTINGS_CATEGORY_CPP_ICON));
 }
 
-QWidget *CppFileSettingsPage::createPage(QWidget *parent)
+QWidget *CppFileSettingsPage::widget()
 {
 
-    m_widget = new CppFileSettingsWidget(parent);
-    m_widget->setSettings(*m_settings);
-    if (m_searchKeywords.isEmpty())
-        m_searchKeywords = m_widget->searchKeywords();
+    if (!m_widget) {
+        m_widget = new CppFileSettingsWidget;
+        m_widget->setSettings(*m_settings);
+    }
     return m_widget;
 }
 
@@ -378,9 +363,9 @@ void CppFileSettingsPage::apply()
     }
 }
 
-bool CppFileSettingsPage::matches(const QString &s) const
+void CppFileSettingsPage::finish()
 {
-    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
+    delete m_widget;
 }
 
 } // namespace Internal

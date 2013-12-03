@@ -51,10 +51,13 @@ SettingsPage::SettingsPage(QDesignerOptionsPageInterface *designerPage) :
     setCategoryIcon(QLatin1String(Designer::Constants::SETTINGS_CATEGORY_ICON));
 }
 
-QWidget *SettingsPage::createPage(QWidget *parent)
+QWidget *SettingsPage::widget()
 {
     m_initialized = true;
-    return m_designerPage->createPage(parent);
+    if (!m_widget)
+        m_widget = m_designerPage->createPage(0);
+    return m_widget;
+
 }
 
 void SettingsPage::apply()
@@ -67,6 +70,7 @@ void SettingsPage::finish()
 {
     if (m_initialized)
         m_designerPage->finish();
+    delete m_widget;
 }
 
 SettingsPageProvider::SettingsPageProvider(QObject *parent)

@@ -45,7 +45,7 @@ namespace Internal {
 
 OptionsPage::OptionsPage(const Settings &settings, QObject *parent) :
     IOptionsPage(parent),
-    m_dialog(0)
+    m_widget(0)
 {
     setSettings(settings);
 
@@ -61,16 +61,18 @@ void OptionsPage::setSettings(const Settings &settings)
     m_settings = settings;
 }
 
-QWidget *OptionsPage::createPage(QWidget *parent)
+QWidget *OptionsPage::widget()
 {
-    m_dialog = new OptionsDialog(parent);
-    m_dialog->setSettings(m_settings);
-    return m_dialog;
+    if (!m_widget) {
+        m_widget = new OptionsDialog;
+        m_widget->setSettings(m_settings);
+    }
+    return m_widget;
 }
 
 void OptionsPage::apply()
 {
-    Settings newSettings = m_dialog->settings();
+    Settings newSettings = m_widget->settings();
 
     if (newSettings != m_settings) {
         m_settings = newSettings;
@@ -80,11 +82,7 @@ void OptionsPage::apply()
 
 void OptionsPage::finish()
 {
-}
-
-bool OptionsPage::matches(const QString &searchKeyWord) const
-{
-    return searchKeyWord == QLatin1String("todo");
+    delete m_widget;
 }
 
 } // namespace Internal

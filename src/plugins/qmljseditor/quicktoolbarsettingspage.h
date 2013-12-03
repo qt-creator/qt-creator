@@ -33,6 +33,7 @@
 
 #include "ui_quicktoolbarsettingspage.h"
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <QPointer>
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -76,7 +77,6 @@ public:
     QuickToolBarSettings settings() const;
     void setSettings(const QuickToolBarSettings &);
 
-    QString searchKeywords() const;
     static QuickToolBarSettings get();
 
 private:
@@ -91,14 +91,12 @@ class QuickToolBarSettingsPage : public Core::IOptionsPage
 public:
     QuickToolBarSettingsPage();
 
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
-    void finish() { }
-    bool matches(const QString &) const;
+    void finish();
 
 private:
-    QString m_searchKeywords;
-    QuickToolBarSettingsPageWidget* m_widget;
+    QPointer<QuickToolBarSettingsPageWidget> m_widget;
 };
 
 } // namespace Internal

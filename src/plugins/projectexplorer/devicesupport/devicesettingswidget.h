@@ -55,7 +55,7 @@ class DeviceSettingsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    DeviceSettingsWidget(QWidget *parent);
+    DeviceSettingsWidget(QWidget *parent = 0);
     ~DeviceSettingsWidget();
 
     void saveSettings();

@@ -59,8 +59,6 @@ public:
     QString buildDirectory() const;
     void setBuildDirectory(const QString &bd);
 
-    QString searchKeywords() const;
-
 private slots:
     void slotDirectoryButtonGroupChanged();
     void resetDefaultBuildDirectory();
@@ -70,7 +68,6 @@ private:
     void setJomVisible(bool);
 
     Ui::ProjectExplorerSettingsPageUi m_ui;
-    mutable QString m_searchKeywords;
     QUuid m_environmentId;
 };
 
@@ -82,13 +79,11 @@ public:
     ProjectExplorerSettingsPage();
     ~ProjectExplorerSettingsPage();
 
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
     void finish();
-    bool matches(const QString &s) const;
 
 private:
-    QString m_searchKeywords;
     QPointer<ProjectExplorerSettingsWidget> m_widget;
 };
 

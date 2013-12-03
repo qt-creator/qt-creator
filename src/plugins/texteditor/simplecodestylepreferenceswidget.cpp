@@ -94,11 +94,6 @@ void SimpleCodeStylePreferencesWidget::slotTabSettingsChanged(const TextEditor::
     current->setTabSettings(settings);
 }
 
-QString SimpleCodeStylePreferencesWidget::searchKeywords() const
-{
-    return m_tabSettingsWidget->searchKeywords();
-}
-
 void SimpleCodeStylePreferencesWidget::setFlat(bool on)
 {
     m_tabSettingsWidget->setFlat(on);

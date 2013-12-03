@@ -51,29 +51,26 @@ FilterSettingsPage::FilterSettingsPage()
     setCategoryIcon(QLatin1String(Help::Constants::HELP_CATEGORY_ICON));
 }
 
-QWidget *FilterSettingsPage::createPage(QWidget *parent)
+QWidget *FilterSettingsPage::widget()
 {
-    QWidget *widget = new QWidget(parent);
-    m_ui.setupUi(widget);
+    if (!m_widget) {
+        m_widget = new QWidget;
+        m_ui.setupUi(m_widget);
 
-    updateFilterPage();
+        updateFilterPage();
 
-    connect(m_ui.attributeWidget, SIGNAL(itemChanged(QTreeWidgetItem*,int)),
-        this, SLOT(updateFilterMap()));
-    connect(m_ui.filterWidget,
-        SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)), this,
-        SLOT(updateAttributes(QListWidgetItem*)));
-    connect(m_ui.filterAddButton, SIGNAL(clicked()), this, SLOT(addFilter()));
-    connect(m_ui.filterRemoveButton, SIGNAL(clicked()), this,
-        SLOT(removeFilter()));
-    connect(HelpManager::instance(), SIGNAL(documentationChanged()),
-        this, SLOT(updateFilterPage()));
-
-    if (m_searchKeywords.isEmpty()) {
-        m_searchKeywords = m_ui.filterGroupBox->title() + QLatin1Char(' ')
-            + m_ui.attributesGroupBox->title();
+        connect(m_ui.attributeWidget, SIGNAL(itemChanged(QTreeWidgetItem*,int)),
+                this, SLOT(updateFilterMap()));
+        connect(m_ui.filterWidget,
+                SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)), this,
+                SLOT(updateAttributes(QListWidgetItem*)));
+        connect(m_ui.filterAddButton, SIGNAL(clicked()), this, SLOT(addFilter()));
+        connect(m_ui.filterRemoveButton, SIGNAL(clicked()), this,
+                SLOT(removeFilter()));
+        connect(HelpManager::instance(), SIGNAL(documentationChanged()),
+                this, SLOT(updateFilterPage()));
     }
-    return widget;
+    return m_widget;
 }
 
 void FilterSettingsPage::updateFilterPage()
@@ -230,11 +227,7 @@ void FilterSettingsPage::finish()
 {
     disconnect(HelpManager::instance(), SIGNAL(documentationChanged()),
         this, SLOT(updateFilterPage()));
-}
-
-bool FilterSettingsPage::matches(const QString &s) const
-{
-    return m_searchKeywords.contains(s, Qt::CaseInsensitive);
+    delete m_widget;
 }
 
 QString FilterSettingsPage::msgFilterLabel(const QString &filter) const

@@ -35,6 +35,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <QPointer>
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -57,8 +58,6 @@ public:
     DesignerSettings settings() const;
     void setSettings(const DesignerSettings &designerSettings);
 
-    QString searchKeywords() const;
-
 public slots:
     void debugViewEnabledToggled(bool b);
 
@@ -74,14 +73,12 @@ class SettingsPage : public Core::IOptionsPage
 public:
     SettingsPage();
 
-    QWidget *createPage(QWidget *parent);
+    QWidget *widget();
     void apply();
-    void finish() { }
-    bool matches(const QString &) const;
+    void finish();
 
 private:
-    QString m_searchKeywords;
-    SettingsPageWidget* m_widget;
+    QPointer<SettingsPageWidget> m_widget;
 };
 
 } // namespace Internal

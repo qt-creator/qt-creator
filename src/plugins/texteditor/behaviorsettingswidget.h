@@ -76,8 +76,6 @@ public:
     void setAssignedExtraEncodingSettings(const ExtraEncodingSettings &encodingSettings);
     void assignedExtraEncodingSettings(ExtraEncodingSettings *encodingSettings) const;
 
-    QString collectUiKeywords() const;
-
     TabSettingsWidget *tabSettingsWidget() const;
 
 signals:

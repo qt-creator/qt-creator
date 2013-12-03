@@ -101,21 +101,6 @@ void TabSettingsWidget::setFlat(bool on)
     ui->tabsAndIndentationGroupBox->layout()->setContentsMargins(margin, -1, margin, margin);
 }
 
-QString TabSettingsWidget::searchKeywords() const
-{
-    QString rc;
-    QLatin1Char sep(' ');
-    QTextStream(&rc)
-            << sep << ui->tabsAndIndentationGroupBox->title()
-            << sep << ui->tabPolicyLabel->text()
-            << sep << ui->tabSizeLabel->text()
-            << sep << ui->indentSizeLabel->text()
-            << sep << ui->continuationAlignBehaviorLabel->text()
-               ;
-    rc.remove(QLatin1Char('&'));
-    return rc;
-}
-
 void TabSettingsWidget::setCodingStyleWarningVisible(bool visible)
 {
     ui->codingStyleWarning->setVisible(visible);
