@@ -156,10 +156,6 @@ static QString toHex(const QString &str)
     return encoded;
 }
 
-
-struct GdbOnly {};
-struct LldbOnly {};
-
 struct Context
 {
     Context() : qtVersion(0), gccVersion(0) {}
@@ -518,15 +514,14 @@ struct DataBase
 {
     DataBase()
       : useQt(false), useQHash(false),
-        forceC(false), gdbOnly(false), lldbOnly(false),
+        forceC(false), engines(DumpTestGdbEngine | DumpTestCdbEngine | DumpTestLldbEngine),
         glibcxxDebug(false)
     {}
 
     mutable bool useQt;
     mutable bool useQHash;
     mutable bool forceC;
-    mutable bool gdbOnly;
-    mutable bool lldbOnly;
+    mutable int engines;
     mutable bool glibcxxDebug;
     mutable GdbVersion neededGdbVersion;
     mutable LldbVersion neededLldbVersion;
@@ -566,15 +561,9 @@ public:
         return *this;
     }
 
-    const Data &operator%(const LldbOnly &) const
+    const Data &operator%(const DebuggerEngine &enginesForTest) const
     {
-        lldbOnly = true;
-        return *this;
-    }
-
-    const Data &operator%(const GdbOnly &) const
-    {
-        gdbOnly = true;
+        engines = enginesForTest;
         return *this;
     }
 
@@ -787,6 +776,9 @@ void tst_Dumpers::dumper()
 {
     QFETCH(Data, data);
 
+    if (!(data.engines & m_debuggerEngine))
+        MSKIP_SINGLE("The test is excluded for this debugger engine.");
+
     if (m_debuggerEngine == DumpTestGdbEngine) {
         if (data.neededGdbVersion.min > m_gdbVersion)
             MSKIP_SINGLE("Need minimum GDB version "
@@ -794,9 +786,6 @@ void tst_Dumpers::dumper()
         if (data.neededGdbVersion.max < m_gdbVersion)
             MSKIP_SINGLE("Need maximum GDB version "
                 + QByteArray::number(data.neededGdbVersion.max));
-    } else {
-        if (data.gdbOnly)
-            MSKIP_SINGLE("Test is GDB specific");
     }
 
     if (m_debuggerEngine == DumpTestLldbEngine) {
@@ -806,9 +795,6 @@ void tst_Dumpers::dumper()
         if (data.neededLldbVersion.max < m_gdbVersion)
             MSKIP_SINGLE("Need maximum LLDB version "
                 + QByteArray::number(data.neededLldbVersion.max));
-    } else {
-        if (data.lldbOnly)
-            MSKIP_SINGLE("Test is LLDB specific");
     }
 
     QString cmd;
@@ -1207,7 +1193,7 @@ void tst_Dumpers::dumper_data()
                     "     struct { float f; };\n"
                     "     double d;\n"
                     " } a = { { 42, 43 } };\n (void)a;")
-               % GdbOnly()
+               % DumpTestGdbEngine
                % CheckType("a", "a", "union {...}")
                % Check("a.b", "43", "int")
                % Check("a.d", FloatValue("9.1245819032257467e-313"), "double")
@@ -1222,7 +1208,7 @@ void tst_Dumpers::dumper_data()
                     "     double d;\n"
                     " } a = { { 42, 43 } };\n (void)a;")
                //% CheckType("a", "a", "union {...}")
-               % LldbOnly()
+               % DumpTestLldbEngine
                % Check("a.#1.b", "43", "int")
                % Check("a.d", FloatValue("9.1245819032257467e-313"), "double")
                % Check("a.#2.f", FloatValue("5.88545355e-44"), "float")
@@ -2683,7 +2669,7 @@ void tst_Dumpers::dumper_data()
                     "h.insert(194);\n"
                     "h.insert(2);\n"
                     "h.insert(3);\n")
-               % GdbOnly()
+               % DumpTestGdbEngine
                % Profile("QMAKE_CXXFLAGS += -Wno-deprecated")
                % Check("h", "<4 items>", "__gnu__cxx::hash_set<int>")
                % Check("h.0", "[0]", "194", "int")
@@ -4999,7 +4985,7 @@ void tst_Dumpers::dumper_data()
                    "int sharedPtr = 1;\n"
                    "#endif\n"
                    "unused(&ptrConst, &ref, &refConst, &ptrToPtr, &sharedPtr);\n")
-               % GdbOnly()
+               % DumpTestGdbEngine
                % GdbVersion(70500)
                % BoostProfile()
                % Check("d", "", "Derived")
@@ -5038,7 +5024,7 @@ void tst_Dumpers::dumper_data()
                     "    struct { int c; float d; };\n"
                     "} v = {{1, 2}, {3, 4}};\n"
                     "unused(&v);\n")
-               % GdbOnly()
+               % DumpTestGdbEngine
                % Check("v", "", "Test")
                % Check("v.a", "1", "int");
 
@@ -5048,7 +5034,7 @@ void tst_Dumpers::dumper_data()
                     "    struct { int c; float d; };\n"
                     "} v = {{1, 2}, {3, 4}};\n"
                     "unused(&v);\n")
-               % LldbOnly()
+               % DumpTestLldbEngine
                % Check("v", "", "Test")
                % Check("v.#1.a", "1", "int");
 
@@ -5056,7 +5042,7 @@ void tst_Dumpers::dumper_data()
             << Data("struct { int x; struct { int a; }; struct { int b; }; } v = {1, {2}, {3}};\n"
                     "struct S { int x, y; } n = {10, 20};\n"
                     "unused(&v, &n);\n")
-               % GdbOnly()
+               % DumpTestGdbEngine
                % Check("v", "", "{...}")
                % Check("n", "", "S")
                % Check("v.a", "2", "int")
@@ -5069,7 +5055,7 @@ void tst_Dumpers::dumper_data()
             << Data("struct { int x; struct { int a; }; struct { int b; }; } v = {1, {2}, {3}};\n"
                     "struct S { int x, y; } n = {10, 20};\n"
                     "unused(&v, &n);\n")
-               % LldbOnly()
+               % DumpTestLldbEngine
                % Check("v", "", "<anonymous class>")
                % Check("n", "", "S")
                % Check("v.#1.a", "2", "int")
