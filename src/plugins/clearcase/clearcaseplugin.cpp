@@ -48,6 +48,7 @@
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/infobar.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/mimedatabase.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -242,6 +243,32 @@ QString ClearCasePlugin::getDriveLetterOfPath(const QString &directory)
 void ClearCasePlugin::updateStatusForFile(const QString &absFile)
 {
     setStatus(absFile, getFileStatus(absFile), false);
+}
+
+/// Give warning if a derived object is edited
+void ClearCasePlugin::updateEditDerivedObjectWarning(const QString &fileName,
+                                                     const FileStatus::Status status)
+{
+    if (!isDynamic())
+        return;
+
+    Core::IDocument *curDocument = Core::EditorManager::currentDocument();
+    if (!curDocument)
+        return;
+
+    Core::InfoBar *infoBar = curDocument->infoBar();
+    const Core::Id derivedObjectWarning("ClearCase.DerivedObjectWarning");
+
+    if (status == FileStatus::Derived) {
+        if (!infoBar->canInfoBeAdded(derivedObjectWarning))
+            return;
+
+        infoBar->addInfo(Core::InfoBarEntry(derivedObjectWarning,
+                                            tr("Editing Derived Object: %1")
+                                            .arg(fileName)));
+    } else {
+        infoBar->removeInfo(derivedObjectWarning);
+    }
 }
 
 FileStatus::Status ClearCasePlugin::getFileStatus(const QString &fileName) const
@@ -787,6 +814,8 @@ void ClearCasePlugin::updateStatusActions()
         QString absoluteFileName = currentState().currentFile();
         checkAndReIndexUnknownFile(absoluteFileName);
         fileStatus = vcsStatus(absoluteFileName);
+
+        updateEditDerivedObjectWarning(absoluteFileName, fileStatus.status);
 
         if (Constants::debug)
             qDebug() << Q_FUNC_INFO << absoluteFileName << ", status = "

@@ -264,6 +264,7 @@ private:
 
     FileStatus::Status getFileStatus(const QString &fileName) const;
     void updateStatusForFile(const QString &absFile);
+    void updateEditDerivedObjectWarning(const QString &fileName, const FileStatus::Status status);
 
     ClearCaseSettings m_settings;
 
