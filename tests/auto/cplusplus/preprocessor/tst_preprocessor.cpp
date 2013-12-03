@@ -796,11 +796,7 @@ void tst_Preprocessor::builtin__FILE__()
                            ));
     const QByteArray result____ =
             "# 1 \"some-file.c\"\n"
-            "const char *f =\n"
-            "# expansion begin 16,8 ~1\n"
-            "\"some-file.c\"\n"
-            "# expansion end\n"
-            "# 2 \"some-file.c\"\n";
+            "const char *f = \"some-file.c\"\n";
 
     QCOMPARE(preprocessed, result____);
 }

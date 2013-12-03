@@ -157,7 +157,14 @@ Component.prototype.createOperations = function()
                                 component.qtCreatorBinaryPath,
                                 "@StartMenuDir@/Qt Creator.lnk",
                                 "workingDirectory=@homeDir@" );
-        component.addElevatedOperation("Execute", "{0,3010,1638}", "@TargetDir@\\lib\\vcredist_msvc2010\\vcredist_x86.exe", "/norestart", "/q");
+
+        // only install c runtime if it is needed, no minor version check of the c runtime till we need it
+        if (installer.value("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\10.0\\VC\\VCRedist\\x86\\Installed") != 1) {
+           // return value 3010 means it need a reboot, but in most cases it is not needed for run Qt application
+           // return value 5100 means there's a newer version of the runtime already installed
+           component.addElevatedOperation("Execute", "{0,1638,3010,5100}", "@TargetDir@\\lib\\vcredist_msvc2010\\vcredist_x86.exe", "/norestart", "/q");
+        }
+
         registerWindowsFileTypeExtensions();
 
         if (component.userInterface("AssociateCommonFiletypesForm").AssociateCommonFiletypesCheckBox
@@ -191,8 +198,9 @@ function isRoot()
 
 Component.prototype.installationFinishedPageIsShown = function()
 {
+    isroot = isRoot();
     try {
-        if (component.installed && installer.isInstaller() && installer.status == QInstaller.Success && !isRoot()) {
+        if (component.installed && installer.isInstaller() && installer.status == QInstaller.Success && !isroot) {
             installer.addWizardPageItem( component, "LaunchQtCreatorCheckBoxForm", QInstaller.InstallationFinished );
         }
     } catch(e) {
@@ -203,7 +211,7 @@ Component.prototype.installationFinishedPageIsShown = function()
 Component.prototype.installationFinished = function()
 {
     try {
-        if (component.installed && installer.isInstaller() && installer.status == QInstaller.Success && !isRoot()) {
+        if (component.installed && installer.isInstaller() && installer.status == QInstaller.Success && !isroot) {
             var isLaunchQtCreatorCheckBoxChecked = component.userInterface("LaunchQtCreatorCheckBoxForm").launchQtCreatorCheckBox.checked;
             if (isLaunchQtCreatorCheckBoxChecked)
                 installer.executeDetached(component.qtCreatorBinaryPath, new Array(), "@homeDir@");

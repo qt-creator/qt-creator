@@ -36,9 +36,6 @@ QT_FORWARD_DECLARE_CLASS(QChar)
 
 namespace CPlusPlus {
 
-class BackwardsScanner;
-class TokenCache;
-
 class CPLUSPLUS_EXPORT MatchingText
 {
 public:

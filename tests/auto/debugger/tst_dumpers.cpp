@@ -1146,10 +1146,9 @@ void tst_Dumpers::dumper()
         m_keepTemp = false;
     } else {
         qDebug() << "CONTENTS     : " << contents;
-        qDebug() << "Qt VERSION   : "
-            << qPrintable(QString::number(context.qtVersion, 16));
-        qDebug() << "GCC VERSION   : "
-            << qPrintable(QString::number(context.gccVersion, 16));
+        qDebug() << "Qt VERSION   : " << qPrintable(QString::number(context.qtVersion, 16));
+        if (m_debuggerEngine != DumpTestCdbEngine)
+            qDebug() << "GCC VERSION   : " << qPrintable(QString::number(context.gccVersion, 16));
         qDebug() << "BUILD DIR    : " << qPrintable(t->buildPath);
     }
     QVERIFY(ok);

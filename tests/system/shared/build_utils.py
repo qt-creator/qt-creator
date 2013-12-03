@@ -65,10 +65,6 @@ def __addSignalHandlerDict__(lazySignalHandlerFunction):
                 installedSignalHandlers.setdefault("%s____%s" % (name,signalSignature), handlers)
     return wrappedFunction
 
-# returns the currently assigned handler functions for a given object and signal
-def getInstalledSignalHandlers(name, signalSignature):
-    return installedSignalHandlers.get("%s____%s" % (name,signalSignature))
-
 # this method checks the last build (if there's one) and logs the number of errors, warnings and
 # lines within the Issues output
 # optional parameter can be used to tell this function if the build was expected to fail or not

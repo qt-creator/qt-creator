@@ -51,6 +51,7 @@ Column {
 
             onClicked: {
                 customTab.currentIndex = index
+                checked = true
             }
         }
     }

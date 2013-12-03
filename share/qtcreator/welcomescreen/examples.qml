@@ -38,10 +38,12 @@ Rectangle {
     CustomizedGridView {
         id: grid
         anchors.rightMargin: 38
-        anchors.bottomMargin: 60
         anchors.leftMargin: 38
-        anchors.topMargin: 82
-        anchors.fill: parent
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: scrollView.height - 82
+        y: scrollView.flickableItem.contentY + 82
+        contentY: scrollView.flickableItem.contentY
 
         model: examplesModel
     }

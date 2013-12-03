@@ -117,7 +117,7 @@ Rectangle {
         y: 170
         color: colors.strongForegroundColor
         text: qsTr("2D PAINTING EXAMPLE long description")
-        clip: true
+        elide: Text.ElideRight
         anchors.right: parent.right
         anchors.rightMargin: 16
         anchors.left: parent.left
@@ -330,7 +330,6 @@ Rectangle {
         height: 32
         anchors.left: tags.right
         anchors.leftMargin: 6
-        clip: true
 
         spacing: 2
 
@@ -355,7 +354,7 @@ Rectangle {
                 onClicked: appendTag(modelData)
                 property bool hugeTag: (text.length > 12) && index > 1
                 property bool isExampleTag: text === "example"
-                visible: !hugeTag && !isExampleTag && index < 8
+                visible: !hugeTag && !isExampleTag && index < 8 && y < 32
             }
         }
     }

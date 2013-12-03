@@ -1,21 +1,22 @@
 #!/bin/bash
 
 ## Command line parameters
-if [[ $# != 1 ]]; then
+if [[ $# != 2 ]]; then
     cat <<USAGE
 usage:
-  $0 <version>
+  $0 <version> <edition>
 
   Creates tar and zip source package from HEAD of the main repository and submodules.
-  Files and directories are named after <version>.
+  Files and directories are named after qt-creator-<edition>-src-<version>.
   example:
-    $0 2.2.0-beta
+    $0 2.2.0-beta opensource
 USAGE
     exit 1
 fi
 
 VERSION=$1
-PREFIX=qt-creator-${VERSION}-src
+EDITION=$2
+PREFIX=qt-creator-${EDITION}-src-${VERSION}
 cd `dirname $0`/..
 RESULTDIR=`pwd`
 TEMPSOURCES=`mktemp -d -t qtcCreatorSourcePackage.XXXXXX`
