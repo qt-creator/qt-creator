@@ -32,7 +32,9 @@
 #ifndef BLACKBERRY_VERSION_NUMBER_H
 #define BLACKBERRY_VERSION_NUMBER_H
 
-#include <qstringlist.h>
+#include <QStringList>
+
+#include <utility>
 
 using namespace std::rel_ops;
 
