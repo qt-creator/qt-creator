@@ -48,6 +48,7 @@ TodoOutputTreeView::TodoOutputTreeView(QWidget *parent) :
     setFrameStyle(QFrame::NoFrame);
     setSortingEnabled(true);
     setAttribute(Qt::WA_MacShowFocusRect, false);
+    setSelectionBehavior(QTreeView::SelectRows);
 
     header()->setResizeMode(QHeaderView::Interactive);
     header()->setStretchLastSection(true);
