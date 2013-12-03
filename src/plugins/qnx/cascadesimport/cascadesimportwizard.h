@@ -76,7 +76,7 @@ protected:
     bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage);
 private:
     bool collectFiles(ConvertedProjectContext &projectContext, QString &errorMessage) const;
-    void collectFiles_helper(QStringList &file_paths, ConvertedProjectContext &projectContext,
+    void collectFiles_helper(QStringList &filePaths, ConvertedProjectContext &projectContext,
                              const QString &rootPath, const QList< QRegExp > &blackList) const;
     bool convertFile(Core::GeneratedFile &file, ConvertedProjectContext &projectContext,
                      QString &errorMessage) const;

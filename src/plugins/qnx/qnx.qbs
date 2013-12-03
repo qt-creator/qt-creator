@@ -256,6 +256,7 @@ QtcPlugin {
 
             "cascadesimportwizard.cpp",
             "srcprojectwizardpage.cpp",
+            "srcprojectpathchooser.cpp",
             "fileconverter.cpp",
             "bardescriptorconverter.cpp",
             "projectfileconverter.cpp",
@@ -264,6 +265,7 @@ QtcPlugin {
 
             "cascadesimportwizard.h",
             "srcprojectwizardpage.h",
+            "srcprojectpathchooser.h",
             "fileconverter.h",
             "bardescriptorconverter.h",
             "projectfileconverter.h",
