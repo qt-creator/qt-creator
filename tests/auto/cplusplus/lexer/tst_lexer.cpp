@@ -166,7 +166,7 @@ void tst_SimpleLexer::doxygen_comments_data()
         << T_INT << T_IDENTIFIER << T_SEMICOLON << T_CPP_DOXY_COMMENT << T_CPP_DOXY_COMMENT;
     QTest::newRow(source) << source << expectedTokenKindList;
 
-    source = "?""?(?""?)?""?<?""?>a?b:c";
+    source = "?" "?(?" "?)?" "?<?" "?>a?b:c";
     expectedTokenKindList = QList<unsigned>()
         << T_LBRACKET << T_RBRACKET << T_LBRACE << T_RBRACE
         << T_IDENTIFIER << T_QUESTION << T_IDENTIFIER << T_COLON << T_IDENTIFIER;
