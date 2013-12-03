@@ -287,8 +287,12 @@ QString QnxUtils::qdeInstallProcess(const QString &ndkPath, const QString &optio
     if (installerPath.isEmpty())
         return QString();
 
-    return QString::fromLatin1("%1 -nosplash -application com.qnx.tools.ide.sdk.manager.core.SDKInstallerApplication "
-                               "%2  %3 -vmargs -Dosgi.console=:none").arg(installerPath, option, version);
+    const QDir pluginDir(ndkPath + QLatin1String("/plugins"));
+    const QStringList installerPlugins = pluginDir.entryList(QStringList() << QLatin1String("com.qnx.tools.ide.sdk.installer.app_*.jar"));
+    const QString installerApplication = installerPlugins.size() >= 1 ? QLatin1String("com.qnx.tools.ide.sdk.installer.app.SDKInstallerApplication")
+                                                                      : QLatin1String("com.qnx.tools.ide.sdk.manager.core.SDKInstallerApplication");
+    return QString::fromLatin1("%1 -nosplash -application %2 "
+                               "%3  %4 -vmargs -Dosgi.console=:none").arg(installerPath, installerApplication, option, version);
 }
 
 QList<Utils::EnvironmentItem> QnxUtils::qnxEnvironment(const QString &sdkPath)
