@@ -188,6 +188,9 @@ void DebuggerItemConfigWidget::commandWasChanged()
             tmp.reinitializeFromFile();
             setAbis(tmp.abiNames());
             m_engineType = tmp.engineType();
+        } else {
+            setAbis(QStringList());
+            m_engineType = NoEngineType;
         }
     }
     m_model->updateDebugger(item());
