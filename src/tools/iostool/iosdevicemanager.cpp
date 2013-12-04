@@ -1063,6 +1063,8 @@ bool AppOpSession::installApp()
         }
         stopService(fd);
     }
+    if (!failure)
+        sleep(5); // after installation the device needs a bit of quiet....
     if (debugAll)
         qDebug() << "AMDeviceInstallApplication finished request with " << failure;
     IosDeviceManagerPrivate::instance()->didTransferApp(bundlePath, deviceId,
