@@ -210,9 +210,9 @@ GdbOptionsPageWidget::GdbOptionsPageWidget(QWidget *parent)
         "You can load additional debugging helpers or modify existing ones here.</p>"
         "%1</body></html>").arg(howToUsePython));
 
-    textEditCustomDumperCommands = new QTextEdit(groupBoxStartupCommands);
+    textEditCustomDumperCommands = new QTextEdit(groupBoxCustomDumperCommands);
     textEditCustomDumperCommands->setAcceptRichText(false);
-    textEditCustomDumperCommands->setToolTip(groupBoxStartupCommands->toolTip());
+    textEditCustomDumperCommands->setToolTip(groupBoxCustomDumperCommands->toolTip());
 
     /*
     groupBoxPluginDebugging = new QGroupBox(q);
