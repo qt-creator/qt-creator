@@ -112,7 +112,9 @@ DebuggerItem DebuggerItemConfigWidget::item() const
 
 void DebuggerItemConfigWidget::store() const
 {
-    m_model->updateDebugger(item());
+    DebuggerItem i = item();
+    if (i.isValid())
+        m_model->updateDebugger(i);
 }
 
 void DebuggerItemConfigWidget::setAbis(const QStringList &abiNames)
