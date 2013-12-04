@@ -56,8 +56,6 @@ class PaintEventsModelProxy : public AbstractTimelineModel
 public:
 
     struct QmlPaintEventData {
-        qint64 startTime;
-        qint64 duration;
         int framerate;
         int animationcount;
     };
@@ -70,8 +68,6 @@ public:
     QStringList categoryTitles() const;
     QString name() const;
 
-    const QVector<QmlPaintEventData> getData() const;
-    const QVector<QmlPaintEventData> getData(qint64 fromTime, qint64 toTime) const;
     void loadData();
     Q_INVOKABLE int count() const;
     void clear();

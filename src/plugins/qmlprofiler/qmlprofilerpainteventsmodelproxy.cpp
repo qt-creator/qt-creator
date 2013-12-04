@@ -30,6 +30,7 @@
 #include "qmlprofilerpainteventsmodelproxy.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilersimplemodel.h"
+#include "sortedtimelinemodel.h"
 #include <QCoreApplication>
 
 #include <QVector>
@@ -49,7 +50,7 @@ struct CategorySpan {
     int contractedRows;
 };
 
-class PaintEventsModelProxy::PaintEventsModelProxyPrivate
+class PaintEventsModelProxy::PaintEventsModelProxyPrivate : public SortedTimelineModel<QmlPaintEventData>
 {
 public:
     PaintEventsModelProxyPrivate(PaintEventsModelProxy *qq) : q(qq) {}
@@ -58,7 +59,6 @@ public:
     QString displayTime(double time);
     void computeAnimationCountLimit();
 
-    QVector <PaintEventsModelProxy::QmlPaintEventData> eventList;
     int minAnimationCount;
     int maxAnimationCount;
     bool expanded;
@@ -94,33 +94,13 @@ QString PaintEventsModelProxy::name() const
     return QLatin1String("PaintEventsModelProxy");
 }
 
-const QVector<PaintEventsModelProxy::QmlPaintEventData> PaintEventsModelProxy::getData() const
-{
-    return d->eventList;
-}
-
-const QVector<PaintEventsModelProxy::QmlPaintEventData> PaintEventsModelProxy::getData(qint64 fromTime, qint64 toTime) const
-{
-    int fromIndex = findFirstIndex(fromTime);
-    int toIndex = findLastIndex(toTime);
-    if (fromIndex != -1 && toIndex > fromIndex)
-        return d->eventList.mid(fromIndex, toIndex - fromIndex + 1);
-    else
-        return QVector<PaintEventsModelProxy::QmlPaintEventData>();
-}
-
 void PaintEventsModelProxy::clear()
 {
-    d->eventList.clear();
+    d->SortedTimelineModel::clear();
     d->minAnimationCount = 1;
     d->maxAnimationCount = 1;
     d->expanded = false;
     m_modelManager->modelProxyCountUpdated(m_modelId, 0, 1);
-}
-
-bool compareStartTimes(const PaintEventsModelProxy::QmlPaintEventData &t1, const PaintEventsModelProxy::QmlPaintEventData &t2)
-{
-    return t1.startTime < t2.startTime;
 }
 
 bool PaintEventsModelProxy::eventAccepted(const QmlProfilerSimpleModel::QmlEventData &event) const
@@ -137,6 +117,11 @@ void PaintEventsModelProxy::loadData()
 
     // collect events
     const QVector<QmlProfilerSimpleModel::QmlEventData> referenceList = simpleModel->getEvents();
+
+    QmlPaintEventData lastEvent;
+    qint64 lastStartTime = -1;
+    qint64 lastDuration = -1;
+
     foreach (const QmlProfilerSimpleModel::QmlEventData &event, referenceList) {
         if (!eventAccepted(event))
             continue;
@@ -151,30 +136,29 @@ void PaintEventsModelProxy::loadData()
 
         // the duration of the events is estimated from the framerate
         // we need to correct it before appending a new event
-        if (d->eventList.count() > 0) {
-            QmlPaintEventData *lastEvent = &d->eventList[d->eventList.count()-1];
-            if (lastEvent->startTime + lastEvent->duration >= realStartTime) {
+        if (lastStartTime != -1) {
+            if (lastStartTime + lastDuration >= realStartTime) {
                 // 1 nanosecond less to prevent overlap
-                lastEvent->duration = realStartTime - lastEvent->startTime - 1;
-                lastEvent->framerate = 1e9/lastEvent->duration;
+                lastDuration = realStartTime - lastStartTime - 1;
+                lastEvent.framerate = 1e9 / lastDuration;
             }
         }
 
-        QmlPaintEventData newEvent = {
-            realStartTime,
-            estimatedDuration,
-            (int)event.numericData1,
-            (int)event.numericData2
-        };
+        d->insert(lastStartTime, lastDuration, lastEvent);
 
-        d->eventList.append(newEvent);
+        lastEvent.framerate = (int)event.numericData1;
+        lastEvent.animationcount = (int)event.numericData2;
+        lastStartTime = realStartTime;
+        lastDuration = estimatedDuration;
 
-        m_modelManager->modelProxyCountUpdated(m_modelId, d->eventList.count(), referenceList.count());
+        m_modelManager->modelProxyCountUpdated(m_modelId, d->count(), referenceList.count());
     }
 
-    d->computeAnimationCountLimit();
+    if (lastStartTime != -1)
+        d->insert(lastStartTime, lastDuration, lastEvent);
 
-    qSort(d->eventList.begin(), d->eventList.end(), compareStartTimes);
+    d->computeAnimationCountLimit();
+    d->computeNesting();
 
     m_modelManager->modelProxyCountUpdated(m_modelId, 1, 1);
 
@@ -190,12 +174,12 @@ bool PaintEventsModelProxy::isEmpty() const
 
 int PaintEventsModelProxy::count() const
 {
-    return d->eventList.count();
+    return d->count();
 }
 
 qint64 PaintEventsModelProxy::lastTimeMark() const
 {
-    return d->eventList.last().startTime + d->eventList.last().duration;
+    return d->lastEndTime();
 }
 
 bool PaintEventsModelProxy::expanded(int ) const
@@ -233,53 +217,17 @@ const QString PaintEventsModelProxy::categoryLabel(int categoryIndex) const
 
 int PaintEventsModelProxy::findFirstIndex(qint64 startTime) const
 {
-    return findFirstIndexNoParents(startTime);
+    return d->findFirstIndex(startTime);
 }
 
 int PaintEventsModelProxy::findFirstIndexNoParents(qint64 startTime) const
 {
-    if (d->eventList.isEmpty())
-        return -1;
-    if (d->eventList.count() == 1 || d->eventList.first().startTime+d->eventList.first().duration >= startTime)
-        return 0;
-    else
-        if (d->eventList.last().startTime+d->eventList.last().duration <= startTime)
-            return -1;
-
-    int fromIndex = 0;
-    int toIndex = d->eventList.count()-1;
-    while (toIndex - fromIndex > 1) {
-        int midIndex = (fromIndex + toIndex)/2;
-        if (d->eventList[midIndex].startTime + d->eventList[midIndex].duration < startTime)
-            fromIndex = midIndex;
-        else
-            toIndex = midIndex;
-    }
-    return toIndex;
+    return d->findFirstIndexNoParents(startTime);
 }
 
 int PaintEventsModelProxy::findLastIndex(qint64 endTime) const
 {
-    if (d->eventList.isEmpty())
-        return -1;
-    if (d->eventList.first().startTime >= endTime)
-        return -1;
-    if (d->eventList.count() == 1)
-        return 0;
-    if (d->eventList.last().startTime <= endTime)
-        return d->eventList.count()-1;
-
-    int fromIndex = 0;
-    int toIndex = d->eventList.count()-1;
-    while (toIndex - fromIndex > 1) {
-        int midIndex = (fromIndex + toIndex)/2;
-        if (d->eventList[midIndex].startTime < endTime)
-            fromIndex = midIndex;
-        else
-            toIndex = midIndex;
-    }
-
-    return fromIndex;
+    return d->findLastIndex(endTime);
 }
 
 int PaintEventsModelProxy::getEventType(int index) const
@@ -303,17 +251,17 @@ int PaintEventsModelProxy::getEventRow(int index) const
 
 qint64 PaintEventsModelProxy::getDuration(int index) const
 {
-    return d->eventList[index].duration;
+    return d->range(index).duration;
 }
 
 qint64 PaintEventsModelProxy::getStartTime(int index) const
 {
-    return d->eventList[index].startTime;
+    return d->range(index).start;
 }
 
 qint64 PaintEventsModelProxy::getEndTime(int index) const
 {
-    return d->eventList[index].startTime + d->eventList[index].duration;
+    return d->range(index).start + d->range(index).duration;
 }
 
 int PaintEventsModelProxy::getEventId(int index) const
@@ -325,7 +273,7 @@ int PaintEventsModelProxy::getEventId(int index) const
 
 QColor PaintEventsModelProxy::getColor(int index) const
 {
-    double fpsFraction = d->eventList[index].framerate / 60.0;
+    double fpsFraction = d->range(index).framerate / 60.0;
     if (fpsFraction > 1.0)
         fpsFraction = 1.0;
     if (fpsFraction < 0.0)
@@ -338,7 +286,7 @@ float PaintEventsModelProxy::getHeight(int index) const
     float scale = d->maxAnimationCount - d->minAnimationCount;
     float fraction = 1.0f;
     if (scale > 1)
-        fraction = (float)(d->eventList[index].animationcount -
+        fraction = (float)(d->range(index).animationcount -
                             d->minAnimationCount) / scale;
 
     return fraction * 0.85f + 0.15f;
@@ -374,14 +322,14 @@ void PaintEventsModelProxy::PaintEventsModelProxyPrivate::computeAnimationCountL
 {
     minAnimationCount = 1;
     maxAnimationCount = 1;
-    if (eventList.isEmpty())
+    if (count() == 0)
         return;
 
-    for (int i=0; i < eventList.count(); i++) {
-        if (eventList[i].animationcount < minAnimationCount)
-            minAnimationCount = eventList[i].animationcount;
-        if (eventList[i].animationcount > maxAnimationCount)
-            maxAnimationCount = eventList[i].animationcount;
+    for (int i=0; i < count(); i++) {
+        if (range(i).animationcount < minAnimationCount)
+            minAnimationCount = range(i).animationcount;
+        else if (range(i).animationcount > maxAnimationCount)
+            maxAnimationCount = range(i).animationcount;
     }
 }
 
@@ -400,21 +348,21 @@ const QVariantList PaintEventsModelProxy::getEventDetails(int index) const
     // duration
     {
         QVariantMap valuePair;
-        valuePair.insert(QCoreApplication::translate(trContext, "Duration:"), QVariant(d->displayTime(d->eventList[index].duration)));
+        valuePair.insert(QCoreApplication::translate(trContext, "Duration:"), QVariant(d->displayTime(d->range(index).duration)));
         result << valuePair;
     }
 
     // duration
     {
         QVariantMap valuePair;
-        valuePair.insert(QCoreApplication::translate(trContext, "Framerate:"), QVariant(QString::fromLatin1("%1 FPS").arg(d->eventList[index].framerate)));
+        valuePair.insert(QCoreApplication::translate(trContext, "Framerate:"), QVariant(QString::fromLatin1("%1 FPS").arg(d->range(index).framerate)));
         result << valuePair;
     }
 
     // duration
     {
         QVariantMap valuePair;
-        valuePair.insert(QCoreApplication::translate(trContext, "Animations:"), QVariant(QString::fromLatin1("%1").arg(d->eventList[index].animationcount)));
+        valuePair.insert(QCoreApplication::translate(trContext, "Animations:"), QVariant(QString::fromLatin1("%1").arg(d->range(index).animationcount)));
         result << valuePair;
     }
 
