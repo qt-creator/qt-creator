@@ -99,6 +99,7 @@ private slots:
     void subprocessError(QProcess::ProcessError error);
     void subprocessFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void subprocessHasData();
+    void killProcess();
 private:
     friend class Ios::Internal::IosToolHandlerPrivate;
     Ios::Internal::IosToolHandlerPrivate *d;
