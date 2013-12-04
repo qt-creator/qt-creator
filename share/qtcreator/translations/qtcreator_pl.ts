@@ -4324,7 +4324,8 @@ Przyczyna: %3</translation>
     </message>
     <message>
         <source>Not all source code lines generate executable code. Putting a breakpoint on such a line acts as if the breakpoint was set on the next line that generated code. Selecting &apos;Adjust Breakpoint Locations&apos; shifts the red breakpoint markers in such cases to the location of the true breakpoint.</source>
-        <translation>Nie wszystkie linie kodu źródłowego generują kod wykonywalny. Ustawienie pułapki w takiej linii spowoduje, że zostanie ona ustawiona de facto w najbliższej kolejnej linii generującej kod wykonywalny. &quot;Poprawiaj położenie pułapek&quot; przesuwa czerwone znaczniki pułapek w miejsca prawdziwych pułapek w takich przypadkach.</translation>
+        <translation>Nie wszystkie linie kodu źródłowego generują kod wykonywalny. Ustawienie pułapki w takiej linii spowoduje, że zostanie ona ustawiona de facto w najbliższej kolejnej linii generującej kod wykonywalny.
+&quot;Poprawiaj położenie pułapek&quot; przesuwa czerwone znaczniki pułapek w miejsca prawdziwych pułapek w takich przypadkach.</translation>
     </message>
     <message>
         <source>Break on &quot;throw&quot;</source>
@@ -4991,7 +4992,8 @@ was generated. In such situations the breakpoint is shifted to the
 next source code line for which code was actually generated.
 This option reflects such temporary change by moving the breakpoint
 markers in the source code editor.</source>
-        <translation>Nie wszystkie linie kodu źródłowego generują kod wykonywalny. Ustawienie pułapki w takiej linii spowoduje, że zostanie ona ustawiona de facto w najbliższej kolejnej linii generującej kod wykonywalny. &quot;Poprawiaj położenie pułapek&quot; przesuwa czerwone znaczniki pułapek w miejsca prawdziwych pułapek w takich przypadkach.</translation>
+        <translation>Nie wszystkie linie kodu źródłowego generują kod wykonywalny. Ustawienie pułapki w takiej linii spowoduje, że zostanie ona ustawiona de facto w najbliższej kolejnej linii generującej kod wykonywalny.
+&quot;Poprawiaj położenie pułapek&quot; przesuwa czerwone znaczniki pułapek w miejsca prawdziwych pułapek w takich przypadkach.</translation>
     </message>
     <message>
         <source>Use dynamic object type for display</source>
@@ -5007,8 +5009,8 @@ a non-responsive GDB process. The default value of 20 seconds should
 be sufficient for most applications, but there are situations when
 loading big libraries or listing source files takes much longer than
 that on slow machines. In this case, the value should be increased.</source>
-        <translation>Czas wyrażony w sekundach przez który Qt Creator będzie oczekiwał na odpowiedź
-od procesu GDB zanim go zakończy. Domyślna wartość 20 sekund powinna być
+        <translation>Czas wyrażony w sekundach, w ciągu którego Qt Creator będzie oczekiwał na odpowiedź
+od procesu GDB, zanim go zakończy. Domyślna wartość 20 sekund powinna być
 wystarczająca dla większości aplikacji, lecz mogą zdarzyć się sytuacje, że załadowanie
 bibliotek o dużych rozmiarach lub wyświetlenie plików źródłowych zajmie dużo więcej
 czasu na powolnych maszynach. W takich przypadkach wartość ta powinna zostać zwiększona.</translation>
@@ -5130,7 +5132,7 @@ receives a signal like SIGSEGV during debugging.</source>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Keep debugging all children after a fork.&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Debuguj wszystkie dzieci po forku.&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;Debuguje wszystkie dzieci po forku.&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Additional Startup Commands</source>
@@ -6152,7 +6154,7 @@ Przebudowanie projektu może pomóc w ich odnalezieniu.</translation>
     </message>
     <message>
         <source>Let Qt Creator handle some key presses in insert mode so that code can be properly completed and expanded.</source>
-        <translation>Pozwala Qt Creatorowi obsługiwać pewne sekwencje naciśniętych klawiszy w trybie wstawiania, dzięki czemu możliwe staje się poprawne uzupełnianie i rozwijanie kodu.</translation>
+        <translation>Pozwala Qt Creatorowi obsługiwać pewne sekwencje naciśniętych klawiszy w trybie wstawiania, dzięki czemu możliwe staje się poprawne uzupełnianie kodu i składanie bloków.</translation>
     </message>
     <message>
         <source>Pass keys in insert mode</source>
@@ -7725,7 +7727,7 @@ Dodaj, zmodyfikuj lub usuń filtry dokumentów, które determinują zestaw dokum
     </message>
     <message>
         <source>Switch to editor context after last help page is closed.</source>
-        <translation>Przełączaj do trybu edycji po zamknięciu ostatniej strony pomocy.</translation>
+        <translation>Przełącza do trybu edycji po zamknięciu ostatniej strony pomocy.</translation>
     </message>
     <message>
         <source>Return to editor on closing the last page</source>
@@ -12551,7 +12553,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     </message>
     <message>
         <source>Warn about QML features which are not properly supported by the Qt Quick Designer</source>
-        <translation>Ostrzegaj przed cechami QML, które nie są poprawnie obsługiwane przez Qt Quick Designera</translation>
+        <translation>Ostrzega przed cechami QML, które nie są poprawnie obsługiwane przez Qt Quick Designera</translation>
     </message>
     <message>
         <source>Show the debugging view</source>
@@ -12559,7 +12561,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     </message>
     <message>
         <source>Also warn in the code editor about QML features which are not properly supported by the Qt Quick Designer</source>
-        <translation>Ostrzegaj również w edytorze kodu przed cechami QML które nie są poprawnie obsługiwane przez Qt Quick Designera</translation>
+        <translation>Ostrzega również w edytorze kodu przed cechami QML które nie są poprawnie obsługiwane przez Qt Quick Designera</translation>
     </message>
     <message>
         <source>Enable the debugging view</source>
@@ -16081,7 +16083,7 @@ aktywny tylko po wpisaniu przedrostka</translation>
     </message>
     <message>
         <source>If enabled, the toolbar will remain pinned to an absolute position.</source>
-        <translation>Jeśli uaktywnione, pasek narzędzi pozostanie przypięty w pozycji bezwzględnej.</translation>
+        <translation>Jeśli aktywne, pasek narzędzi pozostanie przypięty w pozycji bezwzględnej.</translation>
     </message>
     <message>
         <source>Pin Qt Quick Toolbar</source>
@@ -21258,7 +21260,22 @@ if (a &amp;&amp;
     c;
 &lt;/pre&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+Dodaje kolejny poziom wcięć do przeniesionych linii w instrukcjach &quot;if&quot;, &quot;foreach&quot;, &quot;switch&quot; i &quot;while&quot; w przypadku, gdy rozmiar wcięć zagnieżdżonego wyrażenia byłby taki sam lub większy od rozmiaru wcięć przeniesionych linii.
+
+Gdy rozmiar wcięć wynosi 4 znaki, opcja ta ma zastosowanie jedynie dla instrukcji &quot;if&quot;. Bez dodatkowych wcięć:
+&lt;pre&gt;
+if (a &amp;&amp;
+    b)
+    c;
+&lt;/pre&gt;
+Z dodatkowymi wcięciami:
+&lt;pre&gt;
+if (a &amp;&amp;
+        b)
+    c;
+&lt;/pre&gt;
+&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Pointers and References</source>
@@ -26790,7 +26807,7 @@ Mogą to być ścieżki bezwzględne lub względne do katalogu bieżąco otwarte
     </message>
     <message>
         <source>Always add a breakpoint on the &lt;i&gt;%1()&lt;/i&gt; function.</source>
-        <translation>Zawsze dodawaj pułapkę w funkcji &lt;i&gt;%1()&lt;/i&gt;.</translation>
+        <translation>Zawsze dodaje pułapkę w funkcji &lt;i&gt;%1()&lt;/i&gt;.</translation>
     </message>
 </context>
 <context>
@@ -27708,11 +27725,11 @@ Ustala, jak klawisz &quot;Backspace&quot; reaguje na wcięcia.
     </message>
     <message>
         <source>&amp;Clean whitespace</source>
-        <translation>&amp;Czyść białe znaki</translation>
+        <translation>&amp;Usuwaj białe znaki</translation>
     </message>
     <message>
         <source>Clean whitespace in entire document instead of only for changed parts.</source>
-        <translation>Wyczyść białe znaki w całym dokumencie, zamiast tylko w zmienionych częściach.</translation>
+        <translation>Usuwa białe znaki w całym dokumencie, zamiast tylko w zmienionych częściach.</translation>
     </message>
     <message>
         <source>In entire &amp;document</source>
@@ -27720,15 +27737,15 @@ Ustala, jak klawisz &quot;Backspace&quot; reaguje na wcięcia.
     </message>
     <message>
         <source>Correct leading whitespace according to tab settings.</source>
-        <translation>Poprawiaj białe znaki stosownie do ustawień tabulatorów.</translation>
+        <translation>Poprawia białe znaki stosownie do ustawień tabulatorów.</translation>
     </message>
     <message>
         <source>Clean indentation</source>
-        <translation>Czyść wcięcia</translation>
+        <translation>Poprawiaj wcięcia</translation>
     </message>
     <message>
         <source>Always write a newline character at the end of the file.</source>
-        <translation>Zawsze wstawiaj znak nowej linii na końcu pliku.</translation>
+        <translation>Zawsze wstawia znak nowej linii na końcu pliku.</translation>
     </message>
     <message>
         <source>&amp;Ensure newline at end of file</source>
