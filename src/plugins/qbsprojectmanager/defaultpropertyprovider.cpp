@@ -95,9 +95,19 @@ QVariantMap DefaultPropertyProvider::properties(const ProjectExplorer::Kit *k, c
                                    ? QStringList() << QLatin1String("mingw") << QLatin1String("gcc")
                                    : QStringList() << QLatin1String("msvc"));
         } else if (targetAbi.os() == ProjectExplorer::Abi::MacOS) {
-            data.insert(QLatin1String(QBS_TARGETOS), QStringList() << QLatin1String("osx")
-                        << QLatin1String("darwin") << QLatin1String("bsd4")
-                        << QLatin1String("bsd") << QLatin1String("unix"));
+            const char IOSQT[] = "Qt4ProjectManager.QtVersion.Ios"; // from Ios::Constants (include header?)
+            if (qt && qt->type() == QLatin1String(IOSQT)) {
+                QStringList targetOS;
+                if (targetAbi.architecture() == ProjectExplorer::Abi::X86Architecture)
+                    targetOS << QLatin1String("ios-simulator");
+                targetOS << QLatin1String("ios") << QLatin1String("darwin")
+                         << QLatin1String("bsd4") << QLatin1String("bsd") << QLatin1String("unix");
+                data.insert(QLatin1String(QBS_TARGETOS), targetOS);
+            } else {
+                data.insert(QLatin1String(QBS_TARGETOS), QStringList() << QLatin1String("osx")
+                            << QLatin1String("darwin") << QLatin1String("bsd4")
+                            << QLatin1String("bsd") << QLatin1String("unix"));
+            }
             if (tc->type() != QLatin1String("clang")) {
                 data.insert(QLatin1String(QBS_TOOLCHAIN), QLatin1String("gcc"));
             } else {
