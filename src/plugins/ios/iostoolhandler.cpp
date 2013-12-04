@@ -204,12 +204,15 @@ IosToolHandlerPrivate::IosToolHandlerPrivate(IosToolHandler::DeviceType devType,
     foreach (const QString &k, env.keys())
         if (k.startsWith(QLatin1String("DYLD_")))
             env.remove(k);
+    QStringList frameworkPaths;
     QString xcPath = IosConfigurations::developerPath().appendPath(QLatin1String("../OtherFrameworks")).toFileInfo().canonicalFilePath();
-    env.insert(QLatin1String("DYLD_FALLBACK_FRAMEWORK_PATH"),
-               xcPath.isEmpty() ?
-                   QString::fromLatin1("/System/Library/PrivateFrameworks")
-                 : (xcPath + QLatin1String(":/System/Library/PrivateFrameworks")));
-
+    if (!xcPath.isEmpty())
+        frameworkPaths << xcPath;
+    frameworkPaths << QLatin1String("/System/Library/Frameworks")
+                   << QLatin1String("/System/Library/PrivateFrameworks");
+    env.insert(QLatin1String("DYLD_FALLBACK_FRAMEWORK_PATH"), frameworkPaths.join(QLatin1Char(':')));
+    if (debugToolHandler)
+        qDebug() << "IosToolHandler runEnv:" << env.toStringList();
     process.setProcessEnvironment(env);
     QObject::connect(&process, SIGNAL(readyReadStandardOutput()), q, SLOT(subprocessHasData()));
     QObject::connect(&process, SIGNAL(finished(int,QProcess::ExitStatus)),
