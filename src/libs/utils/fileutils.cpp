@@ -40,6 +40,7 @@
 
 #ifdef Q_OS_WIN
 #include <qt_windows.h>
+#include <shlobj.h>
 #endif
 
 namespace Utils {
@@ -241,55 +242,21 @@ bool FileUtils::makeWritable(const FileName &path)
     return QFile::setPermissions(fileName, QFile::permissions(fileName) | QFile::WriteUser);
 }
 
-#ifdef Q_OS_WIN
-static QString getShortPathName(const QString &name)
-{
-    if (name.isEmpty())
-        return name;
-
-    // Determine length, then convert.
-    const LPCTSTR nameC = reinterpret_cast<LPCTSTR>(name.utf16()); // MinGW
-    const DWORD length = GetShortPathNameW(nameC, NULL, 0);
-    if (length == 0)
-        return name;
-    QScopedArrayPointer<TCHAR> buffer(new TCHAR[length]);
-    GetShortPathNameW(nameC, buffer.data(), length);
-    const QString rc = QString::fromUtf16(reinterpret_cast<const ushort *>(buffer.data()), length - 1);
-    return rc;
-}
-
-static QString getLongPathName(const QString &name)
-{
-    if (name.isEmpty())
-        return name;
-
-    // Determine length, then convert.
-    const LPCTSTR nameC = reinterpret_cast<LPCTSTR>(name.utf16()); // MinGW
-    const DWORD length = GetLongPathNameW(nameC, NULL, 0);
-    if (length == 0)
-        return name;
-    QScopedArrayPointer<TCHAR> buffer(new TCHAR[length]);
-    GetLongPathNameW(nameC, buffer.data(), length);
-    const QString rc = QString::fromUtf16(reinterpret_cast<const ushort *>(buffer.data()), length - 1);
-    return rc;
-}
-#endif // Q_OS_WIN
-
 // makes sure that capitalization of directories is canonical on Windows.
 // This mimics the logic in QDeclarative_isFileCaseCorrect
 QString FileUtils::normalizePathName(const QString &name)
 {
 #ifdef Q_OS_WIN
-    QString canonicalName = getShortPathName(name);
-    if (canonicalName.isEmpty())
+    const QString nativeSeparatorName(QDir::toNativeSeparators(name));
+    const LPCTSTR nameC = reinterpret_cast<LPCTSTR>(nativeSeparatorName.utf16()); // MinGW
+    PIDLIST_ABSOLUTE file;
+    HRESULT hr = SHParseDisplayName(nameC, NULL, &file, 0, NULL);
+    if (FAILED(hr))
         return name;
-    canonicalName = getLongPathName(canonicalName);
-    if (canonicalName.isEmpty())
+    TCHAR buffer[MAX_PATH];
+    if (!SHGetPathFromIDList(file, buffer))
         return name;
-    // Upper case drive letter
-    if (canonicalName.size() > 2 && canonicalName.at(1) == QLatin1Char(':'))
-        canonicalName[0] = canonicalName.at(0).toUpper();
-    return canonicalName;
+    return QDir::fromNativeSeparators(QString::fromUtf16(reinterpret_cast<const ushort *>(buffer)));
 #else // Filesystem is case-insensitive only on Windows
     return name;
 #endif
