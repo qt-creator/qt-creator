@@ -398,7 +398,7 @@ GdbOptionsPageWidget2::GdbOptionsPageWidget2(QWidget *parent)
     checkBoxAutoEnrichParameters->setText(GdbOptionsPage::tr(
         "Use common locations for debug information"));
     checkBoxAutoEnrichParameters->setToolTip(GdbOptionsPage::tr(
-        "<html><head/><body>Add common paths to locations "
+        "<html><head/><body>Adds common paths to locations "
         "of debug information such as <i>/usr/src/debug</i> "
         "when starting GDB.</body></html>"));
 
@@ -418,7 +418,7 @@ GdbOptionsPageWidget2::GdbOptionsPageWidget2(QWidget *parent)
     checkBoxEnableReverseDebugging = new QCheckBox(groupBoxDangerous);
     checkBoxEnableReverseDebugging->setText(GdbOptionsPage::tr("Enable reverse debugging"));
     checkBoxEnableReverseDebugging->setToolTip(GdbOptionsPage::tr(
-        "<html><head/><body><p>Enable stepping backwards.</p><p>"
+        "<html><head/><body><p>Enables stepping backwards.</p><p>"
         "<b>Note:</b> This feature is very slow and unstable on the GDB side. "
         "It exhibits unpredictable behavior when going backwards over system "
         "calls and is very likely to destroy your debugging session.</p></body></html>"));
@@ -426,14 +426,14 @@ GdbOptionsPageWidget2::GdbOptionsPageWidget2(QWidget *parent)
     checkBoxAttemptQuickStart = new QCheckBox(groupBoxDangerous);
     checkBoxAttemptQuickStart->setText(GdbOptionsPage::tr("Attempt quick start"));
     checkBoxAttemptQuickStart->setToolTip(GdbOptionsPage::tr(
-        "<html><head/><body>Postpone reading debug information as long as possible. "
+        "<html><head/><body>Postpones reading debug information as long as possible. "
         "This can result in faster startup times at the price of not being able to "
         "set breakpoints by file and number.</body></html>"));
 
     checkBoxMultiInferior = new QCheckBox(groupBoxDangerous);
     checkBoxMultiInferior->setText(GdbOptionsPage::tr("Debug all children"));
     checkBoxMultiInferior->setToolTip(GdbOptionsPage::tr(
-        "<html><head/><body>Keep debugging all children after a fork."
+        "<html><head/><body>Keeps debugging all children after a fork."
         "</body></html>"));
 
 

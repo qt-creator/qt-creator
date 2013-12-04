@@ -54,7 +54,7 @@ Id SystemEditor::id() const
 
 QString SystemEditor::displayName() const
 {
-    return QLatin1String("System Editor");
+    return tr("System Editor");
 }
 
 bool SystemEditor::startEditor(const QString &fileName, QString *errorMessage)

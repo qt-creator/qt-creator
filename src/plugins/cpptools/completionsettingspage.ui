@@ -107,7 +107,7 @@
       <item row="2" column="0">
        <widget class="QCheckBox" name="partiallyComplete">
         <property name="toolTip">
-         <string>Insert the common prefix of available completion items.</string>
+         <string>Inserts the common prefix of available completion items.</string>
         </property>
         <property name="text">
          <string>Autocomplete common &amp;prefix</string>
@@ -120,7 +120,7 @@
       <item row="3" column="0" colspan="2">
        <widget class="QCheckBox" name="autoInsertBrackets">
         <property name="toolTip">
-         <string>Automatically insert semicolons and closing brackets, parentheses, curly braces, and quotes when appropriate.</string>
+         <string>Automatically inserts semicolons and closing brackets, parentheses, curly braces, and quotes when appropriate.</string>
         </property>
         <property name="text">
          <string>&amp;Automatically insert matching characters</string>
@@ -151,7 +151,7 @@
         <item>
          <widget class="QCheckBox" name="surroundSelectedText">
           <property name="toolTip">
-           <string>When typing a matching character and there is a text selection, instead of removing the selection, surround it with the corresponding characters.</string>
+           <string>When typing a matching character and there is a text selection, instead of removing the selection, surrounds it with the corresponding characters.</string>
           </property>
           <property name="text">
            <string>Surround &amp;text selections</string>
@@ -205,7 +205,7 @@
       <item>
        <widget class="QCheckBox" name="enableDoxygenCheckBox">
         <property name="toolTip">
-         <string>Automatically create a Doxygen comment upon pressing enter after a /**, /*!, //! or ///</string>
+         <string>Automatically creates a Doxygen comment upon pressing enter after a /**, /*!, //! or ///</string>
         </property>
         <property name="text">
          <string>Enable Doxygen blocks</string>
@@ -233,7 +233,7 @@
         <item>
          <widget class="QCheckBox" name="generateBriefCheckBox">
           <property name="toolTip">
-           <string>Generate a &lt;i&gt;brief&lt;/i&gt; command with an initial description for the corresponding declaration</string>
+           <string>Generates a &lt;i&gt;brief&lt;/i&gt; command with an initial description for the corresponding declaration</string>
           </property>
           <property name="text">
            <string>Generate brief description</string>
@@ -245,7 +245,7 @@
       <item>
        <widget class="QCheckBox" name="leadingAsterisksCheckBox">
         <property name="toolTip">
-         <string>Add leading asterisks when continuing Qt (/*!) and Java (/**) style comments on new lines</string>
+         <string>Adds leading asterisks when continuing Qt (/*!) and Java (/**) style comments on new lines</string>
         </property>
         <property name="text">
          <string>Add leading asterisks</string>

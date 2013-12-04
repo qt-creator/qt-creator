@@ -60,7 +60,7 @@
    <item>
     <widget class="QCheckBox" name="checkBoxShowStdNamespace">
      <property name="toolTip">
-      <string>Show 'std::' prefix for types from the standard library.</string>
+      <string>Shows 'std::' prefix for types from the standard library.</string>
      </property>
      <property name="text">
       <string>Show &quot;std::&quot; namespace for types</string>
@@ -70,7 +70,7 @@
    <item>
     <widget class="QCheckBox" name="checkBoxShowQtNamespace">
      <property name="toolTip">
-      <string>Show Qt namespace prefix for Qt types. This is only relevant if Qt was configured with '-qtnamespace'.</string>
+      <string>Shows Qt namespace prefix for Qt types. This is only relevant if Qt was configured with '-qtnamespace'.</string>
      </property>
      <property name="text">
       <string>Show Qt's namespace for types</string>
