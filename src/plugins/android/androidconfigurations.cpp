@@ -163,9 +163,8 @@ AndroidConfig::AndroidConfig(const QSettings &settings)
     toolchainHost = settings.value(ToolchainHostKey).toString();
     automaticKitCreation = settings.value(AutomaticKitCreationKey, true).toBool();
     QString extraDirectory = settings.value(MakeExtraSearchDirectory).toString();
-    if (extraDirectory.isEmpty())
-        makeExtraSearchDirectories = QStringList();
-    else
+    makeExtraSearchDirectories.clear();
+    if (!extraDirectory.isEmpty())
         makeExtraSearchDirectories << extraDirectory;
 
     PersistentSettingsReader reader;
@@ -182,9 +181,8 @@ AndroidConfig::AndroidConfig(const QSettings &settings)
         if (v.isValid())
             automaticKitCreation = v.toBool();
         QString extraDirectory = reader.restoreValue(MakeExtraSearchDirectory).toString();
-        if (extraDirectory.isEmpty())
-            makeExtraSearchDirectories = QStringList();
-        else
+        makeExtraSearchDirectories.clear();
+        if (!extraDirectory.isEmpty())
             makeExtraSearchDirectories << extraDirectory;
         // persistent settings
     }
