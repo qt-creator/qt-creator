@@ -30,6 +30,7 @@
 #include "qmlprofilertimelinemodelproxy.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilersimplemodel.h"
+#include "sortedtimelinemodel.h"
 
 #include <QCoreApplication>
 #include <QVector>
@@ -51,7 +52,7 @@ struct CategorySpan {
     bool empty;
 };
 
-class BasicTimelineModel::BasicTimelineModelPrivate
+class BasicTimelineModel::BasicTimelineModelPrivate : public SortedTimelineModel<BasicTimelineModel::QmlRangeEventStartInstance>
 {
 public:
     BasicTimelineModelPrivate(BasicTimelineModel *qq) : q(qq) {}
@@ -61,7 +62,6 @@ public:
     void prepare();
     void computeNestingContracted();
     void computeExpandedLevels();
-    void buildEndTimeList();
     void findBindingLoops();
     void computeRowStarts();
 
@@ -69,8 +69,6 @@ public:
 
     QVector <BasicTimelineModel::QmlRangeEventData> eventDict;
     QVector <QString> eventHashes;
-    QVector <BasicTimelineModel::QmlRangeEventStartInstance> startTimeData;
-    QVector <BasicTimelineModel::QmlRangeEventEndInstance> endTimeData;
     QVector <CategorySpan> categorySpan;
 
     BasicTimelineModel *q;
@@ -104,27 +102,11 @@ QString BasicTimelineModel::name() const
     return QLatin1String("BasicTimelineModel");
 }
 
-const QVector<BasicTimelineModel::QmlRangeEventStartInstance> BasicTimelineModel::getData() const
-{
-    return d->startTimeData;
-}
-
-const QVector<BasicTimelineModel::QmlRangeEventStartInstance> BasicTimelineModel::getData(qint64 fromTime, qint64 toTime) const
-{
-    int fromIndex = findFirstIndex(fromTime);
-    int toIndex = findLastIndex(toTime);
-    if (fromIndex != -1 && toIndex > fromIndex)
-        return d->startTimeData.mid(fromIndex, toIndex - fromIndex + 1);
-    else
-        return QVector<BasicTimelineModel::QmlRangeEventStartInstance>();
-}
-
 void BasicTimelineModel::clear()
 {
+    d->SortedTimelineModel::clear();
     d->eventDict.clear();
     d->eventHashes.clear();
-    d->startTimeData.clear();
-    d->endTimeData.clear();
     d->categorySpan.clear();
 
     m_modelManager->modelProxyCountUpdated(m_modelId, 0, 1);
@@ -137,16 +119,6 @@ void BasicTimelineModel::BasicTimelineModelPrivate::prepare()
         CategorySpan newCategory = {false, 1, 1, i, true};
         categorySpan << newCategory;
     }
-}
-
-bool compareStartTimes(const BasicTimelineModel::QmlRangeEventStartInstance&t1, const BasicTimelineModel::QmlRangeEventStartInstance &t2)
-{
-    return t1.startTime < t2.startTime;
-}
-
-bool compareEndTimes(const BasicTimelineModel::QmlRangeEventEndInstance &t1, const BasicTimelineModel::QmlRangeEventEndInstance &t2)
-{
-    return t1.endTime < t2.endTime;
 }
 
 bool BasicTimelineModel::eventAccepted(const QmlProfilerSimpleModel::QmlEventData &event) const
@@ -191,42 +163,30 @@ void BasicTimelineModel::loadData()
         }
 
         // store starttime-based instance
-        QmlRangeEventStartInstance eventStartInstance = {
-            event.startTime,
-            event.duration,
-            d->eventHashes.indexOf(eventHash), // event id
-            QmlDebug::Constants::QML_MIN_LEVEL, // displayRowExpanded;
-            QmlDebug::Constants::QML_MIN_LEVEL, // displayRowCollapsed;
-            1,
-            -1  // bindingLoopHead
-        };
-        d->startTimeData.append(eventStartInstance);
+        d->insert(event.startTime, event.duration, QmlRangeEventStartInstance(d->eventHashes.indexOf(eventHash)));
 
-        m_modelManager->modelProxyCountUpdated(m_modelId, d->startTimeData.count(), eventList.count() * 7);
+        m_modelManager->modelProxyCountUpdated(m_modelId, d->count(), eventList.count() * 6);
     }
 
-    qSort(d->startTimeData.begin(), d->startTimeData.end(), compareStartTimes);
+    m_modelManager->modelProxyCountUpdated(m_modelId, 2, 6);
 
-    m_modelManager->modelProxyCountUpdated(m_modelId, 2, 7);
+    // compute range nesting
+    d->computeNesting();
 
     // compute nestingLevel - nonexpanded
     d->computeNestingContracted();
 
-    m_modelManager->modelProxyCountUpdated(m_modelId, 3, 7);
+    m_modelManager->modelProxyCountUpdated(m_modelId, 3, 6);
 
     // compute nestingLevel - expanded
     d->computeExpandedLevels();
 
-    m_modelManager->modelProxyCountUpdated(m_modelId, 4, 7);
+    m_modelManager->modelProxyCountUpdated(m_modelId, 4, 6);
 
-    // populate endtimelist
-    d->buildEndTimeList();
-
-    m_modelManager->modelProxyCountUpdated(m_modelId, 5, 7);
 
     d->findBindingLoops();
 
-    m_modelManager->modelProxyCountUpdated(m_modelId, 6, 7);
+    m_modelManager->modelProxyCountUpdated(m_modelId, 5, 6);
 
     d->computeRowStarts();
 
@@ -238,15 +198,10 @@ void BasicTimelineModel::loadData()
 void BasicTimelineModel::BasicTimelineModelPrivate::computeNestingContracted()
 {
     int i;
-    int eventCount = startTimeData.count();
+    int eventCount = count();
 
-    QHash<int, qint64> endtimesPerLevel;
     QList<int> nestingLevels;
     QList< QHash<int, qint64> > endtimesPerNestingLevel;
-    int level = QmlDebug::Constants::QML_MIN_LEVEL;
-    endtimesPerLevel[QmlDebug::Constants::QML_MIN_LEVEL] = 0;
-    int lastBaseEventIndex = 0;
-    qint64 lastBaseEventEndTime = q->m_modelManager->traceTime()->startTime();
 
     for (i = 0; i < QmlDebug::MaximumQmlEventType; i++) {
         nestingLevels << QmlDebug::Constants::QML_MIN_LEVEL;
@@ -256,17 +211,8 @@ void BasicTimelineModel::BasicTimelineModelPrivate::computeNestingContracted()
     }
 
     for (i = 0; i < eventCount; i++) {
-        qint64 st = startTimeData[i].startTime;
+        qint64 st = ranges[i].start;
         int type = q->getEventType(i);
-
-        // general level
-        if (endtimesPerLevel[level] > st) {
-            level++;
-        } else {
-            while (level > QmlDebug::Constants::QML_MIN_LEVEL && endtimesPerLevel[level-1] <= st)
-                level--;
-        }
-        endtimesPerLevel[level] = st + startTimeData[i].duration;
 
         // per type
         if (endtimesPerNestingLevel[type][nestingLevels[type]] > st) {
@@ -277,58 +223,33 @@ void BasicTimelineModel::BasicTimelineModelPrivate::computeNestingContracted()
                 nestingLevels[type]--;
         }
         endtimesPerNestingLevel[type][nestingLevels[type]] =
-                st + startTimeData[i].duration;
+                st + ranges[i].duration;
 
-        startTimeData[i].displayRowCollapsed = nestingLevels[type];
-
-        if (level == QmlDebug::Constants::QML_MIN_LEVEL) {
-            if (lastBaseEventEndTime < startTimeData[i].startTime) {
-                lastBaseEventIndex = i;
-                lastBaseEventEndTime = startTimeData[i].startTime + startTimeData[i].duration;
-            }
-        }
-        startTimeData[i].baseEventIndex = lastBaseEventIndex;
+        ranges[i].displayRowCollapsed = nestingLevels[type];
     }
 
     // nestingdepth
     for (i = 0; i < eventCount; i++) {
         int eventType = q->getEventType(i);
         categorySpan[eventType].empty = false;
-        if (categorySpan[eventType].contractedRows <= startTimeData[i].displayRowCollapsed)
-            categorySpan[eventType].contractedRows = startTimeData[i].displayRowCollapsed + 1;
+        if (categorySpan[eventType].contractedRows <= ranges[i].displayRowCollapsed)
+            categorySpan[eventType].contractedRows = ranges[i].displayRowCollapsed + 1;
     }
 }
 
 void BasicTimelineModel::BasicTimelineModelPrivate::computeExpandedLevels()
 {
     QHash<int, int> eventRow;
-    int eventCount = startTimeData.count();
+    int eventCount = count();
     for (int i = 0; i < eventCount; i++) {
-        int eventId = startTimeData[i].eventId;
+        int eventId = ranges[i].eventId;
         int eventType = eventDict[eventId].eventType;
         if (!eventRow.contains(eventId)) {
             categorySpan[eventType].empty = false;
             eventRow[eventId] = categorySpan[eventType].expandedRows++;
         }
-        startTimeData[i].displayRowExpanded = eventRow[eventId];
+        ranges[i].displayRowExpanded = eventRow[eventId];
     }
-}
-
-void BasicTimelineModel::BasicTimelineModelPrivate::buildEndTimeList()
-{
-    endTimeData.clear();
-
-    int eventCount = startTimeData.count();
-    for (int i = 0; i < eventCount; i++) {
-        BasicTimelineModel::QmlRangeEventEndInstance endInstance = {
-            i,
-            startTimeData[i].startTime + startTimeData[i].duration
-        };
-
-        endTimeData << endInstance;
-    }
-
-    qSort(endTimeData.begin(), endTimeData.end(), compareEndTimes);
 }
 
 void BasicTimelineModel::BasicTimelineModelPrivate::findBindingLoops()
@@ -336,8 +257,8 @@ void BasicTimelineModel::BasicTimelineModelPrivate::findBindingLoops()
     typedef QPair<QString, int> CallStackEntry;
     QStack<CallStackEntry> callStack;
 
-    for (int i = 0; i < startTimeData.size(); ++i) {
-        QmlRangeEventStartInstance *event = &startTimeData[i];
+    for (int i = 0; i < count(); ++i) {
+        Range *event = &ranges[i];
 
         BasicTimelineModel::QmlRangeEventData data = eventDict.at(event->eventId);
 
@@ -349,14 +270,14 @@ void BasicTimelineModel::BasicTimelineModelPrivate::findBindingLoops()
             continue;
 
         const QString eventHash = eventHashes.at(event->eventId);
-        const QmlRangeEventStartInstance *potentialParent = callStack.isEmpty()
-                ? 0 : &startTimeData[callStack.top().second];
+        const Range *potentialParent = callStack.isEmpty()
+                ? 0 : &ranges[callStack.top().second];
 
         while (potentialParent
-               && !(potentialParent->startTime + potentialParent->duration > event->startTime)) {
+               && !(potentialParent->start + potentialParent->duration > event->start)) {
             callStack.pop();
             potentialParent = callStack.isEmpty() ? 0
-                                                  : &startTimeData[callStack.top().second];
+                                                  : &ranges[callStack.top().second];
         }
 
         // check whether event is already in stack
@@ -392,12 +313,12 @@ bool BasicTimelineModel::isEmpty() const
 
 int BasicTimelineModel::count() const
 {
-    return d->startTimeData.count();
+    return d->count();
 }
 
 qint64 BasicTimelineModel::lastTimeMark() const
 {
-    return d->startTimeData.last().startTime + d->startTimeData.last().duration;
+    return d->lastEndTime();
 }
 
 bool BasicTimelineModel::expanded(int category) const
@@ -450,95 +371,22 @@ const QString BasicTimelineModel::categoryLabel(int categoryIndex) const
 
 int BasicTimelineModel::findFirstIndex(qint64 startTime) const
 {
-    int candidate = -1;
-    // in the "endtime" list, find the first event that ends after startTime
-    if (d->endTimeData.isEmpty())
-        return -1;
-    if (d->endTimeData.count() == 1 || d->endTimeData.first().endTime >= startTime)
-        candidate = 0;
-    else
-        if (d->endTimeData.last().endTime <= startTime)
-            return -1;
-
-    if (candidate == -1)
-    {
-        int fromIndex = 0;
-        int toIndex = d->endTimeData.count()-1;
-        while (toIndex - fromIndex > 1) {
-            int midIndex = (fromIndex + toIndex)/2;
-            if (d->endTimeData[midIndex].endTime < startTime)
-                fromIndex = midIndex;
-            else
-                toIndex = midIndex;
-        }
-
-        candidate = toIndex;
-    }
-
-    int eventIndex = d->endTimeData[candidate].startTimeIndex;
-    return d->startTimeData[eventIndex].baseEventIndex;
-
+    return d->findFirstIndex(startTime);
 }
 
 int BasicTimelineModel::findFirstIndexNoParents(qint64 startTime) const
 {
-    int candidate = -1;
-    // in the "endtime" list, find the first event that ends after startTime
-    if (d->endTimeData.isEmpty())
-        return -1;
-    if (d->endTimeData.count() == 1 || d->endTimeData.first().endTime >= startTime)
-        candidate = 0;
-    else
-        if (d->endTimeData.last().endTime <= startTime)
-            return -1;
-
-    if (candidate == -1) {
-        int fromIndex = 0;
-        int toIndex = d->endTimeData.count()-1;
-        while (toIndex - fromIndex > 1) {
-            int midIndex = (fromIndex + toIndex)/2;
-            if (d->endTimeData[midIndex].endTime < startTime)
-                fromIndex = midIndex;
-            else
-                toIndex = midIndex;
-        }
-
-        candidate = toIndex;
-    }
-
-    int ndx = d->endTimeData[candidate].startTimeIndex;
-
-    return ndx;
+    return d->findFirstIndexNoParents(startTime);
 }
 
 int BasicTimelineModel::findLastIndex(qint64 endTime) const
 {
-        // in the "starttime" list, find the last event that starts before endtime
-        if (d->startTimeData.isEmpty())
-            return -1;
-        if (d->startTimeData.first().startTime >= endTime)
-            return -1;
-        if (d->startTimeData.count() == 1)
-            return 0;
-        if (d->startTimeData.last().startTime <= endTime)
-            return d->startTimeData.count()-1;
-
-        int fromIndex = 0;
-        int toIndex = d->startTimeData.count()-1;
-        while (toIndex - fromIndex > 1) {
-            int midIndex = (fromIndex + toIndex)/2;
-            if (d->startTimeData[midIndex].startTime < endTime)
-                fromIndex = midIndex;
-            else
-                toIndex = midIndex;
-        }
-
-        return fromIndex;
+    return d->findLastIndex(endTime);
 }
 
 int BasicTimelineModel::getEventType(int index) const
 {
-    return d->eventDict[d->startTimeData[index].eventId].eventType;
+    return d->eventDict[d->range(index).eventId].eventType;
 }
 
 int BasicTimelineModel::getEventCategory(int index) const
@@ -553,34 +401,34 @@ int BasicTimelineModel::getEventCategory(int index) const
 int BasicTimelineModel::getEventRow(int index) const
 {
     if (d->categorySpan[getEventType(index)].expanded)
-        return d->startTimeData[index].displayRowExpanded + d->categorySpan[getEventType(index)].rowStart;
+        return d->range(index).displayRowExpanded + d->categorySpan[getEventType(index)].rowStart;
     else
-        return d->startTimeData[index].displayRowCollapsed  + d->categorySpan[getEventType(index)].rowStart;
+        return d->range(index).displayRowCollapsed  + d->categorySpan[getEventType(index)].rowStart;
 }
 
 qint64 BasicTimelineModel::getDuration(int index) const
 {
-    return d->startTimeData[index].duration;
+    return d->range(index).duration;
 }
 
 qint64 BasicTimelineModel::getStartTime(int index) const
 {
-    return d->startTimeData[index].startTime;
+    return d->range(index).start;
 }
 
 qint64 BasicTimelineModel::getEndTime(int index) const
 {
-    return d->startTimeData[index].startTime + d->startTimeData[index].duration;
+    return d->range(index).start + d->range(index).duration;
 }
 
 int BasicTimelineModel::getEventId(int index) const
 {
-    return d->startTimeData[index].eventId;
+    return d->range(index).eventId;
 }
 
 int BasicTimelineModel::getBindingLoopDest(int index) const
 {
-    return d->startTimeData[index].bindingLoopHead;
+    return d->range(index).bindingLoopHead;
 }
 
 QColor BasicTimelineModel::getColor(int index) const
@@ -641,7 +489,7 @@ const QVariantList BasicTimelineModel::getEventDetails(int index) const
     // duration
     {
         QVariantMap valuePair;
-        valuePair.insert(QCoreApplication::translate(trContext, "Duration:"), QVariant(d->displayTime(d->startTimeData[index].duration)));
+        valuePair.insert(QCoreApplication::translate(trContext, "Duration:"), QVariant(d->displayTime(d->range(index).duration)));
         result << valuePair;
     }
 

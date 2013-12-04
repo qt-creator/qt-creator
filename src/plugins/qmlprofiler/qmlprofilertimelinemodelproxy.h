@@ -65,20 +65,18 @@ public:
     };
 
     struct QmlRangeEventStartInstance {
-        qint64 startTime;
-        qint64 duration;
+        QmlRangeEventStartInstance(int eventId = -1) :
+                eventId(eventId),
+                displayRowExpanded(QmlDebug::Constants::QML_MIN_LEVEL),
+                displayRowCollapsed(QmlDebug::Constants::QML_MIN_LEVEL),
+                bindingLoopHead(-1) {}
+
         int eventId;
 
         // not-expanded, per type
         int displayRowExpanded;
         int displayRowCollapsed;
-        int baseEventIndex; // used by findfirstindex
         int bindingLoopHead;
-    };
-
-    struct QmlRangeEventEndInstance {
-        int startTimeIndex;
-        qint64 endTime;
     };
 
     BasicTimelineModel(QObject *parent = 0);
@@ -89,8 +87,6 @@ public:
     QStringList categoryTitles() const;
     QString name() const;
 
-    const QVector<QmlRangeEventStartInstance> getData() const;
-    const QVector<QmlRangeEventStartInstance> getData(qint64 fromTime, qint64 toTime) const;
     void loadData();
     Q_INVOKABLE int count() const;
     void clear();
