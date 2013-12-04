@@ -19,7 +19,7 @@
 #ifndef PIXMAPCACHEMODEL_H
 #define PIXMAPCACHEMODEL_H
 
-#include "qmlprofiler/abstracttimelinemodel.h"
+#include "qmlprofiler/qmlprofilertimelinemodelproxy.h"
 #include "qmlprofiler/qmlprofilermodelmanager.h"
 #include "qmlprofiler/qmlprofilersimplemodel.h"
 
@@ -36,8 +36,6 @@ public:
 
     struct PixmapCacheEvent {
         int eventId;
-        qint64 startTime;
-        qint64 duration;
         int pixmapEventType;
         int urlIndex;
         qint64 cacheSize;
