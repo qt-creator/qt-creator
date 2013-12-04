@@ -82,6 +82,7 @@ private:
     QLineEdit *m_abis;
     DebuggerItemModel *m_model;
     bool m_autodetected;
+    DebuggerEngineType m_engineType;
     QVariant m_id;
 };
 

@@ -106,6 +106,7 @@ DebuggerItem DebuggerItemConfigWidget::item() const
         abiList << a;
     }
     item.setAbis(abiList);
+    item.setEngineType(m_engineType);
     return item;
 }
 
@@ -159,6 +160,7 @@ void DebuggerItemConfigWidget::setItem(const DebuggerItem &item)
     m_binaryChooser->setCommandVersionArguments(QStringList(versionCommand));
 
     setAbis(item.abiNames());
+    m_engineType = item.engineType();
 }
 
 void DebuggerItemConfigWidget::apply()
@@ -178,14 +180,17 @@ void DebuggerItemConfigWidget::commandWasChanged()
             = DebuggerItemManager::findByCommand(m_binaryChooser->fileName());
     if (existing) {
         setAbis(existing->abiNames());
+        m_engineType = existing->engineType();
     } else {
         QFileInfo fi = QFileInfo(m_binaryChooser->path());
         if (fi.isExecutable()) {
             DebuggerItem tmp = item();
             tmp.reinitializeFromFile();
             setAbis(tmp.abiNames());
+            m_engineType = tmp.engineType();
         }
     }
+    m_model->updateDebugger(item());
 }
 
 // --------------------------------------------------------------------------
