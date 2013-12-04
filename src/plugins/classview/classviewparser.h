@@ -58,9 +58,10 @@ public:
     explicit Parser(QObject *parent = 0);
     ~Parser();
 
-    bool canFetchMore(QStandardItem *item) const;
+    bool canFetchMore(QStandardItem *item, bool skipRoot = false) const;
 
     void fetchMore(QStandardItem *item, bool skipRoot = false) const;
+    bool hasChildren(QStandardItem *item) const;
 
 signals:
     //! File list is changed
@@ -93,6 +94,9 @@ protected slots:
     void onResetDataDone();
 
 protected:
+    typedef QHash<QString, unsigned>::const_iterator CitCachedDocTreeRevision;
+    typedef QHash<QString, QStringList>::const_iterator CitCachedPrjFileLists;
+
     void addProject(const ParserTreeItem::Ptr &item, const QStringList &fileList,
                     const QString &projectId = QString());
 
@@ -115,10 +119,11 @@ protected:
 
     QStringList addProjectNode(const ParserTreeItem::Ptr &item,
                                const ProjectExplorer::ProjectNode *node);
+    QStringList getAllFiles(const ProjectExplorer::ProjectNode *node);
+    void addFlatTree(const ParserTreeItem::Ptr &item,
+                               const ProjectExplorer::ProjectNode *node);
 
     QStringList projectNodeFileList(const ProjectExplorer::FolderNode *node) const;
-
-    ParserTreeItem::Ptr createFlatTree(const QStringList &projectList);
 
 private:
     //! Private class data pointer

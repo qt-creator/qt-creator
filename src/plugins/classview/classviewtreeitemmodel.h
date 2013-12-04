@@ -56,6 +56,8 @@ public:
     //! \implements QStandardItemModel::fetchMore
     virtual void fetchMore(const QModelIndex &parent);
 
+    virtual bool hasChildren(const QModelIndex &parent = QModelIndex()) const;
+
 private:
     //! private class data pointer
     TreeItemModelPrivate *d;

@@ -297,7 +297,7 @@ void NavigationWidget::fetchExpandedItems(QStandardItem *item, const QStandardIt
         return;
 
     const QModelIndex &parent = d->treeModel->indexFromItem(target);
-    if (d->ui->treeView->isExpanded(parent))
+    if (d->ui->treeView->isExpanded(parent) && Manager::instance()->canFetchMore(item, true))
         Manager::instance()->fetchMore(item, true);
 
     int itemIndex = 0;

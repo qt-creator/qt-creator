@@ -34,6 +34,7 @@
 #include "classviewsymbolinformation.h"
 
 #include <QSharedPointer>
+#include <QHash>
 
 QT_FORWARD_DECLARE_CLASS(QStandardItem)
 
@@ -74,7 +75,7 @@ public:
 
     int childCount() const;
 
-    void convertTo(QStandardItem *item, bool recursive = true) const;
+    void convertTo(QStandardItem *item) const;
 
     // additional properties
     //! Assigned icon
@@ -84,8 +85,6 @@ public:
     void setIcon(const QIcon &icon);
 
     void add(const ParserTreeItem::ConstPtr &target);
-
-    void subtract(const ParserTreeItem::ConstPtr &target);
 
     bool canFetchMore(QStandardItem *item) const;
 
@@ -97,6 +96,7 @@ protected:
     ParserTreeItem &operator=(const ParserTreeItem &other);
 
 private:
+    typedef QHash<SymbolInformation, ParserTreeItem::Ptr>::const_iterator CitSymbolInformations;
     //! Private class data pointer
     ParserTreeItemPrivate *d;
 };

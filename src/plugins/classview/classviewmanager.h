@@ -54,9 +54,11 @@ public:
     //! Get an instance of Manager
     static Manager *instance();
 
-    bool canFetchMore(QStandardItem *item) const;
+    bool canFetchMore(QStandardItem *item, bool skipRoot = false) const;
 
     void fetchMore(QStandardItem *item, bool skipRoot = false);
+
+    bool hasChildren(QStandardItem *item) const;
 
 signals:
     void stateChanged(bool state);

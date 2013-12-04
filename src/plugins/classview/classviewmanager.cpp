@@ -200,9 +200,9 @@ Manager *Manager::instance()
     Checks \a item for lazy data population of a QStandardItemModel.
 */
 
-bool Manager::canFetchMore(QStandardItem *item) const
+bool Manager::canFetchMore(QStandardItem *item, bool skipRoot) const
 {
-    return d->parser.canFetchMore(item);
+    return d->parser.canFetchMore(item, skipRoot);
 }
 
 /*!
@@ -213,6 +213,11 @@ bool Manager::canFetchMore(QStandardItem *item) const
 void Manager::fetchMore(QStandardItem *item, bool skipRoot)
 {
     d->parser.fetchMore(item, skipRoot);
+}
+
+bool Manager::hasChildren(QStandardItem *item) const
+{
+    return d->parser.hasChildren(item);
 }
 
 void Manager::initialize()

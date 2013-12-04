@@ -124,6 +124,14 @@ void TreeItemModel::fetchMore(const QModelIndex &parent)
     return Manager::instance()->fetchMore(itemFromIndex(parent));
 }
 
+bool TreeItemModel::hasChildren(const QModelIndex &parent) const
+{
+    if (!parent.isValid())
+        return true;
+
+    return Manager::instance()->hasChildren(itemFromIndex(parent));
+}
+
 /*!
    Moves the root item to the \a target item.
 */

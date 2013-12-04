@@ -80,12 +80,12 @@ bool SymbolInformation::operator<(const SymbolInformation &other) const
             return false;
     }
 
-    int cmp = name().compare(other.name(), Qt::CaseInsensitive);
+    int cmp = name().compare(other.name());
     if (cmp < 0)
         return true;
     if (cmp > 0)
         return false;
-    return type().compare(other.type(), Qt::CaseInsensitive) < 0;
+    return type().compare(other.type()) < 0;
 }
 
 } // namespace Internal
