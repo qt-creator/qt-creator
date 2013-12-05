@@ -33,8 +33,6 @@
 #include "../gitplugin.h"
 #include "../gitclient.h"
 
-#include <coreplugin/coreconstants.h>
-
 #include <QDateTime>
 #include <QDir>
 #include <QRegExpValidator>
@@ -46,7 +44,7 @@ class PushItemDelegate : public Git::Internal::IconItemDelegate
 {
 public:
     PushItemDelegate(Git::Internal::LogChangeWidget *widget)
-        : IconItemDelegate(widget, QLatin1String(Core::Constants::ICON_PLUS))
+        : IconItemDelegate(widget, QLatin1String(":/git/images/arrowup.png"))
     {
     }
 
