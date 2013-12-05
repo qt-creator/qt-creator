@@ -979,7 +979,7 @@ QString GitClient::findRepositoryForDirectory(const QString &dir)
             else if (directory.exists(QLatin1String(".git/config")))
                 return directory.absolutePath();
         }
-    } while (directory.cdUp());
+    } while (!directory.isRoot() && directory.cdUp());
     return QString();
 }
 

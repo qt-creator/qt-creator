@@ -1175,7 +1175,7 @@ bool SubversionPlugin::managesDirectory(const QString &directory, QString *topLe
      * furthest parent containing ".svn/wc.db". Need to check for furthest parent as closer
      * parents may be svn:externals. */
     QDir parentDir = dir;
-    while (parentDir.cdUp()) {
+    while (!parentDir.isRoot() && parentDir.cdUp()) {
         if (checkSVNSubDir(parentDir, QLatin1String("wc.db"))) {
             if (topLevel)
                 *topLevel = parentDir.absolutePath();
@@ -1191,7 +1191,9 @@ bool SubversionPlugin::managesDirectory(const QString &directory, QString *topLe
 
      if (topLevel) {
          QDir lastDirectory = dir;
-         for (parentDir = lastDirectory; parentDir.cdUp() ; lastDirectory = parentDir) {
+         for (parentDir = lastDirectory;
+              !parentDir.isRoot() && parentDir.cdUp();
+              lastDirectory = parentDir) {
              if (!checkSVNSubDir(parentDir)) {
                  *topLevel = lastDirectory.absolutePath();
                  break;

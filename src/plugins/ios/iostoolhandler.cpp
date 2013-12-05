@@ -43,6 +43,7 @@
 #include <QScopedArrayPointer>
 #include <QProcessEnvironment>
 #include <QFileInfo>
+#include <QTimer>
 
 #include <string.h>
 #include <errno.h>
@@ -149,12 +150,14 @@ public:
     void subprocessError(QProcess::ProcessError error);
     void subprocessFinished(int exitCode, QProcess::ExitStatus exitStatus);
     void subprocessHasData();
+    void killProcess();
     virtual bool expectsFileDescriptor() = 0;
 protected:
     void processXml();
 
     IosToolHandler *q;
     QProcess process;
+    QTimer killTimer;
     QXmlStreamReader outputParser;
     QString deviceId;
     QString bundlePath;
@@ -200,22 +203,28 @@ IosToolHandlerPrivate::IosToolHandlerPrivate(IosToolHandler::DeviceType devType,
     q(q), state(NonStarted), devType(devType), iBegin(0), iEnd(0),
     gdbSocket(-1)
 {
+    killTimer.setSingleShot(true);
     QProcessEnvironment env(QProcessEnvironment::systemEnvironment());
     foreach (const QString &k, env.keys())
         if (k.startsWith(QLatin1String("DYLD_")))
             env.remove(k);
+    QStringList frameworkPaths;
     QString xcPath = IosConfigurations::developerPath().appendPath(QLatin1String("../OtherFrameworks")).toFileInfo().canonicalFilePath();
-    env.insert(QLatin1String("DYLD_FALLBACK_FRAMEWORK_PATH"),
-               xcPath.isEmpty() ?
-                   QString::fromLatin1("/System/Library/PrivateFrameworks")
-                 : (xcPath + QLatin1String(":/System/Library/PrivateFrameworks")));
-
+    if (!xcPath.isEmpty())
+        frameworkPaths << xcPath;
+    frameworkPaths << QLatin1String("/System/Library/Frameworks")
+                   << QLatin1String("/System/Library/PrivateFrameworks");
+    env.insert(QLatin1String("DYLD_FALLBACK_FRAMEWORK_PATH"), frameworkPaths.join(QLatin1String(":")));
+    if (debugToolHandler)
+        qDebug() << "IosToolHandler runEnv:" << env.toStringList();
     process.setProcessEnvironment(env);
     QObject::connect(&process, SIGNAL(readyReadStandardOutput()), q, SLOT(subprocessHasData()));
     QObject::connect(&process, SIGNAL(finished(int,QProcess::ExitStatus)),
             q, SLOT(subprocessFinished(int,QProcess::ExitStatus)));
     QObject::connect(&process, SIGNAL(error(QProcess::ProcessError)),
             q, SLOT(subprocessError(QProcess::ProcessError)));
+    QObject::connect(&killTimer, SIGNAL(timeout()),
+            q, SLOT(killProcess()));
 }
 
 bool IosToolHandlerPrivate::isRunning()
@@ -265,8 +274,10 @@ void IosToolHandlerPrivate::stop(int errorCode)
     case Stopped:
         return;
     }
-    if (process.state() != QProcess::NotRunning)
-        process.kill();
+    if (process.state() != QProcess::NotRunning) {
+        process.terminate();
+        killTimer.start(1500);
+    }
 }
 
 // signals
@@ -338,6 +349,7 @@ void IosToolHandlerPrivate::subprocessFinished(int exitCode, QProcess::ExitStatu
     stop((exitStatus == QProcess::NormalExit) ? exitCode : -1 );
     if (debugToolHandler)
         qDebug() << "IosToolHandler::finished(" << this << ")";
+    killTimer.stop();
     emit q->finished(q);
 }
 
@@ -690,6 +702,12 @@ void IosSimulatorToolHandlerPrivate::addDeviceArguments(QStringList &args) const
     }
 }
 
+void IosToolHandlerPrivate::killProcess()
+{
+    if (process.state() != QProcess::NotRunning)
+        process.kill();
+}
+
 } // namespace Internal
 
 QString IosToolHandler::iosDeviceToolPath()
@@ -758,6 +776,11 @@ void IosToolHandler::subprocessFinished(int exitCode, QProcess::ExitStatus exitS
 void IosToolHandler::subprocessHasData()
 {
     d->subprocessHasData();
+}
+
+void IosToolHandler::killProcess()
+{
+    d->killProcess();
 }
 
 } // namespace Ios

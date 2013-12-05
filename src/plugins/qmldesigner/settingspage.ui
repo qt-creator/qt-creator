@@ -24,9 +24,6 @@
        <layout class="QFormLayout" name="formLayout_4">
         <item row="0" column="1">
          <widget class="QCheckBox" name="designerShowDebuggerCheckBox">
-          <property name="toolTip">
-           <string>Warn about QML features which are not properly supported by the Qt Quick Designer</string>
-          </property>
           <property name="text">
            <string>Show the debugging view</string>
           </property>
@@ -34,9 +31,6 @@
         </item>
         <item row="1" column="1">
          <widget class="QCheckBox" name="designerEnableDebuggerCheckBox">
-          <property name="toolTip">
-           <string>Also warn in the code editor about QML features which are not properly supported by the Qt Quick Designer</string>
-          </property>
           <property name="text">
            <string>Enable the debugging view</string>
           </property>

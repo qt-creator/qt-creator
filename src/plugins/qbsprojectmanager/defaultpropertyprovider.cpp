@@ -117,6 +117,17 @@ QVariantMap DefaultPropertyProvider::properties(const ProjectExplorer::Kit *k, c
                             << QLatin1String("llvm")
                             << QLatin1String("gcc"));
             }
+        } else {
+            // TODO: Factor out toolchain type setting.
+            data.insert(QLatin1String(QBS_TARGETOS), QStringList() << QLatin1String("unix"));
+            if (tc->type() != QLatin1String("clang")) {
+                data.insert(QLatin1String(QBS_TOOLCHAIN), QLatin1String("gcc"));
+            } else {
+                data.insert(QLatin1String(QBS_TOOLCHAIN),
+                            QStringList() << QLatin1String("clang")
+                            << QLatin1String("llvm")
+                            << QLatin1String("gcc"));
+            }
         }
         Utils::FileName cxx = tc->compilerCommand();
         data.insert(QLatin1String(CPP_TOOLCHAINPATH), cxx.toFileInfo().absolutePath());

@@ -125,7 +125,7 @@ typedef am_res_t (MDEV_API *AMDeviceInstallApplicationPtr)(ServiceSocket, CFStri
 typedef am_res_t (MDEV_API *AMDeviceUninstallApplicationPtr)(ServiceSocket, CFStringRef, CFDictionaryRef,
                                                                 AMDeviceInstallApplicationCallback,
                                                                 void*);
-typedef am_res_t (MDEV_API *AMDeviceLookupApplicationsPtr)(AMDeviceRef, unsigned int, CFDictionaryRef *);
+typedef am_res_t (MDEV_API *AMDeviceLookupApplicationsPtr)(AMDeviceRef, CFDictionaryRef, CFDictionaryRef *);
 } // extern C
 
 QString CFStringRef2QString(CFStringRef s)
@@ -204,7 +204,7 @@ public :
     am_res_t deviceUninstallApplication(int, CFStringRef, CFDictionaryRef,
                                                                     AMDeviceInstallApplicationCallback,
                                                                     void*);
-    am_res_t deviceLookupApplications(AMDeviceRef, unsigned int, CFDictionaryRef *);
+    am_res_t deviceLookupApplications(AMDeviceRef, CFDictionaryRef, CFDictionaryRef *);
 
     void addError(const QString &msg);
     void addError(const char *msg);
@@ -1063,6 +1063,8 @@ bool AppOpSession::installApp()
         }
         stopService(fd);
     }
+    if (!failure)
+        sleep(5); // after installation the device needs a bit of quiet....
     if (debugAll)
         qDebug() << "AMDeviceInstallApplication finished request with " << failure;
     IosDeviceManagerPrivate::instance()->didTransferApp(bundlePath, deviceId,
@@ -1151,10 +1153,21 @@ QString AppOpSession::appPathOnDevice()
     if (!connectDevice())
         return QString();
     CFDictionaryRef apps;
-    if (int err = lib()->deviceLookupApplications(device, 0, &apps)) {
+    CFDictionaryRef options;
+    const void *attributes[3] = { (const void*)(CFSTR("CFBundleIdentifier")),
+                                  (const void*)(CFSTR("Path")), (const void*)(CFSTR("CFBundleExecutable")) };
+    CFArrayRef lookupKeys = CFArrayCreate(kCFAllocatorDefault, (const void**)(&attributes[0]), 3,
+            &kCFTypeArrayCallBacks);
+    CFStringRef attrKey = CFSTR("ReturnAttributes");
+    options = CFDictionaryCreate(kCFAllocatorDefault, (const void**)(&attrKey),
+                                 (const void**)(&lookupKeys), 1,
+                                 &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+    CFRelease(lookupKeys);
+    if (int err = lib()->deviceLookupApplications(device, options, &apps)) {
         addError(QString::fromLatin1("app lookup failed, AMDeviceLookupApplications returned %1")
                  .arg(err));
     }
+    CFRelease(options);
     if (debugAll)
         CFShow(apps);
     if (apps && CFGetTypeID(apps) == CFDictionaryGetTypeID()) {
@@ -1509,11 +1522,11 @@ am_res_t MobileDeviceLib::deviceUninstallApplication(int serviceFd, CFStringRef 
     return -1;
 }
 
-am_res_t MobileDeviceLib::deviceLookupApplications(AMDeviceRef device, unsigned int i,
+am_res_t MobileDeviceLib::deviceLookupApplications(AMDeviceRef device, CFDictionaryRef options,
                                                          CFDictionaryRef *res)
 {
     if (m_AMDeviceLookupApplications)
-        return m_AMDeviceLookupApplications(device, i, res);
+        return m_AMDeviceLookupApplications(device, options, res);
     return -1;
 }
 

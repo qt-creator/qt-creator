@@ -106,7 +106,7 @@ IosTool::IosTool(QObject *parent):
     ipv6(false),
     inAppOutput(false),
     splitAppOutput(true),
-    appOp(Ios::IosDeviceManager::Install),
+    appOp(Ios::IosDeviceManager::None),
     outFile(),
     out(&outFile),
     gdbFileDescriptor(-1),
@@ -281,7 +281,7 @@ void IosTool::didTransferApp(const QString &bundlePath, const QString &deviceId,
     //out.writeCharacters(QString()); // trigger a complete closing of the empty element
     outFile.flush();
     if (status != Ios::IosDeviceManager::Success || --opLeft == 0)
-        doExit(-1);
+        doExit((status == Ios::IosDeviceManager::Success) ? 0 : -1);
 }
 
 void IosTool::didStartApp(const QString &bundlePath, const QString &deviceId,
