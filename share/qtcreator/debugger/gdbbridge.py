@@ -609,7 +609,6 @@ class Dumper(DumperBase):
         #
         with OutputSafer(self):
             if len(watchers) > 0:
-                self.put(",")
                 for watcher in watchers.split("##"):
                     (exp, iname) = watcher.split("#")
                     self.handleWatch(exp, iname)
