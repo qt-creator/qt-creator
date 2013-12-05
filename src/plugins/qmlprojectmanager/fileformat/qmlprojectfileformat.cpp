@@ -118,7 +118,7 @@ QmlProjectItem *QmlProjectFileFormat::parseProjectFile(const QString &fileName, 
                 setupFileFilterItem(cssFileFilterItem, childNode);
                 projectItem->appendContent(cssFileFilterItem);
             } else {
-                qWarning() << "Unkwown type:" << childNode->name();
+                qWarning() << "Unknown type:" << childNode->name();
             }
         }
         return projectItem;
