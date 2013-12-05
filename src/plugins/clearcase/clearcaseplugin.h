@@ -158,6 +158,7 @@ public:
     bool ccFileOp(const QString &workingDir, const QString &title, const QStringList &args,
                   const QString &fileName, const QString &file2 = QString());
     FileStatus vcsStatus(const QString &file) const;
+    void checkAndReIndexUnknownFile(const QString &file);
     QString currentView() const { return m_viewData.name; }
     QString viewRoot() const { return m_viewData.root; }
     void refreshActivities();
@@ -211,8 +212,13 @@ private slots:
     void testFileStatusParsing_data();
     void testFileStatusParsing();
     void testFileNotManaged();
+    void testFileCheckedOutDynamicView();
+    void testFileCheckedInDynamicView();
+    void testFileNotManagedDynamicView();
     void testStatusActions_data();
     void testStatusActions();
+    void testVcsStatusDynamicReadonlyNotManaged();
+    void testVcsStatusDynamicNotManaged();
 #endif
 
 protected:
@@ -254,6 +260,9 @@ private:
     QString runExtDiff(const QString &workingDir, const QStringList &arguments,
                        int timeOut, QTextCodec *outputCodec = 0);
     static QString getDriveLetterOfPath(const QString &directory);
+
+    FileStatus::Status getFileStatus(const QString &fileName) const;
+    void updateStatusForFile(const QString &absFile);
 
     ClearCaseSettings m_settings;
 
