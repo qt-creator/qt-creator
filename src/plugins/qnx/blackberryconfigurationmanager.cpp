@@ -67,6 +67,15 @@ const QLatin1String NDKEnvFileKey("NDKEnvFile");
 const QLatin1String ManualNDKsGroup("ManualNDKs");
 const QLatin1String ActiveNDKsGroup("ActiveNDKs");
 const QLatin1String DefaultApiLevelKey("DefaultApiLevel");
+const QLatin1String BBConfigsFileVersionKey("Version");
+const QLatin1String BBConfigDataKey("BBConfiguration.");
+const QLatin1String BBConfigCountKey("BBConfiguration.Count");
+}
+
+static Utils::FileName bbConfigSettingsFileName()
+{
+    return Utils::FileName::fromString(Core::ICore::userResourcePath() + QLatin1String("/qnx/")
+                                + QLatin1String(Constants::QNX_BLACKBERRY_CONFIGS_FILENAME));
 }
 
 static bool sortConfigurationsByVersion(const BlackBerryConfiguration *a, const BlackBerryConfiguration *b)
@@ -78,9 +87,50 @@ BlackBerryConfigurationManager::BlackBerryConfigurationManager(QObject *parent)
     : QObject(parent),
     m_defaultApiLevel(0)
 {
+    m_writer = new Utils::PersistentSettingsWriter(bbConfigSettingsFileName(),
+                                                   QLatin1String("BlackBerryConfigurations"));
     connect(Core::ICore::instance(), SIGNAL(saveSettingsRequested()), this, SLOT(saveSettings()));
 }
 
+void BlackBerryConfigurationManager::saveConfigurations()
+{
+    QTC_ASSERT(m_writer, return);
+    QVariantMap data;
+    data.insert(QLatin1String(BBConfigsFileVersionKey), 1);
+    int count = 0;
+    foreach (BlackBerryConfiguration *config, m_configs) {
+        QVariantMap tmp = config->toMap();
+        if (tmp.isEmpty())
+            continue;
+
+        data.insert(BBConfigDataKey + QString::number(count), tmp);
+        ++count;
+    }
+
+    data.insert(QLatin1String(BBConfigCountKey), count);
+    m_writer->save(data, Core::ICore::mainWindow());
+}
+
+void BlackBerryConfigurationManager::restoreConfigurations()
+{
+    Utils::PersistentSettingsReader reader;
+    if (!reader.load(bbConfigSettingsFileName()))
+        return;
+
+    QVariantMap data = reader.restoreValues();
+    int count = data.value(BBConfigCountKey, 0).toInt();
+    for (int i = 0; i < count; ++i) {
+        const QString key = BBConfigDataKey + QString::number(i);
+        if (!data.contains(key))
+            continue;
+
+        const QVariantMap dMap = data.value(key).toMap();
+        insertByVersion(new BlackBerryConfiguration(dMap));
+    }
+}
+
+// Backward compatibility: Read existing entries in the ManualNDKsGroup
+// and then remove the group since not used.
 void BlackBerryConfigurationManager::loadManualConfigurations()
 {
     QSettings *settings = Core::ICore::settings();
@@ -107,6 +157,7 @@ void BlackBerryConfigurationManager::loadManualConfigurations()
     }
 
     settings->endGroup();
+    settings->remove(ManualNDKsGroup);
     settings->endGroup();
 }
 
@@ -142,25 +193,13 @@ void BlackBerryConfigurationManager::loadDefaultApiLevel()
 
 void BlackBerryConfigurationManager::loadAutoDetectedConfigurations()
 {
-    QStringList activePaths = activeConfigurationNdkEnvPaths();
     foreach (const NdkInstallInformation &ndkInfo, QnxUtils::installedNdks()) {
         BlackBerryConfiguration *config = new BlackBerryConfiguration(ndkInfo);
         if (!addConfiguration(config)) {
             delete config;
             continue;
         }
-
-        // Activate targets
-        foreach (const QString activeNdkEnvPath, activePaths) {
-            if (config->ndkEnvFile().toString() == activeNdkEnvPath)
-                config->activate();
-        }
     }
-
-    // If no target was/is activated, activate one since it's needed by
-    // device connection and CSK code.
-    if (activeConfigurations().isEmpty() && !m_configs.isEmpty())
-        m_configs.first()->activate();
 }
 
 void BlackBerryConfigurationManager::setDefaultApiLevel(BlackBerryConfiguration *config)
@@ -175,45 +214,6 @@ void BlackBerryConfigurationManager::setDefaultApiLevel(BlackBerryConfiguration 
     m_defaultApiLevel = config;
 }
 
-QStringList BlackBerryConfigurationManager::activeConfigurationNdkEnvPaths()
-{
-    QStringList actives;
-    QSettings *settings = Core::ICore::settings();
-
-    settings->beginGroup(SettingsGroup);
-    settings->beginGroup(ActiveNDKsGroup);
-
-    foreach (const QString &activeNdkEnvPath, settings->childGroups()) {
-        settings->beginGroup(activeNdkEnvPath);
-        actives.append(settings->value(NDKEnvFileKey).toString());
-        settings->endGroup();
-    }
-
-    settings->endGroup();
-    settings->endGroup();
-
-    return actives;
-}
-
-void BlackBerryConfigurationManager::saveManualConfigurations()
-{
-    if (manualConfigurations().isEmpty())
-        return;
-
-    QSettings *settings = Core::ICore::settings();
-    settings->beginGroup(SettingsGroup);
-    settings->beginGroup(ManualNDKsGroup);
-
-    foreach (BlackBerryConfiguration *config, manualConfigurations()) {
-        settings->beginGroup(config->displayName());
-        settings->setValue(NDKEnvFileKey, config->ndkEnvFile().toString());
-        settings->endGroup();
-    }
-
-    settings->endGroup();
-    settings->endGroup();
-}
-
 void BlackBerryConfigurationManager::saveDefaultApiLevel()
 {
     if (!m_defaultApiLevel)
@@ -223,51 +223,6 @@ void BlackBerryConfigurationManager::saveDefaultApiLevel()
     settings->beginGroup(SettingsGroup);
     settings->setValue(DefaultApiLevelKey, m_defaultApiLevel->ndkEnvFile().toString());
     settings->endGroup();
-}
-
-void BlackBerryConfigurationManager::saveActiveConfigurationNdkEnvPath()
-{
-    if (activeConfigurations().isEmpty())
-        return;
-
-    QSettings *settings = Core::ICore::settings();
-    settings->beginGroup(SettingsGroup);
-    settings->beginGroup(ActiveNDKsGroup);
-
-    settings->remove(QString());
-
-    foreach (BlackBerryConfiguration *config, activeConfigurations()) {
-        settings->beginGroup(config->displayName());
-        settings->setValue(NDKEnvFileKey, config->ndkEnvFile().toString());
-        settings->endGroup();
-    }
-
-    settings->endGroup();
-    settings->endGroup();
-}
-
-// Remove no longer available/valid 'auto detected' BlackBerry kits and qt versions
-void BlackBerryConfigurationManager::clearInvalidConfigurations()
-{
-    // Deregister invalid auto deteted BlackBerry Kits
-    foreach (Kit *kit, KitManager::kits()) {
-        if (!kit->isAutoDetected())
-            continue;
-
-        if (DeviceTypeKitInformation::deviceTypeId(kit) == Constants::QNX_BB_OS_TYPE
-                && !kit->isValid())
-        KitManager::deregisterKit(kit);
-    }
-
-    // Remove invalid auto detected BlackBerry qtVerions
-    foreach (QtSupport::BaseQtVersion *qtVersion, QtSupport::QtVersionManager::versions()) {
-        if (!qtVersion->isAutodetected())
-            continue;
-
-        if (qtVersion->platformName() == QLatin1String(Constants::QNX_BB_PLATFORM_NAME)
-                && !qtVersion->isValid())
-           QtSupport::QtVersionManager::removeVersion(qtVersion);
-    }
 }
 
 void BlackBerryConfigurationManager::setKitsAutoDetectionSource()
@@ -285,6 +240,13 @@ void BlackBerryConfigurationManager::setKitsAutoDetectionSource()
             }
         }
     }
+}
+
+void BlackBerryConfigurationManager::insertByVersion(BlackBerryConfiguration *config)
+{
+    QList<BlackBerryConfiguration *>::iterator it = qLowerBound(m_configs.begin(), m_configs.end(),
+                                                                config, &sortConfigurationsByVersion);
+    m_configs.insert(it, config);
 }
 
 // Switch to QnxToolchain for exisintg configuration using GccToolChain
@@ -308,8 +270,7 @@ void BlackBerryConfigurationManager::checkToolChainConfiguration()
 bool BlackBerryConfigurationManager::addConfiguration(BlackBerryConfiguration *config)
 {
     foreach (BlackBerryConfiguration *c, m_configs) {
-        if (c->ndkPath() == config->ndkPath()
-                && c->targetName() == config->targetName()) {
+        if (config->ndkEnvFile() == c->ndkEnvFile()) {
             if (!config->isAutoDetected())
                 QMessageBox::warning(Core::ICore::mainWindow(), tr("NDK Already Known"),
                                  tr("The NDK already has a configuration."), QMessageBox::Ok);
@@ -318,9 +279,7 @@ bool BlackBerryConfigurationManager::addConfiguration(BlackBerryConfiguration *c
     }
 
     if (config->isValid()) {
-        QList<BlackBerryConfiguration *>::iterator it = qLowerBound(m_configs.begin(), m_configs.end(),
-                                                                    config, &sortConfigurationsByVersion);
-        m_configs.insert(it, config);
+        insertByVersion(config);
         return true;
     }
 
@@ -334,8 +293,6 @@ void BlackBerryConfigurationManager::removeConfiguration(BlackBerryConfiguration
 
     if (config->isActive())
         config->deactivate();
-
-    clearConfigurationSettings(config);
 
     m_configs.removeAt(m_configs.indexOf(config));
 
@@ -409,39 +366,25 @@ void BlackBerryConfigurationManager::loadSettings()
     // Backward compatibility: Set kit's auto detection source
     // for existing BlackBerry kits that do not have it set yet.
     setKitsAutoDetectionSource();
-    clearInvalidConfigurations();
-    loadAutoDetectedConfigurations();
+
+    restoreConfigurations();
+    // For backward compatibility
     loadManualConfigurations();
+    loadAutoDetectedConfigurations();
     loadDefaultApiLevel();
     checkToolChainConfiguration();
+
+    // If no target was/is activated, activate one since it's needed by
+    // device connection and CSK code.
+    if (activeConfigurations().isEmpty() && !m_configs.isEmpty())
+        m_configs.first()->activate();
 
     emit settingsLoaded();
 }
 
-void BlackBerryConfigurationManager::clearConfigurationSettings(BlackBerryConfiguration *config)
-{
-    if (!config)
-        return;
-
-    QSettings *settings = Core::ICore::settings();
-    settings->beginGroup(SettingsGroup);
-    settings->beginGroup(ManualNDKsGroup);
-
-    foreach (const QString &manualNdk, settings->childGroups()) {
-        if (manualNdk == config->displayName()) {
-            settings->remove(manualNdk);
-            break;
-        }
-    }
-
-    settings->endGroup();
-    settings->endGroup();
-}
-
 void BlackBerryConfigurationManager::saveSettings()
 {
-    saveActiveConfigurationNdkEnvPath();
-    saveManualConfigurations();
+    saveConfigurations();
     saveDefaultApiLevel();
 }
 

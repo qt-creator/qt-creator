@@ -51,6 +51,8 @@
 namespace Qnx {
 namespace Internal {
 
+static QIcon invalidConfigIcon(QLatin1String(":/projectexplorer/images/compile_error.png"));
+
 BlackBerryNDKSettingsWidget::BlackBerryNDKSettingsWidget(QWidget *parent) :
     QWidget(parent),
     m_ui(new Ui_BlackBerryNDKSettingsWidget),
@@ -86,6 +88,7 @@ BlackBerryNDKSettingsWidget::BlackBerryNDKSettingsWidget(QWidget *parent) :
     connect(m_ui->removeNdkButton, SIGNAL(clicked()), this, SLOT(removeNdkTarget()));
     connect(m_ui->activateNdkTargetButton, SIGNAL(clicked()), this, SLOT(activateNdkTarget()));
     connect(m_ui->deactivateNdkTargetButton, SIGNAL(clicked()), this, SLOT(deactivateNdkTarget()));
+    connect(m_ui->cleanUpButton, SIGNAL(clicked()), this, SLOT(cleanUp()));
     connect(m_ui->ndksTreeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)), this, SLOT(updateInfoTable(QTreeWidgetItem*)));
     connect(m_ui->apiLevelCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(setDefaultApiLevel(int)));
 
@@ -155,6 +158,7 @@ void BlackBerryNDKSettingsWidget::updateNdkList()
     qDeleteAll(m_autoDetectedNdks->takeChildren());
     qDeleteAll(m_manualNdks->takeChildren());
 
+    bool enableCleanUp = false;
     foreach (BlackBerryConfiguration *config, m_bbConfigManager->configurations()) {
         QTreeWidgetItem *parent = config->isAutoDetected() ? m_autoDetectedNdks : m_manualNdks;
         QTreeWidgetItem *item = new QTreeWidgetItem(parent);
@@ -164,9 +168,36 @@ void BlackBerryNDKSettingsWidget::updateNdkList()
         font.setBold(config->isActive() || m_activatedTargets.contains(config));
         item->setFont(0, font);
         item->setFont(1, font);
+        item->setIcon(0, config->isValid() ? QIcon() : invalidConfigIcon);
+        // TODO: Do the same if qmake, qcc, debugger are no longer detected...
+        if (!config->isValid()) {
+            QString toolTip = tr("Invalid target %1: ").arg(config->targetName());
+            if (config->isAutoDetected() && !config->autoDetectionSource().toFileInfo().exists())
+                toolTip += QLatin1Char('\n') + tr("- Target no longer installed.");
+
+            if (!config->ndkEnvFile().toFileInfo().exists())
+                toolTip += QLatin1Char('\n') + tr("- No NDK environment file found.");
+
+            if (config->qmake4BinaryFile().isEmpty()
+                    && config->qmake5BinaryFile().isEmpty())
+                toolTip += QLatin1Char('\n') + tr("- No Qt version found.");
+
+            if (config->gccCompiler().isEmpty())
+                toolTip += QLatin1Char('\n') + tr("- No compiler found.");
+
+            if (config->deviceDebuger().isEmpty())
+                toolTip += QLatin1Char('\n') + tr("- No debugger found for device.");
+
+            if (config->simulatorDebuger().isEmpty())
+                toolTip += QLatin1Char('\n') + tr("- No debugger found for simulator.");
+
+            item->setToolTip(0, toolTip);
+            enableCleanUp = true;
+        }
     }
 
     m_ui->ndksTreeWidget->setCurrentItem(m_autoDetectedNdks->child(0));
+    m_ui->cleanUpButton->setEnabled(enableCleanUp);
 }
 
 void BlackBerryNDKSettingsWidget::addNdkTarget()
@@ -274,6 +305,19 @@ void BlackBerryNDKSettingsWidget::uninstallNdkTarget()
 
     if (answer == QMessageBox::Yes)
         launchBlackBerryInstallerWizard(BlackBerryInstallerDataHandler::UninstallMode, m_ui->versionLabel->text());
+}
+
+void BlackBerryNDKSettingsWidget::cleanUp()
+{
+    foreach (BlackBerryConfiguration *config, m_bbConfigManager->configurations()) {
+        if (!config->isValid()) {
+            m_activatedTargets.removeOne(config);
+            m_deactivatedTargets.removeOne(config);
+            m_bbConfigManager->removeConfiguration(config);
+        }
+    }
+
+    updateNdkList();
 }
 
 void BlackBerryNDKSettingsWidget::handleInstallationFinished()

@@ -65,8 +65,16 @@ using namespace Debugger;
 namespace Qnx {
 namespace Internal {
 
+const QLatin1String NDKEnvFileKey("NDKEnvFile");
+const QLatin1String NDKPathKey("NDKPath");
+const QLatin1String NDKDisplayNameKey("NDKDisplayName");
+const QLatin1String NDKTargetKey("NDKTarget");
+const QLatin1String NDKHostKey("NDKHost");
+const QLatin1String NDKVersionKey("NDKVersion");
+const QLatin1String NDKAutoDetectionSourceKey("NDKAutoDetectionSource");
+const QLatin1String NDKAutoDetectedKey("NDKAutoDetectedKey");
+
 BlackBerryConfiguration::BlackBerryConfiguration(const NdkInstallInformation &ndkInstallInfo)
-    : m_isAutoDetected(true)
 {
     QString envFilePath = QnxUtils::envFilePath(ndkInstallInfo.path, ndkInstallInfo.version);
     QTC_ASSERT(!envFilePath.isEmpty(), return);
@@ -79,11 +87,12 @@ BlackBerryConfiguration::BlackBerryConfiguration(const NdkInstallInformation &nd
     m_qnxHost = ndkInstallInfo.host;
     m_sysRoot = FileName::fromString(ndkInstallInfo.target);
     m_version = BlackBerryVersionNumber(ndkInstallInfo.version);
+    m_autoDetectionSource = Utils::FileName::fromString(ndkInstallInfo.installationXmlFilePath);
     ctor();
 }
 
 BlackBerryConfiguration::BlackBerryConfiguration(const FileName &ndkEnvFile)
-    : m_isAutoDetected(false)
+    : m_autoDetectionSource(Utils::FileName())
 {
     QTC_ASSERT(!QFileInfo(ndkEnvFile.toString()).isDir(), return);
     m_ndkEnvFile = ndkEnvFile;
@@ -111,6 +120,25 @@ BlackBerryConfiguration::BlackBerryConfiguration(const FileName &ndkEnvFile)
     m_version = BlackBerryVersionNumber::fromNdkEnvFileName(QFileInfo(m_ndkEnvFile.toString()).baseName());
     if (m_version.isEmpty())
         m_version = BlackBerryVersionNumber::fromTargetName(m_targetName);
+
+    ctor();
+}
+
+BlackBerryConfiguration::BlackBerryConfiguration(const QVariantMap &data)
+{
+    QString envFilePath = data.value(NDKEnvFileKey).toString();
+    QTC_ASSERT(!envFilePath.isEmpty(), return);
+    m_ndkEnvFile = Utils::FileName::fromString(envFilePath);
+    m_displayName = data.value(NDKDisplayNameKey).toString();
+    m_qnxEnv = QnxUtils::qnxEnvironmentFromNdkFile(m_ndkEnvFile.toString());
+    QString sep = QString::fromLatin1("/qnx6");
+    // The QNX_TARGET value is using Unix-like separator on all platforms.
+    m_targetName = data.value(NDKTargetKey).toString().split(sep).first().split(QLatin1Char('/')).last();
+    m_qnxHost = data.value(NDKHostKey).toString();
+    m_sysRoot = FileName::fromString(data.value(NDKTargetKey).toString());
+    m_version = BlackBerryVersionNumber(data.value(NDKVersionKey).toString());
+    if (data.value(QLatin1String(NDKAutoDetectedKey)).toBool())
+        m_autoDetectionSource = Utils::FileName::fromString(data.value(NDKAutoDetectionSourceKey).toString());
 
     ctor();
 }
@@ -166,7 +194,12 @@ BlackBerryVersionNumber BlackBerryConfiguration::version() const
 
 bool BlackBerryConfiguration::isAutoDetected() const
 {
-    return m_isAutoDetected;
+    return !m_autoDetectionSource.isEmpty();
+}
+
+Utils::FileName BlackBerryConfiguration::autoDetectionSource() const
+{
+    return m_autoDetectionSource;
 }
 
 bool BlackBerryConfiguration::isActive() const
@@ -182,8 +215,11 @@ bool BlackBerryConfiguration::isActive() const
 
 bool BlackBerryConfiguration::isValid() const
 {
-    return !((m_qmake4BinaryFile.isEmpty() && m_qmake5BinaryFile.isEmpty()) || m_gccCompiler.isEmpty()
-            || m_deviceDebugger.isEmpty() || m_simulatorDebugger.isEmpty());
+    return ((!m_qmake4BinaryFile.isEmpty() || !m_qmake5BinaryFile.isEmpty()) && !m_gccCompiler.isEmpty()
+             && !m_deviceDebugger.isEmpty() && !m_simulatorDebugger.isEmpty()
+             && m_ndkEnvFile.toFileInfo().exists() && (m_autoDetectionSource.isEmpty() ||
+                                                       m_autoDetectionSource.toFileInfo().exists())
+             && m_sysRoot.toFileInfo().exists());
 }
 
 FileName BlackBerryConfiguration::ndkEnvFile() const
@@ -224,6 +260,20 @@ FileName BlackBerryConfiguration::sysRoot() const
 QList<Utils::EnvironmentItem> BlackBerryConfiguration::qnxEnv() const
 {
     return m_qnxEnv;
+}
+
+QVariantMap BlackBerryConfiguration::toMap() const
+{
+    QVariantMap data;
+    data.insert(QLatin1String(NDKEnvFileKey), m_ndkEnvFile.toString());
+    data.insert(QLatin1String(NDKDisplayNameKey), m_displayName);
+    data.insert(QLatin1String(NDKPathKey), ndkPath());
+    data.insert(QLatin1String(NDKTargetKey), m_sysRoot.toString());
+    data.insert(QLatin1String(NDKHostKey), m_qnxHost);
+    data.insert(QLatin1String(NDKVersionKey), m_version.toString());
+    data.insert(QLatin1String(NDKAutoDetectionSourceKey), m_autoDetectionSource.toString());
+    data.insert(QLatin1String(NDKAutoDetectedKey), isAutoDetected());
+    return data;
 }
 
 QnxAbstractQtVersion *BlackBerryConfiguration::createQtVersion(
@@ -302,7 +352,7 @@ Kit *BlackBerryConfiguration::createKit(
 bool BlackBerryConfiguration::activate()
 {
     if (!isValid()) {
-        if (m_isAutoDetected)
+        if (!m_autoDetectionSource.isEmpty())
             return false;
 
         QString errorMessage = tr("The following errors occurred while activating target: %1").arg(m_targetName);

@@ -113,6 +113,8 @@ const char QNX_BLACKBERRY_DEPLOY_CMD[] = "blackberry-deploy";
 
 const char QNX_BLACKBERRY_CASCADESIMPORTER_VERSION[] = "0.0.1";
 
+const char QNX_BLACKBERRY_CONFIGS_FILENAME[] = "bbndkconfigurations.xml";
+
 } // namespace Constants
 } // namespace Qnx
 

@@ -54,6 +54,10 @@ public:
     QString host;
     QString target;
     QString version;
+    QString installationXmlFilePath;
+
+    bool isValid() { return !path.isEmpty() && !name.isEmpty() && !host.isEmpty()
+                && !target.isEmpty() && !version.isEmpty() && !installationXmlFilePath.isEmpty(); }
 };
 
 class QnxUtils

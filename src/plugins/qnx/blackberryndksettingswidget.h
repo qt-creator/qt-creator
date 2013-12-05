@@ -75,6 +75,7 @@ public slots:
     void activateNdkTarget();
     void deactivateNdkTarget();
     void uninstallNdkTarget();
+    void cleanUp();
     void handleInstallationFinished();
     void handleUninstallationFinished();
     void updateUi(QTreeWidgetItem* item, BlackBerryConfiguration* config);

@@ -64,6 +64,7 @@ class BlackBerryConfiguration
 public:
     BlackBerryConfiguration(const NdkInstallInformation &ndkInstallInfo);
     BlackBerryConfiguration(const Utils::FileName &ndkEnvFile);
+    BlackBerryConfiguration(const QVariantMap &data);
     bool activate();
     void deactivate();
     QString ndkPath() const;
@@ -72,6 +73,7 @@ public:
     QString qnxHost() const;
     BlackBerryVersionNumber version() const;
     bool isAutoDetected() const;
+    Utils::FileName autoDetectionSource() const;
     bool isActive() const;
     bool isValid() const;
     Utils::FileName ndkEnvFile() const;
@@ -82,13 +84,14 @@ public:
     Utils::FileName simulatorDebuger() const;
     Utils::FileName sysRoot() const;
     QList<Utils::EnvironmentItem> qnxEnv() const;
+    QVariantMap toMap() const;
 
 private:
     QString m_displayName;
     QString m_targetName;
     QString m_qnxHost;
-    bool m_isAutoDetected;
     BlackBerryVersionNumber m_version;
+    Utils::FileName m_autoDetectionSource;
     Utils::FileName m_ndkEnvFile;
     Utils::FileName m_qmake4BinaryFile;
     Utils::FileName m_qmake5BinaryFile;
@@ -99,6 +102,7 @@ private:
     QList<Utils::EnvironmentItem> m_qnxEnv;
 
     void ctor();
+
     QnxAbstractQtVersion* createQtVersion(
             const Utils::FileName &qmakePath, Qnx::QnxArchitecture arch, const QString &versionName);
     QnxToolChain* createToolChain(

@@ -38,6 +38,8 @@
 #include <QSettings>
 #include <QObject>
 
+namespace Utils { class PersistentSettingsWriter; }
+
 namespace Qnx {
 namespace Internal {
 
@@ -81,17 +83,21 @@ signals:
 private:
     BlackBerryConfigurationManager(QObject *parent = 0);
     QList<BlackBerryConfiguration*> m_configs;
+
     BlackBerryConfiguration *m_defaultApiLevel;
 
-    void loadManualConfigurations();
     void loadDefaultApiLevel();
-    void saveManualConfigurations();
     void saveDefaultApiLevel();
-    void saveActiveConfigurationNdkEnvPath();
-    void clearInvalidConfigurations();
+
+    Utils::PersistentSettingsWriter *m_writer;
+
+    void saveConfigurations();
+    void restoreConfigurations();
+
+    void loadManualConfigurations();
     void setKitsAutoDetectionSource();
 
-    QStringList activeConfigurationNdkEnvPaths();
+    void insertByVersion(BlackBerryConfiguration* config);
 };
 
 } // namespace Internal

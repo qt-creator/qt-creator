@@ -258,6 +258,7 @@ QList<NdkInstallInformation> QnxUtils::installedNdks()
             ndkInfo.host = childElt.firstChildElement(QLatin1String("host")).text();
             ndkInfo.target = childElt.firstChildElement(QLatin1String("target")).text();
             ndkInfo.version = childElt.firstChildElement(QLatin1String("version")).text();
+            ndkInfo.installationXmlFilePath = ndkFile.absoluteFilePath();
 
             ndkList.append(ndkInfo);
         }
