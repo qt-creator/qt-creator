@@ -130,7 +130,8 @@ void LogChangeWidget::selectionChanged(const QItemSelection &selected,
     if (!m_hasCustomDelegate)
         return;
     const QModelIndexList previousIndexes = deselected.indexes();
-    QTC_ASSERT(!previousIndexes.isEmpty(), return);
+    if (previousIndexes.isEmpty())
+        return;
     const QModelIndex current = currentIndex();
     int row = current.row();
     int previousRow = previousIndexes.first().row();
