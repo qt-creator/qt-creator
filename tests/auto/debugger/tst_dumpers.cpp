@@ -857,7 +857,7 @@ void tst_Dumpers::dumper()
             "\n#endif"
             "\n" + (data.useQHash ?
                 "\n#if QT_VERSION >= 0x050000"
-                "\nqt_qhash_seed.testAndSetRelaxed(-1, 0);"
+                "\nqt_qhash_seed.store(0);"
                 "\n#endif\n" : "") +
             "\n    unused(&argc, &argv, &qtversion, &gccversion);\n"
             "\n" + data.code +
