@@ -144,11 +144,13 @@ QList<Symbol *> FunctionUtils::overrides(Function *function, Class *functionsCla
         for (int i = 0, total = c->memberCount(); i < total; ++i) {
             Symbol *candidate = c->memberAt(i);
             const Name *candidateName = candidate->name();
-            const FullySpecifiedType candidateType = candidate->type();
-            if (!candidateName || !candidateType.isValid())
+            const Function *candidateFunc = candidate->type()->asFunctionType();
+            if (!candidateName || !candidateFunc)
                 continue;
-            if (candidateName->isEqualTo(referenceName) && candidateType.isEqualTo(referenceType))
+            if (candidateName->isEqualTo(referenceName)
+                    && candidateFunc->isSignatureEqualTo(function)) {
                 result << candidate;
+            }
         }
     }
 

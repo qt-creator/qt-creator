@@ -347,6 +347,8 @@ public:
     bool isPureVirtual() const;
     void setPureVirtual(bool isPureVirtual);
 
+    bool isSignatureEqualTo(const Function *other) const;
+
     // Symbol's interface
     virtual FullySpecifiedType type() const;
 

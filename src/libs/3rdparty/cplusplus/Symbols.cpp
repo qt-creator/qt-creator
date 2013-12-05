@@ -222,33 +222,38 @@ int Function::methodKey() const
 void Function::setMethodKey(int key)
 { f._methodKey = key; }
 
-bool Function::isEqualTo(const Type *other) const
+bool Function::isSignatureEqualTo(const Function *other) const
 {
-    const Function *o = other->asFunctionType();
-    if (! o)
+    if (! other)
         return false;
-    else if (isConst() != o->isConst())
+    else if (isConst() != other->isConst())
         return false;
-    else if (isVolatile() != o->isVolatile())
+    else if (isVolatile() != other->isVolatile())
         return false;
 
     const Name *l = unqualifiedName();
-    const Name *r = o->unqualifiedName();
+    const Name *r = other->unqualifiedName();
     if (l == r || (l && l->isEqualTo(r))) {
         const unsigned argc = argumentCount();
-        if (argc != o->argumentCount())
-            return false;
-        else if (! _returnType.isEqualTo(o->_returnType))
+        if (argc != other->argumentCount())
             return false;
         for (unsigned i = 0; i < argc; ++i) {
             Symbol *l = argumentAt(i);
-            Symbol *r = o->argumentAt(i);
+            Symbol *r = other->argumentAt(i);
             if (! l->type().isEqualTo(r->type()))
                 return false;
         }
         return true;
     }
     return false;
+}
+
+bool Function::isEqualTo(const Type *other) const
+{
+    const Function *o = other->asFunctionType();
+    if (!isSignatureEqualTo(o))
+        return false;
+    return _returnType.isEqualTo(o->_returnType);
 }
 
 void Function::accept0(TypeVisitor *visitor)

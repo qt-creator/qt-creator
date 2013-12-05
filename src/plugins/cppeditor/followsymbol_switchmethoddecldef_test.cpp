@@ -451,7 +451,6 @@ void TestCase::run()
         expectedImmediate << OverrideItem(QLatin1String("...searching overrides"));
     }
     QCOMPARE(immediateVirtualSymbolResults, expectedImmediate);
-    QEXPECT_FAIL("differentReturnTypes", "Doesn't work", Abort);
     QCOMPARE(finalVirtualSymbolResults, m_expectedVirtualFunctionProposal);
 }
 
