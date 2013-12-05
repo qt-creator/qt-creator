@@ -854,15 +854,13 @@ void GitPlugin::startRebase()
     const QString topLevel = state.topLevel();
     if (topLevel.isEmpty() || !m_gitClient->canRebase(topLevel))
         return;
-    if (!m_gitClient->beginStashScope(topLevel, QLatin1String("Rebase-i")))
-        return;
     LogChangeDialog dialog(false, Core::ICore::mainWindow());
     RebaseItemDelegate delegate(dialog.widget());
     dialog.setWindowTitle(tr("Interactive Rebase"));
-    if (dialog.runDialog(topLevel, QString(), false))
+    if (!dialog.runDialog(topLevel, QString(), false))
+        return;
+    if (m_gitClient->beginStashScope(topLevel, QLatin1String("Rebase-i")))
         m_gitClient->interactiveRebase(topLevel, dialog.commit(), false);
-    else
-        m_gitClient->endStashScope(topLevel);
 }
 
 void GitPlugin::startChangeRelatedAction()
