@@ -61,6 +61,13 @@ def main():
             tempFiletype = filetype
             if filetype == "QML" and filenames[i - 1][-4:] != ".qml":
                 tempFiletype = "Other files"
+            # following is necessary due to QTCREATORBUG-10179
+            # will be fixed when Qt5's MIME type database can be used
+            if ((filenames[-1] in ("main.cpp", "utility.cpp") and filenames[i - 1][-4:] != ".cpp")
+                or (filenames[-1] == "utility.h" and filenames[i - 1][-2:].lower() != ".h")
+                or (filetype == "Resources" and filenames[i - 1][-4:] != ".qrc")):
+                tempFiletype = "Other files"
+            # end of handling QTCREATORBUG-10179
             renameFile(templateDir, usedProFile, projectName + "." + tempFiletype,
                        filenames[i - 1], filenames[i])
     invokeMenuItem("File", "Exit")
