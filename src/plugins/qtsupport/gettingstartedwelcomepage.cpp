@@ -181,16 +181,19 @@ public:
     // gets called by declarative in separate thread
     QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize)
     {
-        Q_UNUSED(size)
         QMutexLocker lock(&m_mutex);
 
         QUrl url = QUrl::fromEncoded(id.toLatin1());
 
-        if (!m_fetcher.asynchronousFetchData(url))
-            return QImage();
 
-        if (m_fetcher.data().isEmpty())
+        if (!m_fetcher.asynchronousFetchData(url) || m_fetcher.data().isEmpty()) {
+            if (size) {
+                size->setWidth(0);
+                size->setHeight(0);
+            }
             return QImage();
+        }
+
         QByteArray data = m_fetcher.data();
         QBuffer imgBuffer(&data);
         imgBuffer.open(QIODevice::ReadOnly);
@@ -198,7 +201,11 @@ public:
         QImage img = reader.read();
 
         m_fetcher.clearData();
-        return ScreenshotCropper::croppedImage(img, id, requestedSize);
+        img = ScreenshotCropper::croppedImage(img, id, requestedSize);
+        if (size)
+            *size = img.size();
+        return img;
+
     }
 private:
     Fetcher m_fetcher;
