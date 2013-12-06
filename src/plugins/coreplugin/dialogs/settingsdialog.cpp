@@ -66,12 +66,15 @@ static QPointer<SettingsDialog> m_instance = 0;
 class Category
 {
 public:
+    Category() : index(-1), providerPagesCreated(false) { }
+
     Id id;
     int index;
     QString displayName;
     QIcon icon;
     QList<IOptionsPage *> pages;
     QList<IOptionsPageProvider *> providers;
+    bool providerPagesCreated;
     QTabWidget *tabWidget;
 };
 
@@ -210,13 +213,21 @@ bool CategoryFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sou
     if (QSortFilterProxyModel::filterAcceptsRow(sourceRow, sourceParent))
         return true;
 
+    const QString pattern = filterRegExp().pattern();
     const CategoryModel *cm = static_cast<CategoryModel*>(sourceModel());
-    foreach (const IOptionsPage *page, cm->categories().at(sourceRow)->pages) {
-        const QString pattern = filterRegExp().pattern();
+    const Category *category = cm->categories().at(sourceRow);
+    foreach (const IOptionsPage *page, category->pages) {
         if (page->displayCategory().contains(pattern, Qt::CaseInsensitive)
-            || page->displayName().contains(pattern, Qt::CaseInsensitive)
-            || page->matches(pattern))
+                || page->displayName().contains(pattern, Qt::CaseInsensitive)
+                || page->matches(pattern))
             return true;
+    }
+
+    if (!category->providerPagesCreated) {
+        foreach (const IOptionsPageProvider *provider, category->providers) {
+            if (provider->matches(pattern))
+                return true;
+        }
     }
 
     return false;
@@ -325,8 +336,6 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     // The order of the slot connection matters here, the filter slot
     // opens the matching page after the model has filtered.
     connect(m_filterLineEdit, SIGNAL(filterChanged(QString)),
-            this, SLOT(ensureAllCategoryWidgets()));
-    connect(m_filterLineEdit, SIGNAL(filterChanged(QString)),
                 m_proxyModel, SLOT(setFilterFixedString(QString)));
     connect(m_filterLineEdit, SIGNAL(filterChanged(QString)), this, SLOT(filter(QString)));
     m_categoryList->setFocus();
@@ -432,9 +441,12 @@ void SettingsDialog::ensureCategoryWidget(Category *category)
 {
     if (category->tabWidget != 0)
         return;
-    foreach (const IOptionsPageProvider *provider, category->providers) {
-        category->pages += provider->pages();
+    if (!category->providerPagesCreated) {
+        foreach (const IOptionsPageProvider *provider, category->providers)
+            category->pages += provider->pages();
+        category->providerPagesCreated = true;
     }
+
     qStableSort(category->pages.begin(), category->pages.end(), optionsPageLessThan);
 
     QTabWidget *tabWidget = new QTabWidget;
@@ -449,12 +461,6 @@ void SettingsDialog::ensureCategoryWidget(Category *category)
 
     category->tabWidget = tabWidget;
     category->index = m_stackedLayout->addWidget(tabWidget);
-}
-
-void SettingsDialog::ensureAllCategoryWidgets()
-{
-    foreach (Category *category, m_model->categories())
-        ensureCategoryWidget(category);
 }
 
 void SettingsDialog::disconnectTabWidgets()
@@ -514,7 +520,6 @@ void SettingsDialog::currentTabChanged(int index)
 
 void SettingsDialog::filter(const QString &text)
 {
-    ensureAllCategoryWidgets();
     // When there is no current index, select the first one when possible
     if (!m_categoryList->currentIndex().isValid() && m_model->rowCount() > 0)
         m_categoryList->setCurrentIndex(m_proxyModel->index(0, 0));

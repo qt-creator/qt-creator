@@ -68,9 +68,11 @@ public:
     SettingsPageProvider(QObject *parent = 0);
 
     QList<Core::IOptionsPage *> pages() const;
+    bool matches(const QString &searchKeyWord) const;
 
 private:
     mutable bool m_initialized;
+    mutable QStringList m_keywords;
 };
 
 } // namespace Internal

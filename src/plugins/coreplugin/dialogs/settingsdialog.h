@@ -79,7 +79,6 @@ private slots:
     void currentChanged(const QModelIndex &current);
     void currentTabChanged(int);
     void filter(const QString &text);
-    void ensureAllCategoryWidgets();
 
 private:
     SettingsDialog(QWidget *parent);

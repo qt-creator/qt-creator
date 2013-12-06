@@ -94,6 +94,7 @@ public:
     QIcon categoryIcon() const { return QIcon(m_categoryIcon); }
 
     virtual QList<IOptionsPage *> pages() const = 0;
+    virtual bool matches(const QString & /* searchKeyWord*/) const = 0;
 
 protected:
     void setCategory(Core::Id category) { m_category = category; }
