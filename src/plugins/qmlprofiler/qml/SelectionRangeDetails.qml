@@ -38,7 +38,7 @@ Item {
     property string duration
     property bool showDuration
 
-    width: 170
+    width: Math.max(150, col.width + 25)
     height: col.height + 30
     z: 1
     visible: false
@@ -126,23 +126,25 @@ Item {
         y: 20
         border.width: 1
         border.color: "#a0a0a0"
-        Column {
+        Grid {
             id: col
             x: 10
             y: 5
-            Detail {
-                label: qsTr("Start")
-                content:  selectionRangeDetails.startTime
-            }
-            Detail {
-                label: qsTr("End")
-                visible: selectionRangeDetails.showDuration
-                content:  selectionRangeDetails.endTime
-            }
-            Detail {
-                label: qsTr("Duration")
-                visible: selectionRangeDetails.showDuration
-                content: selectionRangeDetails.duration
+            spacing: 5
+            columns: 2
+
+            Repeater {
+                model: [
+                    qsTr("Start"),
+                    startTime,
+                    showDuration ? qsTr("End") : "",
+                    showDuration ? endTime : "",
+                    showDuration ? qsTr("Duration") : "",
+                    showDuration ? duration : ""
+                ]
+                Detail {
+                    text: modelData
+                }
             }
         }
     }

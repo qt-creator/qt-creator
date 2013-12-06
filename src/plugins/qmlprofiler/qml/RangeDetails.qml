@@ -43,7 +43,7 @@ Item {
 
     property bool locked: view.selectionLocked
 
-    width: col.width + 45
+    width: col.width + 25
     height: col.height + 30
     z: 1
     visible: false
@@ -68,7 +68,8 @@ Item {
         rangeDetails.dialogTitle = eventData[0]["title"];
         for (var i = 1; i < eventData.length; i++) {
             for (var k in eventData[i]) {
-                eventInfo.append({"key": k, "value":eventData[i][k]});
+                eventInfo.append({"content" : k});
+                eventInfo.append({"content" : eventData[i][k]})
             }
         }
         rangeDetails.visible = true;
@@ -163,16 +164,17 @@ Item {
         border.color: "#a0a0a0"
 
         //details
-        Column {
+        Grid {
             id: col
             x: 10
             y: 5
+            spacing: 5
+            columns: 2
 
             Repeater {
                 model: eventInfo
                 Detail {
-                    label: key
-                    content: value
+                    text: content
                 }
             }
         }
@@ -211,7 +213,7 @@ Item {
 
     Text {
         id: closeIcon
-        x: col.width + 30
+        x: col.width + 10
         y: 4
         text:"X"
         color: "white"

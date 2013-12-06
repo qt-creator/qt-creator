@@ -28,32 +28,9 @@
 ****************************************************************************/
 
 import QtQuick 2.1
-import Monitor 1.0
 
-Item {
-    id: detail
-    property string label
-    property string content
-
-    height: childrenRect.height+2
-    width: childrenRect.width
-    Item {
-        id: guideline
-        x: 70
-        width: 5
-    }
-    Text {
-        y: 1
-        id: lbl
-        text: label
-        font.pixelSize: 12
-        font.bold: true
-    }
-    Text {
-        text: content
-        font.pixelSize: 12
-        anchors.baseline: lbl.baseline
-        anchors.left: guideline.right
-        textFormat: Text.PlainText
-    }
+Text {
+    font.pixelSize: 12
+    font.bold: index % 2 === 0
+    textFormat: Text.PlainText
 }
