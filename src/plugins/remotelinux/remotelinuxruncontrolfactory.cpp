@@ -121,6 +121,7 @@ RunControl *RemoteLinuxRunControlFactory::create(RunConfiguration *runConfig, Ru
     }
 
     QTC_ASSERT(false, return 0);
+    return 0;
 }
 
 } // namespace Internal
