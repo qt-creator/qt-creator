@@ -69,7 +69,7 @@ protected:
     QRectF boundingRectWithStepChilds(QQuickItem *parentItem) const;
     void resetHorizontal();
     void resetVertical();
-    QList<ServerNodeInstance> childItemsForChild(QQuickItem *childItem) const;
+    QList<ServerNodeInstance> childItemsForChild(QQuickItem *item) const;
     void refresh();
     static bool anyItemHasContent(QQuickItem *quickItem);
     static bool childItemsHaveContent(QQuickItem *quickItem);
