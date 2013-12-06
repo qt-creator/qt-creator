@@ -139,11 +139,6 @@ protected:
         Node::accept(node, this);
     }
 
-    void acceptIndented(Node *node)
-    {
-        accept(node);
-    }
-
     void lnAcceptIndented(Node *node)
     {
         newLine();
