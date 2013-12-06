@@ -46,6 +46,8 @@ BlackBerryNdkProcess::BlackBerryNdkProcess(const QString &command, QObject *pare
     m_command(command)
 {
     m_process->setProcessChannelMode(QProcess::MergedChannels);
+    m_process->setEnvironment(Utils::EnvironmentItem::toStringList(
+             BlackBerryConfigurationManager::instance().defaultQnxEnv()));
 
     connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)),
             this, SLOT(processFinished()));

@@ -34,6 +34,7 @@
 #include "blackberryconfigurationmanager.h"
 #include "blackberryndkprocess.h"
 
+#include <utils/environment.h>
 #include <utils/hostosinfo.h>
 
 #include <QProcess>
@@ -52,6 +53,8 @@ BlackBerryCertificate::BlackBerryCertificate(const QString &fileName,
     m_process(new QProcess(this))
 {
     m_process->setProcessChannelMode(QProcess::MergedChannels);
+    m_process->setEnvironment(Utils::EnvironmentItem::toStringList(
+             BlackBerryConfigurationManager::instance().defaultQnxEnv()));
 }
 
 void BlackBerryCertificate::load()
