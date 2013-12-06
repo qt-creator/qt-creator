@@ -336,6 +336,7 @@ void PixmapCacheModel::loadData()
     int lastCacheSizeEvent = -1;
     int cumulatedCount = 0;
     QVector < int > pixmapStartPoints;
+    QVector < int > pixmapCachePoints;
 
     foreach (const QmlProfilerSimpleModel::QmlEventData &event, simpleModel->getEvents()) {
         if (!eventAccepted(event))
@@ -353,6 +354,7 @@ void PixmapCacheModel::loadData()
             d->pixmapUrls << event.location.filename;
             d->pixmapSizes << QPair<int, int>(0,0); // default value
             pixmapStartPoints << -1; // dummy value to be filled by load event
+            pixmapCachePoints << -1; // dummy value to be filled by cache event
         }
 
         newEvent.eventId = newEvent.urlIndex + 1;
@@ -361,7 +363,10 @@ void PixmapCacheModel::loadData()
         switch (newEvent.pixmapEventType) {
         case PixmapSizeKnown: // pixmap size
             d->pixmapSizes[newEvent.urlIndex] = QPair<int,int>((int)event.numericData1, (int)event.numericData2);
-            break;
+            if (pixmapCachePoints[newEvent.urlIndex] == -1)
+                break;
+            // else fall through and update cache size
+            newEvent.pixmapEventType = PixmapCacheCountChanged;
         case PixmapCacheCountChanged: {// Cache Size Changed Event
             startTime = event.startTime + 1; // delay 1 ns for proper sorting
             newEvent.eventId = 0;
@@ -372,13 +377,17 @@ void PixmapCacheModel::loadData()
             qint64 prevSize = 0;
             if (lastCacheSizeEvent != -1) {
                 prevSize = d->range(lastCacheSizeEvent).cacheSize;
-                if (event.numericData3 < cumulatedCount)
-                    pixSize = -pixSize;
-                cumulatedCount = event.numericData3;
+                if (pixmapCachePoints[newEvent.urlIndex] == -1) {
+                    // else it's a synthesized update and doesn't have a valid cache count
+                    if (event.numericData3 < cumulatedCount)
+                        pixSize = -pixSize;
+                    cumulatedCount = event.numericData3;
+                }
                 d->insertEnd(lastCacheSizeEvent, startTime - d->range(lastCacheSizeEvent).start);
             }
             newEvent.cacheSize = prevSize + pixSize;
             lastCacheSizeEvent = d->insertStart(startTime, newEvent);
+            pixmapCachePoints[newEvent.urlIndex] = lastCacheSizeEvent;
             break;
         }
         case PixmapLoadingStarted: // Load
