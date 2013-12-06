@@ -30,6 +30,7 @@
 #include "constants.h"
 
 #include <vcsbase/vcsbaseplugin.h>
+#include <vcsbase/vcsbaseoutputwindow.h>
 #include <vcsbase/vcsbaseeditorparameterwidget.h>
 #include <utils/synchronousprocess.h>
 
@@ -100,6 +101,24 @@ BranchInfo BazaarClient::synchronousBranchQuery(const QString &repositoryRoot) c
     if (isBranchBound.simplified().toLower() == QLatin1String("true"))
         return BranchInfo(branchLocation, true);
     return BranchInfo(repositoryRoot, false);
+}
+
+//! Removes the last committed revision(s)
+bool BazaarClient::synchronousUncommit(const QString &workingDir,
+                                       const QString &revision,
+                                       const QStringList &extraOptions)
+{
+    QStringList args;
+    args << QLatin1String("uncommit")
+         << QLatin1String("--force")   // Say yes to all questions
+         << QLatin1String("--verbose") // Will print out what is being removed
+         << revisionSpec(revision)
+         << extraOptions;
+    QByteArray stdOut;
+    const bool success = vcsFullySynchronousExec(workingDir, args, &stdOut);
+    if (!stdOut.isEmpty())
+        VcsBase::VcsBaseOutputWindow::instance()->append(QString::fromUtf8(stdOut));
+    return success;
 }
 
 void BazaarClient::commit(const QString &repositoryRoot, const QStringList &files,

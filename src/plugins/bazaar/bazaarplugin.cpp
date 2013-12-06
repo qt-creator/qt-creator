@@ -34,6 +34,7 @@
 #include "bazaarcommitwidget.h"
 #include "bazaareditor.h"
 #include "pullorpushdialog.h"
+#include "uncommitdialog.h"
 #include "commiteditor.h"
 #include "clonewizard.h"
 
@@ -421,6 +422,13 @@ void BazaarPlugin::createRepositoryActions(const Core::Context &context)
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
+    action = new QAction(tr("Uncommit..."), this);
+    m_repositoryActionList.append(action);
+    command = Core::ActionManager::registerAction(action, Core::Id(Constants::UNCOMMIT), context);
+    connect(action, SIGNAL(triggered()), this, SLOT(uncommit()));
+    m_bazaarContainer->addAction(command);
+    m_commandLocator->appendCommand(command);
+
     QAction *createRepositoryAction = new QAction(tr("Create Repository..."), this);
     command = Core::ActionManager::registerAction(createRepositoryAction, Core::Id(Constants::CREATE_REPOSITORY), context);
     connect(createRepositoryAction, SIGNAL(triggered()), this, SLOT(createRepository()));
@@ -638,6 +646,16 @@ void BazaarPlugin::commitFromEditor()
     // Close the submit editor
     m_submitActionTriggered = true;
     Core::EditorManager::closeEditor();
+}
+
+void BazaarPlugin::uncommit()
+{
+    const VcsBase::VcsBasePluginState state = currentState();
+    QTC_ASSERT(state.hasTopLevel(), return);
+
+    UnCommitDialog dialog;
+    if (dialog.exec() == QDialog::Accepted)
+        m_client->synchronousUncommit(state.topLevel(), dialog.revision(), dialog.extraOptions());
 }
 
 bool BazaarPlugin::submitEditorAboutToClose()

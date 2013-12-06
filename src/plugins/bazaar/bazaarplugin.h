@@ -106,6 +106,7 @@ private slots:
     void commit();
     void showCommitWidget(const QList<VcsBase::VcsBaseClient::StatusItem> &status);
     void commitFromEditor();
+    void uncommit();
     void diffFromEditorSelected(const QStringList &files);
 #ifdef WITH_TESTS
     void testDiffFileResolving_data();

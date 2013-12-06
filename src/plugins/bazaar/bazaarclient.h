@@ -49,6 +49,9 @@ public:
 
     bool synchronousSetUserId();
     BranchInfo synchronousBranchQuery(const QString &repositoryRoot) const;
+    bool synchronousUncommit(const QString &workingDir,
+                             const QString& revision = QString(),
+                             const QStringList &extraOptions = QStringList());
     void commit(const QString &repositoryRoot, const QStringList &files,
                 const QString &commitMessageFile, const QStringList &extraOptions = QStringList());
     void annotate(const QString &workingDir, const QString &file,

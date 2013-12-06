@@ -13,7 +13,8 @@ SOURCES += \
     branchinfo.cpp \
     clonewizardpage.cpp \
     clonewizard.cpp \
-    cloneoptionspanel.cpp
+    cloneoptionspanel.cpp \
+    uncommitdialog.cpp
 HEADERS += \
     bazaarclient.h \
     constants.h \
@@ -29,11 +30,13 @@ HEADERS += \
     branchinfo.h \
     clonewizard.h \
     clonewizardpage.h \
-    cloneoptionspanel.h
+    cloneoptionspanel.h \
+    uncommitdialog.h
 FORMS += \
     optionspage.ui \
     revertdialog.ui \
     bazaarcommitpanel.ui \
     pullorpushdialog.ui \
-    cloneoptionspanel.ui
+    cloneoptionspanel.ui \
+    uncommitdialog.ui
 RESOURCES += bazaar.qrc
