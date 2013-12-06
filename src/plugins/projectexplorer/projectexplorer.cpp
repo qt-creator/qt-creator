@@ -2176,7 +2176,7 @@ int ProjectExplorerPlugin::queue(QList<Project *> projects, QList<Id> stepIds)
                                    .arg(pro->displayName()) + QLatin1Char('\n'));
     foreach (Id id, stepIds) {
         foreach (Project *pro, projects) {
-            if (!pro || !pro->activeTarget())
+            if (!pro || pro->needsConfiguration())
                 continue;
             BuildStepList *bsl = 0;
             if (id == Constants::BUILDSTEPS_DEPLOY
