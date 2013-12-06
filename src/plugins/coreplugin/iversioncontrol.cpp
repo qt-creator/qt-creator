@@ -52,4 +52,58 @@ IVersionControl::OpenSupportMode IVersionControl::openSupportMode(const QString 
     return NoOpen;
 }
 
+} // namespace Core
+
+#if defined(WITH_TESTS)
+
+#include "vcsmanager.h"
+
+#include <QFileInfo>
+
+namespace Core {
+
+TestVersionControl::~TestVersionControl()
+{
+    VcsManager::instance()->clearVersionControlCache();
 }
+
+void TestVersionControl::setManagedDirectories(const QHash<QString, QString> &dirs)
+{
+    m_managedDirs = dirs;
+    m_dirCount = 0;
+    VcsManager::instance()->clearVersionControlCache();
+}
+
+void TestVersionControl::setManagedFiles(const QSet<QString> &files)
+{
+    m_managedFiles = files;
+    m_fileCount = 0;
+    VcsManager::instance()->clearVersionControlCache();
+}
+
+bool TestVersionControl::managesDirectory(const QString &filename, QString *topLevel) const
+{
+    ++m_dirCount;
+
+    if (m_managedDirs.contains(filename)) {
+        if (topLevel)
+            *topLevel = m_managedDirs.value(filename);
+        return true;
+    }
+    return false;
+}
+
+bool TestVersionControl::managesFile(const QString &workingDirectory, const QString &fileName) const
+{
+    ++m_fileCount;
+
+    QFileInfo fi(workingDirectory + QLatin1Char('/') + fileName);
+    QString dir = fi.absolutePath();
+    if (!managesDirectory(dir, 0))
+        return false;
+    QString file = fi.absoluteFilePath();
+    return m_managedFiles.contains(file);
+}
+
+} // namespace Core
+#endif

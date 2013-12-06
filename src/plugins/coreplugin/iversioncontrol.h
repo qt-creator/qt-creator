@@ -188,4 +188,54 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(Core::IVersionControl::SettingsFlags)
 
 } // namespace Core
 
+#if defined(WITH_TESTS)
+
+#include <QSet>
+
+namespace Core {
+
+class CORE_EXPORT TestVersionControl : public IVersionControl
+{
+    Q_OBJECT
+public:
+    TestVersionControl(Core::Id id, const QString &name) :
+        m_id(id), m_displayName(name), m_dirCount(0), m_fileCount(0)
+    { }
+    ~TestVersionControl();
+
+    void setManagedDirectories(const QHash<QString, QString> &dirs);
+    void setManagedFiles(const QSet<QString> &files);
+
+    int dirCount() const { return m_dirCount; }
+    int fileCount() const { return m_fileCount; }
+
+    // IVersionControl interface
+    QString displayName() const { return m_displayName; }
+    Id id() const { return m_id; }
+    bool managesDirectory(const QString &filename, QString *topLevel) const;
+    bool managesFile(const QString &workingDirectory, const QString &fileName) const;
+    bool isConfigured() const { return true; }
+    bool supportsOperation(Operation) const { return false; }
+    bool vcsOpen(const QString &) { return false; }
+    bool vcsAdd(const QString &) { return false; }
+    bool vcsDelete(const QString &) { return false; }
+    bool vcsMove(const QString &, const QString &) { return false; }
+    bool vcsCreateRepository(const QString &) { return false; }
+    bool vcsCheckout(const QString &, const QByteArray &) { return false; }
+    QString vcsGetRepositoryURL(const QString &) { return QString(); }
+    bool vcsAnnotate(const QString &, int) { return false; }
+
+private:
+    Id m_id;
+    QString m_displayName;
+    QHash<QString, QString> m_managedDirs;
+    QSet<QString> m_managedFiles;
+    mutable int m_dirCount;
+    mutable int m_fileCount;
+};
+
+} // namespace Core
+#endif
+
+
 #endif // IVERSIONCONTROL_H

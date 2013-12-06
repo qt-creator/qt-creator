@@ -59,6 +59,10 @@ static inline VersionControlList allVersionControls()
     return ExtensionSystem::PluginManager::getObjects<IVersionControl>();
 }
 
+#if defined(WITH_TESTS)
+const char TEST_PREFIX[] = "/8E3A9BA0-0B97-40DF-AEC1-2BDF9FC9EDBE/";
+#endif
+
 // ---- VCSManagerPrivate:
 // Maintains a cache of top-level directory->version control.
 
@@ -274,6 +278,11 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const QString &input
 
     // Register Vcs(s) with the cache
     QString tmpDir = QFileInfo(directory).canonicalFilePath();
+#if defined WITH_TESTS
+    // Force caching of test directories (even though they do not exist):
+    if (directory.startsWith(QLatin1String(TEST_PREFIX)))
+        tmpDir = directory;
+#endif
     // directory might refer to a historical directory which doesn't exist.
     // In this case, don't cache it.
     if (!tmpDir.isEmpty()) {
@@ -450,3 +459,181 @@ void VcsManager::configureVcs()
 }
 
 } // namespace Core
+
+#if defined(WITH_TESTS)
+
+#include <QtTest>
+
+#include "coreplugin.h"
+#include "iversioncontrol.h"
+
+#include <extensionsystem/pluginmanager.h>
+
+namespace Core {
+namespace Internal {
+
+const char ID_VCS_A[] = "A";
+const char ID_VCS_B[] = "B";
+
+typedef QHash<QString, QString> FileHash;
+
+template<class T>
+class ObjectPoolGuard
+{
+public:
+    ObjectPoolGuard(T *watch) : m_watched(watch)
+    {
+        ExtensionSystem::PluginManager::addObject(watch);
+    }
+
+    operator bool() { return m_watched; }
+    bool operator !() { return !m_watched; }
+    T &operator*() { return *m_watched; }
+    T *operator->() { return m_watched; }
+    T *value() { return m_watched; }
+
+    ~ObjectPoolGuard()
+    {
+        ExtensionSystem::PluginManager::removeObject(m_watched);
+        delete m_watched;
+    }
+
+private:
+    T *m_watched;
+};
+
+static FileHash makeHash(const QStringList &list)
+{
+    FileHash result;
+    foreach (const QString &i, list) {
+        QStringList parts = i.split(QLatin1Char(':'));
+        QTC_ASSERT(parts.count() == 2, continue);
+        result.insert(QString::fromLatin1(TEST_PREFIX) + parts.at(0),
+                      QString::fromLatin1(TEST_PREFIX) + parts.at(1));
+    }
+    return result;
+}
+
+static QString makeString(const QString &s)
+{
+    if (s.isEmpty())
+        return QString();
+    return QString::fromLatin1(TEST_PREFIX) + s;
+}
+
+void CorePlugin::testVcsManager_data()
+{
+    // avoid conflicts with real files and directories:
+
+    QTest::addColumn<QStringList>("dirsVcsA"); // <directory>:<toplevel>
+    QTest::addColumn<QStringList>("dirsVcsB"); // <directory>:<toplevel>
+    // <directory>:<toplevel>:<vcsid>:<- from cache, * from VCS>
+    QTest::addColumn<QStringList>("results");
+
+    QTest::newRow("A and B next to each other")
+            << (QStringList()
+                << QLatin1String("a:a") << QLatin1String("a/1:a") << QLatin1String("a/2:a")
+                << QLatin1String("a/2/5:a") << QLatin1String("a/2/5/6:a"))
+            << (QStringList()
+                << QLatin1String("b:b") << QLatin1String("b/3:b") << QLatin1String("b/4:b"))
+            << (QStringList()
+                << QLatin1String(":::-") // empty directory to look up
+                << QLatin1String("c:::*") // Neither in A nor B
+                << QLatin1String("a:a:A:*") // in A
+                << QLatin1String("b:b:B:*") // in B
+                << QLatin1String("b/3:b:B:*") // in B
+                << QLatin1String("b/4:b:B:*") // in B
+                << QLatin1String("a/1:a:A:*") // in A
+                << QLatin1String("a/2:a:A:*") // in A
+                << QLatin1String(":::-") // empty directory to look up
+                << QLatin1String("a/2/5/6:a:A:*") // in A
+                << QLatin1String("a/2/5:a:A:-") // in A (cached from before!)
+                // repeat: These need to come from the cache now:
+                << QLatin1String("c:::-") // Neither in A nor B
+                << QLatin1String("a:a:A:-") // in A
+                << QLatin1String("b:b:B:-") // in B
+                << QLatin1String("b/3:b:B:-") // in B
+                << QLatin1String("b/4:b:B:-") // in B
+                << QLatin1String("a/1:a:A:-") // in A
+                << QLatin1String("a/2:a:A:-") // in A
+                << QLatin1String("a/2/5/6:a:A:-") // in A
+                << QLatin1String("a/2/5:a:A:-") // in A
+                );
+    QTest::newRow("B in A")
+            << (QStringList()
+                << QLatin1String("a:a") << QLatin1String("a/1:a") << QLatin1String("a/2:a")
+                << QLatin1String("a/2/5:a") << QLatin1String("a/2/5/6:a"))
+            << (QStringList()
+                << QLatin1String("a/1/b:a/1/b") << QLatin1String("a/1/b/3:a/1/b")
+                << QLatin1String("a/1/b/4:a/1/b") << QLatin1String("a/1/b/3/5:a/1/b")
+                << QLatin1String("a/1/b/3/5/6:a/1/b"))
+            << (QStringList()
+                << QLatin1String("a:a:A:*") // in A
+                << QLatin1String("c:::*") // Neither in A nor B
+                << QLatin1String("a/3:::*") // Neither in A nor B
+                << QLatin1String("a/1/b/x:::*") // Neither in A nor B
+                << QLatin1String("a/1/b:a/1/b:B:*") // in B
+                << QLatin1String("a/1:a:A:*") // in A
+                << QLatin1String("a/1/b/../../2:a:A:*") // in A
+                );
+    QTest::newRow("A and B") // first one wins...
+            << (QStringList() << QLatin1String("a:a") << QLatin1String("a/1:a") << QLatin1String("a/2:a"))
+            << (QStringList() << QLatin1String("a:a") << QLatin1String("a/1:a") << QLatin1String("a/2:a"))
+            << (QStringList() << QLatin1String("a/2:a:A:*"));
+}
+
+void CorePlugin::testVcsManager()
+{
+    // setup:
+    ObjectPoolGuard<TestVersionControl> vcsA(new TestVersionControl(ID_VCS_A, QLatin1String("A")));
+    ObjectPoolGuard<TestVersionControl> vcsB(new TestVersionControl(ID_VCS_B, QLatin1String("B")));
+
+    // test:
+    QFETCH(QStringList, dirsVcsA);
+    QFETCH(QStringList, dirsVcsB);
+    QFETCH(QStringList, results);
+
+    vcsA->setManagedDirectories(makeHash(dirsVcsA));
+    vcsB->setManagedDirectories(makeHash(dirsVcsB));
+
+    QString realTopLevel = QLatin1String("ABC"); // Make sure this gets cleared if needed.
+
+    // From VCSes:
+    int expectedCount = 0;
+    foreach (const QString &result, results) {
+        // qDebug() << "Expecting:" << result;
+
+        QStringList split = result.split(QLatin1String(":"));
+        QCOMPARE(split.count(), 4);
+        QVERIFY(split.at(3) == QLatin1String("*") || split.at(3) == QLatin1String("-"));
+
+
+        const QString directory = split.at(0);
+        const QString topLevel = split.at(1);
+        const QString vcsId = split.at(2);
+        bool fromCache = split.at(3) == QLatin1String("-");
+
+        if (!fromCache && !directory.isEmpty())
+            ++expectedCount;
+
+        IVersionControl *vcs;
+        vcs = VcsManager::findVersionControlForDirectory(makeString(directory), &realTopLevel);
+        QCOMPARE(realTopLevel, makeString(topLevel));
+        if (vcs)
+            QCOMPARE(vcs->id().toString(), vcsId);
+        else
+            QCOMPARE(QString(), vcsId);
+        QCOMPARE(vcsA->dirCount(), expectedCount);
+        QCOMPARE(vcsA->fileCount(), 0);
+        QCOMPARE(vcsB->dirCount(), expectedCount);
+        QCOMPARE(vcsB->fileCount(), 0);
+    }
+
+    // teardown:
+    // handled by guards
+}
+
+} // namespace Internal
+} // namespace Core
+
+#endif
