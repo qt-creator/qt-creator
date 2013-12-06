@@ -368,16 +368,6 @@ bool compareStartTimes(const PixmapCacheModel::PixmapCacheEvent&t1, const Pixmap
     return t1.startTime < t2.startTime;
 }
 
-void PixmapCacheModel::synthesizeLoadStart(PixmapCacheEvent &newEvent)
-{
-    // if it's a new entry it means that we don't have a corresponding start
-    newEvent.pixmapEventType = PixmapLoadingStarted;
-    newEvent.rowNumberExpanded = newEvent.urlIndex + 2;
-    newEvent.duration = newEvent.startTime - traceStartTime();
-    newEvent.startTime = traceStartTime();
-    d->eventList << newEvent;
-}
-
 void PixmapCacheModel::loadData()
 {
     clear();
@@ -403,24 +393,22 @@ void PixmapCacheModel::loadData()
         if (newEvent.urlIndex == -1) {
             isNewEntry = true;
             newEvent.urlIndex = d->pixmapUrls.count();
-            qDebug() << "url: " << event.location.filename << " type: " << newEvent.pixmapEventType;
             d->pixmapUrls << event.location.filename;
             d->pixmapSizes << QPair<int, int>(0,0); // default value
             pixmapStartPoints << d->eventList.count(); // index to the starting point
         }
 
-        newEvent.eventId = newEvent.urlIndex + 1;
-        newEvent.rowNumberExpanded = newEvent.urlIndex + 2;
-
-        switch (newEvent.pixmapEventType) {
-        case PixmapSizeKnown: // pixmap size
+        if (newEvent.pixmapEventType == PixmapSizeKnown) { // pixmap size
             d->pixmapSizes[newEvent.urlIndex] = QPair<int,int>((int)event.numericData1, (int)event.numericData2);
-            if (isNewEntry)
-                synthesizeLoadStart(newEvent);
-            break;
-        case PixmapCacheCountChanged: {// Cache Size Changed Event
+        }
+
+        newEvent.eventId = newEvent.urlIndex + 1;
+
+        // Cache Size Changed Event
+        if (newEvent.pixmapEventType == PixmapCacheCountChanged) {
             newEvent.startTime = event.startTime + 1; // delay 1 ns for proper sorting
             newEvent.eventId = 0;
+            newEvent.rowNumberExpanded = 1;
             newEvent.rowNumberCollapsed = 1;
 
             qint64 pixSize = d->pixmapSizes[newEvent.urlIndex].first * d->pixmapSizes[newEvent.urlIndex].second;
@@ -436,34 +424,35 @@ void PixmapCacheModel::loadData()
             newEvent.cacheSize = prevSize + pixSize;
             d->eventList << newEvent;
             lastCacheSizeEvent = d->eventList.count() - 1;
-            break;
         }
-        case PixmapLoadingStarted: // Load
+
+        // Load
+        if (newEvent.pixmapEventType == PixmapLoadingStarted) {
             pixmapStartPoints[newEvent.urlIndex] = d->eventList.count();
+            newEvent.rowNumberExpanded = newEvent.urlIndex + 2;
             d->eventList << newEvent;
-            break;
-        case PixmapLoadingFinished:
-        case PixmapLoadingError: {
+        }
+
+        if (newEvent.pixmapEventType == PixmapLoadingFinished || newEvent.pixmapEventType == PixmapLoadingError) {
             int loadIndex = pixmapStartPoints[newEvent.urlIndex];
             if (!isNewEntry) {
                 d->eventList[loadIndex].duration = event.startTime - d->eventList[loadIndex].startTime;
             } else {
-                synthesizeLoadStart(newEvent);
+                // if it's a new entry it means that we don't have a corresponding start
+                newEvent.pixmapEventType = PixmapLoadingStarted;
+                newEvent.rowNumberExpanded = newEvent.urlIndex + 2;
+                newEvent.startTime = traceStartTime();
+                newEvent.duration = event.startTime - traceStartTime();
+                d->eventList << newEvent;
             }
             if (event.bindingType == PixmapLoadingFinished)
                 d->eventList[loadIndex].cacheSize = 1;  // use count to mark success
             else
                 d->eventList[loadIndex].cacheSize = -1; // ... or failure
-            break;
         }
-        default:
-            if (isNewEntry)
-                synthesizeLoadStart(newEvent);
-            break;
-        }
-    }
 
-    m_modelManager->modelProxyCountUpdated(m_modelId, d->eventList.count(), 2*simpleModel->getEvents().count());
+        m_modelManager->modelProxyCountUpdated(m_modelId, d->eventList.count(), 2*simpleModel->getEvents().count());
+    }
 
     if (lastCacheSizeEvent != -1) {
         d->eventList[lastCacheSizeEvent].duration = traceEndTime() - d->eventList[lastCacheSizeEvent].startTime;
