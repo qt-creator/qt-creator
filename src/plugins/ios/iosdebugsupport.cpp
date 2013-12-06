@@ -162,7 +162,9 @@ void IosDebugSupport::handleGotInferiorPid(Q_PID pid)
 {
     if (pid > 0) {
         //m_runControl->engine()->notifyInferiorPid(pid);
+#ifndef Q_OS_WIN // Q_PID might be 64 bit pointer...
         m_runControl->engine()->notifyEngineRemoteSetupDone(int(pid), m_qmlPort);
+#endif
     } else {
         m_runControl->engine()->notifyEngineRemoteSetupFailed(
                     tr("Got an invalid process id."));
