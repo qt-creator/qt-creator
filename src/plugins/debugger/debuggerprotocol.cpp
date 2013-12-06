@@ -50,7 +50,7 @@ uchar fromhex(uchar c)
         return 10 + c - 'a';
     if (c >= 'A' && c <= 'Z')
         return 10 + c - 'A';
-    return -1;
+    return UCHAR_MAX;
 }
 
 void skipCommas(const char *&from, const char *to)
@@ -141,7 +141,7 @@ QByteArray GdbMi::parseCString(const char *&from, const char *to)
                         uchar prod = 0;
                         while (true) {
                             uchar val = fromhex(c);
-                            if (val == uchar(-1))
+                            if (val == UCHAR_MAX)
                                 break;
                             prod = prod * 16 + val;
                             if (++chars == 3 || src == end)
