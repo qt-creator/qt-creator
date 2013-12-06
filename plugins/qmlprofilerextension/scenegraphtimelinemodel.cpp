@@ -19,6 +19,7 @@
 #include "scenegraphtimelinemodel.h"
 #include "qmldebug/qmlprofilereventtypes.h"
 #include "qmlprofiler/qmlprofilermodelmanager.h"
+#include "qmlprofiler/sortedtimelinemodel.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -50,14 +51,13 @@ enum SceneGraphCategoryType {
     MaximumSceneGraphCategoryType
 };
 
-class SceneGraphTimelineModel::SceneGraphTimelineModelPrivate {
+class SceneGraphTimelineModel::SceneGraphTimelineModelPrivate : public SortedTimelineModel<SceneGraphTimelineModel::SceneGraphEvent> {
 public:
     SceneGraphTimelineModelPrivate(SceneGraphTimelineModel *qq):q(qq) {}
     ~SceneGraphTimelineModelPrivate();
 
     SceneGraphTimelineModel *q;
 
-    QVector < SceneGraphTimelineModel::SceneGraphEvent > eventList;
     bool isExpanded;
     QString displayTime(double time);
     void addVP(QVariantList &l, QString label, qint64 time);
@@ -91,12 +91,12 @@ QString SceneGraphTimelineModel::name() const
 
 int SceneGraphTimelineModel::count() const
 {
-    return d->eventList.count();
+    return d->count();
 }
 
 bool SceneGraphTimelineModel::isEmpty() const
 {
-    return d->eventList.isEmpty();
+    return d->count() == 0;
 }
 
 bool SceneGraphTimelineModel::eventAccepted(const QmlProfiler::QmlProfilerSimpleModel::QmlEventData &event) const
@@ -106,7 +106,7 @@ bool SceneGraphTimelineModel::eventAccepted(const QmlProfiler::QmlProfilerSimple
 
 qint64 SceneGraphTimelineModel::lastTimeMark() const
 {
-    return d->eventList.last().startTime;
+    return d->lastEndTime();
 }
 
 bool SceneGraphTimelineModel::expanded(int ) const
@@ -141,67 +141,17 @@ const QString SceneGraphTimelineModel::categoryLabel(int categoryIndex) const
 
 int SceneGraphTimelineModel::findFirstIndex(qint64 startTime) const
 {
-    int candidate = findFirstIndexNoParents(startTime);
-    // because there's two asynchronous threads in the display,
-    // check the former event in same thread for false positives
-    int i = candidate - 1;
-    while (i >= 0) {
-        if (d->eventList[candidate].sgEventType == d->eventList[i].sgEventType) {
-            if (d->eventList[i].startTime + d->eventList[i].duration >= startTime)
-                candidate = i;
-            else
-                break;
-        }
-        i--;
-    }
-
-    return candidate;
+    return d->findFirstIndex(startTime);
 }
 
 int SceneGraphTimelineModel::findFirstIndexNoParents(qint64 startTime) const
 {
-    if (d->eventList.isEmpty())
-        return -1;
-    if (d->eventList.count() == 1 || d->eventList.first().startTime+d->eventList.first().duration >= startTime)
-        return 0;
-    else
-        if (d->eventList.last().startTime+d->eventList.last().duration <= startTime)
-            return -1;
-
-    int fromIndex = 0;
-    int toIndex = d->eventList.count()-1;
-    while (toIndex - fromIndex > 1) {
-        int midIndex = (fromIndex + toIndex)/2;
-        if (d->eventList[midIndex].startTime + d->eventList[midIndex].duration < startTime)
-            fromIndex = midIndex;
-        else
-            toIndex = midIndex;
-    }
-    return toIndex;
+    return d->findFirstIndexNoParents(startTime);
 }
 
 int SceneGraphTimelineModel::findLastIndex(qint64 endTime) const
 {
-    if (d->eventList.isEmpty())
-        return -1;
-    if (d->eventList.first().startTime >= endTime)
-        return -1;
-    if (d->eventList.count() == 1)
-        return 0;
-    if (d->eventList.last().startTime <= endTime)
-        return d->eventList.count()-1;
-
-    int fromIndex = 0;
-    int toIndex = d->eventList.count()-1;
-    while (toIndex - fromIndex > 1) {
-        int midIndex = (fromIndex + toIndex)/2;
-        if (d->eventList[midIndex].startTime < endTime)
-            fromIndex = midIndex;
-        else
-            toIndex = midIndex;
-    }
-
-    return fromIndex;
+    return d->findLastIndex(endTime);
 }
 
 int SceneGraphTimelineModel::getEventType(int index) const
@@ -218,21 +168,17 @@ int SceneGraphTimelineModel::getEventCategory(int index) const
 
 int SceneGraphTimelineModel::getEventRow(int index) const
 {
-    return d->eventList[index].sgEventType + 1;
-    if (d->isExpanded)
-        return d->eventList[index].sgEventType + 1;
-    else
-        return 0;
+    return d->range(index).sgEventType + 1;
 }
 
 qint64 SceneGraphTimelineModel::getDuration(int index) const
 {
-    return d->eventList[index].duration;
+    return d->range(index).duration;
 }
 
 qint64 SceneGraphTimelineModel::getStartTime(int index) const
 {
-    return d->eventList[index].startTime;
+    return d->range(index).start;
 }
 
 qint64 SceneGraphTimelineModel::getEndTime(int index) const
@@ -242,7 +188,7 @@ qint64 SceneGraphTimelineModel::getEndTime(int index) const
 
 int SceneGraphTimelineModel::getEventId(int index) const
 {
-    return d->eventList[index].sgEventType;
+    return d->range(index).sgEventType;
 }
 
 QColor SceneGraphTimelineModel::getColor(int index) const
@@ -323,7 +269,7 @@ void SceneGraphTimelineModel::SceneGraphTimelineModelPrivate::addVP(QVariantList
 const QVariantList SceneGraphTimelineModel::getEventDetails(int index) const
 {
     QVariantList result;
-    SceneGraphEvent *ev = &d->eventList[index];
+    const SortedTimelineModel<SceneGraphEvent>::Range *ev = &d->range(index);
 
     {
         QVariantMap res;
@@ -377,11 +323,6 @@ int SceneGraphTimelineModel::getEventIdForLocation(const QString &/*filename*/, 
     return -1;
 }
 
-bool compareStartTimes(const SceneGraphTimelineModel::SceneGraphEvent&t1, const SceneGraphTimelineModel::SceneGraphEvent &t2)
-{
-    return t1.startTime < t2.startTime;
-}
-
 void SceneGraphTimelineModel::loadData()
 {
     clear();
@@ -399,55 +340,54 @@ void SceneGraphTimelineModel::loadData()
         if (event.bindingType == SceneGraphRenderLoopFrame) {
             SceneGraphEvent newEvent;
             newEvent.sgEventType = SceneGraphRenderThread;
-            newEvent.duration = event.numericData1 + event.numericData2 + event.numericData3;
-            newEvent.startTime = event.startTime - newEvent.duration;
+            qint64 duration = event.numericData1 + event.numericData2 + event.numericData3;
+            qint64 startTime = event.startTime - duration;
             for (int i=0; i < timingFieldCount; i++)
                 newEvent.timing[i] = 0;
 
             // Filter out events with incorrect timings due to interrupted thread on server side
-            if (newEvent.duration > 0 && newEvent.startTime > 0)
-                d->eventList << newEvent;
-            lastRenderEvent = d->eventList.count()-1;
+            if (duration > 0 && startTime > 0)
+                lastRenderEvent = d->insert(startTime, duration, newEvent);
         }
 
         if (lastRenderEvent >= 0) {
+            qint64 *timing = d->data(lastRenderEvent).timing;
             switch ((SceneGraphEventType)event.bindingType) {
             case SceneGraphRendererFrame: {
-                d->eventList[lastRenderEvent].timing[1] = event.numericData1;
-                d->eventList[lastRenderEvent].timing[10] = event.numericData2;
-                d->eventList[lastRenderEvent].timing[11] = event.numericData3;
-                d->eventList[lastRenderEvent].timing[12] = event.numericData4;
+                timing[1] = event.numericData1;
+                timing[10] = event.numericData2;
+                timing[11] = event.numericData3;
+                timing[12] = event.numericData4;
                 break;
             }
             case SceneGraphAdaptationLayerFrame: {
-                d->eventList[lastRenderEvent].timing[8] = event.numericData2;
-                d->eventList[lastRenderEvent].timing[9] = event.numericData3;
+                timing[8] = event.numericData2;
+                timing[9] = event.numericData3;
                 break;
             }
             case SceneGraphContextFrame: {
-                d->eventList[lastRenderEvent].timing[7] = event.numericData1;
+                timing[7] = event.numericData1;
                 break;
             }
             case SceneGraphRenderLoopFrame: {
-                d->eventList[lastRenderEvent].timing[0] = event.numericData1;
-                d->eventList[lastRenderEvent].timing[13] = event.numericData3;
-
+                timing[0] = event.numericData1;
+                timing[13] = event.numericData3;
                 break;
             }
             case SceneGraphTexturePrepare: {
-                d->eventList[lastRenderEvent].timing[2] = event.numericData4;
-                d->eventList[lastRenderEvent].timing[3] = event.numericData3;
-                d->eventList[lastRenderEvent].timing[4] = event.numericData2;
-                d->eventList[lastRenderEvent].timing[5] = event.numericData5;
-                d->eventList[lastRenderEvent].timing[6] = event.numericData1;
+                timing[2] = event.numericData4;
+                timing[3] = event.numericData3;
+                timing[4] = event.numericData2;
+                timing[5] = event.numericData5;
+                timing[6] = event.numericData1;
                 break;
             }
             case SceneGraphPolishAndSync: {
                 // GUI thread
                 SceneGraphEvent newEvent;
                 newEvent.sgEventType = SceneGraphGUIThread;
-                newEvent.duration = event.numericData1 + event.numericData2 + event.numericData3 + event.numericData4;
-                newEvent.startTime = event.startTime - newEvent.duration;
+                qint64 duration = event.numericData1 + event.numericData2 + event.numericData3 + event.numericData4;
+                qint64 startTime = event.startTime - duration;
                 for (int i=0; i < timingFieldCount; i++)
                     newEvent.timing[i] = 0;
 
@@ -457,33 +397,33 @@ void SceneGraphTimelineModel::loadData()
                 newEvent.timing[3] = event.numericData4;
 
                 // Filter out events with incorrect timings due to interrupted thread on server side
-                if (newEvent.duration > 0 && newEvent.startTime > 0)
-                    d->eventList << newEvent;
+                if (duration > 0 && startTime > 0)
+                    d->insert(startTime, duration, newEvent);
 
                 break;
             }
             case SceneGraphWindowsAnimations: {
-                d->eventList[lastRenderEvent].timing[14] = event.numericData1;
+                timing[14] = event.numericData1;
                 break;
             }
             case SceneGraphWindowsPolishFrame: {
-                d->eventList[lastRenderEvent].timing[15] = event.numericData1;
+                timing[15] = event.numericData1;
                 break;
             }
             default: break;
             }
         }
 
-        m_modelManager->modelProxyCountUpdated(m_modelId, d->eventList.count(), simpleModel->getEvents().count());
+        m_modelManager->modelProxyCountUpdated(m_modelId, d->count(), simpleModel->getEvents().count());
     }
 
-    qSort(d->eventList.begin(), d->eventList.end(), compareStartTimes);
+    d->computeNesting();
     m_modelManager->modelProxyCountUpdated(m_modelId, 1, 1);
 }
 
 void SceneGraphTimelineModel::clear()
 {
-    d->eventList.clear();
+    d->clear();
     d->isExpanded = false;
     m_modelManager->modelProxyCountUpdated(m_modelId, 0, 1);
 }

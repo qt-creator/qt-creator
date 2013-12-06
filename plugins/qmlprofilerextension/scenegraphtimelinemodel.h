@@ -37,8 +37,6 @@ class SceneGraphTimelineModel : public QmlProfiler::AbstractTimelineModel
 public:
 
     struct SceneGraphEvent {
-        qint64 startTime;
-        qint64 duration;
         int sgEventType;
         qint64 timing[timingFieldCount];
     };
