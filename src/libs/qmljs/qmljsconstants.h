@@ -50,7 +50,7 @@ enum Enum {
     Invalid,
     Library,
     Path,
-    QrcPath,
+    QrcPath
 };
 }
 

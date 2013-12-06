@@ -46,7 +46,7 @@ class CppCodeModelSettings
 public:
     enum PCHUsage {
         PchUse_None = 1,
-        PchUse_BuildSystem = 2,
+        PchUse_BuildSystem = 2
     };
 
 public:

@@ -38,9 +38,9 @@ namespace ProjectExplorer { class Task; }
 
 enum CompilerType {
     CompilerTypeGcc,
-    CompilerTypeClang,
+    CompilerTypeClang
 #ifdef HAS_MSVC_PARSER
-    CompilerTypeMsvc
+    , CompilerTypeMsvc
 #endif
 };
 
