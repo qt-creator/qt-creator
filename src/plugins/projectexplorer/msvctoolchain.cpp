@@ -468,8 +468,6 @@ QString MsvcToolChainFactory::vcVarsBatFor(const QString &basePath, const QStrin
         return basePath + QLatin1String("/bin/x86_amd64/vcvarsx86_amd64.bat");
     if (toolchainName == QLatin1String("amd64"))
         return basePath + QLatin1String("/bin/amd64/vcvars64.bat");
-    if (toolchainName == QLatin1String("x86_amd64"))
-        return basePath + QLatin1String("/bin/x86_amd64/vcvarsx86_amd64.bat");
     if (toolchainName == QLatin1String("x86_arm"))
         return basePath + QLatin1String("/bin/x86_arm/vcvarsx86_arm.bat");
     if (toolchainName == QLatin1String("arm"))
