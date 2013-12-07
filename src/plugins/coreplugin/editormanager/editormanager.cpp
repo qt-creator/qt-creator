@@ -1988,8 +1988,7 @@ void EditorManager::setupSaveActions(IDocument *document, QAction *saveAction, Q
 {
     saveAction->setEnabled(document != 0 && document->isModified());
     saveAsAction->setEnabled(document != 0 && document->isSaveAsAllowed());
-    revertToSavedAction->setEnabled(document != 0
-                                    && !document->filePath().isEmpty() && document->isModified());
+    revertToSavedAction->setEnabled(document != 0 && !document->filePath().isEmpty());
 
     const QString documentName = document ? document->displayName() : QString();
     QString quotedName;
@@ -1998,7 +1997,9 @@ void EditorManager::setupSaveActions(IDocument *document, QAction *saveAction, Q
         quotedName = QLatin1Char('"') + documentName + QLatin1Char('"');
         saveAction->setText(tr("&Save %1").arg(quotedName));
         saveAsAction->setText(tr("Save %1 &As...").arg(quotedName));
-        revertToSavedAction->setText(tr("Revert %1 to Saved").arg(quotedName));
+        revertToSavedAction->setText(document->isModified()
+                                     ? tr("Revert %1 to Saved").arg(quotedName)
+                                     : tr("Reload %1").arg(quotedName));
     }
 }
 
