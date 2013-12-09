@@ -79,5 +79,24 @@ int AbstractTimelineModel::getBindingLoopDest(int index) const
     return -1;
 }
 
+void AbstractTimelineModel::dataChanged()
+{
+    switch (m_modelManager->state()) {
+    case QmlProfilerDataState::ProcessingData:
+        loadData();
+        break;
+    case QmlProfilerDataState::Empty:
+        clear();
+        break;
+    default:
+        break;
+    }
+
+    emit stateChanged();
+    emit dataAvailable();
+    emit emptyChanged();
+    emit expandedChanged();
+}
+
 
 }

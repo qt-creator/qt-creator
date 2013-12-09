@@ -108,8 +108,6 @@ public:
 
 private slots:
     bool eventAccepted(const QmlProfilerSimpleModel::QmlEventData &event) const;
-protected slots:
-    void dataChanged();
 
 private:
     class PaintEventsModelProxyPrivate;

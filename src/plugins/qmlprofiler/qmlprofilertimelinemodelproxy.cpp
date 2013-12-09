@@ -130,20 +130,6 @@ void BasicTimelineModel::clear()
     m_modelManager->modelProxyCountUpdated(m_modelId, 0, 1);
 }
 
-void BasicTimelineModel::dataChanged()
-{
-    if (m_modelManager->state() == QmlProfilerDataState::ProcessingData)
-        loadData();
-
-    if (m_modelManager->state() == QmlProfilerDataState::Empty)
-        clear();
-
-    emit stateChanged();
-    emit dataAvailable();
-    emit emptyChanged();
-    emit expandedChanged();
-}
-
 void BasicTimelineModel::BasicTimelineModelPrivate::prepare()
 {
     categorySpan.clear();

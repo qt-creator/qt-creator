@@ -79,6 +79,10 @@ public:
     virtual int getEventType(int index) const = 0;
     virtual int getEventCategory(int index) const = 0;
     virtual int getEventRow(int index) const = 0;
+
+    virtual void loadData() = 0;
+    virtual void clear() = 0;
+
     Q_INVOKABLE virtual qint64 getDuration(int index) const = 0;
     Q_INVOKABLE virtual qint64 getStartTime(int index) const = 0;
     Q_INVOKABLE virtual qint64 getEndTime(int index) const = 0;
@@ -106,6 +110,9 @@ signals:
 protected:
     QmlProfilerModelManager *m_modelManager;
     int m_modelId;
+
+protected slots:
+    void dataChanged();
 };
 
 }

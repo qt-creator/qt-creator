@@ -118,20 +118,6 @@ void PaintEventsModelProxy::clear()
     m_modelManager->modelProxyCountUpdated(m_modelId, 0, 1);
 }
 
-void PaintEventsModelProxy::dataChanged()
-{
-    if (m_modelManager->state() == QmlProfilerDataState::ProcessingData)
-        loadData();
-
-    if (m_modelManager->state() == QmlProfilerDataState::Empty)
-        clear();
-
-    emit stateChanged();
-    emit dataAvailable();
-    emit emptyChanged();
-    emit expandedChanged();
-}
-
 bool compareStartTimes(const PaintEventsModelProxy::QmlPaintEventData &t1, const PaintEventsModelProxy::QmlPaintEventData &t2)
 {
     return t1.startTime < t2.startTime;
