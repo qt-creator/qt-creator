@@ -30,7 +30,10 @@
 
 #include "blackberrydevicelistdetector.h"
 
+#include "blackberryconfigurationmanager.h"
 #include "blackberryndkprocess.h"
+
+#include <utils/environment.h>
 
 #include <QStringList>
 
@@ -53,6 +56,8 @@ void BlackBerryDeviceListDetector::detectDeviceList()
     if (m_process->state() != QProcess::NotRunning)
         return;
 
+    m_process->setEnvironment(Utils::EnvironmentItem::toStringList(
+             BlackBerryConfigurationManager::instance().defaultQnxEnv()));
     const QString command = BlackBerryNdkProcess::resolveNdkToolPath(QLatin1String("blackberry-deploy"));
     QStringList arguments;
     arguments << QLatin1String("-devices");

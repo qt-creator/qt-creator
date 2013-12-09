@@ -29,6 +29,7 @@
 
 #include "documentmodel.h"
 #include "ieditor.h"
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/idocument.h>
 
 #include <utils/qtcassert.h>
@@ -194,8 +195,9 @@ int DocumentModel::indexOfFilePath(const QString &filePath) const
 {
     if (filePath.isEmpty())
         return -1;
+    const QString fixedPath = DocumentManager::fixFileName(filePath, DocumentManager::KeepLinks);
     for (int i = 0; i < d->m_documents.count(); ++i) {
-        if (d->m_documents.at(i)->fileName() == filePath)
+        if (DocumentManager::fixFileName(d->m_documents.at(i)->fileName(), DocumentManager::KeepLinks) == fixedPath)
             return i;
     }
     return -1;

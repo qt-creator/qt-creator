@@ -70,6 +70,9 @@ public:
 
     bool isComplete() const;
 
+signals:
+    void targetsUpdated();
+
 private:
     BlackBerryNDKSettingsWidget *m_widget;
 };
