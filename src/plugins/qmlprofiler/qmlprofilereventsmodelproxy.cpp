@@ -99,7 +99,7 @@ void QmlProfilerEventsModelProxy::dataChanged()
     if (d->modelManager->state() == QmlProfilerDataState::ProcessingData)
         loadData();
 
-    if (d->modelManager->state() == QmlProfilerDataState::Empty)
+    if (d->modelManager->state() == QmlProfilerDataState::ClearingData)
         clear();
 }
 

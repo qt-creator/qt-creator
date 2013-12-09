@@ -52,6 +52,7 @@ public:
         Empty,
         AcquiringData,
         ProcessingData,
+        ClearingData,
         Done
     };
 

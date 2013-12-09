@@ -474,7 +474,8 @@ void QmlProfilerTraceView::setAppKilled()
 void QmlProfilerTraceView::profilerDataModelStateChanged()
 {
     switch (d->m_modelManager->state()) {
-        case QmlProfilerDataState::Empty:
+        case QmlProfilerDataState::Empty: break;
+        case QmlProfilerDataState::ClearingData:
             emit enableToolbar(false);
         break;
         case QmlProfilerDataState::AcquiringData: break;

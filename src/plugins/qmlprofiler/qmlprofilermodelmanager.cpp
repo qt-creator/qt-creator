@@ -57,6 +57,9 @@ void QmlProfilerDataState::setState(QmlProfilerDataState::State state)
         return;
 
     switch (state) {
+        case ClearingData:
+            QTC_ASSERT(m_state == Done || m_state == Empty, /**/);
+        break;
         case Empty:
             // if it's not empty, complain but go on
             QTC_ASSERT(m_modelManager->isEmpty(), /**/);
@@ -345,6 +348,7 @@ QmlProfilerDataState::State QmlProfilerModelManager::state() const
 
 void QmlProfilerModelManager::clear()
 {
+    setState(QmlProfilerDataState::ClearingData);
     for (int i = 0; i < d->partialCounts.count(); i++)
         d->partialCounts[i] = 0;
     d->progress = 0;

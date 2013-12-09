@@ -522,6 +522,8 @@ void QmlProfilerTool::profilerDataModelStateChanged()
 {
     switch (d->m_profilerModelManager->state()) {
     case QmlProfilerDataState::Empty :
+        break;
+    case QmlProfilerDataState::ClearingData :
         clearDisplay();
         break;
     case QmlProfilerDataState::AcquiringData :
