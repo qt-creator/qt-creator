@@ -428,22 +428,5 @@ void SceneGraphTimelineModel::clear()
     m_modelManager->modelProxyCountUpdated(m_modelId, 0, 1);
 }
 
-void SceneGraphTimelineModel::dataChanged()
-{
-    if (m_modelManager->state() == QmlProfilerDataState::ProcessingData)
-        loadData();
-
-    if (m_modelManager->state() == QmlProfilerDataState::Empty)
-        clear();
-
-    emit stateChanged();
-    emit dataAvailable();
-    emit emptyChanged();
-    emit expandedChanged();
-}
-
-
-
-
 } // namespace Internal
 } // namespace QmlProfilerExtension

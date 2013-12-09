@@ -103,15 +103,6 @@ public:
 
     void loadData();
     void clear();
-//signals:
-//    void countChanged();
-//    void dataAvailable();
-//    void stateChanged();
-//    void emptyChanged();
-//    void expandedChanged();
-
-protected slots:
-    void dataChanged();
 
 private:
     class PixmapCacheModelPrivate;

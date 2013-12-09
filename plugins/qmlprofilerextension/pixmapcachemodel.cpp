@@ -485,20 +485,6 @@ void PixmapCacheModel::clear()
     m_modelManager->modelProxyCountUpdated(m_modelId, 0, 1);
 }
 
-void PixmapCacheModel::dataChanged()
-{
-    if (m_modelManager->state() == QmlProfilerDataState::ProcessingData)
-        loadData();
-
-    if (m_modelManager->state() == QmlProfilerDataState::Empty)
-        clear();
-
-    emit stateChanged();
-    emit dataAvailable();
-    emit emptyChanged();
-    emit expandedChanged();
-}
-
 void PixmapCacheModel::PixmapCacheModelPrivate::computeCacheSizes()
 {
     minCacheSize = -1;
