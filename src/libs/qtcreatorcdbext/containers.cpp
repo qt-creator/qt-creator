@@ -203,7 +203,18 @@ int containerSize(KnownType kt, const SymbolGroupValue &v)
         if (const SymbolGroupValue deque =  v[unsigned(0)])
             return containerSize(KT_StdDeque, deque);
         break;
+    case KT_StdArray: {
+        std::string::size_type arraySizeStart = v.type().find(',');
+        if (arraySizeStart != std::string::npos) {
+            ++arraySizeStart;
+            std::string::size_type arraySizeEnd = v.type().find('>', arraySizeStart);
+            if (arraySizeEnd != std::string::npos)
+                return std::stoi(v.type().substr(arraySizeStart, arraySizeEnd - arraySizeStart));
+        }
+        break;
     }
+    }
+
     return -1;
 }
 
@@ -251,6 +262,22 @@ static inline AbstractSymbolGroupNodePtrVector stdListChildList(SymbolGroupNode 
     if (SymbolGroupValue::verbose)
         DebugPrint() << "std::list failure: " << head;
     return AbstractSymbolGroupNodePtrVector();
+}
+
+static inline AbstractSymbolGroupNodePtrVector stdArrayChildList(SymbolGroupNode *n, int count,
+                                                        const SymbolGroupValueContext &ctx)
+{
+    AbstractSymbolGroupNodePtrVector rc;
+    if (SymbolGroupValue elems = SymbolGroupValue(n, ctx)["_Elems"]) {
+        rc.reserve(count);
+        for (int i = 0; i < count; ++i) {
+            if (const SymbolGroupValue value = elems[i])
+                rc.push_back(ReferenceSymbolGroupNode::createArrayNode(i, value.node()));
+            else
+                break;
+        }
+    }
+    return rc;
 }
 
 // QLinkedList<T>: Dummy head node and then a linked list of "n", "t".
@@ -1109,6 +1136,8 @@ AbstractSymbolGroupNodePtrVector containerChildren(SymbolGroupNode *node, int ty
         break;
     case KT_StdList:
         return stdListChildList(node, size , ctx);
+    case KT_StdArray:
+        return stdArrayChildList(node, size , ctx);
     case KT_StdDeque:
         return stdDequeChildList(SymbolGroupValue(node, ctx), size);
     case KT_StdStack:

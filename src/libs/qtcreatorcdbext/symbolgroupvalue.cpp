@@ -1078,6 +1078,8 @@ static KnownType knownClassTypeHelper(const std::string &type,
                     return KT_StdStack;
                 if (!type.compare(hPos, 5, "deque"))
                     return KT_StdDeque;
+                if (!type.compare(hPos, 5, "array"))
+                    return KT_StdArray;
                 break;
             case 6:
                 if (!type.compare(hPos, 6, "vector"))

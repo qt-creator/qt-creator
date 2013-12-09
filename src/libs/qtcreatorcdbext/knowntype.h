@@ -174,7 +174,8 @@ enum KnownType
     KT_StdDeque =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 4,
     KT_StdSet =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 5,
     KT_StdMap =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 6,
-    KT_StdMultiMap =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 7
+    KT_StdMultiMap =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 7,
+    KT_StdArray =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 8
 };
 
 #endif // KNOWNTYPE_H
