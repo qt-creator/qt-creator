@@ -307,14 +307,14 @@ QStringList Kit::candidateNameList(const QString &base) const
 
 QString Kit::fileSystemFriendlyName() const
 {
-    QString name = Utils::FileUtils::fileSystemFriendlyName(displayName());
+    QString name = Utils::FileUtils::qmakeFriendlyName(displayName());
     foreach (Kit *i, KitManager::kits()) {
         if (i == this)
             continue;
-        if (name == Utils::FileUtils::fileSystemFriendlyName(i->displayName())) {
+        if (name == Utils::FileUtils::qmakeFriendlyName(i->displayName())) {
             // append part of the kit id: That should be unique enough;-)
             // Leading { will be turned into _ which should be fine.
-            name = Utils::FileUtils::fileSystemFriendlyName(name + QLatin1Char('_') + (id().toString().left(7)));
+            name = Utils::FileUtils::qmakeFriendlyName(name + QLatin1Char('_') + (id().toString().left(7)));
             break;
         }
     }

@@ -236,6 +236,25 @@ QString FileUtils::fileSystemFriendlyName(const QString &name)
     return result;
 }
 
+int FileUtils::indexOfQmakeUnfriendly(const QString &name, int startpos)
+{
+    static QRegExp checkRegExp(QLatin1String("[^a-zA-Z0-9_.-]"));
+    return checkRegExp.indexIn(name, startpos);
+}
+
+QString FileUtils::qmakeFriendlyName(const QString &name)
+{
+    QString result = name;
+
+    // Remove characters that might trip up a build system (especially qmake):
+    int pos = indexOfQmakeUnfriendly(result);
+    while (pos >= 0) {
+        result[pos] = QLatin1Char('_');
+        pos = indexOfQmakeUnfriendly(result, pos);
+    }
+    return fileSystemFriendlyName(result);
+}
+
 bool FileUtils::makeWritable(const FileName &path)
 {
     const QString fileName = path.toString();

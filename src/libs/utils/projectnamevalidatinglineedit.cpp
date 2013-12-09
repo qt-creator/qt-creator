@@ -30,6 +30,8 @@
 #include "projectnamevalidatinglineedit.h"
 #include "filenamevalidatinglineedit.h"
 
+#include "fileutils.h"
+
 namespace Utils {
 
 ProjectNameValidatingLineEdit::ProjectNameValidatingLineEdit(QWidget *parent)
@@ -43,8 +45,12 @@ bool ProjectNameValidatingLineEdit::validateProjectName(const QString &name, QSt
     if (!FileNameValidatingLineEdit::validateFileName(name, false, errorMessage))
         return false;
 
-    // We don't want dots in the directory name for some legacy Windows
-    // reason. Since we are cross-platform, we generally disallow it.
+    int pos = FileUtils::indexOfQmakeUnfriendly(name);
+    if (pos >= 0) {
+        if (errorMessage)
+            *errorMessage = tr("Invalid character '%1' found!").arg(name.at(pos));
+        return false;
+    }
     if (name.contains(QLatin1Char('.'))) {
         if (errorMessage)
             *errorMessage = tr("Invalid character '.'.");

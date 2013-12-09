@@ -97,6 +97,8 @@ public:
     static FileName resolveSymlinks(const FileName &path);
     static QString shortNativePath(const FileName &path);
     static QString fileSystemFriendlyName(const QString &name);
+    static int indexOfQmakeUnfriendly(const QString &name, int startpos = 0);
+    static QString qmakeFriendlyName(const QString &name);
     static bool makeWritable(const FileName &path);
     static QString normalizePathName(const QString &name);
 };
