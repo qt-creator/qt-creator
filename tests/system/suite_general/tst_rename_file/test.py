@@ -50,7 +50,7 @@ def main():
                                ["Resources", "musicbrowser.qrc"],
                                ["QML", "musicbrowser.qml"]]:
         filenames = ["ABCD" + filename.upper(), "abcd" + filename.lower(), "test", "TEST", filename]
-        if platform.system() == 'Darwin':
+        if isQt4Build and platform.system() == 'Darwin':
             # avoid QTCREATORBUG-9197
             filtered = [filenames[0]]
             for i in range(1, len(filenames)):
