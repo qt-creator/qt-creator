@@ -48,6 +48,17 @@ public:
     QString additionalArguments;
     QString makefile;
 
+    bool operator==(const QmakeBuildInfo &o) {
+        return displayName == o.displayName
+                && typeName == o.typeName
+                && buildDirectory == o.buildDirectory
+                && kitId == o.kitId
+                && typeName == o.typeName
+                && supportsShadowBuild == o.supportsShadowBuild
+                && type == o.type
+                && additionalArguments == o.additionalArguments;
+    }
+
     QList<ProjectExplorer::Task> reportIssues(const QString &projectPath,
                                               const QString &buildDir) const
     {

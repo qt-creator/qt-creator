@@ -163,7 +163,17 @@ QList<ProjectExplorer::BuildInfo *> QmakeProjectImporter::import(const Utils::Fi
             info->additionalArguments = additionalArguments;
             info->makefile = makefile;
 
-            result << info;
+            bool found = false;
+            foreach (ProjectExplorer::BuildInfo *bInfo, result) {
+                if (*static_cast<QmakeBuildInfo *>(bInfo) == *info) {
+                    found = true;
+                    break;
+                }
+            }
+            if (found)
+                delete info;
+            else
+                result << info;
         }
     }
 
