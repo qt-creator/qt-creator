@@ -148,7 +148,6 @@ public:
     void convertPosition(int pos, int *line, int *column) const;
 
     BaseTextEditor *editor() const;
-    ITextMarkable *markableInterface() const;
 
     void print(QPrinter *);
 
@@ -623,8 +622,6 @@ public:
     QRect cursorRect(int pos = -1) const;
 
     QString selectedText() const;
-
-    ITextMarkable *markableInterface() { return m_editorWidget->markableInterface(); }
 
     QString contextHelpId() const; // from IContext
 

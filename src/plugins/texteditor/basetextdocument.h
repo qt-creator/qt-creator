@@ -72,7 +72,7 @@ public:
     const TabSettings &tabSettings() const;
     const ExtraEncodingSettings &extraEncodingSettings() const;
 
-    ITextMarkable *documentMarker() const;
+    ITextMarkable *markableInterface() const;
 
     // IDocument implementation.
     bool save(QString *errorString, const QString &fileName, bool autoSave);

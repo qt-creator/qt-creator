@@ -84,6 +84,8 @@ public:
     virtual QString plainText() const = 0;
     virtual QString textAt(int pos, int length) const = 0;
     virtual QChar characterAt(int pos) const = 0;
+
+    virtual ITextMarkable *markableInterface() const = 0;
 };
 
 class TEXTEDITOR_EXPORT ITextEditor : public Core::IEditor
@@ -125,8 +127,6 @@ public:
     virtual void setCursorPosition(int pos) = 0;
     /*! Selects text between current cursor position and \a toPos. */
     virtual void select(int toPos) = 0;
-
-    virtual ITextMarkable *markableInterface() = 0;
 
     virtual const Utils::CommentDefinition* commentDefinition() const = 0;
 

@@ -60,14 +60,11 @@ void BaseTextMarkRegistry::add(BaseTextMark *mark)
 {
     m_marks[FileName::fromString(mark->fileName())].insert(mark);
     DocumentModel *documentModel = EditorManager::documentModel();
-    IDocument *document = documentModel->documentForFilePath(mark->fileName());
+    ITextEditorDocument *document
+            = qobject_cast<ITextEditorDocument*>(documentModel->documentForFilePath(mark->fileName()));
     if (!document)
         return;
-    // TODO: markableInterface should be moved to ITextEditorDocument
-    if (ITextEditor *textEditor
-            = qobject_cast<ITextEditor *>(documentModel->editorsForDocument(document).first())) {
-        textEditor->markableInterface()->addMark(mark);
-    }
+    document->markableInterface()->addMark(mark);
 }
 
 bool BaseTextMarkRegistry::remove(BaseTextMark *mark)
@@ -77,16 +74,14 @@ bool BaseTextMarkRegistry::remove(BaseTextMark *mark)
 
 void BaseTextMarkRegistry::editorOpened(Core::IEditor *editor)
 {
-    ITextEditor *textEditor = qobject_cast<ITextEditor *>(editor);
-    if (!textEditor)
+    ITextEditorDocument *document = qobject_cast<ITextEditorDocument *>(editor ? editor->document() : 0);
+    if (!document)
         return;
-    if (!m_marks.contains(FileName::fromString(editor->document()->filePath())))
+    if (!m_marks.contains(FileName::fromString(document->filePath())))
         return;
 
-    foreach (BaseTextMark *mark, m_marks.value(FileName::fromString(editor->document()->filePath()))) {
-        ITextMarkable *markableInterface = textEditor->markableInterface();
-        markableInterface->addMark(mark);
-    }
+    foreach (BaseTextMark *mark, m_marks.value(FileName::fromString(document->filePath())))
+        document->markableInterface()->addMark(mark);
 }
 
 void BaseTextMarkRegistry::documentRenamed(IDocument *document, const
@@ -102,7 +97,7 @@ void BaseTextMarkRegistry::documentRenamed(IDocument *document, const
         return;
 
     QSet<BaseTextMark *> toBeMoved;
-    foreach (ITextMark *mark, baseTextDocument->documentMarker()->marks())
+    foreach (ITextMark *mark, baseTextDocument->markableInterface()->marks())
         if (BaseTextMark *baseTextMark = dynamic_cast<BaseTextMark *>(mark))
             toBeMoved.insert(baseTextMark);
 

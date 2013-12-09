@@ -195,7 +195,7 @@ SyntaxHighlighter *BaseTextDocument::syntaxHighlighter() const
     return d->m_highlighter;
 }
 
-ITextMarkable *BaseTextDocument::documentMarker() const
+ITextMarkable *BaseTextDocument::markableInterface() const
 {
     BaseTextDocumentLayout *documentLayout =
         qobject_cast<BaseTextDocumentLayout *>(d->m_document->documentLayout());

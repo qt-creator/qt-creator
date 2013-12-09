@@ -192,7 +192,7 @@ void DisassemblerAgent::resetLocation()
     if (d->resetLocationScheduled) {
         d->resetLocationScheduled = false;
         if (d->locationMark)
-            d->editor->markableInterface()->removeMark(d->locationMark);
+            d->editor->textDocument()->markableInterface()->removeMark(d->locationMark);
     }
 }
 
@@ -346,14 +346,14 @@ void DisassemblerAgent::updateLocationMarker()
     int lineNumber = contents.lineForAddress(d->location.address());
     if (d->location.needsMarker()) {
         if (d->locationMark)
-            d->editor->markableInterface()->removeMark(d->locationMark);
+            d->editor->textDocument()->markableInterface()->removeMark(d->locationMark);
         delete d->locationMark;
         d->locationMark = 0;
         if (lineNumber) {
             d->locationMark = new ITextMark(lineNumber);
             d->locationMark->setIcon(debuggerCore()->locationMarkIcon());
             d->locationMark->setPriority(TextEditor::ITextMark::HighPriority);
-            d->editor->markableInterface()->addMark(d->locationMark);
+            d->editor->textDocument()->markableInterface()->addMark(d->locationMark);
         }
     }
 
@@ -379,7 +379,7 @@ void DisassemblerAgent::updateBreakpointMarkers()
 
     const DisassemblerLines contents = d->contentsAtCurrentLocation();
     foreach (TextEditor::ITextMark *marker, d->breakpointMarks)
-        d->editor->markableInterface()->removeMark(marker);
+        d->editor->textDocument()->markableInterface()->removeMark(marker);
     qDeleteAll(d->breakpointMarks);
     d->breakpointMarks.clear();
     foreach (BreakpointModelId id, ids) {
@@ -393,7 +393,7 @@ void DisassemblerAgent::updateBreakpointMarkers()
         marker->setIcon(handler->icon(id));
         marker->setPriority(ITextMark::NormalPriority);
         d->breakpointMarks.append(marker);
-        d->editor->markableInterface()->addMark(marker);
+        d->editor->textDocument()->markableInterface()->addMark(marker);
     }
 }
 
