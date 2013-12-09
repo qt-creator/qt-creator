@@ -130,13 +130,11 @@ macx {
     IDE_DOC_PATH     = $$IDE_DATA_PATH/doc
     IDE_BIN_PATH     = $$IDE_APP_PATH/$${IDE_APP_TARGET}.app/Contents/MacOS
     copydata = 1
-    isEmpty(TIGER_COMPAT_MODE):TIGER_COMPAT_MODE=$$(QTC_TIGER_COMPAT)
     !isEqual(QT_MAJOR_VERSION, 5) {
-        # Qt5 doesn't support 10.5, and will set the minimum version correctly to 10.6 or 10.7.
-        isEmpty(TIGER_COMPAT_MODE) {
-            QMAKE_CXXFLAGS *= -mmacosx-version-min=10.5
-            QMAKE_LFLAGS *= -mmacosx-version-min=10.5
-        }
+        # we use @rpath which is 10.5+
+        # Qt5 doesn't support 10.5, and will set the minimum version to 10.6 or 10.7.
+        QMAKE_CXXFLAGS *= -mmacosx-version-min=10.5
+        QMAKE_LFLAGS *= -mmacosx-version-min=10.5
     }
 } else {
     contains(TEMPLATE, vc.*):vcproj = 1
