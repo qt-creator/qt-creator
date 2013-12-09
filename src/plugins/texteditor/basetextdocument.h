@@ -58,7 +58,7 @@ public:
     virtual ~BaseTextDocument();
 
     // ITextEditorDocument
-    QString contents() const;
+    QString plainText() const;
     QString textAt(int pos, int length) const;
     QChar characterAt(int pos) const;
 

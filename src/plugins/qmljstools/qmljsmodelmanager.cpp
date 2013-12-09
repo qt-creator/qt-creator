@@ -329,7 +329,7 @@ ModelManagerInterface::WorkingCopy ModelManager::workingCopy() const
         if (TextEditor::BaseTextDocument *textDocument = qobject_cast<TextEditor::BaseTextDocument *>(document)) {
             // TODO the language should be a property on the document, not the editor
             if (documentModel->editorsForDocument(document).first()->context().contains(ProjectExplorer::Constants::LANG_QMLJS))
-                workingCopy.insert(key, textDocument->contents(), textDocument->document()->revision());
+                workingCopy.insert(key, textDocument->plainText(), textDocument->document()->revision());
         }
     }
 

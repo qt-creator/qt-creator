@@ -186,7 +186,7 @@ QByteArray CppEditorSupport::contents() const
     const int editorRev = editorRevision();
     if (m_cachedContentsEditorRevision != editorRev && !m_fileIsBeingReloaded) {
         m_cachedContentsEditorRevision = editorRev;
-        m_cachedContents = m_textEditor->textDocument()->contents().toUtf8();
+        m_cachedContents = m_textEditor->textDocument()->plainText().toUtf8();
     }
 
     return m_cachedContents;

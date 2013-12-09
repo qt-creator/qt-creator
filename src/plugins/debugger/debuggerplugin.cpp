@@ -684,7 +684,7 @@ static bool currentTextEditorPosition(ContextData *data)
     data->fileName = document->filePath();
     if (document->property(Constants::OPENED_WITH_DISASSEMBLY).toBool()) {
         int lineNumber = textEditor->currentLine();
-        QString line = textEditor->textDocument()->contents()
+        QString line = textEditor->textDocument()->plainText()
             .section(QLatin1Char('\n'), lineNumber - 1, lineNumber - 1);
         data->address = DisassemblerLine::addressFromDisassemblyLine(line);
     } else {
@@ -1843,7 +1843,7 @@ void DebuggerPluginPrivate::requestContextMenu(ITextEditor *editor,
     ITextEditorDocument *document = editor->textDocument();
     args.fileName = document->filePath();
     if (document->property(Constants::OPENED_WITH_DISASSEMBLY).toBool()) {
-        QString line = document->contents()
+        QString line = document->plainText()
             .section(QLatin1Char('\n'), lineNumber - 1, lineNumber - 1);
         BreakpointResponse needle;
         needle.type = BreakpointByAddress;
@@ -1956,7 +1956,7 @@ void DebuggerPluginPrivate::toggleBreakpoint()
     QTC_ASSERT(textEditor, return);
     const int lineNumber = textEditor->currentLine();
     if (textEditor->property(Constants::OPENED_WITH_DISASSEMBLY).toBool()) {
-        QString line = textEditor->textDocument()->contents()
+        QString line = textEditor->textDocument()->plainText()
             .section(QLatin1Char('\n'), lineNumber - 1, lineNumber - 1);
         quint64 address = DisassemblerLine::addressFromDisassemblyLine(line);
         toggleBreakpointByAddress(address);
@@ -2013,7 +2013,7 @@ void DebuggerPluginPrivate::requestMark(ITextEditor *editor,
         return;
 
     if (editor->property("DisassemblerView").toBool()) {
-        QString line = editor->textDocument()->contents()
+        QString line = editor->textDocument()->plainText()
             .section(QLatin1Char('\n'), lineNumber - 1, lineNumber - 1);
         quint64 address = DisassemblerLine::addressFromDisassemblyLine(line);
         toggleBreakpointByAddress(address);

@@ -46,7 +46,7 @@ QMap<QString, QString> ITextEditor::openedTextDocumentContents()
         if (!textEditorDocument)
             continue;
         QString fileName = textEditorDocument->filePath();
-        workingCopy[fileName] = textEditorDocument->contents();
+        workingCopy[fileName] = textEditorDocument->plainText();
     }
     return workingCopy;
 }

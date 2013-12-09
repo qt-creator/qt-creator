@@ -92,7 +92,7 @@ BaseTextDocument::~BaseTextDocument()
     delete d;
 }
 
-QString BaseTextDocument::contents() const
+QString BaseTextDocument::plainText() const
 {
     return document()->toPlainText();
 }

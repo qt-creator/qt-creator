@@ -81,7 +81,7 @@ class TEXTEDITOR_EXPORT ITextEditorDocument : public Core::TextDocument
 public:
     explicit ITextEditorDocument(QObject *parent = 0);
 
-    virtual QString contents() const = 0;
+    virtual QString plainText() const = 0;
     virtual QString textAt(int pos, int length) const = 0;
     virtual QChar characterAt(int pos) const = 0;
 };
