@@ -87,14 +87,14 @@
          <bool>true</bool>
         </property>
         <property name="text">
-         <string>Scan in the whole project</string>
+         <string>Scan the whole active project</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QRadioButton" name="scanInCurrentFileRadioButton">
         <property name="text">
-         <string>Scan in the current opened file</string>
+         <string>Scan only the currently edited document</string>
         </property>
         <property name="checked">
          <bool>true</bool>

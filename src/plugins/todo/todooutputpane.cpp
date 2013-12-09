@@ -188,13 +188,13 @@ void TodoOutputPane::createScopeButtons()
 {
     m_currentFileButton = new QToolButton();
     m_currentFileButton->setCheckable(true);
-    m_currentFileButton->setText(tr("Current File"));
-    m_currentFileButton->setToolTip(tr("Scan in the current opened file"));
+    m_currentFileButton->setText(tr("Current Document"));
+    m_currentFileButton->setToolTip(tr("Scan only the currently edited document."));
 
     m_wholeProjectButton = new QToolButton();
     m_wholeProjectButton->setCheckable(true);
-    m_wholeProjectButton->setText(tr("Whole Project"));
-    m_wholeProjectButton->setToolTip(tr("Scan in the whole project"));
+    m_wholeProjectButton->setText(tr("Active Project"));
+    m_wholeProjectButton->setToolTip(tr("Scan the whole active project."));
 
     m_scopeButtons = new QButtonGroup();
     m_scopeButtons->addButton(m_wholeProjectButton);
