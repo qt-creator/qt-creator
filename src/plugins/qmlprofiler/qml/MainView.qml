@@ -169,28 +169,6 @@ Rectangle {
         view.selectPrev();
     }
 
-    function updateZoomCentered(centerX, relativeFactor)
-    {
-        var min_length = 1e5; // 0.1 ms
-        var windowLength = view.endTime - view.startTime;
-        if (windowLength < min_length)
-            windowLength = min_length;
-        var newWindowLength = windowLength * relativeFactor;
-
-        if (newWindowLength > qmlProfilerModelProxy.traceDuration()) {
-            newWindowLength = qmlProfilerModelProxy.traceDuration();
-            relativeFactor = newWindowLength / windowLength;
-        }
-        if (newWindowLength < min_length) {
-            newWindowLength = min_length;
-            relativeFactor = newWindowLength / windowLength;
-        }
-
-        var fixedPoint = (centerX - flick.x) * windowLength / flick.width + view.startTime;
-        var startTime = fixedPoint - relativeFactor*(fixedPoint - view.startTime);
-        zoomControl.setRange(startTime, startTime + newWindowLength);
-    }
-
     function recenter( centerPoint ) {
         var windowLength = view.endTime - view.startTime;
         var newStart = Math.floor(centerPoint - windowLength/2);
@@ -215,21 +193,10 @@ Rectangle {
 
     }
 
-    function wheelZoom(wheelCenter, wheelDelta) {
-        if (qmlProfilerModelProxy.traceEndTime() > qmlProfilerModelProxy.traceStartTime() &&
-                wheelDelta !== 0) {
-            if (wheelDelta>0)
-                updateZoomCentered(wheelCenter, 1/1.2);
-            else
-                updateZoomCentered(wheelCenter, 1.2);
-        }
-    }
-
     function hideRangeDetails() {
         rangeDetails.visible = false;
         rangeDetails.duration = "";
         rangeDetails.label = "";
-        //rangeDetails.type = "";
         rangeDetails.file = "";
         rangeDetails.line = -1;
         rangeDetails.column = 0;
