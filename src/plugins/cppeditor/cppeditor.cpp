@@ -1202,6 +1202,9 @@ void CPPEditorWidget::finishHighlightSymbolUsages()
     if (m_highlighter.isCanceled())
         return; // aborted
 
+    else if (m_lastSemanticInfo.doc.isNull())
+        return;
+
     TextEditor::SyntaxHighlighter *highlighter = baseTextDocument()->syntaxHighlighter();
     QTC_ASSERT(highlighter, return);
 
