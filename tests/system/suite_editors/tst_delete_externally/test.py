@@ -61,8 +61,6 @@ def main():
                        "Skipping this file for now.")
             continue
 
-        if platform.system() == 'Darwin':
-            JIRA.performWorkaroundForBug(8735, JIRA.Bug.CREATOR, editor)
         contentBefore = readFile(currentFile)
         popupText = "The file %s was removed. Do you want to save it under a different name, or close the editor?"
         os.remove(currentFile)
