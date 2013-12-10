@@ -78,8 +78,6 @@ def renameFile(projectDir, proFile, branch, oldname, newname):
     oldFileText = readFile(oldFilePath)
     itemText = branch + "." + oldname.replace(".", "\\.")
     treeview = waitForObject(":Qt Creator_Utils::NavigationTreeView")
-    if platform.system() == 'Darwin':
-        JIRA.performWorkaroundForBug(8735, JIRA.Bug.CREATOR, treeview)
     try:
         openItemContextMenu(treeview, itemText, 5, 5, 0)
     except:
