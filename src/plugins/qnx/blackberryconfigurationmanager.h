@@ -84,6 +84,7 @@ private:
     void saveManualConfigurations();
     void saveActiveConfigurationNdkEnvPath();
     void clearInvalidConfigurations();
+    void setKitsAutoDetectionSource();
 
     QStringList activeConfigurationNdkEnvPaths();
 };

@@ -169,7 +169,13 @@ bool BlackBerryConfiguration::isAutoDetected() const
 
 bool BlackBerryConfiguration::isActive() const
 {
-    return !findRegisteredQtVersions().isEmpty();
+    foreach (Kit *kit, KitManager::kits()) {
+        if (kit->isAutoDetected() &&
+                kit->autoDetectionSource() == m_ndkEnvFile.toString())
+            return true;
+    }
+
+    return false;
 }
 
 bool BlackBerryConfiguration::isValid() const
@@ -277,6 +283,7 @@ Kit *BlackBerryConfiguration::createKit(
     kit->setIconPath(FileName::fromString(QLatin1String(Constants::QNX_BB_CATEGORY_ICON)));
 
     kit->setAutoDetected(true);
+    kit->setAutoDetectionSource(m_ndkEnvFile.toString());
     kit->setMutable(DeviceKitInformation::id(), true);
 
     kit->setSticky(QtKitInformation::id(), true);
@@ -370,50 +377,24 @@ bool BlackBerryConfiguration::activate()
     return true;
 }
 
-QList<BaseQtVersion *> BlackBerryConfiguration::findRegisteredQtVersions() const
-{
-    QList<BaseQtVersion *> versions;
-    foreach (BaseQtVersion *version, QtVersionManager::versions()) {
-        if (version->type() == QLatin1String(Constants::QNX_BB_QT)) {
-            QnxAbstractQtVersion *qnxVersion = dynamic_cast<QnxAbstractQtVersion *>(version);
-            if (qnxVersion  &&  qnxVersion->isAutodetected()
-                    && (qnxVersion->qmakeCommand() == qmake4BinaryFile()
-                    || qnxVersion->qmakeCommand() == qmake5BinaryFile()))
-                versions << qnxVersion;
-        }
-    }
-    return versions;
-}
-
 void BlackBerryConfiguration::deactivate()
 {
-    QList<BaseQtVersion *> versions = findRegisteredQtVersions();
-    QList<ToolChain *> toolChains;
     foreach (Kit *kit, KitManager::kits()) {
-        if (kit->isAutoDetected()) {
+        if (kit->isAutoDetected() &&
+                kit->autoDetectionSource() == ndkEnvFile().toString()) {
             BaseQtVersion *version = QtKitInformation::qtVersion(kit);
-            if (versions.contains(version)) {
-                ToolChain *toolChain = ToolChainKitInformation::toolChain(kit);
-                if (toolChain)
-                    toolChains << toolChain;
-                KitManager::deregisterKit(kit);
-            }
+            ToolChain *toolChain = ToolChainKitInformation::toolChain(kit);
+            const DebuggerItem *debugger = DebuggerKitInformation::debugger(kit);
+            if (version)
+                QtVersionManager::removeVersion(version);
+            if (toolChain)
+                ToolChainManager::deregisterToolChain(toolChain);
+            if (debugger)
+                DebuggerItemManager::deregisterDebugger(debugger->id());
+
+            KitManager::deregisterKit(kit);
         }
     }
-
-    foreach (const DebuggerItem &item, DebuggerItemManager::debuggers())
-        if (item.isAutoDetected() &&
-                (item.command() == m_simulatorDebugger || item.command() == m_deviceDebugger))
-                DebuggerItemManager::deregisterDebugger(item.id());
-
-    foreach (ToolChain *toolChain, ToolChainManager::toolChains())
-        if (toolChain->isAutoDetected()
-                && (toolChains.contains(toolChain) || toolChain->compilerCommand() == m_gccCompiler))
-            ToolChainManager::deregisterToolChain(toolChain);
-
-    foreach (BaseQtVersion *version, versions)
-        QtVersionManager::removeVersion(version);
-
 }
 
 } // namespace Internal

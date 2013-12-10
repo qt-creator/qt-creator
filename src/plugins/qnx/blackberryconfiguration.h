@@ -108,7 +108,6 @@ private:
     ProjectExplorer::Kit* createKit(
             QnxAbstractQtVersion* version, QnxToolChain* toolChain,
             const QVariant &debuggerItemId);
-    QList<QtSupport::BaseQtVersion *> findRegisteredQtVersions() const;
 };
 
 } // namespace Internal

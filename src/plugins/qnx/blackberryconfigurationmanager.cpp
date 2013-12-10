@@ -49,6 +49,8 @@
 #include <qtsupport/qtversionmanager.h>
 #include <qtsupport/qtkitinformation.h>
 
+#include <debugger/debuggerkitinformation.h>
+
 #include <QMessageBox>
 #include <QFileInfo>
 
@@ -212,6 +214,23 @@ void BlackBerryConfigurationManager::clearInvalidConfigurations()
     }
 }
 
+void BlackBerryConfigurationManager::setKitsAutoDetectionSource()
+{
+    foreach (Kit *kit, KitManager::kits()) {
+        if (kit->isAutoDetected() &&
+                (DeviceTypeKitInformation::deviceTypeId(kit) ==  Constants::QNX_BB_CATEGORY_ICON) &&
+                kit->autoDetectionSource().isEmpty()) {
+            QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(kit);
+            foreach (BlackBerryConfiguration *config, m_configs) {
+                if ((version &&
+                     (version->qmakeCommand() == config->qmake4BinaryFile() || version->qmakeCommand() == config->qmake5BinaryFile()))
+                        && (SysRootKitInformation::sysRoot(kit) == config->sysRoot()))
+                    kit->setAutoDetectionSource(config->ndkEnvFile().toString());
+            }
+        }
+    }
+}
+
 // Switch to QnxToolchain for exisintg configuration using GccToolChain
 void BlackBerryConfigurationManager::checkToolChainConfiguration()
 {
@@ -320,6 +339,9 @@ QList<Utils::EnvironmentItem> BlackBerryConfigurationManager::defaultQnxEnv()
 
 void BlackBerryConfigurationManager::loadSettings()
 {
+    // Backward compatibility: Set kit's auto detection source
+    // for existing BlackBerry kits that do not have it set yet.
+    setKitsAutoDetectionSource();
     clearInvalidConfigurations();
     loadAutoDetectedConfigurations();
     loadManualConfigurations();
