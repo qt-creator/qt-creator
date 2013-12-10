@@ -30,8 +30,8 @@
 
 #include "cppvirtualfunctionassistprovider.h"
 
+#include "cppeditor.h"
 #include "cppeditorconstants.h"
-#include "cppelementevaluator.h"
 #include "cppvirtualfunctionproposalitem.h"
 
 #include <cplusplus/Icons.h>
@@ -41,6 +41,7 @@
 #include <coreplugin/actionmanager/command.h>
 
 #include <cpptools/symbolfinder.h>
+#include <cpptools/typehierarchybuilder.h>
 
 #include <texteditor/codeassist/basicproposalitemlistmodel.h>
 #include <texteditor/codeassist/genericproposal.h>
@@ -48,6 +49,7 @@
 #include <texteditor/codeassist/iassistinterface.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/codeassist/iassistproposal.h>
+#include <texteditor/texteditorconstants.h>
 
 #include <utils/qtcassert.h>
 
@@ -287,23 +289,23 @@ QList<Symbol *> FunctionHelper::overrides(Function *function, Class *functionsCl
     QTC_ASSERT(referenceName && referenceType.isValid(), return result);
 
     // Find overrides
-    CppEditor::Internal::CppClass cppClass = CppClass(functionsClass);
-    cppClass.lookupDerived(staticClass, snapshot);
+    CppTools::TypeHierarchyBuilder builder(staticClass, snapshot);
+    const CppTools::TypeHierarchy &staticClassHierarchy = builder.buildDerivedTypeHierarchy();
 
-    QList<CppClass> l;
-    l << cppClass;
+    QList<CppTools::TypeHierarchy> l;
+    l.append(CppTools::TypeHierarchy(functionsClass));
+    l.append(staticClassHierarchy);
 
     while (!l.isEmpty()) {
         // Add derived
-        CppClass clazz = l.takeFirst();
-
-        QTC_ASSERT(clazz.declaration, continue);
-        Class *c = clazz.declaration->asClass();
+        const CppTools::TypeHierarchy hierarchy = l.takeFirst();
+        QTC_ASSERT(hierarchy.symbol(), continue);
+        Class *c = hierarchy.symbol()->asClass();
         QTC_ASSERT(c, continue);
 
-        foreach (const CppClass &d, clazz.derived) {
-            if (!l.contains(d))
-                l << d;
+        foreach (const CppTools::TypeHierarchy &t, hierarchy.hierarchy()) {
+            if (!l.contains(t))
+                l << t;
         }
 
         // Check member functions

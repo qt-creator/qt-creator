@@ -53,6 +53,9 @@ public:
     CPlusPlus::Symbol *symbol() const;
     const QList<TypeHierarchy> &hierarchy() const;
 
+    bool operator==(const TypeHierarchy &other) const
+    { return _symbol == other._symbol; }
+
 private:
     CPlusPlus::Symbol *_symbol;
     QList<TypeHierarchy> _hierarchy;
