@@ -27,50 +27,42 @@
 **
 ****************************************************************************/
 
-#ifndef CPPFOLLOWVIRTUALSYMBOLS_H
-#define CPPFOLLOWVIRTUALSYMBOLS_H
+#ifndef FUNCTIONUTILS_H
+#define FUNCTIONUTILS_H
 
-#include <texteditor/codeassist/iassistprovider.h>
+#include "cpptools_global.h"
 
-#include <cplusplus/CppDocument.h>
-#include <cplusplus/Symbols.h>
-#include <cplusplus/TypeOfExpression.h>
+QT_BEGIN_NAMESPACE
+template <class> class QList;
+QT_END_NAMESPACE
 
-#include <QSharedPointer>
-#include <QTextCursor>
+namespace CPlusPlus {
+class Class;
+class Function;
+class LookupContext;
+class Snapshot;
+class Symbol;
+} // namespace CPlusPlus
 
-namespace CppEditor {
-namespace Internal {
+namespace CppTools {
 
-class VirtualFunctionAssistProvider : public TextEditor::IAssistProvider
+class CPPTOOLS_EXPORT FunctionUtils
 {
 public:
-    VirtualFunctionAssistProvider();
+    static bool isVirtualFunction(const CPlusPlus::Function *function,
+                                  const CPlusPlus::LookupContext &context,
+                                  const CPlusPlus::Function **firstVirtual = 0);
 
-    struct Parameters {
-        Parameters() : function(0), staticClass(0), cursorPosition(-1), openInNextSplit(false) {}
+    static bool isPureVirtualFunction(const CPlusPlus::Function *function,
+                                      const CPlusPlus::LookupContext &context,
+                                      const CPlusPlus::Function **firstVirtual = 0);
 
-        CPlusPlus::Function *function;
-        CPlusPlus::Class *staticClass;
-        QSharedPointer<CPlusPlus::TypeOfExpression> typeOfExpression; // Keeps instantiated symbols.
-        CPlusPlus::Snapshot snapshot;
-        int cursorPosition;
-        bool openInNextSplit;
-    };
-
-    virtual bool configure(const Parameters &parameters);
-    Parameters params() const { return m_params; }
-    void clearParams() { m_params = Parameters(); }
-
-    bool isAsynchronous() const;
-    bool supportsEditor(const Core::Id &editorId) const;
-    TextEditor::IAssistProcessor *createProcessor() const;
-
-private:
-    Parameters m_params;
+    static QList<CPlusPlus::Symbol *> overrides(CPlusPlus::Function *function,
+                                                CPlusPlus::Class *functionsClass,
+                                                CPlusPlus::Class *staticClass,
+                                                const CPlusPlus::Snapshot &snapshot);
 };
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppTools
 
-#endif // CPPFOLLOWVIRTUALSYMBOLS_H
+#endif // FUNCTIONUTILS_H

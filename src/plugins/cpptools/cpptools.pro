@@ -51,7 +51,8 @@ HEADERS += completionsettingspage.h \
     cpplocatordata.h \
     cppmodelmanagersupportinternal.h \
     cppcodemodelsettings.h \
-    cppcodemodelsettingspage.h
+    cppcodemodelsettingspage.h \
+    functionutils.h
 
 SOURCES += completionsettingspage.cpp \
     cppclassesfilter.cpp \
@@ -100,7 +101,8 @@ SOURCES += completionsettingspage.cpp \
     cpplocatordata.cpp \
     cppmodelmanagersupportinternal.cpp \
     cppcodemodelsettings.cpp \
-    cppcodemodelsettingspage.cpp
+    cppcodemodelsettingspage.cpp \
+    functionutils.cpp
 
 FORMS += completionsettingspage.ui \
     cppfilesettingspage.ui \

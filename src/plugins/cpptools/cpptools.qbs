@@ -101,6 +101,8 @@ QtcPlugin {
         "cpptoolssettings.h",
         "doxygengenerator.cpp",
         "doxygengenerator.h",
+        "functionutils.cpp",
+        "functionutils.h",
         "insertionpointlocator.cpp",
         "insertionpointlocator.h",
         "searchsymbols.cpp",

@@ -39,6 +39,7 @@
 #include <cplusplus/SimpleLexer.h>
 #include <cplusplus/TypeOfExpression.h>
 #include <cpptools/cppmodelmanagerinterface.h>
+#include <cpptools/functionutils.h>
 #include <cpptools/symbolfinder.h>
 #include <texteditor/basetextdocumentlayout.h>
 #include <utils/qtcassert.h>
@@ -128,12 +129,12 @@ bool VirtualFunctionHelper::canLookupVirtualFunctionOverrides(Function *function
     if (IdExpressionAST *idExpressionAST = m_baseExpressionAST->asIdExpression()) {
         NameAST *name = idExpressionAST->name;
         const bool nameIsQualified = name && name->asQualifiedName();
-        result = !nameIsQualified && FunctionHelper::isVirtualFunction(
+        result = !nameIsQualified && FunctionUtils::isVirtualFunction(
                     function, LookupContext(m_document, m_snapshot));
     } else if (MemberAccessAST *memberAccessAST = m_baseExpressionAST->asMemberAccess()) {
         NameAST *name = memberAccessAST->member_name;
         const bool nameIsQualified = name && name->asQualifiedName();
-        if (!nameIsQualified && FunctionHelper::isVirtualFunction(
+        if (!nameIsQualified && FunctionUtils::isVirtualFunction(
                     function, LookupContext(m_document, m_snapshot))) {
             TranslationUnit *unit = m_expressionDocument->translationUnit();
             QTC_ASSERT(unit, return false);

@@ -206,9 +206,6 @@ private slots:
     void test_quickfix_InsertVirtualMethods_implementationFile();
     void test_quickfix_InsertVirtualMethods_BaseClassInNamespace();
 
-    void test_functionhelper_virtualFunctions();
-    void test_functionhelper_virtualFunctions_data();
-
     // tests for "Include Hiererchy"
     void test_includeHierarchyModel_simpleIncludes();
     void test_includeHierarchyModel_simpleIncludedBy();

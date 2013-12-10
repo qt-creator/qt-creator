@@ -204,6 +204,9 @@ private slots:
 
     void test_cpppreprocessor_includes();
 
+    void test_functionutils_virtualFunctions();
+    void test_functionutils_virtualFunctions_data();
+
     void test_modelmanager_paths_are_clean();
     void test_modelmanager_framework_headers();
     void test_modelmanager_refresh_also_includes_of_project_files();
