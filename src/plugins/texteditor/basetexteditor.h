@@ -208,9 +208,6 @@ public:
     int columnCount() const;
     int rowCount() const;
 
-    void setActionHack(QObject *hack);
-    QObject *actionHack() const;
-
     void setReadOnly(bool b);
 
     void setTextCursor(const QTextCursor &cursor);

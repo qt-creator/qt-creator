@@ -65,7 +65,7 @@ public:
         JumpToFileUnderCursor = 16
     };
 
-    explicit TextEditorActionHandler(const char *context, uint optionalActions = None);
+    explicit TextEditorActionHandler(Core::Id contextId, uint optionalActions = None);
     ~TextEditorActionHandler();
 
     void setupActions(BaseTextEditorWidget *editor);
@@ -226,7 +226,7 @@ private:
 
     uint m_optionalActions;
     QPointer<BaseTextEditorWidget> m_currentEditor;
-    Core::Context m_contextId;
+    Core::Id m_contextId;
     bool m_initialized;
 };
 

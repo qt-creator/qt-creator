@@ -195,8 +195,6 @@ public:
 
     BaseTextEditor *m_editor;
 
-    QObject *m_actionHack;
-
     QList<QTextEdit::ExtraSelection> m_extraSelections[BaseTextEditorWidget::NExtraSelectionKinds];
 
     // block selection mode

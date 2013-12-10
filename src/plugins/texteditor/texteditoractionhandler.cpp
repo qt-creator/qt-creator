@@ -49,8 +49,7 @@
 using namespace TextEditor;
 using namespace TextEditor::Internal;
 
-TextEditorActionHandler::TextEditorActionHandler(const char *context,
-                                                 uint optionalActions)
+TextEditorActionHandler::TextEditorActionHandler(Core::Id contextId, uint optionalActions)
   : QObject(Core::ICore::instance()),
     m_undoAction(0),
     m_redoAction(0),
@@ -104,7 +103,7 @@ TextEditorActionHandler::TextEditorActionHandler(const char *context,
     m_jumpToFileInNextSplitAction(0),
     m_optionalActions(optionalActions),
     m_currentEditor(0),
-    m_contextId(context),
+    m_contextId(contextId),
     m_initialized(false)
 {
     connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
@@ -118,7 +117,6 @@ TextEditorActionHandler::~TextEditorActionHandler()
 void TextEditorActionHandler::setupActions(BaseTextEditorWidget *editor)
 {
     initializeActions();
-    editor->setActionHack(this);
     QObject::connect(editor, SIGNAL(undoAvailable(bool)), this, SLOT(updateUndoAction()));
     QObject::connect(editor, SIGNAL(redoAvailable(bool)), this, SLOT(updateRedoAction()));
     QObject::connect(editor, SIGNAL(copyAvailable(bool)), this, SLOT(updateCopyAction()));
@@ -382,7 +380,7 @@ QAction *TextEditorActionHandler::registerAction(const Core::Id &id,
                                                  Core::ActionContainer *container)
 {
     QAction *result = new QAction(title, this);
-    Core::Command *command = Core::ActionManager::registerAction(result, id, m_contextId, scriptable);
+    Core::Command *command = Core::ActionManager::registerAction(result, id, Core::Context(m_contextId), scriptable);
     if (!keySequence.isEmpty())
         command->setDefaultKeySequence(keySequence);
 
@@ -570,15 +568,15 @@ void TextEditorActionHandler::updateCurrentEditor(Core::IEditor *editor)
 {
     m_currentEditor = 0;
 
-    if (!editor)
+    if (!editor || !editor->context().contains(m_contextId))
         return;
 
     BaseTextEditorWidget *baseEditor = resolveTextEditorWidget(editor);
 
-    if (baseEditor && baseEditor->actionHack() == this) {
-        m_currentEditor = baseEditor;
-        updateActions();
-    }
+    if (!baseEditor)
+        return;
+    m_currentEditor = baseEditor;
+    updateActions();
 }
 
 const QPointer<BaseTextEditorWidget> &TextEditorActionHandler::currentEditor() const

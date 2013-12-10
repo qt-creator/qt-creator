@@ -2446,7 +2446,6 @@ BaseTextEditorWidgetPrivate::BaseTextEditorWidgetPrivate()
     m_linkPressed(false),
     m_delayedUpdateTimer(0),
     m_editor(0),
-    m_actionHack(0),
     m_inBlockSelectionMode(false),
     m_moveLineUndoHack(false),
     m_findScopeVerticalBlockSelectionFirstColumn(-1),
@@ -5175,16 +5174,6 @@ void BaseTextEditorWidget::_q_highlightBlocks()
         viewport()->update();
         d->m_extraArea->update();
     }
-}
-
-void BaseTextEditorWidget::setActionHack(QObject *hack)
-{
-    d->m_actionHack = hack;
-}
-
-QObject *BaseTextEditorWidget::actionHack() const
-{
-    return d->m_actionHack;
 }
 
 void BaseTextEditorWidget::changeEvent(QEvent *e)
