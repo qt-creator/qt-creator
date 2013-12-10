@@ -179,7 +179,10 @@ void PropertyEditorQmlBackend::createPropertyEditorValue(const QmlObjectNode &qm
         qmlObjectNode.modelNode().property(propertyName).isBindingProperty()) {
         valueObject->setExpression(qmlObjectNode.modelNode().bindingProperty(propertyName).expression());
     } else {
-        valueObject->setExpression(qmlObjectNode.instanceValue(name).toString());
+        if (qmlObjectNode.hasBindingProperty(propertyName))
+            valueObject->setExpression(qmlObjectNode.expression(name));
+        else
+            valueObject->setExpression(qmlObjectNode.instanceValue(name).toString());
     }
 }
 
@@ -190,6 +193,7 @@ void PropertyEditorQmlBackend::setValue(const QmlObjectNode & qmlObjectNode, con
     PropertyEditorValue *propertyValue = qobject_cast<PropertyEditorValue*>(variantToQObject(m_backendValuesPropertyMap.value(propertyName)));
     if (propertyValue) {
         propertyValue->setValue(value);
+
         if (!qmlObjectNode.hasBindingProperty(name))
             propertyValue->setExpression(value.toString());
         else
