@@ -56,7 +56,6 @@ class ModelManagerSupport;
 class CppCompletionAssistProvider;
 class CppEditorSupport;
 class CppHighlightingSupport;
-class CppHighlightingSupportFactory;
 class CppIndexingSupport;
 
 class CPPTOOLS_EXPORT ProjectPart

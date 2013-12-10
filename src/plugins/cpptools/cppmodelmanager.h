@@ -47,7 +47,6 @@ namespace TextEditor { class BaseTextEditorWidget; }
 namespace CppTools {
 
 class CppEditorSupport;
-class CppHighlightingSupportFactory;
 
 namespace Internal {
 
