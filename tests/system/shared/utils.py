@@ -228,6 +228,14 @@ def invokeMenuItem(menu, item, *subItems):
             waitForObject(":Qt Creator.QtCreator.MenuBar_QMenuBar", 2000)
         except:
             nativeMouseClick(waitForObject(":Qt Creator_Core::Internal::MainWindow", 1000), 20, 20, 0, Qt.LeftButton)
+    # HACK to avoid squish crash using Qt5.2 on Squish 5.0.1 - remove asap
+    if platform.system() == "Darwin" and not isQt4Build:
+        if menu == "Tools" and item == "Options...":
+            nativeType("<Command+,>")
+            return
+        if menu == "File" and item == "Exit":
+            nativeType("<Command+q>")
+            return
     menuObject = waitForObjectItem(":Qt Creator.QtCreator.MenuBar_QMenuBar", menu)
     waitFor("menuObject.visible", 1000)
     activateItem(menuObject)
