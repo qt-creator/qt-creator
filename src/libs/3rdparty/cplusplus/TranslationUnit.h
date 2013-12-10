@@ -82,6 +82,7 @@ public:
     MemoryPool *memoryPool() const;
     AST *ast() const;
 
+    bool blockErrors() const { return f._blockErrors; }
     bool blockErrors(bool block)
     {
         const bool previous = f._blockErrors;
