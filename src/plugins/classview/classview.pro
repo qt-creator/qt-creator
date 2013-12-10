@@ -1,29 +1,29 @@
 include(../../qtcreatorplugin.pri)
 
 HEADERS += \
-    classviewplugin.h \
-    classviewnavigationwidgetfactory.h \
     classviewconstants.h \
-    classviewnavigationwidget.h \
-    classviewparser.h \
     classviewmanager.h \
-    classviewsymbollocation.h \
-    classviewsymbolinformation.h \
+    classviewnavigationwidget.h \
+    classviewnavigationwidgetfactory.h \
+    classviewparser.h \
     classviewparsertreeitem.h \
-    classviewutils.h \
-    classviewtreeitemmodel.h
+    classviewplugin.h \
+    classviewsymbolinformation.h \
+    classviewsymbollocation.h \
+    classviewtreeitemmodel.h \
+    classviewutils.h
 
 SOURCES += \
-    classviewplugin.cpp \
-    classviewnavigationwidgetfactory.cpp \
-    classviewnavigationwidget.cpp \
-    classviewparser.cpp \
     classviewmanager.cpp \
-    classviewsymbollocation.cpp \
-    classviewsymbolinformation.cpp \
+    classviewnavigationwidget.cpp \
+    classviewnavigationwidgetfactory.cpp \
+    classviewparser.cpp \
     classviewparsertreeitem.cpp \
-    classviewutils.cpp \
-    classviewtreeitemmodel.cpp
+    classviewplugin.cpp \
+    classviewsymbolinformation.cpp \
+    classviewsymbollocation.cpp \
+    classviewtreeitemmodel.cpp \
+    classviewutils.cpp
 
 FORMS += \
     classviewnavigationwidget.ui

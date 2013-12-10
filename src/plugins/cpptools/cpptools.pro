@@ -1,131 +1,134 @@
-include(../../qtcreatorplugin.pri)
-
 DEFINES += CPPTOOLS_LIBRARY
 win32-msvc*:DEFINES += _SCL_SECURE_NO_WARNINGS
-HEADERS += completionsettingspage.h \
+include(../../qtcreatorplugin.pri)
+
+HEADERS += \
+    abstracteditorsupport.h \
+    builtinindexingsupport.h \
+    commentssettings.h \
+    completionsettingspage.h \
+    cppchecksymbols.h \
     cppclassesfilter.h \
+    cppcodeformatter.h \
+    cppcodemodelsettings.h \
+    cppcodemodelsettingspage.h \
+    cppcodestylepreferences.h \
+    cppcodestylepreferencesfactory.h \
+    cppcodestylesettings.h \
+    cppcodestylesettingspage.h \
+    cppcompletionassist.h \
+    cppcompletionassistprovider.h \
     cppcurrentdocumentfilter.h \
-    cppfunctionsfilter.h \
-    cppmodelmanager.h \
-    cppmodelmanagerinterface.h \
-    cpplocatorfilter.h \
-    cpptools_global.h \
-    cpptoolsconstants.h \
-    cpptoolseditorsupport.h \
-    cppsnapshotupdater.h \
-    cpptoolsplugin.h \
-    cppqtstyleindenter.h \
-    searchsymbols.h \
     cppdoxygen.h \
     cppfilesettingspage.h \
     cppfindreferences.h \
-    cppcodeformatter.h \
-    symbolsfindfilter.h \
-    insertionpointlocator.h \
-    cpprefactoringchanges.h \
-    abstracteditorsupport.h \
-    cppcompletionassist.h \
-    cppcodestylesettingspage.h \
-    cpptoolssettings.h \
-    cppcodestylesettings.h \
-    cppcodestylepreferencesfactory.h \
-    cppcodestylepreferences.h \
-    cpptoolsreuse.h \
-    doxygengenerator.h \
-    commentssettings.h \
-    symbolfinder.h \
-    cppmodelmanagersupport.h \
+    cppfunctionsfilter.h \
     cpphighlightingsupport.h \
     cpphighlightingsupportinternal.h \
-    cppchecksymbols.h \
-    cpplocalsymbols.h \
-    cppsemanticinfo.h \
-    cppcompletionassistprovider.h \
-    typehierarchybuilder.h \
     cppindexingsupport.h \
-    builtinindexingsupport.h \
-    cpppointerdeclarationformatter.h \
-    cppprojectfile.h \
-    cpppreprocessor.h \
-    includeutils.h \
+    cpplocalsymbols.h \
     cpplocatordata.h \
+    cpplocatorfilter.h \
+    cppmodelmanager.h \
+    cppmodelmanagerinterface.h \
+    cppmodelmanagersupport.h \
     cppmodelmanagersupportinternal.h \
-    cppcodemodelsettings.h \
-    cppcodemodelsettingspage.h \
-    functionutils.h
+    cpppointerdeclarationformatter.h \
+    cpppreprocessor.h \
+    cppprojectfile.h \
+    cppqtstyleindenter.h \
+    cpprefactoringchanges.h \
+    cppsemanticinfo.h \
+    cppsnapshotupdater.h \
+    cpptools_global.h \
+    cpptoolsconstants.h \
+    cpptoolseditorsupport.h \
+    cpptoolsplugin.h \
+    cpptoolsreuse.h \
+    cpptoolssettings.h \
+    doxygengenerator.h \
+    functionutils.h \
+    includeutils.h \
+    insertionpointlocator.h \
+    searchsymbols.h \
+    symbolfinder.h \
+    symbolsfindfilter.h \
+    typehierarchybuilder.h
 
-SOURCES += completionsettingspage.cpp \
-    cppclassesfilter.cpp \
-    cppcurrentdocumentfilter.cpp \
-    cppfunctionsfilter.cpp \
-    cppmodelmanager.cpp \
-    cppmodelmanagerinterface.cpp \
-    cpplocatorfilter.cpp \
-    cpptoolseditorsupport.cpp \
-    cppsnapshotupdater.cpp \
-    cpptoolsplugin.cpp \
-    cppqtstyleindenter.cpp \
-    searchsymbols.cpp \
-    cppdoxygen.cpp \
-    cppfilesettingspage.cpp \
+SOURCES += \
     abstracteditorsupport.cpp \
-    cppfindreferences.cpp \
-    cppcodeformatter.cpp \
-    symbolsfindfilter.cpp \
-    insertionpointlocator.cpp \
-    cpprefactoringchanges.cpp \
-    cppcompletionassist.cpp \
-    cppcodestylesettingspage.cpp \
-    cpptoolssettings.cpp \
-    cppcodestylesettings.cpp \
-    cppcodestylepreferencesfactory.cpp \
-    cppcodestylepreferences.cpp \
-    cpptoolsreuse.cpp \
-    doxygengenerator.cpp \
-    commentssettings.cpp \
-    symbolfinder.cpp \
-    cppmodelmanagersupport.cpp \
-    cpphighlightingsupport.cpp \
-    cpphighlightingsupportinternal.cpp \
-    cppchecksymbols.cpp \
-    cpplocalsymbols.cpp \
-    cppsemanticinfo.cpp \
-    cppcompletionassistprovider.cpp \
-    typehierarchybuilder.cpp \
-    cppindexingsupport.cpp \
     builtinindexingsupport.cpp \
-    cpppointerdeclarationformatter.cpp \
-    cppprojectfile.cpp \
-    cpppreprocessor.cpp \
-    includeutils.cpp \
-    cpplocatordata.cpp \
-    cppmodelmanagersupportinternal.cpp \
+    commentssettings.cpp \
+    completionsettingspage.cpp \
+    cppchecksymbols.cpp \
+    cppclassesfilter.cpp \
+    cppcodeformatter.cpp \
     cppcodemodelsettings.cpp \
     cppcodemodelsettingspage.cpp \
-    functionutils.cpp
+    cppcodestylepreferences.cpp \
+    cppcodestylepreferencesfactory.cpp \
+    cppcodestylesettings.cpp \
+    cppcodestylesettingspage.cpp \
+    cppcompletionassist.cpp \
+    cppcompletionassistprovider.cpp \
+    cppcurrentdocumentfilter.cpp \
+    cppdoxygen.cpp \
+    cppfilesettingspage.cpp \
+    cppfindreferences.cpp \
+    cppfunctionsfilter.cpp \
+    cpphighlightingsupport.cpp \
+    cpphighlightingsupportinternal.cpp \
+    cppindexingsupport.cpp \
+    cpplocalsymbols.cpp \
+    cpplocatordata.cpp \
+    cpplocatorfilter.cpp \
+    cppmodelmanager.cpp \
+    cppmodelmanagerinterface.cpp \
+    cppmodelmanagersupport.cpp \
+    cppmodelmanagersupportinternal.cpp \
+    cpppointerdeclarationformatter.cpp \
+    cpppreprocessor.cpp \
+    cppprojectfile.cpp \
+    cppqtstyleindenter.cpp \
+    cpprefactoringchanges.cpp \
+    cppsemanticinfo.cpp \
+    cppsnapshotupdater.cpp \
+    cpptoolseditorsupport.cpp \
+    cpptoolsplugin.cpp \
+    cpptoolsreuse.cpp \
+    cpptoolssettings.cpp \
+    doxygengenerator.cpp \
+    functionutils.cpp \
+    includeutils.cpp \
+    insertionpointlocator.cpp \
+    searchsymbols.cpp \
+    symbolfinder.cpp \
+    symbolsfindfilter.cpp \
+    typehierarchybuilder.cpp
 
-FORMS += completionsettingspage.ui \
-    cppfilesettingspage.ui \
+FORMS += \
+    completionsettingspage.ui \
+    cppcodemodelsettingspage.ui \
     cppcodestylesettingspage.ui \
-    cppcodemodelsettingspage.ui
+    cppfilesettingspage.ui
 
 equals(TEST, 1) {
-    SOURCES += \
-        cppcodegen_test.cpp \
-        cppcompletion_test.cpp \
-        cppmodelmanager_test.cpp \
-        modelmanagertesthelper.cpp \
-        cpppointerdeclarationformatter_test.cpp \
-        cpplocatorfilter_test.cpp \
-        symbolsearcher_test.cpp \
-        cpppreprocessor_test.cpp \
-        cpppreprocessertesthelper.cpp \
-        cppheadersource_test.cpp \
-        typehierarchybuilder_test.cpp
-
     HEADERS += \
         cpppreprocessertesthelper.h \
         modelmanagertesthelper.h
+
+    SOURCES += \
+        cppcodegen_test.cpp \
+        cppcompletion_test.cpp \
+        cppheadersource_test.cpp \
+        cpplocatorfilter_test.cpp \
+        cppmodelmanager_test.cpp \
+        cpppointerdeclarationformatter_test.cpp \
+        cpppreprocessertesthelper.cpp \
+        cpppreprocessor_test.cpp \
+        modelmanagertesthelper.cpp \
+        symbolsearcher_test.cpp \
+        typehierarchybuilder_test.cpp
 
     DEFINES += SRCDIR=\\\"$$PWD\\\"
 }
