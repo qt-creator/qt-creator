@@ -52,8 +52,7 @@ CMakeEditorFactory::CMakeEditorFactory(CMakeManager *manager)
     setDisplayName(tr(CMakeProjectManager::Constants::CMAKE_EDITOR_DISPLAY_NAME));
     addMimeType(CMakeProjectManager::Constants::CMAKEMIMETYPE);
 
-    m_actionHandler =
-            new TextEditorActionHandler(Constants::C_CMAKEEDITOR,
+    new TextEditorActionHandler(this, Constants::C_CMAKEEDITOR,
             TextEditorActionHandler::UnCommentSelection
             | TextEditorActionHandler::JumpToFileUnderCursor);
 

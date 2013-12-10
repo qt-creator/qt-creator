@@ -41,12 +41,12 @@ using namespace Android::Internal;
 
 
 AndroidManifestEditorFactory::AndroidManifestEditorFactory(QObject *parent)
-    : Core::IEditorFactory(parent),
-      m_actionHandler(new TextEditor::TextEditorActionHandler(Constants::ANDROID_MANIFEST_EDITOR_CONTEXT))
+    : Core::IEditorFactory(parent)
 {
     setId(Constants::ANDROID_MANIFEST_EDITOR_ID);
     setDisplayName(tr("Android Manifest editor"));
     addMimeType(Constants::ANDROID_MANIFEST_MIME_TYPE);
+    new TextEditor::TextEditorActionHandler(this, Constants::ANDROID_MANIFEST_EDITOR_CONTEXT);
 }
 
 Core::IEditor *AndroidManifestEditorFactory::createEditor(QWidget *parent)

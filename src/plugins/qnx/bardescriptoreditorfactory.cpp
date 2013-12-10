@@ -44,8 +44,8 @@ using namespace Qnx::Internal;
 class BarDescriptorActionHandler : public TextEditor::TextEditorActionHandler
 {
 public:
-    BarDescriptorActionHandler()
-        : TextEditor::TextEditorActionHandler(Constants::QNX_BAR_DESCRIPTOR_EDITOR_CONTEXT)
+    BarDescriptorActionHandler(QObject *parent)
+        : TextEditor::TextEditorActionHandler(parent, Constants::QNX_BAR_DESCRIPTOR_EDITOR_CONTEXT)
     {
     }
 protected:
@@ -58,16 +58,11 @@ protected:
 
 BarDescriptorEditorFactory::BarDescriptorEditorFactory(QObject *parent)
     : Core::IEditorFactory(parent)
-    , m_actionHandler(new BarDescriptorActionHandler)
 {
     setId(Constants::QNX_BAR_DESCRIPTOR_EDITOR_ID);
     setDisplayName(tr("Bar descriptor editor"));
     addMimeType(Constants::QNX_BAR_DESCRIPTOR_MIME_TYPE);
-}
-
-BarDescriptorEditorFactory::~BarDescriptorEditorFactory()
-{
-    delete m_actionHandler;
+    new BarDescriptorActionHandler(this);
 }
 
 Core::IEditor *BarDescriptorEditorFactory::createEditor(QWidget *parent)

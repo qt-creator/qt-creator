@@ -54,12 +54,10 @@ public:
     BaseVcsEditorFactoryPrivate(const VcsBaseEditorParameters *t);
 
     const VcsBaseEditorParameters *m_type;
-    TextEditor::TextEditorActionHandler *m_editorHandler;
 };
 
 BaseVcsEditorFactoryPrivate::BaseVcsEditorFactoryPrivate(const VcsBaseEditorParameters *t) :
-    m_type(t),
-    m_editorHandler(new TextEditor::TextEditorActionHandler(t->context))
+    m_type(t)
 {
 }
 
@@ -71,6 +69,7 @@ BaseVcsEditorFactory::BaseVcsEditorFactory(const VcsBaseEditorParameters *t)
     setId(t->id);
     setDisplayName(QCoreApplication::translate("VCS", t->displayName));
     addMimeType(t->mimeType);
+    new TextEditor::TextEditorActionHandler(this, t->context);
 }
 
 BaseVcsEditorFactory::~BaseVcsEditorFactory()

@@ -34,8 +34,6 @@
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 
-namespace TextEditor { class TextEditorActionHandler; }
-
 namespace CMakeProjectManager {
 namespace Internal {
 
@@ -50,7 +48,6 @@ public:
 private:
     const QStringList m_mimeTypes;
     CMakeManager *m_manager;
-    TextEditor::TextEditorActionHandler *m_actionHandler;
 };
 
 } // namespace Internal

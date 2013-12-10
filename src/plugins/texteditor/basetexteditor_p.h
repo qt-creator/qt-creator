@@ -49,7 +49,6 @@
 namespace TextEditor {
 
 class BaseTextDocument;
-class TextEditorActionHandler;
 class CodeAssistant;
 
 namespace Internal {

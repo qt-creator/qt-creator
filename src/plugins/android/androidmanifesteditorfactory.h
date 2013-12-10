@@ -32,8 +32,6 @@
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 
-namespace TextEditor { class TextEditorActionHandler; }
-
 namespace Android {
 namespace Internal {
 
@@ -45,9 +43,6 @@ public:
     explicit AndroidManifestEditorFactory(QObject *parent = 0);
 
     Core::IEditor *createEditor(QWidget *parent);
-
-private:
-    TextEditor::TextEditorActionHandler *m_actionHandler;
 };
 
 } // namespace Internal

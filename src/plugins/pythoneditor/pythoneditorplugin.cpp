@@ -197,7 +197,6 @@ static void copyIdentifiers(const char * const words[], size_t bytesCount, QSet<
 
 PythonEditorPlugin::PythonEditorPlugin()
     : m_factory(0)
-    , m_actionHandler(0)
 {
     m_instance = this;
     copyIdentifiers(LIST_OF_PYTHON_KEYWORDS, sizeof(LIST_OF_PYTHON_KEYWORDS), m_keywords);
@@ -222,12 +221,6 @@ bool PythonEditorPlugin::initialize(const QStringList &arguments, QString *error
     addObject(m_factory);
 
     // Initialize editor actions handler
-    m_actionHandler = new TextEditor::TextEditorActionHandler(
-                              C_PYTHONEDITOR_ID,
-                              TextEditor::TextEditorActionHandler::Format
-                              | TextEditor::TextEditorActionHandler::UnCommentSelection
-                              | TextEditor::TextEditorActionHandler::UnCollapseAll);
-
     // Add MIME overlay icons (these icons displayed at Project dock panel)
     const QIcon icon = QIcon::fromTheme(QLatin1String(C_PY_MIME_ICON));
     if (!icon.isNull())

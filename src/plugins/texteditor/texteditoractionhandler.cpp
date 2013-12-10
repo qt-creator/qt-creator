@@ -49,8 +49,9 @@
 using namespace TextEditor;
 using namespace TextEditor::Internal;
 
-TextEditorActionHandler::TextEditorActionHandler(Core::Id contextId, uint optionalActions)
-  : QObject(Core::ICore::instance()),
+TextEditorActionHandler::TextEditorActionHandler(QObject *parent, Core::Id contextId,
+                                                 uint optionalActions)
+  : QObject(parent),
     m_undoAction(0),
     m_redoAction(0),
     m_copyAction(0),

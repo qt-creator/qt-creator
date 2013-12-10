@@ -35,7 +35,6 @@
 #include <QStringList>
 
 namespace TextEditor {
-class  TextEditorActionHandler;
 namespace Internal {
 
 class PlainTextEditorFactory : public Core::IEditorFactory
@@ -44,17 +43,12 @@ class PlainTextEditorFactory : public Core::IEditorFactory
 
 public:
     PlainTextEditorFactory(QObject *parent = 0);
-    ~PlainTextEditorFactory();
 
     using Core::IEditorFactory::addMimeType;
     Core::IEditor *createEditor(QWidget *parent);
-    TextEditor::TextEditorActionHandler *actionHandler() const { return m_actionHandler; }
 
 private slots:
     void updateEditorInfoBar(Core::IEditor *editor);
-
-private:
-    TextEditor::TextEditorActionHandler *m_actionHandler;
 };
 
 } // namespace Internal

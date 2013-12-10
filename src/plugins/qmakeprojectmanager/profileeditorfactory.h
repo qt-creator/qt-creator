@@ -32,8 +32,6 @@
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 
-namespace TextEditor { class TextEditorActionHandler; }
-
 namespace QmakeProjectManager {
 
 class QmakeManager;
@@ -45,7 +43,7 @@ class ProFileEditorFactory : public Core::IEditorFactory
     Q_OBJECT
 
 public:
-    ProFileEditorFactory(QmakeManager *parent, TextEditor::TextEditorActionHandler *handler);
+    ProFileEditorFactory(QmakeManager *parent);
 
     Core::IEditor *createEditor(QWidget *parent);
 
@@ -53,7 +51,6 @@ public:
 
 private:
     QmakeManager *m_manager;
-    TextEditor::TextEditorActionHandler *m_actionHandler;
 };
 
 } // namespace Internal

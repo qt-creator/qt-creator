@@ -38,7 +38,6 @@
 #include <QAction>
 
 namespace TextEditor {
-class TextEditorActionHandler;
 class ITextEditor;
 } // namespace TextEditor
 
@@ -234,7 +233,6 @@ private:
 
     static CppEditorPlugin *m_instance;
 
-    TextEditor::TextEditorActionHandler *m_actionHandler;
     bool m_sortedOutline;
     QAction *m_renameSymbolUnderCursorAction;
     QAction *m_findUsagesAction;

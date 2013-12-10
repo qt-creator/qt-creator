@@ -80,6 +80,12 @@ CppEditorFactory::CppEditorFactory(CppEditorPlugin *owner) :
     addMimeType(CppEditor::Constants::CPP_SOURCE_MIMETYPE);
     addMimeType(CppEditor::Constants::CPP_HEADER_MIMETYPE);
 
+    new TextEditor::TextEditorActionHandler(this, CppEditor::Constants::C_CPPEDITOR,
+        TextEditor::TextEditorActionHandler::Format
+        | TextEditor::TextEditorActionHandler::UnCommentSelection
+        | TextEditor::TextEditorActionHandler::UnCollapseAll
+        | TextEditor::TextEditorActionHandler::FollowSymbolUnderCursor);
+
     if (!Utils::HostOsInfo::isMacHost() && !Utils::HostOsInfo::isWindowsHost()) {
         FileIconProvider::registerIconOverlayForMimeType(":/cppeditor/images/qt_cpp.png", CppEditor::Constants::CPP_SOURCE_MIMETYPE);
         FileIconProvider::registerIconOverlayForMimeType(":/cppeditor/images/qt_c.png", CppEditor::Constants::C_SOURCE_MIMETYPE);
@@ -100,7 +106,6 @@ IEditor *CppEditorFactory::createEditor(QWidget *parent)
 CppEditorPlugin *CppEditorPlugin::m_instance = 0;
 
 CppEditorPlugin::CppEditorPlugin() :
-    m_actionHandler(0),
     m_sortedOutline(false),
     m_renameSymbolUnderCursorAction(0),
     m_findUsagesAction(0),
@@ -114,7 +119,6 @@ CppEditorPlugin::CppEditorPlugin() :
 
 CppEditorPlugin::~CppEditorPlugin()
 {
-    delete m_actionHandler;
     m_instance = 0;
 }
 
@@ -289,12 +293,6 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
     cmd = ActionManager::registerAction(inspectCppCodeModel, Constants::INSPECT_CPP_CODEMODEL, globalContext);
     cmd->setDefaultKeySequence(QKeySequence(Core::UseMacShortcuts ? tr("Meta+Shift+F12") : tr("Ctrl+Shift+F12")));
     connect(inspectCppCodeModel, SIGNAL(triggered()), this, SLOT(inspectCppCodeModel()));
-
-    m_actionHandler = new TextEditor::TextEditorActionHandler(CppEditor::Constants::C_CPPEDITOR,
-        TextEditor::TextEditorActionHandler::Format
-        | TextEditor::TextEditorActionHandler::UnCommentSelection
-        | TextEditor::TextEditorActionHandler::UnCollapseAll
-        | TextEditor::TextEditorActionHandler::FollowSymbolUnderCursor);
 
     contextMenu->addSeparator(context);
 

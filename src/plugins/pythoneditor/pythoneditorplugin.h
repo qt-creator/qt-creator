@@ -31,9 +31,7 @@
 #define PYTHONEDITOR_PLUGIN_H
 
 #include <extensionsystem/iplugin.h>
-#include <texteditor/texteditoractionhandler.h>
 #include <QSet>
-#include <QScopedPointer>
 
 namespace PythonEditor {
 namespace Internal {
@@ -65,7 +63,6 @@ public:
 private:
     static PythonEditorPlugin *m_instance;
     EditorFactory *m_factory;
-    TextEditor::TextEditorActionHandler *m_actionHandler;
     QSet<QString> m_keywords;
     QSet<QString> m_magics;
     QSet<QString> m_builtins;

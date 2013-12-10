@@ -35,6 +35,7 @@
 
 #include <qtsupport/qtsupportconstants.h>
 #include <coreplugin/fileiconprovider.h>
+#include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorsettings.h>
 
 #include <QCoreApplication>
@@ -42,15 +43,17 @@
 using namespace QmakeProjectManager;
 using namespace QmakeProjectManager::Internal;
 
-ProFileEditorFactory::ProFileEditorFactory(QmakeManager *manager, TextEditor::TextEditorActionHandler *handler) :
-    m_manager(manager),
-    m_actionHandler(handler)
+ProFileEditorFactory::ProFileEditorFactory(QmakeManager *manager) :
+    m_manager(manager)
 {
     setId(QmakeProjectManager::Constants::PROFILE_EDITOR_ID);
     setDisplayName(qApp->translate("OpenWith::Editors", QmakeProjectManager::Constants::PROFILE_EDITOR_DISPLAY_NAME));
     addMimeType(QmakeProjectManager::Constants::PROFILE_MIMETYPE);
     addMimeType(QmakeProjectManager::Constants::PROINCLUDEFILE_MIMETYPE);
     addMimeType(QmakeProjectManager::Constants::PROFEATUREFILE_MIMETYPE);
+    new TextEditor::TextEditorActionHandler(this, Constants::C_PROFILEEDITOR,
+                  TextEditor::TextEditorActionHandler::UnCommentSelection
+                  | TextEditor::TextEditorActionHandler::JumpToFileUnderCursor);
 
     Core::FileIconProvider::registerIconOverlayForSuffix(QtSupport::Constants::ICON_QT_PROJECT, "pro");
     Core::FileIconProvider::registerIconOverlayForSuffix(QtSupport::Constants::ICON_QT_PROJECT, "pri");

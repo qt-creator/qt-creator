@@ -64,7 +64,6 @@
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/textfilewizard.h>
-#include <texteditor/texteditoractionhandler.h>
 #include <utils/qtcassert.h>
 #include <utils/json.h>
 
@@ -95,7 +94,6 @@ QmlJSEditorPlugin *QmlJSEditorPlugin::m_instance = 0;
 QmlJSEditorPlugin::QmlJSEditorPlugin() :
         m_modelManager(0),
     m_editor(0),
-    m_actionHandler(0),
     m_quickFixAssistProvider(0),
     m_reformatFileAction(0),
     m_currentEditor(0),
@@ -109,7 +107,6 @@ QmlJSEditorPlugin::QmlJSEditorPlugin() :
 QmlJSEditorPlugin::~QmlJSEditorPlugin()
 {
     removeObject(m_editor);
-    delete m_actionHandler;
     m_instance = 0;
 }
 
@@ -164,12 +161,6 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
     wizard->setDisplayName(tr("JS File"));
     wizard->setId(QLatin1String("Z.Js"));
     addAutoReleasedObject(wizard);
-
-    m_actionHandler = new TextEditor::TextEditorActionHandler(Constants::C_QMLJSEDITOR_ID,
-          TextEditor::TextEditorActionHandler::Format
-        | TextEditor::TextEditorActionHandler::UnCommentSelection
-        | TextEditor::TextEditorActionHandler::UnCollapseAll
-        | TextEditor::TextEditorActionHandler::FollowSymbolUnderCursor);
 
     Core::ActionContainer *contextMenu = Core::ActionManager::createMenu(Constants::M_CONTEXT);
     Core::ActionContainer *qmlToolsMenu = Core::ActionManager::actionContainer(Core::Id(QmlJSTools::Constants::M_TOOLS_QMLJS));

@@ -34,6 +34,7 @@
 #include "qmljseditorplugin.h"
 
 #include <qmljstools/qmljstoolsconstants.h>
+#include <texteditor/texteditoractionhandler.h>
 
 #include <QCoreApplication>
 
@@ -52,6 +53,12 @@ QmlJSEditorFactory::QmlJSEditorFactory(QObject *parent)
     addMimeType(QmlJSTools::Constants::QMLTYPES_MIMETYPE);
     addMimeType(QmlJSTools::Constants::JS_MIMETYPE);
     addMimeType(QmlJSTools::Constants::JSON_MIMETYPE);
+    new TextEditor::TextEditorActionHandler(this, Constants::C_QMLJSEDITOR_ID,
+          TextEditor::TextEditorActionHandler::Format
+        | TextEditor::TextEditorActionHandler::UnCommentSelection
+        | TextEditor::TextEditorActionHandler::UnCollapseAll
+        | TextEditor::TextEditorActionHandler::FollowSymbolUnderCursor);
+
 }
 
 Core::IEditor *QmlJSEditorFactory::createEditor(QWidget *parent)

@@ -58,6 +58,8 @@ ProjectFilesFactory::ProjectFilesFactory(Manager *manager)
     addMimeType(Constants::FILES_MIMETYPE);
     addMimeType(Constants::INCLUDES_MIMETYPE);
     addMimeType(Constants::CONFIG_MIMETYPE);
+    new TextEditor::TextEditorActionHandler(this, Constants::C_FILESEDITOR);
+
 }
 
 Core::IEditor *ProjectFilesFactory::createEditor(QWidget *parent)

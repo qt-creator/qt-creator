@@ -51,16 +51,11 @@ PlainTextEditorFactory::PlainTextEditorFactory(QObject *parent)
     setDisplayName(qApp->translate("OpenWith::Editors", Core::Constants::K_DEFAULT_TEXT_EDITOR_DISPLAY_NAME));
     addMimeType(QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
 
-    m_actionHandler = new TextEditorActionHandler(
+    new TextEditorActionHandler(this,
         TextEditor::Constants::C_TEXTEDITOR,
         TextEditorActionHandler::Format |
         TextEditorActionHandler::UnCommentSelection |
         TextEditorActionHandler::UnCollapseAll);
-}
-
-PlainTextEditorFactory::~PlainTextEditorFactory()
-{
-    delete m_actionHandler;
 }
 
 Core::IEditor *PlainTextEditorFactory::createEditor(QWidget *parent)

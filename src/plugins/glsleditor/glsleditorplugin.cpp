@@ -49,7 +49,6 @@
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/textfilewizard.h>
-#include <texteditor/texteditoractionhandler.h>
 #include <utils/qtcassert.h>
 
 #include <glsl/glslengine.h>
@@ -76,7 +75,6 @@ class GLSLEditorPluginPrivate
 public:
     GLSLEditorPluginPrivate() :
         m_editor(0),
-        m_actionHandler(0),
         m_glsl_120_frag(0),
         m_glsl_120_vert(0),
         m_glsl_120_common(0),
@@ -87,7 +85,6 @@ public:
 
     ~GLSLEditorPluginPrivate()
     {
-        delete m_actionHandler;
         delete m_glsl_120_frag;
         delete m_glsl_120_vert;
         delete m_glsl_120_common;
@@ -97,7 +94,6 @@ public:
     }
 
     GLSLEditorFactory *m_editor;
-    TextEditor::TextEditorActionHandler *m_actionHandler;
     QPointer<TextEditor::ITextEditor> m_currentTextEditable;
 
     GLSLEditorPlugin::InitFile *m_glsl_120_frag;
@@ -143,11 +139,6 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
     addObject(dd->m_editor);
 
     addAutoReleasedObject(new GLSLCompletionAssistProvider);
-
-    dd->m_actionHandler = new TextEditorActionHandler(Constants::C_GLSLEDITOR_ID,
-                                                              TextEditorActionHandler::Format
-                                                              | TextEditorActionHandler::UnCommentSelection
-                                                              | TextEditorActionHandler::UnCollapseAll);
 
     ActionContainer *contextMenu = ActionManager::createMenu(GLSLEditor::Constants::M_CONTEXT);
     ActionContainer *glslToolsMenu = ActionManager::createMenu(Id(Constants::M_TOOLS_GLSL));

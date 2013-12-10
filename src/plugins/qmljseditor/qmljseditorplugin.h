@@ -42,10 +42,6 @@ namespace Utils {
 class JsonSchemaManager;
 }
 
-namespace TextEditor {
-class TextEditorActionHandler;
-} // namespace TextEditor
-
 namespace Core {
 class Command;
 class ActionContainer;
@@ -115,7 +111,6 @@ private:
 
     QmlJS::ModelManagerInterface *m_modelManager;
     QmlJSEditorFactory *m_editor;
-    TextEditor::TextEditorActionHandler *m_actionHandler;
     QmlJSQuickFixAssistProvider *m_quickFixAssistProvider;
     QmlTaskManager *m_qmlTaskManager;
 

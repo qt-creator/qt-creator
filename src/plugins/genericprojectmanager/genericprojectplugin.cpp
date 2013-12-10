@@ -46,7 +46,6 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/selectablefilesmodel.h>
 
-#include <texteditor/texteditoractionhandler.h>
 
 #include <QtPlugin>
 #include <QDebug>
@@ -74,8 +73,6 @@ bool GenericProjectPlugin::initialize(const QStringList &, QString *errorMessage
         return false;
 
     Manager *manager = new Manager;
-
-    new TextEditor::TextEditorActionHandler(Constants::C_FILESEDITOR); // owned by ICore
 
     m_projectFilesEditorFactory = new ProjectFilesFactory(manager);
     addObject(m_projectFilesEditorFactory);

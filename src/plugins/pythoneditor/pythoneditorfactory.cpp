@@ -34,6 +34,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorsettings.h>
 
 #include <QDebug>
@@ -47,6 +48,11 @@ EditorFactory::EditorFactory(QObject *parent)
     setId(Constants::C_PYTHONEDITOR_ID);
     setDisplayName(tr(Constants::C_EDITOR_DISPLAY_NAME));
     addMimeType(QLatin1String(Constants::C_PY_MIMETYPE));
+    new TextEditor::TextEditorActionHandler(this,
+                              Constants::C_PYTHONEDITOR_ID,
+                              TextEditor::TextEditorActionHandler::Format
+                              | TextEditor::TextEditorActionHandler::UnCommentSelection
+                              | TextEditor::TextEditorActionHandler::UnCollapseAll);
 }
 
 Core::IEditor *EditorFactory::createEditor(QWidget *parent)

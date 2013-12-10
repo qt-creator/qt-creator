@@ -37,6 +37,7 @@
 #include <extensionsystem/pluginspec.h>
 
 #include <coreplugin/icore.h>
+#include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorsettings.h>
 
 #include <QCoreApplication>
@@ -55,6 +56,11 @@ GLSLEditorFactory::GLSLEditorFactory(QObject *parent)
     addMimeType(GLSLEditor::Constants::GLSL_MIMETYPE_FRAG);
     addMimeType(GLSLEditor::Constants::GLSL_MIMETYPE_VERT_ES);
     addMimeType(GLSLEditor::Constants::GLSL_MIMETYPE_FRAG_ES);
+    new TextEditor::TextEditorActionHandler(this, Constants::C_GLSLEDITOR_ID,
+                                TextEditor::TextEditorActionHandler::Format
+                                | TextEditor::TextEditorActionHandler::UnCommentSelection
+                                | TextEditor::TextEditorActionHandler::UnCollapseAll);
+
 }
 
 Core::IEditor *GLSLEditorFactory::createEditor(QWidget *parent)

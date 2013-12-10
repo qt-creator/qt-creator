@@ -111,12 +111,7 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     m_qmakeProjectManager = new QmakeManager(this);
     addObject(m_qmakeProjectManager);
 
-    TextEditor::TextEditorActionHandler *editorHandler
-            = new TextEditor::TextEditorActionHandler(Constants::C_PROFILEEDITOR,
-                  TextEditor::TextEditorActionHandler::UnCommentSelection
-                  | TextEditor::TextEditorActionHandler::JumpToFileUnderCursor);
-
-    m_proFileEditorFactory = new ProFileEditorFactory(m_qmakeProjectManager, editorHandler);
+    m_proFileEditorFactory = new ProFileEditorFactory(m_qmakeProjectManager);
 
     ProjectExplorer::KitManager::registerKitInformation(new QmakeKitInformation);
 
