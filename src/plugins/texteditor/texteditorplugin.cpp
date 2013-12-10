@@ -203,11 +203,6 @@ bool TextEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
     m_outlineFactory = new OutlineFactory;
     addAutoReleasedObject(m_outlineFactory);
 
-    // We have to initialize the actions because other plugins that
-    // depend upon the texteditorplugin expect that actions will be
-    // registered in the action manager at plugin initialization time.
-    m_editorFactory->actionHandler()->initializeActions();
-
     m_baseTextMarkRegistry = new BaseTextMarkRegistry(this);
 
     return true;
@@ -244,14 +239,6 @@ void TextEditorPlugin::extensionsInitialized()
             this, SLOT(updateVariable(QByteArray)));
     connect(Core::ExternalToolManager::instance(), SIGNAL(replaceSelectionRequested(QString)),
             this, SLOT(updateCurrentSelection(QString)));
-}
-
-void TextEditorPlugin::initializeEditor(PlainTextEditorWidget *editor)
-{
-    // common actions
-    m_editorFactory->actionHandler()->setupActions(editor);
-
-    TextEditorSettings::initializeEditor(editor);
 }
 
 void TextEditorPlugin::invokeCompletion()

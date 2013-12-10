@@ -71,12 +71,11 @@ class CMakeEditorWidget : public TextEditor::BaseTextEditorWidget
     Q_OBJECT
 
 public:
-    CMakeEditorWidget(QWidget *parent, CMakeEditorFactory *factory, TextEditor::TextEditorActionHandler *ah);
+    CMakeEditorWidget(QWidget *parent, CMakeEditorFactory *factory);
 
     bool save(const QString &fileName = QString());
 
     CMakeEditorFactory *factory() { return m_factory; }
-    TextEditor::TextEditorActionHandler *actionHandler() const { return m_ah; }
 
     Link findLinkAt(const QTextCursor &cursor, bool resolveTarget = true, bool inNextSplit = false);
 
@@ -89,7 +88,6 @@ public slots:
 
 private:
     CMakeEditorFactory *m_factory;
-    TextEditor::TextEditorActionHandler *m_ah;
     Utils::CommentDefinition m_commentDefinition;
 };
 

@@ -68,20 +68,10 @@ public:
     explicit TextEditorActionHandler(Core::Id contextId, uint optionalActions = None);
     ~TextEditorActionHandler();
 
-    void setupActions(BaseTextEditorWidget *editor);
-
-    void initializeActions();
-
-public slots:
-    void updateActions();
-    void updateRedoAction();
-    void updateUndoAction();
-    void updateCopyAction();
-
 protected:
     virtual BaseTextEditorWidget *resolveTextEditorWidget(Core::IEditor *editor) const;
-    const QPointer<BaseTextEditorWidget> &currentEditor() const;
 
+private:
     QAction *registerAction(const Core::Id &id,
                             const char *slot,
                             bool scriptable = false,
@@ -90,13 +80,14 @@ protected:
                             const char *menueGroup = 0,
                             Core::ActionContainer *container = 0);
 
-    enum UpdateMode { ReadOnlyMode, WriteMode };
-    UpdateMode updateMode() const;
-
     void createActions();
-    void updateActions(UpdateMode um);
 
 private slots:
+    void updateActions();
+    void updateRedoAction();
+    void updateUndoAction();
+    void updateCopyAction();
+
     void undoAction();
     void redoAction();
     void copyAction();
@@ -225,9 +216,8 @@ private:
     QList<QAction *> m_modifyingActions;
 
     uint m_optionalActions;
-    QPointer<BaseTextEditorWidget> m_currentEditor;
+    QPointer<BaseTextEditorWidget> m_currentEditorWidget;
     Core::Id m_contextId;
-    bool m_initialized;
 };
 
 } // namespace TextEditor

@@ -30,9 +30,10 @@
 #include "plaintexteditorfactory.h"
 #include "plaintexteditor.h"
 #include "basetextdocument.h"
+#include "texteditoractionhandler.h"
 #include "texteditorconstants.h"
 #include "texteditorplugin.h"
-#include "texteditoractionhandler.h"
+#include "texteditorsettings.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/infobar.h>
@@ -65,7 +66,7 @@ PlainTextEditorFactory::~PlainTextEditorFactory()
 Core::IEditor *PlainTextEditorFactory::createEditor(QWidget *parent)
 {
     PlainTextEditorWidget *rc = new PlainTextEditorWidget(parent);
-    TextEditorPlugin::instance()->initializeEditor(rc);
+    TextEditorSettings::initializeEditor(rc);
     connect(rc, SIGNAL(configured(Core::IEditor*)),
             this, SLOT(updateEditorInfoBar(Core::IEditor*)));
     updateEditorInfoBar(rc->editor());

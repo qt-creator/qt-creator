@@ -95,7 +95,7 @@ Project *androidProject(const QString &file)
 
 } // anonymous namespace
 
-AndroidManifestEditorWidget::AndroidManifestEditorWidget(QWidget *parent, TextEditor::TextEditorActionHandler *ah)
+AndroidManifestEditorWidget::AndroidManifestEditorWidget(QWidget *parent)
     : TextEditor::PlainTextEditorWidget(parent),
       m_dirty(false),
       m_stayClean(false),
@@ -106,7 +106,6 @@ AndroidManifestEditorWidget::AndroidManifestEditorWidget(QWidget *parent, TextEd
     doc->setMimeType(QLatin1String(Constants::ANDROID_MANIFEST_MIME_TYPE));
     setBaseTextDocument(doc);
 
-    ah->setupActions(this);
     configure(QLatin1String(Constants::ANDROID_MANIFEST_MIME_TYPE));
 
     initializePage();

@@ -48,7 +48,6 @@
 #include <projectexplorer/taskhub.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/texteditorsettings.h>
 #include <texteditor/textfilewizard.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <utils/qtcassert.h>
@@ -149,7 +148,6 @@ bool GLSLEditorPlugin::initialize(const QStringList & /*arguments*/, QString *er
                                                               TextEditorActionHandler::Format
                                                               | TextEditorActionHandler::UnCommentSelection
                                                               | TextEditorActionHandler::UnCollapseAll);
-    dd->m_actionHandler->initializeActions();
 
     ActionContainer *contextMenu = ActionManager::createMenu(GLSLEditor::Constants::M_CONTEXT);
     ActionContainer *glslToolsMenu = ActionManager::createMenu(Id(Constants::M_TOOLS_GLSL));
@@ -243,13 +241,6 @@ ExtensionSystem::IPlugin::ShutdownFlag GLSLEditorPlugin::aboutToShutdown()
 {
     // delete GLSL::Icons::instance(); // delete object held by singleton
     return IPlugin::aboutToShutdown();
-}
-
-void GLSLEditorPlugin::initializeEditor(GLSLTextEditorWidget *editor)
-{
-    QTC_CHECK(m_instance);
-    dd->m_actionHandler->setupActions(editor);
-    TextEditorSettings::initializeEditor(editor);
 }
 
 static QByteArray glslFile(const QString &fileName)

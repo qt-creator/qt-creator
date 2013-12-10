@@ -170,7 +170,6 @@ bool QmlJSEditorPlugin::initialize(const QStringList & /*arguments*/, QString *e
         | TextEditor::TextEditorActionHandler::UnCommentSelection
         | TextEditor::TextEditorActionHandler::UnCollapseAll
         | TextEditor::TextEditorActionHandler::FollowSymbolUnderCursor);
-    m_actionHandler->initializeActions();
 
     Core::ActionContainer *contextMenu = Core::ActionManager::createMenu(Constants::M_CONTEXT);
     Core::ActionContainer *qmlToolsMenu = Core::ActionManager::actionContainer(Core::Id(QmlJSTools::Constants::M_TOOLS_QMLJS));
@@ -265,8 +264,6 @@ ExtensionSystem::IPlugin::ShutdownFlag QmlJSEditorPlugin::aboutToShutdown()
 void QmlJSEditorPlugin::initializeEditor(QmlJSTextEditorWidget *editor)
 {
     QTC_CHECK(m_instance);
-
-    m_actionHandler->setupActions(editor);
 
     editor->setLanguageSettingsId(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
     TextEditor::TextEditorSettings::initializeEditor(editor);

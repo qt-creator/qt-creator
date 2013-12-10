@@ -68,7 +68,7 @@ CMakeEditor::CMakeEditor(CMakeEditorWidget *editor)
 Core::IEditor *CMakeEditor::duplicate(QWidget *parent)
 {
     CMakeEditorWidget *w = qobject_cast<CMakeEditorWidget*>(widget());
-    CMakeEditorWidget *ret = new CMakeEditorWidget(parent, w->factory(), w->actionHandler());
+    CMakeEditorWidget *ret = new CMakeEditorWidget(parent, w->factory());
     ret->duplicateFrom(w);
     TextEditor::TextEditorSettings::initializeEditor(ret);
     return ret->editor();
@@ -116,8 +116,8 @@ void CMakeEditor::build()
 // CMakeEditor
 //
 
-CMakeEditorWidget::CMakeEditorWidget(QWidget *parent, CMakeEditorFactory *factory, TextEditor::TextEditorActionHandler *ah)
-    : BaseTextEditorWidget(parent), m_factory(factory), m_ah(ah)
+CMakeEditorWidget::CMakeEditorWidget(QWidget *parent, CMakeEditorFactory *factory)
+    : BaseTextEditorWidget(parent), m_factory(factory)
 {
     QSharedPointer<CMakeDocument> doc(new CMakeDocument);
     doc->setMimeType(QLatin1String(CMakeProjectManager::Constants::CMAKEMIMETYPE));
@@ -127,8 +127,6 @@ CMakeEditorWidget::CMakeEditorWidget(QWidget *parent, CMakeEditorFactory *factor
 
     m_commentDefinition.clearCommentStyles();
     m_commentDefinition.singleLine = QLatin1Char('#');
-
-    ah->setupActions(this);
 }
 
 TextEditor::BaseTextEditor *CMakeEditorWidget::createEditor()

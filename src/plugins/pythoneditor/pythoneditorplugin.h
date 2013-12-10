@@ -57,7 +57,6 @@ public:
     virtual bool initialize(const QStringList &arguments, QString *errorMessage);
     virtual void extensionsInitialized();
     static PythonEditorPlugin *instance() { return m_instance; }
-    static void initializeEditor(EditorWidget *widget);
 
     static QSet<QString> keywords();
     static QSet<QString> magics();
@@ -66,7 +65,7 @@ public:
 private:
     static PythonEditorPlugin *m_instance;
     EditorFactory *m_factory;
-    QScopedPointer<TextEditor::TextEditorActionHandler> m_actionHandler;
+    TextEditor::TextEditorActionHandler *m_actionHandler;
     QSet<QString> m_keywords;
     QSet<QString> m_magics;
     QSet<QString> m_builtins;

@@ -79,7 +79,7 @@ IEditor *PlainTextEditor::duplicate(QWidget *parent)
 {
     PlainTextEditorWidget *newWidget = new PlainTextEditorWidget(parent);
     newWidget->duplicateFrom(editorWidget());
-    TextEditorPlugin::instance()->initializeEditor(newWidget);
+    TextEditorSettings::initializeEditor(newWidget);
     return newWidget->editor();
 }
 

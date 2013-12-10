@@ -35,10 +35,6 @@
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 
-namespace TextEditor {
-class TextEditorActionHandler;
-}
-
 namespace GenericProjectManager {
 namespace Internal {
 
@@ -52,12 +48,9 @@ class ProjectFilesFactory: public Core::IEditorFactory
     Q_OBJECT
 
 public:
-    ProjectFilesFactory(Manager *manager, TextEditor::TextEditorActionHandler *handler);
+    ProjectFilesFactory(Manager *manager);
 
     Core::IEditor *createEditor(QWidget *parent);
-
-private:
-    TextEditor::TextEditorActionHandler *m_actionHandler;
 };
 
 class ProjectFilesEditor : public TextEditor::BaseTextEditor
@@ -77,16 +70,13 @@ class ProjectFilesEditorWidget : public TextEditor::BaseTextEditorWidget
     Q_OBJECT
 
 public:
-    ProjectFilesEditorWidget(QWidget *parent, ProjectFilesFactory *factory,
-                       TextEditor::TextEditorActionHandler *handler);
+    ProjectFilesEditorWidget(QWidget *parent, ProjectFilesFactory *factory);
 
     ProjectFilesFactory *factory() const;
-    TextEditor::TextEditorActionHandler *actionHandler() const;
     TextEditor::BaseTextEditor *createEditor();
 
 private:
     ProjectFilesFactory *m_factory;
-    TextEditor::TextEditorActionHandler *m_actionHandler;
 };
 
 } // namespace Internal

@@ -59,7 +59,7 @@ ProFileEditorFactory::ProFileEditorFactory(QmakeManager *manager, TextEditor::Te
 
 Core::IEditor *ProFileEditorFactory::createEditor(QWidget *parent)
 {
-    ProFileEditorWidget *editor = new ProFileEditorWidget(parent, this, m_actionHandler);
+    ProFileEditorWidget *editor = new ProFileEditorWidget(parent, this);
     TextEditor::TextEditorSettings::initializeEditor(editor);
     return editor->editor();
 }

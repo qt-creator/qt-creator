@@ -125,8 +125,6 @@ CppEditorPlugin *CppEditorPlugin::instance()
 
 void CppEditorPlugin::initializeEditor(CPPEditorWidget *editor)
 {
-    m_actionHandler->setupActions(editor);
-
     editor->setLanguageSettingsId(CppTools::Constants::CPP_SETTINGS_ID);
     TextEditor::TextEditorSettings::initializeEditor(editor);
 
@@ -297,8 +295,6 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
         | TextEditor::TextEditorActionHandler::UnCommentSelection
         | TextEditor::TextEditorActionHandler::UnCollapseAll
         | TextEditor::TextEditorActionHandler::FollowSymbolUnderCursor);
-
-    m_actionHandler->initializeActions();
 
     contextMenu->addSeparator(context);
 

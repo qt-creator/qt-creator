@@ -72,6 +72,6 @@ BarDescriptorEditorFactory::~BarDescriptorEditorFactory()
 
 Core::IEditor *BarDescriptorEditorFactory::createEditor(QWidget *parent)
 {
-    BarDescriptorEditorWidget *editorWidget = new BarDescriptorEditorWidget(parent, m_actionHandler);
+    BarDescriptorEditorWidget *editorWidget = new BarDescriptorEditorWidget(parent);
     return editorWidget->editor();
 }

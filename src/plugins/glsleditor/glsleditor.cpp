@@ -191,7 +191,7 @@ Core::IEditor *GLSLEditorEditable::duplicate(QWidget *parent)
 {
     GLSLTextEditorWidget *newEditor = new GLSLTextEditorWidget(parent);
     newEditor->duplicateFrom(editorWidget());
-    GLSLEditorPlugin::initializeEditor(newEditor);
+    TextEditor::TextEditorSettings::initializeEditor(newEditor);
     return newEditor->editor();
 }
 

@@ -52,8 +52,6 @@ public:
     void extensionsInitialized();
     ShutdownFlag aboutToShutdown();
 
-    static void initializeEditor(GLSLTextEditorWidget *editor);
-
     struct InitFile
     {
         InitFile(GLSL::Engine *engine = 0, GLSL::TranslationUnitAST *ast = 0)

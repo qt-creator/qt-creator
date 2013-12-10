@@ -62,7 +62,7 @@ Core::IEditor *PythonEditor::duplicate(QWidget *parent)
 {
     EditorWidget *widget = new EditorWidget(parent);
     widget->duplicateFrom(editorWidget());
-    PythonEditorPlugin::initializeEditor(widget);
+    TextEditor::TextEditorSettings::initializeEditor(widget);
 
     return widget->editor();
 }

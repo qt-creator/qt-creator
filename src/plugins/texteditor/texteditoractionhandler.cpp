@@ -102,34 +102,16 @@ TextEditorActionHandler::TextEditorActionHandler(Core::Id contextId, uint option
     m_jumpToFileAction(0),
     m_jumpToFileInNextSplitAction(0),
     m_optionalActions(optionalActions),
-    m_currentEditor(0),
-    m_contextId(contextId),
-    m_initialized(false)
+    m_currentEditorWidget(0),
+    m_contextId(contextId)
 {
+    createActions();
     connect(Core::EditorManager::instance(), SIGNAL(currentEditorChanged(Core::IEditor*)),
         this, SLOT(updateCurrentEditor(Core::IEditor*)));
 }
 
 TextEditorActionHandler::~TextEditorActionHandler()
 {
-}
-
-void TextEditorActionHandler::setupActions(BaseTextEditorWidget *editor)
-{
-    initializeActions();
-    QObject::connect(editor, SIGNAL(undoAvailable(bool)), this, SLOT(updateUndoAction()));
-    QObject::connect(editor, SIGNAL(redoAvailable(bool)), this, SLOT(updateRedoAction()));
-    QObject::connect(editor, SIGNAL(copyAvailable(bool)), this, SLOT(updateCopyAction()));
-    QObject::connect(editor, SIGNAL(readOnlyChanged()), this, SLOT(updateActions()));
-}
-
-
-void TextEditorActionHandler::initializeActions()
-{
-    if (!m_initialized) {
-        createActions();
-        m_initialized = true;
-    }
 }
 
 void TextEditorActionHandler::createActions()
@@ -369,6 +351,13 @@ void TextEditorActionHandler::createActions()
     m_modifyingActions << m_switchUtf8bomAction;
     m_modifyingActions << m_indentAction;
     m_modifyingActions << m_unindentAction;
+
+    // set enabled state of optional actions
+    m_followSymbolAction->setEnabled(m_optionalActions & FollowSymbolUnderCursor);
+    m_followSymbolInNextSplitAction->setEnabled(m_optionalActions & FollowSymbolUnderCursor);
+    m_jumpToFileAction->setEnabled(m_optionalActions & JumpToFileUnderCursor);
+    m_jumpToFileInNextSplitAction->setEnabled(m_optionalActions & JumpToFileUnderCursor);
+    m_unfoldAllAction->setEnabled(m_optionalActions & UnCollapseAll);
 }
 
 QAction *TextEditorActionHandler::registerAction(const Core::Id &id,
@@ -391,34 +380,16 @@ QAction *TextEditorActionHandler::registerAction(const Core::Id &id,
     return result;
 }
 
-TextEditorActionHandler::UpdateMode TextEditorActionHandler::updateMode() const
-{
-    Q_ASSERT(m_currentEditor != 0);
-    return m_currentEditor->isReadOnly() ? ReadOnlyMode : WriteMode;
-}
-
 void TextEditorActionHandler::updateActions()
 {
-    if (!m_currentEditor || !m_initialized)
-        return;
-    updateActions(updateMode());
-}
-
-void TextEditorActionHandler::updateActions(UpdateMode um)
-{
+    QTC_ASSERT(m_currentEditorWidget, return);
+    bool isWritable = !m_currentEditorWidget->isReadOnly();
     foreach (QAction *a, m_modifyingActions)
-        a->setEnabled(um != ReadOnlyMode);
-    m_formatAction->setEnabled((m_optionalActions & Format) && um != ReadOnlyMode);
-    m_unCommentSelectionAction->setEnabled((m_optionalActions & UnCommentSelection) && um != ReadOnlyMode);
-    m_followSymbolAction->setEnabled(m_optionalActions & FollowSymbolUnderCursor);
-    m_followSymbolInNextSplitAction->setEnabled(m_optionalActions & FollowSymbolUnderCursor);
-    m_jumpToFileAction->setEnabled(m_optionalActions & JumpToFileUnderCursor);
-    m_jumpToFileInNextSplitAction->setEnabled(m_optionalActions & JumpToFileUnderCursor);
-
-    m_unfoldAllAction->setEnabled((m_optionalActions & UnCollapseAll));
-    m_visualizeWhitespaceAction->setChecked(m_currentEditor->displaySettings().m_visualizeWhitespace);
-    if (m_textWrappingAction)
-        m_textWrappingAction->setChecked(m_currentEditor->displaySettings().m_textWrapping);
+        a->setEnabled(isWritable);
+    m_formatAction->setEnabled((m_optionalActions & Format) && isWritable);
+    m_unCommentSelectionAction->setEnabled((m_optionalActions & UnCommentSelection) && isWritable);
+    m_visualizeWhitespaceAction->setChecked(m_currentEditorWidget->displaySettings().m_visualizeWhitespace);
+    m_textWrappingAction->setChecked(m_currentEditorWidget->displaySettings().m_textWrapping);
 
     updateRedoAction();
     updateUndoAction();
@@ -427,21 +398,22 @@ void TextEditorActionHandler::updateActions(UpdateMode um)
 
 void TextEditorActionHandler::updateRedoAction()
 {
-    if (m_redoAction)
-        m_redoAction->setEnabled(m_currentEditor && m_currentEditor->document()->isRedoAvailable());
+    QTC_ASSERT(m_currentEditorWidget, return);
+    m_redoAction->setEnabled(m_currentEditorWidget->document()->isRedoAvailable());
 }
 
 void TextEditorActionHandler::updateUndoAction()
 {
-    if (m_undoAction)
-        m_undoAction->setEnabled(m_currentEditor && m_currentEditor->document()->isUndoAvailable());
+    QTC_ASSERT(m_currentEditorWidget, return);
+    m_undoAction->setEnabled(m_currentEditorWidget->document()->isUndoAvailable());
 }
 
 void TextEditorActionHandler::updateCopyAction()
 {
-    const bool hasCopyableText = m_currentEditor && m_currentEditor->textCursor().hasSelection();
+    QTC_ASSERT(m_currentEditorWidget, return);
+    const bool hasCopyableText = m_currentEditorWidget->textCursor().hasSelection();
     if (m_cutAction)
-        m_cutAction->setEnabled(hasCopyableText && updateMode() == WriteMode);
+        m_cutAction->setEnabled(hasCopyableText && !m_currentEditorWidget->isReadOnly());
     if (m_copyAction)
         m_copyAction->setEnabled(hasCopyableText);
 }
@@ -457,37 +429,37 @@ void TextEditorActionHandler::gotoAction()
 
 void TextEditorActionHandler::printAction()
 {
-    if (m_currentEditor)
-        m_currentEditor->print(Core::ICore::printer());
+    if (m_currentEditorWidget)
+        m_currentEditorWidget->print(Core::ICore::printer());
 }
 
 void TextEditorActionHandler::setVisualizeWhitespace(bool checked)
 {
-    if (m_currentEditor) {
-        DisplaySettings ds = m_currentEditor->displaySettings();
+    if (m_currentEditorWidget) {
+        DisplaySettings ds = m_currentEditorWidget->displaySettings();
         ds.m_visualizeWhitespace = checked;
-        m_currentEditor->setDisplaySettings(ds);
+        m_currentEditorWidget->setDisplaySettings(ds);
     }
 }
 
 void TextEditorActionHandler::setTextWrapping(bool checked)
 {
-    if (m_currentEditor) {
-        DisplaySettings ds = m_currentEditor->displaySettings();
+    if (m_currentEditorWidget) {
+        DisplaySettings ds = m_currentEditorWidget->displaySettings();
         ds.m_textWrapping = checked;
-        m_currentEditor->setDisplaySettings(ds);
+        m_currentEditorWidget->setDisplaySettings(ds);
     }
 }
 
 #define FUNCTION(funcname) void TextEditorActionHandler::funcname ()\
 {\
-    if (m_currentEditor)\
-        m_currentEditor->funcname ();\
+    if (m_currentEditorWidget)\
+        m_currentEditorWidget->funcname ();\
 }
 #define FUNCTION2(funcname, funcname2) void TextEditorActionHandler::funcname ()\
 {\
-    if (m_currentEditor)\
-        m_currentEditor->funcname2 ();\
+    if (m_currentEditorWidget)\
+        m_currentEditorWidget->funcname2 ();\
 }
 
 
@@ -566,20 +538,21 @@ BaseTextEditorWidget *TextEditorActionHandler::resolveTextEditorWidget(Core::IEd
 
 void TextEditorActionHandler::updateCurrentEditor(Core::IEditor *editor)
 {
-    m_currentEditor = 0;
+    if (m_currentEditorWidget)
+        m_currentEditorWidget->disconnect(this);
+    m_currentEditorWidget = 0;
 
+    // don't need to do anything if the editor's context doesn't match
+    // (our actions will be disabled because our context will not be active)
     if (!editor || !editor->context().contains(m_contextId))
         return;
 
-    BaseTextEditorWidget *baseEditor = resolveTextEditorWidget(editor);
-
-    if (!baseEditor)
-        return;
-    m_currentEditor = baseEditor;
+    BaseTextEditorWidget *editorWidget = resolveTextEditorWidget(editor);
+    QTC_ASSERT(editorWidget, return); // editor has our context id, so shouldn't happen
+    m_currentEditorWidget = editorWidget;
+    connect(m_currentEditorWidget, SIGNAL(undoAvailable(bool)), this, SLOT(updateUndoAction()));
+    connect(m_currentEditorWidget, SIGNAL(redoAvailable(bool)), this, SLOT(updateRedoAction()));
+    connect(m_currentEditorWidget, SIGNAL(copyAvailable(bool)), this, SLOT(updateCopyAction()));
+    connect(m_currentEditorWidget, SIGNAL(readOnlyChanged()), this, SLOT(updateActions()));
     updateActions();
-}
-
-const QPointer<BaseTextEditorWidget> &TextEditorActionHandler::currentEditor() const
-{
-    return m_currentEditor;
 }

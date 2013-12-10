@@ -45,18 +45,15 @@
 #include <projectexplorer/iprojectproperties.h>
 #include <projectexplorer/projectwindow.h>
 #include <texteditor/plaintexteditor.h>
-#include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/texteditorconstants.h>
 
 using namespace Qnx;
 using namespace Qnx::Internal;
 
-BarDescriptorEditorWidget::BarDescriptorEditorWidget(
-        QWidget *parent, TextEditor::TextEditorActionHandler *handler)
+BarDescriptorEditorWidget::BarDescriptorEditorWidget(QWidget *parent)
     : QStackedWidget(parent)
     , m_editor(0)
-    , m_handler(handler)
     , m_dirty(false)
 {
     Core::IContext *myContext = new Core::IContext(this);
@@ -161,7 +158,6 @@ void BarDescriptorEditorWidget::initSourcePage()
     addWidget(m_xmlSourceWidget);
 
     TextEditor::TextEditorSettings::initializeEditor(m_xmlSourceWidget);
-    m_handler->setupActions(m_xmlSourceWidget);
     m_xmlSourceWidget->configure(QLatin1String(Constants::QNX_BAR_DESCRIPTOR_MIME_TYPE));
     connect(m_xmlSourceWidget, SIGNAL(textChanged()), this, SLOT(setDirty()));
 }

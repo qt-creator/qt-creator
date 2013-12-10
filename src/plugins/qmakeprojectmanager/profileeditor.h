@@ -34,11 +34,6 @@
 #include <texteditor/basetexteditor.h>
 #include <utils/uncommentselection.h>
 
-namespace TextEditor {
-class FontSettings;
-class TextEditorActionHandler;
-}
-
 namespace QmakeProjectManager {
 namespace Internal {
 
@@ -63,11 +58,9 @@ class ProFileEditorWidget : public TextEditor::BaseTextEditorWidget
     Q_OBJECT
 
 public:
-    ProFileEditorWidget(QWidget *parent, ProFileEditorFactory *factory,
-                  TextEditor::TextEditorActionHandler *ah);
+    ProFileEditorWidget(QWidget *parent, ProFileEditorFactory *factory);
 
     ProFileEditorFactory *factory() { return m_factory; }
-    TextEditor::TextEditorActionHandler *actionHandler() const { return m_ah; }
 
     void unCommentSelection();
 
@@ -79,7 +72,6 @@ protected:
 
 private:
     ProFileEditorFactory *m_factory;
-    TextEditor::TextEditorActionHandler *m_ah;
     Utils::CommentDefinition m_commentDefinition;
 };
 

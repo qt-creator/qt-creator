@@ -37,6 +37,7 @@
 #include <extensionsystem/pluginspec.h>
 
 #include <coreplugin/icore.h>
+#include <texteditor/texteditorsettings.h>
 
 #include <QCoreApplication>
 #include <QSettings>
@@ -59,7 +60,7 @@ GLSLEditorFactory::GLSLEditorFactory(QObject *parent)
 Core::IEditor *GLSLEditorFactory::createEditor(QWidget *parent)
 {
     GLSLTextEditorWidget *rc = new GLSLTextEditorWidget(parent);
-    GLSLEditorPlugin::initializeEditor(rc);
+    TextEditor::TextEditorSettings::initializeEditor(rc);
     return rc->editor();
 }
 

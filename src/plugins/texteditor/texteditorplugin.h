@@ -64,8 +64,6 @@ public:
     bool initialize(const QStringList &arguments, QString *errorMessage);
     void extensionsInitialized();
 
-    void initializeEditor(PlainTextEditorWidget *editor);
-
     PlainTextEditorFactory *editorFactory() { return m_editorFactory; }
     LineNumberFilter *lineNumberFilter() { return m_lineNumberFilter; }
     BaseTextMarkRegistry *baseTextMarkRegistry() { return m_baseTextMarkRegistry; }

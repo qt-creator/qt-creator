@@ -102,7 +102,6 @@ public:
     BaseTextEditorWidgetPrivate();
     ~BaseTextEditorWidgetPrivate();
 
-    void setupBasicEditActions(TextEditorActionHandler *actionHandler);
     void setupDocumentSignals(const QSharedPointer<BaseTextDocument> &document);
     void updateLineSelectionColor();
 

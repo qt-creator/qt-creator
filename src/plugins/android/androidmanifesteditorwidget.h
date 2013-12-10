@@ -51,8 +51,6 @@ QT_END_NAMESPACE
 
 namespace Core { class IEditor; }
 
-namespace TextEditor { class TextEditorActionHandler; }
-
 namespace Android {
 namespace Internal {
 class AndroidManifestEditor;
@@ -86,7 +84,7 @@ public:
         Source
     };
 
-    explicit AndroidManifestEditorWidget(QWidget *parent, TextEditor::TextEditorActionHandler *ah);
+    explicit AndroidManifestEditorWidget(QWidget *parent);
 
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
 

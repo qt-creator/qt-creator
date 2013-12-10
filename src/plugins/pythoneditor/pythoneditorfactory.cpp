@@ -52,7 +52,7 @@ EditorFactory::EditorFactory(QObject *parent)
 Core::IEditor *EditorFactory::createEditor(QWidget *parent)
 {
     EditorWidget *widget = new EditorWidget(parent);
-    PythonEditorPlugin::initializeEditor(widget);
+    TextEditor::TextEditorSettings::initializeEditor(widget);
 
     return widget->editor();
 }

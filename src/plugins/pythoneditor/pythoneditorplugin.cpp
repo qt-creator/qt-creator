@@ -43,7 +43,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/texteditorsettings.h>
 
 #include <QtPlugin>
 #include <QCoreApplication>
@@ -223,12 +222,11 @@ bool PythonEditorPlugin::initialize(const QStringList &arguments, QString *error
     addObject(m_factory);
 
     // Initialize editor actions handler
-    m_actionHandler.reset(new TextEditor::TextEditorActionHandler(
+    m_actionHandler = new TextEditor::TextEditorActionHandler(
                               C_PYTHONEDITOR_ID,
                               TextEditor::TextEditorActionHandler::Format
                               | TextEditor::TextEditorActionHandler::UnCommentSelection
-                              | TextEditor::TextEditorActionHandler::UnCollapseAll));
-    m_actionHandler->initializeActions();
+                              | TextEditor::TextEditorActionHandler::UnCollapseAll);
 
     // Add MIME overlay icons (these icons displayed at Project dock panel)
     const QIcon icon = QIcon::fromTheme(QLatin1String(C_PY_MIME_ICON));
@@ -245,12 +243,6 @@ bool PythonEditorPlugin::initialize(const QStringList &arguments, QString *error
 
 void PythonEditorPlugin::extensionsInitialized()
 {
-}
-
-void PythonEditorPlugin::initializeEditor(EditorWidget *widget)
-{
-    instance()->m_actionHandler->setupActions(widget);
-    TextEditor::TextEditorSettings::initializeEditor(widget);
 }
 
 QSet<QString> PythonEditorPlugin::keywords()

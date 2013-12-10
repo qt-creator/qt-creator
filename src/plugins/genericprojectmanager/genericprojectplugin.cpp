@@ -75,10 +75,9 @@ bool GenericProjectPlugin::initialize(const QStringList &, QString *errorMessage
 
     Manager *manager = new Manager;
 
-    TextEditor::TextEditorActionHandler *actionHandler =
-            new TextEditor::TextEditorActionHandler(Constants::C_FILESEDITOR);
+    new TextEditor::TextEditorActionHandler(Constants::C_FILESEDITOR); // owned by ICore
 
-    m_projectFilesEditorFactory = new ProjectFilesFactory(manager, actionHandler);
+    m_projectFilesEditorFactory = new ProjectFilesFactory(manager);
     addObject(m_projectFilesEditorFactory);
 
     addAutoReleasedObject(manager);

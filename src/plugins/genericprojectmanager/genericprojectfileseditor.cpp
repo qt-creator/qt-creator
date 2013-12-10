@@ -50,9 +50,8 @@ namespace Internal {
 //
 ////////////////////////////////////////////////////////////////////////////////////////
 
-ProjectFilesFactory::ProjectFilesFactory(Manager *manager, TextEditorActionHandler *handler)
-    : Core::IEditorFactory(manager),
-      m_actionHandler(handler)
+ProjectFilesFactory::ProjectFilesFactory(Manager *manager)
+    : Core::IEditorFactory(manager)
 {
     setId(Constants::FILES_EDITOR_ID);
     setDisplayName(QCoreApplication::translate("OpenWith::Editors", ".files Editor"));
@@ -63,7 +62,7 @@ ProjectFilesFactory::ProjectFilesFactory(Manager *manager, TextEditorActionHandl
 
 Core::IEditor *ProjectFilesFactory::createEditor(QWidget *parent)
 {
-    ProjectFilesEditorWidget *ed = new ProjectFilesEditorWidget(parent, this, m_actionHandler);
+    ProjectFilesEditorWidget *ed = new ProjectFilesEditorWidget(parent, this);
     TextEditorSettings::initializeEditor(ed);
     return ed->editor();
 }
@@ -94,8 +93,7 @@ Core::IEditor *ProjectFilesEditor::duplicate(QWidget *parent)
 {
     ProjectFilesEditorWidget *parentEditor = qobject_cast<ProjectFilesEditorWidget *>(editorWidget());
     ProjectFilesEditorWidget *editor = new ProjectFilesEditorWidget(parent,
-                                                        parentEditor->factory(),
-                                                        parentEditor->actionHandler());
+                                                        parentEditor->factory());
     TextEditorSettings::initializeEditor(editor);
     return editor->editor();
 }
@@ -106,26 +104,17 @@ Core::IEditor *ProjectFilesEditor::duplicate(QWidget *parent)
 //
 ////////////////////////////////////////////////////////////////////////////////////////
 
-ProjectFilesEditorWidget::ProjectFilesEditorWidget(QWidget *parent, ProjectFilesFactory *factory,
-                                       TextEditorActionHandler *handler)
+ProjectFilesEditorWidget::ProjectFilesEditorWidget(QWidget *parent, ProjectFilesFactory *factory)
     : BaseTextEditorWidget(parent),
-      m_factory(factory),
-      m_actionHandler(handler)
+      m_factory(factory)
 {
     QSharedPointer<BaseTextDocument> doc(new BaseTextDocument());
     setBaseTextDocument(doc);
-
-    handler->setupActions(this);
 }
 
 ProjectFilesFactory *ProjectFilesEditorWidget::factory() const
 {
     return m_factory;
-}
-
-TextEditorActionHandler *ProjectFilesEditorWidget::actionHandler() const
-{
-    return m_actionHandler;
 }
 
 BaseTextEditor *ProjectFilesEditorWidget::createEditor()

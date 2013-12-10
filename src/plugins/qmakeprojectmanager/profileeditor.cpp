@@ -61,8 +61,7 @@ ProFileEditor::ProFileEditor(ProFileEditorWidget *editor)
 
 Core::IEditor *ProFileEditor::duplicate(QWidget *parent)
 {
-    ProFileEditorWidget *ret = new ProFileEditorWidget(parent, qobject_cast<ProFileEditorWidget*>(editorWidget())->factory(),
-                                           qobject_cast<ProFileEditorWidget*>(editorWidget())->actionHandler());
+    ProFileEditorWidget *ret = new ProFileEditorWidget(parent, qobject_cast<ProFileEditorWidget*>(editorWidget())->factory());
     ret->duplicateFrom(editorWidget());
     TextEditor::TextEditorSettings::initializeEditor(ret);
     return ret->editor();
@@ -82,14 +81,12 @@ TextEditor::CompletionAssistProvider *ProFileEditor::completionAssistProvider()
 // ProFileEditorWidget
 //
 
-ProFileEditorWidget::ProFileEditorWidget(QWidget *parent, ProFileEditorFactory *factory, TextEditor::TextEditorActionHandler *ah)
-    : BaseTextEditorWidget(parent), m_factory(factory), m_ah(ah)
+ProFileEditorWidget::ProFileEditorWidget(QWidget *parent, ProFileEditorFactory *factory)
+    : BaseTextEditorWidget(parent), m_factory(factory)
 {
     QSharedPointer<ProFileDocument> doc(new ProFileDocument());
     doc->setMimeType(QLatin1String(Constants::PROFILE_MIMETYPE));
     setBaseTextDocument(doc);
-
-    ah->setupActions(this);
 
     baseTextDocument()->setSyntaxHighlighter(new ProFileHighlighter);
     m_commentDefinition.clearCommentStyles();
