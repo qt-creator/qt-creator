@@ -49,6 +49,7 @@ namespace {
 const char ID_KEY[] = "PE.Profile.Id";
 const char DISPLAYNAME_KEY[] = "PE.Profile.Name";
 const char AUTODETECTED_KEY[] = "PE.Profile.AutoDetected";
+const char AUTODETECTIONSOURCE_KEY[] = "PE.Profile.AutoDetectionSource";
 const char SDK_PROVIDED_KEY[] = "PE.Profile.SDK";
 const char DATA_KEY[] = "PE.Profile.Data";
 const char ICON_KEY[] = "PE.Profile.Icon";
@@ -71,6 +72,7 @@ public:
         m_id(id),
         m_nestedBlockingLevel(0),
         m_autodetected(false),
+        m_autoDetectionSource(QString()),
         m_sdkProvided(false),
         m_isValid(true),
         m_hasWarning(false),
@@ -89,6 +91,7 @@ public:
     Id m_id;
     int m_nestedBlockingLevel;
     bool m_autodetected;
+    QString m_autoDetectionSource;
     bool m_sdkProvided;
     bool m_isValid;
     bool m_hasWarning;
@@ -124,6 +127,7 @@ Kit::Kit(const QVariantMap &data) :
     d->m_id = Id::fromSetting(data.value(QLatin1String(ID_KEY)));
 
     d->m_autodetected = data.value(QLatin1String(AUTODETECTED_KEY)).toBool();
+    d->m_autoDetectionSource = data.value(QLatin1String(AUTODETECTIONSOURCE_KEY)).toString();
 
     // if we don't have that setting assume that autodetected implies sdk
     QVariant value = data.value(QLatin1String(SDK_PROVIDED_KEY));
@@ -197,6 +201,7 @@ void Kit::copyFrom(const Kit *k)
     d->m_iconPath = k->d->m_iconPath;
     d->m_icon = k->d->m_icon;
     d->m_autodetected = k->d->m_autodetected;
+    d->m_autoDetectionSource = k->d->m_autoDetectionSource;
     d->m_displayName = k->d->m_displayName;
     d->m_mustNotify = true;
     d->m_mustNotifyAboutDisplayName = true;
@@ -321,6 +326,11 @@ bool Kit::isAutoDetected() const
     return d->m_autodetected;
 }
 
+QString Kit::autoDetectionSource() const
+{
+    return d->m_autoDetectionSource;
+}
+
 bool Kit::isSdkProvided() const
 {
     return d->m_sdkProvided;
@@ -418,6 +428,7 @@ QVariantMap Kit::toMap() const
     data.insert(QLatin1String(ID_KEY), QString::fromLatin1(d->m_id.name()));
     data.insert(QLatin1String(DISPLAYNAME_KEY), d->m_displayName);
     data.insert(QLatin1String(AUTODETECTED_KEY), d->m_autodetected);
+    data.insert(QLatin1String(AUTODETECTIONSOURCE_KEY), d->m_autoDetectionSource);
     data.insert(QLatin1String(SDK_PROVIDED_KEY), d->m_sdkProvided);
     data.insert(QLatin1String(ICON_KEY), d->m_iconPath.toString());
 
@@ -494,6 +505,11 @@ QString Kit::toHtml() const
 void Kit::setAutoDetected(bool detected)
 {
     d->m_autodetected = detected;
+}
+
+void Kit::setAutoDetectionSource(const QString &autoDetectionSource)
+{
+    d->m_autoDetectionSource = autoDetectionSource;
 }
 
 void Kit::setSdkProvided(bool sdkProvided)

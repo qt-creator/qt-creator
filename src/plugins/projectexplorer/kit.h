@@ -76,6 +76,7 @@ public:
     QString fileSystemFriendlyName() const;
 
     bool isAutoDetected() const;
+    QString autoDetectionSource() const;
     bool isSdkProvided() const;
     Core::Id id() const;
 
@@ -102,6 +103,7 @@ public:
 
     // Note: Stickyness is *not* saved!
     void setAutoDetected(bool detected);
+    void setAutoDetectionSource(const QString &autoDetectionSource);
     void makeSticky();
     void setSticky(Core::Id id, bool b);
     void makeUnSticky();
