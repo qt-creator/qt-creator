@@ -594,10 +594,11 @@ class Dumper(DumperBase):
         self.remoteChannel_ = args.get('remoteChannel', '')
         self.platform_ = args.get('platform', '')
 
-        if self.sysRoot_:
-            self.debugger.SetCurrentPlatformSDKRoot(self.sysRoot_)
         if self.platform_:
             self.debugger.SetCurrentPlatform(self.platform_)
+        # sysroot has to be set *after* the platform
+        if self.sysRoot_:
+            self.debugger.SetCurrentPlatformSDKRoot(self.sysRoot_)
         self.target = self.debugger.CreateTarget(self.executable_, None, None, True, error)
         self.importDumpers()
 

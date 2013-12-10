@@ -31,6 +31,7 @@
 
 #include "iosrunner.h"
 #include "iosmanager.h"
+#include "iosdevice.h"
 
 #include <debugger/debuggerengine.h>
 #include <debugger/debuggerplugin.h>
@@ -40,10 +41,12 @@
 #include <debugger/debuggerrunconfigurationaspect.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/taskhub.h>
 #include <qmakeprojectmanager/qmakebuildconfiguration.h>
 #include <qmakeprojectmanager/qmakenodes.h>
 #include <qmakeprojectmanager/qmakeproject.h>
 #include <qtsupport/qtkitinformation.h>
+#include <utils/fileutils.h>
 
 #include <QDir>
 #include <QTcpServer>
@@ -73,11 +76,38 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
     if (device.isNull())
         return 0;
     QmakeProject *project = static_cast<QmakeProject *>(target->project());
+    Kit *kit = target->kit();
 
     DebuggerStartParameters params;
     if (device->type() == Core::Id(Ios::Constants::IOS_DEVICE_TYPE)) {
         params.startMode = AttachToRemoteProcess;
         params.platform = QLatin1String("remote-ios");
+        IosDevice::ConstPtr iosDevice = device.dynamicCast<const IosDevice>();
+        if (iosDevice.isNull())
+                return 0;
+        QString osVersion = iosDevice->osVersion();
+        Utils::FileName deviceSdk1 = Utils::FileName::fromString(QDir::homePath()
+                                             + QLatin1String("/Library/Developer/Xcode/iOS DeviceSupport/")
+                                             + osVersion + QLatin1String("/Symbols"));
+        QString deviceSdk;
+        if (deviceSdk1.toFileInfo().isDir()) {
+            deviceSdk = deviceSdk1.toString();
+        } else {
+            Utils::FileName deviceSdk2 = IosConfigurations::developerPath()
+                    .appendPath(QLatin1String("Platforms/iPhoneOS.platform/DeviceSupport/"))
+                    .appendPath(osVersion).appendPath(QLatin1String("Symbols"));
+            if (deviceSdk2.toFileInfo().isDir()) {
+                deviceSdk = deviceSdk2.toString();
+            } else {
+                TaskHub::addTask(Task::Warning, tr(
+                  "Could not find device specific debug symbols at %1. "
+                  "Debugging initialization will be slow until you open the Organizer window of "
+                  "Xcode with the device connected to have the symbols generated.")
+                                 .arg(deviceSdk1.toUserOutput()),
+                                 ProjectExplorer::Constants::TASK_CATEGORY_DEPLOYMENT);
+            }
+        }
+        params.deviceSymbolsRoot = deviceSdk;
     } else {
         params.startMode = AttachExternal;
         params.platform = QLatin1String("ios-simulator");
@@ -91,7 +121,6 @@ RunControl *IosDebugSupport::createDebugRunControl(IosRunConfiguration *runConfi
             = runConfig->extraAspect<Debugger::DebuggerRunConfigurationAspect>();
     if (aspect->useCppDebugger()) {
         params.languages |= CppLanguage;
-        Kit *kit = target->kit();
         params.sysRoot = SysRootKitInformation::sysRoot(kit).toString();
         params.debuggerCommand = DebuggerKitInformation::debuggerCommand(kit).toString();
         if (ToolChain *tc = ToolChainKitInformation::toolChain(kit))

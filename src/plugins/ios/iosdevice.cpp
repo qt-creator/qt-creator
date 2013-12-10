@@ -190,20 +190,10 @@ QString IosDevice::name()
     return QCoreApplication::translate("Ios::Internal::IosDevice", "iOS Device");
 }
 
-/*
-// add back?
-
-QString IosDevice::cpuArchitecure() const
+QString IosDevice::osVersion() const
 {
-    return m_extraInfo.value(QLatin1String("deviceInfo")).toMap()
-            .value(QLatin1String("CPUArchitecture")).toString();
+    return m_extraInfo.value(QLatin1String("osVersion"));
 }
-
-QString IosDevice::productType() const
-{
-    return m_extraInfo.value(QLatin1String("deviceInfo")).toMap()
-            .value(QLatin1String("ProductType")).toString();
-}*/
 
 
 // IosDeviceManager
@@ -222,6 +212,7 @@ IosDeviceManager::TranslationMap IosDeviceManager::translationMap()
     tMap[QLatin1String("NO")]              = tr("no");
     tMap[QLatin1String("YES")]             = tr("yes");
     tMap[QLatin1String("*unknown*")]       = tr("unknown");
+    tMap[QLatin1String("osVersion")]       = tr("OS version");
     translationMap = &tMap;
     return tMap;
 }

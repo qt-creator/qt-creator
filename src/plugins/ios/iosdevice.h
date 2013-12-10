@@ -65,9 +65,7 @@ public:
     QVariantMap toMap() const;
     QString uniqueDeviceID() const;
     IosDevice(const QString &uid);
-    // add back? currently unused...
-    //QString cpuArchitecure() const;
-    //QString productType() const;
+    QString osVersion() const;
 
     static QString name();
 

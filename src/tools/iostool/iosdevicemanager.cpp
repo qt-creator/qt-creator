@@ -1227,6 +1227,7 @@ void DevInfoSession::deviceCallbackReturned()
     QString deviceNameKey = QLatin1String("deviceName");
     QString developerStatusKey = QLatin1String("developerStatus");
     QString deviceConnectedKey = QLatin1String("deviceConnected");
+    QString osVersionKey = QLatin1String("osVersion");
     bool failure = !device;
     if (!failure) {
         failure = !connectDevice();
@@ -1255,6 +1256,32 @@ void DevInfoSession::deviceCallbackReturned()
             }
             if (!res.contains(developerStatusKey))
                 res[developerStatusKey] = QLatin1String("*off*");
+        }
+        if (!failure) {
+            CFPropertyListRef cfProductVersion = lib()->deviceCopyValue(device,
+                                                                        0,
+                                                                        CFSTR("ProductVersion"));
+            //CFShow(cfProductVersion);
+            CFPropertyListRef cfBuildVersion = lib()->deviceCopyValue(device,
+                                                                      0,
+                                                                      CFSTR("BuildVersion"));
+            //CFShow(cfBuildVersion);
+            QString versionString;
+            if (cfProductVersion) {
+                if (CFGetTypeID(cfProductVersion) == CFStringGetTypeID())
+                    versionString = CFStringRef2QString(reinterpret_cast<CFStringRef>(cfProductVersion));
+                CFRelease(cfProductVersion);
+            }
+            if (cfBuildVersion) {
+                if (!versionString.isEmpty() && CFGetTypeID(cfBuildVersion) == CFStringGetTypeID())
+                    versionString += QString::fromLatin1(" (%1)").arg(
+                                CFStringRef2QString(reinterpret_cast<CFStringRef>(cfBuildVersion)));
+                    CFRelease(cfBuildVersion);
+            }
+            if (!versionString.isEmpty())
+                res[osVersionKey] = versionString;
+            else
+                res[osVersionKey] = QLatin1String("*unknown*");
         }
         disconnectDevice();
     }
