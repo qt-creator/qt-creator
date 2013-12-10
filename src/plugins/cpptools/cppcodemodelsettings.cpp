@@ -34,6 +34,9 @@
 using namespace CppTools;
 using namespace CppTools::Internal;
 
+static QLatin1String cppHeaderMimeType(Constants::CPP_HEADER_MIMETYPE);
+static QLatin1String cHeaderMimeType(Constants::C_HEADER_MIMETYPE);
+
 void CppCodeModelSettings::fromSettings(QSettings *s)
 {
     s->beginGroup(QLatin1String(Constants::CPPTOOLS_SETTINGSGROUP));
@@ -42,6 +45,7 @@ void CppCodeModelSettings::fromSettings(QSettings *s)
     setIdForMimeType(supporters, QLatin1String(Constants::CPP_SOURCE_MIMETYPE));
     setIdForMimeType(supporters, QLatin1String(Constants::OBJECTIVE_C_SOURCE_MIMETYPE));
     setIdForMimeType(supporters, QLatin1String(Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
+    setIdForMimeType(supporters, QLatin1String(Constants::CPP_HEADER_MIMETYPE));
     QVariant v = s->value(QLatin1String(Constants::CPPTOOLS_MODEL_MANAGER_PCH_USAGE), PchUse_None);
     setPCHUsage(static_cast<PCHUsage>(v.toInt()));
     s->endGroup();
@@ -63,6 +67,23 @@ void CppCodeModelSettings::setModelManagerSupports(const QList<ModelManagerSuppo
     m_availableModelManagerSupportersByName.clear();
     foreach (ModelManagerSupport *supporter, supporters)
         m_availableModelManagerSupportersByName[supporter->displayName()] = supporter->id();
+}
+
+QString CppCodeModelSettings::modelManagerSupportId(const QString &mimeType) const
+{
+    if (mimeType == cHeaderMimeType)
+        return m_modelManagerSupportByMimeType.value(cppHeaderMimeType);
+    else
+        return m_modelManagerSupportByMimeType.value(mimeType);
+}
+
+void CppCodeModelSettings::setModelManagerSupportId(const QString &mimeType,
+                                                    const QString &supporter)
+{
+    if (mimeType == cHeaderMimeType)
+        m_modelManagerSupportByMimeType.insert(cppHeaderMimeType, supporter);
+    else
+        m_modelManagerSupportByMimeType.insert(mimeType, supporter);
 }
 
 void CppCodeModelSettings::setIdForMimeType(const QVariant &var, const QString &mimeType)
