@@ -43,11 +43,11 @@ class tst_SimpleLexer: public QObject
     Q_OBJECT
 
 private slots:
-    void doxygen_comments();
-    void doxygen_comments_data();
+    void basic();
+    void basic_data();
 };
 
-void tst_SimpleLexer::doxygen_comments()
+void tst_SimpleLexer::basic()
 {
     QFETCH(QByteArray, source);
     QFETCH(QList<unsigned>, expectedTokenKindList);
@@ -70,7 +70,7 @@ void tst_SimpleLexer::doxygen_comments()
     QVERIFY2(i == expectedTokenKindList.size(), "Less tokens than expected.");
 }
 
-void tst_SimpleLexer::doxygen_comments_data()
+void tst_SimpleLexer::basic_data()
 {
     QTest::addColumn<QByteArray>("source");
     QTest::addColumn<QList<unsigned> >("expectedTokenKindList");
