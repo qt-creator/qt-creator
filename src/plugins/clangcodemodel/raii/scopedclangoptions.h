@@ -27,61 +27,46 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#ifndef CLANGCODEMODEL_SCOPEDCLANGOPTIONS_H
+#define CLANGCODEMODEL_SCOPEDCLANGOPTIONS_H
 
-#include "cpptools_global.h"
+#include "../clang_global.h"
+#include <QStringList>
+#include <QSharedPointer>
 
-#include <texteditor/semantichighlighter.h>
+namespace ClangCodeModel {
 
-#include <cplusplus/CppDocument.h>
-
-#include <QFuture>
-
-namespace TextEditor {
-class ITextEditor;
-}
-
-namespace CppTools {
-
-class CPPTOOLS_EXPORT CppHighlightingSupport
+class CLANG_EXPORT ScopedClangOptions
 {
 public:
-    enum Kind {
-        Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
-    };
+    ScopedClangOptions(const QStringList &options);
+    ~ScopedClangOptions();
 
-public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
-    virtual ~CppHighlightingSupport() = 0;
-
-    virtual bool requiresSemanticInfo() const = 0;
-
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
-
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
-
-protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
+    const char **data() const;
+    int size() const;
 
 private:
-    TextEditor::ITextEditor *m_editor;
+    void release();
+
+    int m_size;
+    const char **m_rawOptions;
 };
 
-} // namespace CppTools
+class CLANG_EXPORT SharedClangOptions
+{
+public:
+    SharedClangOptions();
+    SharedClangOptions(const QStringList &options);
 
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+    void reloadOptions(const QStringList &options);
+
+    const char **data() const;
+    int size() const;
+
+private:
+    QSharedPointer<ScopedClangOptions> d;
+};
+
+} // namespace ClangCodeModel
+
+#endif // CLANGCODEMODEL_SCOPEDCLANGOPTIONS_H

@@ -27,61 +27,24 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+/*
+ * Expected: 'OwningPtr'
+ */
 
-#include "cpptools_global.h"
-
-#include <texteditor/semantichighlighter.h>
-
-#include <cplusplus/CppDocument.h>
-
-#include <QFuture>
-
-namespace TextEditor {
-class ITextEditor;
+namespace llvm {
+class OwningPtr;
 }
 
-namespace CppTools {
+namespace clang {
+using llvm::OwningPtr;
+}
 
-class CPPTOOLS_EXPORT CppHighlightingSupport
+class llvm::OwningPtr
 {
-public:
-    enum Kind {
-        Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
-    };
-
-public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
-    virtual ~CppHighlightingSupport() = 0;
-
-    virtual bool requiresSemanticInfo() const = 0;
-
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
-
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
-
-protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
-
-private:
-    TextEditor::ITextEditor *m_editor;
 };
 
-} // namespace CppTools
-
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+void foo()
+{
+    clang::<<<< ptr;
+    (void)ptr;
+}

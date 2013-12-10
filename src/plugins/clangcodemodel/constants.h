@@ -27,61 +27,35 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#ifndef CONSTANTS_H
+#define CONSTANTS_H
 
-#include "cpptools_global.h"
+#include <QtCore/QLatin1Char>
+#include <QtCore/QLatin1Char>
 
-#include <texteditor/semantichighlighter.h>
+namespace ClangCodeModel {
+namespace Constants {
 
-#include <cplusplus/CppDocument.h>
+static const QLatin1Char kLParen('(');
+static const QLatin1Char kRParen(')');
+static const QLatin1Char kLBrace('{');
+static const QLatin1Char kRBrace('}');
+static const QLatin1Char kLBracket('[');
+static const QLatin1Char kRBracket(']');
+static const QLatin1Char kLABracket('<');
+static const QLatin1Char kRABracket('>');
+static const QLatin1Char kSemiColon(';');
+static const QLatin1Char kPound('#');
+static const QLatin1Char kColon(':');
+static const QLatin1Char kExclamation('!');
+static const QLatin1Char kSpace(' ');
+static const QLatin1Char kSlash('/');
+static const QLatin1Char kStar('*');
+static const QLatin1Char kDoubleQuote('"');
+static const QLatin1Char kNewLine('\n');
+static const QLatin1Char kHorizontalTab('\t');
 
-#include <QFuture>
-
-namespace TextEditor {
-class ITextEditor;
+}
 }
 
-namespace CppTools {
-
-class CPPTOOLS_EXPORT CppHighlightingSupport
-{
-public:
-    enum Kind {
-        Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
-    };
-
-public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
-    virtual ~CppHighlightingSupport() = 0;
-
-    virtual bool requiresSemanticInfo() const = 0;
-
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
-
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
-
-protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
-
-private:
-    TextEditor::ITextEditor *m_editor;
-};
-
-} // namespace CppTools
-
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#endif // CONSTANTS_H

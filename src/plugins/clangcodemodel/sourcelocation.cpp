@@ -27,61 +27,53 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#include "sourcelocation.h"
 
-#include "cpptools_global.h"
+using namespace ClangCodeModel;
 
-#include <texteditor/semantichighlighter.h>
+SourceLocation::SourceLocation()
+    : m_line(0)
+    , m_column(0)
+    , m_offset(0)
+{}
 
-#include <cplusplus/CppDocument.h>
+SourceLocation::SourceLocation(const QString &fileName,
+                               unsigned line,
+                               unsigned column,
+                               unsigned offset)
+    : m_fileName(fileName)
+    , m_line(line)
+    , m_column(column)
+    , m_offset(offset)
+{}
 
-#include <QFuture>
+namespace ClangCodeModel {
 
-namespace TextEditor {
-class ITextEditor;
+bool operator==(const SourceLocation &a, const SourceLocation &b)
+{
+    return a.line() == b.line()
+            && a.column() == b.column()
+            && a.offset() == b.offset()
+            && a.fileName() == b.fileName()
+            ;
 }
 
-namespace CppTools {
-
-class CPPTOOLS_EXPORT CppHighlightingSupport
+bool operator!=(const SourceLocation &a, const SourceLocation &b)
 {
-public:
-    enum Kind {
-        Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
-    };
+    return !(a == b);
+}
 
-public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
-    virtual ~CppHighlightingSupport() = 0;
+QDebug operator<<(QDebug dbg, const SourceLocation &location)
+{
+    dbg.nospace() << location.fileName()
+                  << " ["
+                  << location.line()
+                  << ":"
+                  << location.column()
+                  << "("
+                  << location.offset()
+                  << ")]";
+    return dbg.space();
+}
 
-    virtual bool requiresSemanticInfo() const = 0;
-
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
-
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
-
-protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
-
-private:
-    TextEditor::ITextEditor *m_editor;
-};
-
-} // namespace CppTools
-
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+} // ClangCodeModel

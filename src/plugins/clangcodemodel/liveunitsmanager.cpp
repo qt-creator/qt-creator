@@ -27,61 +27,65 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#include "liveunitsmanager.h"
 
-#include "cpptools_global.h"
+#include <coreplugin/idocument.h>
 
-#include <texteditor/semantichighlighter.h>
+using namespace ClangCodeModel;
+using namespace Internal;
 
-#include <cplusplus/CppDocument.h>
+LiveUnitsManager *LiveUnitsManager::m_instance = 0;
 
-#include <QFuture>
+LiveUnitsManager::LiveUnitsManager()
+{
+    Q_ASSERT(!m_instance);
+    m_instance = this;
 
-namespace TextEditor {
-class ITextEditor;
+    qRegisterMetaType<ClangCodeModel::Internal::Unit>();
 }
 
-namespace CppTools {
-
-class CPPTOOLS_EXPORT CppHighlightingSupport
+LiveUnitsManager::~LiveUnitsManager()
 {
-public:
-    enum Kind {
-        Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
-    };
+    m_instance = 0;
+}
 
-public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
-    virtual ~CppHighlightingSupport() = 0;
+void LiveUnitsManager::requestTracking(const QString &fileName)
+{
+    if (!fileName.isEmpty() && !isTracking(fileName))
+        m_units.insert(fileName, Unit(fileName));
+}
 
-    virtual bool requiresSemanticInfo() const = 0;
+void LiveUnitsManager::cancelTrackingRequest(const QString &fileName)
+{
+    if (!isTracking(fileName))
+        return;
 
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
+    // If no one else is tracking this particular unit, we remove it.
+    if (m_units[fileName].isUnique())
+        m_units.remove(fileName);
+}
 
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
+void LiveUnitsManager::updateUnit(const QString &fileName, const Unit &unit)
+{
+    if (!isTracking(fileName))
+        return;
 
-protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
+    m_units[fileName] = unit;
 
-private:
-    TextEditor::ITextEditor *m_editor;
-};
+    emit unitAvailable(unit);
+}
 
-} // namespace CppTools
+Unit LiveUnitsManager::unit(const QString &fileName)
+{
+    return m_units.value(fileName);
+}
 
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+void LiveUnitsManager::editorOpened(Core::IEditor *editor)
+{
+    requestTracking(editor->document()->filePath());
+}
+
+void LiveUnitsManager::editorAboutToClose(Core::IEditor *editor)
+{
+    cancelTrackingRequest(editor->document()->filePath());
+}

@@ -27,61 +27,54 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#ifndef PCHINFO_H
+#define PCHINFO_H
 
-#include "cpptools_global.h"
+#include <QString>
+#include <QStringList>
+#include <QSharedPointer>
+#include <QTemporaryFile>
 
-#include <texteditor/semantichighlighter.h>
+namespace ClangCodeModel {
+namespace Internal {
 
-#include <cplusplus/CppDocument.h>
-
-#include <QFuture>
-
-namespace TextEditor {
-class ITextEditor;
-}
-
-namespace CppTools {
-
-class CPPTOOLS_EXPORT CppHighlightingSupport
+class PchInfo
 {
-public:
-    enum Kind {
-        Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
-    };
+    PchInfo();
 
 public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
-    virtual ~CppHighlightingSupport() = 0;
+    typedef QSharedPointer<PchInfo> Ptr;
 
-    virtual bool requiresSemanticInfo() const = 0;
+public:
+    ~PchInfo();
 
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
+    static Ptr createEmpty();
+    static Ptr createWithFileName(const QString &inputFileName,
+                                  const QStringList &options, bool objcEnabled);
 
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
+    /// \return the (temporary) file name for the PCH file.
+    QString fileName() const
+    { return m_file.fileName(); }
 
-protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
+    /// \return the input file for the PCH compilation.
+    QString inputFileName() const
+    { return m_inputFileName; }
+
+    /// \return the options used to generate this PCH file.
+    QStringList options() const
+    { return m_options; }
+
+    bool objcWasEnabled() const
+    { return m_objcEnabled; }
 
 private:
-    TextEditor::ITextEditor *m_editor;
+    QString m_inputFileName;
+    QStringList m_options;
+    bool m_objcEnabled;
+    QTemporaryFile m_file;
 };
 
-} // namespace CppTools
+} // Internal namespace
+} // ClangCodeModel namespace
 
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#endif // PCHINFO_H

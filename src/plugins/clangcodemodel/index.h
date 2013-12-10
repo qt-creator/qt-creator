@@ -27,61 +27,61 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#ifndef INDEX_H
+#define INDEX_H
 
-#include "cpptools_global.h"
+#include "symbol.h"
 
-#include <texteditor/semantichighlighter.h>
+#include <QtCore/QByteArray>
+#include <QtCore/QString>
+#include <QtCore/QList>
+#include <QtCore/QScopedPointer>
+#include <QtCore/QDateTime>
+#include <QStringList>
 
-#include <cplusplus/CppDocument.h>
+namespace ClangCodeModel {
 
-#include <QFuture>
+class Symbol;
 
-namespace TextEditor {
-class ITextEditor;
-}
+namespace Internal {
 
-namespace CppTools {
+class ClangSymbolSearcher;
+class IndexPrivate;
 
-class CPPTOOLS_EXPORT CppHighlightingSupport
+class Index
 {
 public:
-    enum Kind {
-        Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
-    };
+    Index();
+    ~Index();
 
-public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
-    virtual ~CppHighlightingSupport() = 0;
+    void insertSymbol(const Symbol &symbol, const QDateTime &timeStamp);
+    QList<Symbol> symbols(const QString &fileName) const;
+    QList<Symbol> symbols(const QString &fileName, Symbol::Kind kind) const;
+    QList<Symbol> symbols(const QString &fileName, Symbol::Kind kind, const QString &uqName) const;
+    QList<Symbol> symbols(Symbol::Kind kind) const;
 
-    virtual bool requiresSemanticInfo() const = 0;
+    void match(ClangSymbolSearcher *searcher) const;
 
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
+    void insertFile(const QString &fileName, const QDateTime &timeStamp);
+    void removeFile(const QString &fileName);
+    void removeFiles(const QStringList &fileNames);
+    bool containsFile(const QString &fileName) const;
+    QStringList files() const;
 
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
+    bool validate(const QString &fileName) const;
 
-protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
+    void clear();
+
+    bool isEmpty() const;
+
+    QByteArray serialize() const;
+    void deserialize(const QByteArray &data);
 
 private:
-    TextEditor::ITextEditor *m_editor;
+    QScopedPointer<IndexPrivate> d;
 };
 
-} // namespace CppTools
+} // Internal
+} // ClangCodeModel
 
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#endif // INDEX_H

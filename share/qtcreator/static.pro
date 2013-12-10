@@ -38,7 +38,8 @@ DATA_DIRS = \
     qml \
     qml-type-descriptions \
     generic-highlighter \
-    glsl
+    glsl \
+    cplusplus
 macx: DATA_DIRS += scripts
 
 for(data_dir, DATA_DIRS) {

@@ -27,61 +27,39 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#ifndef CLANG_INTERNAL_UNSAVEDFILEDATA_H
+#define CLANG_INTERNAL_UNSAVEDFILEDATA_H
 
-#include "cpptools_global.h"
+#include "utils.h"
 
-#include <texteditor/semantichighlighter.h>
+#include <clang-c/Index.h>
 
-#include <cplusplus/CppDocument.h>
+namespace ClangCodeModel {
+namespace Internal {
 
-#include <QFuture>
-
-namespace TextEditor {
-class ITextEditor;
-}
-
-namespace CppTools {
-
-class CPPTOOLS_EXPORT CppHighlightingSupport
+class UnsavedFileData
 {
-public:
-    enum Kind {
-        Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
-    };
+    UnsavedFileData(const UnsavedFileData &);
+    UnsavedFileData &operator=(const UnsavedFileData &);
+
+    typedef ClangCodeModel::Internal::UnsavedFiles UnsavedFiles;
 
 public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
-    virtual ~CppHighlightingSupport() = 0;
+    UnsavedFileData(const UnsavedFiles &unsavedFiles);
+    ~UnsavedFileData();
 
-    virtual bool requiresSemanticInfo() const = 0;
+    unsigned count() const
+    { return m_count; }
 
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
-
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
-
-protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
+    CXUnsavedFile *files() const
+    { return m_files; }
 
 private:
-    TextEditor::ITextEditor *m_editor;
+    unsigned m_count;
+    CXUnsavedFile *m_files;
 };
 
-} // namespace CppTools
+} // namespace Internal
+} // namespace ClangCodeModel
 
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#endif // CLANG_INTERNAL_UNSAVEDFILEDATA_H

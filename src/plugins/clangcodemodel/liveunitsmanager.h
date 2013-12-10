@@ -27,61 +27,52 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#ifndef LIVEUNITSMANAGER_H
+#define LIVEUNITSMANAGER_H
 
-#include "cpptools_global.h"
+#include "unit.h"
 
-#include <texteditor/semantichighlighter.h>
+#include <coreplugin/editormanager/ieditor.h>
 
-#include <cplusplus/CppDocument.h>
+#include <QtCore/QObject>
+#include <QtCore/QString>
+#include <QtCore/QHash>
 
-#include <QFuture>
+namespace ClangCodeModel {
+namespace Internal {
 
-namespace TextEditor {
-class ITextEditor;
-}
-
-namespace CppTools {
-
-class CPPTOOLS_EXPORT CppHighlightingSupport
+class LiveUnitsManager : public QObject
 {
-public:
-    enum Kind {
-        Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
-    };
+    Q_OBJECT
 
 public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
-    virtual ~CppHighlightingSupport() = 0;
+    LiveUnitsManager();
+    ~LiveUnitsManager();
+    static LiveUnitsManager *instance()
+    { return m_instance; }
 
-    virtual bool requiresSemanticInfo() const = 0;
+    void requestTracking(const QString &fileName);
+    bool isTracking(const QString &fileName) const
+    { return m_units.contains(fileName); }
 
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
+    void cancelTrackingRequest(const QString &fileName);
 
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
+    void updateUnit(const QString &fileName, const Unit &unit);
+    Unit unit(const QString &fileName);
 
-protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
+public slots:
+    void editorOpened(Core::IEditor *editor);
+    void editorAboutToClose(Core::IEditor *editor);
+
+signals:
+    void unitAvailable(const ClangCodeModel::Internal::Unit &unit);
 
 private:
-    TextEditor::ITextEditor *m_editor;
+    static LiveUnitsManager *m_instance;
+    QHash<QString, Unit> m_units;
 };
 
-} // namespace CppTools
+} // Internal
+} // ClangCodeModel
 
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#endif // LIVEUNITSMANAGER_H

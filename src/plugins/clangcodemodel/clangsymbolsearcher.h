@@ -27,61 +27,43 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#ifndef CLANGSYMBOLSEARCHER_H
+#define CLANGSYMBOLSEARCHER_H
 
-#include "cpptools_global.h"
+#include "clangindexer.h"
 
-#include <texteditor/semantichighlighter.h>
+#include <cpptools/cppindexingsupport.h>
 
-#include <cplusplus/CppDocument.h>
+#include <QLinkedList>
 
-#include <QFuture>
+namespace ClangCodeModel {
 
-namespace TextEditor {
-class ITextEditor;
-}
+class Symbol;
 
-namespace CppTools {
+namespace Internal {
 
-class CPPTOOLS_EXPORT CppHighlightingSupport
+class ClangSymbolSearcher: public CppTools::SymbolSearcher
 {
-public:
-    enum Kind {
-        Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
-    };
+    Q_OBJECT
+
+    typedef CppTools::SymbolSearcher::Parameters Parameters;
+    typedef Find::SearchResultItem SearchResultItem;
 
 public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
-    virtual ~CppHighlightingSupport() = 0;
+    ClangSymbolSearcher(ClangIndexer *indexer, const Parameters &parameters, QSet<QString> fileNames, QObject *parent = 0);
+    virtual ~ClangSymbolSearcher();
+    virtual void runSearch(QFutureInterface<SearchResultItem> &future);
 
-    virtual bool requiresSemanticInfo() const = 0;
-
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
-
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
-
-protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
+    void search(const QLinkedList<Symbol> &allSymbols);
 
 private:
-    TextEditor::ITextEditor *m_editor;
+    ClangIndexer *m_indexer;
+    const Parameters m_parameters;
+    const QSet<QString> m_fileNames;
+    QFutureInterface<SearchResultItem> *m_future;
 };
 
-} // namespace CppTools
+} // namespace Internal
+} // namespace ClangCodeModel
 
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#endif // CLANGSYMBOLSEARCHER_H

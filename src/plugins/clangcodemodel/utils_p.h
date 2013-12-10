@@ -27,61 +27,40 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#ifndef CLANG_REUSE_H
+#define CLANG_REUSE_H
 
-#include "cpptools_global.h"
+#include "sourcelocation.h"
 
-#include <texteditor/semantichighlighter.h>
+#include <clang-c/Index.h>
 
-#include <cplusplus/CppDocument.h>
+#include <QtCore/QString>
 
-#include <QFuture>
+QT_BEGIN_NAMESPACE
+class QFileInfo;
+QT_END_NAMESPACE
 
-namespace TextEditor {
-class ITextEditor;
-}
+namespace ClangCodeModel {
+namespace Internal {
 
-namespace CppTools {
+class Unit;
 
-class CPPTOOLS_EXPORT CppHighlightingSupport
-{
-public:
-    enum Kind {
-        Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
-    };
+QString getQString(const CXString &cxString, bool disposeCXString = true);
 
-public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
-    virtual ~CppHighlightingSupport() = 0;
+SourceLocation getInstantiatonLocation(const CXSourceLocation &loc); // Deprecated
+SourceLocation getSpellingLocation(const CXSourceLocation &loc);
+SourceLocation getExpansionLocation(const CXSourceLocation &loc);
 
-    virtual bool requiresSemanticInfo() const = 0;
+// There are slight differences of behavior from apparently similar Qt file processing functions.
+// For instance, QFileInfo::absoluteFilePath will uppercase driver letters, while the corresponding
+// QDir function will not do so. Besides, we need to keep paths clean. So in order to avoid
+// inconsistencies the functions below should be used for any indexing related task.
+QString normalizeFileName(const QString &fileName);
+QString normalizeFileName(const QFileInfo &fileInfo);
 
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
+QStringList formattedDiagnostics(const Unit &unit);
 
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
+} // Internal
+} // ClangCodeModel
 
-protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
-
-private:
-    TextEditor::ITextEditor *m_editor;
-};
-
-} // namespace CppTools
-
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#endif // CLANG_REUSE_H

@@ -27,61 +27,43 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#include "clangcompletion.h"
+#include "clanghighlightingsupport.h"
+#include "clangmodelmanagersupport.h"
 
-#include "cpptools_global.h"
+#include <QCoreApplication>
 
-#include <texteditor/semantichighlighter.h>
+using namespace ClangCodeModel;
+using namespace ClangCodeModel::Internal;
 
-#include <cplusplus/CppDocument.h>
-
-#include <QFuture>
-
-namespace TextEditor {
-class ITextEditor;
+ModelManagerSupport::ModelManagerSupport(FastIndexer *fastIndexer)
+    : m_completionAssistProvider(new ClangCompletionAssistProvider)
+    , m_fastIndexer(fastIndexer)
+{
 }
 
-namespace CppTools {
-
-class CPPTOOLS_EXPORT CppHighlightingSupport
+ModelManagerSupport::~ModelManagerSupport()
 {
-public:
-    enum Kind {
-        Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
-    };
+}
 
-public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
-    virtual ~CppHighlightingSupport() = 0;
+QString ModelManagerSupport::id() const
+{
+    return QLatin1String("ClangCodeMode.ClangCodeMode");
+}
 
-    virtual bool requiresSemanticInfo() const = 0;
+QString ModelManagerSupport::displayName() const
+{
+    return QCoreApplication::translate("ModelManagerSupport::displayName",
+                                       "Clang");
+}
 
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
+CppTools::CppCompletionAssistProvider *ModelManagerSupport::completionAssistProvider()
+{
+    return m_completionAssistProvider.data();
+}
 
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
-
-protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
-
-private:
-    TextEditor::ITextEditor *m_editor;
-};
-
-} // namespace CppTools
-
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+CppTools::CppHighlightingSupport *ModelManagerSupport::highlightingSupport(
+        TextEditor::ITextEditor *editor)
+{
+    return new ClangHighlightingSupport(editor, m_fastIndexer);
+}

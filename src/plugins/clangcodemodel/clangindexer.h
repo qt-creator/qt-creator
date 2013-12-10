@@ -27,61 +27,68 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#ifndef CLANGINDEXER_H
+#define CLANGINDEXER_H
 
-#include "cpptools_global.h"
+#include "fastindexer.h"
 
-#include <texteditor/semantichighlighter.h>
+#include <cpptools/cppindexingsupport.h>
 
-#include <cplusplus/CppDocument.h>
+#include <QObject>
 
-#include <QFuture>
+namespace ClangCodeModel {
 
-namespace TextEditor {
-class ITextEditor;
-}
+class Indexer;
 
-namespace CppTools {
+namespace Internal {
 
-class CPPTOOLS_EXPORT CppHighlightingSupport
+class ClangIndexer;
+class ClangSymbolSearcher;
+
+class ClangIndexingSupport: public CppTools::CppIndexingSupport
 {
 public:
-    enum Kind {
-        Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
-    };
+    ClangIndexingSupport(ClangIndexer *indexer);
+    virtual ~ClangIndexingSupport();
 
-public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
-    virtual ~CppHighlightingSupport() = 0;
-
-    virtual bool requiresSemanticInfo() const = 0;
-
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
-
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
-
-protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
+    virtual QFuture<void> refreshSourceFiles(const QStringList &sourceFiles);
+    virtual CppTools::SymbolSearcher *createSymbolSearcher(CppTools::SymbolSearcher::Parameters parameters, QSet<QString> fileNames);
 
 private:
-    TextEditor::ITextEditor *m_editor;
+    ClangIndexer *m_indexer;
 };
 
-} // namespace CppTools
+class ClangIndexer: public QObject, public FastIndexer
+{
+    Q_OBJECT
 
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+public:
+    ClangIndexer();
+    ~ClangIndexer();
+
+    CppTools::CppIndexingSupport *indexingSupport();
+
+    QFuture<void> refreshSourceFiles(const QStringList &sourceFiles);
+
+    void match(ClangSymbolSearcher *searcher) const;
+
+    void indexNow(const Unit &unit);
+
+public slots:
+    void onAboutToLoadSession(const QString &sessionName);
+    void onSessionLoaded(QString);
+    void onAboutToSaveSession();
+
+private slots:
+    void onIndexingStarted(QFuture<void> indexingFuture);
+
+private:
+    QScopedPointer<ClangIndexingSupport> m_indexingSupport;
+    bool m_isLoadingSession;
+    Indexer *m_clangIndexer;
+};
+
+} // namespace Internal
+} // namespace ClangCodeModel
+
+#endif // CLANGINDEXER_H

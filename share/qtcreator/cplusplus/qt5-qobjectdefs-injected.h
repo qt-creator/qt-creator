@@ -27,61 +27,34 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#define QT_NO_META_MACROS
 
-#include "cpptools_global.h"
+#define signals public __attribute__((annotate("qt_signal")))
+#define slots __attribute__((annotate("qt_slot")))
+#define Q_SIGNALS signals
+#define Q_SLOTS slots
+#define Q_SIGNAL __attribute__((annotate("qt_signal")))
+#define Q_SLOT __attribute__((annotate("qt_slot")))
+# define Q_PRIVATE_SLOT(d, signature)
 
-#include <texteditor/semantichighlighter.h>
+#define Q_EMIT
+#define emit
+#define Q_CLASSINFO(name, value)
+#define Q_PLUGIN_METADATA(x)
+#define Q_INTERFACES(x)
+#define Q_PROPERTY(text)
+#define Q_PRIVATE_PROPERTY(d, text)
+#define Q_REVISION(v)
+#define Q_OVERRIDE(text)
+#define Q_ENUMS(x)
+#define Q_FLAGS(x)
+#define Q_SCRIPTABLE
+#define Q_INVOKABLE
 
-#include <cplusplus/CppDocument.h>
-
-#include <QFuture>
-
-namespace TextEditor {
-class ITextEditor;
-}
-
-namespace CppTools {
-
-class CPPTOOLS_EXPORT CppHighlightingSupport
-{
-public:
-    enum Kind {
-        Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
-    };
-
-public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
-    virtual ~CppHighlightingSupport() = 0;
-
-    virtual bool requiresSemanticInfo() const = 0;
-
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
-
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
-
-protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
-
+#define Q_GADGET \
+public: \
+    static const QMetaObject staticMetaObject; \
 private:
-    TextEditor::ITextEditor *m_editor;
-};
 
-} // namespace CppTools
-
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#define SIGNAL(a) #a
+#define SLOT(a) #a

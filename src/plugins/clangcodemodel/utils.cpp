@@ -27,61 +27,63 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#include "diagnostic.h"
+#include "unit.h"
+#include "utils.h"
+#include "utils_p.h"
 
-#include "cpptools_global.h"
+#include <clang-c/Index.h>
 
-#include <texteditor/semantichighlighter.h>
+#include <QMutex>
+#include <QMutexLocker>
 
-#include <cplusplus/CppDocument.h>
+namespace ClangCodeModel {
+namespace Internal {
 
-#include <QFuture>
+QPair<bool, QStringList> precompile(const PchInfo::Ptr &pchInfo)
+{
+//    qDebug() << "*** Precompiling" << pchInfo->inputFileName()
+//             << "into" << pchInfo->fileName()
+//             << "with options" << pchInfo->options();
 
-namespace TextEditor {
-class ITextEditor;
+    bool ok = false;
+
+    Internal::Unit unit(pchInfo->inputFileName());
+    unit.setCompilationOptions(pchInfo->options());
+
+    unsigned parseOpts = CXTranslationUnit_ForSerialization
+            | CXTranslationUnit_Incomplete;
+    unit.setManagementOptions(parseOpts);
+
+    unit.parse();
+    if (unit.isLoaded())
+        ok = CXSaveError_None == unit.save(pchInfo->fileName());
+
+    return qMakePair(ok, Internal::formattedDiagnostics(unit));
 }
 
-namespace CppTools {
+namespace {
+static bool clangInitialised = false;
+static QMutex initialisationMutex;
+} // anonymous namespace
 
-class CPPTOOLS_EXPORT CppHighlightingSupport
+void initializeClang()
 {
-public:
-    enum Kind {
-        Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
-    };
+    if (clangInitialised)
+        return;
 
-public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
-    virtual ~CppHighlightingSupport() = 0;
+    QMutexLocker locker(&initialisationMutex);
+    if (clangInitialised)
+        return;
 
-    virtual bool requiresSemanticInfo() const = 0;
+    clang_toggleCrashRecovery(1);
+    clang_enableStackTraces();
+    clangInitialised = true;
 
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
+    qRegisterMetaType<ClangCodeModel::Diagnostic>();
+    qRegisterMetaType<QList<ClangCodeModel::Diagnostic> >();
+}
 
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
+} // Internal namespace
+} // ClangCodeModel namespace
 
-protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
-
-private:
-    TextEditor::ITextEditor *m_editor;
-};
-
-} // namespace CppTools
-
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H

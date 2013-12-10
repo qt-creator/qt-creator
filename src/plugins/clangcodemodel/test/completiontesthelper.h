@@ -27,61 +27,54 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#ifndef CLANGCODEMODEL_TESTS_COMPLETIONTESTHELPER_H
+#define CLANGCODEMODEL_TESTS_COMPLETIONTESTHELPER_H
 
-#include "cpptools_global.h"
+#ifdef WITH_TESTS
 
-#include <texteditor/semantichighlighter.h>
-
+#include <QObject>
+#include <QTextDocument>
+#include <texteditor/basetexteditor.h>
 #include <cplusplus/CppDocument.h>
+#include <clangcompleter.h>
 
-#include <QFuture>
+namespace TextEditor { class IAssistProposal; }
 
-namespace TextEditor {
-class ITextEditor;
-}
+namespace ClangCodeModel {
+namespace Internal {
 
-namespace CppTools {
-
-class CPPTOOLS_EXPORT CppHighlightingSupport
+class CompletionTestHelper : public QObject
 {
+    Q_OBJECT
 public:
-    enum Kind {
-        Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
-    };
+    explicit CompletionTestHelper(QObject *parent = 0);
+    ~CompletionTestHelper();
 
-public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
-    virtual ~CppHighlightingSupport() = 0;
+    void operator <<(const QString &fileName);
+    QStringList codeCompleteTexts();
+    QList<CodeCompletionResult> codeComplete();
 
-    virtual bool requiresSemanticInfo() const = 0;
+    int position() const;
+    const QByteArray &source() const;
 
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
-
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
-
-protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
+    void addOption(const QString &option);
 
 private:
-    TextEditor::ITextEditor *m_editor;
+    void findCompletionPos();
+
+    UnsavedFiles m_unsavedFiles;
+    ClangCompleter::Ptr m_completer;
+    QStringList m_clangOptions;
+
+    QByteArray m_sourceCode;
+    int m_position;
+    int m_line;
+    int m_column;
 };
 
-} // namespace CppTools
+} // namespace Internal
+} // namespace ClangCodeModel
 
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#endif
+
+#endif // CLANGCODEMODEL_TESTS_COMPLETIONTESTHELPER_H

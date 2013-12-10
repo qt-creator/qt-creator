@@ -27,61 +27,32 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#ifndef CPPTOOLS_CLANGUTILS_H
+#define CPPTOOLS_CLANGUTILS_H
 
-#include "cpptools_global.h"
+#include "utils.h"
 
-#include <texteditor/semantichighlighter.h>
+#include <cpptools/cppmodelmanagerinterface.h>
 
-#include <cplusplus/CppDocument.h>
+namespace ClangCodeModel {
+namespace Utils {
 
-#include <QFuture>
+ClangCodeModel::Internal::UnsavedFiles createUnsavedFiles(CppTools::CppModelManagerInterface::WorkingCopy workingCopy);
 
-namespace TextEditor {
-class ITextEditor;
-}
+QStringList createClangOptions(const CppTools::ProjectPart::Ptr &pPart, CppTools::ProjectFile::Kind fileKind);
+QStringList createClangOptions(const CppTools::ProjectPart::Ptr &pPart, const QString &fileName = QString());
+QStringList clangNonProjectFileOptions(CppTools::ProjectFile::Kind kind);
+QStringList createPCHInclusionOptions(const QStringList &pchFiles);
+QStringList createPCHInclusionOptions(const QString &pchFile);
 
-namespace CppTools {
+QStringList clangLanguageOption(CppTools::ProjectFile::Kind fileKind);
+QStringList clangOptionsForC(CppTools::ProjectPart::CVersion cVersion,
+                             CppTools::ProjectPart::CXXExtensions cxxExtensions);
+QStringList clangOptionsForCxx(CppTools::ProjectPart::QtVersion qtVersion,
+                                     CppTools::ProjectPart::CXXVersion cxxVersion,
+                                     CppTools::ProjectPart::CXXExtensions cxxExtensions);
 
-class CPPTOOLS_EXPORT CppHighlightingSupport
-{
-public:
-    enum Kind {
-        Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
-    };
+} // namespace Utils
+} // namespace Clang
 
-public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
-    virtual ~CppHighlightingSupport() = 0;
-
-    virtual bool requiresSemanticInfo() const = 0;
-
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
-
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
-
-protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
-
-private:
-    TextEditor::ITextEditor *m_editor;
-};
-
-} // namespace CppTools
-
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#endif // CPPTOOLS_CLANGUTILS_H

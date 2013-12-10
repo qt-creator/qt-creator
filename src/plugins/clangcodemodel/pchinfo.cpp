@@ -27,61 +27,36 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#include "pchinfo.h"
 
-#include "cpptools_global.h"
+#include <QDir>
 
-#include <texteditor/semantichighlighter.h>
+using namespace ClangCodeModel::Internal;
 
-#include <cplusplus/CppDocument.h>
-
-#include <QFuture>
-
-namespace TextEditor {
-class ITextEditor;
+PchInfo::PchInfo()
+{
 }
 
-namespace CppTools {
-
-class CPPTOOLS_EXPORT CppHighlightingSupport
+PchInfo::~PchInfo()
 {
-public:
-    enum Kind {
-        Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
-    };
+}
 
-public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
-    virtual ~CppHighlightingSupport() = 0;
+PchInfo::Ptr PchInfo::createEmpty()
+{
+    return Ptr(new PchInfo);
+}
 
-    virtual bool requiresSemanticInfo() const = 0;
+PchInfo::Ptr PchInfo::createWithFileName(const QString &inputFileName,
+                                         const QStringList &options,
+                                         bool objcEnabled)
+{
+    Ptr result(new PchInfo);
+    result->m_inputFileName = inputFileName;
+    result->m_options = options;
+    result->m_objcEnabled = objcEnabled;
 
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
-
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
-
-protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
-
-private:
-    TextEditor::ITextEditor *m_editor;
-};
-
-} // namespace CppTools
-
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+    // The next 2 lines are just here to generate the file name....
+    result->m_file.open();
+    result->m_file.close();
+    return result;
+}

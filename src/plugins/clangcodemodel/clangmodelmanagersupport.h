@@ -27,61 +27,38 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#ifndef CLANGCODEMODEL_INTERNAL_CLANGMODELMANAGERSUPPORT_H
+#define CLANGCODEMODEL_INTERNAL_CLANGMODELMANAGERSUPPORT_H
 
-#include "cpptools_global.h"
+#include <cpptools/cppmodelmanagersupport.h>
 
-#include <texteditor/semantichighlighter.h>
+#include <QScopedPointer>
 
-#include <cplusplus/CppDocument.h>
+namespace ClangCodeModel {
+namespace Internal {
 
-#include <QFuture>
+class FastIndexer;
 
-namespace TextEditor {
-class ITextEditor;
-}
-
-namespace CppTools {
-
-class CPPTOOLS_EXPORT CppHighlightingSupport
+class ModelManagerSupport: public CppTools::ModelManagerSupport
 {
-public:
-    enum Kind {
-        Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
-    };
+    Q_DISABLE_COPY(ModelManagerSupport)
 
 public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
-    virtual ~CppHighlightingSupport() = 0;
+    ModelManagerSupport(FastIndexer *fastIndexer);
+    virtual ~ModelManagerSupport();
 
-    virtual bool requiresSemanticInfo() const = 0;
+    virtual QString id() const;
+    virtual QString displayName() const;
 
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
-
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
-
-protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
+    virtual CppTools::CppCompletionAssistProvider *completionAssistProvider();
+    virtual CppTools::CppHighlightingSupport *highlightingSupport(TextEditor::ITextEditor *editor);
 
 private:
-    TextEditor::ITextEditor *m_editor;
+    QScopedPointer<CppTools::CppCompletionAssistProvider> m_completionAssistProvider;
+    FastIndexer *m_fastIndexer;
 };
 
-} // namespace CppTools
+} // namespace Internal
+} // namespace ClangCodeModel
 
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#endif // CLANGCODEMODEL_INTERNAL_CLANGMODELMANAGERSUPPORT_H

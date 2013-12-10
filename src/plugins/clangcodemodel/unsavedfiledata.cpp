@@ -27,61 +27,35 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#include "unsavedfiledata.h"
 
-#include "cpptools_global.h"
+using namespace ClangCodeModel::Internal;
 
-#include <texteditor/semantichighlighter.h>
+UnsavedFileData::UnsavedFileData(const UnsavedFiles &unsavedFiles)
+    : m_count(unsavedFiles.count())
+    , m_files(0)
+{
+    if (m_count) {
+        m_files = new CXUnsavedFile[m_count];
+        unsigned idx = 0;
+        for (UnsavedFiles::const_iterator it = unsavedFiles.begin(); it != unsavedFiles.end(); ++it, ++idx) {
+            QByteArray contents = it.value();
+            const char *contentChars = qstrdup(contents.constData());
+            m_files[idx].Contents = contentChars;
+            m_files[idx].Length = contents.size();
 
-#include <cplusplus/CppDocument.h>
-
-#include <QFuture>
-
-namespace TextEditor {
-class ITextEditor;
+            const char *fileName = qstrdup(it.key().toUtf8().constData());
+            m_files[idx].Filename = fileName;
+        }
+    }
 }
 
-namespace CppTools {
-
-class CPPTOOLS_EXPORT CppHighlightingSupport
+UnsavedFileData::~UnsavedFileData()
 {
-public:
-    enum Kind {
-        Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
-    };
+    for (unsigned i = 0; i < m_count; ++i) {
+        delete[] m_files[i].Contents;
+        delete[] m_files[i].Filename;
+    }
 
-public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
-    virtual ~CppHighlightingSupport() = 0;
-
-    virtual bool requiresSemanticInfo() const = 0;
-
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
-
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
-
-protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
-
-private:
-    TextEditor::ITextEditor *m_editor;
-};
-
-} // namespace CppTools
-
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+    delete[] m_files;
+}

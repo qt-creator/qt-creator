@@ -27,61 +27,39 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#ifndef UTILS_H
+#define UTILS_H
 
-#include "cpptools_global.h"
+#include "pchinfo.h"
 
-#include <texteditor/semantichighlighter.h>
+#include <QString>
+#include <QStringList>
+#include <QByteArray>
+#include <QMap>
+#include <QPair>
 
-#include <cplusplus/CppDocument.h>
+/*
+ * A header for globally visible typedefs. This is particularly useful
+ * so we don't have to #include files simply because of a typedef. Still,
+ * not every typedef should go in here, only the minimal subset of the
+ * ones which are needed quite often.
+ */
+namespace ClangCodeModel {
+namespace Internal {
 
-#include <QFuture>
+typedef QMap<QString, QByteArray> UnsavedFiles;
 
-namespace TextEditor {
-class ITextEditor;
-}
+/**
+ * Utility method to create a PCH file from a header file.
+ *
+ * \returns a boolean indicating success (true) or failure (false), and a
+ *          list of diagnostic messages.
+ */
+QPair<bool, QStringList> precompile(const PchInfo::Ptr &pchInfo);
 
-namespace CppTools {
+void initializeClang();
 
-class CPPTOOLS_EXPORT CppHighlightingSupport
-{
-public:
-    enum Kind {
-        Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
-    };
+} // Internal namespace
+} // ClangCodeModel namespace
 
-public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
-    virtual ~CppHighlightingSupport() = 0;
-
-    virtual bool requiresSemanticInfo() const = 0;
-
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
-
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
-
-protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
-
-private:
-    TextEditor::ITextEditor *m_editor;
-};
-
-} // namespace CppTools
-
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#endif // UTILS_H

@@ -27,61 +27,56 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#ifndef CLANG_DIAGNOSTIC_H
+#define CLANG_DIAGNOSTIC_H
 
-#include "cpptools_global.h"
+#include "clang_global.h"
+#include "sourcelocation.h"
 
-#include <texteditor/semantichighlighter.h>
+#include <QMetaType>
 
-#include <cplusplus/CppDocument.h>
+namespace ClangCodeModel {
 
-#include <QFuture>
-
-namespace TextEditor {
-class ITextEditor;
-}
-
-namespace CppTools {
-
-class CPPTOOLS_EXPORT CppHighlightingSupport
+class CLANG_EXPORT Diagnostic
 {
 public:
-    enum Kind {
-        Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
+    enum Severity {
+        Unknown = -1,
+        Ignored = 0,
+        Note = 1,
+        Warning = 2,
+        Error = 3,
+        Fatal = 4
     };
 
 public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
-    virtual ~CppHighlightingSupport() = 0;
+    Diagnostic();
+    Diagnostic(Severity severity, const SourceLocation &location, unsigned length, const QString &spelling);
 
-    virtual bool requiresSemanticInfo() const = 0;
+    Severity severity() const
+    { return m_severity; }
 
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
+    const QString severityAsString() const;
 
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
+    const SourceLocation &location() const
+    { return m_loc; }
 
-protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
+    unsigned length() const
+    { return m_length; }
+
+    const QString &spelling() const
+    { return m_spelling; }
 
 private:
-    TextEditor::ITextEditor *m_editor;
+    Severity m_severity;
+    SourceLocation m_loc;
+    unsigned m_length;
+    QString m_spelling;
 };
 
-} // namespace CppTools
+} // namespace ClangCodeModel
 
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+Q_DECLARE_METATYPE(ClangCodeModel::Diagnostic)
+Q_DECLARE_METATYPE(QList<ClangCodeModel::Diagnostic>)
+
+#endif // CLANG_DIAGNOSTIC_H

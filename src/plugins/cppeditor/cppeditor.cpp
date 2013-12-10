@@ -1565,6 +1565,8 @@ void CPPEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
             fs.toTextCharFormat(TextEditor::C_FUNCTION);
     m_semanticHighlightFormatMap[CppHighlightingSupport::PseudoKeywordUse] =
             fs.toTextCharFormat(TextEditor::C_KEYWORD);
+    m_semanticHighlightFormatMap[CppHighlightingSupport::StringUse] =
+            fs.toTextCharFormat(TextEditor::C_STRING);
     m_keywordFormat = fs.toTextCharFormat(TextEditor::C_KEYWORD);
 
     // only set the background, we do not want to modify foreground properties

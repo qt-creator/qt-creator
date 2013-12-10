@@ -27,61 +27,28 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+/*
+ * Expected: 'EnumScoped::Value1', 'EnumScoped::Value2', 'EnumScoped::Value3'
+ * Unexpected: 'Value1'
+ */
 
-#include "cpptools_global.h"
-
-#include <texteditor/semantichighlighter.h>
-
-#include <cplusplus/CppDocument.h>
-
-#include <QFuture>
-
-namespace TextEditor {
-class ITextEditor;
-}
-
-namespace CppTools {
-
-class CPPTOOLS_EXPORT CppHighlightingSupport
+enum class EnumScoped
 {
-public:
-    enum Kind {
-        Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
-    };
-
-public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
-    virtual ~CppHighlightingSupport() = 0;
-
-    virtual bool requiresSemanticInfo() const = 0;
-
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
-
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
-
-protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
-
-private:
-    TextEditor::ITextEditor *m_editor;
+    Value1,
+    Value2,
+    Value3
 };
 
-} // namespace CppTools
+class ClassOwnsEnum
+{
+};
 
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+int main()
+{
+    EnumScoped scoped = ;
+    switch (scoped) {
+    default:
+        break;
+    case <<<<
+    }
+}

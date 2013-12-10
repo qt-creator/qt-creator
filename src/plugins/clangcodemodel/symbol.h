@@ -27,61 +27,51 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#ifndef INDEXEDSYMBOLINFO_H
+#define INDEXEDSYMBOLINFO_H
 
-#include "cpptools_global.h"
+#include "sourcelocation.h"
 
-#include <texteditor/semantichighlighter.h>
+#include <QString>
+#include <QDataStream>
+#include <QIcon>
 
-#include <cplusplus/CppDocument.h>
+namespace ClangCodeModel {
 
-#include <QFuture>
-
-namespace TextEditor {
-class ITextEditor;
-}
-
-namespace CppTools {
-
-class CPPTOOLS_EXPORT CppHighlightingSupport
+class Symbol
 {
 public:
     enum Kind {
-        Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
+        Enum,
+        Class,
+        Method,       // A member-function.
+        Function,     // A free-function (global or within a namespace).
+        Declaration,
+        Constructor,
+        Destructor,
+        Unknown
     };
 
-public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
-    virtual ~CppHighlightingSupport() = 0;
+    Symbol();
+    Symbol(const QString &name,
+           const QString &qualification,
+           Kind type,
+           const SourceLocation &location);
 
-    virtual bool requiresSemanticInfo() const = 0;
+    QString m_name;
+    QString m_qualification;
+    SourceLocation m_location;
+    Kind m_kind;
 
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
-
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
-
-protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
-
-private:
-    TextEditor::ITextEditor *m_editor;
+    QIcon iconForSymbol() const;
 };
 
-} // namespace CppTools
+QDataStream &operator<<(QDataStream &stream, const Symbol &symbol);
+QDataStream &operator>>(QDataStream &stream, Symbol &symbol);
 
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+bool operator==(const Symbol &a, const Symbol &b);
+bool operator!=(const Symbol &a, const Symbol &b);
+
+} // Clang
+
+#endif // INDEXEDSYMBOLINFO_H

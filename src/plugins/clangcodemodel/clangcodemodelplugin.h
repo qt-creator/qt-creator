@@ -27,61 +27,50 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#ifndef CLANGPLUGIN_H
+#define CLANGPLUGIN_H
 
-#include "cpptools_global.h"
+#include "clangmodelmanagersupport.h"
+#include "liveunitsmanager.h"
 
-#include <texteditor/semantichighlighter.h>
+#ifdef CLANG_INDEXING
+#  include "clangindexer.h"
+#endif // CLANG_INDEXING
 
-#include <cplusplus/CppDocument.h>
+#include <extensionsystem/iplugin.h>
 
-#include <QFuture>
+namespace ClangCodeModel {
+namespace Internal {
 
-namespace TextEditor {
-class ITextEditor;
-}
-
-namespace CppTools {
-
-class CPPTOOLS_EXPORT CppHighlightingSupport
+class ClangCodeModelPlugin: public ExtensionSystem::IPlugin
 {
-public:
-    enum Kind {
-        Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
-    };
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClangCodeModel.json")
 
 public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
-    virtual ~CppHighlightingSupport() = 0;
+    bool initialize(const QStringList &arguments, QString *errorMessage);
 
-    virtual bool requiresSemanticInfo() const = 0;
-
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
-
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
-
-protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
+    void extensionsInitialized();
 
 private:
-    TextEditor::ITextEditor *m_editor;
+    LiveUnitsManager m_liveUnitsManager;
+    QScopedPointer<ModelManagerSupport> m_modelManagerSupport;
+#ifdef CLANG_INDEXING
+    QScopedPointer<ClangIndexer> m_indexer;
+#endif // CLANG_INDEXING
+
+#ifdef WITH_TESTS
+private slots:
+    void test_CXX_regressions();
+    void test_CXX_regressions_data();
+    void test_CXX_snippets();
+    void test_CXX_snippets_data();
+    void test_ObjC_hints();
+    void test_ObjC_hints_data();
+#endif
 };
 
-} // namespace CppTools
+} // namespace Internal
+} // namespace Clang
 
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#endif // CLANGPLUGIN_H

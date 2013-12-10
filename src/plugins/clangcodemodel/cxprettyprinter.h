@@ -27,61 +27,49 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#ifndef CXPRETTYPRINTER_H
+#define CXPRETTYPRINTER_H
 
-#include "cpptools_global.h"
+#include <clang-c/Index.h>
+#include <QString>
 
-#include <texteditor/semantichighlighter.h>
+namespace ClangCodeModel {
+namespace Internal {
 
-#include <cplusplus/CppDocument.h>
-
-#include <QFuture>
-
-namespace TextEditor {
-class ITextEditor;
-}
-
-namespace CppTools {
-
-class CPPTOOLS_EXPORT CppHighlightingSupport
+class CXPrettyPrinter
 {
 public:
-    enum Kind {
-        Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
-    };
+    CXPrettyPrinter();
 
-public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
-    virtual ~CppHighlightingSupport() = 0;
+    QString toString(CXCompletionChunkKind kind) const;
+    QString toString(CXAvailabilityKind kind) const;
+    QString toString(CXCursorKind kind) const;
+    QString toString(CXDiagnosticSeverity severity) const;
 
-    virtual bool requiresSemanticInfo() const = 0;
-
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
-
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
-
-protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
+    QString jsonForCompletionMeta(CXCodeCompleteResults *results);
+    QString jsonForCompletionString(const CXCompletionString &string);
+    QString jsonForCompletion(const CXCompletionResult &result);
+    QString jsonForDiagnsotic(const CXDiagnostic &diagnostic);
 
 private:
-    TextEditor::ITextEditor *m_editor;
+    int m_indent;
+    QString m_printed;
+
+    void writeCompletionContexts(CXCodeCompleteResults *results);
+    void writeCompletionStringJson(const CXCompletionString &string);
+    void writeCompletionChunkJson(const CXCompletionString &string, unsigned i);
+    void writeCompletionAnnotationJson(const CXCompletionString &string, unsigned i);
+
+    void writeDiagnosticJson(const CXDiagnostic &diag);
+    void writeFixItJson(const CXDiagnostic &diag, unsigned i);
+
+    void writeRangeJson(const CXSourceRange &range);
+    void writeLocationJson(const CXSourceLocation &location);
+
+    void writeLineEnd();
 };
 
-} // namespace CppTools
+} // namespace Internal
+} // namespace ClangCodeModel
 
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#endif // CXPRETTYPRINTER_H

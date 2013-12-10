@@ -27,61 +27,64 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#ifndef CLANG_SEMANTICMARKER_H
+#define CLANG_SEMANTICMARKER_H
 
-#include "cpptools_global.h"
+#include "clang_global.h"
+#include "diagnostic.h"
+#include "fastindexer.h"
+#include "sourcemarker.h"
+#include "utils.h"
 
-#include <texteditor/semantichighlighter.h>
+#include <texteditor/itexteditor.h>
 
-#include <cplusplus/CppDocument.h>
+#include <QMutex>
+#include <QScopedPointer>
+#include <QSharedPointer>
+#include <QString>
+#include <QStringList>
 
-#include <QFuture>
+namespace ClangCodeModel {
 
-namespace TextEditor {
-class ITextEditor;
+namespace Internal {
+class Unit;
 }
 
-namespace CppTools {
-
-class CPPTOOLS_EXPORT CppHighlightingSupport
+class CLANG_EXPORT SemanticMarker
 {
-public:
-    enum Kind {
-        Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
-    };
+    Q_DISABLE_COPY(SemanticMarker)
 
 public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
-    virtual ~CppHighlightingSupport() = 0;
+    typedef QSharedPointer<SemanticMarker> Ptr;
 
-    virtual bool requiresSemanticInfo() const = 0;
+public:
+    SemanticMarker();
+    ~SemanticMarker();
 
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
+    QMutex *mutex() const
+    { return &m_mutex; }
 
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
+    QString fileName() const;
+    void setFileName(const QString &fileName);
 
-protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
+    void setCompilationOptions(const QStringList &options);
+
+    void reparse(const Internal::UnsavedFiles &unsavedFiles);
+
+    QList<Diagnostic> diagnostics() const;
+
+    QList<TextEditor::BlockRange> ifdefedOutBlocks() const;
+
+    QList<SourceMarker> sourceMarkersInRange(unsigned firstLine,
+                                             unsigned lastLine);
+
+    Internal::Unit unit() const;
 
 private:
-    TextEditor::ITextEditor *m_editor;
+    mutable QMutex m_mutex;
+    QScopedPointer<Internal::Unit> m_unit;
 };
 
-} // namespace CppTools
+} // namespace ClangCodeModel
 
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#endif // CLANG_SEMANTICMARKER_H

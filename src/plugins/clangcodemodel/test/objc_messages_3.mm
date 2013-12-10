@@ -27,61 +27,28 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+@protocol Aaaa
+@end
 
-#include "cpptools_global.h"
+@interface Bbbb
+@end
 
-#include <texteditor/semantichighlighter.h>
+@interface PopCornTracker {
+    int _quality;
+    int _eatenAmount;
+    int _remainedAmount;
+}
+- (int) eatenAmount;
+- (int) spectacleQuality;
+- (int) desiredAmountForDramaDose: (int)dose andPersonsCount: (int) count;
++ (id) createNewTracker;
++ (id) createOldTracker:(Bbbb<Aaaa> *) aabb;
+- (id) initWithOldTracker:(Bbbb<Aaaa> *) aabb;
+@end
 
-#include <cplusplus/CppDocument.h>
-
-#include <QFuture>
-
-namespace TextEditor {
-class ITextEditor;
+@interface AdvancedPopCornTracker : PopCornTracker {
 }
 
-namespace CppTools {
+- <<<<
 
-class CPPTOOLS_EXPORT CppHighlightingSupport
-{
-public:
-    enum Kind {
-        Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
-    };
-
-public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
-    virtual ~CppHighlightingSupport() = 0;
-
-    virtual bool requiresSemanticInfo() const = 0;
-
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
-
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
-
-protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
-
-private:
-    TextEditor::ITextEditor *m_editor;
-};
-
-} // namespace CppTools
-
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+@end

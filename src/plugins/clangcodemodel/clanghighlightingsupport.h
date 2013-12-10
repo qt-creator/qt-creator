@@ -27,61 +27,43 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#ifndef CLANG_CLANGHIGHLIGHTINGSUPPORT_H
+#define CLANG_CLANGHIGHLIGHTINGSUPPORT_H
 
-#include "cpptools_global.h"
+#include "clangutils.h"
+#include "cppcreatemarkers.h"
+#include "fastindexer.h"
 
-#include <texteditor/semantichighlighter.h>
+#include <cpptools/cpphighlightingsupport.h>
 
-#include <cplusplus/CppDocument.h>
+#include <QObject>
+#include <QScopedPointer>
 
-#include <QFuture>
+namespace ClangCodeModel {
 
-namespace TextEditor {
-class ITextEditor;
-}
-
-namespace CppTools {
-
-class CPPTOOLS_EXPORT CppHighlightingSupport
+class ClangHighlightingSupport: public CppTools::CppHighlightingSupport
 {
 public:
-    enum Kind {
-        Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
-    };
+    ClangHighlightingSupport(TextEditor::ITextEditor *textEditor,
+                             Internal::FastIndexer *fastIndexer);
+    ~ClangHighlightingSupport();
 
-public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
-    virtual ~CppHighlightingSupport() = 0;
+    virtual bool requiresSemanticInfo() const
+    { return false; }
 
-    virtual bool requiresSemanticInfo() const = 0;
+    virtual bool hightlighterHandlesDiagnostics() const
+    { return true; }
 
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
+    virtual bool hightlighterHandlesIfdefedOutBlocks() const;
 
     virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
-
-protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
+            const CPlusPlus::Document::Ptr &doc, const CPlusPlus::Snapshot &snapshot) const;
 
 private:
-    TextEditor::ITextEditor *m_editor;
+    Internal::FastIndexer *m_fastIndexer;
+    ClangCodeModel::SemanticMarker::Ptr m_semanticMarker;
 };
 
-} // namespace CppTools
+} // namespace ClangCodeModel
 
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#endif // CLANG_CLANGHIGHLIGHTINGSUPPORT_H

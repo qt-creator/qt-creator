@@ -27,61 +27,56 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#ifndef CLANGPROJECTSETTINGS_H
+#define CLANGPROJECTSETTINGS_H
 
-#include "cpptools_global.h"
+#include "clang_global.h"
 
-#include <texteditor/semantichighlighter.h>
+#include <projectexplorer/project.h>
 
-#include <cplusplus/CppDocument.h>
+#include <QObject>
+#include <QString>
 
-#include <QFuture>
+namespace ClangCodeModel {
 
-namespace TextEditor {
-class ITextEditor;
-}
-
-namespace CppTools {
-
-class CPPTOOLS_EXPORT CppHighlightingSupport
+class CLANG_EXPORT ClangProjectSettings: public QObject
 {
+    Q_OBJECT
+
 public:
-    enum Kind {
-        Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
+    enum PchUsage {
+        PchUse_Unknown = 0,
+        PchUse_None = 1,
+        PchUse_BuildSystem_Exact = 2,
+        PchUse_BuildSystem_Fuzzy = 3,
+        PchUse_Custom = 4
     };
 
 public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
-    virtual ~CppHighlightingSupport() = 0;
+    ClangProjectSettings(ProjectExplorer::Project *project);
+    virtual ~ClangProjectSettings();
 
-    virtual bool requiresSemanticInfo() const = 0;
+    ProjectExplorer::Project *project() const;
 
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
+    PchUsage pchUsage() const;
+    void setPchUsage(PchUsage pchUsage);
 
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
+    QString customPchFile() const;
+    void setCustomPchFile(const QString &customPchFile);
 
-protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
+signals:
+    void pchSettingsChanged();
+
+public slots:
+    void pullSettings();
+    void pushSettings();
 
 private:
-    TextEditor::ITextEditor *m_editor;
+    ProjectExplorer::Project *m_project;
+    PchUsage m_pchUsage;
+    QString m_customPchFile;
 };
 
-} // namespace CppTools
+} // ClangCodeModel namespace
 
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#endif // CLANGPROJECTSETTINGS_H

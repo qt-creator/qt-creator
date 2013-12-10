@@ -27,61 +27,43 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#ifndef SOURCELOCATION_H
+#define SOURCELOCATION_H
 
-#include "cpptools_global.h"
+#include "clang_global.h"
 
-#include <texteditor/semantichighlighter.h>
+#include <QtCore/QString>
+#include <QtCore/QDebug>
 
-#include <cplusplus/CppDocument.h>
+namespace ClangCodeModel {
 
-#include <QFuture>
-
-namespace TextEditor {
-class ITextEditor;
-}
-
-namespace CppTools {
-
-class CPPTOOLS_EXPORT CppHighlightingSupport
+class CLANG_EXPORT SourceLocation
 {
 public:
-    enum Kind {
-        Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
-    };
+    SourceLocation();
+    SourceLocation(const QString &fileName,
+                   unsigned line = 0,
+                   unsigned column = 0,
+                   unsigned offset = 0);
 
-public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
-    virtual ~CppHighlightingSupport() = 0;
-
-    virtual bool requiresSemanticInfo() const = 0;
-
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
-
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
-
-protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
+    bool isNull() const { return m_fileName.isEmpty(); }
+    const QString &fileName() const { return m_fileName; }
+    unsigned line() const { return m_line; }
+    unsigned column() const { return m_column; }
+    unsigned offset() const { return m_offset; }
 
 private:
-    TextEditor::ITextEditor *m_editor;
+    QString m_fileName;
+    unsigned m_line;
+    unsigned m_column;
+    unsigned m_offset;
 };
 
-} // namespace CppTools
+bool operator==(const SourceLocation &a, const SourceLocation &b);
+bool operator!=(const SourceLocation &a, const SourceLocation &b);
 
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+QDebug operator<<(QDebug dbg, const SourceLocation &location);
+
+} // ClangCodeModel
+
+#endif // SOURCELOCATION_H

@@ -42,6 +42,17 @@
 
 namespace CppTools {
 
+#ifdef _MSC_VER
+// Short explanation: QFutureInterface is currently used as a base for an exported class
+// (see CreateMarkers). Even though it's not explicitly marked to be exported VC++ will
+// implicitly export it (more details on the General Rules and Limitations of dllexport/
+// dllimport MSDN page). When seen here as a base of CheckSymbols the compiler tries to
+// instantiate this template (since the declaration of template doesn't have any explicit
+// export/import attribute) which will eventually collide with the already defined symbol.
+// The line below simply tells the compiler to import the template instead of instantiating.
+template class Q_DECL_IMPORT QFutureInterface<CppEditor::Internal::SemanticInfo::Use>;
+#endif
+
 class CPPTOOLS_EXPORT CheckSymbols:
         protected CPlusPlus::ASTVisitor,
         public QRunnable,

@@ -27,61 +27,71 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#ifndef CLANG_SOURCEMARKER_H
+#define CLANG_SOURCEMARKER_H
 
-#include "cpptools_global.h"
+#include "clang_global.h"
+#include "sourcelocation.h"
 
-#include <texteditor/semantichighlighter.h>
+namespace ClangCodeModel {
 
-#include <cplusplus/CppDocument.h>
-
-#include <QFuture>
-
-namespace TextEditor {
-class ITextEditor;
-}
-
-namespace CppTools {
-
-class CPPTOOLS_EXPORT CppHighlightingSupport
+class CLANG_EXPORT SourceMarker
 {
-public:
+public: // TODO: remove this, it's about the same as the TextEditor::SemanticHighlighter::Result
     enum Kind {
         Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
+        Type = 1,
+        Local,
+        Field,
+        Enumeration,
+        VirtualMethod,
+        Label,
+        Macro,
+        Function,
+        PseudoKeyword,
+        ObjCString,
+
+        ObjectiveCMessage = VirtualMethod
     };
 
-public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
-    virtual ~CppHighlightingSupport() = 0;
+    SourceMarker();
+    SourceMarker(const SourceLocation &location,
+                 unsigned length,
+                 Kind kind);
 
-    virtual bool requiresSemanticInfo() const = 0;
+    bool isValid() const
+    { return m_loc.line() != 0; }
 
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
+    bool isInvalid() const
+    { return m_loc.line() == 0; }
 
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
+    const SourceLocation &location() const
+    { return m_loc; }
 
-protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
+    unsigned length() const
+    { return m_length; }
+
+    Kind kind() const
+    { return m_kind; }
+
+    bool lessThan(const SourceMarker &other) const
+    {
+        if (m_loc.line() != other.m_loc.line())
+            return m_loc.line() < other.m_loc.line();
+        if (m_loc.column() != other.m_loc.column())
+            return m_loc.column() < other.m_loc.column();
+        return m_length < other.m_length;
+    }
 
 private:
-    TextEditor::ITextEditor *m_editor;
+    SourceLocation m_loc;
+    unsigned m_length;
+    Kind m_kind;
 };
 
-} // namespace CppTools
+CLANG_EXPORT inline bool operator<(const SourceMarker &one, const SourceMarker &two)
+{ return one.lessThan(two); }
 
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+} // namespace Clang
+
+#endif // CLANG_SOURCEMARKER_H

@@ -27,61 +27,46 @@
 **
 ****************************************************************************/
 
-#ifndef CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
-#define CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+#ifndef CLANGPROJECTSETTINGSPROPERTIESPAGE_H
+#define CLANGPROJECTSETTINGSPROPERTIESPAGE_H
 
-#include "cpptools_global.h"
+#include "ui_clangprojectsettingspropertiespage.h"
 
-#include <texteditor/semantichighlighter.h>
+#include <projectexplorer/iprojectproperties.h>
 
-#include <cplusplus/CppDocument.h>
+#include <QString>
 
-#include <QFuture>
+namespace ClangCodeModel {
+namespace Internal {
 
-namespace TextEditor {
-class ITextEditor;
-}
-
-namespace CppTools {
-
-class CPPTOOLS_EXPORT CppHighlightingSupport
+class ClangProjectSettingsPanelFactory: public ProjectExplorer::IProjectPanelFactory
 {
 public:
-    enum Kind {
-        Unknown = 0,
-        TypeUse,
-        LocalUse,
-        FieldUse,
-        EnumerationUse,
-        VirtualMethodUse,
-        LabelUse,
-        MacroUse,
-        FunctionUse,
-        PseudoKeywordUse,
-        StringUse
-    };
-
-public:
-    CppHighlightingSupport(TextEditor::ITextEditor *editor);
-    virtual ~CppHighlightingSupport() = 0;
-
-    virtual bool requiresSemanticInfo() const = 0;
-
-    virtual bool hightlighterHandlesDiagnostics() const = 0;
-    virtual bool hightlighterHandlesIfdefedOutBlocks() const = 0;
-
-    virtual QFuture<TextEditor::HighlightingResult> highlightingFuture(
-            const CPlusPlus::Document::Ptr &doc,
-            const CPlusPlus::Snapshot &snapshot) const = 0;
-
-protected:
-    TextEditor::ITextEditor *editor() const
-    { return m_editor; }
-
-private:
-    TextEditor::ITextEditor *m_editor;
+    QString id() const;
+    QString displayName() const;
+    int priority() const;
+    bool supports(ProjectExplorer::Project *project);
+    ProjectExplorer::PropertiesPanel *createPanel(ProjectExplorer::Project *project);
 };
 
-} // namespace CppTools
+class ClangProjectSettingsWidget: public QWidget
+{
+    Q_OBJECT
 
-#endif // CPPTOOLS_CPPHIGHLIGHTINGSUPPORT_H
+public:
+    ClangProjectSettingsWidget(ProjectExplorer::Project *project);
+
+protected slots:
+    void pchUsageChanged(int id);
+    void customPchFileChanged();
+    void customPchButtonClicked();
+
+private:
+    Ui::ClangProjectSettingsPropertiesPage m_ui;
+    ProjectExplorer::Project *m_project;
+};
+
+} // ClangCodeModel namespace
+} // Internal namespace
+
+#endif // CLANGPROJECTSETTINGSPROPERTIESPAGE_H

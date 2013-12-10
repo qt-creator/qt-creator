@@ -44,7 +44,7 @@ CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(QWidget *parent)
 {
     m_ui->setupUi(this);
 
-    m_ui->theGroupBox->setVisible(false);
+    m_ui->theGroupBox->setVisible(true);
 }
 
 CppCodeModelSettingsWidget::~CppCodeModelSettingsWidget()
