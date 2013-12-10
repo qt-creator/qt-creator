@@ -116,6 +116,12 @@
 #define USE_SHARED_POINTER 0
 #endif
 
+#if QT_VERSION >= 0x050200
+#define USE_TIMEZONE 1
+#else
+#define USE_TIMEZONE 0
+#endif
+
 void dummyStatement(...) {}
 
 #if USE_CXX11 && defined(__GNUC__) && defined(__STRICT_ANSI__)
@@ -144,6 +150,10 @@ void dummyStatement(...) {}
 #include <QUrl>
 #if USE_SHARED_POINTER
 #include <QSharedPointer>
+#endif
+
+#if USE_TIMEZONE
+#include <QTimeZone>
 #endif
 
 #if USE_GUILIB
@@ -5475,6 +5485,7 @@ namespace basic {
 
     void testLongEvaluation1()
     {
+#if USE_TIMEZONE
         QTimeZone tz("UTC+05:00");
         QDateTime time = QDateTime::currentDateTime();
         const int N = 10000;
@@ -5495,6 +5506,7 @@ namespace basic {
         // Continue.
         // Note: This is expected to _not_ take up to a minute.
         dummyStatement(&bigv);
+#endif
     }
 
     void testLongEvaluation2()
@@ -7039,6 +7051,7 @@ template <class X> int ffff(X x)
 int main(int argc, char *argv[])
 {
     int z = ffff(3) + ffff(2.0);
+    Q_UNUSED(z);
 
     #if USE_GUILIB
     QApplication app(argc, argv);

@@ -253,7 +253,7 @@ protected: // visiting functions:
     virtual bool visit(ObjectLiteral *ast) { terminal(ast->lbraceToken); nonterminal(ast->properties); terminal(ast->rbraceToken); return false; }
     virtual bool visit(ElementList *ast) { nonterminal(ast->next); terminal(ast->commaToken); nonterminal(ast->elision); nonterminal(ast->expression); return false; }
     virtual bool visit(Elision *ast) { nonterminal(ast->next); terminal(ast->commaToken); return false; }
-    virtual bool visit(PropertyNameAndValueList *ast) { nonterminal(ast->name); terminal(ast->colonToken); nonterminal(ast->value); terminal(ast->commaToken); nonterminal(ast->next); return false; }
+    virtual bool visit(PropertyAssignmentList *ast) { nonterminal(ast->assignment); nonterminal(ast->next); terminal(ast->commaToken); return false; }
     virtual bool visit(IdentifierPropertyName *ast) { terminal(ast->propertyNameToken); return false; }
     virtual bool visit(StringLiteralPropertyName *ast) { terminal(ast->propertyNameToken); return false; }
     virtual bool visit(NumericLiteralPropertyName *ast) { terminal(ast->propertyNameToken); return false; }
