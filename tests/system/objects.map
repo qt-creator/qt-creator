@@ -176,6 +176,7 @@
 :RunSettingsUseBuildEnvironment_QLabel	{text~='Us(e|ing) <b>Build Environment</b>' type='QLabel' unnamed='1' visible='1'}
 :Select signal.signalList_QTreeWidget	{container=':Go to slot.Select signal_QGroupBox' name='signalList' type='QTreeWidget' visible='1'}
 :Send to Codepaster.Cancel_QPushButton	{text='Cancel' type='QPushButton' unnamed='1' visible='1' window=':Send to Codepaster_CodePaster::PasteView'}
+:Send to Codepaster.Description:_QLabel	{name='descriptionLabel' text='Description:' type='QLabel' visible='1' window=':Send to Codepaster_CodePaster::PasteView'}
 :Send to Codepaster.Paste_QPushButton	{text='Paste' type='QPushButton' unnamed='1' visible='1' window=':Send to Codepaster_CodePaster::PasteView'}
 :Send to Codepaster.protocolBox_QComboBox	{name='protocolBox' type='QComboBox' visible='1' window=':Send to Codepaster_CodePaster::PasteView'}
 :Send to Codepaster.stackedWidget_QStackedWidget	{name='stackedWidget' type='QStackedWidget' visible='1' window=':Send to Codepaster_CodePaster::PasteView'}
@@ -210,3 +211,4 @@
 :scrollArea_QTableView	{type='QTableView' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :sourceFileLineEdit_Utils::FileNameValidatingLineEdit	{buddy=':Qt Gui Application.Source file:_QLabel' name='sourceFileLineEdit' type='Utils::FileNameValidatingLineEdit' visible='1'}
 :stackedWidget.plainTextEdit_QPlainTextEdit	{container=':Send to Codepaster.stackedWidget_QStackedWidget' name='plainTextEdit' type='QPlainTextEdit' visible='1'}
+:uiDescription_QLineEdit	{buddy=':Send to Codepaster.Description:_QLabel' name='uiDescription' type='QLineEdit' visible='1'}
