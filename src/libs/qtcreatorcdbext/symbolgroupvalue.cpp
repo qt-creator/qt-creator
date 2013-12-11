@@ -2711,10 +2711,8 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
     const SymbolGroupValue v(n, ctx);
     if (!v) // Value as such has memory read error?
         return SymbolGroupNode::SimpleDumperFailed;
-    if (SymbolGroupValue::isPointerType(v.type()))
-        if (const ULONG64 pointerValue = v.pointerValue())
-            str << std::showbase << std::hex << pointerValue << std::dec << std::noshowbase << ' ';
 
+    unsigned rc = SymbolGroupNode::SimpleDumperNotApplicable;
     // Simple dump of size for containers
     if (kt & KT_ContainerType) {
         const int size = containerSize(kt, v);
@@ -2724,123 +2722,125 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
             *containerSizeIn = size;
         if (size >= 0) {
             str << L'<' << size << L" items>";
-            *s = str.str();
-            return SymbolGroupNode::SimpleDumperOk;
+            rc = SymbolGroupNode::SimpleDumperOk;
+        } else {
+            rc = SymbolGroupNode::SimpleDumperFailed;
         }
-        return SymbolGroupNode::SimpleDumperFailed;
+    } else {
+        switch (kt) {
+        case KT_QChar:
+            rc = dumpQChar(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QByteArray:
+            rc = dumpQByteArray(v, str, memoryHandleIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QFileInfo:
+            rc = dumpQFileInfo(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QFile:
+            rc = dumpQFile(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QDir:
+            rc = dumpQDir(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QRegExp:
+            rc = dumpQRegExp(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QUrl:
+            rc = dumpQUrl(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QHostAddress:
+            rc = dumpQHostAddress(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QProcess:
+            rc = dumpQProcess(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QScriptValue:
+            rc = dumpQScriptValue(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QString:
+            rc = dumpQString(v, str, memoryHandleIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QStringRef:
+            rc = dumpQStringRef(v, str, memoryHandleIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QColor:
+            rc = dumpQColor(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QFlags:
+            rc = dumpQFlags(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QDate:
+            rc = dumpQDate(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QTime:
+            rc = dumpQTime(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QDateTime:
+            rc = dumpQDateTime(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QPoint:
+        case KT_QPointF:
+            rc = dumpQPoint_F(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QSize:
+        case KT_QSizeF:
+            rc = dumpQSize_F(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QLine:
+        case KT_QLineF:
+            rc = dumpQLine_F(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QPixmap:
+            rc = dumpQPixmap(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QImage:
+            rc = dumpQImage(v, str, memoryHandleIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QRect:
+            rc = dumpQRect(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QRectF:
+            rc = dumpQRectF(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QVariant:
+            rc = dumpQVariant(v, str, specialInfoIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QAtomicInt:
+            rc = dumpQAtomicInt(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QBasicAtomicInt:
+            rc = dumpQBasicAtomicInt(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QObject:
+            rc = dumpQObject(v, str, specialInfoIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QWidget:
+            rc = dumpQWidget(v, str, specialInfoIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QWindow:
+            rc = dumpQWindow(v, str, specialInfoIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QSharedPointer:
+            rc = dumpQSharedPointer(v, str, specialInfoIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_StdString:
+        case KT_StdWString:
+            rc = dumpStd_W_String(v, kt, str, memoryHandleIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_StdComplex:
+            rc = dumpStd_Complex(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        case KT_QTextCursor:
+            rc = dumpQTextCursor(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+            break;
+        default:
+            break;
+        }
     }
-    unsigned rc = SymbolGroupNode::SimpleDumperNotApplicable;
-    switch (kt) {
-    case KT_QChar:
-        rc = dumpQChar(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    case KT_QByteArray:
-        rc = dumpQByteArray(v, str, memoryHandleIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    case KT_QFileInfo:
-        rc = dumpQFileInfo(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    case KT_QFile:
-        rc = dumpQFile(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    case KT_QDir:
-        rc = dumpQDir(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    case KT_QRegExp:
-        rc = dumpQRegExp(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    case KT_QUrl:
-        rc = dumpQUrl(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    case KT_QHostAddress:
-        rc = dumpQHostAddress(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    case KT_QProcess:
-        rc = dumpQProcess(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    case KT_QScriptValue:
-        rc = dumpQScriptValue(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    case KT_QString:
-        rc = dumpQString(v, str, memoryHandleIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    case KT_QStringRef:
-        rc = dumpQStringRef(v, str, memoryHandleIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    case KT_QColor:
-        rc = dumpQColor(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    case KT_QFlags:
-        rc = dumpQFlags(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    case KT_QDate:
-        rc = dumpQDate(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    case KT_QTime:
-        rc = dumpQTime(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    case KT_QDateTime:
-        rc = dumpQDateTime(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    case KT_QPoint:
-    case KT_QPointF:
-        rc = dumpQPoint_F(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    case KT_QSize:
-    case KT_QSizeF:
-        rc = dumpQSize_F(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    case KT_QLine:
-    case KT_QLineF:
-        rc = dumpQLine_F(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    case KT_QPixmap:
-        rc = dumpQPixmap(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    case KT_QImage:
-        rc = dumpQImage(v, str, memoryHandleIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    case KT_QRect:
-        rc = dumpQRect(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    case KT_QRectF:
-        rc = dumpQRectF(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    case KT_QVariant:
-        rc = dumpQVariant(v, str, specialInfoIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    case KT_QAtomicInt:
-        rc = dumpQAtomicInt(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    case KT_QBasicAtomicInt:
-        rc = dumpQBasicAtomicInt(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    case KT_QObject:
-        rc = dumpQObject(v, str, specialInfoIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    case KT_QWidget:
-        rc = dumpQWidget(v, str, specialInfoIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    case KT_QWindow:
-        rc = dumpQWindow(v, str, specialInfoIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    case KT_QSharedPointer:
-        rc = dumpQSharedPointer(v, str, specialInfoIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    case KT_StdString:
-    case KT_StdWString:
-        rc = dumpStd_W_String(v, kt, str, memoryHandleIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    case KT_StdComplex:
-        rc = dumpStd_Complex(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    case KT_QTextCursor:
-        rc = dumpQTextCursor(v, str) ? SymbolGroupNode::SimpleDumperOk
-                                     : SymbolGroupNode::SimpleDumperFailed;
-        break;
-    default:
-        break;
-    }
+    if (rc != SymbolGroupNode::SimpleDumperFailed && SymbolGroupValue::isPointerType(v.type()))
+        str << L" @" << std::showbase << std::hex << v.pointerValue() << std::dec << std::noshowbase;
+
     if (rc == SymbolGroupNode::SimpleDumperOk)
         *s = str.str();
     QTC_TRACE_OUT

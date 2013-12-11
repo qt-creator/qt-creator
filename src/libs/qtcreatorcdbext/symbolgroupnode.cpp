@@ -1101,13 +1101,15 @@ int SymbolGroupNode::dumpNode(std::ostream &str,
 
     if (addr) {
         str << std::hex << std::showbase << ",addr=\"" << addr << '"';
-        if (!value.compare(0, 2u, L"0x")) {
-            // Determine referenced address of pointers?
-            ULONG64 referencedAddr = 0;
-            std::wistringstream istr(value.substr(2u, value.size() - 2u));
-            istr >> std::hex >> referencedAddr;
-            if (referencedAddr)
-                str << ",origaddr=\"" << referencedAddr << '"';
+        if (SymbolGroupValue::isPointerType(t)) {
+            std::string::size_type pointerPos = value.rfind(L"0x");
+            if (pointerPos != std::string::npos) {
+                ULONG64 referencedAddr = 0;
+                std::wistringstream istr(value.substr(pointerPos + 2u));
+                istr >> std::hex >> referencedAddr;
+                if (referencedAddr)
+                    str << ",origaddr=\"" << referencedAddr << '"';
+            }
         }
         str << std::noshowbase << std::dec;
     }
