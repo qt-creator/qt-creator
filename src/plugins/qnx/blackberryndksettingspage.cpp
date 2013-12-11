@@ -45,7 +45,7 @@ BlackBerryNDKSettingsPage::BlackBerryNDKSettingsPage(QObject *parent) :
     Core::IOptionsPage(parent)
 {
     setId(Core::Id(Constants::QNX_BB_NDK_SETTINGS_ID));
-    setDisplayName(tr("NDK"));
+    setDisplayName(tr("API Level"));
     setCategory(Constants::QNX_BB_CATEGORY);
     setDisplayCategory(QCoreApplication::translate("BlackBerry",
                 Constants::QNX_BB_CATEGORY_TR));

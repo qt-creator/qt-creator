@@ -296,6 +296,9 @@ QList<BlackBerryConfiguration *> BlackBerryConfigurationManager::activeConfigura
 
 BlackBerryConfiguration *BlackBerryConfigurationManager::configurationFromEnvFile(const Utils::FileName &envFile) const
 {
+    if (envFile.isEmpty())
+        return 0;
+
     foreach (BlackBerryConfiguration *config, m_configs) {
         if (config->ndkEnvFile() == envFile)
             return config;

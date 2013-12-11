@@ -60,14 +60,13 @@ BlackBerryNDKSettingsWidget::BlackBerryNDKSettingsWidget(QWidget *parent) :
     m_bbConfigManager = &BlackBerryConfigurationManager::instance();
     m_ui->setupUi(this);
 
-    m_ui->activateNdkTargetButton->setEnabled(false);
-    m_ui->deactivateNdkTargetButton->setEnabled(false);
+    updateInfoTable(0);
 
     m_activatedTargets << m_bbConfigManager->activeConfigurations();
 
     m_ui->ndksTreeWidget->header()->setResizeMode(QHeaderView::Stretch);
     m_ui->ndksTreeWidget->header()->setStretchLastSection(false);
-    m_ui->ndksTreeWidget->setHeaderItem(new QTreeWidgetItem(QStringList() << tr("NDK") << tr("NDK Environment File")));
+    m_ui->ndksTreeWidget->setHeaderItem(new QTreeWidgetItem(QStringList() << tr("API Level") << tr("Environment File")));
     m_ui->ndksTreeWidget->setTextElideMode(Qt::ElideNone);
     m_ui->ndksTreeWidget->setColumnCount(2);
     m_autoDetectedNdks = new QTreeWidgetItem(m_ui->ndksTreeWidget);
@@ -81,14 +80,14 @@ BlackBerryNDKSettingsWidget::BlackBerryNDKSettingsWidget(QWidget *parent) :
 
     m_ui->ndksTreeWidget->expandAll();
 
-    updateNdkList();
-
     connect(m_ui->wizardButton, SIGNAL(clicked()), this, SLOT(launchBlackBerrySetupWizard()));
     connect(m_ui->addNdkButton, SIGNAL(clicked()), this, SLOT(addNdkTarget()));
     connect(m_ui->removeNdkButton, SIGNAL(clicked()), this, SLOT(removeNdkTarget()));
     connect(m_ui->activateNdkTargetButton, SIGNAL(clicked()), this, SLOT(activateNdkTarget()));
     connect(m_ui->deactivateNdkTargetButton, SIGNAL(clicked()), this, SLOT(deactivateNdkTarget()));
     connect(m_ui->ndksTreeWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)), this, SLOT(updateInfoTable(QTreeWidgetItem*)));
+
+    updateNdkList();
 }
 
 void BlackBerryNDKSettingsWidget::setWizardMessageVisible(bool visible)
@@ -130,28 +129,17 @@ void BlackBerryNDKSettingsWidget::launchBlackBerrySetupWizard() const
 
 void BlackBerryNDKSettingsWidget::updateInfoTable(QTreeWidgetItem* currentItem)
 {
-    if (!currentItem)
-        return;
-
-    QString envFilePath = currentItem->text(1);
-    if (envFilePath.isEmpty()) {
-        m_ui->removeNdkButton->setEnabled(false);
-        m_ui->activateNdkTargetButton->setEnabled(false);
-        m_ui->deactivateNdkTargetButton->setEnabled(false);
-        return;
-    }
-
-    BlackBerryConfiguration *config = m_bbConfigManager->configurationFromEnvFile(Utils::FileName::fromString(envFilePath));
-    if (!config)
-        return;
-
-    m_ui->baseNameLabel->setText(config->displayName());
-    m_ui->ndkPathLabel->setText(QDir::toNativeSeparators(config->ndkPath()));
-    m_ui->hostLabel->setText(QDir::toNativeSeparators(config->qnxHost()));
-    m_ui->targetLabel->setText(QDir::toNativeSeparators(config->sysRoot().toString()));
-    m_ui->versionLabel->setText(config->version().toString());
-
+    BlackBerryConfiguration *config = m_bbConfigManager->configurationFromEnvFile(
+            Utils::FileName::fromString(currentItem ? currentItem->text(1) : QString()));
     updateUi(currentItem, config);
+
+    m_ui->informationBox->setVisible(config);
+    if (config) {
+        m_ui->baseNameLabel->setText(config->displayName());
+        m_ui->hostLabel->setText(QDir::toNativeSeparators(config->qnxHost()));
+        m_ui->targetLabel->setText(QDir::toNativeSeparators(config->sysRoot().toString()));
+        m_ui->versionLabel->setText(config->version().toString());
+    }
 }
 
 void BlackBerryNDKSettingsWidget::updateNdkList()
@@ -170,10 +158,7 @@ void BlackBerryNDKSettingsWidget::updateNdkList()
         item->setFont(1, font);
     }
 
-    if (m_autoDetectedNdks->child(0)) {
-        m_autoDetectedNdks->child(0)->setSelected(true);
-        updateInfoTable(m_autoDetectedNdks->child(0));
-    }
+    m_ui->ndksTreeWidget->setCurrentItem(m_autoDetectedNdks->child(0));
 }
 
 void BlackBerryNDKSettingsWidget::addNdkTarget()
@@ -251,17 +236,21 @@ void BlackBerryNDKSettingsWidget::deactivateNdkTarget()
 
 void BlackBerryNDKSettingsWidget::updateUi(QTreeWidgetItem *item, BlackBerryConfiguration *config)
 {
-    if (!item || !config)
+    if (!item || !config) {
+        m_ui->removeNdkButton->setEnabled(false);
+        m_ui->activateNdkTargetButton->setEnabled(false);
+        m_ui->deactivateNdkTargetButton->setEnabled(false);
         return;
+    }
 
+    const bool contains = m_activatedTargets.contains(config);
     QFont font;
-    font.setBold(m_activatedTargets.contains(config));
+    font.setBold(contains);
     item->setFont(0, font);
     item->setFont(1, font);
 
-    m_ui->activateNdkTargetButton->setEnabled(!m_activatedTargets.contains(config));
-    m_ui->deactivateNdkTargetButton->setEnabled(m_activatedTargets.contains(config)
-                                                && m_activatedTargets.size() > 1);
+    m_ui->activateNdkTargetButton->setEnabled(!contains);
+    m_ui->deactivateNdkTargetButton->setEnabled(contains && m_activatedTargets.size() > 1);
     // Disable remove button for auto detected pre-10.2 NDKs (uninstall wizard doesn't handle them)
     m_ui->removeNdkButton->setEnabled(!(config->isAutoDetected()
                                             && QnxUtils::sdkInstallerPath(config->ndkPath()).isEmpty()));
