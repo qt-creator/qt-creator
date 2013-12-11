@@ -9,6 +9,7 @@ Project {
         "autotoolsprojectmanager/autotoolsprojectmanager.qbs",
         "baremetal/baremetal.qbs",
         "bazaar/bazaar.qbs",
+        "beautifier/beautifier.qbs",
         "bineditor/bineditor.qbs",
         "bookmarks/bookmarks.qbs",
         "clangcodemodel/clangcodemodel.qbs",
