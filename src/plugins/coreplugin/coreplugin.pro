@@ -96,7 +96,8 @@ SOURCES += mainwindow.cpp \
     removefiledialog.cpp \
     iversioncontrol.cpp \
     dialogs/addtovcsdialog.cpp \
-    icorelistener.cpp
+    icorelistener.cpp \
+    ioutputpane.cpp
 
 HEADERS += mainwindow.h \
     editmode.h \

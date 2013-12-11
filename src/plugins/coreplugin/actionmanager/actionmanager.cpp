@@ -54,6 +54,7 @@ using namespace Core::Internal;
 /*!
     \class Core::ActionManager
     \mainclass
+    \inmodule Qt Creator
 
     \brief The ActionManager class is responsible for registration of menus and
     menu items and keyboard shortcuts.
@@ -140,6 +141,18 @@ using namespace Core::Internal;
     \sa Core::IContext
 */
 
+/*!
+    \fn void ActionManager::commandListChanged()
+
+    Emitted when the command list has changed.
+*/
+
+/*!
+    \fn void ActionManager::commandAdded(const QString &id)
+
+    Emitted when a command (with the \a id) is added.
+*/
+
 static ActionManager *m_instance = 0;
 static ActionManagerPrivate *d;
 
@@ -162,8 +175,8 @@ ActionManager::~ActionManager()
 }
 
 /*!
- * \return Singleton action manager instance
- */
+    Returns the pointer to the instance, which is only used for connecting to signals.
+*/
 ActionManager *ActionManager::instance()
 {
     return m_instance;
@@ -330,8 +343,8 @@ ActionContainer *ActionManager::actionContainer(Id id)
 }
 
 /*!
- * Returns all commands that have been registered.
- */
+    Returns all commands that have been registered.
+*/
 QList<Command *> ActionManager::commands()
 {
     // transform list of CommandPrivate into list of Command
@@ -397,7 +410,11 @@ void ActionManager::unregisterShortcut(Id id)
     emit m_instance->commandListChanged();
 }
 
-
+/*!
+    Handles the display of the used shortcuts in the presentation mode. The presentation mode is
+    enabled when starting \QC with the command line argument \c{-presentationMode}. In the
+    presentation mode, \QC displays any pressed shortcut in a grey box.
+*/
 void ActionManager::setPresentationModeEnabled(bool enabled)
 {
     if (enabled == isPresentationModeEnabled())

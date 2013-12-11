@@ -53,19 +53,13 @@ public:
     virtual QList<QWidget *> toolBarWidgets() const = 0;
     virtual QString displayName() const = 0;
 
-    // -1 don't show in statusBar
-    // 100...0 show at front...end
     virtual int priorityInStatusBar() const = 0;
 
     virtual void clearContents() = 0;
     virtual void visibilityChanged(bool visible) = 0;
 
-    // This function is called to give the outputwindow focus
     virtual void setFocus() = 0;
-    // Whether the outputpane has focus
     virtual bool hasFocus() const = 0;
-    // Whether the outputpane can be focused at the moment.
-    // (E.g. the search result window does not want to be focused if the are no results.)
     virtual bool canFocus() const = 0;
 
     virtual bool canNavigate() const = 0;

@@ -1,6 +1,9 @@
 /****************************************************************************
 **
 ** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
+** Copyright (c) 2014 Falko Arps
+** Copyright (c) 2014 Sven Klein
+** Copyright (c) 2014 Giuliano Schneider
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -35,35 +38,103 @@
 #include <QPushButton>
 
 /*!
-  \class Core::IOptionsPage
-  \mainclass
-  \brief The IOptionsPage class is an interface for providing pages for the
-  \gui Options dialog (called \gui Preferences on Mac OS).
+    \class Core::IOptionsPage
+    \mainclass
+    \inmodule Qt Creator
+    \brief The IOptionsPage class is an interface for providing pages for the
+    \gui Options dialog (called \gui Preferences on Mac OS).
+*/
 
-  You need to subclass this interface and put an instance of your subclass
-  into the plugin manager object pool (e.g. ExtensionSystem::PluginManager::addObject).
-  Guidelines for implementing:
-  \list
-  \li \c id() is a unique identifier for referencing this page
-  \li \c displayName() is the (translated) name for display
-  \li \c category() is the unique id for the category that the page should be displayed in
-  \li \c displayCategory() is the translated name of the category
-  \li \c widget() is called to retrieve the widget to show in the
-        \gui Options dialog. You should create a widget lazily here, and delete it again in the
-        finish() method. This method can be called multiple times, so you should only create a new
-        widget if the old one was deleted.
-  \li \c apply() is called to store the settings. It should detect if any changes have been
-         made and store those
-  \li \c finish() is called directly before the \gui Options dialog closes. Here you should delete
-         the widget that was created in widget() to free resources.
-  \li \c matches() is used for the \gui Options dialog search filter. The default implementation
-         takes the widget() and searches for all labels, buttons, checkboxes and group boxes,
-         and matches on their texts/titles. You can implement your own matching algorithm, but
-         usually the default implementation will work fine.
-  \endlist
+/*!
+
+    \fn Id IOptionsPage::id() const
+
+    Returns a unique identifier for referencing the options page.
+*/
+
+/*!
+    \fn QString IOptionsPage::displayName() const
+
+    Returns the translated display name of the options page.
+*/
+
+/*!
+    \fn Id IOptionsPage::category() const
+
+    Returns the unique id for the category that the options page should be displayed in. This id is
+    used for sorting the list on the left side of the \gui Options dialog.
+*/
+
+/*!
+    \fn QString IOptionsPage::displayCategory() const
+
+    Returns the translated category name of the options page. This name is displayed in the list on
+    the left side of the \gui Options dialog.
+*/
+
+/*!
+    \fn QIcon IOptionsPage::categoryIcon() const
+
+    Returns the category icon of the options page. This icon is displayed in the list on the left
+    side of the \gui Options dialog.
+*/
+
+/*!
+    \fn QWidget *IOptionsPage::widget()
+
+    Returns the widget to show in the \gui Options dialog. You should create a widget lazily here,
+    and delete it again in the finish() method. This method can be called multiple times, so you
+    should only create a new widget if the old one was deleted.
+*/
+
+/*!
+    \fn void IOptionsPage::apply()
+
+    This is called when selecting the \gui Apply button on the options page dialog. It should detect
+    whether any changes were made and store those.
+*/
+
+/*!
+    \fn void IOptionsPage::finish()
+
+    Is called directly before the \gui Options dialog closes. Here you should delete the widget that
+    was created in widget() to free resources.
+*/
+
+/*!
+    \fn void IOptionsPage::setId(Id id)
+
+    Sets the \a id of the options page.
+*/
+
+/*!
+    \fn void IOptionsPage::setDisplayName(const QString &displayName)
+
+    Sets \a displayName as the display name of the options page.
+*/
+
+/*!
+    \fn void IOptionsPage::setCategory(Id category)
+
+    Uses \a category to sort the options pages.
+*/
+
+/*!
+    \fn void IOptionsPage::setDisplayCategory(const QString &displayCategory)
+
+    Sets \a displayCategory as the display category of the options page.
+*/
+
+/*!
+    \fn void IOptionsPage::setCategoryIcon(const QString &categoryIcon)
+
+    Sets \a categoryIcon as the category icon of the options page.
 */
 
 
+/*!
+    Constructs an options page with the given \a parent.
+*/
 Core::IOptionsPage::IOptionsPage(QObject *parent)
     : QObject(parent),
       m_keywordsInitialized(false)
@@ -71,10 +142,18 @@ Core::IOptionsPage::IOptionsPage(QObject *parent)
 
 }
 
+/*!
+    Destroys the options page.
+ */
 Core::IOptionsPage::~IOptionsPage()
 {
 }
 
+/*!
+    Is used by the \gui Options dialog search filter to match \a searchKeyWord to this options
+    page. This defaults to take the widget and then looks for all child labels, check boxes, push
+    buttons, and group boxes. Should return \c true when a match is found.
+*/
 bool Core::IOptionsPage::matches(const QString &searchKeyWord) const
 {
     if (!m_keywordsInitialized) {

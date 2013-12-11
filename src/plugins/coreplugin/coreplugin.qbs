@@ -57,7 +57,7 @@ QtcPlugin {
             "imode.cpp", "imode.h",
             "inavigationwidgetfactory.cpp", "inavigationwidgetfactory.h",
             "infobar.cpp", "infobar.h",
-            "ioutputpane.h",
+            "ioutputpane.cpp", "ioutputpane.h",
             "iversioncontrol.cpp", "iversioncontrol.h",
             "mainwindow.cpp", "mainwindow.h",
             "manhattanstyle.cpp", "manhattanstyle.h",
