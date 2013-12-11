@@ -61,7 +61,6 @@ namespace {
 const QLatin1String SettingsGroup("BlackBerryConfiguration");
 const QLatin1String NDKLocationKey("NDKLocation"); // For 10.1 NDK support (< QTC 3.0)
 const QLatin1String NDKEnvFileKey("NDKEnvFile");
-const QLatin1String CertificateGroup("Certificates");
 const QLatin1String ManualNDKsGroup("ManualNDKs");
 const QLatin1String ActiveNDKsGroup("ActiveNDKs");
 }
