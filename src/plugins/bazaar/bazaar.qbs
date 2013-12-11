@@ -49,6 +49,9 @@ QtcPlugin {
         "pullorpushdialog.h",
         "pullorpushdialog.ui",
         "revertdialog.ui",
+        "uncommitdialog.cpp",
+        "uncommitdialog.h",
+        "uncommitdialog.ui",
         "images/bazaar.png",
     ]
 }
