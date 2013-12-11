@@ -312,10 +312,42 @@
 
     Bazaar is a free version control system sponsored by Canonical.
 
-    In addition to the standard version control system functions, you can
-    select \gui Tools > \gui Bazaar > \gui Pull to turn the branch into a
-    mirror of another branch. To update a mirror of the branch, select
-    \gui Push.
+    The \gui Bazaar submenu contains the following additional items:
+
+    \table
+        \header
+            \li Menu Item
+            \li Description
+        \row
+            \li \gui Pull
+            \li Turn the branch into a mirror of another branch.
+        \row
+            \li \gui Push
+            \li Update a mirror of the branch.
+        \row
+            \li \gui Uncommit
+            \li Remove the last committed revision.
+    \endtable
+
+    \section3 Uncommitting Revisions
+
+    In Bazaar, committing changes to a branch creates a new revision that holds
+    a snapshot of the state of the working tree. To remove the last committed
+    revision, select \gui Tools > \gui Bazaar > \gui Uncommit.
+
+    In the \gui Uncommit dialog, select options to keep tags that point to
+    removed revisions and to only remove the commits from the local branch when
+    in a checkout.
+
+    To remove all commits up to an entry in the revision log, specify the
+    revision in the \gui Revision field.
+
+    To test the outcome of the \gui Uncommit command without actually removing
+    anything, select \gui {Dry Run}.
+
+    \gui Uncommit leaves the working tree ready for a new commit. The only
+    change it might make is restoring pending merges that were present before
+    the commit.
 
     \section2 Using Additional ClearCase Functions
 
