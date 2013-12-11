@@ -208,8 +208,11 @@ int containerSize(KnownType kt, const SymbolGroupValue &v)
         if (arraySizeStart != std::string::npos) {
             ++arraySizeStart;
             std::string::size_type arraySizeEnd = v.type().find('>', arraySizeStart);
-            if (arraySizeEnd != std::string::npos)
-                return std::stoi(v.type().substr(arraySizeStart, arraySizeEnd - arraySizeStart));
+            if (arraySizeEnd != std::string::npos) {
+                int rc = 0;
+                if (integerFromString(v.type().substr(arraySizeStart, arraySizeEnd - arraySizeStart), &rc))
+                    return rc;
+            }
         }
         break;
     }
