@@ -47,6 +47,7 @@ public:
 
 private:
     QRegExp m_mocRegExp;
+    QRegExp m_translationRegExp;
 };
 
 } // namespace ProjectExplorer

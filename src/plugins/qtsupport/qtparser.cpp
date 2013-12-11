@@ -39,10 +39,12 @@ using ProjectExplorer::Task;
 #define FILE_PATTERN "^(([A-Za-z]:)?[^:]+\\.[^:]+)"
 
 QtParser::QtParser() :
-    m_mocRegExp(QLatin1String(FILE_PATTERN"[:\\(](\\d+)\\)?:\\s([Ww]arning|[Ee]rror):\\s(.+)$"))
+    m_mocRegExp(QLatin1String(FILE_PATTERN"[:\\(](\\d+)\\)?:\\s([Ww]arning|[Ee]rror):\\s(.+)$")),
+    m_translationRegExp(QLatin1String("^([Ww]arning|[Ee]rror):\\s+(.*) in '(.*)'$"))
 {
     setObjectName(QLatin1String("QtParser"));
     m_mocRegExp.setMinimal(true);
+    m_translationRegExp.setMinimal(true);
 }
 
 void QtParser::stdError(const QString &line)
@@ -60,6 +62,17 @@ void QtParser::stdError(const QString &line)
                   ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
         if (m_mocRegExp.cap(4).compare(QLatin1String("Warning"), Qt::CaseInsensitive) == 0)
             task.type = Task::Warning;
+        emit addTask(task);
+        return;
+    }
+    if (m_translationRegExp.indexIn(lne) > -1) {
+        Task::TaskType type = Task::Warning;
+        if (m_translationRegExp.cap(1) == QLatin1String("Error"))
+            type = Task::Error;
+        Task task(type, m_translationRegExp.cap(2),
+                  Utils::FileName::fromUserInput(m_translationRegExp.cap(3)) /* filename */,
+                  -1,
+                  ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
         emit addTask(task);
         return;
     }
@@ -148,6 +161,15 @@ void QtSupportPlugin::testQtOutputParser_data()
             << (QList<ProjectExplorer::Task>() << Task(Task::Error,
                                                        QLatin1String("Undefined interface"),
                                                        Utils::FileName::fromUserInput(QLatin1String("E:/sandbox/creator/loaden/src/libs/utils/iwelcomepage.h")), 54,
+                                                       ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
+            << QString();
+    QTest::newRow("translation")
+            << QString::fromLatin1("Warning: dropping duplicate messages in '/some/place/qtcreator_fr.qm'")
+            << OutputParserTester::STDERR
+            << QString() << QString()
+            << (QList<ProjectExplorer::Task>() << Task(Task::Warning,
+                                                       QLatin1String("dropping duplicate messages"),
+                                                       Utils::FileName::fromUserInput(QLatin1String("/some/place/qtcreator_fr.qm")), -1,
                                                        ProjectExplorer::Constants::TASK_CATEGORY_COMPILE))
             << QString();
 }
