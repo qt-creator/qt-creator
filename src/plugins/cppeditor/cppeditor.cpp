@@ -549,19 +549,14 @@ void CPPEditorWidget::ctor()
                 this, SLOT(onDocumentUpdated()));
         connect(editorSupport, SIGNAL(semanticInfoUpdated(CppTools::SemanticInfo)),
                 this, SLOT(updateSemanticInfo(CppTools::SemanticInfo)));
-        connect(editorSupport, SIGNAL(highlighterStarted(QFuture<TextEditor::HighlightingResult>*,uint)),
-                this, SLOT(highlighterStarted(QFuture<TextEditor::HighlightingResult>*,uint)));
+        connect(editorSupport, SIGNAL(highlighterStarted(QFuture<TextEditor::HighlightingResult>,uint)),
+                this, SLOT(highlighterStarted(QFuture<TextEditor::HighlightingResult>,uint)));
     }
 
     m_highlightRevision = 0;
-    connect(&m_highlightWatcher, SIGNAL(resultsReadyAt(int,int)),
-            SLOT(highlightSymbolUsages(int,int)));
-    connect(&m_highlightWatcher, SIGNAL(finished()),
-            SLOT(finishHighlightSymbolUsages()));
 
     m_referencesRevision = 0;
     m_referencesCursorPosition = 0;
-    connect(&m_referencesWatcher, SIGNAL(finished()), SLOT(markSymbolsNow()));
 
     connect(this, SIGNAL(refactorMarkerClicked(TextEditor::RefactorMarker)),
             this, SLOT(onRefactorMarkerClicked(TextEditor::RefactorMarker)));
@@ -854,40 +849,39 @@ void CPPEditorWidget::renameUsages()
 
 void CPPEditorWidget::markSymbolsNow()
 {
-    if (m_references.isCanceled())
-        return;
-    else if (m_referencesCursorPosition != position())
-        return;
-    else if (m_referencesRevision != editorRevision())
-        return;
+    QTC_ASSERT(m_referencesWatcher, return);
+    if (!m_referencesWatcher->isCanceled()
+            && m_referencesCursorPosition == position()
+            && m_referencesRevision == editorRevision()) {
+        const SemanticInfo info = m_lastSemanticInfo;
+        TranslationUnit *unit = info.doc->translationUnit();
+        const QList<int> result = m_referencesWatcher->result();
 
-    const SemanticInfo info = m_lastSemanticInfo;
-    TranslationUnit *unit = info.doc->translationUnit();
-    const QList<int> result = m_references.result();
+        QList<QTextEdit::ExtraSelection> selections;
 
-    QList<QTextEdit::ExtraSelection> selections;
+        foreach (int index, result) {
+            unsigned line, column;
+            unit->getTokenPosition(index, &line, &column);
 
-    foreach (int index, result) {
-        unsigned line, column;
-        unit->getTokenPosition(index, &line, &column);
+            if (column)
+                --column;  // adjust the column position.
 
-        if (column)
-            --column;  // adjust the column position.
+            const int len = unit->tokenAt(index).f.length;
 
-        const int len = unit->tokenAt(index).f.length;
+            QTextCursor cursor(document()->findBlockByNumber(line - 1));
+            cursor.setPosition(cursor.position() + column);
+            cursor.setPosition(cursor.position() + len, QTextCursor::KeepAnchor);
 
-        QTextCursor cursor(document()->findBlockByNumber(line - 1));
-        cursor.setPosition(cursor.position() + column);
-        cursor.setPosition(cursor.position() + len, QTextCursor::KeepAnchor);
+            QTextEdit::ExtraSelection sel;
+            sel.format = baseTextDocument()->fontSettings()
+                         .toTextCharFormat(TextEditor::C_OCCURRENCES);
+            sel.cursor = cursor;
+            selections.append(sel);
+        }
 
-        QTextEdit::ExtraSelection sel;
-        sel.format = baseTextDocument()->fontSettings().toTextCharFormat(TextEditor::C_OCCURRENCES);
-        sel.cursor = cursor;
-        selections.append(sel);
-
+        setExtraSelections(CodeSemanticsSelection, selections);
     }
-
-    setExtraSelections(CodeSemanticsSelection, selections);
+    m_referencesWatcher.reset();
 }
 
 static QList<int> lazyFindReferences(Scope *scope, QString code, Document::Ptr doc,
@@ -951,12 +945,15 @@ void CPPEditorWidget::markSymbols(const QTextCursor &tc, const SemanticInfo &inf
         CanonicalSymbol cs(this, info);
         QString expression;
         if (Scope *scope = cs.getScopeAndExpression(this, info, tc, &expression)) {
-            m_references.cancel();
+            if (m_referencesWatcher)
+                m_referencesWatcher->cancel();
+            m_referencesWatcher.reset(new QFutureWatcher<QList<int> >);
+            connect(m_referencesWatcher.data(), SIGNAL(finished()), SLOT(markSymbolsNow()));
+
             m_referencesRevision = info.revision;
             m_referencesCursorPosition = position();
-            m_references = QtConcurrent::run(&lazyFindReferences, scope, expression, info.doc,
-                                             info.snapshot);
-            m_referencesWatcher.setFuture(m_references);
+            m_referencesWatcher->setFuture(QtConcurrent::run(&lazyFindReferences, scope, expression,
+                                                             info.doc, info.snapshot));
         } else {
             const QList<QTextEdit::ExtraSelection> selections = extraSelections(CodeSemanticsSelection);
 
@@ -1164,8 +1161,10 @@ void CPPEditorWidget::updateOutlineToolTip()
 
 void CPPEditorWidget::updateUses()
 {
-    if (editorRevision() != m_highlightRevision)
-        m_highlighter.cancel();
+    if (m_highlightWatcher) {
+        m_highlightWatcher->cancel();
+        m_highlightWatcher.reset();
+    }
 
     // Block premature semantic info calculation when editor is created.
     if (m_modelManager && m_modelManager->cppEditorSupport(editor())->initialized())
@@ -1185,32 +1184,29 @@ void CPPEditorWidget::highlightSymbolUsages(int from, int to)
     if (editorRevision() != m_highlightRevision)
         return; // outdated
 
-    else if (m_highlighter.isCanceled())
+    else if (!m_highlightWatcher || m_highlightWatcher->isCanceled())
         return; // aborted
 
     TextEditor::SyntaxHighlighter *highlighter = baseTextDocument()->syntaxHighlighter();
     QTC_ASSERT(highlighter, return);
 
     TextEditor::SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
-                highlighter, m_highlighter, from, to, m_semanticHighlightFormatMap);
+                highlighter, m_highlightWatcher->future(), from, to, m_semanticHighlightFormatMap);
 }
 
 void CPPEditorWidget::finishHighlightSymbolUsages()
 {
-    if (editorRevision() != m_highlightRevision)
-        return; // outdated
-
-    if (m_highlighter.isCanceled())
-        return; // aborted
-
-    else if (m_lastSemanticInfo.doc.isNull())
-        return;
-
-    TextEditor::SyntaxHighlighter *highlighter = baseTextDocument()->syntaxHighlighter();
-    QTC_ASSERT(highlighter, return);
-
-    TextEditor::SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd(
-                highlighter, m_highlighter);
+    QTC_ASSERT(m_highlightWatcher, return);
+    if (!m_highlightWatcher->isCanceled()
+            && editorRevision() == m_highlightRevision
+            && !m_lastSemanticInfo.doc.isNull()) {
+        TextEditor::SyntaxHighlighter *highlighter = baseTextDocument()->syntaxHighlighter();
+        QTC_CHECK(highlighter);
+        if (highlighter)
+            TextEditor::SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd(highlighter,
+                m_highlightWatcher->future());
+    }
+    m_highlightWatcher.reset();
 }
 
 void CPPEditorWidget::switchDeclarationDefinition(bool inNextSplit)
@@ -1612,12 +1608,18 @@ void CPPEditorWidget::semanticRehighlight(bool force)
         m_modelManager->cppEditorSupport(editor())->recalculateSemanticInfoDetached(force);
 }
 
-void CPPEditorWidget::highlighterStarted(QFuture<TextEditor::HighlightingResult> *highlighter,
+void CPPEditorWidget::highlighterStarted(QFuture<TextEditor::HighlightingResult> highlighter,
                                          unsigned revision)
 {
-    m_highlighter = *highlighter;
     m_highlightRevision = revision;
-    m_highlightWatcher.setFuture(m_highlighter);
+
+    m_highlightWatcher.reset(new QFutureWatcher<TextEditor::HighlightingResult>);
+    connect(m_highlightWatcher.data(), SIGNAL(resultsReadyAt(int,int)),
+            SLOT(highlightSymbolUsages(int,int)));
+    connect(m_highlightWatcher.data(), SIGNAL(finished()),
+            SLOT(finishHighlightSymbolUsages()));
+
+    m_highlightWatcher->setFuture(highlighter);
 }
 
 void CPPEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)

@@ -144,10 +144,10 @@ public:
 
     FollowSymbolUnderCursor *followSymbolUnderCursorDelegate(); // exposed for tests
 
-Q_SIGNALS:
+signals:
     void outlineModelIndexChanged(const QModelIndex &index);
 
-public Q_SLOTS:
+public slots:
     void setSortedOutline(bool sort);
     void switchDeclarationDefinition(bool inNextSplit);
     void renameSymbolUnderCursor();
@@ -156,7 +156,7 @@ public Q_SLOTS:
     void showPreProcessorWidget();
     void renameUsagesNow(const QString &replacement = QString());
     void semanticRehighlight(bool force = false);
-    void highlighterStarted(QFuture<TextEditor::HighlightingResult> *highlighter,
+    void highlighterStarted(QFuture<TextEditor::HighlightingResult> highlighter,
                             unsigned revision);
 
 protected:
@@ -169,10 +169,10 @@ protected:
 
     const CPlusPlus::Macro *findCanonicalMacro(const QTextCursor &cursor,
                                                CPlusPlus::Document::Ptr doc) const;
-protected Q_SLOTS:
+protected slots:
     void slotCodeStyleSettingsChanged(const QVariant &);
 
-private Q_SLOTS:
+private slots:
     void jumpToOutlineElement(int index);
     void updateOutlineNow();
     void updateOutlineIndex();
@@ -254,12 +254,10 @@ private:
     QList<TextEditor::QuickFixOperation::Ptr> m_quickFixes;
     bool m_objcEnabled;
 
-    QFuture<TextEditor::HighlightingResult> m_highlighter;
-    QFutureWatcher<TextEditor::HighlightingResult> m_highlightWatcher;
+    QScopedPointer<QFutureWatcher<TextEditor::HighlightingResult> > m_highlightWatcher;
     unsigned m_highlightRevision; // the editor revision that requested the highlight
 
-    QFuture<QList<int> > m_references;
-    QFutureWatcher<QList<int> > m_referencesWatcher;
+    QScopedPointer<QFutureWatcher<QList<int> > > m_referencesWatcher;
     unsigned m_referencesRevision;
     int m_referencesCursorPosition;
 
