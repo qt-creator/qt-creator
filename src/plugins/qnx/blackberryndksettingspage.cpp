@@ -31,6 +31,7 @@
 
 #include "blackberryndksettingspage.h"
 #include "blackberryndksettingswidget.h"
+#include "blackberryconfigurationmanager.h"
 #include "blackberryconfiguration.h"
 #include "qnxconstants.h"
 
@@ -70,6 +71,8 @@ void BlackBerryNDKSettingsPage::apply()
         if (config->isActive())
             config->deactivate();
     }
+
+    BlackBerryConfigurationManager::instance().setDefaultApiLevel(m_widget->defaultApiLevel());
 }
 
 void BlackBerryNDKSettingsPage::finish()

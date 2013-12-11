@@ -62,7 +62,7 @@ BlackBerryDeviceConnection::BlackBerryDeviceConnection() :
 void BlackBerryDeviceConnection::connectDevice(const ProjectExplorer::IDevice::ConstPtr &device)
 {
     Utils::Environment env = Utils::Environment::systemEnvironment();
-    env.modify(BlackBerryConfigurationManager::instance().defaultQnxEnv());
+    env.modify(BlackBerryConfigurationManager::instance().defaultApiLevelEnv());
 
     m_process->setEnvironment(env.toStringList());
 

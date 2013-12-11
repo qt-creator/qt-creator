@@ -54,7 +54,7 @@ BlackBerryCertificate::BlackBerryCertificate(const QString &fileName,
 {
     m_process->setProcessChannelMode(QProcess::MergedChannels);
     m_process->setEnvironment(Utils::EnvironmentItem::toStringList(
-             BlackBerryConfigurationManager::instance().defaultQnxEnv()));
+             BlackBerryConfigurationManager::instance().defaultApiLevelEnv()));
 }
 
 void BlackBerryCertificate::load()

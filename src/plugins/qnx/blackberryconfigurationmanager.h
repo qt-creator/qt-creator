@@ -55,6 +55,7 @@ public:
     QList<BlackBerryConfiguration*> manualConfigurations() const;
     QList<BlackBerryConfiguration *> activeConfigurations() const;
     BlackBerryConfiguration *configurationFromEnvFile(const Utils::FileName &envFile) const;
+    BlackBerryConfiguration *defaultApiLevel() const;
 
     QString barsignerCskPath() const;
     QString idTokenPath() const;
@@ -63,9 +64,11 @@ public:
     QString defaultDebugTokenPath() const;
     void clearConfigurationSettings(BlackBerryConfiguration *config);
 
-    QList<Utils::EnvironmentItem> defaultQnxEnv();
+    // returns the environment for the default API level
+    QList<Utils::EnvironmentItem> defaultApiLevelEnv() const;
 
     void loadAutoDetectedConfigurations();
+    void setDefaultApiLevel(BlackBerryConfiguration *config);
 
 public slots:
     void loadSettings();
@@ -79,9 +82,12 @@ private:
     BlackBerryConfigurationManager(QObject *parent = 0);
     static BlackBerryConfigurationManager *m_instance;
     QList<BlackBerryConfiguration*> m_configs;
+    BlackBerryConfiguration *m_defaultApiLevel;
 
     void loadManualConfigurations();
+    void loadDefaultApiLevel();
     void saveManualConfigurations();
+    void saveDefaultApiLevel();
     void saveActiveConfigurationNdkEnvPath();
     void clearInvalidConfigurations();
     void setKitsAutoDetectionSource();

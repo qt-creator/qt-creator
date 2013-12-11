@@ -47,7 +47,7 @@ BlackBerryNdkProcess::BlackBerryNdkProcess(const QString &command, QObject *pare
 {
     m_process->setProcessChannelMode(QProcess::MergedChannels);
     m_process->setEnvironment(Utils::EnvironmentItem::toStringList(
-             BlackBerryConfigurationManager::instance().defaultQnxEnv()));
+             BlackBerryConfigurationManager::instance().defaultApiLevelEnv()));
 
     connect(m_process, SIGNAL(started()), this, SIGNAL(started()));
     connect(m_process, SIGNAL(finished(int,QProcess::ExitStatus)),
@@ -59,7 +59,8 @@ BlackBerryNdkProcess::BlackBerryNdkProcess(const QString &command, QObject *pare
 const QString BlackBerryNdkProcess::resolveNdkToolPath(const QString &tool)
 {
     QString toolPath;
-    QList<Utils::EnvironmentItem> qnxEnv = BlackBerryConfigurationManager::instance().defaultQnxEnv();
+    QList<Utils::EnvironmentItem> qnxEnv =
+        BlackBerryConfigurationManager::instance().defaultApiLevelEnv();
     foreach (const Utils::EnvironmentItem &item, qnxEnv) {
         if (item.name == QLatin1String("QNX_HOST") && !item.value.isEmpty()) {
             toolPath = item.value
