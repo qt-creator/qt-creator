@@ -46,6 +46,7 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsutils.h>
 
+#include <qmljstools/qmljstoolsconstants.h>
 #include <qmljstools/qmljsindenter.h>
 #include <qmljstools/qmljsqtstylecodeformatter.h>
 
@@ -466,6 +467,7 @@ QmlJSTextEditorWidget::QmlJSTextEditorWidget(QWidget *parent) :
     setCodeFoldingSupported(true);
     setIndenter(new Indenter);
     setAutoCompleter(new AutoCompleter);
+    setLanguageSettingsId(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
 
     m_updateDocumentTimer = new QTimer(this);
     m_updateDocumentTimer->setInterval(UPDATE_DOCUMENT_DEFAULT_INTERVAL);
@@ -583,7 +585,7 @@ IEditor *QmlJSEditor::duplicate(QWidget *parent)
 {
     QmlJSTextEditorWidget *newEditor = new QmlJSTextEditorWidget(parent);
     newEditor->duplicateFrom(editorWidget());
-    QmlJSEditorPlugin::instance()->initializeEditor(newEditor);
+    TextEditor::TextEditorSettings::initializeEditor(newEditor);
     return newEditor->editor();
 }
 

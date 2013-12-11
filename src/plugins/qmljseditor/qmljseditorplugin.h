@@ -88,8 +88,6 @@ public:
 
     QmlJSQuickFixAssistProvider *quickFixAssistProvider() const;
 
-    void initializeEditor(QmlJSTextEditorWidget *editor);
-
     Utils::JsonSchemaManager *jsonManager() const;
 
 public Q_SLOTS:

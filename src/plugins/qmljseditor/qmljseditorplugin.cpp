@@ -62,7 +62,6 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/taskhub.h>
 #include <texteditor/texteditorconstants.h>
-#include <texteditor/texteditorsettings.h>
 #include <texteditor/textfilewizard.h>
 #include <utils/qtcassert.h>
 #include <utils/json.h>
@@ -250,14 +249,6 @@ ExtensionSystem::IPlugin::ShutdownFlag QmlJSEditorPlugin::aboutToShutdown()
     delete QmlJS::Icons::instance(); // delete object held by singleton
 
     return IPlugin::aboutToShutdown();
-}
-
-void QmlJSEditorPlugin::initializeEditor(QmlJSTextEditorWidget *editor)
-{
-    QTC_CHECK(m_instance);
-
-    editor->setLanguageSettingsId(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
-    TextEditor::TextEditorSettings::initializeEditor(editor);
 }
 
 Utils::JsonSchemaManager *QmlJSEditorPlugin::jsonManager() const
