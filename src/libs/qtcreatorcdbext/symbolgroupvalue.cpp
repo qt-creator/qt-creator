@@ -1085,6 +1085,10 @@ static KnownType knownClassTypeHelper(const std::string &type,
                 if (!type.compare(hPos, 6, "vector"))
                     return KT_StdVector;
                 break;
+            case 7:
+                if (!type.compare(hPos, 7, "complex"))
+                    return KT_StdComplex;
+                break;
             case 8:
                 if (!type.compare(hPos, 8, "multimap"))
                     return KT_StdMultiMap;
@@ -2432,6 +2436,21 @@ static bool dumpStd_W_String(const SymbolGroupValue &v, int type, std::wostream 
     return true;
 }
 
+// Dump a std::complex.
+static bool dumpStd_Complex(const SymbolGroupValue &v, std::wostream &str)
+{
+    if (const SymbolGroupValue &valArray = v[0u][0u]["_Val"]) {
+        if (const SymbolGroupValue &val0 = valArray["0"]) {
+            str << L'(' << val0.value();
+            if (const SymbolGroupValue &val1 = valArray["1"]) {
+                str << L", " << val1.value() << L')';
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 // QVariant employs a template for storage where anything bigger than the data union
 // is pointed to by data.shared.ptr, else it is put into the data struct (pointer size)
 // itself (notably Qt types consisting of a d-ptr only).
@@ -2811,6 +2830,9 @@ unsigned dumpSimpleType(SymbolGroupNode  *n, const SymbolGroupValueContext &ctx,
     case KT_StdString:
     case KT_StdWString:
         rc = dumpStd_W_String(v, kt, str, memoryHandleIn) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
+        break;
+    case KT_StdComplex:
+        rc = dumpStd_Complex(v, str) ? SymbolGroupNode::SimpleDumperOk : SymbolGroupNode::SimpleDumperFailed;
         break;
     case KT_QTextCursor:
         rc = dumpQTextCursor(v, str) ? SymbolGroupNode::SimpleDumperOk

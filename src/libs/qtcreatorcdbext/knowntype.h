@@ -167,6 +167,7 @@ enum KnownType
     // Types: STL
     KT_StdString = KT_STL_Type + KT_Editable + KT_HasSimpleDumper + 1,
     KT_StdWString = KT_STL_Type + KT_Editable + KT_HasSimpleDumper + 2,
+    KT_StdComplex = KT_STL_Type + KT_HasSimpleDumper + 3,
     // Types: STL containers
     KT_StdVector =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 1,
     KT_StdList =  KT_STL_Type + KT_ContainerType + KT_HasSimpleDumper + 2,
