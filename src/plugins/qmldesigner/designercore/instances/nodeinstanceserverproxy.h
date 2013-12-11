@@ -79,6 +79,8 @@ protected:
     QString qmlPuppetApplicationName() const;
     QString macOSBundlePath(const QString &path) const;
     QString creatorQmlPuppetPath();
+    static bool checkPuppetVersion(const QString &qmlPuppetPath);
+
 signals:
     void processCrashed();
 
