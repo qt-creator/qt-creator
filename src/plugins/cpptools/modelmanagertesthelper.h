@@ -80,6 +80,7 @@ public:
 
     Project *createProject(const QString &name);
 
+    void resetRefreshedSourceFiles();
     QStringList waitForRefreshedSourceFiles();
     void waitForFinishedGc();
 

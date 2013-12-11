@@ -309,21 +309,13 @@ void TestCase::init()
     QStringList filePaths;
     foreach (const TestDocumentPtr &testFile, m_testFiles)
         filePaths << testFile->filePath();
-    CppTools::CppModelManagerInterface::instance()->updateSourceFiles(filePaths);
-
-    // Wait for the indexer to process all files.
-    // All these files are "Fast Checked", that is the function bodies are not processed.
-    QStringList filePathsNotYetInSnapshot(filePaths);
-    forever {
-        Snapshot snapshot = CppTools::CppModelManagerInterface::instance()->snapshot();
-        foreach (const QString &filePath, filePathsNotYetInSnapshot) {
-            if (snapshot.contains(filePath))
-                filePathsNotYetInSnapshot.removeOne(filePath);
-        }
-        if (filePathsNotYetInSnapshot.isEmpty())
-            break;
-        QCoreApplication::processEvents();
-    }
+    CppModelManagerInterface *mmi = CppTools::CppModelManagerInterface::instance();
+    mmi->updateSourceFiles(filePaths).waitForFinished();
+    QCoreApplication::processEvents();
+    const Snapshot snapshot = mmi->snapshot();
+    QVERIFY(!snapshot.isEmpty());
+    foreach (const QString &filePath, filePaths)
+        QVERIFY(snapshot.contains(filePath));
 
     // Open Files
     foreach (TestDocumentPtr testFile, m_testFiles) {

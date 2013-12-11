@@ -103,10 +103,14 @@ ModelManagerTestHelper::Project *ModelManagerTestHelper::createProject(const QSt
     return tp;
 }
 
+void ModelManagerTestHelper::resetRefreshedSourceFiles()
+{
+    m_lastRefreshedSourceFiles.clear();
+    m_refreshHappened = false;
+}
+
 QStringList ModelManagerTestHelper::waitForRefreshedSourceFiles()
 {
-    m_refreshHappened = false;
-
     while (!m_refreshHappened)
         QCoreApplication::processEvents();
 

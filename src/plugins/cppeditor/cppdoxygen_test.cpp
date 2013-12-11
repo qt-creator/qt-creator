@@ -86,16 +86,14 @@ TestCase::TestCase(const QByteArray &input)
     Utils::FileSaver srcSaver(fileName);
     srcSaver.write(originalText);
     srcSaver.finalize();
-    CppTools::CppModelManagerInterface::instance()->updateSourceFiles(QStringList()<<fileName);
 
-    // Wait for the parser in the future to give us the document
-    while (true) {
-        Snapshot s = CppTools::CppModelManagerInterface::instance()->snapshot();
-        if (s.contains(fileName))
-            break;
-        QCoreApplication::processEvents();
-    }
+    // Update Code Model
+    CppTools::CppModelManagerInterface *mmi = CppTools::CppModelManagerInterface::instance();
+    mmi->updateSourceFiles(QStringList(fileName)).waitForFinished();
+    QCoreApplication::processEvents();
+    QVERIFY(mmi->snapshot().contains(fileName));
 
+    // Open Editor
     editor = dynamic_cast<CPPEditor *>(EditorManager::openEditor(fileName));
     QVERIFY(editor);
     editorWidget = dynamic_cast<CPPEditorWidget *>(editor->editorWidget());

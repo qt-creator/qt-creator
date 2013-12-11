@@ -127,10 +127,13 @@ public:
 
         // Parse files
         m_modelManager->updateSourceFiles(filePaths).waitForFinished();
-
-        // Get class for which to generate the hierarchy
+        QCoreApplication::processEvents();
         const Snapshot snapshot = m_modelManager->snapshot();
         QVERIFY(!snapshot.isEmpty());
+        foreach (const QString &filePath, filePaths)
+            QVERIFY(snapshot.contains(filePath));
+
+        // Get class for which to generate the hierarchy
         const Document::Ptr firstDocument = snapshot.document(filePaths.first());
         Class *clazz = FindFirstClassInDocument()(firstDocument);
         QVERIFY(clazz);

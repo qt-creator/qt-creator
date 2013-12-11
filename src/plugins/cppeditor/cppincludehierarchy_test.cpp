@@ -67,20 +67,12 @@ public:
         }
 
         // Update Code Model
-        m_cmm->updateSourceFiles(filePaths);
-
-        // Wait for the parser in the future to give us the document
-        QStringList filePathsNotYetInSnapshot(filePaths);
-        forever {
-            const Snapshot snapshot = m_cmm->snapshot();
-            foreach (const QString &filePath, filePathsNotYetInSnapshot) {
-                if (snapshot.contains(filePath))
-                    filePathsNotYetInSnapshot.removeOne(filePath);
-            }
-            if (filePathsNotYetInSnapshot.isEmpty())
-                break;
-            QCoreApplication::processEvents();
-        }
+        m_cmm->updateSourceFiles(filePaths).waitForFinished();
+        QCoreApplication::processEvents();
+        const Snapshot snapshot = m_cmm->snapshot();
+        QVERIFY(!snapshot.isEmpty());
+        foreach (const QString &filePath, filePaths)
+            QVERIFY(snapshot.contains(filePath));
     }
 
     ~TestCase()

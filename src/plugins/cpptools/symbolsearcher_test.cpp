@@ -101,12 +101,12 @@ public:
     {
         QVERIFY(m_indexingSupportToUse);
         QVERIFY(m_modelManager->snapshot().isEmpty());
-        m_modelManager->updateSourceFiles(QStringList() << m_testFile).waitForFinished();
+        m_modelManager->updateSourceFiles(QStringList(m_testFile)).waitForFinished();
+        QCoreApplication::processEvents();
         QVERIFY(m_modelManager->snapshot().contains(m_testFile));
 
         m_indexingSupportToRestore = m_modelManager->indexingSupport();
         m_modelManager->setIndexingSupport(m_indexingSupportToUse);
-        QCoreApplication::processEvents();
     }
 
     ResultDataList run(const SymbolSearcher::Parameters &searchParameters) const

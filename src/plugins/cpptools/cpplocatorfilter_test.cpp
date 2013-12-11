@@ -82,8 +82,8 @@ private:
     virtual void doBeforeLocatorRun()
     {
         m_modelManager->updateSourceFiles(QStringList() << m_fileName).waitForFinished();
-        QVERIFY(m_modelManager->snapshot().contains(m_fileName));
         QCoreApplication::processEvents();
+        QVERIFY(m_modelManager->snapshot().contains(m_fileName));
     }
 
     virtual void doAfterLocatorRun()
