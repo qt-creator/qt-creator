@@ -115,8 +115,7 @@ void TaskHub::addTask(Task::TaskType type, const QString &description, Core::Id 
 void TaskHub::addTask(Task task)
 {
     if (task.line != -1 && !task.file.isEmpty()) {
-        bool visible = (task.type == Task::Warning || task.type == Task::Error);
-        TaskMark *mark = new TaskMark(task.taskId, task.file.toString(), task.line, visible);
+        TaskMark *mark = new TaskMark(task.taskId, task.file.toString(), task.line, !task.icon.isNull());
         mark->setIcon(task.icon);
         mark->setPriority(TextEditor::ITextMark::LowPriority);
         task.addMark(mark);
