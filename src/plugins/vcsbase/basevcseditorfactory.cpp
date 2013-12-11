@@ -83,10 +83,7 @@ Core::IEditor *BaseVcsEditorFactory::createEditor(QWidget *parent)
 
     vcsEditor->setMimeType(mimeTypes().front());
 
-    // Wire font settings and set initial values
-    connect(TextEditor::TextEditorSettings::instance(), SIGNAL(fontSettingsChanged(TextEditor::FontSettings)),
-            vcsEditor, SLOT(setFontSettings(TextEditor::FontSettings)));
-    vcsEditor->setFontSettings(TextEditor::TextEditorSettings::fontSettings());
+    TextEditor::TextEditorSettings::initializeEditor(vcsEditor);
     return vcsEditor->editor();
 }
 
