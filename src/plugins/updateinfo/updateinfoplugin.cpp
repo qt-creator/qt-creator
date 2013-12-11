@@ -91,6 +91,9 @@ UpdateInfoPlugin::UpdateInfoPlugin()
 
 UpdateInfoPlugin::~UpdateInfoPlugin()
 {
+    d->lastCheckUpdateInfoTask.cancel();
+    d->lastCheckUpdateInfoTask.waitForFinished();
+
     delete d;
 }
 
@@ -230,7 +233,14 @@ QDomDocument UpdateInfoPlugin::update()
     // start
     QProcess updater;
     updater.start(d->updaterProgram, QStringList() << d->updaterCheckOnlyArgument);
-    updater.waitForFinished();
+    while (updater.state() != QProcess::NotRunning) {
+        if (!updater.waitForFinished(1000)
+                && d->lastCheckUpdateInfoTask.isCanceled()) {
+            updater.kill();
+            updater.waitForFinished(-1);
+            return QDomDocument();
+        }
+    }
 
     // process return value
     QDomDocument updates;
