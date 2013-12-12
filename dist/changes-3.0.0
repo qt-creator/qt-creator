@@ -91,6 +91,8 @@ Diff Viewer
 Version Control Systems
    * Fixed crash when reverting changes while commit editor is open (QTCREATORBUG-10190)
    * Added VCS topic to window title
+   * Fixed that user was asked about adding file to VCS even if it already
+     was in VCS (QTCREATORBUG-2455)
    * Git
       * Added information about files with conflict when doing "git stash pop"
       * Added action for opening "git gui"
@@ -98,6 +100,16 @@ Version Control Systems
       * Added support for setting remote tracking branch (QTCREATORBUG-8863)
       * Added disambiguation of branch names (QTCREATORBUG-9700)
       * Fixed updating of log view from branches dialog (QTCREATORBUG-9783)
+      * Added support for cherry-picking top commit from a branch
+      * Changed log to follow renames
+      * Fixed that author data was discarded when commit window lost focus
+      * Added support for "git reflog"
+      * Added list of branches to header when showing commits
+      * Fixed that cloning showed progress messages only after the
+        operation was done (QTCREATORBUG-6565)
+      * Added support for recursive clone
+      * Added support for staging and unstaging chunks in unified diff editor (QTCREATORBUG-5875)
+      * Fixed "Blame <commit>" and "Blame Parent" for renamed files
    * ClearCase
 
 FakeVim

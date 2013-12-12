@@ -246,8 +246,7 @@ void IosConfigurations::updateAutomaticKitList()
     foreach (Kit *k, KitManager::kits()) {
         Core::Id deviceKind = DeviceTypeKitInformation::deviceTypeId(k);
         if (deviceKind != Constants::IOS_DEVICE_TYPE
-                && deviceKind != Constants::IOS_SIMULATOR_TYPE
-                && deviceKind != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+                && deviceKind != Constants::IOS_SIMULATOR_TYPE) {
             if (debugProbe)
                 qDebug() << "skipping existing kit with deviceKind " << deviceKind.toString();
             continue;
