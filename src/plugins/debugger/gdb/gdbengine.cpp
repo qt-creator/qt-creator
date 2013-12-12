@@ -3360,8 +3360,8 @@ void GdbEngine::requestModuleSymbols(const QString &modulePath)
         return;
     QString fileName = tf.fileName();
     tf.close();
-    postCommand("maint print msymbols " + fileName.toLocal8Bit()
-            + ' ' + modulePath.toLocal8Bit(),
+    postCommand("maint print msymbols \"" + fileName.toLocal8Bit()
+            + "\" " + modulePath.toLocal8Bit(),
         NeedsStop, CB(handleShowModuleSymbols),
         QVariant(modulePath + QLatin1Char('@') +  fileName));
 }
@@ -3805,7 +3805,7 @@ void GdbEngine::createSnapshot()
     if (tf.open()) {
         fileName = tf.fileName();
         tf.close();
-        postCommand("gcore " + fileName.toLocal8Bit(),
+        postCommand("gcore \"" + fileName.toLocal8Bit() + '"',
             NeedsStop|ConsoleCommand, CB(handleMakeSnapshot), fileName);
     } else {
         showMessageBox(QMessageBox::Critical, tr("Snapshot Creation Error"),
@@ -5156,7 +5156,7 @@ void GdbEngine::finishInferiorSetup()
         symbols.open();
         fileName = symbols.fileName();
     }
-    postCommand("maint print msymbols " + fileName.toLocal8Bit(),
+    postCommand("maint print msymbols \"" + fileName.toLocal8Bit() + '"',
         CB(handleNamespaceExtraction), fileName);
 }
 
