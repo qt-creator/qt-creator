@@ -111,6 +111,8 @@ void StickyNotesPasteProtocol::paste(const QString &text,
                                    const QString &comment,
                                    const QString &description)
 {
+    enum { maxDescriptionLength = 30 }; // Length of description is limited.
+
     Q_UNUSED(username)
     Q_UNUSED(comment);
     QTC_ASSERT(!m_pasteReply, return);
@@ -124,7 +126,7 @@ void StickyNotesPasteProtocol::paste(const QString &text,
     pasteData += expiryParameter(expiryDays);
     if (!description.isEmpty()) {
         pasteData += "&title=";
-        pasteData += QUrl::toPercentEncoding(description);
+        pasteData += QUrl::toPercentEncoding(description.left(maxDescriptionLength));
     }
 
     m_pasteReply = httpPost(m_hostUrl + QLatin1String("api/xml/create"), pasteData);
