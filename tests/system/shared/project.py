@@ -176,7 +176,7 @@ def __selectQtVersionDesktop__(checks, available=None):
 
 def __createProjectHandleLastPage__(expectedFiles = None):
     if expectedFiles != None:
-        summary = str(waitForObject("{name='filesLabel' text?='<qt>Files to be added in<pre>*</pre>'"
+        summary = str(waitForObject("{name='filesLabel' text?='<qt>Files to be added in<pre>*</pre>' "
                                     "type='QLabel' visible='1'}").text)
         lastIndex = 0
         for filename in expectedFiles:
