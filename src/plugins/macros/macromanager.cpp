@@ -286,8 +286,8 @@ void MacroManager::startMacro()
     foreach (IMacroHandler *handler, d->handlers)
         handler->startRecording(d->currentMacro);
 
-    QString endShortcut = Core::ActionManager::command(Constants::END_MACRO)->defaultKeySequence().toString();
-    QString executeShortcut = Core::ActionManager::command(Constants::EXECUTE_LAST_MACRO)->defaultKeySequence().toString();
+    QString endShortcut = Core::ActionManager::command(Constants::END_MACRO)->keySequence().toString();
+    QString executeShortcut = Core::ActionManager::command(Constants::EXECUTE_LAST_MACRO)->keySequence().toString();
     QString help = tr("Macro mode. Type \"%1\" to stop recording and \"%2\" to play the macro.")
         .arg(endShortcut).arg(executeShortcut);
     Core::EditorManager::showEditorStatusBar(
