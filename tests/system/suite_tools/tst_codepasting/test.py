@@ -50,8 +50,7 @@ def main():
         pasteEditor = waitForObject(":stackedWidget.plainTextEdit_QPlainTextEdit")
         test.compare(pasteEditor.plainText, sourceText, "Verify that dialog shows text from the editor")
         description = "Description %s" % datetime.utcnow()
-        if protocol != "Paste.KDE.Org": # QTCREATORBUG-11065
-            type(waitForObject(":uiDescription_QLineEdit"), description)
+        type(waitForObject(":uiDescription_QLineEdit"), description)
         typeLines(pasteEditor, "// tst_codepasting %s" % datetime.utcnow())
         pastedText = pasteEditor.plainText
         clickButton(waitForObject(":Send to Codepaster.Paste_QPushButton"))
