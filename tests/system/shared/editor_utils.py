@@ -75,6 +75,13 @@ def placeCursorToLine(editor, line, isRegex=False):
 def menuVisibleAtEditor(editor, menuInList):
     menuInList[0] = None
     try:
+        # Hack for Squish 5.0.1 handling menus of Qt5.2 on Mac (avoids crash) - remove asap
+        if platform.system() == 'Darwin':
+            for obj in object.topLevelObjects():
+                if className(obj) == "QMenu" and obj.visible and widgetContainsPoint(editor, obj.mapToGlobal(QPoint(0, 0))):
+                    menuInList[0] = obj
+                    return True
+            return False
         menu = waitForObject("{type='QMenu' unnamed='1' visible='1'}", 500)
         if platform.system() == 'Darwin':
             menu.activateWindow()
@@ -316,10 +323,20 @@ def validateSearchResult(expectedCount):
 # this function invokes context menu and command from it
 def invokeContextMenuItem(editorArea, command1, command2 = None):
     ctxtMenu = openContextMenuOnTextCursorPosition(editorArea)
-    activateItem(waitForObjectItem(objectMap.realName(ctxtMenu), command1, 2000))
+    if platform.system() == 'Darwin':
+        activateItem(ctxtMenu, command1)
+    else:
+        activateItem(waitForObjectItem(objectMap.realName(ctxtMenu), command1, 2000))
     if command2:
-        activateItem(waitForObjectItem("{title='%s' type='QMenu' visible='1' window=%s}"
-                                       % (command1, objectMap.realName(ctxtMenu)), command2, 2000))
+        # Hack for Squish 5.0.1 handling menus of Qt5.2 on Mac (avoids crash) - remove asap
+        if platform.system() == 'Darwin':
+            for obj in object.topLevelObjects():
+                if className(obj) == 'QMenu' and obj.visible and not obj == ctxtMenu:
+                    activateItem(obj, command2)
+                    break
+        else:
+            activateItem(waitForObjectItem("{title='%s' type='QMenu' visible='1' window=%s}"
+                                           % (command1, objectMap.realName(ctxtMenu)), command2, 2000))
 
 # this function invokes the "Find Usages" item from context menu
 # param editor an editor object
