@@ -255,7 +255,7 @@ bool BlackBerryConfigurationManager::addConfiguration(BlackBerryConfiguration *c
         if (c->ndkPath() == config->ndkPath()
                 && c->targetName() == config->targetName()) {
             if (!config->isAutoDetected())
-                QMessageBox::warning(0, tr("NDK Already Known"),
+                QMessageBox::warning(Core::ICore::mainWindow(), tr("NDK Already Known"),
                                  tr("The NDK already has a configuration."), QMessageBox::Ok);
             return false;
         }

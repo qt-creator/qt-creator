@@ -117,7 +117,7 @@ void BlackBerryNDKSettingsWidget::launchBlackBerrySetupWizard() const
     const bool alreadyConfigured = blackBerryUtils.hasRegisteredKeys() && blackBerryUtils.hasDefaultCertificate();
 
     if (alreadyConfigured) {
-        QMessageBox::information(0, tr("Qt Creator"),
+        QMessageBox::information(Core::ICore::mainWindow(), tr("Qt Creator"),
             tr("It appears that your BlackBerry environment has already been configured."));
             return;
     }

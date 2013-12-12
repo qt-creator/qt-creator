@@ -51,6 +51,8 @@
 #include <debugger/debuggeritemmanager.h>
 #include <debugger/debuggerkitinformation.h>
 
+#include <coreplugin/icore.h>
+
 #include <QFileInfo>
 #include <QDir>
 #include <QMessageBox>
@@ -316,7 +318,7 @@ bool BlackBerryConfiguration::activate()
         if (!m_simulatorDebugger.isEmpty())
             errorMessage += QLatin1Char('\n') + tr("- No GDB debugger found for BB10 Simulator.");
 
-        QMessageBox::warning(0, tr("Cannot Set up BB10 Configuration"),
+        QMessageBox::warning(Core::ICore::mainWindow(), tr("Cannot Set up BB10 Configuration"),
                              errorMessage, QMessageBox::Ok);
         return false;
     }
