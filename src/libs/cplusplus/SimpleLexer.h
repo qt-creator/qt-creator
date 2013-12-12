@@ -59,13 +59,13 @@ public:
     int state() const
     { return _lastState; }
 
-    static int tokenAt(const QList<Token> &tokens, unsigned offset);
+    static int tokenAt(const QList<Token> &tokens, unsigned utf16charsOffset);
     static Token tokenAt(const QString &text,
-                         unsigned offset,
+                         unsigned utf16charsOffset,
                          int state,
                          bool qtMocRunEnabled = false);
 
-    static int tokenBefore(const QList<Token> &tokens, unsigned offset);
+    static int tokenBefore(const QList<Token> &tokens, unsigned utf16charsOffset);
 
 private:
     int _lastState;

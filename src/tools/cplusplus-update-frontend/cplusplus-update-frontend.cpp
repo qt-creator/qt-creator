@@ -997,7 +997,7 @@ bool checkGenerated(const QTextCursor &cursor, int *doxyStart)
     if (prevToken.kind() != T_DOXY_COMMENT && prevToken.kind() != T_CPP_DOXY_COMMENT)
         return false;
 
-    *doxyStart = tokens.startPosition() + prevToken.bytesBegin();
+    *doxyStart = tokens.startPosition() + prevToken.utf16charsBegin();
 
     return tokens.text(tokens.startToken() - 1).contains(QLatin1String("\\generated"));
 }

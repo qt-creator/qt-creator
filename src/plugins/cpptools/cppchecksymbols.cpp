@@ -356,7 +356,7 @@ bool CheckSymbols::warning(AST *ast, const QString &text)
     const Token &firstToken = tokenAt(ast->firstToken());
     const Token &lastToken = tokenAt(ast->lastToken() - 1);
 
-    const unsigned length = lastToken.bytesEnd() - firstToken.bytesBegin();
+    const unsigned length = lastToken.utf16charsEnd() - firstToken.utf16charsBegin();
     unsigned line = 1, column = 1;
     getTokenStartPosition(ast->firstToken(), &line, &column);
 
@@ -476,7 +476,7 @@ bool CheckSymbols::visit(NamespaceAST *ast)
         if (!tok.generated()) {
             unsigned line, column;
             getTokenStartPosition(ast->identifier_token, &line, &column);
-            Result use(line, column, tok.bytes(), CppHighlightingSupport::TypeUse);
+            Result use(line, column, tok.utf16chars(), CppHighlightingSupport::TypeUse);
             addUse(use);
         }
     }
@@ -726,8 +726,8 @@ void CheckSymbols::checkNamespace(NameAST *name)
         }
     }
 
-    const unsigned length = tokenAt(name->lastToken() - 1).bytesEnd()
-            - tokenAt(name->firstToken()).bytesBegin();
+    const unsigned length = tokenAt(name->lastToken() - 1).utf16charsEnd()
+            - tokenAt(name->firstToken()).utf16charsBegin();
     warning(line, column, QCoreApplication::translate("CPlusPlus::CheckSymbols",
                                                       "Expected a namespace-name"), length);
 }
@@ -1116,7 +1116,7 @@ void CheckSymbols::addUse(unsigned tokenIndex, Kind kind)
 
     unsigned line, column;
     getTokenStartPosition(tokenIndex, &line, &column);
-    const unsigned length = tok.bytes();
+    const unsigned length = tok.utf16chars();
 
     const Result use(line, column, length, kind);
     addUse(use);
@@ -1153,7 +1153,7 @@ void CheckSymbols::addType(ClassOrNamespace *b, NameAST *ast)
 
     unsigned line, column;
     getTokenStartPosition(startToken, &line, &column);
-    const unsigned length = tok.bytes();
+    const unsigned length = tok.utf16chars();
     const Result use(line, column, length, CppHighlightingSupport::TypeUse);
     addUse(use);
 }
@@ -1194,7 +1194,7 @@ bool CheckSymbols::maybeAddTypeOrStatic(const QList<LookupItem> &candidates, Nam
 
             unsigned line, column;
             getTokenStartPosition(startToken, &line, &column);
-            const unsigned length = tok.bytes();
+            const unsigned length = tok.utf16chars();
 
             Kind kind = CppHighlightingSupport::TypeUse;
             if (c->enclosingEnum() != 0)
@@ -1236,7 +1236,7 @@ bool CheckSymbols::maybeAddField(const QList<LookupItem> &candidates, NameAST *a
 
         unsigned line, column;
         getTokenStartPosition(startToken, &line, &column);
-        const unsigned length = tok.bytes();
+        const unsigned length = tok.utf16chars();
 
         const Result use(line, column, length, CppHighlightingSupport::FieldUse);
         addUse(use);
@@ -1320,7 +1320,7 @@ bool CheckSymbols::maybeAddFunction(const QList<LookupItem> &candidates, NameAST
 
         unsigned line, column;
         getTokenStartPosition(startToken, &line, &column);
-        const unsigned length = tok.bytes();
+        const unsigned length = tok.utf16chars();
 
         // Add a diagnostic message if argument count does not match
         if (matchType == Match_TooFewArgs)

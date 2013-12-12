@@ -178,7 +178,7 @@ void FindUsages::reportResult(unsigned tokenIndex)
     if (col)
         --col;  // adjust the column position.
 
-    const int len = tk.bytes();
+    const int len = tk.utf16chars();
 
     const Usage u(_doc->fileName(), lineText, line, col, len);
     _usages.append(u);

@@ -481,8 +481,8 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
     for (int i = 0; i < tokens.size(); ++i) {
         const Token &tk = tokens.at(i);
 
-        if (((unsigned) positionInBlock) >= tk.bytesBegin()
-                && ((unsigned) positionInBlock) < tk.bytesEnd()) {
+        if (((unsigned) positionInBlock) >= tk.utf16charsBegin()
+                && ((unsigned) positionInBlock) < tk.utf16charsEnd()) {
             int closingParenthesisPos = tokens.size();
             if (i >= 2 && tokens.at(i).is(T_IDENTIFIER) && tokens.at(i - 1).is(T_LPAREN)
                 && (tokens.at(i - 2).is(T_SIGNAL) || tokens.at(i - 2).is(T_SLOT))) {
@@ -506,10 +506,10 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
             if (closingParenthesisPos < tokens.size()) {
                 QTextBlock block = cursor.block();
 
-                beginOfToken = block.position() + tokens.at(i).bytesBegin();
-                endOfToken = block.position() + tokens.at(i).bytesEnd();
+                beginOfToken = block.position() + tokens.at(i).utf16charsBegin();
+                endOfToken = block.position() + tokens.at(i).utf16charsEnd();
 
-                tc.setPosition(block.position() + tokens.at(closingParenthesisPos).bytesEnd());
+                tc.setPosition(block.position() + tokens.at(closingParenthesisPos).utf16charsEnd());
                 recognizedQtMethod = true;
             }
             break;
@@ -524,8 +524,8 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
 
             // In this case we want to look at one token before the current position to recognize
             // an operator if the cursor is inside the actual operator: operator[$]
-            if (unsigned(positionInBlock) >= tk.bytesBegin()
-                    && unsigned(positionInBlock) <= tk.bytesEnd()) {
+            if (unsigned(positionInBlock) >= tk.utf16charsBegin()
+                    && unsigned(positionInBlock) <= tk.utf16charsEnd()) {
                 cursorRegionReached = true;
                 if (tk.is(T_OPERATOR)) {
                     link = attemptFuncDeclDef(cursor, m_widget, theSnapshot,
@@ -535,7 +535,7 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
                 } else if (tk.isOperator() && i > 0 && tokens.at(i - 1).is(T_OPERATOR)) {
                     QTextCursor c = cursor;
                     c.movePosition(QTextCursor::Left, QTextCursor::MoveAnchor,
-                                   positionInBlock - tokens.at(i - 1).bytesBegin());
+                                   positionInBlock - tokens.at(i - 1).utf16charsBegin());
                     link = attemptFuncDeclDef(c, m_widget, theSnapshot, documentFromSemanticInfo,
                                               symbolFinder);
                     if (link.hasValidLinkText())
@@ -564,8 +564,8 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
         const Token tk = SimpleLexer::tokenAt(block.text(), pos,
                                               BackwardsScanner::previousBlockState(block), true);
 
-        beginOfToken = block.position() + tk.bytesBegin();
-        endOfToken = block.position() + tk.bytesEnd();
+        beginOfToken = block.position() + tk.utf16charsBegin();
+        endOfToken = block.position() + tk.utf16charsEnd();
 
         // Handle include directives
         if (tk.is(T_STRING_LITERAL) || tk.is(T_ANGLE_STRING_LITERAL)) {

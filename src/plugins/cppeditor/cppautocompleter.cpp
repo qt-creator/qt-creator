@@ -72,7 +72,7 @@ bool CppAutoCompleter::contextAllowsElectricCharacters(const QTextCursor &cursor
 
     if (token.isStringLiteral() || token.isCharLiteral()) {
         const unsigned pos = cursor.selectionEnd() - cursor.block().position();
-        if (pos <= token.bytesEnd())
+        if (pos <= token.utf16charsEnd())
             return false;
     }
 
@@ -115,10 +115,10 @@ bool CppAutoCompleter::isInCommentHelper(const QTextCursor &cursor, Token *retTo
 
     const unsigned pos = cursor.selectionEnd() - cursor.block().position();
 
-    if (tokens.isEmpty() || pos < tokens.first().bytesBegin())
+    if (tokens.isEmpty() || pos < tokens.first().utf16charsBegin())
         return prevState > 0;
 
-    if (pos >= tokens.last().bytesEnd()) {
+    if (pos >= tokens.last().utf16charsEnd()) {
         const Token tk = tokens.last();
         if (tk.is(T_CPP_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))
             return true;
@@ -137,7 +137,7 @@ const Token CppAutoCompleter::tokenAtPosition(const QList<Token> &tokens, const 
 {
     for (int i = tokens.size() - 1; i >= 0; --i) {
         const Token tk = tokens.at(i);
-        if (pos >= tk.bytesBegin() && pos < tk.bytesEnd())
+        if (pos >= tk.utf16charsBegin() && pos < tk.utf16charsEnd())
             return tk;
     }
     return Token();

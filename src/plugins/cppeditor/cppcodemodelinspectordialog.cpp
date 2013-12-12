@@ -821,7 +821,7 @@ public:
     void clear();
 
     enum Columns { SpelledColumn, KindColumn, IndexColumn, OffsetColumn, LineColumnNumberColumn,
-                   LengthInBytesColumn, GeneratedColumn, ExpandedColumn, WhiteSpaceColumn,
+                   BytesAndCodePointsColumn, GeneratedColumn, ExpandedColumn, WhiteSpaceColumn,
                    NewlineColumn, ColumnCount };
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -890,10 +890,11 @@ QVariant TokensModel::data(const QModelIndex &index, int role) const
         else if (column == OffsetColumn)
             return token.bytesBegin();
         else if (column == LineColumnNumberColumn)
-            return QString::fromLatin1("%1:%2")
-                    .arg(CMI::Utils::toString(info.line), CMI::Utils::toString(info.column));
-        else if (column == LengthInBytesColumn)
-            return CMI::Utils::toString(token.bytes());
+            return QString::fromLatin1("%1:%2").arg(CMI::Utils::toString(info.line),
+                                                    CMI::Utils::toString(info.column));
+        else if (column == BytesAndCodePointsColumn)
+            return QString::fromLatin1("%1/%2").arg(CMI::Utils::toString(token.bytes()),
+                                                    CMI::Utils::toString(token.utf16chars()));
         else if (column == GeneratedColumn)
             return CMI::Utils::toString(token.generated());
         else if (column == ExpandedColumn)
@@ -922,8 +923,8 @@ QVariant TokensModel::headerData(int section, Qt::Orientation orientation, int r
             return QLatin1String("Offset");
         case LineColumnNumberColumn:
             return QLatin1String("Line:Column");
-        case LengthInBytesColumn:
-            return QLatin1String("Bytes");
+        case BytesAndCodePointsColumn:
+            return QLatin1String("Bytes/Codepoints");
         case GeneratedColumn:
             return QLatin1String("Generated");
         case ExpandedColumn:

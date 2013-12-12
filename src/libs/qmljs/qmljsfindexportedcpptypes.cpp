@@ -225,8 +225,8 @@ protected:
             // go through comments backwards to find the annotation closest to the call
             for (unsigned i = _doc->translationUnit()->commentCount(); i-- > 0; ) {
                 const Token commentToken = _doc->translationUnit()->commentAt(i);
-                if (commentToken.bytesBegin() >= end.bytesBegin()
-                        || commentToken.bytesEnd() <= begin.bytesBegin()) {
+                if (commentToken.utf16charsBegin() >= end.utf16charsBegin()
+                        || commentToken.utf16charsEnd() <= begin.utf16charsBegin()) {
                     continue;
                 }
                 const QString comment = stringOf(commentToken);

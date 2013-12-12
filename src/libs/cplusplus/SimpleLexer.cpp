@@ -112,11 +112,11 @@ QList<Token> SimpleLexer::operator()(const QString &text, int state)
     return tokens;
 }
 
-int SimpleLexer::tokenAt(const QList<Token> &tokens, unsigned offset)
+int SimpleLexer::tokenAt(const QList<Token> &tokens, unsigned utf16charsOffset)
 {
     for (int index = tokens.size() - 1; index >= 0; --index) {
         const Token &tk = tokens.at(index);
-        if (tk.bytesBegin() <= offset && tk.bytesEnd() >= offset)
+        if (tk.utf16charsBegin() <= utf16charsOffset && tk.utf16charsEnd() >= utf16charsOffset)
             return index;
     }
 
@@ -124,7 +124,7 @@ int SimpleLexer::tokenAt(const QList<Token> &tokens, unsigned offset)
 }
 
 Token SimpleLexer::tokenAt(const QString &text,
-                           unsigned offset,
+                           unsigned utf16charsOffset,
                            int state,
                            bool qtMocRunEnabled)
 {
@@ -138,15 +138,15 @@ Token SimpleLexer::tokenAt(const QString &text,
     SimpleLexer tokenize;
     tokenize.setLanguageFeatures(features);
     const QList<Token> tokens = tokenize(text, state);
-    const int tokenIdx = tokenAt(tokens, offset);
+    const int tokenIdx = tokenAt(tokens, utf16charsOffset);
     return (tokenIdx == -1) ? Token() : tokens.at(tokenIdx);
 }
 
-int SimpleLexer::tokenBefore(const QList<Token> &tokens, unsigned offset)
+int SimpleLexer::tokenBefore(const QList<Token> &tokens, unsigned utf16charsOffset)
 {
     for (int index = tokens.size() - 1; index >= 0; --index) {
         const Token &tk = tokens.at(index);
-        if (tk.bytesBegin() <= offset)
+        if (tk.utf16charsBegin() <= utf16charsOffset)
             return index;
     }
 

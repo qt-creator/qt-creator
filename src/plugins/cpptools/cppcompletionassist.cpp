@@ -703,8 +703,8 @@ bool CppCompletionAssistProcessor::accepts() const
                         const QString &line = tc.block().text();
                         const Token &idToken = tokens.at(1);
                         const QStringRef &identifier =
-                                line.midRef(idToken.bytesBegin(),
-                                            idToken.bytesEnd() - idToken.bytesBegin());
+                                line.midRef(idToken.utf16charsBegin(),
+                                            idToken.utf16charsEnd() - idToken.utf16charsBegin());
                         if (identifier == QLatin1String("include")
                                 || identifier == QLatin1String("include_next")
                                 || (m_languageFeatures.objCEnabled && identifier == QLatin1String("import"))) {
@@ -838,8 +838,8 @@ int CppCompletionAssistProcessor::startOfOperator(int pos,
                 if (tokens.at(0).is(T_POUND) && tokens.at(1).is(T_IDENTIFIER) && (tokens.at(2).is(T_STRING_LITERAL) ||
                                                                                   tokens.at(2).is(T_ANGLE_STRING_LITERAL))) {
                     const Token &directiveToken = tokens.at(1);
-                    QString directive = tc.block().text().mid(directiveToken.bytesBegin(),
-                                                              directiveToken.bytes());
+                    QString directive = tc.block().text().mid(directiveToken.utf16charsBegin(),
+                                                              directiveToken.utf16chars());
                     if (directive == QLatin1String("include") ||
                             directive == QLatin1String("include_next") ||
                             directive == QLatin1String("import")) {
