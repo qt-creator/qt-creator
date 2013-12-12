@@ -153,8 +153,12 @@ macx {
 INCLUDEPATH += \
     $$IDE_BUILD_TREE/src \ # for <app/app_version.h>
     $$IDE_SOURCE_TREE/src/libs \
-    $$IDE_SOURCE_TREE/tools \
-    $$IDE_SOURCE_TREE/src/plugins
+    $$IDE_SOURCE_TREE/tools
+
+QTC_PLUGIN_DIRS += $$IDE_SOURCE_TREE/src/plugins
+for (dir, QTC_PLUGIN_DIRS) {
+    INCLUDEPATH += $$dir
+}
 
 CONFIG += depend_includepath
 
@@ -203,7 +207,16 @@ for(ever) {
         break()
     done_plugins += $$QTC_PLUGIN_DEPENDS
     for(dep, QTC_PLUGIN_DEPENDS) {
-        include($$PWD/src/plugins/$$dep/$${dep}_dependencies.pri)
+        dependencies_file =
+        for(dir, QTC_PLUGIN_DIRS) {
+            exists($$dir/$$dep/$${dep}_dependencies.pri) {
+                dependencies_file = $$dir/$$dep/$${dep}_dependencies.pri
+                break()
+            }
+        }
+        isEmpty(dependencies_file): \
+            error("Plugin dependency $$dep not found")
+        include($$dependencies_file)
         LIBS += -l$$qtLibraryName($$QTC_PLUGIN_NAME)
     }
     QTC_PLUGIN_DEPENDS = $$unique(QTC_PLUGIN_DEPENDS)
