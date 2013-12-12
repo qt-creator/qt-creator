@@ -975,10 +975,6 @@ void QmlJSTextEditorWidget::setSelectedElements()
     emit selectedElementsChanged(offsets, wordAtCursor);
 }
 
-void QmlJSTextEditorWidget::updateFileName()
-{
-}
-
 void QmlJSTextEditorWidget::setFontSettings(const TextEditor::FontSettings &fs)
 {
     TextEditor::BaseTextEditorWidget::setFontSettings(fs);
@@ -1059,8 +1055,6 @@ void QmlJSTextEditorWidget::createToolBar(QmlJSEditor *editor)
 
     connect(m_outlineCombo, SIGNAL(activated(int)), this, SLOT(jumpToOutlineElement(int)));
     connect(this, SIGNAL(cursorPositionChanged()), m_updateOutlineIndexTimer, SLOT(start()));
-
-    connect(baseTextDocument(), SIGNAL(changed()), this, SLOT(updateFileName()));
 
     editor->insertExtraToolBarWidget(TextEditor::BaseTextEditor::Left, m_outlineCombo);
 }
