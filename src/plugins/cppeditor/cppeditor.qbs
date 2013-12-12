@@ -12,6 +12,7 @@ QtcPlugin {
     Depends { name: "CPlusPlus" }
     Depends { name: "TextEditor" }
     Depends { name: "ProjectExplorer" }
+    Depends { name: "app_version_header" }
 
     files: [
         "cppautocompleter.cpp", "cppautocompleter.h",
