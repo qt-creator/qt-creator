@@ -1077,7 +1077,7 @@ void CPPEditorWidget::updateOutlineNow()
         return;
 
     const Snapshot snapshot = m_modelManager->snapshot();
-    Document::Ptr document = snapshot.document(editorDocument()->filePath());
+    Document::Ptr document = snapshot.document(baseTextDocument()->filePath());
 
     if (!document)
         return;
@@ -1672,7 +1672,7 @@ void CPPEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo)
 
     // We can use the semanticInfo's snapshot (and avoid locking), but not its
     // document, since it doesn't contain expanded macros.
-    LookupContext context(semanticInfo.snapshot.document(editorDocument()->filePath()),
+    LookupContext context(semanticInfo.snapshot.document(baseTextDocument()->filePath()),
                           semanticInfo.snapshot);
 
     SemanticInfo::LocalUseIterator it(semanticInfo.localUses);
@@ -1841,7 +1841,7 @@ void CPPEditorWidget::onFunctionDeclDefLinkFound(QSharedPointer<FunctionDeclDefL
     m_declDefLink = link;
     Core::IDocument *targetDocument = Core::EditorManager::documentModel()->documentForFilePath(
                 m_declDefLink->targetFile->fileName());
-    if (editorDocument() != targetDocument) {
+    if (baseTextDocument() != targetDocument) {
         if (TextEditor::BaseTextDocument *baseTextDocument = qobject_cast<TextEditor::BaseTextDocument *>(targetDocument))
             connect(baseTextDocument->document(), SIGNAL(contentsChanged()),
                     this, SLOT(abortDeclDefLink()));
@@ -1876,7 +1876,7 @@ void CPPEditorWidget::abortDeclDefLink()
 
     Core::IDocument *targetDocument = Core::EditorManager::documentModel()->documentForFilePath(
                 m_declDefLink->targetFile->fileName());
-    if (editorDocument() != targetDocument) {
+    if (baseTextDocument() != targetDocument) {
         if (TextEditor::BaseTextDocument *baseTextDocument = qobject_cast<TextEditor::BaseTextDocument *>(targetDocument))
             disconnect(baseTextDocument->document(), SIGNAL(contentsChanged()),
                     this, SLOT(abortDeclDefLink()));

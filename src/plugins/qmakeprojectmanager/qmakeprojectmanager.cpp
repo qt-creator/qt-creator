@@ -143,7 +143,7 @@ void QmakeManager::addLibrary()
     ProFileEditorWidget *editor =
         qobject_cast<ProFileEditorWidget*>(Core::EditorManager::currentEditor()->widget());
     if (editor)
-        addLibrary(editor->editorDocument()->filePath(), editor);
+        addLibrary(editor->baseTextDocument()->filePath(), editor);
 }
 
 void QmakeManager::addLibraryContextMenu()

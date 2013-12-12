@@ -59,7 +59,7 @@ EditorWidget::EditorWidget(QWidget *parent)
     setCodeFoldingSupported(true);
 
     setIndenter(new PythonIndenter());
-    new PythonHighlighter(baseTextDocument().data());
+    new PythonHighlighter(baseTextDocument());
 }
 
 EditorWidget::~EditorWidget()

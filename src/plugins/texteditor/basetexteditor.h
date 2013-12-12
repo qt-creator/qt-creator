@@ -30,6 +30,7 @@
 #ifndef BASETEXTEDITOR_H
 #define BASETEXTEDITOR_H
 
+#include "basetextdocument.h"
 #include "itexteditor.h"
 #include "codeassist/assistenums.h"
 
@@ -69,7 +70,6 @@ namespace Internal {
 
 class ITextMarkable;
 
-class BaseTextDocument;
 class BaseTextEditor;
 class FontSettings;
 class BehaviorSettings;
@@ -135,12 +135,12 @@ public:
     const Utils::ChangeSet &changeSet() const;
     void setChangeSet(const Utils::ChangeSet &changeSet);
 
-    // EditorInterface
-    Core::IDocument *editorDocument() const;
+    BaseTextDocument *baseTextDocument() const;
+
+    // IEditor
     virtual bool open(QString *errorString, const QString &fileName, const QString &realFileName);
     QByteArray saveState() const;
     bool restoreState(const QByteArray &state);
-
     void gotoLine(int line, int column = 0);
 
     int position(ITextEditor::PositionOperation posOp = ITextEditor::Current,
@@ -358,7 +358,6 @@ public:
     void duplicateFrom(BaseTextEditorWidget *editor);
 
 protected:
-    QSharedPointer<BaseTextDocument> baseTextDocument() const;
     void setBaseTextDocument(const QSharedPointer<BaseTextDocument> &doc);
 
     void setDefaultPath(const QString &defaultPath);
@@ -593,9 +592,10 @@ public:
 
     friend class BaseTextEditorWidget;
     BaseTextEditorWidget *editorWidget() const { return m_editorWidget; }
+    BaseTextDocument *baseTextDocument() { return m_editorWidget->baseTextDocument(); }
 
     // IEditor
-    Core::IDocument *document() { return m_editorWidget->editorDocument(); }
+    Core::IDocument *document() { return m_editorWidget->baseTextDocument(); }
     bool open(QString *errorString, const QString &fileName, const QString &realFileName);
 
     QByteArray saveState() const { return m_editorWidget->saveState(); }

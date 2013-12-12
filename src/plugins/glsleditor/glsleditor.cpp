@@ -157,7 +157,7 @@ GLSLTextEditorWidget::GLSLTextEditorWidget(QWidget *parent) :
 
     connect(this, SIGNAL(textChanged()), this, SLOT(updateDocument()));
 
-    new Highlighter(baseTextDocument().data());
+    new Highlighter(baseTextDocument());
 
 //    if (m_modelManager) {
 //        m_semanticHighlighter->setModelManager(m_modelManager);

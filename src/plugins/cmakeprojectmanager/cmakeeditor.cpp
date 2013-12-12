@@ -201,7 +201,7 @@ CMakeEditorWidget::Link CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
 
     // TODO: Resolve variables
 
-    QDir dir(QFileInfo(editorDocument()->filePath()).absolutePath());
+    QDir dir(QFileInfo(baseTextDocument()->filePath()).absolutePath());
     QString fileName = dir.filePath(buffer);
     QFileInfo fi(fileName);
     if (fi.exists()) {

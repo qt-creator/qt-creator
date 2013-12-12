@@ -158,7 +158,7 @@ RefactoringFile::RefactoringFile(QTextDocument *document, const QString &fileNam
 { }
 
 RefactoringFile::RefactoringFile(BaseTextEditorWidget *editor)
-    : m_fileName(editor->editorDocument()->filePath())
+    : m_fileName(editor->baseTextDocument()->filePath())
     , m_document(0)
     , m_editor(editor)
     , m_openEditor(false)

@@ -544,7 +544,7 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
     }
 
     // Now we prefer the doc from the snapshot with macros expanded.
-    Document::Ptr doc = snapshot.document(m_widget->editorDocument()->filePath());
+    Document::Ptr doc = snapshot.document(m_widget->baseTextDocument()->filePath());
     if (!doc) {
         doc = documentFromSemanticInfo;
         if (!doc)
@@ -639,7 +639,7 @@ BaseTextEditorWidget::Link FollowSymbolUnderCursor::findLink(const QTextCursor &
             if (Symbol *d = r.declaration()) {
                 if (d->isDeclaration() || d->isFunction()) {
                     const QString fileName = QString::fromUtf8(d->fileName(), d->fileNameLength());
-                    if (m_widget->editorDocument()->filePath() == fileName) {
+                    if (m_widget->baseTextDocument()->filePath() == fileName) {
                         if (unsigned(lineNumber) == d->line()
                             && unsigned(positionInBlock) >= d->column()) { // TODO: check the end
                             result = r; // take the symbol under cursor.

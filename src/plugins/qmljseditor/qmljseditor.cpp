@@ -610,7 +610,7 @@ void QmlJSTextEditorWidget::reparseDocumentNow()
 {
     m_updateDocumentTimer->stop();
 
-    const QString fileName = editorDocument()->filePath();
+    const QString fileName = baseTextDocument()->filePath();
     m_modelManager->updateSourceFiles(QStringList() << fileName, false);
 }
 
@@ -652,7 +652,7 @@ static void appendExtraSelectionsForMessages(
 
 void QmlJSTextEditorWidget::onDocumentUpdated(QmlJS::Document::Ptr doc)
 {
-    if (editorDocument()->filePath() != doc->fileName())
+    if (baseTextDocument()->filePath() != doc->fileName())
         return;
 
     if (doc->editorRevision() != editorRevision()) {
@@ -684,7 +684,7 @@ void QmlJSTextEditorWidget::onDocumentUpdated(QmlJS::Document::Ptr doc)
 void QmlJSTextEditorWidget::modificationChanged(bool changed)
 {
     if (!changed && m_modelManager)
-        m_modelManager->fileChangedOnDisk(editorDocument()->filePath());
+        m_modelManager->fileChangedOnDisk(baseTextDocument()->filePath());
 }
 
 void QmlJSTextEditorWidget::jumpToOutlineElement(int /*index*/)
@@ -1060,7 +1060,7 @@ void QmlJSTextEditorWidget::createToolBar(QmlJSEditor *editor)
     connect(m_outlineCombo, SIGNAL(activated(int)), this, SLOT(jumpToOutlineElement(int)));
     connect(this, SIGNAL(cursorPositionChanged()), m_updateOutlineIndexTimer, SLOT(start()));
 
-    connect(editorDocument(), SIGNAL(changed()), this, SLOT(updateFileName()));
+    connect(baseTextDocument(), SIGNAL(changed()), this, SLOT(updateFileName()));
 
     editor->insertExtraToolBarWidget(TextEditor::BaseTextEditor::Left, m_outlineCombo);
 }
@@ -1150,12 +1150,12 @@ TextEditor::BaseTextEditorWidget::Link QmlJSTextEditorWidget::findLinkAt(const Q
 
 void QmlJSTextEditorWidget::findUsages()
 {
-    m_findReferences->findUsages(editorDocument()->filePath(), textCursor().position());
+    m_findReferences->findUsages(baseTextDocument()->filePath(), textCursor().position());
 }
 
 void QmlJSTextEditorWidget::renameUsages()
 {
-    m_findReferences->renameUsages(editorDocument()->filePath(), textCursor().position());
+    m_findReferences->renameUsages(baseTextDocument()->filePath(), textCursor().position());
 }
 
 void QmlJSTextEditorWidget::showContextPane()

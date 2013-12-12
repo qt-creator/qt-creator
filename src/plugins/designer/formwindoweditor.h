@@ -39,7 +39,6 @@ class QDesignerFormWindowInterface;
 QT_END_NAMESPACE
 
 namespace TextEditor {
-    class BaseTextDocument;
     class PlainTextEditor;
 }
 

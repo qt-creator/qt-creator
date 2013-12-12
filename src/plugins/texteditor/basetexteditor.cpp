@@ -493,7 +493,7 @@ BaseTextEditor *BaseTextEditorWidget::editor() const
         d->m_codeAssistant->configure(d->m_editor);
         connect(this, SIGNAL(textChanged()),
                 d->m_editor, SIGNAL(contentsChanged()));
-        connect(qobject_cast<BaseTextDocument *>(d->m_editor->document()),SIGNAL(mimeTypeChanged()),
+        connect(baseTextDocument(),SIGNAL(mimeTypeChanged()),
                 d->m_codeAssistant.data(), SLOT(reconfigure()));
     }
     return d->m_editor;
@@ -632,7 +632,7 @@ void BaseTextEditorWidget::setChangeSet(const Utils::ChangeSet &changeSet)
     }
 }
 
-Core::IDocument *BaseTextEditorWidget::editorDocument() const
+BaseTextDocument *BaseTextEditorWidget::baseTextDocument() const
 {
     return d->m_document.data();
 }
@@ -2084,12 +2084,6 @@ void BaseTextEditorWidget::duplicateFrom(BaseTextEditorWidget *widget)
     d->m_document = widget->d->m_document;
 }
 
-QSharedPointer<BaseTextDocument> BaseTextEditorWidget::baseTextDocument() const
-{
-    return d->m_document;
-}
-
-
 void BaseTextEditorWidget::setBaseTextDocument(const QSharedPointer<BaseTextDocument> &doc)
 {
     if (!doc.isNull()) {
@@ -2467,11 +2461,11 @@ BaseTextEditorWidgetPrivate::~BaseTextEditorWidgetPrivate()
 
 void BaseTextEditorWidgetPrivate::setupDocumentSignals(const QSharedPointer<BaseTextDocument> &document)
 {
-    QSharedPointer<BaseTextDocument> oldDocument = q->baseTextDocument();
-    if (!oldDocument.isNull()) {
+    BaseTextDocument *oldDocument = q->baseTextDocument();
+    if (oldDocument) {
         q->disconnect(oldDocument->document(), 0, q, 0);
-        q->disconnect(oldDocument.data(), 0, q, 0);
-        q->disconnect(q, 0, oldDocument.data(), 0);
+        q->disconnect(oldDocument, 0, q, 0);
+        q->disconnect(q, 0, oldDocument, 0);
     }
 
     QTextDocument *doc = document->document();
@@ -6131,7 +6125,7 @@ void BaseTextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
     if (a && a->isEnabled())
         menu->addAction(a);
 
-    QSharedPointer<BaseTextDocument> doc = baseTextDocument();
+    BaseTextDocument *doc = baseTextDocument();
     if (doc->codec()->name() == QByteArray("UTF-8") && doc->supportsUtf8Bom()) {
         a = Core::ActionManager::command(Constants::SWITCH_UTF8BOM)->action();
         if (a && a->isEnabled()) {

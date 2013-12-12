@@ -71,7 +71,7 @@ PlainTextEditorWidget::PlainTextEditorWidget(QWidget *parent)
     m_commentDefinition.clearCommentStyles();
 
     // If configure() is called immediately the whole document is considered modified
-    connect(editorDocument(), SIGNAL(changed()), this, SLOT(configure()), Qt::QueuedConnection);
+    connect(baseTextDocument(), SIGNAL(changed()), this, SLOT(configure()), Qt::QueuedConnection);
     connect(Manager::instance(), SIGNAL(mimeTypesRegistered()), this, SLOT(configure()));
 }
 
@@ -107,8 +107,8 @@ void PlainTextEditorWidget::setTabSettings(const TextEditor::TabSettings &ts)
 void PlainTextEditorWidget::configure()
 {
     MimeType mimeType;
-    if (editorDocument())
-        mimeType = MimeDatabase::findByFile(editorDocument()->filePath());
+    if (baseTextDocument())
+        mimeType = MimeDatabase::findByFile(baseTextDocument()->filePath());
     configure(mimeType);
 }
 
@@ -147,8 +147,8 @@ void PlainTextEditorWidget::configure(const MimeType &mimeType)
 
                 setCodeFoldingSupported(true);
             }
-        } else if (editorDocument()) {
-            const QString &fileName = editorDocument()->filePath();
+        } else if (baseTextDocument()) {
+            const QString &fileName = baseTextDocument()->filePath();
             if (TextEditorSettings::highlighterSettings().isIgnoredFilePattern(fileName))
                 m_isMissingSyntaxDefinition = false;
         }

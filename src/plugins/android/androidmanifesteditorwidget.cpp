@@ -713,7 +713,7 @@ void AndroidManifestEditorWidget::updateSdkVersions()
 
 void AndroidManifestEditorWidget::updateInfoBar(const QString &errorMessage, int line, int column)
 {
-    Core::InfoBar *infoBar = editorDocument()->infoBar();
+    Core::InfoBar *infoBar = baseTextDocument()->infoBar();
     QString text;
     if (line < 0)
         text = tr("Could not parse file: '%1'.").arg(errorMessage);
@@ -731,7 +731,7 @@ void AndroidManifestEditorWidget::updateInfoBar(const QString &errorMessage, int
 
 void AndroidManifestEditorWidget::hideInfoBar()
 {
-    Core::InfoBar *infoBar = editorDocument()->infoBar();
+    Core::InfoBar *infoBar = baseTextDocument()->infoBar();
     infoBar->removeInfo(infoBarId);
     m_timerParseCheck.stop();
 }

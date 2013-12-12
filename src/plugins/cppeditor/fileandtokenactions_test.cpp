@@ -436,8 +436,7 @@ void InvokeCompletionTokenAction::run(CPPEditorWidget *editorWidget)
     //    editorWidget->setFocus();
     QApplication::processEvents();
 
-    BaseTextDocument *doc = qobject_cast<BaseTextDocument *>(editorWidget->editorDocument());
-    TestActionsTestCase::undoChangesInDocument(doc);
+    TestActionsTestCase::undoChangesInDocument(editorWidget->baseTextDocument());
 }
 
 class RunAllQuickFixesTokenAction : public TestActionsTestCase::AbstractAction
