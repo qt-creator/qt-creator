@@ -61,11 +61,11 @@ bool SimpleLexer::endedJoined() const
     return _endedJoined;
 }
 
-QList<Token> SimpleLexer::operator()(const QString &text, int state, bool convertToUtf8)
+QList<Token> SimpleLexer::operator()(const QString &text, int state)
 {
     QList<Token> tokens;
 
-    const QByteArray bytes = convertToUtf8 ? text.toUtf8() : text.toLatin1();
+    const QByteArray bytes = text.toUtf8();
     const char *firstChar = bytes.constData();
     const char *lastChar = firstChar + bytes.size();
 

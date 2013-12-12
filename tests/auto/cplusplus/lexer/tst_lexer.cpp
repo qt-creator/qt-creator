@@ -114,8 +114,7 @@ void tst_SimpleLexer::run(const QByteArray &source,
     QVERIFY(compareFlags);
 
     SimpleLexer lexer;
-    const QList<Token> tokenList = lexer(source, preserveState ? _state : 0,
-                                         /*convertToUtf8=*/ true);
+    const QList<Token> tokenList = lexer(source, preserveState ? _state : 0);
     if (preserveState)
         _state = lexer.state();
 

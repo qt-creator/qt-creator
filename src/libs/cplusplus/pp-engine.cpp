@@ -749,7 +749,7 @@ Preprocessor::Preprocessor(Client *client, Environment *env)
 
 QByteArray Preprocessor::run(const QString &fileName, const QString &source)
 {
-    return run(fileName, source.toLatin1());
+    return run(fileName, source.toUtf8());
 }
 
 QByteArray Preprocessor::run(const QString &fileName,
