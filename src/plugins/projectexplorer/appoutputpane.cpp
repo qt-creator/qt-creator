@@ -101,7 +101,7 @@ void TabWidget::slotContextMenuRequested(const QPoint &pos)
 }
 
 AppOutputPane::RunControlTab::RunControlTab(RunControl *rc, Core::OutputWindow *w) :
-    runControl(rc), window(w), asyncClosing(false), behavivorOnOutput(Flash)
+    runControl(rc), window(w), asyncClosing(false), behaviorOnOutput(Flash)
 {
 }
 
@@ -364,7 +364,7 @@ void AppOutputPane::appendMessage(RunControl *rc, const QString &out, Utils::Out
         Core::OutputWindow *window = m_runControlTabs.at(index).window;
         window->appendMessage(out, format);
         if (format != Utils::NormalMessageFormat) {
-            if (m_runControlTabs.at(index).behavivorOnOutput == Flash)
+            if (m_runControlTabs.at(index).behaviorOnOutput == Flash)
                 flash();
             else
                 popup(NoModeSwitch);
@@ -377,11 +377,11 @@ void AppOutputPane::showTabFor(RunControl *rc)
     m_tabWidget->setCurrentIndex(tabWidgetIndexOf(indexOf(rc)));
 }
 
-void AppOutputPane::setBehaviorOnOutput(RunControl *rc, AppOutputPane::BehavivorOnOutput mode)
+void AppOutputPane::setBehaviorOnOutput(RunControl *rc, AppOutputPane::BehaviorOnOutput mode)
 {
     const int index = indexOf(rc);
     if (index != -1)
-        m_runControlTabs[index].behavivorOnOutput = mode;
+        m_runControlTabs[index].behaviorOnOutput = mode;
 }
 
 void AppOutputPane::reRunRunControl()
