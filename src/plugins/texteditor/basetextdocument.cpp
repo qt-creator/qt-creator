@@ -83,6 +83,17 @@ BaseTextDocumentPrivate::BaseTextDocumentPrivate(BaseTextDocument *q) :
 
 BaseTextDocument::BaseTextDocument() : d(new BaseTextDocumentPrivate(this))
 {
+    connect(d->m_document, SIGNAL(modificationChanged(bool)), this, SIGNAL(changed()));
+
+    // set new document layout
+    QTextOption opt = d->m_document->defaultTextOption();
+    opt.setTextDirection(Qt::LeftToRight);
+    opt.setFlags(opt.flags() | QTextOption::IncludeTrailingSpaces
+            | QTextOption::AddSpaceForLineAndParagraphSeparators
+            );
+    d->m_document->setDefaultTextOption(opt);
+    BaseTextDocumentLayout *documentLayout = new BaseTextDocumentLayout(d->m_document);
+    d->m_document->setDocumentLayout(documentLayout);
 }
 
 BaseTextDocument::~BaseTextDocument()

@@ -2464,26 +2464,15 @@ void BaseTextEditorWidgetPrivate::setupDocumentSignals(const QSharedPointer<Base
     }
 
     QTextDocument *doc = document->document();
-    BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(doc->documentLayout());
-    if (!documentLayout) {
-        QTextOption opt = doc->defaultTextOption();
-        opt.setTextDirection(Qt::LeftToRight);
-        opt.setFlags(opt.flags() | QTextOption::IncludeTrailingSpaces
-                | QTextOption::AddSpaceForLineAndParagraphSeparators
-                );
-        doc->setDefaultTextOption(opt);
-        documentLayout = new BaseTextDocumentLayout(doc);
-        doc->setDocumentLayout(documentLayout);
-    }
-
     q->setDocument(doc);
     q->setCursorWidth(2); // Applies to the document layout
 
+    BaseTextDocumentLayout *documentLayout = qobject_cast<BaseTextDocumentLayout*>(doc->documentLayout());
+    QTC_CHECK(documentLayout);
     QObject::connect(documentLayout, SIGNAL(updateBlock(QTextBlock)), q, SLOT(slotUpdateBlockNotify(QTextBlock)));
     QObject::connect(documentLayout, SIGNAL(updateExtraArea()), q, SLOT(slotUpdateExtraArea()));
     QObject::connect(q, SIGNAL(requestBlockUpdate(QTextBlock)), documentLayout, SIGNAL(updateBlock(QTextBlock)));
     QObject::connect(doc, SIGNAL(modificationChanged(bool)), q, SIGNAL(changed()));
-    QObject::connect(q, SIGNAL(changed()), document.data(), SIGNAL(changed()));
     QObject::connect(doc, SIGNAL(contentsChange(int,int,int)), q,
         SLOT(editorContentsChange(int,int,int)), Qt::DirectConnection);
     QObject::connect(document.data(), SIGNAL(aboutToReload()), q, SLOT(documentAboutToBeReloaded()));
