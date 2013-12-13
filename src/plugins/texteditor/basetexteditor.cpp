@@ -666,9 +666,6 @@ void BaseTextEditorWidget::editorContentsChange(int position, int charsRemoved, 
         d->snippetCheckCursor(cursor);
     }
 
-    if (doc->isRedoAvailable())
-        emit editor()->contentsChangedBecauseOfUndo();
-
     if (charsAdded != 0 && document()->characterAt(position + charsAdded - 1).isPrint())
         d->m_assistRelevantContentAdded = true;
 }
