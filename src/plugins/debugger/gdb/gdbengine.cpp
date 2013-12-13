@@ -5002,9 +5002,10 @@ void GdbEngine::tryLoadPythonDumpers()
     const QByteArray uninstalledData = gdbBinaryFile.absolutePath().toLocal8Bit()
             + "/data-directory/python";
 
-   postCommand("python sys.path.insert(1, '" + dumperSourcePath + "')", ConsoleCommand);
-   postCommand("python sys.path.append('" + uninstalledData + "')", ConsoleCommand);
-   postCommand("python from gdbbridge import *", ConsoleCommand, CB(handlePythonSetup));
+    const GdbCommandFlags flags = ConsoleCommand | Immediate;
+    postCommand("python sys.path.insert(1, '" + dumperSourcePath + "')", flags);
+    postCommand("python sys.path.append('" + uninstalledData + "')", flags);
+    postCommand("python from gdbbridge import *", flags, CB(handlePythonSetup));
 }
 
 void GdbEngine::reloadDebuggingHelpers()
