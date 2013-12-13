@@ -110,15 +110,6 @@ unsigned Lexer::tokenOffset() const
 unsigned Lexer::tokenLength() const
 { return _currentChar - _tokenStart; }
 
-const char *Lexer::tokenBegin() const
-{ return _tokenStart; }
-
-const char *Lexer::tokenEnd() const
-{ return _currentChar; }
-
-unsigned Lexer::currentLine() const
-{ return _currentLine; }
-
 void Lexer::scan(Token *tok)
 {
     tok->reset();

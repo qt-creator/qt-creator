@@ -46,9 +46,6 @@ public:
 
     unsigned tokenOffset() const;
     unsigned tokenLength() const;
-    const char *tokenBegin() const;
-    const char *tokenEnd() const;
-    unsigned currentLine() const;
 
     bool scanCommentTokens() const;
     void setScanCommentTokens(bool onoff);
@@ -121,10 +118,8 @@ private:
     };
     unsigned _currentLine;
     LanguageFeatures _languageFeatures;
-
 };
 
 } // namespace CPlusPlus
-
 
 #endif // CPLUSPLUS_LEXER_H
