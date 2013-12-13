@@ -277,8 +277,7 @@ def getEditorForFileSuffix(curFile):
     else:
         test.log("Trying PlainTextEditor (file suffix: %s)" % suffix)
         try:
-            editor = waitForObject("{type='TextEditor::PlainTextEditorWidget' unnamed='1' "
-                                   "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}", 3000)
+            editor = waitForObject(":Qt Creator_TextEditor::PlainTextEditorWidget", 3000)
         except:
             test.fatal("Unsupported file suffix for file '%s'" % curFile)
             editor = None

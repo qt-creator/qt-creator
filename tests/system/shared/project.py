@@ -174,16 +174,14 @@ def __selectQtVersionDesktop__(checks, available=None):
     clickButton(waitForObject(":Next_QPushButton"))
     return checkedTargets
 
-def __createProjectHandleLastPage__(expectedFiles = None):
+def __createProjectHandleLastPage__(expectedFiles = None, addToVersionControl = "<None>", addToProject = None):
     if expectedFiles != None:
-        summary = str(waitForObject("{name='filesLabel' text?='<qt>Files to be added in<pre>*</pre>' "
-                                    "type='QLabel' visible='1'}").text)
-        lastIndex = 0
-        for filename in expectedFiles:
-            index = summary.find(filename)
-            test.verify(index > lastIndex, "'" + filename + "' found at index " + str(index))
-            lastIndex = index
-    selectFromCombo(":addToVersionControlComboBox_QComboBox", "<None>")
+        summary = waitForObject("{name='filesLabel' text?='<qt>Files to be added in<pre>*</pre>' "
+                                "type='QLabel' visible='1'}").text
+        verifyItemOrder(expectedFiles, summary)
+    if addToProject:
+        selectFromCombo(":projectComboBox_QComboBox", addToProject)
+    selectFromCombo(":addToVersionControlComboBox_QComboBox", addToVersionControl)
     clickButton(waitForObject("{type='QPushButton' text~='(Finish|Done)' visible='1'}"))
 
 def __verifyFileCreation__(path, expectedFiles):
@@ -220,7 +218,7 @@ def __modifyAvailableTargets__(available, requiredQt, asStrings=False):
 # param path specifies where to create the project
 # param projectName is the name for the new project
 # param checks turns tests in the function on if set to True
-def createProject_Qt_GUI(path, projectName, checks = True):
+def createProject_Qt_GUI(path, projectName, checks = True, addToVersionControl = "<None>"):
     template = "Qt Widgets Application"
     available = __createProjectOrFileSelectType__("  Applications", template)
     __createProjectSetNameAndPath__(path, projectName, checks)
@@ -250,7 +248,7 @@ def createProject_Qt_GUI(path, projectName, checks = True):
         path = os.path.join(path, projectName)
         expectedFiles = [path]
         expectedFiles.extend(__sortFilenamesOSDependent__(["main.cpp", cpp_file, h_file, ui_file, pro_file]))
-    __createProjectHandleLastPage__(expectedFiles)
+    __createProjectHandleLastPage__(expectedFiles, addToVersionControl)
 
     progressBarWait(20000)
     __verifyFileCreation__(path, expectedFiles)
@@ -639,7 +637,7 @@ def compareProjectTree(rootObject, dataset):
             return
     test.passes("No errors found in project tree")
 
-def addCPlusPlusFileToCurrentProject(name, template, forceOverwrite=False):
+def addCPlusPlusFileToCurrentProject(name, template, forceOverwrite=False, addToVCS = "<None>"):
     if name == None:
         test.fatal("File must have a name - got None.")
         return
@@ -652,7 +650,7 @@ def addCPlusPlusFileToCurrentProject(name, template, forceOverwrite=False):
     replaceEditorContent(lineEdit, name)
     clickButton(waitForObject(":Next_QPushButton"))
     fileExistedBefore = os.path.exists(os.path.join(basePath, name))
-    __createProjectHandleLastPage__()
+    __createProjectHandleLastPage__(addToVersionControl = addToVCS)
     if (fileExistedBefore):
         overwriteDialog = "{type='Core::Internal::PromptOverwriteDialog' unnamed='1' visible='1'}"
         waitForObject(overwriteDialog)

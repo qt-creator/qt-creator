@@ -724,3 +724,11 @@ def getQModelIndexStr(property, container):
     if (container.startswith(":")):
         container = "'%s'" % container
     return ("{column='0' container=%s %s type='QModelIndex'}" % (container, property))
+
+def verifyItemOrder(items, text):
+    text = str(text)
+    lastIndex = 0
+    for item in items:
+        index = text.find(item)
+        test.verify(index > lastIndex, "'" + item + "' found at index " + str(index))
+        lastIndex = index
