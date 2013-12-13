@@ -92,7 +92,7 @@ QList<Token> SimpleLexer::operator()(const QString &text, int state)
         QStringRef spell = text.midRef(tk.begin(), tk.length());
         lex.setScanAngleStringLiteralTokens(false);
 
-        if (tk.f.newline && tk.is(T_POUND))
+        if (tk.newline() && tk.is(T_POUND))
             inPreproc = true;
         else if (inPreproc && tokens.size() == 1 && tk.is(T_IDENTIFIER) &&
                  spell == QLatin1String("include"))

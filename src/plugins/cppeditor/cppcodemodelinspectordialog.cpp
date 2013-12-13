@@ -852,7 +852,7 @@ void TokensModel::configure(CPlusPlus::TranslationUnit *translationUnit)
     for (int i = 0, total = translationUnit->tokenCount(); i < total; ++i) {
         TokenInfo info;
         info.token = translationUnit->tokenAt(i);
-        translationUnit->getPosition(info.token.offset, &info.line, &info.column);
+        translationUnit->getPosition(info.token.begin(), &info.line, &info.column);
         m_tokenInfos.append(info);
     }
     emit layoutChanged();
@@ -888,7 +888,7 @@ QVariant TokensModel::data(const QModelIndex &index, int role) const
         else if (column == IndexColumn)
             return index.row();
         else if (column == OffsetColumn)
-            return token.offset;
+            return token.begin();
         else if (column == LineColumnNumberColumn)
             return QString::fromLatin1("%1:%2")
                     .arg(CMI::Utils::toString(info.line), CMI::Utils::toString(info.column));

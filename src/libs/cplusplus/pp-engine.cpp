@@ -1026,7 +1026,7 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
             //### TODO: error message
             pushToken(tk);
             // If a previous marker was found, make sure to put it back.
-            if (oldMarkerTk.f.length)
+            if (oldMarkerTk.length())
                 pushToken(&oldMarkerTk);
             *tk = idTk;
             return false;
@@ -1072,7 +1072,7 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
             // This is not the most beautiful approach but it's quite reasonable. What we do here
             // is to create a fake identifier token which is only composed by whitespaces. It's
             // also not marked as expanded so it it can be treated as a regular token.
-            const QByteArray content(int(idTk.f.length + computeDistance(idTk)), ' ');
+            const QByteArray content(int(idTk.length() + computeDistance(idTk)), ' ');
             PPToken fakeIdentifier = generateToken(T_IDENTIFIER,
                                                    content.constData(), content.length(),
                                                    idTk.lineno, false, false);
@@ -1085,8 +1085,8 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
         // The first body token replaces the macro invocation so its whitespace and
         // newline info is replicated.
         PPToken &bodyTk = body[0];
-        bodyTk.f.whitespace = idTk.f.whitespace;
-        bodyTk.f.newline = idTk.f.newline;
+        bodyTk.f.whitespace = idTk.whitespace();
+        bodyTk.f.newline = idTk.newline();
 
         // Expansions are tracked from a "top-level" basis. This means that each expansion
         // section in the output corresponds to a direct use of a macro (either object-like
@@ -1105,13 +1105,13 @@ bool Preprocessor::handleIdentifier(PPToken *tk)
                     || m_state.m_expansionStatus == JustFinishedExpansion) {
                 PPToken marker;
                 marker.f.expanded = true;
-                marker.f.length = idTk.f.length;
+                marker.f.length = idTk.length();
                 marker.offset = idTk.offset;
                 marker.lineno = idTk.lineno;
                 body.prepend(marker);
                 body.append(marker);
                 m_state.setExpansionStatus(ReadyForExpansion);
-            } else if (oldMarkerTk.f.length
+            } else if (oldMarkerTk.length()
                        && (m_state.m_expansionStatus == ReadyForExpansion
                            || m_state.m_expansionStatus == Expanding)) {
                 body.append(oldMarkerTk);
@@ -2023,7 +2023,7 @@ PPToken Preprocessor::generateConcatenated(const PPToken &leftTk, const PPToken 
     newText.append(leftTk.tokenStart(), leftTk.length());
     newText.append(rightTk.tokenStart(), rightTk.length());
     PPToken result = generateToken(T_IDENTIFIER, newText.constData(), newText.size(), leftTk.lineno, true);
-    result.f.whitespace = leftTk.f.whitespace;
+    result.f.whitespace = leftTk.whitespace();
     return result;
 }
 

@@ -67,7 +67,7 @@ public:
     const Token &tokenAt(unsigned index) const
     { return _tokens && index < tokenCount() ? (*_tokens)[index] : nullToken; }
 
-    int tokenKind(unsigned index) const { return tokenAt(index).f.kind; }
+    int tokenKind(unsigned index) const { return tokenAt(index).kind(); }
     const char *spell(unsigned index) const;
 
     unsigned commentCount() const;

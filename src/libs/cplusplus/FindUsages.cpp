@@ -140,7 +140,7 @@ void FindUsages::reportResult(unsigned tokenIndex, const QList<LookupItem> &cand
 QString FindUsages::matchingLine(const Token &tk) const
 {
     const char *beg = _source.constData();
-    const char *cp = beg + tk.offset;
+    const char *cp = beg + tk.begin();
     for (; cp != beg - 1; --cp) {
         if (*cp == '\n')
             break;
@@ -178,7 +178,7 @@ void FindUsages::reportResult(unsigned tokenIndex)
     if (col)
         --col;  // adjust the column position.
 
-    const int len = tk.f.length;
+    const int len = tk.length();
 
     const Usage u(_doc->fileName(), lineText, line, col, len);
     _usages.append(u);
