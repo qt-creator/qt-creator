@@ -405,7 +405,8 @@ def qdump__std__set__QNX(d, value):
                         node = parent
 
 def qdump__std__stack(d, value):
-    qdump__std__deque(d, value["c"])
+    d.putItem(value["c"])
+    d.putType(str(value.type))
 
 def qdump__std____debug__stack(d, value):
     qdump__std__stack(d, value)
