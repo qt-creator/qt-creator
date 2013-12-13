@@ -104,7 +104,6 @@ public:
     void cleanWhitespace(const QTextCursor &cursor);
 
 signals:
-    void titleChanged(QString title);
     void mimeTypeChanged();
 
 private:

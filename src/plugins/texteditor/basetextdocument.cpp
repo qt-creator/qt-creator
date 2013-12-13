@@ -319,7 +319,6 @@ void BaseTextDocument::setFilePath(const QString &newName)
         return;
     const QFileInfo fi(newName);
     IDocument::setFilePath(QDir::cleanPath(fi.absoluteFilePath()));
-    emit titleChanged(fi.fileName());
 }
 
 bool BaseTextDocument::isFileReadOnly() const
