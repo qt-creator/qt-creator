@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Orgad Shaneh <orgads@gmail.com>.
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -27,45 +27,48 @@
 **
 ****************************************************************************/
 
-#ifndef HISTORYCOMPLETER_H
-#define HISTORYCOMPLETER_H
+#include "completinglineedit.h"
 
-#include "utils_global.h"
-
+#include <QAbstractItemView>
 #include <QCompleter>
-
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+#include <QEvent>
+#include <QKeyEvent>
 
 namespace Utils {
 
-class FancyLineEdit;
-namespace Internal { class HistoryCompleterPrivate; }
-
-class QTCREATOR_UTILS_EXPORT HistoryCompleter : public QCompleter
+CompletingLineEdit::CompletingLineEdit(QWidget *parent) :
+    QLineEdit(parent)
 {
-    Q_OBJECT
+}
 
-public:
-    static void setSettings(QSettings *settings);
-    HistoryCompleter(FancyLineEdit *lineEdit, const QString &historyKey, QObject *parent = 0);
-    bool removeHistoryItem(int index);
+bool CompletingLineEdit::event(QEvent *e)
+{
+    // workaround for QTCREATORBUG-9453
+    if (e->type() == QEvent::ShortcutOverride) {
+        if (QCompleter *comp = completer()) {
+            if (comp->popup() && comp->popup()->isVisible()) {
+                QKeyEvent *ke = static_cast<QKeyEvent *>(e);
+                if (ke->key() == Qt::Key_Escape && !ke->modifiers()) {
+                    ke->accept();
+                    return true;
+                }
+            }
+        }
+    }
+    return QLineEdit::event(e);
+}
 
-private:
-    ~HistoryCompleter();
-    int historySize() const;
-    int maximalHistorySize() const;
-    void setMaximalHistorySize(int numberOfEntries);
-
-public Q_SLOTS:
-    void clearHistory();
-    void saveHistory();
-
-private:
-    Internal::HistoryCompleterPrivate *d;
-};
+void CompletingLineEdit::keyPressEvent(QKeyEvent *e)
+{
+    if (e->key() == Qt::Key_Down && !e->modifiers()) {
+        if (QCompleter *comp = completer()) {
+            if (text().isEmpty() && !comp->popup()->isVisible()) {
+                comp->setCompletionPrefix(QString());
+                comp->complete();
+            }
+        }
+    }
+    return QLineEdit::keyPressEvent(e);
+}
 
 } // namespace Utils
-
-#endif // HISTORYCOMPLETER_H

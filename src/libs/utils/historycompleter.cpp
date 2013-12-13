@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "historycompleter.h"
+#include "fancylineedit.h"
 
 #include "qtcassert.h"
 
@@ -35,7 +36,6 @@
 
 #include <QItemDelegate>
 #include <QKeyEvent>
-#include <QLineEdit>
 #include <QListView>
 #include <QPainter>
 
@@ -59,7 +59,7 @@ public:
     QStringList list;
     QString historyKey;
     int maxLines;
-    QLineEdit *lineEdit;
+    FancyLineEdit *lineEdit;
 };
 
 class HistoryLineDelegate : public QItemDelegate
@@ -160,7 +160,7 @@ void HistoryCompleterPrivate::saveEntry(const QString &str)
     theSettings->setValue(historyKey, list);
 }
 
-HistoryCompleter::HistoryCompleter(QLineEdit *lineEdit, const QString &historyKey, QObject *parent)
+HistoryCompleter::HistoryCompleter(FancyLineEdit *lineEdit, const QString &historyKey, QObject *parent)
     : QCompleter(parent),
       d(new HistoryCompleterPrivate)
 {
@@ -176,7 +176,6 @@ HistoryCompleter::HistoryCompleter(QLineEdit *lineEdit, const QString &historyKe
 
     setModel(d);
     setPopup(new HistoryLineView(d));
-    lineEdit->installEventFilter(this);
 
     connect(lineEdit, SIGNAL(editingFinished()), this, SLOT(saveHistory()));
 }
@@ -189,17 +188,6 @@ bool HistoryCompleter::removeHistoryItem(int index)
 HistoryCompleter::~HistoryCompleter()
 {
     delete d;
-}
-
-bool HistoryCompleter::eventFilter(QObject *obj, QEvent *event)
-{
-    if (event->type() == QEvent::KeyPress
-            && static_cast<QKeyEvent *>(event)->key() == Qt::Key_Down
-            && !popup()->isVisible()) {
-        setCompletionPrefix(QString());
-        complete();
-    }
-    return QCompleter::eventFilter(obj, event);
 }
 
 int HistoryCompleter::historySize() const

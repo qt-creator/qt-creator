@@ -31,8 +31,8 @@
 #define FANCYLINEEDIT_H
 
 #include "utils_global.h"
+#include "completinglineedit.h"
 
-#include <QLineEdit>
 #include <QAbstractButton>
 
 QT_BEGIN_NAMESPACE
@@ -66,7 +66,7 @@ private:
     QPixmap m_pixmap;
 };
 
-class QTCREATOR_UTILS_EXPORT FancyLineEdit : public QLineEdit
+class QTCREATOR_UTILS_EXPORT FancyLineEdit : public CompletingLineEdit
 {
     Q_OBJECT
     Q_ENUMS(Side)
@@ -114,11 +114,10 @@ private slots:
 
 protected:
     void resizeEvent(QResizeEvent *e);
-    bool event(QEvent *e);
 
 private:
     // Unimplemented, to force the user to make a decision on
-    // whether to use setHistoryKey() or setSpecialCompleter().
+    // whether to use setHistoryCompleter() or setSpecialCompleter().
     void setCompleter(QCompleter *);
 
     void updateMargins();

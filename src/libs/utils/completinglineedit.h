@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
+** Copyright (C) 2014 Orgad Shaneh <orgads@gmail.com>.
 ** Contact: http://www.qt-project.org/legal
 **
 ** This file is part of Qt Creator.
@@ -27,45 +27,26 @@
 **
 ****************************************************************************/
 
-#ifndef HISTORYCOMPLETER_H
-#define HISTORYCOMPLETER_H
+#ifndef COMPLETINGLINEEDIT_H
+#define COMPLETINGLINEEDIT_H
 
 #include "utils_global.h"
-
-#include <QCompleter>
-
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+#include <QLineEdit>
 
 namespace Utils {
 
-class FancyLineEdit;
-namespace Internal { class HistoryCompleterPrivate; }
-
-class QTCREATOR_UTILS_EXPORT HistoryCompleter : public QCompleter
+class QTCREATOR_UTILS_EXPORT CompletingLineEdit : public QLineEdit
 {
     Q_OBJECT
 
 public:
-    static void setSettings(QSettings *settings);
-    HistoryCompleter(FancyLineEdit *lineEdit, const QString &historyKey, QObject *parent = 0);
-    bool removeHistoryItem(int index);
+    explicit CompletingLineEdit(QWidget *parent = 0);
 
-private:
-    ~HistoryCompleter();
-    int historySize() const;
-    int maximalHistorySize() const;
-    void setMaximalHistorySize(int numberOfEntries);
-
-public Q_SLOTS:
-    void clearHistory();
-    void saveHistory();
-
-private:
-    Internal::HistoryCompleterPrivate *d;
+protected:
+    bool event(QEvent *e);
+    void keyPressEvent(QKeyEvent *e);
 };
 
 } // namespace Utils
 
-#endif // HISTORYCOMPLETER_H
+#endif // COMPLETINGLINEEDIT_H

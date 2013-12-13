@@ -45,6 +45,8 @@ QtcLibrary {
         "classnamevalidatinglineedit.h",
         "codegeneration.cpp",
         "codegeneration.h",
+        "completinglineedit.cpp",
+        "completinglineedit.h",
         "completingtextedit.cpp",
         "completingtextedit.h",
         "consoleprocess.cpp",
