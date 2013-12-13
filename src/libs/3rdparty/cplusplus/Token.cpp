@@ -84,7 +84,7 @@ const char *token_names[] = {
 void Token::reset()
 {
     flags = 0;
-    offset = 0;
+    byteOffset = 0;
     ptr = 0;
 }
 

@@ -414,17 +414,17 @@ static bool hasCommentedName(
     // maybe in a comment but in the right spot?
     int nameStart = 0;
     if (param->declarator)
-        nameStart = unit->tokenAt(param->declarator->lastToken() - 1).end();
+        nameStart = unit->tokenAt(param->declarator->lastToken() - 1).bytesEnd();
     else if (param->type_specifier_list)
-        nameStart = unit->tokenAt(param->type_specifier_list->lastToken() - 1).end();
+        nameStart = unit->tokenAt(param->type_specifier_list->lastToken() - 1).bytesEnd();
     else
-        nameStart = unit->tokenAt(param->firstToken()).begin();
+        nameStart = unit->tokenAt(param->firstToken()).bytesBegin();
 
     int nameEnd = 0;
     if (param->equal_token)
-        nameEnd = unit->tokenAt(param->equal_token).begin();
+        nameEnd = unit->tokenAt(param->equal_token).bytesBegin();
     else
-        nameEnd = unit->tokenAt(param->lastToken()).begin(); // one token after
+        nameEnd = unit->tokenAt(param->lastToken()).bytesBegin(); // one token after
 
     QString text = source.mid(nameStart, nameEnd - nameStart);
 

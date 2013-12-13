@@ -83,7 +83,7 @@ QString DoxygenGenerator::generate(QTextCursor cursor)
         foreach (const Token &tk, tks) {
             if (tk.is(T_SEMICOLON) || tk.is(T_LBRACE)) {
                 // No need to continue beyond this, we might already have something meaningful.
-                cursor.setPosition(block.position() + tk.end(), QTextCursor::KeepAnchor);
+                cursor.setPosition(block.position() + tk.bytesEnd(), QTextCursor::KeepAnchor);
                 break;
             }
         }

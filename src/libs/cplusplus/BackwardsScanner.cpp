@@ -87,7 +87,7 @@ const Token &BackwardsScanner::fetchToken(int tokenIndex)
             QList<Token> adaptedTokens;
             for (int i = 0; i < _tokens.size(); ++i) {
                 Token t = _tokens.at(i);
-                t.offset += + blockText.length() + 1;
+                t.byteOffset += + blockText.length() + 1;
                 adaptedTokens.append(t);
             }
 
@@ -112,19 +112,19 @@ QString BackwardsScanner::text() const
 QString BackwardsScanner::mid(int index) const
 {
     const Token &firstToken = _tokens.at(index + _offset);
-    return _text.mid(firstToken.begin());
+    return _text.mid(firstToken.bytesBegin());
 }
 
 QString BackwardsScanner::text(int index) const
 {
     const Token &firstToken = _tokens.at(index + _offset);
-    return _text.mid(firstToken.begin(), firstToken.length());
+    return _text.mid(firstToken.bytesBegin(), firstToken.bytes());
 }
 
 QStringRef BackwardsScanner::textRef(int index) const
 {
     const Token &firstToken = _tokens.at(index + _offset);
-    return _text.midRef(firstToken.begin(), firstToken.length());
+    return _text.midRef(firstToken.bytesBegin(), firstToken.bytes());
 }
 
 int BackwardsScanner::size() const
@@ -247,8 +247,8 @@ QString BackwardsScanner::indentationString(int index) const
 {
     const Token tokenAfterNewline = operator[](startOfLine(index + 1));
     const int newlinePos = qMax(0, _text.lastIndexOf(QLatin1Char('\n'),
-                                                     tokenAfterNewline.begin()));
-    return _text.mid(newlinePos, tokenAfterNewline.begin() - newlinePos);
+                                                     tokenAfterNewline.bytesBegin()));
+    return _text.mid(newlinePos, tokenAfterNewline.bytesBegin() - newlinePos);
 }
 
 

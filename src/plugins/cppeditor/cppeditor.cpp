@@ -794,7 +794,7 @@ void CPPEditorWidget::markSymbolsNow()
             if (column)
                 --column;  // adjust the column position.
 
-            const int len = unit->tokenAt(index).length();
+            const int len = unit->tokenAt(index).bytes();
 
             QTextCursor cursor(document()->findBlockByNumber(line - 1));
             cursor.setPosition(cursor.position() + column);

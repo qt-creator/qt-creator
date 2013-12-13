@@ -703,7 +703,8 @@ bool CppCompletionAssistProcessor::accepts() const
                         const QString &line = tc.block().text();
                         const Token &idToken = tokens.at(1);
                         const QStringRef &identifier =
-                                line.midRef(idToken.begin(), idToken.end() - idToken.begin());
+                                line.midRef(idToken.bytesBegin(),
+                                            idToken.bytesEnd() - idToken.bytesBegin());
                         if (identifier == QLatin1String("include")
                                 || identifier == QLatin1String("include_next")
                                 || (m_languageFeatures.objCEnabled && identifier == QLatin1String("import"))) {
@@ -837,8 +838,8 @@ int CppCompletionAssistProcessor::startOfOperator(int pos,
                 if (tokens.at(0).is(T_POUND) && tokens.at(1).is(T_IDENTIFIER) && (tokens.at(2).is(T_STRING_LITERAL) ||
                                                                                   tokens.at(2).is(T_ANGLE_STRING_LITERAL))) {
                     const Token &directiveToken = tokens.at(1);
-                    QString directive = tc.block().text().mid(directiveToken.begin(),
-                                                              directiveToken.length());
+                    QString directive = tc.block().text().mid(directiveToken.bytesBegin(),
+                                                              directiveToken.bytes());
                     if (directive == QLatin1String("include") ||
                             directive == QLatin1String("include_next") ||
                             directive == QLatin1String("import")) {
@@ -991,7 +992,7 @@ bool CppCompletionAssistProcessor::tryObjCCompletion()
     if (start == tokens.startToken())
         return false;
 
-    const int startPos = tokens[start].begin() + tokens.startPosition();
+    const int startPos = tokens[start].bytesBegin() + tokens.startPosition();
     const QString expr = m_interface->textAt(startPos, m_interface->position() - startPos);
 
     Document::Ptr thisDocument = m_interface->snapshot().document(m_interface->fileName());

@@ -89,7 +89,7 @@ QList<Token> SimpleLexer::operator()(const QString &text, int state)
             break;
         }
 
-        QStringRef spell = text.midRef(tk.begin(), tk.length());
+        QStringRef spell = text.midRef(tk.bytesBegin(), tk.bytes());
         lex.setScanAngleStringLiteralTokens(false);
 
         if (tk.newline() && tk.is(T_POUND))
@@ -116,7 +116,7 @@ int SimpleLexer::tokenAt(const QList<Token> &tokens, unsigned offset)
 {
     for (int index = tokens.size() - 1; index >= 0; --index) {
         const Token &tk = tokens.at(index);
-        if (tk.begin() <= offset && tk.end() >= offset)
+        if (tk.bytesBegin() <= offset && tk.bytesEnd() >= offset)
             return index;
     }
 
@@ -144,7 +144,7 @@ int SimpleLexer::tokenBefore(const QList<Token> &tokens, unsigned offset)
 {
     for (int index = tokens.size() - 1; index >= 0; --index) {
         const Token &tk = tokens.at(index);
-        if (tk.begin() <= offset)
+        if (tk.bytesBegin() <= offset)
             return index;
     }
 

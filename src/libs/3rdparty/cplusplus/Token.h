@@ -285,7 +285,7 @@ enum Kind {
 class CPLUSPLUS_EXPORT Token
 {
 public:
-    Token() : flags(0), offset(0), ptr(0) {}
+    Token() : flags(0), byteOffset(0), ptr(0) {}
 
     inline bool is(unsigned k) const    { return f.kind == k; }
     inline bool isNot(unsigned k) const { return f.kind != k; }
@@ -298,13 +298,13 @@ public:
     inline bool joined() const { return f.joined; }
     inline bool expanded() const { return f.expanded; }
     inline bool generated() const { return f.generated; }
-    inline unsigned length() const { return f.length; }
+    inline unsigned bytes() const { return f.bytes; }
 
-    inline unsigned begin() const
-    { return offset; }
+    inline unsigned bytesBegin() const
+    { return byteOffset; }
 
-    inline unsigned end() const
-    { return offset + f.length; }
+    inline unsigned bytesEnd() const
+    { return byteOffset + f.bytes; }
 
     inline bool isLiteral() const
     { return f.kind >= T_FIRST_LITERAL && f.kind <= T_LAST_LITERAL; }
@@ -333,15 +333,15 @@ public:
 public:
     struct Flags {
         // The token kind.
-        unsigned kind       : 8;
+        unsigned kind          : 8;
         // The token starts a new line.
-        unsigned newline    : 1;
-        // The token is preceded by whitespace(s).
-        unsigned whitespace : 1;
+        unsigned newline       : 1;
+        // The token is preceeded by whitespace(s).
+        unsigned whitespace    : 1;
         // The token is joined with the previous one.
-        unsigned joined     : 1;
+        unsigned joined        : 1;
         // The token originates from a macro expansion.
-        unsigned expanded   : 1;
+        unsigned expanded      : 1;
         // The token originates from a macro expansion and does not correspond to an
         // argument that went through substitution. Notice the example:
         //
@@ -351,18 +351,18 @@ public:
         // After preprocessing we would expect the following tokens: 1 + 2;
         // Tokens '1', '+', '2', and ';' are all expanded. However only tokens '+' and ';'
         // are generated.
-        unsigned generated  : 1;
+        unsigned generated     : 1;
         // Unused...
-        unsigned pad        : 3;
-        // The token length.
-        unsigned length     : 16;
+        unsigned pad           : 3;
+        // The token length in bytes.
+        unsigned bytes         : 16;
     };
     union {
         unsigned flags;
         Flags f;
     };
 
-    unsigned offset;
+    unsigned byteOffset;
 
     union {
         void *ptr;

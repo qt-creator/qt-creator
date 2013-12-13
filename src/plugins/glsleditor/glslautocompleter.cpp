@@ -74,7 +74,7 @@ bool GLSLCompleter::contextAllowsElectricCharacters(const QTextCursor &cursor) c
     if (tk.isComment()) {
         const unsigned pos = cursor.selectionEnd() - cursor.block().position();
 
-        if (pos == tk.end()) {
+        if (pos == tk.bytesEnd()) {
             if (tk.is(T_CPP_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))
                 return false;
 
@@ -83,11 +83,11 @@ bool GLSLCompleter::contextAllowsElectricCharacters(const QTextCursor &cursor) c
                 return false;
         }
 
-        if (pos < tk.end())
+        if (pos < tk.bytesEnd())
             return false;
     } else if (tk.isStringLiteral() || tk.isCharLiteral()) {
         const unsigned pos = cursor.selectionEnd() - cursor.block().position();
-        if (pos <= tk.end())
+        if (pos <= tk.bytesEnd())
             return false;
     }
 
@@ -102,7 +102,7 @@ bool GLSLCompleter::isInComment(const QTextCursor &cursor) const
     if (tk.isComment()) {
         const unsigned pos = cursor.selectionEnd() - cursor.block().position();
 
-        if (pos == tk.end()) {
+        if (pos == tk.bytesEnd()) {
             if (tk.is(T_CPP_COMMENT) || tk.is(T_CPP_DOXY_COMMENT))
                 return true;
 
@@ -111,7 +111,7 @@ bool GLSLCompleter::isInComment(const QTextCursor &cursor) const
                 return true;
         }
 
-        if (pos < tk.end())
+        if (pos < tk.bytesEnd())
             return true;
     }
 

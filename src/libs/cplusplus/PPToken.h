@@ -129,10 +129,10 @@ public:
     { return m_src.constData(); }
 
     const char *tokenStart() const
-    { return bufferStart() + offset; }
+    { return bufferStart() + byteOffset; }
 
     ByteArrayRef asByteArrayRef() const
-    { return ByteArrayRef(&m_src, offset, length()); }
+    { return ByteArrayRef(&m_src, byteOffset, bytes()); }
 
 private:
     QByteArray m_src;

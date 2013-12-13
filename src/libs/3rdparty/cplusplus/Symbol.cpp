@@ -166,7 +166,7 @@ void Symbol::setSourceLocation(unsigned sourceLocation, TranslationUnit *transla
     if (translationUnit) {
         const Token &tk = translationUnit->tokenAt(sourceLocation);
         _isGenerated = tk.generated();
-        translationUnit->getPosition(tk.begin(), &_line, &_column, &_fileId);
+        translationUnit->getPosition(tk.bytesBegin(), &_line, &_column, &_fileId);
     } else {
         _isGenerated = false;
         _line = 0;

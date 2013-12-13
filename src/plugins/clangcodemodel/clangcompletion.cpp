@@ -806,8 +806,8 @@ int ClangCompletionAssistProcessor::startOfOperator(int pos,
                 if (tokens.at(0).is(T_POUND) && tokens.at(1).is(T_IDENTIFIER) && (tokens.at(2).is(T_STRING_LITERAL) ||
                                                                                   tokens.at(2).is(T_ANGLE_STRING_LITERAL))) {
                     const CPlusPlus::Token &directiveToken = tokens.at(1);
-                    QString directive = tc.block().text().mid(directiveToken.begin(),
-                                                              directiveToken.length());
+                    QString directive = tc.block().text().mid(directiveToken.bytesBegin(),
+                                                              directiveToken.bytes());
                     if (directive == QLatin1String("include") ||
                             directive == QLatin1String("include_next") ||
                             directive == QLatin1String("import")) {
@@ -885,7 +885,8 @@ bool ClangCompletionAssistProcessor::accepts() const
                         const QString &line = tc.block().text();
                         const CPlusPlus::Token &idToken = tokens.at(1);
                         const QStringRef &identifier =
-                                line.midRef(idToken.begin(), idToken.end() - idToken.begin());
+                                line.midRef(idToken.bytesBegin(),
+                                            idToken.bytesEnd() - idToken.bytesBegin());
                         if (identifier == QLatin1String("include")
                                 || identifier == QLatin1String("include_next")
                                 || (m_interface->objcEnabled() && identifier == QLatin1String("import"))) {

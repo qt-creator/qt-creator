@@ -108,7 +108,7 @@ void Lexer::scan(Token *tok)
 {
     tok->reset();
     scan_helper(tok);
-    tok->f.length = _currentChar - _tokenStart;
+    tok->f.bytes = _currentChar - _tokenStart;
 }
 
 void Lexer::scan_helper(Token *tok)
@@ -141,7 +141,7 @@ void Lexer::scan_helper(Token *tok)
         tok->lineno = _currentLine;
 
     _tokenStart = _currentChar;
-    tok->offset = _currentChar - _firstChar;
+    tok->byteOffset = _currentChar - _firstChar;
 
     if (_yychar) {
         s._newlineExpected = false;

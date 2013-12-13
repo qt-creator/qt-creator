@@ -238,7 +238,7 @@ TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Acti
             } else {
                 // Position the cursor on the token
                 unsigned line, column;
-                translationUnit->getPosition(token.begin(), &line, &column);
+                translationUnit->getPosition(token.bytesBegin(), &line, &column);
                 editor->gotoLine(line, column - 1);
                 QApplication::processEvents();
 
@@ -291,7 +291,7 @@ void TestActionsTestCase::moveWordCamelCaseToToken(TranslationUnit *translationU
     QVERIFY(editorWidget);
 
     unsigned line, column;
-    translationUnit->getPosition(token.begin(), &line, &column);
+    translationUnit->getPosition(token.bytesBegin(), &line, &column);
 
     while (editor->currentLine() < (int) line
            || (editor->currentLine() == (int) line

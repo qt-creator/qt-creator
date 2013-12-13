@@ -55,8 +55,8 @@ int ByteArrayRef::count(char ch) const
 void Internal::PPToken::squeezeSource()
 {
     if (hasSource()) {
-        m_src = m_src.mid(offset, f.length);
+        m_src = m_src.mid(byteOffset, f.bytes);
         m_src.squeeze();
-        offset = 0;
+        byteOffset = 0;
     }
 }

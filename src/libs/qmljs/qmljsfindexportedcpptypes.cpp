@@ -225,8 +225,10 @@ protected:
             // go through comments backwards to find the annotation closest to the call
             for (unsigned i = _doc->translationUnit()->commentCount(); i-- > 0; ) {
                 const Token commentToken = _doc->translationUnit()->commentAt(i);
-                if (commentToken.begin() >= end.begin() || commentToken.end() <= begin.begin())
+                if (commentToken.bytesBegin() >= end.bytesBegin()
+                        || commentToken.bytesEnd() <= begin.bytesBegin()) {
                     continue;
+                }
                 const QString comment = stringOf(commentToken);
                 if (uriAnnotation.indexIn(comment) != -1) {
                     packageName = uriAnnotation.cap(1);
@@ -274,7 +276,8 @@ protected:
         // and the expression
         const Token begin = translationUnit()->tokenAt(typeId->firstToken());
         const Token last = translationUnit()->tokenAt(typeId->lastToken() - 1);
-        exportedType.typeExpression = QString::fromUtf8(_doc->utf8Source().mid(begin.begin(), last.end() - begin.begin()));
+        exportedType.typeExpression = QString::fromUtf8(
+            _doc->utf8Source().mid(begin.bytesBegin(), last.bytesEnd() - begin.bytesBegin()));
 
         _exportedTypes += exportedType;
 
@@ -401,12 +404,14 @@ private:
     {
         const Token firstToken = translationUnit()->tokenAt(first);
         const Token lastToken = translationUnit()->tokenAt(last);
-        return QString::fromUtf8(_doc->utf8Source().mid(firstToken.begin(), lastToken.end() - firstToken.begin()));
+        return QString::fromUtf8(
+            _doc->utf8Source().mid(firstToken.bytesBegin(),
+                                   lastToken.bytesEnd() - firstToken.bytesBegin()));
     }
 
     QString stringOf(const Token &token)
     {
-        return QString::fromUtf8(_doc->utf8Source().mid(token.begin(), token.length()));
+        return QString::fromUtf8(_doc->utf8Source().mid(token.bytesBegin(), token.bytes()));
     }
 
     ExpressionAST *skipStringCall(ExpressionAST *exp)

@@ -1012,7 +1012,7 @@ int CodeFormatter::column(int index) const
 
 QStringRef CodeFormatter::currentTokenText() const
 {
-    return m_currentLine.midRef(m_currentToken.begin(), m_currentToken.length());
+    return m_currentLine.midRef(m_currentToken.bytesBegin(), m_currentToken.bytes());
 }
 
 void CodeFormatter::turnInto(int newState)
@@ -1189,10 +1189,10 @@ void QtStyleCodeFormatter::onEnter(int newState, int *indentDepth, int *savedInd
     const Token &tk = currentToken();
     const bool firstToken = (tokenIndex() == 0);
     const bool lastToken = (tokenIndex() == tokenCount() - 1);
-    const int tokenPosition = column(tk.begin());
-    const int nextTokenPosition = lastToken ? tokenPosition + tk.length()
-                                            : column(tokenAt(tokenIndex() + 1).begin());
-    const int spaceOrNextTokenPosition = lastToken ? tokenPosition + tk.length() + 1
+    const int tokenPosition = column(tk.bytesBegin());
+    const int nextTokenPosition = lastToken ? tokenPosition + tk.bytes()
+                                            : column(tokenAt(tokenIndex() + 1).bytesBegin());
+    const int spaceOrNextTokenPosition = lastToken ? tokenPosition + tk.bytes() + 1
                                                    : nextTokenPosition;
 
     if (shouldClearPaddingOnEnter(newState))
@@ -1474,7 +1474,7 @@ void QtStyleCodeFormatter::adjustIndent(const QList<CPlusPlus::Token> &tokens, i
     if (topState.type == multiline_comment_start
             || topState.type == multiline_comment_cont) {
         if (!tokens.isEmpty()) {
-            *indentDepth = column(tokens.at(0).begin());
+            *indentDepth = column(tokens.at(0).bytesBegin());
             return;
         }
     }

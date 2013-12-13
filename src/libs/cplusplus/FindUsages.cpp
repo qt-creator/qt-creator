@@ -140,7 +140,7 @@ void FindUsages::reportResult(unsigned tokenIndex, const QList<LookupItem> &cand
 QString FindUsages::matchingLine(const Token &tk) const
 {
     const char *beg = _source.constData();
-    const char *cp = beg + tk.begin();
+    const char *cp = beg + tk.bytesBegin();
     for (; cp != beg - 1; --cp) {
         if (*cp == '\n')
             break;
@@ -178,7 +178,7 @@ void FindUsages::reportResult(unsigned tokenIndex)
     if (col)
         --col;  // adjust the column position.
 
-    const int len = tk.length();
+    const int len = tk.bytes();
 
     const Usage u(_doc->fileName(), lineText, line, col, len);
     _usages.append(u);
@@ -259,8 +259,8 @@ bool FindUsages::checkCandidates(const QList<LookupItem> &candidates) const
 
 void FindUsages::checkExpression(unsigned startToken, unsigned endToken, Scope *scope)
 {
-    const unsigned begin = tokenAt(startToken).begin();
-    const unsigned end = tokenAt(endToken).end();
+    const unsigned begin = tokenAt(startToken).bytesBegin();
+    const unsigned end = tokenAt(endToken).bytesEnd();
 
     const QByteArray expression = _source.mid(begin, end - begin);
     // qDebug() << "*** check expression:" << expression;

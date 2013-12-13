@@ -164,7 +164,7 @@ void TranslationUnit::tokenize()
 
         _Lrecognize:
         if (tk.is(T_POUND) && tk.newline()) {
-            unsigned offset = tk.begin();
+            unsigned offset = tk.byteOffset;
             lex(&tk);
 
             if (! tk.newline() && tk.is(T_IDENTIFIER) && tk.identifier == expansionId) {
@@ -264,7 +264,7 @@ void TranslationUnit::tokenize()
             currentExpanded = true;
             const std::pair<unsigned, unsigned> &p = lineColumn[lineColumnIdx];
             if (p.first)
-                _expandedLineColumn.insert(std::make_pair(tk.begin(), p));
+                _expandedLineColumn.insert(std::make_pair(tk.bytesBegin(), p));
             else
                 currentGenerated = true;
 
@@ -382,17 +382,17 @@ void TranslationUnit::getTokenPosition(unsigned index,
                                        unsigned *line,
                                        unsigned *column,
                                        const StringLiteral **fileName) const
-{ return getPosition(tokenAt(index).begin(), line, column, fileName); }
+{ return getPosition(tokenAt(index).bytesBegin(), line, column, fileName); }
 
 void TranslationUnit::getTokenStartPosition(unsigned index, unsigned *line,
                                             unsigned *column,
                                             const StringLiteral **fileName) const
-{ return getPosition(tokenAt(index).begin(), line, column, fileName); }
+{ return getPosition(tokenAt(index).bytesBegin(), line, column, fileName); }
 
 void TranslationUnit::getTokenEndPosition(unsigned index, unsigned *line,
                                           unsigned *column,
                                           const StringLiteral **fileName) const
-{ return getPosition(tokenAt(index).end(), line, column, fileName); }
+{ return getPosition(tokenAt(index).bytesEnd(), line, column, fileName); }
 
 void TranslationUnit::getPosition(unsigned tokenOffset,
                                   unsigned *line,
@@ -508,7 +508,7 @@ void TranslationUnit::fatal(unsigned index, const char *format, ...)
 
 unsigned TranslationUnit::findPreviousLineOffset(unsigned tokenIndex) const
 {
-    unsigned lineOffset = _lineOffsets[findLineNumber(tokenAt(tokenIndex).begin())];
+    unsigned lineOffset = _lineOffsets[findLineNumber(tokenAt(tokenIndex).bytesBegin())];
     return lineOffset;
 }
 
@@ -521,21 +521,21 @@ bool TranslationUnit::maybeSplitGreaterGreaterToken(unsigned tokenIndex)
         return false;
 
     tok.f.kind = T_GREATER;
-    tok.f.length = 1;
+    tok.f.bytes = 1;
 
     Token newGreater;
     newGreater.f.kind = T_GREATER;
     newGreater.f.expanded = tok.expanded();
     newGreater.f.generated = tok.generated();
-    newGreater.f.length = 1;
-    newGreater.offset = tok.offset + 1;
+    newGreater.f.bytes = 1;
+    newGreater.byteOffset = tok.byteOffset + 1;
 
     _tokens->insert(_tokens->begin() + tokenIndex + 1, newGreater);
 
-    TokenLineColumn::const_iterator it = _expandedLineColumn.find(tok.begin());
+    TokenLineColumn::const_iterator it = _expandedLineColumn.find(tok.bytesBegin());
     if (it != _expandedLineColumn.end()) {
         const std::pair<unsigned, unsigned> newPosition(it->second.first, it->second.second + 1);
-        _expandedLineColumn.insert(std::make_pair(newGreater.begin(), newPosition));
+        _expandedLineColumn.insert(std::make_pair(newGreater.bytesBegin(), newPosition));
     }
 
     return true;
@@ -551,7 +551,7 @@ void TranslationUnit::releaseTokensAndComments()
 
 void TranslationUnit::showErrorLine(unsigned index, unsigned column, FILE *out)
 {
-    unsigned lineOffset = _lineOffsets[findLineNumber(tokenAt(index).begin())];
+    unsigned lineOffset = _lineOffsets[findLineNumber(tokenAt(index).bytesBegin())];
     for (const char *cp = _firstSourceChar + lineOffset + 1; *cp && *cp != '\n'; ++cp) {
         fputc(*cp, out);
     }
