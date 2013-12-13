@@ -657,7 +657,7 @@ VcsBaseEditorWidget::VcsBaseEditorWidget(const VcsBaseEditorParameters *type, QW
     d(new Internal::VcsBaseEditorWidgetPrivate(this, type))
 {
     viewport()->setMouseTracking(true);
-    setMimeType(QLatin1String(d->m_parameters->mimeType));
+    baseTextDocument()->setMimeType(QLatin1String(d->m_parameters->mimeType));
 }
 
 void VcsBaseEditorWidget::setDiffFilePattern(const QRegExp &pattern)

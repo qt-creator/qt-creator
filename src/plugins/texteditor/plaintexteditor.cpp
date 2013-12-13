@@ -83,7 +83,7 @@ void PlainTextEditorWidget::ctor()
     setLineSeparatorsAllowed(true);
     setIndenter(new NormalIndenter); // Currently only "normal" indentation is supported.
 
-    setMimeType(QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
+    baseTextDocument()->setMimeType(QLatin1String(TextEditor::Constants::C_TEXTEDITOR_MIMETYPE_TEXT));
 
     m_commentDefinition.clearCommentStyles();
 
@@ -146,7 +146,7 @@ void PlainTextEditorWidget::configure(const MimeType &mimeType)
 
         setMimeTypeForHighlighter(highlighter, mimeType);
         const QString &type = mimeType.type();
-        setMimeType(type);
+        baseTextDocument()->setMimeType(type);
 
         QString definitionId = Manager::instance()->definitionIdByMimeType(type);
         if (definitionId.isEmpty())

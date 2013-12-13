@@ -1515,7 +1515,7 @@ bool CPPEditor::open(QString *errorString, const QString &fileName, const QStrin
 {
     if (!TextEditor::BaseTextEditor::open(errorString, fileName, realFileName))
         return false;
-    editorWidget()->setMimeType(Core::MimeDatabase::findByFile(QFileInfo(fileName)).type());
+    baseTextDocument()->setMimeType(Core::MimeDatabase::findByFile(QFileInfo(fileName)).type());
     return true;
 }
 

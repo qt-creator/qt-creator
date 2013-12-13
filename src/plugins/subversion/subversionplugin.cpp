@@ -1031,7 +1031,7 @@ Core::IEditor *SubversionPlugin::showOutputInEditor(const QString &title, const 
         return 0;
     e->setForceReadOnly(true);
     s.replace(QLatin1Char(' '), QLatin1Char('_'));
-    e->setSuggestedFileName(s);
+    e->baseTextDocument()->setSuggestedFileName(s);
     if (!source.isEmpty())
         e->setSource(source);
     if (codec)

@@ -608,7 +608,7 @@ Id QmlJSEditor::id() const
 bool QmlJSEditor::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
     bool b = TextEditor::BaseTextEditor::open(errorString, fileName, realFileName);
-    editorWidget()->setMimeType(MimeDatabase::findByFile(QFileInfo(fileName)).type());
+    baseTextDocument()->setMimeType(MimeDatabase::findByFile(QFileInfo(fileName)).type());
     return b;
 }
 

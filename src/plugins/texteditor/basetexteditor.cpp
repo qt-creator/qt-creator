@@ -285,16 +285,6 @@ BaseTextEditorWidget::~BaseTextEditorWidget()
     d = 0;
 }
 
-QString BaseTextEditorWidget::mimeType() const
-{
-    return d->m_document->mimeType();
-}
-
-void BaseTextEditorWidget::setMimeType(const QString &mt)
-{
-    d->m_document->setMimeType(mt);
-}
-
 void BaseTextEditorWidget::print(QPrinter *printer)
 {
     const bool oldFullPage = printer->fullPage();
@@ -2188,16 +2178,6 @@ bool BaseTextEditorWidget::restoreState(const QByteArray &state)
     horizontalScrollBar()->setValue(hval);
     saveCurrentCursorPositionForNavigation();
     return true;
-}
-
-void BaseTextEditorWidget::setDefaultPath(const QString &defaultPath)
-{
-    baseTextDocument()->setDefaultPath(defaultPath);
-}
-
-void BaseTextEditorWidget::setSuggestedFileName(const QString &suggestedFileName)
-{
-    baseTextDocument()->setSuggestedFileName(suggestedFileName);
 }
 
 void BaseTextEditorWidget::setParenthesesMatchingEnabled(bool b)

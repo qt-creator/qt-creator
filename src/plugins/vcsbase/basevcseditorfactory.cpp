@@ -81,7 +81,7 @@ Core::IEditor *BaseVcsEditorFactory::createEditor()
 {
     VcsBaseEditorWidget *vcsEditor = createVcsBaseEditor(d->m_type);
 
-    vcsEditor->setMimeType(mimeTypes().front());
+    vcsEditor->baseTextDocument()->setMimeType(mimeTypes().front());
 
     TextEditor::TextEditorSettings::initializeEditor(vcsEditor);
     return vcsEditor->editor();

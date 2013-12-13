@@ -154,10 +154,6 @@ public:
 
     void print(QPrinter *);
 
-    void setSuggestedFileName(const QString &suggestedFileName);
-    QString mimeType() const;
-    virtual void setMimeType(const QString &mt);
-
     void appendMenuActionsFromContext(QMenu *menu, Core::Id menuContextId);
     void appendStandardContextMenuActions(QMenu *menu);
 
@@ -355,8 +351,6 @@ private:
     void collectToCircularClipboard();
 
 protected:
-    void setDefaultPath(const QString &defaultPath);
-
     virtual BaseTextEditor *createEditor() = 0;
 
 private slots:

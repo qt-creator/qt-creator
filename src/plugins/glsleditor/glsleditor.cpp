@@ -213,7 +213,7 @@ Core::Id GLSLEditorEditable::id() const
 
 bool GLSLEditorEditable::open(QString *errorString, const QString &fileName, const QString &realFileName)
 {
-    editorWidget()->setMimeType(Core::MimeDatabase::findByFile(QFileInfo(fileName)).type());
+    baseTextDocument()->setMimeType(Core::MimeDatabase::findByFile(QFileInfo(fileName)).type());
     bool b = TextEditor::BaseTextEditor::open(errorString, fileName, realFileName);
     return b;
 }
@@ -281,7 +281,7 @@ void GLSLTextEditorWidget::updateDocumentNow()
 {
     m_updateDocumentTimer->stop();
 
-    int variant = languageVariant(mimeType());
+    int variant = languageVariant(baseTextDocument()->mimeType());
     const QString contents = toPlainText(); // get the code from the editor
     const QByteArray preprocessedCode = contents.toLatin1(); // ### use the QtCreator C++ preprocessor.
 
@@ -389,7 +389,7 @@ TextEditor::IAssistInterface *GLSLTextEditorWidget::createAssistInterface(
                                                  position(),
                                                  editor()->document()->filePath(),
                                                  reason,
-                                                 mimeType(),
+                                                 baseTextDocument()->mimeType(),
                                                  m_glslDocument);
     return BaseTextEditorWidget::createAssistInterface(kind, reason);
 }

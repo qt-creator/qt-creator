@@ -1182,7 +1182,7 @@ Core::IEditor *PerforcePlugin::showOutputInEditor(const QString &title, const QS
     e->setForceReadOnly(true);
     e->setSource(source);
     s.replace(QLatin1Char(' '), QLatin1Char('_'));
-    e->setSuggestedFileName(s);
+    e->baseTextDocument()->setSuggestedFileName(s);
     if (codec)
         e->setCodec(codec);
     Core::EditorManager::activateEditor(editor);
