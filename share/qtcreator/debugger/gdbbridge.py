@@ -1507,9 +1507,11 @@ class Dumper(DumperBase):
                     if dumpBase:
                         baseNumber += 1
                         with UnnamedSubItem(self, "@%d" % baseNumber):
+                            baseValue = value.cast(field.type)
                             self.put('iname="%s",' % self.currentIName)
                             self.put('name="[%s]",' % field.name)
-                            self.putItem(value.cast(field.type), False)
+                            self.putAddress(baseValue.address)
+                            self.putItem(baseValue, False)
                 elif len(field.name) == 0:
                     # Anonymous union. We need a dummy name to distinguish
                     # multiple anonymous unions in the struct.
