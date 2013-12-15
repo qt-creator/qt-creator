@@ -2328,7 +2328,47 @@ void CppToolsPlugin::test_completion_class_declaration_inside_function_or_block_
     QVERIFY(completions.contains(QLatin1String("m2")));
 }
 
-void CppToolsPlugin::test_completion_enum_inside_block_inside_function_QTCREATORBUG5456()
+void CppToolsPlugin::test_completion_enum_inside_function()
+{
+    const QByteArray source =
+            "void foo()\n"
+            "{\n"
+            "   enum E { val1, val2, val3 };\n"
+            "   @\n"
+            "   // padding so we get the scope right\n"
+            "}\n"
+            ;
+    CompletionTestCase test(source, "val");
+
+    const QStringList completions = test.getCompletions();
+
+    QCOMPARE(completions.size(), 3);
+    QVERIFY(completions.contains(QLatin1String("val1")));
+    QVERIFY(completions.contains(QLatin1String("val2")));
+    QVERIFY(completions.contains(QLatin1String("val3")));
+}
+
+void CppToolsPlugin::test_completion_anon_enum_inside_function()
+{
+    const QByteArray source =
+            "void foo()\n"
+            "{\n"
+            "   enum { val1, val2, val3 };\n"
+            "   @\n"
+            "   // padding so we get the scope right\n"
+            "}\n"
+            ;
+    CompletionTestCase test(source, "val");
+
+    const QStringList completions = test.getCompletions();
+
+    QCOMPARE(completions.size(), 3);
+    QVERIFY(completions.contains(QLatin1String("val1")));
+    QVERIFY(completions.contains(QLatin1String("val2")));
+    QVERIFY(completions.contains(QLatin1String("val3")));
+}
+
+void CppToolsPlugin::test_completion_enum_inside_block_inside_function_cxx11_QTCREATORBUG5456()
 {
     const QByteArray source =
             "void foo()\n"
@@ -2351,7 +2391,7 @@ void CppToolsPlugin::test_completion_enum_inside_block_inside_function_QTCREATOR
     QVERIFY(completions.contains(QLatin1String("e3")));
 }
 
-void CppToolsPlugin::test_completion_enum_inside_function_QTCREATORBUG5456()
+void CppToolsPlugin::test_completion_enum_inside_function_cxx11_QTCREATORBUG5456()
 {
     const QByteArray source =
             "void foo()\n"

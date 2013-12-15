@@ -1342,10 +1342,14 @@ void CppCompletionAssistProcessor::globalCompletion(CPlusPlus::Scope *currentSco
     ClassOrNamespace *currentBinding = 0;
 
     for (Scope *scope = currentScope; scope; scope = scope->enclosingScope()) {
-        if (scope->isBlock()) {
+        if (Block *block = scope->asBlock()) {
             if (ClassOrNamespace *binding = context.lookupType(scope)) {
                 for (unsigned i = 0; i < scope->memberCount(); ++i) {
                     Symbol *member = scope->memberAt(i);
+                    if (member->isEnum()) {
+                        if (ClassOrNamespace *b = binding->findBlock(block))
+                            completeNamespace(b);
+                    }
                     if (!member->name())
                         continue;
                     if (UsingNamespaceDirective *u = member->asUsingNamespaceDirective()) {
