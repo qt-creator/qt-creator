@@ -92,9 +92,9 @@ def qdump__std____debug__deque(d, value):
 
 
 def qdump__std__list(d, value):
-    head = d.dereferenceValue(value)
     impl = value["_M_impl"]
     node = impl["_M_node"]
+    head = d.addressOf(node)
     size = 0
     pp = d.dereference(head)
     while head != pp and size <= 1001:

@@ -5094,6 +5094,17 @@ void tst_Dumpers::dumper_data()
                % Check("u32", "68", "uint32_t")
                % Check("s32", "69", "int32_t");
 
+    QTest::newRow("stdlist2")
+            << Data("#include <list>\n"
+                    "struct Base { virtual ~Base() {} };\n"
+                    "template<class T>\n"
+                    "struct Derived : public std::list<T>, Base {};\n",
+                    "Derived<int> l;\n"
+                    "l.push_back(1);\n"
+                    "l.push_back(2);\n")
+               % Check("l.@1.0", "[0]", "1", "int")
+               % Check("l.@1.1", "[1]", "2", "int");
+
 }
 
 int main(int argc, char *argv[])
