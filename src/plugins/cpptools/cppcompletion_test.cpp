@@ -155,7 +155,6 @@ private:
 void CppToolsPlugin::test_completion_forward_declarations_present()
 {
     const QByteArray source =
-        "\n"
         "class Foo\n"
         "{\n"
         "    struct Bar;\n"
@@ -179,7 +178,7 @@ void CppToolsPlugin::test_completion_forward_declarations_present()
 
 void CppToolsPlugin::test_completion_inside_parentheses_c_style_conversion()
 {
-    const QByteArray source = "\n"
+    const QByteArray source =
             "class Base\n"
             "{\n"
             "    int i_base;\n"
@@ -209,7 +208,7 @@ void CppToolsPlugin::test_completion_inside_parentheses_c_style_conversion()
 
 void CppToolsPlugin::test_completion_inside_parentheses_cast_operator_conversion()
 {
-    const QByteArray source = "\n"
+    const QByteArray source =
             "class Base\n"
             "{\n"
             "    int i_base;\n"
@@ -239,7 +238,7 @@ void CppToolsPlugin::test_completion_inside_parentheses_cast_operator_conversion
 
 void CppToolsPlugin::test_completion_basic_1()
 {
-    const QByteArray source = "\n"
+    const QByteArray source =
             "class Foo\n"
             "{\n"
             "    void foo();\n"
@@ -270,7 +269,7 @@ void CppToolsPlugin::test_completion_basic_1()
 
 void CppToolsPlugin::test_completion_template_1()
 {
-    const QByteArray source = "\n"
+    const QByteArray source =
             "template <class T>\n"
             "class Foo\n"
             "{\n"
@@ -296,7 +295,7 @@ void CppToolsPlugin::test_completion_template_1()
 
 void CppToolsPlugin::test_completion_template_2()
 {
-    const QByteArray source = "\n"
+    const QByteArray source =
             "template <class T>\n"
             "struct List\n"
             "{\n"
@@ -320,7 +319,7 @@ void CppToolsPlugin::test_completion_template_2()
 
 void CppToolsPlugin::test_completion_template_3()
 {
-    const QByteArray source = "\n"
+    const QByteArray source =
             "template <class T>\n"
             "struct List\n"
             "{\n"
@@ -344,7 +343,7 @@ void CppToolsPlugin::test_completion_template_3()
 
 void CppToolsPlugin::test_completion_template_4()
 {
-    const QByteArray source = "\n"
+    const QByteArray source =
             "template <class T>\n"
             "struct List\n"
             "{\n"
@@ -369,7 +368,7 @@ void CppToolsPlugin::test_completion_template_4()
 
 void CppToolsPlugin::test_completion_template_5()
 {
-    const QByteArray source = "\n"
+    const QByteArray source =
             "template <class T>\n"
             "struct List\n"
             "{\n"
@@ -394,7 +393,7 @@ void CppToolsPlugin::test_completion_template_5()
 
 void CppToolsPlugin::test_completion_template_6()
 {
-    const QByteArray source = "\n"
+    const QByteArray source =
             "class Item\n"
             "{\n"
             "    int i;\n"
@@ -423,7 +422,7 @@ void CppToolsPlugin::test_completion_template_6()
 
 void CppToolsPlugin::test_completion_template_7()
 {
-    const QByteArray source = "\n"
+    const QByteArray source =
             "struct Test\n"
             "{\n"
             "   int i;\n"
@@ -455,7 +454,7 @@ void CppToolsPlugin::test_completion_template_7()
 
 void CppToolsPlugin::test_completion_type_of_pointer_is_typedef()
 {
-    const QByteArray source = "\n"
+    const QByteArray source =
             "typedef struct Foo\n"
             "{\n"
             "    int foo;\n"
@@ -473,7 +472,7 @@ void CppToolsPlugin::test_completion_type_of_pointer_is_typedef()
 
 void CppToolsPlugin::test_completion_instantiate_full_specialization()
 {
-    const QByteArray source = "\n"
+    const QByteArray source =
             "template<typename T>\n"
             "struct Template\n"
             "{\n"
@@ -524,7 +523,7 @@ void CppToolsPlugin::test_completion_template_as_base_data()
     QByteArray code;
     QStringList completions;
 
-    code = "\n"
+    code =
             "class Data { int dataMember; };\n"
             "template <class T> class Other : public T { int otherMember; };\n"
             "\n"
@@ -539,7 +538,7 @@ void CppToolsPlugin::test_completion_template_as_base_data()
     QTest::newRow("case: base as template directly") << code << completions;
 
     completions.clear();
-    code = "\n"
+    code =
             "class Data { int dataMember; };\n"
             "template <class T> class Other : public T { int otherMember; };\n"
             "template <class T> class More : public Other<T> { int moreMember; };\n"
@@ -557,7 +556,7 @@ void CppToolsPlugin::test_completion_template_as_base_data()
     QTest::newRow("case: base as class template") << code << completions;
 
     completions.clear();
-    code = "\n"
+    code =
             "class Data { int dataMember; };\n"
             "template <class T> class Other : public T { int otherMember; };\n"
             "template <class T> class More : public ::Other<T> { int moreMember; };\n"
@@ -575,7 +574,7 @@ void CppToolsPlugin::test_completion_template_as_base_data()
     QTest::newRow("case: base as globally qualified class template") << code << completions;
 
     completions.clear();
-    code = "\n"
+    code =
             "class Data { int dataMember; };\n"
             "namespace NS {\n"
             "template <class T> class Other : public T { int otherMember; };\n"
@@ -595,7 +594,7 @@ void CppToolsPlugin::test_completion_template_as_base_data()
     QTest::newRow("case: base as namespace qualified class template") << code << completions;
 
     completions.clear();
-    code = "\n"
+    code =
             "class Data { int dataMember; };\n"
             "namespace NS {\n"
             "template <class T> class Delegate { typedef Data<T> Type; };\n"
@@ -613,7 +612,7 @@ void CppToolsPlugin::test_completion_template_as_base_data()
     QTest::newRow("case: base as nested template name") << code << completions;
 
     completions.clear();
-    code = "\n"
+    code =
             "class Data { int dataMember; };\n"
             "namespace NS {\n"
             "template <class T> class Delegate { typedef Data<T> Type; };\n"
@@ -631,7 +630,7 @@ void CppToolsPlugin::test_completion_template_as_base_data()
     QTest::newRow("case: base as nested template name in non-template") << code << completions;
 
     completions.clear();
-    code = "\n"
+    code =
             "class Data { int dataMember; };\n"
             "namespace NS {\n"
             "template <class T> class Other : public T { int otherMember; };\n"
@@ -664,7 +663,7 @@ void CppToolsPlugin::test_completion_use_global_identifier_as_base_class_data()
     QByteArray code;
     QStringList completions;
 
-    code = "\n"
+    code =
             "struct Global\n"
             "{\n"
             "    int int_global;\n"
@@ -686,7 +685,7 @@ void CppToolsPlugin::test_completion_use_global_identifier_as_base_class_data()
 
     completions.clear();
 
-    code = "\n"
+    code =
             "struct Global\n"
             "{\n"
             "    int int_global;\n"
@@ -713,7 +712,7 @@ void CppToolsPlugin::test_completion_use_global_identifier_as_base_class_data()
     completions.clear();
 
     // This test does not work due to the bug QTCREATORBUG-7912
-//    code = "\n"
+//    code =
 //            "struct Global\n"
 //            "{\n"
 //            "    int int_global;\n"
@@ -754,7 +753,7 @@ void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived_dat
     QByteArray code;
     QStringList completions;
 
-    code = "\n"
+    code =
             "struct A : A\n"
             "{\n"
             "   int int_a;\n"
@@ -769,7 +768,7 @@ void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived_dat
 
     completions.clear();
 
-    code = "\n"
+    code =
             "namespace NS\n"
             "{\n"
             "struct A : A\n"
@@ -788,7 +787,7 @@ void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived_dat
 
     completions.clear();
 
-    code = "\n"
+    code =
             "namespace NS\n"
             "{\n"
             "struct A : NS::A\n"
@@ -807,7 +806,7 @@ void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived_dat
 
     completions.clear();
 
-    code = "\n"
+    code =
             "namespace NS1\n"
             "{\n"
             "struct A\n"
@@ -834,7 +833,7 @@ void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived_dat
 
     completions.clear();
 
-    code = "\n"
+    code =
             "struct Enclosing\n"
             "{\n"
             "struct A\n"
@@ -861,7 +860,7 @@ void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived_dat
 
     completions.clear();
 
-    code = "\n"
+    code =
             "struct EnclosingBase\n"
             "{\n"
             "struct A\n"
@@ -888,7 +887,7 @@ void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived_dat
 
     completions.clear();
 
-    code = "\n"
+    code =
             "template <typename T>\n"
             "struct A : A\n"
             "{\n"
@@ -919,7 +918,7 @@ void CppToolsPlugin::test_completion_cyclic_inheritance_data()
     QByteArray code;
     QStringList completions;
 
-    code = "\n"
+    code =
             "struct B;\n"
             "struct A : B { int _a; };\n"
             "struct B : A { int _b; };\n"
@@ -934,7 +933,7 @@ void CppToolsPlugin::test_completion_cyclic_inheritance_data()
     QTest::newRow("case: direct cyclic inheritance") << code << completions;
 
     completions.clear();
-    code = "\n"
+    code =
             "struct C;\n"
             "struct A : C { int _a; };\n"
             "struct B : A { int _b; };\n"
@@ -952,7 +951,7 @@ void CppToolsPlugin::test_completion_cyclic_inheritance_data()
     QTest::newRow("case: indirect cyclic inheritance") << code << completions;
 
     completions.clear();
-    code = "\n"
+    code =
             "struct B;\n"
             "struct A : B { int _a; };\n"
             "struct C { int _c; };\n"
@@ -970,7 +969,7 @@ void CppToolsPlugin::test_completion_cyclic_inheritance_data()
     QTest::newRow("case: indirect cyclic inheritance") << code << completions;
 
     completions.clear();
-    code = "\n"
+    code =
             "template< typename T > struct C;\n"
             "template< typename T, typename S > struct D : C< S >\n"
             "{\n"
@@ -994,7 +993,7 @@ void CppToolsPlugin::test_completion_cyclic_inheritance_data()
             << code << completions;
 
     completions.clear();
-    code = "\n"
+    code =
             "template< typename T > struct C;\n"
             "template< typename T, typename S > struct D : C< S >\n"
             "{\n"
@@ -1024,7 +1023,7 @@ void CppToolsPlugin::test_completion_cyclic_inheritance_data()
             << code << completions;
 
     completions.clear();
-    code = "\n"
+    code =
            "namespace NS\n"
            "{\n"
            "template <typename T> struct SuperClass\n"
@@ -1088,7 +1087,7 @@ void CppToolsPlugin::test_completion_template_function_data()
     QByteArray code;
     QStringList completions;
 
-    code = "\n"
+    code =
            "template <class tclass, typename tname, int tint>\n"
            "tname Hello(const tclass &e)\n"
            "{\n"
@@ -1104,7 +1103,7 @@ void CppToolsPlugin::test_completion_template_function_data()
 
     completions.clear();
 
-    code = "\n"
+    code =
            "template <class tclass, typename tname, int tint>\n"
            "tname Hello(const tclass &e, @)\n"
            "{\n"
@@ -1131,7 +1130,7 @@ void CppToolsPlugin::test_completion_enclosing_template_class_data()
     QByteArray code;
     QStringList completions;
 
-    code = "\n"
+    code =
             "template<typename T>\n"
             "struct Enclosing\n"
             "{\n"
@@ -1148,7 +1147,7 @@ void CppToolsPlugin::test_completion_enclosing_template_class_data()
 
     completions.clear();
 
-    code = "\n"
+    code =
             "template<typename T>\n"
             "struct Enclosing\n"
             "{\n"
@@ -1166,7 +1165,7 @@ void CppToolsPlugin::test_completion_enclosing_template_class_data()
 
 void CppToolsPlugin::test_completion_instantiate_nested_class_when_enclosing_is_template()
 {
-    const QByteArray source = "\n"
+    const QByteArray source =
             "struct Foo \n"
             "{\n"
             "    int foo_i;\n"
@@ -1196,7 +1195,7 @@ void CppToolsPlugin::test_completion_instantiate_nested_class_when_enclosing_is_
 
 void CppToolsPlugin::test_completion_instantiate_nested_of_nested_class_when_enclosing_is_template()
 {
-    const QByteArray source = "\n"
+    const QByteArray source =
             "struct Foo \n"
             "{\n"
             "    int foo_i;\n"
@@ -1230,7 +1229,7 @@ void CppToolsPlugin::test_completion_instantiate_nested_of_nested_class_when_enc
 
 void CppToolsPlugin::test_completion_instantiate_template_with_default_argument_type()
 {
-    const QByteArray source = "\n"
+    const QByteArray source =
             "struct Foo\n"
             "{\n"
             "    int bar;\n"
@@ -1255,7 +1254,7 @@ void CppToolsPlugin::test_completion_instantiate_template_with_default_argument_
 
 void CppToolsPlugin::test_completion_instantiate_template_with_default_argument_type_as_template()
 {
-    const QByteArray source = "\n"
+    const QByteArray source =
             "struct Foo\n"
             "{\n"
             "    int bar;\n"
@@ -1285,7 +1284,7 @@ void CppToolsPlugin::test_completion_instantiate_template_with_default_argument_
 
 void CppToolsPlugin::test_completion_member_access_operator_1()
 {
-    const QByteArray source = "\n"
+    const QByteArray source =
             "struct S { void t(); };\n"
             "void f() { S *s;\n"
             "@\n"
@@ -1303,7 +1302,7 @@ void CppToolsPlugin::test_completion_member_access_operator_1()
 
 void CppToolsPlugin::test_completion_typedef_of_type_and_decl_of_type_no_replace_access_operator()
 {
-    const QByteArray source = "\n"
+    const QByteArray source =
             "struct S { int m; };\n"
             "typedef S SType;\n"
             "SType p;\n"
@@ -1322,7 +1321,7 @@ void CppToolsPlugin::test_completion_typedef_of_type_and_decl_of_type_no_replace
 
 void CppToolsPlugin::test_completion_typedef_of_pointer_and_decl_of_pointer_no_replace_access_operator()
 {
-    const QByteArray source = "\n"
+    const QByteArray source =
             "struct S { int m; };\n"
             "typedef S *SType;\n"
             "SType *p;\n"
@@ -1339,7 +1338,7 @@ void CppToolsPlugin::test_completion_typedef_of_pointer_and_decl_of_pointer_no_r
 
 void CppToolsPlugin::test_completion_typedef_of_type_and_decl_of_pointer_replace_access_operator()
 {
-    const QByteArray source = "\n"
+    const QByteArray source =
             "struct S { int m; };\n"
             "typedef S SType;\n"
             "SType *p;\n"
@@ -1358,7 +1357,7 @@ void CppToolsPlugin::test_completion_typedef_of_type_and_decl_of_pointer_replace
 
 void CppToolsPlugin::test_completion_typedef_of_pointer_and_decl_of_type_replace_access_operator()
 {
-    const QByteArray source = "\n"
+    const QByteArray source =
             "struct S { int m; };\n"
             "typedef S* SPtr;\n"
             "SPtr p;\n"
@@ -1377,7 +1376,7 @@ void CppToolsPlugin::test_completion_typedef_of_pointer_and_decl_of_type_replace
 
 void CppToolsPlugin::test_completion_predecl_typedef_of_type_and_decl_of_pointer_replace_access_operator()
 {
-    const QByteArray source = "\n"
+    const QByteArray source =
             "typedef struct S SType;\n"
             "struct S { int m; };\n"
             "SType *p;\n"
@@ -1396,7 +1395,7 @@ void CppToolsPlugin::test_completion_predecl_typedef_of_type_and_decl_of_pointer
 
 void CppToolsPlugin::test_completion_predecl_typedef_of_type_and_decl_type_no_replace_access_operator()
 {
-    const QByteArray source = "\n"
+    const QByteArray source =
             "typedef struct S SType;\n"
             "struct S { int m; };\n"
             "SType p;\n"
@@ -1415,7 +1414,7 @@ void CppToolsPlugin::test_completion_predecl_typedef_of_type_and_decl_type_no_re
 
 void CppToolsPlugin::test_completion_predecl_typedef_of_pointer_and_decl_of_pointer_no_replace_access_operator()
 {
-    const QByteArray source = "\n"
+    const QByteArray source =
             "typedef struct S *SType;\n"
             "struct S { int m; };\n"
             "SType *p;\n"
@@ -1432,7 +1431,7 @@ void CppToolsPlugin::test_completion_predecl_typedef_of_pointer_and_decl_of_poin
 
 void CppToolsPlugin::test_completion_predecl_typedef_of_pointer_and_decl_of_type_replace_access_operator()
 {
-    const QByteArray source = "\n"
+    const QByteArray source =
             "typedef struct S *SType;\n"
             "struct S { int m; };\n"
             "SType p;\n"
@@ -1451,7 +1450,7 @@ void CppToolsPlugin::test_completion_predecl_typedef_of_pointer_and_decl_of_type
 
 void CppToolsPlugin::test_completion_typedef_of_pointer()
 {
-    const QByteArray source = "\n"
+    const QByteArray source =
             "struct Foo { int bar; };\n"
             "typedef Foo *FooPtr;\n"
             "void main()\n"
@@ -1469,7 +1468,7 @@ void CppToolsPlugin::test_completion_typedef_of_pointer()
 
 void CppToolsPlugin::test_completion_typedef_of_pointer_inside_function()
 {
-    const QByteArray source = "\n"
+    const QByteArray source =
             "struct Foo { int bar; };\n"
             "void f()\n"
             "{\n"
@@ -1487,7 +1486,7 @@ void CppToolsPlugin::test_completion_typedef_of_pointer_inside_function()
 
 void CppToolsPlugin::test_completion_typedef_is_inside_function_before_declaration_block()
 {
-    const QByteArray source = "\n"
+    const QByteArray source =
             "struct Foo { int bar; };\n"
             "void f()\n"
             "{\n"
@@ -1508,7 +1507,7 @@ void CppToolsPlugin::test_completion_typedef_is_inside_function_before_declarati
 
 void CppToolsPlugin::test_completion_resolve_complex_typedef_with_template()
 {
-    const QByteArray source = "\n"
+    const QByteArray source =
             "template <typename T>\n"
             "struct Template2\n"
             "{\n"
@@ -1541,7 +1540,7 @@ void CppToolsPlugin::test_completion_resolve_complex_typedef_with_template()
 
 void CppToolsPlugin::test_completion_template_specialization_with_pointer()
 {
-    const QByteArray source = "\n"
+    const QByteArray source =
             "template <typename T>\n"
             "struct Template\n"
             "{\n"
@@ -1565,7 +1564,7 @@ void CppToolsPlugin::test_completion_template_specialization_with_pointer()
 
 void CppToolsPlugin::test_completion_typedef_using_templates1()
 {
-    const QByteArray source = "\n"
+    const QByteArray source =
             "namespace NS1\n"
             "{\n"
             "template<typename T>\n"
@@ -1607,7 +1606,7 @@ void CppToolsPlugin::test_completion_typedef_using_templates1()
 
 void CppToolsPlugin::test_completion_typedef_using_templates2()
 {
-    const QByteArray source = "\n"
+    const QByteArray source =
             "namespace NS1\n"
             "{\n"
             "template<typename T>\n"
@@ -1725,7 +1724,7 @@ void CppToolsPlugin::test_completion_type_and_using_declaration_data()
     QByteArray code;
     QStringList completions;
 
-    code = "\n"
+    code =
             "namespace NS\n"
             "{\n"
             "struct C { int m; };\n"
@@ -1743,7 +1742,7 @@ void CppToolsPlugin::test_completion_type_and_using_declaration_data()
 
     completions.clear();
 
-    code = "\n"
+    code =
             "namespace NS\n"
             "{\n"
             "struct C { int m; };\n"
@@ -1761,7 +1760,7 @@ void CppToolsPlugin::test_completion_type_and_using_declaration_data()
 
     completions.clear();
 
-    code = "\n"
+    code =
             "struct C { int m; };\n"
             "namespace NS\n"
             "{\n"
@@ -1779,7 +1778,7 @@ void CppToolsPlugin::test_completion_type_and_using_declaration_data()
 
     completions.clear();
 
-    code = "\n"
+    code =
             "struct C { int m; };\n"
             "namespace NS\n"
             "{\n"
@@ -1797,7 +1796,7 @@ void CppToolsPlugin::test_completion_type_and_using_declaration_data()
 
     completions.clear();
 
-    code = "\n"
+    code =
             "namespace NS1\n"
             "{\n"
             "struct C { int m; };\n"
@@ -1818,7 +1817,7 @@ void CppToolsPlugin::test_completion_type_and_using_declaration_data()
 
     completions.clear();
 
-    code = "\n"
+    code =
             "namespace NS1\n"
             "{\n"
             "struct C { int m; };\n"
@@ -2132,7 +2131,7 @@ void CppToolsPlugin::test_completion_class_declaration_inside_function_or_block_
     QByteArray code;
     QStringList completions;
 
-    code = "\n"
+    code =
             "void foo()\n"
             "{\n"
             "    struct C { int m; };\n"
@@ -2146,7 +2145,7 @@ void CppToolsPlugin::test_completion_class_declaration_inside_function_or_block_
 
     completions.clear();
 
-    code = "\n"
+    code =
             "void foo()\n"
             "{\n"
             "   {\n"
@@ -2163,7 +2162,7 @@ void CppToolsPlugin::test_completion_class_declaration_inside_function_or_block_
 
     completions.clear();
 
-    code = "\n"
+    code =
             "void foo()\n"
             "{\n"
             "   {\n"
@@ -2197,7 +2196,7 @@ void CppToolsPlugin::test_completion_namespace_alias_inside_function_or_block_QT
     QByteArray code;
     QStringList completions;
 
-    code = "\n"
+    code =
             "namespace NS1\n"
             "{\n"
             "namespace NS2\n"
@@ -2221,7 +2220,7 @@ void CppToolsPlugin::test_completion_namespace_alias_inside_function_or_block_QT
 
     completions.clear();
 
-    code = "\n"
+    code =
             "namespace NS1\n"
             "{\n"
             "namespace NS2\n"
