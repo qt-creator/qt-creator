@@ -96,10 +96,10 @@ void QmlProfilerEventsModelProxy::limitToRange(qint64 rangeStart, qint64 rangeEn
 
 void QmlProfilerEventsModelProxy::dataChanged()
 {
-    if (d->modelManager->state() == QmlProfilerDataState::ClearingData)
-        clear();
-    else
+    if (d->modelManager->state() == QmlProfilerDataState::Done)
         loadData();
+    else if (d->modelManager->state() == QmlProfilerDataState::ClearingData)
+        clear();
 }
 
 QSet<QString> QmlProfilerEventsModelProxy::eventsInBindingLoop() const
