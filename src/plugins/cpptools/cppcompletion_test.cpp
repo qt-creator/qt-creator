@@ -167,8 +167,7 @@ void CppToolsPlugin::test_completion_forward_declarations_present()
         "    Bar() {}\n"
         "};\n"
         "\n"
-        "@\n"
-        "// padding so we get the scope right\n";
+        "@\n";
     CompletionTestCase test(source, "Foo::Bar::");
 
     QStringList expected;
@@ -250,7 +249,6 @@ void CppToolsPlugin::test_completion_basic_1()
             "void func() {\n"
             "    Foo f;\n"
             "    @\n"
-            "    // padding so we get the scope right\n"
             "}";
     CompletionTestCase test(source);
 
@@ -284,7 +282,6 @@ void CppToolsPlugin::test_completion_template_1()
             "void func() {\n"
             "    Foo f;\n"
             "    @\n"
-            "    // padding so we get the scope right\n"
             "}";
     CompletionTestCase test(source, "Foo::");
 
@@ -311,7 +308,6 @@ void CppToolsPlugin::test_completion_template_2()
             "void func() {\n"
             "    List<Tupple> l;\n"
             "    @\n"
-            "    // padding so we get the scope right\n"
             "}";
     CompletionTestCase test(source, "l.at(0).");
 
@@ -336,7 +332,6 @@ void CppToolsPlugin::test_completion_template_3()
             "void func() {\n"
             "    List<Tupple> l;\n"
             "    @\n"
-            "    // padding so we get the scope right\n"
             "}";
     CompletionTestCase test(source, "l.t.");
 
@@ -362,7 +357,6 @@ void CppToolsPlugin::test_completion_template_4()
             "void func() {\n"
             "    List<Tupple> l;\n"
             "    @\n"
-            "    // padding so we get the scope right\n"
             "}";
     CompletionTestCase test(source, "l.u.");
 
@@ -388,7 +382,6 @@ void CppToolsPlugin::test_completion_template_5()
             "    typedef List<Tupple> LT;\n"
             "    LT l;"
             "    @\n"
-            "    // padding so we get the scope right\n"
             "}";
     CompletionTestCase test(source, "l.u.");
 
@@ -538,7 +531,6 @@ void CppToolsPlugin::test_completion_template_as_base_data()
             "void func() {\n"
             "    Other<Data> c;\n"
             "    @\n"
-            "    // padding so we get the scope right\n"
             "}";
     completions.append(QLatin1String("Data"));
     completions.append(QLatin1String("dataMember"));
@@ -555,7 +547,6 @@ void CppToolsPlugin::test_completion_template_as_base_data()
             "void func() {\n"
             "    More<Data> c;\n"
             "    @\n"
-            "    // padding so we get the scope right\n"
             "}";
     completions.append(QLatin1String("Data"));
     completions.append(QLatin1String("dataMember"));
@@ -574,7 +565,6 @@ void CppToolsPlugin::test_completion_template_as_base_data()
             "void func() {\n"
             "    More<Data> c;\n"
             "    @\n"
-            "    // padding so we get the scope right\n"
             "}";
     completions.append(QLatin1String("Data"));
     completions.append(QLatin1String("dataMember"));
@@ -595,7 +585,6 @@ void CppToolsPlugin::test_completion_template_as_base_data()
             "void func() {\n"
             "    More<Data> c;\n"
             "    @\n"
-            "    // padding so we get the scope right\n"
             "}";
     completions.append(QLatin1String("Data"));
     completions.append(QLatin1String("dataMember"));
@@ -616,7 +605,6 @@ void CppToolsPlugin::test_completion_template_as_base_data()
             "void func() {\n"
             "    Final<Data> c;\n"
             "    @\n"
-            "    // padding so we get the scope right\n"
             "}";
     completions.append(QLatin1String("Data"));
     completions.append(QLatin1String("dataMember"));
@@ -635,7 +623,6 @@ void CppToolsPlugin::test_completion_template_as_base_data()
             "void func() {\n"
             "    Final c;\n"
             "    @\n"
-            "    // padding so we get the scope right\n"
             "}";
     completions.append(QLatin1String("Data"));
     completions.append(QLatin1String("dataMember"));
@@ -654,7 +641,6 @@ void CppToolsPlugin::test_completion_template_as_base_data()
             "void func() {\n"
             "    Final c;\n"
             "    @\n"
-            "    // padding so we get the scope right\n"
             "}";
     completions.append(QLatin1String("Data"));
     completions.append(QLatin1String("dataMember"));
@@ -690,8 +676,7 @@ void CppToolsPlugin::test_completion_use_global_identifier_as_base_class_data()
             "};\n"
             "\n"
             "Final c;\n"
-            "@\n"
-            "// padding so we get the scope right\n";
+            "@\n";
 
     completions.append(QLatin1String("int_global"));
     completions.append(QLatin1String("int_final"));
@@ -716,8 +701,7 @@ void CppToolsPlugin::test_completion_use_global_identifier_as_base_class_data()
             "}\n"
             "\n"
             "NS::Final c;\n"
-            "@\n"
-            "// padding so we get the scope right\n";
+            "@\n";
 
     completions.append(QLatin1String("int_global"));
     completions.append(QLatin1String("int_final"));
@@ -746,7 +730,6 @@ void CppToolsPlugin::test_completion_use_global_identifier_as_base_class_data()
 //            "\n"
 //            "Enclosing<int>::Final c;\n"
 //            "@\n"
-//            "// padding so we get the scope right\n";
 
 //    completions.append(QLatin1String("int_global"));
 //    completions.append(QLatin1String("int_final"));
@@ -778,8 +761,7 @@ void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived_dat
             "};\n"
             "\n"
             "A c;\n"
-            "@\n"
-            "// padding so we get the scope right\n";
+            "@\n";
 
     completions.append(QLatin1String("int_a"));
     completions.append(QLatin1String("A"));
@@ -797,8 +779,7 @@ void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived_dat
             "}\n"
             "\n"
             "NS::A c;\n"
-            "@\n"
-            "// padding so we get the scope right\n";
+            "@\n";
 
     completions.append(QLatin1String("int_a"));
     completions.append(QLatin1String("A"));
@@ -817,8 +798,7 @@ void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived_dat
             "}\n"
             "\n"
             "NS::A c;\n"
-            "@\n"
-            "// padding so we get the scope right\n";
+            "@\n";
 
     completions.append(QLatin1String("int_a"));
     completions.append(QLatin1String("A"));
@@ -844,8 +824,7 @@ void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived_dat
             "}\n"
             "\n"
             "NS2::A c;\n"
-            "@\n"
-            "// padding so we get the scope right\n";
+            "@\n";
 
     completions.append(QLatin1String("int_ns1_a"));
     completions.append(QLatin1String("int_ns2_a"));
@@ -872,8 +851,7 @@ void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived_dat
             "}\n"
             "\n"
             "NS2::A c;\n"
-            "@\n"
-            "// padding so we get the scope right\n";
+            "@\n";
 
     completions.append(QLatin1String("int_enclosing_a"));
     completions.append(QLatin1String("int_ns2_a"));
@@ -900,8 +878,7 @@ void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived_dat
             "};\n"
             "\n"
             "EnclosingDerived::A c;\n"
-            "@\n"
-            "// padding so we get the scope right\n";
+            "@\n";
 
     completions.append(QLatin1String("int_enclosing_base_a"));
     completions.append(QLatin1String("int_enclosing_derived_a"));
@@ -919,8 +896,7 @@ void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived_dat
             "};\n"
             "\n"
             "A<int> c;\n"
-            "@\n"
-            "// padding so we get the scope right\n";
+            "@\n";
 
     completions.append(QLatin1String("int_a"));
     completions.append(QLatin1String("A"));
@@ -1482,7 +1458,6 @@ void CppToolsPlugin::test_completion_typedef_of_pointer()
             "{\n"
             "   FooPtr ptr;\n"
             "   @\n"
-            "    // padding so we get the scope right\n"
             "}";
     CompletionTestCase test(source, "ptr->");
 
@@ -1501,7 +1476,6 @@ void CppToolsPlugin::test_completion_typedef_of_pointer_inside_function()
             "   typedef Foo *FooPtr;\n"
             "   FooPtr ptr;\n"
             "   @\n"
-            "    // padding so we get the scope right\n"
             "}";
     CompletionTestCase test(source, "ptr->");
 
@@ -1521,7 +1495,6 @@ void CppToolsPlugin::test_completion_typedef_is_inside_function_before_declarati
             "   if (true) {\n"
             "       FooPtr ptr;\n"
             "       @\n"
-            "       // padding so we get the scope right\n"
             "   }"
             "}"
             ;
@@ -1555,7 +1528,6 @@ void CppToolsPlugin::test_completion_resolve_complex_typedef_with_template()
             "{\n"
             "    Template2<Foo> template2;\n"
             "    @\n"
-            "    // padding so we get the scope right\n"
             "}\n"
             ;
     CompletionTestCase test(source, "template2.templateTypedef.");
@@ -1623,7 +1595,6 @@ void CppToolsPlugin::test_completion_typedef_using_templates1()
             "{\n"
             "    NS2::NS2Struct<Foo> s;\n"
             "    @\n"
-            "    // padding so we get the scope right\n"
             "}\n"
             ;
     CompletionTestCase test(source, "s.p->");
@@ -1666,7 +1637,6 @@ void CppToolsPlugin::test_completion_typedef_using_templates2()
             "{\n"
             "    NS2::NS2Struct<Foo>::pointer p;\n"
             "    @\n"
-            "    // padding so we get the scope right\n"
             "}\n"
             ;
     CompletionTestCase test(source, "p->");
@@ -1704,7 +1674,6 @@ void CppToolsPlugin::test_completion_namespace_alias_with_many_namespace_declara
             "int main()\n"
             "{\n"
             "    @\n"
-            "    // padding so we get the scope right\n"
             "}\n"
             ;
     CompletionTestCase test(source, "NS::");
@@ -1732,7 +1701,6 @@ void CppToolsPlugin::test_completion_QTCREATORBUG9098()
             "    void fun()\n"
             "    {\n"
             "       @\n"
-            "       // padding so we get the scope right\n"
             "    }\n"
             "};\n"
             ;
@@ -1767,7 +1735,6 @@ void CppToolsPlugin::test_completion_type_and_using_declaration_data()
             "    using NS::C;\n"
             "    C c;\n"
             "    @\n"
-            "    // padding so we get the scope right\n"
             "}\n";
     completions.append(QLatin1String("C"));
     completions.append(QLatin1String("m"));
@@ -1786,7 +1753,6 @@ void CppToolsPlugin::test_completion_type_and_using_declaration_data()
             "{\n"
             "    C c;\n"
             "    @\n"
-            "    // padding so we get the scope right\n"
             "}\n";
     completions.append(QLatin1String("C"));
     completions.append(QLatin1String("m"));
@@ -1804,7 +1770,6 @@ void CppToolsPlugin::test_completion_type_and_using_declaration_data()
             "   {\n"
             "       C c;\n"
             "       @\n"
-            "       // padding so we get the scope right\n"
             "   }\n"
             "}\n";
     completions.append(QLatin1String("C"));
@@ -1823,7 +1788,6 @@ void CppToolsPlugin::test_completion_type_and_using_declaration_data()
             "       using ::C;\n"
             "       C c;\n"
             "       @\n"
-            "       // padding so we get the scope right\n"
             "   }\n"
             "}\n";
     completions.append(QLatin1String("C"));
@@ -1845,7 +1809,6 @@ void CppToolsPlugin::test_completion_type_and_using_declaration_data()
             "       using NS1::C;\n"
             "       C c;\n"
             "       @\n"
-            "       // padding so we get the scope right\n"
             "   }\n"
             "}\n";
     completions.append(QLatin1String("C"));
@@ -1867,7 +1830,6 @@ void CppToolsPlugin::test_completion_type_and_using_declaration_data()
             "   {\n"
             "       C c;\n"
             "       @\n"
-            "       // padding so we get the scope right\n"
             "   }\n"
             "}\n";
     completions.append(QLatin1String("C"));
@@ -1888,7 +1850,6 @@ void CppToolsPlugin::test_completion_instantiate_template_with_anonymous_class()
             "{\n"
             "   S<int> s;\n"
             "   @\n"
-            "   // padding so we get the scope right\n"
             "}\n"
             ;
     CompletionTestCase test(source, "s.");
@@ -1907,7 +1868,6 @@ void CppToolsPlugin::test_completion_instantiate_template_function()
             "void foo()\n"
             "{\n"
             "   @\n"
-            "   // padding so we get the scope right\n"
             "}\n"
             ;
     CompletionTestCase test(source, "templateFunction<A>()->");
@@ -1929,7 +1889,6 @@ void CppToolsPlugin::test_completion_crash_cloning_template_class_QTCREATORBUG93
             "   int f()\n"
             "   {\n"
             "       @\n"
-            "       // padding so we get the scope right\n"
             "   }\n"
             "};\n"
             ;
@@ -1951,7 +1910,6 @@ void CppToolsPlugin::test_completion_recursive_auto_declarations1_QTCREATORBUG95
             "    auto object2 = object1;\n"
             "    auto object1 = object2;\n"
             "    @;\n"
-            "    // padding so we get the scope right\n"
             "}\n"
             ;
     CompletionTestCase test(source, "object1.");
@@ -1969,7 +1927,6 @@ void CppToolsPlugin::test_completion_recursive_auto_declarations2_QTCREATORBUG95
             "    auto object2 = object3;\n"
             "    auto object1 = object2;\n"
             "    @;\n"
-            "    // padding so we get the scope right\n"
             "}\n"
             ;
     CompletionTestCase test(source, "object1.");
@@ -1987,7 +1944,6 @@ void CppToolsPlugin::test_completion_recursive_typedefs_declarations1()
             "    typedef B A;\n"
             "    A a;\n"
             "    @;\n"
-            "    // padding so we get the scope right\n"
             "}\n"
             ;
     CompletionTestCase test(source, "a.");
@@ -2006,7 +1962,6 @@ void CppToolsPlugin::test_completion_recursive_typedefs_declarations2()
             "    typedef B A;\n"
             "    A a;\n"
             "    @;\n"
-            "    // padding so we get the scope right\n"
             "}\n"
             ;
     CompletionTestCase test(source, "a.");
@@ -2024,7 +1979,6 @@ void CppToolsPlugin::test_completion_recursive_using_declarations1()
             "    using A = B;\n"
             "    A a;\n"
             "    @;\n"
-            "    // padding so we get the scope right\n"
             "}\n"
             ;
     CompletionTestCase test(source, "a.");
@@ -2043,7 +1997,6 @@ void CppToolsPlugin::test_completion_recursive_using_declarations2()
             "    using A = B;\n"
             "    A a;\n"
             "    @;\n"
-            "    // padding so we get the scope right\n"
             "}\n"
             ;
     CompletionTestCase test(source, "a.");
@@ -2061,7 +2014,6 @@ void CppToolsPlugin::test_completion_recursive_using_typedef_declarations()
             "    typedef B A;\n"
             "    A a;\n"
             "    @;\n"
-            "    // padding so we get the scope right\n"
             "}\n"
             ;
     CompletionTestCase test(source, "a.");
@@ -2126,7 +2078,6 @@ void CppToolsPlugin::test_completion_prefix_first_QTCREATORBUG_8737()
             "{\n"
             "    int a_b_c, a_c, a_c_a;\n"
             "    @;\n"
-            "    // padding so we get the scope right\n"
             "}\n"
             ;
     CompletionTestCase test(source, "a_c");
@@ -2151,7 +2102,6 @@ void CppToolsPlugin::test_completion_prefix_first_QTCREATORBUG_9236()
             "        int r_et;\n"
             "        int rETUCASE;\n"
             "        @\n"
-            "        // padding so we get the scope right\n"
             "    }\n"
             "};\n"
             ;
@@ -2188,7 +2138,6 @@ void CppToolsPlugin::test_completion_class_declaration_inside_function_or_block_
             "    struct C { int m; };\n"
             "    C c;\n"
             "    @\n"
-            "    // padding so we get the scope right\n"
             "}\n";
     completions.append(QLatin1String("C"));
     completions.append(QLatin1String("m"));
@@ -2204,7 +2153,6 @@ void CppToolsPlugin::test_completion_class_declaration_inside_function_or_block_
             "       struct C { int m; };\n"
             "       C c;\n"
             "       @\n"
-            "       // padding so we get the scope right\n"
             "   }\n"
             "}\n"
             ;
@@ -2225,7 +2173,6 @@ void CppToolsPlugin::test_completion_class_declaration_inside_function_or_block_
             "       struct C { int m2; };\n"
             "       C c;\n"
             "       @\n"
-            "       // padding so we get the scope right\n"
             "   }\n"
             "}\n"
             ;
@@ -2265,7 +2212,6 @@ void CppToolsPlugin::test_completion_namespace_alias_inside_function_or_block_QT
             "   namespace NS = NS1::NS2;\n"
             "   NS::C c;\n"
             "   @\n"
-            "   // padding so we get the scope right\n"
             "}\n"
             ;
     completions.append(QLatin1String("C"));
@@ -2291,7 +2237,6 @@ void CppToolsPlugin::test_completion_namespace_alias_inside_function_or_block_QT
             "       namespace NS = NS1::NS2;\n"
             "       NS::C c;\n"
             "       @\n"
-            "       // padding so we get the scope right\n"
             "   }\n"
             "}\n"
             ;
@@ -2314,7 +2259,6 @@ void CppToolsPlugin::test_completion_class_declaration_inside_function_or_block_
             "   {\n"
             "       struct C { static void staticFun2(); int m2; };\n"
             "       @\n"
-            "       // padding so we get the scope right\n"
             "   }\n"
             "}\n"
             ;
@@ -2336,7 +2280,6 @@ void CppToolsPlugin::test_completion_enum_inside_block_inside_function_QTCREATOR
             "   {\n"
             "       enum E { e1, e2, e3 };\n"
             "       @\n"
-            "       // padding so we get the scope right\n"
             "   }\n"
             "}\n"
             ;
@@ -2358,7 +2301,6 @@ void CppToolsPlugin::test_completion_enum_inside_function_QTCREATORBUG5456()
             "{\n"
             "   enum E { e1, e2, e3 };\n"
             "   @\n"
-            "   // padding so we get the scope right\n"
             "}\n"
             ;
     CompletionTestCase test(source, "E::");
@@ -2379,7 +2321,6 @@ void CppToolsPlugin::test_completion_lambdaCalls_1()
             "void foo()\n"
             "{\n"
             "   @\n"
-            "   // padding so we get the scope right\n"
             "}\n"
             ;
     CompletionTestCase test(source, "[](){ return new S; } ()->");
@@ -2398,7 +2339,6 @@ void CppToolsPlugin::test_completion_lambdaCalls_2()
             "void foo()\n"
             "{\n"
             "   @\n"
-            "   // padding so we get the scope right\n"
             "}\n"
             ;
     CompletionTestCase test(source, "[] { return new S; } ()->");
@@ -2417,7 +2357,6 @@ void CppToolsPlugin::test_completion_lambdaCalls_3()
             "void foo()\n"
             "{\n"
             "   @\n"
-            "   // padding so we get the scope right\n"
             "}\n"
             ;
     CompletionTestCase test(source, "[]() ->S* { return new S; } ()->");
@@ -2436,7 +2375,6 @@ void CppToolsPlugin::test_completion_lambdaCalls_4()
             "void foo()\n"
             "{\n"
             "   @\n"
-            "   // padding so we get the scope right\n"
             "}\n"
             ;
     CompletionTestCase test(source, "[]() throw() { return new S; } ()->");
@@ -2455,7 +2393,6 @@ void CppToolsPlugin::test_completion_lambdaCalls_5()
             "void foo()\n"
             "{\n"
             "   @\n"
-            "   // padding so we get the scope right\n"
             "}\n"
             ;
     CompletionTestCase test(source, "[]() throw()->S* { return new S; } ()->");
@@ -2480,7 +2417,6 @@ void CppToolsPlugin::test_completion_local_type_and_member_1()
             "    };\n"
             "    LocalType lt;\n"
             "    @\n"
-            "    // padding so we get the scope right\n"
             "}\n"
             ;
     CompletionTestCase test(source, "lt.ot.");
@@ -2505,7 +2441,6 @@ void CppToolsPlugin::test_completion_local_type_and_member_2()
             "    };\n"
             "    LocalType lt;\n"
             "    @\n"
-            "    // padding so we get the scope right\n"
             "}\n"
             ;
     CompletionTestCase test(source, "lt.ot.");
@@ -2531,7 +2466,6 @@ void CppToolsPlugin::test_completion_local_type_and_member_3()
             "       };\n"
             "       LocalType lt;\n"
             "       @\n"
-            "       // padding so we get the scope right\n"
             "    }\n"
             "}\n"
             ;
@@ -2557,7 +2491,6 @@ void CppToolsPlugin::test_completion_local_type_and_member_4()
             "    };\n"
             "    LocalType lt;\n"
             "    @\n"
-            "    // padding so we get the scope right\n"
             "}\n"
             ;
     CompletionTestCase test(source, "lt.ot.");
@@ -2583,7 +2516,6 @@ void CppToolsPlugin::test_completion_local_type_and_member_5()
             "    };\n"
             "    LocalType lt;\n"
             "    @\n"
-            "    // padding so we get the scope right\n"
             "}\n"
             ;
     CompletionTestCase test(source, "lt.ot.");
@@ -2609,7 +2541,6 @@ void CppToolsPlugin::test_completion_local_type_and_member_6()
             "    };\n"
             "    LocalType lt;\n"
             "    @\n"
-            "    // padding so we get the scope right\n"
             "}\n"
             ;
     CompletionTestCase test(source, "lt.ot.");
@@ -2649,7 +2580,6 @@ void CppToolsPlugin::test_completion_template_parameter_defined_inside_scope_of_
             "{\n"
             "    Template<B> templ;\n"
             "    @\n"
-            "    // padding so we get the scope right\n"
             "}\n"
             ;
     CompletionTestCase test(source, "templ.get()->");
@@ -2689,7 +2619,6 @@ void CppToolsPlugin::test_completion_template_parameter_defined_inside_scope_of_
             "{\n"
             "    Template<B> templ;\n"
             "    @\n"
-            "    // padding so we get the scope right\n"
             "}\n"
             ;
     CompletionTestCase test(source, "templ.t.");
@@ -2716,7 +2645,6 @@ void CppToolsPlugin::test_completion_template_parameter_defined_inside_scope_of_
             "    {\n"
             "        QList<Foo> list;\n"
             "       @\n"
-            "       // padding so we get the scope right\n"
             "    }\n"
             "}\n"
             ;
@@ -2746,7 +2674,6 @@ void CppToolsPlugin::test_completion_template_parameter_defined_inside_scope_of_
             "       {\n"
             "           QList<Foo> list;\n"
             "           @\n"
-            "           // padding so we get the scope right\n"
             "       }\n"
             "    }\n"
             "}\n"
@@ -2777,7 +2704,6 @@ void CppToolsPlugin::test_completion_template_parameter_defined_inside_scope_of_
             "    using namespace ns;\n"
             "    QList<Foo> list;\n"
             "    @\n"
-            "    // padding so we get the scope right\n"
             "}\n"
             ;
     CompletionTestCase test(source, "list.at(0).");
@@ -2830,7 +2756,6 @@ void CppToolsPlugin::test_completion_member_of_class_accessed_by_using_QTCREATOR
             "void S::fun()\n"
             "{\n"
             "    @\n"
-            "    // padding so we get the scope right\n"
             "}\n"
             ;
     CompletionTestCase test(source, "mem");
@@ -2855,7 +2780,6 @@ void CppToolsPlugin::test_completion_member_of_class_accessed_by_using_QTCREATOR
             "void S::fun()\n"
             "{\n"
             "    @\n"
-            "    // padding so we get the scope right\n"
             "}\n"
             ;
     CompletionTestCase test(source, "mem");
