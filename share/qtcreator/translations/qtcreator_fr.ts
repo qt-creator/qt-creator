@@ -6322,10 +6322,6 @@ Vous pouvez décider entre attendre plus longtemps ou mettre fin au débogage.</
         <translation type="obsolete">Arrêté au point d&apos;arrêt %1 dans le thread %2. {1 ?} {2?}</translation>
     </message>
     <message>
-        <source>&lt;p&gt;The inferior stopped because it received a signal from the Operating System.&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Signal name : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Signal meaning : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
-        <translation type="obsolete">&lt;p&gt;L&apos;inférieur a stoppé car il a reçu un signal du système d&apos;exploitation.&lt;/p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Nom du signal : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Signification du signal : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
-    </message>
-    <message>
         <source>Stopped: %1 by signal %2</source>
         <translation type="obsolete">Arrêté : %1 par le signal %2</translation>
     </message>
@@ -13732,20 +13728,24 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <translation>La résolution des dépendances a échoué car l&apos;état courant est différent de &quot;Lecture&quot;</translation>
     </message>
     <message>
-        <source>Could not resolve dependency &apos;%1(%2)&apos;</source>
-        <translation>Impossible de résoudre la dépendance &quot;%1(%2)&quot;</translation>
-    </message>
-    <message>
         <source>Loading the library failed because state != Resolved</source>
         <translation>Le chargement de la bibliothèque a échoué car l&apos;état courant est différent de &quot;Résolu&quot;</translation>
     </message>
     <message>
-        <source>Plugin is not valid (does not derive from IPlugin)</source>
-        <translation>L&apos;extension n&apos;est pas valide (elle n&apos;est pas une sous-classe de IPlugin)</translation>
+        <source>Initializing the plugin failed because state != Loaded</source>
+        <translation>L&apos;initialisation de l&apos;extension a échoué car l&apos;état courant est différent de &quot;Chargé&quot;</translation>
     </message>
     <message>
-        <source>Initializing the plugin failed because state != Loaded</source>
-        <translation>L&apos;initialisation de l&apos;extension a échoué car l&apos;état courant est différent de &quot;chargé&quot;</translation>
+        <source>Cannot perform extensionsInitialized because state != Initialized</source>
+        <translation>Impossible d&apos;exécuter extensionsInitialized car l&apos;état est différent de &quot;Initialisé&quot;</translation>
+    </message>
+    <message>
+        <source>Could not resolve dependency &apos;%1(%2)&apos;</source>
+        <translation>Impossible de résoudre la dépendance &quot;%1(%2)&quot;</translation>
+    </message>
+    <message>
+        <source>Plugin is not valid (does not derive from IPlugin)</source>
+        <translation>L&apos;extension n&apos;est pas valide (elle n&apos;est pas une sous-classe de IPlugin)</translation>
     </message>
     <message>
         <source>Internal error: have no plugin instance to initialize</source>
@@ -13754,10 +13754,6 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
     <message>
         <source>Plugin initialization failed: %1</source>
         <translation>L&apos;initialisation de l&apos;extension a échoué: %1</translation>
-    </message>
-    <message>
-        <source>Cannot perform extensionsInitialized because state != Initialized</source>
-        <translation>Impossible d&apos;exécuter extensionsInitialized car l&apos;état est différent de &quot;Initialisé&quot;</translation>
     </message>
     <message>
         <source>Internal error: have no plugin instance to perform extensionsInitialized</source>
@@ -35759,6 +35755,10 @@ Cette fonctionnalité n&apos;est disponible que pour GDB.</translation>
         <translation>&lt;Inconnu&gt;</translation>
     </message>
     <message>
+        <source>&lt;p&gt;The inferior stopped because it received a signal from the Operating System.&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Signal name : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Signal meaning : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
+        <translation>&lt;p&gt;L&apos;inférieur a stoppé car il a reçu un signal du système d&apos;exploitation.&lt;/p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Nom du signal : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Signification du signal : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
+    </message>
+    <message>
         <source>This does not seem to be a &quot;Debug&quot; build.
 Setting breakpoints by file name and line number may fail.</source>
         <translation>Ceci ne semble pas être une compilation &quot;Debug&quot;.
@@ -35813,10 +35813,6 @@ Mettre des points d&apos;arrêt par nom de fichier et numéro de ligne pourrait 
         <source> &lt;Unknown&gt; </source>
         <comment>meaning</comment>
         <translation> &lt;Inconnu&gt; </translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;The inferior stopped because it received a signal from the Operating System.&lt;p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Signal name : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Signal meaning : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</source>
-        <translation>&lt;p&gt;L&apos;inférieur a stoppé car il a reçu un signal du système d&apos;exploitation.&lt;/p&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Nom du signal : &lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Signification du signal : &lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</translation>
     </message>
     <message>
         <source>Signal received</source>
@@ -43945,6 +43941,10 @@ QML component instance objects and properties directly.</source>
     <message>
         <source>Indexing</source>
         <translation>Indexation</translation>
+    </message>
+    <message>
+        <source>Qml import scan</source>
+        <translation>Analyse de l&apos;import Qml</translation>
     </message>
 </context>
 <context>
@@ -66957,6 +66957,10 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <translation>== et != peuvent provoquer une coercition de type, utilisez === ou !== pour l&apos;éviter.</translation>
     </message>
     <message>
+        <source>== and != perform type coercion, use === or !== to avoid it.</source>
+        <translation>== et != provoquent une coercition de type, utilisez === ou !== pour l&apos;éviter.</translation>
+    </message>
+    <message>
         <source>Expression statements should be assignments, calls or delete expressions only.</source>
         <translation>Les définitions d&apos;expression devraient être des expression d&apos;assignation, d&apos;appel ou de suppression uniquement.</translation>
     </message>
@@ -66987,10 +66991,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     <message>
         <source>Invalid property type &apos;%1&apos;.</source>
         <translation>Type de propriété invalide &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>== and != perform type coercion, use === or !== to avoid it.</source>
-        <translation>== et != provoquent une coercition de type, utilisez === ou !== pour l&apos;éviter.</translation>
     </message>
     <message>
         <source>Calls of functions that start with an uppercase letter should use &apos;new&apos;.</source>
@@ -70886,7 +70886,8 @@ réinitialisation du moniteur</translation>
     </message>
     <message>
         <source>Get Started Now</source>
-        <translation>Commencez dès maintenant</translation>
+        <translatorcomment>attention à la longueur du texte, doit reste petit</translatorcomment>
+        <translation type="unfinished">Démarrer</translation>
     </message>
     <message>
         <source>Online Community</source>
@@ -71698,6 +71699,10 @@ réinitialisation du moniteur</translation>
     <message>
         <source>Subprocess Error %1</source>
         <translation>Erreur du sous-processus %1</translation>
+    </message>
+    <message>
+        <source>iOS tool Error %1</source>
+        <translation>Erreur de l&apos;outil iOS %1</translation>
     </message>
 </context>
 <context>
