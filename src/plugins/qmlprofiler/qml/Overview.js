@@ -97,6 +97,7 @@ function drawData(canvas, ctxt, region)
                 var ycenter = Math.round(bump + (modelRowStart +
                                          qmlProfilerModelProxy.getEventCategoryInModel(modelIndex, ii)) *
                                          blockHeight + blockHeight/2);
+                ctxt.beginPath();
                 ctxt.arc(xcenter, ycenter, radius, 0, 2*Math.PI, true);
                 ctxt.stroke();
             }
