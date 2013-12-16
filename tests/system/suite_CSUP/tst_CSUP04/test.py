@@ -32,7 +32,6 @@ source("../../shared/qtcreator.py")
 
 # entry of test
 def main():
-    global searchFinished
     # prepare example project
     sourceExample = os.path.abspath(sdkPath + "/Examples/4.7/declarative/animation/basics/property-animation")
     proFile = "propertyanimation.pro"
@@ -46,7 +45,6 @@ def main():
         return
     # open example project
     openQmakeProject(examplePath)
-    installLazySignalHandler("{type='Core::FutureProgress' unnamed='1'}", "finished()", "__handleFutureProgress__")
     # wait for parsing to complete
     progressBarWait(30000)
     # open .cpp file in editor
@@ -58,13 +56,12 @@ def main():
                 "Verifying if: .cpp file is opened in Edit mode.")
     # place cursor on line "QmlApplicationViewer viewer;"
     editorWidget = findObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
-    searchFinished = False
     # invoke find usages from context menu on word "viewer"
     if not invokeFindUsage(editorWidget, "QmlApplicationViewer viewer;", "<Left>", 10):
         invokeMenuItem("File", "Exit")
         return
     # wait until search finished and verify search results
-    waitFor("searchFinished", 20000)
+    waitForSearchResults()
     validateSearchResult(14)
     result = re.search("QmlApplicationViewer", str(editorWidget.plainText))
     test.verify(result, "Verifying if: The list of all usages of the selected text is displayed in Search Results. "
@@ -75,17 +72,24 @@ def main():
         return
     for i in range(4):
         type(editorWidget, "<Left>")
-    searchFinished = False
     type(editorWidget, "<Ctrl+Shift+U>")
     # wait until search finished and verify search results
-    waitFor("searchFinished", 20000)
+    waitForSearchResults()
     validateSearchResult(3)
     # exit qt creator
     invokeMenuItem("File", "Save All")
     invokeMenuItem("File", "Exit")
 
-def __handleFutureProgress__(*args):
-    global searchFinished
-    if className(args[0]) == "Core::FutureProgress":
-        searchFinished = True
+def waitForSearchResults():
+    def __noCancelButton__():
+        global passes
+        passes += 1
+        return not object.exists("{text='Cancel' type='QToolButton' unnamed='1' visible='1' "
+                                 "window=':Qt Creator_Core::Internal::MainWindow'}")
 
+    global passes
+    passes = 0
+    waitFor("__noCancelButton__()", 20000)
+    if passes < 2:
+        test.warning("Did not have to wait for search results.",
+                     "Either Creator was really quick or the GUI was changed.")
