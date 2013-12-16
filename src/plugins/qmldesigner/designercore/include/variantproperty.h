@@ -32,6 +32,7 @@
 
 #include "qmldesignercorelib_global.h"
 #include "abstractproperty.h"
+#include "enumeration.h"
 
 QT_BEGIN_NAMESPACE
 class QTextStream;
@@ -55,7 +56,12 @@ public:
     void setValue(const QVariant &value);
     QVariant value() const;
 
+    void setEnumeration(const EnumerationName &enumerationName);
+    Enumeration enumeration() const;
+    bool holdsEnumeration() const;
+
     void setDynamicTypeNameAndValue(const TypeName &type, const QVariant &value);
+    void setDynamicTypeNameAndEnumeration(const TypeName &type, const EnumerationName &enumerationName);
 
     VariantProperty();
     VariantProperty(const VariantProperty &property, AbstractView *view);

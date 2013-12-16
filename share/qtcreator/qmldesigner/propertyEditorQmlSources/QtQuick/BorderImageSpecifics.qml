@@ -137,6 +137,7 @@ Column {
                     backendValue: backendValues.horizontalTileMode
                     implicitWidth: 180
                     Layout.fillWidth: true
+                    scope: "BorderImage"
                 }
             }
 
@@ -150,6 +151,7 @@ Column {
                     backendValue: backendValues.verticalTileMode
                     implicitWidth: 180
                     Layout.fillWidth: true
+                    scope: "BorderImage"
                 }
 
             }

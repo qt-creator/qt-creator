@@ -63,6 +63,8 @@
 #include "endpuppetcommand.h"
 #include "debugoutputcommand.h"
 
+#include <enumeration.h>
+
 namespace QmlDesigner {
 
 static bool isRegistered=false;
@@ -181,6 +183,9 @@ void NodeInstanceServerInterface::registerCommands()
 
     qRegisterMetaType<DebugOutputCommand>("DebugOutputCommand");
     qRegisterMetaTypeStreamOperators<DebugOutputCommand>("DebugOutputCommand");
+
+    qRegisterMetaType<Enumeration>("Enumeration");
+    qRegisterMetaTypeStreamOperators<Enumeration>("Enumeration");
 }
 
 }

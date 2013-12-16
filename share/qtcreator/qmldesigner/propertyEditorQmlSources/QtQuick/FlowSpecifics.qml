@@ -49,6 +49,7 @@ Column {
                 ComboBox {
                     model: ["LeftToRight", "TopToBottom"]
                     backendValue: backendValues.flow
+                    scope: "Qt"
                 }
 
                 ExpandingSpacer {
@@ -65,6 +66,7 @@ Column {
                     model: ["LeftToRight", "RightToLeft"]
                     backendValue: backendValues.layoutDirection
                     Layout.fillWidth: true
+                    scope: "Qt"
                 }
 
             }

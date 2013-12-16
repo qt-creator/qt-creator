@@ -13,6 +13,7 @@ include (instances/instances.pri)
 include (../../../../share/qtcreator/qml/qmlpuppet/interfaces/interfaces.pri)
 include (../../../../share/qtcreator/qml/qmlpuppet/commands/commands.pri)
 include (../../../../share/qtcreator/qml/qmlpuppet/container/container.pri)
+include (../../../../share/qtcreator/qml/qmlpuppet/types/types.pri)
 
 SOURCES += $$PWD/model/abstractview.cpp \
     $$PWD/model/rewriterview.cpp \

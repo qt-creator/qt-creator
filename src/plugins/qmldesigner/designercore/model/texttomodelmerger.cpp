@@ -40,6 +40,7 @@
 #include "variantproperty.h"
 #include "signalhandlerproperty.h"
 #include "nodemetainfo.h"
+#include "enumeration.h"
 
 #include <qmljs/qmljsevaluate.h>
 #include <qmljs/qmljslink.h>
@@ -565,7 +566,7 @@ public:
         if (astValueList.count() == 2 //Check for global Qt enums
                 && astValueList.first() == QLatin1String("Qt")
                 && globalQtEnums().contains(astValueList.last()))
-            return QVariant(astValueList.last());
+            return QVariant::fromValue(Enumeration(astValue));
 
         ExpressionStatement *eStmt = cast<ExpressionStatement *>(rhs);
         if (!eStmt || !eStmt->expression)
@@ -607,7 +608,7 @@ public:
             return QVariant();
 
         if (rhsCppComponentValue->getEnum(lhsPropertyTypeName).hasKey(rhsValueName))
-            return QVariant(rhsValueName);
+            return QVariant::fromValue(Enumeration(astValue));
         else
             return QVariant();
     }

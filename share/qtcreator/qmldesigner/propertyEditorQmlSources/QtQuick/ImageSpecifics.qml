@@ -66,6 +66,7 @@ Column {
                     backendValue: backendValues.fillMode
                     implicitWidth: 180
                     Layout.fillWidth: true
+                    scope: "Image"
                 }
 
                 ExpandingSpacer {

@@ -89,6 +89,21 @@ QVariant VariantProperty::value() const
     return QVariant();
 }
 
+void VariantProperty::setEnumeration(const EnumerationName &enumerationName)
+{
+    setValue(QVariant::fromValue(Enumeration(enumerationName)));
+}
+
+Enumeration VariantProperty::enumeration() const
+{
+    return value().value<Enumeration>();
+}
+
+bool VariantProperty::holdsEnumeration() const
+{
+    return value().canConvert<Enumeration>();
+}
+
 void VariantProperty::setDynamicTypeNameAndValue(const TypeName &type, const QVariant &value)
 {
     Internal::WriteLocker locker(model());
@@ -111,7 +126,12 @@ void VariantProperty::setDynamicTypeNameAndValue(const TypeName &type, const QVa
     if (internalNode()->hasProperty(name()) && !internalNode()->property(name())->isVariantProperty())
         model()->d->removeProperty(internalNode()->property(name()));
 
-     model()->d->setDynamicVariantProperty(internalNode(), name(), type, value);
+    model()->d->setDynamicVariantProperty(internalNode(), name(), type, value);
+}
+
+void VariantProperty::setDynamicTypeNameAndEnumeration(const TypeName &type, const EnumerationName &enumerationName)
+{
+    setDynamicTypeNameAndValue(type, QVariant::fromValue(Enumeration(enumerationName)));
 }
 
 QDebug operator<<(QDebug debug, const VariantProperty &VariantProperty)

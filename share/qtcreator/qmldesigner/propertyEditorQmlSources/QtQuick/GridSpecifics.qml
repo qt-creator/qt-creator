@@ -84,6 +84,7 @@ Column {
                     model: ["LeftToRight", "TopToBottom"]
                     backendValue: backendValues.flow
                     Layout.fillWidth: true
+                    scope: "Qt"
                 }
             }
 
@@ -96,6 +97,7 @@ Column {
                     model: ["LeftToRight", "RightToLeft"]
                     backendValue: backendValues.layoutDirection
                     Layout.fillWidth: true
+                    scope: "Qt"
                 }
 
             }

@@ -36,6 +36,7 @@
 #include <QQmlPropertyMap>
 #include <QtQml>
 #include <modelnode.h>
+#include <enumeration.h>
 
 class PropertyEditorValue;
 
@@ -78,6 +79,7 @@ class PropertyEditorValue : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QVariant value READ value WRITE setValueWithEmit NOTIFY valueChangedQml)
+    Q_PROPERTY(QVariant enumeration READ enumeration NOTIFY valueChangedQml)
     Q_PROPERTY(QString expression READ expression WRITE setExpressionWithEmit NOTIFY expressionChanged FINAL)
     Q_PROPERTY(QString valueToString READ valueToString NOTIFY valueChangedQml FINAL)
     Q_PROPERTY(bool isInModel READ isInModel NOTIFY valueChangedQml FINAL)
@@ -95,6 +97,8 @@ public:
     QVariant value() const;
     void setValueWithEmit(const QVariant &value);
     void setValue(const QVariant &value);
+
+    QString enumeration() const;
 
     QString expression() const;
     void setExpressionWithEmit(const QString &expression);
@@ -125,6 +129,7 @@ public:
 
 public slots:
     void resetValue();
+    void setEnumeration(const QString &scope, const QString &name);
 
 signals:
     void valueChanged(const QString &name, const QVariant&);

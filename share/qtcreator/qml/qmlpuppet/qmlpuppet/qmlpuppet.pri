@@ -16,6 +16,7 @@ include (instances/instances.pri)
 include (../commands/commands.pri)
 include (../container/container.pri)
 include (../interfaces/interfaces.pri)
+include (../types/types.pri)
 
 SOURCES += $$PWD/qmlpuppetmain.cpp
 RESOURCES += $$PWD/../qmlpuppet.qrc

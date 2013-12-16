@@ -150,7 +150,11 @@ void PropertyEditorValue::setValue(const QVariant &value)
     if (m_value.isValid())
         emit valueChangedQml();
     emit isBoundChanged();
+}
 
+QString PropertyEditorValue::enumeration() const
+{
+    return m_value.value<QmlDesigner::Enumeration>().nameToString();
 }
 
 QString PropertyEditorValue::expression() const
@@ -260,6 +264,13 @@ void PropertyEditorValue::resetValue()
         m_isBound = false;
         emit valueChanged(name(), QVariant());
     }
+}
+
+void PropertyEditorValue::setEnumeration(const QString &scope, const QString &name)
+{
+    QmlDesigner::Enumeration newEnumeration(scope, name);
+
+    setValueWithEmit(QVariant::fromValue(newEnumeration));
 }
 
 void PropertyEditorValue::registerDeclarativeTypes()

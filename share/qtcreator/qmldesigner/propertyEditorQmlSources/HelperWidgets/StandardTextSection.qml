@@ -72,6 +72,7 @@ Section {
             visible: showVerticalAlignment
             Layout.fillWidth: true
             backendValue: backendValues.wrapMode
+            scope: "Text"
             model: ["NoWrap", "WordWrap", "WrapAnywhere", "WrapAtWordBoundaryOrAnywhere"]
         }
 

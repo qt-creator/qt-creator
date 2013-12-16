@@ -113,9 +113,8 @@ QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDept
 
           if (false) {
           }
-        if (variantProperty.parentModelNode().metaInfo().isValid() &&
-            variantProperty.parentModelNode().metaInfo().propertyIsEnumType(variantProperty.name())) {
-            return variantProperty.parentModelNode().metaInfo().propertyEnumScope(variantProperty.name()) + '.' + stringValue;
+        if (variantProperty.holdsEnumeration()) {
+            return variantProperty.enumeration().toString();
         } else {
 
             switch (value.type()) {

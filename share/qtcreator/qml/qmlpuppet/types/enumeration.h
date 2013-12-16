@@ -27,49 +27,51 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
-import QtQuick.Controls 1.1 as Controls
-import QtQuick.Controls.Styles 1.1
+#ifndef QMLDESIGNER_ENUMERATION_H
+#define QMLDESIGNER_ENUMERATION_H
 
-Controls.ComboBox {
-    id: comboBox
+#include <QByteArray>
+#include <QDataStream>
+#include <QMetaType>
+#include <QVariant>
 
-    property variant backendValue
+namespace QmlDesigner {
 
-    property color textColor: colorLogic.textColor
-    property string scope: "Qt"
+typedef QByteArray EnumerationName;
 
-    ColorLogic {
-        id: colorLogic
-        backendValue: comboBox.backendValue
-        onValueFromBackendChanged: {
-            comboBox.currentIndex = comboBox.find(comboBox.backendValue.enumeration);
-        }
-    }
+class Enumeration
+{
+    friend bool operator ==(const Enumeration &first, const Enumeration &second);
+    friend bool operator <(const Enumeration &first, const Enumeration &second);
+    friend QDataStream &operator>>(QDataStream &in, Enumeration &enumeration);
 
-    onCurrentTextChanged: {
-        if (backendValue === undefined)
-            return;
+public:
+    Enumeration();
+    Enumeration(const EnumerationName &enumerationName);
+    Enumeration(const QString &enumerationName);
+    Enumeration(const QString &scope, const QString &name);
 
-            backendValue.setEnumeration(comboBox.scope, comboBox.currentText)
-    }
+    EnumerationName scope() const;
+    EnumerationName name() const;
+    EnumerationName toEnumerationName() const;
+    QString toString() const;
+    QString nameToString();
 
-    onFocusChanged: {
-        if (focus) {
-            transaction.start();
-        } else {
-            transaction.end();
-        }
-    }
+private:
+    EnumerationName m_enumerationName;
+};
 
-    style: CustomComboBoxStyle {
-        textColor: comboBox.textColor
-    }
+QDataStream &operator<<(QDataStream &out, const Enumeration &enumeration);
+QDataStream &operator>>(QDataStream &in, Enumeration &enumeration);
 
-    ExtendedFunctionButton {
-        x: 2
-        y: 4
-        backendValue: comboBox.backendValue
-        visible: comboBox.enabled
-    }
-}
+bool operator ==(const Enumeration &first, const Enumeration &second);
+bool operator <(const Enumeration &first, const Enumeration &second);
+
+QDebug operator <<(QDebug debug, const Enumeration &enumeration);
+
+
+} // namespace QmlDesigner
+
+Q_DECLARE_METATYPE(QmlDesigner::Enumeration)
+
+#endif // QMLDESIGNER_ENUMERATION_H

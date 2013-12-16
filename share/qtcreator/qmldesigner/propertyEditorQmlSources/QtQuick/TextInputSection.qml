@@ -60,6 +60,7 @@ Section {
             visible: showVerticalAlignment
             Layout.fillWidth: true
             backendValue: backendValues.echoMode
+            scope: "TextInput"
             model:  ["Normal", "Password", "PasswordEchoOnEdit", "NoEcho"]
         }
 

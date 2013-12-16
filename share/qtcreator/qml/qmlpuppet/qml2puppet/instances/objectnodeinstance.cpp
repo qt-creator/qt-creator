@@ -29,7 +29,7 @@
 
 #include "objectnodeinstance.h"
 
-
+#include <enumeration.h>
 
 #include <QEvent>
 #include <QQmlContext>
@@ -471,6 +471,9 @@ void ObjectNodeInstance::setPropertyVariant(const PropertyName &name, const QVar
         return;
 
     QVariant fixedValue = fixResourcePaths(value);
+
+    if (value.canConvert<Enumeration>())
+        fixedValue = QVariant::fromValue(value.value<Enumeration>().nameToString());
 
     QVariant oldValue = property.read();
     if (oldValue.type() == QVariant::Url) {

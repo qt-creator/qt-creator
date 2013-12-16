@@ -50,6 +50,7 @@ Column {
                     model: ["LeftToRight", "RightToLeft"]
                     backendValue: backendValues.layoutDirection
                     Layout.fillWidth: true
+                    scope: "Qt"
                 }
             }
 
