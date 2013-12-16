@@ -553,18 +553,24 @@ QmakeBuildInfo *QmakeBuildConfigurationFactory::createBuildInfo(const Kit *k,
 {
     QtSupport::BaseQtVersion *version = QtSupport::QtKitInformation::qtVersion(k);
     QmakeBuildInfo *info = new QmakeBuildInfo(this);
-    if (type == BuildConfiguration::Release)
+    QString suffix;
+    if (type == BuildConfiguration::Release) {
         //: The name of the release build configuration created by default for a qmake project.
         info->displayName = tr("Release");
-    else
+        //: Non-ASCII characters in directory suffix may cause build issues.
+        suffix = tr("Release", "Shadow build directory suffix");
+    } else {
         //: The name of the debug build configuration created by default for a qmake project.
         info->displayName = tr("Debug");
+        //: Non-ASCII characters in directory suffix may cause build issues.
+        suffix = tr("Debug", "Shadow build directory suffix");
+    }
     info->typeName = tr("Build");
     // Leave info->buildDirectory unset;
     info->kitId = k->id();
     info->supportsShadowBuild = (version && version->supportsShadowBuilds());
     info->buildDirectory
-            = defaultBuildDirectory(info->supportsShadowBuild, projectPath, k, info->displayName);
+            = defaultBuildDirectory(info->supportsShadowBuild, projectPath, k, suffix);
     info->type = type;
     return info;
 }
