@@ -61,7 +61,7 @@ AndroidDeployQtWidget::AndroidDeployQtWidget(AndroidDeployQtStep *step)
 
     // Target sdk combobox
     int minApiLevel = 9;
-    QStringList targets = AndroidConfigurations::instance().sdkTargets(minApiLevel);
+    QStringList targets = AndroidConfigurations::currentConfig().sdkTargets(minApiLevel);
     m_ui->targetSDKComboBox->addItems(targets);
     m_ui->targetSDKComboBox->setCurrentIndex(targets.indexOf(step->buildTargetSdk()));
 
@@ -250,7 +250,7 @@ void AndroidDeployQtWidget::cleanLibsOnDevice()
 
 void AndroidDeployQtWidget::resetDefaultDevices()
 {
-    AndroidConfigurations::instance().clearDefaultDevices(m_step->project());
+    AndroidConfigurations::clearDefaultDevices(m_step->project());
 }
 
 void AndroidDeployQtWidget::signPackageCheckBoxToggled(bool checked)

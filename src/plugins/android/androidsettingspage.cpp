@@ -64,7 +64,7 @@ void AndroidSettingsPage::apply()
     m_widget->saveSettings();
 
     QList<ToolChain *> existingToolChains = ToolChainManager::toolChains();
-    QList<ToolChain *> toolchains = AndroidToolChainFactory::createToolChainsForNdk(AndroidConfigurations::instance().config().ndkLocation);
+    QList<ToolChain *> toolchains = AndroidToolChainFactory::createToolChainsForNdk(AndroidConfigurations::currentConfig().ndkLocation());
     foreach (ToolChain *tc, toolchains) {
         bool found = false;
         for (int i = 0; i < existingToolChains.count(); ++i) {
@@ -86,7 +86,7 @@ void AndroidSettingsPage::apply()
         }
     }
 
-    AndroidConfigurations::instance().updateAutomaticKitList();
+    AndroidConfigurations::updateAutomaticKitList();
 }
 
 void AndroidSettingsPage::finish()

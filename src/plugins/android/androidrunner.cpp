@@ -86,7 +86,7 @@ AndroidRunner::AndroidRunner(QObject *parent,
 
     m_deviceSerialNumber = AndroidManager::deviceSerialNumber(target);
     m_processPID = -1;
-    m_adb = AndroidConfigurations::instance().adbToolPath().toString();
+    m_adb = AndroidConfigurations::currentConfig().adbToolPath().toString();
     m_selector = AndroidDeviceInfo::adbSelector(m_deviceSerialNumber);
 
     QString packageDir = _("/data/data/") + m_packageName;

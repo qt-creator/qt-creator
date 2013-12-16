@@ -612,7 +612,7 @@ bool AndroidManager::createAndroidTemplatesIfNecessary(ProjectExplorer::Target *
         if (qt->qtVersion() >= QtSupport::QtVersionNumber(5, 0, 0))
             minApiLevel = 9;
 
-    QStringList sdks = AndroidConfigurations::instance().sdkTargets(minApiLevel);
+    QStringList sdks = AndroidConfigurations::currentConfig().sdkTargets(minApiLevel);
     if (sdks.isEmpty()) {
         raiseError(tr("No Qt for Android SDKs were found.\nPlease install at least one SDK."));
         return false;
@@ -645,14 +645,14 @@ void AndroidManager::updateTarget(ProjectExplorer::Target *target, const QString
     QString androidDir = dirPath(target).toString();
 
     Utils::Environment env = Utils::Environment::systemEnvironment();
-    QString javaHome = AndroidConfigurations::instance().config().openJDKLocation.toString();
+    QString javaHome = AndroidConfigurations::currentConfig().openJDKLocation().toString();
     if (!javaHome.isEmpty())
         env.set(QLatin1String("JAVA_HOME"), javaHome);
     // clean previous build
     QProcess androidProc;
     androidProc.setWorkingDirectory(androidDir);
     androidProc.setProcessEnvironment(env.toProcessEnvironment());
-    androidProc.start(AndroidConfigurations::instance().antToolPath().toString(),
+    androidProc.start(AndroidConfigurations::currentConfig().antToolPath().toString(),
                       QStringList() << QLatin1String("clean"));
     if (!androidProc.waitForFinished(-1))
         androidProc.terminate();
@@ -706,8 +706,8 @@ void AndroidManager::updateTarget(ProjectExplorer::Target *target, const QString
         params << QLatin1String("-t") << targetSDK;
     if (!name.isEmpty())
         params << QLatin1String("-n") << name;
-    androidProc.setProcessEnvironment(AndroidConfigurations::instance().androidToolEnvironment().toProcessEnvironment());
-    androidProc.start(AndroidConfigurations::instance().androidToolPath().toString(), params);
+    androidProc.setProcessEnvironment(AndroidConfigurations::currentConfig().androidToolEnvironment().toProcessEnvironment());
+    androidProc.start(AndroidConfigurations::currentConfig().androidToolPath().toString(), params);
     if (!androidProc.waitForFinished(-1))
         androidProc.terminate();
 }
@@ -811,7 +811,7 @@ QVector<AndroidManager::Library> AndroidManager::availableQtLibsWithDependencies
     AndroidToolChain *atc = static_cast<AndroidToolChain *>(tc);
     QString libgnustl = libGnuStl(arch, atc->ndkToolChainVersion());
 
-    Utils::FileName readelfPath = AndroidConfigurations::instance().readelfPath(target->activeRunConfiguration()->abi().architecture(),
+    Utils::FileName readelfPath = AndroidConfigurations::currentConfig().readelfPath(target->activeRunConfiguration()->abi().architecture(),
                                                                                 atc->ndkToolChainVersion());
     const QmakeProjectManager::QmakeProject *const qmakeProject
             = qobject_cast<const QmakeProjectManager::QmakeProject *>(target->project());
@@ -1178,7 +1178,7 @@ bool AndroidManager::qtLibrariesLessThan(const Library &a, const Library &b)
 
 QString AndroidManager::libGnuStl(const QString &arch, const QString &ndkToolChainVersion)
 {
-    return AndroidConfigurations::instance().config().ndkLocation.toString()
+    return AndroidConfigurations::currentConfig().ndkLocation().toString()
             + QLatin1String("/sources/cxx-stl/gnu-libstdc++/")
             + ndkToolChainVersion + QLatin1String("/libs/")
             + arch
@@ -1197,7 +1197,7 @@ void AndroidManager::cleanLibsOnDevice(ProjectExplorer::Target *target)
     if (targetArch.isEmpty())
         return;
     int deviceAPILevel = AndroidManager::minimumSDK(target);
-    AndroidDeviceInfo info = AndroidConfigurations::instance().showDeviceDialog(target->project(), deviceAPILevel, targetArch);
+    AndroidDeviceInfo info = AndroidConfigurations::showDeviceDialog(target->project(), deviceAPILevel, targetArch);
     if (info.serialNumber.isEmpty()) // aborted
         return;
 
@@ -1205,7 +1205,7 @@ void AndroidManager::cleanLibsOnDevice(ProjectExplorer::Target *target)
     QString deviceSerialNumber = info.serialNumber;
 
     if (info.type == AndroidDeviceInfo::Emulator) {
-        deviceSerialNumber = AndroidConfigurations::instance().startAVD(deviceSerialNumber, deviceAPILevel, targetArch);
+        deviceSerialNumber = AndroidConfigurations::currentConfig().startAVD(deviceSerialNumber, deviceAPILevel, targetArch);
         if (deviceSerialNumber.isEmpty())
             Core::MessageManager::write(tr("Starting Android virtual device failed."));
     }
@@ -1214,7 +1214,7 @@ void AndroidManager::cleanLibsOnDevice(ProjectExplorer::Target *target)
     QStringList arguments = AndroidDeviceInfo::adbSelector(deviceSerialNumber);
     arguments << QLatin1String("shell") << QLatin1String("rm") << QLatin1String("-r") << QLatin1String("/data/local/tmp/qt");
     process->connect(process, SIGNAL(finished(int)), process, SLOT(deleteLater()));
-    const QString adb = AndroidConfigurations::instance().adbToolPath().toString();
+    const QString adb = AndroidConfigurations::currentConfig().adbToolPath().toString();
     Core::MessageManager::write(adb + QLatin1Char(' ') + arguments.join(QLatin1String(" ")));
     process->start(adb, arguments);
     if (!process->waitForStarted(500))
@@ -1227,14 +1227,14 @@ void AndroidManager::installQASIPackage(ProjectExplorer::Target *target, const Q
     if (targetArch.isEmpty())
         return;
     int deviceAPILevel = AndroidManager::minimumSDK(target);
-    AndroidDeviceInfo info = AndroidConfigurations::instance().showDeviceDialog(target->project(), deviceAPILevel, targetArch);
+    AndroidDeviceInfo info = AndroidConfigurations::showDeviceDialog(target->project(), deviceAPILevel, targetArch);
     if (info.serialNumber.isEmpty()) // aborted
         return;
 
     deviceAPILevel = info.sdk;
     QString deviceSerialNumber = info.serialNumber;
     if (info.type == AndroidDeviceInfo::Emulator) {
-        deviceSerialNumber = AndroidConfigurations::instance().startAVD(deviceSerialNumber, deviceAPILevel, targetArch);
+        deviceSerialNumber = AndroidConfigurations::currentConfig().startAVD(deviceSerialNumber, deviceAPILevel, targetArch);
         if (deviceSerialNumber.isEmpty())
             Core::MessageManager::write(tr("Starting Android virtual device failed."));
     }
@@ -1244,7 +1244,7 @@ void AndroidManager::installQASIPackage(ProjectExplorer::Target *target, const Q
     arguments << QLatin1String("install") << QLatin1String("-r ") << packagePath;
 
     process->connect(process, SIGNAL(finished(int)), process, SLOT(deleteLater()));
-    const QString adb = AndroidConfigurations::instance().adbToolPath().toString();
+    const QString adb = AndroidConfigurations::currentConfig().adbToolPath().toString();
     Core::MessageManager::write(adb + QLatin1Char(' ') + arguments.join(QLatin1String(" ")));
     process->start(adb, arguments);
     if (!process->waitForFinished(500))
@@ -1263,7 +1263,7 @@ bool AndroidManager::checkKeystorePassword(const QString &keystorePath, const QS
               << QLatin1String("--storepass")
               << keystorePasswd;
     QProcess proc;
-    proc.start(AndroidConfigurations::instance().keytoolPath().toString(), arguments);
+    proc.start(AndroidConfigurations::currentConfig().keytoolPath().toString(), arguments);
     if (!proc.waitForStarted(4000))
         return false;
     if (!proc.waitForFinished(4000)) {
@@ -1292,7 +1292,7 @@ bool AndroidManager::checkCertificatePassword(const QString &keystorePath, const
         arguments << certificatePasswd;
 
     QProcess proc;
-    proc.start(AndroidConfigurations::instance().keytoolPath().toString(), arguments);
+    proc.start(AndroidConfigurations::currentConfig().keytoolPath().toString(), arguments);
     if (!proc.waitForStarted(4000))
         return false;
     if (!proc.waitForFinished(4000)) {

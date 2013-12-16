@@ -107,7 +107,7 @@ QString AndroidToolChain::typeDisplayName() const
 bool AndroidToolChain::isValid() const
 {
     return GccToolChain::isValid() && targetAbi().isValid() && !m_ndkToolChainVersion.isEmpty()
-            && compilerCommand().isChildOf(AndroidConfigurations::instance().config().ndkLocation);
+            && compilerCommand().isChildOf(AndroidConfigurations::currentConfig().ndkLocation());
 }
 
 void AndroidToolChain::addToEnvironment(Environment &env) const
@@ -116,15 +116,15 @@ void AndroidToolChain::addToEnvironment(Environment &env) const
 // TODO this vars should be configurable in projects -> build tab
 // TODO invalidate all .pro files !!!
 
-    env.set(QLatin1String("ANDROID_NDK_HOST"), AndroidConfigurations::instance().config().toolchainHost);
-    env.set(QLatin1String("ANDROID_NDK_TOOLCHAIN_PREFIX"), AndroidConfigurations::toolchainPrefix(targetAbi().architecture()));
-    env.set(QLatin1String("ANDROID_NDK_TOOLS_PREFIX"), AndroidConfigurations::toolsPrefix(targetAbi().architecture()));
+    env.set(QLatin1String("ANDROID_NDK_HOST"), AndroidConfigurations::currentConfig().toolchainHost());
+    env.set(QLatin1String("ANDROID_NDK_TOOLCHAIN_PREFIX"), AndroidConfig::toolchainPrefix(targetAbi().architecture()));
+    env.set(QLatin1String("ANDROID_NDK_TOOLS_PREFIX"), AndroidConfig::toolsPrefix(targetAbi().architecture()));
     env.set(QLatin1String("ANDROID_NDK_TOOLCHAIN_VERSION"), m_ndkToolChainVersion);
-    QString javaHome = AndroidConfigurations::instance().openJDKPath().toString();
+    QString javaHome = AndroidConfigurations::currentConfig().openJDKLocation().toString();
     if (!javaHome.isEmpty() && QFileInfo(javaHome).exists())
         env.set(QLatin1String("JAVA_HOME"), javaHome);
-    env.set(QLatin1String("ANDROID_HOME"), AndroidConfigurations::instance().config().sdkLocation.toString());
-    env.set(QLatin1String("ANDROID_SDK_ROOT"), AndroidConfigurations::instance().config().sdkLocation.toString());
+    env.set(QLatin1String("ANDROID_HOME"), AndroidConfigurations::currentConfig().sdkLocation().toString());
+    env.set(QLatin1String("ANDROID_SDK_ROOT"), AndroidConfigurations::currentConfig().sdkLocation().toString());
 }
 
 bool AndroidToolChain::operator ==(const ToolChain &tc) const
@@ -142,19 +142,19 @@ ToolChainConfigWidget *AndroidToolChain::configurationWidget()
 
 FileName AndroidToolChain::suggestedDebugger() const
 {
-    return AndroidConfigurations::instance().gdbPath(targetAbi().architecture(), m_ndkToolChainVersion);
+    return AndroidConfigurations::currentConfig().gdbPath(targetAbi().architecture(), m_ndkToolChainVersion);
 }
 
 FileName AndroidToolChain::suggestedGdbServer() const
 {
-    Utils::FileName path = AndroidConfigurations::instance().config().ndkLocation;
+    Utils::FileName path = AndroidConfigurations::currentConfig().ndkLocation();
     path.appendPath(QString::fromLatin1("prebuilt/android-%1/gdbserver/gdbserver")
                     .arg(Abi::toString(targetAbi().architecture())));
     if (path.toFileInfo().exists())
         return path;
-    path = AndroidConfigurations::instance().config().ndkLocation;
+    path = AndroidConfigurations::currentConfig().ndkLocation();
     path.appendPath(QString::fromLatin1("toolchains/%1-%2/prebuilt/gdbserver")
-                               .arg(AndroidConfigurations::toolchainPrefix(targetAbi().architecture()))
+                               .arg(AndroidConfig::toolchainPrefix(targetAbi().architecture()))
                                .arg(m_ndkToolChainVersion));
     if (path.toFileInfo().exists())
         return path;
@@ -176,7 +176,7 @@ bool AndroidToolChain::fromMap(const QVariantMap &data)
 
     if (data.contains(QLatin1String(ANDROID_QT_VERSION_KEY))) {
         QString command = compilerCommand().toString();
-        QString ndkPath = AndroidConfigurations::instance().config().ndkLocation.toString();
+        QString ndkPath = AndroidConfigurations::currentConfig().ndkLocation().toString();
         if (!command.startsWith(ndkPath))
             return false;
         command = command.mid(ndkPath.length());
@@ -193,7 +193,7 @@ bool AndroidToolChain::fromMap(const QVariantMap &data)
             return false;
         m_ndkToolChainVersion = command.mid(index + 1);
         QString platform = command.left(index);
-        Abi::Architecture arch = AndroidConfigurations::architectureForToolChainPrefix(platform);
+        Abi::Architecture arch = AndroidConfig::architectureForToolChainPrefix(platform);
         ProjectExplorer::Abi abi = ProjectExplorer::Abi(arch, ProjectExplorer::Abi::LinuxOS,
                                                         ProjectExplorer::Abi::AndroidLinuxFlavor, ProjectExplorer::Abi::ElfFormat,
                                                         32);
@@ -215,7 +215,7 @@ QList<FileName> AndroidToolChain::suggestedMkspecList() const
 
 QString AndroidToolChain::makeCommand(const Utils::Environment &env) const
 {
-    QStringList extraDirectories = AndroidConfigurations::instance().makeExtraSearchDirectories();
+    QStringList extraDirectories = AndroidConfigurations::currentConfig().makeExtraSearchDirectories();
     if (HostOsInfo::isWindowsHost()) {
         QString tmp = env.searchInPath(QLatin1String("ma-make.exe"), extraDirectories);
         if (!tmp.isEmpty())
@@ -256,7 +256,7 @@ QList<Abi> AndroidToolChain::detectSupportedAbis() const
 AndroidToolChainConfigWidget::AndroidToolChainConfigWidget(AndroidToolChain *tc) :
    ToolChainConfigWidget(tc)
 {
-    QLabel *label = new QLabel(AndroidConfigurations::instance().config().ndkLocation.toUserOutput());
+    QLabel *label = new QLabel(AndroidConfigurations::currentConfig().ndkLocation().toUserOutput());
     m_mainLayout->addRow(tr("NDK Root:"), label);
 }
 
@@ -272,7 +272,7 @@ AndroidToolChainFactory::AndroidToolChainFactory()
 
 QList<ToolChain *> AndroidToolChainFactory::autoDetect()
 {
-    return createToolChainsForNdk(AndroidConfigurations::instance().config().ndkLocation);
+    return createToolChainsForNdk(AndroidConfigurations::currentConfig().ndkLocation());
 }
 
 bool AndroidToolChainFactory::canRestore(const QVariantMap &data)
@@ -307,11 +307,11 @@ QList<AndroidToolChainFactory::AndroidToolChainInformation> AndroidToolChainFact
         AndroidToolChainInformation ati;
         ati.version = fileName.mid(idx + 1);
         QString platform = fileName.left(idx);
-        ati.architecture = AndroidConfigurations::architectureForToolChainPrefix(platform);
+        ati.architecture = AndroidConfig::architectureForToolChainPrefix(platform);
         if (ati.architecture == Abi::UnknownArchitecture) // e.g. mipsel which is not yet supported
             continue;
         // AndroidToolChain *tc = new AndroidToolChain(arch, version, true);
-        ati.compilerCommand = AndroidConfigurations::instance().gccPath(ati.architecture, ati.version);
+        ati.compilerCommand = AndroidConfigurations::currentConfig().gccPath(ati.architecture, ati.version);
         // tc->setCompilerCommand(compilerPath);
         result.append(ati);
     }
@@ -381,11 +381,11 @@ QList<ToolChain *> AndroidToolChainFactory::createToolChainsForNdk(const Utils::
             continue;
         QString version = fileName.mid(idx + 1);
         QString platform = fileName.left(idx);
-        Abi::Architecture arch = AndroidConfigurations::architectureForToolChainPrefix(platform);
+        Abi::Architecture arch = AndroidConfig::architectureForToolChainPrefix(platform);
         if (arch == Abi::UnknownArchitecture) // e.g. mipsel which is not yet supported
             continue;
         AndroidToolChain *tc = new AndroidToolChain(arch, version, ToolChain::AutoDetection);
-        FileName compilerPath = AndroidConfigurations::instance().gccPath(arch, version);
+        FileName compilerPath = AndroidConfigurations::currentConfig().gccPath(arch, version);
         tc->setCompilerCommand(compilerPath);
         result.append(tc);
 
@@ -409,9 +409,9 @@ QList<ToolChain *> AndroidToolChainFactory::createToolChainsForNdk(const Utils::
 QList<int> AndroidToolChainFactory::newestToolChainVersionForArch(Abi::Architecture arch)
 {
     if (m_newestVersionForArch.isEmpty()
-            || m_ndkLocation != AndroidConfigurations::instance().config().ndkLocation) {
+            || m_ndkLocation != AndroidConfigurations::currentConfig().ndkLocation()) {
         QRegExp versionRegExp(NDKGccVersionRegExp);
-        m_ndkLocation = AndroidConfigurations::instance().config().ndkLocation;
+        m_ndkLocation = AndroidConfigurations::currentConfig().ndkLocation();
         FileName path = m_ndkLocation;
         QDirIterator it(path.appendPath(QLatin1String("toolchains")).toString(),
                         QStringList() << QLatin1String("*"), QDir::Dirs);
@@ -422,7 +422,7 @@ QList<int> AndroidToolChainFactory::newestToolChainVersionForArch(Abi::Architect
                 continue;
             QList<int> version = versionNumberFromString(fileName.mid(idx + 1));
             QString platform = fileName.left(idx);
-            Abi::Architecture arch = AndroidConfigurations::architectureForToolChainPrefix(platform);
+            Abi::Architecture arch = AndroidConfig::architectureForToolChainPrefix(platform);
             if (arch == Abi::UnknownArchitecture) // e.g. mipsel which is not yet supported
                 continue;
             QMap<Abi::Architecture, QList<int> >::const_iterator it

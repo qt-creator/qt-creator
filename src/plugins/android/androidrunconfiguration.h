@@ -55,7 +55,6 @@ public:
     Utils::OutputFormatter *createOutputFormatter() const;
 
     void setArguments(const QString &args);
-    AndroidConfig config() const;
     QString proFilePath() const;
 
     const QString remoteChannel() const;

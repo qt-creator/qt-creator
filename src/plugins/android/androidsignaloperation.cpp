@@ -35,7 +35,7 @@
 #include <QProcess>
 
 Android::Internal::AndroidSignalOperation::AndroidSignalOperation()
-    : m_adbPath(AndroidConfigurations::instance().adbToolPath().toString())
+    : m_adbPath(AndroidConfigurations::currentConfig().adbToolPath().toString())
     , m_adbProcess(new QProcess(this))
     , m_timeout(new QTimer(this))
     , m_state(Idle)

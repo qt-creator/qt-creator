@@ -103,7 +103,7 @@ bool AndroidDeployStep::init()
     m_deviceAPILevel = AndroidManager::minimumSDK(target());
     m_targetArch = AndroidManager::targetArch(target());
 
-    AndroidDeviceInfo info = AndroidConfigurations::instance().showDeviceDialog(project(), m_deviceAPILevel, m_targetArch);
+    AndroidDeviceInfo info = AndroidConfigurations::showDeviceDialog(project(), m_deviceAPILevel, m_targetArch);
     if (info.serialNumber.isEmpty()) // aborted
         return false;
 
@@ -280,7 +280,7 @@ unsigned int AndroidDeployStep::remoteModificationTime(const QString &fullDestin
         return *it;
     QStringList arguments = AndroidDeviceInfo::adbSelector(m_deviceSerialNumber);
     arguments << QLatin1String("ls") << destination;
-    process.start(AndroidConfigurations::instance().adbToolPath().toString(), arguments);
+    process.start(AndroidConfigurations::currentConfig().adbToolPath().toString(), arguments);
     if (!process.waitForFinished(5000)
             || process.exitCode() != 0)
         return 0;
@@ -367,7 +367,7 @@ void AndroidDeployStep::stripFiles(const QList<DeployItem> &deployList, Abi::Arc
 {
     QProcess stripProcess;
     foreach (const DeployItem &item, deployList) {
-        stripProcess.start(AndroidConfigurations::instance().stripPath(architecture, ndkToolchainVersion).toString(),
+        stripProcess.start(AndroidConfigurations::currentConfig().stripPath(architecture, ndkToolchainVersion).toString(),
                            QStringList()<<QLatin1String("--strip-unneeded") << item.localFileName);
         stripProcess.waitForStarted();
         if (!stripProcess.waitForFinished())
@@ -378,7 +378,7 @@ void AndroidDeployStep::stripFiles(const QList<DeployItem> &deployList, Abi::Arc
 void AndroidDeployStep::deployFiles(QProcess *process, const QList<DeployItem> &deployList)
 {
     foreach (const DeployItem &item, deployList) {
-        runCommand(process, AndroidConfigurations::instance().adbToolPath().toString(),
+        runCommand(process, AndroidConfigurations::currentConfig().adbToolPath().toString(),
                    AndroidDeviceInfo::adbSelector(m_deviceSerialNumber)
                    << QLatin1String("push") << item.localFileName
                    << item.remoteFileName);
@@ -388,10 +388,10 @@ void AndroidDeployStep::deployFiles(QProcess *process, const QList<DeployItem> &
 bool AndroidDeployStep::deployPackage()
 {
     if (!m_avdName.isEmpty()) {
-        if (AndroidConfigurations::instance().findAvd(m_deviceAPILevel, m_targetArch).isEmpty()
-                && !AndroidConfigurations::instance().startAVDAsync(m_avdName))
+        if (AndroidConfigurations::currentConfig().findAvd(m_deviceAPILevel, m_targetArch).isEmpty()
+                && !AndroidConfigurations::currentConfig().startAVDAsync(m_avdName))
             return false;
-        m_deviceSerialNumber = AndroidConfigurations::instance().waitForAvd(m_deviceAPILevel, m_targetArch);
+        m_deviceSerialNumber = AndroidConfigurations::currentConfig().waitForAvd(m_deviceAPILevel, m_targetArch);
     }
 
     QProcess *const deployProc = new QProcess;
@@ -457,14 +457,14 @@ bool AndroidDeployStep::deployPackage()
     deployProc->setWorkingDirectory(m_androidDirPath.toString());
 
     writeOutput(tr("Installing package onto %1.").arg(m_deviceSerialNumber));
-    runCommand(deployProc, AndroidConfigurations::instance().adbToolPath().toString(),
+    runCommand(deployProc, AndroidConfigurations::currentConfig().adbToolPath().toString(),
                AndroidDeviceInfo::adbSelector(m_deviceSerialNumber) << QLatin1String("uninstall") << m_packageName);
     QString package = m_apkPathDebug;
 
     if (m_signPackage && QFile::exists(m_apkPathRelease))
         package = m_apkPathRelease;
 
-    if (!runCommand(deployProc, AndroidConfigurations::instance().adbToolPath().toString(),
+    if (!runCommand(deployProc, AndroidConfigurations::currentConfig().adbToolPath().toString(),
                     AndroidDeviceInfo::adbSelector(m_deviceSerialNumber) << QLatin1String("install") << package)) {
         raiseError(tr("Package installation failed."));
         disconnect(deployProc, 0, this, 0);
@@ -473,11 +473,11 @@ bool AndroidDeployStep::deployPackage()
     }
 
     writeOutput(tr("Pulling files necessary for debugging."));
-    runCommand(deployProc, AndroidConfigurations::instance().adbToolPath().toString(),
+    runCommand(deployProc, AndroidConfigurations::currentConfig().adbToolPath().toString(),
                AndroidDeviceInfo::adbSelector(m_deviceSerialNumber)
                << QLatin1String("pull") << QLatin1String("/system/bin/app_process")
                << QString::fromLatin1("%1/app_process").arg(m_buildDirectory));
-    runCommand(deployProc, AndroidConfigurations::instance().adbToolPath().toString(),
+    runCommand(deployProc, AndroidConfigurations::currentConfig().adbToolPath().toString(),
                AndroidDeviceInfo::adbSelector(m_deviceSerialNumber) << QLatin1String("pull")
                << QLatin1String("/system/lib/libc.so")
                << QString::fromLatin1("%1/libc.so").arg(m_buildDirectory));

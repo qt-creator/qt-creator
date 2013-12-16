@@ -140,11 +140,6 @@ QString AndroidRunConfiguration::defaultDisplayName()
     return tr("Run on Android device");
 }
 
-AndroidConfig AndroidRunConfiguration::config() const
-{
-    return AndroidConfigurations::instance().config();
-}
-
 const QString AndroidRunConfiguration::remoteChannel() const
 {
     return QLatin1String(":5039");

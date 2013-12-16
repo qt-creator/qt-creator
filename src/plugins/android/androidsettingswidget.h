@@ -69,12 +69,12 @@ public:
     AndroidSettingsWidget(QWidget *parent = 0);
     ~AndroidSettingsWidget();
 
-    void saveSettings(bool saveNow = false);
+    void saveSettings();
 
 private slots:
     void sdkLocationEditingFinished();
     void ndkLocationEditingFinished();
-    void searchForAnt(const QString &location);
+    void searchForAnt(const Utils::FileName &location);
     void antLocationEditingFinished();
     void openJDKLocationEditingFinished();
     void browseSDKLocation();
@@ -90,14 +90,20 @@ private slots:
     void createKitToggled();
 
 private:
-    void initGui();
-    bool checkSDK(const Utils::FileName &location);
-    bool checkNDK(const Utils::FileName &location);
+    enum Mode { Sdk = 1, Ndk = 2, Java = 4, All = Sdk | Ndk | Java };
+    enum State { NotSet = 0, Okay = 1, Error = 2 };
+    void check(Mode mode);
+    void applyToUi(Mode mode);
+
+    State m_sdkState;
+    State m_ndkState;
+    int m_ndkCompilerCount;
+    QString m_ndkMissingQtArchs;
+    State m_javaState;
 
     Ui_AndroidSettingsWidget *m_ui;
     AndroidConfig m_androidConfig;
     AvdModel m_AVDModel;
-    bool m_saveSettingsRequested;
 };
 
 } // namespace Internal

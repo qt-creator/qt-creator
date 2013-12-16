@@ -97,7 +97,7 @@ AndroidPotentialKitWidget::AndroidPotentialKitWidget(QWidget *parent)
     connect(openOptions, SIGNAL(clicked()),
             this, SLOT(openOptions()));
 
-    connect(&AndroidConfigurations::instance(), SIGNAL(updated()),
+    connect(AndroidConfigurations::instance(), SIGNAL(updated()),
             this, SLOT(recheck()));
 }
 

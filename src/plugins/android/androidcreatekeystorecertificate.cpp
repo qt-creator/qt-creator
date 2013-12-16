@@ -177,7 +177,7 @@ void AndroidCreateKeystoreCertificate::on_buttonBox_accepted()
            << QLatin1String("-dname") << distinguishedNames;
 
     QProcess genKeyCertProc;
-    genKeyCertProc.start(AndroidConfigurations::instance().keytoolPath().toString(), params );
+    genKeyCertProc.start(AndroidConfigurations::currentConfig().keytoolPath().toString(), params );
 
     if (!genKeyCertProc.waitForStarted() || !genKeyCertProc.waitForFinished())
         return;

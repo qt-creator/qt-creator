@@ -106,8 +106,8 @@ QList<ProjectExplorer::Abi> AndroidQtVersion::detectQtAbis() const
 void AndroidQtVersion::addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const
 {
     // this env vars are used by qmake mkspecs to generate makefiles (check QTDIR/mkspecs/android-g++/qmake.conf for more info)
-    env.set(QLatin1String("ANDROID_NDK_HOST"), AndroidConfigurations::instance().config().toolchainHost);
-    env.set(QLatin1String("ANDROID_NDK_ROOT"), AndroidConfigurations::instance().config().ndkLocation.toUserOutput());
+    env.set(QLatin1String("ANDROID_NDK_HOST"), AndroidConfigurations::currentConfig().toolchainHost());
+    env.set(QLatin1String("ANDROID_NDK_ROOT"), AndroidConfigurations::currentConfig().ndkLocation().toUserOutput());
 
     QmakeProject *qmakeProject = qobject_cast<QmakeProjectManager::QmakeProject *>(ProjectExplorerPlugin::instance()->currentProject());
     if (!qmakeProject || !qmakeProject->activeTarget()
@@ -117,12 +117,12 @@ void AndroidQtVersion::addToEnvironment(const ProjectExplorer::Kit *k, Utils::En
     Target *target = qmakeProject->activeTarget();
     if (DeviceTypeKitInformation::deviceTypeId(target->kit()) != Constants::ANDROID_DEVICE_TYPE)
         return;
-    if (AndroidConfigurations::instance().config().ndkLocation.isEmpty()
-            || AndroidConfigurations::instance().config().sdkLocation.isEmpty())
+    if (AndroidConfigurations::currentConfig().ndkLocation().isEmpty()
+            || AndroidConfigurations::currentConfig().sdkLocation().isEmpty())
         return;
 
     env.set(QLatin1String("ANDROID_NDK_PLATFORM"),
-            AndroidConfigurations::instance().bestNdkPlatformMatch(AndroidManager::buildTargetSDK(target)));
+            AndroidConfigurations::currentConfig().bestNdkPlatformMatch(AndroidManager::buildTargetSDK(target)));
 }
 
 QString AndroidQtVersion::description() const

@@ -123,14 +123,14 @@ bool AndroidPackageCreationStep::init()
         return false;
 
     AndroidManager::updateTarget(target(), AndroidManager::buildTargetSDK(target()), AndroidManager::applicationName(target()));
-    m_antToolPath = AndroidConfigurations::instance().antToolPath();
+    m_antToolPath = AndroidConfigurations::currentConfig().antToolPath();
     m_apkPathUnsigned = AndroidManager::apkPath(target(), AndroidManager::ReleaseBuildUnsigned);
     m_apkPathSigned = AndroidManager::apkPath(target(), AndroidManager::ReleaseBuildSigned);
     m_signPackageForRun = m_signPackage;
     m_keystorePathForRun = m_keystorePath;
     m_certificatePasswdForRun = m_certificatePasswd;
-    m_jarSigner = AndroidConfigurations::instance().jarsignerPath();
-    m_zipAligner = AndroidConfigurations::instance().zipalignPath();
+    m_jarSigner = AndroidConfigurations::currentConfig().jarsignerPath();
+    m_zipAligner = AndroidConfigurations::currentConfig().zipalignPath();
     m_environment = bc->environment();
 
     ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainKitInformation::toolChain(target()->kit());
@@ -247,7 +247,7 @@ void AndroidPackageCreationStep::checkRequiredLibraries()
         return;
     AndroidToolChain *atc = static_cast<AndroidToolChain *>(tc);
 
-    readelfProc.start(AndroidConfigurations::instance().readelfPath(target()->activeRunConfiguration()->abi().architecture(), atc->ndkToolChainVersion()).toString(),
+    readelfProc.start(AndroidConfigurations::currentConfig().readelfPath(target()->activeRunConfiguration()->abi().architecture(), atc->ndkToolChainVersion()).toString(),
                       QStringList() << QLatin1String("-d") << QLatin1String("-W") << appPath);
     if (!readelfProc.waitForFinished(-1)) {
         readelfProc.kill();
@@ -268,7 +268,7 @@ void AndroidPackageCreationStep::initCheckRequiredLibrariesForRun()
     AndroidToolChain *atc = static_cast<AndroidToolChain *>(tc);
 
     m_appPath = Utils::FileName::fromString(AndroidManager::targetApplicationPath(target()));
-    m_readElf = AndroidConfigurations::instance().readelfPath(target()->activeRunConfiguration()->abi().architecture(),
+    m_readElf = AndroidConfigurations::currentConfig().readelfPath(target()->activeRunConfiguration()->abi().architecture(),
                                                               atc->ndkToolChainVersion());
     m_qtLibs = AndroidManager::qtLibs(target());
     m_availableQtLibs = AndroidManager::availableQtLibsWithDependencies(target());
@@ -367,7 +367,7 @@ QAbstractItemModel *AndroidPackageCreationStep::keystoreCertificates()
         Utils::Environment env = Utils::Environment::systemEnvironment();
         env.set(QLatin1String("LANG"), QLatin1String("C"));
         keytoolProc.setProcessEnvironment(env.toProcessEnvironment());
-        keytoolProc.start(AndroidConfigurations::instance().keytoolPath().toString(), params);
+        keytoolProc.start(AndroidConfigurations::currentConfig().keytoolPath().toString(), params);
         if (!keytoolProc.waitForStarted() || !keytoolProc.waitForFinished()) {
             QMessageBox::critical(0, tr("Error"),
                                   tr("Failed to run keytool"));
@@ -751,7 +751,7 @@ void AndroidPackageCreationStep::stripAndroidLibs(const QStringList & files, Abi
 {
     QProcess stripProcess;
     foreach (const QString &file, files) {
-        stripProcess.start(AndroidConfigurations::instance().stripPath(architecture, ndkToolchainVersion).toString(),
+        stripProcess.start(AndroidConfigurations::currentConfig().stripPath(architecture, ndkToolchainVersion).toString(),
                            QStringList()<<QLatin1String("--strip-unneeded") << file);
         stripProcess.waitForStarted();
         if (!stripProcess.waitForFinished())

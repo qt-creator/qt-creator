@@ -160,7 +160,7 @@ void AndroidDeployQtStep::ctor()
     m_verbose = false;
 
     // will be overwriten by settings if the user choose something different
-    m_buildTargetSdk = AndroidConfigurations::instance().highestAndroidSdk();
+    m_buildTargetSdk = AndroidConfigurations::currentConfig().highestAndroidSdk();
 
     connect(project(), SIGNAL(proFilesEvaluated()),
            this, SLOT(updateInputFile()));
@@ -177,7 +177,7 @@ bool AndroidDeployQtStep::init()
         return false;
     }
     m_deviceAPILevel = AndroidManager::minimumSDK(target());
-    AndroidDeviceInfo info = AndroidConfigurations::instance().showDeviceDialog(project(), m_deviceAPILevel, m_targetArch);
+    AndroidDeviceInfo info = AndroidConfigurations::showDeviceDialog(project(), m_deviceAPILevel, m_targetArch);
     if (info.serialNumber.isEmpty()) // aborted
         return false;
 
@@ -256,11 +256,11 @@ bool AndroidDeployQtStep::init()
               << deploymentMethod
               << QLatin1String("--install")
               << QLatin1String("--ant")
-              << AndroidConfigurations::instance().antToolPath().toString()
+              << AndroidConfigurations::currentConfig().antToolPath().toString()
               << QLatin1String("--android-platform")
               << m_buildTargetSdk
               << QLatin1String("--jdk")
-              << AndroidConfigurations::instance().openJDKPath().toString();
+              << AndroidConfigurations::currentConfig().openJDKLocation().toString();
 
     parser->setSourceDirectory(Utils::FileName::fromString(node->singleVariableValue(QmakeProjectManager::AndroidPackageSourceDir)));
     parser->setBuildDirectory(Utils::FileName::fromString(outputDir));
@@ -300,15 +300,15 @@ bool AndroidDeployQtStep::init()
     if (!result)
         return false;
 
-    if (AndroidConfigurations::instance().findAvd(m_deviceAPILevel, m_targetArch).isEmpty())
-        AndroidConfigurations::instance().startAVDAsync(m_avdName);
+    if (AndroidConfigurations::currentConfig().findAvd(m_deviceAPILevel, m_targetArch).isEmpty())
+        AndroidConfigurations::currentConfig().startAVDAsync(m_avdName);
     return true;
 }
 
 void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
 {
     if (!m_avdName.isEmpty()) {
-        QString serialNumber = AndroidConfigurations::instance().waitForAvd(m_deviceAPILevel, m_targetArch, fi);
+        QString serialNumber = AndroidConfigurations::currentConfig().waitForAvd(m_deviceAPILevel, m_targetArch, fi);
         if (serialNumber.isEmpty()) {
             fi.reportResult(false);
             emit finished();
@@ -324,11 +324,11 @@ void AndroidDeployQtStep::run(QFutureInterface<bool> &fi)
     AbstractProcessStep::run(fi);
 
     emit addOutput(tr("Pulling files necessary for debugging."), MessageOutput);
-    runCommand(AndroidConfigurations::instance().adbToolPath().toString(),
+    runCommand(AndroidConfigurations::currentConfig().adbToolPath().toString(),
                AndroidDeviceInfo::adbSelector(m_serialNumber)
                << QLatin1String("pull") << QLatin1String("/system/bin/app_process")
                << QString::fromLatin1("%1/app_process").arg(m_buildDirectory));
-    runCommand(AndroidConfigurations::instance().adbToolPath().toString(),
+    runCommand(AndroidConfigurations::currentConfig().adbToolPath().toString(),
                AndroidDeviceInfo::adbSelector(m_serialNumber) << QLatin1String("pull")
                << QLatin1String("/system/lib/libc.so")
                << QString::fromLatin1("%1/libc.so").arg(m_buildDirectory));
@@ -530,7 +530,7 @@ QAbstractItemModel *AndroidDeployQtStep::keystoreCertificates()
         Utils::Environment env = Utils::Environment::systemEnvironment();
         env.set(QLatin1String("LANG"), QLatin1String("C"));
         keytoolProc.setProcessEnvironment(env.toProcessEnvironment());
-        keytoolProc.start(AndroidConfigurations::instance().keytoolPath().toString(), params);
+        keytoolProc.start(AndroidConfigurations::currentConfig().keytoolPath().toString(), params);
         if (!keytoolProc.waitForStarted() || !keytoolProc.waitForFinished()) {
             QMessageBox::critical(0, tr("Error"),
                                   tr("Failed to run keytool."));

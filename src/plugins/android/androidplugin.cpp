@@ -69,7 +69,7 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
     Q_UNUSED(arguments);
     Q_UNUSED(errorMessage);
 
-    Internal::AndroidConfigurations::instance(this);
+    new Internal::AndroidConfigurations(this);
 
     addAutoReleasedObject(new Internal::AndroidRunControlFactory);
     addAutoReleasedObject(new Internal::AndroidRunConfigurationFactory);
@@ -109,16 +109,16 @@ bool AndroidPlugin::initialize(const QStringList &arguments, QString *errorMessa
 
 void AndroidPlugin::kitsRestored()
 {
-    Internal::AndroidConfigurations::instance().updateAutomaticKitList();
+    Internal::AndroidConfigurations::updateAutomaticKitList();
     connect(QtSupport::QtVersionManager::instance(), SIGNAL(qtVersionsChanged(QList<int>,QList<int>,QList<int>)),
-            &Internal::AndroidConfigurations::instance(), SLOT(updateAutomaticKitList()));
+            Internal::AndroidConfigurations::instance(), SLOT(updateAutomaticKitList()));
     disconnect(ProjectExplorer::KitManager::instance(), SIGNAL(kitsChanged()),
                this, SLOT(kitsRestored()));
 }
 
 void AndroidPlugin::updateDevice()
 {
-    Internal::AndroidConfigurations::instance().updateAndroidDevice();
+    Internal::AndroidConfigurations::updateAndroidDevice();
 }
 
 } // namespace Android

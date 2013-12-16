@@ -162,7 +162,7 @@ public:
             // TopLeft
             QString topLeft = device.serialNumber;
             if (device.type == AndroidDeviceInfo::Hardware)
-                topLeft = AndroidConfigurations::instance().getProductModel(device.serialNumber);
+                topLeft = AndroidConfigurations::currentConfig().getProductModel(device.serialNumber);
             painter->drawText(size + 12, 2 + opt.rect.top() + fm.ascent(), topLeft);
 
             QString topRight = device.serialNumber;
@@ -422,11 +422,11 @@ void AndroidDeviceDialog::refreshDeviceList()
         serialNumber = m_model->device(currentIndex).serialNumber;
 
     QVector<AndroidDeviceInfo> devices;
-    foreach (const AndroidDeviceInfo &info, AndroidConfigurations::instance().connectedDevices())
+    foreach (const AndroidDeviceInfo &info, AndroidConfigurations::currentConfig().connectedDevices())
         if (info.type == AndroidDeviceInfo::Hardware)
             devices << info;
 
-    devices += AndroidConfigurations::instance().androidVirtualDevices();
+    devices += AndroidConfigurations::currentConfig().androidVirtualDevices();
     m_model->setDevices(devices);
 
     m_ui->deviceView->expand(m_model->index(0, 0));
@@ -446,7 +446,7 @@ void AndroidDeviceDialog::refreshDeviceList()
 
 void AndroidDeviceDialog::createAvd()
 {
-    QString avd = AndroidConfigurations::instance().createAVD(this, m_apiLevel, m_abi);
+    QString avd = AndroidConfigurations::currentConfig().createAVD(this, m_apiLevel, m_abi);
     if (avd.isEmpty())
         return;
     refreshDeviceList();

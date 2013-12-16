@@ -129,7 +129,7 @@ void AndroidDeployStepWidget::cleanLibsOnDevice()
 
 void AndroidDeployStepWidget::resetDefaultDevices()
 {
-    AndroidConfigurations::instance().clearDefaultDevices(m_step->project());
+    AndroidConfigurations::clearDefaultDevices(m_step->project());
 }
 
 } // namespace Internal
