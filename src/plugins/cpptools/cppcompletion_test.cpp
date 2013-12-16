@@ -52,6 +52,9 @@ using namespace CppTools::Internal;
 using namespace TextEditor;
 using namespace Core;
 
+namespace {
+typedef QByteArray _;
+
 class CompletionTestCase
 {
 public:
@@ -151,6 +154,8 @@ private:
 
     CppModelManager *cmm;
 };
+
+} // namespace
 
 void CppToolsPlugin::test_completion_forward_declarations_present()
 {
@@ -499,9 +504,10 @@ void CppToolsPlugin::test_completion_instantiate_full_specialization()
 void CppToolsPlugin::test_completion()
 {
     QFETCH(QByteArray, code);
+    QFETCH(QByteArray, prefix);
     QFETCH(QStringList, expectedCompletions);
 
-    CompletionTestCase test(code, "c.");
+    CompletionTestCase test(code, prefix);
 
     QStringList actualCompletions = test.getCompletions();
     actualCompletions.sort();
@@ -518,6 +524,7 @@ void CppToolsPlugin::test_completion_template_as_base()
 void CppToolsPlugin::test_completion_template_as_base_data()
 {
     QTest::addColumn<QByteArray>("code");
+    QTest::addColumn<QByteArray>("prefix");
     QTest::addColumn<QStringList>("expectedCompletions");
 
     QByteArray code;
@@ -535,7 +542,7 @@ void CppToolsPlugin::test_completion_template_as_base_data()
     completions.append(QLatin1String("dataMember"));
     completions.append(QLatin1String("Other"));
     completions.append(QLatin1String("otherMember"));
-    QTest::newRow("case: base as template directly") << code << completions;
+    QTest::newRow("case: base as template directly") << code << _("c.") << completions;
 
     completions.clear();
     code =
@@ -553,7 +560,7 @@ void CppToolsPlugin::test_completion_template_as_base_data()
     completions.append(QLatin1String("otherMember"));
     completions.append(QLatin1String("More"));
     completions.append(QLatin1String("moreMember"));
-    QTest::newRow("case: base as class template") << code << completions;
+    QTest::newRow("case: base as class template") << code << _("c.") << completions;
 
     completions.clear();
     code =
@@ -571,7 +578,8 @@ void CppToolsPlugin::test_completion_template_as_base_data()
     completions.append(QLatin1String("otherMember"));
     completions.append(QLatin1String("More"));
     completions.append(QLatin1String("moreMember"));
-    QTest::newRow("case: base as globally qualified class template") << code << completions;
+    QTest::newRow("case: base as globally qualified class template")
+            << code << _("c.") << completions;
 
     completions.clear();
     code =
@@ -591,7 +599,8 @@ void CppToolsPlugin::test_completion_template_as_base_data()
     completions.append(QLatin1String("otherMember"));
     completions.append(QLatin1String("More"));
     completions.append(QLatin1String("moreMember"));
-    QTest::newRow("case: base as namespace qualified class template") << code << completions;
+    QTest::newRow("case: base as namespace qualified class template")
+            << code << _("c.") << completions;
 
     completions.clear();
     code =
@@ -609,7 +618,7 @@ void CppToolsPlugin::test_completion_template_as_base_data()
     completions.append(QLatin1String("dataMember"));
     completions.append(QLatin1String("Final"));
     completions.append(QLatin1String("finalMember"));
-    QTest::newRow("case: base as nested template name") << code << completions;
+    QTest::newRow("case: base as nested template name") << code << _("c.") << completions;
 
     completions.clear();
     code =
@@ -627,7 +636,8 @@ void CppToolsPlugin::test_completion_template_as_base_data()
     completions.append(QLatin1String("dataMember"));
     completions.append(QLatin1String("Final"));
     completions.append(QLatin1String("finalMember"));
-    QTest::newRow("case: base as nested template name in non-template") << code << completions;
+    QTest::newRow("case: base as nested template name in non-template")
+            << code << _("c.") << completions;
 
     completions.clear();
     code =
@@ -647,7 +657,7 @@ void CppToolsPlugin::test_completion_template_as_base_data()
     completions.append(QLatin1String("finalMember"));
     completions.append(QLatin1String("Other"));
     completions.append(QLatin1String("otherMember"));
-    QTest::newRow("case: base as template name in non-template") << code << completions;
+    QTest::newRow("case: base as template name in non-template") << code << _("c.") << completions;
 }
 
 void CppToolsPlugin::test_completion_use_global_identifier_as_base_class()
@@ -658,6 +668,7 @@ void CppToolsPlugin::test_completion_use_global_identifier_as_base_class()
 void CppToolsPlugin::test_completion_use_global_identifier_as_base_class_data()
 {
     QTest::addColumn<QByteArray>("code");
+    QTest::addColumn<QByteArray>("prefix");
     QTest::addColumn<QStringList>("expectedCompletions");
 
     QByteArray code;
@@ -681,7 +692,7 @@ void CppToolsPlugin::test_completion_use_global_identifier_as_base_class_data()
     completions.append(QLatin1String("int_final"));
     completions.append(QLatin1String("Final"));
     completions.append(QLatin1String("Global"));
-    QTest::newRow("case: derived as global and base as global") << code << completions;
+    QTest::newRow("case: derived as global and base as global") << code << _("c.") << completions;
 
     completions.clear();
 
@@ -707,7 +718,7 @@ void CppToolsPlugin::test_completion_use_global_identifier_as_base_class_data()
     completions.append(QLatin1String("Final"));
     completions.append(QLatin1String("Global"));
     QTest::newRow("case: derived is inside namespace, base as global")
-            << code << completions;
+            << code << _("c.") << completions;
 
     completions.clear();
 
@@ -735,7 +746,7 @@ void CppToolsPlugin::test_completion_use_global_identifier_as_base_class_data()
 //    completions.append(QLatin1String("Final"));
 //    completions.append(QLatin1String("Global"));
 //    QTest::newRow("case: derived is enclosed by template, base as global")
-//    << code << completions;
+//    << code << _("c.") << completions;
 
 //    completions.clear();
 }
@@ -748,6 +759,7 @@ void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived()
 void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived_data()
 {
     QTest::addColumn<QByteArray>("code");
+    QTest::addColumn<QByteArray>("prefix");
     QTest::addColumn<QStringList>("expectedCompletions");
 
     QByteArray code;
@@ -764,7 +776,7 @@ void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived_dat
 
     completions.append(QLatin1String("int_a"));
     completions.append(QLatin1String("A"));
-    QTest::newRow("case: base class is derived class") << code << completions;
+    QTest::newRow("case: base class is derived class") << code << _("c.") << completions;
 
     completions.clear();
 
@@ -783,7 +795,7 @@ void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived_dat
     completions.append(QLatin1String("int_a"));
     completions.append(QLatin1String("A"));
     QTest::newRow("case: base class is derived class. class is in namespace")
-            << code << completions;
+            << code << _("c.") << completions;
 
     completions.clear();
 
@@ -802,7 +814,7 @@ void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived_dat
     completions.append(QLatin1String("int_a"));
     completions.append(QLatin1String("A"));
     QTest::newRow("case: base class is derived class. class is in namespace. "
-                  "use scope operator for base class") << code << completions;
+                  "use scope operator for base class") << code << _("c.") << completions;
 
     completions.clear();
 
@@ -829,7 +841,7 @@ void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived_dat
     completions.append(QLatin1String("int_ns2_a"));
     completions.append(QLatin1String("A"));
     QTest::newRow("case: base class has the same name as derived but in different namespace")
-            << code << completions;
+            << code << _("c.") << completions;
 
     completions.clear();
 
@@ -856,7 +868,7 @@ void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived_dat
     completions.append(QLatin1String("int_ns2_a"));
     completions.append(QLatin1String("A"));
     QTest::newRow("case: base class has the same name as derived(in namespace) "
-                  "but is nested by different class") << code << completions;
+                  "but is nested by different class") << code << _("c.") << completions;
 
     completions.clear();
 
@@ -883,7 +895,7 @@ void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived_dat
     completions.append(QLatin1String("int_enclosing_derived_a"));
     completions.append(QLatin1String("A"));
     QTest::newRow("case: base class has the same name as derived(nested) "
-                  "but is nested by different class") << code << completions;
+                  "but is nested by different class") << code << _("c.") << completions;
 
     completions.clear();
 
@@ -900,7 +912,7 @@ void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived_dat
     completions.append(QLatin1String("int_a"));
     completions.append(QLatin1String("A"));
     QTest::newRow("case: base class is derived class. class is a template")
-            << code << completions;
+            << code << _("c.") << completions;
 
     completions.clear();
 }
@@ -913,6 +925,7 @@ void CppToolsPlugin::test_completion_cyclic_inheritance()
 void CppToolsPlugin::test_completion_cyclic_inheritance_data()
 {
     QTest::addColumn<QByteArray>("code");
+    QTest::addColumn<QByteArray>("prefix");
     QTest::addColumn<QStringList>("expectedCompletions");
 
     QByteArray code;
@@ -930,7 +943,7 @@ void CppToolsPlugin::test_completion_cyclic_inheritance_data()
     completions.append(QLatin1String("_a"));
     completions.append(QLatin1String("B"));
     completions.append(QLatin1String("_b"));
-    QTest::newRow("case: direct cyclic inheritance") << code << completions;
+    QTest::newRow("case: direct cyclic inheritance") << code << _("c.") << completions;
 
     completions.clear();
     code =
@@ -948,7 +961,7 @@ void CppToolsPlugin::test_completion_cyclic_inheritance_data()
     completions.append(QLatin1String("_b"));
     completions.append(QLatin1String("C"));
     completions.append(QLatin1String("_c"));
-    QTest::newRow("case: indirect cyclic inheritance") << code << completions;
+    QTest::newRow("case: indirect cyclic inheritance") << code << _("c.") << completions;
 
     completions.clear();
     code =
@@ -966,7 +979,7 @@ void CppToolsPlugin::test_completion_cyclic_inheritance_data()
     completions.append(QLatin1String("_b"));
     completions.append(QLatin1String("C"));
     completions.append(QLatin1String("_c"));
-    QTest::newRow("case: indirect cyclic inheritance") << code << completions;
+    QTest::newRow("case: indirect cyclic inheritance") << code << _("c.") << completions;
 
     completions.clear();
     code =
@@ -990,7 +1003,7 @@ void CppToolsPlugin::test_completion_cyclic_inheritance_data()
     completions.append(QLatin1String("C"));
     completions.append(QLatin1String("_c_t"));
     QTest::newRow("case: direct cyclic inheritance with templates")
-            << code << completions;
+            << code << _("c.") << completions;
 
     completions.clear();
     code =
@@ -1020,7 +1033,7 @@ void CppToolsPlugin::test_completion_cyclic_inheritance_data()
     completions.append(QLatin1String("B"));
     completions.append(QLatin1String("_b_t"));
     QTest::newRow("case: indirect cyclic inheritance with templates")
-            << code << completions;
+            << code << _("c.") << completions;
 
     completions.clear();
     code =
@@ -1058,7 +1071,7 @@ void CppToolsPlugin::test_completion_cyclic_inheritance_data()
     completions.append(QLatin1String("class_recurse_s"));
     completions.append(QLatin1String("class_recurse_t"));
     QTest::newRow("case: direct cyclic inheritance with templates, more complex situation")
-            << code << completions;
+            << code << _("c.") << completions;
 }
 
 void CppToolsPlugin::test_completion_template_function()
@@ -1125,6 +1138,7 @@ void CppToolsPlugin::test_completion_enclosing_template_class()
 void CppToolsPlugin::test_completion_enclosing_template_class_data()
 {
     QTest::addColumn<QByteArray>("code");
+    QTest::addColumn<QByteArray>("prefix");
     QTest::addColumn<QStringList>("expectedCompletions");
 
     QByteArray code;
@@ -1143,7 +1157,7 @@ void CppToolsPlugin::test_completion_enclosing_template_class_data()
     completions.append(QLatin1String("Nested"));
     completions.append(QLatin1String("int_nested"));
     QTest::newRow("case: nested class with enclosing template class")
-            << code << completions;
+            << code << _("c.") << completions;
 
     completions.clear();
 
@@ -1160,7 +1174,7 @@ void CppToolsPlugin::test_completion_enclosing_template_class_data()
     completions.append(QLatin1String("Nested"));
     completions.append(QLatin1String("int_nested"));
     QTest::newRow("case: nested template class with enclosing template class")
-            << code << completions;
+            << code << _("c.") << completions;
 }
 
 void CppToolsPlugin::test_completion_instantiate_nested_class_when_enclosing_is_template()
@@ -1719,6 +1733,7 @@ void CppToolsPlugin::test_completion_type_and_using_declaration()
 void CppToolsPlugin::test_completion_type_and_using_declaration_data()
 {
     QTest::addColumn<QByteArray>("code");
+    QTest::addColumn<QByteArray>("prefix");
     QTest::addColumn<QStringList>("expectedCompletions");
 
     QByteArray code;
@@ -1738,7 +1753,7 @@ void CppToolsPlugin::test_completion_type_and_using_declaration_data()
     completions.append(QLatin1String("C"));
     completions.append(QLatin1String("m"));
     QTest::newRow("case: type and using declaration inside function")
-            << code << completions;
+            << code << _("c.") << completions;
 
     completions.clear();
 
@@ -1756,7 +1771,7 @@ void CppToolsPlugin::test_completion_type_and_using_declaration_data()
     completions.append(QLatin1String("C"));
     completions.append(QLatin1String("m"));
     QTest::newRow("case: type and using declaration in global namespace")
-            << code << completions;
+            << code << _("c.") << completions;
 
     completions.clear();
 
@@ -1774,7 +1789,7 @@ void CppToolsPlugin::test_completion_type_and_using_declaration_data()
     completions.append(QLatin1String("C"));
     completions.append(QLatin1String("m"));
     QTest::newRow("case: type in global namespace and using declaration in NS namespace")
-            << code << completions;
+            << code << _("c.") << completions;
 
     completions.clear();
 
@@ -1792,7 +1807,7 @@ void CppToolsPlugin::test_completion_type_and_using_declaration_data()
     completions.append(QLatin1String("C"));
     completions.append(QLatin1String("m"));
     QTest::newRow("case: type in global namespace and using declaration inside function in NS namespace")
-            << code << completions;
+            << code << _("c.") << completions;
 
     completions.clear();
 
@@ -1813,7 +1828,7 @@ void CppToolsPlugin::test_completion_type_and_using_declaration_data()
     completions.append(QLatin1String("C"));
     completions.append(QLatin1String("m"));
     QTest::newRow("case: type inside namespace NS1 and using declaration in function inside NS2 namespace")
-            << code << completions;
+            << code << _("c.") << completions;
 
     completions.clear();
 
@@ -1834,7 +1849,7 @@ void CppToolsPlugin::test_completion_type_and_using_declaration_data()
     completions.append(QLatin1String("C"));
     completions.append(QLatin1String("m"));
     QTest::newRow("case: type inside namespace NS1 and using declaration inside NS2 namespace")
-            << code << completions;
+            << code << _("c.") << completions;
 }
 
 void CppToolsPlugin::test_completion_instantiate_template_with_anonymous_class()
@@ -2126,6 +2141,7 @@ void CppToolsPlugin::test_completion_class_declaration_inside_function_or_block_
 void CppToolsPlugin::test_completion_class_declaration_inside_function_or_block_QTCREATORBUG3620_data()
 {
     QTest::addColumn<QByteArray>("code");
+    QTest::addColumn<QByteArray>("prefix");
     QTest::addColumn<QStringList>("expectedCompletions");
 
     QByteArray code;
@@ -2141,7 +2157,7 @@ void CppToolsPlugin::test_completion_class_declaration_inside_function_or_block_
     completions.append(QLatin1String("C"));
     completions.append(QLatin1String("m"));
     QTest::newRow("case: class definition inside function")
-            << code << completions;
+            << code << _("c.") << completions;
 
     completions.clear();
 
@@ -2158,7 +2174,7 @@ void CppToolsPlugin::test_completion_class_declaration_inside_function_or_block_
     completions.append(QLatin1String("C"));
     completions.append(QLatin1String("m"));
     QTest::newRow("case: class definition inside block inside function")
-            << code << completions;
+            << code << _("c.") << completions;
 
     completions.clear();
 
@@ -2178,7 +2194,7 @@ void CppToolsPlugin::test_completion_class_declaration_inside_function_or_block_
     completions.append(QLatin1String("C"));
     completions.append(QLatin1String("m2"));
     QTest::newRow("case: class definition with the same name inside different block inside function")
-            << code << completions;
+            << code << _("c.") << completions;
 
     completions.clear();
 }
@@ -2191,6 +2207,7 @@ void CppToolsPlugin::test_completion_namespace_alias_inside_function_or_block_QT
 void CppToolsPlugin::test_completion_namespace_alias_inside_function_or_block_QTCREATORBUG166_data()
 {
     QTest::addColumn<QByteArray>("code");
+    QTest::addColumn<QByteArray>("prefix");
     QTest::addColumn<QStringList>("expectedCompletions");
 
     QByteArray code;
@@ -2216,7 +2233,7 @@ void CppToolsPlugin::test_completion_namespace_alias_inside_function_or_block_QT
     completions.append(QLatin1String("C"));
     completions.append(QLatin1String("m"));
     QTest::newRow("case: namespace alias inside function")
-            << code << completions;
+            << code << _("c.") << completions;
 
     completions.clear();
 
@@ -2242,7 +2259,7 @@ void CppToolsPlugin::test_completion_namespace_alias_inside_function_or_block_QT
     completions.append(QLatin1String("C"));
     completions.append(QLatin1String("m"));
     QTest::newRow("case: namespace alias inside block inside function")
-            << code << completions;
+            << code << _("c.") << completions;
 
     completions.clear();
 }
