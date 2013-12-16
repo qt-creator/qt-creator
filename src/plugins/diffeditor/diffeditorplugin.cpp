@@ -114,12 +114,12 @@ void DiffEditorPlugin::diff()
     const QString text1 = getFileContents(fileName1, codec);
     const QString text2 = getFileContents(fileName2, codec);
 
-    DiffEditorWidget::DiffFilesContents dfc;
+    DiffEditorController::DiffFilesContents dfc;
     dfc.leftFileInfo = fileName1;
     dfc.leftText = text1;
     dfc.rightFileInfo = fileName2;
     dfc.rightText = text2;
-    QList<DiffEditorWidget::DiffFilesContents> list;
+    QList<DiffEditorController::DiffFilesContents> list;
     list.append(dfc);
 
     editor->setDiff(list);

@@ -29,6 +29,7 @@
 
 #include "diffshoweditor.h"
 #include "diffeditorconstants.h"
+#include "diffeditorwidget.h"
 
 #include <QToolBar>
 #include <QToolButton>

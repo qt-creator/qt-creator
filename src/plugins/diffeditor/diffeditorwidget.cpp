@@ -64,7 +64,8 @@ using namespace TextEditor;
 
 namespace DiffEditor {
 
-struct TextLineData {
+class TextLineData {
+public:
     enum TextLineType {
         TextLine,
         Separator,
@@ -77,7 +78,8 @@ struct TextLineData {
     QString text;
 };
 
-struct RowData {
+class RowData {
+public:
     RowData() : equal(true) {}
     RowData(const TextLineData &l)
         : leftLine(l), rightLine(l), equal(true) {}
@@ -88,7 +90,8 @@ struct RowData {
     bool equal; // true if left and right lines are equal, taking whitespaces into account (or both invalid)
 };
 
-struct ChunkData {
+class ChunkData {
+public:
     ChunkData() : contextChunk(false) {}
     QList<RowData> rows;
     bool contextChunk;
@@ -96,12 +99,13 @@ struct ChunkData {
     QMap<int, int> changedRightPositions; // counting from the beginning of the chunk
 };
 
-struct FileData {
+class FileData {
+public:
     FileData() {}
     FileData(const ChunkData &chunkData) { chunks.append(chunkData); }
     QList<ChunkData> chunks;
-    DiffEditorWidget::DiffFileInfo leftFileInfo;
-    DiffEditorWidget::DiffFileInfo rightFileInfo;
+    DiffEditorController::DiffFileInfo leftFileInfo;
+    DiffEditorController::DiffFileInfo rightFileInfo;
 };
 
 //////////////////////
@@ -132,7 +136,7 @@ public:
     ~MultiHighlighter();
 
     virtual void setFontSettings(const TextEditor::FontSettings &fontSettings);
-    void setDocuments(const QList<QPair<DiffEditorWidget::DiffFileInfo, QString> > &documents);
+    void setDocuments(const QList<QPair<DiffEditorController::DiffFileInfo, QString> > &documents);
 
 protected:
     virtual void highlightBlock(const QString &text);
@@ -150,9 +154,9 @@ class DiffViewEditorWidget : public BaseTextEditorWidget
 {
     Q_OBJECT
 public:
-    struct ExtendedFileInfo
-    {
-        DiffEditorWidget::DiffFileInfo fileInfo;
+    class ExtendedFileInfo {
+    public:
+        DiffEditorController::DiffFileInfo fileInfo;
         TextEditor::SyntaxHighlighter *highlighter;
     };
 
@@ -164,21 +168,20 @@ public:
     }
 
     // block number, file info
-    QMap<int, DiffEditorWidget::DiffFileInfo> fileInfo() const { return m_fileInfo; }
+    QMap<int, DiffEditorController::DiffFileInfo> fileInfo() const { return m_fileInfo; }
 
     void setLineNumber(int blockNumber, int lineNumber);
-    void setFileInfo(int blockNumber, const DiffEditorWidget::DiffFileInfo &fileInfo);
+    void setFileInfo(int blockNumber, const DiffEditorController::DiffFileInfo &fileInfo);
     void setSkippedLines(int blockNumber, int skippedLines) { m_skippedLines[blockNumber] = skippedLines; setSeparator(blockNumber, true); }
     void setSeparator(int blockNumber, bool separator) { m_separators[blockNumber] = separator; }
     bool isFileLine(int blockNumber) const { return m_fileInfo.contains(blockNumber); }
     int blockNumberForFileIndex(int fileIndex) const;
     int fileIndexForBlockNumber(int blockNumber) const;
     bool isChunkLine(int blockNumber) const { return m_skippedLines.contains(blockNumber); }
-    void clearAll();
     void clearAll(const QString &message);
     void clearAllData();
     QTextBlock firstVisibleBlock() const { return BaseTextEditorWidget::firstVisibleBlock(); }
-    void setDocuments(const QList<QPair<DiffEditorWidget::DiffFileInfo, QString> > &documents);
+    void setDocuments(const QList<QPair<DiffEditorController::DiffFileInfo, QString> > &documents);
 
 public slots:
     void setDisplaySettings(const DisplaySettings &ds);
@@ -216,7 +219,7 @@ private:
     QMap<int, int> m_lineNumbers;
     int m_lineNumberDigits;
     // block number, fileInfo. Set for file lines only.
-    QMap<int, DiffEditorWidget::DiffFileInfo> m_fileInfo;
+    QMap<int, DiffEditorController::DiffFileInfo> m_fileInfo;
     // block number, skipped lines. Set for chunk lines only.
     QMap<int, int> m_skippedLines;
     // block number, separator. Set for file, chunk or span line.
@@ -243,7 +246,7 @@ MultiHighlighter::MultiHighlighter(DiffViewEditorWidget *editor, QTextDocument *
 
 MultiHighlighter::~MultiHighlighter()
 {
-    setDocuments(QList<QPair<DiffEditorWidget::DiffFileInfo, QString> >());
+    setDocuments(QList<QPair<DiffEditorController::DiffFileInfo, QString> >());
 }
 
 void MultiHighlighter::setFontSettings(const TextEditor::FontSettings &fontSettings)
@@ -256,7 +259,7 @@ void MultiHighlighter::setFontSettings(const TextEditor::FontSettings &fontSetti
     }
 }
 
-void MultiHighlighter::setDocuments(const QList<QPair<DiffEditorWidget::DiffFileInfo, QString> > &documents)
+void MultiHighlighter::setDocuments(const QList<QPair<DiffEditorController::DiffFileInfo, QString> > &documents)
 {
     // clear old documents
     qDeleteAll(m_documents);
@@ -266,7 +269,7 @@ void MultiHighlighter::setDocuments(const QList<QPair<DiffEditorWidget::DiffFile
 
     // create new documents
     for (int i = 0; i < documents.count(); i++) {
-        DiffEditorWidget::DiffFileInfo fileInfo = documents.at(i).first;
+        DiffEditorController::DiffFileInfo fileInfo = documents.at(i).first;
         const QString contents = documents.at(i).second;
         QTextDocument *document = new QTextDocument(contents);
         const MimeType mimeType = MimeDatabase::findByFile(QFileInfo(fileInfo.fileName));
@@ -316,8 +319,8 @@ void DiffViewEditorEditable::slotTooltipRequested(TextEditor::ITextEditor *edito
     if (!ew)
         return;
 
-    QMap<int, DiffEditorWidget::DiffFileInfo> fi = ew->fileInfo();
-    QMap<int, DiffEditorWidget::DiffFileInfo>::const_iterator it
+    QMap<int, DiffEditorController::DiffFileInfo> fi = ew->fileInfo();
+    QMap<int, DiffEditorController::DiffFileInfo>::const_iterator it
             = fi.constFind(ew->document()->findBlock(position).blockNumber());
     if (it != fi.constEnd()) {
         Utils::ToolTip::show(globalPoint, Utils::TextContent(it.value().fileName),
@@ -433,7 +436,7 @@ void DiffViewEditorWidget::setLineNumber(int blockNumber, int lineNumber)
     m_lineNumberDigits = qMax(m_lineNumberDigits, lineNumberString.count());
 }
 
-void DiffViewEditorWidget::setFileInfo(int blockNumber, const DiffEditorWidget::DiffFileInfo &fileInfo)
+void DiffViewEditorWidget::setFileInfo(int blockNumber, const DiffEditorController::DiffFileInfo &fileInfo)
 {
     m_fileInfo[blockNumber] = fileInfo;
     setSeparator(blockNumber, true);
@@ -444,7 +447,7 @@ int DiffViewEditorWidget::blockNumberForFileIndex(int fileIndex) const
     if (fileIndex < 0 || fileIndex >= m_fileInfo.count())
         return -1;
 
-    QMap<int, DiffEditorWidget::DiffFileInfo>::const_iterator it
+    QMap<int, DiffEditorController::DiffFileInfo>::const_iterator it
             = m_fileInfo.constBegin();
     for (int i = 0; i < fileIndex; i++)
         ++it;
@@ -454,9 +457,9 @@ int DiffViewEditorWidget::blockNumberForFileIndex(int fileIndex) const
 
 int DiffViewEditorWidget::fileIndexForBlockNumber(int blockNumber) const
 {
-    QMap<int, DiffEditorWidget::DiffFileInfo>::const_iterator it
+    QMap<int, DiffEditorController::DiffFileInfo>::const_iterator it
             = m_fileInfo.constBegin();
-    QMap<int, DiffEditorWidget::DiffFileInfo>::const_iterator itEnd
+    QMap<int, DiffEditorController::DiffFileInfo>::const_iterator itEnd
             = m_fileInfo.constEnd();
 
     int i = -1;
@@ -469,18 +472,13 @@ int DiffViewEditorWidget::fileIndexForBlockNumber(int blockNumber) const
     return i;
 }
 
-void DiffViewEditorWidget::clearAll()
-{
-    clearAll(tr("No difference"));
-}
-
 void DiffViewEditorWidget::clearAll(const QString &message)
 {
     setBlockSelection(false);
     clear();
     clearAllData();
     setPlainText(message);
-    m_highlighter->setDocuments(QList<QPair<DiffEditorWidget::DiffFileInfo, QString> >());
+    m_highlighter->setDocuments(QList<QPair<DiffEditorController::DiffFileInfo, QString> >());
 }
 
 void DiffViewEditorWidget::clearAllData()
@@ -492,7 +490,7 @@ void DiffViewEditorWidget::clearAllData()
     m_separators.clear();
 }
 
-void  DiffViewEditorWidget::setDocuments(const QList<QPair<DiffEditorWidget::DiffFileInfo, QString> > &documents)
+void  DiffViewEditorWidget::setDocuments(const QList<QPair<DiffEditorController::DiffFileInfo, QString> > &documents)
 {
     m_highlighter->setDocuments(documents);
 }
@@ -597,7 +595,7 @@ void DiffViewEditorWidget::paintEvent(QPaintEvent *e)
                                    skippedRowsText, currentBlock, top);
                 }
 
-                const DiffEditorWidget::DiffFileInfo fileInfo = m_fileInfo.value(blockNumber);
+                const DiffEditorController::DiffFileInfo fileInfo = m_fileInfo.value(blockNumber);
                 if (!fileInfo.fileName.isEmpty()) {
                     const QString fileNameText = fileInfo.typeInfo.isEmpty()
                             ? fileInfo.fileName
@@ -716,11 +714,9 @@ void DiffViewEditorWidget::drawCollapsedBlockPopup(QPainter &painter,
 //////////////////
 
 DiffEditorWidget::DiffEditorWidget(QWidget *parent)
-    : QWidget(parent),
-      m_contextLinesNumber(3),
-      m_ignoreWhitespaces(true),
-      m_syncScrollBars(true),
-      m_foldingBlocker(false)
+    : QWidget(parent)
+    , m_controller(0)
+    , m_foldingBlocker(false)
 {
     m_leftEditor = new DiffViewEditorWidget(this);
     m_leftEditor->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -785,7 +781,7 @@ DiffEditorWidget::DiffEditorWidget(QWidget *parent)
     l->setMargin(0);
     l->addWidget(m_splitter);
 
-    clear();
+    clear(tr("No controller"));
 }
 
 DiffEditorWidget::~DiffEditorWidget()
@@ -793,10 +789,40 @@ DiffEditorWidget::~DiffEditorWidget()
 
 }
 
-void DiffEditorWidget::clear()
+void DiffEditorWidget::setDiffEditorController(DiffEditorController *controller)
 {
-    m_leftEditor->clearAll();
-    m_rightEditor->clearAll();
+    if (m_controller) {
+        disconnect(m_controller, SIGNAL(cleared(QString)), this, SLOT(clear(QString)));
+        disconnect(m_controller, SIGNAL(diffContentsChanged(QList<DiffEditorController::DiffFilesContents>,QString)),
+                this, SLOT(setDiff(QList<DiffEditorController::DiffFilesContents>,QString)));
+        disconnect(m_controller, SIGNAL(contextLinesNumberChanged(int)),
+                this, SLOT(setContextLinesNumber(int)));
+        disconnect(m_controller, SIGNAL(ignoreWhitespacesChanged(bool)),
+                this, SLOT(setIgnoreWhitespaces(bool)));
+        disconnect(m_controller, SIGNAL(currentDiffFileIndexChanged(int)),
+                this, SLOT(setCurrentDiffFileIndex(int)));
+
+        clear(tr("No controller"));
+    }
+    m_controller = controller;
+    if (m_controller) {
+        connect(m_controller, SIGNAL(cleared(QString)), this, SLOT(clear(QString)));
+        connect(m_controller, SIGNAL(diffContentsChanged(QList<DiffEditorController::DiffFilesContents>,QString)),
+                this, SLOT(setDiff(QList<DiffEditorController::DiffFilesContents>,QString)));
+        connect(m_controller, SIGNAL(contextLinesNumberChanged(int)),
+                this, SLOT(setContextLinesNumber(int)));
+        connect(m_controller, SIGNAL(ignoreWhitespacesChanged(bool)),
+                this, SLOT(setIgnoreWhitespaces(bool)));
+        connect(m_controller, SIGNAL(currentDiffFileIndexChanged(int)),
+                this, SLOT(setCurrentDiffFileIndex(int)));
+
+        setDiff(m_controller->diffContents(), m_controller->workingDirectory());
+    }
+}
+
+DiffEditorController *DiffEditorWidget::diffEditorController() const
+{
+    return m_controller;
 }
 
 void DiffEditorWidget::clear(const QString &message)
@@ -805,13 +831,14 @@ void DiffEditorWidget::clear(const QString &message)
     m_rightEditor->clearAll(message);
 }
 
-void DiffEditorWidget::setDiff(const QList<DiffFilesContents> &diffFileList, const QString &workingDirectory)
+void DiffEditorWidget::setDiff(const QList<DiffEditorController::DiffFilesContents> &diffFileList, const QString &workingDirectory)
 {
-    m_workingDirectory = workingDirectory;
+    Q_UNUSED(workingDirectory)
+
     Differ differ;
     QList<DiffList> diffList;
     for (int i = 0; i < diffFileList.count(); i++) {
-        DiffFilesContents dfc = diffFileList.at(i);
+        DiffEditorController::DiffFilesContents dfc = diffFileList.at(i);
         DiffList dl;
         dl.leftFileInfo = dfc.leftFileInfo;
         dl.rightFileInfo = dfc.rightFileInfo;
@@ -841,10 +868,8 @@ void DiffEditorWidget::setDiff(const QList<DiffList> &diffList)
 
 void DiffEditorWidget::setContextLinesNumber(int lines)
 {
-    if (m_contextLinesNumber == lines)
-        return;
+    Q_UNUSED(lines)
 
-    m_contextLinesNumber = lines;
     for (int i = 0; i < m_diffList.count(); i++) {
         const FileData oldFileData = m_contextFileData.at(i);
         FileData newFileData = calculateContextData(m_originalChunkData.at(i));
@@ -858,14 +883,12 @@ void DiffEditorWidget::setContextLinesNumber(int lines)
 
 void DiffEditorWidget::setIgnoreWhitespaces(bool ignore)
 {
-    if (m_ignoreWhitespaces == ignore)
-        return;
+    Q_UNUSED(ignore)
 
-    m_ignoreWhitespaces = ignore;
     setDiff(m_diffList);
 }
 
-void DiffEditorWidget::navigateToDiffFile(int diffFileIndex)
+void DiffEditorWidget::setCurrentDiffFileIndex(int diffFileIndex)
 {
     const int blockNumber = m_leftEditor->blockNumberForFileIndex(diffFileIndex);
 
@@ -886,16 +909,6 @@ void DiffEditorWidget::navigateToDiffFile(int diffFileIndex)
 QTextCodec *DiffEditorWidget::codec() const
 {
     return const_cast<QTextCodec *>(m_leftEditor->codec());
-}
-
-BaseTextEditorWidget *DiffEditorWidget::leftEditor() const
-{
-    return m_leftEditor;
-}
-
-BaseTextEditorWidget *DiffEditorWidget::rightEditor() const
-{
-    return m_rightEditor;
 }
 
 bool DiffEditorWidget::isWhitespace(const QChar &c) const
@@ -926,7 +939,7 @@ bool DiffEditorWidget::isEqual(const QList<Diff> &diffList, int diffNumber) cons
     if (diff.text.count() == 0)
         return true;
 
-    if (!m_ignoreWhitespaces)
+    if (m_controller && !m_controller->isIgnoreWhitespaces())
         return false;
 
     if (isWhitespace(diff) == false)
@@ -1177,7 +1190,8 @@ ChunkData DiffEditorWidget::calculateOriginalData(const QList<Diff> &diffList) c
 
 FileData DiffEditorWidget::calculateContextData(const ChunkData &originalData) const
 {
-    if (m_contextLinesNumber < 0)
+    const int contextLinesNumber = m_controller ? m_controller->contextLinesNumber() : 3;
+    if (contextLinesNumber < 0)
         return FileData(originalData);
 
     const int joinChunkThreshold = 1;
@@ -1199,8 +1213,8 @@ FileData DiffEditorWidget::calculateContextData(const ChunkData &originalData) c
             const bool first = equalRowStart == 0; // includes first line?
             const bool last = i == originalData.rows.count(); // includes last line?
 
-            const int firstLine = first ? 0 : equalRowStart + m_contextLinesNumber;
-            const int lastLine = last ? originalData.rows.count() : i - m_contextLinesNumber;
+            const int firstLine = first ? 0 : equalRowStart + contextLinesNumber;
+            const int lastLine = last ? originalData.rows.count() : i - contextLinesNumber;
 
             if (firstLine < lastLine - joinChunkThreshold) {
                 for (int j = firstLine; j < lastLine; j++) {
@@ -1280,9 +1294,9 @@ void DiffEditorWidget::showDiff()
     const int leftHorizontalValue = m_leftEditor->horizontalScrollBar()->value();
     const int rightHorizontalValue = m_rightEditor->horizontalScrollBar()->value();
 
-    clear();
+    clear(tr("No difference"));
 
-    QList<QPair<DiffEditorWidget::DiffFileInfo, QString> > leftDocs, rightDocs;
+    QList<QPair<DiffEditorController::DiffFileInfo, QString> > leftDocs, rightDocs;
     QString leftTexts, rightTexts;
     int blockNumber = 0;
     QChar separator = QLatin1Char('\n');
@@ -1629,7 +1643,10 @@ void DiffEditorWidget::slotRightJumpToOriginalFileRequested(int diffFileIndex,
 void DiffEditorWidget::jumpToOriginalFile(const QString &fileName,
                                           int lineNumber, int columnNumber)
 {
-    const QDir dir(m_workingDirectory);
+    if (!m_controller)
+        return;
+
+    const QDir dir(m_controller->workingDirectory());
     const QString absoluteFileName = dir.absoluteFilePath(fileName);
     Core::EditorManager::openEditorAt(absoluteFileName, lineNumber, columnNumber);
 }
@@ -1646,13 +1663,13 @@ void DiffEditorWidget::rightVSliderChanged()
 
 void DiffEditorWidget::leftHSliderChanged()
 {
-    if (m_syncScrollBars)
+    if (!m_controller || m_controller->horizontalScrollBarSynchronization())
         m_rightEditor->horizontalScrollBar()->setValue(m_leftEditor->horizontalScrollBar()->value());
 }
 
 void DiffEditorWidget::rightHSliderChanged()
 {
-    if (m_syncScrollBars)
+    if (!m_controller || m_controller->horizontalScrollBarSynchronization())
         m_leftEditor->horizontalScrollBar()->setValue(m_rightEditor->horizontalScrollBar()->value());
 }
 
@@ -1660,14 +1677,22 @@ void DiffEditorWidget::leftCursorPositionChanged()
 {
     leftVSliderChanged();
     leftHSliderChanged();
-    emit navigatedToDiffFile(m_leftEditor->fileIndexForBlockNumber(m_leftEditor->textCursor().blockNumber()));
+
+    if (!m_controller)
+        return;
+
+    m_controller->setCurrentDiffFileIndex(m_leftEditor->fileIndexForBlockNumber(m_leftEditor->textCursor().blockNumber()));
 }
 
 void DiffEditorWidget::rightCursorPositionChanged()
 {
     rightVSliderChanged();
     rightHSliderChanged();
-    emit navigatedToDiffFile(m_rightEditor->fileIndexForBlockNumber(m_rightEditor->textCursor().blockNumber()));
+
+    if (!m_controller)
+        return;
+
+    m_controller->setCurrentDiffFileIndex(m_rightEditor->fileIndexForBlockNumber(m_rightEditor->textCursor().blockNumber()));
 }
 
 void DiffEditorWidget::leftDocumentSizeChanged()
@@ -1678,11 +1703,6 @@ void DiffEditorWidget::leftDocumentSizeChanged()
 void DiffEditorWidget::rightDocumentSizeChanged()
 {
     synchronizeFoldings(m_rightEditor, m_leftEditor);
-}
-
-void DiffEditorWidget::setHorizontalScrollBarSynchronization(bool on)
-{
-    m_syncScrollBars = on;
 }
 
 /* Special version of that method (original: TextEditor::BaseTextDocumentLayout::doFoldOrUnfold())

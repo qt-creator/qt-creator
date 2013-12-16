@@ -60,6 +60,7 @@
 #include <vcsbase/vcsbaseplugin.h>
 
 #include <diffeditor/diffeditor.h>
+#include <diffeditor/diffeditorwidget.h>
 #include <diffeditor/diffshoweditor.h>
 #include <diffeditor/diffeditorconstants.h>
 
@@ -512,7 +513,7 @@ void GitDiffHandler::slotFileContentsReceived(const QString &contents)
 
 void GitDiffHandler::feedEditor()
 {
-    QList<DiffEditor::DiffEditorWidget::DiffFilesContents> list;
+    QList<DiffEditor::DiffEditorController::DiffFilesContents> list;
 
     QMap<QString, QList<RevisionRange> >::const_iterator itFile
             = m_requestedRevisionRanges.constBegin();
@@ -525,10 +526,10 @@ void GitDiffHandler::feedEditor()
             const Revision leftRevision = ranges.at(i).begin;
             const Revision rightRevision = ranges.at(i).end;
 
-            DiffEditor::DiffEditorWidget::DiffFilesContents dfc;
-            dfc.leftFileInfo = DiffEditor::DiffEditorWidget::DiffFileInfo(fileName, leftRevision.infoText());
+            DiffEditor::DiffEditorController::DiffFilesContents dfc;
+            dfc.leftFileInfo = DiffEditor::DiffEditorController::DiffFileInfo(fileName, leftRevision.infoText());
             dfc.leftText = m_collectedRevisions[fileName][leftRevision];
-            dfc.rightFileInfo = DiffEditor::DiffEditorWidget::DiffFileInfo(fileName, rightRevision.infoText());
+            dfc.rightFileInfo = DiffEditor::DiffEditorController::DiffFileInfo(fileName, rightRevision.infoText());
             dfc.rightText = m_collectedRevisions[fileName][rightRevision];
             list.append(dfc);
         }

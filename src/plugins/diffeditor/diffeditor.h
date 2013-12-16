@@ -31,7 +31,7 @@
 #define DIFFEDITOR_H
 
 #include "diffeditor_global.h"
-#include "diffeditorwidget.h"
+#include "diffeditorcontroller.h"
 
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/idocument.h>
@@ -42,6 +42,7 @@ class QComboBox;
 QT_END_NAMESPACE
 
 namespace DiffEditor {
+class DiffEditorWidget;
 
 namespace Internal {
 class DiffEditorFile;
@@ -55,7 +56,7 @@ public:
     virtual ~DiffEditor();
 
 public:
-    void setDiff(const QList<DiffEditorWidget::DiffFilesContents> &diffFileList,
+    void setDiff(const QList<DiffEditorController::DiffFilesContents> &diffFileList,
                  const QString &workingDirectory = QString());
     void clear(const QString &message);
 
@@ -81,6 +82,7 @@ private:
 
     Internal::DiffEditorFile *m_file;
     DiffEditorWidget *m_editorWidget;
+    DiffEditorController *m_diffEditorController;
     QComboBox *m_entriesComboBox;
 };
 

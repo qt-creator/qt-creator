@@ -32,6 +32,7 @@
 
 #include "diffeditor_global.h"
 #include "differ.h"
+#include "diffeditorcontroller.h"
 
 #include <QTextEdit>
 
@@ -60,47 +61,26 @@ class DIFFEDITOR_EXPORT DiffEditorWidget : public QWidget
 {
     Q_OBJECT
 public:
-    struct DiffFileInfo {
-        DiffFileInfo() {}
-        DiffFileInfo(const QString &file) : fileName(file) {}
-        DiffFileInfo(const QString &file, const QString &type) : fileName(file), typeInfo(type) {}
-        QString fileName;
-        QString typeInfo;
-    };
-
-    struct DiffFilesContents {
-        DiffFileInfo leftFileInfo;
-        QString leftText;
-        DiffFileInfo rightFileInfo;
-        QString rightText;
-    };
-
     DiffEditorWidget(QWidget *parent = 0);
     ~DiffEditorWidget();
 
-    void clear();
-    void clear(const QString &message);
-    void setDiff(const QList<DiffFilesContents> &diffFileList, const QString &workingDirectory = QString());
+    void setDiffEditorController(DiffEditorController *controller);
+    DiffEditorController *diffEditorController() const;
+
     QTextCodec *codec() const;
 
 #ifdef WITH_TESTS
     void testAssemblyRows();
 #endif // WITH_TESTS
 
-public slots:
+private slots:
+    void clear(const QString &message = QString());
+    void setDiff(const QList<DiffEditorController::DiffFilesContents> &diffFileList, const QString &workingDirectory);
+
     void setContextLinesNumber(int lines);
     void setIgnoreWhitespaces(bool ignore);
-    void setHorizontalScrollBarSynchronization(bool on);
-    void navigateToDiffFile(int diffFileIndex);
+    void setCurrentDiffFileIndex(int diffFileIndex);
 
-signals:
-    void navigatedToDiffFile(int diffFileIndex);
-
-protected:
-    TextEditor::BaseTextEditorWidget *leftEditor() const;
-    TextEditor::BaseTextEditorWidget *rightEditor() const;
-
-private slots:
     void setFontSettings(const TextEditor::FontSettings &fontSettings);
     void slotLeftJumpToOriginalFileRequested(int diffFileIndex, int lineNumber, int columnNumber);
     void slotRightJumpToOriginalFileRequested(int diffFileIndex, int lineNumber, int columnNumber);
@@ -114,9 +94,10 @@ private slots:
     void rightDocumentSizeChanged();
 
 private:
-    struct DiffList {
-        DiffFileInfo leftFileInfo;
-        DiffFileInfo rightFileInfo;
+    class DiffList {
+    public:
+        DiffEditorController::DiffFileInfo leftFileInfo;
+        DiffEditorController::DiffFileInfo rightFileInfo;
         QList<Diff> diffList;
     };
 
@@ -138,6 +119,7 @@ private:
     void synchronizeFoldings(DiffViewEditorWidget *source, DiffViewEditorWidget *destination);
     void jumpToOriginalFile(const QString &fileName, int lineNumber, int columnNumber);
 
+    DiffEditorController *m_controller;
     DiffViewEditorWidget *m_leftEditor;
     DiffViewEditorWidget *m_rightEditor;
     QSplitter *m_splitter;
@@ -145,10 +127,6 @@ private:
     QList<DiffList> m_diffList; // list of original outputs from differ
     QList<ChunkData> m_originalChunkData; // one big chunk for every file, ignoreWhitespaces taken into account
     QList<FileData> m_contextFileData; // ultimate data to be shown, contextLinesNumber taken into account
-    QString m_workingDirectory;
-    int m_contextLinesNumber;
-    bool m_ignoreWhitespaces;
-    bool m_syncScrollBars;
 
     bool m_foldingBlocker;
     QString m_source;

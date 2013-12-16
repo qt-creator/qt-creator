@@ -49,6 +49,8 @@ DiffEditorFactory::DiffEditorFactory(QObject *parent)
 Core::IEditor *DiffEditorFactory::createEditor()
 {
     DiffEditorWidget *editorWidget = new DiffEditorWidget();
+    DiffEditorController *editorController = new DiffEditorController(editorWidget);
+    editorWidget->setDiffEditorController(editorController);
     DiffEditor *editor = new DiffEditor(editorWidget);
     return editor;
 }

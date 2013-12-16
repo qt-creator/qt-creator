@@ -49,15 +49,19 @@ namespace DiffEditor {
 ///////////////////////////////// DiffEditor //////////////////////////////////
 
 DiffEditor::DiffEditor(DiffEditorWidget *editorWidget)
-    : IEditor(0),
-      m_toolWidget(0),
-      m_file(new Internal::DiffEditorFile(QLatin1String(Constants::DIFF_EDITOR_MIMETYPE), this)),
-      m_editorWidget(editorWidget),
-      m_entriesComboBox(0)
+    : IEditor(0)
+    , m_toolWidget(0)
+    , m_file(new Internal::DiffEditorFile(QLatin1String(Constants::DIFF_EDITOR_MIMETYPE), this))
+    , m_editorWidget(editorWidget)
+    , m_diffEditorController(0)
+    , m_entriesComboBox(0)
 {
     setWidget(editorWidget);
-    connect(m_editorWidget, SIGNAL(navigatedToDiffFile(int)),
-            this, SLOT(activateEntry(int)));
+    m_diffEditorController = editorWidget ? editorWidget->diffEditorController() : 0;
+    if (m_diffEditorController) {
+        connect(m_diffEditorController, SIGNAL(currentDiffFileIndexChanged(int)),
+                this, SLOT(activateEntry(int)));
+    }
 }
 
 DiffEditor::~DiffEditor()
@@ -123,8 +127,6 @@ QWidget *DiffEditor::toolBar()
     whitespaceButton->setText(tr("Ignore Whitespace"));
     whitespaceButton->setCheckable(true);
     whitespaceButton->setChecked(true);
-    connect(whitespaceButton, SIGNAL(clicked(bool)),
-            m_editorWidget, SLOT(setIgnoreWhitespaces(bool)));
     m_toolWidget->addWidget(whitespaceButton);
 
     QLabel *contextLabel = new QLabel(m_toolWidget);
@@ -137,8 +139,6 @@ QWidget *DiffEditor::toolBar()
     contextSpinBox->setValue(3);
     contextSpinBox->setFrame(false);
     contextSpinBox->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding); // Mac Qt5
-    connect(contextSpinBox, SIGNAL(valueChanged(int)),
-            m_editorWidget, SLOT(setContextLinesNumber(int)));
     m_toolWidget->addWidget(contextSpinBox);
 
     QToolButton *toggleSync = new QToolButton(m_toolWidget);
@@ -146,21 +146,29 @@ QWidget *DiffEditor::toolBar()
     toggleSync->setCheckable(true);
     toggleSync->setChecked(true);
     toggleSync->setToolTip(tr("Synchronize Horizontal Scroll Bars"));
-    connect(toggleSync, SIGNAL(clicked(bool)),
-            m_editorWidget, SLOT(setHorizontalScrollBarSynchronization(bool)));
     m_toolWidget->addWidget(toggleSync);
+
+    if (m_diffEditorController) {
+        connect(whitespaceButton, SIGNAL(clicked(bool)),
+                m_diffEditorController, SLOT(setIgnoreWhitespaces(bool)));
+        connect(contextSpinBox, SIGNAL(valueChanged(int)),
+                m_diffEditorController, SLOT(setContextLinesNumber(int)));
+        connect(toggleSync, SIGNAL(clicked(bool)),
+                m_diffEditorController, SLOT(setHorizontalScrollBarSynchronization(bool)));
+        // TODO: synchronize in opposite direction too
+    }
 
     return m_toolWidget;
 }
 
-void DiffEditor::setDiff(const QList<DiffEditorWidget::DiffFilesContents> &diffFileList,
+void DiffEditor::setDiff(const QList<DiffEditorController::DiffFilesContents> &diffFileList,
                                  const QString &workingDirectory)
 {
     m_entriesComboBox->clear();
     const int count = diffFileList.count();
     for (int i = 0; i < count; i++) {
-        const DiffEditorWidget::DiffFileInfo leftEntry = diffFileList.at(i).leftFileInfo;
-        const DiffEditorWidget::DiffFileInfo rightEntry = diffFileList.at(i).rightFileInfo;
+        const DiffEditorController::DiffFileInfo leftEntry = diffFileList.at(i).leftFileInfo;
+        const DiffEditorController::DiffFileInfo rightEntry = diffFileList.at(i).rightFileInfo;
         const QString leftShortFileName = QFileInfo(leftEntry.fileName).fileName();
         const QString rightShortFileName = QFileInfo(rightEntry.fileName).fileName();
         QString itemText;
@@ -194,14 +202,16 @@ void DiffEditor::setDiff(const QList<DiffEditorWidget::DiffFilesContents> &diffF
         m_entriesComboBox->setItemData(m_entriesComboBox->count() - 1, itemToolTip, Qt::ToolTipRole);
     }
     updateEntryToolTip();
-    m_editorWidget->setDiff(diffFileList, workingDirectory);
+    if (m_diffEditorController)
+        m_diffEditorController->setDiffContents(diffFileList, workingDirectory);
 }
 
 void DiffEditor::clear(const QString &message)
 {
     m_entriesComboBox->clear();
     updateEntryToolTip();
-    m_editorWidget->clear(message);
+    if (m_diffEditorController)
+        m_diffEditorController->clear(message);
 }
 
 void DiffEditor::updateEntryToolTip()
@@ -214,7 +224,8 @@ void DiffEditor::updateEntryToolTip()
 void DiffEditor::entryActivated(int index)
 {
     updateEntryToolTip();
-    m_editorWidget->navigateToDiffFile(index);
+    if (m_diffEditorController)
+        m_diffEditorController->setCurrentDiffFileIndex(index);
 }
 
 void DiffEditor::activateEntry(int index)

@@ -15,6 +15,8 @@ QtcPlugin {
         "diffeditor.h",
         "diffeditor_global.h",
         "diffeditorconstants.h",
+        "diffeditorcontroller.cpp",
+        "diffeditorcontroller.h",
         "diffeditorfactory.cpp",
         "diffeditorfactory.h",
         "diffeditorfile.cpp",

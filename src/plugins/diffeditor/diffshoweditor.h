@@ -40,6 +40,8 @@ QT_BEGIN_NAMESPACE
 class QToolButton;
 QT_END_NAMESPACE
 
+namespace TextEditor { class BaseTextEditorWidget; }
+
 namespace DiffEditor {
 
 class DIFFEDITOR_EXPORT DiffShowEditor : public DiffEditor
