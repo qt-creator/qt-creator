@@ -138,7 +138,7 @@ bool QV8ProfilerDataModel::isEmpty() const
 
 QV8EventData *QV8ProfilerDataModel::v8EventDescription(int eventId) const
 {
-    foreach (QV8EventData *event, d->v8EventHash.values()) {
+    foreach (QV8EventData *event, d->v8EventHash) {
         if (event->eventId == eventId)
             return event;
     }
@@ -235,7 +235,7 @@ void QV8ProfilerDataModel::QV8ProfilerDataModelPrivate::collectV8Statistics()
     if (!v8EventHash.isEmpty()) {
         double totalTimes = v8MeasuredTime;
         double selfTimes = 0;
-        foreach (QV8EventData *v8event, v8EventHash.values()) {
+        foreach (const QV8EventData *v8event, v8EventHash) {
             selfTimes += v8event->selfTime;
         }
 
@@ -261,7 +261,7 @@ void QV8ProfilerDataModel::QV8ProfilerDataModelPrivate::collectV8Statistics()
             *v8EventHash[rootEventHash] = v8RootEvent;
         }
 
-        foreach (QV8EventData *v8event, v8EventHash.values()) {
+        foreach (QV8EventData *v8event, v8EventHash) {
             v8event->totalPercent = v8event->totalTime * 100.0 / totalTimes;
             v8event->SelfTimeInPercent = v8event->selfTime * 100.0 / selfTimes;
         }
@@ -300,7 +300,7 @@ void QV8ProfilerDataModel::save(QXmlStreamWriter &stream)
 {
     stream.writeStartElement(QLatin1String("v8profile")); // v8 profiler output
     stream.writeAttribute(QLatin1String("totalTime"), QString::number(d->v8MeasuredTime));
-    foreach (QV8EventData *v8event, d->v8EventHash.values()) {
+    foreach (const QV8EventData *v8event, d->v8EventHash) {
         stream.writeStartElement(QLatin1String("event"));
         stream.writeAttribute(QLatin1String("index"),
                               QString::number(
@@ -319,7 +319,7 @@ void QV8ProfilerDataModel::save(QXmlStreamWriter &stream)
             QStringList childrenIndexes;
             QStringList childrenTimes;
             QStringList parentTimes;
-            foreach (QV8EventSub *v8child, v8event->childrenHash.values()) {
+            foreach (const QV8EventSub *v8child, v8event->childrenHash) {
                 childrenIndexes << QString::number(v8child->reference->eventId);
                 childrenTimes << QString::number(v8child->totalTime);
                 parentTimes << QString::number(v8child->totalTime);
@@ -468,7 +468,7 @@ void QV8ProfilerDataModel::load(QXmlStreamReader &stream)
         }
     }
     // store v8 events
-    foreach (QV8EventData *storedV8Event, v8eventBuffer.values()) {
+    foreach (QV8EventData *storedV8Event, v8eventBuffer) {
         storedV8Event->eventHashStr =
                 getHashStringForV8Event(
                     storedV8Event->displayName, storedV8Event->functionName);

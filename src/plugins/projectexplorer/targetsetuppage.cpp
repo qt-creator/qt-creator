@@ -246,7 +246,7 @@ void TargetSetupPage::setKitSelected(Core::Id id, bool selected)
 
 bool TargetSetupPage::isComplete() const
 {
-    foreach (TargetSetupWidget *widget, m_widgets.values())
+    foreach (TargetSetupWidget *widget, m_widgets)
         if (widget->isKitSelected())
             return true;
     return false;
@@ -275,7 +275,7 @@ void TargetSetupPage::setupWidgets()
 
 void TargetSetupPage::reset()
 {
-    foreach (TargetSetupWidget *widget, m_widgets.values()) {
+    foreach (TargetSetupWidget *widget, m_widgets) {
         Kit *k = widget->kit();
         if (!k)
             continue;
@@ -386,7 +386,7 @@ void TargetSetupPage::handleKitUpdate(Kit *k)
 void TargetSetupPage::selectAtLeastOneKit()
 {
     bool atLeastOneKitSelected = false;
-    foreach (TargetSetupWidget *w, m_widgets.values()) {
+    foreach (TargetSetupWidget *w, m_widgets) {
         if (w->isKitSelected()) {
             atLeastOneKitSelected = true;
             break;
@@ -514,7 +514,7 @@ TargetSetupWidget *TargetSetupPage::addWidget(Kit *k)
 bool TargetSetupPage::setupProject(Project *project)
 {
     QList<const BuildInfo *> toSetUp; // Pointers are managed by the widgets!
-    foreach (TargetSetupWidget *widget, m_widgets.values()) {
+    foreach (TargetSetupWidget *widget, m_widgets) {
         if (!widget->isKitSelected())
             continue;
 

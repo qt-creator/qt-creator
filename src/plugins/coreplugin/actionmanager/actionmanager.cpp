@@ -336,7 +336,7 @@ QList<Command *> ActionManager::commands()
 {
     // transform list of CommandPrivate into list of Command
     QList<Command *> result;
-    foreach (Command *cmd, d->m_idCmdMap.values())
+    foreach (Command *cmd, d->m_idCmdMap)
         result << cmd;
     return result;
 }

@@ -411,7 +411,7 @@ void CppEditorSupport::onDiagnosticsChanged()
     QList<Document::DiagnosticMessage> allDiagnostics;
     {
         QMutexLocker locker(&m_diagnosticsMutex);
-        foreach (const QList<Document::DiagnosticMessage> &msgs, m_allDiagnostics.values())
+        foreach (const QList<Document::DiagnosticMessage> &msgs, m_allDiagnostics)
             allDiagnostics.append(msgs);
     }
 
