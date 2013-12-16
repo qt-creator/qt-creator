@@ -1090,28 +1090,7 @@ bool QMakeEvaluator::prepareProject(const QString &inDir)
     }
   no_cache:
 
-    // Look for mkspecs/ in source and build. First to win determines the root.
-    QString sdir = inDir;
     QString dir = m_outputDir;
-    while (dir != m_buildRoot) {
-        if ((dir != sdir && QFileInfo(sdir, QLatin1String("mkspecs")).isDir())
-                || QFileInfo(dir, QLatin1String("mkspecs")).isDir()) {
-            if (dir != sdir)
-                m_sourceRoot = sdir;
-            m_buildRoot = dir;
-            break;
-        }
-        if (dir == superdir)
-            break;
-        QFileInfo qsdfi(sdir);
-        QFileInfo qdfi(dir);
-        if (qsdfi.isRoot() || qdfi.isRoot())
-            break;
-        sdir = qsdfi.path();
-        dir = qdfi.path();
-    }
-
-    dir = m_outputDir;
     forever {
         QString stashfile = dir + QLatin1String("/.qmake.stash");
         if (dir == (!superdir.isEmpty() ? superdir : m_buildRoot) || m_vfs->exists(stashfile)) {
