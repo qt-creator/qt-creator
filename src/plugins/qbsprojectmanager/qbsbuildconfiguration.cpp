@@ -65,7 +65,6 @@ QbsBuildConfiguration::QbsBuildConfiguration(ProjectExplorer::Target *target) :
     connect(project(), SIGNAL(projectParsingStarted()), this, SIGNAL(enabledChanged()));
     connect(project(), SIGNAL(projectParsingDone(bool)), this, SIGNAL(enabledChanged()));
 
-    connect(this, SIGNAL(buildDirectoryChanged()), target, SLOT(onBuildDirectoryChanged()));
     ProjectExplorer::BuildStepList *bsl
             = stepList(Core::Id(ProjectExplorer::Constants::BUILDSTEPS_BUILD));
     connect(bsl, SIGNAL(stepInserted(int)), this, SLOT(buildStepInserted(int)));
