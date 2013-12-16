@@ -51,7 +51,7 @@ Enumeration::Enumeration(const QString &enumerationName)
 
 Enumeration::Enumeration(const QString &scope, const QString &name)
 {
-    QString enumerationString = scope + QStringLiteral(".") + name;
+    QString enumerationString = scope + QLatin1Char('.') + name;
 
     m_enumerationName = enumerationString.toUtf8();
 }
