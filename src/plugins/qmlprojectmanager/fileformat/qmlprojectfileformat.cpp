@@ -55,6 +55,10 @@ void setupFileFilterItem(QmlProjectManager::FileFilterBaseItem *fileFilterItem, 
     if (pathsProperty.isValid())
         fileFilterItem->setPathsProperty(pathsProperty.toStringList());
 
+    const QVariant filterProperty = node->property(QLatin1String("filter"));
+    if (filterProperty.isValid())
+        fileFilterItem->setFilter(filterProperty.toString());
+
     if (debug)
         qDebug() << "directory:" << directoryProperty << "recursive" << recursiveProperty << "paths" << pathsProperty;
 }
@@ -117,6 +121,12 @@ QmlProjectItem *QmlProjectFileFormat::parseProjectFile(const QString &fileName, 
                 CssFileFilterItem *cssFileFilterItem = new CssFileFilterItem(projectItem);
                 setupFileFilterItem(cssFileFilterItem, childNode);
                 projectItem->appendContent(cssFileFilterItem);
+            } else if (childNode->name() == QLatin1String("Files")) {
+                if (debug)
+                    qDebug() << "Files";
+                OtherFileFilterItem *otherFileFilterItem = new OtherFileFilterItem(projectItem);
+                setupFileFilterItem(otherFileFilterItem, childNode);
+                projectItem->appendContent(otherFileFilterItem);
             } else {
                 qWarning() << "Unknown type:" << childNode->name();
             }
