@@ -90,6 +90,8 @@ public:
     FormEditorItem *parentItem() const;
 
     QRectF boundingRect() const;
+    QPainterPath shape() const;
+    bool contains(const QPointF &point) const;
 
     void updateGeometry();
     void updateVisibilty();

@@ -86,6 +86,19 @@ QRectF FormEditorItem::boundingRect() const
     return m_paintedBoundingRect;
 }
 
+QPainterPath FormEditorItem::shape() const
+{
+    QPainterPath painterPath;
+    painterPath.addRect(m_boundingRect);
+
+    return painterPath;
+}
+
+bool FormEditorItem::contains(const QPointF &point) const
+{
+    return m_boundingRect.contains(point);
+}
+
 void FormEditorItem::updateGeometry()
 {
     prepareGeometryChange();
