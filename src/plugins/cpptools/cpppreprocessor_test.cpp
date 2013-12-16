@@ -32,6 +32,7 @@
 #include "cppmodelmanager.h"
 #include "cpppreprocessertesthelper.h"
 #include "cpppreprocessor.h"
+#include "cpptoolstestcase.h"
 
 #include <cplusplus/CppDocument.h>
 #include <utils/fileutils.h>
@@ -62,9 +63,7 @@ public:
         if (QFileInfo(fileName).exists())
             return Document::Ptr(); // Test file was not removed.
 
-        Utils::FileSaver srcSaver(fileName);
-        srcSaver.write(source);
-        srcSaver.finalize();
+        CppTools::Tests::TestCase::writeFile(fileName, source);
 
         CppPreprocessor pp((QPointer<CppModelManager>(m_cmm)));
         pp.setIncludePaths(QStringList(TestIncludePaths::directoryOfTestFile()));

@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include "cppeditorplugin.h"
+#include "cppeditortestcase.h"
 #include "cppincludehierarchymodel.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -44,12 +45,10 @@ using namespace CppEditor::Internal;
 using namespace CppTools;
 
 namespace {
-class TestCase
+class TestCase : public CppEditor::Internal::Tests::TestCase
 {
 public:
     TestCase(const QList<QByteArray> &sourceList)
-        : m_cmm(CppModelManagerInterface::instance())
-        , m_editor(0)
     {
         QStringList filePaths;
         const int sourceListSize = sourceList.size();
@@ -59,48 +58,28 @@ public:
             // Write source to file
             const QString fileName = QString::fromLatin1("%1/file%2.h").arg(QDir::tempPath())
                     .arg(i+1);
-            Utils::FileSaver srcSaver(fileName);
-            srcSaver.write(source);
-            srcSaver.finalize();
+            QVERIFY(writeFile(fileName, source));
 
             filePaths << fileName;
         }
 
         // Update Code Model
-        m_cmm->updateSourceFiles(filePaths).waitForFinished();
-        QCoreApplication::processEvents();
-        const Snapshot snapshot = m_cmm->snapshot();
-        QVERIFY(!snapshot.isEmpty());
-        foreach (const QString &filePath, filePaths)
-            QVERIFY(snapshot.contains(filePath));
-    }
-
-    ~TestCase()
-    {
-        // Close editor
-        if (m_editor)
-            Core::EditorManager::closeEditor(m_editor, false);
-
-        m_cmm->GC();
-        QVERIFY(m_cmm->snapshot().isEmpty());
+        QVERIFY(parseFiles(filePaths));
     }
 
     void run(int includesCount, int includedByCount)
     {
         const QString fileName = QDir::tempPath() + QLatin1String("/file1.h");
 
-        m_editor = qobject_cast<CPPEditor *>(Core::EditorManager::openEditor(fileName));
-        QVERIFY(m_editor);
+        CPPEditor *editor;
+        QVERIFY(openCppEditor(fileName, &editor));
+        closeEditorAtEndOfTestCase(editor);
 
         CppIncludeHierarchyModel model(0);
-        model.buildHierarchy(m_editor, fileName);
+        model.buildHierarchy(editor, fileName);
         QCOMPARE(model.rowCount(model.index(0, 0)), includesCount);
         QCOMPARE(model.rowCount(model.index(1, 0)), includedByCount);
     }
-
-private:
-    CppModelManagerInterface *m_cmm;
-    CPPEditor *m_editor;
 };
 }
 

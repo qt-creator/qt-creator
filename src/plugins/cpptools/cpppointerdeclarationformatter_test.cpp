@@ -27,9 +27,10 @@
 **
 ****************************************************************************/
 
-#include "cpptoolsplugin.h"
 #include "cpppointerdeclarationformatter.h"
 #include "cpptoolsplugin.h"
+#include "cpptoolsplugin.h"
+#include "cpptoolstestcase.h"
 
 #include <texteditor/plaintexteditor.h>
 
@@ -63,8 +64,9 @@ static QString stripCursor(const QString &source)
     return copy;
 }
 
-struct TestEnvironment
+class TestEnvironment : public CppTools::Tests::TestCase
 {
+public:
     QByteArray source;
     Snapshot snapshot;
     CppRefactoringFilePtr cppRefactoringFile;
@@ -88,9 +90,7 @@ struct TestEnvironment
         // Write source to temprorary file
         const QString filePath = QDir::tempPath() + QLatin1String("/file.h");
         document = Document::create(filePath);
-        Utils::FileSaver documentSaver(document->fileName());
-        documentSaver.write(sourceWithoutCursorMarker.toLatin1());
-        documentSaver.finalize();
+        QVERIFY(writeFile(document->fileName(), sourceWithoutCursorMarker.toLatin1()));
 
         // Preprocess source
         Preprocessor preprocess(0, &env);

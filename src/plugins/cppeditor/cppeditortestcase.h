@@ -28,40 +28,48 @@
 ****************************************************************************/
 
 
-#ifndef TESTDATADIR_H
-#define TESTDATADIR_H
+#ifndef CPPEDITORTESTCASE_H
+#define CPPEDITORTESTCASE_H
 
-#include "core_global.h"
+#include <cpptools/cpptoolstestcase.h>
 
-#include <QString>
+namespace CppEditor {
 
-#define QTC_DECLARE_MYTESTDATADIR(PATH)                                          \
-    class MyTestDataDir : public Core::Internal::Tests::TestDataDir              \
-    {                                                                            \
-    public:                                                                      \
-        MyTestDataDir(const QString &testDataDirectory = QString())              \
-            : TestDataDir(QLatin1String(SRCDIR "/" PATH) + testDataDirectory) {} \
-    };
-
-namespace Core {
 namespace Internal {
+class CPPEditor;
+class CPPEditorWidget;
+
 namespace Tests {
 
-class CORE_EXPORT TestDataDir
+class TestDocument : public CppTools::Tests::TestDocument
 {
 public:
-    TestDataDir(const QString &directory);
-    QString file(const QString &fileName) const;
+    TestDocument(const QByteArray &fileName, const QByteArray &source, char cursorMarker = '@');
 
-protected:
-    QString directory(const QString &subdir = QString(), bool clean = true) const;
+    bool hasCursorMarker() const;
 
-private:
-    QString m_directory;
+public:
+    int m_cursorPosition;
+    Internal::CPPEditor *m_editor;
+    Internal::CPPEditorWidget *m_editorWidget;
+};
+
+class TestCase : public CppTools::Tests::TestCase
+{
+public:
+    TestCase(bool runGarbageCollector = true);
+    ~TestCase();
+
+    static bool openCppEditor(const QString &fileName,
+                              Internal::CPPEditor **editor,
+                              Internal::CPPEditorWidget **editorWidget = 0);
+
+    static CPlusPlus::Document::Ptr waitForRehighlightedSemanticDocument(
+            Internal::CPPEditorWidget *editorWidget);
 };
 
 } // namespace Tests
 } // namespace Internal
-} // namespace Core
+} // namespace CppEditor
 
-#endif // TESTDATADIR_H
+#endif // CPPEDITORTESTCASE_H

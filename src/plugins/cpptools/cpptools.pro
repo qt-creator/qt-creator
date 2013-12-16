@@ -115,6 +115,7 @@ FORMS += \
 equals(TEST, 1) {
     HEADERS += \
         cpppreprocessertesthelper.h \
+        cpptoolstestcase.h \
         modelmanagertesthelper.h
 
     SOURCES += \
@@ -126,6 +127,7 @@ equals(TEST, 1) {
         cpppointerdeclarationformatter_test.cpp \
         cpppreprocessertesthelper.cpp \
         cpppreprocessor_test.cpp \
+        cpptoolstestcase.cpp \
         modelmanagertesthelper.cpp \
         symbolsearcher_test.cpp \
         typehierarchybuilder_test.cpp

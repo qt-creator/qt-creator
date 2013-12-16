@@ -34,10 +34,11 @@
 #else
 #include "formeditorw.h"
 
-#include <coreplugin/testdatadir.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/testdatadir.h>
 #include <cpptools/cppmodelmanager.h>
 #include <cpptools/cpptoolseditorsupport.h>
+#include <cpptools/cpptoolstestcase.h>
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Overview.h>
@@ -57,15 +58,7 @@ using namespace Designer::Internal;
 
 namespace {
 
-class MyTestDataDir : public Core::Internal::Tests::TestDataDir {
-public:
-    MyTestDataDir()
-        : TestDataDir(QString())
-    {}
-    MyTestDataDir(const QString &dir)
-        : TestDataDir(QLatin1String(SRCDIR "/../../../tests/designer/") + dir)
-    {}
-};
+QTC_DECLARE_MYTESTDATADIR("../../../tests/designer/")
 
 class DocumentContainsFunctionDefinition: protected SymbolVisitor
 {
@@ -157,25 +150,23 @@ bool documentContainsMemberFunctionDeclaration(const Document::Ptr &document,
     return DocumentContainsDeclaration()(document->globalNamespace(), declaration);
 }
 
-class GoToSlotTest
+class GoToSlotTest : public CppTools::Tests::TestCase
 {
 public:
     GoToSlotTest(const QStringList &files)
         : m_files(files)
-        , m_modelManager(CppModelManagerInterface::instance())
     {
         QCOMPARE(files.size(), 3);
-        cleanup();
     }
-    ~GoToSlotTest() { cleanup(); }
 
-    void run() const
+    void run()
     {
         QList<TextEditor::BaseTextEditor *> editors;
         foreach (const QString &file, m_files) {
             IEditor *editor = EditorManager::openEditor(file);
             TextEditor::BaseTextEditor *e = qobject_cast<TextEditor::BaseTextEditor *>(editor);
             QVERIFY(e);
+            closeEditorAtEndOfTestCase(editor);
             editors << e;
         }
         TextEditor::BaseTextEditor *cppFileEditor = editors.at(0);
@@ -185,10 +176,7 @@ public:
         const QString hFile = m_files.at(1);
 
         QCOMPARE(EditorManager::documentModel()->openedDocuments().size(), m_files.size());
-        while (!m_modelManager->snapshot().contains(cppFile)
-                 || !m_modelManager->snapshot().contains(hFile)) {
-            QApplication::processEvents();
-        }
+        waitForFilesInGlobalSnapshot(QStringList() << cppFile << hFile);
 
         // Execute "Go To Slot"
         FormEditorW *few = FormEditorW::instance();
@@ -220,18 +208,7 @@ public:
     }
 
 private:
-    void cleanup()
-    {
-        EditorManager::closeAllEditors(/*askAboutModifiedEditors =*/ false);
-        QVERIFY(EditorManager::documentModel()->openedDocuments().isEmpty());
-
-        m_modelManager->GC();
-        QVERIFY(m_modelManager->snapshot().isEmpty());
-    }
-
-private:
     QStringList m_files;
-    CppModelManagerInterface *m_modelManager;
 };
 
 } // anonymous namespace

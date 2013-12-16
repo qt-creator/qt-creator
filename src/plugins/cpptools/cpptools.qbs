@@ -87,6 +87,7 @@ QtcPlugin {
             "cpppointerdeclarationformatter_test.cpp",
             "cpppreprocessertesthelper.cpp", "cpppreprocessertesthelper.h",
             "cpppreprocessor_test.cpp",
+            "cpptoolstestcase.cpp", "cpptoolstestcase.h",
             "modelmanagertesthelper.cpp", "modelmanagertesthelper.h",
             "symbolsearcher_test.cpp",
             "typehierarchybuilder_test.cpp",

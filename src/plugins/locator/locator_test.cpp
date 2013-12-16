@@ -44,12 +44,7 @@ using namespace Locator::Internal::Tests;
 
 namespace {
 
-class MyTestDataDir : public Core::Internal::Tests::TestDataDir
-{
-public:
-    MyTestDataDir(const QString &testDataDirectory)
-        : TestDataDir(QLatin1String(SRCDIR "/../../../tests/locators/") + testDataDirectory) {}
-};
+QTC_DECLARE_MYTESTDATADIR("../../../tests/locators/")
 
 class MyBaseFileFilter : public Locator::BaseFileFilter
 {

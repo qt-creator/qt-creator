@@ -31,6 +31,7 @@
 
 #include "builtinindexingsupport.h"
 #include "cppmodelmanager.h"
+#include "cpptoolstestcase.h"
 #include "searchsymbols.h"
 
 #include <coreplugin/testdatadir.h>
@@ -43,14 +44,7 @@ using namespace CppTools::Internal;
 
 namespace {
 
-class MyTestDataDir : public Core::Internal::Tests::TestDataDir
-{
-public:
-    MyTestDataDir(const QString &testDataDirectory)
-        : TestDataDir(QLatin1String(SRCDIR "/../../../tests/cppsymbolsearcher/")
-                      + testDataDirectory)
-    {}
-};
+QTC_DECLARE_MYTESTDATADIR("../../../tests/cppsymbolsearcher/")
 
 class ResultData
 {
@@ -90,21 +84,16 @@ public:
 
 typedef ResultData::ResultDataList ResultDataList;
 
-class SymbolSearcherTest
+class SymbolSearcherTest : public CppTools::Tests::TestCase
 {
 public:
     /// Takes no ownership of indexingSupportToUse
     SymbolSearcherTest(const QString &testFile, CppIndexingSupport *indexingSupportToUse)
-        : m_modelManager(CppModelManager::instance())
-        , m_indexingSupportToUse(indexingSupportToUse)
+        : m_indexingSupportToUse(indexingSupportToUse)
         , m_testFile(testFile)
     {
         QVERIFY(m_indexingSupportToUse);
-        QVERIFY(m_modelManager->snapshot().isEmpty());
-        m_modelManager->updateSourceFiles(QStringList(m_testFile)).waitForFinished();
-        QCoreApplication::processEvents();
-        QVERIFY(m_modelManager->snapshot().contains(m_testFile));
-
+        QVERIFY(parseFiles(m_testFile));
         m_indexingSupportToRestore = m_modelManager->indexingSupport();
         m_modelManager->setIndexingSupport(m_indexingSupportToUse);
     }
@@ -124,12 +113,9 @@ public:
     ~SymbolSearcherTest()
     {
         m_modelManager->setIndexingSupport(m_indexingSupportToRestore);
-        m_modelManager->GC();
-        QVERIFY(m_modelManager->snapshot().isEmpty());
     }
 
 private:
-    CppModelManager *m_modelManager;
     CppIndexingSupport *m_indexingSupportToRestore;
     CppIndexingSupport *m_indexingSupportToUse;
     const QString m_testFile;

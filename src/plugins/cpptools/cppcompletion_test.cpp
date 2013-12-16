@@ -27,21 +27,22 @@
 **
 ****************************************************************************/
 
-#include "cpptoolsplugin.h"
 #include "cppcompletionassist.h"
 #include "cppmodelmanager.h"
+#include "cpptoolsplugin.h"
+#include "cpptoolstestcase.h"
 
-#include <texteditor/plaintexteditor.h>
 #include <texteditor/codeassist/iassistproposal.h>
 #include <texteditor/convenience.h>
+#include <texteditor/plaintexteditor.h>
 
 #include <utils/changeset.h>
 #include <utils/fileutils.h>
 
-#include <QtTest>
 #include <QDebug>
-#include <QTextDocument>
 #include <QDir>
+#include <QTextDocument>
+#include <QtTest>
 
 /*!
     Tests for code completion.
@@ -52,15 +53,13 @@ using namespace CppTools::Internal;
 using namespace TextEditor;
 using namespace Core;
 
-namespace {
-typedef QByteArray _;
+namespace { typedef QByteArray _; }
 
-class CompletionTestCase
+class CompletionTestCase : public CppTools::Tests::TestCase
 {
 public:
     CompletionTestCase(const QByteArray &sourceText, const QByteArray &textToInsert = QByteArray())
-        : position(-1), editorWidget(0), textDocument(0), editor(0),
-          cmm(CppModelManager::instance())
+        : position(-1), editorWidget(0), textDocument(0), editor(0)
     {
         source = sourceText;
         position = source.indexOf('@');
@@ -69,34 +68,25 @@ public:
 
         // Write source to file
         const QString fileName = QDir::tempPath() + QLatin1String("/file.h");
-        Utils::FileSaver srcSaver(fileName);
-        srcSaver.write(source);
-        srcSaver.finalize();
+        QVERIFY(writeFile(fileName, source));
 
         // Open in editor
         editor = EditorManager::openEditor(fileName);
         QVERIFY(editor);
+        closeEditorAtEndOfTestCase(editor);
         editorWidget = qobject_cast<TextEditor::BaseTextEditorWidget *>(editor->widget());
         QVERIFY(editorWidget);
 
         textDocument = editorWidget->document();
 
         // Get Document
-        while (!cmm->snapshot().contains(fileName))
-            QCoreApplication::processEvents();
-        Document::Ptr document = cmm->snapshot().document(fileName);
+        waitForFileInGlobalSnapshot(fileName);
+        const Document::Ptr document = globalSnapshot().document(fileName);
 
         snapshot.insert(document);
 
         if (!textToInsert.isEmpty())
             insertText(textToInsert);
-    }
-
-    ~CompletionTestCase()
-    {
-        EditorManager::closeEditor(editor, /*askAboutModifiedEditors=*/ false);
-        cmm->GC();
-        QVERIFY(cmm->snapshot().isEmpty());
     }
 
     QStringList getCompletions(bool *replaceAccessOperator = 0) const
@@ -151,11 +141,7 @@ private:
     BaseTextEditorWidget *editorWidget;
     QTextDocument *textDocument;
     IEditor *editor;
-
-    CppModelManager *cmm;
 };
-
-} // namespace
 
 void CppToolsPlugin::test_completion_basic_1()
 {

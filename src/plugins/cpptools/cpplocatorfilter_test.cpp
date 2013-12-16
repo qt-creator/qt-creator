@@ -34,6 +34,7 @@
 #include "cppfunctionsfilter.h"
 #include "cpplocatorfilter.h"
 #include "cppmodelmanager.h"
+#include "cpptoolstestcase.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/testdatadir.h>
@@ -58,69 +59,53 @@ Q_DECLARE_METATYPE(ILocatorFilter *)
 
 namespace {
 
-class MyTestDataDir : public Core::Internal::Tests::TestDataDir
-{
-public:
-    MyTestDataDir(const QString &testDataDirectory)
-        : TestDataDir(QLatin1String(SRCDIR "/../../../tests/cpplocators/") + testDataDirectory) {}
-};
+QTC_DECLARE_MYTESTDATADIR("../../../tests/cpplocators/")
 
-class CppLocatorFilterTest : public BasicLocatorFilterTest
+inline QString _(const QByteArray &ba) { return QString::fromLatin1(ba, ba.size()); }
+
+} // anonymous namespace
+
+class CppLocatorFilterTest : public BasicLocatorFilterTest, public CppTools::Tests::TestCase
 {
 public:
     CppLocatorFilterTest(ILocatorFilter *filter, const QString &fileName)
         : BasicLocatorFilterTest(filter)
-        , m_modelManager(CppModelManager::instance())
         , m_fileName(fileName)
     {
         QVERIFY(!m_fileName.isEmpty());
-        m_modelManager->GC();
-        QVERIFY(m_modelManager->snapshot().isEmpty());
+        QVERIFY(garbageCollectGlobalSnapshot());
     }
 
 private:
-    virtual void doBeforeLocatorRun()
-    {
-        m_modelManager->updateSourceFiles(QStringList() << m_fileName).waitForFinished();
-        QCoreApplication::processEvents();
-        QVERIFY(m_modelManager->snapshot().contains(m_fileName));
-    }
+    virtual void doBeforeLocatorRun() { QVERIFY(parseFiles(m_fileName)); }
+    virtual void doAfterLocatorRun() { QVERIFY(garbageCollectGlobalSnapshot()); }
 
-    virtual void doAfterLocatorRun()
-    {
-        m_modelManager->GC();
-        QVERIFY(m_modelManager->snapshot().isEmpty());
-    }
-
-    CppModelManager *m_modelManager;
     const QString m_fileName;
 };
 
-class CppCurrentDocumentFilterTest : public BasicLocatorFilterTest
+class CppCurrentDocumentFilterTest
+    : public BasicLocatorFilterTest
+    , public CppTools::Tests::TestCase
 {
 public:
     CppCurrentDocumentFilterTest(const QString &fileName)
         : BasicLocatorFilterTest(PluginManager::getObject<CppCurrentDocumentFilter>())
-        , m_modelManager(CppModelManager::instance())
         , m_editor(0)
         , m_fileName(fileName)
     {
         QVERIFY(!m_fileName.isEmpty());
-        m_modelManager->GC();
-        QVERIFY(m_modelManager->snapshot().isEmpty());
     }
 
 private:
     virtual void doBeforeLocatorRun()
     {
         QVERIFY(EditorManager::documentModel()->openedDocuments().isEmpty());
-        m_modelManager->GC();
-        QVERIFY(m_modelManager->snapshot().isEmpty());
+        QVERIFY(garbageCollectGlobalSnapshot());
 
         m_editor = EditorManager::openEditor(m_fileName);
         QVERIFY(m_editor);
-        while (!m_modelManager->snapshot().contains(m_fileName))
-            QCoreApplication::processEvents();
+
+        waitForFileInGlobalSnapshot(m_fileName);
     }
 
     virtual void doAfterLocatorRun()
@@ -128,18 +113,12 @@ private:
         EditorManager::closeEditor(m_editor, /*askAboutModifiedEditors=*/ false);
         QCoreApplication::processEvents();
         QVERIFY(EditorManager::documentModel()->openedDocuments().isEmpty());
-        m_modelManager->GC();
-        QVERIFY(m_modelManager->snapshot().isEmpty());
+        QVERIFY(garbageCollectGlobalSnapshot());
     }
 
-    CppModelManager *m_modelManager;
     IEditor *m_editor;
     const QString m_fileName;
 };
-
-inline QString _(const QByteArray &ba) { return QString::fromLatin1(ba, ba.size()); }
-
-} // anonymous namespace
 
 void CppToolsPlugin::test_cpplocatorfilters_CppLocatorFilter()
 {

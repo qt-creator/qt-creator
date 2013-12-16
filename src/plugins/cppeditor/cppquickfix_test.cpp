@@ -31,13 +31,14 @@
 
 #include "cppeditor.h"
 #include "cppeditorplugin.h"
+#include "cppeditortestcase.h"
 #include "cppquickfixassistant.h"
 #include "cppquickfixes.h"
 
 #include <cpptools/cppcodestylepreferences.h>
 #include <cpptools/cppmodelmanager.h>
-#include <cpptools/cpppreprocessor.h>
 #include <cpptools/cpppreprocessertesthelper.h>
+#include <cpptools/cpppreprocessor.h>
 #include <cpptools/cpptoolssettings.h>
 #include <cpptools/includeutils.h>
 
@@ -68,64 +69,39 @@ typedef QSharedPointer<TestDocument> TestDocumentPtr;
 /**
  * Represents a test document before and after applying the quick fix.
  *
- * A TestDocument's originalSource may contain an '@' character to denote
+ * A TestDocument's source may contain an '@' character to denote
  * the cursor position. This marker is removed before the Editor reads
  * the document.
  */
-class TestDocument
+class TestDocument : public CppEditor::Internal::Tests::TestDocument
 {
 public:
-    TestDocument(const QByteArray &theOriginalSource, const QByteArray &theExpectedSource,
-                 const QString &fileName)
-        : originalSource(theOriginalSource)
-        , expectedSource(theExpectedSource)
-        , fileName(fileName)
-        , cursorMarkerPosition(theOriginalSource.indexOf('@'))
-        , editor(0)
-        , editorWidget(0)
+    TestDocument(const QByteArray &fileName, const QByteArray &source,
+                 const QByteArray &expectedSource)
+        : CppEditor::Internal::Tests::TestDocument(fileName, source)
+        , m_expectedSource(expectedSource)
     {
-        originalSource.remove(cursorMarkerPosition, 1);
-        expectedSource.remove(theExpectedSource.indexOf('@'), 1);
+        m_source.remove(m_cursorPosition, 1);
+        m_expectedSource.remove(expectedSource.indexOf(m_cursorMarker), 1);
     }
 
-    static TestDocumentPtr create(const QByteArray &theOriginalSource,
-        const QByteArray &theExpectedSource,const QString &fileName)
+    static TestDocumentPtr create(const QByteArray &fileName, const QByteArray &source,
+                                  const QByteArray &expectedSource)
     {
-        return TestDocumentPtr(new TestDocument(theOriginalSource, theExpectedSource, fileName));
+        return TestDocumentPtr(new TestDocument(fileName, source, expectedSource));
     }
 
-    bool hasCursorMarkerPosition() const { return cursorMarkerPosition != -1; }
-    bool changesExpected() const { return originalSource != expectedSource; }
+    bool changesExpected() const { return m_source != m_expectedSource; }
 
-    QString filePath() const
-    {
-        if (!QFileInfo(fileName).isAbsolute())
-            return QDir::tempPath() + QLatin1Char('/') + fileName;
-        return fileName;
-    }
-
-    void writeToDisk() const
-    {
-        Utils::FileSaver srcSaver(filePath());
-        srcSaver.write(originalSource);
-        srcSaver.finalize();
-    }
-
-    QByteArray originalSource;
-    QByteArray expectedSource;
-
-    const QString fileName;
-    const int cursorMarkerPosition;
-
-    CPPEditor *editor;
-    CPPEditorWidget *editorWidget;
+public:
+    QByteArray m_expectedSource;
 };
 
 /**
  * Encapsulates the whole process of setting up an editor, getting the
  * quick-fix, applying it, and checking the result.
  */
-class TestCase
+class TestCase : public CppEditor::Internal::Tests::TestCase
 {
 public:
     TestCase(const QByteArray &originalSource, const QByteArray &expectedSource,
@@ -141,9 +117,6 @@ public:
     void run(CppQuickFixFactory *factory, int resultIndex = 0);
 
 private:
-    TestCase(const TestCase &);
-    TestCase &operator=(const TestCase &);
-
     void init(const QStringList &includePaths);
 
 private:
@@ -171,7 +144,7 @@ TestCase::TestCase(const QByteArray &originalSource, const QByteArray &expectedS
                    const QStringList &includePaths)
     : cppCodeStylePreferences(0), restoreIncludePaths(false)
 {
-    testFiles << TestDocument::create(originalSource, expectedSource, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", originalSource, expectedSource);
     init(includePaths);
 }
 
@@ -187,7 +160,7 @@ void TestCase::init(const QStringList &includePaths)
     // Check if there is exactly one cursor marker
     unsigned cursorMarkersCount = 0;
     foreach (const TestDocumentPtr testFile, testFiles) {
-        if (testFile->hasCursorMarkerPosition())
+        if (testFile->hasCursorMarker())
             ++cursorMarkersCount;
     }
     QVERIFY2(cursorMarkersCount == 1, "Exactly one cursor marker is allowed.");
@@ -196,45 +169,31 @@ void TestCase::init(const QStringList &includePaths)
     foreach (TestDocumentPtr testFile, testFiles)
         testFile->writeToDisk();
 
-    CppTools::Internal::CppModelManager *cmm = CppTools::Internal::CppModelManager::instance();
-
     // Set appropriate include paths
     if (!includePaths.isEmpty()) {
         restoreIncludePaths = true;
-        includePathsToRestore = cmm->includePaths();
-        cmm->setIncludePaths(includePaths);
+        includePathsToRestore = m_modelManager->includePaths();
+        m_modelManager->setIncludePaths(includePaths);
     }
 
     // Update Code Model
     QStringList filePaths;
     foreach (const TestDocumentPtr &testFile, testFiles)
         filePaths << testFile->filePath();
-    cmm->updateSourceFiles(filePaths).waitForFinished();
-    QCoreApplication::processEvents();
-    const Snapshot snapshot = cmm->snapshot();
-    QVERIFY(!snapshot.isEmpty());
-    foreach (const QString &filePath, filePaths)
-        QVERIFY(snapshot.contains(filePath));
+    QVERIFY(parseFiles(filePaths));
 
     // Open Files
     foreach (TestDocumentPtr testFile, testFiles) {
-        testFile->editor
-            = dynamic_cast<CPPEditor *>(EditorManager::openEditor(testFile->filePath()));
-        QVERIFY(testFile->editor);
+        QVERIFY(openCppEditor(testFile->filePath(), &testFile->m_editor, &testFile->m_editorWidget));
+        closeEditorAtEndOfTestCase(testFile->m_editor);
 
         // Set cursor position
-        const int cursorPosition = testFile->hasCursorMarkerPosition()
-                ? testFile->cursorMarkerPosition : 0;
-        testFile->editor->setCursorPosition(cursorPosition);
-
-        testFile->editorWidget = dynamic_cast<CPPEditorWidget *>(testFile->editor->editorWidget());
-        QVERIFY(testFile->editorWidget);
+        const int cursorPosition = testFile->hasCursorMarker()
+                ? testFile->m_cursorPosition : 0;
+        testFile->m_editor->setCursorPosition(cursorPosition);
 
         // Rehighlight
-        testFile->editorWidget->semanticRehighlight(true);
-        // Wait for the semantic info from the future
-        while (testFile->editorWidget->semanticInfo().doc.isNull())
-            QCoreApplication::processEvents();
+        waitForRehighlightedSemanticDocument(testFile->m_editorWidget);
     }
 
     // Enforce the default cpp code style, so we are independent of config file settings.
@@ -251,23 +210,9 @@ TestCase::~TestCase()
     if (cppCodeStylePreferences)
         cppCodeStylePreferences->setCurrentDelegate(cppCodeStylePreferencesOriginalDelegateId);
 
-    // Close editors
-    QList<Core::IEditor *> editorsToClose;
-    foreach (const TestDocumentPtr testFile, testFiles) {
-        if (testFile->editor)
-            editorsToClose << testFile->editor;
-    }
-    EditorManager::closeEditors(editorsToClose, false);
-    QCoreApplication::processEvents(); // process any pending events
-
-    // Remove the test files from the code-model
-    CppModelManagerInterface *mmi = CppModelManagerInterface::instance();
-    mmi->GC();
-    QCOMPARE(mmi->snapshot().size(), 0);
-
     // Restore include paths
     if (restoreIncludePaths)
-        CppTools::Internal::CppModelManager::instance()->setIncludePaths(includePathsToRestore);
+        m_modelManager->setIncludePaths(includePathsToRestore);
 
     // Remove created files from file system
     foreach (const TestDocumentPtr &testDocument, testFiles)
@@ -299,12 +244,12 @@ void TestCase::run(CppQuickFixFactory *factory, int resultIndex)
     // Run the fix in the file having the cursor marker
     TestDocumentPtr testFile;
     foreach (const TestDocumentPtr file, testFiles) {
-        if (file->hasCursorMarkerPosition())
+        if (file->hasCursorMarker())
             testFile = file;
     }
     QVERIFY2(testFile, "No test file with cursor marker found");
 
-    if (QuickFixOperation::Ptr fix = getFix(factory, testFile->editorWidget, resultIndex))
+    if (QuickFixOperation::Ptr fix = getFix(factory, testFile->m_editorWidget, resultIndex))
         fix->perform();
     else
         qDebug() << "Quickfix was not triggered";
@@ -312,15 +257,15 @@ void TestCase::run(CppQuickFixFactory *factory, int resultIndex)
     // Compare all files
     foreach (const TestDocumentPtr testFile, testFiles) {
         // Check
-        QByteArray result = testFile->editorWidget->document()->toPlainText().toUtf8();
+        QByteArray result = testFile->m_editorWidget->document()->toPlainText().toUtf8();
         removeTrailingWhitespace(result);
-        QCOMPARE(QLatin1String(result), QLatin1String(testFile->expectedSource));
+        QCOMPARE(QLatin1String(result), QLatin1String(testFile->m_expectedSource));
 
         // Undo the change
         for (int i = 0; i < 100; ++i)
-            testFile->editorWidget->undo();
-        result = testFile->editorWidget->document()->toPlainText().toUtf8();
-        QCOMPARE(result, testFile->originalSource);
+            testFile->m_editorWidget->undo();
+        result = testFile->m_editorWidget->document()->toPlainText().toUtf8();
+        QCOMPARE(result, testFile->m_source);
     }
 }
 
@@ -1280,7 +1225,7 @@ void CppEditorPlugin::test_quickfix_GenerateGetterSetter_basicGetterWithPrefixAn
         "    void setIt(int value);\n"
         "};\n"
         "}\n\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File
     original =
@@ -1300,7 +1245,7 @@ void CppEditorPlugin::test_quickfix_GenerateGetterSetter_basicGetterWithPrefixAn
         "    it = value;\n"
         "}\n\n"
         "}\n\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     GenerateGetterSetter factory;
     TestCase data(testFiles);
@@ -1334,7 +1279,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_afterClass()
         "{\n\n}\n"
         "\n"
         "class Bar {};\n\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File
     original =
@@ -1344,7 +1289,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_afterClass()
         "{\n\n"
         "}\n";
     expected = original + "\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     InsertDefFromDecl factory;
     TestCase data(testFiles);
@@ -1367,7 +1312,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_basic1()
         "    Foo()@;\n"
         "};\n";
     expected = original + "\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File
     original.resize(0);
@@ -1378,7 +1323,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_basic1()
         "}\n"
         "\n"
         ;
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     InsertDefFromDecl factory;
     TestCase data(testFiles);
@@ -1397,7 +1342,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_basic2()
     // Header File
     original = "void f()@;\n";
     expected = original + "\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File
     original =
@@ -1417,7 +1362,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_basic2()
             "}\n"
             "\n"
             ;
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     InsertDefFromDecl factory;
     TestCase data(testFiles);
@@ -1433,7 +1378,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_basic3()
     QByteArray expected;
 
     // Empty Header File
-    testFiles << TestDocument::create("", "\n", QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", "", "\n");
 
     // Source File
     original =
@@ -1449,7 +1394,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_basic3()
         "}\n"
         "\n"
         ;
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     InsertDefFromDecl factory;
     TestCase data(testFiles);
@@ -1474,7 +1419,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_namespace1()
         "};\n"
         "}\n";
     expected = original + "\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File
     original.resize(0);
@@ -1485,7 +1430,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_namespace1()
         "}\n"
         "\n"
         ;
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     InsertDefFromDecl factory;
     TestCase data(testFiles);
@@ -1510,7 +1455,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_namespace2()
         "};\n"
         "}\n";
     expected = original + "\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File
     original =
@@ -1525,7 +1470,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_headerSource_namespace2()
             "}\n"
             "\n"
             ;
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     InsertDefFromDecl factory;
     TestCase data(testFiles);
@@ -1584,7 +1529,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_findRightImplementationFil
         "};\n"
         "}\n";
     expected = original + "\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File #1
     original =
@@ -1595,7 +1540,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_findRightImplementationFil
             "}\n"
             "\n";
     expected = original + "\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
 
     // Source File #2
@@ -1611,7 +1556,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_findRightImplementationFil
             "{\n\n"
             "}\n"
             "\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file2.cpp"));
+    testFiles << TestDocument::create("file2.cpp", original, expected);
 
     InsertDefFromDecl factory;
     TestCase data(testFiles);
@@ -1638,7 +1583,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_ignoreSurroundingGenerated
         "};\n"
         "}\n";
     expected = original + '\n';
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File #1
     original =
@@ -1658,7 +1603,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_ignoreSurroundingGenerated
             "{\n\n"
             "}\n"
             "\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     // Source File #2
     original =
@@ -1668,7 +1613,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_ignoreSurroundingGenerated
             "{\n\n"
             "}\n";
     expected = original + '\n';
-    testFiles << TestDocument::create(original, expected, QLatin1String("file2.cpp"));
+    testFiles << TestDocument::create("file2.cpp", original, expected);
 
     InsertDefFromDecl factory;
     TestCase data(testFiles);
@@ -1739,7 +1684,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_macroUsesAtEndOfFile1()
     // Header File
     original = "void f()@;\n";
     expected = original + "\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File
     original =
@@ -1764,7 +1709,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_macroUsesAtEndOfFile1()
             "MACRO(int)\n"
             "\n"
             ;
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     InsertDefFromDecl factory;
     TestCase data(testFiles);
@@ -1783,7 +1728,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_macroUsesAtEndOfFile2()
     // Header File
     original = "void f()@;\n";
     expected = original + "\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File
     original =
@@ -1806,7 +1751,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_macroUsesAtEndOfFile2()
             "MACRO(int)\n"
             "\n"
             ;
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     InsertDefFromDecl factory;
     TestCase data(testFiles);
@@ -1824,7 +1769,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_erroneousStatementAtEndOfF
     // Header File
     original = "void f()@;\n";
     expected = original + "\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File
     original =
@@ -1845,7 +1790,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_erroneousStatementAtEndOfF
             "MissingSemicolon(int)\n"
             "\n"
             ;
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     InsertDefFromDecl factory;
     TestCase data(testFiles);
@@ -1863,7 +1808,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_rvalueReference()
     // Header File
     original = "void f(Foo &&)@;\n";
     expected = original + "\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File
     original = "";
@@ -1875,7 +1820,7 @@ void CppEditorPlugin::test_quickfix_InsertDefFromDecl_rvalueReference()
             "}\n"
             "\n"
             ;
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     InsertDefFromDecl factory;
     TestCase data(testFiles);
@@ -1901,7 +1846,7 @@ void insertToSectionDeclFromDef(const QByteArray &section, int sectionIndex)
         + section + ":\n" +
         "    Foo();\n"
         "@};\n\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File
     original =
@@ -1913,7 +1858,7 @@ void insertToSectionDeclFromDef(const QByteArray &section, int sectionIndex)
         "\n"
         ;
     expected = original + "\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     InsertDeclFromDef factory;
     TestCase data(testFiles);
@@ -1934,9 +1879,7 @@ void CppEditorPlugin::test_quickfix_InsertDeclFromDef()
 QList<Include> includesForSource(const QByteArray &source)
 {
     const QString fileName = TestIncludePaths::directoryOfTestFile() + QLatin1String("/file.cpp");
-    Utils::FileSaver srcSaver(fileName);
-    srcSaver.write(source);
-    srcSaver.finalize();
+    TestCase::writeFile(fileName, source);
 
     using namespace CppTools::Internal;
 
@@ -2100,8 +2043,8 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_normal()
     // Header File
     original = "class Foo {};\n";
     expected = original + "\n";
-    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
-                                      + QLatin1String("afile.h"));
+    testFiles << TestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8() + "/afile.h",
+                                      original, expected);
 
     // Source File
     original =
@@ -2122,8 +2065,8 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_normal()
         "}\n"
         "\n"
         ;
-    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
-                                      + QLatin1String("afile.cpp"));
+    testFiles << TestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8()
+                                      + "/afile.cpp", original, expected);
 
     // Do not use the test factory, at least once we want to go through the "full stack".
     AddIncludeForUndefinedIdentifier factory;
@@ -2150,8 +2093,8 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_ignoremoc()
         "#include \"file.moc\";\n"
         "\n"
         ;
-    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
-                                      + QLatin1String("file.cpp"));
+    testFiles << TestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8()
+                                      + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
     TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
@@ -2177,8 +2120,8 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_sortingTop(
         "#include \"z.h\"\n"
         "\n\n"
         ;
-    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
-                                      + QLatin1String("file.cpp"));
+    testFiles << TestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8()
+                                      + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
     TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
@@ -2204,8 +2147,8 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_sortingMidd
         "#include \"z.h\"\n"
         "\n\n"
         ;
-    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
-                                      + QLatin1String("file.cpp"));
+    testFiles << TestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8()
+                                      + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
     TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
@@ -2231,8 +2174,8 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_sortingBott
         "#include \"file.h\"\n"
         "\n\n"
         ;
-    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
-                                      + QLatin1String("file.cpp"));
+    testFiles << TestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8()
+                                      + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
     TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
@@ -2258,8 +2201,8 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_appendToUns
         "#include \"file.h\"\n"
         "\n\n"
         ;
-    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
-                                      + QLatin1String("file.cpp"));
+    testFiles << TestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8() +
+                                      + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
     TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
@@ -2286,8 +2229,8 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_firstLocalI
         "#include <b.h>\n"
         "\n\n"
         ;
-    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
-                                      + QLatin1String("file.cpp"));
+    testFiles << TestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8()
+                                      + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
     TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
@@ -2317,8 +2260,8 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_firstGlobal
         "void f();\n"
         "\n"
         ;
-    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
-                                      + QLatin1String("file.cpp"));
+    testFiles << TestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8()
+                                      + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("<file.h>"));
     TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
@@ -2348,8 +2291,8 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_preferGroup
         "#include \"foo.h\"\n"
         "\n\n"
         ;
-    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
-                                      + QLatin1String("file.cpp"));
+    testFiles << TestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8()
+                                      + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"prefixc.h\""));
     TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
@@ -2376,8 +2319,8 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_newGroupIfO
         "#include \"file.h\"\n"
         "\n\n"
         ;
-    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
-                                      + QLatin1String("file.cpp"));
+    testFiles << TestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8()
+                                      + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
     TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
@@ -2405,8 +2348,8 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_mixedDirsSo
         "#include <utils/file.h>\n"
         "\n\n"
         ;
-    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
-                                      + QLatin1String("file.cpp"));
+    testFiles << TestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8()
+                                      + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("<firstlib/file.h>"));
     TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
@@ -2434,8 +2377,8 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_mixedDirsUn
         "#include <lastlib/file.h>\n"
         "\n\n"
         ;
-    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
-                                      + QLatin1String("file.cpp"));
+    testFiles << TestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8()
+                                      + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("<lastlib/file.h>"));
     TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
@@ -2461,8 +2404,8 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_mixedInclud
         "#include <global.h>\n"
         "\n\n"
         ;
-    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
-                                      + QLatin1String("file.cpp"));
+    testFiles << TestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8()
+                                      + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"z.h\""));
     TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
@@ -2488,8 +2431,8 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_mixedInclud
         "#include <global.h>\n"
         "\n\n"
         ;
-    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
-                                      + QLatin1String("file.cpp"));
+    testFiles << TestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8()
+                                      + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"a.h\""));
     TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
@@ -2515,8 +2458,8 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_mixedInclud
         "#include <global.h>\n"
         "\n\n"
         ;
-    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
-                                      + QLatin1String("file.cpp"));
+    testFiles << TestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8()
+                                      + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"lib/file.h\""));
     TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
@@ -2542,8 +2485,8 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_mixedInclud
         "#include <lib/file.h>\n"
         "\n\n"
         ;
-    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
-                                      + QLatin1String("file.cpp"));
+    testFiles << TestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8()
+                                      + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("<lib/file.h>"));
     TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
@@ -2567,8 +2510,8 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_noinclude()
         "void f();\n"
         "\n"
         ;
-    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
-                                      + QLatin1String("file.cpp"));
+    testFiles << TestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8()
+                                      + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
     TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
@@ -2598,8 +2541,8 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_veryFirstIn
         "void @f();\n"
         "\n"
         ;
-    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
-                                      + QLatin1String("file.cpp"));
+    testFiles << TestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8()
+                                      + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
     TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
@@ -2633,8 +2576,8 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_veryFirstIn
         "void @f();\n"
         "\n"
         ;
-    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
-                                      + QLatin1String("file.cpp"));
+    testFiles << TestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8()
+                                      + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifierTestFactory factory(QLatin1String("\"file.h\""));
     TestCase data(testFiles, QStringList(TestIncludePaths::globalIncludePath()));
@@ -2659,8 +2602,8 @@ void CppEditorPlugin::test_quickfix_AddIncludeForUndefinedIdentifier_checkQSomet
         "QDir dir;\n"
         "\n"
         ;
-    testFiles << TestDocument::create(original, expected, TestIncludePaths::directoryOfTestFile() + QLatin1Char('/')
-                                      + QLatin1String("file.cpp"));
+    testFiles << TestDocument::create(TestIncludePaths::directoryOfTestFile().toUtf8()
+                                      + "/file.cpp", original, expected);
 
     AddIncludeForUndefinedIdentifier factory;
     TestCase data(testFiles, QStringList(TestIncludePaths::globalQtCoreIncludePath()));
@@ -2690,7 +2633,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCpp()
         "\n"
         "    void bar();\n"
         "};\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File
     original =
@@ -2704,7 +2647,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCpp()
         "    return 5;\n"
         "}\n"
         "\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     MoveFuncDefOutside factory;
     TestCase data(testFiles);
@@ -2733,7 +2676,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCppInsideNS()
         "  int ba@r();\n"
         "};\n"
         "}\n\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File
     original =
@@ -2751,7 +2694,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCppInsideNS()
         "}\n"
         "\n"
         "}\n\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     MoveFuncDefOutside factory;
     TestCase data(testFiles);
@@ -2821,7 +2764,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncOutside2()
         "{\n"
         "    return 1;\n"
         "}\n\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File
     original =
@@ -2829,7 +2772,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncOutside2()
         "void Foo::f1() {}\n"
         "void Foo::f3() {}\n";
     expected = original + "\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     MoveFuncDefOutside factory;
     TestCase data(testFiles);
@@ -2859,7 +2802,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCppNS()
         "  inline int number() const;\n"
         "};\n"
         "}\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File
     original =
@@ -2873,7 +2816,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCppNS()
         "    return 5;\n"
         "}\n"
         "\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     MoveFuncDefOutside factory;
     TestCase data(testFiles);
@@ -2903,7 +2846,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCppNSUsing()
         "  inline int number() const;\n"
         "};\n"
         "}\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File
     original =
@@ -2919,7 +2862,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_MemberFuncToCppNSUsing()
         "    return 5;\n"
         "}\n"
         "\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     MoveFuncDefOutside factory;
     TestCase data(testFiles);
@@ -2970,7 +2913,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_FreeFuncToCpp()
     expected =
         "int number() const;\n"
         "\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File
     original =
@@ -2984,7 +2927,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_FreeFuncToCpp()
         "    return 5;\n"
         "}\n"
         "\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     MoveFuncDefOutside factory;
     TestCase data(testFiles);
@@ -3011,7 +2954,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_FreeFuncToCppNS()
         "int number() const;\n"
         "}\n"
         "\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File
     original =
@@ -3025,7 +2968,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_FreeFuncToCppNS()
         "    return 5;\n"
         "}\n"
         "\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     MoveFuncDefOutside factory;
     TestCase data(testFiles);
@@ -3056,7 +2999,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_CtorWithInitialization1()
         "    int a;\n"
         "    float b;\n"
         "};\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File
     original ="#include \"file.h\"\n";
@@ -3066,7 +3009,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_CtorWithInitialization1()
         "\n"
         "Foo::Foo() : a(42), b(3.141) {}\n"
         "\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     MoveFuncDefOutside factory;
     TestCase data(testFiles);
@@ -3100,7 +3043,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_CtorWithInitialization2()
         "\n"
         "    int member;\n"
         "};\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File
     original ="#include \"file.h\"\n";
@@ -3112,7 +3055,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_CtorWithInitialization2()
         "{\n"
         "}\n"
         "\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     MoveFuncDefOutside factory;
     TestCase data(testFiles);
@@ -3145,7 +3088,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_afterClass()
         "void Foo::a() {}\n"
         "\n"
         "class Bar {};\n\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File
     original =
@@ -3155,7 +3098,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefOutside_afterClass()
         "{\n\n"
         "}\n";
     expected = original + "\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     MoveFuncDefOutside factory;
     TestCase data(testFiles);
@@ -3224,7 +3167,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_MemberFunc()
         "class Foo {\n"
         "    inline int number() const {return 5;}\n"
         "};\n\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File
     original =
@@ -3234,7 +3177,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_MemberFunc()
     expected =
         "#include \"file.h\"\n"
         "\n\n\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     MoveFuncDefToDecl factory;
     TestCase data(testFiles);
@@ -3291,7 +3234,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncToCppNS()
         "    }\n"
         "};\n"
         "}\n\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File
     original =
@@ -3302,7 +3245,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncToCppNS()
         "    return 5;\n"
         "}\n";
     expected = "#include \"file.h\"\n\n\n\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     MoveFuncDefToDecl factory;
     TestCase data(testFiles);
@@ -3332,7 +3275,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncToCppNSUsing()
         "    }\n"
         "};\n"
         "}\n\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File
     original =
@@ -3347,7 +3290,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_MemberFuncToCppNSUsing()
         "#include \"file.h\"\n"
         "using namespace MyNs;\n"
         "\n\n\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     MoveFuncDefToDecl factory;
     TestCase data(testFiles);
@@ -3396,7 +3339,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_FreeFuncToCpp()
         "{\n"
         "    return 5;\n"
         "}\n\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File
     original =
@@ -3408,7 +3351,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_FreeFuncToCpp()
         "    return 5;\n"
         "}\n";
     expected = "#include \"file.h\"\n\n\n\n\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     MoveFuncDefToDecl factory;
     TestCase data(testFiles);
@@ -3434,7 +3377,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_FreeFuncToCppNS()
         "    return 5;\n"
         "}\n"
         "}\n\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File
     original =
@@ -3447,7 +3390,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_FreeFuncToCppNS()
     expected =
         "#include \"file.h\"\n"
         "\n\n\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     MoveFuncDefToDecl factory;
     TestCase data(testFiles);
@@ -3478,7 +3421,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_CtorWithInitialization()
         "    int a;\n"
         "    float b;\n"
         "};\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File
     original =
@@ -3487,7 +3430,7 @@ void CppEditorPlugin::test_quickfix_MoveFuncDefToDecl_CtorWithInitialization()
         "Foo::F@oo() : a(42), b(3.141) {}"
         ;
     expected ="#include \"file.h\"\n\n\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     MoveFuncDefToDecl factory;
     TestCase data(testFiles);
@@ -3537,7 +3480,7 @@ void CppEditorPlugin::test_quickfix_AssignToLocalVariable_templates()
         "};\n"
         ;
     expected = original + "\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File
     original =
@@ -3552,7 +3495,7 @@ void CppEditorPlugin::test_quickfix_AssignToLocalVariable_templates()
         "    List<int> list;\n"
         "    int localFirst = list.first();\n"
         "}\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     AssignToLocalVariable factory;
     TestCase data(testFiles);
@@ -3635,7 +3578,7 @@ void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_freeFunction_separ
         "void foo(const char *a, long b = 1);";
     expected =
         "void foo(const char *a, long b = 1, int newParameter = 156);\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File
     original =
@@ -3644,7 +3587,7 @@ void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_freeFunction_separ
     expected =
         "void foo(const char *a, long b, int newParameter)\n"
         "{return newParameter + 123 + newParameter;}\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     ExtractLiteralAsParameter factory;
     TestCase data(testFiles);
@@ -3668,7 +3611,7 @@ void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_memberFunction_sep
         "public:\n"
         "    int zort(int newParameter = 155);\n"
         "};\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File
     original =
@@ -3679,7 +3622,7 @@ void CppEditorPlugin::test_quickfix_ExtractLiteralAsParameter_memberFunction_sep
         "#include \"file.h\"\n\n"
         "int Narf::zort(int newParameter)\n"
         "{ return newParameter + 1; }\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     ExtractLiteralAsParameter factory;
     TestCase data(testFiles);
@@ -4022,7 +3965,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_implementationFile()
         "public:\n"
         "    virtual int a();\n"
         "};\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File
     original = "#include \"file.h\"\n";
@@ -4031,7 +3974,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_implementationFile()
         "\n\n"
         "int Derived::a()\n"
         "{\n}\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     InsertVirtualMethods factory(new InsertVirtualMethodsDialogTest(
                                      InsertVirtualMethodsDialog::ModeImplementationFile, true));
@@ -4075,7 +4018,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_BaseClassInNamespace()
         "public:\n"
         "    virtual BaseNS::BaseEnum a(BaseNS::BaseEnum e);\n"
         "};\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.h"));
+    testFiles << TestDocument::create("file.h", original, expected);
 
     // Source File
     original = "#include \"file.h\"\n";
@@ -4084,7 +4027,7 @@ void CppEditorPlugin::test_quickfix_InsertVirtualMethods_BaseClassInNamespace()
         "\n\n"
         "BaseNS::BaseEnum Derived::a(BaseNS::BaseEnum e)\n"
         "{\n}\n";
-    testFiles << TestDocument::create(original, expected, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create("file.cpp", original, expected);
 
     InsertVirtualMethods factory(new InsertVirtualMethodsDialogTest(
                                      InsertVirtualMethodsDialog::ModeImplementationFile, true));

@@ -268,6 +268,8 @@ public:
     virtual void setIndexingSupport(CppTools::CppIndexingSupport *indexingSupport) = 0;
     virtual CppIndexingSupport *indexingSupport() = 0;
 
+    virtual void setIncludePaths(const QStringList &includePaths) = 0;
+
 signals:
     /// Project data might be locked while this is emitted.
     void aboutToRemoveFiles(const QStringList &files);

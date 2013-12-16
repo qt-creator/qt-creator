@@ -27,9 +27,10 @@
 **
 ****************************************************************************/
 
-#include "cpptoolsplugin.h"
 #include "cpppreprocessor.h"
 #include "cpptoolseditorsupport.h"
+#include "cpptoolsplugin.h"
+#include "cpptoolstestcase.h"
 #include "modelmanagertesthelper.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -181,19 +182,15 @@ public:
         return isFetchOk;
     }
 
-    void writeContents(const QByteArray &contents) const
+    bool writeContents(const QByteArray &contents) const
     {
-        Utils::FileSaver fileSaver(m_filePath);
-        fileSaver.write(contents);
-        fileSaver.finalize();
+        return CppTools::Tests::TestCase::writeFile(m_filePath, contents);
     }
 
 private:
     void restoreContents() const
     {
-        Utils::FileSaver fileSaver(m_filePath);
-        fileSaver.write(m_originalFileContents);
-        fileSaver.finalize();
+        CppTools::Tests::TestCase::writeFile(m_filePath, m_originalFileContents);
     }
 
     QByteArray m_originalFileContents;
@@ -554,7 +551,7 @@ void CppToolsPlugin::test_modelmanager_refresh_timeStampModified_if_sourcefiles_
     QByteArray originalContents;
     QVERIFY(fileChangerAndRestorer.readContents(&originalContents));
     const QByteArray newFileContentes = originalContents + "\nint addedOtherGlobal;";
-    fileChangerAndRestorer.writeContents(newFileContentes);
+    QVERIFY(fileChangerAndRestorer.writeContents(newFileContentes));
 
     // Add or remove source file. The configuration stays the same.
     part->files.clear();

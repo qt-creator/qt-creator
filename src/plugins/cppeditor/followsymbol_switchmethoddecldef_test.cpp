@@ -29,13 +29,15 @@
 
 #include "cppeditor.h"
 #include "cppeditorplugin.h"
+#include "cppeditortestcase.h"
 #include "cppelementevaluator.h"
 #include "cppvirtualfunctionassistprovider.h"
 #include "cppvirtualfunctionproposalitem.h"
 
-#include <texteditor/codeassist/iassistproposal.h>
-#include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/codeassist/basicproposalitemlistmodel.h>
+#include <texteditor/codeassist/iassistprocessor.h>
+#include <texteditor/codeassist/iassistproposal.h>
+
 #include <utils/fileutils.h>
 
 #include <QDebug>
@@ -168,66 +170,40 @@ typedef QSharedPointer<TestDocument> TestDocumentPtr;
  *   - a '@' character denotes the initial text cursor position
  *   - a '$' character denotes the target text cursor position
  */
-class TestDocument
+class TestDocument : public CppEditor::Internal::Tests::TestDocument
 {
 public:
-    TestDocument(const QByteArray &theSource, const QString &fileName)
-        : source(theSource)
-        , fileName(fileName)
-        , initialCursorPosition(source.indexOf('@'))
-        , targetCursorPosition(source.indexOf('$'))
-        , editor(0)
-        , editorWidget(0)
+    TestDocument(const QByteArray &source, const QByteArray &fileName)
+        : CppEditor::Internal::Tests::TestDocument(fileName, source)
+        , m_targetCursorPosition(source.indexOf('$'))
     {
-        if (initialCursorPosition != -1 || targetCursorPosition != -1)
-            QVERIFY(initialCursorPosition != targetCursorPosition);
+        if (m_cursorPosition != -1 || m_targetCursorPosition != -1)
+            QVERIFY(m_cursorPosition != m_targetCursorPosition);
 
-        if (initialCursorPosition > targetCursorPosition) {
-            source.remove(initialCursorPosition, 1);
-            if (targetCursorPosition != -1) {
-                source.remove(targetCursorPosition, 1);
-                --initialCursorPosition;
+        if (m_cursorPosition > m_targetCursorPosition) {
+            m_source.remove(m_cursorPosition, 1);
+            if (m_targetCursorPosition != -1) {
+                m_source.remove(m_targetCursorPosition, 1);
+                --m_cursorPosition;
             }
         } else {
-            source.remove(targetCursorPosition, 1);
-            if (initialCursorPosition != -1) {
-                source.remove(initialCursorPosition, 1);
-                --targetCursorPosition;
+            m_source.remove(m_targetCursorPosition, 1);
+            if (m_cursorPosition != -1) {
+                m_source.remove(m_cursorPosition, 1);
+                --m_targetCursorPosition;
             }
         }
     }
 
-    static TestDocumentPtr create(const QByteArray &theOriginalSource, const QString &fileName)
+    static TestDocumentPtr create(const QByteArray &source, const QByteArray &fileName)
     {
-        return TestDocumentPtr(new TestDocument(theOriginalSource, fileName));
+        return TestDocumentPtr(new TestDocument(source, fileName));
     }
 
-    bool hasInitialCursorMarker() const { return initialCursorPosition != -1; }
-    bool hasTargetCursorMarker() const { return targetCursorPosition != -1; }
+    bool hasTargetCursorMarker() const { return m_targetCursorPosition != -1; }
 
-    QString filePath() const
-    {
-        if (directoryPath.isEmpty())
-            qDebug() << "directoryPath not set!";
-        return directoryPath + QLatin1Char('/') + fileName;
-    }
-
-    void writeToDisk() const
-    {
-        Utils::FileSaver srcSaver(filePath());
-        srcSaver.write(source);
-        srcSaver.finalize();
-    }
-
-    QByteArray source;
-
-    const QString fileName;
-    QString directoryPath;
-    int initialCursorPosition;
-    int targetCursorPosition;
-
-    CPPEditor *editor;
-    CPPEditorWidget *editorWidget;
+public:
+    int m_targetCursorPosition;
 };
 
 /**
@@ -235,7 +211,7 @@ public:
  * executing Follow Symbol Under Cursor or Switch Between Function Declaration/Definition
  * and checking the result.
  */
-class TestCase
+class TestCase : public CppEditor::Internal::Tests::TestCase
 {
 public:
     enum CppEditorAction {
@@ -247,7 +223,6 @@ public:
              const OverrideItemList &expectedVirtualFunctionProposal = OverrideItemList());
     TestCase(CppEditorAction action, const QList<TestDocumentPtr> theTestFiles,
              const OverrideItemList &expectedVirtualFunctionProposal = OverrideItemList());
-    ~TestCase();
 
     void run();
 
@@ -273,7 +248,7 @@ TestCase::TestCase(CppEditorAction action, const QByteArray &source,
     : m_action(action)
     , m_expectedVirtualFunctionProposal(expectedVirtualFunctionProposal)
 {
-    m_testFiles << TestDocument::create(source, QLatin1String("file.cpp"));
+    m_testFiles << TestDocument::create(source, "file.cpp");
     init();
 }
 
@@ -299,74 +274,39 @@ void TestCase::init()
         "No test file with target cursor marker is provided.");
 
     // Write files to disk
-    const QString directoryPath = QDir::tempPath();
-    foreach (TestDocumentPtr testFile, m_testFiles) {
-        testFile->directoryPath = directoryPath;
-        testFile->writeToDisk();
-    }
+    foreach (TestDocumentPtr testFile, m_testFiles)
+        QVERIFY(testFile->writeToDisk());
 
     // Update Code Model
     QStringList filePaths;
     foreach (const TestDocumentPtr &testFile, m_testFiles)
         filePaths << testFile->filePath();
-    CppModelManagerInterface *mmi = CppTools::CppModelManagerInterface::instance();
-    mmi->updateSourceFiles(filePaths).waitForFinished();
-    QCoreApplication::processEvents();
-    const Snapshot snapshot = mmi->snapshot();
-    QVERIFY(!snapshot.isEmpty());
-    foreach (const QString &filePath, filePaths)
-        QVERIFY(snapshot.contains(filePath));
+    QVERIFY(parseFiles(filePaths));
 
     // Open Files
     foreach (TestDocumentPtr testFile, m_testFiles) {
-        testFile->editor
-            = dynamic_cast<CPPEditor *>(EditorManager::openEditor(testFile->filePath()));
-        QVERIFY(testFile->editor);
-
-        testFile->editorWidget = dynamic_cast<CPPEditorWidget *>(testFile->editor->editorWidget());
-        QVERIFY(testFile->editorWidget);
+        QVERIFY(openCppEditor(testFile->filePath(), &testFile->m_editor,
+                              &testFile->m_editorWidget));
+        closeEditorAtEndOfTestCase(testFile->m_editor);
 
         // Wait until the indexer processed the just opened file.
         // The file is "Full Checked" since it is in the working copy now,
         // that is the function bodies are processed.
         forever {
-            Snapshot snapshot = CppTools::CppModelManagerInterface::instance()->snapshot();
-            if (Document::Ptr document = snapshot.document(testFile->filePath())) {
-                if (document->checkMode() == Document::FullCheck)
-                    break;
-                QCoreApplication::processEvents();
-            }
+            const Document::Ptr document = waitForFileInGlobalSnapshot(testFile->filePath());
+            if (document->checkMode() == Document::FullCheck)
+                break;
         }
 
         // Rehighlight
-        testFile->editorWidget->semanticRehighlight(true);
-        // Wait for the semantic info from the future
-        while (testFile->editorWidget->semanticInfo().doc.isNull())
-            QCoreApplication::processEvents();
+        waitForRehighlightedSemanticDocument(testFile->m_editorWidget);
     }
-}
-
-TestCase::~TestCase()
-{
-    // Close editors
-    QList<Core::IEditor *> editorsToClose;
-    foreach (const TestDocumentPtr testFile, m_testFiles) {
-        if (testFile->editor)
-            editorsToClose << testFile->editor;
-    }
-    EditorManager::closeEditors(editorsToClose, false);
-    QCoreApplication::processEvents(); // process any pending events
-
-    // Remove the test files from the code-model
-    CppModelManagerInterface *mmi = CppTools::CppModelManagerInterface::instance();
-    mmi->GC();
-    QCOMPARE(mmi->snapshot().size(), 0);
 }
 
 TestDocumentPtr TestCase::testFileWithInitialCursorMarker()
 {
     foreach (const TestDocumentPtr testFile, m_testFiles) {
-        if (testFile->hasInitialCursorMarker())
+        if (testFile->hasCursorMarker())
             return testFile;
     }
     return TestDocumentPtr();
@@ -389,9 +329,9 @@ void TestCase::run()
     QVERIFY(targetTestFile);
 
     // Activate editor of initial test file
-    EditorManager::activateEditor(initialTestFile->editor);
+    EditorManager::activateEditor(initialTestFile->m_editor);
 
-    initialTestFile->editor->setCursorPosition(initialTestFile->initialCursorPosition);
+    initialTestFile->m_editor->setCursorPosition(initialTestFile->m_cursorPosition);
 //    qDebug() << "Initial line:" << initialTestFile->editor->currentLine();
 //    qDebug() << "Initial column:" << initialTestFile->editor->currentColumn() - 1;
 
@@ -401,7 +341,7 @@ void TestCase::run()
     // Trigger the action
     switch (m_action) {
     case FollowSymbolUnderCursorAction: {
-        CPPEditorWidget *widget = initialTestFile->editorWidget;
+        CPPEditorWidget *widget = initialTestFile->m_editorWidget;
         FollowSymbolUnderCursor *delegate = widget->followSymbolUnderCursorDelegate();
         VirtualFunctionAssistProvider *original = delegate->virtualFunctionAssistProvider();
 
@@ -409,7 +349,7 @@ void TestCase::run()
         QScopedPointer<VirtualFunctionTestAssistProvider> testProvider(
             new VirtualFunctionTestAssistProvider(widget));
         delegate->setVirtualFunctionAssistProvider(testProvider.data());
-        initialTestFile->editorWidget->openLinkUnderCursor();
+        initialTestFile->m_editorWidget->openLinkUnderCursor();
         immediateVirtualSymbolResults = testProvider->m_immediateItems;
         finalVirtualSymbolResults = testProvider->m_finalItems;
 
@@ -434,7 +374,7 @@ void TestCase::run()
 
     QCOMPARE(currentTextEditor->document()->filePath(), targetTestFile->filePath());
     int expectedLine, expectedColumn;
-    currentTextEditor->convertPosition(targetTestFile->targetCursorPosition,
+    currentTextEditor->convertPosition(targetTestFile->m_targetCursorPosition,
                                        &expectedLine, &expectedColumn);
 //    qDebug() << "Expected line:" << expectedLine;
 //    qDebug() << "Expected column:" << expectedColumn;
@@ -550,8 +490,8 @@ void CppEditorPlugin::test_SwitchMethodDeclarationDefinition()
     QFETCH(QByteArray, source);
 
     QList<TestDocumentPtr> testFiles;
-    testFiles << TestDocument::create(header, QLatin1String("file.h"));
-    testFiles << TestDocument::create(source, QLatin1String("file.cpp"));
+    testFiles << TestDocument::create(header, "file.h");
+    testFiles << TestDocument::create(source, "file.cpp");
 
     TestCase test(TestCase::SwitchBetweenMethodDeclarationDefinitionAction, testFiles);
     test.run();
@@ -924,18 +864,18 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_multipleDocuments_data()
 
     QTest::newRow("skipForwardDeclarationBasic") << (QList<TestDocumentPtr>()
         << TestDocument::create("class $Foo {};\n",
-                                QLatin1String("defined.h"))
+                                "defined.h")
         << TestDocument::create("class Foo;\n"
                                 "@Foo foo;\n",
-                                QLatin1String("forwardDeclaredAndUsed.h"))
+                                "forwardDeclaredAndUsed.h")
     );
 
     QTest::newRow("skipForwardDeclarationTemplates") << (QList<TestDocumentPtr>()
         << TestDocument::create("template <class E> class $Container {};\n",
-                                QLatin1String("defined.h"))
+                                "defined.h")
         << TestDocument::create("template <class E> class Container;\n"
                                 "@Container<int> container;\n",
-                                QLatin1String("forwardDeclaredAndUsed.h"))
+                                "forwardDeclaredAndUsed.h")
     );
 }
 
@@ -1371,13 +1311,13 @@ void CppEditorPlugin::test_FollowSymbolUnderCursor_virtualFunctionCall_multipleD
 {
     QList<TestDocumentPtr> testFiles = QList<TestDocumentPtr>()
             << TestDocument::create("struct A { virtual void virt(int) = 0; };\n",
-                                    QLatin1String("a.h"))
+                                    "a.h")
             << TestDocument::create("#include \"a.h\"\n"
                                     "struct B : A { void virt(int) {} };\n",
-                                    QLatin1String("b.h"))
+                                    "b.h")
             << TestDocument::create("#include \"a.h\"\n"
                                     "void f(A *o) { o->$@virt(42); }\n",
-                                    QLatin1String("u.cpp"))
+                                    "u.cpp")
             ;
 
     const OverrideItemList finalResults = OverrideItemList()

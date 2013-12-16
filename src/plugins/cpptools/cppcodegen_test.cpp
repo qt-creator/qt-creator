@@ -27,8 +27,9 @@
 **
 ****************************************************************************/
 
-#include "insertionpointlocator.h"
 #include "cpptoolsplugin.h"
+#include "cpptoolstestcase.h"
+#include "insertionpointlocator.h"
 
 #include <utils/fileutils.h>
 
@@ -361,9 +362,7 @@ void CppToolsPlugin::test_codegen_definition_empty_class()
             "\n";
 
     Document::Ptr src = Document::create(QDir::tempPath() + QLatin1String("/file.h"));
-    Utils::FileSaver srcSaver(src->fileName());
-    srcSaver.write(srcText);
-    srcSaver.finalize();
+    QVERIFY(CppTools::Tests::TestCase::writeFile(src->fileName(), srcText));
     src->setUtf8Source(srcText);
     src->parse();
     src->check();
@@ -371,9 +370,7 @@ void CppToolsPlugin::test_codegen_definition_empty_class()
     QCOMPARE(src->globalSymbolCount(), 1U);
 
     Document::Ptr dst = Document::create(QDir::tempPath() + QLatin1String("/file.cpp"));
-    Utils::FileSaver dstSaver(dst->fileName());
-    dstSaver.write(dstText);
-    dstSaver.finalize();
+    QVERIFY(CppTools::Tests::TestCase::writeFile(dst->fileName(), dstText));
     dst->setUtf8Source(dstText);
     dst->parse();
     dst->check();
@@ -429,9 +426,7 @@ void CppToolsPlugin::test_codegen_definition_first_member()
                 "int y;\n").arg(QDir::tempPath()).toLatin1();
 
     Document::Ptr src = Document::create(QDir::tempPath() + QLatin1String("/file.h"));
-    Utils::FileSaver srcSaver(src->fileName());
-    srcSaver.write(srcText);
-    srcSaver.finalize();
+    QVERIFY(CppTools::Tests::TestCase::writeFile(src->fileName(), srcText));
     src->setUtf8Source(srcText);
     src->parse();
     src->check();
@@ -441,9 +436,7 @@ void CppToolsPlugin::test_codegen_definition_first_member()
     Document::Ptr dst = Document::create(QDir::tempPath() + QLatin1String("/file.cpp"));
     dst->addIncludeFile(Document::Include(QLatin1String("file.h"), src->fileName(), 1,
                                           Client::IncludeLocal));
-    Utils::FileSaver dstSaver(dst->fileName());
-    dstSaver.write(dstText);
-    dstSaver.finalize();
+    QVERIFY(CppTools::Tests::TestCase::writeFile(dst->fileName(), dstText));
     dst->setUtf8Source(dstText);
     dst->parse();
     dst->check();
@@ -499,9 +492,7 @@ void CppToolsPlugin::test_codegen_definition_last_member()
                 "int y;\n").arg(QDir::tempPath()).toLatin1();
 
     Document::Ptr src = Document::create(QDir::tempPath() + QLatin1String("/file.h"));
-    Utils::FileSaver srcSaver(src->fileName());
-    srcSaver.write(srcText);
-    srcSaver.finalize();
+    QVERIFY(CppTools::Tests::TestCase::writeFile(src->fileName(), srcText));
     src->setUtf8Source(srcText);
     src->parse();
     src->check();
@@ -511,9 +502,7 @@ void CppToolsPlugin::test_codegen_definition_last_member()
     Document::Ptr dst = Document::create(QDir::tempPath() + QLatin1String("/file.cpp"));
     dst->addIncludeFile(Document::Include(QLatin1String("file.h"), src->fileName(), 1,
                                           Client::IncludeLocal));
-    Utils::FileSaver dstSaver(dst->fileName());
-    dstSaver.write(dstText);
-    dstSaver.finalize();
+    QVERIFY(CppTools::Tests::TestCase::writeFile(dst->fileName(), dstText));
     dst->setUtf8Source(dstText);
     dst->parse();
     dst->check();
@@ -575,9 +564,7 @@ void CppToolsPlugin::test_codegen_definition_middle_member()
                 "int y;\n").arg(QDir::tempPath()).toLatin1();
 
     Document::Ptr src = Document::create(QDir::tempPath() + QLatin1String("/file.h"));
-    Utils::FileSaver srcSaver(src->fileName());
-    srcSaver.write(srcText);
-    srcSaver.finalize();
+    QVERIFY(CppTools::Tests::TestCase::writeFile(src->fileName(), srcText));
     src->setUtf8Source(srcText);
     src->parse();
     src->check();
@@ -587,9 +574,7 @@ void CppToolsPlugin::test_codegen_definition_middle_member()
     Document::Ptr dst = Document::create(QDir::tempPath() + QLatin1String("/file.cpp"));
     dst->addIncludeFile(Document::Include(QLatin1String("file.h"), src->fileName(), 1,
                                           Client::IncludeLocal));
-    Utils::FileSaver dstSaver(dst->fileName());
-    dstSaver.write(dstText);
-    dstSaver.finalize();
+    QVERIFY(CppTools::Tests::TestCase::writeFile(dst->fileName(), dstText));
     dst->setUtf8Source(dstText);
     dst->parse();
     dst->check();
@@ -647,9 +632,7 @@ void CppToolsPlugin::test_codegen_definition_middle_member_surrounded_by_undefin
             "int y;\n").arg(QDir::tempPath()).toLatin1();
 
     Document::Ptr src = Document::create(QDir::tempPath() + QLatin1String("/file.h"));
-    Utils::FileSaver srcSaver(src->fileName());
-    srcSaver.write(srcText);
-    srcSaver.finalize();
+    QVERIFY(CppTools::Tests::TestCase::writeFile(src->fileName(), srcText));
     src->setUtf8Source(srcText);
     src->parse();
     src->check();
@@ -659,9 +642,7 @@ void CppToolsPlugin::test_codegen_definition_middle_member_surrounded_by_undefin
     Document::Ptr dst = Document::create(QDir::tempPath() + QLatin1String("/file.cpp"));
     dst->addIncludeFile(Document::Include(QLatin1String("file.h"), src->fileName(), 1,
                                           Client::IncludeLocal));
-    Utils::FileSaver dstSaver(dst->fileName());
-    dstSaver.write(dstText);
-    dstSaver.finalize();
+    QVERIFY(CppTools::Tests::TestCase::writeFile(dst->fileName(), dstText));
     dst->setUtf8Source(dstText);
     dst->parse();
     dst->check();
@@ -722,9 +703,7 @@ void CppToolsPlugin::test_codegen_definition_member_specific_file()
                 "int y;\n").arg(QDir::tempPath()).toLatin1();
 
     Document::Ptr src = Document::create(QDir::tempPath() + QLatin1String("/file.h"));
-    Utils::FileSaver srcSaver(src->fileName());
-    srcSaver.write(srcText);
-    srcSaver.finalize();
+    QVERIFY(CppTools::Tests::TestCase::writeFile(src->fileName(), srcText));
     src->setUtf8Source(srcText);
     src->parse();
     src->check();
@@ -734,9 +713,7 @@ void CppToolsPlugin::test_codegen_definition_member_specific_file()
     Document::Ptr dst = Document::create(QDir::tempPath() + QLatin1String("/file.cpp"));
     dst->addIncludeFile(Document::Include(QLatin1String("file.h"), src->fileName(), 1,
                                           Client::IncludeLocal));
-    Utils::FileSaver dstSaver(dst->fileName());
-    dstSaver.write(dstText);
-    dstSaver.finalize();
+    QVERIFY(CppTools::Tests::TestCase::writeFile(dst->fileName(), dstText));
     dst->setUtf8Source(dstText);
     dst->parse();
     dst->check();

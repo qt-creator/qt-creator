@@ -27,41 +27,72 @@
 **
 ****************************************************************************/
 
+#ifndef CPPTOOLSTESTCASE_H
+#define CPPTOOLSTESTCASE_H
 
-#ifndef TESTDATADIR_H
-#define TESTDATADIR_H
+#include "cppmodelmanagerinterface.h"
+#include "cpptools_global.h"
 
-#include "core_global.h"
+#include <coreplugin/editormanager/ieditor.h>
 
-#include <QString>
+#include <QStringList>
 
-#define QTC_DECLARE_MYTESTDATADIR(PATH)                                          \
-    class MyTestDataDir : public Core::Internal::Tests::TestDataDir              \
-    {                                                                            \
-    public:                                                                      \
-        MyTestDataDir(const QString &testDataDirectory = QString())              \
-            : TestDataDir(QLatin1String(SRCDIR "/" PATH) + testDataDirectory) {} \
-    };
-
+namespace CPlusPlus {
+class Document;
+class Snapshot;
+}
 namespace Core {
-namespace Internal {
+class IEditor;
+}
+
+namespace CppTools {
 namespace Tests {
 
-class CORE_EXPORT TestDataDir
+class CPPTOOLS_EXPORT TestDocument
 {
 public:
-    TestDataDir(const QString &directory);
-    QString file(const QString &fileName) const;
+    TestDocument(const QByteArray &fileName, const QByteArray &source, char cursorMarker = '@');
+
+    QString filePath() const;
+    bool writeToDisk() const;
+
+public:
+    QByteArray m_fileName;
+    QByteArray m_source;
+    char m_cursorMarker;
+};
+
+class CPPTOOLS_EXPORT TestCase
+{
+    Q_DISABLE_COPY(TestCase)
+
+public:
+    TestCase(bool runGarbageCollector = true);
+    ~TestCase();
+
+    void closeEditorAtEndOfTestCase(Core::IEditor *editor);
+
+    static bool parseFiles(const QString &filePath);
+    static bool parseFiles(const QStringList &filePaths);
+
+    static CPlusPlus::Snapshot globalSnapshot();
+    static bool garbageCollectGlobalSnapshot();
+
+    static CPlusPlus::Document::Ptr waitForFileInGlobalSnapshot(const QString &filePath);
+    static QList<CPlusPlus::Document::Ptr> waitForFilesInGlobalSnapshot(
+            const QStringList &filePaths);
+
+    static bool writeFile(const QString &filePath, const QByteArray &contents);
 
 protected:
-    QString directory(const QString &subdir = QString(), bool clean = true) const;
+    CppModelManagerInterface *m_modelManager;
 
 private:
-    QString m_directory;
+    QList<Core::IEditor *> m_editorsToClose;
+    bool m_runGarbageCollector;
 };
 
 } // namespace Tests
-} // namespace Internal
-} // namespace Core
+} // namespace CppTools
 
-#endif // TESTDATADIR_H
+#endif // CPPTOOLSTESTCASE_H

@@ -28,12 +28,13 @@
 ****************************************************************************/
 
 #include "cppeditor.h"
+#include "cppeditorplugin.h"
+#include "cppeditortestcase.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <cplusplus/CppDocument.h>
-#include <cppeditor/cppeditor.h>
-#include <cppeditor/cppeditorplugin.h>
 #include <cpptools/cppmodelmanagerinterface.h>
+
+#include <cplusplus/CppDocument.h>
 #include <utils/fileutils.h>
 
 #include <QCoreApplication>
@@ -58,46 +59,31 @@ typedef QByteArray _;
  * Encapsulates the whole process of setting up an editor,
  * pressing ENTER and checking the result.
  */
-struct TestCase
+class TestCase : public CppEditor::Internal::Tests::TestCase
 {
-    QByteArray originalText;
-    int pos;
-    CPPEditor *editor;
-    CPPEditorWidget *editorWidget;
-
+public:
     TestCase(const QByteArray &input);
-    ~TestCase();
-
     void run(const QByteArray &expected, int undoCount = 1);
 
 private:
-    TestCase(const TestCase &);
-    TestCase &operator=(const TestCase &);
+    CppEditor::Internal::Tests::TestDocument testDocument;
 };
 
 /// The '|' in the input denotes the cursor position.
 TestCase::TestCase(const QByteArray &input)
-    : originalText(input)
+    : testDocument("file.cpp", input, '|')
 {
-    pos = originalText.indexOf('|');
-    QVERIFY(pos != -1);
-    originalText.remove(pos, 1);
-    QString fileName(QDir::tempPath() + QLatin1String("/file.cpp"));
-    Utils::FileSaver srcSaver(fileName);
-    srcSaver.write(originalText);
-    srcSaver.finalize();
+    QVERIFY(testDocument.hasCursorMarker());
+    testDocument.m_source.remove(testDocument.m_cursorPosition, 1);
+    QVERIFY(testDocument.writeToDisk());
 
     // Update Code Model
-    CppTools::CppModelManagerInterface *mmi = CppTools::CppModelManagerInterface::instance();
-    mmi->updateSourceFiles(QStringList(fileName)).waitForFinished();
-    QCoreApplication::processEvents();
-    QVERIFY(mmi->snapshot().contains(fileName));
+    QVERIFY(parseFiles(testDocument.filePath()));
 
     // Open Editor
-    editor = dynamic_cast<CPPEditor *>(EditorManager::openEditor(fileName));
-    QVERIFY(editor);
-    editorWidget = dynamic_cast<CPPEditorWidget *>(editor->editorWidget());
-    QVERIFY(editorWidget);
+    QVERIFY(openCppEditor(testDocument.filePath(), &testDocument.m_editor,
+                          &testDocument.m_editorWidget));
+    closeEditorAtEndOfTestCase(testDocument.m_editor);
 
     // We want to test documents that start with a comment. By default, the
     // editor will fold the very first comment it encounters, assuming
@@ -105,39 +91,26 @@ TestCase::TestCase(const QByteArray &input)
     // expected (some blocks are still hidden in some test cases, so the
     // cursor movements are not as expected). For the time being, we just
     // prepend a declaration before the initial test comment.
-//    editorWidget->unfoldAll();
-    editor->setCursorPosition(pos);
+//    testDocument.m_editorWidget->unfoldAll();
+    testDocument.m_editor->setCursorPosition(testDocument.m_cursorPosition);
 
-    editorWidget->semanticRehighlight(true);
-    // Wait for the semantic info from the future:
-    while (editorWidget->semanticInfo().doc.isNull())
-        QCoreApplication::processEvents();
-}
-
-TestCase::~TestCase()
-{
-    EditorManager::closeEditor(editor, false);
-    QCoreApplication::processEvents(); // process any pending events
-
-    // Remove the test file from the code-model
-    CppTools::CppModelManagerInterface *mmi = CppTools::CppModelManagerInterface::instance();
-    mmi->GC();
-    QCOMPARE(mmi->snapshot().size(), 0);
+    waitForRehighlightedSemanticDocument(testDocument.m_editorWidget);
 }
 
 void TestCase::run(const QByteArray &expected, int undoCount)
 {
     // Send 'ENTER' key press
     QKeyEvent event(QEvent::KeyPress, Qt::Key_Enter, Qt::NoModifier);
-    QCoreApplication::sendEvent(editorWidget, &event);
-    const QByteArray result = editorWidget->document()->toPlainText().toUtf8();
+    QCoreApplication::sendEvent(testDocument.m_editorWidget, &event);
+    const QByteArray result = testDocument.m_editorWidget->document()->toPlainText().toUtf8();
 
     QCOMPARE(QLatin1String(result), QLatin1String(expected));
 
     for (int i = 0; i < undoCount; ++i)
-        editorWidget->undo();
-    const QByteArray contentsAfterUndo = editorWidget->document()->toPlainText().toUtf8();
-    QCOMPARE(contentsAfterUndo, originalText);
+        testDocument.m_editorWidget->undo();
+    const QByteArray contentsAfterUndo
+        = testDocument.m_editorWidget->document()->toPlainText().toUtf8();
+    QCOMPARE(contentsAfterUndo, testDocument.m_source);
 }
 } // anonymous namespace
 

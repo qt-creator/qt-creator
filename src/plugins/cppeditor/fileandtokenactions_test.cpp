@@ -27,26 +27,28 @@
 **
 ****************************************************************************/
 
-#include <cplusplus/CppDocument.h>
-#include <cplusplus/TranslationUnit.h>
+#include "cppeditor.h"
+#include "cppeditorplugin.h"
+#include "cppeditortestcase.h"
+#include "cppquickfix.h"
+#include "cppquickfix_test_utils.h"
+#include "cppquickfixassistant.h"
+#include "cppquickfixes.h"
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <cppeditor/cppeditor.h>
-#include <cppeditor/cppeditorplugin.h>
-#include <cppeditor/cppquickfixassistant.h>
-#include <cppeditor/cppquickfixes.h>
-#include <cppeditor/cppquickfix.h>
-#include <cppeditor/cppquickfix_test_utils.h>
 #include <cpptools/cppmodelmanagerinterface.h>
 #include <cpptools/cpptoolsplugin.h>
 #include <extensionsystem/pluginmanager.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
 #include <texteditor/basetextdocument.h>
 
+#include <cplusplus/CppDocument.h>
+#include <cplusplus/TranslationUnit.h>
+
 #include <QDebug>
-#include <QtAlgorithms>
 #include <QTextDocument>
+#include <QtAlgorithms>
 #include <QtTest>
 
 #if  QT_VERSION >= 0x050000
@@ -81,7 +83,7 @@ using namespace TextEditor;
 
 namespace {
 
-class TestActionsTestCase
+class TestActionsTestCase : public CppEditor::Internal::Tests::TestCase
 {
 public:
     class AbstractAction
@@ -95,6 +97,8 @@ public:
     typedef QList<ActionPointer> Actions;
 
 public:
+    TestActionsTestCase();
+
     /// Run the given fileActions for each file and the given tokenActions for each token.
     /// The cursor is positioned on the very first character of each token.
     void run(const Actions &tokenActions = Actions(),
@@ -132,14 +136,18 @@ bool TestActionsTestCase::allProjectsConfigured = false;
 typedef TestActionsTestCase::Actions Actions;
 typedef TestActionsTestCase::ActionPointer ActionPointer;
 
+TestActionsTestCase::TestActionsTestCase()
+    : CppEditor::Internal::Tests::TestCase(/*runGarbageCollector=*/false)
+{
+}
+
 void TestActionsTestCase::run(const Actions &tokenActions, const Actions &fileActions)
 {
-    CppModelManagerInterface *mm = CppModelManagerInterface::instance();
-
     // Collect files to process
     QStringList filesToOpen;
     QList<QPointer<ProjectExplorer::Project> > projects;
-    const QList<CppModelManagerInterface::ProjectInfo> projectInfos = mm->projectInfos();
+    const QList<CppModelManagerInterface::ProjectInfo> projectInfos
+            = m_modelManager->projectInfos();
     if (projectInfos.isEmpty())
         MSKIP_SINGLE("No project(s) loaded. Test operates only on loaded projects.");
 
@@ -175,18 +183,16 @@ void TestActionsTestCase::run(const Actions &tokenActions, const Actions &fileAc
 
         // Open editor
         QCOMPARE(EditorManager::documentModel()->openedDocuments().size(), 0);
-        CPPEditor *editor = dynamic_cast<CPPEditor *>(EditorManager::openEditor(filePath));
-        QVERIFY(editor);
+        CPPEditor *editor;
+        CPPEditorWidget *editorWidget;
+        QVERIFY(openCppEditor(filePath, &editor, &editorWidget));
+
         QCOMPARE(EditorManager::documentModel()->openedDocuments().size(), 1);
-        QVERIFY(mm->isCppEditor(editor));
-        QVERIFY(mm->workingCopy().contains(filePath));
+        QVERIFY(m_modelManager->isCppEditor(editor));
+        QVERIFY(m_modelManager->workingCopy().contains(filePath));
 
         // Rehighlight
-        CPPEditorWidget *editorWidget = dynamic_cast<CPPEditorWidget *>(editor->editorWidget());
-        QVERIFY(editorWidget);
-        editorWidget->semanticRehighlight(true);
-        while (editorWidget->semanticInfo().doc.isNull())
-            QApplication::processEvents();
+        waitForRehighlightedSemanticDocument(editorWidget);
 
         // Run all file actions
         executeActionsOnEditorWidget(editorWidget, fileActions);
@@ -194,7 +200,7 @@ void TestActionsTestCase::run(const Actions &tokenActions, const Actions &fileAc
         if (tokenActions.empty())
             continue;
 
-        Snapshot snapshot = mm->snapshot();
+        const Snapshot snapshot = globalSnapshot();
         Document::Ptr document = snapshot.preprocessedDocument(
             editorWidget->document()->toPlainText().toUtf8(), filePath);
         QVERIFY(document);
