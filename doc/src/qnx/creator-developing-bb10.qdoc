@@ -49,7 +49,9 @@
         \li Set up API Levels:
 
         \list 1
-            \li Select \gui Tools > \gui Options > \gui BlackBerry > \gui NDK to list all registered API Levels automatically detected by \QC.
+            \li Select \gui Tools > \gui Options > \gui BlackBerry >
+                \gui {API Level} to list all registered API Levels automatically
+                detected by \QC.
             \li The API Levels printed with a bold font are active. Use \gui Activate and \gui Deactivate to change it. When an API Level is active, \QC registers kits, Qt versions, tool chains, and debuggers to enable BlackBerry 10 development against the API Level.
             \li Use \gui Add to install a new API Level or to register an existing one.
             \li It is recommended to install the latest API Level too even though you are not going to use it. This will enable all \QC features including device auto-detection and the new BlackBerry Signing Keys process.
