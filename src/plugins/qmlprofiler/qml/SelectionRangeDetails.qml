@@ -150,8 +150,7 @@ Item {
     }
 
     MouseArea {
-        width: col.width + 45
-        height: col.height + 30
+        anchors.fill: parent
         drag.target: parent
         drag.minimumX: 0
         drag.maximumX: root.width - parent.width
