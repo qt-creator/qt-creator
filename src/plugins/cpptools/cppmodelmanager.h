@@ -152,6 +152,8 @@ public:
         return m_definedMacros;
     }
 
+    void enableGarbageCollector(bool enable);
+
     static QStringList timeStampModifiedFiles(const QList<Document::Ptr> documentsToCheck);
 
 signals:

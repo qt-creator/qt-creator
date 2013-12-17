@@ -269,6 +269,7 @@ public:
     virtual CppIndexingSupport *indexingSupport() = 0;
 
     virtual void setIncludePaths(const QStringList &includePaths) = 0;
+    virtual void enableGarbageCollector(bool enable) = 0;
 
 signals:
     /// Project data might be locked while this is emitted.

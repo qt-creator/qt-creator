@@ -36,6 +36,14 @@
 
 #include <QtTest>
 
+static bool closeEditorsWithoutGarbageCollectorInvocation(const QList<Core::IEditor *> &editors)
+{
+    CppTools::CppModelManagerInterface::instance()->enableGarbageCollector(false);
+    const bool closeEditorsSucceeded = Core::EditorManager::closeEditors(editors, false);
+    CppTools::CppModelManagerInterface::instance()->enableGarbageCollector(true);
+    return closeEditorsSucceeded;
+}
+
 static bool snapshotContains(const CPlusPlus::Snapshot &snapshot, const QStringList &filePaths)
 {
     foreach (const QString &filePath, filePaths) {
@@ -80,7 +88,7 @@ TestCase::TestCase(bool runGarbageCollector)
 
 TestCase::~TestCase()
 {
-    QVERIFY(Core::EditorManager::closeEditors(m_editorsToClose, false));
+    QVERIFY(closeEditorsWithoutGarbageCollectorInvocation(m_editorsToClose));
     QCoreApplication::processEvents();
 
     if (m_runGarbageCollector)
@@ -128,6 +136,11 @@ void TestCase::closeEditorAtEndOfTestCase(Core::IEditor *editor)
 {
     if (editor && !m_editorsToClose.contains(editor))
         m_editorsToClose.append(editor);
+}
+
+bool TestCase::closeEditorWithoutGarbageCollectorInvocation(Core::IEditor *editor)
+{
+    return closeEditorsWithoutGarbageCollectorInvocation(QList<Core::IEditor *>() << editor);
 }
 
 CPlusPlus::Document::Ptr TestCase::waitForFileInGlobalSnapshot(const QString &filePath)

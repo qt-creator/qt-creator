@@ -846,7 +846,8 @@ void CppModelManager::onProjectAdded(ProjectExplorer::Project *)
 
 void CppModelManager::delayedGC()
 {
-    m_delayedGcTimer->start(500);
+    if (m_enableGC)
+        m_delayedGcTimer->start(500);
 }
 
 void CppModelManager::onAboutToRemoveProject(ProjectExplorer::Project *project)
@@ -990,6 +991,12 @@ void CppModelManager::setIndexingSupport(CppIndexingSupport *indexingSupport)
 CppIndexingSupport *CppModelManager::indexingSupport()
 {
     return m_indexingSupporter ? m_indexingSupporter : m_internalIndexingSupport;
+}
+
+void CppModelManager::enableGarbageCollector(bool enable)
+{
+    m_delayedGcTimer->stop();
+    m_enableGC = enable;
 }
 
 void CppModelManager::setExtraDiagnostics(const QString &fileName,

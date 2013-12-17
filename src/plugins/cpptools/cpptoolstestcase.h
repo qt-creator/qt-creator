@@ -73,6 +73,8 @@ public:
     bool succeededSoFar() const;
     void closeEditorAtEndOfTestCase(Core::IEditor *editor);
 
+    static bool closeEditorWithoutGarbageCollectorInvocation(Core::IEditor *editor);
+
     static bool parseFiles(const QString &filePath);
     static bool parseFiles(const QStringList &filePaths);
 

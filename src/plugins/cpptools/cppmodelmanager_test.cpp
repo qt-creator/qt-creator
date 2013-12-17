@@ -771,8 +771,9 @@ struct EditorCloser {
     EditorCloser(Core::IEditor *editor): editor(editor) {}
     ~EditorCloser()
     {
+        using namespace CppTools;
         if (editor)
-            Core::EditorManager::closeEditor(editor);
+            QVERIFY(Tests::TestCase::closeEditorWithoutGarbageCollectorInvocation(editor));
     }
 };
 

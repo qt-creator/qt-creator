@@ -126,7 +126,7 @@ private:
 
     void doAfterLocatorRun()
     {
-        EditorManager::closeEditor(m_editor, /*askAboutModifiedEditors=*/ false);
+        QVERIFY(closeEditorWithoutGarbageCollectorInvocation(m_editor));
         QCoreApplication::processEvents();
         QVERIFY(EditorManager::documentModel()->openedDocuments().isEmpty());
         QVERIFY(garbageCollectGlobalSnapshot());
