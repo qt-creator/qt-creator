@@ -235,6 +235,8 @@ void FormEditorItem::paintBoundingRect(QPainter *painter) const
 
 void FormEditorItem::paintPlaceHolderForInvisbleItem(QPainter *painter) const
 {
+    painter->save();
+
     qreal stripesWidth = 12;
 
     QRegion innerRegion = QRegion(m_boundingRect.adjusted(stripesWidth, stripesWidth, -stripesWidth, -stripesWidth).toRect());
@@ -243,7 +245,6 @@ void FormEditorItem::paintPlaceHolderForInvisbleItem(QPainter *painter) const
     painter->setClipRegion(outerRegion);
     painter->setClipping(true);
     painter->fillRect(m_boundingRect.adjusted(1, 1, -1, -1), Qt::BDiagPattern);
-    painter->setClipping(false);
 
     QString displayText = qmlItemNode().id();
 
@@ -255,8 +256,6 @@ void FormEditorItem::paintPlaceHolderForInvisbleItem(QPainter *painter) const
     textOption.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
 
     if (m_boundingRect.height() > 60) {
-        painter->save();
-
         QFont font;
         font.setStyleHint(QFont::SansSerif);
         font.setBold(true);
@@ -279,9 +278,9 @@ void FormEditorItem::paintPlaceHolderForInvisbleItem(QPainter *painter) const
         painter->setFont(font);
         painter->setPen(QColor(48, 48, 96, 255));
         painter->drawText(rotatedBoundingBox, displayText, textOption);
-
-        painter->restore();
     }
+
+    painter->restore();
 }
 
 void FormEditorItem::paintComponentContentVisualisation(QPainter *painter, const QRectF &clippinRectangle) const
