@@ -83,27 +83,28 @@ void FormEditorItem::setup()
 
 QRectF FormEditorItem::boundingRect() const
 {
-    return m_paintedBoundingRect;
+    return m_boundingRect;
 }
 
 QPainterPath FormEditorItem::shape() const
 {
     QPainterPath painterPath;
-    painterPath.addRect(m_boundingRect);
+    painterPath.addRect(m_selectionBoundingRect);
 
     return painterPath;
 }
 
 bool FormEditorItem::contains(const QPointF &point) const
 {
-    return m_boundingRect.contains(point);
+    return m_selectionBoundingRect.contains(point);
 }
 
 void FormEditorItem::updateGeometry()
 {
     prepareGeometryChange();
-    m_boundingRect = qmlItemNode().instanceBoundingRect().adjusted(0, 0, 1., 1.);
-    m_paintedBoundingRect = qmlItemNode().instancePaintedBoundingRect().united(m_boundingRect);
+    m_selectionBoundingRect = qmlItemNode().instanceBoundingRect().adjusted(0, 0, 1., 1.);
+    m_paintedBoundingRect = qmlItemNode().instancePaintedBoundingRect();
+    m_boundingRect = m_paintedBoundingRect.united(m_selectionBoundingRect);
     setTransform(qmlItemNode().instanceTransformWithContentTransform());
     //the property for zValue is called z in QGraphicsObject
     if (qmlItemNode().instanceValue("z").isValid())
@@ -304,9 +305,9 @@ void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, 
             paintPlaceHolderForInvisbleItem(painter);
     } else {
         if (m_blurContent)
-            painter->drawPixmap(boundingRect().topLeft(), qmlItemNode().instanceBlurredRenderPixmap());
+            painter->drawPixmap(m_paintedBoundingRect.topLeft(), qmlItemNode().instanceBlurredRenderPixmap());
         else
-            painter->drawPixmap(boundingRect().topLeft(), qmlItemNode().instanceRenderPixmap());
+            painter->drawPixmap(m_paintedBoundingRect.topLeft(), qmlItemNode().instanceRenderPixmap());
     }
 
     if (!qmlItemNode().isRootModelNode())

@@ -126,6 +126,7 @@ private: // variables
     QTransform m_inverseAttentionTransform;
     QRectF m_boundingRect;
     QRectF m_paintedBoundingRect;
+    QRectF m_selectionBoundingRect;
     double m_borderWidth;
     bool m_highlightBoundingRect;
     bool m_blurContent;
