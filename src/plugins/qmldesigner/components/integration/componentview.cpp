@@ -126,7 +126,7 @@ void ComponentView::addMasterDocument()
 
 void ComponentView::removeMasterDocument()
 {
-    m_standardItemModel->removeColumn(indexOfMaster());
+    m_standardItemModel->removeRow(indexOfMaster());
 }
 
 QString ComponentView::descriptionForNode(const ModelNode &node) const
