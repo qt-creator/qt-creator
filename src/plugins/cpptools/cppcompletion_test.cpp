@@ -244,8 +244,6 @@ void CppToolsPlugin::test_completion_template_function()
     CompletionTestCase test(code);
 
     QStringList actualCompletions = test.getCompletions();
-    actualCompletions.sort();
-    expectedCompletions.sort();
 
     QString errorPattern(QLatin1String("Completion not found: %1"));
     foreach (const QString &completion, expectedCompletions) {
@@ -273,6 +271,7 @@ void CppToolsPlugin::test_completion_template_function_data()
     completions.append(QLatin1String("tclass"));
     completions.append(QLatin1String("tname"));
     completions.append(QLatin1String("tint"));
+
     QTest::newRow("case: template parameters in template function body")
             << code << completions;
 
@@ -288,6 +287,7 @@ void CppToolsPlugin::test_completion_template_function_data()
     completions.append(QLatin1String("tclass"));
     completions.append(QLatin1String("tname"));
     completions.append(QLatin1String("tint"));
+
     QTest::newRow("case: template parameters in template function parameters list")
             << code << completions;
 }
@@ -307,9 +307,13 @@ void CppToolsPlugin::test_completion()
     QCOMPARE(actualCompletions, expectedCompletions);
 }
 
-void CppToolsPlugin::test_completion_forward_declarations_present()
+void CppToolsPlugin::test_completion_data()
 {
-    const QByteArray source =
+    QTest::addColumn<QByteArray>("code");
+    QTest::addColumn<QByteArray>("prefix");
+    QTest::addColumn<QStringList>("expectedCompletions");
+
+    QTest::newRow("forward_declarations_present") << _(
         "class Foo\n"
         "{\n"
         "    struct Bar;\n"
@@ -321,19 +325,11 @@ void CppToolsPlugin::test_completion_forward_declarations_present()
         "    Bar() {}\n"
         "};\n"
         "\n"
-        "@\n";
-    CompletionTestCase test(source, "Foo::Bar::");
+        "@\n"
+        ) << _("Foo::Bar::") << (QStringList()
+            << QLatin1String("Bar"));
 
-    QStringList expected;
-    expected.append(QLatin1String("Bar"));
-
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions, expected);
-}
-
-void CppToolsPlugin::test_completion_inside_parentheses_c_style_conversion()
-{
-    const QByteArray source =
+    QTest::newRow("inside_parentheses_c_style_conversion") << _(
             "class Base\n"
             "{\n"
             "    int i_base;\n"
@@ -350,20 +346,13 @@ void CppToolsPlugin::test_completion_inside_parentheses_c_style_conversion()
             "    if (1)\n"
             "        @\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "((Derived *)b)->");
+        ) << _("((Derived *)b)->") << (QStringList()
+            << QLatin1String("Derived")
+            << QLatin1String("Base")
+            << QLatin1String("i_derived")
+            << QLatin1String("i_base"));
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 4);
-    QVERIFY(completions.contains(QLatin1String("Derived")));
-    QVERIFY(completions.contains(QLatin1String("Base")));
-    QVERIFY(completions.contains(QLatin1String("i_derived")));
-    QVERIFY(completions.contains(QLatin1String("i_base")));
-}
-
-void CppToolsPlugin::test_completion_inside_parentheses_cast_operator_conversion()
-{
-    const QByteArray source =
+    QTest::newRow("inside_parentheses_cast_operator_conversion") << _(
             "class Base\n"
             "{\n"
             "    int i_base;\n"
@@ -380,20 +369,13 @@ void CppToolsPlugin::test_completion_inside_parentheses_cast_operator_conversion
             "    if (1)\n"
             "        @\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "(static_cast<Derived *>(b))->");
+        ) << _("(static_cast<Derived *>(b))->") << (QStringList()
+            << QLatin1String("Derived")
+            << QLatin1String("Base")
+            << QLatin1String("i_derived")
+            << QLatin1String("i_base"));
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 4);
-    QVERIFY(completions.contains(QLatin1String("Derived")));
-    QVERIFY(completions.contains(QLatin1String("Base")));
-    QVERIFY(completions.contains(QLatin1String("i_derived")));
-    QVERIFY(completions.contains(QLatin1String("i_base")));
-}
-
-void CppToolsPlugin::test_completion_template_1()
-{
-    const QByteArray source =
+    QTest::newRow("template_1") << _(
             "template <class T>\n"
             "class Foo\n"
             "{\n"
@@ -405,21 +387,14 @@ void CppToolsPlugin::test_completion_template_1()
             "void func() {\n"
             "    Foo f;\n"
             "    @\n"
-            "}";
-    CompletionTestCase test(source, "Foo::");
+            "}"
+        ) << _("Foo::") << (QStringList()
+              << QLatin1String("Foo")
+              << QLatin1String("Type")
+              << QLatin1String("foo")
+              << QLatin1String("m"));
 
-    const QStringList completions = test.getCompletions();
-    QVERIFY(completions.contains(QLatin1String("Type")));
-    QVERIFY(completions.contains(QLatin1String("foo")));
-    QVERIFY(completions.contains(QLatin1String("m")));
-    QVERIFY(!completions.contains(QLatin1String("T")));
-    QVERIFY(!completions.contains(QLatin1String("f")));
-    QVERIFY(!completions.contains(QLatin1String("func")));
-}
-
-void CppToolsPlugin::test_completion_template_2()
-{
-    const QByteArray source =
+    QTest::newRow("template_2") << _(
             "template <class T>\n"
             "struct List\n"
             "{\n"
@@ -431,19 +406,13 @@ void CppToolsPlugin::test_completion_template_2()
             "void func() {\n"
             "    List<Tupple> l;\n"
             "    @\n"
-            "}";
-    CompletionTestCase test(source, "l.at(0).");
+            "}"
+        ) << _("l.at(0).") << (QStringList()
+            << QLatin1String("Tupple")
+            << QLatin1String("a")
+            << QLatin1String("b"));
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 3);
-    QVERIFY(completions.contains(QLatin1String("Tupple")));
-    QVERIFY(completions.contains(QLatin1String("a")));
-    QVERIFY(completions.contains(QLatin1String("b")));
-}
-
-void CppToolsPlugin::test_completion_template_3()
-{
-    const QByteArray source =
+    QTest::newRow("template_3") << _(
             "template <class T>\n"
             "struct List\n"
             "{\n"
@@ -455,19 +424,13 @@ void CppToolsPlugin::test_completion_template_3()
             "void func() {\n"
             "    List<Tupple> l;\n"
             "    @\n"
-            "}";
-    CompletionTestCase test(source, "l.t.");
+            "}"
+        ) << _("l.t.") << (QStringList()
+            << QLatin1String("Tupple")
+            << QLatin1String("a")
+            << QLatin1String("b"));
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 3);
-    QVERIFY(completions.contains(QLatin1String("Tupple")));
-    QVERIFY(completions.contains(QLatin1String("a")));
-    QVERIFY(completions.contains(QLatin1String("b")));
-}
-
-void CppToolsPlugin::test_completion_template_4()
-{
-    const QByteArray source =
+    QTest::newRow("template_4") << _(
             "template <class T>\n"
             "struct List\n"
             "{\n"
@@ -480,19 +443,13 @@ void CppToolsPlugin::test_completion_template_4()
             "void func() {\n"
             "    List<Tupple> l;\n"
             "    @\n"
-            "}";
-    CompletionTestCase test(source, "l.u.");
+            "}"
+        ) << _("l.u.") << (QStringList()
+            << QLatin1String("Tupple")
+            << QLatin1String("a")
+            << QLatin1String("b"));
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 3);
-    QVERIFY(completions.contains(QLatin1String("Tupple")));
-    QVERIFY(completions.contains(QLatin1String("a")));
-    QVERIFY(completions.contains(QLatin1String("b")));
-}
-
-void CppToolsPlugin::test_completion_template_5()
-{
-    const QByteArray source =
+    QTest::newRow("template_5") << _(
             "template <class T>\n"
             "struct List\n"
             "{\n"
@@ -505,19 +462,13 @@ void CppToolsPlugin::test_completion_template_5()
             "    typedef List<Tupple> LT;\n"
             "    LT l;"
             "    @\n"
-            "}";
-    CompletionTestCase test(source, "l.u.");
+            "}"
+        ) << _("l.u.") << (QStringList()
+            << QLatin1String("Tupple")
+            << QLatin1String("a")
+            << QLatin1String("b"));
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 3);
-    QVERIFY(completions.contains(QLatin1String("Tupple")));
-    QVERIFY(completions.contains(QLatin1String("a")));
-    QVERIFY(completions.contains(QLatin1String("b")));
-}
-
-void CppToolsPlugin::test_completion_template_6()
-{
-    const QByteArray source =
+    QTest::newRow("template_6") << _(
             "class Item\n"
             "{\n"
             "    int i;\n"
@@ -535,18 +486,11 @@ void CppToolsPlugin::test_completion_template_6()
             "{};\n"
             "ItemContainer container;\n"
             "@\n"
-            ;
-    CompletionTestCase test(source, "container.get().");
+        ) << _("container.get().") << (QStringList()
+            << QLatin1String("Item")
+            << QLatin1String("i"));
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("Item")));
-    QVERIFY(completions.contains(QLatin1String("i")));
-}
-
-void CppToolsPlugin::test_completion_template_7()
-{
-    const QByteArray source =
+    QTest::newRow("template_7") << _(
             "struct Test\n"
             "{\n"
             "   int i;\n"
@@ -567,36 +511,22 @@ void CppToolsPlugin::test_completion_template_7()
             "\n"
             "TemplateClass<Test> p(new Test);\n"
             "@\n"
-            ;
-    CompletionTestCase test(source, "p->");
+        ) << _("p->") << (QStringList()
+            << QLatin1String("Test")
+            << QLatin1String("i"));
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("Test")));
-    QVERIFY(completions.contains(QLatin1String("i")));
-}
-
-void CppToolsPlugin::test_completion_type_of_pointer_is_typedef()
-{
-    const QByteArray source =
+    QTest::newRow("type_of_pointer_is_typedef") << _(
             "typedef struct Foo\n"
             "{\n"
             "    int foo;\n"
             "} Foo;\n"
             "Foo *bar;\n"
             "@\n"
-            ;
-    CompletionTestCase test(source, "bar->");
+        ) << _("bar->") << (QStringList()
+            << QLatin1String("Foo")
+            << QLatin1String("foo"));
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("Foo")));
-    QVERIFY(completions.contains(QLatin1String("foo")));
-}
-
-void CppToolsPlugin::test_completion_instantiate_full_specialization()
-{
-    const QByteArray source =
+    QTest::newRow("instantiate_full_specialization") << _(
             "template<typename T>\n"
             "struct Template\n"
             "{\n"
@@ -611,45 +541,25 @@ void CppToolsPlugin::test_completion_instantiate_full_specialization()
             "\n"
             "Template<char> templateChar;\n"
             "@\n"
-            ;
-    CompletionTestCase test(source, "templateChar.");
+        ) << _("templateChar.") << (QStringList()
+            << QLatin1String("Template")
+            << QLatin1String("templateChar_i"));
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("Template")));
-    QVERIFY(completions.contains(QLatin1String("templateChar_i")));
-}
-
-void CppToolsPlugin::test_completion_template_as_base()
-{
-    test_completion();
-}
-
-void CppToolsPlugin::test_completion_template_as_base_data()
-{
-    QTest::addColumn<QByteArray>("code");
-    QTest::addColumn<QByteArray>("prefix");
-    QTest::addColumn<QStringList>("expectedCompletions");
-
-    QByteArray code;
-    QStringList completions;
-
-    code =
+    QTest::newRow("template_as_base: base as template directly") << _(
             "class Data { int dataMember; };\n"
             "template <class T> class Other : public T { int otherMember; };\n"
             "\n"
             "void func() {\n"
             "    Other<Data> c;\n"
             "    @\n"
-            "}";
-    completions.append(QLatin1String("Data"));
-    completions.append(QLatin1String("dataMember"));
-    completions.append(QLatin1String("Other"));
-    completions.append(QLatin1String("otherMember"));
-    QTest::newRow("case: base as template directly") << code << _("c.") << completions;
+            "}"
+        ) << _("c.") << (QStringList()
+            << QLatin1String("Data")
+            << QLatin1String("dataMember")
+            << QLatin1String("Other")
+            << QLatin1String("otherMember"));
 
-    completions.clear();
-    code =
+    QTest::newRow("template_as_base: base as class template") << _(
             "class Data { int dataMember; };\n"
             "template <class T> class Other : public T { int otherMember; };\n"
             "template <class T> class More : public Other<T> { int moreMember; };\n"
@@ -657,17 +567,16 @@ void CppToolsPlugin::test_completion_template_as_base_data()
             "void func() {\n"
             "    More<Data> c;\n"
             "    @\n"
-            "}";
-    completions.append(QLatin1String("Data"));
-    completions.append(QLatin1String("dataMember"));
-    completions.append(QLatin1String("Other"));
-    completions.append(QLatin1String("otherMember"));
-    completions.append(QLatin1String("More"));
-    completions.append(QLatin1String("moreMember"));
-    QTest::newRow("case: base as class template") << code << _("c.") << completions;
+            "}"
+        ) << _("c.") << (QStringList()
+            << QLatin1String("Data")
+            << QLatin1String("dataMember")
+            << QLatin1String("Other")
+            << QLatin1String("otherMember")
+            << QLatin1String("More")
+            << QLatin1String("moreMember"));
 
-    completions.clear();
-    code =
+    QTest::newRow("template_as_base: base as globally qualified class template") << _(
             "class Data { int dataMember; };\n"
             "template <class T> class Other : public T { int otherMember; };\n"
             "template <class T> class More : public ::Other<T> { int moreMember; };\n"
@@ -675,18 +584,16 @@ void CppToolsPlugin::test_completion_template_as_base_data()
             "void func() {\n"
             "    More<Data> c;\n"
             "    @\n"
-            "}";
-    completions.append(QLatin1String("Data"));
-    completions.append(QLatin1String("dataMember"));
-    completions.append(QLatin1String("Other"));
-    completions.append(QLatin1String("otherMember"));
-    completions.append(QLatin1String("More"));
-    completions.append(QLatin1String("moreMember"));
-    QTest::newRow("case: base as globally qualified class template")
-            << code << _("c.") << completions;
+            "}"
+        ) << _("c.") << (QStringList()
+            << QLatin1String("Data")
+            << QLatin1String("dataMember")
+            << QLatin1String("Other")
+            << QLatin1String("otherMember")
+            << QLatin1String("More")
+            << QLatin1String("moreMember"));
 
-    completions.clear();
-    code =
+    QTest::newRow("template_as_base: base as namespace qualified class template") << _(
             "class Data { int dataMember; };\n"
             "namespace NS {\n"
             "template <class T> class Other : public T { int otherMember; };\n"
@@ -696,18 +603,16 @@ void CppToolsPlugin::test_completion_template_as_base_data()
             "void func() {\n"
             "    More<Data> c;\n"
             "    @\n"
-            "}";
-    completions.append(QLatin1String("Data"));
-    completions.append(QLatin1String("dataMember"));
-    completions.append(QLatin1String("Other"));
-    completions.append(QLatin1String("otherMember"));
-    completions.append(QLatin1String("More"));
-    completions.append(QLatin1String("moreMember"));
-    QTest::newRow("case: base as namespace qualified class template")
-            << code << _("c.") << completions;
+            "}"
+        ) << _("c.") << (QStringList()
+            << QLatin1String("Data")
+            << QLatin1String("dataMember")
+            << QLatin1String("Other")
+            << QLatin1String("otherMember")
+            << QLatin1String("More")
+            << QLatin1String("moreMember"));
 
-    completions.clear();
-    code =
+    QTest::newRow("template_as_base: base as nested template name") << _(
             "class Data { int dataMember; };\n"
             "namespace NS {\n"
             "template <class T> class Delegate { typedef Data<T> Type; };\n"
@@ -717,15 +622,14 @@ void CppToolsPlugin::test_completion_template_as_base_data()
             "void func() {\n"
             "    Final<Data> c;\n"
             "    @\n"
-            "}";
-    completions.append(QLatin1String("Data"));
-    completions.append(QLatin1String("dataMember"));
-    completions.append(QLatin1String("Final"));
-    completions.append(QLatin1String("finalMember"));
-    QTest::newRow("case: base as nested template name") << code << _("c.") << completions;
+            "}"
+        ) << _("c.") << (QStringList()
+            << QLatin1String("Data")
+            << QLatin1String("dataMember")
+            << QLatin1String("Final")
+            << QLatin1String("finalMember"));
 
-    completions.clear();
-    code =
+    QTest::newRow("template_as_base: base as nested template name in non-template") << _(
             "class Data { int dataMember; };\n"
             "namespace NS {\n"
             "template <class T> class Delegate { typedef Data<T> Type; };\n"
@@ -735,16 +639,14 @@ void CppToolsPlugin::test_completion_template_as_base_data()
             "void func() {\n"
             "    Final c;\n"
             "    @\n"
-            "}";
-    completions.append(QLatin1String("Data"));
-    completions.append(QLatin1String("dataMember"));
-    completions.append(QLatin1String("Final"));
-    completions.append(QLatin1String("finalMember"));
-    QTest::newRow("case: base as nested template name in non-template")
-            << code << _("c.") << completions;
+            "}"
+        ) << _("c.") << (QStringList()
+            << QLatin1String("Data")
+            << QLatin1String("dataMember")
+            << QLatin1String("Final")
+            << QLatin1String("finalMember"));
 
-    completions.clear();
-    code =
+    QTest::newRow("template_as_base: base as template name in non-template") << _(
             "class Data { int dataMember; };\n"
             "namespace NS {\n"
             "template <class T> class Other : public T { int otherMember; };\n"
@@ -754,31 +656,16 @@ void CppToolsPlugin::test_completion_template_as_base_data()
             "void func() {\n"
             "    Final c;\n"
             "    @\n"
-            "}";
-    completions.append(QLatin1String("Data"));
-    completions.append(QLatin1String("dataMember"));
-    completions.append(QLatin1String("Final"));
-    completions.append(QLatin1String("finalMember"));
-    completions.append(QLatin1String("Other"));
-    completions.append(QLatin1String("otherMember"));
-    QTest::newRow("case: base as template name in non-template") << code << _("c.") << completions;
-}
+            "}"
+        ) << _("c.") << (QStringList()
+            << QLatin1String("Data")
+            << QLatin1String("dataMember")
+            << QLatin1String("Final")
+            << QLatin1String("finalMember")
+            << QLatin1String("Other")
+            << QLatin1String("otherMember"));
 
-void CppToolsPlugin::test_completion_use_global_identifier_as_base_class()
-{
-    test_completion();
-}
-
-void CppToolsPlugin::test_completion_use_global_identifier_as_base_class_data()
-{
-    QTest::addColumn<QByteArray>("code");
-    QTest::addColumn<QByteArray>("prefix");
-    QTest::addColumn<QStringList>("expectedCompletions");
-
-    QByteArray code;
-    QStringList completions;
-
-    code =
+    QTest::newRow("use_global_identifier_as_base_class: derived as global and base as global") << _(
             "struct Global\n"
             "{\n"
             "    int int_global;\n"
@@ -790,17 +677,15 @@ void CppToolsPlugin::test_completion_use_global_identifier_as_base_class_data()
             "};\n"
             "\n"
             "Final c;\n"
-            "@\n";
+            "@\n"
+        ) << _("c.") << (QStringList()
+            << QLatin1String("int_global")
+            << QLatin1String("int_final")
+            << QLatin1String("Final")
+            << QLatin1String("Global"));
 
-    completions.append(QLatin1String("int_global"));
-    completions.append(QLatin1String("int_final"));
-    completions.append(QLatin1String("Final"));
-    completions.append(QLatin1String("Global"));
-    QTest::newRow("case: derived as global and base as global") << code << _("c.") << completions;
-
-    completions.clear();
-
-    code =
+    QTest::newRow("use_global_identifier_as_base_class: derived is inside namespace, "
+                  "base as global") << _(
             "struct Global\n"
             "{\n"
             "    int int_global;\n"
@@ -815,19 +700,16 @@ void CppToolsPlugin::test_completion_use_global_identifier_as_base_class_data()
             "}\n"
             "\n"
             "NS::Final c;\n"
-            "@\n";
-
-    completions.append(QLatin1String("int_global"));
-    completions.append(QLatin1String("int_final"));
-    completions.append(QLatin1String("Final"));
-    completions.append(QLatin1String("Global"));
-    QTest::newRow("case: derived is inside namespace, base as global")
-            << code << _("c.") << completions;
-
-    completions.clear();
+            "@\n"
+        ) << _("c.") << (QStringList()
+            << QLatin1String("int_global")
+            << QLatin1String("int_final")
+            << QLatin1String("Final")
+            << QLatin1String("Global"));
 
     // This test does not work due to the bug QTCREATORBUG-7912
-//    code =
+//    QTest::newRow("use_global_identifier_as_base_class: derived is enclosed by template, "
+//                  "base as global") << _(
 //            "struct Global\n"
 //            "{\n"
 //            "    int int_global;\n"
@@ -844,47 +726,26 @@ void CppToolsPlugin::test_completion_use_global_identifier_as_base_class_data()
 //            "\n"
 //            "Enclosing<int>::Final c;\n"
 //            "@\n"
+//        ) << _("c.") << (QStringList()
+//            << QLatin1String("int_global")
+//            << QLatin1String("int_final")
+//            << QLatin1String("Final")
+//            << QLatin1String("Global"));
 
-//    completions.append(QLatin1String("int_global"));
-//    completions.append(QLatin1String("int_final"));
-//    completions.append(QLatin1String("Final"));
-//    completions.append(QLatin1String("Global"));
-//    QTest::newRow("case: derived is enclosed by template, base as global")
-//    << code << _("c.") << completions;
-
-//    completions.clear();
-}
-
-void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived()
-{
-    test_completion();
-}
-
-void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived_data()
-{
-    QTest::addColumn<QByteArray>("code");
-    QTest::addColumn<QByteArray>("prefix");
-    QTest::addColumn<QStringList>("expectedCompletions");
-
-    QByteArray code;
-    QStringList completions;
-
-    code =
+    QTest::newRow("base_class_has_name_the_same_as_derived: base class is derived class") << _(
             "struct A : A\n"
             "{\n"
             "   int int_a;\n"
             "};\n"
             "\n"
             "A c;\n"
-            "@\n";
+            "@\n"
+        ) << _("c.") << (QStringList()
+            << QLatin1String("int_a")
+            << QLatin1String("A"));
 
-    completions.append(QLatin1String("int_a"));
-    completions.append(QLatin1String("A"));
-    QTest::newRow("case: base class is derived class") << code << _("c.") << completions;
-
-    completions.clear();
-
-    code =
+    QTest::newRow("base_class_has_name_the_same_as_derived: base class is derived class. "
+                  "class is in namespace") << _(
             "namespace NS\n"
             "{\n"
             "struct A : A\n"
@@ -894,16 +755,13 @@ void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived_dat
             "}\n"
             "\n"
             "NS::A c;\n"
-            "@\n";
+            "@\n"
+        ) << _("c.") << (QStringList()
+            << QLatin1String("int_a")
+            << QLatin1String("A"));
 
-    completions.append(QLatin1String("int_a"));
-    completions.append(QLatin1String("A"));
-    QTest::newRow("case: base class is derived class. class is in namespace")
-            << code << _("c.") << completions;
-
-    completions.clear();
-
-    code =
+    QTest::newRow("base_class_has_name_the_same_as_derived: base class is derived class. "
+                  "class is in namespace. use scope operator for base class") << _(
             "namespace NS\n"
             "{\n"
             "struct A : NS::A\n"
@@ -913,16 +771,13 @@ void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived_dat
             "}\n"
             "\n"
             "NS::A c;\n"
-            "@\n";
+            "@\n"
+        ) << _("c.") << (QStringList()
+            << QLatin1String("int_a")
+            << QLatin1String("A"));
 
-    completions.append(QLatin1String("int_a"));
-    completions.append(QLatin1String("A"));
-    QTest::newRow("case: base class is derived class. class is in namespace. "
-                  "use scope operator for base class") << code << _("c.") << completions;
-
-    completions.clear();
-
-    code =
+    QTest::newRow("base_class_has_name_the_same_as_derived: base class has the same name as "
+                  "derived but in different namespace") << _(
             "namespace NS1\n"
             "{\n"
             "struct A\n"
@@ -939,17 +794,14 @@ void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived_dat
             "}\n"
             "\n"
             "NS2::A c;\n"
-            "@\n";
+            "@\n"
+        ) << _("c.") << (QStringList()
+            << QLatin1String("int_ns1_a")
+            << QLatin1String("int_ns2_a")
+            << QLatin1String("A"));
 
-    completions.append(QLatin1String("int_ns1_a"));
-    completions.append(QLatin1String("int_ns2_a"));
-    completions.append(QLatin1String("A"));
-    QTest::newRow("case: base class has the same name as derived but in different namespace")
-            << code << _("c.") << completions;
-
-    completions.clear();
-
-    code =
+    QTest::newRow("base_class_has_name_the_same_as_derived: base class has the same name as "
+                  "derived (in namespace) but is nested by different class") << _(
             "struct Enclosing\n"
             "{\n"
             "struct A\n"
@@ -966,17 +818,14 @@ void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived_dat
             "}\n"
             "\n"
             "NS2::A c;\n"
-            "@\n";
+            "@\n"
+        ) << _("c.") << (QStringList()
+            << QLatin1String("int_enclosing_a")
+            << QLatin1String("int_ns2_a")
+            << QLatin1String("A"));
 
-    completions.append(QLatin1String("int_enclosing_a"));
-    completions.append(QLatin1String("int_ns2_a"));
-    completions.append(QLatin1String("A"));
-    QTest::newRow("case: base class has the same name as derived(in namespace) "
-                  "but is nested by different class") << code << _("c.") << completions;
-
-    completions.clear();
-
-    code =
+    QTest::newRow("base_class_has_name_the_same_as_derived: base class has the same name as "
+                  "derived (nested) but is nested by different class") << _(
             "struct EnclosingBase\n"
             "{\n"
             "struct A\n"
@@ -993,17 +842,14 @@ void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived_dat
             "};\n"
             "\n"
             "EnclosingDerived::A c;\n"
-            "@\n";
+            "@\n"
+        ) << _("c.") << (QStringList()
+            << QLatin1String("int_enclosing_base_a")
+            << QLatin1String("int_enclosing_derived_a")
+            << QLatin1String("A"));
 
-    completions.append(QLatin1String("int_enclosing_base_a"));
-    completions.append(QLatin1String("int_enclosing_derived_a"));
-    completions.append(QLatin1String("A"));
-    QTest::newRow("case: base class has the same name as derived(nested) "
-                  "but is nested by different class") << code << _("c.") << completions;
-
-    completions.clear();
-
-    code =
+    QTest::newRow("base_class_has_name_the_same_as_derived: base class is derived class. "
+                  "class is a template") << _(
             "template <typename T>\n"
             "struct A : A\n"
             "{\n"
@@ -1011,46 +857,25 @@ void CppToolsPlugin::test_completion_base_class_has_name_the_same_as_derived_dat
             "};\n"
             "\n"
             "A<int> c;\n"
-            "@\n";
+            "@\n"
+        ) << _("c.") << (QStringList()
+            << QLatin1String("int_a")
+            << QLatin1String("A"));
 
-    completions.append(QLatin1String("int_a"));
-    completions.append(QLatin1String("A"));
-    QTest::newRow("case: base class is derived class. class is a template")
-            << code << _("c.") << completions;
-
-    completions.clear();
-}
-
-void CppToolsPlugin::test_completion_cyclic_inheritance()
-{
-    test_completion();
-}
-
-void CppToolsPlugin::test_completion_cyclic_inheritance_data()
-{
-    QTest::addColumn<QByteArray>("code");
-    QTest::addColumn<QByteArray>("prefix");
-    QTest::addColumn<QStringList>("expectedCompletions");
-
-    QByteArray code;
-    QStringList completions;
-
-    code =
+    QTest::newRow("cyclic_inheritance: direct cyclic inheritance") << _(
             "struct B;\n"
             "struct A : B { int _a; };\n"
             "struct B : A { int _b; };\n"
             "\n"
             "A c;\n"
             "@\n"
-            ;
-    completions.append(QLatin1String("A"));
-    completions.append(QLatin1String("_a"));
-    completions.append(QLatin1String("B"));
-    completions.append(QLatin1String("_b"));
-    QTest::newRow("case: direct cyclic inheritance") << code << _("c.") << completions;
+        ) << _("c.") << (QStringList()
+            << QLatin1String("A")
+            << QLatin1String("_a")
+            << QLatin1String("B")
+            << QLatin1String("_b"));
 
-    completions.clear();
-    code =
+    QTest::newRow("cyclic_inheritance: indirect cyclic inheritance") << _(
             "struct C;\n"
             "struct A : C { int _a; };\n"
             "struct B : A { int _b; };\n"
@@ -1058,17 +883,15 @@ void CppToolsPlugin::test_completion_cyclic_inheritance_data()
             "\n"
             "A c;\n"
             "@\n"
-            ;
-    completions.append(QLatin1String("A"));
-    completions.append(QLatin1String("_a"));
-    completions.append(QLatin1String("B"));
-    completions.append(QLatin1String("_b"));
-    completions.append(QLatin1String("C"));
-    completions.append(QLatin1String("_c"));
-    QTest::newRow("case: indirect cyclic inheritance") << code << _("c.") << completions;
+        ) << _("c.") << (QStringList()
+            << QLatin1String("A")
+            << QLatin1String("_a")
+            << QLatin1String("B")
+            << QLatin1String("_b")
+            << QLatin1String("C")
+            << QLatin1String("_c"));
 
-    completions.clear();
-    code =
+    QTest::newRow("cyclic_inheritance: indirect cyclic inheritance") << _(
             "struct B;\n"
             "struct A : B { int _a; };\n"
             "struct C { int _c; };\n"
@@ -1076,17 +899,15 @@ void CppToolsPlugin::test_completion_cyclic_inheritance_data()
             "\n"
             "A c;\n"
             "@\n"
-            ;
-    completions.append(QLatin1String("A"));
-    completions.append(QLatin1String("_a"));
-    completions.append(QLatin1String("B"));
-    completions.append(QLatin1String("_b"));
-    completions.append(QLatin1String("C"));
-    completions.append(QLatin1String("_c"));
-    QTest::newRow("case: indirect cyclic inheritance") << code << _("c.") << completions;
+        ) << _("c.") << (QStringList()
+            << QLatin1String("A")
+            << QLatin1String("_a")
+            << QLatin1String("B")
+            << QLatin1String("_b")
+            << QLatin1String("C")
+            << QLatin1String("_c"));
 
-    completions.clear();
-    code =
+    QTest::newRow("cyclic_inheritance: direct cyclic inheritance with templates") << _(
             "template< typename T > struct C;\n"
             "template< typename T, typename S > struct D : C< S >\n"
             "{\n"
@@ -1100,17 +921,14 @@ void CppToolsPlugin::test_completion_cyclic_inheritance_data()
             "\n"
             "D<int, float> c;\n"
             "@\n"
-            ;
-    completions.append(QLatin1String("D"));
-    completions.append(QLatin1String("_d_t"));
-    completions.append(QLatin1String("_d_s"));
-    completions.append(QLatin1String("C"));
-    completions.append(QLatin1String("_c_t"));
-    QTest::newRow("case: direct cyclic inheritance with templates")
-            << code << _("c.") << completions;
+        ) << _("c.") << (QStringList()
+            << QLatin1String("D")
+            << QLatin1String("_d_t")
+            << QLatin1String("_d_s")
+            << QLatin1String("C")
+            << QLatin1String("_c_t"));
 
-    completions.clear();
-    code =
+    QTest::newRow("cyclic_inheritance: indirect cyclic inheritance with templates") << _(
             "template< typename T > struct C;\n"
             "template< typename T, typename S > struct D : C< S >\n"
             "{\n"
@@ -1128,19 +946,17 @@ void CppToolsPlugin::test_completion_cyclic_inheritance_data()
             "\n"
             "D<int, float> c;\n"
             "@\n"
-            ;
-    completions.append(QLatin1String("D"));
-    completions.append(QLatin1String("_d_t"));
-    completions.append(QLatin1String("_d_s"));
-    completions.append(QLatin1String("C"));
-    completions.append(QLatin1String("_c_t"));
-    completions.append(QLatin1String("B"));
-    completions.append(QLatin1String("_b_t"));
-    QTest::newRow("case: indirect cyclic inheritance with templates")
-            << code << _("c.") << completions;
+        ) << _("c.") << (QStringList()
+            << QLatin1String("D")
+            << QLatin1String("_d_t")
+            << QLatin1String("_d_s")
+            << QLatin1String("C")
+            << QLatin1String("_c_t")
+            << QLatin1String("B")
+            << QLatin1String("_b_t"));
 
-    completions.clear();
-    code =
+    QTest::newRow("cyclic_inheritance: direct cyclic inheritance with templates, "
+                  "more complex situation") << _(
            "namespace NS\n"
            "{\n"
            "template <typename T> struct SuperClass\n"
@@ -1168,31 +984,14 @@ void CppToolsPlugin::test_completion_cyclic_inheritance_data()
            "\n"
            "Class<int> c;\n"
            "@\n"
-            ;
-    completions.append(QLatin1String("Class"));
-    completions.append(QLatin1String("ClassRecurse"));
-    completions.append(QLatin1String("class_t"));
-    completions.append(QLatin1String("class_recurse_s"));
-    completions.append(QLatin1String("class_recurse_t"));
-    QTest::newRow("case: direct cyclic inheritance with templates, more complex situation")
-            << code << _("c.") << completions;
-}
+        ) << _("c.") << (QStringList()
+            << QLatin1String("Class")
+            << QLatin1String("ClassRecurse")
+            << QLatin1String("class_t")
+            << QLatin1String("class_recurse_s")
+            << QLatin1String("class_recurse_t"));
 
-void CppToolsPlugin::test_completion_enclosing_template_class()
-{
-    test_completion();
-}
-
-void CppToolsPlugin::test_completion_enclosing_template_class_data()
-{
-    QTest::addColumn<QByteArray>("code");
-    QTest::addColumn<QByteArray>("prefix");
-    QTest::addColumn<QStringList>("expectedCompletions");
-
-    QByteArray code;
-    QStringList completions;
-
-    code =
+    QTest::newRow("enclosing_template_class: nested class with enclosing template class") << _(
             "template<typename T>\n"
             "struct Enclosing\n"
             "{\n"
@@ -1201,15 +1000,13 @@ void CppToolsPlugin::test_completion_enclosing_template_class_data()
             "};\n"
             "\n"
             "Enclosing<int>::Nested c;"
-            "@\n";
-    completions.append(QLatin1String("Nested"));
-    completions.append(QLatin1String("int_nested"));
-    QTest::newRow("case: nested class with enclosing template class")
-            << code << _("c.") << completions;
+            "@\n"
+        ) << _("c.") << (QStringList()
+            << QLatin1String("Nested")
+            << QLatin1String("int_nested"));
 
-    completions.clear();
-
-    code =
+    QTest::newRow("enclosing_template_class: nested template class with enclosing template "
+                  "class") << _(
             "template<typename T>\n"
             "struct Enclosing\n"
             "{\n"
@@ -1218,16 +1015,12 @@ void CppToolsPlugin::test_completion_enclosing_template_class_data()
             "};\n"
             "\n"
             "Enclosing<int>::Nested<int> c;"
-            "@\n";
-    completions.append(QLatin1String("Nested"));
-    completions.append(QLatin1String("int_nested"));
-    QTest::newRow("case: nested template class with enclosing template class")
-            << code << _("c.") << completions;
-}
+            "@\n"
+        ) << _("c.") << (QStringList()
+            << QLatin1String("Nested")
+            << QLatin1String("int_nested"));
 
-void CppToolsPlugin::test_completion_instantiate_nested_class_when_enclosing_is_template()
-{
-    const QByteArray source =
+    QTest::newRow("instantiate_nested_class_when_enclosing_is_template") << _(
             "struct Foo \n"
             "{\n"
             "    int foo_i;\n"
@@ -1246,18 +1039,11 @@ void CppToolsPlugin::test_completion_instantiate_nested_class_when_enclosing_is_
             "\n"
             "Enclosing<Foo> enclosing;\n"
             "@\n"
-            ;
-    CompletionTestCase test(source, "enclosing.nested.nested_t.");
+        ) << _("enclosing.nested.nested_t.") << (QStringList()
+            << QLatin1String("Foo")
+            << QLatin1String("foo_i"));
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("Foo")));
-    QVERIFY(completions.contains(QLatin1String("foo_i")));
-}
-
-void CppToolsPlugin::test_completion_instantiate_nested_of_nested_class_when_enclosing_is_template()
-{
-    const QByteArray source =
+    QTest::newRow("instantiate_nested_of_nested_class_when_enclosing_is_template") << _(
             "struct Foo \n"
             "{\n"
             "    int foo_i;\n"
@@ -1280,18 +1066,11 @@ void CppToolsPlugin::test_completion_instantiate_nested_of_nested_class_when_enc
             "\n"
             "Enclosing<Foo> enclosing;\n"
             "@\n"
-            ;
-    CompletionTestCase test(source, "enclosing.nested.nestedNested.nestedNested_t.");
+        ) << _("enclosing.nested.nestedNested.nestedNested_t.") << (QStringList()
+            << QLatin1String("Foo")
+            << QLatin1String("foo_i"));
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("Foo")));
-    QVERIFY(completions.contains(QLatin1String("foo_i")));
-}
-
-void CppToolsPlugin::test_completion_instantiate_template_with_default_argument_type()
-{
-    const QByteArray source =
+    QTest::newRow("instantiate_template_with_default_argument_type") << _(
             "struct Foo\n"
             "{\n"
             "    int bar;\n"
@@ -1305,18 +1084,11 @@ void CppToolsPlugin::test_completion_instantiate_template_with_default_argument_
             "\n"
             "Template<> templateWithDefaultTypeOfArgument;\n"
             "@\n"
-            ;
-    CompletionTestCase test(source, "templateWithDefaultTypeOfArgument.t.");
+        ) << _("templateWithDefaultTypeOfArgument.t.") << (QStringList()
+            << QLatin1String("Foo")
+            << QLatin1String("bar"));
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("Foo")));
-    QVERIFY(completions.contains(QLatin1String("bar")));
-}
-
-void CppToolsPlugin::test_completion_instantiate_template_with_default_argument_type_as_template()
-{
-    const QByteArray source =
+    QTest::newRow("instantiate_template_with_default_argument_type_as_template") << _(
             "struct Foo\n"
             "{\n"
             "    int bar;\n"
@@ -1335,54 +1107,35 @@ void CppToolsPlugin::test_completion_instantiate_template_with_default_argument_
             "\n"
             "Template<Foo> templateWithDefaultTypeOfArgument;\n"
             "@\n"
-            ;
-    CompletionTestCase test(source, "templateWithDefaultTypeOfArgument.s.t.");
+        ) << _("templateWithDefaultTypeOfArgument.s.t.") << (QStringList()
+            << QLatin1String("Foo")
+            << QLatin1String("bar"));
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("Foo")));
-    QVERIFY(completions.contains(QLatin1String("bar")));
-}
-
-void CppToolsPlugin::test_completion_typedef_of_pointer()
-{
-    const QByteArray source =
+    QTest::newRow("typedef_of_pointer") << _(
             "struct Foo { int bar; };\n"
             "typedef Foo *FooPtr;\n"
             "void main()\n"
             "{\n"
             "   FooPtr ptr;\n"
             "   @\n"
-            "}";
-    CompletionTestCase test(source, "ptr->");
+            "}"
+        ) << _("ptr->") << (QStringList()
+            << QLatin1String("Foo")
+            << QLatin1String("bar"));
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("Foo")));
-    QVERIFY(completions.contains(QLatin1String("bar")));
-}
-
-void CppToolsPlugin::test_completion_typedef_of_pointer_inside_function()
-{
-    const QByteArray source =
+    QTest::newRow("typedef_of_pointer_inside_function") << _(
             "struct Foo { int bar; };\n"
             "void f()\n"
             "{\n"
             "   typedef Foo *FooPtr;\n"
             "   FooPtr ptr;\n"
             "   @\n"
-            "}";
-    CompletionTestCase test(source, "ptr->");
+            "}"
+        ) << _("ptr->") << (QStringList()
+            << QLatin1String("Foo")
+            << QLatin1String("bar"));
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("Foo")));
-    QVERIFY(completions.contains(QLatin1String("bar")));
-}
-
-void CppToolsPlugin::test_completion_typedef_is_inside_function_before_declaration_block()
-{
-    const QByteArray source =
+    QTest::newRow("typedef_is_inside_function_before_declaration_block") << _(
             "struct Foo { int bar; };\n"
             "void f()\n"
             "{\n"
@@ -1392,18 +1145,11 @@ void CppToolsPlugin::test_completion_typedef_is_inside_function_before_declarati
             "       @\n"
             "   }"
             "}"
-            ;
-    CompletionTestCase test(source, "ptr->");
+        ) << _("ptr->") << (QStringList()
+            << QLatin1String("Foo")
+            << QLatin1String("bar"));
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("Foo")));
-    QVERIFY(completions.contains(QLatin1String("bar")));
-}
-
-void CppToolsPlugin::test_completion_resolve_complex_typedef_with_template()
-{
-    const QByteArray source =
+    QTest::newRow("resolve_complex_typedef_with_template") << _(
             "template <typename T>\n"
             "struct Template2\n"
             "{\n"
@@ -1424,19 +1170,12 @@ void CppToolsPlugin::test_completion_resolve_complex_typedef_with_template()
             "    Template2<Foo> template2;\n"
             "    @\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "template2.templateTypedef.");
+        ) << _("template2.templateTypedef.") << (QStringList()
+            << QLatin1String("Foo")
+            << QLatin1String("bar")
+            << QLatin1String("Template1"));
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 3);
-    QVERIFY(completions.contains(QLatin1String("Foo")));
-    QVERIFY(completions.contains(QLatin1String("bar")));
-    QVERIFY(completions.contains(QLatin1String("Template1")));
-}
-
-void CppToolsPlugin::test_completion_template_specialization_with_pointer()
-{
-    const QByteArray source =
+    QTest::newRow("template_specialization_with_pointer") << _(
             "template <typename T>\n"
             "struct Template\n"
             "{\n"
@@ -1449,18 +1188,11 @@ void CppToolsPlugin::test_completion_template_specialization_with_pointer()
             "};\n"
             "Template<int*> templ;\n"
             "@\n"
-            ;
-    CompletionTestCase test(source, "templ.");
+        ) << _("templ.") << (QStringList()
+            << QLatin1String("Template")
+            << QLatin1String("pointer"));
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("Template")));
-    QVERIFY(completions.contains(QLatin1String("pointer")));
-}
-
-void CppToolsPlugin::test_completion_typedef_using_templates1()
-{
-    const QByteArray source =
+    QTest::newRow("typedef_using_templates1") << _(
             "namespace NS1\n"
             "{\n"
             "template<typename T>\n"
@@ -1491,18 +1223,11 @@ void CppToolsPlugin::test_completion_typedef_using_templates1()
             "    NS2::NS2Struct<Foo> s;\n"
             "    @\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "s.p->");
+        ) << _("s.p->") << (QStringList()
+            << QLatin1String("Foo")
+            << QLatin1String("bar"));
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("Foo")));
-    QVERIFY(completions.contains(QLatin1String("bar")));
-}
-
-void CppToolsPlugin::test_completion_typedef_using_templates2()
-{
-    const QByteArray source =
+    QTest::newRow("typedef_using_templates2") << _(
             "namespace NS1\n"
             "{\n"
             "template<typename T>\n"
@@ -1533,18 +1258,11 @@ void CppToolsPlugin::test_completion_typedef_using_templates2()
             "    NS2::NS2Struct<Foo>::pointer p;\n"
             "    @\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "p->");
+        ) << _("p->") << (QStringList()
+            << QLatin1String("Foo")
+            << QLatin1String("bar"));
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("Foo")));
-    QVERIFY(completions.contains(QLatin1String("bar")));
-}
-
-void CppToolsPlugin::test_completion_namespace_alias_with_many_namespace_declarations()
-{
-    const QByteArray source =
+    QTest::newRow("namespace_alias_with_many_namespace_declarations") << _(
             "namespace NS1\n"
             "{\n"
             "namespace NS2\n"
@@ -1570,18 +1288,11 @@ void CppToolsPlugin::test_completion_namespace_alias_with_many_namespace_declara
             "{\n"
             "    @\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "NS::");
+        ) << _("NS::") << (QStringList()
+            << QLatin1String("Foo1")
+            << QLatin1String("Foo2"));
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("Foo1")));
-    QVERIFY(completions.contains(QLatin1String("Foo2")));
-}
-
-void CppToolsPlugin::test_completion_QTCREATORBUG9098()
-{
-    const QByteArray source =
+    QTest::newRow("QTCREATORBUG9098") << _(
             "template <typename T>\n"
             "class B\n"
             "{\n"
@@ -1598,30 +1309,11 @@ void CppToolsPlugin::test_completion_QTCREATORBUG9098()
             "       @\n"
             "    }\n"
             "};\n"
-            ;
-    CompletionTestCase test(source, "b.");
+        ) << _("b.") << (QStringList()
+            << QLatin1String("c")
+            << QLatin1String("B"));
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("c")));
-    QVERIFY(completions.contains(QLatin1String("B")));
-}
-
-void CppToolsPlugin::test_completion_type_and_using_declaration()
-{
-    test_completion();
-}
-
-void CppToolsPlugin::test_completion_type_and_using_declaration_data()
-{
-    QTest::addColumn<QByteArray>("code");
-    QTest::addColumn<QByteArray>("prefix");
-    QTest::addColumn<QStringList>("expectedCompletions");
-
-    QByteArray code;
-    QStringList completions;
-
-    code =
+    QTest::newRow("type_and_using_declaration: type and using declaration inside function") << _(
             "namespace NS\n"
             "{\n"
             "struct C { int m; };\n"
@@ -1631,15 +1323,13 @@ void CppToolsPlugin::test_completion_type_and_using_declaration_data()
             "    using NS::C;\n"
             "    C c;\n"
             "    @\n"
-            "}\n";
-    completions.append(QLatin1String("C"));
-    completions.append(QLatin1String("m"));
-    QTest::newRow("case: type and using declaration inside function")
-            << code << _("c.") << completions;
+            "}\n"
+        ) << _("c.") << (QStringList()
+            << QLatin1String("C")
+            << QLatin1String("m"));
 
-    completions.clear();
-
-    code =
+    QTest::newRow("type_and_using_declaration: type and using declaration in global "
+                  "namespace") << _(
             "namespace NS\n"
             "{\n"
             "struct C { int m; };\n"
@@ -1649,15 +1339,13 @@ void CppToolsPlugin::test_completion_type_and_using_declaration_data()
             "{\n"
             "    C c;\n"
             "    @\n"
-            "}\n";
-    completions.append(QLatin1String("C"));
-    completions.append(QLatin1String("m"));
-    QTest::newRow("case: type and using declaration in global namespace")
-            << code << _("c.") << completions;
+            "}\n"
+        ) << _("c.") << (QStringList()
+            << QLatin1String("C")
+            << QLatin1String("m"));
 
-    completions.clear();
-
-    code =
+    QTest::newRow("type_and_using_declaration: type in global namespace and using declaration in "
+                  "NS namespace") << _(
             "struct C { int m; };\n"
             "namespace NS\n"
             "{\n"
@@ -1667,15 +1355,13 @@ void CppToolsPlugin::test_completion_type_and_using_declaration_data()
             "       C c;\n"
             "       @\n"
             "   }\n"
-            "}\n";
-    completions.append(QLatin1String("C"));
-    completions.append(QLatin1String("m"));
-    QTest::newRow("case: type in global namespace and using declaration in NS namespace")
-            << code << _("c.") << completions;
+            "}\n"
+        ) << _("c.") << (QStringList()
+            << QLatin1String("C")
+            << QLatin1String("m"));
 
-    completions.clear();
-
-    code =
+    QTest::newRow("type_and_using_declaration: type in global namespace and using declaration "
+                  "inside function in NS namespace") << _(
             "struct C { int m; };\n"
             "namespace NS\n"
             "{\n"
@@ -1685,15 +1371,13 @@ void CppToolsPlugin::test_completion_type_and_using_declaration_data()
             "       C c;\n"
             "       @\n"
             "   }\n"
-            "}\n";
-    completions.append(QLatin1String("C"));
-    completions.append(QLatin1String("m"));
-    QTest::newRow("case: type in global namespace and using declaration inside function in NS namespace")
-            << code << _("c.") << completions;
+            "}\n"
+        ) << _("c.") << (QStringList()
+            << QLatin1String("C")
+            << QLatin1String("m"));
 
-    completions.clear();
-
-    code =
+    QTest::newRow("type_and_using_declaration: type inside namespace NS1 and using declaration in "
+                  "function inside NS2 namespace") << _(
             "namespace NS1\n"
             "{\n"
             "struct C { int m; };\n"
@@ -1706,15 +1390,13 @@ void CppToolsPlugin::test_completion_type_and_using_declaration_data()
             "       C c;\n"
             "       @\n"
             "   }\n"
-            "}\n";
-    completions.append(QLatin1String("C"));
-    completions.append(QLatin1String("m"));
-    QTest::newRow("case: type inside namespace NS1 and using declaration in function inside NS2 namespace")
-            << code << _("c.") << completions;
+            "}\n"
+        ) << _("c.") << (QStringList()
+            << QLatin1String("C")
+            << QLatin1String("m"));
 
-    completions.clear();
-
-    code =
+    QTest::newRow("type_and_using_declaration: type inside namespace NS1 and using declaration "
+                  "inside NS2 namespace") << _(
             "namespace NS1\n"
             "{\n"
             "struct C { int m; };\n"
@@ -1727,16 +1409,12 @@ void CppToolsPlugin::test_completion_type_and_using_declaration_data()
             "       C c;\n"
             "       @\n"
             "   }\n"
-            "}\n";
-    completions.append(QLatin1String("C"));
-    completions.append(QLatin1String("m"));
-    QTest::newRow("case: type inside namespace NS1 and using declaration inside NS2 namespace")
-            << code << _("c.") << completions;
-}
+            "}\n"
+        ) << _("c.") << (QStringList()
+            << QLatin1String("C")
+            << QLatin1String("m"));
 
-void CppToolsPlugin::test_completion_instantiate_template_with_anonymous_class()
-{
-    const QByteArray source =
+    QTest::newRow("instantiate_template_with_anonymous_class") << _(
             "template <typename T>\n"
             "struct S\n"
             "{\n"
@@ -1747,17 +1425,10 @@ void CppToolsPlugin::test_completion_instantiate_template_with_anonymous_class()
             "   S<int> s;\n"
             "   @\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "s.");
+        ) << _("s.") << (QStringList()
+            << QLatin1String("S"));
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 1);
-    QVERIFY(completions.contains(QLatin1String("S")));
-}
-
-void CppToolsPlugin::test_completion_instantiate_template_function()
-{
-    const QByteArray source =
+    QTest::newRow("instantiate_template_function") << _(
             "template <typename T>\n"
             "T* templateFunction() { return 0; }\n"
             "struct A { int a; };\n"
@@ -1765,18 +1436,11 @@ void CppToolsPlugin::test_completion_instantiate_template_function()
             "{\n"
             "   @\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "templateFunction<A>()->");
+        ) << _("templateFunction<A>()->") << (QStringList()
+            << QLatin1String("A")
+            << QLatin1String("a"));
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("A")));
-    QVERIFY(completions.contains(QLatin1String("a")));
-}
-
-void CppToolsPlugin::test_completion_crash_cloning_template_class_QTCREATORBUG9329()
-{
-    const QByteArray source =
+    QTest::newRow("crash_cloning_template_class_QTCREATORBUG9329") << _(
             "struct A {};\n"
             "template <typename T>\n"
             "struct Templ {};\n"
@@ -1787,36 +1451,22 @@ void CppToolsPlugin::test_completion_crash_cloning_template_class_QTCREATORBUG93
             "       @\n"
             "   }\n"
             "};\n"
-            ;
-    CompletionTestCase test(source, "this->");
+        ) << _("this->") << (QStringList()
+            << QLatin1String("A")
+            << QLatin1String("B")
+            << QLatin1String("Templ")
+            << QLatin1String("f"));
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 4);
-    QVERIFY(completions.contains(QLatin1String("A")));
-    QVERIFY(completions.contains(QLatin1String("B")));
-    QVERIFY(completions.contains(QLatin1String("Templ")));
-    QVERIFY(completions.contains(QLatin1String("f")));
-}
-
-void CppToolsPlugin::test_completion_recursive_auto_declarations1_QTCREATORBUG9503()
-{
-    const QByteArray source =
+    QTest::newRow("recursive_auto_declarations1_QTCREATORBUG9503") << _(
             "void f()\n"
             "{\n"
             "    auto object2 = object1;\n"
             "    auto object1 = object2;\n"
             "    @;\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "object1.");
+        ) << _("object1.") << (QStringList());
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 0);
-}
-
-void CppToolsPlugin::test_completion_recursive_auto_declarations2_QTCREATORBUG9503()
-{
-    const QByteArray source =
+    QTest::newRow("recursive_auto_declarations2_QTCREATORBUG9503") << _(
             "void f()\n"
             "{\n"
             "    auto object3 = object1;\n"
@@ -1824,16 +1474,9 @@ void CppToolsPlugin::test_completion_recursive_auto_declarations2_QTCREATORBUG95
             "    auto object1 = object2;\n"
             "    @;\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "object1.");
+        ) << _("object1.") << (QStringList());
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 0);
-}
-
-void CppToolsPlugin::test_completion_recursive_typedefs_declarations1()
-{
-    const QByteArray source =
+    QTest::newRow("recursive_typedefs_declarations1") << _(
             "void f()\n"
             "{\n"
             "    typedef A B;\n"
@@ -1841,16 +1484,9 @@ void CppToolsPlugin::test_completion_recursive_typedefs_declarations1()
             "    A a;\n"
             "    @;\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "a.");
+        ) << _("a.") << (QStringList());
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 0);
-}
-
-void CppToolsPlugin::test_completion_recursive_typedefs_declarations2()
-{
-    const QByteArray source =
+    QTest::newRow("recursive_typedefs_declarations2") << _(
             "void f()\n"
             "{\n"
             "    typedef A C;\n"
@@ -1859,16 +1495,9 @@ void CppToolsPlugin::test_completion_recursive_typedefs_declarations2()
             "    A a;\n"
             "    @;\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "a.");
+        ) << _("a.") << (QStringList());
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 0);
-}
-
-void CppToolsPlugin::test_completion_recursive_using_declarations1()
-{
-    const QByteArray source =
+    QTest::newRow("recursive_using_declarations1") << _(
             "void f()\n"
             "{\n"
             "    using B = A;\n"
@@ -1876,16 +1505,9 @@ void CppToolsPlugin::test_completion_recursive_using_declarations1()
             "    A a;\n"
             "    @;\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "a.");
+        ) << _("a.") << (QStringList());
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 0);
-}
-
-void CppToolsPlugin::test_completion_recursive_using_declarations2()
-{
-    const QByteArray source =
+    QTest::newRow("recursive_using_declarations2") << _(
             "void f()\n"
             "{\n"
             "    using C = A;\n"
@@ -1894,16 +1516,9 @@ void CppToolsPlugin::test_completion_recursive_using_declarations2()
             "    A a;\n"
             "    @;\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "a.");
+        ) << _("a.") << (QStringList());
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 0);
-}
-
-void CppToolsPlugin::test_completion_recursive_using_typedef_declarations()
-{
-    const QByteArray source =
+    QTest::newRow("recursive_using_typedef_declarations") << _(
             "void f()\n"
             "{\n"
             "    using B = A;\n"
@@ -1911,16 +1526,9 @@ void CppToolsPlugin::test_completion_recursive_using_typedef_declarations()
             "    A a;\n"
             "    @;\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "a.");
+        ) << _("a.") << (QStringList());
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 0);
-}
-
-void CppToolsPlugin::test_completion_recursive_typedefs_in_templates1()
-{
-    const QByteArray source =
+    QTest::newRow("recursive_typedefs_in_templates1") << _(
             "template<typename From>\n"
             "struct simplify_type {\n"
             "    typedef From SimpleType;\n"
@@ -1941,16 +1549,9 @@ void CppToolsPlugin::test_completion_recursive_typedefs_in_templates1()
             "{\n"
             "    @;\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "cast_retty<T1, T2>::ret_type.");
+        ) << _("cast_retty<T1, T2>::ret_type.") << (QStringList());
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 0);
-}
-
-void CppToolsPlugin::test_completion_recursive_typedefs_in_templates2()
-{
-    const QByteArray source =
+    QTest::newRow("recursive_typedefs_in_templates2") << _(
             "template<class T>\n"
             "struct recursive {\n"
             "  typedef typename recursive<T>::ret_type ret_type;\n"
@@ -1960,42 +1561,22 @@ void CppToolsPlugin::test_completion_recursive_typedefs_in_templates2()
             "{\n"
             "    @;\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "recursive<T1>::ret_type.foo");
+        ) << _("recursive<T1>::ret_type.foo") << (QStringList());
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 0);
-}
-
-void CppToolsPlugin::test_completion_class_declaration_inside_function_or_block_QTCREATORBUG3620()
-{
-    test_completion();
-}
-
-void CppToolsPlugin::test_completion_class_declaration_inside_function_or_block_QTCREATORBUG3620_data()
-{
-    QTest::addColumn<QByteArray>("code");
-    QTest::addColumn<QByteArray>("prefix");
-    QTest::addColumn<QStringList>("expectedCompletions");
-
-    QByteArray code;
-    QStringList completions;
-
-    code =
+    QTest::newRow("class_declaration_inside_function_or_block_QTCREATORBUG3620: "
+                  "class definition inside function") << _(
             "void foo()\n"
             "{\n"
             "    struct C { int m; };\n"
             "    C c;\n"
             "    @\n"
-            "}\n";
-    completions.append(QLatin1String("C"));
-    completions.append(QLatin1String("m"));
-    QTest::newRow("case: class definition inside function")
-            << code << _("c.") << completions;
+            "}\n"
+        ) << _("c.") << (QStringList()
+            << QLatin1String("C")
+            << QLatin1String("m"));
 
-    completions.clear();
-
-    code =
+    QTest::newRow("class_declaration_inside_function_or_block_QTCREATORBUG3620: "
+                  "class definition inside block inside function") << _(
             "void foo()\n"
             "{\n"
             "   {\n"
@@ -2004,15 +1585,12 @@ void CppToolsPlugin::test_completion_class_declaration_inside_function_or_block_
             "       @\n"
             "   }\n"
             "}\n"
-            ;
-    completions.append(QLatin1String("C"));
-    completions.append(QLatin1String("m"));
-    QTest::newRow("case: class definition inside block inside function")
-            << code << _("c.") << completions;
+        ) << _("c.") << (QStringList()
+            << QLatin1String("C")
+            << QLatin1String("m"));
 
-    completions.clear();
-
-    code =
+    QTest::newRow("class_declaration_inside_function_or_block_QTCREATORBUG3620: "
+                  "class definition with the same name inside different block inside function") << _(
             "void foo()\n"
             "{\n"
             "   {\n"
@@ -2024,30 +1602,12 @@ void CppToolsPlugin::test_completion_class_declaration_inside_function_or_block_
             "       @\n"
             "   }\n"
             "}\n"
-            ;
-    completions.append(QLatin1String("C"));
-    completions.append(QLatin1String("m2"));
-    QTest::newRow("case: class definition with the same name inside different block inside function")
-            << code << _("c.") << completions;
+        ) << _("c.") << (QStringList()
+            << QLatin1String("C")
+            << QLatin1String("m2"));
 
-    completions.clear();
-}
-
-void CppToolsPlugin::test_completion_namespace_alias_inside_function_or_block_QTCREATORBUG166()
-{
-    test_completion();
-}
-
-void CppToolsPlugin::test_completion_namespace_alias_inside_function_or_block_QTCREATORBUG166_data()
-{
-    QTest::addColumn<QByteArray>("code");
-    QTest::addColumn<QByteArray>("prefix");
-    QTest::addColumn<QStringList>("expectedCompletions");
-
-    QByteArray code;
-    QStringList completions;
-
-    code =
+    QTest::newRow("namespace_alias_inside_function_or_block_QTCREATORBUG166: "
+                  "namespace alias inside function") << _(
             "namespace NS1\n"
             "{\n"
             "namespace NS2\n"
@@ -2063,15 +1623,12 @@ void CppToolsPlugin::test_completion_namespace_alias_inside_function_or_block_QT
             "   NS::C c;\n"
             "   @\n"
             "}\n"
-            ;
-    completions.append(QLatin1String("C"));
-    completions.append(QLatin1String("m"));
-    QTest::newRow("case: namespace alias inside function")
-            << code << _("c.") << completions;
+        ) << _("c.") << (QStringList()
+            << QLatin1String("C")
+            << QLatin1String("m"));
 
-    completions.clear();
-
-    code =
+    QTest::newRow("namespace_alias_inside_function_or_block_QTCREATORBUG166: "
+                  "namespace alias inside block inside function") << _(
             "namespace NS1\n"
             "{\n"
             "namespace NS2\n"
@@ -2089,18 +1646,11 @@ void CppToolsPlugin::test_completion_namespace_alias_inside_function_or_block_QT
             "       @\n"
             "   }\n"
             "}\n"
-            ;
-    completions.append(QLatin1String("C"));
-    completions.append(QLatin1String("m"));
-    QTest::newRow("case: namespace alias inside block inside function")
-            << code << _("c.") << completions;
+        ) << _("c.") << (QStringList()
+            << QLatin1String("C")
+            << QLatin1String("m"));
 
-    completions.clear();
-}
-
-void CppToolsPlugin::test_completion_class_declaration_inside_function_or_block_QTCREATORBUG3620_static_member()
-{
-    const QByteArray source =
+    QTest::newRow("class_declaration_inside_function_or_block_QTCREATORBUG3620_static_member") << _(
             "void foo()\n"
             "{\n"
             "   {\n"
@@ -2111,20 +1661,12 @@ void CppToolsPlugin::test_completion_class_declaration_inside_function_or_block_
             "       @\n"
             "   }\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "C::");
+        ) << _("C::") << (QStringList()
+            << QLatin1String("C")
+            << QLatin1String("staticFun2")
+            << QLatin1String("m2"));
 
-    const QStringList completions = test.getCompletions();
-
-    QCOMPARE(completions.size(), 3);
-    QVERIFY(completions.contains(QLatin1String("C")));
-    QVERIFY(completions.contains(QLatin1String("staticFun2")));
-    QVERIFY(completions.contains(QLatin1String("m2")));
-}
-
-void CppToolsPlugin::test_completion_enum_inside_block_inside_function_QTCREATORBUG5456()
-{
-    const QByteArray source =
+    QTest::newRow("enum_inside_block_inside_function_cxx11_QTCREATORBUG5456") << _(
             "void foo()\n"
             "{\n"
             "   {\n"
@@ -2132,131 +1674,75 @@ void CppToolsPlugin::test_completion_enum_inside_block_inside_function_QTCREATOR
             "       @\n"
             "   }\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "E::");
+        ) << _("E::") << (QStringList()
+            << QLatin1String("E")
+            << QLatin1String("e1")
+            << QLatin1String("e2")
+            << QLatin1String("e3"));
 
-    const QStringList completions = test.getCompletions();
-
-    QCOMPARE(completions.size(), 4);
-    QVERIFY(completions.contains(QLatin1String("E")));
-    QVERIFY(completions.contains(QLatin1String("e1")));
-    QVERIFY(completions.contains(QLatin1String("e2")));
-    QVERIFY(completions.contains(QLatin1String("e3")));
-}
-
-void CppToolsPlugin::test_completion_enum_inside_function_QTCREATORBUG5456()
-{
-    const QByteArray source =
+    QTest::newRow("enum_inside_function_cxx11_QTCREATORBUG5456") << _(
             "void foo()\n"
             "{\n"
             "   enum E { e1, e2, e3 };\n"
             "   @\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "E::");
+        ) << _("E::") << (QStringList()
+            << QLatin1String("E")
+            << QLatin1String("e1")
+            << QLatin1String("e2")
+            << QLatin1String("e3"));
 
-    const QStringList completions = test.getCompletions();
-
-    QCOMPARE(completions.size(), 4);
-    QVERIFY(completions.contains(QLatin1String("E")));
-    QVERIFY(completions.contains(QLatin1String("e1")));
-    QVERIFY(completions.contains(QLatin1String("e2")));
-    QVERIFY(completions.contains(QLatin1String("e3")));
-}
-
-void CppToolsPlugin::test_completion_lambdaCalls_1()
-{
-    const QByteArray source =
+    QTest::newRow("lambdaCalls_1") << _(
             "struct S { int bar; };\n"
             "void foo()\n"
             "{\n"
             "   @\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "[](){ return new S; } ()->");
+        ) << _("[](){ return new S; } ()->") << (QStringList()
+            << QLatin1String("S")
+            << QLatin1String("bar"));
 
-    const QStringList completions = test.getCompletions();
-
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("S")));
-    QVERIFY(completions.contains(QLatin1String("bar")));
-}
-
-void CppToolsPlugin::test_completion_lambdaCalls_2()
-{
-    const QByteArray source =
+    QTest::newRow("lambdaCalls_2") << _(
             "struct S { int bar; };\n"
             "void foo()\n"
             "{\n"
             "   @\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "[] { return new S; } ()->");
+        ) << _("[] { return new S; } ()->") << (QStringList()
+            << QLatin1String("S")
+            << QLatin1String("bar"));
 
-    const QStringList completions = test.getCompletions();
-
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("S")));
-    QVERIFY(completions.contains(QLatin1String("bar")));
-}
-
-void CppToolsPlugin::test_completion_lambdaCalls_3()
-{
-    const QByteArray source =
+    QTest::newRow("lambdaCalls_3") << _(
             "struct S { int bar; };\n"
             "void foo()\n"
             "{\n"
             "   @\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "[]() ->S* { return new S; } ()->");
+        ) << _("[]() ->S* { return new S; } ()->") << (QStringList()
+            << QLatin1String("S")
+            << QLatin1String("bar"));
 
-    const QStringList completions = test.getCompletions();
-
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("S")));
-    QVERIFY(completions.contains(QLatin1String("bar")));
-}
-
-void CppToolsPlugin::test_completion_lambdaCalls_4()
-{
-    const QByteArray source =
+    QTest::newRow("lambdaCalls_4") << _(
             "struct S { int bar; };\n"
             "void foo()\n"
             "{\n"
             "   @\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "[]() throw() { return new S; } ()->");
+        ) << _("[]() throw() { return new S; } ()->") << (QStringList()
+            << QLatin1String("S")
+            << QLatin1String("bar"));
 
-    const QStringList completions = test.getCompletions();
-
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("S")));
-    QVERIFY(completions.contains(QLatin1String("bar")));
-}
-
-void CppToolsPlugin::test_completion_lambdaCalls_5()
-{
-    const QByteArray source =
+    QTest::newRow("lambdaCalls_5") << _(
             "struct S { int bar; };\n"
             "void foo()\n"
             "{\n"
             "   @\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "[]() throw()->S* { return new S; } ()->");
+        ) << _("[]() throw()->S* { return new S; } ()->") << (QStringList()
+            << QLatin1String("S")
+            << QLatin1String("bar"));
 
-    const QStringList completions = test.getCompletions();
-
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("S")));
-    QVERIFY(completions.contains(QLatin1String("bar")));
-}
-
-void CppToolsPlugin::test_completion_local_type_and_member_1()
-{
-    const QByteArray source =
+    QTest::newRow("local_type_and_member_1") << _(
             "struct OtherType { int otherTypeMember; };\n"
             "void foo()\n"
             "{\n"
@@ -2268,19 +1754,11 @@ void CppToolsPlugin::test_completion_local_type_and_member_1()
             "    LocalType lt;\n"
             "    @\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "lt.ot.");
+        ) << _("lt.ot.") << (QStringList()
+            << QLatin1String("OtherType")
+            << QLatin1String("otherTypeMember"));
 
-    const QStringList completions = test.getCompletions();
-
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("OtherType")));
-    QVERIFY(completions.contains(QLatin1String("otherTypeMember")));
-}
-
-void CppToolsPlugin::test_completion_local_type_and_member_2()
-{
-    const QByteArray source =
+    QTest::newRow("local_type_and_member_2") << _(
             "void foo()\n"
             "{\n"
             "    struct OtherType { int otherTypeMember; };\n"
@@ -2292,19 +1770,11 @@ void CppToolsPlugin::test_completion_local_type_and_member_2()
             "    LocalType lt;\n"
             "    @\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "lt.ot.");
+        ) << _("lt.ot.") << (QStringList()
+            << QLatin1String("OtherType")
+            << QLatin1String("otherTypeMember"));
 
-    const QStringList completions = test.getCompletions();
-
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("OtherType")));
-    QVERIFY(completions.contains(QLatin1String("otherTypeMember")));
-}
-
-void CppToolsPlugin::test_completion_local_type_and_member_3()
-{
-    const QByteArray source =
+    QTest::newRow("local_type_and_member_3") << _(
             "void foo()\n"
             "{\n"
             "    struct OtherType { int otherTypeMember; };\n"
@@ -2318,19 +1788,11 @@ void CppToolsPlugin::test_completion_local_type_and_member_3()
             "       @\n"
             "    }\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "lt.ot.");
+        ) << _("lt.ot.") << (QStringList()
+            << QLatin1String("OtherType")
+            << QLatin1String("otherTypeMember"));
 
-    const QStringList completions = test.getCompletions();
-
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("OtherType")));
-    QVERIFY(completions.contains(QLatin1String("otherTypeMember")));
-}
-
-void CppToolsPlugin::test_completion_local_type_and_member_4()
-{
-    const QByteArray source =
+    QTest::newRow("local_type_and_member_4") << _(
             "namespace NS {struct OtherType { int otherTypeMember; };}\n"
             "void foo()\n"
             "{\n"
@@ -2342,19 +1804,11 @@ void CppToolsPlugin::test_completion_local_type_and_member_4()
             "    LocalType lt;\n"
             "    @\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "lt.ot.");
+        ) << _("lt.ot.") << (QStringList()
+            << QLatin1String("OtherType")
+            << QLatin1String("otherTypeMember"));
 
-    const QStringList completions = test.getCompletions();
-
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("OtherType")));
-    QVERIFY(completions.contains(QLatin1String("otherTypeMember")));
-}
-
-void CppToolsPlugin::test_completion_local_type_and_member_5()
-{
-    const QByteArray source =
+    QTest::newRow("local_type_and_member_5") << _(
             "namespace NS {struct OtherType { int otherTypeMember; };}\n"
             "void foo()\n"
             "{\n"
@@ -2367,19 +1821,11 @@ void CppToolsPlugin::test_completion_local_type_and_member_5()
             "    LocalType lt;\n"
             "    @\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "lt.ot.");
+        ) << _("lt.ot.") << (QStringList()
+            << QLatin1String("OtherType")
+            << QLatin1String("otherTypeMember"));
 
-    const QStringList completions = test.getCompletions();
-
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("OtherType")));
-    QVERIFY(completions.contains(QLatin1String("otherTypeMember")));
-}
-
-void CppToolsPlugin::test_completion_local_type_and_member_6()
-{
-    const QByteArray source =
+    QTest::newRow("local_type_and_member_6") << _(
             "namespace NS {struct OtherType { int otherTypeMember; };}\n"
             "void foo()\n"
             "{\n"
@@ -2392,19 +1838,11 @@ void CppToolsPlugin::test_completion_local_type_and_member_6()
             "    LocalType lt;\n"
             "    @\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "lt.ot.");
+        ) << _("lt.ot.") << (QStringList()
+            << QLatin1String("OtherType")
+            << QLatin1String("otherTypeMember"));
 
-    const QStringList completions = test.getCompletions();
-
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("OtherType")));
-    QVERIFY(completions.contains(QLatin1String("otherTypeMember")));
-}
-
-void CppToolsPlugin::test_completion_template_parameter_defined_inside_scope_of_declaration_QTCREATORBUG9169_1()
-{
-    const QByteArray source =
+    QTest::newRow("template_parameter_defined_inside_scope_of_declaration_QTCREATORBUG9169_1") << _(
             "struct A\n"
             "{\n"
             "    void foo();\n"
@@ -2431,19 +1869,11 @@ void CppToolsPlugin::test_completion_template_parameter_defined_inside_scope_of_
             "    Template<B> templ;\n"
             "    @\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "templ.get()->");
+        ) << _("templ.get()->") << (QStringList()
+            << QLatin1String("B")
+            << QLatin1String("b"));
 
-    const QStringList completions = test.getCompletions();
-
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("B")));
-    QVERIFY(completions.contains(QLatin1String("b")));
-}
-
-void CppToolsPlugin::test_completion_template_parameter_defined_inside_scope_of_declaration_QTCREATORBUG9169_2()
-{
-    const QByteArray source =
+    QTest::newRow("template_parameter_defined_inside_scope_of_declaration_QTCREATORBUG9169_2") << _(
             "struct A\n"
             "{\n"
             "    void foo();\n"
@@ -2470,19 +1900,11 @@ void CppToolsPlugin::test_completion_template_parameter_defined_inside_scope_of_
             "    Template<B> templ;\n"
             "    @\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "templ.t.");
+        ) << _("templ.t.") << (QStringList()
+            << QLatin1String("B")
+            << QLatin1String("b"));
 
-    const QStringList completions = test.getCompletions();
-
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("B")));
-    QVERIFY(completions.contains(QLatin1String("b")));
-}
-
-void CppToolsPlugin::test_completion_template_parameter_defined_inside_scope_of_declaration_QTCREATORBUG8852_1()
-{
-    const QByteArray source =
+    QTest::newRow("template_parameter_defined_inside_scope_of_declaration_QTCREATORBUG8852_1") << _(
             "template <typename T>\n"
             "struct QList\n"
             "{\n"
@@ -2497,19 +1919,11 @@ void CppToolsPlugin::test_completion_template_parameter_defined_inside_scope_of_
             "       @\n"
             "    }\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "list.at(0).");
+        ) << _("list.at(0).") << (QStringList()
+            << QLatin1String("Foo")
+            << QLatin1String("bar"));
 
-    const QStringList completions = test.getCompletions();
-
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("Foo")));
-    QVERIFY(completions.contains(QLatin1String("bar")));
-}
-
-void CppToolsPlugin::test_completion_template_parameter_defined_inside_scope_of_declaration_QTCREATORBUG8852_2()
-{
-    const QByteArray source =
+    QTest::newRow("template_parameter_defined_inside_scope_of_declaration_QTCREATORBUG8852_2") << _(
             "template <typename T>\n"
             "struct QList\n"
             "{\n"
@@ -2527,19 +1941,11 @@ void CppToolsPlugin::test_completion_template_parameter_defined_inside_scope_of_
             "       }\n"
             "    }\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "list.at(0).");
+        ) << _("list.at(0).") << (QStringList()
+            << QLatin1String("Foo")
+            << QLatin1String("bar"));
 
-    const QStringList completions = test.getCompletions();
-
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("Foo")));
-    QVERIFY(completions.contains(QLatin1String("bar")));
-}
-
-void CppToolsPlugin::test_completion_template_parameter_defined_inside_scope_of_declaration_QTCREATORBUG8852_3()
-{
-    const QByteArray source =
+    QTest::newRow("template_parameter_defined_inside_scope_of_declaration_QTCREATORBUG8852_3") << _(
             "template <typename T>\n"
             "struct QList\n"
             "{\n"
@@ -2555,19 +1961,11 @@ void CppToolsPlugin::test_completion_template_parameter_defined_inside_scope_of_
             "    QList<Foo> list;\n"
             "    @\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "list.at(0).");
+        ) << _("list.at(0).") << (QStringList()
+            << QLatin1String("Foo")
+            << QLatin1String("bar"));
 
-    const QStringList completions = test.getCompletions();
-
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("Foo")));
-    QVERIFY(completions.contains(QLatin1String("bar")));
-}
-
-void CppToolsPlugin::test_completion_signals_hide_QPrivateSignal()
-{
-    const QByteArray source =
+    QTest::newRow("signals_hide_QPrivateSignal") << _(
         "#define SIGNAL(a) #a\n"
         "#define SLOT(a) #a\n"
         "#define signals public\n"
@@ -2590,34 +1988,21 @@ void CppToolsPlugin::test_completion_signals_hide_QPrivateSignal()
         "{\n"
         "    Timer *timer = new Timer;\n"
         "    connect(timer, SIGNAL(@\n"
-        "}\n";
-    CompletionTestCase test(source);
+        "}\n"
+        ) << _() << (QStringList()
+            << QLatin1String("timeout()"));
 
-    const QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 1);
-    QVERIFY(completions.contains(QLatin1String("timeout()")));
-}
-
-void CppToolsPlugin::test_completion_member_of_class_accessed_by_using_QTCREATORBUG9037_1()
-{
-    const QByteArray source =
+    QTest::newRow("member_of_class_accessed_by_using_QTCREATORBUG9037_1") << _(
             "namespace NS { struct S { int member; void fun(); }; }\n"
             "using NS::S;\n"
             "void S::fun()\n"
             "{\n"
             "    @\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "mem");
+        ) << _("mem") << (QStringList()
+            << QLatin1String("member"));
 
-    QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 1);
-    QVERIFY(completions.contains(QLatin1String("member")));
-}
-
-void CppToolsPlugin::test_completion_member_of_class_accessed_by_using_QTCREATORBUG9037_2()
-{
-    const QByteArray source =
+    QTest::newRow("member_of_class_accessed_by_using_QTCREATORBUG9037_2") << _(
             "namespace NS \n"
             "{\n"
             "   namespace Internal\n"
@@ -2631,176 +2016,127 @@ void CppToolsPlugin::test_completion_member_of_class_accessed_by_using_QTCREATOR
             "{\n"
             "    @\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "mem");
-
-    QStringList completions = test.getCompletions();
-    QCOMPARE(completions.size(), 1);
-    QVERIFY(completions.contains(QLatin1String("member")));
+        ) << _("mem") << (QStringList()
+            << QLatin1String("member"));
 }
 
-void CppToolsPlugin::test_completion_member_access_operator_1()
+void CppToolsPlugin::test_completion_member_access_operator()
 {
-    const QByteArray source =
+    QFETCH(QByteArray, code);
+    QFETCH(QByteArray, prefix);
+    QFETCH(QStringList, expectedCompletions);
+    QFETCH(bool, expectedReplaceAccessOperator);
+
+    CompletionTestCase test(code, prefix);
+
+    bool replaceAccessOperator = false;
+    QStringList completions = test.getCompletions(&replaceAccessOperator);
+
+    completions.sort();
+    expectedCompletions.sort();
+
+    QCOMPARE(completions, expectedCompletions);
+    QCOMPARE(replaceAccessOperator, expectedReplaceAccessOperator);
+}
+
+void CppToolsPlugin::test_completion_member_access_operator_data()
+{
+    QTest::addColumn<QByteArray>("code");
+    QTest::addColumn<QByteArray>("prefix");
+    QTest::addColumn<QStringList>("expectedCompletions");
+    QTest::addColumn<bool>("expectedReplaceAccessOperator");
+
+    QTest::newRow("member_access_operator") << _(
             "struct S { void t(); };\n"
             "void f() { S *s;\n"
             "@\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "s.");
+        ) << _("s.") << (QStringList()
+            << QLatin1String("S")
+            << QLatin1String("t"))
+        << true;
 
-    bool replaceAccessOperator = false;
-    const QStringList completions = test.getCompletions(&replaceAccessOperator);
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("S")));
-    QVERIFY(completions.contains(QLatin1String("t")));
-    QVERIFY(replaceAccessOperator);
-}
-
-void CppToolsPlugin::test_completion_typedef_of_type_and_decl_of_type_no_replace_access_operator()
-{
-    const QByteArray source =
+    QTest::newRow("typedef_of_type_and_decl_of_type_no_replace_access_operator") << _(
             "struct S { int m; };\n"
             "typedef S SType;\n"
             "SType p;\n"
             "@\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "p.");
+        ) << _("p.") << (QStringList()
+            << QLatin1String("S")
+            << QLatin1String("m"))
+        << false;
 
-    bool replaceAccessOperator = false;
-    const QStringList completions = test.getCompletions(&replaceAccessOperator);
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("S")));
-    QVERIFY(completions.contains(QLatin1String("m")));
-    QVERIFY(!replaceAccessOperator);
-}
-
-void CppToolsPlugin::test_completion_typedef_of_pointer_and_decl_of_pointer_no_replace_access_operator()
-{
-    const QByteArray source =
+    QTest::newRow("typedef_of_pointer_and_decl_of_pointer_no_replace_access_operator") << _(
             "struct S { int m; };\n"
             "typedef S *SType;\n"
             "SType *p;\n"
             "@\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "p.");
+        ) << _("p.") << (QStringList())
+        << false;
 
-    bool replaceAccessOperator = false;
-    const QStringList completions = test.getCompletions(&replaceAccessOperator);
-    QCOMPARE(completions.size(), 0);
-    QVERIFY(!replaceAccessOperator);
-}
-
-void CppToolsPlugin::test_completion_typedef_of_type_and_decl_of_pointer_replace_access_operator()
-{
-    const QByteArray source =
+    QTest::newRow("typedef_of_type_and_decl_of_pointer_replace_access_operator") << _(
             "struct S { int m; };\n"
             "typedef S SType;\n"
             "SType *p;\n"
             "@\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "p.");
+        ) << _("p.") << (QStringList()
+            << QLatin1String("S")
+            << QLatin1String("m"))
+        << true;
 
-    bool replaceAccessOperator = false;
-    const QStringList completions = test.getCompletions(&replaceAccessOperator);
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("S")));
-    QVERIFY(completions.contains(QLatin1String("m")));
-    QVERIFY(replaceAccessOperator);
-}
-
-void CppToolsPlugin::test_completion_typedef_of_pointer_and_decl_of_type_replace_access_operator()
-{
-    const QByteArray source =
+    QTest::newRow("typedef_of_pointer_and_decl_of_type_replace_access_operator") << _(
             "struct S { int m; };\n"
             "typedef S* SPtr;\n"
             "SPtr p;\n"
             "@\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "p.");
+        ) << _("p.") << (QStringList()
+            << QLatin1String("S")
+            << QLatin1String("m"))
+        << true;
 
-    bool replaceAccessOperator = false;
-    const QStringList completions = test.getCompletions(&replaceAccessOperator);
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("S")));
-    QVERIFY(completions.contains(QLatin1String("m")));
-    QVERIFY(replaceAccessOperator);
-}
-
-void CppToolsPlugin::test_completion_predecl_typedef_of_type_and_decl_of_pointer_replace_access_operator()
-{
-    const QByteArray source =
+    QTest::newRow("predecl_typedef_of_type_and_decl_of_pointer_replace_access_operator") << _(
             "typedef struct S SType;\n"
             "struct S { int m; };\n"
             "SType *p;\n"
             "@\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "p.");
+        ) << _("p.") << (QStringList()
+            << QLatin1String("S")
+            << QLatin1String("m"))
+        << true;
 
-    bool replaceAccessOperator = false;
-    const QStringList completions = test.getCompletions(&replaceAccessOperator);
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("S")));
-    QVERIFY(completions.contains(QLatin1String("m")));
-    QVERIFY(replaceAccessOperator);
-}
-
-void CppToolsPlugin::test_completion_predecl_typedef_of_type_and_decl_type_no_replace_access_operator()
-{
-    const QByteArray source =
+    QTest::newRow("predecl_typedef_of_type_and_decl_type_no_replace_access_operator") << _(
             "typedef struct S SType;\n"
             "struct S { int m; };\n"
             "SType p;\n"
             "@\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "p.");
+        ) << _("p.") << (QStringList()
+            << QLatin1String("S")
+            << QLatin1String("m"))
+        << false;
 
-    bool replaceAccessOperator = false;
-    const QStringList completions = test.getCompletions(&replaceAccessOperator);
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("S")));
-    QVERIFY(completions.contains(QLatin1String("m")));
-    QVERIFY(!replaceAccessOperator);
-}
-
-void CppToolsPlugin::test_completion_predecl_typedef_of_pointer_and_decl_of_pointer_no_replace_access_operator()
-{
-    const QByteArray source =
+    QTest::newRow("predecl_typedef_of_pointer_and_decl_of_pointer_no_replace_access_operator") << _(
             "typedef struct S *SType;\n"
             "struct S { int m; };\n"
             "SType *p;\n"
             "@\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "p.");
+        ) << _("p.") << (QStringList())
+        << false;
 
-    bool replaceAccessOperator = false;
-    const QStringList completions = test.getCompletions(&replaceAccessOperator);
-    QCOMPARE(completions.size(), 0);
-    QVERIFY(!replaceAccessOperator);
-}
-
-void CppToolsPlugin::test_completion_predecl_typedef_of_pointer_and_decl_of_type_replace_access_operator()
-{
-    const QByteArray source =
+    QTest::newRow("predecl_typedef_of_pointer_and_decl_of_type_replace_access_operator") << _(
             "typedef struct S *SType;\n"
             "struct S { int m; };\n"
             "SType p;\n"
             "@\n"
             "}\n"
-            ;
-    CompletionTestCase test(source, "p.");
-
-    bool replaceAccessOperator = false;
-    const QStringList completions = test.getCompletions(&replaceAccessOperator);
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("S")));
-    QVERIFY(completions.contains(QLatin1String("m")));
-    QVERIFY(replaceAccessOperator);
+        ) << _("p.") << (QStringList()
+            << QLatin1String("S")
+            << QLatin1String("m"))
+        << true;
 }
