@@ -271,9 +271,6 @@ bool AndroidDeployQtStep::init()
     pp->setMacroExpander(bc->macroExpander());
     pp->setWorkingDirectory(bc->buildDirectory().toString());
     Utils::Environment env = bc->environment();
-    // Force output to english for the parsers. Do this here and not in the toolchain's
-    // addToEnvironment() to not screw up the users run environment.
-    env.set(QLatin1String("LC_ALL"), QLatin1String("C"));
     pp->setEnvironment(env);
     pp->setCommand(command);
     pp->setArguments(Utils::QtcProcess::joinArgs(arguments));
