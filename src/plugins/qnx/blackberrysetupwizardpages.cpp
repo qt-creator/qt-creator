@@ -321,7 +321,7 @@ BlackBerrySetupWizardFinishPage::BlackBerrySetupWizardFinishPage(QWidget *parent
     : QWizardPage(parent),
     m_ui(0)
 {
-    setSubTitle(tr("Your environment is ready to be configured."));
+    setTitle(tr("Your environment is ready to be configured."));
 
     m_ui = new Ui::BlackBerrySetupWizardFinishPage;
     m_ui->setupUi(this);
