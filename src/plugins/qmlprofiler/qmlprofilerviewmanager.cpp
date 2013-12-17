@@ -112,6 +112,8 @@ void QmlProfilerViewManager::createViews()
 
     d->v8profilerView = new QV8ProfilerEventsWidget(mw, d->profilerTool, this,
                                                     d->profilerModelManager);
+    connect(d->v8profilerView, SIGNAL(gotoSourceLocation(QString,int,int)), this,
+            SIGNAL(gotoSourceLocation(QString,int,int)));
     connect(d->traceView, SIGNAL(gotoSourceLocation(QString,int,int)),
             d->v8profilerView, SLOT(selectBySourceLocation(QString,int,int)));
     connect(d->v8profilerView, SIGNAL(gotoSourceLocation(QString,int,int)),
