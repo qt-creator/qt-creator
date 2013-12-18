@@ -154,7 +154,7 @@ INCLUDEPATH += \
     $$IDE_SOURCE_TREE/tools
 
 QTC_PLUGIN_DIRS += $$IDE_SOURCE_TREE/src/plugins
-for (dir, QTC_PLUGIN_DIRS) {
+for(dir, QTC_PLUGIN_DIRS) {
     INCLUDEPATH += $$dir
 }
 

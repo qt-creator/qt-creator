@@ -44,6 +44,13 @@ def commit(commitMessage, expectedLogMessage):
     test.verify(expectedLogMessage in str(vcsLog), "Searching for '%s' in log:\n%s " % (expectedLogMessage, vcsLog))
     return commitMessage
 
+def verifyItemsInGit(commitMessages):
+    gitEditor = waitForObject(":Qt Creator_Git::Internal::GitEditor")
+    waitFor("str(gitEditor.plainText) != 'Waiting for data...'", 20000)
+    plainText = str(gitEditor.plainText)
+    verifyItemOrder(commitMessages, plainText)
+    return plainText
+
 def main():
     startApplication("qtcreator" + SettingsPath)
     if not startedWithoutPluginError():
@@ -63,19 +70,35 @@ def main():
     addCPlusPlusFileToCurrentProject("pointless_header.h", "C++ Header File", addToVCS = "Git")
     commitMessages.insert(0, commit("Added pointless header file", "Committed 2 file(s)."))
     __createProjectOrFileSelectType__("  General", "Text File", isProject=False)
-    replaceEditorContent(waitForObject(":New Text File.nameLineEdit_Utils::FileNameValidatingLineEdit"), "README")
+    readmeName = "README"
+    replaceEditorContent(waitForObject(":New Text File.nameLineEdit_Utils::FileNameValidatingLineEdit"), readmeName)
     clickButton(waitForObject(":Next_QPushButton"))
-    __createProjectHandleLastPage__(["README.txt"], "Git", "<None>")
+    readmeName += ".txt"
+    __createProjectHandleLastPage__([readmeName], "Git", "<None>")
     replaceEditorContent(waitForObject(":Qt Creator_TextEditor::PlainTextEditorWidget"),
                          "Some important advice in the README")
     invokeMenuItem("File", "Save All")
-    commitMessages.insert(0, commit("Added README file", "Committed 2 file(s).")) # QTCREATORBUG-11074
+    commitsInProject = list(commitMessages) # deep copy
+    commitOutsideProject = commit("Added README file", "Committed 2 file(s).") # QTCREATORBUG-11074
+    commitMessages.insert(0, commitOutsideProject)
+
+    invokeMenuItem('Tools', 'Git', 'Current File', 'Log of "%s"' % readmeName)
+    fileLog = verifyItemsInGit([commitOutsideProject])
+    for commitMessage in commitsInProject:
+        test.verify(not commitMessage in fileLog,
+                    "Verify that no unrelated commits are displayed in file log")
     invokeMenuItem("File", "Close All")
+
+    invokeMenuItem('Tools', 'Git', 'Current Project', 'Log Project "%s"' % projectName)
+    projectLog = verifyItemsInGit(commitsInProject)
+    test.xverify(not commitOutsideProject in projectLog,    # QTCREATORBUG-10170
+                 "Verify that no unrelated commits are displayed in project log")
+    invokeMenuItem("File", "Close All")
+
     invokeMenuItem("Tools", "Git", "Local Repository", "Log")
-    gitEditor = waitForObject(":Qt Creator_Git::Internal::GitEditor")
-    waitFor("str(gitEditor.plainText) != 'Waiting for data...'", 20000)
-    verifyItemOrder(commitMessages, gitEditor.plainText)
+    verifyItemsInGit(commitMessages)
     invokeMenuItem("File", "Close All Projects and Editors")
+
     invokeMenuItem("File", "Exit")
 
 def deleteProject():
