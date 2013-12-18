@@ -86,6 +86,8 @@ public:
     SnapLineMap rightSnappingOffsets() const;
 
     QList<FormEditorItem*> childFormEditorItems() const;
+    QList<FormEditorItem*> offspringFormEditorItems() const;
+
     FormEditorScene *scene() const;
     FormEditorItem *parentItem() const;
 
@@ -114,6 +116,7 @@ protected:
     void paintBoundingRect(QPainter *painter) const;
     void paintPlaceHolderForInvisbleItem(QPainter *painter) const;
     void paintComponentContentVisualisation(QPainter *painter, const QRectF &clippinRectangle) const;
+    QList<FormEditorItem*> offspringFormEditorItemsRecursive(const FormEditorItem *formEditorItem) const;
 
 private: // functions
     FormEditorItem(const QmlItemNode &qmlItemNode, FormEditorScene* scene);

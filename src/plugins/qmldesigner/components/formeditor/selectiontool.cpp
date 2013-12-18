@@ -271,6 +271,7 @@ void SelectionTool::formEditorItemsChanged(const QList<FormEditorItem*> &itemLis
     m_resizeIndicator.updateItems(selectedItemList);
     m_anchorIndicator.updateItems(selectedItemList);
     m_bindingIndicator.updateItems(selectedItemList);
+    m_contentNotEditableIndicator.updateItems(selectedItemList);
 }
 
 void SelectionTool::instancesCompleted(const QList<FormEditorItem*> &/*itemList*/)

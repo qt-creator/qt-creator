@@ -30,6 +30,8 @@
 #include "contentnoteditableindicator.h"
 #include "nodemetainfo.h"
 
+#include <QSet>
+
 namespace QmlDesigner {
 
 ContentNotEditableIndicator::ContentNotEditableIndicator(LayerItem *layerItem)
@@ -66,6 +68,24 @@ void ContentNotEditableIndicator::setItems(const QList<FormEditorItem*> &itemLis
 {
     removeEntriesWhichAreNotInTheList(itemList);
     addAddiationEntries(itemList);
+}
+
+void ContentNotEditableIndicator::updateItems(const QList<FormEditorItem *> &itemList)
+{
+    QSet<FormEditorItem*> affectedFormEditorItemItems;
+    affectedFormEditorItemItems.unite(itemList.toSet());
+    foreach (FormEditorItem *formEditorItem, itemList)
+        affectedFormEditorItemItems.unite(formEditorItem->offspringFormEditorItems().toSet());
+
+    foreach (const EntryPair &entryPair, m_entryList) {
+         foreach (FormEditorItem *formEditorItem, affectedFormEditorItemItems) {
+             if (formEditorItem == entryPair.first) {
+                 QRectF boundingRectangleInSceneSpace = formEditorItem->qmlItemNode().instanceSceneTransform().mapRect(formEditorItem->qmlItemNode().instanceBoundingRect());
+                 entryPair.second->setRect(boundingRectangleInSceneSpace);
+                 entryPair.second->update();
+             }
+         }
+    }
 }
 
 void ContentNotEditableIndicator::addAddiationEntries(const QList<FormEditorItem *> &itemList)

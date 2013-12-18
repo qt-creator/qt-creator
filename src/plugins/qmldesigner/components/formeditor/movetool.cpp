@@ -401,6 +401,7 @@ void MoveTool::formEditorItemsChanged(const QList<FormEditorItem*> &itemList)
     m_resizeIndicator.updateItems(selectedItemList);
     m_anchorIndicator.updateItems(selectedItemList);
     m_bindingIndicator.updateItems(selectedItemList);
+    m_contentNotEditableIndicator.updateItems(selectedItemList);
 }
 
 }

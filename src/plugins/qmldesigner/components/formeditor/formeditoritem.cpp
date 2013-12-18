@@ -289,6 +289,20 @@ void FormEditorItem::paintComponentContentVisualisation(QPainter *painter, const
     painter->fillRect(clippinRectangle, Qt::BDiagPattern);
 }
 
+QList<FormEditorItem *> FormEditorItem::offspringFormEditorItemsRecursive(const FormEditorItem *formEditorItem) const
+{
+    QList<FormEditorItem*> formEditorItemList;
+
+    foreach (QGraphicsItem *item, formEditorItem->childItems()) {
+        FormEditorItem *formEditorItem = fromQGraphicsItem(item);
+        if (formEditorItem) {
+            formEditorItemList.append(formEditorItem);
+        }
+    }
+
+    return formEditorItemList;
+}
+
 void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 {
     if (!painter->isActive())
@@ -392,6 +406,11 @@ QList<FormEditorItem*> FormEditorItem::childFormEditorItems() const
     }
 
     return formEditorItemList;
+}
+
+QList<FormEditorItem *> FormEditorItem::offspringFormEditorItems() const
+{
+    return offspringFormEditorItemsRecursive(this);
 }
 
 bool FormEditorItem::isContainer() const

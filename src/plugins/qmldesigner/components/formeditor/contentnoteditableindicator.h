@@ -49,6 +49,7 @@ public:
     void clear();
 
     void setItems(const QList<FormEditorItem*> &itemList);
+    void updateItems(const QList<FormEditorItem*> &itemList);
 
 protected:
     void addAddiationEntries(const QList<FormEditorItem*> &itemList);
