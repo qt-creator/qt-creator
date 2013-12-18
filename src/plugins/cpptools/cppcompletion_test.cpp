@@ -157,6 +157,156 @@ private:
 
 } // namespace
 
+void CppToolsPlugin::test_completion_basic_1()
+{
+    const QByteArray source =
+            "class Foo\n"
+            "{\n"
+            "    void foo();\n"
+            "    int m;\n"
+            "};\n"
+            "\n"
+            "void func() {\n"
+            "    Foo f;\n"
+            "    @\n"
+            "}";
+    CompletionTestCase test(source);
+
+    QStringList basicCompletions = test.getCompletions();
+    QVERIFY(!basicCompletions.contains(QLatin1String("foo")));
+    QVERIFY(!basicCompletions.contains(QLatin1String("m")));
+    QVERIFY(basicCompletions.contains(QLatin1String("Foo")));
+    QVERIFY(basicCompletions.contains(QLatin1String("func")));
+    QVERIFY(basicCompletions.contains(QLatin1String("f")));
+
+    test.insertText("f.");
+
+    QStringList memberCompletions = test.getCompletions();
+    QVERIFY(memberCompletions.contains(QLatin1String("foo")));
+    QVERIFY(memberCompletions.contains(QLatin1String("m")));
+    QVERIFY(!memberCompletions.contains(QLatin1String("func")));
+    QVERIFY(!memberCompletions.contains(QLatin1String("f")));
+}
+
+void CppToolsPlugin::test_completion_prefix_first_QTCREATORBUG_8737()
+{
+    const QByteArray source =
+            "void f()\n"
+            "{\n"
+            "    int a_b_c, a_c, a_c_a;\n"
+            "    @;\n"
+            "}\n"
+            ;
+    CompletionTestCase test(source, "a_c");
+
+    QStringList completions = test.getCompletions();
+
+    QVERIFY(completions.size() >= 2);
+    QCOMPARE(completions.at(0), QLatin1String("a_c"));
+    QCOMPARE(completions.at(1), QLatin1String("a_c_a"));
+    QVERIFY(completions.contains(QLatin1String("a_b_c")));
+}
+
+void CppToolsPlugin::test_completion_prefix_first_QTCREATORBUG_9236()
+{
+    const QByteArray source =
+            "class r_etclass\n"
+            "{\n"
+            "public:\n"
+            "    int raEmTmber;\n"
+            "    void r_e_t(int re_t)\n"
+            "    {\n"
+            "        int r_et;\n"
+            "        int rETUCASE;\n"
+            "        @\n"
+            "    }\n"
+            "};\n"
+            ;
+    CompletionTestCase test(source, "ret");
+
+    QStringList completions = test.getCompletions();
+
+    QVERIFY(completions.size() >= 2);
+    QCOMPARE(completions.at(0), QLatin1String("return"));
+    QCOMPARE(completions.at(1), QLatin1String("rETUCASE"));
+    QVERIFY(completions.contains(QLatin1String("r_etclass")));
+    QVERIFY(completions.contains(QLatin1String("raEmTmber")));
+    QVERIFY(completions.contains(QLatin1String("r_e_t")));
+    QVERIFY(completions.contains(QLatin1String("re_t")));
+    QVERIFY(completions.contains(QLatin1String("r_et")));
+}
+
+void CppToolsPlugin::test_completion_template_function()
+{
+    QFETCH(QByteArray, code);
+    QFETCH(QStringList, expectedCompletions);
+
+    CompletionTestCase test(code);
+
+    QStringList actualCompletions = test.getCompletions();
+    actualCompletions.sort();
+    expectedCompletions.sort();
+
+    QString errorPattern(QLatin1String("Completion not found: %1"));
+    foreach (const QString &completion, expectedCompletions) {
+        QByteArray errorMessage = errorPattern.arg(completion).toUtf8();
+        QVERIFY2(actualCompletions.contains(completion), errorMessage.data());
+    }
+}
+
+void CppToolsPlugin::test_completion_template_function_data()
+{
+    QTest::addColumn<QByteArray>("code");
+    QTest::addColumn<QStringList>("expectedCompletions");
+
+    QByteArray code;
+    QStringList completions;
+
+    code =
+           "template <class tclass, typename tname, int tint>\n"
+           "tname Hello(const tclass &e)\n"
+           "{\n"
+           "    tname e2 = e;\n"
+           "    @\n"
+           "}";
+
+    completions.append(QLatin1String("tclass"));
+    completions.append(QLatin1String("tname"));
+    completions.append(QLatin1String("tint"));
+    QTest::newRow("case: template parameters in template function body")
+            << code << completions;
+
+    completions.clear();
+
+    code =
+           "template <class tclass, typename tname, int tint>\n"
+           "tname Hello(const tclass &e, @)\n"
+           "{\n"
+           "    tname e2 = e;\n"
+           "}";
+
+    completions.append(QLatin1String("tclass"));
+    completions.append(QLatin1String("tname"));
+    completions.append(QLatin1String("tint"));
+    QTest::newRow("case: template parameters in template function parameters list")
+            << code << completions;
+}
+
+void CppToolsPlugin::test_completion()
+{
+    QFETCH(QByteArray, code);
+    QFETCH(QByteArray, prefix);
+    QFETCH(QStringList, expectedCompletions);
+
+    CompletionTestCase test(code, prefix);
+
+    QStringList actualCompletions = test.getCompletions();
+    actualCompletions.sort();
+    expectedCompletions.sort();
+
+    QCOMPARE(actualCompletions, expectedCompletions);
+}
+
 void CppToolsPlugin::test_completion_forward_declarations_present()
 {
     const QByteArray source =
@@ -239,37 +389,6 @@ void CppToolsPlugin::test_completion_inside_parentheses_cast_operator_conversion
     QVERIFY(completions.contains(QLatin1String("Base")));
     QVERIFY(completions.contains(QLatin1String("i_derived")));
     QVERIFY(completions.contains(QLatin1String("i_base")));
-}
-
-void CppToolsPlugin::test_completion_basic_1()
-{
-    const QByteArray source =
-            "class Foo\n"
-            "{\n"
-            "    void foo();\n"
-            "    int m;\n"
-            "};\n"
-            "\n"
-            "void func() {\n"
-            "    Foo f;\n"
-            "    @\n"
-            "}";
-    CompletionTestCase test(source);
-
-    QStringList basicCompletions = test.getCompletions();
-    QVERIFY(!basicCompletions.contains(QLatin1String("foo")));
-    QVERIFY(!basicCompletions.contains(QLatin1String("m")));
-    QVERIFY(basicCompletions.contains(QLatin1String("Foo")));
-    QVERIFY(basicCompletions.contains(QLatin1String("func")));
-    QVERIFY(basicCompletions.contains(QLatin1String("f")));
-
-    test.insertText("f.");
-
-    QStringList memberCompletions = test.getCompletions();
-    QVERIFY(memberCompletions.contains(QLatin1String("foo")));
-    QVERIFY(memberCompletions.contains(QLatin1String("m")));
-    QVERIFY(!memberCompletions.contains(QLatin1String("func")));
-    QVERIFY(!memberCompletions.contains(QLatin1String("f")));
 }
 
 void CppToolsPlugin::test_completion_template_1()
@@ -499,21 +618,6 @@ void CppToolsPlugin::test_completion_instantiate_full_specialization()
     QCOMPARE(completions.size(), 2);
     QVERIFY(completions.contains(QLatin1String("Template")));
     QVERIFY(completions.contains(QLatin1String("templateChar_i")));
-}
-
-void CppToolsPlugin::test_completion()
-{
-    QFETCH(QByteArray, code);
-    QFETCH(QByteArray, prefix);
-    QFETCH(QStringList, expectedCompletions);
-
-    CompletionTestCase test(code, prefix);
-
-    QStringList actualCompletions = test.getCompletions();
-    actualCompletions.sort();
-    expectedCompletions.sort();
-
-    QCOMPARE(actualCompletions, expectedCompletions);
 }
 
 void CppToolsPlugin::test_completion_template_as_base()
@@ -1074,62 +1178,6 @@ void CppToolsPlugin::test_completion_cyclic_inheritance_data()
             << code << _("c.") << completions;
 }
 
-void CppToolsPlugin::test_completion_template_function()
-{
-    QFETCH(QByteArray, code);
-    QFETCH(QStringList, expectedCompletions);
-
-    CompletionTestCase test(code);
-
-    QStringList actualCompletions = test.getCompletions();
-    actualCompletions.sort();
-    expectedCompletions.sort();
-
-    QString errorPattern(QLatin1String("Completion not found: %1"));
-    foreach (const QString &completion, expectedCompletions) {
-        QByteArray errorMessage = errorPattern.arg(completion).toUtf8();
-        QVERIFY2(actualCompletions.contains(completion), errorMessage.data());
-    }
-}
-
-void CppToolsPlugin::test_completion_template_function_data()
-{
-    QTest::addColumn<QByteArray>("code");
-    QTest::addColumn<QStringList>("expectedCompletions");
-
-    QByteArray code;
-    QStringList completions;
-
-    code =
-           "template <class tclass, typename tname, int tint>\n"
-           "tname Hello(const tclass &e)\n"
-           "{\n"
-           "    tname e2 = e;\n"
-           "    @\n"
-           "}";
-
-    completions.append(QLatin1String("tclass"));
-    completions.append(QLatin1String("tname"));
-    completions.append(QLatin1String("tint"));
-    QTest::newRow("case: template parameters in template function body")
-            << code << completions;
-
-    completions.clear();
-
-    code =
-           "template <class tclass, typename tname, int tint>\n"
-           "tname Hello(const tclass &e, @)\n"
-           "{\n"
-           "    tname e2 = e;\n"
-           "}";
-
-    completions.append(QLatin1String("tclass"));
-    completions.append(QLatin1String("tname"));
-    completions.append(QLatin1String("tint"));
-    QTest::newRow("case: template parameters in template function parameters list")
-            << code << completions;
-}
-
 void CppToolsPlugin::test_completion_enclosing_template_class()
 {
     test_completion();
@@ -1294,172 +1342,6 @@ void CppToolsPlugin::test_completion_instantiate_template_with_default_argument_
     QCOMPARE(completions.size(), 2);
     QVERIFY(completions.contains(QLatin1String("Foo")));
     QVERIFY(completions.contains(QLatin1String("bar")));
-}
-
-void CppToolsPlugin::test_completion_member_access_operator_1()
-{
-    const QByteArray source =
-            "struct S { void t(); };\n"
-            "void f() { S *s;\n"
-            "@\n"
-            "}\n"
-            ;
-    CompletionTestCase test(source, "s.");
-
-    bool replaceAccessOperator = false;
-    const QStringList completions = test.getCompletions(&replaceAccessOperator);
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("S")));
-    QVERIFY(completions.contains(QLatin1String("t")));
-    QVERIFY(replaceAccessOperator);
-}
-
-void CppToolsPlugin::test_completion_typedef_of_type_and_decl_of_type_no_replace_access_operator()
-{
-    const QByteArray source =
-            "struct S { int m; };\n"
-            "typedef S SType;\n"
-            "SType p;\n"
-            "@\n"
-            "}\n"
-            ;
-    CompletionTestCase test(source, "p.");
-
-    bool replaceAccessOperator = false;
-    const QStringList completions = test.getCompletions(&replaceAccessOperator);
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("S")));
-    QVERIFY(completions.contains(QLatin1String("m")));
-    QVERIFY(!replaceAccessOperator);
-}
-
-void CppToolsPlugin::test_completion_typedef_of_pointer_and_decl_of_pointer_no_replace_access_operator()
-{
-    const QByteArray source =
-            "struct S { int m; };\n"
-            "typedef S *SType;\n"
-            "SType *p;\n"
-            "@\n"
-            "}\n"
-            ;
-    CompletionTestCase test(source, "p.");
-
-    bool replaceAccessOperator = false;
-    const QStringList completions = test.getCompletions(&replaceAccessOperator);
-    QCOMPARE(completions.size(), 0);
-    QVERIFY(!replaceAccessOperator);
-}
-
-void CppToolsPlugin::test_completion_typedef_of_type_and_decl_of_pointer_replace_access_operator()
-{
-    const QByteArray source =
-            "struct S { int m; };\n"
-            "typedef S SType;\n"
-            "SType *p;\n"
-            "@\n"
-            "}\n"
-            ;
-    CompletionTestCase test(source, "p.");
-
-    bool replaceAccessOperator = false;
-    const QStringList completions = test.getCompletions(&replaceAccessOperator);
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("S")));
-    QVERIFY(completions.contains(QLatin1String("m")));
-    QVERIFY(replaceAccessOperator);
-}
-
-void CppToolsPlugin::test_completion_typedef_of_pointer_and_decl_of_type_replace_access_operator()
-{
-    const QByteArray source =
-            "struct S { int m; };\n"
-            "typedef S* SPtr;\n"
-            "SPtr p;\n"
-            "@\n"
-            "}\n"
-            ;
-    CompletionTestCase test(source, "p.");
-
-    bool replaceAccessOperator = false;
-    const QStringList completions = test.getCompletions(&replaceAccessOperator);
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("S")));
-    QVERIFY(completions.contains(QLatin1String("m")));
-    QVERIFY(replaceAccessOperator);
-}
-
-void CppToolsPlugin::test_completion_predecl_typedef_of_type_and_decl_of_pointer_replace_access_operator()
-{
-    const QByteArray source =
-            "typedef struct S SType;\n"
-            "struct S { int m; };\n"
-            "SType *p;\n"
-            "@\n"
-            "}\n"
-            ;
-    CompletionTestCase test(source, "p.");
-
-    bool replaceAccessOperator = false;
-    const QStringList completions = test.getCompletions(&replaceAccessOperator);
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("S")));
-    QVERIFY(completions.contains(QLatin1String("m")));
-    QVERIFY(replaceAccessOperator);
-}
-
-void CppToolsPlugin::test_completion_predecl_typedef_of_type_and_decl_type_no_replace_access_operator()
-{
-    const QByteArray source =
-            "typedef struct S SType;\n"
-            "struct S { int m; };\n"
-            "SType p;\n"
-            "@\n"
-            "}\n"
-            ;
-    CompletionTestCase test(source, "p.");
-
-    bool replaceAccessOperator = false;
-    const QStringList completions = test.getCompletions(&replaceAccessOperator);
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("S")));
-    QVERIFY(completions.contains(QLatin1String("m")));
-    QVERIFY(!replaceAccessOperator);
-}
-
-void CppToolsPlugin::test_completion_predecl_typedef_of_pointer_and_decl_of_pointer_no_replace_access_operator()
-{
-    const QByteArray source =
-            "typedef struct S *SType;\n"
-            "struct S { int m; };\n"
-            "SType *p;\n"
-            "@\n"
-            "}\n"
-            ;
-    CompletionTestCase test(source, "p.");
-
-    bool replaceAccessOperator = false;
-    const QStringList completions = test.getCompletions(&replaceAccessOperator);
-    QCOMPARE(completions.size(), 0);
-    QVERIFY(!replaceAccessOperator);
-}
-
-void CppToolsPlugin::test_completion_predecl_typedef_of_pointer_and_decl_of_type_replace_access_operator()
-{
-    const QByteArray source =
-            "typedef struct S *SType;\n"
-            "struct S { int m; };\n"
-            "SType p;\n"
-            "@\n"
-            "}\n"
-            ;
-    CompletionTestCase test(source, "p.");
-
-    bool replaceAccessOperator = false;
-    const QStringList completions = test.getCompletions(&replaceAccessOperator);
-    QCOMPARE(completions.size(), 2);
-    QVERIFY(completions.contains(QLatin1String("S")));
-    QVERIFY(completions.contains(QLatin1String("m")));
-    QVERIFY(replaceAccessOperator);
 }
 
 void CppToolsPlugin::test_completion_typedef_of_pointer()
@@ -2083,54 +1965,6 @@ void CppToolsPlugin::test_completion_recursive_typedefs_in_templates2()
 
     const QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 0);
-}
-
-void CppToolsPlugin::test_completion_prefix_first_QTCREATORBUG_8737()
-{
-    const QByteArray source =
-            "void f()\n"
-            "{\n"
-            "    int a_b_c, a_c, a_c_a;\n"
-            "    @;\n"
-            "}\n"
-            ;
-    CompletionTestCase test(source, "a_c");
-
-    QStringList completions = test.getCompletions();
-
-    QVERIFY(completions.size() >= 2);
-    QCOMPARE(completions.at(0), QLatin1String("a_c"));
-    QCOMPARE(completions.at(1), QLatin1String("a_c_a"));
-    QVERIFY(completions.contains(QLatin1String("a_b_c")));
-}
-
-void CppToolsPlugin::test_completion_prefix_first_QTCREATORBUG_9236()
-{
-    const QByteArray source =
-            "class r_etclass\n"
-            "{\n"
-            "public:\n"
-            "    int raEmTmber;\n"
-            "    void r_e_t(int re_t)\n"
-            "    {\n"
-            "        int r_et;\n"
-            "        int rETUCASE;\n"
-            "        @\n"
-            "    }\n"
-            "};\n"
-            ;
-    CompletionTestCase test(source, "ret");
-
-    QStringList completions = test.getCompletions();
-
-    QVERIFY(completions.size() >= 2);
-    QCOMPARE(completions.at(0), QLatin1String("return"));
-    QCOMPARE(completions.at(1), QLatin1String("rETUCASE"));
-    QVERIFY(completions.contains(QLatin1String("r_etclass")));
-    QVERIFY(completions.contains(QLatin1String("raEmTmber")));
-    QVERIFY(completions.contains(QLatin1String("r_e_t")));
-    QVERIFY(completions.contains(QLatin1String("re_t")));
-    QVERIFY(completions.contains(QLatin1String("r_et")));
 }
 
 void CppToolsPlugin::test_completion_class_declaration_inside_function_or_block_QTCREATORBUG3620()
@@ -2803,4 +2637,170 @@ void CppToolsPlugin::test_completion_member_of_class_accessed_by_using_QTCREATOR
     QStringList completions = test.getCompletions();
     QCOMPARE(completions.size(), 1);
     QVERIFY(completions.contains(QLatin1String("member")));
+}
+
+void CppToolsPlugin::test_completion_member_access_operator_1()
+{
+    const QByteArray source =
+            "struct S { void t(); };\n"
+            "void f() { S *s;\n"
+            "@\n"
+            "}\n"
+            ;
+    CompletionTestCase test(source, "s.");
+
+    bool replaceAccessOperator = false;
+    const QStringList completions = test.getCompletions(&replaceAccessOperator);
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("S")));
+    QVERIFY(completions.contains(QLatin1String("t")));
+    QVERIFY(replaceAccessOperator);
+}
+
+void CppToolsPlugin::test_completion_typedef_of_type_and_decl_of_type_no_replace_access_operator()
+{
+    const QByteArray source =
+            "struct S { int m; };\n"
+            "typedef S SType;\n"
+            "SType p;\n"
+            "@\n"
+            "}\n"
+            ;
+    CompletionTestCase test(source, "p.");
+
+    bool replaceAccessOperator = false;
+    const QStringList completions = test.getCompletions(&replaceAccessOperator);
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("S")));
+    QVERIFY(completions.contains(QLatin1String("m")));
+    QVERIFY(!replaceAccessOperator);
+}
+
+void CppToolsPlugin::test_completion_typedef_of_pointer_and_decl_of_pointer_no_replace_access_operator()
+{
+    const QByteArray source =
+            "struct S { int m; };\n"
+            "typedef S *SType;\n"
+            "SType *p;\n"
+            "@\n"
+            "}\n"
+            ;
+    CompletionTestCase test(source, "p.");
+
+    bool replaceAccessOperator = false;
+    const QStringList completions = test.getCompletions(&replaceAccessOperator);
+    QCOMPARE(completions.size(), 0);
+    QVERIFY(!replaceAccessOperator);
+}
+
+void CppToolsPlugin::test_completion_typedef_of_type_and_decl_of_pointer_replace_access_operator()
+{
+    const QByteArray source =
+            "struct S { int m; };\n"
+            "typedef S SType;\n"
+            "SType *p;\n"
+            "@\n"
+            "}\n"
+            ;
+    CompletionTestCase test(source, "p.");
+
+    bool replaceAccessOperator = false;
+    const QStringList completions = test.getCompletions(&replaceAccessOperator);
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("S")));
+    QVERIFY(completions.contains(QLatin1String("m")));
+    QVERIFY(replaceAccessOperator);
+}
+
+void CppToolsPlugin::test_completion_typedef_of_pointer_and_decl_of_type_replace_access_operator()
+{
+    const QByteArray source =
+            "struct S { int m; };\n"
+            "typedef S* SPtr;\n"
+            "SPtr p;\n"
+            "@\n"
+            "}\n"
+            ;
+    CompletionTestCase test(source, "p.");
+
+    bool replaceAccessOperator = false;
+    const QStringList completions = test.getCompletions(&replaceAccessOperator);
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("S")));
+    QVERIFY(completions.contains(QLatin1String("m")));
+    QVERIFY(replaceAccessOperator);
+}
+
+void CppToolsPlugin::test_completion_predecl_typedef_of_type_and_decl_of_pointer_replace_access_operator()
+{
+    const QByteArray source =
+            "typedef struct S SType;\n"
+            "struct S { int m; };\n"
+            "SType *p;\n"
+            "@\n"
+            "}\n"
+            ;
+    CompletionTestCase test(source, "p.");
+
+    bool replaceAccessOperator = false;
+    const QStringList completions = test.getCompletions(&replaceAccessOperator);
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("S")));
+    QVERIFY(completions.contains(QLatin1String("m")));
+    QVERIFY(replaceAccessOperator);
+}
+
+void CppToolsPlugin::test_completion_predecl_typedef_of_type_and_decl_type_no_replace_access_operator()
+{
+    const QByteArray source =
+            "typedef struct S SType;\n"
+            "struct S { int m; };\n"
+            "SType p;\n"
+            "@\n"
+            "}\n"
+            ;
+    CompletionTestCase test(source, "p.");
+
+    bool replaceAccessOperator = false;
+    const QStringList completions = test.getCompletions(&replaceAccessOperator);
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("S")));
+    QVERIFY(completions.contains(QLatin1String("m")));
+    QVERIFY(!replaceAccessOperator);
+}
+
+void CppToolsPlugin::test_completion_predecl_typedef_of_pointer_and_decl_of_pointer_no_replace_access_operator()
+{
+    const QByteArray source =
+            "typedef struct S *SType;\n"
+            "struct S { int m; };\n"
+            "SType *p;\n"
+            "@\n"
+            "}\n"
+            ;
+    CompletionTestCase test(source, "p.");
+
+    bool replaceAccessOperator = false;
+    const QStringList completions = test.getCompletions(&replaceAccessOperator);
+    QCOMPARE(completions.size(), 0);
+    QVERIFY(!replaceAccessOperator);
+}
+
+void CppToolsPlugin::test_completion_predecl_typedef_of_pointer_and_decl_of_type_replace_access_operator()
+{
+    const QByteArray source =
+            "typedef struct S *SType;\n"
+            "struct S { int m; };\n"
+            "SType p;\n"
+            "@\n"
+            "}\n"
+            ;
+    CompletionTestCase test(source, "p.");
+
+    bool replaceAccessOperator = false;
+    const QStringList completions = test.getCompletions(&replaceAccessOperator);
+    QCOMPARE(completions.size(), 2);
+    QVERIFY(completions.contains(QLatin1String("S")));
+    QVERIFY(completions.contains(QLatin1String("m")));
+    QVERIFY(replaceAccessOperator);
 }
